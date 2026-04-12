@@ -26,7 +26,7 @@ Movement is one-directional: MarketMasters builds trust, Benson Crew delivers ex
 
 ## Leadership Focus
 
-Leadership time is spent on recruiting leverage, capital, brand leverage, and decisions. Not execution. If Steve is doing execution work by default, the system is failing.
+Leadership time is spent on recruiting leverage, capital, brand leverage, and decisions. Not execution. If ownership is doing execution work by default, the system is failing.
 
 ## Governance
 
