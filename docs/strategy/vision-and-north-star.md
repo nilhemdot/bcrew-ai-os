@@ -1,32 +1,47 @@
 # Vision and North Star
 
-## Phase 1: Build the Team (2026-2031)
+## Why This Doc Exists
 
-Reach $2B in annual Benson Crew team sales volume.
+The canonical North Star lives in `docs/business-strategy.md`. This supporting doc exists to explain the milestone path behind that North Star and tie it back to the live BHAG builder.
 
-| Year | Target Volume |
-|------|--------------|
-| 2026 | $300M |
-| 2027 | $450M |
-| 2028 | $675M |
-| 2029 | $1.0B |
-| 2030 | $1.5B |
+## North Star
+
+Build Benson Crew into a $2B real estate team and grow the combined ownership-group downline at Real Broker to 10,000 agents.
+
+## Primary Build: Benson Crew
+
+Benson Crew is the primary build. The team is the proof: production, coaching, culture, and systems. As the team becomes stronger and more visible, it becomes easier to attract the right agents into the ownership-group downline at Real Broker.
+
+This is team sales volume, not brokerage volume. If the team sells a $1M home, that counts as $1M toward the team goal.
+
+## Live Milestone Path
+
+The yearly path to $2B lives in the Freedom KPI Sheet BHAG builder (`SRC-FREEDOM-BHAG-001`), not in this document. The table below is the current snapshot from that builder as of April 2026:
+
+| Year | Team Sales-Volume Target |
+|------|--------------------------|
+| 2026 | $310M |
+| 2027 | $465M |
+| 2028 | $697.5M |
+| 2029 | $1.04625B |
+| 2030 | $1.569375B |
 | 2031 | $2.0B |
 
-This is team production volume, not brokerage volume. If the team sells a $1M home, that counts as $1M.
+If the BHAG builder changes, this milestone path should be updated to match. This document should never drift from the builder.
 
-Phase 1 is leadership's primary execution focus.
+## Parallel Downline Growth
 
-## Phase 2: Build the Community (2032-2034)
+The downline does not wait until the team is finished. It grows in parallel as Benson Crew becomes more visible and more credible.
 
-Attract and retain 10,000 agents in the broader downline community at Real Broker using the proven Benson Crew platform as proof.
+The two goals do not carry equal strategic weight. Leadership is primarily building the team. The downline compounds from that proof.
 
-These are not Benson Crew team members. They are Real Broker agents across North America who joined Real because Benson Crew proved the model works.
+## Real Broker's Role
 
-## The Connection
+Real Broker is the platform that makes the downline possible. It is the brokerage and compliance layer, and it pays revenue share to the ownership group for agents in the combined downline.
 
-Phase 1 makes Phase 2 inevitable. A team with best-in-class production, culture, and systems becomes the recruiting magnet for Real's broader network. Build the team first. The community follows.
+## Source of Truth
 
-## Strategic Principle
-
-Attract through production.
+- Canonical North Star: `docs/business-strategy.md`
+- Live milestone model: `SRC-FREEDOM-BHAG-001`
+- Community/downline tracking: `SRC-FREEDOM-COMMUNITY-001`
+- Community revenue math: `SRC-FREEDOM-COMMUNITY-REV-001`

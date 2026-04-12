@@ -44,7 +44,7 @@ See `docs/strategy/quarterly-priorities.md`.
 
 ## Supporting Detail
 
-- [Vision and Milestones](strategy/vision-and-north-star.md) -- Phase 1 and Phase 2 targets, $300M to $2B trajectory
+- [Vision and Milestones](strategy/vision-and-north-star.md) -- North Star sequencing and live milestone path from the BHAG builder
 - [Agent Engine](strategy/agent-engine.md) -- Pillar definitions, metric examples, source rules
 - [BHAG Model](strategy/bhag-model.md) -- 10-year targets, agent capacity math
 - [Financial Model](strategy/financial-model-and-assumptions.md) -- GCI assumptions, split model, pace requirements
