@@ -56,8 +56,8 @@ function buildDocHref(href, currentPath) {
 
 var sectionSupportDocs = {
   'North Star': {
-    label: 'Open vision and north star doc',
-    path: 'docs/strategy/vision-and-north-star.md',
+    label: 'Open BHAG model',
+    path: 'docs/strategy/bhag-model.md',
   },
   'The Engine': {
     label: 'Open agent engine doc',

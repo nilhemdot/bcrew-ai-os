@@ -13,7 +13,6 @@ const docsDir = path.join(__dirname, 'docs')
 const businessStrategyPath = path.join(docsDir, 'business-strategy.md')
 const sourceRegistryPath = path.join(docsDir, 'source-registry.md')
 const strategyDocs = [
-  path.join(docsDir, 'strategy', 'vision-and-north-star.md'),
   path.join(docsDir, 'strategy', 'bhag-model.md'),
   path.join(docsDir, 'strategy', 'agent-engine.md'),
   path.join(docsDir, 'strategy', 'financial-model-and-assumptions.md'),
