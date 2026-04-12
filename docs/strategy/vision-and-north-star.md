@@ -16,18 +16,12 @@ This is team sales volume, not brokerage volume. If the team sells a $1M home, t
 
 ## Live Milestone Path
 
-The yearly path to $2B lives in the Freedom KPI Sheet BHAG builder (`SRC-FREEDOM-BHAG-001`), not in this document. The table below is the current snapshot from that builder as of April 2026:
+The yearly path to $2B lives in the Freedom KPI Sheet BHAG builder (`SRC-FREEDOM-BHAG-001`), not in this document.
 
-| Year | Team Sales-Volume Target |
-|------|--------------------------|
-| 2026 | $310M |
-| 2027 | $465M |
-| 2028 | $697.5M |
-| 2029 | $1.04625B |
-| 2030 | $1.569375B |
-| 2031 | $2.0B |
-
-If the BHAG builder changes, this milestone path should be updated to match. This document should never drift from the builder.
+- Read current yearly targets from `SRC-FREEDOM-BHAG-001`.
+- Treat the builder as the live source of truth for milestone math.
+- This document explains the path and the source. It should not become a second calculator.
+- The system should eventually render these milestone values live from the source contract instead of relying on markdown snapshots.
 
 ## Parallel Downline Growth
 

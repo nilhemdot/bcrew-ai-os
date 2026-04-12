@@ -59,12 +59,13 @@ See `docs/strategy/quarterly-priorities.md`.
 ## Rules
 
 1. This document is the source of truth for business direction.
-2. Live KPI values belong in source systems, not here.
+2. Live KPI values and milestone math belong in source systems, not in markdown docs.
 3. Decisions that change strategy are logged as explicit records.
 4. Strategy docs are updated through tracked proposals and approvals, not silent edits.
 5. Supporting docs expand this document but never contradict it.
 6. The system must preserve the distinction between Benson Crew as the team and Real Broker as the brokerage/platform.
+7. The system should render live values from source IDs so a source update flows across the system without manual doc cleanup.
 
 ## What the System Does
 
-The system reads reality from source systems, compares it to this strategy, detects drift, routes intelligence to the right people, logs decisions, and keeps the strategy layer current. It does not set strategy. It maintains and operationalizes leadership strategy.
+The system reads reality from source systems, renders source-backed values where live math is needed, compares that reality to this strategy, detects drift, routes intelligence to the right people, logs decisions, and keeps the strategy layer current. It does not set strategy. It maintains and operationalizes leadership strategy.
