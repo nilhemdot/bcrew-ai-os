@@ -1,40 +1,38 @@
 # MarketMasters
 
-MarketMasters is the outreach and trust platform used to reach agents beyond the Benson Crew team directly.
+## What It Is
 
-It is part of the attraction system, not the core business itself.
+An education and trust platform that reaches agents outside Benson Crew. Trainings, events, seminars, and community content that builds credibility without recruiting pressure.
 
-## Strategic Role
+## What It Does
 
-MarketMasters exists to:
+- Hosts trainings and events for agents not yet on the team
+- Builds trust through education, not sales pitches
+- Creates reach beyond Benson Crew's immediate operating boundary
+- Allows downline and referrals to invite without recruiting language
+- Warms agents before commitment
 
-- host trainings, events, and seminars
-- build trust with agents outside the team
-- create educational reach beyond Benson Crew’s immediate operating boundary
-- support community formation around the broader model
+## What It Is NOT
 
-## Relationship to Benson Crew
+- Not a recruiting tool. No joining language, no offers, no incentives.
+- Not a place for internal wins or performance bragging.
+- Not Benson Crew content under a different name.
 
-Benson Crew is the team and proof engine.
+## The Decision Test
 
-MarketMasters is the outreach and trust layer that helps more agents discover, understand, and engage with what the broader Benson Crew model represents.
+"Is this about building trust, or delivering execution?"
 
-## Relationship to Real
+Trust = MarketMasters. Execution = Benson Crew. If it blurs, kill it.
 
-MarketMasters events and educational surfaces may be sponsored or supported by Benson Crew and Real.
+## How It Connects to the Broader Strategy
 
-That matters because the long-term community strategy depends on agents seeing:
+MarketMasters generated trust leads to two outcomes:
 
-- educational value
-- visible proof
-- a credible ecosystem
+1. Some agents join Benson Crew directly (team growth)
+2. Many others join Real Broker through the BCrew downline (community growth)
 
-For clarity, the agents attracted through this system may join Benson Crew directly or join Real Broker through the broader BCrew downline/community.
+Both outcomes serve the Agent Engine. MarketMasters is part of the ATTRACT pillar.
 
-## Strategic Rule
+## Tone
 
-MarketMasters helps generate trust and reach.
-
-Benson Crew provides the execution proof.
-
-The system should not confuse those roles.
+Neutral. Educational. Non-salesy. Opt-in. The opposite of high-pressure recruiting.

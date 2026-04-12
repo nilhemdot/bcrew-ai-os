@@ -1,40 +1,35 @@
 # Financial Model and Assumptions
 
-This document explains the business assumptions and operating math that support the strategy.
+The strategy defines the destination. This document defines the math that validates whether the business can get there.
 
-## Purpose
+## Active Assumptions
 
-The strategy defines the destination.
+| Assumption | Current Value | Source |
+|-----------|--------------|--------|
+| Target GCI per active agent | $13K/month | Freedom KPI Sheet |
+| Company split | 50% | Freedom KPI Sheet |
+| Required monthly recruiting pace | 3.6 agents/month | Calculated from gap to target |
+| Committed recruiting pace | 4/month (Steve 2, Scott 2) | Business strategy |
+| Definition of "active agent" | Agent who produces, not just on roster | Reset September 2025 |
 
-This document defines the assumptions used to model whether the business can reach that destination.
+## How the Model Works
 
-## Core Assumptions
+Agent count x GCI per agent x company split = revenue.
 
-- target GCI per active agent
-- company split / net-to-company assumption
-- definition of an active, capacity-producing agent
-- recruitment pace required to stay on plan
-- annual capacity targets
+Scale the agent count while protecting per-agent productivity. If GCI drops as you add agents, the model breaks. If recruiting pace falls below required, the timeline slips.
 
-## Current Rule
+## Where the Numbers Live
 
-The live calculator and source sheets remain the active source of truth for:
+- **Freedom KPI Sheet** (Agent Engine tab): live scoreboard with current values
+- **Freedom KPI Sheet** (BHAG Builder tab): 10-year projections with required agent counts
+- **Owners Dashboard**: deal-level data, source of truth for production
 
-- current numbers
-- projections
-- scenario changes
-
-This document defines the assumptions that matter and the logic around them.
+Sheet ID: `1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw`
 
 ## Update Rule
 
-If the calculator changes an assumption, that assumption should be reflected here and logged as a tracked strategic change.
+If any assumption changes in the sheet, it should be reflected here and logged as a tracked strategic decision. Silent assumption changes are not acceptable.
 
-## Future State
+## Key Risk
 
-Over time, these assumptions should move from spreadsheets into structured system records so they can be:
-
-- versioned
-- compared over time
-- rendered in the dashboard
-- used by strategic intelligence
+The $13K/month assumption was validated against the Freedom Sheet Agent Engine tab. The actual average as of early 2026 is closer to $9,451/month. That gap must be understood: $13K is the target for capacity-producing agents, not the roster average.
