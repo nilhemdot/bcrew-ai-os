@@ -23,11 +23,12 @@ Financial output is the result of the engine working.
 
 ## Two Brands
 
-**Benson Crew** is the destination. Execution, standards, coaching, accountability, outcomes. Confident, direct, performance-driven.
+Benson Crew and MarketMasters do different jobs.
 
-**MarketMasters** is the trust layer. Education, credibility, invitation. Neutral, non-salesy, opt-in.
+- **Benson Crew** is the team. It stands for execution, coaching, standards, accountability, and results.
+- **MarketMasters** is the spotlight. It puts Benson Crew on stage through education, events, training, and visibility that reach agents beyond the team.
 
-Movement is one-directional: MarketMasters builds trust, Benson Crew delivers execution. They never blur.
+MarketMasters creates attention and trust. Benson Crew proves the model. They work together, but they are not the same brand and should never blur.
 
 ## Leadership Focus
 
