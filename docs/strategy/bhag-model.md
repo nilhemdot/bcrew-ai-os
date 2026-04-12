@@ -14,7 +14,7 @@ It is a team goal, not a brokerage goal.
 
 The 10,000-agent goal is not 10,000 agents on the Benson Crew team.
 
-It is the long-term goal for the broader Real community/downline.
+It is the long-term goal for the broader Real Broker downline/community.
 
 ## 3. Why the Community Forms
 
@@ -22,8 +22,8 @@ The strategic belief is:
 
 - Benson Crew becomes visibly exceptional
 - people see the team’s production, systems, and outcomes
-- they associate part of that success with the broader Real model
-- they choose to join Real through the BCrew network
+- they associate part of that success with the broader Real Broker model
+- they choose to join Real Broker through the BCrew network
 
 The team is the lighthouse.
 The community forms around the lighthouse.
@@ -34,7 +34,9 @@ Real Broker is the brokerage/platform.
 
 Benson Crew is a real estate team operating with Real Broker.
 
-Real’s public-company and revenue-share context matters because it is part of the attractiveness of the broader model.
+Real Broker handles brokerage infrastructure and compliance, including trust accounts, transaction oversight, audits, and regulatory obligations. Agents may operate directly with Real Broker or within teams led by team leaders inside the brokerage.
+
+Real's public-company and revenue-share context matters because it is part of the attractiveness of the broader model.
 
 Core context:
 
@@ -47,7 +49,7 @@ Core context:
 There are two linked but separate engines:
 
 - Team growth engine: Benson Crew grows team production to $2B
-- Community growth engine: that proof attracts agents into the broader Real network
+- Community growth engine: that proof attracts agents into the broader Real Broker network
 
 If the system confuses those two goals, it is wrong.
 

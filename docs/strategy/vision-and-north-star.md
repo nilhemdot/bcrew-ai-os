@@ -2,14 +2,14 @@
 
 ## Vision
 
-Build a $2B real estate team that becomes the lighthouse for a 10,000-agent Real community.
+Build a $2B real estate team inside Real Broker that becomes the lighthouse for a 10,000-agent downline community at Real Broker.
 
 This vision runs through one Agent Engine focused on attracting, growing, and retaining capacity-producing agents.
 
 ## What the Vision Means
 
 - Benson Crew the team reaches $2B in annual sales volume
-- the broader Real community/downline grows to 10,000 agents because the team becomes visible proof
+- the broader Real Broker downline/community grows to 10,000 agents because the team becomes visible proof
 
 These are linked goals, but they should never be confused with each other.
 
@@ -17,7 +17,7 @@ These are linked goals, but they should never be confused with each other.
 
 - Build the team first
 - Make the team undeniable
-- Use that proof to attract agents into the broader Real ecosystem
+- Use that proof to attract agents into the broader Real Broker ecosystem
 
 ## Strategic Principle
 
@@ -40,4 +40,4 @@ Phase 1 is leadership's primary execution focus.
 
 ## Phase 2: Build the Community
 
-Attract and retain 10,000 agents by 2034 through the broader Real community using the proven Benson Crew platform as proof.
+Attract and retain 10,000 agents by 2034 through the broader Real Broker downline/community using the proven Benson Crew platform as proof.

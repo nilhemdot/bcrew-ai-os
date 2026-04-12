@@ -25,12 +25,12 @@ Supporting detail lives in:
 
 ## 1. North Star
 
-Benson Crew is building a $2B real estate team that becomes the lighthouse for a 10,000-agent Real community.
+Benson Crew is building a $2B real estate team inside Real Broker that becomes the lighthouse for a 10,000-agent downline community at Real Broker.
 
 That means:
 
 - Benson Crew the team reaches $2B in annual sales volume
-- the broader Real community/downline grows to 10,000 agents because the team becomes visible proof
+- the broader Real Broker downline/community grows to 10,000 agents because the team becomes visible proof
 
 These goals are linked, but they are not the same goal.
 
@@ -38,7 +38,7 @@ The sequence is fixed:
 
 - build the team first
 - make the team undeniable
-- use that proof to attract agents into the broader Real ecosystem
+- use that proof to attract agents into the broader Real Broker ecosystem
 
 Strategic principle: attract through production.
 
@@ -56,9 +56,9 @@ The business wins when leadership decisions, department execution, and business 
 
 Benson Crew is the proof engine.
 
-The broader Real community/downline is the scale engine.
+The broader Real Broker downline/community is the scale engine.
 
-If the team becomes exceptional in production, culture, systems, and outcomes, people should look at Benson Crew and conclude that the model works. Some will join the team. Many others will join Real through the broader BCrew network because they want to be part of what the team proved.
+If the team becomes exceptional in production, culture, systems, and outcomes, people should look at Benson Crew and conclude that the model works. Some will join the team directly. Many others will join Real Broker through the broader BCrew downline because they want to be part of what the team proved.
 
 That creates the flywheel:
 
@@ -135,6 +135,7 @@ Expanded mandate detail lives in `docs/strategy/department-mandates.md`.
 - Decisions that change strategy must be logged as explicit records
 - Strategic documents should be updated through tracked proposals and approvals, not silent edits
 - Supporting docs may expand the strategy, but may not contradict this file
+- The system must preserve the distinction between Benson Crew as a team and Real Broker as the brokerage/platform
 
 ## 11. What the System Must Do
 

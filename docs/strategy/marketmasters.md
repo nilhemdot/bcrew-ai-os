@@ -29,6 +29,8 @@ That matters because the long-term community strategy depends on agents seeing:
 - visible proof
 - a credible ecosystem
 
+For clarity, the agents attracted through this system may join Benson Crew directly or join Real Broker through the broader BCrew downline/community.
+
 ## Strategic Rule
 
 MarketMasters helps generate trust and reach.
