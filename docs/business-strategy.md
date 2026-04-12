@@ -2,21 +2,23 @@
 
 ## North Star
 
-Build a $2B real estate team that becomes the proof engine for a 10,000-agent downline community at Real Broker.
+Build Benson Crew into a $2B real estate team and grow the combined Benson Crew leadership downline at Real Broker to 10,000 agents.
 
-Benson Crew is a real estate team inside Real Broker. Real Broker is the brokerage and compliance platform that handles trust accounts, transaction oversight, audits, and regulatory requirements. The 10,000-agent goal refers to the broader downline/community at Real Broker, not 10,000 agents on the Benson Crew team.
+Benson Crew is the team. Real Broker is the brokerage and compliance platform that handles trust accounts, transaction oversight, audits, and regulatory requirements. The $2B goal is the Benson Crew team's production goal. The 10,000-agent goal is the combined Benson Crew leadership downline at Real Broker, not team headcount.
 
-The team comes first. When the team is undeniable in production, culture, and systems, agents outside Benson Crew will join Real Broker through the Benson Crew downline because they can see the model works. Stronger performance creates stronger proof. Stronger proof creates more attraction. The flywheel compounds.
+Leadership's primary execution focus is building the team. At the same time, visible proof from Benson Crew's production, culture, systems, and standards attracts agents into the broader Real Broker ecosystem through the Benson Crew leadership downline.
+
+The team and the downline grow in parallel, but they do not carry equal strategic weight. The team is the primary build. The downline is the compounding result of that proof.
 
 ## The Engine
 
-The company runs on one scoreboard with three pillars:
+Benson Crew runs on one engine with three pillars: Attract, Grow, and Retain.
 
-- **ATTRACT** -- recruiting and marketing leverage. Add capacity-producing agents at the required pace.
-- **GROW** -- agent productivity, ramp speed, coaching. Protect the $13K/agent production assumption.
-- **RETAIN** -- active agent count, regrettable attrition, career durability. Keep strong agents and intervene early.
+- **ATTRACT** adds new capacity-producing agents to the business at the pace required to hit the plan.
+- **GROW** increases the production, ramp speed, and effectiveness of the agents already inside the system.
+- **RETAIN** keeps strong agents active, engaged, and progressing so capacity compounds instead of leaking out.
 
-Financial output is the result of those three pillars working together. If a metric does not support Attract, Grow, or Retain, it is not a leadership metric.
+Financial output is not a fourth pillar. It is the result of the first three working together. If a metric does not help leadership understand Attract, Grow, or Retain, it is not a leadership metric.
 
 ## Two Brands
 
