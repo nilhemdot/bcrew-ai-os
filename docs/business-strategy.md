@@ -34,9 +34,9 @@ They work together, but they are not the same brand and should never blur.
 
 ## Governance
 
-The business runs on a fixed cadence: weekly execution, monthly strategic review, department 1:1s, and quarterly planning.
+The business runs on a fixed cadence: weekly execution, monthly strategic review, department reviews, and quarterly planning.
 
-Leadership meetings exist to surface reality, focus on the real constraint, make decisions, assign ownership, and protect focus. They do not exist for status updates, tactical debate, or habitual rescue.
+Leadership meetings exist to surface reality, identify the real constraint, make decisions, assign ownership, and protect focus. They are not for status updates, tactical debate, or redesigning execution in the room.
 
 ## Current Quarter
 
