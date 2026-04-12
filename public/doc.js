@@ -145,7 +145,70 @@ function renderTable(rows, currentPath) {
   return table
 }
 
-function renderMarkdownBlock(markdown, currentPath) {
+function renderInlineSourceCard(groupTitle, rows) {
+  var card = document.createElement('section')
+  card.className = 'doc-source-card doc-source-card-inline'
+
+  var asOfValues = rows
+    .map(function(row) { return formatAsOfDate(row.asOf) })
+    .filter(Boolean)
+  var uniqueAsOfValues = Array.from(new Set(asOfValues))
+
+  var cardTop = document.createElement('div')
+  cardTop.className = 'doc-source-card-top'
+
+  var titleWrap = document.createElement('div')
+  var title = document.createElement('h5')
+  title.textContent = groupTitle
+  titleWrap.appendChild(title)
+
+  var sourceId = document.createElement('div')
+  sourceId.className = 'doc-source-id'
+  sourceId.textContent = rows[0].sourceId
+  titleWrap.appendChild(sourceId)
+  cardTop.appendChild(titleWrap)
+
+  if (uniqueAsOfValues.length) {
+    var asOf = document.createElement('div')
+    asOf.className = 'doc-source-asof'
+    asOf.textContent = 'As of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
+    cardTop.appendChild(asOf)
+  }
+
+  card.appendChild(cardTop)
+
+  var table = document.createElement('table')
+  table.className = 'doc-source-table'
+
+  var tbody = document.createElement('tbody')
+  rows.forEach(function(row) {
+    var tr = document.createElement('tr')
+
+    var label = document.createElement('th')
+    label.textContent = row.label
+    tr.appendChild(label)
+
+    var value = document.createElement('td')
+    value.textContent = row.value
+    tr.appendChild(value)
+
+    tbody.appendChild(tr)
+  })
+
+  table.appendChild(tbody)
+  card.appendChild(table)
+
+  if (rows[0].detail) {
+    var detail = document.createElement('p')
+    detail.className = 'doc-source-detail'
+    detail.textContent = rows[0].detail
+    card.appendChild(detail)
+  }
+
+  return card
+}
+
+function renderMarkdownBlock(markdown, currentPath, sourceGroups) {
   var container = document.createElement('div')
   container.className = 'markdown-block'
   var lines = markdown.split('\n')
@@ -183,6 +246,9 @@ function renderMarkdownBlock(markdown, currentPath) {
       h2.id = slugify(h2Text)
       appendFormattedText(h2Text, h2, currentPath)
       container.appendChild(h2)
+      if (sourceGroups && sourceGroups[h2Text]) {
+        container.appendChild(renderInlineSourceCard(h2Text, sourceGroups[h2Text]))
+      }
       i++
       continue
     }
@@ -257,76 +323,6 @@ function groupSourceSnapshot(rows) {
   return groups
 }
 
-function renderSourceSnapshot(rows) {
-  if (!rows || !rows.length) return
-
-  var panel = document.getElementById('doc-source-panel')
-  var copy = document.getElementById('doc-source-copy')
-  var groupsEl = document.getElementById('doc-source-groups')
-  var groups = groupSourceSnapshot(rows)
-  var asOfValues = rows
-    .map(function(row) { return formatAsOfDate(row.asOf) })
-    .filter(Boolean)
-  var uniqueAsOfValues = Array.from(new Set(asOfValues))
-
-  copy.textContent = uniqueAsOfValues.length
-    ? 'Current snapshot as of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
-    : 'Source-backed snapshot'
-
-  Object.keys(groups).forEach(function(groupTitle) {
-    var groupRows = groups[groupTitle]
-    var card = document.createElement('section')
-    card.className = 'doc-source-card'
-
-    var cardTop = document.createElement('div')
-    cardTop.className = 'doc-source-card-top'
-
-    var titleWrap = document.createElement('div')
-    var title = document.createElement('h5')
-    title.textContent = groupTitle
-    titleWrap.appendChild(title)
-
-    var sourceId = document.createElement('div')
-    sourceId.className = 'doc-source-id'
-    sourceId.textContent = groupRows[0].sourceId
-    titleWrap.appendChild(sourceId)
-    cardTop.appendChild(titleWrap)
-    card.appendChild(cardTop)
-
-    var table = document.createElement('table')
-    table.className = 'doc-source-table'
-
-    var tbody = document.createElement('tbody')
-    groupRows.forEach(function(row) {
-      var tr = document.createElement('tr')
-
-      var label = document.createElement('th')
-      label.textContent = row.label
-      tr.appendChild(label)
-
-      var value = document.createElement('td')
-      value.textContent = row.value
-      tr.appendChild(value)
-
-      tbody.appendChild(tr)
-    })
-
-    table.appendChild(tbody)
-    card.appendChild(table)
-
-    if (groupRows[0].detail) {
-      var detail = document.createElement('p')
-      detail.className = 'doc-source-detail'
-      detail.textContent = groupRows[0].detail
-      card.appendChild(detail)
-    }
-
-    groupsEl.appendChild(card)
-  })
-
-  panel.hidden = false
-}
-
 async function init() {
   var pathValue = getQueryParam('path')
   var anchor = getQueryParam('anchor')
@@ -344,10 +340,12 @@ async function init() {
   document.getElementById('doc-meta').textContent =
     data.meta.lines + ' lines · updated ' + formatDate(data.meta.updatedAt)
 
-  renderSourceSnapshot(data.sourceSnapshot)
-
   var content = document.getElementById('doc-content')
-  content.appendChild(renderMarkdownBlock(data.content, data.meta.path))
+  content.appendChild(renderMarkdownBlock(
+    data.content,
+    data.meta.path,
+    groupSourceSnapshot(data.sourceSnapshot || [])
+  ))
 
   if (anchor) {
     setTimeout(function() {
