@@ -19,6 +19,7 @@ const strategyDocs = [
   path.join(docsDir, 'strategy', 'financial-model-and-assumptions.md'),
   path.join(docsDir, 'strategy', 'quarterly-priorities.md'),
   path.join(docsDir, 'strategy', 'strategic-issues.md'),
+  path.join(docsDir, 'strategy', 'governance.md'),
   path.join(docsDir, 'strategy', 'department-mandates.md'),
   path.join(docsDir, 'strategy', 'core-values.md'),
   path.join(docsDir, 'strategy', 'marketmasters.md'),

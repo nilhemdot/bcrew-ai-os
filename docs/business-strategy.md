@@ -32,13 +32,11 @@ Benson Crew is the proof. MarketMasters makes that proof visible and helps attra
 
 They work together, but they are not the same brand and should never blur.
 
-## Leadership Focus
-
-Leadership time is spent on recruiting leverage, capital, brand leverage, and decisions. Not execution. If leadership is doing execution work by default, the system is failing.
-
 ## Governance
 
-Execution runs through a fixed cadence: weekly execution meeting, monthly strategic review, department 1:1s, and quarterly reset. Escalation flows through this cadence, not through habitual upward rescue.
+The business runs on a fixed cadence: weekly execution, monthly strategic review, department 1:1s, and quarterly planning.
+
+Leadership meetings exist to surface reality, focus on the real constraint, make decisions, assign ownership, and protect focus. They do not exist for status updates, tactical debate, or habitual rescue.
 
 ## Current Quarter
 
@@ -52,6 +50,7 @@ See `docs/strategy/quarterly-priorities.md`.
 - [Financial Model](strategy/financial-model-and-assumptions.md) -- GCI assumptions, split model, pace requirements
 - [Quarterly Priorities](strategy/quarterly-priorities.md) -- Current quarter focus and winning criteria
 - [Strategic Issues](strategy/strategic-issues.md) -- Structural findings that explain why priorities exist
+- [Governance](strategy/governance.md) -- Leadership cadence, meeting rules, dashboard review cadence
 - [Department Mandates](strategy/department-mandates.md) -- Who owns what, expanded detail
 - [Core Values](strategy/core-values.md) -- Durable cultural standards and decision filters
 - [MarketMasters](strategy/marketmasters.md) -- Trust layer strategy, relationship to Benson Crew
