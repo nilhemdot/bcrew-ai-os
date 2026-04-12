@@ -9,7 +9,75 @@ function renderMeta(meta) {
   return meta.path + ' · ' + meta.lines + ' lines · updated ' + formatDate(meta.updatedAt)
 }
 
-function appendFormattedText(text, parent) {
+function isInternalMarkdownPath(href) {
+  return (
+    typeof href === 'string' &&
+    !/^(https?:|mailto:|tel:|#)/i.test(href) &&
+    /\.md([?#].*)?$/i.test(href)
+  )
+}
+
+function normalizeDocPath(pathValue) {
+  var parts = []
+
+  pathValue.split('/').forEach(function(part) {
+    if (!part || part === '.') return
+    if (part === '..') {
+      parts.pop()
+      return
+    }
+    parts.push(part)
+  })
+
+  return parts.join('/')
+}
+
+function buildDocHref(href, currentPath) {
+  if (!isInternalMarkdownPath(href)) return href
+
+  var cleanHref = href.trim()
+  var anchor = ''
+  var anchorIndex = cleanHref.indexOf('#')
+
+  if (anchorIndex !== -1) {
+    anchor = cleanHref.slice(anchorIndex + 1)
+    cleanHref = cleanHref.slice(0, anchorIndex)
+  }
+
+  var basePath = cleanHref
+  if (!cleanHref.startsWith('docs/')) {
+    var currentDir = (currentPath || 'docs/business-strategy.md').split('/').slice(0, -1).join('/')
+    basePath = normalizeDocPath(currentDir + '/' + cleanHref)
+  }
+
+  var docHref = '/doc?path=' + encodeURIComponent(basePath)
+  return anchor ? docHref + '&anchor=' + encodeURIComponent(anchor) : docHref
+}
+
+var sectionSupportDocs = {
+  'North Star': {
+    label: 'Open BHAG model',
+    path: 'docs/strategy/bhag-model.md',
+  },
+  'The Engine': {
+    label: 'Open agent engine doc',
+    path: 'docs/strategy/agent-engine.md',
+  },
+  'Two Brands': {
+    label: 'Open MarketMasters doc',
+    path: 'docs/strategy/marketmasters.md',
+  },
+  'Governance': {
+    label: 'Open governance doc',
+    path: 'docs/strategy/governance.md',
+  },
+  'Current Quarter': {
+    label: 'Open quarterly priorities doc',
+    path: 'docs/strategy/quarterly-priorities.md',
+  },
+}
+
+function appendFormattedText(text, parent, currentPath) {
   var re = /(\*\*(.+?)\*\*|`(.+?)`|\[(.+?)\]\((.+?)\))/g
   var last = 0
   var m
@@ -28,7 +96,7 @@ function appendFormattedText(text, parent) {
     } else if (m[4] && m[5]) {
       var link = document.createElement('a')
       link.textContent = m[4]
-      link.setAttribute('href', m[5])
+      link.setAttribute('href', buildDocHref(m[5], currentPath))
       link.className = 'md-link'
       parent.appendChild(link)
     }
@@ -79,7 +147,7 @@ function parseTableCells(line) {
   })
 }
 
-function renderTable(rows) {
+function renderTable(rows, currentPath) {
   var table = document.createElement('table')
   table.className = 'md-table'
 
@@ -90,7 +158,7 @@ function renderTable(rows) {
 
   headerCells.forEach(function(cell) {
     var th = document.createElement('th')
-    appendFormattedText(cell, th)
+    appendFormattedText(cell, th, currentPath)
     headerRow.appendChild(th)
   })
 
@@ -103,7 +171,7 @@ function renderTable(rows) {
 
     cells.forEach(function(cell) {
       var td = document.createElement('td')
-      appendFormattedText(cell, td)
+      appendFormattedText(cell, td, currentPath)
       tr.appendChild(td)
     })
 
@@ -114,7 +182,7 @@ function renderTable(rows) {
   return table
 }
 
-function renderMarkdownBlock(markdown) {
+function renderMarkdownBlock(markdown, currentPath) {
   var container = document.createElement('div')
   container.className = 'markdown-block'
   var lines = markdown.split('\n')
@@ -137,7 +205,7 @@ function renderMarkdownBlock(markdown) {
     if (line.startsWith('### ')) {
       var h = document.createElement('h5')
       h.className = 'md-subheading'
-      appendFormattedText(line.slice(4).trim(), h)
+      appendFormattedText(line.slice(4).trim(), h, currentPath)
       container.appendChild(h)
       i++
       continue
@@ -153,7 +221,7 @@ function renderMarkdownBlock(markdown) {
         }
         i++
       }
-      if (tableRows.length >= 2) container.appendChild(renderTable(tableRows))
+      if (tableRows.length >= 2) container.appendChild(renderTable(tableRows, currentPath))
       continue
     }
 
@@ -162,7 +230,7 @@ function renderMarkdownBlock(markdown) {
       ol.className = 'md-ol'
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
         var oli = document.createElement('li')
-        appendFormattedText(lines[i].replace(/^\d+\.\s/, ''), oli)
+        appendFormattedText(lines[i].replace(/^\d+\.\s/, ''), oli, currentPath)
         ol.appendChild(oli)
         i++
       }
@@ -174,7 +242,7 @@ function renderMarkdownBlock(markdown) {
       var ul = document.createElement('ul')
       while (i < lines.length && lines[i].startsWith('- ')) {
         var li = document.createElement('li')
-        appendFormattedText(lines[i].slice(2), li)
+        appendFormattedText(lines[i].slice(2), li, currentPath)
         ul.appendChild(li)
         i++
       }
@@ -183,7 +251,7 @@ function renderMarkdownBlock(markdown) {
     }
 
     var p = document.createElement('p')
-    appendFormattedText(line, p)
+    appendFormattedText(line, p, currentPath)
     container.appendChild(p)
     i++
   }
@@ -191,14 +259,23 @@ function renderMarkdownBlock(markdown) {
   return container
 }
 
-function renderSection(section) {
+function renderSection(section, currentPath) {
   var article = document.createElement('article')
   article.className = 'section-card'
 
   var title = document.createElement('h4')
-  appendFormattedText(section.title, title)
+  appendFormattedText(section.title, title, currentPath)
   article.appendChild(title)
-  article.appendChild(renderMarkdownBlock(section.content))
+  article.appendChild(renderMarkdownBlock(section.content, currentPath))
+
+  var supportDoc = sectionSupportDocs[section.title]
+  if (supportDoc) {
+    var supportLink = document.createElement('a')
+    supportLink.className = 'section-support-link'
+    supportLink.href = buildDocHref(supportDoc.path, currentPath)
+    supportLink.textContent = supportDoc.label
+    article.appendChild(supportLink)
+  }
 
   return article
 }
@@ -208,7 +285,11 @@ function renderDocCard(doc) {
   article.className = 'section-card'
 
   var title = document.createElement('h4')
-  title.textContent = doc.meta.path
+  var titleLink = document.createElement('a')
+  titleLink.className = 'section-link'
+  titleLink.href = buildDocHref(doc.meta.path, doc.meta.path)
+  titleLink.textContent = doc.meta.path
+  title.appendChild(titleLink)
   article.appendChild(title)
 
   var meta = document.createElement('p')
@@ -218,14 +299,22 @@ function renderDocCard(doc) {
     : 'Missing'
   article.appendChild(meta)
 
+  if (doc.meta.exists) {
+    var openLink = document.createElement('a')
+    openLink.className = 'support-open-link'
+    openLink.href = buildDocHref(doc.meta.path, doc.meta.path)
+    openLink.textContent = 'Open full doc'
+    article.appendChild(openLink)
+  }
+
   doc.sections.slice(0, 3).forEach(function(section) {
     var sub = document.createElement('div')
     sub.className = 'support-section'
 
     var subTitle = document.createElement('h5')
-    appendFormattedText(section.title, subTitle)
+    appendFormattedText(section.title, subTitle, doc.meta.path)
     sub.appendChild(subTitle)
-    sub.appendChild(renderMarkdownBlock(section.content))
+    sub.appendChild(renderMarkdownBlock(section.content, doc.meta.path))
     article.appendChild(sub)
   })
 
@@ -466,7 +555,7 @@ async function init() {
 
   var businessSections = document.getElementById('business-sections')
   data.foundation.businessStrategy.sections.forEach(function(section) {
-    businessSections.appendChild(renderSection(section))
+    businessSections.appendChild(renderSection(section, data.foundation.businessStrategy.meta.path))
   })
 
   var supporting = document.getElementById('supporting-strategy')
@@ -482,7 +571,7 @@ async function init() {
   } else {
     registrySections.className = 'section-list'
     data.foundation.sourceRegistry.sections.forEach(function(section) {
-      registrySections.appendChild(renderSection(section))
+      registrySections.appendChild(renderSection(section, data.foundation.sourceRegistry.meta.path))
     })
   }
 

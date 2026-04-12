@@ -2,7 +2,7 @@ import express from 'express'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { closeFoundationDb, getFoundationSnapshot, initFoundationDb } from './lib/foundation-db.js'
+import { closeFoundationDb, getDocSourceSnapshot, getFoundationSnapshot, initFoundationDb } from './lib/foundation-db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -13,18 +13,30 @@ const docsDir = path.join(__dirname, 'docs')
 const businessStrategyPath = path.join(docsDir, 'business-strategy.md')
 const sourceRegistryPath = path.join(docsDir, 'source-registry.md')
 const strategyDocs = [
-  path.join(docsDir, 'strategy', 'vision-and-north-star.md'),
   path.join(docsDir, 'strategy', 'bhag-model.md'),
   path.join(docsDir, 'strategy', 'agent-engine.md'),
   path.join(docsDir, 'strategy', 'financial-model-and-assumptions.md'),
   path.join(docsDir, 'strategy', 'quarterly-priorities.md'),
   path.join(docsDir, 'strategy', 'strategic-issues.md'),
+  path.join(docsDir, 'strategy', 'governance.md'),
   path.join(docsDir, 'strategy', 'department-mandates.md'),
   path.join(docsDir, 'strategy', 'core-values.md'),
   path.join(docsDir, 'strategy', 'marketmasters.md'),
 ]
 
 app.use(express.static(path.join(__dirname, 'public')))
+
+function isAllowedDocPath(filePath) {
+  const normalizedDocsDir = path.resolve(docsDir) + path.sep
+  const normalizedFilePath = path.resolve(filePath)
+  return normalizedFilePath.startsWith(normalizedDocsDir) && normalizedFilePath.endsWith('.md')
+}
+
+function resolveRequestedDoc(requestedPath) {
+  if (typeof requestedPath !== 'string' || !requestedPath.trim()) return null
+  const resolvedPath = path.resolve(__dirname, requestedPath)
+  return isAllowedDocPath(resolvedPath) ? resolvedPath : null
+}
 
 function readFileSafe(filePath) {
   try {
@@ -94,6 +106,16 @@ function getSupportingStrategyDocs() {
   })
 }
 
+function getDocTitle(markdown, filePath) {
+  if (markdown) {
+    const lines = markdown.split('\n')
+    const heading = lines.find(line => line.startsWith('# '))
+    if (heading) return heading.slice(2).trim()
+  }
+
+  return path.basename(filePath, '.md')
+}
+
 app.get('/api/source-of-truth', (_req, res) => {
   const businessStrategy = readFileSafe(businessStrategyPath)
   const sourceRegistry = readFileSafe(sourceRegistryPath)
@@ -159,6 +181,41 @@ app.get('/api/foundation-hub', async (_req, res) => {
       error: error instanceof Error ? error.message : 'Failed to load foundation hub data.',
     })
   }
+})
+
+app.get('/api/doc', (req, res) => {
+  const filePath = resolveRequestedDoc(req.query.path)
+
+  if (!filePath) {
+    res.status(400).json({ error: 'Invalid doc path.' })
+    return
+  }
+
+  const content = readFileSafe(filePath)
+
+  if (!content) {
+    res.status(404).json({ error: 'Document not found.' })
+    return
+  }
+
+  Promise.resolve(getDocSourceSnapshot(path.relative(__dirname, filePath)))
+    .then(sourceSnapshot => {
+      res.json({
+        title: getDocTitle(content, filePath),
+        meta: getDocMeta(filePath),
+        content,
+        sourceSnapshot,
+      })
+    })
+    .catch(error => {
+      res.status(500).json({
+        error: error instanceof Error ? error.message : 'Failed to load document source snapshot.',
+      })
+    })
+})
+
+app.get('/doc', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'doc.html'))
 })
 
 app.get('*', (_req, res) => {
