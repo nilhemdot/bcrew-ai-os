@@ -2,7 +2,7 @@ import express from 'express'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { closeFoundationDb, getFoundationSnapshot, initFoundationDb } from './lib/foundation-db.js'
+import { closeFoundationDb, getDocSourceSnapshot, getFoundationSnapshot, initFoundationDb } from './lib/foundation-db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -199,11 +199,20 @@ app.get('/api/doc', (req, res) => {
     return
   }
 
-  res.json({
-    title: getDocTitle(content, filePath),
-    meta: getDocMeta(filePath),
-    content,
-  })
+  Promise.resolve(getDocSourceSnapshot(path.relative(__dirname, filePath)))
+    .then(sourceSnapshot => {
+      res.json({
+        title: getDocTitle(content, filePath),
+        meta: getDocMeta(filePath),
+        content,
+        sourceSnapshot,
+      })
+    })
+    .catch(error => {
+      res.status(500).json({
+        error: error instanceof Error ? error.message : 'Failed to load document source snapshot.',
+      })
+    })
 })
 
 app.get('/doc', (_req, res) => {
