@@ -10,7 +10,7 @@ Each department exists to move the Agent Engine. One owner, clear boundaries, me
 
 Direction, focus, and resource allocation. Committed to 2 agents/month gross recruiting.
 
-Winning: Leadership decisions drive the engine without requiring Steve to execute. Losing: Steve is firefighting instead of leading.
+Winning: Leadership decisions drive the engine without requiring ownership to execute. Losing: Ownership is firefighting instead of leading.
 
 ---
 
