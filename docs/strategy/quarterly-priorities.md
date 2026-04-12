@@ -4,7 +4,7 @@
 
 Making the engine operate predictably. Not redefining strategy.
 
-BCrew quarters run one month off standard: Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, Q4 = Nov-Jan. Planning happens in the month before.
+Benson Crew quarters run one month off standard: Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, Q4 = Nov-Jan. Planning happens in the month before.
 
 ---
 

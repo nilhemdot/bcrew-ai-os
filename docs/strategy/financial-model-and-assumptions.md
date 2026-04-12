@@ -2,6 +2,8 @@
 
 The strategy defines the destination. This document defines the math that validates whether the business can get there.
 
+These values are the current working assumptions from the strategy model and must stay aligned to the live calculator as the rebuild continues.
+
 ## Active Assumptions
 
 | Assumption | Current Value | Source |

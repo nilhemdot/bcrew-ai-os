@@ -29,7 +29,7 @@ Trust = MarketMasters. Execution = Benson Crew. If it blurs, kill it.
 MarketMasters generated trust leads to two outcomes:
 
 1. Some agents join Benson Crew directly (team growth)
-2. Many others join Real Broker through the BCrew downline (community growth)
+2. Many others join Real Broker through the Benson Crew downline (community growth)
 
 Both outcomes serve the Agent Engine. MarketMasters is part of the ATTRACT pillar.
 

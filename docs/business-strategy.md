@@ -2,11 +2,11 @@
 
 ## North Star
 
-Build a $2B real estate team that becomes the proof engine for a 10,000-agent Real Broker community.
+Build a $2B real estate team that becomes the proof engine for a 10,000-agent downline community at Real Broker.
 
 Benson Crew is a real estate team inside Real Broker. Real Broker is the brokerage and compliance platform that handles trust accounts, transaction oversight, audits, and regulatory requirements. The 10,000-agent goal refers to the broader downline/community at Real Broker, not 10,000 agents on the Benson Crew team.
 
-The team comes first. When the team is undeniable in production, culture, and systems, agents outside Benson Crew will join Real Broker through the BCrew downline because they can see the model works. Stronger performance creates stronger proof. Stronger proof creates more attraction. The flywheel compounds.
+The team comes first. When the team is undeniable in production, culture, and systems, agents outside Benson Crew will join Real Broker through the Benson Crew downline because they can see the model works. Stronger performance creates stronger proof. Stronger proof creates more attraction. The flywheel compounds.
 
 ## The Engine
 
@@ -28,7 +28,7 @@ Movement is one-directional: MarketMasters builds trust, Benson Crew delivers ex
 
 ## Leadership Focus
 
-Leadership time is spent on recruiting leverage, capital, brand leverage, and decisions. Not execution. If ownership is doing execution work by default, the system is failing.
+Leadership time is spent on recruiting leverage, capital, brand leverage, and decisions. Not execution. If leadership is doing execution work by default, the system is failing.
 
 ## Governance
 
@@ -47,6 +47,7 @@ See `docs/strategy/quarterly-priorities.md`.
 - [Quarterly Priorities](strategy/quarterly-priorities.md) -- Current quarter focus and winning criteria
 - [Strategic Issues](strategy/strategic-issues.md) -- Structural findings that explain why priorities exist
 - [Department Mandates](strategy/department-mandates.md) -- Who owns what, expanded detail
+- [Core Values](strategy/core-values.md) -- Durable cultural standards and decision filters
 - [MarketMasters](strategy/marketmasters.md) -- Trust layer strategy, relationship to Benson Crew
 - [Source Registry](source-registry.md) -- Every business data input, connection status
 
