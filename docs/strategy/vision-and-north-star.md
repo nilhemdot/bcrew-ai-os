@@ -19,9 +19,9 @@ Phase 1 is leadership's primary execution focus.
 
 ## Phase 2: Build the Community (2032-2034)
 
-Attract and retain 10,000 agents in the broader Real Broker downline using the proven Benson Crew platform as proof.
+Attract and retain 10,000 agents in the broader downline community at Real Broker using the proven Benson Crew platform as proof.
 
-These are not Benson Crew team members. They are Real Broker agents across North America who joined Real because BCrew proved the model works.
+These are not Benson Crew team members. They are Real Broker agents across North America who joined Real because Benson Crew proved the model works.
 
 ## The Connection
 
