@@ -1,37 +1,49 @@
 # Financial Model and Assumptions
 
-The strategy defines the destination. This document defines the math that validates whether the business can get there.
+This document defines what the core planning assumptions mean and how to interpret them. The live values should be read through the Agent Engine.
 
-These values are the current working assumptions from the strategy model and must stay aligned to the live calculator as the rebuild continues.
+It keeps leadership from confusing target assumptions with current reality.
 
-## Active Assumptions
+## Core Assumptions
 
-| Assumption | Current Value | Source |
-|-----------|--------------|--------|
-| Target GCI per active agent | $13K/month | Freedom KPI Sheet |
-| Company split | 50% | Freedom KPI Sheet |
-| Required monthly recruiting pace | 3.6 agents/month | Calculated from gap to target |
-| Committed recruiting pace | 4/month (Steve 2, Scott 2) | Business strategy |
-| Definition of "active agent" | Agent who produces, not just on roster | Reset September 2025 |
+- **Target GCI per active agent**
+  - The production assumption the model needs from capacity-producing agents.
+- **Company split**
+  - The share of agent production that flows to the company in the model.
+- **Required monthly recruiting pace**
+  - The pace the business needs in order to stay on the planned path once the current gap and attrition assumption are considered.
+- **Active agent**
+  - An agent who is actually producing, not simply someone on the roster.
+- **Attrition assumption**
+  - The planning loss rate used inside the requirement model, not the same as every live attrition signal in the engine.
 
-## How the Model Works
+## How to Read the Model
+
+- Targets tell you what the model needs.
+- Live values tell you what the business is actually doing now.
+- The gap between the two shows where the strategy is holding and where it is slipping.
+
+## Interpretation Rules
+
+- Do not confuse the target production assumption with the current roster average.
+- Do not treat the planning attrition assumption and the live attrition ratio as the same metric.
+- Do not treat roster size and active-agent capacity as the same thing.
+- When a core assumption changes, the engine and the BHAG path need to be read together again.
+
+## The Core Equation
 
 Agent count x GCI per agent x company split = revenue.
 
-Scale the agent count while protecting per-agent productivity. If GCI drops as you add agents, the model breaks. If recruiting pace falls below required, the timeline slips.
+Scale the agent count while protecting per-agent productivity. If GCI falls while capacity rises, the model breaks. If recruiting pace falls below required, the timeline slips.
 
-## Where the Numbers Live
+## Where to Read Current Values
 
-- **Freedom KPI Sheet** (Agent Engine tab): live scoreboard with current values
-- **Freedom KPI Sheet** (BHAG Builder tab): 10-year projections with required agent counts
-- **Owners Dashboard**: deal-level data, source of truth for production
-
-Sheet ID: `1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw`
-
-## Update Rule
-
-If any assumption changes in the sheet, it should be reflected here and logged as a tracked strategic decision. Silent assumption changes are not acceptable.
+Read the current values in the live Agent Engine view. That is where the working targets, current production, recruiting pace, split, and attrition signals should be read.
 
 ## Key Risk
 
-The $13K/month assumption was validated against the Freedom Sheet Agent Engine tab. The actual average as of early 2026 is closer to $9,451/month. That gap must be understood: $13K is the target for capacity-producing agents, not the roster average.
+The most common failure here is reading targets and live values as if they mean the same thing. They do not.
+
+The second common failure is treating every attrition number as interchangeable. They are not. Planning attrition, live attrition pressure, and true roster attrition each answer different questions.
+
+When leadership gets casual about those distinctions, the model becomes misleading.

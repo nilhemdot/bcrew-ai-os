@@ -1,7 +1,14 @@
 function formatDate(isoString) {
   if (!isoString) return 'Not available'
   var date = new Date(isoString)
-  return date.toLocaleString()
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date) + ' ET'
 }
 
 function formatAsOfDate(value) {
@@ -145,7 +152,8 @@ function renderTable(rows, currentPath) {
   return table
 }
 
-function renderInlineSourceCard(groupTitle, rows) {
+function renderInlineSourceCard(groupTitle, rows, options) {
+  var hideTitle = options && options.hideTitle
   var card = document.createElement('section')
   card.className = 'doc-source-card doc-source-card-inline'
 
@@ -158,9 +166,11 @@ function renderInlineSourceCard(groupTitle, rows) {
   cardTop.className = 'doc-source-card-top'
 
   var titleWrap = document.createElement('div')
-  var title = document.createElement('h5')
-  title.textContent = groupTitle
-  titleWrap.appendChild(title)
+  if (!hideTitle) {
+    var title = document.createElement('h5')
+    title.textContent = groupTitle
+    titleWrap.appendChild(title)
+  }
 
   var sourceId = document.createElement('div')
   sourceId.className = 'doc-source-id'
@@ -247,7 +257,7 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups) {
       appendFormattedText(h2Text, h2, currentPath)
       container.appendChild(h2)
       if (sourceGroups && sourceGroups[h2Text]) {
-        container.appendChild(renderInlineSourceCard(h2Text, sourceGroups[h2Text]))
+        container.appendChild(renderInlineSourceCard(h2Text, sourceGroups[h2Text], { hideTitle: true }))
       }
       i++
       continue
@@ -336,9 +346,9 @@ async function init() {
 
   document.title = data.title + ' · BCrew AI OS'
   document.getElementById('doc-title').textContent = data.title
-  document.getElementById('doc-subtitle').textContent = data.meta.path
+  document.getElementById('doc-subtitle').textContent = 'Source: ' + data.meta.path
   document.getElementById('doc-meta').textContent =
-    data.meta.lines + ' lines · updated ' + formatDate(data.meta.updatedAt)
+    'Updated ' + formatDate(data.meta.updatedAt) + ' · ' + data.meta.lines + ' lines'
 
   var content = document.getElementById('doc-content')
   content.appendChild(renderMarkdownBlock(

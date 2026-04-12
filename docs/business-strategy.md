@@ -44,9 +44,9 @@ See `docs/strategy/quarterly-priorities.md`.
 
 ## Supporting Detail
 
-- [Agent Engine](strategy/agent-engine.md) -- Pillar definitions, metric examples, source rules
-- [BHAG Model](strategy/bhag-model.md) -- North Star milestones, 10-year targets, and agent/community math
-- [Financial Model](strategy/financial-model-and-assumptions.md) -- GCI assumptions, split model, pace requirements
+- [Agent Engine](strategy/agent-engine.md) -- Live operating logic for Attract, Grow, Retain, and connected engine math
+- [BHAG Model](strategy/bhag-model.md) -- Milestone path, long-range targets, and how team and downline goals connect
+- [Financial Model](strategy/financial-model-and-assumptions.md) -- Assumption definitions and how to interpret the model correctly
 - [Quarterly Priorities](strategy/quarterly-priorities.md) -- Current quarter focus and winning criteria
 - [Strategic Issues](strategy/strategic-issues.md) -- Structural findings that explain why priorities exist
 - [Governance](strategy/governance.md) -- Leadership cadence, meeting rules, dashboard review cadence

@@ -1,54 +1,43 @@
 # Agent Engine
 
-The company runs on one scoreboard. Every department, every metric, every decision traces back to these three pillars.
+The Agent Engine is the live operating view of the strategy. It turns Attract, Grow, and Retain into one connected scoreboard for leadership.
 
-## ATTRACT
+## What the Engine Answers
 
-Create new capacity.
+- Are we adding enough productive agents to hit the plan?
+- Are active agents producing enough to make the model work?
+- Are we retaining enough of the right agents for capacity to compound?
+- Is the business staying financially true as those three move?
 
-- Gross agents recruited
-- Net agent adds
-- Recruiting conversation pace
-- Marketing leverage that supports recruiting
+## Live Engine View
 
-Owner: Steve + Scott (recruiting), Tanner (marketing leverage)
+The Freedom KPI Sheet is the live operating scoreboard for the engine. It combines current roster reality, long-range targets, and current production assumptions into one view for leadership.
 
-## GROW
+## Core Engine Logic
 
-Improve agent productivity.
+The engine works because the metrics are connected, not independent.
 
-- Average agent GCI (target: $13K/month)
-- Ramp speed for new agents
-- Coaching effectiveness
-- Productivity durability over time
+- The next-year starting agent target comes from the BHAG builder.
+- The engine compares that target to the current active-agent count and the current gap.
+- Required recruiting pace recalculates from that gap and the attrition assumption.
+- Live production and live split show whether the model is strong enough to support the plan.
+- When production, split, attrition, or recruiting pace changes, the expected outcome changes with it.
 
-Owner: Nick (lead), Ryan, Blake
+The point of the engine is to show whether the whole model still holds, not whether one number looks good in isolation.
 
-## RETAIN
+## Attrition Note
 
-Keep strong agents and reduce avoidable loss.
+The engine currently uses two different attrition views:
 
-- Active agent count
-- Regrettable attrition rate
-- Retention signals (pride, engagement, participation)
-- Career progression and early intervention
+- a planning attrition assumption inside the required recruiting formula
+- a live operating pressure ratio based on current additions and losses
 
-Owner: Georgia
+They are both useful, but they are not the same metric and should not be read as if they are.
 
-## FINANCIAL OUTPUT
+## Reading the Three Pillars
 
-Keep the model economically true as capacity scales.
+- **ATTRACT** asks whether new agent inflow is strong enough to hit the required pace.
+- **GROW** asks whether active agents are productive enough to make the model economically true.
+- **RETAIN** asks whether capacity is compounding or leaking.
 
-- Net to company
-- Margin health
-- Model integrity against assumptions
-
-Owner: Ahsan (finance), Steve (oversight)
-
-## The Rule
-
-If a metric does not clearly support Attract, Grow, or Retain, it is not a leadership metric.
-
-## Source Rule
-
-Live values come from registered source systems (Freedom KPI Sheet, Owners Dashboard), rendered in the dashboard and used by the intelligence layer. Never hard-code numbers in strategy docs.
+For assumption definitions and interpretation rules, see the [Financial Model and Assumptions](financial-model-and-assumptions.md).
