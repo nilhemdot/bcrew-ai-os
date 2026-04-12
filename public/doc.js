@@ -4,6 +4,18 @@ function formatDate(isoString) {
   return date.toLocaleString()
 }
 
+function formatAsOfDate(value) {
+  if (!value) return ''
+
+  var date = new Date(value)
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
 function getQueryParam(key) {
   return new URLSearchParams(window.location.search).get(key)
 }
@@ -253,12 +265,12 @@ function renderSourceSnapshot(rows) {
   var groupsEl = document.getElementById('doc-source-groups')
   var groups = groupSourceSnapshot(rows)
   var asOfValues = rows
-    .map(function(row) { return row.asOf })
+    .map(function(row) { return formatAsOfDate(row.asOf) })
     .filter(Boolean)
   var uniqueAsOfValues = Array.from(new Set(asOfValues))
 
   copy.textContent = uniqueAsOfValues.length
-    ? 'Current snapshot as of ' + uniqueAsOfValues.join(', ')
+    ? 'Current snapshot as of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
     : 'Source-backed snapshot'
 
   Object.keys(groups).forEach(function(groupTitle) {

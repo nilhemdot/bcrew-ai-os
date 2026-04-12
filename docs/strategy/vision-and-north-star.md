@@ -1,6 +1,6 @@
 # Vision and North Star
 
-This doc explains the sequence behind the North Star and points to the live sources that own the math.
+This doc explains how the North Star unfolds over time and points to the live sources behind it.
 
 ## North Star
 
@@ -15,12 +15,10 @@ Build Benson Crew into a $2B real estate team and grow the combined ownership-gr
 
 ## Live Milestone Path
 
-Current milestone values come from `SRC-FREEDOM-BHAG-001` and should be shown through the source-backed system view.
+See the live source-backed milestone panel above for the current path to $2B.
 
-- [Open the BHAG model](bhag-model.md)
-- [Open the source registry](../source-registry.md)
-- Treat the builder as the live source of truth for milestone math.
-- The system should render these milestone values from the source contract instead of relying on markdown snapshots.
+- Detailed planning math lives in the [BHAG model](bhag-model.md).
+- Live milestone source ID: `SRC-FREEDOM-BHAG-001`
 
 ## Parallel Downline Growth
 
@@ -34,7 +32,4 @@ Real Broker is the platform that makes the downline possible. It is the brokerag
 
 - [Canonical North Star](../business-strategy.md#north-star)
 - [BHAG Model](bhag-model.md)
-- [Source Registry](../source-registry.md)
-- Live milestone source ID: `SRC-FREEDOM-BHAG-001`
 - Community/downline source ID: `SRC-FREEDOM-COMMUNITY-001`
-- Community revenue source ID: `SRC-FREEDOM-COMMUNITY-REV-001`
