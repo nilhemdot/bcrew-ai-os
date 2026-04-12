@@ -2,16 +2,16 @@
 
 ## North Star
 
-Build Benson Crew into a $2B real estate team and grow the combined Benson Crew leadership downline at Real Broker to 10,000 agents.
+Build Benson Crew into a $2B real estate team and grow the combined ownership-group downline at Real Broker to 10,000 agents.
 
 - Benson Crew is the team: production, culture, systems, and standards.
 - Real Broker is the brokerage and compliance platform: trust accounts, transaction oversight, audits, and regulatory requirements.
-- $2B is the Benson Crew team's production goal.
-- 10,000 agents is the combined Benson Crew leadership downline at Real Broker, not Benson Crew team headcount.
+- Benson Crew goal: grow the team to $2B in annual sales volume.
+- Downline goal: use the team's visible success as the lighthouse that attracts real estate agents and builds the combined ownership-group downline at Real Broker to 10,000 agents.
 
-Leadership's primary execution focus is building the team. At the same time, visible proof from Benson Crew's production, culture, systems, and standards attracts agents into the broader Real Broker ecosystem through the Benson Crew leadership downline.
+Leadership's primary execution focus is building the team. As Benson Crew grows stronger in production, culture, systems, and standards, that proof attracts real estate agents into the ownership group's combined downline at Real Broker.
 
-The team and the downline grow in parallel, but they do not carry equal strategic weight. The team is the primary build. The downline is the compounding result of that proof.
+The team and the downline grow in parallel, but they do not carry equal strategic weight. The team is the primary build. The downline compounds because the team becomes the lighthouse.
 
 ## The Engine
 
