@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BCrew AI OS</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-kicker">BCrew AI OS</div>
+          <h1>Source of Truth</h1>
+          <p>Build the foundation first. Make the wiring visible.</p>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item nav-item-active" type="button">Foundation</button>
+          <button class="nav-item" type="button" disabled>Data Sources</button>
+          <button class="nav-item" type="button" disabled>Decisions</button>
+          <button class="nav-item" type="button" disabled>Strategic Intel</button>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <section class="hero">
+          <div>
+            <div class="eyebrow">First Deposit</div>
+            <h2>Business strategy is now the first live source in the new system.</h2>
+            <p id="hero-copy">Loading source of truth...</p>
+          </div>
+          <button class="print-button" type="button" onclick="window.print()">Print Strategy</button>
+        </section>
+
+        <section class="status-grid" id="status-grid"></section>
+
+        <section class="panel strategy-panel">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Primary Source</div>
+              <h3>Business Strategy</h3>
+            </div>
+            <div class="doc-meta" id="business-meta"></div>
+          </div>
+          <div class="strategy-document">
+            <div class="strategy-document-header">
+              <img class="brand-logo" src="/assets/bc-logo.svg" alt="Benson Crew logo" />
+              <div class="strategy-document-meta">
+                <div class="strategy-kicker">Benson Crew</div>
+                <h1>Business Strategy</h1>
+                <p>Canonical strategy document for the company. Designed to be readable on screen and printable as a branded working document.</p>
+              </div>
+            </div>
+            <div class="section-list" id="business-sections"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Supporting Strategy</div>
+              <h3>Strategy Structure</h3>
+            </div>
+          </div>
+          <div class="section-list" id="supporting-strategy"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Support Source</div>
+              <h3>Source Registry</h3>
+            </div>
+            <div class="doc-meta" id="registry-meta"></div>
+          </div>
+          <div class="registry-empty" id="registry-sections"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+  </html>
