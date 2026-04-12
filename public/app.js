@@ -1,74 +1,201 @@
 function formatDate(isoString) {
   if (!isoString) return 'Not available'
-  const date = new Date(isoString)
+  var date = new Date(isoString)
   return date.toLocaleString()
 }
 
 function renderMeta(meta) {
   if (!meta.exists) return 'Missing'
-  return `${meta.path} · ${meta.lines} lines · updated ${formatDate(meta.updatedAt)}`
+  return meta.path + ' \u00b7 ' + meta.lines + ' lines \u00b7 updated ' + formatDate(meta.updatedAt)
 }
 
 function renderStatusCard(item) {
-  const card = document.createElement('article')
-  card.className = `status-card status-${item.status}`
-  card.innerHTML = `
-    <div class="status-top">
-      <span class="status-label">${item.label}</span>
-      <span class="status-pill">${item.status}</span>
-    </div>
-    <p>${item.detail}</p>
-  `
+  var card = document.createElement('article')
+  card.className = 'status-card status-' + item.status
+
+  var top = document.createElement('div')
+  top.className = 'status-top'
+
+  var label = document.createElement('span')
+  label.className = 'status-label'
+  label.textContent = item.label
+  top.appendChild(label)
+
+  var pill = document.createElement('span')
+  pill.className = 'status-pill'
+  pill.textContent = item.status
+  top.appendChild(pill)
+
+  card.appendChild(top)
+
+  var detail = document.createElement('p')
+  detail.textContent = item.detail
+  card.appendChild(detail)
+
   return card
 }
 
+/* ── Inline formatting: **bold**, `code`, [link](url) ── */
 function appendFormattedText(text, parent) {
-  var re = /(\*\*(.+?)\*\*|`(.+?)`)/g
+  var re = /(\*\*(.+?)\*\*|`(.+?)`|\[(.+?)\]\((.+?)\))/g
   var last = 0
   var m
   while ((m = re.exec(text)) !== null) {
     if (m.index > last) parent.appendChild(document.createTextNode(text.slice(last, m.index)))
-    if (m[2]) { var s = document.createElement('strong'); s.textContent = m[2]; parent.appendChild(s) }
-    else if (m[3]) { var c = document.createElement('code'); c.textContent = m[3]; parent.appendChild(c) }
+    if (m[2]) {
+      var s = document.createElement('strong')
+      s.textContent = m[2]
+      parent.appendChild(s)
+    } else if (m[3]) {
+      var c = document.createElement('code')
+      c.textContent = m[3]
+      parent.appendChild(c)
+    } else if (m[4] && m[5]) {
+      var a = document.createElement('a')
+      a.textContent = m[4]
+      a.setAttribute('href', m[5])
+      a.className = 'md-link'
+      parent.appendChild(a)
+    }
     last = re.lastIndex
   }
   if (last < text.length) parent.appendChild(document.createTextNode(text.slice(last)))
 }
 
+/* ── Table parser ── */
+function isTableRow(line) {
+  return line.trim().startsWith('|') && line.trim().endsWith('|')
+}
+
+function isSeparatorRow(line) {
+  return /^\|[\s\-:|]+\|$/.test(line.trim())
+}
+
+function parseTableCells(line) {
+  return line.split('|').slice(1, -1).map(function(cell) { return cell.trim() })
+}
+
+function renderTable(rows) {
+  var table = document.createElement('table')
+  table.className = 'md-table'
+
+  var headerCells = parseTableCells(rows[0])
+  var thead = document.createElement('thead')
+  var headerRow = document.createElement('tr')
+  headerCells.forEach(function(cell) {
+    var th = document.createElement('th')
+    appendFormattedText(cell, th)
+    headerRow.appendChild(th)
+  })
+  thead.appendChild(headerRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+  for (var i = 2; i < rows.length; i++) {
+    var cells = parseTableCells(rows[i])
+    var tr = document.createElement('tr')
+    cells.forEach(function(cell) {
+      var td = document.createElement('td')
+      appendFormattedText(cell, td)
+      tr.appendChild(td)
+    })
+    tbody.appendChild(tr)
+  }
+  table.appendChild(tbody)
+  return table
+}
+
+/* ── Main markdown renderer ── */
 function renderMarkdownBlock(markdown) {
-  const container = document.createElement('div')
+  var container = document.createElement('div')
   container.className = 'markdown-block'
 
-  const lines = markdown.split('\n').filter(Boolean)
-  let list = null
+  var lines = markdown.split('\n')
+  var i = 0
 
-  for (const line of lines) {
-    if (line.startsWith('- ')) {
-      if (!list) {
-        list = document.createElement('ul')
-        container.appendChild(list)
-      }
-      const li = document.createElement('li')
-      appendFormattedText(line.slice(2), li)
-      list.appendChild(li)
+  while (i < lines.length) {
+    var line = lines[i]
+
+    // Skip empty lines
+    if (line.trim() === '') { i++; continue }
+
+    // Horizontal rule
+    if (/^---+$/.test(line.trim())) {
+      container.appendChild(document.createElement('hr'))
+      i++
       continue
     }
 
-    list = null
-    const p = document.createElement('p')
+    // Sub-heading (### inside a section)
+    if (line.startsWith('### ')) {
+      var h = document.createElement('h5')
+      h.className = 'md-subheading'
+      appendFormattedText(line.slice(4).trim(), h)
+      container.appendChild(h)
+      i++
+      continue
+    }
+
+    // Table block
+    if (isTableRow(line)) {
+      var tableRows = []
+      while (i < lines.length && isTableRow(lines[i])) {
+        if (!isSeparatorRow(lines[i])) {
+          tableRows.push(lines[i])
+        } else {
+          tableRows.splice(1, 0, lines[i]) // keep separator at position 1 for renderTable
+        }
+        i++
+      }
+      if (tableRows.length >= 2) {
+        container.appendChild(renderTable(tableRows))
+      }
+      continue
+    }
+
+    // Numbered list (1. , 2. , etc.)
+    if (/^\d+\.\s/.test(line)) {
+      var ol = document.createElement('ol')
+      ol.className = 'md-ol'
+      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
+        var oli = document.createElement('li')
+        appendFormattedText(lines[i].replace(/^\d+\.\s/, ''), oli)
+        ol.appendChild(oli)
+        i++
+      }
+      container.appendChild(ol)
+      continue
+    }
+
+    // Unordered list
+    if (line.startsWith('- ')) {
+      var ul = document.createElement('ul')
+      while (i < lines.length && lines[i].startsWith('- ')) {
+        var li = document.createElement('li')
+        appendFormattedText(lines[i].slice(2), li)
+        ul.appendChild(li)
+        i++
+      }
+      container.appendChild(ul)
+      continue
+    }
+
+    // Paragraph
+    var p = document.createElement('p')
     appendFormattedText(line, p)
     container.appendChild(p)
+    i++
   }
 
   return container
 }
 
 function renderSection(section) {
-  const article = document.createElement('article')
+  var article = document.createElement('article')
   article.className = 'section-card'
 
-  const title = document.createElement('h4')
-  title.textContent = section.title
+  var title = document.createElement('h4')
+  appendFormattedText(section.title, title)
   article.appendChild(title)
   article.appendChild(renderMarkdownBlock(section.content))
 
@@ -76,26 +203,26 @@ function renderSection(section) {
 }
 
 function renderDocCard(doc) {
-  const article = document.createElement('article')
+  var article = document.createElement('article')
   article.className = 'section-card'
 
-  const title = document.createElement('h4')
+  var title = document.createElement('h4')
   title.textContent = doc.meta.path
   article.appendChild(title)
 
-  const meta = document.createElement('p')
+  var meta = document.createElement('p')
   meta.className = 'support-meta'
   meta.textContent = doc.meta.exists
-    ? `${doc.meta.lines} lines · updated ${formatDate(doc.meta.updatedAt)}`
+    ? doc.meta.lines + ' lines \u00b7 updated ' + formatDate(doc.meta.updatedAt)
     : 'Missing'
   article.appendChild(meta)
 
-  doc.sections.slice(0, 2).forEach(section => {
-    const sub = document.createElement('div')
+  doc.sections.slice(0, 3).forEach(function(section) {
+    var sub = document.createElement('div')
     sub.className = 'support-section'
 
-    const subTitle = document.createElement('h5')
-    subTitle.textContent = section.title
+    var subTitle = document.createElement('h5')
+    appendFormattedText(section.title, subTitle)
     sub.appendChild(subTitle)
     sub.appendChild(renderMarkdownBlock(section.content))
     article.appendChild(sub)
@@ -105,43 +232,42 @@ function renderDocCard(doc) {
 }
 
 async function init() {
-  const response = await fetch('/api/source-of-truth')
-  const data = await response.json()
+  var response = await fetch('/api/source-of-truth')
+  var data = await response.json()
 
   document.getElementById('hero-copy').textContent =
-    'This is the first visible slice of the rebuild: one live strategy source, clear system status, and obvious gaps.'
+    'Foundation layer of the BCrew AI OS. Strategy docs, system status, and data source connectivity.'
 
-  const statusGrid = document.getElementById('status-grid')
-  data.systemStatus.forEach(item => statusGrid.appendChild(renderStatusCard(item)))
+  var statusGrid = document.getElementById('status-grid')
+  data.systemStatus.forEach(function(item) { statusGrid.appendChild(renderStatusCard(item)) })
 
   document.getElementById('business-meta').textContent = renderMeta(data.foundation.businessStrategy.meta)
   document.getElementById('registry-meta').textContent = renderMeta(data.foundation.sourceRegistry.meta)
 
-  const businessSections = document.getElementById('business-sections')
-  data.foundation.businessStrategy.sections.forEach(section => {
+  var businessSections = document.getElementById('business-sections')
+  data.foundation.businessStrategy.sections.forEach(function(section) {
     businessSections.appendChild(renderSection(section))
   })
 
-  const supporting = document.getElementById('supporting-strategy')
-  data.foundation.supportingStrategy.forEach(doc => {
+  var supporting = document.getElementById('supporting-strategy')
+  data.foundation.supportingStrategy.forEach(function(doc) {
     supporting.appendChild(renderDocCard(doc))
   })
 
-  const registrySections = document.getElementById('registry-sections')
+  var registrySections = document.getElementById('registry-sections')
   if (!data.foundation.sourceRegistry.meta.exists) {
-    registrySections.innerHTML = `
-      <p>The next foundation file should be <code>docs/source-registry.md</code>.</p>
-      <p>It should list every source the system will read, the owner, the access method, and whether it is wired.</p>
-    `
+    var notice = document.createElement('p')
+    notice.textContent = 'Source registry not found. Create docs/source-registry.md.'
+    registrySections.appendChild(notice)
     return
   }
 
   registrySections.className = 'section-list'
-  data.foundation.sourceRegistry.sections.forEach(section => {
+  data.foundation.sourceRegistry.sections.forEach(function(section) {
     registrySections.appendChild(renderSection(section))
   })
 }
 
-init().catch(error => {
-  document.getElementById('hero-copy').textContent = `Failed to load dashboard: ${error.message}`
+init().catch(function(error) {
+  document.getElementById('hero-copy').textContent = 'Failed to load dashboard: ' + error.message
 })
