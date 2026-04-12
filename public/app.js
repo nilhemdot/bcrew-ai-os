@@ -33,6 +33,29 @@ function buildDocHref(href) {
   return anchor ? docHref + '&anchor=' + encodeURIComponent(anchor) : docHref
 }
 
+var sectionSupportDocs = {
+  'North Star': {
+    label: 'Open vision and north star doc',
+    path: 'docs/strategy/vision-and-north-star.md',
+  },
+  'The Engine': {
+    label: 'Open agent engine doc',
+    path: 'docs/strategy/agent-engine.md',
+  },
+  'Two Brands': {
+    label: 'Open MarketMasters doc',
+    path: 'docs/strategy/marketmasters.md',
+  },
+  'Governance': {
+    label: 'Open governance doc',
+    path: 'docs/strategy/governance.md',
+  },
+  'Current Quarter': {
+    label: 'Open quarterly priorities doc',
+    path: 'docs/strategy/quarterly-priorities.md',
+  },
+}
+
 function appendFormattedText(text, parent) {
   var re = /(\*\*(.+?)\*\*|`(.+?)`|\[(.+?)\]\((.+?)\))/g
   var last = 0
@@ -223,6 +246,15 @@ function renderSection(section) {
   appendFormattedText(section.title, title)
   article.appendChild(title)
   article.appendChild(renderMarkdownBlock(section.content))
+
+  var supportDoc = sectionSupportDocs[section.title]
+  if (supportDoc) {
+    var supportLink = document.createElement('a')
+    supportLink.className = 'section-support-link'
+    supportLink.href = buildDocHref(supportDoc.path)
+    supportLink.textContent = supportDoc.label
+    article.appendChild(supportLink)
+  }
 
   return article
 }

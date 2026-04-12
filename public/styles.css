@@ -653,6 +653,20 @@ body {
   color: var(--brand);
 }
 
+.section-support-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 12px;
+  color: var(--brand);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.section-support-link:hover {
+  text-decoration: underline;
+}
+
 /* ── MARKDOWN CONTENT ── */
 .markdown-block p {
   color: var(--text-primary);
