@@ -4,7 +4,10 @@
 
 Build Benson Crew into a $2B real estate team and grow the combined Benson Crew leadership downline at Real Broker to 10,000 agents.
 
-Benson Crew is the team. Real Broker is the brokerage and compliance platform that handles trust accounts, transaction oversight, audits, and regulatory requirements. The $2B goal is the Benson Crew team's production goal. The 10,000-agent goal is the combined Benson Crew leadership downline at Real Broker, not team headcount.
+- Benson Crew is the team: production, culture, systems, and standards.
+- Real Broker is the brokerage and compliance platform: trust accounts, transaction oversight, audits, and regulatory requirements.
+- $2B is the Benson Crew team's production goal.
+- 10,000 agents is the combined Benson Crew leadership downline at Real Broker, not Benson Crew team headcount.
 
 Leadership's primary execution focus is building the team. At the same time, visible proof from Benson Crew's production, culture, systems, and standards attracts agents into the broader Real Broker ecosystem through the Benson Crew leadership downline.
 
