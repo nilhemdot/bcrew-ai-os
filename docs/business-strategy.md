@@ -26,11 +26,11 @@ Financial output is the result of the engine working.
 Benson Crew and MarketMasters do different jobs.
 
 - **Benson Crew** is the team. It stands for execution, coaching, standards, accountability, and results.
-- **MarketMasters** is the spotlight. It puts Benson Crew on stage through education, events, training, and visibility that reach agents beyond the team.
+- **MarketMasters** is the spotlight. Through education, events, training, and visibility, it puts Benson Crew in front of more agents.
 
-MarketMasters exists to put Benson Crew in front of more agents. It builds trust with the broader community and helps attract the right people into both Benson Crew and the ownership-group downline at Real Broker.
+Benson Crew is the proof. MarketMasters makes that proof visible and helps attract the right people into both Benson Crew and the ownership-group downline at Real Broker.
 
-Benson Crew is the proof. MarketMasters makes that proof visible. They work together, but they are not the same brand and should never blur.
+They work together, but they are not the same brand and should never blur.
 
 ## Leadership Focus
 
