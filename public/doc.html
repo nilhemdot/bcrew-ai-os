@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BCrew AI OS Doc Viewer</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="doc-page">
+    <main class="doc-shell">
+      <section class="doc-hero">
+        <div>
+          <div class="eyebrow">Supporting Source</div>
+          <h1 id="doc-title">Loading document...</h1>
+          <p id="doc-subtitle">Pulling the source document into the system.</p>
+        </div>
+        <div class="doc-hero-actions">
+          <a class="secondary-button" href="/">Back to dashboard</a>
+          <button class="print-button" type="button" onclick="window.print()">Print Doc</button>
+        </div>
+      </section>
+
+      <section class="panel doc-panel">
+        <div class="panel-header">
+          <div>
+            <div class="eyebrow">Source File</div>
+            <h3>Document View</h3>
+          </div>
+          <div class="doc-meta" id="doc-meta"></div>
+        </div>
+        <div class="strategy-document strategy-document-single">
+          <div id="doc-content"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/doc.js"></script>
+  </body>
+  </html>

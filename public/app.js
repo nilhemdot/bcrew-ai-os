@@ -9,6 +9,30 @@ function renderMeta(meta) {
   return meta.path + ' · ' + meta.lines + ' lines · updated ' + formatDate(meta.updatedAt)
 }
 
+function isInternalMarkdownPath(href) {
+  return (
+    typeof href === 'string' &&
+    !/^(https?:|mailto:|tel:|#)/i.test(href) &&
+    /\.md([?#].*)?$/i.test(href)
+  )
+}
+
+function buildDocHref(href) {
+  if (!isInternalMarkdownPath(href)) return href
+
+  var cleanHref = href.trim()
+  var anchor = ''
+  var anchorIndex = cleanHref.indexOf('#')
+
+  if (anchorIndex !== -1) {
+    anchor = cleanHref.slice(anchorIndex + 1)
+    cleanHref = cleanHref.slice(0, anchorIndex)
+  }
+
+  var docHref = '/doc?path=' + encodeURIComponent(cleanHref)
+  return anchor ? docHref + '&anchor=' + encodeURIComponent(anchor) : docHref
+}
+
 function appendFormattedText(text, parent) {
   var re = /(\*\*(.+?)\*\*|`(.+?)`|\[(.+?)\]\((.+?)\))/g
   var last = 0
@@ -28,7 +52,7 @@ function appendFormattedText(text, parent) {
     } else if (m[4] && m[5]) {
       var link = document.createElement('a')
       link.textContent = m[4]
-      link.setAttribute('href', m[5])
+      link.setAttribute('href', buildDocHref(m[5]))
       link.className = 'md-link'
       parent.appendChild(link)
     }
@@ -208,7 +232,11 @@ function renderDocCard(doc) {
   article.className = 'section-card'
 
   var title = document.createElement('h4')
-  title.textContent = doc.meta.path
+  var titleLink = document.createElement('a')
+  titleLink.className = 'section-link'
+  titleLink.href = buildDocHref(doc.meta.path)
+  titleLink.textContent = doc.meta.path
+  title.appendChild(titleLink)
   article.appendChild(title)
 
   var meta = document.createElement('p')
@@ -217,6 +245,14 @@ function renderDocCard(doc) {
     ? doc.meta.lines + ' lines · updated ' + formatDate(doc.meta.updatedAt)
     : 'Missing'
   article.appendChild(meta)
+
+  if (doc.meta.exists) {
+    var openLink = document.createElement('a')
+    openLink.className = 'support-open-link'
+    openLink.href = buildDocHref(doc.meta.path)
+    openLink.textContent = 'Open full doc'
+    article.appendChild(openLink)
+  }
 
   doc.sections.slice(0, 3).forEach(function(section) {
     var sub = document.createElement('div')
