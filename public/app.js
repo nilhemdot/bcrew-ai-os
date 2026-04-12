@@ -22,6 +22,19 @@ function renderStatusCard(item) {
   return card
 }
 
+function appendFormattedText(text, parent) {
+  var re = /(\*\*(.+?)\*\*|`(.+?)`)/g
+  var last = 0
+  var m
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parent.appendChild(document.createTextNode(text.slice(last, m.index)))
+    if (m[2]) { var s = document.createElement('strong'); s.textContent = m[2]; parent.appendChild(s) }
+    else if (m[3]) { var c = document.createElement('code'); c.textContent = m[3]; parent.appendChild(c) }
+    last = re.lastIndex
+  }
+  if (last < text.length) parent.appendChild(document.createTextNode(text.slice(last)))
+}
+
 function renderMarkdownBlock(markdown) {
   const container = document.createElement('div')
   container.className = 'markdown-block'
@@ -36,14 +49,14 @@ function renderMarkdownBlock(markdown) {
         container.appendChild(list)
       }
       const li = document.createElement('li')
-      li.textContent = line.slice(2)
+      appendFormattedText(line.slice(2), li)
       list.appendChild(li)
       continue
     }
 
     list = null
     const p = document.createElement('p')
-    p.textContent = line
+    appendFormattedText(line, p)
     container.appendChild(p)
   }
 
