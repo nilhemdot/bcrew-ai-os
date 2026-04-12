@@ -15,7 +15,7 @@ Build Benson Crew into a $2B real estate team and grow the combined ownership-gr
 
 ## Live Milestone Path
 
-The yearly path to $2B lives in the Freedom KPI Sheet BHAG builder (`SRC-FREEDOM-BHAG-001`), not in this document.
+Current milestone values come from `SRC-FREEDOM-BHAG-001` and should be shown through the source-backed system view.
 
 - [Open the BHAG model](bhag-model.md)
 - [Open the source registry](../source-registry.md)
