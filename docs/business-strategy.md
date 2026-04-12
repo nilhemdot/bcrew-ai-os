@@ -1,151 +1,61 @@
 # Benson Crew Business Strategy
 
-This is the canonical business strategy for Benson Crew.
+## North Star
 
-It defines:
+Build a $2B real estate team that becomes the proof engine for a 10,000-agent Real Broker community.
 
-- what the business is trying to become
-- how the business compounds
-- what leadership must protect
-- what the system must operationalize
+The team comes first. When the team is undeniable in production, culture, and systems, agents outside Benson Crew will join Real Broker through the BCrew downline because they can see the model works. Stronger performance creates stronger proof. Stronger proof creates more attraction. The flywheel compounds.
 
-This document should remain concise, stable, and readable.
+## The Engine
 
-Supporting detail lives in:
+The company runs on one scoreboard with three pillars:
 
-- `docs/strategy/vision-and-north-star.md`
-- `docs/strategy/bhag-model.md`
-- `docs/strategy/agent-engine.md`
-- `docs/strategy/financial-model-and-assumptions.md`
-- `docs/strategy/quarterly-priorities.md`
-- `docs/strategy/strategic-issues.md`
-- `docs/strategy/department-mandates.md`
-- `docs/strategy/marketmasters.md`
-- `docs/source-registry.md`
+- **ATTRACT** -- recruiting and marketing leverage. Add capacity-producing agents at the required pace.
+- **GROW** -- agent productivity, ramp speed, coaching. Protect the $13K/agent production assumption.
+- **RETAIN** -- active agent count, regrettable attrition, career durability. Keep strong agents and intervene early.
 
-## 1. North Star
+Financial output is the result of those three pillars working together. If a metric does not support Attract, Grow, or Retain, it is not a leadership metric.
 
-Benson Crew is building a $2B real estate team inside Real Broker that becomes the lighthouse for a 10,000-agent downline community at Real Broker.
+## Two Brands
 
-That means:
+**Benson Crew** is the destination. Execution, standards, coaching, accountability, outcomes. Confident, direct, performance-driven.
 
-- Benson Crew the team reaches $2B in annual sales volume
-- the broader Real Broker downline/community grows to 10,000 agents because the team becomes visible proof
+**MarketMasters** is the trust layer. Education, credibility, invitation. Neutral, non-salesy, opt-in.
 
-These goals are linked, but they are not the same goal.
+Movement is one-directional: MarketMasters builds trust, Benson Crew delivers execution. They never blur.
 
-The sequence is fixed:
+## Leadership Focus
 
-- build the team first
-- make the team undeniable
-- use that proof to attract agents into the broader Real Broker ecosystem
+Leadership time is spent on recruiting leverage, capital, brand leverage, and decisions. Not execution. If Steve is doing execution work by default, the system is failing.
 
-Strategic principle: attract through production.
+## Governance
 
-## 2. Mission
+Execution runs through a fixed cadence: weekly execution meeting, monthly strategic review, department 1:1s, and quarterly reset. Escalation flows through this cadence, not through habitual upward rescue.
 
-Build a business that compounds through one Agent Engine:
+## Current Quarter
 
-- Attract
-- Grow
-- Retain
+See `docs/strategy/quarterly-priorities.md`.
 
-The business wins when leadership decisions, department execution, and business math all reinforce that engine.
+## Supporting Detail
 
-## 3. Strategic Logic
+- [Vision and Milestones](strategy/vision-and-north-star.md) -- Phase 1 and Phase 2 targets, $300M to $2B trajectory
+- [Agent Engine](strategy/agent-engine.md) -- Pillar definitions, metric examples, source rules
+- [BHAG Model](strategy/bhag-model.md) -- 10-year targets, agent capacity math
+- [Financial Model](strategy/financial-model-and-assumptions.md) -- GCI assumptions, split model, pace requirements
+- [Quarterly Priorities](strategy/quarterly-priorities.md) -- Current quarter focus and winning criteria
+- [Strategic Issues](strategy/strategic-issues.md) -- Structural findings that explain why priorities exist
+- [Department Mandates](strategy/department-mandates.md) -- Who owns what, expanded detail
+- [MarketMasters](strategy/marketmasters.md) -- Trust layer strategy, relationship to Benson Crew
+- [Source Registry](source-registry.md) -- Every business data input, connection status
 
-Benson Crew is the proof engine.
+## Rules
 
-The broader Real Broker downline/community is the scale engine.
+1. This document is the source of truth for business direction.
+2. Live KPI values belong in source systems, not here.
+3. Decisions that change strategy are logged as explicit records.
+4. Strategy docs are updated through tracked proposals and approvals, not silent edits.
+5. Supporting docs expand this document but never contradict it.
 
-If the team becomes exceptional in production, culture, systems, and outcomes, people should look at Benson Crew and conclude that the model works. Some will join the team directly. Many others will join Real Broker through the broader BCrew downline because they want to be part of what the team proved.
+## What the System Does
 
-That creates the flywheel:
-
-- stronger team performance creates stronger proof
-- stronger proof creates more attraction
-- more attraction improves both team growth and community growth
-
-## 4. Agent Engine
-
-The company runs on one scoreboard: the Agent Engine.
-
-- `ATTRACT`: recruiting and marketing leverage
-- `GROW`: agent productivity, ramp speed, coaching effectiveness
-- `RETAIN`: active agent count, regrettable attrition, career durability
-- `FINANCIAL OUTPUT`: net to company
-
-If a metric does not clearly support Attract, Grow, or Retain, it is not a leadership metric.
-
-## 5. Math and Assumptions
-
-The live calculator and source sheets hold active numbers, projections, and scenario changes.
-
-This strategy defines the business logic. The supporting math and assumptions live in:
-
-- `docs/strategy/financial-model-and-assumptions.md`
-- `docs/strategy/bhag-model.md`
-
-## 6. Current Quarter Focus
-
-Q1 2026 is about making the engine operate predictably, not redefining strategy.
-
-Current quarter detail lives in `docs/strategy/quarterly-priorities.md`.
-
-## 7. Leadership Focus
-
-Leadership time should be spent on:
-
-- recruiting leverage
-- capital and finance
-- brand leverage
-- decisions
-
-If Steve is doing execution work by default, the system is failing.
-
-## 8. Governance
-
-Execution runs through a fixed cadence:
-
-- Weekly Leadership Execution Meeting
-- Monthly Leadership Strategic Review
-- Weekly or bi-weekly 1:1 department reviews
-- Quarterly Planning and Reset
-
-Escalation should flow through this cadence, not through habitual upward rescue.
-
-## 9. Department Mandates
-
-Each department exists to move the Agent Engine.
-
-- Executive Leadership: direction, focus, and resource allocation
-- Recruiting: add capacity-producing agents at the required pace
-- Sales Leadership: protect production standards and ramp speed
-- Retention: preserve and strengthen capacity once built
-- Marketing: create leverage for recruiting, productivity, and retention
-- Operations: remove friction and activate agents quickly
-- Finance: protect margin and keep the model economically true
-
-Expanded mandate detail lives in `docs/strategy/department-mandates.md`.
-
-## 10. Strategic Rules
-
-- The business strategy is the source of truth for business direction
-- Live KPI values belong in the calculator and source systems
-- Decisions that change strategy must be logged as explicit records
-- Strategic documents should be updated through tracked proposals and approvals, not silent edits
-- Supporting docs may expand the strategy, but may not contradict this file
-- The system must preserve the distinction between Benson Crew as a team and Real Broker as the brokerage/platform
-
-## 11. What the System Must Do
-
-The system exists to:
-
-- read reality from source systems
-- compare reality to this strategy
-- detect drift, blockers, and opportunities
-- route intelligence to the right people
-- log strategic decisions and changes
-- keep the supporting strategy layer current and trustworthy
-
-The system does not set business strategy. It maintains and operationalizes leadership strategy.
+The system reads reality from source systems, compares it to this strategy, detects drift, routes intelligence to the right people, logs decisions, and keeps the strategy layer current. It does not set strategy. It maintains and operationalizes leadership strategy.

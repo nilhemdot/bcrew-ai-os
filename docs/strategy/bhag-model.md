@@ -1,60 +1,30 @@
 # BHAG Model
 
-This document explains the long-range growth model behind the business strategy.
+## Team Goal: $2B
 
-## 1. Team Goal
+$2B is Benson Crew team sales volume by 2031. See [Vision](vision-and-north-star.md) for the annual trajectory.
 
-The $2B goal is Benson Crew team sales volume.
+The model depends on scaling agent capacity while protecting per-agent productivity. Required agent counts, production targets, and timelines are calculated in the Freedom KPI Sheet (BHAG Builder tab) and recalculate when assumptions change.
 
-If the team sells a $1M home, that counts as $1M in volume. The team goal is to reach $2B in annual volume.
+## Community Goal: 10,000 Agents
 
-It is a team goal, not a brokerage goal.
+The 10,000-agent goal is the broader Real Broker downline, not 10,000 Benson Crew team members.
 
-## 2. Community Goal
+Current downline by leader (March 2026): Scott 571, Steve 48, Ryan 31, Nick 10. Total: ~660.
 
-The 10,000-agent goal is not 10,000 agents on the Benson Crew team.
+## How the Math Works
 
-It is the long-term goal for the broader Real Broker downline/community.
+The Freedom KPI Sheet (Agent Engine tab) is the live calculator:
 
-## 3. Why the Community Forms
+- Target GCI per active agent (currently $13K/month)
+- Target split (currently 50%)
+- Required monthly attraction rate calculated from the gap between current agents and target
+- If any assumption changes, the entire engine recalculates
 
-The strategic belief is:
+"Active agents" means agents who produce, not agents on the roster. The baseline was reset September 2025 when leadership got honest about who was real.
 
-- Benson Crew becomes visibly exceptional
-- people see the team’s production, systems, and outcomes
-- they associate part of that success with the broader Real Broker model
-- they choose to join Real Broker through the BCrew network
+## Key Reference
 
-The team is the lighthouse.
-The community forms around the lighthouse.
-
-## 4. Real Broker Context
-
-Real Broker is the brokerage/platform.
-
-Benson Crew is a real estate team operating with Real Broker.
-
-Real Broker handles brokerage infrastructure and compliance, including trust accounts, transaction oversight, audits, and regulatory obligations. Agents may operate directly with Real Broker or within teams led by team leaders inside the brokerage.
-
-Real's public-company and revenue-share context matters because it is part of the attractiveness of the broader model.
-
-Core context:
-
-- Real trades on NASDAQ under `REAX`
-- Real supports a large and growing agent network across the U.S. and Canada
-- Real has a revenue-share model connected to agent attraction and production
-
-## 5. Distinction the System Must Preserve
-
-There are two linked but separate engines:
-
-- Team growth engine: Benson Crew grows team production to $2B
-- Community growth engine: that proof attracts agents into the broader Real Broker network
-
-If the system confuses those two goals, it is wrong.
-
-## 6. Live Math
-
-The calculator and source sheets hold live assumptions, projections, and scenario models.
-
-This document defines the model logic, not the current numbers.
+**Freedom KPI Sheet:** `1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw`
+- Agent Engine tab: live scoreboard
+- BHAG Builder tab: 10-year plan with required agent counts

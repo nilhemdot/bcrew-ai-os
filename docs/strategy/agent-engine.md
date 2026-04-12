@@ -1,66 +1,54 @@
 # Agent Engine
 
-This document defines the engine the company runs on.
+The company runs on one scoreboard. Every department, every metric, every decision traces back to these three pillars.
 
-## 1. The Scoreboard
+## ATTRACT
 
-The company runs on one scoreboard:
+Create new capacity.
 
-- Attract
-- Grow
-- Retain
+- Gross agents recruited
+- Net agent adds
+- Recruiting conversation pace
+- Marketing leverage that supports recruiting
 
-Financial output is the result of those three pillars working together.
+Owner: Steve + Scott (recruiting), Tanner (marketing leverage)
 
-## 2. Pillar Definitions
+## GROW
 
-### ATTRACT
+Improve agent productivity.
 
-Measures the company’s ability to create new capacity.
+- Average agent GCI (target: $13K/month)
+- Ramp speed for new agents
+- Coaching effectiveness
+- Productivity durability over time
 
-Examples:
+Owner: Nick (lead), Ryan, Blake
 
-- gross agents recruited
-- net agent adds
-- recruiting conversation pace
-- marketing leverage that supports recruiting
+## RETAIN
 
-### GROW
+Keep strong agents and reduce avoidable loss.
 
-Measures the company’s ability to improve agent productivity.
+- Active agent count
+- Regrettable attrition rate
+- Retention signals (pride, engagement, participation)
+- Career progression and early intervention
 
-Examples:
+Owner: Georgia
 
-- average agent productivity
-- ramp speed
-- coaching effectiveness
-- productivity durability
+## FINANCIAL OUTPUT
 
-### RETAIN
+Keep the model economically true as capacity scales.
 
-Measures the company’s ability to keep strong agents and reduce avoidable loss.
+- Net to company
+- Margin health
+- Model integrity against assumptions
 
-Examples:
+Owner: Ahsan (finance), Steve (oversight)
 
-- active agent count
-- regrettable attrition
-- retention signals
-- career progression and intervention effectiveness
-
-### FINANCIAL OUTPUT
-
-Measures whether the business model stays economically true as capacity scales.
-
-Examples:
-
-- net to company
-- margin health
-- model integrity against assumptions
-
-## 3. Leadership Metric Rule
+## The Rule
 
 If a metric does not clearly support Attract, Grow, or Retain, it is not a leadership metric.
 
-## 4. Source Rule
+## Source Rule
 
-Live values should come from registered source systems and calculators, then be rendered in the dashboard and used by the intelligence layer.
+Live values come from registered source systems (Freedom KPI Sheet, Owners Dashboard), rendered in the dashboard and used by the intelligence layer. Never hard-code numbers in strategy docs.

@@ -1,43 +1,32 @@
 # Vision and North Star
 
-## Vision
+## Phase 1: Build the Team (2026-2031)
 
-Build a $2B real estate team inside Real Broker that becomes the lighthouse for a 10,000-agent downline community at Real Broker.
+Reach $2B in annual Benson Crew team sales volume.
 
-This vision runs through one Agent Engine focused on attracting, growing, and retaining capacity-producing agents.
+| Year | Target Volume |
+|------|--------------|
+| 2026 | $300M |
+| 2027 | $450M |
+| 2028 | $675M |
+| 2029 | $1.0B |
+| 2030 | $1.5B |
+| 2031 | $2.0B |
 
-## What the Vision Means
+This is team production volume, not brokerage volume. If the team sells a $1M home, that counts as $1M.
 
-- Benson Crew the team reaches $2B in annual sales volume
-- the broader Real Broker downline/community grows to 10,000 agents because the team becomes visible proof
+Phase 1 is leadership's primary execution focus.
 
-These are linked goals, but they should never be confused with each other.
+## Phase 2: Build the Community (2032-2034)
 
-## Strategic Sequence
+Attract and retain 10,000 agents in the broader Real Broker downline using the proven Benson Crew platform as proof.
 
-- Build the team first
-- Make the team undeniable
-- Use that proof to attract agents into the broader Real Broker ecosystem
+These are not Benson Crew team members. They are Real Broker agents across North America who joined Real because BCrew proved the model works.
+
+## The Connection
+
+Phase 1 makes Phase 2 inevitable. A team with best-in-class production, culture, and systems becomes the recruiting magnet for Real's broader network. Build the team first. The community follows.
 
 ## Strategic Principle
 
 Attract through production.
-
-## Phase 1: Become the Lighthouse
-
-Build the Benson Crew team into a $2B annual real estate team by the end of 2031.
-
-Milestones:
-
-- 2026: $300M
-- 2027: $450M
-- 2028: $675M
-- 2029: $1.0B
-- 2030: $1.5B
-- 2031: $2.0B
-
-Phase 1 is leadership's primary execution focus.
-
-## Phase 2: Build the Community
-
-Attract and retain 10,000 agents by 2034 through the broader Real Broker downline/community using the proven Benson Crew platform as proof.
