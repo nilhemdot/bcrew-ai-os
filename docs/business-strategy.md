@@ -19,7 +19,7 @@ Benson Crew runs on one engine with three pillars: Attract, Grow, and Retain.
 - **GROW** increases the production, ramp speed, and effectiveness of the agents already inside the system.
 - **RETAIN** keeps strong agents active, engaged, and progressing so capacity compounds instead of leaking out.
 
-Financial output is the result of the engine working. Leadership metrics should help the team understand Attract, Grow, or Retain.
+Financial output is the result of the engine working.
 
 ## Two Brands
 
