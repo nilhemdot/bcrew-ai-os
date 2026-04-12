@@ -2,13 +2,15 @@
 
 Each department exists to move the Agent Engine. One owner, clear boundaries, measurable outcomes.
 
+Quarter-specific commitments, KPI targets, and pacing requirements belong in `quarterly-priorities.md` and the financial model, not here.
+
 ---
 
 ## Executive Leadership
 
 **Owner:** Steve Zahnd
 
-Direction, focus, and resource allocation. Committed to 2 agents/month gross recruiting.
+Direction, focus, and resource allocation.
 
 Winning: Leadership decisions drive the engine without requiring ownership to execute. Losing: Ownership is firefighting instead of leading.
 
@@ -18,7 +20,7 @@ Winning: Leadership decisions drive the engine without requiring ownership to ex
 
 **Owner:** Scott (+ Steve)
 
-Build predictable agent inflow at the pace required by the business math. Scott commits to 2 agents/month gross. Combined with Steve: 4/month (engine requires 3.6).
+Build predictable agent inflow at the pace required by the business math.
 
 Winning: Weekly proof of recruiting conversations from both sources. Pipeline is predictable, not burst-driven. Losing: Recruiting pace behind target for 2+ weeks.
 
@@ -28,7 +30,7 @@ Winning: Weekly proof of recruiting conversations from both sources. Pipeline is
 
 **Owner:** Nick | **Contributors:** Ryan, Blake
 
-Protect agent productivity and maintain the $13K/agent production assumption as capacity scales. Training cadence is consistent. Coaching is proactive, not reactive.
+Protect agent productivity and maintain the production assumptions the growth model depends on. Training cadence is consistent. Coaching is proactive, not reactive.
 
 Winning: Ryan and Blake operating independently. Production maintained as agent count grows. Losing: Productivity drops as new agents onboard.
 
@@ -48,9 +50,9 @@ Winning: Brand activity reduces individual recruiting effort. Content gets reuse
 
 **Owner:** Carson
 
-Remove friction. 30-day activation for new agents. Clean handoffs. Process compliance tracked. Onboarding removes friction, not adds it.
+Remove friction. Clean handoffs. Process compliance tracked. Onboarding removes friction, not adds it.
 
-Winning: Every recruited agent is active within 30 days. Losing: Ops absorbs upstream recruiting/marketing failures instead of exposing them.
+Winning: Recruited agents become productive quickly through a clean onboarding path. Losing: Ops absorbs upstream recruiting/marketing failures instead of exposing them.
 
 ---
 
@@ -68,6 +70,6 @@ Winning: Flight risks caught and addressed before resignation. Losing: Departure
 
 **Owner:** Ahsan (accounting@bensoncrew.ca)
 
-Protect margin. Validate the $13K assumption monthly. Expense discipline enforced via bill-back SOP.
+Protect margin. Validate assumptions. Expense discipline enforced via bill-back SOP.
 
 Winning: Growth is real, not inflated by weak economics. Losing: Revenue grows but margin erodes.

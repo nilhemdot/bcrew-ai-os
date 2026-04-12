@@ -12,6 +12,8 @@ The 10,000-agent goal is the broader Real Broker downline, not 10,000 Benson Cre
 
 Current downline by leader (March 2026): Scott 571, Steve 48, Ryan 31, Nick 10. Total: ~660.
 
+Real Broker is the brokerage/platform. Benson Crew operates inside that brokerage as a team. Agents may work directly with Real Broker or inside teams led by team leaders within the brokerage. The community goal depends on Benson Crew proving a model that makes the broader Real Broker ecosystem more attractive.
+
 ## How the Math Works
 
 The Freedom KPI Sheet (Agent Engine tab) is the live calculator:

@@ -4,6 +4,8 @@
 
 Build a $2B real estate team that becomes the proof engine for a 10,000-agent Real Broker community.
 
+Benson Crew is a real estate team inside Real Broker. Real Broker is the brokerage and compliance platform that handles trust accounts, transaction oversight, audits, and regulatory requirements. The 10,000-agent goal refers to the broader downline/community at Real Broker, not 10,000 agents on the Benson Crew team.
+
 The team comes first. When the team is undeniable in production, culture, and systems, agents outside Benson Crew will join Real Broker through the BCrew downline because they can see the model works. Stronger performance creates stronger proof. Stronger proof creates more attraction. The flywheel compounds.
 
 ## The Engine
@@ -55,6 +57,7 @@ See `docs/strategy/quarterly-priorities.md`.
 3. Decisions that change strategy are logged as explicit records.
 4. Strategy docs are updated through tracked proposals and approvals, not silent edits.
 5. Supporting docs expand this document but never contradict it.
+6. The system must preserve the distinction between Benson Crew as the team and Real Broker as the brokerage/platform.
 
 ## What the System Does
 
