@@ -2,6 +2,7 @@ import express from 'express'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { closeFoundationDb, getFoundationSnapshot, initFoundationDb } from './lib/foundation-db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -149,10 +150,40 @@ app.get('/api/source-of-truth', (_req, res) => {
   })
 })
 
+app.get('/api/foundation-hub', async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    res.json(snapshot)
+  } catch (error) {
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to load foundation hub data.',
+    })
+  }
+})
+
 app.get('*', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 
-app.listen(port, () => {
-  console.log(`BCrew AI OS dashboard listening on http://localhost:${port}`)
+async function start() {
+  await initFoundationDb()
+
+  const server = app.listen(port, () => {
+    console.log(`BCrew AI OS dashboard listening on http://localhost:${port}`)
+  })
+
+  const shutdown = async () => {
+    server.close(async () => {
+      await closeFoundationDb()
+      process.exit(0)
+    })
+  }
+
+  process.on('SIGINT', shutdown)
+  process.on('SIGTERM', shutdown)
+}
+
+start().catch(error => {
+  console.error('Failed to start BCrew AI OS dashboard:', error)
+  process.exit(1)
 })

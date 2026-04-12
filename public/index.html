@@ -19,15 +19,15 @@
         </div>
 
         <nav class="nav">
-          <button class="nav-item nav-item-active" type="button">Foundation</button>
-          <button class="nav-item" type="button" disabled>Data Sources</button>
-          <button class="nav-item" type="button" disabled>Decisions</button>
-          <button class="nav-item" type="button" disabled>Strategic Intel</button>
+          <a class="nav-item nav-item-active" href="#foundation">Foundation</a>
+          <a class="nav-item" href="#memory">Memory</a>
+          <a class="nav-item" href="#backlog">Backlog</a>
+          <a class="nav-item" href="#decisions">Decisions</a>
         </nav>
       </aside>
 
       <main class="main">
-        <section class="hero">
+        <section class="hero" id="foundation">
           <div>
             <div class="eyebrow">First Deposit</div>
             <h2>Business strategy is now the first live source in the new system.</h2>
@@ -78,6 +78,55 @@
             <div class="doc-meta" id="registry-meta"></div>
           </div>
           <div class="registry-empty" id="registry-sections"></div>
+        </section>
+
+        <section class="panel" id="memory">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Operating Memory</div>
+              <h3>Memory Foundation</h3>
+            </div>
+            <div class="doc-meta" id="memory-meta"></div>
+          </div>
+          <p class="section-intro">
+            This is the first visible operating memory layer: live business memory in PostgreSQL, strategy docs in git, and a clear read on what is active versus still pending.
+          </p>
+          <div class="status-grid" id="memory-grid"></div>
+        </section>
+
+        <section class="panel" id="backlog">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Execution Queue</div>
+              <h3>Foundation Backlog</h3>
+            </div>
+            <div class="doc-meta" id="backlog-meta"></div>
+          </div>
+          <p class="section-intro">
+            The backlog is now structured work again, not a pile of notes. Right now it shows the ranked foundation work for the Dev and Marketing teams.
+          </p>
+          <div class="team-backlog-grid" id="team-backlog-grid"></div>
+        </section>
+
+        <section class="panel" id="decisions">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Locked Truth</div>
+              <h3>Foundation Decisions</h3>
+            </div>
+            <div class="doc-meta" id="decisions-meta"></div>
+          </div>
+          <div class="decision-list" id="decision-list"></div>
+          <div class="capture-grid">
+            <div class="capture-column">
+              <div class="eyebrow">Open Questions</div>
+              <div class="capture-list" id="open-questions-list"></div>
+            </div>
+            <div class="capture-column">
+              <div class="eyebrow">Parking Lot</div>
+              <div class="capture-list" id="parking-lot-list"></div>
+            </div>
+          </div>
         </section>
       </main>
     </div>
