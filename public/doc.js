@@ -331,6 +331,14 @@ function getDirectionalClass(value) {
 }
 
 function getEngineMetricExplanation(metricKey) {
+  if (metricKey === 'Required Start-of-Year Agents') {
+    return 'The number of active agents the model says we need in place when next year starts.'
+  }
+
+  if (metricKey === 'Current Active Agents') {
+    return 'The current active, capacity-producing agent count from the live Agent Engine tab.'
+  }
+
   if (metricKey === 'Capacity Gap') {
     return 'The difference between the required start-of-year agent count and the active agents we have now.'
   }
@@ -347,8 +355,24 @@ function getEngineMetricExplanation(metricKey) {
     return 'The difference between current average monthly GCI per active agent and the model target.'
   }
 
+  if (metricKey === 'Production Target / Agent') {
+    return 'The monthly GCI per active agent the current model assumes.'
+  }
+
   if (metricKey === 'Live Attrition Pressure') {
     return 'This is the live operating attrition signal from the Agent Engine tab. It is not the same as the planning attrition assumption still buried in the formula.'
+  }
+
+  if (metricKey === 'Planning Attrition Assumption') {
+    return 'This still needs to be exposed cleanly from the source of truth. Right now the formula uses it, but the system cannot read it directly yet.'
+  }
+
+  if (metricKey === 'Actual Split') {
+    return 'The live average split currently being realized in the Agent Engine tab.'
+  }
+
+  if (metricKey === 'Target Split') {
+    return 'The model target split used for planning.'
   }
 
   if (metricKey === 'Split Gap') {
@@ -712,32 +736,40 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
 
   ;[
     {
-      title: 'Current Reality',
-      metrics: [
-        'Current Active Agents',
-        'Capacity Gap',
-        'Required Recruiting Pace',
-        'Current Recruiting Pace',
-        'Current Avg Production / Agent',
-        'Production Gap',
-      ],
-    },
-    {
-      title: 'Model Needs',
+      title: 'Model Inputs',
       metrics: [
         'Next-Year Volume Target',
         'Current Productivity Assumption',
-        'Required Start-of-Year Agents',
         'Production Target / Agent',
+        'Target Split',
+      ],
+    },
+    {
+      title: 'Current Reality',
+      metrics: [
+        'Current Active Agents',
+        'Current Recruiting Pace',
+        'Current Avg Production / Agent',
+        'Actual Split',
+      ],
+    },
+    {
+      title: 'Gap To Close',
+      metrics: [
+        'Required Start-of-Year Agents',
+        'Capacity Gap',
+        'Required Recruiting Pace',
+        'Production Gap',
+        'Split Gap',
       ],
     },
     {
       title: 'Current Pressures',
       metrics: [
+        'Planning Attrition Assumption',
         'Live Attrition Pressure',
         'Avg Additions / Month',
         'Avg Attrition / Month',
-        'Split Gap',
       ],
     },
   ].forEach(function(sectionDef) {
@@ -784,7 +816,7 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
   if (rows[0].detail) {
     var detail = document.createElement('p')
     detail.className = 'doc-source-detail'
-    detail.textContent = 'This ties the BHAG builder to current recruiting reality.'
+    detail.textContent = 'This ties the BHAG builder assumptions to current recruiting reality. The planning attrition assumption still needs to be exposed cleanly from the source.'
     card.appendChild(detail)
   }
 
