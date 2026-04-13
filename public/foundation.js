@@ -954,13 +954,13 @@ var strategyReviewChecklist = [
       'The Engine',
       'Two Brands',
       'Governance',
+      'Current Quarter',
     ],
   },
   {
     title: 'Still To Confirm In Overview',
     tone: 'pending',
     items: [
-      'Current Quarter',
       'Rules',
       'What the System Does',
     ],
