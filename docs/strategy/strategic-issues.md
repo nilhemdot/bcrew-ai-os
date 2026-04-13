@@ -12,9 +12,9 @@ Execution still risks routing upward instead of surfacing where it belongs. When
 
 The business needs boring, repeatable recruiting rather than bursts of effort. The pace must be visible weekly and provable, not anecdotal.
 
-**3. Marketing leverage exists but does not always compound**
+**3. Marketing leverage exists but does not always compound into attraction and retention**
 
-The issue is not activity. The issue is whether output becomes reusable leverage that reduces individual effort over time.
+The issue is not activity. The issue is whether output becomes reusable leverage that creates recruiting attention, helps agents win, and reduces individual effort over time.
 
 **4. Operations can absorb upstream failures instead of exposing them**
 

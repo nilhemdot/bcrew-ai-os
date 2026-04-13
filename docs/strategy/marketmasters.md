@@ -31,7 +31,7 @@ MarketMasters generated trust leads to two outcomes:
 1. Some agents join Benson Crew directly (team growth)
 2. Many others join Real Broker through the Benson Crew downline (community growth)
 
-Both outcomes serve the Agent Engine. MarketMasters is part of the ATTRACT pillar.
+Both outcomes serve the Agent Engine. MarketMasters is part of the ATTRACT pillar and helps Marketing create trust-led recruiting attention without turning the platform into a pitch fest.
 
 ## Tone
 

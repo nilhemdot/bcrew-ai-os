@@ -40,9 +40,9 @@ Winning: Ryan and Blake operating independently. Production maintained as agent 
 
 **Owner:** Tanner
 
-Create leverage for recruiting, productivity, and retention. EVERYWHERE brand execution. Dual audience (ATTRACT + RETAIN) executed weekly. Content is platform-native. No single-channel dependency.
+Create leverage for attraction and retention. Marketing should generate recruiting attention, create reusable brand proof, and produce lead flow and assets that agents can leverage to win. EVERYWHERE brand execution. Dual audience (ATTRACT + RETAIN) executed weekly. Content is platform-native. No single-channel dependency.
 
-Winning: Brand activity reduces individual recruiting effort. Content gets reused by agents. Losing: Content exists but doesn't compound into recruiting leverage.
+Winning: Brand activity reduces individual recruiting effort, creates qualified recruiting attention, and gives agents reusable assets and lead support. Losing: Content exists but does not compound into attraction or retention leverage.
 
 ---
 
