@@ -13,7 +13,7 @@ The Agent Engine turns the BHAG volume path into capacity math. It shows what pr
 
 Every department should be explainable through one or more parts of the engine:
 
-- **Attract**: Recruiting drives agent acquisition. Marketing builds the broader attraction system through founder thought leadership, Benson Crew proof-of-execution content, and MarketMasters trust content. Operations/Onboarding turns joins into activated agents.
+- **Attract**: Recruiting owns conversations, conversion, and signed joins. Marketing creates trust, visibility, and recruiting attention by putting Benson Crew on stage through thought leadership, proof-of-execution content, and MarketMasters. Operations/Onboarding turns signed joins into activated, producing agents.
 - **Grow**: Sales Leadership protects productivity through coaching, standards, training, and accountability.
 - **Retain**: Operations removes friction, Retention handles proactive intervention and engagement, and Marketing helps agents keep winning through brand leverage, reusable assets, and lead support.
 
