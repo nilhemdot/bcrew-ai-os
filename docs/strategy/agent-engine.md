@@ -9,6 +9,14 @@ The Agent Engine turns the BHAG volume path into capacity math. It shows what pr
 - How many agents do we need to start next year correctly?
 - Is current recruiting pace strong enough to close the gap?
 
+## Pillar Ownership
+
+Every department should be explainable through one or more parts of the engine:
+
+- **Attract**: Recruiting drives agent acquisition, Marketing creates trust and demand, and Operations/Onboarding turns joins into activated agents.
+- **Grow**: Sales Leadership protects productivity through coaching, standards, training, and accountability.
+- **Retain**: Operations removes friction, Retention handles proactive intervention and engagement, and Marketing provides leverage that helps agents keep winning.
+
 ## Engine Inputs
 
 The live inputs below come from the BHAG builder calculator in `SRC-FREEDOM-BHAG-001`.
