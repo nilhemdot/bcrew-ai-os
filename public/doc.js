@@ -575,7 +575,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
   return card
 }
 
-function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap) {
+function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap, currentRequirementGroups) {
   var rows = sortSnapshotRows(
     cardGroups.reduce(function(all, group) {
       return all.concat(group.rows || [])
@@ -600,6 +600,21 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap) {
     year: 'numeric',
   }).format(new Date())) + 1)
 
+  var currentRows = currentRequirementGroups
+    ? sortSnapshotRows(
+        currentRequirementGroups.reduce(function(all, group) {
+          return all.concat(group.rows || [])
+        }, [])
+      )
+    : []
+  var currentActiveAgentsRow = currentRows.find(function(row) {
+    return row.label === 'Current Active Agents'
+  })
+  var currentActiveAgentsText = currentActiveAgentsRow ? currentActiveAgentsRow.value : '—'
+  var currentActiveAgentsValue = currentActiveAgentsRow
+    ? parseFloat(String(currentActiveAgentsRow.value).replace(/[^0-9.-]/g, ''))
+    : null
+
   var asOfValues = rows
     .map(function(row) {
       return row.asOf ? formatAsOfDate(row.asOf) : ''
@@ -618,7 +633,7 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap) {
 
   var thead = document.createElement('thead')
   var headRow = document.createElement('tr')
-  ;['Year', 'Volume Target', 'Required Agents'].forEach(function(label) {
+  ;['Year', 'Volume Target', 'Required Agents', 'Current Active Agents', 'Gap vs Current'].forEach(function(label) {
     var th = document.createElement('th')
     th.textContent = label
     headRow.appendChild(th)
@@ -643,6 +658,23 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap) {
     required.textContent = summaryMap['Required Agents ' + row.label] || '—'
     tr.appendChild(required)
 
+    var current = document.createElement('td')
+    current.textContent = currentActiveAgentsText
+    tr.appendChild(current)
+
+    var gap = document.createElement('td')
+    var requiredAgentsValue = parseFloat(String(summaryMap['Required Agents ' + row.label] || '').replace(/[^0-9.-]/g, ''))
+    if (Number.isFinite(requiredAgentsValue) && Number.isFinite(currentActiveAgentsValue)) {
+      var delta = currentActiveAgentsValue - requiredAgentsValue
+      gap.textContent = delta >= 0
+        ? 'Ahead by ' + Math.round(delta) + ' agents'
+        : 'Behind by ' + Math.round(Math.abs(delta)) + ' agents'
+      gap.className = delta >= 0 ? 'engine-path-positive' : 'engine-path-negative'
+    } else {
+      gap.textContent = '—'
+    }
+    tr.appendChild(gap)
+
     tbody.appendChild(tr)
   })
 
@@ -652,7 +684,7 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap) {
 
   var detail = document.createElement('p')
   detail.className = 'doc-source-detail'
-  detail.textContent = 'If the current annual volume average per agent holds, this is the agent count each year requires.'
+  detail.textContent = 'Based on the current productivity assumption, this shows how many agents each year requires and how far today’s active-agent count is from that path.'
   card.appendChild(detail)
 
   appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
@@ -782,32 +814,28 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
   var card = document.createElement('section')
   card.className = 'doc-source-card engine-summary-card'
 
-  var hero = document.createElement('section')
-  hero.className = 'engine-hero'
+  var intro = document.createElement('p')
+  intro.className = 'engine-summary-intro'
+  intro.textContent = 'This is the live snapshot underneath the long-range path. It shows what the business would need to do right now to start next year correctly.'
+  card.appendChild(intro)
 
-  var heroHeading = document.createElement('div')
-  heroHeading.className = 'engine-hero-heading'
-  heroHeading.textContent = 'What the model says right now'
-  hero.appendChild(heroHeading)
-
-  var heroGrid = document.createElement('div')
-  heroGrid.className = 'engine-hero-grid'
+  var hero = document.createElement('div')
+  hero.className = 'engine-current-answer'
 
   ;[
     'Required Start-of-Year Agents',
     'Current Active Agents',
     'Capacity Gap',
     'Required Recruiting Pace',
-    'Current Recruiting Pace',
   ].forEach(function(metricKey) {
     var item = document.createElement('div')
-    item.className = 'engine-hero-stat'
+    item.className = 'engine-current-answer-item'
 
     var labelWrap = document.createElement('div')
     labelWrap.className = 'engine-summary-label-wrap'
 
     var label = document.createElement('div')
-    label.className = 'engine-hero-label'
+    label.className = 'engine-current-answer-label'
     label.textContent = metricKey
     labelWrap.appendChild(label)
 
@@ -816,7 +844,7 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
     item.appendChild(labelWrap)
 
     var value = document.createElement('div')
-    value.className = 'engine-hero-value'
+    value.className = 'engine-current-answer-value'
     value.textContent = getMetricValue(metricKey)
     if (/^Ahead by/i.test(value.textContent) || /^Above target/i.test(value.textContent)) {
       value.classList.add('engine-hero-value-positive')
@@ -825,81 +853,37 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
     }
     item.appendChild(value)
 
-    heroGrid.appendChild(item)
+    hero.appendChild(item)
   })
 
-  hero.appendChild(heroGrid)
   card.appendChild(hero)
 
-  var flow = document.createElement('div')
-  flow.className = 'engine-flow'
-
-  ;[
-    { step: '1', title: 'Model Inputs', text: 'Set the planning math.' },
-    { step: '2', title: 'Current Reality', text: 'Shows where the business is now.' },
-    { step: '3', title: 'Gap To Close', text: 'Shows what must change to start next year correctly.' },
-    { step: '4', title: 'Current Pressures', text: 'Shows which forces are helping or hurting the model.' },
-  ].forEach(function(stepDef) {
-    var step = document.createElement('section')
-    step.className = 'engine-flow-step'
-
-    var badge = document.createElement('div')
-    badge.className = 'engine-flow-badge'
-    badge.textContent = stepDef.step
-    step.appendChild(badge)
-
-    var title = document.createElement('div')
-    title.className = 'engine-flow-title'
-    title.textContent = stepDef.title
-    step.appendChild(title)
-
-    var text = document.createElement('div')
-    text.className = 'engine-flow-text'
-    text.textContent = stepDef.text
-    step.appendChild(text)
-
-    flow.appendChild(step)
-  })
-
-  card.appendChild(flow)
-
   var grid = document.createElement('div')
-  grid.className = 'engine-summary-grid'
+  grid.className = 'engine-summary-grid engine-summary-grid-compact'
 
   ;[
     {
-      title: 'Model Inputs',
+      title: 'Live Snapshot',
       metrics: [
-        'Next-Year Volume Target',
-        'Current Productivity Assumption',
-        'Production Target / Agent',
-        'Target Split',
-      ],
-    },
-    {
-      title: 'Current Reality',
-      metrics: [
-        'Current Active Agents',
         'Current Recruiting Pace',
+        'Production Target / Agent',
         'Current Avg Production / Agent',
-        'Actual Split',
-      ],
-    },
-    {
-      title: 'Gap To Close',
-      metrics: [
-        'Required Start-of-Year Agents',
-        'Capacity Gap',
-        'Required Recruiting Pace',
-        'Production Gap',
-        'Split Gap',
-      ],
-    },
-    {
-      title: 'Current Pressures',
-      metrics: [
         'Planning Attrition Assumption',
         'Live Attrition Pressure',
+      ],
+    },
+    {
+      title: 'Economics',
+      metrics: [
+        'Actual Split',
+        'Target Split',
+        'Split Gap',
+        'Production Gap',
+      ],
+    },
+    {
+      title: 'Movement',
+      metrics: [
         'Avg Additions / Month',
         'Avg Attrition / Month',
       ],
@@ -946,7 +930,7 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
 
   var detail = document.createElement('p')
   detail.className = 'doc-source-detail'
-  detail.textContent = 'Read this top to bottom: the model inputs set the math, current reality shows where we are, the gap shows what must change, and current pressures explain what is pushing the requirement.'
+  detail.textContent = 'The path above is the strategy view. This snapshot just shows what the live business is doing underneath it right now.'
   card.appendChild(detail)
 
   appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
@@ -1018,7 +1002,7 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContract
           var engineInputsCard = renderEngineInputsCard(h2Text, sourceGroups[h2Text], sourceContractMap)
           if (engineInputsCard) pendingSummaryCard = engineInputsCard
         } else if (isEngineDoc && isEnginePathSection) {
-          var enginePathCard = renderEnginePathCard(h2Text, sourceGroups[h2Text], sourceContractMap)
+          var enginePathCard = renderEnginePathCard(h2Text, sourceGroups[h2Text], sourceContractMap, sourceGroups['Current Requirement'])
           if (enginePathCard) pendingSummaryCard = enginePathCard
         } else if (isEngineDoc && isEngineRequirementSection) {
           var engineRequirementCard = renderEngineRequirementCard(h2Text, sourceGroups[h2Text], sourceContractMap)
