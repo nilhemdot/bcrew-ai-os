@@ -312,6 +312,29 @@ function appendSourceActions(target, actions) {
   target.appendChild(actionRow)
 }
 
+function getBhagPaceExplanation(groupTitle) {
+  if (groupTitle === 'Team Goal: $2B') {
+    return 'Pace compares actual YTD executed volume to target-to-date. Target-to-date is the current year target prorated by the days elapsed in the Toronto calendar year. Actual volume uses Date Firm (Executed) plus Volume Credit from the Owners Dashboard.'
+  }
+
+  if (groupTitle === 'Community Goal: 10,000 Agents') {
+    return 'Pace compares the current community count to target-to-date. Target-to-date starts from the first recorded community count of the year and prorates the gap to the year-end target by the days elapsed in the Toronto calendar year.'
+  }
+
+  return 'Pace shows whether current results are ahead of or behind the prorated target-to-date.'
+}
+
+function appendBhagInfoBadge(target, explanation) {
+  if (!explanation) return
+
+  var badge = document.createElement('span')
+  badge.className = 'bhag-info-badge'
+  badge.textContent = 'i'
+  badge.title = explanation
+  badge.setAttribute('aria-label', explanation)
+  target.appendChild(badge)
+}
+
 function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
   var rows = sortSnapshotRows(
     cardGroups.reduce(function(all, group) {
@@ -417,7 +440,18 @@ function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
     tr.appendChild(current)
 
     var pace = document.createElement('td')
-    pace.textContent = row.label === currentYearLabel ? summaryMap['Pace'] || '—' : '—'
+    if (row.label === currentYearLabel) {
+      var paceWrap = document.createElement('span')
+      paceWrap.className = 'bhag-pace-wrap'
+
+      var paceValue = document.createElement('span')
+      paceValue.textContent = summaryMap['Pace'] || '—'
+      paceWrap.appendChild(paceValue)
+      appendBhagInfoBadge(paceWrap, getBhagPaceExplanation(groupTitle))
+      pace.appendChild(paceWrap)
+    } else {
+      pace.textContent = '—'
+    }
     if (row.label === currentYearLabel) {
       var paceText = summaryMap['Pace'] || ''
       if (/^Ahead by/i.test(paceText)) pace.className = 'bhag-pace bhag-pace-positive'

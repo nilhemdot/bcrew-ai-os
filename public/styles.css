@@ -1277,6 +1277,28 @@ code {
   font-weight: 800;
 }
 
+.bhag-pace-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bhag-info-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  color: var(--text-tertiary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  background: rgba(255, 255, 255, 0.72);
+}
+
 .bhag-summary-table td.bhag-pace-positive {
   color: #0f8a43;
 }
