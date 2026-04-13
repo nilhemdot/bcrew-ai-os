@@ -324,6 +324,12 @@ function getBhagPaceExplanation(groupTitle) {
   return 'Pace shows whether current results are ahead of or behind the prorated target-to-date.'
 }
 
+function getDirectionalClass(value) {
+  if (/^(Ahead|Above target)/i.test(value)) return 'engine-summary-value-positive'
+  if (/^(Behind|Below target)/i.test(value)) return 'engine-summary-value-negative'
+  return ''
+}
+
 function closeBhagInfoPopovers() {
   document.querySelectorAll('.bhag-info-popover-open').forEach(function(popover) {
     popover.classList.remove('bhag-info-popover-open')
@@ -517,17 +523,157 @@ function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
   return card
 }
 
+function renderEngineSummaryCard(groupTitle, cardGroups, sourceContractMap) {
+  var rows = sortSnapshotRows(
+    cardGroups.reduce(function(all, group) {
+      return all.concat(group.rows || [])
+    }, [])
+  )
+
+  if (!rows.length) return null
+
+  var summaryMap = {}
+  rows.forEach(function(row) {
+    summaryMap[row.label] = row.value
+  })
+
+  var asOfValues = rows
+    .map(function(row) {
+      return row.asOf ? formatAsOfDate(row.asOf) : ''
+    })
+    .filter(Boolean)
+  var uniqueAsOfValues = Array.from(new Set(asOfValues))
+
+  var card = document.createElement('section')
+  card.className = 'doc-source-card engine-summary-card'
+
+  var top = document.createElement('div')
+  top.className = 'doc-source-card-top'
+
+  var titleWrap = document.createElement('div')
+  var source = document.createElement('div')
+  source.className = 'doc-source-id'
+  source.textContent = formatSourceSummary(cardGroups)
+  titleWrap.appendChild(source)
+  appendSourceActions(
+    titleWrap,
+    getSourceActionsForIds(
+      cardGroups.map(function(group) { return group.sourceId }),
+      sourceContractMap
+    )
+  )
+  top.appendChild(titleWrap)
+
+  if (uniqueAsOfValues.length) {
+    var asOf = document.createElement('div')
+    asOf.className = 'doc-source-asof'
+    asOf.textContent = 'As of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
+    top.appendChild(asOf)
+  }
+
+  card.appendChild(top)
+
+  var grid = document.createElement('div')
+  grid.className = 'engine-summary-grid'
+
+  ;[
+    {
+      title: 'Attract',
+      metrics: [
+        ['Required Pace', 'Required Recruiting Pace'],
+        ['6-Month Pace', '6-Month Recruiting Pace'],
+        ['Gap', 'Recruiting Gap'],
+      ],
+    },
+    {
+      title: 'Grow',
+      metrics: [
+        ['Avg Production', 'Avg Production / Agent'],
+        ['Target Production', 'Production Target / Agent'],
+        ['Gap', 'Production Gap'],
+      ],
+    },
+    {
+      title: 'Retain',
+      metrics: [
+        ['Active Agents', 'Active Agents'],
+        ['Next-Year Target', 'Next-Year Start Target'],
+        ['Capacity Gap', 'Capacity Gap'],
+        ['Attrition Rate', 'Attrition Rate'],
+      ],
+    },
+    {
+      title: 'Financial Truth',
+      metrics: [
+        ['Actual Split', 'Actual Split'],
+        ['Target Split', 'Target Split'],
+        ['Gap', 'Split Gap'],
+      ],
+    },
+  ].forEach(function(sectionDef) {
+    var section = document.createElement('section')
+    section.className = 'engine-summary-section'
+
+    var heading = document.createElement('div')
+    heading.className = 'engine-summary-heading'
+    heading.textContent = sectionDef.title
+    section.appendChild(heading)
+
+    sectionDef.metrics.forEach(function(metricDef) {
+      var row = document.createElement('div')
+      row.className = 'engine-summary-metric'
+
+      var label = document.createElement('span')
+      label.className = 'engine-summary-label'
+      label.textContent = metricDef[0]
+      row.appendChild(label)
+
+      var value = document.createElement('span')
+      value.className = 'engine-summary-value'
+      value.textContent = summaryMap[metricDef[1]] || '—'
+      var directionalClass = getDirectionalClass(value.textContent)
+      if (directionalClass) value.classList.add(directionalClass)
+      row.appendChild(value)
+
+      section.appendChild(row)
+    })
+
+    grid.appendChild(section)
+  })
+
+  card.appendChild(grid)
+
+  var pressure = document.createElement('p')
+  pressure.className = 'engine-summary-footnote'
+  pressure.textContent =
+    'Operating pressure: ' +
+    (summaryMap['Avg Additions / Month'] || '—') +
+    ' added per month · ' +
+    (summaryMap['Avg Attrition / Month'] || '—') +
+    ' lost per month.'
+  card.appendChild(pressure)
+
+  if (rows[0].detail) {
+    var detail = document.createElement('p')
+    detail.className = 'doc-source-detail'
+    detail.textContent = rows[0].detail
+    card.appendChild(detail)
+  }
+
+  return card
+}
+
 function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContractMap) {
   var container = document.createElement('div')
   container.className = 'markdown-block'
   var lines = markdown.split('\n')
   var i = 0
-  var pendingBhagCard = null
+  var pendingSummaryCard = null
 
-  function flushPendingBhagCard() {
-    if (!pendingBhagCard) return
-    container.appendChild(pendingBhagCard)
-    pendingBhagCard = null
+  function flushPendingSummaryCard() {
+    if (!pendingSummaryCard) return
+    container.appendChild(pendingSummaryCard)
+    pendingSummaryCard = null
   }
 
   while (i < lines.length) {
@@ -545,7 +691,7 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContract
     }
 
     if (line.startsWith('# ')) {
-      flushPendingBhagCard()
+      flushPendingSummaryCard()
       var h1 = document.createElement('h2')
       h1.className = 'doc-markdown-heading doc-markdown-heading-1'
       var h1Text = line.slice(2).trim()
@@ -557,7 +703,7 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContract
     }
 
     if (line.startsWith('## ')) {
-      flushPendingBhagCard()
+      flushPendingSummaryCard()
       var h2 = document.createElement('h3')
       h2.className = 'doc-markdown-heading doc-markdown-heading-2'
       var h2Text = line.slice(3).trim()
@@ -567,11 +713,18 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContract
       if (sourceGroups && sourceGroups[h2Text]) {
         var isBhagDoc = currentPath === 'docs/strategy/bhag-model.md'
         var isBhagSection = h2Text === 'Team Goal: $2B' || h2Text === 'Community Goal: 10,000 Agents'
+        var isEngineDoc = currentPath === 'docs/strategy/agent-engine.md'
+        var isEngineSection = h2Text === 'Live Engine View'
 
         if (isBhagDoc && isBhagSection) {
           var bhagCard = renderBhagSummaryCard(h2Text, sourceGroups[h2Text], sourceContractMap)
           if (bhagCard) {
-            pendingBhagCard = bhagCard
+            pendingSummaryCard = bhagCard
+          }
+        } else if (isEngineDoc && isEngineSection) {
+          var engineCard = renderEngineSummaryCard(h2Text, sourceGroups[h2Text], sourceContractMap)
+          if (engineCard) {
+            pendingSummaryCard = engineCard
           }
         } else {
           sourceGroups[h2Text].forEach(function(cardGroup) {
@@ -584,7 +737,7 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContract
     }
 
     if (line.startsWith('### ')) {
-      flushPendingBhagCard()
+      flushPendingSummaryCard()
       var h3 = document.createElement('h4')
       h3.className = 'md-subheading'
       var h3Text = line.slice(4).trim()
@@ -596,7 +749,7 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContract
     }
 
     if (isTableRow(line)) {
-      flushPendingBhagCard()
+      flushPendingSummaryCard()
       var tableRows = []
       while (i < lines.length && isTableRow(lines[i])) {
         if (!isSeparatorRow(lines[i])) {
@@ -611,7 +764,7 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContract
     }
 
     if (/^\d+\.\s/.test(line)) {
-      flushPendingBhagCard()
+      flushPendingSummaryCard()
       var ol = document.createElement('ol')
       ol.className = 'md-ol'
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
@@ -633,18 +786,18 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContract
         i++
       }
       container.appendChild(ul)
-      flushPendingBhagCard()
+      flushPendingSummaryCard()
       continue
     }
 
     var p = document.createElement('p')
     appendFormattedText(line, p, currentPath)
     container.appendChild(p)
-    flushPendingBhagCard()
+    flushPendingSummaryCard()
     i++
   }
 
-  flushPendingBhagCard()
+  flushPendingSummaryCard()
   return container
 }
 
@@ -675,7 +828,7 @@ function groupSourceSnapshot(rows) {
 }
 
 function isLiveDocPath(docPath) {
-  return docPath === 'docs/strategy/bhag-model.md'
+  return docPath === 'docs/strategy/bhag-model.md' || docPath === 'docs/strategy/agent-engine.md'
 }
 
 async function init() {

@@ -1338,6 +1338,72 @@ code {
   color: #c24141;
 }
 
+.engine-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.engine-summary-section {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.engine-summary-heading {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 10px;
+}
+
+.engine-summary-metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.engine-summary-metric:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.engine-summary-label {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.engine-summary-value {
+  text-align: right;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.engine-summary-value-positive {
+  color: #0f8a43;
+}
+
+.engine-summary-value-negative {
+  color: #c24141;
+}
+
+.engine-summary-footnote {
+  margin: 12px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
 .strategy-document-single {
   padding: 32px;
 }
