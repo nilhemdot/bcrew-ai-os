@@ -21,6 +21,9 @@ Every department should be explainable through one or more parts of the engine:
 
 The live inputs below come from the BHAG builder calculator in `SRC-FREEDOM-BHAG-001`.
 
+- Targets are based on active, capacity-producing agents only.
+- Owners, leadership, and known zero-production agents are excluded from the count.
+
 ## Required Agent Path
 
 The required-agent table below translates the BHAG volume path into required agent count at the current annual volume average per agent.

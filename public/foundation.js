@@ -472,7 +472,7 @@ function getEngineMetricExplanation(metricKey) {
   }
 
   if (metricKey === 'Current Active Agents') {
-    return 'The current active, capacity-producing agent count from the live Agent Engine tab.'
+    return 'The current active, capacity-producing agent count from the live Agent Engine tab. Owners, leadership, and known zero-production agents are excluded.'
   }
 
   if (metricKey === 'Capacity Gap') {
@@ -886,7 +886,7 @@ function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
 
   var intro = document.createElement('p')
   intro.className = 'engine-summary-intro'
-  intro.textContent = 'These are the planning assumptions that set the engine math. They feed the current requirement below.'
+  intro.textContent = 'These are the core assumptions that drive the engine math. They determine how many agents the model needs.'
   card.appendChild(intro)
 
   var grid = document.createElement('div')
@@ -894,9 +894,7 @@ function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
 
   ;[
     'Average Monthly GCI',
-    'Annual Volume Average',
     'Split to Team',
-    'Commission Average',
   ].forEach(function(metricKey) {
     var metric = getMetric(metricKey)
     if (!metric) return
@@ -918,6 +916,12 @@ function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
   })
 
   card.appendChild(grid)
+
+  var note = document.createElement('p')
+  note.className = 'doc-source-detail'
+  note.textContent = 'Targets are based on active, capacity-producing agents only. Owners, leadership, and known zero-production agents are excluded.'
+  card.appendChild(note)
+
   appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
 
   return card
