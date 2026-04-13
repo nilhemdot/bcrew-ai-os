@@ -330,6 +330,34 @@ function getDirectionalClass(value) {
   return ''
 }
 
+function getEngineMetricExplanation(metricKey) {
+  if (metricKey === 'Capacity Gap') {
+    return 'The difference between the required start-of-year agent count and the active agents we have now.'
+  }
+
+  if (metricKey === 'Required Recruiting Pace') {
+    return 'The monthly recruiting pace the current model needs in order to close the gap and start next year correctly.'
+  }
+
+  if (metricKey === 'Current Recruiting Pace') {
+    return 'The recent 6-month rolling recruiting pace from the live Agent Engine tab.'
+  }
+
+  if (metricKey === 'Production Gap') {
+    return 'The difference between current average monthly GCI per active agent and the model target.'
+  }
+
+  if (metricKey === 'Live Attrition Pressure') {
+    return 'This is the live operating attrition signal from the Agent Engine tab. It is not the same as the planning attrition assumption still buried in the formula.'
+  }
+
+  if (metricKey === 'Split Gap') {
+    return 'The difference between the current live split and the model target split.'
+  }
+
+  return ''
+}
+
 function closeBhagInfoPopovers() {
   document.querySelectorAll('.bhag-info-popover-open').forEach(function(popover) {
     popover.classList.remove('bhag-info-popover-open')
@@ -725,10 +753,17 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
       var row = document.createElement('div')
       row.className = 'engine-summary-metric'
 
+      var labelWrap = document.createElement('span')
+      labelWrap.className = 'engine-summary-label-wrap'
+
       var label = document.createElement('span')
       label.className = 'engine-summary-label'
       label.textContent = metricKey
-      row.appendChild(label)
+      labelWrap.appendChild(label)
+
+      var explanation = getEngineMetricExplanation(metricKey)
+      if (explanation) appendBhagInfoBadge(labelWrap, explanation)
+      row.appendChild(labelWrap)
 
       var value = document.createElement('span')
       value.className = 'engine-summary-value'

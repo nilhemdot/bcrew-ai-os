@@ -21,10 +21,6 @@ Every department should be explainable through one or more parts of the engine:
 
 The live inputs below come from the BHAG builder calculator in `SRC-FREEDOM-BHAG-001`.
 
-## Required Agent Path
-
-The required-agent table below translates the BHAG volume path into required agent count at the current annual volume average per agent.
-
 ## Current Requirement
 
 This is the live answer to the question: how many agents do we need to add now so we can start next year at the right level?
@@ -33,6 +29,10 @@ This is the live answer to the question: how many agents do we need to add now s
 - The current productivity assumption turns that target into a required start-of-year agent count.
 - The live engine compares that requirement to current active agents and current recruiting pace.
 - If productivity, split, or attrition changes, the required pace changes too.
+
+## Required Agent Path
+
+The required-agent table below translates the BHAG volume path into required agent count at the current annual volume average per agent.
 
 ## Attrition Note
 

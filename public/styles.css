@@ -1381,6 +1381,12 @@ code {
   line-height: 1.4;
 }
 
+.engine-summary-label-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .engine-summary-value {
   text-align: right;
   color: var(--text-primary);
