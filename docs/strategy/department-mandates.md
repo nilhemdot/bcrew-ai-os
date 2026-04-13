@@ -40,7 +40,7 @@ Winning: Ryan and Blake operating independently. Production maintained as agent 
 
 **Owner:** Tanner
 
-Create leverage for attraction and retention. Marketing should run the broader attraction system through founder thought leadership, Benson Crew spotlights, backend proof posts, MarketMasters trust content, and reusable assets that agents can leverage to win. EVERYWHERE brand execution. Dual audience (ATTRACT + RETAIN) executed weekly. Content is platform-native. No single-channel dependency.
+Create leverage for attraction and retention. Marketing should run the broader attraction system through founder thought leadership, Benson Crew proof-of-execution content, MarketMasters trust content, and reusable assets that agents can leverage to win. EVERYWHERE brand execution. Dual audience (ATTRACT + RETAIN) executed weekly. Content is platform-native. No single-channel dependency.
 
 Winning: Brand activity reduces individual recruiting effort, creates qualified recruiting attention, and gives agents reusable assets and lead support. Losing: Content exists but does not compound into attraction or retention leverage.
 
