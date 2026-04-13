@@ -269,7 +269,93 @@ function renderMarkdownBlock(markdown, currentPath) {
 
 /* ── renderDocMarkdownBlock — full-doc level (from doc.js) ── */
 
-function renderDocMarkdownBlock(markdown, currentPath) {
+function renderInlineSourceCard(groupTitle, rows, options) {
+  var hideTitle = options && options.hideTitle
+  var card = document.createElement('section')
+  card.className = 'doc-source-card doc-source-card-inline'
+
+  var asOfValues = rows
+    .map(function(row) {
+      if (!row.asOf) return ''
+      var date = new Date(row.asOf)
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Toronto',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      }).format(date)
+    })
+    .filter(Boolean)
+  var uniqueAsOfValues = Array.from(new Set(asOfValues))
+
+  var cardTop = document.createElement('div')
+  cardTop.className = 'doc-source-card-top'
+
+  var titleWrap = document.createElement('div')
+  if (!hideTitle) {
+    var title = document.createElement('h5')
+    title.textContent = groupTitle
+    titleWrap.appendChild(title)
+  }
+
+  var sourceId = document.createElement('div')
+  sourceId.className = 'doc-source-id'
+  sourceId.textContent = rows[0].sourceId
+  titleWrap.appendChild(sourceId)
+  cardTop.appendChild(titleWrap)
+
+  if (uniqueAsOfValues.length) {
+    var asOf = document.createElement('div')
+    asOf.className = 'doc-source-asof'
+    asOf.textContent = 'As of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
+    cardTop.appendChild(asOf)
+  }
+
+  card.appendChild(cardTop)
+
+  var table = document.createElement('table')
+  table.className = 'doc-source-table'
+
+  var tbody = document.createElement('tbody')
+  rows.forEach(function(row) {
+    var tr = document.createElement('tr')
+
+    var label = document.createElement('th')
+    label.textContent = row.label
+    tr.appendChild(label)
+
+    var value = document.createElement('td')
+    value.textContent = row.value
+    tr.appendChild(value)
+
+    tbody.appendChild(tr)
+  })
+
+  table.appendChild(tbody)
+  card.appendChild(table)
+
+  if (rows[0].detail) {
+    var detail = document.createElement('p')
+    detail.className = 'doc-source-detail'
+    detail.textContent = rows[0].detail
+    card.appendChild(detail)
+  }
+
+  return card
+}
+
+function groupSourceSnapshot(rows) {
+  var groups = {}
+
+  rows.forEach(function(row) {
+    if (!groups[row.groupTitle]) groups[row.groupTitle] = []
+    groups[row.groupTitle].push(row)
+  })
+
+  return groups
+}
+
+function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
   var container = document.createElement('div')
   container.className = 'markdown-block'
   var lines = markdown.split('\n')
@@ -307,6 +393,9 @@ function renderDocMarkdownBlock(markdown, currentPath) {
       h2.id = slugify(h2Text)
       appendFormattedText(h2Text, h2, currentPath)
       container.appendChild(h2)
+      if (sourceGroups && sourceGroups[h2Text]) {
+        container.appendChild(renderInlineSourceCard(h2Text, sourceGroups[h2Text], { hideTitle: true }))
+      }
       i++
       continue
     }
@@ -1196,7 +1285,11 @@ function renderStrategyDoc(sectionKey) {
 
     var docContent = document.createElement('div')
     docContent.className = 'doc-content'
-    docContent.appendChild(renderDocMarkdownBlock(data.content, data.meta.path))
+    docContent.appendChild(renderDocMarkdownBlock(
+      data.content,
+      data.meta.path,
+      groupSourceSnapshot(data.sourceSnapshot || [])
+    ))
     docPanel.appendChild(docContent)
     container.appendChild(docPanel)
 
