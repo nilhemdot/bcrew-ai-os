@@ -490,10 +490,20 @@ function buildQuarterMetaPill(label, value, accent) {
 }
 
 function buildPriorityChip(text) {
-  var chip = document.createElement('span')
-  chip.className = 'quarter-priority-chip'
-  chip.textContent = text
-  return chip
+  var item = document.createElement('div')
+  item.className = 'quarter-priority-item'
+
+  var marker = document.createElement('span')
+  marker.className = 'quarter-priority-marker'
+  marker.textContent = 'Priority'
+  item.appendChild(marker)
+
+  var copy = document.createElement('span')
+  copy.className = 'quarter-priority-copy'
+  copy.textContent = text
+  item.appendChild(copy)
+
+  return item
 }
 
 function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
@@ -510,16 +520,27 @@ function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
   var quarterInfo = parseQuarterLabel(quarterSection ? quarterSection.title : '')
   var nextQuarter = getNextQuarterInfo(quarterInfo)
   var summaryLines = extractQuarterSummaryLines(quarterSection ? quarterSection.content : section.content)
-  var summary = summaryLines[0] || 'Current quarter priorities are being reviewed.'
-  var cadence = summaryLines[1] || 'Q1 = Feb-Apr · Q2 = May-Jul · Q3 = Aug-Oct · Q4 = Nov-Jan'
+  var summary = summaryLines[0] || ''
   var prioritySections = quarterlyDoc && quarterlyDoc.sections
     ? quarterlyDoc.sections.slice(1, 4)
     : []
 
-  var intro = document.createElement('p')
-  intro.className = 'quarter-summary'
-  intro.textContent = summary
-  article.appendChild(intro)
+  if (summary) {
+    var themeWrap = document.createElement('div')
+    themeWrap.className = 'quarter-theme'
+
+    var themeLabel = document.createElement('div')
+    themeLabel.className = 'quarter-theme-label'
+    themeLabel.textContent = 'Quarter Theme'
+    themeWrap.appendChild(themeLabel)
+
+    var intro = document.createElement('p')
+    intro.className = 'quarter-summary'
+    intro.textContent = summary
+    themeWrap.appendChild(intro)
+
+    article.appendChild(themeWrap)
+  }
 
   var metaRow = document.createElement('div')
   metaRow.className = 'quarter-meta-row'
@@ -544,7 +565,6 @@ function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
     )
   }
 
-  metaRow.appendChild(buildQuarterMetaPill('Cadence', 'Feb-Apr · May-Jul · Aug-Oct · Nov-Jan'))
   article.appendChild(metaRow)
 
   if (prioritySections.length) {
@@ -557,7 +577,7 @@ function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
     priorityWrap.appendChild(priorityLabel)
 
     var priorityRow = document.createElement('div')
-    priorityRow.className = 'quarter-priority-row'
+    priorityRow.className = 'quarter-priority-stack'
 
     prioritySections.forEach(function(prioritySection) {
       var cleanedTitle = prioritySection.title.replace(/^Priority\s+\d+:\s*/, '')
@@ -567,11 +587,6 @@ function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
     priorityWrap.appendChild(priorityRow)
     article.appendChild(priorityWrap)
   }
-
-  var cadenceNote = document.createElement('p')
-  cadenceNote.className = 'quarter-note'
-  cadenceNote.textContent = cadence
-  article.appendChild(cadenceNote)
 
   var supportDoc = sectionSupportDocs[section.title]
   if (supportDoc) {
