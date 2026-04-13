@@ -1,37 +1,33 @@
 # Agent Engine
 
-The Agent Engine is the live operating scoreboard for the business. It shows whether Attract, Grow, Retain, and financial truth are still strong enough to keep the plan working.
+The Agent Engine turns the BHAG volume path into capacity math. It shows what productivity assumption the model is using, how many agents that assumption requires, and what pace the business needs now to start next year correctly.
 
 ## What the Engine Answers
 
-- Are we recruiting fast enough to close the capacity gap?
-- Are active agents producing enough to make the model work?
-- Is capacity compounding or leaking?
-- Is the business staying financially true as those three move?
+- What productivity assumption is the model using?
+- At that productivity level, how many agents does each target year require?
+- How many agents do we need to start next year correctly?
+- Is current recruiting pace strong enough to close the gap?
 
-## Live Engine View
+## Engine Inputs
 
-The live view below comes from `SRC-FREEDOM-ENGINE-001`. It should be read with the BHAG path, not in isolation.
+The live inputs below come from the BHAG builder calculator in `SRC-FREEDOM-BHAG-001`.
 
-## Core Engine Logic
+## Required Agent Path
 
-The engine works because the metrics are connected, not independent.
+The required-agent table below translates the BHAG volume path into required agent count at the current annual volume average per agent.
 
-- The BHAG builder sets the next-year starting target.
-- The engine compares that target to current active agents, recruiting pace, production, and split.
-- Required recruiting pace changes when the capacity gap or attrition assumption changes.
-- Production and split show whether added capacity is economically true, not just numerically bigger.
-- When recruiting pace, production, split, or attrition changes, the expected outcome changes with it.
+## Current Requirement
 
-The point of the engine is to show whether the whole model still holds, not whether one number looks good in isolation.
+This is the live answer to the question: how many agents do we need to add now so we can start next year at the right level?
+
+- The BHAG builder sets the next-year volume target.
+- The current productivity assumption turns that target into a required start-of-year agent count.
+- The live engine compares that requirement to current active agents and current recruiting pace.
+- If productivity, split, or attrition changes, the required pace changes too.
 
 ## Attrition Note
 
-The engine currently uses two different attrition views:
-
-- a planning attrition assumption inside the required recruiting formula
-- a live operating pressure ratio based on current additions and losses
-
-They are both useful, but they answer different questions and should not be read as if they are the same metric.
+The live engine currently exposes operating attrition pressure, but the planning attrition assumption inside the required recruiting formula still needs to be broken out as an explicit source-backed input.
 
 For assumption definitions and interpretation rules, see the [Financial Model and Assumptions](financial-model-and-assumptions.md).

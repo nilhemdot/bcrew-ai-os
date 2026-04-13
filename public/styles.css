@@ -1404,6 +1404,15 @@ code {
   line-height: 1.5;
 }
 
+.engine-path-row-current {
+  background: linear-gradient(90deg, rgba(0, 132, 201, 0.08), rgba(0, 132, 201, 0.02));
+}
+
+.engine-path-row-current th,
+.engine-path-row-current td {
+  font-weight: 700;
+}
+
 .strategy-document-single {
   padding: 32px;
 }

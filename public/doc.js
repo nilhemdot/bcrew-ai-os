@@ -523,7 +523,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
   return card
 }
 
-function renderEngineSummaryCard(groupTitle, cardGroups, sourceContractMap) {
+function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap) {
   var rows = sortSnapshotRows(
     cardGroups.reduce(function(all, group) {
       return all.concat(group.rows || [])
@@ -536,6 +536,112 @@ function renderEngineSummaryCard(groupTitle, cardGroups, sourceContractMap) {
   rows.forEach(function(row) {
     summaryMap[row.label] = row.value
   })
+
+  var yearRows = rows.filter(function(row) {
+    return /^\d{4}$/.test(row.label)
+  })
+
+  if (!yearRows.length) return null
+
+  var nextYearLabel = String(Number(new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    year: 'numeric',
+  }).format(new Date())) + 1)
+
+  var asOfValues = rows
+    .map(function(row) {
+      return row.asOf ? formatAsOfDate(row.asOf) : ''
+    })
+    .filter(Boolean)
+  var uniqueAsOfValues = Array.from(new Set(asOfValues))
+
+  var card = document.createElement('section')
+  card.className = 'doc-source-card engine-summary-card'
+
+  var top = document.createElement('div')
+  top.className = 'doc-source-card-top'
+
+  var titleWrap = document.createElement('div')
+  var source = document.createElement('div')
+  source.className = 'doc-source-id'
+  source.textContent = formatSourceSummary(cardGroups)
+  titleWrap.appendChild(source)
+  appendSourceActions(
+    titleWrap,
+    getSourceActionsForIds(
+      cardGroups.map(function(group) { return group.sourceId }),
+      sourceContractMap
+    )
+  )
+  top.appendChild(titleWrap)
+
+  if (uniqueAsOfValues.length) {
+    var asOf = document.createElement('div')
+    asOf.className = 'doc-source-asof'
+    asOf.textContent = 'As of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
+    top.appendChild(asOf)
+  }
+
+  card.appendChild(top)
+
+  var tableWrap = document.createElement('div')
+  tableWrap.className = 'md-table-wrap'
+
+  var table = document.createElement('table')
+  table.className = 'md-table engine-path-table'
+
+  var thead = document.createElement('thead')
+  var headRow = document.createElement('tr')
+  ;['Year', 'Volume Target', 'Required Agents'].forEach(function(label) {
+    var th = document.createElement('th')
+    th.textContent = label
+    headRow.appendChild(th)
+  })
+  thead.appendChild(headRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+  yearRows.forEach(function(row) {
+    var tr = document.createElement('tr')
+    if (row.label === nextYearLabel) tr.className = 'engine-path-row-current'
+
+    var year = document.createElement('th')
+    year.textContent = row.label
+    tr.appendChild(year)
+
+    var target = document.createElement('td')
+    target.textContent = row.value
+    tr.appendChild(target)
+
+    var required = document.createElement('td')
+    required.textContent = summaryMap['Required Agents ' + row.label] || '—'
+    tr.appendChild(required)
+
+    tbody.appendChild(tr)
+  })
+
+  table.appendChild(tbody)
+  tableWrap.appendChild(table)
+  card.appendChild(tableWrap)
+
+  if (rows[0].detail) {
+    var detail = document.createElement('p')
+    detail.className = 'doc-source-detail'
+    detail.textContent = rows[0].detail
+    card.appendChild(detail)
+  }
+
+  return card
+}
+
+function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) {
+  var rows = sortSnapshotRows(
+    cardGroups.reduce(function(all, group) {
+      return all.concat(group.rows || [])
+    }, [])
+  )
+
+  if (!rows.length) return null
 
   var asOfValues = rows
     .map(function(row) {
@@ -578,36 +684,29 @@ function renderEngineSummaryCard(groupTitle, cardGroups, sourceContractMap) {
 
   ;[
     {
-      title: 'Attract',
+      title: 'Model Needs',
       metrics: [
-        ['Required Pace', 'Required Recruiting Pace'],
-        ['6-Month Pace', '6-Month Recruiting Pace'],
-        ['Gap', 'Recruiting Gap'],
+        'Next-Year Volume Target',
+        'Current Productivity Assumption',
+        'Required Start-of-Year Agents',
       ],
     },
     {
-      title: 'Grow',
+      title: 'Current Reality',
       metrics: [
-        ['Avg Production', 'Avg Production / Agent'],
-        ['Target Production', 'Production Target / Agent'],
-        ['Gap', 'Production Gap'],
+        'Current Active Agents',
+        'Capacity Gap',
+        'Required Recruiting Pace',
+        'Current Recruiting Pace',
       ],
     },
     {
-      title: 'Retain',
+      title: 'Pressure Signals',
       metrics: [
-        ['Active Agents', 'Active Agents'],
-        ['Next-Year Target', 'Next-Year Start Target'],
-        ['Capacity Gap', 'Capacity Gap'],
-        ['Attrition Rate', 'Attrition Rate'],
-      ],
-    },
-    {
-      title: 'Financial Truth',
-      metrics: [
-        ['Actual Split', 'Actual Split'],
-        ['Target Split', 'Target Split'],
-        ['Gap', 'Split Gap'],
+        'Live Attrition Pressure',
+        'Avg Additions / Month',
+        'Avg Attrition / Month',
+        'Split Gap',
       ],
     },
   ].forEach(function(sectionDef) {
@@ -619,18 +718,19 @@ function renderEngineSummaryCard(groupTitle, cardGroups, sourceContractMap) {
     heading.textContent = sectionDef.title
     section.appendChild(heading)
 
-    sectionDef.metrics.forEach(function(metricDef) {
+    sectionDef.metrics.forEach(function(metricKey) {
       var row = document.createElement('div')
       row.className = 'engine-summary-metric'
 
       var label = document.createElement('span')
       label.className = 'engine-summary-label'
-      label.textContent = metricDef[0]
+      label.textContent = metricKey
       row.appendChild(label)
 
       var value = document.createElement('span')
       value.className = 'engine-summary-value'
-      value.textContent = summaryMap[metricDef[1]] || '—'
+      var metricRow = rows.find(function(sourceRow) { return sourceRow.label === metricKey })
+      value.textContent = metricRow ? metricRow.value : '—'
       var directionalClass = getDirectionalClass(value.textContent)
       if (directionalClass) value.classList.add(directionalClass)
       row.appendChild(value)
@@ -643,20 +743,10 @@ function renderEngineSummaryCard(groupTitle, cardGroups, sourceContractMap) {
 
   card.appendChild(grid)
 
-  var pressure = document.createElement('p')
-  pressure.className = 'engine-summary-footnote'
-  pressure.textContent =
-    'Operating pressure: ' +
-    (summaryMap['Avg Additions / Month'] || '—') +
-    ' added per month · ' +
-    (summaryMap['Avg Attrition / Month'] || '—') +
-    ' lost per month.'
-  card.appendChild(pressure)
-
   if (rows[0].detail) {
     var detail = document.createElement('p')
     detail.className = 'doc-source-detail'
-    detail.textContent = rows[0].detail
+    detail.textContent = 'This ties the BHAG builder to current recruiting reality.'
     card.appendChild(detail)
   }
 
@@ -714,18 +804,20 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContract
         var isBhagDoc = currentPath === 'docs/strategy/bhag-model.md'
         var isBhagSection = h2Text === 'Team Goal: $2B' || h2Text === 'Community Goal: 10,000 Agents'
         var isEngineDoc = currentPath === 'docs/strategy/agent-engine.md'
-        var isEngineSection = h2Text === 'Live Engine View'
+        var isEnginePathSection = h2Text === 'Required Agent Path'
+        var isEngineRequirementSection = h2Text === 'Current Requirement'
 
         if (isBhagDoc && isBhagSection) {
           var bhagCard = renderBhagSummaryCard(h2Text, sourceGroups[h2Text], sourceContractMap)
           if (bhagCard) {
             pendingSummaryCard = bhagCard
           }
-        } else if (isEngineDoc && isEngineSection) {
-          var engineCard = renderEngineSummaryCard(h2Text, sourceGroups[h2Text], sourceContractMap)
-          if (engineCard) {
-            pendingSummaryCard = engineCard
-          }
+        } else if (isEngineDoc && isEnginePathSection) {
+          var enginePathCard = renderEnginePathCard(h2Text, sourceGroups[h2Text], sourceContractMap)
+          if (enginePathCard) pendingSummaryCard = enginePathCard
+        } else if (isEngineDoc && isEngineRequirementSection) {
+          var engineRequirementCard = renderEngineRequirementCard(h2Text, sourceGroups[h2Text], sourceContractMap)
+          if (engineRequirementCard) pendingSummaryCard = engineRequirementCard
         } else {
           sourceGroups[h2Text].forEach(function(cardGroup) {
             container.appendChild(renderInlineSourceCard(h2Text, cardGroup.rows, { hideTitle: true }, sourceContractMap))
