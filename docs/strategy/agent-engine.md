@@ -15,7 +15,7 @@ Every department should be explainable through one or more parts of the engine:
 
 - **Attract**: Recruiting owns agent acquisition and conversion. Marketing creates inbound demand, credibility, and attraction. Operations/Onboarding converts new agents into activated, productive team members.
 - **Grow**: Sales Leadership protects productivity through coaching, standards, training, and accountability.
-- **Retain**: Operations removes friction, Retention handles proactive intervention and engagement, and Marketing helps agents keep winning through brand leverage, reusable assets, and lead support.
+- **Retain**: Operations removes friction, Retention handles proactive intervention and engagement, and Marketing helps agents keep winning through brand leverage, reusable assets, and lead generation.
 
 ## Engine Inputs
 
