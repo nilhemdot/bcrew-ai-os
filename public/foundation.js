@@ -515,7 +515,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
 
   var thead = document.createElement('thead')
   var headRow = document.createElement('tr')
-  ;['Year', groupTitle === 'Community Goal: 10,000 Agents' ? 'Started' : null, 'Target', 'Target Growth', 'Current', 'Pace']
+  ;['Year', 'Target', 'Target Growth', 'Current', 'Pace']
     .filter(Boolean)
     .forEach(function(label) {
       var th = document.createElement('th')
@@ -532,12 +532,6 @@ function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
     var year = document.createElement('th')
     year.textContent = row.label
     tr.appendChild(year)
-
-    if (groupTitle === 'Community Goal: 10,000 Agents') {
-      var started = document.createElement('td')
-      started.textContent = row.label === currentYearLabel ? (startedKey ? summaryMap[startedKey] : '—') : '—'
-      tr.appendChild(started)
-    }
 
     var target = document.createElement('td')
     target.textContent = row.value
