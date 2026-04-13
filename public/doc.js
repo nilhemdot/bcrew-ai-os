@@ -261,7 +261,9 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups) {
       appendFormattedText(h2Text, h2, currentPath)
       container.appendChild(h2)
       if (sourceGroups && sourceGroups[h2Text]) {
-        container.appendChild(renderInlineSourceCard(h2Text, sourceGroups[h2Text], { hideTitle: true }))
+        sourceGroups[h2Text].forEach(function(cardGroup) {
+          container.appendChild(renderInlineSourceCard(h2Text, cardGroup.rows, { hideTitle: true }))
+        })
       }
       i++
       continue
@@ -331,7 +333,22 @@ function groupSourceSnapshot(rows) {
 
   rows.forEach(function(row) {
     if (!groups[row.groupTitle]) groups[row.groupTitle] = []
-    groups[row.groupTitle].push(row)
+
+    var cards = groups[row.groupTitle]
+    var existing = cards.find(function(card) {
+      return card.sourceId === row.sourceId && card.detail === row.detail
+    })
+
+    if (!existing) {
+      existing = {
+        sourceId: row.sourceId,
+        detail: row.detail,
+        rows: [],
+      }
+      cards.push(existing)
+    }
+
+    existing.rows.push(row)
   })
 
   return groups

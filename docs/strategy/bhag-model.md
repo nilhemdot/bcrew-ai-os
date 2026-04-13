@@ -2,7 +2,7 @@
 
 ## Team Goal: $2B
 
-- $2B is the Benson Crew team's sales-volume goal by 2031.
+- $2B is the Benson Crew team's sales-volume goal on the 2026-2035 path.
 - The live milestone path comes from the BHAG builder.
 - When recruiting pace, attrition, productivity, or split assumptions change, the path changes too.
 
@@ -17,6 +17,7 @@
 
 - The BHAG builder sets the milestone path and required agent counts.
 - The Agent Engine shows whether the current business is pacing toward that path.
+- Actual pace should be read from the operating sources, not inferred from the target path alone.
 - Read the BHAG path and the Agent Engine together whenever core assumptions move.
 
 For the live operating math behind this path, see the [Agent Engine](agent-engine.md).

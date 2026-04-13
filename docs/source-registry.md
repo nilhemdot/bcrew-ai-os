@@ -29,7 +29,7 @@ This registry distinguishes between sources verified in the current rebuild and 
 
 | Source ID | Source | What It Owns | Owner | Current Status |
 |-----------|--------|--------------|-------|----------------|
-| `SRC-OWNERS-001` | Owners Dashboard | Deal data, production truth, likely source for closed-volume validation | Steve + Carson | Pending Revalidation. Used in old system; not yet verified in this rebuild. |
+| `SRC-OWNERS-001` | Owners Dashboard | `ADMIN ONLY - Deal Data Entry` plus roll-up sheets | Steve + Carson | Verified Readable. Executed-date volume truth and `Volume Credit` columns were confirmed in the rebuild on 2026-04-13. Google write access still needs reauthentication before the helper formulas can be written back through the connector. |
 | `SRC-CLICKUP-001` | ClickUp | Task management, onboarding checklists, agent roster supplements | Carson | Pending Revalidation. Connected in old system; needs Mac Mini verification. |
 | `SRC-GMAIL-001` | Gmail | Team email, decision capture inputs, communication context | System | Pending Revalidation. `ai@` connection existed in old system; rebuild-specific validation still needed. |
 | `SRC-GCAL-001` | Google Calendar | Meetings, scheduling, cadence events | All | Pending Revalidation. Connected in old system; needs Mac Mini verification. |
