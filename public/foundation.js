@@ -506,6 +506,23 @@ function buildPriorityChip(text) {
   return item
 }
 
+function buildQuarterCadenceChip(label, value) {
+  var chip = document.createElement('div')
+  chip.className = 'quarter-cadence-chip'
+
+  var chipLabel = document.createElement('span')
+  chipLabel.className = 'quarter-cadence-label'
+  chipLabel.textContent = label
+  chip.appendChild(chipLabel)
+
+  var chipValue = document.createElement('strong')
+  chipValue.className = 'quarter-cadence-value'
+  chipValue.textContent = value
+  chip.appendChild(chipValue)
+
+  return chip
+}
+
 function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
   var article = document.createElement('article')
   article.className = 'section-card section-card-quarter'
@@ -521,7 +538,7 @@ function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
   var nextQuarter = getNextQuarterInfo(quarterInfo)
   var summaryLines = extractQuarterSummaryLines(quarterSection ? quarterSection.content : section.content)
   var summary = summaryLines[0] || ''
-  var cadence = summaryLines[1] || 'Benson Crew runs one month off standard quarters: Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, and Q4 = Nov-Jan. Planning happens in the month before.'
+  var cadenceNote = 'Benson Crew plans one month ahead of standard quarters.'
   var prioritySections = quarterlyDoc && quarterlyDoc.sections
     ? quarterlyDoc.sections.slice(1, 4)
     : []
@@ -599,8 +616,16 @@ function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
 
   var footerCopy = document.createElement('p')
   footerCopy.className = 'quarter-footer-copy'
-  footerCopy.textContent = cadence
+  footerCopy.textContent = cadenceNote
   footerNote.appendChild(footerCopy)
+
+  var cadenceRow = document.createElement('div')
+  cadenceRow.className = 'quarter-cadence-row'
+  cadenceRow.appendChild(buildQuarterCadenceChip('Q1', 'Feb-Apr'))
+  cadenceRow.appendChild(buildQuarterCadenceChip('Q2', 'May-Jul'))
+  cadenceRow.appendChild(buildQuarterCadenceChip('Q3', 'Aug-Oct'))
+  cadenceRow.appendChild(buildQuarterCadenceChip('Q4', 'Nov-Jan'))
+  footerNote.appendChild(cadenceRow)
 
   article.appendChild(footerNote)
 
