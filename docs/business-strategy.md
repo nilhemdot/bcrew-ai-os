@@ -59,15 +59,16 @@ See [Quarterly Priorities](strategy/quarterly-priorities.md).
 - [MarketMasters](strategy/marketmasters.md) -- Trust layer strategy, relationship to Benson Crew
 - [Source Registry](source-registry.md) -- Every business data input, connection status
 
-## Rules
+## System Rules
 
-1. This document is the source of truth for business direction.
+1. This strategy packet is the source of truth for business direction across leadership, agents, dashboards, and workflows.
 2. Live KPI values and milestone math belong in source systems, not in markdown docs.
 3. Decisions that change strategy are logged as explicit records.
 4. Strategy docs are updated through tracked proposals and approvals, not silent edits.
 5. Supporting docs expand this document but never contradict it.
 6. The system must preserve the distinction between Benson Crew as the team and Real Broker as the brokerage/platform.
 7. The system should render live values from source IDs so a source update flows across the system without manual doc cleanup.
+8. Agents can support, analyze, and operationalize strategy, but they do not set or change strategy on their own.
 
 ## What the System Does
 

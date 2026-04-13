@@ -981,7 +981,7 @@ var strategyReviewChecklist = [
     title: 'Still To Confirm In Overview',
     tone: 'pending',
     items: [
-      'Rules',
+      'System Rules',
       'What the System Does',
     ],
   },
