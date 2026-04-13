@@ -730,6 +730,106 @@ var sectionLabels = {
   'data-health': 'Data Health',
 }
 
+var strategyReviewChecklist = [
+  {
+    title: 'Signed Off In Overview',
+    tone: 'done',
+    items: [
+      'North Star',
+      'The Engine',
+      'Two Brands',
+      'Governance',
+    ],
+  },
+  {
+    title: 'Still To Confirm In Overview',
+    tone: 'pending',
+    items: [
+      'Current Quarter',
+      'Rules',
+      'What the System Does',
+    ],
+  },
+  {
+    title: 'Supporting Docs Still To Confirm',
+    tone: 'pending',
+    items: [
+      'BHAG Model',
+      'Agent Engine',
+      'Financial Model and Assumptions',
+      'Quarterly Priorities',
+      'Strategic Issues',
+      'Department Mandates',
+      'Core Values',
+      'MarketMasters',
+      'Source Registry',
+    ],
+  },
+]
+
+function renderReviewChecklistPanel() {
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Review Tracker'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Strategy Lock Checklist'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'This is the current sign-off state for the top-down strategy review. We only mark a section done once the wording feels right and the supporting layer earns its place.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'review-checklist-grid'
+
+  strategyReviewChecklist.forEach(function(group) {
+    var column = document.createElement('div')
+    column.className = 'review-checklist-column'
+
+    var columnTitle = document.createElement('h4')
+    columnTitle.textContent = group.title
+    column.appendChild(columnTitle)
+
+    var list = document.createElement('ul')
+    list.className = 'review-checklist-list'
+
+    group.items.forEach(function(item) {
+      var li = document.createElement('li')
+      li.className = 'review-checklist-item review-checklist-item-' + group.tone
+
+      var marker = document.createElement('span')
+      marker.className = 'review-checklist-marker'
+      marker.textContent = group.tone === 'done' ? 'Done' : 'Next'
+      li.appendChild(marker)
+
+      var text = document.createElement('span')
+      text.textContent = item
+      li.appendChild(text)
+
+      list.appendChild(li)
+    })
+
+    column.appendChild(list)
+    grid.appendChild(column)
+  })
+
+  panel.appendChild(grid)
+  return panel
+}
+
 /* ── section renderers ───────────────────────────────────── */
 
 function renderOverview() {
@@ -779,6 +879,8 @@ function renderOverview() {
       statusGrid.appendChild(renderStatusCard(item))
     })
     container.appendChild(statusGrid)
+
+    container.appendChild(renderReviewChecklistPanel())
 
     /* strategy doc panel */
     var panel = document.createElement('section')

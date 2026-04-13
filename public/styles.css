@@ -576,6 +576,68 @@ body {
   margin-bottom: 6px;
 }
 
+.review-checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.review-checklist-column {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.review-checklist-column h4 {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.88rem;
+  margin: 0 0 12px;
+}
+
+.review-checklist-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.review-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.review-checklist-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.review-checklist-item-done .review-checklist-marker {
+  color: #166534;
+  background: rgba(34, 197, 94, 0.14);
+}
+
+.review-checklist-item-pending .review-checklist-marker {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.14);
+}
+
 /* ── STRATEGY DOCUMENT ── */
 .strategy-document {
   background: var(--surface);
@@ -1737,6 +1799,7 @@ code {
   .brand-logo { width: 100px; }
   .backlog-board { grid-template-columns: 1fr; }
   .capture-grid { grid-template-columns: 1fr; }
+  .review-checklist-grid { grid-template-columns: 1fr; }
   .section-card { padding: 14px; }
   .decision-top { flex-direction: column; }
   .md-table { font-size: 0.82rem; }
