@@ -1746,11 +1746,17 @@ var strategyReviewChecklist = [
       'North Star',
       'BHAG Model',
       'The Engine',
-      'Two Brands',
       'Governance',
       'Current Quarter',
       'System Rules',
       'System Role',
+    ],
+  },
+  {
+    title: 'Reopened After Changes',
+    tone: 'pending',
+    items: [
+      'Two Brands',
     ],
   },
   {
