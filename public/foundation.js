@@ -445,6 +445,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
   var tbody = document.createElement('tbody')
   yearRows.forEach(function(row) {
     var tr = document.createElement('tr')
+    if (row.label === currentYearLabel) tr.className = 'bhag-summary-row-current'
     var year = document.createElement('th')
     year.textContent = row.label
     tr.appendChild(year)
@@ -465,6 +466,12 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
 
     var pace = document.createElement('td')
     pace.textContent = row.label === currentYearLabel ? summaryMap['Pace'] || '—' : '—'
+    if (row.label === currentYearLabel) {
+      var paceText = summaryMap['Pace'] || ''
+      if (/^Ahead by/i.test(paceText)) pace.className = 'bhag-pace bhag-pace-positive'
+      else if (/^Behind by/i.test(paceText)) pace.className = 'bhag-pace bhag-pace-negative'
+      else pace.className = 'bhag-pace'
+    }
     tr.appendChild(pace)
 
     tbody.appendChild(tr)
@@ -515,6 +522,13 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
   container.className = 'markdown-block'
   var lines = markdown.split('\n')
   var i = 0
+  var pendingBhagCard = null
+
+  function flushPendingBhagCard() {
+    if (!pendingBhagCard) return
+    container.appendChild(pendingBhagCard)
+    pendingBhagCard = null
+  }
 
   while (i < lines.length) {
     var line = lines[i]
@@ -531,6 +545,7 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
     }
 
     if (line.startsWith('# ')) {
+      flushPendingBhagCard()
       var h1 = document.createElement('h2')
       h1.className = 'doc-markdown-heading doc-markdown-heading-1'
       var h1Text = line.slice(2).trim()
@@ -542,6 +557,7 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
     }
 
     if (line.startsWith('## ')) {
+      flushPendingBhagCard()
       var h2 = document.createElement('h3')
       h2.className = 'doc-markdown-heading doc-markdown-heading-2'
       var h2Text = line.slice(3).trim()
@@ -555,7 +571,7 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
         if (isBhagDoc && isBhagSection) {
           var bhagCard = renderBhagSummaryCard(h2Text, sourceGroups[h2Text])
           if (bhagCard) {
-            container.appendChild(bhagCard)
+            pendingBhagCard = bhagCard
           }
         } else {
           sourceGroups[h2Text].forEach(function(cardGroup) {
@@ -568,6 +584,7 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
     }
 
     if (line.startsWith('### ')) {
+      flushPendingBhagCard()
       var h3 = document.createElement('h4')
       h3.className = 'md-subheading'
       var h3Text = line.slice(4).trim()
@@ -579,6 +596,7 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
     }
 
     if (isTableRow(line)) {
+      flushPendingBhagCard()
       var tableRows = []
       while (i < lines.length && isTableRow(lines[i])) {
         if (!isSeparatorRow(lines[i])) {
@@ -593,6 +611,7 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
     }
 
     if (/^\d+\.\s/.test(line)) {
+      flushPendingBhagCard()
       var ol = document.createElement('ol')
       ol.className = 'md-ol'
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
@@ -614,15 +633,18 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
         i++
       }
       container.appendChild(ul)
+      flushPendingBhagCard()
       continue
     }
 
     var p = document.createElement('p')
     appendFormattedText(line, p, currentPath)
     container.appendChild(p)
+    flushPendingBhagCard()
     i++
   }
 
+  flushPendingBhagCard()
   return container
 }
 

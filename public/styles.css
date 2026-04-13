@@ -1237,6 +1237,27 @@ code {
   line-height: 1.45;
 }
 
+.bhag-summary-row-current {
+  background: linear-gradient(90deg, rgba(0, 132, 201, 0.08), rgba(0, 132, 201, 0.02));
+}
+
+.bhag-summary-row-current th,
+.bhag-summary-row-current td {
+  font-weight: 700;
+}
+
+.bhag-summary-table td.bhag-pace {
+  font-weight: 800;
+}
+
+.bhag-summary-table td.bhag-pace-positive {
+  color: #0f8a43;
+}
+
+.bhag-summary-table td.bhag-pace-negative {
+  color: #c24141;
+}
+
 .strategy-document-single {
   padding: 32px;
 }
