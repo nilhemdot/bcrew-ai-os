@@ -1430,6 +1430,7 @@ var strategyReviewChecklist = [
     tone: 'done',
     items: [
       'North Star',
+      'BHAG Model',
       'The Engine',
       'Two Brands',
       'Governance',
@@ -1442,7 +1443,6 @@ var strategyReviewChecklist = [
     title: 'Supporting Docs Still To Confirm',
     tone: 'pending',
     items: [
-      'BHAG Model',
       'Agent Engine',
       'Financial Model and Assumptions',
       'Quarterly Priorities',
