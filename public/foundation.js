@@ -344,6 +344,130 @@ function renderInlineSourceCard(groupTitle, rows, options) {
   return card
 }
 
+function sortSnapshotRows(rows) {
+  return rows.slice().sort(function(a, b) {
+    return (a.sortOrder || 0) - (b.sortOrder || 0)
+  })
+}
+
+function formatSourceSummary(cardGroups) {
+  return cardGroups
+    .map(function(group) {
+      return group.sourceId
+    })
+    .filter(function(value, index, array) {
+      return value && array.indexOf(value) === index
+    })
+    .join(' · ')
+}
+
+function renderBhagSummaryCard(groupTitle, cardGroups) {
+  var rows = sortSnapshotRows(
+    cardGroups.reduce(function(all, group) {
+      return all.concat(group.rows || [])
+    }, [])
+  )
+
+  var yearRows = rows.filter(function(row) {
+    return /^\d{4}$/.test(row.label)
+  })
+
+  if (!yearRows.length) return null
+
+  var summaryMap = {}
+  rows.forEach(function(row) {
+    if (!/^\d{4}$/.test(row.label)) summaryMap[row.label] = row.value
+  })
+
+  var asOfValues = rows
+    .map(function(row) {
+      return row.asOf ? formatAsOfDate(row.asOf) : ''
+    })
+    .filter(Boolean)
+  var uniqueAsOfValues = Array.from(new Set(asOfValues))
+
+  var card = document.createElement('section')
+  card.className = 'doc-source-card bhag-summary-card'
+
+  var top = document.createElement('div')
+  top.className = 'doc-source-card-top'
+
+  var titleWrap = document.createElement('div')
+  var source = document.createElement('div')
+  source.className = 'doc-source-id'
+  source.textContent = formatSourceSummary(cardGroups)
+  titleWrap.appendChild(source)
+  top.appendChild(titleWrap)
+
+  if (uniqueAsOfValues.length) {
+    var asOf = document.createElement('div')
+    asOf.className = 'doc-source-asof'
+    asOf.textContent = 'As of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
+    top.appendChild(asOf)
+  }
+
+  card.appendChild(top)
+
+  var tableWrap = document.createElement('div')
+  tableWrap.className = 'md-table-wrap'
+
+  var table = document.createElement('table')
+  table.className = 'md-table bhag-summary-table'
+
+  var thead = document.createElement('thead')
+  var headRow = document.createElement('tr')
+  ;['Year', groupTitle === 'Community Goal: 10,000 Agents' ? 'Started' : null, 'Target', 'Current', 'Pace']
+    .filter(Boolean)
+    .forEach(function(label) {
+      var th = document.createElement('th')
+      th.textContent = label
+      headRow.appendChild(th)
+    })
+  thead.appendChild(headRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+  yearRows.forEach(function(row, index) {
+    var tr = document.createElement('tr')
+    var year = document.createElement('th')
+    year.textContent = row.label
+    tr.appendChild(year)
+
+    if (groupTitle === 'Community Goal: 10,000 Agents') {
+      var started = document.createElement('td')
+      started.textContent = index === 0 ? summaryMap['Started 2026'] || '—' : '—'
+      tr.appendChild(started)
+    }
+
+    var target = document.createElement('td')
+    target.textContent = row.value
+    tr.appendChild(target)
+
+    var current = document.createElement('td')
+    current.textContent = index === 0 ? summaryMap['Actual'] || '—' : '—'
+    tr.appendChild(current)
+
+    var pace = document.createElement('td')
+    pace.textContent = index === 0 ? summaryMap['Pace'] || '—' : '—'
+    tr.appendChild(pace)
+
+    tbody.appendChild(tr)
+  })
+
+  table.appendChild(tbody)
+  tableWrap.appendChild(table)
+  card.appendChild(tableWrap)
+
+  if (rows[0].detail) {
+    var detail = document.createElement('p')
+    detail.className = 'doc-source-detail'
+    detail.textContent = rows[0].detail
+    card.appendChild(detail)
+  }
+
+  return card
+}
+
 function groupSourceSnapshot(rows) {
   var groups = {}
 
@@ -409,9 +533,19 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups) {
       appendFormattedText(h2Text, h2, currentPath)
       container.appendChild(h2)
       if (sourceGroups && sourceGroups[h2Text]) {
-        sourceGroups[h2Text].forEach(function(cardGroup) {
-          container.appendChild(renderInlineSourceCard(h2Text, cardGroup.rows, { hideTitle: true }))
-        })
+        var isBhagDoc = currentPath === 'docs/strategy/bhag-model.md'
+        var isBhagSection = h2Text === 'Team Goal: $2B' || h2Text === 'Community Goal: 10,000 Agents'
+
+        if (isBhagDoc && isBhagSection) {
+          var bhagCard = renderBhagSummaryCard(h2Text, sourceGroups[h2Text])
+          if (bhagCard) {
+            container.appendChild(bhagCard)
+          }
+        } else {
+          sourceGroups[h2Text].forEach(function(cardGroup) {
+            container.appendChild(renderInlineSourceCard(h2Text, cardGroup.rows, { hideTitle: true }))
+          })
+        }
       }
       i++
       continue
