@@ -20,6 +20,11 @@ function populateStatusBar(systemStatus) {
 
 var harlanPanelReady = false
 var harlanResponseIndex = 0
+var harlanStatus = {
+  modelLabel: 'Preview UI',
+  memoryLabel: 'Business Memory Live',
+  sourceLabel: 'Foundation Data Loading',
+}
 
 var harlanCannedResponses = [
   "I hear you. The agent infrastructure isn't wired up yet, but the Foundation data is live and waiting.",
@@ -51,9 +56,9 @@ function buildHarlanPanel() {
   pills.className = 'harlan-status-pills'
 
   var pillData = [
-    { text: 'Claude Opus', color: 'blue' },
-    { text: 'Memory Connected', color: 'green' },
-    { text: '5 Sources Live', color: 'green' },
+    { text: harlanStatus.modelLabel, color: 'blue' },
+    { text: harlanStatus.memoryLabel, color: 'green' },
+    { text: harlanStatus.sourceLabel, color: 'green' },
   ]
 
   pillData.forEach(function(item) {
@@ -159,7 +164,7 @@ function openHarlan() {
     buildHarlanPanel()
     harlanPanelReady = true
     addHarlanMessage(
-      "Hey Steve. I'm connected to Foundation — strategy docs, business memory, backlog, and decisions are all live. What do you want to dig into?",
+      "Hey Steve. I'm the Harlan preview. Foundation data is live, but this chat surface is still a mock until the assistant backend is wired up. What do you want to dig into first?",
       'harlan'
     )
   }
@@ -240,6 +245,13 @@ function handleGlobalKeydown(e) {
       return res.json()
     })
     .then(function(data) {
+      if (data.systemStatus) {
+        var connected = 0
+        data.systemStatus.forEach(function(item) {
+          if (item.status === 'connected') connected++
+        })
+        harlanStatus.sourceLabel = connected + ' Foundation sources live'
+      }
       if (data.systemStatus) populateStatusBar(data.systemStatus)
     })
     .catch(function() {

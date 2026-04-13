@@ -133,6 +133,18 @@ function renderStatusCard(item) {
   return card
 }
 
+function renderLabeledCopy(className, labelText, valueText) {
+  var p = document.createElement('p')
+  p.className = className
+
+  var strong = document.createElement('strong')
+  strong.textContent = labelText + ':'
+  p.appendChild(strong)
+  p.appendChild(document.createTextNode(' ' + valueText))
+
+  return p
+}
+
 function isTableRow(line) {
   return line.trim().startsWith('|') && line.trim().endsWith('|')
 }
@@ -366,9 +378,7 @@ function renderBacklogItem(item) {
   card.appendChild(why)
 
   var nextAction = document.createElement('p')
-  nextAction.className = 'backlog-next'
-  nextAction.innerHTML = '<strong>Next:</strong> ' + item.nextAction
-  card.appendChild(nextAction)
+  card.appendChild(renderLabeledCopy('backlog-next', 'Next', item.nextAction))
 
   if (item.statusNote) {
     var note = document.createElement('p')
@@ -481,17 +491,11 @@ function renderDecisionCard(item) {
   card.appendChild(summary)
 
   if (item.rationale) {
-    var rationale = document.createElement('p')
-    rationale.className = 'decision-rationale'
-    rationale.innerHTML = '<strong>Why:</strong> ' + item.rationale
-    card.appendChild(rationale)
+    card.appendChild(renderLabeledCopy('decision-rationale', 'Why', item.rationale))
   }
 
   if (item.sourceRef) {
-    var source = document.createElement('p')
-    source.className = 'decision-source'
-    source.innerHTML = '<strong>Source:</strong> ' + item.sourceRef
-    card.appendChild(source)
+    card.appendChild(renderLabeledCopy('decision-source', 'Source', item.sourceRef))
   }
 
   return card
@@ -515,10 +519,7 @@ function renderCaptureItem(item) {
   card.appendChild(summary)
 
   if (item.owner) {
-    var owner = document.createElement('p')
-    owner.className = 'capture-owner'
-    owner.innerHTML = '<strong>Owner:</strong> ' + item.owner
-    card.appendChild(owner)
+    card.appendChild(renderLabeledCopy('capture-owner', 'Owner', item.owner))
   }
 
   return card
