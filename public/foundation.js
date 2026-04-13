@@ -450,11 +450,11 @@ function appendSourceActions(target, actions) {
 
 function getBhagPaceExplanation(groupTitle) {
   if (groupTitle === 'Team Goal: $2B') {
-    return 'Pace compares actual YTD executed volume to target-to-date. Target-to-date is the current year target prorated by the days elapsed in the Toronto calendar year. Actual volume uses Date Firm (Executed) plus Volume Credit from the Owners Dashboard.'
+    return 'Pace compares actual YTD executed volume to where we should be by today. The target is prorated based on how much of the year has passed in Eastern time. Actual volume uses Date Firm (Executed) plus Volume Credit from the Owners Dashboard.'
   }
 
   if (groupTitle === 'Community Goal: 10,000 Agents') {
-    return 'Pace compares the current community count to target-to-date. Target-to-date starts from the first recorded community count of the year and prorates the gap to the year-end target by the days elapsed in the Toronto calendar year.'
+    return 'Pace compares the current community count to where we should be by today. The target starts from the first recorded count of the year and prorates the gap to the year-end target based on how much of the year has passed in Eastern time.'
   }
 
   return 'Pace shows whether current results are ahead of or behind the prorated target-to-date.'
