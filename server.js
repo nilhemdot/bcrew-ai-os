@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const app = express()
 const port = process.env.PORT || 3000
+app.disable('x-powered-by')
 
 const docsDir = path.join(__dirname, 'docs')
 const businessStrategyPath = path.join(docsDir, 'business-strategy.md')
@@ -24,6 +25,51 @@ const strategyDocs = [
   path.join(docsDir, 'strategy', 'marketmasters.md'),
 ]
 
+function setSecurityHeaders(_req, res, next) {
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('Referrer-Policy', 'same-origin')
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin')
+  next()
+}
+
+function logApiRequest(req, res, next) {
+  if (!req.path.startsWith('/api/')) {
+    next()
+    return
+  }
+
+  const startedAt = Date.now()
+  res.on('finish', () => {
+    const durationMs = Date.now() - startedAt
+    console.info(`${req.method} ${req.originalUrl} -> ${res.statusCode} (${durationMs}ms)`)
+  })
+  next()
+}
+
+function sendApiError(res, statusCode, code, message) {
+  res.status(statusCode).json({
+    error: {
+      code,
+      message,
+    },
+  })
+}
+
+async function closeServer(server) {
+  await new Promise((resolve, reject) => {
+    server.close(error => {
+      if (error) {
+        reject(error)
+        return
+      }
+      resolve()
+    })
+  })
+}
+
+app.use(setSecurityHeaders)
+app.use(logApiRequest)
 app.use(express.static(path.join(__dirname, 'public')))
 
 function isAllowedDocPath(filePath) {
@@ -177,45 +223,58 @@ app.get('/api/foundation-hub', async (_req, res) => {
     const snapshot = await getFoundationSnapshot()
     res.json(snapshot)
   } catch (error) {
-    res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to load foundation hub data.',
-    })
+    sendApiError(
+      res,
+      500,
+      'foundation_hub_load_failed',
+      error instanceof Error ? error.message : 'Failed to load foundation hub data.'
+    )
   }
 })
 
-app.get('/api/doc', (req, res) => {
+app.get('/api/doc', async (req, res) => {
   const filePath = resolveRequestedDoc(req.query.path)
 
   if (!filePath) {
-    res.status(400).json({ error: 'Invalid doc path.' })
+    sendApiError(res, 400, 'invalid_doc_path', 'Invalid doc path.')
     return
   }
 
   const content = readFileSafe(filePath)
 
   if (!content) {
-    res.status(404).json({ error: 'Document not found.' })
+    sendApiError(res, 404, 'document_not_found', 'Document not found.')
     return
   }
 
-  Promise.resolve(getDocSourceSnapshot(path.relative(__dirname, filePath)))
-    .then(sourceSnapshot => {
-      res.json({
-        title: getDocTitle(content, filePath),
-        meta: getDocMeta(filePath),
-        content,
-        sourceSnapshot,
-      })
+  try {
+    const sourceSnapshot = await getDocSourceSnapshot(path.relative(__dirname, filePath))
+    res.json({
+      title: getDocTitle(content, filePath),
+      meta: getDocMeta(filePath),
+      content,
+      sourceSnapshot,
     })
-    .catch(error => {
-      res.status(500).json({
-        error: error instanceof Error ? error.message : 'Failed to load document source snapshot.',
-      })
-    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'doc_snapshot_load_failed',
+      error instanceof Error ? error.message : 'Failed to load document source snapshot.'
+    )
+  }
 })
 
 app.get('/doc', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'doc.html'))
+})
+
+app.get('/foundation', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'foundation.html'))
+})
+
+app.use('/api', (_req, res) => {
+  sendApiError(res, 404, 'api_not_found', 'API endpoint not found.')
 })
 
 app.get('*', (_req, res) => {
@@ -229,11 +288,19 @@ async function start() {
     console.log(`BCrew AI OS dashboard listening on http://localhost:${port}`)
   })
 
+  let isShuttingDown = false
   const shutdown = async () => {
-    server.close(async () => {
+    if (isShuttingDown) return
+    isShuttingDown = true
+
+    try {
+      await closeServer(server)
       await closeFoundationDb()
       process.exit(0)
-    })
+    } catch (error) {
+      console.error('Failed to shut down BCrew AI OS dashboard cleanly:', error)
+      process.exit(1)
+    }
   }
 
   process.on('SIGINT', shutdown)

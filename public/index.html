@@ -1,136 +1,96 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BCrew AI OS</title>
-    <link rel="stylesheet" href="/styles.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <div class="shell">
-      <aside class="sidebar">
-        <div class="brand">
-          <div class="brand-kicker">BCrew AI OS</div>
-          <h1>Source of Truth</h1>
-          <p>Build the foundation first. Make the wiring visible.</p>
+    <div class="home-bg"></div>
+
+    <div class="home">
+      <div class="home-content">
+
+        <img src="/assets/bc-logo.svg" alt="Benson Crew logo" class="home-logo">
+
+        <div class="home-kicker">BCrew AI OS</div>
+
+        <h1 class="home-title">Command Center</h1>
+
+        <p class="home-subtitle">The operating system for Benson Crew. Strategy, memory, and execution — visible, connected, and trustworthy.</p>
+
+        <div class="hub-grid">
+
+          <a class="hub-card" data-hub="foundation" href="/foundation">
+            <div class="hub-icon" style="background:rgba(0,132,201,0.08)">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0084C9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M10 9h4"/></svg>
+            </div>
+            <h3>Foundation</h3>
+            <p>Business strategy, source of truth, operating memory, and decisions.</p>
+            <div class="hub-meta">
+              <div class="hub-status hub-status-live"><div class="hub-dot"></div> Live</div>
+              <div class="hub-arrow">&rsaquo;</div>
+            </div>
+          </a>
+
+          <div class="hub-card" data-hub="marketing">
+            <div class="hub-icon" style="background:rgba(16,185,129,0.08)">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            </div>
+            <h3>Marketing</h3>
+            <p>MarketMasters, content calendar, campaigns, and performance.</p>
+            <div class="hub-meta">
+              <div class="hub-status hub-status-soon"><div class="hub-dot"></div> Coming Soon</div>
+              <div class="hub-arrow">&rsaquo;</div>
+            </div>
+          </div>
+
+          <div class="hub-card" data-hub="strategy">
+            <div class="hub-icon" style="background:rgba(245,158,11,0.08)">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="rgba(245,158,11,0.15)" stroke="#f59e0b"/></svg>
+            </div>
+            <h3>Strategy Team</h3>
+            <p>Cross-functional planning, strategic reviews, and decision quality.</p>
+            <div class="hub-meta">
+              <div class="hub-status hub-status-soon"><div class="hub-dot"></div> Coming Soon</div>
+              <div class="hub-arrow">&rsaquo;</div>
+            </div>
+          </div>
+
+          <div class="hub-card" data-hub="departments">
+            <div class="hub-icon" style="background:rgba(139,92,246,0.08)">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3>Departments</h3>
+            <p>Team-level backlogs, accountability, and execution tracking.</p>
+            <div class="hub-meta">
+              <div class="hub-status hub-status-soon"><div class="hub-dot"></div> Coming Soon</div>
+              <div class="hub-arrow">&rsaquo;</div>
+            </div>
+          </div>
+
         </div>
 
-        <nav class="nav">
-          <a class="nav-item nav-item-active" href="#foundation">Foundation</a>
-          <a class="nav-item" href="#memory">Memory</a>
-          <a class="nav-item" href="#backlog">Backlog</a>
-          <a class="nav-item" href="#decisions">Decisions</a>
-        </nav>
-      </aside>
+        <div class="home-statusbar">
+          <div class="home-statusbar-item"><div class="home-statusbar-dot"></div> System online</div>
+          <div class="home-statusbar-item"><div class="home-statusbar-dot"></div> Foundation live</div>
+          <div class="home-statusbar-item" id="home-sources"><div class="home-statusbar-dot"></div> Sources loading...</div>
+          <div class="home-statusbar-item" id="home-pending"><div class="home-statusbar-dot home-statusbar-dot-amber"></div> Checking...</div>
+        </div>
 
-      <main class="main">
-        <section class="hero" id="foundation">
-          <div>
-            <div class="eyebrow">First Deposit</div>
-            <h2>Business strategy is now the first live source in the new system.</h2>
-            <p id="hero-copy">Loading source of truth...</p>
-          </div>
-          <button class="print-button" type="button" onclick="window.print()">Print Strategy</button>
-        </section>
-
-        <section class="status-grid" id="status-grid"></section>
-
-        <section class="panel strategy-panel">
-          <div class="panel-header">
-            <div>
-              <div class="eyebrow">Primary Source</div>
-              <h3>Business Strategy</h3>
-            </div>
-            <div class="doc-meta" id="business-meta"></div>
-          </div>
-          <div class="strategy-document">
-            <div class="strategy-document-header">
-              <img class="brand-logo" src="/assets/bc-logo.svg" alt="Benson Crew logo" />
-              <div class="strategy-document-meta">
-                <div class="strategy-kicker">Benson Crew</div>
-                <h1>Business Strategy</h1>
-                <p>Canonical strategy document for the company. Designed to be readable on screen and printable as a branded working document.</p>
-              </div>
-            </div>
-            <div class="section-list" id="business-sections"></div>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-header">
-            <div>
-              <div class="eyebrow">Supporting Strategy</div>
-              <h3>Strategy Structure</h3>
-            </div>
-          </div>
-          <div class="section-list" id="supporting-strategy"></div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-header">
-            <div>
-              <div class="eyebrow">Support Source</div>
-              <h3>Source Registry</h3>
-            </div>
-            <div class="doc-meta" id="registry-meta"></div>
-          </div>
-          <div class="registry-empty" id="registry-sections"></div>
-        </section>
-
-        <section class="panel" id="memory">
-          <div class="panel-header">
-            <div>
-              <div class="eyebrow">Operating Memory</div>
-              <h3>Memory Foundation</h3>
-            </div>
-            <div class="doc-meta" id="memory-meta"></div>
-          </div>
-          <p class="section-intro">
-            This is the first visible operating memory layer: live business memory in PostgreSQL, strategy docs in git, and a clear read on what is active versus still pending.
-          </p>
-          <div class="status-grid" id="memory-grid"></div>
-        </section>
-
-        <section class="panel" id="backlog">
-          <div class="panel-header">
-            <div>
-              <div class="eyebrow">Execution Queue</div>
-              <h3>Foundation Backlog</h3>
-            </div>
-            <div class="doc-meta" id="backlog-meta"></div>
-          </div>
-          <p class="section-intro">
-            The backlog is now structured work again, not a pile of notes. Right now it shows the ranked foundation work for the Dev and Marketing teams.
-          </p>
-          <div class="team-backlog-grid" id="team-backlog-grid"></div>
-        </section>
-
-        <section class="panel" id="decisions">
-          <div class="panel-header">
-            <div>
-              <div class="eyebrow">Locked Truth</div>
-              <h3>Foundation Decisions</h3>
-            </div>
-            <div class="doc-meta" id="decisions-meta"></div>
-          </div>
-          <div class="decision-list" id="decision-list"></div>
-          <div class="capture-grid">
-            <div class="capture-column">
-              <div class="eyebrow">Open Questions</div>
-              <div class="capture-list" id="open-questions-list"></div>
-            </div>
-            <div class="capture-column">
-              <div class="eyebrow">Parking Lot</div>
-              <div class="capture-list" id="parking-lot-list"></div>
-            </div>
-          </div>
-        </section>
-      </main>
+      </div>
     </div>
 
-    <script src="/app.js"></script>
+    <button class="harlan-toggle" id="harlan-toggle" aria-label="Open Harlan">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <div class="harlan-online-dot"></div>
+    </button>
+    <div class="harlan-panel harlan-hidden" id="harlan-panel"></div>
+
+    <script src="/home.js"></script>
   </body>
-  </html>
+</html>

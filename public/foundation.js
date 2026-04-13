@@ -1,0 +1,1232 @@
+/* ── helpers (from app.js) ────────────────────────────────── */
+
+function formatDate(isoString) {
+  if (!isoString) return 'Not available'
+  var date = new Date(isoString)
+  return date.toLocaleString()
+}
+
+function renderMeta(meta) {
+  if (!meta.exists) return 'Missing'
+  return meta.path + ' · ' + meta.lines + ' lines · updated ' + formatDate(meta.updatedAt)
+}
+
+function isInternalMarkdownPath(href) {
+  return (
+    typeof href === 'string' &&
+    !/^(https?:|mailto:|tel:|#)/i.test(href) &&
+    /\.md([?#].*)?$/i.test(href)
+  )
+}
+
+function normalizeDocPath(pathValue) {
+  var parts = []
+
+  pathValue.split('/').forEach(function(part) {
+    if (!part || part === '.') return
+    if (part === '..') {
+      parts.pop()
+      return
+    }
+    parts.push(part)
+  })
+
+  return parts.join('/')
+}
+
+function buildDocHref(href, currentPath) {
+  if (!isInternalMarkdownPath(href)) return href
+
+  var cleanHref = href.trim()
+  var anchor = ''
+  var anchorIndex = cleanHref.indexOf('#')
+
+  if (anchorIndex !== -1) {
+    anchor = cleanHref.slice(anchorIndex + 1)
+    cleanHref = cleanHref.slice(0, anchorIndex)
+  }
+
+  var basePath = cleanHref
+  if (!cleanHref.startsWith('docs/')) {
+    var currentDir = (currentPath || 'docs/business-strategy.md').split('/').slice(0, -1).join('/')
+    basePath = normalizeDocPath(currentDir + '/' + cleanHref)
+  }
+
+  var docHref = '/doc?path=' + encodeURIComponent(basePath)
+  return anchor ? docHref + '&anchor=' + encodeURIComponent(anchor) : docHref
+}
+
+function slugify(value) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+/* ── section support docs map (from app.js) ──────────────── */
+
+var sectionSupportDocs = {
+  'North Star': {
+    label: 'Open BHAG model',
+    path: 'docs/strategy/bhag-model.md',
+  },
+  'The Engine': {
+    label: 'Open agent engine doc',
+    path: 'docs/strategy/agent-engine.md',
+  },
+  'Two Brands': {
+    label: 'Open MarketMasters doc',
+    path: 'docs/strategy/marketmasters.md',
+  },
+  'Governance': {
+    label: 'Open governance doc',
+    path: 'docs/strategy/governance.md',
+  },
+  'Current Quarter': {
+    label: 'Open quarterly priorities doc',
+    path: 'docs/strategy/quarterly-priorities.md',
+  },
+}
+
+var backlogLanes = [
+  { key: 'research', label: 'Research' },
+  { key: 'scoped', label: 'Scoped' },
+  { key: 'ranked', label: 'Ranked' },
+  { key: 'executing', label: 'Executing' },
+  { key: 'parked', label: 'Parked' },
+]
+
+/* ── inline formatting (from app.js) ─────────────────────── */
+
+function appendFormattedText(text, parent, currentPath) {
+  var re = /(\*\*(.+?)\*\*|`(.+?)`|\[(.+?)\]\((.+?)\))/g
+  var last = 0
+  var m
+
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parent.appendChild(document.createTextNode(text.slice(last, m.index)))
+
+    if (m[2]) {
+      var strong = document.createElement('strong')
+      strong.textContent = m[2]
+      parent.appendChild(strong)
+    } else if (m[3]) {
+      var code = document.createElement('code')
+      code.textContent = m[3]
+      parent.appendChild(code)
+    } else if (m[4] && m[5]) {
+      var link = document.createElement('a')
+      link.textContent = m[4]
+      link.setAttribute('href', buildDocHref(m[5], currentPath))
+      link.className = 'md-link'
+      parent.appendChild(link)
+    }
+
+    last = re.lastIndex
+  }
+
+  if (last < text.length) parent.appendChild(document.createTextNode(text.slice(last)))
+}
+
+/* ── table helpers (from app.js) ─────────────────────────── */
+
+function isTableRow(line) {
+  return line.trim().startsWith('|') && line.trim().endsWith('|')
+}
+
+function isSeparatorRow(line) {
+  return /^\|[\s\-:|]+\|$/.test(line.trim())
+}
+
+function parseTableCells(line) {
+  return line.split('|').slice(1, -1).map(function(cell) {
+    return cell.trim()
+  })
+}
+
+function renderTable(rows, currentPath) {
+  var table = document.createElement('table')
+  table.className = 'md-table'
+
+  var thead = document.createElement('thead')
+  var tbody = document.createElement('tbody')
+  var headerCells = parseTableCells(rows[0])
+  var headerRow = document.createElement('tr')
+
+  headerCells.forEach(function(cell) {
+    var th = document.createElement('th')
+    appendFormattedText(cell, th, currentPath)
+    headerRow.appendChild(th)
+  })
+
+  thead.appendChild(headerRow)
+  table.appendChild(thead)
+
+  for (var i = 2; i < rows.length; i++) {
+    var tr = document.createElement('tr')
+    var cells = parseTableCells(rows[i])
+
+    cells.forEach(function(cell) {
+      var td = document.createElement('td')
+      appendFormattedText(cell, td, currentPath)
+      tr.appendChild(td)
+    })
+
+    tbody.appendChild(tr)
+  }
+
+  table.appendChild(tbody)
+
+  var wrap = document.createElement('div')
+  wrap.className = 'md-table-wrap'
+  wrap.appendChild(table)
+  return wrap
+}
+
+/* ── renderMarkdownBlock — section-level (from app.js) ───── */
+
+function renderMarkdownBlock(markdown, currentPath) {
+  var container = document.createElement('div')
+  container.className = 'markdown-block'
+  var lines = markdown.split('\n')
+  var i = 0
+
+  while (i < lines.length) {
+    var line = lines[i]
+
+    if (line.trim() === '') {
+      i++
+      continue
+    }
+
+    if (/^---+$/.test(line.trim())) {
+      container.appendChild(document.createElement('hr'))
+      i++
+      continue
+    }
+
+    if (line.startsWith('### ')) {
+      var h = document.createElement('h5')
+      h.className = 'md-subheading'
+      appendFormattedText(line.slice(4).trim(), h, currentPath)
+      container.appendChild(h)
+      i++
+      continue
+    }
+
+    if (isTableRow(line)) {
+      var tableRows = []
+      while (i < lines.length && isTableRow(lines[i])) {
+        if (!isSeparatorRow(lines[i])) {
+          tableRows.push(lines[i])
+        } else {
+          tableRows.splice(1, 0, lines[i])
+        }
+        i++
+      }
+      if (tableRows.length >= 2) container.appendChild(renderTable(tableRows, currentPath))
+      continue
+    }
+
+    if (/^\d+\.\s/.test(line)) {
+      var ol = document.createElement('ol')
+      ol.className = 'md-ol'
+      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
+        var oli = document.createElement('li')
+        appendFormattedText(lines[i].replace(/^\d+\.\s/, ''), oli, currentPath)
+        ol.appendChild(oli)
+        i++
+      }
+      container.appendChild(ol)
+      continue
+    }
+
+    if (line.startsWith('- ')) {
+      var ul = document.createElement('ul')
+      while (i < lines.length && lines[i].startsWith('- ')) {
+        var li = document.createElement('li')
+        appendFormattedText(lines[i].slice(2), li, currentPath)
+        ul.appendChild(li)
+        i++
+      }
+      container.appendChild(ul)
+      continue
+    }
+
+    var p = document.createElement('p')
+    appendFormattedText(line, p, currentPath)
+    container.appendChild(p)
+    i++
+  }
+
+  return container
+}
+
+/* ── renderDocMarkdownBlock — full-doc level (from doc.js) ── */
+
+function renderDocMarkdownBlock(markdown, currentPath) {
+  var container = document.createElement('div')
+  container.className = 'markdown-block'
+  var lines = markdown.split('\n')
+  var i = 0
+
+  while (i < lines.length) {
+    var line = lines[i]
+
+    if (line.trim() === '') {
+      i++
+      continue
+    }
+
+    if (/^---+$/.test(line.trim())) {
+      container.appendChild(document.createElement('hr'))
+      i++
+      continue
+    }
+
+    if (line.startsWith('# ')) {
+      var h1 = document.createElement('h2')
+      h1.className = 'doc-markdown-heading doc-markdown-heading-1'
+      var h1Text = line.slice(2).trim()
+      h1.id = slugify(h1Text)
+      appendFormattedText(h1Text, h1, currentPath)
+      container.appendChild(h1)
+      i++
+      continue
+    }
+
+    if (line.startsWith('## ')) {
+      var h2 = document.createElement('h3')
+      h2.className = 'doc-markdown-heading doc-markdown-heading-2'
+      var h2Text = line.slice(3).trim()
+      h2.id = slugify(h2Text)
+      appendFormattedText(h2Text, h2, currentPath)
+      container.appendChild(h2)
+      i++
+      continue
+    }
+
+    if (line.startsWith('### ')) {
+      var h3 = document.createElement('h4')
+      h3.className = 'md-subheading'
+      var h3Text = line.slice(4).trim()
+      h3.id = slugify(h3Text)
+      appendFormattedText(h3Text, h3, currentPath)
+      container.appendChild(h3)
+      i++
+      continue
+    }
+
+    if (isTableRow(line)) {
+      var tableRows = []
+      while (i < lines.length && isTableRow(lines[i])) {
+        if (!isSeparatorRow(lines[i])) {
+          tableRows.push(lines[i])
+        } else {
+          tableRows.splice(1, 0, lines[i])
+        }
+        i++
+      }
+      if (tableRows.length >= 2) container.appendChild(renderTable(tableRows, currentPath))
+      continue
+    }
+
+    if (/^\d+\.\s/.test(line)) {
+      var ol = document.createElement('ol')
+      ol.className = 'md-ol'
+      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
+        var oli = document.createElement('li')
+        appendFormattedText(lines[i].replace(/^\d+\.\s/, ''), oli, currentPath)
+        ol.appendChild(oli)
+        i++
+      }
+      container.appendChild(ol)
+      continue
+    }
+
+    if (line.startsWith('- ')) {
+      var ul = document.createElement('ul')
+      while (i < lines.length && lines[i].startsWith('- ')) {
+        var li = document.createElement('li')
+        appendFormattedText(lines[i].slice(2), li, currentPath)
+        ul.appendChild(li)
+        i++
+      }
+      container.appendChild(ul)
+      continue
+    }
+
+    var p = document.createElement('p')
+    appendFormattedText(line, p, currentPath)
+    container.appendChild(p)
+    i++
+  }
+
+  return container
+}
+
+/* ── card renderers (from app.js) ────────────────────────── */
+
+function renderStatusCard(item) {
+  var card = document.createElement('article')
+  card.className = 'status-card status-' + item.status
+
+  var top = document.createElement('div')
+  top.className = 'status-top'
+
+  var label = document.createElement('span')
+  label.className = 'status-label'
+  label.textContent = item.label
+  top.appendChild(label)
+
+  var pill = document.createElement('span')
+  pill.className = 'status-pill'
+  pill.textContent = item.status
+  top.appendChild(pill)
+
+  card.appendChild(top)
+
+  var detail = document.createElement('p')
+  detail.textContent = item.detail
+  card.appendChild(detail)
+
+  return card
+}
+
+function renderSection(section, currentPath) {
+  var article = document.createElement('article')
+  article.className = 'section-card'
+
+  var title = document.createElement('h4')
+  appendFormattedText(section.title, title, currentPath)
+  article.appendChild(title)
+  article.appendChild(renderMarkdownBlock(section.content, currentPath))
+
+  var supportDoc = sectionSupportDocs[section.title]
+  if (supportDoc) {
+    var supportLink = document.createElement('a')
+    supportLink.className = 'section-support-link'
+    supportLink.href = buildDocHref(supportDoc.path, currentPath)
+    supportLink.textContent = supportDoc.label
+    article.appendChild(supportLink)
+  }
+
+  return article
+}
+
+function renderDocCard(doc) {
+  var article = document.createElement('article')
+  article.className = 'section-card'
+
+  var title = document.createElement('h4')
+  var titleLink = document.createElement('a')
+  titleLink.className = 'section-link'
+  titleLink.href = buildDocHref(doc.meta.path, doc.meta.path)
+  titleLink.textContent = doc.meta.path
+  title.appendChild(titleLink)
+  article.appendChild(title)
+
+  var meta = document.createElement('p')
+  meta.className = 'support-meta'
+  meta.textContent = doc.meta.exists
+    ? doc.meta.lines + ' lines · updated ' + formatDate(doc.meta.updatedAt)
+    : 'Missing'
+  article.appendChild(meta)
+
+  if (doc.meta.exists) {
+    var openLink = document.createElement('a')
+    openLink.className = 'support-open-link'
+    openLink.href = buildDocHref(doc.meta.path, doc.meta.path)
+    openLink.textContent = 'Open full doc'
+    article.appendChild(openLink)
+  }
+
+  doc.sections.slice(0, 3).forEach(function(section) {
+    var sub = document.createElement('div')
+    sub.className = 'support-section'
+
+    var subTitle = document.createElement('h5')
+    appendFormattedText(section.title, subTitle, doc.meta.path)
+    sub.appendChild(subTitle)
+    sub.appendChild(renderMarkdownBlock(section.content, doc.meta.path))
+    article.appendChild(sub)
+  })
+
+  return article
+}
+
+function renderBacklogItem(item) {
+  var card = document.createElement('article')
+  card.className = 'backlog-card'
+
+  var meta = document.createElement('div')
+  meta.className = 'backlog-card-meta'
+
+  var priority = document.createElement('span')
+  priority.className = 'backlog-pill backlog-priority-' + item.priority.toLowerCase()
+  priority.textContent = item.priority
+  meta.appendChild(priority)
+
+  if (item.rank) {
+    var rank = document.createElement('span')
+    rank.className = 'backlog-rank'
+    rank.textContent = '#' + item.rank
+    meta.appendChild(rank)
+  }
+
+  card.appendChild(meta)
+
+  var title = document.createElement('h5')
+  title.textContent = item.title
+  card.appendChild(title)
+
+  var id = document.createElement('div')
+  id.className = 'backlog-id'
+  id.textContent = item.id
+  card.appendChild(id)
+
+  var summary = document.createElement('p')
+  summary.className = 'backlog-copy'
+  summary.textContent = item.summary
+  card.appendChild(summary)
+
+  var why = document.createElement('p')
+  why.className = 'backlog-copy backlog-copy-secondary'
+  why.textContent = item.whyItMatters
+  card.appendChild(why)
+
+  var nextAction = document.createElement('p')
+  nextAction.className = 'backlog-next'
+  nextAction.innerHTML = '<strong>Next:</strong> ' + item.nextAction
+  card.appendChild(nextAction)
+
+  if (item.statusNote) {
+    var note = document.createElement('p')
+    note.className = 'backlog-note'
+    note.textContent = item.statusNote
+    card.appendChild(note)
+  }
+
+  return card
+}
+
+function renderTeamBoard(team, items) {
+  var board = document.createElement('section')
+  board.className = 'team-board'
+
+  var header = document.createElement('div')
+  header.className = 'team-board-header'
+
+  var title = document.createElement('h4')
+  title.textContent = team === 'dev' ? 'Dev Team' : 'Marketing Team'
+  header.appendChild(title)
+
+  var count = document.createElement('span')
+  count.className = 'team-board-count'
+  count.textContent = items.length + ' items'
+  header.appendChild(count)
+
+  board.appendChild(header)
+
+  var laneGrid = document.createElement('div')
+  laneGrid.className = 'backlog-board'
+
+  backlogLanes.forEach(function(lane) {
+    var laneEl = document.createElement('div')
+    laneEl.className = 'backlog-lane'
+
+    var laneTop = document.createElement('div')
+    laneTop.className = 'backlog-lane-top'
+
+    var laneTitle = document.createElement('h5')
+    laneTitle.textContent = lane.label
+    laneTop.appendChild(laneTitle)
+
+    var laneCount = document.createElement('span')
+    laneCount.className = 'backlog-lane-count'
+    var laneItems = items.filter(function(item) { return item.lane === lane.key })
+    laneCount.textContent = laneItems.length
+    laneTop.appendChild(laneCount)
+
+    laneEl.appendChild(laneTop)
+
+    var laneCards = document.createElement('div')
+    laneCards.className = 'backlog-lane-cards'
+
+    if (!laneItems.length) {
+      var empty = document.createElement('p')
+      empty.className = 'lane-empty'
+      empty.textContent = 'Nothing here yet.'
+      laneCards.appendChild(empty)
+    } else {
+      laneItems.forEach(function(item) {
+        laneCards.appendChild(renderBacklogItem(item))
+      })
+    }
+
+    laneEl.appendChild(laneCards)
+    laneGrid.appendChild(laneEl)
+  })
+
+  board.appendChild(laneGrid)
+  return board
+}
+
+function renderDecisionCard(item) {
+  var card = document.createElement('article')
+  card.className = 'decision-card'
+
+  var top = document.createElement('div')
+  top.className = 'decision-top'
+
+  var titleWrap = document.createElement('div')
+  var title = document.createElement('h4')
+  title.textContent = item.title
+  titleWrap.appendChild(title)
+
+  var id = document.createElement('div')
+  id.className = 'decision-id'
+  id.textContent = item.id + ' · ' + item.category
+  titleWrap.appendChild(id)
+  top.appendChild(titleWrap)
+
+  var status = document.createElement('span')
+  status.className = 'status-pill status-pill-static status-' + item.status
+  status.textContent = item.status
+  top.appendChild(status)
+
+  card.appendChild(top)
+
+  var summary = document.createElement('p')
+  summary.className = 'decision-copy'
+  summary.textContent = item.summary
+  card.appendChild(summary)
+
+  if (item.rationale) {
+    var rationale = document.createElement('p')
+    rationale.className = 'decision-rationale'
+    rationale.innerHTML = '<strong>Why:</strong> ' + item.rationale
+    card.appendChild(rationale)
+  }
+
+  if (item.sourceRef) {
+    var source = document.createElement('p')
+    source.className = 'decision-source'
+    source.innerHTML = '<strong>Source:</strong> ' + item.sourceRef
+    card.appendChild(source)
+  }
+
+  return card
+}
+
+function renderCaptureItem(item) {
+  var card = document.createElement('article')
+  card.className = 'capture-card'
+
+  var title = document.createElement('h5')
+  title.textContent = item.title
+  card.appendChild(title)
+
+  var id = document.createElement('div')
+  id.className = 'decision-id'
+  id.textContent = item.id
+  card.appendChild(id)
+
+  var summary = document.createElement('p')
+  summary.textContent = item.summary
+  card.appendChild(summary)
+
+  if (item.owner) {
+    var owner = document.createElement('p')
+    owner.className = 'capture-owner'
+    owner.innerHTML = '<strong>Owner:</strong> ' + item.owner
+    card.appendChild(owner)
+  }
+
+  return card
+}
+
+function groupBacklogByTeam(items) {
+  return {
+    dev: items.filter(function(item) { return item.team === 'dev' }),
+    marketing: items.filter(function(item) { return item.team === 'marketing' }),
+  }
+}
+
+/* ── data cache ──────────────────────────────────────────── */
+
+var cache = {
+  sourceOfTruth: null,
+  foundationHub: null,
+  docs: {},
+}
+
+function fetchSourceOfTruth() {
+  if (cache.sourceOfTruth) return Promise.resolve(cache.sourceOfTruth)
+
+  return fetch('/api/source-of-truth').then(function(res) {
+    if (!res.ok) throw new Error('Source of truth API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.sourceOfTruth = data
+    return data
+  })
+}
+
+function fetchFoundationHub() {
+  if (cache.foundationHub) return Promise.resolve(cache.foundationHub)
+
+  return fetch('/api/foundation-hub').then(function(res) {
+    if (!res.ok) throw new Error('Foundation hub API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.foundationHub = data
+    return data
+  })
+}
+
+function fetchDoc(docPath) {
+  if (cache.docs[docPath]) return Promise.resolve(cache.docs[docPath])
+
+  return fetch('/api/doc?path=' + encodeURIComponent(docPath)).then(function(res) {
+    if (!res.ok) throw new Error('Document failed to load.')
+    return res.json()
+  }).then(function(data) {
+    cache.docs[docPath] = data
+    return data
+  })
+}
+
+/* ── strategy doc path map ───────────────────────────────── */
+
+var strategyDocPaths = {
+  'bhag-model': 'docs/strategy/bhag-model.md',
+  'agent-engine': 'docs/strategy/agent-engine.md',
+  'financial-model': 'docs/strategy/financial-model-and-assumptions.md',
+  'quarterly-priorities': 'docs/strategy/quarterly-priorities.md',
+  'governance': 'docs/strategy/governance.md',
+  'departments': 'docs/strategy/department-mandates.md',
+  'core-values': 'docs/strategy/core-values.md',
+  'marketmasters': 'docs/strategy/marketmasters.md',
+}
+
+/* ── nav label map for breadcrumb ────────────────────────── */
+
+var sectionLabels = {
+  'overview': 'Overview',
+  'bhag-model': 'BHAG Model',
+  'agent-engine': 'Agent Engine',
+  'financial-model': 'Financial Model',
+  'quarterly-priorities': 'Quarterly Priorities',
+  'governance': 'Governance',
+  'departments': 'Departments',
+  'core-values': 'Core Values',
+  'marketmasters': 'MarketMasters',
+  'backlog': 'Backlog',
+  'decisions': 'Decisions',
+  'open-questions': 'Open Questions',
+  'source-registry': 'Source Registry',
+  'data-health': 'Data Health',
+}
+
+/* ── section renderers ───────────────────────────────────── */
+
+function renderOverview() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading overview...</p>'
+
+  Promise.all([fetchSourceOfTruth(), fetchFoundationHub()]).then(function(results) {
+    var data = results[0]
+    var hub = results[1]
+
+    container.innerHTML = ''
+
+    /* hero */
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroLeft = document.createElement('div')
+
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Primary Source'
+    heroLeft.appendChild(eyebrow)
+
+    var heroTitle = document.createElement('h2')
+    heroTitle.textContent = 'Business Strategy'
+    heroLeft.appendChild(heroTitle)
+
+    var heroCopy = document.createElement('p')
+    heroCopy.textContent = 'Canonical strategy document for Benson Crew. The single source of truth that everything else feeds from.'
+    heroLeft.appendChild(heroCopy)
+
+    hero.appendChild(heroLeft)
+
+    var printBtn = document.createElement('button')
+    printBtn.className = 'print-button'
+    printBtn.textContent = 'Print Strategy'
+    printBtn.setAttribute('type', 'button')
+    printBtn.addEventListener('click', function() { window.print() })
+    hero.appendChild(printBtn)
+
+    container.appendChild(hero)
+
+    /* status grid */
+    var statusGrid = document.createElement('div')
+    statusGrid.className = 'status-grid'
+    data.systemStatus.forEach(function(item) {
+      statusGrid.appendChild(renderStatusCard(item))
+    })
+    container.appendChild(statusGrid)
+
+    /* strategy doc panel */
+    var panel = document.createElement('section')
+    panel.className = 'panel'
+
+    var panelHeader = document.createElement('div')
+    panelHeader.className = 'panel-header'
+
+    var panelLeft = document.createElement('div')
+    var panelEyebrow = document.createElement('div')
+    panelEyebrow.className = 'eyebrow'
+    panelEyebrow.textContent = 'Strategy Sections'
+    panelLeft.appendChild(panelEyebrow)
+    var panelTitle = document.createElement('h3')
+    panelTitle.textContent = 'Business Strategy'
+    panelLeft.appendChild(panelTitle)
+    panelHeader.appendChild(panelLeft)
+
+    var panelMeta = document.createElement('div')
+    panelMeta.className = 'doc-meta'
+    var bsMeta = data.foundation.businessStrategy.meta
+    panelMeta.textContent = bsMeta.lines + ' lines · updated ' + formatDate(bsMeta.updatedAt)
+    panelHeader.appendChild(panelMeta)
+
+    panel.appendChild(panelHeader)
+
+    var sectionList = document.createElement('div')
+    sectionList.className = 'section-list'
+    data.foundation.businessStrategy.sections.forEach(function(section) {
+      sectionList.appendChild(renderSection(section, data.foundation.businessStrategy.meta.path))
+    })
+    panel.appendChild(sectionList)
+    container.appendChild(panel)
+
+    /* supporting strategy docs */
+    var supportPanel = document.createElement('section')
+    supportPanel.className = 'panel'
+
+    var supportHeader = document.createElement('div')
+    supportHeader.className = 'panel-header'
+
+    var supportTitle = document.createElement('h3')
+    supportTitle.textContent = 'Supporting Strategy Docs'
+    supportHeader.appendChild(supportTitle)
+
+    supportPanel.appendChild(supportHeader)
+
+    var supportList = document.createElement('div')
+    supportList.className = 'section-list'
+    data.foundation.supportingStrategy.forEach(function(doc) {
+      supportList.appendChild(renderDocCard(doc))
+    })
+    supportPanel.appendChild(supportList)
+    container.appendChild(supportPanel)
+
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load overview: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderStrategyDoc(sectionKey) {
+  var docPath = strategyDocPaths[sectionKey]
+  if (!docPath) return
+
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading document...</p>'
+
+  fetchDoc(docPath).then(function(data) {
+    container.innerHTML = ''
+
+    /* hero */
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = data.title
+    heroInner.appendChild(heroTitle)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = 'Updated ' + formatDate(data.meta.updatedAt) + ' · ' + data.meta.lines + ' lines'
+    heroInner.appendChild(heroMeta)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    /* full markdown content */
+    var docPanel = document.createElement('section')
+    docPanel.className = 'panel'
+
+    var docContent = document.createElement('div')
+    docContent.className = 'doc-content'
+    docContent.appendChild(renderDocMarkdownBlock(data.content, data.meta.path))
+    docPanel.appendChild(docContent)
+    container.appendChild(docPanel)
+
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load document: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderBacklog() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading backlog...</p>'
+
+  fetchFoundationHub().then(function(hub) {
+    container.innerHTML = ''
+
+    /* hero */
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Foundation Backlog'
+    heroInner.appendChild(heroTitle)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = hub.backlogItems.length + ' active items'
+    heroInner.appendChild(heroMeta)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    /* team boards */
+    var backlogGroups = groupBacklogByTeam(hub.backlogItems)
+    var boardWrap = document.createElement('div')
+    boardWrap.appendChild(renderTeamBoard('dev', backlogGroups.dev))
+    boardWrap.appendChild(renderTeamBoard('marketing', backlogGroups.marketing))
+    container.appendChild(boardWrap)
+
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load backlog: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderDecisions() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading decisions...</p>'
+
+  fetchFoundationHub().then(function(hub) {
+    container.innerHTML = ''
+
+    /* hero */
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Foundation Decisions'
+    heroInner.appendChild(heroTitle)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = hub.decisions.length + ' locked decisions'
+    heroInner.appendChild(heroMeta)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    /* decision cards */
+    var decisionPanel = document.createElement('section')
+    decisionPanel.className = 'panel'
+
+    var decisionHeader = document.createElement('div')
+    decisionHeader.className = 'panel-header'
+
+    var decisionTitle = document.createElement('h3')
+    decisionTitle.textContent = 'Decisions'
+    decisionHeader.appendChild(decisionTitle)
+
+    decisionPanel.appendChild(decisionHeader)
+
+    var decisionList = document.createElement('div')
+    decisionList.className = 'section-list'
+    hub.decisions.forEach(function(item) {
+      decisionList.appendChild(renderDecisionCard(item))
+    })
+    decisionPanel.appendChild(decisionList)
+    container.appendChild(decisionPanel)
+
+    /* parking lot */
+    if (hub.parkingLot && hub.parkingLot.length) {
+      var parkingPanel = document.createElement('section')
+      parkingPanel.className = 'panel'
+
+      var parkingHeader = document.createElement('div')
+      parkingHeader.className = 'panel-header'
+
+      var parkingTitle = document.createElement('h3')
+      parkingTitle.textContent = 'Parking Lot'
+      parkingHeader.appendChild(parkingTitle)
+
+      parkingPanel.appendChild(parkingHeader)
+
+      var parkingList = document.createElement('div')
+      parkingList.className = 'section-list'
+      hub.parkingLot.forEach(function(item) {
+        parkingList.appendChild(renderCaptureItem(item))
+      })
+      parkingPanel.appendChild(parkingList)
+      container.appendChild(parkingPanel)
+    }
+
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load decisions: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderOpenQuestions() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading open questions...</p>'
+
+  fetchFoundationHub().then(function(hub) {
+    container.innerHTML = ''
+
+    /* hero */
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Open Questions'
+    heroInner.appendChild(heroTitle)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = hub.openQuestions.length + ' open questions'
+    heroInner.appendChild(heroMeta)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    /* question cards */
+    var panel = document.createElement('section')
+    panel.className = 'panel'
+
+    var list = document.createElement('div')
+    list.className = 'section-list'
+    hub.openQuestions.forEach(function(item) {
+      list.appendChild(renderCaptureItem(item))
+    })
+    panel.appendChild(list)
+    container.appendChild(panel)
+
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load open questions: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderSourceRegistry() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading source registry...</p>'
+
+  fetchSourceOfTruth().then(function(data) {
+    container.innerHTML = ''
+
+    /* hero */
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Source Registry'
+    heroInner.appendChild(heroTitle)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = renderMeta(data.foundation.sourceRegistry.meta)
+    heroInner.appendChild(heroMeta)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    /* registry sections */
+    var panel = document.createElement('section')
+    panel.className = 'panel'
+
+    if (!data.foundation.sourceRegistry.meta.exists) {
+      var notice = document.createElement('p')
+      notice.textContent = 'Source registry not found. Create docs/source-registry.md.'
+      panel.appendChild(notice)
+    } else {
+      var sectionList = document.createElement('div')
+      sectionList.className = 'section-list'
+      data.foundation.sourceRegistry.sections.forEach(function(section) {
+        sectionList.appendChild(renderSection(section, data.foundation.sourceRegistry.meta.path))
+      })
+      panel.appendChild(sectionList)
+    }
+
+    container.appendChild(panel)
+
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load source registry: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderDataHealth() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading data health...</p>'
+
+  fetchFoundationHub().then(function(hub) {
+    container.innerHTML = ''
+
+    /* hero */
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Data Health'
+    heroInner.appendChild(heroTitle)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = hub.memoryStatus.length + ' components tracked'
+    heroInner.appendChild(heroMeta)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    /* memory status grid */
+    var statusGrid = document.createElement('div')
+    statusGrid.className = 'status-grid'
+    hub.memoryStatus.forEach(function(item) {
+      statusGrid.appendChild(renderStatusCard({
+        label: item.label,
+        status: item.status,
+        detail: item.detail,
+      }))
+    })
+    container.appendChild(statusGrid)
+
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load data health: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+/* ── router ──────────────────────────────────────────────── */
+
+function getSection() {
+  var hash = window.location.hash.replace('#', '')
+  return hash || 'overview'
+}
+
+function updateNav(section) {
+  var navItems = document.querySelectorAll('.found-nav-item')
+  navItems.forEach(function(item) {
+    item.classList.remove('found-nav-active')
+    if (item.getAttribute('data-section') === section) {
+      item.classList.add('found-nav-active')
+    }
+  })
+
+  var breadcrumb = document.getElementById('found-breadcrumb-page')
+  if (breadcrumb) {
+    breadcrumb.textContent = sectionLabels[section] || section
+  }
+}
+
+function route() {
+  var section = getSection()
+  updateNav(section)
+
+  /* close mobile nav on route change */
+  var nav = document.getElementById('found-nav')
+  if (nav) nav.classList.remove('found-nav-open')
+
+  /* scroll to top */
+  var main = document.querySelector('.found-main')
+  if (main) main.scrollTop = 0
+
+  if (section === 'overview') {
+    renderOverview()
+  } else if (strategyDocPaths[section]) {
+    renderStrategyDoc(section)
+  } else if (section === 'backlog') {
+    renderBacklog()
+  } else if (section === 'decisions') {
+    renderDecisions()
+  } else if (section === 'open-questions') {
+    renderOpenQuestions()
+  } else if (section === 'source-registry') {
+    renderSourceRegistry()
+  } else if (section === 'data-health') {
+    renderDataHealth()
+  } else {
+    renderOverview()
+  }
+}
+
+/* ── init ────────────────────────────────────────────────── */
+
+function init() {
+  /* default hash */
+  if (!window.location.hash) {
+    window.location.hash = '#overview'
+  }
+
+  /* mobile toggle */
+  var toggleBtn = document.getElementById('found-mobile-toggle')
+  var nav = document.getElementById('found-nav')
+  if (toggleBtn && nav) {
+    toggleBtn.addEventListener('click', function() {
+      nav.classList.toggle('found-nav-open')
+    })
+  }
+
+  /* route on hash change */
+  window.addEventListener('hashchange', route)
+
+  /* initial render */
+  route()
+}
+
+init()

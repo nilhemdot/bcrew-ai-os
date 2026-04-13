@@ -5,3 +5,7 @@ yarn-debug.log*
 yarn-error.log*
 dist/
 coverage/
+.superpowers/
+.env
+.env.*
+.mcp.json

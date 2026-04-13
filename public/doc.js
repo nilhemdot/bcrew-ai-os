@@ -149,7 +149,11 @@ function renderTable(rows, currentPath) {
   }
 
   table.appendChild(tbody)
-  return table
+
+  var wrap = document.createElement('div')
+  wrap.className = 'md-table-wrap'
+  wrap.appendChild(table)
+  return wrap
 }
 
 function renderInlineSourceCard(groupTitle, rows, options) {
