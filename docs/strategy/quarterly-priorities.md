@@ -47,6 +47,9 @@ Failing indicator: Recruiting pace behind target for 2 consecutive weeks. Behind
 
 Winning looks like:
 
+- Founder thought leadership is visible and consistent
+- Benson Crew spotlights and backend proof posts circulate regularly
+- MarketMasters adds trust-led recruiting attention without blurring the brand
 - Visible proof of execution published consistently
 - Agents reuse and benefit from brand assets
 - Recruiting conversations naturally reference brand proof
