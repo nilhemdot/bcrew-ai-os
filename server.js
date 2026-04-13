@@ -70,7 +70,13 @@ async function closeServer(server) {
 
 app.use(setSecurityHeaders)
 app.use(logApiRequest)
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders(res, filePath) {
+    if (/\.(js|css|html)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-store')
+    }
+  },
+}))
 
 function isAllowedDocPath(filePath) {
   const normalizedDocsDir = path.resolve(docsDir) + path.sep
@@ -270,10 +276,12 @@ app.get('/api/doc', async (req, res) => {
 })
 
 app.get('/doc', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'doc.html'))
 })
 
 app.get('/foundation', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'foundation.html'))
 })
 
