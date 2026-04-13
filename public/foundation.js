@@ -388,8 +388,7 @@ function formatBhagGrowthPercent(previousValue, currentValue) {
   var growth = ((currentValue - previousValue) / previousValue) * 100
   if (!Number.isFinite(growth)) return '—'
 
-  var rounded = Math.round(growth * 10) / 10
-  return (rounded % 1 === 0 ? String(Math.round(rounded)) : rounded.toFixed(1)) + '%'
+  return Math.round(growth) + '%'
 }
 
 function formatSourceSummary(cardGroups) {
