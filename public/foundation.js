@@ -951,11 +951,11 @@ var sectionLabels = {
   'overview': 'Overview',
   'bhag-model': 'BHAG Model',
   'agent-engine': 'Agent Engine',
-  'financial-model': 'Financial Model',
+  'financial-model': 'Financial Model and Assumptions',
   'quarterly-priorities': 'Quarterly Priorities',
   'strategic-issues': 'Strategic Issues',
   'governance': 'Governance',
-  'departments': 'Departments',
+  'departments': 'Department Mandates',
   'core-values': 'Core Values',
   'marketmasters': 'MarketMasters',
   'backlog': 'Backlog',
@@ -994,6 +994,7 @@ var strategyReviewChecklist = [
       'Financial Model and Assumptions',
       'Quarterly Priorities',
       'Strategic Issues',
+      'Governance',
       'Department Mandates',
       'Core Values',
       'MarketMasters',
@@ -1166,7 +1167,7 @@ function renderOverview() {
     supportHeader.className = 'panel-header'
 
     var supportTitle = document.createElement('h3')
-    supportTitle.textContent = 'Supporting Strategy Docs'
+    supportTitle.textContent = 'Supporting Docs'
     supportHeader.appendChild(supportTitle)
 
     supportPanel.appendChild(supportHeader)
@@ -1176,6 +1177,7 @@ function renderOverview() {
     data.foundation.supportingStrategy.forEach(function(doc) {
       supportList.appendChild(renderDocCard(doc))
     })
+    supportList.appendChild(renderDocCard(data.foundation.sourceRegistry))
     supportPanel.appendChild(supportList)
     container.appendChild(supportPanel)
 
