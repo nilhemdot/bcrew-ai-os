@@ -360,11 +360,11 @@ function getEngineMetricExplanation(metricKey) {
   }
 
   if (metricKey === 'Live Attrition Pressure') {
-    return 'This is the live operating attrition signal from the Agent Engine tab. It is not the same as the planning attrition assumption still buried in the formula.'
+    return 'This is the live operating attrition signal from the Agent Engine tab. It is different from the planning attrition assumption used in the model.'
   }
 
   if (metricKey === 'Planning Attrition Assumption') {
-    return 'This still needs to be exposed cleanly from the source of truth. Right now the formula uses it, but the system cannot read it directly yet.'
+    return 'This is the planning attrition rate from the BHAG builder. It feeds the required recruiting formula and changes the pace the model needs.'
   }
 
   if (metricKey === 'Actual Split') {

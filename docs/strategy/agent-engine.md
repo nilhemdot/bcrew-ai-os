@@ -36,6 +36,6 @@ The required-agent table below translates the BHAG volume path into required age
 
 ## Attrition Note
 
-The live engine currently exposes operating attrition pressure, but the planning attrition assumption inside the required recruiting formula still needs to be broken out as an explicit source-backed input.
+The planning attrition assumption now comes from the BHAG builder. The live engine also exposes operating attrition pressure. Those are different numbers and should not be read as the same metric.
 
 For assumption definitions and interpretation rules, see the [Financial Model and Assumptions](financial-model-and-assumptions.md).
