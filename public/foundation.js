@@ -378,6 +378,10 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
   rows.forEach(function(row) {
     if (!/^\d{4}$/.test(row.label)) summaryMap[row.label] = row.value
   })
+  var startedKey = Object.keys(summaryMap).find(function(key) {
+    return /^Started \d{4}$/.test(key)
+  })
+  var currentYearLabel = startedKey ? startedKey.replace('Started ', '') : (yearRows[0] ? yearRows[0].label : '')
 
   var asOfValues = rows
     .map(function(row) {
@@ -427,7 +431,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
   table.appendChild(thead)
 
   var tbody = document.createElement('tbody')
-  yearRows.forEach(function(row, index) {
+  yearRows.forEach(function(row) {
     var tr = document.createElement('tr')
     var year = document.createElement('th')
     year.textContent = row.label
@@ -435,7 +439,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
 
     if (groupTitle === 'Community Goal: 10,000 Agents') {
       var started = document.createElement('td')
-      started.textContent = index === 0 ? summaryMap['Started 2026'] || '—' : '—'
+      started.textContent = row.label === currentYearLabel ? (startedKey ? summaryMap[startedKey] : '—') : '—'
       tr.appendChild(started)
     }
 
@@ -444,11 +448,11 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
     tr.appendChild(target)
 
     var current = document.createElement('td')
-    current.textContent = index === 0 ? summaryMap['Actual'] || '—' : '—'
+    current.textContent = row.label === currentYearLabel ? summaryMap['Actual'] || '—' : '—'
     tr.appendChild(current)
 
     var pace = document.createElement('td')
-    pace.textContent = index === 0 ? summaryMap['Pace'] || '—' : '—'
+    pace.textContent = row.label === currentYearLabel ? summaryMap['Pace'] || '—' : '—'
     tr.appendChild(pace)
 
     tbody.appendChild(tr)
@@ -1122,6 +1126,14 @@ var cache = {
   docs: {},
 }
 
+var liveDocPaths = {
+  'docs/strategy/bhag-model.md': true,
+}
+
+function isLiveDocPath(docPath) {
+  return !!liveDocPaths[docPath]
+}
+
 function fetchSourceOfTruth() {
   if (cache.sourceOfTruth) return Promise.resolve(cache.sourceOfTruth)
 
@@ -1147,13 +1159,21 @@ function fetchFoundationHub() {
 }
 
 function fetchDoc(docPath) {
-  if (cache.docs[docPath]) return Promise.resolve(cache.docs[docPath])
+  if (!isLiveDocPath(docPath) && cache.docs[docPath]) return Promise.resolve(cache.docs[docPath])
 
-  return fetch('/api/doc?path=' + encodeURIComponent(docPath)).then(function(res) {
+  var requestUrl = '/api/doc?path=' + encodeURIComponent(docPath)
+  var requestOptions = {}
+
+  if (isLiveDocPath(docPath)) {
+    requestUrl += '&_ts=' + Date.now()
+    requestOptions.cache = 'no-store'
+  }
+
+  return fetch(requestUrl, requestOptions).then(function(res) {
     if (!res.ok) throw new Error('Document failed to load.')
     return res.json()
   }).then(function(data) {
-    cache.docs[docPath] = data
+    if (!isLiveDocPath(docPath)) cache.docs[docPath] = data
     return data
   })
 }
@@ -1428,6 +1448,19 @@ function renderStrategyDoc(sectionKey) {
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
+
+    if (isLiveDocPath(docPath)) {
+      var refreshBtn = document.createElement('button')
+      refreshBtn.className = 'print-button'
+      refreshBtn.textContent = 'Refresh Data'
+      refreshBtn.setAttribute('type', 'button')
+      refreshBtn.addEventListener('click', function() {
+        delete cache.docs[docPath]
+        renderStrategyDoc(sectionKey)
+      })
+      hero.appendChild(refreshBtn)
+    }
+
     container.appendChild(hero)
 
     /* full markdown content */

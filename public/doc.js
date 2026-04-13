@@ -253,6 +253,10 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
   rows.forEach(function(row) {
     if (!/^\d{4}$/.test(row.label)) summaryMap[row.label] = row.value
   })
+  var startedKey = Object.keys(summaryMap).find(function(key) {
+    return /^Started \d{4}$/.test(key)
+  })
+  var currentYearLabel = startedKey ? startedKey.replace('Started ', '') : (yearRows[0] ? yearRows[0].label : '')
 
   var asOfValues = rows
     .map(function(row) { return formatAsOfDate(row.asOf) })
@@ -300,7 +304,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
   table.appendChild(thead)
 
   var tbody = document.createElement('tbody')
-  yearRows.forEach(function(row, index) {
+  yearRows.forEach(function(row) {
     var tr = document.createElement('tr')
     var year = document.createElement('th')
     year.textContent = row.label
@@ -308,7 +312,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
 
     if (groupTitle === 'Community Goal: 10,000 Agents') {
       var started = document.createElement('td')
-      started.textContent = index === 0 ? summaryMap['Started 2026'] || '—' : '—'
+      started.textContent = row.label === currentYearLabel ? (startedKey ? summaryMap[startedKey] : '—') : '—'
       tr.appendChild(started)
     }
 
@@ -317,11 +321,11 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
     tr.appendChild(target)
 
     var current = document.createElement('td')
-    current.textContent = index === 0 ? summaryMap['Actual'] || '—' : '—'
+    current.textContent = row.label === currentYearLabel ? summaryMap['Actual'] || '—' : '—'
     tr.appendChild(current)
 
     var pace = document.createElement('td')
-    pace.textContent = index === 0 ? summaryMap['Pace'] || '—' : '—'
+    pace.textContent = row.label === currentYearLabel ? summaryMap['Pace'] || '—' : '—'
     tr.appendChild(pace)
 
     tbody.appendChild(tr)
@@ -483,13 +487,25 @@ function groupSourceSnapshot(rows) {
   return groups
 }
 
+function isLiveDocPath(docPath) {
+  return docPath === 'docs/strategy/bhag-model.md'
+}
+
 async function init() {
   var pathValue = getQueryParam('path')
   var anchor = getQueryParam('anchor')
 
   if (!pathValue) throw new Error('Missing document path.')
 
-  var response = await fetch('/api/doc?path=' + encodeURIComponent(pathValue))
+  var requestUrl = '/api/doc?path=' + encodeURIComponent(pathValue)
+  var requestOptions = {}
+
+  if (isLiveDocPath(pathValue)) {
+    requestUrl += '&_ts=' + Date.now()
+    requestOptions.cache = 'no-store'
+  }
+
+  var response = await fetch(requestUrl, requestOptions)
   if (!response.ok) throw new Error('Document failed to load.')
 
   var data = await response.json()

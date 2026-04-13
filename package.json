@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "google:health": "node scripts/google-delegated-health.mjs"
+    "google:health": "node scripts/google-delegated-health.mjs",
+    "bhag:update": "node scripts/update-bhag-builder-paths.mjs"
   },
   "engines": {
     "node": ">=20"

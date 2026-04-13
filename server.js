@@ -248,6 +248,10 @@ app.get('/api/doc', async (req, res) => {
   }
 
   try {
+    if (path.relative(__dirname, filePath) === 'docs/strategy/bhag-model.md') {
+      res.setHeader('Cache-Control', 'no-store')
+    }
+
     const sourceSnapshot = await getDocSourceSnapshot(path.relative(__dirname, filePath))
     res.json({
       title: getDocTitle(content, filePath),
