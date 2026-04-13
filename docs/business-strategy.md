@@ -69,6 +69,7 @@ See [Quarterly Priorities](strategy/quarterly-priorities.md).
 6. The system must preserve the distinction between Benson Crew as the team and Real Broker as the brokerage/platform.
 7. The system should render live values from source IDs so a source update flows across the system without manual doc cleanup.
 8. Agents can support, analyze, and operationalize strategy, but they do not set or change strategy on their own.
+9. Every source-backed view should show the source ID and give the user a clear way to open the real source of truth.
 
 ## System Role
 

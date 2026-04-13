@@ -27,7 +27,7 @@ type: project
 
 ## Strategy Doc Structure (modular)
 - `docs/business-strategy.md` — canonical one-page summary
-- `docs/strategy/vision-and-north-star.md` — $2B team, 10K downline
+- `docs/strategy/bhag-model.md` — $2B team, 10K downline, and milestone path
 - `docs/strategy/agent-engine.md` — ATTRACT/GROW/RETAIN math
 - `docs/strategy/quarterly-priorities.md` — current quarter only
 - `docs/strategy/department-mandates.md` — who owns what

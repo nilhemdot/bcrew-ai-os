@@ -11,6 +11,7 @@ This registry distinguishes between sources verified in the current rebuild and 
 3. If a source moves or is brought into the system later, the `Source ID` stays the same and only the registry entry changes.
 4. A source can be `Verified`, `Verified Readable`, `Pending Revalidation`, or `Gap`.
 5. `Verified Readable` means we confirmed we can read the source in the rebuild, but we have not yet wired it into app logic or automation.
+6. Source-backed views should expose the `Source ID` and a clear path back to the real source so users and agents are never lost.
 
 ---
 

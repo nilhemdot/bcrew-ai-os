@@ -156,7 +156,7 @@ function renderTable(rows, currentPath) {
   return wrap
 }
 
-function renderInlineSourceCard(groupTitle, rows, options) {
+function renderInlineSourceCard(groupTitle, rows, options, sourceContractMap) {
   var hideTitle = options && options.hideTitle
   var card = document.createElement('section')
   card.className = 'doc-source-card doc-source-card-inline'
@@ -180,6 +180,7 @@ function renderInlineSourceCard(groupTitle, rows, options) {
   sourceId.className = 'doc-source-id'
   sourceId.textContent = rows[0].sourceId
   titleWrap.appendChild(sourceId)
+  appendSourceActions(titleWrap, getSourceActionsForIds([rows[0].sourceId], sourceContractMap))
   cardTop.appendChild(titleWrap)
 
   if (uniqueAsOfValues.length) {
@@ -266,37 +267,53 @@ function formatSourceSummary(cardGroups) {
     .join(' · ')
 }
 
-function getBhagSourceActions(groupTitle) {
-  if (groupTitle === 'Team Goal: $2B') {
-    return [
-      {
-        label: 'Edit Targets',
-        href: 'https://docs.google.com/spreadsheets/d/1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw/edit?gid=337425848#gid=337425848',
-      },
-      {
-        label: 'Edit Actuals',
-        href: 'https://docs.google.com/spreadsheets/d/18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk/edit?gid=533201019#gid=533201019',
-      },
-    ]
-  }
-
-  if (groupTitle === 'Community Goal: 10,000 Agents') {
-    return [
-      {
-        label: 'Edit Targets',
-        href: 'https://docs.google.com/spreadsheets/d/1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw/edit?gid=337425848#gid=337425848',
-      },
-      {
-        label: 'Edit Actuals',
-        href: 'https://docs.google.com/spreadsheets/d/1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw/edit?gid=1670417784#gid=1670417784',
-      },
-    ]
-  }
-
-  return []
+function buildSourceContractMap(sourceContracts) {
+  var map = {}
+  ;(sourceContracts || []).forEach(function(contract) {
+    map[contract.sourceId] = contract
+  })
+  return map
 }
 
-function renderBhagSummaryCard(groupTitle, cardGroups) {
+function getSourceActionsForIds(sourceIds, sourceContractMap) {
+  var seen = {}
+  var actions = []
+
+  ;(sourceIds || []).forEach(function(sourceId) {
+    var contract = sourceContractMap && sourceContractMap[sourceId]
+    ;((contract && contract.actions) || []).forEach(function(action) {
+      var key = action.label + '|' + action.href
+      if (seen[key]) return
+      seen[key] = true
+      actions.push(action)
+    })
+  })
+
+  return actions
+}
+
+function appendSourceActions(target, actions) {
+  if (!actions || !actions.length) return
+
+  var actionRow = document.createElement('div')
+  actionRow.className = 'doc-source-actions'
+
+  actions.forEach(function(action) {
+    var link = document.createElement('a')
+    link.className = 'doc-source-link'
+    link.href = action.href
+    if (/^https?:/i.test(action.href)) {
+      link.target = '_blank'
+      link.rel = 'noreferrer'
+    }
+    link.textContent = action.label
+    actionRow.appendChild(link)
+  })
+
+  target.appendChild(actionRow)
+}
+
+function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
   var rows = sortSnapshotRows(
     cardGroups.reduce(function(all, group) {
       return all.concat(group.rows || [])
@@ -333,22 +350,13 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
   source.className = 'doc-source-id'
   source.textContent = formatSourceSummary(cardGroups)
   titleWrap.appendChild(source)
-
-  var actions = getBhagSourceActions(groupTitle)
-  if (actions.length) {
-    var actionRow = document.createElement('div')
-    actionRow.className = 'doc-source-actions'
-    actions.forEach(function(action) {
-      var link = document.createElement('a')
-      link.className = 'doc-source-link'
-      link.href = action.href
-      link.target = '_blank'
-      link.rel = 'noreferrer'
-      link.textContent = action.label
-      actionRow.appendChild(link)
-    })
-    titleWrap.appendChild(actionRow)
-  }
+  appendSourceActions(
+    titleWrap,
+    getSourceActionsForIds(
+      cardGroups.map(function(group) { return group.sourceId }),
+      sourceContractMap
+    )
+  )
 
   cardTop.appendChild(titleWrap)
 
@@ -442,7 +450,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
   return card
 }
 
-function renderMarkdownBlock(markdown, currentPath, sourceGroups) {
+function renderMarkdownBlock(markdown, currentPath, sourceGroups, sourceContractMap) {
   var container = document.createElement('div')
   container.className = 'markdown-block'
   var lines = markdown.split('\n')
@@ -494,13 +502,13 @@ function renderMarkdownBlock(markdown, currentPath, sourceGroups) {
         var isBhagSection = h2Text === 'Team Goal: $2B' || h2Text === 'Community Goal: 10,000 Agents'
 
         if (isBhagDoc && isBhagSection) {
-          var bhagCard = renderBhagSummaryCard(h2Text, sourceGroups[h2Text])
+          var bhagCard = renderBhagSummaryCard(h2Text, sourceGroups[h2Text], sourceContractMap)
           if (bhagCard) {
             pendingBhagCard = bhagCard
           }
         } else {
           sourceGroups[h2Text].forEach(function(cardGroup) {
-            container.appendChild(renderInlineSourceCard(h2Text, cardGroup.rows, { hideTitle: true }))
+            container.appendChild(renderInlineSourceCard(h2Text, cardGroup.rows, { hideTitle: true }, sourceContractMap))
           })
         }
       }
@@ -629,10 +637,12 @@ async function init() {
     'Updated ' + formatDate(data.meta.updatedAt) + ' · ' + data.meta.lines + ' lines'
 
   var content = document.getElementById('doc-content')
+  var sourceContractMap = buildSourceContractMap(data.sourceContracts || [])
   content.appendChild(renderMarkdownBlock(
     data.content,
     data.meta.path,
-    groupSourceSnapshot(data.sourceSnapshot || [])
+    groupSourceSnapshot(data.sourceSnapshot || []),
+    sourceContractMap
   ))
 
   if (anchor) {

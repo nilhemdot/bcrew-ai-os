@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { closeFoundationDb, getDocSourceSnapshot, getFoundationSnapshot, initFoundationDb } from './lib/foundation-db.js'
+import { getSourceContracts, getSourceContractsByIds } from './lib/source-contracts.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -171,6 +172,7 @@ function getDocTitle(markdown, filePath) {
 app.get('/api/source-of-truth', (_req, res) => {
   const businessStrategy = readFileSafe(businessStrategyPath)
   const sourceRegistry = readFileSafe(sourceRegistryPath)
+  const sourceContracts = getSourceContracts()
 
   res.json({
     title: 'BCrew AI OS',
@@ -185,6 +187,7 @@ app.get('/api/source-of-truth', (_req, res) => {
       },
       supportingStrategy: getSupportingStrategyDocs(),
     },
+    sources: sourceContracts,
     systemStatus: [
       {
         key: 'strategy-doc',
@@ -199,7 +202,7 @@ app.get('/api/source-of-truth', (_req, res) => {
         label: 'Source Registry',
         status: sourceRegistry ? 'connected' : 'pending',
         detail: sourceRegistry
-          ? 'The registry exists and can be expanded with real connectors.'
+          ? `${sourceContracts.length} source contracts are tracked, with verified, pending, and gap states.`
           : 'Create the registry next so every business input has an owner and status.',
       },
       {
@@ -259,11 +262,15 @@ app.get('/api/doc', async (req, res) => {
     }
 
     const sourceSnapshot = await getDocSourceSnapshot(path.relative(__dirname, filePath))
+    const sourceContracts = getSourceContractsByIds(
+      Array.from(new Set(sourceSnapshot.map(row => row.sourceId)))
+    )
     res.json({
       title: getDocTitle(content, filePath),
       meta: getDocMeta(filePath),
       content,
       sourceSnapshot,
+      sourceContracts,
     })
   } catch (error) {
     sendApiError(
