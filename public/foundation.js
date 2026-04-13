@@ -749,32 +749,6 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap) {
   var card = document.createElement('section')
   card.className = 'doc-source-card engine-summary-card'
 
-  var top = document.createElement('div')
-  top.className = 'doc-source-card-top'
-
-  var titleWrap = document.createElement('div')
-  var source = document.createElement('div')
-  source.className = 'doc-source-id'
-  source.textContent = formatSourceSummary(cardGroups)
-  titleWrap.appendChild(source)
-  appendSourceActions(
-    titleWrap,
-    getSourceActionsForIds(
-      cardGroups.map(function(group) { return group.sourceId }),
-      sourceContractMap
-    )
-  )
-  top.appendChild(titleWrap)
-
-  if (uniqueAsOfValues.length) {
-    var asOf = document.createElement('div')
-    asOf.className = 'doc-source-asof'
-    asOf.textContent = 'As of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
-    top.appendChild(asOf)
-  }
-
-  card.appendChild(top)
-
   var tableWrap = document.createElement('div')
   tableWrap.className = 'md-table-wrap'
 
@@ -815,12 +789,104 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap) {
   tableWrap.appendChild(table)
   card.appendChild(tableWrap)
 
-  if (rows[0].detail) {
-    var detail = document.createElement('p')
-    detail.className = 'doc-source-detail'
-    detail.textContent = rows[0].detail
-    card.appendChild(detail)
+  var detail = document.createElement('p')
+  detail.className = 'doc-source-detail'
+  detail.textContent = 'If the current annual volume average per agent holds, this is the agent count each year requires.'
+  card.appendChild(detail)
+
+  appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
+
+  return card
+}
+
+function appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues) {
+  var footer = document.createElement('div')
+  footer.className = 'engine-card-footer'
+
+  var left = document.createElement('div')
+  left.className = 'engine-card-footer-left'
+
+  var source = document.createElement('div')
+  source.className = 'doc-source-id'
+  source.textContent = formatSourceSummary(cardGroups)
+  left.appendChild(source)
+
+  appendSourceActions(
+    left,
+    getSourceActionsForIds(
+      cardGroups.map(function(group) { return group.sourceId }),
+      sourceContractMap
+    )
+  )
+
+  footer.appendChild(left)
+
+  if (uniqueAsOfValues.length) {
+    var asOf = document.createElement('div')
+    asOf.className = 'doc-source-asof'
+    asOf.textContent = 'As of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
+    footer.appendChild(asOf)
   }
+
+  card.appendChild(footer)
+}
+
+function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
+  var rows = sortSnapshotRows(
+    cardGroups.reduce(function(all, group) {
+      return all.concat(group.rows || [])
+    }, [])
+  )
+
+  if (!rows.length) return null
+
+  var asOfValues = rows
+    .map(function(row) { return row.asOf ? formatAsOfDate(row.asOf) : '' })
+    .filter(Boolean)
+  var uniqueAsOfValues = Array.from(new Set(asOfValues))
+
+  function getMetric(label) {
+    return rows.find(function(row) { return row.label === label }) || null
+  }
+
+  var card = document.createElement('section')
+  card.className = 'doc-source-card engine-summary-card'
+
+  var intro = document.createElement('p')
+  intro.className = 'engine-summary-intro'
+  intro.textContent = 'These are the planning assumptions that set the engine math. They feed the current requirement below.'
+  card.appendChild(intro)
+
+  var grid = document.createElement('div')
+  grid.className = 'engine-inputs-grid'
+
+  ;[
+    'Average Monthly GCI',
+    'Annual Volume Average',
+    'Split to Team',
+    'Commission Average',
+  ].forEach(function(metricKey) {
+    var metric = getMetric(metricKey)
+    if (!metric) return
+
+    var item = document.createElement('div')
+    item.className = 'engine-input-card'
+
+    var label = document.createElement('div')
+    label.className = 'engine-input-label'
+    label.textContent = metricKey
+    item.appendChild(label)
+
+    var value = document.createElement('div')
+    value.className = 'engine-input-value'
+    value.textContent = metric.value
+    item.appendChild(value)
+
+    grid.appendChild(item)
+  })
+
+  card.appendChild(grid)
+  appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
 
   return card
 }
@@ -839,34 +905,98 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
     .filter(Boolean)
   var uniqueAsOfValues = Array.from(new Set(asOfValues))
 
+  function getMetric(metricKey) {
+    return rows.find(function(sourceRow) { return sourceRow.label === metricKey }) || null
+  }
+
+  function getMetricValue(metricKey) {
+    var metric = getMetric(metricKey)
+    return metric ? metric.value : '—'
+  }
+
   var card = document.createElement('section')
   card.className = 'doc-source-card engine-summary-card'
 
-  var top = document.createElement('div')
-  top.className = 'doc-source-card-top'
+  var hero = document.createElement('section')
+  hero.className = 'engine-hero'
 
-  var titleWrap = document.createElement('div')
-  var source = document.createElement('div')
-  source.className = 'doc-source-id'
-  source.textContent = formatSourceSummary(cardGroups)
-  titleWrap.appendChild(source)
-  appendSourceActions(
-    titleWrap,
-    getSourceActionsForIds(
-      cardGroups.map(function(group) { return group.sourceId }),
-      sourceContractMap
-    )
-  )
-  top.appendChild(titleWrap)
+  var heroHeading = document.createElement('div')
+  heroHeading.className = 'engine-hero-heading'
+  heroHeading.textContent = 'What the model says right now'
+  hero.appendChild(heroHeading)
 
-  if (uniqueAsOfValues.length) {
-    var asOf = document.createElement('div')
-    asOf.className = 'doc-source-asof'
-    asOf.textContent = 'As of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
-    top.appendChild(asOf)
-  }
+  var heroGrid = document.createElement('div')
+  heroGrid.className = 'engine-hero-grid'
 
-  card.appendChild(top)
+  ;[
+    'Required Start-of-Year Agents',
+    'Current Active Agents',
+    'Capacity Gap',
+    'Required Recruiting Pace',
+    'Current Recruiting Pace',
+  ].forEach(function(metricKey) {
+    var item = document.createElement('div')
+    item.className = 'engine-hero-stat'
+
+    var labelWrap = document.createElement('div')
+    labelWrap.className = 'engine-summary-label-wrap'
+
+    var label = document.createElement('div')
+    label.className = 'engine-hero-label'
+    label.textContent = metricKey
+    labelWrap.appendChild(label)
+
+    var explanation = getEngineMetricExplanation(metricKey)
+    if (explanation) appendBhagInfoBadge(labelWrap, explanation)
+    item.appendChild(labelWrap)
+
+    var value = document.createElement('div')
+    value.className = 'engine-hero-value'
+    value.textContent = getMetricValue(metricKey)
+    if (/^Ahead by/i.test(value.textContent) || /^Above target/i.test(value.textContent)) {
+      value.classList.add('engine-hero-value-positive')
+    } else if (/^Behind by/i.test(value.textContent) || /^Below target/i.test(value.textContent)) {
+      value.classList.add('engine-hero-value-negative')
+    }
+    item.appendChild(value)
+
+    heroGrid.appendChild(item)
+  })
+
+  hero.appendChild(heroGrid)
+  card.appendChild(hero)
+
+  var flow = document.createElement('div')
+  flow.className = 'engine-flow'
+
+  ;[
+    { step: '1', title: 'Model Inputs', text: 'Set the planning math.' },
+    { step: '2', title: 'Current Reality', text: 'Shows where the business is now.' },
+    { step: '3', title: 'Gap To Close', text: 'Shows what must change to start next year correctly.' },
+    { step: '4', title: 'Current Pressures', text: 'Shows which forces are helping or hurting the model.' },
+  ].forEach(function(stepDef) {
+    var step = document.createElement('section')
+    step.className = 'engine-flow-step'
+
+    var badge = document.createElement('div')
+    badge.className = 'engine-flow-badge'
+    badge.textContent = stepDef.step
+    step.appendChild(badge)
+
+    var title = document.createElement('div')
+    title.className = 'engine-flow-title'
+    title.textContent = stepDef.title
+    step.appendChild(title)
+
+    var text = document.createElement('div')
+    text.className = 'engine-flow-text'
+    text.textContent = stepDef.text
+    step.appendChild(text)
+
+    flow.appendChild(step)
+  })
+
+  card.appendChild(flow)
 
   var grid = document.createElement('div')
   grid.className = 'engine-summary-grid'
@@ -936,8 +1066,7 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
 
       var value = document.createElement('span')
       value.className = 'engine-summary-value'
-      var metricRow = rows.find(function(sourceRow) { return sourceRow.label === metricKey })
-      value.textContent = metricRow ? metricRow.value : '—'
+      value.textContent = getMetricValue(metricKey)
       var directionalClass = getDirectionalClass(value.textContent)
       if (directionalClass) value.classList.add(directionalClass)
       row.appendChild(value)
@@ -950,12 +1079,12 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
 
   card.appendChild(grid)
 
-  if (rows[0].detail) {
-    var detail = document.createElement('p')
-    detail.className = 'doc-source-detail'
-    detail.textContent = 'This ties the BHAG builder assumptions to current recruiting reality. The planning attrition assumption still needs to be exposed cleanly from the source.'
-    card.appendChild(detail)
-  }
+  var detail = document.createElement('p')
+  detail.className = 'doc-source-detail'
+  detail.textContent = 'Read this top to bottom: the model inputs set the math, current reality shows where we are, the gap shows what must change, and current pressures explain what is pushing the requirement.'
+  card.appendChild(detail)
+
+  appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
 
   return card
 }
@@ -1037,6 +1166,7 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups, sourceContr
         var isBhagDoc = currentPath === 'docs/strategy/bhag-model.md'
         var isBhagSection = h2Text === 'Team Goal: $2B' || h2Text === 'Community Goal: 10,000 Agents'
         var isEngineDoc = currentPath === 'docs/strategy/agent-engine.md'
+        var isEngineInputsSection = h2Text === 'Engine Inputs'
         var isEnginePathSection = h2Text === 'Required Agent Path'
         var isEngineRequirementSection = h2Text === 'Current Requirement'
 
@@ -1045,6 +1175,9 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups, sourceContr
           if (bhagCard) {
             pendingSummaryCard = bhagCard
           }
+        } else if (isEngineDoc && isEngineInputsSection) {
+          var engineInputsCard = renderEngineInputsCard(h2Text, sourceGroups[h2Text], sourceContractMap)
+          if (engineInputsCard) pendingSummaryCard = engineInputsCard
         } else if (isEngineDoc && isEnginePathSection) {
           var enginePathCard = renderEnginePathCard(h2Text, sourceGroups[h2Text], sourceContractMap)
           if (enginePathCard) pendingSummaryCard = enginePathCard

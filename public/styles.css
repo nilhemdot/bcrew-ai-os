@@ -1344,6 +1344,116 @@ code {
   gap: 12px;
 }
 
+.engine-summary-intro {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+}
+
+.engine-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.engine-input-card,
+.engine-hero-stat,
+.engine-flow-step {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.engine-input-card {
+  padding: 14px;
+}
+
+.engine-input-label,
+.engine-hero-label {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.engine-input-value,
+.engine-hero-value {
+  margin-top: 6px;
+  color: var(--text-primary);
+  font-size: 1.08rem;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.engine-hero {
+  margin-bottom: 14px;
+}
+
+.engine-hero-heading {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 10px;
+}
+
+.engine-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.engine-hero-stat {
+  padding: 14px;
+}
+
+.engine-hero-value-positive {
+  color: #0f8a43;
+}
+
+.engine-hero-value-negative {
+  color: #c24141;
+}
+
+.engine-flow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.engine-flow-step {
+  padding: 12px 14px;
+}
+
+.engine-flow-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 132, 201, 0.1);
+  color: var(--brand);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.engine-flow-title {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.engine-flow-text {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 .engine-summary-section {
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -1408,6 +1518,23 @@ code {
   color: var(--text-secondary);
   font-size: 0.84rem;
   line-height: 1.5;
+}
+
+.engine-card-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.engine-card-footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .engine-path-row-current {
