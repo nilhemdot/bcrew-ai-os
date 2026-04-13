@@ -362,6 +362,35 @@ function sortSnapshotRows(rows) {
   })
 }
 
+function parseBhagTargetNumber(value) {
+  if (!value) return null
+
+  var cleaned = String(value).trim()
+  var multiplier = 1
+
+  if (/B\b/i.test(cleaned)) multiplier = 1000000000
+  else if (/M\b/i.test(cleaned)) multiplier = 1000000
+  else if (/K\b/i.test(cleaned)) multiplier = 1000
+
+  var numeric = cleaned.replace(/[^0-9.]/g, '')
+  if (!numeric) return null
+
+  var parsed = Number(numeric)
+  if (!Number.isFinite(parsed)) return null
+
+  return parsed * multiplier
+}
+
+function formatBhagGrowthPercent(previousValue, currentValue) {
+  if (!Number.isFinite(previousValue) || !Number.isFinite(currentValue) || previousValue <= 0) return '—'
+
+  var growth = ((currentValue - previousValue) / previousValue) * 100
+  if (!Number.isFinite(growth)) return '—'
+
+  var rounded = Math.round(growth * 10) / 10
+  return (rounded % 1 === 0 ? String(Math.round(rounded)) : rounded.toFixed(1)) + '%'
+}
+
 function formatSourceSummary(cardGroups) {
   return cardGroups
     .map(function(group) {
@@ -507,8 +536,18 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
     target.textContent = row.value
     tr.appendChild(target)
 
+    var explicitGrowth = summaryMap['Growth ' + row.label]
+    var fallbackGrowth = index === 0
+      ? 'Base Year'
+      : formatBhagGrowthPercent(
+        parseBhagTargetNumber(yearRows[index - 1].value),
+        parseBhagTargetNumber(row.value)
+      )
+
     var growth = document.createElement('td')
-    growth.textContent = summaryMap['Growth ' + row.label] || (index === 0 ? 'Base Year' : '—')
+    growth.textContent = explicitGrowth && explicitGrowth !== '—'
+      ? explicitGrowth
+      : fallbackGrowth
     tr.appendChild(growth)
 
     var current = document.createElement('td')
