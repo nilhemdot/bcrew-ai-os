@@ -331,6 +331,10 @@ function getDirectionalClass(value) {
 }
 
 function getEngineMetricExplanation(metricKey) {
+  if (metricKey === 'Required Agents This Year') {
+    return 'The number of active agents the model says this year needs at the current productivity assumption.'
+  }
+
   if (metricKey === 'Required Start-of-Year Agents') {
     return 'The number of active agents the model says we need in place when next year starts.'
   }
@@ -339,7 +343,11 @@ function getEngineMetricExplanation(metricKey) {
     return 'The current active, capacity-producing agent count from the live Agent Engine tab. Owners, leadership, and known zero-production agents are excluded.'
   }
 
-  if (metricKey === 'Capacity Gap') {
+  if (metricKey === 'Gap This Year') {
+    return 'The difference between the current-year required agent count and the active agents we have now.'
+  }
+
+  if (metricKey === 'Gap to Next Year') {
     return 'The difference between the required start-of-year agent count and the active agents we have now.'
   }
 
@@ -595,10 +603,10 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap, current
 
   if (!yearRows.length) return null
 
-  var nextYearLabel = String(Number(new Intl.DateTimeFormat('en-CA', {
+  var currentYearLabel = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Toronto',
     year: 'numeric',
-  }).format(new Date())) + 1)
+  }).format(new Date())
 
   var currentRows = currentRequirementGroups
     ? sortSnapshotRows(
@@ -644,7 +652,7 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap, current
   var tbody = document.createElement('tbody')
   yearRows.forEach(function(row) {
     var tr = document.createElement('tr')
-    if (row.label === nextYearLabel) tr.className = 'engine-path-row-current'
+    if (row.label === currentYearLabel) tr.className = 'engine-path-row-current'
 
     var year = document.createElement('th')
     year.textContent = row.label
@@ -684,7 +692,7 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap, current
 
   var detail = document.createElement('p')
   detail.className = 'doc-source-detail'
-  detail.textContent = 'Based on the current productivity assumption, this shows how many agents each year requires and how far today’s active-agent count is from that path.'
+  detail.textContent = 'Based on the current productivity assumption, this shows how many active agents each year requires and how far today’s count is from that path.'
   card.appendChild(detail)
 
   appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
@@ -820,52 +828,31 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
 
   var intro = document.createElement('p')
   intro.className = 'engine-summary-intro'
-  intro.textContent = 'This is the live snapshot underneath the long-range path. It shows what the business would need to do right now to start next year correctly.'
+  intro.textContent = 'The table above shows the long-range path. This section shows what this year requires and what we need to do now to start next year correctly.'
   card.appendChild(intro)
-
-  var hero = document.createElement('div')
-  hero.className = 'engine-current-answer'
-
-  ;[
-    'Required Start-of-Year Agents',
-    'Current Active Agents',
-    'Capacity Gap',
-    'Required Recruiting Pace',
-  ].forEach(function(metricKey) {
-    var item = document.createElement('div')
-    item.className = 'engine-current-answer-item'
-
-    var labelWrap = document.createElement('div')
-    labelWrap.className = 'engine-summary-label-wrap'
-
-    var label = document.createElement('div')
-    label.className = 'engine-current-answer-label'
-    label.textContent = metricKey
-    labelWrap.appendChild(label)
-
-    var explanation = getEngineMetricExplanation(metricKey)
-    if (explanation) appendBhagInfoBadge(labelWrap, explanation)
-    item.appendChild(labelWrap)
-
-    var value = document.createElement('div')
-    value.className = 'engine-current-answer-value'
-    value.textContent = getMetricValue(metricKey)
-    if (/^Ahead by/i.test(value.textContent) || /^Above target/i.test(value.textContent)) {
-      value.classList.add('engine-hero-value-positive')
-    } else if (/^Behind by/i.test(value.textContent) || /^Below target/i.test(value.textContent)) {
-      value.classList.add('engine-hero-value-negative')
-    }
-    item.appendChild(value)
-
-    hero.appendChild(item)
-  })
-
-  card.appendChild(hero)
 
   var grid = document.createElement('div')
   grid.className = 'engine-summary-grid engine-summary-grid-compact'
 
   ;[
+    {
+      title: 'This Year',
+      metrics: [
+        'Current-Year Volume Target',
+        'Required Agents This Year',
+        'Current Active Agents',
+        'Gap This Year',
+      ],
+    },
+    {
+      title: 'Start Next Year',
+      metrics: [
+        'Next-Year Volume Target',
+        'Required Start-of-Year Agents',
+        'Gap to Next Year',
+        'Required Recruiting Pace',
+      ],
+    },
     {
       title: 'Live Snapshot',
       metrics: [
@@ -934,7 +921,7 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
 
   var detail = document.createElement('p')
   detail.className = 'doc-source-detail'
-  detail.textContent = 'The path above is the strategy view. This snapshot just shows what the live business is doing underneath it right now.'
+  detail.textContent = 'Use the long-range path for planning. Use the live snapshot below it to see whether the business is moving in the right direction underneath that plan.'
   card.appendChild(detail)
 
   appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)

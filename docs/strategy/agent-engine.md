@@ -1,12 +1,12 @@
 # Agent Engine
 
-The Agent Engine turns the BHAG volume path into capacity math. It shows what productivity assumption the model is using, how many agents that assumption requires, and what pace the business needs now to start next year correctly.
+The Agent Engine turns the BHAG volume path into capacity math. It shows what productivity assumption the model is using, how many agents that assumption requires this year and next, and what pace the business needs now to start next year correctly.
 
 ## What the Engine Answers
 
 - What productivity assumption is the model using?
 - At that productivity level, how many agents does each target year require?
-- How many agents do we need to start next year correctly?
+- How many agents does this year require, and what do we need to start next year correctly?
 - Is current recruiting pace strong enough to close the gap?
 
 ## Pillar Ownership
@@ -26,14 +26,17 @@ The live inputs below come from the BHAG builder calculator in `SRC-FREEDOM-BHAG
 
 ## Required Agent Path
 
-The required-agent table below translates the BHAG volume path into required agent count at the current annual volume average per agent.
+The required-agent table below translates the BHAG volume path into required agent count at the current productivity assumption.
 
 ## Current Requirement
 
-This is the live answer to the question: how many agents do we need to add now so we can start next year at the right level?
+This is the live answer to two questions:
 
-- The BHAG builder sets the next-year volume target.
-- The current productivity assumption turns that target into a required start-of-year agent count.
+- How many active agents does this year require?
+- What do we need to do now so we can start next year at the right level?
+
+- The BHAG builder sets the current-year and next-year volume targets.
+- The current productivity assumption turns those targets into required agent counts.
 - The live engine compares that requirement to current active agents and current recruiting pace.
 - If productivity, split, or attrition changes, the required pace changes too.
 
