@@ -426,6 +426,165 @@ function renderSection(section, currentPath) {
   return article
 }
 
+function parseQuarterLabel(title) {
+  if (!title) return null
+
+  var match = title.match(/^Current Quarter:\s*(Q[1-4])\s+(\d{4})\s*\(([^)]+)\)$/i)
+  if (!match) return null
+
+  return {
+    quarter: match[1].toUpperCase(),
+    year: parseInt(match[2], 10),
+    range: match[3].trim(),
+  }
+}
+
+function getNextQuarterInfo(currentQuarter) {
+  if (!currentQuarter) return null
+
+  var ranges = {
+    Q1: 'May-Jul',
+    Q2: 'Aug-Oct',
+    Q3: 'Nov-Jan',
+    Q4: 'Feb-Apr',
+  }
+
+  var quarterOrder = ['Q1', 'Q2', 'Q3', 'Q4']
+  var currentIndex = quarterOrder.indexOf(currentQuarter.quarter)
+  if (currentIndex === -1) return null
+
+  var nextQuarter = quarterOrder[(currentIndex + 1) % quarterOrder.length]
+  var nextYear = currentQuarter.quarter === 'Q4'
+    ? currentQuarter.year + 1
+    : currentQuarter.year
+
+  return {
+    quarter: nextQuarter,
+    year: nextYear,
+    range: ranges[currentQuarter.quarter],
+  }
+}
+
+function extractQuarterSummaryLines(content) {
+  return (content || '')
+    .split('\n')
+    .map(function(line) { return line.trim() })
+    .filter(function(line) { return line && line !== '---' })
+}
+
+function buildQuarterMetaPill(label, value, accent) {
+  var pill = document.createElement('div')
+  pill.className = 'quarter-meta-pill' + (accent ? ' quarter-meta-pill-' + accent : '')
+
+  var pillLabel = document.createElement('span')
+  pillLabel.className = 'quarter-meta-label'
+  pillLabel.textContent = label
+  pill.appendChild(pillLabel)
+
+  var pillValue = document.createElement('strong')
+  pillValue.className = 'quarter-meta-value'
+  pillValue.textContent = value
+  pill.appendChild(pillValue)
+
+  return pill
+}
+
+function buildPriorityChip(text) {
+  var chip = document.createElement('span')
+  chip.className = 'quarter-priority-chip'
+  chip.textContent = text
+  return chip
+}
+
+function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
+  var article = document.createElement('article')
+  article.className = 'section-card section-card-quarter'
+
+  var title = document.createElement('h4')
+  appendFormattedText(section.title, title, currentPath)
+  article.appendChild(title)
+
+  var quarterSection = quarterlyDoc && quarterlyDoc.sections && quarterlyDoc.sections.length
+    ? quarterlyDoc.sections[0]
+    : null
+  var quarterInfo = parseQuarterLabel(quarterSection ? quarterSection.title : '')
+  var nextQuarter = getNextQuarterInfo(quarterInfo)
+  var summaryLines = extractQuarterSummaryLines(quarterSection ? quarterSection.content : section.content)
+  var summary = summaryLines[0] || 'Current quarter priorities are being reviewed.'
+  var cadence = summaryLines[1] || 'Q1 = Feb-Apr · Q2 = May-Jul · Q3 = Aug-Oct · Q4 = Nov-Jan'
+  var prioritySections = quarterlyDoc && quarterlyDoc.sections
+    ? quarterlyDoc.sections.slice(1, 4)
+    : []
+
+  var intro = document.createElement('p')
+  intro.className = 'quarter-summary'
+  intro.textContent = summary
+  article.appendChild(intro)
+
+  var metaRow = document.createElement('div')
+  metaRow.className = 'quarter-meta-row'
+
+  if (quarterInfo) {
+    metaRow.appendChild(
+      buildQuarterMetaPill(
+        'Current Quarter',
+        quarterInfo.quarter + ' ' + quarterInfo.year + ' · ' + quarterInfo.range,
+        'current'
+      )
+    )
+  }
+
+  if (nextQuarter) {
+    metaRow.appendChild(
+      buildQuarterMetaPill(
+        'Coming Up',
+        nextQuarter.quarter + ' ' + nextQuarter.year + ' · ' + nextQuarter.range,
+        'next'
+      )
+    )
+  }
+
+  metaRow.appendChild(buildQuarterMetaPill('Cadence', 'Feb-Apr · May-Jul · Aug-Oct · Nov-Jan'))
+  article.appendChild(metaRow)
+
+  if (prioritySections.length) {
+    var priorityWrap = document.createElement('div')
+    priorityWrap.className = 'quarter-priority-wrap'
+
+    var priorityLabel = document.createElement('div')
+    priorityLabel.className = 'quarter-priority-label'
+    priorityLabel.textContent = 'Top Priorities'
+    priorityWrap.appendChild(priorityLabel)
+
+    var priorityRow = document.createElement('div')
+    priorityRow.className = 'quarter-priority-row'
+
+    prioritySections.forEach(function(prioritySection) {
+      var cleanedTitle = prioritySection.title.replace(/^Priority\s+\d+:\s*/, '')
+      priorityRow.appendChild(buildPriorityChip(cleanedTitle))
+    })
+
+    priorityWrap.appendChild(priorityRow)
+    article.appendChild(priorityWrap)
+  }
+
+  var cadenceNote = document.createElement('p')
+  cadenceNote.className = 'quarter-note'
+  cadenceNote.textContent = cadence
+  article.appendChild(cadenceNote)
+
+  var supportDoc = sectionSupportDocs[section.title]
+  if (supportDoc) {
+    var supportLink = document.createElement('a')
+    supportLink.className = 'section-support-link'
+    supportLink.href = buildDocHref(supportDoc.path, currentPath)
+    supportLink.textContent = supportDoc.label
+    article.appendChild(supportLink)
+  }
+
+  return article
+}
+
 function renderDocCard(doc) {
   var article = document.createElement('article')
   article.className = 'section-card'
@@ -909,7 +1068,15 @@ function renderOverview() {
 
     var sectionList = document.createElement('div')
     sectionList.className = 'section-list'
+    var quarterlyDoc = data.foundation.supportingStrategy.find(function(doc) {
+      return doc.meta.path === 'docs/strategy/quarterly-priorities.md'
+    })
     data.foundation.businessStrategy.sections.forEach(function(section) {
+      if (section.title === 'Current Quarter') {
+        sectionList.appendChild(renderCurrentQuarterSection(section, data.foundation.businessStrategy.meta.path, quarterlyDoc))
+        return
+      }
+
       sectionList.appendChild(renderSection(section, data.foundation.businessStrategy.meta.path))
     })
     panel.appendChild(sectionList)
