@@ -40,7 +40,11 @@ Leadership meetings exist to surface reality, identify the real constraint, make
 
 ## Current Quarter
 
-See `docs/strategy/quarterly-priorities.md`.
+Benson Crew runs one month off standard quarters for strategic planning: Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, and Q4 = Nov-Jan.
+
+Current quarter: **Q1 2026 (Feb-Apr)**. The focus is to make the engine operate predictably by locking leadership ownership, building a predictable recruiting engine, and making Benson Crew a compounding growth brand.
+
+See [Quarterly Priorities](strategy/quarterly-priorities.md).
 
 ## Supporting Detail
 
