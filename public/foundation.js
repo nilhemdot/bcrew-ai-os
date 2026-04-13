@@ -6,6 +6,18 @@ function formatDate(isoString) {
   return date.toLocaleString()
 }
 
+function formatAsOfDate(value) {
+  if (!value) return ''
+
+  var date = new Date(value)
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
 function renderMeta(meta) {
   if (!meta.exists) return 'Missing'
   return meta.path + ' · ' + meta.lines + ' lines · updated ' + formatDate(meta.updatedAt)
