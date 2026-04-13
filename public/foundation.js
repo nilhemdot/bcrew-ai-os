@@ -821,24 +821,27 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
 
   ;[
     {
-      title: 'Model Needs',
-      metrics: [
-        'Next-Year Volume Target',
-        'Current Productivity Assumption',
-        'Required Start-of-Year Agents',
-      ],
-    },
-    {
       title: 'Current Reality',
       metrics: [
         'Current Active Agents',
         'Capacity Gap',
         'Required Recruiting Pace',
         'Current Recruiting Pace',
+        'Current Avg Production / Agent',
+        'Production Gap',
       ],
     },
     {
-      title: 'Pressure Signals',
+      title: 'Model Needs',
+      metrics: [
+        'Next-Year Volume Target',
+        'Current Productivity Assumption',
+        'Required Start-of-Year Agents',
+        'Production Target / Agent',
+      ],
+    },
+    {
+      title: 'Current Pressures',
       metrics: [
         'Live Attrition Pressure',
         'Avg Additions / Month',
