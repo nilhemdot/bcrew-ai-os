@@ -975,14 +975,14 @@ var strategyReviewChecklist = [
       'Two Brands',
       'Governance',
       'Current Quarter',
+      'System Rules',
     ],
   },
   {
     title: 'Still To Confirm In Overview',
     tone: 'pending',
     items: [
-      'System Rules',
-      'What the System Does',
+      'System Role',
     ],
   },
   {

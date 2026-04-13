@@ -70,6 +70,6 @@ See [Quarterly Priorities](strategy/quarterly-priorities.md).
 7. The system should render live values from source IDs so a source update flows across the system without manual doc cleanup.
 8. Agents can support, analyze, and operationalize strategy, but they do not set or change strategy on their own.
 
-## What the System Does
+## System Role
 
-The system reads reality from source systems, renders source-backed values where live math is needed, compares that reality to this strategy, detects drift, routes intelligence to the right people, logs decisions, and keeps the strategy layer current. It does not set strategy. It maintains and operationalizes leadership strategy.
+The Foundation system makes strategy operational. It reads reality from source systems, renders live source-backed values, logs decisions, surfaces drift, routes accountability, and keeps the strategy layer current. It supports leadership strategy; it does not invent or change strategy on its own.
