@@ -3,9 +3,10 @@
 import process from 'node:process';
 import {
   GOOGLE_SA_KEY_FILE,
-  getDriveFileMetadata,
+  GOOGLE_SCOPES,
   getServiceAccountSummary,
   getSheetValues,
+  googleJsonFetch,
 } from '../lib/google-delegated.js';
 
 function parseArgs(argv) {
@@ -34,8 +35,12 @@ async function main() {
   console.log(`  Service account: ${summary.clientEmail}`);
   console.log(`  Project: ${summary.projectId}`);
 
-  const metadata = await getDriveFileMetadata(userEmail, spreadsheetId);
-  console.log(`  Drive access: OK -> ${metadata.name} (${metadata.mimeType})`);
+  const metadata = await googleJsonFetch(
+    userEmail,
+    `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=properties(title)`,
+    { scopes: [GOOGLE_SCOPES.sheets] },
+  );
+  console.log(`  Spreadsheet access: OK -> ${metadata.properties?.title || spreadsheetId}`);
 
   const values = await getSheetValues(userEmail, spreadsheetId, range);
   const rowCount = values.values?.length ?? 0;

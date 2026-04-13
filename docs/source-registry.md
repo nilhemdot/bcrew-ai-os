@@ -23,13 +23,13 @@ This registry distinguishes between sources verified in the current rebuild and 
 | `SRC-FREEDOM-COMMUNITY-001` | Freedom KPI Sheet | `Data Entry - BCrew Team/Community` | `G:O` | Community tracker: month, year, total income, total community, downline counts by leader | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
 | `SRC-FREEDOM-COMMUNITY-REV-001` | Freedom KPI Sheet | `Data Entry - BCrew Team/Community` | `P:U` | Community revenue by leader plus `Bcrew In Before HST` | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
 | `SRC-FREEDOM-ENGINE-001` | Freedom KPI Sheet | `Agent Engine` tab | Current assumptions block | Required monthly attraction, active agents, current 6-month production average, target production, average split, target split | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
-| `SRC-FREEDOM-BHAG-001` | Freedom KPI Sheet | `Benson Crew Bhag Builder` tab | Long-range planning blocks | Sales targets, growth curve, community targets, deal math, long-range planning assumptions | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
+| `SRC-FREEDOM-BHAG-001` | Freedom KPI Sheet | `Benson Crew Bhag Builder` tab | Long-range planning blocks | Sales targets, growth curve, community targets, deal math, long-range planning assumptions | Google Drive / Google Sheets | Verified Readable | 2026-04-13 |
+| `SRC-OWNERS-001` | Owners Dashboard | `ADMIN ONLY - Deal Data Entry` plus roll-up sheets | Executed-date volume truth | `Date Firm (Executed)`, `Volume Credit`, and deal production truth used for YTD pace and closed-volume validation | Google Drive / Google Sheets | Verified Readable | 2026-04-13 |
 
 ## Known Sources from Old System, Pending Revalidation
 
 | Source ID | Source | What It Owns | Owner | Current Status |
 |-----------|--------|--------------|-------|----------------|
-| `SRC-OWNERS-001` | Owners Dashboard | `ADMIN ONLY - Deal Data Entry` plus roll-up sheets | Steve + Carson | Verified Readable. Executed-date volume truth and `Volume Credit` columns were confirmed in the rebuild on 2026-04-13. Google write access still needs reauthentication before the helper formulas can be written back through the connector. |
 | `SRC-CLICKUP-001` | ClickUp | Task management, onboarding checklists, agent roster supplements | Carson | Pending Revalidation. Connected in old system; needs Mac Mini verification. |
 | `SRC-GMAIL-001` | Gmail | Team email, decision capture inputs, communication context | System | Pending Revalidation. `ai@` connection existed in old system; rebuild-specific validation still needed. |
 | `SRC-GCAL-001` | Google Calendar | Meetings, scheduling, cadence events | All | Pending Revalidation. Connected in old system; needs Mac Mini verification. |
