@@ -521,6 +521,7 @@ function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
   var nextQuarter = getNextQuarterInfo(quarterInfo)
   var summaryLines = extractQuarterSummaryLines(quarterSection ? quarterSection.content : section.content)
   var summary = summaryLines[0] || ''
+  var cadence = summaryLines[1] || 'Benson Crew runs one month off standard quarters: Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, and Q4 = Nov-Jan. Planning happens in the month before.'
   var prioritySections = quarterlyDoc && quarterlyDoc.sections
     ? quarterlyDoc.sections.slice(1, 4)
     : []
@@ -587,6 +588,21 @@ function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
     priorityWrap.appendChild(priorityRow)
     article.appendChild(priorityWrap)
   }
+
+  var footerNote = document.createElement('div')
+  footerNote.className = 'quarter-footer-note'
+
+  var footerLabel = document.createElement('span')
+  footerLabel.className = 'quarter-footer-label'
+  footerLabel.textContent = 'Planning cadence'
+  footerNote.appendChild(footerLabel)
+
+  var footerCopy = document.createElement('p')
+  footerCopy.className = 'quarter-footer-copy'
+  footerCopy.textContent = cadence
+  footerNote.appendChild(footerCopy)
+
+  article.appendChild(footerNote)
 
   var supportDoc = sectionSupportDocs[section.title]
   if (supportDoc) {
