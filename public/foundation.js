@@ -460,15 +460,51 @@ function getBhagPaceExplanation(groupTitle) {
   return 'Pace shows whether current results are ahead of or behind the prorated target-to-date.'
 }
 
+function closeBhagInfoPopovers() {
+  document.querySelectorAll('.bhag-info-popover-open').forEach(function(popover) {
+    popover.classList.remove('bhag-info-popover-open')
+  })
+}
+
+function ensureBhagInfoPopoverHandler() {
+  if (document.__bhagInfoPopoverHandlerBound) return
+  document.__bhagInfoPopoverHandlerBound = true
+
+  document.addEventListener('click', function(event) {
+    if (event.target.closest('.bhag-info-popover')) return
+    closeBhagInfoPopovers()
+  })
+}
+
 function appendBhagInfoBadge(target, explanation) {
   if (!explanation) return
 
-  var badge = document.createElement('span')
+  ensureBhagInfoPopoverHandler()
+
+  var popover = document.createElement('span')
+  popover.className = 'bhag-info-popover'
+
+  var badge = document.createElement('button')
   badge.className = 'bhag-info-badge'
+  badge.type = 'button'
   badge.textContent = 'i'
-  badge.title = explanation
-  badge.setAttribute('aria-label', explanation)
-  target.appendChild(badge)
+  badge.setAttribute('aria-label', 'Show pace calculation details')
+
+  var panel = document.createElement('span')
+  panel.className = 'bhag-info-panel'
+  panel.textContent = explanation
+
+  badge.addEventListener('click', function(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    var willOpen = !popover.classList.contains('bhag-info-popover-open')
+    closeBhagInfoPopovers()
+    if (willOpen) popover.classList.add('bhag-info-popover-open')
+  })
+
+  popover.appendChild(badge)
+  popover.appendChild(panel)
+  target.appendChild(popover)
 }
 
 function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {

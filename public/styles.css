@@ -1281,6 +1281,13 @@ code {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  position: relative;
+}
+
+.bhag-info-popover {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .bhag-info-badge {
@@ -1295,8 +1302,32 @@ code {
   font-size: 0.68rem;
   font-weight: 700;
   line-height: 1;
-  cursor: help;
+  cursor: pointer;
   background: rgba(255, 255, 255, 0.72);
+  padding: 0;
+}
+
+.bhag-info-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(320px, 70vw);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: left;
+  z-index: 20;
+}
+
+.bhag-info-popover-open .bhag-info-panel {
+  display: block;
 }
 
 .bhag-summary-table td.bhag-pace-positive {
