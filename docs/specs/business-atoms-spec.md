@@ -53,7 +53,7 @@ It should represent one coherent thing the system can track over time.
 | `loss` | Negative outcome worth learning from | Lost two agents after coaching cadence dropped |
 | `frustration` | Repeated complaint that may indicate design failure | Nick is firefighting instead of coaching |
 | `opportunity` | Upside the system should exploit | Competitor office instability opened a recruiting window |
-| `assumption_risk` | Live data contradicts a key model assumption | Target GCI is $13K, live average is materially lower |
+| `assumption_risk` | Live data contradicts a key model assumption | Target monthly GCI per agent is materially above the live average |
 | `culture_signal` | Pride, engagement, morale, or behavior indicator | Agents are sharing team content voluntarily |
 | `external_signal` | Market or platform shift affecting the business | Real Broker policy change affects cap math |
 
