@@ -52,6 +52,11 @@ function buildDocHref(href, currentPath) {
     basePath = normalizeDocPath(currentDir + '/' + cleanHref)
   }
 
+  var foundationSection = foundationDocPathToSection[basePath]
+  if (foundationSection) {
+    return '/foundation#' + foundationSection
+  }
+
   var docHref = '/doc?path=' + encodeURIComponent(basePath)
   return anchor ? docHref + '&anchor=' + encodeURIComponent(anchor) : docHref
 }
@@ -920,10 +925,24 @@ var strategyDocPaths = {
   'agent-engine': 'docs/strategy/agent-engine.md',
   'financial-model': 'docs/strategy/financial-model-and-assumptions.md',
   'quarterly-priorities': 'docs/strategy/quarterly-priorities.md',
+  'strategic-issues': 'docs/strategy/strategic-issues.md',
   'governance': 'docs/strategy/governance.md',
   'departments': 'docs/strategy/department-mandates.md',
   'core-values': 'docs/strategy/core-values.md',
   'marketmasters': 'docs/strategy/marketmasters.md',
+}
+
+var foundationDocPathToSection = {
+  'docs/strategy/bhag-model.md': 'bhag-model',
+  'docs/strategy/agent-engine.md': 'agent-engine',
+  'docs/strategy/financial-model-and-assumptions.md': 'financial-model',
+  'docs/strategy/quarterly-priorities.md': 'quarterly-priorities',
+  'docs/strategy/strategic-issues.md': 'strategic-issues',
+  'docs/strategy/governance.md': 'governance',
+  'docs/strategy/department-mandates.md': 'departments',
+  'docs/strategy/core-values.md': 'core-values',
+  'docs/strategy/marketmasters.md': 'marketmasters',
+  'docs/source-registry.md': 'source-registry',
 }
 
 /* ── nav label map for breadcrumb ────────────────────────── */
@@ -934,6 +953,7 @@ var sectionLabels = {
   'agent-engine': 'Agent Engine',
   'financial-model': 'Financial Model',
   'quarterly-priorities': 'Quarterly Priorities',
+  'strategic-issues': 'Strategic Issues',
   'governance': 'Governance',
   'departments': 'Departments',
   'core-values': 'Core Values',

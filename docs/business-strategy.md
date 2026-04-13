@@ -46,7 +46,7 @@ Current quarter: **Q1 2026 (Feb-Apr)**. The focus is to make the engine operate 
 
 See [Quarterly Priorities](strategy/quarterly-priorities.md).
 
-## Supporting Detail
+## Supporting Docs
 
 - [Agent Engine](strategy/agent-engine.md) -- Live operating logic for Attract, Grow, Retain, and connected engine math
 - [BHAG Model](strategy/bhag-model.md) -- Milestone path, long-range targets, and how team and downline goals connect
