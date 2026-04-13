@@ -967,7 +967,7 @@ var sectionLabels = {
 
 var strategyReviewChecklist = [
   {
-    title: 'Signed Off In Overview',
+    title: 'Overview Signed Off',
     tone: 'done',
     items: [
       'North Star',
@@ -976,12 +976,6 @@ var strategyReviewChecklist = [
       'Governance',
       'Current Quarter',
       'System Rules',
-    ],
-  },
-  {
-    title: 'Still To Confirm In Overview',
-    tone: 'pending',
-    items: [
       'System Role',
     ],
   },
