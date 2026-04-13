@@ -574,7 +574,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
 
   var thead = document.createElement('thead')
   var headRow = document.createElement('tr')
-  ;['Year', 'Target', 'Target Growth', 'Current', 'Pace']
+  ;['Year', 'Target', 'Target Growth', 'Should Be', 'Current', 'Pace']
     .filter(Boolean)
     .forEach(function(label) {
       var th = document.createElement('th')
@@ -609,6 +609,10 @@ function renderBhagSummaryCard(groupTitle, cardGroups, sourceContractMap) {
       ? explicitGrowth
       : fallbackGrowth
     tr.appendChild(growth)
+
+    var shouldBe = document.createElement('td')
+    shouldBe.textContent = row.label === currentYearLabel ? summaryMap['Should Be'] || '—' : '—'
+    tr.appendChild(shouldBe)
 
     var current = document.createElement('td')
     current.textContent = row.label === currentYearLabel ? summaryMap['Actual'] || '—' : '—'
