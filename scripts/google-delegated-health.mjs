@@ -26,7 +26,7 @@ async function main() {
 
   console.log('Google delegated health check');
   console.log(`  Service account file: ${GOOGLE_SA_KEY_FILE}`);
-  console.log(`  Impersonated user: ${userEmail}`);
+  console.log(`  Access mode: ${userEmail === 'service-account' ? 'service account direct' : `impersonate ${userEmail}`}`);
   console.log(`  Spreadsheet: ${spreadsheetId}`);
   console.log(`  Range: ${range}`);
 
