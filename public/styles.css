@@ -1194,6 +1194,33 @@ code {
   text-transform: uppercase;
 }
 
+.doc-source-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.doc-source-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 132, 201, 0.18);
+  background: rgba(0, 132, 201, 0.08);
+  color: var(--brand-dark);
+  font-family: 'Open Sans', Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.doc-source-link:hover {
+  background: rgba(0, 132, 201, 0.14);
+}
+
 .doc-source-asof {
   color: var(--text-tertiary);
   font-size: 0.8rem;

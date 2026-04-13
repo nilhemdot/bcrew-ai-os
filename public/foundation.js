@@ -373,6 +373,36 @@ function formatSourceSummary(cardGroups) {
     .join(' · ')
 }
 
+function getBhagSourceActions(groupTitle) {
+  if (groupTitle === 'Team Goal: $2B') {
+    return [
+      {
+        label: 'Edit Targets',
+        href: 'https://docs.google.com/spreadsheets/d/1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw/edit?gid=337425848#gid=337425848',
+      },
+      {
+        label: 'Edit Actuals',
+        href: 'https://docs.google.com/spreadsheets/d/18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk/edit?gid=533201019#gid=533201019',
+      },
+    ]
+  }
+
+  if (groupTitle === 'Community Goal: 10,000 Agents') {
+    return [
+      {
+        label: 'Edit Targets',
+        href: 'https://docs.google.com/spreadsheets/d/1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw/edit?gid=337425848#gid=337425848',
+      },
+      {
+        label: 'Edit Actuals',
+        href: 'https://docs.google.com/spreadsheets/d/1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw/edit?gid=1670417784#gid=1670417784',
+      },
+    ]
+  }
+
+  return []
+}
+
 function renderBhagSummaryCard(groupTitle, cardGroups) {
   var rows = sortSnapshotRows(
     cardGroups.reduce(function(all, group) {
@@ -413,6 +443,23 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
   source.className = 'doc-source-id'
   source.textContent = formatSourceSummary(cardGroups)
   titleWrap.appendChild(source)
+
+  var actions = getBhagSourceActions(groupTitle)
+  if (actions.length) {
+    var actionRow = document.createElement('div')
+    actionRow.className = 'doc-source-actions'
+    actions.forEach(function(action) {
+      var link = document.createElement('a')
+      link.className = 'doc-source-link'
+      link.href = action.href
+      link.target = '_blank'
+      link.rel = 'noreferrer'
+      link.textContent = action.label
+      actionRow.appendChild(link)
+    })
+    titleWrap.appendChild(actionRow)
+  }
+
   top.appendChild(titleWrap)
 
   if (uniqueAsOfValues.length) {
@@ -432,7 +479,7 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
 
   var thead = document.createElement('thead')
   var headRow = document.createElement('tr')
-  ;['Year', groupTitle === 'Community Goal: 10,000 Agents' ? 'Started' : null, 'Target', 'Current', 'Pace']
+  ;['Year', groupTitle === 'Community Goal: 10,000 Agents' ? 'Started' : null, 'Target', 'Growth', 'Current', 'Pace']
     .filter(Boolean)
     .forEach(function(label) {
       var th = document.createElement('th')
@@ -459,6 +506,10 @@ function renderBhagSummaryCard(groupTitle, cardGroups) {
     var target = document.createElement('td')
     target.textContent = row.value
     tr.appendChild(target)
+
+    var growth = document.createElement('td')
+    growth.textContent = summaryMap['Growth ' + row.label] || '—'
+    tr.appendChild(growth)
 
     var current = document.createElement('td')
     current.textContent = row.label === currentYearLabel ? summaryMap['Actual'] || '—' : '—'
