@@ -1159,28 +1159,6 @@ function renderOverview() {
     panel.appendChild(sectionList)
     container.appendChild(panel)
 
-    /* supporting strategy docs */
-    var supportPanel = document.createElement('section')
-    supportPanel.className = 'panel'
-
-    var supportHeader = document.createElement('div')
-    supportHeader.className = 'panel-header'
-
-    var supportTitle = document.createElement('h3')
-    supportTitle.textContent = 'Supporting Docs'
-    supportHeader.appendChild(supportTitle)
-
-    supportPanel.appendChild(supportHeader)
-
-    var supportList = document.createElement('div')
-    supportList.className = 'section-list'
-    data.foundation.supportingStrategy.forEach(function(doc) {
-      supportList.appendChild(renderDocCard(doc))
-    })
-    supportList.appendChild(renderDocCard(data.foundation.sourceRegistry))
-    supportPanel.appendChild(supportList)
-    container.appendChild(supportPanel)
-
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
