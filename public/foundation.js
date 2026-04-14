@@ -69,11 +69,6 @@ function buildDocHref(href, currentPath) {
     return '/foundation#' + foundationSection
   }
 
-  var strategicExecutionSection = strategicExecutionDocPathToSection[basePath]
-  if (strategicExecutionSection) {
-    return '/strategic-execution#' + strategicExecutionSection
-  }
-
   var docHref = '/doc?path=' + encodeURIComponent(basePath)
   return anchor ? docHref + '&anchor=' + encodeURIComponent(anchor) : docHref
 }
@@ -109,7 +104,7 @@ var sectionSupportDocs = {
     path: 'docs/strategy/governance.md',
   },
   'Current Quarter': {
-    label: 'Open quarterly priorities',
+    label: 'Open quarterly priorities doc',
     path: 'docs/strategy/quarterly-priorities.md',
   },
 }
@@ -1798,6 +1793,8 @@ function fetchDoc(docPath) {
 var strategyDocPaths = {
   'bhag-model': 'docs/strategy/bhag-model.md',
   'agent-engine': 'docs/strategy/agent-engine.md',
+  'quarterly-priorities': 'docs/strategy/quarterly-priorities.md',
+  'strategic-issues': 'docs/strategy/strategic-issues.md',
   'governance': 'docs/strategy/governance.md',
   'departments': 'docs/strategy/department-mandates.md',
   'core-values': 'docs/strategy/core-values.md',
@@ -1809,16 +1806,13 @@ var foundationDocPathToSection = {
   'docs/strategy/bhag-model.md': 'bhag-model',
   'docs/strategy/agent-engine.md': 'agent-engine',
   'docs/strategy/financial-model-and-assumptions.md': 'financial-model',
+  'docs/strategy/quarterly-priorities.md': 'quarterly-priorities',
+  'docs/strategy/strategic-issues.md': 'strategic-issues',
   'docs/strategy/governance.md': 'governance',
   'docs/strategy/department-mandates.md': 'departments',
   'docs/strategy/core-values.md': 'core-values',
   'docs/strategy/marketmasters.md': 'marketmasters',
   'docs/source-registry.md': 'source-registry',
-}
-
-var strategicExecutionDocPathToSection = {
-  'docs/strategy/quarterly-priorities.md': 'quarterly-priorities',
-  'docs/strategy/strategic-issues.md': 'strategic-issues',
 }
 
 /* ── nav label map for breadcrumb ────────────────────────── */
@@ -1828,6 +1822,8 @@ var sectionLabels = {
   'bhag-model': 'BHAG Model',
   'agent-engine': 'Agent Engine',
   'financial-model': 'Financial Model and Assumptions',
+  'quarterly-priorities': 'Quarterly Priorities',
+  'strategic-issues': 'Strategic Issues',
   'governance': 'Governance',
   'departments': 'Department Mandates',
   'core-values': 'Core Values',
@@ -1867,8 +1863,11 @@ var strategyReviewChecklist = [
     title: 'Supporting Docs Still To Confirm',
     tone: 'pending',
     items: [
+      'Quarterly Priorities',
+      'Strategic Issues',
       'Governance',
       'Department Mandates',
+      'Core Values',
       'Financial Model and Assumptions',
       'Source Registry',
     ],
@@ -2490,12 +2489,6 @@ function updateNav(section) {
 
 function route() {
   var section = getSection()
-
-  if (section === 'quarterly-priorities' || section === 'strategic-issues') {
-    window.location.replace('/strategic-execution#' + section)
-    return
-  }
-
   updateNav(section)
 
   /* close mobile nav on route change */
