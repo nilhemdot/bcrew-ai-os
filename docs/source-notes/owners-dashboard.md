@@ -318,6 +318,15 @@ Business meaning examples:
 This matters because:
 - if the original root source is company-generated, the company should get credit
 - if the ground-zero logic is not traced correctly, attribution breaks
+- sometimes `Lead Source (Bonus System For Having This 100% Complete)` is itself the ground zero
+  - examples:
+    - `Family`
+    - `Met - In Person`
+- but if the lead source clearly implies a chain, connection, introduction, or referral path, then `Ground Zero` must follow that chain back to the original source
+- if a chained lead source shows `No Extra Lead Source` in `Ground Zero`, that is usually wrong
+- if a referral leads to another referral, the team still needs to keep following the chain until it reaches a true ground-zero source
+- if the original source or person does not exist in Follow Up Boss, that is not just a cleanup issue
+  - it is also a database-growth opportunity because the original relationship should likely exist in the CRM
 
 Operational note from Steve:
 - Ops is supposed to trace the deal back to the original source
@@ -386,12 +395,20 @@ This later translates into:
 - performance metric interpreted differently by side represented
 
 Business meaning:
-- listing side:
+- if we represented the seller:
   - higher is better
   - `99%` would be ideal
-- buyer side:
+  - this shows how much of the asking price we protected or beat
+  - stronger results usually imply better pricing strategy, stronger positioning, and stronger negotiation
+- if we represented the buyer:
   - lower is better
   - `95%` would be strong
+  - this shows how much below asking price we negotiated
+  - stronger results usually imply better negotiation leverage and better purchase discipline for the client
+
+Important interpretation rule:
+- this should never be treated as one flat team metric without side context
+- seller-side LP/SP and buyer-side LP/SP mean different things and should be coached separately
 
 #### Column AA — `Commission Charged`
 - commission rate charged on the deal
@@ -466,12 +483,14 @@ Important split nuance:
 #### Column AQ — `Recruit Bonus`
 - effectively dead in the current workflow
 
-#### Columns AR:BE — Abandoned Real Broker Split Calculator
-- these columns were part of a Real Broker split-calculation attempt
+#### Columns AR:BE — Abandoned Real Broker Cost / Split Calculation Block
+- these columns were part of an abandoned attempt to calculate Real Broker costs and related split logic
 - Steve’s current operating rule:
   - do not treat this block as live source-of-truth infrastructure
 - reason:
   - chronological close-order skew makes the running cap math unreliable
+- important distinction:
+  - this block has nothing to do with `Column BR`
 - the working replacement for expected company-side Real fees is the later `BS:BX` block
 
 Exact live headers:
@@ -536,7 +555,17 @@ Exact live headers:
   - `Closing Year`
 
 #### Column BR — `Net To Team Running Total`
-- running total helper
+- running total helper used by the `Split Cal` flow
+- business meaning:
+  - tracks an individual agent’s executed `Net To Team` year to date
+  - helps determine where that agent sits in an inclining split structure
+  - helps determine how far along an agent is in apprenticeship based on dollars generated to the team
+  - helps determine when the agent graduates out of apprenticeship and into the next split logic
+- operational dependency:
+  - the `Agent Splits` tab needs the full roster loaded for each calendar year so the split calculator resets and reads the right year correctly
+- important distinction:
+  - `BR` is tied to the `Split Cal` / `Agent Splits` logic
+  - it is not part of the abandoned `AR:BE` Real Broker cost-calculation block
 
 #### Columns BS:BX — Estimated Company Portion / Real Broker Fee Layer
 - this is the working replacement block Steve actually uses for expected company-side deductions
