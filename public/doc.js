@@ -695,11 +695,6 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap, current
   tableWrap.appendChild(table)
   card.appendChild(tableWrap)
 
-  var detail = document.createElement('p')
-  detail.className = 'doc-source-detail'
-  detail.textContent = 'Based on the current productivity assumption, this shows how many active agents each year requires and how far today’s count is from that path.'
-  card.appendChild(detail)
-
   return card
 }
 
@@ -757,11 +752,6 @@ function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
 
   appendEngineCardTop(card, cardGroups, sourceContractMap, uniqueAsOfValues)
 
-  var intro = document.createElement('p')
-  intro.className = 'engine-summary-intro'
-  intro.textContent = 'These are the core assumptions that drive the engine math. They determine how many agents the model needs.'
-  card.appendChild(intro)
-
   var grid = document.createElement('div')
   grid.className = 'engine-inputs-grid'
 
@@ -789,11 +779,6 @@ function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
   })
 
   card.appendChild(grid)
-
-  var note = document.createElement('p')
-  note.className = 'doc-source-detail'
-  note.textContent = 'Targets are based on active, capacity-producing agents only. Owners, leadership, and known zero-production agents are excluded.'
-  card.appendChild(note)
 
   return card
 }
@@ -830,11 +815,6 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
 
   appendEngineCardTop(card, cardGroups, sourceContractMap, uniqueAsOfValues)
 
-  var intro = document.createElement('p')
-  intro.className = 'engine-summary-intro'
-  intro.textContent = 'The table above shows the long-range path. This section shows what this year requires and what we need to do now to start next year correctly.'
-  card.appendChild(intro)
-
   var grid = document.createElement('div')
   grid.className = 'engine-summary-grid engine-summary-grid-compact'
 
@@ -858,29 +838,11 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
       ],
     },
     {
-      title: 'Live Snapshot (6 Mth Rolling Avg)',
+      title: 'Assumptions In Force',
       metrics: [
-        'Current Recruiting Pace',
         'Production Target / Agent',
-        'Current Avg Production / Agent',
-        'Planning Attrition Assumption',
-        'Live Attrition Pressure',
-      ],
-    },
-    {
-      title: 'Economics',
-      metrics: [
-        'Actual Split',
         'Target Split',
-        'Split Gap',
-        'Production Gap',
-      ],
-    },
-    {
-      title: 'Movement',
-      metrics: [
-        'Avg Additions / Month',
-        'Avg Attrition / Month',
+        'Planning Attrition Assumption',
       ],
     },
   ].forEach(function(sectionDef) {
@@ -929,11 +891,6 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
   })
 
   card.appendChild(grid)
-
-  var detail = document.createElement('p')
-  detail.className = 'doc-source-detail'
-  detail.textContent = 'Use the long-range path for planning. Use the live snapshot below it to see whether the business is moving in the right direction underneath that plan.'
-  card.appendChild(detail)
 
   return card
 }

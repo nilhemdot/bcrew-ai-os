@@ -7,7 +7,7 @@ The Agent Engine turns the BHAG volume path into capacity math. It shows what pr
 - What productivity assumption is the model using?
 - At that productivity level, how many agents does each target year require?
 - How many agents does this year require, and what do we need to start next year correctly?
-- Is current recruiting pace strong enough to close the gap?
+- What recruiting pace does the model need to close the gap?
 
 ## Pillar Ownership
 
@@ -20,9 +20,7 @@ Every department should be explainable through one or more parts of the engine:
 ## Engine Inputs
 
 The live inputs below come from the BHAG builder calculator in `SRC-FREEDOM-BHAG-001`.
-
-- Targets are based on active, capacity-producing agents only.
-- Owners, leadership, and known zero-production agents are excluded from the count.
+Targets are based on active, capacity-producing agents only. Owners, leadership, and known zero-production agents are excluded from the count.
 
 ## Required Agent Path
 
@@ -30,18 +28,15 @@ The required-agent table below translates the BHAG volume path into required age
 
 ## Current Requirement
 
-This is the live answer to two questions:
+Use the section below to answer two questions:
 
 - How many active agents does this year require?
-- What do we need to do now so we can start next year at the right level?
+- What do we need now so we can start next year at the right level?
 
-- The BHAG builder sets the current-year and next-year volume targets.
-- The current productivity assumption turns those targets into required agent counts.
-- The live engine compares that requirement to current active agents and current recruiting pace.
-- If productivity, split, or attrition changes, the required pace changes too.
+Required recruiting pace already includes the planning attrition assumption from the BHAG builder.
 
 ## Attrition Note
 
-The planning attrition assumption now comes from the BHAG builder. The live engine also exposes operating attrition pressure. Those are different numbers and should not be read as the same metric.
+The planning attrition assumption comes from the BHAG builder. It is different from live operating attrition signals and should not be read as the same metric.
 
 For assumption definitions and interpretation rules, see the [Financial Model and Assumptions](financial-model-and-assumptions.md).
