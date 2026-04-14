@@ -33,9 +33,9 @@ Financial output is the result of the engine working.
 
 ## Department Mandates
 
-Each department exists to move the engine. Mandates define the enduring job of each function, the boundary of its ownership, and its primary lane in Attract, Grow, or Retain.
+Each department exists to move the engine. Mandates define the enduring job of each function, the boundary of its ownership, and how it contributes to Attract, Grow, or Retain.
 
-Some departments support more than one pillar, but each one should still have one clear primary job.
+Some departments own a core part of the engine. Others support more than one part of it. The point is clarity, not fake simplicity.
 
 Quarter-specific asks do not belong here. They live in Strategic Execution.
 

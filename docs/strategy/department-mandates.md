@@ -1,22 +1,22 @@
 # Department Mandates
 
-Each department exists to move the Agent Engine. Mandates define the enduring job of each function, the boundary of its ownership, and its primary lane in Attract, Grow, or Retain.
+Each department exists to move the Agent Engine. Mandates define the enduring job of each function, the boundary of its ownership, and how it contributes to Attract, Grow, or Retain.
 
-Some departments support more than one pillar, but each one should still have one clear primary job.
+Some departments own a core part of the engine. Others support more than one part of it. The point is clarity, not fake simplicity.
 
 Quarter-specific commitments, KPI targets, and pacing requirements belong in `quarterly-priorities.md` and Strategic Execution, not here.
 
-## Lane Map
+## Engine Ownership Map
 
-| Department | Primary Lane | Secondary Lane |
-|-----------|--------------|----------------|
-| Executive Leadership | Direction + Accountability | All pillars |
-| Recruiting | ATTRACT | -- |
-| Sales Leadership | GROW | -- |
-| Marketing | ATTRACT | RETAIN |
-| Operations | ATTRACT | RETAIN |
-| Retention | RETAIN | -- |
-| Finance | Economic Truth | All pillars |
+| Department | Ownership | Contribution Tags |
+|-----------|-----------|-------------------|
+| Executive Leadership | Direction + Accountability | ATTRACT, GROW, RETAIN |
+| Recruiting | Owns ATTRACT | ATTRACT |
+| Sales Leadership | Owns GROW | GROW |
+| Marketing | Support function | ATTRACT, RETAIN |
+| Operations | Support function | RETAIN, ATTRACT |
+| Retention | Owns RETAIN | RETAIN |
+| Finance | Economic Truth | ATTRACT, GROW, RETAIN |
 
 ---
 
@@ -24,7 +24,7 @@ Quarter-specific commitments, KPI targets, and pacing requirements belong in `qu
 
 **Owner:** Steve Zahnd
 
-**Primary Lane:** Direction + Accountability
+**Role:** Direction + Accountability
 
 Set direction, allocate resources, protect priorities, enforce accountability, and remove true blockers.
 
@@ -36,7 +36,7 @@ Winning: Leadership decisions move the engine without requiring ownership to bec
 
 **Owner:** Scott (+ Steve)
 
-**Primary Lane:** ATTRACT
+**Owns:** ATTRACT
 
 Own agent acquisition and conversion. Build predictable agent inflow at the pace required by the business math.
 
@@ -48,7 +48,7 @@ Winning: Recruiting pace is visible, pipeline is predictable, and handoff into o
 
 **Owner:** Nick | **Contributors:** Ryan, Blake
 
-**Primary Lane:** GROW
+**Owns:** GROW
 
 Own agent productivity, coaching standards, training cadence, and performance accountability. Sales leadership must stay protected as a real lane as the team grows.
 
@@ -60,8 +60,7 @@ Winning: Productivity holds or improves as agent count grows, coaching is consis
 
 **Owner:** Tanner
 
-**Primary Lane:** ATTRACT  
-**Secondary Lane:** RETAIN
+**Supports:** ATTRACT, RETAIN
 
 Build trust, demand, proof, and reusable leverage that make recruiting easier and help agents keep winning.
 
@@ -73,10 +72,9 @@ Winning: Brand activity creates recruiting attention, lead generation, reusable 
 
 **Owner:** Carson
 
-**Primary Lane:** ATTRACT  
-**Secondary Lane:** RETAIN
+**Supports:** RETAIN, ATTRACT
 
-Own clean handoffs, fast onboarding, friction removal, and operating reliability. Operations should expose upstream failures, not silently absorb them.
+Own friction removal, clean handoffs, onboarding, and operating reliability. Operations should expose upstream failures, not silently absorb them.
 
 Winning: New agents activate quickly, handoffs stay clean, and service reliability remains high as the team grows. Losing: Onboarding drags, process breaks become normal, or Ops becomes the catch-all for upstream misses.
 
@@ -86,7 +84,7 @@ Winning: New agents activate quickly, handoffs stay clean, and service reliabili
 
 **Owner:** Georgia
 
-**Primary Lane:** RETAIN
+**Owns:** RETAIN
 
 Protect regrettable attrition by identifying risk early, intervening fast, and making agent progression and engagement visible.
 
@@ -98,7 +96,7 @@ Winning: Risk is visible early, interventions happen before departure, and agent
 
 **Owner:** Ahsan (accounting@bensoncrew.ca)
 
-**Primary Lane:** Economic Truth
+**Role:** Economic Truth
 
 Protect margin, validate the core assumptions behind the growth model, and surface financial drift early.
 
