@@ -12,11 +12,11 @@ It is one trust layer inside the broader attraction system, not the whole attrac
 - Builds trust through education, not sales pitches
 - Creates reach beyond Benson Crew's immediate operating boundary
 - Allows downline and referrals to invite without recruiting language
-- Warms agents before commitment
+- Creates warmer recruiting conversations before commitment
 
 ## What It Is NOT
 
-- Not a recruiting tool. No joining language, no offers, no incentives.
+- Not a direct-response recruiting funnel. Trust comes first. Any invitation should feel secondary, clear, and opt-in.
 - Not a place for internal wins or performance bragging.
 - Not Benson Crew content under a different name.
 
@@ -25,6 +25,8 @@ It is one trust layer inside the broader attraction system, not the whole attrac
 "Is this about building trust, or delivering execution?"
 
 Trust = MarketMasters. Execution = Benson Crew. If it blurs, kill it.
+
+If the main point is to close or recruit directly, it belongs in Benson Crew or Discover Real, not here.
 
 ## How It Connects to the Broader Strategy
 
@@ -37,4 +39,4 @@ Both outcomes serve the Agent Engine. MarketMasters is one attraction channel in
 
 ## Tone
 
-Neutral. Educational. Non-salesy. Opt-in. The opposite of high-pressure recruiting.
+Neutral. Educational. Trust-first. Opt-in. Never high-pressure.
