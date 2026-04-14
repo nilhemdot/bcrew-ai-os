@@ -548,9 +548,10 @@ function renderOverview() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading overview...</p>'
 
-  Promise.all([fetchSourceOfTruth(), fetchDoc(strategicDocPaths['quarterly-priorities'])]).then(function(results) {
-    var data = results[0]
-    var quarterlyDoc = results[1]
+  fetchSourceOfTruth().then(function(data) {
+    var quarterlyDoc = (data.foundation.supportingStrategy || []).find(function(doc) {
+      return doc.meta && doc.meta.path === strategicDocPaths['quarterly-priorities']
+    })
 
     container.innerHTML = ''
 
@@ -573,8 +574,8 @@ function renderOverview() {
 
     var panelMeta = document.createElement('div')
     panelMeta.className = 'doc-meta'
-    var bsMeta = data.foundation.businessStrategy.meta
-    panelMeta.textContent = bsMeta.lines + ' lines · updated ' + formatDate(bsMeta.updatedAt)
+    var quarterMeta = quarterlyDoc && quarterlyDoc.meta ? quarterlyDoc.meta : data.foundation.businessStrategy.meta
+    panelMeta.textContent = quarterMeta.lines + ' lines · updated ' + formatDate(quarterMeta.updatedAt)
     panelHeader.appendChild(panelMeta)
 
     panel.appendChild(panelHeader)
