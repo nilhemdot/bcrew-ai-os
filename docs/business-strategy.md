@@ -48,9 +48,7 @@ Leadership meetings exist to surface reality, identify the real constraint, make
 
 ## Current Quarter
 
-Benson Crew runs one month off standard quarters for strategic planning: Q1 = Feb-Apr, Q2 = May-Jul, Q3 = Aug-Oct, and Q4 = Nov-Jan.
-
-Current quarter: **Q1 2026 (Feb-Apr)**. The focus is to make the engine operate predictably by locking leadership ownership, building a predictable recruiting engine, and making Benson Crew a compounding growth brand.
+Current-quarter priorities and strategic issues now live in Strategic Execution.
 
 See [Quarterly Priorities](strategy/quarterly-priorities.md).
 
@@ -59,9 +57,9 @@ See [Quarterly Priorities](strategy/quarterly-priorities.md).
 - [BHAG Model](strategy/bhag-model.md) -- Milestone path, long-range targets, and how team and downline goals connect
 - [Core Values](strategy/core-values.md) -- Durable cultural standards and decision filters
 - [Agent Engine](strategy/agent-engine.md) -- Capacity math that turns the BHAG target into required agents and recruiting pace
-- [MarketMasters](strategy/marketmasters.md) -- Trust layer strategy, relationship to Benson Crew
-- [Governance](strategy/governance.md) -- Leadership cadence, meeting rules, dashboard review cadence
 - [Department Mandates](strategy/department-mandates.md) -- Who owns what, expanded detail
+- [Governance](strategy/governance.md) -- Leadership cadence, meeting rules, dashboard review cadence
+- [MarketMasters](strategy/marketmasters.md) -- Trust layer strategy, relationship to Benson Crew
 - [Financial Model and Assumptions](strategy/financial-model-and-assumptions.md) -- Short definitions for the few planning terms leadership can misread
 - [Source Registry](source-registry.md) -- Every business data input, connection status
 
