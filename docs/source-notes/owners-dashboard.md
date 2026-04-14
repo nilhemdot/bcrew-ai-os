@@ -54,6 +54,25 @@ If this tab is wrong, the system will misread:
 - how long cash takes to materialize
 - how profitable deals and agents actually are
 
+### Direct Audit Scope
+
+Directly reviewed in the live sheet:
+- `ADMIN ONLY - Deal Data Entry!A1:CC300`
+
+What is physically present in that range:
+- Row `1`
+  - header row
+- Row `2`
+  - warning row: `DO NOT EDIT OR DELETE THIS RED LINE! - CONTAINS IMPORTANT ARRAY FORMULAS  -->>`
+- Rows `3:6`
+  - template / formula rows
+- Real populated data in this audit window
+  - starts below the template rows
+  - most critical operating columns show about `290` populated rows within the first `300` rows reviewed
+
+Important audit note:
+- this pass is now grounded in the actual live headers and first `300` rows, not only in the verbal walkthrough
+
 ### Row Grain
 
 Working assumption:
@@ -84,7 +103,7 @@ Current known states:
   - waiting for the deal to close
 - `Closed`
   - deal has officially closed and the team is waiting for cash
-- `Closed Cash Collected`
+- `Closed - Cash Collected`
   - deal closed and cash has been received
 
 #### Columns D and E
@@ -105,8 +124,10 @@ Current known states:
   - this is the day the company created cash
 - should be treated as the economic creation date for deal-value truth
 
-#### Column H — Closing Date
-- date title should transfer from seller to buyer
+#### Column H — Expected Closing
+- exact live header is `Expected Closing`
+- business meaning from Steve:
+  - this is the expected day title should transfer from seller to buyer
 - not the same thing as cash receipt
 
 #### Column I — Expected Cash Deposit Date
@@ -233,8 +254,9 @@ This column should eventually be rule-driven from:
   - Deal Credit (`AI`)
 
 #### Column U
-- old field
-- not valid in the current workflow
+- exact live header is `Recruit Bonus/Expansion Partnership?`
+- Steve’s current operating read is that this is effectively from an older workflow and not valid in the current system
+- keep the live header explicit because old data may still reference it
 
 #### Column V — Transaction Fee Collected?
 - only really applies to listings / sales
@@ -286,14 +308,25 @@ This should become a real agent-performance stat later.
 #### Columns AC and AD
 - legacy cobroke-era fields
 - `AC` may still track the cobroke brokerage name
-- `AD` is the amount paid to the cobroke
+- exact live header `AD`
+  - `Commission to Co-Broke`
+- exact live header `AE`
+  - `Paid To Co-Broke`
 - these were more relevant when Steve was the actual broker and paid cobrokes directly
 - they are not strategically important for the last two years, but old rows still contain real history
+
+#### Column AE — Paid To Co-Broke
+- exact live amount field for cash paid to the cobroke
+- formula seen in template rows:
+  - `=Y * AD`
+- this is what bridges the old cobroke logic into `Gross To Team`
 
 #### Column AF — Gross to Team / Commission Paid to Team
 - what the team actually got paid after any cobroke payout
 - in the current world this is effectively the commission paid to the team
 - Steve noted this is functionally the more important paid-to-team number now
+- formula seen in template rows:
+  - `=AB - AE`
 
 #### Column AG — Volume Credit
 - credited deal volume for that row
@@ -312,11 +345,6 @@ Important split nuance:
   - split rows still each hold their own `AG/AH/AI` credit values
 
 This is why row grain cannot be finalized until the credit area is fully understood.
-
-#### Column AE
-- not yet clearly defined from the walkthrough
-- likely adjacent to the old cobroke / paid-to-team transition area
-- needs verification before we rely on it in any contract or derived metric
 
 #### Columns AJ, AK, AL — Outbound Referral Fee
 - `AJ`
@@ -365,6 +393,8 @@ These columns should be treated as dashboard helper dimensions derived from the 
 - Steve's current understanding:
   - shows how much that agent has paid to the team year-to-date
 - this likely matters for split-threshold logic
+- exact live header:
+  - `Net To Team Running Total`
 
 #### Columns BS through BX — Expected Fees and Deductions
 - added to help estimate what the team/company will owe from a given deal
@@ -385,14 +415,20 @@ Current meanings described by Steve:
   - if an owner buys stock under their own name, that amount needs to be deducted from their pay
 
 #### Column BY
-- intended as a new expected-cash-to-company field
+- exact live header:
+  - `Total Estimated Deposit To Company`
+- Steve’s current understanding:
+  - intended as the new expected cash to company field
 - not actively used right now
 - possible future cleanup target
 
 #### Column BZ — Follow Up Boss ID
 - intended CRM linkage field
-- should connect the deal to the Follow Up Boss contact/user
-- the last numbers view / `#` is the user ID that can be used with the FUB API
+- exact live header:
+  - `Client Follow UP Boss ID`
+- current live values in the audited rows are full Follow Up Boss person URLs, not just a bare numeric ID
+- this should connect the deal to the Follow Up Boss contact/user
+- the trailing ID in that URL can still be used with the FUB API
 
 This is strategically important because it should let the system:
 - validate lead-source accuracy
@@ -403,11 +439,15 @@ This is strategically important because it should let the system:
 - recently added by Steve
 - created because ISA-set status was being shoved into the wrong place earlier
 - should become part of the company-vs-agent attribution logic
+- direct audit note:
+  - no populated values were present in the first `300` rows reviewed
 
 #### Column CB — Deal or Lease
 - recently added by Steve
 - intended to separate true deals from lease deals cleanly
 - should eventually replace rough heuristics where possible
+- direct audit note:
+  - no populated values were present in the first `300` rows reviewed
 
 ### Critical Validation Rules
 
@@ -433,6 +473,50 @@ These should eventually become explicit data-quality checks, not tribal knowledg
 8. If deal type is `Buy` or `Referral`, transaction-fee status should be `NA`.
 9. If a deal is split, the cash-to-team value may exist only on the top row while credit values still appear on the split rows.
 10. Follow Up Boss linkage in Column `BZ` should eventually allow source and attribution reconciliation.
+
+### Direct Audit Findings From Rows 11-13
+
+These rows confirm the kinds of operational failures Steve called out.
+
+#### Row 11
+- lead source:
+  - `Met - Social Media`
+- extra lead-source detail:
+  - `Branded Website`
+- ground zero:
+  - `No Extra Lead Source`
+- extra origin detail:
+  - `ISA Appointment Set`
+- company or agent:
+  - `Agent`
+
+Why it is problematic:
+- `Branded Website` does not logically fit `Met - Social Media`
+- `ISA Appointment Set` appears in the wrong field
+- `Company or Agent` is set to `Agent` even though ISA-set logic should likely push this toward company attribution
+
+#### Row 12
+- deal type:
+  - `Referral`
+- lead source:
+  - `Agent/Other Referral`
+- extra lead-source detail:
+  - `N/A`
+
+Why it is problematic:
+- a referral without the referring source/person being identified weakens attribution and traceability
+
+#### Row 13
+- deal type:
+  - `Buy`
+- lead source:
+  - `Import`
+- extra lead-source detail:
+  - `Sphere`
+
+Why it is problematic:
+- `Import` is not an acceptable operating source of truth
+- `Sphere` should likely have been normalized into the real lead-source field or traced more cleanly
 
 ### Signals Worth Systemizing Later
 
