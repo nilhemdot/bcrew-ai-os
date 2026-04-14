@@ -235,10 +235,11 @@ function renderMarkdownBlock(markdown, currentPath) {
       continue
     }
 
-    if (line.startsWith('### ')) {
-      var h = document.createElement('h5')
+    if (line.startsWith('### ') || line.startsWith('#### ')) {
+      var level = line.startsWith('#### ') ? 4 : 3
+      var h = document.createElement(level === 4 ? 'h6' : 'h5')
       h.className = 'md-subheading'
-      appendFormattedText(line.slice(4).trim(), h, currentPath)
+      appendFormattedText(line.slice(level + 1).trim(), h, currentPath)
       container.appendChild(h)
       i++
       continue
@@ -1167,14 +1168,15 @@ function renderDocMarkdownBlock(markdown, currentPath, sourceGroups, sourceContr
       continue
     }
 
-    if (line.startsWith('### ')) {
+    if (line.startsWith('### ') || line.startsWith('#### ')) {
       flushPendingSummaryCard()
-      var h3 = document.createElement('h4')
-      h3.className = 'md-subheading'
-      var h3Text = line.slice(4).trim()
-      h3.id = slugify(h3Text)
-      appendFormattedText(h3Text, h3, currentPath)
-      container.appendChild(h3)
+      var level = line.startsWith('#### ') ? 4 : 3
+      var heading = document.createElement(level === 4 ? 'h5' : 'h4')
+      heading.className = 'md-subheading'
+      var headingText = line.slice(level + 1).trim()
+      heading.id = slugify(headingText)
+      appendFormattedText(headingText, heading, currentPath)
+      container.appendChild(heading)
       i++
       continue
     }
