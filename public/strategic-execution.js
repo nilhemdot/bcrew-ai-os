@@ -619,7 +619,7 @@ function renderOverview() {
 
     var panelIntro = document.createElement('p')
     panelIntro.className = 'section-intro'
-    panelIntro.textContent = 'This hub holds the active quarter and the structural issues shaping current execution.'
+    panelIntro.textContent = 'This is the layer that turns Foundation into active work: annual priorities, quarterly sprints, monthly plans, weekly execution, and the issues driving that work.'
     panelLeft.appendChild(panelIntro)
 
     panelHeader.appendChild(panelLeft)
@@ -627,7 +627,10 @@ function renderOverview() {
 
     var sectionList = document.createElement('div')
     sectionList.className = 'section-list'
+    sectionList.appendChild(renderOverviewCard('Annual Priorities', 'Set the year’s biggest moves and define what the company must get right.', null, null))
     sectionList.appendChild(renderCurrentQuarterCard(quarterlyDoc))
+    sectionList.appendChild(renderOverviewCard('Monthly Plans', 'Check sequencing, adjust plans, and keep leaders aligned on what matters now.', null, null))
+    sectionList.appendChild(renderOverviewCard('Weekly Execution', 'Follow through on owners, decisions, pace, and blockers week to week.', null, null))
     sectionList.appendChild(renderStrategicIssuesCard(strategicIssuesDoc))
     panel.appendChild(sectionList)
     container.appendChild(panel)
