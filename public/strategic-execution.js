@@ -510,47 +510,37 @@ function renderCurrentQuarterCard(quarterlyDoc) {
   return article
 }
 
-function renderStrategicIssuesCard(strategicIssuesDoc) {
+function renderSupportingDocsCard() {
   var article = document.createElement('article')
   article.className = 'section-card'
 
   var title = document.createElement('h4')
-  title.textContent = 'Strategic Issues'
+  title.textContent = 'Supporting Docs'
   article.appendChild(title)
 
-  var introSection = strategicIssuesDoc && strategicIssuesDoc.sections && strategicIssuesDoc.sections[0]
-  var issuesSection = strategicIssuesDoc && strategicIssuesDoc.sections && strategicIssuesDoc.sections[1]
-  var introText = introSection ? introSection.content.trim() : ''
+  var list = document.createElement('ul')
 
-  if (introText) {
-    var intro = document.createElement('p')
-    intro.textContent = introText
-    article.appendChild(intro)
-  }
+  var prioritiesItem = document.createElement('li')
+  prioritiesItem.textContent = 'Quarterly Priorities'
+  list.appendChild(prioritiesItem)
 
-  var issueTitles = []
-  if (issuesSection && issuesSection.content) {
-    issuesSection.content.split('\n').forEach(function(line) {
-      var match = line.trim().match(/^\*\*(.+?)\*\*$/)
-      if (match) issueTitles.push(match[1])
-    })
-  }
+  var issuesItem = document.createElement('li')
+  issuesItem.textContent = 'Strategic Issues'
+  list.appendChild(issuesItem)
 
-  if (issueTitles.length) {
-    var list = document.createElement('ul')
-    issueTitles.slice(0, 3).forEach(function(issueTitle) {
-      var li = document.createElement('li')
-      li.textContent = issueTitle.replace(/^\d+\.\s*/, '')
-      list.appendChild(li)
-    })
-    article.appendChild(list)
-  }
+  article.appendChild(list)
 
-  var link = document.createElement('a')
-  link.className = 'section-support-link'
-  link.href = '/strategic-execution#strategic-issues'
-  link.textContent = 'Open strategic issues'
-  article.appendChild(link)
+  var prioritiesLink = document.createElement('a')
+  prioritiesLink.className = 'section-support-link'
+  prioritiesLink.href = '/strategic-execution#quarterly-priorities'
+  prioritiesLink.textContent = 'Open quarterly priorities'
+  article.appendChild(prioritiesLink)
+
+  var issuesLink = document.createElement('a')
+  issuesLink.className = 'section-support-link'
+  issuesLink.href = '/strategic-execution#strategic-issues'
+  issuesLink.textContent = 'Open strategic issues'
+  article.appendChild(issuesLink)
 
   return article
 }
@@ -575,12 +565,7 @@ function renderOverview() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading strategic execution...</p>'
 
-  Promise.all([
-    fetchDoc(strategicDocPaths['quarterly-priorities']),
-    fetchDoc(strategicDocPaths['strategic-issues']),
-  ]).then(function(results) {
-    var quarterlyDoc = results[0]
-    var strategicIssuesDoc = results[1]
+  fetchDoc(strategicDocPaths['quarterly-priorities']).then(function(quarterlyDoc) {
     container.innerHTML = ''
 
     var hero = document.createElement('section')
@@ -628,7 +613,7 @@ function renderOverview() {
     var sectionList = document.createElement('div')
     sectionList.className = 'section-list'
     sectionList.appendChild(renderCurrentQuarterCard(quarterlyDoc))
-    sectionList.appendChild(renderStrategicIssuesCard(strategicIssuesDoc))
+    sectionList.appendChild(renderSupportingDocsCard())
     panel.appendChild(sectionList)
     container.appendChild(panel)
   }).catch(function(error) {
