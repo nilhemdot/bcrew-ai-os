@@ -100,6 +100,68 @@ function resolveDocPath(href, currentPath) {
   return anchor ? docHref + '&anchor=' + encodeURIComponent(anchor) : docHref
 }
 
+function getDocFallbackHref(pathValue) {
+  if (pathValue && pathValue.indexOf('docs/source-notes/') === 0) {
+    return '/foundation#source-registry'
+  }
+
+  var foundationSection = foundationDocPathToSection[pathValue]
+  if (foundationSection) {
+    return '/foundation#' + foundationSection
+  }
+
+  var strategicExecutionSection = strategicExecutionDocPathToSection[pathValue]
+  if (strategicExecutionSection) {
+    return '/strategic-execution#' + strategicExecutionSection
+  }
+
+  return '/'
+}
+
+function getBackLinkLabel(href) {
+  if (!href) return 'Back to Dashboard'
+  if (href.indexOf('/foundation#source-registry') !== -1) return 'Back to Source Registry'
+  if (href.indexOf('/foundation') !== -1) return 'Back to Foundation'
+  if (href.indexOf('/strategic-execution') !== -1) return 'Back to Strategic Execution'
+  return 'Back to Dashboard'
+}
+
+function getSameOriginReferrer() {
+  if (!document.referrer) return ''
+
+  try {
+    var ref = new URL(document.referrer)
+    if (ref.origin !== window.location.origin) return ''
+    if (ref.pathname === window.location.pathname && ref.search === window.location.search) return ''
+    return ref.pathname + ref.search + ref.hash
+  } catch (_error) {
+    return ''
+  }
+}
+
+function configureDocBackLink(pathValue) {
+  var backLink = document.getElementById('doc-back-link')
+  if (!backLink) return
+
+  var previousHref = getSameOriginReferrer()
+  var fallbackHref = getDocFallbackHref(pathValue)
+  var targetHref = previousHref || fallbackHref
+
+  backLink.href = targetHref
+  backLink.textContent = previousHref ? 'Back' : getBackLinkLabel(fallbackHref)
+
+  if (previousHref) {
+    backLink.addEventListener('click', function(event) {
+      event.preventDefault()
+      if (window.history.length > 1) {
+        window.history.back()
+      } else {
+        window.location.href = previousHref
+      }
+    })
+  }
+}
+
 function appendFormattedText(text, parent, currentPath) {
   var re = /(\*\*(.+?)\*\*|`(.+?)`|\[(.+?)\]\((.+?)\))/g
   var last = 0
@@ -1119,6 +1181,8 @@ async function init() {
   var anchor = getQueryParam('anchor')
 
   if (!pathValue) throw new Error('Missing document path.')
+
+  configureDocBackLink(pathValue)
 
   var requestUrl = '/api/doc?path=' + encodeURIComponent(pathValue)
   var requestOptions = {}
