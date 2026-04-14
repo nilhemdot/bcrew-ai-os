@@ -1789,13 +1789,13 @@ function fetchDoc(docPath) {
 var strategyDocPaths = {
   'bhag-model': 'docs/strategy/bhag-model.md',
   'agent-engine': 'docs/strategy/agent-engine.md',
-  'financial-model': 'docs/strategy/financial-model-and-assumptions.md',
   'quarterly-priorities': 'docs/strategy/quarterly-priorities.md',
   'strategic-issues': 'docs/strategy/strategic-issues.md',
   'governance': 'docs/strategy/governance.md',
   'departments': 'docs/strategy/department-mandates.md',
   'core-values': 'docs/strategy/core-values.md',
   'marketmasters': 'docs/strategy/marketmasters.md',
+  'financial-model': 'docs/strategy/financial-model-and-assumptions.md',
 }
 
 var foundationDocPathToSection = {
@@ -1837,12 +1837,19 @@ var strategyReviewChecklist = [
     tone: 'done',
     items: [
       'North Star',
-      'BHAG Model',
       'The Engine',
       'Governance',
       'Current Quarter',
       'System Rules',
       'System Role',
+    ],
+  },
+  {
+    title: 'Supporting Docs Signed Off',
+    tone: 'done',
+    items: [
+      'BHAG Model',
+      'Agent Engine',
     ],
   },
   {
@@ -1856,14 +1863,13 @@ var strategyReviewChecklist = [
     title: 'Supporting Docs Still To Confirm',
     tone: 'pending',
     items: [
-      'Agent Engine',
-      'Financial Model and Assumptions',
       'Quarterly Priorities',
       'Strategic Issues',
       'Governance',
       'Department Mandates',
       'Core Values',
       'MarketMasters',
+      'Financial Model and Assumptions',
       'Source Registry',
     ],
   },
