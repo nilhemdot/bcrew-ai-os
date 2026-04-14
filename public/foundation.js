@@ -3283,6 +3283,9 @@ function renderSourceContractCard(contract) {
 
   article.appendChild(renderLabeledCopy('decision-meta', 'Source ID', contract.sourceId))
   article.appendChild(renderLabeledCopy('decision-meta', 'Status', contract.status))
+  if (contract.validation) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'Validation', contract.validation))
+  }
   article.appendChild(renderLabeledCopy('decision-meta', 'Owner', contract.owner || 'System'))
   article.appendChild(renderLabeledCopy('decision-meta', 'Location', contract.location))
   article.appendChild(renderLabeledCopy('decision-meta', 'Scope', contract.scope))
@@ -3295,8 +3298,103 @@ function renderSourceContractCard(contract) {
     article.appendChild(renderLabeledCopy('decision-meta', 'Last verified', contract.lastVerified))
   }
 
+  if (contract.validationScope) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'Signed-off scope', contract.validationScope))
+  }
+
+  if (contract.boundaryNote) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'Boundary note', contract.boundaryNote))
+  }
+
   appendSourceActions(article, contract.actions || [])
   return article
+}
+
+function renderSourceValidationPanel(sourceContracts) {
+  if (!sourceContracts || !sourceContracts.length) return null
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Trust Boundary'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Validation Checklist'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Connected does not mean signed off. This checklist separates what we have fully validated from what is only readable, partially understood, or still pending.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var signedOff = sourceContracts.filter(function(contract) {
+    return contract.validation === 'Signed Off' || contract.validation === 'Signed Off In Scope'
+  })
+  var partial = sourceContracts.filter(function(contract) {
+    return contract.validation === 'Partially Signed Off'
+  })
+  var readableOnly = sourceContracts.filter(function(contract) {
+    return contract.validation === 'Readable Only'
+  })
+  var notSignedOff = sourceContracts.filter(function(contract) {
+    return contract.validation === 'Not Signed Off'
+  })
+  var boundaries = sourceContracts.filter(function(contract) {
+    return !!contract.boundaryNote
+  })
+
+  function appendGroup(label, contracts, formatter) {
+    if (!contracts.length) return
+    var group = document.createElement('div')
+    group.className = 'section-card'
+    var heading = document.createElement('h4')
+    heading.textContent = label
+    group.appendChild(heading)
+    var list = document.createElement('ul')
+    list.className = 'md-list'
+    contracts.forEach(function(contract) {
+      var item = document.createElement('li')
+      item.textContent = formatter ? formatter(contract) : contract.sourceId + ' — ' + contract.title
+      list.appendChild(item)
+    })
+    group.appendChild(list)
+    panel.appendChild(group)
+  }
+
+  appendGroup('Signed Off', signedOff, function(contract) {
+    var scope = contract.validationScope ? ' ' + contract.validationScope : ''
+    return contract.sourceId + ' — ' + contract.title + '.' + scope
+  })
+
+  appendGroup('Partially Signed Off', partial, function(contract) {
+    var scope = contract.validationScope ? ' ' + contract.validationScope : ''
+    return contract.sourceId + ' — ' + contract.title + '.' + scope
+  })
+
+  appendGroup('Readable Only', readableOnly, function(contract) {
+    var scope = contract.validationScope ? ' ' + contract.validationScope : ''
+    return contract.sourceId + ' — ' + contract.title + '.' + scope
+  })
+
+  appendGroup('Not Signed Off', notSignedOff, function(contract) {
+    return contract.sourceId + ' — ' + contract.title + '. ' + contract.status + '.'
+  })
+
+  appendGroup('Known Source Boundaries / Overlap Notes', boundaries, function(contract) {
+    return contract.sourceId + ' — ' + contract.boundaryNote
+  })
+
+  return panel
 }
 
 function renderSourceContractPanel(titleText, introText, contracts) {
@@ -3374,6 +3472,9 @@ function renderSourceRegistry() {
     var gapContracts = sourceContracts.filter(function(contract) {
       return contract.group === 'gap'
     })
+
+    var validationPanel = renderSourceValidationPanel(sourceContracts)
+    if (validationPanel) container.appendChild(validationPanel)
 
     var connectedPanel = renderSourceContractPanel(
       'Connected Sources',

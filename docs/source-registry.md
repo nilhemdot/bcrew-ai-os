@@ -4,6 +4,56 @@ Every business data input the system reads. If it's not on this list, the system
 
 This registry distinguishes between sources verified in the current rebuild and sources inherited from the old system that still need revalidation on the Mac Mini.
 
+## Validation Checklist
+
+### Signed Off
+
+- `SRC-STRATEGY-001`
+  - canonical strategy docs in this repo are the signed-off business strategy truth
+- `SRC-OWNERS-001`
+  - signed off **in scope**
+  - specifically: `ADMIN ONLY - Deal Data Entry` through Column `CB`
+  - downstream roll-ups are not fully signed off yet
+
+### Partially Signed Off
+
+- `SRC-FINANCE-001`
+  - high-level source hierarchy is understood:
+    - `(Input) Weekly Actuals` = internal finance truth
+    - `Cashflow Dash` = management interpretation
+    - `QuickBooks` = compliance / tax ledger
+  - the partner-commission adjustment is understood at a high level
+  - the finance stack is **not** yet signed off line by line
+
+### Readable Only
+
+- `SRC-FREEDOM-TEAM-001`
+- `SRC-FREEDOM-COMMUNITY-001`
+- `SRC-FREEDOM-COMMUNITY-REV-001`
+- `SRC-FREEDOM-ENGINE-001`
+- `SRC-FREEDOM-BHAG-001`
+
+These are connected and readable, but they have **not** been fully validated tab-by-tab in this session.
+
+### Not Signed Off
+
+- every source currently marked `Pending Revalidation`
+- every source currently marked `Gap`
+
+## Known Source Boundaries / Overlap Notes
+
+- `SRC-OWNERS-001` vs `SRC-FINANCE-001`
+  - `SRC-OWNERS-001` is the upstream deal ledger for deal lifecycle, attribution, split credit, and FUB linkage
+  - `SRC-FINANCE-001` is the finance layer built around `(Input) Weekly Actuals`
+  - these sources are complementary, but they do not mean the same thing
+- `SRC-FINANCE-001`
+  - `Cashflow Dash` is not the origin source
+  - it is the management interpretation layer built on top of the underlying finance data
+- `SRC-STRATEGY-001` vs `SRC-FREEDOM-ENGINE-001` / `SRC-FREEDOM-BHAG-001`
+  - strategy docs are the canonical narrative / business definitions
+  - Freedom tabs are live planning inputs and models
+  - if a metric is live, the source-backed value wins over a stale prose value
+
 ## Source Contract
 
 1. Every source gets a stable `Source ID`.
