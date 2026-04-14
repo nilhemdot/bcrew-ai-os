@@ -393,6 +393,26 @@ function getEngineMetricExplanation(metricKey, context) {
   return ''
 }
 
+function getEngineMetricDisplayLabel(metricKey, context) {
+  if (metricKey === 'Average Monthly GCI') return 'Avg Monthly GCI'
+  if (metricKey === 'Split to Team') return 'Team Split'
+  if (metricKey === 'Current-Year Volume Target') return 'This Year Target'
+  if (metricKey === 'Required Agents This Year') return 'Agents Needed This Year'
+  if (metricKey === 'Current Active Agents') return 'Current Active'
+  if (metricKey === 'Gap This Year') return 'Gap This Year'
+  if (metricKey === 'Next-Year Volume Target') return 'Next Year Target'
+  if (metricKey === 'Required Start-of-Year Agents') return 'Agents Needed Jan 1'
+  if (metricKey === 'Gap to Next Year') return 'Gap to Next Year'
+  if (metricKey === 'Required Recruiting Pace' && context && context.planningAttritionAssumption && context.planningAttritionAssumption !== '—') {
+    return 'Recruit Pace w/ ' + context.planningAttritionAssumption + ' Attrition'
+  }
+  if (metricKey === 'Required Recruiting Pace') return 'Recruit Pace'
+  if (metricKey === 'Production Target / Agent') return 'Prod Target / Agent'
+  if (metricKey === 'Target Split') return 'Team Split Target'
+  if (metricKey === 'Planning Attrition Assumption') return 'Attrition Assumption'
+  return metricKey
+}
+
 function closeBhagInfoPopovers() {
   document.querySelectorAll('.bhag-info-popover-open').forEach(function(popover) {
     popover.classList.remove('bhag-info-popover-open')
@@ -646,7 +666,7 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap, current
 
   var thead = document.createElement('thead')
   var headRow = document.createElement('tr')
-  ;['Year', 'Volume Target', 'Required Agents', 'Current Active Agents', 'Gap vs Current'].forEach(function(label) {
+  ;['Year', 'Target', 'Req Agents', 'Current Active', 'Gap'].forEach(function(label) {
     var th = document.createElement('th')
     th.textContent = label
     headRow.appendChild(th)
@@ -767,7 +787,7 @@ function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
 
     var label = document.createElement('div')
     label.className = 'engine-input-label'
-    label.textContent = metricKey
+    label.textContent = getEngineMetricDisplayLabel(metricKey)
     item.appendChild(label)
 
     var value = document.createElement('div')
@@ -861,14 +881,11 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
       var labelWrap = document.createElement('span')
       labelWrap.className = 'engine-summary-label-wrap'
 
-      var displayMetricKey = metricKey
-      if (metricKey === 'Required Recruiting Pace' && planningAttritionAssumption && planningAttritionAssumption !== '—') {
-        displayMetricKey = 'Required Recruiting Pace (incl. ' + planningAttritionAssumption + ' attrition)'
-      }
-
       var label = document.createElement('span')
       label.className = 'engine-summary-label'
-      label.textContent = displayMetricKey
+      label.textContent = getEngineMetricDisplayLabel(metricKey, {
+        planningAttritionAssumption: planningAttritionAssumption,
+      })
       labelWrap.appendChild(label)
 
       var explanation = getEngineMetricExplanation(metricKey, {
