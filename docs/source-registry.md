@@ -26,6 +26,7 @@ This registry distinguishes between sources verified in the current rebuild and 
 | `SRC-FREEDOM-ENGINE-001` | Freedom KPI Sheet | `Agent Engine` tab | Current assumptions block | Required monthly attraction, active agents, current 6-month production average, target production, average split, target split | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
 | `SRC-FREEDOM-BHAG-001` | Freedom KPI Sheet | `Benson Crew Bhag Builder` tab | Long-range planning blocks plus calculator ranges | Sales targets, growth curve, community targets, deal math, high-level goal model in `A1:C31`, and agent productivity calculator plus planning attrition assumption in `A22:B31` | Google Drive / Google Sheets | Verified Readable | 2026-04-13 |
 | `SRC-OWNERS-001` | Owners Dashboard | `ADMIN ONLY - Deal Data Entry` plus roll-up sheets | Executed-date volume truth | `Date Firm (Executed)`, `Volume Credit`, and deal production truth used for YTD pace and closed-volume validation | Google Drive / Google Sheets | Verified Readable | 2026-04-13 |
+| `SRC-FINANCE-001` | Owners Dashboard Finance Layer | `(Input) Weekly Actuals` with `Cashflow Dash` interpretation | Weekly cash truth plus management P&L adjustments | Internal finance truth: weekly revenue, expenses, bank balances, LOC balances, credit-card movement, HST, and the partner-commission adjustment needed to show real company revenue and owners expense cleanly | Google Drive / Google Sheets | Verified Readable | 2026-04-14 |
 
 ## Known Sources from Old System, Pending Revalidation
 
@@ -54,8 +55,6 @@ This registry distinguishes between sources verified in the current rebuild and 
 | `SRC-REVIEWS-001` | Client reviews | Google reviews, client surveys, qualitative feedback | Carson | No connection exists |
 | `SRC-TRAINING-001` | Training completion tracker | Training completion, certification, progress | Tanner | Unknown live source |
 | `SRC-CONTENT-001` | Content performance source | Published content metrics | Tanner | No publishing platform connected |
-| `SRC-FINANCE-001` | Accounting / finance system | Revenue, expenses, payouts | Ahsan | Accounting system not connected |
-
 ## Current Freedom Sheet Notes
 
 - Sheet title: `📊 Benson Crew - Freedom Sheet`
@@ -66,3 +65,11 @@ This registry distinguishes between sources verified in the current rebuild and 
 - Community revenue data lives in `P:U`
 - Long-range planning lives in `Benson Crew Bhag Builder`
 - Current engine assumptions block lives in `Agent Engine`
+
+## Current Owners Dashboard Finance Notes
+
+- `(Input) Weekly Actuals` is the internal finance source of truth. It holds the week-by-week business view, including revenue, expenses, bank balances, LOC balances, credit-card movement, and HST.
+- `Cashflow Dash` is the management interpretation layer, not the origin. It uses roll-up sheets to show the internal P&L in a form leadership can actually read.
+- Partner commissions are intentionally backed out of top-line revenue and owners expense in `Cashflow Dash` because those commissions are cash moving through the business, but not real company operating revenue or company operating expense.
+- In the current workbook, that partner-commission adjustment is handled at the dashboard layer. Monthly and annual roll-ups should be treated carefully until the normalization path is reviewed end to end.
+- QuickBooks is the compliance and tax ledger. The Owners Dashboard is the internal operating truth.
