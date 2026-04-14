@@ -28,10 +28,7 @@ The required-agent table below translates the BHAG volume path into required age
 
 ## Current Requirement
 
-Use the section below to answer two questions:
-
-- How many active agents does this year require?
-- What do we need now so we can start next year at the right level?
+This section shows what this year requires, what next year requires, and the recruiting pace the model needs now.
 
 Required recruiting pace already includes the planning attrition assumption from the BHAG builder.
 
