@@ -13,6 +13,7 @@ It is one trust layer inside the broader attraction system, not the whole attrac
 - Creates reach beyond Benson Crew's immediate operating boundary
 - Allows downline and referrals to invite without recruiting language
 - Creates warmer recruiting conversations before commitment
+- Opens a path to Benson Crew or Real through the recruiting team when the timing is right
 
 ## What It Is NOT
 
@@ -35,7 +36,7 @@ MarketMasters generated trust leads to two outcomes:
 1. Some agents join Benson Crew directly (team growth)
 2. Many others join Real Broker through the Benson Crew downline (community growth)
 
-Both outcomes serve the Agent Engine. MarketMasters is one attraction channel inside the broader marketing system. Its job is to put Benson Crew on stage and create trust-led recruiting attention without turning the platform into a pitch fest.
+Both outcomes serve the Agent Engine. MarketMasters is one attraction channel inside the broader marketing system. Its job is to put Benson Crew on stage, build trust first, and hand off the direct invitation cleanly when the timing is right.
 
 ## Tone
 
