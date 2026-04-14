@@ -163,7 +163,7 @@ Recommended analysis boundary:
 
 ### Row Grain
 
-Working assumption:
+Locked understanding:
 - one row represents one credited deal line, not always one unique transaction
 - duplicated trade numbers can exist when agent credit is split across multiple people
 
@@ -198,14 +198,14 @@ Business meaning:
   - deal closed and cash has been received
 
 #### Column D — `Commission/Fees Into Accounting Software?`
-- historical brokerage-era accounting workflow field
-- used for AR and, when applicable, AP entry into QuickBooks
-- not strategically important in the current Real Broker / Benson Crew workflow
+- still relevant in the current workflow
+- confirms the AR / commission side of the deal has been entered into QuickBooks
+- this should be treated as a live accounting-control field, not just historical bookkeeping residue
 
 #### Column E — `Co-Broke and Agent Expense Status`
-- historical brokerage-era field
-- tied to the old brokerage / accounting workflow
-- not strategically important in the current Real Broker / Benson Crew workflow
+- legacy brokerage-era wording
+- effectively useless right now in the current workflow
+- may be repurposed later if the team wants a dedicated field for agent expenses accounted for / billed back
 
 #### Column F — `Client Signed Date`
 - date the client was signed
@@ -596,6 +596,7 @@ Exact live headers:
 #### Column CA — `ISA Set Deal`
 - recently added by Steve
 - created because ISA-set status was being shoved into the wrong place earlier
+- will now start getting used
 - should become part of the company-vs-agent attribution logic
 - direct audit note:
   - no populated values were present in the audited tab
@@ -603,7 +604,7 @@ Exact live headers:
 #### Column CB — `Deal or Lease?`
 - recently added by Steve
 - intended to separate true deals from lease deals cleanly
-- should eventually replace rough heuristics where possible
+- should replace rough heuristics where possible
 - direct audit note:
   - no populated values were present in the audited tab
 
