@@ -100,10 +100,9 @@ Current known states:
 
 Important nuance:
 - Steve also noted the team later updated Column I to reflect when the team actually got paid
-- this means we need to confirm whether Column I is now:
-  - expected cash date
-  - actual cash date
-  - or expected-until-overwritten-with-actual
+- confirmed current meaning:
+  - expected-until-overwritten-with-actual
+- so Column I starts as the modeled expected cash date, then becomes the real paid date once cash is actually received
 
 #### Column J — Days Firm to Close
 - elapsed time from firm date to closing date
@@ -134,9 +133,4 @@ It should likely be treated as the upstream source behind:
    - one credit line
    - one agent-comp line
 2. What are the exact headers and current business roles of Columns D and E?
-3. What is Column I today:
-   - expected cash date
-   - actual cash date
-   - hybrid expected/actual workflow
-4. Which downstream tabs use Columns F through J directly versus through roll-ups?
-
+3. Which downstream tabs use Columns F through J directly versus through roll-ups?
