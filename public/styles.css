@@ -638,6 +638,16 @@ body {
   background: rgba(245, 158, 11, 0.14);
 }
 
+.review-checklist-item-partial .review-checklist-marker {
+  color: #0369a1;
+  background: rgba(14, 165, 233, 0.14);
+}
+
+.review-checklist-item-note .review-checklist-marker {
+  color: #6b21a8;
+  background: rgba(168, 85, 247, 0.14);
+}
+
 .memory-panel {
   background:
     linear-gradient(180deg, rgba(0, 132, 201, 0.04) 0%, rgba(255, 255, 255, 0) 100%),

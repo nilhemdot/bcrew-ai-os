@@ -3337,62 +3337,94 @@ function renderSourceValidationPanel(sourceContracts) {
   header.appendChild(left)
   panel.appendChild(header)
 
-  var signedOff = sourceContracts.filter(function(contract) {
-    return contract.validation === 'Signed Off' || contract.validation === 'Signed Off In Scope'
-  })
-  var partial = sourceContracts.filter(function(contract) {
-    return contract.validation === 'Partially Signed Off'
-  })
-  var readableOnly = sourceContracts.filter(function(contract) {
-    return contract.validation === 'Readable Only'
-  })
-  var notSignedOff = sourceContracts.filter(function(contract) {
-    return contract.validation === 'Not Signed Off'
-  })
-  var boundaries = sourceContracts.filter(function(contract) {
-    return !!contract.boundaryNote
-  })
+  var groups = [
+    {
+      title: 'Signed Off',
+      tone: 'done',
+      marker: 'Signed',
+      items: sourceContracts
+        .filter(function(contract) {
+          return contract.validation === 'Signed Off' || contract.validation === 'Signed Off In Scope'
+        })
+        .map(function(contract) {
+          return contract.sourceId + ' — ' + contract.title
+        }),
+    },
+    {
+      title: 'Partial / Readable',
+      tone: 'partial',
+      marker: 'Partial',
+      items: sourceContracts
+        .filter(function(contract) {
+          return contract.validation === 'Partially Signed Off' || contract.validation === 'Readable Only'
+        })
+        .map(function(contract) {
+          return contract.sourceId + ' — ' + contract.title
+        }),
+    },
+    {
+      title: 'Not Signed Off',
+      tone: 'pending',
+      marker: 'Later',
+      items: sourceContracts
+        .filter(function(contract) {
+          return contract.validation === 'Not Signed Off'
+        })
+        .map(function(contract) {
+          return contract.sourceId + ' — ' + contract.title
+        }),
+    },
+    {
+      title: 'Boundary Notes',
+      tone: 'note',
+      marker: 'Note',
+      items: sourceContracts
+        .filter(function(contract) {
+          return !!contract.boundaryNote
+        })
+        .map(function(contract) {
+          return contract.sourceId + ' — ' + contract.boundaryNote
+        }),
+    },
+  ]
 
-  function appendGroup(label, contracts, formatter) {
-    if (!contracts.length) return
-    var group = document.createElement('div')
-    group.className = 'section-card'
-    var heading = document.createElement('h4')
-    heading.textContent = label
-    group.appendChild(heading)
+  var grid = document.createElement('div')
+  grid.className = 'review-checklist-grid'
+
+  groups.forEach(function(group) {
+    if (!group.items.length) return
+
+    var column = document.createElement('div')
+    column.className = 'review-checklist-column'
+
+    var columnTitle = document.createElement('h4')
+    columnTitle.textContent = group.title
+    column.appendChild(columnTitle)
+
     var list = document.createElement('ul')
-    list.className = 'md-list'
-    contracts.forEach(function(contract) {
+    list.className = 'review-checklist-list'
+
+    group.items.forEach(function(itemText) {
       var item = document.createElement('li')
-      item.textContent = formatter ? formatter(contract) : contract.sourceId + ' — ' + contract.title
+      item.className = 'review-checklist-item review-checklist-item-' + group.tone
+
+      var marker = document.createElement('span')
+      marker.className = 'review-checklist-marker'
+      marker.textContent = group.marker
+      item.appendChild(marker)
+
+      var text = document.createElement('span')
+      text.textContent = itemText
+      item.appendChild(text)
+
       list.appendChild(item)
     })
-    group.appendChild(list)
-    panel.appendChild(group)
-  }
 
-  appendGroup('Signed Off', signedOff, function(contract) {
-    var scope = contract.validationScope ? ' ' + contract.validationScope : ''
-    return contract.sourceId + ' — ' + contract.title + '.' + scope
+    column.appendChild(list)
+    grid.appendChild(column)
   })
 
-  appendGroup('Partially Signed Off', partial, function(contract) {
-    var scope = contract.validationScope ? ' ' + contract.validationScope : ''
-    return contract.sourceId + ' — ' + contract.title + '.' + scope
-  })
-
-  appendGroup('Readable Only', readableOnly, function(contract) {
-    var scope = contract.validationScope ? ' ' + contract.validationScope : ''
-    return contract.sourceId + ' — ' + contract.title + '.' + scope
-  })
-
-  appendGroup('Not Signed Off', notSignedOff, function(contract) {
-    return contract.sourceId + ' — ' + contract.title + '. ' + contract.status + '.'
-  })
-
-  appendGroup('Known Source Boundaries / Overlap Notes', boundaries, function(contract) {
-    return contract.sourceId + ' — ' + contract.boundaryNote
-  })
+  panel.appendChild(grid)
 
   return panel
 }
