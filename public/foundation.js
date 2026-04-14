@@ -1838,6 +1838,7 @@ var strategyReviewChecklist = [
     items: [
       'North Star',
       'The Engine',
+      'Two Brands',
       'Governance',
       'Current Quarter',
       'System Rules',
@@ -1850,13 +1851,7 @@ var strategyReviewChecklist = [
     items: [
       'BHAG Model',
       'Agent Engine',
-    ],
-  },
-  {
-    title: 'Reopened After Changes',
-    tone: 'pending',
-    items: [
-      'Two Brands',
+      'MarketMasters',
     ],
   },
   {
@@ -1868,7 +1863,6 @@ var strategyReviewChecklist = [
       'Governance',
       'Department Mandates',
       'Core Values',
-      'MarketMasters',
       'Financial Model and Assumptions',
       'Source Registry',
     ],
