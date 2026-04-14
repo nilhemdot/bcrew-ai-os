@@ -1,8 +1,8 @@
 # Owners Dashboard Source Notes
 
-This note is the working source-map for the Owners Dashboard workbook.
+This note is the working source map for the Owners Dashboard workbook.
 
-Use it to capture how the sheet actually works:
+Use it to capture:
 - what each tab is for
 - what one row means
 - which columns are manual vs formula
@@ -28,13 +28,6 @@ The goal is not to freeze the workbook in prose. The goal is to preserve the bus
 
 ## ADMIN ONLY - Deal Data Entry
 
-### Current Understanding
-
-- This is the upstream deal ledger for the Owners Dashboard workbook.
-- One trade can appear more than once when a deal is split across multiple agents.
-- Trade number is the unique deal identifier, but not necessarily a unique row identifier.
-- The tab is critical because it holds the timeline from signed client to firm deal to close to expected cash timing.
-
 ### Why This Tab Is Foundational
 
 This is not just a deal log. It is the operating source behind:
@@ -57,21 +50,116 @@ If this tab is wrong, the system will misread:
 ### Direct Audit Scope
 
 Directly reviewed in the live sheet:
-- `ADMIN ONLY - Deal Data Entry!A1:CC300`
+- `ADMIN ONLY - Deal Data Entry!A1:CB1514`
 
 What is physically present in that range:
 - Row `1`
   - header row
 - Row `2`
   - warning row: `DO NOT EDIT OR DELETE THIS RED LINE! - CONTAINS IMPORTANT ARRAY FORMULAS  -->>`
-- Rows `3:6`
+- Rows `3:10`
   - template / formula rows
-- Real populated data in this audit window
-  - starts below the template rows
-  - most critical operating columns show about `290` populated rows within the first `300` rows reviewed
+- Real populated data begins at Row `11`
+- The tab currently ends at Column `CB`
+  - there is no Column `CC`
 
-Important audit note:
-- this pass is now grounded in the actual live headers and first `300` rows, not only in the verbal walkthrough
+### Full-Tab Audit Metrics
+
+Directly measured from the live sheet:
+- `80` columns total
+  - `A:CB`
+- `1504` rows with a non-empty `Deal #`
+- `1502` operational / historical rows after excluding the two `Trade #### (For Goal Builder)` placeholder rows
+
+Status distribution across rows with a populated `Deal #`:
+- `Closed - Cash Collected`
+  - `1451`
+- `Pending`
+  - `44`
+- `Closed`
+  - `9`
+
+Lead-source quality:
+- `unspecified`
+  - `948`
+- `Import`
+  - `36`
+- invalid lead-source count from those two values alone
+  - `984 / 1504`
+  - about `65.4%`
+
+Follow Up Boss linkage:
+- populated `Client Follow UP Boss ID`
+  - `45 / 1504`
+  - about `3.0%`
+- missing FUB linkage
+  - `1459 / 1504`
+  - about `97.0%`
+
+Recently added fields:
+- `ISA Set Deal`
+  - `0 / 1504` populated in the audited tab
+- `Deal or Lease?`
+  - `0 / 1504` populated in the audited tab
+
+Known suspicious duplicate trade rows confirmed directly:
+- `T#25263`
+  - rows `136` and `137`
+  - same realtor `Matt Allman`
+  - both `Total = 1`
+- `T#25226`
+  - rows `245` and `246`
+  - same realtor `Angelo Ricci`
+  - both `Total = 1`
+
+Known non-operational / malformed trade identifiers seen directly:
+- goal-builder placeholders:
+  - `Trade 2028 (For Goal Builder)`
+  - `Trade 2027 (For Goal Builder)`
+- naming-format anomalies:
+  - `T23051`
+  - ` T#23012`
+  - `14002`
+  - `14001`
+  - `T#20125anotheronewrong`
+- older naming variants:
+  - `GTA#24091`
+  - `GTA#24088`
+  - `GTA#24076`
+  - `GTA#24077`
+  - `GTA#24075`
+  - `GTA#24074`
+- lower-case split suffix examples:
+  - `T#22008a`
+  - `T#22008b`
+  - `T#22008c`
+
+### Business Eras
+
+The Admin tab spans multiple operating eras. Any serious KPI, attribution, or seasonality analysis needs to respect this.
+
+#### Brokerage Era
+- before about `2023-04-01`
+- Zahnd Team Real Estate Advisors in brokerage
+- cobroke fields matter here:
+  - `Listing/Co-Broker`
+  - `Commission to Co-Broke`
+  - `Paid To Co-Broke`
+
+#### Real Broker Era
+- about `2023-04-01` through `2025-06-30`
+- no longer operating as a brokerage
+- old cobroke logic becomes less relevant
+- the abandoned Real split-calculation attempt lives in the back half of the tab
+
+#### Benson Crew Era
+- about `2025-07-01` onward
+- current operating era
+- current lead-source taxonomy, FUB linkage expectations, and KPI-dashboard presentation logic belong here
+
+Recommended analysis boundary:
+- use executed deals from `2023-01-01` to today for seasonality and longer-term trend context
+- but filter by era whenever column meaning, payout logic, or attribution rules changed
 
 ### Row Grain
 
@@ -87,18 +175,21 @@ This needs to stay explicit because downstream reporting may need:
 ### Column Notes
 
 #### Column A
-- Legacy / leftover field from an older workflow
-- currently not considered strategically important
+- legacy / leftover field from an older workflow
+- Steve explicitly does not want this treated as a source-of-truth field now, even though old values remain in the sheet
 
-#### Column B — Trade Number
-- Unique deal number used to represent the deal
+#### Column B — `Deal #`
+- unique deal number used to represent the deal
 - can repeat across rows when one deal is split between two agents
-- example given by Steve: duplicate trade number across rows like 107 and 108
+- split examples are real and should not be treated as duplicates automatically
 
-#### Column C — Deal Status
-Important lifecycle field.
+#### Column C — `Deal Status`
+Current known values:
+- `Pending`
+- `Closed`
+- `Closed - Cash Collected`
 
-Current known states:
+Business meaning:
 - `Pending`
   - waiting for the deal to close
 - `Closed`
@@ -106,83 +197,82 @@ Current known states:
 - `Closed - Cash Collected`
   - deal closed and cash has been received
 
-#### Columns D and E
-- historical brokerage-era fields
+#### Column D — `Commission/Fees Into Accounting Software?`
+- historical brokerage-era accounting workflow field
 - used for AR and, when applicable, AP entry into QuickBooks
-- not strategically important in the current Real Broker setup
-- still worth preserving until we confirm nothing downstream depends on them
+- not strategically important in the current Real Broker / Benson Crew workflow
 
-#### Column F — Signed Client Date
+#### Column E — `Co-Broke and Agent Expense Status`
+- historical brokerage-era field
+- tied to the old brokerage / accounting workflow
+- not strategically important in the current Real Broker / Benson Crew workflow
+
+#### Column F — `Client Signed Date`
 - date the client was signed
 - used to understand how long it takes from client signing to firm deal
 - important for pipeline-flow and cycle-time analysis
+- caution:
+  - on some old rows this can represent an old or restarted relationship, so extreme signed-to-firm gaps should be treated carefully
 
-#### Column G — Date Firm (Executed)
+#### Column G — `Date Firm (Executed)`
 - one of the most important columns in the sheet
-- date when deal conditions were removed and the deal became firm and binding
+- date when conditions were removed and the deal became firm and binding
 - Steve’s business meaning:
   - this is the day the company created cash
 - should be treated as the economic creation date for deal-value truth
 
-#### Column H — Expected Closing
-- exact live header is `Expected Closing`
-- business meaning from Steve:
-  - this is the expected day title should transfer from seller to buyer
+#### Column H — `Expected Closing`
+- expected day title should transfer from seller to buyer
 - not the same thing as cash receipt
 
-#### Column I — Expected Cash Deposit Date
+#### Column I — `Expected Cash Deposit`
 - extremely important for financial modeling
 - created because the team does not get paid on closing day
-- current rule described by Steve:
-  - add 10 days after closing for a sale because the company holds trust money and should get paid faster
-  - add 14 days after closing for a buyer because the team must wait for lawyer -> listing brokerage trust clearing -> payment to the team
-- this timing logic is foundational to the internal finance model
+
+Current timing rules described by Steve and confirmed in template formulas:
+- `Sell`
+  - closing date + `10` days
+- `Buy`
+  - closing date + `14` days
+- `Referral`
+  - closing date + `0` days
 
 Important nuance:
-- Steve also noted the team later updated Column I to reflect when the team actually got paid
-- confirmed current meaning:
-  - expected-until-overwritten-with-actual
-- so Column I starts as the modeled expected cash date, then becomes the real paid date once cash is actually received
+- Column `I` is hybrid
+- it starts as expected paid date
+- later it gets overwritten with the actual paid date once cash is received
 
-#### Column J — Days Firm to Close
-- elapsed time from firm date to closing date
-- useful for understanding deal timing
-- together with Signed Client Date and Date Firm (Executed), this supports:
+#### Column J — `Days Between Executed and Closing`
+- elapsed time from executed date to expected closing
+- together with `Client Signed Date` and `Date Firm (Executed)`, this supports:
   - signed -> firm timing
   - firm -> close timing
   - eventually signed -> paid timing
 
-#### Column K — Client Name
+#### Column K — `Client Name`
 - client name
 
-#### Column L — Deal Address
-- property address for the deal
+#### Column L — `Deal Address`
+- property address
 
-#### Column M — Deal Type
-- current known values:
-  - `Sell`
-    - listing sold
-  - `Buy`
-    - team helped a buyer
-  - `Referral`
-    - referred a buyer or seller to another agent and got paid a referral fee
+#### Column M — `Buy / Sell / Referral`
+Current known values:
+- `Sell`
+- `Buy`
+- `Referral`
 
 Important nuance:
 - older data does not reliably distinguish lease deals from true buy/sell deals
-- Steve added a later field in Column `CB` (`Deal or Lease`) to improve this
+- Steve added Column `CB` (`Deal or Lease?`) to improve this
 - fallback heuristic mentioned by Steve:
   - if list price or sale price is under `200k`, it is likely a lease
 - use that heuristic carefully and treat `CB` as the cleaner future field
 
-#### Column N — Lead Source
+#### Column N — `Lead Source (Bonus System For Having This 100% Complete)`
 - one of the most operationally important columns in the sheet
 - must match a valid Follow Up Boss lead source exactly
-- `Unspecified` and `Import` are not acceptable steady-state values
+- `unspecified` and `Import` are not acceptable steady-state values
 - mismatches between this column and Follow Up Boss should be treated as an operational failure
-
-Important business rule:
-- Steve actively trims and manages the Follow Up Boss lead-source list
-- when lead sources are merged or cleaned up in Follow Up Boss, this workbook must be cleaned up too
 
 This column is critical for:
 - money-by-source analysis
@@ -191,25 +281,24 @@ This column is critical for:
 - operational compliance
 - future CRM reconciliation
 
-#### Column O — Secondary Lead-Source Detail
-Working understanding:
-- this stores extra detail about the main lead source
+#### Column O — `Extra Lead Source Data`
+- extra detail about the main lead source
 - current usage quality is inconsistent and often wrong
-- Steve's examples:
-  - a social-media lead with `Branded Website` as extra source detail is not coherent
-  - a referral fee with `NA` as extra source detail leaves the referring person undefined
-  - `Import` with `Sphere` as secondary detail should likely have been normalized into the actual source
 
-#### Column P — Ground-Zero Lead Source
-Working understanding:
-- this stores the original root source of the deal
-- this is meant to trace the original root source of the deal
-- example business meaning:
-  - online lead
-  - met in person
-  - family
-  - direct relationship
-  - introduction / referral back to the original root source
+Examples from live rows / Steve’s walkthrough:
+- a social-media lead with `Branded Website` as extra source detail is not coherent
+- a referral fee with `N/A` as extra source detail leaves the referring person undefined
+- `Import` with `Sphere` as secondary detail should likely have been normalized into the actual source
+
+#### Column P — `Ground Zero`
+- intended to trace the original root source of the deal
+
+Business meaning examples:
+- online lead
+- met in person
+- family
+- direct relationship
+- introduction / referral back to the original root source
 
 This matters because:
 - if the original root source is company-generated, the company should get credit
@@ -219,260 +308,279 @@ Operational note from Steve:
 - Ops is supposed to trace the deal back to the original source
 - this is currently a major operating gap
 
-#### Column Q — Ground-Zero Source Extra Detail
+#### Column Q — `Extra Orgin Lead Source Data`
 - extra detail about the ground-zero source
 - currently used poorly in some rows
 - example from Steve:
   - `ISA Appointment Set` does not belong here because it is not extra detail about the ground-zero source
 - Steve added Column `CA` later to track ISA-set deals directly instead
 
-#### Column R — Company Generated
-- indicates whether the deal was company-generated
+#### Column R — `Company or Agent`
+- indicates whether the deal is currently attributed to company or agent
 - current usage is inconsistent
 
 Important rule from Steve:
-- if the lead source is agent-sourced but the deal is tagged `ISA set`, it should still be treated as `company`
+- if the lead source is agent-sourced but the deal is tagged `ISA set`, it should still be treated as company
 
 This column should eventually be rule-driven from:
-- lead source taxonomy
-- ground-zero source logic
-- ISA-set flag
+- lead-source taxonomy
+- ground-zero lineage
+- ISA-set override
 
-#### Column S — Realtor
+#### Column S — `Realtor`
 - the agent / realtor who did the deal
+- old anonymized names like `zz -bt` represented departed agents in an earlier presentation workflow
+- Steve no longer wants future presentation logic to rely on that convention because the KPI dashboard can handle presentation separately
 
-#### Column T — Deal Share Percent
-- how much of the deal that credited row gets
-- examples:
-  - `100%` = handled alone
-  - `50/50`
-  - `75/25`
-  - `25/25/25/25`
-- this later translates into:
-  - Volume Credit (`AG`)
-  - Commission Credit (`AH`)
-  - Deal Credit (`AI`)
+#### Column T — `Total`
+- despite the literal header, this holds the split share for that credited row
 
-#### Column U
-- exact live header is `Recruit Bonus/Expansion Partnership?`
-- Steve’s current operating read is that this is effectively from an older workflow and not valid in the current system
-- keep the live header explicit because old data may still reference it
+Examples:
+- `1`
+- `0.5`
+- `0.75`
+- `0.25`
 
-#### Column V — Transaction Fee Collected?
-- only really applies to listings / sales
-- if Column `M` is `Buy` or `Referral`, this should be `NA`
+This later translates into:
+- `Volume Credit`
+- `Commission Credit`
+- `Deal Credit`
+
+#### Column U — `Recruit Bonus/Expansion Partnership?`
+- older workflow field
+- Steve’s current read is that it is not part of the current operating logic
+
+#### Column V — `Listing Transaction Fee?`
+- only really applies to listing / sell deals
+- if Column `M` is `Buy` or `Referral`, this should be `N/A`
 - every listing is a chance to charge a transaction fee
 - this is strategically important because it is a coaching and profitability lever
 
-Business meaning:
-- low transaction-fee capture means the agent is leaving profit on the table
-- this should become a coaching signal, not just a spreadsheet value
-
-#### Column W — Transaction Fee Amount
+#### Column W — `Transaction Fee Amount`
 - amount of the transaction fee collected
-- standard target noted by Steve:
+- target amount noted by Steve:
   - `1495 + HST`
 
-#### Column X — List Price
-- the list price of the property whether deal type is buy or sell
+#### Column X — `List Price`
+- list price of the property
 
-#### Column Y — Sale Price
-- the transacted / sale price
+#### Column Y — `Sale Price`
+- transacted / sale price
 
-#### Column Z — List Price to Sale Price Ratio
+#### Column Z — `LP/SP Ratio`
 - performance metric interpreted differently by side represented
 
 Business meaning:
-- for a seller/listing agent:
+- listing side:
   - higher is better
   - `99%` would be ideal
-- for a buyer agent:
+- buyer side:
   - lower is better
   - `95%` would be strong
 
-This should become a real agent-performance stat later.
-
-#### Column AA — Commission Charged
+#### Column AA — `Commission Charged`
 - commission rate charged on the deal
 - target rate is `2.5%`
-- current reality varies:
-  - some deals at `1%`
-  - some at `3%`
-- the KPI dashboard currently tracks this average
+- older brokerage-era rows can carry very different rates
 
-#### Column AB — Gross Commission
+#### Column AB — `Gross Commission`
 - gross commission amount
-- calculation described by Steve:
-  - `sale price x commission rate = gross commission`
+- template formula confirms:
+  - `Sale Price x Commission Charged`
 
-#### Columns AC and AD
-- legacy cobroke-era fields
-- `AC` may still track the cobroke brokerage name
-- exact live header `AD`
-  - `Commission to Co-Broke`
-- exact live header `AE`
-  - `Paid To Co-Broke`
-- these were more relevant when Steve was the actual broker and paid cobrokes directly
-- they are not strategically important for the last two years, but old rows still contain real history
+#### Column AC — `Listing/Co-Broker`
+- old brokerage-era cobroke field
+- can still carry historical broker names on older rows
 
-#### Column AE — Paid To Co-Broke
-- exact live amount field for cash paid to the cobroke
-- formula seen in template rows:
+#### Column AD — `Commission to Co-Broke`
+- old brokerage-era cobroke rate / amount driver
+
+#### Column AE — `Paid To Co-Broke`
+- cash paid to the cobroke
+- template formula confirms:
   - `=Y * AD`
-- this is what bridges the old cobroke logic into `Gross To Team`
 
-#### Column AF — Gross to Team / Commission Paid to Team
+#### Column AF — `Gross To Team`
 - what the team actually got paid after any cobroke payout
-- in the current world this is effectively the commission paid to the team
-- Steve noted this is functionally the more important paid-to-team number now
-- formula seen in template rows:
+- template formula confirms:
   - `=AB - AE`
+- in the current world this is effectively the commission paid to the team
 
-#### Column AG — Volume Credit
+#### Column AG — `Volume Credit`
 - credited deal volume for that row
 
-#### Column AH — Commission Credit
+#### Column AH — `Commission Credit`
 - credited commission for that row
 
-#### Column AI — Deal Credit
+#### Column AI — `Deal Credit`
 - credited deal count/share for that row
 
 Important split nuance:
 - when a deal is split, only the top row may hold the paid-to-team cash number
-- later split-credit rows can still carry their own volume, commission, and deal credits
-- Steve example:
-  - one row has the `AF` cash value
-  - split rows still each hold their own `AG/AH/AI` credit values
+- later split-credit rows can still carry their own `Volume Credit`, `Commission Credit`, and `Deal Credit`
 
-This is why row grain cannot be finalized until the credit area is fully understood.
+#### Column AJ — `Paid to Outside Referral`
+- total referral amount paid out
 
-#### Columns AJ, AK, AL — Outbound Referral Fee
-- `AJ`
-  - total referral amount paid out
-- `AK`
-  - who received the referral
-- `AL`
-  - referral percentage
+#### Column AK — `Referral Fee Person`
+- who received the referral
+
+#### Column AL — `Total Referral Fee`
+- live header says `Total`
+- Steve’s business meaning in practice:
+  - percentage of referral fee paid
   - example: `25%`
+- this is a real sheet inconsistency and should be treated as such
 
-#### Column AM — Net to Team
+#### Column AM — `Net To Team`
 - what is left for the team after referrals
 - this is the amount that gets split with the agent
 
-#### Column AN — Agent Percent
+#### Column AN — `Split To Agent`
 - the percentage of the net-to-team amount that the agent receives
 
-#### Column AO — Agent Portion
+#### Column AO — `Agent Portion`
 - calculation:
-  - `Net to Team (AM) x Agent % (AN)`
+  - `Net To Team x Split To Agent`
 
-#### Company Portion
-- company portion is what remains after the agent portion is removed from net to team
-- Steve described it conceptually as:
-  - `Net to Team - Agent Portion = Company Portion`
+#### Column AP — `Company/Team Lead Portion`
+- company portion after the agent portion is removed from net to team
+- conceptually:
+  - `Net To Team - Agent Portion`
 
-#### Columns AQ to BE
-- mostly not used in the current workflow
-- `AQ` recruit bonus is effectively dead
+#### Column AQ — `Recruit Bonus`
+- effectively dead in the current workflow
 
-#### Date Helper Columns — BF through BQ
-- formula-driven date helper fields for dashboards and roll-ups
-- examples described by Steve:
-  - days from firmed deal to close
-  - executed year-month
-  - executed month
-  - executed quarter
-  - executed year
-  - similar helper fields for deposit timing
-  - similar helper fields for closing timing
+#### Columns AR:BE — Abandoned Real Broker Split Calculator
+- these columns were part of a Real Broker split-calculation attempt
+- Steve’s current operating rule:
+  - do not treat this block as live source-of-truth infrastructure
+- reason:
+  - chronological close-order skew makes the running cap math unreliable
+- the working replacement for expected company-side Real fees is the later `BS:BX` block
 
-These columns should be treated as dashboard helper dimensions derived from the core dates, not primary source inputs.
+Exact live headers:
+- `AR`
+  - `Agent Portion of Split or Transaction Fee`
+- `AS`
+  - `Team Lead`
+- `AT`
+  - `Team Lead Portion of Split or Transaction Fee`
+- `AU`
+  - `Agent Cap Start Date`
+- `AV`
+  - `Agent A or B Split`
+- `AW`
+  - `Agent Cap`
+- `AX`
+  - `Agent Portion Of Split`
+- `AY`
+  - `Cap YTD Split Running Total`
+- `AZ`
+  - `Agent Email`
+- `BA`
+  - `Team Lead Cap Start Date`
+- `BB`
+  - `A or B Split`
+- `BC`
+  - `Team Lead Cap`
+- `BD`
+  - `Team Lead Portion Of Split`
+- `BE`
+  - `Team Lead Cap YTD Split Running Total`
 
-#### Column BR
-- appears to support the agent split calculator
-- Steve's current understanding:
-  - shows how much that agent has paid to the team year-to-date
-- this likely matters for split-threshold logic
-- exact live header:
-  - `Net To Team Running Total`
+#### Column BF — `Days from Firmed to Closed`
+- helper duration field
 
-#### Columns BS through BX — Expected Fees and Deductions
-- added to help estimate what the team/company will owe from a given deal
+#### Executed-Date Helper Block
+- `BG`
+  - `Executed Year Month`
+- `BH`
+  - `Executed Month`
+- `BI`
+  - `Executed Quarter`
+- `BJ`
+  - `Executed Year`
 
-Current meanings described by Steve:
+#### Deposit-Date Helper Block
+- `BK`
+  - `Deposit Month`
+- `BL`
+  - `Deposit Quarter`
+- `BM`
+  - `Deposit Year`
+
+#### Closing-Date Helper Block
+- `BN`
+  - `Closing Year Month`
+- `BO`
+  - `Closing Month`
+- `BP`
+  - `Closing Quarter`
+- `BQ`
+  - `Closing Year`
+
+#### Column BR — `Net To Team Running Total`
+- running total helper
+
+#### Columns BS:BX — Estimated Company Portion / Real Broker Fee Layer
+- this is the working replacement block Steve actually uses for expected company-side deductions
+
+Exact live headers:
 - `BS`
-  - expected split paid to Real Broker from that deal
+  - `Estimated Company Portion Split`
 - `BT`
-  - company portion of the transaction fee expected to be paid to Real
+  - `Estimated Company Portion Transaction Fee`
 - `BU`
-  - expected broker compliance / CBR fee
+  - `Estimated Company Portion CBR Fee`
 - `BV`
-  - expected annual fee
+  - `Estimated Company Portion Annual Fee`
 - `BW`
-  - any other fees expected from that deal
+  - `Estimated Company Portion Other Fee`
 - `BX`
-  - owner stock purchase amount tied to that deal
-  - if an owner buys stock under their own name, that amount needs to be deducted from their pay
+  - `Estimated Company Poriton Stock Purchse Plan (Billed Back to Owner)`
 
-#### Column BY
-- exact live header:
-  - `Total Estimated Deposit To Company`
-- Steve’s current understanding:
-  - intended as the new expected cash to company field
+#### Column BY — `Total Estimated Deposit To Company`
+- intended as the new expected cash-to-company field
 - not actively used right now
-- possible future cleanup target
 
-#### Column BZ — Follow Up Boss ID
-- intended CRM linkage field
-- exact live header:
-  - `Client Follow UP Boss ID`
-- current live values in the audited rows are full Follow Up Boss person URLs, not just a bare numeric ID
-- this should connect the deal to the Follow Up Boss contact/user
+#### Column BZ — `Client Follow UP Boss ID`
+- current live values in populated rows are full Follow Up Boss person URLs, not just a bare numeric ID
 - the trailing ID in that URL can still be used with the FUB API
+- this field is strategically important for CRM reconciliation
 
-This is strategically important because it should let the system:
-- validate lead-source accuracy
-- trace deals back to CRM records
-- run compliance checks between the sheet and FUB
-
-#### Column CA — ISA Set Deal
+#### Column CA — `ISA Set Deal`
 - recently added by Steve
 - created because ISA-set status was being shoved into the wrong place earlier
 - should become part of the company-vs-agent attribution logic
 - direct audit note:
-  - no populated values were present in the first `300` rows reviewed
+  - no populated values were present in the audited tab
 
-#### Column CB — Deal or Lease
+#### Column CB — `Deal or Lease?`
 - recently added by Steve
 - intended to separate true deals from lease deals cleanly
 - should eventually replace rough heuristics where possible
 - direct audit note:
-  - no populated values were present in the first `300` rows reviewed
+  - no populated values were present in the audited tab
 
 ### Critical Validation Rules
 
 These should eventually become explicit data-quality checks, not tribal knowledge.
 
-1. Trade number can repeat when credit is split.
-   - duplicate trade numbers are not automatically duplicates/errors
-2. Column `G` (`Date Firm (Executed)`) is the economic cash-created date.
-   - treat this as the true executed-date anchor
-3. Column `I` is hybrid.
+1. `Deal #` can repeat when credit is split.
+   - duplicate trade numbers are not automatically errors
+2. `Date Firm (Executed)` is the economic cash-created date.
+3. `Expected Cash Deposit` is hybrid.
    - starts as expected paid date
    - later gets overwritten with actual paid date
-4. Lead source must match Follow Up Boss exactly.
-   - `Import` and `Unspecified` are high-severity failures
-5. Secondary source detail must logically match the lead source.
-   - if not, the row should be flagged for cleanup
-6. Ground-zero source must preserve the true original origin of the deal.
-   - this is what determines company credit correctly
-7. Company-generated status should be rule-driven.
-   - lead-source taxonomy
-   - ground-zero lineage
-   - ISA-set override
-8. If deal type is `Buy` or `Referral`, transaction-fee status should be `NA`.
-9. If a deal is split, the cash-to-team value may exist only on the top row while credit values still appear on the split rows.
-10. Follow Up Boss linkage in Column `BZ` should eventually allow source and attribution reconciliation.
+4. lead source must match Follow Up Boss exactly.
+   - `Import` and `unspecified` are high-severity failures
+5. `Extra Lead Source Data` must logically match the lead source.
+6. `Ground Zero` must preserve the true original origin of the deal.
+7. `Company or Agent` should eventually be rule-driven from source lineage + ISA-set logic.
+8. If `Buy / Sell / Referral` is `Buy` or `Referral`, `Listing Transaction Fee?` should be `N/A`.
+9. If a deal is split, `Gross To Team` may exist only on the top row while credits still appear on the split rows.
+10. `Client Follow UP Boss ID` should eventually allow source and attribution reconciliation.
 
 ### Direct Audit Findings From Rows 11-13
 
@@ -496,7 +604,7 @@ Why it is problematic:
 - `Company or Agent` is set to `Agent` even though ISA-set logic should likely push this toward company attribution
 
 #### Row 12
-- deal type:
+- `Buy / Sell / Referral`
   - `Referral`
 - lead source:
   - `Agent/Other Referral`
@@ -507,7 +615,7 @@ Why it is problematic:
 - a referral without the referring source/person being identified weakens attribution and traceability
 
 #### Row 13
-- deal type:
+- `Buy / Sell / Referral`
   - `Buy`
 - lead source:
   - `Import`
@@ -530,28 +638,3 @@ Why it is problematic:
 - list-price to sale-price performance by buy side versus listing side
 - commission-rate discipline
 - lease versus deal reporting
-
-### Why This Tab Matters
-
-This tab appears to be the operating root for:
-- deal lifecycle truth
-- pipeline timing truth
-- expected cash timing
-- downstream financial modeling
-- executed-date production truth
-
-It should likely be treated as the upstream source behind:
-- `SRC-OWNERS-001`
-- parts of `SRC-FINANCE-001`
-
-### Open Questions
-
-1. What is the exact business meaning of one row:
-   - one deal
-   - one side
-   - one credit line
-   - one agent-comp line
-2. What are the exact headers and current business roles of Columns D and E?
-3. Confirm the exact header names for Columns O, P, and Q even though the business meaning is now documented.
-4. What is Column AE used for today, if anything?
-5. Which downstream tabs use Columns F through J directly versus through roll-ups?
