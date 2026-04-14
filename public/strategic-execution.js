@@ -577,20 +577,14 @@ function renderOverview() {
     var panelLeft = document.createElement('div')
     var panelEyebrow = document.createElement('div')
     panelEyebrow.className = 'eyebrow'
-    panelEyebrow.textContent = 'Strategy Sections'
+    panelEyebrow.textContent = 'Overview'
     panelLeft.appendChild(panelEyebrow)
 
     var panelTitle = document.createElement('h3')
-    panelTitle.textContent = 'Strategic Execution'
+    panelTitle.textContent = 'Current Quarter'
     panelLeft.appendChild(panelTitle)
 
     panelHeader.appendChild(panelLeft)
-
-    var panelMeta = document.createElement('div')
-    panelMeta.className = 'doc-meta'
-    panelMeta.textContent = quarterlyDoc.meta.lines + ' lines · updated ' + formatDate(quarterlyDoc.meta.updatedAt)
-    panelHeader.appendChild(panelMeta)
-
     panel.appendChild(panelHeader)
 
     var sectionList = document.createElement('div')
