@@ -35,6 +35,25 @@ The goal is not to freeze the workbook in prose. The goal is to preserve the bus
 - Trade number is the unique deal identifier, but not necessarily a unique row identifier.
 - The tab is critical because it holds the timeline from signed client to firm deal to close to expected cash timing.
 
+### Why This Tab Is Foundational
+
+This is not just a deal log. It is the operating source behind:
+- deal lifecycle truth
+- timing from signed client to firm deal to close to cash receipt
+- lead-source attribution
+- company-generated versus agent-generated attribution
+- agent split / deal-credit math
+- commission and profitability analysis
+- Follow Up Boss reconciliation
+- downstream cash modeling and finance roll-ups
+
+If this tab is wrong, the system will misread:
+- where money came from
+- who should get credit
+- whether the company generated the business
+- how long cash takes to materialize
+- how profitable deals and agents actually are
+
 ### Row Grain
 
 Working assumption:
@@ -151,18 +170,18 @@ This column is critical for:
 - operational compliance
 - future CRM reconciliation
 
-#### Secondary Lead-Source Detail
+#### Column O — Secondary Lead-Source Detail
 Working understanding:
-- a nearby field after Column `N` stores extra detail about the lead source
+- this stores extra detail about the main lead source
 - current usage quality is inconsistent and often wrong
 - Steve's examples:
   - a social-media lead with `Branded Website` as extra source detail is not coherent
   - a referral fee with `NA` as extra source detail leaves the referring person undefined
   - `Import` with `Sphere` as secondary detail should likely have been normalized into the actual source
 
-#### Ground-Zero Source Fields
+#### Column P — Ground-Zero Lead Source
 Working understanding:
-- the workbook includes a ground-zero source concept after the main lead source
+- this stores the original root source of the deal
 - this is meant to trace the original root source of the deal
 - example business meaning:
   - online lead
@@ -294,6 +313,11 @@ Important split nuance:
 
 This is why row grain cannot be finalized until the credit area is fully understood.
 
+#### Column AE
+- not yet clearly defined from the walkthrough
+- likely adjacent to the old cobroke / paid-to-team transition area
+- needs verification before we rely on it in any contract or derived metric
+
 #### Columns AJ, AK, AL — Outbound Referral Fee
 - `AJ`
   - total referral amount paid out
@@ -385,6 +409,31 @@ This is strategically important because it should let the system:
 - intended to separate true deals from lease deals cleanly
 - should eventually replace rough heuristics where possible
 
+### Critical Validation Rules
+
+These should eventually become explicit data-quality checks, not tribal knowledge.
+
+1. Trade number can repeat when credit is split.
+   - duplicate trade numbers are not automatically duplicates/errors
+2. Column `G` (`Date Firm (Executed)`) is the economic cash-created date.
+   - treat this as the true executed-date anchor
+3. Column `I` is hybrid.
+   - starts as expected paid date
+   - later gets overwritten with actual paid date
+4. Lead source must match Follow Up Boss exactly.
+   - `Import` and `Unspecified` are high-severity failures
+5. Secondary source detail must logically match the lead source.
+   - if not, the row should be flagged for cleanup
+6. Ground-zero source must preserve the true original origin of the deal.
+   - this is what determines company credit correctly
+7. Company-generated status should be rule-driven.
+   - lead-source taxonomy
+   - ground-zero lineage
+   - ISA-set override
+8. If deal type is `Buy` or `Referral`, transaction-fee status should be `NA`.
+9. If a deal is split, the cash-to-team value may exist only on the top row while credit values still appear on the split rows.
+10. Follow Up Boss linkage in Column `BZ` should eventually allow source and attribution reconciliation.
+
 ### Signals Worth Systemizing Later
 
 - signed -> firm cycle time
@@ -419,4 +468,6 @@ It should likely be treated as the upstream source behind:
    - one credit line
    - one agent-comp line
 2. What are the exact headers and current business roles of Columns D and E?
-3. Which downstream tabs use Columns F through J directly versus through roll-ups?
+3. Confirm the exact header names for Columns O, P, and Q even though the business meaning is now documented.
+4. What is Column AE used for today, if anything?
+5. Which downstream tabs use Columns F through J directly versus through roll-ups?
