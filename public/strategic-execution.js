@@ -298,6 +298,218 @@ function renderOverviewCard(titleText, copyText, href, ctaLabel) {
   return article
 }
 
+function parseQuarterLabel(title) {
+  if (!title) return null
+
+  var match = title.match(/^Current Quarter:\s*(Q[1-4])\s+(\d{4})\s*\(([^)]+)\)$/i)
+  if (!match) return null
+
+  return {
+    quarter: match[1].toUpperCase(),
+    year: parseInt(match[2], 10),
+    range: match[3].trim(),
+  }
+}
+
+function getNextQuarterInfo(currentQuarter) {
+  if (!currentQuarter) return null
+
+  var ranges = {
+    Q1: 'May-Jul',
+    Q2: 'Aug-Oct',
+    Q3: 'Nov-Jan',
+    Q4: 'Feb-Apr',
+  }
+
+  var quarterOrder = ['Q1', 'Q2', 'Q3', 'Q4']
+  var currentIndex = quarterOrder.indexOf(currentQuarter.quarter)
+  if (currentIndex === -1) return null
+
+  var nextQuarter = quarterOrder[(currentIndex + 1) % quarterOrder.length]
+  var nextYear = currentQuarter.quarter === 'Q4'
+    ? currentQuarter.year + 1
+    : currentQuarter.year
+
+  return {
+    quarter: nextQuarter,
+    year: nextYear,
+    range: ranges[currentQuarter.quarter],
+  }
+}
+
+function extractQuarterSummaryLines(content) {
+  return (content || '')
+    .split('\n')
+    .map(function(line) { return line.trim() })
+    .filter(function(line) { return line && line !== '---' })
+}
+
+function buildQuarterMetaPill(label, value, accent) {
+  var pill = document.createElement('div')
+  pill.className = 'quarter-meta-pill' + (accent ? ' quarter-meta-pill-' + accent : '')
+
+  var pillLabel = document.createElement('span')
+  pillLabel.className = 'quarter-meta-label'
+  pillLabel.textContent = label
+  pill.appendChild(pillLabel)
+
+  var pillValue = document.createElement('strong')
+  pillValue.className = 'quarter-meta-value'
+  pillValue.textContent = value
+  pill.appendChild(pillValue)
+
+  return pill
+}
+
+function buildPriorityChip(text) {
+  var item = document.createElement('div')
+  item.className = 'quarter-priority-item'
+
+  var marker = document.createElement('span')
+  marker.className = 'quarter-priority-marker'
+  marker.textContent = 'Priority'
+  item.appendChild(marker)
+
+  var copy = document.createElement('span')
+  copy.className = 'quarter-priority-copy'
+  copy.textContent = text
+  item.appendChild(copy)
+
+  return item
+}
+
+function buildQuarterCadenceChip(label, value) {
+  var chip = document.createElement('div')
+  chip.className = 'quarter-cadence-chip'
+
+  var chipLabel = document.createElement('span')
+  chipLabel.className = 'quarter-cadence-label'
+  chipLabel.textContent = label
+  chip.appendChild(chipLabel)
+
+  var chipValue = document.createElement('strong')
+  chipValue.className = 'quarter-cadence-value'
+  chipValue.textContent = value
+  chip.appendChild(chipValue)
+
+  return chip
+}
+
+function renderCurrentQuarterCard(quarterlyDoc) {
+  var article = document.createElement('article')
+  article.className = 'section-card section-card-quarter'
+
+  var title = document.createElement('h4')
+  title.textContent = 'Current Quarter'
+  article.appendChild(title)
+
+  var quarterSection = quarterlyDoc && quarterlyDoc.sections && quarterlyDoc.sections.length
+    ? quarterlyDoc.sections[0]
+    : null
+  var quarterInfo = parseQuarterLabel(quarterSection ? quarterSection.title : '')
+  var nextQuarter = getNextQuarterInfo(quarterInfo)
+  var summaryLines = extractQuarterSummaryLines(quarterSection ? quarterSection.content : '')
+  var summary = summaryLines[0] || ''
+  var cadenceNote = 'Benson Crew plans one month ahead of standard quarters.'
+  var prioritySections = quarterlyDoc && quarterlyDoc.sections
+    ? quarterlyDoc.sections.slice(1, 4)
+    : []
+
+  if (summary) {
+    var themeWrap = document.createElement('div')
+    themeWrap.className = 'quarter-theme'
+
+    var themeLabel = document.createElement('div')
+    themeLabel.className = 'quarter-theme-label'
+    themeLabel.textContent = 'Quarter Theme'
+    themeWrap.appendChild(themeLabel)
+
+    var intro = document.createElement('p')
+    intro.className = 'quarter-summary'
+    intro.textContent = summary
+    themeWrap.appendChild(intro)
+
+    article.appendChild(themeWrap)
+  }
+
+  var metaRow = document.createElement('div')
+  metaRow.className = 'quarter-meta-row'
+
+  if (quarterInfo) {
+    metaRow.appendChild(
+      buildQuarterMetaPill(
+        'Current Quarter',
+        quarterInfo.quarter + ' ' + quarterInfo.year + ' · ' + quarterInfo.range,
+        'current'
+      )
+    )
+  }
+
+  if (nextQuarter) {
+    metaRow.appendChild(
+      buildQuarterMetaPill(
+        'Coming Up',
+        nextQuarter.quarter + ' ' + nextQuarter.year + ' · ' + nextQuarter.range,
+        'next'
+      )
+    )
+  }
+
+  article.appendChild(metaRow)
+
+  if (prioritySections.length) {
+    var priorityWrap = document.createElement('div')
+    priorityWrap.className = 'quarter-priority-wrap'
+
+    var priorityLabel = document.createElement('div')
+    priorityLabel.className = 'quarter-priority-label'
+    priorityLabel.textContent = 'Top Priorities'
+    priorityWrap.appendChild(priorityLabel)
+
+    var priorityRow = document.createElement('div')
+    priorityRow.className = 'quarter-priority-stack'
+
+    prioritySections.forEach(function(prioritySection) {
+      var cleanedTitle = prioritySection.title.replace(/^Priority\s+\d+:\s*/, '')
+      priorityRow.appendChild(buildPriorityChip(cleanedTitle))
+    })
+
+    priorityWrap.appendChild(priorityRow)
+    article.appendChild(priorityWrap)
+  }
+
+  var footerNote = document.createElement('div')
+  footerNote.className = 'quarter-footer-note'
+
+  var footerLabel = document.createElement('span')
+  footerLabel.className = 'quarter-footer-label'
+  footerLabel.textContent = 'Planning cadence'
+  footerNote.appendChild(footerLabel)
+
+  var footerCopy = document.createElement('p')
+  footerCopy.className = 'quarter-footer-copy'
+  footerCopy.textContent = cadenceNote
+  footerNote.appendChild(footerCopy)
+
+  var cadenceRow = document.createElement('div')
+  cadenceRow.className = 'quarter-cadence-row'
+  cadenceRow.appendChild(buildQuarterCadenceChip('Q1', 'Feb-Apr'))
+  cadenceRow.appendChild(buildQuarterCadenceChip('Q2', 'May-Jul'))
+  cadenceRow.appendChild(buildQuarterCadenceChip('Q3', 'Aug-Oct'))
+  cadenceRow.appendChild(buildQuarterCadenceChip('Q4', 'Nov-Jan'))
+  footerNote.appendChild(cadenceRow)
+
+  article.appendChild(footerNote)
+
+  var link = document.createElement('a')
+  link.className = 'section-support-link'
+  link.href = '/strategic-execution#quarterly-priorities'
+  link.textContent = 'Open quarterly priorities'
+  article.appendChild(link)
+
+  return article
+}
+
 var cache = {
   docs: {},
 }
@@ -316,83 +528,122 @@ function fetchDoc(docPath) {
 
 function renderOverview() {
   var container = document.getElementById('strategic-execution-content')
-  container.innerHTML = ''
+  container.innerHTML = '<p>Loading strategic execution...</p>'
 
-  var hero = document.createElement('section')
-  hero.className = 'hero'
+  fetchDoc(strategicDocPaths['quarterly-priorities']).then(function(quarterlyDoc) {
+    container.innerHTML = ''
 
-  var heroInner = document.createElement('div')
-  heroInner.className = 'hero-inner'
+    var hero = document.createElement('section')
+    hero.className = 'hero'
 
-  var heroTitle = document.createElement('h1')
-  heroTitle.textContent = 'Strategic Execution'
-  heroInner.appendChild(heroTitle)
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
 
-  var heroCopy = document.createElement('p')
-  heroCopy.className = 'hero-copy'
-  heroCopy.textContent = 'Foundation sets durable truth. Strategic Execution turns that truth into annual priorities, quarterly sprints, monthly plans, and weekly follow-through.'
-  heroInner.appendChild(heroCopy)
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Strategic Execution'
+    heroInner.appendChild(heroTitle)
 
-  hero.appendChild(heroInner)
-  container.appendChild(hero)
+    var heroCopy = document.createElement('p')
+    heroCopy.className = 'hero-copy'
+    heroCopy.textContent = 'Foundation sets durable truth. Strategic Execution turns that truth into annual priorities, quarterly sprints, monthly plans, and weekly follow-through.'
+    heroInner.appendChild(heroCopy)
 
-  var cadencePanel = document.createElement('section')
-  cadencePanel.className = 'panel'
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
 
-  var cadenceHeader = document.createElement('div')
-  cadenceHeader.className = 'panel-header'
+    var quarterPanel = document.createElement('section')
+    quarterPanel.className = 'panel'
 
-  var cadenceLeft = document.createElement('div')
-  var cadenceEyebrow = document.createElement('div')
-  cadenceEyebrow.className = 'eyebrow'
-  cadenceEyebrow.textContent = 'Execution Cadence'
-  cadenceLeft.appendChild(cadenceEyebrow)
+    var quarterHeader = document.createElement('div')
+    quarterHeader.className = 'panel-header'
 
-  var cadenceTitle = document.createElement('h3')
-  cadenceTitle.textContent = 'How strategy moves into work'
-  cadenceLeft.appendChild(cadenceTitle)
+    var quarterLeft = document.createElement('div')
+    var quarterEyebrow = document.createElement('div')
+    quarterEyebrow.className = 'eyebrow'
+    quarterEyebrow.textContent = 'Current Sprint'
+    quarterLeft.appendChild(quarterEyebrow)
 
-  var cadenceIntro = document.createElement('p')
-  cadenceIntro.className = 'section-intro'
-  cadenceIntro.textContent = 'This hub is the planning-and-follow-through layer that sits below Foundation and above department execution.'
-  cadenceLeft.appendChild(cadenceIntro)
+    var quarterTitle = document.createElement('h3')
+    quarterTitle.textContent = 'Current quarter'
+    quarterLeft.appendChild(quarterTitle)
 
-  cadenceHeader.appendChild(cadenceLeft)
-  cadencePanel.appendChild(cadenceHeader)
+    var quarterIntro = document.createElement('p')
+    quarterIntro.className = 'section-intro'
+    quarterIntro.textContent = 'This is the active quarter snapshot: theme, timing, and the top priorities we are pushing right now.'
+    quarterLeft.appendChild(quarterIntro)
 
-  var cadenceList = document.createElement('div')
-  cadenceList.className = 'section-list'
-  cadenceList.appendChild(renderOverviewCard('Annual Priorities', 'Set the year’s biggest moves and define what the company must get right.', null, null))
-  cadenceList.appendChild(renderOverviewCard('Quarterly Sprints', 'Turn the annual priorities into a focused 90-day push.', '/strategic-execution#quarterly-priorities', 'Open quarterly priorities'))
-  cadenceList.appendChild(renderOverviewCard('Monthly Plans', 'Check sequencing, adjust plans, and keep leaders aligned on what matters now.', null, null))
-  cadenceList.appendChild(renderOverviewCard('Weekly Execution', 'Follow through on owners, decisions, pace, and blockers week to week.', null, null))
-  cadencePanel.appendChild(cadenceList)
-  container.appendChild(cadencePanel)
+    quarterHeader.appendChild(quarterLeft)
+    quarterPanel.appendChild(quarterHeader)
 
-  var docsPanel = document.createElement('section')
-  docsPanel.className = 'panel'
+    var quarterList = document.createElement('div')
+    quarterList.className = 'section-list'
+    quarterList.appendChild(renderCurrentQuarterCard(quarterlyDoc))
+    quarterPanel.appendChild(quarterList)
+    container.appendChild(quarterPanel)
 
-  var docsHeader = document.createElement('div')
-  docsHeader.className = 'panel-header'
+    var cadencePanel = document.createElement('section')
+    cadencePanel.className = 'panel'
 
-  var docsLeft = document.createElement('div')
-  var docsEyebrow = document.createElement('div')
-  docsEyebrow.className = 'eyebrow'
-  docsEyebrow.textContent = 'Active Docs'
-  docsLeft.appendChild(docsEyebrow)
+    var cadenceHeader = document.createElement('div')
+    cadenceHeader.className = 'panel-header'
 
-  var docsTitle = document.createElement('h3')
-  docsTitle.textContent = 'Current strategic execution packet'
-  docsLeft.appendChild(docsTitle)
-  docsHeader.appendChild(docsLeft)
-  docsPanel.appendChild(docsHeader)
+    var cadenceLeft = document.createElement('div')
+    var cadenceEyebrow = document.createElement('div')
+    cadenceEyebrow.className = 'eyebrow'
+    cadenceEyebrow.textContent = 'Execution Cadence'
+    cadenceLeft.appendChild(cadenceEyebrow)
 
-  var docsList = document.createElement('div')
-  docsList.className = 'section-list'
-  docsList.appendChild(renderOverviewCard('Quarterly Priorities', 'What matters this quarter, what winning looks like, and what should trigger structural response.', '/strategic-execution#quarterly-priorities', 'Open quarterly priorities'))
-  docsList.appendChild(renderOverviewCard('Strategic Issues', 'The structural problems that explain why the current priorities exist.', '/strategic-execution#strategic-issues', 'Open strategic issues'))
-  docsPanel.appendChild(docsList)
-  container.appendChild(docsPanel)
+    var cadenceTitle = document.createElement('h3')
+    cadenceTitle.textContent = 'How strategy moves into work'
+    cadenceLeft.appendChild(cadenceTitle)
+
+    var cadenceIntro = document.createElement('p')
+    cadenceIntro.className = 'section-intro'
+    cadenceIntro.textContent = 'This hub is the planning-and-follow-through layer that sits below Foundation and above department execution.'
+    cadenceLeft.appendChild(cadenceIntro)
+
+    cadenceHeader.appendChild(cadenceLeft)
+    cadencePanel.appendChild(cadenceHeader)
+
+    var cadenceList = document.createElement('div')
+    cadenceList.className = 'section-list'
+    cadenceList.appendChild(renderOverviewCard('Annual Priorities', 'Set the year’s biggest moves and define what the company must get right.', null, null))
+    cadenceList.appendChild(renderOverviewCard('Quarterly Sprints', 'Turn the annual priorities into a focused 90-day push.', '/strategic-execution#quarterly-priorities', 'Open quarterly priorities'))
+    cadenceList.appendChild(renderOverviewCard('Monthly Plans', 'Check sequencing, adjust plans, and keep leaders aligned on what matters now.', null, null))
+    cadenceList.appendChild(renderOverviewCard('Weekly Execution', 'Follow through on owners, decisions, pace, and blockers week to week.', null, null))
+    cadencePanel.appendChild(cadenceList)
+    container.appendChild(cadencePanel)
+
+    var docsPanel = document.createElement('section')
+    docsPanel.className = 'panel'
+
+    var docsHeader = document.createElement('div')
+    docsHeader.className = 'panel-header'
+
+    var docsLeft = document.createElement('div')
+    var docsEyebrow = document.createElement('div')
+    docsEyebrow.className = 'eyebrow'
+    docsEyebrow.textContent = 'Active Docs'
+    docsLeft.appendChild(docsEyebrow)
+
+    var docsTitle = document.createElement('h3')
+    docsTitle.textContent = 'Current strategic execution packet'
+    docsLeft.appendChild(docsTitle)
+    docsHeader.appendChild(docsLeft)
+    docsPanel.appendChild(docsHeader)
+
+    var docsList = document.createElement('div')
+    docsList.className = 'section-list'
+    docsList.appendChild(renderOverviewCard('Quarterly Priorities', 'What matters this quarter, what winning looks like, and what should trigger structural response.', '/strategic-execution#quarterly-priorities', 'Open quarterly priorities'))
+    docsList.appendChild(renderOverviewCard('Strategic Issues', 'The structural problems that explain why the current priorities exist.', '/strategic-execution#strategic-issues', 'Open strategic issues'))
+    docsPanel.appendChild(docsList)
+    container.appendChild(docsPanel)
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load strategic execution: ' + error.message
+    container.appendChild(msg)
+  })
 }
 
 function renderStrategyDoc(sectionKey) {
