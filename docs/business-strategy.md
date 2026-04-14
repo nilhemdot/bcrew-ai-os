@@ -61,8 +61,6 @@ See [Quarterly Priorities](strategy/quarterly-priorities.md).
 - [Agent Engine](strategy/agent-engine.md) -- Capacity math that turns the BHAG target into required agents and recruiting pace
 - [MarketMasters](strategy/marketmasters.md) -- Trust layer strategy, relationship to Benson Crew
 - [Governance](strategy/governance.md) -- Leadership cadence, meeting rules, dashboard review cadence
-- [Quarterly Priorities](strategy/quarterly-priorities.md) -- Current quarter focus and winning criteria
-- [Strategic Issues](strategy/strategic-issues.md) -- Structural findings that explain why priorities exist
 - [Department Mandates](strategy/department-mandates.md) -- Who owns what, expanded detail
 - [Financial Model and Assumptions](strategy/financial-model-and-assumptions.md) -- Short definitions for the few planning terms leadership can misread
 - [Source Registry](source-registry.md) -- Every business data input, connection status
