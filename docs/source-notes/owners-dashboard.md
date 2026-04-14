@@ -11,6 +11,39 @@ Use it to capture:
 
 The goal is not to freeze the workbook in prose. The goal is to preserve the business logic so the system can read it correctly and later replace brittle spreadsheet logic with cleaner source contracts.
 
+## Quick Audit
+
+You do not need to read this whole note to know whether the Admin tab is wrapped.
+
+What is locked:
+- the `ADMIN ONLY - Deal Data Entry` tab is the upstream deal ledger for deal lifecycle, attribution, split credit, and downstream finance logic
+- the meaning of the tab is locked through Column `CB`
+- the system is using the literal live headers from the sheet, not guessed names
+- the key logic is locked for:
+  - timing chain (`F:I`)
+  - attribution chain (`N:R`)
+  - economics and split credit (`V:AP`)
+  - split / apprenticeship helper (`BR`)
+  - estimated Real Broker fee layer (`BS:BX`)
+  - FUB linkage and new rollout fields (`BZ:CB`)
+
+What still needs implementation later:
+- Follow Up Boss parity and backfill
+- Home Value Hub / Home Optima parity
+- QuickBooks AR checks
+- ISA-set rollout
+- deal-or-lease rollout
+- era-aware reporting
+- coaching metrics
+
+What to skim if you are auditing:
+1. `Quick Audit`
+2. `Full-Tab Audit Metrics`
+3. `Business Eras`
+4. the specific column section you care about
+
+This note is primarily for system grounding and future integration work, not for a human to read top to bottom every time.
+
 ## Current Source Hierarchy
 
 1. `ADMIN ONLY - Deal Data Entry`
