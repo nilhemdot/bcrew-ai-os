@@ -44,6 +44,59 @@ What to skim if you are auditing:
 
 This note is primarily for system grounding and future integration work, not for a human to read top to bottom every time.
 
+## Validation Status
+
+### Signed Off In This Session
+
+- `ADMIN ONLY - Deal Data Entry`
+  - validated through Column `CB`
+  - literal live headers confirmed
+  - row structure confirmed
+  - key business logic confirmed
+- `Current Source Hierarchy`
+  - high-level role of:
+    - `ADMIN ONLY - Deal Data Entry`
+    - `(Input) Weekly Actuals`
+    - `Cashflow Dash`
+    - `QuickBooks`
+- era boundary for analysis:
+  - use executed deals from `2023-01-01` to today for broader context
+  - but respect brokerage / Real Broker / Benson Crew era changes when interpreting results
+- partner-commission management nuance:
+  - captured at the source-contract / backlog level
+  - not fully tab-by-tab validated yet through every rollup
+
+### Not Fully Signed Off Yet
+
+- `Split Cal`
+  - only partially understood through its relationship to `BR`
+  - not yet validated tab-by-tab
+- `Agent Splits`
+  - referenced through split / apprenticeship logic
+  - not yet validated tab-by-tab
+- `(Input) Weekly Actuals`
+  - high-level role is understood
+  - not yet validated line by line
+- `Cashflow Dash`
+  - high-level role and partner-commission adjustment are understood
+  - the dashboard formulas and rollup logic are not yet fully audited end to end
+- downstream rollups:
+  - `Monthly Actuals (Roll Up)`
+  - annual rollups
+  - other dependent tabs
+  - not yet validated tab-by-tab
+- QuickBooks integration details
+  - role is understood at a high level
+  - real workflow details and field-by-field checks are not yet fully validated
+
+### How To Use This Note
+
+- if you want to audit what is already locked:
+  - use the `Quick Audit` section
+  - then go to the specific Admin-tab columns you care about
+- if you want to know what still needs walkthrough:
+  - use the `Not Fully Signed Off Yet` list above
+
 ## Current Source Hierarchy
 
 1. `ADMIN ONLY - Deal Data Entry`
