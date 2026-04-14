@@ -643,6 +643,11 @@ body {
   background: rgba(14, 165, 233, 0.14);
 }
 
+.review-checklist-item-review .review-checklist-marker {
+  color: #7c2d12;
+  background: rgba(249, 115, 22, 0.14);
+}
+
 .review-checklist-item-note .review-checklist-marker {
   color: #6b21a8;
   background: rgba(168, 85, 247, 0.14);

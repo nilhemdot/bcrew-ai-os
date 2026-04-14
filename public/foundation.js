@@ -3331,7 +3331,7 @@ function renderSourceValidationPanel(sourceContracts) {
 
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'Connected does not mean signed off. This checklist separates what we have fully validated from what is only readable, partially understood, or still pending.'
+  intro.textContent = 'Connected does not mean signed off. This checklist separates what we have fully approved from what is still in review, only readable, or not yet trusted.'
   left.appendChild(intro)
 
   header.appendChild(left)
@@ -3344,19 +3344,43 @@ function renderSourceValidationPanel(sourceContracts) {
       marker: 'Signed',
       items: sourceContracts
         .filter(function(contract) {
-          return contract.validation === 'Signed Off' || contract.validation === 'Signed Off In Scope'
+          return contract.validation === 'Signed Off'
         })
         .map(function(contract) {
           return contract.sourceId + ' — ' + contract.title
         }),
     },
     {
-      title: 'Partial / Readable',
+      title: 'In Review',
+      tone: 'review',
+      marker: 'Review',
+      items: sourceContracts
+        .filter(function(contract) {
+          return contract.validation === 'In Review'
+        })
+        .map(function(contract) {
+          return contract.sourceId + ' — ' + contract.title
+        }),
+    },
+    {
+      title: 'Partially Signed Off',
       tone: 'partial',
       marker: 'Partial',
       items: sourceContracts
         .filter(function(contract) {
-          return contract.validation === 'Partially Signed Off' || contract.validation === 'Readable Only'
+          return contract.validation === 'Partially Signed Off'
+        })
+        .map(function(contract) {
+          return contract.sourceId + ' — ' + contract.title
+        }),
+    },
+    {
+      title: 'Readable Only',
+      tone: 'partial',
+      marker: 'Readable',
+      items: sourceContracts
+        .filter(function(contract) {
+          return contract.validation === 'Readable Only'
         })
         .map(function(contract) {
           return contract.sourceId + ' — ' + contract.title

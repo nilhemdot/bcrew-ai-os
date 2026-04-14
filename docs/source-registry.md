@@ -10,10 +10,13 @@ This registry distinguishes between sources verified in the current rebuild and 
 
 - `SRC-STRATEGY-001`
   - canonical strategy docs in this repo are the signed-off business strategy truth
+
+### In Review
+
 - `SRC-OWNERS-001`
-  - signed off **in scope**
-  - specifically: `ADMIN ONLY - Deal Data Entry` through Column `CB`
-  - downstream roll-ups are not fully signed off yet
+  - `ADMIN ONLY - Deal Data Entry` has been heavily validated through Column `CB`
+  - final page review and owner sign-off are still pending
+  - downstream roll-ups are not signed off yet
 
 ### Partially Signed Off
 
