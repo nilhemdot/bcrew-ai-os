@@ -31,6 +31,12 @@ Benson Crew runs on one engine with three pillars: Attract, Grow, and Retain.
 
 Financial output is the result of the engine working.
 
+## Department Mandates
+
+Each department exists to move the engine. Mandates define the enduring job of each function, the boundary of its ownership, and the part it plays in Attract, Grow, or Retain.
+
+Quarter-specific asks do not belong here. They live in Strategic Execution.
+
 ## Two Brands
 
 Benson Crew and MarketMasters do different jobs.

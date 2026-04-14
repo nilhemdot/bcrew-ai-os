@@ -100,6 +100,10 @@ var sectionSupportDocs = {
     label: 'Open agent engine doc',
     path: 'docs/strategy/agent-engine.md',
   },
+  'Department Mandates': {
+    label: 'Open department mandates doc',
+    path: 'docs/strategy/department-mandates.md',
+  },
   'Two Brands': {
     label: 'Open MarketMasters doc',
     path: 'docs/strategy/marketmasters.md',
