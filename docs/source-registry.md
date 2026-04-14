@@ -6,7 +6,9 @@ This registry distinguishes between sources verified in the current rebuild and 
 
 ## Validation Checklist
 
-### Signed Off
+No live spreadsheet or API data source is signed off yet.
+
+### Signed Off Docs
 
 - `SRC-STRATEGY-001`
   - canonical strategy docs in this repo are the signed-off business strategy truth

@@ -3331,7 +3331,7 @@ function renderSourceValidationPanel(sourceContracts) {
 
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'Connected does not mean signed off. This checklist separates what we have fully approved from what is still in review, only readable, or not yet trusted.'
+  intro.textContent = 'Connected does not mean signed off. No live data source is signed off yet. `SRC-STRATEGY-001` is signed off as canonical doc truth, not as a spreadsheet or API data source.'
   left.appendChild(intro)
 
   header.appendChild(left)
@@ -3339,7 +3339,7 @@ function renderSourceValidationPanel(sourceContracts) {
 
   var groups = [
     {
-      title: 'Signed Off',
+      title: 'Signed Off Docs',
       tone: 'done',
       marker: 'Signed',
       items: sourceContracts
