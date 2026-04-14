@@ -995,7 +995,7 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
       ],
     },
     {
-      title: 'Live Snapshot',
+      title: 'Live Snapshot (6 Mth Rolling Avg)',
       metrics: [
         'Current Recruiting Pace',
         'Production Target / Agent',
