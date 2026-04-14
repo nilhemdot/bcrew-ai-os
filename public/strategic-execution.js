@@ -504,13 +504,17 @@ function renderSupportingDocsCard() {
   prioritiesLink.className = 'section-support-link'
   prioritiesLink.href = '/strategic-execution#quarterly-priorities'
   prioritiesLink.textContent = 'Open quarterly priorities'
-  article.appendChild(prioritiesLink)
 
   var issuesLink = document.createElement('a')
   issuesLink.className = 'section-support-link'
   issuesLink.href = '/strategic-execution#strategic-issues'
   issuesLink.textContent = 'Open strategic issues'
-  article.appendChild(issuesLink)
+
+  var actions = document.createElement('div')
+  actions.className = 'section-support-actions'
+  actions.appendChild(prioritiesLink)
+  actions.appendChild(issuesLink)
+  article.appendChild(actions)
 
   return article
 }

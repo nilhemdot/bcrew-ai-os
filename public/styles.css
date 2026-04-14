@@ -744,6 +744,16 @@ body {
   text-decoration: underline;
 }
 
+.section-support-actions {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.section-support-actions .section-support-link {
+  margin-top: 0;
+}
+
 .section-card-quarter {
   background:
     linear-gradient(180deg, rgba(0, 132, 201, 0.06) 0%, rgba(255, 255, 255, 0) 100%),
