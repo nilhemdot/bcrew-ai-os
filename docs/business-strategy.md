@@ -11,6 +11,16 @@ Build Benson Crew into a $2B real estate team and grow the combined ownership-gr
 
 Benson Crew is the primary build. As the team becomes stronger and more visible, more agents join Real Broker through the ownership-group downline. The team is the lighthouse, and the downline grows from that proof.
 
+## Core Values
+
+Benson Crew is anchored by three core values:
+
+- **Crew First**
+- **Raise the Standard**
+- **Own the Outcome**
+
+These are not slogans. They are the decision filters for hiring, firing, leadership, and standards.
+
 ## The Engine
 
 Benson Crew runs on one engine with three pillars: Attract, Grow, and Retain.

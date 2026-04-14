@@ -87,6 +87,10 @@ var sectionSupportDocs = {
     label: 'Open BHAG model',
     path: 'docs/strategy/bhag-model.md',
   },
+  'Core Values': {
+    label: 'Open core values doc',
+    path: 'docs/strategy/core-values.md',
+  },
   'The Engine': {
     label: 'Open agent engine doc',
     path: 'docs/strategy/agent-engine.md',
@@ -1843,6 +1847,13 @@ var strategyReviewChecklist = [
       'Current Quarter',
       'System Rules',
       'System Role',
+    ],
+  },
+  {
+    title: 'Overview Changes To Confirm',
+    tone: 'pending',
+    items: [
+      'Core Values',
     ],
   },
   {
