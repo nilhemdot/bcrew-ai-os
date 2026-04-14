@@ -251,9 +251,24 @@ Important nuance:
 
 #### Column K — `Client Name`
 - client name
+- integrity rule:
+  - this should ideally match the linked Follow Up Boss contact
+  - if the name in the sheet and the linked FUB person do not line up, treat that as a data-integrity issue
+- likely failure modes:
+  - Follow Up Boss was not updated properly
+  - the sheet entry is wrong
+- this should become a real reconciliation check, not a manual cleanup guess
 
 #### Column L — `Deal Address`
 - property address
+- integrity rule:
+  - if `Buy / Sell / Referral` is `Buy`, the address should be updated in Follow Up Boss and should match there
+  - if `Buy / Sell / Referral` is `Sell`, an address mismatch matters less because the client sold that property
+- future system check:
+  - bought-property addresses should be cross-checked between:
+    - Follow Up Boss
+    - Home Value Hub internally / Home Optima externally
+- this matters because missing or mismatched bought-property addresses break downstream homeowner-marketing and client-value workflows
 
 #### Column M — `Buy / Sell / Referral`
 Current known values:
