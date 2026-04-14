@@ -1841,19 +1841,13 @@ var strategyReviewChecklist = [
     tone: 'done',
     items: [
       'North Star',
+      'Core Values',
       'The Engine',
       'Two Brands',
       'Governance',
       'Current Quarter',
       'System Rules',
       'System Role',
-    ],
-  },
-  {
-    title: 'Overview Changes To Confirm',
-    tone: 'pending',
-    items: [
-      'Core Values',
     ],
   },
   {
