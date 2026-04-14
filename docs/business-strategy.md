@@ -68,7 +68,7 @@ See [Quarterly Priorities](strategy/quarterly-priorities.md).
 - [Department Mandates](strategy/department-mandates.md) -- Who owns what, expanded detail
 - [Governance](strategy/governance.md) -- Leadership cadence, meeting rules, dashboard review cadence
 - [MarketMasters](strategy/marketmasters.md) -- Trust layer strategy, relationship to Benson Crew
-- [Financial Model and Assumptions](strategy/financial-model-and-assumptions.md) -- Short definitions for the few planning terms leadership can misread
+- [Planning Definitions](strategy/financial-model-and-assumptions.md) -- Short definitions for the few planning terms leadership can misread
 - [Source Registry](source-registry.md) -- Every business data input, connection status
 
 ## System Rules

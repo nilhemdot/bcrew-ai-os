@@ -1,6 +1,18 @@
-# Financial Model and Assumptions
+# Planning Definitions
 
-This is a short definitions doc for the few planning terms leadership can misread. Read live values through the Agent Engine.
+This is a short interpretation doc for the few planning terms leadership and builders can misread. It does not hold live values. Read live values through the source-backed BHAG Model and Agent Engine.
+
+## What This Doc Is For
+
+- Keep the planning language clear.
+- Help leadership read the model correctly.
+- Give the system one durable place to explain what the main planning terms mean.
+
+This is not:
+
+- a live model
+- a spreadsheet-field glossary
+- a place to update assumptions by hand
 
 ## The Three Distinctions That Matter
 
@@ -20,8 +32,9 @@ This is a short definitions doc for the few planning terms leadership can misrea
 - **Recruit pace with attrition**
   - The recruiting pace the model needs now once the current gap and planning attrition assumption are included.
 
-## Operating Rule
+## Where Live Truth Lives
 
 - Change assumptions in the BHAG builder.
-- Read the current requirement in the Agent Engine.
+- Read current requirement in the Agent Engine.
+- Use the Source Registry when you need to know which system owns a number.
 - Do not edit live values in markdown.

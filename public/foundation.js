@@ -1831,7 +1831,7 @@ var sectionLabels = {
   'overview': 'Overview',
   'bhag-model': 'BHAG Model',
   'agent-engine': 'Agent Engine',
-  'financial-model': 'Financial Model and Assumptions',
+  'financial-model': 'Planning Definitions',
   'governance': 'Governance',
   'departments': 'Department Mandates',
   'core-values': 'Core Values',
@@ -1873,7 +1873,7 @@ var strategyReviewChecklist = [
     title: 'Supporting Docs Still To Confirm',
     tone: 'pending',
     items: [
-      'Financial Model and Assumptions',
+      'Planning Definitions',
       'Source Registry',
     ],
   },
