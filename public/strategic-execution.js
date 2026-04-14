@@ -510,6 +510,51 @@ function renderCurrentQuarterCard(quarterlyDoc) {
   return article
 }
 
+function renderStrategicIssuesCard(strategicIssuesDoc) {
+  var article = document.createElement('article')
+  article.className = 'section-card'
+
+  var title = document.createElement('h4')
+  title.textContent = 'Strategic Issues'
+  article.appendChild(title)
+
+  var introSection = strategicIssuesDoc && strategicIssuesDoc.sections && strategicIssuesDoc.sections[0]
+  var issuesSection = strategicIssuesDoc && strategicIssuesDoc.sections && strategicIssuesDoc.sections[1]
+  var introText = introSection ? introSection.content.trim() : ''
+
+  if (introText) {
+    var intro = document.createElement('p')
+    intro.textContent = introText
+    article.appendChild(intro)
+  }
+
+  var issueTitles = []
+  if (issuesSection && issuesSection.content) {
+    issuesSection.content.split('\n').forEach(function(line) {
+      var match = line.trim().match(/^\*\*(.+?)\*\*$/)
+      if (match) issueTitles.push(match[1])
+    })
+  }
+
+  if (issueTitles.length) {
+    var list = document.createElement('ul')
+    issueTitles.slice(0, 3).forEach(function(issueTitle) {
+      var li = document.createElement('li')
+      li.textContent = issueTitle.replace(/^\d+\.\s*/, '')
+      list.appendChild(li)
+    })
+    article.appendChild(list)
+  }
+
+  var link = document.createElement('a')
+  link.className = 'section-support-link'
+  link.href = '/strategic-execution#strategic-issues'
+  link.textContent = 'Open strategic issues'
+  article.appendChild(link)
+
+  return article
+}
+
 var cache = {
   docs: {},
 }
@@ -530,7 +575,12 @@ function renderOverview() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading strategic execution...</p>'
 
-  fetchDoc(strategicDocPaths['quarterly-priorities']).then(function(quarterlyDoc) {
+  Promise.all([
+    fetchDoc(strategicDocPaths['quarterly-priorities']),
+    fetchDoc(strategicDocPaths['strategic-issues']),
+  ]).then(function(results) {
+    var quarterlyDoc = results[0]
+    var strategicIssuesDoc = results[1]
     container.innerHTML = ''
 
     var hero = document.createElement('section')
@@ -551,93 +601,39 @@ function renderOverview() {
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
-    var quarterPanel = document.createElement('section')
-    quarterPanel.className = 'panel'
+    var panel = document.createElement('section')
+    panel.className = 'panel'
 
-    var quarterHeader = document.createElement('div')
-    quarterHeader.className = 'panel-header'
+    var panelHeader = document.createElement('div')
+    panelHeader.className = 'panel-header'
 
-    var quarterLeft = document.createElement('div')
-    var quarterEyebrow = document.createElement('div')
-    quarterEyebrow.className = 'eyebrow'
-    quarterEyebrow.textContent = 'Current Sprint'
-    quarterLeft.appendChild(quarterEyebrow)
+    var panelLeft = document.createElement('div')
+    var panelEyebrow = document.createElement('div')
+    panelEyebrow.className = 'eyebrow'
+    panelEyebrow.textContent = 'Execution Overview'
+    panelLeft.appendChild(panelEyebrow)
 
-    var quarterTitle = document.createElement('h3')
-    quarterTitle.textContent = 'Current quarter'
-    quarterLeft.appendChild(quarterTitle)
+    var panelTitle = document.createElement('h3')
+    panelTitle.textContent = 'Strategic Execution'
+    panelLeft.appendChild(panelTitle)
 
-    var quarterIntro = document.createElement('p')
-    quarterIntro.className = 'section-intro'
-    quarterIntro.textContent = 'This is the active quarter snapshot: theme, timing, and the top priorities we are pushing right now.'
-    quarterLeft.appendChild(quarterIntro)
+    var panelIntro = document.createElement('p')
+    panelIntro.className = 'section-intro'
+    panelIntro.textContent = 'This is the layer that turns Foundation into active work: annual priorities, quarterly sprints, monthly plans, weekly execution, and the issues driving that work.'
+    panelLeft.appendChild(panelIntro)
 
-    quarterHeader.appendChild(quarterLeft)
-    quarterPanel.appendChild(quarterHeader)
+    panelHeader.appendChild(panelLeft)
+    panel.appendChild(panelHeader)
 
-    var quarterList = document.createElement('div')
-    quarterList.className = 'section-list'
-    quarterList.appendChild(renderCurrentQuarterCard(quarterlyDoc))
-    quarterPanel.appendChild(quarterList)
-    container.appendChild(quarterPanel)
-
-    var cadencePanel = document.createElement('section')
-    cadencePanel.className = 'panel'
-
-    var cadenceHeader = document.createElement('div')
-    cadenceHeader.className = 'panel-header'
-
-    var cadenceLeft = document.createElement('div')
-    var cadenceEyebrow = document.createElement('div')
-    cadenceEyebrow.className = 'eyebrow'
-    cadenceEyebrow.textContent = 'Execution Cadence'
-    cadenceLeft.appendChild(cadenceEyebrow)
-
-    var cadenceTitle = document.createElement('h3')
-    cadenceTitle.textContent = 'How strategy moves into work'
-    cadenceLeft.appendChild(cadenceTitle)
-
-    var cadenceIntro = document.createElement('p')
-    cadenceIntro.className = 'section-intro'
-    cadenceIntro.textContent = 'This hub is the planning-and-follow-through layer that sits below Foundation and above department execution.'
-    cadenceLeft.appendChild(cadenceIntro)
-
-    cadenceHeader.appendChild(cadenceLeft)
-    cadencePanel.appendChild(cadenceHeader)
-
-    var cadenceList = document.createElement('div')
-    cadenceList.className = 'section-list'
-    cadenceList.appendChild(renderOverviewCard('Annual Priorities', 'Set the year’s biggest moves and define what the company must get right.', null, null))
-    cadenceList.appendChild(renderOverviewCard('Quarterly Sprints', 'Turn the annual priorities into a focused 90-day push.', '/strategic-execution#quarterly-priorities', 'Open quarterly priorities'))
-    cadenceList.appendChild(renderOverviewCard('Monthly Plans', 'Check sequencing, adjust plans, and keep leaders aligned on what matters now.', null, null))
-    cadenceList.appendChild(renderOverviewCard('Weekly Execution', 'Follow through on owners, decisions, pace, and blockers week to week.', null, null))
-    cadencePanel.appendChild(cadenceList)
-    container.appendChild(cadencePanel)
-
-    var docsPanel = document.createElement('section')
-    docsPanel.className = 'panel'
-
-    var docsHeader = document.createElement('div')
-    docsHeader.className = 'panel-header'
-
-    var docsLeft = document.createElement('div')
-    var docsEyebrow = document.createElement('div')
-    docsEyebrow.className = 'eyebrow'
-    docsEyebrow.textContent = 'Active Docs'
-    docsLeft.appendChild(docsEyebrow)
-
-    var docsTitle = document.createElement('h3')
-    docsTitle.textContent = 'Current strategic execution packet'
-    docsLeft.appendChild(docsTitle)
-    docsHeader.appendChild(docsLeft)
-    docsPanel.appendChild(docsHeader)
-
-    var docsList = document.createElement('div')
-    docsList.className = 'section-list'
-    docsList.appendChild(renderOverviewCard('Quarterly Priorities', 'What matters this quarter, what winning looks like, and what should trigger structural response.', '/strategic-execution#quarterly-priorities', 'Open quarterly priorities'))
-    docsList.appendChild(renderOverviewCard('Strategic Issues', 'The structural problems that explain why the current priorities exist.', '/strategic-execution#strategic-issues', 'Open strategic issues'))
-    docsPanel.appendChild(docsList)
-    container.appendChild(docsPanel)
+    var sectionList = document.createElement('div')
+    sectionList.className = 'section-list'
+    sectionList.appendChild(renderOverviewCard('Annual Priorities', 'Set the year’s biggest moves and define what the company must get right.', null, null))
+    sectionList.appendChild(renderCurrentQuarterCard(quarterlyDoc))
+    sectionList.appendChild(renderOverviewCard('Monthly Plans', 'Check sequencing, adjust plans, and keep leaders aligned on what matters now.', null, null))
+    sectionList.appendChild(renderOverviewCard('Weekly Execution', 'Follow through on owners, decisions, pace, and blockers week to week.', null, null))
+    sectionList.appendChild(renderStrategicIssuesCard(strategicIssuesDoc))
+    panel.appendChild(sectionList)
+    container.appendChild(panel)
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
