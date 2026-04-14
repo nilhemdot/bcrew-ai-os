@@ -568,6 +568,24 @@ function renderOverview() {
   fetchDoc(strategicDocPaths['quarterly-priorities']).then(function(quarterlyDoc) {
     container.innerHTML = ''
 
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Strategic Execution'
+    heroInner.appendChild(heroTitle)
+
+    var heroCopy = document.createElement('p')
+    heroCopy.className = 'hero-copy'
+    heroCopy.textContent = 'Foundation sets durable truth. Strategic Execution turns that truth into annual priorities, quarterly sprints, monthly plans, and weekly follow-through.'
+    heroInner.appendChild(heroCopy)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
     var panel = document.createElement('section')
     panel.className = 'panel'
 
@@ -577,12 +595,17 @@ function renderOverview() {
     var panelLeft = document.createElement('div')
     var panelEyebrow = document.createElement('div')
     panelEyebrow.className = 'eyebrow'
-    panelEyebrow.textContent = 'Overview'
+    panelEyebrow.textContent = 'Execution Overview'
     panelLeft.appendChild(panelEyebrow)
 
     var panelTitle = document.createElement('h3')
-    panelTitle.textContent = 'Current Quarter'
+    panelTitle.textContent = 'Strategic Execution'
     panelLeft.appendChild(panelTitle)
+
+    var panelIntro = document.createElement('p')
+    panelIntro.className = 'section-intro'
+    panelIntro.textContent = 'This hub holds the active quarter and the structural issues shaping current execution.'
+    panelLeft.appendChild(panelIntro)
 
     panelHeader.appendChild(panelLeft)
     panel.appendChild(panelHeader)
