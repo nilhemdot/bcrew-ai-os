@@ -772,6 +772,8 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap, current
   var card = document.createElement('section')
   card.className = 'doc-source-card engine-summary-card'
 
+  appendEngineCardTop(card, cardGroups, sourceContractMap, uniqueAsOfValues)
+
   var tableWrap = document.createElement('div')
   tableWrap.className = 'md-table-wrap'
 
@@ -834,17 +836,14 @@ function renderEnginePathCard(groupTitle, cardGroups, sourceContractMap, current
   detail.textContent = 'Based on the current productivity assumption, this shows how many active agents each year requires and how far today’s count is from that path.'
   card.appendChild(detail)
 
-  appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
-
   return card
 }
 
-function appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues) {
-  var footer = document.createElement('div')
-  footer.className = 'engine-card-footer'
+function appendEngineCardTop(card, cardGroups, sourceContractMap, uniqueAsOfValues) {
+  var top = document.createElement('div')
+  top.className = 'doc-source-card-top'
 
   var left = document.createElement('div')
-  left.className = 'engine-card-footer-left'
 
   var source = document.createElement('div')
   source.className = 'doc-source-id'
@@ -859,16 +858,16 @@ function appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfV
     )
   )
 
-  footer.appendChild(left)
+  top.appendChild(left)
 
   if (uniqueAsOfValues.length) {
     var asOf = document.createElement('div')
     asOf.className = 'doc-source-asof'
     asOf.textContent = 'As of ' + uniqueAsOfValues.join(', ') + ' (Eastern Time)'
-    footer.appendChild(asOf)
+    top.appendChild(asOf)
   }
 
-  card.appendChild(footer)
+  card.appendChild(top)
 }
 
 function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
@@ -891,6 +890,8 @@ function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
 
   var card = document.createElement('section')
   card.className = 'doc-source-card engine-summary-card'
+
+  appendEngineCardTop(card, cardGroups, sourceContractMap, uniqueAsOfValues)
 
   var intro = document.createElement('p')
   intro.className = 'engine-summary-intro'
@@ -930,8 +931,6 @@ function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
   note.textContent = 'Targets are based on active, capacity-producing agents only. Owners, leadership, and known zero-production agents are excluded.'
   card.appendChild(note)
 
-  appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
-
   return card
 }
 
@@ -960,6 +959,8 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
 
   var card = document.createElement('section')
   card.className = 'doc-source-card engine-summary-card'
+
+  appendEngineCardTop(card, cardGroups, sourceContractMap, uniqueAsOfValues)
 
   var intro = document.createElement('p')
   intro.className = 'engine-summary-intro'
@@ -1058,8 +1059,6 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
   detail.className = 'doc-source-detail'
   detail.textContent = 'Use the long-range path for planning. Use the live snapshot below it to see whether the business is moving in the right direction underneath that plan.'
   card.appendChild(detail)
-
-  appendEngineCardFooter(card, cardGroups, sourceContractMap, uniqueAsOfValues)
 
   return card
 }
