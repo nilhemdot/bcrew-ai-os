@@ -78,6 +78,18 @@ Focus:
 - direction
 - strategic adjustment
 
+### Department 1:1 and Functional Reviews
+
+Purpose:
+- review department health outside the leadership room
+- coach the owner on KPI movement, blockers, and execution quality
+- resolve local issues before they escalate upward
+
+Focus:
+- KPI movement
+- blockers
+- owner support
+
 ### Quarterly Planning and Reset
 
 Purpose:
@@ -138,8 +150,9 @@ Primary scoreboard.
 
 Diagnostic layer.
 
-- reviewed in 1:1s
+- reviewed in 1:1s and department reviews
 - used to explain movement in the engine
+- used by leadership only when a pillar is yellow or red
 
 ### Service and Experience Dashboards
 
@@ -177,6 +190,7 @@ The system should:
 ## Governance Rules
 
 - The Agent Engine speaks first.
+- No other dashboards lead unless the engine shows a yellow or red issue.
 - Departments respond with KPIs.
 - Bottlenecks are surfaced openly.
 - Decisions are made once and enforced.
