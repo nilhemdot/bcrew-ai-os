@@ -50,7 +50,7 @@ See [Quarterly Priorities](strategy/quarterly-priorities.md).
 
 - [BHAG Model](strategy/bhag-model.md) -- Milestone path, long-range targets, and how team and downline goals connect
 - [Agent Engine](strategy/agent-engine.md) -- Live operating logic for Attract, Grow, Retain, and connected engine math
-- [Financial Model and Assumptions](strategy/financial-model-and-assumptions.md) -- Assumption definitions and how to interpret the model correctly
+- [Financial Model and Assumptions](strategy/financial-model-and-assumptions.md) -- Short definitions for the few planning terms leadership can misread
 - [Quarterly Priorities](strategy/quarterly-priorities.md) -- Current quarter focus and winning criteria
 - [Strategic Issues](strategy/strategic-issues.md) -- Structural findings that explain why priorities exist
 - [Governance](strategy/governance.md) -- Leadership cadence, meeting rules, dashboard review cadence

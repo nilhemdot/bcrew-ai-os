@@ -29,11 +29,3 @@ The required-agent table below translates the BHAG volume path into required age
 ## Current Requirement
 
 This section shows what this year requires, what next year requires, and the recruiting pace the model needs now.
-
-Required recruiting pace already includes the planning attrition assumption from the BHAG builder.
-
-## Attrition Note
-
-The planning attrition assumption comes from the BHAG builder. It is different from live operating attrition signals and should not be read as the same metric.
-
-For assumption definitions and interpretation rules, see the [Financial Model and Assumptions](financial-model-and-assumptions.md).
