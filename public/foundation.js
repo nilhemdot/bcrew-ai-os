@@ -1864,6 +1864,7 @@ var strategyReviewChecklist = [
       'BHAG Model',
       'Core Values',
       'Agent Engine',
+      'Department Mandates',
       'Governance',
       'MarketMasters',
     ],
@@ -1872,7 +1873,6 @@ var strategyReviewChecklist = [
     title: 'Supporting Docs Still To Confirm',
     tone: 'pending',
     items: [
-      'Department Mandates',
       'Financial Model and Assumptions',
       'Source Registry',
     ],
