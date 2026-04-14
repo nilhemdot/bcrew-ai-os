@@ -4,6 +4,8 @@
 
 An education and trust platform that reaches agents outside Benson Crew. Through trainings, events, seminars, and community content, it puts Benson Crew leadership on stage and makes the team more visible without leading with a recruiting pitch.
 
+It is one attraction channel inside the broader marketing system, not the whole attraction strategy by itself.
+
 ## What It Does
 
 - Hosts trainings and events for agents not yet on the team
