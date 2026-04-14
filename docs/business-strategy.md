@@ -52,7 +52,7 @@ Benson Crew runs one month off standard quarters for strategic planning: Q1 = Fe
 
 Current quarter: **Q1 2026 (Feb-Apr)**. The focus is to make the engine operate predictably by locking leadership ownership, building a predictable recruiting engine, and making Benson Crew a compounding growth brand.
 
-See [Quarterly Priorities](strategy/quarterly-priorities.md).
+See [Quarterly Priorities](strategy/quarterly-priorities.md) in Strategic Execution.
 
 ## Supporting Docs
 

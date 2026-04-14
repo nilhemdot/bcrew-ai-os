@@ -49,6 +49,23 @@ function normalizeDocPath(pathValue) {
   return parts.join('/')
 }
 
+var foundationDocPathToSection = {
+  'docs/business-strategy.md': 'overview',
+  'docs/strategy/bhag-model.md': 'bhag-model',
+  'docs/strategy/core-values.md': 'core-values',
+  'docs/strategy/agent-engine.md': 'agent-engine',
+  'docs/strategy/marketmasters.md': 'marketmasters',
+  'docs/strategy/governance.md': 'governance',
+  'docs/strategy/department-mandates.md': 'departments',
+  'docs/strategy/financial-model-and-assumptions.md': 'financial-model',
+  'docs/source-registry.md': 'source-registry',
+}
+
+var strategicExecutionDocPathToSection = {
+  'docs/strategy/quarterly-priorities.md': 'quarterly-priorities',
+  'docs/strategy/strategic-issues.md': 'strategic-issues',
+}
+
 function resolveDocPath(href, currentPath) {
   if (typeof href !== 'string') return href
   if (/^(https?:|mailto:|tel:|#)/i.test(href)) return href
@@ -67,6 +84,16 @@ function resolveDocPath(href, currentPath) {
   if (!cleanHref.startsWith('docs/')) {
     var currentDir = currentPath.split('/').slice(0, -1).join('/')
     basePath = normalizeDocPath(currentDir + '/' + cleanHref)
+  }
+
+  var foundationSection = foundationDocPathToSection[basePath]
+  if (foundationSection) {
+    return '/foundation#' + foundationSection
+  }
+
+  var strategicExecutionSection = strategicExecutionDocPathToSection[basePath]
+  if (strategicExecutionSection) {
+    return '/strategic-execution#' + strategicExecutionSection
   }
 
   var docHref = '/doc?path=' + encodeURIComponent(basePath)

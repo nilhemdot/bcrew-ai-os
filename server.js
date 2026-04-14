@@ -292,6 +292,11 @@ app.get('/foundation', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'foundation.html'))
 })
 
+app.get('/strategic-execution', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
+  res.sendFile(path.join(__dirname, 'public', 'strategic-execution.html'))
+})
+
 app.use('/api', (_req, res) => {
   sendApiError(res, 404, 'api_not_found', 'API endpoint not found.')
 })
