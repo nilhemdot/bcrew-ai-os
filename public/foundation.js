@@ -466,7 +466,7 @@ function getDirectionalClass(value) {
   return ''
 }
 
-function getEngineMetricExplanation(metricKey) {
+function getEngineMetricExplanation(metricKey, context) {
   if (metricKey === 'Required Agents This Year') {
     return 'The number of active agents the model says this year needs at the current productivity assumption.'
   }
@@ -488,6 +488,9 @@ function getEngineMetricExplanation(metricKey) {
   }
 
   if (metricKey === 'Required Recruiting Pace') {
+    if (context && context.planningAttritionAssumption && context.planningAttritionAssumption !== '—') {
+      return 'The monthly recruiting pace the current model needs in order to close the gap and start next year correctly. This already includes the ' + context.planningAttritionAssumption + ' planning attrition assumption from the BHAG builder.'
+    }
     return 'The monthly recruiting pace the current model needs in order to close the gap and start next year correctly.'
   }
 
@@ -957,6 +960,8 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
     return metric ? metric.value : '—'
   }
 
+  var planningAttritionAssumption = getMetricValue('Planning Attrition Assumption')
+
   var card = document.createElement('section')
   card.className = 'doc-source-card engine-summary-card'
 
@@ -1031,12 +1036,19 @@ function renderEngineRequirementCard(groupTitle, cardGroups, sourceContractMap) 
       var labelWrap = document.createElement('span')
       labelWrap.className = 'engine-summary-label-wrap'
 
+      var displayMetricKey = metricKey
+      if (metricKey === 'Required Recruiting Pace' && planningAttritionAssumption && planningAttritionAssumption !== '—') {
+        displayMetricKey = 'Required Recruiting Pace (incl. ' + planningAttritionAssumption + ' attrition)'
+      }
+
       var label = document.createElement('span')
       label.className = 'engine-summary-label'
-      label.textContent = metricKey
+      label.textContent = displayMetricKey
       labelWrap.appendChild(label)
 
-      var explanation = getEngineMetricExplanation(metricKey)
+      var explanation = getEngineMetricExplanation(metricKey, {
+        planningAttritionAssumption: planningAttritionAssumption,
+      })
       if (explanation) appendBhagInfoBadge(labelWrap, explanation)
       row.appendChild(labelWrap)
 
