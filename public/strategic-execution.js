@@ -53,6 +53,13 @@ var strategicExecutionDocPathToSection = {
   'docs/strategy/strategic-issues.md': 'strategic-issues',
 }
 
+var sectionSupportDocs = {
+  'Current Quarter': {
+    label: 'Open quarterly priorities',
+    path: 'docs/strategy/quarterly-priorities.md',
+  },
+}
+
 var sectionLabels = {
   'overview': 'Overview',
   'quarterly-priorities': 'Quarterly Priorities',
@@ -396,11 +403,19 @@ function buildQuarterCadenceChip(label, value) {
 }
 
 function renderCurrentQuarterCard(quarterlyDoc) {
+  var section = {
+    title: 'Current Quarter',
+    content: '',
+  }
+  return renderCurrentQuarterSection(section, 'docs/business-strategy.md', quarterlyDoc)
+}
+
+function renderCurrentQuarterSection(section, currentPath, quarterlyDoc) {
   var article = document.createElement('article')
   article.className = 'section-card section-card-quarter'
 
   var title = document.createElement('h4')
-  title.textContent = 'Current Quarter'
+  appendFormattedText(section.title, title, currentPath)
   article.appendChild(title)
 
   var quarterSection = quarterlyDoc && quarterlyDoc.sections && quarterlyDoc.sections.length
@@ -408,7 +423,7 @@ function renderCurrentQuarterCard(quarterlyDoc) {
     : null
   var quarterInfo = parseQuarterLabel(quarterSection ? quarterSection.title : '')
   var nextQuarter = getNextQuarterInfo(quarterInfo)
-  var summaryLines = extractQuarterSummaryLines(quarterSection ? quarterSection.content : '')
+  var summaryLines = extractQuarterSummaryLines(quarterSection ? quarterSection.content : section.content)
   var summary = summaryLines[0] || ''
   var cadenceNote = 'Benson Crew plans one month ahead of standard quarters.'
   var prioritySections = quarterlyDoc && quarterlyDoc.sections
@@ -503,8 +518,8 @@ function renderCurrentQuarterCard(quarterlyDoc) {
 
   var link = document.createElement('a')
   link.className = 'section-support-link'
-  link.href = '/strategic-execution#quarterly-priorities'
-  link.textContent = 'Open quarterly priorities'
+  link.href = resolveDocPath(sectionSupportDocs['Current Quarter'].path, currentPath)
+  link.textContent = sectionSupportDocs['Current Quarter'].label
   article.appendChild(link)
 
   return article
@@ -546,7 +561,20 @@ function renderSupportingDocsCard() {
 }
 
 var cache = {
+  sourceOfTruth: null,
   docs: {},
+}
+
+function fetchSourceOfTruth() {
+  if (cache.sourceOfTruth) return Promise.resolve(cache.sourceOfTruth)
+
+  return fetch('/api/source-of-truth').then(function(res) {
+    if (!res.ok) throw new Error('Source of truth API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.sourceOfTruth = data
+    return data
+  })
 }
 
 function fetchDoc(docPath) {
@@ -565,7 +593,18 @@ function renderOverview() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading strategic execution...</p>'
 
-  fetchDoc(strategicDocPaths['quarterly-priorities']).then(function(quarterlyDoc) {
+  Promise.all([
+    fetchSourceOfTruth(),
+    fetchDoc(strategicDocPaths['quarterly-priorities']),
+  ]).then(function(results) {
+    var sourceOfTruth = results[0]
+    var quarterlyDoc = results[1]
+    var currentQuarterSection = sourceOfTruth.foundation.businessStrategy.sections.find(function(section) {
+      return section.title === 'Current Quarter'
+    }) || {
+      title: 'Current Quarter',
+      content: '',
+    }
     container.innerHTML = ''
 
     var panel = document.createElement('section')
@@ -588,14 +627,14 @@ function renderOverview() {
 
     var panelMeta = document.createElement('div')
     panelMeta.className = 'doc-meta'
-    panelMeta.textContent = quarterlyDoc.meta.lines + ' lines · updated ' + formatDate(quarterlyDoc.meta.updatedAt)
+    panelMeta.textContent = sourceOfTruth.foundation.businessStrategy.meta.lines + ' lines · updated ' + formatDate(sourceOfTruth.foundation.businessStrategy.meta.updatedAt)
     panelHeader.appendChild(panelMeta)
 
     panel.appendChild(panelHeader)
 
     var sectionList = document.createElement('div')
     sectionList.className = 'section-list'
-    sectionList.appendChild(renderCurrentQuarterCard(quarterlyDoc))
+    sectionList.appendChild(renderCurrentQuarterSection(currentQuarterSection, sourceOfTruth.foundation.businessStrategy.meta.path, quarterlyDoc))
     sectionList.appendChild(renderSupportingDocsCard())
     panel.appendChild(sectionList)
     container.appendChild(panel)
