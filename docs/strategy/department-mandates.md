@@ -1,8 +1,22 @@
 # Department Mandates
 
-Each department exists to move the Agent Engine. One owner, clear boundaries, measurable outcomes.
+Each department exists to move the Agent Engine. Mandates define the enduring job of each function, the boundary of its ownership, and its primary lane in Attract, Grow, or Retain.
 
-Quarter-specific commitments, KPI targets, and pacing requirements belong in `quarterly-priorities.md` and the financial model, not here.
+Some departments support more than one pillar, but each one should still have one clear primary job.
+
+Quarter-specific commitments, KPI targets, and pacing requirements belong in `quarterly-priorities.md` and Strategic Execution, not here.
+
+## Lane Map
+
+| Department | Primary Lane | Secondary Lane |
+|-----------|--------------|----------------|
+| Executive Leadership | Direction + Accountability | All pillars |
+| Recruiting | ATTRACT | -- |
+| Sales Leadership | GROW | -- |
+| Marketing | ATTRACT | RETAIN |
+| Operations | ATTRACT | RETAIN |
+| Retention | RETAIN | -- |
+| Finance | Economic Truth | All pillars |
 
 ---
 
@@ -10,9 +24,11 @@ Quarter-specific commitments, KPI targets, and pacing requirements belong in `qu
 
 **Owner:** Steve Zahnd
 
-Direction, focus, and resource allocation.
+**Primary Lane:** Direction + Accountability
 
-Winning: Leadership decisions drive the engine without requiring ownership to execute. Losing: Ownership is firefighting instead of leading.
+Set direction, allocate resources, protect priorities, enforce accountability, and remove true blockers.
+
+Winning: Leadership decisions move the engine without requiring ownership to become the default executor. Losing: Ownership becomes the rescue point, approval bottleneck, or fallback operator.
 
 ---
 
@@ -20,9 +36,11 @@ Winning: Leadership decisions drive the engine without requiring ownership to ex
 
 **Owner:** Scott (+ Steve)
 
-Build predictable agent inflow at the pace required by the business math.
+**Primary Lane:** ATTRACT
 
-Winning: Weekly proof of recruiting conversations from both sources. Pipeline is predictable, not burst-driven. Losing: Recruiting pace behind target for 2+ weeks.
+Own agent acquisition and conversion. Build predictable agent inflow at the pace required by the business math.
+
+Winning: Recruiting pace is visible, pipeline is predictable, and handoff into onboarding is clean. Losing: Recruiting depends on bursts of effort, pace is invisible, or conversion is inconsistent.
 
 ---
 
@@ -30,9 +48,11 @@ Winning: Weekly proof of recruiting conversations from both sources. Pipeline is
 
 **Owner:** Nick | **Contributors:** Ryan, Blake
 
-Protect agent productivity and maintain the production assumptions the growth model depends on. Training cadence is consistent. Coaching is proactive, not reactive.
+**Primary Lane:** GROW
 
-Winning: Ryan and Blake operating independently. Production maintained as agent count grows. Losing: Productivity drops as new agents onboard.
+Own agent productivity, coaching standards, training cadence, and performance accountability. Sales leadership must stay protected as a real lane as the team grows.
+
+Winning: Productivity holds or improves as agent count grows, coaching is consistent, and standards stay enforced. Losing: Coaching becomes reactive, standards drift, or personal production crowds out leadership.
 
 ---
 
@@ -40,9 +60,12 @@ Winning: Ryan and Blake operating independently. Production maintained as agent 
 
 **Owner:** Tanner
 
-Create inbound demand, credibility, and leverage for attraction and retention. Founder thought leadership, Benson Crew proof, MarketMasters trust content, and reusable assets should make recruiting easier and help agents win. EVERYWHERE brand execution. Dual audience (ATTRACT + RETAIN) executed weekly. Content is platform-native. No single-channel dependency.
+**Primary Lane:** ATTRACT  
+**Secondary Lane:** RETAIN
 
-Winning: Brand activity reduces individual recruiting effort, creates qualified recruiting attention, and gives agents reusable assets and lead generation. Losing: Content exists but does not compound into attraction or retention leverage.
+Build trust, demand, proof, and reusable leverage that make recruiting easier and help agents keep winning.
+
+Winning: Brand activity creates recruiting attention, lead generation, reusable assets, and visible proof that compounds over time. Losing: Content exists but does not reduce effort, build trust, or help agents win.
 
 ---
 
@@ -50,9 +73,12 @@ Winning: Brand activity reduces individual recruiting effort, creates qualified 
 
 **Owner:** Carson
 
-Remove friction. Clean handoffs. Process compliance tracked. Onboarding removes friction, not adds it.
+**Primary Lane:** ATTRACT  
+**Secondary Lane:** RETAIN
 
-Winning: Recruited agents become productive quickly through a clean onboarding path. Losing: Ops absorbs upstream recruiting/marketing failures instead of exposing them.
+Own clean handoffs, fast onboarding, friction removal, and operating reliability. Operations should expose upstream failures, not silently absorb them.
+
+Winning: New agents activate quickly, handoffs stay clean, and service reliability remains high as the team grows. Losing: Onboarding drags, process breaks become normal, or Ops becomes the catch-all for upstream misses.
 
 ---
 
@@ -60,9 +86,11 @@ Winning: Recruited agents become productive quickly through a clean onboarding p
 
 **Owner:** Georgia
 
-Low regrettable attrition. Early intervention before departure signals. Culture diagnostics run monthly. Career progression visible.
+**Primary Lane:** RETAIN
 
-Winning: Flight risks caught and addressed before resignation. Losing: Departures are surprises.
+Protect regrettable attrition by identifying risk early, intervening fast, and making agent progression and engagement visible.
+
+Winning: Risk is visible early, interventions happen before departure, and agents experience clear progression and support. Losing: Departures are surprises, retention work is reactive, or agent health signals stay dark.
 
 ---
 
@@ -70,6 +98,8 @@ Winning: Flight risks caught and addressed before resignation. Losing: Departure
 
 **Owner:** Ahsan (accounting@bensoncrew.ca)
 
-Protect margin. Validate assumptions. Expense discipline enforced via bill-back SOP.
+**Primary Lane:** Economic Truth
 
-Winning: Growth is real, not inflated by weak economics. Losing: Revenue grows but margin erodes.
+Protect margin, validate the core assumptions behind the growth model, and surface financial drift early.
+
+Winning: Leadership can trust that growth is real, source-backed, and economically sound. Losing: Weak controls, broken data, or delayed escalation make the business look healthier than it is.
