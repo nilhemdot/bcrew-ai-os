@@ -638,6 +638,232 @@ body {
   background: rgba(245, 158, 11, 0.14);
 }
 
+.memory-panel {
+  background:
+    linear-gradient(180deg, rgba(0, 132, 201, 0.04) 0%, rgba(255, 255, 255, 0) 100%),
+    var(--surface);
+}
+
+.memory-form-grid,
+.memory-inline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.memory-inline-grid {
+  margin-top: 12px;
+}
+
+.memory-field {
+  display: grid;
+  gap: 7px;
+  align-content: start;
+}
+
+.memory-field-label {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.memory-input,
+.memory-textarea,
+.memory-select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary);
+  font: inherit;
+  padding: 11px 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.memory-input:focus,
+.memory-textarea:focus,
+.memory-select:focus {
+  outline: none;
+  border-color: rgba(0, 132, 201, 0.34);
+  box-shadow: 0 0 0 3px rgba(0, 132, 201, 0.08);
+}
+
+.memory-textarea {
+  resize: vertical;
+  min-height: 92px;
+}
+
+.memory-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.memory-form-grid .memory-form-actions {
+  grid-column: 1 / -1;
+}
+
+.memory-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(0, 132, 201, 0.22);
+  border-radius: 999px;
+  background: rgba(0, 132, 201, 0.1);
+  color: var(--brand-dark);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.memory-button:hover {
+  background: rgba(0, 132, 201, 0.16);
+  border-color: rgba(0, 132, 201, 0.3);
+}
+
+.memory-button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.memory-button-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-strong);
+}
+
+.memory-button-secondary:hover {
+  color: var(--brand);
+  border-color: var(--brand);
+  background: rgba(0, 132, 201, 0.04);
+}
+
+.form-status {
+  grid-column: 1 / -1;
+  font-size: 0.84rem;
+  color: var(--text-tertiary);
+}
+
+.form-status-success {
+  color: #0f8a43;
+  font-weight: 700;
+}
+
+.form-status-error {
+  color: #c24141;
+  font-weight: 700;
+}
+
+.memory-inline-editor {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  overflow: hidden;
+}
+
+.memory-inline-editor summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.memory-inline-editor summary::-webkit-details-marker {
+  display: none;
+}
+
+.memory-inline-editor[open] summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.memory-inline-editor .memory-inline-grid,
+.memory-inline-editor .doc-update-diff {
+  padding: 12px;
+}
+
+.change-list {
+  display: grid;
+  gap: 10px;
+}
+
+.change-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-inset);
+  padding: 14px 16px;
+}
+
+.change-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.change-top strong {
+  line-height: 1.4;
+}
+
+.change-stamp {
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.change-meta,
+.decision-meta {
+  margin-top: 8px;
+  color: var(--text-tertiary);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.decision-card-memory,
+.capture-card-memory,
+.doc-update-card {
+  background: var(--surface-inset);
+}
+
+.decision-memory-meta,
+.memory-related-updates {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.doc-update-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.doc-update-diff {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.92);
+}
+
 /* ── STRATEGY DOCUMENT ── */
 .strategy-document {
   background: var(--surface);

@@ -1599,6 +1599,12 @@ function renderBacklogItem(item) {
     card.appendChild(note)
   }
 
+  if (item.owner) {
+    card.appendChild(renderLabeledCopy('capture-owner', 'Owner', item.owner))
+  }
+
+  card.appendChild(renderBacklogItemEditor(item))
+
   return card
 }
 
@@ -1705,6 +1711,58 @@ function renderDecisionCard(item) {
   return card
 }
 
+function renderDecisionMemoryCard(item, hub, pendingUpdates) {
+  var card = renderDecisionCard(item)
+  card.classList.add('decision-card-memory')
+
+  var metaRow = document.createElement('div')
+  metaRow.className = 'decision-memory-meta'
+
+  if (item.createdAt) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Created', formatDate(item.createdAt)))
+  }
+  if (item.classifiedAt) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Classified', formatDate(item.classifiedAt)))
+  }
+  if (item.classifiedBy) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'By', item.classifiedBy))
+  }
+  if (item.supersedesIds && item.supersedesIds.length) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Supersedes', item.supersedesIds.join(', ')))
+  }
+  if (metaRow.childNodes.length) {
+    card.appendChild(metaRow)
+  }
+
+  card.appendChild(renderDecisionEditor(item, hub))
+
+  if (item.status !== 'superseded') {
+    card.appendChild(renderDocProposalForm(item))
+  }
+
+  var relatedUpdates = (pendingUpdates || []).filter(function(update) {
+    return update.decisionId === item.id
+  })
+
+  if (relatedUpdates.length) {
+    var updatesWrap = document.createElement('div')
+    updatesWrap.className = 'memory-related-updates'
+
+    var heading = document.createElement('div')
+    heading.className = 'eyebrow'
+    heading.textContent = 'Pending Doc Updates'
+    updatesWrap.appendChild(heading)
+
+    relatedUpdates.forEach(function(update) {
+      updatesWrap.appendChild(renderPendingDocUpdateCard(update))
+    })
+
+    card.appendChild(updatesWrap)
+  }
+
+  return card
+}
+
 function renderCaptureItem(item) {
   var card = document.createElement('article')
   card.className = 'capture-card'
@@ -1729,6 +1787,773 @@ function renderCaptureItem(item) {
   return card
 }
 
+function renderOpenQuestionCard(item) {
+  var card = document.createElement('article')
+  card.className = 'capture-card capture-card-memory'
+
+  var top = document.createElement('div')
+  top.className = 'decision-top'
+
+  var titleWrap = document.createElement('div')
+  var title = document.createElement('h5')
+  title.textContent = item.title
+  titleWrap.appendChild(title)
+
+  var id = document.createElement('div')
+  id.className = 'decision-id'
+  id.textContent = item.id
+  titleWrap.appendChild(id)
+  top.appendChild(titleWrap)
+
+  var status = document.createElement('span')
+  status.className = 'status-pill status-pill-static status-' + (item.status === 'resolved' ? 'connected' : 'pending')
+  status.textContent = item.status || 'open'
+  top.appendChild(status)
+  card.appendChild(top)
+
+  var summary = document.createElement('p')
+  summary.className = 'decision-copy'
+  summary.textContent = item.summary
+  card.appendChild(summary)
+
+  if (item.owner) {
+    card.appendChild(renderLabeledCopy('capture-owner', 'Owner', item.owner))
+  }
+
+  if (item.status === 'resolved' && item.resolutionNote) {
+    card.appendChild(renderLabeledCopy('decision-rationale', 'Resolution', item.resolutionNote))
+  }
+
+  if (item.resolvedAt) {
+    card.appendChild(renderLabeledCopy('decision-source', 'Resolved', formatDate(item.resolvedAt)))
+  }
+
+  card.appendChild(renderQuestionEditor(item))
+  return card
+}
+
+function setFormStatus(target, message, tone) {
+  target.textContent = message || ''
+  target.className = 'form-status' + (tone ? ' form-status-' + tone : '')
+}
+
+function buildField(labelText, input) {
+  var field = document.createElement('label')
+  field.className = 'memory-field'
+
+  var label = document.createElement('span')
+  label.className = 'memory-field-label'
+  label.textContent = labelText
+  field.appendChild(label)
+
+  field.appendChild(input)
+  return field
+}
+
+function buildInput(type, placeholder) {
+  var input = document.createElement('input')
+  input.type = type || 'text'
+  input.className = 'memory-input'
+  if (placeholder) input.placeholder = placeholder
+  return input
+}
+
+function buildTextarea(placeholder, rows) {
+  var textarea = document.createElement('textarea')
+  textarea.className = 'memory-textarea'
+  textarea.rows = rows || 3
+  if (placeholder) textarea.placeholder = placeholder
+  return textarea
+}
+
+function buildSelect(options) {
+  var select = document.createElement('select')
+  select.className = 'memory-select'
+
+  options.forEach(function(option) {
+    var el = document.createElement('option')
+    el.value = option.value
+    el.textContent = option.label
+    if (option.disabled) el.disabled = true
+    if (option.selected) el.selected = true
+    select.appendChild(el)
+  })
+
+  return select
+}
+
+function renderAdminTokenPanel() {
+  var panel = document.createElement('section')
+  panel.className = 'panel memory-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Write Access'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Admin Token'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Paste your admin token once to unlock Foundation writes on this browser. Reads stay open.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var form = document.createElement('div')
+  form.className = 'memory-form-grid'
+
+  var tokenInput = buildInput('password', 'Paste admin token')
+  tokenInput.value = getStoredAdminToken()
+  form.appendChild(buildField('Admin Token', tokenInput))
+
+  var actions = document.createElement('div')
+  actions.className = 'memory-form-actions'
+
+  var saveButton = document.createElement('button')
+  saveButton.className = 'memory-button'
+  saveButton.type = 'button'
+  saveButton.textContent = 'Save Token'
+  actions.appendChild(saveButton)
+
+  var clearButton = document.createElement('button')
+  clearButton.className = 'memory-button memory-button-secondary'
+  clearButton.type = 'button'
+  clearButton.textContent = 'Clear'
+  actions.appendChild(clearButton)
+
+  form.appendChild(actions)
+  panel.appendChild(form)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  setFormStatus(status, getStoredAdminToken() ? 'Token saved for this browser.' : 'No token saved yet.', getStoredAdminToken() ? 'success' : '')
+  panel.appendChild(status)
+
+  saveButton.addEventListener('click', function() {
+    setStoredAdminToken(tokenInput.value.trim())
+    setFormStatus(status, tokenInput.value.trim() ? 'Token saved for this browser.' : 'Token cleared.', tokenInput.value.trim() ? 'success' : '')
+  })
+
+  clearButton.addEventListener('click', function() {
+    tokenInput.value = ''
+    setStoredAdminToken('')
+    setFormStatus(status, 'Token cleared.', '')
+  })
+
+  return panel
+}
+
+function renderChangeEventCard(item) {
+  var card = document.createElement('article')
+  card.className = 'change-card'
+
+  var top = document.createElement('div')
+  top.className = 'change-top'
+
+  var title = document.createElement('strong')
+  title.textContent = item.summary
+  top.appendChild(title)
+
+  var stamp = document.createElement('span')
+  stamp.className = 'change-stamp'
+  stamp.textContent = formatDate(item.createdAt)
+  top.appendChild(stamp)
+
+  card.appendChild(top)
+
+  var meta = document.createElement('div')
+  meta.className = 'change-meta'
+  meta.textContent = item.actor + ' · ' + item.eventType + ' · ' + item.entityId
+  card.appendChild(meta)
+
+  return card
+}
+
+function renderBacklogCreatePanel(hub) {
+  var panel = document.createElement('section')
+  panel.className = 'panel memory-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Create'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'New Backlog Item'
+  left.appendChild(title)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var form = document.createElement('form')
+  form.className = 'memory-form-grid'
+
+  var prefixSelect = buildSelect((hub.meta && hub.meta.backlogIdPrefixes || []).concat(['TASK']).filter(function(value, index, array) {
+    return array.indexOf(value) === index
+  }).map(function(prefix, index) {
+    return { value: prefix, label: prefix, selected: index === 0 }
+  }))
+  form.appendChild(buildField('ID Prefix', prefixSelect))
+
+  var teamSelect = buildSelect([
+    { value: 'dev', label: 'Dev', selected: true },
+    { value: 'marketing', label: 'Marketing' },
+  ])
+  form.appendChild(buildField('Team', teamSelect))
+
+  var laneSelect = buildSelect(backlogLanes.map(function(lane, index) {
+    return { value: lane.key, label: lane.label, selected: lane.key === 'research' && index >= 0 }
+  }))
+  form.appendChild(buildField('Lane', laneSelect))
+
+  var prioritySelect = buildSelect([
+    { value: 'P0', label: 'P0' },
+    { value: 'P1', label: 'P1', selected: true },
+    { value: 'P2', label: 'P2' },
+    { value: 'P3', label: 'P3' },
+  ])
+  form.appendChild(buildField('Priority', prioritySelect))
+
+  var titleInput = buildInput('text', 'Title')
+  form.appendChild(buildField('Title', titleInput))
+
+  var ownerInput = buildInput('text', 'Owner')
+  form.appendChild(buildField('Owner', ownerInput))
+
+  var sourceInput = buildInput('text', 'Source')
+  form.appendChild(buildField('Source', sourceInput))
+
+  var summaryInput = buildTextarea('Short summary', 3)
+  form.appendChild(buildField('Summary', summaryInput))
+
+  var whyInput = buildTextarea('Why it matters', 3)
+  form.appendChild(buildField('Why It Matters', whyInput))
+
+  var nextInput = buildTextarea('Next action', 3)
+  form.appendChild(buildField('Next Action', nextInput))
+
+  var noteInput = buildTextarea('Status note', 2)
+  form.appendChild(buildField('Status Note', noteInput))
+
+  var actions = document.createElement('div')
+  actions.className = 'memory-form-actions'
+
+  var submit = document.createElement('button')
+  submit.className = 'memory-button'
+  submit.type = 'submit'
+  submit.textContent = 'Create Backlog Item'
+  actions.appendChild(submit)
+
+  form.appendChild(actions)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  form.appendChild(status)
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault()
+    submit.disabled = true
+    setFormStatus(status, 'Creating backlog item…')
+    foundationMutation('/api/foundation/backlog', 'POST', {
+      idPrefix: prefixSelect.value,
+      team: teamSelect.value,
+      lane: laneSelect.value,
+      priority: prioritySelect.value,
+      title: titleInput.value.trim(),
+      owner: ownerInput.value.trim(),
+      source: sourceInput.value.trim(),
+      summary: summaryInput.value.trim(),
+      whyItMatters: whyInput.value.trim(),
+      nextAction: nextInput.value.trim(),
+      statusNote: noteInput.value.trim(),
+    }).then(function() {
+      form.reset()
+      prefixSelect.value = (hub.meta && hub.meta.backlogIdPrefixes && hub.meta.backlogIdPrefixes[0]) || 'FOUNDATION'
+      teamSelect.value = 'dev'
+      laneSelect.value = 'research'
+      prioritySelect.value = 'P1'
+      setFormStatus(status, 'Backlog item created.', 'success')
+      renderBacklog()
+    }).catch(function(error) {
+      setFormStatus(status, error.message || 'Failed to create backlog item.', 'error')
+    }).finally(function() {
+      submit.disabled = false
+    })
+  })
+
+  panel.appendChild(form)
+  return panel
+}
+
+function renderBacklogItemEditor(item) {
+  var details = document.createElement('details')
+  details.className = 'memory-inline-editor'
+
+  var summary = document.createElement('summary')
+  summary.textContent = 'Update'
+  details.appendChild(summary)
+
+  var wrap = document.createElement('div')
+  wrap.className = 'memory-inline-grid'
+
+  var laneSelect = buildSelect(backlogLanes.map(function(lane) {
+    return { value: lane.key, label: lane.label, selected: lane.key === item.lane }
+  }))
+  wrap.appendChild(buildField('Lane', laneSelect))
+
+  var prioritySelect = buildSelect(['P0', 'P1', 'P2', 'P3'].map(function(priority) {
+    return { value: priority, label: priority, selected: priority === item.priority }
+  }))
+  wrap.appendChild(buildField('Priority', prioritySelect))
+
+  var ownerInput = buildInput('text', 'Owner')
+  ownerInput.value = item.owner || ''
+  wrap.appendChild(buildField('Owner', ownerInput))
+
+  var noteInput = buildTextarea('Status note', 2)
+  noteInput.value = item.statusNote || ''
+  wrap.appendChild(buildField('Status Note', noteInput))
+
+  var save = document.createElement('button')
+  save.type = 'button'
+  save.className = 'memory-button'
+  save.textContent = 'Save'
+  wrap.appendChild(save)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  wrap.appendChild(status)
+
+  save.addEventListener('click', function() {
+    save.disabled = true
+    setFormStatus(status, 'Saving…')
+    foundationMutation('/api/foundation/backlog/' + encodeURIComponent(item.id), 'PATCH', {
+      lane: laneSelect.value,
+      priority: prioritySelect.value,
+      owner: ownerInput.value.trim(),
+      statusNote: noteInput.value.trim(),
+    }).then(function() {
+      setFormStatus(status, 'Saved.', 'success')
+      renderBacklog()
+    }).catch(function(error) {
+      setFormStatus(status, error.message || 'Failed to save.', 'error')
+    }).finally(function() {
+      save.disabled = false
+    })
+  })
+
+  details.appendChild(wrap)
+  return details
+}
+
+function renderDecisionCreatePanel(hub) {
+  var panel = document.createElement('section')
+  panel.className = 'panel memory-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Create'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Log Decision'
+  left.appendChild(title)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var form = document.createElement('form')
+  form.className = 'memory-form-grid'
+
+  var titleInput = buildInput('text', 'Decision title')
+  form.appendChild(buildField('Title', titleInput))
+
+  var categorySelect = buildSelect((hub.meta && hub.meta.canonicalDecisionCategories || []).map(function(category, index) {
+    return { value: category, label: category, selected: index === 0 }
+  }))
+  form.appendChild(buildField('Category', categorySelect))
+
+  var summaryInput = buildTextarea('Summary', 3)
+  form.appendChild(buildField('Summary', summaryInput))
+
+  var rationaleInput = buildTextarea('Why this decision exists', 3)
+  form.appendChild(buildField('Rationale', rationaleInput))
+
+  var sourceRefInput = buildInput('text', 'Optional source or reference')
+  form.appendChild(buildField('Source Ref', sourceRefInput))
+
+  var actions = document.createElement('div')
+  actions.className = 'memory-form-actions'
+
+  var submit = document.createElement('button')
+  submit.type = 'submit'
+  submit.className = 'memory-button'
+  submit.textContent = 'Create Decision'
+  actions.appendChild(submit)
+
+  form.appendChild(actions)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  form.appendChild(status)
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault()
+    submit.disabled = true
+    setFormStatus(status, 'Creating decision…')
+    foundationMutation('/api/foundation/decisions', 'POST', {
+      title: titleInput.value.trim(),
+      category: categorySelect.value,
+      summary: summaryInput.value.trim(),
+      rationale: rationaleInput.value.trim(),
+      sourceRef: sourceRefInput.value.trim(),
+    }).then(function() {
+      form.reset()
+      categorySelect.value = (hub.meta && hub.meta.canonicalDecisionCategories && hub.meta.canonicalDecisionCategories[0]) || 'strategy'
+      setFormStatus(status, 'Decision created.', 'success')
+      renderDecisions()
+    }).catch(function(error) {
+      setFormStatus(status, error.message || 'Failed to create decision.', 'error')
+    }).finally(function() {
+      submit.disabled = false
+    })
+  })
+
+  panel.appendChild(form)
+  return panel
+}
+
+function renderDecisionEditor(item, hub) {
+  var details = document.createElement('details')
+  details.className = 'memory-inline-editor'
+
+  var summary = document.createElement('summary')
+  summary.textContent = 'Update'
+  details.appendChild(summary)
+
+  var wrap = document.createElement('div')
+  wrap.className = 'memory-inline-grid'
+
+  var categorySelect = buildSelect((hub.meta && hub.meta.canonicalDecisionCategories || []).map(function(category) {
+    return { value: category, label: category, selected: category === item.category }
+  }))
+  wrap.appendChild(buildField('Category', categorySelect))
+
+  var statusSelect = buildSelect([
+    { value: 'proposed', label: 'proposed', selected: item.status === 'proposed' },
+    { value: 'locked', label: 'locked', selected: item.status === 'locked' },
+    { value: 'superseded', label: 'superseded', selected: item.status === 'superseded' },
+  ])
+  wrap.appendChild(buildField('Status', statusSelect))
+
+  var sourceRefInput = buildInput('text', 'Source ref')
+  sourceRefInput.value = item.sourceRef || ''
+  wrap.appendChild(buildField('Source Ref', sourceRefInput))
+
+  var save = document.createElement('button')
+  save.type = 'button'
+  save.className = 'memory-button'
+  save.textContent = 'Save'
+  wrap.appendChild(save)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  wrap.appendChild(status)
+
+  save.addEventListener('click', function() {
+    save.disabled = true
+    setFormStatus(status, 'Saving…')
+    foundationMutation('/api/foundation/decisions/' + encodeURIComponent(item.id), 'PATCH', {
+      category: categorySelect.value,
+      status: statusSelect.value,
+      sourceRef: sourceRefInput.value.trim(),
+    }).then(function() {
+      setFormStatus(status, 'Saved.', 'success')
+      renderDecisions()
+    }).catch(function(error) {
+      setFormStatus(status, error.message || 'Failed to save.', 'error')
+    }).finally(function() {
+      save.disabled = false
+    })
+  })
+
+  details.appendChild(wrap)
+  return details
+}
+
+function renderDocProposalForm(item) {
+  var details = document.createElement('details')
+  details.className = 'memory-inline-editor'
+
+  var summary = document.createElement('summary')
+  summary.textContent = 'Propose Doc Update'
+  details.appendChild(summary)
+
+  var wrap = document.createElement('div')
+  wrap.className = 'memory-inline-grid'
+
+  var pathSelect = buildSelect([
+    { value: 'docs/strategy/quarterly-priorities.md', label: 'Quarterly Priorities' },
+    { value: 'docs/strategy/strategic-issues.md', label: 'Strategic Issues' },
+    { value: 'docs/strategy/department-mandates.md', label: 'Department Mandates' },
+  ])
+  wrap.appendChild(buildField('Target Doc', pathSelect))
+
+  var sectionInput = buildInput('text', 'Heading text')
+  wrap.appendChild(buildField('Target Section', sectionInput))
+
+  var summaryInput = buildInput('text', 'Proposal summary')
+  wrap.appendChild(buildField('Summary', summaryInput))
+
+  var proposedText = buildTextarea('Replacement section body', 6)
+  wrap.appendChild(buildField('Proposed Text', proposedText))
+
+  var save = document.createElement('button')
+  save.type = 'button'
+  save.className = 'memory-button'
+  save.textContent = 'Create Proposal'
+  wrap.appendChild(save)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  wrap.appendChild(status)
+
+  save.addEventListener('click', function() {
+    save.disabled = true
+    setFormStatus(status, 'Creating proposal…')
+    foundationMutation('/api/foundation/doc-updates', 'POST', {
+      decisionId: item.id,
+      targetDocPath: pathSelect.value,
+      targetSection: sectionInput.value.trim(),
+      summary: summaryInput.value.trim() || ('Update tied to ' + item.id),
+      proposedText: proposedText.value.trim(),
+    }).then(function() {
+      setFormStatus(status, 'Proposal created.', 'success')
+      renderDecisions()
+    }).catch(function(error) {
+      setFormStatus(status, error.message || 'Failed to create proposal.', 'error')
+    }).finally(function() {
+      save.disabled = false
+    })
+  })
+
+  details.appendChild(wrap)
+  return details
+}
+
+function renderPendingDocUpdateCard(item) {
+  var card = document.createElement('article')
+  card.className = 'doc-update-card'
+
+  var top = document.createElement('div')
+  top.className = 'decision-top'
+
+  var titleWrap = document.createElement('div')
+  var title = document.createElement('h4')
+  title.textContent = item.summary
+  titleWrap.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'decision-id'
+  meta.textContent = item.id + ' · ' + item.status
+  titleWrap.appendChild(meta)
+  top.appendChild(titleWrap)
+  card.appendChild(top)
+
+  card.appendChild(renderLabeledCopy('decision-meta', 'Decision', item.decisionId || '—'))
+  card.appendChild(renderLabeledCopy('decision-meta', 'Target', item.targetDocPath))
+  card.appendChild(renderLabeledCopy('decision-meta', 'Section', item.targetSection || '—'))
+
+  var diff = document.createElement('details')
+  diff.className = 'memory-inline-editor'
+  var diffSummary = document.createElement('summary')
+  diffSummary.textContent = 'Review Diff'
+  diff.appendChild(diffSummary)
+  var diffBody = document.createElement('pre')
+  diffBody.className = 'doc-update-diff'
+  diffBody.textContent = item.proposedDiff || item.proposedText || ''
+  diff.appendChild(diffBody)
+  card.appendChild(diff)
+
+  var actions = document.createElement('div')
+  actions.className = 'memory-form-actions'
+
+  function makeAction(label, endpoint, tone) {
+    var button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'memory-button' + (tone ? ' memory-button-' + tone : '')
+    button.textContent = label
+    button.addEventListener('click', function() {
+      button.disabled = true
+      foundationMutation(endpoint, 'POST', {}).then(function() {
+        renderDecisions()
+      }).catch(function(error) {
+        window.alert(error.message || 'Action failed.')
+      }).finally(function() {
+        button.disabled = false
+      })
+    })
+    return button
+  }
+
+  if (item.status === 'pending' || item.status === 'failed') {
+    actions.appendChild(makeAction('Approve', '/api/foundation/doc-updates/' + encodeURIComponent(item.id) + '/approve'))
+  }
+  if (item.status === 'approved' || item.status === 'failed') {
+    actions.appendChild(makeAction('Apply', '/api/foundation/doc-updates/' + encodeURIComponent(item.id) + '/apply'))
+  }
+  if (item.status !== 'applied' && item.status !== 'rejected') {
+    actions.appendChild(makeAction('Reject', '/api/foundation/doc-updates/' + encodeURIComponent(item.id) + '/reject', 'secondary'))
+  }
+
+  card.appendChild(actions)
+  return card
+}
+
+function renderQuestionCreatePanel() {
+  var panel = document.createElement('section')
+  panel.className = 'panel memory-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Create'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'New Open Question'
+  left.appendChild(title)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var form = document.createElement('form')
+  form.className = 'memory-form-grid'
+
+  var titleInput = buildInput('text', 'Question title')
+  form.appendChild(buildField('Title', titleInput))
+
+  var ownerInput = buildInput('text', 'Owner')
+  form.appendChild(buildField('Owner', ownerInput))
+
+  var summaryInput = buildTextarea('What needs an answer?', 4)
+  form.appendChild(buildField('Summary', summaryInput))
+
+  var actions = document.createElement('div')
+  actions.className = 'memory-form-actions'
+
+  var submit = document.createElement('button')
+  submit.type = 'submit'
+  submit.className = 'memory-button'
+  submit.textContent = 'Create Question'
+  actions.appendChild(submit)
+  form.appendChild(actions)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  form.appendChild(status)
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault()
+    submit.disabled = true
+    setFormStatus(status, 'Creating question…')
+    foundationMutation('/api/foundation/questions', 'POST', {
+      title: titleInput.value.trim(),
+      summary: summaryInput.value.trim(),
+      owner: ownerInput.value.trim(),
+    }).then(function() {
+      form.reset()
+      setFormStatus(status, 'Question created.', 'success')
+      renderOpenQuestions()
+    }).catch(function(error) {
+      setFormStatus(status, error.message || 'Failed to create question.', 'error')
+    }).finally(function() {
+      submit.disabled = false
+    })
+  })
+
+  panel.appendChild(form)
+  return panel
+}
+
+function renderQuestionEditor(item) {
+  var details = document.createElement('details')
+  details.className = 'memory-inline-editor'
+
+  var summary = document.createElement('summary')
+  summary.textContent = item.status === 'resolved' ? 'Reopen / Edit' : 'Resolve / Edit'
+  details.appendChild(summary)
+
+  var wrap = document.createElement('div')
+  wrap.className = 'memory-inline-grid'
+
+  var ownerInput = buildInput('text', 'Owner')
+  ownerInput.value = item.owner || ''
+  wrap.appendChild(buildField('Owner', ownerInput))
+
+  var summaryInput = buildTextarea('Summary', 4)
+  summaryInput.value = item.summary || ''
+  wrap.appendChild(buildField('Summary', summaryInput))
+
+  var statusSelect = buildSelect([
+    { value: 'open', label: 'open', selected: item.status !== 'resolved' },
+    { value: 'resolved', label: 'resolved', selected: item.status === 'resolved' },
+  ])
+  wrap.appendChild(buildField('Status', statusSelect))
+
+  var resolutionInput = buildTextarea('Resolution note', 3)
+  resolutionInput.value = item.resolutionNote || ''
+  wrap.appendChild(buildField('Resolution Note', resolutionInput))
+
+  var save = document.createElement('button')
+  save.type = 'button'
+  save.className = 'memory-button'
+  save.textContent = 'Save'
+  wrap.appendChild(save)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  wrap.appendChild(status)
+
+  save.addEventListener('click', function() {
+    save.disabled = true
+    setFormStatus(status, 'Saving…')
+    foundationMutation('/api/foundation/questions/' + encodeURIComponent(item.id), 'PATCH', {
+      owner: ownerInput.value.trim(),
+      summary: summaryInput.value.trim(),
+      status: statusSelect.value,
+      resolutionNote: resolutionInput.value.trim(),
+    }).then(function() {
+      setFormStatus(status, 'Saved.', 'success')
+      renderOpenQuestions()
+    }).catch(function(error) {
+      setFormStatus(status, error.message || 'Failed to save.', 'error')
+    }).finally(function() {
+      save.disabled = false
+    })
+  })
+
+  details.appendChild(wrap)
+  return details
+}
+
 function groupBacklogByTeam(items) {
   return {
     dev: items.filter(function(item) { return item.team === 'dev' }),
@@ -1743,6 +2568,7 @@ var cache = {
   foundationHub: null,
   docs: {},
 }
+var FOUNDATION_ADMIN_TOKEN_KEY = 'bcrew.foundation.adminToken'
 
 var liveDocPaths = {
   'docs/strategy/bhag-model.md': true,
@@ -1797,6 +2623,51 @@ function fetchDoc(docPath) {
   })
 }
 
+function getStoredAdminToken() {
+  try {
+    return window.localStorage.getItem(FOUNDATION_ADMIN_TOKEN_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+function setStoredAdminToken(value) {
+  try {
+    if (!value) window.localStorage.removeItem(FOUNDATION_ADMIN_TOKEN_KEY)
+    else window.localStorage.setItem(FOUNDATION_ADMIN_TOKEN_KEY, value)
+  } catch {
+    // Ignore storage failures and let the request fail visibly.
+  }
+}
+
+function clearFoundationCaches() {
+  cache.foundationHub = null
+}
+
+function parseApiErrorPayload(payload, fallbackMessage) {
+  if (payload && payload.error && payload.error.message) return payload.error
+  return { code: 'unknown_error', message: fallbackMessage || 'Request failed.' }
+}
+
+function foundationMutation(url, method, body) {
+  return fetch(url, {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin-Token': getStoredAdminToken(),
+    },
+    body: JSON.stringify(body || {}),
+  }).then(function(res) {
+    return res.json().catch(function() { return null }).then(function(payload) {
+      if (!res.ok) {
+        throw parseApiErrorPayload(payload, 'Request failed.')
+      }
+      clearFoundationCaches()
+      return payload
+    })
+  })
+}
+
 /* ── strategy doc path map ───────────────────────────────── */
 
 var strategyDocPaths = {
@@ -1807,6 +2678,7 @@ var strategyDocPaths = {
   'core-values': 'docs/strategy/core-values.md',
   'marketmasters': 'docs/strategy/marketmasters.md',
   'financial-model': 'docs/strategy/financial-model-and-assumptions.md',
+  'system-strategy': 'docs/system-strategy.md',
 }
 
 var foundationDocPathToSection = {
@@ -1839,6 +2711,7 @@ var sectionLabels = {
   'backlog': 'Backlog',
   'decisions': 'Decisions',
   'open-questions': 'Open Questions',
+  'system-strategy': 'System Strategy',
   'source-registry': 'Source Registry',
   'data-health': 'Data Health',
 }
@@ -1874,6 +2747,7 @@ var strategyReviewChecklist = [
     tone: 'pending',
     items: [
       'Planning Definitions',
+      'System Strategy',
       'Source Registry',
     ],
   },
@@ -1991,6 +2865,40 @@ function renderOverview() {
       statusGrid.appendChild(renderStatusCard(item))
     })
     container.appendChild(statusGrid)
+
+    if (hub.recentChanges && hub.recentChanges.length) {
+      var changesPanel = document.createElement('section')
+      changesPanel.className = 'panel'
+
+      var changesHeader = document.createElement('div')
+      changesHeader.className = 'panel-header'
+
+      var changesLeft = document.createElement('div')
+      var changesEyebrow = document.createElement('div')
+      changesEyebrow.className = 'eyebrow'
+      changesEyebrow.textContent = 'System Foundation'
+      changesLeft.appendChild(changesEyebrow)
+
+      var changesTitle = document.createElement('h3')
+      changesTitle.textContent = 'Recent Changes'
+      changesLeft.appendChild(changesTitle)
+
+      var changesIntro = document.createElement('p')
+      changesIntro.className = 'section-intro'
+      changesIntro.textContent = 'The latest Foundation mutations and doc-apply events. This is the first visible change ledger for the trust layer.'
+      changesLeft.appendChild(changesIntro)
+
+      changesHeader.appendChild(changesLeft)
+      changesPanel.appendChild(changesHeader)
+
+      var changesList = document.createElement('div')
+      changesList.className = 'change-list'
+      hub.recentChanges.forEach(function(item) {
+        changesList.appendChild(renderChangeEventCard(item))
+      })
+      changesPanel.appendChild(changesList)
+      container.appendChild(changesPanel)
+    }
 
     container.appendChild(renderReviewChecklistPanel())
 
@@ -2125,15 +3033,19 @@ function renderBacklog() {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = hub.backlogItems.length + ' active items'
+    heroMeta.textContent = hub.backlogItems.length + ' active items across the live Foundation backlog'
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
+    container.appendChild(renderAdminTokenPanel())
+    container.appendChild(renderBacklogCreatePanel(hub))
+
     /* team boards */
     var backlogGroups = groupBacklogByTeam(hub.backlogItems)
     var boardWrap = document.createElement('div')
+    boardWrap.className = 'team-backlog-grid'
     boardWrap.appendChild(renderTeamBoard('dev', backlogGroups.dev))
     boardWrap.appendChild(renderTeamBoard('marketing', backlogGroups.marketing))
     container.appendChild(boardWrap)
@@ -2166,11 +3078,16 @@ function renderDecisions() {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = hub.decisions.length + ' locked decisions'
+    var lockedCount = hub.decisions.filter(function(item) { return item.status === 'locked' }).length
+    var proposedCount = hub.decisions.filter(function(item) { return item.status === 'proposed' }).length
+    heroMeta.textContent = lockedCount + ' locked · ' + proposedCount + ' proposed'
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
+
+    container.appendChild(renderAdminTokenPanel())
+    container.appendChild(renderDecisionCreatePanel(hub))
 
     /* decision cards */
     var decisionPanel = document.createElement('section')
@@ -2187,11 +3104,46 @@ function renderDecisions() {
 
     var decisionList = document.createElement('div')
     decisionList.className = 'section-list'
+    var pendingDocUpdates = hub.pendingDocUpdates || []
     hub.decisions.forEach(function(item) {
-      decisionList.appendChild(renderDecisionCard(item))
+      decisionList.appendChild(renderDecisionMemoryCard(item, hub, pendingDocUpdates))
     })
     decisionPanel.appendChild(decisionList)
     container.appendChild(decisionPanel)
+
+    if (pendingDocUpdates.length) {
+      var updatesPanel = document.createElement('section')
+      updatesPanel.className = 'panel'
+
+      var updatesHeader = document.createElement('div')
+      updatesHeader.className = 'panel-header'
+
+      var updatesLeft = document.createElement('div')
+      var updatesEyebrow = document.createElement('div')
+      updatesEyebrow.className = 'eyebrow'
+      updatesEyebrow.textContent = 'Review Queue'
+      updatesLeft.appendChild(updatesEyebrow)
+
+      var updatesTitle = document.createElement('h3')
+      updatesTitle.textContent = 'Pending Doc Updates'
+      updatesLeft.appendChild(updatesTitle)
+
+      var updatesIntro = document.createElement('p')
+      updatesIntro.className = 'section-intro'
+      updatesIntro.textContent = 'Decisions can propose doc updates here. Review, approve, and explicitly apply only the changes you trust.'
+      updatesLeft.appendChild(updatesIntro)
+
+      updatesHeader.appendChild(updatesLeft)
+      updatesPanel.appendChild(updatesHeader)
+
+      var updatesList = document.createElement('div')
+      updatesList.className = 'section-list'
+      pendingDocUpdates.forEach(function(item) {
+        updatesList.appendChild(renderPendingDocUpdateCard(item))
+      })
+      updatesPanel.appendChild(updatesList)
+      container.appendChild(updatesPanel)
+    }
 
     /* parking lot */
     if (hub.parkingLot && hub.parkingLot.length) {
@@ -2214,6 +3166,35 @@ function renderDecisions() {
       })
       parkingPanel.appendChild(parkingList)
       container.appendChild(parkingPanel)
+    }
+
+    if (hub.recentChanges && hub.recentChanges.length) {
+      var changesPanel = document.createElement('section')
+      changesPanel.className = 'panel'
+
+      var changesHeader = document.createElement('div')
+      changesHeader.className = 'panel-header'
+
+      var changesLeft = document.createElement('div')
+      var changesEyebrow = document.createElement('div')
+      changesEyebrow.className = 'eyebrow'
+      changesEyebrow.textContent = 'Trust Layer'
+      changesLeft.appendChild(changesEyebrow)
+
+      var changesTitle = document.createElement('h3')
+      changesTitle.textContent = 'Recent Changes'
+      changesLeft.appendChild(changesTitle)
+
+      changesHeader.appendChild(changesLeft)
+      changesPanel.appendChild(changesHeader)
+
+      var changesList = document.createElement('div')
+      changesList.className = 'change-list'
+      hub.recentChanges.forEach(function(item) {
+        changesList.appendChild(renderChangeEventCard(item))
+      })
+      changesPanel.appendChild(changesList)
+      container.appendChild(changesPanel)
     }
 
   }).catch(function(error) {
@@ -2244,20 +3225,40 @@ function renderOpenQuestions() {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = hub.openQuestions.length + ' open questions'
+    var openCount = hub.openQuestions.filter(function(item) { return item.status !== 'resolved' }).length
+    var resolvedCount = hub.openQuestions.filter(function(item) { return item.status === 'resolved' }).length
+    heroMeta.textContent = openCount + ' open · ' + resolvedCount + ' resolved'
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
+    container.appendChild(renderAdminTokenPanel())
+    container.appendChild(renderQuestionCreatePanel())
+
     /* question cards */
     var panel = document.createElement('section')
     panel.className = 'panel'
 
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+
+    var left = document.createElement('div')
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Working List'
+    left.appendChild(eyebrow)
+
+    var title = document.createElement('h3')
+    title.textContent = 'Questions'
+    left.appendChild(title)
+    header.appendChild(left)
+    panel.appendChild(header)
+
     var list = document.createElement('div')
     list.className = 'section-list'
     hub.openQuestions.forEach(function(item) {
-      list.appendChild(renderCaptureItem(item))
+      list.appendChild(renderOpenQuestionCard(item))
     })
     panel.appendChild(list)
     container.appendChild(panel)

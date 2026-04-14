@@ -1,14 +1,41 @@
 import express from 'express'
+import { execFile } from 'node:child_process'
+import { createHash, timingSafeEqual } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
+import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
-import { closeFoundationDb, getDocSourceSnapshot, getFoundationSnapshot, initFoundationDb } from './lib/foundation-db.js'
+import {
+  approvePendingDocUpdate,
+  closeFoundationDb,
+  createBacklogItem,
+  createDecision,
+  createOpenQuestion,
+  createPendingDocUpdate,
+  getCanonicalDecisionCategories,
+  getDocSourceSnapshot,
+  getFoundationBacklogIdPrefixes,
+  getFoundationSnapshot,
+  getPendingDocUpdate,
+  getRecentChangeEvents,
+  initFoundationDb,
+  listPendingDocUpdates,
+  markPendingDocUpdateApplied,
+  markPendingDocUpdateFailed,
+  rejectPendingDocUpdate,
+  updateBacklogItem,
+  updateDecision,
+  updateOpenQuestion,
+} from './lib/foundation-db.js'
+import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
 import { getSourceContracts, getSourceContractsByIds } from './lib/source-contracts.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const app = express()
 const port = process.env.PORT || 3000
+const execFileAsync = promisify(execFile)
+const adminToken = process.env.ADMIN_TOKEN || process.env.DASHBOARD_API_KEY || ''
 app.disable('x-powered-by')
 
 const docsDir = path.join(__dirname, 'docs')
@@ -25,6 +52,8 @@ const strategyDocs = [
   path.join(docsDir, 'strategy', 'core-values.md'),
   path.join(docsDir, 'strategy', 'marketmasters.md'),
 ]
+const canonicalDecisionCategories = getCanonicalDecisionCategories()
+const backlogIdPrefixes = getFoundationBacklogIdPrefixes()
 
 function setSecurityHeaders(_req, res, next) {
   res.setHeader('X-Content-Type-Options', 'nosniff')
@@ -48,13 +77,18 @@ function logApiRequest(req, res, next) {
   next()
 }
 
-function sendApiError(res, statusCode, code, message) {
+function sendApiError(res, statusCode, code, message, details) {
   res.status(statusCode).json({
     error: {
       code,
       message,
+      ...(details ? { details } : {}),
     },
   })
+}
+
+function cacheHeadersNoStore(res) {
+  res.setHeader('Cache-Control', 'no-store')
 }
 
 async function closeServer(server) {
@@ -71,6 +105,7 @@ async function closeServer(server) {
 
 app.use(setSecurityHeaders)
 app.use(logApiRequest)
+app.use(express.json({ limit: '1mb' }))
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders(res, filePath) {
     if (/\.(js|css|html)$/i.test(filePath)) {
@@ -78,6 +113,34 @@ app.use(express.static(path.join(__dirname, 'public'), {
     }
   },
 }))
+
+function tokensMatch(provided, expected) {
+  if (!provided || !expected) return false
+  const providedBuffer = Buffer.from(provided)
+  const expectedBuffer = Buffer.from(expected)
+  if (providedBuffer.length !== expectedBuffer.length) return false
+  return timingSafeEqual(providedBuffer, expectedBuffer)
+}
+
+function requireAdminToken(req, res, next) {
+  if (!adminToken) {
+    sendApiError(
+      res,
+      503,
+      'admin_token_unconfigured',
+      'Mutation routes are not available until ADMIN_TOKEN or DASHBOARD_API_KEY is configured.'
+    )
+    return
+  }
+
+  const providedToken = req.get('X-Admin-Token') || ''
+  if (!tokensMatch(providedToken, adminToken)) {
+    sendApiError(res, 401, 'invalid_admin_token', 'Valid admin token required.')
+    return
+  }
+
+  next()
+}
 
 function isAllowedDocPath(filePath) {
   const normalizedDocsDir = path.resolve(docsDir) + path.sep
@@ -148,6 +211,116 @@ function parseSections(markdown) {
     .filter(section => section.content)
 }
 
+function slugify(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function getHeadingSection(markdown, targetSection) {
+  const targetSlug = slugify(targetSection)
+  if (!targetSlug) return null
+
+  const lines = markdown.split('\n')
+  let start = -1
+  let end = lines.length
+  let heading = ''
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = lines[index].match(/^(#{1,3})\s+(.+?)\s*$/)
+    if (!match) continue
+
+    const currentSlug = slugify(match[2])
+    if (start === -1 && currentSlug === targetSlug) {
+      start = index
+      heading = match[2].trim()
+      continue
+    }
+
+    if (start !== -1) {
+      end = index
+      break
+    }
+  }
+
+  if (start === -1) return null
+
+  const currentText = lines.slice(start + 1, end).join('\n').trim()
+  return {
+    start,
+    end,
+    heading,
+    currentText,
+  }
+}
+
+function replaceHeadingSection(markdown, targetSection, proposedText) {
+  const section = getHeadingSection(markdown, targetSection)
+  if (!section) return null
+
+  const lines = markdown.split('\n')
+  const before = lines.slice(0, section.start + 1)
+  const after = lines.slice(section.end)
+  const nextBody = String(proposedText || '').trim()
+  const bodyLines = nextBody ? ['', ...nextBody.split('\n')] : ['']
+
+  return {
+    section,
+    content: before.concat(bodyLines, after).join('\n').replace(/\n{3,}/g, '\n\n'),
+  }
+}
+
+function buildSimpleDiff(currentText, proposedText) {
+  return [
+    '--- current',
+    '+++ proposed',
+    '',
+    'Current:',
+    currentText || '(empty)',
+    '',
+    'Proposed:',
+    proposedText || '(empty)',
+  ].join('\n')
+}
+
+function hashText(value) {
+  return createHash('sha256').update(String(value || '')).digest('hex')
+}
+
+async function runGit(args) {
+  return execFileAsync('git', args, { cwd: __dirname })
+}
+
+async function getGitStatusForFile(relativePath) {
+  const { stdout } = await runGit(['status', '--porcelain', '--', relativePath])
+  return stdout.trim()
+}
+
+async function restoreTrackedFile(relativePath) {
+  try {
+    await runGit(['restore', '--staged', '--worktree', '--', relativePath])
+  } catch {
+    // Leave recovery to the caller if restore fails.
+  }
+}
+
+function toRelativeDocPath(filePath) {
+  return path.relative(__dirname, filePath)
+}
+
+function getRequestActor() {
+  return 'steve'
+}
+
+function validateCategory(value) {
+  return canonicalDecisionCategories.includes(value)
+}
+
+function validateBacklogPrefix(value) {
+  return backlogIdPrefixes.includes(String(value || '').trim().toUpperCase()) || String(value || '').trim().toUpperCase() === 'TASK'
+}
+
 function getSupportingStrategyDocs() {
   return strategyDocs.map(filePath => {
     const meta = getDocMeta(filePath)
@@ -167,6 +340,45 @@ function getDocTitle(markdown, filePath) {
   }
 
   return path.basename(filePath, '.md')
+}
+
+function requireStringField(errors, body, field, label) {
+  const value = body[field]
+  if (typeof value !== 'string' || !value.trim()) {
+    errors[field] = `${label} is required.`
+    return null
+  }
+  return value.trim()
+}
+
+function optionalStringField(errors, body, field, label, maxLength) {
+  const value = body[field]
+  if (value == null || value === '') return null
+  if (typeof value !== 'string') {
+    errors[field] = `${label} must be text.`
+    return null
+  }
+  const trimmed = value.trim()
+  if (maxLength && trimmed.length > maxLength) {
+    errors[field] = `${label} must be ${maxLength} characters or fewer.`
+    return null
+  }
+  return trimmed
+}
+
+function optionalNumberField(errors, body, field, label) {
+  const value = body[field]
+  if (value == null || value === '') return null
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) {
+    errors[field] = `${label} must be a number.`
+    return null
+  }
+  return parsed
+}
+
+function getAllowedBodyKeys(body, allowedKeys) {
+  return Object.keys(body || {}).filter(key => !allowedKeys.includes(key))
 }
 
 app.get('/api/source-of-truth', (_req, res) => {
@@ -237,6 +449,424 @@ app.get('/api/foundation-hub', async (_req, res) => {
       500,
       'foundation_hub_load_failed',
       error instanceof Error ? error.message : 'Failed to load foundation hub data.'
+    )
+  }
+})
+
+app.get('/api/foundation/changes', async (req, res) => {
+  try {
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20))
+    const changes = await getRecentChangeEvents(limit)
+    res.json({ changes })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_changes_load_failed',
+      error instanceof Error ? error.message : 'Failed to load recent changes.'
+    )
+  }
+})
+
+app.get('/api/foundation/doc-updates', async (_req, res) => {
+  try {
+    const docUpdates = await listPendingDocUpdates()
+    res.json({ docUpdates })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'doc_updates_load_failed',
+      error instanceof Error ? error.message : 'Failed to load pending doc updates.'
+    )
+  }
+})
+
+app.post('/api/foundation/backlog', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['idPrefix', 'title', 'team', 'lane', 'priority', 'rank', 'source', 'summary', 'whyItMatters', 'nextAction', 'statusNote', 'owner']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_backlog_body', 'Unknown backlog fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  const title = requireStringField(errors, req.body, 'title', 'Title')
+  const team = requireStringField(errors, req.body, 'team', 'Team')
+  const lane = requireStringField(errors, req.body, 'lane', 'Lane')
+  const priority = requireStringField(errors, req.body, 'priority', 'Priority')
+  const idPrefix = requireStringField(errors, req.body, 'idPrefix', 'ID prefix')
+  const rank = optionalNumberField(errors, req.body, 'rank', 'Rank')
+  const source = optionalStringField(errors, req.body, 'source', 'Source')
+  const summary = optionalStringField(errors, req.body, 'summary', 'Summary')
+  const whyItMatters = optionalStringField(errors, req.body, 'whyItMatters', 'Why it matters')
+  const nextAction = optionalStringField(errors, req.body, 'nextAction', 'Next action')
+  const statusNote = optionalStringField(errors, req.body, 'statusNote', 'Status note')
+  const owner = optionalStringField(errors, req.body, 'owner', 'Owner')
+
+  if (team && !['dev', 'marketing'].includes(team)) errors.team = 'Team must be dev or marketing.'
+  if (lane && !['research', 'scoped', 'ranked', 'executing', 'parked', 'done'].includes(lane)) errors.lane = 'Invalid backlog lane.'
+  if (priority && !['P0', 'P1', 'P2', 'P3'].includes(priority)) errors.priority = 'Invalid priority.'
+  if (idPrefix && !validateBacklogPrefix(idPrefix)) errors.idPrefix = 'Choose a valid backlog ID prefix.'
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_backlog_body', 'Backlog item is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const item = await createBacklogItem({
+      idPrefix,
+      title,
+      team,
+      lane,
+      priority,
+      rank,
+      source,
+      summary,
+      whyItMatters,
+      nextAction,
+      statusNote,
+      owner,
+    }, getRequestActor())
+    cacheHeadersNoStore(res)
+    res.status(201).json({ item })
+  } catch (error) {
+    sendApiError(res, 500, 'backlog_create_failed', error instanceof Error ? error.message : 'Failed to create backlog item.')
+  }
+})
+
+app.patch('/api/foundation/backlog/:id', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['title', 'team', 'lane', 'priority', 'rank', 'source', 'summary', 'whyItMatters', 'nextAction', 'statusNote', 'owner']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_backlog_body', 'Unknown backlog fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  if ('team' in req.body && req.body.team && !['dev', 'marketing'].includes(req.body.team)) errors.team = 'Team must be dev or marketing.'
+  if ('lane' in req.body && req.body.lane && !['research', 'scoped', 'ranked', 'executing', 'parked', 'done'].includes(req.body.lane)) errors.lane = 'Invalid backlog lane.'
+  if ('priority' in req.body && req.body.priority && !['P0', 'P1', 'P2', 'P3'].includes(req.body.priority)) errors.priority = 'Invalid priority.'
+  const rank = 'rank' in req.body ? optionalNumberField(errors, req.body, 'rank', 'Rank') : undefined
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_backlog_body', 'Backlog update is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const item = await updateBacklogItem(req.params.id, {
+      ...req.body,
+      rank,
+    }, getRequestActor())
+    cacheHeadersNoStore(res)
+    res.json({ item })
+  } catch (error) {
+    if (error instanceof Error && /not found/i.test(error.message)) {
+      sendApiError(res, 404, 'backlog_not_found', error.message)
+      return
+    }
+    sendApiError(res, 500, 'backlog_update_failed', error instanceof Error ? error.message : 'Failed to update backlog item.')
+  }
+})
+
+app.post('/api/foundation/decisions', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['title', 'summary', 'category', 'rationale', 'sourceRef']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_decision_body', 'Unknown decision fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  const title = requireStringField(errors, req.body, 'title', 'Title')
+  const summary = requireStringField(errors, req.body, 'summary', 'Summary')
+  const category = requireStringField(errors, req.body, 'category', 'Category')
+  const rationale = optionalStringField(errors, req.body, 'rationale', 'Rationale')
+  const sourceRef = optionalStringField(errors, req.body, 'sourceRef', 'Source reference')
+
+  if (category && !validateCategory(category)) errors.category = 'Choose one of the four canonical decision categories.'
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_decision_body', 'Decision is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const decision = await createDecision({ title, summary, category, rationale, sourceRef }, getRequestActor())
+    cacheHeadersNoStore(res)
+    res.status(201).json({ decision })
+  } catch (error) {
+    sendApiError(res, 500, 'decision_create_failed', error instanceof Error ? error.message : 'Failed to create decision.')
+  }
+})
+
+app.patch('/api/foundation/decisions/:id', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['category', 'status', 'rationale', 'sourceRef', 'supersedesIds']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_decision_body', 'Unknown decision fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  if ('category' in req.body && req.body.category && !validateCategory(req.body.category)) errors.category = 'Choose one of the four canonical decision categories.'
+  if ('status' in req.body && req.body.status && !['proposed', 'locked', 'superseded'].includes(req.body.status)) errors.status = 'Invalid decision status.'
+  if ('supersedesIds' in req.body && !Array.isArray(req.body.supersedesIds)) errors.supersedesIds = 'supersedesIds must be an array of decision IDs.'
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_decision_body', 'Decision update is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const decision = await updateDecision(req.params.id, req.body, getRequestActor())
+    cacheHeadersNoStore(res)
+    res.json({ decision })
+  } catch (error) {
+    if (error instanceof Error && /not found/i.test(error.message)) {
+      sendApiError(res, 404, 'decision_not_found', error.message)
+      return
+    }
+    sendApiError(res, 500, 'decision_update_failed', error instanceof Error ? error.message : 'Failed to update decision.')
+  }
+})
+
+app.post('/api/foundation/questions', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['title', 'summary', 'owner']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_question_body', 'Unknown question fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  const title = requireStringField(errors, req.body, 'title', 'Title')
+  const summary = requireStringField(errors, req.body, 'summary', 'Summary')
+  const owner = optionalStringField(errors, req.body, 'owner', 'Owner')
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_question_body', 'Question is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const question = await createOpenQuestion({ title, summary, owner }, getRequestActor())
+    cacheHeadersNoStore(res)
+    res.status(201).json({ question })
+  } catch (error) {
+    sendApiError(res, 500, 'question_create_failed', error instanceof Error ? error.message : 'Failed to create question.')
+  }
+})
+
+app.patch('/api/foundation/questions/:id', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['title', 'summary', 'owner', 'status', 'resolutionNote']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_question_body', 'Unknown question fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  if ('status' in req.body && req.body.status && !['open', 'resolved'].includes(req.body.status)) errors.status = 'Status must be open or resolved.'
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_question_body', 'Question update is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const question = await updateOpenQuestion(req.params.id, req.body, getRequestActor())
+    cacheHeadersNoStore(res)
+    res.json({ question })
+  } catch (error) {
+    if (error instanceof Error && /not found/i.test(error.message)) {
+      sendApiError(res, 404, 'question_not_found', error.message)
+      return
+    }
+    sendApiError(res, 500, 'question_update_failed', error instanceof Error ? error.message : 'Failed to update question.')
+  }
+})
+
+app.post('/api/foundation/doc-updates', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['decisionId', 'targetDocPath', 'targetSection', 'summary', 'proposedText']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_doc_update_body', 'Unknown doc update fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  const targetDocPath = requireStringField(errors, req.body, 'targetDocPath', 'Target doc path')
+  const targetSection = requireStringField(errors, req.body, 'targetSection', 'Target section')
+  const summary = requireStringField(errors, req.body, 'summary', 'Summary')
+  const proposedText = requireStringField(errors, req.body, 'proposedText', 'Proposed text')
+  const decisionId = optionalStringField(errors, req.body, 'decisionId', 'Decision ID')
+
+  const resolvedPath = targetDocPath ? resolveRequestedDoc(targetDocPath) : null
+  if (targetDocPath && !resolvedPath) errors.targetDocPath = 'Target doc path must point to a markdown file inside docs/.'
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_doc_update_body', 'Doc update proposal is not valid.', { fields: errors })
+    return
+  }
+
+  const content = readFileSafe(resolvedPath)
+  if (!content) {
+    sendApiError(res, 404, 'doc_not_found', 'Target document not found.')
+    return
+  }
+
+  const section = getHeadingSection(content, targetSection)
+  if (!section) {
+    sendApiError(res, 404, 'target_section_not_found', 'Target section was not found in the document.')
+    return
+  }
+
+  try {
+    const docUpdate = await createPendingDocUpdate({
+      decisionId,
+      targetDocPath,
+      targetSection: slugify(targetSection),
+      summary,
+      currentText: section.currentText,
+      proposedText,
+      proposedDiff: buildSimpleDiff(section.currentText, proposedText),
+      metadata: {
+        currentHash: hashText(section.currentText),
+        heading: section.heading,
+      },
+    }, getRequestActor())
+    cacheHeadersNoStore(res)
+    res.status(201).json({ docUpdate })
+  } catch (error) {
+    sendApiError(res, 500, 'doc_update_create_failed', error instanceof Error ? error.message : 'Failed to create doc update proposal.')
+  }
+})
+
+app.post('/api/foundation/doc-updates/:id/approve', requireAdminToken, async (req, res) => {
+  try {
+    const docUpdate = await approvePendingDocUpdate(req.params.id, getRequestActor())
+    cacheHeadersNoStore(res)
+    res.json({ docUpdate })
+  } catch (error) {
+    if (error instanceof Error && /not found/i.test(error.message)) {
+      sendApiError(res, 404, 'doc_update_not_found', error.message)
+      return
+    }
+    sendApiError(res, 500, 'doc_update_approve_failed', error instanceof Error ? error.message : 'Failed to approve doc update.')
+  }
+})
+
+app.post('/api/foundation/doc-updates/:id/reject', requireAdminToken, async (req, res) => {
+  try {
+    const docUpdate = await rejectPendingDocUpdate(req.params.id, getRequestActor())
+    cacheHeadersNoStore(res)
+    res.json({ docUpdate })
+  } catch (error) {
+    if (error instanceof Error && /not found/i.test(error.message)) {
+      sendApiError(res, 404, 'doc_update_not_found', error.message)
+      return
+    }
+    sendApiError(res, 500, 'doc_update_reject_failed', error instanceof Error ? error.message : 'Failed to reject doc update.')
+  }
+})
+
+app.post('/api/foundation/doc-updates/:id/apply', requireAdminToken, async (req, res) => {
+  const docUpdate = await getPendingDocUpdate(req.params.id)
+  if (!docUpdate) {
+    sendApiError(res, 404, 'doc_update_not_found', 'Pending doc update not found.')
+    return
+  }
+
+  if (!['approved', 'failed'].includes(docUpdate.status)) {
+    sendApiError(res, 409, 'doc_update_not_ready', 'Approve the doc update before applying it.')
+    return
+  }
+
+  if (!isDocUpdateAllowlisted(docUpdate.targetDocPath)) {
+    sendApiError(res, 409, 'not_in_allowlist', 'This document is not on the B1 apply allowlist.')
+    return
+  }
+
+  const resolvedPath = resolveRequestedDoc(docUpdate.targetDocPath)
+  if (!resolvedPath) {
+    sendApiError(res, 400, 'invalid_doc_path', 'Target doc path is not allowed.')
+    return
+  }
+
+  const relativePath = toRelativeDocPath(resolvedPath)
+  const currentContent = readFileSafe(resolvedPath)
+  if (!currentContent) {
+    sendApiError(res, 404, 'doc_not_found', 'Target document not found.')
+    return
+  }
+
+  const gitStatus = await getGitStatusForFile(relativePath)
+  if (gitStatus) {
+    sendApiError(res, 409, 'doc_file_dirty', 'Target document has uncommitted changes. Apply is blocked until the file is clean.')
+    return
+  }
+
+  const section = getHeadingSection(currentContent, docUpdate.targetSection)
+  if (!section) {
+    sendApiError(res, 409, 'target_section_not_found', 'Target section no longer exists in the document.')
+    return
+  }
+
+  const currentHash = hashText(section.currentText)
+  const expectedHash = docUpdate.metadata && docUpdate.metadata.currentHash
+  if ((expectedHash && currentHash !== expectedHash) || section.currentText.trim() !== String(docUpdate.currentText || '').trim()) {
+    sendApiError(res, 409, 'doc_section_conflict', 'The document changed after the proposal was created. Review it again before applying.')
+    return
+  }
+
+  const replacement = replaceHeadingSection(currentContent, docUpdate.targetSection, docUpdate.proposedText)
+  if (!replacement) {
+    sendApiError(res, 409, 'target_section_not_found', 'Target section could not be replaced.')
+    return
+  }
+
+  try {
+    fs.writeFileSync(resolvedPath, replacement.content, 'utf8')
+    await runGit(['add', '--', relativePath])
+    await runGit([
+      'commit',
+      '-m',
+      `Apply doc update ${docUpdate.id}: ${docUpdate.summary}`,
+      '-m',
+      'Co-Authored-By: BCrew AI OS <system@bensoncrew.ai>',
+    ])
+    const { stdout } = await runGit(['rev-parse', 'HEAD'])
+    const appliedCommit = stdout.trim()
+    const applied = await markPendingDocUpdateApplied(docUpdate.id, appliedCommit, 'system')
+    cacheHeadersNoStore(res)
+    res.json({ docUpdate: applied, appliedCommit })
+  } catch (error) {
+    await restoreTrackedFile(relativePath)
+    try {
+      const recoveredContent = readFileSafe(resolvedPath)
+      if (recoveredContent !== currentContent) {
+        fs.writeFileSync(resolvedPath, currentContent, 'utf8')
+      }
+    } catch {
+      // Best-effort recovery only.
+    }
+
+    try {
+      await markPendingDocUpdateFailed(docUpdate.id, {
+        errorDetail: error instanceof Error ? error.message : 'Failed to apply doc update.',
+        partialWrite: false,
+      }, 'system')
+    } catch {
+      // Preserve the original apply error below.
+    }
+
+    sendApiError(
+      res,
+      500,
+      'doc_update_apply_failed',
+      error instanceof Error ? error.message : 'Failed to apply doc update.'
     )
   }
 })
