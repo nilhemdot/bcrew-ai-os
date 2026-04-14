@@ -73,3 +73,4 @@ This registry distinguishes between sources verified in the current rebuild and 
 - Partner commissions are intentionally backed out of top-line revenue and owners expense in `Cashflow Dash` because those commissions are cash moving through the business, but not real company operating revenue or company operating expense.
 - In the current workbook, that partner-commission adjustment is handled at the dashboard layer. Monthly and annual roll-ups should be treated carefully until the normalization path is reviewed end to end.
 - QuickBooks is the compliance and tax ledger. The Owners Dashboard is the internal operating truth.
+- Detailed workbook notes live in [source-notes/owners-dashboard.md](source-notes/owners-dashboard.md).
