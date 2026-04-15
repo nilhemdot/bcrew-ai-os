@@ -10,3 +10,10 @@ coverage/
 .env.*
 .mcp.json
 store/
+.openclaw/
+memory/
+MEMORY.md
+USER.md
+IDENTITY.md
+TOOLS.md
+HEARTBEAT.md
