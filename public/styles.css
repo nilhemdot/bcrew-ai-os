@@ -2707,6 +2707,8 @@ code {
     radial-gradient(circle at top left, rgba(0, 132, 201, 0.16), transparent 40%),
     linear-gradient(180deg, #f6f7f9 0%, #eef2f7 100%);
   min-height: 100vh;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .strategy-export-root {
@@ -2777,7 +2779,7 @@ code {
 .strategy-export-logo {
   width: 140px;
   height: auto;
-  filter: brightness(0) invert(1);
+  display: block;
 }
 
 .strategy-export-kicker {
@@ -2984,6 +2986,14 @@ code {
 @media print {
   .strategy-export-body {
     background: #fff;
+  }
+
+  .strategy-export-cover,
+  .strategy-export-cover *,
+  .strategy-export-page,
+  .strategy-export-page * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .strategy-export-root {
