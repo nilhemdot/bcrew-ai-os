@@ -586,11 +586,11 @@ function renderOverview() {
 
     var sectionList = document.createElement('div')
     sectionList.className = 'section-list'
-    var currentQuarterSection = data.foundation.businessStrategy.sections.find(function(section) {
-      return section.title === 'Current Quarter'
-    })
-    if (!currentQuarterSection) currentQuarterSection = { title: 'Current Quarter', content: '' }
-    sectionList.appendChild(renderCurrentQuarterSection(currentQuarterSection, data.foundation.businessStrategy.meta.path, quarterlyDoc))
+    var currentQuarterSection = { title: 'Current Quarter', content: '' }
+    var quarterPath = quarterlyDoc && quarterlyDoc.meta && quarterlyDoc.meta.path
+      ? quarterlyDoc.meta.path
+      : strategicDocPaths['quarterly-priorities']
+    sectionList.appendChild(renderCurrentQuarterSection(currentQuarterSection, quarterPath, quarterlyDoc))
     sectionList.appendChild(renderSupportingDocsCard())
     panel.appendChild(sectionList)
     container.appendChild(panel)

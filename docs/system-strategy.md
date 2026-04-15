@@ -52,6 +52,24 @@ This means:
 - source-backed views render live values from real systems
 - changing work belongs in the database, not loose markdown
 
+## System Rules
+
+1. Business strategy is the source of truth for business direction.
+2. Live KPI values and milestone math belong in source systems, not in markdown docs.
+3. Decisions that change strategy are logged as explicit records.
+4. Strategy docs are updated through tracked proposals and approvals, not silent edits.
+5. Supporting docs can expand the strategy packet but never contradict it.
+6. The system must preserve the distinction between Benson Crew as the team and Real Broker as the brokerage/platform.
+7. The system should render live values from source IDs so source updates flow through the system without manual doc cleanup.
+8. Agents can support, analyze, and operationalize strategy, but they do not set or change strategy on their own.
+9. Every source-backed view should show the source ID and give the user a clear way to open the real source of truth.
+
+## System Role
+
+The Foundation system makes strategy operational. It reads reality from source systems, renders live source-backed values, logs decisions, surfaces drift, routes accountability, and keeps the strategy layer current.
+
+It supports leadership strategy. It does not invent or change strategy on its own.
+
 ## Change Doctrine
 
 - The system proposes

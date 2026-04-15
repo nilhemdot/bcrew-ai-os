@@ -2722,16 +2722,15 @@ var sectionLabels = {
 
 var strategyReviewChecklist = [
   {
-    title: 'Overview Signed Off',
+    title: 'Business Strategy Signed Off',
     tone: 'done',
     items: [
       'North Star',
       'Core Values',
       'The Engine',
-      'Two Brands',
+      'Department Mandates',
       'Governance',
-      'System Rules',
-      'System Role',
+      'Two Brands',
     ],
   },
   {
@@ -2747,7 +2746,7 @@ var strategyReviewChecklist = [
     ],
   },
   {
-    title: 'Still To Confirm',
+    title: 'Still To Confirm Outside Core Strategy',
     tone: 'pending',
     items: [
       'Planning Definitions',
