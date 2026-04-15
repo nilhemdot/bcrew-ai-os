@@ -230,3 +230,15 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
+
+## Section Closeout Discipline
+
+When a major surface or doc pass is close to sign-off, do not just move on because the page "looks done." Run a short checkpoint:
+
+1. What belongs on this page, and what should move elsewhere?
+2. What new doctrine, schema field, policy/SOP need, or ownership boundary did this review expose?
+3. Which of those items belong in backlog right now with full context?
+4. What should be saved in `docs/handoffs/` so the next chat can pick up cleanly?
+5. Only after that checkpoint should the section be called done.
+
+This is how we avoid hidden gaps, thin backlog cards, and "we talked about it but never promoted it" drift.
