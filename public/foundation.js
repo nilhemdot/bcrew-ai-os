@@ -2832,9 +2832,11 @@ function renderOverview() {
 
     var printBtn = document.createElement('button')
     printBtn.className = 'print-button'
-    printBtn.textContent = 'Print / Save PDF'
+    printBtn.textContent = 'Export Strategy PDF'
     printBtn.setAttribute('type', 'button')
-    printBtn.addEventListener('click', function() { window.print() })
+    printBtn.addEventListener('click', function() {
+      window.open('/foundation/export/strategy?autoprint=1', '_blank', 'noopener')
+    })
     hero.appendChild(printBtn)
 
     container.appendChild(hero)
