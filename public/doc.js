@@ -52,12 +52,13 @@ function normalizeDocPath(pathValue) {
 var foundationDocPathToSection = {
   'docs/business-strategy.md': 'overview',
   'docs/strategy/bhag-model.md': 'bhag-model',
+  'docs/strategy/vision-and-north-star.md': 'bhag-model',
   'docs/strategy/core-values.md': 'core-values',
   'docs/strategy/agent-engine.md': 'agent-engine',
   'docs/strategy/marketmasters.md': 'marketmasters',
   'docs/strategy/governance.md': 'governance',
   'docs/strategy/department-mandates.md': 'departments',
-  'docs/strategy/financial-model-and-assumptions.md': 'financial-model',
+  'docs/strategy/financial-model-and-assumptions.md': 'agent-engine',
   'docs/source-registry.md': 'source-registry',
 }
 
@@ -1181,6 +1182,16 @@ async function init() {
   var anchor = getQueryParam('anchor')
 
   if (!pathValue) throw new Error('Missing document path.')
+
+  if (pathValue === 'docs/strategy/vision-and-north-star.md') {
+    window.location.replace('/foundation#bhag-model')
+    return
+  }
+
+  if (pathValue === 'docs/strategy/financial-model-and-assumptions.md') {
+    window.location.replace('/foundation#agent-engine')
+    return
+  }
 
   configureDocBackLink(pathValue)
 

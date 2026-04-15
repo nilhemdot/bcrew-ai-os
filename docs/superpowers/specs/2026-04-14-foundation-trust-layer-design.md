@@ -271,13 +271,11 @@ The `apply` endpoint only writes to files on this allowlist. Proposals may targe
 - `docs/system-strategy.md`
 - `docs/rebuild-decisions.md`
 - `docs/source-registry.md`
-- `docs/strategy/vision-and-north-star.md`
 - `docs/strategy/bhag-model.md`
 - `docs/strategy/agent-engine.md`
 - `docs/strategy/core-values.md`
 - `docs/strategy/governance.md`
 - `docs/strategy/marketmasters.md`
-- `docs/strategy/financial-model-and-assumptions.md` (UI displays as "Planning Definitions")
 
 The allowlist lives in a single constant in `lib/doc-allowlist.js` so it can expand deliberately.
 

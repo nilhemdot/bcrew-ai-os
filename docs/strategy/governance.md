@@ -7,7 +7,7 @@ The goal is simple:
 - fewer meetings
 - clearer decisions
 - faster execution
-- no heroics
+- no last-minute rescue work
 - no confusion
 
 Governance should not rely on one leader manually carrying the cadence, memory, and follow-through every week. The system should become an operating partner that helps prepare the room, run the sequence, capture the output, and keep accountability visible afterward.
@@ -39,7 +39,7 @@ Leadership meetings exist to:
 - identify and remove cross-department bottlenecks
 - make clear decisions
 - assign ownership
-- prevent escalation and heroics
+- prevent escalation and last-minute rescue work
 
 They exist to run the business, not to talk around it.
 
@@ -218,10 +218,9 @@ The system should:
 
 - The Agent Engine speaks first.
 - No other dashboards lead unless the engine shows a yellow or red issue.
-- Departments respond with KPIs.
-- Bottlenecks are surfaced openly.
-- Decisions are made once and enforced.
-- Weekly meetings run execution.
-- Monthly meetings adjust strategy.
-- Quarterly meetings reset priorities.
-- Focus is protected by sequencing, not by saying yes to everything.
+
+## How to Read This
+
+- This page defines how the business should run, not how one meeting happened.
+- Start with cadence, roles, and meeting purpose. Then use the operator layer to see how the system should reinforce that doctrine.
+- If a meeting pattern, escalation loop, or ownership habit does not match this page, treat that as operating drift to fix rather than as the new normal.

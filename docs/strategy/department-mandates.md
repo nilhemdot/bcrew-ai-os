@@ -2,7 +2,7 @@
 
 Each department exists to move the Agent Engine. Mandates define the enduring job of each function, the boundary of its ownership, and how it contributes to Attract, Grow, or Retain.
 
-Some departments own a core part of the engine. Others support more than one part of it. The point is clarity, not fake simplicity.
+Some departments own a core part of the engine. Others support more than one part of it. The point is clarity, not oversimplification.
 
 Quarter-specific commitments, KPI targets, and pacing requirements belong in `quarterly-priorities.md` and Strategic Execution, not here.
 
@@ -101,3 +101,9 @@ Winning: Risk is visible early, interventions happen before departure, and agent
 Protect margin, validate the core assumptions behind the growth model, and surface financial drift early.
 
 Winning: Leadership can trust that growth is real, source-backed, and economically sound. Losing: Weak controls, broken data, or delayed escalation make the business look healthier than it is.
+
+## How to Read This
+
+- This page defines enduring ownership, not the current quarter plan.
+- Read the mandate first to understand who owns the lane. Read Strategic Execution after that for the current-quarter commitments and pacing.
+- Use the winning and losing lines as boundary tests. If work keeps escalating because ownership is unclear, the mandate is either weak or being violated.

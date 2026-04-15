@@ -244,6 +244,8 @@ body {
 }
 
 .status-card {
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -255,10 +257,9 @@ body {
 .status-card:hover { border-color: var(--border-strong); }
 
 .status-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+  display: grid;
+  gap: 10px;
+  align-items: start;
 }
 
 .status-label {
@@ -267,12 +268,14 @@ body {
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  line-height: 1.15;
   color: var(--text-primary);
 }
 
 .status-pill {
   display: inline-flex;
   align-items: center;
+  justify-self: start;
   gap: 5px;
   border-radius: 999px;
   padding: 3px 10px;
@@ -304,7 +307,7 @@ body {
 .status-missing .status-pill::before { background: var(--red); }
 
 .status-card p {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   color: var(--text-tertiary);
   font-size: 0.82rem;
   line-height: 1.5;
@@ -383,12 +386,14 @@ body {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+  align-items: stretch;
 }
 
 .foundation-sequence-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+  align-items: stretch;
 }
 
 .foundation-purpose-card,
@@ -398,6 +403,18 @@ body {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 18px;
+}
+
+.foundation-module-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.foundation-sequence-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .foundation-purpose-icon {
@@ -424,6 +441,11 @@ body {
   color: var(--text-primary);
 }
 
+.foundation-sequence-card h4 {
+  line-height: 1.15;
+  min-height: 2.3em;
+}
+
 .foundation-purpose-card p,
 .foundation-module-card p,
 .foundation-sequence-card p,
@@ -432,6 +454,10 @@ body {
   color: var(--text-secondary);
   font-size: 0.9rem;
   line-height: 1.55;
+}
+
+.foundation-sequence-card p {
+  margin: 0;
 }
 
 .foundation-sequence-num {
@@ -449,11 +475,16 @@ body {
   margin-bottom: 12px;
 }
 
+.foundation-module-card p {
+  flex: 1;
+}
+
 .foundation-module-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: auto;
+  padding-top: 14px;
 }
 
 .team-board {
@@ -2414,6 +2445,16 @@ code {
   margin-bottom: 6px;
 }
 
+.found-nav-subgroup {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9aa6b5;
+  padding: 6px 12px 4px 28px;
+}
+
 .found-nav-item {
   display: block;
   padding: 8px 12px;
@@ -2425,6 +2466,10 @@ code {
   border-left: 3px solid transparent;
   margin-bottom: 1px;
   transition: all 0.12s ease;
+}
+
+.found-nav-item-sub {
+  padding-left: 28px;
 }
 
 .found-nav-item:hover {

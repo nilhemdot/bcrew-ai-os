@@ -147,10 +147,6 @@ var foundationCloseoutOrder = [
 
 var foundationNowSequence = [
   {
-    title: 'Finish Foundation home page',
-    body: 'Tighten the message, connected-state strip, and closeout board so Foundation explains itself cleanly on first load.',
-  },
-  {
     title: 'Finish the strategy section',
     body: 'Close the last copy and hierarchy pass on the business strategy packet so that whole slice is fully signed off.',
   },
@@ -165,6 +161,10 @@ var foundationNowSequence = [
   {
     title: 'Add minimal verification',
     body: 'Put in the smallest smoke-check layer that proves the app, trust layer, and critical source reads still work.',
+  },
+  {
+    title: 'Prove the first trusted loop',
+    body: 'Validate one narrow assistant loop end to end so Foundation is not just documented but operationally trusted.',
   },
 ]
 
@@ -1679,7 +1679,6 @@ function sortBacklogItems(items) {
 function renderBacklogAccordionItem(item) {
   var details = document.createElement('details')
   details.className = 'backlog-item-pill'
-  if (item.lane === 'executing') details.open = true
 
   var summary = document.createElement('summary')
   summary.className = 'backlog-item-summary'
@@ -1746,7 +1745,6 @@ function renderBacklogAccordionItem(item) {
 function renderBacklogLaneStack(lane, items) {
   var details = document.createElement('details')
   details.className = 'backlog-stack'
-  if (lane.key === 'executing') details.open = true
 
   var summary = document.createElement('summary')
   summary.className = 'backlog-stack-summary'
@@ -2829,14 +2827,13 @@ var strategyDocPaths = {
   'departments': 'docs/strategy/department-mandates.md',
   'core-values': 'docs/strategy/core-values.md',
   'marketmasters': 'docs/strategy/marketmasters.md',
-  'financial-model': 'docs/strategy/financial-model-and-assumptions.md',
   'system-strategy': 'docs/system-strategy.md',
 }
 
 var foundationDocPathToSection = {
   'docs/strategy/bhag-model.md': 'bhag-model',
   'docs/strategy/agent-engine.md': 'agent-engine',
-  'docs/strategy/financial-model-and-assumptions.md': 'financial-model',
+  'docs/strategy/financial-model-and-assumptions.md': 'agent-engine',
   'docs/strategy/governance.md': 'governance',
   'docs/strategy/department-mandates.md': 'departments',
   'docs/strategy/core-values.md': 'core-values',
@@ -2856,7 +2853,6 @@ var sectionLabels = {
   'overview': 'Strategy Packet',
   'bhag-model': 'BHAG Model',
   'agent-engine': 'Agent Engine',
-  'financial-model': 'Planning Definitions',
   'governance': 'Governance',
   'departments': 'Department Mandates',
   'core-values': 'Core Values',
@@ -3017,7 +3013,6 @@ function renderFoundationModuleCard(section) {
 function renderHomeWorkboardStage(stage, items) {
   var details = document.createElement('details')
   details.className = 'foundation-stage'
-  details.open = stage.key !== 'done'
 
   var summary = document.createElement('summary')
   summary.className = 'foundation-stage-summary foundation-stage-summary-' + stage.tone
@@ -3367,7 +3362,7 @@ function renderOverview() {
     heroLeft.appendChild(heroTitle)
 
     var heroCopy = document.createElement('p')
-    heroCopy.textContent = 'Canonical strategy document for Benson Crew. The single source of truth that everything else feeds from.'
+    heroCopy.textContent = 'Canonical strategy document for Benson Crew. The six core sections live here. Supporting docs sit beside the packet in the nav so the strategy stays tight while the detail stays close.'
     heroLeft.appendChild(heroCopy)
 
     hero.appendChild(heroLeft)
@@ -4163,6 +4158,31 @@ function updateNav(section) {
   if (breadcrumb) {
     breadcrumb.textContent = sectionLabels[section] || section
   }
+
+  var breadcrumbParent = document.getElementById('found-breadcrumb-parent')
+  var breadcrumbParentSep = document.getElementById('found-breadcrumb-parent-sep')
+  if (breadcrumbParent && breadcrumbParentSep) {
+    var parent = null
+    var strategySupportSections = ['bhag-model', 'core-values', 'agent-engine', 'departments', 'governance', 'marketmasters']
+
+    if (strategySupportSections.indexOf(section) !== -1) {
+      parent = { label: 'Strategy Packet', href: '/foundation#overview' }
+    } else if (['decisions', 'backlog', 'open-questions', 'system-activity', 'system-health'].indexOf(section) !== -1) {
+      parent = { label: 'Foundation Operations', href: '/foundation#backlog' }
+    } else if (section === 'source-registry') {
+      parent = { label: 'Data Sources', href: '/foundation#source-registry' }
+    }
+
+    if (parent && section !== 'home') {
+      breadcrumbParent.textContent = parent.label
+      breadcrumbParent.href = parent.href
+      breadcrumbParent.hidden = false
+      breadcrumbParentSep.hidden = false
+    } else {
+      breadcrumbParent.hidden = true
+      breadcrumbParentSep.hidden = true
+    }
+  }
 }
 
 function route() {
@@ -4176,6 +4196,16 @@ function route() {
   if (section === 'data-health') {
     section = 'system-health'
     window.location.replace('/foundation#system-health')
+    return
+  }
+
+  if (section === 'north-star') {
+    window.location.replace('/foundation#bhag-model')
+    return
+  }
+
+  if (section === 'financial-model') {
+    window.location.replace('/foundation#agent-engine')
     return
   }
 

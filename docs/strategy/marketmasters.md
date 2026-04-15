@@ -12,7 +12,7 @@ It is one attraction channel inside the broader marketing system, not the whole 
 - Builds trust through education, not sales pitches
 - Extends reach beyond Benson Crew's immediate boundary
 - Gives leaders, downline partners, and referrals a value-first way to start the conversation
-- Hands the direct recruiting conversation to Benson Crew or Real when the timing is right
+- Hands the direct recruiting conversation to Benson Crew or Real Broker when the timing is right
 
 ## What It Is NOT
 
@@ -33,10 +33,16 @@ If the main point is to recruit or close directly, it belongs in Benson Crew or 
 MarketMasters builds trust that can lead to two outcomes:
 
 1. Some agents join Benson Crew directly.
-2. Many others join Real Broker through the Benson Crew downline.
+2. Many others join Real Broker through the Benson Crew ownership group's agent organization.
 
 Both outcomes serve the Agent Engine. Its job is to warm the conversation and hand it off cleanly, not carry the close itself.
 
 ## Tone
 
 Educational. Trust-first. Opt-in. Never high-pressure.
+
+## How to Read This
+
+- Use this page to decide whether something belongs in MarketMasters or Benson Crew.
+- If the work is building trust through education, events, or visibility, it likely belongs here.
+- If the work is trying to close, recruit directly, or showcase execution proof, it likely belongs under Benson Crew instead.

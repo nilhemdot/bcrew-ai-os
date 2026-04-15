@@ -52,7 +52,7 @@ var foundationDocPathToSection = {
   'docs/strategy/marketmasters.md': 'marketmasters',
   'docs/strategy/governance.md': 'governance',
   'docs/strategy/department-mandates.md': 'departments',
-  'docs/strategy/financial-model-and-assumptions.md': 'financial-model',
+  'docs/strategy/financial-model-and-assumptions.md': 'agent-engine',
   'docs/source-registry.md': 'source-registry',
 }
 

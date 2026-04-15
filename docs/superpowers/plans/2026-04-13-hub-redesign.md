@@ -128,10 +128,8 @@ Replace the entire contents of `public/foundation.html` with a new layout that h
           <div class="found-nav-group">
             <div class="found-nav-label">Strategy</div>
             <a class="found-nav-item found-nav-active" href="#overview" data-section="overview">Overview</a>
-            <a class="found-nav-item" href="#north-star" data-section="north-star">North Star</a>
             <a class="found-nav-item" href="#bhag-model" data-section="bhag-model">BHAG Model</a>
             <a class="found-nav-item" href="#agent-engine" data-section="agent-engine">Agent Engine</a>
-            <a class="found-nav-item" href="#financial-model" data-section="financial-model">Financial Model</a>
             <a class="found-nav-item" href="#quarterly-priorities" data-section="quarterly-priorities">Quarterly Priorities</a>
             <a class="found-nav-item" href="#governance" data-section="governance">Governance</a>
             <a class="found-nav-item" href="#departments" data-section="departments">Departments</a>
@@ -191,10 +189,8 @@ The key sections and what they render:
 | Hash | Content |
 |------|---------|
 | `#overview` | Hero + status grid + strategy document with all sections |
-| `#north-star` | Loads doc via `/api/doc?path=docs/strategy/bhag-model.md` (North Star = BHAG) |
 | `#bhag-model` | Loads doc via `/api/doc?path=docs/strategy/bhag-model.md` |
 | `#agent-engine` | Loads doc via `/api/doc?path=docs/strategy/agent-engine.md` |
-| `#financial-model` | Loads doc via `/api/doc?path=docs/strategy/financial-model-and-assumptions.md` |
 | `#quarterly-priorities` | Loads doc via `/api/doc?path=docs/strategy/quarterly-priorities.md` |
 | `#governance` | Loads doc via `/api/doc?path=docs/strategy/governance.md` |
 | `#departments` | Loads doc via `/api/doc?path=docs/strategy/department-mandates.md` |
@@ -205,7 +201,7 @@ The key sections and what they render:
 | `#source-registry` | Source registry sections from source-of-truth data |
 | `#data-health` | Memory status grid from foundation-hub data |
 
-For strategy doc pages (north-star through core-values), fetch from `/api/doc` and render with the existing `renderMarkdownBlock` from doc.js. Reuse the doc viewer's rendering approach — fetch the doc content and render it inline in the foundation content area.
+For strategy doc pages (BHAG Model through Core Values), fetch from `/api/doc` and render with the existing `renderMarkdownBlock` from doc.js. Reuse the doc viewer's rendering approach — fetch the doc content and render it inline in the foundation content area.
 
 The `#overview` section renders the full current dashboard view (hero + status grid + strategy document sections).
 

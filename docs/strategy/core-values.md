@@ -29,3 +29,9 @@ This value rejects excuse-making, handoff ambiguity, and passive responsibility.
 - standards enforcement
 
 If a strategic choice violates the core values, it should not survive the decision process.
+
+## How to Read This
+
+- This page defines the values as operating filters, not campaign language.
+- Read it when a hiring call, leadership decision, standards issue, or conflict needs a clear decision frame.
+- If a choice improves short-term output but violates a core value, the value wins.
