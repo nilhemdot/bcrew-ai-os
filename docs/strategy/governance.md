@@ -10,6 +10,8 @@ The goal is simple:
 - no heroics
 - no confusion
 
+Governance should not rely on Steve manually carrying the cadence, memory, and follow-through every week. The system should become an operating partner that helps prepare the room, run the sequence, capture the output, and keep accountability visible afterward.
+
 ## Operating Lens
 
 The business runs through one operating lens:
@@ -135,6 +137,27 @@ The PM role exists to:
 - follow up between meetings
 - bring operational context when needed
 
+This role can be human-led, system-assisted, or eventually agent-operated. Its job is not to make strategy. Its job is to keep governance moving.
+
+## Governance Operator Layer
+
+The first governance agent should behave like a strategic operator, not a novelty meeting bot.
+
+It should:
+
+- prepare the room using the Agent Engine, open decisions, overdue follow-through, and source-trust flags
+- keep the meeting on the right sequence instead of letting it drift into status chatter or tactical redesign
+- ask follow-up questions when answers are vague, ownerless, or unsupported by evidence
+- turn approved decisions into structured records, owners, deadlines, and backlog changes
+- publish a clean closeout after the meeting with decisions, owners, due dates, blockers, and escalation points
+
+It should not:
+
+- invent strategy
+- override leadership decisions
+- auto-assign accountability without a rule or approval boundary
+- speak constantly just because it is present
+
 ## Dashboard Review Cadence
 
 Benson Crew operates on three dashboard layers:
@@ -182,10 +205,12 @@ This cadence should not live only in a document.
 
 The system should:
 
-- check the calendar for the required weekly, monthly, quarterly, and 1:1 cadences
-- flag when a required meeting is missing or slips
-- surface the right dashboard and review materials before each meeting
-- log the decisions and follow-ups that come out of each cadence
+- verify the required weekly, monthly, quarterly, and 1:1 cadences exist on the calendar
+- flag when a required meeting is missing, slips, or loses its review packet
+- generate the right pre-meeting brief using the Agent Engine, open decisions, follow-through status, and source-trust issues
+- keep a structured agenda, question prompts, and notes during the meeting
+- turn approved decisions into structured records, owners, due dates, and next actions after the meeting
+- escalate repeated misses and unresolved blockers instead of letting them disappear between meetings
 
 ## Governance Rules
 

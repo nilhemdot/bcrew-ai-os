@@ -39,6 +39,12 @@ Some departments own a core part of the engine. Others support more than one par
 
 Quarter-specific asks do not belong here. They live in Strategic Execution.
 
+## Governance
+
+The business runs on a fixed cadence: weekly execution, monthly strategic review, department reviews, and quarterly planning. That cadence should be reinforced by the system so preparation, decision capture, and follow-through do not depend on Steve carrying the whole load manually.
+
+Leadership meetings exist to surface reality, identify the real constraint, make decisions, assign ownership, and protect focus. They are not for status updates, tactical debate, or redesigning execution in the room.
+
 ## Two Brands
 
 Benson Crew and MarketMasters do different jobs.
@@ -47,12 +53,6 @@ Benson Crew and MarketMasters do different jobs.
 - **MarketMasters** builds trust through education, events, training, and visibility. When the timing is right, it can open a path to Benson Crew or Real through conversation with the recruiting team.
 
 They work together, but they are not the same brand and should never blur.
-
-## Governance
-
-The business runs on a fixed cadence: weekly execution, monthly strategic review, department reviews, and quarterly planning.
-
-Leadership meetings exist to surface reality, identify the real constraint, make decisions, assign ownership, and protect focus. They are not for status updates, tactical debate, or redesigning execution in the room.
 
 ## Current Quarter
 
