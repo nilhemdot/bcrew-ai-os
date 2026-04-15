@@ -2,9 +2,11 @@ import express from 'express'
 import { execFile } from 'node:child_process'
 import { createHash, timingSafeEqual } from 'node:crypto'
 import fs from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
 import {
   approvePendingDocUpdate,
   closeFoundationDb,
@@ -32,6 +34,8 @@ import { getSourceContracts, getSourceContractsByIds } from './lib/source-contra
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+const require = createRequire(import.meta.url)
+const fontkit = require('@pdf-lib/fontkit')
 const app = express()
 const port = process.env.PORT || 3000
 const execFileAsync = promisify(execFile)
@@ -41,6 +45,8 @@ app.disable('x-powered-by')
 const docsDir = path.join(__dirname, 'docs')
 const businessStrategyPath = path.join(docsDir, 'business-strategy.md')
 const sourceRegistryPath = path.join(docsDir, 'source-registry.md')
+const stratumRegularPath = path.join(__dirname, 'public', 'fonts', 'Stratum1-Regular.otf')
+const stratumBoldPath = path.join(__dirname, 'public', 'fonts', 'Stratum1-Bold.otf')
 const strategyDocs = [
   path.join(docsDir, 'strategy', 'bhag-model.md'),
   path.join(docsDir, 'strategy', 'agent-engine.md'),
@@ -216,6 +222,491 @@ function slugify(value) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
+}
+
+function formatTorontoDate(isoString, includeTime) {
+  if (!isoString) return 'Not available'
+  const date = new Date(isoString)
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    ...(includeTime ? { hour: 'numeric', minute: '2-digit' } : {}),
+  }).format(date) + (includeTime ? ' ET' : '')
+}
+
+function stripInlineMarkdown(text) {
+  return String(text || '')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '$1')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/`(.+?)`/g, '$1')
+}
+
+function parsePdfBlocks(markdown) {
+  const blocks = []
+  const lines = String(markdown || '').split('\n')
+  let paragraphLines = []
+  let listItems = []
+  let listType = null
+
+  function flushParagraph() {
+    if (!paragraphLines.length) return
+    blocks.push({
+      type: 'paragraph',
+      text: stripInlineMarkdown(paragraphLines.join(' ').replace(/\s+/g, ' ').trim()),
+    })
+    paragraphLines = []
+  }
+
+  function flushList() {
+    if (!listItems.length) return
+    blocks.push({
+      type: listType,
+      items: listItems.map(item => stripInlineMarkdown(item)),
+    })
+    listItems = []
+    listType = null
+  }
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim()
+    if (!line) {
+      flushParagraph()
+      flushList()
+      continue
+    }
+
+    const orderedMatch = line.match(/^(\d+)\.\s+(.+)$/)
+    if (orderedMatch) {
+      flushParagraph()
+      if (listType && listType !== 'ordered') flushList()
+      listType = 'ordered'
+      listItems.push(orderedMatch[2])
+      continue
+    }
+
+    if (line.startsWith('- ')) {
+      flushParagraph()
+      if (listType && listType !== 'unordered') flushList()
+      listType = 'unordered'
+      listItems.push(line.slice(2))
+      continue
+    }
+
+    flushList()
+    paragraphLines.push(line)
+  }
+
+  flushParagraph()
+  flushList()
+  return blocks
+}
+
+function wrapPdfText(text, font, size, maxWidth) {
+  const clean = String(text || '').replace(/\s+/g, ' ').trim()
+  if (!clean) return []
+
+  const words = clean.split(' ')
+  const lines = []
+  let line = ''
+
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word
+    if (!line || font.widthOfTextAtSize(candidate, size) <= maxWidth) {
+      line = candidate
+      continue
+    }
+
+    lines.push(line)
+    line = word
+  }
+
+  if (line) lines.push(line)
+  return lines
+}
+
+function drawWrappedParagraph(page, text, options) {
+  const {
+    x,
+    y,
+    font,
+    size,
+    color,
+    maxWidth,
+    lineHeight,
+  } = options
+
+  let cursorY = y
+  const lines = wrapPdfText(text, font, size, maxWidth)
+  for (const line of lines) {
+    page.drawText(line, {
+      x,
+      y: cursorY,
+      size,
+      font,
+      color,
+    })
+    cursorY -= lineHeight
+  }
+
+  return cursorY
+}
+
+function drawWrappedListItem(page, label, text, options) {
+  const {
+    x,
+    y,
+    font,
+    size,
+    color,
+    maxWidth,
+    lineHeight,
+  } = options
+
+  const labelWidth = font.widthOfTextAtSize(label, size)
+  const gap = 6
+  const textX = x + labelWidth + gap
+  const textWidth = maxWidth - labelWidth - gap
+  const lines = wrapPdfText(text, font, size, textWidth)
+  let cursorY = y
+
+  if (!lines.length) return cursorY
+
+  page.drawText(label, {
+    x,
+    y: cursorY,
+    size,
+    font,
+    color,
+  })
+
+  page.drawText(lines[0], {
+    x: textX,
+    y: cursorY,
+    size,
+    font,
+    color,
+  })
+
+  cursorY -= lineHeight
+
+  for (let index = 1; index < lines.length; index += 1) {
+    page.drawText(lines[index], {
+      x: textX,
+      y: cursorY,
+      size,
+      font,
+      color,
+    })
+    cursorY -= lineHeight
+  }
+
+  return cursorY
+}
+
+function addStrategyPdfFooter(page, footerText, fonts, palette) {
+  const { width } = page.getSize()
+  page.drawLine({
+    start: { x: 48, y: 40 },
+    end: { x: width - 48, y: 40 },
+    thickness: 1,
+    color: palette.border,
+  })
+
+  page.drawText(footerText, {
+    x: 48,
+    y: 24,
+    size: 8.5,
+    font: fonts.body,
+    color: palette.muted,
+  })
+}
+
+function addStrategyPdfSectionPage(pdfDoc, section, sectionIndex, totalSections, fonts, palette, continuation) {
+  const page = pdfDoc.addPage([612, 792])
+  const { width, height } = page.getSize()
+
+  page.drawRectangle({
+    x: 0,
+    y: height - 96,
+    width,
+    height: 96,
+    color: palette.brandDark,
+  })
+
+  page.drawRectangle({
+    x: 48,
+    y: height - 126,
+    width: 8,
+    height: 54,
+    color: palette.brand,
+  })
+
+  page.drawText('BCrew AI OS · Business Strategy', {
+    x: 70,
+    y: height - 48,
+    size: 10,
+    font: fonts.heading,
+    color: palette.white,
+  })
+
+  const sectionLabel = `Section ${String(sectionIndex + 1).padStart(2, '0')} of ${String(totalSections).padStart(2, '0')}${continuation ? ' · Continued' : ''}`
+  page.drawText(sectionLabel, {
+    x: 70,
+    y: height - 78,
+    size: 9,
+    font: fonts.body,
+    color: palette.white,
+  })
+
+  page.drawText(section.title, {
+    x: 48,
+    y: height - 158,
+    size: 24,
+    font: fonts.heading,
+    color: palette.text,
+  })
+
+  page.drawLine({
+    start: { x: 48, y: height - 176 },
+    end: { x: width - 48, y: height - 176 },
+    thickness: 1,
+    color: palette.border,
+  })
+
+  addStrategyPdfFooter(page, `Benson Crew Business Strategy · ${section.title}`, fonts, palette)
+
+  return {
+    page,
+    cursorY: height - 210,
+    contentBottomY: 60,
+    contentWidth: width - 96,
+  }
+}
+
+async function buildBusinessStrategyPdf(packet) {
+  const pdfDoc = await PDFDocument.create()
+  pdfDoc.registerFontkit(fontkit)
+
+  const headingFont = await pdfDoc.embedFont(fs.readFileSync(stratumBoldPath))
+  const bodyFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
+  const bodyBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+
+  const fonts = {
+    heading: headingFont,
+    body: bodyFont,
+    bodyBold: bodyBoldFont,
+  }
+
+  const palette = {
+    brand: rgb(0 / 255, 132 / 255, 201 / 255),
+    brandDark: rgb(0 / 255, 95 / 255, 148 / 255),
+    text: rgb(10 / 255, 15 / 255, 26 / 255),
+    muted: rgb(86 / 255, 97 / 255, 114 / 255),
+    border: rgb(220 / 255, 226 / 255, 234 / 255),
+    white: rgb(1, 1, 1),
+    card: rgb(245 / 255, 248 / 255, 252 / 255),
+  }
+
+  pdfDoc.setTitle('Benson Crew Business Strategy')
+  pdfDoc.setAuthor('BCrew AI OS')
+  pdfDoc.setSubject('Business Strategy')
+  pdfDoc.setCreator('BCrew AI OS Foundation')
+  pdfDoc.setProducer('BCrew AI OS Foundation')
+  pdfDoc.setCreationDate(new Date())
+  pdfDoc.setModificationDate(new Date())
+
+  const cover = pdfDoc.addPage([612, 792])
+  const { width, height } = cover.getSize()
+  const sections = packet.sections || []
+
+  cover.drawRectangle({
+    x: 0,
+    y: height - 282,
+    width,
+    height: 282,
+    color: palette.brandDark,
+  })
+
+  cover.drawText('BCrew AI OS · Foundation', {
+    x: 48,
+    y: height - 54,
+    size: 11,
+    font: fonts.heading,
+    color: palette.white,
+  })
+
+  cover.drawText('Benson Crew', {
+    x: 48,
+    y: height - 130,
+    size: 34,
+    font: fonts.heading,
+    color: palette.white,
+  })
+
+  cover.drawText('Business Strategy', {
+    x: 48,
+    y: height - 172,
+    size: 34,
+    font: fonts.heading,
+    color: palette.white,
+  })
+
+  const subtitleLines = wrapPdfText(
+    'Durable business direction for Benson Crew. This PDF is generated from the live Foundation strategy packet.',
+    fonts.body,
+    12,
+    width - 96
+  )
+  let subtitleY = height - 214
+  for (const line of subtitleLines) {
+    cover.drawText(line, {
+      x: 48,
+      y: subtitleY,
+      size: 12,
+      font: fonts.body,
+      color: palette.white,
+    })
+    subtitleY -= 18
+  }
+
+  const metaCards = [
+    ['Packet', 'Business Strategy'],
+    ['Sections', String(sections.length)],
+    ['Updated', formatTorontoDate(packet.meta.updatedAt, true)],
+    ['Exported', formatTorontoDate(new Date().toISOString(), true)],
+  ]
+
+  const cardWidth = 120
+  const cardGap = 10
+  metaCards.forEach((entry, index) => {
+    const x = 48 + index * (cardWidth + cardGap)
+    cover.drawRectangle({
+      x,
+      y: height - 340,
+      width: cardWidth,
+      height: 62,
+      color: rgb(1, 1, 1),
+      opacity: 0.12,
+      borderColor: rgb(1, 1, 1),
+      borderOpacity: 0.15,
+      borderWidth: 1,
+    })
+
+    cover.drawText(entry[0], {
+      x: x + 12,
+      y: height - 306,
+      size: 8,
+      font: fonts.heading,
+      color: palette.white,
+    })
+
+    cover.drawText(entry[1], {
+      x: x + 12,
+      y: height - 324,
+      size: 10,
+      font: fonts.bodyBold,
+      color: palette.white,
+      maxWidth: cardWidth - 24,
+    })
+  })
+
+  cover.drawText('Included Sections', {
+    x: 48,
+    y: height - 390,
+    size: 16,
+    font: fonts.heading,
+    color: palette.text,
+  })
+
+  let tocY = height - 428
+  sections.forEach((section, index) => {
+    cover.drawRectangle({
+      x: 48,
+      y: tocY - 8,
+      width: width - 96,
+      height: 34,
+      color: palette.card,
+      borderColor: palette.border,
+      borderWidth: 1,
+    })
+
+    cover.drawText(String(index + 1).padStart(2, '0'), {
+      x: 62,
+      y: tocY + 3,
+      size: 10,
+      font: fonts.heading,
+      color: palette.brand,
+    })
+
+    cover.drawText(section.title, {
+      x: 98,
+      y: tocY + 2,
+      size: 12,
+      font: fonts.bodyBold,
+      color: palette.text,
+    })
+
+    tocY -= 42
+  })
+
+  addStrategyPdfFooter(cover, `Benson Crew Business Strategy · Live Foundation export · ${formatTorontoDate(new Date().toISOString(), false)}`, fonts, palette)
+
+  const paragraphSize = 11.5
+  const lineHeight = 17
+  const blockGap = 12
+
+  for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex += 1) {
+    const section = sections[sectionIndex]
+    const blocks = parsePdfBlocks(section.content)
+    let state = addStrategyPdfSectionPage(pdfDoc, section, sectionIndex, sections.length, fonts, palette, false)
+
+    function ensureSpace(requiredHeight) {
+      if (state.cursorY - requiredHeight >= state.contentBottomY) return
+      state = addStrategyPdfSectionPage(pdfDoc, section, sectionIndex, sections.length, fonts, palette, true)
+    }
+
+    for (const block of blocks) {
+      if (block.type === 'paragraph') {
+        const lines = wrapPdfText(block.text, fonts.body, paragraphSize, state.contentWidth)
+        const blockHeight = Math.max(lineHeight, lines.length * lineHeight)
+        ensureSpace(blockHeight)
+        state.cursorY = drawWrappedParagraph(state.page, block.text, {
+          x: 48,
+          y: state.cursorY,
+          font: fonts.body,
+          size: paragraphSize,
+          color: palette.text,
+          maxWidth: state.contentWidth,
+          lineHeight,
+        }) - blockGap
+        continue
+      }
+
+      if (block.type === 'unordered' || block.type === 'ordered') {
+        for (let itemIndex = 0; itemIndex < block.items.length; itemIndex += 1) {
+          const label = block.type === 'ordered' ? `${itemIndex + 1}.` : '-'
+          const lines = wrapPdfText(block.items[itemIndex], fonts.body, paragraphSize, state.contentWidth - 24)
+          const itemHeight = Math.max(lineHeight, lines.length * lineHeight)
+          ensureSpace(itemHeight)
+          state.cursorY = drawWrappedListItem(state.page, label, block.items[itemIndex], {
+            x: 48,
+            y: state.cursorY,
+            font: fonts.body,
+            size: paragraphSize,
+            color: palette.text,
+            maxWidth: state.contentWidth,
+            lineHeight,
+          }) - 6
+        }
+
+        state.cursorY -= 6
+      }
+    }
+  }
+
+  return pdfDoc.save()
 }
 
 function getHeadingSection(markdown, targetSection) {
@@ -920,6 +1411,30 @@ app.get('/doc', (_req, res) => {
 app.get('/foundation', (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'foundation.html'))
+})
+
+app.get('/foundation/export/strategy.pdf', async (_req, res) => {
+  try {
+    const businessStrategy = readFileSafe(businessStrategyPath)
+    if (!businessStrategy) {
+      sendApiError(res, 404, 'strategy_missing', 'Business strategy source file is missing.')
+      return
+    }
+
+    const packet = {
+      meta: getDocMeta(businessStrategyPath),
+      sections: parseSections(businessStrategy),
+    }
+
+    const pdfBytes = await buildBusinessStrategyPdf(packet)
+    cacheHeadersNoStore(res)
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'attachment; filename=\"benson-crew-business-strategy.pdf\"')
+    res.send(Buffer.from(pdfBytes))
+  } catch (error) {
+    console.error('Failed to generate business strategy PDF:', error)
+    sendApiError(res, 500, 'strategy_pdf_failed', 'Failed to generate the business strategy PDF.')
+  }
 })
 
 app.get('/foundation/export/strategy', (_req, res) => {

@@ -124,6 +124,14 @@ var backlogLanes = [
   { key: 'ranked', label: 'Ranked' },
   { key: 'executing', label: 'Executing' },
   { key: 'parked', label: 'Parked' },
+  { key: 'done', label: 'Done' },
+]
+
+var homeWorkboardStages = [
+  { key: 'todo', label: 'To Do', lanes: ['research', 'scoped', 'ranked'], tone: 'todo', intro: 'Queued work that still needs shaping, ranking, or proof.' },
+  { key: 'doing', label: 'Doing', lanes: ['executing'], tone: 'doing', intro: 'Live foundation work the system is actively moving right now.' },
+  { key: 'done', label: 'Done', lanes: ['done'], tone: 'done', intro: 'Closed work that is now part of the live operating layer.' },
+  { key: 'parked', label: 'Parked', lanes: ['parked'], tone: 'parked', intro: 'Work intentionally held back so it does not muddy the foundation pass.' },
 ]
 
 /* ── inline formatting (from app.js) ─────────────────────── */
@@ -1610,6 +1618,146 @@ function renderBacklogItem(item) {
   return card
 }
 
+function compareBacklogItems(a, b) {
+  var priorityOrder = { P0: 0, P1: 1, P2: 2, P3: 3 }
+  var laneOrder = {}
+  backlogLanes.forEach(function(lane, index) {
+    laneOrder[lane.key] = index
+  })
+
+  var priorityDelta = (priorityOrder[a.priority] || 9) - (priorityOrder[b.priority] || 9)
+  if (priorityDelta !== 0) return priorityDelta
+
+  var aRank = typeof a.rank === 'number' ? a.rank : Number.MAX_SAFE_INTEGER
+  var bRank = typeof b.rank === 'number' ? b.rank : Number.MAX_SAFE_INTEGER
+  if (aRank !== bRank) return aRank - bRank
+
+  var laneDelta = (laneOrder[a.lane] || 99) - (laneOrder[b.lane] || 99)
+  if (laneDelta !== 0) return laneDelta
+
+  return String(a.title || '').localeCompare(String(b.title || ''))
+}
+
+function sortBacklogItems(items) {
+  return (items || []).slice().sort(compareBacklogItems)
+}
+
+function renderBacklogAccordionItem(item) {
+  var details = document.createElement('details')
+  details.className = 'backlog-item-pill'
+  if (item.lane === 'executing') details.open = true
+
+  var summary = document.createElement('summary')
+  summary.className = 'backlog-item-summary'
+
+  var left = document.createElement('div')
+  left.className = 'backlog-item-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'backlog-item-summary-title'
+  title.textContent = item.title
+  left.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'backlog-item-summary-meta'
+  meta.textContent = item.id + (item.owner ? ' · ' + item.owner : '')
+  left.appendChild(meta)
+  summary.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'backlog-item-summary-right'
+
+  var priority = document.createElement('span')
+  priority.className = 'backlog-pill backlog-priority-' + item.priority.toLowerCase()
+  priority.textContent = item.priority
+  right.appendChild(priority)
+
+  if (item.rank) {
+    var rank = document.createElement('span')
+    rank.className = 'backlog-rank'
+    rank.textContent = '#' + item.rank
+    right.appendChild(rank)
+  }
+
+  summary.appendChild(right)
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'backlog-item-body'
+
+  var summaryCopy = document.createElement('p')
+  summaryCopy.className = 'backlog-copy'
+  summaryCopy.textContent = item.summary
+  body.appendChild(summaryCopy)
+
+  var why = document.createElement('p')
+  why.className = 'backlog-copy backlog-copy-secondary'
+  why.textContent = item.whyItMatters
+  body.appendChild(why)
+
+  body.appendChild(renderLabeledCopy('backlog-next', 'Next', item.nextAction))
+
+  if (item.statusNote) {
+    var note = document.createElement('p')
+    note.className = 'backlog-note'
+    note.textContent = item.statusNote
+    body.appendChild(note)
+  }
+
+  body.appendChild(renderBacklogItemEditor(item))
+  details.appendChild(body)
+  return details
+}
+
+function renderBacklogLaneStack(lane, items) {
+  var details = document.createElement('details')
+  details.className = 'backlog-stack'
+  if (lane.key === 'executing') details.open = true
+
+  var summary = document.createElement('summary')
+  summary.className = 'backlog-stack-summary'
+
+  var labelWrap = document.createElement('div')
+  labelWrap.className = 'backlog-stack-label-wrap'
+
+  var label = document.createElement('div')
+  label.className = 'backlog-stack-title'
+  label.textContent = lane.label
+  labelWrap.appendChild(label)
+
+  var intro = document.createElement('div')
+  intro.className = 'backlog-stack-intro'
+  intro.textContent = items.length
+    ? items.length + ' items in this lane'
+    : 'Nothing in this lane right now.'
+  labelWrap.appendChild(intro)
+  summary.appendChild(labelWrap)
+
+  var count = document.createElement('span')
+  count.className = 'backlog-stack-count'
+  count.textContent = items.length
+  summary.appendChild(count)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'backlog-stack-body'
+
+  if (!items.length) {
+    var empty = document.createElement('p')
+    empty.className = 'lane-empty'
+    empty.textContent = 'Nothing here yet.'
+    body.appendChild(empty)
+  } else {
+    sortBacklogItems(items).forEach(function(item) {
+      body.appendChild(renderBacklogAccordionItem(item))
+    })
+  }
+
+  details.appendChild(body)
+  return details
+}
+
 function renderTeamBoard(team, items) {
   var board = document.createElement('section')
   board.className = 'team-board'
@@ -1629,43 +1777,11 @@ function renderTeamBoard(team, items) {
   board.appendChild(header)
 
   var laneGrid = document.createElement('div')
-  laneGrid.className = 'backlog-board'
+  laneGrid.className = 'backlog-stack-list'
 
   backlogLanes.forEach(function(lane) {
-    var laneEl = document.createElement('div')
-    laneEl.className = 'backlog-lane'
-
-    var laneTop = document.createElement('div')
-    laneTop.className = 'backlog-lane-top'
-
-    var laneTitle = document.createElement('h5')
-    laneTitle.textContent = lane.label
-    laneTop.appendChild(laneTitle)
-
-    var laneCount = document.createElement('span')
-    laneCount.className = 'backlog-lane-count'
     var laneItems = items.filter(function(item) { return item.lane === lane.key })
-    laneCount.textContent = laneItems.length
-    laneTop.appendChild(laneCount)
-
-    laneEl.appendChild(laneTop)
-
-    var laneCards = document.createElement('div')
-    laneCards.className = 'backlog-lane-cards'
-
-    if (!laneItems.length) {
-      var empty = document.createElement('p')
-      empty.className = 'lane-empty'
-      empty.textContent = 'Nothing here yet.'
-      laneCards.appendChild(empty)
-    } else {
-      laneItems.forEach(function(item) {
-        laneCards.appendChild(renderBacklogItem(item))
-      })
-    }
-
-    laneEl.appendChild(laneCards)
-    laneGrid.appendChild(laneEl)
+    laneGrid.appendChild(renderBacklogLaneStack(lane, laneItems))
   })
 
   board.appendChild(laneGrid)
@@ -2702,7 +2818,8 @@ var strategicExecutionDocPathToSection = {
 /* ── nav label map for breadcrumb ────────────────────────── */
 
 var sectionLabels = {
-  'overview': 'Overview',
+  'home': 'Home',
+  'overview': 'Strategy Packet',
   'bhag-model': 'BHAG Model',
   'agent-engine': 'Agent Engine',
   'financial-model': 'Planning Definitions',
@@ -2800,6 +2917,279 @@ function renderRecentChangesPanel(items, options) {
   return panel
 }
 
+function createActionButton(label, handler, className) {
+  var button = document.createElement('button')
+  button.className = className || 'secondary-button'
+  button.type = 'button'
+  button.textContent = label
+  button.addEventListener('click', handler)
+  return button
+}
+
+function renderFoundationPurposeCard(config) {
+  var article = document.createElement('article')
+  article.className = 'foundation-purpose-card'
+
+  var icon = document.createElement('div')
+  icon.className = 'foundation-purpose-icon'
+  icon.innerHTML = config.icon
+  article.appendChild(icon)
+
+  var title = document.createElement('h3')
+  title.textContent = config.title
+  article.appendChild(title)
+
+  var body = document.createElement('p')
+  body.textContent = config.body
+  article.appendChild(body)
+
+  return article
+}
+
+function renderFoundationModuleCard(section) {
+  var article = document.createElement('article')
+  article.className = 'foundation-module-card'
+
+  var title = document.createElement('h4')
+  title.textContent = section.title
+  article.appendChild(title)
+
+  var excerpt = document.createElement('p')
+  excerpt.textContent = section.content.split('\n')[0]
+  article.appendChild(excerpt)
+
+  var actions = document.createElement('div')
+  actions.className = 'foundation-module-actions'
+
+  var openPacket = document.createElement('a')
+  openPacket.className = 'secondary-button'
+  openPacket.href = '/foundation#overview'
+  openPacket.textContent = 'Open Packet'
+  actions.appendChild(openPacket)
+
+  var supportDoc = sectionSupportDocs[section.title]
+  if (supportDoc) {
+    var supportLink = document.createElement('a')
+    supportLink.className = 'secondary-button'
+    supportLink.href = buildDocHref(supportDoc.path, 'docs/business-strategy.md')
+    supportLink.textContent = 'Supporting Doc'
+    actions.appendChild(supportLink)
+  }
+
+  article.appendChild(actions)
+  return article
+}
+
+function renderHomeWorkboardStage(stage, items) {
+  var details = document.createElement('details')
+  details.className = 'foundation-stage'
+  details.open = stage.key !== 'done'
+
+  var summary = document.createElement('summary')
+  summary.className = 'foundation-stage-summary foundation-stage-summary-' + stage.tone
+
+  var left = document.createElement('div')
+  left.className = 'foundation-stage-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'foundation-stage-title'
+  title.textContent = stage.label
+  left.appendChild(title)
+
+  var intro = document.createElement('div')
+  intro.className = 'foundation-stage-intro'
+  intro.textContent = stage.intro
+  left.appendChild(intro)
+  summary.appendChild(left)
+
+  var count = document.createElement('span')
+  count.className = 'foundation-stage-count'
+  count.textContent = items.length
+  summary.appendChild(count)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'foundation-stage-body'
+  if (!items.length) {
+    var empty = document.createElement('p')
+    empty.className = 'lane-empty'
+    empty.textContent = 'Nothing in this stage right now.'
+    body.appendChild(empty)
+  } else {
+    sortBacklogItems(items).slice(0, 10).forEach(function(item) {
+      body.appendChild(renderBacklogAccordionItem(item))
+    })
+
+    if (items.length > 10) {
+      var more = document.createElement('p')
+      more.className = 'foundation-stage-more'
+      more.textContent = 'Showing the first 10 items here. Open Backlog for the full stack.'
+      body.appendChild(more)
+    }
+  }
+
+  details.appendChild(body)
+  return details
+}
+
+function renderFoundationHome() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading Foundation...</p>'
+
+  Promise.all([fetchSourceOfTruth(), fetchFoundationHub()]).then(function(results) {
+    var data = results[0]
+    var hub = results[1]
+    container.innerHTML = ''
+
+    var hero = document.createElement('section')
+    hero.className = 'hero foundation-home-hero'
+
+    var heroLeft = document.createElement('div')
+
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Live Strategy System'
+    heroLeft.appendChild(eyebrow)
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Foundation'
+    heroLeft.appendChild(heroTitle)
+
+    var heroCopy = document.createElement('p')
+    heroCopy.textContent = 'Foundation is the live operating layer behind Benson Crew strategy. It keeps the strategy modular, lets the system govern against it, and turns the strategy into something agents can actively work with instead of something leadership has to carry manually.'
+    heroLeft.appendChild(heroCopy)
+    hero.appendChild(heroLeft)
+
+    var heroActions = document.createElement('div')
+    heroActions.className = 'foundation-hero-actions'
+    heroActions.appendChild(createActionButton('Download Strategy', function() {
+      var link = document.createElement('a')
+      link.href = '/foundation/export/strategy.pdf'
+      link.download = ''
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }, 'print-button'))
+    heroActions.appendChild(createActionButton('Open Strategy Packet', function() {
+      window.location.hash = '#overview'
+    }))
+    hero.appendChild(heroActions)
+
+    container.appendChild(hero)
+
+    var purposePanel = document.createElement('section')
+    purposePanel.className = 'panel'
+
+    var purposeHeader = document.createElement('div')
+    purposeHeader.className = 'panel-header'
+    var purposeLeft = document.createElement('div')
+    var purposeEyebrow = document.createElement('div')
+    purposeEyebrow.className = 'eyebrow'
+    purposeEyebrow.textContent = 'Why It Exists'
+    purposeLeft.appendChild(purposeEyebrow)
+    var purposeTitle = document.createElement('h3')
+    purposeTitle.textContent = 'What Foundation Is Doing'
+    purposeLeft.appendChild(purposeTitle)
+    purposeHeader.appendChild(purposeLeft)
+    purposePanel.appendChild(purposeHeader)
+
+    var purposeGrid = document.createElement('div')
+    purposeGrid.className = 'foundation-purpose-grid'
+    ;[
+      {
+        title: 'Live Strategy',
+        body: 'The strategy is meant to stay current, source-backed, and visible in the system instead of drifting into stale documents.',
+        icon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/><circle cx="12" cy="12" r="9"/></svg>',
+      },
+      {
+        title: 'Governed System',
+        body: 'This is where the operating rules live so the system can prepare the room, surface drift, and keep accountability visible after the meeting.',
+        icon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>',
+      },
+      {
+        title: 'Proactive Operator',
+        body: 'The goal is not passive storage. Foundation should become the operating partner that keeps cadence, memory, follow-through, and escalation tight.',
+        icon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M5 9l7-7 7 7"/><path d="M5 15l7 7 7-7"/></svg>',
+      },
+      {
+        title: 'Agent-Ready Modules',
+        body: 'The strategy was broken into modules so agents can work on the right layer without muddying the whole system every time something changes.',
+        icon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+      },
+    ].forEach(function(card) {
+      purposeGrid.appendChild(renderFoundationPurposeCard(card))
+    })
+    purposePanel.appendChild(purposeGrid)
+    container.appendChild(purposePanel)
+
+    var statusPanel = renderOverviewStatusPanel(data.systemStatus, {
+      title: 'Connected Now',
+      intro: 'This is the live system state around the strategy layer: what is wired, what is pending, and what still needs to earn trust.',
+    })
+    if (statusPanel) container.appendChild(statusPanel)
+
+    var modulesPanel = document.createElement('section')
+    modulesPanel.className = 'panel'
+
+    var modulesHeader = document.createElement('div')
+    modulesHeader.className = 'panel-header'
+    var modulesLeft = document.createElement('div')
+    var modulesEyebrow = document.createElement('div')
+    modulesEyebrow.className = 'eyebrow'
+    modulesEyebrow.textContent = 'Strategic Modules'
+    modulesLeft.appendChild(modulesEyebrow)
+    var modulesTitle = document.createElement('h3')
+    modulesTitle.textContent = 'What The System Governs Against'
+    modulesLeft.appendChild(modulesTitle)
+    modulesHeader.appendChild(modulesLeft)
+    modulesPanel.appendChild(modulesHeader)
+
+    var modulesGrid = document.createElement('div')
+    modulesGrid.className = 'foundation-module-grid'
+    data.foundation.businessStrategy.sections.forEach(function(section) {
+      modulesGrid.appendChild(renderFoundationModuleCard(section))
+    })
+    modulesPanel.appendChild(modulesGrid)
+    container.appendChild(modulesPanel)
+
+    var workboardPanel = document.createElement('section')
+    workboardPanel.className = 'panel'
+    var workboardHeader = document.createElement('div')
+    workboardHeader.className = 'panel-header'
+    var workboardLeft = document.createElement('div')
+    var workboardEyebrow = document.createElement('div')
+    workboardEyebrow.className = 'eyebrow'
+    workboardEyebrow.textContent = 'Live Workboard'
+    workboardLeft.appendChild(workboardEyebrow)
+    var workboardTitle = document.createElement('h3')
+    workboardTitle.textContent = 'What Still Needs To Get Done'
+    workboardLeft.appendChild(workboardTitle)
+    var workboardIntro = document.createElement('p')
+    workboardIntro.className = 'section-intro'
+    workboardIntro.textContent = 'Foundation work is shown as a vertical operating stack so it stays readable on desktop and mobile.'
+    workboardLeft.appendChild(workboardIntro)
+    workboardHeader.appendChild(workboardLeft)
+    workboardPanel.appendChild(workboardHeader)
+
+    var workboardList = document.createElement('div')
+    workboardList.className = 'foundation-stage-list'
+    homeWorkboardStages.forEach(function(stage) {
+      var stageItems = (hub.backlogItems || []).filter(function(item) {
+        return stage.lanes.indexOf(item.lane) !== -1
+      })
+      workboardList.appendChild(renderHomeWorkboardStage(stage, stageItems))
+    })
+    workboardPanel.appendChild(workboardList)
+    container.appendChild(workboardPanel)
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load Foundation home: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
 /* ── section renderers ───────────────────────────────────── */
 
 function renderOverview() {
@@ -2832,10 +3222,15 @@ function renderOverview() {
 
     var printBtn = document.createElement('button')
     printBtn.className = 'print-button'
-    printBtn.textContent = 'Export Strategy PDF'
+    printBtn.textContent = 'Download Strategy'
     printBtn.setAttribute('type', 'button')
     printBtn.addEventListener('click', function() {
-      window.open('/foundation/export/strategy?autoprint=1', '_blank', 'noopener')
+      var link = document.createElement('a')
+      link.href = '/foundation/export/strategy.pdf'
+      link.download = ''
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     })
     hero.appendChild(printBtn)
 
@@ -3600,7 +3995,7 @@ function renderSystemActivity() {
 
 function getSection() {
   var hash = window.location.hash.replace('#', '')
-  return hash || 'overview'
+  return hash || 'home'
 }
 
 function updateNav(section) {
@@ -3642,7 +4037,9 @@ function route() {
   var main = document.querySelector('.found-main')
   if (main) main.scrollTop = 0
 
-  if (section === 'overview') {
+  if (section === 'home') {
+    renderFoundationHome()
+  } else if (section === 'overview') {
     renderOverview()
   } else if (strategyDocPaths[section]) {
     renderStrategyDoc(section)
@@ -3668,7 +4065,7 @@ function route() {
 function init() {
   /* default hash */
   if (!window.location.hash) {
-    window.location.hash = '#overview'
+    window.location.hash = '#home'
   }
 
   /* mobile toggle */

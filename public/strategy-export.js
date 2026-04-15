@@ -263,8 +263,10 @@ function buildToolbar() {
   var print = document.createElement('button')
   print.className = 'secondary-button'
   print.type = 'button'
-  print.textContent = 'Save as PDF'
-  print.addEventListener('click', function() { window.print() })
+  print.textContent = 'Download PDF'
+  print.addEventListener('click', function() {
+    window.location.href = '/foundation/export/strategy.pdf'
+  })
   actions.appendChild(print)
 
   var close = document.createElement('button')
@@ -276,10 +278,6 @@ function buildToolbar() {
 
   bar.appendChild(actions)
   return bar
-}
-
-function shouldAutoPrint() {
-  return new URLSearchParams(window.location.search).get('autoprint') === '1'
 }
 
 fetchSourceOfTruth().then(function(data) {
@@ -295,10 +293,6 @@ fetchSourceOfTruth().then(function(data) {
   sections.forEach(function(section, index) {
     root.appendChild(buildSectionPage(section, index, sections.length))
   })
-
-  if (shouldAutoPrint()) {
-    window.setTimeout(function() { window.print() }, 300)
-  }
 }).catch(function(error) {
   var root = document.getElementById('strategy-export-root')
   root.innerHTML = ''
