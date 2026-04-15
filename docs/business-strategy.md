@@ -41,7 +41,7 @@ Quarter-specific asks do not belong here. They live in Strategic Execution.
 
 ## Governance
 
-The business runs on a fixed cadence: weekly execution, monthly strategic review, department reviews, and quarterly planning. That cadence should be reinforced by the system so preparation, decision capture, and follow-through do not depend on Steve carrying the whole load manually.
+The business runs on a fixed cadence: weekly execution, monthly strategic review, department reviews, and quarterly planning. That cadence should be reinforced by the system so preparation, decision capture, and follow-through do not depend on one leader carrying the whole load manually.
 
 Leadership meetings exist to surface reality, identify the real constraint, make decisions, assign ownership, and protect focus. They are not for status updates, tactical debate, or redesigning execution in the room.
 
