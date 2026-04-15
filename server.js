@@ -50,7 +50,6 @@ const stratumBoldPath = path.join(__dirname, 'public', 'fonts', 'Stratum1-Bold.o
 const strategyDocs = [
   path.join(docsDir, 'strategy', 'bhag-model.md'),
   path.join(docsDir, 'strategy', 'agent-engine.md'),
-  path.join(docsDir, 'strategy', 'financial-model-and-assumptions.md'),
   path.join(docsDir, 'strategy', 'quarterly-priorities.md'),
   path.join(docsDir, 'strategy', 'strategic-issues.md'),
   path.join(docsDir, 'strategy', 'governance.md'),

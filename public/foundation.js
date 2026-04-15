@@ -147,24 +147,24 @@ var foundationCloseoutOrder = [
 
 var foundationNowSequence = [
   {
-    title: 'Finish the strategy section',
-    body: 'Close the last copy and hierarchy pass on the business strategy packet so that whole slice is fully signed off.',
-  },
-  {
     title: 'Finish system strategy',
-    body: 'Clean the operating doctrine layer so the OS rules, role, and governance logic are clear and stable.',
+    body: 'Tighten the doctrine layer so the OS rules, source model, and approval model are clear without repetition or stale status panels.',
   },
   {
-    title: 'Close source trust',
-    body: 'Finish `SRC-OWNERS-001` and `SRC-FINANCE-001` sign-off so the trust layer stops reasoning on provisional truth.',
+    title: 'Make source trust visible',
+    body: 'Turn the next section into a clear live source layer that separates source contracts, connector status, and sign-off state.',
   },
   {
-    title: 'Add minimal verification',
-    body: 'Put in the smallest smoke-check layer that proves the app, trust layer, and critical source reads still work.',
+    title: 'Define system capabilities',
+    body: 'Show what models, tools, skills, and connectors the OS actually has right now instead of hiding that behind config and memory.',
   },
   {
-    title: 'Prove the first trusted loop',
-    body: 'Validate one narrow assistant loop end to end so Foundation is not just documented but operationally trusted.',
+    title: 'Define the agent franchise model',
+    body: 'Lock the contract every real agent must satisfy before we build more of them: owner, model, tools, skills, permissions, memory, cadence, and outputs.',
+  },
+  {
+    title: 'Close source trust and verification',
+    body: 'Finish source sign-off and add the smallest smoke-check layer so Foundation stops running on provisional trust.',
   },
 ]
 
@@ -3492,14 +3492,6 @@ function renderStrategyDoc(sectionKey) {
     ))
     docPanel.appendChild(docContent)
     container.appendChild(docPanel)
-
-    if (sectionKey === 'system-strategy' && sourceData && sourceData.systemStatus) {
-      var statusPanel = renderOverviewStatusPanel(sourceData.systemStatus, {
-        title: 'Foundation State',
-        intro: 'This is the live operating state around the strategy layer: source trust, shared memory, and the first trusted assistant loop.',
-      })
-      if (statusPanel) container.appendChild(statusPanel)
-    }
 
   }).catch(function(error) {
     container.innerHTML = ''

@@ -1,146 +1,130 @@
 # System Strategy
 
-This document defines what the BCrew AI OS is for, how it stores truth, and how future agents and hubs should behave.
+This page defines what the BCrew AI OS is for, how truth flows through it, and how future hubs, agents, and live views must behave.
 
-The business strategy explains how Benson Crew grows the company.
+Business Strategy defines where the company is going.
 
-This system strategy explains how the operating system supports that work without drifting, hallucinating, or turning into a pile of disconnected tools.
+System Strategy defines how the operating system keeps that strategy live, visible, and enforceable.
 
-## What The System Is
+## What Foundation Is
 
-- The root operating layer of the business
-- A shared memory and source-of-truth system for strategy, decisions, backlog, questions, and live source-backed views
-- The base that future hubs plug into:
-  - Strategic Execution
-  - Marketing
-  - Departments
-  - Agents
+- the root operating layer of the business
+- the place where durable strategy, operating memory, and source trust meet
+- the base every future hub plugs into instead of becoming its own truth system
 
-## Foundation Is The Root
-
-Foundation is not just a strategy packet. It is the root layer of the OS.
-
-It has three conceptual zones:
+Foundation has three layers:
 
 - Business Foundation
   - durable business strategy
-  - human-readable and Git-versioned
-- System Foundation
+  - supporting docs that explain it without contradicting it
+- Operating Foundation
   - backlog
   - decisions
   - open questions
   - recent changes
-  - memory status
-- Source Of Truth
+  - memory and workflow state
+- Source Layer
   - source contracts
-  - source registry
-  - source-backed live values
-  - source trust and health over time
-
-The current UI can stay simpler than this model. The architecture comes first.
+  - connector status
+  - live source-backed views
+  - source trust and source health
 
 ## Truth Model
 
-- Durable truth lives in docs and Git
-- Volatile operating memory lives in PostgreSQL
-- Live numbers come from source-backed contracts, not markdown snapshots
-- Conversation history, decisions, and change events must stay queryable over time
+- Durable truth lives in docs and Git.
+- Volatile operating memory lives in PostgreSQL.
+- Live values come from source-backed views, not markdown snapshots.
+- Decisions, change events, and conversation history must stay queryable over time.
 
 This means:
 
-- strategy docs stay concise and durable
-- source-backed views render live values from real systems
-- changing work belongs in the database, not loose markdown
+- strategy docs stay concise
+- changing work stays in the system, not loose markdown
+- every live value should be traceable to a source ID and real source link
 
 ## System Rules
 
 1. Business strategy is the source of truth for business direction.
-2. Live KPI values and milestone math belong in source systems, not in markdown docs.
+2. Live KPI values and milestone math belong in source systems, not markdown docs.
 3. Decisions that change strategy are logged as explicit records.
-4. Strategy docs are updated through tracked proposals and approvals, not silent edits.
+4. Strategy docs move through tracked proposals and approvals, not silent edits.
 5. Supporting docs can expand the strategy packet but never contradict it.
-6. The system must preserve the distinction between Benson Crew as the team and Real Broker as the brokerage/platform.
-7. The system should render live values from source IDs so source updates flow through the system without manual doc cleanup.
+6. Benson Crew and Real Broker must stay distinct in the system model.
+7. Source-backed views should render from source IDs so updates flow through the system without manual doc cleanup.
 8. Agents can support, analyze, and operationalize strategy, but they do not set or change strategy on their own.
-9. Every source-backed view should show the source ID and give the user a clear way to open the real source of truth.
-
-## System Role
-
-The Foundation system makes strategy operational. It reads reality from source systems, renders live source-backed values, logs decisions, surfaces drift, routes accountability, and keeps the strategy layer current.
-
-It supports leadership strategy. It does not invent or change strategy on its own.
+9. Every source-backed view should show the source ID and a clear path to the real source of truth.
 
 ## Change Doctrine
 
-- The system proposes
-- Steve confirms
-- The system records
+- The system proposes.
+- The right human owner confirms.
+- The system records.
 
-No agent or automation should silently rewrite core strategy.
+No agent or automation silently rewrites core strategy.
 
-For B1:
+Right now:
 
 - decisions can be proposed and classified in the system
 - doc updates can be proposed and reviewed in the system
-- only a narrow allowlist of docs can be explicitly applied by the system
-- central docs still get edited by hand
+- only a narrow allowlist of docs can be auto-applied
+- core docs are still edited carefully by hand
 
 ## Agent Doctrine
 
-Agents exist to support and operationalize strategy. They do not set or change it.
+Agents support strategy. They do not define it.
 
 Agents should:
 
 - ground themselves in Foundation first
 - use source contracts when live values matter
-- record changing work in the memory layer
+- write changing work into the memory layer
 - surface drift, blockers, and inconsistencies
-- help carry decisions into execution systems once approved
+- carry approved decisions into execution systems
 
 Agents should not:
 
 - invent strategy
 - overwrite approved truth silently
 - hardcode live numbers into docs
-- treat stale docs as normal
+- normalize stale or unverifiable data
 
 ## Source Doctrine
 
-- every important live input should have a stable source ID
+- every important live input needs a stable source ID
+- source contracts define which system owns which values
+- connectors are only the pipe; trust still has to be earned
 - source links should be reachable from the UI
 - source-backed panels should update when the source changes
 - source trust matters as much as source connectivity
 
-Foundation should wire the sources that keep strategy honest first:
+Foundation wires the sources that keep strategy honest first:
 
 - sales truth
 - finance truth
 - governance cadence
-- retention / attrition truth
+- retention and attrition truth
 
-Department execution metrics can plug in later at lower layers.
+Everything else comes later.
 
-## Hubs Plug Into Foundation
+## Hubs And Modules
 
-Future hubs should not become separate truth systems.
+Future hubs must plug into Foundation, not fork away from it.
 
-They should plug into Foundation:
+That means they:
 
 - read durable business and system strategy
 - read and write operating memory through approved APIs
 - use source contracts for live values
 - publish decisions and changes back into the shared record
 
-That is how the OS stays coherent as it scales.
-
-## What The System Is Not
+## What This Is Not
 
 - not a passive doc browser
-- not a dashboard that only reads
-- not a collection of bots without shared memory
+- not a dashboard with no memory
+- not a bot swarm with no shared truth
 - not a second strategy brain competing with leadership
 
-If Foundation becomes stale, fragmented, or untraceable, that is a system failure.
+If Foundation becomes stale, fragmented, or untraceable, the system has failed.
 
 ## Current Build Rule
 
@@ -148,7 +132,13 @@ Build the trust layer before the sprawl layer.
 
 That means:
 
-- write paths before more dashboards
-- decision capture before more agents
 - source trust before more source count
+- decision capture before more agents
+- verification before more automation
 - clean architecture before cosmetic sprawl
+
+## How to Read This
+
+- Read this page as doctrine, not a product roadmap.
+- Use it to judge whether a new hub, agent, surface, or workflow belongs in Foundation.
+- If a design conflicts with this page, fix the design before growing the system.
