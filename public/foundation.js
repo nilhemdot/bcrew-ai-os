@@ -127,11 +127,12 @@ var backlogLanes = [
   { key: 'done', label: 'Done' },
 ]
 
-var backlogPriorityGroups = [
-  { key: 'P0', label: 'P0 Critical', intro: 'Root Foundation blockers and the highest-urgency work.' },
-  { key: 'P1', label: 'P1 Important', intro: 'High-value work that shapes the next layer once blockers are clear.' },
-  { key: 'P2', label: 'P2 Important Later', intro: 'Good work that matters, but should not cut the line right now.' },
-  { key: 'P3', label: 'P3 Nice To Have', intro: 'Low-urgency work that stays visible without hijacking focus.' },
+var backlogWorkflowStages = [
+  { key: 'todo', label: 'To Do', lanes: ['research'], intro: 'Ideas and work that still need more proof, research, or shaping before they are ready.' },
+  { key: 'todo-scoped', label: 'To Do Scoped', lanes: ['scoped', 'ranked'], intro: 'Work that is shaped enough to build, but is not in motion yet.' },
+  { key: 'doing', label: 'Doing', lanes: ['executing'], intro: 'Live work actively being built or closed out right now.' },
+  { key: 'waiting', label: 'Waiting / Parked', lanes: ['parked'], intro: 'Work intentionally held, blocked, or waiting on something outside the active build flow.' },
+  { key: 'done', label: 'Done', lanes: ['done'], intro: 'Closed work that is already part of the live system.' },
 ]
 
 var homeWorkboardStages = [
@@ -179,6 +180,12 @@ var decisionViewState = {
   query: '',
   category: 'all',
   view: 'current',
+}
+
+var backlogViewState = {
+  query: '',
+  team: 'all',
+  priority: 'all',
 }
 
 /* ── inline formatting (from app.js) ─────────────────────── */
@@ -1630,6 +1637,37 @@ function sortBacklogItems(items) {
   return (items || []).slice().sort(compareBacklogItems)
 }
 
+function filterBacklogItems(items, viewState) {
+  var query = String((viewState && viewState.query) || '').trim().toLowerCase()
+  var team = (viewState && viewState.team) || 'all'
+  var priority = (viewState && viewState.priority) || 'all'
+
+  return sortBacklogItems(items).filter(function(item) {
+    if (team !== 'all' && item.team !== team) return false
+    if (priority !== 'all' && item.priority !== priority) return false
+    if (!query) return true
+
+    var haystack = [
+      item.id,
+      item.title,
+      item.team,
+      item.lane,
+      item.priority,
+      item.summary,
+      item.whyItMatters,
+      item.nextAction,
+      item.statusNote,
+      item.owner,
+      item.source,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+
+    return haystack.indexOf(query) !== -1
+  })
+}
+
 function renderBacklogAccordionItem(item) {
   var details = document.createElement('details')
   details.className = 'backlog-item-pill'
@@ -1711,13 +1749,12 @@ function renderBacklogAccordionItem(item) {
   return details
 }
 
-function renderBacklogPriorityStack(group, items) {
+function renderBacklogWorkflowStack(group, items) {
   var details = document.createElement('details')
   details.className = 'backlog-stack'
-  if (group.key === 'P0' && items.length) details.open = true
 
   var summary = document.createElement('summary')
-  summary.className = 'backlog-stack-summary'
+  summary.className = 'backlog-stack-summary backlog-stack-summary-' + group.key
 
   var labelWrap = document.createElement('div')
   labelWrap.className = 'backlog-stack-label-wrap'
@@ -1731,7 +1768,7 @@ function renderBacklogPriorityStack(group, items) {
   intro.className = 'backlog-stack-intro'
   intro.textContent = items.length
     ? group.intro
-    : 'Nothing in this priority right now.'
+    : 'Nothing in this stage right now.'
   labelWrap.appendChild(intro)
   summary.appendChild(labelWrap)
 
@@ -3610,7 +3647,9 @@ function renderBacklog() {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = hub.backlogItems.length + ' active items · ordered P0 → P3, then by rank'
+    var coreSystemCount = (hub.backlogItems || []).filter(function(item) { return item.team === 'dev' }).length
+    var marketingCount = (hub.backlogItems || []).filter(function(item) { return item.team === 'marketing' }).length
+    heroMeta.textContent = hub.backlogItems.length + ' active items · workflow-first queue · ' + coreSystemCount + ' foundation/system · ' + marketingCount + ' marketing placeholder'
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
@@ -3636,27 +3675,129 @@ function renderBacklog() {
     boardLeft.appendChild(boardEyebrow)
 
     var boardTitle = document.createElement('h3')
-    boardTitle.textContent = 'What We Work From'
+    boardTitle.textContent = 'How We Manage Work'
     boardLeft.appendChild(boardTitle)
 
     var boardIntro = document.createElement('p')
     boardIntro.className = 'section-intro'
-    boardIntro.textContent = 'This is the root Foundation backlog only. Highest priority comes first, and each card should explain what it is, why it matters, and what closes it.'
+    boardIntro.textContent = 'This is the temporary root rebuild queue. Workflow stages are the main view. Priority is a secondary filter. Foundation/system work belongs here; future hub work should move out as those surfaces come online.'
     boardLeft.appendChild(boardIntro)
 
     boardHeader.appendChild(boardLeft)
     boardPanel.appendChild(boardHeader)
 
+    var controls = document.createElement('div')
+    controls.className = 'operations-toolbar'
+
+    var searchField = document.createElement('div')
+    searchField.className = 'operations-search'
+    var searchInput = buildInput('search', 'Search by ID, title, owner, source, or closeout note')
+    searchInput.value = backlogViewState.query
+    searchField.appendChild(searchInput)
+    controls.appendChild(searchField)
+
+    var teamGroup = document.createElement('div')
+    teamGroup.className = 'operations-filter-group'
+    var teamLabel = document.createElement('span')
+    teamLabel.className = 'operations-filter-label'
+    teamLabel.textContent = 'Scope'
+    teamGroup.appendChild(teamLabel)
+
+    var teamButtons = []
+    ;[
+      { key: 'all', label: 'All' },
+      { key: 'dev', label: 'Foundation / System' },
+      { key: 'marketing', label: 'Marketing' },
+    ].forEach(function(option) {
+      var button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'operations-filter-chip'
+      button.textContent = option.label
+      button.addEventListener('click', function() {
+        backlogViewState.team = option.key
+        applyBacklogFilters()
+      })
+      teamButtons.push({ key: option.key, button: button })
+      teamGroup.appendChild(button)
+    })
+    controls.appendChild(teamGroup)
+
+    var priorityGroup = document.createElement('div')
+    priorityGroup.className = 'operations-filter-group'
+    var priorityLabel = document.createElement('span')
+    priorityLabel.className = 'operations-filter-label'
+    priorityLabel.textContent = 'Priority'
+    priorityGroup.appendChild(priorityLabel)
+
+    var priorityButtons = []
+    ;[
+      { key: 'all', label: 'All' },
+      { key: 'P0', label: 'P0' },
+      { key: 'P1', label: 'P1' },
+      { key: 'P2', label: 'P2' },
+      { key: 'P3', label: 'P3' },
+    ].forEach(function(option) {
+      var button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'operations-filter-chip'
+      button.textContent = option.label
+      button.addEventListener('click', function() {
+        backlogViewState.priority = option.key
+        applyBacklogFilters()
+      })
+      priorityButtons.push({ key: option.key, button: button })
+      priorityGroup.appendChild(button)
+    })
+    controls.appendChild(priorityGroup)
+
+    boardPanel.appendChild(controls)
+
+    var backlogResults = document.createElement('p')
+    backlogResults.className = 'operations-results-meta'
+    boardPanel.appendChild(backlogResults)
+
     var boardWrap = document.createElement('div')
     boardWrap.className = 'backlog-stack-list'
-    backlogPriorityGroups.forEach(function(group) {
-      var groupItems = (hub.backlogItems || []).filter(function(item) {
-        return item.priority === group.key
-      })
-      boardWrap.appendChild(renderBacklogPriorityStack(group, groupItems))
-    })
     boardPanel.appendChild(boardWrap)
     container.appendChild(boardPanel)
+
+    function syncTeamButtons() {
+      teamButtons.forEach(function(item) {
+        item.button.classList.toggle('is-active', backlogViewState.team === item.key)
+      })
+      priorityButtons.forEach(function(item) {
+        item.button.classList.toggle('is-active', backlogViewState.priority === item.key)
+      })
+    }
+
+    function applyBacklogFilters() {
+      syncTeamButtons()
+
+      var filteredItems = filterBacklogItems(hub.backlogItems || [], backlogViewState)
+      var scopeLabel = backlogViewState.team === 'all'
+        ? 'root rebuild backlog'
+        : backlogViewState.team === 'dev'
+          ? 'foundation/system items'
+          : 'marketing items'
+      var priorityLabel = backlogViewState.priority === 'all' ? 'all priorities' : backlogViewState.priority
+      backlogResults.textContent = 'Showing ' + filteredItems.length + ' ' + scopeLabel + ' · ' + priorityLabel + ' · grouped as To Do, To Do Scoped, Doing, Waiting, and Done'
+
+      boardWrap.innerHTML = ''
+
+      backlogWorkflowStages.forEach(function(group) {
+        var groupItems = filteredItems.filter(function(item) {
+          return group.lanes.indexOf(item.lane) !== -1
+        })
+        boardWrap.appendChild(renderBacklogWorkflowStack(group, groupItems))
+      })
+    }
+
+    searchInput.addEventListener('input', function() {
+      backlogViewState.query = searchInput.value
+      applyBacklogFilters()
+    })
+
+    applyBacklogFilters()
 
   }).catch(function(error) {
     container.innerHTML = ''

@@ -554,6 +554,70 @@ body {
   margin-bottom: 0;
 }
 
+.operations-toolbar {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.operations-search {
+  max-width: 540px;
+}
+
+.operations-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.operations-filter-label {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-right: 2px;
+}
+
+.operations-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.operations-filter-chip:hover {
+  border-color: rgba(0, 132, 201, 0.22);
+  color: var(--brand-dark);
+}
+
+.operations-filter-chip.is-active {
+  border-color: rgba(0, 132, 201, 0.22);
+  background: rgba(0, 132, 201, 0.1);
+  color: var(--brand-dark);
+}
+
+.operations-results-meta {
+  color: var(--text-tertiary);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+
 .backlog-stack,
 .foundation-stage {
   border: 1px solid var(--border);
@@ -581,6 +645,26 @@ body {
 
 .backlog-stack-summary {
   background: rgba(0, 132, 201, 0.04);
+}
+
+.backlog-stack-summary-todo {
+  background: rgba(245, 158, 11, 0.10);
+}
+
+.backlog-stack-summary-todo-scoped {
+  background: rgba(59, 130, 246, 0.10);
+}
+
+.backlog-stack-summary-doing {
+  background: rgba(0, 132, 201, 0.12);
+}
+
+.backlog-stack-summary-waiting {
+  background: rgba(107, 114, 128, 0.10);
+}
+
+.backlog-stack-summary-done {
+  background: rgba(16, 185, 129, 0.10);
 }
 
 .foundation-stage-summary-todo {
