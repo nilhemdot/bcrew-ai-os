@@ -35,6 +35,7 @@ Foundation has three layers:
 - Volatile operating memory lives in PostgreSQL.
 - Live values come from source-backed views, not markdown snapshots.
 - Decisions, change events, and conversation history must stay queryable over time.
+- Each concept should have one authoritative home. If the same truth is duplicated across docs, views, or config, drift is a system bug.
 
 This means:
 
@@ -53,6 +54,8 @@ This means:
 7. Source-backed views should render from source IDs so updates flow through the system without manual doc cleanup.
 8. Agents can support, analyze, and operationalize strategy, but they do not set or change strategy on their own.
 9. Every source-backed view should show the source ID and a clear path to the real source of truth.
+10. The system should meet people in their natural workflows before forcing them into a new surface.
+11. Visibility is part of trust. If a page claims something is live, connected, or working, it should reflect real current state rather than cached assumption.
 
 ## Change Doctrine
 
