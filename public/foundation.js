@@ -155,24 +155,24 @@ var foundationCloseoutOrder = [
 
 var foundationNowSequence = [
   {
-    title: 'Finish system strategy',
-    body: 'Tighten the doctrine layer so the OS rules, source model, and approval model are clear without repetition or stale status panels.',
-  },
-  {
     title: 'Make source trust visible',
-    body: 'Turn the next section into a clear live source layer that separates source contracts, connector status, and sign-off state.',
+    body: 'Turn the Data Sources section into a clear live source layer that separates source contracts, connector status, and sign-off state.',
   },
   {
-    title: 'Define system capabilities',
-    body: 'Show what models, tools, skills, and connectors the OS actually has right now instead of hiding that behind config and memory.',
+    title: 'Close Owners Dashboard sign-off',
+    body: 'Finish SRC-OWNERS-001 so the system stops reasoning on provisional Admin-tab truth and the signed-off boundary is explicit.',
   },
   {
-    title: 'Define the agent franchise model',
-    body: 'Lock the contract every real agent must satisfy before we build more of them: owner, model, tools, skills, permissions, memory, cadence, and outputs.',
+    title: 'Close finance sign-off',
+    body: 'Finish SRC-FINANCE-001 so partner-commission normalization and finance roll-up boundaries stop living in partial interpretation.',
   },
   {
-    title: 'Close source trust and verification',
-    body: 'Finish source sign-off and add the smallest smoke-check layer so Foundation stops running on provisional trust.',
+    title: 'Add minimal verification',
+    body: 'Put in the smallest smoke-check layer that proves Foundation reads, writes, and critical source checks still work after changes.',
+  },
+  {
+    title: 'Prove the memory baseline',
+    body: 'Enable the OpenClaw native memory baseline and prove one narrow trusted loop before scaling capabilities or agents.',
   },
 ]
 
@@ -1953,56 +1953,95 @@ function renderCaptureItem(item) {
 }
 
 function renderOpenQuestionCard(item) {
-  var card = document.createElement('article')
-  card.className = 'capture-card capture-card-memory'
+  var details = document.createElement('details')
+  details.className = 'decision-item decision-item-' + (item.status === 'resolved' ? 'superseded' : 'locked')
 
-  var top = document.createElement('div')
-  top.className = 'decision-top'
+  var summary = document.createElement('summary')
+  summary.className = 'decision-item-summary'
 
-  var titleWrap = document.createElement('div')
-  var title = document.createElement('h5')
+  var left = document.createElement('div')
+  left.className = 'decision-item-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'decision-item-summary-title'
   title.textContent = item.title
-  titleWrap.appendChild(title)
+  left.appendChild(title)
 
-  var id = document.createElement('div')
-  id.className = 'decision-id'
-  id.textContent = item.id
-  titleWrap.appendChild(id)
-  top.appendChild(titleWrap)
+  var meta = document.createElement('div')
+  meta.className = 'decision-item-summary-meta'
+  meta.textContent = [item.id, item.owner || null].filter(Boolean).join(' · ')
+  left.appendChild(meta)
+
+  if (item.summary) {
+    var excerpt = document.createElement('div')
+    excerpt.className = 'decision-item-summary-copy'
+    excerpt.textContent = item.summary
+    left.appendChild(excerpt)
+  }
+
+  summary.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'decision-item-summary-right'
+
+  if (item.updatedAt || item.createdAt) {
+    var stamp = document.createElement('span')
+    stamp.className = 'decision-item-summary-stamp'
+    stamp.textContent = formatDate(item.updatedAt || item.createdAt)
+    right.appendChild(stamp)
+  }
 
   var status = document.createElement('span')
   status.className = 'status-pill status-pill-static status-' + (item.status === 'resolved' ? 'connected' : 'pending')
-  status.textContent = item.status || 'open'
-  top.appendChild(status)
-  card.appendChild(top)
+  status.textContent = item.status === 'resolved' ? 'Resolved' : 'Open'
+  right.appendChild(status)
 
-  var summary = document.createElement('p')
-  summary.className = 'decision-copy'
-  summary.textContent = item.summary
-  card.appendChild(summary)
+  summary.appendChild(right)
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'decision-item-body'
+
+  var card = document.createElement('article')
+  card.className = 'decision-card decision-card-memory'
+
+  var fullSummary = document.createElement('p')
+  fullSummary.className = 'decision-copy'
+  fullSummary.textContent = item.summary
+  card.appendChild(fullSummary)
 
   if (item.owner) {
     card.appendChild(renderLabeledCopy('capture-owner', 'Owner', item.owner))
   }
 
+  var metaRow = document.createElement('div')
+  metaRow.className = 'decision-memory-meta'
+
   if (item.createdAt) {
-    card.appendChild(renderLabeledCopy('decision-source', 'Opened', formatDate(item.createdAt)))
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Opened', formatDate(item.createdAt)))
+  }
+  if (item.updatedAt && item.updatedAt !== item.createdAt) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Updated', formatDate(item.updatedAt)))
+  }
+  if (item.resolvedAt) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Resolved', formatDate(item.resolvedAt)))
+  }
+  if (item.resolvedBy) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Resolved By', item.resolvedBy))
   }
 
-  if (item.updatedAt && item.updatedAt !== item.createdAt) {
-    card.appendChild(renderLabeledCopy('decision-source', 'Updated', formatDate(item.updatedAt)))
+  if (metaRow.childNodes.length) {
+    card.appendChild(metaRow)
   }
 
   if (item.status === 'resolved' && item.resolutionNote) {
     card.appendChild(renderLabeledCopy('decision-rationale', 'Resolution', item.resolutionNote))
   }
 
-  if (item.resolvedAt) {
-    card.appendChild(renderLabeledCopy('decision-source', 'Resolved', formatDate(item.resolvedAt)))
-  }
-
   card.appendChild(renderQuestionEditor(item))
-  return card
+  body.appendChild(card)
+  details.appendChild(body)
+  return details
 }
 
 function setFormStatus(target, message, tone) {
@@ -2569,6 +2608,82 @@ function renderDecisionStack(group, hub, pendingUpdates, replacementMap) {
 
   group.items.forEach(function(item) {
     body.appendChild(renderDecisionMemoryCard(item, hub, pendingUpdates, replacementMap[item.id] || []))
+  })
+
+  details.appendChild(body)
+  return details
+}
+
+function getOpenQuestionSortTimestamp(item) {
+  var stamp = item && (item.updatedAt || item.resolvedAt || item.createdAt)
+  var value = stamp ? new Date(stamp).getTime() : 0
+  return Number.isFinite(value) ? value : 0
+}
+
+function sortOpenQuestionsNewestFirst(items) {
+  return (items || []).slice().sort(function(a, b) {
+    var stampDiff = getOpenQuestionSortTimestamp(b) - getOpenQuestionSortTimestamp(a)
+    if (stampDiff) return stampDiff
+    return String(b.id || '').localeCompare(String(a.id || ''))
+  })
+}
+
+function getOpenQuestionGroups(items) {
+  return [
+    {
+      key: 'open',
+      label: 'Still Open',
+      intro: 'Questions that still block a clean decision, schema boundary, or trust rule.',
+      items: sortOpenQuestionsNewestFirst((items || []).filter(function(item) {
+        return item.status !== 'resolved'
+      })),
+    },
+    {
+      key: 'resolved',
+      label: 'Resolved History',
+      intro: 'Questions that were answered, merged, or closed so the review trail stays visible.',
+      items: sortOpenQuestionsNewestFirst((items || []).filter(function(item) {
+        return item.status === 'resolved'
+      })),
+    },
+  ].filter(function(group) {
+    return group.items.length
+  })
+}
+
+function renderOpenQuestionStack(group) {
+  var details = document.createElement('details')
+  details.className = 'decision-stack'
+
+  var summary = document.createElement('summary')
+  summary.className = 'decision-stack-summary decision-stack-summary-' + group.key
+
+  var left = document.createElement('div')
+  left.className = 'decision-stack-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'decision-stack-title'
+  title.textContent = group.label
+  left.appendChild(title)
+
+  var intro = document.createElement('div')
+  intro.className = 'decision-stack-intro'
+  intro.textContent = group.intro
+  left.appendChild(intro)
+  summary.appendChild(left)
+
+  var count = document.createElement('span')
+  count.className = 'decision-stack-count'
+  count.textContent = group.items.length
+  summary.appendChild(count)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'decision-stack-body'
+
+  group.items.forEach(function(item) {
+    body.appendChild(renderOpenQuestionCard(item))
   })
 
   details.appendChild(body)
@@ -3214,6 +3329,28 @@ function renderRecentChangesPanel(items, options) {
   panel.appendChild(list)
 
   return panel
+}
+
+function getSystemHealthGroups(items) {
+  return [
+    {
+      title: 'Live Components',
+      intro: 'Components that are already wired and behaving as real parts of the Foundation trust layer.',
+      items: (items || []).filter(function(item) { return item.status === 'live' }),
+    },
+    {
+      title: 'Needs Work',
+      intro: 'Components that matter now but are still incomplete, provisional, or not yet trusted.',
+      items: (items || []).filter(function(item) { return item.status === 'pending' || item.status === 'risk' }),
+    },
+    {
+      title: 'Later Layers',
+      intro: 'Planned layers that should not be confused with current Foundation closeout work.',
+      items: (items || []).filter(function(item) { return item.status === 'planned' }),
+    },
+  ].filter(function(group) {
+    return group.items.length
+  })
 }
 
 function createActionButton(label, handler, className) {
@@ -4286,6 +4423,11 @@ function renderOpenQuestions() {
     heroMeta.textContent = openCount + ' open · ' + resolvedCount + ' resolved'
     heroInner.appendChild(heroMeta)
 
+    var heroNote = document.createElement('p')
+    heroNote.className = 'hero-copy'
+    heroNote.textContent = 'Only real unresolved questions belong here. Once a question is answered, merged into a better question, or no longer matters, it should move out of the live queue.'
+    heroInner.appendChild(heroNote)
+
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
@@ -4310,15 +4452,16 @@ function renderOpenQuestions() {
     left.appendChild(eyebrow)
 
     var title = document.createElement('h3')
-    title.textContent = 'Questions'
+    title.textContent = 'Review Queue'
     left.appendChild(title)
     header.appendChild(left)
     panel.appendChild(header)
 
     var list = document.createElement('div')
     list.className = 'section-list'
-    hub.openQuestions.forEach(function(item) {
-      list.appendChild(renderOpenQuestionCard(item))
+
+    getOpenQuestionGroups(hub.openQuestions).forEach(function(group) {
+      list.appendChild(renderOpenQuestionStack(group))
     })
     panel.appendChild(list)
     container.appendChild(panel)
@@ -4661,20 +4804,28 @@ function renderDataHealth() {
     heroMeta.textContent = hub.memoryStatus.length + ' trust-layer components tracked'
     heroInner.appendChild(heroMeta)
 
+    var heroNote = document.createElement('p')
+    heroNote.className = 'hero-copy'
+    heroNote.textContent = 'Home shows the high-level closeout summary. System Health is the deeper operator view of the underlying memory, trust, and runtime components that drive that summary.'
+    heroInner.appendChild(heroNote)
+
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
-    /* memory status grid */
-    var statusGrid = document.createElement('div')
-    statusGrid.className = 'status-grid'
-    hub.memoryStatus.forEach(function(item) {
-      statusGrid.appendChild(renderStatusCard({
-        label: item.label,
-        status: item.status,
-        detail: item.detail,
-      }))
+    getSystemHealthGroups(hub.memoryStatus || []).forEach(function(group) {
+      var panel = renderStatusGroupPanel(
+        group.title,
+        group.intro,
+        group.items.map(function(item) {
+          return {
+            label: item.label,
+            status: item.status,
+            detail: item.detail,
+          }
+        })
+      )
+      if (panel) container.appendChild(panel)
     })
-    container.appendChild(statusGrid)
 
   }).catch(function(error) {
     container.innerHTML = ''
@@ -4703,8 +4854,13 @@ function renderSystemActivity() {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = (hub.recentChanges || []).length + ' recent trust-layer events'
+    heroMeta.textContent = 'Latest ' + (hub.recentChanges || []).length + ' trust-layer events'
     heroInner.appendChild(heroMeta)
+
+    var heroNote = document.createElement('p')
+    heroNote.className = 'hero-copy'
+    heroNote.textContent = 'This page is the short audit feed: backlog mutations, decision updates, question changes, and doc-apply events. It is for operator review and debugging, not for the main strategy story.'
+    heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
@@ -4712,7 +4868,7 @@ function renderSystemActivity() {
     var changesPanel = renderRecentChangesPanel(hub.recentChanges || [], {
       eyebrow: 'Internal Feed',
       title: 'Recent Changes',
-      intro: 'Low-level Foundation activity lives here: classifications, backlog mutations, question updates, and doc-apply events. Useful for audit and debugging, not for the main strategy overview.',
+      intro: 'Only the latest 20 events are shown here so the page stays readable. Older history still exists in the change-event log; a fuller searchable audit surface can come later.',
     })
 
     if (changesPanel) {
