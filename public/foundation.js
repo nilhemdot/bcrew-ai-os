@@ -2714,8 +2714,10 @@ var sectionLabels = {
   'decisions': 'Decisions',
   'open-questions': 'Open Questions',
   'system-strategy': 'System Strategy',
+  'system-activity': 'System Activity',
+  'system-health': 'System Health',
+  'data-health': 'System Health',
   'source-registry': 'Source Registry',
-  'data-health': 'Data Health',
 }
 
 var strategyReviewChecklist = [
@@ -2745,7 +2747,7 @@ var strategyReviewChecklist = [
     ],
   },
   {
-    title: 'Supporting Docs Still To Confirm',
+    title: 'Still To Confirm',
     tone: 'pending',
     items: [
       'Planning Definitions',
@@ -2818,16 +2820,90 @@ function renderReviewChecklistPanel() {
   return panel
 }
 
+function renderOverviewStatusPanel(items) {
+  if (!items || !items.length) return null
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Foundation State'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Current Build Status'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'This is secondary to the strategy itself. Use it to see whether the trust layer around the strategy is live, pending, or still provisional.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var statusGrid = document.createElement('div')
+  statusGrid.className = 'status-grid'
+  items.forEach(function(item) {
+    statusGrid.appendChild(renderStatusCard(item))
+  })
+  panel.appendChild(statusGrid)
+
+  return panel
+}
+
+function renderRecentChangesPanel(items, options) {
+  if (!items || !items.length) return null
+
+  var opts = options || {}
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = opts.eyebrow || 'Trust Layer'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = opts.title || 'System Activity'
+  left.appendChild(title)
+
+  if (opts.intro) {
+    var intro = document.createElement('p')
+    intro.className = 'section-intro'
+    intro.textContent = opts.intro
+    left.appendChild(intro)
+  }
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var list = document.createElement('div')
+  list.className = 'change-list'
+  items.forEach(function(item) {
+    list.appendChild(renderChangeEventCard(item))
+  })
+  panel.appendChild(list)
+
+  return panel
+}
+
 /* ── section renderers ───────────────────────────────────── */
 
 function renderOverview() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading overview...</p>'
 
-  Promise.all([fetchSourceOfTruth(), fetchFoundationHub()]).then(function(results) {
-    var data = results[0]
-    var hub = results[1]
-
+  fetchSourceOfTruth().then(function(data) {
     container.innerHTML = ''
 
     /* hero */
@@ -2859,50 +2935,6 @@ function renderOverview() {
     hero.appendChild(printBtn)
 
     container.appendChild(hero)
-
-    /* status grid */
-    var statusGrid = document.createElement('div')
-    statusGrid.className = 'status-grid'
-    data.systemStatus.forEach(function(item) {
-      statusGrid.appendChild(renderStatusCard(item))
-    })
-    container.appendChild(statusGrid)
-
-    if (hub.recentChanges && hub.recentChanges.length) {
-      var changesPanel = document.createElement('section')
-      changesPanel.className = 'panel'
-
-      var changesHeader = document.createElement('div')
-      changesHeader.className = 'panel-header'
-
-      var changesLeft = document.createElement('div')
-      var changesEyebrow = document.createElement('div')
-      changesEyebrow.className = 'eyebrow'
-      changesEyebrow.textContent = 'System Foundation'
-      changesLeft.appendChild(changesEyebrow)
-
-      var changesTitle = document.createElement('h3')
-      changesTitle.textContent = 'Recent Changes'
-      changesLeft.appendChild(changesTitle)
-
-      var changesIntro = document.createElement('p')
-      changesIntro.className = 'section-intro'
-      changesIntro.textContent = 'The latest Foundation mutations and doc-apply events. This is the first visible change ledger for the trust layer.'
-      changesLeft.appendChild(changesIntro)
-
-      changesHeader.appendChild(changesLeft)
-      changesPanel.appendChild(changesHeader)
-
-      var changesList = document.createElement('div')
-      changesList.className = 'change-list'
-      hub.recentChanges.forEach(function(item) {
-        changesList.appendChild(renderChangeEventCard(item))
-      })
-      changesPanel.appendChild(changesList)
-      container.appendChild(changesPanel)
-    }
-
-    container.appendChild(renderReviewChecklistPanel())
 
     /* strategy doc panel */
     var panel = document.createElement('section')
@@ -2940,6 +2972,13 @@ function renderOverview() {
     })
     panel.appendChild(sectionList)
     container.appendChild(panel)
+
+    container.appendChild(renderReviewChecklistPanel())
+
+    var statusPanel = renderOverviewStatusPanel(data.systemStatus)
+    if (statusPanel) {
+      container.appendChild(statusPanel)
+    }
 
   }).catch(function(error) {
     container.innerHTML = ''
@@ -3168,35 +3207,6 @@ function renderDecisions() {
       })
       parkingPanel.appendChild(parkingList)
       container.appendChild(parkingPanel)
-    }
-
-    if (hub.recentChanges && hub.recentChanges.length) {
-      var changesPanel = document.createElement('section')
-      changesPanel.className = 'panel'
-
-      var changesHeader = document.createElement('div')
-      changesHeader.className = 'panel-header'
-
-      var changesLeft = document.createElement('div')
-      var changesEyebrow = document.createElement('div')
-      changesEyebrow.className = 'eyebrow'
-      changesEyebrow.textContent = 'Trust Layer'
-      changesLeft.appendChild(changesEyebrow)
-
-      var changesTitle = document.createElement('h3')
-      changesTitle.textContent = 'Recent Changes'
-      changesLeft.appendChild(changesTitle)
-
-      changesHeader.appendChild(changesLeft)
-      changesPanel.appendChild(changesHeader)
-
-      var changesList = document.createElement('div')
-      changesList.className = 'change-list'
-      hub.recentChanges.forEach(function(item) {
-        changesList.appendChild(renderChangeEventCard(item))
-      })
-      changesPanel.appendChild(changesList)
-      container.appendChild(changesPanel)
     }
 
   }).catch(function(error) {
@@ -3582,7 +3592,7 @@ function renderSourceRegistry() {
 
 function renderDataHealth() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading data health...</p>'
+  container.innerHTML = '<p>Loading system health...</p>'
 
   fetchFoundationHub().then(function(hub) {
     container.innerHTML = ''
@@ -3595,12 +3605,12 @@ function renderDataHealth() {
     heroInner.className = 'hero-inner'
 
     var heroTitle = document.createElement('h1')
-    heroTitle.textContent = 'Data Health'
+    heroTitle.textContent = 'System Health'
     heroInner.appendChild(heroTitle)
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = hub.memoryStatus.length + ' components tracked'
+    heroMeta.textContent = hub.memoryStatus.length + ' trust-layer components tracked'
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
@@ -3621,7 +3631,54 @@ function renderDataHealth() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load data health: ' + error.message
+    msg.textContent = 'Failed to load system health: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderSystemActivity() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading system activity...</p>'
+
+  fetchFoundationHub().then(function(hub) {
+    container.innerHTML = ''
+
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'System Activity'
+    heroInner.appendChild(heroTitle)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = (hub.recentChanges || []).length + ' recent trust-layer events'
+    heroInner.appendChild(heroMeta)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    var changesPanel = renderRecentChangesPanel(hub.recentChanges || [], {
+      eyebrow: 'Internal Feed',
+      title: 'Recent Changes',
+      intro: 'Low-level Foundation activity lives here: classifications, backlog mutations, question updates, and doc-apply events. Useful for audit and debugging, not for the main strategy overview.',
+    })
+
+    if (changesPanel) {
+      container.appendChild(changesPanel)
+      return
+    }
+
+    var empty = document.createElement('p')
+    empty.textContent = 'No recent trust-layer events yet.'
+    container.appendChild(empty)
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load system activity: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -3656,6 +3713,12 @@ function route() {
     return
   }
 
+  if (section === 'data-health') {
+    section = 'system-health'
+    window.location.replace('/foundation#system-health')
+    return
+  }
+
   updateNav(section)
 
   /* close mobile nav on route change */
@@ -3678,8 +3741,10 @@ function route() {
     renderOpenQuestions()
   } else if (section === 'source-registry') {
     renderSourceRegistry()
-  } else if (section === 'data-health') {
+  } else if (section === 'system-health') {
     renderDataHealth()
+  } else if (section === 'system-activity') {
+    renderSystemActivity()
   } else {
     renderOverview()
   }

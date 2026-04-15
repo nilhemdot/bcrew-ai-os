@@ -410,30 +410,30 @@ app.get('/api/source-of-truth', (_req, res) => {
           : 'Missing docs/business-strategy.md.',
       },
       {
-        key: 'source-registry',
-        label: 'Source Registry',
-        status: sourceRegistry ? 'connected' : 'pending',
-        detail: sourceRegistry
-          ? `${sourceContracts.length} source contracts are tracked, with verified, pending, and gap states.`
-          : 'Create the registry next so every business input has an owner and status.',
-      },
-      {
         key: 'supporting-strategy',
         label: 'Supporting Strategy',
         status: getSupportingStrategyDocs().every(doc => doc.meta.exists) ? 'connected' : 'pending',
-        detail: 'BHAG model, Agent Engine, and department mandates are split into maintainable supporting docs.',
+        detail: 'BHAG model, Agent Engine, mandates, governance, and the other supporting docs exist as a maintainable layer around the core strategy.',
       },
       {
-        key: 'decision-log',
-        label: 'Decision Log',
-        status: 'pending',
-        detail: 'Not wired yet. Strategic decisions should become explicit records, not chat residue.',
+        key: 'source-trust',
+        label: 'Source Trust',
+        status: sourceRegistry ? 'pending' : 'missing',
+        detail: sourceRegistry
+          ? `${sourceContracts.length} source contracts are tracked, but no live spreadsheet or API source is fully signed off yet.`
+          : 'Create the registry next so every business input has an owner, validation state, and trust boundary.',
       },
       {
-        key: 'intel-engine',
-        label: 'Strategic Intelligence Engine',
+        key: 'foundation-memory',
+        label: 'Foundation Memory',
+        status: 'live',
+        detail: 'Backlog, decisions, open questions, pending doc updates, and recent changes are running through the Foundation trust layer.',
+      },
+      {
+        key: 'assistant-loop',
+        label: 'Trusted Assistant Loop',
         status: 'pending',
-        detail: 'Not wired yet. This layer will compare reality against strategy and detect drift.',
+        detail: 'The first narrow assistant loop is not proven end to end yet. The rebuild still needs source sign-off, verification, and memory-baseline proof.',
       },
     ],
   })
