@@ -806,6 +806,16 @@ body {
   padding: 16px;
 }
 
+.decision-card-superseded {
+  border-color: rgba(180, 83, 9, 0.18);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.06) 0%, rgba(255, 255, 255, 0.96) 100%);
+}
+
+.decision-card-superseded .decision-top h4,
+.decision-card-superseded .decision-copy {
+  opacity: 0.88;
+}
+
 .decision-top {
   display: flex;
   align-items: flex-start;
@@ -822,6 +832,81 @@ body {
 .decision-copy {
   color: var(--text-secondary);
   line-height: 1.6;
+}
+
+.decision-toolbar {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.decision-search {
+  max-width: 540px;
+}
+
+.decision-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.decision-filter-label {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-right: 2px;
+}
+
+.decision-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.decision-filter-chip:hover {
+  border-color: rgba(0, 132, 201, 0.22);
+  color: var(--brand-dark);
+}
+
+.decision-filter-chip.is-active {
+  border-color: rgba(0, 132, 201, 0.22);
+  background: rgba(0, 132, 201, 0.1);
+  color: var(--brand-dark);
+}
+
+.decision-results-meta,
+.decision-empty-state {
+  color: var(--text-tertiary);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.decision-results-meta {
+  margin-bottom: 14px;
+}
+
+.decision-empty-state {
+  padding: 16px 18px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
 }
 
 .status-pill-static::before {

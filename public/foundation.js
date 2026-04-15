@@ -168,6 +168,12 @@ var foundationNowSequence = [
   },
 ]
 
+var decisionViewState = {
+  query: '',
+  category: 'all',
+  view: 'current',
+}
+
 /* ── inline formatting (from app.js) ─────────────────────── */
 
 function appendFormattedText(text, parent, currentPath) {
@@ -1822,7 +1828,7 @@ function renderTeamBoard(team, items) {
 
 function renderDecisionCard(item) {
   var card = document.createElement('article')
-  card.className = 'decision-card'
+  card.className = 'decision-card decision-card-' + item.status
 
   var top = document.createElement('div')
   top.className = 'decision-top'
@@ -1861,7 +1867,7 @@ function renderDecisionCard(item) {
   return card
 }
 
-function renderDecisionMemoryCard(item, hub, pendingUpdates) {
+function renderDecisionMemoryCard(item, hub, pendingUpdates, replacedBy) {
   var card = renderDecisionCard(item)
   card.classList.add('decision-card-memory')
 
@@ -1879,6 +1885,11 @@ function renderDecisionMemoryCard(item, hub, pendingUpdates) {
   }
   if (item.supersedesIds && item.supersedesIds.length) {
     metaRow.appendChild(renderLabeledCopy('decision-meta', 'Supersedes', item.supersedesIds.join(', ')))
+  }
+  if (replacedBy && replacedBy.length) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Replaced By', replacedBy.map(function(decision) {
+      return decision.id
+    }).join(', ')))
   }
   if (metaRow.childNodes.length) {
     card.appendChild(metaRow)
@@ -2308,6 +2319,84 @@ function renderBacklogItemEditor(item) {
   return details
 }
 
+function parseDecisionIdList(value) {
+  var seen = {}
+  return (value || '')
+    .split(',')
+    .map(function(part) { return part.trim().toUpperCase() })
+    .filter(function(part) { return part })
+    .filter(function(part) {
+      if (seen[part]) return false
+      seen[part] = true
+      return true
+    })
+}
+
+function getDecisionSortTimestamp(item) {
+  var stamp = item && (item.createdAt || item.updatedAt || item.classifiedAt)
+  var value = stamp ? new Date(stamp).getTime() : 0
+  return Number.isFinite(value) ? value : 0
+}
+
+function sortDecisionsNewestFirst(items) {
+  return (items || []).slice().sort(function(a, b) {
+    var stampDiff = getDecisionSortTimestamp(b) - getDecisionSortTimestamp(a)
+    if (stampDiff) return stampDiff
+    return String(b.id || '').localeCompare(String(a.id || ''))
+  })
+}
+
+function buildDecisionReplacementMap(decisions) {
+  var replacementMap = {}
+
+  ;(decisions || []).forEach(function(item) {
+    ;(item.supersedesIds || []).forEach(function(id) {
+      var cleanId = String(id || '').trim().toUpperCase()
+      if (!cleanId) return
+      if (!replacementMap[cleanId]) replacementMap[cleanId] = []
+      replacementMap[cleanId].push(item)
+    })
+  })
+
+  Object.keys(replacementMap).forEach(function(id) {
+    replacementMap[id] = sortDecisionsNewestFirst(replacementMap[id])
+  })
+
+  return replacementMap
+}
+
+function filterDecisionItems(items, viewState) {
+  var query = String((viewState && viewState.query) || '').trim().toLowerCase()
+  var category = (viewState && viewState.category) || 'all'
+  var view = (viewState && viewState.view) || 'current'
+
+  return sortDecisionsNewestFirst(items).filter(function(item) {
+    if (category !== 'all' && item.category !== category) return false
+
+    if (view === 'current' && item.status === 'superseded') return false
+    if (view === 'proposed' && item.status !== 'proposed') return false
+    if (view === 'superseded' && item.status !== 'superseded') return false
+
+    if (!query) return true
+
+    var haystack = [
+      item.id,
+      item.title,
+      item.category,
+      item.status,
+      item.summary,
+      item.rationale,
+      item.sourceRef,
+      (item.supersedesIds || []).join(' '),
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+
+    return haystack.indexOf(query) !== -1
+  })
+}
+
 function renderDecisionCreatePanel(hub) {
   var panel = document.createElement('section')
   panel.className = 'panel memory-panel'
@@ -2347,6 +2436,9 @@ function renderDecisionCreatePanel(hub) {
   var sourceRefInput = buildInput('text', 'Optional source or reference')
   form.appendChild(buildField('Source Ref', sourceRefInput))
 
+  var supersedesInput = buildInput('text', 'DEC-001, DEC-004')
+  form.appendChild(buildField('Supersedes', supersedesInput))
+
   var actions = document.createElement('div')
   actions.className = 'memory-form-actions'
 
@@ -2372,6 +2464,7 @@ function renderDecisionCreatePanel(hub) {
       summary: summaryInput.value.trim(),
       rationale: rationaleInput.value.trim(),
       sourceRef: sourceRefInput.value.trim(),
+      supersedesIds: parseDecisionIdList(supersedesInput.value),
     }).then(function() {
       form.reset()
       categorySelect.value = (hub.meta && hub.meta.canonicalDecisionCategories && hub.meta.canonicalDecisionCategories[0]) || 'strategy'
@@ -2415,6 +2508,10 @@ function renderDecisionEditor(item, hub) {
   sourceRefInput.value = item.sourceRef || ''
   wrap.appendChild(buildField('Source Ref', sourceRefInput))
 
+  var supersedesInput = buildInput('text', 'DEC-001, DEC-004')
+  supersedesInput.value = (item.supersedesIds || []).join(', ')
+  wrap.appendChild(buildField('Supersedes', supersedesInput))
+
   var save = document.createElement('button')
   save.type = 'button'
   save.className = 'memory-button'
@@ -2432,6 +2529,7 @@ function renderDecisionEditor(item, hub) {
       category: categorySelect.value,
       status: statusSelect.value,
       sourceRef: sourceRefInput.value.trim(),
+      supersedesIds: parseDecisionIdList(supersedesInput.value),
     }).then(function() {
       setFormStatus(status, 'Saved.', 'success')
       renderDecisions()
@@ -3568,7 +3666,8 @@ function renderDecisions() {
     heroMeta.className = 'hero-copy'
     var lockedCount = hub.decisions.filter(function(item) { return item.status === 'locked' }).length
     var proposedCount = hub.decisions.filter(function(item) { return item.status === 'proposed' }).length
-    heroMeta.textContent = lockedCount + ' locked · ' + proposedCount + ' proposed'
+    var supersededCount = hub.decisions.filter(function(item) { return item.status === 'superseded' }).length
+    heroMeta.textContent = lockedCount + ' locked · ' + proposedCount + ' proposed · ' + supersededCount + ' superseded'
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
@@ -3585,17 +3684,127 @@ function renderDecisions() {
     decisionHeader.className = 'panel-header'
 
     var decisionTitle = document.createElement('h3')
-    decisionTitle.textContent = 'Decisions'
+    decisionTitle.textContent = 'Decision Log'
     decisionHeader.appendChild(decisionTitle)
 
     decisionPanel.appendChild(decisionHeader)
 
+    var decisionIntro = document.createElement('p')
+    decisionIntro.className = 'section-intro'
+    decisionIntro.textContent = 'One canonical decision log across strategy, system, execution, and people. Current agreements show first by default, and superseded agreements stay searchable when you need the history.'
+    decisionPanel.appendChild(decisionIntro)
+
+    var controls = document.createElement('div')
+    controls.className = 'decision-toolbar'
+
+    var searchField = document.createElement('div')
+    searchField.className = 'decision-search'
+    var searchInput = buildInput('search', 'Search by ID, title, rationale, source, or superseded decision')
+    searchInput.value = decisionViewState.query
+    searchField.appendChild(searchInput)
+    controls.appendChild(searchField)
+
+    var viewGroup = document.createElement('div')
+    viewGroup.className = 'decision-filter-group'
+    var viewLabel = document.createElement('span')
+    viewLabel.className = 'decision-filter-label'
+    viewLabel.textContent = 'View'
+    viewGroup.appendChild(viewLabel)
+
+    var viewOptions = [
+      { key: 'current', label: 'Current' },
+      { key: 'all', label: 'All' },
+      { key: 'proposed', label: 'Proposed' },
+      { key: 'superseded', label: 'Superseded' },
+    ]
+    var viewButtons = []
+    viewOptions.forEach(function(option) {
+      var button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'decision-filter-chip'
+      button.textContent = option.label
+      button.addEventListener('click', function() {
+        decisionViewState.view = option.key
+        applyDecisionFilters()
+      })
+      viewButtons.push({ key: option.key, button: button })
+      viewGroup.appendChild(button)
+    })
+    controls.appendChild(viewGroup)
+
+    var categoryGroup = document.createElement('div')
+    categoryGroup.className = 'decision-filter-group'
+    var categoryLabel = document.createElement('span')
+    categoryLabel.className = 'decision-filter-label'
+    categoryLabel.textContent = 'Category'
+    categoryGroup.appendChild(categoryLabel)
+
+    var categoryButtons = []
+    ;[{ key: 'all', label: 'All' }].concat((hub.meta && hub.meta.canonicalDecisionCategories || []).map(function(category) {
+      return { key: category, label: category.charAt(0).toUpperCase() + category.slice(1) }
+    })).forEach(function(option) {
+      var button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'decision-filter-chip'
+      button.textContent = option.label
+      button.addEventListener('click', function() {
+        decisionViewState.category = option.key
+        applyDecisionFilters()
+      })
+      categoryButtons.push({ key: option.key, button: button })
+      categoryGroup.appendChild(button)
+    })
+    controls.appendChild(categoryGroup)
+
+    decisionPanel.appendChild(controls)
+
+    var decisionResults = document.createElement('p')
+    decisionResults.className = 'decision-results-meta'
+    decisionPanel.appendChild(decisionResults)
+
     var decisionList = document.createElement('div')
     decisionList.className = 'section-list'
     var pendingDocUpdates = hub.pendingDocUpdates || []
-    hub.decisions.forEach(function(item) {
-      decisionList.appendChild(renderDecisionMemoryCard(item, hub, pendingDocUpdates))
+    var sortedDecisions = sortDecisionsNewestFirst(hub.decisions || [])
+    var replacementMap = buildDecisionReplacementMap(sortedDecisions)
+
+    function syncFilterButtons() {
+      viewButtons.forEach(function(item) {
+        item.button.classList.toggle('is-active', decisionViewState.view === item.key)
+      })
+      categoryButtons.forEach(function(item) {
+        item.button.classList.toggle('is-active', decisionViewState.category === item.key)
+      })
+    }
+
+    function applyDecisionFilters() {
+      syncFilterButtons()
+
+      var filteredDecisions = filterDecisionItems(sortedDecisions, decisionViewState)
+      var scopeLabel = decisionViewState.view === 'current' ? 'current agreements' : decisionViewState.view
+      decisionResults.textContent = 'Showing ' + filteredDecisions.length + ' ' + scopeLabel + ' · newest first'
+
+      decisionList.innerHTML = ''
+
+      if (!filteredDecisions.length) {
+        var empty = document.createElement('div')
+        empty.className = 'decision-empty-state'
+        empty.textContent = 'No decisions match this filter yet.'
+        decisionList.appendChild(empty)
+        return
+      }
+
+      filteredDecisions.forEach(function(item) {
+        decisionList.appendChild(renderDecisionMemoryCard(item, hub, pendingDocUpdates, replacementMap[item.id] || []))
+      })
+    }
+
+    searchInput.addEventListener('input', function() {
+      decisionViewState.query = searchInput.value
+      applyDecisionFilters()
     })
+
+    applyDecisionFilters()
     decisionPanel.appendChild(decisionList)
     container.appendChild(decisionPanel)
 

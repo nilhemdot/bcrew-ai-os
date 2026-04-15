@@ -1068,7 +1068,7 @@ app.patch('/api/foundation/backlog/:id', requireAdminToken, async (req, res) => 
 })
 
 app.post('/api/foundation/decisions', requireAdminToken, async (req, res) => {
-  const allowedKeys = ['title', 'summary', 'category', 'rationale', 'sourceRef']
+  const allowedKeys = ['title', 'summary', 'category', 'rationale', 'sourceRef', 'supersedesIds']
   const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
   if (unknownFields.length) {
     sendApiError(res, 400, 'invalid_decision_body', 'Unknown decision fields.', { unknownFields })
@@ -1083,6 +1083,7 @@ app.post('/api/foundation/decisions', requireAdminToken, async (req, res) => {
   const sourceRef = optionalStringField(errors, req.body, 'sourceRef', 'Source reference')
 
   if (category && !validateCategory(category)) errors.category = 'Choose one of the four canonical decision categories.'
+  if ('supersedesIds' in req.body && !Array.isArray(req.body.supersedesIds)) errors.supersedesIds = 'supersedesIds must be an array of decision IDs.'
 
   if (Object.keys(errors).length) {
     sendApiError(res, 400, 'invalid_decision_body', 'Decision is not valid.', { fields: errors })
@@ -1090,7 +1091,7 @@ app.post('/api/foundation/decisions', requireAdminToken, async (req, res) => {
   }
 
   try {
-    const decision = await createDecision({ title, summary, category, rationale, sourceRef }, getRequestActor())
+    const decision = await createDecision({ title, summary, category, rationale, sourceRef, supersedesIds: req.body.supersedesIds }, getRequestActor())
     cacheHeadersNoStore(res)
     res.status(201).json({ decision })
   } catch (error) {
