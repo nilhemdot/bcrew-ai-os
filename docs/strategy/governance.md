@@ -12,7 +12,7 @@ The goal is simple:
 
 Governance should not rely on one leader manually carrying the cadence, memory, and follow-through every week. The system should become an operating partner that helps prepare the room, run the sequence, capture the output, and keep accountability visible afterward.
 
-If leadership load, ownership drift, or uneven follow-through becomes concentrated around one person, the system should surface that as a strategic operating issue based on evidence instead of assuming it in the doctrine.
+If leadership load, ownership drift, or uneven follow-through becomes concentrated around one person, the system should surface that as a strategic operating issue based on evidence.
 
 ## Operating Lens
 
@@ -139,7 +139,7 @@ The PM role exists to:
 - follow up between meetings
 - bring operational context when needed
 
-This role can be human-led, system-assisted, or eventually agent-operated. Its job is not to make strategy. Its job is to keep governance moving and to surface when the operating load is becoming too concentrated.
+This role can be human-led, system-assisted, or eventually agent-operated. Its job is not to make strategy. Its job is to keep governance moving and surface load concentration or ownership drift.
 
 ## Governance Operator Layer
 
