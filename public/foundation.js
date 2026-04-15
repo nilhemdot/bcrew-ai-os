@@ -1797,35 +1797,70 @@ function renderBacklogWorkflowStack(group, items) {
   return details
 }
 
-function renderDecisionCard(item) {
-  var card = document.createElement('article')
-  card.className = 'decision-card decision-card-' + item.status
+function formatDecisionStatusLabel(status) {
+  if (status === 'locked') return 'Current'
+  if (status === 'proposed') return 'Proposed'
+  if (status === 'superseded') return 'Superseded'
+  return status || 'Unknown'
+}
 
-  var top = document.createElement('div')
-  top.className = 'decision-top'
+function renderDecisionMemoryCard(item, hub, pendingUpdates, replacedBy) {
+  var details = document.createElement('details')
+  details.className = 'decision-item decision-item-' + item.status
 
-  var titleWrap = document.createElement('div')
-  var title = document.createElement('h4')
+  var summary = document.createElement('summary')
+  summary.className = 'decision-item-summary'
+
+  var left = document.createElement('div')
+  left.className = 'decision-item-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'decision-item-summary-title'
   title.textContent = item.title
-  titleWrap.appendChild(title)
+  left.appendChild(title)
 
-  var id = document.createElement('div')
-  id.className = 'decision-id'
-  id.textContent = item.id + ' · ' + item.category
-  titleWrap.appendChild(id)
-  top.appendChild(titleWrap)
+  var meta = document.createElement('div')
+  meta.className = 'decision-item-summary-meta'
+  meta.textContent = item.id + ' · ' + item.category
+  left.appendChild(meta)
+
+  if (item.summary) {
+    var excerpt = document.createElement('div')
+    excerpt.className = 'decision-item-summary-copy'
+    excerpt.textContent = item.summary
+    left.appendChild(excerpt)
+  }
+
+  summary.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'decision-item-summary-right'
+
+  if (item.updatedAt || item.createdAt) {
+    var stamp = document.createElement('span')
+    stamp.className = 'decision-item-summary-stamp'
+    stamp.textContent = formatDate(item.updatedAt || item.createdAt)
+    right.appendChild(stamp)
+  }
 
   var status = document.createElement('span')
   status.className = 'status-pill status-pill-static status-' + item.status
-  status.textContent = item.status
-  top.appendChild(status)
+  status.textContent = formatDecisionStatusLabel(item.status)
+  right.appendChild(status)
 
-  card.appendChild(top)
+  summary.appendChild(right)
+  details.appendChild(summary)
 
-  var summary = document.createElement('p')
-  summary.className = 'decision-copy'
-  summary.textContent = item.summary
-  card.appendChild(summary)
+  var body = document.createElement('div')
+  body.className = 'decision-item-body'
+
+  var card = document.createElement('article')
+  card.className = 'decision-card decision-card-memory decision-card-' + item.status
+
+  var fullSummary = document.createElement('p')
+  fullSummary.className = 'decision-copy'
+  fullSummary.textContent = item.summary
+  card.appendChild(fullSummary)
 
   if (item.rationale) {
     card.appendChild(renderLabeledCopy('decision-rationale', 'Why', item.rationale))
@@ -1834,13 +1869,6 @@ function renderDecisionCard(item) {
   if (item.sourceRef) {
     card.appendChild(renderLabeledCopy('decision-source', 'Source', item.sourceRef))
   }
-
-  return card
-}
-
-function renderDecisionMemoryCard(item, hub, pendingUpdates, replacedBy) {
-  var card = renderDecisionCard(item)
-  card.classList.add('decision-card-memory')
 
   var metaRow = document.createElement('div')
   metaRow.className = 'decision-memory-meta'
@@ -1869,33 +1897,35 @@ function renderDecisionMemoryCard(item, hub, pendingUpdates, replacedBy) {
     card.appendChild(metaRow)
   }
 
+  var relatedUpdates = (pendingUpdates || []).filter(function(update) {
+    return update.decisionId === item.id
+  })
+  if (relatedUpdates.length) {
+    var updatesBlock = document.createElement('details')
+    updatesBlock.className = 'memory-inline-editor'
+
+    var updatesSummary = document.createElement('summary')
+    updatesSummary.textContent = 'Pending Doc Updates (' + relatedUpdates.length + ')'
+    updatesBlock.appendChild(updatesSummary)
+
+    var updatesWrap = document.createElement('div')
+    updatesWrap.className = 'memory-related-updates'
+    relatedUpdates.forEach(function(update) {
+      updatesWrap.appendChild(renderPendingDocUpdateCard(update))
+    })
+    updatesBlock.appendChild(updatesWrap)
+    card.appendChild(updatesBlock)
+  }
+
   card.appendChild(renderDecisionEditor(item, hub))
 
   if (item.status !== 'superseded') {
     card.appendChild(renderDocProposalForm(item))
   }
 
-  var relatedUpdates = (pendingUpdates || []).filter(function(update) {
-    return update.decisionId === item.id
-  })
-
-  if (relatedUpdates.length) {
-    var updatesWrap = document.createElement('div')
-    updatesWrap.className = 'memory-related-updates'
-
-    var heading = document.createElement('div')
-    heading.className = 'eyebrow'
-    heading.textContent = 'Pending Doc Updates'
-    updatesWrap.appendChild(heading)
-
-    relatedUpdates.forEach(function(update) {
-      updatesWrap.appendChild(renderPendingDocUpdateCard(update))
-    })
-
-    card.appendChild(updatesWrap)
-  }
-
-  return card
+  body.appendChild(card)
+  details.appendChild(body)
+  return details
 }
 
 function renderCaptureItem(item) {
@@ -2430,6 +2460,119 @@ function filterDecisionItems(items, viewState) {
 
     return haystack.indexOf(query) !== -1
   })
+}
+
+function getDecisionStageGroups(items, view) {
+  var groups
+
+  if (view === 'proposed') {
+    groups = [
+      {
+        key: 'review',
+        label: 'Pending Review',
+        intro: 'Proposed decisions that still need confirmation, cleanup, or a clear lock-in step.',
+        statuses: ['proposed'],
+      },
+    ]
+  } else if (view === 'superseded') {
+    groups = [
+      {
+        key: 'history',
+        label: 'Superseded History',
+        intro: 'Old agreements kept for traceability so the team can see what changed and what replaced it.',
+        statuses: ['superseded'],
+      },
+    ]
+  } else if (view === 'all') {
+    groups = [
+      {
+        key: 'current',
+        label: 'Current Agreements',
+        intro: 'Locked decisions that represent the current live agreement the team should actually follow.',
+        statuses: ['locked'],
+      },
+      {
+        key: 'review',
+        label: 'Pending Review',
+        intro: 'Proposed decisions that still need confirmation, cleanup, or a clear lock-in step.',
+        statuses: ['proposed'],
+      },
+      {
+        key: 'history',
+        label: 'Superseded History',
+        intro: 'Old agreements kept for traceability so the team can see what changed and what replaced it.',
+        statuses: ['superseded'],
+      },
+    ]
+  } else {
+    groups = [
+      {
+        key: 'current',
+        label: 'Current Agreements',
+        intro: 'Locked decisions that represent the current live agreement the team should actually follow.',
+        statuses: ['locked'],
+      },
+      {
+        key: 'review',
+        label: 'Pending Review',
+        intro: 'Proposed decisions that still need confirmation, cleanup, or a clear lock-in step.',
+        statuses: ['proposed'],
+      },
+    ]
+  }
+
+  return groups.map(function(group) {
+    return {
+      key: group.key,
+      label: group.label,
+      intro: group.intro,
+      items: (items || []).filter(function(item) {
+        return group.statuses.indexOf(item.status) !== -1
+      }),
+    }
+  }).filter(function(group) {
+    return group.items.length
+  })
+}
+
+function renderDecisionStack(group, hub, pendingUpdates, replacementMap) {
+  var details = document.createElement('details')
+  details.className = 'decision-stack'
+
+  var summary = document.createElement('summary')
+  summary.className = 'decision-stack-summary decision-stack-summary-' + group.key
+
+  var left = document.createElement('div')
+  left.className = 'decision-stack-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'decision-stack-title'
+  title.textContent = group.label
+  left.appendChild(title)
+
+  var intro = document.createElement('div')
+  intro.className = 'decision-stack-intro'
+  intro.textContent = group.intro
+  left.appendChild(intro)
+
+  summary.appendChild(left)
+
+  var count = document.createElement('span')
+  count.className = 'decision-stack-count'
+  count.textContent = group.items.length
+  summary.appendChild(count)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'decision-stack-body'
+
+  group.items.forEach(function(item) {
+    body.appendChild(renderDecisionMemoryCard(item, hub, pendingUpdates, replacementMap[item.id] || []))
+  })
+
+  details.appendChild(body)
+  return details
 }
 
 function renderDecisionCreatePanel(hub) {
@@ -3858,7 +4001,7 @@ function renderDecisions() {
 
     var decisionIntro = document.createElement('p')
     decisionIntro.className = 'section-intro'
-    decisionIntro.textContent = 'One canonical decision log across strategy, system, execution, and people. Current agreements show first by default, and superseded agreements stay searchable when you need the history.'
+    decisionIntro.textContent = 'One canonical decision log across strategy, system, execution, and people. Current agreements, review items, and history all live here, but they should not compete with each other.'
     decisionPanel.appendChild(decisionIntro)
 
     var controls = document.createElement('div')
@@ -3930,7 +4073,7 @@ function renderDecisions() {
     decisionPanel.appendChild(decisionResults)
 
     var decisionList = document.createElement('div')
-    decisionList.className = 'section-list'
+    decisionList.className = 'decision-stack-list'
     var pendingDocUpdates = hub.pendingDocUpdates || []
     var sortedDecisions = sortDecisionsNewestFirst(hub.decisions || [])
     var replacementMap = buildDecisionReplacementMap(sortedDecisions)
@@ -3948,8 +4091,14 @@ function renderDecisions() {
       syncFilterButtons()
 
       var filteredDecisions = filterDecisionItems(sortedDecisions, decisionViewState)
-      var scopeLabel = decisionViewState.view === 'current' ? 'current agreements' : decisionViewState.view
-      decisionResults.textContent = 'Showing ' + filteredDecisions.length + ' ' + scopeLabel + ' · newest first'
+      var scopeLabel = decisionViewState.view === 'current'
+        ? 'current agreements and review items'
+        : decisionViewState.view === 'all'
+          ? 'full decision record'
+          : decisionViewState.view === 'proposed'
+            ? 'review items'
+            : 'superseded history'
+      decisionResults.textContent = 'Showing ' + filteredDecisions.length + ' ' + scopeLabel + ' · newest first · all groups and decision records start collapsed'
 
       decisionList.innerHTML = ''
 
@@ -3961,8 +4110,8 @@ function renderDecisions() {
         return
       }
 
-      filteredDecisions.forEach(function(item) {
-        decisionList.appendChild(renderDecisionMemoryCard(item, hub, pendingDocUpdates, replacementMap[item.id] || []))
+      getDecisionStageGroups(filteredDecisions, decisionViewState.view).forEach(function(group) {
+        decisionList.appendChild(renderDecisionStack(group, hub, pendingDocUpdates, replacementMap))
       })
     }
 
@@ -4000,11 +4149,40 @@ function renderDecisions() {
       updatesHeader.appendChild(updatesLeft)
       updatesPanel.appendChild(updatesHeader)
 
-      var updatesList = document.createElement('div')
-      updatesList.className = 'section-list'
+      var updatesList = document.createElement('details')
+      updatesList.className = 'decision-stack'
+
+      var updatesSummary = document.createElement('summary')
+      updatesSummary.className = 'decision-stack-summary decision-stack-summary-review'
+
+      var updatesSummaryLeft = document.createElement('div')
+      updatesSummaryLeft.className = 'decision-stack-summary-left'
+
+      var updatesSummaryTitle = document.createElement('div')
+      updatesSummaryTitle.className = 'decision-stack-title'
+      updatesSummaryTitle.textContent = 'Doc Update Review Queue'
+      updatesSummaryLeft.appendChild(updatesSummaryTitle)
+
+      var updatesSummaryIntro = document.createElement('div')
+      updatesSummaryIntro.className = 'decision-stack-intro'
+      updatesSummaryIntro.textContent = 'Decision-linked doc changes waiting for explicit review and apply.'
+      updatesSummaryLeft.appendChild(updatesSummaryIntro)
+
+      updatesSummary.appendChild(updatesSummaryLeft)
+
+      var updatesCount = document.createElement('span')
+      updatesCount.className = 'decision-stack-count'
+      updatesCount.textContent = pendingDocUpdates.length
+      updatesSummary.appendChild(updatesCount)
+
+      updatesList.appendChild(updatesSummary)
+
+      var updatesBody = document.createElement('div')
+      updatesBody.className = 'decision-stack-body'
       pendingDocUpdates.forEach(function(item) {
-        updatesList.appendChild(renderPendingDocUpdateCard(item))
+        updatesBody.appendChild(renderPendingDocUpdateCard(item))
       })
+      updatesList.appendChild(updatesBody)
       updatesPanel.appendChild(updatesList)
       container.appendChild(updatesPanel)
     }
@@ -4017,17 +4195,60 @@ function renderDecisions() {
       var parkingHeader = document.createElement('div')
       parkingHeader.className = 'panel-header'
 
+      var parkingLeft = document.createElement('div')
+
+      var parkingEyebrow = document.createElement('div')
+      parkingEyebrow.className = 'eyebrow'
+      parkingEyebrow.textContent = 'Needs Verification'
+      parkingLeft.appendChild(parkingEyebrow)
+
       var parkingTitle = document.createElement('h3')
-      parkingTitle.textContent = 'Parking Lot'
-      parkingHeader.appendChild(parkingTitle)
+      parkingTitle.textContent = 'Unlocked Decision Signals'
+      parkingLeft.appendChild(parkingTitle)
+
+      var parkingIntro = document.createElement('p')
+      parkingIntro.className = 'section-intro'
+      parkingIntro.textContent = 'Possible agreements, policy ideas, or meeting signals that are not locked enough to become live decisions yet.'
+      parkingLeft.appendChild(parkingIntro)
+
+      parkingHeader.appendChild(parkingLeft)
 
       parkingPanel.appendChild(parkingHeader)
 
-      var parkingList = document.createElement('div')
-      parkingList.className = 'section-list'
+      var parkingList = document.createElement('details')
+      parkingList.className = 'decision-stack'
+
+      var parkingSummary = document.createElement('summary')
+      parkingSummary.className = 'decision-stack-summary decision-stack-summary-history'
+
+      var parkingSummaryLeft = document.createElement('div')
+      parkingSummaryLeft.className = 'decision-stack-summary-left'
+
+      var parkingSummaryTitle = document.createElement('div')
+      parkingSummaryTitle.className = 'decision-stack-title'
+      parkingSummaryTitle.textContent = 'Needs Clarification'
+      parkingSummaryLeft.appendChild(parkingSummaryTitle)
+
+      var parkingSummaryIntro = document.createElement('div')
+      parkingSummaryIntro.className = 'decision-stack-intro'
+      parkingSummaryIntro.textContent = 'Signals that still need review, confirmation, or a real decision record.'
+      parkingSummaryLeft.appendChild(parkingSummaryIntro)
+
+      parkingSummary.appendChild(parkingSummaryLeft)
+
+      var parkingCount = document.createElement('span')
+      parkingCount.className = 'decision-stack-count'
+      parkingCount.textContent = hub.parkingLot.length
+      parkingSummary.appendChild(parkingCount)
+
+      parkingList.appendChild(parkingSummary)
+
+      var parkingBody = document.createElement('div')
+      parkingBody.className = 'decision-stack-body'
       hub.parkingLot.forEach(function(item) {
-        parkingList.appendChild(renderCaptureItem(item))
+        parkingBody.appendChild(renderCaptureItem(item))
       })
+      parkingList.appendChild(parkingBody)
       parkingPanel.appendChild(parkingList)
       container.appendChild(parkingPanel)
     }
