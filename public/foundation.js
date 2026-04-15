@@ -127,6 +127,13 @@ var backlogLanes = [
   { key: 'done', label: 'Done' },
 ]
 
+var backlogPriorityGroups = [
+  { key: 'P0', label: 'P0 Critical', intro: 'Root Foundation blockers and the highest-urgency work.' },
+  { key: 'P1', label: 'P1 Important', intro: 'High-value work that shapes the next layer once blockers are clear.' },
+  { key: 'P2', label: 'P2 Important Later', intro: 'Good work that matters, but should not cut the line right now.' },
+  { key: 'P3', label: 'P3 Nice To Have', intro: 'Low-urgency work that stays visible without hijacking focus.' },
+]
+
 var homeWorkboardStages = [
   { key: 'todo', label: 'To Do', lanes: ['research', 'scoped', 'ranked'], tone: 'todo', intro: 'Queued work that still needs shaping, ranking, or proof.' },
   { key: 'doing', label: 'Doing', lanes: ['executing'], tone: 'doing', intro: 'Live foundation work the system is actively moving right now.' },
@@ -1599,65 +1606,6 @@ function renderDocCard(doc) {
   return article
 }
 
-function renderBacklogItem(item) {
-  var card = document.createElement('article')
-  card.className = 'backlog-card'
-
-  var meta = document.createElement('div')
-  meta.className = 'backlog-card-meta'
-
-  var priority = document.createElement('span')
-  priority.className = 'backlog-pill backlog-priority-' + item.priority.toLowerCase()
-  priority.textContent = item.priority
-  meta.appendChild(priority)
-
-  if (item.rank) {
-    var rank = document.createElement('span')
-    rank.className = 'backlog-rank'
-    rank.textContent = '#' + item.rank
-    meta.appendChild(rank)
-  }
-
-  card.appendChild(meta)
-
-  var title = document.createElement('h5')
-  title.textContent = item.title
-  card.appendChild(title)
-
-  var id = document.createElement('div')
-  id.className = 'backlog-id'
-  id.textContent = item.id
-  card.appendChild(id)
-
-  var summary = document.createElement('p')
-  summary.className = 'backlog-copy'
-  summary.textContent = item.summary
-  card.appendChild(summary)
-
-  var why = document.createElement('p')
-  why.className = 'backlog-copy backlog-copy-secondary'
-  why.textContent = item.whyItMatters
-  card.appendChild(why)
-
-  var nextAction = document.createElement('p')
-  card.appendChild(renderLabeledCopy('backlog-next', 'Next', item.nextAction))
-
-  if (item.statusNote) {
-    var note = document.createElement('p')
-    note.className = 'backlog-note'
-    note.textContent = item.statusNote
-    card.appendChild(note)
-  }
-
-  if (item.owner) {
-    card.appendChild(renderLabeledCopy('capture-owner', 'Owner', item.owner))
-  }
-
-  card.appendChild(renderBacklogItemEditor(item))
-
-  return card
-}
-
 function compareBacklogItems(a, b) {
   var priorityOrder = { P0: 0, P1: 1, P2: 2, P3: 3 }
   var laneOrder = {}
@@ -1699,7 +1647,12 @@ function renderBacklogAccordionItem(item) {
 
   var meta = document.createElement('div')
   meta.className = 'backlog-item-summary-meta'
-  meta.textContent = item.id + (item.owner ? ' · ' + item.owner : '')
+  meta.textContent = [
+    item.id,
+    getBacklogTeamLabel(item.team),
+    getBacklogLaneLabel(item.lane),
+    item.owner || null,
+  ].filter(Boolean).join(' · ')
   left.appendChild(meta)
   summary.appendChild(left)
 
@@ -1729,18 +1682,28 @@ function renderBacklogAccordionItem(item) {
   summaryCopy.textContent = item.summary
   body.appendChild(summaryCopy)
 
-  var why = document.createElement('p')
-  why.className = 'backlog-copy backlog-copy-secondary'
-  why.textContent = item.whyItMatters
-  body.appendChild(why)
+  if (item.whyItMatters) {
+    body.appendChild(renderLabeledCopy('backlog-note', 'Why It Matters', item.whyItMatters))
+  }
 
-  body.appendChild(renderLabeledCopy('backlog-next', 'Next', item.nextAction))
+  if (item.nextAction) {
+    body.appendChild(renderLabeledCopy('backlog-next', 'Next To Close', item.nextAction))
+  }
 
   if (item.statusNote) {
-    var note = document.createElement('p')
-    note.className = 'backlog-note'
-    note.textContent = item.statusNote
-    body.appendChild(note)
+    body.appendChild(renderLabeledCopy('backlog-note', 'Current Note', item.statusNote))
+  }
+
+  if (item.source) {
+    body.appendChild(renderLabeledCopy('backlog-note', 'Source', item.source))
+  }
+
+  if (item.updatedAt || item.createdAt) {
+    body.appendChild(renderLabeledCopy('backlog-note', 'Updated', formatDate(item.updatedAt || item.createdAt)))
+  }
+
+  if (item.owner) {
+    body.appendChild(renderLabeledCopy('capture-owner', 'Owner', item.owner))
   }
 
   body.appendChild(renderBacklogItemEditor(item))
@@ -1748,9 +1711,10 @@ function renderBacklogAccordionItem(item) {
   return details
 }
 
-function renderBacklogLaneStack(lane, items) {
+function renderBacklogPriorityStack(group, items) {
   var details = document.createElement('details')
   details.className = 'backlog-stack'
+  if (group.key === 'P0' && items.length) details.open = true
 
   var summary = document.createElement('summary')
   summary.className = 'backlog-stack-summary'
@@ -1760,14 +1724,14 @@ function renderBacklogLaneStack(lane, items) {
 
   var label = document.createElement('div')
   label.className = 'backlog-stack-title'
-  label.textContent = lane.label
+  label.textContent = group.label
   labelWrap.appendChild(label)
 
   var intro = document.createElement('div')
   intro.className = 'backlog-stack-intro'
   intro.textContent = items.length
-    ? items.length + ' items in this lane'
-    : 'Nothing in this lane right now.'
+    ? group.intro
+    : 'Nothing in this priority right now.'
   labelWrap.appendChild(intro)
   summary.appendChild(labelWrap)
 
@@ -1794,36 +1758,6 @@ function renderBacklogLaneStack(lane, items) {
 
   details.appendChild(body)
   return details
-}
-
-function renderTeamBoard(team, items) {
-  var board = document.createElement('section')
-  board.className = 'team-board'
-
-  var header = document.createElement('div')
-  header.className = 'team-board-header'
-
-  var title = document.createElement('h4')
-  title.textContent = team === 'dev' ? 'Dev Team' : 'Marketing Team'
-  header.appendChild(title)
-
-  var count = document.createElement('span')
-  count.className = 'team-board-count'
-  count.textContent = items.length + ' items'
-  header.appendChild(count)
-
-  board.appendChild(header)
-
-  var laneGrid = document.createElement('div')
-  laneGrid.className = 'backlog-stack-list'
-
-  backlogLanes.forEach(function(lane) {
-    var laneItems = items.filter(function(item) { return item.lane === lane.key })
-    laneGrid.appendChild(renderBacklogLaneStack(lane, laneItems))
-  })
-
-  board.appendChild(laneGrid)
-  return board
 }
 
 function renderDecisionCard(item) {
@@ -1881,7 +1815,10 @@ function renderDecisionMemoryCard(item, hub, pendingUpdates, replacedBy) {
     metaRow.appendChild(renderLabeledCopy('decision-meta', 'Classified', formatDate(item.classifiedAt)))
   }
   if (item.classifiedBy) {
-    metaRow.appendChild(renderLabeledCopy('decision-meta', 'By', item.classifiedBy))
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Recorded By', item.classifiedBy))
+  }
+  if (item.updatedAt) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Updated', formatDate(item.updatedAt)))
   }
   if (item.supersedesIds && item.supersedesIds.length) {
     metaRow.appendChild(renderLabeledCopy('decision-meta', 'Supersedes', item.supersedesIds.join(', ')))
@@ -1981,6 +1918,14 @@ function renderOpenQuestionCard(item) {
     card.appendChild(renderLabeledCopy('capture-owner', 'Owner', item.owner))
   }
 
+  if (item.createdAt) {
+    card.appendChild(renderLabeledCopy('decision-source', 'Opened', formatDate(item.createdAt)))
+  }
+
+  if (item.updatedAt && item.updatedAt !== item.createdAt) {
+    card.appendChild(renderLabeledCopy('decision-source', 'Updated', formatDate(item.updatedAt)))
+  }
+
   if (item.status === 'resolved' && item.resolutionNote) {
     card.appendChild(renderLabeledCopy('decision-rationale', 'Resolution', item.resolutionNote))
   }
@@ -2057,12 +2002,12 @@ function renderAdminTokenPanel() {
   left.appendChild(eyebrow)
 
   var title = document.createElement('h3')
-  title.textContent = 'Admin Token'
+  title.textContent = 'Temporary Write Gate'
   left.appendChild(title)
 
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'Paste your admin token once to unlock Foundation writes on this browser. Reads stay open.'
+  intro.textContent = 'This is a temporary browser-level write gate until real logins and role-based security exist. Reads stay open; writes require a local token.'
   left.appendChild(intro)
 
   header.appendChild(left)
@@ -2095,12 +2040,12 @@ function renderAdminTokenPanel() {
 
   var status = document.createElement('p')
   status.className = 'form-status'
-  setFormStatus(status, getStoredAdminToken() ? 'Token saved for this browser.' : 'No token saved yet.', getStoredAdminToken() ? 'success' : '')
+  setFormStatus(status, getStoredAdminToken() ? 'Write token saved for this browser.' : 'No write token saved yet.', getStoredAdminToken() ? 'success' : '')
   panel.appendChild(status)
 
   saveButton.addEventListener('click', function() {
     setStoredAdminToken(tokenInput.value.trim())
-    setFormStatus(status, tokenInput.value.trim() ? 'Token saved for this browser.' : 'Token cleared.', tokenInput.value.trim() ? 'success' : '')
+    setFormStatus(status, tokenInput.value.trim() ? 'Write token saved for this browser.' : 'Write token cleared.', tokenInput.value.trim() ? 'success' : '')
   })
 
   clearButton.addEventListener('click', function() {
@@ -2316,6 +2261,59 @@ function renderBacklogItemEditor(item) {
   })
 
   details.appendChild(wrap)
+  return details
+}
+
+function getBacklogLaneLabel(laneKey) {
+  var match = backlogLanes.find(function(lane) { return lane.key === laneKey })
+  return match ? match.label : laneKey
+}
+
+function getBacklogTeamLabel(teamKey) {
+  if (teamKey === 'dev') return 'Dev'
+  if (teamKey === 'marketing') return 'Marketing'
+  return teamKey || 'Unassigned'
+}
+
+function renderOperatorToolsDrawer(titleText, introText, panels, openByDefault) {
+  var details = document.createElement('details')
+  details.className = 'operator-tools-drawer'
+  if (openByDefault) details.open = true
+
+  var summary = document.createElement('summary')
+  summary.className = 'operator-tools-summary'
+
+  var left = document.createElement('div')
+  left.className = 'operator-tools-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'operator-tools-title'
+  title.textContent = titleText || 'Operator Tools'
+  left.appendChild(title)
+
+  if (introText) {
+    var intro = document.createElement('div')
+    intro.className = 'operator-tools-intro'
+    intro.textContent = introText
+    left.appendChild(intro)
+  }
+
+  summary.appendChild(left)
+
+  var state = document.createElement('span')
+  state.className = 'operator-tools-state'
+  state.textContent = 'Collapsed until needed'
+  summary.appendChild(state)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'operator-tools-body'
+  ;(panels || []).forEach(function(panel) {
+    if (panel) body.appendChild(panel)
+  })
+  details.appendChild(body)
+
   return details
 }
 
@@ -2800,13 +2798,6 @@ function renderQuestionEditor(item) {
 
   details.appendChild(wrap)
   return details
-}
-
-function groupBacklogByTeam(items) {
-  return {
-    dev: items.filter(function(item) { return item.team === 'dev' }),
-    marketing: items.filter(function(item) { return item.team === 'marketing' }),
-  }
 }
 
 /* ── data cache ──────────────────────────────────────────── */
@@ -3619,22 +3610,53 @@ function renderBacklog() {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = hub.backlogItems.length + ' active items across the live Foundation backlog'
+    heroMeta.textContent = hub.backlogItems.length + ' active items · ordered P0 → P3, then by rank'
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
-    container.appendChild(renderAdminTokenPanel())
-    container.appendChild(renderBacklogCreatePanel(hub))
+    container.appendChild(renderOperatorToolsDrawer(
+      'Operator Tools',
+      'Write access and backlog editing live here when you need them. The queue itself stays front and center.',
+      [renderAdminTokenPanel(), renderBacklogCreatePanel(hub)],
+      false
+    ))
 
-    /* team boards */
-    var backlogGroups = groupBacklogByTeam(hub.backlogItems)
+    var boardPanel = document.createElement('section')
+    boardPanel.className = 'panel'
+
+    var boardHeader = document.createElement('div')
+    boardHeader.className = 'panel-header'
+
+    var boardLeft = document.createElement('div')
+    var boardEyebrow = document.createElement('div')
+    boardEyebrow.className = 'eyebrow'
+    boardEyebrow.textContent = 'Foundation Queue'
+    boardLeft.appendChild(boardEyebrow)
+
+    var boardTitle = document.createElement('h3')
+    boardTitle.textContent = 'What We Work From'
+    boardLeft.appendChild(boardTitle)
+
+    var boardIntro = document.createElement('p')
+    boardIntro.className = 'section-intro'
+    boardIntro.textContent = 'This is the root Foundation backlog only. Highest priority comes first, and each card should explain what it is, why it matters, and what closes it.'
+    boardLeft.appendChild(boardIntro)
+
+    boardHeader.appendChild(boardLeft)
+    boardPanel.appendChild(boardHeader)
+
     var boardWrap = document.createElement('div')
-    boardWrap.className = 'team-backlog-grid'
-    boardWrap.appendChild(renderTeamBoard('dev', backlogGroups.dev))
-    boardWrap.appendChild(renderTeamBoard('marketing', backlogGroups.marketing))
-    container.appendChild(boardWrap)
+    boardWrap.className = 'backlog-stack-list'
+    backlogPriorityGroups.forEach(function(group) {
+      var groupItems = (hub.backlogItems || []).filter(function(item) {
+        return item.priority === group.key
+      })
+      boardWrap.appendChild(renderBacklogPriorityStack(group, groupItems))
+    })
+    boardPanel.appendChild(boardWrap)
+    container.appendChild(boardPanel)
 
   }).catch(function(error) {
     container.innerHTML = ''
@@ -3673,8 +3695,12 @@ function renderDecisions() {
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
-    container.appendChild(renderAdminTokenPanel())
-    container.appendChild(renderDecisionCreatePanel(hub))
+    container.appendChild(renderOperatorToolsDrawer(
+      'Operator Tools',
+      'Write access, decision logging, and update utilities live here when you need them. The decision log stays readable first.',
+      [renderAdminTokenPanel(), renderDecisionCreatePanel(hub)],
+      false
+    ))
 
     /* decision cards */
     var decisionPanel = document.createElement('section')
@@ -3901,8 +3927,12 @@ function renderOpenQuestions() {
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
-    container.appendChild(renderAdminTokenPanel())
-    container.appendChild(renderQuestionCreatePanel())
+    container.appendChild(renderOperatorToolsDrawer(
+      'Operator Tools',
+      'Write access and question capture live here when you need them. The active question list stays in front.',
+      [renderAdminTokenPanel(), renderQuestionCreatePanel()],
+      false
+    ))
 
     /* question cards */
     var panel = document.createElement('section')

@@ -357,11 +357,6 @@ body {
   margin-bottom: 16px;
 }
 
-.team-backlog-grid {
-  display: grid;
-  gap: 18px;
-}
-
 .foundation-home-hero h1 {
   font-family: 'stratum-1-web', 'Arial Black', sans-serif;
   font-weight: 900;
@@ -487,39 +482,76 @@ body {
   padding-top: 14px;
 }
 
-.team-board {
-  background: var(--surface-inset);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 18px;
-}
-
-.team-board-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 14px;
-}
-
-.team-board-header h4 {
-  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  font-size: 1rem;
-}
-
-.team-board-count {
-  color: var(--text-tertiary);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
 .backlog-stack-list,
 .foundation-stage-list {
   display: grid;
   gap: 12px;
+}
+
+.operator-tools-drawer {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.8);
+  margin-bottom: 20px;
+}
+
+.operator-tools-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: rgba(0, 132, 201, 0.04);
+}
+
+.operator-tools-summary::-webkit-details-marker {
+  display: none;
+}
+
+.operator-tools-summary-left {
+  display: grid;
+  gap: 4px;
+}
+
+.operator-tools-title {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.86rem;
+  color: var(--text-primary);
+}
+
+.operator-tools-intro {
+  color: var(--text-tertiary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.operator-tools-state {
+  color: var(--text-tertiary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.operator-tools-drawer[open] .operator-tools-state {
+  color: var(--brand);
+}
+
+.operator-tools-body {
+  padding: 14px;
+  display: grid;
+  gap: 14px;
+}
+
+.operator-tools-body .panel {
+  margin-bottom: 0;
 }
 
 .backlog-stack,
