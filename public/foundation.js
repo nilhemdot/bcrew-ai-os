@@ -2832,7 +2832,7 @@ function renderOverview() {
 
     var printBtn = document.createElement('button')
     printBtn.className = 'print-button'
-    printBtn.textContent = 'Print Strategy'
+    printBtn.textContent = 'Print / Save PDF'
     printBtn.setAttribute('type', 'button')
     printBtn.addEventListener('click', function() { window.print() })
     hero.appendChild(printBtn)
@@ -2859,7 +2859,8 @@ function renderOverview() {
     var panelMeta = document.createElement('div')
     panelMeta.className = 'doc-meta'
     var bsMeta = data.foundation.businessStrategy.meta
-    panelMeta.textContent = bsMeta.lines + ' lines · updated ' + formatDate(bsMeta.updatedAt)
+    var strategySectionCount = data.foundation.businessStrategy.sections.length
+    panelMeta.textContent = 'Full strategy packet · ' + strategySectionCount + ' sections · updated ' + formatDate(bsMeta.updatedAt)
     panelHeader.appendChild(panelMeta)
 
     panel.appendChild(panelHeader)

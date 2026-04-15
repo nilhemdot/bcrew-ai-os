@@ -2594,15 +2594,109 @@ code {
 }
 
 /* ── PRINT ── */
+@page {
+  margin: 0.6in;
+}
+
 @media print {
-  body { background: #fff; }
-  .sidebar, .hero, .status-grid, .print-button, #memory, #backlog, #decisions { display: none !important; }
-  .shell, .main { display: block; padding: 0; margin: 0; }
-  .panel { border: 0; box-shadow: none; padding: 0; margin: 0; }
-  .panel-header { display: none; }
-  .strategy-document { border: 0; border-radius: 0; box-shadow: none; padding: 0; }
-  .strategy-document-header { border-bottom: 3px solid #000; padding-bottom: 16px; margin-bottom: 20px; }
-  .strategy-document-header h1 { font-size: 28pt; }
-  .section-card { border: 1px solid #ddd; box-shadow: none; page-break-inside: avoid; }
-  .section-list { gap: 8px; }
+  body {
+    background: #fff;
+    color: #111;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  .found-bg,
+  .found-sidebar,
+  .found-breadcrumb,
+  .found-mobile-toggle,
+  .print-button,
+  .secondary-button,
+  .memory-button,
+  .memory-inline-editor,
+  .admin-token-panel,
+  .backlog-create-panel,
+  .section-support-actions {
+    display: none !important;
+  }
+
+  .found-shell,
+  .found-main {
+    display: block;
+    padding: 0;
+    margin: 0;
+    max-width: none;
+  }
+
+  .found-main .hero,
+  .found-main .panel,
+  .found-main .strategy-document,
+  .found-main .status-card {
+    background: #fff;
+    border: 0;
+    box-shadow: none;
+    margin: 0 0 18pt;
+    padding: 0;
+  }
+
+  .hero {
+    display: block;
+    border-bottom: 2px solid #111;
+    padding-bottom: 14pt;
+    margin-bottom: 18pt;
+  }
+
+  .hero h2,
+  .hero h1,
+  .strategy-document-header h1 {
+    font-size: 24pt;
+    line-height: 1;
+  }
+
+  .hero p,
+  .hero-copy,
+  .section-intro,
+  .doc-meta,
+  .status-card p,
+  .change-meta,
+  .decision-meta {
+    color: #333 !important;
+  }
+
+  .panel-header,
+  .strategy-document-header {
+    display: flex;
+    border-bottom: 1px solid #cfcfcf;
+    padding-bottom: 8pt;
+    margin-bottom: 12pt;
+  }
+
+  .section-list,
+  .change-list {
+    gap: 10pt;
+  }
+
+  .section-card,
+  .change-card,
+  .status-card {
+    border: 1px solid #d8d8d8;
+    border-radius: 0;
+    box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding: 12pt 14pt;
+  }
+
+  .section-card h4 {
+    border-bottom: 1px solid #d8d8d8;
+    margin-bottom: 8pt;
+    padding-bottom: 6pt;
+  }
+
+  a,
+  .section-link,
+  .section-support-link {
+    color: #111 !important;
+    text-decoration: none;
+  }
 }
