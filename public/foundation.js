@@ -134,6 +134,40 @@ var homeWorkboardStages = [
   { key: 'parked', label: 'Parked', lanes: ['parked'], tone: 'parked', intro: 'Work intentionally held back so it does not muddy the foundation pass.' },
 ]
 
+var foundationCloseoutOrder = [
+  'FOUNDATION-001',
+  'FOUNDATION-002',
+  'FOUNDATION-003',
+  'FOUNDATION-VERIFY-001',
+  'SECURITY-001',
+  'MEMORY-002',
+  'SLICE-001',
+  'SCHEMA-001',
+]
+
+var foundationNowSequence = [
+  {
+    title: 'Finish Foundation home page',
+    body: 'Tighten the message, connected-state strip, and closeout board so Foundation explains itself cleanly on first load.',
+  },
+  {
+    title: 'Finish the strategy section',
+    body: 'Close the last copy and hierarchy pass on the business strategy packet so that whole slice is fully signed off.',
+  },
+  {
+    title: 'Finish system strategy',
+    body: 'Clean the operating doctrine layer so the OS rules, role, and governance logic are clear and stable.',
+  },
+  {
+    title: 'Close source trust',
+    body: 'Finish `SRC-OWNERS-001` and `SRC-FINANCE-001` sign-off so the trust layer stops reasoning on provisional truth.',
+  },
+  {
+    title: 'Add minimal verification',
+    body: 'Put in the smallest smoke-check layer that proves the app, trust layer, and critical source reads still work.',
+  },
+]
+
 /* ── inline formatting (from app.js) ─────────────────────── */
 
 function appendFormattedText(text, parent, currentPath) {
@@ -3033,6 +3067,81 @@ function renderHomeWorkboardStage(stage, items) {
   return details
 }
 
+function getFoundationCloseoutItems(items) {
+  var byId = {}
+  ;(items || []).forEach(function(item) {
+    byId[item.id] = item
+  })
+
+  var ordered = foundationCloseoutOrder
+    .map(function(id) { return byId[id] })
+    .filter(Boolean)
+
+  var remainder = (items || []).filter(function(item) {
+    return foundationCloseoutOrder.indexOf(item.id) === -1 &&
+      /^FOUNDATION-|^SECURITY-|^MEMORY-|^SCHEMA-|^SLICE-/.test(item.id)
+  })
+
+  return ordered.concat(sortBacklogItems(remainder))
+}
+
+function renderStatusGroupPanel(titleText, introText, items) {
+  if (!items || !items.length) return null
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Live State'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = titleText
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = introText
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'status-grid'
+  items.forEach(function(item) {
+    grid.appendChild(renderStatusCard(item))
+  })
+  panel.appendChild(grid)
+
+  return panel
+}
+
+function renderFoundationSequenceCard(step, index) {
+  var article = document.createElement('article')
+  article.className = 'foundation-sequence-card'
+
+  var num = document.createElement('div')
+  num.className = 'foundation-sequence-num'
+  num.textContent = String(index + 1).padStart(2, '0')
+  article.appendChild(num)
+
+  var title = document.createElement('h4')
+  title.textContent = step.title
+  article.appendChild(title)
+
+  var body = document.createElement('p')
+  body.textContent = step.body
+  article.appendChild(body)
+
+  return article
+}
+
 function renderFoundationHome() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading Foundation...</p>'
@@ -3123,11 +3232,26 @@ function renderFoundationHome() {
     purposePanel.appendChild(purposeGrid)
     container.appendChild(purposePanel)
 
-    var statusPanel = renderOverviewStatusPanel(data.systemStatus, {
-      title: 'Connected Now',
-      intro: 'This is the live system state around the strategy layer: what is wired, what is pending, and what still needs to earn trust.',
+    var liveNow = (data.systemStatus || []).filter(function(item) {
+      return ['strategy-doc', 'supporting-strategy', 'foundation-memory'].indexOf(item.key) !== -1
     })
-    if (statusPanel) container.appendChild(statusPanel)
+    var stillProving = (data.systemStatus || []).filter(function(item) {
+      return ['source-trust', 'verification', 'assistant-loop'].indexOf(item.key) !== -1
+    })
+
+    var livePanel = renderStatusGroupPanel(
+      'Live Now',
+      'The pieces that are already wired and active inside Foundation.',
+      liveNow
+    )
+    if (livePanel) container.appendChild(livePanel)
+
+    var provingPanel = renderStatusGroupPanel(
+      'Still Proving',
+      'The gaps that still block Foundation from being fully trusted and closed out.',
+      stillProving
+    )
+    if (provingPanel) container.appendChild(provingPanel)
 
     var modulesPanel = document.createElement('section')
     modulesPanel.className = 'panel'
@@ -3153,6 +3277,33 @@ function renderFoundationHome() {
     modulesPanel.appendChild(modulesGrid)
     container.appendChild(modulesPanel)
 
+    var sequencePanel = document.createElement('section')
+    sequencePanel.className = 'panel'
+    var sequenceHeader = document.createElement('div')
+    sequenceHeader.className = 'panel-header'
+    var sequenceLeft = document.createElement('div')
+    var sequenceEyebrow = document.createElement('div')
+    sequenceEyebrow.className = 'eyebrow'
+    sequenceEyebrow.textContent = 'Current Sequence'
+    sequenceLeft.appendChild(sequenceEyebrow)
+    var sequenceTitle = document.createElement('h3')
+    sequenceTitle.textContent = 'What We Work On Next'
+    sequenceLeft.appendChild(sequenceTitle)
+    var sequenceIntro = document.createElement('p')
+    sequenceIntro.className = 'section-intro'
+    sequenceIntro.textContent = 'This is the ordered closeout path, not a generic idea pile.'
+    sequenceLeft.appendChild(sequenceIntro)
+    sequenceHeader.appendChild(sequenceLeft)
+    sequencePanel.appendChild(sequenceHeader)
+
+    var sequenceGrid = document.createElement('div')
+    sequenceGrid.className = 'foundation-sequence-grid'
+    foundationNowSequence.forEach(function(step, index) {
+      sequenceGrid.appendChild(renderFoundationSequenceCard(step, index))
+    })
+    sequencePanel.appendChild(sequenceGrid)
+    container.appendChild(sequencePanel)
+
     var workboardPanel = document.createElement('section')
     workboardPanel.className = 'panel'
     var workboardHeader = document.createElement('div')
@@ -3160,22 +3311,23 @@ function renderFoundationHome() {
     var workboardLeft = document.createElement('div')
     var workboardEyebrow = document.createElement('div')
     workboardEyebrow.className = 'eyebrow'
-    workboardEyebrow.textContent = 'Live Workboard'
+    workboardEyebrow.textContent = 'Foundation Closeout'
     workboardLeft.appendChild(workboardEyebrow)
     var workboardTitle = document.createElement('h3')
-    workboardTitle.textContent = 'What Still Needs To Get Done'
+    workboardTitle.textContent = 'What Still Blocks Closure'
     workboardLeft.appendChild(workboardTitle)
     var workboardIntro = document.createElement('p')
     workboardIntro.className = 'section-intro'
-    workboardIntro.textContent = 'Foundation work is shown as a vertical operating stack so it stays readable on desktop and mobile.'
+    workboardIntro.textContent = 'This is the filtered Foundation closeout board, not the whole backlog.'
     workboardLeft.appendChild(workboardIntro)
     workboardHeader.appendChild(workboardLeft)
     workboardPanel.appendChild(workboardHeader)
 
     var workboardList = document.createElement('div')
     workboardList.className = 'foundation-stage-list'
+    var closeoutItems = getFoundationCloseoutItems(hub.backlogItems || [])
     homeWorkboardStages.forEach(function(stage) {
-      var stageItems = (hub.backlogItems || []).filter(function(item) {
+      var stageItems = closeoutItems.filter(function(item) {
         return stage.lanes.indexOf(item.lane) !== -1
       })
       workboardList.appendChild(renderHomeWorkboardStage(stage, stageItems))

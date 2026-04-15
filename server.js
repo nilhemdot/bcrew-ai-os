@@ -921,6 +921,12 @@ app.get('/api/source-of-truth', (_req, res) => {
         detail: 'Backlog, decisions, open questions, pending doc updates, and recent changes are running through the Foundation trust layer.',
       },
       {
+        key: 'verification',
+        label: 'Verification',
+        status: 'pending',
+        detail: 'Minimal smoke checks and source-health verification are not fully in place yet.',
+      },
+      {
         key: 'assistant-loop',
         label: 'Trusted Assistant Loop',
         status: 'pending',
