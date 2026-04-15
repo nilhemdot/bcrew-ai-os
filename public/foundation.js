@@ -2720,108 +2720,10 @@ var sectionLabels = {
   'source-registry': 'Source Registry',
 }
 
-var strategyReviewChecklist = [
-  {
-    title: 'Business Strategy Signed Off',
-    tone: 'done',
-    items: [
-      'North Star',
-      'Core Values',
-      'The Engine',
-      'Department Mandates',
-      'Governance',
-      'Two Brands',
-    ],
-  },
-  {
-    title: 'Supporting Docs Signed Off',
-    tone: 'done',
-    items: [
-      'BHAG Model',
-      'Core Values',
-      'Agent Engine',
-      'Department Mandates',
-      'Governance',
-      'MarketMasters',
-    ],
-  },
-  {
-    title: 'Still To Confirm Outside Core Strategy',
-    tone: 'pending',
-    items: [
-      'Planning Definitions',
-      'System Strategy',
-      'Source Registry',
-    ],
-  },
-]
-
-function renderReviewChecklistPanel() {
-  var panel = document.createElement('section')
-  panel.className = 'panel'
-
-  var header = document.createElement('div')
-  header.className = 'panel-header'
-
-  var left = document.createElement('div')
-  var eyebrow = document.createElement('div')
-  eyebrow.className = 'eyebrow'
-  eyebrow.textContent = 'Review Tracker'
-  left.appendChild(eyebrow)
-
-  var title = document.createElement('h3')
-  title.textContent = 'Strategy Lock Checklist'
-  left.appendChild(title)
-
-  var intro = document.createElement('p')
-  intro.className = 'section-intro'
-  intro.textContent = 'This is the current sign-off state for the top-down strategy review. We only mark a section done once the wording feels right and the supporting layer earns its place.'
-  left.appendChild(intro)
-
-  header.appendChild(left)
-  panel.appendChild(header)
-
-  var grid = document.createElement('div')
-  grid.className = 'review-checklist-grid'
-
-  strategyReviewChecklist.forEach(function(group) {
-    var column = document.createElement('div')
-    column.className = 'review-checklist-column'
-
-    var columnTitle = document.createElement('h4')
-    columnTitle.textContent = group.title
-    column.appendChild(columnTitle)
-
-    var list = document.createElement('ul')
-    list.className = 'review-checklist-list'
-
-    group.items.forEach(function(item) {
-      var li = document.createElement('li')
-      li.className = 'review-checklist-item review-checklist-item-' + group.tone
-
-      var marker = document.createElement('span')
-      marker.className = 'review-checklist-marker'
-      marker.textContent = group.tone === 'done' ? 'Done' : 'Next'
-      li.appendChild(marker)
-
-      var text = document.createElement('span')
-      text.textContent = item
-      li.appendChild(text)
-
-      list.appendChild(li)
-    })
-
-    column.appendChild(list)
-    grid.appendChild(column)
-  })
-
-  panel.appendChild(grid)
-  return panel
-}
-
-function renderOverviewStatusPanel(items) {
+function renderOverviewStatusPanel(items, options) {
   if (!items || !items.length) return null
 
+  var opts = options || {}
   var panel = document.createElement('section')
   panel.className = 'panel'
 
@@ -2831,17 +2733,19 @@ function renderOverviewStatusPanel(items) {
   var left = document.createElement('div')
   var eyebrow = document.createElement('div')
   eyebrow.className = 'eyebrow'
-  eyebrow.textContent = 'Foundation State'
+  eyebrow.textContent = opts.eyebrow || 'Foundation State'
   left.appendChild(eyebrow)
 
   var title = document.createElement('h3')
-  title.textContent = 'Current Build Status'
+  title.textContent = opts.title || 'System Status'
   left.appendChild(title)
 
-  var intro = document.createElement('p')
-  intro.className = 'section-intro'
-  intro.textContent = 'This is secondary to the strategy itself. Use it to see whether the trust layer around the strategy is live, pending, or still provisional.'
-  left.appendChild(intro)
+  if (opts.intro) {
+    var intro = document.createElement('p')
+    intro.className = 'section-intro'
+    intro.textContent = opts.intro
+    left.appendChild(intro)
+  }
 
   header.appendChild(left)
   panel.appendChild(header)
@@ -2972,13 +2876,6 @@ function renderOverview() {
     panel.appendChild(sectionList)
     container.appendChild(panel)
 
-    container.appendChild(renderReviewChecklistPanel())
-
-    var statusPanel = renderOverviewStatusPanel(data.systemStatus)
-    if (statusPanel) {
-      container.appendChild(statusPanel)
-    }
-
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
@@ -2994,7 +2891,13 @@ function renderStrategyDoc(sectionKey) {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading document...</p>'
 
-  fetchDoc(docPath).then(function(data) {
+  var loader = sectionKey === 'system-strategy'
+    ? Promise.all([fetchDoc(docPath), fetchSourceOfTruth()])
+    : Promise.all([fetchDoc(docPath)])
+
+  loader.then(function(results) {
+    var data = results[0]
+    var sourceData = results[1] || null
     container.innerHTML = ''
 
     /* hero */
@@ -3044,6 +2947,14 @@ function renderStrategyDoc(sectionKey) {
     ))
     docPanel.appendChild(docContent)
     container.appendChild(docPanel)
+
+    if (sectionKey === 'system-strategy' && sourceData && sourceData.systemStatus) {
+      var statusPanel = renderOverviewStatusPanel(sourceData.systemStatus, {
+        title: 'Foundation State',
+        intro: 'This is the live operating state around the strategy layer: source trust, shared memory, and the first trusted assistant loop.',
+      })
+      if (statusPanel) container.appendChild(statusPanel)
+    }
 
   }).catch(function(error) {
     container.innerHTML = ''
