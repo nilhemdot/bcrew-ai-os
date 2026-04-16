@@ -4961,7 +4961,7 @@ function renderSourceRegistry() {
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
-    var focusPanel = renderCurrentSourceFocusPanel(hub && hub.backlog)
+    var focusPanel = renderCurrentSourceFocusPanel(hub && hub.backlogItems)
     if (focusPanel) container.appendChild(focusPanel)
 
     container.appendChild(renderOperatorToolsDrawer(
