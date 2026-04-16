@@ -5717,6 +5717,7 @@ function renderFubLeadSourceRuleItem(item, onSaved) {
 
 function renderFubLeadSourceManagerPanel() {
   var panel = document.createElement('details')
+  panel.id = 'fub-lead-source-taxonomy'
   panel.className = 'source-stack'
 
   var summaryRow = document.createElement('summary')
@@ -6580,7 +6581,25 @@ function renderSystemActivity() {
 
 function getSection() {
   var hash = window.location.hash.replace('#', '')
-  return hash || 'home'
+  return (hash.split(':')[0] || 'home') || 'home'
+}
+
+function getSectionFocus() {
+  var hash = window.location.hash.replace('#', '')
+  var parts = hash.split(':')
+  return parts.length > 1 ? parts.slice(1).join(':') : ''
+}
+
+function applySectionFocus() {
+  var focusId = getSectionFocus()
+  if (!focusId) return
+
+  window.requestAnimationFrame(function() {
+    var target = document.getElementById(focusId)
+    if (!target) return
+    if (target.tagName === 'DETAILS') target.open = true
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 }
 
 function updateNav(section) {
@@ -6692,6 +6711,8 @@ function route() {
   } else {
     renderOverview()
   }
+
+  applySectionFocus()
 }
 
 /* ── init ────────────────────────────────────────────────── */
