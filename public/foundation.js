@@ -2314,7 +2314,7 @@ function renderAdminTokenPanel() {
 
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'This is a temporary browser-level write gate until real logins and role-based security exist. Reads stay open; writes require a local token.'
+  intro.textContent = 'Local same-machine use is auto-approved right now. This token box only matters if you open the system from somewhere other than the local machine before real logins exist.'
   left.appendChild(intro)
 
   header.appendChild(left)
@@ -2347,18 +2347,18 @@ function renderAdminTokenPanel() {
 
   var status = document.createElement('p')
   status.className = 'form-status'
-  setFormStatus(status, getStoredAdminToken() ? 'Write token saved for this browser.' : 'No write token saved yet.', getStoredAdminToken() ? 'success' : '')
+  setFormStatus(status, getStoredAdminToken() ? 'Remote-access token saved for this browser.' : 'Local browser access is already allowed. Token is optional unless you are coming in remotely.', getStoredAdminToken() ? 'success' : '')
   panel.appendChild(status)
 
   saveButton.addEventListener('click', function() {
     setStoredAdminToken(tokenInput.value.trim())
-    setFormStatus(status, tokenInput.value.trim() ? 'Write token saved for this browser.' : 'Write token cleared.', tokenInput.value.trim() ? 'success' : '')
+    setFormStatus(status, tokenInput.value.trim() ? 'Remote-access token saved for this browser.' : 'Token cleared. Local same-machine access still works.', tokenInput.value.trim() ? 'success' : '')
   })
 
   clearButton.addEventListener('click', function() {
     tokenInput.value = ''
     setStoredAdminToken('')
-    setFormStatus(status, 'Token cleared.', '')
+    setFormStatus(status, 'Token cleared. Local same-machine access still works.', '')
   })
 
   return panel
@@ -5678,9 +5678,6 @@ function renderFubLeadSourceRuleItem(item, onSaved) {
 
   var status = document.createElement('p')
   status.className = 'form-status'
-  if (!getStoredAdminToken()) {
-    setFormStatus(status, 'Save token in Write Access before editing rules.', '')
-  }
   body.appendChild(status)
 
   save.addEventListener('click', function() {
@@ -5875,11 +5872,6 @@ function renderFubLeadSourceManagerPanel() {
   }
 
   function load(refresh) {
-    if (refresh && !getStoredAdminToken()) {
-      setFormStatus(status, 'Save the admin token in Write Access before refreshing the snapshot.', 'error')
-      return
-    }
-
     var message = refresh ? 'Refreshing FUB lead-source snapshot...' : 'Loading saved FUB lead-source snapshot...'
     summary.textContent = message
     list.innerHTML = '<p>' + message + '</p>'
