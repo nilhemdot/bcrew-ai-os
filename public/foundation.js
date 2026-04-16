@@ -1728,7 +1728,93 @@ function getSourceFocusItems(items) {
   }).sort(compareSourceFocusItems)
 }
 
-function renderCurrentSourceFocusPanel(items) {
+function getSourceFocusBlueprint(item, sourceContractMap) {
+  var contract = null
+  var blueprint = {
+    title: item.title,
+    phase: 'Build focus',
+    sourceId: '',
+    workbook: '',
+    tab: '',
+    checklist: [],
+    actions: [],
+  }
+
+  if (item.id === 'FOUNDATION-002') {
+    contract = sourceContractMap['SRC-OWNERS-001'] || null
+    blueprint.title = 'Owners Dashboard · ADMIN ONLY - Deal Data Entry'
+    blueprint.phase = 'Validation review'
+    blueprint.sourceId = 'SRC-OWNERS-001'
+    blueprint.workbook = 'Owners Dashboard'
+    blueprint.tab = 'ADMIN ONLY - Deal Data Entry'
+    blueprint.checklist = [
+      { done: true, label: 'Admin tab meaning locked through Column CB' },
+      { done: true, label: 'Literal live headers and row structure confirmed' },
+      { done: false, label: 'Final page review against the source note' },
+      { done: false, label: 'Signed-off boundary recorded clearly in Data Sources' },
+      { done: false, label: 'Owner sign-off completed' },
+    ]
+  } else if (item.id === 'FOUNDATION-003') {
+    contract = sourceContractMap['SRC-FINANCE-001'] || null
+    blueprint.title = 'Owners Dashboard · Weekly Actuals / Cashflow Dash'
+    blueprint.phase = 'Finance sign-off'
+    blueprint.sourceId = 'SRC-FINANCE-001'
+    blueprint.workbook = 'Owners Dashboard'
+    blueprint.tab = '(Input) Weekly Actuals + Cashflow Dash'
+    blueprint.checklist = [
+      { done: true, label: 'High-level finance hierarchy is understood' },
+      { done: true, label: 'Partner-commission adjustment boundary is understood at a high level' },
+      { done: false, label: 'Weekly Actuals validated line by line enough for trust' },
+      { done: false, label: 'Cashflow Dash roll-up and interpretation boundary confirmed' },
+      { done: false, label: 'Signed-off finance boundary recorded clearly in Data Sources' },
+    ]
+  } else {
+    contract = sourceContractMap[(item.sourceRef || '').trim()] || null
+    if (contract) {
+      blueprint.title = contract.title
+      blueprint.sourceId = contract.sourceId
+      blueprint.workbook = contract.title
+      blueprint.tab = String(contract.location || '').split(' with ')[0]
+    }
+  }
+
+  if (contract) {
+    blueprint.actions = contract.actions || []
+    if (!blueprint.sourceId) blueprint.sourceId = contract.sourceId
+    if (!blueprint.workbook) blueprint.workbook = contract.title
+    if (!blueprint.tab) blueprint.tab = String(contract.location || '').split(' with ')[0]
+  }
+
+  return blueprint
+}
+
+function renderSourceFocusChecklist(items) {
+  if (!items || !items.length) return null
+
+  var list = document.createElement('div')
+  list.className = 'source-focus-checklist'
+
+  items.forEach(function(item) {
+    var row = document.createElement('div')
+    row.className = 'source-focus-check-row'
+
+    var mark = document.createElement('span')
+    mark.className = 'source-focus-check-mark source-focus-check-mark-' + (item.done ? 'done' : 'pending')
+    mark.textContent = item.done ? 'Done' : 'Left'
+    row.appendChild(mark)
+
+    var label = document.createElement('div')
+    label.className = 'source-focus-check-label'
+    label.textContent = item.label
+    row.appendChild(label)
+
+    list.appendChild(row)
+  })
+
+  return list
+}
+
+function renderCurrentSourceFocusPanel(items, sourceContracts) {
   var focusItems = getSourceFocusItems(items)
   if (!focusItems.length) return null
 
@@ -1741,43 +1827,58 @@ function renderCurrentSourceFocusPanel(items) {
     setStoredSourceFocusItemId(current.id)
   }
 
+  var sourceContractMap = buildSourceContractMap(sourceContracts || [])
+  var blueprint = getSourceFocusBlueprint(current, sourceContractMap)
   var queuedCount = focusItems.length - 1
 
-  var panel = document.createElement('section')
-  panel.className = 'panel'
+  var details = document.createElement('details')
+  details.className = 'source-focus-drawer'
 
-  var header = document.createElement('div')
-  header.className = 'panel-header'
+  var summary = document.createElement('summary')
+  summary.className = 'source-focus-summary'
 
   var left = document.createElement('div')
+  left.className = 'source-focus-summary-left'
+
   var eyebrow = document.createElement('div')
   eyebrow.className = 'eyebrow'
   eyebrow.textContent = 'Current Build Focus'
   left.appendChild(eyebrow)
 
-  var title = document.createElement('h3')
-  title.textContent = 'What we are buttoning up right now'
+  var title = document.createElement('div')
+  title.className = 'source-focus-summary-title'
+  title.textContent = blueprint.title
   left.appendChild(title)
 
-  var intro = document.createElement('p')
-  intro.className = 'section-intro'
-  intro.textContent = queuedCount
-    ? 'This is the top active source-layer card right now. ' + queuedCount + ' related card' + (queuedCount === 1 ? ' is' : 's are') + ' still queued behind it in backlog.'
-    : 'This is the only active source-layer card in the queue right now.'
-  left.appendChild(intro)
+  var meta = document.createElement('div')
+  meta.className = 'source-focus-summary-meta'
+  meta.textContent = [
+    blueprint.sourceId || current.id,
+    blueprint.phase,
+    queuedCount ? queuedCount + ' queued behind this' : 'only active source focus right now',
+  ].filter(Boolean).join(' · ')
+  left.appendChild(meta)
 
-  header.appendChild(left)
+  summary.appendChild(left)
 
-  var toolbar = document.createElement('div')
-  toolbar.className = 'source-focus-toolbar'
-
+  var right = document.createElement('div')
+  right.className = 'source-focus-summary-right'
   var focusStatusWrap = document.createElement('div')
   focusStatusWrap.className = 'status-planned'
   var focusStatus = document.createElement('span')
   focusStatus.className = 'status-pill status-pill-static'
   focusStatus.textContent = 'Currently building'
   focusStatusWrap.appendChild(focusStatus)
-  toolbar.appendChild(focusStatusWrap)
+  right.appendChild(focusStatusWrap)
+  summary.appendChild(right)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'source-focus-body'
+
+  var toolbar = document.createElement('div')
+  toolbar.className = 'source-focus-toolbar'
 
   var selectWrap = document.createElement('label')
   selectWrap.className = 'source-focus-select-wrap'
@@ -1788,9 +1889,10 @@ function renderCurrentSourceFocusPanel(items) {
   selectWrap.appendChild(selectLabel)
 
   var focusSelect = buildSelect(focusItems.map(function(item) {
+    var optionBlueprint = getSourceFocusBlueprint(item, sourceContractMap)
     return {
       value: item.id,
-      label: item.id + ' · ' + item.title,
+      label: (optionBlueprint.sourceId || item.id) + ' · ' + optionBlueprint.title,
       selected: item.id === current.id,
     }
   }))
@@ -1800,9 +1902,7 @@ function renderCurrentSourceFocusPanel(items) {
   })
   selectWrap.appendChild(focusSelect)
   toolbar.appendChild(selectWrap)
-
-  header.appendChild(toolbar)
-  panel.appendChild(header)
+  body.appendChild(toolbar)
 
   var card = document.createElement('article')
   card.className = 'section-card source-focus-card'
@@ -1811,7 +1911,7 @@ function renderCurrentSourceFocusPanel(items) {
   cardTop.className = 'source-card-title-wrap'
 
   var cardTitle = document.createElement('h4')
-  cardTitle.textContent = current.title
+  cardTitle.textContent = blueprint.title
   cardTop.appendChild(cardTitle)
 
   var cardMeta = document.createElement('div')
@@ -1820,27 +1920,41 @@ function renderCurrentSourceFocusPanel(items) {
   cardTop.appendChild(cardMeta)
   card.appendChild(cardTop)
 
-  if (current.summary) {
-    var summary = document.createElement('p')
-    summary.className = 'source-card-copy'
-    summary.textContent = current.summary
-    card.appendChild(summary)
-  }
+  var metaGrid = document.createElement('div')
+  metaGrid.className = 'source-card-meta-grid'
+  metaGrid.appendChild(renderSourceMetaItem('Source ID', blueprint.sourceId || current.id))
+  if (blueprint.workbook) metaGrid.appendChild(renderSourceMetaItem('Workbook', blueprint.workbook))
+  if (blueprint.tab) metaGrid.appendChild(renderSourceMetaItem('Current tab', blueprint.tab))
+  metaGrid.appendChild(renderSourceMetaItem('Work type', blueprint.phase))
+  card.appendChild(metaGrid)
 
-  if (current.whyItMatters) {
-    card.appendChild(renderLabeledCopy('decision-rationale', 'Why it matters', current.whyItMatters))
+  if (blueprint.actions && blueprint.actions.length) {
+    var actionWrap = document.createElement('div')
+    actionWrap.className = 'source-focus-actions'
+    appendSourceActions(actionWrap, blueprint.actions)
+    card.appendChild(actionWrap)
   }
 
   if (current.nextAction) {
-    card.appendChild(renderLabeledCopy('decision-rationale', 'Next to close', current.nextAction))
+    card.appendChild(renderLabeledCopy('decision-rationale', 'What to do now', current.nextAction))
   }
 
   if (current.statusNote) {
-    card.appendChild(renderLabeledCopy('decision-meta', 'Status note', current.statusNote))
+    card.appendChild(renderLabeledCopy('decision-meta', 'Current note', current.statusNote))
   }
 
-  panel.appendChild(card)
-  return panel
+  var checklist = renderSourceFocusChecklist(blueprint.checklist)
+  if (checklist) {
+    var checklistLabel = document.createElement('div')
+    checklistLabel.className = 'quarter-priority-label'
+    checklistLabel.textContent = 'Validation Checklist'
+    card.appendChild(checklistLabel)
+    card.appendChild(checklist)
+  }
+
+  body.appendChild(card)
+  details.appendChild(body)
+  return details
 }
 
 function renderBacklogAccordionItem(item) {
@@ -5017,7 +5131,7 @@ function renderSourceRegistry() {
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
-    var focusPanel = renderCurrentSourceFocusPanel(hub && hub.backlogItems)
+    var focusPanel = renderCurrentSourceFocusPanel(hub && hub.backlogItems, sourceContracts)
     if (focusPanel) container.appendChild(focusPanel)
 
     container.appendChild(renderOperatorToolsDrawer(
