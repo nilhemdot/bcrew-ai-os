@@ -4639,30 +4639,58 @@ function renderSourceContractCard(contract) {
   return article
 }
 
+function renderSourceAccordionItem(contract) {
+  var details = document.createElement('details')
+  details.className = 'source-item'
+
+  var summary = document.createElement('summary')
+  summary.className = 'source-item-summary'
+
+  var left = document.createElement('div')
+  left.className = 'source-item-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'source-item-summary-title'
+  title.textContent = contract.title
+  left.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-item-summary-meta'
+  meta.textContent = [
+    contract.sourceId,
+    getSourceKind(contract).label,
+    contract.owner || 'System',
+  ].join(' · ')
+  left.appendChild(meta)
+
+  if (contract.owns) {
+    var excerpt = document.createElement('div')
+    excerpt.className = 'source-item-summary-copy'
+    excerpt.textContent = contract.owns
+    left.appendChild(excerpt)
+  }
+
+  summary.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-item-summary-right'
+  right.appendChild(renderSourceTag(getSourcePresence(contract).label, getSourcePresence(contract).tone))
+  right.appendChild(renderSourceTag(getSourceTrust(contract).label, getSourceTrust(contract).tone))
+  summary.appendChild(right)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'source-item-body'
+  body.appendChild(renderSourceContractCard(contract))
+  details.appendChild(body)
+
+  return details
+}
+
 function renderSourceLegendPanel() {
   var panel = document.createElement('section')
   panel.className = 'panel'
-
-  var header = document.createElement('div')
-  header.className = 'panel-header'
-
-  var left = document.createElement('div')
-  var eyebrow = document.createElement('div')
-  eyebrow.className = 'eyebrow'
-  eyebrow.textContent = 'How To Read This'
-  left.appendChild(eyebrow)
-
-  var title = document.createElement('h3')
-  title.textContent = 'What lives on this page'
-  left.appendChild(title)
-
-  var intro = document.createElement('p')
-  intro.className = 'section-intro'
-  intro.textContent = 'This page covers every business input the OS reads or plans to read: repo docs, spreadsheets, databases, APIs, and workspace connectors. Each card separates business ownership, technical access, and trust state so the source layer stops turning into one blurry list.'
-  left.appendChild(intro)
-
-  header.appendChild(left)
-  panel.appendChild(header)
 
   var grid = document.createElement('div')
   grid.className = 'source-legend-grid'
@@ -4704,43 +4732,46 @@ function renderSourceLegendPanel() {
   return panel
 }
 
-function renderSourceContractPanel(titleText, introText, contracts) {
+function renderSourceStack(group, contracts) {
   if (!contracts.length) return null
 
-  var panel = document.createElement('section')
-  panel.className = 'panel'
+  var details = document.createElement('details')
+  details.className = 'source-stack'
 
-  var header = document.createElement('div')
-  header.className = 'panel-header'
+  var summary = document.createElement('summary')
+  summary.className = 'source-stack-summary source-stack-summary-' + group.key
 
-  var headerLeft = document.createElement('div')
-  var eyebrow = document.createElement('div')
-  eyebrow.className = 'eyebrow'
-  eyebrow.textContent = 'Source Contracts'
-  headerLeft.appendChild(eyebrow)
+  var left = document.createElement('div')
+  left.className = 'source-stack-summary-left'
 
-  var title = document.createElement('h3')
-  title.textContent = titleText
-  headerLeft.appendChild(title)
+  var title = document.createElement('div')
+  title.className = 'source-stack-title'
+  title.textContent = group.title
+  left.appendChild(title)
 
-  if (introText) {
-    var intro = document.createElement('p')
-    intro.className = 'section-intro'
-    intro.textContent = introText
-    headerLeft.appendChild(intro)
-  }
+  var intro = document.createElement('div')
+  intro.className = 'source-stack-intro'
+  intro.textContent = group.intro
+  left.appendChild(intro)
 
-  header.appendChild(headerLeft)
-  panel.appendChild(header)
+  summary.appendChild(left)
 
-  var list = document.createElement('div')
-  list.className = 'section-list'
+  var count = document.createElement('span')
+  count.className = 'source-stack-count'
+  count.textContent = contracts.length
+  summary.appendChild(count)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'source-stack-body'
+
   sortSourceContracts(contracts).forEach(function(contract) {
-    list.appendChild(renderSourceContractCard(contract))
+    body.appendChild(renderSourceAccordionItem(contract))
   })
-  panel.appendChild(list)
 
-  return panel
+  details.appendChild(body)
+  return details
 }
 
 function renderSourceRegistry() {
@@ -4772,13 +4803,18 @@ function renderSourceRegistry() {
 
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'This is the front door to the source layer. It is not just internal spreadsheets. It covers repo docs, Sheets, databases, APIs, workspace connectors, and known missing business inputs.'
+    heroNote.textContent = 'All business inputs live here: what they own, how the system reaches them, and whether they are trusted yet.'
     heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
-    container.appendChild(renderSourceLegendPanel())
+    container.appendChild(renderOperatorToolsDrawer(
+      'How To Read This',
+      'Definitions for source contract, access path, presence, and trust. Open this only when you need the model.',
+      [renderSourceLegendPanel()],
+      false
+    ))
 
     var panel = document.createElement('section')
     panel.className = 'panel'
@@ -4901,19 +4937,19 @@ function renderSourceRegistry() {
         ? 'all operating states'
         : presenceButtons.filter(function(item) { return item.key === sourceViewState.presence })[0].button.textContent.toLowerCase()
 
-      results.textContent = 'Showing ' + filteredContracts.length + ' source contracts · ' + kindLabelText + ' · ' + stateLabelText
+      results.textContent = 'Showing ' + filteredContracts.length + ' source contracts · ' + kindLabelText + ' · ' + stateLabelText + ' · groups and cards start collapsed'
 
       board.innerHTML = ''
 
       ;[
-        { key: 'connected', title: 'Connected in Rebuild', intro: 'These sources are reachable in the rebuild right now. Trust still varies from signed off to readable only.' },
-        { key: 'needs-verification', title: 'Known / Needs Verification', intro: 'These sources or connectors are known, but they are not rebuild-trusted yet.' },
+        { key: 'needs-verification', title: 'Needs Verification', intro: 'These sources or connectors are known, but they are not rebuild-trusted yet.' },
         { key: 'not-connected', title: 'Not Connected Yet', intro: 'These are known business inputs with no current live connection or no selected platform yet.' },
+        { key: 'connected', title: 'Connected in Rebuild', intro: 'These sources are reachable in the rebuild right now. Trust still varies from signed off to readable only.' },
       ].forEach(function(group) {
         var groupContracts = filteredContracts.filter(function(contract) {
           return getSourcePresence(contract).key === group.key
         })
-        var groupPanel = renderSourceContractPanel(group.title, group.intro, groupContracts)
+        var groupPanel = renderSourceStack(group, groupContracts)
         if (groupPanel) board.appendChild(groupPanel)
       })
 
