@@ -213,6 +213,13 @@ var FUB_SOURCE_GROUP_OPTIONS = [
   'Other',
 ]
 
+function getFubSourceGroupOrder(groupName) {
+  var normalized = groupName || 'Ungrouped'
+  if (normalized === 'Ungrouped') return FUB_SOURCE_GROUP_OPTIONS.length + 1
+  var idx = FUB_SOURCE_GROUP_OPTIONS.indexOf(normalized)
+  return idx === -1 ? FUB_SOURCE_GROUP_OPTIONS.length : idx
+}
+
 var sourceSectionConfigs = {
   'source-overview': {
     title: 'Data Sources',
@@ -5867,6 +5874,11 @@ function renderFubLeadSourceManagerPanel() {
         item.marketingType,
         item.ownershipType,
       ].filter(Boolean).join(' ').toLowerCase().indexOf(query) !== -1
+    }).sort(function(a, b) {
+      var groupCompare = getFubSourceGroupOrder(a.sourceGroup || 'Ungrouped') - getFubSourceGroupOrder(b.sourceGroup || 'Ungrouped')
+      if (groupCompare !== 0) return groupCompare
+      if (b.count !== a.count) return b.count - a.count
+      return a.source.localeCompare(b.source)
     })
   }
 
@@ -5899,10 +5911,34 @@ function renderFubLeadSourceManagerPanel() {
       return
     }
 
+    var groupedItems = {}
     items.forEach(function(item) {
-      list.appendChild(renderFubLeadSourceRuleItem(item, function() {
-        renderLoaded()
-      }))
+      var groupName = item.sourceGroup || 'Ungrouped'
+      if (!groupedItems[groupName]) groupedItems[groupName] = []
+      groupedItems[groupName].push(item)
+    })
+
+    Object.keys(groupedItems).sort(function(a, b) {
+      return getFubSourceGroupOrder(a) - getFubSourceGroupOrder(b)
+    }).forEach(function(groupName) {
+      var sectionItems = groupedItems[groupName]
+      var totalContacts = sectionItems.reduce(function(sum, item) {
+        return sum + (Number(item.count) || 0)
+      }, 0)
+
+      var groupHeader = document.createElement('div')
+      groupHeader.className = 'source-layer-divider'
+      groupHeader.textContent =
+        groupName +
+        ' · ' + sectionItems.length + ' source' + (sectionItems.length === 1 ? '' : 's') +
+        ' · ' + totalContacts + ' contact' + (totalContacts === 1 ? '' : 's')
+      list.appendChild(groupHeader)
+
+      sectionItems.forEach(function(item) {
+        list.appendChild(renderFubLeadSourceRuleItem(item, function() {
+          renderLoaded()
+        }))
+      })
     })
   }
 

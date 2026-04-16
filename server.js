@@ -953,6 +953,10 @@ function getDefaultFubLeadSourceGroup(sourceName) {
   return null
 }
 
+function getDefaultFubMarketingType(sourceName) {
+  return getDefaultFubLeadSourceGroup(sourceName) ? 'marketing' : 'unclassified'
+}
+
 function getDefaultFubFlagState(sourceName) {
   const lower = String(sourceName || '').trim().toLowerCase()
   if (!lower) return 'none'
@@ -973,30 +977,30 @@ function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
     const source = String(item && item.source || '').trim()
     if (!source) return
     const rule = ruleMap.get(source)
-      merged.set(source, {
-        source,
-        count: Math.max(0, Number(item.count) || 0),
-        marketingType: rule ? rule.marketingType : 'unclassified',
-        ownershipType: rule ? rule.ownershipType : 'unclassified',
-        flagState: rule ? rule.flagState : getDefaultFubFlagState(source),
-        sourceGroup: rule && rule.sourceGroup ? rule.sourceGroup : getDefaultFubLeadSourceGroup(source),
-        notes: rule ? rule.notes : null,
-        updatedAt: rule ? rule.updatedAt : null,
+    merged.set(source, {
+      source,
+      count: Math.max(0, Number(item.count) || 0),
+      marketingType: rule ? rule.marketingType : getDefaultFubMarketingType(source),
+      ownershipType: rule ? rule.ownershipType : 'unclassified',
+      flagState: rule ? rule.flagState : getDefaultFubFlagState(source),
+      sourceGroup: rule && rule.sourceGroup ? rule.sourceGroup : getDefaultFubLeadSourceGroup(source),
+      notes: rule ? rule.notes : null,
+      updatedAt: rule ? rule.updatedAt : null,
       updatedBy: rule ? rule.updatedBy : null,
     })
   })
 
   rules.forEach(function(rule) {
     if (merged.has(rule.source)) return
-      merged.set(rule.source, {
-        source: rule.source,
-        count: 0,
-        marketingType: rule.marketingType,
-        ownershipType: rule.ownershipType,
-        flagState: rule.flagState || getDefaultFubFlagState(rule.source),
-        sourceGroup: rule.sourceGroup || getDefaultFubLeadSourceGroup(rule.source),
-        notes: rule.notes,
-        updatedAt: rule.updatedAt,
+    merged.set(rule.source, {
+      source: rule.source,
+      count: 0,
+      marketingType: rule.marketingType,
+      ownershipType: rule.ownershipType,
+      flagState: rule.flagState || getDefaultFubFlagState(rule.source),
+      sourceGroup: rule.sourceGroup || getDefaultFubLeadSourceGroup(rule.source),
+      notes: rule.notes,
+      updatedAt: rule.updatedAt,
       updatedBy: rule.updatedBy,
     })
   })
