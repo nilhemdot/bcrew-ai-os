@@ -34,6 +34,60 @@ function slugify(value) {
     .replace(/^-+|-+$/g, '')
 }
 
+function parseMarkdownHeading(line) {
+  var match = /^(#{1,4})\s+(.+?)\s*$/.exec(line || '')
+  if (!match) return null
+  return {
+    level: match[1].length,
+    text: match[2].trim(),
+    slug: slugify(match[2].trim()),
+  }
+}
+
+function extractMarkdownSection(markdown, sectionSlug) {
+  if (!sectionSlug) {
+    return {
+      content: markdown,
+      heading: null,
+    }
+  }
+
+  var lines = markdown.split('\n')
+  var startIndex = -1
+  var heading = null
+
+  for (var i = 0; i < lines.length; i++) {
+    var parsed = parseMarkdownHeading(lines[i])
+    if (!parsed) continue
+    if (parsed.slug !== sectionSlug) continue
+    startIndex = i
+    heading = parsed
+    break
+  }
+
+  if (startIndex === -1 || !heading) {
+    return {
+      content: markdown,
+      heading: null,
+    }
+  }
+
+  var endIndex = lines.length
+  for (var j = startIndex + 1; j < lines.length; j++) {
+    var nextHeading = parseMarkdownHeading(lines[j])
+    if (!nextHeading) continue
+    if (nextHeading.level <= heading.level) {
+      endIndex = j
+      break
+    }
+  }
+
+  return {
+    content: lines.slice(startIndex, endIndex).join('\n'),
+    heading: heading,
+  }
+}
+
 function normalizeDocPath(pathValue) {
   var parts = []
 
@@ -1180,6 +1234,7 @@ function isLiveDocPath(docPath) {
 async function init() {
   var pathValue = getQueryParam('path')
   var anchor = getQueryParam('anchor')
+  var section = getQueryParam('section')
 
   if (!pathValue) throw new Error('Missing document path.')
 
@@ -1209,15 +1264,25 @@ async function init() {
   var data = await response.json()
 
   document.title = data.title + ' · BCrew AI OS'
-  document.getElementById('doc-title').textContent = data.title
-  document.getElementById('doc-subtitle').textContent = 'Source: ' + data.meta.path
+  var renderedMarkdown = data.content
+  var sectionView = extractMarkdownSection(data.content, section)
+
+  if (sectionView.heading) {
+    renderedMarkdown = sectionView.content
+    document.title = sectionView.heading.text + ' · BCrew AI OS'
+    document.getElementById('doc-title').textContent = sectionView.heading.text
+    document.getElementById('doc-subtitle').textContent = 'From: ' + data.title
+  } else {
+    document.getElementById('doc-title').textContent = data.title
+    document.getElementById('doc-subtitle').textContent = 'Source: ' + data.meta.path
+  }
   document.getElementById('doc-meta').textContent =
     'Updated ' + formatDate(data.meta.updatedAt) + ' · ' + data.meta.lines + ' lines'
 
   var content = document.getElementById('doc-content')
   var sourceContractMap = buildSourceContractMap(data.sourceContracts || [])
   content.appendChild(renderMarkdownBlock(
-    data.content,
+    renderedMarkdown,
     data.meta.path,
     groupSourceSnapshot(data.sourceSnapshot || []),
     sourceContractMap

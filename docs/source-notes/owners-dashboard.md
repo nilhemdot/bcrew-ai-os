@@ -53,7 +53,7 @@ This note is primarily for system grounding and future integration work, not for
   - literal live headers confirmed
   - row structure confirmed
   - key business logic confirmed
-  - final owner sign-off is still pending
+  - owner sign-off completed on `2026-04-16`
 - `Current Source Hierarchy`
   - high-level role of:
     - `ADMIN ONLY - Deal Data Entry`
@@ -139,7 +139,7 @@ If this tab is wrong, the system will misread:
 ### Direct Audit Scope
 
 Directly reviewed in the live sheet:
-- `ADMIN ONLY - Deal Data Entry!A1:CB1514`
+- `ADMIN ONLY - Deal Data Entry!A1:CB2000`
 
 What is physically present in that range:
 - Row `1`
@@ -147,8 +147,11 @@ What is physically present in that range:
 - Row `2`
   - warning row: `DO NOT EDIT OR DELETE THIS RED LINE! - CONTAINS IMPORTANT ARRAY FORMULAS  -->>`
 - Rows `3:10`
-  - template / formula rows
-- Real populated data begins at Row `11`
+  - template / formula rows in the current snapshot
+- First live data row
+  - variable based on how many template rows sit above the live ledger
+  - in the current snapshot, live data begins at Row `11`
+  - do not hardcode `11` as a permanent rule
 - The tab currently ends at Column `CB`
   - there is no Column `CC`
 
@@ -157,54 +160,64 @@ What is physically present in that range:
 Directly measured from the live sheet:
 - `80` columns total
   - `A:CB`
-- `1504` rows with a non-empty `Deal #`
-- `1502` operational / historical rows after excluding the two `Trade #### (For Goal Builder)` placeholder rows
+- `1506` rows with a non-empty `Deal #`
+- `1504` operational / historical rows after excluding the two `Trade #### (For Goal Builder)` placeholder rows
 
 Status distribution across rows with a populated `Deal #`:
 - `Closed - Cash Collected`
-  - `1451`
+  - `1453`
 - `Pending`
-  - `44`
+  - `43`
 - `Closed`
-  - `9`
+  - `10`
 
 Lead-source quality:
 - `unspecified`
-  - `948`
+  - `945`
 - `Import`
   - `36`
 - invalid lead-source count from those two values alone
-  - `984 / 1504`
-  - about `65.4%`
+  - `981 / 1506`
+  - about `65.1%`
 
 Follow Up Boss linkage:
 - populated `Client Follow UP Boss ID`
-  - `45 / 1504`
-  - about `3.0%`
+  - `55 / 1506`
+  - about `3.7%`
 - missing FUB linkage
-  - `1459 / 1504`
-  - about `97.0%`
+  - `1451 / 1506`
+  - about `96.3%`
 
 Recently added fields:
 - `ISA Set Deal`
-  - `0 / 1504` populated in the audited tab
+  - `1 / 1506` marked `Yes`
+  - remaining live deal rows currently show `No`
 - `Deal or Lease?`
-  - `0 / 1504` populated in the audited tab
+  - `7 / 1506` explicitly tagged
+  - `4` marked `Deal`
+  - `3` marked `Lease`
+  - `1499` still blank
 
-Known suspicious duplicate trade rows confirmed directly:
+Known trade-number collisions confirmed in the current snapshot:
 - `T#25263`
-  - rows `136` and `137`
+  - appears on more than one row in the current snapshot
   - same realtor `Matt Allman`
-  - both `Total = 1`
+  - both rows show `Total = 1`
 - `T#25226`
-  - rows `245` and `246`
+  - appears on more than one row in the current snapshot
   - same realtor `Angelo Ricci`
-  - both `Total = 1`
+  - both rows show `Total = 1`
 
-Known non-operational / malformed trade identifiers seen directly:
-- goal-builder placeholders:
+Important handling rule:
+- do not rely on row numbers when flagging collisions because the rows can move as new deals are added
+- any future duplicate-check report should key off the trade number first, then inspect address, client, timing, realtor, and status before deciding whether it is a true duplicate, a split-credit case, or two different deals sharing a bad identifier
+
+Known intentional placeholder identifiers seen directly:
+- goal-builder placeholders used to make the Goal & KPI Calculator populate future years:
   - `Trade 2028 (For Goal Builder)`
   - `Trade 2027 (For Goal Builder)`
+
+Known malformed or inconsistent trade identifiers seen directly:
 - naming-format anomalies:
   - `T23051`
   - ` T#23012`
@@ -318,7 +331,7 @@ Business meaning:
 - extremely important for financial modeling
 - created because the team does not get paid on closing day
 
-Current timing rules described by Steve and confirmed in template formulas:
+Current working timing assumptions described by Steve and confirmed in the template formulas:
 - `Sell`
   - closing date + `10` days
 - `Buy`
@@ -330,6 +343,7 @@ Important nuance:
 - Column `I` is hybrid
 - it starts as expected paid date
 - later it gets overwritten with the actual paid date once cash is received
+- these timing assumptions are useful for planning, but they are not guaranteed exact cash timings in every deal
 
 #### Column J — `Days Between Executed and Closing`
 - elapsed time from executed date to expected closing
@@ -385,6 +399,11 @@ This column is critical for:
 - operational compliance
 - future CRM reconciliation
 
+Future control target:
+- maintain an approved lead-source taxonomy that matches Follow Up Boss
+- use that approved list to drive dropdown choices in the sheet
+- route mismatches and unknown values into an issue queue instead of letting them sit as loose cleanup debt
+
 #### Column O — `Extra Lead Source Data`
 - extra detail about the main lead source
 - current usage quality is inconsistent and often wrong
@@ -420,6 +439,20 @@ This matters because:
 Operational note from Steve:
 - Ops is supposed to trace the deal back to the original source
 - this is currently a major operating gap
+- this is an ops failure when the chain is not traced correctly because the agents are doing the work and the system loses attribution truth
+
+Follow Up Boss support fields for maintaining this:
+- `Name of Person Who Gave Referral/Introduction`
+- `Lead Source Secondary Information`
+
+These fields should help preserve the chain connector:
+- who gave the referral / introduction
+- which source person or record the chain points back to
+- whether the originating relationship already exists in Follow Up Boss
+
+If the original source person is missing from Follow Up Boss:
+- that is a cleanup problem
+- and a database-growth opportunity because the upstream relationship should likely be created in the CRM
 
 #### Column Q — `Extra Orgin Lead Source Data`
 - extra detail about the ground-zero source
@@ -439,6 +472,7 @@ This column should eventually be rule-driven from:
 - lead-source taxonomy
 - ground-zero lineage
 - ISA-set override
+- company-vs-agent classification rules tied to the approved lead-source taxonomy
 
 #### Column S — `Realtor`
 - the agent / realtor who did the deal
@@ -468,11 +502,16 @@ This later translates into:
 - if Column `M` is `Buy` or `Referral`, this should be `N/A`
 - every listing is a chance to charge a transaction fee
 - this is strategically important because it is a coaching and profitability lever
+- this should eventually support capture-rate reporting:
+  - which listings were eligible
+  - which listings actually charged the fee
+  - where agent coaching is needed
 
 #### Column W — `Transaction Fee Amount`
 - amount of the transaction fee collected
 - target amount noted by Steve:
   - `1495 + HST`
+- together with Column `V`, this should later support agent scorecards and transaction-fee coaching opportunities
 
 #### Column X — `List Price`
 - list price of the property
@@ -503,6 +542,8 @@ Important interpretation rule:
 - commission rate charged on the deal
 - target rate is `2.5%`
 - older brokerage-era rows can carry very different rates
+- in the current Benson Crew era, this should be read mainly as what the team gets paid
+- in older brokerage-era rows, it can reflect a fuller side rate before cobroke deductions
 
 #### Column AB — `Gross Commission`
 - gross commission amount
@@ -650,6 +691,11 @@ Exact live headers:
   - helps determine where that agent sits in an inclining split structure
   - helps determine how far along an agent is in apprenticeship based on dollars generated to the team
   - helps determine when the agent graduates out of apprenticeship and into the next split logic
+- important apprenticeship nuance:
+  - graduation thresholds can differ by agent
+  - some agents graduate after `70k` to the company
+  - some may use a different threshold such as `100k`
+  - later system logic will need cumulative apprenticeship tracking across years and agent-specific rules, not just this single year-scoped helper
 - operational dependency:
   - the `Agent Splits` tab needs the full roster loaded for each calendar year so the split calculator resets and reads the right year correctly
 - important distinction:
@@ -686,16 +732,20 @@ Exact live headers:
 - recently added by Steve
 - created because ISA-set status was being shoved into the wrong place earlier
 - will now start getting used
+- intended operating default is `No` because most deals are not ISA-set
 - should become part of the company-vs-agent attribution logic
 - direct audit note:
-  - no populated values were present in the audited tab
+  - current snapshot shows `1` row marked `Yes`
+  - `283` rows currently show `No`
+  - `1222` deal rows are still blank, which indicates the newer field has not been backfilled across older rows yet
 
 #### Column CB — `Deal or Lease?`
 - recently added by Steve
 - intended to separate true deals from lease deals cleanly
 - should replace rough heuristics where possible
 - direct audit note:
-  - no populated values were present in the audited tab
+  - current snapshot shows `7` explicitly tagged rows
+  - most legacy rows are still blank
 
 ### Critical Validation Rules
 
@@ -715,50 +765,55 @@ These should eventually become explicit data-quality checks, not tribal knowledg
 8. If `Buy / Sell / Referral` is `Buy` or `Referral`, `Listing Transaction Fee?` should be `N/A`.
 9. If a deal is split, `Gross To Team` may exist only on the top row while credits still appear on the split rows.
 10. `Client Follow UP Boss ID` should eventually allow source and attribution reconciliation.
+11. validation failures should become tracked issues or cards, not just email threads or implied cleanup work
 
-### Direct Audit Findings From Rows 11-13
+### Example Integrity Failures Seen During Audit
 
-These rows confirm the kinds of operational failures Steve called out.
+These are real failure patterns seen in the live tab. They are written as durable examples, not pinned to specific row numbers.
 
-#### Row 11
-- lead source:
-  - `Met - Social Media`
-- extra lead-source detail:
-  - `Branded Website`
-- ground zero:
-  - `No Extra Lead Source`
-- extra origin detail:
-  - `ISA Appointment Set`
-- company or agent:
-  - `Agent`
+#### Lead source left blank on a live deal row
+- a real pending or active deal can still be missing lead-source and attribution fields entirely
 
 Why it is problematic:
-- `Branded Website` does not logically fit `Met - Social Media`
-- `ISA Appointment Set` appears in the wrong field
-- `Company or Agent` is set to `Agent` even though ISA-set logic should likely push this toward company attribution
+- attribution becomes unknowable
+- company-vs-agent classification becomes unknowable
+- downstream source reporting breaks immediately
 
-#### Row 12
-- `Buy / Sell / Referral`
-  - `Referral`
-- lead source:
-  - `Agent/Other Referral`
-- extra lead-source detail:
-  - `N/A`
+#### `Import` used as the lead source while the real source is buried in extra detail
+- example pattern:
+  - lead source = `Import`
+  - extra lead-source detail = a real source such as `Sphere`
 
 Why it is problematic:
-- a referral without the referring source/person being identified weakens attribution and traceability
+- `Import` is not acceptable operating truth
+- the true source should be normalized into the main lead-source field
 
-#### Row 13
-- `Buy / Sell / Referral`
-  - `Buy`
-- lead source:
-  - `Import`
-- extra lead-source detail:
-  - `Sphere`
+#### `No Extra Lead Source` used where a chain clearly exists
+- example pattern:
+  - lead source implies a chain, referral, or sourced path
+  - `Ground Zero` is still `No Extra Lead Source`
 
 Why it is problematic:
-- `Import` is not an acceptable operating source of truth
-- `Sphere` should likely have been normalized into the real lead-source field or traced more cleanly
+- the original root source is not actually being traced
+- attribution and company-credit logic break
+
+#### `ISA Appointment Set` placed in the wrong field
+- example pattern:
+  - `ISA Appointment Set` appears in `Extra Orgin Lead Source Data`
+  - instead of being tracked by `ISA Set Deal`
+
+Why it is problematic:
+- the sheet mixes source-lineage detail with ISA override logic
+- company-vs-agent attribution becomes inconsistent
+
+#### `Company or Agent` left inconsistent with source logic
+- example pattern:
+  - source lineage suggests company credit or needs review
+  - `Company or Agent` still reads `Agent`
+
+Why it is problematic:
+- this field is currently being used manually and inconsistently
+- it should eventually be rule-driven from approved lead-source taxonomy, ground-zero lineage, and ISA-set override
 
 ### Signals Worth Systemizing Later
 

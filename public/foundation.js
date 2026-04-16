@@ -4820,7 +4820,7 @@ function renderSourceContractCard(contract) {
   sourceId.textContent = [
     contract.sourceId,
     getSourceSystemName(contract) !== (getSourceUnitName(contract) || getSourceSystemName(contract))
-      ? getSourceSystemName(contract)
+      ? 'Tab in ' + getSourceSystemName(contract)
       : '',
   ].filter(Boolean).join(' · ')
   titleWrap.appendChild(sourceId)
@@ -4829,35 +4829,25 @@ function renderSourceContractCard(contract) {
   var tags = document.createElement('div')
   tags.className = 'source-card-tags'
   var kindTag = getSourceKind(contract)
-  var presenceTag = getSourcePresence(contract)
   var trustTag = getSourceTrust(contract)
   tags.appendChild(renderSourceTag(kindTag.label, 'neutral'))
-  tags.appendChild(renderSourceTag(presenceTag.label, presenceTag.tone))
-  if (presenceTag.label !== trustTag.label) {
-    tags.appendChild(renderSourceTag(trustTag.label, trustTag.tone))
-  }
+  tags.appendChild(renderSourceTag(trustTag.label, trustTag.tone))
   article.appendChild(tags)
-
-  var detail = document.createElement('p')
-  detail.className = 'source-card-copy'
-  detail.textContent = contract.owns
-  article.appendChild(detail)
 
   var metaGrid = document.createElement('div')
   metaGrid.className = 'source-card-meta-grid'
-  if (getSourceSystemName(contract) !== (getSourceUnitName(contract) || getSourceSystemName(contract))) {
-    metaGrid.appendChild(renderSourceMetaItem('Source system', getSourceSystemName(contract)))
-  }
   metaGrid.appendChild(renderSourceMetaItem('Owner', contract.owner || 'System'))
   metaGrid.appendChild(renderSourceMetaItem('Access', contract.accessMethod || 'Unknown'))
-  if (getSourceUnitName(contract)) {
-    metaGrid.appendChild(renderSourceMetaItem('Validation unit', getSourceUnitName(contract)))
-  }
+  metaGrid.appendChild(renderSourceMetaItem('State', getSourcePresence(contract).label))
   metaGrid.appendChild(renderSourceMetaItem('Scope', contract.scope || 'Unknown'))
   if (contract.lastVerified) {
     metaGrid.appendChild(renderSourceMetaItem('Last Verified', contract.lastVerified))
   }
   article.appendChild(metaGrid)
+
+  if (contract.owns) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'What this tab owns', contract.owns))
+  }
 
   if (contract.validationScope) {
     article.appendChild(renderLabeledCopy('decision-meta', 'Trust boundary', contract.validationScope))
@@ -4889,16 +4879,15 @@ function renderSourceAccordionItem(contract) {
   var meta = document.createElement('div')
   meta.className = 'source-item-summary-meta'
   meta.textContent = [
-    contract.sourceId,
     getSourceKind(contract).label,
     contract.owner || 'System',
   ].join(' · ')
   left.appendChild(meta)
 
-  if (contract.owns) {
+  if (contract.scope || contract.owns) {
     var excerpt = document.createElement('div')
     excerpt.className = 'source-item-summary-copy'
-    excerpt.textContent = contract.owns
+    excerpt.textContent = contract.scope || contract.owns
     left.appendChild(excerpt)
   }
 
@@ -4906,12 +4895,8 @@ function renderSourceAccordionItem(contract) {
 
   var right = document.createElement('div')
   right.className = 'source-item-summary-right'
-  var presenceTag = getSourcePresence(contract)
   var trustTag = getSourceTrust(contract)
-  right.appendChild(renderSourceTag(presenceTag.label, presenceTag.tone))
-  if (presenceTag.label !== trustTag.label) {
-    right.appendChild(renderSourceTag(trustTag.label, trustTag.tone))
-  }
+  right.appendChild(renderSourceTag(trustTag.label, trustTag.tone))
   summary.appendChild(right)
 
   details.appendChild(summary)
@@ -5097,14 +5082,14 @@ function renderSourceSystemStack(group) {
   var systemCardTitleWrap = document.createElement('div')
   systemCardTitleWrap.className = 'source-card-title-wrap'
 
+  var systemCardMeta = document.createElement('div')
+  systemCardMeta.className = 'source-card-id'
+  systemCardMeta.textContent = 'Source system'
+  systemCardTitleWrap.appendChild(systemCardMeta)
+
   var systemCardTitle = document.createElement('h4')
   systemCardTitle.textContent = group.name
   systemCardTitleWrap.appendChild(systemCardTitle)
-
-  var systemCardMeta = document.createElement('div')
-  systemCardMeta.className = 'source-card-id'
-  systemCardMeta.textContent = state.label
-  systemCardTitleWrap.appendChild(systemCardMeta)
   systemCard.appendChild(systemCardTitleWrap)
 
   var systemCardTags = document.createElement('div')
@@ -5114,15 +5099,15 @@ function renderSourceSystemStack(group) {
 
   var systemCardCopy = document.createElement('p')
   systemCardCopy.className = 'source-card-copy'
-  systemCardCopy.textContent = 'This is the parent source system. Open the validation units below to see exactly which tab or slice is trusted, provisional, or still waiting on review.'
+  systemCardCopy.textContent = 'Review this workbook one tab at a time. The cards below are the exact validation units that still need trust work or sign-off.'
   systemCard.appendChild(systemCardCopy)
 
   var systemCardGrid = document.createElement('div')
   systemCardGrid.className = 'source-card-meta-grid'
-  systemCardGrid.appendChild(renderSourceMetaItem('Validation units', String(contracts.length)))
-  if (accessSummary) systemCardGrid.appendChild(renderSourceMetaItem('Access path', accessSummary))
+  systemCardGrid.appendChild(renderSourceMetaItem('Tracked tabs', String(contracts.length)))
   if (ownerSummary) systemCardGrid.appendChild(renderSourceMetaItem('Owners', ownerSummary))
-  systemCardGrid.appendChild(renderSourceMetaItem('Signed-off units', String(signedOffUnits)))
+  if (accessSummary) systemCardGrid.appendChild(renderSourceMetaItem('Access', accessSummary))
+  systemCardGrid.appendChild(renderSourceMetaItem('Signed off', String(signedOffUnits)))
   systemCard.appendChild(systemCardGrid)
 
   var actionSeen = {}
@@ -5135,7 +5120,7 @@ function renderSourceSystemStack(group) {
       systemActions.push(action)
     })
   })
-  appendSourceActions(systemCard, systemActions.slice(0, 3))
+  appendSourceActions(systemCard, systemActions.slice(0, 1))
   body.appendChild(systemCard)
 
   contracts.forEach(function(contract) {

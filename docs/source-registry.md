@@ -41,19 +41,21 @@ That split is intentional. A connector can work and the source can still be prov
 
 ## Validation Checklist
 
-No live spreadsheet or API data source is signed off yet.
+One live spreadsheet validation unit is now signed off in the rebuild.
 
 ### Signed Off Docs
 
 - `SRC-STRATEGY-001`
   - canonical strategy docs in this repo are the signed-off business strategy truth
 
-### In Review
+### Signed Off Validation Units
 
 - `SRC-OWNERS-001`
-  - `ADMIN ONLY - Deal Data Entry` has been heavily validated through Column `CB`
-  - final page review and owner sign-off are still pending
-  - downstream roll-ups are not signed off yet
+  - `ADMIN ONLY - Deal Data Entry` is signed off for Admin-tab meaning and row structure
+  - this closes the upstream deal-ledger boundary for deal lifecycle, attribution, split credit, and Follow Up Boss linkage
+  - downstream roll-ups and finance interpretation are still separate follow-on work under `SRC-FINANCE-001`
+
+### In Review
 
 ### Partially Signed Off
 
@@ -115,7 +117,7 @@ These are connected and readable, but they have **not** been fully validated tab
 | `SRC-FREEDOM-COMMUNITY-REV-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Community revenue | `P:U` | Community revenue by leader plus `Bcrew In Before HST` | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
 | `SRC-FREEDOM-ENGINE-001` | Benson Crew - Freedom Sheet | `Agent Engine` tab | Current assumptions block | Required monthly attraction, active agents, current 6-month production average, target production, average split, target split | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
 | `SRC-FREEDOM-BHAG-001` | Benson Crew - Freedom Sheet | `Benson Crew Bhag Builder` tab | Long-range planning blocks plus calculator ranges | Sales targets, growth curve, community targets, deal math, high-level goal model in `A1:C31`, and agent productivity calculator plus planning attrition assumption in `A22:B31` | Google Drive / Google Sheets | Verified Readable | 2026-04-13 |
-| `SRC-OWNERS-001` | Benson Crew - Owners Dashboard | `ADMIN ONLY - Deal Data Entry` | Primary deal-ledger validation unit | Trade number, deal status, signed/firm/closing/cash dates, lead source, ground-zero source, company-generated attribution, realtor splits, paid-to-team amounts, deal/volume/commission credits, and Follow Up Boss linkage used for production truth, attribution, and downstream finance modeling | Google Drive / Google Sheets | Verified Readable | 2026-04-14 |
+| `SRC-OWNERS-001` | Benson Crew - Owners Dashboard | `ADMIN ONLY - Deal Data Entry` | Primary deal-ledger validation unit | Trade number, deal status, signed/firm/closing/cash dates, lead source, ground-zero source, company-generated attribution, realtor splits, paid-to-team amounts, deal/volume/commission credits, and Follow Up Boss linkage used for production truth, attribution, and downstream finance modeling | Google Drive / Google Sheets | Signed Off | 2026-04-16 |
 | `SRC-FINANCE-001` | Benson Crew - Owners Dashboard | `(Input) Weekly Actuals` + `Cashflow Dash` | Finance validation unit | Internal finance truth: weekly revenue, expenses, bank balances, LOC balances, credit-card movement, HST, and the partner-commission adjustment needed to show real company revenue and owners expense cleanly | Google Drive / Google Sheets | Verified Readable | 2026-04-14 |
 
 ## Known Sources from Old System, Pending Revalidation
