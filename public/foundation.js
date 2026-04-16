@@ -199,6 +199,7 @@ var fubLeadSourceViewState = {
   query: '',
   marketing: 'all',
   ownership: 'all',
+  flag: 'all',
 }
 
 var FUB_SOURCE_GROUP_OPTIONS = [
@@ -5585,6 +5586,13 @@ function getFubOwnershipTag(item) {
   return { label: 'Ownership open', tone: 'pending' }
 }
 
+function getFubFlagTag(item) {
+  if (item.flagState === 'needs_cleanup') return { label: 'Needs cleanup', tone: 'pending' }
+  if (item.flagState === 'not_canonical') return { label: 'Not canonical', tone: 'missing' }
+  if (item.flagState === 'merge_candidate') return { label: 'Merge candidate', tone: 'planned' }
+  return null
+}
+
 function renderFubLeadSourceRuleItem(item, onSaved) {
   var details = document.createElement('details')
   details.className = 'source-item'
@@ -5617,6 +5625,8 @@ function renderFubLeadSourceRuleItem(item, onSaved) {
   var right = document.createElement('div')
   right.className = 'source-item-summary-right'
   right.appendChild(renderSourceTag(String(item.count), 'neutral'))
+  var flagTag = getFubFlagTag(item)
+  if (flagTag) right.appendChild(renderSourceTag(flagTag.label, flagTag.tone))
   right.appendChild(renderSourceTag(getFubMarketingTag(item).label, getFubMarketingTag(item).tone))
   right.appendChild(renderSourceTag(getFubOwnershipTag(item).label, getFubOwnershipTag(item).tone))
   summary.appendChild(right)
@@ -5643,6 +5653,14 @@ function renderFubLeadSourceRuleItem(item, onSaved) {
     { value: 'other', label: 'Other', selected: item.ownershipType === 'other' },
   ])
   grid.appendChild(buildField('Ownership', ownershipSelect))
+
+  var flagSelect = buildSelect([
+    { value: 'none', label: 'None', selected: !item.flagState || item.flagState === 'none' },
+    { value: 'needs_cleanup', label: 'Needs cleanup', selected: item.flagState === 'needs_cleanup' },
+    { value: 'not_canonical', label: 'Not canonical', selected: item.flagState === 'not_canonical' },
+    { value: 'merge_candidate', label: 'Merge candidate', selected: item.flagState === 'merge_candidate' },
+  ])
+  grid.appendChild(buildField('Flag', flagSelect))
 
   var groupSelect = buildSelect(FUB_SOURCE_GROUP_OPTIONS.map(function(option) {
     return {
@@ -5686,12 +5704,14 @@ function renderFubLeadSourceRuleItem(item, onSaved) {
       source: item.source,
       marketingType: marketingSelect.value,
       ownershipType: ownershipSelect.value,
+      flagState: flagSelect.value,
       sourceGroup: groupSelect.value || null,
       notes: notesInput.value.trim() || null,
     }).then(function(payload) {
       var rule = payload.rule || {}
       item.marketingType = rule.marketingType || marketingSelect.value
       item.ownershipType = rule.ownershipType || ownershipSelect.value
+      item.flagState = rule.flagState || flagSelect.value || 'none'
       item.sourceGroup = rule.sourceGroup || null
       item.notes = rule.notes || null
       item.updatedAt = rule.updatedAt || null
@@ -5771,12 +5791,22 @@ function renderFubLeadSourceManagerPanel() {
     { value: 'other', label: 'Other', selected: fubLeadSourceViewState.ownership === 'other' },
   ])
 
+  var flagFilter = buildSelect([
+    { value: 'all', label: 'All flag states', selected: fubLeadSourceViewState.flag === 'all' },
+    { value: 'flagged', label: 'Flagged only', selected: fubLeadSourceViewState.flag === 'flagged' },
+    { value: 'none', label: 'No flag', selected: fubLeadSourceViewState.flag === 'none' },
+    { value: 'needs_cleanup', label: 'Needs cleanup', selected: fubLeadSourceViewState.flag === 'needs_cleanup' },
+    { value: 'not_canonical', label: 'Not canonical', selected: fubLeadSourceViewState.flag === 'not_canonical' },
+    { value: 'merge_candidate', label: 'Merge candidate', selected: fubLeadSourceViewState.flag === 'merge_candidate' },
+  ])
+
   var topGrid = document.createElement('div')
   topGrid.className = 'memory-form-grid'
   topGrid.appendChild(buildField('Context', contextSelect))
   topGrid.appendChild(buildField('Search', queryInput))
   topGrid.appendChild(buildField('Marketing filter', marketingFilter))
   topGrid.appendChild(buildField('Ownership filter', ownershipFilter))
+  topGrid.appendChild(buildField('Flag filter', flagFilter))
   body.appendChild(topGrid)
 
   var actionRow = document.createElement('div')
@@ -5816,6 +5846,7 @@ function renderFubLeadSourceManagerPanel() {
     summaryRight.appendChild(renderSourceTag((loaded.context && loaded.context.label) || 'FUB', 'neutral'))
     summaryRight.appendChild(renderSourceTag((stats.totalSources || 0) + ' sources', 'neutral'))
     summaryRight.appendChild(renderSourceTag((stats.unclassified || 0) + ' open', stats.unclassified ? 'pending' : 'connected'))
+    summaryRight.appendChild(renderSourceTag((stats.flagged || 0) + ' flagged', stats.flagged ? 'missing' : 'connected'))
     summaryRight.appendChild(renderSourceTag(snapshot.available ? 'Snapshot ready' : 'Needs refresh', snapshot.available ? 'connected' : 'pending'))
   }
 
@@ -5824,11 +5855,14 @@ function renderFubLeadSourceManagerPanel() {
     return (loaded.sources || []).filter(function(item) {
       if (fubLeadSourceViewState.marketing !== 'all' && item.marketingType !== fubLeadSourceViewState.marketing) return false
       if (fubLeadSourceViewState.ownership !== 'all' && item.ownershipType !== fubLeadSourceViewState.ownership) return false
+      if (fubLeadSourceViewState.flag === 'flagged' && (!item.flagState || item.flagState === 'none')) return false
+      if (fubLeadSourceViewState.flag !== 'all' && fubLeadSourceViewState.flag !== 'flagged' && (item.flagState || 'none') !== fubLeadSourceViewState.flag) return false
       var query = fubLeadSourceViewState.query.trim().toLowerCase()
       if (!query) return true
       return [
         item.source,
         item.notes,
+        item.flagState,
         item.sourceGroup,
         item.marketingType,
         item.ownershipType,
@@ -5850,6 +5884,7 @@ function renderFubLeadSourceManagerPanel() {
     summary.textContent =
       'Showing ' + items.length + ' of ' + (stats.totalSources || 0) + ' sources' +
       ' · ' + (stats.unclassified || 0) + ' marketing unclassified' +
+      ' · ' + (stats.flagged || 0) + ' flagged' +
       ' · ' + (scan.peopleScanned || 0) + ' contacts scanned across ' + (scan.pagesScanned || 0) + ' pages' +
       (scan.truncated ? ' · refresh hit the safety cap' : '')
 
@@ -5911,6 +5946,10 @@ function renderFubLeadSourceManagerPanel() {
   })
   ownershipFilter.addEventListener('change', function() {
     fubLeadSourceViewState.ownership = ownershipFilter.value
+    if (loaded) renderLoaded()
+  })
+  flagFilter.addEventListener('change', function() {
+    fubLeadSourceViewState.flag = flagFilter.value
     if (loaded) renderLoaded()
   })
   refreshButton.addEventListener('click', function() {

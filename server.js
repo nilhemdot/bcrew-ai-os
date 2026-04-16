@@ -953,6 +953,14 @@ function getDefaultFubLeadSourceGroup(sourceName) {
   return null
 }
 
+function getDefaultFubFlagState(sourceName) {
+  const lower = String(sourceName || '').trim().toLowerCase()
+  if (!lower) return 'none'
+  if (lower === '<unspecified>' || lower === 'import') return 'not_canonical'
+  if (lower === 'sphere' || lower === 'soi') return 'not_canonical'
+  return 'none'
+}
+
 function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
   const ruleMap = new Map()
   rules.forEach(function(rule) {
@@ -965,28 +973,30 @@ function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
     const source = String(item && item.source || '').trim()
     if (!source) return
     const rule = ruleMap.get(source)
-    merged.set(source, {
-      source,
-      count: Math.max(0, Number(item.count) || 0),
-      marketingType: rule ? rule.marketingType : 'unclassified',
-      ownershipType: rule ? rule.ownershipType : 'unclassified',
-      sourceGroup: rule && rule.sourceGroup ? rule.sourceGroup : getDefaultFubLeadSourceGroup(source),
-      notes: rule ? rule.notes : null,
-      updatedAt: rule ? rule.updatedAt : null,
+      merged.set(source, {
+        source,
+        count: Math.max(0, Number(item.count) || 0),
+        marketingType: rule ? rule.marketingType : 'unclassified',
+        ownershipType: rule ? rule.ownershipType : 'unclassified',
+        flagState: rule ? rule.flagState : getDefaultFubFlagState(source),
+        sourceGroup: rule && rule.sourceGroup ? rule.sourceGroup : getDefaultFubLeadSourceGroup(source),
+        notes: rule ? rule.notes : null,
+        updatedAt: rule ? rule.updatedAt : null,
       updatedBy: rule ? rule.updatedBy : null,
     })
   })
 
   rules.forEach(function(rule) {
     if (merged.has(rule.source)) return
-    merged.set(rule.source, {
-      source: rule.source,
-      count: 0,
-      marketingType: rule.marketingType,
-      ownershipType: rule.ownershipType,
-      sourceGroup: rule.sourceGroup || getDefaultFubLeadSourceGroup(rule.source),
-      notes: rule.notes,
-      updatedAt: rule.updatedAt,
+      merged.set(rule.source, {
+        source: rule.source,
+        count: 0,
+        marketingType: rule.marketingType,
+        ownershipType: rule.ownershipType,
+        flagState: rule.flagState || getDefaultFubFlagState(rule.source),
+        sourceGroup: rule.sourceGroup || getDefaultFubLeadSourceGroup(rule.source),
+        notes: rule.notes,
+        updatedAt: rule.updatedAt,
       updatedBy: rule.updatedBy,
     })
   })
@@ -1024,6 +1034,7 @@ function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
       agent: sources.filter(item => item.ownershipType === 'agent').length,
       referral: sources.filter(item => item.ownershipType === 'referral').length,
       other: sources.filter(item => item.ownershipType === 'other').length,
+      flagged: sources.filter(item => item.flagState && item.flagState !== 'none').length,
     },
     sources,
   }
@@ -1649,7 +1660,7 @@ app.post('/api/fub/lead-sources/refresh', requireAdminToken, async (req, res) =>
 })
 
 app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
-  const allowedKeys = ['source', 'marketingType', 'ownershipType', 'sourceGroup', 'notes']
+  const allowedKeys = ['source', 'marketingType', 'ownershipType', 'flagState', 'sourceGroup', 'notes']
   const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
   if (unknownFields.length) {
     sendApiError(res, 400, 'invalid_fub_lead_source_body', 'Unknown FUB lead-source fields.', { unknownFields })
@@ -1660,6 +1671,7 @@ app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
   const source = requireStringField(errors, req.body, 'source', 'Lead source')
   const marketingType = optionalStringField(errors, req.body, 'marketingType', 'Marketing type') || 'unclassified'
   const ownershipType = optionalStringField(errors, req.body, 'ownershipType', 'Ownership type') || 'unclassified'
+  const flagState = optionalStringField(errors, req.body, 'flagState', 'Flag state') || 'none'
   const sourceGroup = optionalStringField(errors, req.body, 'sourceGroup', 'Source group', 120)
   const notes = optionalStringField(errors, req.body, 'notes', 'Notes', 1000)
 
@@ -1668,6 +1680,9 @@ app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
   }
   if (!['company', 'agent', 'referral', 'other', 'unclassified'].includes(ownershipType)) {
     errors.ownershipType = 'Ownership type must be company, agent, referral, other, or unclassified.'
+  }
+  if (!['none', 'needs_cleanup', 'not_canonical', 'merge_candidate'].includes(flagState)) {
+    errors.flagState = 'Flag state must be none, needs_cleanup, not_canonical, or merge_candidate.'
   }
 
   if (Object.keys(errors).length) {
@@ -1680,6 +1695,7 @@ app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
       source,
       marketingType,
       ownershipType,
+      flagState,
       sourceGroup,
       notes,
     }, getRequestActor())
