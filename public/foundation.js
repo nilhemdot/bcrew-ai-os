@@ -194,6 +194,179 @@ var sourceViewState = {
   presence: 'all',
 }
 
+var sourceSectionConfigs = {
+  'source-overview': {
+    title: 'Data Sources',
+    eyebrow: 'Source Layer',
+    intro: 'This is the overview. It shows the full source map: source systems, validation units, and the connector layer underneath them.',
+    showSystems: true,
+    showConnectors: true,
+    showKindFilter: true,
+    showOperatorNotes: true,
+  },
+  'source-docs': {
+    title: 'Docs',
+    eyebrow: 'Data Sources',
+    intro: 'Repo docs and markdown-backed truth only. Use this lane when you are checking durable written sources instead of workbook or API sources.',
+    showSystems: true,
+    showConnectors: false,
+    showKindFilter: false,
+    allowedKinds: ['docs'],
+  },
+  'source-sheets': {
+    title: 'Spreadsheets',
+    eyebrow: 'Data Sources',
+    intro: 'Workbook-level sources and their validation units. This is the lane for sheet-by-sheet trust work.',
+    showSystems: true,
+    showConnectors: false,
+    showKindFilter: false,
+    allowedKinds: ['sheets'],
+  },
+  'source-apis': {
+    title: 'APIs / Apps',
+    eyebrow: 'Data Sources',
+    intro: 'External systems, APIs, and app-backed business sources. Use this lane when the truth lives outside the repo and outside spreadsheets.',
+    showSystems: true,
+    showConnectors: false,
+    showKindFilter: false,
+    allowedKinds: ['api', 'apps'],
+  },
+  'source-connectors': {
+    title: 'Connectors',
+    eyebrow: 'Connector Layer',
+    intro: 'Just the pipes. This lane is about access paths and technical reach, not whether the source itself is trusted.',
+    showSystems: false,
+    showConnectors: true,
+    showKindFilter: false,
+  },
+}
+
+var capabilityCatalog = {
+  'capabilities-skills': {
+    title: 'Skills',
+    eyebrow: 'System Inventory',
+    intro: 'Skills are reusable operating instructions layered on top of tools and plugins. They are not data sources.',
+    items: [
+      {
+        id: 'SKILL-BFOUND-001',
+        title: 'BCrew Foundation Skill',
+        type: 'Repo skill',
+        state: 'Working now',
+        tone: 'connected',
+        availableTo: 'Coding assistants working inside this repo',
+        purpose: 'Keeps strategy, source-trust, and Foundation-accountability work routed to the right home instead of drifting into loose docs or fake live values.',
+      },
+    ],
+    backlogIds: ['SYSTEM-004'],
+    statusCards: [
+      {
+        label: 'Live now',
+        status: 'connected',
+        detail: 'The rebuild already uses a repo-specific Foundation skill for strategy and source-trust work.',
+      },
+      {
+        label: 'Still open',
+        status: 'pending',
+        detail: 'There is no full live skill registry in Foundation yet. That surface still needs to be built from runtime truth.',
+      },
+    ],
+  },
+  'capabilities-plugins': {
+    title: 'Plugins / MCPs',
+    eyebrow: 'System Inventory',
+    intro: 'These are runtime integration surfaces available to the coding stack. They are separate from business sources: a plugin can exist even when no business source is signed off yet.',
+    items: [
+      {
+        id: 'PLUGIN-GDRIVE-001',
+        title: 'Google Drive',
+        type: 'Plugin / MCP surface',
+        state: 'Working now',
+        tone: 'connected',
+        availableTo: 'Codex runtime in this rebuild',
+        purpose: 'Drive, Docs, Sheets, and Slides access already used during source-validation and doc work.',
+      },
+      {
+        id: 'PLUGIN-GMAIL-001',
+        title: 'Gmail',
+        type: 'Plugin / MCP surface',
+        state: 'Installed / workflow validation pending',
+        tone: 'pending',
+        availableTo: 'Codex runtime in this rebuild',
+        purpose: 'Email reads, triage, drafts, and mailbox workflows once BCrew boundaries and trust rules are signed off.',
+      },
+      {
+        id: 'PLUGIN-GCAL-001',
+        title: 'Google Calendar',
+        type: 'Plugin / MCP surface',
+        state: 'Installed / workflow validation pending',
+        tone: 'pending',
+        availableTo: 'Codex runtime in this rebuild',
+        purpose: 'Scheduling, event reads, and meeting-context workflows after trust boundaries are defined.',
+      },
+      {
+        id: 'PLUGIN-CANVA-001',
+        title: 'Canva',
+        type: 'Plugin / MCP surface',
+        state: 'Installed / workflow validation pending',
+        tone: 'pending',
+        availableTo: 'Codex runtime in this rebuild',
+        purpose: 'Design generation and editing once that workflow becomes part of the trusted operating stack.',
+      },
+    ],
+    backlogIds: ['SYSTEM-004'],
+    statusCards: [
+      {
+        label: 'Live now',
+        status: 'connected',
+        detail: 'The rebuild has real plugin-backed surfaces available in the coding/runtime layer today.',
+      },
+      {
+        label: 'Still open',
+        status: 'pending',
+        detail: 'Foundation still needs the proper live capabilities surface so plugin and MCP state stops living in scattered tool context.',
+      },
+    ],
+  },
+  'capabilities-agents': {
+    title: 'Agents',
+    eyebrow: 'System Inventory',
+    intro: 'Agents are not data sources. This lane is for the agent model, registry, and operations layer.',
+    items: [
+      {
+        id: 'AGENT-STATE-001',
+        title: 'Business Agents',
+        type: 'Current state',
+        state: 'Not live yet',
+        tone: 'missing',
+        availableTo: 'Nobody yet',
+        purpose: 'No approved business-agent registry exists yet in this rebuild. That is deliberate until the franchise model and boundaries are locked.',
+      },
+      {
+        id: 'TOOL-CODEX-001',
+        title: 'Codex / Claude Code',
+        type: 'Implementation tools',
+        state: 'Working now',
+        tone: 'connected',
+        availableTo: 'Coding and system-maintenance work',
+        purpose: 'These are implementation tools inside the system, not business agents inside the operating model.',
+      },
+    ],
+    backlogIds: ['AGENT-005', 'AGENT-006', 'AGENT-007', 'AGENT-008', 'INFRA-003', 'SYSTEM-011'],
+    statusCards: [
+      {
+        label: 'Live now',
+        status: 'connected',
+        detail: 'The boundary is now explicit: coding assistants are tools, not business agents.',
+      },
+      {
+        label: 'Still open',
+        status: 'pending',
+        detail: 'The franchise model, Agent Registry, Agent Operations, and isolated deployment model still need to be built before business agents go live.',
+      },
+    ],
+  },
+}
+
 /* ── inline formatting (from app.js) ─────────────────────── */
 
 function appendFormattedText(text, parent, currentPath) {
@@ -1678,285 +1851,6 @@ function filterBacklogItems(items, viewState) {
   })
 }
 
-function isSourceLayerBacklogItem(item) {
-  if (!item) return false
-
-  var explicitIds = {
-    'FOUNDATION-002': true,
-    'FOUNDATION-003': true,
-    'FOUNDATION-VERIFY-001': true,
-    'DATA-004': true,
-    'SOURCE-012': true,
-  }
-
-  if (explicitIds[item.id]) return true
-  if (/^(SOURCE|DATA|FINANCE)-/.test(String(item.id || ''))) return true
-  return false
-}
-
-function compareSourceFocusItems(a, b) {
-  var laneOrder = {
-    executing: 0,
-    scoped: 1,
-    ranked: 2,
-    research: 3,
-    parked: 4,
-    done: 5,
-  }
-  var priorityOrder = { P0: 0, P1: 1, P2: 2, P3: 3 }
-
-  var aLane = laneOrder[a.lane] != null ? laneOrder[a.lane] : 99
-  var bLane = laneOrder[b.lane] != null ? laneOrder[b.lane] : 99
-  var laneDelta = aLane - bLane
-  if (laneDelta !== 0) return laneDelta
-
-  var aPriority = priorityOrder[a.priority] != null ? priorityOrder[a.priority] : 9
-  var bPriority = priorityOrder[b.priority] != null ? priorityOrder[b.priority] : 9
-  var priorityDelta = aPriority - bPriority
-  if (priorityDelta !== 0) return priorityDelta
-
-  var aRank = typeof a.rank === 'number' ? a.rank : Number.MAX_SAFE_INTEGER
-  var bRank = typeof b.rank === 'number' ? b.rank : Number.MAX_SAFE_INTEGER
-  if (aRank !== bRank) return aRank - bRank
-
-  return String(a.title || '').localeCompare(String(b.title || ''))
-}
-
-function getSourceFocusItems(items) {
-  return (items || []).filter(function(item) {
-    return item.lane !== 'done' && isSourceLayerBacklogItem(item)
-  }).sort(compareSourceFocusItems)
-}
-
-function getSourceFocusBlueprint(item, sourceContractMap) {
-  var contract = null
-  var blueprint = {
-    title: item.title,
-    phase: 'Build focus',
-    sourceId: '',
-    workbook: '',
-    tab: '',
-    checklist: [],
-    actions: [],
-  }
-
-  if (item.id === 'FOUNDATION-002') {
-    contract = sourceContractMap['SRC-OWNERS-001'] || null
-    blueprint.title = 'Owners Dashboard · ADMIN ONLY - Deal Data Entry'
-    blueprint.phase = 'Validation review'
-    blueprint.sourceId = 'SRC-OWNERS-001'
-    blueprint.workbook = 'Owners Dashboard'
-    blueprint.tab = 'ADMIN ONLY - Deal Data Entry'
-    blueprint.checklist = [
-      { done: true, label: 'Admin tab meaning locked through Column CB' },
-      { done: true, label: 'Literal live headers and row structure confirmed' },
-      { done: false, label: 'Final page review against the source note' },
-      { done: false, label: 'Signed-off boundary recorded clearly in Data Sources' },
-      { done: false, label: 'Owner sign-off completed' },
-    ]
-  } else if (item.id === 'FOUNDATION-003') {
-    contract = sourceContractMap['SRC-FINANCE-001'] || null
-    blueprint.title = 'Owners Dashboard · Weekly Actuals / Cashflow Dash'
-    blueprint.phase = 'Finance sign-off'
-    blueprint.sourceId = 'SRC-FINANCE-001'
-    blueprint.workbook = 'Owners Dashboard'
-    blueprint.tab = '(Input) Weekly Actuals + Cashflow Dash'
-    blueprint.checklist = [
-      { done: true, label: 'High-level finance hierarchy is understood' },
-      { done: true, label: 'Partner-commission adjustment boundary is understood at a high level' },
-      { done: false, label: 'Weekly Actuals validated line by line enough for trust' },
-      { done: false, label: 'Cashflow Dash roll-up and interpretation boundary confirmed' },
-      { done: false, label: 'Signed-off finance boundary recorded clearly in Data Sources' },
-    ]
-  } else {
-    contract = sourceContractMap[(item.sourceRef || '').trim()] || null
-    if (contract) {
-      blueprint.title = contract.title
-      blueprint.sourceId = contract.sourceId
-      blueprint.workbook = contract.title
-      blueprint.tab = String(contract.location || '').split(' with ')[0]
-    }
-  }
-
-  if (contract) {
-    blueprint.actions = contract.actions || []
-    if (!blueprint.sourceId) blueprint.sourceId = contract.sourceId
-    if (!blueprint.workbook) blueprint.workbook = contract.title
-    if (!blueprint.tab) blueprint.tab = String(contract.location || '').split(' with ')[0]
-  }
-
-  return blueprint
-}
-
-function renderSourceFocusChecklist(items) {
-  if (!items || !items.length) return null
-
-  var list = document.createElement('div')
-  list.className = 'source-focus-checklist'
-
-  items.forEach(function(item) {
-    var row = document.createElement('div')
-    row.className = 'source-focus-check-row'
-
-    var mark = document.createElement('span')
-    mark.className = 'source-focus-check-mark source-focus-check-mark-' + (item.done ? 'done' : 'pending')
-    mark.textContent = item.done ? 'Done' : 'Left'
-    row.appendChild(mark)
-
-    var label = document.createElement('div')
-    label.className = 'source-focus-check-label'
-    label.textContent = item.label
-    row.appendChild(label)
-
-    list.appendChild(row)
-  })
-
-  return list
-}
-
-function renderCurrentSourceFocusPanel(items, sourceContracts) {
-  var focusItems = getSourceFocusItems(items)
-  if (!focusItems.length) return null
-
-  var storedId = getStoredSourceFocusItemId()
-  var current = focusItems.find(function(item) {
-    return item.id === storedId
-  }) || focusItems[0]
-
-  if (!storedId || storedId !== current.id) {
-    setStoredSourceFocusItemId(current.id)
-  }
-
-  var sourceContractMap = buildSourceContractMap(sourceContracts || [])
-  var blueprint = getSourceFocusBlueprint(current, sourceContractMap)
-  var queuedCount = focusItems.length - 1
-
-  var details = document.createElement('details')
-  details.className = 'source-focus-drawer'
-
-  var summary = document.createElement('summary')
-  summary.className = 'source-focus-summary'
-
-  var left = document.createElement('div')
-  left.className = 'source-focus-summary-left'
-
-  var eyebrow = document.createElement('div')
-  eyebrow.className = 'eyebrow'
-  eyebrow.textContent = 'Current Build Focus'
-  left.appendChild(eyebrow)
-
-  var title = document.createElement('div')
-  title.className = 'source-focus-summary-title'
-  title.textContent = blueprint.title
-  left.appendChild(title)
-
-  var meta = document.createElement('div')
-  meta.className = 'source-focus-summary-meta'
-  meta.textContent = [
-    blueprint.sourceId || current.id,
-    blueprint.phase,
-    queuedCount ? queuedCount + ' queued behind this' : 'only active source focus right now',
-  ].filter(Boolean).join(' · ')
-  left.appendChild(meta)
-
-  summary.appendChild(left)
-
-  var right = document.createElement('div')
-  right.className = 'source-focus-summary-right'
-  var focusStatusWrap = document.createElement('div')
-  focusStatusWrap.className = 'status-planned'
-  var focusStatus = document.createElement('span')
-  focusStatus.className = 'status-pill status-pill-static'
-  focusStatus.textContent = 'Currently building'
-  focusStatusWrap.appendChild(focusStatus)
-  right.appendChild(focusStatusWrap)
-  summary.appendChild(right)
-
-  details.appendChild(summary)
-
-  var body = document.createElement('div')
-  body.className = 'source-focus-body'
-
-  var toolbar = document.createElement('div')
-  toolbar.className = 'source-focus-toolbar'
-
-  var selectWrap = document.createElement('label')
-  selectWrap.className = 'source-focus-select-wrap'
-
-  var selectLabel = document.createElement('span')
-  selectLabel.className = 'operations-filter-label'
-  selectLabel.textContent = 'Focus on'
-  selectWrap.appendChild(selectLabel)
-
-  var focusSelect = buildSelect(focusItems.map(function(item) {
-    var optionBlueprint = getSourceFocusBlueprint(item, sourceContractMap)
-    return {
-      value: item.id,
-      label: (optionBlueprint.sourceId || item.id) + ' · ' + optionBlueprint.title,
-      selected: item.id === current.id,
-    }
-  }))
-  focusSelect.addEventListener('change', function() {
-    setStoredSourceFocusItemId(focusSelect.value)
-    renderSourceRegistry()
-  })
-  selectWrap.appendChild(focusSelect)
-  toolbar.appendChild(selectWrap)
-  body.appendChild(toolbar)
-
-  var card = document.createElement('article')
-  card.className = 'section-card source-focus-card'
-
-  var cardTop = document.createElement('div')
-  cardTop.className = 'source-card-title-wrap'
-
-  var cardTitle = document.createElement('h4')
-  cardTitle.textContent = blueprint.title
-  cardTop.appendChild(cardTitle)
-
-  var cardMeta = document.createElement('div')
-  cardMeta.className = 'source-card-id'
-  cardMeta.textContent = [current.id, current.priority, current.lane].join(' · ')
-  cardTop.appendChild(cardMeta)
-  card.appendChild(cardTop)
-
-  var metaGrid = document.createElement('div')
-  metaGrid.className = 'source-card-meta-grid'
-  metaGrid.appendChild(renderSourceMetaItem('Source ID', blueprint.sourceId || current.id))
-  if (blueprint.workbook) metaGrid.appendChild(renderSourceMetaItem('Workbook', blueprint.workbook))
-  if (blueprint.tab) metaGrid.appendChild(renderSourceMetaItem('Current tab', blueprint.tab))
-  metaGrid.appendChild(renderSourceMetaItem('Work type', blueprint.phase))
-  card.appendChild(metaGrid)
-
-  if (blueprint.actions && blueprint.actions.length) {
-    var actionWrap = document.createElement('div')
-    actionWrap.className = 'source-focus-actions'
-    appendSourceActions(actionWrap, blueprint.actions)
-    card.appendChild(actionWrap)
-  }
-
-  if (current.nextAction) {
-    card.appendChild(renderLabeledCopy('decision-rationale', 'What to do now', current.nextAction))
-  }
-
-  if (current.statusNote) {
-    card.appendChild(renderLabeledCopy('decision-meta', 'Current note', current.statusNote))
-  }
-
-  var checklist = renderSourceFocusChecklist(blueprint.checklist)
-  if (checklist) {
-    var checklistLabel = document.createElement('div')
-    checklistLabel.className = 'quarter-priority-label'
-    checklistLabel.textContent = 'Validation Checklist'
-    card.appendChild(checklistLabel)
-    card.appendChild(checklist)
-  }
-
-  body.appendChild(card)
-  details.appendChild(body)
-  return details
-}
-
 function renderBacklogAccordionItem(item) {
   var details = document.createElement('details')
   details.className = 'backlog-item-pill'
@@ -3389,10 +3283,10 @@ function renderQuestionEditor(item) {
 var cache = {
   sourceOfTruth: null,
   foundationHub: null,
+  systemInventory: null,
   docs: {},
 }
 var FOUNDATION_ADMIN_TOKEN_KEY = 'bcrew.foundation.adminToken'
-var FOUNDATION_SOURCE_FOCUS_KEY = 'bcrew.foundation.sourceFocusItemId'
 
 var liveDocPaths = {
   'docs/strategy/bhag-model.md': true,
@@ -3423,6 +3317,18 @@ function fetchFoundationHub() {
     return res.json()
   }).then(function(data) {
     cache.foundationHub = data
+    return data
+  })
+}
+
+function fetchSystemInventory() {
+  if (cache.systemInventory) return Promise.resolve(cache.systemInventory)
+
+  return fetch('/api/system-inventory').then(function(res) {
+    if (!res.ok) throw new Error('System inventory API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.systemInventory = data
     return data
   })
 }
@@ -3464,25 +3370,9 @@ function setStoredAdminToken(value) {
   }
 }
 
-function getStoredSourceFocusItemId() {
-  try {
-    return window.localStorage.getItem(FOUNDATION_SOURCE_FOCUS_KEY) || ''
-  } catch {
-    return ''
-  }
-}
-
-function setStoredSourceFocusItemId(value) {
-  try {
-    if (!value) window.localStorage.removeItem(FOUNDATION_SOURCE_FOCUS_KEY)
-    else window.localStorage.setItem(FOUNDATION_SOURCE_FOCUS_KEY, value)
-  } catch {
-    // Ignore storage failures and let the UI fall back to backlog ordering.
-  }
-}
-
 function clearFoundationCaches() {
   cache.foundationHub = null
+  cache.systemInventory = null
 }
 
 function parseApiErrorPayload(payload, fallbackMessage) {
@@ -3529,7 +3419,7 @@ var foundationDocPathToSection = {
   'docs/strategy/department-mandates.md': 'departments',
   'docs/strategy/core-values.md': 'core-values',
   'docs/strategy/marketmasters.md': 'marketmasters',
-  'docs/source-registry.md': 'source-registry',
+  'docs/source-registry.md': 'source-overview',
 }
 
 var strategicExecutionDocPathToSection = {
@@ -3556,6 +3446,15 @@ var sectionLabels = {
   'system-health': 'System Health',
   'data-health': 'System Health',
   'source-registry': 'Data Sources',
+  'source-overview': 'Data Sources',
+  'source-docs': 'Docs',
+  'source-sheets': 'Spreadsheets',
+  'source-apis': 'APIs / Apps',
+  'source-connectors': 'Connectors',
+  'inventory-docs': 'All Docs',
+  'capabilities-skills': 'Skills',
+  'capabilities-plugins': 'Plugins / MCPs',
+  'capabilities-agents': 'Agents',
 }
 
 function renderOverviewStatusPanel(items, options) {
@@ -4786,7 +4685,7 @@ function getSourceKind(contract) {
 
   if (method.indexOf('filesystem') !== -1 || method.indexOf('git') !== -1) return { key: 'docs', label: 'Docs' }
   if (method.indexOf('sheets') !== -1 || method.indexOf('spreadsheet') !== -1) return { key: 'sheets', label: 'Sheets' }
-  if (method.indexOf('connector') !== -1) return { key: 'connectors', label: 'Connectors' }
+  if (method.indexOf('connector') !== -1) return { key: 'apps', label: 'Workspace App' }
   if (method.indexOf('api') !== -1) return { key: 'api', label: 'API' }
   if (method.indexOf('supabase') !== -1 || method.indexOf('database') !== -1) return { key: 'apps', label: 'App / DB' }
   return { key: 'other', label: 'Other' }
@@ -4820,6 +4719,7 @@ function getSourceSearchText(contract) {
   return [
     contract.sourceId,
     contract.title,
+    contract.unitName,
     contract.owner,
     contract.location,
     contract.scope,
@@ -4835,15 +4735,28 @@ function getSourceSearchText(contract) {
     .toLowerCase()
 }
 
-function filterSourceContracts(contracts) {
-  var query = sourceViewState.query.trim().toLowerCase()
+function getSourceSystemName(contract) {
+  return contract && contract.title ? contract.title : 'Unknown source'
+}
+
+function getSourceUnitName(contract) {
+  return (contract && (contract.unitName || contract.tabName || contract.location)) || ''
+}
+
+function filterSourceContracts(contracts, options) {
+  var opts = options || {}
+  var query = String(opts.query != null ? opts.query : sourceViewState.query).trim().toLowerCase()
+  var kindFilter = opts.kind != null ? opts.kind : sourceViewState.kind
+  var presenceFilter = opts.presence != null ? opts.presence : sourceViewState.presence
+  var allowedKinds = opts.allowedKinds || null
 
   return (contracts || []).filter(function(contract) {
     var kind = getSourceKind(contract)
     var presence = getSourcePresence(contract)
 
-    if (sourceViewState.kind !== 'all' && kind.key !== sourceViewState.kind) return false
-    if (sourceViewState.presence !== 'all' && presence.key !== sourceViewState.presence) return false
+    if (allowedKinds && allowedKinds.indexOf(kind.key) === -1) return false
+    if (kindFilter !== 'all' && kind.key !== kindFilter) return false
+    if (presenceFilter !== 'all' && presence.key !== presenceFilter) return false
     if (!query) return true
 
     return getSourceSearchText(contract).indexOf(query) !== -1
@@ -4899,12 +4812,17 @@ function renderSourceContractCard(contract) {
   titleWrap.className = 'source-card-title-wrap'
 
   var title = document.createElement('h4')
-  title.textContent = contract.title
+  title.textContent = getSourceUnitName(contract) || getSourceSystemName(contract)
   titleWrap.appendChild(title)
 
   var sourceId = document.createElement('div')
   sourceId.className = 'source-card-id'
-  sourceId.textContent = contract.sourceId
+  sourceId.textContent = [
+    contract.sourceId,
+    getSourceSystemName(contract) !== (getSourceUnitName(contract) || getSourceSystemName(contract))
+      ? getSourceSystemName(contract)
+      : '',
+  ].filter(Boolean).join(' · ')
   titleWrap.appendChild(sourceId)
   article.appendChild(titleWrap)
 
@@ -4927,9 +4845,14 @@ function renderSourceContractCard(contract) {
 
   var metaGrid = document.createElement('div')
   metaGrid.className = 'source-card-meta-grid'
+  if (getSourceSystemName(contract) !== (getSourceUnitName(contract) || getSourceSystemName(contract))) {
+    metaGrid.appendChild(renderSourceMetaItem('Source system', getSourceSystemName(contract)))
+  }
   metaGrid.appendChild(renderSourceMetaItem('Owner', contract.owner || 'System'))
   metaGrid.appendChild(renderSourceMetaItem('Access', contract.accessMethod || 'Unknown'))
-  metaGrid.appendChild(renderSourceMetaItem('Location', contract.location || 'Unknown'))
+  if (getSourceUnitName(contract)) {
+    metaGrid.appendChild(renderSourceMetaItem('Validation unit', getSourceUnitName(contract)))
+  }
   metaGrid.appendChild(renderSourceMetaItem('Scope', contract.scope || 'Unknown'))
   if (contract.lastVerified) {
     metaGrid.appendChild(renderSourceMetaItem('Last Verified', contract.lastVerified))
@@ -4960,7 +4883,7 @@ function renderSourceAccordionItem(contract) {
 
   var title = document.createElement('div')
   title.className = 'source-item-summary-title'
-  title.textContent = contract.title
+  title.textContent = getSourceUnitName(contract) || getSourceSystemName(contract)
   left.appendChild(title)
 
   var meta = document.createElement('div')
@@ -5010,16 +4933,16 @@ function renderSourceLegendPanel() {
 
   ;[
     {
-      title: 'Source Contract',
-      copy: 'The business record. It says what truth the source owns, who owns it, and what the source is for.',
+      title: 'Source System',
+      copy: 'The big business source: a workbook, doc set, database, app, or platform the OS depends on.',
     },
     {
-      title: 'Access / Connector',
-      copy: 'The technical path. It shows how the system reaches the source: local docs, Google Sheets, API, or workspace connector.',
+      title: 'Validation Unit',
+      copy: 'The exact tab, range, ledger, or slice currently being validated inside the larger source system.',
     },
     {
-      title: 'Presence State',
-      copy: 'Whether the source is connected in the rebuild, only known and awaiting verification, or not connected yet.',
+      title: 'Connector Layer',
+      copy: 'The technical path. It shows what connection exists, what it does, and who should be allowed to use it.',
     },
     {
       title: 'Trust State',
@@ -5042,11 +4965,233 @@ function renderSourceLegendPanel() {
   })
 
   panel.appendChild(grid)
+
+  var colorLegend = document.createElement('div')
+  colorLegend.className = 'source-color-legend'
+
+  ;[
+    { tone: 'connected', label: 'Signed off / working now' },
+    { tone: 'planned', label: 'Current build focus / active review' },
+    { tone: 'pending', label: 'Provisional / needs validation' },
+    { tone: 'missing', label: 'Missing / blocked / not wired' },
+  ].forEach(function(item) {
+    var row = document.createElement('div')
+    row.className = 'source-color-legend-item'
+
+    var dot = document.createElement('span')
+    dot.className = 'source-color-dot source-color-dot-' + item.tone
+    row.appendChild(dot)
+
+    var text = document.createElement('span')
+    text.textContent = item.label
+    row.appendChild(text)
+
+    colorLegend.appendChild(row)
+  })
+
+  panel.appendChild(colorLegend)
   return panel
 }
 
-function renderSourceStack(group, contracts) {
+function getSourceSystemState(contracts) {
+  if ((contracts || []).every(function(contract) {
+    return getSourcePresence(contract).key === 'signed-off'
+  })) {
+    return { key: 'signed-off', label: 'Signed off', tone: 'connected' }
+  }
+
+  if ((contracts || []).some(function(contract) {
+    return getSourcePresence(contract).key === 'connected'
+  })) {
+    return { key: 'active-review', label: 'Active review', tone: 'planned' }
+  }
+
+  if ((contracts || []).some(function(contract) {
+    return getSourcePresence(contract).key === 'needs-verification'
+  })) {
+    return { key: 'needs-verification', label: 'Needs verification', tone: 'pending' }
+  }
+
+  return { key: 'not-connected', label: 'Not connected', tone: 'missing' }
+}
+
+function groupSourceContractsBySystem(contracts) {
+  var grouped = {}
+  ;(contracts || []).forEach(function(contract) {
+    var key = getSourceSystemName(contract)
+    if (!grouped[key]) grouped[key] = []
+    grouped[key].push(contract)
+  })
+
+  return Object.keys(grouped).map(function(key) {
+    return {
+      name: key,
+      contracts: sortSourceContracts(grouped[key]),
+    }
+  }).sort(function(a, b) {
+    var order = {
+      'active-review': 0,
+      'needs-verification': 1,
+      'not-connected': 2,
+      'signed-off': 3,
+    }
+    var aState = getSourceSystemState(a.contracts).key
+    var bState = getSourceSystemState(b.contracts).key
+    var delta = (order[aState] != null ? order[aState] : 99) - (order[bState] != null ? order[bState] : 99)
+    if (delta !== 0) return delta
+    return a.name.localeCompare(b.name)
+  })
+}
+
+function renderSourceSystemStack(group) {
+  var contracts = group.contracts || []
   if (!contracts.length) return null
+
+  var details = document.createElement('details')
+  details.className = 'source-stack'
+  var state = getSourceSystemState(contracts)
+  var signedOffUnits = contracts.filter(function(contract) { return getSourcePresence(contract).key === 'signed-off' }).length
+  var provisionalUnits = contracts.filter(function(contract) { return getSourcePresence(contract).key === 'connected' }).length
+  var accessSummary = Array.from(new Set(contracts.map(function(contract) {
+    return contract.accessMethod
+  }).filter(Boolean))).join(' · ')
+  var ownerSummary = Array.from(new Set(contracts.map(function(contract) {
+    return contract.owner || 'System'
+  }).filter(Boolean))).join(' · ')
+
+  var summary = document.createElement('summary')
+  summary.className = 'source-stack-summary source-stack-summary-' + state.key
+
+  var left = document.createElement('div')
+  left.className = 'source-stack-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'source-stack-title'
+  title.textContent = group.name
+  left.appendChild(title)
+
+  var intro = document.createElement('div')
+  intro.className = 'source-stack-intro'
+  intro.textContent = [
+    contracts.length + ' validation unit' + (contracts.length === 1 ? '' : 's'),
+    signedOffUnits ? signedOffUnits + ' signed off' : '',
+    provisionalUnits ? provisionalUnits + ' still provisional' : '',
+  ].filter(Boolean).join(' · ')
+  left.appendChild(intro)
+
+  summary.appendChild(left)
+
+  var count = document.createElement('span')
+  count.className = 'source-stack-count'
+  count.textContent = contracts.length
+  summary.appendChild(count)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'source-stack-body'
+
+  var systemCard = document.createElement('article')
+  systemCard.className = 'section-card source-card'
+
+  var systemCardTitleWrap = document.createElement('div')
+  systemCardTitleWrap.className = 'source-card-title-wrap'
+
+  var systemCardTitle = document.createElement('h4')
+  systemCardTitle.textContent = group.name
+  systemCardTitleWrap.appendChild(systemCardTitle)
+
+  var systemCardMeta = document.createElement('div')
+  systemCardMeta.className = 'source-card-id'
+  systemCardMeta.textContent = state.label
+  systemCardTitleWrap.appendChild(systemCardMeta)
+  systemCard.appendChild(systemCardTitleWrap)
+
+  var systemCardTags = document.createElement('div')
+  systemCardTags.className = 'source-card-tags'
+  systemCardTags.appendChild(renderSourceTag(state.label, state.tone))
+  systemCard.appendChild(systemCardTags)
+
+  var systemCardCopy = document.createElement('p')
+  systemCardCopy.className = 'source-card-copy'
+  systemCardCopy.textContent = 'This is the parent source system. Open the validation units below to see exactly which tab or slice is trusted, provisional, or still waiting on review.'
+  systemCard.appendChild(systemCardCopy)
+
+  var systemCardGrid = document.createElement('div')
+  systemCardGrid.className = 'source-card-meta-grid'
+  systemCardGrid.appendChild(renderSourceMetaItem('Validation units', String(contracts.length)))
+  if (accessSummary) systemCardGrid.appendChild(renderSourceMetaItem('Access path', accessSummary))
+  if (ownerSummary) systemCardGrid.appendChild(renderSourceMetaItem('Owners', ownerSummary))
+  systemCardGrid.appendChild(renderSourceMetaItem('Signed-off units', String(signedOffUnits)))
+  systemCard.appendChild(systemCardGrid)
+
+  var actionSeen = {}
+  var systemActions = []
+  contracts.forEach(function(contract) {
+    ;(contract.actions || []).forEach(function(action) {
+      var key = action.href || action.label
+      if (!key || actionSeen[key]) return
+      actionSeen[key] = true
+      systemActions.push(action)
+    })
+  })
+  appendSourceActions(systemCard, systemActions.slice(0, 3))
+  body.appendChild(systemCard)
+
+  contracts.forEach(function(contract) {
+    body.appendChild(renderSourceAccordionItem(contract))
+  })
+
+  details.appendChild(body)
+  return details
+}
+
+function getConnectorState(connector) {
+  if (connector.group === 'working') return { key: 'connected', label: 'Working now', tone: 'connected' }
+  if (connector.group === 'available') return { key: 'needs-verification', label: 'Installed / needs validation', tone: 'pending' }
+  return { key: 'not-connected', label: 'Not wired yet', tone: 'missing' }
+}
+
+function renderConnectorCard(connector) {
+  var article = document.createElement('article')
+  article.className = 'section-card source-card'
+
+  var titleWrap = document.createElement('div')
+  titleWrap.className = 'source-card-title-wrap'
+
+  var title = document.createElement('h4')
+  title.textContent = connector.title
+  titleWrap.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-id'
+  meta.textContent = connector.connectorId
+  titleWrap.appendChild(meta)
+  article.appendChild(titleWrap)
+
+  var tags = document.createElement('div')
+  tags.className = 'source-card-tags'
+  var state = getConnectorState(connector)
+  tags.appendChild(renderSourceTag(state.label, state.tone))
+  article.appendChild(tags)
+
+  var copy = document.createElement('p')
+  copy.className = 'source-card-copy'
+  copy.textContent = connector.purpose
+  article.appendChild(copy)
+
+  var grid = document.createElement('div')
+  grid.className = 'source-card-meta-grid'
+  grid.appendChild(renderSourceMetaItem('Who can use it', connector.availableTo || 'Not set'))
+  grid.appendChild(renderSourceMetaItem('Current status', connector.status || 'Unknown'))
+  grid.appendChild(renderSourceMetaItem('What it does', connector.powers || 'Not set'))
+  article.appendChild(grid)
+
+  return article
+}
+
+function renderConnectorStack(group, connectors) {
+  if (!connectors.length) return null
 
   var details = document.createElement('details')
   details.className = 'source-stack'
@@ -5071,110 +5216,116 @@ function renderSourceStack(group, contracts) {
 
   var count = document.createElement('span')
   count.className = 'source-stack-count'
-  count.textContent = contracts.length
+  count.textContent = connectors.length
   summary.appendChild(count)
 
   details.appendChild(summary)
 
   var body = document.createElement('div')
   body.className = 'source-stack-body'
-
-  sortSourceContracts(contracts).forEach(function(contract) {
-    body.appendChild(renderSourceAccordionItem(contract))
+  connectors.forEach(function(connector) {
+    body.appendChild(renderConnectorCard(connector))
   })
-
   details.appendChild(body)
+
   return details
 }
 
-function renderSourceRegistry() {
-  var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading data sources...</p>'
+function getSourceContractsForSection(contracts, config) {
+  if (!config || !config.allowedKinds || !config.allowedKinds.length) return contracts || []
 
-  fetchSourceOfTruth().then(function(data) {
-    return fetchFoundationHub().catch(function() {
-      return null
-    }).then(function(hub) {
-      return { data: data, hub: hub }
-    })
-  }).then(function(result) {
-    container.innerHTML = ''
+  return (contracts || []).filter(function(contract) {
+    return config.allowedKinds.indexOf(getSourceKind(contract).key) !== -1
+  })
+}
 
-    var data = result.data
-    var hub = result.hub
-    var sourceContracts = data.sources || []
-    var signedOffCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'signed-off' }).length
-    var connectedCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'connected' }).length
-    var verificationCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'needs-verification' }).length
-    var gapCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'not-connected' }).length
+function renderSourceHero(config, sourceContracts, sourceConnectors) {
+  var signedOffCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'signed-off' }).length
+  var connectedCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'connected' }).length
+  var verificationCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'needs-verification' }).length
+  var gapCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'not-connected' }).length
+  var systemCount = groupSourceContractsBySystem(sourceContracts).length
 
-    var hero = document.createElement('section')
-    hero.className = 'hero'
+  var hero = document.createElement('section')
+  hero.className = 'hero'
 
-    var heroInner = document.createElement('div')
-    heroInner.className = 'hero-inner'
+  var heroInner = document.createElement('div')
+  heroInner.className = 'hero-inner'
 
-    var heroTitle = document.createElement('h1')
-    heroTitle.textContent = 'Data Sources'
-    heroInner.appendChild(heroTitle)
+  var heroEyebrow = document.createElement('div')
+  heroEyebrow.className = 'eyebrow'
+  heroEyebrow.textContent = config.eyebrow
+  heroInner.appendChild(heroEyebrow)
 
-    var heroMeta = document.createElement('p')
-    heroMeta.className = 'hero-copy'
-    heroMeta.textContent = sourceContracts.length + ' source contracts tracked · ' + signedOffCount + ' signed off · ' + connectedCount + ' connected but provisional · ' + verificationCount + ' need rebuild verification · ' + gapCount + ' not connected'
-    heroInner.appendChild(heroMeta)
+  var heroTitle = document.createElement('h1')
+  heroTitle.textContent = config.title
+  heroInner.appendChild(heroTitle)
 
-    var heroNote = document.createElement('p')
-    heroNote.className = 'hero-copy'
-    heroNote.textContent = 'All business inputs live here: what they own, how the system reaches them, and whether they are trusted yet.'
-    heroInner.appendChild(heroNote)
+  var heroMeta = document.createElement('p')
+  heroMeta.className = 'hero-copy'
+  if (config.showSystems && config.showConnectors) {
+    heroMeta.textContent = systemCount + ' source systems · ' + sourceContracts.length + ' validation units · ' + sourceConnectors.length + ' connectors tracked'
+  } else if (config.showSystems) {
+    heroMeta.textContent = systemCount + ' source systems · ' + sourceContracts.length + ' validation units in this lane'
+  } else {
+    heroMeta.textContent = sourceConnectors.length + ' connectors tracked in this lane'
+  }
+  heroInner.appendChild(heroMeta)
 
-    hero.appendChild(heroInner)
-    container.appendChild(hero)
+  var heroNote = document.createElement('p')
+  heroNote.className = 'hero-copy'
+  heroNote.textContent = config.intro
+  heroInner.appendChild(heroNote)
 
-    var focusPanel = renderCurrentSourceFocusPanel(hub && hub.backlogItems, sourceContracts)
-    if (focusPanel) container.appendChild(focusPanel)
+  if (config.title === 'Data Sources') {
+    var trustNote = document.createElement('p')
+    trustNote.className = 'hero-copy'
+    trustNote.textContent = 'Trust right now: ' + signedOffCount + ' signed off · ' + connectedCount + ' provisional · ' + verificationCount + ' need rebuild verification · ' + gapCount + ' not connected.'
+    heroInner.appendChild(trustNote)
+  }
 
-    container.appendChild(renderOperatorToolsDrawer(
-      'How To Read This',
-      'Definitions for source contract, access path, presence, and trust. Open this only when you need the model.',
-      [renderSourceLegendPanel()],
-      false
-    ))
+  hero.appendChild(heroInner)
+  return hero
+}
 
-    var panel = document.createElement('section')
-    panel.className = 'panel'
+function renderSourceSystemsPanel(sourceContracts, options) {
+  var opts = options || {}
+  var panel = document.createElement('section')
+  panel.className = 'panel source-zone-panel source-zone-panel-systems'
 
-    var panelHeader = document.createElement('div')
-    panelHeader.className = 'panel-header'
+  var panelHeader = document.createElement('div')
+  panelHeader.className = 'panel-header'
 
-    var panelLeft = document.createElement('div')
-    var panelEyebrow = document.createElement('div')
-    panelEyebrow.className = 'eyebrow'
-    panelEyebrow.textContent = 'Live Source Layer'
-    panelLeft.appendChild(panelEyebrow)
+  var panelLeft = document.createElement('div')
+  var panelEyebrow = document.createElement('div')
+  panelEyebrow.className = 'eyebrow'
+  panelEyebrow.textContent = opts.eyebrow || 'Live Source Layer'
+  panelLeft.appendChild(panelEyebrow)
 
-    var panelTitle = document.createElement('h3')
-    panelTitle.textContent = 'Business source contracts'
-    panelLeft.appendChild(panelTitle)
+  var panelTitle = document.createElement('h3')
+  panelTitle.textContent = opts.title || 'Source systems and validation units'
+  panelLeft.appendChild(panelTitle)
 
-    var panelIntro = document.createElement('p')
-    panelIntro.className = 'section-intro'
-    panelIntro.textContent = 'Use filters to narrow the view. The cards below answer what the source owns, how the system reaches it, and how trusted it is right now.'
-    panelLeft.appendChild(panelIntro)
+  var panelIntro = document.createElement('p')
+  panelIntro.className = 'section-intro'
+  panelIntro.textContent = opts.intro || 'The big cards are the real source systems. Open each one to see the exact tabs, ledgers, or units being validated underneath it.'
+  panelLeft.appendChild(panelIntro)
 
-    panelHeader.appendChild(panelLeft)
-    panel.appendChild(panelHeader)
+  panelHeader.appendChild(panelLeft)
+  panel.appendChild(panelHeader)
 
-    var controls = document.createElement('div')
-    controls.className = 'operations-toolbar'
+  var controls = document.createElement('div')
+  controls.className = 'operations-toolbar'
 
-    var searchField = document.createElement('div')
-    searchField.className = 'operations-search'
-    var searchInput = buildInput('search', 'Search by source ID, source, owner, access, or what it owns')
-    searchInput.value = sourceViewState.query
-    searchField.appendChild(searchInput)
-    controls.appendChild(searchField)
+  var searchField = document.createElement('div')
+  searchField.className = 'operations-search'
+  var searchInput = buildInput('search', 'Search by source ID, source, owner, access, or what it owns')
+  searchInput.value = sourceViewState.query
+  searchField.appendChild(searchInput)
+  controls.appendChild(searchField)
 
+  var kindButtons = []
+  if (opts.showKindFilter) {
     var kindGroup = document.createElement('div')
     kindGroup.className = 'operations-filter-group'
     var kindLabel = document.createElement('span')
@@ -5182,14 +5333,12 @@ function renderSourceRegistry() {
     kindLabel.textContent = 'Type'
     kindGroup.appendChild(kindLabel)
 
-    var kindButtons = []
     ;[
       { key: 'all', label: 'All' },
       { key: 'docs', label: 'Docs' },
       { key: 'sheets', label: 'Sheets' },
-      { key: 'connectors', label: 'Connectors' },
       { key: 'api', label: 'APIs' },
-      { key: 'apps', label: 'Apps / DB' },
+      { key: 'apps', label: 'Apps / Workspace' },
       { key: 'other', label: 'Other' },
     ].forEach(function(option) {
       var button = document.createElement('button')
@@ -5204,141 +5353,723 @@ function renderSourceRegistry() {
       kindGroup.appendChild(button)
     })
     controls.appendChild(kindGroup)
+  }
 
-    var presenceGroup = document.createElement('div')
-    presenceGroup.className = 'operations-filter-group'
-    var presenceLabel = document.createElement('span')
-    presenceLabel.className = 'operations-filter-label'
-    presenceLabel.textContent = 'State'
-    presenceGroup.appendChild(presenceLabel)
+  var presenceGroup = document.createElement('div')
+  presenceGroup.className = 'operations-filter-group'
+  var presenceLabel = document.createElement('span')
+  presenceLabel.className = 'operations-filter-label'
+  presenceLabel.textContent = 'State'
+  presenceGroup.appendChild(presenceLabel)
 
-    var presenceButtons = []
-    ;[
-      { key: 'all', label: 'All' },
-      { key: 'signed-off', label: 'Signed Off' },
-      { key: 'connected', label: 'Connected Provisional' },
-      { key: 'needs-verification', label: 'Needs Verification' },
-      { key: 'not-connected', label: 'Not Connected' },
-    ].forEach(function(option) {
-      var button = document.createElement('button')
-      button.type = 'button'
-      button.className = 'operations-filter-chip'
-      button.textContent = option.label
-      button.addEventListener('click', function() {
-        sourceViewState.presence = option.key
-        applySourceFilters()
-      })
-      presenceButtons.push({ key: option.key, button: button })
-      presenceGroup.appendChild(button)
+  var presenceButtons = []
+  ;[
+    { key: 'all', label: 'All' },
+    { key: 'signed-off', label: 'Signed Off' },
+    { key: 'connected', label: 'Connected Provisional' },
+    { key: 'needs-verification', label: 'Needs Verification' },
+    { key: 'not-connected', label: 'Not Connected' },
+  ].forEach(function(option) {
+    var button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'operations-filter-chip'
+    button.textContent = option.label
+    button.addEventListener('click', function() {
+      sourceViewState.presence = option.key
+      applySourceFilters()
     })
-    controls.appendChild(presenceGroup)
+    presenceButtons.push({ key: option.key, button: button })
+    presenceGroup.appendChild(button)
+  })
+  controls.appendChild(presenceGroup)
 
-    panel.appendChild(controls)
+  panel.appendChild(controls)
 
-    var results = document.createElement('p')
-    results.className = 'operations-results-meta'
-    panel.appendChild(results)
+  var results = document.createElement('p')
+  results.className = 'operations-results-meta'
+  panel.appendChild(results)
+
+  var board = document.createElement('div')
+  board.className = 'source-contract-stack'
+  panel.appendChild(board)
+
+  function syncSourceButtons() {
+    kindButtons.forEach(function(item) {
+      item.button.classList.toggle('is-active', sourceViewState.kind === item.key)
+    })
+    presenceButtons.forEach(function(item) {
+      item.button.classList.toggle('is-active', sourceViewState.presence === item.key)
+    })
+  }
+
+  function applySourceFilters() {
+    syncSourceButtons()
+
+    if (opts.showKindFilter && !kindButtons.some(function(item) { return item.key === sourceViewState.kind })) {
+      sourceViewState.kind = 'all'
+    }
+
+    var filteredContracts = filterSourceContracts(sourceContracts, {
+      allowedKinds: opts.allowedKinds || null,
+      kind: opts.showKindFilter ? sourceViewState.kind : 'all',
+      presence: sourceViewState.presence,
+      query: sourceViewState.query,
+    })
+    var groupedSystems = groupSourceContractsBySystem(filteredContracts)
+    var laneLabel = opts.resultsLabel || 'source systems'
+    var kindLabelText = opts.showKindFilter
+      ? (sourceViewState.kind === 'all'
+        ? 'all source types'
+        : kindButtons.filter(function(item) { return item.key === sourceViewState.kind })[0].button.textContent.toLowerCase())
+      : (opts.fixedKindLabel || 'this lane')
+    var stateLabelText = sourceViewState.presence === 'all'
+      ? 'all operating states'
+      : presenceButtons.filter(function(item) { return item.key === sourceViewState.presence })[0].button.textContent.toLowerCase()
+
+    results.textContent = 'Showing ' + filteredContracts.length + ' validation units across ' + groupedSystems.length + ' ' + laneLabel + ' · ' + kindLabelText + ' · ' + stateLabelText + ' · groups and cards start collapsed'
+
+    board.innerHTML = ''
+    groupedSystems.forEach(function(group) {
+      var groupPanel = renderSourceSystemStack(group)
+      if (groupPanel) board.appendChild(groupPanel)
+    })
+
+    if (!board.childNodes.length) {
+      var empty = document.createElement('div')
+      empty.className = 'decision-empty-state'
+      empty.textContent = 'No source contracts match this lane yet.'
+      board.appendChild(empty)
+    }
+  }
+
+  searchInput.addEventListener('input', function() {
+    sourceViewState.query = searchInput.value
+    applySourceFilters()
+  })
+
+  applySourceFilters()
+  return panel
+}
+
+function renderSourceConnectorsPanel(sourceConnectors, options) {
+  var opts = options || {}
+  var connectorPanel = document.createElement('section')
+  connectorPanel.className = 'panel source-zone-panel source-zone-panel-connectors'
+
+  var connectorHeader = document.createElement('div')
+  connectorHeader.className = 'panel-header'
+
+  var connectorLeft = document.createElement('div')
+  var connectorEyebrow = document.createElement('div')
+  connectorEyebrow.className = 'eyebrow'
+  connectorEyebrow.textContent = opts.eyebrow || 'Connector Layer'
+  connectorLeft.appendChild(connectorEyebrow)
+
+  var connectorTitle = document.createElement('h3')
+  connectorTitle.textContent = opts.title || 'Connections and access paths'
+  connectorLeft.appendChild(connectorTitle)
+
+  var connectorIntro = document.createElement('p')
+  connectorIntro.className = 'section-intro'
+  connectorIntro.textContent = opts.intro || 'These are the pipes. They explain what connection exists, what it does, and who should be using it. Pipe does not equal trust.'
+  connectorLeft.appendChild(connectorIntro)
+
+  connectorHeader.appendChild(connectorLeft)
+  connectorPanel.appendChild(connectorHeader)
+
+  var connectorBoard = document.createElement('div')
+  connectorBoard.className = 'source-contract-stack'
+
+  ;[
+    { key: 'connected', title: 'Working Now', intro: 'These connectors are live enough to use in the rebuild today.' },
+    { key: 'needs-verification', title: 'Installed / Needs Validation', intro: 'These connectors or APIs are known paths, but their BCrew operating boundary is not trusted yet.' },
+    { key: 'not-connected', title: 'Not Wired Yet', intro: 'These are known connector slots that still need setup, policy, or implementation work.' },
+  ].forEach(function(group) {
+    var groupConnectors = sourceConnectors.filter(function(connector) {
+      return getConnectorState(connector).key === group.key
+    })
+    var groupPanel = renderConnectorStack(group, groupConnectors)
+    if (groupPanel) connectorBoard.appendChild(groupPanel)
+  })
+
+  connectorPanel.appendChild(connectorBoard)
+  return connectorPanel
+}
+
+function renderSourceOperatorNotesDrawer(data) {
+  var notesPanel = document.createElement('section')
+  notesPanel.className = 'panel'
+
+  if (!data.foundation.sourceRegistry.meta.exists) {
+    var notice = document.createElement('p')
+    notice.textContent = 'Source registry not found. Create docs/source-registry.md.'
+    notesPanel.appendChild(notice)
+  } else {
+    var notesHeader = document.createElement('div')
+    notesHeader.className = 'panel-header'
+
+    var notesLeft = document.createElement('div')
+    var notesEyebrow = document.createElement('div')
+    notesEyebrow.className = 'eyebrow'
+    notesEyebrow.textContent = 'Operator Note'
+    notesLeft.appendChild(notesEyebrow)
+
+    var notesTitle = document.createElement('h3')
+    notesTitle.textContent = 'Registry note and overlap history'
+    notesLeft.appendChild(notesTitle)
+
+    var notesIntro = document.createElement('p')
+    notesIntro.className = 'section-intro'
+    notesIntro.textContent = 'The structured cards above are the front door. The markdown note below keeps the deeper overlap rules, history, and audit context without turning the whole page into one giant note.'
+    notesLeft.appendChild(notesIntro)
+
+    notesHeader.appendChild(notesLeft)
+    notesPanel.appendChild(notesHeader)
+
+    var sectionList = document.createElement('div')
+    sectionList.className = 'section-list'
+    data.foundation.sourceRegistry.sections.forEach(function(section) {
+      sectionList.appendChild(renderSection(section, data.foundation.sourceRegistry.meta.path))
+    })
+    notesPanel.appendChild(sectionList)
+  }
+
+  return renderOperatorToolsDrawer(
+    'Operator Notes',
+    'Deeper source notes, overlap rules, and audit context live here. Keep the live cards above as the default view.',
+    [notesPanel],
+    false
+  )
+}
+
+function renderCapabilityCard(item) {
+  var article = document.createElement('article')
+  article.className = 'section-card source-card'
+
+  var titleWrap = document.createElement('div')
+  titleWrap.className = 'source-card-title-wrap'
+
+  var title = document.createElement('h4')
+  title.textContent = item.title
+  titleWrap.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-id'
+  meta.textContent = item.id
+  titleWrap.appendChild(meta)
+  article.appendChild(titleWrap)
+
+  var tags = document.createElement('div')
+  tags.className = 'source-card-tags'
+  if (item.type) tags.appendChild(renderSourceTag(item.type, 'neutral'))
+  tags.appendChild(renderSourceTag(item.state, item.tone || 'pending'))
+  article.appendChild(tags)
+
+  var copy = document.createElement('p')
+  copy.className = 'source-card-copy'
+  copy.textContent = item.purpose
+  article.appendChild(copy)
+
+  var grid = document.createElement('div')
+  grid.className = 'source-card-meta-grid'
+  grid.appendChild(renderSourceMetaItem('Available to', item.availableTo || 'Not set'))
+  article.appendChild(grid)
+
+  return article
+}
+
+function getInventoryUsageTag(doc) {
+  if (doc.usage === 'runtime') return { label: 'Used now', tone: 'connected' }
+  if (doc.usage === 'private-local') return { label: 'Private local', tone: 'missing' }
+  return { label: 'Reference', tone: 'pending' }
+}
+
+function renderInventoryDocCard(doc) {
+  var article = document.createElement('article')
+  article.className = 'section-card source-card'
+
+  var titleWrap = document.createElement('div')
+  titleWrap.className = 'source-card-title-wrap'
+
+  var title
+  if (doc.openHref) {
+    title = document.createElement('a')
+    title.className = 'inventory-doc-link'
+    title.href = doc.openHref
+    title.textContent = doc.title
+  } else {
+    title = document.createElement('h4')
+    title.textContent = doc.title
+  }
+  titleWrap.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-id'
+  meta.textContent = doc.path
+  titleWrap.appendChild(meta)
+  article.appendChild(titleWrap)
+
+  var tags = document.createElement('div')
+  tags.className = 'source-card-tags'
+  tags.appendChild(renderSourceTag(doc.storageClass || 'Doc', 'neutral'))
+  var usageTag = getInventoryUsageTag(doc)
+  tags.appendChild(renderSourceTag(usageTag.label, usageTag.tone))
+  if (doc.surfaceLabel) tags.appendChild(renderSourceTag('Surfaced', 'planned'))
+  article.appendChild(tags)
+
+  var copy = document.createElement('p')
+  copy.className = 'source-card-copy'
+  copy.textContent = doc.role
+  article.appendChild(copy)
+
+  var grid = document.createElement('div')
+  grid.className = 'source-card-meta-grid'
+  if (doc.surfaceLabel) grid.appendChild(renderSourceMetaItem('Surface', doc.surfaceLabel))
+  grid.appendChild(renderSourceMetaItem('Edit mode', doc.editMode || 'Manual only'))
+  if (doc.updatedAt) grid.appendChild(renderSourceMetaItem('Updated', formatDate(doc.updatedAt)))
+  if (typeof doc.lines === 'number') grid.appendChild(renderSourceMetaItem('Lines', String(doc.lines)))
+  article.appendChild(grid)
+
+  if (doc.whyHidden) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'Why hidden', doc.whyHidden))
+  }
+
+  var actions = []
+  if (doc.openHref) actions.push({ label: 'Open Doc', href: doc.openHref })
+  if (doc.surfaceHref) actions.push({ label: 'Open Surface', href: doc.surfaceHref })
+  appendSourceActions(article, actions)
+
+  return article
+}
+
+function renderInventoryGroupStack(groupTitle, introText, items) {
+  if (!items || !items.length) return null
+
+  var details = document.createElement('details')
+  details.className = 'source-stack'
+
+  var summary = document.createElement('summary')
+  summary.className = 'source-stack-summary source-stack-summary-connected'
+
+  var left = document.createElement('div')
+  left.className = 'source-stack-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'source-stack-title'
+  title.textContent = groupTitle
+  left.appendChild(title)
+
+  var intro = document.createElement('div')
+  intro.className = 'source-stack-intro'
+  intro.textContent = introText
+  left.appendChild(intro)
+
+  summary.appendChild(left)
+
+  var count = document.createElement('span')
+  count.className = 'source-stack-count'
+  count.textContent = items.length
+  summary.appendChild(count)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'source-stack-body'
+  items.forEach(function(item) {
+    body.appendChild(renderInventoryDocCard(item))
+  })
+  details.appendChild(body)
+  return details
+}
+
+function renderInventoryDocs() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading docs inventory...</p>'
+
+  fetchSystemInventory().then(function(inventory) {
+    container.innerHTML = ''
+
+    var trackedDocs = inventory.docs && inventory.docs.tracked ? inventory.docs.tracked : []
+    var privateLocalDocs = inventory.docs && inventory.docs.privateLocal ? inventory.docs.privateLocal : []
+    var runtimeDocs = trackedDocs.filter(function(doc) { return doc.usage === 'runtime' })
+    var referenceDocs = trackedDocs.filter(function(doc) { return doc.usage !== 'runtime' })
+    var surfacedDocs = trackedDocs.filter(function(doc) { return !!doc.surfaceHref })
+
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroEyebrow = document.createElement('div')
+    heroEyebrow.className = 'eyebrow'
+    heroEyebrow.textContent = 'System Inventory'
+    heroInner.appendChild(heroEyebrow)
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Docs / Storage'
+    heroInner.appendChild(heroTitle)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = trackedDocs.length + ' tracked markdown docs · ' + privateLocalDocs.length + ' private local docs'
+    heroInner.appendChild(heroMeta)
+
+    var heroCopy = document.createElement('p')
+    heroCopy.className = 'hero-copy'
+    heroCopy.textContent = 'This is the file-level storage inventory. Data Sources owns business truth. This page makes every tracked markdown artifact visible so nothing silently hides in the repo without earning its place.'
+    heroInner.appendChild(heroCopy)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    var statusPanel = renderOverviewStatusPanel([
+      {
+        label: 'Live runtime docs',
+        status: 'connected',
+        detail: runtimeDocs.length + ' docs are part of the active operating system right now.',
+      },
+      {
+        label: 'Reference docs',
+        status: 'pending',
+        detail: referenceDocs.length + ' docs are stored as audits, handoffs, research, specs, or history.',
+      },
+      {
+        label: 'Surfaced in UI',
+        status: 'connected',
+        detail: surfacedDocs.length + ' docs are directly tied to a visible system surface today.',
+      },
+      {
+        label: 'Private local docs',
+        status: privateLocalDocs.length ? 'pending' : 'connected',
+        detail: privateLocalDocs.length
+          ? privateLocalDocs.length + ' local-private docs exist and are listed with a reason instead of being silently hidden.'
+          : 'No private local markdown files detected.',
+      },
+    ], {
+      eyebrow: 'Inventory State',
+      title: 'Doc visibility',
+      intro: 'The goal is explicitness: every doc should either be surfaced, inventoried, or deliberately private with a reason.',
+    })
+    if (statusPanel) container.appendChild(statusPanel)
+
+    var groups = {}
+    trackedDocs.forEach(function(doc) {
+      if (!groups[doc.category]) groups[doc.category] = []
+      groups[doc.category].push(doc)
+    })
+
+    var panel = document.createElement('section')
+    panel.className = 'panel'
+
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+
+    var left = document.createElement('div')
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Tracked Docs'
+    left.appendChild(eyebrow)
+
+    var title = document.createElement('h3')
+    title.textContent = 'Repo docs and storage inventory'
+    left.appendChild(title)
+
+    var intro = document.createElement('p')
+    intro.className = 'section-intro'
+    intro.textContent = 'Everything tracked in git is grouped below. Open the group you want and audit whether each file still deserves its slot in the system.'
+    left.appendChild(intro)
+
+    header.appendChild(left)
+    panel.appendChild(header)
 
     var board = document.createElement('div')
     board.className = 'source-contract-stack'
-    panel.appendChild(board)
-
-    function syncSourceButtons() {
-      kindButtons.forEach(function(item) {
-        item.button.classList.toggle('is-active', sourceViewState.kind === item.key)
-      })
-      presenceButtons.forEach(function(item) {
-        item.button.classList.toggle('is-active', sourceViewState.presence === item.key)
-      })
-    }
-
-    function applySourceFilters() {
-      syncSourceButtons()
-
-      var filteredContracts = filterSourceContracts(sourceContracts)
-      var kindLabelText = sourceViewState.kind === 'all'
-        ? 'all source types'
-        : kindButtons.filter(function(item) { return item.key === sourceViewState.kind })[0].button.textContent.toLowerCase()
-      var stateLabelText = sourceViewState.presence === 'all'
-        ? 'all operating states'
-        : presenceButtons.filter(function(item) { return item.key === sourceViewState.presence })[0].button.textContent.toLowerCase()
-
-      results.textContent = 'Showing ' + filteredContracts.length + ' source contracts · ' + kindLabelText + ' · ' + stateLabelText + ' · groups and cards start collapsed'
-
-      board.innerHTML = ''
-
-      ;[
-        { key: 'needs-verification', title: 'Needs Verification', intro: 'These sources or connectors are known, but they are not rebuild-trusted yet.' },
-        { key: 'not-connected', title: 'Not Connected Yet', intro: 'These are known business inputs with no current live connection or no selected platform yet.' },
-        { key: 'connected', title: 'Connected But Provisional', intro: 'These sources are reachable in the rebuild right now, but they are still readable-only, partial, or in review.' },
-        { key: 'signed-off', title: 'Signed Off', intro: 'These sources are both connected and trusted for live system use.' },
-      ].forEach(function(group) {
-        var groupContracts = filteredContracts.filter(function(contract) {
-          return getSourcePresence(contract).key === group.key
-        })
-        var groupPanel = renderSourceStack(group, groupContracts)
-        if (groupPanel) board.appendChild(groupPanel)
-      })
-
-      if (!board.childNodes.length) {
-        var empty = document.createElement('div')
-        empty.className = 'decision-empty-state'
-        empty.textContent = 'No source contracts match this filter yet.'
-        board.appendChild(empty)
-      }
-    }
-
-    searchInput.addEventListener('input', function() {
-      sourceViewState.query = searchInput.value
-      applySourceFilters()
+    Object.keys(groups).sort().forEach(function(groupKey) {
+      var stack = renderInventoryGroupStack(groupKey, 'Grouped by role so the system can show what is live doctrine versus stored history.', groups[groupKey])
+      if (stack) board.appendChild(stack)
     })
-
-    applySourceFilters()
+    panel.appendChild(board)
     container.appendChild(panel)
 
-    var notesPanel = document.createElement('section')
-    notesPanel.className = 'panel'
+    if (privateLocalDocs.length) {
+      var privatePanel = document.createElement('section')
+      privatePanel.className = 'panel'
 
-    if (!data.foundation.sourceRegistry.meta.exists) {
-      var notice = document.createElement('p')
-      notice.textContent = 'Source registry not found. Create docs/source-registry.md.'
-      notesPanel.appendChild(notice)
-    } else {
-      var notesHeader = document.createElement('div')
-      notesHeader.className = 'panel-header'
+      var privateHeader = document.createElement('div')
+      privateHeader.className = 'panel-header'
 
-      var notesLeft = document.createElement('div')
-      var notesEyebrow = document.createElement('div')
-      notesEyebrow.className = 'eyebrow'
-      notesEyebrow.textContent = 'Operator Note'
-      notesLeft.appendChild(notesEyebrow)
+      var privateLeft = document.createElement('div')
+      var privateEyebrow = document.createElement('div')
+      privateEyebrow.className = 'eyebrow'
+      privateEyebrow.textContent = 'Local Private'
+      privateLeft.appendChild(privateEyebrow)
 
-      var notesTitle = document.createElement('h3')
-      notesTitle.textContent = 'Registry note and overlap history'
-      notesLeft.appendChild(notesTitle)
+      var privateTitle = document.createElement('h3')
+      privateTitle.textContent = 'Docs intentionally kept out of the shared web surface'
+      privateLeft.appendChild(privateTitle)
 
-      var notesIntro = document.createElement('p')
-      notesIntro.className = 'section-intro'
-      notesIntro.textContent = 'The structured cards above are the front door. The markdown note below keeps the deeper overlap rules, history, and audit context without turning the whole page into one giant note.'
-      notesLeft.appendChild(notesIntro)
+      var privateIntro = document.createElement('p')
+      privateIntro.className = 'section-intro'
+      privateIntro.textContent = 'These files still show up here so the hiding is explicit, but they are not exposed as openable docs in the shared UI by default.'
+      privateLeft.appendChild(privateIntro)
 
-      notesHeader.appendChild(notesLeft)
-      notesPanel.appendChild(notesHeader)
+      privateHeader.appendChild(privateLeft)
+      privatePanel.appendChild(privateHeader)
 
-      var sectionList = document.createElement('div')
-      sectionList.className = 'section-list'
-      data.foundation.sourceRegistry.sections.forEach(function(section) {
-        sectionList.appendChild(renderSection(section, data.foundation.sourceRegistry.meta.path))
+      var privateBoard = document.createElement('div')
+      privateBoard.className = 'source-contract-stack'
+      privateLocalDocs.forEach(function(doc) {
+        privateBoard.appendChild(renderInventoryDocCard(doc))
       })
-      notesPanel.appendChild(sectionList)
+      privatePanel.appendChild(privateBoard)
+      container.appendChild(privatePanel)
+    }
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load docs inventory: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderCapabilitySection(section) {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading capabilities...</p>'
+
+  Promise.all([fetchFoundationHub(), fetchSystemInventory()]).then(function(results) {
+    var hub = results[0]
+    var inventory = results[1]
+    container.innerHTML = ''
+
+    var config = capabilityCatalog[section]
+    if (!config) {
+      renderOverview()
+      return
     }
 
-    container.appendChild(renderOperatorToolsDrawer(
-      'Operator Notes',
-      'Deeper source notes, overlap rules, and audit context live here. Keep the live cards above as the default view.',
-      [notesPanel],
-      false
-    ))
+    var liveItems = config.items || []
+    var statusCards = config.statusCards || []
+
+    if (section === 'capabilities-skills') {
+      liveItems = (inventory.skills || []).map(function(skill) {
+        return {
+          id: skill.id,
+          title: skill.title,
+          type: skill.scope,
+          state: 'Installed',
+          tone: skill.scope === 'Workspace skill' ? 'connected' : 'pending',
+          availableTo: 'Coding/runtime layer on this machine',
+          purpose: skill.description || 'Skill inventory item',
+        }
+      })
+
+      var workspaceSkills = liveItems.filter(function(item) { return item.type === 'Workspace skill' }).length
+      statusCards = [
+        {
+          label: 'Workspace skills',
+          status: workspaceSkills ? 'connected' : 'pending',
+          detail: workspaceSkills + ' workspace-level skills are installed in this environment.',
+        },
+        {
+          label: 'System skills',
+          status: liveItems.length - workspaceSkills ? 'connected' : 'pending',
+          detail: (liveItems.length - workspaceSkills) + ' built-in system skills are available in this environment.',
+        },
+      ]
+    } else if (section === 'capabilities-plugins') {
+      liveItems = (inventory.plugins || []).map(function(plugin) {
+        return {
+          id: plugin.id,
+          title: plugin.title,
+          type: plugin.type,
+          state: plugin.status,
+          tone: 'connected',
+          availableTo: 'Coding/runtime layer on this machine',
+          purpose: plugin.skillCount + ' plugin skill' + (plugin.skillCount === 1 ? '' : 's') + ' detected: ' + plugin.skills.map(function(skill) {
+            return skill.title
+          }).join(', '),
+        }
+      })
+
+      statusCards = [
+        {
+          label: 'Installed plugins',
+          status: liveItems.length ? 'connected' : 'pending',
+          detail: liveItems.length + ' plugin or MCP surfaces are installed in this environment.',
+        },
+        {
+          label: 'Still open',
+          status: 'pending',
+          detail: 'Foundation still needs the richer live capabilities registry so these surfaces stop living only as runtime context.',
+        },
+      ]
+    }
+
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroEyebrow = document.createElement('div')
+    heroEyebrow.className = 'eyebrow'
+    heroEyebrow.textContent = config.eyebrow
+    heroInner.appendChild(heroEyebrow)
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = config.title
+    heroInner.appendChild(heroTitle)
+
+    var heroCopy = document.createElement('p')
+    heroCopy.className = 'hero-copy'
+    heroCopy.textContent = config.intro
+    heroInner.appendChild(heroCopy)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    var statusPanel = renderOverviewStatusPanel(statusCards, {
+      eyebrow: 'Current State',
+      title: config.title + ' state',
+      intro: 'This lane is separate from Data Sources on purpose.',
+    })
+    if (statusPanel) container.appendChild(statusPanel)
+
+    var catalogPanel = document.createElement('section')
+    catalogPanel.className = 'panel'
+
+    var catalogHeader = document.createElement('div')
+    catalogHeader.className = 'panel-header'
+
+    var catalogLeft = document.createElement('div')
+    var catalogEyebrow = document.createElement('div')
+    catalogEyebrow.className = 'eyebrow'
+    catalogEyebrow.textContent = 'Current Surface'
+    catalogLeft.appendChild(catalogEyebrow)
+
+    var catalogTitle = document.createElement('h3')
+    catalogTitle.textContent = 'What exists right now'
+    catalogLeft.appendChild(catalogTitle)
+
+    var catalogIntro = document.createElement('p')
+    catalogIntro.className = 'section-intro'
+    catalogIntro.textContent = 'This is the current lane-level view, not the final live registry.'
+    catalogLeft.appendChild(catalogIntro)
+
+    catalogHeader.appendChild(catalogLeft)
+    catalogPanel.appendChild(catalogHeader)
+
+    var catalogGrid = document.createElement('div')
+    catalogGrid.className = 'source-contract-stack'
+    ;(liveItems || []).forEach(function(item) {
+      catalogGrid.appendChild(renderCapabilityCard(item))
+    })
+    catalogPanel.appendChild(catalogGrid)
+    container.appendChild(catalogPanel)
+
+    var backlogItems = (hub.backlogItems || []).filter(function(item) {
+      return (config.backlogIds || []).indexOf(item.id) !== -1
+    })
+
+    if (backlogItems.length) {
+      var backlogPanel = document.createElement('section')
+      backlogPanel.className = 'panel'
+
+      var backlogHeader = document.createElement('div')
+      backlogHeader.className = 'panel-header'
+
+      var backlogLeft = document.createElement('div')
+      var backlogEyebrow = document.createElement('div')
+      backlogEyebrow.className = 'eyebrow'
+      backlogEyebrow.textContent = 'Next To Build'
+      backlogLeft.appendChild(backlogEyebrow)
+
+      var backlogTitle = document.createElement('h3')
+      backlogTitle.textContent = 'Backlog already tied to this lane'
+      backlogLeft.appendChild(backlogTitle)
+
+      var backlogIntro = document.createElement('p')
+      backlogIntro.className = 'section-intro'
+      backlogIntro.textContent = 'These cards are the live work behind this lane.'
+      backlogLeft.appendChild(backlogIntro)
+
+      backlogHeader.appendChild(backlogLeft)
+      backlogPanel.appendChild(backlogHeader)
+
+      var backlogStack = document.createElement('div')
+      backlogStack.className = 'backlog-stack-body'
+      sortBacklogItems(backlogItems).forEach(function(item) {
+        backlogStack.appendChild(renderBacklogAccordionItem(item))
+      })
+      backlogPanel.appendChild(backlogStack)
+      container.appendChild(backlogPanel)
+    }
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load capabilities: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderSourceRegistry(section) {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading data sources...</p>'
+
+  fetchSourceOfTruth().then(function(data) {
+    return data
+  }).then(function(data) {
+    container.innerHTML = ''
+
+    var config = sourceSectionConfigs[section] || sourceSectionConfigs['source-overview']
+    var sourceContracts = getSourceContractsForSection(data.sources || [], config)
+    var sourceConnectors = data.connectors || []
+    container.appendChild(renderSourceHero(config, sourceContracts, sourceConnectors))
+
+    if (section === 'source-overview') {
+      container.appendChild(renderOperatorToolsDrawer(
+        'How To Read This',
+        'Definitions for source system, validation unit, connector layer, and trust state. Open this only when you need the model.',
+        [renderSourceLegendPanel()],
+        false
+      ))
+    }
+
+    if (config.showSystems) {
+      container.appendChild(renderSourceSystemsPanel(sourceContracts, {
+        eyebrow: 'Live Source Layer',
+        title: section === 'source-overview'
+          ? 'Source systems and validation units'
+          : config.title,
+        intro: section === 'source-overview'
+          ? 'The big cards are the real source systems. Open each one to see the exact tabs, ledgers, or units being validated underneath it.'
+          : config.intro,
+        showKindFilter: !!config.showKindFilter,
+        allowedKinds: config.allowedKinds || null,
+        fixedKindLabel: config.title.toLowerCase(),
+        resultsLabel: 'source systems',
+      }))
+    }
+
+    if (config.showSystems && config.showConnectors) {
+      var divider = document.createElement('div')
+      divider.className = 'source-layer-divider'
+      divider.textContent = 'Below this line is the connector layer. Sources above tell you what truth the business depends on. Connectors below tell you how the OS reaches that truth.'
+      container.appendChild(divider)
+    }
+
+    if (config.showConnectors) {
+      container.appendChild(renderSourceConnectorsPanel(sourceConnectors, {
+        eyebrow: 'Connector Layer',
+        title: 'Connections and access paths',
+        intro: 'These are the pipes. They explain what connection exists, what it does, and who should be using it. Pipe does not equal trust.',
+      }))
+    }
+
+    if (config.showOperatorNotes) {
+      container.appendChild(renderSourceOperatorNotesDrawer(data))
+    }
 
   }).catch(function(error) {
     container.innerHTML = ''
@@ -5480,13 +6211,17 @@ function updateNav(section) {
   if (breadcrumbParent && breadcrumbParentSep) {
     var parent = null
     var strategySupportSections = ['bhag-model', 'core-values', 'agent-engine', 'departments', 'governance', 'marketmasters']
+    var sourceSections = ['source-overview', 'source-docs', 'source-sheets', 'source-apis', 'source-connectors']
+    var inventorySections = ['inventory-docs', 'capabilities-skills', 'capabilities-plugins', 'capabilities-agents']
 
     if (strategySupportSections.indexOf(section) !== -1) {
       parent = { label: 'Strategy Packet', href: '/foundation#overview' }
     } else if (['decisions', 'backlog', 'open-questions', 'system-activity', 'system-health'].indexOf(section) !== -1) {
       parent = { label: 'Foundation Operations', href: '/foundation#backlog' }
-    } else if (section === 'source-registry') {
-      parent = { label: 'Data Sources', href: '/foundation#source-registry' }
+    } else if (sourceSections.indexOf(section) !== -1) {
+      parent = { label: 'Data Sources', href: '/foundation#source-overview' }
+    } else if (inventorySections.indexOf(section) !== -1) {
+      parent = { label: 'System Inventory', href: '/foundation#inventory-docs' }
     }
 
     if (parent && section !== 'home') {
@@ -5512,6 +6247,12 @@ function route() {
   if (section === 'data-health') {
     section = 'system-health'
     window.location.replace('/foundation#system-health')
+    return
+  }
+
+  if (section === 'source-registry') {
+    section = 'source-overview'
+    window.location.replace('/foundation#source-overview')
     return
   }
 
@@ -5547,8 +6288,12 @@ function route() {
     renderDecisions()
   } else if (section === 'open-questions') {
     renderOpenQuestions()
-  } else if (section === 'source-registry') {
-    renderSourceRegistry()
+  } else if (sourceSectionConfigs[section]) {
+    renderSourceRegistry(section)
+  } else if (section === 'inventory-docs') {
+    renderInventoryDocs()
+  } else if (capabilityCatalog[section]) {
+    renderCapabilitySection(section)
   } else if (section === 'system-health') {
     renderDataHealth()
   } else if (section === 'system-activity') {

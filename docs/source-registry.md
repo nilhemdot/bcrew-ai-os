@@ -28,6 +28,17 @@ Each source needs three things to be clear:
 
 This registry distinguishes between sources verified in the current rebuild, known sources that still need rebuild-level verification, and known gaps that are not connected yet.
 
+The live UI now separates:
+
+- `Source systems`
+  - the real workbook, doc set, app, or database
+- `Validation units`
+  - the exact tab, ledger, or slice being reviewed inside that source
+- `Connectors`
+  - the pipe that gives the system access
+
+That split is intentional. A connector can work and the source can still be provisional.
+
 ## Validation Checklist
 
 No live spreadsheet or API data source is signed off yet.
@@ -99,13 +110,13 @@ These are connected and readable, but they have **not** been fully validated tab
 | Source ID | Source | Current Location | Scope | What It Owns | Access Method | Status | Last Verified |
 |-----------|--------|------------------|-------|--------------|---------------|--------|---------------|
 | `SRC-STRATEGY-001` | Business Strategy Docs | `docs/*.md` in this repo | Canonical strategy packet | Vision, north star, engine, priorities, mandates, assumptions | Git + local filesystem | Verified | 2026-04-12 |
-| `SRC-FREEDOM-TEAM-001` | Freedom KPI Sheet | `Data Entry - BCrew Team/Community` | `A:E` | Team/member records: agent name, team origin/recruited by, status, start date, end date | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
-| `SRC-FREEDOM-COMMUNITY-001` | Freedom KPI Sheet | `Data Entry - BCrew Team/Community` | `G:O` | Community tracker: month, year, total income, total community, downline counts by leader | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
-| `SRC-FREEDOM-COMMUNITY-REV-001` | Freedom KPI Sheet | `Data Entry - BCrew Team/Community` | `P:U` | Community revenue by leader plus `Bcrew In Before HST` | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
-| `SRC-FREEDOM-ENGINE-001` | Freedom KPI Sheet | `Agent Engine` tab | Current assumptions block | Required monthly attraction, active agents, current 6-month production average, target production, average split, target split | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
-| `SRC-FREEDOM-BHAG-001` | Freedom KPI Sheet | `Benson Crew Bhag Builder` tab | Long-range planning blocks plus calculator ranges | Sales targets, growth curve, community targets, deal math, high-level goal model in `A1:C31`, and agent productivity calculator plus planning attrition assumption in `A22:B31` | Google Drive / Google Sheets | Verified Readable | 2026-04-13 |
-| `SRC-OWNERS-001` | Owners Dashboard Deal Ledger | `ADMIN ONLY - Deal Data Entry` with downstream roll-up dependencies | Deal lifecycle, source attribution, split credit, and expected cash timing | Trade number, deal status, signed/firm/closing/cash dates, lead source, ground-zero source, company-generated attribution, realtor splits, paid-to-team amounts, deal/volume/commission credits, and Follow Up Boss linkage used for production truth, attribution, and downstream finance modeling | Google Drive / Google Sheets | Verified Readable | 2026-04-14 |
-| `SRC-FINANCE-001` | Owners Dashboard Finance Layer | `(Input) Weekly Actuals` with `Cashflow Dash` interpretation | Weekly cash truth plus management P&L adjustments | Internal finance truth: weekly revenue, expenses, bank balances, LOC balances, credit-card movement, HST, and the partner-commission adjustment needed to show real company revenue and owners expense cleanly | Google Drive / Google Sheets | Verified Readable | 2026-04-14 |
+| `SRC-FREEDOM-TEAM-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Team records | `A:E` | Team/member records: agent name, team origin/recruited by, status, start date, end date | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
+| `SRC-FREEDOM-COMMUNITY-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Community tracker | `G:O` | Community tracker: month, year, total income, total community, downline counts by leader | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
+| `SRC-FREEDOM-COMMUNITY-REV-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Community revenue | `P:U` | Community revenue by leader plus `Bcrew In Before HST` | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
+| `SRC-FREEDOM-ENGINE-001` | Benson Crew - Freedom Sheet | `Agent Engine` tab | Current assumptions block | Required monthly attraction, active agents, current 6-month production average, target production, average split, target split | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
+| `SRC-FREEDOM-BHAG-001` | Benson Crew - Freedom Sheet | `Benson Crew Bhag Builder` tab | Long-range planning blocks plus calculator ranges | Sales targets, growth curve, community targets, deal math, high-level goal model in `A1:C31`, and agent productivity calculator plus planning attrition assumption in `A22:B31` | Google Drive / Google Sheets | Verified Readable | 2026-04-13 |
+| `SRC-OWNERS-001` | Benson Crew - Owners Dashboard | `ADMIN ONLY - Deal Data Entry` | Primary deal-ledger validation unit | Trade number, deal status, signed/firm/closing/cash dates, lead source, ground-zero source, company-generated attribution, realtor splits, paid-to-team amounts, deal/volume/commission credits, and Follow Up Boss linkage used for production truth, attribution, and downstream finance modeling | Google Drive / Google Sheets | Verified Readable | 2026-04-14 |
+| `SRC-FINANCE-001` | Benson Crew - Owners Dashboard | `(Input) Weekly Actuals` + `Cashflow Dash` | Finance validation unit | Internal finance truth: weekly revenue, expenses, bank balances, LOC balances, credit-card movement, HST, and the partner-commission adjustment needed to show real company revenue and owners expense cleanly | Google Drive / Google Sheets | Verified Readable | 2026-04-14 |
 
 ## Known Sources from Old System, Pending Revalidation
 

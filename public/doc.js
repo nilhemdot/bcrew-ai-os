@@ -59,7 +59,7 @@ var foundationDocPathToSection = {
   'docs/strategy/governance.md': 'governance',
   'docs/strategy/department-mandates.md': 'departments',
   'docs/strategy/financial-model-and-assumptions.md': 'agent-engine',
-  'docs/source-registry.md': 'source-registry',
+  'docs/source-registry.md': 'source-overview',
 }
 
 var strategicExecutionDocPathToSection = {
@@ -103,7 +103,7 @@ function resolveDocPath(href, currentPath) {
 
 function getDocFallbackHref(pathValue) {
   if (pathValue && pathValue.indexOf('docs/source-notes/') === 0) {
-    return '/foundation#source-registry'
+    return '/foundation#source-overview'
   }
 
   var foundationSection = foundationDocPathToSection[pathValue]
@@ -121,7 +121,7 @@ function getDocFallbackHref(pathValue) {
 
 function getBackLinkLabel(href) {
   if (!href) return 'Back to Dashboard'
-  if (href.indexOf('/foundation#source-registry') !== -1) return 'Back to Source Registry'
+  if (href.indexOf('/foundation#source-overview') !== -1) return 'Back to Data Sources'
   if (href.indexOf('/foundation') !== -1) return 'Back to Foundation'
   if (href.indexOf('/strategic-execution') !== -1) return 'Back to Strategic Execution'
   return 'Back to Dashboard'

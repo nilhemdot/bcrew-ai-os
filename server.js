@@ -30,7 +30,7 @@ import {
   updateOpenQuestion,
 } from './lib/foundation-db.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
-import { getSourceContracts, getSourceContractsByIds } from './lib/source-contracts.js'
+import { getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -43,10 +43,36 @@ const adminToken = process.env.ADMIN_TOKEN || process.env.DASHBOARD_API_KEY || '
 app.disable('x-powered-by')
 
 const docsDir = path.join(__dirname, 'docs')
+const repoRoot = path.resolve(__dirname)
 const businessStrategyPath = path.join(docsDir, 'business-strategy.md')
 const sourceRegistryPath = path.join(docsDir, 'source-registry.md')
 const stratumRegularPath = path.join(__dirname, 'public', 'fonts', 'Stratum1-Regular.otf')
 const stratumBoldPath = path.join(__dirname, 'public', 'fonts', 'Stratum1-Bold.otf')
+const codexHome = process.env.CODEX_HOME || path.join(process.env.HOME || process.env.USERPROFILE || '', '.codex')
+const codexSkillsDir = path.join(codexHome, 'skills')
+const codexPluginsDir = path.join(codexHome, 'plugins')
+const privateLocalMarkdownMeta = {
+  'USER.md': {
+    role: 'Private human context',
+    whyHidden: 'Local-only by policy. This file should not be exposed in the shared web UI by default.',
+  },
+  'TOOLS.md': {
+    role: 'Machine-specific operating notes',
+    whyHidden: 'Local-only by policy. This file is tied to this machine and should stay out of the shared web UI by default.',
+  },
+  'IDENTITY.md': {
+    role: 'Local assistant identity state',
+    whyHidden: 'Local-only by policy. This file is workspace-private state, not shared system truth.',
+  },
+  'HEARTBEAT.md': {
+    role: 'Local heartbeat checklist',
+    whyHidden: 'Local-only by policy. This file is for local assistant behavior, not shared system truth.',
+  },
+  'MEMORY.md': {
+    role: 'Local long-term assistant memory',
+    whyHidden: 'Local-only by policy. This file can hold private context and should not be exposed in the shared web UI by default.',
+  },
+}
 const strategyDocs = [
   path.join(docsDir, 'strategy', 'bhag-model.md'),
   path.join(docsDir, 'strategy', 'agent-engine.md'),
@@ -148,9 +174,25 @@ function requireAdminToken(req, res, next) {
 }
 
 function isAllowedDocPath(filePath) {
-  const normalizedDocsDir = path.resolve(docsDir) + path.sep
   const normalizedFilePath = path.resolve(filePath)
-  return normalizedFilePath.startsWith(normalizedDocsDir) && normalizedFilePath.endsWith('.md')
+  const normalizedRepoRoot = repoRoot + path.sep
+  if (!normalizedFilePath.startsWith(normalizedRepoRoot)) return false
+  if (!normalizedFilePath.endsWith('.md')) return false
+
+  const relativePath = path.relative(repoRoot, normalizedFilePath)
+  if (!relativePath || relativePath.startsWith('..') || path.isAbsolute(relativePath)) return false
+  if (Object.prototype.hasOwnProperty.call(privateLocalMarkdownMeta, relativePath)) return false
+  if (
+    relativePath.startsWith('memory/') ||
+    relativePath.startsWith('node_modules/') ||
+    relativePath.startsWith('.git/') ||
+    relativePath.startsWith('.openclaw/') ||
+    relativePath.startsWith('store/')
+  ) {
+    return false
+  }
+
+  return true
 }
 
 function resolveRequestedDoc(requestedPath) {
@@ -832,6 +874,306 @@ function getDocTitle(markdown, filePath) {
   return path.basename(filePath, '.md')
 }
 
+function getDocSurfaceMeta(relativePath) {
+  const exact = {
+    'docs/business-strategy.md': {
+      surfaceLabel: 'Foundation > Strategy Packet',
+      surfaceHref: '/foundation#overview',
+      role: 'Canonical business strategy',
+      category: 'Strategy & Doctrine',
+      usage: 'runtime',
+      storageClass: 'Primary surface',
+    },
+    'docs/system-strategy.md': {
+      surfaceLabel: 'Foundation > System Strategy',
+      surfaceHref: '/foundation#system-strategy',
+      role: 'System doctrine',
+      category: 'Strategy & Doctrine',
+      usage: 'runtime',
+      storageClass: 'Primary surface',
+    },
+    'docs/source-registry.md': {
+      surfaceLabel: 'Foundation > Data Sources > Overview',
+      surfaceHref: '/foundation#source-overview',
+      role: 'Source layer operator note',
+      category: 'Source Layer',
+      usage: 'runtime',
+      storageClass: 'Operator note',
+    },
+    'AGENTS.md': {
+      surfaceLabel: 'Workspace runtime',
+      surfaceHref: '',
+      role: 'Workspace operating rules',
+      category: 'Workspace Runtime',
+      usage: 'runtime',
+      storageClass: 'Runtime doc',
+    },
+    'SOUL.md': {
+      surfaceLabel: 'Workspace runtime',
+      surfaceHref: '',
+      role: 'Assistant identity for this workspace',
+      category: 'Workspace Runtime',
+      usage: 'runtime',
+      storageClass: 'Runtime doc',
+    },
+    'README.md': {
+      surfaceLabel: 'Repo guide',
+      surfaceHref: '',
+      role: 'Repository overview',
+      category: 'Workspace Runtime',
+      usage: 'reference',
+      storageClass: 'Reference doc',
+    },
+    'docs/rebuild-decisions.md': {
+      surfaceLabel: '',
+      surfaceHref: '',
+      role: 'Rebuild decision log',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Decision log',
+    },
+  }
+
+  if (exact[relativePath]) return exact[relativePath]
+
+  if (relativePath.startsWith('docs/strategy/')) {
+    const strategySurfaceMap = {
+      'docs/strategy/bhag-model.md': '/foundation#bhag-model',
+      'docs/strategy/core-values.md': '/foundation#core-values',
+      'docs/strategy/agent-engine.md': '/foundation#agent-engine',
+      'docs/strategy/department-mandates.md': '/foundation#departments',
+      'docs/strategy/governance.md': '/foundation#governance',
+      'docs/strategy/marketmasters.md': '/foundation#marketmasters',
+      'docs/strategy/quarterly-priorities.md': '/strategic-execution#quarterly-priorities',
+      'docs/strategy/strategic-issues.md': '/strategic-execution#strategic-issues',
+    }
+
+    return {
+      surfaceLabel: strategySurfaceMap[relativePath]
+        ? (strategySurfaceMap[relativePath].startsWith('/foundation')
+          ? 'Foundation supporting doc'
+          : 'Strategic Execution surface')
+        : '',
+      surfaceHref: strategySurfaceMap[relativePath] || '',
+      role: 'Supporting strategy doc',
+      category: 'Strategy & Doctrine',
+      usage: 'runtime',
+      storageClass: 'Supporting doc',
+    }
+  }
+
+  if (relativePath.startsWith('docs/source-notes/')) {
+    return {
+      surfaceLabel: 'Foundation > Data Sources > Overview',
+      surfaceHref: '/foundation#source-overview',
+      role: 'Detailed source note',
+      category: 'Source Layer',
+      usage: 'runtime',
+      storageClass: 'Storage note',
+    }
+  }
+
+  if (relativePath.startsWith('docs/audits/')) {
+    return {
+      surfaceLabel: '',
+      surfaceHref: '',
+      role: 'Audit artifact',
+      category: 'Audits & Reports',
+      usage: 'reference',
+      storageClass: 'Audit history',
+    }
+  }
+
+  if (relativePath.startsWith('docs/handoffs/')) {
+    return {
+      surfaceLabel: '',
+      surfaceHref: '',
+      role: 'Session handoff',
+      category: 'Audits & Reports',
+      usage: 'reference',
+      storageClass: 'Handoff history',
+    }
+  }
+
+  if (relativePath.startsWith('docs/research/')) {
+    return {
+      surfaceLabel: '',
+      surfaceHref: '',
+      role: 'Research artifact',
+      category: 'Research & Specs',
+      usage: 'reference',
+      storageClass: 'Research archive',
+    }
+  }
+
+  if (relativePath.startsWith('docs/specs/') || relativePath.startsWith('docs/superpowers/specs/')) {
+    return {
+      surfaceLabel: '',
+      surfaceHref: '',
+      role: 'Specification doc',
+      category: 'Research & Specs',
+      usage: 'reference',
+      storageClass: 'Spec',
+    }
+  }
+
+  if (relativePath.startsWith('docs/superpowers/plans/')) {
+    return {
+      surfaceLabel: '',
+      surfaceHref: '',
+      role: 'Plan artifact',
+      category: 'Research & Specs',
+      usage: 'reference',
+      storageClass: 'Plan',
+    }
+  }
+
+  return {
+    surfaceLabel: '',
+    surfaceHref: '',
+    role: 'Markdown doc',
+    category: 'Other',
+    usage: 'reference',
+    storageClass: 'Reference doc',
+  }
+}
+
+function summarizeSkillDescription(markdown) {
+  const descriptionMatch = String(markdown || '').match(/description:\s*(.+)/i)
+  if (descriptionMatch) return descriptionMatch[1].trim()
+
+  const headingMatch = String(markdown || '').match(/^#\s+(.+)$/m)
+  if (headingMatch) return headingMatch[1].trim()
+
+  return ''
+}
+
+function walkFiles(rootDir, targetFileName, results = []) {
+  if (!rootDir || !fs.existsSync(rootDir)) return results
+
+  const entries = fs.readdirSync(rootDir, { withFileTypes: true })
+  for (const entry of entries) {
+    const fullPath = path.join(rootDir, entry.name)
+    if (entry.isDirectory()) {
+      if (entry.name === 'node_modules' || entry.name === '.git') continue
+      walkFiles(fullPath, targetFileName, results)
+      continue
+    }
+    if (entry.isFile() && entry.name === targetFileName) {
+      results.push(fullPath)
+    }
+  }
+
+  return results
+}
+
+async function getTrackedMarkdownDocs() {
+  const { stdout } = await runGit(['ls-files'])
+  return stdout
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.endsWith('.md'))
+    .map(relativePath => {
+      const absolutePath = path.join(repoRoot, relativePath)
+      const content = readFileSafe(absolutePath)
+      const meta = getDocMeta(absolutePath)
+      const surface = getDocSurfaceMeta(relativePath)
+
+      return {
+        path: relativePath,
+        title: getDocTitle(content, absolutePath),
+        openHref: isAllowedDocPath(absolutePath) ? '/doc?path=' + encodeURIComponent(relativePath) : '',
+        surfaceLabel: surface.surfaceLabel,
+        surfaceHref: surface.surfaceHref,
+        role: surface.role,
+        category: surface.category,
+        usage: surface.usage,
+        storageClass: surface.storageClass,
+        editMode: isDocUpdateAllowlisted(relativePath) ? 'System apply allowlisted' : 'Manual only',
+        updatedAt: meta.updatedAt,
+        daysOld: meta.daysOld,
+        lines: meta.lines,
+      }
+    })
+}
+
+function getPrivateLocalMarkdownDocs() {
+  return Object.entries(privateLocalMarkdownMeta)
+    .filter(([relativePath]) => fs.existsSync(path.join(repoRoot, relativePath)))
+    .map(([relativePath, info]) => ({
+      path: relativePath,
+      title: path.basename(relativePath, '.md'),
+      openHref: '',
+      surfaceLabel: 'Local workspace only',
+      surfaceHref: '',
+      role: info.role,
+      category: 'Workspace Private',
+      usage: 'private-local',
+      storageClass: 'Private local doc',
+      editMode: 'Local file only',
+      updatedAt: getDocMeta(path.join(repoRoot, relativePath)).updatedAt,
+      daysOld: getDocMeta(path.join(repoRoot, relativePath)).daysOld,
+      lines: getDocMeta(path.join(repoRoot, relativePath)).lines,
+      whyHidden: info.whyHidden,
+    }))
+}
+
+function getSkillInventory() {
+  return walkFiles(codexSkillsDir, 'SKILL.md')
+    .map(filePath => {
+      const relativePath = path.relative(codexSkillsDir, filePath)
+      const skillFolder = path.dirname(relativePath)
+      const content = readFileSafe(filePath)
+      const meta = getDocMeta(filePath)
+      return {
+        id: skillFolder.replace(/\\/g, '/'),
+        title: path.basename(skillFolder),
+        scope: skillFolder.startsWith('.system' + path.sep) || skillFolder === '.system'
+          ? 'System skill'
+          : 'Workspace skill',
+        path: filePath.replace(codexHome, '~/.codex'),
+        description: summarizeSkillDescription(content),
+        updatedAt: meta.updatedAt,
+      }
+    })
+    .sort((a, b) => a.title.localeCompare(b.title))
+}
+
+function getPluginInventory() {
+  const grouped = {}
+
+  walkFiles(codexPluginsDir, 'SKILL.md').forEach(filePath => {
+    const normalizedPath = filePath.replace(/\\/g, '/')
+    const pluginMatch = normalizedPath.match(/\/plugins\/cache\/openai-curated\/([^/]+)\//)
+    if (!pluginMatch) return
+
+    const pluginKey = pluginMatch[1]
+    if (!grouped[pluginKey]) {
+      grouped[pluginKey] = {
+        id: pluginKey,
+        title: pluginKey
+          .split('-')
+          .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(' '),
+        type: 'Plugin / MCP surface',
+        status: 'Installed in local runtime',
+        skillCount: 0,
+        skills: [],
+      }
+    }
+
+    const content = readFileSafe(filePath)
+    grouped[pluginKey].skillCount += 1
+    grouped[pluginKey].skills.push({
+      title: path.basename(path.dirname(filePath)),
+      description: summarizeSkillDescription(content),
+    })
+  })
+
+  return Object.values(grouped)
+    .sort((a, b) => a.title.localeCompare(b.title))
+}
+
 function requireStringField(errors, body, field, label) {
   const value = body[field]
   if (typeof value !== 'string' || !value.trim()) {
@@ -875,6 +1217,7 @@ app.get('/api/source-of-truth', (_req, res) => {
   const businessStrategy = readFileSafe(businessStrategyPath)
   const sourceRegistry = readFileSafe(sourceRegistryPath)
   const sourceContracts = getSourceContracts()
+  const sourceConnectors = getSourceConnectors()
 
   res.json({
     title: 'BCrew AI OS',
@@ -890,6 +1233,7 @@ app.get('/api/source-of-truth', (_req, res) => {
       supportingStrategy: getSupportingStrategyDocs(),
     },
     sources: sourceContracts,
+    connectors: sourceConnectors,
     systemStatus: [
       {
         key: 'strategy-doc',
@@ -933,6 +1277,32 @@ app.get('/api/source-of-truth', (_req, res) => {
       },
     ],
   })
+})
+
+app.get('/api/system-inventory', async (_req, res) => {
+  try {
+    const trackedDocs = await getTrackedMarkdownDocs()
+    const privateLocalDocs = getPrivateLocalMarkdownDocs()
+    const skills = getSkillInventory()
+    const plugins = getPluginInventory()
+
+    cacheHeadersNoStore(res)
+    res.json({
+      docs: {
+        tracked: trackedDocs,
+        privateLocal: privateLocalDocs,
+      },
+      skills,
+      plugins,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'system_inventory_failed',
+      error instanceof Error ? error.message : 'Failed to build system inventory.'
+    )
+  }
 })
 
 app.get('/api/foundation-hub', async (_req, res) => {

@@ -1,6 +1,6 @@
-# Owners Dashboard Source Notes
+# Benson Crew - Owners Dashboard Source Notes
 
-This note is the working source map for the Owners Dashboard workbook.
+This note is the working source map for the `Benson Crew - Owners Dashboard` workbook.
 
 Use it to capture:
 - what each tab is for
@@ -46,13 +46,14 @@ This note is primarily for system grounding and future integration work, not for
 
 ## Validation Status
 
-### Signed Off In This Session
+### System-Validated So Far
 
 - `ADMIN ONLY - Deal Data Entry`
   - validated through Column `CB`
   - literal live headers confirmed
   - row structure confirmed
   - key business logic confirmed
+  - final owner sign-off is still pending
 - `Current Source Hierarchy`
   - high-level role of:
     - `ADMIN ONLY - Deal Data Entry`
@@ -91,6 +92,8 @@ This note is primarily for system grounding and future integration work, not for
 
 ### How To Use This Note
 
+- treat the workbook itself as the parent data source
+- treat the important tabs as validation units underneath it
 - if you want to audit what is already locked:
   - use the `Quick Audit` section
   - then go to the specific Admin-tab columns you care about
