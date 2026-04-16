@@ -5588,7 +5588,7 @@ function getFubOwnershipTag(item) {
 
 function getFubFlagTag(item) {
   if (item.flagState === 'needs_cleanup') return { label: 'Needs cleanup', tone: 'pending' }
-  if (item.flagState === 'not_canonical') return { label: 'Not canonical', tone: 'missing' }
+  if (item.flagState === 'not_canonical') return { label: 'Invalid Lead Source', tone: 'missing' }
   if (item.flagState === 'merge_candidate') return { label: 'Merge candidate', tone: 'planned' }
   return null
 }
@@ -5657,7 +5657,7 @@ function renderFubLeadSourceRuleItem(item, onSaved) {
   var flagSelect = buildSelect([
     { value: 'none', label: 'None', selected: !item.flagState || item.flagState === 'none' },
     { value: 'needs_cleanup', label: 'Needs cleanup', selected: item.flagState === 'needs_cleanup' },
-    { value: 'not_canonical', label: 'Not canonical', selected: item.flagState === 'not_canonical' },
+    { value: 'not_canonical', label: 'Invalid Lead Source', selected: item.flagState === 'not_canonical' },
     { value: 'merge_candidate', label: 'Merge candidate', selected: item.flagState === 'merge_candidate' },
   ])
   grid.appendChild(buildField('Flag', flagSelect))
@@ -5796,7 +5796,7 @@ function renderFubLeadSourceManagerPanel() {
     { value: 'flagged', label: 'Flagged only', selected: fubLeadSourceViewState.flag === 'flagged' },
     { value: 'none', label: 'No flag', selected: fubLeadSourceViewState.flag === 'none' },
     { value: 'needs_cleanup', label: 'Needs cleanup', selected: fubLeadSourceViewState.flag === 'needs_cleanup' },
-    { value: 'not_canonical', label: 'Not canonical', selected: fubLeadSourceViewState.flag === 'not_canonical' },
+    { value: 'not_canonical', label: 'Invalid Lead Source', selected: fubLeadSourceViewState.flag === 'not_canonical' },
     { value: 'merge_candidate', label: 'Merge candidate', selected: fubLeadSourceViewState.flag === 'merge_candidate' },
   ])
 
