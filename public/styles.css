@@ -1757,6 +1757,10 @@ body {
   background: rgba(16, 185, 129, 0.10);
 }
 
+.source-stack-summary-signed-off {
+  background: rgba(0, 132, 201, 0.12);
+}
+
 .source-stack-summary-left {
   display: grid;
   gap: 4px;

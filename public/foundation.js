@@ -1674,6 +1674,137 @@ function filterBacklogItems(items, viewState) {
   })
 }
 
+function isSourceLayerBacklogItem(item) {
+  if (!item) return false
+
+  var explicitIds = {
+    'FOUNDATION-002': true,
+    'FOUNDATION-003': true,
+    'FOUNDATION-VERIFY-001': true,
+    'DATA-004': true,
+    'SOURCE-012': true,
+  }
+
+  if (explicitIds[item.id]) return true
+  if (/^(SOURCE|DATA)-/.test(String(item.id || ''))) return true
+
+  var haystack = [
+    item.id,
+    item.title,
+    item.summary,
+    item.whyItMatters,
+    item.nextAction,
+    item.statusNote,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
+  return /source trust|source contract|data source|connector|owners dashboard|finance sign-off|sign-off|signed off/.test(haystack)
+}
+
+function compareSourceFocusItems(a, b) {
+  var laneOrder = {
+    executing: 0,
+    scoped: 1,
+    ranked: 2,
+    research: 3,
+    parked: 4,
+    done: 5,
+  }
+  var priorityOrder = { P0: 0, P1: 1, P2: 2, P3: 3 }
+
+  var laneDelta = (laneOrder[a.lane] || 99) - (laneOrder[b.lane] || 99)
+  if (laneDelta !== 0) return laneDelta
+
+  var priorityDelta = (priorityOrder[a.priority] || 9) - (priorityOrder[b.priority] || 9)
+  if (priorityDelta !== 0) return priorityDelta
+
+  var aRank = typeof a.rank === 'number' ? a.rank : Number.MAX_SAFE_INTEGER
+  var bRank = typeof b.rank === 'number' ? b.rank : Number.MAX_SAFE_INTEGER
+  if (aRank !== bRank) return aRank - bRank
+
+  return String(a.title || '').localeCompare(String(b.title || ''))
+}
+
+function getSourceFocusItems(items) {
+  return (items || []).filter(function(item) {
+    return item.lane !== 'done' && isSourceLayerBacklogItem(item)
+  }).sort(compareSourceFocusItems)
+}
+
+function renderCurrentSourceFocusPanel(items) {
+  var focusItems = getSourceFocusItems(items)
+  if (!focusItems.length) return null
+
+  var current = focusItems[0]
+  var queuedCount = focusItems.length - 1
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Current Build Focus'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'What we are buttoning up right now'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = queuedCount
+    ? 'This is the top active source-layer card right now. ' + queuedCount + ' related card' + (queuedCount === 1 ? ' is' : 's are') + ' still queued behind it in backlog.'
+    : 'This is the only active source-layer card in the queue right now.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var card = document.createElement('article')
+  card.className = 'section-card source-focus-card'
+
+  var cardTop = document.createElement('div')
+  cardTop.className = 'source-card-title-wrap'
+
+  var cardTitle = document.createElement('h4')
+  cardTitle.textContent = current.title
+  cardTop.appendChild(cardTitle)
+
+  var cardMeta = document.createElement('div')
+  cardMeta.className = 'source-card-id'
+  cardMeta.textContent = [current.id, current.priority, current.lane].join(' · ')
+  cardTop.appendChild(cardMeta)
+  card.appendChild(cardTop)
+
+  if (current.summary) {
+    var summary = document.createElement('p')
+    summary.className = 'source-card-copy'
+    summary.textContent = current.summary
+    card.appendChild(summary)
+  }
+
+  if (current.whyItMatters) {
+    card.appendChild(renderLabeledCopy('decision-rationale', 'Why it matters', current.whyItMatters))
+  }
+
+  if (current.nextAction) {
+    card.appendChild(renderLabeledCopy('decision-rationale', 'Next to close', current.nextAction))
+  }
+
+  if (current.statusNote) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Status note', current.statusNote))
+  }
+
+  panel.appendChild(card)
+  return panel
+}
+
 function renderBacklogAccordionItem(item) {
   var details = document.createElement('details')
   details.className = 'backlog-item-pill'
@@ -4493,7 +4624,10 @@ function getSourceKind(contract) {
 
 function getSourcePresence(contract) {
   if (contract.group === 'verified') {
-    return { key: 'connected', label: 'Connected in rebuild', tone: 'connected' }
+    if ((contract.validation || contract.status) === 'Signed Off') {
+      return { key: 'signed-off', label: 'Signed off', tone: 'connected' }
+    }
+    return { key: 'connected', label: 'Connected but provisional', tone: 'planned' }
   }
   if (contract.group === 'pending') {
     return { key: 'needs-verification', label: 'Needs verification', tone: 'pending' }
@@ -4606,9 +4740,14 @@ function renderSourceContractCard(contract) {
 
   var tags = document.createElement('div')
   tags.className = 'source-card-tags'
-  tags.appendChild(renderSourceTag(getSourceKind(contract).label, 'neutral'))
-  tags.appendChild(renderSourceTag(getSourcePresence(contract).label, getSourcePresence(contract).tone))
-  tags.appendChild(renderSourceTag(getSourceTrust(contract).label, getSourceTrust(contract).tone))
+  var kindTag = getSourceKind(contract)
+  var presenceTag = getSourcePresence(contract)
+  var trustTag = getSourceTrust(contract)
+  tags.appendChild(renderSourceTag(kindTag.label, 'neutral'))
+  tags.appendChild(renderSourceTag(presenceTag.label, presenceTag.tone))
+  if (presenceTag.label !== trustTag.label) {
+    tags.appendChild(renderSourceTag(trustTag.label, trustTag.tone))
+  }
   article.appendChild(tags)
 
   var detail = document.createElement('p')
@@ -4674,8 +4813,12 @@ function renderSourceAccordionItem(contract) {
 
   var right = document.createElement('div')
   right.className = 'source-item-summary-right'
-  right.appendChild(renderSourceTag(getSourcePresence(contract).label, getSourcePresence(contract).tone))
-  right.appendChild(renderSourceTag(getSourceTrust(contract).label, getSourceTrust(contract).tone))
+  var presenceTag = getSourcePresence(contract)
+  var trustTag = getSourceTrust(contract)
+  right.appendChild(renderSourceTag(presenceTag.label, presenceTag.tone))
+  if (presenceTag.label !== trustTag.label) {
+    right.appendChild(renderSourceTag(trustTag.label, trustTag.tone))
+  }
   summary.appendChild(right)
 
   details.appendChild(summary)
@@ -4779,9 +4922,18 @@ function renderSourceRegistry() {
   container.innerHTML = '<p>Loading data sources...</p>'
 
   fetchSourceOfTruth().then(function(data) {
+    return fetchFoundationHub().catch(function() {
+      return null
+    }).then(function(hub) {
+      return { data: data, hub: hub }
+    })
+  }).then(function(result) {
     container.innerHTML = ''
 
+    var data = result.data
+    var hub = result.hub
     var sourceContracts = data.sources || []
+    var signedOffCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'signed-off' }).length
     var connectedCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'connected' }).length
     var verificationCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'needs-verification' }).length
     var gapCount = sourceContracts.filter(function(contract) { return getSourcePresence(contract).key === 'not-connected' }).length
@@ -4798,7 +4950,7 @@ function renderSourceRegistry() {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = sourceContracts.length + ' source contracts tracked · ' + connectedCount + ' connected in rebuild · ' + verificationCount + ' need rebuild verification · ' + gapCount + ' not connected'
+    heroMeta.textContent = sourceContracts.length + ' source contracts tracked · ' + signedOffCount + ' signed off · ' + connectedCount + ' connected but provisional · ' + verificationCount + ' need rebuild verification · ' + gapCount + ' not connected'
     heroInner.appendChild(heroMeta)
 
     var heroNote = document.createElement('p')
@@ -4808,6 +4960,9 @@ function renderSourceRegistry() {
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
+
+    var focusPanel = renderCurrentSourceFocusPanel(hub && hub.backlog)
+    if (focusPanel) container.appendChild(focusPanel)
 
     container.appendChild(renderOperatorToolsDrawer(
       'How To Read This',
@@ -4890,7 +5045,8 @@ function renderSourceRegistry() {
     var presenceButtons = []
     ;[
       { key: 'all', label: 'All' },
-      { key: 'connected', label: 'Connected' },
+      { key: 'signed-off', label: 'Signed Off' },
+      { key: 'connected', label: 'Connected Provisional' },
       { key: 'needs-verification', label: 'Needs Verification' },
       { key: 'not-connected', label: 'Not Connected' },
     ].forEach(function(option) {
@@ -4944,7 +5100,8 @@ function renderSourceRegistry() {
       ;[
         { key: 'needs-verification', title: 'Needs Verification', intro: 'These sources or connectors are known, but they are not rebuild-trusted yet.' },
         { key: 'not-connected', title: 'Not Connected Yet', intro: 'These are known business inputs with no current live connection or no selected platform yet.' },
-        { key: 'connected', title: 'Connected in Rebuild', intro: 'These sources are reachable in the rebuild right now. Trust still varies from signed off to readable only.' },
+        { key: 'connected', title: 'Connected But Provisional', intro: 'These sources are reachable in the rebuild right now, but they are still readable-only, partial, or in review.' },
+        { key: 'signed-off', title: 'Signed Off', intro: 'These sources are both connected and trusted for live system use.' },
       ].forEach(function(group) {
         var groupContracts = filteredContracts.filter(function(contract) {
           return getSourcePresence(contract).key === group.key
