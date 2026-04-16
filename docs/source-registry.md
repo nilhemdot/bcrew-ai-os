@@ -1,8 +1,32 @@
-# Source Registry
+# Data Sources Operator Note
 
-Every business data input the system reads. If it's not on this list, the system doesn't know about it. If the source is wrong, the intelligence is wrong.
+This is the operator note behind the `Data Sources` page.
 
-This registry distinguishes between sources verified in the current rebuild and sources inherited from the old system that still need revalidation on the Mac Mini.
+The live page should be the front door. This note is the deeper map and overlap history behind it.
+
+Every business data input the system reads or plans to read belongs here. That includes:
+
+- repo docs
+- spreadsheets
+- databases / apps
+- external APIs
+- workspace connectors
+- known missing sources that still need a connection or platform choice
+
+If a source is wrong, the intelligence is wrong.
+
+## How To Read The Source Layer
+
+Each source needs three things to be clear:
+
+1. **Source contract**
+   - what business truth it owns
+2. **Access path**
+   - how the system reaches it: local docs, Sheets, connector, API, database, or app
+3. **Trust state**
+   - whether it is signed off, in review, readable only, partially signed off, or still not trusted
+
+This registry distinguishes between sources verified in the current rebuild, known sources that still need rebuild-level verification, and known gaps that are not connected yet.
 
 ## Validation Checklist
 
