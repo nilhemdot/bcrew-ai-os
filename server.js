@@ -31,6 +31,7 @@ import {
 } from './lib/foundation-db.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
 import {
+  fubJsonFetch,
   getFubContextsSummary,
   getFubHealth,
   getFubPerson,
@@ -1219,6 +1220,22 @@ function getAllowedBodyKeys(body, allowedKeys) {
   return Object.keys(body || {}).filter(key => !allowedKeys.includes(key))
 }
 
+function sanitizeFubRequestHeaders(rawHeaders) {
+  if (rawHeaders == null) return {}
+  if (typeof rawHeaders !== 'object' || Array.isArray(rawHeaders)) {
+    throw new Error('FUB headers must be an object.')
+  }
+
+  const sanitized = {}
+  for (const [key, value] of Object.entries(rawHeaders)) {
+    if (!key || typeof value === 'undefined' || value === null) continue
+    const lowerKey = String(key).toLowerCase()
+    if (['authorization', 'host', 'content-length'].includes(lowerKey)) continue
+    sanitized[key] = String(value)
+  }
+  return sanitized
+}
+
 app.get('/api/source-of-truth', (_req, res) => {
   const businessStrategy = readFileSafe(businessStrategyPath)
   const sourceRegistry = readFileSafe(sourceRegistryPath)
@@ -1381,6 +1398,67 @@ app.get('/api/fub/person', async (req, res) => {
       statusCode,
       'fub_person_lookup_failed',
       error instanceof Error ? error.message : 'Failed to read Follow Up Boss person.'
+    )
+  }
+})
+
+app.post('/api/fub/request', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['context', 'method', 'endpoint', 'body', 'headers']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_fub_request_body', 'Unknown FUB request fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  const method = requireStringField(errors, req.body, 'method', 'Method')
+  const endpoint = requireStringField(errors, req.body, 'endpoint', 'Endpoint')
+  const contextKey = optionalStringField(errors, req.body, 'context', 'Context')
+  const normalizedMethod = method ? method.trim().toUpperCase() : ''
+  if (normalizedMethod && !['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(normalizedMethod)) {
+    errors.method = 'Method must be GET, POST, PUT, PATCH, or DELETE.'
+  }
+
+  let headers = {}
+  try {
+    headers = sanitizeFubRequestHeaders(req.body.headers)
+  } catch (error) {
+    errors.headers = error instanceof Error ? error.message : 'Headers must be an object.'
+  }
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_fub_request_body', 'FUB request is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const resolvedContext = resolveFubContext(contextKey || undefined)
+    const payload = await fubJsonFetch(resolvedContext.key, endpoint, {
+      method: normalizedMethod,
+      headers,
+      body: 'body' in req.body ? req.body.body : undefined,
+    })
+
+    cacheHeadersNoStore(res)
+    res.json({
+      context: {
+        key: resolvedContext.key,
+        label: resolvedContext.label,
+        description: resolvedContext.description,
+      },
+      request: {
+        method: normalizedMethod,
+        endpoint,
+      },
+      payload,
+    })
+  } catch (error) {
+    const statusCode = error && typeof error === 'object' && 'status' in error && error.status ? error.status : 500
+    sendApiError(
+      res,
+      statusCode,
+      'fub_request_failed',
+      error instanceof Error ? error.message : 'Follow Up Boss request failed.'
     )
   }
 })

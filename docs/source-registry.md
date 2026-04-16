@@ -76,7 +76,7 @@ One live spreadsheet validation unit is now signed off in the rebuild.
 - `SRC-FREEDOM-BHAG-001`
 - `SRC-FUB-001`
 
-These are connected and readable, but they have **not** been fully validated unit-by-unit in this session.
+These are connected and readable, but they have **not** been fully validated unit-by-unit in this session. Some API sources may already have controlled write paths wired even while their business meaning is still only readable.
 
 ### Not Signed Off
 
@@ -123,7 +123,7 @@ These are connected and readable, but they have **not** been fully validated uni
 | `SRC-FREEDOM-ENGINE-001` | Benson Crew - Freedom Sheet | `Agent Engine` tab | Current assumptions block | Required monthly attraction, active agents, current 6-month production average, target production, average split, target split | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
 | `SRC-FREEDOM-BHAG-001` | Benson Crew - Freedom Sheet | `Benson Crew Bhag Builder` tab | Long-range planning blocks plus calculator ranges | Sales targets, growth curve, community targets, deal math, high-level goal model in `A1:C31`, and agent productivity calculator plus planning attrition assumption in `A22:B31` | Google Drive / Google Sheets | Verified Readable | 2026-04-13 |
 | `SRC-OWNERS-001` | Benson Crew - Owners Dashboard | `ADMIN ONLY - Deal Data Entry` | Primary deal-ledger validation unit | Trade number, deal status, signed/firm/closing/cash dates, lead source, ground-zero source, company-generated attribution, realtor splits, paid-to-team amounts, deal/volume/commission credits, and Follow Up Boss linkage used for production truth, attribution, and downstream finance modeling | Google Drive / Google Sheets | Signed Off | 2026-04-16 |
-| `SRC-FUB-001` | Follow Up Boss | owner + Steve API contexts | Read-only CRM access in rebuild | CRM contacts, user roster, lead-source context, and person-level linkage used for attribution and parity checks | Follow Up Boss API | Verified Readable | 2026-04-16 |
+| `SRC-FUB-001` | Follow Up Boss | owner + Steve API contexts | Multi-context CRM access in rebuild | CRM contacts, user roster, lead-source context, person-level linkage used for attribution and parity checks, plus admin-gated write capability | Follow Up Boss API | Verified Readable | 2026-04-16 |
 | `SRC-FINANCE-001` | Benson Crew - Owners Dashboard | `(Input) Weekly Actuals` + `Cashflow Dash` | Finance validation unit | Internal finance truth: weekly revenue, expenses, bank balances, LOC balances, credit-card movement, HST, and the partner-commission adjustment needed to show real company revenue and owners expense cleanly | Google Drive / Google Sheets | Verified Readable | 2026-04-14 |
 
 ## Known Sources from Old System, Pending Revalidation
