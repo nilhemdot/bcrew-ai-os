@@ -74,8 +74,9 @@ One live spreadsheet validation unit is now signed off in the rebuild.
 - `SRC-FREEDOM-COMMUNITY-REV-001`
 - `SRC-FREEDOM-ENGINE-001`
 - `SRC-FREEDOM-BHAG-001`
+- `SRC-FUB-001`
 
-These are connected and readable, but they have **not** been fully validated tab-by-tab in this session.
+These are connected and readable, but they have **not** been fully validated unit-by-unit in this session.
 
 ### Not Signed Off
 
@@ -88,6 +89,10 @@ These are connected and readable, but they have **not** been fully validated tab
   - `SRC-OWNERS-001` is the upstream deal ledger for deal lifecycle, attribution, split credit, and FUB linkage
   - `SRC-FINANCE-001` is the finance layer built around `(Input) Weekly Actuals`
   - these sources are complementary, but they do not mean the same thing
+- `SRC-OWNERS-001` vs `SRC-FUB-001`
+  - `SRC-OWNERS-001` is the trusted deal ledger
+  - `SRC-FUB-001` is the connected CRM layer that helps validate lead lineage, person linkage, and address / source parity
+  - reads are now proven in the rebuild, but cross-system meaning still needs explicit validation
 - `SRC-FINANCE-001`
   - `Cashflow Dash` is not the origin source
   - it is the management interpretation layer built on top of the underlying finance data
@@ -118,6 +123,7 @@ These are connected and readable, but they have **not** been fully validated tab
 | `SRC-FREEDOM-ENGINE-001` | Benson Crew - Freedom Sheet | `Agent Engine` tab | Current assumptions block | Required monthly attraction, active agents, current 6-month production average, target production, average split, target split | Google Drive / Google Sheets | Verified Readable | 2026-04-12 |
 | `SRC-FREEDOM-BHAG-001` | Benson Crew - Freedom Sheet | `Benson Crew Bhag Builder` tab | Long-range planning blocks plus calculator ranges | Sales targets, growth curve, community targets, deal math, high-level goal model in `A1:C31`, and agent productivity calculator plus planning attrition assumption in `A22:B31` | Google Drive / Google Sheets | Verified Readable | 2026-04-13 |
 | `SRC-OWNERS-001` | Benson Crew - Owners Dashboard | `ADMIN ONLY - Deal Data Entry` | Primary deal-ledger validation unit | Trade number, deal status, signed/firm/closing/cash dates, lead source, ground-zero source, company-generated attribution, realtor splits, paid-to-team amounts, deal/volume/commission credits, and Follow Up Boss linkage used for production truth, attribution, and downstream finance modeling | Google Drive / Google Sheets | Signed Off | 2026-04-16 |
+| `SRC-FUB-001` | Follow Up Boss | owner + Steve API contexts | Read-only CRM access in rebuild | CRM contacts, user roster, lead-source context, and person-level linkage used for attribution and parity checks | Follow Up Boss API | Verified Readable | 2026-04-16 |
 | `SRC-FINANCE-001` | Benson Crew - Owners Dashboard | `(Input) Weekly Actuals` + `Cashflow Dash` | Finance validation unit | Internal finance truth: weekly revenue, expenses, bank balances, LOC balances, credit-card movement, HST, and the partner-commission adjustment needed to show real company revenue and owners expense cleanly | Google Drive / Google Sheets | Verified Readable | 2026-04-14 |
 
 ## Known Sources from Old System, Pending Revalidation
@@ -131,7 +137,6 @@ These are connected and readable, but they have **not** been fully validated tab
 | `SRC-SLACK-001` | Slack | Team communication | All | Pending Revalidation. Connected in old system; needs Mac Mini verification. |
 | `SRC-MISSIVE-001` | Missive | Shared inbox, client routing | Ops | Pending Revalidation. Connected in old system; needs Mac Mini verification. |
 | `SRC-DATAFORSEO-001` | DataForSEO | SEO rankings, keyword research | System | Pending Revalidation. Connected in old system; not yet revalidated here. |
-| `SRC-FUB-001` | Follow Up Boss | CRM, leads, deals | Steve | Pending Revalidation. API keys existed in old system. |
 | `SRC-GHL-001` | GoHighLevel | Contacts, pipelines, automation | Steve | Pending Revalidation. v1 Location API was live in old system. |
 | `SRC-SUPABASE-001` | Supabase | KPI dashboard (`kpi.bensoncrew.ca`) | System | Pending Revalidation. Connected in old system. |
 | `SRC-GADS-001` | Google Ads | MCC + sub-account performance | Steve | Pending Revalidation. Connected in old system. |

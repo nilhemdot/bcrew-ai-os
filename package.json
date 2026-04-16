@@ -7,6 +7,7 @@
     "dev": "node --env-file-if-exists=.env server.js",
     "start": "node --env-file-if-exists=.env server.js",
     "google:health": "node scripts/google-delegated-health.mjs",
+    "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",
     "bhag:update": "node scripts/update-bhag-builder-paths.mjs"
   },
   "engines": {

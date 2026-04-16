@@ -30,6 +30,12 @@ import {
   updateOpenQuestion,
 } from './lib/foundation-db.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
+import {
+  getFubContextsSummary,
+  getFubHealth,
+  getFubPerson,
+  resolveFubContext,
+} from './lib/fub.js'
 import { getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -1218,6 +1224,8 @@ app.get('/api/source-of-truth', (_req, res) => {
   const sourceRegistry = readFileSafe(sourceRegistryPath)
   const sourceContracts = getSourceContracts()
   const sourceConnectors = getSourceConnectors()
+  const signedOffSourceCount = sourceContracts.filter(source => source.validation === 'Signed Off').length
+  const readableSourceCount = sourceContracts.filter(source => source.validation === 'Readable Only').length
 
   res.json({
     title: 'BCrew AI OS',
@@ -1254,7 +1262,7 @@ app.get('/api/source-of-truth', (_req, res) => {
         label: 'Source Trust',
         status: sourceRegistry ? 'pending' : 'missing',
         detail: sourceRegistry
-          ? `${sourceContracts.length} source contracts are tracked, but no live spreadsheet or API source is fully signed off yet.`
+          ? `${signedOffSourceCount} source contract${signedOffSourceCount === 1 ? '' : 's'} signed off and ${readableSourceCount} connected source${readableSourceCount === 1 ? '' : 's'} readable in the rebuild; finance and CRM trust review are still in progress.`
           : 'Create the registry next so every business input has an owner, validation state, and trust boundary.',
       },
       {
@@ -1277,6 +1285,104 @@ app.get('/api/source-of-truth', (_req, res) => {
       },
     ],
   })
+})
+
+app.get('/api/fub/health', async (req, res) => {
+  try {
+    const requestedContext = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
+    const contexts = getFubContextsSummary()
+    const knownContext = requestedContext ? contexts.find(context => context.key === requestedContext) : null
+
+    if (requestedContext && !knownContext) {
+      sendApiError(res, 400, 'invalid_fub_context', 'Unknown Follow Up Boss context requested.')
+      return
+    }
+
+    const targetKeys = requestedContext
+      ? [requestedContext]
+      : contexts.filter(context => context.configured).map(context => context.key)
+
+    if (!targetKeys.length) {
+      sendApiError(res, 503, 'fub_unconfigured', 'No configured Follow Up Boss contexts were found.')
+      return
+    }
+
+    const checks = await Promise.all(
+      targetKeys.map(async contextKey => {
+        try {
+          return await getFubHealth(contextKey)
+        } catch (error) {
+          return {
+            context: { key: contextKey },
+            status: 'error',
+            error: {
+              message: error instanceof Error ? error.message : 'Follow Up Boss health check failed.',
+              status: error && typeof error === 'object' && 'status' in error ? error.status : null,
+            },
+          }
+        }
+      })
+    )
+
+    const okCount = checks.filter(check => check.status === 'ok').length
+    const overallStatus = okCount === checks.length ? 'ok' : okCount > 0 ? 'partial' : 'error'
+
+    cacheHeadersNoStore(res)
+    res.status(overallStatus === 'error' ? 502 : 200).json({
+      overallStatus,
+      checkedAt: new Date().toISOString(),
+      contexts,
+      checks,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'fub_health_failed',
+      error instanceof Error ? error.message : 'Failed to read Follow Up Boss health.'
+    )
+  }
+})
+
+app.get('/api/fub/person', async (req, res) => {
+  try {
+    const contextKey = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
+    const personInput =
+      (typeof req.query.person === 'string' && req.query.person.trim()) ||
+      (typeof req.query.url === 'string' && req.query.url.trim()) ||
+      ''
+
+    if (!personInput) {
+      sendApiError(
+        res,
+        400,
+        'missing_fub_person',
+        'Provide ?person=<id> or ?url=<follow-up-boss-person-url>.'
+      )
+      return
+    }
+
+    const resolvedContext = resolveFubContext(contextKey || undefined)
+    const person = await getFubPerson(resolvedContext.key, personInput)
+
+    cacheHeadersNoStore(res)
+    res.json({
+      context: {
+        key: resolvedContext.key,
+        label: resolvedContext.label,
+        description: resolvedContext.description,
+      },
+      person,
+    })
+  } catch (error) {
+    const statusCode = error && typeof error === 'object' && 'status' in error && error.status ? error.status : 500
+    sendApiError(
+      res,
+      statusCode,
+      'fub_person_lookup_failed',
+      error instanceof Error ? error.message : 'Failed to read Follow Up Boss person.'
+    )
+  }
 })
 
 app.get('/api/system-inventory', async (_req, res) => {
