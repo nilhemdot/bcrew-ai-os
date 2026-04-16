@@ -18,6 +18,8 @@ import {
   getDocSourceSnapshot,
   getFoundationBacklogIdPrefixes,
   getFoundationSnapshot,
+  getFubLeadSourceSnapshot,
+  listFubLeadSourceRules,
   getPendingDocUpdate,
   getRecentChangeEvents,
   initFoundationDb,
@@ -25,6 +27,8 @@ import {
   markPendingDocUpdateApplied,
   markPendingDocUpdateFailed,
   rejectPendingDocUpdate,
+  saveFubLeadSourceSnapshot,
+  upsertFubLeadSourceRule,
   updateBacklogItem,
   updateDecision,
   updateOpenQuestion,
@@ -35,6 +39,7 @@ import {
   getFubContextsSummary,
   getFubHealth,
   getFubPerson,
+  listFubLeadSources,
   resolveFubContext,
 } from './lib/fub.js'
 import { getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
@@ -92,6 +97,65 @@ const strategyDocs = [
 ]
 const canonicalDecisionCategories = getCanonicalDecisionCategories()
 const backlogIdPrefixes = getFoundationBacklogIdPrefixes()
+const FUB_LEAD_SOURCE_REFRESH_PAGE_LIMIT = 100
+const FUB_LEAD_SOURCE_REFRESH_MAX_PAGES = Math.min(
+  1000,
+  Math.max(1, Number(process.env.FUB_LEAD_SOURCE_REFRESH_MAX_PAGES) || 250)
+)
+const DEFAULT_FUB_LEAD_SOURCE_GROUPS = {
+  'Web Leads': [
+    'BensonCrew.ca Lead Capture',
+    'Company Website – Home Value Hub',
+    'Company Website – Home Value Site',
+    'Company Website – Sign Up',
+    'Luxury Presence',
+    'zahndteam.ca',
+    'ScottBensonTeam.ca',
+    'BCrew Realtor.ca',
+    'Realtor.ca',
+    'Songbird Laning Lead Capture',
+    'Songbird Landing',
+    'Brick and Oak Lead Capture',
+    'Powerlink Residential Lead Form',
+    'Branded Website',
+    'Website',
+  ],
+  'Ads Leads': [
+    'BCrew Google Ads',
+    'Facebook',
+  ],
+  'Offline Leads': [
+    'BCrew Investor Flyer Blasts',
+    'BCrew Info Email',
+    'Ontario Farmer Ad Call',
+    'BCrew Outdoor Media',
+    'Agent HVH – Generic Flyer',
+    'Agent Flyer - Home Value Hub – Geo Flyer',
+    'Agent Flyer - Home Value Hub',
+  ],
+  'Phone Leads': [
+    'BensonCrew.ca Call',
+    'Company Main Call',
+    'Zahndteam.ca Call',
+    'BCrew Google Search Call Guelph',
+    'BCrew Google Search Call Guelph ',
+    'BCrew Google Search Call Brantfo',
+    'BCrew Brick & Oak Dev Call',
+    'BCrew Social Media Call',
+    'Social Media Call',
+    'For Sale Sign Call - Guelph Surr',
+    'For Sale Sign Call - Brantford S',
+    'Agri For Sale Sign Call',
+  ],
+}
+const DEFAULT_FUB_LEAD_SOURCE_GROUP_MAP = Object.entries(DEFAULT_FUB_LEAD_SOURCE_GROUPS).reduce((acc, entry) => {
+  const group = entry[0]
+  const names = entry[1]
+  names.forEach(name => {
+    acc[name] = group
+  })
+  return acc
+}, {})
 
 function setSecurityHeaders(_req, res, next) {
   res.setHeader('X-Content-Type-Options', 'nosniff')
@@ -852,6 +916,95 @@ function getRequestActor() {
   return 'steve'
 }
 
+function getDefaultFubLeadSourceGroup(sourceName) {
+  const source = String(sourceName || '').trim()
+  if (!source) return null
+  if (DEFAULT_FUB_LEAD_SOURCE_GROUP_MAP[source]) return DEFAULT_FUB_LEAD_SOURCE_GROUP_MAP[source]
+
+  const lower = source.toLowerCase()
+  if (lower.includes('meta lead ad') || lower.includes('google ads') || lower === 'facebook') return 'Ads Leads'
+  if (lower.includes(' call')) return 'Phone Leads'
+  if (lower.includes('website') || lower.includes('lead capture') || lower.includes('lead form') || lower.includes('realtor.ca')) return 'Web Leads'
+  if (lower.includes('flyer') || lower.includes('outdoor media') || lower.includes('info email')) return 'Offline Leads'
+  return null
+}
+
+function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
+  const ruleMap = new Map()
+  rules.forEach(function(rule) {
+    ruleMap.set(rule.source, rule)
+  })
+
+  const merged = new Map()
+  const snapshotSources = snapshot && Array.isArray(snapshot.sources) ? snapshot.sources : []
+  snapshotSources.forEach(function(item) {
+    const source = String(item && item.source || '').trim()
+    if (!source) return
+    const rule = ruleMap.get(source)
+    merged.set(source, {
+      source,
+      count: Math.max(0, Number(item.count) || 0),
+      marketingType: rule ? rule.marketingType : 'unclassified',
+      ownershipType: rule ? rule.ownershipType : 'unclassified',
+      sourceGroup: rule && rule.sourceGroup ? rule.sourceGroup : getDefaultFubLeadSourceGroup(source),
+      notes: rule ? rule.notes : null,
+      updatedAt: rule ? rule.updatedAt : null,
+      updatedBy: rule ? rule.updatedBy : null,
+    })
+  })
+
+  rules.forEach(function(rule) {
+    if (merged.has(rule.source)) return
+    merged.set(rule.source, {
+      source: rule.source,
+      count: 0,
+      marketingType: rule.marketingType,
+      ownershipType: rule.ownershipType,
+      sourceGroup: rule.sourceGroup || getDefaultFubLeadSourceGroup(rule.source),
+      notes: rule.notes,
+      updatedAt: rule.updatedAt,
+      updatedBy: rule.updatedBy,
+    })
+  })
+
+  const sources = Array.from(merged.values()).sort(function(a, b) {
+    if (b.count !== a.count) return b.count - a.count
+    return a.source.localeCompare(b.source)
+  })
+
+  const context = snapshot
+    ? { key: snapshot.contextKey, label: snapshot.contextLabel }
+    : fallbackContext
+
+  return {
+    context,
+    snapshot: {
+      available: Boolean(snapshot),
+      refreshedAt: snapshot ? snapshot.refreshedAt : null,
+      refreshedBy: snapshot ? snapshot.refreshedBy : null,
+    },
+    scan: snapshot
+      ? snapshot.scan
+      : {
+          uniqueSources: 0,
+          peopleScanned: 0,
+          pagesScanned: 0,
+          truncated: false,
+        },
+    stats: {
+      totalSources: sources.length,
+      marketing: sources.filter(item => item.marketingType === 'marketing').length,
+      nonMarketing: sources.filter(item => item.marketingType === 'non_marketing').length,
+      unclassified: sources.filter(item => item.marketingType === 'unclassified').length,
+      company: sources.filter(item => item.ownershipType === 'company').length,
+      agent: sources.filter(item => item.ownershipType === 'agent').length,
+      referral: sources.filter(item => item.ownershipType === 'referral').length,
+      other: sources.filter(item => item.ownershipType === 'other').length,
+    },
+    sources,
+  }
+}
+
 function validateCategory(value) {
   return canonicalDecisionCategories.includes(value)
 }
@@ -1398,6 +1551,123 @@ app.get('/api/fub/person', async (req, res) => {
       statusCode,
       'fub_person_lookup_failed',
       error instanceof Error ? error.message : 'Failed to read Follow Up Boss person.'
+    )
+  }
+})
+
+app.get('/api/fub/lead-sources', async (req, res) => {
+  try {
+    const contextKey = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
+    const resolvedContext = resolveFubContext(contextKey || undefined)
+    const [snapshot, rules] = await Promise.all([
+      getFubLeadSourceSnapshot(resolvedContext.key),
+      listFubLeadSourceRules(),
+    ])
+
+    cacheHeadersNoStore(res)
+    res.json(buildFubLeadSourcePayload(snapshot, rules, {
+      key: resolvedContext.key,
+      label: resolvedContext.label,
+    }))
+  } catch (error) {
+    const statusCode = error && typeof error === 'object' && 'status' in error && error.status ? error.status : 500
+    sendApiError(
+      res,
+      statusCode,
+      'fub_lead_sources_failed',
+      error instanceof Error ? error.message : 'Failed to load Follow Up Boss lead sources.'
+    )
+  }
+})
+
+app.post('/api/fub/lead-sources/refresh', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['context']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_fub_lead_source_refresh_body', 'Unknown FUB lead-source refresh fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  const contextKey = optionalStringField(errors, req.body, 'context', 'Context')
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_fub_lead_source_refresh_body', 'FUB lead-source refresh is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const live = await listFubLeadSources(contextKey || undefined, {
+      pageLimit: FUB_LEAD_SOURCE_REFRESH_PAGE_LIMIT,
+      maxPages: FUB_LEAD_SOURCE_REFRESH_MAX_PAGES,
+    })
+    const snapshot = await saveFubLeadSourceSnapshot({
+      contextKey: live.context.key,
+      contextLabel: live.context.label,
+      sources: live.sources,
+      scan: live.stats,
+    }, getRequestActor())
+    const rules = await listFubLeadSourceRules()
+
+    cacheHeadersNoStore(res)
+    res.json(buildFubLeadSourcePayload(snapshot, rules, {
+      key: live.context.key,
+      label: live.context.label,
+    }))
+  } catch (error) {
+    const statusCode = error && typeof error === 'object' && 'status' in error && error.status ? error.status : 500
+    sendApiError(
+      res,
+      statusCode,
+      'fub_lead_sources_refresh_failed',
+      error instanceof Error ? error.message : 'Failed to refresh Follow Up Boss lead sources.'
+    )
+  }
+})
+
+app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['source', 'marketingType', 'ownershipType', 'sourceGroup', 'notes']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_fub_lead_source_body', 'Unknown FUB lead-source fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  const source = requireStringField(errors, req.body, 'source', 'Lead source')
+  const marketingType = optionalStringField(errors, req.body, 'marketingType', 'Marketing type') || 'unclassified'
+  const ownershipType = optionalStringField(errors, req.body, 'ownershipType', 'Ownership type') || 'unclassified'
+  const sourceGroup = optionalStringField(errors, req.body, 'sourceGroup', 'Source group', 120)
+  const notes = optionalStringField(errors, req.body, 'notes', 'Notes', 1000)
+
+  if (!['marketing', 'non_marketing', 'unclassified'].includes(marketingType)) {
+    errors.marketingType = 'Marketing type must be marketing, non_marketing, or unclassified.'
+  }
+  if (!['company', 'agent', 'referral', 'other', 'unclassified'].includes(ownershipType)) {
+    errors.ownershipType = 'Ownership type must be company, agent, referral, other, or unclassified.'
+  }
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_fub_lead_source_body', 'FUB lead-source update is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const rule = await upsertFubLeadSourceRule({
+      source,
+      marketingType,
+      ownershipType,
+      sourceGroup,
+      notes,
+    }, getRequestActor())
+
+    cacheHeadersNoStore(res)
+    res.json({ rule })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'fub_lead_source_update_failed',
+      error instanceof Error ? error.message : 'Failed to update FUB lead-source rule.'
     )
   }
 })

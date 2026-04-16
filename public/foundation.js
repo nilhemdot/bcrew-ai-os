@@ -194,6 +194,24 @@ var sourceViewState = {
   presence: 'all',
 }
 
+var fubLeadSourceViewState = {
+  context: 'owner',
+  query: '',
+  marketing: 'all',
+  ownership: 'all',
+}
+
+var FUB_SOURCE_GROUP_OPTIONS = [
+  '',
+  'Web Leads',
+  'Ads Leads',
+  'Offline Leads',
+  'Phone Leads',
+  'Social Media',
+  'Referral / Sphere',
+  'Other',
+]
+
 var sourceSectionConfigs = {
   'source-overview': {
     title: 'Data Sources',
@@ -3284,6 +3302,7 @@ var cache = {
   sourceOfTruth: null,
   foundationHub: null,
   systemInventory: null,
+  fubLeadSources: {},
   docs: {},
 }
 var FOUNDATION_ADMIN_TOKEN_KEY = 'bcrew.foundation.adminToken'
@@ -3333,6 +3352,29 @@ function fetchSystemInventory() {
   })
 }
 
+function fetchFubLeadSources(contextKey) {
+  var key = contextKey || 'owner'
+  if (cache.fubLeadSources[key]) return Promise.resolve(cache.fubLeadSources[key])
+
+  return fetch('/api/fub/lead-sources?context=' + encodeURIComponent(key)).then(function(res) {
+    if (!res.ok) throw new Error('FUB lead-source API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.fubLeadSources[key] = data
+    return data
+  })
+}
+
+function refreshFubLeadSources(contextKey) {
+  var key = contextKey || 'owner'
+  return foundationMutation('/api/fub/lead-sources/refresh', 'POST', {
+    context: key,
+  }).then(function(data) {
+    cache.fubLeadSources[key] = data
+    return data
+  })
+}
+
 function fetchDoc(docPath) {
   if (!isLiveDocPath(docPath) && cache.docs[docPath]) return Promise.resolve(cache.docs[docPath])
 
@@ -3371,8 +3413,10 @@ function setStoredAdminToken(value) {
 }
 
 function clearFoundationCaches() {
+  cache.sourceOfTruth = null
   cache.foundationHub = null
   cache.systemInventory = null
+  cache.fubLeadSources = {}
 }
 
 function parseApiErrorPayload(payload, fallbackMessage) {
@@ -5527,6 +5571,365 @@ function renderSourceOperatorNotesDrawer(data) {
   )
 }
 
+function getFubMarketingTag(item) {
+  if (item.marketingType === 'marketing') return { label: 'Marketing', tone: 'connected' }
+  if (item.marketingType === 'non_marketing') return { label: 'Non-marketing', tone: 'neutral' }
+  return { label: 'Unclassified', tone: 'pending' }
+}
+
+function getFubOwnershipTag(item) {
+  if (item.ownershipType === 'company') return { label: 'Company', tone: 'planned' }
+  if (item.ownershipType === 'agent') return { label: 'Agent', tone: 'neutral' }
+  if (item.ownershipType === 'referral') return { label: 'Referral', tone: 'connected' }
+  if (item.ownershipType === 'other') return { label: 'Other', tone: 'neutral' }
+  return { label: 'Ownership open', tone: 'pending' }
+}
+
+function renderFubLeadSourceRuleItem(item, onSaved) {
+  var details = document.createElement('details')
+  details.className = 'source-item'
+
+  var summary = document.createElement('summary')
+  summary.className = 'source-item-summary'
+
+  var left = document.createElement('div')
+  left.className = 'source-item-summary-left'
+
+  var title = document.createElement('div')
+  title.className = 'source-item-summary-title'
+  title.textContent = item.source
+  left.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-item-summary-meta'
+  meta.textContent = item.count + ' contact' + (item.count === 1 ? '' : 's') + (item.sourceGroup ? ' · ' + item.sourceGroup : '')
+  left.appendChild(meta)
+
+  if (item.notes) {
+    var excerpt = document.createElement('div')
+    excerpt.className = 'source-item-summary-copy'
+    excerpt.textContent = item.notes
+    left.appendChild(excerpt)
+  }
+
+  summary.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-item-summary-right'
+  right.appendChild(renderSourceTag(String(item.count), 'neutral'))
+  right.appendChild(renderSourceTag(getFubMarketingTag(item).label, getFubMarketingTag(item).tone))
+  right.appendChild(renderSourceTag(getFubOwnershipTag(item).label, getFubOwnershipTag(item).tone))
+  summary.appendChild(right)
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'source-item-body'
+
+  var grid = document.createElement('div')
+  grid.className = 'memory-inline-grid'
+
+  var marketingSelect = buildSelect([
+    { value: 'unclassified', label: 'Unclassified', selected: item.marketingType === 'unclassified' },
+    { value: 'marketing', label: 'Marketing', selected: item.marketingType === 'marketing' },
+    { value: 'non_marketing', label: 'Non-marketing', selected: item.marketingType === 'non_marketing' },
+  ])
+  grid.appendChild(buildField('Marketing', marketingSelect))
+
+  var ownershipSelect = buildSelect([
+    { value: 'unclassified', label: 'Unclassified', selected: item.ownershipType === 'unclassified' },
+    { value: 'company', label: 'Company', selected: item.ownershipType === 'company' },
+    { value: 'agent', label: 'Agent', selected: item.ownershipType === 'agent' },
+    { value: 'referral', label: 'Referral', selected: item.ownershipType === 'referral' },
+    { value: 'other', label: 'Other', selected: item.ownershipType === 'other' },
+  ])
+  grid.appendChild(buildField('Ownership', ownershipSelect))
+
+  var groupSelect = buildSelect(FUB_SOURCE_GROUP_OPTIONS.map(function(option) {
+    return {
+      value: option,
+      label: option || 'No group',
+      selected: (item.sourceGroup || '') === option,
+    }
+  }))
+  grid.appendChild(buildField('Group', groupSelect))
+
+  var notesInput = buildTextarea('Why this source is classified this way', 2)
+  notesInput.value = item.notes || ''
+  grid.appendChild(buildField('Notes', notesInput))
+  body.appendChild(grid)
+
+  var actions = document.createElement('div')
+  actions.className = 'memory-form-actions'
+
+  var save = document.createElement('button')
+  save.type = 'button'
+  save.className = 'memory-button'
+  save.textContent = 'Save Rule'
+  actions.appendChild(save)
+
+  var stamp = document.createElement('span')
+  stamp.className = 'source-card-id'
+  stamp.textContent = item.updatedAt
+    ? 'Last saved ' + formatDate(item.updatedAt) + (item.updatedBy ? ' · ' + item.updatedBy : '')
+    : 'No saved rule yet'
+  actions.appendChild(stamp)
+
+  body.appendChild(actions)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  if (!getStoredAdminToken()) {
+    setFormStatus(status, 'Save token in Write Access before editing rules.', '')
+  }
+  body.appendChild(status)
+
+  save.addEventListener('click', function() {
+    save.disabled = true
+    foundationMutation('/api/fub/lead-sources', 'PATCH', {
+      source: item.source,
+      marketingType: marketingSelect.value,
+      ownershipType: ownershipSelect.value,
+      sourceGroup: groupSelect.value || null,
+      notes: notesInput.value.trim() || null,
+    }).then(function(payload) {
+      var rule = payload.rule || {}
+      item.marketingType = rule.marketingType || marketingSelect.value
+      item.ownershipType = rule.ownershipType || ownershipSelect.value
+      item.sourceGroup = rule.sourceGroup || null
+      item.notes = rule.notes || null
+      item.updatedAt = rule.updatedAt || null
+      item.updatedBy = rule.updatedBy || null
+      setFormStatus(status, 'Saved.', 'success')
+      stamp.textContent = item.updatedAt
+        ? 'Last saved ' + formatDate(item.updatedAt) + (item.updatedBy ? ' · ' + item.updatedBy : '')
+        : 'Saved'
+      if (typeof onSaved === 'function') onSaved(item)
+    }).catch(function(error) {
+      setFormStatus(status, error.message || 'Failed to save rule.', 'error')
+    }).finally(function() {
+      save.disabled = false
+    })
+  })
+
+  details.appendChild(body)
+  return details
+}
+
+function renderFubLeadSourceManagerPanel() {
+  var panel = document.createElement('details')
+  panel.className = 'source-stack'
+
+  var summaryRow = document.createElement('summary')
+  summaryRow.className = 'source-stack-summary source-stack-summary-connected'
+
+  var summaryLeft = document.createElement('div')
+  summaryLeft.className = 'source-stack-summary-left'
+
+  var summaryTitle = document.createElement('div')
+  summaryTitle.className = 'source-stack-title'
+  summaryTitle.textContent = 'FUB lead-source taxonomy'
+  summaryLeft.appendChild(summaryTitle)
+
+  var summaryIntro = document.createElement('div')
+  summaryIntro.className = 'source-stack-intro'
+  summaryIntro.textContent = 'Classify lead sources once here, then let marketing reporting, source validation, and sheet rules read the same truth.'
+  summaryLeft.appendChild(summaryIntro)
+  summaryRow.appendChild(summaryLeft)
+
+  var summaryRight = document.createElement('div')
+  summaryRight.className = 'source-item-summary-right'
+  summaryRight.appendChild(renderSourceTag('Loading', 'pending'))
+  summaryRow.appendChild(summaryRight)
+  panel.appendChild(summaryRow)
+
+  var body = document.createElement('div')
+  body.className = 'source-stack-body'
+
+  var contextSelect = buildSelect([
+    { value: 'owner', label: 'Owner / Support FUB', selected: fubLeadSourceViewState.context === 'owner' },
+    { value: 'steve', label: 'Steve FUB', selected: fubLeadSourceViewState.context === 'steve' },
+  ])
+  var refreshButton = document.createElement('button')
+  refreshButton.type = 'button'
+  refreshButton.className = 'memory-button'
+  refreshButton.textContent = 'Refresh Snapshot'
+
+  var queryInput = buildInput('search', 'Search lead source')
+  queryInput.value = fubLeadSourceViewState.query
+
+  var marketingFilter = buildSelect([
+    { value: 'all', label: 'All marketing states', selected: fubLeadSourceViewState.marketing === 'all' },
+    { value: 'unclassified', label: 'Unclassified', selected: fubLeadSourceViewState.marketing === 'unclassified' },
+    { value: 'marketing', label: 'Marketing', selected: fubLeadSourceViewState.marketing === 'marketing' },
+    { value: 'non_marketing', label: 'Non-marketing', selected: fubLeadSourceViewState.marketing === 'non_marketing' },
+  ])
+  filters.appendChild(buildField('Marketing filter', marketingFilter))
+
+  var ownershipFilter = buildSelect([
+    { value: 'all', label: 'All ownership states', selected: fubLeadSourceViewState.ownership === 'all' },
+    { value: 'unclassified', label: 'Unclassified', selected: fubLeadSourceViewState.ownership === 'unclassified' },
+    { value: 'company', label: 'Company', selected: fubLeadSourceViewState.ownership === 'company' },
+    { value: 'agent', label: 'Agent', selected: fubLeadSourceViewState.ownership === 'agent' },
+    { value: 'referral', label: 'Referral', selected: fubLeadSourceViewState.ownership === 'referral' },
+    { value: 'other', label: 'Other', selected: fubLeadSourceViewState.ownership === 'other' },
+  ])
+
+  var topGrid = document.createElement('div')
+  topGrid.className = 'memory-form-grid'
+  topGrid.appendChild(buildField('Context', contextSelect))
+  topGrid.appendChild(buildField('Search', queryInput))
+  topGrid.appendChild(buildField('Marketing filter', marketingFilter))
+  topGrid.appendChild(buildField('Ownership filter', ownershipFilter))
+  body.appendChild(topGrid)
+
+  var actionRow = document.createElement('div')
+  actionRow.className = 'memory-form-actions'
+  actionRow.appendChild(refreshButton)
+
+  var stamp = document.createElement('span')
+  stamp.className = 'source-card-id'
+  stamp.textContent = 'No saved snapshot yet'
+  actionRow.appendChild(stamp)
+  body.appendChild(actionRow)
+
+  var summary = document.createElement('div')
+  summary.className = 'source-layer-divider'
+  summary.textContent = 'Loading lead-source snapshot...'
+  body.appendChild(summary)
+
+  var status = document.createElement('p')
+  status.className = 'form-status'
+  body.appendChild(status)
+
+  var list = document.createElement('div')
+  list.className = 'source-contract-stack'
+  body.appendChild(list)
+
+  var loaded = null
+
+  function syncSummaryTags() {
+    summaryRight.innerHTML = ''
+    if (!loaded) {
+      summaryRight.appendChild(renderSourceTag('Loading', 'pending'))
+      return
+    }
+
+    var stats = loaded.stats || {}
+    var snapshot = loaded.snapshot || {}
+    summaryRight.appendChild(renderSourceTag((loaded.context && loaded.context.label) || 'FUB', 'neutral'))
+    summaryRight.appendChild(renderSourceTag((stats.totalSources || 0) + ' sources', 'neutral'))
+    summaryRight.appendChild(renderSourceTag((stats.unclassified || 0) + ' open', stats.unclassified ? 'pending' : 'connected'))
+    summaryRight.appendChild(renderSourceTag(snapshot.available ? 'Snapshot ready' : 'Needs refresh', snapshot.available ? 'connected' : 'pending'))
+  }
+
+  function filteredSources() {
+    if (!loaded) return []
+    return (loaded.sources || []).filter(function(item) {
+      if (fubLeadSourceViewState.marketing !== 'all' && item.marketingType !== fubLeadSourceViewState.marketing) return false
+      if (fubLeadSourceViewState.ownership !== 'all' && item.ownershipType !== fubLeadSourceViewState.ownership) return false
+      var query = fubLeadSourceViewState.query.trim().toLowerCase()
+      if (!query) return true
+      return [
+        item.source,
+        item.notes,
+        item.sourceGroup,
+        item.marketingType,
+        item.ownershipType,
+      ].filter(Boolean).join(' ').toLowerCase().indexOf(query) !== -1
+    })
+  }
+
+  function renderLoaded() {
+    var items = filteredSources()
+    var stats = loaded.stats || {}
+    var snapshot = loaded.snapshot || {}
+    var scan = loaded.scan || {}
+    syncSummaryTags()
+
+    stamp.textContent = snapshot.available && snapshot.refreshedAt
+      ? 'Snapshot updated ' + formatDate(snapshot.refreshedAt) + (snapshot.refreshedBy ? ' · ' + snapshot.refreshedBy : '')
+      : 'No saved snapshot yet'
+
+    summary.textContent =
+      'Showing ' + items.length + ' of ' + (stats.totalSources || 0) + ' sources' +
+      ' · ' + (stats.unclassified || 0) + ' marketing unclassified' +
+      ' · ' + (scan.peopleScanned || 0) + ' contacts scanned across ' + (scan.pagesScanned || 0) + ' pages' +
+      (scan.truncated ? ' · refresh hit the safety cap' : '')
+
+    list.innerHTML = ''
+    if (!items.length) {
+      var empty = document.createElement('div')
+      empty.className = 'section-card source-card'
+      empty.textContent = snapshot.available
+        ? 'No lead sources match the current filters.'
+        : 'No saved lead-source snapshot yet. Save write access and run Refresh Snapshot.'
+      list.appendChild(empty)
+      return
+    }
+
+    items.forEach(function(item) {
+      list.appendChild(renderFubLeadSourceRuleItem(item, function() {
+        renderLoaded()
+      }))
+    })
+  }
+
+  function load(refresh) {
+    if (refresh && !getStoredAdminToken()) {
+      setFormStatus(status, 'Save the admin token in Write Access before refreshing the snapshot.', 'error')
+      return
+    }
+
+    var message = refresh ? 'Refreshing FUB lead-source snapshot...' : 'Loading saved FUB lead-source snapshot...'
+    summary.textContent = message
+    list.innerHTML = '<p>' + message + '</p>'
+    refreshButton.disabled = true
+    if (refresh) setFormStatus(status, 'Running a full Follow Up Boss lead-source scan. This can take a bit on the owner account.', '')
+
+    var loader = refresh ? refreshFubLeadSources : fetchFubLeadSources
+    loader(fubLeadSourceViewState.context).then(function(data) {
+      loaded = data
+      setFormStatus(status, refresh ? 'Snapshot refreshed.' : '', refresh ? 'success' : '')
+      renderLoaded()
+    }).catch(function(error) {
+      syncSummaryTags()
+      summary.textContent = refresh ? 'Failed to refresh lead-source snapshot.' : 'Failed to load lead-source snapshot.'
+      list.innerHTML = ''
+      var msg = document.createElement('div')
+      msg.className = 'section-card source-card'
+      msg.textContent = error.message || 'Failed to load lead-source snapshot.'
+      list.appendChild(msg)
+      setFormStatus(status, error.message || 'Lead-source request failed.', 'error')
+    }).finally(function() {
+      refreshButton.disabled = false
+    })
+  }
+
+  contextSelect.addEventListener('change', function() {
+    fubLeadSourceViewState.context = contextSelect.value
+    load(false)
+  })
+  queryInput.addEventListener('input', function() {
+    fubLeadSourceViewState.query = queryInput.value
+    if (loaded) renderLoaded()
+  })
+  marketingFilter.addEventListener('change', function() {
+    fubLeadSourceViewState.marketing = marketingFilter.value
+    if (loaded) renderLoaded()
+  })
+  ownershipFilter.addEventListener('change', function() {
+    fubLeadSourceViewState.ownership = ownershipFilter.value
+    if (loaded) renderLoaded()
+  })
+  refreshButton.addEventListener('click', function() {
+    load(true)
+  })
+
+  panel.appendChild(body)
+  load(false)
+  return panel
+}
+
 function renderCapabilityCard(item) {
   var article = document.createElement('article')
   article.className = 'section-card source-card'
@@ -6035,6 +6438,10 @@ function renderSourceRegistry(section) {
         fixedKindLabel: config.title.toLowerCase(),
         resultsLabel: 'source systems',
       }))
+    }
+
+    if (section === 'source-apis') {
+      container.appendChild(renderFubLeadSourceManagerPanel())
     }
 
     if (config.showSystems && config.showConnectors) {
