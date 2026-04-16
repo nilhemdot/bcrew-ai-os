@@ -2,14 +2,18 @@
 name: Backlog Additions from 2026-04-15 Audit Session
 description: Structured backlog items to add to bcrew-ai-os PostgreSQL (backlog_items table) when the Mac Mini session picks up. Source: full system audit + Mark Kashef video research + old BCrew-Buddy backlog carry-forwards + Codex Convo 2 loose threads + ghost-agent incident.
 type: research
-status: ready-to-file
+status: partially-mined
 ---
 
 # Backlog Additions — 2026-04-15 Session
 
 ## Status
 
-All items below are **NOT YET FILED** to `backlog_items`. The Windows audit session (BCrew-Buddy workspace) cannot reach the Mac Mini's PostgreSQL directly. A future Codex or Claude Code session on the Mac Mini should file these via `POST /api/backlog-items` or the `createBacklogItem` function in `lib/foundation-db.js`.
+This file is now a staging archive, not a live filing checklist.
+
+Some ideas from it were later promoted, rewritten, or deliberately deferred in the live Foundation backlog. Do **not** bulk-file this list unchanged.
+
+Mine it selectively against the current live backlog and only promote the items that still add unique value.
 
 ## Filing instructions for the next session
 

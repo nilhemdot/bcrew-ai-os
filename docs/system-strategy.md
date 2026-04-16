@@ -77,6 +77,8 @@ Conflicting decisions should be surfaced and cleaned up, not allowed to silently
 
 Agents support strategy. They do not define it.
 
+Coding assistants like Codex and Claude Code are implementation tools inside the system. They are not business agents in the operating model.
+
 Agents should:
 
 - ground themselves in Foundation first
@@ -92,6 +94,14 @@ Agents should not:
 - overwrite approved truth silently
 - hardcode live numbers into docs
 - normalize stale or unverifiable data
+
+## Agent Boundaries And Deployment
+
+- Project repos hold system docs and code. They are not the canonical identity home of the agents that use them.
+- Personal agents can span multiple systems and projects for one human owner.
+- System-dedicated agents can specialize in one system deeply without trapping their identity, memory, or permissions inside that repo.
+- Browser-capable agents should run with isolated user and session boundaries when credentials or trust boundaries matter.
+- Every long-running runtime, scheduler, or agent service needs visible supervision, a stop path, and a clean decommission path.
 
 ## Source Doctrine
 
