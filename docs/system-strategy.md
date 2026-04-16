@@ -97,9 +97,9 @@ Agents should not:
 
 ## Agent Boundaries And Deployment
 
-- Project repos hold system docs and code. They are not the canonical identity home of the agents that use them.
-- Personal agents can span multiple systems and projects for one human owner.
-- System-dedicated agents can specialize in one system deeply without trapping their identity, memory, or permissions inside that repo.
+- Prefer to keep project repos as the home of system docs and code, not the long-term identity home of the agents that use them.
+- Personal agents may span multiple systems and projects for one human owner.
+- System-dedicated agents may specialize in one system deeply without trapping their identity, memory, or permissions inside that repo.
 - Browser-capable agents should run with isolated user and session boundaries when credentials or trust boundaries matter.
 - Every long-running runtime, scheduler, or agent service needs visible supervision, a stop path, and a clean decommission path.
 
