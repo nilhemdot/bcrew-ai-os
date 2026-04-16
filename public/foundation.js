@@ -5763,7 +5763,6 @@ function renderFubLeadSourceManagerPanel() {
     { value: 'marketing', label: 'Marketing', selected: fubLeadSourceViewState.marketing === 'marketing' },
     { value: 'non_marketing', label: 'Non-marketing', selected: fubLeadSourceViewState.marketing === 'non_marketing' },
   ])
-  filters.appendChild(buildField('Marketing filter', marketingFilter))
 
   var ownershipFilter = buildSelect([
     { value: 'all', label: 'All ownership states', selected: fubLeadSourceViewState.ownership === 'all' },
