@@ -1626,14 +1626,18 @@ function compareBacklogItems(a, b) {
     laneOrder[lane.key] = index
   })
 
-  var priorityDelta = (priorityOrder[a.priority] || 9) - (priorityOrder[b.priority] || 9)
+  var aPriority = priorityOrder[a.priority] != null ? priorityOrder[a.priority] : 9
+  var bPriority = priorityOrder[b.priority] != null ? priorityOrder[b.priority] : 9
+  var priorityDelta = aPriority - bPriority
   if (priorityDelta !== 0) return priorityDelta
 
   var aRank = typeof a.rank === 'number' ? a.rank : Number.MAX_SAFE_INTEGER
   var bRank = typeof b.rank === 'number' ? b.rank : Number.MAX_SAFE_INTEGER
   if (aRank !== bRank) return aRank - bRank
 
-  var laneDelta = (laneOrder[a.lane] || 99) - (laneOrder[b.lane] || 99)
+  var aLane = laneOrder[a.lane] != null ? laneOrder[a.lane] : 99
+  var bLane = laneOrder[b.lane] != null ? laneOrder[b.lane] : 99
+  var laneDelta = aLane - bLane
   if (laneDelta !== 0) return laneDelta
 
   return String(a.title || '').localeCompare(String(b.title || ''))
@@ -1686,21 +1690,8 @@ function isSourceLayerBacklogItem(item) {
   }
 
   if (explicitIds[item.id]) return true
-  if (/^(SOURCE|DATA)-/.test(String(item.id || ''))) return true
-
-  var haystack = [
-    item.id,
-    item.title,
-    item.summary,
-    item.whyItMatters,
-    item.nextAction,
-    item.statusNote,
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase()
-
-  return /source trust|source contract|data source|connector|owners dashboard|finance sign-off|sign-off|signed off/.test(haystack)
+  if (/^(SOURCE|DATA|FINANCE)-/.test(String(item.id || ''))) return true
+  return false
 }
 
 function compareSourceFocusItems(a, b) {
@@ -1714,10 +1705,14 @@ function compareSourceFocusItems(a, b) {
   }
   var priorityOrder = { P0: 0, P1: 1, P2: 2, P3: 3 }
 
-  var laneDelta = (laneOrder[a.lane] || 99) - (laneOrder[b.lane] || 99)
+  var aLane = laneOrder[a.lane] != null ? laneOrder[a.lane] : 99
+  var bLane = laneOrder[b.lane] != null ? laneOrder[b.lane] : 99
+  var laneDelta = aLane - bLane
   if (laneDelta !== 0) return laneDelta
 
-  var priorityDelta = (priorityOrder[a.priority] || 9) - (priorityOrder[b.priority] || 9)
+  var aPriority = priorityOrder[a.priority] != null ? priorityOrder[a.priority] : 9
+  var bPriority = priorityOrder[b.priority] != null ? priorityOrder[b.priority] : 9
+  var priorityDelta = aPriority - bPriority
   if (priorityDelta !== 0) return priorityDelta
 
   var aRank = typeof a.rank === 'number' ? a.rank : Number.MAX_SAFE_INTEGER
@@ -1737,7 +1732,15 @@ function renderCurrentSourceFocusPanel(items) {
   var focusItems = getSourceFocusItems(items)
   if (!focusItems.length) return null
 
-  var current = focusItems[0]
+  var storedId = getStoredSourceFocusItemId()
+  var current = focusItems.find(function(item) {
+    return item.id === storedId
+  }) || focusItems[0]
+
+  if (!storedId || storedId !== current.id) {
+    setStoredSourceFocusItemId(current.id)
+  }
+
   var queuedCount = focusItems.length - 1
 
   var panel = document.createElement('section')
@@ -1764,6 +1767,41 @@ function renderCurrentSourceFocusPanel(items) {
   left.appendChild(intro)
 
   header.appendChild(left)
+
+  var toolbar = document.createElement('div')
+  toolbar.className = 'source-focus-toolbar'
+
+  var focusStatusWrap = document.createElement('div')
+  focusStatusWrap.className = 'status-planned'
+  var focusStatus = document.createElement('span')
+  focusStatus.className = 'status-pill status-pill-static'
+  focusStatus.textContent = 'Currently building'
+  focusStatusWrap.appendChild(focusStatus)
+  toolbar.appendChild(focusStatusWrap)
+
+  var selectWrap = document.createElement('label')
+  selectWrap.className = 'source-focus-select-wrap'
+
+  var selectLabel = document.createElement('span')
+  selectLabel.className = 'operations-filter-label'
+  selectLabel.textContent = 'Focus on'
+  selectWrap.appendChild(selectLabel)
+
+  var focusSelect = buildSelect(focusItems.map(function(item) {
+    return {
+      value: item.id,
+      label: item.id + ' · ' + item.title,
+      selected: item.id === current.id,
+    }
+  }))
+  focusSelect.addEventListener('change', function() {
+    setStoredSourceFocusItemId(focusSelect.value)
+    renderSourceRegistry()
+  })
+  selectWrap.appendChild(focusSelect)
+  toolbar.appendChild(selectWrap)
+
+  header.appendChild(toolbar)
   panel.appendChild(header)
 
   var card = document.createElement('article')
@@ -3240,6 +3278,7 @@ var cache = {
   docs: {},
 }
 var FOUNDATION_ADMIN_TOKEN_KEY = 'bcrew.foundation.adminToken'
+var FOUNDATION_SOURCE_FOCUS_KEY = 'bcrew.foundation.sourceFocusItemId'
 
 var liveDocPaths = {
   'docs/strategy/bhag-model.md': true,
@@ -3308,6 +3347,23 @@ function setStoredAdminToken(value) {
     else window.localStorage.setItem(FOUNDATION_ADMIN_TOKEN_KEY, value)
   } catch {
     // Ignore storage failures and let the request fail visibly.
+  }
+}
+
+function getStoredSourceFocusItemId() {
+  try {
+    return window.localStorage.getItem(FOUNDATION_SOURCE_FOCUS_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
+function setStoredSourceFocusItemId(value) {
+  try {
+    if (!value) window.localStorage.removeItem(FOUNDATION_SOURCE_FOCUS_KEY)
+    else window.localStorage.setItem(FOUNDATION_SOURCE_FOCUS_KEY, value)
+  } catch {
+    // Ignore storage failures and let the UI fall back to backlog ordering.
   }
 }
 
