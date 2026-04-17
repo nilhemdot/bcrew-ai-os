@@ -1,8 +1,8 @@
 # Agent Doctrine Decisions — Captured for Review (2026-04-15 / 2026-04-17)
 
-**Status:** Research / proposed doctrine. Not yet integrated into `docs/system-strategy.md`.
+**Status:** Research / doctrine reasoning. **Key principles ALREADY integrated into `docs/system-strategy.md`** (lines 80, 100-104) as of 2026-04-16. This doc supplements with fuller reasoning + rejected alternatives + open questions.
 **Context:** Decisions made during architecture conversations 2026-04-15 through 2026-04-17 with Claude Opus 4.7.
-**Purpose:** Surface decisions so other agents can review and Steve can confirm before promotion to system-strategy.md.
+**Purpose:** Document the reasoning behind the doctrine lines in system-strategy.md so future agents understand WHY, not just WHAT. Surface open questions that aren't resolved.
 
 ---
 
@@ -23,7 +23,7 @@
 - Agent identities/memory move to `~/.agents/<name>/` on the Mac Mini.
 - Each agent registered in PostgreSQL with a pointer to its OS-level home.
 
-**Status:** Decided 2026-04-15. Not yet written into `system-strategy.md`.
+**Status:** Decided 2026-04-15. **Principle captured** in `system-strategy.md` line 100-102 ("project repos as home of system docs and code, not long-term identity home of agents; personal agents may span multiple systems; system-dedicated agents may specialize in one system deeply without trapping identity/memory/permissions inside that repo").
 
 ---
 
@@ -52,7 +52,7 @@ SKILL.md agents can only use tools the orchestrator exposes. Terminal-native age
 - Personal agents never live in system repos.
 - Coding agents per repo are a planned future pattern; not built yet.
 
-**Status:** Decided 2026-04-16. Refined 2026-04-17. Not yet written into `system-strategy.md`.
+**Status:** Decided 2026-04-16. Refined 2026-04-17. **Principle captured** in `system-strategy.md` line 80 ("Coding assistants like Codex and Claude Code are implementation tools inside the system. They are not business agents in the operating model.") — that's the coding-agent distinction. Personal/system-dedicated distinction captured at lines 100-102. Coding-agent-per-repo subprocess pattern NOT yet in system-strategy.md; still a candidate future pattern.
 
 ---
 
@@ -80,7 +80,7 @@ SKILL.md agents can only use tools the orchestrator exposes. Terminal-native age
 - 20 real estate agents each with their own AI: 2 Mac Minis.
 - Cluster by adding machines, not by moving to cloud.
 
-**Status:** Decided 2026-04-16. Not yet written into `system-strategy.md`.
+**Status:** Decided 2026-04-16. **Principle captured** in `system-strategy.md` line 103 ("Browser-capable agents should run with isolated user and session boundaries when credentials or trust boundaries matter."). Specific Mac Mini implementation details (dummy HDMI, Fast User Switching, per-user Chrome profiles) are deployment-level, not system-strategy level.
 
 ---
 
@@ -103,9 +103,9 @@ SKILL.md agents can only use tools the orchestrator exposes. Terminal-native age
 - One-command decommission workflow for taking an agent offline cleanly.
 - Pre-launch checklist for every new service: "Does this have a visible kill switch?"
 
-**Status:** GHOST-001 in backlog (implementation). This doc proposes also adding it as a hard rule in `system-strategy.md` operational-rules section.
+**Status:** **Doctrine line captured** in `system-strategy.md` line 104 ("Every long-running runtime, scheduler, or agent service needs visible supervision, a stop path, and a clean decommission path."). Implementation work still in backlog as GHOST-001.
 
-**Backlog item:** `GHOST-001` in `docs/research/2026-04-15-backlog-additions.md`. Should be split: (a) doctrine line in system-strategy, (b) dashboard process registry, (c) dead-man switch cron, (d) cost dashboard, (e) one-command decommission.
+**Backlog item:** `GHOST-001` in `docs/research/2026-04-15-backlog-additions.md`. Should be split: (a) ~~doctrine line in system-strategy~~ DONE, (b) dashboard process registry, (c) dead-man switch cron, (d) cost dashboard, (e) one-command decommission.
 
 ---
 
