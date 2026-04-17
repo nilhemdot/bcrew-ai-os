@@ -990,21 +990,6 @@ function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
     })
   })
 
-  rules.forEach(function(rule) {
-    if (merged.has(rule.source)) return
-    merged.set(rule.source, {
-      source: rule.source,
-      count: 0,
-      marketingType: rule.marketingType,
-      ownershipType: rule.ownershipType,
-      flagState: rule.flagState || getDefaultFubFlagState(rule.source),
-      sourceGroup: rule.sourceGroup || getDefaultFubLeadSourceGroup(rule.source),
-      notes: rule.notes,
-      updatedAt: rule.updatedAt,
-      updatedBy: rule.updatedBy,
-    })
-  })
-
   const sources = Array.from(merged.values()).sort(function(a, b) {
     if (b.count !== a.count) return b.count - a.count
     return a.source.localeCompare(b.source)
