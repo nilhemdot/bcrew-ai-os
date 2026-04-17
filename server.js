@@ -99,8 +99,8 @@ const canonicalDecisionCategories = getCanonicalDecisionCategories()
 const backlogIdPrefixes = getFoundationBacklogIdPrefixes()
 const FUB_LEAD_SOURCE_REFRESH_PAGE_LIMIT = 100
 const FUB_LEAD_SOURCE_REFRESH_MAX_PAGES = Math.min(
-  1000,
-  Math.max(1, Number(process.env.FUB_LEAD_SOURCE_REFRESH_MAX_PAGES) || 250)
+  5000,
+  Math.max(1, Number(process.env.FUB_LEAD_SOURCE_REFRESH_MAX_PAGES) || 1000)
 )
 const DEFAULT_FUB_LEAD_SOURCE_GROUPS = {
   'Web Leads': [
