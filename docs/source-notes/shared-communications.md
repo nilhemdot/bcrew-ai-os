@@ -128,7 +128,7 @@ What already exists now:
   - meeting-note artifacts archived in PostgreSQL
   - meeting-transcript artifacts archived in PostgreSQL
   - meeting artifacts tagged with capture-time meeting class (`broadcast` vs `discussion`) so privacy and extraction rules do not have to guess later
-  - first pending candidate lane extracted transcript-first with Foundation context
+  - governed candidate extraction now live for meeting transcripts, Gmail threads, Missive threads, and Slack threads with Foundation context
 - old repo still holds additional Missive search patterns worth borrowing
 
 Best implementation path:
