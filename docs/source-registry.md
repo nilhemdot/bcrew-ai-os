@@ -94,6 +94,7 @@ Connectors matter too, but connector access does **not** mean trusted business m
 | `SRC-GMAIL-001` | Gmail | Delegated Google Workspace (`ai@bensoncrew.ca`) | Mailbox read layer | Decision capture inputs and communication context | Delegated Google Workspace | Verified Readable | 2026-04-23 |
 | `SRC-GCAL-001` | Google Calendar | Delegated Google Workspace (`ai@bensoncrew.ca` primary calendar) | Calendar read layer | Meetings, scheduling, and governance cadence | Delegated Google Workspace | Verified Readable | 2026-04-23 |
 | `SRC-MISSIVE-001` | Missive | Live shared inbox layer | Shared inbox and internal thread collaboration | Shared inbox comments, routing, and team-thread context | Missive API | Verified Readable | 2026-04-23 |
+| `SRC-SLACK-001` | Slack | Existing Benson Crew Slack bot on the Mac Mini + PostgreSQL shared archive | Team channel read layer | Team channel threads, team-signal context, and culture / coordination evidence | Slack API | Verified Readable | 2026-04-23 |
 | `SRC-MEETINGS-001` | Google Meeting Notes / Transcripts | Delegated Google Workspace scans across enabled BCrew users + PostgreSQL shared archive | Meeting evidence read layer | Meeting transcripts, notes, action items, and raw decision evidence | Delegated Google Workspace | Verified Readable | 2026-04-23 |
 | `SRC-FINANCE-001` | Benson Crew - Owners Dashboard | `(Input) Weekly Actuals` + `Cashflow Dash` | Finance validation unit | Internal finance truth and dashboard interpretation layer | Google Drive / Google Sheets | Partially Signed Off | 2026-04-20 |
 
@@ -103,7 +104,6 @@ Connectors matter too, but connector access does **not** mean trusted business m
 |-----------|--------|--------------|-------|----------------|
 | `SRC-CLICKUP-001` | ClickUp | Task management, onboarding checklists, agent roster supplements | Carson | Pending Revalidation |
 | `SRC-GDRIVE-001` | Google Drive | Docs, notes, brand guidelines, meeting artifacts | All | Pending Revalidation under the delegated Google Workspace path, which is the canonical Google standard in this rebuild. |
-| `SRC-SLACK-001` | Slack | Team communication | All | Pending Revalidation |
 | `SRC-DATAFORSEO-001` | DataForSEO | SEO rankings, keyword research | System | Pending Revalidation |
 | `SRC-GHL-001` | GoHighLevel | Contacts, pipelines, automation | Steve | Pending Revalidation |
 | `SRC-GADS-001` | Google Ads | MCC + sub-account performance | Steve | Pending Revalidation |

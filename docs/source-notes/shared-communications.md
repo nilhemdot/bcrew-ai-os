@@ -115,20 +115,26 @@ What already exists now:
   - messages
   - comments
   - full thread reads
+- current repo now has a working Slack bridge in `lib/slack.js` for:
+  - auth / health
+  - channel listing
+  - channel history
+  - thread replies
+  - permalink reads
 - current repo now has the first governed archive slice for shared communications:
   - Gmail thread artifacts archived in PostgreSQL
   - Missive thread artifacts archived in PostgreSQL
+  - Slack thread artifacts archived in PostgreSQL
   - meeting-note artifacts archived in PostgreSQL
   - meeting-transcript artifacts archived in PostgreSQL
   - meeting artifacts tagged with capture-time meeting class (`broadcast` vs `discussion`) so privacy and extraction rules do not have to guess later
   - first pending candidate lane extracted transcript-first with Foundation context
 - old repo still holds additional Missive search patterns worth borrowing
-- old repo already had Slack read patterns through MCP
 
 Best implementation path:
 
 1. keep hardening the now-live Google delegated and Missive readers in the current repo
-2. revalidate Slack as read-only first
+2. keep hardening the now-live Slack reader and make channel rollout explicit
 3. keep all four sources behind one shared normalization layer
 
 Do **not** build four separate new intelligence systems.

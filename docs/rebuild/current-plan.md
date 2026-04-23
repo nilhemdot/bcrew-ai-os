@@ -107,7 +107,7 @@ Use [Current State](current-state.md) for the short read.
    - MarketMasters
 8. extend the shared communications layer after the first governed slice proves out:
    - `SOURCE-003` broader Drive hardening
-   - `SOURCE-005` Slack read-only revalidation
+   - `SOURCE-005` Slack channel-rollout and extraction hardening
    - widen extraction types only after archive + normalization + first decision path are stable
 9. build the shared business-atoms layer in Foundation:
    - `STRATEGY-001`

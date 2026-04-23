@@ -22,6 +22,8 @@
     "gmail:sync-archive": "node --env-file-if-exists=.env scripts/sync-gmail-archive.mjs",
     "missive:extract-candidates": "node --env-file-if-exists=.env scripts/extract-missive-thread-candidates.mjs",
     "missive:sync-archive": "node --env-file-if-exists=.env scripts/sync-missive-archive.mjs",
+    "slack:verify": "node --env-file-if-exists=.env scripts/slack-shared-comms-verify.mjs",
+    "slack:sync-archive": "node --env-file-if-exists=.env scripts/sync-slack-archive.mjs",
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",
     "bhag:update": "node scripts/update-bhag-builder-paths.mjs"
   },
