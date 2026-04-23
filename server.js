@@ -32,6 +32,7 @@ import {
   markPendingDocUpdateFailed,
   applySharedCommunicationCandidateToBacklog,
   applySharedCommunicationCandidateToDecision,
+  applySharedCommunicationCandidateToQuestion,
   rejectPendingDocUpdate,
   recordReviewQueueChange,
   recordSourceDriftChange,
@@ -3228,6 +3229,53 @@ app.post('/api/shared-communications/candidates/:candidateKey/apply-to-decision'
       500,
       'shared_communications_candidate_apply_to_decision_failed',
       error instanceof Error ? error.message : 'Failed to apply shared communications candidate to a decision.'
+    )
+  }
+})
+
+app.post('/api/shared-communications/candidates/:candidateKey/apply-to-question', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['title', 'summary', 'owner']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_question_body', 'Unknown question fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  const title = Object.prototype.hasOwnProperty.call(req.body, 'title')
+    ? optionalStringField(errors, req.body, 'title', 'Title', 200)
+    : undefined
+  const summary = Object.prototype.hasOwnProperty.call(req.body, 'summary')
+    ? optionalStringField(errors, req.body, 'summary', 'Summary', 4000)
+    : undefined
+  const owner = Object.prototype.hasOwnProperty.call(req.body, 'owner')
+    ? optionalStringField(errors, req.body, 'owner', 'Owner', 120)
+    : undefined
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_question_body', 'Question candidate apply payload is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const result = await applySharedCommunicationCandidateToQuestion(
+      String(req.params.candidateKey),
+      {
+        ...(title !== undefined ? { title } : {}),
+        ...(summary !== undefined ? { summary } : {}),
+        ...(owner !== undefined ? { owner } : {}),
+      },
+      getRequestActor(req),
+    )
+
+    cacheHeadersNoStore(res)
+    res.json(result)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'shared_communications_candidate_apply_to_question_failed',
+      error instanceof Error ? error.message : 'Failed to apply shared communications candidate to an open question.'
     )
   }
 })
