@@ -116,7 +116,7 @@ async function extractCandidatesFromTranscript(artifact, foundationContext, mode
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const limit = Math.min(100, Math.max(1, Number(args.limit || 3)));
+  const limit = Math.min(300, Math.max(1, Number(args.limit || 3)));
   const model = args.model || DEFAULT_MODEL;
 
   console.log('Extract shared communication candidates from archived meeting transcripts');

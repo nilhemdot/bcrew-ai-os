@@ -149,7 +149,9 @@ async function main() {
   });
 
   printTable('Most recent meetings missing transcripts', recentMissingResult.rows, row => {
-    const latestAt = row.latest_at ? String(row.latest_at).replace('T', ' ').slice(0, 16) : 'n/a';
+    const latestAt = row.latest_at
+      ? new Date(row.latest_at).toISOString().replace('T', ' ').slice(0, 16)
+      : 'n/a';
     return `${latestAt} | ${row.note_title} | owner ${row.source_account} | ${row.meeting_class}`;
   });
 }
