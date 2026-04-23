@@ -22,14 +22,22 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const STRATEGY_DOC_PATH = path.join(REPO_ROOT, 'docs', 'business-strategy.md');
 
 const DEFAULT_MODEL = process.env.OPENAI_EXTRACTION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini';
-const EXTRACTION_METHOD = 'meeting_transcript_context_v1';
-const SUPSERSEDED_METHODS = ['meeting_next_steps_v1', EXTRACTION_METHOD];
+const EXTRACTION_METHOD = 'meeting_transcript_context_v2';
+const SUPSERSEDED_METHODS = ['meeting_next_steps_v1', 'meeting_transcript_context_v1', EXTRACTION_METHOD];
 const VALID_CANDIDATE_TYPES = new Set([
   'task_candidate',
   'decision_candidate',
   'blocker',
   'feedback_signal',
   'atom_candidate',
+]);
+const VALID_SENSITIVITIES = new Set([
+  'neutral',
+  'positive',
+  'performance_concern',
+  'termination_risk',
+  'comp_discussion',
+  'undisclosed_feedback',
 ]);
 const LOW_SIGNAL_TASK_PATTERNS = [
   /\bopen house\b/i,
@@ -57,6 +65,14 @@ const OUTPUT_SCHEMA = {
           evidence_excerpt: { type: 'string' },
           confidence: { type: 'number', minimum: 0, maximum: 1 },
           min_tier: { type: 'integer', enum: [1, 2, 3] },
+          subject_people: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+          sensitivity: {
+            type: 'string',
+            enum: [...VALID_SENSITIVITIES],
+          },
           links: {
             type: 'object',
             properties: {
@@ -86,6 +102,8 @@ const OUTPUT_SCHEMA = {
           'evidence_excerpt',
           'confidence',
           'min_tier',
+          'subject_people',
+          'sensitivity',
           'links',
         ],
         additionalProperties: false,
@@ -190,6 +208,52 @@ function sanitizeLinks(rawLinks, validBacklogIds, validDecisionIds) {
   };
 }
 
+function buildUserDirectory(foundationContext) {
+  const byEmail = new Map();
+  const byName = new Map();
+
+  for (const user of foundationContext.users || []) {
+    const email = String(user?.email || '').trim().toLowerCase();
+    const name = String(user?.name || '').trim().toLowerCase();
+    if (email) byEmail.set(email, email);
+    if (name && email) byName.set(name, email);
+  }
+
+  return { byEmail, byName };
+}
+
+function sanitizeSubjectPeople(rawSubjectPeople, userDirectory) {
+  const normalized = [];
+  const seen = new Set();
+
+  for (const value of Array.isArray(rawSubjectPeople) ? rawSubjectPeople : []) {
+    const raw = String(value || '').trim();
+    if (!raw) continue;
+    const lower = raw.toLowerCase();
+    const resolvedEmail = userDirectory.byEmail.get(lower) || userDirectory.byName.get(lower) || '';
+    if (!resolvedEmail || seen.has(resolvedEmail)) continue;
+    seen.add(resolvedEmail);
+    normalized.push(resolvedEmail);
+  }
+
+  return normalized.slice(0, 12);
+}
+
+function normalizeSensitivity(rawSensitivity) {
+  const normalized = String(rawSensitivity || '').trim().toLowerCase();
+  return VALID_SENSITIVITIES.has(normalized) ? normalized : 'neutral';
+}
+
+function clampMinTierForSensitivity(minTier, sensitivity) {
+  if (sensitivity === 'termination_risk' || sensitivity === 'comp_discussion' || sensitivity === 'undisclosed_feedback') {
+    return 1;
+  }
+  if (sensitivity === 'performance_concern') {
+    return Math.min(Number(minTier || 3), 2);
+  }
+  return Number(minTier || 3);
+}
+
 function buildCandidateKey(artifactId, candidateType, title, ownerHint, evidenceExcerpt) {
   const seed = JSON.stringify([
     artifactId,
@@ -204,6 +268,7 @@ function buildCandidateKey(artifactId, candidateType, title, ownerHint, evidence
 function sanitizeCandidates(rawCandidates, artifact, foundationContext) {
   const validBacklogIds = new Set((foundationContext.backlog || []).map(item => item.id));
   const validDecisionIds = new Set((foundationContext.decisions || []).map(item => item.id));
+  const userDirectory = buildUserDirectory(foundationContext);
 
   return (Array.isArray(rawCandidates) ? rawCandidates : [])
     .map(rawCandidate => {
@@ -217,7 +282,10 @@ function sanitizeCandidates(rawCandidates, artifact, foundationContext) {
 
       const ownerHint = shorten(rawCandidate.owner_hint || '', 120);
       const confidence = clampConfidence(rawCandidate.confidence);
-      const minTier = [1, 2, 3].includes(Number(rawCandidate.min_tier)) ? Number(rawCandidate.min_tier) : 3;
+      const requestedMinTier = [1, 2, 3].includes(Number(rawCandidate.min_tier)) ? Number(rawCandidate.min_tier) : 3;
+      const sensitivity = normalizeSensitivity(rawCandidate.sensitivity);
+      const minTier = clampMinTierForSensitivity(requestedMinTier, sensitivity);
+      const subjectPeople = sanitizeSubjectPeople(rawCandidate.subject_people, userDirectory);
       const links = sanitizeLinks(rawCandidate.links, validBacklogIds, validDecisionIds);
       const candidateKey = buildCandidateKey(
         artifact.artifactId,
@@ -241,6 +309,8 @@ function sanitizeCandidates(rawCandidates, artifact, foundationContext) {
           extractionMethod: EXTRACTION_METHOD,
           model: DEFAULT_MODEL,
           minTier,
+          subjectPeople,
+          sensitivity,
           links,
           transcriptSource: artifact.metadata?.transcriptSource || 'unknown',
           artifactTitle: artifact.title,
@@ -292,6 +362,10 @@ async function extractCandidatesFromTranscript(artifact, foundationContext, mode
     'You extract governed shared-communication candidates for the Benson Crew Foundation system.',
     'Use the transcript plus the supplied Foundation context.',
     'Use the supplied user roster to resolve people, ownership, and who is being discussed.',
+    'For each candidate, tag subject_people using roster email addresses only. Use [] when the item is not about a specific person.',
+    'For each candidate, assign sensitivity: neutral, positive, performance_concern, termination_risk, comp_discussion, or undisclosed_feedback.',
+    'Training, all-hands, huddles, sales sessions, workshops, and broad team meetings usually stay neutral or positive unless the transcript explicitly contains sensitive people discussion.',
+    'Do not mark ordinary coaching, planning, or public praise as performance_concern. Reserve sensitive labels for explicit negative evaluation, comp, termination, or undisclosed feedback about named people.',
     'Prefer precision over recall. If evidence is weak, omit the item.',
     'Never extract from Gemini summaries or bullet lists. Use transcript evidence only.',
     'Only emit items the system should still care about after the meeting ends.',
@@ -447,7 +521,7 @@ async function main() {
   console.log(`  Pending by type: ${JSON.stringify(snapshot.byType)}`);
   if (snapshot.items[0]) {
     console.log(
-      `  Latest candidate: ${snapshot.items[0].candidateType} -> ${snapshot.items[0].title} (${snapshot.items[0].ownerHint || 'unassigned'})`,
+      `  Latest candidate: ${snapshot.items[0].candidateType} -> ${snapshot.items[0].title} (${snapshot.items[0].ownerHint || 'unassigned'}) [${snapshot.items[0].metadata?.sensitivity || 'neutral'}]`,
     );
   }
 
