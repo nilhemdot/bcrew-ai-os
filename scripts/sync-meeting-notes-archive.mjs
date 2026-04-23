@@ -322,8 +322,8 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const limit = Math.min(50, Math.max(1, Number(args.limit || 5)));
-  const perUserSearchLimit = Math.min(50, Math.max(Number(args.searchLimit || limit * 4), 10));
+  const limit = Math.min(250, Math.max(1, Number(args.limit || 5)));
+  const perUserSearchLimit = Math.min(250, Math.max(Number(args.searchLimit || limit * 4), 10));
 
   await initFoundationDb();
 
