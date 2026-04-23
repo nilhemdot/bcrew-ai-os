@@ -16,7 +16,8 @@
     "missive:verify": "node --env-file-if-exists=.env scripts/missive-shared-comms-verify.mjs",
     "meeting-notes:verify": "node --env-file-if-exists=.env scripts/meeting-notes-verify.mjs",
     "meeting-notes:sync": "node --env-file-if-exists=.env scripts/sync-meeting-notes-archive.mjs",
-    "meeting-notes:extract-tasks": "node --env-file-if-exists=.env scripts/extract-meeting-note-task-candidates.mjs",
+    "meeting-notes:extract-candidates": "node --env-file-if-exists=.env scripts/extract-meeting-transcript-candidates.mjs",
+    "meeting-notes:extract-tasks": "node --env-file-if-exists=.env scripts/extract-meeting-transcript-candidates.mjs",
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",
     "bhag:update": "node scripts/update-bhag-builder-paths.mjs"
   },

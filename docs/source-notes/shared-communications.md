@@ -109,7 +109,7 @@ What already exists now:
   - Drive search
   - Drive folder listing
   - Drive doc export
-  - meeting-note verification against the Gemini-note source plus archive-root access
+  - meeting-note verification against both Gemini-note and transcript paths plus archive-root access
 - current repo now has a working Missive bridge in `lib/missive.js` for:
   - inbox
   - messages
@@ -117,7 +117,8 @@ What already exists now:
   - full thread reads
 - current repo now has the first governed archive slice for shared communications:
   - meeting-note artifacts archived in PostgreSQL
-  - first pending task-candidate lane extracted from explicit `Next steps` bullets
+  - meeting-transcript artifacts archived in PostgreSQL
+  - first pending candidate lane extracted transcript-first with Foundation context
 - old repo still holds additional Missive search patterns worth borrowing
 - old repo already had Slack read patterns through MCP
 

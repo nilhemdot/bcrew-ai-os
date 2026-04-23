@@ -8,6 +8,7 @@ import {
   GOOGLE_SA_KEY_FILE,
   getServiceAccountSummary,
 } from '../lib/google-delegated.js';
+import { extractTranscriptSection } from '../lib/meeting-transcripts.js';
 
 const DEFAULT_SOURCE_USER = process.env.GOOGLE_MEETING_SOURCE_USER || 'ai@bensoncrew.ca';
 const DEFAULT_ARCHIVE_USER = process.env.GOOGLE_MEETING_ARCHIVE_USER || 'crewbert@bensoncrew.ca';
@@ -15,6 +16,8 @@ const DEFAULT_MEETING_ROOT_FOLDER =
   process.env.MEETING_NOTES_ROOT_FOLDER || '1HoWP-kHv8SL0hYMdurg3hmtqCq1XFnPD';
 const GEMINI_NOTES_QUERY =
   "name contains 'Notes by Gemini' and mimeType = 'application/vnd.google-apps.document' and trashed = false";
+const TRANSCRIPT_DOC_QUERY =
+  "name contains 'Transcript' and mimeType = 'application/vnd.google-apps.document' and trashed = false";
 
 function parseArgs(argv) {
   const result = {};
@@ -54,6 +57,7 @@ async function main() {
   console.log(`  Archive user: ${archiveUser}`);
   console.log(`  Meeting root folder: ${folderId}`);
   console.log(`  Gemini query: ${GEMINI_NOTES_QUERY}`);
+  console.log(`  Transcript query: ${TRANSCRIPT_DOC_QUERY}`);
 
   const summary = getServiceAccountSummary();
   console.log(`  Service account: ${summary.clientEmail}`);
@@ -66,6 +70,14 @@ async function main() {
     searchLimit,
   );
   console.log(`  Source search: OK -> ${sourceNotes.length} Gemini-note docs`);
+
+  const transcriptDocs = await driveSearch(
+    sourceUser,
+    TRANSCRIPT_DOC_QUERY,
+    'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
+    searchLimit,
+  );
+  console.log(`  Transcript search: OK -> ${transcriptDocs.length} standalone transcript docs`);
 
   const archivedNotes = await driveListFolder(archiveUser, folderId, folderLimit);
   const archiveDocs = archivedNotes.filter(
@@ -90,11 +102,22 @@ async function main() {
     exportTarget.id,
   );
   const textSummary = summarizeText(text);
+  const transcriptSection = extractTranscriptSection(text);
 
   console.log(
     `  Export sample: OK -> file ${exportTarget.id}, modified ${exportTarget.modifiedTime || 'unknown'}, ${textSummary.characters} chars, ${textSummary.lines} lines`,
   );
-  console.log('Meeting-note reads are ready for shared-communications source verification.');
+  if (!transcriptSection && !transcriptDocs.length) {
+    throw new Error('No transcript path detected in current meeting artifacts.');
+  }
+  console.log(
+    `  Transcript sample: ${
+      transcriptSection
+        ? `OK -> ${transcriptSection.transcriptLineCount} transcript lines, ${transcriptSection.speakerNames.length} speakers`
+        : 'OK -> standalone transcript docs present'
+    }`,
+  );
+  console.log('Meeting-note and transcript reads are ready for shared-communications source verification.');
 }
 
 main().catch((error) => {

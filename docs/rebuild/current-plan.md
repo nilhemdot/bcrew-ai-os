@@ -68,9 +68,10 @@ Use [Current State](current-state.md) for the short read.
      - `SOURCE-019`
      - `SOURCE-020`
      - raw meeting-note archive is now live
-     - first pending task-candidate lane is now live
+     - raw meeting-transcript archive is now live
+     - first pending transcript-first candidate lane is now live
      - normalize one shared communication record across more surfaces
-     - add the next governed extraction path after task candidates prove out
+     - add the next governed extraction path after the first candidate lane proves out
    - first governed outputs:
      - contract registry starter entries
      - `Ops Hub -> Deal Review Inbox`
@@ -192,7 +193,7 @@ Rule:
 - KPI is live and readable, but AI OS still has not locked which truth layer to read for each KPI job
 - the marketing connector/source map still needs a clear pillar-owned boundary before a future rebuild
 - the backlog scope registry is now live, but backlog cleanup is still open
-- Gmail / Calendar / Missive / meeting-note reads are now live, and the first meeting-note archive + task-candidate slice is live, but the broader shared archive / normalize / extraction layer does not exist yet
+- Gmail / Calendar / Missive / meeting-note reads are now live, and the first meeting-note + meeting-transcript archive with transcript-first candidate extraction is live, but the broader shared archive / normalize / extraction layer does not exist yet
 - the research lane is still overloaded
 - OpenClaw native memory baseline is still off
 
