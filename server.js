@@ -34,6 +34,7 @@ import {
   recordReviewQueueChange,
   recordSourceDriftChange,
   saveFubLeadSourceSnapshot,
+  updateSharedCommunicationCandidateStatus,
   upsertFubLeadSourceRule,
   updateBacklogItem,
   updateDecision,
@@ -3120,6 +3121,46 @@ app.get('/api/shared-communications/candidates', requireAdminToken, async (req, 
       500,
       'shared_communications_candidates_failed',
       error instanceof Error ? error.message : 'Failed to load shared communications candidates.'
+    )
+  }
+})
+
+app.post('/api/shared-communications/candidates/:candidateKey/:action', requireAdminToken, async (req, res) => {
+  try {
+    const action = String(req.params.action || '').trim().toLowerCase()
+    const statusByAction = {
+      approve: 'approved',
+      reject: 'rejected',
+      apply: 'applied',
+      duplicate: 'duplicate',
+      reset: 'pending',
+    }
+    const nextStatus = statusByAction[action]
+    if (!nextStatus) {
+      sendApiError(res, 400, 'shared_communications_candidate_action_invalid', `Unsupported action: ${action}`)
+      return
+    }
+
+    const metadataPatch =
+      req.body && typeof req.body === 'object' && !Array.isArray(req.body)
+        ? req.body
+        : {}
+
+    const candidate = await updateSharedCommunicationCandidateStatus(
+      String(req.params.candidateKey),
+      nextStatus,
+      getRequestActor(req),
+      metadataPatch,
+    )
+
+    cacheHeadersNoStore(res)
+    res.json({ candidate })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'shared_communications_candidate_action_failed',
+      error instanceof Error ? error.message : 'Failed to update shared communications candidate status.'
     )
   }
 })
