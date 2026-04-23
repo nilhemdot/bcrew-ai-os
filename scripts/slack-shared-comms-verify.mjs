@@ -24,6 +24,16 @@ function splitCsv(value) {
     .filter(Boolean);
 }
 
+function findMatchingChannels(channels, requiredName) {
+  const normalizedRequired = String(requiredName || '').trim().toLowerCase();
+  if (!normalizedRequired) return [];
+
+  return channels.filter(channel => {
+    const channelName = String(channel.name || '').trim().toLowerCase();
+    return channelName === normalizedRequired || channelName.includes(normalizedRequired);
+  });
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const requiredChannels = splitCsv(args.channels || args.required || process.env.SLACK_REQUIRED_CHANNELS || 'accountability');
@@ -42,8 +52,13 @@ async function main() {
     return;
   }
 
-  const visibleNames = new Set(channels.map(channel => channel.name.toLowerCase()));
-  const missingRequiredChannels = requiredChannels.filter(name => !visibleNames.has(name));
+  const matchedRequiredChannels = requiredChannels.map(name => ({
+    name,
+    matches: findMatchingChannels(channels, name),
+  }));
+  const missingRequiredChannels = matchedRequiredChannels
+    .filter(entry => !entry.matches.length)
+    .map(entry => entry.name);
   console.log(
     `  Channel sample: ${channels
       .slice(0, 10)
@@ -52,7 +67,12 @@ async function main() {
   );
   if (requiredChannels.length) {
     console.log(
-      `  Required channels present: ${requiredChannels.filter(name => visibleNames.has(name)).join(', ') || '(none)'}`,
+      `  Required channels present: ${
+        matchedRequiredChannels
+          .filter(entry => entry.matches.length)
+          .map(entry => `${entry.name} -> ${entry.matches.map(match => `#${match.name}`).join(', ')}`)
+          .join(' | ') || '(none)'
+      }`,
     );
     if (missingRequiredChannels.length) {
       console.log(`  Missing required channels: ${missingRequiredChannels.join(', ')}`);

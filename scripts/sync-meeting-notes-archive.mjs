@@ -121,6 +121,7 @@ async function searchMeetingArtifactsForUser(userEmail, searchLimit) {
       GEMINI_NOTES_QUERY,
       'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
       searchLimit,
+      { orderBy: 'modifiedTime desc' },
     ),
   ).filter(file => file?.mimeType === 'application/vnd.google-apps.document');
 
@@ -130,6 +131,7 @@ async function searchMeetingArtifactsForUser(userEmail, searchLimit) {
       TRANSCRIPT_DOC_QUERY,
       'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
       searchLimit,
+      { orderBy: 'modifiedTime desc' },
     ),
   ).filter(file => file?.mimeType === 'application/vnd.google-apps.document');
 
@@ -322,8 +324,8 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const limit = Math.min(250, Math.max(1, Number(args.limit || 5)));
-  const perUserSearchLimit = Math.min(250, Math.max(Number(args.searchLimit || limit * 4), 10));
+  const limit = Math.min(1000, Math.max(1, Number(args.limit || 5)));
+  const perUserSearchLimit = Math.min(1000, Math.max(Number(args.searchLimit || limit * 4), 10));
 
   await initFoundationDb();
 

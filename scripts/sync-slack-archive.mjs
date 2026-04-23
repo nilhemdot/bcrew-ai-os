@@ -71,7 +71,7 @@ function buildThreadTitle(channel, rootMessage) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const limit = Math.min(50, Math.max(1, Number(args.limit || 20)));
+  const limit = Math.min(500, Math.max(1, Number(args.limit || 50)));
   const requestedChannelNames = splitCsv(args.channels || process.env.SLACK_ARCHIVE_CHANNELS || '');
 
   console.log('Sync Slack threads into shared communications archive');

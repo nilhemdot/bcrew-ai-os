@@ -19,6 +19,7 @@
     "meeting-notes:extract-candidates": "node --env-file-if-exists=.env scripts/extract-meeting-transcript-candidates.mjs",
     "meeting-notes:extract-tasks": "node --env-file-if-exists=.env scripts/extract-meeting-transcript-candidates.mjs",
     "meeting-notes:mirror-drive": "node --env-file-if-exists=.env scripts/mirror-meeting-archive-to-drive.mjs",
+    "meeting-notes:report-gaps": "node --env-file-if-exists=.env scripts/report-meeting-transcript-gaps.mjs",
     "gmail:extract-candidates": "node --env-file-if-exists=.env scripts/extract-gmail-thread-candidates.mjs",
     "gmail:sync-archive": "node --env-file-if-exists=.env scripts/sync-gmail-archive.mjs",
     "missive:extract-candidates": "node --env-file-if-exists=.env scripts/extract-missive-thread-candidates.mjs",

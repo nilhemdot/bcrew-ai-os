@@ -94,12 +94,14 @@ async function main() {
       GEMINI_NOTES_QUERY,
       'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
       searchLimit,
+      { orderBy: 'modifiedTime desc' },
     );
     const transcriptDocs = await driveSearch(
       userEmail,
       TRANSCRIPT_DOC_QUERY,
       'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
       searchLimit,
+      { orderBy: 'modifiedTime desc' },
     );
 
     const docs = sortNewestFirst(
