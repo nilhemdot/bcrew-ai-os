@@ -79,6 +79,8 @@ async function extractCandidatesFromTranscript(artifact, foundationContext, mode
     'Use the supplied user roster to resolve people, ownership, and who is being discussed.',
     'For each candidate, tag subject_people using roster email addresses only. Use [] when the item is not about a specific person.',
     'For each candidate, assign sensitivity: neutral, positive, performance_concern, termination_risk, comp_discussion, or undisclosed_feedback.',
+    'Read the meetingClass and privacyProfile fields from the privacy/source metadata and treat them as a real operating hint, not noise.',
+    'Broadcast meetings still matter: capture durable marketing phrasing, training insight, repeated objections, wins, lessons, and reusable atoms when they are genuinely durable.',
     'Training, all-hands, huddles, sales sessions, workshops, and broad team meetings usually stay neutral or positive unless the transcript explicitly contains sensitive people discussion.',
     'Do not mark ordinary coaching, planning, or public praise as performance_concern. Reserve sensitive labels for explicit negative evaluation, comp, termination, or undisclosed feedback about named people.',
     'Prefer precision over recall. If evidence is weak, omit the item.',

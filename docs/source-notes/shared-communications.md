@@ -120,6 +120,7 @@ What already exists now:
   - Missive thread artifacts archived in PostgreSQL
   - meeting-note artifacts archived in PostgreSQL
   - meeting-transcript artifacts archived in PostgreSQL
+  - meeting artifacts tagged with capture-time meeting class (`broadcast` vs `discussion`) so privacy and extraction rules do not have to guess later
   - first pending candidate lane extracted transcript-first with Foundation context
 - old repo still holds additional Missive search patterns worth borrowing
 - old repo already had Slack read patterns through MCP

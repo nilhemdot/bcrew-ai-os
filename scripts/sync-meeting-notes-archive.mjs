@@ -16,6 +16,7 @@ import {
   normalizeMeetingArtifactKey,
   transcriptTextHash,
 } from '../lib/meeting-transcripts.js';
+import { classifyMeetingShape } from '../lib/meeting-classification.js';
 
 const DEFAULT_SOURCE_USER = process.env.GOOGLE_MEETING_SOURCE_USER || 'ai@bensoncrew.ca';
 const GEMINI_NOTES_QUERY =
@@ -142,6 +143,11 @@ async function archiveStandaloneTranscript(group) {
   const contentText = await driveExportDoc(candidate.userEmail, candidate.file.id);
   const extractedTranscript = extractTranscriptSection(contentText);
   const transcriptText = extractedTranscript?.transcriptText || String(contentText || '').trim();
+  const meetingShape = classifyMeetingShape({
+    title: candidate.file.name || group.noteCandidate?.file?.name || group.meetingKey,
+    observedAccounts: [...group.observedAccounts],
+    transcriptParticipants: extractedTranscript?.speakerNames || [],
+  });
 
   const externalId = buildMeetingArtifactExternalId(
     group.meetingKey,
@@ -174,6 +180,11 @@ async function archiveStandaloneTranscript(group) {
         transcriptLineCount: extractedTranscript?.transcriptLineCount || 0,
         speakerCount: extractedTranscript?.speakerNames?.length || 0,
         transcriptSectionDetected: Boolean(extractedTranscript),
+        meetingClass: meetingShape.meetingClass,
+        privacyProfile: meetingShape.privacyProfile,
+        attendeeSignalCount: meetingShape.attendeeSignalCount,
+        sensitiveMeetingCandidate: meetingShape.sensitiveMeetingCandidate,
+        meetingClassReason: meetingShape.classificationReason,
       },
     },
     'system',
@@ -181,6 +192,7 @@ async function archiveStandaloneTranscript(group) {
 
   return {
     artifact,
+    meetingShape,
     transcriptSource: 'standalone',
     participants: extractedTranscript?.speakerNames || [],
     transcriptExternalId: externalId,
@@ -203,6 +215,15 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
   let transcriptInfo = standaloneTranscriptInfo || null;
   let embeddedTranscriptArchived = false;
   let transcriptSource = standaloneTranscriptInfo?.transcriptSource || 'missing';
+  let meetingShape = standaloneTranscriptInfo?.meetingShape || null;
+
+  if (!meetingShape) {
+    meetingShape = classifyMeetingShape({
+      title: candidate.file.name || group.transcriptCandidate?.file?.name || group.meetingKey,
+      observedAccounts: [...group.observedAccounts],
+      transcriptParticipants: embeddedTranscript?.speakerNames || [],
+    });
+  }
 
   if (!transcriptInfo && embeddedTranscript?.transcriptText) {
     const transcriptExternalId = buildMeetingArtifactExternalId(
@@ -236,12 +257,18 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
           noteExternalId: candidate.file.id,
           transcriptLineCount: embeddedTranscript.transcriptLineCount,
           speakerCount: embeddedTranscript.speakerNames.length,
+          meetingClass: meetingShape.meetingClass,
+          privacyProfile: meetingShape.privacyProfile,
+          attendeeSignalCount: meetingShape.attendeeSignalCount,
+          sensitiveMeetingCandidate: meetingShape.sensitiveMeetingCandidate,
+          meetingClassReason: meetingShape.classificationReason,
         },
       },
       'system',
     );
 
     transcriptInfo = {
+      meetingShape,
       transcriptSource: 'embedded_in_gemini',
       participants: embeddedTranscript.speakerNames,
       transcriptExternalId,
@@ -274,6 +301,11 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
         observedFileIds: [...group.noteFileIds].sort(),
         transcriptExternalId: transcriptInfo?.transcriptExternalId || null,
         transcriptMissing: !transcriptInfo,
+        meetingClass: meetingShape.meetingClass,
+        privacyProfile: meetingShape.privacyProfile,
+        attendeeSignalCount: meetingShape.attendeeSignalCount,
+        sensitiveMeetingCandidate: meetingShape.sensitiveMeetingCandidate,
+        meetingClassReason: meetingShape.classificationReason,
       },
     },
     'system',
@@ -282,6 +314,7 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
   return {
     noteArchived: true,
     embeddedTranscriptArchived,
+    meetingShape,
     transcriptSource,
     missingTranscript: !transcriptInfo,
   };
@@ -346,6 +379,9 @@ async function main() {
   let meetingNotesArchived = 0;
   let missingTranscriptCount = 0;
   let failedMeetings = 0;
+  let broadcastMeetings = 0;
+  let discussionMeetings = 0;
+  let sensitiveCandidates = 0;
   const missingTranscriptNotes = [];
   const failedMeetingSamples = [];
 
@@ -357,6 +393,10 @@ async function main() {
       const noteResult = await archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscriptInfo);
       if (noteResult.noteArchived) meetingNotesArchived += 1;
       if (noteResult.embeddedTranscriptArchived) embeddedTranscriptsArchived += 1;
+      const meetingShape = noteResult.meetingShape || standaloneTranscriptInfo?.meetingShape || null;
+      if (meetingShape?.meetingClass === 'broadcast') broadcastMeetings += 1;
+      if (meetingShape?.meetingClass === 'discussion') discussionMeetings += 1;
+      if (meetingShape?.sensitiveMeetingCandidate) sensitiveCandidates += 1;
       if (noteResult.missingTranscript) {
         missingTranscriptCount += 1;
         if (missingTranscriptNotes.length < 5) {
@@ -385,6 +425,8 @@ async function main() {
   console.log(`  Gemini notes archived: ${meetingNotesArchived}`);
   console.log(`  Missing transcript meetings: ${missingTranscriptCount}`);
   console.log(`  Failed meetings: ${failedMeetings}`);
+  console.log(`  Meeting classes: ${JSON.stringify({ broadcast: broadcastMeetings, discussion: discussionMeetings })}`);
+  console.log(`  Sensitive-candidate meetings: ${sensitiveCandidates}`);
   console.log(`  Archive total: ${archive.totalArtifacts}`);
   if (archive.byType) {
     console.log(`  Archive by type: ${JSON.stringify(archive.byType)}`);
