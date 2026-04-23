@@ -31,6 +31,7 @@ import {
   markPendingDocUpdateApplied,
   markPendingDocUpdateFailed,
   applySharedCommunicationCandidateToBacklog,
+  applySharedCommunicationCandidateToDecision,
   rejectPendingDocUpdate,
   recordReviewQueueChange,
   recordSourceDriftChange,
@@ -3147,6 +3148,86 @@ app.post('/api/shared-communications/candidates/:candidateKey/apply-to-backlog',
       500,
       'shared_communications_candidate_apply_to_backlog_failed',
       error instanceof Error ? error.message : 'Failed to apply shared communications candidate to backlog.'
+    )
+  }
+})
+
+app.post('/api/shared-communications/candidates/:candidateKey/apply-to-decision', requireAdminToken, async (req, res) => {
+  const allowedKeys = ['title', 'summary', 'category', 'rationale', 'sourceRef', 'supersedesIds', 'decisionOwner', 'confirmedBy', 'participantNames', 'contextRef', 'evidenceNotes']
+  const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
+  if (unknownFields.length) {
+    sendApiError(res, 400, 'invalid_decision_body', 'Unknown decision fields.', { unknownFields })
+    return
+  }
+
+  const errors = {}
+  if ('category' in req.body && req.body.category && !validateCategory(req.body.category)) {
+    errors.category = 'Choose one of the four canonical decision categories.'
+  }
+  if ('supersedesIds' in req.body && !Array.isArray(req.body.supersedesIds)) {
+    errors.supersedesIds = 'supersedesIds must be an array of decision IDs.'
+  }
+
+  const rationale = Object.prototype.hasOwnProperty.call(req.body, 'rationale')
+    ? optionalStringField(errors, req.body, 'rationale', 'Rationale')
+    : undefined
+  const sourceRef = Object.prototype.hasOwnProperty.call(req.body, 'sourceRef')
+    ? optionalStringField(errors, req.body, 'sourceRef', 'Source reference')
+    : undefined
+  const decisionOwner = Object.prototype.hasOwnProperty.call(req.body, 'decisionOwner')
+    ? optionalStringField(errors, req.body, 'decisionOwner', 'Decision owner', 120)
+    : undefined
+  const confirmedBy = Object.prototype.hasOwnProperty.call(req.body, 'confirmedBy')
+    ? optionalStringField(errors, req.body, 'confirmedBy', 'Confirmed by', 120)
+    : undefined
+  const participantNames = Object.prototype.hasOwnProperty.call(req.body, 'participantNames')
+    ? optionalStringArrayField(errors, req.body, 'participantNames', 'Participants')
+    : undefined
+  const contextRef = Object.prototype.hasOwnProperty.call(req.body, 'contextRef')
+    ? optionalStringField(errors, req.body, 'contextRef', 'Context reference', 500)
+    : undefined
+  const evidenceNotes = Object.prototype.hasOwnProperty.call(req.body, 'evidenceNotes')
+    ? optionalStringField(errors, req.body, 'evidenceNotes', 'Evidence notes', 4000)
+    : undefined
+  const title = Object.prototype.hasOwnProperty.call(req.body, 'title')
+    ? optionalStringField(errors, req.body, 'title', 'Title', 200)
+    : undefined
+  const summary = Object.prototype.hasOwnProperty.call(req.body, 'summary')
+    ? optionalStringField(errors, req.body, 'summary', 'Summary', 4000)
+    : undefined
+
+  if (Object.keys(errors).length) {
+    sendApiError(res, 400, 'invalid_decision_body', 'Decision candidate apply payload is not valid.', { fields: errors })
+    return
+  }
+
+  try {
+    const result = await applySharedCommunicationCandidateToDecision(
+      String(req.params.candidateKey),
+      {
+        ...(title !== undefined ? { title } : {}),
+        ...(summary !== undefined ? { summary } : {}),
+        ...(req.body.category ? { category: req.body.category } : {}),
+        ...(rationale !== undefined ? { rationale } : {}),
+        ...(sourceRef !== undefined ? { sourceRef } : {}),
+        ...(Array.isArray(req.body.supersedesIds) ? { supersedesIds: req.body.supersedesIds } : {}),
+        ...(decisionOwner !== undefined ? { decisionOwner } : {}),
+        ...(confirmedBy !== undefined ? { confirmedBy } : {}),
+        ...(participantNames !== undefined ? { participantNames } : {}),
+        ...(contextRef !== undefined ? { contextRef } : {}),
+        ...(evidenceNotes !== undefined ? { evidenceNotes } : {}),
+      },
+      getRequestActor(req),
+    )
+
+    cacheHeadersNoStore(res)
+    res.json(result)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'shared_communications_candidate_apply_to_decision_failed',
+      error instanceof Error ? error.message : 'Failed to apply shared communications candidate to a decision.'
     )
   }
 })
