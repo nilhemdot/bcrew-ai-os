@@ -6,7 +6,17 @@
   "scripts": {
     "dev": "node --env-file-if-exists=.env server.js",
     "start": "node --env-file-if-exists=.env server.js",
+    "foundation:verify": "node --env-file-if-exists=.env scripts/foundation-verify.mjs",
+    "sheets:verify": "node --env-file-if-exists=.env scripts/sheets-structure-verify.mjs",
+    "lead-sources:audit": "node --env-file-if-exists=.env scripts/audit-admin-lead-sources.mjs",
+    "deal-review:admin": "node --env-file-if-exists=.env scripts/review-admin-deals.mjs",
+    "deal-review:conditional": "node --env-file-if-exists=.env scripts/review-conditional-deals.mjs",
     "google:health": "node scripts/google-delegated-health.mjs",
+    "shared-comms:verify": "node --env-file-if-exists=.env scripts/google-workspace-shared-comms-verify.mjs",
+    "missive:verify": "node --env-file-if-exists=.env scripts/missive-shared-comms-verify.mjs",
+    "meeting-notes:verify": "node --env-file-if-exists=.env scripts/meeting-notes-verify.mjs",
+    "meeting-notes:sync": "node --env-file-if-exists=.env scripts/sync-meeting-notes-archive.mjs",
+    "meeting-notes:extract-tasks": "node --env-file-if-exists=.env scripts/extract-meeting-note-task-candidates.mjs",
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",
     "bhag:update": "node scripts/update-bhag-builder-paths.mjs"
   },

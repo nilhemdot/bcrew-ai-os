@@ -15,6 +15,10 @@ import {
   createOpenQuestion,
   createPendingDocUpdate,
   getCanonicalDecisionCategories,
+  getLatestChangeEventForEntity,
+  getSharedCommunicationArchiveSnapshot,
+  getSharedCommunicationCandidateSnapshot,
+  getFoundationBacklogScopes,
   getDocSourceSnapshot,
   getFoundationBacklogIdPrefixes,
   getFoundationSnapshot,
@@ -27,6 +31,8 @@ import {
   markPendingDocUpdateApplied,
   markPendingDocUpdateFailed,
   rejectPendingDocUpdate,
+  recordReviewQueueChange,
+  recordSourceDriftChange,
   saveFubLeadSourceSnapshot,
   upsertFubLeadSourceRule,
   updateBacklogItem,
@@ -42,7 +48,9 @@ import {
   listFubLeadSources,
   resolveFubContext,
 } from './lib/fub.js'
+import { getDriveFileMetadata, getSheetValues } from './lib/google-delegated.js'
 import { getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
+import { runSheetsStructureVerification } from './scripts/sheets-structure-verify.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -97,11 +105,81 @@ const strategyDocs = [
 ]
 const canonicalDecisionCategories = getCanonicalDecisionCategories()
 const backlogIdPrefixes = getFoundationBacklogIdPrefixes()
+const backlogScopes = getFoundationBacklogScopes()
+const backlogScopeKeys = backlogScopes.map(scope => scope.key)
+const FOUNDATION_GOOGLE_USER = 'ai@bensoncrew.ca'
 const FUB_LEAD_SOURCE_REFRESH_PAGE_LIMIT = 100
 const FUB_LEAD_SOURCE_REFRESH_MAX_PAGES = Math.min(
   5000,
   Math.max(1, Number(process.env.FUB_LEAD_SOURCE_REFRESH_MAX_PAGES) || 1000)
 )
+const OWNERS_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk'
+const OWNERS_LEAD_SOURCE_LIST_RANGE = "'Lists'!J3:J120"
+const OWNERS_ADMIN_REVIEW_RANGE = "'ADMIN ONLY - Deal Data Entry'!A1:CE2000"
+const OWNERS_CONDITIONAL_REVIEW_RANGE = "'Listings and Conditional Deals'!A1:U500"
+const GOVERNED_OWNERS_LEAD_SOURCE_VALUES = [
+  '<unspecified>',
+  'AG - Ontario Farmer',
+  'Agent Attraction',
+  'Agent Flyer - Home Value Hub',
+  'Agent Flyer - Home Value Hub – Geo Flyer',
+  'Agent HVH – Agent Home Value Site',
+  'Agent HVH – Generic Flyer',
+  'Agent/Other Referral',
+  'Agri - ZTeam.ca Call',
+  'Agri For Sale Sign Call',
+  'Apex - Brantford',
+  'BCrew - YouTube',
+  'BCrew Assistant Pond Lead Call',
+  'BCrew Google Ads',
+  'BCrew Google Search Call Brantfo',
+  'BCrew Google Search Call Burling',
+  'BCrew Google Search Call Guelph',
+  'BCrew Info Email',
+  'BCrew Investor Flyer Blasts',
+  'BCrew Outdoor Media',
+  'BCrew Realtor.ca',
+  'BCrew Social Media Call',
+  'BensonCrew.ca Call',
+  'BensonCrew.ca Lead Capture',
+  'BensonCrew.ca/careers Agent Application',
+  'Bought Through Sign Call',
+  'Branded Website',
+  'Builder/Development Projects',
+  'Cold Call',
+  'Company Main Call',
+  'Company Website – Home Value Hub',
+  'Company Website – Sign Up',
+  'Events & Contests',
+  'Expired Listings',
+  'Facebook',
+  'Family',
+  'For Sale Sign Call - Brantford S',
+  'For Sale Sign Call - Guelph Surr',
+  'FSBO',
+  'Introduced',
+  'Jeff Thibodeau - Crew Website Newsletter',
+  'Jeff Thibodeau - Facebook',
+  'Jeff Thibodeau - YouTube Viewer',
+  'Luxury Presence',
+  'Met - In Person',
+  'Met - Social Media',
+  'Non Lead Non Contact (Realtors Too)',
+  'Ontario Farmer Ad Call',
+  'Open House',
+  'Open House – Agent',
+  'Personal Referral',
+  'Powerlink Residential Lead Form',
+  'Realtor.ca',
+  'ScottBensonTeam.ca',
+  'Seller Onboarding - MattAllman.com',
+  'Social Media Call',
+  'Songbird Laning Lead Capture',
+  'Ylopo',
+  'Youtube Ad - Chris Amond',
+  'zahndteam.ca',
+  'Zahndteam.ca Call',
+]
 const DEFAULT_FUB_LEAD_SOURCE_GROUPS = {
   'Web Leads': [
     'BensonCrew.ca Lead Capture',
@@ -965,6 +1043,325 @@ function getDefaultFubFlagState(sourceName) {
   return 'none'
 }
 
+function sampleSourceNames(items, limit = 5) {
+  return (items || []).slice(0, limit).map(function(item) {
+    return item.source
+  })
+}
+
+function getHoursSince(timestamp) {
+  if (!timestamp) return null
+  const time = new Date(timestamp).getTime()
+  if (!Number.isFinite(time)) return null
+  return Math.max(0, (Date.now() - time) / (1000 * 60 * 60))
+}
+
+const GOVERNED_WARNING_HOURS = 72
+const GOVERNED_STALE_HOURS = 168
+
+function buildGovernedFreshness(event, active, options = {}) {
+  const warningHours = options.warningHours || GOVERNED_WARNING_HOURS
+  const staleHours = options.staleHours || GOVERNED_STALE_HOURS
+  const forcedStatus = options.forcedStatus || ''
+  const forcedReason = options.forcedReason || ''
+  const ageHours = getHoursSince(event && event.createdAt ? event.createdAt : null)
+
+  let status = active ? 'fresh' : 'clear'
+  if (active && ageHours != null && ageHours >= staleHours) status = 'stale'
+  else if (active && ageHours != null && ageHours >= warningHours) status = 'warning'
+
+  if (forcedStatus === 'stale') status = 'stale'
+  else if (forcedStatus === 'warning' && status !== 'stale') status = 'warning'
+
+  return {
+    status,
+    label: status === 'clear' ? 'Clear' : status === 'fresh' ? 'Fresh' : status === 'warning' ? 'Warning' : 'Stale',
+    lastChangedAt: event && event.createdAt ? event.createdAt : null,
+    ageHours,
+    warningHours,
+    staleHours,
+    founderAlert: status === 'stale',
+    reason: forcedReason || '',
+  }
+}
+
+function hashReviewQueueFingerprint(items, stats, extra) {
+  return hashText(JSON.stringify({
+    stats: stats || {},
+    items: (items || []).map(function(item) {
+      return [
+        item.id,
+        item.rowNumber,
+        item.reviewStatus,
+        item.reviewAction,
+        item.findingsPreview,
+      ]
+    }),
+    extra: extra || {},
+  }))
+}
+
+function buildReviewQueueChangeSummary(label, queue) {
+  const openItems = queue && queue.openItems ? queue.openItems : 0
+  if (!openItems) return `${label} review queue is clear`
+  return `${label} review queue has ${openItems} open item${openItems === 1 ? '' : 's'}`
+}
+
+function buildReviewQueueChangeMetadata(label, queue, fingerprint) {
+  return {
+    fingerprint,
+    label,
+    stats: {
+      totalTrackedRows: queue && queue.totalTrackedRows ? queue.totalTrackedRows : 0,
+      openItems: queue && queue.openItems ? queue.openItems : 0,
+      queuedReview: queue && queue.queuedReview ? queue.queuedReview : 0,
+      needsFixing: queue && queue.needsFixing ? queue.needsFixing : 0,
+    },
+    samples: (queue && Array.isArray(queue.items) ? queue.items : []).slice(0, 8).map(function(item) {
+      return {
+        id: item.id,
+        title: item.title,
+        status: item.reviewStatus,
+        action: item.reviewAction,
+      }
+    }),
+  }
+}
+
+async function syncReviewQueueEvent(input, actor = 'system') {
+  const queue = input && input.queue ? input.queue : null
+  if (!queue) return null
+
+  const openItems = queue.openItems || 0
+  const fingerprint = hashReviewQueueFingerprint(queue.items || [], {
+    totalTrackedRows: queue.totalTrackedRows || 0,
+    openItems,
+    queuedReview: queue.queuedReview || 0,
+    needsFixing: queue.needsFixing || 0,
+  }, input.extra || {})
+
+  const eventType = openItems ? 'review_queue_changed' : 'review_queue_cleared'
+  return recordReviewQueueChange({
+    eventType,
+    entityTable: input.entityTable,
+    entityId: input.entityId,
+    summary: buildReviewQueueChangeSummary(input.label, queue),
+    metadata: buildReviewQueueChangeMetadata(input.label, queue, fingerprint),
+  }, actor)
+}
+
+function buildSourceWatchFreshness(event, active, options = {}) {
+  if (options.missing) {
+    return {
+      status: 'missing',
+      label: 'Needs Refresh',
+      lastChangedAt: event && event.createdAt ? event.createdAt : null,
+      ageHours: getHoursSince(event && event.createdAt ? event.createdAt : null),
+      warningHours: options.warningHours || GOVERNED_WARNING_HOURS,
+      staleHours: options.staleHours || GOVERNED_STALE_HOURS,
+      founderAlert: true,
+      reason: options.reason || 'No readable source state is available yet.',
+    }
+  }
+
+  return buildGovernedFreshness(event, active, options)
+}
+
+function buildFubLeadSourceDrift(snapshot, rules) {
+  const snapshotSources = snapshot && Array.isArray(snapshot.sources) ? snapshot.sources : []
+  const snapshotMap = new Map()
+  snapshotSources.forEach(function(item) {
+    const source = String(item && item.source || '').trim()
+    if (!source) return
+    snapshotMap.set(source, {
+      source,
+      count: Math.max(0, Number(item.count) || 0),
+    })
+  })
+
+  const ruleMap = new Map()
+  ;(rules || []).forEach(function(rule) {
+    if (!rule || !rule.source) return
+    ruleMap.set(rule.source, rule)
+  })
+
+  const needsRules = Array.from(snapshotMap.values())
+    .filter(function(item) {
+      return !ruleMap.has(item.source)
+    })
+    .map(function(item) {
+      return {
+        source: item.source,
+        count: item.count,
+        defaultFlagState: getDefaultFubFlagState(item.source),
+      }
+    })
+    .sort(function(a, b) {
+      if (b.count !== a.count) return b.count - a.count
+      return a.source.localeCompare(b.source)
+    })
+
+  const openClassification = Array.from(snapshotMap.values())
+    .map(function(item) {
+      const rule = ruleMap.get(item.source)
+      if (!rule) return null
+      const openMarketing = rule.marketingType === 'unclassified'
+      const openOwnership = rule.ownershipType === 'unclassified'
+      if (!openMarketing && !openOwnership) return null
+      return {
+        source: item.source,
+        count: item.count,
+        openMarketing,
+        openOwnership,
+      }
+    })
+    .filter(Boolean)
+    .sort(function(a, b) {
+      if (b.count !== a.count) return b.count - a.count
+      return a.source.localeCompare(b.source)
+    })
+
+  const legacyPresent = Array.from(snapshotMap.values())
+    .map(function(item) {
+      const rule = ruleMap.get(item.source)
+      const flagState = rule ? rule.flagState : getDefaultFubFlagState(item.source)
+      if (!flagState || flagState === 'none') return null
+      return {
+        source: item.source,
+        count: item.count,
+        flagState,
+      }
+    })
+    .filter(Boolean)
+    .sort(function(a, b) {
+      if (b.count !== a.count) return b.count - a.count
+      return a.source.localeCompare(b.source)
+    })
+
+  const governedMissing = (rules || [])
+    .filter(function(rule) {
+      if (!rule || !rule.source) return false
+      if (rule.flagState && rule.flagState !== 'none') return false
+      if (rule.marketingType === 'unclassified' || rule.ownershipType === 'unclassified') return false
+      return !snapshotMap.has(rule.source)
+    })
+    .map(function(rule) {
+      return {
+        source: rule.source,
+        sourceGroup: rule.sourceGroup || null,
+      }
+    })
+    .sort(function(a, b) {
+      return a.source.localeCompare(b.source)
+    })
+
+  const staleThresholdHours = 24
+  const ageHours = getHoursSince(snapshot ? snapshot.refreshedAt : null)
+  const stale = {
+    available: Boolean(snapshot && snapshot.refreshedAt),
+    thresholdHours: staleThresholdHours,
+    ageHours,
+    isStale: ageHours != null && ageHours >= staleThresholdHours,
+  }
+
+  const stats = {
+    needsRules: needsRules.length,
+    openClassification: openClassification.length,
+    legacyPresent: legacyPresent.length,
+    governedMissing: governedMissing.length,
+    stale: stale.isStale ? 1 : 0,
+    reviewNow: needsRules.length + openClassification.length + legacyPresent.length + (stale.isStale ? 1 : 0),
+  }
+
+  const status = !snapshot
+    ? 'no_snapshot'
+    : stats.reviewNow
+      ? 'review'
+      : 'clean'
+
+  const fingerprint = hashText(JSON.stringify({
+    contextKey: snapshot ? snapshot.contextKey : 'none',
+    status,
+    staleBucket: stale.ageHours == null ? null : Math.floor(stale.ageHours / staleThresholdHours),
+    needsRules: needsRules.map(function(item) {
+      return [item.source, item.count, item.defaultFlagState]
+    }),
+    openClassification: openClassification.map(function(item) {
+      return [item.source, item.count, item.openMarketing, item.openOwnership]
+    }),
+    legacyPresent: legacyPresent.map(function(item) {
+      return [item.source, item.count, item.flagState]
+    }),
+    governedMissing: governedMissing.map(function(item) {
+      return item.source
+    }),
+  }))
+
+  return {
+    status,
+    fingerprint,
+    stats,
+    stale,
+    buckets: {
+      needsRules,
+      openClassification,
+      legacyPresent,
+      governedMissing,
+    },
+  }
+}
+
+function buildFubLeadSourceDriftSummary(context, drift) {
+  const label = context && context.label ? context.label : 'FUB'
+  if (!drift || drift.status === 'no_snapshot') {
+    return `FUB source drift waiting on the first snapshot for ${label}`
+  }
+  if (drift.status === 'clean') {
+    return `FUB source drift cleared for ${label}`
+  }
+
+  const parts = []
+  if (drift.stats.needsRules) parts.push(`${drift.stats.needsRules} new name${drift.stats.needsRules === 1 ? '' : 's'}`)
+  if (drift.stats.openClassification) parts.push(`${drift.stats.openClassification} open classification${drift.stats.openClassification === 1 ? '' : 's'}`)
+  if (drift.stats.legacyPresent) parts.push(`${drift.stats.legacyPresent} legacy / invalid source${drift.stats.legacyPresent === 1 ? '' : 's'}`)
+  if (drift.stats.governedMissing) parts.push(`${drift.stats.governedMissing} governed source${drift.stats.governedMissing === 1 ? '' : 's'} not seen now`)
+  if (drift.stale && drift.stale.isStale) parts.push('snapshot stale')
+
+  return `FUB source drift on ${label}: ${parts.join(', ')}`
+}
+
+function buildFubLeadSourceDriftMetadata(context, drift) {
+  return {
+    fingerprint: drift.fingerprint,
+    context,
+    status: drift.status,
+    stats: drift.stats,
+    stale: drift.stale,
+    samples: {
+      needsRules: sampleSourceNames(drift.buckets.needsRules),
+      openClassification: sampleSourceNames(drift.buckets.openClassification),
+      legacyPresent: sampleSourceNames(drift.buckets.legacyPresent),
+      governedMissing: sampleSourceNames(drift.buckets.governedMissing),
+    },
+  }
+}
+
+async function syncFubLeadSourceDriftEvent(payload, actor) {
+  if (!payload || !payload.snapshot || !payload.snapshot.available || !payload.drift) return null
+
+  const drift = payload.drift
+  const statusNeedsReview = drift.status === 'review' || drift.status === 'watch'
+  const eventType = statusNeedsReview ? 'source_drift_detected' : 'source_drift_cleared'
+
+  return recordSourceDriftChange({
+    eventType,
+    entityTable: 'fub_lead_source_snapshots',
+    entityId: payload.context && payload.context.key ? payload.context.key : 'unknown',
+    summary: buildFubLeadSourceDriftSummary(payload.context, drift),
+    metadata: buildFubLeadSourceDriftMetadata(payload.context, drift),
+  }, actor)
+}
+
 function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
   const ruleMap = new Map()
   rules.forEach(function(rule) {
@@ -983,7 +1380,7 @@ function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
       marketingType: rule ? rule.marketingType : getDefaultFubMarketingType(source),
       ownershipType: rule ? rule.ownershipType : 'unclassified',
       flagState: rule ? rule.flagState : getDefaultFubFlagState(source),
-      sourceGroup: rule && rule.sourceGroup ? rule.sourceGroup : getDefaultFubLeadSourceGroup(source),
+      sourceGroup: rule ? (rule.sourceGroup || '') : getDefaultFubLeadSourceGroup(source),
       notes: rule ? rule.notes : null,
       updatedAt: rule ? rule.updatedAt : null,
       updatedBy: rule ? rule.updatedBy : null,
@@ -998,6 +1395,8 @@ function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
   const context = snapshot
     ? { key: snapshot.contextKey, label: snapshot.contextLabel }
     : fallbackContext
+
+  const drift = buildFubLeadSourceDrift(snapshot, rules)
 
   return {
     context,
@@ -1019,14 +1418,484 @@ function buildFubLeadSourcePayload(snapshot, rules, fallbackContext) {
       marketing: sources.filter(item => item.marketingType === 'marketing').length,
       nonMarketing: sources.filter(item => item.marketingType === 'non_marketing').length,
       unclassified: sources.filter(item => item.marketingType === 'unclassified').length,
+      unclassifiedMarketing: sources.filter(item => item.marketingType === 'unclassified').length,
+      unclassifiedOwnership: sources.filter(item => item.ownershipType === 'unclassified').length,
+      openClassification: sources.filter(item => item.marketingType === 'unclassified' || item.ownershipType === 'unclassified').length,
       company: sources.filter(item => item.ownershipType === 'company').length,
       agent: sources.filter(item => item.ownershipType === 'agent').length,
       referral: sources.filter(item => item.ownershipType === 'referral').length,
       other: sources.filter(item => item.ownershipType === 'other').length,
+      invalidCanonical: sources.filter(item => item.flagState === 'not_canonical').length,
       flagged: sources.filter(item => item.flagState && item.flagState !== 'none').length,
     },
+    drift,
     sources,
   }
+}
+
+function normalizeSheetValue(value) {
+  return value == null ? '' : String(value).trim()
+}
+
+function normalizeSheetDate(value) {
+  if (value == null || value === '') return ''
+  if (typeof value === 'number') {
+    const ms = Math.round((value - 25569) * 86400 * 1000)
+    return new Date(ms).toISOString().slice(0, 10)
+  }
+  const numeric = Number(value)
+  if (Number.isFinite(numeric) && /^\d+(\.\d+)?$/.test(String(value).trim())) {
+    const ms = Math.round((numeric - 25569) * 86400 * 1000)
+    return new Date(ms).toISOString().slice(0, 10)
+  }
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return normalizeSheetValue(value)
+  return date.toISOString().slice(0, 10)
+}
+
+function normalizeLowerSheetValue(value) {
+  return normalizeSheetValue(value).toLowerCase()
+}
+
+function findSheetHeaderIndex(header, name) {
+  return header.findIndex(value => normalizeSheetValue(value) === name)
+}
+
+function getGovernedOwnersLeadSourceValues() {
+  return GOVERNED_OWNERS_LEAD_SOURCE_VALUES.slice()
+}
+
+function isAdminReviewTrigger(value) {
+  const normalized = normalizeLowerSheetValue(value)
+  return normalized === 'review this deal' || normalized === 'review' || normalized === 'rerun'
+}
+
+function isConditionalReviewTrigger(value) {
+  const normalized = normalizeLowerSheetValue(value)
+  return (
+    normalized === 'review this conditional' ||
+    normalized === 'review this deal' ||
+    normalized === 'review' ||
+    normalized === 'rerun'
+  )
+}
+
+function hasOpenReviewStatus(value) {
+  const normalized = normalizeLowerSheetValue(value)
+  return normalized === 'issues found' || normalized === 'needs re-review' || normalized === 'not reviewed'
+}
+
+function hasOpenReviewAction(value) {
+  const normalized = normalizeLowerSheetValue(value)
+  return Boolean(normalized) && normalized !== 'no action'
+}
+
+function summarizeFindings(value) {
+  const text = normalizeSheetValue(value)
+  if (!text) return ''
+  return text
+    .split('\n')
+    .map(lineValue => normalizeSheetValue(lineValue))
+    .filter(Boolean)
+    .slice(0, 6)
+    .join(' | ')
+}
+
+function buildAdminReviewQueue(rows) {
+  const header = rows[0] || []
+  const cols = {
+    deal: findSheetHeaderIndex(header, 'Deal #'),
+    client: findSheetHeaderIndex(header, 'Client Name'),
+    realtor: findSheetHeaderIndex(header, 'Realtor'),
+    executed: findSheetHeaderIndex(header, 'Date Firm (Executed)'),
+    reviewStatus: findSheetHeaderIndex(header, 'AI Review Status'),
+    reviewAction: findSheetHeaderIndex(header, 'THIS ROW ONLY: REVIEW ACTION'),
+    findings: findSheetHeaderIndex(header, 'AI Findings By System / Suggestions'),
+  }
+
+  const items = rows
+    .slice(1)
+    .map((row, index) => {
+      const deal = normalizeSheetValue(row[cols.deal])
+      if (!deal) return null
+
+      const reviewStatus = normalizeSheetValue(row[cols.reviewStatus])
+      const reviewAction = normalizeSheetValue(row[cols.reviewAction])
+      const open = hasOpenReviewStatus(reviewStatus) || hasOpenReviewAction(reviewAction)
+      if (!open) return null
+
+      return {
+        queue: 'admin',
+        rowNumber: index + 2,
+        id: deal,
+        title: deal,
+        subtitle: normalizeSheetValue(row[cols.client]) || 'Client missing',
+        owner: normalizeSheetValue(row[cols.realtor]) || 'Agent missing',
+        executedDate: normalizeSheetDate(row[cols.executed]),
+        reviewStatus: reviewStatus || 'Not Reviewed',
+        reviewAction: reviewAction || 'No Action',
+        queuedForReview: isAdminReviewTrigger(reviewAction),
+        needsFixing: normalizeLowerSheetValue(reviewAction) === 'needs fixing' || normalizeLowerSheetValue(reviewStatus) === 'issues found',
+        findingsPreview: summarizeFindings(row[cols.findings]),
+      }
+    })
+    .filter(Boolean)
+
+  return {
+    totalTrackedRows: rows.slice(1).filter(row => normalizeSheetValue(row[cols.deal])).length,
+    openItems: items.length,
+    queuedReview: items.filter(item => item.queuedForReview).length,
+    needsFixing: items.filter(item => item.needsFixing).length,
+    items,
+  }
+}
+
+function buildConditionalReviewQueue(rows) {
+  const header = rows[1] || []
+  const cols = {
+    type: findSheetHeaderIndex(header, 'Type'),
+    agent: findSheetHeaderIndex(header, 'Agent'),
+    address: findSheetHeaderIndex(header, 'Address'),
+    status: findSheetHeaderIndex(header, 'Status'),
+    clientName: findSheetHeaderIndex(header, 'Client Name'),
+    fubLink: findSheetHeaderIndex(header, 'FUB Person URL / ID'),
+    reviewStatus: findSheetHeaderIndex(header, 'AI Conditional Review Status'),
+    reviewAction: findSheetHeaderIndex(header, 'THIS ROW ONLY: CONDITIONAL REVIEW ACTION'),
+    findings: findSheetHeaderIndex(header, 'AI Conditional Findings / Suggestions'),
+  }
+
+  const items = rows
+    .slice(2)
+    .map((row, index) => {
+      const type = normalizeSheetValue(row[cols.type])
+      const agent = normalizeSheetValue(row[cols.agent])
+      if (!type || !agent) return null
+
+      const reviewStatus = normalizeSheetValue(row[cols.reviewStatus])
+      const reviewAction = normalizeSheetValue(row[cols.reviewAction])
+      const open = hasOpenReviewStatus(reviewStatus) || hasOpenReviewAction(reviewAction)
+      if (!open) return null
+
+      return {
+        queue: 'conditional',
+        rowNumber: index + 3,
+        id: `conditional-row-${index + 3}`,
+        title: normalizeSheetValue(row[cols.address]) || normalizeSheetValue(row[cols.clientName]) || `Conditional row ${index + 3}`,
+        subtitle: normalizeSheetValue(row[cols.clientName]) || 'Client missing',
+        owner: agent,
+        conditionalStatus: normalizeSheetValue(row[cols.status]) || 'Status missing',
+        reviewStatus: reviewStatus || 'Not Reviewed',
+        reviewAction: reviewAction || 'No Action',
+        hasFubLink: Boolean(normalizeSheetValue(row[cols.fubLink])),
+        queuedForReview: isConditionalReviewTrigger(reviewAction),
+        needsFixing: normalizeLowerSheetValue(reviewAction) === 'needs fixing' || normalizeLowerSheetValue(reviewStatus) === 'issues found',
+        findingsPreview: summarizeFindings(row[cols.findings]),
+      }
+    })
+    .filter(Boolean)
+
+  return {
+    totalTrackedRows: rows.slice(2).filter(row => normalizeSheetValue(row[cols.type]) && normalizeSheetValue(row[cols.agent])).length,
+    openItems: items.length,
+    queuedReview: items.filter(item => item.queuedForReview).length,
+    needsFixing: items.filter(item => item.needsFixing).length,
+    items,
+  }
+}
+
+function buildFubLeadSourceReviewQueue(payload) {
+  const drift = payload && payload.drift ? payload.drift : null
+  const stats = payload && payload.stats ? payload.stats : {}
+  const items = []
+
+  if (drift && drift.buckets) {
+    ;(drift.buckets.needsRules || []).forEach(function(item) {
+      items.push({
+        queue: 'fub-drift',
+        rowNumber: null,
+        id: 'fub-needs-rule:' + item.source,
+        title: item.source,
+        subtitle: (item.count || 0) + ' contact' + ((item.count || 0) === 1 ? '' : 's'),
+        owner: 'FUB taxonomy',
+        reviewStatus: 'Needs Rule',
+        reviewAction: 'Needs Fixing',
+        queuedForReview: true,
+        needsFixing: true,
+        findingsPreview: 'New raw FUB source with no governed rule yet.',
+      })
+    })
+
+    ;(drift.buckets.openClassification || []).forEach(function(item) {
+      const openParts = []
+      if (item.openMarketing) openParts.push('marketing open')
+      if (item.openOwnership) openParts.push('ownership open')
+      items.push({
+        queue: 'fub-drift',
+        rowNumber: null,
+        id: 'fub-open-classification:' + item.source,
+        title: item.source,
+        subtitle: (item.count || 0) + ' contact' + ((item.count || 0) === 1 ? '' : 's'),
+        owner: 'FUB taxonomy',
+        reviewStatus: 'Open Classification',
+        reviewAction: 'Needs Fixing',
+        queuedForReview: true,
+        needsFixing: true,
+        findingsPreview: 'Governed rule still leaves ' + openParts.join(' + ') + '.',
+      })
+    })
+
+    ;(drift.buckets.legacyPresent || []).forEach(function(item) {
+      items.push({
+        queue: 'fub-drift',
+        rowNumber: null,
+        id: 'fub-legacy:' + item.source,
+        title: item.source,
+        subtitle: (item.count || 0) + ' contact' + ((item.count || 0) === 1 ? '' : 's'),
+        owner: 'FUB taxonomy',
+        reviewStatus: 'Legacy Still Live',
+        reviewAction: 'Needs Fixing',
+        queuedForReview: true,
+        needsFixing: true,
+        findingsPreview: 'Legacy / invalid source is still present in live FUB data.',
+      })
+    })
+
+    if (drift.stale && drift.stale.isStale) {
+      items.push({
+        queue: 'fub-drift',
+        rowNumber: null,
+        id: 'fub-stale:owner',
+        title: 'FUB source snapshot is stale',
+        subtitle: Math.floor(drift.stale.ageHours || 0) + ' hour' + (Math.floor(drift.stale.ageHours || 0) === 1 ? '' : 's') + ' old',
+        owner: 'FUB taxonomy',
+        reviewStatus: 'Stale',
+        reviewAction: 'Needs Refresh',
+        queuedForReview: true,
+        needsFixing: true,
+        findingsPreview: 'Refresh the owner-context FUB source snapshot before trusting the queue.',
+      })
+    }
+  }
+
+  return {
+    totalTrackedRows: stats.totalSources || 0,
+    openItems: items.length,
+    queuedReview: items.filter(item => item.queuedForReview).length,
+    needsFixing: items.filter(item => item.needsFixing).length,
+    items,
+  }
+}
+
+function buildOwnersGovernanceReviewQueue(payload) {
+  const drift = payload && payload.drift ? payload.drift : null
+  const items = []
+
+  if (drift && drift.buckets) {
+    ;(drift.buckets.unexpectedInOwnersList || []).forEach(function(item) {
+      items.push({
+        queue: 'owners-governance',
+        rowNumber: null,
+        id: 'owners-unexpected:' + item.value,
+        title: item.value,
+        subtitle: 'Unexpected dropdown value',
+        owner: 'Owners governed list',
+        reviewStatus: 'Unexpected',
+        reviewAction: 'Needs Fixing',
+        queuedForReview: true,
+        needsFixing: true,
+        findingsPreview: 'This value is live in the Owners dropdown but not in the governed approved list.',
+      })
+    })
+
+    ;(drift.buckets.missingFromOwnersList || []).forEach(function(item) {
+      items.push({
+        queue: 'owners-governance',
+        rowNumber: null,
+        id: 'owners-missing:' + item.value,
+        title: item.value,
+        subtitle: 'Missing approved dropdown value',
+        owner: 'Owners governed list',
+        reviewStatus: 'Missing',
+        reviewAction: 'Needs Fixing',
+        queuedForReview: true,
+        needsFixing: true,
+        findingsPreview: 'This approved source is missing from the governed Owners dropdown.',
+      })
+    })
+
+    ;(drift.buckets.duplicates || []).forEach(function(item) {
+      items.push({
+        queue: 'owners-governance',
+        rowNumber: null,
+        id: 'owners-duplicate:' + item.value,
+        title: item.value,
+        subtitle: (item.count || 0) + ' duplicate entries',
+        owner: 'Owners governed list',
+        reviewStatus: 'Duplicate',
+        reviewAction: 'Needs Fixing',
+        queuedForReview: true,
+        needsFixing: true,
+        findingsPreview: 'This approved dropdown value appears more than once in the Owners list.',
+      })
+    })
+  }
+
+  return {
+    totalTrackedRows: drift && drift.stats ? drift.stats.currentValues || 0 : 0,
+    openItems: items.length,
+    queuedReview: items.filter(item => item.queuedForReview).length,
+    needsFixing: items.filter(item => item.needsFixing).length,
+    items,
+  }
+}
+
+function buildOwnersLeadSourceGovernance(listValues, _rules, sheetMeta) {
+  const currentValues = (listValues || [])
+    .flat()
+    .map(normalizeSheetValue)
+    .filter(Boolean)
+
+  const currentCounts = new Map()
+  currentValues.forEach(function(value) {
+    currentCounts.set(value, (currentCounts.get(value) || 0) + 1)
+  })
+
+  const currentUnique = Array.from(currentCounts.keys()).sort(function(a, b) {
+    return a.localeCompare(b)
+  })
+
+  const governedValues = getGovernedOwnersLeadSourceValues()
+  const governedSet = new Set(governedValues)
+  const currentSet = new Set(currentUnique)
+
+  const unexpectedInOwnersList = currentUnique
+    .filter(function(value) {
+      return !governedSet.has(value)
+    })
+    .map(function(value) {
+      return {
+        value,
+        count: currentCounts.get(value) || 1,
+      }
+    })
+
+  const missingFromOwnersList = governedValues
+    .filter(function(value) {
+      return !currentSet.has(value)
+    })
+    .map(function(value) {
+      return { value }
+    })
+
+  const duplicates = currentUnique
+    .filter(function(value) {
+      return (currentCounts.get(value) || 0) > 1
+    })
+    .map(function(value) {
+      return {
+        value,
+        count: currentCounts.get(value) || 0,
+      }
+    })
+
+  const stats = {
+    currentValues: currentValues.length,
+    uniqueCurrentValues: currentUnique.length,
+    governedValues: governedValues.length,
+    unexpected: unexpectedInOwnersList.length,
+    missing: missingFromOwnersList.length,
+    duplicates: duplicates.length,
+    reviewNow: unexpectedInOwnersList.length + missingFromOwnersList.length + duplicates.length,
+  }
+
+  const status = !currentValues.length
+    ? 'no_data'
+    : stats.reviewNow
+      ? 'review'
+      : 'clean'
+
+  const fingerprint = hashText(JSON.stringify({
+    status,
+    currentUnique,
+    unexpected: unexpectedInOwnersList.map(function(item) {
+      return [item.value, item.count]
+    }),
+    missing: missingFromOwnersList.map(function(item) {
+      return item.value
+    }),
+    duplicates: duplicates.map(function(item) {
+      return [item.value, item.count]
+    }),
+  }))
+
+  return {
+    status,
+    fingerprint,
+    stats,
+    ownersList: {
+      available: currentValues.length > 0,
+      modifiedTime: sheetMeta && sheetMeta.modifiedTime ? sheetMeta.modifiedTime : null,
+      webViewLink: sheetMeta && sheetMeta.webViewLink ? sheetMeta.webViewLink : null,
+    },
+    buckets: {
+      unexpectedInOwnersList,
+      missingFromOwnersList,
+      duplicates,
+    },
+  }
+}
+
+function buildOwnersLeadSourceGovernanceSummary(payload) {
+  const drift = payload && payload.drift ? payload.drift : null
+  if (!drift || drift.status === 'no_data') {
+    return 'Owners governed lead-source list drift waiting on readable list data'
+  }
+  if (drift.status === 'clean') {
+    return 'Owners governed lead-source list drift cleared'
+  }
+
+  const parts = []
+  if (drift.stats.unexpected) parts.push(drift.stats.unexpected + ' unexpected value' + (drift.stats.unexpected === 1 ? '' : 's'))
+  if (drift.stats.missing) parts.push(drift.stats.missing + ' missing approved value' + (drift.stats.missing === 1 ? '' : 's'))
+  if (drift.stats.duplicates) parts.push(drift.stats.duplicates + ' duplicate value' + (drift.stats.duplicates === 1 ? '' : 's'))
+  return 'Owners governed lead-source list drift: ' + parts.join(', ')
+}
+
+function buildOwnersLeadSourceGovernanceMetadata(payload) {
+  const drift = payload && payload.drift ? payload.drift : null
+  return {
+    fingerprint: drift ? drift.fingerprint : '',
+    status: drift ? drift.status : 'no_data',
+    stats: drift ? drift.stats : {},
+    ownersList: payload && payload.ownersList ? payload.ownersList : {},
+    samples: {
+      unexpectedInOwnersList: (drift && drift.buckets ? drift.buckets.unexpectedInOwnersList : []).slice(0, 5).map(function(item) {
+        return item.value
+      }),
+      missingFromOwnersList: (drift && drift.buckets ? drift.buckets.missingFromOwnersList : []).slice(0, 5).map(function(item) {
+        return item.value
+      }),
+      duplicates: (drift && drift.buckets ? drift.buckets.duplicates : []).slice(0, 5).map(function(item) {
+        return item.value
+      }),
+    },
+  }
+}
+
+async function syncOwnersLeadSourceGovernanceEvent(payload, actor) {
+  if (!payload || !payload.drift) return null
+
+  const eventType = payload.drift.status === 'review'
+    ? 'source_drift_detected'
+    : 'source_drift_cleared'
+
+  return recordSourceDriftChange({
+    eventType,
+    entityTable: 'owners_sheet_lists',
+    entityId: 'SRC-OWNERS-001:lead-source-dropdown',
+    summary: buildOwnersLeadSourceGovernanceSummary(payload),
+    metadata: buildOwnersLeadSourceGovernanceMetadata(payload),
+  }, actor)
 }
 
 function validateCategory(value) {
@@ -1076,6 +1945,46 @@ function getDocSurfaceMeta(relativePath) {
       usage: 'runtime',
       storageClass: 'Primary surface',
     },
+    'docs/users/README.md': {
+      surfaceLabel: 'Foundation > Users',
+      surfaceHref: '/foundation#users',
+      role: 'Visible user registry',
+      category: 'People',
+      usage: 'runtime',
+      storageClass: 'Primary surface',
+    },
+    'docs/users/steve.md': {
+      surfaceLabel: 'Foundation > People > Users > Steve',
+      surfaceHref: '/foundation#user-steve',
+      role: 'Visible user profile',
+      category: 'People',
+      usage: 'runtime',
+      storageClass: 'Profile doc',
+    },
+    'docs/agents/README.md': {
+      surfaceLabel: 'Foundation > People > Agents',
+      surfaceHref: '/foundation#agents',
+      role: 'Visible agent layer',
+      category: 'People',
+      usage: 'runtime',
+      storageClass: 'Primary surface',
+    },
+    'docs/agents/harlan.md': {
+      surfaceLabel: 'Foundation > People > Agents > Harlan',
+      surfaceHref: '/foundation#agent-harlan',
+      role: 'Visible personal-agent profile',
+      category: 'People',
+      usage: 'runtime',
+      storageClass: 'Profile doc',
+    },
+    'docs/agents/crewbert.md': {
+      surfaceLabel: 'Foundation > People > Agents > Crewbert',
+      surfaceHref: '/foundation#agent-crewbert',
+      role: 'Visible system-agent profile',
+      category: 'People',
+      usage: 'runtime',
+      storageClass: 'Profile doc',
+    },
     'docs/source-registry.md': {
       surfaceLabel: 'Foundation > Data Sources > Overview',
       surfaceHref: '/foundation#source-overview',
@@ -1109,12 +2018,60 @@ function getDocSurfaceMeta(relativePath) {
       storageClass: 'Reference doc',
     },
     'docs/rebuild-decisions.md': {
-      surfaceLabel: '',
-      surfaceHref: '',
+      surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
+      surfaceHref: '/foundation#rebuild-plan',
       role: 'Rebuild decision log',
       category: 'Rebuild',
       usage: 'reference',
       storageClass: 'Decision log',
+    },
+    'docs/rebuild/current-state.md': {
+      surfaceLabel: 'Foundation > Current State',
+      surfaceHref: '/foundation#current-state',
+      role: 'Current rebuild state',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'State summary',
+    },
+    'docs/rebuild/current-plan.md': {
+      surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
+      surfaceHref: '/foundation#rebuild-plan',
+      role: 'Current rebuild plan',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Execution plan',
+    },
+    'docs/rebuild/current-runtime-map.md': {
+      surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
+      surfaceHref: '/foundation#rebuild-plan',
+      role: 'Plain-English runtime map',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Architecture explainer',
+    },
+    'docs/rebuild/agent-architecture.md': {
+      surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
+      surfaceHref: '/foundation#rebuild-plan',
+      role: 'Target agent operating model',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Architecture doc',
+    },
+    'docs/rebuild/rebuild-master-plan.md': {
+      surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
+      surfaceHref: '/foundation#rebuild-plan',
+      role: 'Archived rebuild baseline',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Baseline doc',
+    },
+    'docs/rebuild/README.md': {
+      surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
+      surfaceHref: '/foundation#rebuild-plan',
+      role: 'Rebuild doc index',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Reference doc',
     },
   }
 
@@ -1176,6 +2133,17 @@ function getDocSurfaceMeta(relativePath) {
       category: 'Audits & Reports',
       usage: 'reference',
       storageClass: 'Handoff history',
+    }
+  }
+
+  if (relativePath.startsWith('docs/rebuild/')) {
+    return {
+      surfaceLabel: '',
+      surfaceHref: '',
+      role: 'Rebuild reference',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Planning doc',
     }
   }
 
@@ -1382,6 +2350,43 @@ function optionalStringField(errors, body, field, label, maxLength) {
   return trimmed
 }
 
+function optionalStringArrayField(errors, body, field, label, maxItems = 25, maxItemLength = 160) {
+  if (!Object.prototype.hasOwnProperty.call(body || {}, field)) return undefined
+  const value = body[field]
+  if (value == null || value === '') return []
+  if (!Array.isArray(value)) {
+    errors[field] = `${label} must be a list of text values.`
+    return undefined
+  }
+
+  const normalized = []
+  const seen = new Set()
+
+  for (const rawItem of value) {
+    if (typeof rawItem !== 'string') {
+      errors[field] = `${label} must only contain text values.`
+      return undefined
+    }
+    const trimmed = rawItem.trim()
+    if (!trimmed) continue
+    if (trimmed.length > maxItemLength) {
+      errors[field] = `${label} entries must be ${maxItemLength} characters or fewer.`
+      return undefined
+    }
+    const key = trimmed.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    normalized.push(trimmed)
+  }
+
+  if (normalized.length > maxItems) {
+    errors[field] = `${label} must have ${maxItems} entries or fewer.`
+    return undefined
+  }
+
+  return normalized
+}
+
 function optionalNumberField(errors, body, field, label) {
   const value = body[field]
   if (value == null || value === '') return null
@@ -1468,8 +2473,8 @@ app.get('/api/source-of-truth', (_req, res) => {
       {
         key: 'verification',
         label: 'Verification',
-        status: 'pending',
-        detail: 'Minimal smoke checks and source-health verification are not fully in place yet.',
+        status: 'connected',
+        detail: 'Baseline verification is now live through `npm run foundation:verify`, covering the trust layer APIs, Google delegated health, FUB health, Owners sign-off consistency, and backlog truth drift on key source-closeout cards.',
       },
       {
         key: 'assistant-loop',
@@ -1588,11 +2593,30 @@ app.get('/api/fub/lead-sources', async (req, res) => {
       listFubLeadSourceRules(),
     ])
 
-    cacheHeadersNoStore(res)
-    res.json(buildFubLeadSourcePayload(snapshot, rules, {
+    const payload = buildFubLeadSourcePayload(snapshot, rules, {
       key: resolvedContext.key,
       label: resolvedContext.label,
-    }))
+    })
+    const syncResult = await syncFubLeadSourceDriftEvent(payload, 'system')
+    const latestEvent = syncResult && syncResult.event
+      ? syncResult.event
+      : await getLatestChangeEventForEntity('fub_lead_source_snapshots', resolvedContext.key, ['source_drift_detected', 'source_drift_cleared'])
+
+    payload.freshness = !payload.snapshot.available
+      ? buildSourceWatchFreshness(latestEvent, false, {
+          missing: true,
+          reason: 'No saved FUB lead-source snapshot exists yet.',
+        })
+      : buildSourceWatchFreshness(latestEvent, payload.drift.status === 'review', {
+          forcedStatus: payload.drift.stale && payload.drift.stale.isStale ? 'stale' : '',
+          forcedReason: payload.drift.stale && payload.drift.stale.isStale
+            ? 'Saved FUB source snapshot is older than 24 hours.'
+            : '',
+        })
+    payload.freshness.snapshotAgeHours = payload.drift && payload.drift.stale ? payload.drift.stale.ageHours : null
+
+    cacheHeadersNoStore(res)
+    res.json(payload)
   } catch (error) {
     const statusCode = error && typeof error === 'object' && 'status' in error && error.status ? error.status : 500
     sendApiError(
@@ -1631,12 +2655,21 @@ app.post('/api/fub/lead-sources/refresh', requireAdminToken, async (req, res) =>
       scan: live.stats,
     }, getRequestActor())
     const rules = await listFubLeadSourceRules()
-
-    cacheHeadersNoStore(res)
-    res.json(buildFubLeadSourcePayload(snapshot, rules, {
+    const payload = buildFubLeadSourcePayload(snapshot, rules, {
       key: live.context.key,
       label: live.context.label,
-    }))
+    })
+    const syncResult = await syncFubLeadSourceDriftEvent(payload, getRequestActor())
+    payload.freshness = buildSourceWatchFreshness(syncResult && syncResult.event ? syncResult.event : null, payload.drift.status === 'review', {
+      forcedStatus: payload.drift && payload.drift.stale && payload.drift.stale.isStale ? 'stale' : '',
+      forcedReason: payload.drift && payload.drift.stale && payload.drift.stale.isStale
+        ? 'Saved FUB source snapshot is older than 24 hours.'
+        : '',
+    })
+    payload.freshness.snapshotAgeHours = payload.drift && payload.drift.stale ? payload.drift.stale.ageHours : null
+
+    cacheHeadersNoStore(res)
+    res.json(payload)
   } catch (error) {
     const statusCode = error && typeof error === 'object' && 'status' in error && error.status ? error.status : 500
     sendApiError(
@@ -1649,7 +2682,7 @@ app.post('/api/fub/lead-sources/refresh', requireAdminToken, async (req, res) =>
 })
 
 app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
-  const allowedKeys = ['source', 'marketingType', 'ownershipType', 'flagState', 'sourceGroup', 'notes']
+  const allowedKeys = ['context', 'source', 'marketingType', 'ownershipType', 'flagState', 'sourceGroup', 'notes']
   const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
   if (unknownFields.length) {
     sendApiError(res, 400, 'invalid_fub_lead_source_body', 'Unknown FUB lead-source fields.', { unknownFields })
@@ -1657,6 +2690,7 @@ app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
   }
 
   const errors = {}
+  const contextKey = optionalStringField(errors, req.body, 'context', 'Context')
   const source = requireStringField(errors, req.body, 'source', 'Lead source')
   const marketingType = optionalStringField(errors, req.body, 'marketingType', 'Marketing type') || 'unclassified'
   const ownershipType = optionalStringField(errors, req.body, 'ownershipType', 'Ownership type') || 'unclassified'
@@ -1688,9 +2722,29 @@ app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
       sourceGroup,
       notes,
     }, getRequestActor())
+    const resolvedContext = resolveFubContext(contextKey || undefined)
+    const snapshot = await getFubLeadSourceSnapshot(resolvedContext.key)
+    const rules = await listFubLeadSourceRules()
+    const current = buildFubLeadSourcePayload(snapshot, rules, {
+      key: resolvedContext.key,
+      label: resolvedContext.label,
+    })
+    const syncResult = await syncFubLeadSourceDriftEvent(current, getRequestActor())
+    current.freshness = !current.snapshot.available
+      ? buildSourceWatchFreshness(syncResult && syncResult.event ? syncResult.event : null, false, {
+          missing: true,
+          reason: 'No saved FUB lead-source snapshot exists yet.',
+        })
+      : buildSourceWatchFreshness(syncResult && syncResult.event ? syncResult.event : null, current.drift.status === 'review', {
+          forcedStatus: current.drift && current.drift.stale && current.drift.stale.isStale ? 'stale' : '',
+          forcedReason: current.drift && current.drift.stale && current.drift.stale.isStale
+            ? 'Saved FUB source snapshot is older than 24 hours.'
+            : '',
+        })
+    current.freshness.snapshotAgeHours = current.drift && current.drift.stale ? current.drift.stale.ageHours : null
 
     cacheHeadersNoStore(res)
-    res.json({ rule })
+    res.json({ rule, current })
   } catch (error) {
     sendApiError(
       res,
@@ -1762,6 +2816,216 @@ app.post('/api/fub/request', requireAdminToken, async (req, res) => {
   }
 })
 
+app.get('/api/owners/lead-source-governance', async (_req, res) => {
+  try {
+    const [listResponse, fileMeta, rules] = await Promise.all([
+      getSheetValues(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID, OWNERS_LEAD_SOURCE_LIST_RANGE),
+      getDriveFileMetadata(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID),
+      listFubLeadSourceRules(),
+    ])
+
+    const drift = buildOwnersLeadSourceGovernance(listResponse.values || [], rules, fileMeta)
+    const payload = {
+      sourceId: 'SRC-OWNERS-001',
+      ownersList: {
+        sheetId: OWNERS_SHEET_ID,
+        range: OWNERS_LEAD_SOURCE_LIST_RANGE,
+        modifiedTime: fileMeta && fileMeta.modifiedTime ? fileMeta.modifiedTime : null,
+        webViewLink: fileMeta && fileMeta.webViewLink ? fileMeta.webViewLink : null,
+      },
+      drift,
+    }
+
+    const syncResult = await syncOwnersLeadSourceGovernanceEvent(payload, 'system')
+    const latestEvent = syncResult && syncResult.event
+      ? syncResult.event
+      : await getLatestChangeEventForEntity('owners_sheet_lists', 'SRC-OWNERS-001:lead-source-dropdown', ['source_drift_detected', 'source_drift_cleared'])
+    payload.freshness = buildSourceWatchFreshness(latestEvent, payload.drift.status === 'review', {
+      reason: 'Governed Owners dropdown drift has been sitting unchanged.',
+    })
+
+    cacheHeadersNoStore(res)
+    res.json(payload)
+  } catch (error) {
+    const statusCode = error && typeof error === 'object' && 'status' in error && error.status ? error.status : 500
+    sendApiError(
+      res,
+      statusCode,
+      'owners_lead_source_governance_failed',
+      error instanceof Error ? error.message : 'Failed to load Owners lead-source governance.'
+    )
+  }
+})
+
+app.get('/api/owners/review-queue', async (_req, res) => {
+  try {
+    const fubContexts = getFubContextsSummary()
+    const ownerFubContext = fubContexts.find(function(item) { return item.key === 'owner' }) || { key: 'owner', label: 'Support / Owner account' }
+
+    const [adminResponse, conditionalResponse, fileMeta, fubSnapshot, rules, ownersListResponse] = await Promise.all([
+      getSheetValues(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID, OWNERS_ADMIN_REVIEW_RANGE),
+      getSheetValues(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID, OWNERS_CONDITIONAL_REVIEW_RANGE),
+      getDriveFileMetadata(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID),
+      getFubLeadSourceSnapshot('owner'),
+      listFubLeadSourceRules(),
+      getSheetValues(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID, OWNERS_LEAD_SOURCE_LIST_RANGE),
+    ])
+
+    const admin = buildAdminReviewQueue(adminResponse.values || [])
+    const conditional = buildConditionalReviewQueue(conditionalResponse.values || [])
+    const fubLeadSources = buildFubLeadSourcePayload(fubSnapshot, rules, ownerFubContext)
+    const ownersGovernancePayload = {
+      sourceId: 'SRC-OWNERS-001',
+      ownersList: {
+        sheetId: OWNERS_SHEET_ID,
+        range: OWNERS_LEAD_SOURCE_LIST_RANGE,
+        modifiedTime: fileMeta && fileMeta.modifiedTime ? fileMeta.modifiedTime : null,
+        webViewLink: fileMeta && fileMeta.webViewLink ? fileMeta.webViewLink : null,
+      },
+      drift: buildOwnersLeadSourceGovernance(ownersListResponse.values || [], rules, fileMeta),
+    }
+    const fubDrift = buildFubLeadSourceReviewQueue(fubLeadSources)
+    const ownersGovernance = buildOwnersGovernanceReviewQueue(ownersGovernancePayload)
+    const combinedQueue = {
+      totalTrackedRows: admin.totalTrackedRows + conditional.totalTrackedRows + fubDrift.totalTrackedRows + ownersGovernance.totalTrackedRows,
+      openItems: admin.openItems + conditional.openItems + fubDrift.openItems + ownersGovernance.openItems,
+      queuedReview: admin.queuedReview + conditional.queuedReview + fubDrift.queuedReview + ownersGovernance.queuedReview,
+      needsFixing: admin.needsFixing + conditional.needsFixing + fubDrift.needsFixing + ownersGovernance.needsFixing,
+      items: []
+        .concat(admin.items || [])
+        .concat(conditional.items || [])
+        .concat(fubDrift.items || [])
+        .concat(ownersGovernance.items || []),
+    }
+
+    const [adminSync, conditionalSync, combinedSync, fubSync, ownersGovernanceSync] = await Promise.all([
+      syncReviewQueueEvent({
+        entityTable: 'owners_review_queue',
+        entityId: 'SRC-OWNERS-001:admin',
+        label: 'Owners admin lane',
+        queue: admin,
+      }, 'system'),
+      syncReviewQueueEvent({
+        entityTable: 'owners_review_queue',
+        entityId: 'SRC-OWNERS-001:conditional',
+        label: 'Owners conditional lane',
+        queue: conditional,
+      }, 'system'),
+      syncReviewQueueEvent({
+        entityTable: 'owners_review_queue',
+        entityId: 'SRC-OWNERS-001:combined',
+        label: 'Owners combined governed inbox',
+        queue: combinedQueue,
+        extra: {
+          sectionCounts: {
+            admin: admin.openItems,
+            conditional: conditional.openItems,
+            fubDrift: fubDrift.openItems,
+            ownersGovernance: ownersGovernance.openItems,
+          },
+        },
+      }, 'system'),
+      syncFubLeadSourceDriftEvent(fubLeadSources, 'system'),
+      syncOwnersLeadSourceGovernanceEvent(ownersGovernancePayload, 'system'),
+    ])
+
+    admin.freshness = buildSourceWatchFreshness(
+      adminSync && adminSync.event
+        ? adminSync.event
+        : await getLatestChangeEventForEntity('owners_review_queue', 'SRC-OWNERS-001:admin', ['review_queue_changed', 'review_queue_cleared']),
+      admin.openItems > 0,
+      { reason: 'Admin deal review findings have been sitting unchanged.' }
+    )
+
+    conditional.freshness = buildSourceWatchFreshness(
+      conditionalSync && conditionalSync.event
+        ? conditionalSync.event
+        : await getLatestChangeEventForEntity('owners_review_queue', 'SRC-OWNERS-001:conditional', ['review_queue_changed', 'review_queue_cleared']),
+      conditional.openItems > 0,
+      { reason: 'Conditional review findings have been sitting unchanged.' }
+    )
+
+    fubDrift.freshness = !fubLeadSources.snapshot.available
+      ? buildSourceWatchFreshness(
+          fubSync && fubSync.event
+            ? fubSync.event
+            : await getLatestChangeEventForEntity('fub_lead_source_snapshots', ownerFubContext.key, ['source_drift_detected', 'source_drift_cleared']),
+          false,
+          {
+            missing: true,
+            reason: 'No saved owner-context FUB snapshot exists yet.',
+          }
+        )
+      : buildSourceWatchFreshness(
+          fubSync && fubSync.event
+            ? fubSync.event
+            : await getLatestChangeEventForEntity('fub_lead_source_snapshots', ownerFubContext.key, ['source_drift_detected', 'source_drift_cleared']),
+          fubDrift.openItems > 0,
+          {
+            forcedStatus: fubLeadSources.drift && fubLeadSources.drift.stale && fubLeadSources.drift.stale.isStale ? 'stale' : '',
+            forcedReason: fubLeadSources.drift && fubLeadSources.drift.stale && fubLeadSources.drift.stale.isStale
+              ? 'Saved FUB source snapshot is older than 24 hours.'
+              : 'FUB taxonomy drift has been sitting unchanged.',
+          }
+        )
+    fubDrift.freshness.snapshotAgeHours = fubLeadSources.drift && fubLeadSources.drift.stale ? fubLeadSources.drift.stale.ageHours : null
+
+    ownersGovernance.freshness = buildSourceWatchFreshness(
+      ownersGovernanceSync && ownersGovernanceSync.event
+        ? ownersGovernanceSync.event
+        : await getLatestChangeEventForEntity('owners_sheet_lists', 'SRC-OWNERS-001:lead-source-dropdown', ['source_drift_detected', 'source_drift_cleared']),
+      ownersGovernance.openItems > 0,
+      { reason: 'Governed Owners dropdown drift has been sitting unchanged.' }
+    )
+
+    const reviewQueueFreshness = buildSourceWatchFreshness(
+      combinedSync && combinedSync.event
+        ? combinedSync.event
+        : await getLatestChangeEventForEntity('owners_review_queue', 'SRC-OWNERS-001:combined', ['review_queue_changed', 'review_queue_cleared']),
+      combinedQueue.openItems > 0,
+      { reason: 'The combined Owners governed inbox has been sitting unchanged.' }
+    )
+
+    cacheHeadersNoStore(res)
+    res.json({
+      sourceId: 'SRC-OWNERS-001',
+      reviewQueue: {
+        status: combinedQueue.openItems ? 'open' : 'clear',
+        stats: {
+          openItems: combinedQueue.openItems,
+          queuedReview: combinedQueue.queuedReview,
+          needsFixing: combinedQueue.needsFixing,
+        },
+        freshness: reviewQueueFreshness,
+        freshnessRules: {
+          warningHours: GOVERNED_WARNING_HOURS,
+          staleHours: GOVERNED_STALE_HOURS,
+          fubSnapshotStaleHours: 24,
+        },
+        ownersSheet: {
+          sheetId: OWNERS_SHEET_ID,
+          modifiedTime: fileMeta && fileMeta.modifiedTime ? fileMeta.modifiedTime : null,
+          webViewLink: fileMeta && fileMeta.webViewLink ? fileMeta.webViewLink : null,
+        },
+        sections: {
+          admin,
+          conditional,
+          fubDrift,
+          ownersGovernance,
+        },
+      },
+    })
+  } catch (error) {
+    const statusCode = error && typeof error === 'object' && 'status' in error && error.status ? error.status : 500
+    sendApiError(
+      res,
+      statusCode,
+      'owners_review_queue_failed',
+      error instanceof Error ? error.message : 'Failed to load Owners review queue.'
+    )
+  }
+})
+
 app.get('/api/system-inventory', async (_req, res) => {
   try {
     const trackedDocs = await getTrackedMarkdownDocs()
@@ -1788,6 +3052,21 @@ app.get('/api/system-inventory', async (_req, res) => {
   }
 })
 
+app.get('/api/sheets/structure-status', async (_req, res) => {
+  try {
+    const status = await runSheetsStructureVerification()
+    cacheHeadersNoStore(res)
+    res.json(status)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'sheet_structure_status_failed',
+      error instanceof Error ? error.message : 'Failed to load sheet structure status.'
+    )
+  }
+})
+
 app.get('/api/foundation-hub', async (_req, res) => {
   try {
     const snapshot = await getFoundationSnapshot()
@@ -1798,6 +3077,49 @@ app.get('/api/foundation-hub', async (_req, res) => {
       500,
       'foundation_hub_load_failed',
       error instanceof Error ? error.message : 'Failed to load foundation hub data.'
+    )
+  }
+})
+
+app.get('/api/shared-communications/archive', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20))
+    const sourceId = req.query.sourceId ? String(req.query.sourceId) : undefined
+    const artifactType = req.query.artifactType ? String(req.query.artifactType) : undefined
+    const archive = await getSharedCommunicationArchiveSnapshot({ sourceId, artifactType, limit, includeSensitive: true })
+    cacheHeadersNoStore(res)
+    res.json(archive)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'shared_communications_archive_failed',
+      error instanceof Error ? error.message : 'Failed to load shared communications archive.'
+    )
+  }
+})
+
+app.get('/api/shared-communications/candidates', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20))
+    const sourceId = req.query.sourceId ? String(req.query.sourceId) : undefined
+    const candidateType = req.query.candidateType ? String(req.query.candidateType) : undefined
+    const status = req.query.status ? String(req.query.status) : undefined
+    const candidates = await getSharedCommunicationCandidateSnapshot({
+      sourceId,
+      candidateType,
+      status,
+      limit,
+      includeItems: true,
+    })
+    cacheHeadersNoStore(res)
+    res.json(candidates)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'shared_communications_candidates_failed',
+      error instanceof Error ? error.message : 'Failed to load shared communications candidates.'
     )
   }
 })
@@ -1832,7 +3154,7 @@ app.get('/api/foundation/doc-updates', async (_req, res) => {
 })
 
 app.post('/api/foundation/backlog', requireAdminToken, async (req, res) => {
-  const allowedKeys = ['idPrefix', 'title', 'team', 'lane', 'priority', 'rank', 'source', 'summary', 'whyItMatters', 'nextAction', 'statusNote', 'owner']
+  const allowedKeys = ['idPrefix', 'title', 'scope', 'team', 'lane', 'priority', 'rank', 'source', 'summary', 'whyItMatters', 'nextAction', 'statusNote', 'owner']
   const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
   if (unknownFields.length) {
     sendApiError(res, 400, 'invalid_backlog_body', 'Unknown backlog fields.', { unknownFields })
@@ -1841,7 +3163,7 @@ app.post('/api/foundation/backlog', requireAdminToken, async (req, res) => {
 
   const errors = {}
   const title = requireStringField(errors, req.body, 'title', 'Title')
-  const team = requireStringField(errors, req.body, 'team', 'Team')
+  const scope = requireStringField(errors, { scope: req.body.scope ?? req.body.team }, 'scope', 'Scope')
   const lane = requireStringField(errors, req.body, 'lane', 'Lane')
   const priority = requireStringField(errors, req.body, 'priority', 'Priority')
   const idPrefix = requireStringField(errors, req.body, 'idPrefix', 'ID prefix')
@@ -1853,7 +3175,7 @@ app.post('/api/foundation/backlog', requireAdminToken, async (req, res) => {
   const statusNote = optionalStringField(errors, req.body, 'statusNote', 'Status note')
   const owner = optionalStringField(errors, req.body, 'owner', 'Owner')
 
-  if (team && !['dev', 'marketing'].includes(team)) errors.team = 'Team must be dev or marketing.'
+  if (scope && !backlogScopeKeys.includes(scope)) errors.scope = `Scope must be one of ${backlogScopeKeys.join(', ')}.`
   if (lane && !['research', 'scoped', 'ranked', 'executing', 'parked', 'done'].includes(lane)) errors.lane = 'Invalid backlog lane.'
   if (priority && !['P0', 'P1', 'P2', 'P3'].includes(priority)) errors.priority = 'Invalid priority.'
   if (idPrefix && !validateBacklogPrefix(idPrefix)) errors.idPrefix = 'Choose a valid backlog ID prefix.'
@@ -1867,7 +3189,7 @@ app.post('/api/foundation/backlog', requireAdminToken, async (req, res) => {
     const item = await createBacklogItem({
       idPrefix,
       title,
-      team,
+      scope,
       lane,
       priority,
       rank,
@@ -1886,7 +3208,7 @@ app.post('/api/foundation/backlog', requireAdminToken, async (req, res) => {
 })
 
 app.patch('/api/foundation/backlog/:id', requireAdminToken, async (req, res) => {
-  const allowedKeys = ['title', 'team', 'lane', 'priority', 'rank', 'source', 'summary', 'whyItMatters', 'nextAction', 'statusNote', 'owner']
+  const allowedKeys = ['title', 'scope', 'team', 'lane', 'priority', 'rank', 'source', 'summary', 'whyItMatters', 'nextAction', 'statusNote', 'owner']
   const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
   if (unknownFields.length) {
     sendApiError(res, 400, 'invalid_backlog_body', 'Unknown backlog fields.', { unknownFields })
@@ -1894,7 +3216,10 @@ app.patch('/api/foundation/backlog/:id', requireAdminToken, async (req, res) => 
   }
 
   const errors = {}
-  if ('team' in req.body && req.body.team && !['dev', 'marketing'].includes(req.body.team)) errors.team = 'Team must be dev or marketing.'
+  const requestedScope = 'scope' in req.body ? req.body.scope : req.body.team
+  if (requestedScope && !backlogScopeKeys.includes(String(requestedScope).trim().toLowerCase())) {
+    errors.scope = `Scope must be one of ${backlogScopeKeys.join(', ')}.`
+  }
   if ('lane' in req.body && req.body.lane && !['research', 'scoped', 'ranked', 'executing', 'parked', 'done'].includes(req.body.lane)) errors.lane = 'Invalid backlog lane.'
   if ('priority' in req.body && req.body.priority && !['P0', 'P1', 'P2', 'P3'].includes(req.body.priority)) errors.priority = 'Invalid priority.'
   const rank = 'rank' in req.body ? optionalNumberField(errors, req.body, 'rank', 'Rank') : undefined
@@ -1907,6 +3232,7 @@ app.patch('/api/foundation/backlog/:id', requireAdminToken, async (req, res) => 
   try {
     const item = await updateBacklogItem(req.params.id, {
       ...req.body,
+      scope: requestedScope,
       rank,
     }, getRequestActor())
     cacheHeadersNoStore(res)
@@ -1921,7 +3247,7 @@ app.patch('/api/foundation/backlog/:id', requireAdminToken, async (req, res) => 
 })
 
 app.post('/api/foundation/decisions', requireAdminToken, async (req, res) => {
-  const allowedKeys = ['title', 'summary', 'category', 'rationale', 'sourceRef', 'supersedesIds']
+  const allowedKeys = ['title', 'summary', 'category', 'rationale', 'sourceRef', 'supersedesIds', 'decisionOwner', 'confirmedBy', 'participantNames', 'contextRef', 'evidenceNotes']
   const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
   if (unknownFields.length) {
     sendApiError(res, 400, 'invalid_decision_body', 'Unknown decision fields.', { unknownFields })
@@ -1934,6 +3260,11 @@ app.post('/api/foundation/decisions', requireAdminToken, async (req, res) => {
   const category = requireStringField(errors, req.body, 'category', 'Category')
   const rationale = optionalStringField(errors, req.body, 'rationale', 'Rationale')
   const sourceRef = optionalStringField(errors, req.body, 'sourceRef', 'Source reference')
+  const decisionOwner = optionalStringField(errors, req.body, 'decisionOwner', 'Decision owner', 120)
+  const confirmedBy = optionalStringField(errors, req.body, 'confirmedBy', 'Confirmed by', 120)
+  const participantNames = optionalStringArrayField(errors, req.body, 'participantNames', 'Participants')
+  const contextRef = optionalStringField(errors, req.body, 'contextRef', 'Context reference', 500)
+  const evidenceNotes = optionalStringField(errors, req.body, 'evidenceNotes', 'Evidence notes', 4000)
 
   if (category && !validateCategory(category)) errors.category = 'Choose one of the four canonical decision categories.'
   if ('supersedesIds' in req.body && !Array.isArray(req.body.supersedesIds)) errors.supersedesIds = 'supersedesIds must be an array of decision IDs.'
@@ -1944,7 +3275,19 @@ app.post('/api/foundation/decisions', requireAdminToken, async (req, res) => {
   }
 
   try {
-    const decision = await createDecision({ title, summary, category, rationale, sourceRef, supersedesIds: req.body.supersedesIds }, getRequestActor())
+    const decision = await createDecision({
+      title,
+      summary,
+      category,
+      rationale,
+      sourceRef,
+      supersedesIds: req.body.supersedesIds,
+      decisionOwner,
+      confirmedBy,
+      participantNames,
+      contextRef,
+      evidenceNotes,
+    }, getRequestActor())
     cacheHeadersNoStore(res)
     res.status(201).json({ decision })
   } catch (error) {
@@ -1953,7 +3296,7 @@ app.post('/api/foundation/decisions', requireAdminToken, async (req, res) => {
 })
 
 app.patch('/api/foundation/decisions/:id', requireAdminToken, async (req, res) => {
-  const allowedKeys = ['category', 'status', 'rationale', 'sourceRef', 'supersedesIds']
+  const allowedKeys = ['category', 'status', 'rationale', 'sourceRef', 'supersedesIds', 'decisionOwner', 'confirmedBy', 'participantNames', 'contextRef', 'evidenceNotes']
   const unknownFields = getAllowedBodyKeys(req.body, allowedKeys)
   if (unknownFields.length) {
     sendApiError(res, 400, 'invalid_decision_body', 'Unknown decision fields.', { unknownFields })
@@ -1964,6 +3307,25 @@ app.patch('/api/foundation/decisions/:id', requireAdminToken, async (req, res) =
   if ('category' in req.body && req.body.category && !validateCategory(req.body.category)) errors.category = 'Choose one of the four canonical decision categories.'
   if ('status' in req.body && req.body.status && !['proposed', 'locked', 'superseded'].includes(req.body.status)) errors.status = 'Invalid decision status.'
   if ('supersedesIds' in req.body && !Array.isArray(req.body.supersedesIds)) errors.supersedesIds = 'supersedesIds must be an array of decision IDs.'
+  const rationale = Object.prototype.hasOwnProperty.call(req.body, 'rationale')
+    ? optionalStringField(errors, req.body, 'rationale', 'Rationale')
+    : undefined
+  const sourceRef = Object.prototype.hasOwnProperty.call(req.body, 'sourceRef')
+    ? optionalStringField(errors, req.body, 'sourceRef', 'Source reference')
+    : undefined
+  const decisionOwner = Object.prototype.hasOwnProperty.call(req.body, 'decisionOwner')
+    ? optionalStringField(errors, req.body, 'decisionOwner', 'Decision owner', 120)
+    : undefined
+  const confirmedBy = Object.prototype.hasOwnProperty.call(req.body, 'confirmedBy')
+    ? optionalStringField(errors, req.body, 'confirmedBy', 'Confirmed by', 120)
+    : undefined
+  const participantNames = optionalStringArrayField(errors, req.body, 'participantNames', 'Participants')
+  const contextRef = Object.prototype.hasOwnProperty.call(req.body, 'contextRef')
+    ? optionalStringField(errors, req.body, 'contextRef', 'Context reference', 500)
+    : undefined
+  const evidenceNotes = Object.prototype.hasOwnProperty.call(req.body, 'evidenceNotes')
+    ? optionalStringField(errors, req.body, 'evidenceNotes', 'Evidence notes', 4000)
+    : undefined
 
   if (Object.keys(errors).length) {
     sendApiError(res, 400, 'invalid_decision_body', 'Decision update is not valid.', { fields: errors })
@@ -1971,7 +3333,16 @@ app.patch('/api/foundation/decisions/:id', requireAdminToken, async (req, res) =
   }
 
   try {
-    const decision = await updateDecision(req.params.id, req.body, getRequestActor())
+    const decision = await updateDecision(req.params.id, {
+      ...req.body,
+      rationale,
+      sourceRef,
+      decisionOwner,
+      confirmedBy,
+      participantNames,
+      contextRef,
+      evidenceNotes,
+    }, getRequestActor())
     cacheHeadersNoStore(res)
     res.json({ decision })
   } catch (error) {
