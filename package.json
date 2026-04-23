@@ -18,7 +18,9 @@
     "meeting-notes:sync": "node --env-file-if-exists=.env scripts/sync-meeting-notes-archive.mjs",
     "meeting-notes:extract-candidates": "node --env-file-if-exists=.env scripts/extract-meeting-transcript-candidates.mjs",
     "meeting-notes:extract-tasks": "node --env-file-if-exists=.env scripts/extract-meeting-transcript-candidates.mjs",
+    "gmail:extract-candidates": "node --env-file-if-exists=.env scripts/extract-gmail-thread-candidates.mjs",
     "gmail:sync-archive": "node --env-file-if-exists=.env scripts/sync-gmail-archive.mjs",
+    "missive:extract-candidates": "node --env-file-if-exists=.env scripts/extract-missive-thread-candidates.mjs",
     "missive:sync-archive": "node --env-file-if-exists=.env scripts/sync-missive-archive.mjs",
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",
     "bhag:update": "node scripts/update-bhag-builder-paths.mjs"

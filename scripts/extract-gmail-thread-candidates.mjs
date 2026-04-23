@@ -17,7 +17,6 @@ import {
   buildFoundationExtractionContext,
   extractSharedCandidatesWithOpenAi,
   sanitizeExtractedCandidates,
-  shorten,
 } from '../lib/shared-candidate-extraction.js';
 import { getSourceContracts } from '../lib/source-contracts.js';
 
@@ -27,16 +26,9 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const STRATEGY_DOC_PATH = path.join(REPO_ROOT, 'docs', 'business-strategy.md');
 
 const DEFAULT_MODEL = process.env.OPENAI_EXTRACTION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini';
-const EXTRACTION_METHOD = 'meeting_transcript_context_v2';
-const SUPSERSEDED_METHODS = ['meeting_next_steps_v1', 'meeting_transcript_context_v1', EXTRACTION_METHOD];
-const LOW_SIGNAL_TASK_PATTERNS = [
-  /\bopen house\b/i,
-  /\bshowings?\b/i,
-  /\blisting presentation\b/i,
-  /\bphoto shoot\b/i,
-  /\baccepted conditional offer\b/i,
-];
-const MAX_TRANSCRIPT_CHARS = 24000;
+const EXTRACTION_METHOD = 'gmail_thread_context_v1';
+const SUPSERSEDED_METHODS = [EXTRACTION_METHOD];
+const MAX_THREAD_CHARS = 18000;
 
 function parseArgs(argv) {
   const result = {};
@@ -61,42 +53,25 @@ function fingerprintCandidate(candidate) {
   ].join('|');
 }
 
-function isLowSignalTaskCandidate(candidate) {
-  if (candidate.candidateType !== 'task_candidate') return false;
-
-  const relatedBacklogCount = candidate.metadata?.links?.related_backlog_ids?.length || 0;
-  const relatedDecisionCount = candidate.metadata?.links?.related_decision_ids?.length || 0;
-  if (relatedBacklogCount || relatedDecisionCount) return false;
-
-  const haystack = `${candidate.title} ${candidate.evidenceExcerpt}`;
-  return LOW_SIGNAL_TASK_PATTERNS.some(pattern => pattern.test(haystack));
-}
-
-async function extractCandidatesFromTranscript(artifact, foundationContext, model) {
+async function extractCandidatesFromGmailThread(artifact, foundationContext, model) {
   const systemPromptLines = [
     'You extract governed shared-communication candidates for the Benson Crew Foundation system.',
-    'Use the transcript plus the supplied Foundation context.',
+    'Use the email thread plus the supplied Foundation context.',
     'Use the supplied user roster to resolve people, ownership, and who is being discussed.',
     'For each candidate, tag subject_people using roster email addresses only. Use [] when the item is not about a specific person.',
     'For each candidate, assign sensitivity: neutral, positive, performance_concern, termination_risk, comp_discussion, or undisclosed_feedback.',
-    'Training, all-hands, huddles, sales sessions, workshops, and broad team meetings usually stay neutral or positive unless the transcript explicitly contains sensitive people discussion.',
-    'Do not mark ordinary coaching, planning, or public praise as performance_concern. Reserve sensitive labels for explicit negative evaluation, comp, termination, or undisclosed feedback about named people.',
     'Prefer precision over recall. If evidence is weak, omit the item.',
-    'Never extract from Gemini summaries or bullet lists. Use transcript evidence only.',
-    'Only emit items the system should still care about after the meeting ends.',
-    'Ignore routine round-robin day plans, ordinary sales hustle updates, showings, listing presentations, open houses, personal errands, and casual chatter unless they create a cross-team dependency, a real blocker, or a decision that leadership should track.',
-    'Ignore personal health details, coffee/food chatter, generic attendance logistics, and calendar schedule mentions unless they materially change shared execution.',
     'Return only business-relevant items: task_candidate, decision_candidate, blocker, feedback_signal, atom_candidate.',
-    'Use task_candidate only for explicit commitments, assignments, or follow-through work that changes shared execution, systems, governance, or team accountability.',
-    'Exclude one-person same-day marketing or sales deliverables unless they create a tracked shared dependency.',
+    'Prioritize explicit asks, approvals, blockers, follow-through work, system alerts, access issues, decisions, and durable organizational facts.',
+    'Ignore newsletters, promos, generic marketing blasts, automated listing packages, and polite back-and-forth unless they create a real blocker, decision, or follow-through item.',
+    'Ignore ai@ or crewbert-generated summaries, briefs, or digests unless the thread records a real failure, exception, escalation, or new work request.',
+    'Use task_candidate only for explicit commitments, asks, or follow-through work that changes shared execution or system behavior.',
     'Use decision_candidate only for actual decisions or explicit agreements.',
-    'Use blocker only for explicit impediments, risks, or unresolved constraints.',
-    'Use feedback_signal only for sentiment or repeated feedback with operating relevance.',
-    'Use atom_candidate only for durable organizational facts worth preserving. Do not emit one-day priorities as atoms.',
-    'Do not emit meeting logistics or future meeting attendance plans as decision candidates.',
-    'Task candidates should usually be things the system could route into backlog, review, or accountable follow-through. Exclude ordinary same-day individual appointments unless they create a shared dependency.',
+    'Use blocker only for explicit impediments, missing access, unresolved dependencies, or failing automations.',
+    'Use feedback_signal only for repeated feedback or stakeholder sentiment with operating relevance.',
+    'Use atom_candidate only for durable organizational facts worth preserving.',
     'Do not emit duplicate candidates for the same evidence.',
-    'Return at most 8 candidates for a meeting.',
+    'Return at most 6 candidates for a thread.',
     'The links arrays must only contain IDs already present in the supplied Foundation context.',
   ];
 
@@ -105,10 +80,10 @@ async function extractCandidatesFromTranscript(artifact, foundationContext, mode
     foundationContext,
     model,
     systemPromptLines,
-    contentLabel: 'Transcript',
+    contentLabel: 'Gmail thread',
     contentText: artifact.contentText || '',
-    maxChars: MAX_TRANSCRIPT_CHARS,
-    schemaName: 'meeting_transcript_candidates',
+    maxChars: MAX_THREAD_CHARS,
+    schemaName: 'gmail_thread_candidates',
   });
 }
 
@@ -117,7 +92,7 @@ async function main() {
   const limit = Math.min(20, Math.max(1, Number(args.limit || 3)));
   const model = args.model || DEFAULT_MODEL;
 
-  console.log('Extract shared communication candidates from archived meeting transcripts');
+  console.log('Extract shared communication candidates from archived Gmail threads');
   console.log(`  Limit: ${limit}`);
   console.log(`  Model: ${model}`);
 
@@ -131,30 +106,22 @@ async function main() {
     getSourceContracts(),
   );
 
-  const artifacts = (
-    await getSharedCommunicationArtifactsForProcessing({
-      sourceId: 'SRC-MEETINGS-001',
-      artifactType: 'meeting_transcript',
-      limit: Math.max(limit * 3, 10),
-    })
-  )
-    .filter(
-      artifact =>
-        artifact?.metadata?.archiveVersion === 'meeting_archive_v2' ||
-        String(artifact.externalId || '').startsWith('meeting:'),
-    )
-    .slice(0, limit);
+  const artifacts = await getSharedCommunicationArtifactsForProcessing({
+    sourceId: 'SRC-GMAIL-001',
+    artifactType: 'email_thread',
+    limit,
+  });
 
   const rejected = await rejectSharedCommunicationCandidatesForArtifacts({
-    sourceId: 'SRC-MEETINGS-001',
+    sourceId: 'SRC-GMAIL-001',
     artifactIds: artifacts.map(artifact => artifact.artifactId),
     extractionMethods: SUPSERSEDED_METHODS,
     actor: 'system',
-    reason: 'Transcript-first extractor superseded earlier meeting candidate extraction for these artifacts.',
+    reason: 'Gmail extraction rerun superseded earlier pending candidates for these threads.',
   });
 
   console.log(`  Rejected stale pending candidates: ${rejected.rejected}`);
-  console.log(`  Archived transcripts scanned: ${artifacts.length}`);
+  console.log(`  Archived threads scanned: ${artifacts.length}`);
 
   let upserted = 0;
   let failed = 0;
@@ -162,14 +129,13 @@ async function main() {
 
   for (const artifact of artifacts) {
     try {
-      const extracted = await extractCandidatesFromTranscript(artifact, foundationContext, model);
+      const extracted = await extractCandidatesFromGmailThread(artifact, foundationContext, model);
       const candidates = sanitizeExtractedCandidates(extracted.candidates, artifact, foundationContext, {
         extractionMethod: EXTRACTION_METHOD,
-        model: DEFAULT_MODEL,
+        model,
       });
 
       for (const candidate of candidates) {
-        if (isLowSignalTaskCandidate(candidate)) continue;
         const fingerprint = fingerprintCandidate(candidate);
         if (seenFingerprints.has(fingerprint)) continue;
         seenFingerprints.add(fingerprint);
@@ -177,9 +143,7 @@ async function main() {
         upserted += 1;
       }
 
-      console.log(
-        `  ${artifact.artifactId}: ${candidates.length} candidates (${artifact.metadata?.transcriptSource || 'unknown'})`,
-      );
+      console.log(`  ${artifact.artifactId}: ${candidates.length} candidates`);
     } catch (error) {
       failed += 1;
       console.error(
@@ -191,7 +155,7 @@ async function main() {
   }
 
   const snapshot = await getSharedCommunicationCandidateSnapshot({
-    sourceId: 'SRC-MEETINGS-001',
+    sourceId: 'SRC-GMAIL-001',
     status: 'pending',
     limit: 20,
     includeItems: true,
@@ -213,7 +177,7 @@ async function main() {
 
 main()
   .catch(error => {
-    console.error('Meeting transcript candidate extraction failed.');
+    console.error('Gmail thread candidate extraction failed.');
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
   })
