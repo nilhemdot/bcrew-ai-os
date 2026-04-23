@@ -30,6 +30,7 @@ import {
   listPendingDocUpdates,
   markPendingDocUpdateApplied,
   markPendingDocUpdateFailed,
+  applySharedCommunicationCandidateToBacklog,
   rejectPendingDocUpdate,
   recordReviewQueueChange,
   recordSourceDriftChange,
@@ -3121,6 +3122,31 @@ app.get('/api/shared-communications/candidates', requireAdminToken, async (req, 
       500,
       'shared_communications_candidates_failed',
       error instanceof Error ? error.message : 'Failed to load shared communications candidates.'
+    )
+  }
+})
+
+app.post('/api/shared-communications/candidates/:candidateKey/apply-to-backlog', requireAdminToken, async (req, res) => {
+  try {
+    const payload =
+      req.body && typeof req.body === 'object' && !Array.isArray(req.body)
+        ? req.body
+        : {}
+
+    const result = await applySharedCommunicationCandidateToBacklog(
+      String(req.params.candidateKey),
+      payload,
+      getRequestActor(req),
+    )
+
+    cacheHeadersNoStore(res)
+    res.json(result)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'shared_communications_candidate_apply_to_backlog_failed',
+      error instanceof Error ? error.message : 'Failed to apply shared communications candidate to backlog.'
     )
   }
 })
