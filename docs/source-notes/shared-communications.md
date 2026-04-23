@@ -116,6 +116,8 @@ What already exists now:
   - comments
   - full thread reads
 - current repo now has the first governed archive slice for shared communications:
+  - Gmail thread artifacts archived in PostgreSQL
+  - Missive thread artifacts archived in PostgreSQL
   - meeting-note artifacts archived in PostgreSQL
   - meeting-transcript artifacts archived in PostgreSQL
   - first pending candidate lane extracted transcript-first with Foundation context

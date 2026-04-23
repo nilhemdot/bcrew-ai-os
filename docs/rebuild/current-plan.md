@@ -67,6 +67,8 @@ Use [Current State](current-state.md) for the short read.
    - next bounded slice inside this closure:
      - `SOURCE-019`
      - `SOURCE-020`
+     - raw Gmail-thread archive is now live
+     - raw Missive-thread archive is now live
      - raw meeting-note archive is now live
      - raw meeting-transcript archive is now live
      - first pending transcript-first candidate lane is now live
