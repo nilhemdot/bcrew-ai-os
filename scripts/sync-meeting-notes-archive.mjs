@@ -6,11 +6,12 @@ import {
   closeFoundationDb,
   getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
+  listFoundationUsers,
   upsertSharedCommunicationArtifact,
 } from '../lib/foundation-db.js';
 import {
-  buildEmbeddedTranscriptExternalId,
   buildEmbeddedTranscriptTitle,
+  buildMeetingArtifactExternalId,
   extractTranscriptSection,
   normalizeMeetingArtifactKey,
   transcriptTextHash,
@@ -32,29 +33,90 @@ function parseArgs(argv) {
   return result;
 }
 
-function sortNewestFirst(files) {
-  return [...files].sort((left, right) =>
+function splitCsv(value) {
+  return String(value || '')
+    .split(',')
+    .map(entry => entry.trim())
+    .filter(Boolean);
+}
+
+function sortNewestFirst(items) {
+  return [...items].sort((left, right) =>
     String(right?.modifiedTime || '').localeCompare(String(left?.modifiedTime || '')),
   );
 }
 
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
-  const sourceUser = args.user || DEFAULT_SOURCE_USER;
-  const limit = Math.min(50, Math.max(1, Number(args.limit || 5)));
-  const searchLimit = Math.min(50, Math.max(limit * 4, 10));
+function toEpoch(value) {
+  const epoch = Date.parse(String(value || ''));
+  return Number.isFinite(epoch) ? epoch : 0;
+}
 
-  console.log('Sync meeting artifacts into shared communications archive');
-  console.log(`  Source user: ${sourceUser}`);
-  console.log(`  Gemini query: ${GEMINI_NOTES_QUERY}`);
-  console.log(`  Transcript query: ${TRANSCRIPT_DOC_QUERY}`);
-  console.log(`  Limit: ${limit}`);
+function normalizeGroupKey(name, fallbackExternalId) {
+  return normalizeMeetingArtifactKey(name) || String(fallbackExternalId || '').trim();
+}
 
-  await initFoundationDb();
+function buildArtifactCandidate(userEmail, file, variant) {
+  return {
+    userEmail,
+    file,
+    variant,
+    modifiedEpoch: toEpoch(file?.modifiedTime),
+    meetingKey: normalizeGroupKey(file?.name, file?.id),
+  };
+}
 
+function choosePreferredArtifact(current, candidate, { preferStandalone = false } = {}) {
+  if (!current) return candidate;
+
+  if (preferStandalone) {
+    const currentStandalone = current.variant === 'standalone_transcript';
+    const candidateStandalone = candidate.variant === 'standalone_transcript';
+    if (currentStandalone !== candidateStandalone) {
+      return candidateStandalone ? candidate : current;
+    }
+  }
+
+  return candidate.modifiedEpoch > current.modifiedEpoch ? candidate : current;
+}
+
+function getOrCreateMeetingGroup(groups, meetingKey) {
+  if (!groups.has(meetingKey)) {
+    groups.set(meetingKey, {
+      meetingKey,
+      observedAccounts: new Set(),
+      noteObservedAccounts: new Set(),
+      transcriptObservedAccounts: new Set(),
+      noteFileIds: new Set(),
+      transcriptFileIds: new Set(),
+      noteCandidate: null,
+      transcriptCandidate: null,
+      latestModifiedEpoch: 0,
+    });
+  }
+
+  return groups.get(meetingKey);
+}
+
+async function resolveScanUsers(args) {
+  const argUsers = splitCsv(args.users || '');
+  const envUsers = splitCsv(process.env.GOOGLE_MEETING_SOURCE_USERS || '');
+
+  if (args.user || args.sourceUser) {
+    return [String(args.user || args.sourceUser).trim()].filter(Boolean);
+  }
+
+  if (argUsers.length) return argUsers;
+  if (envUsers.length) return envUsers;
+
+  const users = await listFoundationUsers({ meetingSyncEnabled: true });
+  const emails = users.map(user => user.email).filter(Boolean);
+  return emails.length ? emails : [DEFAULT_SOURCE_USER];
+}
+
+async function searchMeetingArtifactsForUser(userEmail, searchLimit) {
   const geminiFiles = sortNewestFirst(
     await driveSearch(
-      sourceUser,
+      userEmail,
       GEMINI_NOTES_QUERY,
       'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
       searchLimit,
@@ -63,166 +125,275 @@ async function main() {
 
   const transcriptDocs = sortNewestFirst(
     await driveSearch(
-      sourceUser,
+      userEmail,
       TRANSCRIPT_DOC_QUERY,
       'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
       searchLimit,
     ),
   ).filter(file => file?.mimeType === 'application/vnd.google-apps.document');
 
-  console.log(`  Gemini docs found: ${geminiFiles.length}`);
-  console.log(`  Transcript docs found: ${transcriptDocs.length}`);
+  return { geminiFiles, transcriptDocs };
+}
 
-  const transcriptByMeetingKey = new Map();
-  let standaloneTranscriptsArchived = 0;
+async function archiveStandaloneTranscript(group) {
+  const candidate = group.transcriptCandidate;
+  if (!candidate || candidate.variant !== 'standalone_transcript') return null;
 
-  for (const file of transcriptDocs.slice(0, limit)) {
-    const contentText = await driveExportDoc(sourceUser, file.id);
-    const extractedTranscript = extractTranscriptSection(contentText);
-    const transcriptText = extractedTranscript?.transcriptText || String(contentText || '').trim();
-    const meetingKey = normalizeMeetingArtifactKey(file.name);
+  const contentText = await driveExportDoc(candidate.userEmail, candidate.file.id);
+  const extractedTranscript = extractTranscriptSection(contentText);
+  const transcriptText = extractedTranscript?.transcriptText || String(contentText || '').trim();
+
+  const externalId = buildMeetingArtifactExternalId(
+    group.meetingKey,
+    'meeting_transcript',
+    candidate.file.id,
+  );
+
+  const artifact = await upsertSharedCommunicationArtifact(
+    {
+      sourceId: 'SRC-MEETINGS-001',
+      artifactType: 'meeting_transcript',
+      externalId,
+      title: candidate.file.name || 'Meeting transcript',
+      sourceAccount: candidate.userEmail,
+      sourceContainer: 'Google Drive / Team meeting transcripts',
+      sourceUrl: candidate.file.webViewLink || null,
+      participants: extractedTranscript?.speakerNames || [],
+      contentText: transcriptText,
+      contentHash: transcriptTextHash(transcriptText),
+      artifactUpdatedAt: candidate.file.modifiedTime || null,
+      metadata: {
+        query: TRANSCRIPT_DOC_QUERY,
+        meetingKey: group.meetingKey,
+        archiveVersion: 'meeting_archive_v2',
+        transcriptSource: 'standalone',
+        primaryFileId: candidate.file.id,
+        primarySourceAccount: candidate.userEmail,
+        observedAccounts: [...group.transcriptObservedAccounts].sort(),
+        observedFileIds: [...group.transcriptFileIds].sort(),
+        transcriptLineCount: extractedTranscript?.transcriptLineCount || 0,
+        speakerCount: extractedTranscript?.speakerNames?.length || 0,
+        transcriptSectionDetected: Boolean(extractedTranscript),
+      },
+    },
+    'system',
+  );
+
+  return {
+    artifact,
+    transcriptSource: 'standalone',
+    participants: extractedTranscript?.speakerNames || [],
+    transcriptExternalId: externalId,
+  };
+}
+
+async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscriptInfo) {
+  const candidate = group.noteCandidate;
+  if (!candidate) {
+    return {
+      noteArchived: false,
+      embeddedTranscriptArchived: false,
+      transcriptSource: standaloneTranscriptInfo?.transcriptSource || 'missing',
+      missingTranscript: !standaloneTranscriptInfo,
+    };
+  }
+
+  const noteContent = await driveExportDoc(candidate.userEmail, candidate.file.id);
+  const embeddedTranscript = extractTranscriptSection(noteContent);
+  let transcriptInfo = standaloneTranscriptInfo || null;
+  let embeddedTranscriptArchived = false;
+  let transcriptSource = standaloneTranscriptInfo?.transcriptSource || 'missing';
+
+  if (!transcriptInfo && embeddedTranscript?.transcriptText) {
+    const transcriptExternalId = buildMeetingArtifactExternalId(
+      group.meetingKey,
+      'meeting_transcript',
+      `${candidate.file.id}:embedded-transcript`,
+    );
 
     await upsertSharedCommunicationArtifact(
       {
         sourceId: 'SRC-MEETINGS-001',
         artifactType: 'meeting_transcript',
-        externalId: file.id,
-        title: file.name || 'Meeting transcript',
-        sourceAccount: sourceUser,
-        sourceContainer: 'Google Drive / Meeting transcripts',
-        sourceUrl: file.webViewLink || null,
-        participants: extractedTranscript?.speakerNames || [],
-        contentText: transcriptText,
-        contentHash: transcriptTextHash(transcriptText),
-        artifactUpdatedAt: file.modifiedTime || null,
+        externalId: transcriptExternalId,
+        title: buildEmbeddedTranscriptTitle(candidate.file.name),
+        sourceAccount: candidate.userEmail,
+        sourceContainer: 'Google Drive / Team meeting notes (embedded transcript)',
+        sourceUrl: candidate.file.webViewLink || null,
+        participants: embeddedTranscript.speakerNames,
+        contentText: embeddedTranscript.transcriptText,
+        contentHash: transcriptTextHash(embeddedTranscript.transcriptText),
+        artifactUpdatedAt: candidate.file.modifiedTime || null,
         metadata: {
-          query: TRANSCRIPT_DOC_QUERY,
-          meetingKey,
-          parents: Array.isArray(file.parents) ? file.parents : [],
-          transcriptSource: 'standalone',
-          transcriptLineCount: extractedTranscript?.transcriptLineCount || 0,
-          speakerCount: extractedTranscript?.speakerNames?.length || 0,
-          transcriptSectionDetected: Boolean(extractedTranscript),
+          query: GEMINI_NOTES_QUERY,
+          meetingKey: group.meetingKey,
+          archiveVersion: 'meeting_archive_v2',
+          transcriptSource: 'embedded_in_gemini',
+          primaryFileId: candidate.file.id,
+          primarySourceAccount: candidate.userEmail,
+          observedAccounts: [...group.noteObservedAccounts].sort(),
+          observedFileIds: [...group.noteFileIds].sort(),
+          noteExternalId: candidate.file.id,
+          transcriptLineCount: embeddedTranscript.transcriptLineCount,
+          speakerCount: embeddedTranscript.speakerNames.length,
         },
       },
       'system',
     );
 
-    standaloneTranscriptsArchived += 1;
-    if (meetingKey && !transcriptByMeetingKey.has(meetingKey)) {
-      transcriptByMeetingKey.set(meetingKey, {
-        artifactId: `SRC-MEETINGS-001:${file.id}`,
-        externalId: file.id,
-        participants: extractedTranscript?.speakerNames || [],
-        transcriptSource: 'standalone',
+    transcriptInfo = {
+      transcriptSource: 'embedded_in_gemini',
+      participants: embeddedTranscript.speakerNames,
+      transcriptExternalId,
+    };
+    transcriptSource = 'embedded_in_gemini';
+    embeddedTranscriptArchived = true;
+  }
+
+  await upsertSharedCommunicationArtifact(
+    {
+      sourceId: 'SRC-MEETINGS-001',
+      artifactType: 'meeting_note',
+      externalId: buildMeetingArtifactExternalId(group.meetingKey, 'meeting_note', candidate.file.id),
+      title: candidate.file.name || 'Notes by Gemini',
+      sourceAccount: candidate.userEmail,
+      sourceContainer: 'Google Drive / Team meeting notes',
+      sourceUrl: candidate.file.webViewLink || null,
+      participants: transcriptInfo?.participants || [],
+      contentText: noteContent,
+      contentHash: transcriptTextHash(noteContent),
+      artifactUpdatedAt: candidate.file.modifiedTime || null,
+      metadata: {
+        query: GEMINI_NOTES_QUERY,
+        meetingKey: group.meetingKey,
+        archiveVersion: 'meeting_archive_v2',
+        transcriptSource,
+        primaryFileId: candidate.file.id,
+        primarySourceAccount: candidate.userEmail,
+        observedAccounts: [...group.noteObservedAccounts].sort(),
+        observedFileIds: [...group.noteFileIds].sort(),
+        transcriptExternalId: transcriptInfo?.transcriptExternalId || null,
+        transcriptMissing: !transcriptInfo,
+      },
+    },
+    'system',
+  );
+
+  return {
+    noteArchived: true,
+    embeddedTranscriptArchived,
+    transcriptSource,
+    missingTranscript: !transcriptInfo,
+  };
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const limit = Math.min(50, Math.max(1, Number(args.limit || 5)));
+  const perUserSearchLimit = Math.min(50, Math.max(Number(args.searchLimit || limit * 4), 10));
+
+  await initFoundationDb();
+
+  const scanUsers = await resolveScanUsers(args);
+  const groups = new Map();
+
+  console.log('Sync meeting artifacts into shared communications archive');
+  console.log(`  Scan users: ${scanUsers.length}`);
+  console.log(`  Gemini query: ${GEMINI_NOTES_QUERY}`);
+  console.log(`  Transcript query: ${TRANSCRIPT_DOC_QUERY}`);
+  console.log(`  Limit: ${limit}`);
+  console.log(`  Search limit per user: ${perUserSearchLimit}`);
+
+  for (const userEmail of scanUsers) {
+    const { geminiFiles, transcriptDocs } = await searchMeetingArtifactsForUser(
+      userEmail,
+      perUserSearchLimit,
+    );
+
+    console.log(`  ${userEmail}: ${geminiFiles.length} Gemini docs, ${transcriptDocs.length} transcript docs`);
+
+    for (const file of geminiFiles) {
+      const candidate = buildArtifactCandidate(userEmail, file, 'meeting_note');
+      const group = getOrCreateMeetingGroup(groups, candidate.meetingKey);
+      group.observedAccounts.add(userEmail);
+      group.noteObservedAccounts.add(userEmail);
+      group.noteFileIds.add(file.id);
+      group.latestModifiedEpoch = Math.max(group.latestModifiedEpoch, candidate.modifiedEpoch);
+      group.noteCandidate = choosePreferredArtifact(group.noteCandidate, candidate);
+    }
+
+    for (const file of transcriptDocs) {
+      const candidate = buildArtifactCandidate(userEmail, file, 'standalone_transcript');
+      const group = getOrCreateMeetingGroup(groups, candidate.meetingKey);
+      group.observedAccounts.add(userEmail);
+      group.transcriptObservedAccounts.add(userEmail);
+      group.transcriptFileIds.add(file.id);
+      group.latestModifiedEpoch = Math.max(group.latestModifiedEpoch, candidate.modifiedEpoch);
+      group.transcriptCandidate = choosePreferredArtifact(group.transcriptCandidate, candidate, {
+        preferStandalone: true,
       });
     }
   }
 
-  let meetingNotesArchived = 0;
+  const selectedGroups = [...groups.values()]
+    .sort((left, right) => right.latestModifiedEpoch - left.latestModifiedEpoch)
+    .slice(0, limit);
+
+  console.log(`  Meetings selected for archive: ${selectedGroups.length}`);
+
+  let standaloneTranscriptsArchived = 0;
   let embeddedTranscriptsArchived = 0;
+  let meetingNotesArchived = 0;
   let missingTranscriptCount = 0;
+  let failedMeetings = 0;
   const missingTranscriptNotes = [];
+  const failedMeetingSamples = [];
 
-  for (const file of geminiFiles.slice(0, limit)) {
-    const contentText = await driveExportDoc(sourceUser, file.id);
-    const meetingKey = normalizeMeetingArtifactKey(file.name);
-    let transcriptInfo = meetingKey ? transcriptByMeetingKey.get(meetingKey) || null : null;
-    let transcriptSource = transcriptInfo?.transcriptSource || 'missing';
+  for (const group of selectedGroups) {
+    try {
+      const standaloneTranscriptInfo = await archiveStandaloneTranscript(group);
+      if (standaloneTranscriptInfo) standaloneTranscriptsArchived += 1;
 
-    if (!transcriptInfo) {
-      const embeddedTranscript = extractTranscriptSection(contentText);
-      if (embeddedTranscript?.transcriptText) {
-        const transcriptExternalId = buildEmbeddedTranscriptExternalId(file.id);
-        await upsertSharedCommunicationArtifact(
-          {
-            sourceId: 'SRC-MEETINGS-001',
-            artifactType: 'meeting_transcript',
-            externalId: transcriptExternalId,
-            title: buildEmbeddedTranscriptTitle(file.name),
-            sourceAccount: sourceUser,
-            sourceContainer: 'Google Drive / Notes by Gemini (embedded transcript)',
-            sourceUrl: file.webViewLink || null,
-            participants: embeddedTranscript.speakerNames,
-            contentText: embeddedTranscript.transcriptText,
-            contentHash: transcriptTextHash(embeddedTranscript.transcriptText),
-            artifactUpdatedAt: file.modifiedTime || null,
-            metadata: {
-              query: GEMINI_NOTES_QUERY,
-              meetingKey,
-              parents: Array.isArray(file.parents) ? file.parents : [],
-              transcriptSource: 'embedded_in_gemini',
-              noteExternalId: file.id,
-              transcriptLineCount: embeddedTranscript.transcriptLineCount,
-              speakerCount: embeddedTranscript.speakerNames.length,
-            },
-          },
-          'system',
-        );
-
-        transcriptInfo = {
-          artifactId: `SRC-MEETINGS-001:${transcriptExternalId}`,
-          externalId: transcriptExternalId,
-          participants: embeddedTranscript.speakerNames,
-          transcriptSource: 'embedded_in_gemini',
-        };
-        embeddedTranscriptsArchived += 1;
-        transcriptSource = 'embedded_in_gemini';
-
-        if (meetingKey && !transcriptByMeetingKey.has(meetingKey)) {
-          transcriptByMeetingKey.set(meetingKey, transcriptInfo);
-        }
-      } else {
+      const noteResult = await archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscriptInfo);
+      if (noteResult.noteArchived) meetingNotesArchived += 1;
+      if (noteResult.embeddedTranscriptArchived) embeddedTranscriptsArchived += 1;
+      if (noteResult.missingTranscript) {
         missingTranscriptCount += 1;
-        transcriptSource = 'missing';
-        if (missingTranscriptNotes.length < 5) missingTranscriptNotes.push(file.name);
+        if (missingTranscriptNotes.length < 5) {
+          missingTranscriptNotes.push(group.noteCandidate?.file?.name || group.transcriptCandidate?.file?.name || group.meetingKey);
+        }
+      }
+    } catch (error) {
+      failedMeetings += 1;
+      if (failedMeetingSamples.length < 5) {
+        failedMeetingSamples.push(
+          `${group.noteCandidate?.file?.name || group.transcriptCandidate?.file?.name || group.meetingKey}: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
       }
     }
-
-    await upsertSharedCommunicationArtifact(
-      {
-        sourceId: 'SRC-MEETINGS-001',
-        artifactType: 'meeting_note',
-        externalId: file.id,
-        title: file.name || 'Notes by Gemini',
-        sourceAccount: sourceUser,
-        sourceContainer: 'Google Drive / Notes by Gemini',
-        sourceUrl: file.webViewLink || null,
-        participants: transcriptInfo?.participants || [],
-        contentText,
-        contentHash: transcriptTextHash(contentText),
-        artifactUpdatedAt: file.modifiedTime || null,
-        metadata: {
-          query: GEMINI_NOTES_QUERY,
-          meetingKey,
-          parents: Array.isArray(file.parents) ? file.parents : [],
-          transcriptSource,
-          transcriptArtifactId: transcriptInfo?.artifactId || null,
-          transcriptExternalId: transcriptInfo?.externalId || null,
-          transcriptMissing: !transcriptInfo,
-        },
-      },
-      'system',
-    );
-
-    meetingNotesArchived += 1;
   }
 
   const archive = await getSharedCommunicationArchiveSnapshot({
     sourceId: 'SRC-MEETINGS-001',
-    limit: Math.min(10, searchLimit),
+    limit: Math.min(10, limit * 2),
   });
 
   console.log(`  Standalone transcripts archived: ${standaloneTranscriptsArchived}`);
   console.log(`  Embedded transcripts archived: ${embeddedTranscriptsArchived}`);
   console.log(`  Gemini notes archived: ${meetingNotesArchived}`);
   console.log(`  Missing transcript meetings: ${missingTranscriptCount}`);
+  console.log(`  Failed meetings: ${failedMeetings}`);
   console.log(`  Archive total: ${archive.totalArtifacts}`);
   if (archive.byType) {
     console.log(`  Archive by type: ${JSON.stringify(archive.byType)}`);
   }
   if (missingTranscriptNotes.length) {
     console.log(`  Missing transcript sample: ${missingTranscriptNotes.join(' | ')}`);
+  }
+  if (failedMeetingSamples.length) {
+    console.log(`  Failed meeting sample: ${failedMeetingSamples.join(' | ')}`);
   }
 }
 

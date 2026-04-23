@@ -3,17 +3,14 @@
 import process from 'node:process';
 import {
   driveExportDoc,
-  driveListFolder,
   driveSearch,
   GOOGLE_SA_KEY_FILE,
   getServiceAccountSummary,
 } from '../lib/google-delegated.js';
+import { closeFoundationDb, initFoundationDb, listFoundationUsers } from '../lib/foundation-db.js';
 import { extractTranscriptSection } from '../lib/meeting-transcripts.js';
 
 const DEFAULT_SOURCE_USER = process.env.GOOGLE_MEETING_SOURCE_USER || 'ai@bensoncrew.ca';
-const DEFAULT_ARCHIVE_USER = process.env.GOOGLE_MEETING_ARCHIVE_USER || 'crewbert@bensoncrew.ca';
-const DEFAULT_MEETING_ROOT_FOLDER =
-  process.env.MEETING_NOTES_ROOT_FOLDER || '1HoWP-kHv8SL0hYMdurg3hmtqCq1XFnPD';
 const GEMINI_NOTES_QUERY =
   "name contains 'Notes by Gemini' and mimeType = 'application/vnd.google-apps.document' and trashed = false";
 const TRANSCRIPT_DOC_QUERY =
@@ -29,8 +26,15 @@ function parseArgs(argv) {
   return result;
 }
 
-function sortNewestFirst(files) {
-  return [...files].sort((left, right) =>
+function splitCsv(value) {
+  return String(value || '')
+    .split(',')
+    .map(entry => entry.trim())
+    .filter(Boolean);
+}
+
+function sortNewestFirst(items) {
+  return [...items].sort((left, right) =>
     String(right?.modifiedTime || '').localeCompare(String(left?.modifiedTime || '')),
   );
 }
@@ -43,19 +47,36 @@ function summarizeText(text) {
   };
 }
 
+async function resolveScanUsers(args) {
+  const argUsers = splitCsv(args.users || '');
+  const envUsers = splitCsv(process.env.GOOGLE_MEETING_SOURCE_USERS || '');
+
+  if (args.user || args.sourceUser) {
+    return [String(args.user || args.sourceUser).trim()].filter(Boolean);
+  }
+
+  if (argUsers.length) return argUsers;
+  if (envUsers.length) return envUsers;
+
+  const users = await listFoundationUsers({ meetingSyncEnabled: true });
+  const emails = users.map(user => user.email).filter(Boolean);
+  return emails.length ? emails : [DEFAULT_SOURCE_USER];
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const sourceUser = args.sourceUser || DEFAULT_SOURCE_USER;
-  const archiveUser = args.archiveUser || DEFAULT_ARCHIVE_USER;
-  const folderId = args.folder || DEFAULT_MEETING_ROOT_FOLDER;
   const searchLimit = Math.max(1, Number(args.searchLimit || 5));
-  const folderLimit = Math.max(1, Number(args.folderLimit || 20));
+  const checkUsers = Math.max(1, Number(args.checkUsers || 3));
+
+  await initFoundationDb();
+
+  const allScanUsers = await resolveScanUsers(args);
+  const scanUsers = allScanUsers.slice(0, checkUsers);
 
   console.log('Google meeting-notes verification');
   console.log(`  Service account file: ${GOOGLE_SA_KEY_FILE}`);
-  console.log(`  Source user: ${sourceUser}`);
-  console.log(`  Archive user: ${archiveUser}`);
-  console.log(`  Meeting root folder: ${folderId}`);
+  console.log(`  Scan users configured: ${allScanUsers.length}`);
+  console.log(`  Scan users checked: ${scanUsers.join(', ')}`);
   console.log(`  Gemini query: ${GEMINI_NOTES_QUERY}`);
   console.log(`  Transcript query: ${TRANSCRIPT_DOC_QUERY}`);
 
@@ -63,51 +84,64 @@ async function main() {
   console.log(`  Service account: ${summary.clientEmail}`);
   console.log(`  Project: ${summary.projectId}`);
 
-  const sourceNotes = await driveSearch(
-    sourceUser,
-    GEMINI_NOTES_QUERY,
-    'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
-    searchLimit,
-  );
-  console.log(`  Source search: OK -> ${sourceNotes.length} Gemini-note docs`);
+  let totalGeminiDocs = 0;
+  let totalTranscriptDocs = 0;
+  let exportTarget = null;
 
-  const transcriptDocs = await driveSearch(
-    sourceUser,
-    TRANSCRIPT_DOC_QUERY,
-    'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
-    searchLimit,
-  );
-  console.log(`  Transcript search: OK -> ${transcriptDocs.length} standalone transcript docs`);
+  for (const userEmail of scanUsers) {
+    const sourceNotes = await driveSearch(
+      userEmail,
+      GEMINI_NOTES_QUERY,
+      'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
+      searchLimit,
+    );
+    const transcriptDocs = await driveSearch(
+      userEmail,
+      TRANSCRIPT_DOC_QUERY,
+      'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
+      searchLimit,
+    );
 
-  const archivedNotes = await driveListFolder(archiveUser, folderId, folderLimit);
-  const archiveDocs = archivedNotes.filter(
-    file => file?.mimeType === 'application/vnd.google-apps.document',
-  );
-  console.log(
-    `  Archive folder: OK -> ${archivedNotes.length} items, ${archiveDocs.length} Google Docs`,
-  );
-
-  const exportTarget =
-    sortNewestFirst(archiveDocs)[0] ||
-    sortNewestFirst(
+    const docs = sortNewestFirst(
       sourceNotes.filter(file => file?.mimeType === 'application/vnd.google-apps.document'),
-    )[0];
+    );
+    const transcripts = sortNewestFirst(
+      transcriptDocs.filter(file => file?.mimeType === 'application/vnd.google-apps.document'),
+    );
 
-  if (!exportTarget?.id) {
-    throw new Error('No meeting-note document found to export.');
+    totalGeminiDocs += docs.length;
+    totalTranscriptDocs += transcripts.length;
+
+    const userExportTarget = docs[0] || transcripts[0] || null;
+    if (
+      userExportTarget &&
+      (!exportTarget ||
+        String(userExportTarget.modifiedTime || '').localeCompare(
+          String(exportTarget.file?.modifiedTime || ''),
+        ) > 0)
+    ) {
+      exportTarget = { userEmail, file: userExportTarget };
+    }
+
+    console.log(
+      `  ${userEmail}: ${docs.length} Gemini-note docs, ${transcripts.length} standalone transcript docs`,
+    );
   }
 
-  const text = await driveExportDoc(
-    archiveDocs.some(file => file.id === exportTarget.id) ? archiveUser : sourceUser,
-    exportTarget.id,
-  );
+  if (!exportTarget?.file?.id) {
+    throw new Error('No meeting-note or transcript document found to export.');
+  }
+
+  const text = await driveExportDoc(exportTarget.userEmail, exportTarget.file.id);
   const textSummary = summarizeText(text);
   const transcriptSection = extractTranscriptSection(text);
 
+  console.log(`  Gemini-note docs found: ${totalGeminiDocs}`);
+  console.log(`  Standalone transcript docs found: ${totalTranscriptDocs}`);
   console.log(
-    `  Export sample: OK -> file ${exportTarget.id}, modified ${exportTarget.modifiedTime || 'unknown'}, ${textSummary.characters} chars, ${textSummary.lines} lines`,
+    `  Export sample: OK -> ${exportTarget.userEmail} / ${exportTarget.file.id}, modified ${exportTarget.file.modifiedTime || 'unknown'}, ${textSummary.characters} chars, ${textSummary.lines} lines`,
   );
-  if (!transcriptSection && !transcriptDocs.length) {
+  if (!transcriptSection && !totalTranscriptDocs) {
     throw new Error('No transcript path detected in current meeting artifacts.');
   }
   console.log(
@@ -117,11 +151,15 @@ async function main() {
         : 'OK -> standalone transcript docs present'
     }`,
   );
-  console.log('Meeting-note and transcript reads are ready for shared-communications source verification.');
+  console.log('Team meeting-note and transcript reads are ready for shared-communications verification.');
 }
 
-main().catch((error) => {
-  console.error('Meeting-notes verification failed.');
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
-});
+main()
+  .catch(error => {
+    console.error('Meeting-notes verification failed.');
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  })
+  .finally(async () => {
+    await closeFoundationDb();
+  });

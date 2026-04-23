@@ -109,7 +109,7 @@ What already exists now:
   - Drive search
   - Drive folder listing
   - Drive doc export
-  - meeting-note verification against both Gemini-note and transcript paths plus archive-root access
+  - meeting-note verification against both Gemini-note and transcript paths across enabled delegated Drive users
 - current repo now has a working Missive bridge in `lib/missive.js` for:
   - inbox
   - messages

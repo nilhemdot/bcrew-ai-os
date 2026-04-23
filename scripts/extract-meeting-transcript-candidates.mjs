@@ -125,6 +125,13 @@ function shorten(text, maxLength) {
 function compactFoundationContext(snapshot, strategyMarkdown) {
   return {
     strategy: strategyMarkdown.trim(),
+    users: (snapshot.users || []).map(user => ({
+      email: user.email,
+      name: user.name,
+      tier: user.tier,
+      userType: user.userType,
+      meetingSyncEnabled: user.meetingSyncEnabled,
+    })),
     backlog: (snapshot.backlogItems || []).map(item => ({
       id: item.id,
       title: item.title,
@@ -239,6 +246,7 @@ function sanitizeCandidates(rawCandidates, artifact, foundationContext) {
           artifactTitle: artifact.title,
           artifactUpdatedAt: artifact.artifactUpdatedAt,
           foundationContextSummary: {
+            users: foundationContext.users.length,
             backlogItems: foundationContext.backlog.length,
             decisions: foundationContext.decisions.length,
             openQuestions: foundationContext.openQuestions.length,
@@ -283,6 +291,7 @@ async function extractCandidatesFromTranscript(artifact, foundationContext, mode
   const systemPrompt = [
     'You extract governed shared-communication candidates for the Benson Crew Foundation system.',
     'Use the transcript plus the supplied Foundation context.',
+    'Use the supplied user roster to resolve people, ownership, and who is being discussed.',
     'Prefer precision over recall. If evidence is weak, omit the item.',
     'Never extract from Gemini summaries or bullet lists. Use transcript evidence only.',
     'Only emit items the system should still care about after the meeting ends.',
@@ -379,11 +388,19 @@ async function main() {
   });
   console.log(`  Rejected stale pending candidates: ${rejected.rejected}`);
 
-  const artifacts = await getSharedCommunicationArtifactsForProcessing({
-    sourceId: 'SRC-MEETINGS-001',
-    artifactType: 'meeting_transcript',
-    limit,
-  });
+  const artifacts = (
+    await getSharedCommunicationArtifactsForProcessing({
+      sourceId: 'SRC-MEETINGS-001',
+      artifactType: 'meeting_transcript',
+      limit: Math.max(limit * 3, 10),
+    })
+  )
+    .filter(
+      artifact =>
+        artifact?.metadata?.archiveVersion === 'meeting_archive_v2' ||
+        String(artifact.externalId || '').startsWith('meeting:'),
+    )
+    .slice(0, limit);
 
   console.log(`  Archived transcripts scanned: ${artifacts.length}`);
 

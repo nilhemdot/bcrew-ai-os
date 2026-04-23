@@ -94,7 +94,7 @@ Connectors matter too, but connector access does **not** mean trusted business m
 | `SRC-GMAIL-001` | Gmail | Delegated Google Workspace (`ai@bensoncrew.ca`) | Mailbox read layer | Decision capture inputs and communication context | Delegated Google Workspace | Verified Readable | 2026-04-23 |
 | `SRC-GCAL-001` | Google Calendar | Delegated Google Workspace (`ai@bensoncrew.ca` primary calendar) | Calendar read layer | Meetings, scheduling, and governance cadence | Delegated Google Workspace | Verified Readable | 2026-04-23 |
 | `SRC-MISSIVE-001` | Missive | Live shared inbox layer | Shared inbox and internal thread collaboration | Shared inbox comments, routing, and team-thread context | Missive API | Verified Readable | 2026-04-23 |
-| `SRC-MEETINGS-001` | Google Meeting Notes / Transcripts | Delegated Google Workspace (`ai@bensoncrew.ca` source + `crewbert@bensoncrew.ca` archive root) | Meeting evidence read layer | Meeting transcripts, notes, action items, and raw decision evidence | Delegated Google Workspace | Verified Readable | 2026-04-23 |
+| `SRC-MEETINGS-001` | Google Meeting Notes / Transcripts | Delegated Google Workspace scans across enabled BCrew users + PostgreSQL shared archive | Meeting evidence read layer | Meeting transcripts, notes, action items, and raw decision evidence | Delegated Google Workspace | Verified Readable | 2026-04-23 |
 | `SRC-FINANCE-001` | Benson Crew - Owners Dashboard | `(Input) Weekly Actuals` + `Cashflow Dash` | Finance validation unit | Internal finance truth and dashboard interpretation layer | Google Drive / Google Sheets | Partially Signed Off | 2026-04-20 |
 
 ## Pending Revalidation
