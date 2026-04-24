@@ -44,20 +44,24 @@ Use [Intelligence Pipeline Operating Model](intelligence-pipeline.md) for how ar
 2. close the first usable shared-communications source layer:
    - Gmail, Calendar, Missive, Slack, and meeting reads are already live
    - archive depth is now real enough to use
-   - current archive depth is `1,103` Gmail threads, `500` Missive threads, `1,371` Slack threads, and `1,498` meeting artifacts
-   - recovered historical Zoom chats now cover `2024-10-03 -> 2025-03-10` as partial context, not full transcripts
+   - current archive depth is `1,103` Gmail threads, `1,248` Missive threads, `1,371` Slack threads, and `1,498` meeting artifacts
+   - recovered historical Zoom chats now contribute partial historical meeting context back to `2024-10-03`; meeting transcripts currently reach back to `2025-03-12`
    - keep Gmail / Missive history widening with chunked/cursor backfills instead of pretending the first bounded batches are full 180-day coverage
    - keep meeting transcript enforcement tightening
    - keep Slack rollout explicit instead of assuming universal readability
 3. build the missing synthesis layer on top of that shared archive:
    - `SOURCE-019`
    - `SYNTHESIS-ENGINE-001`
+   - `COMMS-BACKFILL-001`
+   - `SYNTHESIS-FACTS-001`
    - cross-artifact linking
    - resolution detection
    - cross-source dedup
    - staleness scoring
    - actionability ranking
+   - source-backed fact grounding from strategy, KPI, finance, Owners, FUB, marketing, and source contracts
    - first proof = useful strategy packet, not raw candidate dump
+   - current proof = `docs/handoffs/2026-04-23-shared-comms-synthesis-v1.md`
 4. close the strategy truth boundary before Strategy Hub:
    - `SOURCE-014`
    - the strategy-used Owners slice
