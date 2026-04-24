@@ -168,7 +168,7 @@ Current partial proof:
 - Operator-controlled job pause/resume is DB-backed and exposed through `/api/foundation/jobs/:jobKey/control`.
 - Gmail and Missive current-day sync jobs now run through the extraction target ledger.
 - Missive current-day sync has been promoted to scheduled every 2 hours after exact-ID idempotency proof.
-- Gmail current-day sync remains manual until it gets the same idempotency/skip-existing hardening.
+- Gmail current-day sync now has change-aware filtering but remains manual until repeated runs stabilize cleanly.
 - Remaining Phase 1 gap: dashboard buttons for pause/resume and careful monitoring of the first scheduled current-day lane.
 
 ### Phase 2 — Policy-Aware LLM Router MVP
@@ -299,7 +299,8 @@ Current partial proof:
 - `missive-sync-current` is scheduled every `120` minutes as the first current-day sync lane.
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
-- Remaining Phase 3 gap: monitor first scheduled Missive runs, harden Gmail idempotency, and build item-level cursors before broad backfill.
+- Gmail change-aware proof selected `263` recent threads, skipped `249` already-current threads, refreshed `14`, and archived `13` net-new artifacts; immediate rerun still found `2` changed/new threads and `1` net-new artifact, so Gmail stays manual.
+- Remaining Phase 3 gap: monitor first scheduled Missive runs, let Gmail stabilize before scheduling, and build item-level cursors before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 

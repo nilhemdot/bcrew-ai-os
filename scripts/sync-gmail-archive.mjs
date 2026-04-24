@@ -4,6 +4,7 @@ import process from 'node:process';
 import { getGmailThread, listGmailMessages } from '../lib/google-delegated.js';
 import {
   closeFoundationDb,
+  getSharedCommunicationExistingArtifactsByExternalId,
   getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
   listFoundationUsers,
@@ -52,16 +53,23 @@ function formatGmailThread(messages) {
     .trim();
 }
 
+function timestampMs(value) {
+  const time = value ? new Date(value).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const query = args.query || DEFAULT_QUERY;
   const limit = Math.min(100, Math.max(1, Number(args.limit || 5)));
   const teamMode = args.team === true || args.team === 'true';
   const userEmail = args.user || DEFAULT_USER;
+  const skipCurrent = args.skipCurrent !== 'false';
 
   console.log('Sync Gmail threads into shared communications archive');
   console.log(`  Query: ${query}`);
   console.log(`  Per-user limit: ${limit}`);
+  console.log(`  Skip current: ${skipCurrent ? 'yes' : 'no'}`);
 
   await initFoundationDb();
 
@@ -75,20 +83,45 @@ async function main() {
   let archived = 0;
   let scannedMessages = 0;
   let selectedThreads = 0;
+  let currentThreadsSkipped = 0;
 
   for (const activeUserEmail of users) {
     const messages = await listGmailMessages(activeUserEmail, {
       query,
       maxResults: Math.min(500, Math.max(limit * 10, limit)),
     });
-    const threadIds = [...new Set(messages.map(message => message.threadId).filter(Boolean))].slice(0, limit);
+    const latestMessageAtByThreadId = new Map();
+    for (const message of messages) {
+      if (!message.threadId) continue;
+      const latestKnown = latestMessageAtByThreadId.get(message.threadId) || 0;
+      latestMessageAtByThreadId.set(message.threadId, Math.max(latestKnown, timestampMs(message.date)));
+    }
+    const threadIds = [...latestMessageAtByThreadId.keys()].slice(0, limit);
+    let threadIdsToArchive = threadIds;
+
+    if (skipCurrent) {
+      const externalIds = threadIds.map(threadId => `${activeUserEmail}:${threadId}`);
+      const existingArtifacts = await getSharedCommunicationExistingArtifactsByExternalId({
+        sourceId: 'SRC-GMAIL-001',
+        artifactType: 'email_thread',
+        externalIds,
+      });
+      threadIdsToArchive = threadIds.filter(threadId => {
+        const existing = existingArtifacts.get(`${activeUserEmail}:${threadId}`);
+        if (!existing) return true;
+        const latestMessageAt = latestMessageAtByThreadId.get(threadId) || 0;
+        if (!latestMessageAt) return true;
+        return latestMessageAt > timestampMs(existing.artifactUpdatedAt);
+      });
+      currentThreadsSkipped += threadIds.length - threadIdsToArchive.length;
+    }
 
     scannedMessages += messages.length;
     selectedThreads += threadIds.length;
 
-    console.log(`  ${activeUserEmail}: ${messages.length} messages -> ${threadIds.length} threads`);
+    console.log(`  ${activeUserEmail}: ${messages.length} messages -> ${threadIds.length} threads -> ${threadIdsToArchive.length} to archive`);
 
-    for (const threadId of threadIds) {
+    for (const threadId of threadIdsToArchive) {
       const thread = await getGmailThread(activeUserEmail, threadId);
       if (!thread.length) continue;
 
@@ -128,6 +161,7 @@ async function main() {
 
   console.log(`  Messages scanned: ${scannedMessages}`);
   console.log(`  Threads selected: ${selectedThreads}`);
+  console.log(`  Already archived/current in selected window: ${currentThreadsSkipped}`);
 
   const snapshot = await getSharedCommunicationArchiveSnapshot({
     sourceId: 'SRC-GMAIL-001',
