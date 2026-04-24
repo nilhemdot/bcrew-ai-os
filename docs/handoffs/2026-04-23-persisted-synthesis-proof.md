@@ -83,6 +83,41 @@ Open work:
 - build the tighter ownership strategy packet view
 - decide what gets promoted to backlog / decision / question / ClickUp after human review
 
+## Overnight Raw Backfill Extension
+
+After the persistence proof, two additional read/archive-only backfill passes ran:
+
+- Gmail historical slices:
+  - added `1,079` threads after earlier count
+  - archive now `2,182`
+  - oldest Gmail artifact now `2026-03-24`
+- Missive historical slices:
+  - added `998` threads after earlier count
+  - archive now `2,246`
+  - oldest Missive artifact now `2026-03-23`
+
+Current shared-comms coverage:
+
+- total artifacts: `7,297`
+- total candidates: `4,481`
+- Gmail: `2,182`
+- Missive: `2,246`
+- Meetings: `1,498`
+- Slack: `1,371`
+
+Important boundary:
+
+- this deepened raw archive coverage
+- it did not extract candidates from the newly added older Gmail/Missive threads yet
+- extraction should be done with offset-targeted older windows before burning LLM tokens on the full older archive
+
+New helper added:
+
+- `gmail:extract-candidates -- --limit=50 --offset=<n>`
+- `missive:extract-candidates -- --limit=50 --offset=<n>`
+
+Use this to process older archive windows directly instead of repeatedly reprocessing the newest archived threads.
+
 ## Verification
 
 Passed:

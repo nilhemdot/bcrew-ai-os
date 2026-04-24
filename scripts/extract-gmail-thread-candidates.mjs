@@ -92,10 +92,12 @@ async function extractCandidatesFromGmailThread(artifact, foundationContext, mod
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const limit = Math.min(100, Math.max(1, Number(args.limit || 20)));
+  const offset = Math.max(0, Number(args.offset || 0) || 0);
   const model = args.model || DEFAULT_MODEL;
 
   console.log('Extract shared communication candidates from archived Gmail threads');
   console.log(`  Limit: ${limit}`);
+  console.log(`  Offset: ${offset}`);
   console.log(`  Model: ${model}`);
 
   await initFoundationDb();
@@ -112,6 +114,7 @@ async function main() {
     sourceId: 'SRC-GMAIL-001',
     artifactType: 'email_thread',
     limit,
+    offset,
   });
 
   const rejected = await rejectSharedCommunicationCandidatesForArtifacts({

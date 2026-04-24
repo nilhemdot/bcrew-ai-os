@@ -44,8 +44,9 @@ Use [Intelligence Pipeline Operating Model](intelligence-pipeline.md) for how ar
 2. close the first usable shared-communications source layer:
    - Gmail, Calendar, Missive, Slack, and meeting reads are already live
    - archive depth is now real enough to use
-   - current archive depth is `1,103` Gmail threads, `1,248` Missive threads, `1,371` Slack threads, and `1,498` meeting artifacts
+   - current archive depth is `2,182` Gmail threads, `2,246` Missive threads, `1,371` Slack threads, and `1,498` meeting artifacts
    - recovered historical Zoom chats now contribute partial historical meeting context back to `2024-10-03`; meeting transcripts currently reach back to `2025-03-12`
+   - current Gmail/Missive raw archive reaches late March 2026; keep date-sliced backfills moving toward the full 180-day target
    - keep Gmail / Missive history widening with chunked/cursor backfills instead of pretending the first bounded batches are full 180-day coverage
    - keep meeting transcript enforcement tightening
    - keep Slack rollout explicit instead of assuming universal readability
