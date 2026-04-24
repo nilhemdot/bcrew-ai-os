@@ -198,10 +198,11 @@ async function main() {
     checks,
     foundationHub.extractionControl?.summary &&
       Number(foundationHub.extractionControl.summary.targetCount || 0) > 0 &&
-      Array.isArray(foundationHub.extractionControl.targets),
+      Array.isArray(foundationHub.extractionControl.targets) &&
+      Array.isArray(foundationHub.extractionControl.recentItems),
     'api/foundation-hub exposes extraction control targets',
     foundationHub.extractionControl?.summary
-      ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day`
+      ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day / ${foundationHub.extractionControl.recentItems?.length ?? 0} recent items`
       : 'missing extraction control payload',
   )
   ensure(

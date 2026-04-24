@@ -77,7 +77,14 @@ function getTargetRunner(target) {
     const modifiedAfter = new Date(Date.now() - windowHours * 60 * 60 * 1000).toISOString()
     return {
       command: 'npm',
-      args: ['run', 'meeting-notes:sync', '--', `--limit=${maxItemsPerRun}`, `--modifiedAfter=${modifiedAfter}`],
+      args: [
+        'run',
+        'meeting-notes:sync',
+        '--',
+        `--limit=${maxItemsPerRun}`,
+        `--modifiedAfter=${modifiedAfter}`,
+        `--crawlTarget=${target.targetKey}`,
+      ],
       inspectedPattern: /Meetings selected for archive:\s*(\d+)/i,
       archivedPattern: /Gemini notes archived:\s*(\d+)/i,
     }

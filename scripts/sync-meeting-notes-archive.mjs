@@ -7,6 +7,7 @@ import {
   getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
   listFoundationUsers,
+  upsertSourceCrawlItem,
   upsertSharedCommunicationArtifact,
 } from '../lib/foundation-db.js';
 import {
@@ -75,6 +76,53 @@ function buildArtifactCandidate(userEmail, file, variant) {
     modifiedEpoch: toEpoch(file?.modifiedTime),
     meetingKey: normalizeGroupKey(file?.name, file?.id),
   };
+}
+
+function safeKeyPart(value) {
+  return normalizeMeetingArtifactKey(value).replace(/\s+/g, '-') || 'unknown';
+}
+
+function buildCrawlItemKey(crawlTargetKey, group) {
+  return `${crawlTargetKey}:${safeKeyPart(group.meetingKey)}`;
+}
+
+function buildCrawlItemMetadata(group, extra = {}) {
+  return {
+    meetingKey: group.meetingKey,
+    noteTitle: group.noteCandidate?.file?.name || null,
+    transcriptTitle: group.transcriptCandidate?.file?.name || null,
+    noteFileId: group.noteCandidate?.file?.id || null,
+    transcriptFileId: group.transcriptCandidate?.file?.id || null,
+    latestModifiedEpoch: group.latestModifiedEpoch,
+    observedAccounts: [...group.observedAccounts].sort(),
+    noteObservedAccounts: [...group.noteObservedAccounts].sort(),
+    transcriptObservedAccounts: [...group.transcriptObservedAccounts].sort(),
+    noteFileIds: [...group.noteFileIds].sort(),
+    transcriptFileIds: [...group.transcriptFileIds].sort(),
+    ...extra,
+  };
+}
+
+async function recordCrawlItem(crawlTargetKey, group, input) {
+  if (!crawlTargetKey) return null;
+
+  return upsertSourceCrawlItem(
+    {
+      itemKey: buildCrawlItemKey(crawlTargetKey, group),
+      targetKey: crawlTargetKey,
+      sourceId: 'SRC-MEETINGS-001',
+      externalId: group.meetingKey,
+      itemType: 'meeting',
+      status: input.status,
+      fingerprint: String(group.latestModifiedEpoch || ''),
+      incrementAttempt: Boolean(input.incrementAttempt),
+      lastError: input.lastError || null,
+      artifactId: input.artifactId || null,
+      metadata: buildCrawlItemMetadata(group, input.metadata || {}),
+      processedAt: input.processedAt || null,
+    },
+    'meeting-notes-sync',
+  );
 }
 
 function choosePreferredArtifact(current, candidate, { preferStandalone = false } = {}) {
@@ -250,6 +298,7 @@ async function archiveStandaloneTranscript(group) {
     meetingShape,
     transcriptSource: 'standalone',
     participants: extractedTranscript?.speakerNames || [],
+    transcriptArtifactId: artifact.artifactId,
     transcriptExternalId: externalId,
   };
 }
@@ -269,6 +318,7 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
   const embeddedTranscript = extractTranscriptSection(noteContent);
   let transcriptInfo = standaloneTranscriptInfo || null;
   let embeddedTranscriptArchived = false;
+  let embeddedTranscriptArtifactId = null;
   let transcriptSource = standaloneTranscriptInfo?.transcriptSource || 'missing';
   let meetingShape = standaloneTranscriptInfo?.meetingShape || null;
 
@@ -287,7 +337,7 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
       `${candidate.file.id}:embedded-transcript`,
     );
 
-    await upsertSharedCommunicationArtifact(
+    const transcriptArtifact = await upsertSharedCommunicationArtifact(
       {
         sourceId: 'SRC-MEETINGS-001',
         artifactType: 'meeting_transcript',
@@ -326,13 +376,15 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
       meetingShape,
       transcriptSource: 'embedded_in_gemini',
       participants: embeddedTranscript.speakerNames,
+      transcriptArtifactId: transcriptArtifact.artifactId,
       transcriptExternalId,
     };
+    embeddedTranscriptArtifactId = transcriptArtifact.artifactId;
     transcriptSource = 'embedded_in_gemini';
     embeddedTranscriptArchived = true;
   }
 
-  await upsertSharedCommunicationArtifact(
+  const noteArtifact = await upsertSharedCommunicationArtifact(
     {
       sourceId: 'SRC-MEETINGS-001',
       artifactType: 'meeting_note',
@@ -372,6 +424,9 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
     meetingShape,
     transcriptSource,
     missingTranscript: !transcriptInfo,
+    noteArtifactId: noteArtifact.artifactId,
+    transcriptArtifactId: transcriptInfo?.transcriptArtifactId || embeddedTranscriptArtifactId || null,
+    transcriptExternalId: transcriptInfo?.transcriptExternalId || null,
   };
 }
 
@@ -381,6 +436,7 @@ async function main() {
   const perUserSearchLimit = Math.min(1000, Math.max(Number(args.searchLimit || limit * 4), 10));
   const queryTimeClause = buildDriveTimeFilterClause(args);
   const folderIds = splitCsv(args.folderIds || args.folderId || '');
+  const crawlTargetKey = String(args.crawlTarget || args.targetKey || '').trim();
 
   await initFoundationDb();
 
@@ -393,6 +449,7 @@ async function main() {
   console.log(`  Transcript query: ${TRANSCRIPT_DOC_QUERY}`);
   console.log(`  Limit: ${limit}`);
   console.log(`  Search limit per user: ${perUserSearchLimit}`);
+  if (crawlTargetKey) console.log(`  Crawl target: ${crawlTargetKey}`);
   if (queryTimeClause) console.log(`  Drive time filter:${queryTimeClause}`);
   if (folderIds.length) console.log(`  Folder ids: ${folderIds.join(', ')}`);
 
@@ -437,6 +494,8 @@ async function main() {
   let meetingNotesArchived = 0;
   let missingTranscriptCount = 0;
   let failedMeetings = 0;
+  let crawlItemsSucceeded = 0;
+  let crawlItemsFailed = 0;
   let broadcastMeetings = 0;
   let discussionMeetings = 0;
   let sensitiveCandidates = 0;
@@ -461,12 +520,41 @@ async function main() {
           missingTranscriptNotes.push(group.noteCandidate?.file?.name || group.transcriptCandidate?.file?.name || group.meetingKey);
         }
       }
+
+      await recordCrawlItem(crawlTargetKey, group, {
+        status: 'succeeded',
+        incrementAttempt: true,
+        artifactId: noteResult.noteArtifactId || standaloneTranscriptInfo?.transcriptArtifactId || null,
+        processedAt: new Date().toISOString(),
+        metadata: {
+          noteArchived: noteResult.noteArchived,
+          embeddedTranscriptArchived: noteResult.embeddedTranscriptArchived,
+          transcriptArtifactId: noteResult.transcriptArtifactId || standaloneTranscriptInfo?.transcriptArtifactId || null,
+          transcriptExternalId: noteResult.transcriptExternalId || standaloneTranscriptInfo?.transcriptExternalId || null,
+          transcriptSource: noteResult.transcriptSource || standaloneTranscriptInfo?.transcriptSource || 'missing',
+          missingTranscript: noteResult.missingTranscript,
+          meetingClass: meetingShape?.meetingClass || null,
+          privacyProfile: meetingShape?.privacyProfile || null,
+          sensitiveMeetingCandidate: Boolean(meetingShape?.sensitiveMeetingCandidate),
+        },
+      });
+      if (crawlTargetKey) crawlItemsSucceeded += 1;
     } catch (error) {
       failedMeetings += 1;
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      await recordCrawlItem(crawlTargetKey, group, {
+        status: 'failed',
+        incrementAttempt: true,
+        lastError: errorMessage,
+        metadata: {
+          failureClass: 'archive_failed',
+        },
+      });
+      if (crawlTargetKey) crawlItemsFailed += 1;
       if (failedMeetingSamples.length < 5) {
         failedMeetingSamples.push(
           `${group.noteCandidate?.file?.name || group.transcriptCandidate?.file?.name || group.meetingKey}: ${
-            error instanceof Error ? error.message : String(error)
+            errorMessage
           }`,
         );
       }
@@ -483,6 +571,10 @@ async function main() {
   console.log(`  Gemini notes archived: ${meetingNotesArchived}`);
   console.log(`  Missing transcript meetings: ${missingTranscriptCount}`);
   console.log(`  Failed meetings: ${failedMeetings}`);
+  if (crawlTargetKey) {
+    console.log(`  Crawl items succeeded: ${crawlItemsSucceeded}`);
+    console.log(`  Crawl items failed: ${crawlItemsFailed}`);
+  }
   console.log(`  Meeting classes: ${JSON.stringify({ broadcast: broadcastMeetings, discussion: discussionMeetings })}`);
   console.log(`  Sensitive-candidate meetings: ${sensitiveCandidates}`);
   console.log(`  Archive total: ${archive.totalArtifacts}`);

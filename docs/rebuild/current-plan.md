@@ -70,7 +70,8 @@ Still not done:
 
 - dashboard pause/resume buttons beyond the backend job-control API
 - durable source cursors and backfill leases beyond the first current-day target proof
-- scheduled current-day extraction lane that stays fresh without Steve watching it
+- scheduled Gmail and meeting-notes current-day lanes that stay fresh without Steve watching them
+- failed-item retry policy for item-level meeting/Drive crawl records
 - route acceptance review and first low-risk LLM script migration behind the router
 - hub-dedicated model capacity allocation
 - source-budget and failure visibility
