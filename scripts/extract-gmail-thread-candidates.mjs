@@ -8,6 +8,7 @@ import {
   closeFoundationDb,
   getFoundationSnapshot,
   getSharedCommunicationArtifactsForProcessing,
+  getSharedCommunicationArtifactsWithoutCandidatesForProcessing,
   getSharedCommunicationCandidateSnapshot,
   initFoundationDb,
   rejectSharedCommunicationCandidatesForArtifacts,
@@ -94,11 +95,13 @@ async function main() {
   const limit = Math.min(100, Math.max(1, Number(args.limit || 20)));
   const offset = Math.max(0, Number(args.offset || 0) || 0);
   const model = args.model || DEFAULT_MODEL;
+  const onlyWithoutCandidates = args.onlyWithoutCandidates === true || args.onlyWithoutCandidates === 'true';
 
   console.log('Extract shared communication candidates from archived Gmail threads');
   console.log(`  Limit: ${limit}`);
   console.log(`  Offset: ${offset}`);
   console.log(`  Model: ${model}`);
+  console.log(`  Only without active candidates: ${onlyWithoutCandidates}`);
 
   await initFoundationDb();
 
@@ -110,7 +113,10 @@ async function main() {
     getSourceContracts(),
   );
 
-  const artifacts = await getSharedCommunicationArtifactsForProcessing({
+  const artifactReader = onlyWithoutCandidates
+    ? getSharedCommunicationArtifactsWithoutCandidatesForProcessing
+    : getSharedCommunicationArtifactsForProcessing;
+  const artifacts = await artifactReader({
     sourceId: 'SRC-GMAIL-001',
     artifactType: 'email_thread',
     limit,

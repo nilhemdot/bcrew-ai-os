@@ -152,6 +152,7 @@ Activate only 3 to 5 jobs first:
 - deal-review queued runner
 - synthesis as manual or scheduled with explicit budget
 - one current-day sync lane if stable
+- bounded candidate-extraction bites for already-archived material, still manual until router/cost telemetry is accepted
 
 Backlog/cards:
 
@@ -329,6 +330,7 @@ Current partial proof:
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
 - `missive-sync-current` is scheduled every `120` minutes.
+- `gmail-extract-latest` and `missive-extract-latest` now target archived threads without active candidates instead of offset/latest chunks. First manual proofs scanned `15` Gmail threads and created `13` candidates, then scanned `15` Missive threads and created `11` candidates. Keep these as bounded manual LLM bites until router/cost telemetry and output quality are accepted.
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
 - Gmail item-level ledger proof selected `259` recent threads per run, produced `0` item failures across repeated bounded runs, and promoted `gmail-sync-current` to scheduled every `120` minutes. The first scheduled worker run succeeded, archived `4` threads, cleared its lease, and set target/job next run around `2026-04-24T20:09Z`.
@@ -338,6 +340,7 @@ Current partial proof:
 - First read-only Drive corpus bite is live through manual Foundation job `drive-corpus-inventory-bite`: Zahnd TEAM OG root inspected, `60` direct children recorded, `24` child folders discovered, `36` files discovered, `31` next folders/roots queued, `0` item failures, and no files moved/copied/exported/LLM-processed.
 - Foundation now exposes a Drive corpus inventory review snapshot with item totals, folder/file counts, pending extraction counts, candidate value routes, and queue state.
 - Raw Drive inventory script writes are guarded: non-dry-run inventory must be run through `extraction:target` so leases and target cursors advance with item writes.
+- Shared-comms synthesis was run after the email/transcript extraction proofs and recorded `synth-20260424T194613Z-530692804e` with `11` ranked live intelligence items. Top issues surfaced: June cash shortfall, KPI dashboard/source-trust incident, SocialPilot instability, old automations still firing, automation failure pattern, lead-source hygiene, finance reconciliation, FUB/Owners identity mismatch, and Google Ads routing risk.
 - Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, prove partial failure on a real failed item, extend retry semantics to Drive, and build review/export gates before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
