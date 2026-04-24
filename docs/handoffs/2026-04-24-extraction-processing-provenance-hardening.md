@@ -3,6 +3,8 @@
 Date: 2026-04-24
 Status: evidence
 
+Correction: later on `2026-04-24`, Steve explicitly rejected the "daily brief" / digest framing. Treat any scheduled-brief language in this handoff as superseded by `docs/handoffs/2026-04-24-strategy-action-loop-correction.md`.
+
 ## Why This Exists
 
 After the shared-intelligence router migration, Codex review found two real scheduling blockers:
@@ -76,11 +78,11 @@ New checks:
 
 ## Scheduling Status
 
-Do not schedule the daily intelligence bite until this hardening has at least a couple of monitored runs through the same route.
+Do not schedule or productize intelligence output until this hardening has at least a couple of monitored runs through the same route.
 
 Next:
 
 1. Run 1-2 more bounded `shared-comms-intelligence-bite` proofs.
 2. Confirm latest `llm_calls` and processing rows remain subscription-routed with actual provenance.
-3. Schedule one daily `shared-comms-intelligence-bite`.
+3. Connect `shared-comms-intelligence-bite` output to Strategy Hub/action routing after proof.
 4. Continue Claude Code / Claude Agent SDK adapter work separately.

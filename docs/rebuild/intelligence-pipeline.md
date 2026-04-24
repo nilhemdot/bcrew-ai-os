@@ -120,7 +120,16 @@ LLM calls for shared intelligence must go through `lib/llm-router.js`. The route
 
 Extraction attempts are themselves operating facts. When an artifact is processed and correctly yields zero candidates, that success is recorded against the artifact's current content hash so the artifact is not mined forever under the same extractor version. If the email thread, Missive thread, or transcript content changes, the content hash changes and it becomes eligible again. Failures stay retryable. Candidate metadata and processing runs must store the actual provider, auth path, route key, and model returned by the router, not just the model the script requested.
 
-Subscription routes are first-class production capacity, but they are not treated like low-latency APIs. They need pacing, long per-call windows, small bite sizes, per-source timeout knobs, and resumable ledgers. Daily user-facing intelligence should synthesize mined material that is already ready; Gmail, Missive, meeting/transcript, and corpus extraction should run as separate miners so a slow subscription call does not block the morning brief.
+Subscription routes are first-class production capacity, but they are not treated like low-latency APIs. They need pacing, long per-call windows, small bite sizes, per-source timeout knobs, and resumable ledgers. Strategy Hub and action-routing views should synthesize mined material that is already ready; Gmail, Missive, meeting/transcript, and corpus extraction should run as separate miners so a slow subscription call does not block leadership work.
+
+The product is the closed operating loop:
+
+- source evidence is mined into atoms and candidates
+- synthesis ranks what matters for strategy, operations, sales, marketing, recruiting, and agent coaching
+- ranked items route into decisions, contradictions, tasks, or owner-bound actions with source evidence attached
+- completed actions and decisions update the operating record so future synthesis respects the resolution
+
+Synthesis is a function inside that loop, not a standalone digest.
 
 Historical extraction should be paced. The goal is not to read the entire company history in one night. The goal is a supervised extraction team that can:
 

@@ -60,17 +60,18 @@ Correct runtime shape:
 - high-volume extraction runs as paced miners
 - miners use small limits, long per-call windows, retry ledgers, and resumable cursors
 - daily user-facing intelligence synthesizes already-mined material
-- large meeting/corpus/transcript extraction does not block the morning brief
+- large meeting/corpus/transcript extraction does not block Strategy Hub or action review work
 - API fallback remains explicit and guarded, not automatic
 
 ## Code Policy Change
 
-`shared-comms-intelligence-bite` is now the fast path:
+`shared-comms-intelligence-bite` is now the Strategy/action synthesis path:
 
 - synthesis
 - uses already-mined candidates
 - does not start live extraction by default
 - uses a long subscription-route timeout because the first synthesis-only proof timed out under the old 240-second adapter default
+- exists to feed Strategy Hub, decisions, contradictions, and owner-bound actions, not to create a daily digest
 
 Extraction now runs as separate paced miners:
 
@@ -84,5 +85,5 @@ Extraction now runs as separate paced miners:
 2. Consider separate route/model lanes for fast extraction vs synthesis when a faster subscription model/adapter is available.
 3. Build the Claude Code / Claude Agent SDK subscription adapter under the BCrew router.
 4. Run monitored synthesis-only proofs again after route timing is tuned.
-5. Schedule daily synthesis only after the brief path has clean subscription-routed runs and miners are feeding it reliably.
-6. Keep meeting transcript/corpus mining as background miners that feed the brief, not blockers inside the brief.
+5. Connect synthesized output to decisions, contradictions, and owner-bound actions after the path has clean subscription-routed runs and miners are feeding it reliably.
+6. Keep meeting transcript/corpus mining as background miners that feed Strategy Hub/action routing, not blockers inside live leadership work.

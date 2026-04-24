@@ -161,6 +161,28 @@ function parseArgs(argv) {
   return result;
 }
 
+function boolArg(value) {
+  return value === true || value === 'true' || value === '1';
+}
+
+function printHelp() {
+  console.log(`Generate shared communications synthesis.
+
+Usage:
+  npm run synthesis:brief -- [options]
+
+Options:
+  --limit=N       Candidate rows to read before synthesis. Default: 220.
+  --days=N        Restrict candidates to the last N days. Default: all pending.
+  --maxItems=N    Maximum synthesized items. Default: 20.
+  --model=MODEL   Requested model label for routing metadata.
+  --out=PATH      Write markdown output to a file instead of stdout.
+  --plan          Print the planned input shape without calling an LLM or writing output.
+  --dryRun        Alias for --plan.
+  --help          Show this help.
+`);
+}
+
 function compactTimestamp(value) {
   return String(value || new Date().toISOString())
     .replace(/[-:]/g, '')
@@ -488,11 +510,17 @@ function renderMarkdown(synthesis, { candidatesRead, model, generatedAt }) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (boolArg(args.help) || boolArg(args.h)) {
+    printHelp();
+    return;
+  }
+
   const limit = Math.min(600, Math.max(20, Number(args.limit || 220)));
   const days = args.days ? Math.max(1, Number(args.days) || 30) : null;
   const maxItems = Math.min(30, Math.max(5, Number(args.maxItems || 20)));
   const model = String(args.model || DEFAULT_MODEL).trim();
   const outPath = args.out ? path.resolve(REPO_ROOT, String(args.out)) : '';
+  const dryRun = boolArg(args.dryRun) || boolArg(args.plan);
 
   console.log('Generate shared communications synthesis');
   console.log(`  Candidate limit: ${limit}`);
@@ -500,6 +528,7 @@ async function main() {
   console.log(`  Max items: ${maxItems}`);
   console.log(`  Model: ${model}`);
   console.log(`  Per-call timeout: ${DEFAULT_TIMEOUT_MS}ms`);
+  console.log(`  Plan only: ${dryRun}`);
 
   const pool = getPool();
   try {
@@ -511,6 +540,32 @@ async function main() {
     ]);
 
     console.log(`  Candidates read: ${candidates.length}`);
+    if (dryRun) {
+      const sourceCounts = candidates.reduce((counts, candidate) => {
+        counts[candidate.source_id] = (counts[candidate.source_id] || 0) + 1;
+        return counts;
+      }, {});
+      console.log(JSON.stringify({
+        dryRun: true,
+        wouldCallLlm: false,
+        model,
+        timeoutMs: DEFAULT_TIMEOUT_MS,
+        candidatesRead: candidates.length,
+        maxItems,
+        days,
+        selectedCandidateSourceCounts: sourceCounts,
+        archiveSummary,
+        candidateSummary,
+        sourceFactCounts: {
+          docSourceFacts: sourceFacts.doc_source_facts.length,
+          criticalBacklog: sourceFacts.critical_backlog.length,
+          openQuestions: sourceFacts.open_questions.length,
+          recentChanges: sourceFacts.recent_changes.length,
+        },
+      }, null, 2));
+      return;
+    }
+
     const generatedAt = new Date().toISOString();
     const { synthesis, llm } = await runSynthesis({ candidates, candidateSummary, archiveSummary, sourceFacts, model, maxItems });
     const actualModel = llm.model || model;

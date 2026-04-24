@@ -1,5 +1,7 @@
 # Subscription Router And Intelligence Checkpoint
 
+Correction: later on `2026-04-24`, Steve explicitly rejected the "daily brief" / digest framing. Treat any daily-cadence language in this handoff as superseded by `docs/handoffs/2026-04-24-strategy-action-loop-correction.md`. The product goal is Foundation and Strategy Hub/action routing, not a scheduled digest.
+
 Date: 2026-04-24
 Status: active checkpoint
 
@@ -12,7 +14,7 @@ That was not just a cost issue. It was an architecture issue:
 - router substrate existed
 - consumers were not migrated
 - API fallback had become the default path
-- the daily intelligence cadence was being blocked on vague "cost telemetry"
+- useful intelligence/action routing was being blocked on vague "cost telemetry"
 
 This checkpoint records the correction so the next builder does not repeat the same mistake.
 
@@ -170,8 +172,7 @@ Open items:
 
 - Claude Code / Claude Agent SDK subscription adapter under `lib/llm-router.js`
 - hub-dedicated capacity lanes: Foundation, Marketing, Strategy, Ops, Sales, Recruiting, Agent Hub, Steve Zahnd, MarketMasters, Steve-owned education/monetization
-- daily scheduled `shared-comms-intelligence-bite`
-- monitored router proof over a few bounded runs before daily scheduling
+- Strategy Hub/action-router synthesis proof over a few bounded runs
 - meeting notes current-day scheduling after retry/report confidence
 - Drive retry semantics and review/export gates
 - subject-person redaction before Strategy Hub or agents can expose sensitive people evidence
@@ -182,7 +183,7 @@ Open items:
 1. Add Claude Code / Claude Agent SDK subscription adapter to `lib/llm-router.js`.
 2. Add hub-capacity registry fields or policy rows so routes are assigned by hub, not blind account rotation.
 3. Run monitored bounded extraction/synthesis bites through the router and confirm `llm_calls` remain subscription-routed.
-4. Schedule one daily `shared-comms-intelligence-bite` after the route proof stays clean.
+4. Connect `shared-comms-intelligence-bite` output to Strategy Hub/action routing after the route proof stays clean.
 5. Continue Drive/meeting retry hardening; do not restart giant manual backfills.
 
 ## Rules Locked By This Checkpoint
