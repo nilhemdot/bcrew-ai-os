@@ -11,7 +11,7 @@ import {
   initFoundationDb,
   recordSharedCommunicationSynthesisRun,
 } from '../lib/foundation-db.js';
-import { assertDirectOpenAiResponsesAllowed } from '../lib/llm-spend-policy.js';
+import { callLlm } from '../lib/llm-router.js';
 import { getSourceContracts } from '../lib/source-contracts.js';
 import { shorten } from '../lib/shared-candidate-extraction.js';
 
@@ -340,12 +340,6 @@ async function fetchSourceFacts(pool) {
 }
 
 async function runSynthesis({ candidates, candidateSummary, archiveSummary, sourceFacts, model, maxItems }) {
-  assertDirectOpenAiResponsesAllowed({ workload: 'shared comms synthesis' });
-
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is required for synthesis generation.');
-  }
-
   const sourceContracts = getSourceContracts().map(source => ({
     source_id: source.sourceId,
     title: source.title,
@@ -354,75 +348,63 @@ async function runSynthesis({ candidates, candidateSummary, archiveSummary, sour
     owner: source.owner || '',
   }));
 
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      store: false,
-      input: [
-        {
-          role: 'system',
-          content: [
-            'You synthesize Benson Crew shared-communications candidates into live intelligence.',
-            'Do not dump raw candidates. Group, dedupe, rank, and suppress noise.',
-            'Prefer items that are current, unresolved, strategic, multi-source, or require a leader decision.',
-            'Use old Director of Intelligence patterns only as output inspiration: decisions, action items, bottlenecks, escalation-worthy issues, suggested owner, suggested next action, ranked findings with evidence.',
-            'Do not invent source facts. Use only supplied candidates, summaries, source contracts, and source_backed_operating_facts.',
-            'Use source_backed_operating_facts to validate and rank issues. Do not turn every metric into an item. Surface a source fact only when it changes the decision or proves a source-trust issue.',
-            'For source_coverage.read, use selected_candidate_source_counts exactly for each source id.',
-            'Treat Zoom chat artifacts as partial historical context, not authoritative full transcripts.',
-            'Do not quote passwords, tokens, private credentials, or secret-looking strings.',
-            'If a candidate appears old and not repeated recently, mark it historical_context or stale_watch instead of active.',
-            `Return at most ${maxItems} ranked items.`,
-          ].join(' '),
-        },
-        {
-          role: 'user',
-          content: JSON.stringify(
-            {
-              generated_at: new Date().toISOString(),
-              source_contracts: sourceContracts,
-              source_backed_operating_facts: sourceFacts,
-              archive_summary: archiveSummary,
-              candidate_summary: candidateSummary,
-              selected_candidate_source_counts: candidates.reduce((counts, candidate) => {
-                counts[candidate.source_id] = (counts[candidate.source_id] || 0) + 1;
-                return counts;
-              }, {}),
-              candidates,
-            },
-            null,
-            2,
-          ),
-        },
-      ],
-      text: {
-        format: {
-          type: 'json_schema',
-          name: 'shared_comms_synthesis_v1',
-          strict: true,
-          schema: OUTPUT_SCHEMA,
-        },
+  const llmResult = await callLlm({
+    workload: 'synthesis',
+    hubKey: 'foundation',
+    messages: [
+      {
+        role: 'system',
+        content: [
+          'You synthesize Benson Crew shared-communications candidates into live intelligence.',
+          'Do not dump raw candidates. Group, dedupe, rank, and suppress noise.',
+          'Prefer items that are current, unresolved, strategic, multi-source, or require a leader decision.',
+          'Use old Director of Intelligence patterns only as output inspiration: decisions, action items, bottlenecks, escalation-worthy issues, suggested owner, suggested next action, ranked findings with evidence.',
+          'Do not invent source facts. Use only supplied candidates, summaries, source contracts, and source_backed_operating_facts.',
+          'Use source_backed_operating_facts to validate and rank issues. Do not turn every metric into an item. Surface a source fact only when it changes the decision or proves a source-trust issue.',
+          'For source_coverage.read, use selected_candidate_source_counts exactly for each source id.',
+          'Treat Zoom chat artifacts as partial historical context, not authoritative full transcripts.',
+          'Do not quote passwords, tokens, private credentials, or secret-looking strings.',
+          'If a candidate appears old and not repeated recently, mark it historical_context or stale_watch instead of active.',
+          `Return at most ${maxItems} ranked items.`,
+        ].join(' '),
       },
-      max_output_tokens: 6000,
-    }),
+      {
+        role: 'user',
+        content: JSON.stringify(
+          {
+            generated_at: new Date().toISOString(),
+            source_contracts: sourceContracts,
+            source_backed_operating_facts: sourceFacts,
+            archive_summary: archiveSummary,
+            candidate_summary: candidateSummary,
+            selected_candidate_source_counts: candidates.reduce((counts, candidate) => {
+              counts[candidate.source_id] = (counts[candidate.source_id] || 0) + 1;
+              return counts;
+            }, {}),
+            candidates,
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+    responseFormat: {
+      type: 'json_schema',
+      name: 'shared_comms_synthesis_v1',
+      strict: true,
+      schema: OUTPUT_SCHEMA,
+    },
+    maxOutputTokens: 6000,
+    dryRun: false,
+    metadata: {
+      requestedModel: model,
+      candidatesRead: candidates.length,
+      schemaName: 'shared_comms_synthesis_v1',
+    },
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`OpenAI synthesis failed (${response.status}): ${errorText.slice(0, 800)}`);
-  }
-
-  const responseJson = await response.json();
-  const text = responseJson.output
-    ?.flatMap(item => item.content || [])
-    ?.find(item => item.type === 'output_text')
-    ?.text;
-  if (!text) throw new Error('OpenAI synthesis returned no output text.');
+  const text = llmResult.outputText;
+  if (!text) throw new Error('LLM synthesis returned no output text.');
   return JSON.parse(text);
 }
 

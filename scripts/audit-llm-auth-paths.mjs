@@ -210,7 +210,56 @@ async function auditOpenClaw(actor) {
     metadata: { platform: os.platform(), configPath },
   }, actor)
 
-  const status = launchAgentRunning ? 'available' : configExists ? 'unknown' : 'missing'
+  const modelProbe = await runCommandProbe(
+    'openclaw',
+    [
+      'infer',
+      'model',
+      'run',
+      '--local',
+      '--model',
+      process.env.LLM_OPENCLAW_PROBE_MODEL || 'openai-codex/gpt-5.4',
+      '--prompt',
+      'Reply with exactly: OPENCLAW_SUBSCRIPTION_PROBE_OK',
+      '--json',
+    ],
+    { timeoutMs: 30000 },
+  )
+  let modelProbeOk = false
+  let modelProbeOutput = ''
+  if (modelProbe.ok) {
+    try {
+      const parsed = JSON.parse(modelProbe.stdout)
+      modelProbeOutput = parsed.outputs?.map(item => item.text || '').join('\n').trim()
+      modelProbeOk = Boolean(parsed.ok && modelProbeOutput.includes('OPENCLAW_SUBSCRIPTION_PROBE_OK'))
+    } catch (error) {
+      modelProbeOutput = `Probe JSON parse failed: ${error instanceof Error ? error.message : String(error)}`
+    }
+  }
+
+  await recordProbe({
+    credentialKey: 'openclaw-chatgpt-pro',
+    provider: 'openclaw',
+    authPath: 'chatgpt_subscription_gateway',
+    probeType: 'actual_model_run',
+    status: modelProbeOk ? 'passed' : 'failed',
+    detail: modelProbeOk
+      ? 'OpenClaw subscription model probe returned expected output.'
+      : `OpenClaw subscription model probe failed: ${modelProbe.message || modelProbe.stderr || modelProbeOutput || 'unknown error'}`,
+    capability: {
+      model: process.env.LLM_OPENCLAW_PROBE_MODEL || 'openai-codex/gpt-5.4',
+      outputMatched: modelProbeOk,
+    },
+    metadata: {
+      stdout: modelProbe.ok ? '[json-output-redacted]' : modelProbe.stdout,
+      stderr: modelProbe.stderr,
+      message: modelProbe.message || '',
+      output: redact(modelProbeOutput),
+    },
+  }, actor)
+
+  const status = modelProbeOk ? 'available' : launchAgentRunning ? 'unknown' : configExists ? 'unknown' : 'missing'
+  const policyClassification = modelProbeOk ? 'allowed' : 'experimental'
   return upsertLlmCredential({
     credentialKey: 'openclaw-chatgpt-pro',
     provider: 'openclaw',
@@ -221,10 +270,12 @@ async function auditOpenClaw(actor) {
     workloadLane: 'extraction',
     secretRef: 'OPENCLAW_GATEWAY_URL',
     status,
-    policyClassification: 'experimental',
-    allowedWorkloads: ['extraction_probe', 'classification_probe'],
-    notes: 'Gateway is local and policy-gated. Do not treat it as production-safe until an actual workload probe passes.',
-    metadata: { launchAgentRunning, configExists, workspaceConfigured },
+    policyClassification,
+    allowedWorkloads: ['extraction', 'synthesis', 'extraction_probe', 'classification_probe', 'synthesis_probe'],
+    notes: modelProbeOk
+      ? 'OpenClaw subscription route passed an actual model-run probe. Use for bounded internal extraction/synthesis before API fallback.'
+      : 'Gateway is local and policy-gated. Do not treat it as production-safe until an actual workload probe passes.',
+    metadata: { launchAgentRunning, configExists, workspaceConfigured, modelProbeOk },
   }, actor)
 }
 
