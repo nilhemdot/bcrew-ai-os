@@ -225,9 +225,10 @@ The system records.
 
 Today:
 
-- Codex and Steve manually run the routines while the system is being built
+- Codex and Steve still manually run unproven routines while the system is being built
 - scripts are the first tools
 - `foundation:job` is the first runner that records routine status in PostgreSQL instead of leaving runs trapped in builder chat
+- `foundation:worker` now runs selected scheduled routines, including Missive and Gmail current-day sync
 - PostgreSQL is the memory layer
 
 Near future:

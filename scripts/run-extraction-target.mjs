@@ -57,9 +57,18 @@ function getTargetRunner(target) {
     const query = String(target.cursorState?.query || 'newer_than:2d')
     return {
       command: 'npm',
-      args: ['run', 'gmail:sync-archive', '--', '--team=true', `--limit=${maxItemsPerRun}`, `--query=${query}`],
+      args: [
+        'run',
+        'gmail:sync-archive',
+        '--',
+        '--team=true',
+        `--limit=${maxItemsPerRun}`,
+        `--query=${query}`,
+        `--crawlTarget=${target.targetKey}`,
+      ],
       inspectedPattern: /Threads selected:\s*(\d+)/i,
       archivedPattern: /Archived this run:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
     }
   }
 
@@ -97,6 +106,23 @@ function getTargetRunner(target) {
 function parseFirstInteger(pattern, text) {
   const match = String(text || '').match(pattern)
   return match ? Number(match[1] || 0) : null
+}
+
+function getTargetScheduleEveryMinutes(target) {
+  const metadataValue = Number(target?.metadata?.scheduleEveryMinutes)
+  if (Number.isFinite(metadataValue) && metadataValue > 0) return metadataValue
+  const budgetValue = Number(target?.budget?.scheduleEveryMinutes)
+  if (Number.isFinite(budgetValue) && budgetValue > 0) return budgetValue
+  return null
+}
+
+function getNextRunAt(target, finishedAt) {
+  if (target?.runtimeMode !== 'scheduled') return null
+  const scheduleEveryMinutes = getTargetScheduleEveryMinutes(target)
+  if (!scheduleEveryMinutes) return null
+  const finishedMs = Date.parse(finishedAt)
+  if (!Number.isFinite(finishedMs)) return null
+  return new Date(finishedMs + scheduleEveryMinutes * 60 * 1000).toISOString()
 }
 
 async function runCommand(runner, { timeoutSeconds }) {
@@ -250,6 +276,7 @@ async function main() {
       targetKey,
       {
         lastRunAt: outcome.finishedAt,
+        nextRunAt: getNextRunAt(leasedTarget, outcome.finishedAt),
         lastStatus: effectiveStatus,
         lastError: effectiveError,
         inspectedDelta,
@@ -269,6 +296,7 @@ async function main() {
             inspected: inspectedParsed,
             archivedThisRun: archivedParsed,
             itemFailures: itemFailuresParsed,
+            nextRunAt: getNextRunAt(leasedTarget, outcome.finishedAt),
           },
           beforeStats,
           afterStats,
@@ -292,6 +320,7 @@ async function main() {
         targetKey,
         {
           lastRunAt: finishedAt,
+          nextRunAt: getNextRunAt(leasedTarget, finishedAt),
           lastStatus: 'failed',
           lastError: message,
           inspectedDelta: 0,

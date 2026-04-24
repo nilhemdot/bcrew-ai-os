@@ -63,7 +63,7 @@ Built and useful now:
 - First Foundation job registry and DB-backed job run ledger.
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, read-only deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Policy-aware LLM router MVP: credential/route/probe/call tables, router shell, auth-path audit job, and route status visibility.
-- Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, and manual target runner proof for Gmail + Missive current-day sync.
+- Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, and scheduled current-day proof for Missive + Gmail.
 - Row-scoped Owners / deal-review runners.
 - Owners Dashboard imported `Lists` repair: governed FUB lead sources now live in upstream `SRC-OWNERS-LISTS-001`, Admin `N` and `P` reuse the same source list, Admin `S` uses imported active agents, and Google delegated writes are blocked from the imported mirror range.
 - Marketing source evidence from the old system and current connector checks.
@@ -71,9 +71,8 @@ Built and useful now:
 
 Still not done:
 
-- dashboard pause/resume buttons beyond the backend job-control API
-- durable source cursors and backfill leases beyond the first current-day target proof
-- scheduled Gmail and meeting-notes current-day lanes that stay fresh without Steve watching them
+- durable source cursors and backfill leases beyond the current-day target proof
+- scheduled meeting-notes current-day lane that stays fresh without Steve watching it
 - failed-item retry policy for item-level meeting/Drive crawl records beyond visible partial-run reporting
 - route acceptance review and first low-risk LLM script migration behind the router
 - hub-dedicated model capacity allocation
@@ -176,9 +175,9 @@ Current partial proof:
 - Operator-controlled job pause/resume is DB-backed and exposed through `/api/foundation/jobs/:jobKey/control`.
 - Gmail and Missive current-day sync jobs now run through the extraction target ledger.
 - Missive current-day sync has been promoted to scheduled every 2 hours after exact-ID idempotency proof.
-- Gmail current-day sync now has change-aware filtering but remains manual until repeated runs stabilize cleanly.
+- Gmail current-day sync now has item-level thread ledgering and is scheduled every 2 hours after repeated bounded runs showed `0` item failures and explainable net-new/changed threads.
 - Dashboard pause/resume buttons are live on the System Health job cards and were round-trip tested through `gmail-sync-current`.
-- Remaining Phase 1 gap: careful monitoring of the first scheduled current-day lane and broader first-job activation after it stays stable.
+- Remaining Phase 1 gap: monitor scheduled Missive/Gmail runs, keep meetings manual until retry/report handling is hard enough, and activate only the next 1-2 jobs after these lanes stay stable.
 
 ### Phase 2 — Policy-Aware LLM Router MVP
 
@@ -316,13 +315,13 @@ Current partial proof:
 - First manual proof: Gmail scanned `970` messages, selected `263` threads, and archived `148` net-new artifacts through the target ledger.
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
-- `missive-sync-current` is scheduled every `120` minutes as the first current-day sync lane.
+- `missive-sync-current` is scheduled every `120` minutes.
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
-- Gmail change-aware proof selected `263` recent threads, skipped `249` already-current threads, refreshed `14`, and archived `13` net-new artifacts; immediate rerun still found `2` changed/new threads and `1` net-new artifact, so Gmail stays manual.
-- Meeting notes current-day proof selected `49` meetings, archived `46` notes and `39` embedded transcripts, added `7` net-new artifacts, and captured `3` Google Drive export `500` failures in output without failing the whole bounded run.
+- Gmail item-level ledger proof selected `259` recent threads per run, produced `0` item failures across repeated bounded runs, and promoted `gmail-sync-current` to scheduled every `120` minutes. The first scheduled worker run succeeded, archived `4` threads, cleared its lease, and set target/job next run around `2026-04-24T20:09Z`.
+- Meeting notes current-day proof selected `50` meetings, archived `50` notes and `42` embedded transcripts, recorded `50` succeeded crawl items, left `0` failed crawl items, and added `2` net-new artifacts.
 - Meeting target runs now parse item-level crawl failures and mark the target `partial` when the process succeeds but individual crawl items fail; the Foundation extraction panel surfaces recent item failures and last-run errors.
-- Remaining Phase 3 gap: monitor first scheduled Missive runs, let Gmail stabilize before scheduling, add failed-item retry execution, and build item-level cursors before broad backfill.
+- Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, add failed-item retry execution for meetings/Drive, and build item-level cursors before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
