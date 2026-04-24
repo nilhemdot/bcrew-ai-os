@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { Pool } from 'pg';
+import {
+  closeFoundationDb,
+  initFoundationDb,
+  recordSharedCommunicationSynthesisRun,
+} from '../lib/foundation-db.js';
 import { getSourceContracts } from '../lib/source-contracts.js';
 import { shorten } from '../lib/shared-candidate-extraction.js';
 
@@ -148,6 +154,20 @@ function parseArgs(argv) {
   return result;
 }
 
+function compactTimestamp(value) {
+  return String(value || new Date().toISOString())
+    .replace(/[-:]/g, '')
+    .replace(/\.\d+Z$/, 'Z')
+}
+
+function stableHash(value) {
+  return createHash('sha256').update(String(value || '')).digest('hex').slice(0, 10);
+}
+
+function buildRunId({ generatedAt, model, candidatesRead, title }) {
+  return `synth-${compactTimestamp(generatedAt)}-${stableHash(`${model}:${candidatesRead}:${title}`)}`;
+}
+
 function getPool() {
   return new Pool({
     host: process.env.BCREW_DB_HOST || '/tmp',
@@ -240,7 +260,85 @@ async function fetchArchiveSummary(pool) {
   return result.rows;
 }
 
-async function runSynthesis({ candidates, candidateSummary, archiveSummary, model, maxItems }) {
+async function fetchSourceFacts(pool) {
+  const [docFacts, criticalBacklog, openQuestions, recentChanges] = await Promise.all([
+    pool.query(
+      `
+        SELECT source_id, group_title, label, value, detail, as_of
+        FROM doc_source_snapshots
+        ORDER BY doc_path ASC, group_title ASC, sort_order ASC, updated_at DESC
+        LIMIT 80
+      `,
+    ),
+    pool.query(
+      `
+        SELECT id, title, team, lane, priority, summary, next_action, status_note
+        FROM backlog_items
+        WHERE lane <> 'done'
+          AND priority IN ('P0', 'P1')
+        ORDER BY
+          CASE priority WHEN 'P0' THEN 0 WHEN 'P1' THEN 1 ELSE 2 END,
+          CASE lane WHEN 'executing' THEN 0 WHEN 'ranked' THEN 1 WHEN 'scoped' THEN 2 ELSE 3 END,
+          rank NULLS LAST,
+          updated_at DESC
+        LIMIT 40
+      `,
+    ),
+    pool.query(
+      `
+        SELECT id, title, summary, owner
+        FROM open_questions
+        WHERE status = 'open'
+        ORDER BY created_at ASC
+        LIMIT 20
+      `,
+    ),
+    pool.query(
+      `
+        SELECT event_type, entity_table, entity_id, summary, created_at
+        FROM change_events
+        ORDER BY created_at DESC
+        LIMIT 30
+      `,
+    ),
+  ]);
+
+  return {
+    doc_source_facts: docFacts.rows.map(row => ({
+      source_id: row.source_id,
+      group: row.group_title,
+      label: row.label,
+      value: row.value,
+      detail: shorten(row.detail || '', 220),
+      as_of: row.as_of,
+    })),
+    critical_backlog: criticalBacklog.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      scope: row.team,
+      lane: row.lane,
+      priority: row.priority,
+      summary: shorten(row.summary || '', 260),
+      next_action: shorten(row.next_action || '', 260),
+      status_note: shorten(row.status_note || '', 260),
+    })),
+    open_questions: openQuestions.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      summary: shorten(row.summary || '', 260),
+      owner: row.owner || '',
+    })),
+    recent_changes: recentChanges.rows.map(row => ({
+      event_type: row.event_type,
+      entity_table: row.entity_table,
+      entity_id: row.entity_id,
+      summary: shorten(row.summary || '', 220),
+      created_at: row.created_at,
+    })),
+  };
+}
+
+async function runSynthesis({ candidates, candidateSummary, archiveSummary, sourceFacts, model, maxItems }) {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error('OPENAI_API_KEY is required for synthesis generation.');
   }
@@ -270,7 +368,8 @@ async function runSynthesis({ candidates, candidateSummary, archiveSummary, mode
             'Do not dump raw candidates. Group, dedupe, rank, and suppress noise.',
             'Prefer items that are current, unresolved, strategic, multi-source, or require a leader decision.',
             'Use old Director of Intelligence patterns only as output inspiration: decisions, action items, bottlenecks, escalation-worthy issues, suggested owner, suggested next action, ranked findings with evidence.',
-            'Do not invent source facts. Use only supplied candidates and summaries.',
+            'Do not invent source facts. Use only supplied candidates, summaries, source contracts, and source_backed_operating_facts.',
+            'Use source_backed_operating_facts to validate and rank issues. Do not turn every metric into an item. Surface a source fact only when it changes the decision or proves a source-trust issue.',
             'For source_coverage.read, use selected_candidate_source_counts exactly for each source id.',
             'Treat Zoom chat artifacts as partial historical context, not authoritative full transcripts.',
             'Do not quote passwords, tokens, private credentials, or secret-looking strings.',
@@ -284,6 +383,7 @@ async function runSynthesis({ candidates, candidateSummary, archiveSummary, mode
             {
               generated_at: new Date().toISOString(),
               source_contracts: sourceContracts,
+              source_backed_operating_facts: sourceFacts,
               archive_summary: archiveSummary,
               candidate_summary: candidateSummary,
               selected_candidate_source_counts: candidates.reduce((counts, candidate) => {
@@ -323,11 +423,11 @@ async function runSynthesis({ candidates, candidateSummary, archiveSummary, mode
   return JSON.parse(text);
 }
 
-function renderMarkdown(synthesis, { candidatesRead, model }) {
+function renderMarkdown(synthesis, { candidatesRead, model, generatedAt }) {
   const lines = [
     `# ${synthesis.title || 'Shared Communications Synthesis'}`,
     '',
-    `Generated: ${new Date().toISOString()}`,
+    `Generated: ${generatedAt}`,
     `Model: ${model}`,
     `Candidates read: ${candidatesRead}`,
     '',
@@ -399,15 +499,17 @@ async function main() {
 
   const pool = getPool();
   try {
-    const [candidates, candidateSummary, archiveSummary] = await Promise.all([
+    const [candidates, candidateSummary, archiveSummary, sourceFacts] = await Promise.all([
       fetchCandidates(pool, { limit, days }),
       fetchCandidateSummary(pool),
       fetchArchiveSummary(pool),
+      fetchSourceFacts(pool),
     ]);
 
     console.log(`  Candidates read: ${candidates.length}`);
-    const synthesis = await runSynthesis({ candidates, candidateSummary, archiveSummary, model, maxItems });
-    const markdown = renderMarkdown(synthesis, { candidatesRead: candidates.length, model });
+    const generatedAt = new Date().toISOString();
+    const synthesis = await runSynthesis({ candidates, candidateSummary, archiveSummary, sourceFacts, model, maxItems });
+    const markdown = renderMarkdown(synthesis, { candidatesRead: candidates.length, model, generatedAt });
 
     if (outPath) {
       await fs.mkdir(path.dirname(outPath), { recursive: true });
@@ -416,8 +518,70 @@ async function main() {
     } else {
       console.log(markdown);
     }
+
+    const sourceCounts = candidates.reduce((counts, candidate) => {
+      counts[candidate.source_id] = (counts[candidate.source_id] || 0) + 1;
+      return counts;
+    }, {});
+    const runId = buildRunId({
+      generatedAt,
+      model,
+      candidatesRead: candidates.length,
+      title: synthesis.title || 'Shared Communications Synthesis',
+    });
+
+    await initFoundationDb();
+    const recorded = await recordSharedCommunicationSynthesisRun(
+      {
+        runId,
+        title: synthesis.title || 'Shared Communications Synthesis',
+        model,
+        outputPath: outPath ? path.relative(REPO_ROOT, outPath) : '',
+        candidateLimit: limit,
+        candidatesRead: candidates.length,
+        daysWindow: days,
+        maxItems,
+        sourceCoverage: synthesis.source_coverage || [],
+        suppressedPatterns: synthesis.suppressed_patterns || [],
+        openQuestions: synthesis.open_questions || [],
+        archiveSummary,
+        candidateSummary,
+        sourceFacts,
+        generatedAt,
+        items: (synthesis.ranked_items || []).map((item, index) => ({
+          synthesisItemId: `${runId}:${String(index + 1).padStart(2, '0')}`,
+          rank: item.rank,
+          itemType: item.item_type,
+          status: item.status,
+          title: item.title,
+          oneLine: item.one_line,
+          whyItMatters: item.why_it_matters,
+          recommendedNextAction: item.recommended_next_action,
+          suggestedOwner: item.suggested_owner,
+          sourceCount: item.source_count,
+          candidateKeys: item.candidate_keys || [],
+          sourceIds: item.source_ids || [],
+          evidenceSummary: item.evidence_summary,
+          confidence: item.confidence,
+          sensitivity: item.sensitivity,
+        })),
+        metadata: {
+          script: 'scripts/generate-shared-comms-synthesis.mjs',
+          selectedCandidateSourceCounts: sourceCounts,
+          sourceFactCounts: {
+            docSourceFacts: sourceFacts.doc_source_facts.length,
+            criticalBacklog: sourceFacts.critical_backlog.length,
+            openQuestions: sourceFacts.open_questions.length,
+            recentChanges: sourceFacts.recent_changes.length,
+          },
+        },
+      },
+      'synthesis-script',
+    );
+    console.log(`  Recorded synthesis run: ${recorded.run.runId} (${recorded.itemCount} items)`);
   } finally {
     await pool.end();
+    await closeFoundationDb();
   }
 }
 

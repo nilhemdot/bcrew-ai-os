@@ -61,7 +61,8 @@ Use [Intelligence Pipeline Operating Model](intelligence-pipeline.md) for how ar
    - actionability ranking
    - source-backed fact grounding from strategy, KPI, finance, Owners, FUB, marketing, and source contracts
    - first proof = useful strategy packet, not raw candidate dump
-   - current proof = `docs/handoffs/2026-04-23-shared-comms-synthesis-v1.md`
+   - current proof = persisted synthesis run + `docs/handoffs/2026-04-23-shared-comms-synthesis-source-facts-proof.md`
+   - latest proof now stores runs/items in PostgreSQL and includes source-backed facts from strategy/BHAG/Owners/backlog/open-question/change-event state
 4. close the strategy truth boundary before Strategy Hub:
    - `SOURCE-014`
    - the strategy-used Owners slice

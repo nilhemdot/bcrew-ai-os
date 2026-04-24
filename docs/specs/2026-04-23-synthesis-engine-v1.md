@@ -1,7 +1,7 @@
 # Synthesis Engine V1 Contract
 
 Date: 2026-04-23
-Status: Draft contract for first implementation
+Status: V1 contract with persisted batch proof
 
 ## Purpose
 
@@ -257,3 +257,39 @@ It should:
 - avoid applying work automatically
 
 Automation comes after the output shape is trusted.
+
+## V1 Persistence Slice
+
+Current implemented slice:
+
+- `shared_communication_synthesis_runs`
+- `shared_communication_synthesized_items`
+- `scripts/generate-shared-comms-synthesis.mjs`
+- `/api/shared-communications/synthesis`
+- Foundation snapshot includes `sharedCommunicationSynthesis`
+
+The script now records:
+
+- run id
+- title
+- model
+- output path
+- candidate limits and candidates read
+- source coverage
+- suppressed patterns
+- open questions
+- archive summary
+- candidate summary
+- source-backed fact bundle
+- ranked synthesized items
+
+The source-backed fact bundle currently includes:
+
+- `doc_source_snapshots`
+- critical open `P0/P1` backlog
+- open questions
+- recent change events
+
+This is still not the final continuous engine.
+
+It is the first durable proof that synthesis can be generated, stored, and read by the system.

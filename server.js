@@ -18,6 +18,7 @@ import {
   getLatestChangeEventForEntity,
   getSharedCommunicationArchiveSnapshot,
   getSharedCommunicationCandidateSnapshot,
+  getSharedCommunicationSynthesisSnapshot,
   getFoundationBacklogScopes,
   getDocSourceSnapshot,
   getFoundationBacklogIdPrefixes,
@@ -3124,6 +3125,23 @@ app.get('/api/shared-communications/candidates', requireAdminToken, async (req, 
       500,
       'shared_communications_candidates_failed',
       error instanceof Error ? error.message : 'Failed to load shared communications candidates.'
+    )
+  }
+})
+
+app.get('/api/shared-communications/synthesis', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(20, Math.max(1, Number(req.query.limit) || 3))
+    const itemLimit = Math.min(100, Math.max(1, Number(req.query.itemLimit) || 20))
+    const synthesis = await getSharedCommunicationSynthesisSnapshot({ limit, itemLimit })
+    cacheHeadersNoStore(res)
+    res.json(synthesis)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'shared_communications_synthesis_failed',
+      error instanceof Error ? error.message : 'Failed to load shared communications synthesis.'
     )
   }
 })

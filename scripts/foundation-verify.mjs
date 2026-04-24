@@ -164,6 +164,16 @@ async function main() {
   )
   ensure(
     checks,
+    foundationHub.sharedCommunicationSynthesis?.latestRun &&
+      Array.isArray(foundationHub.sharedCommunicationSynthesis?.latestItems) &&
+      foundationHub.sharedCommunicationSynthesis.latestItems.length > 0,
+    'api/foundation-hub exposes persisted shared-comms synthesis',
+    foundationHub.sharedCommunicationSynthesis?.latestRun
+      ? `${foundationHub.sharedCommunicationSynthesis.latestRun.runId} / ${foundationHub.sharedCommunicationSynthesis.latestItems.length} items`
+      : 'missing synthesis payload',
+  )
+  ensure(
+    checks,
     ownersLeadSourceGovernance?.sourceId === 'SRC-OWNERS-001' &&
       ownersLeadSourceGovernance?.drift &&
       ownersLeadSourceGovernance?.freshness &&

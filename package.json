@@ -29,6 +29,8 @@
     "slack:sync-archive": "node --env-file-if-exists=.env scripts/sync-slack-archive.mjs",
     "slack:extract-candidates": "node --env-file-if-exists=.env scripts/extract-slack-thread-candidates.mjs",
     "synthesis:brief": "node --env-file-if-exists=.env scripts/generate-shared-comms-synthesis.mjs",
+    "codex:usage": "node scripts/codex-usage.mjs",
+    "codex:usage-web": "node scripts/codex-usage-web.mjs",
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",
     "bhag:update": "node scripts/update-bhag-builder-paths.mjs"
   },
