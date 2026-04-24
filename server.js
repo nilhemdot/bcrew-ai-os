@@ -18,6 +18,7 @@ import {
   getLatestChangeEventForEntity,
   getSharedCommunicationArchiveSnapshot,
   getSharedCommunicationCandidateSnapshot,
+  getSharedCommunicationCoverageSnapshot,
   getSharedCommunicationSynthesisSnapshot,
   getFoundationBacklogScopes,
   getDocSourceSnapshot,
@@ -3100,6 +3101,21 @@ app.get('/api/shared-communications/archive', requireAdminToken, async (req, res
       500,
       'shared_communications_archive_failed',
       error instanceof Error ? error.message : 'Failed to load shared communications archive.'
+    )
+  }
+})
+
+app.get('/api/shared-communications/coverage', requireAdminToken, async (_req, res) => {
+  try {
+    const coverage = await getSharedCommunicationCoverageSnapshot()
+    cacheHeadersNoStore(res)
+    res.json(coverage)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'shared_communications_coverage_failed',
+      error instanceof Error ? error.message : 'Failed to load shared communications coverage.'
     )
   }
 })

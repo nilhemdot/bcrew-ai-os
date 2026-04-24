@@ -174,6 +174,17 @@ async function main() {
   )
   ensure(
     checks,
+    foundationHub.sharedCommunicationsCoverage?.totalArtifacts > 0 &&
+      foundationHub.sharedCommunicationsCoverage?.totalCandidates > 0 &&
+      Array.isArray(foundationHub.sharedCommunicationsCoverage?.sources) &&
+      foundationHub.sharedCommunicationsCoverage.sources.length > 0,
+    'api/foundation-hub exposes shared-comms coverage',
+    foundationHub.sharedCommunicationsCoverage
+      ? `${foundationHub.sharedCommunicationsCoverage.totalArtifacts} artifacts / ${foundationHub.sharedCommunicationsCoverage.totalCandidates} candidates`
+      : 'missing coverage payload',
+  )
+  ensure(
+    checks,
     ownersLeadSourceGovernance?.sourceId === 'SRC-OWNERS-001' &&
       ownersLeadSourceGovernance?.drift &&
       ownersLeadSourceGovernance?.freshness &&

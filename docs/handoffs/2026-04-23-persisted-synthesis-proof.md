@@ -15,7 +15,10 @@ It now persists into PostgreSQL:
 It is readable through:
 
 - Foundation snapshot: `sharedCommunicationSynthesis`
+- Foundation snapshot: `sharedCommunicationsCoverage`
 - Admin API: `/api/shared-communications/synthesis`
+- Admin API: `/api/shared-communications/coverage`
+- CLI: `npm run shared-comms:coverage`
 - Markdown proof: `docs/handoffs/2026-04-23-shared-comms-synthesis-source-facts-proof.md`
 
 ## Latest Persisted Run
@@ -91,4 +94,4 @@ Passed:
 
 Foundation verify result:
 
-- `15/15 checks passed`
+- `17/17 checks passed` after the persisted-synthesis and coverage checks were added
