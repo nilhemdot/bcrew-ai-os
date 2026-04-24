@@ -161,7 +161,9 @@ Current partial proof:
 - `npm run foundation:job -- --snapshot` now exposes scheduled, due, and manual job counts plus next-run status.
 - `ai.bcrew.foundation-worker` is loaded as a LaunchAgent and running the worker loop.
 - `ai.bcrew.dashboard` is loaded as a LaunchAgent and was restarted after the runtime changes.
-- Remaining Phase 1 gap: richer pause/disable controls and broader first-job activation, not basic daemonization.
+- Active-run locking is enforced with a unique active-run index per job, so a second worker/manual trigger cannot start the same job while it is already queued/running.
+- Job timeout cleanup now kills the process group with `SIGTERM` and escalates to `SIGKILL`.
+- Remaining Phase 1 gap: operator-controlled DB/UI pause-disable controls and broader first-job activation.
 
 ### Phase 2 — Policy-Aware LLM Router MVP
 

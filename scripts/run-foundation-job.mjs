@@ -35,6 +35,19 @@ function appendTail(current, chunk) {
   return next.length > OUTPUT_TAIL_LIMIT ? next.slice(next.length - OUTPUT_TAIL_LIMIT) : next;
 }
 
+function killJobProcess(child, signal) {
+  if (!child?.pid) return;
+  try {
+    process.kill(-child.pid, signal);
+  } catch {
+    try {
+      child.kill(signal);
+    } catch {
+      // The process may have already exited between timeout and cleanup.
+    }
+  }
+}
+
 function printJobList() {
   const snapshotLines = getFoundationJobDefinitions().map(job => {
     const args = [job.command, ...job.args].join(' ');
@@ -97,16 +110,22 @@ async function runCommand(job, runId, actor) {
   console.log(`Command: ${[job.command, ...job.args].join(' ')}`);
 
   const outcome = await new Promise(resolve => {
+    let timeout = null;
+    let killEscalationTimeout = null;
     const child = spawn(job.command, job.args, {
       cwd: process.cwd(),
       env: process.env,
+      detached: true,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const timeoutMs = Number(job.maxRuntimeSeconds) > 0 ? Number(job.maxRuntimeSeconds) * 1000 : null;
-    const timeout = timeoutMs
+    timeout = timeoutMs
       ? setTimeout(() => {
           timedOut = true;
-          child.kill('SIGTERM');
+          killJobProcess(child, 'SIGTERM');
+          killEscalationTimeout = setTimeout(() => {
+            killJobProcess(child, 'SIGKILL');
+          }, 5000);
         }, timeoutMs)
       : null;
 
@@ -125,6 +144,7 @@ async function runCommand(job, runId, actor) {
 
     child.on('error', error => {
       if (timeout) clearTimeout(timeout);
+      if (killEscalationTimeout) clearTimeout(killEscalationTimeout);
       resolve({
         status: 'failed',
         exitCode: null,
@@ -135,6 +155,7 @@ async function runCommand(job, runId, actor) {
 
     child.on('close', (exitCode, signal) => {
       if (timeout) clearTimeout(timeout);
+      if (killEscalationTimeout) clearTimeout(killEscalationTimeout);
       resolve({
         status: exitCode === 0 && !timedOut ? 'succeeded' : 'failed',
         exitCode,
