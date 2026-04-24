@@ -8,6 +8,7 @@ Use this doc for one question:
 - what are we doing right now
 
 Use [Current State](current-state.md) for the short read.
+Use [Intelligence Pipeline Operating Model](intelligence-pipeline.md) for how archives, extractors, synthesis, briefs, and future agents fit together.
 
 ## Locked Now
 
@@ -146,10 +147,18 @@ Use [Current State](current-state.md) for the short read.
 13. mine old intelligence reports and salvage doctrine intentionally:
    - `REPORT-MINING-001`
    - use the old scout/executive/director report families as synthesis references, not runtime architecture
+   - preserve the old feedback-scout / director-brief output shapes as synthesis patterns, especially:
+     - decisions
+     - action items
+     - bottlenecks
+     - escalation-worthy issues
+     - suggested owner
+     - suggested next action
+     - ranked findings with evidence
 14. extend the first freshness pattern into shared `Level 3` rules across more sources
 15. clean backlog ownership and the research lane
 16. only then turn on the narrow memory baseline and the first trusted loop
-17. only after the governed engines are stable, build the first narrow operating agent on top of them
+17. only after the governed engines are stable and `SYSTEM-010` process supervision / kill switches are real, build the first narrow operating agent on top of them
 
 ## Current Work Mode
 
