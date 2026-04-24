@@ -7,6 +7,12 @@ import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
 import process from 'node:process'
 import { getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
+import {
+  closeFoundationDb,
+  getSharedCommunicationProcessingProvenanceGaps,
+  getStaleLlmCalls,
+  initFoundationDb,
+} from '../lib/foundation-db.js'
 
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
@@ -115,6 +121,7 @@ async function main() {
   const sourceConnectors = getSourceConnectors()
   const ownersContract = findSourceById(sourceContracts, 'SRC-OWNERS-001')
   const financeContract = findSourceById(sourceContracts, 'SRC-FINANCE-001')
+  await initFoundationDb()
 
   ensure(
     checks,
@@ -172,6 +179,27 @@ async function main() {
     includesAll(sharedCandidateExtractionSource, ['requestedModel', 'provider', 'authPath', 'routeKey', 'llmCallId']),
     'shared-comms extraction records actual LLM route provenance',
     'candidate metadata carries requested model plus actual provider/auth path/route/model',
+  )
+  const processingProvenanceGaps = await getSharedCommunicationProcessingProvenanceGaps({
+    since: '2026-04-24T17:14:00-04:00',
+    limit: 10,
+  })
+  ensure(
+    checks,
+    processingProvenanceGaps.length === 0,
+    'shared-comms processing runs have routed LLM provenance',
+    processingProvenanceGaps.length
+      ? processingProvenanceGaps.map(item => `${item.runId}:${item.artifactId}`).join(', ')
+      : 'no post-hardening candidate extraction rows missing hash/provider/auth/route/model',
+  )
+  const staleLlmCalls = await getStaleLlmCalls({ olderThanSeconds: 240, limit: 10 })
+  ensure(
+    checks,
+    staleLlmCalls.length === 0,
+    'llm_calls has no stale planned/started calls',
+    staleLlmCalls.length
+      ? staleLlmCalls.map(item => `${item.callId}:${item.status}`).join(', ')
+      : 'no planned/started LLM calls older than 240 seconds',
   )
 
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
@@ -393,14 +421,19 @@ async function main() {
   line('Summary', `${checks.length - failed.length}/${checks.length} checks passed`)
 
   if (failed.length) {
-    process.exit(1)
+    process.exitCode = 1
+    return
   }
 
   console.log('Foundation verification passed.')
 }
 
-main().catch(error => {
-  console.error('Foundation verification failed.')
-  console.error(error instanceof Error ? error.message : String(error))
-  process.exit(1)
-})
+main()
+  .catch(error => {
+    console.error('Foundation verification failed.')
+    console.error(error instanceof Error ? error.message : String(error))
+    process.exitCode = 1
+  })
+  .finally(async () => {
+    await closeFoundationDb().catch(() => {})
+  })

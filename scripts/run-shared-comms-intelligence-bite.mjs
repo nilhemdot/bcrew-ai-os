@@ -37,7 +37,7 @@ function buildSteps(args) {
     });
   }
 
-  if (!boolArg(args.skipMeetings)) {
+  if (boolArg(args.includeMeetings) && !boolArg(args.skipMeetings)) {
     steps.push({
       label: 'Meeting transcript candidate bite',
       command: 'npm',

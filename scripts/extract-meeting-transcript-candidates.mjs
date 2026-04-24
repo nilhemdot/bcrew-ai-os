@@ -18,6 +18,7 @@ import {
 import {
   buildFoundationExtractionContext,
   extractSharedCandidatesWithOpenAi,
+  getErrorLlmProvenance,
   sanitizeExtractedCandidates,
   shorten,
 } from '../lib/shared-candidate-extraction.js';
@@ -29,6 +30,11 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const STRATEGY_DOC_PATH = path.join(REPO_ROOT, 'docs', 'business-strategy.md');
 
 const DEFAULT_MODEL = process.env.OPENAI_EXTRACTION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini';
+const DEFAULT_TIMEOUT_MS = Number(
+  process.env.MEETING_TRANSCRIPT_EXTRACTION_TIMEOUT_MS ||
+    process.env.LLM_EXTRACTION_TIMEOUT_MS ||
+    2700000,
+);
 const EXTRACTION_METHOD = 'meeting_transcript_context_v2';
 const SUPSERSEDED_METHODS = ['meeting_next_steps_v1', 'meeting_transcript_context_v1', EXTRACTION_METHOD];
 const LOW_SIGNAL_TASK_PATTERNS = [
@@ -113,6 +119,7 @@ async function extractCandidatesFromTranscript(artifact, foundationContext, mode
     contentText: artifact.contentText || '',
     maxChars: MAX_TRANSCRIPT_CHARS,
     schemaName: 'meeting_transcript_candidates',
+    timeoutMs: DEFAULT_TIMEOUT_MS,
   });
 }
 
@@ -125,6 +132,7 @@ async function main() {
   console.log('Extract shared communication candidates from archived meeting transcripts');
   console.log(`  Limit: ${limit}`);
   console.log(`  Model: ${model}`);
+  console.log(`  Per-call timeout: ${DEFAULT_TIMEOUT_MS}ms`);
   console.log(`  Only without successful current-content processing: ${onlyWithoutCandidates}`);
 
   await initFoundationDb();
@@ -156,25 +164,19 @@ async function main() {
     )
     .slice(0, limit);
 
-  const rejected = await rejectSharedCommunicationCandidatesForArtifacts({
-    sourceId: 'SRC-MEETINGS-001',
-    artifactIds: artifacts.map(artifact => artifact.artifactId),
-    extractionMethods: SUPSERSEDED_METHODS,
-    actor: 'system',
-    reason: 'Transcript-first extractor superseded earlier meeting candidate extraction for these artifacts.',
-  });
-
-  console.log(`  Rejected stale pending candidates: ${rejected.rejected}`);
   console.log(`  Archived transcripts scanned: ${artifacts.length}`);
 
   let upserted = 0;
   let failed = 0;
+  let rejectedStale = 0;
   const seenFingerprints = new Set();
 
   for (const artifact of artifacts) {
+    let llmForArtifact = null;
     try {
       const extracted = await extractCandidatesFromTranscript(artifact, foundationContext, model);
-      const llm = extracted.llm || { requestedModel: model, model };
+      const llm = extracted.llm;
+      llmForArtifact = llm;
       const candidates = sanitizeExtractedCandidates(extracted.candidates, artifact, foundationContext, {
         extractionMethod: EXTRACTION_METHOD,
         model: llm.model || model,
@@ -182,15 +184,27 @@ async function main() {
       });
 
       let persistedForArtifact = 0;
+      const persistedCandidateKeys = [];
       for (const candidate of candidates) {
         if (isLowSignalTaskCandidate(candidate)) continue;
         const fingerprint = fingerprintCandidate(candidate);
+        persistedCandidateKeys.push(candidate.candidateKey);
         if (seenFingerprints.has(fingerprint)) continue;
         seenFingerprints.add(fingerprint);
         await upsertSharedCommunicationCandidate(candidate);
         upserted += 1;
         persistedForArtifact += 1;
       }
+
+      const rejected = await rejectSharedCommunicationCandidatesForArtifacts({
+        sourceId: 'SRC-MEETINGS-001',
+        artifactIds: [artifact.artifactId],
+        excludeCandidateKeys: persistedCandidateKeys,
+        extractionMethods: SUPSERSEDED_METHODS,
+        actor: 'system',
+        reason: 'Transcript-first extractor superseded stale meeting candidates after successful replacement extraction.',
+      });
+      rejectedStale += rejected.rejected;
 
       await recordSharedCommunicationArtifactProcessingRun(
         {
@@ -220,6 +234,7 @@ async function main() {
       );
     } catch (error) {
       failed += 1;
+      const llm = getErrorLlmProvenance(error) || llmForArtifact;
       await recordSharedCommunicationArtifactProcessingRun(
         {
           artifactId: artifact.artifactId,
@@ -228,11 +243,18 @@ async function main() {
           artifactContentHash: artifact.contentHash || '',
           processingType: 'candidate_extraction',
           extractionMethod: EXTRACTION_METHOD,
-          model,
+          provider: llm?.provider,
+          authPath: llm?.authPath,
+          routeKey: llm?.routeKey,
+          model: llm?.model || model,
           status: 'failed',
           candidateCount: 0,
           errorMessage: error instanceof Error ? error.message : String(error),
-          metadata: { script: 'extract-meeting-transcript-candidates' },
+          metadata: {
+            script: 'extract-meeting-transcript-candidates',
+            requestedModel: llm?.requestedModel || model,
+            llmCallId: llm?.callId || null,
+          },
         },
         'system',
       );
@@ -252,6 +274,7 @@ async function main() {
   });
 
   console.log(`  Candidates upserted this run: ${upserted}`);
+  console.log(`  Rejected stale pending candidates: ${rejectedStale}`);
   console.log(`  Pending candidates total: ${snapshot.totalCandidates}`);
   console.log(`  Pending by type: ${JSON.stringify(snapshot.byType)}`);
   if (snapshot.items[0]) {

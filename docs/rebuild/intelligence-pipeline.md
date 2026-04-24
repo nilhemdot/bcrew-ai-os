@@ -120,6 +120,8 @@ LLM calls for shared intelligence must go through `lib/llm-router.js`. The route
 
 Extraction attempts are themselves operating facts. When an artifact is processed and correctly yields zero candidates, that success is recorded against the artifact's current content hash so the artifact is not mined forever under the same extractor version. If the email thread, Missive thread, or transcript content changes, the content hash changes and it becomes eligible again. Failures stay retryable. Candidate metadata and processing runs must store the actual provider, auth path, route key, and model returned by the router, not just the model the script requested.
 
+Subscription routes are first-class production capacity, but they are not treated like low-latency APIs. They need pacing, long per-call windows, small bite sizes, and resumable ledgers. Daily user-facing intelligence should synthesize mined material that is already ready; large meeting/transcript/corpus extraction should run as separate miners so a slow subscription call does not block the morning brief.
+
 Historical extraction should be paced. The goal is not to read the entire company history in one night. The goal is a supervised extraction team that can:
 
 - take one Drive folder, Skool course, inbox date window, or meeting archive window at a time

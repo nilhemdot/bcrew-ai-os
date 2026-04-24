@@ -10,12 +10,14 @@ import {
   getSharedCommunicationArtifactsForProcessing,
   getSharedCommunicationCandidateSnapshot,
   initFoundationDb,
+  recordSharedCommunicationArtifactProcessingRun,
   rejectSharedCommunicationCandidatesForArtifacts,
   upsertSharedCommunicationCandidate,
 } from '../lib/foundation-db.js';
 import {
   buildFoundationExtractionContext,
   extractSharedCandidatesWithOpenAi,
+  getErrorLlmProvenance,
   sanitizeExtractedCandidates,
 } from '../lib/shared-candidate-extraction.js';
 import { getSourceContracts } from '../lib/source-contracts.js';
@@ -128,40 +130,97 @@ async function main() {
     .filter(isHistoricalZoomChat)
     .slice(0, limit);
 
-  const rejected = await rejectSharedCommunicationCandidatesForArtifacts({
-    sourceId: 'SRC-MEETINGS-001',
-    artifactIds: artifacts.map(artifact => artifact.artifactId),
-    extractionMethods: SUPERSEDED_METHODS,
-    actor: 'system',
-    reason: 'Historical Zoom chat extraction rerun superseded earlier pending candidates for these artifacts.',
-  });
-
-  console.log(`  Rejected stale pending candidates: ${rejected.rejected}`);
   console.log(`  Archived Zoom chats scanned: ${artifacts.length}`);
 
   let upserted = 0;
   let failed = 0;
+  let rejectedStale = 0;
   const seenFingerprints = new Set();
 
   for (const artifact of artifacts) {
+    let llmForArtifact = null;
     try {
       const extracted = await extractCandidatesFromZoomChat(artifact, foundationContext, model);
+      const llm = extracted.llm;
+      llmForArtifact = llm;
       const candidates = sanitizeExtractedCandidates(extracted.candidates, artifact, foundationContext, {
         extractionMethod: EXTRACTION_METHOD,
-        model,
+        model: llm.model || model,
+        llm,
       });
 
+      let persistedForArtifact = 0;
+      const persistedCandidateKeys = [];
       for (const candidate of candidates) {
         const fingerprint = fingerprintCandidate(candidate);
+        persistedCandidateKeys.push(candidate.candidateKey);
         if (seenFingerprints.has(fingerprint)) continue;
         seenFingerprints.add(fingerprint);
         await upsertSharedCommunicationCandidate(candidate);
         upserted += 1;
+        persistedForArtifact += 1;
       }
+
+      const rejected = await rejectSharedCommunicationCandidatesForArtifacts({
+        sourceId: 'SRC-MEETINGS-001',
+        artifactIds: [artifact.artifactId],
+        excludeCandidateKeys: persistedCandidateKeys,
+        extractionMethods: SUPERSEDED_METHODS,
+        actor: 'system',
+        reason: 'Historical Zoom chat extraction rerun superseded stale pending candidates after successful replacement extraction.',
+      });
+      rejectedStale += rejected.rejected;
+
+      await recordSharedCommunicationArtifactProcessingRun(
+        {
+          artifactId: artifact.artifactId,
+          sourceId: artifact.sourceId,
+          artifactType: artifact.artifactType,
+          artifactContentHash: artifact.contentHash || '',
+          processingType: 'candidate_extraction',
+          extractionMethod: EXTRACTION_METHOD,
+          provider: llm.provider,
+          authPath: llm.authPath,
+          routeKey: llm.routeKey,
+          model: llm.model || model,
+          status: 'succeeded',
+          candidateCount: persistedForArtifact,
+          metadata: {
+            script: 'extract-zoom-chat-candidates',
+            requestedModel: llm.requestedModel || model,
+            llmCallId: llm.callId || null,
+          },
+        },
+        'system',
+      );
 
       console.log(`  ${artifact.artifactId}: ${candidates.length} candidates`);
     } catch (error) {
       failed += 1;
+      const llm = getErrorLlmProvenance(error) || llmForArtifact;
+      await recordSharedCommunicationArtifactProcessingRun(
+        {
+          artifactId: artifact.artifactId,
+          sourceId: artifact.sourceId,
+          artifactType: artifact.artifactType,
+          artifactContentHash: artifact.contentHash || '',
+          processingType: 'candidate_extraction',
+          extractionMethod: EXTRACTION_METHOD,
+          provider: llm?.provider,
+          authPath: llm?.authPath,
+          routeKey: llm?.routeKey,
+          model: llm?.model || model,
+          status: 'failed',
+          candidateCount: 0,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          metadata: {
+            script: 'extract-zoom-chat-candidates',
+            requestedModel: llm?.requestedModel || model,
+            llmCallId: llm?.callId || null,
+          },
+        },
+        'system',
+      );
       console.error(
         `  ${artifact.artifactId}: extraction failed -> ${
           error instanceof Error ? error.message : String(error)
@@ -178,6 +237,7 @@ async function main() {
   });
 
   console.log(`  Candidates upserted this run: ${upserted}`);
+  console.log(`  Rejected stale pending candidates: ${rejectedStale}`);
   console.log(`  Pending candidates total: ${snapshot.totalCandidates}`);
   console.log(`  Pending by type: ${JSON.stringify(snapshot.byType)}`);
   if (snapshot.items[0]) {

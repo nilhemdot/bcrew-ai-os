@@ -18,6 +18,7 @@ import {
 import {
   buildFoundationExtractionContext,
   extractSharedCandidatesWithOpenAi,
+  getErrorLlmProvenance,
   sanitizeExtractedCandidates,
 } from '../lib/shared-candidate-extraction.js';
 import { getSourceContracts } from '../lib/source-contracts.js';
@@ -126,25 +127,19 @@ async function main() {
     extractionMethod: EXTRACTION_METHOD,
   });
 
-  const rejected = await rejectSharedCommunicationCandidatesForArtifacts({
-    sourceId: 'SRC-GMAIL-001',
-    artifactIds: artifacts.map(artifact => artifact.artifactId),
-    extractionMethods: SUPSERSEDED_METHODS,
-    actor: 'system',
-    reason: 'Gmail extraction rerun superseded earlier pending candidates for these threads.',
-  });
-
-  console.log(`  Rejected stale pending candidates: ${rejected.rejected}`);
   console.log(`  Archived threads scanned: ${artifacts.length}`);
 
   let upserted = 0;
   let failed = 0;
+  let rejectedStale = 0;
   const seenFingerprints = new Set();
 
   for (const artifact of artifacts) {
+    let llmForArtifact = null;
     try {
       const extracted = await extractCandidatesFromGmailThread(artifact, foundationContext, model);
-      const llm = extracted.llm || { requestedModel: model, model };
+      const llm = extracted.llm;
+      llmForArtifact = llm;
       const candidates = sanitizeExtractedCandidates(extracted.candidates, artifact, foundationContext, {
         extractionMethod: EXTRACTION_METHOD,
         model: llm.model || model,
@@ -152,14 +147,26 @@ async function main() {
       });
 
       let persistedForArtifact = 0;
+      const persistedCandidateKeys = [];
       for (const candidate of candidates) {
         const fingerprint = fingerprintCandidate(candidate);
+        persistedCandidateKeys.push(candidate.candidateKey);
         if (seenFingerprints.has(fingerprint)) continue;
         seenFingerprints.add(fingerprint);
         await upsertSharedCommunicationCandidate(candidate);
         upserted += 1;
         persistedForArtifact += 1;
       }
+
+      const rejected = await rejectSharedCommunicationCandidatesForArtifacts({
+        sourceId: 'SRC-GMAIL-001',
+        artifactIds: [artifact.artifactId],
+        excludeCandidateKeys: persistedCandidateKeys,
+        extractionMethods: SUPSERSEDED_METHODS,
+        actor: 'system',
+        reason: 'Gmail extraction rerun superseded stale pending candidates after successful replacement extraction.',
+      });
+      rejectedStale += rejected.rejected;
 
       await recordSharedCommunicationArtifactProcessingRun(
         {
@@ -187,6 +194,7 @@ async function main() {
       console.log(`  ${artifact.artifactId}: ${candidates.length} candidates`);
     } catch (error) {
       failed += 1;
+      const llm = getErrorLlmProvenance(error) || llmForArtifact;
       await recordSharedCommunicationArtifactProcessingRun(
         {
           artifactId: artifact.artifactId,
@@ -195,11 +203,18 @@ async function main() {
           artifactContentHash: artifact.contentHash || '',
           processingType: 'candidate_extraction',
           extractionMethod: EXTRACTION_METHOD,
-          model,
+          provider: llm?.provider,
+          authPath: llm?.authPath,
+          routeKey: llm?.routeKey,
+          model: llm?.model || model,
           status: 'failed',
           candidateCount: 0,
           errorMessage: error instanceof Error ? error.message : String(error),
-          metadata: { script: 'extract-gmail-thread-candidates' },
+          metadata: {
+            script: 'extract-gmail-thread-candidates',
+            requestedModel: llm?.requestedModel || model,
+            llmCallId: llm?.callId || null,
+          },
         },
         'system',
       );
@@ -219,6 +234,7 @@ async function main() {
   });
 
   console.log(`  Candidates upserted this run: ${upserted}`);
+  console.log(`  Rejected stale pending candidates: ${rejectedStale}`);
   console.log(`  Pending candidates total: ${snapshot.totalCandidates}`);
   console.log(`  Pending by type: ${JSON.stringify(snapshot.byType)}`);
   if (snapshot.items[0]) {
