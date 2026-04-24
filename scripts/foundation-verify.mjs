@@ -125,6 +125,10 @@ async function main() {
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
   const ownersLeadSourceGovernance = await fetchJson(baseUrl, '/api/owners/lead-source-governance')
   const ownersReviewQueue = await fetchJson(baseUrl, '/api/owners/review-queue')
+  const extractionTargets = Array.isArray(foundationHub.extractionControl?.targets)
+    ? foundationHub.extractionControl.targets
+    : []
+  const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
 
   ensure(
     checks,
@@ -198,12 +202,21 @@ async function main() {
     checks,
     foundationHub.extractionControl?.summary &&
       Number(foundationHub.extractionControl.summary.targetCount || 0) > 0 &&
-      Array.isArray(foundationHub.extractionControl.targets) &&
+      extractionTargets.length > 0 &&
       Array.isArray(foundationHub.extractionControl.recentItems),
     'api/foundation-hub exposes extraction control targets',
     foundationHub.extractionControl?.summary
       ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day / ${foundationHub.extractionControl.recentItems?.length ?? 0} recent items`
       : 'missing extraction control payload',
+  )
+  ensure(
+    checks,
+    scheduledExtractionTargets.length > 0 &&
+      scheduledExtractionTargets.every(target => target.foundationJobKey && target.scheduler?.scheduleStatus),
+    'api/foundation-hub derives extraction schedules from Foundation jobs',
+    scheduledExtractionTargets.length
+      ? `${scheduledExtractionTargets.length} targets derive schedule from job runtime`
+      : 'no target schedule derivations found',
   )
   ensure(
     checks,

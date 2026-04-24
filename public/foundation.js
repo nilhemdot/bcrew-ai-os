@@ -5070,6 +5070,7 @@ function renderExtractionControlPanel(extractionControl) {
     + ((extractionControl.summary && extractionControl.summary.currentDayTargets) || 0) + ' current-day, '
     + ((extractionControl.summary && extractionControl.summary.backfillTargets) || 0) + ' backfill, '
     + ((extractionControl.summary && extractionControl.summary.corpusMiningTargets) || 0) + ' corpus-mining, '
+    + ((extractionControl.summary && extractionControl.summary.scheduledTargets) || 0) + ' scheduled, '
     + ((extractionControl.summary && extractionControl.summary.pausedTargets) || 0) + ' paused, '
     + ((extractionControl.summary && extractionControl.summary.recentItemFailures) || 0) + ' recent item failures.'
 
@@ -5081,9 +5082,20 @@ function renderExtractionControlPanel(extractionControl) {
     if (budget.maxFilesPerRun) budgetParts.push('max ' + budget.maxFilesPerRun + ' files/run')
     var counts = target.inspectedCount + ' inspected, ' + target.archivedCount + ' archived, ' + target.extractedCount + ' extracted.'
     var lastState = target.lastStatus ? ' Last run: ' + target.lastStatus + (target.lastError ? ' — ' + target.lastError : '') + '.' : ''
-    var detail = target.sourceId + ' · ' + target.lane + ' · ' + target.runtimeMode + '. ' + counts
+    var scheduler = target.scheduler || {}
+    var schedulerMode = scheduler.runtimeMode || target.runtimeMode
+    var schedulerSource = scheduler.source === 'foundation_job' && scheduler.foundationJobKey
+      ? ' job ' + scheduler.foundationJobKey
+      : ' target'
+    var scheduleLine = scheduler.scheduleStatus
+      ? ' Schedule: ' + scheduler.scheduleStatus + ' via' + schedulerSource
+        + (scheduler.nextRunAt ? ', next ' + formatDate(scheduler.nextRunAt) : '')
+        + (scheduler.scheduleDetail ? '. ' + scheduler.scheduleDetail : '.')
+      : ''
+    var detail = target.sourceId + ' · ' + target.lane + ' · ' + schedulerMode + '. ' + counts
       + (budgetParts.length ? ' Budget: ' + budgetParts.join(', ') + '.' : '')
       + lastState
+      + scheduleLine
       + ' ' + (target.notes || '')
     var status = target.status === 'blocked' || target.lastStatus === 'failed' || target.lastStatus === 'partial'
       ? 'risk'
