@@ -16,6 +16,7 @@ import {
   createPendingDocUpdate,
   getCanonicalDecisionCategories,
   getLatestChangeEventForEntity,
+  getLlmRuntimeSnapshot,
   getSharedCommunicationArchiveSnapshot,
   getSharedCommunicationCandidateSnapshot,
   getSharedCommunicationCoverageSnapshot,
@@ -3102,6 +3103,22 @@ app.get('/api/foundation/jobs', requireAdminToken, async (req, res) => {
       500,
       'foundation_jobs_load_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation job runs.'
+    )
+  }
+})
+
+app.get('/api/foundation/llm-runtime', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 30))
+    const snapshot = await getLlmRuntimeSnapshot({ limit })
+    cacheHeadersNoStore(res)
+    res.json(snapshot)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_llm_runtime_load_failed',
+      error instanceof Error ? error.message : 'Failed to load LLM runtime status.'
     )
   }
 })

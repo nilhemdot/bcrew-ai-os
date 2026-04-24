@@ -9,6 +9,7 @@
     "foundation:verify": "node --env-file-if-exists=.env scripts/foundation-verify.mjs",
     "foundation:job": "node --env-file-if-exists=.env scripts/run-foundation-job.mjs",
     "foundation:worker": "node --env-file-if-exists=.env scripts/foundation-worker.mjs",
+    "llm:auth-audit": "node --env-file-if-exists=.env scripts/audit-llm-auth-paths.mjs",
     "sheets:verify": "node --env-file-if-exists=.env scripts/sheets-structure-verify.mjs",
     "lead-sources:audit": "node --env-file-if-exists=.env scripts/audit-admin-lead-sources.mjs",
     "deal-review:admin": "node --env-file-if-exists=.env scripts/review-admin-deals.mjs",

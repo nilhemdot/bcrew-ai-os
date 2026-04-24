@@ -223,6 +223,16 @@ Acceptance:
 - existing extraction/synthesis can be moved behind the router incrementally
 - API fallback works when subscription paths fail, exhaust, or are not allowed
 
+Current partial proof:
+
+- `llm_credentials`, `llm_routes`, `llm_route_probes`, and `llm_calls` are live in Foundation DB.
+- `lib/llm-router.js` seeds policy-aware credential/route config and can record dry-run route selection without calling a provider.
+- `llm-auth-audit` is registered as a manual Foundation job and runs through `npm run foundation:job -- --job=llm-auth-audit`.
+- Latest audit probes, in order: direct OpenAI API, direct Anthropic API, local Claude Code subscription, Claude OAuth token, OpenClaw/ChatGPT gateway, and Gemini API.
+- Latest probe result: OpenAI API available, Gemini API available through `GOOGLE_API_KEY`, Claude Code Max login available, OpenClaw gateway running, Anthropic API missing, Claude OAuth token missing.
+- No raw secrets are stored in Postgres. DB records only labels, auth-path classes, status, policy classification, env/keychain references, probe outcomes, and call telemetry.
+- Remaining Phase 2 gap: do a route acceptance review and migrate only one low-risk LLM script behind the router. Do not migrate extraction/synthesis broadly yet.
+
 ### Phase 3 — Extraction Control MVP
 
 Goal: stop running giant manual backfills and create an always-current extraction team.

@@ -36,7 +36,7 @@ Open:
 - dashboard buttons for pause/resume beyond the DB/API control path
 - source cursors and leases
 - current-day extraction lane
-- policy-aware LLM router
+- policy-aware LLM router workload migration beyond the new audit shell
 - hub-dedicated model capacity
 - extraction control plane
 - synthesis hardening against resolved/stale/duplicated items
@@ -53,7 +53,7 @@ Open:
 | System strategy | Done now | Doctrine and boundaries are visible. | None now. | Update only when doctrine changes. |
 | Rebuild visibility | Open hardening | v6 rebuild plan is live, prior plan is preserved in plan history, and handoff/audit indexes now separate evidence from active doctrine. | Finish doc cleanup Phase 1/2: classify indexes and promote any durable truth into active docs/backlog. | Optional dated archive folders after indexes are trusted. |
 | Runtime activation | Open hardening | First Foundation job registry and DB-backed job run ledger exist. Jobs can be run through the Foundation runner. Runtime metadata now marks scheduled vs manual jobs, computes due/next-run state, exposes scheduled/due/manual counts, and `npm run foundation:worker` can run due jobs one at a time. The first worker proof ran both read-only deal-review jobs and cleared due state. `ai.bcrew.foundation-worker` and `ai.bcrew.dashboard` are loaded as LaunchAgents, so the worker and web process survive terminal exit. Active-run locking now prevents duplicate queued/running runs for the same job, job timeout cleanup kills the process group with `SIGTERM` then `SIGKILL`, and DB-backed pause/resume works through `/api/foundation/jobs/:jobKey/control`. | Add dashboard pause/resume buttons, then activate only the first 3-5 jobs. | Expand to all routines after the first jobs stay stable. |
-| LLM routing | Open now | Doctrine is defined: policy-aware router, credential registry, hub-dedicated capacity, no blind quota farming, API fallback required. | Build auth audit, credential registry, router shell, route probes, and `llm_calls` ledger. | Migrate extraction/synthesis behind router after probes pass. |
+| LLM routing | Open hardening | Phase 2 MVP substrate exists: `llm_credentials`, `llm_routes`, `llm_route_probes`, and `llm_calls`; `lib/llm-router.js` seeds route config and records dry-run route selection; `llm-auth-audit` is registered as a manual Foundation job; Foundation API/UI can expose route status. Probe results show OpenAI API and Gemini API configured, Claude Code Max logged in locally, OpenClaw gateway running, Anthropic API missing, and Claude OAuth token missing. | Add route-level failure-mode/fallback review, dashboard polish, and then migrate one low-risk LLM script behind the router. | Hub-dedicated capacity and broader extraction/synthesis migration after probes are accepted. |
 | Extraction control | Open now | Archives and manual/bounded extraction have proven value. | Build current-day lane, backfill lane, source cursors, leases, budgets, retries, and pause switches. | Drive/Skool/YouTube/source workers run one bounded bite at a time. |
 | Strategy packet | Open now | `SRC-STRATEGY-001` is signed off. Freedom Community, BHAG, and Agent Engine current reality are captured. Decision provenance, traceability, change ledger, contradiction queue, and strategy-change watch have first slices. | Finish strategy-used Owners slice and close `SOURCE-014`. | Strategy Hub after runtime/router/extraction/synthesis are stable. |
 | Verification baseline | Done now | `npm run foundation:verify` exists and has been passing. | Keep green after runtime/doc changes. | Add checks only when new source surfaces close. |
@@ -68,7 +68,7 @@ Open:
 ## Active Execution Order
 
 1. Finish Runtime MVP hardening.
-2. Policy-aware LLM router MVP.
+2. Finish the LLM router MVP acceptance review.
 3. Extraction control MVP.
 4. Retrieval/entity/synthesis hardening.
 5. Source trust closures.

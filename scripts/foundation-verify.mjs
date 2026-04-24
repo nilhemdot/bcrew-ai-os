@@ -185,6 +185,17 @@ async function main() {
   )
   ensure(
     checks,
+    foundationHub.llmRuntime?.summary &&
+      Number(foundationHub.llmRuntime.summary.credentialCount || 0) > 0 &&
+      Number(foundationHub.llmRuntime.summary.routeCount || 0) > 0 &&
+      Array.isArray(foundationHub.llmRuntime.routes),
+    'api/foundation-hub exposes policy-aware LLM runtime status',
+    foundationHub.llmRuntime?.summary
+      ? `${foundationHub.llmRuntime.summary.credentialCount} credentials / ${foundationHub.llmRuntime.summary.routeCount} routes`
+      : 'missing LLM runtime payload',
+  )
+  ensure(
+    checks,
     ownersLeadSourceGovernance?.sourceId === 'SRC-OWNERS-001' &&
       ownersLeadSourceGovernance?.drift &&
       ownersLeadSourceGovernance?.freshness &&

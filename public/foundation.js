@@ -4963,6 +4963,36 @@ function renderFoundationJobsPanel(foundationJobs) {
   )
 }
 
+function renderLlmRuntimePanel(llmRuntime) {
+  if (!llmRuntime) return null
+  var routes = Array.isArray(llmRuntime.routes) ? llmRuntime.routes : []
+  var credentials = Array.isArray(llmRuntime.credentials) ? llmRuntime.credentials : []
+  if (!routes.length && !credentials.length) return null
+
+  var summary = 'Policy-aware model access. '
+    + ((llmRuntime.summary && llmRuntime.summary.availableCredentials) || 0) + '/'
+    + ((llmRuntime.summary && llmRuntime.summary.credentialCount) || credentials.length) + ' credentials available, '
+    + ((llmRuntime.summary && llmRuntime.summary.availableRoutes) || 0) + '/'
+    + ((llmRuntime.summary && llmRuntime.summary.routeCount) || routes.length) + ' routes available.'
+
+  var routeItems = routes.slice(0, 8).map(function(route) {
+    var policy = route.policyClassification ? ' Policy: ' + route.policyClassification + '.' : ''
+    var auth = route.provider + ' / ' + route.authPath + ' / ' + route.model
+    var fallback = route.fallbackRouteKey ? ' Fallback: ' + route.fallbackRouteKey + '.' : ''
+    return {
+      label: route.routeKey,
+      status: route.status === 'available' ? 'live' : route.status === 'blocked' ? 'risk' : 'planned',
+      detail: auth + '.' + policy + fallback + ' ' + (route.notes || ''),
+    }
+  })
+
+  return renderStatusGroupPanel(
+    'LLM Runtime',
+    summary,
+    routeItems
+  )
+}
+
 function renderFoundationSequenceCard(step, index) {
   var article = document.createElement('article')
   article.className = 'foundation-sequence-card'
@@ -9509,6 +9539,9 @@ function renderDataHealth() {
 
     var jobsPanel = renderFoundationJobsPanel(hub.foundationJobs)
     if (jobsPanel) container.appendChild(jobsPanel)
+
+    var llmPanel = renderLlmRuntimePanel(hub.llmRuntime)
+    if (llmPanel) container.appendChild(llmPanel)
 
     getSystemHealthGroups(hub.memoryStatus || []).forEach(function(group) {
       var panel = renderStatusGroupPanel(

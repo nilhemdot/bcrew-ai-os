@@ -1,6 +1,6 @@
 # Current Runtime Map
 
-Last updated: 2026-04-17
+Last updated: 2026-04-24
 Status: Plain-English architecture map
 
 This doc exists for one reason:
@@ -117,10 +117,11 @@ The model layer answers which brain is used for a given job.
 
 Current direction:
 
-- **GPT-5.4** for primary high-trust reasoning
-- **Gemini Flash** for cheap classification and support work
-- **Claude API** when Claude is the best fit
-- **Codex / Claude Code** for terminal-native coding and investigation
+- model access goes through the policy-aware LLM router
+- official API routes stay available as fallback
+- subscription/native routes can be used only after probes classify them for the workload
+- hub-dedicated capacity is preferred over blind account rotation
+- Codex / Claude Code remain terminal-native coding and investigation tools
 
 These are not separate foundations.
 
