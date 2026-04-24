@@ -4,7 +4,7 @@ import process from 'node:process';
 import { getMissiveThread, listMissiveInbox } from '../lib/missive.js';
 import {
   closeFoundationDb,
-  getSharedCommunicationExistingExternalIds,
+  getSharedCommunicationExistingArtifactsByExternalId,
   getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
   upsertSharedCommunicationArtifact,
@@ -66,6 +66,11 @@ function formatMissiveThread(thread) {
     })
     .join('\n\n---\n\n')
     .trim();
+}
+
+function timestampMs(value) {
+  const time = value ? new Date(value).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
 }
 
 async function main() {
@@ -138,13 +143,17 @@ async function main() {
 
   let conversationsToArchive = conversations;
   if (skipExisting) {
-    const existingExternalIds = await getSharedCommunicationExistingExternalIds({
+    const existingArtifacts = await getSharedCommunicationExistingArtifactsByExternalId({
       sourceId: 'SRC-MISSIVE-001',
       artifactType: 'missive_thread',
       externalIds: conversations.map(conversation => conversation.id),
     });
-    conversationsToArchive = conversations.filter(conversation => !existingExternalIds.has(conversation.id));
-    console.log(`  Already archived in selected window: ${conversations.length - conversationsToArchive.length}`);
+    conversationsToArchive = conversations.filter(conversation => {
+      const existing = existingArtifacts.get(conversation.id);
+      if (!existing) return true;
+      return timestampMs(conversation.lastActivityAt) > timestampMs(existing.artifactUpdatedAt);
+    });
+    console.log(`  Already archived/current in selected window: ${conversations.length - conversationsToArchive.length}`);
   }
   console.log(`  Conversations to archive: ${conversationsToArchive.length}`);
 

@@ -295,7 +295,7 @@ Current partial proof:
 - `missive-sync-current` now calls `npm run extraction:target -- --target=missive-current-day` through the Foundation job runner.
 - First manual proof: Gmail scanned `970` messages, selected `263` threads, and archived `148` net-new artifacts through the target ledger.
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
-- Missive exact-ID idempotency check is live; immediate rerun selected `100` conversations, found `100` already archived, and archived `0` net-new artifacts.
+- Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
 - `missive-sync-current` is scheduled every `120` minutes as the first current-day sync lane.
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
