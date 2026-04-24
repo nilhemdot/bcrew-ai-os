@@ -41,11 +41,34 @@ Foundation is not OpenClaw.
 
 Foundation is not Claude Code.
 
+Foundation now also has a narrow **system runtime**:
+
+- `npm run foundation:job`
+- `npm run foundation:worker`
+- LaunchAgent supervision for the dashboard and worker
+- DB-backed job runs, pause controls, and extraction target leases
+
+This runs source syncs, health checks, audits, and other governed system routines.
+It is separate from the later live-agent/channel runtime.
+
 ### 2. Runtime
 
-The runtime is what runs live agents and channels.
+Runtime has two meanings in this rebuild, and they must stay separate.
 
-For this system, the planned runtime is:
+**Foundation system runtime** runs governed routines:
+
+- verifier
+- coverage
+- deal review
+- LLM auth audit
+- extraction control
+- current-day source sync
+
+This is already live through the Foundation worker and LaunchAgent.
+
+**Live-agent/channel runtime** runs user-facing assistants and channels.
+
+For the later live-agent/channel layer, the planned runtime is:
 
 - **OpenClaw**
 

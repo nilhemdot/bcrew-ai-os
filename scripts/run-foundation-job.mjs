@@ -114,7 +114,10 @@ async function runCommand(job, runId, actor) {
     let killEscalationTimeout = null;
     const child = spawn(job.command, job.args, {
       cwd: process.cwd(),
-      env: process.env,
+      env: {
+        ...process.env,
+        FOUNDATION_JOB_ACTOR: actor,
+      },
       detached: true,
       stdio: ['ignore', 'pipe', 'pipe'],
     });

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-24
-Version: v6.0 — runtime, router, extraction control, and doc cleanup
+Version: v6.1 — runtime, router, extraction control, and controlled current-day sync
 Status: Active
 
 Use this doc for one question:
@@ -58,16 +58,18 @@ Built and useful now:
 - Persisted synthesis runs/items in Postgres.
 - First Foundation job registry and DB-backed job run ledger.
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, read-only deal-review jobs proven through the worker, and LaunchAgent supervision live.
+- Policy-aware LLM router MVP: credential/route/probe/call tables, router shell, auth-path audit job, and route status visibility.
+- Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, and manual target runner proof for Gmail + Missive current-day sync.
 - Row-scoped Owners / deal-review runners.
 - Marketing source evidence from the old system and current connector checks.
 - Doc cleanup plan and generated doc indexes.
 
 Still not done:
 
-- richer worker controls beyond the first LaunchAgent-supervised loop
-- durable source cursors and backfill leases
-- current-day extraction lane that stays fresh without Steve watching it
-- policy-aware LLM router and credential registry
+- dashboard pause/resume buttons beyond the backend job-control API
+- durable source cursors and backfill leases beyond the first current-day target proof
+- scheduled current-day extraction lane that stays fresh without Steve watching it
+- route acceptance review and first low-risk LLM script migration behind the router
 - hub-dedicated model capacity allocation
 - source-budget and failure visibility
 - full subject-person privacy/query layer
@@ -164,7 +166,8 @@ Current partial proof:
 - Active-run locking is enforced with a unique active-run index per job, so a second worker/manual trigger cannot start the same job while it is already queued/running.
 - Job timeout cleanup now kills the process group with `SIGTERM` and escalates to `SIGKILL`.
 - Operator-controlled job pause/resume is DB-backed and exposed through `/api/foundation/jobs/:jobKey/control`.
-- Remaining Phase 1 gap: dashboard buttons for pause/resume and broader first-job activation.
+- Gmail and Missive current-day sync jobs are registered as manual Foundation jobs and now run through the extraction target ledger.
+- Remaining Phase 1 gap: dashboard buttons for pause/resume and careful promotion of the first current-day sync lane from manual to scheduled.
 
 ### Phase 2 — Policy-Aware LLM Router MVP
 
@@ -285,9 +288,14 @@ Current partial proof:
 - Seed/control runs are serialized with advisory locks and retry deadlocks so overlapping restarts/manual runs do not corrupt the target ledger.
 - Seeded targets cover Gmail, Missive, meetings, Slack, Drive, Skool, old-system report mining, and historical Zoom recovery.
 - Current-day targets are separate from bounded backfill/corpus/recovery targets.
+- `scripts/run-extraction-target.mjs` wraps supported targets with a lease, process-group timeout, source before/after stats, output tail, and target run-state update.
+- `gmail-sync-current` now calls `npm run extraction:target -- --target=gmail-current-day` through the Foundation job runner.
+- `missive-sync-current` now calls `npm run extraction:target -- --target=missive-current-day` through the Foundation job runner.
+- First manual proof: Gmail scanned `970` messages, selected `263` threads, and archived `148` net-new artifacts through the target ledger.
+- First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
-- Remaining Phase 3 gap: connect the first current-day target to source cursors/leases and then schedule it only after it proves idempotent.
+- Remaining Phase 3 gap: add one more idempotency proof/retry pass, then schedule the first current-day lane; build item-level cursors before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
