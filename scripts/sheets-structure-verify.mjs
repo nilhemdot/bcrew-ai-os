@@ -152,6 +152,7 @@ const WORKBOOKS = [
       { title: 'Annual Budget (Roll Up)', sheetId: 1149056195, hidden: false },
       { title: 'Unspent -L3M + Actual Helper', sheetId: 2101201006, hidden: false },
       { title: 'Goal & KPI Calculator', sheetId: 1373809826, hidden: false },
+      { title: 'Lists', sheetId: 1609537489, hidden: false },
     ],
     rangeChecks: [
       {
@@ -332,6 +333,30 @@ const WORKBOOKS = [
           O1: ['IMPORTRANGE', 'KPI Calculator!A1:DA'],
         },
       },
+      {
+        title: 'Lists',
+        range: "'Lists'!A1:AB5",
+        cells: {
+          J1: 'Lead Sources',
+          J2: 'Total List',
+          J3: '<unspecified>',
+          J4: 'No Extra Lead Source',
+          AA1: 'User',
+          AB1: 'Email',
+        },
+        formulaContains: {
+          A1: ['IMPORTRANGE', '1A0FeVXwwpgSmkqEfZlKRC9tU6YlEqQSTSfmWdVCdrRE', 'Lists!A1:ai'],
+        },
+      },
+      {
+        title: 'ADMIN ONLY - Deal Data Entry',
+        range: "'ADMIN ONLY - Deal Data Entry'!A1:CB3",
+        validationContains: {
+          N3: ['=Lists!$J$3:$J'],
+          P3: ['=Lists!$J$3:$J'],
+          S3: ['=Lists!$AA$2:$AA'],
+        },
+      },
     ],
   },
   {
@@ -374,6 +399,18 @@ const WORKBOOKS = [
           F76: { sourceSheetId: 533201019, rowOffset: 58, columnOffset: 60, valueOffset: 40 },
           AP76: { sourceSheetId: 533201019, rowOffset: 65, columnOffset: 67, valueOffset: 40 },
           BZ76: { sourceSheetId: 533201019, rowOffset: 61, columnOffset: 63, valueOffset: 40 },
+        },
+      },
+      {
+        title: 'Lists',
+        range: "'Lists'!A1:AB5",
+        cells: {
+          J1: 'Lead Sources',
+          J2: 'Total List',
+          J3: '<unspecified>',
+          J4: 'No Extra Lead Source',
+          AA1: 'User',
+          AB1: 'Email',
         },
       },
     ],
@@ -421,7 +458,7 @@ async function fetchWorkbookRanges(spreadsheetId, ranges) {
     USER,
     spreadsheetId,
     ranges,
-    'sheets(properties(title),data(startRow,startColumn,rowData(values(formattedValue,userEnteredValue,pivotTable))))',
+    'sheets(properties(title),data(startRow,startColumn,rowData(values(formattedValue,userEnteredValue,dataValidation,pivotTable))))',
   )
 }
 
@@ -483,6 +520,20 @@ export async function runSheetsStructureVerification() {
           ok,
           label: `${workbook.label}: ${rangeCheck.title} ${a1} formula`,
           detail: formula || 'missing formula',
+        })
+      }
+
+      for (const [a1, requiredParts] of Object.entries(rangeCheck.validationContains ?? {})) {
+        const cell = getCellValue(liveSheet, a1)
+        const validation =
+          cell?.dataValidation?.condition?.values
+            ?.map(value => value?.userEnteredValue || '')
+            .join(' | ') || ''
+        const ok = requiredParts.every(part => validation.includes(part))
+        checks.push({
+          ok,
+          label: `${workbook.label}: ${rangeCheck.title} ${a1} validation`,
+          detail: validation || 'missing validation',
         })
       }
 

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-24
-Version: v6.1 — runtime, router, extraction control, and controlled current-day sync
+Version: v6.2 — runtime/router plus source-aware sheet-write guardrails
 Status: Active
 
 Use this doc for one question:
@@ -41,6 +41,7 @@ Reason for v6:
 - Real agents are later and narrow: Harlan, Crewbert, then a few specialist agents only after governed loops are stable.
 - Active truth lives in the current docs and source-backed UI/API surfaces.
 - Handoffs and audits are evidence unless promoted into active docs or backlog.
+- Imported spreadsheet mirrors are not write surfaces. Any governed write must target the source workbook/range or a deliberately non-imported destination.
 
 ## Current Reality
 
@@ -61,6 +62,7 @@ Built and useful now:
 - Policy-aware LLM router MVP: credential/route/probe/call tables, router shell, auth-path audit job, and route status visibility.
 - Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, and manual target runner proof for Gmail + Missive current-day sync.
 - Row-scoped Owners / deal-review runners.
+- Owners Dashboard imported `Lists` repair: governed FUB lead sources now live in upstream `SRC-OWNERS-LISTS-001`, Admin `N` and `P` reuse the same source list, Admin `S` uses imported active agents, and Google delegated writes are blocked from the imported mirror range.
 - Marketing source evidence from the old system and current connector checks.
 - Doc cleanup plan and generated doc indexes.
 
@@ -109,6 +111,7 @@ Do now:
 - keep shared-comms coverage working
 - keep synthesis persisted
 - keep Owners/deal-review queued runners usable
+- keep source-backed spreadsheet mirrors guarded and covered by `npm run sheets:verify`
 - keep docs indexed and active truth clear
 
 Do not do now:

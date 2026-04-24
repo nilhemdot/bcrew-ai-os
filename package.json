@@ -13,6 +13,7 @@
     "extraction:control-seed": "node --env-file-if-exists=.env scripts/seed-extraction-control.mjs",
     "extraction:target": "node --env-file-if-exists=.env scripts/run-extraction-target.mjs",
     "sheets:verify": "node --env-file-if-exists=.env scripts/sheets-structure-verify.mjs",
+    "owners:repair-lists": "node --env-file-if-exists=.env scripts/repair-owners-dashboard-lists.mjs",
     "lead-sources:audit": "node --env-file-if-exists=.env scripts/audit-admin-lead-sources.mjs",
     "deal-review:admin": "node --env-file-if-exists=.env scripts/review-admin-deals.mjs",
     "deal-review:conditional": "node --env-file-if-exists=.env scripts/review-conditional-deals.mjs",

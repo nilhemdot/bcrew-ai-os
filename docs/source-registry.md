@@ -43,6 +43,9 @@ Connectors matter too, but connector access does **not** mean trusted business m
   - current spreadsheet reality is now deeply captured for meaning
   - these are no longer just readable
   - they are also not yet clean rebuilt source-of-truth layers
+- `SRC-OWNERS-LISTS-001`
+  - upstream `Lists` source for Owners Dashboard dropdown/list dependencies
+  - Owners Dashboard `Lists` is an imported mirror, not a write surface
 
 ### Readable Only
 
@@ -68,6 +71,10 @@ Connectors matter too, but connector access does **not** mean trusted business m
 - `SRC-OWNERS-001` vs `SRC-FUB-001`
   - Owners is the trusted deal ledger
   - FUB is the CRM layer used for attribution and parity checks
+- `SRC-OWNERS-001` vs `SRC-OWNERS-LISTS-001`
+  - Owners Admin is the deal ledger
+  - Owners Lists source owns governed dropdown/list data that flows into Admin through the Owners Dashboard mirror
+  - service-account writes must target `SRC-OWNERS-LISTS-001`, not the imported mirror
 - `SRC-SUPABASE-001`
   - KPI is a live foundation system
   - AI OS must read its pipeline, shopping-list, executed-deal, goal, competition, and usage layers separately
@@ -89,6 +96,7 @@ Connectors matter too, but connector access does **not** mean trusted business m
 | `SRC-FREEDOM-ENGINE-001` | Benson Crew - Freedom Sheet | `Agent Engine` tab | Current assumptions block | Agent Engine live planning inputs | Google Drive / Google Sheets | Partially Signed Off | 2026-04-18 |
 | `SRC-FREEDOM-BHAG-001` | Benson Crew - Freedom Sheet | `Benson Crew Bhag Builder` tab | Planning blocks plus calculator ranges | BHAG live planning inputs | Google Drive / Google Sheets | Partially Signed Off | 2026-04-18 |
 | `SRC-OWNERS-001` | Benson Crew - Owners Dashboard | `ADMIN ONLY - Deal Data Entry` | Primary deal-ledger validation unit | Deal lifecycle, attribution, split credit, FUB linkage | Google Drive / Google Sheets | Signed Off | 2026-04-16 |
+| `SRC-OWNERS-LISTS-001` | BHAG Builder / Old BIS KPI Lists Source | `Lists` tab | `Lists!A:AI`, especially lead sources and agent roster | Governed Owners/FUB lead-source dropdown list, active-agent roster, cap fields, and imported list dependencies | Google Drive / Google Sheets | Partially Signed Off | 2026-04-24 |
 | `SRC-FUB-001` | Follow Up Boss | owner + Steve API contexts | CRM access in rebuild | CRM contacts, user roster, lead-source context, person linkage | Follow Up Boss API | Verified Readable | 2026-04-16 |
 | `SRC-SUPABASE-001` | KPI Dashboard / Supabase | `kpi.bensoncrew.ca` + Supabase project | Existing KPI foundation system | KPI pipeline, shopping-list, executed-deal, goal, competition, and usage surfaces | Supabase + React app | Verified Readable | 2026-04-20 |
 | `SRC-GMAIL-001` | Gmail | Delegated Google Workspace (`ai@bensoncrew.ca`) | Mailbox read layer | Decision capture inputs and communication context | Delegated Google Workspace | Verified Readable | 2026-04-23 |

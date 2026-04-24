@@ -3365,42 +3365,32 @@ Future control target:
 - use that approved list to drive dropdown choices in the sheet
 - route mismatches and unknown values into an issue queue instead of letting them sit as loose cleanup debt
 
-Current live dropdown issue:
-- column `N` currently points to `Lists!J3:J50`
-- that list is stale
-- it is missing real current sources like:
-  - `Branded Website`
-  - `Company Website – Home Value Hub`
-  - `BCrew Google Ads`
-  - `BensonCrew.ca Lead Capture`
-- it still includes weak / outdated values like:
-  - `unspecified`
-  - `No Extra Lead Source`
-  - `Prepareformarket.ca`
-  - `Real Brokerage Google Page`
+Current live dropdown rule:
+- the Owners Dashboard `Lists` tab is an `IMPORTRANGE` mirror, not the owned write surface
+- the upstream source is `SRC-OWNERS-LISTS-001` / workbook `1A0FeVXwwpgSmkqEfZlKRC9tU6YlEqQSTSfmWdVCdrRE` / tab `Lists`
+- governed lead-source writes belong in upstream source `Lists!J3:J`
+- Admin column `N` `Lead Source` validates against `=Lists!$J$3:$J`
+- Admin column `P` `Ground Zero` also validates against `=Lists!$J$3:$J`
+- `No Extra Lead Source` is part of the same governed lead-source list so Ground Zero does not need a duplicate helper list
+- Admin column `S` `Realtor` validates against `=Lists!$AA$2:$AA`, which flows from the upstream active-agent roster
+- do not write helper lists into Owners Dashboard `Lists!AA:AB`; those columns are imported `User` and `Email`
 
-Current rule:
-- do **not** blindly replace the dropdown with all raw live FUB sources
-- the dropdown should become a governed final deal-source list:
-  - real final usable lead sources only
-  - no transitional / non-canonical values
-  - no helper values that belong in other columns
-- live implementation is now in place:
-  - `Lists!J3:J63`
-  - `61` approved values
-  - includes `<unspecified>` as the quarantine value
-  - excludes `Sphere`
-  - Admin column `N` validation is now strict against that governed list
-- live drift watch is now in place too:
-  - Foundation UI reads the live dropdown list directly
-  - compares it against the governed taxonomy derived from approved FUB rules plus `<unspecified>`
-  - surfaces unexpected values, missing approved values, and duplicate dropdown values
-  - records drift-detected / drift-cleared events in the shared change feed
-- related dropdown repairs now also exist:
-  - column `P` `Ground Zero` now validates against `Lists!AB2:AB`
-  - that governed list includes `No Extra Lead Source` plus the approved source options
-  - column `S` `Realtor` now validates against `Lists!AA2:AA`
-  - that realtor list was rebuilt from the current distinct realtor names already present in the Admin ledger
+Current implementation:
+- source `Lists!J3:J` now holds the governed FUB-approved lead-source list
+- `Lists!J3` is `<unspecified>` as the quarantine value
+- `Lists!J4` is `No Extra Lead Source`
+- Owners Dashboard `Lists!A1` keeps the `IMPORTRANGE` formula to the upstream source
+- the Google delegated write helper blocks writes into Owners Dashboard `Lists!A:AI` unless a narrow repair override is passed
+- `npm run owners:repair-lists -- --apply` repairs the upstream source list, Admin validations, and local mirror blockers if drift recurs
+
+April 2026 failure mode:
+- an inline service-account write put governed dropdown helper lists into the Owners Dashboard mirror:
+  - `Lists!J3:J100`
+  - `Lists!AA1:AA500`
+  - `Lists!AB1:AB500`
+- those writes overlapped the `IMPORTRANGE` spill range and blocked the imported roster/cap/list data
+- downstream formulas in Admin `AU`, `AW`, and `AZ` were not the root problem; their lookup source was blocked
+- the permanent fix is source-aware writes plus verifier coverage on the imported mirror
 
 Current recent cleanup read:
 - `45` rows in the rolling last `12` months currently fall outside the governed list

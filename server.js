@@ -129,6 +129,7 @@ const OWNERS_ADMIN_REVIEW_RANGE = "'ADMIN ONLY - Deal Data Entry'!A1:CE2000"
 const OWNERS_CONDITIONAL_REVIEW_RANGE = "'Listings and Conditional Deals'!A1:U500"
 const GOVERNED_OWNERS_LEAD_SOURCE_VALUES = [
   '<unspecified>',
+  'No Extra Lead Source',
   'AG - Ontario Farmer',
   'Agent Attraction',
   'Agent Flyer - Home Value Hub',
