@@ -439,6 +439,7 @@ Build:
 - Drive worker: one folder at a time
 - Skool worker: trainings, videos, links, docs, comments where accessible
 - web/video crawler boundary for YouTube, Loom, Vimeo, Wistia, public web, and paid/community sources
+- video-link inventory lane: system discovers Loom/Drive/YouTube/Vimeo/Wistia/Zoom/Skool links from archives and authorized crawlers so Steve is not manually collecting URLs
 - old-system report miner
 - value classifier for content/course/training/recruiting/strategy material
 - hub handoff queues for mined assets
@@ -451,6 +452,7 @@ Rules:
 - backfill takes one bite per day/source
 - Google Drive starts with read-only direct-child inventory of the eight captured shared-drive roots
 - Skool starts with access-path audit only; no blind browser scraping
+- Loom starts with URL inventory and small authorized extractor proof; Loom's SDK is not a bulk extraction API
 - organizer/move actions stay dry-run until approved
 - old system is mined for output patterns and useful doctrine, not copied as runtime architecture
 - mining output must say which hub can use the asset, or why it should be ignored

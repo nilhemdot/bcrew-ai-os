@@ -115,6 +115,7 @@ Connectors matter too, but connector access does **not** mean trusted business m
 |-----------|--------|--------------|-------|----------------|
 | `SRC-CLICKUP-001` | ClickUp | Task management, onboarding checklists, agent roster supplements | Carson | Pending Revalidation |
 | `SRC-GDRIVE-001` | Google Drive | Docs, notes, brand guidelines, meeting artifacts, shared-drive corpora, training assets, videos, presentations, and links | All | Pending Revalidation under the delegated Google Workspace path. Shared-drive roots are captured in `docs/source-notes/google-drive-corpus.md`; first crawler must be read-only inventory. |
+| `SRC-VIDEO-001` | Video Link Inventory | Loom, Drive, YouTube, Vimeo, Wistia, Zoom, and Skool media links discovered across existing archives and future authorized crawlers | Steve | Pending Revalidation. This is the system-owned URL manifest lane; it inventories links and provenance before any platform-specific transcript/download extractor runs. |
 | `SRC-GADS-001` | Google Ads | MCC + sub-account performance | Steve | Pending Revalidation because the configured OAuth refresh currently returns `invalid_grant` in the rebuild. |
 
 ## Gaps
@@ -127,6 +128,7 @@ Connectors matter too, but connector access does **not** mean trusted business m
 | `SRC-REVIEWS-001` | Client reviews | Google reviews, client surveys, qualitative feedback | Carson | No connection exists |
 | `SRC-TRAINING-001` | Training completion tracker | Training completion, certification, progress | Tanner | Unknown live source |
 | `SRC-CONTENT-001` | Content performance source | Published content metrics | Tanner | No publishing platform connected |
+| `SRC-LOOM-001` | Loom | Historical Loom videos, transcripts, metadata, and reusable training/content IP | Steve | Atlassian admin access exists, but Loom has no first-party open extraction API. Needs an approved extractor proof such as Apify, manual export, or authorized session workflow before trusted ingestion. |
 | `SRC-SKOOL-001` | Skool | Courses, trainings, posts, comments, links, docs, and video lessons | Steve | Not connected in rebuild. Needs approved access/export path and content-use boundary before it can become a trusted corpus source; blind scraping is blocked by policy risk. |
 
 ## Corpus Crawl Boundary

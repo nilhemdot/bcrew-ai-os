@@ -15,7 +15,7 @@ Status meanings:
 Summary:
 
 - active-reference: 6
-- evidence: 66
+- evidence: 67
 - needs-promotion: 1
 - needs-reconciliation: 1
 
@@ -94,4 +94,5 @@ Summary:
 | [2026-04-24-extraction-processing-provenance-hardening.md](2026-04-24-extraction-processing-provenance-hardening.md) | 2026-04-24 | general | evidence | 288 | Extraction Processing Provenance Hardening |
 | [2026-04-24-runtime-router-current-day-sync-checkpoint.md](2026-04-24-runtime-router-current-day-sync-checkpoint.md) | 2026-04-24 | foundation | evidence | 765 | Runtime, Router, And Current-Day Sync Checkpoint |
 | [2026-04-24-subscription-router-and-intelligence-checkpoint.md](2026-04-24-subscription-router-and-intelligence-checkpoint.md) | 2026-04-24 | general | evidence | 869 | Subscription Router And Intelligence Checkpoint |
+| [2026-04-24-video-link-inventory-checkpoint.md](2026-04-24-video-link-inventory-checkpoint.md) | 2026-04-24 | general | evidence | 430 | 2026-04-24 Video Link Inventory Checkpoint |
 | [README.md](README.md) | - | general | evidence | 131 | Handoffs |

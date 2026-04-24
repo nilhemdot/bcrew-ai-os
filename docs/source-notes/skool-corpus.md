@@ -26,12 +26,13 @@ Sources checked on 2026-04-24:
 
 Do not crawl Skool blindly.
 
-The first Skool slice is an access-path audit:
+The first Skool slice is an access-path audit plus system-owned link inventory:
 
 - list which Skool communities/accounts Steve owns or pays for
 - identify whether each community offers export, admin download, Zapier data, or direct links to source videos/docs
 - record content owner, permitted use, and whether the material is Steve-owned, customer-owned, purchased training, or third-party creator IP
 - classify the route as `allowed`, `manual_export_only`, `link_inventory_only`, `blocked`, or `needs_permission`
+- inventory Skool and embedded video links discovered from existing archives through `SRC-VIDEO-001` without logging into Skool or extracting content
 
 ## Future Crawl Shape
 
