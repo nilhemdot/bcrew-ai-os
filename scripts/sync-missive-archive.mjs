@@ -4,6 +4,7 @@ import process from 'node:process';
 import { getMissiveThread, listMissiveInbox } from '../lib/missive.js';
 import {
   closeFoundationDb,
+  getSharedCommunicationExistingExternalIds,
   getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
   upsertSharedCommunicationArtifact,
@@ -137,12 +138,11 @@ async function main() {
 
   let conversationsToArchive = conversations;
   if (skipExisting) {
-    const existingSnapshot = await getSharedCommunicationArchiveSnapshot({
+    const existingExternalIds = await getSharedCommunicationExistingExternalIds({
       sourceId: 'SRC-MISSIVE-001',
       artifactType: 'missive_thread',
-      limit: 1000,
+      externalIds: conversations.map(conversation => conversation.id),
     });
-    const existingExternalIds = new Set(existingSnapshot.items.map(item => item.externalId).filter(Boolean));
     conversationsToArchive = conversations.filter(conversation => !existingExternalIds.has(conversation.id));
     console.log(`  Already archived in selected window: ${conversations.length - conversationsToArchive.length}`);
   }

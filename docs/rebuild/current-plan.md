@@ -166,8 +166,10 @@ Current partial proof:
 - Active-run locking is enforced with a unique active-run index per job, so a second worker/manual trigger cannot start the same job while it is already queued/running.
 - Job timeout cleanup now kills the process group with `SIGTERM` and escalates to `SIGKILL`.
 - Operator-controlled job pause/resume is DB-backed and exposed through `/api/foundation/jobs/:jobKey/control`.
-- Gmail and Missive current-day sync jobs are registered as manual Foundation jobs and now run through the extraction target ledger.
-- Remaining Phase 1 gap: dashboard buttons for pause/resume and careful promotion of the first current-day sync lane from manual to scheduled.
+- Gmail and Missive current-day sync jobs now run through the extraction target ledger.
+- Missive current-day sync has been promoted to scheduled every 2 hours after exact-ID idempotency proof.
+- Gmail current-day sync remains manual until it gets the same idempotency/skip-existing hardening.
+- Remaining Phase 1 gap: dashboard buttons for pause/resume and careful monitoring of the first scheduled current-day lane.
 
 ### Phase 2 — Policy-Aware LLM Router MVP
 
@@ -293,9 +295,11 @@ Current partial proof:
 - `missive-sync-current` now calls `npm run extraction:target -- --target=missive-current-day` through the Foundation job runner.
 - First manual proof: Gmail scanned `970` messages, selected `263` threads, and archived `148` net-new artifacts through the target ledger.
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
+- Missive exact-ID idempotency check is live; immediate rerun selected `100` conversations, found `100` already archived, and archived `0` net-new artifacts.
+- `missive-sync-current` is scheduled every `120` minutes as the first current-day sync lane.
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
-- Remaining Phase 3 gap: add one more idempotency proof/retry pass, then schedule the first current-day lane; build item-level cursors before broad backfill.
+- Remaining Phase 3 gap: monitor first scheduled Missive runs, harden Gmail idempotency, and build item-level cursors before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
