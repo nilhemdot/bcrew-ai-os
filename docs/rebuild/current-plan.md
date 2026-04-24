@@ -66,6 +66,8 @@ Built and useful now:
 - Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, and scheduled current-day proof for Missive + Gmail.
 - Row-scoped Owners / deal-review runners.
 - Owners Dashboard imported `Lists` repair: governed FUB lead sources now live in upstream `SRC-OWNERS-LISTS-001`, Admin `N` and `P` reuse the same source list, Admin `S` uses imported active agents, and Google delegated writes are blocked from the imported mirror range.
+- Google Drive corpus root list captured in `docs/source-notes/google-drive-corpus.md`.
+- Skool corpus access and policy boundary captured in `docs/source-notes/skool-corpus.md`.
 - Marketing source evidence from the old system and current connector checks.
 - Doc cleanup plan and generated doc indexes.
 
@@ -74,6 +76,8 @@ Still not done:
 - durable source cursors and backfill leases beyond the current-day target proof
 - scheduled meeting-notes current-day lane that stays fresh without Steve watching it
 - failed-item retry policy for item-level meeting/Drive crawl records beyond visible partial-run reporting
+- partial-run alert semantics before scheduling high-variance meeting/Drive lanes
+- consolidated job/target schedule truth before target panels become operator truth
 - route acceptance review and first low-risk LLM script migration behind the router
 - hub-dedicated model capacity allocation
 - source-budget and failure visibility
@@ -290,6 +294,9 @@ Backlog/cards:
 - `EXTRACT-CONTROL-001`
 - `EXTRACT-CURRENT-001`
 - `EXTRACT-BACKFILL-001`
+- `EXTRACT-RETRY-001`
+- `EXTRACT-SCHEDULE-001`
+- `EXTRACT-METRICS-001`
 - `COMMS-BACKFILL-001`
 - `EXTRACTION-TEAM-001`
 - `HUB-INTEL-001`
@@ -321,7 +328,7 @@ Current partial proof:
 - Gmail item-level ledger proof selected `259` recent threads per run, produced `0` item failures across repeated bounded runs, and promoted `gmail-sync-current` to scheduled every `120` minutes. The first scheduled worker run succeeded, archived `4` threads, cleared its lease, and set target/job next run around `2026-04-24T20:09Z`.
 - Meeting notes current-day proof selected `50` meetings, archived `50` notes and `42` embedded transcripts, recorded `50` succeeded crawl items, left `0` failed crawl items, and added `2` net-new artifacts.
 - Meeting target runs now parse item-level crawl failures and mark the target `partial` when the process succeeds but individual crawl items fail; the Foundation extraction panel surfaces recent item failures and last-run errors.
-- Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, add failed-item retry execution for meetings/Drive, and build item-level cursors before broad backfill.
+- Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, add failed-item retry execution and partial-run alerting for meetings/Drive, consolidate job/target schedule truth, and build item-level cursors before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
@@ -410,6 +417,7 @@ Build:
 
 - Drive worker: one folder at a time
 - Skool worker: trainings, videos, links, docs, comments where accessible
+- web/video crawler boundary for YouTube, Loom, Vimeo, Wistia, public web, and paid/community sources
 - old-system report miner
 - value classifier for content/course/training/recruiting/strategy material
 - hub handoff queues for mined assets
@@ -420,17 +428,21 @@ Rules:
 
 - current-day lane remains more important than history
 - backfill takes one bite per day/source
+- Google Drive starts with read-only direct-child inventory of the eight captured shared-drive roots
+- Skool starts with access-path audit only; no blind browser scraping
 - organizer/move actions stay dry-run until approved
 - old system is mined for output patterns and useful doctrine, not copied as runtime architecture
 - mining output must say which hub can use the asset, or why it should be ignored
 
 Backlog/cards:
 
-- `DRIVE-WORKER-001`
-- `SKOOL-WORKER-001`
+- `DRIVE-CORPUS-001`
+- `SKOOL-001`
+- `EXTRACTION-TEAM-001`
 - `REPORT-MINING-001`
 - `PLATFORM-INTEL-001`
 - `HUB-INTEL-001`
+- `WEB-CRAWLER-001`
 
 Acceptance:
 

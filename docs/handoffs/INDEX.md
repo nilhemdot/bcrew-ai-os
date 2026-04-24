@@ -15,7 +15,7 @@ Status meanings:
 Summary:
 
 - active-reference: 6
-- evidence: 63
+- evidence: 64
 - needs-promotion: 1
 - needs-reconciliation: 1
 
@@ -90,5 +90,6 @@ Summary:
 | [2026-04-23-sunday-strategy-prep-working-brief.md](2026-04-23-sunday-strategy-prep-working-brief.md) | 2026-04-23 | strategy | needs-reconciliation | 1026 | Sunday Strategy Prep — Working Brief |
 | [2026-04-23-unchained-realtor-split-handoff.md](2026-04-23-unchained-realtor-split-handoff.md) | 2026-04-23 | unchained-realtor | needs-promotion | 1237 | Handoff — 2026-04-23 BCrew AI OS + Unchained Realtor Split |
 | [2026-04-23-zoom-text-recovery-lane.md](2026-04-23-zoom-text-recovery-lane.md) | 2026-04-23 | shared-comms | active-reference | 556 | 2026-04-23 Zoom Text Recovery Lane |
+| [2026-04-24-drive-skool-corpus-crawl-checkpoint.md](2026-04-24-drive-skool-corpus-crawl-checkpoint.md) | 2026-04-24 | general | evidence | 494 | Drive / Skool Corpus Crawl Checkpoint |
 | [2026-04-24-runtime-router-current-day-sync-checkpoint.md](2026-04-24-runtime-router-current-day-sync-checkpoint.md) | 2026-04-24 | foundation | evidence | 765 | Runtime, Router, And Current-Day Sync Checkpoint |
 | [README.md](README.md) | - | general | evidence | 131 | Handoffs |

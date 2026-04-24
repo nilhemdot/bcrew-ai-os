@@ -19,6 +19,17 @@ function parseArgs(argv) {
   return result
 }
 
+const driveCorpusRoots = [
+  { name: 'Zahnd TEAM OG Folder', folderId: '0AJ4EQ018BaWwUk9PVA', sensitivity: 'internal' },
+  { name: 'Zahnd Team 2023+', folderId: '0AE5bQZviXUrhUk9PVA', sensitivity: 'internal' },
+  { name: 'MarketMasters training folder', folderId: '0AJZun9Ce_rOnUk9PVA', sensitivity: 'steve_marketmasters' },
+  { name: 'Zahnd Team 2025', folderId: '0ADIecWc1lshCUk9PVA', sensitivity: 'internal' },
+  { name: 'Houseable', folderId: '0AHpyJsfILw2DUk9PVA', sensitivity: 'steve_owned_sensitive' },
+  { name: 'BCrew Marketing Folder', folderId: '0AA5XKa6_SqTuUk9PVA', sensitivity: 'marketing' },
+  { name: 'BensonCrew Owners Private', folderId: '0ACJxbgdxfgESUk9PVA', sensitivity: 'owners_private' },
+  { name: 'Benson Crew Zahnd Folder', folderId: '0AMaaJPwT3l80Uk9PVA', sensitivity: 'internal' },
+]
+
 const extractionTargets = [
   {
     targetKey: 'gmail-current-day',
@@ -89,10 +100,10 @@ const extractionTargets = [
     status: 'planned',
     priority: 'P1',
     runtimeMode: 'manual',
-    cursorState: { cursorType: 'folder_queue', inspectedFolders: 0 },
+    cursorState: { cursorType: 'folder_queue', inspectedFolders: 0, rootFolders: driveCorpusRoots },
     budget: { maxFoldersPerRun: 1, maxItemsPerRun: 100, maxRuntimeSeconds: 1200, llmBudget: 'limited_after_archive' },
     dedupePolicy: { key: 'drive_file_id:modified_time', idempotent: true },
-    metadata: { backlogIds: ['EXTRACT-BACKFILL-001'], promotionGate: 'folder target list and copyright/use boundaries' },
+    metadata: { backlogIds: ['DRIVE-CORPUS-001', 'EXTRACTION-TEAM-001'], sourceNote: 'docs/source-notes/google-drive-corpus.md', promotionGate: 'read-only direct-child inventory proof before export/copy/extract' },
     notes: 'One bounded Drive bite at a time. This is where old shared-drive folders and training assets get organized without blocking current-day sync.',
   },
   {
@@ -107,7 +118,7 @@ const extractionTargets = [
     cursorState: { cursorType: 'access_validation_required' },
     budget: { maxItemsPerRun: 25, maxRuntimeSeconds: 900, llmBudget: 'limited_after_access' },
     dedupePolicy: { key: 'skool_object_url_or_id', idempotent: true },
-    metadata: { backlogIds: ['SKOOL-001'], blockedBy: 'Need official API/export/browser-crawler decision and content-use boundary.' },
+    metadata: { backlogIds: ['SKOOL-001', 'WEB-CRAWLER-001'], sourceNote: 'docs/source-notes/skool-corpus.md', blockedBy: 'Need approved export/API/admin path and content-use boundary. Blind scraping is blocked by policy risk.' },
     notes: 'Do not crawl Skool blindly. Validate access path and content-use rules first.',
   },
   {

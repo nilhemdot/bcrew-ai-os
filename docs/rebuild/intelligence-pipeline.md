@@ -1,6 +1,6 @@
 # Intelligence Pipeline Operating Model
 
-Last updated: 2026-04-23
+Last updated: 2026-04-24
 Status: Foundation doctrine for extraction, synthesis, and future briefs
 
 This doc answers one question:
@@ -82,6 +82,10 @@ Current-day sync keeps the system aware of what happened today across Gmail, Mis
 
 Historical corpus crawl works backward through old folders, inbox windows, courses, videos, links, docs, and shared drives one safe bite at a time.
 
+Google Drive starts with the shared-drive root list in `docs/source-notes/google-drive-corpus.md`.
+
+Skool starts with the access-path and content-use audit in `docs/source-notes/skool-corpus.md`; do not treat it as a blind browser scrape target.
+
 Do not mix these into one vague "backfill" script. They have different success metrics:
 
 - current-day sync succeeds when yesterday and today are captured reliably
@@ -119,6 +123,7 @@ Historical extraction should be paced. The goal is not to read the entire compan
 - archive or mirror the useful artifact
 - extract candidates and atoms
 - classify the asset's usable value by consumer
+- preserve owner-entity, content-use, and sensitivity boundaries
 - mark the source window done, skipped, failed, or needs human review
 - continue the next day without Steve or Codex remembering where it left off
 
