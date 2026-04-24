@@ -14,6 +14,7 @@ import {
   createDecision,
   createOpenQuestion,
   createPendingDocUpdate,
+  getExtractionControlSnapshot,
   getCanonicalDecisionCategories,
   getLatestChangeEventForEntity,
   getLlmRuntimeSnapshot,
@@ -3119,6 +3120,22 @@ app.get('/api/foundation/llm-runtime', requireAdminToken, async (req, res) => {
       500,
       'foundation_llm_runtime_load_failed',
       error instanceof Error ? error.message : 'Failed to load LLM runtime status.'
+    )
+  }
+})
+
+app.get('/api/foundation/extraction-control', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50))
+    const snapshot = await getExtractionControlSnapshot({ limit })
+    cacheHeadersNoStore(res)
+    res.json(snapshot)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_extraction_control_load_failed',
+      error instanceof Error ? error.message : 'Failed to load extraction control status.'
     )
   }
 })

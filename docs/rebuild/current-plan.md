@@ -278,6 +278,17 @@ Acceptance:
 - current-day sync stays fresh even while history is being processed
 - no more overnight "I thought it was running" ambiguity
 
+Current partial proof:
+
+- `source_crawl_targets` and `source_crawl_items` are live in Foundation DB.
+- `extraction-control-seed` is registered as a manual Foundation job and seeds the control plane without running any crawls.
+- Seed/control runs are serialized with advisory locks and retry deadlocks so overlapping restarts/manual runs do not corrupt the target ledger.
+- Seeded targets cover Gmail, Missive, meetings, Slack, Drive, Skool, old-system report mining, and historical Zoom recovery.
+- Current-day targets are separate from bounded backfill/corpus/recovery targets.
+- Skool remains blocked until access path and content-use boundaries are explicit.
+- Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
+- Remaining Phase 3 gap: connect the first current-day target to source cursors/leases and then schedule it only after it proves idempotent.
+
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
 Goal: turn archived data into ranked, live, source-backed intelligence.

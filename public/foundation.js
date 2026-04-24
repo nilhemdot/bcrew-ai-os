@@ -4993,6 +4993,41 @@ function renderLlmRuntimePanel(llmRuntime) {
   )
 }
 
+function renderExtractionControlPanel(extractionControl) {
+  if (!extractionControl) return null
+  var targets = Array.isArray(extractionControl.targets) ? extractionControl.targets : []
+  if (!targets.length) return null
+
+  var summary = 'Current-day and bounded-backfill crawl targets. '
+    + ((extractionControl.summary && extractionControl.summary.currentDayTargets) || 0) + ' current-day, '
+    + ((extractionControl.summary && extractionControl.summary.backfillTargets) || 0) + ' backfill, '
+    + ((extractionControl.summary && extractionControl.summary.corpusMiningTargets) || 0) + ' corpus-mining, '
+    + ((extractionControl.summary && extractionControl.summary.pausedTargets) || 0) + ' paused.'
+
+  var items = targets.slice(0, 10).map(function(target) {
+    var budget = target.budget || {}
+    var budgetParts = []
+    if (budget.maxItemsPerRun) budgetParts.push('max ' + budget.maxItemsPerRun + ' items/run')
+    if (budget.maxFoldersPerRun) budgetParts.push('max ' + budget.maxFoldersPerRun + ' folder/run')
+    if (budget.maxFilesPerRun) budgetParts.push('max ' + budget.maxFilesPerRun + ' files/run')
+    var counts = target.inspectedCount + ' inspected, ' + target.archivedCount + ' archived, ' + target.extractedCount + ' extracted.'
+    var detail = target.sourceId + ' · ' + target.lane + ' · ' + target.runtimeMode + '. ' + counts
+      + (budgetParts.length ? ' Budget: ' + budgetParts.join(', ') + '.' : '')
+      + ' ' + (target.notes || '')
+    return {
+      label: target.title,
+      status: target.status === 'active' ? 'live' : target.status === 'blocked' ? 'risk' : 'planned',
+      detail: detail,
+    }
+  })
+
+  return renderStatusGroupPanel(
+    'Extraction Control',
+    summary,
+    items
+  )
+}
+
 function renderFoundationSequenceCard(step, index) {
   var article = document.createElement('article')
   article.className = 'foundation-sequence-card'
@@ -9542,6 +9577,9 @@ function renderDataHealth() {
 
     var llmPanel = renderLlmRuntimePanel(hub.llmRuntime)
     if (llmPanel) container.appendChild(llmPanel)
+
+    var extractionPanel = renderExtractionControlPanel(hub.extractionControl)
+    if (extractionPanel) container.appendChild(extractionPanel)
 
     getSystemHealthGroups(hub.memoryStatus || []).forEach(function(group) {
       var panel = renderStatusGroupPanel(

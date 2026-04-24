@@ -196,6 +196,16 @@ async function main() {
   )
   ensure(
     checks,
+    foundationHub.extractionControl?.summary &&
+      Number(foundationHub.extractionControl.summary.targetCount || 0) > 0 &&
+      Array.isArray(foundationHub.extractionControl.targets),
+    'api/foundation-hub exposes extraction control targets',
+    foundationHub.extractionControl?.summary
+      ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day`
+      : 'missing extraction control payload',
+  )
+  ensure(
+    checks,
     ownersLeadSourceGovernance?.sourceId === 'SRC-OWNERS-001' &&
       ownersLeadSourceGovernance?.drift &&
       ownersLeadSourceGovernance?.freshness &&
