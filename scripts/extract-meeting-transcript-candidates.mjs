@@ -8,6 +8,7 @@ import {
   closeFoundationDb,
   getFoundationSnapshot,
   getSharedCommunicationArtifactsForProcessing,
+  getSharedCommunicationArtifactsWithoutCandidatesForProcessing,
   getSharedCommunicationCandidateSnapshot,
   initFoundationDb,
   rejectSharedCommunicationCandidatesForArtifacts,
@@ -118,10 +119,12 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const limit = Math.min(300, Math.max(1, Number(args.limit || 3)));
   const model = args.model || DEFAULT_MODEL;
+  const onlyWithoutCandidates = args.onlyWithoutCandidates === true || args.onlyWithoutCandidates === 'true';
 
   console.log('Extract shared communication candidates from archived meeting transcripts');
   console.log(`  Limit: ${limit}`);
   console.log(`  Model: ${model}`);
+  console.log(`  Only without active candidates: ${onlyWithoutCandidates}`);
 
   await initFoundationDb();
 
@@ -133,8 +136,11 @@ async function main() {
     getSourceContracts(),
   );
 
+  const artifactReader = onlyWithoutCandidates
+    ? getSharedCommunicationArtifactsWithoutCandidatesForProcessing
+    : getSharedCommunicationArtifactsForProcessing;
   const artifacts = (
-    await getSharedCommunicationArtifactsForProcessing({
+    await artifactReader({
       sourceId: 'SRC-MEETINGS-001',
       artifactType: 'meeting_transcript',
       limit: Math.max(limit * 3, 10),
