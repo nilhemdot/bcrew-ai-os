@@ -43,6 +43,7 @@ Open:
 - explicit subject-person privacy/redaction before hubs or agents use sensitive people evidence
 - FUB/finance/KPI source sign-off
 - marketing source map by brand lane
+- hub value routing for mined Drive/Skool/corpus assets
 - Strategy Hub
 - Harlan/Crewbert useful runtime
 
@@ -61,9 +62,9 @@ Open:
 | FUB lead-source taxonomy | Open now | `SRC-FUB-001` review and drift layers are live. | Finish Level 2 taxonomy baseline. | Add broader issue routing and future Sales Hub support. |
 | Finance sign-off | Open now | `SRC-FINANCE-001` is partially reviewed, not signed off. | Close `FOUNDATION-003` after FUB. | Define freshness expectations and strategy-use rules. |
 | KPI foundation system | Open now | `SRC-SUPABASE-001` is verified readable. KPI is live, but AI OS has not locked which truth layer to read for pipeline, shopping list, executed deals, goals, competition, and usage. | Use `SOURCE-010` to split KPI into explicit read rules. | Add health checks, freshness, and future Sales Hub surfaces. |
-| Shared communications intelligence | Open now | Gmail, Calendar, Missive, Slack, meetings, recovered Zoom chats/audio, archive, extraction, and persisted synthesis are live enough for proof. Exact archive counts belong to coverage job/dashboard, not this static file. | Close `SOURCE-019`, `SOURCE-020`, `COMMS-BACKFILL-001`, `EXTRACTION-TEAM-001`, `SYNTHESIS-FACTS-001`, and `SYNTHESIS-ENGINE-001` through runtime/extraction/synthesis hardening. | Broader apply flows, subject-person privacy/query layer, and leadership packets. |
+| Shared communications intelligence | Open now | Gmail, Calendar, Missive, Slack, meetings, recovered Zoom chats/audio, archive, extraction, and persisted synthesis are live enough for proof. Exact archive counts belong to coverage job/dashboard, not this static file. Extraction doctrine now requires useful material to route to strategy, ops, sales, marketing, recruiting, agent coaching, and Steve-owned content/course lanes instead of only becoming raw archive. | Close `SOURCE-019`, `SOURCE-020`, `COMMS-BACKFILL-001`, `EXTRACTION-TEAM-001`, `HUB-INTEL-001`, `SYNTHESIS-FACTS-001`, and `SYNTHESIS-ENGINE-001` through runtime/extraction/synthesis hardening. | Broader apply flows, subject-person privacy/query layer, and leadership packets. |
 | Marketing source map | Open now | Old-system evidence and some current connector checks exist. The four live lanes are Benson Crew, Zahnd Team Ag, Steve Zahnd, and MarketMasters. | Close `SOURCE-016`: account/property map, Google auth repair, SocialPilot validation, GHL/lead-flow map, current-vs-legacy asset boundaries. | Marketing Hub and platform intelligence. |
-| Drive / Skool / old corpus | Open now | Need is identified; not yet a controlled worker. | Build Drive worker, Skool source contract/worker, and report-mining lane after runtime/router/extraction control. | Daily bounded corpus ingestion and dry-run organization. |
+| Drive / Skool / old corpus | Open now | Need is identified; not yet a controlled worker. The goal is not only storage cleanup: old Drive, Skool, videos, trainings, docs, and links should be mined for reusable content, courses, training, recruiting proof, strategy evidence, and operational improvement while preserving source links and owner-entity boundaries. | Build Drive worker, Skool source contract/worker, report-mining lane, and hub value classifier after runtime/router/extraction control. | Daily bounded corpus ingestion, dry-run organization, and hub handoff queues. |
 
 ## Active Execution Order
 

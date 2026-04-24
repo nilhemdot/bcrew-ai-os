@@ -118,8 +118,26 @@ Historical extraction should be paced. The goal is not to read the entire compan
 - record what it inspected
 - archive or mirror the useful artifact
 - extract candidates and atoms
+- classify the asset's usable value by consumer
 - mark the source window done, skipped, failed, or needs human review
 - continue the next day without Steve or Codex remembering where it left off
+
+Extraction should not stop at "we found a file."
+
+For old Drive, Skool, videos, trainings, courses, links, docs, and long-tail meeting history, the output needs a value route:
+
+- strategy evidence
+- ops improvement
+- sales leadership / coaching
+- marketing performance or content atom
+- recruiting proof
+- agent training or personal coaching
+- Steve Zahnd personal-brand material
+- MarketMasters trust-building material
+- Steve-owned education / monetization material
+- reject / duplicate / low value
+
+This is how historical mining becomes useful instead of becoming a second archive nobody reads.
 
 ### 3. Synthesis Layer
 
@@ -155,10 +173,32 @@ Examples:
 - marketing brief
 - retention brief
 - source-trust brief
+- mined-asset queue for content, course, training, recruiting, and strategy reuse
 
 The old Directors of Intelligence are useful here as output inspiration.
 
 They should not come back as independent source-reading agents.
+
+### 4.5 Hub Supply Chain
+
+The same Foundation extraction layer should feed different hub consumers without mixing their boundaries.
+
+Primary consumer lanes:
+
+- Strategy / ownership: concise source-backed decisions, constraints, unresolved issues, and next moves.
+- Sales / recruiting leadership: agent attraction, recruiting proof, coaching gaps, candidate context, and team-growth signals.
+- Ops: bottlenecks, SOP gaps, handoff failures, client-experience issues, transaction cleanup, and source-health failures.
+- Marketing: performance facts, content atoms, audience growth, SEO/AEO learnings, publishing opportunities, and platform intelligence.
+- Agent Hub: tailored training, Home Value Hub usage, coaching prompts, accountability signals, and deal-growth recommendations.
+- Benson Crew residential brand: client-safe marketing and safe realtor-attraction content.
+- Zahnd Team Ag: its own content, SEO/AEO, recruiting, and farm-team proof lane.
+- Steve Zahnd personal brand: founder authority and realtor-attraction material with a separate voice from Benson Crew.
+- MarketMasters: trust-led recruiting/community growth and training/event authority.
+- Steve-owned education / monetization: course, AI/software, faceless/avatar content, and productized knowledge assets with clear owner-entity tagging.
+
+Foundation owns the extraction, evidence, source links, privacy tags, and value routing.
+
+Hubs own the final action: publish, teach, coach, recruit, sell, or change operations.
 
 ### 5. Apply Paths
 
@@ -171,6 +211,9 @@ Examples:
 - blocker -> open question
 - marketing atom -> content overlay
 - strategy issue -> strategy review queue
+- mined training asset -> course/training queue
+- recruiting proof -> recruiting CRM or sales leadership brief
+- agent coaching signal -> Agent Hub recommendation
 
 The system proposes.
 
@@ -258,6 +301,11 @@ The extraction team needs to support more than communications:
 - Skool corpus crawl: courses, trainings, posts, comments, links, docs, and video lessons
 - marketing corpus crawl: platform reports, old avatars, performance reports, content briefs, and source maps
 - strategy corpus crawl: old strategy docs, meeting packets, John Kitchens work, quarterly prep, and post-strategy outcomes
+
+Every source should eventually have two lanes:
+
+- current-day lane: what changed today and needs to be available now
+- historical/corpus lane: one bounded bite at a time until the old valuable material is indexed, classified, and routed
 
 Each source needs the same control model:
 

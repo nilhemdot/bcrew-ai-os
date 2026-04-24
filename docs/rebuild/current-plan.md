@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-24
-Version: v6.2 — runtime/router plus source-aware sheet-write guardrails
+Version: v6.3 — extraction operating system plus hub supply-chain doctrine
 Status: Active
 
 Use this doc for one question:
@@ -42,6 +42,9 @@ Reason for v6:
 - Active truth lives in the current docs and source-backed UI/API surfaces.
 - Handoffs and audits are evidence unless promoted into active docs or backlog.
 - Imported spreadsheet mirrors are not write surfaces. Any governed write must target the source workbook/range or a deliberately non-imported destination.
+- Extraction is a Foundation supply chain, not a one-off research chore. It must keep current sources fresh, mine old corpora one bounded bite at a time, and preserve what each hub can use.
+- Drive and Skool mining belong in Foundation while they inventory, archive, classify, extract, and organize evidence. Course creation, content production, recruiting outreach, coaching, and monetization are Hub work built on that Foundation output.
+- The brand/hub lanes must stay separate: Benson Crew residential, Zahnd Team Ag, Steve Zahnd personal brand, MarketMasters, and Steve-owned monetization/education assets are different consumers with different risk boundaries.
 
 ## Current Reality
 
@@ -81,6 +84,7 @@ Still not done:
 - Harlan/Crewbert useful runtime
 - Drive and Skool crawler workers
 - clean marketing account/property map by lane
+- hub consumer map for mined corpus value: strategy, ops, sales, marketing, recruiting, agent coaching, Steve personal brand, MarketMasters, and Steve-owned education/monetization
 
 ## Definition Of Done
 
@@ -253,6 +257,7 @@ Build:
 - crawl item ledger
 - current-day lane
 - bounded historical backfill lane
+- corpus value classification
 - source cursors
 - leases
 - budgets
@@ -274,6 +279,13 @@ Backfill lane:
 - resumable and idempotent
 - records what was inspected and what remains
 
+Corpus value lane:
+
+- classify mined material by consumer: strategy, sales leadership, ops, marketing, recruiting, agent coaching, Steve personal brand, MarketMasters, Unchained/education, or reject/no value
+- tag reusable assets for content, training, courses, recruiting proof, SOPs, coaching, and strategy evidence
+- keep original source evidence linked so hubs can use the material without guessing where it came from
+- do not reorganize or move Drive assets outside dry-run mode until a target folder strategy is approved
+
 Backlog/cards:
 
 - `EXTRACT-CONTROL-001`
@@ -281,11 +293,13 @@ Backlog/cards:
 - `EXTRACT-BACKFILL-001`
 - `COMMS-BACKFILL-001`
 - `EXTRACTION-TEAM-001`
+- `HUB-INTEL-001`
 
 Acceptance:
 
 - Steve can see what source is being crawled, what is current, what remains, and what failed
 - current-day sync stays fresh even while history is being processed
+- high-value old material becomes usable by the right hub instead of disappearing into a raw archive
 - no more overnight "I thought it was running" ambiguity
 
 Current partial proof:
@@ -397,6 +411,8 @@ Build:
 - Drive worker: one folder at a time
 - Skool worker: trainings, videos, links, docs, comments where accessible
 - old-system report miner
+- value classifier for content/course/training/recruiting/strategy material
+- hub handoff queues for mined assets
 - source fingerprints and duplicate detection
 - dry-run organizer mode for Drive
 
@@ -406,6 +422,7 @@ Rules:
 - backfill takes one bite per day/source
 - organizer/move actions stay dry-run until approved
 - old system is mined for output patterns and useful doctrine, not copied as runtime architecture
+- mining output must say which hub can use the asset, or why it should be ignored
 
 Backlog/cards:
 
@@ -413,11 +430,13 @@ Backlog/cards:
 - `SKOOL-WORKER-001`
 - `REPORT-MINING-001`
 - `PLATFORM-INTEL-001`
+- `HUB-INTEL-001`
 
 Acceptance:
 
 - the system can keep eating old Drive/Skool/meeting/training content without Steve sitting there
 - salvageable old avatars, marketing atoms, scout reports, director briefs, and strategy context are indexed into the new Foundation model
+- valuable old material can feed course ideas, YouTube scripts, training assets, recruiting proof, or strategy evidence without mixing brand lanes
 
 ### Phase 7 — Strategy Hub
 
