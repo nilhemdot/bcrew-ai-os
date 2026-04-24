@@ -1,9 +1,9 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-04-23
+Last updated: 2026-04-24
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
-Rule: if a package depends on open live inputs or open parity work, the package is still open even if part of it is signed off.
+Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
 
 ## Level Guide
 
@@ -11,68 +11,118 @@ Rule: if a package depends on open live inputs or open parity work, the package 
 | --- | --- |
 | Level 1 | The system can reach and read the source. |
 | Level 2 | The trusted unit and meaning are reviewed and signed off. |
-| Level 3 | Refresh cadence and stale-state visibility are explicit. |
+| Level 3 | Refresh cadence, stale-state visibility, and runtime ownership are explicit. |
 | Level 4 | Approved writes and governed automation are live. |
+
+## Short Version
+
+The Foundation is real. The system is not yet fully alive.
+
+Built:
+
+- source contracts and Foundation DB
+- verifier
+- dashboard/Foundation UI
+- shared communications archive
+- meeting/Gmail/Missive/Slack extraction lanes
+- historical meeting context back to October 2024 where recovered/transcribed
+- persisted synthesis runs/items
+- first job registry and job-run ledger
+- Owners/deal-review runners
+- doc cleanup plan and generated evidence indexes
+
+Open:
+
+- scheduler / worker / supervisor
+- source cursors and leases
+- current-day extraction lane
+- policy-aware LLM router
+- hub-dedicated model capacity
+- extraction control plane
+- synthesis hardening against resolved/stale/duplicated items
+- FUB/finance/KPI source sign-off
+- marketing source map by brand lane
+- Strategy Hub
+- Harlan/Crewbert useful runtime
 
 ## Foundation Surfaces
 
 | Surface | State now | What exists now | Next to close | Later |
 | --- | --- | --- | --- | --- |
-| Strategy packet | Open now | `SRC-STRATEGY-001` is signed off. Freedom Community, BHAG, and Agent Engine are now captured for current reality. The packet now also has a visible strategy-change watch surface for pending doc proposals and applied-history visibility. The first decision-provenance model is live, the first decision-to-doc traceability layer is live, the first decision-linked strategy change ledger with doc-scoped annotations is live, and the first contradiction / cleanup review queue is live too, so decisions, doc proposals, and change events can now be read together instead of as separate fragments. The package is still open because it depends on the strategy-used slice of `SRC-OWNERS-001` and one explicit `SOURCE-014` closeout. | Finish the strategy-used Owners slice and close `SOURCE-014` at the package level. | Then deepen Freedom drift monitoring, source-backed value hardening, temporal truth, richer relationship cleanup, and richer inline annotations if needed. |
 | System strategy | Done now | Doctrine and boundaries are visible. | None now. | Update only when doctrine changes. |
-| Rebuild visibility | Done now | Current State and Rebuild Plan are live in repo and site. | Keep aligned with backlog truth. | Do not let side docs drift away from this page. |
-| Verification baseline | Done now | `npm run foundation:verify` exists, is passing again, includes `npm run sheets:verify`, and Current State now shows the live sheet-structure watch for Freedom, Owners, and old KPI. | Keep the visible watch aligned with the verifier baseline. | Add checks only when new source surfaces close. |
-| Owners Admin package | Open now | `SRC-OWNERS-001` is signed off for meaning. The first governed review path is now proven: Owners row -> FUB person -> ClickUp roster -> Drive contract package (`T#26100` / Matt Allman). Both temporary review lanes now have real row-scoped runners behind them: firm / exception deals in `ADMIN ONLY - Deal Data Entry!CC:CE` and conditional rows in `Listings and Conditional Deals!Q:U`. One combined governed inbox now exists at `/api/owners/review-queue`, FUB taxonomy drift lands in that same queue, Owners governed-dropdown drift is queue-ready, and the first fresh / warning / stale guardrails now age those governed lanes explicitly instead of leaving them timeless. What remains open is productizing the full parity, contract-registry, deeper cleanup, and the strategy-used Owners slice. | Close the Owners package in this order: `SOURCE-008`, `DATA-005`, `DATA-006`, `DATA-007`, `DATA-008`, `DATA-009`, with `FINANCE-002` supplying the first governed contract packages. | Then reuse this freshness pattern on more source layers. |
-| FUB lead-source taxonomy | Open now | `SRC-FUB-001` review layer is live. Flexible open values stay visible. The first drift layer is now live too: new-name / open-classification / legacy-name / governed-missing buckets, stale snapshot age, drift change events, and freshness status for the current governed review state. | Finish the Level 2 baseline. | Then add issue routing and wider cross-source drift handling. |
-| Finance sign-off | Open now | `SRC-FINANCE-001` is partially reviewed, not signed off. | Close `FOUNDATION-003` after FUB. | Then define freshness expectations. |
-| KPI foundation system | Open now | `SRC-SUPABASE-001` is verified readable. KPI is live, but AI OS has not yet locked which truth layer to read for pipeline, shopping list, executed deals, goals, competition, and app usage. | Use `SOURCE-010` to split KPI into explicit read rules for `persons` / `appointments`, `leads`, `deal_data`, goals tables, competition tables, and `users_activity`. | Then add health checks, visible freshness, and future sales-hub extension surfaces. |
-| Shared communications intelligence | Open now | `SRC-GMAIL-001`, `SRC-GCAL-001`, `SRC-MISSIVE-001`, `SRC-SLACK-001`, and `SRC-MEETINGS-001` are now verified readable. The current repo can now read Gmail, Calendar, Missive inbox/thread/comment context, Slack channels and thread history for channels the existing bot is actually in, scan Google Meet artifacts across the enabled delegated BCrew user list with paginated Drive reads, detect standalone transcript docs or transcript sections embedded inside Gemini notes, archive Gmail threads, Missive threads, Slack threads, meeting-note artifacts, and meeting-transcript artifacts into Postgres, mirror organized meeting copies into Crewbert Drive in copy mode, tag meetings `broadcast` vs `discussion`, report transcript gaps, and surface governed candidate lanes for meetings, Gmail, Missive, and Slack with Foundation context plus the first apply paths. Live archive depth now belongs to the shared-comms coverage job/dashboard instead of this static plan; current coverage reaches Gmail back to October 2025, Missive back to February 2026, Slack back to January 2026, recovered meeting text back to October 2024, and meeting transcripts back to October 2024 after historical Zoom audio transcription. Batch synthesis now persists runs and ranked items in PostgreSQL, is exposed through the Foundation snapshot/API, and the latest proof includes source-backed operating facts from strategy/BHAG/Owners/backlog/open-question/change-event state. The first Foundation job registry and DB-backed run ledger now expose verification, coverage, current-sync, extraction, transaction-review, transcript-gap, and synthesis routines so these jobs can leave builder chat and become supervised system work. What remains open is durable cursor/checkpoint state, scheduler/daemon supervision, cross-source normalization, the last channel-rollout gaps, the full subject-person privacy/query layer, richer KPI/finance/FUB fact grounding, broader apply/read flows, and the synthesis layer that decides what is still live versus already resolved. | Close `SOURCE-019`, `SOURCE-020`, `COMMS-BACKFILL-001`, `EXTRACTION-TEAM-001`, `SYSTEM-010`, `SYNTHESIS-FACTS-001`, and `SYNTHESIS-ENGINE-001` by stabilizing the archive, adding durable backfill state, deepening strategy/KPI/finance/source-fact grounding, and promoting ranked synthesis into repeatable strategy/leadership packets. | Keep widening extraction types, apply flows, and channel coverage after the first governed paths stay stable. |
-| Marketing source map | Open now | `SRC-META-001`, `SRC-GHL-001`, and `SRC-DATAFORSEO-001` are now verified readable. The old system proved the four-pillar marketing model and the multi-account reality across current and legacy brand assets. What remains open is the lane-owned source map, the broken Google marketing auth path, the SocialPilot enterprise auth context, and clear separation between Benson Crew, Zahnd Team Ag, Steve Zahnd, and MarketMasters. | Close `SOURCE-016` by locking the real account/property map, fixing the Google auth break, validating SocialPilot auth, and separating current vs legacy assets by lane. | Then promote GA4 / Search Console / GBP / YouTube / remarketing audience surfaces into explicit source contracts and later marketing-hub inputs. |
-| Shared freshness rules | Later | The first rule set now exists for the Owners / FUB governed layer only. The wider cross-source stale-state model is still not defined. | Reuse the new guarded pattern after strategy, FUB, and finance close at Level 2. | Use it to drive broader stale badges and cadence. |
+| Rebuild visibility | Open hardening | v6 rebuild plan is live, prior plan is preserved in plan history, and handoff/audit indexes now separate evidence from active doctrine. | Finish doc cleanup Phase 1/2: classify indexes and promote any durable truth into active docs/backlog. | Optional dated archive folders after indexes are trusted. |
+| Runtime activation | Open now | First Foundation job registry and DB-backed job run ledger exist. Jobs can be run through the Foundation runner. | Build runtime MVP: scheduler/worker/supervisor/status dashboard for 3-5 high-value jobs. | Expand to all routines after the first jobs stay stable. |
+| LLM routing | Open now | Doctrine is defined: policy-aware router, credential registry, hub-dedicated capacity, no blind quota farming, API fallback required. | Build auth audit, credential registry, router shell, route probes, and `llm_calls` ledger. | Migrate extraction/synthesis behind router after probes pass. |
+| Extraction control | Open now | Archives and manual/bounded extraction have proven value. | Build current-day lane, backfill lane, source cursors, leases, budgets, retries, and pause switches. | Drive/Skool/YouTube/source workers run one bounded bite at a time. |
+| Strategy packet | Open now | `SRC-STRATEGY-001` is signed off. Freedom Community, BHAG, and Agent Engine current reality are captured. Decision provenance, traceability, change ledger, contradiction queue, and strategy-change watch have first slices. | Finish strategy-used Owners slice and close `SOURCE-014`. | Strategy Hub after runtime/router/extraction/synthesis are stable. |
+| Verification baseline | Done now | `npm run foundation:verify` exists and has been passing. | Keep green after runtime/doc changes. | Add checks only when new source surfaces close. |
+| Owners Admin package | Open now | `SRC-OWNERS-001` is signed off for meaning. First cross-system proof exists: Owners row -> FUB person -> ClickUp roster -> Drive contract package. Row-scoped review runners and `/api/owners/review-queue` exist. | Close `SOURCE-008`, `DATA-005`, `DATA-006`, `DATA-007`, `DATA-008`, `DATA-009`, supported by `FINANCE-002`. | Reuse freshness and review patterns on more governed sources. |
+| FUB lead-source taxonomy | Open now | `SRC-FUB-001` review and drift layers are live. | Finish Level 2 taxonomy baseline. | Add broader issue routing and future Sales Hub support. |
+| Finance sign-off | Open now | `SRC-FINANCE-001` is partially reviewed, not signed off. | Close `FOUNDATION-003` after FUB. | Define freshness expectations and strategy-use rules. |
+| KPI foundation system | Open now | `SRC-SUPABASE-001` is verified readable. KPI is live, but AI OS has not locked which truth layer to read for pipeline, shopping list, executed deals, goals, competition, and usage. | Use `SOURCE-010` to split KPI into explicit read rules. | Add health checks, freshness, and future Sales Hub surfaces. |
+| Shared communications intelligence | Open now | Gmail, Calendar, Missive, Slack, meetings, recovered Zoom chats/audio, archive, extraction, and persisted synthesis are live enough for proof. Exact archive counts belong to coverage job/dashboard, not this static file. | Close `SOURCE-019`, `SOURCE-020`, `COMMS-BACKFILL-001`, `EXTRACTION-TEAM-001`, `SYNTHESIS-FACTS-001`, and `SYNTHESIS-ENGINE-001` through runtime/extraction/synthesis hardening. | Broader apply flows, subject-person privacy/query layer, and leadership packets. |
+| Marketing source map | Open now | Old-system evidence and some current connector checks exist. The four live lanes are Benson Crew, Zahnd Team Ag, Steve Zahnd, and MarketMasters. | Close `SOURCE-016`: account/property map, Google auth repair, SocialPilot validation, GHL/lead-flow map, current-vs-legacy asset boundaries. | Marketing Hub and platform intelligence. |
+| Drive / Skool / old corpus | Open now | Need is identified; not yet a controlled worker. | Build Drive worker, Skool source contract/worker, and report-mining lane after runtime/router/extraction control. | Daily bounded corpus ingestion and dry-run organization. |
 
-## Execution Order
+## Active Execution Order
 
-1. Keep truth and verification stable.
-2. Close the first usable shared-communications source layer.
-3. Build the synthesis layer above that archive.
-4. Close the strategy truth boundary.
-5. Close finance and KPI source meaning.
-6. Close the marketing lane/account map.
-7. Reuse the first freshness pattern across more sources.
+1. Keep existing proof stable.
+2. Runtime MVP.
+3. Policy-aware LLM router MVP.
+4. Extraction control MVP.
+5. Retrieval/entity/synthesis hardening.
+6. Source trust closures.
+7. Drive, Skool, and old-system mining.
+8. Strategy Hub.
+9. First useful agents.
 
 ## Active Plan Docs
 
-Treat these as the only live plan surfaces:
+Trust these first:
 
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
+- `docs/rebuild/intelligence-pipeline.md`
+- `docs/rebuild/current-runtime-map.md`
+- `docs/rebuild/agent-architecture.md`
+- `docs/rebuild/doc-cleanup-plan.md`
 - `docs/system-strategy.md`
 - `docs/source-registry.md`
 
-Everything else is supporting archive unless promoted here.
+Evidence indexes:
 
-## Keep The Boundary Clean
+- `docs/handoffs/INDEX.md`
+- `docs/audits/INDEX.md`
+
+Everything else is supporting evidence unless promoted into the active docs.
+
+## Boundary
 
 ### Foundation now
 
-- understand the source
-- define the source boundary
-- verify the source
-- sign off the meaning
-- expose what is done and open
+- understand sources
+- define source boundaries
+- verify sources
+- sign off source meaning
+- archive shared communications
+- extract candidates/atoms
+- synthesize source-backed intelligence
+- operate scheduled/supervised routines
+- route LLM calls through policy-aware infrastructure
+- expose what is done, open, stale, failed, or paused
 
 ### Future hub work
 
 - coaching
 - reminders
+- content production workflows
 - data-entry enforcement agents
 - ops accountability loops
 - sales assistants
 - manager nudges
+- recruiting CRM behavior
 
-Examples:
+Rule:
 
-- FUB stage and opportunity rules = Foundation now
-- FUB assistant that tells an agent to clean up their pipeline = Future Sales Hub
-- KPI truth-layer map = Foundation now
-- KPI coach that texts an agent about shopping-list quality = Future Sales Hub
+- if the work helps AI OS understand or operate shared truth, it is Foundation
+- if the work tells a department/person what to do or acts in a workflow, it is Hub work

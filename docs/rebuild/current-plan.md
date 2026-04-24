@@ -1,309 +1,462 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-04-23
+Last updated: 2026-04-24
+Version: v6.0 — runtime, router, extraction control, and doc cleanup
 Status: Active
 
 Use this doc for one question:
 
-- what are we doing right now
+- what are we doing next, in what order, and what counts as done?
 
-Use [Current State](current-state.md) for the short read.
-Use [Intelligence Pipeline Operating Model](intelligence-pipeline.md) for how archives, extractors, synthesis, briefs, and future agents fit together.
+For the short state read, use [Current State](current-state.md).
+For archive/extraction/synthesis doctrine, use [Intelligence Pipeline Operating Model](intelligence-pipeline.md).
+For runtime boundaries, use [Current Runtime Map](current-runtime-map.md).
+For Harlan/Crewbert boundaries, use [Agent Architecture](agent-architecture.md).
+For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan.md).
 
-## Locked Now
+## Plan History
 
-- Mac Mini stays the machine.
+The previous active plan was preserved before this rewrite:
+
+- [current-plan-2026-04-24-pre-v6-runtime-router-cleanup.md](plan-history/current-plan-2026-04-24-pre-v6-runtime-router-cleanup.md)
+
+Reason for v6:
+
+- the system now has enough archive/extraction/synthesis proof to stop treating every next step as more manual mining
+- the immediate gap is activation: jobs exist but must become scheduled, supervised, visible system work
+- model access must be centralized through a policy-aware router before high-volume automation expands
+- extraction needs current-day and backfill control lanes so Steve is not waiting in builder chat for giant manual runs
+- the doc surface became noisy enough that active doctrine must be separated from historical evidence
+
+## Locked Doctrine
+
+- Mac Mini stays the primary machine for this phase.
 - Foundation-first stays the build order.
-- OpenClaw stays the planned runtime for the later live-agent layer.
-- strategy docs stay canonical for narrative meaning
-- live values come from source-backed surfaces, not markdown snapshots
-- Harlan is a personal agent, not the whole OS
-- we are not switching to Mark Kashef's stack
-- we are not turning on a large agent swarm during Foundation
+- OpenClaw stays the planned runtime/channel shell for the later live-agent layer, not the whole OS.
+- Harlan is Steve's personal agent, not the whole OS.
+- Crewbert is the orchestrator/operator identity, not a magic replacement for source contracts.
+- We are not switching stacks mid-Foundation.
+- We are not turning on a large agent swarm during Foundation.
+- Scripts/routines that call LLMs are not the same thing as agents.
+- Real agents are later and narrow: Harlan, Crewbert, then a few specialist agents only after governed loops are stable.
+- Active truth lives in the current docs and source-backed UI/API surfaces.
+- Handoffs and audits are evidence unless promoted into active docs or backlog.
 
-## What Counts As Done Right Now
+## Current Reality
 
-| Surface | Current | Done now | Later |
-|---------|---------|----------|-------|
-| `SRC-STRATEGY-001` | `Level 2` | yes | `Level 3` drift monitoring + decision-linked change visibility |
-| `SRC-FREEDOM-COMMUNITY-001` | `Level 2` for current reality | yes for current-reality capture | package closeout, then `Level 3` |
-| `SRC-FREEDOM-BHAG-001` | `Level 2` for current reality | yes for current-reality capture | package closeout, then `Level 3` |
-| `SRC-FREEDOM-ENGINE-001` | `Level 2` for current reality | yes for current-reality capture | package closeout, then `Level 3` |
-| `SRC-FUB-001` | `Level 1` | no | target `Level 2`, then `Level 3` |
-| `SRC-FINANCE-001` | partial `Level 2` | no | finish `Level 2`, then `Level 3` |
-| `SRC-SUPABASE-001` | `Level 1` live readable | no | split KPI into explicit truth-layer read rules |
-| `SRC-OWNERS-001` | `Level 2` | yes for meaning | `Level 3` freshness + parity checks |
-| `SRC-GMAIL-001` | `Level 1` live readable | yes | route into the first governed shared-communications slice |
-| `SRC-GCAL-001` | `Level 1` live readable | yes | route into the first governed shared-communications slice |
-| `SRC-MISSIVE-001` | `Level 1` live readable | yes | route into the first governed shared-communications slice |
-| `SRC-MEETINGS-001` | `Level 1` live readable | yes | sign off archive contract + govern the first extraction path |
+Built and useful now:
 
-## Current Execution Order
+- Foundation source/contracts layer.
+- Foundation verifier.
+- Strategy, decision, backlog, open-question, and change-event database surfaces.
+- Source-backed dashboard/Foundation UI.
+- Google delegated read path for Workspace sources.
+- Gmail, Calendar, Missive, Slack, meeting notes, and meeting transcript reads.
+- Shared-communications archive in Postgres.
+- Candidate extraction lanes for meetings, Gmail, Missive, Slack, and recovered Zoom material.
+- Historical meeting context reaching back to October 2024 where recovered/transcribed.
+- Persisted synthesis runs/items in Postgres.
+- First Foundation job registry and DB-backed job run ledger.
+- Row-scoped Owners / deal-review runners.
+- Marketing source evidence from the old system and current connector checks.
+- Doc cleanup plan and generated doc indexes.
 
-1. keep truth and verification stable
-2. close the first usable shared-communications source layer:
-   - Gmail, Calendar, Missive, Slack, and meeting reads are already live
-   - archive depth is now real enough to use, and live counts belong in the shared-comms coverage job/dashboard instead of this plan
-   - recovered historical Zoom chats and transcribed historical Zoom audio now contribute merger-era meeting context back to October 2024
-   - Gmail/Missive raw archives have been materially deepened; keep exact oldest/newest windows in the coverage job instead of this static plan
-   - keep Gmail / Missive history widening with chunked/cursor backfills instead of pretending the first bounded batches are full 180-day coverage
-   - split live current-day sync from historical corpus crawl so the system stays fresh while it works backward through old data one safe bite at a time
-   - first Foundation job registry + DB run ledger is now being used to move current sync, coverage, verification, transaction review, transcript-gap, and synthesis routines out of builder chat
-   - keep meeting transcript enforcement tightening
-   - keep Slack rollout explicit instead of assuming universal readability
-3. build the missing synthesis layer on top of that shared archive:
-   - `SOURCE-019`
-   - `SYNTHESIS-ENGINE-001`
-   - `COMMS-BACKFILL-001`
-   - `EXTRACTION-TEAM-001`
-   - `DRIVE-CORPUS-001`
-   - `SKOOL-001`
-   - `SYNTHESIS-FACTS-001`
-   - cross-artifact linking
-   - resolution detection
-   - cross-source dedup
-   - staleness scoring
-   - actionability ranking
-   - source-backed fact grounding from strategy, KPI, finance, Owners, FUB, marketing, and source contracts
-   - first proof = useful strategy packet, not raw candidate dump
-   - current proof = persisted synthesis run + `docs/handoffs/2026-04-23-shared-comms-synthesis-source-facts-proof.md`
-   - latest proof now stores runs/items in PostgreSQL and includes source-backed facts from strategy/BHAG/Owners/backlog/open-question/change-event state
-4. close the strategy truth boundary before Strategy Hub:
-   - `SOURCE-014`
-   - the strategy-used Owners slice
-   - keep the strategy packet and rebuild docs aligned to the real queue
-5. close the remaining source-signoff surfaces that still block strategy trust:
-   - `SOURCE-008`
-   - `FOUNDATION-003`
-   - `SOURCE-010`
-6. close the marketing source map by real brand lane, not fuzzy legacy buckets:
-   - `SOURCE-016`
-   - split Benson Crew, Zahnd Team Ag, Steve Zahnd, and MarketMasters cleanly
-   - prove which assets/accounts still authenticate
-   - prove which legacy Zahnd-era assets still belong in live BCrew truth
-   - fix Google marketing auth
-   - finish SocialPilot auth validation
-7. keep the governed Owners review engine moving, not more open-ended manual audit work:
-   - row-scoped Admin review runner is live
-   - row-scoped conditional review runner is live
-   - review status + re-review path are live in the temporary sheet lanes
-   - one governed Owners inbox API is now live:
-     - `/api/owners/review-queue`
-   - grouped finding buckets instead of one-off founder memory
-   - promote that inbox from API truth into a visible Ops / Foundation surface
-   - FUB drift findings now land in that same queue
-   - Owners governed dropdown drift can land in that same queue when it is not clean
-   - use manual review only to prove or tune the rules
-8. close the Owners package as an integrated closure, not a sheet-only closeout:
-   - `SOURCE-008`
-   - `DATA-005`
-   - `DATA-006`
-   - `DATA-007`
-   - `DATA-008`
-   - `DATA-009`
-   - supporting doctrine: `FINANCE-002`
-   - shared-communications read layer now live inside this closure:
-     - `SOURCE-001` Gmail verified readable
-     - `SOURCE-002` Calendar verified readable
-     - `SOURCE-006` Missive verified readable
-     - `SOURCE-018` Meeting notes verified readable
-   - next bounded slice inside this closure:
-     - `SOURCE-019`
-     - `SOURCE-020`
-     - raw Gmail-thread archive is now live
-     - raw Missive-thread archive is now live
-     - raw meeting-note archive is now live
-     - raw meeting-transcript archive is now live
-     - first pending transcript-first candidate lane is now live
-     - normalize one shared communication record across more surfaces
-     - add the next governed extraction path after the first candidate lane proves out
-   - first governed outputs:
-     - contract registry starter entries
-     - `Ops Hub -> Deal Review Inbox`
-     - re-review path after source fixes
-9. build shared change / drift infrastructure for governed sources:
-   - source-list drift
-   - spreadsheet structure drift
-   - strategy / decision change visibility
-   - visible stale-state and re-review triggers
-   - first live slice now exists:
-     - FUB lead-source drift panel
-     - Owners governed lead-source dropdown drift panel
-     - stale snapshot age
-     - change-event logging for drift detected / cleared
-      - strategy packet / strategy-doc change watch panel
-      - visible pending strategy doc proposals and recent doc-update history
-      - Current State sheet-structure watch for Freedom, Owners, and old KPI
-      - Current State summary showing the first live decision cleanup / contradiction queue
-      - Decisions page review queue for proposed items, traceability gaps, broken supersede links, missing provenance, and possible overlap candidates
-      - first decision-provenance fields now live in the decision model:
-        - decision owner
-        - confirmed by
-        - participant list
-        - context ref
-        - evidence notes
-10. extend the shared communications layer after the first governed slice proves out:
-   - `SOURCE-003` broader Drive hardening
-   - `SOURCE-005` Slack channel-rollout and extraction hardening
-   - widen extraction types only after archive + normalization + first decision path are stable
-11. build the shared business-atoms layer in Foundation:
-   - `STRATEGY-001`
-   - atoms are shared evidence first
-   - hubs add overlays instead of rebuilding ingestion
-12. define the first overlay and scoper model:
-   - `STRATEGY-006`
-   - `SYSTEM-012`
-   - marketing keeps the locked `10` RETAIN + `5` ATTRACT avatar model as the first heavy overlay
-13. mine old intelligence reports and salvage doctrine intentionally:
-   - `REPORT-MINING-001`
-   - use the old scout/executive/director report families as synthesis references, not runtime architecture
-   - preserve the old feedback-scout / director-brief output shapes as synthesis patterns, especially:
-     - decisions
-     - action items
-     - bottlenecks
-     - escalation-worthy issues
-     - suggested owner
-     - suggested next action
-     - ranked findings with evidence
-14. extend the first freshness pattern into shared `Level 3` rules across more sources
-15. clean backlog ownership and the research lane
-16. only then turn on the narrow memory baseline and the first trusted loop
-17. only after the governed engines are stable and `SYSTEM-010` process supervision / kill switches are real, build the first narrow operating agent on top of them
+Still not done:
 
-## Current Work Mode
+- durable scheduler / worker / daemon supervision
+- durable source cursors and backfill leases
+- current-day extraction lane that stays fresh without Steve watching it
+- policy-aware LLM router and credential registry
+- hub-dedicated model capacity allocation
+- source-budget and failure visibility
+- full subject-person privacy/query layer
+- richer KPI / finance / FUB grounding inside synthesis
+- source-backed Strategy Hub
+- Harlan/Crewbert useful runtime
+- Drive and Skool crawler workers
+- clean marketing account/property map by lane
 
-Right now:
+## Definition Of Done
 
-- build the system
-- do small proof audits only when they sharpen the system rules
+A feature is not done because a script exists.
 
-Not right now:
+A feature is done only when it is:
 
-- sitting with Steve to manually audit hundreds of rows
-- building a full agent before the governed review and drift layers exist
+- registered in Foundation runtime/job status
+- scheduled or explicitly marked manual-only
+- supervised by worker/scheduler or clearly manual-only
+- visible in Foundation status
+- assigned an owner/system lane
+- protected by budget, pause, and retry rules where relevant
+- recording last run, next run, and failure state
+- surfacing failures in the dashboard
+- verified by `npm run foundation:verify` or a specific proof command
 
-Rule:
+If Steve or a builder has to remember to run it from a terminal, it is still a prototype.
 
-- if a manual audit does not improve the engine, stop doing it
-- if the same finding repeats, turn it into code, queue logic, or drift monitoring
+## Active Build Order
 
-## Foundation Now vs Future Hubs
+### Phase 0 — Keep The Existing Proof Stable
 
-### Foundation now
+Goal: do not break the working Foundation while we activate it.
 
-- strategy package closeout
-- Owners package closeout
-- FUB source meaning, parity rules, and taxonomy baseline
-- finance source meaning and sign-off
-- KPI read rules by truth layer
-- shared communications memory inputs:
-  - email
-  - calendar
-  - drive docs / notes
-  - meeting notes / transcripts
-  - Slack / shared inbox layers where relevant
-- shared communications intelligence work:
-  - synthesize emails, comments, Slack, and meeting notes into tasks, decisions, blockers, and follow-through suggestions
-- business atoms:
-  - Foundation stores approved shared evidence atoms
-  - hubs read those atoms through overlay models instead of building duplicate source readers
-- shared verification and later freshness rules
+Do now:
 
-Google rule:
+- keep `npm run foundation:verify` green
+- keep shared-comms coverage working
+- keep synthesis persisted
+- keep Owners/deal-review queued runners usable
+- keep docs indexed and active truth clear
 
-- Google Workspace sources should use the delegated Google path as the canonical foundation standard.
-- App connectors are fallback / temporary access paths, not the primary doctrine.
-- Missive stays as the shared inbox layer.
-- Google Workspace meeting-note output stays as the meeting source layer.
+Do not do now:
 
-### Future hub work
+- giant new manual backfills
+- broad feature expansion
+- new agent swarm
+- full router migration
+- rewriting every script before the router probes pass
 
-- sales coaches inside KPI / FUB
-- FUB cleanup assistants acting for agents
-- ops accountability loops driven by Admin-tab and FUB parity
-- support-network and past-client coaching flows
-- shopping-list and appointment watchdog agents
-- agent texting, email-reading, and manager nudging behavior
+### Phase 1 — Runtime MVP
 
-Rule:
+Goal: turn the best existing routines from builder-chat/manual scripts into supervised system work.
 
-- if the work helps AI OS understand a source correctly, it is Foundation
-- if the work tells people what to do, nudges them, or acts inside a department workflow, it is Hub work
-- shared communications collection and memory = Foundation
-- shared atoms = Foundation
-- hub overlays and Scopers = bridge layer between Foundation and later acting agents
-- department-specific acting on those communications = Hub work
+Build:
 
-## Current Open Work
+- runtime registry for Foundation services/jobs
+- always-on worker/scheduler path
+- supervisor config for web/API and worker process
+- dashboard panel for active/scheduled/failed/manual jobs
+- pause switches
+- retry limits
+- max runtime limits
+- last run / next run / failure state
 
-- the broader strategy-input package is no longer a separate first move; the remaining strategy-used Owners slice closes inside the package-level strategy boundary work
-- FUB is readable and editable for taxonomy rules, but not signed off
-- the first live cross-system deal proof now exists (`T#26100` -> FUB -> ClickUp -> contract), but it still needs to become governed system behavior
-- finance is still not line-by-line signed off
-- KPI is live and readable, but AI OS still has not locked which truth layer to read for each KPI job
-- the marketing connector/source map still needs a clear lane-owned boundary before a future rebuild:
-  - Benson Crew
-  - Zahnd Team Ag
-  - Steve Zahnd
-  - MarketMasters
-- the backlog scope registry is now live, but backlog cleanup is still open
-- Gmail / Calendar / Missive / meeting-note reads are now live, and the first meeting-note + meeting-transcript archive with transcript-first candidate extraction is live, but the system still lacks the explicit synthesis layer that turns raw candidates into ranked live intelligence
-- the research lane is still overloaded
-- OpenClaw native memory baseline is still off
+Activate only 3 to 5 jobs first:
+
+- `foundation:verify`
+- `shared-comms:coverage`
+- deal-review queued runner
+- synthesis as manual or scheduled with explicit budget
+- one current-day sync lane if stable
+
+Backlog/cards:
+
+- `RUNTIME-ACTIVATION-001`
+- `RUNTIME-WORKER-001`
+- `RUNTIME-SUPERVISOR-001`
+- `RUNTIME-FIRST-JOBS-001`
+- `SYSTEM-010`
+
+Acceptance:
+
+- Foundation UI can answer: what is running, what is scheduled, what is stale, what failed, and what is paused?
+- Terminal windows are for debugging only, not production runtime.
+- Worker survives terminal session end.
+- Failed jobs become visible failures.
+
+### Phase 2 — Policy-Aware LLM Router MVP
+
+Goal: centralize model access before high-volume automation expands.
+
+Build:
+
+- `lib/llm-router.js`
+- credential registry
+- `llm_calls` ledger
+- route probes
+- workload route table
+- model/provider fallback rules
+- usage/cost/risk visibility
+
+Auth paths to test and classify:
+
+- Claude Code Max via local `claude -p`
+- Claude setup-token / OAuth route
+- Claude Agent SDK route
+- OpenClaw / ChatGPT Pro route
+- direct OpenAI API
+- direct Anthropic API
+- direct Gemini API
+- manual interactive routes
+
+Routing doctrine:
+
+- use subscription paths where supported, observable, stable, and policy-classified
+- keep API/cloud fallback mandatory
+- do not build blind round-robin quota farming
+- do not make resale economics depend on consumer-plan arbitrage
+- do not migrate every LLM call until probes pass
+
+Hub-dedicated capacity doctrine:
+
+- Foundation gets its own default model capacity lane.
+- Marketing gets its own high-burn model lane because content, video, visuals, and creative iteration can consume far more than normal ops.
+- Heavy hubs may need both Claude and ChatGPT capacity.
+- Strategy, Ops, Sales, Recruiting, Retention, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained Realtor receive dedicated lanes as usage becomes real.
+- Router chooses the hub-assigned account first.
+- Overflow is allowed only when explicit, logged, budgeted, and visible.
+- No single account is assumed sufficient for all Foundation plus hub workloads.
+
+Backlog/cards:
+
+- `LLM-AUTH-AUDIT-001`
+- `LLM-CREDENTIAL-REGISTRY-001`
+- `LLM-HUB-CAPACITY-001`
+- `LLM-ROUTER-001`
+
+Acceptance:
+
+- every LLM call can be logged with workload, hub, provider, model, auth path, credential, status, and estimated cost
+- route probes classify each path before scheduled automation uses it
+- existing extraction/synthesis can be moved behind the router incrementally
+- API fallback works when subscription paths fail, exhaust, or are not allowed
+
+### Phase 3 — Extraction Control MVP
+
+Goal: stop running giant manual backfills and create an always-current extraction team.
+
+Build:
+
+- source crawl targets
+- crawl item ledger
+- current-day lane
+- bounded historical backfill lane
+- source cursors
+- leases
+- budgets
+- retries
+- pause switches
+- dedupe/fingerprint rules
+- dashboard visibility for each source
+
+Current-day lane:
+
+- process last 24 to 48 hours
+- prioritize Gmail, Missive, meetings, Slack, Calendar, Drive notes, and high-value source deltas
+- never wait for historical backfill to stay fresh
+
+Backfill lane:
+
+- one bounded bite per source target
+- fixed budget and stop condition
+- resumable and idempotent
+- records what was inspected and what remains
+
+Backlog/cards:
+
+- `EXTRACT-CONTROL-001`
+- `EXTRACT-CURRENT-001`
+- `EXTRACT-BACKFILL-001`
+- `COMMS-BACKFILL-001`
+- `EXTRACTION-TEAM-001`
+
+Acceptance:
+
+- Steve can see what source is being crawled, what is current, what remains, and what failed
+- current-day sync stays fresh even while history is being processed
+- no more overnight "I thought it was running" ambiguity
+
+### Phase 4 — Retrieval, Entity, And Synthesis Hardening
+
+Goal: turn archived data into ranked, live, source-backed intelligence.
+
+Build:
+
+- semantic retrieval / embeddings where justified
+- entity graph
+- temporal edges
+- cross-artifact linking
+- resolution detection
+- supersession detection
+- cross-source dedup
+- staleness scoring
+- actionability ranking
+- source-backed fact grounding from strategy, KPI, finance, Owners, FUB, marketing, and source contracts
+
+Synthesis output must answer:
+
+- what is new?
+- what is unresolved?
+- what was resolved?
+- what was superseded?
+- what matters now?
+- who owns it?
+- what evidence proves it?
+- what should Steve or leadership do next?
+
+Backlog/cards:
+
+- `SYNTHESIS-ENGINE-001`
+- `SYNTHESIS-FACTS-001`
+- `STRATEGY-001`
+- `MEMORY-005`
+- `DECISION-005`
+
+Acceptance:
+
+- a strategy/leadership packet surfaces 15 to 25 real items, not thousands of raw candidates
+- each item links to evidence and source facts
+- old items are suppressed if resolved, stale, duplicated, or superseded
+
+### Phase 5 — Source Trust Closures
+
+Goal: close the source truth needed before Strategy Hub is trusted.
+
+Close:
+
+- strategy-used Owners slice
+- `SOURCE-014`
+- `SOURCE-008`
+- `FOUNDATION-003`
+- `SOURCE-010`
+- FUB Level 2 taxonomy baseline
+- finance Level 2 sign-off
+- KPI truth-layer map
+
+Marketing source map:
+
+- `SOURCE-016`
+- Benson Crew lane
+- Zahnd Team Ag lane
+- Steve Zahnd lane
+- MarketMasters lane
+- legacy Zahnd Team assets that still feed BCrew truth
+- SocialPilot auth validation
+- Google marketing auth repair
+- GA4 / Search Console / YouTube / Google Business Profile / Google Ads account map
+- GoHighLevel and lead-flow map
+
+Acceptance:
+
+- Strategy Hub can trust the source facts it uses
+- marketing can separate brand lanes without mixing current BCrew and legacy Zahnd truth incorrectly
+- KPI and finance facts are no longer guessed from memory
+
+### Phase 6 — Drive, Skool, And Old-System Mining
+
+Goal: create sustainable corpus ingestion instead of one-time archaeology.
+
+Build:
+
+- Drive worker: one folder at a time
+- Skool worker: trainings, videos, links, docs, comments where accessible
+- old-system report miner
+- source fingerprints and duplicate detection
+- dry-run organizer mode for Drive
+
+Rules:
+
+- current-day lane remains more important than history
+- backfill takes one bite per day/source
+- organizer/move actions stay dry-run until approved
+- old system is mined for output patterns and useful doctrine, not copied as runtime architecture
+
+Backlog/cards:
+
+- `DRIVE-WORKER-001`
+- `SKOOL-WORKER-001`
+- `REPORT-MINING-001`
+- `PLATFORM-INTEL-001`
+
+Acceptance:
+
+- the system can keep eating old Drive/Skool/meeting/training content without Steve sitting there
+- salvageable old avatars, marketing atoms, scout reports, director briefs, and strategy context are indexed into the new Foundation model
+
+### Phase 7 — Strategy Hub
+
+Goal: build the first high-value hub on top of Foundation truth, not raw archive dumps.
+
+Prerequisites:
+
+- runtime MVP active
+- router MVP classified
+- extraction current-day lane active
+- synthesis hardening producing ranked live intelligence
+- strategy/Owners/FUB/finance/KPI trust boundaries clear enough for strategy use
+
+Strategy Hub should:
+
+- ingest last strategy materials and John Kitchens prep
+- compare planned strategy against source-backed operating reality
+- surface contradictions
+- identify open decisions
+- identify constraints and blockers
+- produce a tight owner-level strategy packet
+- track follow-through after the meeting
+
+Acceptance:
+
+- output is concise enough for ownership to read
+- every important claim links to evidence
+- decisions and follow-through become tracked system objects
+
+### Phase 8 — First Useful Agents
+
+Goal: only after governed loops work, connect live agents to the system.
+
+Order:
+
+- Harlan personal assistant
+- Crewbert orchestrator/operator
+- one narrow specialist if needed
+
+Do not build:
+
+- 20 scouts
+- autonomous agents without kill switches
+- agents that bypass Foundation source truth
+- agents that act without logged evidence and approval lanes
+
+Acceptance:
+
+- agents read Foundation truth
+- agents create logged proposals/actions
+- agents have kill switches
+- agents do not invent separate memory or source truth
 
 ## Active Docs Only
 
-Use these as the live plan truth:
+Trust these first:
 
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
+- `docs/rebuild/intelligence-pipeline.md`
+- `docs/rebuild/current-runtime-map.md`
+- `docs/rebuild/agent-architecture.md`
+- `docs/rebuild/doc-cleanup-plan.md`
 - `docs/system-strategy.md`
 - `docs/source-registry.md`
 
-Treat most handoffs and research notes as supporting archive, not the plan.
+Evidence indexes:
 
-## Strategy Backlog Map
+- `docs/handoffs/INDEX.md`
+- `docs/audits/INDEX.md`
 
-Close now:
-
-- `FOUNDATION-001` - keep the signed-off strategy layer aligned to real source truth
-- `SOURCE-014` - close the full strategy live-input boundary for Freedom Community, BHAG, Agent Engine, and the strategy-used Owners slice
-
-Hardening after Level 2 closeout:
-
-- `DATA-001` - Freedom Sheet adapter + schema-drift monitoring
-  - baseline structure verification is now live through `sheets:verify`
-  - remaining work is adapter design plus visible health status in the app
-- `DATA-003` - render source-backed strategy values instead of markdown-held math
-- `ENGINE-001` - make planning attrition a first-class engine input
-- `DECISION-001` - decision-to-doc traceability (first slice live)
-- `DECISION-002` - visible strategy change ledger + doc-scoped annotations (first slice live)
-- `DECISION-003` - contradiction detection and cleanup (first slice live)
-- `DECISION-005` - decision provenance and participant model
-- `MEMORY-005` - temporal truth model for strategy and decisions
+Treat all other handoffs/audits as evidence unless promoted here or linked from the active docs.
 
 ## What Is Not Next
 
-- not a runtime pivot
-- not Harlan migration mid-foundation
-- not `Level 3` freshness on every source before key `Level 2` work is done
+- not a full runtime pivot
+- not Harlan migration before runtime/source trust
+- not a 32-script router rewrite before probes
 - not multi-agent sprawl
-- not rebuilding KPI inside AI OS
-- not manually auditing the full deal ledger by hand with Steve
-- not building the sales coach before KPI and FUB meaning is locked
-- not building ops-hub automations before Owners / FUB parity is signed off
+- not another giant manual backfill marathon
+- not manually auditing hundreds of rows with Steve
+- not rebuilding KPI inside AI OS before read rules are locked
+- not sales coach / ops hub automations before Owners, FUB, KPI, and source trust are stable
+- not deleting handoffs blindly
 
-## Backlog Link
+## Review Cadence
 
-The live backlog is the execution queue.
+Every major build block needs a checkpoint:
 
-If this plan and the backlog disagree, fix the backlog.
+- what shipped?
+- what is registered/scheduled/visible?
+- what is still manual?
+- what source facts changed?
+- what backlog cards were closed/enriched?
+- what docs became superseded?
+- what should run without Steve tonight?
 
-Related:
-
-- [Current State](current-state.md)
-- [System Strategy](../system-strategy.md)
-- [Rebuild Decisions](../rebuild-decisions.md)
-- [Agent Architecture](agent-architecture.md)
-- [Current Runtime Map](current-runtime-map.md)
-- [Foundation Backlog](/foundation#backlog)
+If the answer is unclear, the block is not done.
