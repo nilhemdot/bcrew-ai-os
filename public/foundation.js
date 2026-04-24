@@ -4951,10 +4951,13 @@ function renderFoundationJobsPanel(foundationJobs) {
       var scheduleLine = job.scheduleStatus
         ? ' ' + job.scheduleStatus + '.'
         : ''
+      var controlLine = job.controlUpdatedAt
+        ? ' Control updated ' + formatDate(job.controlUpdatedAt) + (job.controlUpdatedBy ? ' by ' + job.controlUpdatedBy : '') + '.'
+        : ''
       return {
         label: job.title,
         status: job.status || 'pending',
-        detail: runLine + '.' + nextLine + scheduleLine + ' ' + (job.nextAction || job.statusDetail || ''),
+        detail: runLine + '.' + nextLine + scheduleLine + controlLine + ' ' + (job.nextAction || job.statusDetail || ''),
       }
     })
   )

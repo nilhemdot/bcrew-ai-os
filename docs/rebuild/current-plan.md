@@ -163,7 +163,8 @@ Current partial proof:
 - `ai.bcrew.dashboard` is loaded as a LaunchAgent and was restarted after the runtime changes.
 - Active-run locking is enforced with a unique active-run index per job, so a second worker/manual trigger cannot start the same job while it is already queued/running.
 - Job timeout cleanup now kills the process group with `SIGTERM` and escalates to `SIGKILL`.
-- Remaining Phase 1 gap: operator-controlled DB/UI pause-disable controls and broader first-job activation.
+- Operator-controlled job pause/resume is DB-backed and exposed through `/api/foundation/jobs/:jobKey/control`.
+- Remaining Phase 1 gap: dashboard buttons for pause/resume and broader first-job activation.
 
 ### Phase 2 — Policy-Aware LLM Router MVP
 

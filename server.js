@@ -44,6 +44,7 @@ import {
   upsertFubLeadSourceRule,
   updateBacklogItem,
   updateDecision,
+  updateFoundationJobControl,
   updateOpenQuestion,
 } from './lib/foundation-db.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
@@ -3101,6 +3102,29 @@ app.get('/api/foundation/jobs', requireAdminToken, async (req, res) => {
       500,
       'foundation_jobs_load_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation job runs.'
+    )
+  }
+})
+
+app.post('/api/foundation/jobs/:jobKey/control', requireAdminToken, async (req, res) => {
+  try {
+    const jobKey = String(req.params.jobKey || '').trim()
+    const actor = req.body && req.body.actor ? String(req.body.actor) : 'dashboard'
+    const control = await updateFoundationJobControl(jobKey, {
+      runtimeMode: req.body?.runtimeMode,
+      enabled: typeof req.body?.enabled === 'boolean' ? req.body.enabled : undefined,
+      scheduleEveryMinutes: req.body?.scheduleEveryMinutes,
+      pauseReason: req.body?.pauseReason,
+    }, actor)
+    const snapshot = await getFoundationJobRunSnapshot({ limit: 30 })
+    cacheHeadersNoStore(res)
+    res.json({ ok: true, control, snapshot })
+  } catch (error) {
+    sendApiError(
+      res,
+      400,
+      'foundation_job_control_failed',
+      error instanceof Error ? error.message : 'Failed to update Foundation job control.'
     )
   }
 })

@@ -33,7 +33,7 @@ Built:
 
 Open:
 
-- operator-controlled DB/UI pause-disable controls beyond the first LaunchAgent-supervised loop
+- dashboard buttons for pause/resume beyond the DB/API control path
 - source cursors and leases
 - current-day extraction lane
 - policy-aware LLM router
@@ -52,7 +52,7 @@ Open:
 | --- | --- | --- | --- | --- |
 | System strategy | Done now | Doctrine and boundaries are visible. | None now. | Update only when doctrine changes. |
 | Rebuild visibility | Open hardening | v6 rebuild plan is live, prior plan is preserved in plan history, and handoff/audit indexes now separate evidence from active doctrine. | Finish doc cleanup Phase 1/2: classify indexes and promote any durable truth into active docs/backlog. | Optional dated archive folders after indexes are trusted. |
-| Runtime activation | Open hardening | First Foundation job registry and DB-backed job run ledger exist. Jobs can be run through the Foundation runner. Runtime metadata now marks scheduled vs manual jobs, computes due/next-run state, exposes scheduled/due/manual counts, and `npm run foundation:worker` can run due jobs one at a time. The first worker proof ran both read-only deal-review jobs and cleared due state. `ai.bcrew.foundation-worker` and `ai.bcrew.dashboard` are loaded as LaunchAgents, so the worker and web process survive terminal exit. Active-run locking now prevents duplicate queued/running runs for the same job, and job timeout cleanup kills the process group with `SIGTERM` then `SIGKILL`. | Add operator-controlled DB/UI pause-disable controls, then activate only the first 3-5 jobs. | Expand to all routines after the first jobs stay stable. |
+| Runtime activation | Open hardening | First Foundation job registry and DB-backed job run ledger exist. Jobs can be run through the Foundation runner. Runtime metadata now marks scheduled vs manual jobs, computes due/next-run state, exposes scheduled/due/manual counts, and `npm run foundation:worker` can run due jobs one at a time. The first worker proof ran both read-only deal-review jobs and cleared due state. `ai.bcrew.foundation-worker` and `ai.bcrew.dashboard` are loaded as LaunchAgents, so the worker and web process survive terminal exit. Active-run locking now prevents duplicate queued/running runs for the same job, job timeout cleanup kills the process group with `SIGTERM` then `SIGKILL`, and DB-backed pause/resume works through `/api/foundation/jobs/:jobKey/control`. | Add dashboard pause/resume buttons, then activate only the first 3-5 jobs. | Expand to all routines after the first jobs stay stable. |
 | LLM routing | Open now | Doctrine is defined: policy-aware router, credential registry, hub-dedicated capacity, no blind quota farming, API fallback required. | Build auth audit, credential registry, router shell, route probes, and `llm_calls` ledger. | Migrate extraction/synthesis behind router after probes pass. |
 | Extraction control | Open now | Archives and manual/bounded extraction have proven value. | Build current-day lane, backfill lane, source cursors, leases, budgets, retries, and pause switches. | Drive/Skool/YouTube/source workers run one bounded bite at a time. |
 | Strategy packet | Open now | `SRC-STRATEGY-001` is signed off. Freedom Community, BHAG, and Agent Engine current reality are captured. Decision provenance, traceability, change ledger, contradiction queue, and strategy-change watch have first slices. | Finish strategy-used Owners slice and close `SOURCE-014`. | Strategy Hub after runtime/router/extraction/synthesis are stable. |
