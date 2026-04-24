@@ -5116,6 +5116,68 @@ function renderExtractionControlPanel(extractionControl) {
   )
 }
 
+function formatCoveragePercent(value) {
+  var numeric = Number(value || 0)
+  if (!Number.isFinite(numeric)) return '0%'
+  return (Math.round(numeric * 10) / 10).toString().replace(/\.0$/, '') + '%'
+}
+
+function renderIntelligencePipelinePanel(coverage, synthesis) {
+  if (!coverage) return null
+  var sources = Array.isArray(coverage.sources) ? coverage.sources : []
+  if (!sources.length) return null
+
+  var summary = 'Archive -> candidates -> synthesis. '
+    + (coverage.totalArtifacts || 0) + ' artifacts archived, '
+    + (coverage.totalCandidates || 0) + ' candidates extracted'
+    + (coverage.latestSynthesisRun ? ', latest synthesis ' + formatDate(coverage.latestSynthesisRun.generatedAt) + '.' : '.')
+
+  var items = sources
+    .slice()
+    .sort(function(a, b) {
+      return (Number(b.artifactsWithoutCandidates || 0) - Number(a.artifactsWithoutCandidates || 0))
+    })
+    .slice(0, 8)
+    .map(function(source) {
+      var total = Number(source.totalArtifacts || 0)
+      var withCandidates = Number(source.artifactsWithCandidates || 0)
+      var withoutCandidates = Number(source.artifactsWithoutCandidates || 0)
+      var coveragePercent = Number(source.extractionCoveragePercent || 0)
+      var status = coveragePercent >= 75
+        ? 'live'
+        : withCandidates > 0
+          ? 'planned'
+          : 'risk'
+      var newest = source.newestArtifactAt ? ' Newest artifact ' + formatDate(source.newestArtifactAt) + '.' : ''
+      return {
+        label: source.sourceId,
+        status: status,
+        detail: total + ' archived, ' + withCandidates + ' with candidates, ' + withoutCandidates
+          + ' still unmined, ' + formatCoveragePercent(coveragePercent) + ' mined. '
+          + (source.totalCandidates || 0) + ' candidate records.' + newest,
+      }
+    })
+
+  if (coverage.latestSynthesisRun || (synthesis && synthesis.latestRun)) {
+    var latestRun = coverage.latestSynthesisRun || synthesis.latestRun
+    var itemCount = synthesis && Array.isArray(synthesis.latestItems) ? synthesis.latestItems.length : 0
+    items.unshift({
+      label: 'Latest synthesis',
+      status: latestRun ? 'live' : 'planned',
+      detail: latestRun
+        ? latestRun.runId + ' read ' + (latestRun.candidatesRead || latestRun.candidates_read || 0)
+          + ' candidates and produced ' + itemCount + ' visible item' + (itemCount === 1 ? '' : 's') + '.'
+        : 'No synthesis run recorded.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Intelligence Pipeline',
+    summary,
+    items
+  )
+}
+
 function renderDriveCorpusInventoryPanel(driveCorpusInventory) {
   if (!driveCorpusInventory || !driveCorpusInventory.summary) return null
   var summaryData = driveCorpusInventory.summary
@@ -9699,6 +9761,9 @@ function renderDataHealth() {
 
     var jobsPanel = renderFoundationJobsPanel(hub.foundationJobs)
     if (jobsPanel) container.appendChild(jobsPanel)
+
+    var intelligencePanel = renderIntelligencePipelinePanel(hub.sharedCommunicationsCoverage, hub.sharedCommunicationSynthesis)
+    if (intelligencePanel) container.appendChild(intelligencePanel)
 
     var llmPanel = renderLlmRuntimePanel(hub.llmRuntime)
     if (llmPanel) container.appendChild(llmPanel)

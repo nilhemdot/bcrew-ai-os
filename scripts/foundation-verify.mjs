@@ -188,6 +188,21 @@ async function main() {
       ? `${foundationHub.sharedCommunicationsCoverage.totalArtifacts} artifacts / ${foundationHub.sharedCommunicationsCoverage.totalCandidates} candidates`
       : 'missing coverage payload',
   )
+  const coverageSources = foundationHub.sharedCommunicationsCoverage?.sources || []
+  const sourcesWithExtractionDepth = coverageSources.filter(source =>
+    typeof source.artifactsWithCandidates === 'number' &&
+    typeof source.artifactsWithoutCandidates === 'number' &&
+    typeof source.extractionCoveragePercent === 'number'
+  )
+  ensure(
+    checks,
+    coverageSources.length > 0 &&
+      sourcesWithExtractionDepth.length === coverageSources.length,
+    'api/foundation-hub exposes shared-comms extraction depth',
+    coverageSources.length
+      ? `${sourcesWithExtractionDepth.length}/${coverageSources.length} sources expose with-candidate / unmined counts`
+      : 'missing coverage sources',
+  )
   ensure(
     checks,
     foundationHub.llmRuntime?.summary &&

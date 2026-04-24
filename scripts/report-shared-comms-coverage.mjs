@@ -22,6 +22,12 @@ function formatCandidateTypes(candidateTypes = {}) {
     .join(', ');
 }
 
+function formatCoveragePercent(value) {
+  const numeric = Number(value || 0);
+  if (!Number.isFinite(numeric)) return '0%';
+  return `${Math.round(numeric * 10) / 10}%`;
+}
+
 async function main() {
   await initFoundationDb();
   const coverage = await getSharedCommunicationCoverageSnapshot();
@@ -40,13 +46,17 @@ async function main() {
   for (const source of coverage.sources) {
     console.log(`${source.sourceId}`);
     console.log(`  Artifacts: ${source.totalArtifacts}`);
+    console.log(
+      `  Artifacts with candidates: ${source.artifactsWithCandidates || 0} (${formatCoveragePercent(source.extractionCoveragePercent)})`,
+    );
+    console.log(`  Artifacts still unmined: ${source.artifactsWithoutCandidates || 0}`);
     console.log(`  Candidates: ${source.totalCandidates}`);
     console.log(`  Oldest artifact: ${formatDate(source.oldestArtifactAt)}`);
     console.log(`  Newest artifact: ${formatDate(source.newestArtifactAt)}`);
     console.log(`  Candidate types: ${formatCandidateTypes(source.candidateTypes)}`);
     for (const [artifactType, summary] of Object.entries(source.artifactTypes || {})) {
       console.log(
-        `  - ${artifactType}: ${summary.total} artifacts, ${formatDate(summary.oldestArtifactAt)} -> ${formatDate(summary.newestArtifactAt)}`,
+        `  - ${artifactType}: ${summary.total} artifacts, ${summary.artifactsWithCandidates || 0} with candidates, ${summary.artifactsWithoutCandidates || 0} unmined, ${formatDate(summary.oldestArtifactAt)} -> ${formatDate(summary.newestArtifactAt)}`,
       );
     }
     console.log('');
