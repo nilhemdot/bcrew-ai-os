@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import process from 'node:process';
-import { driveExportDoc, driveSearch } from '../lib/google-delegated.js';
+import { driveExportDoc, driveListFolder, driveSearch } from '../lib/google-delegated.js';
 import {
   closeFoundationDb,
   getSharedCommunicationArchiveSnapshot,
@@ -39,6 +39,17 @@ function splitCsv(value) {
     .split(',')
     .map(entry => entry.trim())
     .filter(Boolean);
+}
+
+function buildDriveTimeFilterClause(args) {
+  const clauses = [];
+  const modifiedAfter = String(args.modifiedAfter || '').trim();
+  const modifiedBefore = String(args.modifiedBefore || '').trim();
+
+  if (modifiedAfter) clauses.push(`modifiedTime >= '${modifiedAfter}'`);
+  if (modifiedBefore) clauses.push(`modifiedTime < '${modifiedBefore}'`);
+
+  return clauses.length ? ` and ${clauses.join(' and ')}` : '';
 }
 
 function sortNewestFirst(items) {
@@ -114,11 +125,11 @@ async function resolveScanUsers(args) {
   return emails.length ? emails : [DEFAULT_SOURCE_USER];
 }
 
-async function searchMeetingArtifactsForUser(userEmail, searchLimit) {
+async function searchMeetingArtifactsForUser(userEmail, searchLimit, queryTimeClause = '') {
   const geminiFiles = sortNewestFirst(
     await driveSearch(
       userEmail,
-      GEMINI_NOTES_QUERY,
+      `${GEMINI_NOTES_QUERY}${queryTimeClause}`,
       'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
       searchLimit,
       { orderBy: 'modifiedTime desc' },
@@ -128,12 +139,54 @@ async function searchMeetingArtifactsForUser(userEmail, searchLimit) {
   const transcriptDocs = sortNewestFirst(
     await driveSearch(
       userEmail,
-      TRANSCRIPT_DOC_QUERY,
+      `${TRANSCRIPT_DOC_QUERY}${queryTimeClause}`,
       'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
       searchLimit,
       { orderBy: 'modifiedTime desc' },
     ),
   ).filter(file => file?.mimeType === 'application/vnd.google-apps.document');
+
+  return { geminiFiles, transcriptDocs };
+}
+
+function isGoogleFolder(file) {
+  return file?.mimeType === 'application/vnd.google-apps.folder';
+}
+
+function isGoogleDoc(file) {
+  return file?.mimeType === 'application/vnd.google-apps.document';
+}
+
+function isGeminiNoteDoc(file) {
+  return isGoogleDoc(file) && String(file?.name || '').includes('Notes by Gemini');
+}
+
+function isTranscriptDoc(file) {
+  return isGoogleDoc(file) && String(file?.name || '').includes('Transcript');
+}
+
+async function listMeetingArtifactsFromFolders(userEmail, folderIds, searchLimit) {
+  const pendingFolderIds = [...new Set(folderIds.filter(Boolean))];
+  const visitedFolderIds = new Set();
+  const allFiles = [];
+
+  while (pendingFolderIds.length) {
+    const folderId = pendingFolderIds.shift();
+    if (!folderId || visitedFolderIds.has(folderId)) continue;
+    visitedFolderIds.add(folderId);
+
+    const files = await driveListFolder(userEmail, folderId, searchLimit, {
+      orderBy: 'modifiedTime desc',
+    });
+
+    for (const file of files) {
+      allFiles.push(file);
+      if (isGoogleFolder(file)) pendingFolderIds.push(file.id);
+    }
+  }
+
+  const geminiFiles = sortNewestFirst(allFiles.filter(isGeminiNoteDoc));
+  const transcriptDocs = sortNewestFirst(allFiles.filter(isTranscriptDoc));
 
   return { geminiFiles, transcriptDocs };
 }
@@ -326,6 +379,8 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const limit = Math.min(1000, Math.max(1, Number(args.limit || 5)));
   const perUserSearchLimit = Math.min(1000, Math.max(Number(args.searchLimit || limit * 4), 10));
+  const queryTimeClause = buildDriveTimeFilterClause(args);
+  const folderIds = splitCsv(args.folderIds || args.folderId || '');
 
   await initFoundationDb();
 
@@ -338,12 +393,13 @@ async function main() {
   console.log(`  Transcript query: ${TRANSCRIPT_DOC_QUERY}`);
   console.log(`  Limit: ${limit}`);
   console.log(`  Search limit per user: ${perUserSearchLimit}`);
+  if (queryTimeClause) console.log(`  Drive time filter:${queryTimeClause}`);
+  if (folderIds.length) console.log(`  Folder ids: ${folderIds.join(', ')}`);
 
   for (const userEmail of scanUsers) {
-    const { geminiFiles, transcriptDocs } = await searchMeetingArtifactsForUser(
-      userEmail,
-      perUserSearchLimit,
-    );
+    const { geminiFiles, transcriptDocs } = folderIds.length
+      ? await listMeetingArtifactsFromFolders(userEmail, folderIds, perUserSearchLimit)
+      : await searchMeetingArtifactsForUser(userEmail, perUserSearchLimit, queryTimeClause);
 
     console.log(`  ${userEmail}: ${geminiFiles.length} Gemini docs, ${transcriptDocs.length} transcript docs`);
 

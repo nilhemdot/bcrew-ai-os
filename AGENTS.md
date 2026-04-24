@@ -242,3 +242,16 @@ When a major surface or doc pass is close to sign-off, do not just move on becau
 5. Only after that checkpoint should the section be called done.
 
 This is how we avoid hidden gaps, thin backlog cards, and "we talked about it but never promoted it" drift.
+
+## Chat Archive Discipline
+
+Before ending a long main-session chat:
+
+1. Save a handoff in `docs/handoffs/`
+2. If a raw/native transcript export is not available, save a reconstructed transcript or high-fidelity checkpoint
+3. If Steve explicitly asks to save the full chat, prefer a `full-convo` style handoff over a tiny checkpoint
+4. Promote any durable rules, decisions, and next steps out of chat and into repo truth before ending
+
+The goal is simple:
+
+- no important long chat should die only in the chat window

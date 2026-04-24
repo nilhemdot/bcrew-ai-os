@@ -9,7 +9,9 @@ function formatDate(isoString) {
 function formatAsOfDate(value) {
   if (!value) return ''
 
-  var date = new Date(value)
+  var date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? new Date(value + 'T12:00:00Z')
+    : new Date(value)
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Toronto',
     month: 'long',
@@ -135,44 +137,30 @@ var backlogWorkflowStages = [
   { key: 'done', label: 'Done', lanes: ['done'], intro: 'Closed work that is already part of the live system.' },
 ]
 
-var homeWorkboardStages = [
-  { key: 'todo', label: 'To Do', lanes: ['research', 'scoped', 'ranked'], tone: 'todo', intro: 'Queued work that still needs shaping, ranking, or proof.' },
-  { key: 'doing', label: 'Doing', lanes: ['executing'], tone: 'doing', intro: 'Live foundation work the system is actively moving right now.' },
-  { key: 'done', label: 'Done', lanes: ['done'], tone: 'done', intro: 'Closed work that is now part of the live operating layer.' },
-  { key: 'parked', label: 'Parked', lanes: ['parked'], tone: 'parked', intro: 'Work intentionally held back so it does not muddy the foundation pass.' },
-]
-
-var foundationCloseoutOrder = [
-  'FOUNDATION-001',
-  'FOUNDATION-002',
-  'FOUNDATION-003',
-  'FOUNDATION-VERIFY-001',
-  'SECURITY-001',
-  'MEMORY-002',
-  'SLICE-001',
-  'SCHEMA-001',
-]
-
 var foundationNowSequence = [
   {
-    title: 'Make source trust visible',
-    body: 'Turn the Data Sources section into a clear live source layer that separates source contracts, connector status, and sign-off state.',
+    title: 'Close the Owners package',
+    body: 'Use SOURCE-008, DATA-005, DATA-006, DATA-007, DATA-008, DATA-009, DATA-018, and DATA-019 to close Owners parity, lineage, and enforcement.',
+    href: '/doc?path=docs/rebuild/owners-closeout.md',
+    cta: 'Open Owners Closeout',
   },
   {
-    title: 'Close Owners Dashboard sign-off',
-    body: 'Finish SRC-OWNERS-001 so the system stops reasoning on provisional Admin-tab truth and the signed-off boundary is explicit.',
+    title: 'Close finance to Level 2',
+    body: 'Finish FOUNDATION-003 once the Owners package is stable enough to trust.',
+    href: '/foundation#source-sheets:SRC-FINANCE-001',
+    cta: 'Open Finance Source',
   },
   {
-    title: 'Close finance sign-off',
-    body: 'Finish SRC-FINANCE-001 so partner-commission normalization and finance roll-up boundaries stop living in partial interpretation.',
+    title: 'Lock KPI read rules',
+    body: 'Use SOURCE-010 to split KPI into explicit pipeline, shopping-list, executed-deal, goal, competition, and usage read rules.',
+    href: '/foundation#source-overview',
+    cta: 'Open Data Sources',
   },
   {
-    title: 'Add minimal verification',
-    body: 'Put in the smallest smoke-check layer that proves Foundation reads, writes, and critical source checks still work after changes.',
-  },
-  {
-    title: 'Prove the memory baseline',
-    body: 'Enable the OpenClaw native memory baseline and prove one narrow trusted loop before scaling capabilities or agents.',
+    title: 'Close required connectors by pillar',
+    body: 'After Owners and KPI are clear, wire the sources that actually matter by pillar: company, Steve / agent brand, and MarketMasters.',
+    href: '/doc?path=docs/source-notes/freedom-marketing.md',
+    cta: 'Open Marketing Source Map',
   },
 ]
 
@@ -182,10 +170,19 @@ var decisionViewState = {
   view: 'current',
 }
 
+var fallbackBacklogScopes = [
+  { key: 'foundation', label: 'Foundation / System', shortLabel: 'foundation/system', active: true },
+  { key: 'strategic_execution', label: 'Strategic Execution', shortLabel: 'strategic execution', active: true },
+  { key: 'marketing', label: 'Marketing', shortLabel: 'marketing', active: true },
+]
+
+var backlogScopeRegistry = fallbackBacklogScopes.slice()
+
 var backlogViewState = {
   query: '',
-  team: 'all',
+  scope: 'all',
   priority: 'all',
+  ids: [],
 }
 
 var sourceViewState = {
@@ -233,7 +230,7 @@ var sourceSectionConfigs = {
   'source-docs': {
     title: 'Docs',
     eyebrow: 'Data Sources',
-    intro: 'Repo docs and markdown-backed truth only. Use this lane when you are checking durable written sources instead of workbook or API sources.',
+    intro: 'Repo docs and markdown-backed truth only. Use this lane when you want to see which written packets are signed off, what those packets include, and what is still outside the closure.',
     showSystems: true,
     showConnectors: false,
     showKindFilter: false,
@@ -1846,20 +1843,36 @@ function sortBacklogItems(items) {
   return (items || []).slice().sort(compareBacklogItems)
 }
 
+function getBacklogScopes() {
+  return (backlogScopeRegistry || []).slice()
+}
+
+function getActiveBacklogScopes() {
+  return getBacklogScopes().filter(function(scope) {
+    return scope.active !== false
+  })
+}
+
+function getBacklogScopeMeta(scopeKey) {
+  return getBacklogScopes().find(function(scope) { return scope.key === scopeKey }) || null
+}
+
 function filterBacklogItems(items, viewState) {
   var query = String((viewState && viewState.query) || '').trim().toLowerCase()
-  var team = (viewState && viewState.team) || 'all'
+  var scope = (viewState && viewState.scope) || 'all'
   var priority = (viewState && viewState.priority) || 'all'
+  var ids = Array.isArray(viewState && viewState.ids) ? viewState.ids : []
 
   return sortBacklogItems(items).filter(function(item) {
-    if (team !== 'all' && item.team !== team) return false
+    if (ids.length && ids.indexOf(item.id) === -1) return false
+    if (scope !== 'all' && item.scope !== scope) return false
     if (priority !== 'all' && item.priority !== priority) return false
     if (!query) return true
 
     var haystack = [
       item.id,
       item.title,
-      item.team,
+      item.scope,
       item.lane,
       item.priority,
       item.summary,
@@ -1896,7 +1909,7 @@ function renderBacklogAccordionItem(item) {
   meta.className = 'backlog-item-summary-meta'
   meta.textContent = [
     item.id,
-    getBacklogTeamLabel(item.team),
+    getBacklogScopeLabel(item.scope),
     getBacklogLaneLabel(item.lane),
     item.owner || null,
   ].filter(Boolean).join(' · ')
@@ -2079,9 +2092,26 @@ function renderDecisionMemoryCard(item, hub, pendingUpdates, replacedBy) {
     card.appendChild(renderLabeledCopy('decision-source', 'Source', item.sourceRef))
   }
 
+  if (item.contextRef) {
+    card.appendChild(renderLabeledCopy('decision-source', 'Context', item.contextRef))
+  }
+
+  if (item.evidenceNotes) {
+    card.appendChild(renderLabeledCopy('decision-rationale', 'Evidence Notes', item.evidenceNotes))
+  }
+
   var metaRow = document.createElement('div')
   metaRow.className = 'decision-memory-meta'
 
+  if (item.decisionOwner) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Owner', item.decisionOwner))
+  }
+  if (item.confirmedBy) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Confirmed By', item.confirmedBy))
+  }
+  if (item.participantNames && item.participantNames.length) {
+    metaRow.appendChild(renderLabeledCopy('decision-meta', 'Participants', item.participantNames.join(', ')))
+  }
   if (item.createdAt) {
     metaRow.appendChild(renderLabeledCopy('decision-meta', 'Created', formatDate(item.createdAt)))
   }
@@ -2104,6 +2134,41 @@ function renderDecisionMemoryCard(item, hub, pendingUpdates, replacedBy) {
   }
   if (metaRow.childNodes.length) {
     card.appendChild(metaRow)
+  }
+
+  var traceMap = hub && hub.decisionTraceability && hub.decisionTraceability.byDecision
+    ? hub.decisionTraceability.byDecision
+    : {}
+  var trace = traceMap[item.id]
+  if (trace) {
+    var traceBlock = document.createElement('details')
+    traceBlock.className = 'memory-inline-editor'
+
+    var traceSummary = document.createElement('summary')
+    traceSummary.textContent = 'Decision Trace'
+    traceBlock.appendChild(traceSummary)
+
+    var traceBody = document.createElement('div')
+    traceBody.className = 'memory-related-updates'
+    traceBody.appendChild(renderLabeledCopy('decision-meta', 'Trace status', trace.traceStatus === 'linked' ? 'Linked to docs' : 'No linked doc updates yet'))
+    traceBody.appendChild(renderLabeledCopy('decision-meta', 'Linked doc updates', String(trace.linkedDocUpdateCount || 0)))
+    traceBody.appendChild(renderLabeledCopy('decision-meta', 'Open linked updates', String(trace.openDocUpdateCount || 0)))
+    traceBody.appendChild(renderLabeledCopy('decision-meta', 'Applied linked updates', String(trace.appliedDocUpdateCount || 0)))
+    traceBody.appendChild(renderLabeledCopy('decision-meta', 'Affected docs', trace.affectedDocs && trace.affectedDocs.length ? trace.affectedDocs.join(', ') : '—'))
+    if (trace.latestDecisionEventAt) {
+      traceBody.appendChild(renderLabeledCopy('decision-meta', 'Last decision event', formatDate(trace.latestDecisionEventAt)))
+    }
+    if (trace.latestDocEventAt) {
+      traceBody.appendChild(renderLabeledCopy('decision-meta', 'Last linked doc event', formatDate(trace.latestDocEventAt)))
+    }
+    if (trace.latestApprovalBy) {
+      traceBody.appendChild(renderLabeledCopy('decision-meta', 'Last review / approval by', trace.latestApprovalBy))
+    }
+    if (trace.latestAppliedCommit) {
+      traceBody.appendChild(renderLabeledCopy('decision-meta', 'Last applied commit', trace.latestAppliedCommit))
+    }
+    traceBlock.appendChild(traceBody)
+    card.appendChild(traceBlock)
   }
 
   var relatedUpdates = (pendingUpdates || []).filter(function(update) {
@@ -2398,6 +2463,129 @@ function renderChangeEventCard(item) {
   return card
 }
 
+function buildStrategyLedgerItems(context) {
+  var updateMap = new Map()
+  ;(context.updates || []).forEach(function(item) {
+    updateMap.set(item.id, item)
+  })
+
+  var items = []
+
+  ;(context.updates || []).forEach(function(item) {
+    items.push({
+      kind: 'proposal',
+      key: 'proposal-' + item.id,
+      createdAt: item.proposedAt,
+      title: item.summary,
+      subtitle: item.id + ' · ' + item.status,
+      targetDocPath: item.targetDocPath,
+      targetSection: item.targetSection,
+      decisionId: item.decisionId,
+      decisionTitle: item.decisionTitle,
+      decisionSourceRef: item.decisionSourceRef,
+      decisionContextRef: item.decisionContextRef,
+      decisionOwner: item.decisionOwner,
+      decisionConfirmedBy: item.decisionConfirmedBy,
+      detail: item.proposedDiff || item.proposedText || '',
+    })
+  })
+
+  ;(context.changes || []).forEach(function(change) {
+    var linked = updateMap.get(change.entityId)
+    items.push({
+      kind: 'event',
+      key: 'event-' + change.id,
+      createdAt: change.createdAt,
+      title: change.summary,
+      subtitle: change.actor + ' · ' + change.eventType,
+      targetDocPath: change.metadata && change.metadata.targetDocPath
+        ? change.metadata.targetDocPath
+        : (linked ? linked.targetDocPath : null),
+      targetSection: change.metadata && change.metadata.targetSection
+        ? change.metadata.targetSection
+        : (linked ? linked.targetSection : null),
+      decisionId: change.metadata && change.metadata.decisionId
+        ? change.metadata.decisionId
+        : (linked ? linked.decisionId : null),
+      decisionTitle: linked ? linked.decisionTitle : null,
+      decisionSourceRef: linked ? linked.decisionSourceRef : null,
+      decisionContextRef: linked ? linked.decisionContextRef : null,
+      decisionOwner: linked ? linked.decisionOwner : null,
+      decisionConfirmedBy: linked ? linked.decisionConfirmedBy : null,
+      detail: '',
+    })
+  })
+
+  items.sort(function(a, b) {
+    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+  })
+
+  return items
+}
+
+function renderStrategyLedgerCard(item) {
+  var card = document.createElement('article')
+  card.className = 'doc-update-card'
+
+  var top = document.createElement('div')
+  top.className = 'decision-top'
+
+  var titleWrap = document.createElement('div')
+  var title = document.createElement('h4')
+  title.textContent = item.title
+  titleWrap.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'decision-id'
+  meta.textContent = (item.kind === 'proposal' ? 'Proposal' : 'History') + ' · ' + (item.subtitle || 'Change')
+  titleWrap.appendChild(meta)
+  top.appendChild(titleWrap)
+
+  var stamp = document.createElement('span')
+  stamp.className = 'change-stamp'
+  stamp.textContent = formatDate(item.createdAt)
+  top.appendChild(stamp)
+
+  card.appendChild(top)
+
+  if (item.decisionId || item.decisionTitle) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Decision', [item.decisionId, item.decisionTitle].filter(Boolean).join(' · ')))
+  }
+  if (item.targetDocPath) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Target', item.targetDocPath))
+  }
+  if (item.targetSection) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Section', item.targetSection))
+  }
+  if (item.decisionSourceRef) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Why / source', item.decisionSourceRef))
+  }
+  if (item.decisionContextRef) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Context', item.decisionContextRef))
+  }
+  if (item.decisionOwner || item.decisionConfirmedBy) {
+    card.appendChild(renderLabeledCopy(
+      'decision-meta',
+      'Approval path',
+      [item.decisionOwner ? 'Owner: ' + item.decisionOwner : '', item.decisionConfirmedBy ? 'Confirmed: ' + item.decisionConfirmedBy : ''].filter(Boolean).join(' · ')
+    ))
+  }
+  if (item.kind === 'proposal' && item.detail) {
+    var diff = document.createElement('details')
+    diff.className = 'memory-inline-editor'
+    var diffSummary = document.createElement('summary')
+    diffSummary.textContent = 'What changed'
+    diff.appendChild(diffSummary)
+    var diffBody = document.createElement('pre')
+    diffBody.className = 'doc-update-diff'
+    diffBody.textContent = item.detail
+    diff.appendChild(diffBody)
+    card.appendChild(diff)
+  }
+
+  return card
+}
+
 function renderBacklogCreatePanel(hub) {
   var panel = document.createElement('section')
   panel.className = 'panel memory-panel'
@@ -2421,6 +2609,11 @@ function renderBacklogCreatePanel(hub) {
   var form = document.createElement('form')
   form.className = 'memory-form-grid'
 
+  var availableScopes = ((hub.meta && hub.meta.backlogScopes) || getBacklogScopes()).filter(function(scope) {
+    return scope.active !== false
+  })
+  var defaultScope = availableScopes.find(function(scope) { return scope.key === 'foundation' }) || availableScopes[0] || fallbackBacklogScopes[0]
+
   var prefixSelect = buildSelect((hub.meta && hub.meta.backlogIdPrefixes || []).concat(['TASK']).filter(function(value, index, array) {
     return array.indexOf(value) === index
   }).map(function(prefix, index) {
@@ -2428,11 +2621,10 @@ function renderBacklogCreatePanel(hub) {
   }))
   form.appendChild(buildField('ID Prefix', prefixSelect))
 
-  var teamSelect = buildSelect([
-    { value: 'dev', label: 'Dev', selected: true },
-    { value: 'marketing', label: 'Marketing' },
-  ])
-  form.appendChild(buildField('Team', teamSelect))
+  var scopeSelect = buildSelect(availableScopes.map(function(scope) {
+    return { value: scope.key, label: scope.label, selected: scope.key === defaultScope.key }
+  }))
+  form.appendChild(buildField('Scope', scopeSelect))
 
   var laneSelect = buildSelect(backlogLanes.map(function(lane, index) {
     return { value: lane.key, label: lane.label, selected: lane.key === 'research' && index >= 0 }
@@ -2489,7 +2681,7 @@ function renderBacklogCreatePanel(hub) {
     setFormStatus(status, 'Creating backlog item…')
     foundationMutation('/api/foundation/backlog', 'POST', {
       idPrefix: prefixSelect.value,
-      team: teamSelect.value,
+      scope: scopeSelect.value,
       lane: laneSelect.value,
       priority: prioritySelect.value,
       title: titleInput.value.trim(),
@@ -2502,7 +2694,7 @@ function renderBacklogCreatePanel(hub) {
     }).then(function() {
       form.reset()
       prefixSelect.value = (hub.meta && hub.meta.backlogIdPrefixes && hub.meta.backlogIdPrefixes[0]) || 'FOUNDATION'
-      teamSelect.value = 'dev'
+      scopeSelect.value = defaultScope.key
       laneSelect.value = 'research'
       prioritySelect.value = 'P1'
       setFormStatus(status, 'Backlog item created.', 'success')
@@ -2528,6 +2720,11 @@ function renderBacklogItemEditor(item) {
 
   var wrap = document.createElement('div')
   wrap.className = 'memory-inline-grid'
+
+  var scopeSelect = buildSelect(getActiveBacklogScopes().map(function(scope) {
+    return { value: scope.key, label: scope.label, selected: scope.key === item.scope }
+  }))
+  wrap.appendChild(buildField('Scope', scopeSelect))
 
   var laneSelect = buildSelect(backlogLanes.map(function(lane) {
     return { value: lane.key, label: lane.label, selected: lane.key === item.lane }
@@ -2561,6 +2758,7 @@ function renderBacklogItemEditor(item) {
     save.disabled = true
     setFormStatus(status, 'Saving…')
     foundationMutation('/api/foundation/backlog/' + encodeURIComponent(item.id), 'PATCH', {
+      scope: scopeSelect.value,
       lane: laneSelect.value,
       priority: prioritySelect.value,
       owner: ownerInput.value.trim(),
@@ -2584,10 +2782,15 @@ function getBacklogLaneLabel(laneKey) {
   return match ? match.label : laneKey
 }
 
-function getBacklogTeamLabel(teamKey) {
-  if (teamKey === 'dev') return 'Dev'
-  if (teamKey === 'marketing') return 'Marketing'
-  return teamKey || 'Unassigned'
+function getBacklogScopeLabel(scopeKey) {
+  var match = getBacklogScopeMeta(scopeKey)
+  return match ? match.label : (scopeKey || 'Unassigned')
+}
+
+function getBacklogScopeShortLabel(scopeKey) {
+  var match = getBacklogScopeMeta(scopeKey)
+  if (!match) return scopeKey || 'unassigned'
+  return match.shortLabel || String(match.label || scopeKey).toLowerCase()
 }
 
 function renderOperatorToolsDrawer(titleText, introText, panels, openByDefault) {
@@ -2632,17 +2835,24 @@ function renderOperatorToolsDrawer(titleText, introText, panels, openByDefault) 
   return details
 }
 
-function parseDecisionIdList(value) {
+function parseCommaList(value, transform) {
   var seen = {}
   return (value || '')
     .split(',')
-    .map(function(part) { return part.trim().toUpperCase() })
+    .map(function(part) { return part.trim() })
+    .map(function(part) { return transform ? transform(part) : part })
     .filter(function(part) { return part })
     .filter(function(part) {
       if (seen[part]) return false
       seen[part] = true
       return true
     })
+}
+
+function parseDecisionIdList(value) {
+  return parseCommaList(value, function(part) {
+    return part.toUpperCase()
+  })
 }
 
 function getDecisionSortTimestamp(item) {
@@ -2657,6 +2867,203 @@ function sortDecisionsNewestFirst(items) {
     if (stampDiff) return stampDiff
     return String(b.id || '').localeCompare(String(a.id || ''))
   })
+}
+
+function getDecisionTextTokens(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter(function(token) {
+      return token.length >= 4 && [
+        'that', 'this', 'with', 'from', 'into', 'then', 'than', 'they', 'them',
+        'have', 'will', 'when', 'where', 'what', 'which', 'should', 'stays',
+        'stay', 'only', 'just', 'real', 'live', 'work', 'works', 'using', 'used',
+        'system', 'strategy', 'decision', 'decisions', 'docs', 'doc', 'current',
+      ].indexOf(token) === -1
+    })
+}
+
+function getDecisionKeywordSet(item) {
+  var set = {}
+  getDecisionTextTokens((item && item.title) || '').concat(getDecisionTextTokens((item && item.summary) || '')).forEach(function(token) {
+    set[token] = true
+  })
+  return Object.keys(set)
+}
+
+function hasDecisionLink(a, b) {
+  var aIds = (a && a.supersedesIds) || []
+  var bIds = (b && b.supersedesIds) || []
+  return aIds.indexOf(b.id) !== -1 || bIds.indexOf(a.id) !== -1
+}
+
+function getDecisionReviewPriority(type) {
+  if (type === 'needs_lock') return 0
+  if (type === 'missing_source_ref') return 1
+  if (type === 'missing_provenance') return 2
+  if (type === 'broken_supersedes_link') return 3
+  if (type === 'orphan_doc_update') return 4
+  if (type === 'possible_relationship') return 5
+  return 9
+}
+
+function getDecisionReviewSnapshot(hub) {
+  if (
+    hub &&
+    hub.decisionReview &&
+    typeof hub.decisionReview.total === 'number' &&
+    hub.decisionReview.counts &&
+    Array.isArray(hub.decisionReview.items)
+  ) {
+    return hub.decisionReview
+  }
+
+  var decisions = sortDecisionsNewestFirst((hub && hub.decisions) || [])
+  var pendingDocUpdates = (hub && hub.pendingDocUpdates) || []
+  var byId = {}
+  decisions.forEach(function(item) {
+    byId[item.id] = item
+  })
+
+  var reviewItems = []
+
+  decisions.forEach(function(item) {
+    if (item.status === 'proposed') {
+      reviewItems.push({
+        key: 'proposed-' + item.id,
+        tone: 'pending',
+        type: 'needs_lock',
+        title: item.id + ' still needs lock / cleanup',
+        meta: item.category + ' decision',
+        detail: 'This decision is still proposed. It needs either a lock, a merge, or a rejection path.',
+        relatedDecisionIds: [item.id],
+        nextStep: 'Review whether this should lock, merge into an existing decision, or be rejected.',
+      })
+    }
+
+    if (!item.sourceRef) {
+      reviewItems.push({
+        key: 'source-ref-' + item.id,
+        tone: 'pending',
+        type: 'missing_source_ref',
+        title: item.id + ' is missing source evidence',
+        meta: item.status + ' · ' + item.category,
+        detail: 'This decision does not have a source reference yet. That weakens provenance and later review.',
+        relatedDecisionIds: [item.id],
+        nextStep: 'Add the exact meeting, audit, chat, or source reference that justified this decision.',
+      })
+    }
+
+    if (item.status === 'locked') {
+      var missingParts = []
+      if (!item.decisionOwner) missingParts.push('decision owner')
+      if (!item.confirmedBy) missingParts.push('confirmed by')
+      if (!item.participantNames || !item.participantNames.length) missingParts.push('participants')
+      if (!item.contextRef) missingParts.push('context ref')
+
+      if (missingParts.length) {
+        reviewItems.push({
+          key: 'provenance-' + item.id,
+          tone: 'pending',
+          type: 'missing_provenance',
+          title: item.id + ' has incomplete decision provenance',
+          meta: item.category + ' · locked',
+          detail: 'Missing: ' + missingParts.join(', ') + '.',
+          relatedDecisionIds: [item.id],
+          nextStep: 'Fill in the owner, confirmer, participants, and context so this lock has durable provenance.',
+        })
+      }
+    }
+
+    ;(item.supersedesIds || []).forEach(function(targetId) {
+      if (!byId[targetId]) {
+        reviewItems.push({
+          key: 'broken-link-' + item.id + '-' + targetId,
+          tone: 'missing',
+          type: 'broken_supersedes_link',
+          title: item.id + ' points at a missing superseded decision',
+          meta: item.status + ' · ' + item.category,
+          detail: 'Supersedes target ' + targetId + ' is not present in the live decision log.',
+          relatedDecisionIds: [item.id],
+          nextStep: 'Fix the supersedes link or remove it if the old decision was referenced by mistake.',
+        })
+      }
+    })
+  })
+
+  pendingDocUpdates.forEach(function(item) {
+    if (item.status === 'pending' && !item.decisionId) {
+      reviewItems.push({
+        key: 'orphan-doc-' + item.id,
+        tone: 'pending',
+        type: 'orphan_doc_update',
+        title: item.id + ' has no linked decision',
+        meta: 'Pending doc proposal',
+        detail: 'This doc update proposal is reviewable, but it is not linked back to a decision yet.',
+        relatedDecisionIds: [],
+        nextStep: 'Link this proposal to the decision that actually justified the doc change.',
+      })
+    }
+  })
+
+  var activeDecisions = decisions.filter(function(item) {
+    return item.status !== 'superseded'
+  })
+
+  for (var i = 0; i < activeDecisions.length; i += 1) {
+    for (var j = i + 1; j < activeDecisions.length; j += 1) {
+      var left = activeDecisions[i]
+      var right = activeDecisions[j]
+      if (left.category !== right.category) continue
+      if (hasDecisionLink(left, right)) continue
+
+      var leftTokens = getDecisionKeywordSet(left)
+      var rightTokens = getDecisionKeywordSet(right)
+      var shared = leftTokens.filter(function(token) {
+        return rightTokens.indexOf(token) !== -1
+      })
+
+      if (shared.length >= 3) {
+        reviewItems.push({
+          key: 'overlap-' + left.id + '-' + right.id,
+          tone: 'planned',
+          type: 'possible_relationship',
+          title: left.id + ' and ' + right.id + ' may need an explicit relationship',
+          meta: left.category + ' decisions',
+          detail: 'Shared terms: ' + shared.slice(0, 5).join(', ') + '. These do not look broken, but they may need an explicit clarify / related / supersedes relationship so the log reads cleanly.',
+          relatedDecisionIds: [left.id, right.id],
+          nextStep: 'Review whether they should stay separate, get a relationship note, or eventually be linked through clarification or supersession.',
+        })
+      }
+    }
+  }
+
+  reviewItems.sort(function(a, b) {
+    var priorityDiff = getDecisionReviewPriority(a.type) - getDecisionReviewPriority(b.type)
+    if (priorityDiff) return priorityDiff
+    return String(a.title || '').localeCompare(String(b.title || ''))
+  })
+
+  var byType = {}
+  reviewItems.forEach(function(item) {
+    byType[item.type] = (byType[item.type] || 0) + 1
+  })
+
+  return {
+    total: reviewItems.length,
+    status: reviewItems.length ? 'pending' : 'connected',
+    counts: {
+      needsLock: byType.needs_lock || 0,
+      missingSourceRef: byType.missing_source_ref || 0,
+      missingProvenance: byType.missing_provenance || 0,
+      brokenSupersedesLink: byType.broken_supersedes_link || 0,
+      orphanDocUpdate: byType.orphan_doc_update || 0,
+      possibleRelationship: byType.possible_relationship || 0,
+    },
+    items: reviewItems,
+  }
 }
 
 function buildDecisionReplacementMap(decisions) {
@@ -2823,6 +3230,195 @@ function renderDecisionStack(group, hub, pendingUpdates, replacementMap) {
   return details
 }
 
+function renderDecisionReviewItem(item, index) {
+  var card = document.createElement('article')
+  card.className = 'doc-update-card'
+
+  var top = document.createElement('div')
+  top.className = 'decision-top'
+
+  var titleWrap = document.createElement('div')
+  var title = document.createElement('h4')
+  title.textContent = item.title
+  titleWrap.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'decision-id'
+  meta.textContent = 'Step ' + (index + 1) + ' · ' + item.meta
+  titleWrap.appendChild(meta)
+  top.appendChild(titleWrap)
+
+  top.appendChild(renderSourceTag(item.tone === 'missing' ? 'Needs fix' : item.tone === 'pending' ? 'Needs review' : 'Review later', item.tone))
+  card.appendChild(top)
+
+  var detail = document.createElement('p')
+  detail.className = 'source-card-copy'
+  detail.textContent = item.detail
+  card.appendChild(detail)
+
+  if (item.nextStep) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Next step', item.nextStep))
+  }
+
+  if (item.relatedDecisionIds && item.relatedDecisionIds.length) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Decision IDs', item.relatedDecisionIds.join(', ')))
+  }
+
+  return card
+}
+
+function renderDecisionReviewPanel(hub) {
+  var snapshot = getDecisionReviewSnapshot(hub)
+  var traceability = hub && hub.decisionTraceability ? hub.decisionTraceability : { summary: {} }
+  var backlogIds = ['DECISION-001', 'DECISION-002', 'DECISION-003', 'DECISION-005', 'MEMORY-005']
+  var relatedBacklogItems = (hub.backlogItems || []).filter(function(item) {
+    return backlogIds.indexOf(item.id) !== -1
+  })
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Decision Cleanup'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'What still needs review'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'This is the first live contradiction / traceability queue. It only flags concrete review items, not speculative AI guesses.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  panel.appendChild(renderOverviewStatusPanel([
+    {
+      label: 'Live review items',
+      status: snapshot.status,
+      detail: snapshot.total
+        ? snapshot.total + ' decision cleanup item' + (snapshot.total === 1 ? '' : 's') + ' are live right now.'
+        : 'No live contradiction or traceability review items are currently detected.',
+    },
+    {
+      label: 'Needs lock',
+      status: snapshot.counts.needsLock ? 'pending' : 'connected',
+      detail: snapshot.counts.needsLock
+        ? snapshot.counts.needsLock + ' proposed decision' + (snapshot.counts.needsLock === 1 ? '' : 's') + ' still need lock / merge / rejection.'
+        : 'No proposed decisions are waiting on lock right now.',
+    },
+    {
+      label: 'Relationship review',
+      status: snapshot.counts.possibleRelationship ? 'pending' : 'connected',
+      detail: snapshot.counts.possibleRelationship
+        ? snapshot.counts.possibleRelationship + ' related decision pair' + (snapshot.counts.possibleRelationship === 1 ? '' : 's') + ' should be reviewed.'
+        : 'No relationship-review pairs are currently detected.',
+    },
+    {
+      label: 'Traceability gaps',
+      status: (snapshot.counts.missingSourceRef || snapshot.counts.missingProvenance || snapshot.counts.brokenSupersedesLink || snapshot.counts.orphanDocUpdate) ? 'pending' : 'connected',
+      detail: 'Missing source refs: ' + snapshot.counts.missingSourceRef +
+        ' · incomplete provenance: ' + snapshot.counts.missingProvenance +
+        ' · broken supersedes links: ' + snapshot.counts.brokenSupersedesLink +
+        ' · orphan doc updates: ' + snapshot.counts.orphanDocUpdate,
+    },
+    {
+      label: 'Decision-to-doc links',
+      status: traceability.summary && traceability.summary.orphanDocUpdates ? 'pending' : (traceability.summary && traceability.summary.linkedDocUpdates ? 'connected' : 'neutral'),
+      detail: (traceability.summary && traceability.summary.linkedDecisions ? traceability.summary.linkedDecisions : 0) + ' linked decision' + (((traceability.summary && traceability.summary.linkedDecisions) || 0) === 1 ? '' : 's') +
+        ' · ' + (traceability.summary && traceability.summary.linkedDocUpdates ? traceability.summary.linkedDocUpdates : 0) + ' linked doc update' + (((traceability.summary && traceability.summary.linkedDocUpdates) || 0) === 1 ? '' : 's') +
+        ' · ' + (traceability.summary && traceability.summary.affectedDocs ? traceability.summary.affectedDocs : 0) + ' affected doc' + (((traceability.summary && traceability.summary.affectedDocs) || 0) === 1 ? '' : 's'),
+    },
+  ], {
+    eyebrow: 'Review Queue',
+    title: 'Decision conflict and traceability watch',
+    intro: 'This makes contradiction cleanup visible before the full engine exists.',
+  }))
+
+  var queue = document.createElement('details')
+  queue.className = 'decision-stack'
+  queue.open = snapshot.total > 0
+
+  var summary = document.createElement('summary')
+  summary.className = 'decision-stack-summary decision-stack-summary-review'
+  var summaryLeft = document.createElement('div')
+  summaryLeft.className = 'decision-stack-summary-left'
+  var summaryTitle = document.createElement('div')
+  summaryTitle.className = 'decision-stack-title'
+  summaryTitle.textContent = 'Current Review Queue'
+  summaryLeft.appendChild(summaryTitle)
+  var summaryIntro = document.createElement('div')
+  summaryIntro.className = 'decision-stack-intro'
+  summaryIntro.textContent = snapshot.total
+    ? 'Start at the top and work down. Hard fixes come first, relationship cleanup comes later.'
+    : 'Nothing is actively flagged right now. The backlog under this queue is the next build work.'
+  summaryLeft.appendChild(summaryIntro)
+  summary.appendChild(summaryLeft)
+  var count = document.createElement('span')
+  count.className = 'decision-stack-count'
+  count.textContent = snapshot.total
+  summary.appendChild(count)
+  queue.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'decision-stack-body'
+  if (snapshot.total) {
+    snapshot.items.forEach(function(item, index) {
+      body.appendChild(renderDecisionReviewItem(item, index))
+    })
+  } else {
+    var empty = document.createElement('div')
+    empty.className = 'decision-empty-state'
+    empty.textContent = 'No live review items. The next work is still building deeper contradiction logic, provenance, and temporal truth.'
+    body.appendChild(empty)
+  }
+  queue.appendChild(body)
+  panel.appendChild(queue)
+
+  if (relatedBacklogItems.length) {
+    var backlogQueue = document.createElement('details')
+    backlogQueue.className = 'decision-stack'
+
+    var backlogSummary = document.createElement('summary')
+    backlogSummary.className = 'decision-stack-summary decision-stack-summary-history'
+
+    var backlogSummaryLeft = document.createElement('div')
+    backlogSummaryLeft.className = 'decision-stack-summary-left'
+
+    var backlogSummaryTitle = document.createElement('div')
+    backlogSummaryTitle.className = 'decision-stack-title'
+    backlogSummaryTitle.textContent = 'Backlog Behind This Queue'
+    backlogSummaryLeft.appendChild(backlogSummaryTitle)
+
+    var backlogSummaryIntro = document.createElement('div')
+    backlogSummaryIntro.className = 'decision-stack-intro'
+    backlogSummaryIntro.textContent = 'These are the exact build cards behind contradiction cleanup, provenance, and temporal truth.'
+    backlogSummaryLeft.appendChild(backlogSummaryIntro)
+
+    backlogSummary.appendChild(backlogSummaryLeft)
+
+    var backlogCount = document.createElement('span')
+    backlogCount.className = 'decision-stack-count'
+    backlogCount.textContent = relatedBacklogItems.length
+    backlogSummary.appendChild(backlogCount)
+
+    backlogQueue.appendChild(backlogSummary)
+
+    var backlogBody = document.createElement('div')
+    backlogBody.className = 'decision-stack-body'
+    sortBacklogItems(relatedBacklogItems).forEach(function(item) {
+      backlogBody.appendChild(renderBacklogAccordionItem(item))
+    })
+    backlogQueue.appendChild(backlogBody)
+    panel.appendChild(backlogQueue)
+  }
+
+  return panel
+}
+
 function getOpenQuestionSortTimestamp(item) {
   var stamp = item && (item.updatedAt || item.resolvedAt || item.createdAt)
   var value = stamp ? new Date(stamp).getTime() : 0
@@ -2938,6 +3534,21 @@ function renderDecisionCreatePanel(hub) {
   var sourceRefInput = buildInput('text', 'Optional source or reference')
   form.appendChild(buildField('Source Ref', sourceRefInput))
 
+  var decisionOwnerInput = buildInput('text', 'Steve')
+  form.appendChild(buildField('Decision Owner', decisionOwnerInput))
+
+  var confirmedByInput = buildInput('text', 'Steve')
+  form.appendChild(buildField('Confirmed By', confirmedByInput))
+
+  var participantsInput = buildInput('text', 'Steve, Codex')
+  form.appendChild(buildField('Participants', participantsInput))
+
+  var contextRefInput = buildInput('text', 'Meeting, audit, thread, or session link')
+  form.appendChild(buildField('Context Ref', contextRefInput))
+
+  var evidenceNotesInput = buildTextarea('Why this is trustworthy / what supports it', 3)
+  form.appendChild(buildField('Evidence Notes', evidenceNotesInput))
+
   var supersedesInput = buildInput('text', 'DEC-001, DEC-004')
   form.appendChild(buildField('Supersedes', supersedesInput))
 
@@ -2966,6 +3577,11 @@ function renderDecisionCreatePanel(hub) {
       summary: summaryInput.value.trim(),
       rationale: rationaleInput.value.trim(),
       sourceRef: sourceRefInput.value.trim(),
+      decisionOwner: decisionOwnerInput.value.trim(),
+      confirmedBy: confirmedByInput.value.trim(),
+      participantNames: parseCommaList(participantsInput.value),
+      contextRef: contextRefInput.value.trim(),
+      evidenceNotes: evidenceNotesInput.value.trim(),
       supersedesIds: parseDecisionIdList(supersedesInput.value),
     }).then(function() {
       form.reset()
@@ -3010,6 +3626,26 @@ function renderDecisionEditor(item, hub) {
   sourceRefInput.value = item.sourceRef || ''
   wrap.appendChild(buildField('Source Ref', sourceRefInput))
 
+  var decisionOwnerInput = buildInput('text', 'Decision owner')
+  decisionOwnerInput.value = item.decisionOwner || ''
+  wrap.appendChild(buildField('Decision Owner', decisionOwnerInput))
+
+  var confirmedByInput = buildInput('text', 'Confirmed by')
+  confirmedByInput.value = item.confirmedBy || ''
+  wrap.appendChild(buildField('Confirmed By', confirmedByInput))
+
+  var participantsInput = buildInput('text', 'Steve, Codex')
+  participantsInput.value = (item.participantNames || []).join(', ')
+  wrap.appendChild(buildField('Participants', participantsInput))
+
+  var contextRefInput = buildInput('text', 'Meeting, audit, thread, or session link')
+  contextRefInput.value = item.contextRef || ''
+  wrap.appendChild(buildField('Context Ref', contextRefInput))
+
+  var evidenceNotesInput = buildTextarea('Evidence notes', 3)
+  evidenceNotesInput.value = item.evidenceNotes || ''
+  wrap.appendChild(buildField('Evidence Notes', evidenceNotesInput))
+
   var supersedesInput = buildInput('text', 'DEC-001, DEC-004')
   supersedesInput.value = (item.supersedesIds || []).join(', ')
   wrap.appendChild(buildField('Supersedes', supersedesInput))
@@ -3031,6 +3667,11 @@ function renderDecisionEditor(item, hub) {
       category: categorySelect.value,
       status: statusSelect.value,
       sourceRef: sourceRefInput.value.trim(),
+      decisionOwner: decisionOwnerInput.value.trim(),
+      confirmedBy: confirmedByInput.value.trim(),
+      participantNames: parseCommaList(participantsInput.value),
+      contextRef: contextRefInput.value.trim(),
+      evidenceNotes: evidenceNotesInput.value.trim(),
       supersedesIds: parseDecisionIdList(supersedesInput.value),
     }).then(function() {
       setFormStatus(status, 'Saved.', 'success')
@@ -3125,9 +3766,40 @@ function renderPendingDocUpdateCard(item) {
   top.appendChild(titleWrap)
   card.appendChild(top)
 
-  card.appendChild(renderLabeledCopy('decision-meta', 'Decision', item.decisionId || '—'))
+  var decisionLine = item.decisionId || '—'
+  if (item.decisionTitle) decisionLine += ' · ' + item.decisionTitle
+  card.appendChild(renderLabeledCopy('decision-meta', 'Decision', decisionLine))
+  if (item.decisionCategory || item.decisionStatus) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Decision state', [item.decisionCategory, item.decisionStatus].filter(Boolean).join(' · ')))
+  }
   card.appendChild(renderLabeledCopy('decision-meta', 'Target', item.targetDocPath))
   card.appendChild(renderLabeledCopy('decision-meta', 'Section', item.targetSection || '—'))
+  if (item.decisionSourceRef) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Decision source', item.decisionSourceRef))
+  }
+  if (item.decisionContextRef) {
+    card.appendChild(renderLabeledCopy('decision-meta', 'Decision context', item.decisionContextRef))
+  }
+  if (item.decisionOwner || item.decisionConfirmedBy) {
+    card.appendChild(renderLabeledCopy(
+      'decision-meta',
+      'Decision approval',
+      [item.decisionOwner ? 'Owner: ' + item.decisionOwner : '', item.decisionConfirmedBy ? 'Confirmed: ' + item.decisionConfirmedBy : ''].filter(Boolean).join(' · ')
+    ))
+  }
+  if (item.reviewedBy || item.reviewedAt || item.appliedAt) {
+    var reviewParts = []
+    if (item.reviewedBy) reviewParts.push('Reviewed by ' + item.reviewedBy)
+    if (item.reviewedAt) reviewParts.push(formatDate(item.reviewedAt))
+    if (item.appliedAt) reviewParts.push('Applied ' + formatDate(item.appliedAt))
+    card.appendChild(renderLabeledCopy('decision-meta', 'Doc update path', reviewParts.join(' · ')))
+  }
+  if (item.decisionRationale) {
+    card.appendChild(renderLabeledCopy('decision-rationale', 'Why', item.decisionRationale))
+  }
+  if (item.decisionEvidenceNotes) {
+    card.appendChild(renderLabeledCopy('decision-rationale', 'Evidence Notes', item.decisionEvidenceNotes))
+  }
 
   var diff = document.createElement('details')
   diff.className = 'memory-inline-editor'
@@ -3310,7 +3982,10 @@ var cache = {
   sourceOfTruth: null,
   foundationHub: null,
   systemInventory: null,
+  sheetStructureStatus: null,
   fubLeadSources: {},
+  ownersLeadSourceGovernance: null,
+  ownersReviewQueue: null,
   docs: {},
 }
 var FOUNDATION_ADMIN_TOKEN_KEY = 'bcrew.foundation.adminToken'
@@ -3320,8 +3995,22 @@ var liveDocPaths = {
   'docs/strategy/agent-engine.md': true,
 }
 
+var strategyPacketDocPaths = [
+  'docs/business-strategy.md',
+  'docs/strategy/bhag-model.md',
+  'docs/strategy/agent-engine.md',
+  'docs/strategy/core-values.md',
+  'docs/strategy/department-mandates.md',
+  'docs/strategy/marketmasters.md',
+  'docs/strategy/governance.md',
+]
+
 function isLiveDocPath(docPath) {
   return !!liveDocPaths[docPath]
+}
+
+function isStrategyPacketDocPath(docPath) {
+  return strategyPacketDocPaths.indexOf(docPath) !== -1
 }
 
 function fetchSourceOfTruth() {
@@ -3369,6 +4058,42 @@ function fetchFubLeadSources(contextKey) {
     return res.json()
   }).then(function(data) {
     cache.fubLeadSources[key] = data
+    return data
+  })
+}
+
+function fetchOwnersLeadSourceGovernance() {
+  if (cache.ownersLeadSourceGovernance) return Promise.resolve(cache.ownersLeadSourceGovernance)
+
+  return fetch('/api/owners/lead-source-governance').then(function(res) {
+    if (!res.ok) throw new Error('Owners lead-source governance API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.ownersLeadSourceGovernance = data
+    return data
+  })
+}
+
+function fetchOwnersReviewQueue() {
+  if (cache.ownersReviewQueue) return Promise.resolve(cache.ownersReviewQueue)
+
+  return fetch('/api/owners/review-queue').then(function(res) {
+    if (!res.ok) throw new Error('Owners review queue API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.ownersReviewQueue = data
+    return data
+  })
+}
+
+function fetchSheetStructureStatus() {
+  if (cache.sheetStructureStatus) return Promise.resolve(cache.sheetStructureStatus)
+
+  return fetch('/api/sheets/structure-status').then(function(res) {
+    if (!res.ok) throw new Error('Sheet structure status API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.sheetStructureStatus = data
     return data
   })
 }
@@ -3425,6 +4150,8 @@ function clearFoundationCaches() {
   cache.foundationHub = null
   cache.systemInventory = null
   cache.fubLeadSources = {}
+  cache.ownersLeadSourceGovernance = null
+  cache.ownersReviewQueue = null
 }
 
 function parseApiErrorPayload(payload, fallbackMessage) {
@@ -3461,6 +4188,13 @@ var strategyDocPaths = {
   'core-values': 'docs/strategy/core-values.md',
   'marketmasters': 'docs/strategy/marketmasters.md',
   'system-strategy': 'docs/system-strategy.md',
+  'current-state': 'docs/rebuild/current-state.md',
+  'users': 'docs/users/README.md',
+  'user-steve': 'docs/users/steve.md',
+  'agents': 'docs/agents/README.md',
+  'agent-harlan': 'docs/agents/harlan.md',
+  'agent-crewbert': 'docs/agents/crewbert.md',
+  'rebuild-plan': 'docs/rebuild/current-plan.md',
 }
 
 var foundationDocPathToSection = {
@@ -3471,6 +4205,17 @@ var foundationDocPathToSection = {
   'docs/strategy/department-mandates.md': 'departments',
   'docs/strategy/core-values.md': 'core-values',
   'docs/strategy/marketmasters.md': 'marketmasters',
+  'docs/users/README.md': 'users',
+  'docs/users/steve.md': 'user-steve',
+  'docs/agents/README.md': 'agents',
+  'docs/agents/harlan.md': 'agent-harlan',
+  'docs/agents/crewbert.md': 'agent-crewbert',
+  'docs/rebuild/current-state.md': 'current-state',
+  'docs/rebuild/current-runtime-map.md': 'rebuild-plan',
+  'docs/rebuild/agent-architecture.md': 'rebuild-plan',
+  'docs/rebuild/current-plan.md': 'rebuild-plan',
+  'docs/rebuild/rebuild-master-plan.md': 'rebuild-plan',
+  'docs/rebuild-decisions.md': 'rebuild-plan',
   'docs/source-registry.md': 'source-overview',
 }
 
@@ -3490,6 +4235,13 @@ var sectionLabels = {
   'departments': 'Department Mandates',
   'core-values': 'Core Values',
   'marketmasters': 'MarketMasters',
+  'current-state': 'Current State',
+  'rebuild-plan': 'Rebuild Plan',
+  'users': 'Users',
+  'user-steve': 'Steve',
+  'agents': 'Agents',
+  'agent-harlan': 'Harlan',
+  'agent-crewbert': 'Crewbert',
   'backlog': 'Backlog',
   'decisions': 'Decisions',
   'open-questions': 'Open Questions',
@@ -3508,6 +4260,84 @@ var sectionLabels = {
   'capabilities-plugins': 'Plugins / MCPs',
   'capabilities-agents': 'Agents',
 }
+
+var sectionParents = {
+  'bhag-model': { label: 'Strategy Packet', href: '/foundation#overview' },
+  'core-values': { label: 'Strategy Packet', href: '/foundation#overview' },
+  'agent-engine': { label: 'Strategy Packet', href: '/foundation#overview' },
+  'departments': { label: 'Strategy Packet', href: '/foundation#overview' },
+  'governance': { label: 'Strategy Packet', href: '/foundation#overview' },
+  'marketmasters': { label: 'Strategy Packet', href: '/foundation#overview' },
+  'rebuild-plan': { label: 'System Strategy', href: '/foundation#system-strategy' },
+  'user-steve': { label: 'Users', href: '/foundation#users' },
+  'agent-harlan': { label: 'Agents', href: '/foundation#agents' },
+  'agent-crewbert': { label: 'Agents', href: '/foundation#agents' },
+  'decisions': { label: 'Foundation Operations', href: '/foundation#backlog' },
+  'backlog': { label: 'Foundation Operations', href: '/foundation#backlog' },
+  'open-questions': { label: 'Foundation Operations', href: '/foundation#backlog' },
+  'system-activity': { label: 'Foundation Operations', href: '/foundation#backlog' },
+  'system-health': { label: 'Foundation Operations', href: '/foundation#backlog' },
+  'source-overview': { label: 'Data Sources', href: '/foundation#source-overview' },
+  'source-docs': { label: 'Data Sources', href: '/foundation#source-overview' },
+  'source-sheets': { label: 'Data Sources', href: '/foundation#source-overview' },
+  'source-apis': { label: 'Data Sources', href: '/foundation#source-overview' },
+  'source-connectors': { label: 'Data Sources', href: '/foundation#source-overview' },
+  'inventory-docs': { label: 'System Inventory', href: '/foundation#inventory-docs' },
+  'capabilities-skills': { label: 'System Inventory', href: '/foundation#inventory-docs' },
+  'capabilities-plugins': { label: 'System Inventory', href: '/foundation#inventory-docs' },
+  'capabilities-agents': { label: 'System Inventory', href: '/foundation#inventory-docs' },
+}
+
+var rebuildPlanBacklogGroups = [
+  {
+    key: 'truth-cleanup',
+    title: 'Phase 1 · Truth Cleanup',
+    intro: 'Stop truth drift between source contracts, notes, docs, and backlog state.',
+    ids: ['FOUNDATION-002', 'DATA-004'],
+  },
+  {
+    key: 'verification',
+    title: 'Phase 2 · Verification Baseline',
+    intro: 'Put one repeatable proof path under Foundation before more automation lands.',
+    ids: ['FOUNDATION-VERIFY-001'],
+  },
+  {
+    key: 'strategy-inputs',
+    title: 'Phase 3A · Strategy Live Inputs',
+    intro: 'Close the full strategy live-input boundary before calling the strategy input layer done.',
+    ids: ['SOURCE-014'],
+  },
+  {
+    key: 'source-trust',
+    title: 'Phase 3B · FUB / Finance Source Trust',
+    intro: 'Close the next real business-truth surfaces across FUB, finance, and then shared freshness work.',
+    ids: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'FOUNDATION-003', 'SOURCE-001', 'SOURCE-002', 'SOURCE-003'],
+  },
+  {
+    key: 'structure-hardening',
+    title: 'Phase 4 · Foundation Structure Hardening',
+    intro: 'Fix the root queue model before future hubs calcify around temporary shortcuts.',
+    ids: ['SYSTEM-009', 'SYSTEM-006'],
+  },
+  {
+    key: 'memory-baseline',
+    title: 'Phase 5 · Memory Baseline',
+    intro: 'Only after the trust layer is believable should the first agent-memory layer turn on.',
+    ids: ['MEMORY-002'],
+  },
+  {
+    key: 'agent-architecture-lock',
+    title: 'Phase 6 · Agent Architecture Lock',
+    intro: 'Lock where Harlan lives, where system agents live, and where repo-local coding agents live before live agent sprawl begins.',
+    ids: ['AGENT-008', 'SYSTEM-011', 'AGENT-001', 'AGENT-005'],
+  },
+  {
+    key: 'first-agent-loop',
+    title: 'Phase 7 · First Agent Loop',
+    intro: 'Prove one trusted assistant loop with visible supervision before any second agent loop starts.',
+    ids: ['SLICE-001', 'UX-002', 'AGENT-006', 'AGENT-007', 'SYSTEM-010', 'INFRA-003'],
+  },
+]
 
 function renderOverviewStatusPanel(items, options) {
   if (!items || !items.length) return null
@@ -3589,6 +4419,191 @@ function renderRecentChangesPanel(items, options) {
   return panel
 }
 
+function getStrategyChangeContext(hub, docPath) {
+  var targetPaths = docPath ? [docPath] : strategyPacketDocPaths.slice()
+  var targetPathSet = new Set(targetPaths)
+  var updates = (hub && hub.pendingDocUpdates || []).filter(function(item) {
+    return targetPathSet.has(item.targetDocPath)
+  })
+  var updateMap = new Map()
+  updates.forEach(function(item) {
+    updateMap.set(item.id, item)
+  })
+
+  var changes = (hub && hub.recentChanges || []).filter(function(item) {
+    if (String(item.eventType || '').indexOf('doc_update_') !== 0) return false
+    var targetDocPath = item.metadata && item.metadata.targetDocPath
+    if (!targetDocPath) {
+      var linked = updateMap.get(item.entityId)
+      targetDocPath = linked ? linked.targetDocPath : null
+    }
+    return targetPathSet.has(targetDocPath)
+  })
+
+  var linkedDecisionIds = []
+  updates.forEach(function(item) {
+    if (!item.decisionId) return
+    if (linkedDecisionIds.indexOf(item.decisionId) === -1) linkedDecisionIds.push(item.decisionId)
+  })
+
+  return {
+    targetPaths: targetPaths,
+    updates: updates,
+    linkedDecisionIds: linkedDecisionIds,
+    orphanUpdates: updates.filter(function(item) { return !item.decisionId }),
+    openUpdates: updates.filter(function(item) {
+      return item.status === 'pending' || item.status === 'approved' || item.status === 'failed'
+    }),
+    changes: changes,
+    appliedChanges: changes.filter(function(item) {
+      return item.eventType === 'doc_update_applied'
+    }),
+  }
+}
+
+function renderStrategyChangeWatchPanel(hub, docPath) {
+  var context = getStrategyChangeContext(hub, docPath)
+  var ledgerItems = buildStrategyLedgerItems(context)
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Strategy Change Watch'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = docPath ? 'This doc change queue and history' : 'Strategy packet change queue and history'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Meaningful strategy edits should show up here instead of disappearing into silent doc changes. Pending proposals stay reviewable. Applied or rejected updates stay visible as history. Linked decision context should travel with the change.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var statusGrid = document.createElement('div')
+  statusGrid.className = 'status-grid'
+  statusGrid.appendChild(renderStatusCard({
+    label: 'Open proposals',
+    status: context.openUpdates.length ? 'pending' : 'connected',
+    detail: context.openUpdates.length
+      ? context.openUpdates.length + ' strategy doc update proposal' + (context.openUpdates.length === 1 ? '' : 's') + ' still need review / apply.'
+      : 'No open strategy doc proposals right now.',
+  }))
+  statusGrid.appendChild(renderStatusCard({
+    label: 'Recent applied',
+    status: context.appliedChanges.length ? 'connected' : 'planned',
+    detail: context.appliedChanges.length
+      ? context.appliedChanges.length + ' applied strategy doc change event' + (context.appliedChanges.length === 1 ? '' : 's') + ' are visible in recent history.'
+      : 'No applied strategy doc changes are in the current recent-history window.',
+  }))
+  statusGrid.appendChild(renderStatusCard({
+    label: 'Scope',
+    status: 'neutral',
+    detail: docPath
+      ? 'This panel is scoped to the current doc only.'
+      : context.targetPaths.length + ' packet docs are being watched here.',
+  }))
+  statusGrid.appendChild(renderStatusCard({
+    label: 'Decision links',
+    status: context.orphanUpdates.length ? 'pending' : (context.linkedDecisionIds.length ? 'connected' : 'neutral'),
+    detail: context.orphanUpdates.length
+      ? context.orphanUpdates.length + ' proposal' + (context.orphanUpdates.length === 1 ? '' : 's') + ' still have no linked decision. ' + context.linkedDecisionIds.length + ' decision link' + (context.linkedDecisionIds.length === 1 ? '' : 's') + ' are already attached.'
+      : context.linkedDecisionIds.length
+        ? context.linkedDecisionIds.length + ' decision link' + (context.linkedDecisionIds.length === 1 ? '' : 's') + ' are attached to this watch scope.'
+        : 'No linked decisions are in this watch scope yet.',
+  }))
+  panel.appendChild(statusGrid)
+
+  if (context.openUpdates.length) {
+    var queueWrap = document.createElement('details')
+    queueWrap.className = 'decision-stack'
+
+    var queueSummary = document.createElement('summary')
+    queueSummary.className = 'decision-stack-summary decision-stack-summary-review'
+
+    var queueSummaryLeft = document.createElement('div')
+    queueSummaryLeft.className = 'decision-stack-summary-left'
+
+    var queueTitle = document.createElement('div')
+    queueTitle.className = 'decision-stack-title'
+    queueTitle.textContent = 'Open Strategy Doc Proposals'
+    queueSummaryLeft.appendChild(queueTitle)
+
+    var queueIntro = document.createElement('div')
+    queueIntro.className = 'decision-stack-intro'
+    queueIntro.textContent = 'Review only the meaningful changes you want to promote into the strategy layer.'
+    queueSummaryLeft.appendChild(queueIntro)
+
+    queueSummary.appendChild(queueSummaryLeft)
+
+    var queueCount = document.createElement('span')
+    queueCount.className = 'decision-stack-count'
+    queueCount.textContent = context.openUpdates.length
+    queueSummary.appendChild(queueCount)
+
+    queueWrap.appendChild(queueSummary)
+
+    var queueBody = document.createElement('div')
+    queueBody.className = 'decision-stack-body'
+    context.openUpdates.forEach(function(item) {
+      queueBody.appendChild(renderPendingDocUpdateCard(item))
+    })
+    queueWrap.appendChild(queueBody)
+    panel.appendChild(queueWrap)
+  }
+
+  if (ledgerItems.length) {
+    var historyWrap = document.createElement('details')
+    historyWrap.className = 'decision-stack'
+
+    var historySummary = document.createElement('summary')
+    historySummary.className = 'decision-stack-summary decision-stack-summary-history'
+
+    var historySummaryLeft = document.createElement('div')
+    historySummaryLeft.className = 'decision-stack-summary-left'
+
+    var historyTitle = document.createElement('div')
+    historyTitle.className = 'decision-stack-title'
+    historyTitle.textContent = docPath ? 'Doc-scoped change annotations' : 'Strategy packet change ledger'
+    historySummaryLeft.appendChild(historyTitle)
+
+    var historyIntro = document.createElement('div')
+    historyIntro.className = 'decision-stack-intro'
+    historyIntro.textContent = docPath
+      ? 'These are the visible change annotations for this doc.'
+      : 'This is the newest-first visible ledger for strategy changes and their linked decisions.'
+    historySummaryLeft.appendChild(historyIntro)
+
+    historySummary.appendChild(historySummaryLeft)
+
+    var historyCount = document.createElement('span')
+    historyCount.className = 'decision-stack-count'
+    historyCount.textContent = ledgerItems.length
+    historySummary.appendChild(historyCount)
+
+    historyWrap.appendChild(historySummary)
+
+    var historyBody = document.createElement('div')
+    historyBody.className = 'decision-stack-body'
+    ledgerItems.slice(0, 10).forEach(function(item) {
+      historyBody.appendChild(renderStrategyLedgerCard(item))
+    })
+    historyWrap.appendChild(historyBody)
+    panel.appendChild(historyWrap)
+  }
+
+  return panel
+}
+
 function getSystemHealthGroups(items) {
   return [
     {
@@ -3618,6 +4633,209 @@ function createActionButton(label, handler, className) {
   button.textContent = label
   button.addEventListener('click', handler)
   return button
+}
+
+function createActionLink(label, href, className) {
+  var link = document.createElement('a')
+  link.className = className || 'secondary-button'
+  link.href = href
+  link.textContent = label
+  return link
+}
+
+function getSourceValidationCounts(sourceContracts) {
+  return (sourceContracts || []).reduce(function(counts, contract) {
+    var state = String(contract.validation || '').trim()
+    if (state === 'Signed Off') counts.signedOff += 1
+    else if (state === 'Readable Only') counts.readableOnly += 1
+    else if (state === 'Partially Signed Off') counts.partial += 1
+    else counts.notSignedOff += 1
+    return counts
+  }, {
+    signedOff: 0,
+    readableOnly: 0,
+    partial: 0,
+    notSignedOff: 0,
+  })
+}
+
+function renderFoundationShortcutCard(item) {
+  var article = document.createElement('article')
+  article.className = 'section-card foundation-shortcut-card'
+
+  var title = document.createElement('h4')
+  title.textContent = item.title
+  article.appendChild(title)
+
+  var body = document.createElement('p')
+  body.className = 'foundation-shortcut-copy'
+  body.textContent = item.body
+  article.appendChild(body)
+
+  if (item.meta) {
+    var meta = document.createElement('p')
+    meta.className = 'foundation-shortcut-meta'
+    meta.textContent = item.meta
+    article.appendChild(meta)
+  }
+
+  var actions = document.createElement('div')
+  actions.className = 'foundation-shortcut-actions'
+  actions.appendChild(createActionLink(item.cta || 'Open', item.href))
+  article.appendChild(actions)
+
+  return article
+}
+
+function renderFoundationShortcutPanel(titleText, introText, items, options) {
+  if (!items || !items.length) return null
+
+  var opts = options || {}
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = opts.eyebrow || 'Start Here'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = titleText
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = introText
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'foundation-shortcut-grid'
+  items.forEach(function(item) {
+    grid.appendChild(renderFoundationShortcutCard(item))
+  })
+  panel.appendChild(grid)
+
+  return panel
+}
+
+function getFoundationHomeSnapshotItems(sourceData, hub) {
+  return [
+    {
+      label: 'Done',
+      status: 'connected',
+      detail: 'Strategy docs, system strategy, rebuild visibility, verification baseline, and SRC-OWNERS-001 are done now.',
+    },
+    {
+      label: 'Open now',
+      status: 'pending',
+      detail: 'Owners package first, then finance, then KPI read rules, then required connectors by pillar.',
+    },
+    {
+      label: 'Not part of closeout yet',
+      status: 'risk',
+      detail: 'Agent sprawl, wide freshness automation, and trusted assistant loops stay later until Level 2 source work is closed.',
+    },
+  ]
+}
+
+function getFoundationHomeWaitingItems() {
+  return [
+    {
+      title: 'Work the Owners closeout in order',
+      body: 'Use the Owners closeout doc instead of mentally stitching together the FUB and Admin follow-on cards.',
+      meta: 'Current execution path',
+      href: '/doc?path=docs/rebuild/owners-closeout.md',
+      cta: 'Open Owners Closeout',
+    },
+    {
+      title: 'Review FUB live taxonomy',
+      body: 'Keep the flexible open values open on purpose, but close the approved baseline for Owners parity work.',
+      meta: 'Current Steve review',
+      href: '/foundation#source-apis:fub-lead-source-taxonomy',
+      cta: 'Open FUB Review',
+    },
+    {
+      title: 'Lock KPI read rules',
+      body: 'KPI is live. The next job is to split its pipeline, shopping-list, executed-deal, goal, competition, and usage layers so AI OS reads the right truth on purpose.',
+      meta: 'Current source shaping',
+      href: '/foundation#current-state',
+      cta: 'Open Current State',
+    },
+    {
+      title: 'Review finance after Owners',
+      body: 'Finance is the next line-by-line sign-off once the Owners package is stable enough to trust.',
+      meta: 'Next Steve review',
+      href: '/foundation#source-overview',
+      cta: 'Open Data Sources',
+    },
+  ]
+}
+
+function getFoundationHomeActionItems() {
+  return [
+    {
+      title: 'Current State',
+      body: 'Shortest read on what is done, not done, and next.',
+      meta: 'Best first click',
+      href: '/foundation#current-state',
+      cta: 'Open Current State',
+    },
+    {
+      title: 'Rebuild Plan',
+      body: 'The active execution order and the locked direction.',
+      meta: 'Canonical plan',
+      href: '/foundation#rebuild-plan',
+      cta: 'Open Plan',
+    },
+    {
+      title: 'Data Sources',
+      body: 'Source contracts, FUB review, and trust status.',
+      meta: 'Source trust layer',
+      href: '/foundation#source-overview',
+      cta: 'Open Data Sources',
+    },
+    {
+      title: 'Backlog',
+      body: 'Live work queue after you know the state and plan.',
+      meta: 'Execution queue',
+      href: '/foundation#backlog',
+      cta: 'Open Backlog',
+    },
+  ]
+}
+
+function getSourceOverviewSnapshotItems(sourceContracts, sourceConnectors) {
+  var counts = getSourceValidationCounts(sourceContracts)
+
+  return [
+    {
+      label: 'Signed off',
+      status: 'connected',
+      detail: counts.signedOff + ' validation units are signed off now: strategy docs and Owners Admin tab.',
+    },
+    {
+      label: 'Strategy inputs',
+      status: 'pending',
+      detail: 'Freedom Community, BHAG, Agent Engine, and the strategy-used Owners slice are readable only. Target now: Level 2. Future state: Level 3 freshness.',
+    },
+    {
+      label: 'FUB + finance',
+      status: 'risk',
+      detail: 'FUB is Level 1 and finance is only partially signed off. Both still need explicit Level 2 closeout.',
+    },
+    {
+      label: 'Freshness',
+      status: 'planned',
+      detail: 'Level 3 is not done yet. ' + (sourceConnectors || []).length + ' connectors are tracked, but connector access does not mean fresh trusted data.',
+    },
+  ]
 }
 
 function renderFoundationPurposeCard(config) {
@@ -3674,76 +4892,6 @@ function renderFoundationModuleCard(section) {
   return article
 }
 
-function renderHomeWorkboardStage(stage, items) {
-  var details = document.createElement('details')
-  details.className = 'foundation-stage'
-
-  var summary = document.createElement('summary')
-  summary.className = 'foundation-stage-summary foundation-stage-summary-' + stage.tone
-
-  var left = document.createElement('div')
-  left.className = 'foundation-stage-summary-left'
-
-  var title = document.createElement('div')
-  title.className = 'foundation-stage-title'
-  title.textContent = stage.label
-  left.appendChild(title)
-
-  var intro = document.createElement('div')
-  intro.className = 'foundation-stage-intro'
-  intro.textContent = stage.intro
-  left.appendChild(intro)
-  summary.appendChild(left)
-
-  var count = document.createElement('span')
-  count.className = 'foundation-stage-count'
-  count.textContent = items.length
-  summary.appendChild(count)
-
-  details.appendChild(summary)
-
-  var body = document.createElement('div')
-  body.className = 'foundation-stage-body'
-  if (!items.length) {
-    var empty = document.createElement('p')
-    empty.className = 'lane-empty'
-    empty.textContent = 'Nothing in this stage right now.'
-    body.appendChild(empty)
-  } else {
-    sortBacklogItems(items).slice(0, 10).forEach(function(item) {
-      body.appendChild(renderBacklogAccordionItem(item))
-    })
-
-    if (items.length > 10) {
-      var more = document.createElement('p')
-      more.className = 'foundation-stage-more'
-      more.textContent = 'Showing the first 10 items here. Open Backlog for the full stack.'
-      body.appendChild(more)
-    }
-  }
-
-  details.appendChild(body)
-  return details
-}
-
-function getFoundationCloseoutItems(items) {
-  var byId = {}
-  ;(items || []).forEach(function(item) {
-    byId[item.id] = item
-  })
-
-  var ordered = foundationCloseoutOrder
-    .map(function(id) { return byId[id] })
-    .filter(Boolean)
-
-  var remainder = (items || []).filter(function(item) {
-    return foundationCloseoutOrder.indexOf(item.id) === -1 &&
-      /^FOUNDATION-|^SECURITY-|^MEMORY-|^SCHEMA-|^SLICE-/.test(item.id)
-  })
-
-  return ordered.concat(sortBacklogItems(remainder))
-}
-
 function renderStatusGroupPanel(titleText, introText, items) {
   if (!items || !items.length) return null
 
@@ -3798,7 +4946,1328 @@ function renderFoundationSequenceCard(step, index) {
   body.textContent = step.body
   article.appendChild(body)
 
+  if (step.href) {
+    var actions = document.createElement('div')
+    actions.className = 'foundation-shortcut-actions'
+    actions.appendChild(createActionLink(step.cta || 'Open', step.href))
+    article.appendChild(actions)
+  }
+
   return article
+}
+
+function renderCurrentStateLevelCard(item) {
+  var article = document.createElement('article')
+  article.className = 'section-card current-state-level-card'
+
+  var title = document.createElement('h4')
+  title.textContent = item.title
+  article.appendChild(title)
+
+  var body = document.createElement('p')
+  body.className = 'current-state-card-copy'
+  body.textContent = item.body
+  article.appendChild(body)
+
+  if (item.note) {
+    var note = document.createElement('p')
+    note.className = 'current-state-card-note'
+    note.textContent = item.note
+    article.appendChild(note)
+  }
+
+  return article
+}
+
+function getCurrentStateSourceHref(sourceId) {
+  if (sourceId === 'SRC-STRATEGY-001') return '/foundation#source-docs:SRC-STRATEGY-001'
+  if (sourceId === 'SRC-FREEDOM-COMMUNITY-001') return '/foundation#source-sheets:SRC-FREEDOM-COMMUNITY-001'
+  if (sourceId === 'SRC-OWNERS-001') return '/foundation#source-sheets:SRC-OWNERS-001'
+  if (sourceId === 'SRC-FINANCE-001') return '/foundation#source-sheets:SRC-FINANCE-001'
+  if (sourceId === 'SRC-FUB-001') return '/foundation#source-apis:SRC-FUB-001'
+  if (sourceId === 'SRC-FREEDOM-BHAG-001') return '/foundation#source-sheets:SRC-FREEDOM-BHAG-001'
+  if (sourceId === 'SRC-FREEDOM-ENGINE-001') return '/foundation#source-sheets:SRC-FREEDOM-ENGINE-001'
+  return '/foundation#source-overview'
+}
+
+function renderCurrentStateSourceStamp(sourceId) {
+  if (!sourceId) return null
+
+  var sourceIds = Array.isArray(sourceId) ? sourceId : [sourceId]
+
+  var wrap = document.createElement('div')
+  wrap.className = 'current-state-source-stamp'
+
+  var label = document.createElement('span')
+  label.className = 'current-state-source-label'
+  label.textContent = 'Source ID'
+  wrap.appendChild(label)
+
+  sourceIds.forEach(function(id, index) {
+    if (index > 0) {
+      wrap.appendChild(document.createTextNode(' · '))
+    }
+
+    var link = document.createElement('a')
+    link.className = 'inline-link'
+    link.href = getCurrentStateSourceHref(id)
+    link.textContent = id
+    wrap.appendChild(link)
+  })
+
+  return wrap
+}
+
+function buildCurrentStateSourceLinks(sourceId) {
+  if (!sourceId) return '—'
+
+  var sourceIds = Array.isArray(sourceId) ? sourceId : [sourceId]
+  return sourceIds.map(function(id) {
+    return '[' + id + '](' + getCurrentStateSourceHref(id) + ')'
+  }).join(' + ')
+}
+
+function buildBacklogFocusHref(ids) {
+  var list = (ids || []).filter(Boolean)
+  if (!list.length) return '/foundation#backlog'
+  return '/foundation#backlog:' + list.join(',')
+}
+
+function getCurrentStateBacklogItems(hub, ids) {
+  if (!hub || !Array.isArray(hub.backlogItems) || !Array.isArray(ids) || !ids.length) return []
+  return hub.backlogItems.filter(function(item) {
+    return ids.indexOf(item.id) !== -1
+  })
+}
+
+function getCurrentStateActiveBacklogItems(hub, ids) {
+  return getCurrentStateBacklogItems(hub, ids).filter(function(item) {
+    return item.lane !== 'done'
+  })
+}
+
+function renderCurrentStateStatus(statusKey, label) {
+  var wrap = document.createElement('span')
+  wrap.className = 'current-state-dot current-state-dot-' + statusKey
+  wrap.title = label
+  wrap.setAttribute('aria-label', label)
+  return wrap
+}
+
+function renderCurrentStateBacklogCell(hub, ids) {
+  var wrap = document.createElement('div')
+  wrap.className = 'current-state-backlog'
+
+  var activeItems = getCurrentStateActiveBacklogItems(hub, ids)
+  if (!activeItems.length) {
+    wrap.textContent = '0 active'
+    return wrap
+  }
+
+  var link = document.createElement('a')
+  link.className = 'inline-link'
+  link.href = buildBacklogFocusHref(activeItems.map(function(item) { return item.id }))
+  link.textContent = activeItems.length + ' active'
+  wrap.appendChild(link)
+
+  var meta = document.createElement('div')
+  meta.className = 'current-state-backlog-meta'
+  meta.textContent = activeItems.map(function(item) { return item.id }).join(', ')
+  wrap.appendChild(meta)
+
+  return wrap
+}
+
+function renderCurrentStateCloseoutCard(item, hub) {
+  var article = document.createElement('article')
+  article.className = 'section-card foundation-closeout-card'
+
+  var top = document.createElement('div')
+  top.className = 'foundation-closeout-top'
+  top.appendChild(renderCurrentStateStatus(item.statusKey, item.statusLabel))
+
+  var label = document.createElement('div')
+  label.className = 'foundation-closeout-label'
+  label.textContent = item.label
+  top.appendChild(label)
+  article.appendChild(top)
+
+  var title = document.createElement('h4')
+  title.textContent = item.title
+  article.appendChild(title)
+
+  if (item.detail) {
+    var detail = document.createElement('p')
+    detail.className = 'foundation-closeout-detail'
+    detail.textContent = item.detail
+    article.appendChild(detail)
+  }
+
+  var list = document.createElement('div')
+  list.className = 'foundation-closeout-list'
+
+  ;(item.rows || []).forEach(function(row) {
+    var rowWrap = document.createElement('div')
+    rowWrap.className = 'foundation-closeout-row'
+
+    var rowTitle = document.createElement('div')
+    rowTitle.className = 'foundation-closeout-row-title'
+    rowTitle.textContent = row.title
+    rowWrap.appendChild(rowTitle)
+
+    var rowBody = document.createElement('p')
+    rowBody.className = 'foundation-closeout-row-body'
+    rowBody.textContent = row.body
+    rowWrap.appendChild(rowBody)
+
+    var backlog = renderCurrentStateBacklogCell(hub, row.backlogIds || [])
+    backlog.classList.add('foundation-closeout-row-backlog')
+    rowWrap.appendChild(backlog)
+
+    list.appendChild(rowWrap)
+  })
+
+  article.appendChild(list)
+  return article
+}
+
+function renderCurrentStateCloseoutBoard(items, hub) {
+  if (!items || !items.length) return null
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Foundation Reality'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Closed, Partial, And Not Built Yet'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'This is the blunt read. Something is only green if it is actually closed enough for this rebuild pass.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'foundation-closeout-grid'
+  items.forEach(function(item) {
+    grid.appendChild(renderCurrentStateCloseoutCard(item, hub))
+  })
+  panel.appendChild(grid)
+
+  return panel
+}
+
+function renderCurrentStateInfoList(items) {
+  var wrap = document.createElement('div')
+  wrap.className = 'current-state-info-list'
+
+  ;(items || []).forEach(function(item) {
+    if (!item || !item.label || !item.body) return
+
+    var row = document.createElement('div')
+    row.className = 'current-state-info-row'
+
+    var label = document.createElement('span')
+    label.className = 'current-state-info-label'
+    label.textContent = item.label + ':'
+    row.appendChild(label)
+
+    var body = document.createElement('span')
+    body.className = 'current-state-info-body'
+    body.textContent = item.body
+    row.appendChild(body)
+
+    wrap.appendChild(row)
+  })
+
+  return wrap
+}
+
+function renderCurrentStatePackageParts(parts) {
+  if (!parts || !parts.length) return null
+
+  var wrap = document.createElement('div')
+  wrap.className = 'current-state-package-parts'
+
+  var label = document.createElement('div')
+  label.className = 'current-state-package-label'
+  label.textContent = 'Package parts'
+  wrap.appendChild(label)
+
+  parts.forEach(function(part) {
+    if (!part || !part.sourceId) return
+
+    var row = document.createElement('div')
+    row.className = 'current-state-package-row'
+
+    row.appendChild(renderCurrentStateStatus(part.statusKey || 'pending', part.statusLabel || 'Open'))
+
+    var textWrap = document.createElement('div')
+    textWrap.className = 'current-state-package-text'
+
+    var top = document.createElement('div')
+    top.className = 'current-state-package-top'
+
+    var link = document.createElement('a')
+    link.className = 'inline-link'
+    link.href = getCurrentStateSourceHref(part.sourceId)
+    link.textContent = part.sourceId
+    top.appendChild(link)
+
+    var state = document.createElement('span')
+    state.className = 'current-state-package-state'
+    state.textContent = part.statusLabel || 'Open'
+    top.appendChild(state)
+    textWrap.appendChild(top)
+
+    if (part.body) {
+      var body = document.createElement('div')
+      body.className = 'current-state-package-body'
+      body.textContent = part.body
+      textWrap.appendChild(body)
+    }
+
+    if (part.next) {
+      var next = document.createElement('div')
+      next.className = 'current-state-package-next'
+      next.textContent = 'Next: ' + part.next
+      textWrap.appendChild(next)
+    }
+
+    row.appendChild(textWrap)
+    wrap.appendChild(row)
+  })
+
+  return wrap
+}
+
+function renderCurrentStatePackageDetailTable(parts) {
+  var wrap = document.createElement('div')
+  wrap.className = 'current-state-detail-wrap'
+
+  var table = document.createElement('table')
+  table.className = 'md-table current-state-package-table'
+
+  var colgroup = document.createElement('colgroup')
+  ;['25%', '16%', '31%', '28%'].forEach(function(width) {
+    var col = document.createElement('col')
+    col.style.width = width
+    colgroup.appendChild(col)
+  })
+  table.appendChild(colgroup)
+
+  var thead = document.createElement('thead')
+  var headerRow = document.createElement('tr')
+  ;['Source', 'State', 'What Exists Now', 'Next'].forEach(function(label) {
+    var th = document.createElement('th')
+    th.textContent = label
+    headerRow.appendChild(th)
+  })
+  thead.appendChild(headerRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+  ;(parts || []).forEach(function(part) {
+    var tr = document.createElement('tr')
+
+    var sourceCell = document.createElement('td')
+    var sourceLink = document.createElement('a')
+    sourceLink.className = 'inline-link'
+    sourceLink.href = getCurrentStateSourceHref(part.sourceId)
+    sourceLink.textContent = part.sourceId
+    sourceCell.appendChild(sourceLink)
+    if (part.role) {
+      var role = document.createElement('div')
+      role.className = 'current-state-package-meta'
+      role.textContent = part.role
+      sourceCell.appendChild(role)
+    }
+    tr.appendChild(sourceCell)
+
+    var stateCell = document.createElement('td')
+    var stateWrap = document.createElement('div')
+    stateWrap.className = 'current-state-package-state-cell'
+    stateWrap.appendChild(renderCurrentStateStatus(part.statusKey || 'pending', part.statusLabel || 'Open'))
+    var stateText = document.createElement('span')
+    stateText.className = 'current-state-package-state'
+    stateText.textContent = part.statusLabel || 'Open'
+    stateWrap.appendChild(stateText)
+    stateCell.appendChild(stateWrap)
+    tr.appendChild(stateCell)
+
+    var bodyCell = document.createElement('td')
+    bodyCell.className = 'current-state-package-body'
+    bodyCell.textContent = part.body || '—'
+    tr.appendChild(bodyCell)
+
+    var nextCell = document.createElement('td')
+    nextCell.className = 'current-state-package-next'
+    nextCell.textContent = part.next || '—'
+    tr.appendChild(nextCell)
+
+    tbody.appendChild(tr)
+  })
+
+  table.appendChild(tbody)
+  wrap.appendChild(table)
+  return wrap
+}
+
+function renderCurrentStateSurfaceTable(rows, hub) {
+  var wrap = document.createElement('div')
+  wrap.className = 'md-table-wrap'
+
+  var table = document.createElement('table')
+  table.className = 'md-table current-state-master-table'
+
+  var colgroup = document.createElement('colgroup')
+  ;['29%', '28%', '31%', '12%'].forEach(function(width) {
+    var col = document.createElement('col')
+    col.style.width = width
+    colgroup.appendChild(col)
+  })
+  table.appendChild(colgroup)
+
+  var thead = document.createElement('thead')
+  var headRow = document.createElement('tr')
+  ;['Surface', 'What Exists Now', 'What Closes Next', 'Backlog'].forEach(function(label) {
+    var th = document.createElement('th')
+    th.textContent = label
+    headRow.appendChild(th)
+  })
+  thead.appendChild(headRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+
+  rows.forEach(function(row) {
+    var hasParts = Array.isArray(row.packageParts) && row.packageParts.length
+    var summaryRow = document.createElement('tr')
+    summaryRow.className = 'current-state-master-row' + (hasParts ? ' current-state-master-row-expandable' : '')
+
+    var detailRow = null
+
+    var surfaceCell = document.createElement('td')
+    var surfaceTop = document.createElement('div')
+    surfaceTop.className = 'current-state-surface-top'
+    surfaceTop.appendChild(renderCurrentStateStatus(row.statusKey, row.statusLabel))
+
+    var surfaceTitle = document.createElement('div')
+    surfaceTitle.className = 'current-state-surface-title'
+    surfaceTitle.textContent = row.title
+    surfaceTop.appendChild(surfaceTitle)
+    surfaceCell.appendChild(surfaceTop)
+
+    if (row.surfaceType) {
+      var surfaceType = document.createElement('div')
+      surfaceType.className = 'current-state-surface-kind'
+      surfaceType.textContent = row.surfaceType
+      surfaceCell.appendChild(surfaceType)
+    }
+
+    if (hasParts) {
+      var toggle = document.createElement('button')
+      toggle.type = 'button'
+      toggle.className = 'current-state-expand-button'
+      toggle.textContent = (row.packageParts.length || 0) + ' sources · ' + (row.defaultOpen ? 'click to collapse' : 'click to expand')
+      toggle.setAttribute('aria-expanded', row.defaultOpen ? 'true' : 'false')
+      surfaceCell.appendChild(toggle)
+
+      detailRow = document.createElement('tr')
+      detailRow.className = 'current-state-master-detail-row'
+      if (!row.defaultOpen) detailRow.hidden = true
+
+      var detailCell = document.createElement('td')
+      detailCell.colSpan = 4
+      detailCell.appendChild(renderCurrentStatePackageDetailTable(row.packageParts))
+      detailRow.appendChild(detailCell)
+
+      function toggleDetailRow() {
+        var isOpen = !detailRow.hidden
+        detailRow.hidden = isOpen
+        toggle.textContent = (row.packageParts.length || 0) + ' sources · ' + (isOpen ? 'click to expand' : 'click to collapse')
+        toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true')
+      }
+
+      toggle.addEventListener('click', function(event) {
+        event.stopPropagation()
+        toggleDetailRow()
+      })
+
+      summaryRow.addEventListener('click', function(event) {
+        var interactive = event.target.closest('a, button, input, textarea, select, summary, [role="button"]')
+        if (interactive) return
+        toggleDetailRow()
+      })
+    } else {
+      var stamp = renderCurrentStateSourceStamp(row.sourceId)
+      if (stamp) surfaceCell.appendChild(stamp)
+    }
+    summaryRow.appendChild(surfaceCell)
+
+    var currentCell = document.createElement('td')
+    currentCell.className = 'current-state-table-copy'
+    currentCell.textContent = row.currentSummary || ''
+    summaryRow.appendChild(currentCell)
+
+    var nextCell = document.createElement('td')
+    nextCell.className = 'current-state-table-copy'
+    var nextMain = document.createElement('div')
+    nextMain.textContent = row.next || ''
+    nextCell.appendChild(nextMain)
+    if (row.later) {
+      var later = document.createElement('div')
+      later.className = 'current-state-table-subnote'
+      later.textContent = 'Later: ' + row.later
+      nextCell.appendChild(later)
+    }
+    summaryRow.appendChild(nextCell)
+
+    var backlogCell = document.createElement('td')
+    backlogCell.className = 'current-state-backlog-cell'
+    backlogCell.appendChild(renderCurrentStateBacklogCell(hub, row.backlogIds))
+    summaryRow.appendChild(backlogCell)
+
+    tbody.appendChild(summaryRow)
+    if (detailRow) tbody.appendChild(detailRow)
+  })
+
+  table.appendChild(tbody)
+  wrap.appendChild(table)
+  return wrap
+}
+
+function renderCurrentStateSurfaceCard(item) {
+  var article = document.createElement('article')
+  article.className = 'section-card current-state-surface-card'
+
+  var title = document.createElement('h4')
+  title.textContent = item.title
+  article.appendChild(title)
+
+  var stamp = renderCurrentStateSourceStamp(item.sourceId)
+  if (stamp) article.appendChild(stamp)
+
+  article.appendChild(renderLabeledCopy('current-state-card-copy', 'Current', item.current))
+  article.appendChild(renderLabeledCopy('current-state-card-copy', 'Target now', item.target))
+  article.appendChild(renderLabeledCopy('current-state-card-copy', 'Later', item.later))
+
+  if (item.href) {
+    var actions = document.createElement('div')
+    actions.className = 'foundation-shortcut-actions'
+    actions.appendChild(createActionLink(item.cta || 'Open', item.href))
+    article.appendChild(actions)
+  }
+
+  return article
+}
+
+function renderCurrentStateSimpleCard(item) {
+  var article = document.createElement('article')
+  article.className = 'section-card current-state-simple-card'
+
+  var title = document.createElement('h4')
+  title.textContent = item.title
+  article.appendChild(title)
+
+  var stamp = renderCurrentStateSourceStamp(item.sourceId)
+  if (stamp) article.appendChild(stamp)
+
+  var body = document.createElement('p')
+  body.className = 'current-state-card-copy'
+  body.textContent = item.body
+  article.appendChild(body)
+
+  if (item.href) {
+    var actions = document.createElement('div')
+    actions.className = 'foundation-shortcut-actions'
+    actions.appendChild(createActionLink(item.cta || 'Open', item.href))
+    article.appendChild(actions)
+  }
+
+  return article
+}
+
+function summarizeStructureWorkbooks(structureStatus) {
+  if (!structureStatus || !structureStatus.workbooks || !structureStatus.workbooks.length) {
+    return 'Structure watch is not readable yet.'
+  }
+
+  var drifted = structureStatus.workbooks.filter(function(workbook) {
+    return workbook.status !== 'ok'
+  })
+  if (!drifted.length) {
+    return structureStatus.workbooks.map(function(workbook) {
+      return workbook.label
+    }).join(', ') + ' all match the current baseline.'
+  }
+
+  return drifted.map(function(workbook) {
+    return workbook.label + ' (' + workbook.failedChecks + ' drift check' + (workbook.failedChecks === 1 ? '' : 's') + ')'
+  }).join(' · ') + ' need review.'
+}
+
+function renderCurrentStateChangeWatchPanel(hub, structureStatus) {
+  var decisionBacklogIds = ['DECISION-001', 'DECISION-002', 'DECISION-003', 'DECISION-005', 'MEMORY-005']
+  var decisionReview = getDecisionReviewSnapshot(hub)
+  var pendingStrategyUpdates = (hub.pendingDocUpdates || []).filter(function(item) {
+    return item.status === 'pending' && isStrategyPacketDocPath(item.targetDocPath)
+  })
+  var appliedStrategyUpdates = (hub.pendingDocUpdates || []).filter(function(item) {
+    return item.status === 'applied' && isStrategyPacketDocPath(item.targetDocPath)
+  })
+  var decisions = hub.decisions || []
+  var lockedDecisions = decisions.filter(function(item) { return item.status === 'locked' }).length
+  var proposedDecisions = decisions.filter(function(item) { return item.status === 'proposed' }).length
+  var supersededDecisions = decisions.filter(function(item) { return item.status === 'superseded' }).length
+  var relatedDecisions = decisions.filter(function(item) {
+    return Array.isArray(item.supersedesIds) && item.supersedesIds.length
+  }).length
+
+  var panel = renderOverviewStatusPanel([
+    {
+      label: 'Strategy doc watch',
+      status: pendingStrategyUpdates.length ? 'pending' : 'connected',
+      detail: pendingStrategyUpdates.length
+        ? pendingStrategyUpdates.length + ' strategy doc proposal' + (pendingStrategyUpdates.length === 1 ? '' : 's') + ' still need review. ' + appliedStrategyUpdates.length + ' applied update' + (appliedStrategyUpdates.length === 1 ? '' : 's') + ' are already visible in history.'
+        : 'No open strategy doc proposals right now. ' + appliedStrategyUpdates.length + ' applied update' + (appliedStrategyUpdates.length === 1 ? '' : 's') + ' are already visible in history.',
+    },
+    {
+      label: 'Sheet structure watch',
+      status: structureStatus && structureStatus.status === 'ok' ? 'connected' : 'pending',
+      detail: summarizeStructureWorkbooks(structureStatus),
+    },
+    {
+      label: 'Decision cleanup watch',
+      status: decisionReview.total ? 'pending' : 'connected',
+      detail: 'Decision log is live (' + lockedDecisions + ' locked, ' + proposedDecisions + ' proposed, ' + supersededDecisions + ' superseded, ' + relatedDecisions + ' linked). Current review items: ' + decisionReview.total + '. The first contradiction queue is live. Deeper relationship cleanup, provenance, and temporal truth are still backlog work.',
+    },
+  ], {
+    eyebrow: 'Change Infrastructure',
+    title: 'What protects drift now',
+    intro: 'This is the first live pass. Strategy doc watch, sheet structure watch, and decision cleanup watch are now all visible.',
+  })
+
+  if (!panel) return null
+
+  var actions = document.createElement('div')
+  actions.className = 'doc-source-actions'
+  ;[
+    { href: '/foundation#decisions', label: 'Open Decisions' },
+    { href: '/foundation#source-sheets:SRC-OWNERS-001', label: 'Open Source Sheets' },
+    { href: '/foundation#rebuild-plan', label: 'Open Rebuild Plan' },
+  ].forEach(function(action) {
+    var link = document.createElement('a')
+    link.className = 'doc-source-link'
+    link.href = action.href
+    link.textContent = action.label
+    actions.appendChild(link)
+  })
+  panel.appendChild(actions)
+
+  var relatedBacklogItems = (hub.backlogItems || []).filter(function(item) {
+    return decisionBacklogIds.indexOf(item.id) !== -1
+  })
+
+  if (relatedBacklogItems.length) {
+    var queue = document.createElement('details')
+    queue.className = 'decision-stack'
+
+    var summary = document.createElement('summary')
+    summary.className = 'decision-stack-summary decision-stack-summary-history'
+
+    var summaryLeft = document.createElement('div')
+    summaryLeft.className = 'decision-stack-summary-left'
+
+    var title = document.createElement('div')
+    title.className = 'decision-stack-title'
+    title.textContent = 'Backlog Behind Decision Cleanup'
+    summaryLeft.appendChild(title)
+
+    var intro = document.createElement('div')
+    intro.className = 'decision-stack-intro'
+    intro.textContent = 'These are the exact cards behind traceability, contradiction cleanup, provenance, and temporal truth.'
+    summaryLeft.appendChild(intro)
+
+    summary.appendChild(summaryLeft)
+
+    var count = document.createElement('span')
+    count.className = 'decision-stack-count'
+    count.textContent = relatedBacklogItems.length
+    summary.appendChild(count)
+
+    queue.appendChild(summary)
+
+    var body = document.createElement('div')
+    body.className = 'decision-stack-body'
+    sortBacklogItems(relatedBacklogItems).forEach(function(item) {
+      body.appendChild(renderBacklogAccordionItem(item))
+    })
+    queue.appendChild(body)
+    panel.appendChild(queue)
+  }
+
+  return panel
+}
+
+function renderOwnersReviewQueuePanel(payload) {
+  var queue = payload && payload.reviewQueue ? payload.reviewQueue : null
+  if (!queue) return null
+  function freshnessStatusToCardStatus(freshness) {
+    var status = freshness && freshness.status ? freshness.status : 'clear'
+    if (status === 'stale' || status === 'missing') return 'risk'
+    if (status === 'warning') return 'pending'
+    return 'connected'
+  }
+  function shorten(text, max) {
+    var value = String(text || '').trim()
+    if (!value) return 'Review item is open.'
+    if (value.length <= max) return value
+    return value.slice(0, max - 1).trim() + '…'
+  }
+
+  var panel = renderOverviewStatusPanel([
+    {
+      label: 'Open items',
+      status: queue.stats && queue.stats.openItems ? 'pending' : 'connected',
+      detail: (queue.stats && queue.stats.openItems ? queue.stats.openItems : 0) + ' Owners review item' + ((queue.stats && queue.stats.openItems) === 1 ? '' : 's') + ' are still open.',
+    },
+    {
+      label: 'Queued now',
+      status: queue.stats && queue.stats.queuedReview ? 'pending' : 'connected',
+      detail: (queue.stats && queue.stats.queuedReview ? queue.stats.queuedReview : 0) + ' row-specific re-review trigger' + ((queue.stats && queue.stats.queuedReview) === 1 ? '' : 's') + ' are waiting right now.',
+    },
+    {
+      label: 'Needs fixing',
+      status: queue.stats && queue.stats.needsFixing ? 'pending' : 'connected',
+      detail: (queue.stats && queue.stats.needsFixing ? queue.stats.needsFixing : 0) + ' item' + ((queue.stats && queue.stats.needsFixing) === 1 ? '' : 's') + ' still need source fixes before re-review.',
+    },
+    {
+      label: 'Queue freshness',
+      status: freshnessStatusToCardStatus(queue.freshness),
+      detail: queue.freshness
+        ? queue.freshness.label + (queue.freshness.reason ? ' · ' + queue.freshness.reason : '')
+        : 'Freshness rules are loading.',
+    },
+  ], {
+    eyebrow: 'Owners Review Queue',
+    title: 'One Inbox For Owners Review Work',
+    intro: 'This is the live governed queue behind the temporary Admin and Conditional sheet lanes.',
+  })
+
+  if (!panel) return null
+
+  var actions = document.createElement('div')
+  actions.className = 'doc-source-actions'
+  ;[
+    { href: getCurrentStateSourceHref('SRC-OWNERS-001'), label: 'Open Owners source' },
+    { href: getCurrentStateSourceHref('SRC-FUB-001'), label: 'Open FUB source' },
+    { href: '/foundation#rebuild-plan', label: 'Open Rebuild Plan' },
+  ].forEach(function(action) {
+    var link = document.createElement('a')
+    link.className = 'doc-source-link'
+    link.href = action.href
+    link.textContent = action.label
+    actions.appendChild(link)
+  })
+  panel.appendChild(actions)
+
+  var sections = queue.sections || {}
+  var cards = []
+
+  if (sections.admin) {
+    cards.push({
+      title: 'Admin deal lane',
+      body: (sections.admin.openItems || 0) + ' open item' + ((sections.admin.openItems || 0) === 1 ? '' : 's') + '. ' +
+        (sections.admin.queuedReview || 0) + ' queued. ' +
+        (sections.admin.needsFixing || 0) + ' need fixing. Freshness: ' + ((sections.admin.freshness && sections.admin.freshness.label) || 'Clear') + '.',
+      meta: 'Firm / exception rows in CC:CE',
+      href: getCurrentStateSourceHref('SRC-OWNERS-001'),
+      cta: 'Open Owners source',
+    })
+  }
+
+  if (sections.conditional) {
+    cards.push({
+      title: 'Conditional lane',
+      body: (sections.conditional.openItems || 0) + ' open item' + ((sections.conditional.openItems || 0) === 1 ? '' : 's') + '. ' +
+        (sections.conditional.queuedReview || 0) + ' queued. ' +
+        (sections.conditional.needsFixing || 0) + ' need fixing. Freshness: ' + ((sections.conditional.freshness && sections.conditional.freshness.label) || 'Clear') + '.',
+      meta: 'Conditional rows in Q:U',
+      href: getCurrentStateSourceHref('SRC-OWNERS-001'),
+      cta: 'Open Owners source',
+    })
+  }
+
+  if (sections.fubDrift) {
+    cards.push({
+      title: 'FUB drift lane',
+      body: (sections.fubDrift.openItems || 0) + ' open item' + ((sections.fubDrift.openItems || 0) === 1 ? '' : 's') + '. ' +
+        (sections.fubDrift.queuedReview || 0) + ' queued. ' +
+        (sections.fubDrift.needsFixing || 0) + ' need fixing. Freshness: ' + ((sections.fubDrift.freshness && sections.fubDrift.freshness.label) || 'Clear') + '.',
+      meta: 'Governed FUB taxonomy drift',
+      href: getCurrentStateSourceHref('SRC-FUB-001'),
+      cta: 'Open FUB source',
+    })
+  }
+
+  if (sections.ownersGovernance) {
+    cards.push({
+      title: 'Owners governance lane',
+      body: (sections.ownersGovernance.openItems || 0) + ' open item' + ((sections.ownersGovernance.openItems || 0) === 1 ? '' : 's') + '. ' +
+        (sections.ownersGovernance.queuedReview || 0) + ' queued. ' +
+        (sections.ownersGovernance.needsFixing || 0) + ' need fixing. Freshness: ' + ((sections.ownersGovernance.freshness && sections.ownersGovernance.freshness.label) || 'Clear') + '.',
+      meta: 'Governed Owners dropdown drift',
+      href: getCurrentStateSourceHref('SRC-OWNERS-001'),
+      cta: 'Open Owners source',
+    })
+  }
+
+  var sampleItems = []
+  ;['admin', 'conditional', 'fubDrift', 'ownersGovernance'].forEach(function(key) {
+    var items = sections[key] && Array.isArray(sections[key].items) ? sections[key].items : []
+    items.slice(0, key === 'admin' ? 3 : 2).forEach(function(item) {
+      var href = key === 'fubDrift' ? getCurrentStateSourceHref('SRC-FUB-001') : getCurrentStateSourceHref('SRC-OWNERS-001')
+      var cta = key === 'fubDrift' ? 'Open FUB source' : 'Open Owners source'
+      sampleItems.push({
+        title: item.title,
+        body: shorten(item.findingsPreview, 220),
+        meta: item.owner + ' · ' + (item.reviewStatus || 'Not Reviewed'),
+        href: href,
+        cta: cta,
+      })
+    })
+  })
+
+  var grid = document.createElement('div')
+  grid.className = 'foundation-shortcut-grid owners-review-queue-grid'
+  cards.concat(sampleItems).forEach(function(item) {
+    grid.appendChild(renderFoundationShortcutCard(item))
+  })
+  panel.appendChild(grid)
+
+  return panel
+}
+
+function renderCurrentState() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading current state...</p>'
+
+  Promise.all([
+    fetchDoc('docs/rebuild/current-state.md'),
+    fetchFoundationHub(),
+    fetchSheetStructureStatus().catch(function() { return null }),
+    fetchOwnersReviewQueue().catch(function() { return null }),
+  ]).then(function(results) {
+    var doc = results[0]
+    var currentPath = 'docs/rebuild/current-state.md'
+    container.innerHTML = ''
+
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Current State'
+    heroInner.appendChild(heroTitle)
+
+    var heroCopy = document.createElement('p')
+    heroCopy.className = 'hero-copy'
+    heroCopy.textContent = 'One page: what is actually closed, what is still partial, and what closes next.'
+    heroInner.appendChild(heroCopy)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = 'Updated ' + formatDate(doc.meta.updatedAt)
+    heroInner.appendChild(heroMeta)
+
+    hero.appendChild(heroInner)
+
+    var heroActions = document.createElement('div')
+    heroActions.className = 'foundation-hero-actions'
+    heroActions.appendChild(createActionLink('Open Owners Closeout', buildDocHref('docs/rebuild/owners-closeout.md', currentPath), 'print-button'))
+    heroActions.appendChild(createActionLink('Open Backlog', '/foundation#backlog', 'print-button'))
+    heroActions.appendChild(createActionLink('Open Maturity Model', buildDocHref('docs/specs/data-source-maturity-model.md', currentPath), 'print-button'))
+    heroActions.appendChild(createActionLink('Open Audit', buildDocHref('docs/audits/2026-04-17-foundation-clarity-audit.md', currentPath), 'print-button'))
+    heroActions.appendChild(createActionLink('Open Rebuild Plan', '/foundation#rebuild-plan'))
+    hero.appendChild(heroActions)
+
+    container.appendChild(hero)
+
+    var closeoutItems = [
+      {
+        label: 'Closed',
+        title: 'Foundation pieces we can call closed for this rebuild pass',
+        statusKey: 'connected',
+        statusLabel: 'Closed',
+        detail: 'These are not future-proof forever. They are closed enough that they should not keep reopening the queue right now.',
+        rows: [
+          {
+            title: 'Strategy docs',
+            body: 'Canonical strategy narrative is signed off through `SRC-STRATEGY-001`.',
+            backlogIds: [],
+          },
+          {
+            title: 'System strategy',
+            body: 'Doctrine, runtime position, and agent-boundary direction are written down.',
+            backlogIds: [],
+          },
+          {
+            title: 'Rebuild visibility',
+            body: 'Current Plan, Current State, runtime map, and audit trail now live in this repo.',
+            backlogIds: [],
+          },
+          {
+            title: 'Verification baseline',
+            body: '`npm run foundation:verify` exists and is passing.',
+            backlogIds: [],
+          },
+          {
+            title: 'Owners Admin-tab meaning',
+            body: '`SRC-OWNERS-001` is signed off for meaning at Level 2.',
+            backlogIds: [],
+          },
+        ],
+      },
+      {
+        label: 'Partial',
+        title: 'Packages that are real but still not operationally closed',
+        statusKey: 'pending',
+        statusLabel: 'Partial',
+        detail: 'This is the actual closeout queue. Finish these before expanding the system again.',
+        rows: [
+          {
+            title: 'Strategy packet',
+            body: 'Docs are signed off. The remaining strategy-used Owners slice closes inside the Owners package work.',
+            backlogIds: ['FOUNDATION-001', 'SOURCE-014'],
+          },
+          {
+            title: 'Owners + FUB package',
+            body: 'Owners meaning is closed, but FUB parity, lineage, historical cleanup, and enforcement still keep the package open.',
+            backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'DATA-009', 'DATA-018', 'DATA-019'],
+          },
+          {
+            title: 'Finance sign-off',
+            body: 'Finance source materials exist, but the line-by-line meaning is still not signed off.',
+            backlogIds: ['FOUNDATION-003'],
+          },
+          {
+            title: 'KPI read model',
+            body: 'KPI is live and readable. The open work is locking which truth layer AI OS should read for each job.',
+            backlogIds: ['SOURCE-010'],
+          },
+          {
+            title: 'Shared freshness rules',
+            body: 'Level 3 exists as a model, but the actual cross-source stale-data rule set does not.',
+            backlogIds: ['DATA-020'],
+          },
+        ],
+      },
+      {
+        label: 'Not built yet',
+        title: 'Important work that should stay visible, but should not pretend to be closed',
+        statusKey: 'planned',
+        statusLabel: 'Not built yet',
+        detail: 'This is real future foundation work, not current closeout work.',
+        rows: [
+          {
+            title: 'Strategy hardening',
+            body: 'Freedom drift monitoring, source-backed value hardening, deeper decision provenance, and temporal truth still need the next hardening pass.',
+            backlogIds: ['DATA-001', 'DATA-003', 'ENGINE-001', 'MEMORY-005', 'DECISION-005'],
+          },
+          {
+            title: 'Wider source revalidation',
+            body: 'After Owners and KPI are stable, close the required rebuild-era sources by pillar instead of wiring random extras.',
+            backlogIds: ['SOURCE-001', 'SOURCE-002', 'SOURCE-003', 'SOURCE-004', 'SOURCE-005', 'SOURCE-006', 'SOURCE-009', 'SOURCE-010', 'SOURCE-011', 'SOURCE-016'],
+          },
+          {
+            title: 'Queue and hub ownership model',
+            body: 'The root queue still needs the future hub and scope model instead of temporary hardcoding.',
+            backlogIds: ['SYSTEM-006', 'SYSTEM-009'],
+          },
+          {
+            title: 'Runtime memory + first trusted loop',
+            body: 'OpenClaw native memory baseline and the first trusted Harlan loop are still later-stage work.',
+            backlogIds: ['MEMORY-002', 'SLICE-001'],
+          },
+        ],
+      },
+    ]
+
+    var levelPanel = document.createElement('section')
+    levelPanel.className = 'panel'
+
+    var levelHeader = document.createElement('div')
+    levelHeader.className = 'panel-header'
+    var levelLeft = document.createElement('div')
+    var levelEyebrow = document.createElement('div')
+    levelEyebrow.className = 'eyebrow'
+    levelEyebrow.textContent = 'Level Guide'
+    levelLeft.appendChild(levelEyebrow)
+    var levelTitle = document.createElement('h3')
+    levelTitle.textContent = 'Levels'
+    levelLeft.appendChild(levelTitle)
+    levelHeader.appendChild(levelLeft)
+    levelPanel.appendChild(levelHeader)
+
+    levelPanel.appendChild(renderTable([
+      '| Level | What it means | Done at this level |',
+      '| --- | --- | --- |',
+      '| Level 1 | The system can reach the source and read it. | Visible and readable. |',
+      '| Level 2 | The exact trusted unit and meaning are reviewed and approved. | Trust boundary is clear. |',
+      '| Level 3 | Refresh rules and stale-state visibility are explicit. | Drift becomes visible. |',
+      '| Level 4 | Approved writes and governed automation are live. | Automation is auditable. |',
+    ], currentPath))
+    container.appendChild(levelPanel)
+
+    var changeWatchPanel = renderCurrentStateChangeWatchPanel(results[1], results[2])
+    if (changeWatchPanel) container.appendChild(changeWatchPanel)
+
+    var surfacesPanel = document.createElement('section')
+    surfacesPanel.className = 'panel'
+    var surfacesHeader = document.createElement('div')
+    surfacesHeader.className = 'panel-header'
+    var surfacesLeft = document.createElement('div')
+    var surfacesEyebrow = document.createElement('div')
+    surfacesEyebrow.className = 'eyebrow'
+    surfacesEyebrow.textContent = 'Foundation Surfaces'
+    surfacesLeft.appendChild(surfacesEyebrow)
+    var surfacesTitle = document.createElement('h3')
+    surfacesTitle.textContent = 'What Exists And What Closes Next'
+    surfacesLeft.appendChild(surfacesTitle)
+    surfacesHeader.appendChild(surfacesLeft)
+    surfacesPanel.appendChild(surfacesHeader)
+
+    var legend = document.createElement('div')
+    legend.className = 'current-state-legend'
+    ;[
+      { key: 'connected', label: 'Done' },
+      { key: 'pending', label: 'Open now' },
+      { key: 'planned', label: 'Later' },
+    ].forEach(function(item) {
+      var chip = document.createElement('div')
+      chip.className = 'current-state-legend-chip'
+      chip.appendChild(renderCurrentStateStatus(item.key, item.label))
+
+      var label = document.createElement('span')
+      label.textContent = item.label
+      chip.appendChild(label)
+      legend.appendChild(chip)
+    })
+    surfacesPanel.appendChild(legend)
+
+    var surfaceRows = [
+      {
+        title: 'Strategy packet',
+        surfaceType: 'Package',
+        sourceId: ['SRC-STRATEGY-001', 'SRC-FREEDOM-COMMUNITY-001', 'SRC-FREEDOM-BHAG-001', 'SRC-FREEDOM-ENGINE-001', 'SRC-OWNERS-001'],
+        statusKey: 'pending',
+        statusLabel: 'Blocked by Owners',
+        currentSummary: 'The strategy package is done except for one remaining Owners dependency.',
+        packageParts: [
+          {
+            sourceId: 'SRC-STRATEGY-001',
+            statusKey: 'connected',
+            statusLabel: 'Done',
+            body: 'Canonical strategy doc and supporting docs are signed off.',
+            role: 'Strategy docs',
+          },
+          {
+            sourceId: 'SRC-FREEDOM-COMMUNITY-001',
+            statusKey: 'connected',
+            statusLabel: 'Done',
+            body: 'Mapped and understood for strategy use.',
+            role: 'Freedom input',
+            next: 'Nothing else here now.',
+          },
+          {
+            sourceId: 'SRC-FREEDOM-BHAG-001',
+            statusKey: 'connected',
+            statusLabel: 'Done',
+            body: 'Mapped and understood for strategy use.',
+            role: 'Freedom input',
+            next: 'Nothing else here now.',
+          },
+          {
+            sourceId: 'SRC-FREEDOM-ENGINE-001',
+            statusKey: 'connected',
+            statusLabel: 'Done',
+            body: 'Mapped and understood for strategy use.',
+            role: 'Freedom input',
+            next: 'Nothing else here now.',
+          },
+          {
+            sourceId: 'SRC-OWNERS-001',
+            statusKey: 'pending',
+            statusLabel: 'Blocker',
+            body: 'This is the one remaining strategy dependency.',
+            role: 'Owners slice used in strategy',
+            next: 'Finish the Owners package, then mark the whole strategy-input package closed.',
+          },
+        ],
+        next: 'Finish the Owners package. After that, the strategy-input closeout card can be marked done.',
+        later: 'Then deepen Freedom drift monitoring, source-backed value hardening, decision provenance, and temporal history.',
+        backlogIds: ['FOUNDATION-001', 'SOURCE-014', 'DATA-001', 'DATA-003', 'ENGINE-001', 'MEMORY-005', 'DECISION-001', 'DECISION-002', 'DECISION-003', 'DECISION-005'],
+        defaultOpen: true,
+      },
+      {
+        title: 'System strategy',
+        surfaceType: 'Docs',
+        statusKey: 'connected',
+        statusLabel: 'Done',
+        currentSummary: 'Doctrine, boundaries, and rebuild direction are visible and signed off for this phase.',
+        next: 'No closeout work right now.',
+        later: 'Update only when the doctrine changes.',
+        backlogIds: [],
+      },
+      {
+        title: 'Rebuild visibility',
+        surfaceType: 'System',
+        statusKey: 'connected',
+        statusLabel: 'Done',
+        currentSummary: 'Current State and Rebuild Plan are live in the repo and visible in the site.',
+        next: 'Keep this aligned with backlog truth.',
+        later: 'Do not let side docs drift away from this page.',
+        backlogIds: [],
+      },
+      {
+        title: 'Verification baseline',
+        surfaceType: 'System',
+        statusKey: 'connected',
+        statusLabel: 'Done',
+        currentSummary: 'foundation:verify exists, is visible, and is passing.',
+        next: 'No baseline closeout work left.',
+        later: 'Add checks only when new source surfaces close.',
+        backlogIds: [],
+      },
+      {
+        title: 'Owners Admin package',
+        surfaceType: 'Package',
+        sourceId: ['SRC-OWNERS-001', 'SRC-FUB-001'],
+        statusKey: 'pending',
+        statusLabel: 'Open',
+        currentSummary: 'Admin-tab meaning is signed off. What remains open is FUB parity, lineage, historical cleanup, and enforcement.',
+        packageParts: [
+          {
+            sourceId: 'SRC-OWNERS-001',
+            statusKey: 'connected',
+            statusLabel: 'Done',
+            body: 'Admin-tab meaning is signed off.',
+            role: 'Owners base source',
+          },
+          {
+            sourceId: 'SRC-FUB-001',
+            statusKey: 'pending',
+            statusLabel: 'Open',
+            body: 'FUB parity and lead-source enforcement still need to close.',
+            role: 'Dependency source',
+            next: 'Finish FUB taxonomy and Owners parity work.',
+          },
+        ],
+        next: 'Close this package in order: SOURCE-008, DATA-005, DATA-006, DATA-007, DATA-008, DATA-009, DATA-018, DATA-019.',
+        later: 'Then make stale-state visibility explicit.',
+        backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'DATA-009', 'DATA-018', 'DATA-019'],
+      },
+      {
+        title: 'FUB lead-source taxonomy',
+        surfaceType: 'Data source',
+        sourceId: 'SRC-FUB-001',
+        statusKey: 'pending',
+        statusLabel: 'Open',
+        currentSummary: 'The review tool is live and flexible open values stay visible, but the Level 2 baseline is not signed off yet.',
+        next: 'Finish the trusted taxonomy baseline and new-source review rules.',
+        later: 'Then add freshness and issue routing.',
+        backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-018'],
+      },
+      {
+        title: 'Finance sign-off',
+        surfaceType: 'Data source',
+        sourceId: 'SRC-FINANCE-001',
+        statusKey: 'pending',
+        statusLabel: 'Open',
+        currentSummary: 'Finance source materials exist, but the line-by-line meaning is not signed off yet.',
+        next: 'Close FOUNDATION-003 once the Owners package is stable enough to trust.',
+        later: 'Then define freshness expectations.',
+        backlogIds: ['FOUNDATION-003'],
+      },
+      {
+        title: 'KPI foundation system',
+        surfaceType: 'Data source',
+        statusKey: 'pending',
+        statusLabel: 'Open',
+        currentSummary: 'SRC-SUPABASE-001 is readable now. KPI is live, but AI OS has not yet locked which truth layer to read for each KPI job.',
+        next: 'Use SOURCE-010 to split pipeline, shopping-list, executed-deal, goal, competition, and usage read rules.',
+        later: 'Then add health checks, visible freshness, and future sales-hub extensions.',
+        backlogIds: ['SOURCE-010'],
+      },
+      {
+        title: 'Shared freshness rules',
+        surfaceType: 'Rule set',
+        statusKey: 'planned',
+        statusLabel: 'Later',
+        currentSummary: 'The maturity model defines Level 3, but shared stale-data rules are not defined yet.',
+        next: 'Do this after Owners, finance, KPI, and the required connector map are stable.',
+        later: 'Use it to drive stale badges, cadence, and guardrails.',
+        backlogIds: ['DATA-020'],
+      },
+    ]
+
+    surfacesPanel.appendChild(renderCurrentStateSurfaceTable(surfaceRows, results[1]))
+    container.appendChild(surfacesPanel)
+
+    var ownersQueuePanel = renderOwnersReviewQueuePanel(results[3])
+    if (ownersQueuePanel) container.appendChild(ownersQueuePanel)
+
+    var nextPanel = document.createElement('section')
+    nextPanel.className = 'panel'
+    var nextHeader = document.createElement('div')
+    nextHeader.className = 'panel-header'
+    var nextLeft = document.createElement('div')
+    var nextEyebrow = document.createElement('div')
+    nextEyebrow.className = 'eyebrow'
+    nextEyebrow.textContent = 'Next'
+    nextLeft.appendChild(nextEyebrow)
+    var nextTitle = document.createElement('h3')
+    nextTitle.textContent = 'Actual Execution Order'
+    nextLeft.appendChild(nextTitle)
+    var nextIntro = document.createElement('p')
+    nextIntro.className = 'section-intro'
+    nextIntro.textContent = 'This is the order to follow right now.'
+    nextLeft.appendChild(nextIntro)
+    nextHeader.appendChild(nextLeft)
+    nextPanel.appendChild(nextHeader)
+
+    nextPanel.appendChild(renderTable([
+      '| Order | Surface | Why it is next |',
+      '| --- | --- | --- |',
+      '| 1 | Owners package | This closes FUB parity, attribution lineage, enforcement, and the remaining strategy-used Owners slice. |',
+      '| 2 | Finance | This is the next source sign-off once Owners is stable enough to trust. |',
+      '| 3 | KPI read rules | This locks how AI OS reads the live KPI foundation system without mixing truth layers by accident. |',
+      '| 4 | Required connectors by pillar | This prevents random connector sprawl and keeps marketing split by company, Steve, and MarketMasters. |',
+      '| 5 | Shared freshness rules | This tells the system how to show stale data once meaning is trusted. |',
+    ], currentPath))
+    container.appendChild(nextPanel)
+
+    var closeoutBoard = renderCurrentStateCloseoutBoard(closeoutItems, results[1])
+    if (closeoutBoard) {
+      var closeoutHeader = closeoutBoard.querySelector('h3')
+      if (closeoutHeader) closeoutHeader.textContent = 'Closed, Partial, And Not Built Yet'
+      container.appendChild(closeoutBoard)
+    }
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load current state: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function getLiveDocLatestAsOfBySource(sourceSnapshot) {
+  var latestBySource = {}
+
+  ;(sourceSnapshot || []).forEach(function(row) {
+    if (!row || !row.sourceId || !row.asOf) return
+    var current = latestBySource[row.sourceId]
+    if (!current || String(row.asOf) > String(current)) {
+      latestBySource[row.sourceId] = row.asOf
+    }
+  })
+
+  return latestBySource
+}
+
+function renderLiveDocFreshnessPanel(docPath, sourceSnapshot, sourceContracts) {
+  var contractList = (sourceContracts || []).filter(function(contract) {
+    return contract.updateMethod || contract.refreshSchedule || contract.manualRefresh
+  })
+  if (!contractList.length) return null
+
+  var latestBySource = getLiveDocLatestAsOfBySource(sourceSnapshot)
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Live Data Status'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Live Data On This Page'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'The doc text changes when the markdown changes. The table below shows when the live numbers on this page were last pulled and how they refresh.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var rows = [
+    '| Source | Last live value shown here | Updates when | Auto-refresh |',
+    '| --- | --- | --- | --- |',
+  ]
+
+  function simplifyUpdateMethod(value) {
+    if (!value) return '—'
+    if (value === 'Live read on page load') return 'When the page loads'
+    return value
+  }
+
+  function simplifyRefreshSchedule(value) {
+    if (!value) return '—'
+    if (value === 'On demand only. No background schedule yet.') return 'No automatic refresh yet'
+    return value
+  }
+
+  function simplifySourceLabel(contract) {
+    if (!contract) return '—'
+    if (contract.sourceId === 'SRC-FREEDOM-COMMUNITY-001') return 'Community tracker'
+    if (contract.sourceId === 'SRC-FREEDOM-BHAG-001') return 'BHAG builder'
+    if (contract.sourceId === 'SRC-FREEDOM-ENGINE-001') return 'Agent Engine'
+    if (contract.sourceId === 'SRC-OWNERS-001') return 'Owners Admin tab'
+    return contract.unitName || contract.title || contract.sourceId
+  }
+
+  contractList.forEach(function(contract) {
+    rows.push(
+      '| ' +
+      simplifySourceLabel(contract) +
+      ' ([`' + contract.sourceId + '`](' + getCurrentStateSourceHref(contract.sourceId) + ')) | ' +
+      (latestBySource[contract.sourceId] ? formatAsOfDate(latestBySource[contract.sourceId]) : 'No live date in this page') +
+      ' | ' +
+      simplifyUpdateMethod(contract.updateMethod) +
+      ' | ' +
+      simplifyRefreshSchedule(contract.refreshSchedule) +
+      ' |'
+    )
+  })
+
+  panel.appendChild(renderTable(rows, docPath))
+
+  var note = document.createElement('p')
+  note.className = 'section-intro'
+  note.textContent = 'Current strategy rule: the page pulls live data when it loads, and you can refresh it manually. Automatic background refresh can be added later if we need it.'
+  panel.appendChild(note)
+
+  return panel
 }
 
 function renderFoundationHome() {
@@ -3825,116 +6294,28 @@ function renderFoundationHome() {
     heroLeft.appendChild(heroTitle)
 
     var heroCopy = document.createElement('p')
-    heroCopy.textContent = 'Foundation is the live operating layer behind Benson Crew strategy. It keeps the strategy modular, lets the system govern against it, and turns the strategy into something agents can actively work with instead of something leadership has to carry manually.'
+    heroCopy.textContent = 'Use this page to see the current state, the closeout order, and what needs Steve.'
     heroLeft.appendChild(heroCopy)
     hero.appendChild(heroLeft)
 
     var heroActions = document.createElement('div')
     heroActions.className = 'foundation-hero-actions'
-    heroActions.appendChild(createActionButton('Download Strategy', function() {
-      var link = document.createElement('a')
-      link.href = '/foundation/export/strategy.pdf'
-      link.download = ''
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }, 'print-button'))
-    heroActions.appendChild(createActionButton('Open Strategy Packet', function() {
-      window.location.hash = '#overview'
-    }))
+    heroActions.appendChild(createActionLink('Current State', '/foundation#current-state', 'print-button'))
+    heroActions.appendChild(createActionLink('Data Sources', '/foundation#source-overview'))
+    heroActions.appendChild(createActionLink('Backlog', '/foundation#backlog'))
     hero.appendChild(heroActions)
 
     container.appendChild(hero)
 
-    var purposePanel = document.createElement('section')
-    purposePanel.className = 'panel'
-
-    var purposeHeader = document.createElement('div')
-    purposeHeader.className = 'panel-header'
-    var purposeLeft = document.createElement('div')
-    var purposeEyebrow = document.createElement('div')
-    purposeEyebrow.className = 'eyebrow'
-    purposeEyebrow.textContent = 'Why It Exists'
-    purposeLeft.appendChild(purposeEyebrow)
-    var purposeTitle = document.createElement('h3')
-    purposeTitle.textContent = 'What Foundation Is Doing'
-    purposeLeft.appendChild(purposeTitle)
-    purposeHeader.appendChild(purposeLeft)
-    purposePanel.appendChild(purposeHeader)
-
-    var purposeGrid = document.createElement('div')
-    purposeGrid.className = 'foundation-purpose-grid'
-    ;[
+    var snapshotPanel = renderOverviewStatusPanel(
+      getFoundationHomeSnapshotItems(data, hub),
       {
-        title: 'Live Strategy',
-        body: 'The strategy is meant to stay current, source-backed, and visible in the system instead of drifting into stale documents.',
-        icon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M12 4v16"/><circle cx="12" cy="12" r="9"/></svg>',
-      },
-      {
-        title: 'Governed System',
-        body: 'This is where the operating rules live so the system can prepare the room, surface drift, and keep accountability visible after the meeting.',
-        icon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>',
-      },
-      {
-        title: 'Proactive Operator',
-        body: 'The goal is not passive storage. Foundation should become the operating partner that keeps cadence, memory, follow-through, and escalation tight.',
-        icon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M5 9l7-7 7 7"/><path d="M5 15l7 7 7-7"/></svg>',
-      },
-      {
-        title: 'Agent-Ready Modules',
-        body: 'The strategy was broken into modules so agents can work on the right layer without muddying the whole system every time something changes.',
-        icon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
-      },
-    ].forEach(function(card) {
-      purposeGrid.appendChild(renderFoundationPurposeCard(card))
-    })
-    purposePanel.appendChild(purposeGrid)
-    container.appendChild(purposePanel)
-
-    var liveNow = (data.systemStatus || []).filter(function(item) {
-      return ['strategy-doc', 'supporting-strategy', 'foundation-memory'].indexOf(item.key) !== -1
-    })
-    var stillProving = (data.systemStatus || []).filter(function(item) {
-      return ['source-trust', 'verification', 'assistant-loop'].indexOf(item.key) !== -1
-    })
-
-    var livePanel = renderStatusGroupPanel(
-      'Live Now',
-      'The pieces that are already wired and active inside Foundation.',
-      liveNow
+        eyebrow: 'Right Now',
+        title: 'Foundation Status',
+        intro: 'Read this first.',
+      }
     )
-    if (livePanel) container.appendChild(livePanel)
-
-    var provingPanel = renderStatusGroupPanel(
-      'Still Proving',
-      'The gaps that still block Foundation from being fully trusted and closed out.',
-      stillProving
-    )
-    if (provingPanel) container.appendChild(provingPanel)
-
-    var modulesPanel = document.createElement('section')
-    modulesPanel.className = 'panel'
-
-    var modulesHeader = document.createElement('div')
-    modulesHeader.className = 'panel-header'
-    var modulesLeft = document.createElement('div')
-    var modulesEyebrow = document.createElement('div')
-    modulesEyebrow.className = 'eyebrow'
-    modulesEyebrow.textContent = 'Strategic Modules'
-    modulesLeft.appendChild(modulesEyebrow)
-    var modulesTitle = document.createElement('h3')
-    modulesTitle.textContent = 'What The System Governs Against'
-    modulesLeft.appendChild(modulesTitle)
-    modulesHeader.appendChild(modulesLeft)
-    modulesPanel.appendChild(modulesHeader)
-
-    var modulesGrid = document.createElement('div')
-    modulesGrid.className = 'foundation-module-grid'
-    data.foundation.businessStrategy.sections.forEach(function(section) {
-      modulesGrid.appendChild(renderFoundationModuleCard(section))
-    })
-    modulesPanel.appendChild(modulesGrid)
-    container.appendChild(modulesPanel)
+    if (snapshotPanel) container.appendChild(snapshotPanel)
 
     var sequencePanel = document.createElement('section')
     sequencePanel.className = 'panel'
@@ -3943,14 +6324,14 @@ function renderFoundationHome() {
     var sequenceLeft = document.createElement('div')
     var sequenceEyebrow = document.createElement('div')
     sequenceEyebrow.className = 'eyebrow'
-    sequenceEyebrow.textContent = 'Current Sequence'
+    sequenceEyebrow.textContent = 'Closeout Order'
     sequenceLeft.appendChild(sequenceEyebrow)
     var sequenceTitle = document.createElement('h3')
-    sequenceTitle.textContent = 'What We Work On Next'
+    sequenceTitle.textContent = 'What Closes Foundation'
     sequenceLeft.appendChild(sequenceTitle)
     var sequenceIntro = document.createElement('p')
     sequenceIntro.className = 'section-intro'
-    sequenceIntro.textContent = 'This is the ordered closeout path, not a generic idea pile.'
+    sequenceIntro.textContent = 'This is the live order. Do not skip ahead.'
     sequenceLeft.appendChild(sequenceIntro)
     sequenceHeader.appendChild(sequenceLeft)
     sequencePanel.appendChild(sequenceHeader)
@@ -3963,36 +6344,21 @@ function renderFoundationHome() {
     sequencePanel.appendChild(sequenceGrid)
     container.appendChild(sequencePanel)
 
-    var workboardPanel = document.createElement('section')
-    workboardPanel.className = 'panel'
-    var workboardHeader = document.createElement('div')
-    workboardHeader.className = 'panel-header'
-    var workboardLeft = document.createElement('div')
-    var workboardEyebrow = document.createElement('div')
-    workboardEyebrow.className = 'eyebrow'
-    workboardEyebrow.textContent = 'Foundation Closeout'
-    workboardLeft.appendChild(workboardEyebrow)
-    var workboardTitle = document.createElement('h3')
-    workboardTitle.textContent = 'What Still Blocks Closure'
-    workboardLeft.appendChild(workboardTitle)
-    var workboardIntro = document.createElement('p')
-    workboardIntro.className = 'section-intro'
-    workboardIntro.textContent = 'This is the filtered Foundation closeout board, not the whole backlog.'
-    workboardLeft.appendChild(workboardIntro)
-    workboardHeader.appendChild(workboardLeft)
-    workboardPanel.appendChild(workboardHeader)
+    var waitingPanel = renderFoundationShortcutPanel(
+      'Waiting On Steve',
+      'These are the review points that still need your call.',
+      getFoundationHomeWaitingItems(),
+      { eyebrow: 'Review' }
+    )
+    if (waitingPanel) container.appendChild(waitingPanel)
 
-    var workboardList = document.createElement('div')
-    workboardList.className = 'foundation-stage-list'
-    var closeoutItems = getFoundationCloseoutItems(hub.backlogItems || [])
-    homeWorkboardStages.forEach(function(stage) {
-      var stageItems = closeoutItems.filter(function(item) {
-        return stage.lanes.indexOf(item.lane) !== -1
-      })
-      workboardList.appendChild(renderHomeWorkboardStage(stage, stageItems))
-    })
-    workboardPanel.appendChild(workboardList)
-    container.appendChild(workboardPanel)
+    var actionsPanel = renderFoundationShortcutPanel(
+      'Open The Right Pages',
+      'Use these four pages. Ignore the rest until you need them.',
+      getFoundationHomeActionItems(),
+      { eyebrow: 'Next Clicks' }
+    )
+    if (actionsPanel) container.appendChild(actionsPanel)
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
@@ -4007,7 +6373,9 @@ function renderOverview() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading overview...</p>'
 
-  fetchSourceOfTruth().then(function(data) {
+  Promise.all([fetchSourceOfTruth(), fetchFoundationHub()]).then(function(results) {
+    var data = results[0]
+    var hub = results[1]
     container.innerHTML = ''
 
     /* hero */
@@ -4026,7 +6394,7 @@ function renderOverview() {
     heroLeft.appendChild(heroTitle)
 
     var heroCopy = document.createElement('p')
-    heroCopy.textContent = 'Canonical strategy document for Benson Crew. The six core sections live here. Supporting docs sit beside the packet in the nav so the strategy stays tight while the detail stays close.'
+    heroCopy.textContent = 'Canonical strategy packet. Supporting docs stay separate so the core stays short.'
     heroLeft.appendChild(heroCopy)
 
     hero.appendChild(heroLeft)
@@ -4085,6 +6453,9 @@ function renderOverview() {
     panel.appendChild(sectionList)
     container.appendChild(panel)
 
+    var strategyChangePanel = renderStrategyChangeWatchPanel(hub, null)
+    if (strategyChangePanel) container.appendChild(strategyChangePanel)
+
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
@@ -4100,13 +6471,21 @@ function renderStrategyDoc(sectionKey) {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading document...</p>'
 
-  var loader = sectionKey === 'system-strategy'
-    ? Promise.all([fetchDoc(docPath), fetchSourceOfTruth()])
-    : Promise.all([fetchDoc(docPath)])
+  var loader
+  if (sectionKey === 'system-strategy') {
+    loader = Promise.all([fetchDoc(docPath), fetchSourceOfTruth()])
+  } else if (sectionKey === 'rebuild-plan') {
+    loader = Promise.all([fetchDoc(docPath), Promise.resolve(null), fetchFoundationHub()])
+  } else if (isStrategyPacketDocPath(docPath)) {
+    loader = Promise.all([fetchDoc(docPath), Promise.resolve(null), fetchFoundationHub()])
+  } else {
+    loader = Promise.all([fetchDoc(docPath)])
+  }
 
   loader.then(function(results) {
     var data = results[0]
     var sourceData = results[1] || null
+    var hub = results[2] || null
     container.innerHTML = ''
 
     /* hero */
@@ -4122,7 +6501,7 @@ function renderStrategyDoc(sectionKey) {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = 'Updated ' + formatDate(data.meta.updatedAt) + ' · ' + data.meta.lines + ' lines'
+    heroMeta.textContent = (isLiveDocPath(docPath) ? 'Doc updated ' : 'Updated ') + formatDate(data.meta.updatedAt) + ' · ' + data.meta.lines + ' lines'
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
@@ -4130,7 +6509,7 @@ function renderStrategyDoc(sectionKey) {
     if (isLiveDocPath(docPath)) {
       var refreshBtn = document.createElement('button')
       refreshBtn.className = 'print-button'
-      refreshBtn.textContent = 'Refresh Data'
+      refreshBtn.textContent = 'Refresh Live Data'
       refreshBtn.setAttribute('type', 'button')
       refreshBtn.addEventListener('click', function() {
         delete cache.docs[docPath]
@@ -4140,6 +6519,11 @@ function renderStrategyDoc(sectionKey) {
     }
 
     container.appendChild(hero)
+
+    if (isLiveDocPath(docPath)) {
+      var freshnessPanel = renderLiveDocFreshnessPanel(docPath, data.sourceSnapshot || [], data.sourceContracts || [])
+      if (freshnessPanel) container.appendChild(freshnessPanel)
+    }
 
     /* full markdown content */
     var docPanel = document.createElement('section')
@@ -4157,6 +6541,15 @@ function renderStrategyDoc(sectionKey) {
     docPanel.appendChild(docContent)
     container.appendChild(docPanel)
 
+    if (sectionKey === 'rebuild-plan' && hub) {
+      container.appendChild(renderRebuildPlanBacklogPanel(hub))
+    }
+
+    if (hub && isStrategyPacketDocPath(docPath)) {
+      var changeWatchPanel = renderStrategyChangeWatchPanel(hub, docPath)
+      if (changeWatchPanel) container.appendChild(changeWatchPanel)
+    }
+
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
@@ -4165,11 +6558,106 @@ function renderStrategyDoc(sectionKey) {
   })
 }
 
+function renderRebuildPlanBacklogPanel(hub) {
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Execution Traceability'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Rebuild Plan ↔ Backlog'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'These backlog cards carry the rebuild. If the plan and cards disagree, fix the backlog.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+
+  var action = document.createElement('a')
+  action.className = 'inline-link'
+  action.href = '/foundation#backlog'
+  action.textContent = 'Open full backlog'
+  header.appendChild(action)
+
+  panel.appendChild(header)
+
+  var itemsById = new Map()
+  ;(hub.backlogItems || []).forEach(function(item) {
+    itemsById.set(item.id, item)
+  })
+
+  rebuildPlanBacklogGroups.forEach(function(group) {
+    var groupPanel = document.createElement('section')
+    groupPanel.className = 'panel'
+
+    var groupHeader = document.createElement('div')
+    groupHeader.className = 'panel-header'
+
+    var groupLeft = document.createElement('div')
+    var groupTitle = document.createElement('h3')
+    groupTitle.textContent = group.title
+    groupLeft.appendChild(groupTitle)
+
+    var groupIntro = document.createElement('p')
+    groupIntro.className = 'section-intro'
+    groupIntro.textContent = group.intro
+    groupLeft.appendChild(groupIntro)
+
+    groupHeader.appendChild(groupLeft)
+    groupPanel.appendChild(groupHeader)
+
+    var list = document.createElement('div')
+    list.className = 'backlog-stack-list'
+
+    var matched = group.ids
+      .map(function(id) { return itemsById.get(id) || null })
+      .filter(Boolean)
+
+    if (!matched.length) {
+      var empty = document.createElement('p')
+      empty.className = 'section-intro'
+      empty.textContent = 'No live backlog cards are mapped to this phase yet.'
+      list.appendChild(empty)
+    } else {
+      matched.forEach(function(item) {
+        list.appendChild(renderBacklogAccordionItem(item))
+      })
+    }
+
+    groupPanel.appendChild(list)
+    panel.appendChild(groupPanel)
+  })
+
+  return panel
+}
+
 function renderBacklog() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading backlog...</p>'
 
   fetchFoundationHub().then(function(hub) {
+    var focusedIds = getSection() === 'backlog'
+      ? getSectionFocus().split(',').map(function(id) { return id.trim() }).filter(Boolean)
+      : []
+    backlogScopeRegistry = (hub.meta && hub.meta.backlogScopes && hub.meta.backlogScopes.length)
+      ? hub.meta.backlogScopes.slice()
+      : fallbackBacklogScopes.slice()
+    backlogViewState.ids = focusedIds
+    if (focusedIds.length) {
+      backlogViewState.scope = 'all'
+      backlogViewState.priority = 'all'
+      backlogViewState.query = ''
+    }
+
     container.innerHTML = ''
 
     /* hero */
@@ -4180,17 +6668,28 @@ function renderBacklog() {
     heroInner.className = 'hero-inner'
 
     var heroTitle = document.createElement('h1')
-    heroTitle.textContent = 'Foundation Backlog'
+    heroTitle.textContent = focusedIds.length ? 'Focused Backlog View' : 'Foundation Backlog'
     heroInner.appendChild(heroTitle)
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    var coreSystemCount = (hub.backlogItems || []).filter(function(item) { return item.team === 'dev' }).length
-    var marketingCount = (hub.backlogItems || []).filter(function(item) { return item.team === 'marketing' }).length
-    heroMeta.textContent = hub.backlogItems.length + ' active items · workflow-first queue · ' + coreSystemCount + ' foundation/system · ' + marketingCount + ' marketing placeholder'
+    var scopeSummary = getActiveBacklogScopes().map(function(scope) {
+      var count = (hub.backlogItems || []).filter(function(item) { return item.scope === scope.key }).length
+      if (!count) return null
+      return count + ' ' + getBacklogScopeShortLabel(scope.key)
+    }).filter(Boolean).join(' · ')
+    heroMeta.textContent = focusedIds.length
+      ? focusedIds.length + ' linked cards from the page you clicked. Clear focus to see the full queue.'
+      : hub.backlogItems.length + ' active items · workflow-first queue' + (scopeSummary ? ' · ' + scopeSummary : '')
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
+    if (focusedIds.length) {
+      var heroActions = document.createElement('div')
+      heroActions.className = 'foundation-hero-actions'
+      heroActions.appendChild(createActionLink('Clear Focus', '/foundation#backlog', 'print-button'))
+      hero.appendChild(heroActions)
+    }
     container.appendChild(hero)
 
     container.appendChild(renderOperatorToolsDrawer(
@@ -4218,7 +6717,9 @@ function renderBacklog() {
 
     var boardIntro = document.createElement('p')
     boardIntro.className = 'section-intro'
-    boardIntro.textContent = 'This is the temporary root rebuild queue. Workflow stages are the main view. Priority is a secondary filter. Foundation/system work belongs here; future hub work should move out as those surfaces come online.'
+    boardIntro.textContent = focusedIds.length
+      ? 'This is the exact queue for the surface you clicked. Workflow stage still comes first.'
+      : 'Workflow stages are the main view. Priority is secondary.'
     boardLeft.appendChild(boardIntro)
 
     boardHeader.appendChild(boardLeft)
@@ -4242,17 +6743,15 @@ function renderBacklog() {
     teamGroup.appendChild(teamLabel)
 
     var teamButtons = []
-    ;[
-      { key: 'all', label: 'All' },
-      { key: 'dev', label: 'Foundation / System' },
-      { key: 'marketing', label: 'Marketing' },
-    ].forEach(function(option) {
+    ;([{ key: 'all', label: 'All' }]).concat(getActiveBacklogScopes().map(function(scope) {
+      return { key: scope.key, label: scope.label }
+    })).forEach(function(option) {
       var button = document.createElement('button')
       button.type = 'button'
       button.className = 'operations-filter-chip'
       button.textContent = option.label
       button.addEventListener('click', function() {
-        backlogViewState.team = option.key
+        backlogViewState.scope = option.key
         applyBacklogFilters()
       })
       teamButtons.push({ key: option.key, button: button })
@@ -4301,7 +6800,7 @@ function renderBacklog() {
 
     function syncTeamButtons() {
       teamButtons.forEach(function(item) {
-        item.button.classList.toggle('is-active', backlogViewState.team === item.key)
+        item.button.classList.toggle('is-active', backlogViewState.scope === item.key)
       })
       priorityButtons.forEach(function(item) {
         item.button.classList.toggle('is-active', backlogViewState.priority === item.key)
@@ -4312,13 +6811,13 @@ function renderBacklog() {
       syncTeamButtons()
 
       var filteredItems = filterBacklogItems(hub.backlogItems || [], backlogViewState)
-      var scopeLabel = backlogViewState.team === 'all'
+      var scopeLabel = backlogViewState.scope === 'all'
         ? 'root rebuild backlog'
-        : backlogViewState.team === 'dev'
-          ? 'foundation/system items'
-          : 'marketing items'
+        : getBacklogScopeShortLabel(backlogViewState.scope) + ' items'
       var priorityLabel = backlogViewState.priority === 'all' ? 'all priorities' : backlogViewState.priority
-      backlogResults.textContent = 'Showing ' + filteredItems.length + ' ' + scopeLabel + ' · ' + priorityLabel + ' · grouped as To Do, To Do Scoped, Doing, Waiting, and Done'
+      backlogResults.textContent = focusedIds.length
+        ? 'Showing ' + filteredItems.length + ' linked cards · grouped as To Do, To Do Scoped, Doing, Waiting, and Done'
+        : 'Showing ' + filteredItems.length + ' ' + scopeLabel + ' · ' + priorityLabel + ' · grouped as To Do, To Do Scoped, Doing, Waiting, and Done'
 
       boardWrap.innerHTML = ''
 
@@ -4380,6 +6879,8 @@ function renderDecisions() {
       [renderAdminTokenPanel(), renderDecisionCreatePanel(hub)],
       false
     ))
+
+    container.appendChild(renderDecisionReviewPanel(hub))
 
     /* decision cards */
     var decisionPanel = document.createElement('section')
@@ -4856,23 +7357,58 @@ function renderSourceMetaItem(labelText, valueText) {
   return item
 }
 
+function areAllSourceContractsDocs(contracts) {
+  return (contracts || []).length > 0 && (contracts || []).every(function(contract) {
+    return getSourceKind(contract).key === 'docs'
+  })
+}
+
+function renderSourceLinkGroup(labelText, items, currentPath) {
+  if (!Array.isArray(items) || !items.length) return null
+
+  var wrap = document.createElement('div')
+  wrap.className = 'source-link-group'
+
+  var label = document.createElement('div')
+  label.className = 'source-link-group-label'
+  label.textContent = labelText
+  wrap.appendChild(label)
+
+  var links = document.createElement('div')
+  links.className = 'doc-source-actions'
+  items.forEach(function(item) {
+    if (!item || !item.href) return
+    var link = document.createElement('a')
+    link.className = 'doc-source-link'
+    link.href = buildDocHref(item.href, currentPath || 'docs/business-strategy.md')
+    link.textContent = item.label || item.href
+    links.appendChild(link)
+  })
+  wrap.appendChild(links)
+
+  return wrap
+}
+
 function renderSourceContractCard(contract) {
   var article = document.createElement('article')
   article.className = 'section-card source-card'
+  var kind = getSourceKind(contract)
+  var systemName = getSourceSystemName(contract)
+  var unitName = getSourceUnitName(contract) || systemName
 
   var titleWrap = document.createElement('div')
   titleWrap.className = 'source-card-title-wrap'
 
   var title = document.createElement('h4')
-  title.textContent = getSourceUnitName(contract) || getSourceSystemName(contract)
+  title.textContent = unitName
   titleWrap.appendChild(title)
 
   var sourceId = document.createElement('div')
   sourceId.className = 'source-card-id'
   sourceId.textContent = [
     contract.sourceId,
-    getSourceSystemName(contract) !== (getSourceUnitName(contract) || getSourceSystemName(contract))
-      ? 'Tab in ' + getSourceSystemName(contract)
+    systemName !== unitName
+      ? (kind.key === 'docs' ? systemName : 'Tab in ' + systemName)
       : '',
   ].filter(Boolean).join(' · ')
   titleWrap.appendChild(sourceId)
@@ -4880,7 +7416,7 @@ function renderSourceContractCard(contract) {
 
   var tags = document.createElement('div')
   tags.className = 'source-card-tags'
-  var kindTag = getSourceKind(contract)
+  var kindTag = kind
   var trustTag = getSourceTrust(contract)
   tags.appendChild(renderSourceTag(kindTag.label, 'neutral'))
   tags.appendChild(renderSourceTag(trustTag.label, trustTag.tone))
@@ -4895,18 +7431,40 @@ function renderSourceContractCard(contract) {
   if (contract.lastVerified) {
     metaGrid.appendChild(renderSourceMetaItem('Last Verified', contract.lastVerified))
   }
+  if (contract.updateMethod) {
+    metaGrid.appendChild(renderSourceMetaItem('Update method', contract.updateMethod))
+  }
+  if (contract.refreshSchedule) {
+    metaGrid.appendChild(renderSourceMetaItem('Schedule now', contract.refreshSchedule))
+  }
   article.appendChild(metaGrid)
 
+  if (kind.key === 'docs' && Array.isArray(contract.packetDocs) && contract.packetDocs.length) {
+    article.appendChild(renderSourceLinkGroup('Docs in this packet', contract.packetDocs, 'docs/business-strategy.md'))
+  }
+
   if (contract.owns) {
-    article.appendChild(renderLabeledCopy('decision-meta', 'What this tab owns', contract.owns))
+    article.appendChild(renderLabeledCopy('decision-meta', kind.key === 'docs' ? 'What this packet owns' : 'What this tab owns', contract.owns))
   }
 
   if (contract.validationScope) {
     article.appendChild(renderLabeledCopy('decision-meta', 'Trust boundary', contract.validationScope))
   }
 
+  if (contract.doneMeans) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'Closed now', contract.doneMeans))
+  }
+
+  if (contract.stillOpen) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'Still open', contract.stillOpen))
+  }
+
   if (contract.boundaryNote) {
     article.appendChild(renderLabeledCopy('decision-meta', 'Boundary note', contract.boundaryNote))
+  }
+
+  if (contract.manualRefresh) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'Manual refresh', contract.manualRefresh))
   }
 
   appendSourceActions(article, contract.actions || [])
@@ -4916,6 +7474,7 @@ function renderSourceContractCard(contract) {
 function renderSourceAccordionItem(contract) {
   var details = document.createElement('details')
   details.className = 'source-item'
+  if (contract.sourceId) details.id = contract.sourceId
 
   var summary = document.createElement('summary')
   summary.className = 'source-item-summary'
@@ -5086,6 +7645,8 @@ function renderSourceSystemStack(group) {
 
   var details = document.createElement('details')
   details.className = 'source-stack'
+  var docsOnly = areAllSourceContractsDocs(contracts)
+  var singleDocPacket = docsOnly && contracts.length === 1
   var state = getSourceSystemState(contracts)
   var signedOffUnits = contracts.filter(function(contract) { return getSourcePresence(contract).key === 'signed-off' }).length
   var provisionalUnits = contracts.filter(function(contract) { return getSourcePresence(contract).key === 'connected' }).length
@@ -5104,29 +7665,46 @@ function renderSourceSystemStack(group) {
 
   var title = document.createElement('div')
   title.className = 'source-stack-title'
-  title.textContent = group.name
+  title.textContent = singleDocPacket
+    ? (getSourceUnitName(contracts[0]) || group.name)
+    : group.name
   left.appendChild(title)
 
   var intro = document.createElement('div')
   intro.className = 'source-stack-intro'
-  intro.textContent = [
-    contracts.length + ' validation unit' + (contracts.length === 1 ? '' : 's'),
-    signedOffUnits ? signedOffUnits + ' signed off' : '',
-    provisionalUnits ? provisionalUnits + ' still provisional' : '',
-  ].filter(Boolean).join(' · ')
+  intro.textContent = singleDocPacket
+    ? [
+      group.name,
+      state.label,
+    ].filter(Boolean).join(' · ')
+    : [
+      contracts.length + ' ' + (docsOnly ? 'doc source' : 'validation unit') + (contracts.length === 1 ? '' : 's'),
+      signedOffUnits ? signedOffUnits + ' signed off' : '',
+      provisionalUnits ? provisionalUnits + ' still provisional' : '',
+    ].filter(Boolean).join(' · ')
   left.appendChild(intro)
 
   summary.appendChild(left)
 
-  var count = document.createElement('span')
-  count.className = 'source-stack-count'
-  count.textContent = contracts.length
-  summary.appendChild(count)
+  if (!singleDocPacket) {
+    var count = document.createElement('span')
+    count.className = 'source-stack-count'
+    count.textContent = contracts.length
+    summary.appendChild(count)
+  }
 
   details.appendChild(summary)
 
   var body = document.createElement('div')
   body.className = 'source-stack-body'
+
+  if (singleDocPacket) {
+    var singleContract = contracts[0]
+    if (singleContract && singleContract.sourceId) details.id = singleContract.sourceId
+    body.appendChild(renderSourceContractCard(singleContract))
+    details.appendChild(body)
+    return details
+  }
 
   var systemCard = document.createElement('article')
   systemCard.className = 'section-card source-card'
@@ -5151,12 +7729,14 @@ function renderSourceSystemStack(group) {
 
   var systemCardCopy = document.createElement('p')
   systemCardCopy.className = 'source-card-copy'
-  systemCardCopy.textContent = 'Review this workbook one tab at a time. The cards below are the exact validation units that still need trust work or sign-off.'
+  systemCardCopy.textContent = docsOnly
+    ? 'This is a repo doc packet. Open it when you want to see which written docs are signed off and what is still outside that closure.'
+    : 'Review this workbook one tab at a time. The cards below are the exact validation units that still need trust work or sign-off.'
   systemCard.appendChild(systemCardCopy)
 
   var systemCardGrid = document.createElement('div')
   systemCardGrid.className = 'source-card-meta-grid'
-  systemCardGrid.appendChild(renderSourceMetaItem('Tracked tabs', String(contracts.length)))
+  systemCardGrid.appendChild(renderSourceMetaItem(docsOnly ? 'Tracked docs' : 'Tracked tabs', String(contracts.length)))
   if (ownerSummary) systemCardGrid.appendChild(renderSourceMetaItem('Owners', ownerSummary))
   if (accessSummary) systemCardGrid.appendChild(renderSourceMetaItem('Access', accessSummary))
   systemCardGrid.appendChild(renderSourceMetaItem('Signed off', String(signedOffUnits)))
@@ -5317,7 +7897,7 @@ function renderSourceHero(config, sourceContracts, sourceConnectors) {
   if (config.title === 'Data Sources') {
     var trustNote = document.createElement('p')
     trustNote.className = 'hero-copy'
-    trustNote.textContent = 'Trust right now: ' + signedOffCount + ' signed off · ' + connectedCount + ' provisional · ' + verificationCount + ' need rebuild verification · ' + gapCount + ' not connected.'
+    trustNote.textContent = 'Trust now: ' + signedOffCount + ' signed off · ' + connectedCount + ' readable · ' + verificationCount + ' need verification · ' + gapCount + ' not connected.'
     heroInner.appendChild(trustNote)
   }
 
@@ -5345,7 +7925,7 @@ function renderSourceSystemsPanel(sourceContracts, options) {
 
   var panelIntro = document.createElement('p')
   panelIntro.className = 'section-intro'
-  panelIntro.textContent = opts.intro || 'The big cards are the real source systems. Open each one to see the exact tabs, ledgers, or units being validated underneath it.'
+  panelIntro.textContent = opts.intro || 'Open each source system to see the exact units being validated underneath it.'
   panelLeft.appendChild(panelIntro)
 
   panelHeader.appendChild(panelLeft)
@@ -5463,7 +8043,7 @@ function renderSourceSystemsPanel(sourceContracts, options) {
       ? 'all operating states'
       : presenceButtons.filter(function(item) { return item.key === sourceViewState.presence })[0].button.textContent.toLowerCase()
 
-    results.textContent = 'Showing ' + filteredContracts.length + ' validation units across ' + groupedSystems.length + ' ' + laneLabel + ' · ' + kindLabelText + ' · ' + stateLabelText + ' · groups and cards start collapsed'
+    results.textContent = 'Showing ' + filteredContracts.length + ' validation units across ' + groupedSystems.length + ' ' + laneLabel + ' · ' + kindLabelText + ' · ' + stateLabelText
 
     board.innerHTML = ''
     groupedSystems.forEach(function(group) {
@@ -5508,7 +8088,7 @@ function renderSourceConnectorsPanel(sourceConnectors, options) {
 
   var connectorIntro = document.createElement('p')
   connectorIntro.className = 'section-intro'
-  connectorIntro.textContent = opts.intro || 'These are the pipes. They explain what connection exists, what it does, and who should be using it. Pipe does not equal trust.'
+  connectorIntro.textContent = opts.intro || 'These are the pipes. Pipe does not equal trust.'
   connectorLeft.appendChild(connectorIntro)
 
   connectorHeader.appendChild(connectorLeft)
@@ -5600,7 +8180,231 @@ function getFubFlagTag(item) {
   return null
 }
 
-function renderFubLeadSourceRuleItem(item, onSaved) {
+function formatDriftAge(hours) {
+  if (hours == null || !isFinite(hours)) return 'unknown age'
+  if (hours < 1) return 'under 1 hour old'
+  if (hours < 24) return Math.round(hours) + ' hour' + (Math.round(hours) === 1 ? '' : 's') + ' old'
+  var days = Math.floor(hours / 24)
+  return days + ' day' + (days === 1 ? '' : 's') + ' old'
+}
+
+function renderFubDriftBucket(titleText, tone, summaryText, items, formatter) {
+  var card = document.createElement('article')
+  card.className = 'source-drift-pill source-drift-pill-' + tone
+
+  var top = document.createElement('div')
+  top.className = 'source-drift-pill-top'
+
+  var title = document.createElement('div')
+  title.className = 'source-drift-pill-title'
+  title.textContent = titleText
+  top.appendChild(title)
+  top.appendChild(renderSourceTag(String(items.length), tone))
+  card.appendChild(top)
+
+  if (items.length) {
+    var list = document.createElement('ul')
+    list.className = 'source-drift-list'
+    items.slice(0, 8).forEach(function(item) {
+      var row = document.createElement('li')
+      row.textContent = formatter(item)
+      list.appendChild(row)
+    })
+    if (items.length > 8) {
+      var more = document.createElement('li')
+      more.textContent = '…and ' + (items.length - 8) + ' more'
+      list.appendChild(more)
+    }
+    card.appendChild(list)
+  } else {
+    var summary = document.createElement('div')
+    summary.className = 'source-drift-pill-summary'
+    summary.textContent = summaryText
+    card.appendChild(summary)
+  }
+
+  return card
+}
+
+function renderFubLeadSourceDriftPanel(loaded) {
+  var drift = loaded && loaded.drift ? loaded.drift : null
+  if (!drift) return null
+
+  var wrap = document.createElement('div')
+  wrap.className = 'source-drift-wrap'
+
+  var intro = document.createElement('div')
+  intro.className = 'source-layer-divider'
+  if (drift.status === 'no_snapshot') {
+    intro.textContent = 'Drift watch is waiting on the first saved snapshot. Run Refresh Snapshot once, then this panel will show new names, legacy values, open classifications, and stale-state.'
+    wrap.appendChild(intro)
+    return wrap
+  }
+
+  var parts = []
+  parts.push(drift.stats.reviewNow ? drift.stats.reviewNow + ' review item' + (drift.stats.reviewNow === 1 ? '' : 's') : 'No active review items')
+  parts.push('Snapshot is ' + formatDriftAge(drift.stale.ageHours))
+  if (drift.stale.isStale) parts.push('manual refresh is overdue')
+  if (loaded.freshness && loaded.freshness.label) parts.push('review freshness: ' + loaded.freshness.label)
+  intro.textContent = 'Drift watch: ' + parts.join(' · ')
+  wrap.appendChild(intro)
+
+  var actionableBuckets = [
+    {
+      title: 'New names with no rule',
+      tone: drift.buckets.needsRules.length ? 'missing' : 'connected',
+      summary: drift.buckets.needsRules.length
+        ? 'These raw source names exist in FUB right now but are not yet governed.'
+        : 'No raw source names are waiting for a first rule.',
+      items: drift.buckets.needsRules,
+      formatter: function(item) {
+        var tail = item.defaultFlagState && item.defaultFlagState !== 'none'
+          ? ' · default flag ' + item.defaultFlagState
+          : ''
+        return item.source + ' · ' + item.count + tail
+      },
+    },
+    {
+      title: 'Open classifications',
+      tone: drift.buckets.openClassification.length ? 'pending' : 'connected',
+      summary: drift.buckets.openClassification.length
+        ? 'These names still leave marketing or ownership open.'
+        : 'Marketing and ownership are classified for every current source.',
+      items: drift.buckets.openClassification,
+      formatter: function(item) {
+        var gaps = []
+        if (item.openMarketing) gaps.push('marketing')
+        if (item.openOwnership) gaps.push('ownership')
+        return item.source + ' · ' + item.count + ' · open ' + gaps.join(' + ')
+      },
+    },
+    {
+      title: 'Legacy or invalid names still live',
+      tone: drift.buckets.legacyPresent.length ? 'missing' : 'connected',
+      summary: drift.buckets.legacyPresent.length
+        ? 'These names are still live and need cleanup.'
+        : 'No flagged legacy names are showing up right now.',
+      items: drift.buckets.legacyPresent,
+      formatter: function(item) {
+        return item.source + ' · ' + item.count + ' · ' + item.flagState
+      },
+    },
+  ]
+
+  var nonEmptyBuckets = actionableBuckets.filter(function(bucket) {
+    return bucket.items.length
+  })
+
+  if (!nonEmptyBuckets.length) return wrap
+
+  var reviewDetails = document.createElement('details')
+  reviewDetails.className = 'source-drift-accordion'
+
+  var reviewSummary = document.createElement('summary')
+  reviewSummary.className = 'source-drift-accordion-summary'
+  reviewSummary.textContent = 'Open review queue'
+  reviewDetails.appendChild(reviewSummary)
+
+  var grid = document.createElement('div')
+  grid.className = 'source-drift-grid'
+  nonEmptyBuckets.forEach(function(bucket) {
+    grid.appendChild(renderFubDriftBucket(
+      bucket.title,
+      bucket.tone,
+      bucket.summary,
+      bucket.items,
+      bucket.formatter
+    ))
+  })
+  reviewDetails.appendChild(grid)
+  wrap.appendChild(reviewDetails)
+  return wrap
+}
+
+function renderOwnersLeadSourceGovernancePanel(loaded) {
+  var drift = loaded && loaded.drift ? loaded.drift : null
+  if (!drift) return null
+
+  var wrap = document.createElement('div')
+  wrap.className = 'source-drift-wrap'
+
+  var intro = document.createElement('div')
+  intro.className = 'source-layer-divider'
+  if (drift.status === 'no_data') {
+    intro.textContent = 'Owners governed dropdown watch could not read the live list yet.'
+    wrap.appendChild(intro)
+    return wrap
+  }
+
+  var parts = []
+  parts.push(drift.stats.reviewNow ? drift.stats.reviewNow + ' review item' + (drift.stats.reviewNow === 1 ? '' : 's') : 'No active review items')
+  parts.push(drift.stats.uniqueCurrentValues + ' live dropdown value' + (drift.stats.uniqueCurrentValues === 1 ? '' : 's'))
+  parts.push(drift.stats.governedValues + ' governed value' + (drift.stats.governedValues === 1 ? '' : 's'))
+  if (loaded.ownersList && loaded.ownersList.modifiedTime) {
+    parts.push('list updated ' + formatAsOfDate(loaded.ownersList.modifiedTime))
+  }
+  if (loaded.freshness && loaded.freshness.label) parts.push('review freshness: ' + loaded.freshness.label)
+  intro.textContent = 'Dropdown drift watch: ' + parts.join(' · ')
+  wrap.appendChild(intro)
+
+  var grid = document.createElement('div')
+  grid.className = 'source-drift-grid'
+
+  grid.appendChild(renderFubDriftBucket(
+    'Unexpected values live in Owners',
+    drift.buckets.unexpectedInOwnersList.length ? 'missing' : 'connected',
+    drift.buckets.unexpectedInOwnersList.length
+      ? 'These values are still in the live dropdown but are not approved in the governed taxonomy.'
+      : 'The live dropdown contains only governed lead-source values.',
+    drift.buckets.unexpectedInOwnersList,
+    function(item) {
+      return item.value + ' · ' + item.count
+    }
+  ))
+
+  grid.appendChild(renderFubDriftBucket(
+    'Approved values missing from Owners',
+    drift.buckets.missingFromOwnersList.length ? 'pending' : 'connected',
+    drift.buckets.missingFromOwnersList.length
+      ? 'These approved taxonomy values are missing from the live dropdown.'
+      : 'Every governed lead-source value is present in the live dropdown.',
+    drift.buckets.missingFromOwnersList,
+    function(item) {
+      return item.value
+    }
+  ))
+
+  grid.appendChild(renderFubDriftBucket(
+    'Duplicate dropdown values',
+    drift.buckets.duplicates.length ? 'pending' : 'connected',
+    drift.buckets.duplicates.length
+      ? 'These values appear more than once in the live dropdown.'
+      : 'No duplicate values are present in the live dropdown.',
+    drift.buckets.duplicates,
+    function(item) {
+      return item.value + ' · ' + item.count + ' copies'
+    }
+  ))
+
+  var actions = document.createElement('div')
+  actions.className = 'doc-source-actions'
+  ;[
+    { href: '/foundation#source-apis:fub-lead-source-taxonomy', label: 'Open FUB Review' },
+    { href: '/foundation#rebuild-plan', label: 'Open Rebuild Plan' },
+  ].forEach(function(action) {
+    var link = document.createElement('a')
+    link.className = 'doc-source-link'
+    link.href = action.href
+    link.textContent = action.label
+    actions.appendChild(link)
+  })
+
+  wrap.appendChild(grid)
+  wrap.appendChild(actions)
+  return wrap
+}
+
+function renderFubLeadSourceRuleItem(item, onSaved, contextKey) {
   var details = document.createElement('details')
   details.className = 'source-item'
 
@@ -5708,6 +8512,7 @@ function renderFubLeadSourceRuleItem(item, onSaved) {
   save.addEventListener('click', function() {
     save.disabled = true
     foundationMutation('/api/fub/lead-sources', 'PATCH', {
+      context: contextKey || 'owner',
       source: item.source,
       marketingType: marketingSelect.value,
       ownershipType: ownershipSelect.value,
@@ -5727,7 +8532,7 @@ function renderFubLeadSourceRuleItem(item, onSaved) {
       stamp.textContent = item.updatedAt
         ? 'Last saved ' + formatDate(item.updatedAt) + (item.updatedBy ? ' · ' + item.updatedBy : '')
         : 'Saved'
-      if (typeof onSaved === 'function') onSaved(item)
+      if (typeof onSaved === 'function') onSaved(payload.current || null)
     }).catch(function(error) {
       setFormStatus(status, error.message || 'Failed to save rule.', 'error')
     }).finally(function() {
@@ -5831,6 +8636,9 @@ function renderFubLeadSourceManagerPanel() {
   summary.textContent = 'Loading lead-source snapshot...'
   body.appendChild(summary)
 
+  var driftWrap = document.createElement('div')
+  body.appendChild(driftWrap)
+
   var status = document.createElement('p')
   status.className = 'form-status'
   body.appendChild(status)
@@ -5852,7 +8660,7 @@ function renderFubLeadSourceManagerPanel() {
     var snapshot = loaded.snapshot || {}
     summaryRight.appendChild(renderSourceTag((loaded.context && loaded.context.label) || 'FUB', 'neutral'))
     summaryRight.appendChild(renderSourceTag((stats.totalSources || 0) + ' sources', 'neutral'))
-    summaryRight.appendChild(renderSourceTag((stats.unclassified || 0) + ' open', stats.unclassified ? 'pending' : 'connected'))
+    summaryRight.appendChild(renderSourceTag((stats.openClassification || 0) + ' open', stats.openClassification ? 'pending' : 'connected'))
     summaryRight.appendChild(renderSourceTag((stats.flagged || 0) + ' flagged', stats.flagged ? 'missing' : 'connected'))
     summaryRight.appendChild(renderSourceTag(snapshot.available ? 'Snapshot ready' : 'Needs refresh', snapshot.available ? 'connected' : 'pending'))
   }
@@ -5895,10 +8703,15 @@ function renderFubLeadSourceManagerPanel() {
 
     summary.textContent =
       'Showing ' + items.length + ' of ' + (stats.totalSources || 0) + ' sources' +
-      ' · ' + (stats.unclassified || 0) + ' marketing unclassified' +
+      ' · ' + (stats.unclassifiedMarketing || 0) + ' marketing open' +
+      ' · ' + (stats.unclassifiedOwnership || 0) + ' ownership open' +
       ' · ' + (stats.flagged || 0) + ' flagged' +
       ' · ' + (scan.peopleScanned || 0) + ' contacts scanned across ' + (scan.pagesScanned || 0) + ' pages' +
       (scan.truncated ? ' · refresh hit the safety cap' : '')
+
+    driftWrap.innerHTML = ''
+    var driftPanel = renderFubLeadSourceDriftPanel(loaded)
+    if (driftPanel) driftWrap.appendChild(driftPanel)
 
     list.innerHTML = ''
     if (!items.length) {
@@ -5935,9 +8748,10 @@ function renderFubLeadSourceManagerPanel() {
       list.appendChild(groupHeader)
 
       sectionItems.forEach(function(item) {
-        list.appendChild(renderFubLeadSourceRuleItem(item, function() {
+        list.appendChild(renderFubLeadSourceRuleItem(item, function(nextPayload) {
+          if (nextPayload) loaded = nextPayload
           renderLoaded()
-        }))
+        }, fubLeadSourceViewState.context))
       })
     })
   }
@@ -6172,7 +8986,7 @@ function renderInventoryDocs() {
 
     var heroCopy = document.createElement('p')
     heroCopy.className = 'hero-copy'
-    heroCopy.textContent = 'This is the file-level storage inventory. Data Sources owns business truth. This page makes every tracked markdown artifact visible so nothing silently hides in the repo without earning its place.'
+    heroCopy.textContent = 'File-level inventory. Use this page when auditing what exists in the repo.'
     heroInner.appendChild(heroCopy)
 
     hero.appendChild(heroInner)
@@ -6204,7 +9018,7 @@ function renderInventoryDocs() {
     ], {
       eyebrow: 'Inventory State',
       title: 'Doc visibility',
-      intro: 'The goal is explicitness: every doc should either be surfaced, inventoried, or deliberately private with a reason.',
+      intro: 'Every doc should be surfaced, inventoried, or deliberately private with a reason.',
     })
     if (statusPanel) container.appendChild(statusPanel)
 
@@ -6232,7 +9046,7 @@ function renderInventoryDocs() {
 
     var intro = document.createElement('p')
     intro.className = 'section-intro'
-    intro.textContent = 'Everything tracked in git is grouped below. Open the group you want and audit whether each file still deserves its slot in the system.'
+    intro.textContent = 'Everything tracked in git is grouped below.'
     left.appendChild(intro)
 
     header.appendChild(left)
@@ -6266,7 +9080,7 @@ function renderInventoryDocs() {
 
       var privateIntro = document.createElement('p')
       privateIntro.className = 'section-intro'
-      privateIntro.textContent = 'These files still show up here so the hiding is explicit, but they are not exposed as openable docs in the shared UI by default.'
+      privateIntro.textContent = 'These files are listed here on purpose, but not exposed in the shared UI by default.'
       privateLeft.appendChild(privateIntro)
 
       privateHeader.appendChild(privateLeft)
@@ -6387,7 +9201,7 @@ function renderCapabilitySection(section) {
     var statusPanel = renderOverviewStatusPanel(statusCards, {
       eyebrow: 'Current State',
       title: config.title + ' state',
-      intro: 'This lane is separate from Data Sources on purpose.',
+      intro: 'This lane is separate from Data Sources.',
     })
     if (statusPanel) container.appendChild(statusPanel)
 
@@ -6409,7 +9223,7 @@ function renderCapabilitySection(section) {
 
     var catalogIntro = document.createElement('p')
     catalogIntro.className = 'section-intro'
-    catalogIntro.textContent = 'This is the current lane-level view, not the final live registry.'
+    catalogIntro.textContent = 'Current lane-level view.'
     catalogLeft.appendChild(catalogIntro)
 
     catalogHeader.appendChild(catalogLeft)
@@ -6471,6 +9285,8 @@ function renderCapabilitySection(section) {
 function renderSourceRegistry(section) {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading data sources...</p>'
+  var focusIds = getSectionFocus().split(',').map(function(id) { return id.trim() }).filter(Boolean)
+  var showOwnersGovernance = section === 'source-sheets' && focusIds.indexOf('SRC-OWNERS-001') !== -1
 
   fetchSourceOfTruth().then(function(data) {
     return data
@@ -6483,9 +9299,53 @@ function renderSourceRegistry(section) {
     container.appendChild(renderSourceHero(config, sourceContracts, sourceConnectors))
 
     if (section === 'source-overview') {
+      container.appendChild(renderOverviewStatusPanel(
+        getSourceOverviewSnapshotItems(sourceContracts, sourceConnectors),
+        {
+          eyebrow: 'Right Now',
+          title: 'What Is Actually Trusted',
+          intro: 'Signed off and fresh are not the same thing.',
+        }
+      ))
+
+      container.appendChild(renderFoundationShortcutPanel(
+        'Open The Right Source Surfaces',
+        'Use these links instead of scanning the whole source model every time.',
+        [
+          {
+            title: 'Strategy Inputs',
+            body: 'Freedom Community, BHAG, Agent Engine, and the strategy-used Owners slice are still Level 1. This is the next strategy-input closeout pass.',
+            meta: 'Current gap',
+            href: '/foundation#current-state',
+            cta: 'Open Current State',
+          },
+        {
+          title: 'FUB Review',
+          body: 'Lead-source taxonomy manager and the remaining parity work for SRC-FUB-001.',
+            meta: 'Next source closeout',
+            href: '/foundation#source-apis:fub-lead-source-taxonomy',
+            cta: 'Open FUB Review',
+          },
+          {
+            title: 'Connectors',
+            body: 'Use this only when you need the pipes and access path view. Connector does not mean trusted source.',
+            meta: 'Technical reach',
+            href: '/foundation#source-connectors',
+            cta: 'Open Connectors',
+          },
+          {
+            title: 'Current State',
+            body: 'If you want the shortest possible answer to what is done vs not done, start there first.',
+            meta: 'Tight rebuild read',
+            href: '/foundation#current-state',
+            cta: 'Open Current State',
+          },
+        ]
+      ))
+
       container.appendChild(renderOperatorToolsDrawer(
         'How To Read This',
-        'Definitions for source system, validation unit, connector layer, and trust state. Open this only when you need the model.',
+        'Definitions for source system, validation unit, connector layer, and trust state.',
         [renderSourceLegendPanel()],
         false
       ))
@@ -6498,13 +9358,55 @@ function renderSourceRegistry(section) {
           ? 'Source systems and validation units'
           : config.title,
         intro: section === 'source-overview'
-          ? 'The big cards are the real source systems. Open each one to see the exact tabs, ledgers, or units being validated underneath it.'
+          ? 'Open each source system to see the exact tabs, ledgers, or units being validated.'
           : config.intro,
         showKindFilter: !!config.showKindFilter,
         allowedKinds: config.allowedKinds || null,
         fixedKindLabel: config.title.toLowerCase(),
         resultsLabel: 'source systems',
       }))
+    }
+
+    if (showOwnersGovernance) {
+      var ownersGovernancePanel = document.createElement('section')
+      ownersGovernancePanel.className = 'panel'
+
+      var ownersGovernanceHeader = document.createElement('div')
+      ownersGovernanceHeader.className = 'panel-header'
+
+      var ownersGovernanceLeft = document.createElement('div')
+      var ownersGovernanceEyebrow = document.createElement('div')
+      ownersGovernanceEyebrow.className = 'eyebrow'
+      ownersGovernanceEyebrow.textContent = 'Governed Dropdown Watch'
+      ownersGovernanceLeft.appendChild(ownersGovernanceEyebrow)
+
+      var ownersGovernanceTitle = document.createElement('h3')
+      ownersGovernanceTitle.textContent = 'Owners lead-source list drift'
+      ownersGovernanceLeft.appendChild(ownersGovernanceTitle)
+
+      var ownersGovernanceIntro = document.createElement('p')
+      ownersGovernanceIntro.className = 'section-intro'
+      ownersGovernanceIntro.textContent = 'This protects the live Column N dropdown so Ops cannot keep choosing stale or retired values inside a “validated” field.'
+      ownersGovernanceLeft.appendChild(ownersGovernanceIntro)
+
+      ownersGovernanceHeader.appendChild(ownersGovernanceLeft)
+      ownersGovernancePanel.appendChild(ownersGovernanceHeader)
+
+      var ownersGovernanceBody = document.createElement('div')
+      ownersGovernanceBody.innerHTML = '<p>Loading Owners dropdown drift…</p>'
+      ownersGovernancePanel.appendChild(ownersGovernanceBody)
+      container.appendChild(ownersGovernancePanel)
+
+      fetchOwnersLeadSourceGovernance().then(function(governance) {
+        ownersGovernanceBody.innerHTML = ''
+        var panel = renderOwnersLeadSourceGovernancePanel(governance)
+        if (panel) ownersGovernanceBody.appendChild(panel)
+      }).catch(function(error) {
+        ownersGovernanceBody.innerHTML = ''
+        var message = document.createElement('p')
+        message.textContent = 'Failed to load Owners dropdown drift: ' + error.message
+        ownersGovernanceBody.appendChild(message)
+      })
     }
 
     if (section === 'source-apis') {
@@ -6514,7 +9416,7 @@ function renderSourceRegistry(section) {
     if (config.showSystems && config.showConnectors) {
       var divider = document.createElement('div')
       divider.className = 'source-layer-divider'
-      divider.textContent = 'Below this line is the connector layer. Sources above tell you what truth the business depends on. Connectors below tell you how the OS reaches that truth.'
+      divider.textContent = 'Below this line is the connector layer.'
       container.appendChild(divider)
     }
 
@@ -6522,7 +9424,7 @@ function renderSourceRegistry(section) {
       container.appendChild(renderSourceConnectorsPanel(sourceConnectors, {
         eyebrow: 'Connector Layer',
         title: 'Connections and access paths',
-        intro: 'These are the pipes. They explain what connection exists, what it does, and who should be using it. Pipe does not equal trust.',
+        intro: 'These are the pipes. Pipe does not equal trust.',
       }))
     }
 
@@ -6535,6 +9437,8 @@ function renderSourceRegistry(section) {
     var msg = document.createElement('p')
     msg.textContent = 'Failed to load data sources: ' + error.message
     container.appendChild(msg)
+  }).finally(function() {
+    applySectionFocus()
   })
 }
 
@@ -6563,7 +9467,7 @@ function renderDataHealth() {
 
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'Home shows the high-level closeout summary. System Health is the deeper operator view of the underlying memory, trust, and runtime components that drive that summary.'
+    heroNote.textContent = 'Deeper operator view of the underlying trust and runtime components.'
     heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
@@ -6616,7 +9520,7 @@ function renderSystemActivity() {
 
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'This page is the short audit feed: backlog mutations, decision updates, question changes, and doc-apply events. It is for operator review and debugging, not for the main strategy story.'
+    heroNote.textContent = 'Short audit feed for operator review and debugging.'
     heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
@@ -6661,12 +9565,31 @@ function applySectionFocus() {
   var focusId = getSectionFocus()
   if (!focusId) return
 
-  window.requestAnimationFrame(function() {
+  var attempts = 0
+
+  function openDetailsChain(target) {
+    var node = target
+    while (node) {
+      if (node.tagName === 'DETAILS') node.open = true
+      node = node.parentElement
+    }
+  }
+
+  function tryFocus() {
     var target = document.getElementById(focusId)
-    if (!target) return
-    if (target.tagName === 'DETAILS') target.open = true
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  })
+    if (target) {
+      openDetailsChain(target)
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
+
+    attempts += 1
+    if (attempts < 12) {
+      window.setTimeout(tryFocus, 120)
+    }
+  }
+
+  window.requestAnimationFrame(tryFocus)
 }
 
 function updateNav(section) {
@@ -6686,20 +9609,7 @@ function updateNav(section) {
   var breadcrumbParent = document.getElementById('found-breadcrumb-parent')
   var breadcrumbParentSep = document.getElementById('found-breadcrumb-parent-sep')
   if (breadcrumbParent && breadcrumbParentSep) {
-    var parent = null
-    var strategySupportSections = ['bhag-model', 'core-values', 'agent-engine', 'departments', 'governance', 'marketmasters']
-    var sourceSections = ['source-overview', 'source-docs', 'source-sheets', 'source-apis', 'source-connectors']
-    var inventorySections = ['inventory-docs', 'capabilities-skills', 'capabilities-plugins', 'capabilities-agents']
-
-    if (strategySupportSections.indexOf(section) !== -1) {
-      parent = { label: 'Strategy Packet', href: '/foundation#overview' }
-    } else if (['decisions', 'backlog', 'open-questions', 'system-activity', 'system-health'].indexOf(section) !== -1) {
-      parent = { label: 'Foundation Operations', href: '/foundation#backlog' }
-    } else if (sourceSections.indexOf(section) !== -1) {
-      parent = { label: 'Data Sources', href: '/foundation#source-overview' }
-    } else if (inventorySections.indexOf(section) !== -1) {
-      parent = { label: 'System Inventory', href: '/foundation#inventory-docs' }
-    }
+    var parent = sectionParents[section] || null
 
     if (parent && section !== 'home') {
       breadcrumbParent.textContent = parent.label
@@ -6715,6 +9625,11 @@ function updateNav(section) {
 
 function route() {
   var section = getSection()
+
+  if (section === 'home') {
+    window.location.replace('/foundation#current-state')
+    return
+  }
 
   if (section === 'quarterly-priorities' || section === 'strategic-issues') {
     window.location.replace('/strategic-execution#' + section)
@@ -6753,8 +9668,8 @@ function route() {
   var main = document.querySelector('.found-main')
   if (main) main.scrollTop = 0
 
-  if (section === 'home') {
-    renderFoundationHome()
+  if (section === 'current-state') {
+    renderCurrentState()
   } else if (section === 'overview') {
     renderOverview()
   } else if (strategyDocPaths[section]) {
@@ -6786,8 +9701,8 @@ function route() {
 
 function init() {
   /* default hash */
-  if (!window.location.hash) {
-    window.location.hash = '#home'
+if (!window.location.hash) {
+    window.location.hash = '#current-state'
   }
 
   /* mobile toggle */

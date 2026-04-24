@@ -69,14 +69,68 @@ function formatMissiveThread(thread) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const limit = Math.min(25, Math.max(1, Number(args.limit || 5)));
+  const limit = Math.min(500, Math.max(1, Number(args.limit || 25)));
+  const pageSize = Math.min(200, Math.max(1, Number(args.pageSize || Math.min(limit, 100))));
+  const all = args.all === true || args.all === 'true';
+  const search = String(args.search || '').trim();
+  const inboxOnly = !all && !search;
+  const sourceLabel = search ? `Missive / Search / ${search}` : all ? 'Missive / All conversations' : 'Missive / Inbox';
 
   console.log('Sync Missive threads into shared communications archive');
   console.log(`  Limit: ${limit}`);
+  console.log(`  Page size: ${pageSize}`);
+  console.log(`  Mode: ${search ? 'search' : all ? 'all' : 'inbox'}`);
+  if (search) {
+    console.log(`  Search: ${search}`);
+  }
 
   await initFoundationDb();
 
-  const conversations = await listMissiveInbox(limit);
+  const seenConversationIds = new Set();
+  const conversations = [];
+  let until = args.until ? Math.max(0, Number(args.until) || 0) : null;
+  let pageCount = 0;
+
+  while (conversations.length < limit) {
+    const remaining = limit - conversations.length;
+    const batch = await listMissiveInbox(Math.min(pageSize, remaining), {
+      inbox: inboxOnly,
+      all,
+      search,
+      until,
+    });
+
+    pageCount += 1;
+    if (!batch.length) {
+      break;
+    }
+
+    for (const conversation of batch) {
+      if (seenConversationIds.has(conversation.id)) continue;
+      seenConversationIds.add(conversation.id);
+      conversations.push(conversation);
+      if (conversations.length >= limit) break;
+    }
+
+    const oldestActivity = batch.reduce((oldest, conversation) => {
+      const value = Number(conversation.lastActivityAtUnix || 0) || 0;
+      if (!value) return oldest;
+      if (!oldest) return value;
+      return Math.min(oldest, value);
+    }, 0);
+
+    if (!oldestActivity || batch.length < Math.min(pageSize, remaining)) {
+      break;
+    }
+
+    const nextUntil = Math.max(0, oldestActivity - 1);
+    if (until !== null && nextUntil >= until) {
+      break;
+    }
+    until = nextUntil;
+  }
+
+  console.log(`  Pages scanned: ${pageCount}`);
   console.log(`  Conversations selected: ${conversations.length}`);
 
   let archived = 0;
@@ -93,13 +147,15 @@ async function main() {
         externalId: conversation.id,
         title: conversation.subject || '(no subject)',
         sourceAccount: null,
-        sourceContainer: 'Missive / Inbox',
+        sourceContainer: sourceLabel,
         sourceUrl: conversation.webUrl || null,
         participants: collectParticipants(thread),
         contentText,
         contentHash: transcriptTextHash(contentText),
         artifactUpdatedAt: conversation.lastActivityAt || null,
         metadata: {
+          all,
+          search,
           messageCount: thread.messages?.length || 0,
           commentCount: thread.comments?.length || 0,
           itemCount: thread.items?.length || 0,

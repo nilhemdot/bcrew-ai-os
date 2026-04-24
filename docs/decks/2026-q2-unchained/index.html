@@ -1,0 +1,547 @@
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Stratum1'; src: url('fonts/Stratum1-Regular.otf') format('opentype'); font-weight: 400; }
+  @font-face { font-family: 'Stratum1'; src: url('fonts/Stratum1-Medium.otf') format('opentype'); font-weight: 500; }
+  @font-face { font-family: 'Stratum1'; src: url('fonts/Stratum1-Bold.otf') format('opentype'); font-weight: 700; }
+  @font-face { font-family: 'Stratum1'; src: url('fonts/Stratum1-Black.otf') format('opentype'); font-weight: 900; }
+
+  :root { --bc-black:#000; --bc-blue:#0084C9; --bc-white:#fff; --bc-gray:#EBEBEB; }
+
+  .deck-wrap { max-width: 940px; margin: 0 auto; }
+  .slide-block { margin-bottom: 36px; }
+
+  .slide {
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+    position: relative;
+    padding: 38px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #fff;
+    color: #000;
+  }
+  .slide.dark { background: var(--bc-black); color: var(--bc-white); }
+  .slide.blue { background: var(--bc-blue); color: var(--bc-white); }
+  .slide .logo { position: absolute; top: 26px; right: 34px; width: 98px; height: auto; }
+
+  .eyebrow {
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+    font-size: 0.68rem; color: var(--bc-blue);
+  }
+  .slide.dark .eyebrow { color: var(--bc-blue); }
+  .slide.blue .eyebrow { color: #fff; opacity: 0.85; }
+
+  .title {
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-weight: 900; text-transform: uppercase; letter-spacing: -0.015em;
+    line-height: 0.92; color: inherit; margin-top: 8px;
+  }
+  .title.xl { font-size: 5.8rem; letter-spacing: -0.02em; line-height: 0.88; }
+  .title.lg { font-size: 2.7rem; }
+  .title.md { font-size: 2.1rem; }
+  .title .blue { color: var(--bc-blue); }
+  .title .dot { color: var(--bc-blue); }
+
+  .subtxt {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.98rem; line-height: 1.45;
+    margin-top: 12px; max-width: 82%;
+  }
+  .slide.dark .subtxt { color: var(--bc-gray); }
+  .slide.blue .subtxt { color: #fff; opacity: 0.92; }
+
+  .footer-line {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase;
+    margin-top: 18px;
+  }
+  .slide.dark .footer-line { color: var(--bc-blue); }
+  .slide.blue .footer-line { color: #fff; opacity: 0.85; }
+  .footer-line .dim { opacity: 0.55; }
+  .footer-line .bar { width: 36px; height: 3px; background: var(--bc-blue); }
+  .slide.blue .footer-line .bar { background: #fff; }
+
+  /* Slide 2: the provocation */
+  .lead-quote {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.1rem; line-height: 1.45;
+    color: #000; font-style: italic;
+    margin-top: 16px; max-width: 85%;
+    font-weight: 400;
+  }
+  .right-pills {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-top: 18px;
+  }
+  .right-pill {
+    background: var(--bc-black); color: #fff;
+    padding: 10px 16px; border-radius: 4px;
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-weight: 900; font-size: 0.85rem;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .right-pill.blue-pill { background: var(--bc-blue); }
+  .close-line {
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-weight: 900; text-transform: uppercase;
+    letter-spacing: 0.02em; font-size: 1.1rem;
+    color: #000; margin-top: 20px; max-width: 90%;
+  }
+  .close-line .blue { color: var(--bc-blue); }
+
+  /* Slide 3: the chains */
+  .time-bar { display: flex; width: 100%; height: 52px; border-radius: 6px; overflow: hidden; margin-top: 14px; }
+  .time-seg {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: #fff; padding: 0 4px; text-align: center;
+    border-right: 1px solid rgba(0,0,0,0.2);
+  }
+  .time-seg:last-child { border-right: none; }
+  .time-labels { display: flex; justify-content: space-between; margin-top: 6px;
+    font-family: 'Stratum1','Impact',sans-serif; font-size: 0.56rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.6);
+  }
+  .whats-left {
+    margin-top: 14px; padding: 10px 14px; border-left: 3px solid var(--bc-blue);
+    display: flex; gap: 14px; align-items: baseline;
+  }
+  .whats-left .big {
+    font-family: 'Stratum1','Impact',sans-serif; font-weight: 900;
+    font-size: 1.4rem; color: var(--bc-blue); text-transform: uppercase;
+  }
+  .whats-left .small {
+    font-family: 'Open Sans', sans-serif; font-size: 0.88rem; color: rgba(255,255,255,0.85);
+  }
+
+  /* Slide 4: THE STACK - unified architecture */
+  .stack { margin-top: 10px; }
+  .stack-layer {
+    display: flex; align-items: center;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    background: #fafafa;
+    border-radius: 6px;
+    border-left: 4px solid var(--bc-blue);
+  }
+  .stack-layer .lbl {
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.16em; font-size: 0.58rem;
+    color: #6b7280; width: 84px; flex-shrink: 0;
+  }
+  .stack-layer .items {
+    display: flex; gap: 6px; flex-wrap: wrap; flex: 1;
+  }
+  .stack-pill {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 6px 12px; border-radius: 4px;
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-weight: 700; font-size: 0.78rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: #000;
+  }
+  .stack-layer.you {
+    background: var(--bc-blue); border-left-color: #000;
+  }
+  .stack-layer.you .lbl { color: rgba(255,255,255,0.8); }
+  .stack-layer.you .stack-pill {
+    background: rgba(255,255,255,0.15);
+    border-color: transparent; color: #fff;
+  }
+  .stack-layer.promise {
+    background: #000; color: #fff; border-left-color: var(--bc-blue);
+    padding: 12px 16px;
+  }
+  .stack-layer.promise .lbl { color: var(--bc-blue); }
+  .stack-layer.promise .promise-txt {
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-weight: 900; font-size: 1.1rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: #fff; flex: 1;
+  }
+  .stack-layer.promise .promise-txt .blue { color: var(--bc-blue); }
+  .stack-arrow {
+    text-align: center; font-size: 0.9rem;
+    color: #9ca3af; margin: 2px 0;
+  }
+
+  /* Slide 5: AI connected layer */
+  .ai-connect-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .ai-cell {
+    background: rgba(255,255,255,0.14);
+    padding: 12px 14px;
+    border-radius: 6px;
+    border-left: 3px solid #fff;
+  }
+  .ai-cell .cell-label {
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-weight: 900; font-size: 0.82rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: #fff; margin-bottom: 3px;
+  }
+  .ai-cell .cell-sub {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.74rem; line-height: 1.35;
+    color: #fff; opacity: 0.9;
+  }
+  .ai-action-bar {
+    margin-top: 12px;
+    padding: 12px 18px;
+    background: rgba(0,0,0,0.32);
+    border-radius: 6px;
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-weight: 900; font-size: 1rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    color: #fff; text-align: center;
+  }
+  .ai-action-bar .blue-accent { color: #7fd4ff; }
+
+  /* Slide 6: WIIFM bullets */
+  .bullets { list-style: none; padding: 0; margin-top: 14px;
+    font-family: 'Open Sans', sans-serif; font-size: 0.96rem; line-height: 1.5; }
+  .bullets li { position: relative; padding-left: 26px; margin-bottom: 7px; }
+  .bullets li::before {
+    content: ''; position: absolute; left: 0; top: 10px;
+    width: 14px; height: 3px; background: var(--bc-blue);
+  }
+  .slide.blue .bullets li::before { background: #fff; }
+
+  /* Slide 7: commit */
+  .commit { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 18px; }
+  .commit .col { padding: 14px 16px; border-left: 3px solid var(--bc-blue); }
+  .commit .col h4 {
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--bc-blue); margin-bottom: 6px;
+  }
+  .commit .col p {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.88rem; line-height: 1.45;
+  }
+
+  /* Speaker notes */
+  .notes { background: #f9fafb; border-left: 4px solid var(--bc-blue);
+    padding: 18px 22px; border-radius: 0 8px 8px 0; margin-top: 10px; }
+  .notes-head {
+    font-family: 'Stratum1','Impact',sans-serif; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.72rem;
+    color: #6b7280; margin-bottom: 10px; display: flex; justify-content: space-between;
+  }
+  .notes-head .time { color: var(--bc-blue); }
+  .notes p {
+    font-family: 'Open Sans', sans-serif; font-size: 0.92rem; line-height: 1.5;
+    color: #1f2937; margin-bottom: 8px;
+  }
+  .notes p:last-child { margin-bottom: 0; }
+  .notes p strong { color: #000; font-weight: 700; }
+  .notes .pause {
+    display: inline-block; padding: 1px 8px; background: var(--bc-blue);
+    color: #fff; border-radius: 4px; font-size: 0.75rem;
+    font-family: 'Stratum1','Impact',sans-serif; letter-spacing: 0.08em;
+    text-transform: uppercase; margin: 0 4px;
+  }
+
+  .section-head { margin: 40px auto 16px; max-width: 940px; }
+  .section-head h2 {
+    font-family: 'Stratum1','Impact',sans-serif;
+    font-size: 1.4rem; text-transform: uppercase; letter-spacing: 0.06em; color: #000;
+  }
+  .section-head p {
+    font-family: 'Open Sans', sans-serif; color: #6b7280; font-size: 0.92rem; margin-top: 4px;
+  }
+
+  .changelog {
+    background: #fffbeb; border-left: 4px solid #f59e0b;
+    padding: 14px 18px; border-radius: 6px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.88rem; color: #78350f; line-height: 1.55;
+    max-width: 940px; margin: 0 auto 20px;
+  }
+  .changelog strong { color: #451a03; }
+</style>
+
+<div class="section-head">
+  <h2>Q2 Deck v8 · Tighter. AI Slide Reborn.</h2>
+  <p>7 slides · 10 min · Thesis to Unchained to Stack to AI to Commit. Chains slide cut for pace.</p>
+</div>
+
+<div class="changelog">
+  <strong>v8 · Tighter. AI slide reborn.</strong>
+  <br><strong>Slide 2 notes rewritten.</strong> Clear, one idea per line. "Invest your time" replaces "get your time back" as the frame. Time you can invest in what moves the business OR in family, hobbies, goals.
+  <br><strong>Slide 3 no Zahnd name-drop.</strong> Now reads "A word we were working on pre-merger." Story intact, phrasing cleaner.
+  <br><strong>Slide 4 (Chains) cut.</strong> The UNCHAINED reveal already names the chains. Moving straight into the Stack keeps the pace up.
+  <br><strong>Slide 5 (AI) rebuilt.</strong> No more "More Money / More Time / Less Risk" abstract blocks. Now shows AI as a connected layer:
+  <br>&nbsp;&nbsp;&nbsp;· Title: <em>"AI THAT CLOSES THE GAP."</em>
+  <br>&nbsp;&nbsp;&nbsp;· 6-cell connection grid: Your KPIs · Follow Up Boss · Your Goals · Skool · Your Meetings · Your Email
+  <br>&nbsp;&nbsp;&nbsp;· Action bar: <em>"Pulls answers. Takes action. Closes every gap."</em>
+  <br>&nbsp;&nbsp;&nbsp;· Speaker notes walk the magic: "lead going cold, it nudges you. Deal has a problem, it flags it. Walking into a listing presentation, it preps the brief before you get there."
+  <br>7 slides. 10 min. Every slide earns its spot.
+</div>
+
+<div class="deck-wrap">
+
+<!-- ============ SLIDE 1: THESIS COVER (NEW) ============ -->
+<div class="slide-block">
+<div class="slide dark">
+  <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1716.6 1080"><g style="fill:#fff"><path d="M339.4,278.85v-33.89c0-1.72-1.15-3.16-3.16-3.16h-42.22v39.64h42.79c1.72,0,2.58-1.15,2.58-2.59Z"/><path d="M337.39,316.48h-43.37v42.51h43.65c1.72,0,2.87-1.15,2.87-2.87v-36.76c0-1.72-1.15-2.87-3.16-2.87Z"/><path d="M378.32,796.55h-23.55v27.29h23.55c2.98,0,4.31-1.33,4.31-4.31v-18.67c0-2.98-1.33-4.31-4.31-4.31Z"/><polygon points="584.57 797.99 574.68 836.48 597.8 836.48 587.9 797.99 584.57 797.99"/><polygon points="1150.48 797.99 1140.59 836.48 1163.7 836.48 1153.81 797.99 1150.48 797.99"/><path d="M755.83,529.85h-51.98v45.09h51.98c1.72,0,2.87-1.15,2.87-2.87v-39.35c0-1.72-1.15-2.87-2.87-2.87Z"/><path d="M1682.11,49.9C1654.91,18.19,1615.34,0,1573.56,0H143.03C101.19,0,61.58,18.23,34.37,50.02,7.16,81.81-4.74,123.76,1.72,165.11l124.06,793.95c10.95,70.08,70.38,120.94,141.31,120.94h1184.34c71.1,0,130.55-51.01,141.36-121.28l122.13-793.95c6.35-41.29-5.61-83.16-32.82-114.87ZM1658.38,156.07l-122.13,793.95c-6.49,42.17-42.16,72.77-84.82,72.77H267.09c-42.56,0-78.22-30.52-84.79-72.57L58.25,156.27c-3.88-24.81,3.27-49.98,19.59-69.05,16.33-19.07,40.09-30.01,65.2-30.01h1430.53c25.07,0,48.81,10.91,65.13,29.94,16.32,19.03,23.5,44.15,19.69,68.92Z"/><rect x="1142.96" y="242.66" width="50.55" height="115.46" rx="2.87" ry="2.87"/><path d="M1573.56,92.37H143.03c-14.82,0-28.85,6.46-38.48,17.72-9.64,11.26-13.85,26.12-11.57,40.76l124.06,793.95c3.88,24.82,24.93,42.84,50.05,42.84h1184.34c25.18,0,46.24-18.06,50.07-42.96l122.13-793.95c2.25-14.62-1.99-29.46-11.62-40.69-9.63-11.23-23.65-17.67-38.45-17.67ZM1101.31,236.34c0-17.52,14.08-31.59,31.59-31.59h70.66c17.52,0,31.59,14.08,31.59,31.59v128.1c0,17.52-14.08,31.59-31.59,31.59h-70.66c-17.52,0-31.59-14.08-31.59-31.59v-128.1ZM1097.57,491.94l13.78,118.62,31.88-118.62h36.19l32.46,118.62,13.79-118.62h40.78l-29.3,191.29h-41.93l-33.89-125.51-33.32,125.51h-41.93l-29.3-191.29h40.78ZM664.78,204.75h40.21l63.76,112.01v-112.01h40.21v191.29h-40.21l-63.76-111.44v111.44h-40.21v-191.29ZM465.18,204.75h118.91v37.91h-77.26v36.47h71.22v37.91h-71.22v41.07h77.55v37.91h-119.2v-191.29ZM460.02,523.53c0-17.52,14.08-31.59,31.59-31.59h65.77c17.52,0,31.59,14.08,31.59,31.59v28.72l-40.78,6.89v-26.42c0-1.72-1.15-2.87-2.87-2.87h-40.79c-1.72,0-2.87,1.15-2.87,2.87v109.72c0,1.72,1.15,2.87,2.87,2.87h40.79c1.72,0,2.87-1.15,2.87-2.87v-30.73l40.78,6.89v33.03c0,17.52-14.07,31.59-31.59,31.59h-65.77c-17.52,0-31.59-14.08-31.59-31.59v-128.1ZM252.38,396.03v-191.29h98.23c16.66,0,30.16,13.5,30.16,29.87v43.94c0,7.47-5.74,15.8-14.93,18.95,7.47,1.15,16.08,8.33,16.08,18.67v49.97c0,16.37-13.5,29.87-30.16,29.87h-99.38ZM287.82,573.86h98.98v35.49h-98.98v-35.49ZM385.69,875.25l-17.09-33.6h-13.84v33.6h-23.55v-97.08h57.16c12.32,0,17.81,5.49,17.81,17.81v26.14c0,10.18-3.9,15.71-12.26,17.41l-2.19.44,17.43,35.28h-23.46ZM511.71,797.13h-43.66v19.1h34.61v18.67h-34.61v21.4h43.66v18.95h-67.21v-97.08h67.21v18.96ZM607.68,875.25l-5.31-20.68h-32.25l-5.32,20.68h-23.92l29.26-97.08h33.06l29.54,97.08h-25.06ZM728.69,875.25h-63.62v-97.08h23.55v77.55h40.06v19.53ZM765.6,683.22l-33.32-70.37h-28.43v70.37h-41.65v-191.29h106.27c17.52,0,31.59,14.08,31.59,31.59v57.73c0,14.36-9.48,26.42-22.69,30.44l33.89,71.52h-45.67ZM881.47,797.13h-43.66v19.1h34.61v18.67h-34.61v21.4h43.66v18.95h-67.21v-97.08h67.21v18.96ZM988.6,857.44c0,12.32-5.49,17.81-17.81,17.81h-38.63c-12.32,0-17.81-5.49-17.81-17.81v-12.06h23.55v7.47c0,2.98,1.33,4.31,4.31,4.31h18.53c2.98,0,4.31-1.33,4.31-4.31v-8.76c0-3.17-2.49-3.8-4.32-4.26l-26.67-7.31c-13.81-3.81-19.42-5.88-19.42-19.02v-17.52c0-12.32,5.49-17.81,17.81-17.81h36.62c12.32,0,17.81,5.49,17.81,17.81v11.05h-23.55v-6.46c0-2.98-1.33-4.31-4.31-4.31h-16.52c-2.98,0-4.31,1.33-4.31,4.31v7.76c0,2.97,1.77,3.69,4.28,4.39l26.73,7.19c14.37,3.81,19.4,6.28,19.4,19.01v18.52ZM996.5,683.22h-119.2v-191.29h118.91v37.91h-77.26v36.47h71.23v37.91h-71.23v41.07h77.55v37.91ZM989.31,396.03h-64.91c-17.52,0-31.59-14.08-31.59-31.59v-21.54l40.78-6.89v19.25c0,1.72,1.15,2.87,2.87,2.87h40.21c1.72,0,2.87-1.15,2.87-2.87v-26.71c0-2.01-1.44-3.16-3.73-3.73-4.88-1.44-20.11-5.74-55.72-15.79-16.95-4.88-26.71-12.35-26.71-29.87v-42.79c0-17.52,14.08-31.59,31.59-31.59h63.19c17.52,0,31.59,14.08,31.59,31.59v20.11l-40.78,6.89v-17.81c0-1.72-1.15-2.87-2.87-2.87h-38.49c-1.72,0-2.87,1.15-2.87,2.87v24.7c0,2.3,1.43,3.16,3.16,3.73,2.87.86,19.25,5.46,57.16,16.08,16.37,4.6,25.85,12.35,25.85,29.87v44.52c0,17.52-14.07,31.59-31.59,31.59ZM1092.13,797.7h-25.13v77.55h-23.55v-77.55h-25.14v-19.53h73.81v19.53ZM1173.58,875.25l-5.31-20.68h-32.25l-5.32,20.68h-23.92l29.26-97.08h33.06l29.54,97.08h-25.06ZM1287.13,797.7h-25.13v77.55h-23.55v-77.55h-25.14v-19.53h73.81v19.53ZM1388.37,797.13h-43.66v19.1h34.61v18.67h-34.61v21.4h43.66v18.95h-67.21v-97.08h67.21v18.96ZM1428.58,609.36h-98.99v-35.5h98.99v35.5ZM1464.03,396.03h-40.21l-63.76-111.44v111.44h-40.21v-191.29h40.21l63.76,112.01v-112.01h40.21v191.29Z"/></g></svg>
+  <div>
+    <div class="eyebrow">Quarterly Meeting · Q2 2026</div>
+    <div class="title xl" style="font-size:4.4rem; line-height:0.95;">ELIMINATE RISK.<br><span class="blue">INCREASE OPPORTUNITY.</span></div>
+    <div class="subtxt" style="margin-top:18px;">For 8 months we've been working on this. Today is the first time we say it out loud.</div>
+  </div>
+  <div class="footer-line">
+    <div class="bar"></div>
+    <div>BENSON CREW · Q2 2026</div>
+  </div>
+</div>
+<div class="notes">
+  <div class="notes-head"><span>Speaker notes · Slide 1 · THESIS</span><span class="time">0:00 to 0:45</span></div>
+  <p><strong>Open heavy. Let the words land. This is the first time you're saying it to the team.</strong></p>
+  <p>"Four words." <span class="pause">pause</span> "Eliminate Risk. Increase Opportunity."</p>
+  <p>"For 8 months we've been building this team around those four words. Every investment we make. Every hire. Every tool. Every piece of training. Every system we ship. All of it rolls up to this."</p>
+  <p>"And today is the first time I'm saying it out loud to you."</p>
+  <p>"For the next 10 minutes I want to walk through what that actually means. For this team. For every one of you. And what we're doing next to make it sharper."</p>
+</div>
+</div>
+
+<!-- ============ SLIDE 2: SHARPER EVERY QUARTER ============ -->
+<div class="slide-block">
+<div class="slide">
+  <div>
+    <div class="eyebrow">The team that got us here</div>
+    <div class="title lg">SHARPER EVERY QUARTER.<br><span class="blue">BETTER EVERY DAY.</span></div>
+    <div class="lead-quote" style="font-style:normal; font-weight:700; color:#000; font-size:1.1rem;">6 months after a major merger, we were named the #1 large team at Real Broker in Canada.</div>
+    <div class="subtxt" style="margin-top:10px; font-size:0.98rem; color:#374151; max-width:88%;">Realtors. Ops. Marketing. Every one of us showed up. A lot of change. It wasn't perfect. But together, it worked.</div>
+    <div class="right-pills">
+      <div class="right-pill">Lead Gen</div>
+      <div class="right-pill">Ops</div>
+      <div class="right-pill blue-pill">Coaching</div>
+      <div class="right-pill">Marketing</div>
+      <div class="right-pill">Wealth Paths</div>
+    </div>
+    <div class="close-line">One goal drives us. <span class="blue">Deliver for the team.</span></div>
+  </div>
+  <div class="footer-line">
+    <div class="bar"></div>
+    <div>BENSON CREW · Q2 2026 <span class="dim">&nbsp;·&nbsp; Eliminate Risk. Increase Opportunity.</span></div>
+  </div>
+</div>
+<div class="notes">
+  <div class="notes-head"><span>Speaker notes · Slide 2 · SHARPER EVERY QUARTER</span><span class="time">0:45 to 2:15</span></div>
+  <p><strong>Open with recognition. Slow. Genuine. Everyone gets credit. No promise, just the commitment.</strong></p>
+  <p>"Before we get into what's next I want to take a second."</p>
+  <p>"Last quarter we were named the number one large team at Real Broker in Canada. 6 months. 6 months from a major merger to number one in the country."</p>
+  <p>"I want to recognize every single person who made that happen. The Realtors out there closing deals and taking care of clients. The Ops team keeping the engine running. Marketing building the brand that opens doors before we walk through them."</p>
+  <p>"Every one of you showed up. Through a lot of change. It wasn't perfect. Not at all. But together, it worked."</p>
+  <p>"And there's one goal that drives everything we do from here. Sharper every quarter. Better every day. Delivering for this team."</p>
+  <p>"Lead Gen. Ops. Coaching. Marketing. Wealth Paths. That's what gets sharper every quarter. That's what delivers for the team."</p>
+</div>
+</div>
+
+<!-- ============ SLIDE 3: UNCHAINED (REVEAL + HISTORY) ============ -->
+<div class="slide-block">
+<div class="slide dark">
+  <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1716.6 1080"><g style="fill:#fff"><path d="M339.4,278.85v-33.89c0-1.72-1.15-3.16-3.16-3.16h-42.22v39.64h42.79c1.72,0,2.58-1.15,2.58-2.59Z"/><path d="M337.39,316.48h-43.37v42.51h43.65c1.72,0,2.87-1.15,2.87-2.87v-36.76c0-1.72-1.15-2.87-3.16-2.87Z"/><path d="M378.32,796.55h-23.55v27.29h23.55c2.98,0,4.31-1.33,4.31-4.31v-18.67c0-2.98-1.33-4.31-4.31-4.31Z"/><polygon points="584.57 797.99 574.68 836.48 597.8 836.48 587.9 797.99 584.57 797.99"/><polygon points="1150.48 797.99 1140.59 836.48 1163.7 836.48 1153.81 797.99 1150.48 797.99"/><path d="M755.83,529.85h-51.98v45.09h51.98c1.72,0,2.87-1.15,2.87-2.87v-39.35c0-1.72-1.15-2.87-2.87-2.87Z"/><path d="M1682.11,49.9C1654.91,18.19,1615.34,0,1573.56,0H143.03C101.19,0,61.58,18.23,34.37,50.02,7.16,81.81-4.74,123.76,1.72,165.11l124.06,793.95c10.95,70.08,70.38,120.94,141.31,120.94h1184.34c71.1,0,130.55-51.01,141.36-121.28l122.13-793.95c6.35-41.29-5.61-83.16-32.82-114.87ZM1658.38,156.07l-122.13,793.95c-6.49,42.17-42.16,72.77-84.82,72.77H267.09c-42.56,0-78.22-30.52-84.79-72.57L58.25,156.27c-3.88-24.81,3.27-49.98,19.59-69.05,16.33-19.07,40.09-30.01,65.2-30.01h1430.53c25.07,0,48.81,10.91,65.13,29.94,16.32,19.03,23.5,44.15,19.69,68.92Z"/><rect x="1142.96" y="242.66" width="50.55" height="115.46" rx="2.87" ry="2.87"/><path d="M1573.56,92.37H143.03c-14.82,0-28.85,6.46-38.48,17.72-9.64,11.26-13.85,26.12-11.57,40.76l124.06,793.95c3.88,24.82,24.93,42.84,50.05,42.84h1184.34c25.18,0,46.24-18.06,50.07-42.96l122.13-793.95c2.25-14.62-1.99-29.46-11.62-40.69-9.63-11.23-23.65-17.67-38.45-17.67ZM1101.31,236.34c0-17.52,14.08-31.59,31.59-31.59h70.66c17.52,0,31.59,14.08,31.59,31.59v128.1c0,17.52-14.08,31.59-31.59,31.59h-70.66c-17.52,0-31.59-14.08-31.59-31.59v-128.1ZM1097.57,491.94l13.78,118.62,31.88-118.62h36.19l32.46,118.62,13.79-118.62h40.78l-29.3,191.29h-41.93l-33.89-125.51-33.32,125.51h-41.93l-29.3-191.29h40.78ZM664.78,204.75h40.21l63.76,112.01v-112.01h40.21v191.29h-40.21l-63.76-111.44v111.44h-40.21v-191.29ZM465.18,204.75h118.91v37.91h-77.26v36.47h71.22v37.91h-71.22v41.07h77.55v37.91h-119.2v-191.29ZM460.02,523.53c0-17.52,14.08-31.59,31.59-31.59h65.77c17.52,0,31.59,14.08,31.59,31.59v28.72l-40.78,6.89v-26.42c0-1.72-1.15-2.87-2.87-2.87h-40.79c-1.72,0-2.87,1.15-2.87,2.87v109.72c0,1.72,1.15,2.87,2.87,2.87h40.79c1.72,0,2.87-1.15,2.87-2.87v-30.73l40.78,6.89v33.03c0,17.52-14.07,31.59-31.59,31.59h-65.77c-17.52,0-31.59-14.08-31.59-31.59v-128.1ZM252.38,396.03v-191.29h98.23c16.66,0,30.16,13.5,30.16,29.87v43.94c0,7.47-5.74,15.8-14.93,18.95,7.47,1.15,16.08,8.33,16.08,18.67v49.97c0,16.37-13.5,29.87-30.16,29.87h-99.38ZM287.82,573.86h98.98v35.49h-98.98v-35.49ZM385.69,875.25l-17.09-33.6h-13.84v33.6h-23.55v-97.08h57.16c12.32,0,17.81,5.49,17.81,17.81v26.14c0,10.18-3.9,15.71-12.26,17.41l-2.19.44,17.43,35.28h-23.46ZM511.71,797.13h-43.66v19.1h34.61v18.67h-34.61v21.4h43.66v18.95h-67.21v-97.08h67.21v18.96ZM607.68,875.25l-5.31-20.68h-32.25l-5.32,20.68h-23.92l29.26-97.08h33.06l29.54,97.08h-25.06ZM728.69,875.25h-63.62v-97.08h23.55v77.55h40.06v19.53ZM765.6,683.22l-33.32-70.37h-28.43v70.37h-41.65v-191.29h106.27c17.52,0,31.59,14.08,31.59,31.59v57.73c0,14.36-9.48,26.42-22.69,30.44l33.89,71.52h-45.67ZM881.47,797.13h-43.66v19.1h34.61v18.67h-34.61v21.4h43.66v18.95h-67.21v-97.08h67.21v18.96ZM988.6,857.44c0,12.32-5.49,17.81-17.81,17.81h-38.63c-12.32,0-17.81-5.49-17.81-17.81v-12.06h23.55v7.47c0,2.98,1.33,4.31,4.31,4.31h18.53c2.98,0,4.31-1.33,4.31-4.31v-8.76c0-3.17-2.49-3.8-4.32-4.26l-26.67-7.31c-13.81-3.81-19.42-5.88-19.42-19.02v-17.52c0-12.32,5.49-17.81,17.81-17.81h36.62c12.32,0,17.81,5.49,17.81,17.81v11.05h-23.55v-6.46c0-2.98-1.33-4.31-4.31-4.31h-16.52c-2.98,0-4.31,1.33-4.31,4.31v7.76c0,2.97,1.77,3.69,4.28,4.39l26.73,7.19c14.37,3.81,19.4,6.28,19.4,19.01v18.52ZM996.5,683.22h-119.2v-191.29h118.91v37.91h-77.26v36.47h71.23v37.91h-71.23v41.07h77.55v37.91ZM989.31,396.03h-64.91c-17.52,0-31.59-14.08-31.59-31.59v-21.54l40.78-6.89v19.25c0,1.72,1.15,2.87,2.87,2.87h40.21c1.72,0,2.87-1.15,2.87-2.87v-26.71c0-2.01-1.44-3.16-3.73-3.73-4.88-1.44-20.11-5.74-55.72-15.79-16.95-4.88-26.71-12.35-26.71-29.87v-42.79c0-17.52,14.08-31.59,31.59-31.59h63.19c17.52,0,31.59,14.08,31.59,31.59v20.11l-40.78,6.89v-17.81c0-1.72-1.15-2.87-2.87-2.87h-38.49c-1.72,0-2.87,1.15-2.87,2.87v24.7c0,2.3,1.43,3.16,3.16,3.73,2.87.86,19.25,5.46,57.16,16.08,16.37,4.6,25.85,12.35,25.85,29.87v44.52c0,17.52-14.07,31.59-31.59,31.59ZM1092.13,797.7h-25.13v77.55h-23.55v-77.55h-25.14v-19.53h73.81v19.53ZM1173.58,875.25l-5.31-20.68h-32.25l-5.32,20.68h-23.92l29.26-97.08h33.06l29.54,97.08h-25.06ZM1287.13,797.7h-25.13v77.55h-23.55v-77.55h-25.14v-19.53h73.81v19.53ZM1388.37,797.13h-43.66v19.1h34.61v18.67h-34.61v21.4h43.66v18.95h-67.21v-97.08h67.21v18.96ZM1428.58,609.36h-98.99v-35.5h98.99v35.5ZM1464.03,396.03h-40.21l-63.76-111.44v111.44h-40.21v-191.29h40.21l63.76,112.01v-112.01h40.21v191.29Z"/></g></svg>
+  <div>
+    <div class="eyebrow">Where it all leads</div>
+    <div class="title xl" style="font-size:6.5rem;">UN<wbr>CHAINED<span class="dot">.</span></div>
+    <div class="subtxt" style="max-width:82%;">Eliminate Risk. Increase Opportunity. When it all comes together, it leads to something more.</div>
+  </div>
+  <div class="footer-line">
+    <div class="bar"></div>
+    <div>BENSON CREW · Q2 2026 <span class="dim">&nbsp;·&nbsp; Eliminate Risk. Increase Opportunity.</span></div>
+  </div>
+</div>
+<div class="notes">
+  <div class="notes-head"><span>Speaker notes · Slide 3 · UNCHAINED</span><span class="time">2:15 to 3:30</span></div>
+  <p><strong>Cause and effect. Personal pronouns. Your risk. Your opportunity. Your time.</strong></p>
+  <p>"Eliminate Risk. Increase Opportunity."</p>
+  <p><span class="pause">pause</span></p>
+  <p>"When it all comes together, it leads to something more. It leads to becoming unchained."</p>
+  <p>"Unchained from admin. From compliance. From having to do everything yourself. Free to do the work only a great agent can do. Free to show up for the life you built this career for."</p>
+  <p>"That's what drives us every single day. Eliminate your risk. Increase your opportunity. Unchain you from the work that pulls you away from what moves the needle. Your time is yours. More growth. More family. More hobbies. More of the life you're building."</p>
+</div>
+</div>
+
+<!-- ============ SLIDE 4: THE STACK (UNIFIED) ============ -->
+<div class="slide-block">
+<div class="slide">
+  <div>
+    <div class="eyebrow">Pillars of Freedom</div>
+    <div class="title lg">HERE'S HOW IT ALL<br>CONNECTS FOR <span class="blue">YOU.</span></div>
+    <div class="stack">
+      <div class="stack-layer you">
+        <div class="lbl">You focus on</div>
+        <div class="items">
+          <div class="stack-pill">Prospect</div>
+          <div class="stack-pill">Close</div>
+          <div class="stack-pill">Live</div>
+        </div>
+      </div>
+      <div class="stack-arrow">↑</div>
+      <div class="stack-layer">
+        <div class="lbl">Five Pillars</div>
+        <div class="items">
+          <div class="stack-pill">Lead Gen</div>
+          <div class="stack-pill">Ops</div>
+          <div class="stack-pill">Coaching</div>
+          <div class="stack-pill">Marketing</div>
+          <div class="stack-pill">Wealth Paths</div>
+        </div>
+      </div>
+      <div class="stack-arrow">↑</div>
+      <div class="stack-layer">
+        <div class="lbl">Delivered by</div>
+        <div class="items">
+          <div class="stack-pill">Benson Crew</div>
+          <div class="stack-pill">Real Brokerage</div>
+        </div>
+      </div>
+      <div class="stack-arrow">↑</div>
+      <div class="stack-layer promise">
+        <div class="lbl">Our Promise</div>
+        <div class="promise-txt">ELIMINATE RISK. <span class="blue">INCREASE OPPORTUNITY.</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-line">
+    <div class="bar"></div>
+    <div>BENSON CREW · Q2 2026 <span class="dim">&nbsp;·&nbsp; Eliminate Risk. Increase Opportunity.</span></div>
+  </div>
+</div>
+<div class="notes">
+  <div class="notes-head"><span>Speaker notes · Slide 4 · THE STACK</span><span class="time">3:30 to 4:45</span></div>
+  <p><strong>Walk the stack bottom up. This is how the whole story connects.</strong></p>
+  <p>"Here's how it all comes together. Read it from the bottom up."</p>
+  <p>"<strong>The promise.</strong> Every decision we make rolls up to four words. Eliminate Risk. Increase Opportunity."</p>
+  <p>"<strong>Delivered by two foundations.</strong> Benson Crew is the execution engine. Real Brokerage is the platform of possibility that powers us to do our business and drive new financial opportunities. Two pillars of freedom behind every move you make."</p>
+  <p>"<strong>Which gives you five pillars of support.</strong> Lead Gen. Ops. Coaching. Marketing. Wealth Paths. That's what Eliminate Risk and Increase Opportunity looks like when it's put to work for you."</p>
+  <p>"<strong>Which leaves you free</strong> to focus on the three things that matter." <span class="pause">pause</span> "Prospect. Close. Live."</p>
+</div>
+</div>
+
+<!-- ============ SLIDE 5: AI CONNECTED ============ -->
+<div class="slide-block">
+<div class="slide blue">
+  <div>
+    <div class="eyebrow" style="color:#fff;">The New Pillar</div>
+    <div class="title md" style="color:#fff;">AI THAT <span style="color:#fff; text-decoration:underline; text-decoration-thickness:4px; text-underline-offset:6px;">CLOSES THE GAP.</span></div>
+    <div class="subtxt" style="color:#fff; max-width:92%;">Your own AI. Connected to every tool you use. It knows your numbers, your leads, your training, your meetings, your goals. And it helps you close on every one of them.</div>
+    <div class="ai-connect-grid">
+      <div class="ai-cell">
+        <div class="cell-label">Your KPIs</div>
+        <div class="cell-sub">Pace, gaps, what to focus on</div>
+      </div>
+      <div class="ai-cell">
+        <div class="cell-label">Follow Up Boss</div>
+        <div class="cell-sub">Every lead, contact, note</div>
+      </div>
+      <div class="ai-cell">
+        <div class="cell-label">Your Goals</div>
+        <div class="cell-sub">What you're chasing this month</div>
+      </div>
+      <div class="ai-cell">
+        <div class="cell-label">Skool Training</div>
+        <div class="cell-sub">Every video, every lesson</div>
+      </div>
+      <div class="ai-cell">
+        <div class="cell-label">Your Meetings</div>
+        <div class="cell-sub">Notes, contacts, next steps</div>
+      </div>
+      <div class="ai-cell">
+        <div class="cell-label">Your Email</div>
+        <div class="cell-sub">Conversations, threads, context</div>
+      </div>
+    </div>
+    <div class="ai-action-bar">Pulls answers. Takes action. <span class="blue-accent">Closes every gap.</span></div>
+  </div>
+  <div class="footer-line">
+    <div class="bar"></div>
+    <div>BENSON CREW · Q2 2026 <span class="dim">&nbsp;·&nbsp; Eliminate Risk. Increase Opportunity.</span></div>
+  </div>
+</div>
+<div class="notes">
+  <div class="notes-head"><span>Speaker notes · Slide 5 · AI CLOSES THE GAP</span><span class="time">4:45 to 7:00</span></div>
+  <p><strong>This is the magic slide. Open with the setup. Then slow down and let them picture it. Energy up.</strong></p>
+  <p>"Here's the next pillar we're working on tirelessly right now. The AI pillar."</p>
+  <p>"Imagine this. Your own AI. And it knows every one of your numbers. Every lead in Follow Up Boss. Every training video in Skool. Every meeting you take. Every email thread. Every goal you set."</p>
+  <p>"Now imagine it's always running. Always looking ahead. Always asking the same question. Where is this agent's gap and how do I help them close it."</p>
+  <p>"That's what we're building. Your own AI. Connected to the tools we already use. It pulls up what you need, when you need it. It takes action in those tools for you. It closes gaps. And it helps you surpass your goals."</p>
+  <p>"Lead going cold? It nudges you. Deal has a problem? It flags it. Pace slipping? It surfaces strategies to close the gap. Helps you execute. Holds you accountable. Walking into a listing presentation? It preps the brief before you get there."</p>
+  <p>"You ask it anything, anytime. Phone, dashboard, Telegram. Wherever you work, AI works with you."</p>
+</div>
+</div>
+
+<!-- ============ SLIDE 6: WHAT IT ADDS UP TO ============ -->
+<div class="slide-block">
+<div class="slide">
+  <div>
+    <div class="eyebrow">What it adds up to</div>
+    <div class="title lg">WE GET OUR<br><span class="blue">TIME</span> BACK.</div>
+    <ul class="bullets">
+      <li><strong>Time</strong> for the three things that matter. Prospecting. Appointments. Deals.</li>
+      <li><strong>Life</strong> back. Family. Health. Hobbies. The reason we went into this in the first place.</li>
+      <li><strong>Better leads</strong>, sharper follow up, nothing slipping through.</li>
+      <li><strong>A business that compounds.</strong> Every deal builds on the last. Every year sharper.</li>
+    </ul>
+  </div>
+  <div class="footer-line">
+    <div class="bar"></div>
+    <div>BENSON CREW · Q2 2026 <span class="dim">&nbsp;·&nbsp; Eliminate Risk. Increase Opportunity.</span></div>
+  </div>
+</div>
+<div class="notes">
+  <div class="notes-head"><span>Speaker notes · Slide 6 · WHAT IT ADDS UP TO</span><span class="time">7:00 to 8:30</span></div>
+  <p><strong>Personal. One team. First person plural. About selling homes.</strong></p>
+  <p>"Stack it all together. What does it mean for us?"</p>
+  <p>"Time. Time for the three things that grow a business. And time for the reason we went into this in the first place. Family. Health. Hobbies. A life that isn't all work."</p>
+  <p>"Better leads. Sharper follow up. Cleaner numbers. A business that builds on itself. Every year sharper than the last."</p>
+</div>
+</div>
+
+<!-- ============ SLIDE 7: TOGETHER. UNCHAINED. ============ -->
+<div class="slide-block">
+<div class="slide dark">
+  <div>
+    <div class="eyebrow">The Ask</div>
+    <div class="title lg">TOGETHER.<br><span class="blue">UNCHAINED.</span></div>
+    <div class="commit">
+      <div class="col">
+        <h4>Leadership commits to</h4>
+        <p style="color:#EBEBEB;">Build what the team needs. Ship the systems. Listen to what's broken. Keep investing until the team has more leverage than any agent working alone.</p>
+      </div>
+      <div class="col">
+        <h4>Every one of us commits to</h4>
+        <p style="color:#EBEBEB;">Show up. Put it to work. Tell us what's missing. Bring the effort. These systems only work when all of us do.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer-line">
+    <div class="bar"></div>
+    <div>BENSON CREW · Q2 2026 <span class="dim">&nbsp;·&nbsp; Eliminate Risk. Increase Opportunity.</span></div>
+  </div>
+</div>
+<div class="notes">
+  <div class="notes-head"><span>Speaker notes · Slide 7 · TOGETHER. UNCHAINED.</span><span class="time">8:30 to 10:00</span></div>
+  <p><strong>Plain. Direct. No cringe.</strong></p>
+  <p>"Going into Q2 we keep pushing."</p>
+  <p>"We keep building what the team needs. Shipping. Listening. Investing. Every tool, every system, every hire. All pointed at giving the team more leverage than any agent working alone."</p>
+  <p>"And it only works when every one of us keeps bringing it. Showing up. Putting it to work. Telling us what's missing."</p>
+  <p>"Thanks for everything you bring. Really looking forward to keep building this with all of you."</p>
+</div>
+</div>
+
+</div>

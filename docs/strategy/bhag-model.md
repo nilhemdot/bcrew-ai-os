@@ -21,3 +21,4 @@
 - Actual pace should be read from the operating sources, not inferred from the target path alone.
 - Read this page and the Agent Engine together whenever core assumptions move.
 - Use the [Agent Engine](agent-engine.md) for the planning terms and model-reading rules behind the path.
+- Use [Operating Truths](operating-truths.md) for the business rules that explain how community count and company-kept revenue should be interpreted.

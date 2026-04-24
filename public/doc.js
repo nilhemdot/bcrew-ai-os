@@ -14,7 +14,9 @@ function formatDate(isoString) {
 function formatAsOfDate(value) {
   if (!value) return ''
 
-  var date = new Date(value)
+  var date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? new Date(value + 'T12:00:00Z')
+    : new Date(value)
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Toronto',
     month: 'long',
@@ -114,6 +116,17 @@ var foundationDocPathToSection = {
   'docs/strategy/department-mandates.md': 'departments',
   'docs/strategy/financial-model-and-assumptions.md': 'agent-engine',
   'docs/source-registry.md': 'source-overview',
+  'docs/users/README.md': 'users',
+  'docs/users/steve.md': 'user-steve',
+  'docs/agents/README.md': 'agents',
+  'docs/agents/harlan.md': 'agent-harlan',
+  'docs/agents/crewbert.md': 'agent-crewbert',
+  'docs/rebuild/current-state.md': 'current-state',
+  'docs/rebuild/current-runtime-map.md': 'rebuild-plan',
+  'docs/rebuild/agent-architecture.md': 'rebuild-plan',
+  'docs/rebuild/current-plan.md': 'rebuild-plan',
+  'docs/rebuild/rebuild-master-plan.md': 'rebuild-plan',
+  'docs/rebuild-decisions.md': 'rebuild-plan',
 }
 
 var strategicExecutionDocPathToSection = {

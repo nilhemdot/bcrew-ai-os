@@ -80,21 +80,40 @@ Raw comms never live on a user's Drive or inbox once ingested. They move to a va
 
 ### Meeting Capture Flow (the important one)
 
-**Observed live artifact reality (verified via Drive queries 2026-04-23):** Google Meet does not produce a single consistent artifact shape. Recent meetings have a `Notes by Gemini` Doc that **contains the transcript text embedded inside** the Doc with speaker labels. Older meetings have a standalone `Transcript` Doc separate from the Gemini note. Some meetings also produce `Recording` (binary video) and `Chat` (plain-text file) artifacts. The capture rule must handle all of these, not assume one shape.
+**Design revision 2 (2026-04-23 later):** Previous revisions first moved notes to a vault, then dropped the move entirely. Both were wrong. Steve's actual architecture is **owner-preserving ACL** — pull content via JWT, then strip everyone from the Drive file ACL EXCEPT the meeting owner, and add `crewbert@bensoncrew.ca`. Carson's notes don't disappear from Carson's Drive. Everyone else is gated through the system via access-request flow. This pairs with subject-person redaction on the intelligence side (see new section below) to make the whole system work.
 
-1. `ai@bensoncrew.ca` is invited to or self-requests addition to meetings it should attend (meeting-scout rules, below).
-2. Meeting happens. Google Meet produces some combination of:
-   - `Notes by Gemini` Doc (may include an embedded transcript section with speaker labels)
-   - Standalone `Transcript` Doc (older meetings)
-   - `Recording` (video, binary — needs raw Drive download, not Doc export)
-   - `Chat` (plain-text file — not a Doc)
-3. **Meeting capture job** polls `ai@`'s Drive for all of the above, matched by event/date where possible. Source of truth priority: (a) standalone Transcript Doc → (b) embedded transcript section extracted from the Gemini Doc → (c) if neither, log the meeting as "non-transcribed" and skip extraction until transcript appears.
-4. Silent-move each artifact into the vault folder owned by `crewbert@bensoncrew.ca` (option B). Participants lose access.
-5. Record in `meeting_notes` / `shared_communication_artifacts` metadata: calendar event ID, participants, timestamps, artifact IDs per type, transcript-source flag (`standalone` | `embedded_in_gemini` | `missing`).
-6. **Extraction layer processes the transcript body** (standalone or extracted from Gemini Doc) with Foundation context injected (see next section). Produces decisions, contributions, blockers, atoms, task candidates. Each tagged with `min_tier`.
-7. Users query through `/api/query`. They never see the raw transcript or Gemini note.
+**Observed live artifact reality (verified via Drive queries 2026-04-23):** Google Meet does not produce a single consistent artifact shape. Recent meetings have a `Notes by Gemini` Doc that **contains the transcript text embedded inside** the Doc with speaker labels. Older meetings have a standalone `Transcript` Doc separate from the Gemini note. Some meetings also produce `Recording` (binary video) and `Chat` (plain-text file) artifacts. The capture rule must handle all of these.
 
-**Why transcript over Gemini's bullet summary:** Gemini's "Next steps" bullets summarize what was literally said. Our system knows who's who, what the strategy is, what decisions are already on the table, what's in the backlog, and what's been said in prior meetings. That context produces materially better extractions — decisions that reference prior decisions, contributions tied to pillars, blockers mapped to the right source. Gemini's "Next steps" are the shortcut we're rejecting; the embedded transcript section inside the same Doc is the real input. When only the Gemini note exists but no transcript in any form, flag the meeting rather than extract from bullets.
+**Flow:**
+
+1. System uses JWT domain-wide delegation (via `getJwtClient(userEmail)` in `lib/google-delegated.js`) to impersonate each `@bensoncrew.ca` user in the `users` table.
+2. For each user, list their `Meet Recordings` folder (Google's default location). Pull every meeting artifact: `Notes by Gemini` Docs, standalone `Transcript` Docs, `Recording` binaries (metadata only if too large), `Chat` text files.
+3. Dedupe by calendar event ID across users (the same meeting appears in every attendee's Drive).
+4. Source-of-truth priority for extraction: (a) standalone Transcript Doc → (b) embedded transcript section extracted from the Gemini Doc → (c) if neither, log as "non-transcribed" and skip extraction.
+5. Archive content to `shared_communication_artifacts.content_text` in PostgreSQL.
+6. **ACL modification on the original Drive file:** impersonate the meeting owner (organizer per calendar event). Remove all participant permissions EXCEPT the owner's. Add `crewbert@bensoncrew.ca` as editor. Result: only the meeting owner + Crewbert have raw Drive access. Everyone else must go through the system.
+7. Record metadata: calendar event ID, participants, timestamps, artifact IDs per type, transcript-source flag (`standalone` | `embedded_in_gemini` | `missing`), impersonated-user-used-for-pull, ACL-before and ACL-after snapshots (for audit/rollback).
+8. Extraction layer processes the transcript body with Foundation context injected (see `Layer 4` below) AND tags each extraction with `subject_people` + `sensitivity` (see `Layer 5` subject-person redaction).
+9. Users query through `/api/query` — never hit raw transcripts. Access requests for raw content route through Crewbert and come back as email summaries only.
+
+**Why this is cleaner than move+remove:**
+
+- Retroactive: pulls meetings that predate the system
+- Non-intrusive: no one notices a file vanishing from their Drive
+- No dependency on `ai@` being invited to every meeting
+- Backup is naturally present (every attendee still has their copy)
+- Works even if the system is offline temporarily — backfill by re-reading on next sync
+
+**Sensitive-meeting exception (flagged at extraction, not at Drive):**
+
+If the transcript contains explicit sensitive patterns (`termination`, `compensation review`, `comp discussion`, `legal counsel`, explicit PII categories), the extractor:
+
+- Tags the extraction `min_tier: 1` (Steve only)
+- Routes to a narrower review lane (not the shared `shared_communication_candidates`)
+- Optionally: moves **only that transcript** to a Drive vault folder owned by `crewbert@bensoncrew.ca` + revokes participant ACL (late-binding vault; rare path)
+- Logs the move as a visible system action (never silent for sensitive transitions)
+
+**Why transcript over Gemini's bullet summary:** Gemini's "Next steps" bullets summarize what was literally said. Our system knows who's who, what the strategy is, what decisions are already on the table, what's in the backlog, and what's been said in prior meetings. That context produces materially better extractions — decisions that reference prior decisions, contributions tied to pillars, blockers mapped to the right source. The embedded transcript section inside the Gemini Doc is the real input. When only the Gemini note exists but no transcript in any form, flag the meeting rather than extract from bullets.
 
 **Drive write permission required.** `lib/google-delegated.js` is read-only today. Old repo had `src/integrations/google-delegated-writes.ts` — Codex needs to port this before vault moves can happen.
 
@@ -143,16 +162,65 @@ Extraction output shape (per item):
 
 All extractions land in the `extractions` table with full provenance. Low-confidence or ambiguous extractions go into a **review lane** (same pattern as `/api/owners/review-queue`) before becoming canon.
 
-## Layer 5: Query API
+## Layer 5: Subject-Person Redaction and Uniform Response
 
-- `/api/query` endpoint. Inputs: natural-language question or structured filter. Outputs: tier-filtered intelligence.
+**The rule that distinguishes this system from the old one:** Tiers alone are not enough. For every user, content **about that user** that is performance-concern, termination-risk, comp-discussion, or undisclosed-feedback must be suppressed from that user's view — even if their tier would otherwise grant access. This applies uniformly across all comms sources (meeting transcripts, emails, Slack, Missive), not just meetings.
+
+### Extraction-side tagging
+
+Every extraction gets two additional fields in `shared_communication_candidates.metadata`:
+
+- `subject_people`: array of emails — who is this content ABOUT (distinct from participants; someone mentioned in a transcript is a subject even if not in the meeting)
+- `sensitivity`: one of `neutral` | `positive` | `performance_concern` | `termination_risk` | `comp_discussion` | `undisclosed_feedback`
+
+Sensitivity classification is an LLM judgment at extraction time, with explicit rubric in the prompt. Classifications can be reviewed in the `pending` lane before applying.
+
+### Query-side filter
+
+When a user (or their assistant, acting on their behalf) queries, the filter is:
+
+```
+suppress extraction X from user U's results if:
+  U ∈ X.subject_people
+  AND X.sensitivity ∈ {performance_concern, termination_risk, comp_discussion, undisclosed_feedback}
+  AND NOT (X.source_meeting has X.is_performance_review_with(U) === true)
+```
+
+The exception covers performance reviews where the subject is present — they already know the topic.
+
+### Uniform response shape
+
+Critical rule: the shape of a response must not leak existence of suppressed content.
+
+- Responses are always summaries. Never raw transcripts. Never "I can't show you X."
+- If extractions were suppressed, the synthesis simply proceeds without them. The user does not see a "content omitted" marker.
+- Raw-access requests (e.g. Ryan asks for meeting note X) are always answered with a filtered email summary, never with a Drive link. Same shape whether or not content was redacted for the requester.
+
+### Access-request flow
+
+1. User requests raw meeting access (UI button or email to system).
+2. Crewbert retrieves the transcript + all extractions from that meeting.
+3. Applies subject-person filter for the requester.
+4. Composes an email summary of allowed extractions + transcript excerpt (redacted).
+5. Sends email to requester from `crewbert@bensoncrew.ca`.
+6. Logs the request + redaction decisions in the audit trail.
+
+### Personal-assistant inheritance
+
+Each leader's personal assistant (Harlan, Nick's assistant, Ryan's future assistant, etc.) inherits **their owner's tier** AND automatically applies subject-person filter **with their owner as the subject**. So Ryan's assistant can never surface performance-concern content about Ryan, even if Ryan's tier would otherwise allow it. Ryan cannot ask his assistant "did anyone mention me in this week's meetings" and get content that describes concerns about him.
+
+## Layer 6: Query API
+
+- `/api/query` endpoint. Inputs: natural-language question or structured filter. Outputs: tier-filtered + subject-redacted intelligence.
 - Server-side flow:
   1. `assertTier(req, 3)` minimum (anyone who got through middleware).
   2. Look up matching extractions where `min_tier >= req.user.tier`.
-  3. Pull additional Foundation context (same context pool the extractor uses).
-  4. LLM synthesizes answer from filtered extractions + context.
-  5. Return answer + source-extraction IDs + confidence.
-- Raw transcript content never returned — only extracted structured data plus tier-filtered synthesized answers.
+  3. Apply subject-person redaction (Layer 5) with `req.user.email` as subject.
+  4. Pull Foundation context (same context pool the extractor uses).
+  5. LLM synthesizes answer from filtered extractions + context.
+  6. Return answer + source-extraction IDs + confidence.
+- Response shape is identical regardless of whether content was suppressed.
+- Raw transcript content never returned — only extracted structured data plus tier-filtered + subject-redacted synthesized answers.
 
 ## Data Model
 

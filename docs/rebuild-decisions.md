@@ -4,6 +4,8 @@ description: All architecture and strategy decisions made during the BCrew AI OS
 type: project
 ---
 
+Current execution plan: [docs/rebuild/current-plan.md](docs/rebuild/current-plan.md)
+
 ## Platform Decisions
 - **OpenClaw** is the production runtime (model-agnostic, 30+ channels, MIT licensed)
 - **Mac Mini M4 Pro** (24GB, $2,000 CAD) is the always-on hardware. Purchased, set up, remote access working.

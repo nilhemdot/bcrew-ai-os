@@ -6,6 +6,9 @@ Business Strategy defines where Benson Crew is going.
 
 System Strategy defines how the system keeps that strategy live, source-backed, visible, and enforceable.
 
+Current execution order for the rebuild lives in [docs/rebuild/current-plan.md](docs/rebuild/current-plan.md) and is surfaced in Foundation under `System Strategy -> Rebuild Plan`.
+The target operating model for Harlan, Crewbert, assistants, and delegation lives in [docs/rebuild/agent-architecture.md](docs/rebuild/agent-architecture.md).
+
 ## Foundation's Job
 
 Foundation is the root operating layer of the business.
@@ -102,6 +105,24 @@ Agents should not:
 - System-dedicated agents may specialize in one system deeply without trapping their identity, memory, or permissions inside that repo.
 - Browser-capable agents should run with isolated user and session boundaries when credentials or trust boundaries matter.
 - Every long-running runtime, scheduler, or agent service needs visible supervision, a stop path, and a clean decommission path.
+
+Current direction:
+
+- **Harlan** is Steve's personal assistant, not the BCrew AI OS itself.
+- Harlan's long-term identity home should live outside this repo in an external agent home such as `~/.agents/harlan/` or an equivalent Benson Crew agent registry.
+- Repo-local coding agents may live inside a repo because their job is to work on that repo specifically.
+- System-dedicated BCrew agents should be defined by the system registry and runtime, not by ad hoc persona folders scattered through the repo.
+- An agent does not lose capabilities because it lives outside a repo. Capability comes from runtime permissions, channel bindings, allowed tools, and an explicit project registry.
+- The repo may host repo-local coder agents and system code, but it should not become the permanent identity home for a swarm of long-lived personal agents.
+
+## Runtime And Model Position
+
+- **Foundation** is the trust layer: strategy docs, source contracts, PostgreSQL memory, decisions, backlog, and verification.
+- **OpenClaw** remains the planned runtime for live agents and channel orchestration when the agent layer turns on.
+- **GPT-5.4** is the primary reasoning model where quality and throughput matter most.
+- **Gemini Flash** is the cheap background model for classification, washing-machine, and low-cost support work.
+- **Claude API / Claude Code / Codex** are implementation tools for coding, deep terminal work, or cases where their behavior is the best fit.
+- These are not three competing foundations. They are different layers in one stack: Foundation, runtime, model routing, and coding tools.
 
 ## Source Doctrine
 

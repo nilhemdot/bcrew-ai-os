@@ -2,6 +2,8 @@
 
 The Agent Engine turns the BHAG target path into operating capacity math. It shows what productivity assumption the model is using, how many agents that assumption requires this year and next year, and what recruiting pace the business needs now.
 
+Read [Operating Truths](operating-truths.md) when you need the business rules that sit above the sheet itself, such as roster semantics, recruiter attribution, and company-kept revenue meaning.
+
 ## What the Engine Answers
 
 - What productivity assumption is the model using?

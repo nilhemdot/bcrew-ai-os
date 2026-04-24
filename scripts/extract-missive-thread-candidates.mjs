@@ -64,6 +64,8 @@ async function extractCandidatesFromMissiveThread(artifact, foundationContext, m
     'Return only business-relevant items: task_candidate, decision_candidate, blocker, feedback_signal, atom_candidate.',
     'Prioritize internal coordination, real asks, integration work, operating blockers, decisions, routing issues, and durable process facts.',
     'Ignore newsletters, promos, marketing-package notifications, generic vendor blasts, pleasantries, and AI-generated digest emails unless they create a real blocker, decision, or follow-through item.',
+    'If a thread is mainly promotional, personal, vendor marketing, auction/newsletter content, or otherwise not relevant to shared team execution, return zero candidates.',
+    'Do not create atoms or any other candidates whose only purpose is to say a thread is irrelevant, promotional, or not business-relevant.',
     'Use task_candidate only for explicit commitments, asks, or follow-through work that changes shared execution or system behavior.',
     'Use decision_candidate only for actual decisions or explicit agreements.',
     'Use blocker only for explicit impediments, missing access, unresolved dependencies, or stalled threads.',
@@ -88,7 +90,7 @@ async function extractCandidatesFromMissiveThread(artifact, foundationContext, m
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const limit = Math.min(20, Math.max(1, Number(args.limit || 3)));
+  const limit = Math.min(100, Math.max(1, Number(args.limit || 20)));
   const model = args.model || DEFAULT_MODEL;
 
   console.log('Extract shared communication candidates from archived Missive threads');

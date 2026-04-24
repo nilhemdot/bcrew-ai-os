@@ -64,6 +64,8 @@ async function extractCandidatesFromGmailThread(artifact, foundationContext, mod
     'Return only business-relevant items: task_candidate, decision_candidate, blocker, feedback_signal, atom_candidate.',
     'Prioritize explicit asks, approvals, blockers, follow-through work, system alerts, access issues, decisions, and durable organizational facts.',
     'Ignore newsletters, promos, generic marketing blasts, automated listing packages, and polite back-and-forth unless they create a real blocker, decision, or follow-through item.',
+    'If a thread is mainly promotional, personal, vendor marketing, event invites, listing spam, or otherwise not relevant to shared team execution, return zero candidates.',
+    'Do not create atoms or any other candidates whose only purpose is to say a thread is irrelevant, promotional, or not business-relevant.',
     'Ignore ai@ or crewbert-generated summaries, briefs, or digests unless the thread records a real failure, exception, escalation, or new work request.',
     'Use task_candidate only for explicit commitments, asks, or follow-through work that changes shared execution or system behavior.',
     'Use decision_candidate only for actual decisions or explicit agreements.',
@@ -89,7 +91,7 @@ async function extractCandidatesFromGmailThread(artifact, foundationContext, mod
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const limit = Math.min(20, Math.max(1, Number(args.limit || 3)));
+  const limit = Math.min(100, Math.max(1, Number(args.limit || 20)));
   const model = args.model || DEFAULT_MODEL;
 
   console.log('Extract shared communication candidates from archived Gmail threads');

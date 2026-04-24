@@ -1,0 +1,595 @@
+# KPI Dashboard / Supabase
+
+This is the operator note behind `SRC-SUPABASE-001`.
+
+Use this when AI OS needs to read `kpi.bensoncrew.ca` or the Supabase project behind it.
+
+## What It Is
+
+- KPI is an existing Benson Crew foundation system.
+- KPI is not a rebuild target for AI OS.
+- AI OS should read it, verify it, and build around it.
+
+## Why This Is High Value
+
+This is not just raw FUB mirrored into a dashboard.
+
+This system is already doing special shaping work across:
+
+- FUB-style CRM data
+- shopping-list data
+- executed-deal / finance data
+- goals and target math
+- company-level ranking logic
+
+That is why this matters so much for AI OS.
+
+The old failure mode was:
+
+- agents could reach the database
+- but they did not know which layer meant what
+
+The new job is:
+
+- teach AI OS the read model clearly
+- so future coaches, assistants, and manager agents read the right truth on purpose
+
+## Current State
+
+Already true:
+
+- browser access works
+- the correct repo has been audited
+- core tables are updating live
+- key company RPCs respond
+
+Still open:
+
+- AI OS has not yet locked one clean read model for each KPI job
+- KPI runs on multiple truth layers, not one single table
+
+## Foundation Scope Now
+
+This is what belongs in Foundation right now.
+
+- prove the app is readable
+- prove the database is readable
+- name the truth layers clearly
+- document which KPI surface answers which kind of question
+- lock the critical AI OS read rules for:
+  - linking / identity
+  - appointments
+  - signed clients
+  - executed deals
+  - goals / target pacing
+  - app usage vs true maintenance
+
+Critical foundation reads:
+
+- `users`
+  - bridge from app user to FUB-style user identity
+- `persons` + `appointments`
+  - pipeline / appointment / signed-activity truth
+- `leads`
+  - shopping-list truth and signed-client coaching layer
+- `deal_data`
+  - executed-deal / company-financial truth
+- goals tables
+  - target math and pace math
+- `users_activity`
+  - app engagement only, not proof of good data hygiene
+
+## Not Foundation Yet
+
+These belong to later sales-hub or coaching work, not current foundation closeout:
+
+- perfect coaching prompts for every agent scenario
+- full shopping-list operating playbooks
+- weekly manager workflows
+- every leaderboard / competition interpretation
+- every UI habit agents should follow day-to-day
+- rebuilding KPI features
+
+Safe rule:
+
+- Foundation locks meaning and read discipline.
+- Sales Hub later turns that into coaching, alerts, nudges, and operating workflows.
+
+## Truth Layers
+
+### Pipeline truth
+
+Tables:
+
+- `persons`
+- `appointments`
+- `users`
+- `calls`
+- `emails`
+- `text_messages`
+- `tasks`
+
+Use this for:
+
+- pipeline stage reads
+- appointments
+- lead-inbox style CRM questions
+- follow-up activity
+- appointment hygiene and data-entry enforcement
+
+### Shopping-list truth
+
+Table:
+
+- `leads`
+
+Use this for:
+
+- the manual shopping-list coaching surface
+- active opportunities / active clients the agent is actively working
+- score-based prioritization and re-scoring
+- signed-vs-unsigned shopping-list management
+- weekly action-plan discipline
+
+Important naming caution:
+
+- the table is named `leads`
+- but the founder meaning is broader than raw "leads"
+- this is a coached working list, not just a dump of new leads
+- parts of the app already reflect that by calling empty active rows `No active clients found`
+
+Shopping-list canon now locked:
+
+- this is the manual active-opportunity / active-client coaching layer
+- agents are expected to review it weekly
+- agents are expected to re-score opportunities as reality changes
+- agents are expected to keep a real action plan on each active record
+- the score is not inferred by AI today; it is agent-entered operating judgment
+
+Current score meaning visible in the live app:
+
+- `10` = executed in the next `15` days
+- `9` = `15-30` days
+- `8` = `30-45` days
+- `7` = `45-60` days
+- `6` = `60-90` days
+- `5` = about `6` months
+- `4` = about `12` months
+- `3` or below = ice cold / unclear
+
+Important implementation rule:
+
+- pipeline-value surfaces in the KPI app currently treat active shopping-list rows with `score >= 7` as the key active-opportunity layer
+- that means stale scoring and empty action plans are not cosmetic issues; they directly weaken the company and agent pipeline read
+
+### Executed-deal / finance truth
+
+Table:
+
+- `deal_data`
+
+Use this for:
+
+- executed deals
+- volume
+- gross-to-team
+- net-to-team
+- company financial execution reporting
+
+### Goal truth
+
+Tables:
+
+- `goals`
+- `company_goals`
+- `expansion_goals`
+
+Use this for:
+
+- maintain goals
+- growth goals
+- expansion goals
+- company targets
+
+### Competition truth
+
+Tables / RPCs:
+
+- `leaderboard_challenges`
+- `leaderboard_teams`
+- `leaderboard_team_members`
+- `get_team_mqy_perform_metrics`
+- `get_team_mqy_build_metrics`
+
+Use this for:
+
+- challenge views
+- pod / MQY reporting
+
+### App-engagement truth
+
+Tables:
+
+- `users_activity`
+
+Use this for:
+
+- who is logging in
+- who is active in the app
+- who is not using the system consistently
+
+Do not over-read this table:
+
+- it proves app session activity
+- it does **not** prove who updated the shopping list specifically
+- total minutes can overstate real engagement if a visible session is left open for a long time
+- shopping-list maintenance still has to be read from:
+  - `leads.updated_at`
+  - score freshness
+  - action-plan completeness
+  - duplicate / stale record checks
+
+## The Main Rule
+
+Do not treat KPI as one flat source.
+
+Pick the truth layer on purpose for each AI OS job.
+
+## Known Split That Matters
+
+These are both live, and they do **not** tell the same story:
+
+- shopping-list executed outcomes from `leads`
+- executed-deal / finance outcomes from `deal_data`
+
+Live 2026 example from the audit:
+
+- `leads` executed count: `44`
+- `deal_data` executed count: `108`
+
+So if an agent or report asks for "executed deals," AI OS must choose the layer on purpose.
+
+## AI OS Read Rules
+
+- pipeline and appointment questions:
+  - read `persons` + `appointments`
+- appointment type / outcome compliance:
+  - read `appointments` plus the KPI appointment rule model
+- shopping-list quality / stale list questions:
+  - read `leads`
+- signed-client questions:
+  - start from `leads` unless a later signed-off source replaces it
+- executed-deal and company-financial questions:
+  - read `deal_data`
+- goal pacing questions:
+  - read goals tables plus the matching activity layer
+- app adoption questions:
+  - read `users_activity`
+
+## Appointment Hygiene Is A First-Class KPI Surface
+
+This is one of the highest-value controls in the whole system.
+
+Why:
+
+- agents can break conversion reporting just by using the wrong appointment type
+- agents can break performance coaching just by using the wrong outcome
+- agents should not be allowed to be sloppy here if the KPI system is going to drive coaching
+
+Already visible in the KPI system:
+
+- the `Appointments` page colors outcomes by rule
+- the page supports an `(Action Required)` filter
+- the Resource Center / `How To` page explains:
+  - correct Set / Show / Signed date logic
+  - correct appointment outcomes
+  - why deleting leads is wrong
+
+AI OS should not invent a new rule set here.
+
+AI OS should learn and enforce the existing Benson Crew rule set:
+
+- correct appointment type
+- correct appointment outcome
+- correct stage date usage
+- visible flags when data entry is wrong
+
+Current operating boundary:
+
+- today, appointment audits are primarily about discovery and consult hygiene
+- support-network appointment tracking exists as a future capability, not the current audit priority
+- future coaching can still use support-network meetings, go-deep days, and supporter-building activity later
+
+## Opportunity Hygiene And Re-Entry Rules
+
+This is separate from appointment hygiene, but it is just as important.
+
+Why:
+
+- FUB can auto-create a lead when an agent adds a person
+- not every added person is a real lead
+- fake new leads will pollute KPI coaching if AI OS treats them as true opportunity creation
+
+Current Benson Crew rule model:
+
+- a real new opportunity is not the same thing as a brand-new human added to CRM
+- some people belong outside the active lead flow:
+  - possible supporters
+  - past clients
+  - non-contact non-leads
+  - realtor / vendor style records
+- if an agent adds people and forgets to move them quickly, FUB can leave them as accidental leads
+- `Delete Lead` is a temporary hygiene stage for those records
+- `Delete Lead` is not the final home for those people
+- after the temporary cleanup, the person should be moved into the correct long-term stage
+
+Important re-entry rule:
+
+- a person can leave the lead flow, live in support-network style stages, then re-enter the lead pipeline later
+- when that happens, the business may treat that as a new opportunity even though it is not a brand-new human
+- AI OS must preserve that distinction when it reads KPI and FUB data
+
+Working AI OS rule:
+
+- do not celebrate raw new-lead counts until stage hygiene is checked
+- do not coach from inflated lead creation caused by bad staging
+- before using new-opportunity counts as truth, compare:
+  - CRM person state
+  - current pipeline stage
+  - shopping-list state
+  - whether the record is really a re-entered opportunity
+
+Founder-confirmed stage rule right now:
+
+- a true new opportunity is currently counted when a person enters any of these active opportunity stages:
+  - `Lead`
+  - `Hot Lead/Nurture (0-3)`
+  - `Warm Nurture (3-6)`
+  - `Cold Nurture (6-12)`
+  - `Appointment`
+  - `Appointment - No Show`
+- this applies both to:
+  - brand-new people entering the system
+  - existing supporters / past clients / non-leads who re-enter the pipeline
+
+Current source stages that can feed that re-entry:
+
+- `Contact - Non Lead/Non Supporter`
+- `Possible Supporter`
+- `Supporter/SOI`
+- `Past Client`
+
+Founder-confirmed cleanup change:
+
+- `Unresponsive` is no longer a real stage
+- the two old lost-contact stages were removed
+- if someone is given up on and does not belong in a better long-term category, they should land in:
+  - `Contact - Non Lead/Non Supporter`
+
+Operational meaning:
+
+- this is now the main catch-all non-lead recycle bucket
+- it also feeds the older unclaimed callback pool used by agents when working older leads again
+
+Founder-confirmed support-network meaning:
+
+- `Possible Supporter` is not a generic dead-contact bucket
+- it is an active business-building stage
+- the agent should work that person, ask the chosen-one questions, and try to convert them into a real supporter
+- `Supporter/SOI` means the person is now a confirmed supporter
+- `Past Client` is separate and should not automatically be treated as a confirmed supporter
+
+Founder-confirmed non-lead meanings:
+
+- `Realtors/Vendors`
+  - real estate agents and vendor-style contacts worth keeping in CRM
+  - not supporter-path records
+  - not true lead-flow records
+- `Other Contacts`
+  - people worth keeping in the system
+  - not `Possible Supporter`
+  - not `Supporter/SOI`
+  - not something the founder wants deleted
+- `Trash`
+  - team-facing soft-delete stage
+  - protects the system from agents hard-deleting people
+  - true deletion remains an admin / founder action
+
+This matters for KPI because future coaching should not confuse:
+
+- support-network building
+- stale non-lead cleanup
+- true lead creation
+
+Still open:
+
+- `Active Client` may also be treated as part of the active opportunity path, but this should be confirmed against the underlying KPI database logic
+- `Delete Lead` is confirmed as cleanup workflow, not a real opportunity stage
+
+Founder working read right now:
+
+- `leaddate` = when the lead / person entered the system as a lead
+- `leadclaimeddate` = when an agent took ownership of that lead
+- this is especially important for older pond / recycle records that later get claimed
+- exact write logic still lives in Lee's original middleware / database layer, not the KPI frontend
+
+## What KPI Actually Counts Today
+
+The current KPI YTD lead count is not calculated from `currentstage` string labels at read time.
+
+The audited code path counts:
+
+- `leadclaimeddate` in range
+- or `leaddate` in range when `leadclaimeddate` is null
+
+That matters because:
+
+- stage doctrine still matters for business meaning
+- but the live KPI lead count is really driven by the date fields being written upstream
+- so the next technical question is not just "which stage counts?"
+- it is also "which upstream logic writes `leadclaimeddate` / `leaddate` when a person re-enters the pipeline?"
+
+Current safe read:
+
+- use founder doctrine for semantic truth
+- use `leadclaimeddate` / `leaddate` for what the KPI app is literally counting today
+- do not assume current-stage labels alone explain the metric
+
+Future coaching behavior should be:
+
+- flag likely fake leads
+- suggest moving them to `Delete Lead` first when that temporary cleanup is appropriate
+- then suggest the correct destination stage
+- protect pipeline truth before reporting on it
+
+## Current Implementation Caution
+
+The founder doctrine is now clearer than parts of the live KPI implementation.
+
+Concrete examples:
+
+- `How To` correctly explains:
+  - auto-created FUB leads
+  - temporary `Delete Lead` cleanup
+  - re-entry from supporter / past-client style records
+- `How To` also documents support-network outcomes such as:
+  - `Show - Supporter Gained!`
+  - `Show - SOI/Support Meet Success`
+- live appointment rows also contain those support-network style outcomes
+- but `appointmentUtils.ts` still only encodes discovery and consult outcome buckets for color / rule handling
+- the live `Leads` page still uses a rough urgency grouping:
+  - `Lead`, `Appointment`, and `Hot Lead...` => `hot`
+  - `Warm Nurture`, `Active Client`, and `Possible Supporter` => `warm`
+  - everything else => `cold`
+- the live pipeline hook still counts supporter-style buckets using broad string matching on `currentstage`
+- the live `stages` table still contains transitional / legacy rows such as:
+  - `Unresponsive`
+  - `Appointment - No Show Follow Up`
+
+AI OS rule:
+
+- do not infer canon from raw stage-table presence
+- do not infer canon from rough UI badge grouping
+- prefer signed-off business doctrine, then use code / DB reads to find drift against that doctrine
+
+This is exactly why `SOURCE-017` exists.
+
+## Audit Snapshot: Shopping List Quality
+
+Date: `2026-04-20`
+
+This is not permanent live truth. It is the current audit snapshot used to understand how healthy the Shopping List discipline is today.
+
+What the extra pass proved:
+
+- active shopping-list rows: `289`
+- signed active rows: `135`
+- active rows with blank `action_plan`: `47`
+- stale active high-score rows (`7+` and older than `60` days): `16`
+
+Known quality risks seen live:
+
+- duplicate active shopping-list entries still exist for some agents
+- stale `7+` and `8+` rows still exist with empty action plans
+- some agents clearly use the app, but that does not prove they are maintaining Shopping List correctly
+
+Useful current operator read:
+
+- `users_activity` tells us who is entering and using the KPI app
+- `leads` tells us whether their Shopping List is actually being maintained well
+- those are related, but they are not the same truth
+
+Current highest-signal hygiene checks:
+
+- high-score rows with no action plan
+- high-score rows not updated in `60+` days
+- duplicate active client / opportunity rows for the same agent
+- agents with meaningful active-list volume but weak or stale list discipline
+
+## KPI Reads To Lock
+
+These are the core KPI surfaces AI OS should understand and eventually sign off one by one.
+
+Status key:
+
+- `Mapped` = route, source layer, and business job are clear enough to audit next
+- `Mixed` = the surface works, but truth-layer risk is already visible
+
+| # | Surface | Main route / surface | Primary read | Why it matters | Status |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Agent goals: 3 levels | `/goals` | `goals` + `expansion_goals` | Maintain, growth, and exponential targets are the base coaching contract for each agent. | Mapped |
+| 2 | Manager goal assumptions | `/goal-management` | `goals` + `expansion_goals` | Manager-controlled conversion rates, timing, avg price, avg commission, and avg split shape every downstream target. | Mapped |
+| 3 | Company goals | company goal layer | `company_goals` | Company target math drives company pacing, company coaching, and the leadership read. | Mapped |
+| 4 | Personal dashboard pacing | `/` | goals + pipeline + analytics hooks | This is the main “am I on track?” surface for each agent. | Mapped |
+| 5 | Company dashboard pacing | `/company` | `company_goals` + company RPCs | This is the main “is the company on track?” surface for leadership. | Mapped |
+| 6 | Personal shopping list | `/leads` | `leads` | This is where agent-side opportunity quality, score, signed status, and stale list discipline live. | Mapped |
+| 7 | Company shopping list | `/company-shopping-list` | `leads` | This is the company-wide shopping-list view, including stale high-score records and signed counts. | Mapped |
+| 8 | Personal leads inbox / CRM intake | `/leads-inbox` | `persons` + `users` | This is the real CRM lead-flow layer, not the shopping-list layer. It is also where accidental FUB-created leads and true new-opportunity logic start to separate. | Mapped |
+| 9 | Company pipeline leads | `/company-leads` | `persons` + RPCs | This is the company-wide lead pipeline read. | Mapped |
+| 10 | Personal appointments | `/appointments` | `appointments` + `persons` + goal timing | Apps set, held, and signed pace live here for the agent. | Mapped |
+| 11 | Company appointments | `/company-appointments` | company appointments RPCs | Company appointment pace is one of the clearest company-level execution reads. | Mapped |
+| 12 | Appointment hygiene / type + outcome compliance | `Appointments` + `How To` + old rule mapping | `appointments` + rule model | This is the control surface that keeps agent data entry clean enough for real coaching and conversion math. | Mapped |
+| 13 | Opportunity hygiene / re-entry control | `Leads Inbox` + `How To` + FUB stage rules | `persons` + stage rules + shopping-list context | This keeps fake leads, support-network records, and re-entered opportunities from corrupting coaching and pipeline math. | Mapped |
+| 14 | Personal executed deals | `/deals` | `deal_data` | This is the executed-deal truth the agent should be coached from. | Mapped |
+| 15 | Company executed deals | `/company-deals` | `deal_data` | This is the company executed-deal ledger view. | Mapped |
+| 16 | Company financial leaderboard | `/company-financial` | `deal_data` | Dollars to company, dollars to agent, volume, and deal counts live here. | Mapped |
+| 17 | Company performer leaderboard | `/company-leaderboard` | `leads` | Visible ranking surface, but it is not reading the same executed truth as finance. | Mixed |
+| 18 | MQY Build leaderboard | `/mqy-build` | MQY build RPCs | Builder competition / score logic belongs here. | Mapped |
+| 19 | MQY Perform leaderboard | `/mqy-perform` | MQY perform RPCs | Performer competition / score logic belongs here. | Mapped |
+| 20 | Competitions / pods | `/competitions` | leaderboard tables + `deal_data` | Pod and challenge logic is already a live management surface. | Mapped |
+| 21 | Agent / manager control layer | `/agent-dashboards`, `/all-agents`, `/agents/:id`, `/admin` | `profiles` + `users_activity` + mixed production reads | This is how leadership sees who is active, who is slipping, and who is not even using the system. | Mapped |
+
+## Recommended Signoff Order
+
+Do these in this order:
+
+1. goals and target math
+2. shopping-list truth
+3. pipeline and appointments
+4. executed deals and company financial
+5. rankings and competitions
+6. agent adoption / usage
+
+That order matches how future coaching agents will need to think.
+
+## The First Questions AI OS Should Eventually Answer
+
+Once the top 20 reads are signed off, AI OS should be able to answer:
+
+- which agents are on pace for maintain, growth, or exponential goals
+- which agents are on pace for maintain specifically by:
+  - cash executed first
+  - then signed clients
+  - then apps set
+- which agents are setting enough appointments
+- which agents are getting clients signed
+- which agents are executing deals but falling short in pipeline
+- which agents have stale or weak shopping lists
+- which agents are strongest in builder vs performer views
+- which agents are not logging in or not maintaining their list
+- whether company pace is on track against company goals
+
+## Good Future Extensions
+
+- company goal watcher
+- agent KPI coach
+- manager coaching surface
+- shopping-list hygiene watcher
+- login / adoption watcher
+- FUB / KPI cross-checks
+- HomeOptima / KPI cross-checks
+
+## `SOURCE-010` Closeout Goal
+
+`SOURCE-010` is no longer about deciding whether KPI exists.
+
+It is about:
+
+1. locking these truth-layer boundaries
+2. defining which AI OS jobs read which layer
+3. locking Shopping List meaning, quality checks, and usage-vs-maintenance boundaries
+4. adding health checks so drift is visible
+
+Audit checkpoint:
+
+- [KPI system audit checkpoint](../handoffs/2026-04-20-kpi-system-audit-checkpoint.md)

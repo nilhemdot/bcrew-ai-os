@@ -27,9 +27,9 @@ var harlanStatus = {
 }
 
 var harlanCannedResponses = [
-  "I hear you. The agent infrastructure isn't wired up yet, but the Foundation data is live and waiting.",
-  "Good question. Once the backend is connected, I'll be able to pull live data from strategy docs, backlog, and decisions.",
-  "Noted. Right now I'm a preview of what's coming — full conversational access to everything in Foundation.",
+  "Foundation data is live, but this chat surface is still preview-only.",
+  "Once the backend is wired, I'll be able to read strategy, backlog, and decisions live.",
+  "Right now I'm a preview, not the final assistant loop.",
 ]
 
 function buildHarlanPanel() {
@@ -164,7 +164,7 @@ function openHarlan() {
     buildHarlanPanel()
     harlanPanelReady = true
     addHarlanMessage(
-      "Hey Steve. I'm the Harlan preview. Foundation data is live, but this chat surface is still a mock until the assistant backend is wired up. What do you want to dig into first?",
+      "Hey Steve. Foundation data is live, but this chat surface is still preview-only until the assistant backend is wired.",
       'harlan'
     )
   }

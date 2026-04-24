@@ -40,7 +40,37 @@ Use [Current State](current-state.md) for the short read.
 ## Current Execution Order
 
 1. keep truth and verification stable
-2. build the governed Owners review engine, not more open-ended manual audit work:
+2. close the first usable shared-communications source layer:
+   - Gmail, Calendar, Missive, Slack, and meeting reads are already live
+   - archive depth is now real enough to use
+   - keep Gmail / Missive history widening
+   - keep meeting transcript enforcement tightening
+   - keep Slack rollout explicit instead of assuming universal readability
+3. build the missing synthesis layer on top of that shared archive:
+   - `SOURCE-019`
+   - `SYNTHESIS-ENGINE-001`
+   - cross-artifact linking
+   - resolution detection
+   - cross-source dedup
+   - staleness scoring
+   - actionability ranking
+   - first proof = useful strategy packet, not raw candidate dump
+4. close the strategy truth boundary before Strategy Hub:
+   - `SOURCE-014`
+   - the strategy-used Owners slice
+   - keep the strategy packet and rebuild docs aligned to the real queue
+5. close the remaining source-signoff surfaces that still block strategy trust:
+   - `SOURCE-008`
+   - `FOUNDATION-003`
+   - `SOURCE-010`
+6. close the marketing source map by real brand lane, not fuzzy legacy buckets:
+   - `SOURCE-016`
+   - split Benson Crew, Zahnd Team Ag, Steve Zahnd, and MarketMasters cleanly
+   - prove which assets/accounts still authenticate
+   - prove which legacy Zahnd-era assets still belong in live BCrew truth
+   - fix Google marketing auth
+   - finish SocialPilot auth validation
+7. keep the governed Owners review engine moving, not more open-ended manual audit work:
    - row-scoped Admin review runner is live
    - row-scoped conditional review runner is live
    - review status + re-review path are live in the temporary sheet lanes
@@ -51,7 +81,7 @@ Use [Current State](current-state.md) for the short read.
    - FUB drift findings now land in that same queue
    - Owners governed dropdown drift can land in that same queue when it is not clean
    - use manual review only to prove or tune the rules
-3. close the Owners package as an integrated closure, not a sheet-only closeout:
+8. close the Owners package as an integrated closure, not a sheet-only closeout:
    - `SOURCE-008`
    - `DATA-005`
    - `DATA-006`
@@ -78,7 +108,7 @@ Use [Current State](current-state.md) for the short read.
      - contract registry starter entries
      - `Ops Hub -> Deal Review Inbox`
      - re-review path after source fixes
-4. build shared change / drift infrastructure for governed sources:
+9. build shared change / drift infrastructure for governed sources:
    - source-list drift
    - spreadsheet structure drift
    - strategy / decision change visibility
@@ -99,28 +129,25 @@ Use [Current State](current-state.md) for the short read.
         - participant list
         - context ref
         - evidence notes
-5. close `SRC-FINANCE-001` to `Level 2` via `FOUNDATION-003`
-6. lock KPI source-layer read rules via `SOURCE-010`
-7. close the required connector/source map by pillar:
-   - company
-   - Steve / agent brand
-   - MarketMasters
-8. extend the shared communications layer after the first governed slice proves out:
+10. extend the shared communications layer after the first governed slice proves out:
    - `SOURCE-003` broader Drive hardening
    - `SOURCE-005` Slack channel-rollout and extraction hardening
    - widen extraction types only after archive + normalization + first decision path are stable
-9. build the shared business-atoms layer in Foundation:
+11. build the shared business-atoms layer in Foundation:
    - `STRATEGY-001`
    - atoms are shared evidence first
    - hubs add overlays instead of rebuilding ingestion
-10. define the first overlay and scoper model:
+12. define the first overlay and scoper model:
    - `STRATEGY-006`
    - `SYSTEM-012`
    - marketing keeps the locked `10` RETAIN + `5` ATTRACT avatar model as the first heavy overlay
-11. extend the first freshness pattern into shared `Level 3` rules across more sources
-12. clean backlog ownership and the research lane
-13. only then turn on the narrow memory baseline and the first trusted loop
-14. only after the governed engines are stable, build the first narrow operating agent on top of them
+13. mine old intelligence reports and salvage doctrine intentionally:
+   - `REPORT-MINING-001`
+   - use the old scout/executive/director report families as synthesis references, not runtime architecture
+14. extend the first freshness pattern into shared `Level 3` rules across more sources
+15. clean backlog ownership and the research lane
+16. only then turn on the narrow memory baseline and the first trusted loop
+17. only after the governed engines are stable, build the first narrow operating agent on top of them
 
 ## Current Work Mode
 
@@ -188,16 +215,31 @@ Rule:
 
 ## Current Open Work
 
-- the broader strategy-input package is no longer a separate first move; the remaining strategy-used Owners slice closes inside the Owners package work
+- the broader strategy-input package is no longer a separate first move; the remaining strategy-used Owners slice closes inside the package-level strategy boundary work
 - FUB is readable and editable for taxonomy rules, but not signed off
 - the first live cross-system deal proof now exists (`T#26100` -> FUB -> ClickUp -> contract), but it still needs to become governed system behavior
 - finance is still not line-by-line signed off
 - KPI is live and readable, but AI OS still has not locked which truth layer to read for each KPI job
-- the marketing connector/source map still needs a clear pillar-owned boundary before a future rebuild
+- the marketing connector/source map still needs a clear lane-owned boundary before a future rebuild:
+  - Benson Crew
+  - Zahnd Team Ag
+  - Steve Zahnd
+  - MarketMasters
 - the backlog scope registry is now live, but backlog cleanup is still open
-- Gmail / Calendar / Missive / meeting-note reads are now live, and the first meeting-note + meeting-transcript archive with transcript-first candidate extraction is live, but the broader shared archive / normalize / extraction layer does not exist yet
+- Gmail / Calendar / Missive / meeting-note reads are now live, and the first meeting-note + meeting-transcript archive with transcript-first candidate extraction is live, but the system still lacks the explicit synthesis layer that turns raw candidates into ranked live intelligence
 - the research lane is still overloaded
 - OpenClaw native memory baseline is still off
+
+## Active Docs Only
+
+Use these as the live plan truth:
+
+- `docs/rebuild/current-plan.md`
+- `docs/rebuild/current-state.md`
+- `docs/system-strategy.md`
+- `docs/source-registry.md`
+
+Treat most handoffs and research notes as supporting archive, not the plan.
 
 ## Strategy Backlog Map
 

@@ -127,7 +127,10 @@ What already exists now:
   - Slack thread artifacts archived in PostgreSQL
   - meeting-note artifacts archived in PostgreSQL
   - meeting-transcript artifacts archived in PostgreSQL
+  - paginated delegated Drive reads and paginated Slack history reads, so the archive is not limited to the first page of results
   - meeting artifacts tagged with capture-time meeting class (`broadcast` vs `discussion`) so privacy and extraction rules do not have to guess later
+  - transcript-gap reporting for organizers and recurring series, so forward-looking transcript failures can be found explicitly instead of guessed from missing summaries
+  - a Crewbert Drive mirror path that can copy and organize archived meeting notes / transcripts without changing source-file ACLs yet
   - governed candidate extraction now live for meeting transcripts, Gmail threads, Missive threads, and Slack threads with Foundation context
 - old repo still holds additional Missive search patterns worth borrowing
 
@@ -162,6 +165,36 @@ Safe rule:
 
 - Foundation reads, structures, and proposes.
 - Hubs later act on approved outputs.
+
+## The Missing Synthesis Layer
+
+The shared archive and candidate queue are not the same thing as useful intelligence.
+
+Raw extraction gives us mined units.
+
+Synthesis is the layer that decides what is still real, what is already resolved, and what Steve should actually see.
+
+That layer still needs to become explicit.
+
+The required functions are:
+
+1. cross-artifact linking
+   - link the same topic across meetings, Slack, Gmail, Missive, ClickUp, and later other hub state
+2. resolution detection
+   - detect when an extracted task, blocker, question, or decision has already been addressed somewhere else
+3. cross-source dedup
+   - collapse repeated mentions of the same issue into one canonical live item
+4. staleness scoring
+   - age, follow-up activity, and recency should decide whether something is still live or just historical residue
+5. actionability ranking
+   - rank what is new, unresolved, high-leverage, and relevant to the current operating moment instead of dumping raw candidates
+
+Practical rule:
+
+- `2,000` archived candidates is mining
+- `15` ranked live items is intelligence
+
+The first Strategy packet and future Strategy Hub should read from this synthesis layer, not straight from the raw candidate queue.
 
 ## Pillar Map
 
@@ -204,6 +237,7 @@ Use shared communications for:
 - success stories
 - proof snippets
 - founder / team phrasing worth capturing as reusable atoms
+- training and broadcast-meeting content that can later become case studies, courses, or authority-building material
 
 ### Sales / Coaching
 

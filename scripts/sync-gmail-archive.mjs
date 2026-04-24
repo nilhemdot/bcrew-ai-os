@@ -6,6 +6,7 @@ import {
   closeFoundationDb,
   getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
+  listFoundationUsers,
   upsertSharedCommunicationArtifact,
 } from '../lib/foundation-db.js';
 import { transcriptTextHash } from '../lib/meeting-transcripts.js';
@@ -53,59 +54,80 @@ function formatGmailThread(messages) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const userEmail = args.user || DEFAULT_USER;
   const query = args.query || DEFAULT_QUERY;
-  const limit = Math.min(25, Math.max(1, Number(args.limit || 5)));
+  const limit = Math.min(100, Math.max(1, Number(args.limit || 5)));
+  const teamMode = args.team === true || args.team === 'true';
+  const userEmail = args.user || DEFAULT_USER;
 
   console.log('Sync Gmail threads into shared communications archive');
-  console.log(`  User: ${userEmail}`);
   console.log(`  Query: ${query}`);
-  console.log(`  Limit: ${limit}`);
+  console.log(`  Per-user limit: ${limit}`);
 
   await initFoundationDb();
 
-  const messages = await listGmailMessages(userEmail, { query, maxResults: limit * 3 });
-  const threadIds = [...new Set(messages.map(message => message.threadId).filter(Boolean))].slice(0, limit);
+  const users = teamMode
+    ? (await listFoundationUsers({ meetingSyncEnabled: true })).map(user => user.email).filter(Boolean)
+    : [userEmail];
 
-  console.log(`  Messages scanned: ${messages.length}`);
-  console.log(`  Threads selected: ${threadIds.length}`);
+  console.log(`  Mode: ${teamMode ? 'team' : 'single-user'}`);
+  console.log(`  Users: ${users.length}`);
 
   let archived = 0;
+  let scannedMessages = 0;
+  let selectedThreads = 0;
 
-  for (const threadId of threadIds) {
-    const thread = await getGmailThread(userEmail, threadId);
-    if (!thread.length) continue;
+  for (const activeUserEmail of users) {
+    const messages = await listGmailMessages(activeUserEmail, {
+      query,
+      maxResults: Math.min(500, Math.max(limit * 10, limit)),
+    });
+    const threadIds = [...new Set(messages.map(message => message.threadId).filter(Boolean))].slice(0, limit);
 
-    const contentText = formatGmailThread(thread);
-    const participants = collectParticipants(thread);
-    const firstMessage = thread[0];
-    const lastMessage = thread[thread.length - 1];
+    scannedMessages += messages.length;
+    selectedThreads += threadIds.length;
 
-    await upsertSharedCommunicationArtifact(
-      {
-        sourceId: 'SRC-GMAIL-001',
-        artifactType: 'email_thread',
-        externalId: threadId,
-        title: firstMessage?.subject || '(no subject)',
-        sourceAccount: userEmail,
-        sourceContainer: `Gmail / ${query}`,
-        sourceUrl: null,
-        participants,
-        contentText,
-        contentHash: transcriptTextHash(contentText),
-        artifactCreatedAt: firstMessage?.date || null,
-        artifactUpdatedAt: lastMessage?.date || null,
-        metadata: {
-          query,
-          messageCount: thread.length,
-          messageIds: thread.map(message => message.id),
+    console.log(`  ${activeUserEmail}: ${messages.length} messages -> ${threadIds.length} threads`);
+
+    for (const threadId of threadIds) {
+      const thread = await getGmailThread(activeUserEmail, threadId);
+      if (!thread.length) continue;
+
+      const contentText = formatGmailThread(thread);
+      const participants = collectParticipants(thread);
+      const firstMessage = thread[0];
+      const lastMessage = thread[thread.length - 1];
+
+      await upsertSharedCommunicationArtifact(
+        {
+          sourceId: 'SRC-GMAIL-001',
+          artifactType: 'email_thread',
+          externalId: `${activeUserEmail}:${threadId}`,
+          title: firstMessage?.subject || '(no subject)',
+          sourceAccount: activeUserEmail,
+          sourceContainer: `Gmail / ${query}`,
+          sourceUrl: null,
+          participants,
+          contentText,
+          contentHash: transcriptTextHash(contentText),
+          artifactCreatedAt: firstMessage?.date || null,
+          artifactUpdatedAt: lastMessage?.date || null,
+          metadata: {
+            query,
+            mailbox: activeUserEmail,
+            gmailThreadId: threadId,
+            messageCount: thread.length,
+            messageIds: thread.map(message => message.id),
+          },
         },
-      },
-      'system',
-    );
+        'system',
+      );
 
-    archived += 1;
+      archived += 1;
+    }
   }
+
+  console.log(`  Messages scanned: ${scannedMessages}`);
+  console.log(`  Threads selected: ${selectedThreads}`);
 
   const snapshot = await getSharedCommunicationArchiveSnapshot({
     sourceId: 'SRC-GMAIL-001',
