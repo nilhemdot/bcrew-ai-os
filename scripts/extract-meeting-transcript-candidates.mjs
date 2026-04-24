@@ -11,6 +11,7 @@ import {
   getSharedCommunicationArtifactsWithoutCandidatesForProcessing,
   getSharedCommunicationCandidateSnapshot,
   initFoundationDb,
+  recordSharedCommunicationArtifactProcessingRun,
   rejectSharedCommunicationCandidatesForArtifacts,
   upsertSharedCommunicationCandidate,
 } from '../lib/foundation-db.js';
@@ -144,6 +145,8 @@ async function main() {
       sourceId: 'SRC-MEETINGS-001',
       artifactType: 'meeting_transcript',
       limit: Math.max(limit * 3, 10),
+      processingType: 'candidate_extraction',
+      extractionMethod: EXTRACTION_METHOD,
     })
   )
     .filter(
@@ -176,6 +179,7 @@ async function main() {
         model: DEFAULT_MODEL,
       });
 
+      let persistedForArtifact = 0;
       for (const candidate of candidates) {
         if (isLowSignalTaskCandidate(candidate)) continue;
         const fingerprint = fingerprintCandidate(candidate);
@@ -183,13 +187,44 @@ async function main() {
         seenFingerprints.add(fingerprint);
         await upsertSharedCommunicationCandidate(candidate);
         upserted += 1;
+        persistedForArtifact += 1;
       }
+
+      await recordSharedCommunicationArtifactProcessingRun(
+        {
+          artifactId: artifact.artifactId,
+          sourceId: artifact.sourceId,
+          artifactType: artifact.artifactType,
+          processingType: 'candidate_extraction',
+          extractionMethod: EXTRACTION_METHOD,
+          model,
+          status: 'succeeded',
+          candidateCount: persistedForArtifact,
+          metadata: { script: 'extract-meeting-transcript-candidates' },
+        },
+        'system',
+      );
 
       console.log(
         `  ${artifact.artifactId}: ${candidates.length} candidates (${artifact.metadata?.transcriptSource || 'unknown'})`,
       );
     } catch (error) {
       failed += 1;
+      await recordSharedCommunicationArtifactProcessingRun(
+        {
+          artifactId: artifact.artifactId,
+          sourceId: artifact.sourceId,
+          artifactType: artifact.artifactType,
+          processingType: 'candidate_extraction',
+          extractionMethod: EXTRACTION_METHOD,
+          model,
+          status: 'failed',
+          candidateCount: 0,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          metadata: { script: 'extract-meeting-transcript-candidates' },
+        },
+        'system',
+      );
       console.error(
         `  ${artifact.artifactId}: extraction failed -> ${
           error instanceof Error ? error.message : String(error)

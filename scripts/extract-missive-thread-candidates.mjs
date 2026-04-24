@@ -11,6 +11,7 @@ import {
   getSharedCommunicationArtifactsWithoutCandidatesForProcessing,
   getSharedCommunicationCandidateSnapshot,
   initFoundationDb,
+  recordSharedCommunicationArtifactProcessingRun,
   rejectSharedCommunicationCandidatesForArtifacts,
   upsertSharedCommunicationCandidate,
 } from '../lib/foundation-db.js';
@@ -120,6 +121,8 @@ async function main() {
     artifactType: 'missive_thread',
     limit,
     offset,
+    processingType: 'candidate_extraction',
+    extractionMethod: EXTRACTION_METHOD,
   });
 
   const rejected = await rejectSharedCommunicationCandidatesForArtifacts({
@@ -145,17 +148,49 @@ async function main() {
         model,
       });
 
+      let persistedForArtifact = 0;
       for (const candidate of candidates) {
         const fingerprint = fingerprintCandidate(candidate);
         if (seenFingerprints.has(fingerprint)) continue;
         seenFingerprints.add(fingerprint);
         await upsertSharedCommunicationCandidate(candidate);
         upserted += 1;
+        persistedForArtifact += 1;
       }
+
+      await recordSharedCommunicationArtifactProcessingRun(
+        {
+          artifactId: artifact.artifactId,
+          sourceId: artifact.sourceId,
+          artifactType: artifact.artifactType,
+          processingType: 'candidate_extraction',
+          extractionMethod: EXTRACTION_METHOD,
+          model,
+          status: 'succeeded',
+          candidateCount: persistedForArtifact,
+          metadata: { script: 'extract-missive-thread-candidates' },
+        },
+        'system',
+      );
 
       console.log(`  ${artifact.artifactId}: ${candidates.length} candidates`);
     } catch (error) {
       failed += 1;
+      await recordSharedCommunicationArtifactProcessingRun(
+        {
+          artifactId: artifact.artifactId,
+          sourceId: artifact.sourceId,
+          artifactType: artifact.artifactType,
+          processingType: 'candidate_extraction',
+          extractionMethod: EXTRACTION_METHOD,
+          model,
+          status: 'failed',
+          candidateCount: 0,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          metadata: { script: 'extract-missive-thread-candidates' },
+        },
+        'system',
+      );
       console.error(
         `  ${artifact.artifactId}: extraction failed -> ${
           error instanceof Error ? error.message : String(error)

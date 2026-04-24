@@ -229,15 +229,18 @@ async function main() {
   const sourcesWithExtractionDepth = coverageSources.filter(source =>
     typeof source.artifactsWithCandidates === 'number' &&
     typeof source.artifactsWithoutCandidates === 'number' &&
+    typeof source.artifactsProcessed === 'number' &&
+    typeof source.artifactsPendingProcessing === 'number' &&
+    typeof source.processingCoveragePercent === 'number' &&
     typeof source.extractionCoveragePercent === 'number'
   )
   ensure(
     checks,
     coverageSources.length > 0 &&
       sourcesWithExtractionDepth.length === coverageSources.length,
-    'api/foundation-hub exposes shared-comms extraction depth',
+    'api/foundation-hub exposes shared-comms extraction and processing depth',
     coverageSources.length
-      ? `${sourcesWithExtractionDepth.length}/${coverageSources.length} sources expose with-candidate / unmined counts`
+      ? `${sourcesWithExtractionDepth.length}/${coverageSources.length} sources expose candidate and processing counts`
       : 'missing coverage sources',
   )
   ensure(

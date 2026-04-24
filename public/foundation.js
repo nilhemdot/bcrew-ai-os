@@ -5135,25 +5135,31 @@ function renderIntelligencePipelinePanel(coverage, synthesis) {
   var items = sources
     .slice()
     .sort(function(a, b) {
-      return (Number(b.artifactsWithoutCandidates || 0) - Number(a.artifactsWithoutCandidates || 0))
+      return (Number(b.artifactsPendingProcessing || b.artifactsWithoutCandidates || 0)
+        - Number(a.artifactsPendingProcessing || a.artifactsWithoutCandidates || 0))
     })
     .slice(0, 8)
     .map(function(source) {
       var total = Number(source.totalArtifacts || 0)
       var withCandidates = Number(source.artifactsWithCandidates || 0)
       var withoutCandidates = Number(source.artifactsWithoutCandidates || 0)
+      var processed = Number(source.artifactsProcessed || 0)
+      var pendingProcessing = Number(source.artifactsPendingProcessing || withoutCandidates)
+      var processingPercent = Number(source.processingCoveragePercent || 0)
       var coveragePercent = Number(source.extractionCoveragePercent || 0)
-      var status = coveragePercent >= 75
+      var status = processingPercent >= 75
         ? 'live'
-        : withCandidates > 0
+        : processed > 0
           ? 'planned'
           : 'risk'
       var newest = source.newestArtifactAt ? ' Newest artifact ' + formatDate(source.newestArtifactAt) + '.' : ''
       return {
         label: source.sourceId,
         status: status,
-        detail: total + ' archived, ' + withCandidates + ' with candidates, ' + withoutCandidates
-          + ' still unmined, ' + formatCoveragePercent(coveragePercent) + ' mined. '
+        detail: total + ' archived, ' + processed + ' processed, ' + pendingProcessing
+          + ' pending extraction, ' + withCandidates + ' with candidates, ' + withoutCandidates
+          + ' with no active candidate yet. ' + formatCoveragePercent(processingPercent) + ' processed / '
+          + formatCoveragePercent(coveragePercent) + ' yielded candidates. '
           + (source.totalCandidates || 0) + ' candidate records.' + newest,
       }
     })
