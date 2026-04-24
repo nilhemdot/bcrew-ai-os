@@ -23,6 +23,7 @@ import {
   getFoundationBacklogScopes,
   getDocSourceSnapshot,
   getFoundationBacklogIdPrefixes,
+  getFoundationJobRunSnapshot,
   getFoundationSnapshot,
   getFubLeadSourceSnapshot,
   listFubLeadSourceRules,
@@ -3083,6 +3084,23 @@ app.get('/api/foundation-hub', async (_req, res) => {
       500,
       'foundation_hub_load_failed',
       error instanceof Error ? error.message : 'Failed to load foundation hub data.'
+    )
+  }
+})
+
+app.get('/api/foundation/jobs', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 30))
+    const includeOutput = req.query.includeOutput === 'true'
+    const snapshot = await getFoundationJobRunSnapshot({ limit, includeOutput })
+    cacheHeadersNoStore(res)
+    res.json(snapshot)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_jobs_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation job runs.'
     )
   }
 })

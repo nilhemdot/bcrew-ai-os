@@ -106,7 +106,7 @@ Connectors matter too, but connector access does **not** mean trusted business m
 | Source ID | Source | What It Owns | Owner | Current Status |
 |-----------|--------|--------------|-------|----------------|
 | `SRC-CLICKUP-001` | ClickUp | Task management, onboarding checklists, agent roster supplements | Carson | Pending Revalidation |
-| `SRC-GDRIVE-001` | Google Drive | Docs, notes, brand guidelines, meeting artifacts | All | Pending Revalidation under the delegated Google Workspace path, which is the canonical Google standard in this rebuild. |
+| `SRC-GDRIVE-001` | Google Drive | Docs, notes, brand guidelines, meeting artifacts, shared-drive corpora, training assets, videos, and links | All | Pending Revalidation under the delegated Google Workspace path. Basic delegated Drive reads work, but the corpus-crawl boundary is not signed off yet. |
 | `SRC-GADS-001` | Google Ads | MCC + sub-account performance | Steve | Pending Revalidation because the configured OAuth refresh currently returns `invalid_grant` in the rebuild. |
 
 ## Gaps
@@ -119,3 +119,15 @@ Connectors matter too, but connector access does **not** mean trusted business m
 | `SRC-REVIEWS-001` | Client reviews | Google reviews, client surveys, qualitative feedback | Carson | No connection exists |
 | `SRC-TRAINING-001` | Training completion tracker | Training completion, certification, progress | Tanner | Unknown live source |
 | `SRC-CONTENT-001` | Content performance source | Published content metrics | Tanner | No publishing platform connected |
+| `SRC-SKOOL-001` | Skool | Courses, trainings, posts, comments, links, docs, and video lessons | Steve | Not connected in rebuild. Needs official API/export/browser-crawler validation before it can become a trusted corpus source. |
+
+## Corpus Crawl Boundary
+
+The source layer now needs two operating modes:
+
+- current-day sync
+- historical corpus crawl
+
+Current-day sync keeps live communications and operating sources fresh.
+
+Historical corpus crawl takes bounded bites through old Google Drive folders, Skool courses, inbox windows, media archives, and other corpora. Every crawl must record cursor/checkpoint state, inspected artifacts, archive/mirror location, extraction status, errors, cost, and evidence links.

@@ -73,6 +73,20 @@ Their job:
 
 They are not agents.
 
+There are two different ingestion jobs:
+
+- current-day sync
+- historical corpus crawl
+
+Current-day sync keeps the system aware of what happened today across Gmail, Missive, Slack, meetings, Calendar, and other active operating surfaces.
+
+Historical corpus crawl works backward through old folders, inbox windows, courses, videos, links, docs, and shared drives one safe bite at a time.
+
+Do not mix these into one vague "backfill" script. They have different success metrics:
+
+- current-day sync succeeds when yesterday and today are captured reliably
+- historical crawl succeeds when source coverage expands with durable cursor state, review status, and provenance
+
 ### 2. Extraction Routines
 
 These are code-owned jobs that may call an LLM.
@@ -97,6 +111,15 @@ Their job:
 They are not independent scouts.
 
 The LLM is a tool inside the routine, not the owner of the process.
+
+Historical extraction should be paced. The goal is not to read the entire company history in one night. The goal is a supervised extraction team that can:
+
+- take one Drive folder, Skool course, inbox date window, or meeting archive window at a time
+- record what it inspected
+- archive or mirror the useful artifact
+- extract candidates and atoms
+- mark the source window done, skipped, failed, or needs human review
+- continue the next day without Steve or Codex remembering where it left off
 
 ### 3. Synthesis Layer
 
@@ -161,6 +184,7 @@ Today:
 
 - Codex and Steve manually run the routines while the system is being built
 - scripts are the first tools
+- `foundation:job` is the first runner that records routine status in PostgreSQL instead of leaving runs trapped in builder chat
 - PostgreSQL is the memory layer
 
 Near future:
@@ -168,6 +192,8 @@ Near future:
 - scheduled jobs or queue workers run ingestion and extraction
 - each run writes status, counts, cursor state, errors, and cost
 - `SYSTEM-010` process supervision must exist before long-running autonomous loops are trusted
+- a daily current-sync worker keeps live sources fresh
+- a historical crawler worker takes one bounded bite per source per day
 
 Later:
 
@@ -223,3 +249,23 @@ The next build is the first synthesis contract and output shape:
 - what becomes a strategy packet or director-style brief
 
 That is the bridge from archive to nuclear power.
+
+## Source Types To Support Next
+
+The extraction team needs to support more than communications:
+
+- Google Drive corpus crawl: old shared drives, brand folders, docs, PDFs, training assets, videos, and links
+- Skool corpus crawl: courses, trainings, posts, comments, links, docs, and video lessons
+- marketing corpus crawl: platform reports, old avatars, performance reports, content briefs, and source maps
+- strategy corpus crawl: old strategy docs, meeting packets, John Kitchens work, quarterly prep, and post-strategy outcomes
+
+Each source needs the same control model:
+
+- source contract
+- cursor/checkpoint
+- artifact inventory
+- archive/mirror location
+- extraction status
+- cost/status/errors
+- evidence links
+- synthesis handoff

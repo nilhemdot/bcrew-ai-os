@@ -43,17 +43,21 @@ Use [Intelligence Pipeline Operating Model](intelligence-pipeline.md) for how ar
 1. keep truth and verification stable
 2. close the first usable shared-communications source layer:
    - Gmail, Calendar, Missive, Slack, and meeting reads are already live
-   - archive depth is now real enough to use
-   - current archive depth is `2,182` Gmail threads, `2,246` Missive threads, `1,371` Slack threads, and `1,498` meeting artifacts
-   - recovered historical Zoom chats now contribute partial historical meeting context back to `2024-10-03`; meeting transcripts currently reach back to `2025-03-12`
-   - current Gmail/Missive raw archive reaches late March 2026; keep date-sliced backfills moving toward the full 180-day target
+   - archive depth is now real enough to use, and live counts belong in the shared-comms coverage job/dashboard instead of this plan
+   - recovered historical Zoom chats and transcribed historical Zoom audio now contribute merger-era meeting context back to October 2024
+   - Gmail/Missive raw archives have been materially deepened; keep exact oldest/newest windows in the coverage job instead of this static plan
    - keep Gmail / Missive history widening with chunked/cursor backfills instead of pretending the first bounded batches are full 180-day coverage
+   - split live current-day sync from historical corpus crawl so the system stays fresh while it works backward through old data one safe bite at a time
+   - first Foundation job registry + DB run ledger is now being used to move current sync, coverage, verification, transaction review, transcript-gap, and synthesis routines out of builder chat
    - keep meeting transcript enforcement tightening
    - keep Slack rollout explicit instead of assuming universal readability
 3. build the missing synthesis layer on top of that shared archive:
    - `SOURCE-019`
    - `SYNTHESIS-ENGINE-001`
    - `COMMS-BACKFILL-001`
+   - `EXTRACTION-TEAM-001`
+   - `DRIVE-CORPUS-001`
+   - `SKOOL-001`
    - `SYNTHESIS-FACTS-001`
    - cross-artifact linking
    - resolution detection
