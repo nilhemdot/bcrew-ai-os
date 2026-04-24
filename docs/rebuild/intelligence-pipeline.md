@@ -102,7 +102,7 @@ The LLM is a tool inside the routine, not the owner of the process.
 
 This is the next major capability.
 
-It should take candidates from all sources and produce live intelligence by:
+It should take candidates plus source-backed operating facts and produce live intelligence by:
 
 - linking related signals across artifacts
 - deduping repeated mentions
@@ -111,8 +111,13 @@ It should take candidates from all sources and produce live intelligence by:
 - scoring staleness
 - ranking actionability
 - grouping signals into strategic issues, blockers, decisions, and opportunities
+- grounding claims against source-backed facts from strategy, KPI, finance, Owners, FUB, and source contracts
 
 This is where raw mining becomes intelligence.
+
+Core source systems should not be blindly atomized.
+
+Strategy, KPI, finance, Owners, FUB, and source-contract facts stay source-backed first. They become evidence for synthesis. They only become atoms when they express durable business meaning, not just because a row or metric exists.
 
 ### 4. Consumer Views
 
