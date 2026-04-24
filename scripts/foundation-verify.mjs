@@ -231,6 +231,16 @@ async function main() {
   )
   ensure(
     checks,
+    foundationHub.driveCorpusInventory?.summary &&
+      Number(foundationHub.driveCorpusInventory.summary.totalItems || 0) > 0 &&
+      Array.isArray(foundationHub.driveCorpusInventory.valueRoutes),
+    'api/foundation-hub exposes Drive corpus inventory review surface',
+    foundationHub.driveCorpusInventory?.summary
+      ? `${foundationHub.driveCorpusInventory.summary.totalItems} items / ${foundationHub.driveCorpusInventory.valueRoutes?.length || 0} value routes`
+      : 'missing Drive corpus inventory payload',
+  )
+  ensure(
+    checks,
     ownersLeadSourceGovernance?.sourceId === 'SRC-OWNERS-001' &&
       ownersLeadSourceGovernance?.drift &&
       ownersLeadSourceGovernance?.freshness &&

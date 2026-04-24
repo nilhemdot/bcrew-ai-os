@@ -5116,6 +5116,43 @@ function renderExtractionControlPanel(extractionControl) {
   )
 }
 
+function renderDriveCorpusInventoryPanel(driveCorpusInventory) {
+  if (!driveCorpusInventory || !driveCorpusInventory.summary) return null
+  var summaryData = driveCorpusInventory.summary
+  if (!summaryData.totalItems) return null
+
+  var summary = 'Read-only Drive corpus inventory. '
+    + summaryData.totalItems + ' items recorded, '
+    + summaryData.folders + ' folders, '
+    + summaryData.files + ' files, '
+    + summaryData.inspectedFolders + ' folders inspected, '
+    + summaryData.queuedFolders + ' queued, '
+    + summaryData.failedItems + ' failed.'
+
+  var routeItems = (driveCorpusInventory.valueRoutes || []).slice(0, 8).map(function(route) {
+    return {
+      label: route.valueRoute,
+      status: route.valueRoute === 'sensitive_skip' ? 'risk' : 'live',
+      detail: route.itemCount + ' inventoried item' + (route.itemCount === 1 ? '' : 's') + ' routed here.',
+    }
+  })
+
+  var pendingCount = summaryData.pendingExtraction || 0
+  if (pendingCount) {
+    routeItems.unshift({
+      label: 'Pending future extraction',
+      status: 'planned',
+      detail: pendingCount + ' inventoried item' + (pendingCount === 1 ? '' : 's') + ' marked for future text/slides/PDF/video review.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Drive Corpus Inventory',
+    summary,
+    routeItems
+  )
+}
+
 function renderFoundationSequenceCard(step, index) {
   var article = document.createElement('article')
   article.className = 'foundation-sequence-card'
@@ -9668,6 +9705,9 @@ function renderDataHealth() {
 
     var extractionPanel = renderExtractionControlPanel(hub.extractionControl)
     if (extractionPanel) container.appendChild(extractionPanel)
+
+    var driveCorpusPanel = renderDriveCorpusInventoryPanel(hub.driveCorpusInventory)
+    if (driveCorpusPanel) container.appendChild(driveCorpusPanel)
 
     getSystemHealthGroups(hub.memoryStatus || []).forEach(function(group) {
       var panel = renderStatusGroupPanel(
