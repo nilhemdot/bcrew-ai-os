@@ -125,7 +125,7 @@ async function main() {
   console.log('Extract shared communication candidates from archived meeting transcripts');
   console.log(`  Limit: ${limit}`);
   console.log(`  Model: ${model}`);
-  console.log(`  Only without active candidates: ${onlyWithoutCandidates}`);
+  console.log(`  Only without successful current-content processing: ${onlyWithoutCandidates}`);
 
   await initFoundationDb();
 
@@ -174,9 +174,11 @@ async function main() {
   for (const artifact of artifacts) {
     try {
       const extracted = await extractCandidatesFromTranscript(artifact, foundationContext, model);
+      const llm = extracted.llm || { requestedModel: model, model };
       const candidates = sanitizeExtractedCandidates(extracted.candidates, artifact, foundationContext, {
         extractionMethod: EXTRACTION_METHOD,
-        model: DEFAULT_MODEL,
+        model: llm.model || model,
+        llm,
       });
 
       let persistedForArtifact = 0;
@@ -195,12 +197,20 @@ async function main() {
           artifactId: artifact.artifactId,
           sourceId: artifact.sourceId,
           artifactType: artifact.artifactType,
+          artifactContentHash: artifact.contentHash || '',
           processingType: 'candidate_extraction',
           extractionMethod: EXTRACTION_METHOD,
-          model,
+          provider: llm.provider,
+          authPath: llm.authPath,
+          routeKey: llm.routeKey,
+          model: llm.model || model,
           status: 'succeeded',
           candidateCount: persistedForArtifact,
-          metadata: { script: 'extract-meeting-transcript-candidates' },
+          metadata: {
+            script: 'extract-meeting-transcript-candidates',
+            requestedModel: llm.requestedModel || model,
+            llmCallId: llm.callId || null,
+          },
         },
         'system',
       );
@@ -215,6 +225,7 @@ async function main() {
           artifactId: artifact.artifactId,
           sourceId: artifact.sourceId,
           artifactType: artifact.artifactType,
+          artifactContentHash: artifact.contentHash || '',
           processingType: 'candidate_extraction',
           extractionMethod: EXTRACTION_METHOD,
           model,

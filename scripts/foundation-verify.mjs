@@ -131,6 +131,8 @@ async function main() {
 
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
+  const foundationDbSource = await readRepoFile('lib/foundation-db.js')
+  const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
   const directOpenAiOffenders = await auditDirectOpenAiResponsesUsage()
 
   ensure(
@@ -156,6 +158,20 @@ async function main() {
     directOpenAiOffenders.length === 0,
     'direct OpenAI Responses API calls are guarded',
     directOpenAiOffenders.length ? directOpenAiOffenders.join(', ') : 'no unguarded direct Responses calls outside router',
+  )
+  ensure(
+    checks,
+    foundationDbSource.includes('artifact_content_hash') &&
+      foundationDbSource.includes('COALESCE(processing.artifact_content_hash') &&
+      !foundationDbSource.includes('active_candidate.artifact_id IS NULL'),
+    'shared-comms processing selector is content-hash scoped',
+    'current-content processing runs, not candidate existence, control extraction eligibility',
+  )
+  ensure(
+    checks,
+    includesAll(sharedCandidateExtractionSource, ['requestedModel', 'provider', 'authPath', 'routeKey', 'llmCallId']),
+    'shared-comms extraction records actual LLM route provenance',
+    'candidate metadata carries requested model plus actual provider/auth path/route/model',
   )
 
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')

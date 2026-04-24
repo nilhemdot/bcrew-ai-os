@@ -143,7 +143,7 @@ Current direction:
 - model access goes through the policy-aware LLM router
 - BCrew router owns the route decision; OpenClaw is one transport adapter, not the controlling system
 - the current working subscription route is OpenClaw/Codex OAuth through `openai-codex/gpt-5.4`
-- official API routes stay available as explicit fallback, not default
+- official API routes stay available as guarded manual fallback, not default or automatic failover
 - direct OpenAI Responses API is blocked unless an intentional paid-run override is set
 - subscription/native routes can be used only after probes classify them for the workload
 - hub-dedicated capacity is preferred over blind account rotation

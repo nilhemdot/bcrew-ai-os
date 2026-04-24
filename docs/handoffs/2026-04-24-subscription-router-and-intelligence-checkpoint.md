@@ -62,7 +62,7 @@ It can:
 - execute OpenClaw/Codex subscription model calls
 - log `llm_calls`
 - record `estimatedCostUsd=0` for subscription-routed calls
-- keep OpenAI Responses API as a guarded fallback path
+- keep OpenAI Responses API as a guarded manual fallback path
 
 Actual proof:
 
@@ -101,7 +101,9 @@ Updated:
 
 Why:
 
-An artifact that correctly yields zero candidates should not be selected again forever just because it has no active candidates.
+An artifact that correctly yields zero candidates should not be selected again forever, and an artifact whose content later changes must become eligible again.
+
+Follow-up hardening landed after this checkpoint: processing runs now record the artifact content hash plus actual provider, auth path, route key, and model. The extraction selector should mean "no successful processing run for this current content hash and extractor version," not "no active candidates."
 
 Now:
 
@@ -189,5 +191,6 @@ Open items:
 - OpenClaw is an adapter, not the OS.
 - Claude Code subscription path should become another adapter.
 - API fallback is allowed only when explicit, logged, and intentional.
+- Processing attempts are content-hash scoped, not candidate-existence scoped.
 - Zero-candidate artifacts must be remembered as processed.
 - Daily intelligence is the goal, but scheduling waits for a clean subscription-routed proof, not vague cost debate.

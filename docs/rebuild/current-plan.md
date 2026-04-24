@@ -241,7 +241,7 @@ Acceptance:
 - every LLM call can be logged with workload, hub, provider, model, auth path, credential, status, and estimated cost
 - route probes classify each path before scheduled automation uses it
 - existing extraction/synthesis can be moved behind the router incrementally
-- API fallback works when subscription paths fail, exhaust, or are not allowed
+- API fallback can be invoked only as a guarded, explicit paid-run path when subscription paths fail, exhaust, or are not allowed
 
 Current proof:
 
@@ -330,13 +330,13 @@ Current partial proof:
 - First retry proof found `0` failed meeting crawl items and succeeded as a no-op.
 - Meeting transcript gap report now separates historical archive gaps from recent forward-looking transcript watch. Current archive coverage is `866` notes, `649` transcripts, and `863` meetings across `2024-10-03` to `2026-04-24`; historical gaps remain real (`239/863` meetings missing transcript artifacts), led by Steve (`123/386` missing), Blake (`49/203`), Nick (`40/88`), and Tanner (`10/32`). Recent watch is keyed to the actual meeting date, not document modified time; the exact Apr 23-24 Leadership, Owners, Budget Review, and Marketing docs Steve checked are confirmed archived with `embedded_in_gemini` transcripts.
 - `meeting-transcript-recent-gap-verify` is registered as a manual Foundation job. First proof classified the `21` recent missing transcript artifacts as `21` true-missing, `0` parser/tab misses, `0` owner/path misses, and `0` key mismatches; no safe auto-repairs were available.
-- `meeting-transcripts-extract-backlog` is registered as a manual Foundation job for a bounded LLM bite over archived transcripts without active candidates. First proof scanned `15` transcripts, upserted `87` candidates, and moved recent transcript candidate coverage to `56/59`.
+- `meeting-transcripts-extract-backlog` is registered as a manual Foundation job for a bounded LLM bite over archived transcripts without a successful processing run for the current content hash. First proof scanned `15` transcripts, upserted `87` candidates, and moved recent transcript candidate coverage to `56/59`.
 - First manual proof: Gmail scanned `970` messages, selected `263` threads, and archived `148` net-new artifacts through the target ledger.
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
 - `missive-sync-current` is scheduled every `120` minutes.
-- `gmail-extract-latest` and `missive-extract-latest` now target archived threads without active candidates instead of offset/latest chunks. First manual proofs scanned `15` Gmail threads and created `13` candidates, then scanned `15` Missive threads and created `11` candidates. These now run through the subscription router; keep them bounded and manual until the daily cadence is deliberately scheduled.
-- `shared_communication_artifact_processing_runs` now records candidate-extraction processing attempts. Successful zero-candidate artifacts are excluded from future `--onlyWithoutCandidates=true` queues for the same extractor version, while failures remain retryable.
+- `gmail-extract-latest` and `missive-extract-latest` now target archived threads without a successful processing run for the current content hash instead of offset/latest chunks. First manual proofs scanned `15` Gmail threads and created `13` candidates, then scanned `15` Missive threads and created `11` candidates. These now run through the subscription router; keep them bounded and manual until the daily cadence is deliberately scheduled.
+- `shared_communication_artifact_processing_runs` now records candidate-extraction processing attempts with `artifact_content_hash`, actual `provider`, `auth_path`, `route_key`, and actual model. Successful zero-candidate artifacts are excluded from future `--onlyWithoutCandidates=true` queues only for the same extractor version and same current content hash, while changed content and failures remain retryable.
 - System Health now exposes Intelligence Pipeline extraction depth: archived artifacts, artifacts with active candidates, still-unmined artifacts, extraction coverage percent, and latest synthesis.
 - `shared-comms-intelligence-bite` is a manual composite job for strategy prep: one bounded Gmail candidate bite, one bounded Missive candidate bite, one bounded meeting-transcript bite, then one synthesis run. Its parent timeout is now `6000` seconds so it can outlive the child job budgets. It gives Steve a single safe "make it fresh now" control before daily scheduling.
 - Skool remains blocked until access path and content-use boundaries are explicit.

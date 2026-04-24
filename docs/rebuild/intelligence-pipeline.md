@@ -116,9 +116,9 @@ They are not independent scouts.
 
 The LLM is a tool inside the routine, not the owner of the process.
 
-LLM calls for shared intelligence must go through `lib/llm-router.js`. The router owns provider/auth-path choice, call logging, and fallback policy. The current working Foundation route is the OpenClaw/Codex subscription adapter (`openclaw` / `chatgpt_subscription_gateway`). Direct OpenAI Responses API is fallback-only and blocked unless explicitly allowed for a paid run.
+LLM calls for shared intelligence must go through `lib/llm-router.js`. The router owns provider/auth-path choice, call logging, and fallback policy. The current working Foundation route is the OpenClaw/Codex subscription adapter (`openclaw` / `chatgpt_subscription_gateway`). Direct OpenAI Responses API is a guarded manual fallback only and is blocked unless explicitly allowed for a paid run.
 
-Extraction attempts are themselves operating facts. When an artifact is processed and correctly yields zero candidates, that success is recorded so the artifact is not mined forever under the same extractor version. Failures stay retryable.
+Extraction attempts are themselves operating facts. When an artifact is processed and correctly yields zero candidates, that success is recorded against the artifact's current content hash so the artifact is not mined forever under the same extractor version. If the email thread, Missive thread, or transcript content changes, the content hash changes and it becomes eligible again. Failures stay retryable. Candidate metadata and processing runs must store the actual provider, auth path, route key, and model returned by the router, not just the model the script requested.
 
 Historical extraction should be paced. The goal is not to read the entire company history in one night. The goal is a supervised extraction team that can:
 
