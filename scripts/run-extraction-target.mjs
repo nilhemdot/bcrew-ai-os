@@ -87,6 +87,7 @@ function getTargetRunner(target) {
       ],
       inspectedPattern: /Meetings selected for archive:\s*(\d+)/i,
       archivedPattern: /Gemini notes archived:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
     }
   }
 
@@ -231,6 +232,17 @@ async function main() {
 
     const inspectedParsed = parseFirstInteger(runner.inspectedPattern, outcome.outputTail)
     const archivedParsed = parseFirstInteger(runner.archivedPattern, outcome.outputTail)
+    const itemFailuresParsed = runner.itemFailuresPattern
+      ? parseFirstInteger(runner.itemFailuresPattern, outcome.outputTail)
+      : null
+    const effectiveStatus =
+      outcome.status === 'succeeded' && Number(itemFailuresParsed || 0) > 0
+        ? 'partial'
+        : outcome.status
+    const effectiveError =
+      effectiveStatus === 'partial'
+        ? `${itemFailuresParsed} crawl item${itemFailuresParsed === 1 ? '' : 's'} failed`
+        : outcome.errorMessage
     const archivedDelta = Math.max(Number(afterStats.artifacts || 0) - Number(beforeStats.artifacts || 0), 0)
     const inspectedDelta = inspectedParsed == null ? archivedDelta : inspectedParsed
 
@@ -238,8 +250,8 @@ async function main() {
       targetKey,
       {
         lastRunAt: outcome.finishedAt,
-        lastStatus: outcome.status,
-        lastError: outcome.errorMessage,
+        lastStatus: effectiveStatus,
+        lastError: effectiveError,
         inspectedDelta,
         archivedDelta,
         cursorState: {
@@ -256,6 +268,7 @@ async function main() {
           parsed: {
             inspected: inspectedParsed,
             archivedThisRun: archivedParsed,
+            itemFailures: itemFailuresParsed,
           },
           beforeStats,
           afterStats,
@@ -265,9 +278,10 @@ async function main() {
       actor,
     )
 
-    console.log(`Extraction target ${outcome.status}: ${targetKey}`)
+    console.log(`Extraction target ${effectiveStatus}: ${targetKey}`)
     console.log(`  Inspected: ${inspectedDelta}`)
     console.log(`  Net-new archived artifacts: ${archivedDelta}`)
+    if (itemFailuresParsed != null) console.log(`  Crawl item failures: ${itemFailuresParsed}`)
     process.exitCode = outcome.status === 'succeeded' ? 0 : 1
   } catch (error) {
     const finishedAt = new Date().toISOString()

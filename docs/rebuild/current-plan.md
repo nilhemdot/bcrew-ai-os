@@ -74,7 +74,7 @@ Still not done:
 - dashboard pause/resume buttons beyond the backend job-control API
 - durable source cursors and backfill leases beyond the first current-day target proof
 - scheduled Gmail and meeting-notes current-day lanes that stay fresh without Steve watching them
-- failed-item retry policy for item-level meeting/Drive crawl records
+- failed-item retry policy for item-level meeting/Drive crawl records beyond visible partial-run reporting
 - route acceptance review and first low-risk LLM script migration behind the router
 - hub-dedicated model capacity allocation
 - source-budget and failure visibility
@@ -321,7 +321,8 @@ Current partial proof:
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
 - Gmail change-aware proof selected `263` recent threads, skipped `249` already-current threads, refreshed `14`, and archived `13` net-new artifacts; immediate rerun still found `2` changed/new threads and `1` net-new artifact, so Gmail stays manual.
 - Meeting notes current-day proof selected `49` meetings, archived `46` notes and `39` embedded transcripts, added `7` net-new artifacts, and captured `3` Google Drive export `500` failures in output without failing the whole bounded run.
-- Remaining Phase 3 gap: monitor first scheduled Missive runs, let Gmail stabilize before scheduling, retry/report meeting export failures, and build item-level cursors before broad backfill.
+- Meeting target runs now parse item-level crawl failures and mark the target `partial` when the process succeeds but individual crawl items fail; the Foundation extraction panel surfaces recent item failures and last-run errors.
+- Remaining Phase 3 gap: monitor first scheduled Missive runs, let Gmail stabilize before scheduling, add failed-item retry execution, and build item-level cursors before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 

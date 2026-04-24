@@ -5070,7 +5070,8 @@ function renderExtractionControlPanel(extractionControl) {
     + ((extractionControl.summary && extractionControl.summary.currentDayTargets) || 0) + ' current-day, '
     + ((extractionControl.summary && extractionControl.summary.backfillTargets) || 0) + ' backfill, '
     + ((extractionControl.summary && extractionControl.summary.corpusMiningTargets) || 0) + ' corpus-mining, '
-    + ((extractionControl.summary && extractionControl.summary.pausedTargets) || 0) + ' paused.'
+    + ((extractionControl.summary && extractionControl.summary.pausedTargets) || 0) + ' paused, '
+    + ((extractionControl.summary && extractionControl.summary.recentItemFailures) || 0) + ' recent item failures.'
 
   var items = targets.slice(0, 10).map(function(target) {
     var budget = target.budget || {}
@@ -5079,12 +5080,19 @@ function renderExtractionControlPanel(extractionControl) {
     if (budget.maxFoldersPerRun) budgetParts.push('max ' + budget.maxFoldersPerRun + ' folder/run')
     if (budget.maxFilesPerRun) budgetParts.push('max ' + budget.maxFilesPerRun + ' files/run')
     var counts = target.inspectedCount + ' inspected, ' + target.archivedCount + ' archived, ' + target.extractedCount + ' extracted.'
+    var lastState = target.lastStatus ? ' Last run: ' + target.lastStatus + (target.lastError ? ' — ' + target.lastError : '') + '.' : ''
     var detail = target.sourceId + ' · ' + target.lane + ' · ' + target.runtimeMode + '. ' + counts
       + (budgetParts.length ? ' Budget: ' + budgetParts.join(', ') + '.' : '')
+      + lastState
       + ' ' + (target.notes || '')
+    var status = target.status === 'blocked' || target.lastStatus === 'failed' || target.lastStatus === 'partial'
+      ? 'risk'
+      : target.status === 'active'
+        ? 'live'
+        : 'planned'
     return {
       label: target.title,
-      status: target.status === 'active' ? 'live' : target.status === 'blocked' ? 'risk' : 'planned',
+      status: status,
       detail: detail,
     }
   })
