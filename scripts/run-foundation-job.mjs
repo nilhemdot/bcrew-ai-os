@@ -2,6 +2,7 @@
 
 import { spawn } from 'node:child_process';
 import process from 'node:process';
+import { pathToFileURL } from 'node:url';
 import {
   closeFoundationDb,
   createFoundationJobRun,
@@ -42,10 +43,32 @@ function printJobList() {
   console.log(snapshotLines.join('\n\n'));
 }
 
+export async function runFoundationJob(jobKey, { actor = 'codex', dryRun = false, force = false } = {}) {
+  await initFoundationDb();
+
+  const job = getFoundationJobDefinition(jobKey);
+  if (!job) {
+    throw new Error(`Unknown Foundation job: ${jobKey}. Run with --list to see available jobs.`);
+  }
+
+  if (!job.enabled && !force) {
+    throw new Error(`Foundation job is not enabled: ${jobKey}. Pass --force=true to run intentionally.`);
+  }
+
+  const runId = makeRunId(job.key);
+  if (dryRun) {
+    console.log(JSON.stringify({ runId, job }, null, 2));
+    return 0;
+  }
+
+  return runCommand(job, runId, actor);
+}
+
 async function runCommand(job, runId, actor) {
   const startedAt = new Date();
   let outputTail = '';
   let stderrTail = '';
+  let timedOut = false;
 
   await createFoundationJobRun(
     {
@@ -79,6 +102,13 @@ async function runCommand(job, runId, actor) {
       env: process.env,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
+    const timeoutMs = Number(job.maxRuntimeSeconds) > 0 ? Number(job.maxRuntimeSeconds) * 1000 : null;
+    const timeout = timeoutMs
+      ? setTimeout(() => {
+          timedOut = true;
+          child.kill('SIGTERM');
+        }, timeoutMs)
+      : null;
 
     child.stdout.on('data', chunk => {
       const text = chunk.toString();
@@ -94,6 +124,7 @@ async function runCommand(job, runId, actor) {
     });
 
     child.on('error', error => {
+      if (timeout) clearTimeout(timeout);
       resolve({
         status: 'failed',
         exitCode: null,
@@ -103,11 +134,16 @@ async function runCommand(job, runId, actor) {
     });
 
     child.on('close', (exitCode, signal) => {
+      if (timeout) clearTimeout(timeout);
       resolve({
-        status: exitCode === 0 ? 'succeeded' : 'failed',
+        status: exitCode === 0 && !timedOut ? 'succeeded' : 'failed',
         exitCode,
         signal,
-        errorMessage: exitCode === 0 ? null : (stderrTail.trim().split('\n').slice(-3).join('\n') || `Exited with code ${exitCode}`),
+        errorMessage: exitCode === 0 && !timedOut ? null : (
+          timedOut
+            ? `Timed out after ${job.maxRuntimeSeconds} seconds`
+            : (stderrTail.trim().split('\n').slice(-3).join('\n') || `Exited with code ${exitCode}`)
+        ),
       });
     });
   });
@@ -142,9 +178,8 @@ async function main() {
     return;
   }
 
-  await initFoundationDb();
-
   if (args.snapshot) {
+    await initFoundationDb();
     const snapshot = await getFoundationJobRunSnapshot({ limit: Number(args.limit || 30), includeOutput: args.includeOutput === 'true' });
     console.log(JSON.stringify(snapshot, null, 2));
     return;
@@ -155,30 +190,21 @@ async function main() {
     throw new Error('Pass --job=<job-key> or --list.');
   }
 
-  const job = getFoundationJobDefinition(jobKey);
-  if (!job) {
-    throw new Error(`Unknown Foundation job: ${jobKey}. Run with --list to see available jobs.`);
-  }
-
-  if (!job.enabled && args.force !== true && args.force !== 'true') {
-    throw new Error(`Foundation job is not enabled: ${jobKey}. Pass --force=true to run intentionally.`);
-  }
-
-  const runId = makeRunId(job.key);
-  if (args.dryRun) {
-    console.log(JSON.stringify({ runId, job }, null, 2));
-    return;
-  }
-
-  process.exitCode = await runCommand(job, runId, actor);
+  process.exitCode = await runFoundationJob(jobKey, {
+    actor,
+    dryRun: args.dryRun === true || args.dryRun === 'true',
+    force: args.force === true || args.force === 'true',
+  });
 }
 
-main()
-  .catch(error => {
-    console.error('Foundation job runner failed.');
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await closeFoundationDb();
-  });
+if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
+  main()
+    .catch(error => {
+      console.error('Foundation job runner failed.');
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exitCode = 1;
+    })
+    .finally(async () => {
+      await closeFoundationDb();
+    });
+}

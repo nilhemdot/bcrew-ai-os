@@ -33,13 +33,14 @@ Built:
 
 Open:
 
-- scheduler / worker / supervisor
+- richer worker controls beyond the first LaunchAgent-supervised loop
 - source cursors and leases
 - current-day extraction lane
 - policy-aware LLM router
 - hub-dedicated model capacity
 - extraction control plane
 - synthesis hardening against resolved/stale/duplicated items
+- explicit subject-person privacy/redaction before hubs or agents use sensitive people evidence
 - FUB/finance/KPI source sign-off
 - marketing source map by brand lane
 - Strategy Hub
@@ -51,7 +52,7 @@ Open:
 | --- | --- | --- | --- | --- |
 | System strategy | Done now | Doctrine and boundaries are visible. | None now. | Update only when doctrine changes. |
 | Rebuild visibility | Open hardening | v6 rebuild plan is live, prior plan is preserved in plan history, and handoff/audit indexes now separate evidence from active doctrine. | Finish doc cleanup Phase 1/2: classify indexes and promote any durable truth into active docs/backlog. | Optional dated archive folders after indexes are trusted. |
-| Runtime activation | Open now | First Foundation job registry and DB-backed job run ledger exist. Jobs can be run through the Foundation runner. | Build runtime MVP: scheduler/worker/supervisor/status dashboard for 3-5 high-value jobs. | Expand to all routines after the first jobs stay stable. |
+| Runtime activation | Open hardening | First Foundation job registry and DB-backed job run ledger exist. Jobs can be run through the Foundation runner. Runtime metadata now marks scheduled vs manual jobs, computes due/next-run state, exposes scheduled/due/manual counts, and `npm run foundation:worker` can run due jobs one at a time. The first worker proof ran both read-only deal-review jobs and cleared due state. `ai.bcrew.foundation-worker` and `ai.bcrew.dashboard` are loaded as LaunchAgents, so the worker and web process survive terminal exit. | Add richer pause/disable controls, then activate only the first 3-5 jobs. | Expand to all routines after the first jobs stay stable. |
 | LLM routing | Open now | Doctrine is defined: policy-aware router, credential registry, hub-dedicated capacity, no blind quota farming, API fallback required. | Build auth audit, credential registry, router shell, route probes, and `llm_calls` ledger. | Migrate extraction/synthesis behind router after probes pass. |
 | Extraction control | Open now | Archives and manual/bounded extraction have proven value. | Build current-day lane, backfill lane, source cursors, leases, budgets, retries, and pause switches. | Drive/Skool/YouTube/source workers run one bounded bite at a time. |
 | Strategy packet | Open now | `SRC-STRATEGY-001` is signed off. Freedom Community, BHAG, and Agent Engine current reality are captured. Decision provenance, traceability, change ledger, contradiction queue, and strategy-change watch have first slices. | Finish strategy-used Owners slice and close `SOURCE-014`. | Strategy Hub after runtime/router/extraction/synthesis are stable. |
@@ -66,15 +67,14 @@ Open:
 
 ## Active Execution Order
 
-1. Keep existing proof stable.
-2. Runtime MVP.
-3. Policy-aware LLM router MVP.
-4. Extraction control MVP.
-5. Retrieval/entity/synthesis hardening.
-6. Source trust closures.
-7. Drive, Skool, and old-system mining.
-8. Strategy Hub.
-9. First useful agents.
+1. Finish Runtime MVP hardening.
+2. Policy-aware LLM router MVP.
+3. Extraction control MVP.
+4. Retrieval/entity/synthesis hardening.
+5. Source trust closures.
+6. Drive, Skool, and old-system mining.
+7. Strategy Hub.
+8. First useful agents.
 
 ## Active Plan Docs
 

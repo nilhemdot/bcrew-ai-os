@@ -57,13 +57,14 @@ Built and useful now:
 - Historical meeting context reaching back to October 2024 where recovered/transcribed.
 - Persisted synthesis runs/items in Postgres.
 - First Foundation job registry and DB-backed job run ledger.
+- First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, read-only deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Row-scoped Owners / deal-review runners.
 - Marketing source evidence from the old system and current connector checks.
 - Doc cleanup plan and generated doc indexes.
 
 Still not done:
 
-- durable scheduler / worker / daemon supervision
+- richer worker controls beyond the first LaunchAgent-supervised loop
 - durable source cursors and backfill leases
 - current-day extraction lane that stays fresh without Steve watching it
 - policy-aware LLM router and credential registry
@@ -153,6 +154,14 @@ Acceptance:
 - Terminal windows are for debugging only, not production runtime.
 - Worker survives terminal session end.
 - Failed jobs become visible failures.
+
+Current partial proof:
+
+- `npm run foundation:worker -- --once --maxJobs=2` ran the two due read-only deal-review jobs and recorded successful runs.
+- `npm run foundation:job -- --snapshot` now exposes scheduled, due, and manual job counts plus next-run status.
+- `ai.bcrew.foundation-worker` is loaded as a LaunchAgent and running the worker loop.
+- `ai.bcrew.dashboard` is loaded as a LaunchAgent and was restarted after the runtime changes.
+- Remaining Phase 1 gap: richer pause/disable controls and broader first-job activation, not basic daemonization.
 
 ### Phase 2 — Policy-Aware LLM Router MVP
 
@@ -272,6 +281,8 @@ Build:
 - staleness scoring
 - actionability ranking
 - source-backed fact grounding from strategy, KPI, finance, Owners, FUB, marketing, and source contracts
+- subject-person privacy/redaction: a person cannot see sensitive evidence about themselves just because they can ask their own assistant
+- tier-aware query filtering before any human-facing or agent-facing answer uses sensitive people data
 
 Synthesis output must answer:
 
@@ -297,6 +308,7 @@ Acceptance:
 - a strategy/leadership packet surfaces 15 to 25 real items, not thousands of raw candidates
 - each item links to evidence and source facts
 - old items are suppressed if resolved, stale, duplicated, or superseded
+- sensitive people facts are filtered by subject-person and tier before reaching hubs or agents
 
 ### Phase 5 — Source Trust Closures
 
@@ -374,6 +386,7 @@ Prerequisites:
 - extraction current-day lane active
 - synthesis hardening producing ranked live intelligence
 - strategy/Owners/FUB/finance/KPI trust boundaries clear enough for strategy use
+- subject-person privacy/redaction active for any sensitive people evidence used in the hub
 
 Strategy Hub should:
 
@@ -407,6 +420,7 @@ Do not build:
 - autonomous agents without kill switches
 - agents that bypass Foundation source truth
 - agents that act without logged evidence and approval lanes
+- agents that can leak subject-person restricted evidence
 
 Acceptance:
 
@@ -414,6 +428,7 @@ Acceptance:
 - agents create logged proposals/actions
 - agents have kill switches
 - agents do not invent separate memory or source truth
+- agents respect subject-person privacy and tier filters before answering or acting
 
 ## Active Docs Only
 

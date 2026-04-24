@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>ai.bcrew.foundation-worker</string>
+
+    <key>Comment</key>
+    <string>BCrew AI OS Foundation Worker</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+    <key>WorkingDirectory</key>
+    <string>/Users/bensoncrew/bcrew-ai-os</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/opt/homebrew/bin/node</string>
+      <string>--env-file-if-exists=.env</string>
+      <string>/Users/bensoncrew/bcrew-ai-os/scripts/foundation-worker.mjs</string>
+      <string>--intervalMs=60000</string>
+      <string>--maxJobs=1</string>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/bensoncrew/Library/Logs/bcrew-ai-os/foundation-worker.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/bensoncrew/Library/Logs/bcrew-ai-os/foundation-worker.err.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>HOME</key>
+      <string>/Users/bensoncrew</string>
+      <key>PATH</key>
+      <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+      <key>TZ</key>
+      <string>America/Toronto</string>
+      <key>FOUNDATION_JOB_ACTOR</key>
+      <string>foundation-worker</string>
+    </dict>
+  </dict>
+</plist>

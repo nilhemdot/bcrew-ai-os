@@ -4932,19 +4932,29 @@ function renderStatusGroupPanel(titleText, introText, items) {
 function renderFoundationJobsPanel(foundationJobs) {
   var jobs = foundationJobs && Array.isArray(foundationJobs.jobs) ? foundationJobs.jobs : []
   if (!jobs.length) return null
+  var summary = 'Registered routines the system can run and track. '
+    + (foundationJobs.scheduledJobs || 0) + ' scheduled, '
+    + (foundationJobs.dueJobs || 0) + ' due, '
+    + (foundationJobs.manualJobs || 0) + ' manual.'
 
   return renderStatusGroupPanel(
     'Foundation Jobs',
-    'Registered routines the system can run and track. This is the first step toward moving extraction out of builder chat.',
+    summary,
     jobs.map(function(job) {
       var latest = job.latestRun || null
       var runLine = latest
         ? 'Last ' + latest.status + ' · ' + formatDate(latest.finishedAt || latest.startedAt || latest.createdAt)
         : 'No run recorded'
+      var nextLine = job.nextRunAt
+        ? ' Next ' + formatDate(job.nextRunAt) + '.'
+        : ''
+      var scheduleLine = job.scheduleStatus
+        ? ' ' + job.scheduleStatus + '.'
+        : ''
       return {
         label: job.title,
         status: job.status || 'pending',
-        detail: runLine + '. ' + (job.cadence || 'manual') + '. ' + (job.nextAction || job.statusDetail || ''),
+        detail: runLine + '.' + nextLine + scheduleLine + ' ' + (job.nextAction || job.statusDetail || ''),
       }
     })
   )
