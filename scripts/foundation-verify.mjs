@@ -72,6 +72,36 @@ function includesAll(text, patterns) {
   return patterns.every(pattern => text.includes(pattern))
 }
 
+async function collectCodeFiles(directory) {
+  const fullDirectory = path.join(repoRoot, directory)
+  const entries = await fs.readdir(fullDirectory, { withFileTypes: true })
+  const files = []
+  for (const entry of entries) {
+    const relativePath = path.join(directory, entry.name)
+    if (entry.isDirectory()) {
+      files.push(...await collectCodeFiles(relativePath))
+      continue
+    }
+    if (/\.(mjs|js)$/.test(entry.name)) files.push(relativePath)
+  }
+  return files
+}
+
+async function auditDirectOpenAiResponsesUsage() {
+  const codeFiles = [
+    ...await collectCodeFiles('lib'),
+    ...await collectCodeFiles('scripts'),
+  ]
+  const offenders = []
+  for (const relativePath of codeFiles) {
+    const text = await readRepoFile(relativePath)
+    if (!text.includes('https://api.openai.com/v1/responses')) continue
+    if (relativePath === 'lib/llm-router.js') continue
+    if (!text.includes('assertDirectOpenAiResponsesAllowed')) offenders.push(relativePath)
+  }
+  return offenders
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2))
   const baseUrl = typeof args.baseUrl === 'string' ? args.baseUrl : 'http://localhost:3000'
@@ -101,6 +131,7 @@ async function main() {
 
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
+  const directOpenAiOffenders = await auditDirectOpenAiResponsesUsage()
 
   ensure(
     checks,
@@ -119,6 +150,12 @@ async function main() {
     includesAll(ownersSourceNote, ['owner sign-off completed on `2026-04-16`', 'validated through Column `CB`']),
     'owners source note records sign-off and scope boundary',
     'owner sign-off note and CB boundary present',
+  )
+  ensure(
+    checks,
+    directOpenAiOffenders.length === 0,
+    'direct OpenAI Responses API calls are guarded',
+    directOpenAiOffenders.length ? directOpenAiOffenders.join(', ') : 'no unguarded direct Responses calls outside router',
   )
 
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')

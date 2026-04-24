@@ -11,6 +11,7 @@ import {
   initFoundationDb,
   recordSharedCommunicationSynthesisRun,
 } from '../lib/foundation-db.js';
+import { assertDirectOpenAiResponsesAllowed } from '../lib/llm-spend-policy.js';
 import { getSourceContracts } from '../lib/source-contracts.js';
 import { shorten } from '../lib/shared-candidate-extraction.js';
 
@@ -339,6 +340,8 @@ async function fetchSourceFacts(pool) {
 }
 
 async function runSynthesis({ candidates, candidateSummary, archiveSummary, sourceFacts, model, maxItems }) {
+  assertDirectOpenAiResponsesAllowed({ workload: 'shared comms synthesis' });
+
   if (!process.env.OPENAI_API_KEY) {
     throw new Error('OPENAI_API_KEY is required for synthesis generation.');
   }
