@@ -221,6 +221,13 @@ async function main() {
   const userEmail = String(args.user || args.sourceUser || DEFAULT_SOURCE_USER).trim()
   const maxItems = Math.min(100, Math.max(1, Number(args.maxItems || args.limit || 50) || 50))
   const dryRun = boolValue(args.dryRun)
+  const controlledByTargetRunner = boolValue(args.controlledByTargetRunner)
+
+  if (!dryRun && !controlledByTargetRunner) {
+    throw new Error(
+      'Drive corpus inventory writes crawl items and must be run through `npm run extraction:target -- --target=drive-corpus-backfill` so the target lease/cursor advances.',
+    )
+  }
 
   await initFoundationDb()
 

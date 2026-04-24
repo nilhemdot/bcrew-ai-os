@@ -5133,7 +5133,7 @@ function renderDriveCorpusInventoryPanel(driveCorpusInventory) {
     return {
       label: route.valueRoute,
       status: route.valueRoute === 'sensitive_skip' ? 'risk' : 'live',
-      detail: route.itemCount + ' inventoried item' + (route.itemCount === 1 ? '' : 's') + ' routed here.',
+      detail: route.itemCount + ' inventoried item' + (route.itemCount === 1 ? '' : 's') + ' has this candidate route from metadata only.',
     }
   })
 
@@ -5147,7 +5147,7 @@ function renderDriveCorpusInventoryPanel(driveCorpusInventory) {
   }
 
   return renderStatusGroupPanel(
-    'Drive Corpus Inventory',
+    'Drive Corpus Candidate Inventory',
     summary,
     routeItems
   )

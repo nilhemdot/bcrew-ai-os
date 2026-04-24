@@ -35,7 +35,7 @@ The original shared drives should not be moved, deleted, or ACL-stripped in this
 
 ## Initial Value Routes
 
-Use these `value_route` tags while classifying Drive items:
+Use these `value_route` tags while classifying Drive items. In the inventory stage these are candidate routes inferred from metadata only; they are not facts until content review confirms them.
 
 - `strategy_evidence`
 - `ops_sop`

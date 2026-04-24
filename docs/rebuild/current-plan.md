@@ -322,6 +322,7 @@ Current partial proof:
 - Partial target runs now exit nonzero from `run-extraction-target`, so item-level failures cannot look like green Foundation jobs.
 - `meeting-notes-retry-failed` is registered as a manual Foundation job and retries failed meeting crawl items from `source_crawl_items` instead of rerunning the whole current-day window.
 - First retry proof found `0` failed meeting crawl items and succeeded as a no-op.
+- Meeting transcript gap report has now run once: coverage is `866` notes, `649` transcripts, and `863` meetings across `2024-10-03` to `2026-04-24`. It still shows real transcript gaps, led by Steve (`123/386` missing), Blake (`49/203`), Nick (`40/88`), Tanner (`10/32`), plus smaller gaps across Carson, Clare, Georgia, accounting, and Ryan.
 - First manual proof: Gmail scanned `970` messages, selected `263` threads, and archived `148` net-new artifacts through the target ledger.
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
@@ -333,7 +334,8 @@ Current partial proof:
 - Meeting target runs now parse item-level crawl failures and mark the target `partial` when the process succeeds but individual crawl items fail; partials now fail the Foundation job so the dashboard/worker gets an alert path instead of a false green state.
 - Extraction target snapshots now attach a `scheduler` object derived from the registered Foundation job when `metadata.foundationJobKey` exists. This makes Foundation jobs the schedule truth for scheduled crawl lanes while preserving target `nextRunAt` as crawl checkpoint metadata.
 - First read-only Drive corpus bite is live through manual Foundation job `drive-corpus-inventory-bite`: Zahnd TEAM OG root inspected, `60` direct children recorded, `24` child folders discovered, `36` files discovered, `31` next folders/roots queued, `0` item failures, and no files moved/copied/exported/LLM-processed.
-- Foundation now exposes a Drive corpus inventory review snapshot with item totals, folder/file counts, pending extraction counts, value routes, and queue state.
+- Foundation now exposes a Drive corpus inventory review snapshot with item totals, folder/file counts, pending extraction counts, candidate value routes, and queue state.
+- Raw Drive inventory script writes are guarded: non-dry-run inventory must be run through `extraction:target` so leases and target cursors advance with item writes.
 - Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, prove partial failure on a real failed item, extend retry semantics to Drive, and build review/export gates before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening

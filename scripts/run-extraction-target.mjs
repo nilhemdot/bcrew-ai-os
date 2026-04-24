@@ -111,6 +111,7 @@ function getTargetRunner(target) {
         `--target=${target.targetKey}`,
         `--maxItems=${maxItemsPerRun}`,
         `--maxFolders=${maxFoldersPerRun}`,
+        '--controlledByTargetRunner=true',
       ],
       inspectedPattern: /Drive items inspected:\s*(\d+)/i,
       archivedPattern: /Drive files discovered:\s*(\d+)/i,
