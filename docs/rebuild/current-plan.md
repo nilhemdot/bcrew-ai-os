@@ -75,8 +75,8 @@ Still not done:
 
 - durable source cursors and backfill leases beyond the current-day target proof
 - scheduled meeting-notes current-day lane that stays fresh without Steve watching it
-- failed-item retry policy for item-level meeting/Drive crawl records beyond visible partial-run reporting
-- partial-run alert semantics before scheduling high-variance meeting/Drive lanes
+- failed-item retry policy for Drive and non-meeting crawl records beyond the first meeting retry path
+- proof that partial-run job failure/alert semantics work on a real failed meeting/Drive item
 - consolidated job/target schedule truth before target panels become operator truth
 - route acceptance review and first low-risk LLM script migration behind the router
 - hub-dedicated model capacity allocation
@@ -319,6 +319,9 @@ Current partial proof:
 - `gmail-sync-current` now calls `npm run extraction:target -- --target=gmail-current-day` through the Foundation job runner.
 - `missive-sync-current` now calls `npm run extraction:target -- --target=missive-current-day` through the Foundation job runner.
 - `meeting-notes-sync-current` now calls `npm run extraction:target -- --target=meetings-current-day` through the Foundation job runner.
+- Partial target runs now exit nonzero from `run-extraction-target`, so item-level failures cannot look like green Foundation jobs.
+- `meeting-notes-retry-failed` is registered as a manual Foundation job and retries failed meeting crawl items from `source_crawl_items` instead of rerunning the whole current-day window.
+- First retry proof found `0` failed meeting crawl items and succeeded as a no-op.
 - First manual proof: Gmail scanned `970` messages, selected `263` threads, and archived `148` net-new artifacts through the target ledger.
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
@@ -327,8 +330,8 @@ Current partial proof:
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
 - Gmail item-level ledger proof selected `259` recent threads per run, produced `0` item failures across repeated bounded runs, and promoted `gmail-sync-current` to scheduled every `120` minutes. The first scheduled worker run succeeded, archived `4` threads, cleared its lease, and set target/job next run around `2026-04-24T20:09Z`.
 - Meeting notes current-day proof selected `50` meetings, archived `50` notes and `42` embedded transcripts, recorded `50` succeeded crawl items, left `0` failed crawl items, and added `2` net-new artifacts.
-- Meeting target runs now parse item-level crawl failures and mark the target `partial` when the process succeeds but individual crawl items fail; the Foundation extraction panel surfaces recent item failures and last-run errors.
-- Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, add failed-item retry execution and partial-run alerting for meetings/Drive, consolidate job/target schedule truth, and build item-level cursors before broad backfill.
+- Meeting target runs now parse item-level crawl failures and mark the target `partial` when the process succeeds but individual crawl items fail; partials now fail the Foundation job so the dashboard/worker gets an alert path instead of a false green state.
+- Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, prove partial failure on a real failed item, extend retry semantics to Drive, consolidate job/target schedule truth, and build item-level cursors before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import process from 'node:process';
-import { driveExportDoc, driveListFolder, driveSearch } from '../lib/google-delegated.js';
+import { driveExportDoc, driveListFolder, driveSearch, getDriveFileMetadata } from '../lib/google-delegated.js';
 import {
   closeFoundationDb,
   getSharedCommunicationArchiveSnapshot,
+  listSourceCrawlItems,
   initFoundationDb,
   listFoundationUsers,
   upsertSourceCrawlItem,
@@ -68,13 +69,13 @@ function normalizeGroupKey(name, fallbackExternalId) {
   return normalizeMeetingArtifactKey(name) || String(fallbackExternalId || '').trim();
 }
 
-function buildArtifactCandidate(userEmail, file, variant) {
+function buildArtifactCandidate(userEmail, file, variant, meetingKeyOverride = '') {
   return {
     userEmail,
     file,
     variant,
     modifiedEpoch: toEpoch(file?.modifiedTime),
-    meetingKey: normalizeGroupKey(file?.name, file?.id),
+    meetingKey: normalizeGroupKey(meetingKeyOverride || file?.name, file?.id),
   };
 }
 
@@ -157,6 +158,26 @@ function getOrCreateMeetingGroup(groups, meetingKey) {
   return groups.get(meetingKey);
 }
 
+function addArtifactCandidateToGroup(groups, candidate) {
+  const group = getOrCreateMeetingGroup(groups, candidate.meetingKey);
+  group.observedAccounts.add(candidate.userEmail);
+  group.latestModifiedEpoch = Math.max(group.latestModifiedEpoch, candidate.modifiedEpoch);
+
+  if (candidate.variant === 'meeting_note') {
+    group.noteObservedAccounts.add(candidate.userEmail);
+    group.noteFileIds.add(candidate.file.id);
+    group.noteCandidate = choosePreferredArtifact(group.noteCandidate, candidate);
+  } else if (candidate.variant === 'standalone_transcript') {
+    group.transcriptObservedAccounts.add(candidate.userEmail);
+    group.transcriptFileIds.add(candidate.file.id);
+    group.transcriptCandidate = choosePreferredArtifact(group.transcriptCandidate, candidate, {
+      preferStandalone: true,
+    });
+  }
+
+  return group;
+}
+
 async function resolveScanUsers(args) {
   const argUsers = splitCsv(args.users || '');
   const envUsers = splitCsv(process.env.GOOGLE_MEETING_SOURCE_USERS || '');
@@ -171,6 +192,69 @@ async function resolveScanUsers(args) {
   const users = await listFoundationUsers({ meetingSyncEnabled: true });
   const emails = users.map(user => user.email).filter(Boolean);
   return emails.length ? emails : [DEFAULT_SOURCE_USER];
+}
+
+async function getFileMetadataFromAnyAccount(fileId, accounts) {
+  const normalizedFileId = String(fileId || '').trim();
+  if (!normalizedFileId) return null;
+
+  const candidates = [...new Set((accounts || []).map(account => String(account || '').trim()).filter(Boolean))];
+  if (!candidates.length) candidates.push(DEFAULT_SOURCE_USER);
+
+  let lastError = null;
+  for (const account of candidates) {
+    try {
+      return {
+        userEmail: account,
+        file: await getDriveFileMetadata(account, normalizedFileId),
+      };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (lastError) throw lastError;
+  return null;
+}
+
+async function loadFailedMeetingGroups(groups, { crawlTargetKey, limit }) {
+  if (!crawlTargetKey) throw new Error('--retryFailed=true requires --crawlTarget=<target-key>.');
+
+  const failedItems = await listSourceCrawlItems({
+    targetKey: crawlTargetKey,
+    status: 'failed',
+    limit,
+  });
+
+  console.log(`  Retry failed crawl items: ${failedItems.length}`);
+
+  for (const item of failedItems) {
+    const metadata = item.metadata || {};
+    const meetingKey = metadata.meetingKey || item.externalId || item.itemKey;
+    const observedAccounts = Array.isArray(metadata.observedAccounts) ? metadata.observedAccounts : [];
+    const noteAccounts = Array.isArray(metadata.noteObservedAccounts) && metadata.noteObservedAccounts.length
+      ? metadata.noteObservedAccounts
+      : observedAccounts;
+    const transcriptAccounts = Array.isArray(metadata.transcriptObservedAccounts) && metadata.transcriptObservedAccounts.length
+      ? metadata.transcriptObservedAccounts
+      : observedAccounts;
+
+    if (metadata.noteFileId) {
+      const note = await getFileMetadataFromAnyAccount(metadata.noteFileId, noteAccounts);
+      if (note?.file) {
+        addArtifactCandidateToGroup(groups, buildArtifactCandidate(note.userEmail, note.file, 'meeting_note', meetingKey));
+      }
+    }
+
+    if (metadata.transcriptFileId) {
+      const transcript = await getFileMetadataFromAnyAccount(metadata.transcriptFileId, transcriptAccounts);
+      if (transcript?.file) {
+        addArtifactCandidateToGroup(groups, buildArtifactCandidate(transcript.userEmail, transcript.file, 'standalone_transcript', meetingKey));
+      }
+    }
+  }
+
+  return failedItems.length;
 }
 
 async function searchMeetingArtifactsForUser(userEmail, searchLimit, queryTimeClause = '') {
@@ -437,6 +521,7 @@ async function main() {
   const queryTimeClause = buildDriveTimeFilterClause(args);
   const folderIds = splitCsv(args.folderIds || args.folderId || '');
   const crawlTargetKey = String(args.crawlTarget || args.targetKey || '').trim();
+  const retryFailed = args.retryFailed === true || args.retryFailed === 'true';
 
   await initFoundationDb();
 
@@ -450,36 +535,32 @@ async function main() {
   console.log(`  Limit: ${limit}`);
   console.log(`  Search limit per user: ${perUserSearchLimit}`);
   if (crawlTargetKey) console.log(`  Crawl target: ${crawlTargetKey}`);
+  if (retryFailed) console.log('  Retry mode: failed crawl items');
   if (queryTimeClause) console.log(`  Drive time filter:${queryTimeClause}`);
   if (folderIds.length) console.log(`  Folder ids: ${folderIds.join(', ')}`);
 
-  for (const userEmail of scanUsers) {
-    const { geminiFiles, transcriptDocs } = folderIds.length
-      ? await listMeetingArtifactsFromFolders(userEmail, folderIds, perUserSearchLimit)
-      : await searchMeetingArtifactsForUser(userEmail, perUserSearchLimit, queryTimeClause);
+  if (retryFailed) {
+    await loadFailedMeetingGroups(groups, {
+      crawlTargetKey,
+      limit,
+    });
+  } else {
+    for (const userEmail of scanUsers) {
+      const { geminiFiles, transcriptDocs } = folderIds.length
+        ? await listMeetingArtifactsFromFolders(userEmail, folderIds, perUserSearchLimit)
+        : await searchMeetingArtifactsForUser(userEmail, perUserSearchLimit, queryTimeClause);
 
-    console.log(`  ${userEmail}: ${geminiFiles.length} Gemini docs, ${transcriptDocs.length} transcript docs`);
+      console.log(`  ${userEmail}: ${geminiFiles.length} Gemini docs, ${transcriptDocs.length} transcript docs`);
 
-    for (const file of geminiFiles) {
-      const candidate = buildArtifactCandidate(userEmail, file, 'meeting_note');
-      const group = getOrCreateMeetingGroup(groups, candidate.meetingKey);
-      group.observedAccounts.add(userEmail);
-      group.noteObservedAccounts.add(userEmail);
-      group.noteFileIds.add(file.id);
-      group.latestModifiedEpoch = Math.max(group.latestModifiedEpoch, candidate.modifiedEpoch);
-      group.noteCandidate = choosePreferredArtifact(group.noteCandidate, candidate);
-    }
+      for (const file of geminiFiles) {
+        const candidate = buildArtifactCandidate(userEmail, file, 'meeting_note');
+        addArtifactCandidateToGroup(groups, candidate);
+      }
 
-    for (const file of transcriptDocs) {
-      const candidate = buildArtifactCandidate(userEmail, file, 'standalone_transcript');
-      const group = getOrCreateMeetingGroup(groups, candidate.meetingKey);
-      group.observedAccounts.add(userEmail);
-      group.transcriptObservedAccounts.add(userEmail);
-      group.transcriptFileIds.add(file.id);
-      group.latestModifiedEpoch = Math.max(group.latestModifiedEpoch, candidate.modifiedEpoch);
-      group.transcriptCandidate = choosePreferredArtifact(group.transcriptCandidate, candidate, {
-        preferStandalone: true,
-      });
+      for (const file of transcriptDocs) {
+        const candidate = buildArtifactCandidate(userEmail, file, 'standalone_transcript');
+        addArtifactCandidateToGroup(groups, candidate);
+      }
     }
   }
 

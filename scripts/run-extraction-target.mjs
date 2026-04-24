@@ -310,7 +310,10 @@ async function main() {
     console.log(`  Inspected: ${inspectedDelta}`)
     console.log(`  Net-new archived artifacts: ${archivedDelta}`)
     if (itemFailuresParsed != null) console.log(`  Crawl item failures: ${itemFailuresParsed}`)
-    process.exitCode = outcome.status === 'succeeded' ? 0 : 1
+    if (effectiveStatus === 'partial') {
+      console.error(`Extraction target partial: ${targetKey} — ${effectiveError}`)
+    }
+    process.exitCode = effectiveStatus === 'succeeded' ? 0 : 1
   } catch (error) {
     const finishedAt = new Date().toISOString()
     const message = error instanceof Error ? error.message : String(error)
