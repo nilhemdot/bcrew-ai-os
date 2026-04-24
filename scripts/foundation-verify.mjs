@@ -192,14 +192,14 @@ async function main() {
       ? processingProvenanceGaps.map(item => `${item.runId}:${item.artifactId}`).join(', ')
       : 'no post-hardening candidate extraction rows missing hash/provider/auth/route/model',
   )
-  const staleLlmCalls = await getStaleLlmCalls({ olderThanSeconds: 240, limit: 10 })
+  const staleLlmCalls = await getStaleLlmCalls({ olderThanSeconds: 240, graceSeconds: 60, limit: 10 })
   ensure(
     checks,
     staleLlmCalls.length === 0,
-    'llm_calls has no stale planned/started calls',
+    'llm_calls has no timeout-expired planned/started calls',
     staleLlmCalls.length
-      ? staleLlmCalls.map(item => `${item.callId}:${item.status}`).join(', ')
-      : 'no planned/started LLM calls older than 240 seconds',
+      ? staleLlmCalls.map(item => `${item.callId}:${item.status}:${item.ageSeconds}s>${item.timeoutSeconds + item.graceSeconds}s`).join(', ')
+      : 'no planned/started LLM calls older than their timeout plus grace',
   )
 
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')

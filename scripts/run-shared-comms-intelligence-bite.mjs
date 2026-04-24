@@ -21,7 +21,7 @@ function buildSteps(args) {
   const actor = args.actor || process.env.FOUNDATION_JOB_ACTOR || 'shared-comms-intelligence-bite';
   const steps = [];
 
-  if (!boolArg(args.skipGmail)) {
+  if (boolArg(args.includeGmail) && !boolArg(args.skipGmail)) {
     steps.push({
       label: 'Gmail candidate bite',
       command: 'npm',
@@ -29,7 +29,7 @@ function buildSteps(args) {
     });
   }
 
-  if (!boolArg(args.skipMissive)) {
+  if (boolArg(args.includeMissive) && !boolArg(args.skipMissive)) {
     steps.push({
       label: 'Missive candidate bite',
       command: 'npm',

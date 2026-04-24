@@ -28,6 +28,13 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const STRATEGY_DOC_PATH = path.join(REPO_ROOT, 'docs', 'business-strategy.md');
 
 const DEFAULT_MODEL = process.env.OPENAI_EXTRACTION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini';
+const DEFAULT_TIMEOUT_MS = Number(
+  process.env.ZOOM_AUDIO_EXTRACTION_TIMEOUT_MS ||
+    process.env.ZOOM_EXTRACTION_TIMEOUT_MS ||
+    process.env.SHARED_COMMS_EXTRACTION_TIMEOUT_MS ||
+    process.env.LLM_EXTRACTION_TIMEOUT_MS ||
+    2700000,
+);
 const EXTRACTION_METHOD = 'zoom_audio_transcript_context_v1';
 const SUPERSEDED_METHODS = [EXTRACTION_METHOD];
 const MAX_TRANSCRIPT_CHARS = 28000;
@@ -97,6 +104,7 @@ async function extractCandidatesFromZoomAudioTranscript(artifact, foundationCont
     maxChars: MAX_TRANSCRIPT_CHARS,
     maxOutputTokens: 3200,
     schemaName: 'zoom_audio_transcript_candidates',
+    timeoutMs: DEFAULT_TIMEOUT_MS,
   });
 }
 
@@ -108,6 +116,7 @@ async function main() {
   console.log('Extract shared communication candidates from historical Zoom audio transcripts');
   console.log(`  Limit: ${limit}`);
   console.log(`  Model: ${model}`);
+  console.log(`  Per-call timeout: ${DEFAULT_TIMEOUT_MS}ms`);
 
   await initFoundationDb();
 

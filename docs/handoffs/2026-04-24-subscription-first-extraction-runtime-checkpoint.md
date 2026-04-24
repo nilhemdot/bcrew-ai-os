@@ -67,23 +67,22 @@ Correct runtime shape:
 
 `shared-comms-intelligence-bite` is now the fast path:
 
-- Gmail candidate bite
-- Missive candidate bite
 - synthesis
-- skips meeting transcript backlog by default
+- uses already-mined candidates
+- does not start live extraction by default
+- uses a long subscription-route timeout because the first synthesis-only proof timed out under the old 240-second adapter default
 
-`meeting-transcripts-extract-backlog` is now a separate deep miner:
+Extraction now runs as separate paced miners:
 
-- one transcript per run
-- long subscription-first timeout window
-- manual until route latency is stable
+- Gmail/Missive miners run one item per proof bite until route latency is stable
+- meeting transcript backlog runs one transcript per run with a long subscription-first timeout window
+- Slack/Zoom miners have separate timeout knobs before any scheduling decision
 
 ## Next
 
 1. Tune subscription extraction miners before daily scheduling.
 2. Consider separate route/model lanes for fast extraction vs synthesis when a faster subscription model/adapter is available.
 3. Build the Claude Code / Claude Agent SDK subscription adapter under the BCrew router.
-4. Run monitored fast-path proofs again after route timing is tuned.
-5. Schedule daily synthesis only after the fast path has clean subscription-routed runs.
+4. Run monitored synthesis-only proofs again after route timing is tuned.
+5. Schedule daily synthesis only after the brief path has clean subscription-routed runs and miners are feeding it reliably.
 6. Keep meeting transcript/corpus mining as background miners that feed the brief, not blockers inside the brief.
-

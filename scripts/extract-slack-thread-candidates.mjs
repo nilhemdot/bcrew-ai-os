@@ -28,6 +28,12 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const STRATEGY_DOC_PATH = path.join(REPO_ROOT, 'docs', 'business-strategy.md');
 
 const DEFAULT_MODEL = process.env.OPENAI_EXTRACTION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini';
+const DEFAULT_TIMEOUT_MS = Number(
+  process.env.SLACK_EXTRACTION_TIMEOUT_MS ||
+    process.env.SHARED_COMMS_EXTRACTION_TIMEOUT_MS ||
+    process.env.LLM_EXTRACTION_TIMEOUT_MS ||
+    600000,
+);
 const EXTRACTION_METHOD = 'slack_thread_context_v1';
 const SUPSERSEDED_METHODS = [EXTRACTION_METHOD];
 const MAX_THREAD_CHARS = 18000;
@@ -86,6 +92,7 @@ async function extractCandidatesFromSlackThread(artifact, foundationContext, mod
     contentText: artifact.contentText || '',
     maxChars: MAX_THREAD_CHARS,
     schemaName: 'slack_thread_candidates',
+    timeoutMs: DEFAULT_TIMEOUT_MS,
   });
 }
 
@@ -97,6 +104,7 @@ async function main() {
   console.log('Extract shared communication candidates from archived Slack threads');
   console.log(`  Limit: ${limit}`);
   console.log(`  Model: ${model}`);
+  console.log(`  Per-call timeout: ${DEFAULT_TIMEOUT_MS}ms`);
 
   await initFoundationDb();
 

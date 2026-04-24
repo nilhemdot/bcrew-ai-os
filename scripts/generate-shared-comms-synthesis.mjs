@@ -19,6 +19,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_MODEL = process.env.OPENAI_SYNTHESIS_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4';
+const DEFAULT_TIMEOUT_MS = Number(
+  process.env.SHARED_COMMS_SYNTHESIS_TIMEOUT_MS ||
+    process.env.LLM_SYNTHESIS_TIMEOUT_MS ||
+    process.env.LLM_TIMEOUT_MS ||
+    2700000,
+);
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -400,12 +406,24 @@ async function runSynthesis({ candidates, candidateSummary, archiveSummary, sour
       requestedModel: model,
       candidatesRead: candidates.length,
       schemaName: 'shared_comms_synthesis_v1',
+      timeoutMs: DEFAULT_TIMEOUT_MS,
     },
   });
 
   const text = llmResult.outputText;
   if (!text) throw new Error('LLM synthesis returned no output text.');
-  return JSON.parse(text);
+  return {
+    synthesis: JSON.parse(text),
+    llm: {
+      requestedModel: model,
+      model: llmResult.model,
+      provider: llmResult.provider,
+      authPath: llmResult.authPath,
+      routeKey: llmResult.routeKey,
+      credentialKey: llmResult.credentialKey,
+      callId: llmResult.call?.callId || llmResult.callId || null,
+    },
+  };
 }
 
 function renderMarkdown(synthesis, { candidatesRead, model, generatedAt }) {
@@ -481,6 +499,7 @@ async function main() {
   console.log(`  Days: ${days || 'all pending'}`);
   console.log(`  Max items: ${maxItems}`);
   console.log(`  Model: ${model}`);
+  console.log(`  Per-call timeout: ${DEFAULT_TIMEOUT_MS}ms`);
 
   const pool = getPool();
   try {
@@ -493,8 +512,9 @@ async function main() {
 
     console.log(`  Candidates read: ${candidates.length}`);
     const generatedAt = new Date().toISOString();
-    const synthesis = await runSynthesis({ candidates, candidateSummary, archiveSummary, sourceFacts, model, maxItems });
-    const markdown = renderMarkdown(synthesis, { candidatesRead: candidates.length, model, generatedAt });
+    const { synthesis, llm } = await runSynthesis({ candidates, candidateSummary, archiveSummary, sourceFacts, model, maxItems });
+    const actualModel = llm.model || model;
+    const markdown = renderMarkdown(synthesis, { candidatesRead: candidates.length, model: actualModel, generatedAt });
 
     if (outPath) {
       await fs.mkdir(path.dirname(outPath), { recursive: true });
@@ -510,7 +530,7 @@ async function main() {
     }, {});
     const runId = buildRunId({
       generatedAt,
-      model,
+      model: actualModel,
       candidatesRead: candidates.length,
       title: synthesis.title || 'Shared Communications Synthesis',
     });
@@ -520,7 +540,7 @@ async function main() {
       {
         runId,
         title: synthesis.title || 'Shared Communications Synthesis',
-        model,
+        model: actualModel,
         outputPath: outPath ? path.relative(REPO_ROOT, outPath) : '',
         candidateLimit: limit,
         candidatesRead: candidates.length,
@@ -552,6 +572,12 @@ async function main() {
         })),
         metadata: {
           script: 'scripts/generate-shared-comms-synthesis.mjs',
+          requestedModel: llm.requestedModel || model,
+          provider: llm.provider || null,
+          authPath: llm.authPath || null,
+          routeKey: llm.routeKey || null,
+          credentialKey: llm.credentialKey || null,
+          llmCallId: llm.callId || null,
           selectedCandidateSourceCounts: sourceCounts,
           sourceFactCounts: {
             docSourceFacts: sourceFacts.doc_source_facts.length,

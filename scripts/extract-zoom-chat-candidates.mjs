@@ -28,6 +28,13 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const STRATEGY_DOC_PATH = path.join(REPO_ROOT, 'docs', 'business-strategy.md');
 
 const DEFAULT_MODEL = process.env.OPENAI_EXTRACTION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini';
+const DEFAULT_TIMEOUT_MS = Number(
+  process.env.ZOOM_CHAT_EXTRACTION_TIMEOUT_MS ||
+    process.env.ZOOM_EXTRACTION_TIMEOUT_MS ||
+    process.env.SHARED_COMMS_EXTRACTION_TIMEOUT_MS ||
+    process.env.LLM_EXTRACTION_TIMEOUT_MS ||
+    600000,
+);
 const EXTRACTION_METHOD = 'zoom_chat_context_v1';
 const SUPERSEDED_METHODS = [EXTRACTION_METHOD];
 const MAX_CHAT_CHARS = 14000;
@@ -98,6 +105,7 @@ async function extractCandidatesFromZoomChat(artifact, foundationContext, model)
     maxChars: MAX_CHAT_CHARS,
     maxOutputTokens: 2400,
     schemaName: 'zoom_chat_candidates',
+    timeoutMs: DEFAULT_TIMEOUT_MS,
   });
 }
 
@@ -109,6 +117,7 @@ async function main() {
   console.log('Extract shared communication candidates from historical Zoom chats');
   console.log(`  Limit: ${limit}`);
   console.log(`  Model: ${model}`);
+  console.log(`  Per-call timeout: ${DEFAULT_TIMEOUT_MS}ms`);
 
   await initFoundationDb();
 
