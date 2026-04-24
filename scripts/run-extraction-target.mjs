@@ -72,6 +72,17 @@ function getTargetRunner(target) {
     }
   }
 
+  if (target.targetKey === 'meetings-current-day') {
+    const windowHours = numberFromBudget(target, 'windowHours', Number(target.cursorState?.windowHours) || 48)
+    const modifiedAfter = new Date(Date.now() - windowHours * 60 * 60 * 1000).toISOString()
+    return {
+      command: 'npm',
+      args: ['run', 'meeting-notes:sync', '--', `--limit=${maxItemsPerRun}`, `--modifiedAfter=${modifiedAfter}`],
+      inspectedPattern: /Meetings selected for archive:\s*(\d+)/i,
+      archivedPattern: /Gemini notes archived:\s*(\d+)/i,
+    }
+  }
+
   throw new Error(`No extraction target runner is configured yet for: ${target.targetKey}`)
 }
 

@@ -157,6 +157,38 @@ Decision:
 - keep Gmail manual for now
 - do not schedule Gmail until repeated runs stabilize
 
+## Meeting Notes Manual Lane
+
+Meeting notes current-day is now registered as a manual Foundation job:
+
+- `meeting-notes-sync-current`
+- target: `meetings-current-day`
+- window: Drive files modified in the last 48 hours
+
+First proof:
+
+- `49` meetings selected
+- `46` Gemini notes archived
+- `39` embedded transcripts archived
+- `7` net-new artifacts
+- `3` Google Drive export `500` failures captured in output
+
+Decision:
+
+- keep meeting notes manual until the export failures have a retry/report path
+- do not schedule this lane yet
+
+## Dashboard Controls
+
+System Health job cards now expose pause/resume buttons.
+
+Proof:
+
+- paused `gmail-sync-current`
+- resumed `gmail-sync-current`
+- restored it to manual mode
+- verifier stayed green
+
 ## Current Verification
 
 Latest verifier:
@@ -166,7 +198,7 @@ Latest verifier:
 
 Latest shared-comms coverage from verifier:
 
-- `12,067` artifacts
+- `12,074` artifacts
 - `4,529` candidates
 
 ## What Is Next
@@ -174,10 +206,10 @@ Latest shared-comms coverage from verifier:
 Next safe build order:
 
 1. Monitor the first scheduled Missive runs.
-2. Add dashboard pause/resume buttons.
+2. Add retry/report path for meeting-note export failures.
 3. Add item-level cursors/leases before broad backfill.
 4. Promote Gmail only after repeated change-aware runs stabilize.
-5. Then move to the next bounded worker lane: likely meeting notes current-day or Drive one-folder bite.
+5. Then move to the next bounded worker lane: likely Slack current-day or Drive one-folder bite.
 
 ## What Is Not Next
 

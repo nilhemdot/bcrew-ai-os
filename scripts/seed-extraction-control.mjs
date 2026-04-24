@@ -62,7 +62,7 @@ const extractionTargets = [
     cursorState: { windowHours: 48, cursorType: 'drive_modified_time_window' },
     budget: { maxItemsPerRun: 50, maxRuntimeSeconds: 900, llmBudget: 'none' },
     dedupePolicy: { key: 'drive_file_id', idempotent: true },
-    metadata: { foundationJobKey: 'meeting-notes:sync', gapJobKey: 'meeting-transcript-gaps' },
+    metadata: { foundationJobKey: 'meeting-notes-sync-current', sourceScript: 'meeting-notes:sync', gapJobKey: 'meeting-transcript-gaps' },
     notes: 'Keeps new meeting notes/transcripts current while old Zoom/Drive history is processed separately.',
   },
   {

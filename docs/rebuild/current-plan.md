@@ -294,6 +294,7 @@ Current partial proof:
 - `scripts/run-extraction-target.mjs` wraps supported targets with a lease, process-group timeout, source before/after stats, output tail, and target run-state update.
 - `gmail-sync-current` now calls `npm run extraction:target -- --target=gmail-current-day` through the Foundation job runner.
 - `missive-sync-current` now calls `npm run extraction:target -- --target=missive-current-day` through the Foundation job runner.
+- `meeting-notes-sync-current` now calls `npm run extraction:target -- --target=meetings-current-day` through the Foundation job runner.
 - First manual proof: Gmail scanned `970` messages, selected `263` threads, and archived `148` net-new artifacts through the target ledger.
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
@@ -301,7 +302,8 @@ Current partial proof:
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
 - Gmail change-aware proof selected `263` recent threads, skipped `249` already-current threads, refreshed `14`, and archived `13` net-new artifacts; immediate rerun still found `2` changed/new threads and `1` net-new artifact, so Gmail stays manual.
-- Remaining Phase 3 gap: monitor first scheduled Missive runs, let Gmail stabilize before scheduling, and build item-level cursors before broad backfill.
+- Meeting notes current-day proof selected `49` meetings, archived `46` notes and `39` embedded transcripts, added `7` net-new artifacts, and captured `3` Google Drive export `500` failures in output without failing the whole bounded run.
+- Remaining Phase 3 gap: monitor first scheduled Missive runs, let Gmail stabilize before scheduling, retry/report meeting export failures, and build item-level cursors before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
