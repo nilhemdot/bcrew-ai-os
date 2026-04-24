@@ -33,28 +33,33 @@ Purpose: capture the shared-comms email-layer work after the Missive/Gmail deepe
 
 ## Current Archive State
 
-- `SRC-MISSIVE-001`: `60` archived threads
-- `SRC-GMAIL-001`: `58` archived mailbox-scoped threads across `11` users
+- `SRC-MISSIVE-001`: `500` archived threads
+- `SRC-GMAIL-001`: `1,103` archived mailbox-scoped threads across delegated team users
 
 Context:
 
 - Missive was `28` before this pass
 - Gmail was `3` before this pass
+- Gmail is still not a true 180-day complete archive. The current team sync archives up to `100` selected threads per delegated user per run, so the current oldest Gmail artifact is `2026-04-09`.
+- Missive is still not a true full-history archive. The current bounded run selected `500` visible conversations; the current oldest Missive artifact is `2026-04-19`.
+- Missive API docs confirm the conversation page limit is `50`, but history can be paginated with `until`; rate limit is the real constraint, especially `900` requests per `15` minutes. References:
+  - `https://missiveapp.com/docs/developers/rest-api/endpoints`
+  - `https://missiveapp.com/docs/developers/rest-api/rate-limits`
 
 ## Current Extraction State
 
-- Missive pending candidates: `45`
-  - `16` task
-  - `13` blocker
-  - `4` decision
-  - `1` feedback
-  - `11` atom
-- Gmail pending candidates: `69`
-  - `31` task
-  - `15` blocker
-  - `2` decision
-  - `3` feedback
-  - `18` atom
+- Missive pending candidates: `92`
+  - `27` task
+  - `32` blocker
+  - `5` decision
+  - `2` feedback
+  - `26` atom
+- Gmail pending candidates: `141`
+  - `58` task
+  - `21` blocker
+  - `3` decision
+  - `4` feedback
+  - `55` atom
 
 ## Quality Read
 
@@ -65,10 +70,26 @@ Context:
   - billboard artwork / contract / stale creative issues
   - repo access and integration blockers
 - Gmail still has some residue/noise, but the extraction mix is materially more useful than before.
+- Missive remains the priority email/collaboration lane because it captures internal comments inside threads.
+- Gmail is broader and useful, but will need synthesis/ranking faster because it includes more low-signal mailbox residue.
+
+## What Changed After The First Checkpoint
+
+- Gmail team sync ran successfully:
+  - `5,500` messages scanned
+  - `1,100` threads selected
+  - `1,100` archived this run
+- Missive all-conversation sync ran successfully after two fixes:
+  - hard-capped page size to Missive's real API max of `50`
+  - added a skip-existing guard so reruns do not refetch already archived threads
+  - slowed retries and honored `Retry-After` to survive `429` limits
+- Latest extraction passes:
+  - Gmail extracted `131` candidates from the latest `100` archived threads
+  - Missive extracted `94` candidates from the latest `100` archived threads
 
 ## Next Best Moves
 
-1. Deepen Missive again, but now aim at richer/shared threads instead of only newest-all threads.
+1. Add cursor/chunked Missive backfill so it can safely continue beyond the first `500` visible conversations without fighting rate limits.
 2. Add a stricter Gmail/Missive post-filter or prompt rule for event blasts / listing spam / promo residue if the next sample still leaks noise.
 3. Start the first synthesis pass over meetings + Slack + Missive + Gmail so the system surfaces ranked live intelligence instead of raw candidate piles.
-4. Do a selective git hygiene pass after the current working block settles, because the repo is still ahead locally and dirty.
+4. Add a Gmail date-sliced or cursor-aware team backfill if true 180-day mailbox coverage becomes a hard requirement before synthesis.

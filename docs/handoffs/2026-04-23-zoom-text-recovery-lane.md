@@ -35,11 +35,12 @@ Scan across `2024-10 -> 2025-03` found:
 
 ## What Was Implemented
 
-New script:
+New scripts:
 
 - `scripts/sync-zoom-text-archive.mjs`
+- `scripts/extract-zoom-chat-candidates.mjs`
 
-Current behavior:
+Archive behavior:
 
 - scans the uploaded Zoom root folder
 - filters to date-prefixed meeting folders
@@ -55,7 +56,41 @@ Current behavior:
   - file id/name
   - inferred meeting class / privacy profile
 
-## Recommended First Run
+Extraction behavior:
+
+- reads historical Zoom chat artifacts from `SRC-MEETINGS-001`
+- only processes `meeting_note` artifacts with:
+  - `importedFromHistoricalZoom = true`
+  - `meetingPlatform = zoom`
+  - `zoomArtifactKind = chat`
+- uses a chat-specific extraction prompt that treats the source as partial context, not a full transcript
+- ignores notetaker notices, routine links, attendance logistics, and secret-looking strings
+- prioritizes durable merger-era context, marketing phrasing, operating doctrine, decisions, blockers, and reusable atoms
+
+## First Runs Completed
+
+Archive run:
+
+- `79` historical Zoom chat artifacts imported
+- date range now in archive: `2024-10-03 -> 2025-03-10`
+- artifact type: `meeting_note`
+- source: `SRC-MEETINGS-001`
+
+Extraction run:
+
+- `79` archived Zoom chats scanned
+- `78` shared-communication candidates created
+- examples of covered meeting themes:
+  - weekly partner meetings
+  - marketing report-outs
+  - budget reviews
+  - John / ZTeam sessions
+  - HomeOptima / Optima
+  - buyer mastery / seller mastery
+  - support network strategy
+  - recruitment resources
+
+## Useful Commands
 
 ```bash
 node scripts/sync-zoom-text-archive.mjs \
@@ -76,15 +111,22 @@ node scripts/sync-zoom-text-archive.mjs \
   --dryRun=true
 ```
 
+Candidate extraction:
+
+```bash
+npm run zoom:extract-candidates -- --limit=79
+```
+
 ## Current Limits
 
 - This is a **text-only** recovery lane
 - It does **not** transcribe `.mp4` / `.m4a`
 - Most useful merger-gap recovery in this upload is the Zoom chat text, not transcripts
 - If Steve wants deeper historical meeting content than chat exports, the next lane is media transcription from the `.mp4` / `.m4a` files
+- Zoom-chat candidates should feed synthesis as historical context and content atoms, not as authoritative meeting minutes
 
 ## Recommended Next Step After This
 
-1. Run the script across the merger-gap slice
-2. Add a narrow extractor for historical Zoom chats if the imported text yields useful atoms / decisions / blockers
-3. Only then decide whether the media-transcription lane is worth the cost
+1. Use the created Zoom candidates as historical context for merger-era synthesis and content mining.
+2. Do not spend on media transcription until a specific missing meeting is worth recovering.
+3. If media transcription becomes worth it, run a separate cost-controlled `.mp4` / `.m4a` lane rather than mixing it into this text recovery path.

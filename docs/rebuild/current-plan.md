@@ -43,7 +43,9 @@ Use [Current State](current-state.md) for the short read.
 2. close the first usable shared-communications source layer:
    - Gmail, Calendar, Missive, Slack, and meeting reads are already live
    - archive depth is now real enough to use
-   - keep Gmail / Missive history widening
+   - current archive depth is `1,103` Gmail threads, `500` Missive threads, `1,371` Slack threads, and `1,498` meeting artifacts
+   - recovered historical Zoom chats now cover `2024-10-03 -> 2025-03-10` as partial context, not full transcripts
+   - keep Gmail / Missive history widening with chunked/cursor backfills instead of pretending the first bounded batches are full 180-day coverage
    - keep meeting transcript enforcement tightening
    - keep Slack rollout explicit instead of assuming universal readability
 3. build the missing synthesis layer on top of that shared archive:

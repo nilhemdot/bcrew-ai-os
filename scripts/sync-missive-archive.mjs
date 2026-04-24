@@ -70,9 +70,10 @@ function formatMissiveThread(thread) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const limit = Math.min(500, Math.max(1, Number(args.limit || 25)));
-  const pageSize = Math.min(200, Math.max(1, Number(args.pageSize || Math.min(limit, 100))));
+  const pageSize = Math.min(50, Math.max(1, Number(args.pageSize || Math.min(limit, 50))));
   const all = args.all === true || args.all === 'true';
   const search = String(args.search || '').trim();
+  const skipExisting = args.skipExisting !== 'false';
   const inboxOnly = !all && !search;
   const sourceLabel = search ? `Missive / Search / ${search}` : all ? 'Missive / All conversations' : 'Missive / Inbox';
 
@@ -80,6 +81,7 @@ async function main() {
   console.log(`  Limit: ${limit}`);
   console.log(`  Page size: ${pageSize}`);
   console.log(`  Mode: ${search ? 'search' : all ? 'all' : 'inbox'}`);
+  console.log(`  Skip existing: ${skipExisting ? 'yes' : 'no'}`);
   if (search) {
     console.log(`  Search: ${search}`);
   }
@@ -133,9 +135,22 @@ async function main() {
   console.log(`  Pages scanned: ${pageCount}`);
   console.log(`  Conversations selected: ${conversations.length}`);
 
+  let conversationsToArchive = conversations;
+  if (skipExisting) {
+    const existingSnapshot = await getSharedCommunicationArchiveSnapshot({
+      sourceId: 'SRC-MISSIVE-001',
+      artifactType: 'missive_thread',
+      limit: 1000,
+    });
+    const existingExternalIds = new Set(existingSnapshot.items.map(item => item.externalId).filter(Boolean));
+    conversationsToArchive = conversations.filter(conversation => !existingExternalIds.has(conversation.id));
+    console.log(`  Already archived in selected window: ${conversations.length - conversationsToArchive.length}`);
+  }
+  console.log(`  Conversations to archive: ${conversationsToArchive.length}`);
+
   let archived = 0;
 
-  for (const conversation of conversations) {
+  for (const conversation of conversationsToArchive) {
     const thread = await getMissiveThread(conversation.id);
     const contentText = formatMissiveThread(thread);
     if (!contentText) continue;

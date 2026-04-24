@@ -26,24 +26,29 @@ What does **not** exist yet is a clean, Benson-Crew-confirmed, fully connected m
   - usable for lead-origin and CRM context, not as a full marketing-performance system
 - `SRC-SUPABASE-001`
   - KPI system is readable, but not yet locked as the marketing truth layer
+- `SRC-GHL-001`
+  - rebuild credential is live
+  - contacts and pipeline reads are proven
+  - not signed off as the complete Steve / MarketMasters / BCrew lead-flow truth yet
+- `SRC-META-001`
+  - rebuild tokens are proven for Steve and BCrew marketing contexts
+  - readable does not yet equal fully lane-mapped or signed off
+- `SRC-DATAFORSEO-001`
+  - verified readable as a research / SEO data source
+  - not yet promoted into a signed-off marketing performance truth layer
 
 ### Pending revalidation
 
-- `SRC-GHL-001`
-  - old connection path known
-  - not signed off in rebuild
 - `SRC-GADS-001`
-  - old Google Ads path known
-  - not signed off in rebuild
+  - configured in env, but the current OAuth refresh returns `invalid_grant`
+  - old system path was real, but rebuild auth is not currently healthy
 
 ### Explicit gaps
 
-- `SRC-META-001`
-  - still a gap
-  - Meta developer account / app path not wired in rebuild
 - `SRC-PUBLISH-001`
-  - still a gap
-  - no selected/present publishing platform trusted in Foundation
+  - SocialPilot enterprise API is the current candidate
+  - Steve has provided an API key and docs URL
+  - auth context still needs validation because the enterprise API appears to require owner/user context, not only a base key
 - `SRC-CONTENT-001`
   - still not a live content-performance source
 - `YouTube`
