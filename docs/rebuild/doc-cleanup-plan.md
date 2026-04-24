@@ -159,12 +159,12 @@ Runtime MVP should activate only 3 to 5 high-value existing jobs first:
 
 LLM router MVP should include:
 
-- router shell
+- executable router adapter per accepted subscription/API path
 - credential registry
 - `llm_calls` ledger
 - probes for Claude Code Max, Claude setup-token/OAuth, OpenClaw/ChatGPT Pro, and direct APIs
 - no blind round-robin quota farming
-- no mass migration until route probes are classified
+- no mass migration until route probes are classified and at least one real workload probe succeeds
 
 Extraction control MVP should include:
 

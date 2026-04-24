@@ -57,9 +57,11 @@ The runtime is not the same thing as the model.
 
 This is the reasoning and execution substrate used by agents:
 
-- GPT-5.4 for primary high-value reasoning
-- Gemini Flash for cheap classification and background work
-- Claude API where Claude is the best fit
+- BCrew policy-aware LLM router for backend workload routing
+- OpenClaw/Codex subscription adapter for the first shared-intelligence extraction/synthesis route
+- Claude Code / Claude Agent SDK subscription adapter as the next subscription route to build
+- official APIs for fallback or workloads that require API-only capabilities
+- Gemini for video/vision and long-context paths where appropriate
 - Codex and Claude Code for terminal-native coding and deep investigation work
 
 These are not separate foundations.

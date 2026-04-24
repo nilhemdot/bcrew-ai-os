@@ -141,10 +141,14 @@ The model layer answers which brain is used for a given job.
 Current direction:
 
 - model access goes through the policy-aware LLM router
-- official API routes stay available as fallback
+- BCrew router owns the route decision; OpenClaw is one transport adapter, not the controlling system
+- the current working subscription route is OpenClaw/Codex OAuth through `openai-codex/gpt-5.4`
+- official API routes stay available as explicit fallback, not default
+- direct OpenAI Responses API is blocked unless an intentional paid-run override is set
 - subscription/native routes can be used only after probes classify them for the workload
 - hub-dedicated capacity is preferred over blind account rotation
 - Codex / Claude Code remain terminal-native coding and investigation tools
+- Claude Code / Claude Agent SDK subscription adapter is the next model-layer build so Claude Max capacity can be assigned by hub under the same router
 
 These are not separate foundations.
 

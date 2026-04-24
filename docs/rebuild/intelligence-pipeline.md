@@ -116,6 +116,10 @@ They are not independent scouts.
 
 The LLM is a tool inside the routine, not the owner of the process.
 
+LLM calls for shared intelligence must go through `lib/llm-router.js`. The router owns provider/auth-path choice, call logging, and fallback policy. The current working Foundation route is the OpenClaw/Codex subscription adapter (`openclaw` / `chatgpt_subscription_gateway`). Direct OpenAI Responses API is fallback-only and blocked unless explicitly allowed for a paid run.
+
+Extraction attempts are themselves operating facts. When an artifact is processed and correctly yields zero candidates, that success is recorded so the artifact is not mined forever under the same extractor version. Failures stay retryable.
+
 Historical extraction should be paced. The goal is not to read the entire company history in one night. The goal is a supervised extraction team that can:
 
 - take one Drive folder, Skool course, inbox date window, or meeting archive window at a time
@@ -234,6 +238,7 @@ Today:
 - scripts are the first tools
 - `foundation:job` is the first runner that records routine status in PostgreSQL instead of leaving runs trapped in builder chat
 - `foundation:worker` now runs selected scheduled routines, including Missive and Gmail current-day sync
+- `llm-router` now executes shared intelligence extraction/synthesis through the subscription adapter and records `llm_calls`
 - PostgreSQL is the memory layer
 
 Near future:
@@ -243,6 +248,7 @@ Near future:
 - `SYSTEM-010` process supervision must exist before long-running autonomous loops are trusted
 - a daily current-sync worker keeps live sources fresh
 - a historical crawler worker takes one bounded bite per source per day
+- a Claude Code / Claude Agent SDK subscription adapter is added under the BCrew router so Claude subscription capacity can be assigned to the right hubs without making OpenClaw the whole model-access layer
 
 Later:
 

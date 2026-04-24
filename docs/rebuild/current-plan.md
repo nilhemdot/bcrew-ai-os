@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-24
-Version: v6.3 — extraction operating system plus hub supply-chain doctrine
+Version: v6.4 — subscription-routed intelligence plus extraction processing ledger
 Status: Active
 
 Use this doc for one question:
@@ -33,6 +33,8 @@ Reason for v6:
 - Mac Mini stays the primary machine for this phase.
 - Foundation-first stays the build order.
 - OpenClaw stays the planned runtime/channel shell for the later live-agent layer, not the whole OS.
+- BCrew router owns model/subscription routing. OpenClaw is one adapter for the ChatGPT/Codex subscription path, not the controlling system.
+- Direct OpenAI Responses API is fallback-only and blocked unless an explicit paid-run override is set.
 - Harlan is Steve's personal agent, not the whole OS.
 - Crewbert is the orchestrator/operator identity, not a magic replacement for source contracts.
 - We are not switching stacks mid-Foundation.
@@ -62,7 +64,7 @@ Built and useful now:
 - Persisted synthesis runs/items in Postgres.
 - First Foundation job registry and DB-backed job run ledger.
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, read-only deal-review jobs proven through the worker, and LaunchAgent supervision live.
-- Policy-aware LLM router MVP: credential/route/probe/call tables, router shell, auth-path audit job, and route status visibility.
+- Policy-aware LLM router: credential/route/probe/call tables, executable OpenClaw/Codex subscription adapter, auth-path audit job, call ledger, route status visibility, and shared intelligence extraction/synthesis migrated behind the router.
 - Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, and scheduled current-day proof for Missive + Gmail.
 - Row-scoped Owners / deal-review runners.
 - Owners Dashboard imported `Lists` repair: governed FUB lead sources now live in upstream `SRC-OWNERS-LISTS-001`, Admin `N` and `P` reuse the same source list, Admin `S` uses imported active agents, and Google delegated writes are blocked from the imported mirror range.
@@ -78,8 +80,8 @@ Still not done:
 - failed-item retry policy for Drive and non-meeting crawl records beyond the first meeting retry path
 - proof that partial-run job failure/alert semantics work on a real failed meeting/Drive item
 - consolidated job/target schedule truth before target panels become operator truth
-- route acceptance review and first low-risk LLM script migration behind the router
-- hub-dedicated model capacity allocation
+- Claude Code / Claude Agent SDK subscription adapter under the BCrew router
+- hub-dedicated model capacity allocation beyond the first Foundation subscription path
 - source-budget and failure visibility
 - full subject-person privacy/query layer
 - richer KPI / finance / FUB grounding inside synthesis
@@ -150,9 +152,9 @@ Activate only 3 to 5 jobs first:
 - `foundation:verify`
 - `shared-comms:coverage`
 - deal-review queued runner
-- synthesis as manual or scheduled with explicit budget
+- synthesis as manual or scheduled with explicit route and budget visibility
 - one current-day sync lane if stable
-- bounded candidate-extraction bites for already-archived material, still manual until router/cost telemetry is accepted
+- bounded candidate-extraction bites for already-archived material, still manual until the daily cadence is deliberately scheduled
 
 Backlog/cards:
 
@@ -215,7 +217,7 @@ Routing doctrine:
 - keep API/cloud fallback mandatory
 - do not build blind round-robin quota farming
 - do not make resale economics depend on consumer-plan arbitrage
-- do not migrate every LLM call until probes pass
+- migrate one workload family at a time only after that route has a successful actual-call probe
 
 Hub-dedicated capacity doctrine:
 
@@ -241,15 +243,18 @@ Acceptance:
 - existing extraction/synthesis can be moved behind the router incrementally
 - API fallback works when subscription paths fail, exhaust, or are not allowed
 
-Current partial proof:
+Current proof:
 
 - `llm_credentials`, `llm_routes`, `llm_route_probes`, and `llm_calls` are live in Foundation DB.
-- `lib/llm-router.js` seeds policy-aware credential/route config and can record dry-run route selection without calling a provider.
+- `lib/llm-router.js` seeds policy-aware credential/route config, executes OpenClaw/Codex subscription model calls, logs every call, and keeps direct OpenAI Responses API as a guarded fallback only.
 - `llm-auth-audit` is registered as a manual Foundation job and runs through `npm run foundation:job -- --job=llm-auth-audit`.
 - Latest audit probes, in order: direct OpenAI API, direct Anthropic API, local Claude Code subscription, Claude OAuth token, OpenClaw/ChatGPT gateway, and Gemini API.
-- Latest probe result: OpenAI API available, Gemini API available through `GOOGLE_API_KEY`, Claude Code Max login available, OpenClaw gateway running, Anthropic API missing, Claude OAuth token missing.
+- Latest probe result: OpenAI API available, Gemini API available through `GOOGLE_API_KEY`, Claude Code Max login available, OpenClaw/Codex subscription model run succeeded through `openai-codex/gpt-5.4` OAuth, Anthropic API missing, Claude OAuth token missing.
 - No raw secrets are stored in Postgres. DB records only labels, auth-path classes, status, policy classification, env/keychain references, probe outcomes, and call telemetry.
-- Remaining Phase 2 gap: do a route acceptance review and migrate only one low-risk LLM script behind the router. Do not migrate extraction/synthesis broadly yet.
+- Shared candidate extraction and shared-comms synthesis are migrated behind the router.
+- Live proof: one synthesis run and one Gmail extraction run recorded `provider=openclaw`, `authPath=chatgpt_subscription_gateway`, `estimatedCostUsd=0` in `llm_calls`.
+- Direct OpenAI Responses calls outside the router are blocked by `foundation:verify`; the router fallback requires `LLM_ALLOW_DIRECT_OPENAI_RESPONSES=true`.
+- Remaining Phase 2 gap: build the Claude Code / Claude Agent SDK subscription adapter, define hub-dedicated capacity lanes, and add overflow/fallback rules before broad hub automation.
 
 ### Phase 3 — Extraction Control MVP
 
@@ -330,9 +335,10 @@ Current partial proof:
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
 - `missive-sync-current` is scheduled every `120` minutes.
-- `gmail-extract-latest` and `missive-extract-latest` now target archived threads without active candidates instead of offset/latest chunks. First manual proofs scanned `15` Gmail threads and created `13` candidates, then scanned `15` Missive threads and created `11` candidates. Keep these as bounded manual LLM bites until router/cost telemetry and output quality are accepted.
+- `gmail-extract-latest` and `missive-extract-latest` now target archived threads without active candidates instead of offset/latest chunks. First manual proofs scanned `15` Gmail threads and created `13` candidates, then scanned `15` Missive threads and created `11` candidates. These now run through the subscription router; keep them bounded and manual until the daily cadence is deliberately scheduled.
+- `shared_communication_artifact_processing_runs` now records candidate-extraction processing attempts. Successful zero-candidate artifacts are excluded from future `--onlyWithoutCandidates=true` queues for the same extractor version, while failures remain retryable.
 - System Health now exposes Intelligence Pipeline extraction depth: archived artifacts, artifacts with active candidates, still-unmined artifacts, extraction coverage percent, and latest synthesis.
-- `shared-comms-intelligence-bite` is a manual composite job for strategy prep: one bounded Gmail candidate bite, one bounded Missive candidate bite, one bounded meeting-transcript bite, then one synthesis run. It gives Steve a single safe "make it fresh now" control without broad LLM scheduling.
+- `shared-comms-intelligence-bite` is a manual composite job for strategy prep: one bounded Gmail candidate bite, one bounded Missive candidate bite, one bounded meeting-transcript bite, then one synthesis run. Its parent timeout is now `6000` seconds so it can outlive the child job budgets. It gives Steve a single safe "make it fresh now" control before daily scheduling.
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
 - Gmail item-level ledger proof selected `259` recent threads per run, produced `0` item failures across repeated bounded runs, and promoted `gmail-sync-current` to scheduled every `120` minutes. The first scheduled worker run succeeded, archived `4` threads, cleared its lease, and set target/job next run around `2026-04-24T20:09Z`.
@@ -342,8 +348,8 @@ Current partial proof:
 - First read-only Drive corpus bite is live through manual Foundation job `drive-corpus-inventory-bite`: Zahnd TEAM OG root inspected, `60` direct children recorded, `24` child folders discovered, `36` files discovered, `31` next folders/roots queued, `0` item failures, and no files moved/copied/exported/LLM-processed.
 - Foundation now exposes a Drive corpus inventory review snapshot with item totals, folder/file counts, pending extraction counts, candidate value routes, and queue state.
 - Raw Drive inventory script writes are guarded: non-dry-run inventory must be run through `extraction:target` so leases and target cursors advance with item writes.
-- Shared-comms synthesis was run after the email/transcript extraction proofs and recorded `synth-20260424T194613Z-530692804e` with `11` ranked live intelligence items. Top issues surfaced: June cash shortfall, KPI dashboard/source-trust incident, SocialPilot instability, old automations still firing, automation failure pattern, lead-source hygiene, finance reconciliation, FUB/Owners identity mismatch, and Google Ads routing risk.
-- Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, prove partial failure on a real failed item, extend retry semantics to Drive, and build review/export gates before broad backfill.
+- Shared-comms synthesis was run through the subscription router and recorded `synth-20260424T203755Z-e6b01782ad` with `5` ranked live intelligence items. Top issues surfaced: KPI deal-data display/sync failure, June cash gap, SocialPilot access/publishing instability, Union Street delivery retry, and Loom access migration issue.
+- Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, prove partial failure on a real failed item, extend retry semantics to Drive, schedule one daily bounded intelligence bite after monitored router proof, and build review/export gates before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
@@ -544,7 +550,7 @@ Treat all other handoffs/audits as evidence unless promoted here or linked from 
 
 - not a full runtime pivot
 - not Harlan migration before runtime/source trust
-- not a 32-script router rewrite before probes
+- not a 32-script router rewrite; route one workload family at a time after real adapter proof
 - not multi-agent sprawl
 - not another giant manual backfill marathon
 - not manually auditing hundreds of rows with Steve
