@@ -20,6 +20,7 @@
     "google:health": "node scripts/google-delegated-health.mjs",
     "shared-comms:verify": "node --env-file-if-exists=.env scripts/google-workspace-shared-comms-verify.mjs",
     "shared-comms:coverage": "node --env-file-if-exists=.env scripts/report-shared-comms-coverage.mjs",
+    "shared-comms:intelligence-bite": "node --env-file-if-exists=.env scripts/run-shared-comms-intelligence-bite.mjs",
     "missive:verify": "node --env-file-if-exists=.env scripts/missive-shared-comms-verify.mjs",
     "meeting-notes:verify": "node --env-file-if-exists=.env scripts/meeting-notes-verify.mjs",
     "meeting-notes:sync": "node --env-file-if-exists=.env scripts/sync-meeting-notes-archive.mjs",

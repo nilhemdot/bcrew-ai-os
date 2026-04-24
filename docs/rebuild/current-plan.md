@@ -332,6 +332,7 @@ Current partial proof:
 - `missive-sync-current` is scheduled every `120` minutes.
 - `gmail-extract-latest` and `missive-extract-latest` now target archived threads without active candidates instead of offset/latest chunks. First manual proofs scanned `15` Gmail threads and created `13` candidates, then scanned `15` Missive threads and created `11` candidates. Keep these as bounded manual LLM bites until router/cost telemetry and output quality are accepted.
 - System Health now exposes Intelligence Pipeline extraction depth: archived artifacts, artifacts with active candidates, still-unmined artifacts, extraction coverage percent, and latest synthesis.
+- `shared-comms-intelligence-bite` is a manual composite job for strategy prep: one bounded Gmail candidate bite, one bounded Missive candidate bite, one bounded meeting-transcript bite, then one synthesis run. It gives Steve a single safe "make it fresh now" control without broad LLM scheduling.
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
 - Gmail item-level ledger proof selected `259` recent threads per run, produced `0` item failures across repeated bounded runs, and promoted `gmail-sync-current` to scheduled every `120` minutes. The first scheduled worker run succeeded, archived `4` threads, cleared its lease, and set target/job next run around `2026-04-24T20:09Z`.
