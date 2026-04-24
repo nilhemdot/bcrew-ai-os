@@ -313,6 +313,37 @@ body {
   line-height: 1.5;
 }
 
+.status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.status-action-button {
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #fff;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.status-action-button-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-strong);
+}
+
+.status-action-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
 /* ── PANELS ── */
 .panel {
   background: var(--surface);

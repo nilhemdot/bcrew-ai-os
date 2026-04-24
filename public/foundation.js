@@ -1523,6 +1523,25 @@ function renderStatusCard(item) {
   detail.textContent = item.detail
   card.appendChild(detail)
 
+  if (Array.isArray(item.actions) && item.actions.length) {
+    var actions = document.createElement('div')
+    actions.className = 'status-actions'
+    item.actions.forEach(function(action) {
+      var button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'status-action-button' + (action.secondary ? ' status-action-button-secondary' : '')
+      button.textContent = action.label
+      if (action.disabled) button.disabled = true
+      if (typeof action.onClick === 'function') {
+        button.addEventListener('click', function() {
+          action.onClick(button)
+        })
+      }
+      actions.appendChild(button)
+    })
+    card.appendChild(actions)
+  }
+
   return card
 }
 
@@ -4178,6 +4197,37 @@ function foundationMutation(url, method, body) {
   })
 }
 
+function controlFoundationJob(job, action, button) {
+  var runtimeMode = action === 'pause'
+    ? 'paused'
+    : (job.scheduleEveryMinutes ? 'scheduled' : 'manual')
+  var pauseReason = action === 'pause'
+    ? 'Paused from Foundation dashboard.'
+    : ''
+
+  if (button) {
+    button.disabled = true
+    button.textContent = action === 'pause' ? 'Pausing...' : 'Resuming...'
+  }
+
+  return foundationMutation('/api/foundation/jobs/' + encodeURIComponent(job.key) + '/control', 'POST', {
+    runtimeMode: runtimeMode,
+    enabled: true,
+    scheduleEveryMinutes: job.scheduleEveryMinutes || null,
+    pauseReason: pauseReason,
+    actor: 'foundation-dashboard',
+  }).then(function() {
+    cache.foundationHub = null
+    renderDataHealth()
+  }).catch(function(error) {
+    window.alert('Job control failed: ' + (error.message || 'Unknown error'))
+    if (button) {
+      button.disabled = false
+      button.textContent = action === 'pause' ? 'Pause' : 'Resume'
+    }
+  })
+}
+
 /* ── strategy doc path map ───────────────────────────────── */
 
 var strategyDocPaths = {
@@ -4954,10 +5004,28 @@ function renderFoundationJobsPanel(foundationJobs) {
       var controlLine = job.controlUpdatedAt
         ? ' Control updated ' + formatDate(job.controlUpdatedAt) + (job.controlUpdatedBy ? ' by ' + job.controlUpdatedBy : '') + '.'
         : ''
+      var actions = []
+      if (job.runtimeMode === 'paused' || job.enabled === false) {
+        actions.push({
+          label: 'Resume',
+          onClick: function(button) {
+            controlFoundationJob(job, 'resume', button)
+          },
+        })
+      } else {
+        actions.push({
+          label: 'Pause',
+          secondary: true,
+          onClick: function(button) {
+            controlFoundationJob(job, 'pause', button)
+          },
+        })
+      }
       return {
         label: job.title,
         status: job.status || 'pending',
         detail: runLine + '.' + nextLine + scheduleLine + controlLine + ' ' + (job.nextAction || job.statusDetail || ''),
+        actions: actions,
       }
     })
   )

@@ -169,7 +169,8 @@ Current partial proof:
 - Gmail and Missive current-day sync jobs now run through the extraction target ledger.
 - Missive current-day sync has been promoted to scheduled every 2 hours after exact-ID idempotency proof.
 - Gmail current-day sync now has change-aware filtering but remains manual until repeated runs stabilize cleanly.
-- Remaining Phase 1 gap: dashboard buttons for pause/resume and careful monitoring of the first scheduled current-day lane.
+- Dashboard pause/resume buttons are live on the System Health job cards and were round-trip tested through `gmail-sync-current`.
+- Remaining Phase 1 gap: careful monitoring of the first scheduled current-day lane and broader first-job activation after it stays stable.
 
 ### Phase 2 — Policy-Aware LLM Router MVP
 
