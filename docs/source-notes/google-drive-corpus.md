@@ -66,6 +66,15 @@ The first safe Drive crawler should:
 - avoid LLM calls until inventory and evidence links are captured
 - produce a review report instead of moving/copying anything
 
+First proof on 2026-04-24:
+
+- Manual Foundation job: `drive-corpus-inventory-bite`.
+- Target: `drive-corpus-backfill`.
+- Root inspected: `Zahnd TEAM OG Folder` (`0AJ4EQ018BaWwUk9PVA`).
+- Result: `60` direct children inventoried, `24` child folders discovered, `36` files discovered, `0` crawl item failures.
+- Cursor state now has `1` inspected folder and `31` queued folders/roots for later bounded bites.
+- No files were moved, copied, exported, or sent to an LLM.
+
 ## Course-Building Note
 
 Presentations are likely one of the highest-value first corpora. Buyer, seller, and buy-sell presentation assets should eventually become end-to-end training/course outlines. Foundation should extract and classify the material; course production belongs to the right hub after Foundation preserves source links and sensitivity boundaries.

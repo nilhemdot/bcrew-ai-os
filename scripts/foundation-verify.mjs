@@ -129,6 +129,7 @@ async function main() {
     ? foundationHub.extractionControl.targets
     : []
   const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
+  const driveCorpusTarget = extractionTargets.find(target => target.targetKey === 'drive-corpus-backfill')
 
   ensure(
     checks,
@@ -217,6 +218,16 @@ async function main() {
     scheduledExtractionTargets.length
       ? `${scheduledExtractionTargets.length} targets derive schedule from job runtime`
       : 'no target schedule derivations found',
+  )
+  ensure(
+    checks,
+    driveCorpusTarget?.cursorState?.driveInventory &&
+      Number(driveCorpusTarget.cursorState.driveInventory.inspectedFolderCount || 0) >= 1 &&
+      Number(driveCorpusTarget.cursorState.driveInventory.queuedFolderCount || 0) >= 1,
+    'api/foundation-hub exposes Drive corpus inventory cursor',
+    driveCorpusTarget?.cursorState?.driveInventory
+      ? `${driveCorpusTarget.cursorState.driveInventory.inspectedFolderCount || 0} inspected folders / ${driveCorpusTarget.cursorState.driveInventory.queuedFolderCount || 0} queued`
+      : 'missing Drive corpus cursor',
   )
   ensure(
     checks,

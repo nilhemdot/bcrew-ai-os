@@ -332,7 +332,8 @@ Current partial proof:
 - Meeting notes current-day proof selected `50` meetings, archived `50` notes and `42` embedded transcripts, recorded `50` succeeded crawl items, left `0` failed crawl items, and added `2` net-new artifacts.
 - Meeting target runs now parse item-level crawl failures and mark the target `partial` when the process succeeds but individual crawl items fail; partials now fail the Foundation job so the dashboard/worker gets an alert path instead of a false green state.
 - Extraction target snapshots now attach a `scheduler` object derived from the registered Foundation job when `metadata.foundationJobKey` exists. This makes Foundation jobs the schedule truth for scheduled crawl lanes while preserving target `nextRunAt` as crawl checkpoint metadata.
-- Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, prove partial failure on a real failed item, extend retry semantics to Drive, and build item-level cursors before broad backfill.
+- First read-only Drive corpus bite is live through manual Foundation job `drive-corpus-inventory-bite`: Zahnd TEAM OG root inspected, `60` direct children recorded, `24` child folders discovered, `36` files discovered, `31` next folders/roots queued, `0` item failures, and no files moved/copied/exported/LLM-processed.
+- Remaining Phase 3 gap: monitor scheduled Missive/Gmail runs, prove partial failure on a real failed item, extend retry semantics to Drive, and build review/export gates before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 

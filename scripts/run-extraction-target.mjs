@@ -52,6 +52,7 @@ function numberFromBudget(target, key, fallback) {
 
 function getTargetRunner(target) {
   const maxItemsPerRun = numberFromBudget(target, 'maxItemsPerRun', 25)
+  const maxFoldersPerRun = numberFromBudget(target, 'maxFoldersPerRun', 1)
 
   if (target.targetKey === 'gmail-current-day') {
     const query = String(target.cursorState?.query || 'newer_than:2d')
@@ -100,12 +101,41 @@ function getTargetRunner(target) {
     }
   }
 
+  if (target.targetKey === 'drive-corpus-backfill') {
+    return {
+      command: 'npm',
+      args: [
+        'run',
+        'drive:inventory-corpus',
+        '--',
+        `--target=${target.targetKey}`,
+        `--maxItems=${maxItemsPerRun}`,
+        `--maxFolders=${maxFoldersPerRun}`,
+      ],
+      inspectedPattern: /Drive items inspected:\s*(\d+)/i,
+      archivedPattern: /Drive files discovered:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
+      summaryPattern: /^EXTRACTION_TARGET_SUMMARY\s+(\{.+\})$/m,
+    }
+  }
+
   throw new Error(`No extraction target runner is configured yet for: ${target.targetKey}`)
 }
 
 function parseFirstInteger(pattern, text) {
   const match = String(text || '').match(pattern)
   return match ? Number(match[1] || 0) : null
+}
+
+function parseRunnerSummary(pattern, text) {
+  if (!pattern) return null
+  const match = String(text || '').match(pattern)
+  if (!match) return null
+  try {
+    return JSON.parse(match[1])
+  } catch {
+    return null
+  }
 }
 
 function getTargetScheduleEveryMinutes(target) {
@@ -256,11 +286,18 @@ async function main() {
     outcome = await runCommand(runner, { timeoutSeconds: maxRuntimeSeconds })
     afterStats = await getSharedCommunicationSourceStats(leasedTarget.sourceId)
 
-    const inspectedParsed = parseFirstInteger(runner.inspectedPattern, outcome.outputTail)
-    const archivedParsed = parseFirstInteger(runner.archivedPattern, outcome.outputTail)
-    const itemFailuresParsed = runner.itemFailuresPattern
-      ? parseFirstInteger(runner.itemFailuresPattern, outcome.outputTail)
-      : null
+    const runnerSummary = parseRunnerSummary(runner.summaryPattern, outcome.outputTail)
+    const inspectedParsed = Number.isFinite(Number(runnerSummary?.inspected))
+      ? Number(runnerSummary.inspected)
+      : parseFirstInteger(runner.inspectedPattern, outcome.outputTail)
+    const archivedParsed = Number.isFinite(Number(runnerSummary?.archived))
+      ? Number(runnerSummary.archived)
+      : parseFirstInteger(runner.archivedPattern, outcome.outputTail)
+    const itemFailuresParsed = Number.isFinite(Number(runnerSummary?.itemFailures))
+      ? Number(runnerSummary.itemFailures)
+      : runner.itemFailuresPattern
+        ? parseFirstInteger(runner.itemFailuresPattern, outcome.outputTail)
+        : null
     const effectiveStatus =
       outcome.status === 'succeeded' && Number(itemFailuresParsed || 0) > 0
         ? 'partial'
@@ -286,6 +323,7 @@ async function main() {
           latestArtifactUpdatedAt: afterStats.latestArtifactUpdatedAt,
           latestIngestedAt: afterStats.latestIngestedAt,
           lastRunnerAt: outcome.finishedAt,
+          ...(runnerSummary?.cursorState || {}),
         },
         metadata: {
           command: [runner.command, ...runner.args],
@@ -298,6 +336,8 @@ async function main() {
             itemFailures: itemFailuresParsed,
             nextRunAt: getNextRunAt(leasedTarget, outcome.finishedAt),
           },
+          runnerSummary: runnerSummary || null,
+          ...(runnerSummary?.metadata || {}),
           beforeStats,
           afterStats,
           outputTail: outcome.outputTail,
