@@ -5848,8 +5848,8 @@ function renderCurrentStateChangeWatchPanel(hub, structureStatus) {
     },
   ], {
     eyebrow: 'Change Infrastructure',
-    title: 'What protects drift now',
-    intro: 'This is the first live pass. Strategy doc watch, sheet structure watch, and decision cleanup watch are now all visible.',
+    title: 'Early drift guards',
+    intro: 'These first-pass guards make strategy doc proposals, sheet structure drift, and decision cleanup visible. They are useful, but they are not the full Foundation closeout gate.',
   })
 
   if (!panel) return null
@@ -5858,7 +5858,7 @@ function renderCurrentStateChangeWatchPanel(hub, structureStatus) {
   actions.className = 'doc-source-actions'
   ;[
     { href: '/foundation#decisions', label: 'Open Decisions' },
-    { href: '/foundation#source-sheets:SRC-OWNERS-001', label: 'Open Source Sheets' },
+    { href: '/foundation#source-overview', label: 'Open Data Sources' },
     { href: '/foundation#rebuild-plan', label: 'Open Rebuild Plan' },
   ].forEach(function(action) {
     var link = document.createElement('a')
