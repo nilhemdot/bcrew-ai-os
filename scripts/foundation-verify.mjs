@@ -10,6 +10,7 @@ import { getSourceContracts, getSourceConnectors } from '../lib/source-contracts
 import {
   closeFoundationDb,
   getBacklogSeedDriftSnapshot,
+  getFoundationDbConstraintAudit,
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleLlmCalls,
   initFoundationDb,
@@ -140,6 +141,10 @@ async function main() {
   const freedomCommunityContract = findSourceById(sourceContracts, 'SRC-FREEDOM-COMMUNITY-001')
   await initFoundationDb()
   const backlogSeedDrift = await getBacklogSeedDriftSnapshot({ limit: 10 })
+  const dbConstraintAudit = await getFoundationDbConstraintAudit({
+    sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
+    limit: 10,
+  })
 
   ensure(
     checks,
@@ -264,6 +269,14 @@ async function main() {
       typeof backlogSeedDrift.totalMismatchCount === 'number',
     'backlog seed/live drift is explicitly reported',
     `${backlogSeedDrift.driftItemCount} drift rows / ${backlogSeedDrift.stableMismatchCount} stable mismatches / ${backlogSeedDrift.mutableMismatchCount} mutable mismatches`,
+  )
+  ensure(
+    checks,
+    dbConstraintAudit.invalidDecisionCategoryCount === 0 &&
+      dbConstraintAudit.invalidSourceReferenceCount === 0 &&
+      dbConstraintAudit.pendingDocUpdateStateIssueCount === 0,
+    'Foundation DB constraint audit has no invalid categories, source IDs, or doc-update states',
+    `${dbConstraintAudit.registeredSourceIds} registered source IDs / ${dbConstraintAudit.invalidDecisionCategoryCount} invalid categories / ${dbConstraintAudit.invalidSourceReferenceCount} invalid source refs / ${dbConstraintAudit.pendingDocUpdateStateIssueCount} doc-update state issues`,
   )
   ensure(
     checks,
@@ -446,6 +459,17 @@ async function main() {
     foundationHub.backlogSeedDrift
       ? `${foundationHub.backlogSeedDrift.driftItemCount} drift rows / ${foundationHub.backlogSeedDrift.totalMismatchCount} mismatches`
       : 'missing seed/live drift payload',
+  )
+  ensure(
+    checks,
+    foundationHub.dbConstraintAudit?.registeredSourceIds === sourceContracts.length &&
+      foundationHub.dbConstraintAudit.invalidDecisionCategoryCount === 0 &&
+      foundationHub.dbConstraintAudit.invalidSourceReferenceCount === 0 &&
+      foundationHub.dbConstraintAudit.pendingDocUpdateStateIssueCount === 0,
+    'api/foundation-hub exposes clean DB constraint audit',
+    foundationHub.dbConstraintAudit
+      ? `${foundationHub.dbConstraintAudit.registeredSourceIds} source IDs / ${foundationHub.dbConstraintAudit.invalidSourceReferenceCount} invalid source refs`
+      : 'missing DB constraint audit payload',
   )
   const opsServedJobs = (foundationHub.foundationJobs?.jobs || []).filter(job =>
     Array.isArray(job.servesHubs) && job.servesHubs.includes('ops')

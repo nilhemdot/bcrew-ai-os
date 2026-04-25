@@ -3811,6 +3811,10 @@ app.post('/api/foundation/doc-updates/:id/approve', requireAdminToken, async (re
       sendApiError(res, 404, 'doc_update_not_found', error.message)
       return
     }
+    if (error instanceof Error && /cannot be approved from/i.test(error.message)) {
+      sendApiError(res, 409, 'doc_update_invalid_state', error.message)
+      return
+    }
     sendApiError(res, 500, 'doc_update_approve_failed', error instanceof Error ? error.message : 'Failed to approve doc update.')
   }
 })
@@ -3823,6 +3827,10 @@ app.post('/api/foundation/doc-updates/:id/reject', requireAdminToken, async (req
   } catch (error) {
     if (error instanceof Error && /not found/i.test(error.message)) {
       sendApiError(res, 404, 'doc_update_not_found', error.message)
+      return
+    }
+    if (error instanceof Error && /cannot be rejected from/i.test(error.message)) {
+      sendApiError(res, 409, 'doc_update_invalid_state', error.message)
       return
     }
     sendApiError(res, 500, 'doc_update_reject_failed', error instanceof Error ? error.message : 'Failed to reject doc update.')
