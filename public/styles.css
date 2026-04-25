@@ -3666,6 +3666,16 @@ code {
   animation: pulse 2.5s ease-in-out infinite;
 }
 
+.hub-status-preview { color: #0ea5e9; }
+
+.hub-status-preview .hub-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0ea5e9;
+  box-shadow: 0 0 6px rgba(14, 165, 233, 0.35);
+}
+
 .hub-status-soon { color: #b0bac9; }
 
 .hub-status-soon .hub-dot {
