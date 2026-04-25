@@ -341,11 +341,14 @@ async function main() {
   ensure(
     checks,
     foundationDbSource.includes('AND lease_owner = $12') &&
+      foundationDbSource.includes('CREATE TABLE IF NOT EXISTS source_crawl_target_runs') &&
+      foundationDbSource.includes('crawlRunId') &&
+      extractionTargetSource.includes('runId: leasedTarget.crawlRunId') &&
       foundationDbSource.includes('Source crawl target finish blocked') &&
       foundationDbSource.includes("`source_crawl_item:${targetKey}:${externalId}`") &&
       foundationDbSource.includes('entityId: item.itemKey'),
-    'source crawl ledger is lease-owner and item-key safe',
-    'target finishes require matching lease owner and item events use the actual returned row key',
+    'source crawl ledger is run-id, lease-owner, and item-key safe',
+    'target leases create run rows, finishes carry crawlRunId and require matching lease owner, and item events use the actual returned row key',
   )
   ensure(
     checks,
@@ -547,10 +550,11 @@ async function main() {
     foundationHub.extractionControl?.summary &&
       Number(foundationHub.extractionControl.summary.targetCount || 0) > 0 &&
       extractionTargets.length > 0 &&
-      Array.isArray(foundationHub.extractionControl.recentItems),
+      Array.isArray(foundationHub.extractionControl.recentItems) &&
+      Array.isArray(foundationHub.extractionControl.recentRuns),
     'api/foundation-hub exposes extraction control targets',
     foundationHub.extractionControl?.summary
-      ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day / ${foundationHub.extractionControl.recentItems?.length ?? 0} recent items`
+      ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day / ${foundationHub.extractionControl.recentItems?.length ?? 0} recent items / ${foundationHub.extractionControl.recentRuns?.length ?? 0} recent runs`
       : 'missing extraction control payload',
   )
   ensure(

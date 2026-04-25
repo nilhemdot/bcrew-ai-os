@@ -296,6 +296,7 @@ async function main() {
   })
 
   console.log(`Extraction target leased: ${leasedTarget.targetKey}`)
+  if (leasedTarget.crawlRunId) console.log(`Crawl run: ${leasedTarget.crawlRunId}`)
   console.log(`Command: ${[runner.command, ...runner.args].join(' ')}`)
 
   const beforeStats = await getSharedCommunicationSourceStats(leasedTarget.sourceId)
@@ -334,6 +335,7 @@ async function main() {
     await finishSourceCrawlTargetRun(
       targetKey,
       {
+        runId: leasedTarget.crawlRunId,
         lastRunAt: outcome.finishedAt,
         nextRunAt: getNextRunAt(leasedTarget, outcome.finishedAt),
         lastStatus: effectiveStatus,
@@ -384,6 +386,7 @@ async function main() {
       await finishSourceCrawlTargetRun(
         targetKey,
         {
+          runId: leasedTarget.crawlRunId,
           lastRunAt: finishedAt,
           nextRunAt: getNextRunAt(leasedTarget, finishedAt),
           lastStatus: 'failed',
