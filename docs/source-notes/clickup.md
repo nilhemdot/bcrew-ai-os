@@ -58,11 +58,55 @@ Deal workflow proof captured on 2026-04-25:
   - `Add Entry in Owner Dashboard and Freedom Sheet + tag Georgia for NPS Follow Up`
   - `Change FIRM status to Closed in ClickUp`
 
+AIOS cleanup applied on 2026-04-25:
+
+- Deal Data Entry source role is now explicit:
+  - Owners Dashboard remains the deal math / commission / split / finance source
+  - FUB remains CRM profile, source/stage, and call/transcript evidence
+  - ClickUp Deal Data Entry is the workflow/accountability layer
+  - AIOS links and audits them
+- new Deal Data Entry fields were added for the review workflow:
+  - `AIOS Admin Deal Row Link`
+  - `FUB Call / Review Evidence Link`
+  - `Client Review Status`
+  - `NPS Requested`
+  - `NPS Completed`
+  - `NPS Score`
+  - `NPS Comments`
+  - `Google Review Requested`
+  - `Google Review Captured`
+  - `Google Review Link`
+  - `Internal Onboarding Survey Requested`
+  - `Internal Onboarding Survey Completed`
+  - `Internal Onboarding Survey Score`
+  - `Internal Onboarding Survey Comments`
+  - `Internal Deal Management Survey Requested`
+  - `Internal Deal Management Survey Completed`
+  - `Internal Deal Management Survey Score`
+  - `Internal Deal Management Survey Comments`
+- new Deal Data Entry views were created:
+  - `AIOS Deal Workflow` view `8chw3b6-47511`
+  - `AIOS Review Follow-Up` view `8chw3b6-47531`
+- new Agent Roster fields were added:
+  - `Recruited By`
+  - `Real Start Date`
+  - `End Date`
+  - `Membership Status`
+  - `Production Roster Status`
+  - `Onboarding Stage`
+  - `Contract Status`
+  - `Team / Legacy Origin`
+- new Agent Roster view was created:
+  - `AIOS Agent Roster Source Truth` view `8chw3b6-47551`
+- no old ClickUp fields were deleted; finance/math clutter should be hidden from active views first and deleted only after backup/approval
+
 Current read:
 
 - ClickUp is usable as workflow evidence for whether Ops had survey / closeout tasks
-- ClickUp is not yet locked as final NPS score, eligible-client denominator, Google-review capture, or bonus payout truth
-- the current task shape is address/workflow-driven; it still needs a governed join to Owners trade numbers or FUB person/deal IDs before Admin review can use it as hard row-level evidence
+- `Deal #` / Trade Number is the required join key for actual transaction tasks
+- once `Deal #` is present, AIOS can produce the exact Owners Admin row link and backfill FUB link / review evidence / calculated date buckets where useful
+- client NPS / Google-review workflow should trigger when the deal firms, not at closing
+- ClickUp is still not the final bonus payout truth; AIOS must validate required fields and source parity before bonus credit counts
 
 ## What ClickUp Does Not Own Yet
 
