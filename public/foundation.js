@@ -5885,12 +5885,12 @@ function renderCurrentStateChangeWatchPanel(hub, structureStatus) {
 
     var title = document.createElement('div')
     title.className = 'decision-stack-title'
-    title.textContent = 'Backlog Behind Decision Cleanup'
+    title.textContent = 'Related Decision Cleanup Backlog'
     summaryLeft.appendChild(title)
 
     var intro = document.createElement('div')
     intro.className = 'decision-stack-intro'
-    intro.textContent = 'These are the exact cards behind traceability, contradiction cleanup, provenance, and temporal truth.'
+    intro.textContent = 'These are support cards behind traceability, contradiction cleanup, provenance, and temporal truth. Done cards are shown as proof, not do-now work.'
     summaryLeft.appendChild(intro)
 
     summary.appendChild(summaryLeft)
@@ -6313,7 +6313,7 @@ function renderCurrentState() {
         ],
         next: 'Finish the Owners package. After that, the strategy-input closeout card can be marked done.',
         later: 'Then deepen Freedom drift monitoring, source-backed value hardening, decision provenance, and temporal history.',
-        backlogIds: ['FOUNDATION-001', 'SOURCE-014', 'DATA-001', 'DATA-003', 'ENGINE-001', 'MEMORY-005', 'DECISION-001', 'DECISION-002', 'DECISION-003', 'DECISION-005'],
+        backlogIds: ['FOUNDATION-001', 'SOURCE-014'],
         defaultOpen: true,
       },
       {
