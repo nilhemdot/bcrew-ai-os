@@ -120,6 +120,25 @@ function getTargetRunner(target) {
     }
   }
 
+  if (target.targetKey === 'video-link-inventory') {
+    const maxArtifactsPerRun = numberFromBudget(target, 'maxArtifactsPerRun', maxItemsPerRun)
+    return {
+      command: 'npm',
+      args: [
+        'run',
+        'video-links:inventory',
+        '--',
+        `--target=${target.targetKey}`,
+        `--maxArtifacts=${maxArtifactsPerRun}`,
+        '--controlledByTargetRunner=true',
+      ],
+      inspectedPattern: /Shared artifacts scanned:\s*(\d+)/i,
+      archivedPattern: /Video\/media links discovered:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
+      summaryPattern: /^EXTRACTION_TARGET_SUMMARY\s+(\{.+\})$/m,
+    }
+  }
+
   throw new Error(`No extraction target runner is configured yet for: ${target.targetKey}`)
 }
 
@@ -307,7 +326,9 @@ async function main() {
       effectiveStatus === 'partial'
         ? `${itemFailuresParsed} crawl item${itemFailuresParsed === 1 ? '' : 's'} failed`
         : outcome.errorMessage
-    const archivedDelta = Math.max(Number(afterStats.artifacts || 0) - Number(beforeStats.artifacts || 0), 0)
+    const archivedDelta = Number.isFinite(Number(runnerSummary?.archived))
+      ? Number(runnerSummary.archived)
+      : Math.max(Number(afterStats.artifacts || 0) - Number(beforeStats.artifacts || 0), 0)
     const inspectedDelta = inspectedParsed == null ? archivedDelta : inspectedParsed
 
     await finishSourceCrawlTargetRun(

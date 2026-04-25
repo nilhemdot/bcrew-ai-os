@@ -8,7 +8,6 @@ import {
   initFoundationDb,
   listSourceCrawlItems,
   upsertSourceCrawlItem,
-  upsertSourceCrawlTarget,
 } from '../lib/foundation-db.js'
 
 const TARGET_KEY = 'video-link-inventory'
@@ -153,28 +152,6 @@ function evidenceExcerpt(text, url) {
   return content.slice(start, end).replace(/\s+/g, ' ').trim()
 }
 
-async function ensureVideoTarget(actor) {
-  return upsertSourceCrawlTarget({
-    targetKey: TARGET_KEY,
-    sourceId: SOURCE_ID,
-    title: 'Video link inventory lane',
-    lane: 'corpus_mining',
-    targetType: 'video_url_inventory',
-    status: 'planned',
-    priority: 'P1',
-    runtimeMode: 'manual',
-    cursorState: { cursorType: 'archive_scan_offset', lastScannedAt: new Date().toISOString() },
-    budget: { maxArtifactsPerRun: 1000, maxRuntimeSeconds: 900, llmBudget: 'none' },
-    dedupePolicy: { key: 'normalized_url', idempotent: true },
-    metadata: {
-      backlogIds: ['WEB-CRAWLER-001', 'EXTRACTION-TEAM-001'],
-      sourceNote: 'docs/source-notes/video-link-inventory.md',
-      platforms: [...VIDEO_HOSTS],
-    },
-    notes: 'System-owned inventory lane for Loom, Drive, YouTube, Vimeo, Wistia, Zoom, and Skool video/media links discovered inside existing archives.',
-  }, actor)
-}
-
 async function recordVideoLink({ link, artifact, sourceKind, dryRun, actor }) {
   const urlHash = hashText(link.normalizedUrl)
   const itemKey = `video-link:${safeKeyPart(link.platform)}:${urlHash.slice(0, 24)}`
@@ -280,8 +257,16 @@ async function scanDriveInventory({ dryRun, actor }) {
 async function main() {
   const args = parseArgs(process.argv.slice(2))
   const dryRun = boolValue(args.dryRun)
+  const controlledByTargetRunner = boolValue(args.controlledByTargetRunner)
   const maxArtifacts = Math.min(10000, Math.max(1, Number(args.maxArtifacts || args.limit || 1000) || 1000))
   const actor = String(args.actor || process.env.FOUNDATION_JOB_ACTOR || 'video-link-inventory').trim()
+
+  if (!dryRun && !controlledByTargetRunner) {
+    throw new Error(
+      'Refusing non-dry-run video link inventory outside extraction:target. ' +
+        'Run `npm run extraction:target -- --target=video-link-inventory` or pass --dryRun=true.',
+    )
+  }
 
   console.log('Inventory video/media links from existing archives')
   console.log(`  Target: ${TARGET_KEY}`)
@@ -289,7 +274,6 @@ async function main() {
   console.log(`  Dry run: ${dryRun}`)
 
   await initFoundationDb()
-  if (!dryRun) await ensureVideoTarget(actor)
 
   const shared = await scanSharedArtifacts({ maxArtifacts, dryRun, actor })
   const drive = await scanDriveInventory({ dryRun, actor })
@@ -305,6 +289,23 @@ async function main() {
   console.log(`  Drive inventory items scanned: ${drive.scanned}`)
   console.log(`  Video/media links discovered: ${shared.discovered + drive.discovered}`)
   console.log(`  By platform: ${JSON.stringify(combined)}`)
+  console.log(`  Crawl items failed: 0`)
+  console.log(`EXTRACTION_TARGET_SUMMARY ${JSON.stringify({
+    inspected: shared.scanned + drive.scanned,
+    archived: shared.discovered + drive.discovered,
+    itemFailures: 0,
+    cursorState: {
+      cursorType: 'archive_scan_offset',
+      lastScannedAt: new Date().toISOString(),
+      lastScannedSharedArtifacts: shared.scanned,
+      lastScannedDriveItems: drive.scanned,
+    },
+    metadata: {
+      byPlatform: combined,
+      shared,
+      drive,
+    },
+  })}`)
 }
 
 main()

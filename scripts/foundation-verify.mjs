@@ -183,6 +183,9 @@ async function main() {
   const opsHtmlSource = await readRepoFile('public/ops.html')
   const opsUiSource = await readRepoFile('public/ops.js')
   const serverSource = await readRepoFile('server.js')
+  const foundationJobsSource = await readRepoFile('lib/foundation-jobs.js')
+  const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
+  const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
@@ -244,6 +247,15 @@ async function main() {
     ].every(pattern => serverSource.includes(pattern)),
     'broad Foundation/Ops read APIs are admin-gated',
     'foundation hub, owners queue/governance, system inventory, changes, and doc updates require admin token outside localhost',
+  )
+  ensure(
+    checks,
+    foundationJobsSource.includes("args: ['run', 'extraction:target', '--', '--target=video-link-inventory']") &&
+      extractionTargetSource.includes("target.targetKey === 'video-link-inventory'") &&
+      extractionTargetSource.includes('--controlledByTargetRunner=true') &&
+      videoInventorySource.includes('Refusing non-dry-run video link inventory outside extraction:target'),
+    'video-link inventory runs through extraction target control',
+    'job uses extraction:target, target runner passes controlled flag, raw script refuses direct non-dry-run writes',
   )
   ensure(
     checks,

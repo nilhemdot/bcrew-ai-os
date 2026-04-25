@@ -156,7 +156,7 @@ This checklist is the current anti-drift queue from the 2026-04-25 top-down revi
    - Finish decommission, dead-man, cost/process visibility, and stop controls.
 4. `EXTRACTION-TEAM-001` — Finish controlled miner/corpus lanes.
    - Build paced miner v1: one-at-a-time, cursors, leases, retry/backoff, spacing, per-source timeouts.
-   - Wrap `video-link-inventory-bite` in `extraction:target` before repeated use.
+   - `video-link-inventory-bite` now runs through `extraction:target`; finish stable cursor/provenance-occurrence semantics before scheduling.
    - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
    - Keep Skool/Loom extraction blocked until authorized proof paths are validated.
 5. `SOURCE-008` / `DATA-005` — Close FUB Level 2 taxonomy and Owners/FUB lineage.
