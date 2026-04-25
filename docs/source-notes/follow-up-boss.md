@@ -60,6 +60,40 @@ Critical foundation reads:
 - appointment / lead-flow hygiene context where it affects KPI and Admin parity
 - assigned collections only at the level needed to understand the business system
 
+## Owners/Admin Parity Read Contract
+
+This is the signed-off v1 boundary for `SOURCE-008`.
+
+Join path:
+
+- Owners Admin column `BZ` (`Client Follow UP Boss ID`) stores a full FUB person URL or ID.
+- The trailing numeric person ID is the governed join key into FUB.
+- A joined FUB person can be used for identity, source, stage, assigned agent, tags, address, phone, and email parity.
+
+Truth boundary:
+
+- Owners Admin remains the deal ledger for trade number, firm/executed date, agent on the deal, split math, cash, and final source-row fixes.
+- FUB is trusted for CRM person context: current CRM source, lifecycle stage, assigned agent, address/contact enrichment, and tag evidence such as `ISA Set - Alyssa`.
+- If Owners and FUB disagree, the system should flag the mismatch. It should not silently overwrite either source.
+- If both sources map to the same governed ownership type, treat the mismatch as lineage cleanup, not an automatic company/agent credit flip.
+
+Foundation-safe FUB checks:
+
+- FUB person resolves from `BZ`.
+- FUB source exists in the governed source rules.
+- FUB source is classified and canonical.
+- FUB source/ownership agrees with Owners source lineage or is surfaced as lineage cleanup.
+- FUB stage is not stale for mature closed/firm deals.
+- FUB ISA tags agree with the Owners `ISA Set Deal` marker.
+- FUB assigned agent mismatch is reviewable when the Owners deal agent differs from the CRM owner.
+
+Not signed off here:
+
+- automated FUB mutations
+- agent coaching from notes/calls
+- broad Sales Hub workflows
+- using FUB as the final deal ledger
+
 ## Not Foundation Yet
 
 These belong to later Sales Hub / coaching / assistant work:

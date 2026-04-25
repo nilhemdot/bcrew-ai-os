@@ -47,6 +47,14 @@ What this step does:
 - lock the join path from Owners rows to FUB records
 - make the CRM boundary explicit
 
+Current v1 status:
+
+- closed for the Owners/Admin parity read boundary
+- Column `BZ` joins to FUB person ID
+- FUB is trusted for person/source/stage/assigned-agent/tag/address/contact parity
+- Owners remains the deal ledger and source-row write target
+- no FUB or Owners source-field auto-fix is approved yet
+
 ### 2. Lock the Owners ↔ FUB attribution model
 
 Cards:
@@ -63,6 +71,13 @@ What this step does:
 - establish the first governed AI deal-review checklist for new and exception rows
 - route findings into `Ops Hub -> Deal Review Inbox`
 - compare exception rows against locked contract packages instead of re-reading contracts every time
+
+Current v1 status:
+
+- closed for source-lineage classification and company/agent rule reads
+- governed source rules live in `fub_lead_source_rules`
+- Admin review now consumes those rules for invalid source, company/agent expectation, and ISA mismatch checks
+- unresolved values stay queued instead of guessed
 
 Live now:
 

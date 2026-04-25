@@ -87,6 +87,7 @@ Built and useful now:
 - Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, and scheduled current-day proof for Missive + Gmail.
 - Row-scoped Owners / deal-review runners.
 - Owners Dashboard imported `Lists` repair: governed FUB lead sources now live in upstream `SRC-OWNERS-LISTS-001`, Admin `N` and `P` reuse the same source list, Admin `S` uses imported active agents, and Google delegated writes are blocked from the imported mirror range.
+- Owners/FUB v1 parity rules: Admin column `BZ` joins to FUB person records, governed FUB source rules drive company/agent expectations, and Admin review flags invalid source, source-lineage, stale-stage, and ISA mismatch issues.
 - Google Drive corpus root list captured in `docs/source-notes/google-drive-corpus.md`.
 - Skool corpus access and policy boundary captured in `docs/source-notes/skool-corpus.md`.
 - Marketing source evidence from the old system and current connector checks.

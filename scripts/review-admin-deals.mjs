@@ -3,6 +3,7 @@
 import process from 'node:process'
 import { batchUpdateSheetValues, getSheetValues } from '../lib/google-delegated.js'
 import { getFubPerson } from '../lib/fub.js'
+import { closeFoundationDb, listFubLeadSourceRules } from '../lib/foundation-db.js'
 
 const OWNERS_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk'
 const ADMIN_SHEET_TITLE = 'ADMIN ONLY - Deal Data Entry'
@@ -27,6 +28,12 @@ function normalizeText(value) {
 
 function normalizeLower(value) {
   return normalizeText(value).toLowerCase()
+}
+
+function normalizeSourceKey(value) {
+  return normalizeLower(value)
+    .replace(/[–—]/g, '-')
+    .replace(/\s+/g, ' ')
 }
 
 function toNumber(value) {
@@ -99,6 +106,33 @@ function makeRange(columnIndex, rowNumber) {
   return `'${ADMIN_SHEET_TITLE}'!${column}${rowNumber}`
 }
 
+function buildSourceRuleMap(rules) {
+  const map = new Map()
+  for (const rule of rules || []) {
+    const key = normalizeSourceKey(rule.source)
+    if (key) map.set(key, rule)
+  }
+  return map
+}
+
+function getSourceRule(sourceRules, source) {
+  return sourceRules.get(normalizeSourceKey(source)) || null
+}
+
+function getPersonTags(person) {
+  return Array.isArray(person?.tags)
+    ? person.tags.map(tag => normalizeText(typeof tag === 'string' ? tag : tag?.name)).filter(Boolean)
+    : []
+}
+
+function hasFubIsaEvidence(person) {
+  return getPersonTags(person).some(tag => normalizeLower(tag).includes('isa set'))
+}
+
+function hasRowIsaMarker(row) {
+  return normalizeLower(row.isaSetDeal) === 'yes' || normalizeLower(row.origin).includes('isa appointment set')
+}
+
 function buildSummaryLine(label, passed, failed) {
   return `${label} (${passed}/${passed + failed} passed)`
 }
@@ -139,6 +173,10 @@ function buildAdminDealGroups(rows, cols) {
       executed: sheetSerialToIso(row[cols.executed]),
       client: normalizeText(row[cols.client]),
       source: normalizeText(row[cols.source]),
+      extraSource: normalizeText(row[cols.extraSource]),
+      groundZero: normalizeText(row[cols.groundZero]),
+      origin: normalizeText(row[cols.origin]),
+      companyAgent: normalizeText(row[cols.companyAgent]),
       realtor: normalizeText(row[cols.realtor]),
       total: row[cols.total],
       sale: row[cols.sale],
@@ -150,6 +188,7 @@ function buildAdminDealGroups(rows, cols) {
       agentPortion: row[cols.agentPortion],
       companyPortion: row[cols.companyPortion],
       fub: normalizeText(row[cols.fub]),
+      isaSetDeal: normalizeText(row[cols.isaSetDeal]),
       reviewStatus: normalizeText(row[cols.cc]),
       reviewAction: normalizeText(row[cols.cd]),
     })
@@ -193,7 +232,7 @@ function getBacklogDeals(groups, options) {
     .map(item => item.group.deal)
 }
 
-function createAuditResult(group, cols) {
+function createAuditResult(group, sourceRules) {
   const rows = group.rows
   const ownerIssues = []
   const fubIssues = []
@@ -276,6 +315,51 @@ function createAuditResult(group, cols) {
     ownersPassed += 1
   }
 
+  const fubPerson = group.fubPerson || null
+  const fubHasIsa = hasFubIsaEvidence(fubPerson)
+  for (const row of rows) {
+    const sourceRule = getSourceRule(sourceRules, row.source)
+    const rowLabel = `row ${row.rowNum}`
+    if (row.source && !sourceRule) {
+      ownersFailed += 1
+      ownerIssues.push(`${rowLabel} lead source ${row.source} is not in the governed FUB source rules.`)
+    } else if (sourceRule) {
+      const openRule = sourceRule.marketingType === 'unclassified' ||
+        sourceRule.ownershipType === 'unclassified' ||
+        sourceRule.flagState !== 'none'
+      if (openRule) {
+        ownersFailed += 1
+        ownerIssues.push(`${rowLabel} lead source ${row.source} is not final attribution truth yet (${sourceRule.flagState || 'open rule'}).`)
+      } else {
+        ownersPassed += 1
+      }
+
+      const rowHasIsa = hasRowIsaMarker(row)
+      const expectedOwner = (rowHasIsa || fubHasIsa)
+        ? 'Company'
+        : (sourceRule.ownershipType === 'company'
+            ? 'Company'
+            : (sourceRule.ownershipType === 'agent' ? 'Agent' : ''))
+      if (expectedOwner && normalizeText(row.companyAgent) !== expectedOwner) {
+        ownersFailed += 1
+        ownerIssues.push(`${rowLabel} Company or Agent should be ${expectedOwner} based on governed source lineage${rowHasIsa || fubHasIsa ? ' and ISA evidence' : ''}.`)
+      } else if (expectedOwner) {
+        ownersPassed += 1
+      }
+    }
+
+    const rowHasIsa = hasRowIsaMarker(row)
+    if (fubHasIsa && normalizeLower(row.isaSetDeal) !== 'yes') {
+      ownersFailed += 1
+      ownerIssues.push(`${rowLabel} FUB carries ISA evidence but ISA Set Deal is not marked Yes.`)
+    } else if (normalizeLower(row.isaSetDeal) === 'yes' && !fubHasIsa) {
+      ownersFailed += 1
+      ownerIssues.push(`${rowLabel} ISA Set Deal is marked Yes but linked FUB person does not show ISA evidence.`)
+    } else if (rowHasIsa || fubHasIsa) {
+      ownersPassed += 1
+    }
+  }
+
   const distinctLinks = Array.from(new Set(rows.map(row => normalizeText(row.fub)).filter(Boolean)))
   let fubStage = ''
   let fubSource = ''
@@ -294,6 +378,21 @@ function createAuditResult(group, cols) {
       fubSource = normalizeText(person?.source)
       fubStage = normalizeText(person?.stage)
       fubPassed += 1
+      const fubSourceRule = getSourceRule(sourceRules, fubSource)
+
+      if (fubSource && !fubSourceRule) {
+        fubFailed += 1
+        fubIssues.push(`linked FUB source ${fubSource} is not in the governed source rules.`)
+      } else if (fubSourceRule && (
+        fubSourceRule.marketingType === 'unclassified' ||
+        fubSourceRule.ownershipType === 'unclassified' ||
+        fubSourceRule.flagState !== 'none'
+      )) {
+        fubFailed += 1
+        fubIssues.push(`linked FUB source ${fubSource} is not final attribution truth yet (${fubSourceRule.flagState || 'open rule'}).`)
+      } else if (fubSourceRule) {
+        fubPassed += 1
+      }
 
       const mismatchedSourceRows = rows
         .filter(row => normalizeText(row.source) && fubSource && normalizeText(row.source) !== fubSource)
@@ -301,7 +400,12 @@ function createAuditResult(group, cols) {
 
       if (mismatchedSourceRows.length) {
         fubFailed += 1
-        fubIssues.push(`linked FUB source is ${fubSource}, but Owners source differs on row${mismatchedSourceRows.length > 1 ? 's' : ''} ${mismatchedSourceRows.join(', ')}.`)
+        const ownerRules = rows
+          .map(row => getSourceRule(sourceRules, row.source))
+          .filter(Boolean)
+        const sameOwnership = fubSourceRule && ownerRules.length &&
+          ownerRules.every(rule => rule.ownershipType === fubSourceRule.ownershipType)
+        fubIssues.push(`linked FUB source is ${fubSource}, but Owners source differs on row${mismatchedSourceRows.length > 1 ? 's' : ''} ${mismatchedSourceRows.join(', ')}${sameOwnership ? '; governed ownership matches, so this is lineage cleanup, not a company/agent credit flip.' : '.'}`)
       } else {
         fubPassed += 1
       }
@@ -404,12 +508,18 @@ async function main() {
     agentPortion: findIndex(header, 'Agent Portion'),
     companyPortion: findIndex(header, 'Company/Team Lead Portion'),
     fub: findIndex(header, 'Client Follow UP Boss ID'),
+    extraSource: findIndex(header, 'Extra Lead Source Data'),
+    groundZero: findIndex(header, 'Ground Zero'),
+    origin: findIndex(header, 'Extra Orgin Lead Source Data'),
+    companyAgent: findIndex(header, 'Company or Agent'),
+    isaSetDeal: findIndex(header, 'ISA Set Deal'),
     cc: findIndex(header, 'AI Review Status'),
     cd: findIndex(header, 'THIS ROW ONLY: REVIEW ACTION'),
     ce: findIndex(header, 'AI Findings By System / Suggestions'),
   }
 
   const allGroups = buildAdminDealGroups(rows, cols)
+  const sourceRules = buildSourceRuleMap(await listFubLeadSourceRules())
   let dealsRequested = []
   const selectionLanes = new Map()
 
@@ -464,7 +574,7 @@ async function main() {
     }
   }
 
-  const results = dealsRequested.map(deal => createAuditResult(groups.get(deal), cols))
+  const results = dealsRequested.map(deal => createAuditResult(groups.get(deal), sourceRules))
 
   if (write) {
     const updates = []
@@ -517,5 +627,7 @@ async function main() {
 
 main().catch(error => {
   console.error(error.message)
-  process.exit(1)
+  process.exitCode = 1
+}).finally(async () => {
+  await closeFoundationDb().catch(() => {})
 })

@@ -3424,6 +3424,24 @@ Post-merge cleanup read:
   - flyer-drop rows with the agent-style split should normalize to `Agent Flyer - Home Value Hub`
   - otherwise they usually normalize to `Company Website – Home Value Hub`
 
+Owners/FUB lineage model locked for v1:
+
+- Column `N` is the Owners ledger source value and must stay inside the governed FUB-compatible list.
+- FUB person `source` is CRM-side evidence, not an automatic overwrite of Column `N`.
+- The governed `fub_lead_source_rules` table owns source classification:
+  - `marketingType`
+  - `ownershipType`
+  - `flagState`
+  - `sourceGroup`
+- Company/Agent should be rule-driven:
+  - `ownershipType = company` -> `Company`
+  - `ownershipType = agent` -> `Agent`
+  - FUB or Owners ISA evidence overrides to `Company`
+  - unresolved / non-final sources stay open instead of guessed
+- If Owners and FUB have different source names but the same governed ownership, the issue is lineage cleanup, not an automatic company/agent credit flip.
+- If Owners and FUB have different governed ownership, the row needs source-truth review before attribution is trusted.
+- `<unspecified>` is quarantine only. It can keep the row governable while unresolved, but it is not final attribution truth.
+
 #### Column O — `Extra Lead Source Data`
 - extra detail about the main lead source
 - current usage quality is inconsistent and often wrong
@@ -3747,6 +3765,11 @@ Exact live headers:
 - current live values in populated rows are full Follow Up Boss person URLs, not just a bare numeric ID
 - the trailing ID in that URL can still be used with the FUB API
 - this field is strategically important for CRM reconciliation
+- signed-off v1 join rule:
+  - use the trailing FUB person ID as the join key
+  - use FUB for person identity, source, stage, assigned agent, tags, address, phone, and email parity
+  - keep Owners as the deal ledger for trade number, firm/executed date, agent-on-deal, split math, and final source-row fixes
+  - never auto-fix Owners or FUB from the other side without an approval-gated apply lane
 
 #### Column CA — `ISA Set Deal`
 - recently added by Steve
