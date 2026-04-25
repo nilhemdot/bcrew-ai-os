@@ -84,10 +84,14 @@ AIOS cleanup applied on 2026-04-25:
   - `Internal Onboarding Survey Completed`
   - `Internal Onboarding Survey Score`
   - `Internal Onboarding Survey Comments`
+  - `Internal Onboarding Status`
+  - `Internal Onboarding Skipped Reason`
   - `Internal Deal Management Survey Requested`
   - `Internal Deal Management Survey Completed`
   - `Internal Deal Management Survey Score`
   - `Internal Deal Management Survey Comments`
+  - `Internal Deal Review Status`
+  - `Internal Deal Review Skipped Reason`
 - Deal Data Entry fields were appended to the existing `Full Deal List` view `8chw3b6-33791` instead of creating a separate working list
 - new Agent Roster fields were added:
   - `Recruited By`
@@ -111,6 +115,9 @@ Current read:
 - track NPS and Google reviews as separate statuses because a Google review can be captured without a completed NPS:
   - `NPS Status`: `Not Started`, `Requested`, `Completed`, `Not Eligible`, `Blocked`
   - `Review Status`: `Not Started`, `Requested`, `Captured`, `Not Eligible`, `Blocked`
+- internal agent/team feedback should also use status fields with skip reasons:
+  - `Internal Onboarding Status`: `Not Started`, `Requested`, `Completed`, `Skipped`, `Blocked`
+  - `Internal Deal Review Status`: `Not Started`, `Requested`, `Completed`, `Skipped`, `Blocked`
 - ClickUp is still not the final bonus payout truth; AIOS must validate required fields and source parity before bonus credit counts
 
 ## What ClickUp Does Not Own Yet
