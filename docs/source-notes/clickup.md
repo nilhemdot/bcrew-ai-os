@@ -76,6 +76,9 @@ AIOS cleanup applied on 2026-04-25:
   - `Google Review Requested`
   - `Google Review Captured`
   - `Google Review Link`
+  - `Google Review Target Count`
+  - `Google Review Captured Count`
+  - `Google Review Link(s) / Evidence`
   - `Internal Onboarding Survey Requested`
   - `Internal Onboarding Survey Completed`
   - `Internal Onboarding Survey Score`
@@ -106,6 +109,7 @@ Current read:
 - `Deal #` / Trade Number is the required join key for actual transaction tasks
 - once `Deal #` is present, AIOS can produce the exact Owners Admin row link and backfill FUB link / review evidence / calculated date buckets where useful
 - client NPS / Google-review workflow should trigger when the deal firms, not at closing
+- do not treat one Google-review URL as the full outcome: couples can produce more than one review, so use target/captured counts plus evidence links/notes
 - ClickUp is still not the final bonus payout truth; AIOS must validate required fields and source parity before bonus credit counts
 
 ## What ClickUp Does Not Own Yet
