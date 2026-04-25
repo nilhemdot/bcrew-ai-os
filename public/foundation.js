@@ -6091,11 +6091,11 @@ function renderCurrentState() {
 
     var heroActions = document.createElement('div')
     heroActions.className = 'foundation-hero-actions'
-    heroActions.appendChild(createActionLink('Open Owners Closeout', buildDocHref('docs/rebuild/owners-closeout.md', currentPath), 'print-button'))
-    heroActions.appendChild(createActionLink('Open Backlog', '/foundation#backlog', 'print-button'))
-    heroActions.appendChild(createActionLink('Open Maturity Model', buildDocHref('docs/specs/data-source-maturity-model.md', currentPath), 'print-button'))
-    heroActions.appendChild(createActionLink('Open Audit', buildDocHref('docs/audits/2026-04-17-foundation-clarity-audit.md', currentPath), 'print-button'))
     heroActions.appendChild(createActionLink('Open Rebuild Plan', '/foundation#rebuild-plan'))
+    heroActions.appendChild(createActionLink('Open System Health', '/foundation#system-health', 'print-button'))
+    heroActions.appendChild(createActionLink('Open Backlog', '/foundation#backlog', 'print-button'))
+    heroActions.appendChild(createActionLink('Open Doc Authority', buildDocHref('docs/rebuild/doc-cleanup-plan.md', currentPath), 'print-button'))
+    heroActions.appendChild(createActionLink('Open Owners Closeout', buildDocHref('docs/rebuild/owners-closeout.md', currentPath), 'print-button'))
     hero.appendChild(heroActions)
 
     container.appendChild(hero)
