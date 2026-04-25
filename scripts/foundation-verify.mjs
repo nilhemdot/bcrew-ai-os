@@ -163,6 +163,7 @@ async function main() {
 
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
+  const foundationUiSource = await readRepoFile('public/foundation.js')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
@@ -440,6 +441,15 @@ async function main() {
       /connect, verify, understand, extract, synthesize, route\/action/.test(sourceLifecycleContent?.summary || ''),
     'marketing backlog captures Source Intelligence Lifecycle content idea',
     sourceLifecycleContent ? `${sourceLifecycleContent.lane} / ${sourceLifecycleContent.title}` : 'missing',
+  )
+  const doneGuardrails = ['DATA-018', 'DATA-019', 'DATA-020'].map(id => (foundationHub.backlogItems || []).find(item => item.id === id))
+  ensure(
+    checks,
+    doneGuardrails.every(item => item?.lane === 'done') &&
+      !includesAll(foundationUiSource, ['DATA-018, DATA-019']) &&
+      includesAll(currentState, ['DATA-018', 'DATA-019', 'DATA-020']),
+    'current-state source closeout rows match done Owners/FUB guardrails',
+    doneGuardrails.map(item => `${item?.id || 'missing'}=${item?.lane || 'missing'}`).join(' / '),
   )
 
   const googleHealth = await runHealthScript('google:health')

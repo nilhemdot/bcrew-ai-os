@@ -140,7 +140,7 @@ var backlogWorkflowStages = [
 var foundationNowSequence = [
   {
     title: 'Close the Owners package',
-    body: 'Use SOURCE-008, DATA-005, DATA-006, DATA-007, DATA-008, DATA-009, DATA-018, and DATA-019 to close Owners parity, lineage, and enforcement.',
+    body: 'Use SOURCE-008, DATA-005, DATA-006, DATA-007, DATA-008, and DATA-009 to close Owners/FUB parity, lineage, row cleanup, missing links, and duplicate-credit issues. DATA-018 and DATA-019 are already closed guardrails.',
     href: '/doc?path=docs/rebuild/owners-closeout.md',
     cta: 'Open Owners Closeout',
   },
@@ -6154,8 +6154,8 @@ function renderCurrentState() {
         rows: [
           {
             title: 'Owners + FUB package',
-            body: 'Owners meaning is closed, but FUB parity, lineage, historical cleanup, and enforcement still keep the package open.',
-            backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'DATA-009', 'DATA-018', 'DATA-019'],
+            body: 'Owners meaning is closed. The active work is FUB parity, lineage, historical cleanup, missing links, duplicate-credit issues, and row-quality enforcement. The first drift/enforcement guardrails are already closed.',
+            backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'DATA-009'],
           },
           {
             title: 'KPI read model',
@@ -6164,7 +6164,7 @@ function renderCurrentState() {
           },
           {
             title: 'Shared freshness rules',
-            body: 'Level 3 exists as a model, but the actual cross-source stale-data rule set does not.',
+            body: 'The first Owners/FUB freshness guardrails are live. Wider finance, KPI, connector, and corpus freshness rules still come later.',
             backlogIds: ['DATA-020'],
           },
         ],
@@ -6365,14 +6365,14 @@ function renderCurrentState() {
             sourceId: 'SRC-FUB-001',
             statusKey: 'pending',
             statusLabel: 'Open',
-            body: 'FUB parity and lead-source enforcement still need to close.',
+            body: 'FUB parity and taxonomy baseline still need to close. The first lead-source drift/enforcement guardrails are already done.',
             role: 'Dependency source',
             next: 'Finish FUB taxonomy and Owners parity work.',
           },
         ],
-        next: 'Close this package in order: SOURCE-008, DATA-005, DATA-006, DATA-007, DATA-008, DATA-009, DATA-018, DATA-019.',
-        later: 'Then make stale-state visibility explicit.',
-        backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'DATA-009', 'DATA-018', 'DATA-019'],
+        next: 'Close this package in order: SOURCE-008, DATA-005, DATA-006, DATA-007, DATA-008, DATA-009.',
+        later: 'Then reuse the proven freshness/review pattern on more governed sources.',
+        backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'DATA-009'],
       },
       {
         title: 'FUB lead-source taxonomy',
@@ -6380,10 +6380,10 @@ function renderCurrentState() {
         sourceId: 'SRC-FUB-001',
         statusKey: 'pending',
         statusLabel: 'Open',
-        currentSummary: 'The review tool is live and flexible open values stay visible, but the Level 2 baseline is not signed off yet.',
-        next: 'Finish the trusted taxonomy baseline and new-source review rules.',
-        later: 'Then add freshness and issue routing.',
-        backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-018'],
+        currentSummary: 'The review tool is live, flexible open values stay visible, and the drift/enforcement guardrails are closed. The Level 2 baseline itself is not signed off yet.',
+        next: 'Finish the trusted taxonomy baseline and source-lineage rules.',
+        later: 'Then add broader issue routing and Sales Hub support.',
+        backlogIds: ['SOURCE-008', 'DATA-005'],
       },
       {
         title: 'Finance sign-off',
@@ -6391,7 +6391,7 @@ function renderCurrentState() {
         sourceId: 'SRC-FINANCE-001',
         statusKey: 'connected',
         statusLabel: 'Done for current reality',
-        currentSummary: 'Weekly Actuals and Cashflow Dash are signed off for current-reality meaning. QuickBooks is optional compliance verification, not a current rebuild dependency.',
+        currentSummary: 'Weekly Actuals, Cashflow Dash, finance roll-ups, budgets, and the Unspent helper are signed off for current-reality meaning. QuickBooks is optional compliance verification, not a current rebuild dependency.',
         next: 'No source-signoff rediscovery work remains here.',
         later: 'Define Level 3 freshness, payment reconciliation, and automation rules only when finance automation starts reading this continuously.',
         backlogIds: ['FOUNDATION-003'],
@@ -6409,11 +6409,11 @@ function renderCurrentState() {
       {
         title: 'Shared freshness rules',
         surfaceType: 'Rule set',
-        statusKey: 'planned',
-        statusLabel: 'Later',
-        currentSummary: 'The maturity model defines Level 3, but shared stale-data rules are not defined yet.',
-        next: 'Do this after Owners, finance, KPI, and the required connector map are stable.',
-        later: 'Use it to drive stale badges, cadence, and guardrails.',
+        statusKey: 'connected',
+        statusLabel: 'Done for Owners/FUB first layer',
+        currentSummary: 'The maturity model defines Level 3, and the first Owners/FUB freshness guardrails are live through DATA-020. Wider stale-data rollout is still later.',
+        next: 'No active freshness-rule closeout remains for the current Owners/FUB layer.',
+        later: 'Reuse this pattern for finance, KPI, connectors, Drive/video corpus, and future source surfaces when those readers become continuous.',
         backlogIds: ['DATA-020'],
       },
     ]
