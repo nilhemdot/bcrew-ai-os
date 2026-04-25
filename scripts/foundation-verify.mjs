@@ -121,6 +121,7 @@ async function main() {
   const sourceConnectors = getSourceConnectors()
   const ownersContract = findSourceById(sourceContracts, 'SRC-OWNERS-001')
   const financeContract = findSourceById(sourceContracts, 'SRC-FINANCE-001')
+  const freedomCommunityContract = findSourceById(sourceContracts, 'SRC-FREEDOM-COMMUNITY-001')
   await initFoundationDb()
 
   ensure(
@@ -134,6 +135,24 @@ async function main() {
     financeContract?.status === 'Current reality captured' && financeContract?.validation === 'Signed Off For Current Reality',
     'source contracts: SRC-FINANCE-001 is signed off for current reality',
     financeContract ? `${financeContract.status} / ${financeContract.validation}` : 'missing',
+  )
+  ensure(
+    checks,
+    ['Split Cal', 'Agent Splits', 'Listings and Conditional Deals', 'Sales & Deposit', 'Goal & KPI Calculator', 'CI Report'].every(tab => ownersContract?.signedOffTabs?.includes(tab)),
+    'source contracts: SRC-OWNERS-001 exposes signed-off tab coverage',
+    ownersContract?.signedOffTabs?.join(', ') || 'missing',
+  )
+  ensure(
+    checks,
+    ['Monthly Budget', 'Budget Original', 'Monthly Actuals (Roll Up)', 'Annual Actuals (Roll Up)', 'Annual Budget (Roll Up)'].every(tab => financeContract?.signedOffTabs?.includes(tab)),
+    'source contracts: SRC-FINANCE-001 exposes signed-off finance tab coverage',
+    financeContract?.signedOffTabs?.join(', ') || 'missing',
+  )
+  ensure(
+    checks,
+    freedomCommunityContract?.signedOffTabs?.includes('Data Entry - BCrew Team/Community · G:O Community tracker'),
+    'source contracts: Freedom units expose signed-off range coverage',
+    freedomCommunityContract?.signedOffTabs?.join(', ') || 'missing',
   )
 
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
@@ -153,6 +172,18 @@ async function main() {
     includesAll(sourceRegistry, ['`SRC-FINANCE-001`', 'Signed Off For Current Reality | 2026-04-20']),
     'docs/source-registry.md reflects finance current-reality sign-off',
     'finance row present with current-reality signoff status',
+  )
+  ensure(
+    checks,
+    includesAll(sourceRegistry, ['### Freedom Sheet Signed-Off Range Coverage', 'Data Entry - BCrew Team/Community · G:O Community tracker', 'Benson Crew Bhag Builder']),
+    'docs/source-registry.md reflects Freedom signed-off range coverage',
+    'Freedom range coverage section present',
+  )
+  ensure(
+    checks,
+    includesAll(sourceRegistry, ['### Owners Dashboard Signed-Off Tab Coverage', 'Split Cal', 'Annual Budget (Roll Up)']),
+    'docs/source-registry.md reflects Owners signed-off tab coverage',
+    'Owners tab coverage section present',
   )
   ensure(
     checks,

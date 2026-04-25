@@ -2248,6 +2248,13 @@ body {
   margin-bottom: 8px;
 }
 
+.source-bullet-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+
 .source-card-meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -119,6 +119,28 @@ Readable means the rebuild can connect and read. It does not mean the business m
 | `SRC-META-001` | Meta API | Rebuild tokens proven for Steve + BCrew marketing contexts | Social metrics and account inventory | Instagram and Facebook metrics across current and legacy pages | Meta API | Verified Readable | 2026-04-23 |
 | `SRC-FINANCE-001` | Benson Crew - Owners Dashboard | `(Input) Weekly Actuals` + `Cashflow Dash` | Finance validation unit | Internal finance truth and dashboard interpretation layer | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-20 |
 
+### Freedom Sheet Signed-Off Range Coverage
+
+`SRC-FREEDOM-TEAM-001` covers:
+
+- `Data Entry - BCrew Team/Community · A:E Team records`
+
+`SRC-FREEDOM-COMMUNITY-001` covers:
+
+- `Data Entry - BCrew Team/Community · G:O Community tracker`
+
+`SRC-FREEDOM-COMMUNITY-REV-001` covers:
+
+- `Data Entry - BCrew Team/Community · P:U Community revenue`
+
+`SRC-FREEDOM-ENGINE-001` covers:
+
+- `Agent Engine`
+
+`SRC-FREEDOM-BHAG-001` covers:
+
+- `Benson Crew Bhag Builder`
+
 ### Owners Dashboard Signed-Off Tab Coverage
 
 `SRC-OWNERS-001` covers these signed-off current-reality tabs:

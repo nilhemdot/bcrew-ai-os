@@ -7687,6 +7687,31 @@ function renderSourceLinkGroup(labelText, items, currentPath) {
   return wrap
 }
 
+function renderSourceBulletGroup(labelText, items) {
+  if (!Array.isArray(items) || !items.length) return null
+
+  var wrap = document.createElement('div')
+  wrap.className = 'source-link-group'
+
+  var label = document.createElement('div')
+  label.className = 'source-link-group-label'
+  label.textContent = labelText
+  wrap.appendChild(label)
+
+  var list = document.createElement('ul')
+  list.className = 'source-bullet-list'
+  items.forEach(function(item) {
+    var text = String(item || '').trim()
+    if (!text) return
+    var li = document.createElement('li')
+    li.textContent = text
+    list.appendChild(li)
+  })
+  wrap.appendChild(list)
+
+  return wrap
+}
+
 function renderSourceContractCard(contract) {
   var article = document.createElement('article')
   article.className = 'section-card source-card'
@@ -7703,11 +7728,12 @@ function renderSourceContractCard(contract) {
 
   var sourceId = document.createElement('div')
   sourceId.className = 'source-card-id'
+  var unitDescriptor = kind.key === 'docs'
+    ? systemName
+    : (Array.isArray(contract.signedOffTabs) && contract.signedOffTabs.length > 1 ? 'Validation unit in ' + systemName : 'Tab/range in ' + systemName)
   sourceId.textContent = [
     contract.sourceId,
-    systemName !== unitName
-      ? (kind.key === 'docs' ? systemName : 'Tab in ' + systemName)
-      : '',
+    systemName !== unitName ? unitDescriptor : '',
   ].filter(Boolean).join(' · ')
   titleWrap.appendChild(sourceId)
   article.appendChild(titleWrap)
@@ -7742,11 +7768,14 @@ function renderSourceContractCard(contract) {
   }
 
   if (Array.isArray(contract.signedOffTabs) && contract.signedOffTabs.length) {
-    article.appendChild(renderLabeledCopy('decision-meta', 'Signed-off tabs in this unit', contract.signedOffTabs.join(', ')))
+    article.appendChild(renderSourceBulletGroup('Signed-off tabs/ranges in this unit', contract.signedOffTabs))
   }
 
   if (contract.owns) {
-    article.appendChild(renderLabeledCopy('decision-meta', kind.key === 'docs' ? 'What this packet owns' : 'What this tab owns', contract.owns))
+    var ownsLabel = kind.key === 'docs'
+      ? 'What this packet owns'
+      : (Array.isArray(contract.signedOffTabs) && contract.signedOffTabs.length > 1 ? 'What this unit owns' : 'What this tab/range owns')
+    article.appendChild(renderLabeledCopy('decision-meta', ownsLabel, contract.owns))
   }
 
   if (contract.validationScope) {
@@ -7952,7 +7981,7 @@ function renderSourceSystemStack(group) {
   var state = getSourceSystemState(contracts)
   var signedOffUnits = contracts.filter(function(contract) { return getSourcePresence(contract).key === 'signed-off' }).length
   var provisionalUnits = contracts.filter(function(contract) { return getSourcePresence(contract).key === 'connected' }).length
-  var signedOffTabCount = contracts.reduce(function(sum, contract) {
+  var signedOffCoverageCount = contracts.reduce(function(sum, contract) {
     return sum + (Array.isArray(contract.signedOffTabs) ? contract.signedOffTabs.length : 0)
   }, 0)
   var accessSummary = Array.from(new Set(contracts.map(function(contract) {
@@ -7985,7 +8014,7 @@ function renderSourceSystemStack(group) {
     : [
       contracts.length + ' ' + (docsOnly ? 'doc source' : 'validation unit') + (contracts.length === 1 ? '' : 's'),
       signedOffUnits ? signedOffUnits + ' signed off' : '',
-      signedOffTabCount ? signedOffTabCount + ' signed-off tabs' : '',
+      signedOffCoverageCount ? signedOffCoverageCount + ' signed-off tabs/ranges' : '',
       provisionalUnits ? provisionalUnits + ' still provisional' : '',
     ].filter(Boolean).join(' · ')
   left.appendChild(intro)
@@ -8037,13 +8066,15 @@ function renderSourceSystemStack(group) {
   systemCardCopy.className = 'source-card-copy'
   systemCardCopy.textContent = docsOnly
     ? 'This is a repo doc packet. Open it when you want to see which written docs are signed off and what is still outside that closure.'
-    : 'Review this workbook one tab at a time. The cards below are the exact validation units that still need trust work or sign-off.'
+    : (state.key === 'signed-off'
+      ? 'This workbook is represented by validation units. Each card lists the actual tabs or ranges covered by that sign-off.'
+      : 'Review this workbook by validation unit. A unit may be one tab, one range, or a signed-off group of related tabs.')
   systemCard.appendChild(systemCardCopy)
 
   var systemCardGrid = document.createElement('div')
   systemCardGrid.className = 'source-card-meta-grid'
-  systemCardGrid.appendChild(renderSourceMetaItem(docsOnly ? 'Tracked docs' : 'Tracked tabs', String(contracts.length)))
-  if (signedOffTabCount) systemCardGrid.appendChild(renderSourceMetaItem('Signed-off tabs', String(signedOffTabCount)))
+  systemCardGrid.appendChild(renderSourceMetaItem(docsOnly ? 'Tracked docs' : 'Validation units', String(contracts.length)))
+  if (signedOffCoverageCount) systemCardGrid.appendChild(renderSourceMetaItem('Signed-off tabs/ranges', String(signedOffCoverageCount)))
   if (ownerSummary) systemCardGrid.appendChild(renderSourceMetaItem('Owners', ownerSummary))
   if (accessSummary) systemCardGrid.appendChild(renderSourceMetaItem('Access', accessSummary))
   systemCardGrid.appendChild(renderSourceMetaItem('Signed off', String(signedOffUnits)))
