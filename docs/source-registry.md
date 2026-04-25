@@ -43,11 +43,11 @@ Connectors matter too, but connector access does **not** mean trusted business m
 ### Partially Signed Off / Current Reality Captured
 
 - `SRC-FINANCE-001`
-  - high-level finance hierarchy is understood
-  - not signed off line by line
+  - finance spine and Cashflow Dash interpretation are deeply mapped
+  - not signed off until `FOUNDATION-003` closes line-by-line finance truth, partner-commission normalization, payment / QuickBooks boundaries, and strategy-use rules
 - `SRC-OWNERS-LISTS-001`
-  - upstream `Lists` source for Owners Dashboard dropdown/list dependencies
-  - Owners Dashboard `Lists` is an imported mirror, not a write surface
+  - upstream `Lists` source and mirror write guard are live
+  - not signed off until FUB lead-source taxonomy, roster/cap list trust, freshness expectations, and governed review lane close
 
 ### Readable Only
 
