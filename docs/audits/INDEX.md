@@ -14,7 +14,7 @@ Status meanings:
 
 Summary:
 
-- active-reference: 2
+- active-reference: 3
 - evidence: 2
 - needs-reconciliation: 1
 - superseded-evidence: 4
@@ -30,3 +30,4 @@ Summary:
 | [2026-04-24-codex-deep-intelligence-audit.md](2026-04-24-codex-deep-intelligence-audit.md) | 2026-04-24 | general | active-reference | 3436 | Codex Deep Intelligence Audit |
 | [2026-04-24-killer-intelligence-system-build-plan.md](2026-04-24-killer-intelligence-system-build-plan.md) | 2026-04-24 | general | active-reference | 8661 | Killer Intelligence System Build Plan |
 | [2026-04-24-nuke-power-rebuild-roadmap.md](2026-04-24-nuke-power-rebuild-roadmap.md) | 2026-04-24 | foundation | needs-reconciliation | 4054 | The Nuke-Power Rebuild Roadmap |
+| [2026-04-25-foundation-memory-source-audit.md](2026-04-25-foundation-memory-source-audit.md) | 2026-04-25 | foundation | active-reference | 1536 | Foundation Memory And Source Audit |

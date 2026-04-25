@@ -218,7 +218,7 @@ async function auditOpenClaw(actor) {
       'run',
       '--local',
       '--model',
-      process.env.LLM_OPENCLAW_PROBE_MODEL || 'openai-codex/gpt-5.4',
+      process.env.LLM_OPENCLAW_PROBE_MODEL || 'openai-codex/gpt-5.5',
       '--prompt',
       'Reply with exactly: OPENCLAW_SUBSCRIPTION_PROBE_OK',
       '--json',
@@ -247,7 +247,7 @@ async function auditOpenClaw(actor) {
       ? 'OpenClaw subscription model probe returned expected output.'
       : `OpenClaw subscription model probe failed: ${modelProbe.message || modelProbe.stderr || modelProbeOutput || 'unknown error'}`,
     capability: {
-      model: process.env.LLM_OPENCLAW_PROBE_MODEL || 'openai-codex/gpt-5.4',
+      model: process.env.LLM_OPENCLAW_PROBE_MODEL || 'openai-codex/gpt-5.5',
       outputMatched: modelProbeOk,
     },
     metadata: {

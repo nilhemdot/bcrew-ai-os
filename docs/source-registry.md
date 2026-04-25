@@ -175,6 +175,8 @@ Verified but not counted as source-owned sign-off for this unit:
 | `SRC-CLICKUP-001` | ClickUp | Task management, onboarding checklists, agent roster supplements | Carson | Pending Revalidation |
 | `SRC-GDRIVE-001` | Google Drive | Docs, notes, brand guidelines, meeting artifacts, shared-drive corpora, training assets, videos, presentations, and links | All | Pending Revalidation under the delegated Google Workspace path. Shared-drive roots are captured in `docs/source-notes/google-drive-corpus.md`; first crawler must be read-only inventory. |
 | `SRC-VIDEO-001` | Video Link Inventory | Loom, Drive, YouTube, Vimeo, Wistia, Zoom, and Skool media links discovered across existing archives and future authorized crawlers | Steve | Pending Revalidation. This is the system-owned URL manifest lane; it inventories links and provenance before any platform-specific transcript/download extractor runs. |
+| `SRC-CREATOR-WATCHLIST-001` | Creator / source watchlist | Steve-approved creators, channels, sites, communities, newsletters, and source priority rules | Steve | Pending Revalidation. Old BCrew-Buddy had a YouTube/external-scout registry, but the rebuild has not normalized it into a source-owned watchlist yet. |
+| `SRC-YOUTUBE-INTEL-001` | YouTube creator intelligence | Public creator/channel/video metadata, transcripts where allowed, Gemini video observations, and derived source-backed atoms | Steve | Pending Revalidation. Old scout extracts exist; rebuild has not yet implemented official discovery plus Gemini video-intelligence ingestion. |
 | `SRC-GADS-001` | Google Ads | MCC + sub-account performance | Steve | Pending Revalidation because the configured OAuth refresh currently returns `invalid_grant` in the rebuild. |
 
 ## Gaps

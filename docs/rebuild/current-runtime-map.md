@@ -1,6 +1,6 @@
 # Current Runtime Map
 
-Last updated: 2026-04-24
+Last updated: 2026-04-25
 Status: Plain-English architecture map
 
 This doc exists for one reason:
@@ -142,7 +142,7 @@ Current direction:
 
 - model access goes through the policy-aware LLM router
 - BCrew router owns the route decision; OpenClaw is one transport adapter, not the controlling system
-- the current working subscription route is OpenClaw/Codex OAuth through `openai-codex/gpt-5.4`
+- the last proven subscription route was OpenClaw/Codex OAuth through `openai-codex/gpt-5.4`; repo defaults now target `openai-codex/gpt-5.5` and need a fresh post-upgrade probe
 - official API routes stay available as guarded manual fallback, not default or automatic failover
 - direct OpenAI Responses API is blocked unless an intentional paid-run override is set
 - subscription/native routes can be used only after probes classify them for the workload
@@ -181,6 +181,8 @@ This is the assistant/runtime memory.
 Current direction:
 
 - OpenClaw native memory for agent recall baseline
+- repo-local `MEMORY.md` and `memory/YYYY-MM-DD.md` for workspace continuity
+- Foundation/Postgres memory for operating truth, decisions, backlog, source contracts, jobs, and future retrieval/atom records
 - later improvements only after the baseline is proven
 
 This is for things like:

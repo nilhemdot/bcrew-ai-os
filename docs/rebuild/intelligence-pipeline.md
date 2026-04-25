@@ -1,6 +1,6 @@
 # Intelligence Pipeline Operating Model
 
-Last updated: 2026-04-24
+Last updated: 2026-04-25
 Status: Foundation doctrine for extraction, synthesis, action routing, and future hub views
 
 This doc answers one question:
@@ -15,10 +15,11 @@ It should be a governed pipeline:
 
 1. source-specific ingestion routines
 2. source-specific extraction routines
-3. one shared synthesis layer
-4. one governed action-routing layer
-5. consumer-specific hub views and approved packet outputs
-6. approved apply paths into backlog, decisions, ClickUp, CRM, or source systems
+3. one source-backed memory spine
+4. one shared synthesis layer
+5. one governed action-routing layer
+6. consumer-specific hub views and approved packet outputs
+7. approved apply paths into backlog, decisions, ClickUp, CRM, or source systems
 
 Agents can use this pipeline.
 
@@ -132,6 +133,16 @@ The product is the closed operating loop:
 
 Synthesis is a function inside that loop, not a standalone digest.
 
+Before broad video, Skool, YouTube, or old-system mining scales up, the memory spine needs to exist:
+
+- an intelligence job ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation
+- a source-backed atom schema for extracted observations, demonstrated workflows, claims, decisions, risks, corrections, content ideas, and action candidates
+- chunk-level lexical search over archived artifacts using Postgres full-text and trigram search
+- pgvector semantic retrieval after lexical search is working
+- hybrid retrieval that returns source evidence, not fuzzy memory
+
+Postgres remains the first memory system because it keeps source truth, permissions, provenance, jobs, chunks, atoms, and vectors together. Graphiti, Zep, or a separate graph/vector product can be reconsidered later only after the Postgres spine proves its limits.
+
 Historical extraction should be paced. The goal is not to read the entire company history in one night. The goal is a supervised extraction team that can:
 
 - take one Drive folder, Skool course, inbox date window, or meeting archive window at a time
@@ -160,7 +171,41 @@ For old Drive, Skool, videos, trainings, courses, links, docs, and long-tail mee
 
 This is how historical mining becomes useful instead of becoming a second archive nobody reads.
 
-### 3. Synthesis Layer
+### 3. Memory Spine
+
+This is the missing continuity layer between extraction and synthesis.
+
+Raw artifacts are too large.
+
+Reports are too coarse.
+
+The system needs durable, reviewable units:
+
+- archived artifacts
+- normalized chunks
+- extracted candidates
+- accepted/rejected/superseded atoms
+- source-backed operating facts
+- retrieval results with exact evidence links
+
+Every extracted item must know:
+
+- source ID
+- artifact ID
+- modality
+- row/page/timestamp/thread anchor
+- evidence excerpt or visual observation
+- extraction route and model
+- confidence and sensitivity
+- content-use boundary
+- value route
+- owner/action suggestion, if any
+- review state
+- supersession or expiry state
+
+This is how a fresh chat should remember without dragging a giant chat transcript behind it.
+
+### 4. Synthesis Layer
 
 This is the next major capability.
 
@@ -181,7 +226,7 @@ Core source systems should not be blindly atomized.
 
 Strategy, KPI, finance, Owners, FUB, and source-contract facts stay source-backed first. They become evidence for synthesis. They only become atoms when they express durable business meaning, not just because a row or metric exists.
 
-### 4. Action Routing Layer
+### 5. Action Routing Layer
 
 This is the missing Foundation hop.
 
@@ -207,7 +252,7 @@ Each route needs:
 
 No hub should treat a synthesized item as operational truth until this routing layer exists.
 
-### 5. Consumer Views
+### 6. Consumer Views
 
 These are the useful outputs humans and hubs read.
 
@@ -226,7 +271,7 @@ The old Directors of Intelligence are useful here as output inspiration.
 
 They should not come back as independent source-reading agents.
 
-### 4.5 Hub Supply Chain
+### 6.5 Hub Supply Chain
 
 The same Foundation extraction layer should feed different hub consumers without mixing their boundaries.
 
@@ -247,7 +292,7 @@ Foundation owns the extraction, evidence, source links, privacy tags, and value 
 
 Hubs own the final action: publish, teach, coach, recruit, sell, or change operations.
 
-### 5. Apply Paths
+### 7. Apply Paths
 
 Approved outputs can become action.
 
@@ -283,6 +328,7 @@ Near future:
 
 - scheduled jobs or queue workers run ingestion and extraction
 - each run writes status, counts, cursor state, errors, and cost
+- chunking, lexical search, semantic retrieval, and hybrid evidence retrieval run before broad multimodal scale-up
 - `SYSTEM-010` process supervision must exist before long-running autonomous loops are trusted
 - a current-sync worker keeps live sources fresh on approved cadences
 - a historical crawler worker takes bounded bites by source cadence and budget
@@ -332,16 +378,14 @@ Discard these old patterns:
 
 The next build is not more scouts.
 
-The next build is the first closed-loop output shape:
+The next build is the memory and routing spine that makes extraction useful:
 
-- what gets linked
-- what gets marked resolved
-- what gets deduped
-- what gets ranked
-- what gets suppressed
-- what routes to a decision, task, question, contradiction, owner action, ignore, or snooze
+- job ledger: what ran, source touched, cursor, model, cost, status, failures, and outputs
+- atom schema: what was extracted, why it matters, where the evidence lives, and how it can be reviewed
+- retrieval: exact search first, semantic search second, hybrid evidence API third
+- routing: what gets linked, resolved, deduped, ranked, suppressed, or sent to a decision, task, question, contradiction, owner action, ignore, or snooze
 
-That is the bridge from archive to nuclear power.
+That is the bridge from archive to useful operating intelligence.
 
 ## Source Types To Support Next
 
@@ -349,6 +393,9 @@ The extraction team needs to support more than communications:
 
 - Google Drive corpus crawl: old shared drives, brand folders, docs, PDFs, training assets, videos, and links
 - Skool corpus crawl: courses, trainings, posts, comments, links, docs, and video lessons
+- YouTube creator intelligence: official discovery plus Gemini video understanding for selected public videos
+- Loom / Zoom / hosted video extraction: authorized transcript/video paths with timestamped atoms
+- public web and creator-site crawl: allowed pages, docs, newsletters, and demonstrations
 - marketing corpus crawl: platform reports, old avatars, performance reports, content briefs, and source maps
 - strategy corpus crawl: old strategy docs, meeting packets, John Kitchens work, quarterly prep, and post-strategy outcomes
 
@@ -364,6 +411,8 @@ Each source needs the same control model:
 - artifact inventory
 - archive/mirror location
 - extraction status
+- atom/chunk status
+- retrieval status
 - cost/status/errors
 - evidence links
 - synthesis handoff

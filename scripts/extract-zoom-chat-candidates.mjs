@@ -27,7 +27,7 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
 const STRATEGY_DOC_PATH = path.join(REPO_ROOT, 'docs', 'business-strategy.md');
 
-const DEFAULT_MODEL = process.env.OPENAI_EXTRACTION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini';
+const DEFAULT_MODEL = process.env.OPENAI_EXTRACTION_MODEL || process.env.OPENAI_MODEL || 'gpt-5.5';
 const DEFAULT_TIMEOUT_MS = Number(
   process.env.ZOOM_CHAT_EXTRACTION_TIMEOUT_MS ||
     process.env.ZOOM_EXTRACTION_TIMEOUT_MS ||

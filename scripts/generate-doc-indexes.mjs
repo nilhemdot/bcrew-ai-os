@@ -48,6 +48,10 @@ function inferCategory(relPath, heading) {
 
 function inferStatus(relPath, heading, statusLine, directory) {
   const text = `${relPath} ${heading} ${statusLine}`.toLowerCase();
+  const explicitStatus = ['active-reference', 'needs-reconciliation', 'evidence', 'superseded-evidence', 'duplicate-candidate'].find((status) =>
+    statusLine.toLowerCase().includes(status)
+  );
+  if (explicitStatus) return explicitStatus;
 
   if (directory === 'docs/audits') {
     if (text.includes('killer-intelligence-system-build-plan')) return 'active-reference';

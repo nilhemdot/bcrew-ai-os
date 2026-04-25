@@ -18,7 +18,7 @@ import { shorten } from '../lib/shared-candidate-extraction.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
-const DEFAULT_MODEL = process.env.OPENAI_SYNTHESIS_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4';
+const DEFAULT_MODEL = process.env.OPENAI_SYNTHESIS_MODEL || process.env.OPENAI_MODEL || 'gpt-5.5';
 const DEFAULT_TIMEOUT_MS = Number(
   process.env.SHARED_COMMS_SYNTHESIS_TIMEOUT_MS ||
     process.env.LLM_SYNTHESIS_TIMEOUT_MS ||

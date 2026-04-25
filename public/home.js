@@ -22,7 +22,7 @@ var harlanPanelReady = false
 var harlanResponseIndex = 0
 var harlanStatus = {
   modelLabel: 'Preview UI',
-  memoryLabel: 'Business Memory Live',
+  memoryLabel: 'Assistant Memory Not Wired',
   sourceLabel: 'Foundation Data Loading',
 }
 

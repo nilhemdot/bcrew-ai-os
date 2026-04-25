@@ -118,7 +118,7 @@ const extractionTargets = [
     cursorState: { cursorType: 'access_validation_required' },
     budget: { maxItemsPerRun: 25, maxRuntimeSeconds: 900, llmBudget: 'limited_after_access' },
     dedupePolicy: { key: 'skool_object_url_or_id', idempotent: true },
-    metadata: { backlogIds: ['SKOOL-001', 'WEB-CRAWLER-001'], sourceNote: 'docs/source-notes/skool-corpus.md', blockedBy: 'Need approved export/API/admin path and content-use boundary. Blind scraping is blocked by policy risk.' },
+    metadata: { backlogIds: ['SKOOL-001', 'WEB-CRAWLER-001', 'MULTIMODAL-EXTRACTOR-001'], sourceNote: 'docs/source-notes/skool-corpus.md', blockedBy: 'Need approved export/API/admin path and content-use boundary. Blind scraping is blocked by policy risk.' },
     notes: 'Do not crawl Skool blindly. Validate access path and content-use rules first.',
   },
   {
@@ -134,7 +134,7 @@ const extractionTargets = [
     budget: { maxArtifactsPerRun: 1000, maxRuntimeSeconds: 900, llmBudget: 'none' },
     dedupePolicy: { key: 'normalized_url', idempotent: true },
     metadata: {
-      backlogIds: ['WEB-CRAWLER-001', 'EXTRACTION-TEAM-001'],
+      backlogIds: ['VIDEO-001', 'WEB-CRAWLER-001', 'MULTIMODAL-EXTRACTOR-001', 'CREATOR-WATCHLIST-001', 'YOUTUBE-SCOUT-001', 'EXTRACTION-TEAM-001'],
       sourceNote: 'docs/source-notes/video-link-inventory.md',
       blockedBy: 'Platform-specific extraction requires approved access path. Link inventory is safe and local.',
     },
@@ -167,7 +167,7 @@ const extractionTargets = [
     cursorState: { cursorType: 'uploaded_archive_file_queue', recoveredThrough: '2025-03-10 text/chat lane where available' },
     budget: { maxFilesPerRun: 5, maxRuntimeSeconds: 1800, llmBudget: 'transcription_api_or_local' },
     dedupePolicy: { key: 'file_path:size:modified_time', idempotent: true },
-    metadata: { foundationJobKey: 'zoom:transcribe-audio', promotionGate: 'Only resume if strategy/content value justifies transcription cost.' },
+    metadata: { foundationJobKey: 'zoom:transcribe-audio', backlogIds: ['ZOOM-RECOVERY-001', 'MULTIMODAL-EXTRACTOR-001'], promotionGate: 'Only resume if strategy/content value justifies transcription cost.' },
     notes: 'Historical Zoom is useful but not the current bottleneck. Keep paused unless Steve explicitly reopens it.',
   },
 ]

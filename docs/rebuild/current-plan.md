@@ -108,6 +108,9 @@ Still not done:
 - auth/tier middleware and subject-person redaction implementation from `docs/specs/2026-04-23-auth-tiers-vault.md`
 - interim admin gating or redacted/public split for broad Foundation/Ops read APIs
 - full `SYSTEM-010` decommission, dead-man, and cost/process-control layer
+- intelligence job ledger for extraction, embedding, video analysis, synthesis, and brief runs
+- source-backed atom schema that turns rich extraction into durable, reviewable memory units
+- retrieval spine: chunk-level lexical search, pgvector semantic search, and hybrid evidence API
 - richer KPI / finance / FUB grounding inside synthesis
 - Action Router v1: synthesized items do not yet route into decisions, backlog tasks, open questions, contradictions, ignore/snooze, or owner-bound actions with back-links
 - source-backed Strategy Hub
@@ -159,18 +162,23 @@ This checklist is the current anti-drift queue from the 2026-04-25 top-down revi
    - `video-link-inventory-bite` now runs through `extraction:target`; finish stable cursor/provenance-occurrence semantics before scheduling.
    - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
    - Keep Skool/Loom extraction blocked until authorized proof paths are validated.
-5. `SOURCE-008` / `DATA-005` — Close FUB Level 2 taxonomy and Owners/FUB lineage.
+5. `INTEL-JOBS-001` / `INTEL-ATOM-001` / `RETRIEVAL-001` through `RETRIEVAL-003` — Build the memory/retrieval spine.
+   - Add a run/cost/cursor ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation.
+   - Define the source-backed atom schema before scaling video/web/Skool extraction.
+   - Add chunk-level lexical search first, then pgvector semantic retrieval, then hybrid evidence retrieval.
+   - Keep Graphiti/Zep deferred until Postgres memory proves itself.
+6. `SOURCE-008` / `DATA-005` — Close FUB Level 2 taxonomy and Owners/FUB lineage.
    - Refresh stale FUB source snapshot.
    - Sign off trusted FUB source taxonomy baseline and new-source review rules.
    - Lock Owners dropdown/list parity against FUB lineage.
-6. `DATA-006` through `DATA-009` — Clear Ops/deal-validation source-quality work.
+7. `DATA-006` through `DATA-009` — Clear Ops/deal-validation source-quality work.
    - Admin-tab data quality rules.
    - Invalid lead-source row backfill.
    - Missing FUB link backfill.
    - Suspicious duplicate full-credit row resolution.
-7. `SOURCE-010` — Close KPI truth-layer map.
+8. `SOURCE-010` — Close KPI truth-layer map.
    - Split pipeline, shopping-list, executed-deal, goal, competition, and usage read rules before KPI jobs become trusted operating intelligence.
-8. `SYNTHESIS-ENGINE-001` / `SYNTHESIS-FACTS-001` / `ACTION-ROUTER-001` — Close the intelligence loop.
+9. `SYNTHESIS-ENGINE-001` / `SYNTHESIS-FACTS-001` / `ACTION-ROUTER-001` — Close the intelligence loop.
    - Prove synthesis against bounded input that fits the subscription adapter.
    - Ground synthesis in source-backed KPI, finance, strategy, Owners/FUB facts.
    - Route synthesized items into governed decisions, backlog tasks, questions, contradictions, ignore/snooze, or owner-bound actions with back-links.
@@ -313,7 +321,8 @@ Current proof:
 - `lib/llm-router.js` seeds policy-aware credential/route config, executes OpenClaw/Codex subscription model calls, logs every call, and keeps direct OpenAI Responses API as a guarded fallback only.
 - `llm-auth-audit` is registered as a manual Foundation job and runs through `npm run foundation:job -- --job=llm-auth-audit`.
 - Latest audit probes, in order: direct OpenAI API, direct Anthropic API, local Claude Code subscription, Claude OAuth token, OpenClaw/ChatGPT gateway, and Gemini API.
-- Latest probe result: OpenAI API available, Gemini API available through `GOOGLE_API_KEY`, Claude Code Max login available, OpenClaw/Codex subscription model run succeeded through `openai-codex/gpt-5.4` OAuth, Anthropic API missing, Claude OAuth token missing.
+- Latest historical probe result: OpenAI API available, Gemini API available through `GOOGLE_API_KEY`, Claude Code Max login available, OpenClaw/Codex subscription model run succeeded through `openai-codex/gpt-5.4` OAuth, Anthropic API missing, Claude OAuth token missing.
+- 2026-04-25 correction: repo defaults now target `openai-codex/gpt-5.5`; rerun `llm-auth-audit` after the local Codex/OpenClaw upgrade so the DB route proof matches the current model.
 - No raw secrets are stored in Postgres. DB records only labels, auth-path classes, status, policy classification, env/keychain references, probe outcomes, and call telemetry.
 - Shared candidate extraction and shared-comms synthesis are migrated behind the router.
 - Live proof: one synthesis run and one Gmail extraction run recorded `provider=openclaw`, `authPath=chatgpt_subscription_gateway`, `estimatedCostUsd=0` in `llm_calls`.
@@ -451,6 +460,11 @@ Synthesis output must answer:
 Backlog/cards:
 
 - `SECURITY-002`
+- `INTEL-JOBS-001`
+- `INTEL-ATOM-001`
+- `RETRIEVAL-001`
+- `RETRIEVAL-002`
+- `RETRIEVAL-003`
 - `SYNTHESIS-ENGINE-001`
 - `SYNTHESIS-FACTS-001`
 - `ACTION-ROUTER-001`
@@ -539,6 +553,9 @@ Build:
 
 - Drive worker: one folder at a time
 - Skool worker: trainings, videos, links, docs, comments where accessible
+- rich multimodal extractor contract for Zoom, Loom, YouTube, Skool, web pages, screenshots, transcripts, slides, and demos
+- normalized creator/source watchlist for YouTube, blogs, Skool, X, LinkedIn, newsletters, and websites
+- YouTube discovery and Gemini video-intelligence MVP after the retrieval spine is live
 - web/video crawler boundary for YouTube, Loom, Vimeo, Wistia, public web, and paid/community sources
 - video-link inventory lane: system discovers Loom/Drive/YouTube/Vimeo/Wistia/Zoom/Skool links from archives and authorized crawlers so Steve is not manually collecting URLs
 - old-system report miner
@@ -561,7 +578,12 @@ Rules:
 Backlog/cards:
 
 - `DRIVE-CORPUS-001`
+- `MULTIMODAL-EXTRACTOR-001`
+- `CREATOR-WATCHLIST-001`
+- `YOUTUBE-SCOUT-001`
 - `SKOOL-001`
+- `LOOM-001`
+- `ZOOM-RECOVERY-001`
 - `EXTRACTION-TEAM-001`
 - `REPORT-MINING-001`
 - `PLATFORM-INTEL-001`
