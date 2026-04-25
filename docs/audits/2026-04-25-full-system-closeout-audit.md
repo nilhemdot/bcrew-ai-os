@@ -145,9 +145,9 @@ The old systems are large enough that they need their own salvage pass:
 
 The main risk is not that old docs exist. The risk is building from old evidence without promoting it into active docs, source contracts, or DB backlog first.
 
-3. DB seed/live truth is still split.
+3. DB seed/live truth is still split, but now visible.
 
-The immediate safety bugs are fixed, but the seed/live migration problem remains open under `DB-SEED-001`.
+The immediate safety bugs are fixed. The seed/live migration problem remains open under `DB-SEED-001`, but the system now exposes a governed drift snapshot through `npm run backlog:seed-drift`, `/api/foundation-hub`, and verifier coverage so future work can classify mismatches instead of discovering them by accident.
 
 4. Broad auth remains an interim stop-gap.
 

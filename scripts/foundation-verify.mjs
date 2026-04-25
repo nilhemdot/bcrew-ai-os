@@ -9,6 +9,7 @@ import process from 'node:process'
 import { getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
 import {
   closeFoundationDb,
+  getBacklogSeedDriftSnapshot,
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleLlmCalls,
   initFoundationDb,
@@ -138,6 +139,7 @@ async function main() {
   const financeContract = findSourceById(sourceContracts, 'SRC-FINANCE-001')
   const freedomCommunityContract = findSourceById(sourceContracts, 'SRC-FREEDOM-COMMUNITY-001')
   await initFoundationDb()
+  const backlogSeedDrift = await getBacklogSeedDriftSnapshot({ limit: 10 })
 
   ensure(
     checks,
@@ -250,6 +252,18 @@ async function main() {
     directModelHostOffenders.length
       ? directModelHostOffenders.join(', ')
       : 'no direct OpenAI/Anthropic/Gemini host calls outside approved adapters',
+  )
+  ensure(
+    checks,
+    backlogSeedDrift.seedRows >= 180 &&
+      Array.isArray(backlogSeedDrift.items) &&
+      backlogSeedDrift.stableFields.includes('summary') &&
+      backlogSeedDrift.stableFields.includes('whyItMatters') &&
+      backlogSeedDrift.mutableFields.includes('lane') &&
+      backlogSeedDrift.mutableFields.includes('statusNote') &&
+      typeof backlogSeedDrift.totalMismatchCount === 'number',
+    'backlog seed/live drift is explicitly reported',
+    `${backlogSeedDrift.driftItemCount} drift rows / ${backlogSeedDrift.stableMismatchCount} stable mismatches / ${backlogSeedDrift.mutableMismatchCount} mutable mismatches`,
   )
   ensure(
     checks,
@@ -420,6 +434,18 @@ async function main() {
       Array.isArray(foundationHub.decisionReview.items),
     'api/foundation-hub returns the expected core arrays',
     `${foundationHub.backlogItems?.length ?? 'invalid'} backlog / ${foundationHub.decisions?.length ?? 'invalid'} decisions / ${foundationHub.openQuestions?.length ?? 'invalid'} questions`,
+  )
+  ensure(
+    checks,
+    foundationHub.backlogSeedDrift?.policy &&
+      Array.isArray(foundationHub.backlogSeedDrift.items) &&
+      Array.isArray(foundationHub.backlogSeedDrift.stableFields) &&
+      Array.isArray(foundationHub.backlogSeedDrift.mutableFields) &&
+      typeof foundationHub.backlogSeedDrift.totalMismatchCount === 'number',
+    'api/foundation-hub exposes backlog seed/live drift',
+    foundationHub.backlogSeedDrift
+      ? `${foundationHub.backlogSeedDrift.driftItemCount} drift rows / ${foundationHub.backlogSeedDrift.totalMismatchCount} mismatches`
+      : 'missing seed/live drift payload',
   )
   const opsServedJobs = (foundationHub.foundationJobs?.jobs || []).filter(job =>
     Array.isArray(job.servesHubs) && job.servesHubs.includes('ops')
