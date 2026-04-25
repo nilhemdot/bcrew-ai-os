@@ -87,9 +87,7 @@ AIOS cleanup applied on 2026-04-25:
   - `Internal Deal Management Survey Completed`
   - `Internal Deal Management Survey Score`
   - `Internal Deal Management Survey Comments`
-- new Deal Data Entry views were created:
-  - `AIOS Deal Workflow` view `8chw3b6-47511`
-  - `AIOS Review Follow-Up` view `8chw3b6-47531`
+- Deal Data Entry fields were appended to the existing `Full Deal List` view `8chw3b6-33791` instead of creating a separate working list
 - new Agent Roster fields were added:
   - `Recruited By`
   - `Real Start Date`
@@ -99,8 +97,7 @@ AIOS cleanup applied on 2026-04-25:
   - `Onboarding Stage`
   - `Contract Status`
   - `Team / Legacy Origin`
-- new Agent Roster view was created:
-  - `AIOS Agent Roster Source Truth` view `8chw3b6-47551`
+- Agent Roster fields were appended to the existing `Active Roster` view `8chw3b6-46591`
 - no old ClickUp fields were deleted; finance/math clutter should be hidden from active views first and deleted only after backup/approval
 
 Current read:
