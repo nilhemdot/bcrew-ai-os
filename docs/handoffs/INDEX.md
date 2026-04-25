@@ -15,7 +15,7 @@ Status meanings:
 Summary:
 
 - active-reference: 6
-- evidence: 67
+- evidence: 70
 - needs-promotion: 1
 - needs-reconciliation: 1
 
@@ -91,8 +91,11 @@ Summary:
 | [2026-04-23-unchained-realtor-split-handoff.md](2026-04-23-unchained-realtor-split-handoff.md) | 2026-04-23 | unchained-realtor | needs-promotion | 1237 | Handoff — 2026-04-23 BCrew AI OS + Unchained Realtor Split |
 | [2026-04-23-zoom-text-recovery-lane.md](2026-04-23-zoom-text-recovery-lane.md) | 2026-04-23 | shared-comms | active-reference | 556 | 2026-04-23 Zoom Text Recovery Lane |
 | [2026-04-24-drive-skool-corpus-crawl-checkpoint.md](2026-04-24-drive-skool-corpus-crawl-checkpoint.md) | 2026-04-24 | general | evidence | 494 | Drive / Skool Corpus Crawl Checkpoint |
-| [2026-04-24-extraction-processing-provenance-hardening.md](2026-04-24-extraction-processing-provenance-hardening.md) | 2026-04-24 | general | evidence | 288 | Extraction Processing Provenance Hardening |
+| [2026-04-24-extraction-processing-provenance-hardening.md](2026-04-24-extraction-processing-provenance-hardening.md) | 2026-04-24 | general | evidence | 317 | Extraction Processing Provenance Hardening |
+| [2026-04-24-foundation-closeout-and-doc-checkpoint.md](2026-04-24-foundation-closeout-and-doc-checkpoint.md) | 2026-04-24 | foundation | evidence | 631 | Foundation Closeout And Doc Checkpoint |
 | [2026-04-24-runtime-router-current-day-sync-checkpoint.md](2026-04-24-runtime-router-current-day-sync-checkpoint.md) | 2026-04-24 | foundation | evidence | 765 | Runtime, Router, And Current-Day Sync Checkpoint |
-| [2026-04-24-subscription-router-and-intelligence-checkpoint.md](2026-04-24-subscription-router-and-intelligence-checkpoint.md) | 2026-04-24 | general | evidence | 869 | Subscription Router And Intelligence Checkpoint |
+| [2026-04-24-strategy-action-loop-correction.md](2026-04-24-strategy-action-loop-correction.md) | 2026-04-24 | strategy | evidence | 246 | Strategy / Action Loop Correction |
+| [2026-04-24-subscription-first-extraction-runtime-checkpoint.md](2026-04-24-subscription-first-extraction-runtime-checkpoint.md) | 2026-04-24 | foundation | evidence | 610 | Subscription-First Extraction Runtime Checkpoint |
+| [2026-04-24-subscription-router-and-intelligence-checkpoint.md](2026-04-24-subscription-router-and-intelligence-checkpoint.md) | 2026-04-24 | general | evidence | 902 | Subscription Router And Intelligence Checkpoint |
 | [2026-04-24-video-link-inventory-checkpoint.md](2026-04-24-video-link-inventory-checkpoint.md) | 2026-04-24 | general | evidence | 430 | 2026-04-24 Video Link Inventory Checkpoint |
 | [README.md](README.md) | - | general | evidence | 131 | Handoffs |

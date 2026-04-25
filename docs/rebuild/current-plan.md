@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-24
-Version: v6.4 — subscription-routed intelligence plus extraction processing ledger
+Version: v6.5 — Foundation closeout, extraction control, and action routing
 Status: Active
 
 Use this doc for one question:
@@ -47,6 +47,8 @@ Reason for v6:
 - Extraction is a Foundation supply chain, not a one-off research chore. It must keep current sources fresh, mine old corpora one bounded bite at a time, and preserve what each hub can use.
 - Drive and Skool mining belong in Foundation while they inventory, archive, classify, extract, and organize evidence. Course creation, content production, recruiting outreach, coaching, and monetization are Hub work built on that Foundation output.
 - The brand/hub lanes must stay separate: Benson Crew residential, Zahnd Team Ag, Steve Zahnd personal brand, MarketMasters, and Steve-owned monetization/education assets are different consumers with different risk boundaries.
+- Foundation is not done until source evidence can move through the full loop: source -> archive/artifact -> candidate/atom -> synthesized item -> routed decision/task/question/contradiction/action -> resolution.
+- Strategy Hub is the first major consumer, not the next build surface. Do not build Strategy Hub UI before the extraction/miner and action-routing loop are closed enough to trust.
 
 ## Current Reality
 
@@ -85,6 +87,7 @@ Still not done:
 - source-budget and failure visibility
 - full subject-person privacy/query layer
 - richer KPI / finance / FUB grounding inside synthesis
+- Action Router v1: synthesized items do not yet route into decisions, backlog tasks, open questions, contradictions, ignore/snooze, or owner-bound actions with back-links
 - source-backed Strategy Hub
 - Harlan/Crewbert useful runtime
 - Drive and Skool crawler workers
@@ -154,7 +157,7 @@ Activate only 3 to 5 jobs first:
 - deal-review queued runner
 - synthesis as manual or scheduled with explicit route and budget visibility
 - one current-day sync lane if stable
-- bounded candidate-extraction bites for already-archived material, still manual until the daily cadence is deliberately scheduled
+- bounded candidate-extraction bites for already-archived material, still manual until the paced miner cadence is deliberately activated
 
 Backlog/cards:
 
@@ -335,7 +338,7 @@ Current partial proof:
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
 - `missive-sync-current` is scheduled every `120` minutes.
-- `gmail-extract-latest` and `missive-extract-latest` now target archived threads without a successful processing run for the current content hash instead of offset/latest chunks. First manual proofs scanned `15` Gmail threads and created `13` candidates, then scanned `15` Missive threads and created `11` candidates. These now run through the subscription router; keep them bounded and manual until the daily cadence is deliberately scheduled.
+- `gmail-extract-latest` and `missive-extract-latest` now target archived threads without a successful processing run for the current content hash instead of offset/latest chunks. First manual proofs scanned `15` Gmail threads and created `13` candidates, then scanned `15` Missive threads and created `11` candidates. These now run through the subscription router; keep them bounded and manual until the paced miner cadence is deliberately activated.
 - `shared_communication_artifact_processing_runs` now records candidate-extraction processing attempts with `artifact_content_hash`, actual `provider`, `auth_path`, `route_key`, and actual model. Successful zero-candidate artifacts are excluded from future `--onlyWithoutCandidates=true` queues only for the same extractor version and same current content hash, while changed content and failures remain retryable.
 - System Health now exposes Intelligence Pipeline extraction depth: archived artifacts, artifacts with active candidates, still-unmined artifacts, extraction coverage percent, and latest synthesis.
 - `shared-comms-intelligence-bite` is a manual synthesis-only job for strategy prep and action review. It reads already-mined candidates and records ranked Strategy Hub/action-router input with a long subscription-route timeout. Gmail, Missive, and meeting transcript extraction now run as separate paced subscription miners so slow extraction calls do not block leadership work.
@@ -385,15 +388,17 @@ Backlog/cards:
 
 - `SYNTHESIS-ENGINE-001`
 - `SYNTHESIS-FACTS-001`
+- `ACTION-ROUTER-001`
 - `STRATEGY-001`
 - `MEMORY-005`
 - `DECISION-005`
 
 Acceptance:
 
-- a strategy/leadership packet surfaces 15 to 25 real items, not thousands of raw candidates
+- a small live set of real items exists instead of thousands of raw candidates
 - each item links to evidence and source facts
-- old items are suppressed if resolved, stale, duplicated, or superseded
+- each item can route to the right operating ledger: decision, backlog task, open question, contradiction, ignore/snooze, or owner-bound action
+- old items are suppressed if resolved, stale, duplicated, superseded, or explicitly closed
 - sensitive people facts are filtered by subject-person and tier before reaching hubs or agents
 
 ### Phase 5 — Source Trust Closures

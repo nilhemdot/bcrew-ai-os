@@ -1,7 +1,7 @@
 # Intelligence Pipeline Operating Model
 
 Last updated: 2026-04-24
-Status: Foundation doctrine for extraction, synthesis, and future briefs
+Status: Foundation doctrine for extraction, synthesis, action routing, and future hub views
 
 This doc answers one question:
 
@@ -16,8 +16,9 @@ It should be a governed pipeline:
 1. source-specific ingestion routines
 2. source-specific extraction routines
 3. one shared synthesis layer
-4. consumer-specific briefs and hub views
-5. approved apply paths into backlog, decisions, ClickUp, CRM, or source systems
+4. one governed action-routing layer
+5. consumer-specific hub views and approved packet outputs
+6. approved apply paths into backlog, decisions, ClickUp, CRM, or source systems
 
 Agents can use this pipeline.
 
@@ -180,7 +181,33 @@ Core source systems should not be blindly atomized.
 
 Strategy, KPI, finance, Owners, FUB, and source-contract facts stay source-backed first. They become evidence for synthesis. They only become atoms when they express durable business meaning, not just because a row or metric exists.
 
-### 4. Consumer Views
+### 4. Action Routing Layer
+
+This is the missing Foundation hop.
+
+Synthesis creates ranked items. Action routing decides where those items land:
+
+- decision ledger
+- backlog task
+- open question
+- contradiction / source-trust issue
+- ignored with reason
+- snoozed with review date
+- owner-bound action proposal
+
+Each route needs:
+
+- owner
+- reason
+- evidence excerpt
+- source IDs
+- candidate keys
+- synthesized item back-link
+- resolution status
+
+No hub should treat a synthesized item as operational truth until this routing layer exists.
+
+### 5. Consumer Views
 
 These are the useful outputs humans and hubs read.
 
@@ -290,7 +317,7 @@ Keep these output patterns:
 - suggested owner
 - suggested next action
 - ranked findings with evidence
-- daily/weekly brief cadence when a real human reads it
+- scheduled or event-triggered packets only when a real owner will consume them
 
 Discard these old patterns:
 
@@ -305,14 +332,14 @@ Discard these old patterns:
 
 The next build is not more scouts.
 
-The next build is the first synthesis contract and output shape:
+The next build is the first closed-loop output shape:
 
 - what gets linked
 - what gets marked resolved
 - what gets deduped
 - what gets ranked
 - what gets suppressed
-- what becomes a strategy packet or director-style brief
+- what routes to a decision, task, question, contradiction, owner action, ignore, or snooze
 
 That is the bridge from archive to nuclear power.
 

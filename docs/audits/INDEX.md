@@ -29,4 +29,4 @@ Summary:
 | [2026-04-23-foundation-full-audit.md](2026-04-23-foundation-full-audit.md) | 2026-04-23 | foundation | superseded-evidence | 2128 | Foundation Full Audit |
 | [2026-04-24-codex-deep-intelligence-audit.md](2026-04-24-codex-deep-intelligence-audit.md) | 2026-04-24 | general | active-reference | 3436 | Codex Deep Intelligence Audit |
 | [2026-04-24-killer-intelligence-system-build-plan.md](2026-04-24-killer-intelligence-system-build-plan.md) | 2026-04-24 | general | active-reference | 8661 | Killer Intelligence System Build Plan |
-| [2026-04-24-nuke-power-rebuild-roadmap.md](2026-04-24-nuke-power-rebuild-roadmap.md) | 2026-04-24 | foundation | needs-reconciliation | 4043 | The Nuke-Power Rebuild Roadmap |
+| [2026-04-24-nuke-power-rebuild-roadmap.md](2026-04-24-nuke-power-rebuild-roadmap.md) | 2026-04-24 | foundation | needs-reconciliation | 4054 | The Nuke-Power Rebuild Roadmap |

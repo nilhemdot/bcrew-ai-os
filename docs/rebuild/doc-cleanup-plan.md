@@ -9,19 +9,27 @@ Use this doc for one question:
 
 ## Current Inventory
 
-As of 2026-04-24:
+As of 2026-04-24 closeout checkpoint:
 
 | Area | Count | Meaning |
 |------|-------|---------|
-| `docs/handoffs/` | 70 files | Session checkpoints and reconstructed chat evidence |
-| `docs/audits/` | 9 files | Strategy / rebuild / source audits |
-| `docs/` total | 141 files | Full documentation surface |
+| `docs/handoffs/` | 78 files | Session checkpoints and reconstructed chat evidence |
+| `docs/audits/` | 10 files | Strategy / rebuild / source audits |
+| `docs/source-notes/` | 11 files | Source-specific operator notes |
+| `docs/rebuild/` | 9 files | Active rebuild operating docs plus plan history entry point |
+| `docs/strategy/` | 9 files | Strategy packet/supporting docs |
+| `docs/` total | 157 files | Full documentation surface |
 
 Phase 1 has started:
 
 - `docs/handoffs/INDEX.md` generated
 - `docs/audits/INDEX.md` generated
 - `scripts/generate-doc-indexes.mjs` added so indexes can be regenerated
+
+Current cleanup gap:
+
+- the indexes exist, but the active docs still need a one-by-one review pass so every major surface is either active truth, source note, evidence, superseded evidence, or backlog-worthy gap
+- no Strategy Hub work should rely on floating handoff claims unless the claim has been promoted into the active truth set or a DB-backed backlog/decision record
 
 This is not a delete problem first. It is a routing problem:
 
@@ -49,7 +57,7 @@ These are the docs a new builder should trust first:
 
 - `docs/rebuild/current-plan.md` — what we are doing right now
 - `docs/rebuild/current-state.md` — what is built, open, and blocked
-- `docs/rebuild/intelligence-pipeline.md` — how archive, extraction, synthesis, briefs, hubs, and agents fit together
+- `docs/rebuild/intelligence-pipeline.md` — how archive, extraction, synthesis, action routing, hubs, and agents fit together
 - `docs/rebuild/current-runtime-map.md` — runtime doctrine and what runs where
 - `docs/rebuild/agent-architecture.md` — Harlan / Crewbert / agent boundaries
 - `docs/system-strategy.md` — permanent system strategy

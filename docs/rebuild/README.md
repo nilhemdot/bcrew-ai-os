@@ -13,7 +13,7 @@ Read in this order:
 2. `current-state.md`
    - tight done / not-done / next view
 3. `intelligence-pipeline.md`
-   - operating model for archive, extraction, synthesis, briefs, hubs, and agents
+   - operating model for archive, extraction, synthesis, action routing, hubs, and agents
 4. `current-runtime-map.md`
    - plain-English explanation of Foundation, OpenClaw, Harlan, Crewbert, terminal agents, and memory
 5. `agent-architecture.md`
