@@ -68,7 +68,6 @@ AIOS cleanup applied on 2026-04-25:
 - new Deal Data Entry fields were added for the review workflow:
   - `AIOS Admin Deal Row Link`
   - `FUB Call / Review Evidence Link`
-  - `Client Review Status`
   - `NPS Requested`
   - `NPS Completed`
   - `NPS Score`
@@ -80,7 +79,7 @@ AIOS cleanup applied on 2026-04-25:
   - `Google Review Captured Count`
   - `Google Review Link(s) / Evidence`
   - `NPS Status`
-  - `Google Review Status`
+  - `Review Status`
   - `Internal Onboarding Survey Requested`
   - `Internal Onboarding Survey Completed`
   - `Internal Onboarding Survey Score`
@@ -109,7 +108,9 @@ Current read:
 - once `Deal #` is present, AIOS can produce the exact Owners Admin row link and backfill FUB link / review evidence / calculated date buckets where useful
 - client NPS / Google-review workflow should trigger when the deal firms, not at closing
 - do not treat one Google-review URL as the full outcome: couples can produce more than one review, so use target/captured counts plus evidence links/notes
-- track NPS and Google reviews as separate statuses because a Google review can be captured without a completed NPS
+- track NPS and Google reviews as separate statuses because a Google review can be captured without a completed NPS:
+  - `NPS Status`: `Not Started`, `Requested`, `Completed`, `Not Eligible`, `Blocked`
+  - `Review Status`: `Not Started`, `Requested`, `Captured`, `Not Eligible`, `Blocked`
 - ClickUp is still not the final bonus payout truth; AIOS must validate required fields and source parity before bonus credit counts
 
 ## What ClickUp Does Not Own Yet
