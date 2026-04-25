@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-04-24
-Version: v6.6 — Foundation closeout, doc authority, and privacy gates
+Last updated: 2026-04-25
+Version: v6.7 — Source intelligence lifecycle and strategy-input closeout
 Status: Active
 
 Use this doc for one question:
@@ -52,6 +52,19 @@ Reason for v6:
 - Admin-only proof surfaces can exist behind `requireAdminToken`, but no broad hub, assistant, query, or human-facing read surface may expose shared-communications intelligence until auth/tier filtering and subject-person redaction are implemented and verified.
 - `SYSTEM-010` controls are a Foundation gate, not a later ops polish item: running jobs, agents, miners, and paid/subscription model calls must be visible, pausable/stoppable, failure-tracked, and decommissionable before autonomous loops expand.
 - Strategy Hub is the first major consumer, not the next build surface. Do not build Strategy Hub UI before the extraction/miner and action-routing loop are closed enough to trust.
+
+## Source Intelligence Lifecycle
+
+Foundation source work follows this order:
+
+1. connect the source and prove the system can reach it
+2. verify the trusted unit, range, tab, API object, or corpus boundary
+3. understand the business meaning, owner, caveats, and trust boundary
+4. extract useful atoms with provenance and retry/cursor control
+5. synthesize those atoms into business insight
+6. route the insight into the right hub, decision, task, contradiction, or owner-bound action
+
+The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
 ## Current Reality
 
@@ -445,8 +458,6 @@ Goal: close the source truth needed before Strategy Hub is trusted.
 
 Close:
 
-- strategy-used Owners slice
-- `SOURCE-014`
 - `SOURCE-008`
 - `SOURCE-010`
 - FUB Level 2 taxonomy baseline
@@ -454,6 +465,8 @@ Close:
 
 Already closed for current reality:
 
+- strategy-used Owners slice
+- `SOURCE-014`
 - `FOUNDATION-003` / `SRC-FINANCE-001`
 
 Marketing source map:

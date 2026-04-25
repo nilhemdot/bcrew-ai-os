@@ -6138,6 +6138,11 @@ function renderCurrentState() {
             body: '`SRC-FINANCE-001` is signed off for current-reality meaning through Weekly Actuals and Cashflow Dash.',
             backlogIds: ['FOUNDATION-003'],
           },
+          {
+            title: 'Strategy input package',
+            body: 'Strategy docs, Freedom Community, BHAG, Agent Engine, and the strategy-used Owners slice are connected, verified, and understood for current-reality strategy use.',
+            backlogIds: ['FOUNDATION-001', 'SOURCE-014'],
+          },
         ],
       },
       {
@@ -6147,11 +6152,6 @@ function renderCurrentState() {
         statusLabel: 'Partial',
         detail: 'This is the actual closeout queue. Finish these before expanding the system again.',
         rows: [
-          {
-            title: 'Strategy packet',
-            body: 'Docs are signed off. The remaining strategy-used Owners slice closes inside the Owners package work.',
-            backlogIds: ['FOUNDATION-001', 'SOURCE-014'],
-          },
           {
             title: 'Owners + FUB package',
             body: 'Owners meaning is closed, but FUB parity, lineage, historical cleanup, and enforcement still keep the package open.',
@@ -6267,9 +6267,9 @@ function renderCurrentState() {
         title: 'Strategy packet',
         surfaceType: 'Package',
         sourceId: ['SRC-STRATEGY-001', 'SRC-FREEDOM-COMMUNITY-001', 'SRC-FREEDOM-BHAG-001', 'SRC-FREEDOM-ENGINE-001', 'SRC-OWNERS-001'],
-        statusKey: 'pending',
-        statusLabel: 'Blocked by Owners',
-        currentSummary: 'The strategy package is done except for one remaining Owners dependency.',
+        statusKey: 'connected',
+        statusLabel: 'Connected / verified / understood',
+        currentSummary: 'The current strategy input package is connected, verified, and understood. Extraction, synthesis, and action routing are later Foundation layers, not blockers to this source package closeout.',
         packageParts: [
           {
             sourceId: 'SRC-STRATEGY-001',
@@ -6304,15 +6304,15 @@ function renderCurrentState() {
           },
           {
             sourceId: 'SRC-OWNERS-001',
-            statusKey: 'pending',
-            statusLabel: 'Blocker',
-            body: 'This is the one remaining strategy dependency.',
+            statusKey: 'connected',
+            statusLabel: 'Done',
+            body: 'Strategy-used Owners slice is signed off through the Owners Admin package and current-reality finance/list boundaries.',
             role: 'Owners slice used in strategy',
-            next: 'Finish the Owners package, then mark the whole strategy-input package closed.',
+            next: 'Nothing else blocks the current strategy-input package.',
           },
         ],
-        next: 'Finish the Owners package. After that, the strategy-input closeout card can be marked done.',
-        later: 'Then deepen Freedom drift monitoring, source-backed value hardening, decision provenance, and temporal history.',
+        next: 'No source sign-off closeout work remains for this package.',
+        later: 'Then extract/synthesize/source-route business insights through the Foundation pipeline and deepen Freedom drift monitoring, source-backed value hardening, decision provenance, and temporal history.',
         backlogIds: ['FOUNDATION-001', 'SOURCE-014'],
         defaultOpen: true,
       },

@@ -424,6 +424,23 @@ async function main() {
     'FOUNDATION-002 matches signed-off reality',
     foundationCloseout ? `${foundationCloseout.lane} / ${foundationCloseout.title}` : 'missing',
   )
+  const strategyLayerCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-001') || null
+  const strategyInputCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-014') || null
+  ensure(
+    checks,
+    strategyLayerCloseout?.lane === 'done' && strategyInputCloseout?.lane === 'done',
+    'strategy input package closeout cards match signed-off source reality',
+    `FOUNDATION-001=${strategyLayerCloseout?.lane || 'missing'} / SOURCE-014=${strategyInputCloseout?.lane || 'missing'}`,
+  )
+  const sourceLifecycleContent = (foundationHub.backlogItems || []).find(item => item.id === 'MKT-004') || null
+  ensure(
+    checks,
+    sourceLifecycleContent?.team === 'marketing' &&
+      sourceLifecycleContent?.lane === 'research' &&
+      /connect, verify, understand, extract, synthesize, route\/action/.test(sourceLifecycleContent?.summary || ''),
+    'marketing backlog captures Source Intelligence Lifecycle content idea',
+    sourceLifecycleContent ? `${sourceLifecycleContent.lane} / ${sourceLifecycleContent.title}` : 'missing',
+  )
 
   const googleHealth = await runHealthScript('google:health')
   ensure(
