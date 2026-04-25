@@ -131,8 +131,8 @@ async function main() {
   )
   ensure(
     checks,
-    financeContract?.status === 'Verified Readable' && financeContract?.validation === 'Partially Signed Off',
-    'source contracts: SRC-FINANCE-001 keeps partial-signoff boundary',
+    financeContract?.status === 'Current reality captured' && financeContract?.validation === 'Signed Off For Current Reality',
+    'source contracts: SRC-FINANCE-001 is signed off for current reality',
     financeContract ? `${financeContract.status} / ${financeContract.validation}` : 'missing',
   )
 
@@ -150,9 +150,9 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(sourceRegistry, ['`SRC-FINANCE-001`', 'Partially Signed Off | 2026-04-20']),
-    'docs/source-registry.md preserves finance as partial-not-signed-off',
-    'finance row present with partial-signoff status',
+    includesAll(sourceRegistry, ['`SRC-FINANCE-001`', 'Signed Off For Current Reality | 2026-04-20']),
+    'docs/source-registry.md reflects finance current-reality sign-off',
+    'finance row present with current-reality signoff status',
   )
   ensure(
     checks,

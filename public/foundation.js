@@ -145,8 +145,8 @@ var foundationNowSequence = [
     cta: 'Open Owners Closeout',
   },
   {
-    title: 'Close finance to Level 2',
-    body: 'Finish FOUNDATION-003 once the Owners package is stable enough to trust.',
+    title: 'Hold finance at current-reality sign-off',
+    body: 'Weekly Actuals and Cashflow Dash are signed off for current reality. Do not reopen finance unless building freshness, reconciliation, or automation hardening.',
     href: '/foundation#source-sheets:SRC-FINANCE-001',
     cta: 'Open Finance Source',
   },
@@ -4359,9 +4359,9 @@ var rebuildPlanBacklogGroups = [
   },
   {
     key: 'source-trust',
-    title: 'Phase 3B · FUB / Finance Source Trust',
-    intro: 'Close the next real business-truth surfaces across FUB, finance, and then shared freshness work.',
-    ids: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'FOUNDATION-003', 'SOURCE-001', 'SOURCE-002', 'SOURCE-003'],
+    title: 'Phase 3B · FUB Source Trust',
+    intro: 'Close the next real business-truth surfaces across FUB and then shared freshness work. Finance current-reality sign-off is already closed.',
+    ids: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'SOURCE-001', 'SOURCE-002', 'SOURCE-003'],
   },
   {
     key: 'structure-hardening',
@@ -4877,9 +4877,9 @@ function getSourceOverviewSnapshotItems(sourceContracts, sourceConnectors) {
       detail: 'Freedom Community, BHAG, and Agent Engine are signed off for current reality. Target now: close the strategy-used Owners dependency and source trust follow-ons.',
     },
     {
-      label: 'FUB + finance',
+      label: 'FUB',
       status: 'risk',
-      detail: 'FUB is Level 1 and finance is only partially signed off. Both still need explicit Level 2 closeout.',
+      detail: 'FUB is readable and has review tooling, but the Level 2 taxonomy and parity baseline still need explicit closeout.',
     },
     {
       label: 'Freshness',
@@ -6133,6 +6133,11 @@ function renderCurrentState() {
             body: '`SRC-OWNERS-001` is signed off for meaning at Level 2.',
             backlogIds: [],
           },
+          {
+            title: 'Finance current-reality sign-off',
+            body: '`SRC-FINANCE-001` is signed off for current-reality meaning through Weekly Actuals and Cashflow Dash.',
+            backlogIds: ['FOUNDATION-003'],
+          },
         ],
       },
       {
@@ -6151,11 +6156,6 @@ function renderCurrentState() {
             title: 'Owners + FUB package',
             body: 'Owners meaning is closed, but FUB parity, lineage, historical cleanup, and enforcement still keep the package open.',
             backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'DATA-009', 'DATA-018', 'DATA-019'],
-          },
-          {
-            title: 'Finance sign-off',
-            body: 'Finance source materials exist, but the line-by-line meaning is still not signed off.',
-            backlogIds: ['FOUNDATION-003'],
           },
           {
             title: 'KPI read model',
@@ -6389,11 +6389,11 @@ function renderCurrentState() {
         title: 'Finance sign-off',
         surfaceType: 'Data source',
         sourceId: 'SRC-FINANCE-001',
-        statusKey: 'pending',
-        statusLabel: 'Open',
-        currentSummary: 'Finance source materials exist, but the line-by-line meaning is not signed off yet.',
-        next: 'Close FOUNDATION-003 once the Owners package is stable enough to trust.',
-        later: 'Then define freshness expectations.',
+        statusKey: 'connected',
+        statusLabel: 'Done for current reality',
+        currentSummary: 'Weekly Actuals and Cashflow Dash are signed off for current-reality meaning. QuickBooks is optional compliance verification, not a current rebuild dependency.',
+        next: 'No source-signoff rediscovery work remains here.',
+        later: 'Define Level 3 freshness, payment reconciliation, and automation rules only when finance automation starts reading this continuously.',
         backlogIds: ['FOUNDATION-003'],
       },
       {

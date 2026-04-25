@@ -173,18 +173,19 @@ Still open here:
 
 - expand the same change model to more governed source surfaces
 
-### 5. Close the finance boundary
+### 5. Finance boundary
 
 Card:
 
 - `FOUNDATION-003`
 
-What this step does:
+What this step now means:
 
-- finish Weekly Actuals sign-off
-- keep `Cashflow Dash` aligned to that finance truth
-- make the partner-commission normalization boundary explicit
-- separate operating finance truth from spreadsheet interpretation
+- `SRC-FINANCE-001` is signed off for current-reality meaning
+- `Weekly Actuals` is the operating finance ledger
+- `Cashflow Dash` is the management interpretation after partner-commission normalization
+- QuickBooks is optional compliance verification, not a current rebuild dependency
+- remaining finance work belongs to freshness, payment reconciliation, or future automation hardening, not source-signoff rediscovery
 
 ### 6. Then lock KPI as a readable foundation system
 

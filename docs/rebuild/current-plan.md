@@ -448,11 +448,13 @@ Close:
 - strategy-used Owners slice
 - `SOURCE-014`
 - `SOURCE-008`
-- `FOUNDATION-003`
 - `SOURCE-010`
 - FUB Level 2 taxonomy baseline
-- finance Level 2 sign-off
 - KPI truth-layer map
+
+Already closed for current reality:
+
+- `FOUNDATION-003` / `SRC-FINANCE-001`
 
 Marketing source map:
 
