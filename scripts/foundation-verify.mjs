@@ -293,6 +293,18 @@ async function main() {
     'api/foundation-hub returns the expected core arrays',
     `${foundationHub.backlogItems?.length ?? 'invalid'} backlog / ${foundationHub.decisions?.length ?? 'invalid'} decisions / ${foundationHub.openQuestions?.length ?? 'invalid'} questions`,
   )
+  const opsServedJobs = (foundationHub.foundationJobs?.jobs || []).filter(job =>
+    Array.isArray(job.servesHubs) && job.servesHubs.includes('ops')
+  )
+  ensure(
+    checks,
+    opsServedJobs.some(job => job.key === 'admin-deal-review-readonly') &&
+      opsServedJobs.some(job => job.key === 'conditional-deal-review-readonly'),
+    'Foundation jobs expose systems serving Ops Hub',
+    opsServedJobs.length
+      ? opsServedJobs.map(job => job.key).join(', ')
+      : 'no Ops-serving jobs tagged',
+  )
   ensure(
     checks,
     foundationHub.sharedCommunicationSynthesis?.latestRun &&

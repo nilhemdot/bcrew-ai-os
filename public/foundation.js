@@ -4286,6 +4286,7 @@ var sectionLabels = {
   'core-values': 'Core Values',
   'marketmasters': 'MarketMasters',
   'current-state': 'Current State',
+  'ops-hub': 'Ops Hub',
   'rebuild-plan': 'Rebuild Plan',
   'users': 'Users',
   'user-steve': 'Steve',
@@ -4327,6 +4328,7 @@ var sectionParents = {
   'open-questions': { label: 'Foundation Operations', href: '/foundation#backlog' },
   'system-activity': { label: 'Foundation Operations', href: '/foundation#backlog' },
   'system-health': { label: 'Foundation Operations', href: '/foundation#backlog' },
+  'ops-hub': { label: 'Hubs', href: '/foundation#ops-hub' },
   'source-overview': { label: 'Data Sources', href: '/foundation#source-overview' },
   'source-docs': { label: 'Data Sources', href: '/foundation#source-overview' },
   'source-sheets': { label: 'Data Sources', href: '/foundation#source-overview' },
@@ -6352,7 +6354,7 @@ function renderCurrentState() {
         sourceId: ['SRC-OWNERS-001', 'SRC-FUB-001'],
         statusKey: 'pending',
         statusLabel: 'Open',
-        currentSummary: 'Admin-tab meaning is signed off. What remains open is FUB parity, lineage, historical cleanup, and enforcement.',
+        currentSummary: 'Admin-tab meaning is signed off. Read-only Foundation deal-review jobs are running every 6 hours against queued Admin and conditional rows. What remains open is FUB parity, lineage, historical cleanup, and enforcement; Ops Hub assignment/writeback is later.',
         packageParts: [
           {
             sourceId: 'SRC-OWNERS-001',
@@ -6371,7 +6373,7 @@ function renderCurrentState() {
           },
         ],
         next: 'Close this package in order: SOURCE-008, DATA-005, DATA-006, DATA-007, DATA-008, DATA-009.',
-        later: 'Then reuse the proven freshness/review pattern on more governed sources.',
+        later: 'Then route actionable cleanup into Ops Hub once assignment and writeback are approval-gated.',
         backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'DATA-009'],
       },
       {
@@ -9913,6 +9915,199 @@ function renderSystemActivity() {
   })
 }
 
+function getHubServedJobs(hub, hubKey) {
+  var jobs = hub.foundationJobs && Array.isArray(hub.foundationJobs.jobs) ? hub.foundationJobs.jobs : []
+  return jobs.filter(function(job) {
+    return Array.isArray(job.servesHubs) && job.servesHubs.indexOf(hubKey) !== -1
+  })
+}
+
+function getOpsReviewQueueStats(queuePayload) {
+  var queue = queuePayload && queuePayload.reviewQueue ? queuePayload.reviewQueue : {}
+  var sections = queue.sections || {}
+  return {
+    status: queue.status || 'unknown',
+    openItems: queue.stats && Number.isFinite(Number(queue.stats.openItems)) ? Number(queue.stats.openItems) : 0,
+    queuedReview: queue.stats && Number.isFinite(Number(queue.stats.queuedReview)) ? Number(queue.stats.queuedReview) : 0,
+    needsFixing: queue.stats && Number.isFinite(Number(queue.stats.needsFixing)) ? Number(queue.stats.needsFixing) : 0,
+    freshness: queue.freshness || null,
+    sections: {
+      admin: sections.admin && Array.isArray(sections.admin.items) ? sections.admin.items.length : 0,
+      conditional: sections.conditional && Array.isArray(sections.conditional.items) ? sections.conditional.items.length : 0,
+      fubDrift: sections.fubDrift && Array.isArray(sections.fubDrift.items) ? sections.fubDrift.items.length : 0,
+      ownersGovernance: sections.ownersGovernance && Array.isArray(sections.ownersGovernance.items) ? sections.ownersGovernance.items.length : 0,
+    },
+  }
+}
+
+function renderInlineList(label, values) {
+  if (!Array.isArray(values) || !values.length) return null
+  return renderLabeledCopy('decision-meta', label, values.join(' · '))
+}
+
+function renderHubSystemPill(job, options) {
+  var queueStats = options && options.queueStats ? options.queueStats : null
+  var details = document.createElement('details')
+  details.className = 'source-item'
+
+  var summary = document.createElement('summary')
+  var top = document.createElement('div')
+  top.className = 'source-summary'
+
+  var left = document.createElement('div')
+  var title = document.createElement('h3')
+  title.textContent = job.title || job.key
+  left.appendChild(title)
+
+  var meta = document.createElement('p')
+  meta.textContent = job.systemSummary || job.description || ''
+  left.appendChild(meta)
+  top.appendChild(left)
+
+  top.appendChild(renderCurrentStateStatus(job.status || 'pending', job.status || 'pending'))
+  summary.appendChild(top)
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'source-body'
+
+  var latest = job.latestRun || null
+  var runLine = latest
+    ? 'Last ' + latest.status + ' at ' + formatDate(latest.finishedAt || latest.startedAt || latest.createdAt)
+    : 'No run recorded yet'
+  var nextLine = job.nextRunAt ? 'Next run ' + formatDate(job.nextRunAt) : 'No scheduled next run'
+  var scheduleLine = [
+    job.runtimeMode || 'unknown runtime',
+    job.cadence || '',
+    job.scheduleStatus || '',
+  ].filter(Boolean).join(' · ')
+
+  body.appendChild(renderLabeledCopy('decision-meta', 'What it does', job.systemSummary || job.description || 'No summary recorded.'))
+  body.appendChild(renderLabeledCopy('decision-meta', 'Runtime', scheduleLine))
+  body.appendChild(renderLabeledCopy('decision-meta', 'Run state', runLine + ' · ' + nextLine))
+  body.appendChild(renderLabeledCopy('decision-meta', 'Command', [job.command].concat(job.args || []).filter(Boolean).join(' ')))
+  if (job.sourceIds && job.sourceIds.length) body.appendChild(renderLabeledCopy('decision-meta', 'Sources', job.sourceIds.join(' · ')))
+  var inputs = renderInlineList('Inputs', job.systemInputs || [])
+  if (inputs) body.appendChild(inputs)
+  var outputs = renderInlineList('Outputs', job.systemOutputs || [])
+  if (outputs) body.appendChild(outputs)
+  if (job.nextAction) body.appendChild(renderLabeledCopy('decision-meta', 'Boundary', job.nextAction))
+
+  if (queueStats) {
+    body.appendChild(renderLabeledCopy(
+      'decision-meta',
+      'Ops inbox now',
+      queueStats.openItems + ' open · ' +
+        queueStats.sections.admin + ' admin · ' +
+        queueStats.sections.conditional + ' conditional · ' +
+        queueStats.sections.fubDrift + ' FUB drift · ' +
+        queueStats.sections.ownersGovernance + ' Owners list drift'
+    ))
+  }
+
+  var actions = document.createElement('div')
+  actions.className = 'foundation-module-actions'
+  actions.appendChild(createActionLink('Open Ops Inbox', '/foundation#ops-hub:ops-inbox', 'secondary-button'))
+  actions.appendChild(createActionLink('Open System Health', '/foundation#system-health', 'secondary-button'))
+  body.appendChild(actions)
+
+  details.appendChild(body)
+  return details
+}
+
+function renderOpsHub() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading Ops Hub...</p>'
+
+  Promise.all([fetchFoundationHub(), fetchOwnersReviewQueue()]).then(function(results) {
+    var hub = results[0]
+    var queueStats = getOpsReviewQueueStats(results[1])
+    var jobs = getHubServedJobs(hub, 'ops')
+
+    container.innerHTML = ''
+
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Ops Hub'
+    heroInner.appendChild(heroTitle)
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = jobs.length + ' Foundation systems serving Ops · ' + queueStats.openItems + ' open inspection items'
+    heroInner.appendChild(heroMeta)
+    var heroNote = document.createElement('p')
+    heroNote.className = 'hero-copy'
+    heroNote.textContent = 'Foundation runs the source checks. Ops gets the work queue and system visibility. Writes and assignment stay approval-gated.'
+    heroInner.appendChild(heroNote)
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    var inboxPanel = renderStatusGroupPanel('Ops Inbox', 'Operational items surfaced from source checks and review queues.', [
+      {
+        label: 'Admin deal review',
+        status: queueStats.sections.admin ? 'pending' : 'live',
+        detail: queueStats.sections.admin + ' queued Admin rows need review or fixing.',
+      },
+      {
+        label: 'Conditional review',
+        status: queueStats.sections.conditional ? 'pending' : 'live',
+        detail: queueStats.sections.conditional + ' conditional/listing rows need review or fixing.',
+      },
+      {
+        label: 'FUB drift',
+        status: queueStats.sections.fubDrift ? 'risk' : 'live',
+        detail: queueStats.sections.fubDrift + ' FUB source taxonomy items are open.',
+      },
+      {
+        label: 'Owners list drift',
+        status: queueStats.sections.ownersGovernance ? 'risk' : 'live',
+        detail: queueStats.sections.ownersGovernance + ' Owners dropdown governance items are open.',
+      },
+    ])
+    if (inboxPanel) {
+      inboxPanel.id = 'ops-inbox'
+      container.appendChild(inboxPanel)
+    }
+
+    var systemsPanel = document.createElement('section')
+    systemsPanel.className = 'panel'
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+    var left = document.createElement('div')
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Running Systems'
+    left.appendChild(eyebrow)
+    var title = document.createElement('h3')
+    title.textContent = 'Systems Serving Ops'
+    left.appendChild(title)
+    var intro = document.createElement('p')
+    intro.className = 'section-intro'
+    intro.textContent = 'Open each system to see what it reads, what it checks, what it outputs, and where the queue lands.'
+    left.appendChild(intro)
+    header.appendChild(left)
+    systemsPanel.appendChild(header)
+
+    if (jobs.length) {
+      jobs.forEach(function(job) {
+        systemsPanel.appendChild(renderHubSystemPill(job, { queueStats: queueStats }))
+      })
+    } else {
+      var empty = document.createElement('p')
+      empty.textContent = 'No Foundation jobs are tagged as serving Ops yet.'
+      systemsPanel.appendChild(empty)
+    }
+    container.appendChild(systemsPanel)
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load Ops Hub: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
 /* ── router ──────────────────────────────────────────────── */
 
 function getSection() {
@@ -10035,6 +10230,8 @@ function route() {
 
   if (section === 'current-state') {
     renderCurrentState()
+  } else if (section === 'ops-hub') {
+    renderOpsHub()
   } else if (section === 'overview') {
     renderOverview()
   } else if (strategyDocPaths[section]) {
