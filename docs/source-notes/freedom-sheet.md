@@ -113,6 +113,8 @@ These source IDs roll up under the master Freedom validation:
 - `SRC-FREEDOM-ENGINE-001`
 - `SRC-FREEDOM-BHAG-001`
 
+Global source-contract state: these five Freedom units are `Signed Off For Current Reality`. That means the cell/block/formula meaning is accepted for current strategy use. It does not mean the workbook has been rebuilt into the final freshness-managed source-of-truth layer.
+
 ## Current Tab-By-Tab State
 
 | Tab / Surface | Current state | What is true right now | Next closeout step |

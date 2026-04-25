@@ -4697,7 +4697,7 @@ function getSourceValidationCounts(sourceContracts) {
   return (sourceContracts || []).reduce(function(counts, contract) {
     var state = String(contract.validation || '').trim()
     var status = String(contract.status || '').trim()
-    if (state === 'Signed Off') counts.signedOff += 1
+    if (state === 'Signed Off' || state === 'Signed Off For Current Reality') counts.signedOff += 1
     else if (state === 'Readable Only' || status === 'Verified Readable') counts.readableOnly += 1
     else if (state === 'Partially Signed Off') counts.partial += 1
     else counts.notSignedOff += 1
@@ -4869,12 +4869,12 @@ function getSourceOverviewSnapshotItems(sourceContracts, sourceConnectors) {
     {
       label: 'Signed off',
       status: 'connected',
-      detail: counts.signedOff + ' validation units are signed off now: strategy docs and Owners Admin tab.',
+      detail: counts.signedOff + ' validation units are signed off now, including current-reality source signoffs.',
     },
     {
       label: 'Strategy inputs',
       status: 'pending',
-      detail: 'Freedom Community, BHAG, Agent Engine, and the strategy-used Owners slice are captured for current reality. Target now: close the strategy-used Owners dependency and source trust follow-ons.',
+      detail: 'Freedom Community, BHAG, and Agent Engine are signed off for current reality. Target now: close the strategy-used Owners dependency and source trust follow-ons.',
     },
     {
       label: 'FUB + finance',
@@ -7542,6 +7542,9 @@ function getSourcePresence(contract) {
     if ((contract.validation || contract.status) === 'Signed Off') {
       return { key: 'signed-off', label: 'Signed off', tone: 'connected' }
     }
+    if ((contract.validation || contract.status) === 'Signed Off For Current Reality') {
+      return { key: 'signed-off', label: 'Signed off for current reality', tone: 'connected' }
+    }
     return { key: 'connected', label: 'Connected but provisional', tone: 'planned' }
   }
   if (contract.group === 'pending') {
@@ -7553,7 +7556,7 @@ function getSourcePresence(contract) {
 function getSourceTrust(contract) {
   var validation = contract.validation || contract.status || 'Unknown'
 
-  if (validation === 'Signed Off') return { label: validation, tone: 'connected' }
+  if (validation === 'Signed Off' || validation === 'Signed Off For Current Reality') return { label: validation, tone: 'connected' }
   if (validation === 'In Review') return { label: validation, tone: 'pending' }
   if (validation === 'Partially Signed Off' || validation === 'Readable Only') {
     return { label: validation, tone: 'planned' }
@@ -7612,10 +7615,11 @@ function filterSourceContracts(contracts, options) {
 function sortSourceContracts(contracts) {
   var trustRank = {
     'Signed Off': 0,
-    'In Review': 1,
-    'Partially Signed Off': 2,
-    'Readable Only': 3,
-    'Not Signed Off': 4,
+    'Signed Off For Current Reality': 1,
+    'In Review': 2,
+    'Partially Signed Off': 3,
+    'Readable Only': 4,
+    'Not Signed Off': 5,
   }
 
   return (contracts || []).slice().sort(function(a, b) {

@@ -29,7 +29,7 @@ Use this note to answer two questions:
 ## What That Means
 
 - strategy docs are done enough now
-- Freedom Community, BHAG, and Agent Engine are now captured deeply enough for current-reality `Level 2`
+- Freedom Community, BHAG, and Agent Engine are now captured deeply enough for current-reality `Level 2`; the source-contract label is `Signed Off For Current Reality`
 - the broader strategy package is still **not** closed until the strategy-used Owners slice and package-level closeout are finished
 - FUB is **not** done yet
 - finance is **not** done yet

@@ -30,19 +30,21 @@ Connectors matter too, but connector access does **not** mean trusted business m
   - `ADMIN ONLY - Deal Data Entry`
   - signed off for deal-ledger meaning and row structure
 
-### Partially Signed Off / Current Reality Captured
+### Signed Off For Current Reality
 
-- `SRC-FINANCE-001`
-  - high-level finance hierarchy is understood
-  - not signed off line by line
 - `SRC-FREEDOM-TEAM-001`
 - `SRC-FREEDOM-COMMUNITY-001`
 - `SRC-FREEDOM-COMMUNITY-REV-001`
 - `SRC-FREEDOM-ENGINE-001`
 - `SRC-FREEDOM-BHAG-001`
-  - current spreadsheet reality is now deeply captured for meaning
-  - these are no longer just readable
-  - they are also not yet clean rebuilt source-of-truth layers
+  - current spreadsheet reality is signed off for meaning and strategy use
+  - these are not yet freshness-managed or clean rebuilt source-of-truth layers
+
+### Partially Signed Off / Current Reality Captured
+
+- `SRC-FINANCE-001`
+  - high-level finance hierarchy is understood
+  - not signed off line by line
 - `SRC-OWNERS-LISTS-001`
   - upstream `Lists` source for Owners Dashboard dropdown/list dependencies
   - Owners Dashboard `Lists` is an imported mirror, not a write surface
@@ -97,11 +99,11 @@ Readable means the rebuild can connect and read. It does not mean the business m
 | Source ID | Source | Current Location | Scope | What It Owns | Access Method | Status | Last Verified |
 |-----------|--------|------------------|-------|--------------|---------------|--------|---------------|
 | `SRC-STRATEGY-001` | Business Strategy Docs | `docs/*.md` in this repo | Canonical strategy packet | Vision, north star, engine, priorities, mandates, assumptions | Git + local filesystem | Verified | 2026-04-12 |
-| `SRC-FREEDOM-TEAM-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Team records | `A:E` | Team/member records | Google Drive / Google Sheets | Partially Signed Off | 2026-04-18 |
-| `SRC-FREEDOM-COMMUNITY-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Community tracker | `G:O` | Community tracker | Google Drive / Google Sheets | Partially Signed Off | 2026-04-18 |
-| `SRC-FREEDOM-COMMUNITY-REV-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Community revenue | `P:U` | Community revenue | Google Drive / Google Sheets | Partially Signed Off | 2026-04-18 |
-| `SRC-FREEDOM-ENGINE-001` | Benson Crew - Freedom Sheet | `Agent Engine` tab | Current assumptions block | Agent Engine live planning inputs | Google Drive / Google Sheets | Partially Signed Off | 2026-04-18 |
-| `SRC-FREEDOM-BHAG-001` | Benson Crew - Freedom Sheet | `Benson Crew Bhag Builder` tab | Planning blocks plus calculator ranges | BHAG live planning inputs | Google Drive / Google Sheets | Partially Signed Off | 2026-04-18 |
+| `SRC-FREEDOM-TEAM-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Team records | `A:E` | Team/member records | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-18 |
+| `SRC-FREEDOM-COMMUNITY-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Community tracker | `G:O` | Community tracker | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-18 |
+| `SRC-FREEDOM-COMMUNITY-REV-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Community revenue | `P:U` | Community revenue | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-18 |
+| `SRC-FREEDOM-ENGINE-001` | Benson Crew - Freedom Sheet | `Agent Engine` tab | Current assumptions block | Agent Engine live planning inputs | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-18 |
+| `SRC-FREEDOM-BHAG-001` | Benson Crew - Freedom Sheet | `Benson Crew Bhag Builder` tab | Planning blocks plus calculator ranges | BHAG live planning inputs | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-18 |
 | `SRC-OWNERS-001` | Benson Crew - Owners Dashboard | `ADMIN ONLY - Deal Data Entry` | Primary deal-ledger validation unit | Deal lifecycle, attribution, split credit, FUB linkage | Google Drive / Google Sheets | Signed Off | 2026-04-16 |
 | `SRC-OWNERS-LISTS-001` | BHAG Builder / Old BIS KPI Lists Source | `Lists` tab | `Lists!A:AI`, especially lead sources and agent roster | Governed Owners/FUB lead-source dropdown list, active-agent roster, cap fields, and imported list dependencies | Google Drive / Google Sheets | Partially Signed Off | 2026-04-24 |
 | `SRC-FUB-001` | Follow Up Boss | owner + Steve API contexts | CRM access in rebuild | CRM contacts, user roster, lead-source context, person linkage | Follow Up Boss API | Verified Readable | 2026-04-16 |
