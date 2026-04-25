@@ -91,7 +91,7 @@ Built and useful now:
 - Skool corpus access and policy boundary captured in `docs/source-notes/skool-corpus.md`.
 - Marketing source evidence from the old system and current connector checks.
 - Doc cleanup plan and generated doc indexes.
-- Ops Hub v0 visibility shell for systems serving Ops, starting with read-only Admin and conditional deal-review inspections.
+- Ops Hub v0 as its own hub surface for systems serving Ops, starting with read-only Admin and conditional deal-review inspections. Foundation remains the control plane; Ops owns the human cockpit.
 
 Still not done:
 

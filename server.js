@@ -4010,6 +4010,11 @@ app.get('/strategic-execution', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'strategic-execution.html'))
 })
 
+app.get('/ops', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
+  res.sendFile(path.join(__dirname, 'public', 'ops.html'))
+})
+
 app.use('/api', (_req, res) => {
   sendApiError(res, 404, 'api_not_found', 'API endpoint not found.')
 })

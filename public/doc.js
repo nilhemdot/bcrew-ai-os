@@ -189,6 +189,7 @@ function getDocFallbackHref(pathValue) {
 function getBackLinkLabel(href) {
   if (!href) return 'Back to Dashboard'
   if (href.indexOf('/foundation#source-overview') !== -1) return 'Back to Data Sources'
+  if (href.indexOf('/ops') !== -1) return 'Back to Ops Hub'
   if (href.indexOf('/foundation') !== -1) return 'Back to Foundation'
   if (href.indexOf('/strategic-execution') !== -1) return 'Back to Strategic Execution'
   return 'Back to Dashboard'

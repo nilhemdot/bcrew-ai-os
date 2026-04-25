@@ -163,7 +163,10 @@ async function main() {
 
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
+  const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
+  const opsHtmlSource = await readRepoFile('public/ops.html')
+  const opsUiSource = await readRepoFile('public/ops.js')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
@@ -304,6 +307,15 @@ async function main() {
     opsServedJobs.length
       ? opsServedJobs.map(job => job.key).join(', ')
       : 'no Ops-serving jobs tagged',
+  )
+  ensure(
+    checks,
+    includesAll(opsHtmlSource, ['Ops Hub', '/ops.js']) &&
+      includesAll(opsUiSource, ['getHubServedJobs', 'fetchOwnersReviewQueue', 'Systems Serving Ops']) &&
+      !foundationHtmlSource.includes('data-section="ops-hub"') &&
+      !foundationUiSource.includes('function renderOpsHub'),
+    'Ops Hub is a dedicated hub surface, not nested in Foundation nav',
+    'public/ops.html + public/ops.js own the Ops cockpit; Foundation keeps system metadata only',
   )
   ensure(
     checks,
