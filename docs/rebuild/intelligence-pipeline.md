@@ -214,12 +214,12 @@ These are the useful outputs humans and hubs read.
 Examples:
 
 - Sunday strategy packet
-- leadership brief
-- sales brief
-- ops brief
-- marketing brief
-- retention brief
-- source-trust brief
+- leadership review queue
+- sales action packet
+- ops action packet
+- marketing action packet
+- retention action packet
+- source-trust review queue
 - mined-asset queue for content, course, training, recruiting, and strategy reuse
 
 The old Directors of Intelligence are useful here as output inspiration.
@@ -259,7 +259,7 @@ Examples:
 - marketing atom -> content overlay
 - strategy issue -> strategy review queue
 - mined training asset -> course/training queue
-- recruiting proof -> recruiting CRM or sales leadership brief
+- recruiting proof -> recruiting CRM or sales action packet
 - agent coaching signal -> Agent Hub recommendation
 
 The system proposes.
@@ -284,8 +284,8 @@ Near future:
 - scheduled jobs or queue workers run ingestion and extraction
 - each run writes status, counts, cursor state, errors, and cost
 - `SYSTEM-010` process supervision must exist before long-running autonomous loops are trusted
-- a daily current-sync worker keeps live sources fresh
-- a historical crawler worker takes one bounded bite per source per day
+- a current-sync worker keeps live sources fresh on approved cadences
+- a historical crawler worker takes bounded bites by source cadence and budget
 - a Claude Code / Claude Agent SDK subscription adapter is added under the BCrew router so Claude subscription capacity can be assigned to the right hubs without making OpenClaw the whole model-access layer
 
 Later:

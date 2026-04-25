@@ -54,6 +54,13 @@ Connectors matter too, but connector access does **not** mean trusted business m
 - `SRC-GMAIL-001`
 - `SRC-GCAL-001`
 - `SRC-MISSIVE-001`
+- `SRC-SLACK-001`
+- `SRC-MEETINGS-001`
+- `SRC-DATAFORSEO-001`
+- `SRC-GHL-001`
+- `SRC-META-001`
+
+Readable means the rebuild can connect and read. It does not mean the business meaning, trust boundaries, freshness cadence, or write policy are signed off.
 
 ### Not Signed Off
 

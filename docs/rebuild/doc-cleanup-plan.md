@@ -13,12 +13,12 @@ As of 2026-04-24 closeout checkpoint:
 
 | Area | Count | Meaning |
 |------|-------|---------|
-| `docs/handoffs/` | 78 files | Session checkpoints and reconstructed chat evidence |
+| `docs/handoffs/` | 79 markdown files | Session checkpoints and reconstructed chat evidence |
 | `docs/audits/` | 10 files | Strategy / rebuild / source audits |
 | `docs/source-notes/` | 11 files | Source-specific operator notes |
-| `docs/rebuild/` | 9 files | Active rebuild operating docs plus plan history entry point |
+| `docs/rebuild/` | 11 markdown files | Active rebuild operating docs plus plan history entry point |
 | `docs/strategy/` | 9 files | Strategy packet/supporting docs |
-| `docs/` total | 157 files | Full documentation surface |
+| `docs/` total | 159 files / 145 markdown files | Full documentation surface |
 
 Phase 1 has started:
 
@@ -38,6 +38,20 @@ This is not a delete problem first. It is a routing problem:
 - some audits are superseded by later audits
 - some handoffs contain source evidence that should not be lost
 - the active plan should be readable in minutes, not buried in 70 checkpoint files
+
+## Authority Model
+
+Do not collapse the whole repo into one mega-doc.
+
+Use this hierarchy instead:
+
+1. Active truth lives in the active truth set below, source contracts, verifier checks, and DB-backed backlog/decisions/questions.
+2. Source notes are operator references for specific sources.
+3. Specs are design references until promoted into active truth or backlog gates.
+4. Handoffs, audits, and research docs are evidence unless an active doc or backlog card explicitly promotes them.
+5. Product/assets docs stay where they are; they are not rebuild doctrine unless linked from the active truth set.
+
+If a builder finds a claim in an audit, handoff, or research note, they must ask: "where is this represented in active truth?" If the answer is nowhere, promote it or treat it as evidence only.
 
 ## Cleanup Principle
 
@@ -60,6 +74,9 @@ These are the docs a new builder should trust first:
 - `docs/rebuild/intelligence-pipeline.md` — how archive, extraction, synthesis, action routing, hubs, and agents fit together
 - `docs/rebuild/current-runtime-map.md` — runtime doctrine and what runs where
 - `docs/rebuild/agent-architecture.md` — Harlan / Crewbert / agent boundaries
+- `docs/rebuild/doc-cleanup-plan.md` — how evidence becomes truth without creating doc sprawl
+- `docs/rebuild/owners-closeout.md` — exact Owners package closeout order
+- `docs/rebuild-decisions.md` — locked rebuild decisions already made
 - `docs/system-strategy.md` — permanent system strategy
 - `docs/source-registry.md` — source contract index
 
@@ -104,6 +121,9 @@ Keep current active docs where they are:
 - `docs/rebuild/intelligence-pipeline.md`
 - `docs/rebuild/current-runtime-map.md`
 - `docs/rebuild/agent-architecture.md`
+- `docs/rebuild/doc-cleanup-plan.md`
+- `docs/rebuild/owners-closeout.md`
+- `docs/rebuild-decisions.md`
 - `docs/system-strategy.md`
 - `docs/source-registry.md`
 
@@ -140,11 +160,15 @@ This is optional and should only happen after all links are checked.
 
 Do not turn cleanup or router work into a 32-script rewrite.
 
-The immediate build order is:
+The immediate Foundation-closeout build order is:
 
-1. Runtime MVP first.
-2. LLM router MVP second.
-3. Extraction control MVP third.
+1. Keep verifier/runtime proof green while doc authority is cleaned.
+2. Finish `SYSTEM-010` process control gaps: decommission, dead-man, cost/process visibility, and stop/pause controls for long miners and future agents.
+3. Finish extraction control with paced miner v1, cursors, leases, retries, and current-day freshness.
+4. Promote auth/tier/subject-person redaction from spec into implementation before any broad hub/query/assistant read surface.
+5. Build Action Router v1 so synthesized items route to decisions, tasks, questions, contradictions, ignore/snooze, or owner-bound actions.
+6. Close source-trust dependencies, including the strategy-used Owners slice.
+7. Only then build Strategy Hub as the first consumer.
 
 Definition of done for any built feature:
 
@@ -157,12 +181,12 @@ Definition of done for any built feature:
 
 If a feature only exists as a script that Steve or a builder has to remember to run, it is not done.
 
-Runtime MVP should activate only 3 to 5 high-value existing jobs first:
+Runtime activation should still be conservative. Activate only a few high-value jobs at a time:
 
 - `foundation:verify`
 - `shared-comms:coverage`
 - deal-review queued runner
-- synthesis as manual or scheduled with explicit budget
+- synthesis/action-review proof as manual with explicit route and budget visibility until the action loop is governed
 - one current-day sync lane if stable
 
 LLM router MVP should include:

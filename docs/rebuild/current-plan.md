@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-24
-Version: v6.5 — Foundation closeout, extraction control, and action routing
+Version: v6.6 — Foundation closeout, doc authority, and privacy gates
 Status: Active
 
 Use this doc for one question:
@@ -43,11 +43,14 @@ Reason for v6:
 - Real agents are later and narrow: Harlan, Crewbert, then a few specialist agents only after governed loops are stable.
 - Active truth lives in the current docs and source-backed UI/API surfaces.
 - Handoffs and audits are evidence unless promoted into active docs or backlog.
+- Specs are design references until promoted into this plan, source contracts, verifier checks, or DB-backed backlog/decision records.
 - Imported spreadsheet mirrors are not write surfaces. Any governed write must target the source workbook/range or a deliberately non-imported destination.
 - Extraction is a Foundation supply chain, not a one-off research chore. It must keep current sources fresh, mine old corpora one bounded bite at a time, and preserve what each hub can use.
 - Drive and Skool mining belong in Foundation while they inventory, archive, classify, extract, and organize evidence. Course creation, content production, recruiting outreach, coaching, and monetization are Hub work built on that Foundation output.
 - The brand/hub lanes must stay separate: Benson Crew residential, Zahnd Team Ag, Steve Zahnd personal brand, MarketMasters, and Steve-owned monetization/education assets are different consumers with different risk boundaries.
 - Foundation is not done until source evidence can move through the full loop: source -> archive/artifact -> candidate/atom -> synthesized item -> routed decision/task/question/contradiction/action -> resolution.
+- Admin-only proof surfaces can exist behind `requireAdminToken`, but no broad hub, assistant, query, or human-facing read surface may expose shared-communications intelligence until auth/tier filtering and subject-person redaction are implemented and verified.
+- `SYSTEM-010` controls are a Foundation gate, not a later ops polish item: running jobs, agents, miners, and paid/subscription model calls must be visible, pausable/stoppable, failure-tracked, and decommissionable before autonomous loops expand.
 - Strategy Hub is the first major consumer, not the next build surface. Do not build Strategy Hub UI before the extraction/miner and action-routing loop are closed enough to trust.
 
 ## Current Reality
@@ -86,6 +89,8 @@ Still not done:
 - hub-dedicated model capacity allocation beyond the first Foundation subscription path
 - source-budget and failure visibility
 - full subject-person privacy/query layer
+- auth/tier middleware and subject-person redaction implementation from `docs/specs/2026-04-23-auth-tiers-vault.md`
+- full `SYSTEM-010` decommission, dead-man, and cost/process-control layer
 - richer KPI / finance / FUB grounding inside synthesis
 - Action Router v1: synthesized items do not yet route into decisions, backlog tasks, open questions, contradictions, ignore/snooze, or owner-bound actions with back-links
 - source-backed Strategy Hub
@@ -360,7 +365,8 @@ Goal: turn archived data into ranked, live, source-backed intelligence.
 
 Build:
 
-- semantic retrieval / embeddings where justified
+- chunk-level hybrid retrieval / embeddings where justified, with pgvector or a documented fallback
+- retrieval cost/call ledgering for high-volume corpus mining
 - entity graph
 - temporal edges
 - cross-artifact linking
@@ -369,6 +375,8 @@ Build:
 - cross-source dedup
 - staleness scoring
 - actionability ranking
+- synthesis claim verification before human-facing outputs are treated as decision-grade
+- acknowledged-state registry so resolved/accepted/ignored items stop resurfacing as fresh work
 - source-backed fact grounding from strategy, KPI, finance, Owners, FUB, marketing, and source contracts
 - subject-person privacy/redaction: a person cannot see sensitive evidence about themselves just because they can ask their own assistant
 - tier-aware query filtering before any human-facing or agent-facing answer uses sensitive people data
@@ -386,6 +394,7 @@ Synthesis output must answer:
 
 Backlog/cards:
 
+- `SECURITY-002`
 - `SYNTHESIS-ENGINE-001`
 - `SYNTHESIS-FACTS-001`
 - `ACTION-ROUTER-001`
@@ -400,6 +409,35 @@ Acceptance:
 - each item can route to the right operating ledger: decision, backlog task, open question, contradiction, ignore/snooze, or owner-bound action
 - old items are suppressed if resolved, stale, duplicated, superseded, or explicitly closed
 - sensitive people facts are filtered by subject-person and tier before reaching hubs or agents
+
+### Phase 4A — Auth, Tier, Redaction, And Process-Control Gates
+
+Goal: prevent the old-system leak pattern before hubs or assistants consume sensitive intelligence.
+
+Build:
+
+- app-level authenticated user and tier attachment
+- tier-aware read filters for shared intelligence surfaces
+- subject-person tagging and sensitivity policy for comms-derived items
+- subject-person redaction before any non-Steve / non-admin response
+- uniform response shape that does not reveal that content was suppressed
+- owner-preserving raw meeting/doc access policy from `docs/specs/2026-04-23-auth-tiers-vault.md`
+- `ai@bensoncrew.ca` front-office identity stays invite/delegated-read only; `crewbert@bensoncrew.ca` owns private vault/back-office access
+- verifier checks proving lower-tier users and subject people cannot read restricted material
+- `SYSTEM-010` decommission/dead-man/cost/process controls for scheduled miners and future agents
+
+Backlog/cards:
+
+- `SECURITY-002`
+- `SYSTEM-010`
+
+Acceptance:
+
+- admin-only proof endpoints are clearly separated from user-facing hub/query endpoints
+- every shared-communications read surface has an explicit auth/tier/redaction posture
+- sensitive people facts cannot be surfaced to the subject person through their own assistant or query
+- every running miner/job/agent has visible state, stop/pause/decommission behavior, last activity, and cost/subscription call visibility
+- Strategy Hub and agents remain blocked until this gate is green
 
 ### Phase 5 — Source Trust Closures
 
@@ -488,8 +526,10 @@ Prerequisites:
 - router MVP classified
 - extraction current-day lane active
 - synthesis hardening producing ranked live intelligence
+- Action Router v1 producing governed decisions/tasks/questions/contradictions/ignore/snooze records with source back-links
 - strategy/Owners/FUB/finance/KPI trust boundaries clear enough for strategy use
 - subject-person privacy/redaction active for any sensitive people evidence used in the hub
+- `SYSTEM-010` decommission/dead-man/process-cost controls active for any autonomous loop the hub depends on
 
 Strategy Hub should:
 
@@ -543,6 +583,8 @@ Trust these first:
 - `docs/rebuild/current-runtime-map.md`
 - `docs/rebuild/agent-architecture.md`
 - `docs/rebuild/doc-cleanup-plan.md`
+- `docs/rebuild/owners-closeout.md`
+- `docs/rebuild-decisions.md`
 - `docs/system-strategy.md`
 - `docs/source-registry.md`
 

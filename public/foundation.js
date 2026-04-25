@@ -4696,8 +4696,9 @@ function createActionLink(label, href, className) {
 function getSourceValidationCounts(sourceContracts) {
   return (sourceContracts || []).reduce(function(counts, contract) {
     var state = String(contract.validation || '').trim()
+    var status = String(contract.status || '').trim()
     if (state === 'Signed Off') counts.signedOff += 1
-    else if (state === 'Readable Only') counts.readableOnly += 1
+    else if (state === 'Readable Only' || status === 'Verified Readable') counts.readableOnly += 1
     else if (state === 'Partially Signed Off') counts.partial += 1
     else counts.notSignedOff += 1
     return counts
@@ -4780,17 +4781,17 @@ function getFoundationHomeSnapshotItems(sourceData, hub) {
     {
       label: 'Done',
       status: 'connected',
-      detail: 'Strategy docs, system strategy, rebuild visibility, verification baseline, and SRC-OWNERS-001 are done now.',
+      detail: 'Strategy docs, source contracts, verifier, runtime visibility, subscription-routed LLM proof, extraction control substrate, and SRC-OWNERS-001 are real now.',
     },
     {
       label: 'Open now',
       status: 'pending',
-      detail: 'Owners package first, then finance, then KPI read rules, then required connectors by pillar.',
+      detail: 'Foundation closeout is paced miners, auth/tier/redaction, SYSTEM-010 controls, Action Router v1, and source trust closures before Strategy Hub.',
     },
     {
       label: 'Not part of closeout yet',
       status: 'risk',
-      detail: 'Agent sprawl, wide freshness automation, and trusted assistant loops stay later until Level 2 source work is closed.',
+      detail: 'Strategy Hub UI, trusted assistants, and autonomous agents stay blocked until the source-to-action loop and privacy gates are closed.',
     },
   ]
 }
@@ -4798,32 +4799,32 @@ function getFoundationHomeSnapshotItems(sourceData, hub) {
 function getFoundationHomeWaitingItems() {
   return [
     {
-      title: 'Work the Owners closeout in order',
-      body: 'Use the Owners closeout doc instead of mentally stitching together the FUB and Admin follow-on cards.',
-      meta: 'Current execution path',
-      href: '/doc?path=docs/rebuild/owners-closeout.md',
-      cta: 'Open Owners Closeout',
+      title: 'Use the active plan, not handoffs',
+      body: 'Current Plan and Current State are the authority. Handoffs, audits, specs, and research are evidence unless promoted.',
+      meta: 'Doc authority',
+      href: '/doc?path=docs/rebuild/current-plan.md',
+      cta: 'Open Current Plan',
     },
     {
-      title: 'Review FUB live taxonomy',
-      body: 'Keep the flexible open values open on purpose, but close the approved baseline for Owners parity work.',
-      meta: 'Current Steve review',
-      href: '/foundation#source-apis:fub-lead-source-taxonomy',
-      cta: 'Open FUB Review',
+      title: 'Close the privacy gate',
+      body: 'Auth/tier middleware and subject-person redaction must land before broad hub, assistant, or query access to sensitive comms intelligence.',
+      meta: 'P0 Foundation gate',
+      href: '/doc?path=docs/specs/2026-04-23-auth-tiers-vault.md',
+      cta: 'Open Auth Spec',
     },
     {
-      title: 'Lock KPI read rules',
-      body: 'KPI is live. The next job is to split its pipeline, shopping-list, executed-deal, goal, competition, and usage layers so AI OS reads the right truth on purpose.',
-      meta: 'Current source shaping',
+      title: 'Close the action loop',
+      body: 'Synthesized items must route into decisions, tasks, questions, contradictions, ignore/snooze, or owner-bound actions with source evidence.',
+      meta: 'Action Router v1',
       href: '/foundation#current-state',
       cta: 'Open Current State',
     },
     {
-      title: 'Review finance after Owners',
-      body: 'Finance is the next line-by-line sign-off once the Owners package is stable enough to trust.',
-      meta: 'Next Steve review',
-      href: '/foundation#source-overview',
-      cta: 'Open Data Sources',
+      title: 'Finish source trust in order',
+      body: 'Owners, FUB, finance, KPI, and marketing source closeouts still matter, but they follow the active Foundation closeout order.',
+      meta: 'Source trust',
+      href: '/doc?path=docs/rebuild/owners-closeout.md',
+      cta: 'Open Owners Closeout',
     },
   ]
 }
@@ -4873,7 +4874,7 @@ function getSourceOverviewSnapshotItems(sourceContracts, sourceConnectors) {
     {
       label: 'Strategy inputs',
       status: 'pending',
-      detail: 'Freedom Community, BHAG, Agent Engine, and the strategy-used Owners slice are readable only. Target now: Level 2. Future state: Level 3 freshness.',
+      detail: 'Freedom Community, BHAG, Agent Engine, and the strategy-used Owners slice are captured for current reality. Target now: close the strategy-used Owners dependency and source trust follow-ons.',
     },
     {
       label: 'FUB + finance',
@@ -4883,7 +4884,7 @@ function getSourceOverviewSnapshotItems(sourceContracts, sourceConnectors) {
     {
       label: 'Freshness',
       status: 'planned',
-      detail: 'Level 3 is not done yet. ' + (sourceConnectors || []).length + ' connectors are tracked, but connector access does not mean fresh trusted data.',
+      detail: 'Level 3 freshness is not universal yet. ' + (sourceConnectors || []).length + ' connectors are tracked, but connector access does not mean fresh trusted data.',
     },
   ]
 }

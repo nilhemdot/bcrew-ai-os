@@ -2052,6 +2052,14 @@ function getDocSurfaceMeta(relativePath) {
       usage: 'reference',
       storageClass: 'Execution plan',
     },
+    'docs/rebuild/intelligence-pipeline.md': {
+      surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
+      surfaceHref: '/foundation#rebuild-plan',
+      role: 'Archive, extraction, synthesis, action routing, hub, and agent operating model',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Operating model',
+    },
     'docs/rebuild/current-runtime-map.md': {
       surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
       surfaceHref: '/foundation#rebuild-plan',
@@ -2067,6 +2075,22 @@ function getDocSurfaceMeta(relativePath) {
       category: 'Rebuild',
       usage: 'reference',
       storageClass: 'Architecture doc',
+    },
+    'docs/rebuild/doc-cleanup-plan.md': {
+      surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
+      surfaceHref: '/foundation#rebuild-plan',
+      role: 'Doc authority and evidence consolidation plan',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Operating plan',
+    },
+    'docs/rebuild/owners-closeout.md': {
+      surfaceLabel: 'Foundation > Current State',
+      surfaceHref: '/foundation#current-state',
+      role: 'Owners package closeout order',
+      category: 'Rebuild',
+      usage: 'reference',
+      storageClass: 'Closeout plan',
     },
     'docs/rebuild/rebuild-master-plan.md': {
       surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
@@ -2435,7 +2459,9 @@ app.get('/api/source-of-truth', (_req, res) => {
   const sourceContracts = getSourceContracts()
   const sourceConnectors = getSourceConnectors()
   const signedOffSourceCount = sourceContracts.filter(source => source.validation === 'Signed Off').length
-  const readableSourceCount = sourceContracts.filter(source => source.validation === 'Readable Only').length
+  const readableSourceCount = sourceContracts.filter(source =>
+    source.validation === 'Readable Only' || source.status === 'Verified Readable'
+  ).length
 
   res.json({
     title: 'BCrew AI OS',
