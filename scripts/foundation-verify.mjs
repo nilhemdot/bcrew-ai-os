@@ -93,17 +93,32 @@ async function collectCodeFiles(directory) {
   return files
 }
 
-async function auditDirectOpenAiResponsesUsage() {
+const directModelHostPatterns = [
+  'https://api.openai.com',
+  'https://api.anthropic.com',
+  'https://generativelanguage.googleapis.com',
+]
+
+const allowedDirectModelHostFiles = new Set([
+  'lib/llm-router.js',
+])
+
+const allowedDirectModelHostAuditFiles = new Set([
+  'scripts/foundation-verify.mjs',
+])
+
+async function auditDirectModelHostUsage() {
   const codeFiles = [
     ...await collectCodeFiles('lib'),
     ...await collectCodeFiles('scripts'),
   ]
   const offenders = []
   for (const relativePath of codeFiles) {
+    if (allowedDirectModelHostFiles.has(relativePath)) continue
+    if (allowedDirectModelHostAuditFiles.has(relativePath)) continue
     const text = await readRepoFile(relativePath)
-    if (!text.includes('https://api.openai.com/v1/responses')) continue
-    if (relativePath === 'lib/llm-router.js') continue
-    if (!text.includes('assertDirectOpenAiResponsesAllowed')) offenders.push(relativePath)
+    const matchedHosts = directModelHostPatterns.filter(host => text.includes(host))
+    if (matchedHosts.length) offenders.push(`${relativePath} (${matchedHosts.join(', ')})`)
   }
   return offenders
 }
@@ -167,10 +182,11 @@ async function main() {
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const opsHtmlSource = await readRepoFile('public/ops.html')
   const opsUiSource = await readRepoFile('public/ops.js')
+  const serverSource = await readRepoFile('server.js')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
-  const directOpenAiOffenders = await auditDirectOpenAiResponsesUsage()
+  const directModelHostOffenders = await auditDirectModelHostUsage()
 
   ensure(
     checks,
@@ -210,9 +226,24 @@ async function main() {
   )
   ensure(
     checks,
-    directOpenAiOffenders.length === 0,
-    'direct OpenAI Responses API calls are guarded',
-    directOpenAiOffenders.length ? directOpenAiOffenders.join(', ') : 'no unguarded direct Responses calls outside router',
+    directModelHostOffenders.length === 0,
+    'direct model/transcription host calls stay behind approved adapters',
+    directModelHostOffenders.length
+      ? directModelHostOffenders.join(', ')
+      : 'no direct OpenAI/Anthropic/Gemini host calls outside approved adapters',
+  )
+  ensure(
+    checks,
+    [
+      "app.get('/api/foundation-hub', requireAdminToken",
+      "app.get('/api/owners/lead-source-governance', requireAdminToken",
+      "app.get('/api/owners/review-queue', requireAdminToken",
+      "app.get('/api/system-inventory', requireAdminToken",
+      "app.get('/api/foundation/changes', requireAdminToken",
+      "app.get('/api/foundation/doc-updates', requireAdminToken",
+    ].every(pattern => serverSource.includes(pattern)),
+    'broad Foundation/Ops read APIs are admin-gated',
+    'foundation hub, owners queue/governance, system inventory, changes, and doc updates require admin token outside localhost',
   )
   ensure(
     checks,

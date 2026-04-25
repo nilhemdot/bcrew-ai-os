@@ -2853,7 +2853,7 @@ app.post('/api/fub/request', requireAdminToken, async (req, res) => {
   }
 })
 
-app.get('/api/owners/lead-source-governance', async (_req, res) => {
+app.get('/api/owners/lead-source-governance', requireAdminToken, async (_req, res) => {
   try {
     const [listResponse, fileMeta, rules] = await Promise.all([
       getSheetValues(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID, OWNERS_LEAD_SOURCE_LIST_RANGE),
@@ -2894,7 +2894,7 @@ app.get('/api/owners/lead-source-governance', async (_req, res) => {
   }
 })
 
-app.get('/api/owners/review-queue', async (_req, res) => {
+app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
   try {
     const fubContexts = getFubContextsSummary()
     const ownerFubContext = fubContexts.find(function(item) { return item.key === 'owner' }) || { key: 'owner', label: 'Support / Owner account' }
@@ -3063,7 +3063,7 @@ app.get('/api/owners/review-queue', async (_req, res) => {
   }
 })
 
-app.get('/api/system-inventory', async (_req, res) => {
+app.get('/api/system-inventory', requireAdminToken, async (_req, res) => {
   try {
     const trackedDocs = await getTrackedMarkdownDocs()
     const privateLocalDocs = getPrivateLocalMarkdownDocs()
@@ -3104,7 +3104,7 @@ app.get('/api/sheets/structure-status', async (_req, res) => {
   }
 })
 
-app.get('/api/foundation-hub', async (_req, res) => {
+app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
   try {
     const snapshot = await getFoundationSnapshot()
     res.json(snapshot)
@@ -3457,7 +3457,7 @@ app.post('/api/shared-communications/candidates/:candidateKey/:action', requireA
   }
 })
 
-app.get('/api/foundation/changes', async (req, res) => {
+app.get('/api/foundation/changes', requireAdminToken, async (req, res) => {
   try {
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20))
     const changes = await getRecentChangeEvents(limit)
@@ -3472,7 +3472,7 @@ app.get('/api/foundation/changes', async (req, res) => {
   }
 })
 
-app.get('/api/foundation/doc-updates', async (_req, res) => {
+app.get('/api/foundation/doc-updates', requireAdminToken, async (_req, res) => {
   try {
     const docUpdates = await listPendingDocUpdates()
     res.json({ docUpdates })

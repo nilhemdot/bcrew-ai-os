@@ -141,11 +141,12 @@ If Steve or a builder has to remember to run it from a terminal, it is still a p
 This checklist is the current anti-drift queue from the 2026-04-25 top-down review. Treat it as backlog order, not a new plan.
 
 1. `SECURITY-003` — Close direct LLM/transcription spend bypasses.
-   - Migrate or pause `scripts/transcribe-zoom-audio-archive.mjs`.
-   - Broaden verifier coverage from direct OpenAI Responses calls to direct model/transcription host calls outside approved router/adapters.
+   - `scripts/transcribe-zoom-audio-archive.mjs` is paused/fail-closed for non-dry-run use.
+   - Verifier coverage now checks direct model/transcription host calls outside approved router/adapters, not only OpenAI Responses.
+   - Later: rebuild transcription as a router-ledged transcription workload before reopening Zoom audio recovery.
    - Keep sanctioned auth probes explicit.
 2. `SECURITY-004` / `SECURITY-002` — Gate broad read APIs before any broader dashboard, hub, assistant, or user-facing access.
-   - Add interim admin gating or redacted/public splits for Foundation hub, Owners queue/governance, system inventory, changes, and doc-update reads.
+   - Interim admin gating is live for Foundation hub, Owners queue/governance, system inventory, changes, and doc-update reads.
    - Later replace stop-gap gating with tier and subject-person redaction.
 3. `SYSTEM-010` — Finish runtime/process-control hardening.
    - Keep dashboard and worker LaunchAgent plists in repo.

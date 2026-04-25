@@ -24,7 +24,9 @@ const DEFAULT_SOURCE_ID = 'SRC-MEETINGS-001';
 const DEFAULT_SOURCE_USER = process.env.GOOGLE_MEETING_SOURCE_USER || 'steve.zahnd@bensoncrew.ca';
 const DEFAULT_ROOT_FOLDER_ID = '1hVEFoc4KHqTY9i67RP8sMOy9kgwfemdP';
 const DEFAULT_MODEL = process.env.OPENAI_TRANSCRIPTION_MODEL || 'gpt-4o-transcribe';
-const OPENAI_TRANSCRIPTION_URL = 'https://api.openai.com/v1/audio/transcriptions';
+const ZOOM_AUDIO_TRANSCRIPTION_PAUSED_MESSAGE =
+  'Zoom audio transcription is paused by SECURITY-003. Use --dryRun=true for inventory only; ' +
+  'real transcription must be rebuilt as a router-ledged transcription workload before it can run.';
 const MAX_UPLOAD_BYTES = 24 * 1024 * 1024;
 const MAX_TRANSCRIPTION_SECONDS = 1200;
 const AUDIO_BITRATES = [24000, 16000, 12000];
@@ -218,31 +220,11 @@ async function prepareAudioUploadParts(sourcePath, workDir, baseName) {
 }
 
 async function transcribeAudio(filePath, { fileName, model, prompt }) {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is required for Zoom audio transcription.');
-  }
-
-  const audioBuffer = await fs.readFile(filePath);
-  const form = new FormData();
-  form.append('model', model);
-  form.append('response_format', 'text');
-  if (prompt) form.append('prompt', prompt);
-  form.append('file', new Blob([audioBuffer], { type: 'audio/mp4' }), fileName);
-
-  const response = await fetch(OPENAI_TRANSCRIPTION_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: form,
-  });
-
-  const text = await response.text();
-  if (!response.ok) {
-    throw new Error(`OpenAI transcription ${response.status}: ${text.slice(0, 500)}`);
-  }
-
-  return text.trim();
+  void filePath;
+  void fileName;
+  void model;
+  void prompt;
+  throw new Error(ZOOM_AUDIO_TRANSCRIPTION_PAUSED_MESSAGE);
 }
 
 async function listZoomAudioFiles(userEmail, rootFolderId, { startDate, endDate, limit }) {
@@ -296,6 +278,9 @@ async function main() {
   console.log(`  Audio files selected: ${audioFiles.length}`);
   console.log(`  Model: ${model}`);
   if (dryRun) console.log('  Mode: dry-run');
+  if (!dryRun) {
+    throw new Error(ZOOM_AUDIO_TRANSCRIPTION_PAUSED_MESSAGE);
+  }
 
   let transcribed = 0;
   let failed = 0;
