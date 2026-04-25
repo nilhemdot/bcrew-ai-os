@@ -277,7 +277,7 @@ async function main() {
     : (backlog ? DEFAULT_BACKLOG_LIMIT : limit)
   const backlogSince = normalizeText(args['backlog-since'] || args.since) || DEFAULT_BACKLOG_SINCE
   const matureDays = args['mature-days'] == null || args['mature-days'] === true
-    ? (queued || backlog ? 10 : 0)
+    ? (backlog ? 10 : 0)
     : Math.max(0, Number(args['mature-days']) || 0)
   const fubContext = normalizeText(args.context) || DEFAULT_FUB_CONTEXT
 
@@ -361,7 +361,7 @@ async function main() {
             return isUninspectedReviewStatus(item.reviewStatus)
           })
           .sort((a, b) => {
-            if (a.reviewDate !== b.reviewDate) return a.reviewDate.localeCompare(b.reviewDate)
+            if (a.reviewDate !== b.reviewDate) return b.reviewDate.localeCompare(a.reviewDate)
             return a.item.rowNum - b.item.rowNum
           })
           .map(({ item }) => item.rowNum)
@@ -416,7 +416,7 @@ async function main() {
     queued,
     backlog,
     write,
-    matureDays,
+    backlogMatureDays: matureDays,
     backlogSince,
     rows: results.map(result => ({
       row: result.rowNum,

@@ -290,7 +290,7 @@ Operating flow now:
    - ClickUp
 4. Ops changes that same row's `CD` value to `Review This Deal`.
 5. The queued re-review lane picks up rows where `CD = Review This Deal`.
-6. The first-pass backlog lane separately inspects one never-reviewed June 2025+ deal per scheduled run.
+6. The first-pass Admin backlog lane separately inspects the newest eligible never-reviewed June 2025+ deals at one per 8-hour scheduled run, which is 3 per day.
 7. AI re-reviews or first-pass reviews the row, rewrites `CC` / `CE`, then sets:
    - `CD = No Action` if clean
 

@@ -91,7 +91,7 @@ Built and useful now:
 - Skool corpus access and policy boundary captured in `docs/source-notes/skool-corpus.md`.
 - Marketing source evidence from the old system and current connector checks.
 - Doc cleanup plan and generated doc indexes.
-- Ops Hub v0 as its own hub surface for systems serving Ops, starting with Admin and conditional deal-review inspections. Scheduled jobs now run queued re-reviews first, then one June 2025+ first-pass backlog item, writing AI status/action/findings only. Foundation remains the control plane; Ops owns the human cockpit.
+- Ops Hub v0 as its own hub surface for systems serving Ops, starting with Admin and conditional deal-review inspections. Scheduled jobs now run marked re-reviews first, then pace Admin first-pass backlog at one newest eligible June 2025+ deal per 8-hour run (3 per day), writing AI status/action/findings only. Foundation remains the control plane; Ops owns the human cockpit.
 
 Still not done:
 

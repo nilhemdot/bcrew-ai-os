@@ -389,6 +389,10 @@ body {
   margin-top: 22px;
 }
 
+.ops-issue-section[hidden] {
+  display: none;
+}
+
 .ops-issue-section-header {
   display: flex;
   align-items: end;

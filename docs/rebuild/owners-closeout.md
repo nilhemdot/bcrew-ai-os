@@ -74,7 +74,7 @@ Live now:
   - first-pass backlog lane: `npm run deal-review:conditional -- --backlog --backlog-since=2025-06-01 --backlog-limit=1`
 - combined governed inbox API:
   - `/api/owners/review-queue`
-- scheduled Foundation jobs run queued re-reviews first, then one June 2025+ backlog item, and write only AI status/action/findings
+- scheduled Foundation jobs run marked re-reviews first, then pace Admin first-pass backlog at one newest eligible June 2025+ deal per 8-hour run (3 per day), and write only AI status/action/findings
 - source-field corrections remain human-owned until an explicit apply/fix lane is approved
 
 ## First Proven Pattern

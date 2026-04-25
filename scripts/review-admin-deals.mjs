@@ -187,7 +187,7 @@ function getBacklogDeals(groups, options) {
       return item.group.rows.every(row => isUninspectedReviewStatus(row.reviewStatus))
     })
     .sort((a, b) => {
-      if (a.executedDate !== b.executedDate) return a.executedDate.localeCompare(b.executedDate)
+      if (a.executedDate !== b.executedDate) return b.executedDate.localeCompare(a.executedDate)
       return a.group.deal.localeCompare(b.group.deal)
     })
     .map(item => item.group.deal)
@@ -370,7 +370,7 @@ async function main() {
   const write = Boolean(args.write)
   const fubContext = normalizeText(args.context) || DEFAULT_FUB_CONTEXT
   const matureDays = args['mature-days'] == null || args['mature-days'] === true
-    ? (queued || backlog ? 10 : 0)
+    ? (backlog ? 10 : 0)
     : Math.max(0, Number(args['mature-days']) || 0)
   const limit = parseLimit(args.limit, 0)
   const queuedLimit = parseLimit(args['queued-limit'], limit)
@@ -440,7 +440,6 @@ async function main() {
   }
 
   const groups = new Map()
-  const skipped = []
   for (const deal of dealsRequested) {
     const group = allGroups.get(deal)
     if (group) groups.set(deal, group)
@@ -450,29 +449,6 @@ async function main() {
     if (!groups.has(deal) && dealsArg) {
       throw new Error(`Deal not found in sheet: ${deal}`)
     }
-  }
-
-  if (queued && matureDays > 0) {
-    const matureDeals = []
-    for (const deal of dealsRequested) {
-      const group = groups.get(deal)
-      if (!group) continue
-      const executedDates = group.rows.map(row => row.executed).filter(Boolean).sort()
-      const executedDate = executedDates[0] || null
-      const age = daysSinceIso(executedDate)
-      if (age == null) {
-        skipped.push({ deal, reason: 'missing_executed_date' })
-        groups.delete(deal)
-        continue
-      }
-      if (age < matureDays) {
-        skipped.push({ deal, reason: 'not_mature_yet', executedDate, age, matureDays })
-        groups.delete(deal)
-        continue
-      }
-      matureDeals.push(deal)
-    }
-    dealsRequested = matureDeals
   }
 
   for (const group of groups.values()) {
@@ -517,9 +493,8 @@ async function main() {
         queued,
         backlog,
         write,
-        matureDays,
+        backlogMatureDays: matureDays,
         backlogSince,
-        skipped,
         deals: results.map(result => ({
           deal: result.deal,
           lane: selectionLanes.get(result.deal) || 'manual',

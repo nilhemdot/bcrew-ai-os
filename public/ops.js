@@ -213,14 +213,14 @@ function renderOpsSystemPill(job, queueStats) {
   if (job.key === 'admin-deal-review-readonly') {
     body.appendChild(renderLabeledCopy(
       'Inspection writeback',
-      'Scheduled: queued re-reviews first, then one June 2025+ backlog deal. Writes AI status/action/findings only; source-field fixes stay human-owned.'
+      'Scheduled: marked Admin re-reviews run first. The first-pass backlog then checks one newest eligible never-reviewed Admin deal per run, using Date Firm (Executed), a 2025-06-01 cutoff, and a 10-day maturity gate. At every 8 hours, that is 3 backlog deals per day. Writes AI status/action/findings only; source-field fixes stay human-owned.'
     ))
   }
 
   if (job.key === 'conditional-deal-review-readonly') {
     body.appendChild(renderLabeledCopy(
       'Inspection writeback',
-      'Scheduled: queued re-reviews first, then one June 2025+ backlog row. Writes AI status/action/findings only; source-field fixes stay human-owned.'
+      'Scheduled: marked conditional/listing re-reviews run first. The first-pass lane checks one newest eligible never-reviewed conditional/listing row per run when the row has enough date/identity signal. Writes AI status/action/findings only; source-field fixes stay human-owned.'
     ))
   }
 
@@ -383,9 +383,9 @@ function renderOpsIssueSection(queueStats, key, config, maxItems) {
 function renderOpsModeNote(queueStats) {
   var note = document.createElement('div')
   note.className = 'ops-mode-note'
-  note.textContent = 'Inspection is live. Admin and Conditional scheduled jobs re-check rows marked Review This Deal / Review This Conditional first, then inspect one never-reviewed June 2025+ backlog item per run. Right now manual re-review counts are ' +
-    queueStats.sections.admin.queuedReview + ' Admin and ' +
-    queueStats.sections.conditional.queuedReview + ' Conditional. Open cards below are findings that need source-row fixes or an explicit re-review trigger. Scheduled writeback only updates AI status/action/findings; it does not auto-fix source fields.'
+  note.textContent = 'Deal inspection is live. Marked rows are re-checked first: Review This Deal and Review This Conditional. The Admin first-pass backlog scans 3 never-reviewed deals per day, newest to older, using Date Firm (Executed) on or after 2025-06-01 and waiting 10 days after execution. Current marked re-review counts: ' +
+    queueStats.sections.admin.queuedReview + ' Admin, ' +
+    queueStats.sections.conditional.queuedReview + ' Conditional. Writeback updates only AI status, action, and findings; source-field fixes stay human-owned.'
   return note
 }
 

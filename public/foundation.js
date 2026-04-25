@@ -6425,7 +6425,7 @@ function renderCurrentState() {
         sourceId: ['SRC-OWNERS-001', 'SRC-FUB-001'],
         statusKey: 'pending',
         statusLabel: 'Open',
-        currentSummary: 'Admin-tab meaning is signed off. Read-only Foundation deal-review jobs are running every 6 hours against queued Admin and conditional rows. What remains open is FUB parity, lineage, historical cleanup, and enforcement; Ops Hub assignment/writeback is later.',
+        currentSummary: 'Admin-tab meaning is signed off. Foundation deal-review jobs now re-check marked Admin/Conditional rows first, then pace first-pass Admin backlog inspection at 3 newest eligible June 2025+ deals per day using Date Firm (Executed) and a 10-day maturity gate. Ops Hub is live for the queue; source-field fixes remain human-owned until an approval-gated apply lane exists.',
         packageParts: [
           {
             sourceId: 'SRC-OWNERS-001',
@@ -6438,13 +6438,13 @@ function renderCurrentState() {
             sourceId: 'SRC-FUB-001',
             statusKey: 'pending',
             statusLabel: 'Open',
-            body: 'FUB parity and taxonomy baseline still need to close. The first lead-source drift/enforcement guardrails are already done.',
+            body: 'FUB lead-source drift is now routed through Ops. The remaining closeout is FUB parity, source lineage, historical cleanup, and enforcement.',
             role: 'Dependency source',
-            next: 'Finish FUB taxonomy and Owners parity work.',
+            next: 'Finish FUB taxonomy/parity and Owners lineage work.',
           },
         ],
         next: 'Close this package in order: SOURCE-008, DATA-005, DATA-006, DATA-007, DATA-008, DATA-009.',
-        later: 'Then route actionable cleanup into Ops Hub once assignment and writeback are approval-gated.',
+        later: 'Add assignment and approval-gated source-field writeback only after Ops approves that workflow.',
         backlogIds: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-007', 'DATA-008', 'DATA-009'],
       },
       {
