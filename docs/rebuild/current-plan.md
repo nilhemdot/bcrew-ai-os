@@ -289,6 +289,7 @@ Routing doctrine:
 - keep API/cloud fallback mandatory
 - do not build blind round-robin quota farming
 - do not make resale economics depend on consumer-plan arbitrage
+- do not build the production product backend on consumer subscriptions; use official APIs for customer-facing automation unless a native/subscription route is explicitly allowed, probed, logged, and workload-classified
 - migrate one workload family at a time only after that route has a successful actual-call probe
 
 Hub-dedicated capacity doctrine:

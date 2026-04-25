@@ -146,6 +146,8 @@ Current direction:
 - official API routes stay available as guarded manual fallback, not default or automatic failover
 - direct OpenAI Responses API is blocked unless an intentional paid-run override is set
 - subscription/native routes can be used only after probes classify them for the workload
+- subscription/native routes are internal capacity lanes, not the product backend and not a consumer-plan arbitrage business model
+- official APIs are the default answer for production/customer-facing automated workloads unless a subscription/native route is explicitly allowed, probed, logged, and policy-classified for that workload
 - hub-dedicated capacity is preferred over blind account rotation
 - Codex / Claude Code remain terminal-native coding and investigation tools
 - Claude Code / Claude Agent SDK subscription adapter is the next model-layer build so Claude Max capacity can be assigned by hub under the same router
