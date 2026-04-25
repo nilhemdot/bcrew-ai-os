@@ -46,4 +46,3 @@ Review future work against this question:
 > Does this move source-backed intelligence toward a real decision, contradiction, task, or owner-bound action?
 
 If not, it is probably infrastructure only and should be named as such.
-

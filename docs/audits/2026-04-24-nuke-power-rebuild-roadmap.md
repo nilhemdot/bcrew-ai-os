@@ -209,7 +209,7 @@ The single highest-leverage upgrade available.
 | Current-day sync (meeting-notes / gmail / missive / slack) | Every 2-4 hours |
 | Extractors (per source) | Triggered by successful sync of that source |
 | Deal review (admin / conditional) | Daily morning |
-| Synthesis brief | Daily 7am |
+| Strategy/action synthesis | On-demand and routed into decisions/tasks/contradictions; the earlier daily-brief framing is superseded by `docs/handoffs/2026-04-24-strategy-action-loop-correction.md` |
 | Reports (coverage / gap-report) | Weekly Monday 8am |
 | Historical backfill | One bite per source per day (rate-limited) |
 | Scoper missions | On-demand |
