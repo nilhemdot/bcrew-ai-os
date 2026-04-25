@@ -7574,6 +7574,9 @@ function getSourceSearchText(contract) {
     contract.scope,
     contract.owns,
     Array.isArray(contract.signedOffTabs) ? contract.signedOffTabs.join(' ') : '',
+    Array.isArray(contract.verifiedNonSourceTabs) ? contract.verifiedNonSourceTabs.map(function(item) {
+      return [item && item.name, item && item.reason].filter(Boolean).join(' ')
+    }).join(' ') : '',
     contract.accessMethod,
     contract.status,
     contract.validation,
@@ -7701,7 +7704,12 @@ function renderSourceBulletGroup(labelText, items) {
   var list = document.createElement('ul')
   list.className = 'source-bullet-list'
   items.forEach(function(item) {
-    var text = String(item || '').trim()
+    var text = ''
+    if (item && typeof item === 'object') {
+      text = [item.name, item.reason].filter(Boolean).join(' — ')
+    } else {
+      text = String(item || '').trim()
+    }
     if (!text) return
     var li = document.createElement('li')
     li.textContent = text
@@ -7769,6 +7777,10 @@ function renderSourceContractCard(contract) {
 
   if (Array.isArray(contract.signedOffTabs) && contract.signedOffTabs.length) {
     article.appendChild(renderSourceBulletGroup('Signed-off tabs/ranges in this unit', contract.signedOffTabs))
+  }
+
+  if (Array.isArray(contract.verifiedNonSourceTabs) && contract.verifiedNonSourceTabs.length) {
+    article.appendChild(renderSourceBulletGroup('Verified but not counted as source-owned sign-off', contract.verifiedNonSourceTabs))
   }
 
   if (contract.owns) {

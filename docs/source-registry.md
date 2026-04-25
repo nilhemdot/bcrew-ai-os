@@ -153,6 +153,10 @@ Readable means the rebuild can connect and read. It does not mean the business m
 - `Goal & KPI Calculator`
 - `CI Report`
 
+Verified but not counted as source-owned sign-off for this unit:
+
+- `Lists`: verified in the Owners Dashboard as an `IMPORTRANGE` mirror, but governed writes and source-owned list truth belong to `SRC-OWNERS-LISTS-001` in the BHAG Builder / Old BIS KPI Lists Source workbook.
+
 `SRC-FINANCE-001` covers these signed-off current-reality finance tabs:
 
 - `(Input) Weekly Actuals`
@@ -162,6 +166,7 @@ Readable means the rebuild can connect and read. It does not mean the business m
 - `Monthly Actuals (Roll Up)`
 - `Annual Actuals (Roll Up)`
 - `Annual Budget (Roll Up)`
+- `Unspent -L3M + Actual Helper`
 
 ## Pending Revalidation
 

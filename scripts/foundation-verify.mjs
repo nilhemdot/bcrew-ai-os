@@ -144,9 +144,15 @@ async function main() {
   )
   ensure(
     checks,
-    ['Monthly Budget', 'Budget Original', 'Monthly Actuals (Roll Up)', 'Annual Actuals (Roll Up)', 'Annual Budget (Roll Up)'].every(tab => financeContract?.signedOffTabs?.includes(tab)),
+    ['Monthly Budget', 'Budget Original', 'Monthly Actuals (Roll Up)', 'Annual Actuals (Roll Up)', 'Annual Budget (Roll Up)', 'Unspent -L3M + Actual Helper'].every(tab => financeContract?.signedOffTabs?.includes(tab)),
     'source contracts: SRC-FINANCE-001 exposes signed-off finance tab coverage',
     financeContract?.signedOffTabs?.join(', ') || 'missing',
+  )
+  ensure(
+    checks,
+    ownersContract?.verifiedNonSourceTabs?.some(item => item.name === 'Lists' && /IMPORTRANGE/.test(item.reason || '') && /SRC-OWNERS-LISTS-001/.test(item.reason || '')),
+    'source contracts: Owners Lists mirror explains non-source sign-off boundary',
+    JSON.stringify(ownersContract?.verifiedNonSourceTabs || []),
   )
   ensure(
     checks,
@@ -156,6 +162,7 @@ async function main() {
   )
 
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
+  const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
@@ -181,9 +188,15 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(sourceRegistry, ['### Owners Dashboard Signed-Off Tab Coverage', 'Split Cal', 'Annual Budget (Roll Up)']),
+    includesAll(sourceRegistry, ['### Owners Dashboard Signed-Off Tab Coverage', 'Split Cal', 'Annual Budget (Roll Up)', 'Unspent -L3M + Actual Helper', 'SRC-OWNERS-LISTS-001']),
     'docs/source-registry.md reflects Owners signed-off tab coverage',
     'Owners tab coverage section present',
+  )
+  ensure(
+    checks,
+    includesAll(currentState, ['Unspent -L3M + Actual Helper', 'IMPORTRANGE', 'SRC-OWNERS-LISTS-001']),
+    'docs/rebuild/current-state.md reflects helper and mirror source boundaries',
+    'current state explains finance helper coverage and Owners Lists mirror boundary',
   )
   ensure(
     checks,
