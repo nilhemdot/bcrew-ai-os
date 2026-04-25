@@ -243,6 +243,16 @@ When a major surface or doc pass is close to sign-off, do not just move on becau
 
 This is how we avoid hidden gaps, thin backlog cards, and "we talked about it but never promoted it" drift.
 
+## Foundation Rebuild Discipline
+
+Use these rules only for durable system work. Do not turn every conversation into memory or doctrine.
+
+- When repo seed, live Postgres, docs, and UI disagree, treat live Postgres/API as operational truth and expose the drift. Do not silently overwrite live state from seed files.
+- Keep workflow modes explicit. A queued re-review lane is not the same thing as a first-pass backlog sweep, and a read-only inspection is not the same thing as writeback.
+- Do not treat old-system notes, chat claims, or historical audits as active truth until the useful part is promoted into a source contract, DB-backed backlog/decision, current doc, or verifier.
+- Capture lessons at the lowest durable layer that fits: daily memory for raw context, `MEMORY.md` for private long-term context, `AGENTS.md` for future operating rules, and docs/backlog/verifier for repo truth.
+- Before calling a Foundation section "done," check whether the review exposed a schema, provenance, source, privacy, or scheduling rule that should become a verifier check instead of another reminder.
+
 ## Chat Archive Discipline
 
 Before ending a long main-session chat:
