@@ -77,6 +77,8 @@ Current v1 status:
 - closed for source-lineage classification and company/agent rule reads
 - governed source rules live in `fub_lead_source_rules`
 - Admin review now consumes those rules for invalid source, company/agent expectation, and ISA mismatch checks
+- Admin review also checks split math, FUB join/source/stage state, and Freedom deal/NPS/Google-review follow-through
+- CC/CD/CE are the governed in-sheet write lane for first-pass and re-review findings
 - unresolved values stay queued instead of guessed
 
 Live now:

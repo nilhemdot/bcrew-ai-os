@@ -148,7 +148,7 @@ var backlogWorkflowStages = [
 var foundationNowSequence = [
   {
     title: 'Close the Owners package',
-    body: 'SOURCE-008 and DATA-005 are now closed for the v1 FUB join and lead-source lineage rule model. Use DATA-006, DATA-007, DATA-008, and DATA-009 to close Admin review rules, row cleanup, missing links, and duplicate-credit issues. DATA-018 and DATA-019 are already closed guardrails.',
+    body: 'SOURCE-008, DATA-005, and DATA-006 are now closed for the v1 FUB join, lead-source lineage, and Admin review rule model. Use DATA-007, DATA-008, and DATA-009 to close row cleanup, missing links, and duplicate-credit issues. DATA-018 and DATA-019 are already closed guardrails.',
     href: '/doc?path=docs/rebuild/owners-closeout.md',
     cta: 'Open Owners Closeout',
   },
@@ -6228,8 +6228,8 @@ function renderCurrentState() {
         rows: [
           {
             title: 'Owners + FUB package',
-            body: 'Owners meaning is closed. The FUB join and source-lineage rule model are closed for v1. The active work is Admin review enforcement, historical cleanup, missing links, duplicate-credit issues, and row-quality enforcement.',
-            backlogIds: ['DATA-006', 'DATA-007', 'DATA-008', 'DATA-009'],
+            body: 'Owners meaning is closed. The FUB join, source-lineage model, and Admin review enforcement are closed for v1. The active work is historical cleanup, missing links, duplicate-credit issues, and row-quality cleanup.',
+            backlogIds: ['DATA-007', 'DATA-008', 'DATA-009'],
           },
           {
             title: 'KPI read model',
@@ -6425,7 +6425,7 @@ function renderCurrentState() {
         sourceId: ['SRC-OWNERS-001', 'SRC-FUB-001'],
         statusKey: 'pending',
         statusLabel: 'Open',
-        currentSummary: 'Admin-tab meaning is signed off. FUB joins through Column BZ and the v1 lead-source lineage model are now locked. Foundation deal-review jobs re-check marked Admin/Conditional rows first, then pace first-pass Admin backlog inspection at 3 newest eligible June 2025+ deals per day using Date Firm (Executed) and a 10-day maturity gate. Ops Hub is live for the queue; source-field fixes remain human-owned until an approval-gated apply lane exists.',
+        currentSummary: 'Admin-tab meaning is signed off. FUB joins through Column BZ, v1 lead-source lineage, and Admin review rules are now locked. The review runner checks split math, governed source rules, company/agent expectation, FUB source/stage/ISA evidence, and Freedom follow-through. Foundation deal-review jobs re-check marked Admin/Conditional rows first, then pace first-pass Admin backlog inspection at 3 newest eligible June 2025+ deals per day using Date Firm (Executed) and a 10-day maturity gate. Ops Hub is live for the queue; source-field fixes remain human-owned until an approval-gated apply lane exists.',
         packageParts: [
           {
             sourceId: 'SRC-OWNERS-001',
@@ -6438,14 +6438,14 @@ function renderCurrentState() {
             sourceId: 'SRC-FUB-001',
             statusKey: 'pending',
             statusLabel: 'Open',
-            body: 'FUB joins and lead-source lineage rules are locked for v1. Remaining closeout is Admin review enforcement, missing FUB links, historical row cleanup, and duplicate-credit edge cases.',
+            body: 'FUB joins, lead-source lineage rules, and Admin review enforcement are locked for v1. Remaining closeout is missing FUB links, historical row cleanup, and duplicate-credit edge cases.',
             role: 'Dependency source',
-            next: 'Finish Admin review rules, row cleanup, missing-link backfill, and duplicate-credit review.',
+            next: 'Finish row cleanup, missing-link backfill, and duplicate-credit review.',
           },
         ],
-        next: 'Close this package in order: DATA-006, DATA-007, DATA-008, DATA-009.',
+        next: 'Close this package in order: DATA-007, DATA-008, DATA-009.',
         later: 'Add assignment and approval-gated source-field writeback only after Ops approves that workflow.',
-        backlogIds: ['DATA-006', 'DATA-007', 'DATA-008', 'DATA-009'],
+        backlogIds: ['DATA-007', 'DATA-008', 'DATA-009'],
       },
       {
         title: 'FUB lead-source taxonomy',
@@ -6454,7 +6454,7 @@ function renderCurrentState() {
         statusKey: 'connected',
         statusLabel: 'Done for v1',
         currentSummary: 'The review tool is live, FUB source drift is clear, and v1 source-lineage/company-agent rules are locked through the governed source rule table.',
-        next: 'Use the locked rules inside DATA-006/DATA-007/DATA-008 cleanup.',
+        next: 'Use the locked rules inside DATA-007/DATA-008 cleanup.',
         later: 'Then add broader issue routing and Sales Hub support.',
         backlogIds: [],
       },

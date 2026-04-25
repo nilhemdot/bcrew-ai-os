@@ -6,8 +6,10 @@ import { getFubPerson } from '../lib/fub.js'
 import { closeFoundationDb, listFubLeadSourceRules } from '../lib/foundation-db.js'
 
 const OWNERS_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk'
+const FREEDOM_SHEET_ID = '1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw'
 const ADMIN_SHEET_TITLE = 'ADMIN ONLY - Deal Data Entry'
 const ADMIN_RANGE = `'${ADMIN_SHEET_TITLE}'!A1:CE2000`
+const FREEDOM_DEALS_RANGE = "'Data Entry - Clients, Deals, NPS & GReviews'!A6:AF500"
 const DEFAULT_FUB_CONTEXT = 'owner'
 const DEFAULT_BACKLOG_SINCE = '2025-06-01'
 const DEFAULT_BACKLOG_LIMIT = 1
@@ -125,6 +127,35 @@ function getPersonTags(person) {
     : []
 }
 
+function buildFreedomDealMap(rows) {
+  const map = new Map()
+  for (let index = 1; index < rows.length; index += 1) {
+    const row = rows[index]
+    const tradeNumber = normalizeText(row[3])
+    if (!tradeNumber) continue
+    map.set(tradeNumber, {
+      rowNum: index + 6,
+      executed: sheetSerialToIso(row[0]),
+      tradeNumber,
+      client: normalizeText(row[4]),
+      agent: normalizeText(row[5]),
+      address: normalizeText(row[6]),
+      surveyComplete: normalizeText(row[8]),
+      surveyNotes: normalizeText(row[9]),
+      surveyNotesEntered: normalizeText(row[10]),
+      opsScore: normalizeText(row[11]),
+      npsReceived: normalizeText(row[13]),
+      npsScore: normalizeText(row[14]),
+      npsNotes: normalizeText(row[15]),
+      reviewsCaptured: normalizeText(row[17]),
+      reviewLinks: normalizeText(row[18]),
+      recordComplete: normalizeText(row[20]),
+      validated: normalizeText(row[21]),
+    })
+  }
+  return map
+}
+
 function hasFubIsaEvidence(person) {
   return getPersonTags(person).some(tag => normalizeLower(tag).includes('isa set'))
 }
@@ -152,6 +183,14 @@ function buildFindingText(result) {
     for (const issue of result.fubIssues) lines.push(`- ${issue}`)
   } else {
     lines.push('- No FUB issue found in this pass.')
+  }
+
+  lines.push('')
+  lines.push(buildSummaryLine('Freedom', result.freedomPassed, result.freedomFailed))
+  if (result.freedomIssues.length) {
+    for (const issue of result.freedomIssues) lines.push(`- ${issue}`)
+  } else {
+    lines.push('- Freedom follow-through is visible for this trade.')
   }
 
   lines.push('')
@@ -232,14 +271,17 @@ function getBacklogDeals(groups, options) {
     .map(item => item.group.deal)
 }
 
-function createAuditResult(group, sourceRules) {
+function createAuditResult(group, sourceRules, freedomDealMap) {
   const rows = group.rows
   const ownerIssues = []
   const fubIssues = []
+  const freedomIssues = []
   let ownersPassed = 0
   let ownersFailed = 0
   let fubPassed = 0
   let fubFailed = 0
+  let freedomPassed = 0
+  let freedomFailed = 0
 
   const sumTotal = rows.reduce((sum, row) => sum + toNumber(row.total), 0)
   const sumDealCredit = rows.reduce((sum, row) => sum + toNumber(row.dealCredit), 0)
@@ -313,6 +355,20 @@ function createAuditResult(group, sourceRules) {
     ownerIssues.push(`lead source is still unresolved on row${unresolvedSources.length > 1 ? 's' : ''} ${unresolvedSources.join(', ')}.`)
   } else {
     ownersPassed += 1
+  }
+
+  if (rows.every(row => normalizeText(row.client))) {
+    ownersPassed += 1
+  } else {
+    ownersFailed += 1
+    ownerIssues.push('one or more split rows are missing Client Name.')
+  }
+
+  if (rows.every(row => normalizeText(row.companyAgent))) {
+    ownersPassed += 1
+  } else {
+    ownersFailed += 1
+    ownerIssues.push('one or more split rows are missing Company or Agent.')
   }
 
   const fubPerson = group.fubPerson || null
@@ -435,7 +491,37 @@ function createAuditResult(group, sourceRules) {
     }
   }
 
-  const hasIssues = ownerIssues.length > 0 || fubIssues.length > 0
+  const freedomRow = freedomDealMap.get(group.deal)
+  if (!freedomRow) {
+    freedomFailed += 1
+    freedomIssues.push('No visible reviewed Freedom deal record found for this trade.')
+    freedomFailed += 1
+    freedomIssues.push('No visible NPS follow-through found yet for this trade.')
+    freedomFailed += 1
+    freedomIssues.push('No visible Google-review follow-through found yet for this trade.')
+  } else {
+    freedomPassed += 1
+
+    const npsVisible = normalizeLower(freedomRow.npsReceived) === 'yes' ||
+      Boolean(freedomRow.npsScore) ||
+      Boolean(freedomRow.npsNotes)
+    if (npsVisible) {
+      freedomPassed += 1
+    } else {
+      freedomFailed += 1
+      freedomIssues.push(`Freedom row ${freedomRow.rowNum} has no visible NPS follow-through.`)
+    }
+
+    const reviewsVisible = toNumber(freedomRow.reviewsCaptured) > 0 || Boolean(freedomRow.reviewLinks)
+    if (reviewsVisible) {
+      freedomPassed += 1
+    } else {
+      freedomFailed += 1
+      freedomIssues.push(`Freedom row ${freedomRow.rowNum} has no visible Google-review follow-through.`)
+    }
+  }
+
+  const hasIssues = ownerIssues.length > 0 || fubIssues.length > 0 || freedomIssues.length > 0
   const status = hasIssues ? 'Issues Found' : 'Clean'
   const action = hasIssues ? 'Needs Fixing' : 'No Action'
   const result = hasIssues
@@ -451,8 +537,11 @@ function createAuditResult(group, sourceRules) {
     ownersFailed,
     fubPassed,
     fubFailed,
+    freedomPassed,
+    freedomFailed,
     ownerIssues,
     fubIssues,
+    freedomIssues,
     result,
     findingText: buildFindingText({
       ownersPassed,
@@ -461,6 +550,9 @@ function createAuditResult(group, sourceRules) {
       fubPassed,
       fubFailed,
       fubIssues,
+      freedomPassed,
+      freedomFailed,
+      freedomIssues,
       result,
     }),
   }
@@ -489,7 +581,9 @@ async function main() {
   }
 
   const adminRes = await getSheetValues('ai@bensoncrew.ca', OWNERS_SHEET_ID, ADMIN_RANGE)
+  const freedomRes = await getSheetValues('service-account', FREEDOM_SHEET_ID, FREEDOM_DEALS_RANGE)
   const rows = adminRes.values || []
+  const freedomRows = freedomRes.values || []
   const header = rows[0] || []
 
   const cols = {
@@ -520,6 +614,7 @@ async function main() {
 
   const allGroups = buildAdminDealGroups(rows, cols)
   const sourceRules = buildSourceRuleMap(await listFubLeadSourceRules())
+  const freedomDealMap = buildFreedomDealMap(freedomRows)
   let dealsRequested = []
   const selectionLanes = new Map()
 
@@ -574,7 +669,7 @@ async function main() {
     }
   }
 
-  const results = dealsRequested.map(deal => createAuditResult(groups.get(deal), sourceRules))
+  const results = dealsRequested.map(deal => createAuditResult(groups.get(deal), sourceRules, freedomDealMap))
 
   if (write) {
     const updates = []
@@ -615,8 +710,11 @@ async function main() {
           ownersFailed: result.ownersFailed,
           fubPassed: result.fubPassed,
           fubFailed: result.fubFailed,
+          freedomPassed: result.freedomPassed,
+          freedomFailed: result.freedomFailed,
           ownerIssues: result.ownerIssues,
           fubIssues: result.fubIssues,
+          freedomIssues: result.freedomIssues,
         })),
       },
       null,

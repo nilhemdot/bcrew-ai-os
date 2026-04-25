@@ -172,8 +172,7 @@ This checklist is the current anti-drift queue from the 2026-04-25 top-down revi
    - Refresh stale FUB source snapshot.
    - Sign off trusted FUB source taxonomy baseline and new-source review rules.
    - Lock Owners dropdown/list parity against FUB lineage.
-7. `DATA-006` through `DATA-009` — Clear Ops/deal-validation source-quality work.
-   - Admin-tab data quality rules.
+7. `DATA-007` through `DATA-009` — Clear Ops/deal-validation source-quality work.
    - Invalid lead-source row backfill.
    - Missing FUB link backfill.
    - Suspicious duplicate full-credit row resolution.

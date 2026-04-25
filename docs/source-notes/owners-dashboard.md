@@ -386,6 +386,25 @@ Current review packs by system:
   - ISA override is proven when relevant
   - lease rule is proven when relevant
 
+Admin review v1 implementation status:
+
+- `scripts/review-admin-deals.mjs` now enforces the v1 checklist that belongs in `DATA-006`.
+- It writes the governed review result back to:
+  - `CC = AI Review Status`
+  - `CD = THIS ROW ONLY: REVIEW ACTION`
+  - `CE = AI Findings By System / Suggestions`
+- The current executable checks cover:
+  - split totals, deal credit, volume credit, commission credit, gross-to-team anchor, and row cash math
+  - missing client / company-agent basics
+  - governed lead-source classification from `fub_lead_source_rules`
+  - expected `Company` / `Agent` from source ownership plus ISA evidence
+  - FUB person join through Column `BZ`
+  - FUB source classification and Owners/FUB source mismatch
+  - stale mature-deal CRM stages
+  - ISA mismatch in both directions
+  - Freedom deal record, NPS follow-through, and Google-review follow-through by trade number
+- The script still does not auto-fix source fields. Ops fixes source systems, then marks the row for re-review.
+
 ### How To Use This Note
 
 - treat the workbook itself as the parent data source
