@@ -31,6 +31,10 @@ function fetchOwnersReviewQueue() {
   return fetchJson('/api/owners/review-queue')
 }
 
+var OWNERS_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk'
+var OWNERS_ADMIN_GID = '533201019'
+var OWNERS_CONDITIONAL_GID = '131346715'
+
 function createActionLink(label, href, className) {
   var link = document.createElement('a')
   link.className = className || 'secondary-button'
@@ -100,17 +104,29 @@ function getHubServedJobs(hub, hubKey) {
 function getOpsReviewQueueStats(queuePayload) {
   var queue = queuePayload && queuePayload.reviewQueue ? queuePayload.reviewQueue : {}
   var sections = queue.sections || {}
+  function sectionPayload(key) {
+    var section = sections[key] || {}
+    var items = Array.isArray(section.items) ? section.items : []
+    return {
+      openItems: Number.isFinite(Number(section.openItems)) ? Number(section.openItems) : items.length,
+      queuedReview: Number.isFinite(Number(section.queuedReview)) ? Number(section.queuedReview) : items.filter(function(item) { return item.queuedForReview }).length,
+      needsFixing: Number.isFinite(Number(section.needsFixing)) ? Number(section.needsFixing) : items.filter(function(item) { return item.needsFixing }).length,
+      freshness: section.freshness || null,
+      items: items,
+    }
+  }
   return {
     status: queue.status || 'unknown',
     openItems: queue.stats && Number.isFinite(Number(queue.stats.openItems)) ? Number(queue.stats.openItems) : 0,
     queuedReview: queue.stats && Number.isFinite(Number(queue.stats.queuedReview)) ? Number(queue.stats.queuedReview) : 0,
     needsFixing: queue.stats && Number.isFinite(Number(queue.stats.needsFixing)) ? Number(queue.stats.needsFixing) : 0,
     freshness: queue.freshness || null,
+    ownersSheet: queue.ownersSheet || { sheetId: OWNERS_SHEET_ID },
     sections: {
-      admin: sections.admin && Array.isArray(sections.admin.items) ? sections.admin.items.length : 0,
-      conditional: sections.conditional && Array.isArray(sections.conditional.items) ? sections.conditional.items.length : 0,
-      fubDrift: sections.fubDrift && Array.isArray(sections.fubDrift.items) ? sections.fubDrift.items.length : 0,
-      ownersGovernance: sections.ownersGovernance && Array.isArray(sections.ownersGovernance.items) ? sections.ownersGovernance.items.length : 0,
+      admin: sectionPayload('admin'),
+      conditional: sectionPayload('conditional'),
+      fubDrift: sectionPayload('fubDrift'),
+      ownersGovernance: sectionPayload('ownersGovernance'),
     },
   }
 }
@@ -175,20 +191,41 @@ function renderOpsSystemPill(job, queueStats) {
   body.appendChild(renderLabeledCopy(
     'Ops inbox now',
     queueStats.openItems + ' open · ' +
-      queueStats.sections.admin + ' admin · ' +
-      queueStats.sections.conditional + ' conditional · ' +
-      queueStats.sections.fubDrift + ' FUB drift · ' +
-      queueStats.sections.ownersGovernance + ' Owners list drift'
+      queueStats.sections.admin.openItems + ' admin · ' +
+      queueStats.sections.conditional.openItems + ' conditional · ' +
+      queueStats.sections.fubDrift.openItems + ' FUB drift · ' +
+      queueStats.sections.ownersGovernance.openItems + ' Owners list drift'
   ))
+
+  if (job.key === 'admin-deal-review-readonly') {
+    body.appendChild(renderLabeledCopy(
+      'Sheet writeback path',
+      'Exists but is not scheduled: npm run deal-review:admin -- --queued --limit=10 --write'
+    ))
+  }
+
+  if (job.key === 'conditional-deal-review-readonly') {
+    body.appendChild(renderLabeledCopy(
+      'Sheet writeback path',
+      'Exists but is not scheduled: npm run deal-review:conditional -- --queued --limit=10 --write'
+    ))
+  }
 
   var actions = document.createElement('div')
   actions.className = 'foundation-module-actions'
   actions.appendChild(createActionLink('Open Ops Inbox', '/ops#inbox', 'secondary-button'))
-  actions.appendChild(createActionLink('Open Foundation System Health', '/foundation#system-health', 'secondary-button'))
   body.appendChild(actions)
 
   details.appendChild(body)
   return details
+}
+
+function renderOpsSystemSummaryCard(job) {
+  return renderStatusCard({
+    label: job.title || job.key,
+    status: job.status === 'live' ? 'live' : (job.status || 'pending'),
+    detail: (job.systemSummary || job.description || 'No summary recorded.') + ' Open Running Systems for inputs, outputs, run state, and writeback boundary.',
+  })
 }
 
 function renderPanel(eyebrowText, titleText, introText) {
@@ -218,51 +255,194 @@ function renderPanel(eyebrowText, titleText, introText) {
   return panel
 }
 
-function renderOpsInboxPanel(queueStats) {
+function formatQueueItemMeta(item) {
+  var parts = []
+  if (item.owner) parts.push(item.owner)
+  if (item.rowNumber) parts.push('row ' + item.rowNumber)
+  if (item.executedDate) parts.push('executed ' + item.executedDate)
+  if (item.conditionalStatus) parts.push('status ' + item.conditionalStatus)
+  return parts.join(' · ') || 'Ops review item'
+}
+
+function getQueueItemHref(queueStats, item) {
+  var sheetId = queueStats.ownersSheet && queueStats.ownersSheet.sheetId ? queueStats.ownersSheet.sheetId : OWNERS_SHEET_ID
+  if (item.queue === 'admin' && item.rowNumber) {
+    return 'https://docs.google.com/spreadsheets/d/' + sheetId + '/edit#gid=' + OWNERS_ADMIN_GID + '&range=A' + item.rowNumber
+  }
+  if (item.queue === 'conditional' && item.rowNumber) {
+    return 'https://docs.google.com/spreadsheets/d/' + sheetId + '/edit#gid=' + OWNERS_CONDITIONAL_GID + '&range=A' + item.rowNumber
+  }
+  return ''
+}
+
+function renderOpsIssueCard(queueStats, item) {
+  var card = document.createElement('article')
+  card.className = 'ops-issue-card'
+
+  var head = document.createElement('div')
+  head.className = 'ops-issue-head'
+
+  var titleWrap = document.createElement('div')
+  titleWrap.className = 'ops-issue-title-wrap'
+
+  var title = document.createElement('h4')
+  title.textContent = item.title || item.id || 'Review item'
+  titleWrap.appendChild(title)
+
+  var subtitle = document.createElement('p')
+  subtitle.textContent = [item.subtitle, formatQueueItemMeta(item)].filter(Boolean).join(' · ')
+  titleWrap.appendChild(subtitle)
+
+  head.appendChild(titleWrap)
+
+  var pill = document.createElement('span')
+  pill.className = 'ops-issue-pill ' + (item.needsFixing ? 'ops-issue-pill-risk' : 'ops-issue-pill-pending')
+  pill.textContent = item.reviewAction || item.reviewStatus || 'Review'
+  head.appendChild(pill)
+
+  card.appendChild(head)
+
+  var status = document.createElement('div')
+  status.className = 'ops-issue-status-line'
+  status.textContent = [item.reviewStatus, item.reviewAction].filter(Boolean).join(' · ')
+  card.appendChild(status)
+
+  var findings = document.createElement('p')
+  findings.className = 'ops-issue-findings'
+  findings.textContent = item.findingsPreview || 'No findings text is recorded yet.'
+  card.appendChild(findings)
+
+  var href = getQueueItemHref(queueStats, item)
+  if (href) {
+    var actions = document.createElement('div')
+    actions.className = 'foundation-module-actions ops-issue-actions'
+    actions.appendChild(createActionLink('Open source row', href, 'secondary-button'))
+    card.appendChild(actions)
+  }
+
+  return card
+}
+
+function renderOpsIssueSection(queueStats, key, config, maxItems) {
+  var section = queueStats.sections[key]
+  var items = section && Array.isArray(section.items) ? section.items : []
+  var wrap = document.createElement('div')
+  wrap.className = 'ops-issue-section'
+
+  var header = document.createElement('div')
+  header.className = 'ops-issue-section-header'
+
+  var title = document.createElement('h4')
+  title.textContent = config.title
+  header.appendChild(title)
+
+  var meta = document.createElement('p')
+  meta.textContent = items.length + ' open · ' + (section ? section.needsFixing : 0) + ' need fixing'
+  header.appendChild(meta)
+  wrap.appendChild(header)
+
+  if (!items.length) {
+    var empty = document.createElement('p')
+    empty.className = 'section-intro'
+    empty.textContent = config.emptyText
+    wrap.appendChild(empty)
+    return wrap
+  }
+
+  var grid = document.createElement('div')
+  grid.className = 'ops-issue-grid'
+  items.slice(0, maxItems || items.length).forEach(function(item) {
+    grid.appendChild(renderOpsIssueCard(queueStats, item))
+  })
+  wrap.appendChild(grid)
+
+  if (maxItems && items.length > maxItems) {
+    var more = document.createElement('p')
+    more.className = 'section-intro'
+    more.textContent = (items.length - maxItems) + ' more item' + (items.length - maxItems === 1 ? '' : 's') + ' visible in the Inbox tab.'
+    wrap.appendChild(more)
+  }
+
+  return wrap
+}
+
+function renderOpsModeNote() {
+  var note = document.createElement('div')
+  note.className = 'ops-mode-note'
+  note.textContent = 'Scheduled jobs are read-only inspections. They surface findings and queue state here. Sheet writeback exists in explicit --write mode, but it is not scheduled until Ops approves that workflow.'
+  return note
+}
+
+function renderOpsInboxPanel(queueStats, options) {
+  var showItems = options && options.showItems
   var panel = renderPanel(
     'Ops Inbox',
     'Operational Inspection Queue',
-    'These are source-backed review items surfaced for Ops. Foundation detects them; Ops owns cleanup decisions and assignment.'
+    'These are source-backed review items surfaced for Ops. Foundation detects them; Ops owns cleanup decisions, assignment, and source-row fixes.'
   )
 
   var grid = document.createElement('div')
   grid.className = 'status-grid'
   grid.appendChild(renderStatusCard({
     label: 'Admin deal review',
-    status: queueStats.sections.admin ? 'pending' : 'live',
-    detail: queueStats.sections.admin + ' Admin rows are queued for read-only inspection or cleanup review.',
+    status: queueStats.sections.admin.openItems ? 'pending' : 'live',
+    detail: queueStats.sections.admin.openItems + ' Admin rows have open review findings or source-row cleanup work.',
   }))
   grid.appendChild(renderStatusCard({
     label: 'Conditional review',
-    status: queueStats.sections.conditional ? 'pending' : 'live',
-    detail: queueStats.sections.conditional + ' conditional/listing rows are queued for inspection.',
+    status: queueStats.sections.conditional.openItems ? 'pending' : 'live',
+    detail: queueStats.sections.conditional.openItems + ' conditional/listing rows have open review findings.',
   }))
   grid.appendChild(renderStatusCard({
     label: 'FUB drift',
-    status: queueStats.sections.fubDrift ? 'risk' : 'live',
-    detail: queueStats.sections.fubDrift + ' Follow Up Boss taxonomy or parity items are open.',
+    status: queueStats.sections.fubDrift.openItems ? 'risk' : 'live',
+    detail: queueStats.sections.fubDrift.openItems + ' Follow Up Boss taxonomy or parity items are open.',
   }))
   grid.appendChild(renderStatusCard({
     label: 'Owners list drift',
-    status: queueStats.sections.ownersGovernance ? 'risk' : 'live',
-    detail: queueStats.sections.ownersGovernance + ' Owners dropdown governance items are open.',
+    status: queueStats.sections.ownersGovernance.openItems ? 'risk' : 'live',
+    detail: queueStats.sections.ownersGovernance.openItems + ' Owners dropdown governance items are open.',
   }))
   panel.appendChild(grid)
 
-  var actions = document.createElement('div')
-  actions.className = 'foundation-module-actions'
-  actions.appendChild(createActionLink('Open Owners Review Queue API', '/api/owners/review-queue', 'secondary-button'))
-  actions.appendChild(createActionLink('Open Foundation Backlog', '/foundation#backlog', 'secondary-button'))
-  panel.appendChild(actions)
+  panel.appendChild(renderOpsModeNote())
+
+  if (showItems) {
+    panel.appendChild(renderOpsIssueSection(queueStats, 'admin', {
+      title: 'Admin deal rows',
+      emptyText: 'No Admin deal review findings are open.',
+    }))
+    panel.appendChild(renderOpsIssueSection(queueStats, 'conditional', {
+      title: 'Conditional / listing rows',
+      emptyText: 'No conditional review findings are open.',
+    }))
+    panel.appendChild(renderOpsIssueSection(queueStats, 'fubDrift', {
+      title: 'FUB taxonomy and parity drift',
+      emptyText: 'No FUB drift items are open.',
+    }))
+    panel.appendChild(renderOpsIssueSection(queueStats, 'ownersGovernance', {
+      title: 'Owners dropdown drift',
+      emptyText: 'No Owners dropdown drift items are open.',
+    }))
+  } else {
+    var actions = document.createElement('div')
+    actions.className = 'foundation-module-actions'
+    actions.appendChild(createActionLink('Open Ops Inbox', '/ops#inbox', 'secondary-button'))
+    actions.appendChild(createActionLink('Open Running Systems', '/ops#systems', 'secondary-button'))
+    panel.appendChild(actions)
+  }
 
   return panel
 }
 
-function renderOpsSystemsPanel(jobs, queueStats) {
+function renderOpsSystemsPanel(jobs, queueStats, options) {
+  var compact = options && options.compact
   var panel = renderPanel(
     'Running Systems',
     'Systems Serving Ops',
-    'Open a system to see what it reads, what it checks, what it outputs, and where its work lands.'
+    compact
+      ? 'These are the Foundation systems currently serving Ops. Open Running Systems for run state and boundaries.'
+      : 'Open a system to see what it reads, what it checks, what it outputs, and where its work lands.'
   )
 
   if (!jobs.length) {
@@ -272,9 +452,22 @@ function renderOpsSystemsPanel(jobs, queueStats) {
     return panel
   }
 
-  jobs.forEach(function(job) {
-    panel.appendChild(renderOpsSystemPill(job, queueStats))
-  })
+  if (compact) {
+    var grid = document.createElement('div')
+    grid.className = 'status-grid'
+    jobs.forEach(function(job) {
+      grid.appendChild(renderOpsSystemSummaryCard(job))
+    })
+    panel.appendChild(grid)
+    var actions = document.createElement('div')
+    actions.className = 'foundation-module-actions'
+    actions.appendChild(createActionLink('Open Running Systems', '/ops#systems', 'secondary-button'))
+    panel.appendChild(actions)
+  } else {
+    jobs.forEach(function(job) {
+      panel.appendChild(renderOpsSystemPill(job, queueStats))
+    })
+  }
 
   return panel
 }
@@ -327,20 +520,20 @@ function renderSection(section, hub, queuePayload) {
 
   if (section === 'overview') {
     container.appendChild(renderHero(jobs, queueStats))
-    container.appendChild(renderOpsInboxPanel(queueStats))
-    container.appendChild(renderOpsSystemsPanel(jobs, queueStats))
+    container.appendChild(renderOpsInboxPanel(queueStats, { showItems: false }))
+    container.appendChild(renderOpsSystemsPanel(jobs, queueStats, { compact: true }))
     return
   }
 
   if (section === 'inbox') {
     container.appendChild(renderHero(jobs, queueStats))
-    container.appendChild(renderOpsInboxPanel(queueStats))
+    container.appendChild(renderOpsInboxPanel(queueStats, { showItems: true }))
     return
   }
 
   if (section === 'systems') {
     container.appendChild(renderHero(jobs, queueStats))
-    container.appendChild(renderOpsSystemsPanel(jobs, queueStats))
+    container.appendChild(renderOpsSystemsPanel(jobs, queueStats, { compact: false }))
     return
   }
 

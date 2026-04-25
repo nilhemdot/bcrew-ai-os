@@ -344,6 +344,124 @@ body {
   opacity: 0.55;
 }
 
+.ops-mode-note {
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-left: 4px solid var(--amber);
+  border-radius: var(--radius-md);
+  background: rgba(245, 158, 11, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  padding: 12px 14px;
+  margin: 4px 0 22px;
+}
+
+.ops-issue-section {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.ops-issue-section-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.ops-issue-section-header h4 {
+  margin: 0;
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ops-issue-section-header p {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ops-issue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.ops-issue-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ops-issue-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ops-issue-title-wrap {
+  min-width: 0;
+}
+
+.ops-issue-title-wrap h4 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.ops-issue-title-wrap p,
+.ops-issue-status-line {
+  margin: 4px 0 0;
+  color: var(--text-tertiary);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.ops-issue-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ops-issue-pill-risk {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.ops-issue-pill-pending {
+  background: var(--amber-bg);
+  color: var(--amber);
+}
+
+.ops-issue-findings {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.ops-issue-actions {
+  margin-top: 0;
+}
+
 /* ── PANELS ── */
 .panel {
   background: var(--surface);
