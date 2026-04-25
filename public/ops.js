@@ -16,8 +16,17 @@ function getSection() {
   return hash || 'overview'
 }
 
+function getAdminHeaders() {
+  try {
+    var token = window.localStorage && window.localStorage.getItem('BCREW_ADMIN_TOKEN')
+    return token ? { 'X-Admin-Token': token } : {}
+  } catch (error) {
+    return {}
+  }
+}
+
 function fetchJson(url) {
-  return fetch(url, { cache: 'no-store' }).then(function(response) {
+  return fetch(url, { cache: 'no-store', headers: getAdminHeaders() }).then(function(response) {
     if (!response.ok) throw new Error(url + ' returned ' + response.status)
     return response.json()
   })

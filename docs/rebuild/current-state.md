@@ -1,6 +1,7 @@
 # BCrew AI OS Current State
 
 Last updated: 2026-04-25
+Status: Active
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -38,10 +39,10 @@ Built:
 
 Open:
 
-- durable item-level cursors/retry execution beyond current-day sync proof
+- durable item-level cursors, target-run IDs, and retry execution beyond current-day sync proof
 - meeting-notes current-day scheduling after retry/report handling is hardened
 - real-world partial-run failure proof before scheduling high-variance corpus lanes
-- one schedule truth between Foundation jobs and source crawl targets
+- operator UI/verifier hardening for Foundation-job schedule truth and source-crawl checkpoint metadata
 - Claude Code / Claude Agent SDK subscription adapter under the BCrew router
 - hub-dedicated model capacity allocation beyond the first Foundation subscription route
 - intelligence job ledger for extraction, embedding, video analysis, synthesis, and brief generation
@@ -104,7 +105,6 @@ Trust these first:
 - `docs/rebuild/agent-architecture.md`
 - `docs/rebuild/doc-cleanup-plan.md`
 - `docs/rebuild/owners-closeout.md`
-- `docs/rebuild-decisions.md`
 - `docs/system-strategy.md`
 - `docs/source-registry.md`
 

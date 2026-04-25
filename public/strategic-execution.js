@@ -9,6 +9,19 @@ function getSection() {
   return hash || 'overview'
 }
 
+function getAdminHeaders() {
+  try {
+    var token = window.localStorage && window.localStorage.getItem('BCREW_ADMIN_TOKEN')
+    return token ? { 'X-Admin-Token': token } : {}
+  } catch (error) {
+    return {}
+  }
+}
+
+function fetchWithAdmin(url) {
+  return fetch(url, { headers: getAdminHeaders() })
+}
+
 function slugify(value) {
   return value
     .toLowerCase()
@@ -37,6 +50,12 @@ function isInternalMarkdownPath(href) {
     !/^(https?:|mailto:|tel:|#)/i.test(href) &&
     /\.md([?#].*)?$/i.test(href)
   )
+}
+
+function isSafeDirectHref(href) {
+  if (typeof href !== 'string') return false
+  var cleanHref = href.trim()
+  return /^(https?:|mailto:|tel:|#)/i.test(cleanHref) || /^\/(?!\/)/.test(cleanHref)
 }
 
 var strategicDocPaths = {
@@ -75,7 +94,9 @@ var sectionLabels = {
 }
 
 function buildDocHref(href, currentPath) {
-  if (!isInternalMarkdownPath(href)) return href
+  if (!isInternalMarkdownPath(href)) {
+    return isSafeDirectHref(href) ? href.trim() : '#'
+  }
 
   var cleanHref = href.trim()
   var anchor = ''
@@ -125,7 +146,12 @@ function appendFormattedText(text, parent, currentPath) {
     } else if (m[4] && m[5]) {
       var link = document.createElement('a')
       link.textContent = m[4]
-      link.setAttribute('href', buildDocHref(m[5], currentPath))
+      var href = buildDocHref(m[5], currentPath)
+      link.setAttribute('href', href)
+      if (/^https?:\/\//i.test(href)) {
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+      }
       link.className = 'md-link'
       parent.appendChild(link)
     }
@@ -527,7 +553,7 @@ var cache = {
 function fetchSourceOfTruth() {
   if (cache.sourceOfTruth) return Promise.resolve(cache.sourceOfTruth)
 
-  return fetch('/api/source-of-truth').then(function(res) {
+  return fetchWithAdmin('/api/source-of-truth').then(function(res) {
     if (!res.ok) throw new Error('Source of truth API failed.')
     return res.json()
   }).then(function(data) {
@@ -539,7 +565,7 @@ function fetchSourceOfTruth() {
 function fetchDoc(docPath) {
   if (cache.docs[docPath]) return Promise.resolve(cache.docs[docPath])
 
-  return fetch('/api/doc?path=' + encodeURIComponent(docPath)).then(function(res) {
+  return fetchWithAdmin('/api/doc?path=' + encodeURIComponent(docPath)).then(function(res) {
     if (!res.ok) throw new Error('Document failed to load.')
     return res.json()
   }).then(function(data) {

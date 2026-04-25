@@ -11,8 +11,9 @@ If the words Foundation, OpenClaw, Harlan, Crewbert, terminal agent, memory, or 
 
 ## The Short Version
 
-- **Foundation** is the truth layer.
-- **OpenClaw** is the live runtime layer.
+- **Foundation** is the truth and control layer.
+- **BCrew router / Foundation runtime** own system execution and model routing.
+- **OpenClaw** is the current live Harlan channel/runtime adapter, not the whole OS.
 - **Harlan** is a personal assistant identity.
 - **Crewbert** is the planned orchestrator identity.
 - **Codex / Claude Code** are terminal-native coding and investigation tools.
@@ -68,22 +69,23 @@ This is already live through the Foundation worker and LaunchAgent.
 
 **Live-agent/channel runtime** runs user-facing assistants and channels.
 
-For the later live-agent/channel layer, the planned runtime is:
+For today's Harlan Telegram proof and the later live-agent/channel layer, the current adapter is:
 
 - **OpenClaw**
 
-OpenClaw handles things like:
+OpenClaw can handle things like:
 
 - Telegram
 - WhatsApp
 - channel connections
-- live agent process execution
-- routing and runtime behavior
+- live channel process execution
+- adapter-side routing/runtime behavior
 
 So:
 
-- OpenClaw is a **system/runtime setup**
+- OpenClaw is a **channel/runtime adapter**
 - not the business foundation
+- not the BCrew model router
 - not the permanent identity of Harlan
 - not the permanent identity of Crewbert
 
@@ -272,7 +274,7 @@ That instinct is right.
 
 The correction is:
 
-OpenClaw is the runtime layer in the system.
+OpenClaw is one runtime/channel adapter inside the system.
 
 It is not the whole architecture by itself.
 
@@ -300,7 +302,7 @@ But the system should still separate:
 
 Use this sentence:
 
-**Foundation is the truth layer. OpenClaw is the runtime. Harlan and Crewbert are agent identities. Terminal access is one execution mode. Memory lives in multiple layers.**
+**Foundation is the truth and control layer. The BCrew router owns model/runtime decisions. OpenClaw is one live channel/runtime adapter. Harlan and Crewbert are agent identities. Terminal access is one execution mode. Memory lives in multiple layers.**
 
 ## The Current Direction
 

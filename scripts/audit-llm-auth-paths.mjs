@@ -259,7 +259,7 @@ async function auditOpenClaw(actor) {
   }, actor)
 
   const status = modelProbeOk ? 'available' : launchAgentRunning ? 'unknown' : configExists ? 'unknown' : 'missing'
-  const policyClassification = modelProbeOk ? 'allowed' : 'experimental'
+  const policyClassification = 'experimental'
   return upsertLlmCredential({
     credentialKey: 'openclaw-chatgpt-pro',
     provider: 'openclaw',
@@ -271,9 +271,9 @@ async function auditOpenClaw(actor) {
     secretRef: 'OPENCLAW_GATEWAY_URL',
     status,
     policyClassification,
-    allowedWorkloads: ['extraction', 'synthesis', 'extraction_probe', 'classification_probe', 'synthesis_probe'],
+    allowedWorkloads: ['extraction_probe', 'classification_probe', 'synthesis_probe'],
     notes: modelProbeOk
-      ? 'OpenClaw subscription route passed an actual model-run probe. Use for bounded internal extraction/synthesis before API fallback.'
+      ? 'OpenClaw subscription route passed a toy model-run probe. Keep it limited to probes until workload-level capability and policy proof exists.'
       : 'Gateway is local and policy-gated. Do not treat it as production-safe until an actual workload probe passes.',
     metadata: { launchAgentRunning, configExists, workspaceConfigured, modelProbeOk },
   }, actor)

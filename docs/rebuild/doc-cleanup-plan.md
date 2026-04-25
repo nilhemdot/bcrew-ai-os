@@ -1,6 +1,6 @@
 # Doc Cleanup And Consolidation Plan
 
-Last updated: 2026-04-24
+Last updated: 2026-04-25
 Status: Active operating plan
 
 Use this doc for one question:
@@ -9,19 +9,21 @@ Use this doc for one question:
 
 ## Current Inventory
 
-As of 2026-04-24 closeout checkpoint:
+As of 2026-04-25 closeout audit:
 
 | Area | Count | Meaning |
 |------|-------|---------|
 | `docs/handoffs/` | 79 markdown files | Session checkpoints and reconstructed chat evidence |
-| `docs/audits/` | 10 files | Strategy / rebuild / source audits |
+| `docs/audits/` | 12 files | Strategy / rebuild / source audits |
 | `docs/source-notes/` | 11 files | Source-specific operator notes |
 | `docs/rebuild/` | 11 markdown files | Active rebuild operating docs plus plan history entry point |
 | `docs/strategy/` | 9 files | Strategy packet/supporting docs |
-| `docs/` total | 159 files / 145 markdown files | Full documentation surface |
+| `docs/` total | 163 files / 149 markdown files | Full documentation surface |
 
 Phase 1 has started:
 
+- `docs/README.md` added as the top-level documentation authority map
+- `docs/INDEX.md` generated as the full markdown inventory
 - `docs/handoffs/INDEX.md` generated
 - `docs/audits/INDEX.md` generated
 - `scripts/generate-doc-indexes.mjs` added so indexes can be regenerated
@@ -76,7 +78,6 @@ These are the docs a new builder should trust first:
 - `docs/rebuild/agent-architecture.md` — Harlan / Crewbert / agent boundaries
 - `docs/rebuild/doc-cleanup-plan.md` — how evidence becomes truth without creating doc sprawl
 - `docs/rebuild/owners-closeout.md` — exact Owners package closeout order
-- `docs/rebuild-decisions.md` — locked rebuild decisions already made
 - `docs/system-strategy.md` — permanent system strategy
 - `docs/source-registry.md` — source contract index
 
@@ -123,7 +124,6 @@ Keep current active docs where they are:
 - `docs/rebuild/agent-architecture.md`
 - `docs/rebuild/doc-cleanup-plan.md`
 - `docs/rebuild/owners-closeout.md`
-- `docs/rebuild-decisions.md`
 - `docs/system-strategy.md`
 - `docs/source-registry.md`
 
@@ -139,7 +139,7 @@ Each index row should include:
 - file
 - date
 - category
-- status: `active-reference`, `evidence`, `superseded`, `duplicate-candidate`, `needs-promotion`
+- status: `active`, `supporting-truth`, `evidence`, `superseded-evidence`, `duplicate-candidate`, `needs-promotion`, `needs-reconciliation`
 - one-line value
 - promoted-to link, if any
 
@@ -247,7 +247,7 @@ For each audit/handoff:
 
 - if fully promoted, mark `superseded`
 - if still useful as evidence, mark `evidence`
-- if still needed by active work, mark `active-reference`
+- if still needed by active work, promote the durable claim into an active doc or DB card and mark the source file `needs-promotion` until that happens
 - if duplicate, mark `duplicate-candidate`
 
 Do not delete during this phase.
@@ -272,6 +272,7 @@ Likely cards to verify or add:
 - `DRIVE-WORKER-001`
 - `SKOOL-WORKER-001`
 - `REPORT-MINING-001`
+- `LEGACY-SYSTEM-AUDIT-001`
 - `PLATFORM-INTEL-001`
 - `CRM-RECRUIT-001`
 - `FUB-AGENT-TOOLS-001`

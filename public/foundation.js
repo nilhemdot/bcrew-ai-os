@@ -33,6 +33,12 @@ function isInternalMarkdownPath(href) {
   )
 }
 
+function isSafeDirectHref(href) {
+  if (typeof href !== 'string') return false
+  var cleanHref = href.trim()
+  return /^(https?:|mailto:|tel:|#)/i.test(cleanHref) || /^\/(?!\/)/.test(cleanHref)
+}
+
 function normalizeDocPath(pathValue) {
   var parts = []
 
@@ -49,7 +55,9 @@ function normalizeDocPath(pathValue) {
 }
 
 function buildDocHref(href, currentPath) {
-  if (!isInternalMarkdownPath(href)) return href
+  if (!isInternalMarkdownPath(href)) {
+    return isSafeDirectHref(href) ? href.trim() : '#'
+  }
 
   var cleanHref = href.trim()
   var anchor = ''
@@ -411,7 +419,12 @@ function appendFormattedText(text, parent, currentPath) {
     } else if (m[4] && m[5]) {
       var link = document.createElement('a')
       link.textContent = m[4]
-      link.setAttribute('href', buildDocHref(m[5], currentPath))
+      var href = buildDocHref(m[5], currentPath)
+      link.setAttribute('href', href)
+      if (/^https?:\/\//i.test(href)) {
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+      }
       link.className = 'md-link'
       parent.appendChild(link)
     }
@@ -4007,7 +4020,8 @@ var cache = {
   ownersReviewQueue: null,
   docs: {},
 }
-var FOUNDATION_ADMIN_TOKEN_KEY = 'bcrew.foundation.adminToken'
+var FOUNDATION_ADMIN_TOKEN_KEY = 'BCREW_ADMIN_TOKEN'
+var LEGACY_FOUNDATION_ADMIN_TOKEN_KEY = 'bcrew.foundation.adminToken'
 
 var liveDocPaths = {
   'docs/strategy/bhag-model.md': true,
@@ -4035,7 +4049,7 @@ function isStrategyPacketDocPath(docPath) {
 function fetchSourceOfTruth() {
   if (cache.sourceOfTruth) return Promise.resolve(cache.sourceOfTruth)
 
-  return fetch('/api/source-of-truth').then(function(res) {
+  return foundationRead('/api/source-of-truth').then(function(res) {
     if (!res.ok) throw new Error('Source of truth API failed.')
     return res.json()
   }).then(function(data) {
@@ -4047,7 +4061,7 @@ function fetchSourceOfTruth() {
 function fetchFoundationHub() {
   if (cache.foundationHub) return Promise.resolve(cache.foundationHub)
 
-  return fetch('/api/foundation-hub').then(function(res) {
+  return foundationRead('/api/foundation-hub').then(function(res) {
     if (!res.ok) throw new Error('Foundation hub API failed.')
     return res.json()
   }).then(function(data) {
@@ -4059,7 +4073,7 @@ function fetchFoundationHub() {
 function fetchSystemInventory() {
   if (cache.systemInventory) return Promise.resolve(cache.systemInventory)
 
-  return fetch('/api/system-inventory').then(function(res) {
+  return foundationRead('/api/system-inventory').then(function(res) {
     if (!res.ok) throw new Error('System inventory API failed.')
     return res.json()
   }).then(function(data) {
@@ -4072,7 +4086,7 @@ function fetchFubLeadSources(contextKey) {
   var key = contextKey || 'owner'
   if (cache.fubLeadSources[key]) return Promise.resolve(cache.fubLeadSources[key])
 
-  return fetch('/api/fub/lead-sources?context=' + encodeURIComponent(key)).then(function(res) {
+  return foundationRead('/api/fub/lead-sources?context=' + encodeURIComponent(key)).then(function(res) {
     if (!res.ok) throw new Error('FUB lead-source API failed.')
     return res.json()
   }).then(function(data) {
@@ -4084,7 +4098,7 @@ function fetchFubLeadSources(contextKey) {
 function fetchOwnersLeadSourceGovernance() {
   if (cache.ownersLeadSourceGovernance) return Promise.resolve(cache.ownersLeadSourceGovernance)
 
-  return fetch('/api/owners/lead-source-governance').then(function(res) {
+  return foundationRead('/api/owners/lead-source-governance').then(function(res) {
     if (!res.ok) throw new Error('Owners lead-source governance API failed.')
     return res.json()
   }).then(function(data) {
@@ -4096,7 +4110,7 @@ function fetchOwnersLeadSourceGovernance() {
 function fetchOwnersReviewQueue() {
   if (cache.ownersReviewQueue) return Promise.resolve(cache.ownersReviewQueue)
 
-  return fetch('/api/owners/review-queue').then(function(res) {
+  return foundationRead('/api/owners/review-queue').then(function(res) {
     if (!res.ok) throw new Error('Owners review queue API failed.')
     return res.json()
   }).then(function(data) {
@@ -4108,7 +4122,7 @@ function fetchOwnersReviewQueue() {
 function fetchSheetStructureStatus() {
   if (cache.sheetStructureStatus) return Promise.resolve(cache.sheetStructureStatus)
 
-  return fetch('/api/sheets/structure-status').then(function(res) {
+  return foundationRead('/api/sheets/structure-status').then(function(res) {
     if (!res.ok) throw new Error('Sheet structure status API failed.')
     return res.json()
   }).then(function(data) {
@@ -4138,7 +4152,7 @@ function fetchDoc(docPath) {
     requestOptions.cache = 'no-store'
   }
 
-  return fetch(requestUrl, requestOptions).then(function(res) {
+  return foundationRead(requestUrl, requestOptions).then(function(res) {
     if (!res.ok) throw new Error('Document failed to load.')
     return res.json()
   }).then(function(data) {
@@ -4149,7 +4163,9 @@ function fetchDoc(docPath) {
 
 function getStoredAdminToken() {
   try {
-    return window.localStorage.getItem(FOUNDATION_ADMIN_TOKEN_KEY) || ''
+    return window.localStorage.getItem(FOUNDATION_ADMIN_TOKEN_KEY) ||
+      window.localStorage.getItem(LEGACY_FOUNDATION_ADMIN_TOKEN_KEY) ||
+      ''
   } catch {
     return ''
   }
@@ -4157,6 +4173,7 @@ function getStoredAdminToken() {
 
 function setStoredAdminToken(value) {
   try {
+    window.localStorage.removeItem(LEGACY_FOUNDATION_ADMIN_TOKEN_KEY)
     if (!value) window.localStorage.removeItem(FOUNDATION_ADMIN_TOKEN_KEY)
     else window.localStorage.setItem(FOUNDATION_ADMIN_TOKEN_KEY, value)
   } catch {
@@ -4176,6 +4193,33 @@ function clearFoundationCaches() {
 function parseApiErrorPayload(payload, fallbackMessage) {
   if (payload && payload.error && payload.error.message) return payload.error
   return { code: 'unknown_error', message: fallbackMessage || 'Request failed.' }
+}
+
+function foundationRead(url, options) {
+  var requestOptions = Object.assign({}, options || {})
+  var headers = Object.assign({}, requestOptions.headers || {})
+  var token = getStoredAdminToken()
+  if (token) headers['X-Admin-Token'] = token
+  requestOptions.headers = headers
+  return fetch(url, requestOptions)
+}
+
+function downloadStrategyPdf() {
+  foundationRead('/foundation/export/strategy.pdf').then(function(res) {
+    if (!res.ok) throw new Error('Strategy PDF failed.')
+    return res.blob()
+  }).then(function(blob) {
+    var blobUrl = URL.createObjectURL(blob)
+    var link = document.createElement('a')
+    link.href = blobUrl
+    link.download = 'benson-crew-business-strategy.pdf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(blobUrl)
+  }).catch(function(error) {
+    window.alert(error.message || 'Strategy PDF failed.')
+  })
 }
 
 function foundationMutation(url, method, body) {
@@ -6726,12 +6770,7 @@ function renderOverview() {
     printBtn.textContent = 'Download Strategy'
     printBtn.setAttribute('type', 'button')
     printBtn.addEventListener('click', function() {
-      var link = document.createElement('a')
-      link.href = '/foundation/export/strategy.pdf'
-      link.download = ''
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      downloadStrategyPdf()
     })
     hero.appendChild(printBtn)
 

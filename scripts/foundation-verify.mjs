@@ -177,13 +177,19 @@ async function main() {
   )
 
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
+  const docsIndexSource = await readRepoFile('docs/INDEX.md')
+  const docsReadmeSource = await readRepoFile('docs/README.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const opsHtmlSource = await readRepoFile('public/ops.html')
   const opsUiSource = await readRepoFile('public/ops.js')
+  const docUiSource = await readRepoFile('public/doc.js')
+  const strategicExecutionUiSource = await readRepoFile('public/strategic-execution.js')
+  const strategyExportUiSource = await readRepoFile('public/strategy-export.js')
   const serverSource = await readRepoFile('server.js')
   const foundationJobsSource = await readRepoFile('lib/foundation-jobs.js')
+  const llmRouterSource = await readRepoFile('lib/llm-router.js')
   const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
   const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -229,6 +235,16 @@ async function main() {
   )
   ensure(
     checks,
+    docsIndexSource.includes('Generated at:') &&
+      docsIndexSource.includes('| File | Date | Category | Status | Promoted To | Words | Value |') &&
+      !docsIndexSource.includes('active-reference') &&
+      docsIndexSource.includes('| [rebuild-decisions.md](rebuild-decisions.md) | - | foundation | supporting-truth |') &&
+      !docsReadmeSource.includes('10. [`rebuild-decisions.md`'),
+    'docs authority index separates active truth from evidence',
+    'generated index has promoted-to column, no active-reference status, and rebuild decisions are not read-first active truth',
+  )
+  ensure(
+    checks,
     directModelHostOffenders.length === 0,
     'direct model/transcription host calls stay behind approved adapters',
     directModelHostOffenders.length
@@ -239,14 +255,80 @@ async function main() {
     checks,
     [
       "app.get('/api/foundation-hub', requireAdminToken",
+      "app.get('/api/source-of-truth', requireAdminToken",
+      "app.get('/api/doc', requireAdminToken",
+      "app.get('/api/fub/health', requireAdminToken",
+      "app.get('/api/fub/person', requireAdminToken",
+      "app.get('/api/fub/lead-sources', requireAdminToken",
       "app.get('/api/owners/lead-source-governance', requireAdminToken",
       "app.get('/api/owners/review-queue', requireAdminToken",
+      "app.get('/api/sheets/structure-status', requireAdminToken",
       "app.get('/api/system-inventory', requireAdminToken",
       "app.get('/api/foundation/changes', requireAdminToken",
       "app.get('/api/foundation/doc-updates', requireAdminToken",
+      "app.get('/foundation/export/strategy.pdf', requireAdminToken",
     ].every(pattern => serverSource.includes(pattern)),
-    'broad Foundation/Ops read APIs are admin-gated',
-    'foundation hub, owners queue/governance, system inventory, changes, and doc updates require admin token outside localhost',
+    'broad Foundation/Ops/doc read APIs are admin-gated',
+    'source-of-truth, doc reads, foundation hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, doc updates, and PDF export require admin token outside localhost',
+  )
+  ensure(
+    checks,
+    !serverSource.includes('req.hostname') &&
+      serverSource.includes("const host = process.env.HOST || '127.0.0.1'") &&
+      serverSource.includes('app.listen(port, host'),
+    'local admin bypass uses socket locality, not spoofable Host header',
+    'server binds to localhost by default and local trust does not inspect req.hostname',
+  )
+  ensure(
+    checks,
+    foundationUiSource.includes('downloadStrategyPdf') &&
+      foundationUiSource.includes("foundationRead('/foundation/export/strategy.pdf')") &&
+      strategyExportUiSource.includes("fetch('/foundation/export/strategy.pdf', { headers: getAdminHeaders()"),
+    'PDF export clients forward admin token',
+    'Foundation and strategy export pages fetch the gated PDF route with X-Admin-Token when present',
+  )
+  ensure(
+    checks,
+    serverSource.includes('FUB_PROXY_ALLOW_MUTATION') &&
+      serverSource.includes("normalizedMethod !== 'GET'"),
+    'generic FUB proxy mutations are off by default',
+    'broad FUB proxy allows reads but requires explicit supervised env flag for POST/PUT/PATCH/DELETE',
+  )
+  ensure(
+    checks,
+    foundationDbSource.includes('function ensureSharedCommunicationCandidateCanApply') &&
+      foundationDbSource.includes("['pending', 'approved'].includes(candidate.status)") &&
+      foundationDbSource.includes('candidate.metadata.appliedTargetId') &&
+      foundationDbSource.includes('FOR UPDATE') &&
+      !serverSource.includes("apply: 'applied'"),
+    'shared-comms candidates apply idempotently',
+    'candidate apply lanes block already-applied/non-review states and generic status apply cannot create targetless truth',
+  )
+  ensure(
+    checks,
+    llmRouterSource.includes('!dryRun && !plan.runnable') &&
+      llmRouterSource.includes('No runnable LLM route available'),
+    'LLM router refuses non-runnable routes',
+    'probe-required or policy-blocked routes cannot execute live calls just because they sort first',
+  )
+  ensure(
+    checks,
+    foundationDbSource.includes('AND lease_owner = $12') &&
+      foundationDbSource.includes('Source crawl target finish blocked') &&
+      foundationDbSource.includes("`source_crawl_item:${targetKey}:${externalId}`") &&
+      foundationDbSource.includes('entityId: item.itemKey'),
+    'source crawl ledger is lease-owner and item-key safe',
+    'target finishes require matching lease owner and item events use the actual returned row key',
+  )
+  ensure(
+    checks,
+    [foundationUiSource, strategicExecutionUiSource, docUiSource].every(source =>
+      source.includes('isSafeDirectHref') &&
+      source.includes("return isSafeDirectHref(href) ? href.trim() : '#'") &&
+      source.includes("rel = 'noopener noreferrer'")
+    ),
+    'markdown-rendered links sanitize unsafe schemes',
+    'Foundation, Strategic Execution, and doc views disable unsafe href schemes and isolate external links',
   )
   ensure(
     checks,

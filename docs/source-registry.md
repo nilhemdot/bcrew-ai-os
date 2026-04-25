@@ -1,5 +1,8 @@
 # Data Sources Operator Note
 
+Status: Active
+Last updated: 2026-04-25
+
 This note backs the `Data Sources` page.
 
 The live page is the front door. This note is the short operator map behind it.
@@ -99,7 +102,7 @@ Readable means the rebuild can connect and read. It does not mean the business m
 
 | Source ID | Source | Current Location | Scope | What It Owns | Access Method | Status | Last Verified |
 |-----------|--------|------------------|-------|--------------|---------------|--------|---------------|
-| `SRC-STRATEGY-001` | Business Strategy Docs | `docs/*.md` in this repo | Canonical strategy packet | Vision, north star, engine, priorities, mandates, assumptions | Git + local filesystem | Verified | 2026-04-12 |
+| `SRC-STRATEGY-001` | Business Strategy Docs | `docs/business-strategy.md`, `docs/strategy/`, and active rebuild doctrine docs in `docs/rebuild/` | Canonical strategy packet and rebuild doctrine | Vision, north star, engine, priorities, mandates, assumptions, and current rebuild operating doctrine | Git + local filesystem | Verified | 2026-04-25 |
 | `SRC-FREEDOM-TEAM-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Team records | `A:E` | Team/member records | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-18 |
 | `SRC-FREEDOM-COMMUNITY-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Community tracker | `G:O` | Community tracker | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-18 |
 | `SRC-FREEDOM-COMMUNITY-REV-001` | Benson Crew - Freedom Sheet | `Data Entry - BCrew Team/Community` · Community revenue | `P:U` | Community revenue | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-18 |

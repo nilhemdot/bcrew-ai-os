@@ -32,7 +32,7 @@ Reason for v6:
 
 - Mac Mini stays the primary machine for this phase.
 - Foundation-first stays the build order.
-- OpenClaw stays the planned runtime/channel shell for the later live-agent layer, not the whole OS.
+- OpenClaw stays the current Harlan channel/runtime adapter and possible later live-agent adapter, not the whole OS.
 - BCrew router owns model/subscription routing. OpenClaw is one adapter for the ChatGPT/Codex subscription path, not the controlling system.
 - Direct OpenAI Responses API is fallback-only and blocked unless an explicit paid-run override is set.
 - Harlan is Steve's personal agent, not the whole OS.
@@ -95,18 +95,18 @@ Built and useful now:
 
 Still not done:
 
-- durable source cursors and backfill leases beyond the current-day target proof
-- direct-spend guard coverage for every model/transcription host, not only OpenAI Responses
+- durable source cursors, target-run IDs, and backfill leases beyond the current-day target proof
+- router-ledged transcription workload and enforced model-route budgets/caps beyond the direct-host verifier
 - scheduled meeting-notes current-day lane that stays fresh without Steve watching it
 - failed-item retry policy for Drive and non-meeting crawl records beyond the first meeting retry path
 - proof that partial-run job failure/alert semantics work on a real failed meeting/Drive item
-- consolidated job/target schedule truth before target panels become operator truth
+- operator UI/verifier hardening for job/target schedule truth now that Foundation jobs own scheduled crawl lanes
 - Claude Code / Claude Agent SDK subscription adapter under the BCrew router
 - hub-dedicated model capacity allocation beyond the first Foundation subscription path
 - source-budget and failure visibility
 - full subject-person privacy/query layer
 - auth/tier middleware and subject-person redaction implementation from `docs/specs/2026-04-23-auth-tiers-vault.md`
-- interim admin gating or redacted/public split for broad Foundation/Ops read APIs
+- final auth/tier middleware and redacted/public split for broad Foundation/Ops read APIs after interim admin gating
 - full `SYSTEM-010` decommission, dead-man, and cost/process-control layer
 - intelligence job ledger for extraction, embedding, video analysis, synthesis, and brief runs
 - source-backed atom schema that turns rich extraction into durable, reviewable memory units
@@ -149,7 +149,7 @@ This checklist is the current anti-drift queue from the 2026-04-25 top-down revi
    - Later: rebuild transcription as a router-ledged transcription workload before reopening Zoom audio recovery.
    - Keep sanctioned auth probes explicit.
 2. `SECURITY-004` / `SECURITY-002` — Gate broad read APIs before any broader dashboard, hub, assistant, or user-facing access.
-   - Interim admin gating is live for Foundation hub, Owners queue/governance, system inventory, changes, and doc-update reads.
+   - Interim admin gating is live for source-of-truth, doc reads, Foundation hub, FUB reads, Owners queue/governance, sheet structure, system inventory, changes, and doc-update reads.
    - Later replace stop-gap gating with tier and subject-person redaction.
 3. `SYSTEM-010` — Finish runtime/process-control hardening.
    - Keep dashboard and worker LaunchAgent plists in repo.
@@ -665,7 +665,6 @@ Trust these first:
 - `docs/rebuild/agent-architecture.md`
 - `docs/rebuild/doc-cleanup-plan.md`
 - `docs/rebuild/owners-closeout.md`
-- `docs/rebuild-decisions.md`
 - `docs/system-strategy.md`
 - `docs/source-registry.md`
 

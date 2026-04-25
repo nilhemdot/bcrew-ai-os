@@ -1,5 +1,8 @@
 # System Strategy
 
+Status: Active
+Last updated: 2026-04-25
+
 This page defines how the BCrew AI OS works as an operating system around the business.
 
 Business Strategy defines where Benson Crew is going.
@@ -118,11 +121,13 @@ Current direction:
 ## Runtime And Model Position
 
 - **Foundation** is the trust layer: strategy docs, source contracts, PostgreSQL memory, decisions, backlog, and verification.
-- **OpenClaw** remains the planned runtime for live agents and channel orchestration when the agent layer turns on.
-- **GPT-5.4** is the primary reasoning model where quality and throughput matter most.
-- **Gemini Flash** is the cheap background model for classification, washing-machine, and low-cost support work.
-- **Claude API / Claude Code / Codex** are implementation tools for coding, deep terminal work, or cases where their behavior is the best fit.
-- These are not three competing foundations. They are different layers in one stack: Foundation, runtime, model routing, and coding tools.
+- **BCrew router** owns model and runtime-route decisions for system workloads.
+- **OpenClaw** is one runtime/channel adapter, especially for the ChatGPT/Codex subscription path. It is not the operating system.
+- **Claude Code / Codex** are terminal-native coding and investigation tools. They may also become supervised router adapters for specific internal workloads, but they are not the product foundation.
+- **Official APIs** are the clean default for customer-facing automated workloads unless a native/subscription route is explicitly allowed, probed, logged, and workload-classified.
+- **Subscription/native routes** can be internal capacity lanes when supported, observable, stable, policy-classified, and paced. They are not a consumer-plan arbitrage business model.
+- **Gemini / Claude / OpenAI / local models** are model choices under the router. Model choice is per workload, not system identity.
+- These are not competing foundations. They are different layers in one stack: Foundation, router, runtime adapters, model providers, and coding tools.
 
 ## Source Doctrine
 

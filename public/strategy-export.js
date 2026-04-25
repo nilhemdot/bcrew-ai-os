@@ -22,6 +22,15 @@ function formatAsOfDate(isoString) {
   }).format(date)
 }
 
+function getAdminHeaders() {
+  try {
+    var token = window.localStorage && window.localStorage.getItem('BCREW_ADMIN_TOKEN')
+    return token ? { 'X-Admin-Token': token } : {}
+  } catch (error) {
+    return {}
+  }
+}
+
 function slugify(value) {
   return String(value || '')
     .toLowerCase()
@@ -108,9 +117,27 @@ function renderMarkdownBlock(markdown) {
 }
 
 function fetchSourceOfTruth() {
-  return fetch('/api/source-of-truth').then(function(res) {
+  return fetch('/api/source-of-truth', { headers: getAdminHeaders() }).then(function(res) {
     if (!res.ok) throw new Error('Source of truth API failed.')
     return res.json()
+  })
+}
+
+function downloadStrategyPdf() {
+  fetch('/foundation/export/strategy.pdf', { headers: getAdminHeaders() }).then(function(res) {
+    if (!res.ok) throw new Error('Strategy PDF failed.')
+    return res.blob()
+  }).then(function(blob) {
+    var blobUrl = URL.createObjectURL(blob)
+    var link = document.createElement('a')
+    link.href = blobUrl
+    link.download = 'benson-crew-business-strategy.pdf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(blobUrl)
+  }).catch(function(error) {
+    window.alert(error.message || 'Strategy PDF failed.')
   })
 }
 
@@ -265,7 +292,7 @@ function buildToolbar() {
   print.type = 'button'
   print.textContent = 'Download PDF'
   print.addEventListener('click', function() {
-    window.location.href = '/foundation/export/strategy.pdf'
+    downloadStrategyPdf()
   })
   actions.appendChild(print)
 

@@ -136,7 +136,7 @@ Examples:
 - content planner
 - recruiting analyst
 - finance explainer
-- scout
+- bounded research worker
 - browser research agent
 
 Specialist agents should be activated when:

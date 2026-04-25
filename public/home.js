@@ -32,6 +32,15 @@ var harlanCannedResponses = [
   "Right now I'm a preview, not the final assistant loop.",
 ]
 
+function getAdminHeaders() {
+  try {
+    var token = window.localStorage && window.localStorage.getItem('BCREW_ADMIN_TOKEN')
+    return token ? { 'X-Admin-Token': token } : {}
+  } catch (error) {
+    return {}
+  }
+}
+
 function buildHarlanPanel() {
   var panel = document.getElementById('harlan-panel')
   if (!panel) return
@@ -239,7 +248,7 @@ function handleGlobalKeydown(e) {
 /* ── Init ─────────────────────────────────────────────────────── */
 
 ;(function init() {
-  fetch('/api/source-of-truth')
+  fetch('/api/source-of-truth', { headers: getAdminHeaders() })
     .then(function(res) {
       if (!res.ok) throw new Error('Status bar fetch failed.')
       return res.json()

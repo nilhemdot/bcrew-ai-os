@@ -68,6 +68,7 @@ const require = createRequire(import.meta.url)
 const fontkit = require('@pdf-lib/fontkit')
 const app = express()
 const port = process.env.PORT || 3000
+const host = process.env.HOST || '127.0.0.1'
 const execFileAsync = promisify(execFile)
 const adminToken = process.env.ADMIN_TOKEN || process.env.DASHBOARD_API_KEY || ''
 app.disable('x-powered-by')
@@ -315,17 +316,12 @@ function tokensMatch(provided, expected) {
 
 function isLocalRequest(req) {
   const remoteAddress = String((req.socket && req.socket.remoteAddress) || req.ip || '').trim().toLowerCase()
-  const hostname = String(req.hostname || '').trim().toLowerCase()
 
   if (
     remoteAddress === '::1' ||
     remoteAddress === '127.0.0.1' ||
     remoteAddress === '::ffff:127.0.0.1'
   ) {
-    return true
-  }
-
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return true
   }
 
@@ -343,7 +339,7 @@ function requireAdminToken(req, res, next) {
       res,
       503,
       'admin_token_unconfigured',
-      'Mutation routes are not available until ADMIN_TOKEN or DASHBOARD_API_KEY is configured.'
+      'Protected routes are not available outside localhost until ADMIN_TOKEN or DASHBOARD_API_KEY is configured.'
     )
     return
   }
@@ -1010,6 +1006,11 @@ async function runGit(args) {
 
 async function getGitStatusForFile(relativePath) {
   const { stdout } = await runGit(['status', '--porcelain', '--', relativePath])
+  return stdout.trim()
+}
+
+async function getGitStatus() {
+  const { stdout } = await runGit(['status', '--porcelain'])
   return stdout.trim()
 }
 
@@ -2453,7 +2454,7 @@ function sanitizeFubRequestHeaders(rawHeaders) {
   return sanitized
 }
 
-app.get('/api/source-of-truth', (_req, res) => {
+app.get('/api/source-of-truth', requireAdminToken, (_req, res) => {
   const businessStrategy = readFileSafe(businessStrategyPath)
   const sourceRegistry = readFileSafe(sourceRegistryPath)
   const sourceContracts = getSourceContracts()
@@ -2523,7 +2524,7 @@ app.get('/api/source-of-truth', (_req, res) => {
   })
 })
 
-app.get('/api/fub/health', async (req, res) => {
+app.get('/api/fub/health', requireAdminToken, async (req, res) => {
   try {
     const requestedContext = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
     const contexts = getFubContextsSummary()
@@ -2580,7 +2581,7 @@ app.get('/api/fub/health', async (req, res) => {
   }
 })
 
-app.get('/api/fub/person', async (req, res) => {
+app.get('/api/fub/person', requireAdminToken, async (req, res) => {
   try {
     const contextKey = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
     const personInput =
@@ -2621,7 +2622,7 @@ app.get('/api/fub/person', async (req, res) => {
   }
 })
 
-app.get('/api/fub/lead-sources', async (req, res) => {
+app.get('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
   try {
     const contextKey = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
     const resolvedContext = resolveFubContext(contextKey || undefined)
@@ -2807,6 +2808,9 @@ app.post('/api/fub/request', requireAdminToken, async (req, res) => {
   const normalizedMethod = method ? method.trim().toUpperCase() : ''
   if (normalizedMethod && !['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(normalizedMethod)) {
     errors.method = 'Method must be GET, POST, PUT, PATCH, or DELETE.'
+  }
+  if (normalizedMethod && normalizedMethod !== 'GET' && process.env.FUB_PROXY_ALLOW_MUTATION !== 'true') {
+    errors.method = 'Generic FUB proxy mutations are disabled. Use the governed endpoint for writes, or set FUB_PROXY_ALLOW_MUTATION=true for a supervised local run.'
   }
 
   let headers = {}
@@ -3089,7 +3093,7 @@ app.get('/api/system-inventory', requireAdminToken, async (_req, res) => {
   }
 })
 
-app.get('/api/sheets/structure-status', async (_req, res) => {
+app.get('/api/sheets/structure-status', requireAdminToken, async (_req, res) => {
   try {
     const status = await runSheetsStructureVerification()
     cacheHeadersNoStore(res)
@@ -3423,7 +3427,6 @@ app.post('/api/shared-communications/candidates/:candidateKey/:action', requireA
     const statusByAction = {
       approve: 'approved',
       reject: 'rejected',
-      apply: 'applied',
       duplicate: 'duplicate',
       reset: 'pending',
     }
@@ -3862,6 +3865,12 @@ app.post('/api/foundation/doc-updates/:id/apply', requireAdminToken, async (req,
     return
   }
 
+  const repoStatus = await getGitStatus()
+  if (repoStatus) {
+    sendApiError(res, 409, 'repo_dirty', 'Repository has uncommitted changes. Apply is blocked so it cannot commit unrelated work.')
+    return
+  }
+
   const section = getHeadingSection(currentContent, docUpdate.targetSection)
   if (!section) {
     sendApiError(res, 409, 'target_section_not_found', 'Target section no longer exists in the document.')
@@ -3886,10 +3895,13 @@ app.post('/api/foundation/doc-updates/:id/apply', requireAdminToken, async (req,
     await runGit(['add', '--', relativePath])
     await runGit([
       'commit',
+      '--only',
       '-m',
       `Apply doc update ${docUpdate.id}: ${docUpdate.summary}`,
       '-m',
       'Co-Authored-By: BCrew AI OS <system@bensoncrew.ai>',
+      '--',
+      relativePath,
     ])
     const { stdout } = await runGit(['rev-parse', 'HEAD'])
     const appliedCommit = stdout.trim()
@@ -3925,7 +3937,7 @@ app.post('/api/foundation/doc-updates/:id/apply', requireAdminToken, async (req,
   }
 })
 
-app.get('/api/doc', async (req, res) => {
+app.get('/api/doc', requireAdminToken, async (req, res) => {
   const filePath = resolveRequestedDoc(req.query.path)
 
   if (!filePath) {
@@ -3976,7 +3988,7 @@ app.get('/foundation', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'foundation.html'))
 })
 
-app.get('/foundation/export/strategy.pdf', async (_req, res) => {
+app.get('/foundation/export/strategy.pdf', requireAdminToken, async (_req, res) => {
   try {
     const businessStrategy = readFileSafe(businessStrategyPath)
     if (!businessStrategy) {
@@ -4026,8 +4038,9 @@ app.get('*', (_req, res) => {
 async function start() {
   await initFoundationDb()
 
-  const server = app.listen(port, () => {
-    console.log(`BCrew AI OS dashboard listening on http://localhost:${port}`)
+  const server = app.listen(port, host, () => {
+    const displayHost = host === '0.0.0.0' ? 'localhost' : host
+    console.log(`BCrew AI OS dashboard listening on http://${displayHost}:${port}`)
   })
 
   let isShuttingDown = false

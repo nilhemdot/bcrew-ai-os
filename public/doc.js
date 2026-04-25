@@ -134,10 +134,17 @@ var strategicExecutionDocPathToSection = {
   'docs/strategy/strategic-issues.md': 'strategic-issues',
 }
 
+function isSafeDirectHref(href) {
+  if (typeof href !== 'string') return false
+  var cleanHref = href.trim()
+  return /^(https?:|mailto:|tel:|#)/i.test(cleanHref) || /^\/(?!\/)/.test(cleanHref)
+}
+
 function resolveDocPath(href, currentPath) {
-  if (typeof href !== 'string') return href
-  if (/^(https?:|mailto:|tel:|#)/i.test(href)) return href
-  if (!/\.md([?#].*)?$/i.test(href)) return href
+  if (typeof href !== 'string') return '#'
+  if (!/\.md([?#].*)?$/i.test(href)) {
+    return isSafeDirectHref(href) ? href.trim() : '#'
+  }
 
   var cleanHref = href.trim()
   var anchor = ''
@@ -150,7 +157,7 @@ function resolveDocPath(href, currentPath) {
 
   var basePath = cleanHref
   if (!cleanHref.startsWith('docs/')) {
-    var currentDir = currentPath.split('/').slice(0, -1).join('/')
+    var currentDir = (currentPath || 'docs/business-strategy.md').split('/').slice(0, -1).join('/')
     basePath = normalizeDocPath(currentDir + '/' + cleanHref)
   }
 
@@ -250,7 +257,12 @@ function appendFormattedText(text, parent, currentPath) {
     } else if (m[4] && m[5]) {
       var link = document.createElement('a')
       link.textContent = m[4]
-      link.setAttribute('href', resolveDocPath(m[5], currentPath))
+      var href = resolveDocPath(m[5], currentPath)
+      link.setAttribute('href', href)
+      if (/^https?:\/\//i.test(href)) {
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+      }
       link.className = 'md-link'
       parent.appendChild(link)
     }
@@ -1245,6 +1257,15 @@ function isLiveDocPath(docPath) {
   return docPath === 'docs/strategy/bhag-model.md' || docPath === 'docs/strategy/agent-engine.md'
 }
 
+function getAdminHeaders() {
+  try {
+    var token = window.localStorage && window.localStorage.getItem('BCREW_ADMIN_TOKEN')
+    return token ? { 'X-Admin-Token': token } : {}
+  } catch (error) {
+    return {}
+  }
+}
+
 async function init() {
   var pathValue = getQueryParam('path')
   var anchor = getQueryParam('anchor')
@@ -1265,7 +1286,7 @@ async function init() {
   configureDocBackLink(pathValue)
 
   var requestUrl = '/api/doc?path=' + encodeURIComponent(pathValue)
-  var requestOptions = {}
+  var requestOptions = { headers: getAdminHeaders() }
 
   if (isLiveDocPath(pathValue)) {
     requestUrl += '&_ts=' + Date.now()
