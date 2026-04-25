@@ -7573,6 +7573,7 @@ function getSourceSearchText(contract) {
     contract.location,
     contract.scope,
     contract.owns,
+    Array.isArray(contract.signedOffTabs) ? contract.signedOffTabs.join(' ') : '',
     contract.accessMethod,
     contract.status,
     contract.validation,
@@ -7738,6 +7739,10 @@ function renderSourceContractCard(contract) {
 
   if (kind.key === 'docs' && Array.isArray(contract.packetDocs) && contract.packetDocs.length) {
     article.appendChild(renderSourceLinkGroup('Docs in this packet', contract.packetDocs, 'docs/business-strategy.md'))
+  }
+
+  if (Array.isArray(contract.signedOffTabs) && contract.signedOffTabs.length) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'Signed-off tabs in this unit', contract.signedOffTabs.join(', ')))
   }
 
   if (contract.owns) {
@@ -7947,6 +7952,9 @@ function renderSourceSystemStack(group) {
   var state = getSourceSystemState(contracts)
   var signedOffUnits = contracts.filter(function(contract) { return getSourcePresence(contract).key === 'signed-off' }).length
   var provisionalUnits = contracts.filter(function(contract) { return getSourcePresence(contract).key === 'connected' }).length
+  var signedOffTabCount = contracts.reduce(function(sum, contract) {
+    return sum + (Array.isArray(contract.signedOffTabs) ? contract.signedOffTabs.length : 0)
+  }, 0)
   var accessSummary = Array.from(new Set(contracts.map(function(contract) {
     return contract.accessMethod
   }).filter(Boolean))).join(' · ')
@@ -7977,6 +7985,7 @@ function renderSourceSystemStack(group) {
     : [
       contracts.length + ' ' + (docsOnly ? 'doc source' : 'validation unit') + (contracts.length === 1 ? '' : 's'),
       signedOffUnits ? signedOffUnits + ' signed off' : '',
+      signedOffTabCount ? signedOffTabCount + ' signed-off tabs' : '',
       provisionalUnits ? provisionalUnits + ' still provisional' : '',
     ].filter(Boolean).join(' · ')
   left.appendChild(intro)
@@ -8034,6 +8043,7 @@ function renderSourceSystemStack(group) {
   var systemCardGrid = document.createElement('div')
   systemCardGrid.className = 'source-card-meta-grid'
   systemCardGrid.appendChild(renderSourceMetaItem(docsOnly ? 'Tracked docs' : 'Tracked tabs', String(contracts.length)))
+  if (signedOffTabCount) systemCardGrid.appendChild(renderSourceMetaItem('Signed-off tabs', String(signedOffTabCount)))
   if (ownerSummary) systemCardGrid.appendChild(renderSourceMetaItem('Owners', ownerSummary))
   if (accessSummary) systemCardGrid.appendChild(renderSourceMetaItem('Access', accessSummary))
   systemCardGrid.appendChild(renderSourceMetaItem('Signed off', String(signedOffUnits)))
