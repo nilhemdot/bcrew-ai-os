@@ -6220,7 +6220,7 @@ function renderCurrentState() {
       '| Level | What it means | Done at this level |',
       '| --- | --- | --- |',
       '| Level 1 | The system can reach the source and read it. | Visible and readable. |',
-      '| Level 2 | The exact trusted unit and meaning are reviewed and approved. | Trust boundary is clear. |',
+      '| Level 2 | The exact trusted unit and meaning are reviewed and signed off. | Trust boundary is clear and signed off. |',
       '| Level 3 | Refresh rules and stale-state visibility are explicit. | Drift becomes visible. |',
       '| Level 4 | Approved writes and governed automation are live. | Automation is auditable. |',
     ], currentPath))
@@ -9607,7 +9607,7 @@ function renderSourceRegistry(section) {
         [
           {
             title: 'Strategy Inputs',
-            body: 'Freedom Community, BHAG, Agent Engine, and the strategy-used Owners slice are still Level 1. This is the next strategy-input closeout pass.',
+            body: 'Freedom Community, BHAG, and Agent Engine are captured for current reality. The strategy-used Owners slice is the remaining strategy-input closeout pass.',
             meta: 'Current gap',
             href: '/foundation#current-state',
             cta: 'Open Current State',
