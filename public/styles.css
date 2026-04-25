@@ -356,6 +356,33 @@ body {
   margin: 4px 0 22px;
 }
 
+.ops-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+
+.ops-filter-button {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.ops-filter-button:hover,
+.ops-filter-button-active {
+  border-color: var(--brand);
+  background: rgba(0, 132, 201, 0.10);
+  color: var(--brand-dark);
+}
+
 .ops-issue-section {
   display: grid;
   gap: 12px;

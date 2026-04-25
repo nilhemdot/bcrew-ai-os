@@ -40,6 +40,10 @@ function createActionLink(label, href, className) {
   link.className = className || 'secondary-button'
   link.href = href
   link.textContent = label
+  if (/^https?:\/\//.test(href)) {
+    link.target = '_blank'
+    link.rel = 'noopener noreferrer'
+  }
   return link
 }
 
@@ -328,6 +332,7 @@ function renderOpsIssueSection(queueStats, key, config, maxItems) {
   var items = section && Array.isArray(section.items) ? section.items : []
   var wrap = document.createElement('div')
   wrap.className = 'ops-issue-section'
+  wrap.dataset.opsSection = key
 
   var header = document.createElement('div')
   header.className = 'ops-issue-section-header'
@@ -366,11 +371,45 @@ function renderOpsIssueSection(queueStats, key, config, maxItems) {
   return wrap
 }
 
-function renderOpsModeNote() {
+function renderOpsModeNote(queueStats) {
   var note = document.createElement('div')
   note.className = 'ops-mode-note'
-  note.textContent = 'Scheduled jobs are read-only inspections. They surface findings and queue state here. Sheet writeback exists in explicit --write mode, but it is not scheduled until Ops approves that workflow.'
+  note.textContent = 'Inspection is live, but Admin and Conditional scheduled jobs only re-check rows whose action cell says Review This Deal or Review This Conditional. Right now those queued counts are ' +
+    queueStats.sections.admin.queuedReview + ' Admin and ' +
+    queueStats.sections.conditional.queuedReview + ' Conditional. Open cards below are existing findings that need source-row fixes or an explicit re-review trigger. Sheet writeback exists in --write mode, but it is still a separate safety switch.'
   return note
+}
+
+function renderOpsInboxFilters() {
+  var filters = [
+    { key: 'all', label: 'All' },
+    { key: 'admin', label: 'Admin deals' },
+    { key: 'conditional', label: 'Conditional / listings' },
+    { key: 'fubDrift', label: 'FUB drift' },
+    { key: 'ownersGovernance', label: 'Owners lists' },
+  ]
+  var wrap = document.createElement('div')
+  wrap.className = 'ops-filter-bar'
+  filters.forEach(function(filter, index) {
+    var button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'ops-filter-button' + (index === 0 ? ' ops-filter-button-active' : '')
+    button.dataset.opsFilter = filter.key
+    button.textContent = filter.label
+    button.addEventListener('click', function() {
+      var selected = button.dataset.opsFilter
+      wrap.querySelectorAll('.ops-filter-button').forEach(function(item) {
+        item.classList.toggle('ops-filter-button-active', item === button)
+      })
+      var panel = wrap.closest('.panel')
+      if (!panel) return
+      panel.querySelectorAll('.ops-issue-section').forEach(function(section) {
+        section.hidden = selected !== 'all' && section.dataset.opsSection !== selected
+      })
+    })
+    wrap.appendChild(button)
+  })
+  return wrap
 }
 
 function renderOpsInboxPanel(queueStats, options) {
@@ -405,9 +444,10 @@ function renderOpsInboxPanel(queueStats, options) {
   }))
   panel.appendChild(grid)
 
-  panel.appendChild(renderOpsModeNote())
+  panel.appendChild(renderOpsModeNote(queueStats))
 
   if (showItems) {
+    panel.appendChild(renderOpsInboxFilters())
     panel.appendChild(renderOpsIssueSection(queueStats, 'admin', {
       title: 'Admin deal rows',
       emptyText: 'No Admin deal review findings are open.',
