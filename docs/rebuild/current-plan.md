@@ -82,7 +82,7 @@ Built and useful now:
 - Historical meeting context reaching back to October 2024 where recovered/transcribed.
 - Persisted synthesis runs/items in Postgres.
 - First Foundation job registry and DB-backed job run ledger.
-- First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, read-only deal-review jobs proven through the worker, and LaunchAgent supervision live.
+- First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Policy-aware LLM router: credential/route/probe/call tables, executable OpenClaw/Codex subscription adapter, auth-path audit job, call ledger, route status visibility, and shared intelligence extraction/synthesis migrated behind the router.
 - Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, and scheduled current-day proof for Missive + Gmail.
 - Row-scoped Owners / deal-review runners.
@@ -91,7 +91,7 @@ Built and useful now:
 - Skool corpus access and policy boundary captured in `docs/source-notes/skool-corpus.md`.
 - Marketing source evidence from the old system and current connector checks.
 - Doc cleanup plan and generated doc indexes.
-- Ops Hub v0 as its own hub surface for systems serving Ops, starting with read-only Admin and conditional deal-review inspections. Foundation remains the control plane; Ops owns the human cockpit.
+- Ops Hub v0 as its own hub surface for systems serving Ops, starting with Admin and conditional deal-review inspections. Scheduled jobs now run queued re-reviews first, then one June 2025+ first-pass backlog item, writing AI status/action/findings only. Foundation remains the control plane; Ops owns the human cockpit.
 
 Still not done:
 
@@ -184,7 +184,7 @@ Do now:
 - keep `npm run foundation:verify` green
 - keep shared-comms coverage working
 - keep synthesis persisted
-- keep Owners/deal-review queued runners usable
+- keep Owners/deal-review queued and first-pass backlog runners usable
 - keep source-backed spreadsheet mirrors guarded and covered by `npm run sheets:verify`
 - keep docs indexed and active truth clear
 
@@ -215,7 +215,7 @@ Activate only 3 to 5 jobs first:
 
 - `foundation:verify`
 - `shared-comms:coverage`
-- deal-review queued runner
+- deal-review queued/backlog runner
 - synthesis as manual or scheduled with explicit route and budget visibility
 - one current-day sync lane if stable
 - bounded candidate-extraction bites for already-archived material, still manual until the paced miner cadence is deliberately activated
@@ -237,7 +237,7 @@ Acceptance:
 
 Current partial proof:
 
-- `npm run foundation:worker -- --once --maxJobs=2` ran the two due read-only deal-review jobs and recorded successful runs.
+- `npm run foundation:worker -- --once --maxJobs=2` ran the two due deal-review jobs and recorded successful runs.
 - `npm run foundation:job -- --snapshot` now exposes scheduled, due, and manual job counts plus next-run status.
 - `ai.bcrew.foundation-worker` is loaded as a LaunchAgent and running the worker loop.
 - `ai.bcrew.dashboard` is loaded as a LaunchAgent and was restarted after the runtime changes.

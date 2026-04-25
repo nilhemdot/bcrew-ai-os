@@ -67,12 +67,15 @@ What this step does:
 Live now:
 
 - firm / exception review runner:
-  - `npm run deal-review:admin -- --queued`
+  - manual re-review lane: `npm run deal-review:admin -- --queued`
+  - first-pass backlog lane: `npm run deal-review:admin -- --backlog --backlog-since=2025-06-01 --backlog-limit=1`
 - conditional review runner:
-  - `npm run deal-review:conditional -- --queued`
+  - manual re-review lane: `npm run deal-review:conditional -- --queued`
+  - first-pass backlog lane: `npm run deal-review:conditional -- --backlog --backlog-since=2025-06-01 --backlog-limit=1`
 - combined governed inbox API:
   - `/api/owners/review-queue`
-- both temporary sheet lanes now support row-specific re-review instead of blind batch-only founder audits
+- scheduled Foundation jobs run queued re-reviews first, then one June 2025+ backlog item, and write only AI status/action/findings
+- source-field corrections remain human-owned until an explicit apply/fix lane is approved
 
 ## First Proven Pattern
 

@@ -289,8 +289,9 @@ Operating flow now:
    - Freedom
    - ClickUp
 4. Ops changes that same row's `CD` value to `Review This Deal`.
-5. The next AI review pass only picks up rows where `CD = Review This Deal`.
-6. AI re-reviews that row, rewrites `CC` / `CE`, then sets:
+5. The queued re-review lane picks up rows where `CD = Review This Deal`.
+6. The first-pass backlog lane separately inspects one never-reviewed June 2025+ deal per scheduled run.
+7. AI re-reviews or first-pass reviews the row, rewrites `CC` / `CE`, then sets:
    - `CD = No Action` if clean
 
 ### First Mature 10-Day Review Batch
@@ -1136,6 +1137,8 @@ Current governing rule:
 - do **not** trust raw FUB conditional counts as clean proof until stale historical conditional deals are cleaned up
 - row-specific re-review is now live through:
   - `npm run deal-review:conditional -- --queued`
+- first-pass backlog inspection is also live through:
+  - `npm run deal-review:conditional -- --backlog --backlog-since=2025-06-01 --backlog-limit=1`
   - current accepted trigger values in `T`:
     - `Review This Conditional`
     - `Review This Deal`

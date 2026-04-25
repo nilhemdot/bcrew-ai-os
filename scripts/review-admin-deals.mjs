@@ -8,6 +8,8 @@ const OWNERS_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk'
 const ADMIN_SHEET_TITLE = 'ADMIN ONLY - Deal Data Entry'
 const ADMIN_RANGE = `'${ADMIN_SHEET_TITLE}'!A1:CE2000`
 const DEFAULT_FUB_CONTEXT = 'owner'
+const DEFAULT_BACKLOG_SINCE = '2025-06-01'
+const DEFAULT_BACKLOG_LIMIT = 1
 
 function parseArgs(argv) {
   const args = {}
@@ -59,6 +61,24 @@ function isQueuedReviewAction(value) {
   return normalized === 'review this deal' || normalized === 'rerun' || normalized === 'review'
 }
 
+function isUninspectedReviewStatus(value) {
+  const normalized = normalizeLower(value)
+  return !normalized || normalized === 'not reviewed'
+}
+
+function isNeedsFixingAction(value) {
+  return normalizeLower(value) === 'needs fixing'
+}
+
+function parseLimit(value, fallback = 0) {
+  if (value == null || value === true) return fallback
+  return Math.max(0, Number(value) || 0)
+}
+
+function isOnOrAfterIso(iso, cutoffIso) {
+  return Boolean(iso && cutoffIso && iso >= cutoffIso)
+}
+
 function findIndex(header, name) {
   return header.findIndex(value => normalizeText(value) === name)
 }
@@ -104,6 +124,73 @@ function buildFindingText(result) {
   lines.push('Result')
   lines.push(`- ${result.result}`)
   return lines.join('\n')
+}
+
+function buildAdminDealGroups(rows, cols) {
+  const groups = new Map()
+  for (let rowIndex = 1; rowIndex < rows.length; rowIndex += 1) {
+    const row = rows[rowIndex]
+    const deal = normalizeText(row[cols.deal])
+    if (!deal) continue
+
+    const existing = groups.get(deal) || { deal, rows: [] }
+    existing.rows.push({
+      rowNum: rowIndex + 1,
+      executed: sheetSerialToIso(row[cols.executed]),
+      client: normalizeText(row[cols.client]),
+      source: normalizeText(row[cols.source]),
+      realtor: normalizeText(row[cols.realtor]),
+      total: row[cols.total],
+      sale: row[cols.sale],
+      grossToTeam: row[cols.grossToTeam],
+      volumeCredit: row[cols.volumeCredit],
+      commissionCredit: row[cols.commissionCredit],
+      dealCredit: row[cols.dealCredit],
+      netToTeam: row[cols.netToTeam],
+      agentPortion: row[cols.agentPortion],
+      companyPortion: row[cols.companyPortion],
+      fub: normalizeText(row[cols.fub]),
+      reviewStatus: normalizeText(row[cols.cc]),
+      reviewAction: normalizeText(row[cols.cd]),
+    })
+    groups.set(deal, existing)
+  }
+  return groups
+}
+
+function getGroupExecutedDate(group) {
+  return group.rows.map(row => row.executed).filter(Boolean).sort()[0] || null
+}
+
+function getQueuedDeals(groups) {
+  return Array.from(groups.values())
+    .filter(group => group.rows.some(row => isQueuedReviewAction(row.reviewAction)))
+    .map(group => group.deal)
+}
+
+function getBacklogDeals(groups, options) {
+  const cutoff = options.backlogSince || DEFAULT_BACKLOG_SINCE
+  const matureDays = options.matureDays || 0
+  const excludedDeals = options.excludedDeals || new Set()
+  return Array.from(groups.values())
+    .map(group => {
+      const executedDate = getGroupExecutedDate(group)
+      const age = daysSinceIso(executedDate)
+      return { group, executedDate, age }
+    })
+    .filter(item => {
+      if (excludedDeals.has(item.group.deal)) return false
+      if (!isOnOrAfterIso(item.executedDate, cutoff)) return false
+      if (item.age == null || item.age < matureDays) return false
+      if (item.group.rows.some(row => isQueuedReviewAction(row.reviewAction))) return false
+      if (item.group.rows.some(row => isNeedsFixingAction(row.reviewAction))) return false
+      return item.group.rows.every(row => isUninspectedReviewStatus(row.reviewStatus))
+    })
+    .sort((a, b) => {
+      if (a.executedDate !== b.executedDate) return a.executedDate.localeCompare(b.executedDate)
+      return a.group.deal.localeCompare(b.group.deal)
+    })
+    .map(item => item.group.deal)
 }
 
 function createAuditResult(group, cols) {
@@ -279,15 +366,22 @@ async function main() {
   const args = parseArgs(process.argv.slice(2))
   const dealsArg = normalizeText(args.deals)
   const queued = Boolean(args.queued)
+  const backlog = Boolean(args.backlog || args.uninspected)
   const write = Boolean(args.write)
   const fubContext = normalizeText(args.context) || DEFAULT_FUB_CONTEXT
   const matureDays = args['mature-days'] == null || args['mature-days'] === true
-    ? (queued ? 10 : 0)
+    ? (queued || backlog ? 10 : 0)
     : Math.max(0, Number(args['mature-days']) || 0)
-  const limit = args.limit == null || args.limit === true ? 0 : Math.max(0, Number(args.limit) || 0)
+  const limit = parseLimit(args.limit, 0)
+  const queuedLimit = parseLimit(args['queued-limit'], limit)
+  const hasBacklogLimit = args['backlog-limit'] != null && args['backlog-limit'] !== true
+  const backlogLimit = hasBacklogLimit
+    ? parseLimit(args['backlog-limit'], DEFAULT_BACKLOG_LIMIT)
+    : (backlog ? DEFAULT_BACKLOG_LIMIT : limit)
+  const backlogSince = normalizeText(args['backlog-since'] || args.since) || DEFAULT_BACKLOG_SINCE
 
-  if (!dealsArg && !queued) {
-    throw new Error('Pass --deals=T#123,T#456 or use --queued')
+  if (!dealsArg && !queued && !backlog) {
+    throw new Error('Pass --deals=T#123,T#456 or use --queued and/or --backlog')
   }
 
   const adminRes = await getSheetValues('ai@bensoncrew.ca', OWNERS_SHEET_ID, ADMIN_RANGE)
@@ -315,7 +409,9 @@ async function main() {
     ce: findIndex(header, 'AI Findings By System / Suggestions'),
   }
 
+  const allGroups = buildAdminDealGroups(rows, cols)
   let dealsRequested = []
+  const selectionLanes = new Map()
 
   if (dealsArg) {
     dealsRequested = Array.from(
@@ -326,48 +422,28 @@ async function main() {
           .filter(Boolean),
       ),
     )
+    dealsRequested.forEach(deal => selectionLanes.set(deal, 'manual'))
   } else {
-    dealsRequested = Array.from(
-      new Set(
-        rows.slice(1)
-          .filter(row => isQueuedReviewAction(row[cols.cd]))
-          .map(row => normalizeText(row[cols.deal]))
-          .filter(Boolean),
-      ),
-    )
-  }
+    const queuedDeals = queued ? getQueuedDeals(allGroups).slice(0, queuedLimit || undefined) : []
+    queuedDeals.forEach(deal => selectionLanes.set(deal, 'queued'))
 
-  if (limit > 0) {
-    dealsRequested = dealsRequested.slice(0, limit)
+    const backlogDeals = backlog
+      ? getBacklogDeals(allGroups, {
+          backlogSince,
+          matureDays,
+          excludedDeals: new Set(queuedDeals),
+        }).slice(0, backlogLimit || undefined)
+      : []
+    backlogDeals.forEach(deal => selectionLanes.set(deal, 'backlog'))
+
+    dealsRequested = Array.from(new Set(queuedDeals.concat(backlogDeals)))
   }
 
   const groups = new Map()
   const skipped = []
-
-  for (let rowIndex = 1; rowIndex < rows.length; rowIndex += 1) {
-    const row = rows[rowIndex]
-    const deal = normalizeText(row[cols.deal])
-    if (!deal || !dealsRequested.includes(deal)) continue
-
-    const existing = groups.get(deal) || { deal, rows: [] }
-    existing.rows.push({
-      rowNum: rowIndex + 1,
-      executed: sheetSerialToIso(row[cols.executed]),
-      client: normalizeText(row[cols.client]),
-      source: normalizeText(row[cols.source]),
-      realtor: normalizeText(row[cols.realtor]),
-      total: row[cols.total],
-      sale: row[cols.sale],
-      grossToTeam: row[cols.grossToTeam],
-      volumeCredit: row[cols.volumeCredit],
-      commissionCredit: row[cols.commissionCredit],
-      dealCredit: row[cols.dealCredit],
-      netToTeam: row[cols.netToTeam],
-      agentPortion: row[cols.agentPortion],
-      companyPortion: row[cols.companyPortion],
-      fub: normalizeText(row[cols.fub]),
-    })
-    groups.set(deal, existing)
+  for (const deal of dealsRequested) {
+    const group = allGroups.get(deal)
+    if (group) groups.set(deal, group)
   }
 
   for (const deal of dealsRequested) {
@@ -439,11 +515,14 @@ async function main() {
     JSON.stringify(
       {
         queued,
+        backlog,
         write,
         matureDays,
+        backlogSince,
         skipped,
         deals: results.map(result => ({
           deal: result.deal,
+          lane: selectionLanes.get(result.deal) || 'manual',
           rows: result.rowNums,
           status: result.status,
           action: result.action,

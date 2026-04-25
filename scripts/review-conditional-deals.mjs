@@ -8,6 +8,8 @@ const OWNERS_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk'
 const SHEET_TITLE = 'Listings and Conditional Deals'
 const SHEET_RANGE = `'${SHEET_TITLE}'!A1:U500`
 const DEFAULT_FUB_CONTEXT = 'owner'
+const DEFAULT_BACKLOG_SINCE = '2025-06-01'
+const DEFAULT_BACKLOG_LIMIT = 1
 
 function parseArgs(argv) {
   const args = {}
@@ -47,6 +49,13 @@ function sheetSerialToIso(value) {
   return date.toISOString().slice(0, 10)
 }
 
+function daysSinceIso(iso) {
+  if (!iso) return null
+  const date = new Date(`${iso}T00:00:00Z`)
+  if (Number.isNaN(date.getTime())) return null
+  return Math.floor((Date.now() - date.getTime()) / (24 * 60 * 60 * 1000))
+}
+
 function findIndex(header, name) {
   return header.findIndex(value => normalizeText(value) === name)
 }
@@ -75,6 +84,28 @@ function isQueuedReviewAction(value) {
     normalized === 'rerun' ||
     normalized === 'review'
   )
+}
+
+function isUninspectedReviewStatus(value) {
+  const normalized = normalizeLower(value)
+  return !normalized || normalized === 'not reviewed'
+}
+
+function isNeedsFixingAction(value) {
+  return normalizeLower(value) === 'needs fixing'
+}
+
+function parseLimit(value, fallback = 0) {
+  if (value == null || value === true) return fallback
+  return Math.max(0, Number(value) || 0)
+}
+
+function isOnOrAfterIso(iso, cutoffIso) {
+  return Boolean(iso && cutoffIso && iso >= cutoffIso)
+}
+
+function getConditionalReviewDate(item) {
+  return item.closingDate || item.conditionalDueDate || null
 }
 
 function normalizeNameTokens(value) {
@@ -236,12 +267,22 @@ async function main() {
   const args = parseArgs(process.argv.slice(2))
   const rowsArg = normalizeText(args.rows)
   const queued = Boolean(args.queued)
+  const backlog = Boolean(args.backlog || args.uninspected)
   const write = Boolean(args.write)
-  const limit = args.limit == null || args.limit === true ? 0 : Math.max(0, Number(args.limit) || 0)
+  const limit = parseLimit(args.limit, 0)
+  const queuedLimit = parseLimit(args['queued-limit'], limit)
+  const hasBacklogLimit = args['backlog-limit'] != null && args['backlog-limit'] !== true
+  const backlogLimit = hasBacklogLimit
+    ? parseLimit(args['backlog-limit'], DEFAULT_BACKLOG_LIMIT)
+    : (backlog ? DEFAULT_BACKLOG_LIMIT : limit)
+  const backlogSince = normalizeText(args['backlog-since'] || args.since) || DEFAULT_BACKLOG_SINCE
+  const matureDays = args['mature-days'] == null || args['mature-days'] === true
+    ? (queued || backlog ? 10 : 0)
+    : Math.max(0, Number(args['mature-days']) || 0)
   const fubContext = normalizeText(args.context) || DEFAULT_FUB_CONTEXT
 
-  if (!rowsArg && !queued) {
-    throw new Error('Pass --rows=13,14 or use --queued')
+  if (!rowsArg && !queued && !backlog) {
+    throw new Error('Pass --rows=13,14 or use --queued and/or --backlog')
   }
 
   const res = await getSheetValues('ai@bensoncrew.ca', OWNERS_SHEET_ID, SHEET_RANGE)
@@ -268,22 +309,70 @@ async function main() {
     findings: findIndex(header, 'AI Conditional Findings / Suggestions'),
   }
 
+  const rowItems = rows
+    .map((row, index) => ({ row, rowNum: index + 1 }))
+    .filter(item => item.rowNum >= 3)
+    .map(item => ({
+      rowNum: item.rowNum,
+      row: item.row,
+      type: normalizeText(item.row[cols.type]),
+      status: normalizeText(item.row[cols.status]),
+      agent: normalizeText(item.row[cols.agent]),
+      conditionalDueDate: sheetSerialToIso(item.row[cols.conditionalDueDate]),
+      closingDate: sheetSerialToIso(item.row[cols.closingDate]),
+      reviewStatus: normalizeText(item.row[cols.reviewStatus]),
+      reviewAction: normalizeText(item.row[cols.reviewAction]),
+    }))
+    .filter(item => item.type && item.agent)
+
   let targetRows = []
+  const selectionLanes = new Map()
   if (rowsArg) {
     targetRows = Array.from(new Set(
       rowsArg.split(',')
         .map(value => Number(normalizeText(value)))
         .filter(value => Number.isFinite(value) && value >= 3),
     ))
+    targetRows.forEach(rowNum => selectionLanes.set(rowNum, 'manual'))
   } else {
-    targetRows = rows
-      .map((row, index) => ({ row, rowNum: index + 1 }))
-      .filter(item => item.rowNum >= 3)
-      .filter(item => isQueuedReviewAction(item.row[cols.reviewAction]))
-      .map(item => item.rowNum)
+    const queuedRows = queued
+      ? rowItems
+          .filter(item => isQueuedReviewAction(item.reviewAction))
+          .map(item => item.rowNum)
+          .slice(0, queuedLimit || undefined)
+      : []
+    queuedRows.forEach(rowNum => selectionLanes.set(rowNum, 'queued'))
+
+    const queuedSet = new Set(queuedRows)
+    const backlogRows = backlog
+      ? rowItems
+          .map(item => {
+            const reviewDate = getConditionalReviewDate(item)
+            const age = daysSinceIso(reviewDate)
+            return { item, reviewDate, age }
+          })
+          .filter(({ item, reviewDate, age }) => {
+            if (queuedSet.has(item.rowNum)) return false
+            if (!isOnOrAfterIso(reviewDate, backlogSince)) return false
+            if (age == null || age < matureDays) return false
+            if (normalizeText(item.status) !== 'CS') return false
+            if (isQueuedReviewAction(item.reviewAction)) return false
+            if (isNeedsFixingAction(item.reviewAction)) return false
+            return isUninspectedReviewStatus(item.reviewStatus)
+          })
+          .sort((a, b) => {
+            if (a.reviewDate !== b.reviewDate) return a.reviewDate.localeCompare(b.reviewDate)
+            return a.item.rowNum - b.item.rowNum
+          })
+          .map(({ item }) => item.rowNum)
+          .slice(0, backlogLimit || undefined)
+      : []
+    backlogRows.forEach(rowNum => selectionLanes.set(rowNum, 'backlog'))
+
+    targetRows = Array.from(new Set(queuedRows.concat(backlogRows)))
   }
 
-  if (limit > 0) targetRows = targetRows.slice(0, limit)
+  if (rowsArg && limit > 0) targetRows = targetRows.slice(0, limit)
 
   const items = targetRows.map(rowNum => {
     const row = rows[rowNum - 1] || []
@@ -325,9 +414,13 @@ async function main() {
 
   console.log(JSON.stringify({
     queued,
+    backlog,
     write,
+    matureDays,
+    backlogSince,
     rows: results.map(result => ({
       row: result.rowNum,
+      lane: selectionLanes.get(result.rowNum) || 'manual',
       status: result.status,
       action: result.action,
       ownerIssues: result.ownerIssues,

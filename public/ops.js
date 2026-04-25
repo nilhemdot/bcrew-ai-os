@@ -203,15 +203,15 @@ function renderOpsSystemPill(job, queueStats) {
 
   if (job.key === 'admin-deal-review-readonly') {
     body.appendChild(renderLabeledCopy(
-      'Sheet writeback path',
-      'Exists but is not scheduled: npm run deal-review:admin -- --queued --limit=10 --write'
+      'Inspection writeback',
+      'Scheduled: queued re-reviews first, then one June 2025+ backlog deal. Writes AI status/action/findings only; source-field fixes stay human-owned.'
     ))
   }
 
   if (job.key === 'conditional-deal-review-readonly') {
     body.appendChild(renderLabeledCopy(
-      'Sheet writeback path',
-      'Exists but is not scheduled: npm run deal-review:conditional -- --queued --limit=10 --write'
+      'Inspection writeback',
+      'Scheduled: queued re-reviews first, then one June 2025+ backlog row. Writes AI status/action/findings only; source-field fixes stay human-owned.'
     ))
   }
 
@@ -374,9 +374,9 @@ function renderOpsIssueSection(queueStats, key, config, maxItems) {
 function renderOpsModeNote(queueStats) {
   var note = document.createElement('div')
   note.className = 'ops-mode-note'
-  note.textContent = 'Inspection is live, but Admin and Conditional scheduled jobs only re-check rows whose action cell says Review This Deal or Review This Conditional. Right now those queued counts are ' +
+  note.textContent = 'Inspection is live. Admin and Conditional scheduled jobs re-check rows marked Review This Deal / Review This Conditional first, then inspect one never-reviewed June 2025+ backlog item per run. Right now manual re-review counts are ' +
     queueStats.sections.admin.queuedReview + ' Admin and ' +
-    queueStats.sections.conditional.queuedReview + ' Conditional. Open cards below are existing findings that need source-row fixes or an explicit re-review trigger. Sheet writeback exists in --write mode, but it is still a separate safety switch.'
+    queueStats.sections.conditional.queuedReview + ' Conditional. Open cards below are findings that need source-row fixes or an explicit re-review trigger. Scheduled writeback only updates AI status/action/findings; it does not auto-fix source fields.'
   return note
 }
 
