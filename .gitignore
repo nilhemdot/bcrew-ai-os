@@ -11,6 +11,7 @@ coverage/
 .mcp.json
 store/
 .openclaw/
+tmp-matt-contract.pdf
 memory/
 MEMORY.md
 USER.md

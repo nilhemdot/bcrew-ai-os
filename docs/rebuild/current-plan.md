@@ -96,6 +96,7 @@ Built and useful now:
 Still not done:
 
 - durable source cursors and backfill leases beyond the current-day target proof
+- direct-spend guard coverage for every model/transcription host, not only OpenAI Responses
 - scheduled meeting-notes current-day lane that stays fresh without Steve watching it
 - failed-item retry policy for Drive and non-meeting crawl records beyond the first meeting retry path
 - proof that partial-run job failure/alert semantics work on a real failed meeting/Drive item
@@ -105,6 +106,7 @@ Still not done:
 - source-budget and failure visibility
 - full subject-person privacy/query layer
 - auth/tier middleware and subject-person redaction implementation from `docs/specs/2026-04-23-auth-tiers-vault.md`
+- interim admin gating or redacted/public split for broad Foundation/Ops read APIs
 - full `SYSTEM-010` decommission, dead-man, and cost/process-control layer
 - richer KPI / finance / FUB grounding inside synthesis
 - Action Router v1: synthesized items do not yet route into decisions, backlog tasks, open questions, contradictions, ignore/snooze, or owner-bound actions with back-links
@@ -125,7 +127,7 @@ A feature is done only when it is:
 - supervised by worker/scheduler or clearly manual-only
 - visible in Foundation status
 - assigned an owner/system lane
-- protected by budget, pause, and retry rules where relevant
+- protected by enforced budget, pause, and retry rules where relevant; if budget is only descriptive, the field must say so
 - recording last run, next run, and failure state
 - surfacing failures in the dashboard
 - verified by `npm run foundation:verify` or a specific proof command
@@ -133,6 +135,44 @@ A feature is done only when it is:
 If Steve or a builder has to remember to run it from a terminal, it is still a prototype.
 
 ## Active Build Order
+
+### Immediate Foundation Closeout Checklist
+
+This checklist is the current anti-drift queue from the 2026-04-25 top-down review. Treat it as backlog order, not a new plan.
+
+1. `SECURITY-003` — Close direct LLM/transcription spend bypasses.
+   - Migrate or pause `scripts/transcribe-zoom-audio-archive.mjs`.
+   - Broaden verifier coverage from direct OpenAI Responses calls to direct model/transcription host calls outside approved router/adapters.
+   - Keep sanctioned auth probes explicit.
+2. `SECURITY-004` / `SECURITY-002` — Gate broad read APIs before any broader dashboard, hub, assistant, or user-facing access.
+   - Add interim admin gating or redacted/public splits for Foundation hub, Owners queue/governance, system inventory, changes, and doc-update reads.
+   - Later replace stop-gap gating with tier and subject-person redaction.
+3. `SYSTEM-010` — Finish runtime/process-control hardening.
+   - Keep dashboard and worker LaunchAgent plists in repo.
+   - Decide whether router fallback is manual-only or auto-fallback; make code/docs match.
+   - Enforce job-level budget tags or rename them as descriptive tags.
+   - Bound large Foundation snapshot reads with limits or paging.
+   - Finish decommission, dead-man, cost/process visibility, and stop controls.
+4. `EXTRACTION-TEAM-001` — Finish controlled miner/corpus lanes.
+   - Build paced miner v1: one-at-a-time, cursors, leases, retry/backoff, spacing, per-source timeouts.
+   - Wrap `video-link-inventory-bite` in `extraction:target` before repeated use.
+   - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
+   - Keep Skool/Loom extraction blocked until authorized proof paths are validated.
+5. `SOURCE-008` / `DATA-005` — Close FUB Level 2 taxonomy and Owners/FUB lineage.
+   - Refresh stale FUB source snapshot.
+   - Sign off trusted FUB source taxonomy baseline and new-source review rules.
+   - Lock Owners dropdown/list parity against FUB lineage.
+6. `DATA-006` through `DATA-009` — Clear Ops/deal-validation source-quality work.
+   - Admin-tab data quality rules.
+   - Invalid lead-source row backfill.
+   - Missing FUB link backfill.
+   - Suspicious duplicate full-credit row resolution.
+7. `SOURCE-010` — Close KPI truth-layer map.
+   - Split pipeline, shopping-list, executed-deal, goal, competition, and usage read rules before KPI jobs become trusted operating intelligence.
+8. `SYNTHESIS-ENGINE-001` / `SYNTHESIS-FACTS-001` / `ACTION-ROUTER-001` — Close the intelligence loop.
+   - Prove synthesis against bounded input that fits the subscription adapter.
+   - Ground synthesis in source-backed KPI, finance, strategy, Owners/FUB facts.
+   - Route synthesized items into governed decisions, backlog tasks, questions, contradictions, ignore/snooze, or owner-bound actions with back-links.
 
 ### Phase 0 — Keep The Existing Proof Stable
 
