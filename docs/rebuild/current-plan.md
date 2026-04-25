@@ -150,7 +150,7 @@ This checklist is the current anti-drift queue from the 2026-04-25 top-down revi
    - Later replace stop-gap gating with tier and subject-person redaction.
 3. `SYSTEM-010` — Finish runtime/process-control hardening.
    - Keep dashboard and worker LaunchAgent plists in repo.
-   - Decide whether router fallback is manual-only or auto-fallback; make code/docs match.
+   - Router fallback is manual-explicit, not automatic; keep code/docs/UI from implying automatic paid fallback.
    - Enforce job-level budget tags or rename them as descriptive tags.
    - Bound large Foundation snapshot reads with limits or paging.
    - Finish decommission, dead-man, cost/process visibility, and stop controls.

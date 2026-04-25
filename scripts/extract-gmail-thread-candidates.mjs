@@ -36,7 +36,7 @@ const DEFAULT_TIMEOUT_MS = Number(
     600000,
 );
 const EXTRACTION_METHOD = 'gmail_thread_context_v1';
-const SUPSERSEDED_METHODS = [EXTRACTION_METHOD];
+const SUPERSEDED_METHODS = [EXTRACTION_METHOD];
 const MAX_THREAD_CHARS = 18000;
 
 function parseArgs(argv) {
@@ -170,7 +170,7 @@ async function main() {
         sourceId: 'SRC-GMAIL-001',
         artifactIds: [artifact.artifactId],
         excludeCandidateKeys: persistedCandidateKeys,
-        extractionMethods: SUPSERSEDED_METHODS,
+        extractionMethods: SUPERSEDED_METHODS,
         actor: 'system',
         reason: 'Gmail extraction rerun superseded stale pending candidates after successful replacement extraction.',
       });

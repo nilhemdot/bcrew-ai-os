@@ -36,7 +36,7 @@ const DEFAULT_TIMEOUT_MS = Number(
     2700000,
 );
 const EXTRACTION_METHOD = 'meeting_transcript_context_v2';
-const SUPSERSEDED_METHODS = ['meeting_next_steps_v1', 'meeting_transcript_context_v1', EXTRACTION_METHOD];
+const SUPERSEDED_METHODS = ['meeting_next_steps_v1', 'meeting_transcript_context_v1', EXTRACTION_METHOD];
 const LOW_SIGNAL_TASK_PATTERNS = [
   /\bopen house\b/i,
   /\bshowings?\b/i,
@@ -200,7 +200,7 @@ async function main() {
         sourceId: 'SRC-MEETINGS-001',
         artifactIds: [artifact.artifactId],
         excludeCandidateKeys: persistedCandidateKeys,
-        extractionMethods: SUPSERSEDED_METHODS,
+        extractionMethods: SUPERSEDED_METHODS,
         actor: 'system',
         reason: 'Transcript-first extractor superseded stale meeting candidates after successful replacement extraction.',
       });
