@@ -5545,7 +5545,7 @@ function renderCurrentStatePackageParts(parts) {
   return wrap
 }
 
-function renderCurrentStatePackageDetailTable(parts) {
+function renderCurrentStatePackageDetailTable(parts, claimedFocusIds) {
   var wrap = document.createElement('div')
   wrap.className = 'current-state-detail-wrap'
 
@@ -5573,6 +5573,10 @@ function renderCurrentStatePackageDetailTable(parts) {
   var tbody = document.createElement('tbody')
   ;(parts || []).forEach(function(part) {
     var tr = document.createElement('tr')
+    if (part.sourceId && claimedFocusIds && !claimedFocusIds.has(part.sourceId)) {
+      tr.id = part.sourceId
+      claimedFocusIds.add(part.sourceId)
+    }
 
     var sourceCell = document.createElement('td')
     var sourceLink = document.createElement('a')
@@ -5620,6 +5624,30 @@ function renderCurrentStatePackageDetailTable(parts) {
 function renderCurrentStateSurfaceTable(rows, hub) {
   var wrap = document.createElement('div')
   wrap.className = 'md-table-wrap'
+  var focusId = getSectionFocus()
+  var focusSlug = focusId ? slugify(focusId) : ''
+  var claimedFocusIds = new Set()
+
+  function rowMatchesFocus(row) {
+    if (!focusId) return false
+    var identifiers = [
+      row.title,
+      'current-state-surface-' + slugify(row.title || ''),
+    ]
+    if (Array.isArray(row.sourceId)) {
+      identifiers = identifiers.concat(row.sourceId)
+    } else if (row.sourceId) {
+      identifiers.push(row.sourceId)
+    }
+    ;(row.packageParts || []).forEach(function(part) {
+      if (part.sourceId) identifiers.push(part.sourceId)
+      if (part.role) identifiers.push(part.role)
+    })
+    return identifiers.some(function(identifier) {
+      var value = String(identifier || '')
+      return value === focusId || slugify(value) === focusSlug
+    })
+  }
 
   var table = document.createElement('table')
   table.className = 'md-table current-state-master-table'
@@ -5646,8 +5674,10 @@ function renderCurrentStateSurfaceTable(rows, hub) {
 
   rows.forEach(function(row) {
     var hasParts = Array.isArray(row.packageParts) && row.packageParts.length
+    var shouldOpen = hasParts && rowMatchesFocus(row)
     var summaryRow = document.createElement('tr')
     summaryRow.className = 'current-state-master-row' + (hasParts ? ' current-state-master-row-expandable' : '')
+    summaryRow.id = 'current-state-surface-' + slugify(row.title || '')
 
     var detailRow = null
 
@@ -5673,17 +5703,17 @@ function renderCurrentStateSurfaceTable(rows, hub) {
       var toggle = document.createElement('button')
       toggle.type = 'button'
       toggle.className = 'current-state-expand-button'
-      toggle.textContent = (row.packageParts.length || 0) + ' sources · ' + (row.defaultOpen ? 'click to collapse' : 'click to expand')
-      toggle.setAttribute('aria-expanded', row.defaultOpen ? 'true' : 'false')
+      toggle.textContent = (row.packageParts.length || 0) + ' sources · ' + (shouldOpen ? 'click to collapse' : 'click to expand')
+      toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false')
       surfaceCell.appendChild(toggle)
 
       detailRow = document.createElement('tr')
       detailRow.className = 'current-state-master-detail-row'
-      if (!row.defaultOpen) detailRow.hidden = true
+      if (!shouldOpen) detailRow.hidden = true
 
       var detailCell = document.createElement('td')
       detailCell.colSpan = 4
-      detailCell.appendChild(renderCurrentStatePackageDetailTable(row.packageParts))
+      detailCell.appendChild(renderCurrentStatePackageDetailTable(row.packageParts, claimedFocusIds))
       detailRow.appendChild(detailCell)
 
       function toggleDetailRow() {
@@ -6314,7 +6344,6 @@ function renderCurrentState() {
         next: 'No source sign-off closeout work remains for this package.',
         later: 'Then extract/synthesize/source-route business insights through the Foundation pipeline and deepen Freedom drift monitoring, source-backed value hardening, decision provenance, and temporal history.',
         backlogIds: ['FOUNDATION-001', 'SOURCE-014'],
-        defaultOpen: true,
       },
       {
         title: 'System strategy',
