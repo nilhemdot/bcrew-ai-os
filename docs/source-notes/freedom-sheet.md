@@ -505,6 +505,19 @@ Source role:
 - row-by-row deal and post-close accountability log
 - feeds the transaction-management pillar inside `Data Entry - Ops Cont Improvement`
 
+2026-04-25 policy update:
+
+- Clare reported that deal survey / review follow-through moved away from this Freedom tab after Carson changed the survey process.
+- The Q2 2026 `Quarterly Ops Excellence Bonus Program` PDF confirms the live bonus model is now quarterly:
+  - Component 1: agent quality calls, recorded/transcribed in Follow Up Boss
+  - Component 2: system-improvement projects documented in ClickUp
+  - Component 3: deal data accuracy across Owners Dashboard, FUB lead source, and QuickBooks reconciliation
+  - Component 4: client-experience capture rate for eligible transactions
+- The old per-row Freedom NPS / Google-review bonus columns remain useful historical/process context.
+- For deals executed on or after `2026-04-01`, do not treat a missing Freedom row as a deal-row failure by itself.
+- New live tracking candidate: ClickUp `Deal Data Entry` list `901112153939` plus FUB call/transcript evidence.
+- Open source-contract work: prove the ClickUp/FUB capture-rate model can calculate eligible transactions, outreach permission, NPS score, Google-review invitation, review captured, and sub-9 feedback before it becomes hard Admin-review enforcement.
+
 Current field groups:
 
 - deal intake:

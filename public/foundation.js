@@ -6425,7 +6425,7 @@ function renderCurrentState() {
         sourceId: ['SRC-OWNERS-001', 'SRC-FUB-001'],
         statusKey: 'pending',
         statusLabel: 'Open',
-        currentSummary: 'Admin-tab meaning is signed off. FUB joins through Column BZ, v1 lead-source lineage, and Admin review rules are now locked. The review runner checks split math, governed source rules, company/agent expectation, FUB source/stage/ISA evidence, and Freedom follow-through. Foundation deal-review jobs re-check marked Admin/Conditional rows first, then pace first-pass Admin backlog inspection at 3 newest eligible June 2025+ deals per day using Date Firm (Executed) and a 10-day maturity gate. Ops Hub is live for the queue; source-field fixes remain human-owned until an approval-gated apply lane exists.',
+        currentSummary: 'Admin-tab meaning is signed off. FUB joins through Column BZ, v1 lead-source lineage, and Admin review rules are now locked. The review runner checks split math, governed source rules, company/agent expectation, FUB source/stage/ISA evidence, pre-2026-04-01 Freedom follow-through, and the post-2026-04-01 ClickUp/FUB follow-through boundary. Foundation deal-review jobs re-check marked Admin/Conditional rows first, then pace first-pass Admin backlog inspection at 3 newest eligible June 2025+ deals per day using Date Firm (Executed) and a 10-day maturity gate. Ops Hub is live for the queue; source-field fixes remain human-owned until an approval-gated apply lane exists.',
         packageParts: [
           {
             sourceId: 'SRC-OWNERS-001',

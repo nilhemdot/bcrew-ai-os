@@ -13,6 +13,7 @@ const FREEDOM_DEALS_RANGE = "'Data Entry - Clients, Deals, NPS & GReviews'!A6:AF
 const DEFAULT_FUB_CONTEXT = 'owner'
 const DEFAULT_BACKLOG_SINCE = '2025-06-01'
 const DEFAULT_BACKLOG_LIMIT = 1
+const OPS_BONUS_POLICY_EFFECTIVE_DATE = '2026-04-01'
 
 function parseArgs(argv) {
   const args = {}
@@ -186,11 +187,13 @@ function buildFindingText(result) {
   }
 
   lines.push('')
-  lines.push(buildSummaryLine('Freedom', result.freedomPassed, result.freedomFailed))
-  if (result.freedomIssues.length) {
-    for (const issue of result.freedomIssues) lines.push(`- ${issue}`)
+  lines.push(buildSummaryLine(result.followThroughLabel, result.followThroughPassed, result.followThroughFailed))
+  if (result.followThroughIssues.length) {
+    for (const issue of result.followThroughIssues) lines.push(`- ${issue}`)
+  } else if (result.followThroughNotes.length) {
+    for (const note of result.followThroughNotes) lines.push(`- ${note}`)
   } else {
-    lines.push('- Freedom follow-through is visible for this trade.')
+    lines.push('- Follow-through source check passed for this trade.')
   }
 
   lines.push('')
@@ -275,13 +278,15 @@ function createAuditResult(group, sourceRules, freedomDealMap) {
   const rows = group.rows
   const ownerIssues = []
   const fubIssues = []
-  const freedomIssues = []
+  const followThroughIssues = []
+  const followThroughNotes = []
   let ownersPassed = 0
   let ownersFailed = 0
   let fubPassed = 0
   let fubFailed = 0
-  let freedomPassed = 0
-  let freedomFailed = 0
+  let followThroughPassed = 0
+  let followThroughFailed = 0
+  let followThroughLabel = 'Freedom'
 
   const sumTotal = rows.reduce((sum, row) => sum + toNumber(row.total), 0)
   const sumDealCredit = rows.reduce((sum, row) => sum + toNumber(row.dealCredit), 0)
@@ -491,37 +496,50 @@ function createAuditResult(group, sourceRules, freedomDealMap) {
     }
   }
 
+  const executedDate = getGroupExecutedDate(group)
+  const useQ2BonusPolicy = isOnOrAfterIso(executedDate, OPS_BONUS_POLICY_EFFECTIVE_DATE)
   const freedomRow = freedomDealMap.get(group.deal)
-  if (!freedomRow) {
-    freedomFailed += 1
-    freedomIssues.push('No visible reviewed Freedom deal record found for this trade.')
-    freedomFailed += 1
-    freedomIssues.push('No visible NPS follow-through found yet for this trade.')
-    freedomFailed += 1
-    freedomIssues.push('No visible Google-review follow-through found yet for this trade.')
-  } else {
-    freedomPassed += 1
-
-    const npsVisible = normalizeLower(freedomRow.npsReceived) === 'yes' ||
-      Boolean(freedomRow.npsScore) ||
-      Boolean(freedomRow.npsNotes)
-    if (npsVisible) {
-      freedomPassed += 1
-    } else {
-      freedomFailed += 1
-      freedomIssues.push(`Freedom row ${freedomRow.rowNum} has no visible NPS follow-through.`)
+  if (useQ2BonusPolicy) {
+    followThroughLabel = 'Ops Follow-through'
+    followThroughPassed += 1
+    followThroughNotes.push('Q2 2026 bonus policy moved post-close survey/review accountability out of the old Freedom per-row bonus model for deals executed on or after 2026-04-01.')
+    followThroughNotes.push('Do not fail this deal for a missing Freedom NPS/Google-review row; ClickUp Deal Data Entry plus FUB call transcripts are the candidate workflow evidence, but capture-rate audit is not locked as deal-row enforcement yet.')
+    if (freedomRow) {
+      followThroughNotes.push(`A historical Freedom row is still visible at row ${freedomRow.rowNum}, but it is not treated as the post-policy source of truth.`)
     }
-
-    const reviewsVisible = toNumber(freedomRow.reviewsCaptured) > 0 || Boolean(freedomRow.reviewLinks)
-    if (reviewsVisible) {
-      freedomPassed += 1
+  } else {
+    followThroughLabel = 'Freedom'
+    if (!freedomRow) {
+      followThroughFailed += 1
+      followThroughIssues.push('No visible reviewed Freedom deal record found for this trade.')
+      followThroughFailed += 1
+      followThroughIssues.push('No visible NPS follow-through found yet for this trade.')
+      followThroughFailed += 1
+      followThroughIssues.push('No visible Google-review follow-through found yet for this trade.')
     } else {
-      freedomFailed += 1
-      freedomIssues.push(`Freedom row ${freedomRow.rowNum} has no visible Google-review follow-through.`)
+      followThroughPassed += 1
+
+      const npsVisible = normalizeLower(freedomRow.npsReceived) === 'yes' ||
+        Boolean(freedomRow.npsScore) ||
+        Boolean(freedomRow.npsNotes)
+      if (npsVisible) {
+        followThroughPassed += 1
+      } else {
+        followThroughFailed += 1
+        followThroughIssues.push(`Freedom row ${freedomRow.rowNum} has no visible NPS follow-through.`)
+      }
+
+      const reviewsVisible = toNumber(freedomRow.reviewsCaptured) > 0 || Boolean(freedomRow.reviewLinks)
+      if (reviewsVisible) {
+        followThroughPassed += 1
+      } else {
+        followThroughFailed += 1
+        followThroughIssues.push(`Freedom row ${freedomRow.rowNum} has no visible Google-review follow-through.`)
+      }
     }
   }
 
-  const hasIssues = ownerIssues.length > 0 || fubIssues.length > 0 || freedomIssues.length > 0
+  const hasIssues = ownerIssues.length > 0 || fubIssues.length > 0 || followThroughIssues.length > 0
   const status = hasIssues ? 'Issues Found' : 'Clean'
   const action = hasIssues ? 'Needs Fixing' : 'No Action'
   const result = hasIssues
@@ -537,11 +555,13 @@ function createAuditResult(group, sourceRules, freedomDealMap) {
     ownersFailed,
     fubPassed,
     fubFailed,
-    freedomPassed,
-    freedomFailed,
+    followThroughLabel,
+    followThroughPassed,
+    followThroughFailed,
     ownerIssues,
     fubIssues,
-    freedomIssues,
+    followThroughIssues,
+    followThroughNotes,
     result,
     findingText: buildFindingText({
       ownersPassed,
@@ -550,9 +570,11 @@ function createAuditResult(group, sourceRules, freedomDealMap) {
       fubPassed,
       fubFailed,
       fubIssues,
-      freedomPassed,
-      freedomFailed,
-      freedomIssues,
+      followThroughLabel,
+      followThroughPassed,
+      followThroughFailed,
+      followThroughIssues,
+      followThroughNotes,
       result,
     }),
   }
@@ -710,11 +732,13 @@ async function main() {
           ownersFailed: result.ownersFailed,
           fubPassed: result.fubPassed,
           fubFailed: result.fubFailed,
-          freedomPassed: result.freedomPassed,
-          freedomFailed: result.freedomFailed,
+          followThroughLabel: result.followThroughLabel,
+          followThroughPassed: result.followThroughPassed,
+          followThroughFailed: result.followThroughFailed,
           ownerIssues: result.ownerIssues,
           fubIssues: result.fubIssues,
-          freedomIssues: result.freedomIssues,
+          followThroughIssues: result.followThroughIssues,
+          followThroughNotes: result.followThroughNotes,
         })),
       },
       null,

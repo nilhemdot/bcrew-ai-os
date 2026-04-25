@@ -12,12 +12,14 @@ Current best read:
 - onboarding workflow truth
 - culture workflow truth
 - contract-link monitoring for active agents
+- deal workflow task state for Ops follow-through
 
 Known live surfaces Steve flagged:
 
 - Agent Roster list `901113292355`
 - Agent Onboarding list `901113487352`
 - Culture space / folder `90117028331`
+- Operations / Deals / Deal Data Entry list `901112153939`
 
 Live proof now captured:
 
@@ -45,6 +47,23 @@ First governed proof already captured:
 - that package proves the normal `50 / 50` split
 - and the ISA `45 / 55` override used on `T#26100`
 
+Deal workflow proof captured on 2026-04-25:
+
+- Operations space `90113898592` has folder `Deals` and list `Deal Data Entry` (`901112153939`)
+- the list is readable through the ClickUp API
+- parent tasks are deal/property workflows, for example `25 Bradbury Cres`, `877 Cook Crescent`, and `320 Netherby Road`
+- recurring subtasks include:
+  - `Email the agent for deal survey`
+  - `Email the operational Survey to Agent`
+  - `Add Entry in Owner Dashboard and Freedom Sheet + tag Georgia for NPS Follow Up`
+  - `Change FIRM status to Closed in ClickUp`
+
+Current read:
+
+- ClickUp is usable as workflow evidence for whether Ops had survey / closeout tasks
+- ClickUp is not yet locked as final NPS score, eligible-client denominator, Google-review capture, or bonus payout truth
+- the current task shape is address/workflow-driven; it still needs a governed join to Owners trade numbers or FUB person/deal IDs before Admin review can use it as hard row-level evidence
+
 ## What ClickUp Does Not Own Yet
 
 Do not treat ClickUp as the full final source of truth for:
@@ -53,12 +72,16 @@ Do not treat ClickUp as the full final source of truth for:
 - engine math
 - final deal economics
 - final finance meaning
+- final client-experience capture rate
+- final Google-review capture count
+- final ops bonus payout truth
 
 Current split:
 
 - Freedom = recruiter/date context + strategy math
 - Owners = deal / finance truth
-- ClickUp = workflow, status, onboarding, and contract-link operations
+- FUB = CRM stage, source, tags, call/transcript evidence
+- ClickUp = workflow, status, onboarding, contract-link operations, and deal follow-through tasks
 
 ## Contract-Link Rule
 

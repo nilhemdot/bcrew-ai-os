@@ -169,6 +169,7 @@ What that proves:
 - the `45 / 55` split on that row is contract-correct for Matt on ISA-set deals, including leases
 - the row should still be treated as `Company`, not `Agent`
 - the reviewed Freedom ops tabs did not show visible NPS / Google-review follow-through for that trade
+- later Clare / policy evidence clarified that post-`2026-04-01` deal survey and review follow-through moved out of the old Freedom per-row bonus model, so missing Freedom follow-through is no longer a hard deal-row failure for post-policy deals
 
 Operating rule now:
 
@@ -228,7 +229,7 @@ Best temporary shape:
   - should hold the key issues plus the suggested fix
   - best when broken into:
     - `Owners Sheet`
-    - `Freedom Sheet`
+    - `Ops Follow-through`
     - `FUB`
     - `ClickUp / Contract`
   - each section should show:
@@ -246,10 +247,9 @@ Example `CE` output:
 - `Owners Sheet — 8/10 passed · 2 failed`
 - `- Company or Agent should be Company because validated source lineage points to a company lead and ISA evidence exists.`
 - `- Move ISA Appointment Set out of Extra Orgin Lead Source Data and rely on ISA Set Deal.`
-- `Freedom Sheet — 0/3 passed · 3 failed`
-- `- No visible reviewed Freedom deal record found for this trade.`
-- `- No visible NPS follow-through found yet for this trade.`
-- `- No visible Google-review follow-through found yet for this trade.`
+- `Ops Follow-through — 1/1 passed`
+- `- Q2 2026 bonus policy moved post-close survey/review accountability out of the old Freedom per-row bonus model for deals executed on or after 2026-04-01.`
+- `- Do not fail this deal for a missing Freedom NPS/Google-review row; ClickUp Deal Data Entry plus FUB call transcripts are the candidate workflow evidence, but capture-rate audit is not locked as deal-row enforcement yet.`
 - `FUB — 6/6 passed · 0 failed`
 - `ClickUp / Contract — 6/6 passed · 0 failed`
 
@@ -272,7 +272,7 @@ Timing rule:
 - before that, use lighter checks only
 - reason:
   - give Ops time to move CRM stages
-  - give Freedom follow-through time to appear
+  - give post-close follow-through time to appear in the live workflow source
   - reduce false failure noise
 
 Operating flow now:
@@ -286,7 +286,7 @@ Operating flow now:
 3. Ops fixes the real source systems:
    - Owners
    - FUB
-   - Freedom
+   - Freedom / ClickUp follow-through
    - ClickUp
 4. Ops changes that same row's `CD` value to `Review This Deal`.
 5. The queued re-review lane picks up rows where `CD = Review This Deal`.
@@ -301,32 +301,32 @@ The first older post-execution batch surfaced repeatable issue patterns:
 - `T#26092`
   - `Open House` row still marked `Agent` even though the current source taxonomy treats open house as company-owned
   - FUB still in `Firm Deal` after the expected close date
-  - no visible Freedom follow-through row
+  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
 - `T#26088`
   - website / company lineage looks right
   - FUB still in `Lead` after the expected close date
-  - no visible Freedom follow-through row
+  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
 - `T#26091`
   - in-person / agent lineage looks broadly right
   - FUB still in `Active Client` after the expected close date
-  - no visible Freedom follow-through row
+  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
 - `T#26089`
   - referral handoff row shows Zoe-origin logic, but the deal row agent is Albert
   - FUB is still assigned to Zoe and still in `Active Client` after the expected close date
-  - no visible Freedom follow-through row
+  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
 - `T#26073`
   - HomeOptima / company lineage looks right
   - FUB still in `Lead` after the expected close date
   - FUB has `ISA Set - Alyssa` evidence while Owners still says `ISA Set Deal = No`
-  - no visible Freedom follow-through row
+  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
 
 The main mature-batch rule now:
 
 - after the `10`-day gate, the most common failures are:
   - stale FUB lifecycle stage
-  - missing Freedom follow-through
+  - unsettled post-close follow-through source proof
   - lineage / ISA mismatch on a small subset of rows
-   - `CD = Needs Fixing` if issues remain
+- `CD = Needs Fixing` if issues remain
 
 Temporary rule:
 
@@ -367,10 +367,11 @@ Current review packs by system:
   - `ISA Set Deal` is coherent
   - `Deal or Lease?` is populated
   - split / company math is coherent
-- `Freedom Sheet`
-  - reviewed deal record exists where expected
-  - NPS follow-through is visible
-  - Google-review follow-through is visible
+- `Ops Follow-through`
+  - pre-`2026-04-01` deals: historical Freedom row exists where expected
+  - pre-`2026-04-01` deals: NPS follow-through is visible in Freedom
+  - pre-`2026-04-01` deals: Google-review follow-through is visible in Freedom
+  - post-`2026-04-01` deals: do not fail for missing Freedom rows; ClickUp Deal Data Entry plus FUB transcripts are the candidate source, but not yet locked as hard row-level capture evidence
 - `FUB`
   - linked person exists
   - address matches
@@ -402,7 +403,8 @@ Admin review v1 implementation status:
   - FUB source classification and Owners/FUB source mismatch
   - stale mature-deal CRM stages
   - ISA mismatch in both directions
-  - Freedom deal record, NPS follow-through, and Google-review follow-through by trade number
+  - pre-`2026-04-01` Freedom deal record, NPS follow-through, and Google-review follow-through by trade number
+  - post-`2026-04-01` follow-through boundary note, without falsely failing the row for missing Freedom data
 - The script still does not auto-fix source fields. Ops fixes source systems, then marks the row for re-review.
 
 ### How To Use This Note
