@@ -1,6 +1,6 @@
 # Agent Architecture
 
-Last updated: 2026-04-17
+Last updated: 2026-04-26
 Status: Target operating model for the first real agent layer
 
 This doc answers the question:
@@ -76,6 +76,22 @@ This is the role structure:
 - orchestrator
 - specialist agents
 - repo-local coding agents
+
+## External Pattern Note
+
+Steve's 2026-04-26 Mycro video drop, archived as `SRC-YOUTUBE-INTEL-001:video_transcript:McPot5-N0ys`, reinforced a useful architecture pattern without changing BCrew doctrine.
+
+The useful pattern:
+
+- separate knowledge/personal assistant systems from process-automation systems
+- keep an orchestrator as the single point of contact
+- route work to specialist agents instead of forcing one agent to do every job
+- maintain a team/agent registry, task inbox, deliverables inbox, and workstream definitions
+- let specialists work in separate context windows where the runtime supports it
+- preserve persistent memory, daily logs, and open-task carry-forward
+- treat agent hiring/onboarding as a governed process with questions, acceptance criteria, and source context
+
+BCrew should not copy a folder-only architecture as the source of truth. Foundation remains the source-backed trust layer: Postgres, source contracts, ledgers, permissions, artifacts, atoms, decisions, backlog, and verifier checks. The Mycro pattern belongs mainly in the later execution layer: Crewbert orchestration, specialist worker contracts, workstreams, task/deliverable ledgers, and visible supervision.
 
 ## The Target Operating Model
 

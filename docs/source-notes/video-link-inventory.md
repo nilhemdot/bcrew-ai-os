@@ -79,8 +79,12 @@ Proof on 2026-04-26:
 - Clean controlled run inspected `5` video links, extracted `4` transcripts, skipped `1`, and recorded `0` crawl failures.
 - Current DB total: `8` `video_transcript` artifacts / `78,219` chars, with `1` skipped no-subtitle item.
 - After the worker picked up the new scheduled job, totals reached `12` `video_transcript` artifacts / `235,537` chars, with `2` skipped no-subtitle items.
+- Manual Steve priority proof: `https://youtu.be/McPot5-N0ys` was inserted as a `steve_manual_priority` queue item and processed first. The extractor archived `SRC-YOUTUBE-INTEL-001:video_transcript:McPot5-N0ys`, titled `The AI Team Setup Nobody Talks About`, with `26,316` chars.
+- Current DB total after the manual proof: `13` `video_transcript` artifacts / `261,853` chars, with `6` skipped video-content items (`4` channel/profile links routed to creator watchlist and `2` no-subtitle items routed to future vision/transcription).
 
-This is not the full GOD-mode extractor yet. It proves the shared queue and first transcript route. The next layers are:
+This is not the full GOD-mode extractor yet. It proves the shared queue and first transcript route. Transcript-only is insufficient for trainings, paid communities, walkthroughs, demos, screenshares, meetings, and videos where the actual workflow is shown on-screen. The GOD-mode extractor must understand what is said, shown, clicked, demonstrated, and implied.
+
+The next layers are:
 
 - channel/profile URLs -> creator watchlist
 - no-subtitle YouTube/Shorts -> video vision or transcription
@@ -88,6 +92,24 @@ This is not the full GOD-mode extractor yet. It proves the shared queue and firs
 - Loom -> approved Loom extractor proof
 - Zoom recordings -> router-ledged transcription/vision
 - Skool embedded videos -> approved access/export path first
+
+## GOD-Mode Contract
+
+The target video worker should produce more than transcript text:
+
+- video/channel/source metadata
+- transcript or speech-to-text with timestamps
+- key screenshots or frame notes where storage/use is allowed
+- visual workflow/tool detection
+- screenshare/demo steps
+- claims, prompts, architecture patterns, and process patterns
+- BCrew application/adopt/adapt/ignore recommendation
+- quality/confidence score
+- cost/model route/provenance ledger
+- access/content-use boundary
+- explicit skip reason when a platform, rights class, or file type is not supported
+
+Caption extraction stays useful because it is cheap and fast, but it is only level one of the video system.
 
 ## Next Proof
 

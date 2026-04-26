@@ -567,7 +567,7 @@ Build:
 - YouTube discovery and Gemini video-intelligence MVP after the retrieval spine is live
 - web/video crawler boundary for YouTube, Loom, Vimeo, Wistia, public web, and paid/community sources
 - video-link inventory lane: system discovers Loom/Drive/YouTube/Vimeo/Wistia/Zoom/Skool links from archives and authorized crawlers so Steve is not manually collecting URLs
-- video-content extraction lane: first YouTube subtitle transcript slice is live through DataForSEO and the shared video manifest; richer visual review, no-subtitle videos, Loom, Drive videos, Zoom recordings, and Skool embeds stay under the multimodal contract
+- video-content extraction lane: first YouTube subtitle transcript slice is live through DataForSEO and the shared video manifest, including manual Steve priority URLs such as the Mycro `The AI Team Setup Nobody Talks About` proof; richer visual review, no-subtitle videos, Loom, Drive videos, Zoom recordings, and Skool embeds stay under the multimodal contract
 - old-system report miner
 - value classifier for content/course/training/recruiting/strategy material
 - hub handoff queues for mined assets
@@ -582,6 +582,7 @@ Rules:
 - Skool starts with access-path audit only; no blind browser scraping
 - Loom starts with URL inventory and small authorized extractor proof; Loom's SDK is not a bulk extraction API
 - YouTube/Loom/Skool/video extraction should proceed through small ledged proofs, then daily quota missions; do not wait for another broad approval that the category matters
+- transcript-only is not full video understanding; paid trainings, demos, meeting recordings, and screen walkthroughs require the GOD-mode layer: speech/transcript, screenshots/keyframes, visual workflow/tool detection, timestamped evidence, quality scoring, and cost/permission controls
 - organizer/move actions stay dry-run until approved
 - old system is mined for output patterns and useful doctrine, not copied as runtime architecture
 - mining output must say which hub can use the asset, or why it should be ignored

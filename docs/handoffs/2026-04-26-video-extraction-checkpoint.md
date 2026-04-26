@@ -54,6 +54,16 @@ After restarting `ai.bcrew.foundation-worker`, the worker picked up `video-conte
 - `235,537` archived transcript chars
 - `12` succeeded and `2` skipped crawl items for `video-content-extract-backfill`
 
+Manual Steve priority follow-up:
+
+- Steve dropped `https://youtu.be/McPot5-N0ys` from the paid Mycro lane and asked whether the extractor could handle it.
+- Inserted it into `video-link-inventory` as `steve_manual_priority`, and updated the queue order so manual Steve priority videos process before older discovered links.
+- `video-content-extract-backfill` processed it successfully as `SRC-YOUTUBE-INTEL-001:video_transcript:McPot5-N0ys`.
+- Title: `The AI Team Setup Nobody Talks About`.
+- Archived text: `26,316` chars.
+- Current DB totals after this proof: `13` `video_transcript` artifacts / `261,853` chars; `13` succeeded and `6` skipped `video-content-extract-backfill` crawl items.
+- The video reinforced the architecture split: Foundation/source knowledge is not enough by itself; the later agent layer needs orchestrator, specialist agents, workstreams, task/deliverable inboxes, memory/journaling, and supervised execution.
+
 Proof doc:
 
 - `docs/audits/2026-04-26-video-transcript-extraction-proof.md`
@@ -67,6 +77,7 @@ Proof doc:
 - Zoom recording extraction is not built.
 - Skool video extraction is not built.
 - `video_transcript` artifacts are archived evidence; downstream candidate/atom extraction is still a follow-on.
+- GOD-mode video review is not built. That means no screenshots/keyframes, no screen-demo understanding, no visual tool/workflow detection, and no richer audio/visual analysis yet.
 
 ## Capacity Note
 

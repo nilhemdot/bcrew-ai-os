@@ -75,6 +75,18 @@ Current DB proof after the controlled proof plus worker follow-up:
 - `235,537` archived transcript chars
 - `12` succeeded and `2` skipped crawl items for `video-content-extract-backfill`
 
+Manual priority proof:
+
+- Steve dropped `https://youtu.be/McPot5-N0ys` as a paid Mycro/reference video for agent-system learning.
+- The URL was inserted into `video-link-inventory` as `steve_manual_priority`.
+- Queue ordering now prioritizes manual Steve priority video items before older discovered links.
+- `video-content-extract-backfill` archived `SRC-YOUTUBE-INTEL-001:video_transcript:McPot5-N0ys`.
+- Title: `The AI Team Setup Nobody Talks About`.
+- Archived text: `26,316` chars.
+- Current DB proof after this follow-up: `13` `video_transcript` artifacts / `261,853` chars, `13` succeeded crawl items, and `6` skipped crawl items.
+
+The Mycro proof also clarified the product boundary: subtitle extraction is a useful first route, but it is not the GOD-mode video extractor Steve wants. Paid trainings, demos, meetings, and walkthroughs need visual/audio understanding of what is shown and done, not only what is spoken.
+
 ## Boundaries
 
 Built now:
@@ -95,6 +107,7 @@ Not built yet:
 - Zoom recording extraction
 - Skool embedded video extraction
 - downstream atom/candidate extraction from `video_transcript` artifacts
+- GOD-mode visual review with screenshots/keyframes, screen-demo understanding, tool/workflow detection, and audio/visual quality scoring
 
 ## Follow-On Cards
 
