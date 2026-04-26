@@ -1,9 +1,48 @@
 # 2026-04-26 Full System Audit (Pre-Build Sweep)
 
 **Auditor:** Claude (Opus 4.7), with 6 parallel deep-audit subagents
-**HEAD at audit:** `f8066e9` "Clarify Foundation closeout authority"
+**HEAD at audit-start:** `f8066e9` "Clarify Foundation closeout authority"
+**HEAD at doc-write:** `27f67fa` "Add fresh chat start handoff after Ops v1" (4 commits later)
 **Scope:** entire `bcrew-ai-os-review` repo — substrate code, plan vs reality, specs, doctrine + handoffs, code quality + dead code, verifier + tests
 **Method:** every audit team given absolute paths, no hand-waving allowed, file:line references required, called out what they didn't read
+
+---
+
+## POST-AUDIT VERIFICATION (read this first)
+
+Between when this audit started and when this doc was written, Codex shipped **23 commits** including the AIOS public login gate, Google OAuth, Ops Hub v1, Owners Admin closeout, and a verifier expansion from 28 → 58 ensures (more than doubled). Most of the P0 findings below were closed in those commits. The honest situation as of HEAD `27f67fa`:
+
+**Closed by overnight commits:**
+- ✅ All 5 unauth read endpoints (`/api/foundation-hub`, `/api/owners/review-queue`, `/api/foundation/changes`, `/api/foundation/doc-updates`, `/api/doc`, plus `/api/fub/person`, `/api/owners/lead-source-governance`, `/api/system-inventory`, `/api/sheets/structure-status`) now require `requireAdminToken` — verified at lines listed inline below
+- ✅ Direct Whisper API call in `transcribe-zoom-audio-archive.mjs` — REMOVED. Replaced with `ZOOM_AUDIO_TRANSCRIPTION_PAUSED_MESSAGE` blocking real transcription via SECURITY-003 until rebuilt as router-ledged workload
+- ✅ Verifier added meaningful checks: `broad Foundation/Ops/doc read APIs are admin-gated`, `app auth gates live surfaces by role`, `local admin bypass uses socket locality, not spoofable Host header`, `direct model/transcription host calls stay behind approved adapters`, `shared-comms candidates apply idempotently`, `LLM router refuses non-runnable routes`, `source crawl ledger is run-id, lease-owner, and item-key safe`, `markdown-rendered links sanitize unsafe schemes`, plus more
+- ✅ Idempotency check on candidate apply (`shared-comms candidates apply idempotently`) addresses my P1 "candidate re-apply" finding
+- ✅ FUB proxy mutations now require explicit supervised env flag for write methods
+- ✅ PDF export now forwards admin token
+
+**Still open (confirmed against current HEAD):**
+- ❌ `getRequestActor()` (`server.js:1225-1227`) STILL returns hardcoded `'steve'`. Some call sites pass `req`; the function ignores the argument. Every change-event, decision proposal, backlog edit is still attributed to Steve regardless of caller. **Fix this first — everything tier-related assumes it works.**
+- ❌ Worker `for` loop (`scripts/foundation-worker.mjs:49-54`) STILL has no try/catch around `runFoundationJob`. One bad job kills the worker; the partial unique active-run index then makes that job key permanently un-rerunnable.
+- ❌ No orphan reaper for stuck `foundation_job_runs` rows
+- ❌ No reaper for stale `llm_calls` (`getStaleLlmCalls` detects, nothing closes)
+- ❌ No reaper for expired `source_crawl_items.lease_expires_at`
+- ❌ No `runtime_mode = 'decommissioned'` enum value (only `paused`)
+- ❌ No `/api/foundation/active-processes` endpoint (the "what's running RIGHT NOW" view SYSTEM-010 needs)
+- ❌ Windows kill semantics still uses negative-PID (POSIX-only) — needs to be checked against current code
+- ❌ `users.tier` nullable; `subject_people`/`sensitivity`/`min_tier` still in JSONB metadata not first-class columns
+- ❌ Atoms-vs-Synthesis taxonomy collision (will bite when STRATEGY-001 starts)
+- ❌ Doc drift items (numbering chaos, AGENTS.md residue, rebuild-decisions.md TBD)
+- ❌ No Postgres backup, no schema migration tooling
+
+**New concerns introduced by Ops Hub v1:**
+- ⚠️ **Auth model is two-role (`owner`/`ops`), not three-tier (`tier ∈ {1,2,3}`).** The Phase 4A spec (`auth-tiers-vault.md:230-237`) requires `tier SMALLINT NOT NULL CHECK (tier IN (1,2,3))`. Per BCrew tier model: Steve=1, Carson/Clare=2, Georgia=3. Codex collapsed Carson/Clare/Georgia all to "ops" with the same path whitelist. **Pragmatic for Ops Hub v1, but does not satisfy Phase 4A.** Future work that needs to distinguish Tier-2 from Tier-3 (e.g., termination/comp discussions about a person should be invisible to that person but visible to Steve+leadership) cannot use the current role model.
+- ⚠️ **Ops Hub shipped before Phase 4A complete.** `current-plan.md:54` says "Strategy Hub is the first major consumer." Codex shipped a different hub (Ops Hub) that uses Ops queue data, not shared-comms intelligence. Defensible scope-wise — Ops Hub does NOT expose shared-comms data, so the Phase 4A privacy gate language is technically respected. But the plan now lacks an "Ops Hub" phase. Update plan to reflect what shipped.
+- ⚠️ **`isOpsApiPath` is a hardcoded path list** (`server.js:482-486`): `/api/ops-hub`, `/api/owners/review-queue`. Future Ops endpoints must be added here manually or they'll 403 for ops users. Magic-string list is fragile; promote to declared metadata on each endpoint.
+- ⚠️ **Local dev bypass is now stricter** (`isLocalDevRequest` requires both local IP AND localhost host header) — good — but means `foundation:verify` running through ngrok would actually exercise the gate. Verify hits localhost, so the verifier still doesn't test the auth path.
+
+**Bottom line of the bottom line:** The audit was 70% addressed before I could push. Steve and Codex shipped the right things in the right order overnight. The remaining items — `getRequestActor` stub, worker reaper, decommission flow, three-tier vs two-role, substrate JSONB→column migration, atoms taxonomy reconciliation — are P0/P1 and still need Tier-1/Tier-2 work below.
+
+The original audit body remains as written for reference. Treat any P0 marked as "broken" in the body below as ✅ fixed unless re-confirmed in this Post-Audit Verification section.
 
 ---
 
