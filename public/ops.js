@@ -43,6 +43,8 @@ function fetchOwnersReviewQueue() {
 var OWNERS_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk'
 var OWNERS_ADMIN_GID = '533201019'
 var OWNERS_CONDITIONAL_GID = '131346715'
+var opsHelperReady = false
+var opsHelperQueueStats = null
 
 function createActionLink(label, href, className) {
   var link = document.createElement('a')
@@ -287,6 +289,322 @@ function renderPanel(eyebrowText, titleText, introText) {
   header.appendChild(left)
   panel.appendChild(header)
   return panel
+}
+
+function flattenOpsQueueItems(queueStats) {
+  var items = []
+  Object.keys(queueStats.sections || {}).forEach(function(sectionKey) {
+    var section = queueStats.sections[sectionKey]
+    ;(section.items || []).forEach(function(item) {
+      items.push({
+        sectionKey: sectionKey,
+        item: item,
+      })
+    })
+  })
+  return items
+}
+
+function summarizeOpsItem(entry) {
+  var item = entry.item || {}
+  var laneLabels = {
+    admin: 'Admin deal review',
+    conditional: 'Conditional forecast',
+    fubDrift: 'FUB source rules',
+    ownersGovernance: 'Owners list drift',
+    agentRoster: 'Agent onboarding',
+  }
+  var lines = []
+  lines.push((item.title || item.id || 'This item') + ' is in ' + (laneLabels[entry.sectionKey] || entry.sectionKey) + '.')
+  if (item.subtitle) lines.push(item.subtitle + '.')
+  if (item.reviewStatus || item.reviewAction) {
+    lines.push('Current status: ' + [item.reviewStatus, item.reviewAction].filter(Boolean).join(' / ') + '.')
+  }
+  var findings = String(item.findingsPreview || '').trim()
+  if (findings) {
+    var blocks = parseOpsFindings(findings)
+    var bullets = []
+    blocks.forEach(function(block) {
+      ;(block.bullets || []).forEach(function(bullet) {
+        bullets.push(bullet)
+      })
+    })
+    if (bullets.length) {
+      lines.push('What to fix: ' + bullets.slice(0, 4).join(' | ') + (bullets.length > 4 ? ' | plus more on the card.' : ''))
+    } else {
+      lines.push('Finding: ' + findings)
+    }
+  }
+  if (entry.sectionKey === 'admin') {
+    lines.push('After the source data is fixed, mark the row Review This Deal so AIOS re-checks it.')
+  }
+  if (entry.sectionKey === 'conditional') {
+    lines.push('After the forecast data is fixed, mark column N as Review This Conditional so AIOS re-checks it.')
+  }
+  return lines.join('\n')
+}
+
+function findOpsQueueMatches(queueStats, question) {
+  var normalized = String(question || '').toLowerCase()
+  var tokens = normalized.match(/t#?\d+|[a-z0-9][a-z0-9'-]{2,}/g) || []
+  return flattenOpsQueueItems(queueStats).filter(function(entry) {
+    var item = entry.item || {}
+    var text = [
+      item.title,
+      item.id,
+      item.subtitle,
+      item.owner,
+      item.reviewStatus,
+      item.reviewAction,
+      item.findingsPreview,
+      formatQueueItemMeta(item),
+    ].filter(Boolean).join(' ').toLowerCase()
+    return tokens.some(function(token) {
+      return text.indexOf(token.replace(/^t(\d)/, 't#$1')) !== -1 || text.indexOf(token) !== -1
+    })
+  }).slice(0, 3)
+}
+
+function buildOpsHelperReply(question, queueStats) {
+  var text = String(question || '').trim()
+  var lower = text.toLowerCase()
+  var matches = findOpsQueueMatches(queueStats, text)
+
+  if (matches.length && /t#?\d+|row|deal|card|why|clear|fix|flag|issue|this/i.test(text)) {
+    return matches.map(summarizeOpsItem).join('\n\n')
+  }
+
+  if ((lower.indexOf('clear') !== -1 || lower.indexOf('fix') !== -1) && lower.indexOf('deal') !== -1) {
+    return [
+      'To clear an Admin deal card:',
+      '',
+      '1. Open the source row from the card.',
+      '2. Fix the Owners, FUB, or ClickUp fields listed in the findings.',
+      '3. If an internal review, NPS, or Google review is not applicable, use the correct status/reason instead of leaving it blank.',
+      '4. Mark the Admin row Review This Deal so AIOS re-checks it.',
+      '',
+      'If the card still appears after re-check, the source data still has an open issue.',
+    ].join('\n')
+  }
+
+  if (lower.indexOf('skip') !== -1 || lower.indexOf('not eligible') !== -1 || lower.indexOf('blocked') !== -1) {
+    return [
+      'Use different statuses depending on the workflow:',
+      '',
+      'Internal Onboarding review: set Completed when done. If it truly should not happen, set Skipped and fill Internal Onboarding Skipped Reason.',
+      '',
+      'Internal Deal review: set Completed when done. If it truly should not happen, set Skipped and fill Internal Deal Review Skipped Reason.',
+      '',
+      'Client NPS: use Requested, Completed with NPS Score, or Not Eligible. Do not use Skipped for NPS.',
+      '',
+      'Google Review: use Requested, Captured with captured count/evidence, or Not Eligible. Do not use Skipped for Google review.',
+      '',
+      'Blocked means something is still preventing the workflow, so AIOS keeps it visible.',
+    ].join('\n')
+  }
+
+  if (lower.indexOf('nps') !== -1) {
+    return [
+      'Client NPS clears when NPS Status is Requested, Completed, or Not Eligible.',
+      '',
+      'If Completed, fill NPS Score. Add NPS Comments when there is useful feedback.',
+      '',
+      'If NPS or Google review outreach started, add the FUB Call / Review Evidence Link so AIOS can see the outreach proof.',
+    ].join('\n')
+  }
+
+  if (lower.indexOf('review this deal') !== -1 || lower.indexOf('re-review') !== -1 || lower.indexOf('rereview') !== -1) {
+    return [
+      'Use Review This Deal after the source data has been fixed.',
+      '',
+      'AIOS checks marked rows first, rewrites AI status/action/findings, and clears or updates the card based on the source data.',
+      '',
+      'It does not auto-fix Owners, ClickUp, or FUB fields yet.',
+    ].join('\n')
+  }
+
+  if (lower.indexOf('internal') !== -1 || lower.indexOf('onboarding') !== -1) {
+    return [
+      'Internal reviews are team-feedback checks, separate from client NPS and Google reviews.',
+      '',
+      'Internal Onboarding Status clears when Completed, or Skipped with Internal Onboarding Skipped Reason.',
+      '',
+      'Internal Deal Review Status clears when Completed, or Skipped with Internal Deal Review Skipped Reason.',
+    ].join('\n')
+  }
+
+  if (lower.indexOf('google') !== -1 || lower.indexOf('review status') !== -1 || lower.indexOf('client review') !== -1) {
+    return [
+      'Google Review clears when Review Status is Requested, Captured, or Not Eligible.',
+      '',
+      'If Captured, fill Google Review Captured Count or Google Review Link(s) / Evidence.',
+      '',
+      'Couples can leave more than one review, so target/captured counts matter.',
+    ].join('\n')
+  }
+
+  if (lower.indexOf('conditional') !== -1) {
+    return [
+      'Conditional forecast comes from ClickUp Deal Data Entry.',
+      '',
+      'Buyer/seller conditional tags determine the row. Mutual-release/dead deals are excluded.',
+      '',
+      'Fix missing forecast fields in ClickUp/source data, then mark column N as Review This Conditional for a re-check.',
+    ].join('\n')
+  }
+
+  if (lower.indexOf('count') !== -1 || lower.indexOf('open') !== -1 || lower.indexOf('queue') !== -1) {
+    return [
+      'Current Ops queue:',
+      '- ' + queueStats.sections.admin.openItems + ' Admin deal items',
+      '- ' + queueStats.sections.conditional.openItems + ' Conditional forecast items',
+      '- ' + queueStats.sections.agentRoster.openItems + ' Agent onboarding items',
+      '- ' + queueStats.sections.fubDrift.openItems + ' FUB source-rule items',
+      '- ' + queueStats.sections.ownersGovernance.openItems + ' Owners list items',
+      '',
+      queueStats.openItems + ' open Ops items total.',
+    ].join('\n')
+  }
+
+  return [
+    'I can help with Ops cards, deal re-review, ClickUp statuses, NPS, Google reviews, conditional forecast, and agent onboarding.',
+    '',
+    'Try asking:',
+    '- How do I clear this deal card?',
+    '- What does NPS Status need?',
+    '- When do I use Skipped?',
+    '- Why is T#26096 flagged?',
+    '- How do I re-review a fixed deal?',
+  ].join('\n')
+}
+
+function buildOpsHelperPanel() {
+  var panel = document.getElementById('ops-helper-panel')
+  if (!panel) return
+  panel.innerHTML = ''
+
+  var header = document.createElement('div')
+  header.className = 'ops-helper-header'
+
+  var headerInfo = document.createElement('div')
+  headerInfo.className = 'ops-helper-header-info'
+
+  var title = document.createElement('h4')
+  title.textContent = 'AIOS Help'
+  headerInfo.appendChild(title)
+
+  var subtitle = document.createElement('p')
+  subtitle.textContent = 'Ops card guide'
+  headerInfo.appendChild(subtitle)
+
+  header.appendChild(headerInfo)
+
+  var close = document.createElement('button')
+  close.type = 'button'
+  close.className = 'ops-helper-close'
+  close.setAttribute('aria-label', 'Close Ops help')
+  close.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
+  close.addEventListener('click', closeOpsHelper)
+  header.appendChild(close)
+  panel.appendChild(header)
+
+  var body = document.createElement('div')
+  body.className = 'ops-helper-body'
+
+  var messages = document.createElement('div')
+  messages.className = 'ops-helper-messages'
+  body.appendChild(messages)
+  panel.appendChild(body)
+
+  function addMessage(role, text) {
+    var bubble = document.createElement('div')
+    bubble.className = 'ops-helper-message ops-helper-message-' + role
+    String(text || '').split('\n').forEach(function(line, index) {
+      if (index) bubble.appendChild(document.createElement('br'))
+      bubble.appendChild(document.createTextNode(line))
+    })
+    messages.appendChild(bubble)
+    messages.scrollTop = messages.scrollHeight
+  }
+
+  addMessage('bot', 'Ask me how to clear a card, what a status means, or why a deal is flagged. I only explain; I do not change source data.')
+
+  var quick = document.createElement('div')
+  quick.className = 'ops-helper-quick'
+  ;[
+    'How do I clear a deal card?',
+    'When do I use Skipped?',
+    'What clears NPS?',
+    'What clears Google review?',
+  ].forEach(function(label) {
+    var button = document.createElement('button')
+    button.type = 'button'
+    button.textContent = label
+    button.addEventListener('click', function() {
+      ask(label)
+    })
+    quick.appendChild(button)
+  })
+  body.appendChild(quick)
+
+  var form = document.createElement('form')
+  form.className = 'ops-helper-form'
+  var input = document.createElement('input')
+  input.type = 'text'
+  input.placeholder = 'Ask AIOS about an Ops card or field...'
+  input.setAttribute('aria-label', 'Ask AIOS about Ops')
+  form.appendChild(input)
+  var submit = document.createElement('button')
+  submit.type = 'submit'
+  submit.textContent = 'Ask'
+  form.appendChild(submit)
+  panel.appendChild(form)
+
+  function ask(value) {
+    var question = String(value || input.value || '').trim()
+    if (!question) return
+    addMessage('user', question)
+    input.value = ''
+    window.setTimeout(function() {
+      addMessage('bot', buildOpsHelperReply(question, opsHelperQueueStats || getOpsReviewQueueStats({})))
+    }, 80)
+  }
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault()
+    ask()
+  })
+
+  opsHelperReady = true
+}
+
+function openOpsHelper() {
+  var panel = document.getElementById('ops-helper-panel')
+  var toggle = document.getElementById('ops-helper-toggle')
+  if (!panel) return
+  if (!opsHelperReady) buildOpsHelperPanel()
+  panel.classList.remove('ops-helper-hidden')
+  if (toggle) toggle.style.display = 'none'
+  var input = panel.querySelector('input')
+  if (input) input.focus()
+}
+
+function closeOpsHelper() {
+  var panel = document.getElementById('ops-helper-panel')
+  var toggle = document.getElementById('ops-helper-toggle')
+  if (!panel) return
+  panel.classList.add('ops-helper-hidden')
+  if (toggle) toggle.style.display = ''
+}
+
+function ensureOpsHelper(queueStats) {
+  opsHelperQueueStats = queueStats
+  if (!opsHelperReady) buildOpsHelperPanel()
+  var toggle = document.getElementById('ops-helper-toggle')
+  if (toggle && !toggle.dataset.opsHelperBound) {
+    toggle.dataset.opsHelperBound = 'true'
+    toggle.addEventListener('click', openOpsHelper)
+  }
 }
 
 function formatQueueItemMeta(item) {
@@ -859,6 +1177,7 @@ function renderSection(section, hub, queuePayload) {
   var queueStats = getOpsReviewQueueStats(queuePayload)
   var jobs = getHubServedJobs(hub, 'ops')
   container.innerHTML = ''
+  ensureOpsHelper(queueStats)
 
   if (section === 'overview') {
     container.appendChild(renderHero(jobs, queueStats))
