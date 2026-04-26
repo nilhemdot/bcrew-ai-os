@@ -4822,6 +4822,125 @@ code {
   font-weight: 700;
 }
 
+.feedback-page {
+  background: var(--bg);
+}
+
+.feedback-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 32px 18px;
+}
+
+.feedback-panel {
+  width: min(100%, 720px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  padding: clamp(24px, 5vw, 40px);
+}
+
+.feedback-panel h1 {
+  margin: 8px 0 10px;
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.feedback-intro,
+.feedback-privacy {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.feedback-fieldset {
+  display: grid;
+  gap: 14px;
+  margin: 24px 0;
+  border: 0;
+}
+
+.feedback-fieldset legend,
+.feedback-label {
+  display: block;
+  color: var(--text-primary);
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.feedback-score-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(42px, 1fr));
+  gap: 8px;
+}
+
+.feedback-score-option {
+  position: relative;
+  display: grid;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.feedback-score-option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.feedback-score-option span {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-weight: 900;
+}
+
+.feedback-score-option input:checked + span,
+.feedback-score-option input:focus-visible + span {
+  border-color: var(--brand);
+  background: var(--brand-glow);
+  color: var(--brand-dark);
+  box-shadow: 0 0 0 3px rgba(0, 132, 201, 0.14);
+}
+
+.feedback-label {
+  margin: 0 0 8px;
+}
+
+.feedback-panel textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  line-height: 1.5;
+  padding: 12px;
+}
+
+.feedback-panel textarea:focus {
+  outline: 3px solid rgba(0, 132, 201, 0.14);
+  border-color: var(--brand);
+}
+
+.feedback-privacy {
+  margin: 14px 0 22px;
+}
+
+@media (max-width: 640px) {
+  .feedback-score-grid {
+    grid-template-columns: repeat(5, minmax(42px, 1fr));
+  }
+}
+
 @media (max-width: 880px) {
   .strategy-export-meta-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

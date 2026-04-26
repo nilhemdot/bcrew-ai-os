@@ -191,11 +191,15 @@ async function main() {
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const opsHtmlSource = await readRepoFile('public/ops.html')
   const opsUiSource = await readRepoFile('public/ops.js')
+  const agentFeedbackHtmlSource = await readRepoFile('public/agent-feedback.html')
+  const agentFeedbackUiSource = await readRepoFile('public/agent-feedback.js')
   const docUiSource = await readRepoFile('public/doc.js')
   const strategicExecutionUiSource = await readRepoFile('public/strategic-execution.js')
   const strategyExportUiSource = await readRepoFile('public/strategy-export.js')
   const serverSource = await readRepoFile('server.js')
   const foundationJobsSource = await readRepoFile('lib/foundation-jobs.js')
+  const agentFeedbackSource = await readRepoFile('lib/agent-feedback.js')
+  const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
   const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
   const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
@@ -495,6 +499,18 @@ async function main() {
       !foundationUiSource.includes('function renderOpsHub'),
     'Ops Hub is a dedicated hub surface, not nested in Foundation nav',
     'public/ops.html + public/ops.js own the Ops cockpit; Foundation keeps system metadata only',
+  )
+  ensure(
+    checks,
+    includesAll(agentFeedbackSource, ['createAgentFeedbackToken', 'verifyAgentFeedbackToken', 'hashAgentFeedbackToken']) &&
+      includesAll(agentRosterReviewSource, ['buildAgentFeedbackUrl', 'feedbackUrl']) &&
+      includesAll(serverSource, ['/api/agent-feedback/session', '/api/agent-feedback/submit', 'upsertAgentOnboardingFeedbackResponse']) &&
+      includesAll(foundationDbSource, ['agent_onboarding_feedback_responses', 'token_hash', 'milestone_day']) &&
+      includesAll(agentFeedbackHtmlSource, ['agent-feedback-form', 'score-grid', 'Submit feedback']) &&
+      includesAll(agentFeedbackUiSource, ['/api/agent-feedback/session', '/api/agent-feedback/submit']) &&
+      includesAll(opsUiSource, ['Open feedback form']),
+    'agent onboarding feedback form is source-backed',
+    'signed link helper, DB response table, public form, and Ops feedback action are wired',
   )
   ensure(
     checks,

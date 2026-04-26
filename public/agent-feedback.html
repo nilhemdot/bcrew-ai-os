@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Feedback · BCrew AI OS</title>
+    <link rel="stylesheet" href="/styles.css?v=20260425c" />
+  </head>
+  <body class="feedback-page">
+    <main class="feedback-shell">
+      <section class="feedback-panel" id="feedback-panel">
+        <div class="eyebrow">Benson Crew Feedback</div>
+        <h1>Onboarding check-in</h1>
+        <p class="feedback-intro" id="feedback-intro">Loading feedback form...</p>
+
+        <form id="agent-feedback-form" hidden>
+          <fieldset class="feedback-fieldset">
+            <legend id="score-question"></legend>
+            <div class="feedback-score-grid" id="score-grid"></div>
+          </fieldset>
+
+          <label class="feedback-label" for="improvement-feedback" id="improvement-question"></label>
+          <textarea id="improvement-feedback" name="improvementFeedback" rows="5" maxlength="5000"></textarea>
+
+          <p class="feedback-privacy" id="privacy-note"></p>
+
+          <div class="foundation-module-actions">
+            <button class="primary-button" type="submit">Submit feedback</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <script src="/agent-feedback.js?v=20260425a"></script>
+  </body>
+</html>

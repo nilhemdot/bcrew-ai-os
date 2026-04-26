@@ -346,10 +346,11 @@ function renderOpsIssueCard(queueStats, item) {
   card.appendChild(findings)
 
   var href = getQueueItemHref(queueStats, item)
-  if (href) {
+  if (href || item.feedbackUrl) {
     var actions = document.createElement('div')
     actions.className = 'foundation-module-actions ops-issue-actions'
-    actions.appendChild(createActionLink('Open source row', href, 'secondary-button'))
+    if (href) actions.appendChild(createActionLink('Open source row', href, 'secondary-button'))
+    if (item.feedbackUrl) actions.appendChild(createActionLink('Open feedback form', item.feedbackUrl, 'secondary-button'))
     card.appendChild(actions)
   }
 

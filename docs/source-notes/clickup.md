@@ -171,7 +171,9 @@ Agent Roster Ops lane v1:
 - v1 launch cutoff is `2026-04-01`; do not backfill 30/60/90 NPS obligations for older historical starts unless Steve explicitly asks for a catch-up pass
 - if Real Start Date is more than 90 days old and the onboarding NPS statuses are still open, mark 30/60/90 as `Skipped` instead of sending retroactive feedback requests
 - outbound email automation is not built yet; Gmail is currently an archive/extraction source, not a governed send engine
-- preferred future capture path is an AIOS private feedback link stored on the roster task, because it can write structured score/comment/evidence back to the roster and source-backed feedback table. A ClickUp form is acceptable as a temporary manual capture tool, but it is weaker because it creates separate form/task artifacts instead of updating the existing agent record cleanly.
+- v1 capture path is an AIOS private feedback link generated from the roster task and milestone day. It asks one NPS-style score plus one improvement prompt, then stores the structured response in `agent_onboarding_feedback_responses`.
+- The feedback question is: "On a scale of 1-10, how likely would you recommend the Benson Crew to another agent based on your first 30/60/90 days?" Follow-up: "If not a 10, what would make it a 10? Any positive or negative feedback is helpful."
+- Feedback is private to Steve for v1. Do not route raw onboarding feedback through the onboarding team.
 - v1 surfaces:
   - one card per accountable roster record missing `Contract Link`
   - one grouped card when baseline source fields need backfill (`Recruited By`, `Real Start Date`, `Team / Legacy Origin`)

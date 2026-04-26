@@ -48,6 +48,7 @@ import {
   updateDecision,
   updateFoundationJobControl,
   updateOpenQuestion,
+  upsertAgentOnboardingFeedbackResponse,
 } from './lib/foundation-db.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
 import {
@@ -61,6 +62,7 @@ import {
 import { getDriveFileMetadata, getSheetValues } from './lib/google-delegated.js'
 import { getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
+import { verifyAgentFeedbackToken } from './lib/agent-feedback.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import { runSheetsStructureVerification } from './scripts/sheets-structure-verify.mjs'
 
@@ -4085,6 +4087,63 @@ app.post('/api/foundation/doc-updates/:id/apply', requireAdminToken, async (req,
   }
 })
 
+app.get('/api/agent-feedback/session', async (req, res) => {
+  try {
+    const session = verifyAgentFeedbackToken(req.query.token)
+    cacheHeadersNoStore(res)
+    res.json({
+      agentName: session.agentName,
+      milestoneDay: session.milestoneDay,
+      scoreQuestion: 'On a scale of 1-10, how likely would you recommend the Benson Crew to another agent based on your first ' + session.milestoneDay + ' days?',
+      improvementQuestion: 'If not a 10, what would make it a 10? Any positive or negative feedback is helpful.',
+      privacyNote: 'This will only be read by Steve so you can be open and honest about what would make the experience better.',
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      400,
+      'invalid_agent_feedback_token',
+      error instanceof Error ? error.message : 'Invalid feedback link.'
+    )
+  }
+})
+
+app.post('/api/agent-feedback/submit', async (req, res) => {
+  try {
+    const session = verifyAgentFeedbackToken(req.body?.token)
+    const score = Number(req.body?.score)
+    const improvementFeedback = String(req.body?.improvementFeedback || '').trim().slice(0, 5000)
+
+    if (!Number.isInteger(score) || score < 1 || score > 10) {
+      sendApiError(res, 400, 'invalid_agent_feedback_score', 'Choose a score from 1 to 10.')
+      return
+    }
+
+    const response = await upsertAgentOnboardingFeedbackResponse({
+      tokenHash: session.tokenHash,
+      clickUpTaskId: session.taskId,
+      agentName: session.agentName,
+      milestoneDay: session.milestoneDay,
+      score,
+      improvementFeedback,
+      userAgent: req.get('user-agent') || '',
+    })
+
+    cacheHeadersNoStore(res)
+    res.json({
+      ok: true,
+      submittedAt: response.submittedAt,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      400,
+      'agent_feedback_submit_failed',
+      error instanceof Error ? error.message : 'Failed to submit feedback.'
+    )
+  }
+})
+
 app.get('/api/doc', requireAdminToken, async (req, res) => {
   const filePath = resolveRequestedDoc(req.query.path)
 
@@ -4173,6 +4232,11 @@ app.get('/strategic-execution', (_req, res) => {
 app.get('/ops', (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'ops.html'))
+})
+
+app.get('/agent-feedback', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
+  res.sendFile(path.join(__dirname, 'public', 'agent-feedback.html'))
 })
 
 app.use('/api', (_req, res) => {
