@@ -154,6 +154,15 @@ function getJobRunLine(job) {
   return last + ' · ' + next
 }
 
+function getOpsQueueLine(queueStats) {
+  return queueStats.openItems + ' open total · ' +
+    queueStats.sections.admin.openItems + ' admin · ' +
+    queueStats.sections.conditional.openItems + ' conditional · ' +
+    queueStats.sections.agentRoster.openItems + ' agent onboarding · ' +
+    queueStats.sections.fubDrift.openItems + ' FUB drift · ' +
+    queueStats.sections.ownersGovernance.openItems + ' Owners lists'
+}
+
 function renderOpsSystemPill(job, queueStats) {
   var details = document.createElement('details')
   details.className = 'source-item'
@@ -191,7 +200,6 @@ function renderOpsSystemPill(job, queueStats) {
   var body = document.createElement('div')
   body.className = 'source-item-body'
 
-  body.appendChild(renderLabeledCopy('What it does', job.systemSummary || job.description || 'No summary recorded.'))
   body.appendChild(renderLabeledCopy('Run state', getJobRunLine(job)))
   body.appendChild(renderLabeledCopy('Command', [job.command].concat(job.args || []).filter(Boolean).join(' ')))
   if (job.sourceIds && job.sourceIds.length) body.appendChild(renderLabeledCopy('Sources', job.sourceIds.join(' · ')))
@@ -202,34 +210,26 @@ function renderOpsSystemPill(job, queueStats) {
   if (outputs) body.appendChild(outputs)
   if (job.nextAction) body.appendChild(renderLabeledCopy('Boundary', job.nextAction))
 
-  body.appendChild(renderLabeledCopy(
-    'Ops inbox now',
-    queueStats.openItems + ' open · ' +
-      queueStats.sections.admin.openItems + ' admin · ' +
-      queueStats.sections.conditional.openItems + ' conditional · ' +
-      queueStats.sections.fubDrift.openItems + ' FUB drift · ' +
-      queueStats.sections.ownersGovernance.openItems + ' Owners list drift · ' +
-      queueStats.sections.agentRoster.openItems + ' roster'
-  ))
+  body.appendChild(renderLabeledCopy('Current queue', getOpsQueueLine(queueStats)))
 
   if (job.key === 'admin-deal-review-readonly') {
     body.appendChild(renderLabeledCopy(
-      'Inspection writeback',
-      'Scheduled: marked Admin re-reviews only. Ops fixes source rows, marks Review This Deal, and this lane rewrites AI status/action/findings without auto-fixing source fields.'
+      'Extra detail',
+      'Ops fixes source rows, marks Review This Deal, and this lane rewrites AI status/action/findings without auto-fixing source fields.'
     ))
   }
 
   if (job.key === 'admin-deal-backlog-review') {
     body.appendChild(renderLabeledCopy(
-      'Inspection writeback',
-      'Scheduled: five newest eligible Admin backlog deals per day, newest to older, using Date Firm (Executed), a 2025-06-01 cutoff, and a 10-day maturity gate. Post-April-1 follow-through is checked in ClickUp Deal Data Entry instead of the old Freedom review sheet.'
+      'Extra detail',
+      'Runs newest to older from the 2025-06-01 cutoff. Post-April-1 follow-through is checked in ClickUp Deal Data Entry instead of the old Freedom review sheet.'
     ))
   }
 
   if (job.key === 'conditional-deal-review-readonly') {
     body.appendChild(renderLabeledCopy(
-      'Conditional forecast',
-      'Scheduled: rebuilds the conditional forecast from ClickUp Deal Data Entry. Buyer/seller conditional tags stay live; mutual-release tags are excluded. Mark column N as Review This Conditional to re-check a fixed conditional row.'
+      'Extra detail',
+      'Buyer/seller conditional tags stay live; mutual-release tags are excluded. Mark column N as Review This Conditional to re-check a fixed conditional row.'
     ))
   }
 
