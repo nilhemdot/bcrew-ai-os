@@ -191,12 +191,15 @@ async function main() {
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const opsHtmlSource = await readRepoFile('public/ops.html')
   const opsUiSource = await readRepoFile('public/ops.js')
+  const loginHtmlSource = await readRepoFile('public/login.html')
+  const loginUiSource = await readRepoFile('public/login.js')
   const agentFeedbackHtmlSource = await readRepoFile('public/agent-feedback.html')
   const agentFeedbackUiSource = await readRepoFile('public/agent-feedback.js')
   const docUiSource = await readRepoFile('public/doc.js')
   const strategicExecutionUiSource = await readRepoFile('public/strategic-execution.js')
   const strategyExportUiSource = await readRepoFile('public/strategy-export.js')
   const serverSource = await readRepoFile('server.js')
+  const appAuthSource = await readRepoFile('lib/app-auth.js')
   const foundationJobsSource = await readRepoFile('lib/foundation-jobs.js')
   const agentFeedbackSource = await readRepoFile('lib/agent-feedback.js')
   const agentFeedbackEmailSource = await readRepoFile('lib/agent-feedback-email.js')
@@ -289,6 +292,7 @@ async function main() {
     checks,
     [
       "app.get('/api/foundation-hub', requireAdminToken",
+      "app.get('/api/ops-hub', requireAdminToken",
       "app.get('/api/source-of-truth', requireAdminToken",
       "app.get('/api/doc', requireAdminToken",
       "app.get('/api/fub/health', requireAdminToken",
@@ -303,7 +307,30 @@ async function main() {
       "app.get('/foundation/export/strategy.pdf', requireAdminToken",
     ].every(pattern => serverSource.includes(pattern)),
     'broad Foundation/Ops/doc read APIs are admin-gated',
-    'source-of-truth, doc reads, foundation hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, doc updates, and PDF export require admin token outside localhost',
+    'source-of-truth, doc reads, foundation hub, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, doc updates, and PDF export require admin token outside localhost',
+  )
+  ensure(
+    checks,
+    includesAll(serverSource, [
+      "app.post('/api/auth/login'",
+      "app.get('/api/auth/session'",
+      "app.post('/api/auth/logout'",
+      "app.get('/login'",
+      "requirePageAccess('owner')",
+      "requirePageAccess('ops')",
+      "isOpsApiPath",
+    ]) &&
+      includesAll(appAuthSource, [
+        'AIOS_AUTH_USERS_JSON',
+        'AIOS_SESSION_SECRET',
+        'pbkdf2-sha256',
+        'aios_session',
+        'getSafeRedirectPath',
+      ]) &&
+      includesAll(loginHtmlSource, ['BCrew AI OS', 'login-form', '/login.js']) &&
+      includesAll(loginUiSource, ['/api/auth/login', '/api/auth/session']),
+    'app auth gates live surfaces by role',
+    'login routes, signed cookie sessions, owner/ops page gates, and Ops-only API allowlist are wired',
   )
   ensure(
     checks,
@@ -414,6 +441,7 @@ async function main() {
 
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
+  const opsHub = await fetchJson(baseUrl, '/api/ops-hub')
   const ownersLeadSourceGovernance = await fetchJson(baseUrl, '/api/owners/lead-source-governance')
   const ownersReviewQueue = await fetchJson(baseUrl, '/api/owners/review-queue')
   const extractionTargets = Array.isArray(foundationHub.extractionControl?.targets)
@@ -494,10 +522,22 @@ async function main() {
       ? opsServedJobs.map(job => job.key).join(', ')
       : 'no Ops-serving jobs tagged',
   )
+  const opsHubJobs = opsHub.foundationJobs?.jobs || []
+  ensure(
+    checks,
+    Array.isArray(opsHubJobs) &&
+      opsHubJobs.length > 0 &&
+      opsHubJobs.every(job => Array.isArray(job.servesHubs) && job.servesHubs.includes('ops')) &&
+      !Object.prototype.hasOwnProperty.call(opsHub, 'backlogItems') &&
+      !Object.prototype.hasOwnProperty.call(opsHub, 'decisions') &&
+      !Object.prototype.hasOwnProperty.call(opsHub, 'sharedCommunicationCandidates'),
+    'api/ops-hub exposes only Ops-serving runtime metadata',
+    `${opsHubJobs.length} Ops jobs / restricted Foundation payload`,
+  )
   ensure(
     checks,
     includesAll(opsHtmlSource, ['Ops Hub', '/ops.js']) &&
-      includesAll(opsUiSource, ['getHubServedJobs', 'fetchOwnersReviewQueue', 'Systems Serving Ops']) &&
+      includesAll(opsUiSource, ['getHubServedJobs', 'fetchOwnersReviewQueue', '/api/ops-hub', 'Systems Serving Ops']) &&
       !foundationHtmlSource.includes('data-section="ops-hub"') &&
       !foundationUiSource.includes('function renderOpsHub'),
     'Ops Hub is a dedicated hub surface, not nested in Foundation nav',

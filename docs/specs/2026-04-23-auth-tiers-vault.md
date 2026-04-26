@@ -1,8 +1,21 @@
 # Auth, Tiers, Data Vault, and Tier-Aware Query — Design Spec
 
 Date: 2026-04-23
-Status: Design only. No code until Codex current block is committed.
+Status: Design plus v1 app gate. Local password login landed on 2026-04-26; Cloudflare Access and vault layers are still future work.
 Scope: one spec covering identity, tiers, meeting-note vault, and tier-aware intelligence output.
+
+## 2026-04-26 V1 App Gate
+
+The first shareable gate is intentionally small:
+
+- `/login` authenticates against local `.env` users configured by `npm run auth:configure-local`.
+- Sessions use a signed HTTP-only `aios_session` cookie.
+- `owner` can open all hubs and full Foundation APIs.
+- `ops` can open `/ops` and only the restricted Ops APIs needed by that surface.
+- `/api/ops-hub` returns Ops-serving job metadata only, instead of exposing the full `/api/foundation-hub` payload.
+- Localhost keeps a dev bypass so `foundation:verify` and operator work do not require browser login.
+
+This is not the final auth architecture. The final public setup still needs Cloudflare Access, stable domain/tunnel, durable user/tier storage, and the raw-data vault/redaction layers below.
 
 ## Why this spec exists
 

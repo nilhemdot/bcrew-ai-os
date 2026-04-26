@@ -65,6 +65,15 @@ import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib
 import { verifyAgentFeedbackToken } from './lib/agent-feedback.js'
 import { writeAgentFeedbackToClickUp } from './lib/agent-feedback-clickup.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
+import {
+  authenticateAuthUser,
+  clearAuthCookie,
+  getAuthUserFromRequest,
+  getDefaultRouteForUser,
+  getSafeRedirectPath,
+  isAuthConfigured,
+  setAuthCookie,
+} from './lib/app-auth.js'
 import { runSheetsStructureVerification } from './scripts/sheets-structure-verify.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -303,7 +312,62 @@ async function closeServer(server) {
 app.use(setSecurityHeaders)
 app.use(logApiRequest)
 app.use(express.json({ limit: '1mb' }))
+app.use((req, _res, next) => {
+  req.authUser = getAuthUserFromRequest(req)
+  next()
+})
+app.get('/login', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
+  res.sendFile(path.join(__dirname, 'public', 'login.html'))
+})
+app.post('/api/auth/login', (req, res) => {
+  if (!isAuthConfigured()) {
+    sendApiError(res, 503, 'auth_unconfigured', 'AIOS login is not configured yet.')
+    return
+  }
+
+  const user = authenticateAuthUser(req.body?.email, req.body?.password)
+  if (!user) {
+    sendApiError(res, 401, 'invalid_login', 'Email or password is incorrect.')
+    return
+  }
+
+  setAuthCookie(req, res, user)
+  res.json({
+    user,
+    redirectTo: getSafeRedirectPath(req.body?.next, user),
+  })
+})
+app.get('/api/auth/session', (req, res) => {
+  const user = getRequestAuthUser(req) || getLocalDevUser(req)
+  res.json({
+    authenticated: Boolean(user),
+    configured: isAuthConfigured(),
+    user,
+    defaultRoute: user ? getDefaultRouteForUser(user) : '/login',
+  })
+})
+app.post('/api/auth/logout', (_req, res) => {
+  clearAuthCookie(res)
+  res.json({ ok: true })
+})
+app.use((req, res, next) => {
+  const directHtmlRoutes = {
+    '/index.html': '/',
+    '/foundation.html': '/foundation',
+    '/ops.html': '/ops',
+    '/strategic-execution.html': '/strategic-execution',
+    '/doc.html': '/doc',
+    '/strategy-export.html': '/foundation/export/strategy',
+  }
+  if (directHtmlRoutes[req.path]) {
+    res.redirect(directHtmlRoutes[req.path])
+    return
+  }
+  next()
+})
 app.use(express.static(path.join(__dirname, 'public'), {
+  index: false,
   setHeaders(res, filePath) {
     if (/\.(js|css|html)$/i.test(filePath)) {
       res.setHeader('Cache-Control', 'no-store')
@@ -333,19 +397,69 @@ function isLocalRequest(req) {
   return false
 }
 
+function isLocalHostHeader(req) {
+  const hostHeader = String(req.get('host') || '').trim().toLowerCase()
+  const hostName = hostHeader.startsWith('[')
+    ? hostHeader.slice(1, hostHeader.indexOf(']'))
+    : hostHeader.split(':')[0]
+
+  return ['localhost', '127.0.0.1', '::1'].includes(hostName)
+}
+
+function isLocalDevRequest(req) {
+  return isLocalRequest(req) && isLocalHostHeader(req)
+}
+
+function getRequestAuthUser(req) {
+  if (req.authUser) return req.authUser
+  const user = getAuthUserFromRequest(req)
+  if (user) req.authUser = user
+  return user
+}
+
+function getLocalDevUser(req) {
+  if (!isLocalDevRequest(req)) return null
+  return {
+    email: 'local-dev@bensoncrew.ai',
+    name: 'Local Dev',
+    role: 'owner',
+  }
+}
+
+function isOpsApiPath(req) {
+  return req.method === 'GET' && [
+    '/api/ops-hub',
+    '/api/owners/review-queue',
+  ].includes(req.path)
+}
+
 function requireAdminToken(req, res, next) {
-  if (isLocalRequest(req)) {
+  if (isLocalDevRequest(req)) {
     next()
     return
   }
 
+  const user = getRequestAuthUser(req)
+  if (user?.role === 'owner') {
+    next()
+    return
+  }
+
+  if (user?.role === 'ops' && isOpsApiPath(req)) {
+    next()
+    return
+  }
+
+  if (user) {
+    sendApiError(res, 403, 'insufficient_access', 'This login does not have access to that area.')
+    return
+  }
+
   if (!adminToken) {
-    sendApiError(
-      res,
-      503,
-      'admin_token_unconfigured',
-      'Protected routes are not available outside localhost until ADMIN_TOKEN or DASHBOARD_API_KEY is configured.'
-    )
+    const authMessage = isAuthConfigured()
+      ? 'Login required.'
+      : 'Protected routes are not available outside localhost until AIOS auth is configured.'
+    sendApiError(res, isAuthConfigured() ? 401 : 503, isAuthConfigured() ? 'login_required' : 'auth_unconfigured', authMessage)
     return
   }
 
@@ -356,6 +470,30 @@ function requireAdminToken(req, res, next) {
   }
 
   next()
+}
+
+function requirePageAccess(area) {
+  return function pageAccessMiddleware(req, res, next) {
+    const user = getRequestAuthUser(req) || getLocalDevUser(req)
+
+    if (!user) {
+      const nextPath = encodeURIComponent(req.originalUrl || '/')
+      res.redirect('/login?next=' + nextPath)
+      return
+    }
+
+    if (user.role === 'owner') {
+      next()
+      return
+    }
+
+    if (area === 'ops') {
+      next()
+      return
+    }
+
+    res.redirect('/ops')
+  }
 }
 
 function isAllowedDocPath(filePath) {
@@ -3387,6 +3525,44 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
   }
 })
 
+app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const foundationJobs = snapshot.foundationJobs || {}
+    const jobs = Array.isArray(foundationJobs.jobs)
+      ? foundationJobs.jobs.filter(job => Array.isArray(job.servesHubs) && job.servesHubs.includes('ops'))
+      : []
+    const jobKeys = new Set(jobs.map(job => job.key))
+    const latestRuns = Array.isArray(foundationJobs.latestRuns)
+      ? foundationJobs.latestRuns.filter(run => jobKeys.has(run.jobKey))
+      : []
+
+    res.json({
+      foundationJobs: {
+        generatedAt: foundationJobs.generatedAt || snapshot.meta?.generatedAt || new Date().toISOString(),
+        totalJobs: jobs.length,
+        enabledJobs: jobs.filter(job => job.enabled !== false).length,
+        scheduledJobs: jobs.filter(job => job.runtimeMode === 'scheduled').length,
+        dueJobs: jobs.filter(job => job.isDue).length,
+        manualJobs: jobs.filter(job => job.runtimeMode === 'manual').length,
+        jobs,
+        latestRuns,
+      },
+      meta: {
+        generatedAt: snapshot.meta?.generatedAt || new Date().toISOString(),
+        surface: 'ops',
+      },
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'ops_hub_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Ops hub data.'
+    )
+  }
+})
+
 app.get('/api/foundation/jobs', requireAdminToken, async (req, res) => {
   try {
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 30))
@@ -4315,12 +4491,12 @@ app.get('/api/doc', requireAdminToken, async (req, res) => {
   }
 })
 
-app.get('/doc', (_req, res) => {
+app.get('/doc', requirePageAccess('owner'), (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'doc.html'))
 })
 
-app.get('/foundation', (_req, res) => {
+app.get('/foundation', requirePageAccess('owner'), (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'foundation.html'))
 })
@@ -4349,17 +4525,17 @@ app.get('/foundation/export/strategy.pdf', requireAdminToken, async (_req, res) 
   }
 })
 
-app.get('/foundation/export/strategy', (_req, res) => {
+app.get('/foundation/export/strategy', requirePageAccess('owner'), (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'strategy-export.html'))
 })
 
-app.get('/strategic-execution', (_req, res) => {
+app.get('/strategic-execution', requirePageAccess('owner'), (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'strategic-execution.html'))
 })
 
-app.get('/ops', (_req, res) => {
+app.get('/ops', requirePageAccess('ops'), (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'ops.html'))
 })
@@ -4373,7 +4549,18 @@ app.use('/api', (_req, res) => {
   sendApiError(res, 404, 'api_not_found', 'API endpoint not found.')
 })
 
-app.get('*', (_req, res) => {
+app.get('/', requirePageAccess('owner'), (req, res) => {
+  const user = getRequestAuthUser(req) || getLocalDevUser(req)
+  if (user?.role === 'ops') {
+    res.redirect('/ops')
+    return
+  }
+  res.setHeader('Cache-Control', 'no-store')
+  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+})
+
+app.get('*', requirePageAccess('owner'), (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 

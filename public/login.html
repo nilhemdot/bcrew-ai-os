@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log In · BCrew AI OS</title>
+    <link rel="stylesheet" href="/styles.css?v=20260425i" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <main class="login-shell">
+      <section class="login-panel">
+        <img src="/assets/bc-logo.svg" alt="Benson Crew logo" class="login-logo" />
+        <div class="login-kicker">BCrew AI OS</div>
+        <h1>Log in</h1>
+        <p>Use your AIOS login to open the right workspace.</p>
+
+        <form class="login-form" id="login-form">
+          <label>
+            Email
+            <input id="login-email" name="email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Password
+            <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit" id="login-submit">Log in</button>
+          <div class="login-error" id="login-error" role="alert" hidden></div>
+        </form>
+      </section>
+    </main>
+    <script src="/login.js?v=20260425a"></script>
+  </body>
+</html>

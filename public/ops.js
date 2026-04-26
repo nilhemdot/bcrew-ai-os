@@ -33,7 +33,7 @@ function fetchJson(url) {
 }
 
 function fetchFoundationHub() {
-  return fetchJson('/api/foundation-hub')
+  return fetchJson('/api/ops-hub')
 }
 
 function fetchOwnersReviewQueue() {
