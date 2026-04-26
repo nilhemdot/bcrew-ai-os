@@ -130,10 +130,10 @@ Every unsupported file should receive an explicit skip reason through the extrac
 
 Proof on 2026-04-26:
 
-- Total Drive content artifacts archived so far: `35`.
-- Total extracted Drive text archived so far: `679,888` chars.
-- Artifact types: `21` `drive_document`, `13` `drive_pdf`, `1` `drive_text`.
-- Strategy-evidence Drive artifacts archived so far: `20` / `622,142` chars.
+- Total Drive content artifacts archived so far: `40`.
+- Total extracted Drive text archived so far: `713,744` chars.
+- Artifact types: `26` `drive_document`, `13` `drive_pdf`, `1` `drive_text`.
+- Strategy/pre-strat Drive artifacts archived so far: `14` / `274,461` chars.
 - Priority strategy-folder extracted artifacts include:
   - `KT Binder MAR 2026.pdf` - John strategy/mastermind binder, `142,435` chars
   - `Benson Crew 2026 Q1 Strategic Planning Agenda` - John Q1 agenda, `28,545` chars
@@ -141,7 +141,7 @@ Proof on 2026-04-26:
   - `Team Prestrat Template.pdf` - `6,990` chars
   - `Benson Crew Vision and Core Values Doc - 2026 Q1` - `170,699` chars
   - `Carson and Steve Notes` - `6,459` chars
-  - Q2 pre-strat PDFs from Ahsan, Carson, Clare, Georgia, Nick, Ryan, Scott, and the template
+  - Q2 pre-strat PDFs from Ahsan, Carson, Clare, Georgia, Nick, Ryan, Scott, and the template; fillable PDFs now include PDF form-field text, not only visible template text
   - `Steve Zahnd - Q2 2026 Pre-Strat Draft - AIOS.md` - rewritten as a first-person working draft and archived as markdown
 - Current strategy-folder skips are explicit:
   - `4` Sheets: `sheet_text_extraction_not_in_v1`

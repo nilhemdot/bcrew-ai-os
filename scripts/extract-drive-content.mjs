@@ -7,6 +7,7 @@ import os from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { promisify } from 'node:util'
+import { PDFDocument } from 'pdf-lib'
 import {
   closeFoundationDb,
   initFoundationDb,
@@ -171,6 +172,37 @@ async function extractPdfTextWithPdftotext(buffer, { pdftotextBin = 'pdftotext' 
   }
 }
 
+function getPdfFieldValue(field) {
+  if (field && typeof field.getText === 'function') return field.getText() || ''
+  if (field && typeof field.getSelected === 'function') {
+    const selected = field.getSelected()
+    return Array.isArray(selected) ? selected.join(', ') : String(selected || '')
+  }
+  if (field && typeof field.isChecked === 'function') return field.isChecked() ? 'checked' : ''
+  return ''
+}
+
+async function extractPdfFormFieldText(buffer) {
+  try {
+    const pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true })
+    const fields = pdfDoc.getForm().getFields()
+    const lines = []
+
+    for (const field of fields) {
+      const name = typeof field.getName === 'function' ? field.getName() : ''
+      const value = normalizeText(getPdfFieldValue(field))
+      if (!name || !value) continue
+      lines.push(`${name}: ${value}`)
+    }
+
+    return lines.length
+      ? ['--- PDF form fields ---', ...lines].join('\n')
+      : ''
+  } catch (error) {
+    return ''
+  }
+}
+
 async function extractPdfTextWithOcr(
   buffer,
   {
@@ -251,7 +283,15 @@ async function extractItemText(item, {
       }
     }
     const embeddedText = await extractPdfTextWithPdftotext(buffer, { pdftotextBin })
-    if (normalizeText(embeddedText)) return embeddedText
+    const formText = await extractPdfFormFieldText(buffer)
+    const combinedText = normalizeText([embeddedText, formText].filter(Boolean).join('\n\n'))
+    if (combinedText) {
+      return {
+        text: combinedText,
+        extractionMethod: formText ? 'drive_pdf_pdftotext_form_fields_v1' : 'drive_pdf_pdftotext_v1',
+        pdfFormFieldsUsed: Boolean(formText),
+      }
+    }
 
     if (!ocrEmptyPdf) {
       return {
@@ -453,6 +493,7 @@ async function main() {
   const parentPathIncludes = String(args.parentPathIncludes || '').trim()
   const nameIncludes = String(args.nameIncludes || '').trim()
   const fileIds = listValue(args.fileIds || args.fileId)
+  const forceReprocess = boolValue(args.forceReprocess || args.force)
   const dryRun = boolValue(args.dryRun)
   const controlledByTargetRunner = boolValue(args.controlledByTargetRunner)
 
@@ -474,6 +515,7 @@ async function main() {
       parentPathIncludes,
       nameIncludes,
       fileIds,
+      forceReprocess,
     })
 
     console.log('Drive content extraction bite')
@@ -550,7 +592,10 @@ async function main() {
           ? textResult.extractionMethod || classification.extractionMethod
           : classification.extractionMethod
         const extractionMetadata = textResult && typeof textResult === 'object'
-          ? { ocrFallbackUsed: Boolean(textResult.ocrFallbackUsed) }
+          ? {
+            ocrFallbackUsed: Boolean(textResult.ocrFallbackUsed),
+            pdfFormFieldsUsed: Boolean(textResult.pdfFormFieldsUsed),
+          }
           : {}
 
         const archived = await archiveExtractedText({

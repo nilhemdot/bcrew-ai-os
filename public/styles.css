@@ -2922,7 +2922,6 @@ body {
 }
 
 .strategy-command-card,
-.strategy-advisor-card,
 .strategy-review-board,
 .strategy-priority-card {
   background:
@@ -3027,6 +3026,131 @@ body {
 }
 
 .strategy-prompt-button:hover { border-color: var(--border-strong); color: var(--text-primary); }
+
+.strategy-advisor-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.72fr);
+  gap: 14px;
+  min-height: calc(100vh - 230px);
+}
+
+.strategy-advisor-chat-shell,
+.strategy-advisor-rail-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(65, 120, 90, 0.05) 0%, rgba(255, 255, 255, 0) 58%),
+    var(--surface);
+}
+
+.strategy-advisor-chat-shell {
+  display: grid;
+  grid-template-rows: auto minmax(320px, 1fr) auto;
+  min-height: 680px;
+  overflow: hidden;
+}
+
+.strategy-advisor-chat-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.strategy-advisor-chat-top h4,
+.strategy-advisor-rail-card h4 {
+  margin: 0;
+}
+
+.strategy-advisor-top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 210px;
+}
+
+.strategy-mode-toggle {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(58px, 1fr));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-inset);
+  padding: 3px;
+}
+
+.strategy-mode-button,
+.strategy-advisor-clear {
+  min-height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.strategy-mode-button-active {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+}
+
+.strategy-advisor-clear {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.86);
+  padding: 0 10px;
+}
+
+.strategy-advisor-thread {
+  max-height: none;
+  min-height: 0;
+  height: 100%;
+  align-content: start;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.strategy-advisor-composer {
+  margin-top: 0;
+  padding: 14px 16px 16px;
+}
+
+.strategy-advisor-composer textarea {
+  min-height: 118px;
+}
+
+.strategy-advisor-context-rail {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.strategy-advisor-context-rail .section-card,
+.strategy-advisor-rail-card {
+  margin: 0;
+}
+
+.strategy-advisor-rail-card {
+  padding: 14px;
+}
+
+.strategy-prompt-stack {
+  display: grid;
+  margin-bottom: 0;
+}
+
+.strategy-prompt-stack .strategy-prompt-button {
+  width: 100%;
+  text-align: left;
+}
 
 .strategy-advisor-messages {
   display: grid;
@@ -3136,6 +3260,35 @@ body {
 
 .strategy-advisor-helper-status {
   margin-top: 12px;
+}
+
+@media (max-width: 1040px) {
+  .strategy-advisor-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .strategy-advisor-chat-shell {
+    min-height: 620px;
+  }
+}
+
+@media (max-width: 720px) {
+  .strategy-advisor-chat-top {
+    display: grid;
+  }
+
+  .strategy-advisor-top-actions {
+    justify-content: stretch;
+    min-width: 0;
+  }
+
+  .strategy-mode-toggle {
+    width: 100%;
+  }
+
+  .strategy-advisor-clear {
+    width: 100%;
+  }
 }
 
 .section-link {

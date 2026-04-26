@@ -903,12 +903,20 @@ async function main() {
     checks,
     serverSource.includes("app.post('/api/strategic-execution/advisor'") &&
       serverSource.includes('strategy_advisor_v1') &&
+      serverSource.includes("payload.mode === 'deep'") &&
+      serverSource.includes('latencyMs: Date.now() - startedAt') &&
+      serverSource.includes('directArtifactSearch') &&
+      foundationDbSource.includes('searchSharedCommunicationArtifactsForContext') &&
       serverSource.includes('2026-04-26-scott-pre-strat-visual-review.md') &&
       serverSource.includes('callLlm') &&
       foundationDbSource.includes('STRATEGY-007') &&
       foundationDbSource.includes('fast/deep modes') &&
       includesAll(strategicExecutionUiSource, [
         'Strategy Advisor',
+        'renderStrategyAdvisorWorkspace',
+        'STRATEGY_ADVISOR_MESSAGES_KEY',
+        'strategy-advisor-workspace',
+        'strategy-mode-toggle',
         'Strategy Review Board',
         'Attract',
         'Grow',
@@ -1006,6 +1014,11 @@ async function main() {
       driveContentTarget.runtimeMode === 'scheduled' &&
       Number(driveContentTarget.budget?.maxPdfBytes || 0) >= 80000000 &&
       Array.isArray(driveContentTarget.budget?.retrySkippedReasonPrefixes) &&
+      includesAll(driveContentExtractionSource, [
+        'extractPdfFormFieldText',
+        'drive_pdf_pdftotext_form_fields_v1',
+        'forceReprocess',
+      ]) &&
       Number(driveContentTarget.cursorState?.artifactCount || 0) > 0,
     'api/foundation-hub exposes scheduled Drive content extraction target',
     driveContentTarget

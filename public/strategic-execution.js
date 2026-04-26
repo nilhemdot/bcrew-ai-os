@@ -87,6 +87,9 @@ var sectionSupportDocs = {
   },
 }
 
+var STRATEGY_ADVISOR_MESSAGES_KEY = 'bcrew.strategyAdvisor.messages.v1'
+var STRATEGY_ADVISOR_MODE_KEY = 'bcrew.strategyAdvisor.mode.v1'
+
 var sectionLabels = {
   'overview': 'Overview',
   'advisor': 'Strategy Advisor',
@@ -551,10 +554,150 @@ var cache = {
   sourceOfTruth: null,
   docs: {},
   strategyEvidencePacket: null,
-  strategyAdvisorMessages: [],
+  strategyAdvisorMessages: loadStrategyAdvisorMessages(),
+  strategyAdvisorMode: loadStrategyAdvisorMode(),
 }
 
 var strategyAdvisorHelperReady = false
+
+function normalizeStrategyAdvisorMode(mode) {
+  return mode === 'deep' ? 'deep' : 'fast'
+}
+
+function getStrategyAdvisorModeLabel(mode) {
+  return normalizeStrategyAdvisorMode(mode) === 'deep' ? 'Deep' : 'Fast'
+}
+
+function loadStrategyAdvisorMode() {
+  try {
+    var saved = window.sessionStorage && window.sessionStorage.getItem(STRATEGY_ADVISOR_MODE_KEY)
+    return normalizeStrategyAdvisorMode(saved)
+  } catch (error) {
+    return 'fast'
+  }
+}
+
+function saveStrategyAdvisorMode(mode) {
+  try {
+    if (window.sessionStorage) {
+      window.sessionStorage.setItem(STRATEGY_ADVISOR_MODE_KEY, normalizeStrategyAdvisorMode(mode))
+    }
+  } catch (error) {}
+}
+
+function loadStrategyAdvisorMessages() {
+  try {
+    var raw = window.sessionStorage && window.sessionStorage.getItem(STRATEGY_ADVISOR_MESSAGES_KEY)
+    if (!raw) return []
+    var parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed
+      .filter(function(message) {
+        return message && (message.role === 'user' || message.role === 'assistant') && typeof message.text === 'string'
+      })
+      .slice(-80)
+      .map(function(message) {
+        return {
+          role: message.role,
+          text: message.text,
+          meta: typeof message.meta === 'string' ? message.meta : '',
+        }
+      })
+  } catch (error) {
+    return []
+  }
+}
+
+function saveStrategyAdvisorMessages() {
+  try {
+    if (window.sessionStorage) {
+      window.sessionStorage.setItem(
+        STRATEGY_ADVISOR_MESSAGES_KEY,
+        JSON.stringify(cache.strategyAdvisorMessages.slice(-80))
+      )
+    }
+  } catch (error) {}
+}
+
+function ensureStrategyAdvisorWelcome() {
+  if (cache.strategyAdvisorMessages.length) return
+  cache.strategyAdvisorMessages.push({
+    role: 'assistant',
+    text: 'I am wired to the latest strategy evidence packet and Foundation context. Use Fast mode for live strategy flow and Deep mode when you want slower synthesis across the packet, backlog, docs, and source notes.',
+    meta: 'Local thread saved for this browser session',
+  })
+  saveStrategyAdvisorMessages()
+}
+
+function pushStrategyAdvisorMessage(role, text, meta) {
+  cache.strategyAdvisorMessages.push({ role: role, text: text, meta: meta || '' })
+  cache.strategyAdvisorMessages = cache.strategyAdvisorMessages.slice(-80)
+  saveStrategyAdvisorMessages()
+  appendAdvisorMessage(role, text, meta || '')
+}
+
+function setStrategyAdvisorStatus(text, selectedStatus) {
+  if (selectedStatus) selectedStatus.textContent = text
+  var statuses = document.querySelectorAll('[data-strategy-advisor-status="true"]')
+  statuses.forEach(function(status) {
+    status.textContent = text
+  })
+}
+
+function updateStrategyAdvisorModeControls() {
+  var mode = normalizeStrategyAdvisorMode(cache.strategyAdvisorMode)
+  var label = getStrategyAdvisorModeLabel(mode)
+  document.querySelectorAll('[data-strategy-advisor-mode]').forEach(function(button) {
+    var isActive = button.dataset.strategyAdvisorMode === mode
+    button.classList.toggle('strategy-mode-button-active', isActive)
+    button.setAttribute('aria-pressed', isActive ? 'true' : 'false')
+  })
+  document.querySelectorAll('[data-strategy-advisor-mode-label]').forEach(function(node) {
+    node.textContent = label + ' mode'
+  })
+}
+
+function setStrategyAdvisorMode(mode) {
+  cache.strategyAdvisorMode = normalizeStrategyAdvisorMode(mode)
+  saveStrategyAdvisorMode(cache.strategyAdvisorMode)
+  updateStrategyAdvisorModeControls()
+}
+
+function buildStrategyAdvisorModeControl() {
+  var wrap = document.createElement('div')
+  wrap.className = 'strategy-mode-toggle'
+  wrap.setAttribute('role', 'group')
+  wrap.setAttribute('aria-label', 'Strategy advisor answer mode')
+
+  ;[
+    ['fast', 'Fast', 'Shorter answers for live meeting flow'],
+    ['deep', 'Deep', 'Slower synthesis with larger context'],
+  ].forEach(function(option) {
+    var button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'strategy-mode-button'
+    button.dataset.strategyAdvisorMode = option[0]
+    button.title = option[2]
+    button.textContent = option[1]
+    button.addEventListener('click', function() {
+      setStrategyAdvisorMode(option[0])
+    })
+    wrap.appendChild(button)
+  })
+
+  return wrap
+}
+
+function getStrategyAdvisorPrompts() {
+  return [
+    'Which departments are stuck, and what evidence proves it?',
+    'What should tomorrow strategy session decide first?',
+    'Map the biggest issues to Attract, Grow, Retain.',
+    'What data is missing before we lock Q2 priorities?',
+    'What are the top questions we should ask the team tomorrow?',
+    'Where are we confusing symptoms with root causes?',
+  ]
+}
 
 function fetchSourceOfTruth() {
   if (cache.sourceOfTruth) return Promise.resolve(cache.sourceOfTruth)
@@ -592,11 +735,11 @@ function fetchStrategyEvidencePacket() {
   })
 }
 
-function postStrategyAdvisorQuestion(question) {
+function postStrategyAdvisorQuestion(question, mode) {
   return fetch('/api/strategic-execution/advisor', {
     method: 'POST',
     headers: Object.assign({ 'Content-Type': 'application/json' }, getAdminHeaders()),
-    body: JSON.stringify({ question: question }),
+    body: JSON.stringify({ question: question, mode: normalizeStrategyAdvisorMode(mode) }),
   }).then(function(res) {
     return res.json().then(function(data) {
       if (!res.ok) {
@@ -934,84 +1077,102 @@ function submitStrategyAdvisorQuestion(question, options) {
   var input = options && options.input
   var submit = options && options.submit
   var status = options && options.status
+  var mode = normalizeStrategyAdvisorMode(options && options.mode ? options.mode : cache.strategyAdvisorMode)
   var normalizedQuestion = String(question || '').trim()
   if (!normalizedQuestion) return
 
   if (input) input.value = ''
   if (submit) {
+    if (!submit.dataset.defaultLabel) submit.dataset.defaultLabel = submit.textContent || 'Ask'
     submit.disabled = true
-    submit.textContent = 'Thinking...'
+    submit.textContent = mode === 'deep' ? 'Deep read...' : 'Thinking...'
   }
-  if (status) status.textContent = 'Calling Strategy Advisor...'
+  setStrategyAdvisorStatus('Calling Strategy Advisor in ' + getStrategyAdvisorModeLabel(mode) + ' mode...', status)
 
-  cache.strategyAdvisorMessages.push({ role: 'user', text: normalizedQuestion, meta: '' })
-  appendAdvisorMessage('user', normalizedQuestion)
+  pushStrategyAdvisorMessage('user', normalizedQuestion, getStrategyAdvisorModeLabel(mode) + ' mode')
 
-  postStrategyAdvisorQuestion(normalizedQuestion).then(function(result) {
-    var meta = [result.model, result.provider, result.authPath].filter(Boolean).join(' · ')
-    cache.strategyAdvisorMessages.push({ role: 'assistant', text: result.answer, meta: meta })
-    appendAdvisorMessage('assistant', result.answer, meta)
-    if (status) status.textContent = 'Answered ' + formatDate(result.generatedAt)
+  postStrategyAdvisorQuestion(normalizedQuestion, mode).then(function(result) {
+    var latency = result.latencyMs ? (Number(result.latencyMs) / 1000).toFixed(1) + 's' : ''
+    var meta = [
+      getStrategyAdvisorModeLabel(result.mode || mode) + ' mode',
+      latency,
+      result.model,
+      result.provider,
+      result.authPath,
+    ].filter(Boolean).join(' · ')
+    pushStrategyAdvisorMessage('assistant', result.answer, meta)
+    setStrategyAdvisorStatus(
+      'Answered ' + formatDate(result.generatedAt) + (latency ? ' · ' + latency : ''),
+      status
+    )
   }).catch(function(error) {
     var message = 'Advisor failed: ' + error.message
-    cache.strategyAdvisorMessages.push({ role: 'assistant', text: message, meta: '' })
-    appendAdvisorMessage('assistant', message)
-    if (status) status.textContent = 'Advisor failed'
+    pushStrategyAdvisorMessage('assistant', message, '')
+    setStrategyAdvisorStatus('Advisor failed', status)
   }).finally(function() {
     if (submit) {
       submit.disabled = false
-      submit.textContent = 'Ask'
+      submit.textContent = submit.dataset.defaultLabel || 'Ask'
     }
   })
 }
 
-function renderStrategyAdvisorPanel(packetData) {
-  var article = document.createElement('article')
-  article.className = 'section-card strategy-advisor-card'
+function renderStrategyAdvisorWorkspace(packetData) {
+  ensureStrategyAdvisorWelcome()
+
+  var workspace = document.createElement('section')
+  workspace.className = 'strategy-advisor-workspace'
+
+  var chat = document.createElement('div')
+  chat.className = 'strategy-advisor-chat-shell'
+
+  var top = document.createElement('div')
+  top.className = 'strategy-advisor-chat-top'
+
+  var topCopy = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Live Advisor'
+  topCopy.appendChild(eyebrow)
 
   var title = document.createElement('h4')
-  title.textContent = 'Ask Strategy AI'
-  article.appendChild(title)
+  title.textContent = 'Strategy Chat'
+  topCopy.appendChild(title)
 
   var intro = document.createElement('p')
   intro.className = 'strategy-packet-summary'
-  intro.textContent = 'Ask against the latest evidence packet, strategy docs, source snapshots, backlog, decisions, runtime facts, and extraction context. Answers must separate evidence from inference.'
-  article.appendChild(intro)
+  intro.textContent = 'Ask against the latest packet, strategy docs, source notes, backlog, decisions, runtime facts, and extraction context. Answers separate evidence from inference.'
+  topCopy.appendChild(intro)
+  top.appendChild(topCopy)
 
-  var promptRow = document.createElement('div')
-  promptRow.className = 'strategy-prompt-row'
-  ;[
-    'Which departments are stuck, and what evidence proves it?',
-    'What should tomorrow strategy session decide first?',
-    'Map the biggest issues to Attract, Grow, Retain.',
-    'What data is missing before we lock Q2 priorities?',
-  ].forEach(function(prompt) {
-    var btn = document.createElement('button')
-    btn.type = 'button'
-    btn.className = 'strategy-prompt-button'
-    btn.textContent = prompt
-    btn.addEventListener('click', function() {
-      var input = document.getElementById('strategy-advisor-input')
-      if (input) {
-        input.value = prompt
-        input.focus()
-      }
-    })
-    promptRow.appendChild(btn)
+  var topActions = document.createElement('div')
+  topActions.className = 'strategy-advisor-top-actions'
+  topActions.appendChild(buildStrategyAdvisorModeControl())
+
+  var clear = document.createElement('button')
+  clear.type = 'button'
+  clear.className = 'strategy-advisor-clear'
+  clear.textContent = 'Clear Thread'
+  clear.addEventListener('click', function() {
+    cache.strategyAdvisorMessages = []
+    ensureStrategyAdvisorWelcome()
+    renderAdvisorMessagesInto(messages)
   })
-  article.appendChild(promptRow)
+  topActions.appendChild(clear)
+  top.appendChild(topActions)
+  chat.appendChild(top)
 
   var messages = document.createElement('div')
-  messages.className = 'strategy-advisor-messages'
-  messages.id = 'strategy-advisor-messages'
+  messages.className = 'strategy-advisor-messages strategy-advisor-thread'
+  messages.id = 'strategy-advisor-workspace-messages'
   messages.dataset.strategyAdvisorMessages = 'true'
-  article.appendChild(messages)
+  chat.appendChild(messages)
 
   var form = document.createElement('form')
-  form.className = 'strategy-advisor-form'
+  form.className = 'strategy-advisor-form strategy-advisor-composer'
 
   var input = document.createElement('textarea')
-  input.id = 'strategy-advisor-input'
+  input.id = 'strategy-advisor-workspace-input'
   input.rows = 4
   input.placeholder = 'Ask what the evidence says, what to decide, which department is stuck, or what is missing.'
   form.appendChild(input)
@@ -1021,38 +1182,63 @@ function renderStrategyAdvisorPanel(packetData) {
 
   var status = document.createElement('div')
   status.className = 'strategy-advisor-status'
-  status.id = 'strategy-advisor-status'
+  status.id = 'strategy-advisor-workspace-status'
+  status.dataset.strategyAdvisorStatus = 'true'
   status.textContent = packetData && packetData.latestRun
-    ? 'Using packet from ' + formatDate(packetData.latestRun.generatedAt)
+    ? getStrategyAdvisorModeLabel(cache.strategyAdvisorMode) + ' mode · packet ' + formatDate(packetData.latestRun.generatedAt)
     : 'No packet loaded yet'
   footer.appendChild(status)
 
   var submit = document.createElement('button')
   submit.type = 'submit'
   submit.className = 'strategy-advisor-submit'
-  submit.textContent = 'Ask'
+  submit.textContent = 'Send'
   footer.appendChild(submit)
 
   form.appendChild(footer)
-  article.appendChild(form)
+  chat.appendChild(form)
+  workspace.appendChild(chat)
 
-  if (!cache.strategyAdvisorMessages.length) {
-    cache.strategyAdvisorMessages.push({
-      role: 'assistant',
-      text: 'I am wired to the latest strategy evidence packet and Foundation context. Ask me for the sharp read, not a generic brainstorm.',
-      meta: '',
+  var rail = document.createElement('aside')
+  rail.className = 'strategy-advisor-context-rail'
+
+  var promptCard = document.createElement('article')
+  promptCard.className = 'strategy-advisor-rail-card'
+
+  var promptTitle = document.createElement('h4')
+  promptTitle.textContent = 'Good Prompts'
+  promptCard.appendChild(promptTitle)
+
+  var promptRow = document.createElement('div')
+  promptRow.className = 'strategy-prompt-row strategy-prompt-stack'
+  getStrategyAdvisorPrompts().forEach(function(prompt) {
+    var btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'strategy-prompt-button'
+    btn.textContent = prompt
+    btn.addEventListener('click', function() {
+      input.value = prompt
+      input.focus()
     })
-  }
+    promptRow.appendChild(btn)
+  })
+  promptCard.appendChild(promptRow)
+  rail.appendChild(promptCard)
+
+  rail.appendChild(renderStrategyPacketCard(packetData, { compact: true }))
+  rail.appendChild(renderStrategyReviewBoard(packetData, { compact: true }))
+  workspace.appendChild(rail)
 
   form.addEventListener('submit', function(event) {
     event.preventDefault()
     var question = input.value.trim()
-    submitStrategyAdvisorQuestion(question, { input: input, submit: submit, status: status })
+    submitStrategyAdvisorQuestion(question, { input: input, submit: submit, status: status, mode: cache.strategyAdvisorMode })
   })
 
   renderAdvisorMessagesInto(messages)
+  updateStrategyAdvisorModeControls()
 
-  return article
+  return workspace
 }
 
 function buildStrategyAdvisorHelperPanel(packetData) {
@@ -1096,12 +1282,7 @@ function buildStrategyAdvisorHelperPanel(packetData) {
 
   var quick = document.createElement('div')
   quick.className = 'ops-helper-quick'
-  ;[
-    'What should tomorrow decide first?',
-    'What evidence is missing?',
-    'Which department is most stuck?',
-    'Map issues to Attract, Grow, Retain.',
-  ].forEach(function(label) {
+  getStrategyAdvisorPrompts().slice(1, 5).forEach(function(label) {
     var button = document.createElement('button')
     button.type = 'button'
     button.textContent = label
@@ -1136,7 +1317,7 @@ function buildStrategyAdvisorHelperPanel(packetData) {
   var status = document.createElement('div')
   status.className = 'strategy-advisor-meta strategy-advisor-helper-status'
   status.dataset.strategyAdvisorStatus = 'true'
-  status.textContent = 'Evidence-backed answers only'
+  status.textContent = getStrategyAdvisorModeLabel(cache.strategyAdvisorMode) + ' mode · evidence-backed answers only'
   body.appendChild(status)
 
   form.addEventListener('submit', function(event) {
@@ -1432,8 +1613,7 @@ function renderStrategyAdvisor() {
 
     var list = document.createElement('div')
     list.className = 'section-list'
-    list.appendChild(renderStrategyAdvisorPanel(packetData))
-    list.appendChild(renderStrategyReviewBoard(packetData, { compact: false }))
+    list.appendChild(renderStrategyAdvisorWorkspace(packetData))
     list.appendChild(renderRecommendedPriorities(packetData))
     panel.appendChild(list)
     container.appendChild(panel)

@@ -19,6 +19,7 @@ import {
   getLatestChangeEventForEntity,
   getLlmRuntimeSnapshot,
   getSharedCommunicationArchiveSnapshot,
+  searchSharedCommunicationArtifactsForContext,
   getSharedCommunicationCandidateSnapshot,
   getSharedCommunicationCoverageSnapshot,
   getSharedCommunicationSynthesisSnapshot,
@@ -2422,13 +2423,43 @@ function compactStrategyBacklogItem(item) {
   }
 }
 
-async function getStrategyAdvisorContext() {
+async function getStrategyAdvisorContext(question = '') {
   const synthesis = await getSharedCommunicationSynthesisSnapshot({
     limit: 1,
     itemLimit: 30,
     packetType: 'strategy_evidence_packet_v1',
   })
   const foundation = await getFoundationSnapshot()
+  const asksAboutPrework = /\bpre[-\s]?(strat|start|work)\b/i.test(question)
+  const directArtifacts = await searchSharedCommunicationArtifactsForContext({
+    query: question,
+    sourceIds: asksAboutPrework
+      ? ['SRC-GDRIVE-001']
+      : [
+        'SRC-GDRIVE-001',
+        'SRC-MEETINGS-001',
+        'SRC-GMAIL-001',
+        'SRC-MISSIVE-001',
+        'SRC-SLACK-001',
+        'SRC-YOUTUBE-INTEL-001',
+      ],
+    artifactTypes: asksAboutPrework
+      ? ['drive_document', 'drive_pdf', 'drive_text']
+      : [
+        'drive_document',
+        'drive_pdf',
+        'drive_text',
+        'meeting_note',
+        'meeting_transcript',
+        'gmail_thread',
+        'gmail_attachment',
+        'missive_thread',
+        'slack_thread',
+        'video_transcript',
+      ],
+    limit: 14,
+    excerptChars: 2400,
+  })
   const packetJson = synthesis.latestRun?.metadata?.packetJson || {}
   const criticalBacklog = (foundation.backlogItems || [])
     .filter(item => {
@@ -2470,6 +2501,11 @@ async function getStrategyAdvisorContext() {
     doctrine: {
       northStar: 'Benson Crew strategy work should map to Attract, Grow, Retain, finance/cash truth, operating accountability, and Foundation reliability.',
       answerRule: 'Use source-backed facts first, call out inference, then name missing evidence and the next operating move.',
+    },
+    directArtifactSearch: {
+      query: question,
+      rule: 'Use these exact artifact excerpts before packet summaries when Steve asks who said what or asks about a specific person/document.',
+      items: directArtifacts,
     },
     latestPacket: {
       run: synthesis.latestRun
@@ -3920,6 +3956,8 @@ app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res)
         ? req.body
         : {}
     const question = typeof payload.question === 'string' ? payload.question.trim() : ''
+    const mode = payload.mode === 'deep' ? 'deep' : 'fast'
+    const startedAt = Date.now()
 
     if (!question) {
       sendApiError(res, 400, 'strategy_advisor_question_required', 'Ask a strategy question.')
@@ -3931,16 +3969,20 @@ app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res)
       return
     }
 
-    const context = await getStrategyAdvisorContext()
-    const contextText = truncateForPrompt(JSON.stringify(context, null, 2), 65000)
+    const context = await getStrategyAdvisorContext(question)
+    const contextText = truncateForPrompt(JSON.stringify(context, null, 2), mode === 'deep' ? 65000 : 30000)
+    const modeInstruction = mode === 'deep'
+      ? 'Deep mode: synthesize across the wider context and include the evidence trail, caveats, and decision-quality next moves. Stay practical, but do the harder cross-source read.'
+      : 'Fast mode: answer for a live strategy conversation. Be concise, prioritize the direct read, the strongest evidence, the biggest caveat, and the next move.'
     const result = await callLlm({
       workload: 'synthesis',
       hubKey: 'foundation',
       dryRun: false,
-      maxOutputTokens: 1800,
+      maxOutputTokens: mode === 'deep' ? 1800 : 950,
       metadata: {
         feature: 'strategy_advisor_v1',
-        timeoutMs: 300000,
+        mode,
+        timeoutMs: mode === 'deep' ? 300000 : 150000,
         questionLength: question.length,
         latestPacketRunId: context.latestPacket.run?.runId || null,
       },
@@ -3954,7 +3996,9 @@ app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res)
             'Map recommendations to Attract, Grow, Retain, Finance/Cash, Department Accountability, or Foundation Reliability when useful.',
             'Be direct and operator-grade. Prefer concrete decisions, questions, owners, metrics, and next moves over general advice.',
             'If Steve asks which department is stuck, separate source-backed evidence from your judgment.',
+            'If Steve asks who said what, use directArtifactSearch excerpts first and cite the artifact title/source. Do not rely only on packet summaries.',
             'Keep the answer tight enough to use in a strategy meeting.',
+            modeInstruction,
           ].join(' '),
         },
         {
@@ -3985,6 +4029,8 @@ app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res)
       authPath: result.authPath,
       routeKey: result.routeKey,
       model: result.model,
+      mode,
+      latencyMs: Date.now() - startedAt,
       llmCallId: result.call?.callId || null,
       latestPacketRunId: context.latestPacket.run?.runId || null,
       latestPacketGeneratedAt: context.latestPacket.run?.generatedAt || null,
