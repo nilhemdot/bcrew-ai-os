@@ -264,7 +264,9 @@ Before answering Sales Hub questions about lead generation, opportunity creation
 - current live `stages` rows were queried on `2026-04-26`: `Active Client`, `Conditional Deal`, and `Firm Deal` are marked `leadstage = true`; no rows are marked `clientstage = true`
 - user ID `22` was identified in KPI as active `Benson Crew Assistant`
 - a live FUB/KPI/Owners proof matched `53 / 53` FUB-linked Owners deal groups to KPI `persons`, and `53 / 53` to KPI `deal_data`
-- prove current writer path for `leaddate`, `leadclaimeddate`, and re-entry row creation
+- second-pass live Supabase proof found `16645 / 16657` active lead-stage rows have `leaddate`, `2451` active non-deleted rows have `leadclaimeddate` with current user not `22`, and latest sampled `leadclaimeddate` rows were updated on `2026-04-26`
+- read proof for `leaddate` / `leadclaimeddate` is strong enough for AI OS to use those fields in Sales/KPI reads
+- writer ownership is still not closed: the checked-in C# Supabase writer proves the active-row re-entry behavior, but does not fully explain the rich date-field writes; do not rebuild or write this pipeline until the current writer path is identified
 - decide the coaching language for `Active Client`: live KPI table includes it in `leadstage`, but Sales Hub should still avoid treating every current Active Client as fresh lead creation
 - add a governed Sales Hub read that uses this contract instead of reverse-engineering it each time
 

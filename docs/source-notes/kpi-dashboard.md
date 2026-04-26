@@ -482,6 +482,21 @@ Live connection proof on `2026-04-26`:
 - `6 / 53` had `leadclaimeddate`, proving claimed/recycled lead timing exists live
 - live `stages.leadstage = true` includes `Active Client`, `Conditional Deal`, and `Firm Deal`, so coaching must use date/episode context instead of naive current-stage labels
 
+Second-pass live KPI proof on `2026-04-26`:
+
+- active non-deleted KPI `persons`: `81195`
+- active lead-stage KPI `persons`: `16657`
+- active lead-stage rows with `leaddate`: `16645`
+- active non-deleted rows with `leadclaimeddate` and current user not `22`: `2451`
+- active rows still owned by user ID `22`: `54779`
+- latest sampled `leadclaimeddate` rows were updated on `2026-04-26`
+
+Practical read:
+
+- `leadclaimeddate` is a live field AI OS can read for coaching and attribution.
+- It is not limited to rows currently in lead stages, because a claimed opportunity can later move to supporter, past-client, closed, or other stages.
+- The old checked-in C# Supabase writer does not fully explain the rich date-field writes, so writer ownership remains open before AI OS rebuilds or writes this pipeline.
+
 Future coaching behavior should be:
 
 - flag likely fake leads
@@ -520,6 +535,122 @@ AI OS rule:
 - prefer signed-off business doctrine, then use code / DB reads to find drift against that doctrine
 
 This is exactly why `SOURCE-017` exists.
+
+## KPI Agent Error Doctrine
+
+Source evidence:
+
+- live page: `https://kpi.bensoncrew.ca/how-to`
+- repo code: `/Users/bensoncrew/.inspection/zahnd-team-dashboard/src/pages/HowTo.tsx`
+- outcome rules: `/Users/bensoncrew/.inspection/zahnd-team-dashboard/src/utils/appointmentUtils.ts`
+- founder clarification on `2026-04-26`
+
+This is not just training copy. These are the main data-entry failures that make KPI, company goals, and future Sales Hub coaching wrong.
+
+### Appointment Stacking
+
+Agents often book multiple discovery or consultation appointments for the same person because they needed multiple meetings to sign the client or move them forward.
+
+Business rule:
+
+- if it is the same client/opportunity moving toward one signed-client outcome, the agent should usually update/move the original appointment and set the correct outcome
+- stacking ten appointment records and one signed-client result makes conversion look like `10%`, even if the real motion was one opportunity that took multiple touches
+
+Live appointment-quality proof on `2026-04-26`:
+
+- active appointment rows: `3442`
+- same-person/same-appointment-type stacks: `289` groups
+- rows inside those stacked groups: `838`
+
+Coaching rule:
+
+- treat stacked same-person/same-type appointments as a coaching/audit signal, not an automatic failure
+- future Sales Hub should flag likely stacking and explain the data consequence to the agent
+
+### Missing Outcomes
+
+Agents often fail to update appointment outcomes after the meeting.
+
+Live proof on `2026-04-26`:
+
+- active appointment rows missing outcome: `951 / 3442`
+- active appointment rows since `2026-01-01`: `798`
+- since `2026-01-01`, missing outcomes: `284 / 798`
+
+Coaching rule:
+
+- missing outcomes corrupt no-show, lost, back-to-nurture, signed-client, consult-held, and company-goal pacing
+- this should become an agent-level cleanup signal, not just a company-wide count
+
+### Wrong Outcomes
+
+Agents sometimes use the wrong outcome label even though the How To page spells out the allowed outcome set.
+
+Live proof on `2026-04-26`:
+
+- active appointment rows with non-standard outcomes: `53`
+- current-year sampled wrong-outcome count was `0`, so this looks more historical than current in the first pass
+
+Coaching rule:
+
+- do not silently count non-standard outcomes as valid wins or losses
+- normalize only after a governed mapping is approved
+
+### Lead Validation
+
+FUB automatically creates a lead when a person is added. If an agent adds ten people and does not move non-leads out quickly, KPI can count fake leads.
+
+The KPI system already tries to show agents what they did wrong through the lead list / bad-source views, but many agents ignore it.
+
+Live proof on `2026-04-26`:
+
+- exact active lead-stage check returned `13005` active rows in lead-like stages
+- `4497` active lead-stage rows had source `Import`
+- `1647` active lead-stage rows had source `<unspecified>`
+- `2` active lead-stage rows had no source value
+- local KPI code still contains source-validation helpers such as `ALLOWED_LEAD_SOURCES`, `FIX_ALLOWED_SOURCES`, `isValidLeadSource`, `filterDealsBySource`, and `filterAppointmentsBySource`, but those sections are commented out / disabled in `dataFetching.ts`
+
+Read caveat:
+
+- `Import` and `<unspecified>` are high-risk source-quality signals, not automatic proof every row is invalid
+- `Realtor.ca` as a source is not the same thing as a realtor/contact being incorrectly left as a lead
+- fake-lead detection needs stage, source, tags/person type, owner, timing, and whether the person was moved out within the allowed cleanup window
+
+Coaching rule:
+
+- surface unvalidated leads, wrong lead sources, realtors/vendors/support-network contacts left as leads, and other fake lead inflation
+- protect lead pace before using it for coaching praise or company-goal confidence
+- do not hard-delete people because that destroys call and appointment history; use the temporary `Delete Lead` / correct-stage workflow where appropriate
+
+### Shopping List Weekly Discipline
+
+The Shopping List is critical because it is the manual working-opportunity layer that supplements FUB/KPI.
+
+Founder clarification:
+
+- Shopping List should be updated weekly
+- coaching calls with Reilly Mitchell and Sofia Fischman explain the intended behavior and should be mined from Drive/meeting archives before final Sales Hub coaching language is locked
+
+Coaching rule:
+
+- stale high-score Shopping List rows, blank action plans, duplicate active opportunities, and missing weekly updates are pipeline-quality signals
+- agent coaching should combine FUB lead validation, appointment outcome hygiene, Shopping List discipline, goals, and executed deal data
+
+### Agent Coach Action Destination
+
+Founder clarification:
+
+- the goal is not only to tell agents what they did wrong
+- the assistant should help them understand the issue and eventually update the relevant system for them when they have signed up, connected their account/API key, and granted permission
+
+AI OS rule:
+
+- first build reliable read/audit signals
+- then produce suggested fixes with clear evidence
+- then add explicit agent-authorized apply/write paths with audit logs and approval boundaries
+- never silently mutate KPI/FUB/CRM data just because the assistant detected a likely issue
+
+This destination is tracked by `SALES-004` and `SALES-005`.
 
 ## Audit Snapshot: Shopping List Quality
 

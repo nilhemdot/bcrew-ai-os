@@ -37,6 +37,32 @@ function normalizeTradeNumber(value) {
   return bare ? `T#${bare[1]}` : ''
 }
 
+function normalizeAddress(value) {
+  const replacements = new Map([
+    ['street', 'st'],
+    ['st.', 'st'],
+    ['road', 'rd'],
+    ['rd.', 'rd'],
+    ['avenue', 'ave'],
+    ['ave.', 'ave'],
+    ['drive', 'dr'],
+    ['dr.', 'dr'],
+    ['court', 'ct'],
+    ['ct.', 'ct'],
+    ['crescent', 'cres'],
+    ['cres.', 'cres'],
+    ['boulevard', 'blvd'],
+    ['blvd.', 'blvd'],
+    ['lane', 'ln'],
+    ['ln.', 'ln'],
+  ])
+  return normalizeLower(value)
+    .replace(/\b(street|st\.?|road|rd\.?|avenue|ave\.?|drive|dr\.?|court|ct\.?|crescent|cres\.?|boulevard|blvd\.?|lane|ln\.?)\b/g, match => replacements.get(match) || match)
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function findIndex(header, name) {
   return header.findIndex(value => normalizeText(value) === name)
 }
@@ -218,6 +244,8 @@ function parseOwnersRows(rows) {
       source: normalizeText(row[cols.source]),
       companyAgent: normalizeText(row[cols.companyAgent]),
       realtor: normalizeText(row[cols.realtor]),
+      address: normalizeText(row[cols.address]),
+      addressKey: normalizeAddress(row[cols.address]),
       total: normalizeText(row[cols.total]),
       dealCredit: normalizeText(row[cols.dealCredit]),
       netToTeam: normalizeText(row[cols.netToTeam]),
@@ -233,27 +261,59 @@ function parseOwnersRows(rows) {
 
 function buildClickUpMaps(tasks) {
   const byDeal = new Map()
+  const byAddress = []
   let tasksWithDeal = 0
   for (const task of tasks) {
     const fields = getClickUpFieldMap(task)
     const deal = normalizeTradeNumber(fields.get('Deal #'))
-    if (!deal) continue
-    tasksWithDeal += 1
     const record = {
       id: task.id,
       name: normalizeClickUpText(task.name),
       status: normalizeClickUpText(task.status?.status),
       url: normalizeClickUpText(task.url),
+      deal,
+      addressKeys: [
+        task.name,
+        fields.get('Deal Address (GPS)'),
+        fields.get('Deal Address (REG)'),
+        fields.get('Property Address'),
+      ]
+        .map(value => normalizeAddress(normalizeClickUpText(value)))
+        .filter(Boolean),
       fubLink: normalizeClickUpText(fields.get('Follow Up Boss Link')),
       npsStatus: normalizeClickUpText(fields.get('NPS Status')),
       reviewStatus: normalizeClickUpText(fields.get('Review Status')),
       internalDealReviewStatus: normalizeClickUpText(fields.get('Internal Deal Review Status')),
     }
-    const existing = byDeal.get(deal) || []
-    existing.push(record)
-    byDeal.set(deal, existing)
+    if (deal) {
+      tasksWithDeal += 1
+      const existing = byDeal.get(deal) || []
+      existing.push(record)
+      byDeal.set(deal, existing)
+    }
+    for (const addressKey of record.addressKeys) {
+      if (addressKey.length >= 8) byAddress.push({ addressKey, record })
+    }
   }
-  return { byDeal, tasksWithDeal }
+  return { byDeal, byAddress, tasksWithDeal }
+}
+
+function findClickUpByAddress(group, clickUpMaps) {
+  const ownerAddresses = Array.from(new Set(group.rows.map(row => row.addressKey).filter(value => value.length >= 8)))
+  if (!ownerAddresses.length) return []
+
+  const matches = []
+  const seen = new Set()
+  for (const ownerAddress of ownerAddresses) {
+    for (const candidate of clickUpMaps.byAddress) {
+      const clickUpAddress = candidate.addressKey
+      if (!clickUpAddress.includes(ownerAddress) && !ownerAddress.includes(clickUpAddress)) continue
+      if (seen.has(candidate.record.id)) continue
+      seen.add(candidate.record.id)
+      matches.push(candidate.record)
+    }
+  }
+  return matches
 }
 
 function chooseInterestingGroups(groups, limit) {
@@ -279,6 +339,7 @@ function chooseInterestingGroups(groups, limit) {
 function summarizeProof(proof) {
   const active = proof.kpiPersons.find(row => row.active && !row.deleteddate) || null
   const clickUpTasks = proof.clickUpTasks || []
+  const clickUpAddressFallbackTasks = proof.clickUpAddressFallbackTasks || []
   const ownerSources = Array.from(new Set(proof.group.rows.map(row => row.source).filter(Boolean)))
   const ownerRows = proof.group.rows.map(row => row.rowNumber)
   return {
@@ -302,6 +363,8 @@ function summarizeProof(proof) {
     dealDataRows: proof.dealDataRows.length,
     clickUpTasks: clickUpTasks.length,
     clickUpStatuses: clickUpTasks.map(task => task.status).filter(Boolean).join(' | '),
+    clickUpAddressFallbackTasks: clickUpAddressFallbackTasks.length,
+    clickUpAddressFallbackStatuses: clickUpAddressFallbackTasks.map(task => task.status).filter(Boolean).join(' | '),
     flags: proof.flags,
   }
 }
@@ -347,12 +410,14 @@ async function main() {
     ])
     const active = kpiPersons.find(row => row.active && !row.deleteddate) || null
     const clickUpForDeal = clickUpMaps.byDeal.get(group.deal) || []
+    const clickUpAddressFallback = clickUpForDeal.length ? [] : findClickUpByAddress(group, clickUpMaps)
 
     if (fubPersonId && !kpiPersons.length) flags.push('missing_kpi_person')
     if (fubPerson && active && valueChanged(fubPerson.stage, active.currentstage)) flags.push('fub_kpi_stage_mismatch')
     if (fubPerson && active && valueChanged(fubPerson.source, active.source)) flags.push('fub_kpi_source_mismatch')
     if (fubPerson && group.rows.some(row => valueChanged(row.source, fubPerson.source))) flags.push('owners_fub_source_mismatch')
-    if (!clickUpForDeal.length) flags.push('missing_clickup_deal_task')
+    if (!clickUpForDeal.length && clickUpAddressFallback.length) flags.push('clickup_task_matches_address_missing_deal_number')
+    if (!clickUpForDeal.length && !clickUpAddressFallback.length) flags.push('missing_clickup_deal_task')
     if (!dealDataRows.length) flags.push('missing_kpi_deal_data')
     if (kpiPersons.length > 1) flags.push('multiple_kpi_person_rows_for_fub_person')
     if (active?.leadclaimeddate) flags.push('claimed_or_recycled_lead')
@@ -365,6 +430,7 @@ async function main() {
       appointmentCount,
       dealDataRows,
       clickUpTasks: clickUpForDeal,
+      clickUpAddressFallbackTasks: clickUpAddressFallback,
       flags,
     })
   }
@@ -374,8 +440,10 @@ async function main() {
     ownersDealGroups: ownerGroups.length,
     ownersRows: ownerGroups.reduce((sum, group) => sum + group.rows.length, 0),
     ownersGroupsWithFubId: ownerGroups.filter(group => group.rows.some(row => row.fubPersonId)).length,
+    ownersGroupsWithClickUpDealNumber: ownerGroups.filter(group => clickUpMaps.byDeal.has(group.deal)).length,
     clickUpTasks: clickUpTasks.length,
     clickUpTasksWithDealNumber: clickUpMaps.tasksWithDeal,
+    clickUpUniqueDealNumbers: clickUpMaps.byDeal.size,
     stages: stages.length,
     leadStages: leadStages.length,
     clientStages: clientStages.length,
@@ -383,6 +451,7 @@ async function main() {
     auditedWithKpiPerson: proofs.filter(proof => proof.kpiPersons.length).length,
     auditedWithKpiDealData: proofs.filter(proof => proof.dealDataRows.length).length,
     auditedWithClickUpTask: proofs.filter(proof => proof.clickUpTasks.length).length,
+    auditedWithClickUpAddressFallback: proofs.filter(proof => proof.clickUpAddressFallbackTasks.length).length,
     auditedWithAppointments: proofs.filter(proof => proof.appointmentCount > 0).length,
     auditedWithReentryEvidence: proofs.filter(proof => proof.kpiPersons.length > 1).length,
     auditedWithLeadClaimedDate: proofs.filter(proof => proof.kpiPersons.some(row => row.active && row.leadclaimeddate)).length,

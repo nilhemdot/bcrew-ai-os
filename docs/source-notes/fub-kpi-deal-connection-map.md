@@ -26,6 +26,7 @@ Read-only audit results:
 - Owners deal groups read: `1300`
 - Owners rows read: `1429`
 - Owners deal groups with a direct FUB person ID: `53`
+- Owners deal groups matching ClickUp by `Deal #` across the full Admin range: `1097`
 - KPI `persons` matched for FUB-linked Owners groups: `53 / 53`
 - KPI `deal_data` matched for FUB-linked Owners groups: `53 / 53`
 - KPI `appointments` existed for FUB-linked Owners groups: `37 / 53`
@@ -35,12 +36,14 @@ Read-only audit results:
 - ClickUp Deal Data Entry tasks read: `1647`
 - ClickUp tasks with a `Deal #` value: `1210`
 - ClickUp `Deal #` matches for the audited FUB-linked Owners groups: `0 / 53`
+- ClickUp address fallback matches for the audited FUB-linked Owners groups: `48 / 53`
 
 Important read:
 
 - The FUB -> KPI -> Owners chain is strong where Owners has a FUB link.
-- The ClickUp follow-through chain is live as a source, but Trade Number coverage is not yet strong enough for this FUB-linked proof set.
-- Missing ClickUp joins should be treated as Ops workflow/data-linkage findings, not as evidence that FUB/KPI/Owners are disconnected.
+- The ClickUp follow-through chain is live as a source, and the `Deal #` join works broadly across Owners.
+- The weak spot is narrower: the FUB-linked proof set mostly has matching ClickUp tasks by address, but those tasks are missing or mis-keyed on `Deal #`.
+- Missing exact ClickUp joins should usually be treated as Trade Number cleanup, not as evidence that the task does not exist.
 
 ## Source Roles
 
@@ -111,6 +114,21 @@ This confirms the Lee middleware rule has a live counterpart:
 - agent-claimed pond/recycle opportunities are not the same as brand-new humans
 - Sales Hub and agent coaches must distinguish `leaddate` from `leadclaimeddate`
 
+Second-pass live proof:
+
+- active, non-deleted KPI `persons`: `81195`
+- active lead-stage KPI `persons`: `16657`
+- active lead-stage rows with `leaddate`: `16645`
+- active non-deleted rows with `leadclaimeddate` and current user not `22`: `2451`
+- active rows still owned by user `22`: `54779`
+- latest sampled `leadclaimeddate` rows were updated on `2026-04-26`
+
+Read implication:
+
+- AI OS can read `leadclaimeddate` as live evidence, not just legacy theory.
+- Do not treat `leadclaimeddate` as only current lead-stage evidence. Claimed opportunities can later move into non-lead stages while retaining the claim date.
+- The checked-in C# Supabase writer proves re-entry active-row behavior, but does not by itself explain every rich date field write. Keep writer ownership open before AI OS writes or rebuilds this pipeline.
+
 ## What The Proof Establishes
 
 For FUB-linked Owners rows, the chain is real:
@@ -138,9 +156,13 @@ ClickUp is readable and populated, but the audited FUB-linked Owners set did not
 This means:
 
 - ClickUp is still a valid Ops workflow source.
-- ClickUp is not yet reliable as an automatic cross-system proof layer for every FUB-linked deal.
-- Ops follow-through checks should continue surfacing missing ClickUp joins as findings.
-- A cleanup pass should improve `Deal #` coverage on high-value current deal tasks.
+- ClickUp is not broken as a connector or source.
+- `1097 / 1300` Owners deal groups match ClickUp by `Deal #`, so the join key works broadly.
+- `48 / 53` audited FUB-linked deal groups match ClickUp by address but not `Deal #`.
+- Ops follow-through checks should distinguish:
+  - task exists by address, but `Deal #` is blank or wrong
+  - no task exists by `Deal #` or address
+- A cleanup pass should improve `Deal #` coverage on high-value current deal tasks before using ClickUp as hard follow-through proof for Sales/Ops intelligence.
 
 ### Owners/FUB Source Drift
 

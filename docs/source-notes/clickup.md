@@ -145,7 +145,8 @@ Current read:
 
 - ClickUp is usable as workflow evidence for whether Ops had survey / closeout tasks
 - `Deal #` / Trade Number is the required join key for actual transaction tasks
-- 2026-04-26 connection audit found `1647` Deal Data Entry tasks and `1210` tasks with a `Deal #`, but `0 / 53` audited FUB-linked Owners deal groups matched ClickUp by `Deal #`; keep treating missing joins as Ops workflow/data-linkage findings until coverage is repaired
+- 2026-04-26 connection audit found `1647` Deal Data Entry tasks, `1210` tasks with a `Deal #`, and `1097 / 1300` Owners deal groups matching ClickUp by `Deal #`
+- the same audit found `0 / 53` audited FUB-linked Owners deal groups matched ClickUp by `Deal #`, but `48 / 53` matched ClickUp by address, so the main issue is missing/wrong Trade Number on otherwise-existing tasks
 - once `Deal #` is present, AIOS can produce the exact Owners Admin row link and backfill FUB link / review evidence / calculated date buckets where useful
 - Admin deal review now uses `Deal #` as the hard join first, then property/address as a fallback so it can produce a better finding:
   - matching ClickUp task exists, but `Deal #` is blank / wrong
