@@ -20,6 +20,7 @@
     "deal-review:conditional": "node --env-file-if-exists=.env scripts/review-conditional-deals.mjs",
     "clickup:conditional-forecast": "node --env-file-if-exists=.env scripts/sync-clickup-conditional-forecast.mjs",
     "agent-roster:review": "node --env-file-if-exists=.env scripts/review-agent-roster.mjs",
+    "agent-feedback:test-email": "node --env-file-if-exists=.env scripts/send-agent-feedback-test-email.mjs",
     "google:health": "node scripts/google-delegated-health.mjs",
     "shared-comms:verify": "node --env-file-if-exists=.env scripts/google-workspace-shared-comms-verify.mjs",
     "shared-comms:coverage": "node --env-file-if-exists=.env scripts/report-shared-comms-coverage.mjs",

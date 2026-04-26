@@ -202,6 +202,7 @@ async function main() {
   const agentFeedbackEmailSource = await readRepoFile('lib/agent-feedback-email.js')
   const agentFeedbackClickUpSource = await readRepoFile('lib/agent-feedback-clickup.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
+  const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
   const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
   const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
@@ -505,7 +506,8 @@ async function main() {
   ensure(
     checks,
       includesAll(agentFeedbackSource, ['createAgentFeedbackToken', 'verifyAgentFeedbackToken', 'hashAgentFeedbackToken']) &&
-      includesAll(agentFeedbackEmailSource, ['buildAgentFeedbackEmail', 'Start check-in', 'Private feedback', 'Benson Crew']) &&
+      includesAll(agentFeedbackEmailSource, ['buildAgentFeedbackEmail', 'Start check-in', 'How have your first', 'Benson Crew']) &&
+      includesAll(googleDelegatedSource, ['sendGmailMessage', 'multipart/alternative', 'gmail.send']) &&
       includesAll(agentFeedbackClickUpSource, ['writeAgentFeedbackToClickUp', 'Onboarding NPS 30 Score', 'Onboarding NPS 90 Feedback']) &&
       includesAll(agentRosterReviewSource, ['buildAgentFeedbackUrl', 'feedbackUrl']) &&
       includesAll(serverSource, ['/api/agent-feedback/session', '/api/agent-feedback/submit', 'upsertAgentOnboardingFeedbackResponse', 'writeAgentFeedbackToClickUp']) &&
