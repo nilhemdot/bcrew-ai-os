@@ -60,6 +60,8 @@ import {
 } from './lib/fub.js'
 import { getDriveFileMetadata, getSheetValues } from './lib/google-delegated.js'
 import { getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
+import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
+import { getClickUpListSnapshot } from './lib/clickup.js'
 import { runSheetsStructureVerification } from './scripts/sheets-structure-verify.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -1494,7 +1496,10 @@ function isConditionalReviewTrigger(value) {
 
 function hasOpenReviewStatus(value) {
   const normalized = normalizeLowerSheetValue(value)
-  return normalized === 'issues found' || normalized === 'needs re-review' || normalized === 'not reviewed'
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return normalized === 'issues found' || normalized === 'needs re review' || normalized === 'need re review' || normalized === 'not reviewed'
 }
 
 function hasOpenReviewAction(value) {
@@ -1525,7 +1530,7 @@ function buildAdminReviewQueue(rows) {
     findings: findSheetHeaderIndex(header, 'AI Findings By System / Suggestions'),
   }
 
-  const items = rows
+  const rowItems = rows
     .slice(1)
     .map((row, index) => {
       const deal = normalizeSheetValue(row[cols.deal])
@@ -1552,6 +1557,38 @@ function buildAdminReviewQueue(rows) {
       }
     })
     .filter(Boolean)
+  const itemsByDeal = new Map()
+
+  rowItems.forEach(item => {
+    if (!itemsByDeal.has(item.id)) {
+      itemsByDeal.set(item.id, {
+        ...item,
+        rowNumbers: [item.rowNumber],
+        owners: item.owner && item.owner !== 'Agent missing' ? [item.owner] : [],
+      })
+      return
+    }
+
+    const existing = itemsByDeal.get(item.id)
+    existing.rowNumbers.push(item.rowNumber)
+    if (item.owner && item.owner !== 'Agent missing' && !existing.owners.includes(item.owner)) {
+      existing.owners.push(item.owner)
+    }
+    existing.queuedForReview = existing.queuedForReview || item.queuedForReview
+    existing.needsFixing = existing.needsFixing || item.needsFixing
+    if (!existing.findingsPreview && item.findingsPreview) existing.findingsPreview = item.findingsPreview
+    if (!existing.subtitle || existing.subtitle === 'Client missing') existing.subtitle = item.subtitle
+    if (!existing.executedDate && item.executedDate) existing.executedDate = item.executedDate
+  })
+
+  const items = Array.from(itemsByDeal.values()).map(item => {
+    const owners = Array.isArray(item.owners) ? item.owners : []
+    return {
+      ...item,
+      owner: owners.length ? owners.join(', ') : item.owner,
+      splitRowCount: item.rowNumbers.length,
+    }
+  })
 
   return {
     totalTrackedRows: rows.slice(1).filter(row => normalizeSheetValue(row[cols.deal])).length,
@@ -1563,6 +1600,10 @@ function buildAdminReviewQueue(rows) {
 }
 
 function buildConditionalReviewQueue(rows) {
+  if (normalizeSheetValue(rows[0] && rows[0][0]) === 'Conditional Pipeline Forecast - ClickUp Generated') {
+    return buildClickUpConditionalForecastQueue(rows)
+  }
+
   const header = rows[1] || []
   const cols = {
     type: findSheetHeaderIndex(header, 'Type'),
@@ -1611,6 +1652,86 @@ function buildConditionalReviewQueue(rows) {
     openItems: items.length,
     queuedReview: items.filter(item => item.queuedForReview).length,
     needsFixing: items.filter(item => item.needsFixing).length,
+    items,
+  }
+}
+
+function buildClickUpConditionalForecastQueue(rows) {
+  const headerIndex = rows.findIndex(row => normalizeSheetValue(row && row[0]) === 'Conditional Deal')
+  const header = headerIndex >= 0 ? rows[headerIndex] || [] : []
+  const cols = {
+    deal: findSheetHeaderIndex(header, 'Conditional Deal'),
+    side: findSheetHeaderIndex(header, 'Side'),
+    agent: findSheetHeaderIndex(header, 'Agent'),
+    acceptedOfferDate: findSheetHeaderIndex(header, 'Accepted Offer Date'),
+    conditionalDeadline: findSheetHeaderIndex(header, 'Conditional Deadline'),
+    closingDate: findSheetHeaderIndex(header, 'Closing Date'),
+    expectedTeam: findSheetHeaderIndex(header, 'Expected Team $'),
+    depositStatus: findSheetHeaderIndex(header, 'Deposit Status'),
+    depositReceivedDate: findSheetHeaderIndex(header, 'Deposit Received Date'),
+    tradeNumber: findSheetHeaderIndex(header, 'Trade Number'),
+    fubLink: findSheetHeaderIndex(header, 'FUB Link'),
+    clickUpUrl: findSheetHeaderIndex(header, 'ClickUp URL'),
+    missingData: findSheetHeaderIndex(header, 'Missing / Action Needed'),
+    reviewAction: findSheetHeaderIndex(header, 'THIS ROW ONLY: CONDITIONAL REVIEW ACTION'),
+    findings: findSheetHeaderIndex(header, 'AI Conditional Findings / Suggestions'),
+  }
+
+  const dataStart = headerIndex >= 0 ? headerIndex + 1 : rows.length
+  const allItems = rows
+    .slice(dataStart)
+    .map((row, index) => {
+      const title = normalizeSheetValue(row[cols.deal])
+      const agent = normalizeSheetValue(row[cols.agent])
+      if (!title || !agent) return null
+
+      const missingData = summarizeFindings(row[cols.missingData])
+      const conditionalDeadline = normalizeSheetDate(row[cols.conditionalDeadline])
+      const closingDate = normalizeSheetDate(row[cols.closingDate])
+      const expectedTeam = normalizeSheetValue(row[cols.expectedTeam])
+      const tradeNumber = normalizeSheetValue(row[cols.tradeNumber])
+      const fubLink = normalizeSheetValue(row[cols.fubLink])
+      const missingPieces = []
+      if (!closingDate) missingPieces.push('closing date')
+      if (!expectedTeam) missingPieces.push('expected team $')
+      if (!tradeNumber) missingPieces.push('trade number')
+      if (!fubLink) missingPieces.push('FUB link')
+      const reviewAction = normalizeSheetValue(row[cols.reviewAction])
+      const queuedForReview = isConditionalReviewTrigger(reviewAction)
+      const findingsFromSheet = summarizeFindings(row[cols.findings])
+      const findings = findingsFromSheet || missingData || (missingPieces.length ? 'Missing: ' + missingPieces.join(', ') : 'Conditional forecast row is complete.')
+      const needsFixing = missingPieces.length > 0 || queuedForReview
+
+      return {
+        queue: 'conditional',
+        rowNumber: dataStart + index + 1,
+        id: `conditional-forecast-${dataStart + index + 1}`,
+        title,
+        subtitle: normalizeSheetValue(row[cols.side]) || 'Conditional',
+        owner: agent,
+        conditionalDeadline,
+        closingDate,
+        depositStatus: normalizeSheetValue(row[cols.depositStatus]),
+        depositReceivedDate: normalizeSheetDate(row[cols.depositReceivedDate]),
+        tradeNumber,
+        hasFubLink: Boolean(fubLink),
+        clickUpUrl: normalizeSheetValue(row[cols.clickUpUrl]),
+        reviewStatus: missingPieces.length ? (queuedForReview ? 'Re-review Still Failing' : 'Missing Data') : (queuedForReview ? 'Ready For Re-review' : 'Ready'),
+        reviewAction: queuedForReview ? reviewAction : (missingPieces.length ? 'Needs Fixing' : 'No Action'),
+        queuedForReview,
+        needsFixing,
+        findingsPreview: findings,
+      }
+    })
+    .filter(Boolean)
+
+  const items = allItems.filter(item => item.needsFixing || item.queuedForReview)
+
+  return {
+    totalTrackedRows: allItems.length,
+    openItems: items.length,
+    queuedReview: 0,
+    needsFixing: items.length,
     items,
   }
 }
@@ -2903,13 +3024,14 @@ app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
     const fubContexts = getFubContextsSummary()
     const ownerFubContext = fubContexts.find(function(item) { return item.key === 'owner' }) || { key: 'owner', label: 'Support / Owner account' }
 
-    const [adminResponse, conditionalResponse, fileMeta, fubSnapshot, rules, ownersListResponse] = await Promise.all([
+    const [adminResponse, conditionalResponse, fileMeta, fubSnapshot, rules, ownersListResponse, agentRosterSnapshot] = await Promise.all([
       getSheetValues(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID, OWNERS_ADMIN_REVIEW_RANGE),
       getSheetValues(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID, OWNERS_CONDITIONAL_REVIEW_RANGE),
       getDriveFileMetadata(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID),
       getFubLeadSourceSnapshot('owner'),
       listFubLeadSourceRules(),
       getSheetValues(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID, OWNERS_LEAD_SOURCE_LIST_RANGE),
+      getClickUpListSnapshot(CLICKUP_AGENT_ROSTER_LIST_ID),
     ])
 
     const admin = buildAdminReviewQueue(adminResponse.values || [])
@@ -2927,19 +3049,21 @@ app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
     }
     const fubDrift = buildFubLeadSourceReviewQueue(fubLeadSources)
     const ownersGovernance = buildOwnersGovernanceReviewQueue(ownersGovernancePayload)
+    const agentRoster = buildAgentRosterReviewQueue(agentRosterSnapshot)
     const combinedQueue = {
-      totalTrackedRows: admin.totalTrackedRows + conditional.totalTrackedRows + fubDrift.totalTrackedRows + ownersGovernance.totalTrackedRows,
-      openItems: admin.openItems + conditional.openItems + fubDrift.openItems + ownersGovernance.openItems,
-      queuedReview: admin.queuedReview + conditional.queuedReview + fubDrift.queuedReview + ownersGovernance.queuedReview,
-      needsFixing: admin.needsFixing + conditional.needsFixing + fubDrift.needsFixing + ownersGovernance.needsFixing,
+      totalTrackedRows: admin.totalTrackedRows + conditional.totalTrackedRows + fubDrift.totalTrackedRows + ownersGovernance.totalTrackedRows + agentRoster.totalTrackedRows,
+      openItems: admin.openItems + conditional.openItems + fubDrift.openItems + ownersGovernance.openItems + agentRoster.openItems,
+      queuedReview: admin.queuedReview + conditional.queuedReview + fubDrift.queuedReview + ownersGovernance.queuedReview + agentRoster.queuedReview,
+      needsFixing: admin.needsFixing + conditional.needsFixing + fubDrift.needsFixing + ownersGovernance.needsFixing + agentRoster.needsFixing,
       items: []
         .concat(admin.items || [])
         .concat(conditional.items || [])
         .concat(fubDrift.items || [])
-        .concat(ownersGovernance.items || []),
+        .concat(ownersGovernance.items || [])
+        .concat(agentRoster.items || []),
     }
 
-    const [adminSync, conditionalSync, combinedSync, fubSync, ownersGovernanceSync] = await Promise.all([
+    const [adminSync, conditionalSync, combinedSync, fubSync, ownersGovernanceSync, agentRosterSync] = await Promise.all([
       syncReviewQueueEvent({
         entityTable: 'owners_review_queue',
         entityId: 'SRC-OWNERS-001:admin',
@@ -2963,11 +3087,18 @@ app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
             conditional: conditional.openItems,
             fubDrift: fubDrift.openItems,
             ownersGovernance: ownersGovernance.openItems,
+            agentRoster: agentRoster.openItems,
           },
         },
       }, 'system'),
       syncFubLeadSourceDriftEvent(fubLeadSources, 'system'),
       syncOwnersLeadSourceGovernanceEvent(ownersGovernancePayload, 'system'),
+      syncReviewQueueEvent({
+        entityTable: 'clickup_review_queue',
+        entityId: 'SRC-CLICKUP-001:agent-roster',
+        label: 'ClickUp Agent Roster lane',
+        queue: agentRoster,
+      }, 'system'),
     ])
 
     admin.freshness = buildSourceWatchFreshness(
@@ -2983,7 +3114,7 @@ app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
         ? conditionalSync.event
         : await getLatestChangeEventForEntity('owners_review_queue', 'SRC-OWNERS-001:conditional', ['review_queue_changed', 'review_queue_cleared']),
       conditional.openItems > 0,
-      { reason: 'Conditional review findings have been sitting unchanged.' }
+      { reason: 'Conditional forecast missing-data items have been sitting unchanged.' }
     )
 
     fubDrift.freshness = !fubLeadSources.snapshot.available
@@ -3017,6 +3148,14 @@ app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
         : await getLatestChangeEventForEntity('owners_sheet_lists', 'SRC-OWNERS-001:lead-source-dropdown', ['source_drift_detected', 'source_drift_cleared']),
       ownersGovernance.openItems > 0,
       { reason: 'Governed Owners dropdown drift has been sitting unchanged.' }
+    )
+
+    agentRoster.freshness = buildSourceWatchFreshness(
+      agentRosterSync && agentRosterSync.event
+        ? agentRosterSync.event
+        : await getLatestChangeEventForEntity('clickup_review_queue', 'SRC-CLICKUP-001:agent-roster', ['review_queue_changed', 'review_queue_cleared']),
+      agentRoster.openItems > 0,
+      { reason: 'Agent roster accountability findings have been sitting unchanged.' }
     )
 
     const reviewQueueFreshness = buildSourceWatchFreshness(
@@ -3053,6 +3192,7 @@ app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
           conditional,
           fubDrift,
           ownersGovernance,
+          agentRoster,
         },
       },
     })

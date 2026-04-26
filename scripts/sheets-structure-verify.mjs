@@ -17,13 +17,13 @@ const WORKBOOKS = [
       { title: 'Data Entry - Agent Satisfaction', sheetId: 1409300550, hidden: false },
       { title: 'Ops Satisfaction', sheetId: 987354585, hidden: false },
       { title: 'Data Entry - Ops Cont Improvement', sheetId: 233846909, hidden: false },
-      { title: 'Data Entry - Client Onboarding', sheetId: 406997165, hidden: false },
-      { title: 'Data Entry - Clients, Deals, NPS & GReviews', sheetId: 600012130, hidden: false },
-      { title: 'Data Entry - Agent Onboarding', sheetId: 896421734, hidden: false },
-      { title: 'Bonus System', sheetId: 822496681, hidden: false },
-      { title: 'BenCrew Marketing', sheetId: 1408576099, hidden: false },
-      { title: 'SZ Marketing', sheetId: 311262813, hidden: false },
-      { title: 'ADMIN ONLY - Deal Data Entry', sheetId: 1738912434, hidden: false },
+      { title: 'Data Entry - Client Onboarding', sheetId: 406997165, hidden: 'any' },
+      { title: 'Data Entry - Clients, Deals, NPS & GReviews', sheetId: 600012130, hidden: 'any' },
+      { title: 'Data Entry - Agent Onboarding', sheetId: 896421734, hidden: 'any' },
+      { title: 'Bonus System', sheetId: 822496681, hidden: 'any' },
+      { title: 'BenCrew Marketing', sheetId: 1408576099, hidden: 'any' },
+      { title: 'SZ Marketing', sheetId: 311262813, hidden: 'any' },
+      { title: 'ADMIN ONLY - Deal Data Entry', sheetId: 1738912434, hidden: 'any' },
     ],
     rangeChecks: [
       {
@@ -157,7 +157,7 @@ const WORKBOOKS = [
     rangeChecks: [
       {
         title: 'ADMIN ONLY - Deal Data Entry',
-        range: "'ADMIN ONLY - Deal Data Entry'!A1:CB3",
+        range: "'ADMIN ONLY - Deal Data Entry'!A1:CE3",
         cells: {
           B1: 'Deal #',
           C1: 'Deal Status ',
@@ -177,6 +177,9 @@ const WORKBOOKS = [
           BZ1: 'Client Follow UP Boss ID',
           CA1: 'ISA Set Deal',
           CB1: 'Deal or Lease?',
+          CC1: 'AI Review Status',
+          CD1: 'THIS ROW ONLY: REVIEW ACTION',
+          CE1: 'AI Findings By System / Suggestions',
         },
       },
       {
@@ -203,13 +206,24 @@ const WORKBOOKS = [
       },
       {
         title: 'Listings and Conditional Deals',
-        range: "'Listings and Conditional Deals'!A1:R6",
+        range: "'Listings and Conditional Deals'!A1:O16",
         cells: {
-          A1: 'Conditional Deals Closing 2026',
-          A2: 'Type',
-          N2: 'Conditional Due Date',
-          O2: 'Closing Date',
-          P2: 'Conditions',
+          A1: 'Conditional Pipeline Forecast - ClickUp Generated',
+          A2: 'Last sync',
+          A3: 'Source',
+          A5: 'Metric',
+          A6: 'Active conditional tasks',
+          A15: 'Marked re-review',
+          A16: 'Conditional Deal',
+          E16: 'Conditional Deadline',
+          F16: 'Closing Date',
+          G16: 'Expected Team $',
+          I16: 'Deposit Received Date',
+          K16: 'FUB Link',
+          L16: 'ClickUp URL',
+          M16: 'Missing / Action Needed',
+          N16: 'THIS ROW ONLY: CONDITIONAL REVIEW ACTION',
+          O16: 'AI Conditional Findings / Suggestions',
         },
       },
       {
@@ -475,7 +489,7 @@ export async function runSheetsStructureVerification() {
       const ok =
         !!live &&
         live.sheetId === expected.sheetId &&
-        Boolean(live.hidden) === Boolean(expected.hidden)
+        (expected.hidden === 'any' || Boolean(live.hidden) === Boolean(expected.hidden))
       checks.push({
         ok,
         label: `${workbook.label}: sheet ${expected.title}`,

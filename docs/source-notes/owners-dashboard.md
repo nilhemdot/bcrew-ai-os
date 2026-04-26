@@ -247,9 +247,9 @@ Example `CE` output:
 - `Owners Sheet — 8/10 passed · 2 failed`
 - `- Company or Agent should be Company because validated source lineage points to a company lead and ISA evidence exists.`
 - `- Move ISA Appointment Set out of Extra Orgin Lead Source Data and rely on ISA Set Deal.`
-- `Ops Follow-through — 1/1 passed`
+- `ClickUp Follow-through — 2/7 passed · 5 failed`
 - `- Q2 2026 bonus policy moved post-close survey/review accountability out of the old Freedom per-row bonus model for deals executed on or after 2026-04-01.`
-- `- Do not fail this deal for a missing Freedom NPS/Google-review row; ClickUp Deal Data Entry plus FUB call transcripts are the candidate workflow evidence, but capture-rate audit is not locked as deal-row enforcement yet.`
+- `- No ClickUp Deal Data Entry task found for Trade Number T#26098.`
 - `FUB — 6/6 passed · 0 failed`
 - `ClickUp / Contract — 6/6 passed · 0 failed`
 
@@ -286,11 +286,12 @@ Operating flow now:
 3. Ops fixes the real source systems:
    - Owners
    - FUB
-   - Freedom / ClickUp follow-through
    - ClickUp
 4. Ops changes that same row's `CD` value to `Review This Deal`.
 5. The queued re-review lane picks up rows where `CD = Review This Deal`.
-6. The first-pass Admin backlog lane separately inspects the newest eligible never-reviewed June 2025+ deals at one per 8-hour scheduled run, which is 3 per day.
+   - preferred trigger: `CD = Review This Deal`
+   - compatibility trigger: `CC = Needs Re-review` also works because that dropdown caused operator confusion
+6. The first-pass Admin backlog lane separately inspects the `5` newest eligible June 2025+ deals per day, newest to older, using `Date Firm (Executed)` and a `10`-day maturity gate.
 7. AI re-reviews or first-pass reviews the row, rewrites `CC` / `CE`, then sets:
    - `CD = No Action` if clean
 
@@ -301,24 +302,24 @@ The first older post-execution batch surfaced repeatable issue patterns:
 - `T#26092`
   - `Open House` row still marked `Agent` even though the current source taxonomy treats open house as company-owned
   - FUB still in `Firm Deal` after the expected close date
-  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
+  - ClickUp Deal Data Entry follow-through is now the post-policy review source; missing Trade Number joins or incomplete NPS / Google review status fail the follow-through block
 - `T#26088`
   - website / company lineage looks right
   - FUB still in `Lead` after the expected close date
-  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
+  - ClickUp Deal Data Entry follow-through is now the post-policy review source; missing Trade Number joins or incomplete NPS / Google review status fail the follow-through block
 - `T#26091`
   - in-person / agent lineage looks broadly right
   - FUB still in `Active Client` after the expected close date
-  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
+  - ClickUp Deal Data Entry follow-through is now the post-policy review source; missing Trade Number joins or incomplete NPS / Google review status fail the follow-through block
 - `T#26089`
   - referral handoff row shows Zoe-origin logic, but the deal row agent is Albert
   - FUB is still assigned to Zoe and still in `Active Client` after the expected close date
-  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
+  - ClickUp Deal Data Entry follow-through is now the post-policy review source; missing Trade Number joins or incomplete NPS / Google review status fail the follow-through block
 - `T#26073`
   - HomeOptima / company lineage looks right
   - FUB still in `Lead` after the expected close date
   - FUB has `ISA Set - Alyssa` evidence while Owners still says `ISA Set Deal = No`
-  - post-close follow-through source boundary needs ClickUp/FUB capture-rate proof, not a hard Freedom failure
+  - ClickUp Deal Data Entry follow-through is now the post-policy review source; missing Trade Number joins or incomplete NPS / Google review status fail the follow-through block
 
 The main mature-batch rule now:
 
@@ -371,7 +372,11 @@ Current review packs by system:
   - pre-`2026-04-01` deals: historical Freedom row exists where expected
   - pre-`2026-04-01` deals: NPS follow-through is visible in Freedom
   - pre-`2026-04-01` deals: Google-review follow-through is visible in Freedom
-  - post-`2026-04-01` deals: do not fail for missing Freedom rows; ClickUp Deal Data Entry plus FUB transcripts are the candidate source, but not yet locked as hard row-level capture evidence
+  - post-`2026-04-01` deals: ClickUp Deal Data Entry is the hard follow-through source
+  - post-`2026-04-01` deals: Trade Number must join to ClickUp
+  - post-`2026-04-01` deals: internal onboarding and deal-management statuses should be completed, or skipped with a reason
+  - post-`2026-04-01` deals: NPS and Google review statuses should be requested/captured or marked not eligible
+  - post-`2026-04-01` deals: outreach evidence should point back to FUB call / review evidence when the workflow is marked started
 - `FUB`
   - linked person exists
   - address matches
@@ -402,10 +407,12 @@ Admin review v1 implementation status:
   - FUB person join through Column `BZ`
   - FUB source classification and Owners/FUB source mismatch
   - stale mature-deal CRM stages
+  - missing `Past Client` tag / post-close automation marker on linked FUB people
   - ISA mismatch in both directions
   - pre-`2026-04-01` Freedom deal record, NPS follow-through, and Google-review follow-through by trade number
-  - post-`2026-04-01` follow-through boundary note, without falsely failing the row for missing Freedom data
+  - post-`2026-04-01` ClickUp Deal Data Entry follow-through by Trade Number
 - The script still does not auto-fix source fields. Ops fixes source systems, then marks the row for re-review.
+- Clear review sections stay compact in `CE`: the script writes summary lines plus only failed findings, not extra "no issue found" lines.
 
 ### How To Use This Note
 
@@ -1020,159 +1027,34 @@ Both sections now use the same base row structure:
 - `P`
   - conditions
 
-Temporary conditional identity + review columns now sit in `Q:U`:
-
-- `Q`
-  - `Client Name`
-- `R`
-  - `FUB Person URL / ID`
-- `S`
-  - `AI Conditional Review Status`
-- `T`
-  - `THIS ROW ONLY: CONDITIONAL REVIEW ACTION`
-- `U`
-  - `AI Conditional Findings / Suggestions`
-
 ### Current Meaning Locked
 
-- `Status = CS`
-  - conditionally sold
-- when a deal goes firm:
-  - the team moves it into `ADMIN ONLY - Deal Data Entry`
-  - then deletes it from `Listings and Conditional Deals`
-- `N`
-  - the deadline for the deal conditions to be satisfied
-- `O`
-  - expected closing / moving date if the deal firms up
-- `P`
-  - what the deal is conditional upon
-- `K`
-  - manual split field
-  - should reflect the real split for that specific conditional deal
-  - it is not auto-pulled from `Agent Splits`
+The old manual conditional layout above is historical context. For v1, this tab is now rebuilt from ClickUp Deal Data Entry through `npm run clickup:conditional-forecast`.
+
+Current generated table:
+
+- `A:O`
+  - conditional deal, side, agent, accepted offer date, conditional deadline, closing date, expected team dollars, deposit status, deposit received date, Trade Number, FUB link, ClickUp URL, and missing/action-needed notes
+  - `N` preserves the manual `THIS ROW ONLY: CONDITIONAL REVIEW ACTION` value
+  - `O` records `AI Conditional Findings / Suggestions`
+- buyer/seller conditional tags in ClickUp determine the conditional lane
+- mutual-release tags are excluded because they are dead deals
+- there is no separate legacy conditional review lane in v1; re-review is only the preserved action cell on this generated forecast
 
 This is intentionally not the same as the Admin deal ledger:
 
-- the Admin ledger is where firm economic truth is supposed to live
-- this tab is a manual visibility layer for possible future cash
+- Admin is the firm economic truth and the full firm + 10 review lane
+- Conditional is a live forecast/missing-data view for possible future cash
+- if Ops fixes a conditional missing-data item, set column `N` to `Review This Conditional`; the next sync re-checks the generated row and keeps the action only if the row is still missing required data
+- if a conditional deal goes firm, it should move into `ADMIN ONLY - Deal Data Entry` and be handled by the Admin full review
 
-### Conditional Review Rule
+What this tab needs next if we want true governed conditional parity:
 
-Temporary current workflow:
-
-- use `Q:U` as the first governed identity + review lane for this tab
-- `Q`
-  - client name for the conditional deal
-- `R`
-  - direct FUB person URL / ID when available
-- `S`
-  - AI status:
-    - `Not Reviewed`
-    - `Issues Found`
-    - `Clean`
-    - `Needs Re-review`
-- `T`
-  - row action:
-    - `No Action`
-    - `Needs Fixing`
-    - `Review This Conditional`
-    - legacy compatibility:
-      - `Review This Deal` still works as a trigger too
-- `U`
-  - grouped findings and suggested fixes
-
-Conditional parity rule:
-
-- if a live row exists here, FUB should support the `✍️Cond` conditional-deal path
-- if that FUB state is missing, flag it
-- if the deal goes firm:
-  - it should leave this tab
-  - it should appear in `ADMIN ONLY - Deal Data Entry`
-  - the FUB follow-up path should stop behaving like `Cond` and move into the firm / pending-close path
-
-Current limitation:
-
-- the tab now has direct identity columns, but most live rows are still blank in them
-- until `Client Name` and/or `FUB Person URL / ID` are populated, many rows remain parity-first review instead of a perfect direct join like the Admin tab
-
-### First Live Conditional Review Pass
-
-Date: `2026-04-21`
-
-Current live result:
-
-- `14` active conditional rows in the sheet
-- `11` live FUB deals in conditional stages
-- first pass wrote real review output into the temporary review lane
-- after that pass, the tab was hardened with:
-  - `Q = Client Name`
-  - `R = FUB Person URL / ID`
-  - `S:U = AI conditional review state`
-
-Most important finding:
-
-- the current tab shape is still too weak for governed FUB parity on most rows
-
-Why:
-
-- buy-side rows use the subject property address
-- FUB buy-side conditional records may instead expose:
-  - client name
-  - current home address
-  - inconsistent deal-name formatting
-- seller-side rows are somewhat easier to reconcile by subject property, but still not reliably enough without a direct identifier
-
-### Second Conditional Pass
-
-After adding `Client Name` and `FUB Person URL / ID`, one row is now proven clean:
-
-- row `13`
-  - `490 Saddler St`
-  - sheet agent: `Wes Cousineau`
-  - proven FUB person:
-    - `Karen Blake`
-    - person `48640`
-    - current FUB stage = `Conditional Deal`
-  - this row now has governed conditional parity
-
-Also narrowed, but **not** yet proven:
-
-- row `12`
-  - sheet agent: `Zoe McFadden`
-  - there is a live buyer-side FUB conditional deal under Zoe
-  - but the sheet still lacks strong identity, so that row stays open until the client name or FUB person is entered
-
-Additional system-level finding:
-
-- raw FUB `Cond` counts are not fully clean yet
-- the live conditional deal set still contains stale historical records from older years
-- that means:
-  - raw `Cond` totals are not safe proof by themselves
-  - agent-only matching is not safe
-  - governed review should use identity plus stage, not rough count alone
-
-Current governing rule:
-
-- unresolved conditional rows should stay flagged
-- do **not** guess the FUB match from weak signals like agent + price alone
-- do **not** trust raw FUB conditional counts as clean proof until stale historical conditional deals are cleaned up
-- row-specific re-review is now live through:
-  - `npm run deal-review:conditional -- --queued`
-- first-pass backlog inspection is also live through:
-  - `npm run deal-review:conditional -- --backlog --backlog-since=2025-06-01 --backlog-limit=1`
-  - current accepted trigger values in `T`:
-    - `Review This Conditional`
-    - `Review This Deal`
-    - `Review`
-    - `RERUN`
-
-What this tab needs next if we want true governed parity:
-
-- client name and/or FUB URL / ID on each row
-- then AI can check:
-  - does the row exist in `Cond`
-  - does the deal still belong in the conditional lane
-  - should it already have moved into the Admin ledger / firm-close path
+- maintained Trade Number
+- maintained closing date
+- maintained expected team dollars
+- maintained FUB link
+- then AI can check whether the ClickUp conditional task still belongs in the conditional lane, should already have moved into Admin, or needs FUB cleanup
 
 ### Current Live Read
 
@@ -3817,7 +3699,17 @@ These should eventually become explicit data-quality checks, not tribal knowledg
 
 1. `Deal #` can repeat when credit is split.
    - duplicate trade numbers are not automatically errors
+   - for split deals, every credited row must carry required fields through column `T`
+   - every credited row must also carry the core `AG+` reporting/calculation fields that drive volume, commission, deal credit, agent split, cap tracking, agent email, and ISA state
+   - the top row is still the cash anchor for fields like `Gross To Team`, but it is not enough for attribution/reporting fields because partial source rows undercount source credit
+   - still check split math across all split rows
 2. `Date Firm (Executed)` is the economic cash-created date.
+   - `Pending` in Owners means the deal is firm.
+   - `Firm Deal` / `Pending` in FUB is valid until `Expected Closing` has passed.
+   - do not flag `Firm Deal` as closed / past-client cleanup before the expected closing date.
+   - after expected closing has passed, a remaining `Firm Deal` / `Pending` stage should be reviewed for post-close cleanup.
+   - future AI automation should prefer adding a `Past Client` tag / post-close automation marker instead of forcing an early FUB stage move before the real close.
+   - current review only flags a missing `Past Client` tag; it does not auto-write FUB tags until an approval-gated apply lane exists.
 3. `Expected Cash Deposit` is hybrid.
    - starts as expected paid date
    - later gets overwritten with actual paid date

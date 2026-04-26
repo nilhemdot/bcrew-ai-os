@@ -480,7 +480,8 @@ async function main() {
   ensure(
     checks,
     opsServedJobs.some(job => job.key === 'admin-deal-review-readonly') &&
-      opsServedJobs.some(job => job.key === 'conditional-deal-review-readonly'),
+      opsServedJobs.some(job => job.key === 'conditional-deal-review-readonly') &&
+      opsServedJobs.some(job => job.key === 'agent-roster-review'),
     'Foundation jobs expose systems serving Ops Hub',
     opsServedJobs.length
       ? opsServedJobs.map(job => job.key).join(', ')
@@ -610,10 +611,12 @@ async function main() {
       ownersReviewQueue.reviewQueue.sections.conditional?.freshness &&
       ownersReviewQueue.reviewQueue.sections.fubDrift?.freshness &&
       ownersReviewQueue.reviewQueue.sections.ownersGovernance?.freshness &&
+      ownersReviewQueue.reviewQueue.sections.agentRoster?.freshness &&
       Array.isArray(ownersReviewQueue.reviewQueue.sections.admin?.items) &&
       Array.isArray(ownersReviewQueue.reviewQueue.sections.conditional?.items) &&
       Array.isArray(ownersReviewQueue.reviewQueue.sections.fubDrift?.items) &&
-      Array.isArray(ownersReviewQueue.reviewQueue.sections.ownersGovernance?.items),
+      Array.isArray(ownersReviewQueue.reviewQueue.sections.ownersGovernance?.items) &&
+      Array.isArray(ownersReviewQueue.reviewQueue.sections.agentRoster?.items),
     'api/owners/review-queue exposes the governed Owners inbox',
     ownersReviewQueue?.reviewQueue
       ? `${ownersReviewQueue.reviewQueue.status} / ${ownersReviewQueue.reviewQueue.stats?.openItems ?? 'invalid'} open items`
@@ -673,6 +676,21 @@ async function main() {
     fubHealth
       .split('\n')
       .filter(lineValue => lineValue.includes('Context:') || lineValue.includes('Status:'))
+      .join(' | '),
+  )
+
+  const clickUpVerify = await runHealthScript('clickup:verify')
+  ensure(
+    checks,
+    clickUpVerify.includes('ClickUp source verification') &&
+      clickUpVerify.includes('dealDataEntry:') &&
+      clickUpVerify.includes('agentRoster:') &&
+      clickUpVerify.includes('agentPipeline:') &&
+      clickUpVerify.includes('Summary: 12/12 checks passed'),
+    'clickup:verify passes for v1 governed lists',
+    clickUpVerify
+      .split('\n')
+      .filter(lineValue => /^(dealDataEntry|agentRoster|agentPipeline|Summary):/.test(lineValue))
       .join(' | '),
   )
 

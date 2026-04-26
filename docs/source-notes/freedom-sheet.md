@@ -515,8 +515,8 @@ Source role:
   - Component 4: client-experience capture rate for eligible transactions
 - The old per-row Freedom NPS / Google-review bonus columns remain useful historical/process context.
 - For deals executed on or after `2026-04-01`, do not treat a missing Freedom row as a deal-row failure by itself.
-- New live tracking candidate: ClickUp `Deal Data Entry` list `901112153939` plus FUB call/transcript evidence.
-- Open source-contract work: prove the ClickUp/FUB capture-rate model can calculate eligible transactions, outreach permission, NPS score, Google-review invitation, review captured, and sub-9 feedback before it becomes hard Admin-review enforcement.
+- New live tracking source: ClickUp `Deal Data Entry` list `901112153939` plus FUB call/transcript evidence.
+- Admin review now enforces post-policy follow-through against ClickUp by Trade Number instead of the old Freedom review row. Missing ClickUp joins, incomplete internal survey statuses, incomplete NPS / Google review statuses, and missing FUB outreach evidence are allowed to create `Needs Fixing` findings after the firm + 10-day gate.
 
 Current field groups:
 

@@ -140,6 +140,7 @@ function getOpsReviewQueueStats(queuePayload) {
       conditional: sectionPayload('conditional'),
       fubDrift: sectionPayload('fubDrift'),
       ownersGovernance: sectionPayload('ownersGovernance'),
+      agentRoster: sectionPayload('agentRoster'),
     },
   }
 }
@@ -207,20 +208,28 @@ function renderOpsSystemPill(job, queueStats) {
       queueStats.sections.admin.openItems + ' admin · ' +
       queueStats.sections.conditional.openItems + ' conditional · ' +
       queueStats.sections.fubDrift.openItems + ' FUB drift · ' +
-      queueStats.sections.ownersGovernance.openItems + ' Owners list drift'
+      queueStats.sections.ownersGovernance.openItems + ' Owners list drift · ' +
+      queueStats.sections.agentRoster.openItems + ' roster'
   ))
 
   if (job.key === 'admin-deal-review-readonly') {
     body.appendChild(renderLabeledCopy(
       'Inspection writeback',
-      'Scheduled: marked Admin re-reviews run first. The first-pass backlog then checks one newest eligible never-reviewed Admin deal per run, using Date Firm (Executed), a 2025-06-01 cutoff, and a 10-day maturity gate. At every 8 hours, that is 3 backlog deals per day. Writes AI status/action/findings only; source-field fixes stay human-owned.'
+      'Scheduled: marked Admin re-reviews only. Ops fixes source rows, marks Review This Deal, and this lane rewrites AI status/action/findings without auto-fixing source fields.'
+    ))
+  }
+
+  if (job.key === 'admin-deal-backlog-review') {
+    body.appendChild(renderLabeledCopy(
+      'Inspection writeback',
+      'Scheduled: five newest eligible Admin backlog deals per day, newest to older, using Date Firm (Executed), a 2025-06-01 cutoff, and a 10-day maturity gate. Post-April-1 follow-through is checked in ClickUp Deal Data Entry instead of the old Freedom review sheet.'
     ))
   }
 
   if (job.key === 'conditional-deal-review-readonly') {
     body.appendChild(renderLabeledCopy(
-      'Inspection writeback',
-      'Scheduled: marked conditional/listing re-reviews run first. The first-pass lane checks one newest eligible never-reviewed conditional/listing row per run when the row has enough date/identity signal. Writes AI status/action/findings only; source-field fixes stay human-owned.'
+      'Conditional forecast',
+      'Scheduled: rebuilds the conditional forecast from ClickUp Deal Data Entry. Buyer/seller conditional tags stay live; mutual-release tags are excluded. Mark column N as Review This Conditional to re-check a fixed conditional row.'
     ))
   }
 
@@ -271,14 +280,25 @@ function renderPanel(eyebrowText, titleText, introText) {
 function formatQueueItemMeta(item) {
   var parts = []
   if (item.owner) parts.push(item.owner)
-  if (item.rowNumber) parts.push('row ' + item.rowNumber)
+  if (item.rosterStatus) parts.push(item.rosterStatus)
+  if (item.dueDate) parts.push('due ' + item.dueDate)
+  if (Array.isArray(item.rowNumbers) && item.rowNumbers.length > 1) {
+    parts.push('rows ' + item.rowNumbers.join(', '))
+  } else if (item.rowNumber) {
+    parts.push('row ' + item.rowNumber)
+  }
   if (item.executedDate) parts.push('executed ' + item.executedDate)
+  if (item.firmDate) parts.push('firm ' + item.firmDate)
+  if (item.conditionalDeadline) parts.push('condition due ' + item.conditionalDeadline)
+  if (item.closingDate) parts.push('closing ' + item.closingDate)
+  if (item.depositStatus) parts.push('deposit ' + item.depositStatus)
   if (item.conditionalStatus) parts.push('status ' + item.conditionalStatus)
   return parts.join(' · ') || 'Ops review item'
 }
 
 function getQueueItemHref(queueStats, item) {
   var sheetId = queueStats.ownersSheet && queueStats.ownersSheet.sheetId ? queueStats.ownersSheet.sheetId : OWNERS_SHEET_ID
+  if (item.clickUpUrl) return item.clickUpUrl
   if (item.queue === 'admin' && item.rowNumber) {
     return 'https://docs.google.com/spreadsheets/d/' + sheetId + '/edit#gid=' + OWNERS_ADMIN_GID + '&range=A' + item.rowNumber
   }
@@ -383,9 +403,8 @@ function renderOpsIssueSection(queueStats, key, config, maxItems) {
 function renderOpsModeNote(queueStats) {
   var note = document.createElement('div')
   note.className = 'ops-mode-note'
-  note.textContent = 'Deal inspection is live. Marked rows are re-checked first: Review This Deal and Review This Conditional. The Admin first-pass backlog scans 3 never-reviewed deals per day, newest to older, using Date Firm (Executed) on or after 2025-06-01 and waiting 10 days after execution. Current marked re-review counts: ' +
-    queueStats.sections.admin.queuedReview + ' Admin, ' +
-    queueStats.sections.conditional.queuedReview + ' Conditional. Writeback updates only AI status, action, and findings; source-field fixes stay human-owned.'
+  note.textContent = 'Admin deal inspection is one full review. Marked Admin rows are re-checked first, then the backlog scans 5 mature deals per day, newest to older, using Date Firm (Executed) on or after 2025-06-01 and waiting 10 days after firm date. That same review checks the Owners deal row, FUB parity, ClickUp follow-through, Internal Agent Onboarding, Internal Agent Deal, Client NPS, and Client Review. Conditional pipeline is ClickUp-generated, mutual-release tasks are excluded, and column N can be marked Review This Conditional for a re-check. Current marked Admin re-review count: ' +
+    queueStats.sections.admin.queuedReview + '. Admin writeback updates only AI status, action, and findings; source-field fixes stay human-owned.'
   return note
 }
 
@@ -396,6 +415,7 @@ function renderOpsInboxFilters() {
     { key: 'conditional', label: 'Conditional / listings' },
     { key: 'fubDrift', label: 'FUB drift' },
     { key: 'ownersGovernance', label: 'Owners lists' },
+    { key: 'agentRoster', label: 'Agent roster' },
   ]
   var wrap = document.createElement('div')
   wrap.className = 'ops-filter-bar'
@@ -434,12 +454,12 @@ function renderOpsInboxPanel(queueStats, options) {
   grid.appendChild(renderStatusCard({
     label: 'Admin deal review',
     status: queueStats.sections.admin.openItems ? 'pending' : 'live',
-    detail: queueStats.sections.admin.openItems + ' Admin rows have open review findings or source-row cleanup work.',
+    detail: queueStats.sections.admin.openItems + ' Admin deals have open review findings or source-row cleanup work.',
   }))
   grid.appendChild(renderStatusCard({
-    label: 'Conditional review',
+    label: 'Conditional forecast',
     status: queueStats.sections.conditional.openItems ? 'pending' : 'live',
-    detail: queueStats.sections.conditional.openItems + ' conditional/listing rows have open review findings.',
+    detail: queueStats.sections.conditional.openItems + ' conditional/listing rows have missing forecast data.',
   }))
   grid.appendChild(renderStatusCard({
     label: 'FUB drift',
@@ -451,6 +471,11 @@ function renderOpsInboxPanel(queueStats, options) {
     status: queueStats.sections.ownersGovernance.openItems ? 'risk' : 'live',
     detail: queueStats.sections.ownersGovernance.openItems + ' Owners dropdown governance items are open.',
   }))
+  grid.appendChild(renderStatusCard({
+    label: 'Agent roster',
+    status: queueStats.sections.agentRoster.openItems ? 'pending' : 'live',
+    detail: queueStats.sections.agentRoster.openItems + ' roster accountability items are open.',
+  }))
   panel.appendChild(grid)
 
   panel.appendChild(renderOpsModeNote(queueStats))
@@ -458,12 +483,12 @@ function renderOpsInboxPanel(queueStats, options) {
   if (showItems) {
     panel.appendChild(renderOpsInboxFilters())
     panel.appendChild(renderOpsIssueSection(queueStats, 'admin', {
-      title: 'Admin deal rows',
+      title: 'Admin deal reviews',
       emptyText: 'No Admin deal review findings are open.',
     }))
     panel.appendChild(renderOpsIssueSection(queueStats, 'conditional', {
       title: 'Conditional / listing rows',
-      emptyText: 'No conditional review findings are open.',
+      emptyText: 'No conditional forecast data gaps are open.',
     }))
     panel.appendChild(renderOpsIssueSection(queueStats, 'fubDrift', {
       title: 'FUB taxonomy and parity drift',
@@ -472,6 +497,10 @@ function renderOpsInboxPanel(queueStats, options) {
     panel.appendChild(renderOpsIssueSection(queueStats, 'ownersGovernance', {
       title: 'Owners dropdown drift',
       emptyText: 'No Owners dropdown drift items are open.',
+    }))
+    panel.appendChild(renderOpsIssueSection(queueStats, 'agentRoster', {
+      title: 'Agent roster accountability',
+      emptyText: 'No agent roster accountability items are open.',
     }))
   } else {
     var actions = document.createElement('div')

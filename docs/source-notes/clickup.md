@@ -21,6 +21,20 @@ Known live surfaces Steve flagged:
 - Culture space / folder `90117028331`
 - Operations / Deals / Deal Data Entry list `901112153939`
 
+V1 governed ClickUp source boundary:
+
+- `901112153939` — Operations / Deals / `Deal Data Entry`
+- `901113292355` — Operations / Agent Management / `Agent Roster`
+- `901113487352` — Operations / Agent Management / `Agent Onboarding/Offboarding`
+- these are the only ClickUp lists treated as validated Foundation sources for the current Owners/Ops closeout phase
+- other ClickUp boards/spaces can be reviewed later, but they should not affect v1 source truth right now
+
+Repeatable validation:
+
+- `npm run clickup:verify`
+- this verifies the three v1 lists are reachable, have tasks, and expose the required source fields for the current system boundary
+- `npm run foundation:verify` includes this ClickUp check
+
 Live proof now captured:
 
 - Agent Roster list `901113292355` is readable in the rebuild
@@ -93,23 +107,48 @@ AIOS cleanup applied on 2026-04-25:
   - `Internal Deal Review Status`
   - `Internal Deal Review Skipped Reason`
 - Deal Data Entry fields were appended to the existing `Full Deal List` view `8chw3b6-33791` instead of creating a separate working list
-- new Agent Roster fields were added:
-  - `Recruited By`
-  - `Real Start Date`
-  - `End Date`
+  - verified after cleanup: the added deal review fields are visible at the back of the view, not the front
+- Agent Roster cleanup is now narrowed to the v1 source boundary:
+  - Steve's visible Operations Agent Roster URL is the default list view `6-901113292355-1`: `https://app.clickup.com/9011334502/v/l/6-901113292355-1`
+  - required roster/onboarding-NPS fields exist for source validation
+  - recommended fields still missing from the visible roster source contract: `Contract Status`, `Membership Status`, `Production Roster Status`, and `Onboarding Stage`
+  - ClickUp's public API path verifies field existence but does not safely delete custom-field definitions; field cleanup should be done through ClickUp's Custom Field Manager / hide-from-view controls unless a dedicated field-delete path is confirmed
+- no old ClickUp fields were deleted; finance/math clutter should be hidden from active views first and deleted only after backup/approval
+
+Roster cleanup recommendation:
+
+- keep on Agent Roster:
+  - name/status, company email, personal phone/email, birthday, board(s), tier, pod, ops usage, engagement/health notes
+  - contract package fields: `Contract Link`, `Contract Sent`, `Contract Signed`, `Document Status`, `Contract`, `Special Contract Terms`
+  - split-package summary fields that are actually populated
+  - AIOS onboarding-NPS fields: 30/60/90 status, due date, last sent, owner, feedback link
+- add or map before building the full Agent Onboarding inbox lane:
+  - `Contract Status`
   - `Membership Status`
   - `Production Roster Status`
   - `Onboarding Stage`
-  - `Contract Status`
-  - `Team / Legacy Origin`
-- Agent Roster fields were appended to the existing `Active Roster` view `8chw3b6-46591`
-- no old ClickUp fields were deleted; finance/math clutter should be hidden from active views first and deleted only after backup/approval
+- hide/delete from Agent Roster active views:
+  - deal/transaction fields copied from Deal Data Entry, including deal number/status, lead source, closing/deposit dates, sale/list price, commissions, gross/net/team portions, referral fee, co-broke, LP/SP, and volume/commission/deal credit fields
+  - generic project-management fields that are blank on roster: rock fields, template fields, task priority/effort/focus/health, week category, payment fields, required/signature/webforms fields
+  - duplicate blank field variants; keep the populated version when a duplicate exists, especially `Tier`, `Birthday`, `Shirt Size`, and progress fields
+
+Pipeline cleanup recommendation:
+
+- keep on Agent Onboarding/Offboarding:
+  - pipeline status, onboarding start date, recruiter/source, contact details, notes, checklist/progress, contract handoff fields, and any fields Carson/Clare actively use to move a person through recruiting/onboarding/offboarding
+- hide/delete from Agent Onboarding/Offboarding active views:
+  - deal/transaction economics and duplicated Deal Data Entry fields
+  - old template/rock/task-management clutter that is blank and not part of the onboarding handoff
+  - duplicated split/deal math fields that belong in Owners or the Agent Roster contract layer
 
 Current read:
 
 - ClickUp is usable as workflow evidence for whether Ops had survey / closeout tasks
 - `Deal #` / Trade Number is the required join key for actual transaction tasks
 - once `Deal #` is present, AIOS can produce the exact Owners Admin row link and backfill FUB link / review evidence / calculated date buckets where useful
+- Admin deal review now uses `Deal #` as the hard join first, then property/address as a fallback so it can produce a better finding:
+  - matching ClickUp task exists, but `Deal #` is blank / wrong
+  - no matching ClickUp task exists by Trade Number or address
 - client NPS / Google-review workflow should trigger when the deal firms, not at closing
 - do not treat one Google-review URL as the full outcome: couples can produce more than one review, so use target/captured counts plus evidence links/notes
 - track NPS and Google reviews as separate statuses because a Google review can be captured without a completed NPS:
@@ -118,7 +157,23 @@ Current read:
 - internal agent/team feedback should also use status fields with skip reasons:
   - `Internal Onboarding Status`: `Not Started`, `Requested`, `Completed`, `Skipped`, `Blocked`
   - `Internal Deal Review Status`: `Not Started`, `Requested`, `Completed`, `Skipped`, `Blocked`
+- agent roster source-truth and onboarding NPS design is still pending:
+  - review the existing Operations Agent Roster fields first
+  - only add the smallest field set needed after duplicate AIOS fields are removed
 - ClickUp is still not the final bonus payout truth; AIOS must validate required fields and source parity before bonus credit counts
+
+Agent Roster Ops lane v1:
+
+- do not create/delete/hide fields automatically while Steve is cleaning the roster view with Carson and Clare
+- `npm run agent-roster:review` reads the Agent Roster list and reports source-backed roster accountability items
+- `/api/owners/review-queue` includes an `agentRoster` section so Ops can see roster findings beside deal, conditional, FUB, and Owners-list issues
+- v1 surfaces:
+  - one card per accountable roster record missing `Contract Link`
+  - one grouped card when baseline source fields need backfill (`Recruited By`, `Real Start Date`, `Team / Legacy Origin`)
+  - one grouped card when recommended roster source-contract fields still need mapping (`Contract Status`, `Membership Status`, `Production Roster Status`, `Onboarding Stage`)
+  - one grouped card when onboarding NPS 30/60/90 scheduling cannot run because start dates/statuses/due dates/owner are not initialized
+  - one grouped card for missing personal email coverage because private onboarding feedback should not depend on the onboarding team
+- this is validation only; Steve/Carson/Clare own the manual field hiding/deletion pass
 
 ## What ClickUp Does Not Own Yet
 
