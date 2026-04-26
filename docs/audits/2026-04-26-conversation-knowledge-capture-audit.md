@@ -72,6 +72,15 @@ Fix applied:
 | KPI-native writes are mainly goals and Shopping List | `docs/source-notes/kpi-dashboard.md`, `docs/handoffs/2026-04-26-kpi-fub-sales-checkpoint.md` | `SALES-005`, `KPI-SHOPPING-001` | Captured |
 | If KPI endpoints are missing, BCrew owns the code and can ask Aidan/Lee to implement safe endpoints | `docs/source-notes/kpi-dashboard.md`, `docs/handoffs/2026-04-26-kpi-fub-sales-checkpoint.md` | `SALES-005` | Captured |
 | Long-term CRM replacement direction: use deep FUB/KPI/Home Value Hub understanding to eventually reduce dependence on GHL/FUB | `memory/2026-04-26.md`, `docs/handoffs/2026-04-26-kpi-fub-sales-checkpoint.md` | `SALES-004`, `SALES-005`, future source cards | Captured as direction, not build-ready |
+| KPI Current State yellow item / `SOURCE-010` should close after KPI read-rule lock | `docs/source-notes/kpi-dashboard.md`, `docs/rebuild/current-state.md` | `SOURCE-010=done`; follow-on under `KPI-HEALTH-001`, `SOURCE-021`, KPI quality cards | Captured |
+| Steve strategy folder and John Kitchens binder need Drive extraction for strategy prep | `docs/source-notes/google-drive-corpus.md`, `docs/audits/2026-04-26-drive-content-extraction-proof.md`, `memory/2026-04-26.md` | `DRIVE-CONTENT-001` first slice shipped; remaining file types explicit | Captured |
+| Gmail attachment extraction matters because emails can carry PDFs/files, not only message bodies | `docs/source-notes/shared-communications.md`, `memory/2026-04-26.md` | `EMAIL-ATTACHMENTS-001` first slice shipped; Missive/OCR/Office/media still open | Captured |
+| YouTube subtitle extraction is useful but not GOD-mode video understanding | `docs/source-notes/video-link-inventory.md`, `docs/audits/2026-04-26-video-transcript-extraction-proof.md`, `docs/handoffs/2026-04-26-video-extraction-checkpoint.md` | `MULTIMODAL-EXTRACTOR-001`, `MEETING-VIDEO-001`, `YOUTUBE-SCOUT-001` | Captured |
+| Mycro public YouTube video is a good visual test because value is in folder structures, screenshots, and workflow shown on screen | `docs/source-notes/video-link-inventory.md`, `docs/rebuild/agent-architecture.md`, `docs/source-notes/myicro-training.md` | `MULTIMODAL-EXTRACTOR-001`, `MYICRO-TRAINING-001` | Captured |
+| GOD-mode video/web extractor must watch/listen/read/capture screenshots/keyframes/tool workflows, not only summarize captions | `docs/source-notes/video-link-inventory.md`, `docs/source-notes/myicro-training.md`, `docs/rebuild/current-plan.md`, `docs/rebuild/current-state.md` | `MULTIMODAL-EXTRACTOR-001`, `WEB-GODMODE-001` | Captured |
+| Mycro / myICOR logged-in app extraction is a separate source lane from public YouTube proof | `docs/source-notes/myicro-training.md` | `MYICRO-TRAINING-001`; proposed `SRC-MYICRO-001` after access proof | Captured |
+| The crawler may be code with a brain, a worker, or later an agent; the durable need is a governed GOD-mode tool that agents can call | `docs/source-notes/myicro-training.md`, `docs/rebuild/agent-architecture.md` | `WEB-GODMODE-001`, `AGENT-001`, `MULTIMODAL-EXTRACTOR-001` | Captured |
+| Multiple paid model/subscription seats are allowed if treated as named compliant capacity lanes, not blind account rotation | `memory/2026-04-26.md`, `docs/handoffs/2026-04-26-video-extraction-checkpoint.md` | `LLM-HUB-CAPACITY-001` | Captured |
 
 ## Items That Still Need Real Work
 
@@ -84,6 +93,8 @@ These are not lost; they are tracked work:
 - `SALES-005`: design and later build safe agent-authorized writes.
 - `DRIVE-CONTENT-001`, `EMAIL-ATTACHMENTS-001`, `MEETING-VIDEO-001`, `MULTIMODAL-EXTRACTOR-001`: build the missing extraction layers so future strategy/coach work can read the full corpus.
 - `CONNECTOR-CREDENTIAL-001`: build preflight registry so future agents know whether keys exist before starting deep audits.
+- `WEB-GODMODE-001`: build the governed browser-capable worker/tool for authorized web apps, page navigation, screenshots, visual workflow detection, and source-backed artifact filing.
+- `MYICRO-TRAINING-001`: validate logged-in Mycro/myICOR paid-training extraction as the first app/course proof after the public YouTube visual proof.
 
 ## Process Fix
 
@@ -95,4 +106,3 @@ When Steve gives dense business logic during active implementation, the assistan
 4. Say where it was captured before continuing build work.
 
 This is the only way to prevent "Steve explained it in chat" from becoming system loss.
-
