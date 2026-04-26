@@ -556,7 +556,7 @@ Acceptance:
 
 ### Phase 6 — Drive, Skool, And Old-System Mining
 
-Goal: create sustainable corpus ingestion instead of one-time archaeology.
+Goal: create sustainable corpus ingestion instead of one-time archaeology. Steve has repeatedly made this explicit: the target is a high-end multimodal extractor for YouTube videos/channels, Loom, Skool, Drive/meeting videos, Zoom recordings, demos, screenshots, transcripts, and related training/course material. This is not optional research; it is a core Foundation capability. The constraint is governed access, provenance, cost/route ledgering, quotas, and stop controls.
 
 Build:
 
@@ -580,6 +580,7 @@ Rules:
 - Google Drive starts with read-only direct-child inventory of the eight captured shared-drive roots
 - Skool starts with access-path audit only; no blind browser scraping
 - Loom starts with URL inventory and small authorized extractor proof; Loom's SDK is not a bulk extraction API
+- YouTube/Loom/Skool/video extraction should proceed through small ledged proofs, then daily quota missions; do not wait for another broad approval that the category matters
 - organizer/move actions stay dry-run until approved
 - old system is mined for output patterns and useful doctrine, not copied as runtime architecture
 - mining output must say which hub can use the asset, or why it should be ignored

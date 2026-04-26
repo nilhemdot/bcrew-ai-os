@@ -53,6 +53,12 @@ New urgent P0s:
 - `EMAIL-ATTACHMENTS-001`: Archive and extract Gmail and Missive attachments.
 - `MEETING-VIDEO-001`: Review videos and recordings linked from meeting notes.
 
+Additional controls captured after Claude review:
+
+- `EXTRACT-RETIRE-001`: history/corpus missions should auto-complete or pause when their remaining backlog is empty. Current jobs can run zero-work successfully, but they do not yet auto-retire.
+- `DRIVE-CONTENT-001` and `EMAIL-ATTACHMENTS-001` now require explicit skip reasons for unsupported, unauthorized, or policy-excluded files. Unsupported files should not silently disappear.
+- Steve clarified that multimodal/video extraction is approved in principle and expected as part of the Foundation vision. The guardrail is budgeted, observable, quota-controlled execution, not avoiding video spend. `MEETING-VIDEO-001` and `MULTIMODAL-EXTRACTOR-001` should proceed through small ledged proofs before scale.
+
 Enriched:
 
 - `RUNTIME-FIRST-JOBS-001`: first scheduled set now includes current-day, extraction quota, and Drive inventory proof; remaining work is monitoring and stronger controls.
