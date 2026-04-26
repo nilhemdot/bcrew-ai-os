@@ -199,6 +199,7 @@ async function main() {
   const serverSource = await readRepoFile('server.js')
   const foundationJobsSource = await readRepoFile('lib/foundation-jobs.js')
   const agentFeedbackSource = await readRepoFile('lib/agent-feedback.js')
+  const agentFeedbackEmailSource = await readRepoFile('lib/agent-feedback-email.js')
   const agentFeedbackClickUpSource = await readRepoFile('lib/agent-feedback-clickup.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -504,6 +505,7 @@ async function main() {
   ensure(
     checks,
       includesAll(agentFeedbackSource, ['createAgentFeedbackToken', 'verifyAgentFeedbackToken', 'hashAgentFeedbackToken']) &&
+      includesAll(agentFeedbackEmailSource, ['buildAgentFeedbackEmail', 'Share feedback', 'Quick ', 'Benson Crew']) &&
       includesAll(agentFeedbackClickUpSource, ['writeAgentFeedbackToClickUp', 'Onboarding NPS 30 Score', 'Onboarding NPS 90 Feedback']) &&
       includesAll(agentRosterReviewSource, ['buildAgentFeedbackUrl', 'feedbackUrl']) &&
       includesAll(serverSource, ['/api/agent-feedback/session', '/api/agent-feedback/submit', 'upsertAgentOnboardingFeedbackResponse', 'writeAgentFeedbackToClickUp']) &&
