@@ -1,15 +1,15 @@
 # Video Link Inventory Source Note
 
 Source ID: `SRC-VIDEO-001`  
-Related source IDs: `SRC-LOOM-001`, `SRC-SKOOL-001`, `SRC-GDRIVE-001`  
-Last updated: 2026-04-24  
+Related source IDs: `SRC-LOOM-001`, `SRC-SKOOL-001`, `SRC-GDRIVE-001`, `SRC-YOUTUBE-INTEL-001`
+Last updated: 2026-04-26
 Status: Pending Revalidation
 
 ## Purpose
 
 The video corpus is not a manual Steve task. Foundation should discover video/media links from existing archives and future authorized crawlers, dedupe them, preserve source provenance, and classify which extractor can handle each link.
 
-This lane is the manifest before extraction. It does not download videos, scrape Skool, or call Loom.
+This lane starts as the manifest before extraction. Content extraction should then happen through source-specific workers under one common multimodal contract, not separate one-off systems.
 
 ## Platforms
 
@@ -64,15 +64,41 @@ First proof on 2026-04-24:
 - Deduped platform mix: `34` YouTube, `36` Google Drive, `9` Loom, `24` Skool, `1` Zoom.
 - No Loom, Skool, YouTube, Drive, Zoom, or Apify external extraction was attempted.
 
+## Content Extraction V1
+
+Target: `video-content-extract-backfill`
+Job: `video-content-extract-bite`
+Artifact type: `video_transcript`
+
+V1 handles YouTube subtitle text from the existing `video-link-inventory` manifest. It uses DataForSEO's YouTube Video Subtitles live advanced endpoint, stores timestamped transcript text as `video_transcript` artifacts under `SRC-YOUTUBE-INTEL-001`, and records unsupported/no-subtitle cases in `source_crawl_items`.
+
+Proof on 2026-04-26:
+
+- Initial run found a useful edge case: `4` YouTube transcripts extracted and `1` Short returned no subtitles from DataForSEO.
+- The no-result class now records `youtube_subtitles_unavailable_needs_video_vision_or_transcription` as a skip reason instead of failing the mission.
+- Clean controlled run inspected `5` video links, extracted `4` transcripts, skipped `1`, and recorded `0` crawl failures.
+- Current DB total: `8` `video_transcript` artifacts / `78,219` chars, with `1` skipped no-subtitle item.
+- After the worker picked up the new scheduled job, totals reached `12` `video_transcript` artifacts / `235,537` chars, with `2` skipped no-subtitle items.
+
+This is not the full GOD-mode extractor yet. It proves the shared queue and first transcript route. The next layers are:
+
+- channel/profile URLs -> creator watchlist
+- no-subtitle YouTube/Shorts -> video vision or transcription
+- Drive video files -> Drive media extractor
+- Loom -> approved Loom extractor proof
+- Zoom recordings -> router-ledged transcription/vision
+- Skool embedded videos -> approved access/export path first
+
 ## Next Proof
 
 When this becomes active work, validate one extractor path at a time:
 
-1. Run `video-link-inventory-bite` to build the first URL manifest.
-2. Pick 3-5 Steve-owned Loom URLs from the manifest.
-3. Test an Apify Loom actor with `APIFY_API_TOKEN` against those URLs.
-4. Record whether each item returns transcript text, metadata, MP4 URL, or a permission failure.
-5. Only after that proof, add a `loom-transcript-extract-bite` job.
+1. Keep `video-content-extract-bite` running as a small daily transcript mission.
+2. Route YouTube channel/profile URLs into `CREATOR-WATCHLIST-001`.
+3. Pick 3-5 Steve-owned Loom URLs from the manifest.
+4. Test an Apify Loom actor with `APIFY_API_TOKEN` against those URLs.
+5. Record whether each item returns transcript text, metadata, MP4 URL, or a permission failure.
+6. Only after that proof, add a `loom-transcript-extract-bite` job under the same video content queue.
 
 ## Value Routes
 

@@ -567,6 +567,7 @@ Build:
 - YouTube discovery and Gemini video-intelligence MVP after the retrieval spine is live
 - web/video crawler boundary for YouTube, Loom, Vimeo, Wistia, public web, and paid/community sources
 - video-link inventory lane: system discovers Loom/Drive/YouTube/Vimeo/Wistia/Zoom/Skool links from archives and authorized crawlers so Steve is not manually collecting URLs
+- video-content extraction lane: first YouTube subtitle transcript slice is live through DataForSEO and the shared video manifest; richer visual review, no-subtitle videos, Loom, Drive videos, Zoom recordings, and Skool embeds stay under the multimodal contract
 - old-system report miner
 - value classifier for content/course/training/recruiting/strategy material
 - hub handoff queues for mined assets

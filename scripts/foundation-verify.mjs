@@ -437,6 +437,7 @@ async function main() {
       "key: 'slack-extract-latest'",
       "key: 'drive-content-extract-bite'",
       "key: 'email-attachment-extract-bite'",
+      "key: 'video-content-extract-bite'",
       "runtimeMode: 'scheduled'",
       'scheduleEveryMinutes: 1440',
       "'--onlyWithoutCandidates=true'",
@@ -447,11 +448,12 @@ async function main() {
         "targetKey: 'drive-corpus-backfill'",
         "targetKey: 'drive-content-extract-backfill'",
         "targetKey: 'email-attachments-backfill'",
+        "targetKey: 'video-content-extract-backfill'",
         "runtimeMode: 'scheduled'",
         'scheduleEveryMinutes: 1440',
       ]),
     'core sources have scheduled current-day and daily history/mission lanes',
-    'meetings/slack current sync, Gmail/Missive/meeting/Slack extraction, Drive inventory/content, and Gmail attachment extraction are scheduled with daily quotas',
+    'meetings/slack current sync, Gmail/Missive/meeting/Slack extraction, Drive inventory/content, Gmail attachments, and video content extraction are scheduled with daily quotas',
   )
   ensure(
     checks,
@@ -492,6 +494,25 @@ async function main() {
       ]),
     'Gmail attachment extraction target is governed and source-ledgered',
     'target runner passes attachment/text caps and DB artifacts/crawl items include gmail_attachment support',
+  )
+  ensure(
+    checks,
+    includesAll(extractionTargetSource, [
+      "target.targetKey === 'video-content-extract-backfill'",
+      'video:extract-content',
+      '--maxTextChars=',
+    ]) &&
+      includesAll(extractionControlSeedSource, [
+        "targetKey: 'video-content-extract-backfill'",
+        "missionUnit: 'video_transcript_outputs'",
+        'DataForSEO YouTube Video Subtitles live advanced',
+      ]) &&
+      includesAll(foundationDbSource, [
+        'listVideoContentExtractionQueue',
+        "video_transcript",
+      ]),
+    'video content extraction target is governed and source-ledgered',
+    'target runner passes text caps and DB queue/artifact constraints include the video transcript lane',
   )
   ensure(
     checks,

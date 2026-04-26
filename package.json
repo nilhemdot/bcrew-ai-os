@@ -42,6 +42,7 @@
     "drive:inventory-corpus": "node --env-file-if-exists=.env scripts/inventory-drive-corpus.mjs",
     "drive:extract-content": "node --env-file-if-exists=.env scripts/extract-drive-content.mjs",
     "video-links:inventory": "node --env-file-if-exists=.env scripts/inventory-video-links.mjs",
+    "video:extract-content": "node --env-file-if-exists=.env scripts/extract-video-content.mjs",
     "zoom:extract-candidates": "node --env-file-if-exists=.env scripts/extract-zoom-chat-candidates.mjs",
     "zoom:extract-audio-candidates": "node --env-file-if-exists=.env scripts/extract-zoom-audio-transcript-candidates.mjs",
     "zoom:transcribe-audio": "node --env-file-if-exists=.env scripts/transcribe-zoom-audio-archive.mjs",

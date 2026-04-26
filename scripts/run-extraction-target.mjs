@@ -216,6 +216,27 @@ function getTargetRunner(target) {
     }
   }
 
+  if (target.targetKey === 'video-content-extract-backfill') {
+    const maxTextChars = numberFromBudget(target, 'maxTextChars', 250000)
+    return {
+      command: 'npm',
+      args: [
+        'run',
+        'video:extract-content',
+        '--',
+        `--target=${target.targetKey}`,
+        `--limit=${maxItemsPerRun}`,
+        `--maxTextChars=${maxTextChars}`,
+        '--controlledByTargetRunner=true',
+      ],
+      inspectedPattern: /Video content items inspected:\s*(\d+)/i,
+      archivedPattern: /Video transcripts extracted:\s*(\d+)/i,
+      extractedPattern: /Video transcripts extracted:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
+      summaryPattern: /^EXTRACTION_TARGET_SUMMARY\s+(\{.+\})$/m,
+    }
+  }
+
   throw new Error(`No extraction target runner is configured yet for: ${target.targetKey}`)
 }
 
