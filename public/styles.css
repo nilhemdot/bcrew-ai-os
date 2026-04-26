@@ -2921,6 +2921,203 @@ body {
   line-height: 1.45;
 }
 
+.strategy-command-card,
+.strategy-advisor-card,
+.strategy-review-board,
+.strategy-priority-card {
+  background:
+    linear-gradient(180deg, rgba(65, 120, 90, 0.06) 0%, rgba(255, 255, 255, 0) 100%),
+    var(--surface);
+}
+
+.strategy-lens-row,
+.strategy-review-top,
+.strategy-prompt-row,
+.strategy-advisor-form-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.strategy-lens-row { margin: 10px 0 12px; }
+
+.strategy-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text-secondary);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.strategy-chip-attract { border-color: rgba(0, 132, 201, 0.28); color: #006a9f; }
+.strategy-chip-grow { border-color: rgba(72, 142, 94, 0.3); color: #2b7a43; }
+.strategy-chip-retain { border-color: rgba(122, 91, 180, 0.28); color: #68469e; }
+.strategy-chip-finance { border-color: rgba(180, 119, 54, 0.3); color: #8a5b25; }
+.strategy-chip-foundation { border-color: rgba(60, 80, 98, 0.28); color: #3c5062; }
+.strategy-chip-status { border-color: var(--border); color: var(--text-tertiary); }
+
+.strategy-review-list {
+  display: grid;
+  gap: 10px;
+}
+
+.strategy-review-item {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.strategy-review-item strong {
+  color: var(--text-primary);
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
+.strategy-review-item p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.83rem;
+  line-height: 1.5;
+}
+
+.strategy-review-next {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+.strategy-review-gap {
+  padding: 8px 10px;
+  border-left: 3px solid var(--brand);
+  background: var(--surface-inset);
+}
+
+.strategy-review-sources,
+.strategy-advisor-meta,
+.strategy-advisor-status {
+  color: var(--text-tertiary);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.strategy-prompt-row { margin: 10px 0 12px; }
+
+.strategy-prompt-button {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  line-height: 1.25;
+  padding: 7px 9px;
+}
+
+.strategy-prompt-button:hover { border-color: var(--border-strong); color: var(--text-primary); }
+
+.strategy-advisor-messages {
+  display: grid;
+  gap: 10px;
+  max-height: 520px;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-inset);
+}
+
+.strategy-advisor-message {
+  display: grid;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.strategy-advisor-message-user {
+  background: rgba(0, 132, 201, 0.07);
+  border-color: rgba(0, 132, 201, 0.22);
+}
+
+.strategy-advisor-label {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  color: var(--text-secondary);
+}
+
+.strategy-advisor-body,
+.strategy-advisor-body p,
+.strategy-advisor-body li {
+  color: var(--text-primary);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.strategy-advisor-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.strategy-advisor-form textarea {
+  width: 100%;
+  min-height: 104px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.94);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.strategy-advisor-form textarea:focus {
+  outline: 2px solid rgba(0, 132, 201, 0.18);
+  border-color: rgba(0, 132, 201, 0.45);
+}
+
+.strategy-advisor-form-footer {
+  justify-content: space-between;
+}
+
+.strategy-advisor-submit {
+  min-height: 36px;
+  padding: 8px 16px;
+  border: 1px solid var(--brand);
+  border-radius: 8px;
+  background: var(--brand);
+  color: #fff;
+  cursor: pointer;
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.strategy-advisor-submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 .section-link {
   color: inherit;
   text-decoration: none;

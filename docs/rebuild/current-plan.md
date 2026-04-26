@@ -656,7 +656,7 @@ Strategy Hub should:
 - produce a tight owner-level strategy packet
 - track follow-through after the meeting
 
-First proof now exists: `strategy:evidence-packet` generated `strategy-packet-20260426T205646Z-3e1e6a1cd2` through the OpenClaw subscription synthesis route. It read 180 mined candidates, 25 direct Drive/video/email/meeting artifacts, 8 strategy docs, backlog/decision/runtime facts, and persisted 16 synthesized packet items. This proves the evidence-packet shape, not the full Strategy Hub. The next work is the Strategy Review Board: classify issues by Attract / Grow / Retain, show AI-suggested moves and missing-data gaps, let Steve accept/reject/needs-evidence items, then promote accepted work into quarterly priorities, decisions, backlog items, and Action Router records.
+First proof now exists: `strategy:evidence-packet` generated `strategy-packet-20260426T205646Z-3e1e6a1cd2` through the OpenClaw subscription synthesis route. It read 180 mined candidates, 25 direct Drive/video/email/meeting artifacts, 8 strategy docs, backlog/decision/runtime facts, and persisted 16 synthesized packet items. Strategic Execution now has Strategy Advisor v1: a routed LLM question surface plus a Review Board that maps packet items into Attract / Grow / Retain / Finance / Foundation lenses, shows AI-suggested moves, and calls out missing proof. This is still owner-review intelligence, not a closed-loop Strategy Hub. The next work is review/promote control: Steve accept/reject/needs-evidence actions, promotion into quarterly priorities, decisions, backlog items, and Action Router records.
 
 Acceptance:
 

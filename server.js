@@ -77,6 +77,7 @@ import {
   assertSessionSecretConfigured,
   setAuthCookie,
 } from './lib/app-auth.js'
+import { callLlm } from './lib/llm-router.js'
 import { OAuth2Client } from 'google-auth-library'
 import { runSheetsStructureVerification } from './scripts/sheets-structure-verify.mjs'
 
@@ -2364,6 +2365,147 @@ function getSupportingStrategyDocs() {
   })
 }
 
+const strategyAdvisorDocPaths = [
+  businessStrategyPath,
+  path.join(docsDir, 'system-strategy.md'),
+  path.join(docsDir, 'rebuild', 'current-plan.md'),
+  path.join(docsDir, 'rebuild', 'current-state.md'),
+  path.join(docsDir, 'rebuild', 'intelligence-pipeline.md'),
+  path.join(docsDir, 'source-notes', 'google-drive-corpus.md'),
+  path.join(docsDir, 'source-notes', 'video-link-inventory.md'),
+  path.join(docsDir, 'source-notes', 'myicro-training.md'),
+  ...strategyDocs,
+]
+
+function truncateForPrompt(value, maxLength) {
+  const text = String(value || '')
+  if (text.length <= maxLength) return text
+  return text.slice(0, maxLength) + '\n[truncated]'
+}
+
+function compactStrategyAdvisorDoc(filePath) {
+  const content = readFileSafe(filePath)
+  return {
+    path: path.relative(__dirname, filePath),
+    title: getDocTitle(content, filePath),
+    exists: Boolean(content),
+    excerpt: truncateForPrompt(content, 2600),
+  }
+}
+
+function compactStrategyPacketItem(item) {
+  return {
+    itemType: item.itemType || item.item_type || '',
+    title: item.title || '',
+    status: item.status || '',
+    oneLine: item.oneLine || item.one_line || item.currentReality || item.current_reality || '',
+    evidenceSummary: item.evidenceSummary || item.evidence_summary || '',
+    recommendedNextAction: item.recommendedNextAction || item.recommended_next_action || item.nextAction || item.next_action || '',
+    sourceIds: item.sourceIds || item.source_ids || [],
+    ownerHint: item.ownerHint || item.owner_hint || '',
+    confidence: item.confidence || null,
+  }
+}
+
+function compactStrategyBacklogItem(item) {
+  return {
+    id: item.id,
+    title: item.title,
+    lane: item.lane,
+    priority: item.priority,
+    scope: item.scope,
+    summary: item.summary,
+    whyItMatters: item.whyItMatters,
+    nextAction: item.nextAction,
+    statusNote: item.statusNote,
+  }
+}
+
+async function getStrategyAdvisorContext() {
+  const synthesis = await getSharedCommunicationSynthesisSnapshot({
+    limit: 1,
+    itemLimit: 30,
+    packetType: 'strategy_evidence_packet_v1',
+  })
+  const foundation = await getFoundationSnapshot()
+  const packetJson = synthesis.latestRun?.metadata?.packetJson || {}
+  const criticalBacklog = (foundation.backlogItems || [])
+    .filter(item => {
+      const searchable = `${item.id} ${item.title} ${item.summary} ${item.nextAction} ${item.statusNote}`.toLowerCase()
+      return (
+        item.priority === 'P0' ||
+        searchable.includes('strategy') ||
+        searchable.includes('synthesis') ||
+        searchable.includes('action router') ||
+        searchable.includes('meeting') ||
+        searchable.includes('drive') ||
+        searchable.includes('kpi') ||
+        searchable.includes('fub') ||
+        searchable.includes('marketing') ||
+        searchable.includes('agent') ||
+        searchable.includes('finance')
+      )
+    })
+    .slice(0, 40)
+    .map(compactStrategyBacklogItem)
+
+  const docSnapshots = []
+  for (const docPath of [
+    'docs/business-strategy.md',
+    'docs/strategy/agent-engine.md',
+    'docs/strategy/bhag-model.md',
+    'docs/strategy/quarterly-priorities.md',
+    'docs/strategy/strategic-issues.md',
+  ]) {
+    try {
+      docSnapshots.push(await getDocSourceSnapshot(docPath))
+    } catch (error) {
+      docSnapshots.push({ docPath, error: error instanceof Error ? error.message : 'snapshot unavailable' })
+    }
+  }
+
+  return {
+    generatedAt: new Date().toISOString(),
+    doctrine: {
+      northStar: 'Benson Crew strategy work should map to Attract, Grow, Retain, finance/cash truth, operating accountability, and Foundation reliability.',
+      answerRule: 'Use source-backed facts first, call out inference, then name missing evidence and the next operating move.',
+    },
+    latestPacket: {
+      run: synthesis.latestRun
+        ? {
+          runId: synthesis.latestRun.runId,
+          generatedAt: synthesis.latestRun.generatedAt,
+          model: synthesis.latestRun.model,
+          provider: synthesis.latestRun.provider,
+          candidatesRead: synthesis.latestRun.candidatesRead,
+          itemsGenerated: synthesis.latestRun.itemsGenerated,
+          metadata: {
+            executiveSummary: synthesis.latestRun.metadata?.executiveSummary || '',
+            inputSummary: synthesis.latestRun.metadata?.inputSummary || {},
+            strategyReadiness: synthesis.latestRun.metadata?.strategyReadiness || {},
+          },
+        }
+        : null,
+      items: (synthesis.latestItems || []).map(compactStrategyPacketItem),
+      strategicIssues: (packetJson.strategic_issues || []).map(compactStrategyPacketItem).slice(0, 12),
+      decisionCandidates: (packetJson.decisionCandidates || packetJson.decision_candidates || []).slice(0, 8),
+      recommended90DayPriorities: (packetJson.recommended90DayPriorities || packetJson.recommended_90_day_priorities || []).slice(0, 8),
+      openQuestions: (packetJson.open_questions || packetJson.openQuestions || []).slice(0, 10),
+      sourceCoverage: (packetJson.source_coverage || packetJson.sourceCoverage || []).slice(0, 12),
+    },
+    docs: strategyAdvisorDocPaths.map(compactStrategyAdvisorDoc),
+    docSourceSnapshots: docSnapshots,
+    backlog: criticalBacklog,
+    decisions: (foundation.decisions || []).slice(0, 12),
+    openQuestions: (foundation.openQuestions || []).slice(0, 12),
+    runtime: {
+      latestSynthesisRun: foundation.sharedCommunicationSynthesis?.latestRun || null,
+      extractionControl: foundation.extractionControl?.summary || foundation.extractionControl || null,
+      llmRuntime: foundation.llmRuntime?.summary || foundation.llmRuntime || null,
+    },
+  }
+}
+
 function getDocTitle(markdown, filePath) {
   if (markdown) {
     const lines = markdown.split('\n')
@@ -3766,6 +3908,92 @@ app.get('/api/shared-communications/synthesis', requireAdminToken, async (req, r
       500,
       'shared_communications_synthesis_failed',
       error instanceof Error ? error.message : 'Failed to load shared communications synthesis.'
+    )
+  }
+})
+
+app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res) => {
+  try {
+    const payload =
+      req.body && typeof req.body === 'object' && !Array.isArray(req.body)
+        ? req.body
+        : {}
+    const question = typeof payload.question === 'string' ? payload.question.trim() : ''
+
+    if (!question) {
+      sendApiError(res, 400, 'strategy_advisor_question_required', 'Ask a strategy question.')
+      return
+    }
+
+    if (question.length > 2400) {
+      sendApiError(res, 400, 'strategy_advisor_question_too_long', 'Keep strategy questions under 2400 characters.')
+      return
+    }
+
+    const context = await getStrategyAdvisorContext()
+    const contextText = truncateForPrompt(JSON.stringify(context, null, 2), 65000)
+    const result = await callLlm({
+      workload: 'synthesis',
+      hubKey: 'foundation',
+      dryRun: false,
+      maxOutputTokens: 1800,
+      metadata: {
+        feature: 'strategy_advisor_v1',
+        timeoutMs: 300000,
+        questionLength: question.length,
+        latestPacketRunId: context.latestPacket.run?.runId || null,
+      },
+      messages: [
+        {
+          role: 'system',
+          content: [
+            'You are the BCrew Strategy Advisor inside the Strategic Execution Hub.',
+            'Answer from the supplied source-backed context only. Do not pretend to have read sources outside the context.',
+            'When you infer, label it as inference. When evidence is missing, name the exact missing source or proof.',
+            'Map recommendations to Attract, Grow, Retain, Finance/Cash, Department Accountability, or Foundation Reliability when useful.',
+            'Be direct and operator-grade. Prefer concrete decisions, questions, owners, metrics, and next moves over general advice.',
+            'If Steve asks which department is stuck, separate source-backed evidence from your judgment.',
+            'Keep the answer tight enough to use in a strategy meeting.',
+          ].join(' '),
+        },
+        {
+          role: 'user',
+          content: [
+            'SOURCE-BACKED STRATEGY CONTEXT:',
+            contextText,
+            '',
+            'STEVE QUESTION:',
+            question,
+            '',
+            'Return a practical answer with these sections when relevant:',
+            '- Direct read',
+            '- Attract / Grow / Retain impact',
+            '- Evidence used',
+            '- Missing data or caveats',
+            '- Recommended next move',
+          ].join('\n'),
+        },
+      ],
+    })
+
+    cacheHeadersNoStore(res)
+    res.json({
+      answer: result.outputText || '',
+      generatedAt: new Date().toISOString(),
+      provider: result.provider,
+      authPath: result.authPath,
+      routeKey: result.routeKey,
+      model: result.model,
+      llmCallId: result.call?.callId || null,
+      latestPacketRunId: context.latestPacket.run?.runId || null,
+      latestPacketGeneratedAt: context.latestPacket.run?.generatedAt || null,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'strategy_advisor_failed',
+      error instanceof Error ? error.message : 'Strategy advisor failed.'
     )
   }
 })

@@ -89,6 +89,7 @@ var sectionSupportDocs = {
 
 var sectionLabels = {
   'overview': 'Overview',
+  'advisor': 'Strategy Advisor',
   'evidence-packet': 'Evidence Packet',
   'quarterly-priorities': 'Quarterly Priorities',
   'strategic-issues': 'Strategic Issues',
@@ -550,6 +551,7 @@ var cache = {
   sourceOfTruth: null,
   docs: {},
   strategyEvidencePacket: null,
+  strategyAdvisorMessages: [],
 }
 
 function fetchSourceOfTruth() {
@@ -586,6 +588,447 @@ function fetchStrategyEvidencePacket() {
     cache.strategyEvidencePacket = data
     return data
   })
+}
+
+function postStrategyAdvisorQuestion(question) {
+  return fetch('/api/strategic-execution/advisor', {
+    method: 'POST',
+    headers: Object.assign({ 'Content-Type': 'application/json' }, getAdminHeaders()),
+    body: JSON.stringify({ question: question }),
+  }).then(function(res) {
+    return res.json().then(function(data) {
+      if (!res.ok) {
+        throw new Error(data && data.message ? data.message : 'Strategy advisor failed.')
+      }
+      return data
+    })
+  })
+}
+
+function getPacketJson(packetData) {
+  return packetData && packetData.latestRun && packetData.latestRun.metadata
+    ? packetData.latestRun.metadata.packetJson || {}
+    : {}
+}
+
+function getPacketInputSummary(packetData) {
+  var run = packetData && packetData.latestRun
+  return run && run.metadata ? run.metadata.inputSummary || {} : {}
+}
+
+function normalizePacketItem(item) {
+  return {
+    title: item.title || 'Untitled strategy item',
+    status: item.status || 'open',
+    itemType: item.itemType || item.item_type || 'strategy_item',
+    oneLine: item.oneLine || item.one_line || item.currentReality || item.current_reality || '',
+    evidenceSummary: item.evidenceSummary || item.evidence_summary || '',
+    recommendedNextAction: item.recommendedNextAction || item.recommended_next_action || item.nextAction || item.next_action || '',
+    ownerHint: item.ownerHint || item.owner_hint || '',
+    sourceIds: item.sourceIds || item.source_ids || [],
+    confidence: item.confidence || null,
+  }
+}
+
+function classifyStrategyLens(item) {
+  var text = [
+    item.title,
+    item.oneLine,
+    item.evidenceSummary,
+    item.recommendedNextAction,
+    item.ownerHint,
+    (item.sourceIds || []).join(' '),
+  ].join(' ').toLowerCase()
+
+  if (/cash|finance|actual|billable|runway|budget|reconciliation|spend/.test(text)) return 'Finance'
+  if (/marketing|content|brand|publishing|campaign|review|socialpilot|youtube|recruit/.test(text)) return 'Attract'
+  if (/production|agent|fub|mentorship|coaching|training|onboarding|shopping|kpi|floor|sales/.test(text)) return 'Grow'
+  if (/retention|retain|engagement|at-risk|standard|support|overwhelm/.test(text)) return 'Retain'
+  if (/foundation|runtime|router|source|system|memory|action router|extraction/.test(text)) return 'Foundation'
+  return 'Company'
+}
+
+function inferMissingEvidence(item) {
+  var text = [
+    item.title,
+    item.oneLine,
+    item.evidenceSummary,
+    item.recommendedNextAction,
+  ].join(' ').toLowerCase()
+
+  if (/cash|finance|actual|billable|budget/.test(text)) {
+    return 'Need weekly reconciled actuals, billable aging, and cash scenario proof before locking spend decisions.'
+  }
+  if (/marketing|content|brand|publishing|socialpilot/.test(text)) {
+    return 'Need content-performance, publishing reliability, and campaign-to-outcome data, not just activity volume.'
+  }
+  if (/production|floor|agent|fub|kpi|sales/.test(text)) {
+    return 'Need live KPI/FUB compliance proof by agent: valid leads, appointment outcomes, Shopping List movement, and executed deals.'
+  }
+  if (/onboarding|training|skool|tool|pathway/.test(text)) {
+    return 'Need training usage, onboarding completion, and role-owner evidence to prove this is not still leadership rescue.'
+  }
+  if (/system|foundation|runtime|router|memory|action/.test(text)) {
+    return 'Need runtime success, source trust, retrieval, and Action Router proof before treating this as an operating dependency.'
+  }
+  return 'Need owner confirmation, source IDs, and a next proof point before promotion into quarterly execution.'
+}
+
+function buildReviewBoardItems(packetData) {
+  var packetJson = getPacketJson(packetData)
+  var rawItems = packetData && packetData.latestItems && packetData.latestItems.length
+    ? packetData.latestItems
+    : packetJson.strategic_issues || packetJson.strategicIssues || []
+
+  return rawItems.map(normalizePacketItem)
+}
+
+function appendChip(parent, text, modifier) {
+  var chip = document.createElement('span')
+  chip.className = 'strategy-chip' + (modifier ? ' strategy-chip-' + modifier : '')
+  chip.textContent = text
+  parent.appendChild(chip)
+}
+
+function renderStrategyHealthCard(packetData) {
+  var article = document.createElement('article')
+  article.className = 'section-card strategy-command-card'
+
+  var title = document.createElement('h4')
+  title.textContent = 'Strategy Command Center'
+  article.appendChild(title)
+
+  var run = packetData && packetData.latestRun
+  var inputSummary = getPacketInputSummary(packetData)
+  var readiness = run && run.metadata ? run.metadata.strategyReadiness || {} : {}
+
+  var summary = document.createElement('p')
+  summary.className = 'strategy-packet-summary'
+  summary.textContent = run && run.metadata && run.metadata.executiveSummary
+    ? run.metadata.executiveSummary
+    : 'Use this hub to ask source-backed strategy questions, review Attract / Grow / Retain signals, and decide what needs owner review next.'
+  article.appendChild(summary)
+
+  var grid = document.createElement('div')
+  grid.className = 'strategy-packet-meta-grid'
+  ;[
+    ['Evidence', (inputSummary.candidate_count || run?.candidatesRead || 0) + ' candidates · ' + (inputSummary.direct_artifact_count || 0) + ' artifacts'],
+    ['Docs', (inputSummary.strategy_doc_count || 0) + ' strategy docs'],
+    ['Readiness', readiness.readiness_label || 'Owner review ready'],
+    ['Updated', run ? formatDate(run.generatedAt) : 'Not generated'],
+  ].forEach(function(pair) {
+    var pill = document.createElement('div')
+    pill.className = 'strategy-packet-meta-pill'
+    var label = document.createElement('span')
+    label.textContent = pair[0]
+    pill.appendChild(label)
+    var value = document.createElement('strong')
+    value.textContent = pair[1]
+    pill.appendChild(value)
+    grid.appendChild(pill)
+  })
+  article.appendChild(grid)
+
+  if (readiness.most_important_gap) {
+    var gap = document.createElement('p')
+    gap.className = 'strategy-packet-gap'
+    gap.textContent = 'Biggest caveat: ' + readiness.most_important_gap
+    article.appendChild(gap)
+  }
+
+  return article
+}
+
+function renderStrategyReviewBoard(packetData, options) {
+  var compact = options && options.compact
+  var article = document.createElement('article')
+  article.className = 'section-card strategy-review-board'
+
+  var title = document.createElement('h4')
+  title.textContent = 'Strategy Review Board'
+  article.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'strategy-packet-summary'
+  intro.textContent = 'Source-backed issues mapped into operating lenses. This is the meeting prep board: decide, ask for evidence, or promote to quarterly execution.'
+  article.appendChild(intro)
+
+  var items = buildReviewBoardItems(packetData)
+  if (!items.length) {
+    var empty = document.createElement('p')
+    empty.className = 'strategy-packet-gap'
+    empty.textContent = 'No packet items available yet. Generate a strategy evidence packet after extraction runs.'
+    article.appendChild(empty)
+    return article
+  }
+
+  var groups = {}
+  items.forEach(function(item) {
+    var lens = classifyStrategyLens(item)
+    if (!groups[lens]) groups[lens] = []
+    groups[lens].push(item)
+  })
+
+  var lensRow = document.createElement('div')
+  lensRow.className = 'strategy-lens-row'
+  ;['Attract', 'Grow', 'Retain', 'Finance', 'Foundation', 'Company'].forEach(function(lens) {
+    appendChip(lensRow, lens + ' ' + ((groups[lens] || []).length), lens.toLowerCase())
+  })
+  article.appendChild(lensRow)
+
+  var list = document.createElement('div')
+  list.className = 'strategy-review-list'
+  items.slice(0, compact ? 6 : 18).forEach(function(item) {
+    var lens = classifyStrategyLens(item)
+    var row = document.createElement('div')
+    row.className = 'strategy-review-item'
+
+    var top = document.createElement('div')
+    top.className = 'strategy-review-top'
+    appendChip(top, lens, lens.toLowerCase())
+    appendChip(top, item.status.replace(/_/g, ' '), 'status')
+    if (item.confidence) appendChip(top, Math.round(Number(item.confidence) * 100) + '% confidence', 'status')
+    row.appendChild(top)
+
+    var itemTitle = document.createElement('strong')
+    itemTitle.textContent = item.title
+    row.appendChild(itemTitle)
+
+    var read = document.createElement('p')
+    read.textContent = item.oneLine || item.evidenceSummary || ''
+    row.appendChild(read)
+
+    if (item.recommendedNextAction) {
+      var next = document.createElement('p')
+      next.className = 'strategy-review-next'
+      next.textContent = 'Move: ' + item.recommendedNextAction
+      row.appendChild(next)
+    }
+
+    var gap = document.createElement('p')
+    gap.className = 'strategy-review-gap'
+    gap.textContent = 'Proof gap: ' + inferMissingEvidence(item)
+    row.appendChild(gap)
+
+    if (item.sourceIds && item.sourceIds.length) {
+      var sourceLine = document.createElement('div')
+      sourceLine.className = 'strategy-review-sources'
+      sourceLine.textContent = 'Sources: ' + item.sourceIds.slice(0, 6).join(', ')
+      row.appendChild(sourceLine)
+    }
+
+    list.appendChild(row)
+  })
+  article.appendChild(list)
+
+  if (compact) {
+    var link = document.createElement('a')
+    link.className = 'section-support-link'
+    link.href = '/strategic-execution#advisor'
+    link.textContent = 'Open advisor board'
+    article.appendChild(link)
+  }
+
+  return article
+}
+
+function renderRecommendedPriorities(packetData) {
+  var packetJson = getPacketJson(packetData)
+  var priorities = packetJson.recommended90DayPriorities || packetJson.recommended_90_day_priorities || []
+  var article = document.createElement('article')
+  article.className = 'section-card strategy-priority-card'
+
+  var title = document.createElement('h4')
+  title.textContent = 'AI-Suggested 90-Day Priorities'
+  article.appendChild(title)
+
+  if (!priorities.length) {
+    var empty = document.createElement('p')
+    empty.className = 'strategy-packet-summary'
+    empty.textContent = 'No 90-day priority recommendations are available in the latest packet.'
+    article.appendChild(empty)
+    return article
+  }
+
+  var list = document.createElement('div')
+  list.className = 'strategy-review-list'
+  priorities.slice(0, 6).forEach(function(priority) {
+    var row = document.createElement('div')
+    row.className = 'strategy-review-item'
+
+    var top = document.createElement('div')
+    top.className = 'strategy-review-top'
+    appendChip(top, 'Rank ' + (priority.rank || '?'), 'status')
+    appendChip(top, priority.owner_hint || priority.ownerHint || 'Owner needed', 'status')
+    row.appendChild(top)
+
+    var name = document.createElement('strong')
+    name.textContent = priority.priority || priority.title || 'Untitled priority'
+    row.appendChild(name)
+
+    var why = document.createElement('p')
+    why.textContent = priority.why_this_matters || priority.whyThisMatters || priority.evidence_summary || priority.evidenceSummary || ''
+    row.appendChild(why)
+
+    var metrics = priority.leading_metrics || priority.leadingMetrics || []
+    if (metrics.length) {
+      var metricLine = document.createElement('p')
+      metricLine.className = 'strategy-review-gap'
+      metricLine.textContent = 'Leading metrics: ' + metrics.slice(0, 4).join(' · ')
+      row.appendChild(metricLine)
+    }
+
+    list.appendChild(row)
+  })
+  article.appendChild(list)
+  return article
+}
+
+function appendAdvisorMessage(role, text, meta) {
+  var list = document.getElementById('strategy-advisor-messages')
+  if (!list) return
+
+  var item = document.createElement('div')
+  item.className = 'strategy-advisor-message strategy-advisor-message-' + role
+
+  var label = document.createElement('div')
+  label.className = 'strategy-advisor-label'
+  label.textContent = role === 'user' ? 'Steve' : 'Strategy Advisor'
+  item.appendChild(label)
+
+  var body = document.createElement('div')
+  body.className = 'strategy-advisor-body'
+  if (role === 'assistant') {
+    body.appendChild(renderMarkdownBlock(text || '', 'docs/strategy/quarterly-priorities.md'))
+  } else {
+    body.textContent = text || ''
+  }
+  item.appendChild(body)
+
+  if (meta) {
+    var metaLine = document.createElement('div')
+    metaLine.className = 'strategy-advisor-meta'
+    metaLine.textContent = meta
+    item.appendChild(metaLine)
+  }
+
+  list.appendChild(item)
+  list.scrollTop = list.scrollHeight
+}
+
+function renderStrategyAdvisorPanel(packetData) {
+  var article = document.createElement('article')
+  article.className = 'section-card strategy-advisor-card'
+
+  var title = document.createElement('h4')
+  title.textContent = 'Ask Strategy AI'
+  article.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'strategy-packet-summary'
+  intro.textContent = 'Ask against the latest evidence packet, strategy docs, source snapshots, backlog, decisions, runtime facts, and extraction context. Answers must separate evidence from inference.'
+  article.appendChild(intro)
+
+  var promptRow = document.createElement('div')
+  promptRow.className = 'strategy-prompt-row'
+  ;[
+    'Which departments are stuck, and what evidence proves it?',
+    'What should tomorrow strategy session decide first?',
+    'Map the biggest issues to Attract, Grow, Retain.',
+    'What data is missing before we lock Q2 priorities?',
+  ].forEach(function(prompt) {
+    var btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'strategy-prompt-button'
+    btn.textContent = prompt
+    btn.addEventListener('click', function() {
+      var input = document.getElementById('strategy-advisor-input')
+      if (input) {
+        input.value = prompt
+        input.focus()
+      }
+    })
+    promptRow.appendChild(btn)
+  })
+  article.appendChild(promptRow)
+
+  var messages = document.createElement('div')
+  messages.className = 'strategy-advisor-messages'
+  messages.id = 'strategy-advisor-messages'
+  article.appendChild(messages)
+
+  var form = document.createElement('form')
+  form.className = 'strategy-advisor-form'
+
+  var input = document.createElement('textarea')
+  input.id = 'strategy-advisor-input'
+  input.rows = 4
+  input.placeholder = 'Ask what the evidence says, what to decide, which department is stuck, or what is missing.'
+  form.appendChild(input)
+
+  var footer = document.createElement('div')
+  footer.className = 'strategy-advisor-form-footer'
+
+  var status = document.createElement('div')
+  status.className = 'strategy-advisor-status'
+  status.id = 'strategy-advisor-status'
+  status.textContent = packetData && packetData.latestRun
+    ? 'Using packet from ' + formatDate(packetData.latestRun.generatedAt)
+    : 'No packet loaded yet'
+  footer.appendChild(status)
+
+  var submit = document.createElement('button')
+  submit.type = 'submit'
+  submit.className = 'strategy-advisor-submit'
+  submit.textContent = 'Ask'
+  footer.appendChild(submit)
+
+  form.appendChild(footer)
+  article.appendChild(form)
+
+  if (!cache.strategyAdvisorMessages.length) {
+    cache.strategyAdvisorMessages.push({
+      role: 'assistant',
+      text: 'I am wired to the latest strategy evidence packet and Foundation context. Ask me for the sharp read, not a generic brainstorm.',
+      meta: '',
+    })
+  }
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault()
+    var question = input.value.trim()
+    if (!question) return
+
+    input.value = ''
+    submit.disabled = true
+    submit.textContent = 'Thinking...'
+    status.textContent = 'Calling Strategy Advisor...'
+    cache.strategyAdvisorMessages.push({ role: 'user', text: question, meta: '' })
+    appendAdvisorMessage('user', question)
+
+    postStrategyAdvisorQuestion(question).then(function(result) {
+      var meta = [result.model, result.provider, result.authPath].filter(Boolean).join(' · ')
+      cache.strategyAdvisorMessages.push({ role: 'assistant', text: result.answer, meta: meta })
+      appendAdvisorMessage('assistant', result.answer, meta)
+      status.textContent = 'Answered ' + formatDate(result.generatedAt)
+    }).catch(function(error) {
+      var message = 'Advisor failed: ' + error.message
+      cache.strategyAdvisorMessages.push({ role: 'assistant', text: message, meta: '' })
+      appendAdvisorMessage('assistant', message)
+      status.textContent = 'Advisor failed'
+    }).finally(function() {
+      submit.disabled = false
+      submit.textContent = 'Ask'
+    })
+  })
+
+  setTimeout(function() {
+    cache.strategyAdvisorMessages.forEach(function(message) {
+      appendAdvisorMessage(message.role, message.text, message.meta)
+    })
+  }, 0)
+
+  return article
 }
 
 function renderStrategyPacketCard(packetData, options) {
@@ -748,8 +1191,10 @@ function renderOverview() {
     var quarterPath = quarterlyDoc && quarterlyDoc.meta && quarterlyDoc.meta.path
       ? quarterlyDoc.meta.path
       : strategicDocPaths['quarterly-priorities']
-    sectionList.appendChild(renderStrategyPacketCard(packetData, { compact: true }))
+    sectionList.appendChild(renderStrategyHealthCard(packetData))
+    sectionList.appendChild(renderStrategyReviewBoard(packetData, { compact: true }))
     sectionList.appendChild(renderCurrentQuarterSection(currentQuarterSection, quarterPath, quarterlyDoc))
+    sectionList.appendChild(renderStrategyPacketCard(packetData, { compact: true }))
     sectionList.appendChild(renderSupportingDocsCard())
     panel.appendChild(sectionList)
     container.appendChild(panel)
@@ -801,6 +1246,52 @@ function renderStrategyEvidencePacket() {
     container.innerHTML = ''
     var msg = document.createElement('p')
     msg.textContent = 'Failed to load strategy evidence packet: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderStrategyAdvisor() {
+  var container = document.getElementById('strategic-execution-content')
+  container.innerHTML = '<p>Loading strategy advisor...</p>'
+
+  fetchStrategyEvidencePacket().then(function(packetData) {
+    container.innerHTML = ''
+
+    var panel = document.createElement('section')
+    panel.className = 'panel'
+
+    var panelHeader = document.createElement('div')
+    panelHeader.className = 'panel-header'
+
+    var panelLeft = document.createElement('div')
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Source-Backed Strategy'
+    panelLeft.appendChild(eyebrow)
+
+    var title = document.createElement('h3')
+    title.textContent = 'Strategy Advisor'
+    panelLeft.appendChild(title)
+    panelHeader.appendChild(panelLeft)
+
+    var meta = document.createElement('div')
+    meta.className = 'doc-meta'
+    meta.textContent = packetData.latestRun ? 'Packet updated ' + formatDate(packetData.latestRun.generatedAt) : 'No packet generated'
+    panelHeader.appendChild(meta)
+
+    panel.appendChild(panelHeader)
+
+    var list = document.createElement('div')
+    list.className = 'section-list'
+    list.appendChild(renderStrategyAdvisorPanel(packetData))
+    list.appendChild(renderStrategyReviewBoard(packetData, { compact: false }))
+    list.appendChild(renderRecommendedPriorities(packetData))
+    panel.appendChild(list)
+    container.appendChild(panel)
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load strategy advisor: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -876,6 +1367,8 @@ function route() {
 
   if (section === 'overview') {
     renderOverview()
+  } else if (section === 'advisor') {
+    renderStrategyAdvisor()
   } else if (section === 'evidence-packet') {
     renderStrategyEvidencePacket()
   } else if (strategicDocPaths[section]) {
