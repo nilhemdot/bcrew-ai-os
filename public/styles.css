@@ -416,7 +416,7 @@ body {
 .ops-issue-card {
   display: grid;
   align-content: start;
-  gap: 12px;
+  gap: 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface);
@@ -437,6 +437,7 @@ body {
   align-items: start;
   justify-content: space-between;
   gap: 12px;
+  min-height: 92px;
 }
 
 .ops-issue-title-wrap {
@@ -455,6 +456,12 @@ body {
   color: var(--text-tertiary);
   font-size: 0.76rem;
   line-height: 1.45;
+}
+
+.ops-issue-status-line {
+  min-height: 22px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 9px;
 }
 
 .ops-issue-pill {
@@ -481,7 +488,7 @@ body {
 
 .ops-issue-findings {
   display: grid;
-  gap: 10px;
+  gap: 9px;
   margin: 0;
   color: var(--text-secondary);
   font-size: 0.84rem;
@@ -496,6 +503,8 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  min-height: 24px;
+  align-items: start;
 }
 
 .ops-finding-chip {
@@ -522,6 +531,11 @@ body {
 .ops-finding-block {
   display: grid;
   gap: 5px;
+  padding-top: 2px;
+}
+
+.ops-finding-summary + .ops-finding-block,
+.ops-finding-block + .ops-finding-block {
   border-top: 1px solid var(--border);
   padding-top: 9px;
 }
@@ -4992,6 +5006,10 @@ code {
 }
 
 @media (max-width: 640px) {
+  .ops-issue-head {
+    min-height: 0;
+  }
+
   .feedback-score-grid {
     grid-template-columns: repeat(5, minmax(42px, 1fr));
   }
