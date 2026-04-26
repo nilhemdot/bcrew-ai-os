@@ -172,7 +172,7 @@ Agent Roster Ops lane v1:
 - if Real Start Date makes a 30/60/90 checkpoint due and the matching onboarding NPS status is still open, surface the due feedback card for a 15-day send window after that due date
 - if a 30/60/90 checkpoint is more than 15 days past due and still open, mark that checkpoint as `Skipped` instead of sending the normal retroactive feedback request unless Steve explicitly asks for a catch-up survey
 - outbound email automation is not built yet; Gmail is currently an archive/extraction source, not a governed send engine
-- outbound email content should use the branded `buildAgentFeedbackEmail` template: short human copy, no technical AIOS/ClickUp writeback explanation, and the signed feedback URL hidden behind a `Share feedback` button in HTML with a plain-text fallback
+- outbound email content should use the branded `buildAgentFeedbackEmail` template: short human copy, no technical AIOS/ClickUp writeback explanation, and the signed feedback URL hidden behind a `Start check-in` button in HTML with a plain-text fallback
 - v1 capture path is an AIOS private feedback link generated from the roster task and milestone day. It asks one NPS-style score plus one improvement prompt, stores the structured response in `agent_onboarding_feedback_responses`, then writes `Completed`, score, and feedback back to the same ClickUp roster task.
 - The feedback question is: "On a scale of 1-10, how likely would you recommend the Benson Crew to another agent based on your first 30/60/90 days?" Follow-up: "If not a 10, what would make it a 10? Any positive or negative feedback is helpful."
 - Feedback is private to Steve for v1. Do not route raw onboarding feedback through the onboarding team.
