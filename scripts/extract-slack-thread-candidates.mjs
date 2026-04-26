@@ -8,6 +8,7 @@ import {
   closeFoundationDb,
   getFoundationSnapshot,
   getSharedCommunicationArtifactsForProcessing,
+  getSharedCommunicationArtifactsWithoutCandidatesForProcessing,
   getSharedCommunicationCandidateSnapshot,
   initFoundationDb,
   recordSharedCommunicationArtifactProcessingRun,
@@ -100,11 +101,13 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const limit = Math.min(100, Math.max(1, Number(args.limit || 5)));
   const model = args.model || DEFAULT_MODEL;
+  const onlyWithoutCandidates = args.onlyWithoutCandidates === true || args.onlyWithoutCandidates === 'true';
 
   console.log('Extract shared communication candidates from archived Slack threads');
   console.log(`  Limit: ${limit}`);
   console.log(`  Model: ${model}`);
   console.log(`  Per-call timeout: ${DEFAULT_TIMEOUT_MS}ms`);
+  console.log(`  Only without successful current-content processing: ${onlyWithoutCandidates}`);
 
   await initFoundationDb();
 
@@ -116,10 +119,15 @@ async function main() {
     getSourceContracts(),
   );
 
-  const artifacts = await getSharedCommunicationArtifactsForProcessing({
+  const artifactReader = onlyWithoutCandidates
+    ? getSharedCommunicationArtifactsWithoutCandidatesForProcessing
+    : getSharedCommunicationArtifactsForProcessing;
+  const artifacts = await artifactReader({
     sourceId: 'SRC-SLACK-001',
     artifactType: 'slack_thread',
     limit,
+    processingType: 'candidate_extraction',
+    extractionMethod: EXTRACTION_METHOD,
   });
 
   console.log(`  Archived threads scanned: ${artifacts.length}`);

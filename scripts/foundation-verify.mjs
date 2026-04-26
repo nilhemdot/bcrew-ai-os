@@ -427,6 +427,30 @@ async function main() {
   )
   ensure(
     checks,
+    includesAll(foundationJobsSource, [
+      "key: 'meeting-notes-sync-current'",
+      "key: 'slack-sync-current'",
+      "key: 'drive-corpus-inventory-bite'",
+      "key: 'gmail-extract-latest'",
+      "key: 'missive-extract-latest'",
+      "key: 'meeting-transcripts-extract-backlog'",
+      "key: 'slack-extract-latest'",
+      "runtimeMode: 'scheduled'",
+      'scheduleEveryMinutes: 1440',
+      "'--onlyWithoutCandidates=true'",
+    ]) &&
+      includesAll(extractionControlSeedSource, [
+        "targetKey: 'meetings-current-day'",
+        "targetKey: 'slack-current-day'",
+        "targetKey: 'drive-corpus-backfill'",
+        "runtimeMode: 'scheduled'",
+        'scheduleEveryMinutes: 1440',
+      ]),
+    'core sources have scheduled current-day and daily history/mission lanes',
+    'meetings/slack current sync, Gmail/Missive/meeting/Slack extraction, and Drive inventory are scheduled with daily quotas',
+  )
+  ensure(
+    checks,
     foundationDbSource.includes('artifact_content_hash') &&
       foundationDbSource.includes('COALESCE(processing.artifact_content_hash') &&
       !foundationDbSource.includes('active_candidate.artifact_id IS NULL'),

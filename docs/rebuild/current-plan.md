@@ -84,7 +84,7 @@ Built and useful now:
 - First Foundation job registry and DB-backed job run ledger.
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Policy-aware LLM router: credential/route/probe/call tables, executable OpenClaw/Codex subscription adapter, auth-path audit job, call ledger, route status visibility, and shared intelligence extraction/synthesis migrated behind the router.
-- Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, and scheduled current-day proof for Missive + Gmail.
+- Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, scheduled current-day lanes for Gmail/Missive/meetings/Slack, daily shared-comms extraction missions, and daily Drive inventory mission.
 - Row-scoped Owners / deal-review runners.
 - Owners Dashboard imported `Lists` repair: governed FUB lead sources now live in upstream `SRC-OWNERS-LISTS-001`, Admin `N` and `P` reuse the same source list, Admin `S` uses imported active agents, and Google delegated writes are blocked from the imported mirror range.
 - Owners/FUB v1 parity rules: Admin column `BZ` joins to FUB person records, governed FUB source rules drive company/agent expectations, and Admin review flags invalid source, source-lineage, stale-stage, and ISA mismatch issues.
@@ -98,7 +98,6 @@ Still not done:
 
 - durable source cursors, target-run IDs, and backfill leases beyond the current-day target proof
 - router-ledged transcription workload and enforced model-route budgets/caps beyond the direct-host verifier
-- scheduled meeting-notes current-day lane that stays fresh without Steve watching it
 - failed-item retry policy for Drive and non-meeting crawl records beyond the first meeting retry path
 - proof that partial-run job failure/alert semantics work on a real failed meeting/Drive item
 - operator UI/verifier hardening for job/target schedule truth now that Foundation jobs own scheduled crawl lanes
@@ -256,7 +255,7 @@ Current partial proof:
 - Missive current-day sync has been promoted to scheduled every 2 hours after exact-ID idempotency proof.
 - Gmail current-day sync now has item-level thread ledgering and is scheduled every 2 hours after repeated bounded runs showed `0` item failures and explainable net-new/changed threads.
 - Dashboard pause/resume buttons are live on the System Health job cards and were round-trip tested through `gmail-sync-current`.
-- Remaining Phase 1 gap: monitor scheduled Missive/Gmail runs, keep meetings manual until retry/report handling is hard enough, and activate only the next 1-2 jobs after these lanes stay stable.
+- Remaining Phase 1 gap: monitor scheduled current-day/extraction runs, prove alert behavior on real partial failures, and raise daily quotas only after runs stay stable.
 
 ### Phase 2 — Policy-Aware LLM Router MVP
 
@@ -368,7 +367,7 @@ Corpus mission lane:
 - old Drive, Skool, Zoom, Loom, YouTube, and report mining are daily quota missions, not polling timers
 - a mission starts, processes a small count such as 5 files, 5 videos, or 10 reports, files the outputs with provenance, updates the ledger, then stops
 - runtime windows can be long when subscription capacity is used, but completion is governed by quota, filed outputs, and stop conditions instead of elapsed time alone
-- current-day sync can be scheduled; corpus extraction should only become scheduled after mission quotas, pause/stop behavior, and filed-output checks are proven
+- current-day sync is scheduled for Gmail, Missive, meetings, and Slack; corpus inventory/extraction should run as quota missions with pause/stop behavior and filed-output checks
 
 Corpus value lane:
 
@@ -412,26 +411,27 @@ Current partial proof:
 - First retry proof found `0` failed meeting crawl items and succeeded as a no-op.
 - Meeting transcript gap report now separates historical archive gaps from recent forward-looking transcript watch. Current archive coverage is `866` notes, `649` transcripts, and `863` meetings across `2024-10-03` to `2026-04-24`; historical gaps remain real (`239/863` meetings missing transcript artifacts), led by Steve (`123/386` missing), Blake (`49/203`), Nick (`40/88`), and Tanner (`10/32`). Recent watch is keyed to the actual meeting date, not document modified time; the exact Apr 23-24 Leadership, Owners, Budget Review, and Marketing docs Steve checked are confirmed archived with `embedded_in_gemini` transcripts.
 - `meeting-transcript-recent-gap-verify` is registered as a manual Foundation job. First proof classified the `21` recent missing transcript artifacts as `21` true-missing, `0` parser/tab misses, `0` owner/path misses, and `0` key mismatches; no safe auto-repairs were available.
-- `meeting-transcripts-extract-backlog` is registered as a manual Foundation job for a bounded LLM bite over archived transcripts without a successful processing run for the current content hash. First proof scanned `15` transcripts, upserted `87` candidates, and moved recent transcript candidate coverage to `56/59`.
+- Meeting text coverage is not the same as meeting video/recording coverage. The video-link inventory can find linked Loom/Drive/YouTube/Vimeo/Wistia/Zoom/Skool URLs, but reviewing or transcribing the linked videos/recordings is separate backlog work.
+- `meeting-transcripts-extract-backlog` is registered as a scheduled daily Foundation job for a bounded LLM bite over archived transcripts without a successful processing run for the current content hash. First proof scanned `15` transcripts, upserted `87` candidates, and moved recent transcript candidate coverage to `56/59`.
 - First manual proof: Gmail scanned `970` messages, selected `263` threads, and archived `148` net-new artifacts through the target ledger.
 - First manual proof: Missive selected `100` conversations and archived `43` net-new artifacts through the target ledger.
 - Missive change-aware idempotency check is live; immediate rerun selected `100` conversations, skipped `94` already-current conversations, refreshed `6` changed conversations, and archived `0` net-new artifacts.
 - `missive-sync-current` is scheduled every `120` minutes.
-- `gmail-extract-latest` and `missive-extract-latest` now target archived threads without a successful processing run for the current content hash instead of offset/latest chunks. First manual proofs scanned `15` Gmail threads and created `13` candidates, then scanned `15` Missive threads and created `11` candidates. These now run through the subscription router; keep them bounded and manual until the paced miner cadence is deliberately activated.
+- `gmail-extract-latest`, `missive-extract-latest`, `meeting-transcripts-extract-backlog`, and `slack-extract-latest` now target archived artifacts without a successful processing run for the current content hash. Gmail and Missive first proofs scanned `15` threads each and created `13` and `11` candidates. These now run as scheduled daily subscription-router quota missions.
 - `shared_communication_artifact_processing_runs` now records candidate-extraction processing attempts with `artifact_content_hash`, actual `provider`, `auth_path`, `route_key`, and actual model. Successful zero-candidate artifacts are excluded from future `--onlyWithoutCandidates=true` queues only for the same extractor version and same current content hash, while changed content and failures remain retryable.
 - System Health now exposes Intelligence Pipeline extraction depth: archived artifacts, artifacts with active candidates, still-unmined artifacts, extraction coverage percent, and latest synthesis.
-- `shared-comms-intelligence-bite` is a manual synthesis-only job for strategy prep and action review. It reads already-mined candidates and records ranked Strategy Hub/action-router input with a long subscription-route timeout. Gmail, Missive, and meeting transcript extraction now run as separate paced subscription miners so slow extraction calls do not block leadership work.
+- `shared-comms-intelligence-bite` is a manual synthesis-only job for strategy prep and action review. It reads already-mined candidates and records ranked Strategy Hub/action-router input with a long subscription-route timeout. Gmail, Missive, meeting transcript, and Slack extraction now run as separate scheduled daily subscription miners so slow extraction calls do not block current-day archive sync.
 - Skool remains blocked until access path and content-use boundaries are explicit.
 - Historical Zoom audio recovery is paused unless strategy/content value justifies reopening it.
 - Gmail item-level ledger proof selected `259` recent threads per run, produced `0` item failures across repeated bounded runs, and promoted `gmail-sync-current` to scheduled every `120` minutes. The first scheduled worker run succeeded, archived `4` threads, cleared its lease, and set target/job next run around `2026-04-24T20:09Z`.
 - Meeting notes current-day proof selected `50` meetings, archived `50` notes and `42` embedded transcripts, recorded `50` succeeded crawl items, left `0` failed crawl items, and added `2` net-new artifacts.
 - Meeting target runs now parse item-level crawl failures and mark the target `partial` when the process succeeds but individual crawl items fail; partials now fail the Foundation job so the dashboard/worker gets an alert path instead of a false green state.
 - Extraction target snapshots now attach a `scheduler` object derived from the registered Foundation job when `metadata.foundationJobKey` exists. This makes Foundation jobs the schedule truth for scheduled crawl lanes while preserving target `nextRunAt` as crawl checkpoint metadata.
-- First read-only Drive corpus bite is live through manual Foundation job `drive-corpus-inventory-bite`: Zahnd TEAM OG root inspected, `60` direct children recorded, `24` child folders discovered, `36` files discovered, `31` next folders/roots queued, `0` item failures, and no files moved/copied/exported/LLM-processed.
+- First read-only Drive corpus bite is live through scheduled daily Foundation job `drive-corpus-inventory-bite`: Zahnd TEAM OG root inspected, `60` direct children recorded, `24` child folders discovered, `36` files discovered, `31` next folders/roots queued, `0` item failures, and no files moved/copied/exported/LLM-processed.
 - Foundation now exposes a Drive corpus inventory review snapshot with item totals, folder/file counts, pending extraction counts, candidate value routes, and queue state.
 - Raw Drive inventory script writes are guarded: non-dry-run inventory must be run through `extraction:target` so leases and target cursors advance with item writes.
 - Shared-comms synthesis was run through the subscription router and recorded `synth-20260424T203755Z-e6b01782ad` with `5` ranked live intelligence items. Top issues surfaced: KPI deal-data display/sync failure, June cash gap, SocialPilot access/publishing instability, Union Street delivery retry, and Loom access migration issue.
-- Remaining Phase 3 gap: monitor scheduled Missive/Gmail sync runs, prove partial failure on a real failed item, extend retry semantics to Drive/video lanes, tune subscription-route miners with per-source timeouts and pacing, prove synthesis as Strategy Hub/action-router input, and build review/export gates before broad backfill.
+- Remaining Phase 3 gap: monitor scheduled current-day/extraction runs, prove partial failure on a real failed item, extend retry semantics to Drive/video lanes, build Drive Docs/PDF filed-output extraction, add Gmail/Missive attachment extraction, prove meeting-linked video review, tune subscription-route miners with per-source timeouts and pacing, prove synthesis as Strategy Hub/action-router input, and build review/export gates before broad backfill.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
