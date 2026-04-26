@@ -320,6 +320,26 @@ function getQueueItemHref(queueStats, item) {
   return ''
 }
 
+function getOpsIssueLanes(item) {
+  var lanes = Array.isArray(item.issueLanes) ? item.issueLanes.filter(Boolean) : []
+  if (lanes.length) return lanes
+
+  if (item.queue === 'conditional') return ['conditional']
+  if (item.queue === 'agentRoster') return ['agentOnboarding']
+  if (item.queue === 'fub-drift') return ['fubRules']
+  if (item.queue === 'owners-governance') return ['ownersLists']
+
+  var text = String(item.findingsPreview || '').toLowerCase()
+  var inferred = []
+  if (text.indexOf('owners (') !== -1 || text.indexOf('gross to team') !== -1 || text.indexOf('split deal') !== -1) inferred.push('dealData')
+  if (text.indexOf('fub') !== -1 || text.indexOf('follow up boss') !== -1 || text.indexOf('crm') !== -1) inferred.push('crmFub')
+  if (text.indexOf('clickup task') !== -1 || text.indexOf('trade number') !== -1 || text.indexOf('review evidence') !== -1) inferred.push('dealWorkflow')
+  if (text.indexOf('internal onboarding') !== -1 || text.indexOf('internal deal') !== -1) inferred.push('internalReview')
+  if (text.indexOf('nps') !== -1) inferred.push('clientNps')
+  if (text.indexOf('google review') !== -1) inferred.push('googleReview')
+  return inferred.length ? inferred : ['dealData']
+}
+
 function parseFindingHeader(part) {
   var parenMatch = part.match(/^(.+?)\s+\((\d+)\/(\d+)\s+passed\)$/i)
   if (parenMatch) {
@@ -446,6 +466,7 @@ function renderOpsFindings(text) {
 function renderOpsIssueCard(queueStats, item) {
   var card = document.createElement('article')
   card.className = 'ops-issue-card'
+  card.dataset.opsLanes = getOpsIssueLanes(item).join(' ')
 
   var head = document.createElement('div')
   head.className = 'ops-issue-head'
@@ -536,11 +557,16 @@ function renderOpsIssueSection(queueStats, key, config, maxItems) {
 function renderOpsInboxFilters() {
   var filters = [
     { key: 'all', label: 'All' },
-    { key: 'admin', label: 'Admin deals' },
-    { key: 'conditional', label: 'Conditional / listings' },
-    { key: 'fubDrift', label: 'FUB drift' },
-    { key: 'ownersGovernance', label: 'Owners lists' },
-    { key: 'agentRoster', label: 'Agent onboarding' },
+    { key: 'dealData', label: 'Deal data' },
+    { key: 'conditional', label: 'Conditional' },
+    { key: 'dealWorkflow', label: 'Deal workflow' },
+    { key: 'internalReview', label: 'Internal review' },
+    { key: 'clientNps', label: 'Client NPS' },
+    { key: 'googleReview', label: 'Google review' },
+    { key: 'agentOnboarding', label: 'Agent onboarding' },
+    { key: 'crmFub', label: 'CRM / FUB' },
+    { key: 'fubRules', label: 'FUB source rules' },
+    { key: 'ownersLists', label: 'Owners lists' },
   ]
   var wrap = document.createElement('div')
   wrap.className = 'ops-filter-bar'
@@ -558,7 +584,14 @@ function renderOpsInboxFilters() {
       var panel = wrap.closest('.panel')
       if (!panel) return
       panel.querySelectorAll('.ops-issue-section').forEach(function(section) {
-        section.hidden = selected !== 'all' && section.dataset.opsSection !== selected
+        var visibleCards = 0
+        section.querySelectorAll('.ops-issue-card').forEach(function(card) {
+          var lanes = String(card.dataset.opsLanes || '').split(/\s+/).filter(Boolean)
+          var visible = selected === 'all' || lanes.indexOf(selected) !== -1
+          card.hidden = !visible
+          if (visible) visibleCards += 1
+        })
+        section.hidden = selected !== 'all' && visibleCards === 0
       })
     })
     wrap.appendChild(button)

@@ -1510,15 +1510,119 @@ function hasOpenReviewAction(value) {
   return Boolean(normalized) && normalized !== 'no action'
 }
 
-function summarizeFindings(value) {
+const FINDING_SUMMARY_LINE_LIMIT = 24
+
+function summarizeFindings(value, limit = FINDING_SUMMARY_LINE_LIMIT) {
   const text = normalizeSheetValue(value)
   if (!text) return ''
   return text
     .split('\n')
     .map(lineValue => normalizeSheetValue(lineValue))
     .filter(Boolean)
-    .slice(0, 6)
+    .slice(0, limit)
     .join(' | ')
+}
+
+function classifyAdminIssueLanes(value) {
+  const text = normalizeSheetValue(value)
+  const lanes = new Set()
+  let currentSection = ''
+
+  function addLaneForIssueLine(line, section) {
+    const lower = normalizeLowerSheetValue(line)
+    if (!lower) return
+    if (section === 'result') return
+
+    if (
+      section === 'owners' ||
+      lower.includes('gross to team') ||
+      lower.includes('split deal') ||
+      lower.includes('required b:t') ||
+      lower.includes('core ag+') ||
+      lower.includes('company or agent') ||
+      lower.includes('lead source') ||
+      lower.includes('source row')
+    ) {
+      lanes.add('dealData')
+    }
+
+    if (
+      section === 'fub' ||
+      lower.includes('follow up boss') ||
+      lower.includes('linked fub') ||
+      lower.includes('crm') ||
+      lower.includes('past client') ||
+      lower.includes('firm deal') ||
+      lower.includes('fub stage') ||
+      lower.includes('fub source')
+    ) {
+      lanes.add('crmFub')
+    }
+
+    if (
+      lower.includes('clickup task') ||
+      lower.includes('deal # / trade number') ||
+      lower.includes('multiple clickup') ||
+      lower.includes('aios admin deal row link') ||
+      lower.includes('review evidence link') ||
+      lower.includes('fub call / review evidence') ||
+      lower.includes('no clickup deal data entry task')
+    ) {
+      lanes.add('dealWorkflow')
+    }
+
+    if (lower.includes('internal onboarding') || lower.includes('internal deal')) {
+      lanes.add('internalReview')
+    }
+
+    if (lower.includes('nps')) {
+      lanes.add('clientNps')
+    }
+
+    if (lower.includes('google review')) {
+      lanes.add('googleReview')
+    }
+  }
+
+  text
+    .split('\n')
+    .map(lineValue => normalizeSheetValue(lineValue))
+    .filter(Boolean)
+    .forEach(line => {
+      const lower = normalizeLowerSheetValue(line)
+      const score = line.match(/^(.+?)\s+\((\d+)\/(\d+)\s+passed\)$/i)
+      if (score) {
+        const label = normalizeLowerSheetValue(score[1])
+        currentSection = label.includes('owners')
+          ? 'owners'
+          : label.includes('fub')
+            ? 'fub'
+            : label.includes('clickup') || label.includes('freedom')
+              ? 'workflow'
+              : ''
+        const passed = Number(score[2])
+        const total = Number(score[3])
+        if (Number.isFinite(passed) && Number.isFinite(total) && passed < total) {
+          if (currentSection === 'owners') lanes.add('dealData')
+          if (currentSection === 'fub') lanes.add('crmFub')
+        }
+        return
+      }
+
+      if (lower === 'result') {
+        currentSection = 'result'
+        return
+      }
+
+      addLaneForIssueLine(line, currentSection)
+    })
+
+  if (!lanes.size) lanes.add('dealData')
+  return Array.from(lanes)
+}
+
+function mergeIssueLanes(base, next) {
+  return Array.from(new Set([].concat(base || []).concat(next || []).filter(Boolean)))
 }
 
 function buildAdminReviewQueue(rows) {
@@ -1543,6 +1647,7 @@ function buildAdminReviewQueue(rows) {
       const reviewAction = normalizeSheetValue(row[cols.reviewAction])
       const open = hasOpenReviewStatus(reviewStatus) || hasOpenReviewAction(reviewAction)
       if (!open) return null
+      const findings = row[cols.findings]
 
       return {
         queue: 'admin',
@@ -1556,7 +1661,8 @@ function buildAdminReviewQueue(rows) {
         reviewAction: reviewAction || 'No Action',
         queuedForReview: isAdminReviewTrigger(reviewAction),
         needsFixing: normalizeLowerSheetValue(reviewAction) === 'needs fixing' || normalizeLowerSheetValue(reviewStatus) === 'issues found',
-        findingsPreview: summarizeFindings(row[cols.findings]),
+        findingsPreview: summarizeFindings(findings),
+        issueLanes: classifyAdminIssueLanes(findings),
       }
     })
     .filter(Boolean)
@@ -1579,6 +1685,7 @@ function buildAdminReviewQueue(rows) {
     }
     existing.queuedForReview = existing.queuedForReview || item.queuedForReview
     existing.needsFixing = existing.needsFixing || item.needsFixing
+    existing.issueLanes = mergeIssueLanes(existing.issueLanes, item.issueLanes)
     if (!existing.findingsPreview && item.findingsPreview) existing.findingsPreview = item.findingsPreview
     if (!existing.subtitle || existing.subtitle === 'Client missing') existing.subtitle = item.subtitle
     if (!existing.executedDate && item.executedDate) existing.executedDate = item.executedDate
@@ -1646,6 +1753,7 @@ function buildConditionalReviewQueue(rows) {
         queuedForReview: isConditionalReviewTrigger(reviewAction),
         needsFixing: normalizeLowerSheetValue(reviewAction) === 'needs fixing' || normalizeLowerSheetValue(reviewStatus) === 'issues found',
         findingsPreview: summarizeFindings(row[cols.findings]),
+        issueLanes: ['conditional'],
       }
     })
     .filter(Boolean)
@@ -1724,6 +1832,7 @@ function buildClickUpConditionalForecastQueue(rows) {
         queuedForReview,
         needsFixing,
         findingsPreview: findings,
+        issueLanes: ['conditional'],
       }
     })
     .filter(Boolean)
@@ -1758,6 +1867,7 @@ function buildFubLeadSourceReviewQueue(payload) {
         queuedForReview: true,
         needsFixing: true,
         findingsPreview: 'New raw FUB source with no governed rule yet.',
+        issueLanes: ['fubRules'],
       })
     })
 
@@ -1777,6 +1887,7 @@ function buildFubLeadSourceReviewQueue(payload) {
         queuedForReview: true,
         needsFixing: true,
         findingsPreview: 'Governed rule still leaves ' + openParts.join(' + ') + '.',
+        issueLanes: ['fubRules'],
       })
     })
 
@@ -1793,6 +1904,7 @@ function buildFubLeadSourceReviewQueue(payload) {
         queuedForReview: true,
         needsFixing: true,
         findingsPreview: 'Legacy / invalid source is still present in live FUB data.',
+        issueLanes: ['fubRules'],
       })
     })
 
@@ -1809,6 +1921,7 @@ function buildFubLeadSourceReviewQueue(payload) {
         queuedForReview: true,
         needsFixing: true,
         findingsPreview: 'Refresh the owner-context FUB source snapshot before trusting the queue.',
+        issueLanes: ['fubRules'],
       })
     }
   }
@@ -1840,6 +1953,7 @@ function buildOwnersGovernanceReviewQueue(payload) {
         queuedForReview: true,
         needsFixing: true,
         findingsPreview: 'This value is live in the Owners dropdown but not in the governed approved list.',
+        issueLanes: ['ownersLists'],
       })
     })
 
@@ -1856,6 +1970,7 @@ function buildOwnersGovernanceReviewQueue(payload) {
         queuedForReview: true,
         needsFixing: true,
         findingsPreview: 'This approved source is missing from the governed Owners dropdown.',
+        issueLanes: ['ownersLists'],
       })
     })
 
@@ -1872,6 +1987,7 @@ function buildOwnersGovernanceReviewQueue(payload) {
         queuedForReview: true,
         needsFixing: true,
         findingsPreview: 'This approved dropdown value appears more than once in the Owners list.',
+        issueLanes: ['ownersLists'],
       })
     })
   }
@@ -3053,6 +3169,12 @@ app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
     const fubDrift = buildFubLeadSourceReviewQueue(fubLeadSources)
     const ownersGovernance = buildOwnersGovernanceReviewQueue(ownersGovernancePayload)
     const agentRoster = buildAgentRosterReviewQueue(agentRosterSnapshot)
+    agentRoster.items = (agentRoster.items || []).map(function(item) {
+      return {
+        ...item,
+        issueLanes: mergeIssueLanes(item.issueLanes, ['agentOnboarding']),
+      }
+    })
     const combinedQueue = {
       totalTrackedRows: admin.totalTrackedRows + conditional.totalTrackedRows + fubDrift.totalTrackedRows + ownersGovernance.totalTrackedRows + agentRoster.totalTrackedRows,
       openItems: admin.openItems + conditional.openItems + fubDrift.openItems + ownersGovernance.openItems + agentRoster.openItems,
