@@ -340,6 +340,50 @@ function getOpsIssueLanes(item) {
   return inferred.length ? inferred : ['dealData']
 }
 
+function getFindingLane(text, sectionLabel) {
+  var lower = String(text || '').toLowerCase()
+  var section = String(sectionLabel || '').toLowerCase()
+  var lanes = []
+
+  if (
+    section.indexOf('owners') !== -1 ||
+    lower.indexOf('gross to team') !== -1 ||
+    lower.indexOf('split deal') !== -1 ||
+    lower.indexOf('required b:t') !== -1 ||
+    lower.indexOf('core ag+') !== -1 ||
+    lower.indexOf('company or agent') !== -1 ||
+    lower.indexOf('lead source') !== -1 ||
+    lower.indexOf('source row') !== -1
+  ) lanes.push('dealData')
+
+  if (
+    section.indexOf('fub') !== -1 ||
+    lower.indexOf('follow up boss') !== -1 ||
+    lower.indexOf('linked fub') !== -1 ||
+    lower.indexOf('crm') !== -1 ||
+    lower.indexOf('past client') !== -1 ||
+    lower.indexOf('firm deal') !== -1 ||
+    lower.indexOf('fub stage') !== -1 ||
+    lower.indexOf('fub source') !== -1
+  ) lanes.push('crmFub')
+
+  if (
+    lower.indexOf('clickup task') !== -1 ||
+    lower.indexOf('deal # / trade number') !== -1 ||
+    lower.indexOf('multiple clickup') !== -1 ||
+    lower.indexOf('aios admin deal row link') !== -1 ||
+    lower.indexOf('review evidence link') !== -1 ||
+    lower.indexOf('fub call / review evidence') !== -1 ||
+    lower.indexOf('no clickup deal data entry task') !== -1
+  ) lanes.push('dealWorkflow')
+
+  if (lower.indexOf('internal onboarding') !== -1 || lower.indexOf('internal deal') !== -1) lanes.push('internalReview')
+  if (lower.indexOf('nps') !== -1) lanes.push('clientNps')
+  if (lower.indexOf('google review') !== -1) lanes.push('googleReview')
+
+  return Array.from(new Set(lanes))
+}
+
 function parseFindingHeader(part) {
   var parenMatch = part.match(/^(.+?)\s+\((\d+)\/(\d+)\s+passed\)$/i)
   if (parenMatch) {
@@ -375,6 +419,7 @@ function parseOpsFindings(text) {
       passed: score && Number.isFinite(score.passed) ? score.passed : null,
       total: score && Number.isFinite(score.total) ? score.total : null,
       bullets: [],
+      lanes: [],
     }
     blocks.push(current)
     return current
@@ -402,7 +447,14 @@ function parseOpsFindings(text) {
     startBlock(part)
   })
 
-  return blocks
+  return blocks.map(function(block) {
+    var lanes = []
+    block.bullets.forEach(function(bullet) {
+      lanes = lanes.concat(getFindingLane(bullet, block.label))
+    })
+    block.lanes = Array.from(new Set(lanes))
+    return block
+  })
 }
 
 function renderOpsFindings(text) {
@@ -427,6 +479,7 @@ function renderOpsFindings(text) {
     scoredBlocks.forEach(function(block) {
       var chip = document.createElement('span')
       chip.className = 'ops-finding-chip ' + (block.passed === block.total ? 'ops-finding-chip-pass' : 'ops-finding-chip-risk')
+      if (Array.isArray(block.lanes) && block.lanes.length) chip.dataset.opsLanes = block.lanes.join(' ')
       chip.textContent = block.label + ' ' + block.passed + '/' + block.total
       summary.appendChild(chip)
     })
@@ -438,6 +491,7 @@ function renderOpsFindings(text) {
 
     var section = document.createElement('div')
     section.className = 'ops-finding-block'
+    if (Array.isArray(block.lanes) && block.lanes.length) section.dataset.opsLanes = block.lanes.join(' ')
 
     var heading = document.createElement('div')
     heading.className = 'ops-finding-heading'
@@ -447,6 +501,8 @@ function renderOpsFindings(text) {
     var list = document.createElement('ul')
     block.bullets.forEach(function(bullet) {
       var li = document.createElement('li')
+      var lanes = getFindingLane(bullet, block.label)
+      if (lanes.length) li.dataset.opsLanes = lanes.join(' ')
       li.textContent = bullet
       list.appendChild(li)
     })
@@ -589,14 +645,44 @@ function renderOpsInboxFilters() {
           var lanes = String(card.dataset.opsLanes || '').split(/\s+/).filter(Boolean)
           var visible = selected === 'all' || lanes.indexOf(selected) !== -1
           card.hidden = !visible
-          if (visible) visibleCards += 1
+          if (visible) {
+            visibleCards += 1
+            filterCardFindings(card, selected)
+          }
         })
         section.hidden = selected !== 'all' && visibleCards === 0
       })
     })
     wrap.appendChild(button)
   })
+  window.setTimeout(function() {
+    var active = wrap.querySelector('.ops-filter-button-active')
+    if (!active) return
+    var panel = wrap.closest('.panel')
+    if (!panel) return
+    panel.querySelectorAll('.ops-issue-card').forEach(function(card) {
+      filterCardFindings(card, active.dataset.opsFilter || 'all')
+    })
+  }, 0)
   return wrap
+}
+
+function filterCardFindings(card, selected) {
+  card.querySelectorAll('.ops-finding-chip').forEach(function(chip) {
+    var lanes = String(chip.dataset.opsLanes || '').split(/\s+/).filter(Boolean)
+    chip.hidden = selected !== 'all' && lanes.length && lanes.indexOf(selected) === -1
+  })
+
+  card.querySelectorAll('.ops-finding-block').forEach(function(block) {
+    var visibleItems = 0
+    block.querySelectorAll('li').forEach(function(item) {
+      var lanes = String(item.dataset.opsLanes || block.dataset.opsLanes || '').split(/\s+/).filter(Boolean)
+      var visible = selected === 'all' || !lanes.length || lanes.indexOf(selected) !== -1
+      item.hidden = !visible
+      if (visible) visibleItems += 1
+    })
+    block.hidden = selected !== 'all' && visibleItems === 0
+  })
 }
 
 function renderOpsInboxPanel(queueStats, options) {
