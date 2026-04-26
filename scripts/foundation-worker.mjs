@@ -6,6 +6,7 @@ import {
   closeFoundationDb,
   getFoundationJobRunSnapshot,
   initFoundationDb,
+  markStaleLlmCalls,
   markStaleFoundationJobRuns,
 } from '../lib/foundation-db.js';
 import { runFoundationJob } from './run-foundation-job.mjs';
@@ -37,11 +38,18 @@ function selectDueJobs(snapshot, { jobKey, maxJobs }) {
     .slice(0, maxJobs);
 }
 
-async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes }) {
+async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes, staleLlmCallSeconds, staleLlmCallGraceSeconds }) {
   if (!dryRun) {
     const reapedRuns = await markStaleFoundationJobRuns({ olderThanMinutes: staleRunMinutes }, actor);
     if (reapedRuns.length) {
       console.warn(`Foundation worker: marked ${reapedRuns.length} stale active run(s) failed before selecting jobs.`);
+    }
+    const reapedLlmCalls = await markStaleLlmCalls({
+      olderThanSeconds: staleLlmCallSeconds,
+      graceSeconds: staleLlmCallGraceSeconds,
+    }, actor);
+    if (reapedLlmCalls.length) {
+      console.warn(`Foundation worker: marked ${reapedLlmCalls.length} stale LLM call(s) failed before selecting jobs.`);
     }
   }
 
@@ -79,6 +87,8 @@ async function main() {
   const maxJobs = Math.max(1, Math.min(5, Number(args.maxJobs || 1)));
   const jobKey = args.job ? String(args.job) : '';
   const staleRunMinutes = Math.max(30, Number(args.staleRunMinutes || process.env.FOUNDATION_WORKER_STALE_RUN_MINUTES || 180));
+  const staleLlmCallSeconds = Math.max(30, Number(args.staleLlmCallSeconds || process.env.FOUNDATION_WORKER_STALE_LLM_CALL_SECONDS || 240));
+  const staleLlmCallGraceSeconds = Math.max(0, Number(args.staleLlmCallGraceSeconds || process.env.FOUNDATION_WORKER_STALE_LLM_CALL_GRACE_SECONDS || 60));
 
   await initFoundationDb();
 
@@ -87,7 +97,15 @@ async function main() {
   let exitCode = 0;
   do {
     try {
-      const result = await runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes });
+      const result = await runWorkerPass({
+        actor,
+        dryRun,
+        jobKey,
+        maxJobs,
+        staleRunMinutes,
+        staleLlmCallSeconds,
+        staleLlmCallGraceSeconds,
+      });
       if (result.failed > 0) exitCode = 1;
     } catch (error) {
       exitCode = 1;

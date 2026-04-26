@@ -101,6 +101,21 @@ function getTargetRunner(target) {
     }
   }
 
+  if (target.targetKey === 'slack-current-day') {
+    const messagesPerChannel = Math.max(1, Math.min(maxItemsPerRun, Number(target.cursorState?.messagesPerChannel) || 10))
+    return {
+      command: 'npm',
+      args: [
+        'run',
+        'slack:sync-archive',
+        '--',
+        `--limit=${messagesPerChannel}`,
+      ],
+      inspectedPattern: /Channels readable by bot:\s*(\d+)/i,
+      archivedPattern: /Archived this run:\s*(\d+)/i,
+    }
+  }
+
   if (target.targetKey === 'drive-corpus-backfill') {
     return {
       command: 'npm',

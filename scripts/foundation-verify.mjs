@@ -186,6 +186,7 @@ async function main() {
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
   const docsIndexSource = await readRepoFile('docs/INDEX.md')
   const docsReadmeSource = await readRepoFile('docs/README.md')
+  const currentPlan = await readRepoFile('docs/rebuild/current-plan.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
@@ -208,6 +209,7 @@ async function main() {
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
   const foundationWorkerSource = await readRepoFile('scripts/foundation-worker.mjs')
+  const extractionControlSeedSource = await readRepoFile('scripts/seed-extraction-control.mjs')
   const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
   const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -391,10 +393,10 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, ['markStaleFoundationJobRuns', 'Marked failed by stale active-run reaper']) &&
-      includesAll(foundationWorkerSource, ['markStaleFoundationJobRuns', 'job ' + '${job.key}' + ' failed before completion', 'Foundation worker pass failed']),
-    'Foundation worker catches job failures and reaps stale active runs',
-    'worker pass catches per-job failures, continues looping, and marks stale queued/running job runs failed before selecting due jobs',
+    includesAll(foundationDbSource, ['markStaleFoundationJobRuns', 'Marked failed by stale active-run reaper', 'markStaleLlmCalls', 'Marked failed by stale LLM call reaper']) &&
+      includesAll(foundationWorkerSource, ['markStaleFoundationJobRuns', 'markStaleLlmCalls', 'job ' + '${job.key}' + ' failed before completion', 'Foundation worker pass failed']),
+    'Foundation worker catches job failures and reaps stale active runs/calls',
+    'worker pass catches per-job failures, continues looping, and marks stale queued/running job runs plus planned/started LLM calls failed before selecting due jobs',
   )
   ensure(
     checks,
@@ -414,6 +416,14 @@ async function main() {
       videoInventorySource.includes('Refusing non-dry-run video link inventory outside extraction:target'),
     'video-link inventory runs through extraction target control',
     'job uses extraction:target, target runner passes controlled flag, raw script refuses direct non-dry-run writes',
+  )
+  ensure(
+    checks,
+    includesAll(currentPlan, ['Corpus mission lane', 'daily quota missions', 'files the outputs with provenance']) &&
+      includesAll(currentState, ['daily quota missions', 'file outputs with provenance']) &&
+      includesAll(extractionControlSeedSource, ['missionMode', 'daily_quota', 'dailyMissionQuota', 'requiresFiledOutput']),
+    'corpus extraction uses daily mission quotas instead of blind timers',
+    'Drive/video/Skool/Zoom/report corpus lanes are seeded and documented as quota missions with filed-output expectations',
   )
   ensure(
     checks,

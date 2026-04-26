@@ -16,6 +16,7 @@ import {
 import { DEFAULT_LLM_ROUTES, callLlm, seedDefaultLlmRouterConfig } from '../lib/llm-router.js'
 
 const execFile = promisify(execFileCallback)
+const DEFAULT_OPENCLAW_MODEL = process.env.LLM_OPENCLAW_MODEL || 'openai-codex/gpt-5.4'
 
 function parseArgs(argv) {
   const result = {}
@@ -218,7 +219,7 @@ async function auditOpenClaw(actor) {
       'run',
       '--local',
       '--model',
-      process.env.LLM_OPENCLAW_PROBE_MODEL || 'openai-codex/gpt-5.5',
+      process.env.LLM_OPENCLAW_PROBE_MODEL || DEFAULT_OPENCLAW_MODEL,
       '--prompt',
       'Reply with exactly: OPENCLAW_SUBSCRIPTION_PROBE_OK',
       '--json',
@@ -247,7 +248,7 @@ async function auditOpenClaw(actor) {
       ? 'OpenClaw subscription model probe returned expected output.'
       : `OpenClaw subscription model probe failed: ${modelProbe.message || modelProbe.stderr || modelProbeOutput || 'unknown error'}`,
     capability: {
-      model: process.env.LLM_OPENCLAW_PROBE_MODEL || 'openai-codex/gpt-5.5',
+      model: process.env.LLM_OPENCLAW_PROBE_MODEL || DEFAULT_OPENCLAW_MODEL,
       outputMatched: modelProbeOk,
     },
     metadata: {
@@ -258,8 +259,9 @@ async function auditOpenClaw(actor) {
     },
   }, actor)
 
+  const extractionAllowed = process.env.LLM_OPENCLAW_ALLOW_EXTRACTION === 'true' && modelProbeOk
   const status = modelProbeOk ? 'available' : launchAgentRunning ? 'unknown' : configExists ? 'unknown' : 'missing'
-  const policyClassification = 'experimental'
+  const policyClassification = extractionAllowed ? 'allowed' : 'experimental'
   return upsertLlmCredential({
     credentialKey: 'openclaw-chatgpt-pro',
     provider: 'openclaw',
@@ -271,11 +273,15 @@ async function auditOpenClaw(actor) {
     secretRef: 'OPENCLAW_GATEWAY_URL',
     status,
     policyClassification,
-    allowedWorkloads: ['extraction_probe', 'classification_probe', 'synthesis_probe'],
+    allowedWorkloads: extractionAllowed
+      ? ['extraction', 'extraction_probe', 'classification_probe', 'synthesis_probe']
+      : ['extraction_probe', 'classification_probe', 'synthesis_probe'],
     notes: modelProbeOk
-      ? 'OpenClaw subscription route passed a toy model-run probe. Keep it limited to probes until workload-level capability and policy proof exists.'
+      ? extractionAllowed
+        ? 'OpenClaw subscription route passed the model-run probe and is locally allowed for bounded extraction.'
+        : 'OpenClaw subscription route passed a toy model-run probe. Keep it limited to probes until workload-level capability and policy proof exists.'
       : 'Gateway is local and policy-gated. Do not treat it as production-safe until an actual workload probe passes.',
-    metadata: { launchAgentRunning, configExists, workspaceConfigured, modelProbeOk },
+    metadata: { launchAgentRunning, configExists, workspaceConfigured, modelProbeOk, extractionAllowed },
   }, actor)
 }
 
