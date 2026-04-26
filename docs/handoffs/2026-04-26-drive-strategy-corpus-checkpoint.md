@@ -41,7 +41,7 @@ Current target behavior:
 Total Drive text artifacts after this pass:
 
 - `22` artifacts
-- `433,209` text chars
+- `451,581` text chars
 - `12` Google Docs
 - `10` PDFs
 

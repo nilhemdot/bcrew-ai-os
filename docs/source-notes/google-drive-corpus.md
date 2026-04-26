@@ -129,8 +129,8 @@ Every unsupported file should receive an explicit skip reason through the extrac
 
 Proof on 2026-04-26:
 
-- Total Drive content artifacts archived so far: `22`.
-- Total extracted Drive text archived so far: `433,209` chars.
+- Total Drive content artifacts archived so far: `27`.
+- Total extracted Drive text archived so far: `451,581` chars.
 - Artifact types: `12` `drive_document`, `10` `drive_pdf`.
 - Priority strategy-folder extracted artifacts: `12`, including:
   - `KT Binder MAR 2026.pdf` - John strategy/mastermind binder, `142,435` chars

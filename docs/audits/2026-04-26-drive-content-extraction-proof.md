@@ -65,7 +65,7 @@ All strategy-folder items are tagged `strategy_evidence` so they queue before lo
 Total `SRC-GDRIVE-001` extracted artifacts after this pass:
 
 - `22` artifacts
-- `433,209` extracted text chars
+- `451,581` extracted text chars
 - `12` `drive_document`
 - `10` `drive_pdf`
 
