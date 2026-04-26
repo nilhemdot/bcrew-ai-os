@@ -63,6 +63,7 @@ import { getDriveFileMetadata, getSheetValues } from './lib/google-delegated.js'
 import { getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { verifyAgentFeedbackToken } from './lib/agent-feedback.js'
+import { writeAgentFeedbackToClickUp } from './lib/agent-feedback-clickup.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import { runSheetsStructureVerification } from './scripts/sheets-structure-verify.mjs'
 
@@ -4128,11 +4129,18 @@ app.post('/api/agent-feedback/submit', async (req, res) => {
       improvementFeedback,
       userAgent: req.get('user-agent') || '',
     })
+    const clickUpWriteback = await writeAgentFeedbackToClickUp({
+      taskId: session.taskId,
+      milestoneDay: session.milestoneDay,
+      score,
+      improvementFeedback,
+    })
 
     cacheHeadersNoStore(res)
     res.json({
       ok: true,
       submittedAt: response.submittedAt,
+      clickUpWriteback,
     })
   } catch (error) {
     sendApiError(

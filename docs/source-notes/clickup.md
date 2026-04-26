@@ -121,7 +121,7 @@ Roster cleanup recommendation:
   - name/status, company email, personal phone/email, birthday, board(s), tier, pod, ops usage, engagement/health notes
   - contract package fields: `Contract Link`, `Contract Sent`, `Contract Signed`, `Document Status`, `Contract`, `Special Contract Terms`
   - split-package summary fields that are actually populated
-  - AIOS onboarding-NPS fields: 30/60/90 status, due date, last sent, owner, feedback link
+  - AIOS onboarding-NPS result fields: 30/60/90 status, score, and feedback
 - add or map before building the full Agent Onboarding inbox lane:
   - `Contract Status`
   - `Membership Status`
@@ -157,9 +157,10 @@ Current read:
 - internal agent/team feedback should also use status fields with skip reasons:
   - `Internal Onboarding Status`: `Not Started`, `Requested`, `Completed`, `Skipped`, `Blocked`
   - `Internal Deal Review Status`: `Not Started`, `Requested`, `Completed`, `Skipped`, `Blocked`
-- agent roster source-truth and onboarding NPS design is still pending:
-  - review the existing Operations Agent Roster fields first
-  - only add the smallest field set needed after duplicate AIOS fields are removed
+- agent roster source-truth and onboarding NPS v1 now uses only the smallest result field set:
+  - `Onboarding NPS 30/60/90 Status`
+  - `Onboarding NPS 30/60/90 Score`
+  - `Onboarding NPS 30/60/90 Feedback`
 - ClickUp is still not the final bonus payout truth; AIOS must validate required fields and source parity before bonus credit counts
 
 Agent Roster Ops lane v1:
@@ -168,21 +169,21 @@ Agent Roster Ops lane v1:
 - `npm run agent-roster:review` reads the Agent Roster list and reports source-backed roster accountability items
 - `/api/owners/review-queue` includes an `agentRoster` section so Ops can see roster findings beside deal, conditional, FUB, and Owners-list issues
 - onboarding NPS schedule anchor is `Real Start Date`; Ops filling that field is what triggers AIOS to calculate and monitor day-30/day-60/day-90 feedback checkpoints
-- v1 launch cutoff is `2026-04-01`; do not backfill 30/60/90 NPS obligations for older historical starts unless Steve explicitly asks for a catch-up pass
+- if Real Start Date is 30-90 days old and the matching onboarding NPS status is still open, surface the due feedback card
 - if Real Start Date is more than 90 days old and the onboarding NPS statuses are still open, mark 30/60/90 as `Skipped` instead of sending retroactive feedback requests
 - outbound email automation is not built yet; Gmail is currently an archive/extraction source, not a governed send engine
-- v1 capture path is an AIOS private feedback link generated from the roster task and milestone day. It asks one NPS-style score plus one improvement prompt, then stores the structured response in `agent_onboarding_feedback_responses`.
+- v1 capture path is an AIOS private feedback link generated from the roster task and milestone day. It asks one NPS-style score plus one improvement prompt, stores the structured response in `agent_onboarding_feedback_responses`, then writes `Completed`, score, and feedback back to the same ClickUp roster task.
 - The feedback question is: "On a scale of 1-10, how likely would you recommend the Benson Crew to another agent based on your first 30/60/90 days?" Follow-up: "If not a 10, what would make it a 10? Any positive or negative feedback is helpful."
 - Feedback is private to Steve for v1. Do not route raw onboarding feedback through the onboarding team.
 - v1 surfaces:
   - one card per accountable roster record missing `Contract Link`
   - one grouped card when baseline source fields need backfill (`Recruited By`, `Real Start Date`, `Team / Legacy Origin`)
   - one grouped card when recommended roster source-contract fields still need mapping (`Contract Status`, `Membership Status`, `Production Roster Status`, `Onboarding Stage`)
-  - one grouped card when onboarding NPS 30/60/90 scheduling cannot run because start dates/statuses/due dates/owner are not initialized
-  - per-agent day-30/day-60/day-90 cards once Real Start Date and due dates make a feedback checkpoint due
-  - reminder cards when a checkpoint is Requested but not Completed after 3 days
+  - one grouped card when onboarding NPS 30/60/90 status/score/feedback fields are not present
+  - per-agent day-30/day-60/day-90 cards once Real Start Date makes a feedback checkpoint due
+  - reminder cards when a checkpoint is Requested but not Completed
   - one grouped card for missing personal email coverage because private onboarding feedback should not depend on the onboarding team
-- this is validation only; Steve/Carson/Clare own the manual field hiding/deletion pass
+- this lane validates the roster and writes onboarding-feedback results only; Steve/Carson/Clare own the manual field hiding/deletion pass
 
 ## What ClickUp Does Not Own Yet
 

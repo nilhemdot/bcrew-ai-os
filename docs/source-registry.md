@@ -177,7 +177,7 @@ Verified but not counted as source-owned sign-off for this unit:
 
 | Source ID | Source | What It Owns | Owner | Current Status |
 |-----------|--------|--------------|-------|----------------|
-| `SRC-CLICKUP-001` | ClickUp | Deal workflow/accountability, conditional forecast inputs, Agent Roster, contract-link monitoring, onboarding NPS trigger fields | Carson | V1 Source Boundary Locked |
+| `SRC-CLICKUP-001` | ClickUp | Deal workflow/accountability, conditional forecast inputs, Agent Roster, contract-link monitoring, onboarding NPS trigger/result fields | Carson | V1 Source Boundary Locked |
 
 ## Pending Revalidation
 
