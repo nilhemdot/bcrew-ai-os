@@ -398,6 +398,147 @@ function buildOpsLaneCleanupReply(queueStats, lane, label, emptyText, includeLin
   return lines.join('\n').trim()
 }
 
+function buildFieldListReply(title, fields, footer) {
+  return [
+    title,
+    '',
+  ].concat(fields.map(function(field) {
+    return '- ' + field
+  })).concat(footer ? ['', footer] : []).join('\n')
+}
+
+function buildOpsFieldReferenceReply(question) {
+  var lower = String(question || '').toLowerCase()
+  var asksField = lower.indexOf('field') !== -1 || lower.indexOf('fields') !== -1 || lower.indexOf('column') !== -1 || lower.indexOf('columns') !== -1 || lower.indexOf('fill out') !== -1 || lower.indexOf('fill in') !== -1
+  if (!asksField) return ''
+
+  if (lower.indexOf('nps') !== -1) {
+    return buildFieldListReply('For Client NPS cleanup, check these ClickUp fields:', [
+      'NPS Status',
+      'NPS Score',
+      'NPS Comments',
+      'FUB Call / Review Evidence Link',
+    ], 'NPS Status should be Requested, Completed, or Not Eligible. If Completed, NPS Score should be filled in.')
+  }
+
+  if (lower.indexOf('google') !== -1 || lower.indexOf('review status') !== -1 || lower.indexOf('client review') !== -1) {
+    return buildFieldListReply('For Google Review cleanup, check these ClickUp fields:', [
+      'Review Status',
+      'Google Review Requested',
+      'Google Review Captured',
+      'Google Review Target Count',
+      'Google Review Captured Count',
+      'Google Review Link',
+      'Google Review Link(s) / Evidence',
+      'FUB Call / Review Evidence Link',
+    ], 'Review Status should be Requested, Captured, or Not Eligible. If Captured, add count/evidence.')
+  }
+
+  if (lower.indexOf('internal') !== -1 || lower.indexOf('onboarding') !== -1 || lower.indexOf('deal review') !== -1) {
+    return buildFieldListReply('For Internal Review cleanup, check these ClickUp fields:', [
+      'Internal Onboarding Status',
+      'Internal Onboarding Skipped Reason',
+      'Internal Onboarding Survey Requested',
+      'Internal Onboarding Survey Completed',
+      'Internal Onboarding Survey Score',
+      'Internal Onboarding Survey Comments',
+      'Internal Deal Review Status',
+      'Internal Deal Review Skipped Reason',
+      'Internal Deal Management Survey Requested',
+      'Internal Deal Management Survey Completed',
+      'Internal Deal Management Survey Score',
+      'Internal Deal Management Survey Comments',
+    ], 'Use Completed when done. Use Skipped only when it truly does not apply, and fill in the skipped reason.')
+  }
+
+  if (lower.indexOf('conditional') !== -1) {
+    return buildFieldListReply('For Conditional cleanup, check these fields:', [
+      'Agent',
+      'Side',
+      'Closing Date',
+      'Expected Team $',
+      'Trade Number',
+      'FUB Link',
+      'THIS ROW ONLY: CONDITIONAL REVIEW ACTION',
+      'AI Conditional Findings / Suggestions',
+    ], 'After fixing the row, set THIS ROW ONLY: CONDITIONAL REVIEW ACTION to Review This Conditional.')
+  }
+
+  if (lower.indexOf('fub') !== -1 || lower.indexOf('crm') !== -1) {
+    return buildFieldListReply('For FUB / CRM cleanup, check these fields or source areas:', [
+      'Owners Dashboard: Client Follow UP Boss ID',
+      'FUB profile: source / lead source',
+      'FUB profile: stage',
+      'FUB profile: tags or review/NPS call evidence',
+      'ClickUp: FUB Call / Review Evidence Link',
+    ], 'If the issue is a missing FUB link, fill Client Follow UP Boss ID in the Owners row.')
+  }
+
+  if (lower.indexOf('split') !== -1) {
+    return buildFieldListReply('For split-deal cleanup, every credited row needs these core fields:', [
+      'Deal #',
+      'Deal Status',
+      'Client Signed Date',
+      'Date Firm (Executed)',
+      'Expected Closing',
+      'Client Name',
+      'Deal Address',
+      'Buy / Sell / Referral',
+      'Lead Source (Bonus System For Having This 100% Complete)',
+      'Extra Lead Source Data',
+      'Ground Zero',
+      'Extra Orgin Lead Source Data',
+      'Company or Agent',
+      'Realtor',
+      'Total',
+      'Volume Credit',
+      'Commission Credit',
+      'Deal Credit',
+      'Agent Portion of Split or Transaction Fee',
+      'Cap YTD Split Running Total',
+      'Agent Email',
+      'ISA Set Deal',
+    ], 'Gross To Team should stay on the anchor row only.')
+  }
+
+  if (lower.indexOf('deal') !== -1 || lower.indexOf('owners') !== -1 || lower.indexOf('source') !== -1) {
+    return buildFieldListReply('For Owners deal-data cleanup, check the fields named on the card. Common fields are:', [
+      'Deal #',
+      'Deal Status',
+      'Commission/Fees Into Accounting Software?',
+      'Co-Broke and Agent Expense Status',
+      'Client Signed Date',
+      'Date Firm (Executed)',
+      'Expected Closing',
+      'Expected Cash Deposit',
+      'Days Between Executed and Closing',
+      'Client Name',
+      'Deal Address',
+      'Buy / Sell / Referral',
+      'Lead Source (Bonus System For Having This 100% Complete)',
+      'Extra Lead Source Data',
+      'Ground Zero',
+      'Extra Orgin Lead Source Data',
+      'Company or Agent',
+      'Realtor',
+      'Total',
+      'Gross To Team',
+      'Client Follow UP Boss ID',
+    ], 'After fixing the source fields, set THIS ROW ONLY: REVIEW ACTION to Review This Deal.')
+  }
+
+  return buildFieldListReply('Common AIOS cleanup fields:', [
+    'Owners Dashboard: THIS ROW ONLY: REVIEW ACTION',
+    'ClickUp: Deal #',
+    'ClickUp: NPS Status',
+    'ClickUp: Review Status',
+    'ClickUp: Internal Onboarding Status',
+    'ClickUp: Internal Deal Review Status',
+    'ClickUp: FUB Call / Review Evidence Link',
+    'Owners Dashboard: Client Follow UP Boss ID',
+  ], 'Ask about NPS, Google review, internal review, conditional, FUB, split deal, or deal data for a narrower field list.')
+}
+
 function findOpsQueueMatches(queueStats, question) {
   var normalized = String(question || '').toLowerCase()
   var tokens = normalized.match(/t#?\d+|[a-z0-9][a-z0-9'-]{2,}/g) || []
@@ -423,9 +564,12 @@ function buildOpsHelperReply(question, queueStats) {
   var text = String(question || '').trim()
   var lower = text.toLowerCase()
   var matches = findOpsQueueMatches(queueStats, text)
+  var fieldReference = buildOpsFieldReferenceReply(text)
   var asksForLink = lower.indexOf('link') !== -1 || lower.indexOf('open') !== -1
   var asksForOne = asksForLink || lower.indexOf('one') !== -1 || lower.indexOf('single') !== -1
   var asksWhich = lower.indexOf('which') !== -1 || lower.indexOf('what card') !== -1 || lower.indexOf('what cards') !== -1 || lower.indexOf('needs') !== -1 || lower.indexOf('cleanup') !== -1 || lower.indexOf('clean up') !== -1
+
+  if (fieldReference) return fieldReference
 
   if (lower.indexOf('skip') !== -1 || lower.indexOf('not eligible') !== -1 || lower.indexOf('blocked') !== -1) {
     return [
