@@ -46,6 +46,7 @@ Locked doctrine means current operating default, not permanent dogma. If researc
 - Active truth lives in the current docs and source-backed UI/API surfaces.
 - Handoffs and audits are evidence unless promoted into active docs or backlog.
 - Specs are design references until promoted into this plan, source contracts, verifier checks, or DB-backed backlog/decision records.
+- Foundation surfaces must not rely on Steve noticing stale truth. When source contracts, connectors, jobs, docs, backlog, Systems, Data Sources, System Inventory, or hub links change, the change must update live-backed surfaces, add/adjust verifier checks, or run a deliberate sweep captured under `FOUNDATION-SWEEP-001`.
 - Imported spreadsheet mirrors are not write surfaces. Any governed write must target the source workbook/range or a deliberately non-imported destination.
 - Extraction is a Foundation supply chain, not a one-off research chore. It must keep current sources fresh, mine old corpora one bounded bite at a time, and preserve what each hub can use.
 - Drive and Skool mining belong in Foundation while they inventory, archive, classify, extract, and organize evidence. Course creation, content production, recruiting outreach, coaching, and monetization are Hub work built on that Foundation output.

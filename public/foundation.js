@@ -7763,9 +7763,16 @@ function getSourceTrust(contract) {
   var validation = contract.validation || contract.status || 'Unknown'
 
   if (validation === 'Signed Off' || validation === 'Signed Off For Current Reality') return { label: validation, tone: 'connected' }
+  if (validation === 'Verified For Ops V1') return { label: validation, tone: 'connected' }
   if (validation === 'In Review') return { label: validation, tone: 'pending' }
   if (validation === 'Partially Signed Off' || validation === 'Readable Only') {
     return { label: validation, tone: 'planned' }
+  }
+  if (validation === 'Not Signed Off') {
+    if (contract.group === 'verified' || contract.status === 'Verified Readable') {
+      return { label: 'Readable, not signed off', tone: 'planned' }
+    }
+    if (contract.group === 'pending') return { label: 'Needs source sign-off', tone: 'pending' }
   }
   return { label: validation, tone: 'missing' }
 }
@@ -10378,7 +10385,7 @@ function renderCapabilitySection(section) {
           title: skill.title,
           type: skill.scope,
           state: 'Installed',
-          tone: skill.scope === 'Workspace skill' ? 'connected' : 'pending',
+          tone: 'connected',
           availableTo: 'Coding/runtime layer on this machine',
           purpose: skill.description || 'Skill inventory item',
         }

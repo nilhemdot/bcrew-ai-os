@@ -266,6 +266,7 @@ async function main() {
         'Ops Hub v1',
         'daily Gmail attachment extraction',
         'daily YouTube subtitle transcript extraction',
+        'FOUNDATION-SWEEP-001',
       ]) &&
       includesAll(currentPlan, ['Overview gives the command order', 'live Backlog owns task status', 'Rebuild Plan explains doctrine']) &&
       includesAll(currentState, ['Overview gives the command order', 'live Backlog owns task status', 'Current command order']) &&
@@ -621,6 +622,30 @@ async function main() {
     'api/source-of-truth exposes the full connector set',
     `${Array.isArray(sourceOfTruth.connectors) ? sourceOfTruth.connectors.length : 'invalid'} live / ${sourceConnectors.length} code`,
   )
+  const workingConnectorIds = Array.isArray(sourceOfTruth.connectors)
+    ? sourceOfTruth.connectors.filter(connector => connector.group === 'working').map(connector => connector.connectorId)
+    : []
+  const requiredWorkingConnectorIds = [
+    'CONN-GSHEETS-001',
+    'CONN-GDRIVE-001',
+    'CONN-GMAIL-001',
+    'CONN-GCAL-001',
+    'CONN-FUB-001',
+    'CONN-CLICKUP-001',
+    'CONN-SLACK-001',
+    'CONN-MISSIVE-001',
+    'CONN-DATAFORSEO-001',
+    'CONN-META-001',
+  ]
+  const missingWorkingConnectorIds = requiredWorkingConnectorIds.filter(connectorId => !workingConnectorIds.includes(connectorId))
+  ensure(
+    checks,
+    missingWorkingConnectorIds.length === 0,
+    'source connector status reflects proven working rebuild paths',
+    missingWorkingConnectorIds.length
+      ? `missing working status for ${missingWorkingConnectorIds.join(', ')}`
+      : `${workingConnectorIds.length} connectors marked working`,
+  )
   const expectedGroupedSystemIds = groupedSourceSystems.map(system => system.systemId)
   const liveGroupedSystemIds = Array.isArray(sourceOfTruth.groupedSystems)
     ? sourceOfTruth.groupedSystems.map(system => system.systemId)
@@ -683,6 +708,19 @@ async function main() {
     ]),
     'current-state documents Data Sources and System Inventory purpose boundaries',
     'source, connector, docs, skills, plugins, and agent inventory boundaries are captured',
+  )
+  const driveCorpusNote = await readRepoFile('docs/source-notes/google-drive-corpus.md')
+  ensure(
+    checks,
+    includesAll(driveCorpusNote, [
+      'Strategy Folder Operating Model',
+      'quarterly evidence intake',
+      'not the canonical strategy',
+      'Strategy Hub / Strategic Execution',
+      'Action Router',
+    ]),
+    'Drive strategy folder is captured as quarterly evidence intake',
+    'Drive source note distinguishes raw evidence folder from canonical strategy and Strategy Hub outputs',
   )
 
   const liveOwnersContract = findSourceById(sourceOfTruth.sources, 'SRC-OWNERS-001')
@@ -954,6 +992,19 @@ async function main() {
       foundationCloseout?.title === 'Close out the Admin-tab sign-off and route remaining follow-on work to the right cards',
     'FOUNDATION-002 matches signed-off reality',
     foundationCloseout ? `${foundationCloseout.lane} / ${foundationCloseout.title}` : 'missing',
+  )
+  const foundationSurfaceSweep = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-SWEEP-001') || null
+  ensure(
+    checks,
+    foundationSurfaceSweep?.lane === 'scoped' &&
+      foundationSurfaceSweep?.priority === 'P0' &&
+      /source contracts, connectors, jobs, docs, backlog cards, or system maps change/.test(foundationSurfaceSweep?.summary || '') &&
+      currentPlan.includes('Foundation surfaces must not rely on Steve noticing stale truth') &&
+      currentPlan.includes('FOUNDATION-SWEEP-001'),
+    'Foundation surface freshness sweep is tracked as P0 work',
+    foundationSurfaceSweep
+      ? `${foundationSurfaceSweep.lane} / ${foundationSurfaceSweep.priority} / ${foundationSurfaceSweep.title}`
+      : 'missing FOUNDATION-SWEEP-001',
   )
   const strategyLayerCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-001') || null
   const strategyInputCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-014') || null

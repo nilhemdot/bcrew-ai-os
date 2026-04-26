@@ -145,6 +145,34 @@ Proof on 2026-04-26:
 
 This proves Drive access was not the blocker. The blocker was extractor implementation. Docs/PDF/text v1 is now live; Sheets, Slides, shortcut resolution, OCR, Office conversion, and media remain separate file-type workers.
 
+## Strategy Folder Operating Model
+
+The Strategy Folder is not the canonical strategy. It is the quarterly evidence intake inside `SRC-GDRIVE-001`.
+
+Use this model:
+
+- `SRC-GDRIVE-001` owns the broader Google Drive corpus source.
+- The Strategy Folder is a priority strategy-evidence corpus under that source.
+- Canonical strategy docs hold the cleaned/current strategy after decisions are made.
+- Strategy Hub / Strategic Execution should be the working surface that turns evidence into issues, priorities, owners, decisions, and follow-through.
+
+Quarterly workflow target:
+
+1. Before strategy: inventory and extract the Strategy Folder, John/mastermind material, team pre-work, prior-quarter notes, PDFs, Docs, Sheets, Slides, and any linked videos.
+2. During strategy: capture strategic issues, options, decisions, contradictions, owners, open questions, and evidence links.
+3. After strategy: update canonical strategy docs through the decision/change path, archive the evidence package, and route execution items into the correct hub/backlog.
+
+What is live now:
+
+- Strategy-folder inventory and Docs/PDF/text extraction.
+- Source-backed artifacts for the John binder, team pre-work, Q2 PDFs, Steve/Carson notes, and Q1 vision/core-values material.
+
+What is still needed before this becomes a high-value strategy engine:
+
+- Sheets, Slides, shortcuts, OCR/scanned PDFs, Office files, Drive videos, and linked-video extraction.
+- Synthesis that turns extracted artifacts into strategy issues, contradictions, risks, priorities, and recommendations.
+- Action Router / Strategy Hub handoff so approved outputs become decisions, tasks, questions, or execution records instead of another raw document pile.
+
 ## Course-Building Note
 
 Presentations are likely one of the highest-value first corpora. Buyer, seller, and buy-sell presentation assets should eventually become end-to-end training/course outlines. Foundation should extract and classify the material; course production belongs to the right hub after Foundation preserves source links and sensitivity boundaries.
