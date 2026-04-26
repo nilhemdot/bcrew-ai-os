@@ -2830,6 +2830,97 @@ body {
   border-bottom: 2px solid var(--brand-glow);
 }
 
+.strategy-packet-card {
+  background:
+    linear-gradient(180deg, rgba(0, 132, 201, 0.05) 0%, rgba(255, 255, 255, 0) 100%),
+    var(--surface);
+}
+
+.strategy-packet-summary {
+  margin: 0 0 12px;
+  color: var(--text-primary);
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+
+.strategy-packet-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.strategy-packet-meta-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.86);
+  min-width: 0;
+}
+
+.strategy-packet-meta-pill span,
+.strategy-packet-list-label,
+.strategy-packet-item-meta {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.strategy-packet-meta-pill strong {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.strategy-packet-gap {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--brand);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.strategy-packet-list-label {
+  color: var(--brand);
+  margin: 12px 0 8px;
+}
+
+.strategy-packet-item-list {
+  display: grid;
+  gap: 8px;
+}
+
+.strategy-packet-item {
+  display: grid;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.strategy-packet-item strong {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.strategy-packet-item p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 .section-link {
   color: inherit;
   text-decoration: none;
@@ -4975,6 +5066,7 @@ code {
   .review-checklist-grid { grid-template-columns: 1fr; }
   .source-legend-grid,
   .source-card-meta-grid { grid-template-columns: 1fr; }
+  .strategy-packet-meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .quarter-meta-row { grid-template-columns: 1fr; }
   .quarter-cadence-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .section-card { padding: 14px; }
@@ -5035,6 +5127,7 @@ code {
   .panel h3 { font-size: 1.15rem; }
   .section-card { padding: 12px; }
   .section-card h4 { font-size: 0.84rem; }
+  .strategy-packet-meta-grid { grid-template-columns: 1fr; }
   .sidebar { padding: 20px 16px; }
   .brand h1 { font-size: 1.4rem; }
   .status-grid { grid-template-columns: 1fr; }

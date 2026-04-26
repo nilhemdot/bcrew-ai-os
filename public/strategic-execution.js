@@ -89,6 +89,7 @@ var sectionSupportDocs = {
 
 var sectionLabels = {
   'overview': 'Overview',
+  'evidence-packet': 'Evidence Packet',
   'quarterly-priorities': 'Quarterly Priorities',
   'strategic-issues': 'Strategic Issues',
 }
@@ -548,6 +549,7 @@ function renderSupportingDocsCard() {
 var cache = {
   sourceOfTruth: null,
   docs: {},
+  strategyEvidencePacket: null,
 }
 
 function fetchSourceOfTruth() {
@@ -574,11 +576,141 @@ function fetchDoc(docPath) {
   })
 }
 
+function fetchStrategyEvidencePacket() {
+  if (cache.strategyEvidencePacket) return Promise.resolve(cache.strategyEvidencePacket)
+
+  return fetchWithAdmin('/api/shared-communications/synthesis?packetType=strategy_evidence_packet_v1&limit=1&itemLimit=30').then(function(res) {
+    if (!res.ok) throw new Error('Strategy evidence packet API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.strategyEvidencePacket = data
+    return data
+  })
+}
+
+function renderStrategyPacketCard(packetData, options) {
+  var compact = options && options.compact
+  var article = document.createElement('article')
+  article.className = 'section-card strategy-packet-card'
+
+  var title = document.createElement('h4')
+  title.textContent = 'Strategy Evidence Packet'
+  article.appendChild(title)
+
+  var run = packetData && packetData.latestRun
+  if (!run) {
+    var empty = document.createElement('p')
+    empty.className = 'strategy-packet-summary'
+    empty.textContent = 'No strategy evidence packet has been generated yet. Run the packet job after fresh extraction, then use this surface as the strategy prep cockpit.'
+    article.appendChild(empty)
+    return article
+  }
+
+  var metadata = run.metadata || {}
+  var inputSummary = metadata.inputSummary || {}
+  var readiness = metadata.strategyReadiness || {}
+
+  var summary = document.createElement('p')
+  summary.className = 'strategy-packet-summary'
+  summary.textContent = metadata.executiveSummary || 'Latest source-backed strategy evidence packet is available.'
+  article.appendChild(summary)
+
+  var metaGrid = document.createElement('div')
+  metaGrid.className = 'strategy-packet-meta-grid'
+
+  ;[
+    ['Generated', formatDate(run.generatedAt)],
+    ['Readiness', readiness.readiness_label || 'Owner review ready'],
+    ['Evidence', (inputSummary.candidate_count || run.candidatesRead || 0) + ' candidates · ' + (inputSummary.direct_artifact_count || 0) + ' artifacts'],
+    ['Model', run.model || 'Not available'],
+  ].forEach(function(pair) {
+    var pill = document.createElement('div')
+    pill.className = 'strategy-packet-meta-pill'
+
+    var label = document.createElement('span')
+    label.textContent = pair[0]
+    pill.appendChild(label)
+
+    var value = document.createElement('strong')
+    value.textContent = pair[1]
+    pill.appendChild(value)
+
+    metaGrid.appendChild(pill)
+  })
+
+  article.appendChild(metaGrid)
+
+  if (readiness.most_important_gap) {
+    var gap = document.createElement('p')
+    gap.className = 'strategy-packet-gap'
+    gap.textContent = 'Gap: ' + readiness.most_important_gap
+    article.appendChild(gap)
+  }
+
+  var items = packetData.latestItems || []
+  if (items.length) {
+    var listTitle = document.createElement('div')
+    listTitle.className = 'strategy-packet-list-label'
+    listTitle.textContent = compact ? 'Top Signals' : 'Packet Items'
+    article.appendChild(listTitle)
+
+    var list = document.createElement('div')
+    list.className = 'strategy-packet-item-list'
+
+    items.slice(0, compact ? 5 : 30).forEach(function(item) {
+      var row = document.createElement('div')
+      row.className = 'strategy-packet-item'
+
+      var itemMeta = document.createElement('div')
+      itemMeta.className = 'strategy-packet-item-meta'
+      itemMeta.textContent = (item.itemType || 'item').replace(/_/g, ' ') + ' · ' + (item.status || 'open')
+      row.appendChild(itemMeta)
+
+      var itemTitle = document.createElement('strong')
+      itemTitle.textContent = item.title || 'Untitled packet item'
+      row.appendChild(itemTitle)
+
+      var itemLine = document.createElement('p')
+      itemLine.textContent = item.oneLine || item.recommendedNextAction || item.evidenceSummary || ''
+      row.appendChild(itemLine)
+
+      list.appendChild(row)
+    })
+
+    article.appendChild(list)
+  }
+
+  var actions = document.createElement('div')
+  actions.className = 'section-support-actions'
+
+  if (compact) {
+    var packetLink = document.createElement('a')
+    packetLink.className = 'section-support-link'
+    packetLink.href = '/strategic-execution#evidence-packet'
+    packetLink.textContent = 'Open packet'
+    actions.appendChild(packetLink)
+  }
+
+  if (run.outputPath) {
+    var docLink = document.createElement('a')
+    docLink.className = 'section-support-link'
+    docLink.href = buildDocHref(run.outputPath, 'docs/strategy/quarterly-priorities.md')
+    docLink.textContent = 'Open packet doc'
+    actions.appendChild(docLink)
+  }
+
+  if (actions.children.length) article.appendChild(actions)
+
+  return article
+}
+
 function renderOverview() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading overview...</p>'
 
-  fetchSourceOfTruth().then(function(data) {
+  Promise.all([fetchSourceOfTruth(), fetchStrategyEvidencePacket()]).then(function(results) {
+    var data = results[0]
+    var packetData = results[1]
     var quarterlyDoc = (data.foundation.supportingStrategy || []).find(function(doc) {
       return doc.meta && doc.meta.path === strategicDocPaths['quarterly-priorities']
     })
@@ -616,6 +748,7 @@ function renderOverview() {
     var quarterPath = quarterlyDoc && quarterlyDoc.meta && quarterlyDoc.meta.path
       ? quarterlyDoc.meta.path
       : strategicDocPaths['quarterly-priorities']
+    sectionList.appendChild(renderStrategyPacketCard(packetData, { compact: true }))
     sectionList.appendChild(renderCurrentQuarterSection(currentQuarterSection, quarterPath, quarterlyDoc))
     sectionList.appendChild(renderSupportingDocsCard())
     panel.appendChild(sectionList)
@@ -624,6 +757,50 @@ function renderOverview() {
     container.innerHTML = ''
     var msg = document.createElement('p')
     msg.textContent = 'Failed to load overview: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
+function renderStrategyEvidencePacket() {
+  var container = document.getElementById('strategic-execution-content')
+  container.innerHTML = '<p>Loading strategy evidence packet...</p>'
+
+  fetchStrategyEvidencePacket().then(function(packetData) {
+    container.innerHTML = ''
+
+    var panel = document.createElement('section')
+    panel.className = 'panel'
+
+    var panelHeader = document.createElement('div')
+    panelHeader.className = 'panel-header'
+
+    var panelLeft = document.createElement('div')
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Strategy Prep'
+    panelLeft.appendChild(eyebrow)
+
+    var title = document.createElement('h3')
+    title.textContent = 'Evidence Packet'
+    panelLeft.appendChild(title)
+    panelHeader.appendChild(panelLeft)
+
+    var meta = document.createElement('div')
+    meta.className = 'doc-meta'
+    meta.textContent = packetData.latestRun ? 'Updated ' + formatDate(packetData.latestRun.generatedAt) : 'Not generated'
+    panelHeader.appendChild(meta)
+
+    panel.appendChild(panelHeader)
+
+    var list = document.createElement('div')
+    list.className = 'section-list'
+    list.appendChild(renderStrategyPacketCard(packetData, { compact: false }))
+    panel.appendChild(list)
+    container.appendChild(panel)
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load strategy evidence packet: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -699,6 +876,8 @@ function route() {
 
   if (section === 'overview') {
     renderOverview()
+  } else if (section === 'evidence-packet') {
+    renderStrategyEvidencePacket()
   } else if (strategicDocPaths[section]) {
     renderStrategyDoc(section)
   } else {

@@ -55,6 +55,7 @@
     "slack:sync-archive": "node --env-file-if-exists=.env scripts/sync-slack-archive.mjs",
     "slack:extract-candidates": "node --env-file-if-exists=.env scripts/extract-slack-thread-candidates.mjs",
     "synthesis:brief": "node --env-file-if-exists=.env scripts/generate-shared-comms-synthesis.mjs",
+    "strategy:evidence-packet": "node --env-file-if-exists=.env scripts/generate-strategy-evidence-packet.mjs",
     "codex:usage": "node scripts/codex-usage.mjs",
     "codex:usage-web": "node scripts/codex-usage-web.mjs",
     "backlog:seed-drift": "node --env-file-if-exists=.env scripts/report-backlog-seed-drift.mjs",

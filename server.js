@@ -3756,7 +3756,8 @@ app.get('/api/shared-communications/synthesis', requireAdminToken, async (req, r
   try {
     const limit = Math.min(20, Math.max(1, Number(req.query.limit) || 3))
     const itemLimit = Math.min(100, Math.max(1, Number(req.query.itemLimit) || 20))
-    const synthesis = await getSharedCommunicationSynthesisSnapshot({ limit, itemLimit })
+    const packetType = req.query.packetType ? String(req.query.packetType) : ''
+    const synthesis = await getSharedCommunicationSynthesisSnapshot({ limit, itemLimit, packetType })
     cacheHeadersNoStore(res)
     res.json(synthesis)
   } catch (error) {

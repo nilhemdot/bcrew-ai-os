@@ -260,8 +260,9 @@ async function auditOpenClaw(actor) {
   }, actor)
 
   const extractionAllowed = process.env.LLM_OPENCLAW_ALLOW_EXTRACTION === 'true' && modelProbeOk
+  const synthesisAllowed = process.env.LLM_OPENCLAW_ALLOW_SYNTHESIS === 'true' && modelProbeOk
   const status = modelProbeOk ? 'available' : launchAgentRunning ? 'unknown' : configExists ? 'unknown' : 'missing'
-  const policyClassification = extractionAllowed ? 'allowed' : 'experimental'
+  const policyClassification = extractionAllowed || synthesisAllowed ? 'allowed' : 'experimental'
   return upsertLlmCredential({
     credentialKey: 'openclaw-chatgpt-pro',
     provider: 'openclaw',
@@ -273,15 +274,19 @@ async function auditOpenClaw(actor) {
     secretRef: 'OPENCLAW_GATEWAY_URL',
     status,
     policyClassification,
-    allowedWorkloads: extractionAllowed
-      ? ['extraction', 'extraction_probe', 'classification_probe', 'synthesis_probe']
-      : ['extraction_probe', 'classification_probe', 'synthesis_probe'],
+    allowedWorkloads: [
+      ...(extractionAllowed ? ['extraction'] : []),
+      ...(synthesisAllowed ? ['synthesis'] : []),
+      'extraction_probe',
+      'classification_probe',
+      'synthesis_probe',
+    ],
     notes: modelProbeOk
-      ? extractionAllowed
-        ? 'OpenClaw subscription route passed the model-run probe and is locally allowed for bounded extraction.'
+      ? extractionAllowed || synthesisAllowed
+        ? 'OpenClaw subscription route passed the model-run probe and is locally allowed for bounded internal workloads.'
         : 'OpenClaw subscription route passed a toy model-run probe. Keep it limited to probes until workload-level capability and policy proof exists.'
       : 'Gateway is local and policy-gated. Do not treat it as production-safe until an actual workload probe passes.',
-    metadata: { launchAgentRunning, configExists, workspaceConfigured, modelProbeOk, extractionAllowed },
+    metadata: { launchAgentRunning, configExists, workspaceConfigured, modelProbeOk, extractionAllowed, synthesisAllowed },
   }, actor)
 }
 

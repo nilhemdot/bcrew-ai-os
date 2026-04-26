@@ -190,6 +190,7 @@ async function main() {
   const currentPlan = await readRepoFile('docs/rebuild/current-plan.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const systemStrategy = await readRepoFile('docs/system-strategy.md')
+  const packageSource = await readRepoFile('package.json')
   const agentsSource = await readRepoFile('AGENTS.md')
   const usersDoc = await readRepoFile('docs/users/README.md')
   const steveDoc = await readRepoFile('docs/users/steve.md')
@@ -221,6 +222,7 @@ async function main() {
   const extractionControlSeedSource = await readRepoFile('scripts/seed-extraction-control.mjs')
   const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
   const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
+  const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
@@ -855,6 +857,30 @@ async function main() {
     foundationHub.sharedCommunicationSynthesis?.latestRun
       ? `${foundationHub.sharedCommunicationSynthesis.latestRun.runId} / ${foundationHub.sharedCommunicationSynthesis.latestItems.length} items`
       : 'missing synthesis payload',
+  )
+  ensure(
+    checks,
+    packageSource.includes('"strategy:evidence-packet"') &&
+      includesAll(strategyEvidencePacketSource, [
+        'strategy_evidence_packet_v1',
+        'direct_strategy_artifacts',
+        'recordSharedCommunicationSynthesisRun',
+        "packetType: 'strategy_evidence_packet_v1'",
+      ]) &&
+      includesAll(foundationJobsSource, [
+        "key: 'strategy-evidence-packet-v1'",
+        "servesHubs: ['strategy']",
+        'Strategy Evidence Packet V1',
+      ]) &&
+      serverSource.includes('packetType = req.query.packetType') &&
+      includesAll(strategicExecutionUiSource, [
+        'fetchStrategyEvidencePacket',
+        'strategy_evidence_packet_v1',
+        'renderStrategyPacketCard',
+        'Evidence Packet',
+      ]),
+    'Strategy Evidence Packet v1 is wired from script to job to Strategic Execution',
+    'strategy:evidence-packet persists packetType=strategy_evidence_packet_v1 and Strategic Execution renders the latest packet',
   )
   ensure(
     checks,
