@@ -6468,7 +6468,7 @@ function renderCurrentState() {
         currentSummary: 'SRC-SUPABASE-001 is readable, the Lee / zahnd-team-dashboard repo and Supabase audit checkpoint are captured, and AI OS has locked first-pass read rules for pipeline, Shopping List, executed deals, goals, competition, and usage.',
         next: 'No current-state source-signoff work remains for SOURCE-010.',
         later: 'Add KPI health checks, visible freshness, schema/code drift review, and future Sales Hub surfaces through KPI-HEALTH-001.',
-        backlogIds: ['KPI-HEALTH-001'],
+        backlogIds: [],
       },
       {
         title: 'Shared freshness rules',
