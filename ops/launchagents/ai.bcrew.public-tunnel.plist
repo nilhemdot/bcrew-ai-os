@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>ai.bcrew.public-tunnel</string>
+
+    <key>Comment</key>
+    <string>BCrew AI OS Public Tunnel</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/opt/homebrew/bin/ngrok</string>
+      <string>http</string>
+      <string>--url=bcrewaios.ngrok.app</string>
+      <string>--log=stdout</string>
+      <string>3000</string>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/bensoncrew/Library/Logs/bcrew-ai-os/public-tunnel.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/bensoncrew/Library/Logs/bcrew-ai-os/public-tunnel.err.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>HOME</key>
+      <string>/Users/bensoncrew</string>
+      <key>PATH</key>
+      <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+      <key>TZ</key>
+      <string>America/Toronto</string>
+    </dict>
+  </dict>
+</plist>
