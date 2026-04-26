@@ -211,6 +211,24 @@ Important caveat:
 - `Realtor.ca` source is not the same thing as a realtor/person incorrectly left as a lead
 - fake-lead detection needs stage, source, tags/person type, owner, timing, and cleanup-window context
 
+Follow-up founder correction after checkpoint:
+
+- `Import`, `<unspecified>`, generic `Sphere`, `SOI`, and similar placeholders are not valid final lead-source truth.
+- `<unspecified>` is quarantine only.
+- Generic `Sphere` must be decomposed into a real source path such as Family, Met - In Person, Met - Social Media, Referral, Introduction, or another governed FUB-compatible source.
+- If the source is referral or introduction, the assistant should ask who introduced/referred the person, search for that origin person in FUB, and offer to add/connect them when write permissions exist.
+- If the source is Met - In Person, ask where/how they met.
+- If the source is Met - Social Media, ask which platform and useful context.
+- Store the supporting detail in FUB's secondary/source-support fields and preserve Ground Zero so attribution can trace back to the original relationship/source.
+- The live `fub_lead_source_rules` row for `Sphere` was corrected to `not_canonical` after this clarification because generic `Sphere` is a relationship bucket, not final attribution.
+
+Follow-up appointment clarification after checkpoint:
+
+- multiple appointments for the same person inside roughly `60` to `90` days should trigger a coaching question, not an automatic failure
+- legitimate exceptions include buy+sell clients, multiple properties, or genuinely separate opportunity/deal paths
+- buy+sell can count as two appointment/outcome tracks because it leads to two deals, even if the agent met with the client once
+- if the context proves the records are really one opportunity with repeated meetings, coach the agent to move/update the original appointment and outcome instead of creating a new appointment record
+
 Backlog created / enriched:
 
 - `KPI-APPT-QUALITY-001` P0 — appointment stacking, missing outcomes, wrong outcomes.
@@ -234,6 +252,15 @@ AI OS rule:
 - then produce suggested fixes with evidence
 - then add explicit agent-authorized apply/write paths with audit logs, preview, approval boundaries, rollback/escalation, and manager/Ops review where needed
 - never silently mutate KPI/FUB/CRM data just because the assistant detected a likely issue
+
+Follow-up write-surface clarification after checkpoint:
+
+- eventually the assistant can help across every connected system where permissions and confidence exist
+- v1 should write only where the system is confident
+- most KPI production truth is downstream from FUB / Lee's database, so source/stage/contact hygiene should usually write to FUB first and then flow into KPI
+- KPI-native write surfaces are mainly goals and Shopping List
+- Shopping List is the biggest first KPI-native write opportunity: a Monday-style assistant workflow can ask an agent about clients, collect or suggest action plans, and help push opportunities down the field
+- if the current KPI app lacks safe endpoints for this, BCrew owns the code and should ask Aidan/Lee to review and implement the endpoints rather than bypass the application boundary
 
 ## Knowledge Bases Updated
 
@@ -311,9 +338,8 @@ Optional fifth:
 - `SALES-005`
   - design the first agent-authorized fix/apply contract after read-only audits are trusted
 
-## Questions For Steve
+## Questions Answered After Checkpoint
 
-1. Are `Import` and `<unspecified>` always suspicious in active lead-stage rows, or are there valid pond/import scenarios we should exempt?
-2. For appointment stacking, should the first audit flag only same person + same appointment type, or also same person + discovery-to-consult sequences with too many rebooks?
-3. For the future apply layer, should v1 suggested fixes write only to KPI/FUB, or should Home Value Hub / Google / other tools be in the first contract too?
-
+1. `Import`, `<unspecified>`, generic `Sphere`, and similar placeholders are not valid final lead-source truth. They should trigger guided correction against the governed FUB source doctrine.
+2. Appointment stacking should use a `60` to `90` day review window and ask context. Buy+sell, multiple properties, and separate deal paths are legitimate exceptions; one opportunity with repeated meetings should update/move the original appointment.
+3. Future apply can eventually touch every connected system, but v1 should write only to confident surfaces. Most hygiene writes go to FUB; KPI direct writes are mainly goals and Shopping List.

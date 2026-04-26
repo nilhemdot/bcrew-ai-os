@@ -566,6 +566,12 @@ Coaching rule:
 
 - treat stacked same-person/same-type appointments as a coaching/audit signal, not an automatic failure
 - future Sales Hub should flag likely stacking and explain the data consequence to the agent
+- the first audit should look for multiple appointments for the same person inside a `60` to `90` day review window, then ask for context rather than assuming fraud/bad entry
+- legitimate exceptions include:
+  - the client is buying and selling, because that can create two real appointment/outcome tracks and two deals even if the agent met with the client once
+  - the client is selling or buying multiple properties
+  - there are clearly separate opportunities tied to separate deal paths
+- if the follow-up question shows the records are really one opportunity with repeated meetings, coach the agent to move/update the original appointment and outcome instead of creating a new appointment record
 
 ### Missing Outcomes
 
@@ -610,17 +616,25 @@ Live proof on `2026-04-26`:
 - `2` active lead-stage rows had no source value
 - local KPI code still contains source-validation helpers such as `ALLOWED_LEAD_SOURCES`, `FIX_ALLOWED_SOURCES`, `isValidLeadSource`, `filterDealsBySource`, and `filterAppointmentsBySource`, but those sections are commented out / disabled in `dataFetching.ts`
 
-Read caveat:
+Validated-source doctrine:
 
-- `Import` and `<unspecified>` are high-risk source-quality signals, not automatic proof every row is invalid
+- `Import`, `<unspecified>`, generic `Sphere`, `SOI`, and similar placeholders are not validated final lead sources
+- `<unspecified>` is quarantine only, not final attribution truth
 - `Realtor.ca` as a source is not the same thing as a realtor/contact being incorrectly left as a lead
 - fake-lead detection needs stage, source, tags/person type, owner, timing, and whether the person was moved out within the allowed cleanup window
+- the governed FUB lead-source doctrine lives in `SRC-FUB-001` / `fub_lead_source_rules` and the Follow Up Boss source note; KPI coaching must use that doctrine instead of inventing a separate source list
 
 Coaching rule:
 
 - surface unvalidated leads, wrong lead sources, realtors/vendors/support-network contacts left as leads, and other fake lead inflation
 - protect lead pace before using it for coaching praise or company-goal confidence
 - do not hard-delete people because that destroys call and appointment history; use the temporary `Delete Lead` / correct-stage workflow where appropriate
+- when an agent uses an invalid/generic source, guide them through the FUB correction flow:
+  - ask whether the true source was met in person, met through social media, family, referral, introduction, or another governed source
+  - if referral/introduction, ask who introduced them and whether that person exists in FUB
+  - if the origin person is missing, offer to add/connect them in FUB when write permissions exist
+  - if met in person or met on social, ask where / which platform and store that in secondary lead-source information
+  - preserve Ground Zero so the original relationship/source is not lost
 
 ### Shopping List Weekly Discipline
 
@@ -642,6 +656,10 @@ Founder clarification:
 
 - the goal is not only to tell agents what they did wrong
 - the assistant should help them understand the issue and eventually update the relevant system for them when they have signed up, connected their account/API key, and granted permission
+- most KPI production fields are downstream from FUB / Lee's database, so the first write destination for source/stage/contact hygiene is usually FUB
+- KPI's direct write surfaces are mainly goals and Shopping List
+- Shopping List is the most important first KPI-native write opportunity: an assistant can run a weekly workflow, ask the agent about each client, suggest or collect action plans, and help push active clients down the field
+- if the KPI app lacks endpoints for safe Shopping List or goal writes, the team owns the code and can ask Aidan/Lee to review and implement the needed endpoints
 
 AI OS rule:
 

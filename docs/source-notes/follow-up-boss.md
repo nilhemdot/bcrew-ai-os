@@ -524,6 +524,58 @@ Treat this as the only approved unresolved placeholder:
 
 - `<unspecified>`
 
+2026-04-26 founder clarification:
+
+- `Import`, `<unspecified>`, generic `Sphere`, `SOI`, and similar catch-all placeholders are not validated lead-source truth.
+- They should trigger a guided correction flow, not be treated as acceptable agent/source attribution.
+- The live `fub_lead_source_rules` row for `Sphere` was corrected to `not_canonical` after this clarification because generic `Sphere` is a relationship bucket, not final attribution.
+
+## Lead Source Correction Assistant Flow
+
+Future agent-facing assistants should use FUB source doctrine to help agents fix attribution instead of only telling them a source is wrong.
+
+When the current lead source is invalid or too generic, ask the agent to choose the true governed path, for example:
+
+- `Met - In Person`
+- `Met - Social Media`
+- `Family`
+- referral / introduction source such as `Personal Referral`, `Agent/Other Referral`, or `Introduced`
+- another governed source from the approved FUB-compatible source list
+
+Then ask for the missing secondary detail:
+
+- if `Met - In Person`, ask where / how they met the person
+- if `Met - Social Media`, ask which platform and useful context
+- if `Family`, preserve the direct family relationship as ground-zero context
+- if referral or introduction, ask who introduced or referred them
+
+Referral / introduction handling:
+
+- search FUB for the referring / introducing person
+- if the person exists, connect the lead-source lineage to that FUB person where the governed fields allow it
+- if the person does not exist, ask permission to add them because missing origin people are CRM/database-growth opportunities
+- store the chain details in the FUB support fields:
+  - `Name of Person Who Gave Referral/Introduction`
+  - `Lead Source Secondary Information`
+- preserve the chain through Owners/Admin `Ground Zero` and extra-origin fields when the lead becomes a deal
+
+Ground-zero rule:
+
+- the assistant must keep asking until the original relationship/source is clear enough to classify
+- do not stop at `Sphere`, `Import`, or `<unspecified>`
+- do not fake a clean value just to clear the issue
+- if the source cannot be resolved, keep it quarantined and route it to review
+
+Support-network tie-in:
+
+- the same assistant should help agents improve support-network hygiene through the FUB health levels / smart lists Steve previously walked through:
+  - possible supporter work
+  - confirmed supporter/SOI care
+  - send / call / see discipline
+  - past-client relationship pool
+  - `LV 1` to `LV 5` supporter-data maturity
+- this belongs in the future AI assistant because it turns source cleanup into useful coaching, not only data policing
+
 ## Implementation Caution
 
 Do not confuse:
