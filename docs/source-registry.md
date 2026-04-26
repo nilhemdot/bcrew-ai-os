@@ -173,11 +173,16 @@ Verified but not counted as source-owned sign-off for this unit:
 - `Annual Budget (Roll Up)`
 - `Unspent -L3M + Actual Helper`
 
+## V1 Source Boundary Locked
+
+| Source ID | Source | What It Owns | Owner | Current Status |
+|-----------|--------|--------------|-------|----------------|
+| `SRC-CLICKUP-001` | ClickUp | Deal workflow/accountability, conditional forecast inputs, Agent Roster, contract-link monitoring, onboarding NPS trigger fields | Carson | V1 Source Boundary Locked |
+
 ## Pending Revalidation
 
 | Source ID | Source | What It Owns | Owner | Current Status |
 |-----------|--------|--------------|-------|----------------|
-| `SRC-CLICKUP-001` | ClickUp | Task management, onboarding checklists, agent roster supplements | Carson | Pending Revalidation |
 | `SRC-GDRIVE-001` | Google Drive | Docs, notes, brand guidelines, meeting artifacts, shared-drive corpora, training assets, videos, presentations, and links | All | Pending Revalidation under the delegated Google Workspace path. Shared-drive roots are captured in `docs/source-notes/google-drive-corpus.md`; first crawler must be read-only inventory. |
 | `SRC-VIDEO-001` | Video Link Inventory | Loom, Drive, YouTube, Vimeo, Wistia, Zoom, and Skool media links discovered across existing archives and future authorized crawlers | Steve | Pending Revalidation. This is the system-owned URL manifest lane; it inventories links and provenance before any platform-specific transcript/download extractor runs. |
 | `SRC-CREATOR-WATCHLIST-001` | Creator / source watchlist | Steve-approved creators, channels, sites, communities, newsletters, and source priority rules | Steve | Pending Revalidation. Old BCrew-Buddy had a YouTube/external-scout registry, but the rebuild has not normalized it into a source-owned watchlist yet. |

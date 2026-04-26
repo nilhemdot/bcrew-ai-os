@@ -15,6 +15,7 @@ Do not put live values here. Put the meaning here.
 - Team membership is not the same thing as counted production roster.
 - The Agent Engine should count active, productive agents only.
 - A person can still belong to the team without counting in the live production roster.
+- If a non-producing agent leaves, that should not count against production-roster attrition.
 - `Recruited By` matters because recruiting ownership needs to be measurable by person, not only by legacy team bucket.
 
 ## Current Spreadsheet Reality
@@ -75,6 +76,7 @@ Current operating interpretation:
   - operational status
   - onboarding progress
   - contract / checklist workflow
+  - `Real Start Date` as the trigger for AIOS onboarding-feedback checkpoints
 
 ## Why This Page Exists
 

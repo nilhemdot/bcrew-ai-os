@@ -167,11 +167,18 @@ Agent Roster Ops lane v1:
 - do not create/delete/hide fields automatically while Steve is cleaning the roster view with Carson and Clare
 - `npm run agent-roster:review` reads the Agent Roster list and reports source-backed roster accountability items
 - `/api/owners/review-queue` includes an `agentRoster` section so Ops can see roster findings beside deal, conditional, FUB, and Owners-list issues
+- onboarding NPS schedule anchor is `Real Start Date`; Ops filling that field is what triggers AIOS to calculate and monitor day-30/day-60/day-90 feedback checkpoints
+- v1 launch cutoff is `2026-04-01`; do not backfill 30/60/90 NPS obligations for older historical starts unless Steve explicitly asks for a catch-up pass
+- if Real Start Date is more than 90 days old and the onboarding NPS statuses are still open, mark 30/60/90 as `Skipped` instead of sending retroactive feedback requests
+- outbound email automation is not built yet; Gmail is currently an archive/extraction source, not a governed send engine
+- preferred future capture path is an AIOS private feedback link stored on the roster task, because it can write structured score/comment/evidence back to the roster and source-backed feedback table. A ClickUp form is acceptable as a temporary manual capture tool, but it is weaker because it creates separate form/task artifacts instead of updating the existing agent record cleanly.
 - v1 surfaces:
   - one card per accountable roster record missing `Contract Link`
   - one grouped card when baseline source fields need backfill (`Recruited By`, `Real Start Date`, `Team / Legacy Origin`)
   - one grouped card when recommended roster source-contract fields still need mapping (`Contract Status`, `Membership Status`, `Production Roster Status`, `Onboarding Stage`)
   - one grouped card when onboarding NPS 30/60/90 scheduling cannot run because start dates/statuses/due dates/owner are not initialized
+  - per-agent day-30/day-60/day-90 cards once Real Start Date and due dates make a feedback checkpoint due
+  - reminder cards when a checkpoint is Requested but not Completed after 3 days
   - one grouped card for missing personal email coverage because private onboarding feedback should not depend on the onboarding team
 - this is validation only; Steve/Carson/Clare own the manual field hiding/deletion pass
 

@@ -39,6 +39,7 @@ This section shows what this year requires, what next year requires, and the rec
   - Target production is what the model needs. Current production is what the roster is doing now.
 - **Planning attrition vs live attrition**
   - Planning attrition is the assumption used in requirement math. Live attrition is what is actually happening in the business.
+  - Non-producing agent departures should not count against production-roster attrition.
 - **Roster size vs active agents**
   - The model counts active, productive agents only.
 - **Average monthly GCI per agent**
