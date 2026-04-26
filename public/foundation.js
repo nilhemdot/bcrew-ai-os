@@ -4341,8 +4341,8 @@ var sectionLabels = {
   'open-questions': 'Open Questions',
   'system-strategy': 'System Strategy',
   'system-activity': 'System Activity',
-  'system-health': 'System Health',
-  'data-health': 'System Health',
+  'system-health': 'Runtime Health',
+  'data-health': 'Runtime Health',
   'source-registry': 'Data Sources',
   'source-overview': 'Data Sources',
   'source-docs': 'Docs',
@@ -4470,6 +4470,90 @@ function renderOverviewStatusPanel(items, options) {
   })
   panel.appendChild(statusGrid)
 
+  return panel
+}
+
+function renderFoundationSystemMapPanel(items) {
+  var panel = document.createElement('section')
+  panel.className = 'panel foundation-system-map-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'System Map'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'What Foundation Systems Exist'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'This is the simple map. Runtime Health is only for job/debug detail; this panel shows the major systems, maturity level, current use, and missing piece.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'foundation-system-map-grid'
+
+  ;(items || []).forEach(function(item) {
+    var card = document.createElement('article')
+    card.className = 'foundation-system-card foundation-system-card-' + item.statusKey
+
+    var top = document.createElement('div')
+    top.className = 'foundation-system-card-top'
+    top.appendChild(renderCurrentStateStatus(item.statusKey, item.stateLabel || item.level))
+
+    var titleWrap = document.createElement('div')
+    titleWrap.className = 'foundation-system-card-title-wrap'
+    var cardTitle = document.createElement('h4')
+    cardTitle.textContent = item.title
+    titleWrap.appendChild(cardTitle)
+    var cardMeta = document.createElement('div')
+    cardMeta.className = 'foundation-system-card-meta'
+    cardMeta.textContent = item.level
+    titleWrap.appendChild(cardMeta)
+    top.appendChild(titleWrap)
+    card.appendChild(top)
+
+    var state = document.createElement('div')
+    state.className = 'foundation-system-card-state'
+    state.textContent = item.stateLabel
+    card.appendChild(state)
+
+    var useFor = document.createElement('p')
+    useFor.className = 'foundation-system-card-copy'
+    var useForLabel = document.createElement('strong')
+    useForLabel.textContent = 'Use now:'
+    useFor.appendChild(useForLabel)
+    useFor.appendChild(document.createTextNode(' ' + (item.useFor || '')))
+    card.appendChild(useFor)
+
+    var missing = document.createElement('p')
+    missing.className = 'foundation-system-card-copy foundation-system-card-missing'
+    var missingLabel = document.createElement('strong')
+    missingLabel.textContent = 'Missing:'
+    missing.appendChild(missingLabel)
+    missing.appendChild(document.createTextNode(' ' + (item.missing || '')))
+    card.appendChild(missing)
+
+    if (item.href) {
+      var link = document.createElement('a')
+      link.className = 'secondary-button foundation-system-card-link'
+      link.href = item.href
+      link.textContent = item.cta || 'Open'
+      card.appendChild(link)
+    }
+
+    grid.appendChild(card)
+  })
+
+  panel.appendChild(grid)
   return panel
 }
 
@@ -6220,7 +6304,7 @@ function renderCurrentState() {
 
     var heroActions = document.createElement('div')
     heroActions.className = 'foundation-hero-actions'
-    heroActions.appendChild(createActionLink('Open System Health', '/foundation#system-health'))
+    heroActions.appendChild(createActionLink('Open Runtime Health', '/foundation#system-health'))
     heroActions.appendChild(createActionLink('Open Data Sources', '/foundation#source-overview', 'print-button'))
     heroActions.appendChild(createActionLink('Open Ops Hub', '/ops', 'print-button'))
     heroActions.appendChild(createActionLink('Open Backlog', '/foundation#backlog', 'print-button'))
@@ -6230,48 +6314,88 @@ function renderCurrentState() {
 
     container.appendChild(renderFoundationExecutionOrderPanel(currentPath))
 
-    var systemsPanel = renderOverviewStatusPanel([
+    container.appendChild(renderFoundationSystemMapPanel([
       {
-        label: 'Source Truth Layer',
-        status: 'connected',
-        detail: 'Source contracts, source notes, verifier checks, and Foundation Overview show which business systems are readable, signed off, and safe to use.',
+        title: 'Source Truth Layer',
+        statusKey: 'connected',
+        stateLabel: 'Readable / signed-off by surface',
+        level: 'Level 2-3',
+        useFor: 'Knowing which source owns which truth and whether a source package is safe for current work.',
+        missing: 'Universal freshness and drift rules for every source.',
+        href: '/foundation#source-overview',
+        cta: 'Open Sources',
       },
       {
-        label: 'Runtime Jobs',
-        status: 'connected',
-        detail: 'The Foundation worker, job registry, run ledger, verifier, and LaunchAgents operate the scheduled system routines instead of leaving work in chat.',
+        title: 'Runtime Jobs',
+        statusKey: 'connected',
+        stateLabel: 'Scheduled and ledgered',
+        level: 'Level 3',
+        useFor: 'Seeing whether scheduled captures, extractors, verifiers, and Ops routines are running.',
+        missing: 'SYSTEM-010 kill/decommission/dead-man controls.',
+        href: '/foundation#system-health',
+        cta: 'Open Runtime',
       },
       {
-        label: 'Current-Day Capture',
-        status: 'connected',
-        detail: 'Gmail, Missive, meetings, Slack, Admin review, Conditional sync, and Agent Roster lanes keep the live operating picture moving forward.',
+        title: 'Meeting Intelligence',
+        statusKey: 'pending',
+        stateLabel: 'Owner-usable now',
+        level: 'Level 5',
+        useFor: 'Steve strategy work, decision mining, meeting follow-through, and transcript-backed evidence from Google Meet notes/transcripts.',
+        missing: 'Subject-person redaction for future agent/team queries and rich meeting video/recording understanding.',
+        href: '/foundation#current-state-surface-meeting-notes-transcript-intelligence',
+        cta: 'Open Row',
       },
       {
-        label: 'History Extraction',
-        status: 'connected',
-        detail: 'Daily quota missions are filing Drive content, Gmail attachments, shared-comms candidates, meeting transcripts, Slack candidates, and YouTube subtitle transcripts.',
+        title: 'Shared Communications',
+        statusKey: 'pending',
+        stateLabel: 'Captured and mined',
+        level: 'Level 5',
+        useFor: 'Gmail, Missive, Slack, meetings, and Zoom text/audio history as source-backed candidates for strategy, ops, sales, and follow-through.',
+        missing: 'Cross-source synthesis hardening, retrieval, privacy filtering, and Action Router handoff.',
+        href: '/doc?path=docs/source-notes/shared-communications.md',
+        cta: 'Open Note',
       },
       {
-        label: 'GOD-Mode Corpus',
-        status: 'pending',
-        detail: 'Drive Docs/PDF/text and YouTube captions are live first slices. Visual video understanding, Mycro/Skool/Loom/Zoom, browser navigation, OCR, Slides, Sheets, and Office conversion remain build lanes.',
+        title: 'Owners / Ops Review',
+        statusKey: 'connected',
+        stateLabel: 'Findings routed',
+        level: 'Level 6',
+        useFor: 'Admin deal review, Conditional cleanup, FUB source drift, Agent Roster feedback, and Ops cleanup queues.',
+        missing: 'Approval-gated apply/writeback and resolution awareness.',
+        href: '/ops',
+        cta: 'Open Ops',
       },
       {
-        label: 'Decision Truth',
-        status: 'pending',
-        detail: 'Decision ledger, traceability, and contradiction checks have first slices. Temporal truth, richer provenance, and source-backed supersession are still backlog work.',
+        title: 'Drive / Corpus Extraction',
+        statusKey: 'pending',
+        stateLabel: 'First text slice live',
+        level: 'Level 4',
+        useFor: 'Drive Docs, PDFs, text files, Gmail PDF/text attachments, and first strategy-folder evidence extraction.',
+        missing: 'Sheets, Slides, Office conversion, shortcuts, OCR, audio, and video files.',
+        href: '/doc?path=docs/source-notes/google-drive-corpus.md',
+        cta: 'Open Drive Note',
       },
       {
-        label: 'Action Loop',
-        status: 'planned',
-        detail: 'Synthesis can produce intelligence, but governed action routing, approval-gated writeback, and resolution awareness are still the Foundation loop-closing work.',
+        title: 'Video / GOD-Mode Extractor',
+        statusKey: 'pending',
+        stateLabel: 'Transcript slice only',
+        level: 'Level 4',
+        useFor: 'YouTube subtitle transcripts from the video manifest, including Steve-priority videos.',
+        missing: 'Watching screens, screenshots/keyframes, Loom, Skool, Mycro, Drive videos, Zoom recordings, OCR, and browser navigation.',
+        href: '/doc?path=docs/source-notes/video-link-inventory.md',
+        cta: 'Open Video Note',
       },
-    ], {
-      eyebrow: 'Overview',
-      title: 'Major Systems At A Glance',
-      intro: 'Foundation is the control plane. Hubs consume this truth; this page shows the shared systems underneath them.',
-    })
-    if (systemsPanel) container.appendChild(systemsPanel)
+      {
+        title: 'Action Loop',
+        statusKey: 'planned',
+        stateLabel: 'Not built',
+        level: 'Level 6-8 gap',
+        useFor: 'Nothing autonomous yet; today it is still human-reviewed intelligence.',
+        missing: 'Action Router, approval-gated writeback, and resolution feedback so stale findings stop reappearing.',
+        href: '/foundation#backlog:ACTION-ROUTER-001',
+        cta: 'Open Backlog',
+      },
+    ]))
 
     var surfacesPanel = document.createElement('section')
     surfacesPanel.className = 'panel'
@@ -6505,6 +6629,36 @@ function renderCurrentState() {
         next: 'No current-state source-signoff work remains.',
         later: 'Add KPI health checks, visible freshness, schema/code drift review, and future Sales Hub surfaces.',
         backlogIds: [],
+      },
+      {
+        title: 'Meeting notes / transcript intelligence',
+        surfaceType: 'Source + extraction system',
+        sourceId: 'SRC-MEETINGS-001',
+        statusKey: 'pending',
+        statusLabel: 'Owner-usable; open hardening',
+        levelLabel: 'Level 5 - archived, extracted, synthesized',
+        currentSummary: 'SRC-MEETINGS-001 is readable through delegated Google Workspace. Meeting notes and standalone/embedded transcripts are archived into PostgreSQL as shared communication artifacts, tagged as broadcast/discussion/sensitive candidates, and processed by scheduled daily current-sync plus daily transcript-extraction quota missions. Latest live checkpoint showed 866 meeting notes and 649 meeting transcripts archived, with the 2026-04-26 current sync and transcript extraction runs succeeding.',
+        packageParts: [
+          {
+            sourceId: 'SRC-MEETINGS-001',
+            statusKey: 'connected',
+            statusLabel: 'Level 4',
+            body: 'Meeting notes and transcripts are captured from Google Drive and filed as source-backed artifacts with content hashes, metadata, transcript source, meeting class, privacy profile, and provenance.',
+            role: 'Meeting source contract',
+            next: 'Keep daily current sync healthy and use gap reports when transcripts are missing.',
+          },
+          {
+            sourceId: 'SRC-MEETINGS-001',
+            statusKey: 'pending',
+            statusLabel: 'Level 5',
+            body: 'Transcript candidate extraction runs with Foundation context and asks for subject_people, sensitivity, and min_tier metadata before synthesis/routing.',
+            role: 'Meeting intelligence layer',
+            next: 'Use this for Steve-owner strategy work now; do not expose raw meeting intelligence to agent/team query surfaces until SECURITY-002 lands.',
+          },
+        ],
+        next: 'Monitor scheduled meeting current-sync and transcript-extraction runs, tune backlog quotas, and use Runtime Health for live counts/status.',
+        later: 'Add rich meeting video/recording vision, Zoom/Drive video transcription, filtered summary access requests, subject-person redaction, and Action Router handoff.',
+        backlogIds: ['SECURITY-002', 'MEETING-VIDEO-001', 'SYNTHESIS-ENGINE-001', 'ACTION-ROUTER-001'],
       },
       {
         title: 'Shared freshness rules',
@@ -9997,7 +10151,7 @@ function renderSourceRegistry(section) {
 
 function renderDataHealth() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading system health...</p>'
+  container.innerHTML = '<p>Loading runtime health...</p>'
 
   fetchFoundationHub().then(function(hub) {
     container.innerHTML = ''
@@ -10010,7 +10164,7 @@ function renderDataHealth() {
     heroInner.className = 'hero-inner'
 
     var heroTitle = document.createElement('h1')
-    heroTitle.textContent = 'System Health'
+    heroTitle.textContent = 'Runtime Health'
     heroInner.appendChild(heroTitle)
 
     var heroMeta = document.createElement('p')
@@ -10020,7 +10174,7 @@ function renderDataHealth() {
 
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'Deeper operator view of the underlying trust and runtime components.'
+    heroNote.textContent = 'Operator view for jobs, LLM routes, extraction targets, source-crawl queues, and low-level runtime checks.'
     heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
@@ -10059,7 +10213,7 @@ function renderDataHealth() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load system health: ' + error.message
+    msg.textContent = 'Failed to load runtime health: ' + error.message
     container.appendChild(msg)
   })
 }
