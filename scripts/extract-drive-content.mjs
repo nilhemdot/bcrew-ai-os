@@ -24,6 +24,7 @@ const DEFAULT_EXTRACTION_TARGET = 'drive-content-extract-backfill'
 const GOOGLE_DOC_MIME = 'application/vnd.google-apps.document'
 const PDF_MIME = 'application/pdf'
 const TEXT_MIME = 'text/plain'
+const MARKDOWN_MIME = 'text/markdown'
 const EXTRACTOR_VERSION = 'drive_content_text_v1'
 
 function parseArgs(argv) {
@@ -95,7 +96,7 @@ function classifyDriveContentItem(item) {
       extractionMethod: 'drive_pdf_pdftotext_v1',
     }
   }
-  if (mimeType === TEXT_MIME) {
+  if (mimeType === TEXT_MIME || mimeType === MARKDOWN_MIME) {
     return {
       supported: true,
       artifactType: 'drive_text',
@@ -170,7 +171,62 @@ async function extractPdfTextWithPdftotext(buffer, { pdftotextBin = 'pdftotext' 
   }
 }
 
-async function extractItemText(item, { userEmail, maxPdfBytes, pdftotextBin }) {
+async function extractPdfTextWithOcr(
+  buffer,
+  {
+    pdftoppmBin = 'pdftoppm',
+    tesseractBin = 'tesseract',
+    maxOcrPages = 8,
+    ocrDpi = 180,
+  } = {},
+) {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bcrew-drive-pdf-ocr-'))
+  const inputPath = path.join(tmpDir, 'input.pdf')
+  const outputPrefix = path.join(tmpDir, 'page')
+  try {
+    await fs.writeFile(inputPath, buffer)
+    await execFile(
+      pdftoppmBin,
+      ['-r', String(ocrDpi), '-png', '-f', '1', '-l', String(Math.max(1, maxOcrPages)), inputPath, outputPrefix],
+      { maxBuffer: 64 * 1024 * 1024 },
+    )
+
+    const pageFiles = (await fs.readdir(tmpDir))
+      .filter(file => /^page-\d+\.png$/.test(file))
+      .sort((left, right) => {
+        const leftNum = Number(left.match(/\d+/)?.[0] || 0)
+        const rightNum = Number(right.match(/\d+/)?.[0] || 0)
+        return leftNum - rightNum
+      })
+
+    const chunks = []
+    for (const file of pageFiles) {
+      const pageNumber = Number(file.match(/\d+/)?.[0] || chunks.length + 1)
+      const { stdout } = await execFile(
+        tesseractBin,
+        [path.join(tmpDir, file), 'stdout', '--psm', '6'],
+        { maxBuffer: 32 * 1024 * 1024 },
+      )
+      const text = normalizeText(stdout)
+      if (text) chunks.push(`--- OCR page ${pageNumber} ---\n${text}`)
+    }
+
+    return chunks.join('\n\n')
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  }
+}
+
+async function extractItemText(item, {
+  userEmail,
+  maxPdfBytes,
+  pdftotextBin,
+  ocrEmptyPdf,
+  pdftoppmBin,
+  tesseractBin,
+  maxOcrPages,
+  ocrDpi,
+}) {
   const fileId = getFileId(item)
   const mimeType = getMimeType(item)
   if (!fileId) throw new Error('Drive inventory item is missing driveFileId.')
@@ -194,10 +250,40 @@ async function extractItemText(item, { userEmail, maxPdfBytes, pdftotextBin }) {
         skipReason: `pdf_too_large_for_v1:${buffer.length}>${maxPdfBytes}`,
       }
     }
-    return extractPdfTextWithPdftotext(buffer, { pdftotextBin })
+    const embeddedText = await extractPdfTextWithPdftotext(buffer, { pdftotextBin })
+    if (normalizeText(embeddedText)) return embeddedText
+
+    if (!ocrEmptyPdf) {
+      return {
+        skipped: true,
+        skipReason: 'empty_text_after_pdf_extraction_needs_ocr_or_vision',
+        extractionMethod: 'drive_pdf_pdftotext_v1',
+      }
+    }
+
+    const ocrText = await extractPdfTextWithOcr(buffer, {
+      pdftoppmBin,
+      tesseractBin,
+      maxOcrPages,
+      ocrDpi,
+    })
+    if (normalizeText(ocrText)) {
+      return {
+        text: ocrText,
+        extractionMethod: 'drive_pdf_tesseract_ocr_v1',
+        ocrFallbackUsed: true,
+      }
+    }
+
+    return {
+      skipped: true,
+      skipReason: 'empty_text_after_ocr_needs_vision_handwriting_extraction',
+      extractionMethod: 'drive_pdf_tesseract_ocr_v1',
+      needsVisionExtraction: true,
+    }
   }
 
-  if (mimeType === TEXT_MIME) {
+  if (mimeType === TEXT_MIME || mimeType === MARKDOWN_MIME) {
     const buffer = await driveDownloadFile(userEmail, fileId)
     return buffer.toString('utf8')
   }
@@ -257,7 +343,17 @@ async function markExtractionFailed({ item, targetKey, actor, error }) {
   )
 }
 
-async function archiveExtractedText({ item, classification, targetKey, actor, userEmail, text, maxTextChars }) {
+async function archiveExtractedText({
+  item,
+  classification,
+  targetKey,
+  actor,
+  userEmail,
+  text,
+  maxTextChars,
+  extractionMethod,
+  extractionMetadata = {},
+}) {
   const normalizedText = normalizeText(text)
   if (!normalizedText) {
     await markExtractionSkipped({
@@ -265,7 +361,7 @@ async function archiveExtractedText({ item, classification, targetKey, actor, us
       targetKey,
       actor,
       reason: 'empty_text_after_extraction',
-      metadata: { extractionMethod: classification.extractionMethod },
+      metadata: { extractionMethod: extractionMethod || classification.extractionMethod, ...extractionMetadata },
     })
     return { status: 'skipped', artifact: null, textChars: 0 }
   }
@@ -279,11 +375,12 @@ async function archiveExtractedText({ item, classification, targetKey, actor, us
   const metadata = {
     ...buildSourceFileMetadata(item),
     extractionTargetKey: targetKey,
-    extractionMethod: classification.extractionMethod,
+    extractionMethod: extractionMethod || classification.extractionMethod,
     extractorVersion: EXTRACTOR_VERSION,
     originalTextChars: normalizedText.length,
     storedTextChars: storedText.length,
     truncated,
+    ...extractionMetadata,
     officialApiBasis: [
       'Drive files.export for Google Workspace docs',
       'Drive files.get alt=media for blob files',
@@ -346,8 +443,16 @@ async function main() {
   const maxTextChars = Math.max(10000, Number(args.maxTextChars || 250000) || 250000)
   const maxPdfBytes = Math.max(1000000, Number(args.maxPdfBytes || 25 * 1024 * 1024) || 25 * 1024 * 1024)
   const pdftotextBin = String(args.pdftotextBin || process.env.PDFTOTEXT_BIN || 'pdftotext').trim()
+  const pdftoppmBin = String(args.pdftoppmBin || process.env.PDFTOPPM_BIN || 'pdftoppm').trim()
+  const tesseractBin = String(args.tesseractBin || process.env.TESSERACT_BIN || 'tesseract').trim()
+  const ocrEmptyPdf = args.ocrEmptyPdf == null ? false : boolValue(args.ocrEmptyPdf)
+  const maxOcrPages = Math.min(30, Math.max(1, Number(args.maxOcrPages || 8) || 8))
+  const ocrDpi = Math.min(300, Math.max(120, Number(args.ocrDpi || 180) || 180))
   const includeUnsupported = args.includeUnsupported == null ? true : boolValue(args.includeUnsupported)
   const retrySkippedReasonPrefixes = listValue(args.retrySkippedReasonPrefixes || args.retrySkippedPrefix)
+  const parentPathIncludes = String(args.parentPathIncludes || '').trim()
+  const nameIncludes = String(args.nameIncludes || '').trim()
+  const fileIds = listValue(args.fileIds || args.fileId)
   const dryRun = boolValue(args.dryRun)
   const controlledByTargetRunner = boolValue(args.controlledByTargetRunner)
 
@@ -366,6 +471,9 @@ async function main() {
       limit,
       includeUnsupported,
       retrySkippedReasonPrefixes,
+      parentPathIncludes,
+      nameIncludes,
+      fileIds,
     })
 
     console.log('Drive content extraction bite')
@@ -409,7 +517,16 @@ async function main() {
           continue
         }
 
-        const textResult = await extractItemText(item, { userEmail, maxPdfBytes, pdftotextBin })
+        const textResult = await extractItemText(item, {
+          userEmail,
+          maxPdfBytes,
+          pdftotextBin,
+          ocrEmptyPdf,
+          pdftoppmBin,
+          tesseractBin,
+          maxOcrPages,
+          ocrDpi,
+        })
         if (textResult && typeof textResult === 'object' && textResult.skipped) {
           skipped += 1
           await markExtractionSkipped({
@@ -417,11 +534,24 @@ async function main() {
             targetKey,
             actor,
             reason: textResult.skipReason || 'extraction_skipped',
-            metadata: { extractionMethod: classification.extractionMethod },
+            metadata: {
+              extractionMethod: textResult.extractionMethod || classification.extractionMethod,
+              needsVisionExtraction: Boolean(textResult.needsVisionExtraction),
+            },
           })
           processed.push({ itemKey: item.itemKey, status: 'skipped', reason: textResult.skipReason || 'extraction_skipped' })
           continue
         }
+
+        const extractedText = textResult && typeof textResult === 'object' && Object.prototype.hasOwnProperty.call(textResult, 'text')
+          ? textResult.text
+          : textResult
+        const extractionMethod = textResult && typeof textResult === 'object'
+          ? textResult.extractionMethod || classification.extractionMethod
+          : classification.extractionMethod
+        const extractionMetadata = textResult && typeof textResult === 'object'
+          ? { ocrFallbackUsed: Boolean(textResult.ocrFallbackUsed) }
+          : {}
 
         const archived = await archiveExtractedText({
           item,
@@ -429,8 +559,10 @@ async function main() {
           targetKey,
           actor,
           userEmail,
-          text: textResult,
+          text: extractedText,
           maxTextChars,
+          extractionMethod,
+          extractionMetadata,
         })
 
         if (archived.status === 'succeeded') {
@@ -477,6 +609,12 @@ async function main() {
         maxTextChars,
         maxPdfBytes,
         includeUnsupported,
+        parentPathIncludes,
+        nameIncludes,
+        fileIds,
+        ocrEmptyPdf,
+        maxOcrPages,
+        ocrDpi,
         retrySkippedReasonPrefixes,
         processed: processed.slice(0, 25),
       },

@@ -99,14 +99,15 @@ V1 supported content:
 
 - Google Docs exported through Drive `files.export` as plain text
 - PDFs downloaded through Drive `files.get` with `alt=media`, then parsed with `pdftotext`
-- plain-text Drive blobs downloaded through Drive `files.get` with `alt=media`
+- scanned / image-only PDFs can retry through a local OCR fallback (`pdftoppm` + `tesseract`) so handwritten or scanned strategy PDFs do not silently disappear
+- plain-text and markdown Drive blobs downloaded through Drive `files.get` with `alt=media`
 
 V1 explicit skips:
 
 - Sheets
 - Slides
 - Office files
-- images / OCR
+- images / vision OCR
 - audio / transcription
 - video / multimodal review
 - unknown or unsupported MIME types
@@ -129,21 +130,34 @@ Every unsupported file should receive an explicit skip reason through the extrac
 
 Proof on 2026-04-26:
 
-- Total Drive content artifacts archived so far: `27`.
-- Total extracted Drive text archived so far: `451,581` chars.
-- Artifact types: `12` `drive_document`, `10` `drive_pdf`.
-- Priority strategy-folder extracted artifacts: `12`, including:
+- Total Drive content artifacts archived so far: `34`.
+- Total extracted Drive text archived so far: `673,792` chars.
+- Artifact types: `21` `drive_document`, `12` `drive_pdf`, `1` `drive_text`.
+- Strategy-evidence Drive artifacts archived so far: `19` / `616,046` chars.
+- Priority strategy-folder extracted artifacts include:
   - `KT Binder MAR 2026.pdf` - John strategy/mastermind binder, `142,435` chars
+  - `Benson Crew 2026 Q1 Strategic Planning Agenda` - John Q1 agenda, `28,545` chars
+  - Q1 agenda linked docs including Steve's Q1 strat doc, Benson Crew Vision/Core Values, Strategic Planning Exercise, and accessible support docs
   - `Team Prestrat Template.pdf` - `6,990` chars
   - `Benson Crew Vision and Core Values Doc - 2026 Q1` - `170,699` chars
   - `Carson and Steve Notes` - `6,459` chars
-  - Q2 pre-strat PDFs from Ahsan, Clare, Georgia, Nick, Ryan, and the template
+  - Q2 pre-strat PDFs from Ahsan, Carson, Clare, Georgia, Nick, Ryan, Scott, and the template
+  - `Steve Zahnd - Q2 2026 Pre-Strat Draft - AIOS.md` - rewritten as a first-person working draft and archived as markdown
 - Current strategy-folder skips are explicit:
   - `4` Sheets: `sheet_text_extraction_not_in_v1`
   - `2` shortcuts: `unsupported_drive_mime_type_for_v1_text_extraction`
-  - `1` PDF: `empty_text_after_extraction` (likely scanned/image-only or otherwise textless)
+  - handwritten/scanned files may archive through rough OCR, but still need the future vision-grade handwriting lane before relying on exact quotes or high-confidence semantic extraction
 
-This proves Drive access was not the blocker. The blocker was extractor implementation. Docs/PDF/text v1 is now live; Sheets, Slides, shortcut resolution, OCR, Office conversion, and media remain separate file-type workers.
+John Q1 agenda link-following proof on 2026-04-26:
+
+- Source doc: `Benson Crew 2026 Q1 Strategic Planning Agenda` (`1WdpCsM4elMgjYf7TJFy-1FHLjk5Io-jhZFxQqoA-Ux0`).
+- `ai@bensoncrew.ca` initially lacked access; Steve's delegated Drive access granted `ai@` reader access to the agenda.
+- Link inventory found `13` Drive/Docs/Sheets links.
+- `10` linked files/folders were accessible and recorded into `source_crawl_items`.
+- `4` access gaps were recorded; `1` access-request email was sent from `ai@bensoncrew.ca` to `john@johnkitchens.coach`.
+- Accessible linked Google Docs were extracted into Drive artifacts before the refreshed Strategy Evidence Packet run.
+
+This proves Drive access was not the main blocker. The blocker was extractor implementation and per-file access/format handling. Docs/PDF/text/markdown and rough OCR are now live; Sheets, Slides, shortcut resolution, Office conversion, high-confidence handwriting/vision, and media remain separate file-type workers.
 
 ## Strategy Folder Operating Model
 
@@ -164,12 +178,12 @@ Quarterly workflow target:
 
 What is live now:
 
-- Strategy-folder inventory and Docs/PDF/text extraction.
-- Source-backed artifacts for the John binder, team pre-work, Q2 PDFs, Steve/Carson notes, and Q1 vision/core-values material.
+- Strategy-folder inventory, Docs/PDF/text/markdown extraction, Q1 agenda link inventory, and rough scanned-PDF OCR fallback.
+- Source-backed artifacts for the John binder, John Q1 agenda and accessible linked docs, team pre-work, Q2 PDFs, Steve/Carson notes, Scott handwritten scan, Steve Q2 draft, and Q1 vision/core-values material.
 
 What is still needed before this becomes a high-value strategy engine:
 
-- Sheets, Slides, shortcuts, OCR/scanned PDFs, Office files, Drive videos, and linked-video extraction.
+- Sheets, Slides, shortcut target resolution, Office files, vision-grade handwriting/screenshot extraction, Drive videos, and linked-video extraction.
 - Synthesis that turns extracted artifacts into strategy issues, contradictions, risks, priorities, and recommendations.
 - Action Router / Strategy Hub handoff so approved outputs become decisions, tasks, questions, or execution records instead of another raw document pile.
 

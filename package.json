@@ -40,6 +40,7 @@
     "meeting-notes:mirror-drive": "node --env-file-if-exists=.env scripts/mirror-meeting-archive-to-drive.mjs",
     "meeting-notes:report-gaps": "node --env-file-if-exists=.env scripts/report-meeting-transcript-gaps.mjs",
     "drive:inventory-corpus": "node --env-file-if-exists=.env scripts/inventory-drive-corpus.mjs",
+    "drive:inventory-links": "node --env-file-if-exists=.env scripts/inventory-drive-linked-files.mjs",
     "drive:extract-content": "node --env-file-if-exists=.env scripts/extract-drive-content.mjs",
     "video-links:inventory": "node --env-file-if-exists=.env scripts/inventory-video-links.mjs",
     "video:extract-content": "node --env-file-if-exists=.env scripts/extract-video-content.mjs",

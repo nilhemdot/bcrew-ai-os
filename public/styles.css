@@ -3118,6 +3118,26 @@ body {
   cursor: wait;
 }
 
+.strategy-advisor-helper-panel .strategy-advisor-message {
+  border-radius: 14px;
+}
+
+.strategy-advisor-helper-panel .strategy-advisor-message-user {
+  justify-self: end;
+  max-width: 88%;
+  background: var(--brand);
+  color: #fff;
+}
+
+.strategy-advisor-helper-panel .strategy-advisor-message-user .strategy-advisor-label,
+.strategy-advisor-helper-panel .strategy-advisor-message-user .strategy-advisor-body {
+  color: #fff;
+}
+
+.strategy-advisor-helper-status {
+  margin-top: 12px;
+}
+
 .section-link {
   color: inherit;
   text-decoration: none;

@@ -222,6 +222,8 @@ async function main() {
   const extractionControlSeedSource = await readRepoFile('scripts/seed-extraction-control.mjs')
   const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
   const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
+  const driveContentExtractionSource = await readRepoFile('scripts/extract-drive-content.mjs')
+  const driveLinkInventorySource = await readRepoFile('scripts/inventory-drive-linked-files.mjs')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
@@ -521,9 +523,24 @@ async function main() {
         "drive_document",
         "drive_pdf",
         "drive_text",
+        "text/markdown",
+        'parentPathIncludes',
+        'fileIds',
+      ]) &&
+      includesAll(driveContentExtractionSource, [
+        'extractPdfTextWithOcr',
+        'empty_text_after_ocr_needs_vision_handwriting_extraction',
+        'drive_pdf_tesseract_ocr_v1',
+      ]) &&
+      includesAll(packageSource, ['"drive:inventory-links"']) &&
+      includesAll(driveLinkInventorySource, [
+        'extractLinks',
+        'createDrivePermission',
+        'sendGmailMessage',
+        'drive_link_access_request',
       ]),
-    'Drive content extraction target supports governed Docs/PDF/text retries',
-    'target runner passes content caps/retry prefixes and DB queue supports Drive document/PDF/text artifacts',
+    'Drive content extraction target supports governed Docs/PDF/text/markdown/OCR/link inventory',
+    'target runner passes content caps/retry prefixes and DB queue/script support Drive document/PDF/text/markdown artifacts, OCR fallback, scoped retries, and linked-doc access requests',
   )
   ensure(
     checks,

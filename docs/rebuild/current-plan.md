@@ -123,7 +123,7 @@ Still not done:
 - Action Router v1: synthesized items do not yet route into decisions, backlog tasks, open questions, contradictions, ignore/snooze, or owner-bound actions with back-links
 - source-backed Strategy Hub
 - Harlan/Crewbert useful runtime
-- Drive Sheets/Slides/Office/shortcut/OCR/media extractors and Skool/Loom/Drive-video crawler workers
+- Drive Sheets/Slides/Office/shortcut/vision-grade OCR/media extractors and Skool/Loom/Drive-video crawler workers
 - clean marketing account/property map by lane
 - hub consumer map for mined corpus value: strategy, ops, sales, marketing, recruiting, agent coaching, Steve personal brand, MarketMasters, and Steve-owned education/monetization
 
@@ -178,8 +178,8 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Finish decommission, dead-man, cost/process visibility, and stop controls.
 4. `EXTRACTION-TEAM-001` / `DRIVE-CONTENT-001` / `EMAIL-ATTACHMENTS-001` / `MEETING-VIDEO-001` — Finish controlled miner/corpus lanes.
    - Build paced miner v1: one-at-a-time, cursors, leases, retry/backoff, spacing, per-source timeouts.
-   - Keep daily Drive Docs/PDF/text, Gmail PDF/text attachment, and YouTube subtitle transcript missions stable.
-   - Add Missive attachments, Drive Sheets/Slides/Office/shortcuts/OCR, meeting-linked Drive/Zoom/Loom video priority, and richer multimodal/GOD-mode extraction as separate ledged slices.
+   - Keep daily Drive Docs/PDF/text/markdown, scanned-PDF OCR fallback, Gmail PDF/text attachment, and YouTube subtitle transcript missions stable.
+   - Add Missive attachments, Drive Sheets/Slides/Office/shortcuts/vision-grade OCR, meeting-linked Drive/Zoom/Loom video priority, and richer multimodal/GOD-mode extraction as separate ledged slices.
    - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
    - Keep Skool/Loom/Mycro extraction governed by authorized access, use rights, cost/route ledgering, quotas, and stop controls.
 5. `INTEL-JOBS-001` / `INTEL-ATOM-001` / `RETRIEVAL-001` through `RETRIEVAL-003` — Build the memory/retrieval spine.
@@ -452,7 +452,7 @@ Current partial proof:
 - Foundation now exposes a Drive corpus inventory review snapshot with item totals, folder/file counts, pending extraction counts, candidate value routes, and queue state.
 - Raw Drive inventory script writes are guarded: non-dry-run inventory must be run through `extraction:target` so leases and target cursors advance with item writes.
 - Shared-comms synthesis was run through the subscription router and recorded `synth-20260424T203755Z-e6b01782ad` with `5` ranked live intelligence items. Top issues surfaced: KPI deal-data display/sync failure, June cash gap, SocialPilot access/publishing instability, Union Street delivery retry, and Loom access migration issue.
-- Remaining Phase 3 gap: monitor scheduled current-day/extraction runs, prove partial failure on a real failed item, extend retry semantics to Drive/video lanes, add Missive attachment extraction and richer Gmail attachment file types, prove meeting-linked video review, tune subscription-route miners with per-source timeouts and pacing, prove synthesis as Strategy Hub/action-router input, and build review/export gates before broad backfill. Drive Docs/PDF/text and Gmail PDF/text attachment filed-output extraction are now live first slices, not unbuilt gaps.
+- Remaining Phase 3 gap: monitor scheduled current-day/extraction runs, prove partial failure on a real failed item, extend retry semantics to Drive/video lanes, add Missive attachment extraction and richer Gmail attachment file types, prove meeting-linked video review, tune subscription-route miners with per-source timeouts and pacing, prove synthesis as Strategy Hub/action-router input, and build review/export gates before broad backfill. Drive Docs/PDF/text/markdown, agenda link inventory, rough scanned-PDF OCR fallback, and Gmail PDF/text attachment filed-output extraction are now live first slices, not unbuilt gaps.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
@@ -656,7 +656,7 @@ Strategy Hub should:
 - produce a tight owner-level strategy packet
 - track follow-through after the meeting
 
-First proof now exists: `strategy:evidence-packet` generated `strategy-packet-20260426T205646Z-3e1e6a1cd2` through the OpenClaw subscription synthesis route. It read 180 mined candidates, 25 direct Drive/video/email/meeting artifacts, 8 strategy docs, backlog/decision/runtime facts, and persisted 16 synthesized packet items. Strategic Execution now has Strategy Advisor v1: a routed LLM question surface plus a Review Board that maps packet items into Attract / Grow / Retain / Finance / Foundation lenses, shows AI-suggested moves, and calls out missing proof. This is still owner-review intelligence, not a closed-loop Strategy Hub. The next work is review/promote control: Steve accept/reject/needs-evidence actions, promotion into quarterly priorities, decisions, backlog items, and Action Router records.
+Latest proof exists: `strategy:evidence-packet` generated `strategy-packet-20260426T220426Z-0a7a650a6c` through the OpenClaw subscription synthesis route. It read 220 mined candidates, 58 direct Drive/video/email/meeting artifacts, 8 strategy docs, backlog/decision/runtime facts, and persisted 17 synthesized packet items after Q2 pre-strat Drive refresh, John agenda link inventory, Scott OCR, and Steve draft updates. Strategic Execution now has Strategy Advisor v1: a routed LLM question surface, a floating chat launcher, and a Review Board that maps packet items into Attract / Grow / Retain / Finance / Foundation lenses, shows AI-suggested moves, and calls out missing proof. This is still owner-review intelligence, not a closed-loop Strategy Hub. The next work is review/promote control: Steve accept/reject/needs-evidence actions, promotion into quarterly priorities, decisions, backlog items, and Action Router records.
 
 Acceptance:
 
