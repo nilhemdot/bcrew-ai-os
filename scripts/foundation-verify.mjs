@@ -6,7 +6,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
 import process from 'node:process'
-import { getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
+import { getGroupedSourceSystems, getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
 import {
   closeFoundationDb,
   getBacklogSeedDriftSnapshot,
@@ -136,6 +136,7 @@ async function main() {
 
   const sourceContracts = getSourceContracts()
   const sourceConnectors = getSourceConnectors()
+  const groupedSourceSystems = getGroupedSourceSystems()
   const ownersContract = findSourceById(sourceContracts, 'SRC-OWNERS-001')
   const financeContract = findSourceById(sourceContracts, 'SRC-FINANCE-001')
   const freedomCommunityContract = findSourceById(sourceContracts, 'SRC-FREEDOM-COMMUNITY-001')
@@ -574,16 +575,23 @@ async function main() {
     'api/source-of-truth exposes the full connector set',
     `${Array.isArray(sourceOfTruth.connectors) ? sourceOfTruth.connectors.length : 'invalid'} live / ${sourceConnectors.length} code`,
   )
+  const expectedGroupedSystemIds = groupedSourceSystems.map(system => system.systemId)
+  const liveGroupedSystemIds = Array.isArray(sourceOfTruth.groupedSystems)
+    ? sourceOfTruth.groupedSystems.map(system => system.systemId)
+    : []
+  const missingGroupedSystemIds = expectedGroupedSystemIds.filter(systemId => !liveGroupedSystemIds.includes(systemId))
   ensure(
     checks,
     Array.isArray(sourceOfTruth.groupedSystems) &&
-      sourceOfTruth.groupedSystems.some(system => system.systemId === 'SYS-SALES-DATA-001') &&
-      sourceOfTruth.groupedSystems.some(system => system.systemId === 'SYS-CORPUS-INTEL-001') &&
+      sourceOfTruth.groupedSystems.length === groupedSourceSystems.length &&
+      missingGroupedSystemIds.length === 0 &&
+      foundationHtmlSource.includes('data-section="systems"') &&
+      foundationUiSource.includes('renderFoundationSystems') &&
       foundationUiSource.includes('renderGroupedSourceSystemsPanel'),
     'api/source-of-truth exposes grouped source systems for Foundation visibility',
-    Array.isArray(sourceOfTruth.groupedSystems)
-      ? `${sourceOfTruth.groupedSystems.length} grouped systems`
-      : 'missing grouped systems payload',
+    missingGroupedSystemIds.length
+      ? `missing ${missingGroupedSystemIds.join(', ')}`
+      : `${liveGroupedSystemIds.length} live / ${groupedSourceSystems.length} code`,
   )
 
   const liveOwnersContract = findSourceById(sourceOfTruth.sources, 'SRC-OWNERS-001')

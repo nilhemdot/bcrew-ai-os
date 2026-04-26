@@ -4330,6 +4330,7 @@ var sectionLabels = {
   'core-values': 'Core Values',
   'marketmasters': 'MarketMasters',
   'current-state': 'Overview',
+  'systems': 'Systems',
   'rebuild-plan': 'Rebuild Plan',
   'users': 'Users',
   'user-steve': 'Steve',
@@ -4362,6 +4363,7 @@ var sectionParents = {
   'departments': { label: 'Strategy Packet', href: '/foundation#overview' },
   'governance': { label: 'Strategy Packet', href: '/foundation#overview' },
   'marketmasters': { label: 'Strategy Packet', href: '/foundation#overview' },
+  'systems': { label: 'Foundation', href: '/foundation#current-state' },
   'rebuild-plan': { label: 'System Strategy', href: '/foundation#system-strategy' },
   'user-steve': { label: 'Users', href: '/foundation#users' },
   'agent-harlan': { label: 'Agents', href: '/foundation#agents' },
@@ -6220,6 +6222,7 @@ function renderCurrentState() {
 
     var heroActions = document.createElement('div')
     heroActions.className = 'foundation-hero-actions'
+    heroActions.appendChild(createActionLink('Open Systems', '/foundation#systems'))
     heroActions.appendChild(createActionLink('Open Runtime Health', '/foundation#system-health'))
     heroActions.appendChild(createActionLink('Open Data Sources', '/foundation#source-overview', 'print-button'))
     heroActions.appendChild(createActionLink('Open Ops Hub', '/ops', 'print-button'))
@@ -7234,6 +7237,11 @@ function renderDecisions() {
     heroMeta.textContent = lockedCount + ' locked · ' + proposedCount + ' proposed · ' + supersededCount + ' superseded'
     heroInner.appendChild(heroMeta)
 
+    var heroNote = document.createElement('p')
+    heroNote.className = 'hero-copy'
+    heroNote.textContent = 'This is the Foundation decision ledger: system, rebuild, source, execution, and promoted strategy decisions. It is not yet a complete import of every old strategy-doc decision; that reconciliation belongs to the Strategy / Decision Truth System.'
+    heroInner.appendChild(heroNote)
+
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
@@ -7548,7 +7556,7 @@ function renderOpenQuestions() {
 
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'Only real unresolved questions belong here. Once a question is answered, merged into a better question, or no longer matters, it should move out of the live queue.'
+    heroNote.textContent = 'Only real unresolved Foundation questions belong here. Legacy carry-forward questions should be reviewed, resolved, merged, or promoted into backlog so this page does not become a junk drawer.'
     heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
@@ -8602,6 +8610,340 @@ function renderGroupedSourceSystemsPanel(groupedSystems, sourceContracts, source
   })
   panel.appendChild(board)
   return panel
+}
+
+function buildByKey(items, keyName) {
+  var map = {}
+  ;(items || []).forEach(function(item) {
+    var key = item && item[keyName]
+    if (key) map[key] = item
+  })
+  return map
+}
+
+function renderFoundationSystemLinkedList(titleText, items, className) {
+  var wrap = document.createElement('div')
+  wrap.className = className || 'foundation-system-detail-list'
+
+  var title = document.createElement('div')
+  title.className = 'foundation-system-detail-title'
+  title.textContent = titleText
+  wrap.appendChild(title)
+
+  var list = document.createElement('div')
+  list.className = 'foundation-system-detail-items'
+  if (!items || !items.length) {
+    var empty = document.createElement('span')
+    empty.className = 'foundation-system-empty'
+    empty.textContent = 'None mapped yet'
+    list.appendChild(empty)
+  } else {
+    items.forEach(function(item) {
+      if (item.href) {
+        var link = document.createElement('a')
+        link.className = 'foundation-system-pill'
+        link.href = item.href
+        link.textContent = item.label
+        list.appendChild(link)
+      } else {
+        var pill = document.createElement('span')
+        pill.className = 'foundation-system-pill'
+        pill.textContent = item.label
+        list.appendChild(pill)
+      }
+    })
+  }
+  wrap.appendChild(list)
+  return wrap
+}
+
+function renderFoundationSystemBacklogItems(system, backlogMap) {
+  var ids = Array.isArray(system.backlogIds) ? system.backlogIds : []
+  var items = ids.map(function(id) { return backlogMap[id] || { id: id, title: 'Not in live backlog snapshot', lane: 'missing' } })
+
+  var wrap = document.createElement('div')
+  wrap.className = 'foundation-system-backlog'
+
+  var title = document.createElement('div')
+  title.className = 'foundation-system-detail-title'
+  title.textContent = 'Tracked work'
+  wrap.appendChild(title)
+
+  if (!items.length) {
+    var empty = document.createElement('p')
+    empty.className = 'foundation-system-empty'
+    empty.textContent = 'No backlog cards mapped yet.'
+    wrap.appendChild(empty)
+    return wrap
+  }
+
+  items.forEach(function(item) {
+    var row = document.createElement('a')
+    row.className = 'foundation-system-backlog-row'
+    row.href = item.id ? '/foundation#backlog:' + item.id : '/foundation#backlog'
+
+    var top = document.createElement('div')
+    top.className = 'foundation-system-backlog-top'
+    var id = document.createElement('span')
+    id.textContent = item.id || 'Unknown'
+    top.appendChild(id)
+    var lane = document.createElement('span')
+    lane.textContent = [item.priority, item.lane].filter(Boolean).join(' · ') || 'Not classified'
+    top.appendChild(lane)
+    row.appendChild(top)
+
+    var itemTitle = document.createElement('div')
+    itemTitle.className = 'foundation-system-backlog-title'
+    itemTitle.textContent = item.title || 'Untitled backlog item'
+    row.appendChild(itemTitle)
+
+    if (item.nextAction) {
+      var next = document.createElement('div')
+      next.className = 'foundation-system-backlog-next'
+      next.textContent = item.nextAction
+      row.appendChild(next)
+    }
+
+    wrap.appendChild(row)
+  })
+
+  return wrap
+}
+
+function renderFoundationSystemJobs(system, jobMap, latestRunMap) {
+  var keys = Array.isArray(system.runtimeJobKeys) ? system.runtimeJobKeys : []
+  var rows = keys.map(function(key) {
+    var job = jobMap[key] || { key: key, title: key, runtimeMode: 'unmapped' }
+    var run = latestRunMap[key]
+    return {
+      label: [
+        job.key || key,
+        job.title && job.title !== job.key ? job.title : '',
+      ].filter(Boolean).join(' - '),
+      meta: [
+        job.enabled === false ? 'disabled' : 'enabled',
+        job.runtimeMode || '',
+        job.cadence || '',
+        run && run.status ? 'latest ' + run.status : '',
+      ].filter(Boolean).join(' · '),
+    }
+  })
+
+  var wrap = document.createElement('div')
+  wrap.className = 'foundation-system-jobs'
+  var title = document.createElement('div')
+  title.className = 'foundation-system-detail-title'
+  title.textContent = 'Runtime jobs'
+  wrap.appendChild(title)
+
+  if (!rows.length) {
+    var empty = document.createElement('p')
+    empty.className = 'foundation-system-empty'
+    empty.textContent = 'No runtime jobs mapped to this system yet.'
+    wrap.appendChild(empty)
+    return wrap
+  }
+
+  rows.forEach(function(row) {
+    var item = document.createElement('div')
+    item.className = 'foundation-system-job-row'
+    var label = document.createElement('div')
+    label.className = 'foundation-system-job-label'
+    label.textContent = row.label
+    item.appendChild(label)
+    var meta = document.createElement('div')
+    meta.className = 'foundation-system-job-meta'
+    meta.textContent = row.meta || 'No runtime metadata'
+    item.appendChild(meta)
+    wrap.appendChild(item)
+  })
+
+  return wrap
+}
+
+function renderFoundationSystemFullCard(system, context) {
+  var sourceContractMap = context.sourceContractMap || {}
+  var connectorMap = context.connectorMap || {}
+  var backlogMap = context.backlogMap || {}
+  var jobMap = context.jobMap || {}
+  var latestRunMap = context.latestRunMap || {}
+
+  var details = document.createElement('details')
+  details.className = 'foundation-system-stack-item'
+  if (system.systemId) details.id = system.systemId
+
+  var summary = document.createElement('summary')
+  summary.className = 'foundation-system-summary'
+
+  var left = document.createElement('div')
+  left.className = 'foundation-system-summary-left'
+  var title = document.createElement('div')
+  title.className = 'foundation-system-summary-title'
+  title.textContent = system.title || system.systemId
+  left.appendChild(title)
+  var meta = document.createElement('div')
+  meta.className = 'foundation-system-summary-meta'
+  meta.textContent = [system.systemId, system.maturityLevel, system.status].filter(Boolean).join(' · ')
+  left.appendChild(meta)
+  summary.appendChild(left)
+
+  var tags = document.createElement('div')
+  tags.className = 'source-card-tags foundation-system-summary-tags'
+  tags.appendChild(renderSourceTag(system.maturityLabel || system.maturityLevel || 'Mapped', 'neutral'))
+  tags.appendChild(renderSourceTag(system.status || 'Mapped', system.status === 'Not built' ? 'missing' : 'planned'))
+  summary.appendChild(tags)
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'foundation-system-body'
+
+  var purpose = document.createElement('p')
+  purpose.className = 'foundation-system-purpose'
+  purpose.textContent = system.purpose || ''
+  body.appendChild(purpose)
+
+  var statusGrid = document.createElement('div')
+  statusGrid.className = 'foundation-system-status-grid'
+  statusGrid.appendChild(renderSourceMetaItem('Current state', system.currentState || system.trustState || 'Not documented'))
+  statusGrid.appendChild(renderSourceMetaItem('Next level plan', system.nextLevelPlan || 'Not documented'))
+  statusGrid.appendChild(renderSourceMetaItem('Boundary', system.trustState || 'Not documented'))
+  body.appendChild(statusGrid)
+
+  var sourceItems = (system.sourceIds || []).map(function(id) {
+    var contract = sourceContractMap[id]
+    return {
+      label: contract ? id + ' - ' + contract.title : id,
+      href: '/foundation#source-overview:' + id,
+    }
+  })
+  body.appendChild(renderFoundationSystemLinkedList('Source contracts', sourceItems))
+
+  var connectorItems = (system.connectorIds || []).map(function(id) {
+    var connector = connectorMap[id]
+    return {
+      label: connector ? id + ' - ' + connector.title : id,
+      href: '/foundation#source-connectors:' + id,
+    }
+  })
+  body.appendChild(renderFoundationSystemLinkedList('Connectors', connectorItems))
+
+  if (Array.isArray(system.appliesTo) && system.appliesTo.length) {
+    body.appendChild(renderSourceBulletGroup('Applies to', system.appliesTo))
+  }
+
+  body.appendChild(renderFoundationSystemJobs(system, jobMap, latestRunMap))
+  body.appendChild(renderFoundationSystemBacklogItems(system, backlogMap))
+  appendSourceActions(body, system.actions || [])
+
+  details.appendChild(body)
+  return details
+}
+
+function renderFoundationSystems() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading systems...</p>'
+
+  Promise.all([fetchSourceOfTruth(), fetchFoundationHub()]).then(function(results) {
+    var sourceData = results[0]
+    var hub = results[1]
+    var systems = sourceData.groupedSystems || []
+    container.innerHTML = ''
+
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Foundation Systems'
+    heroInner.appendChild(heroTitle)
+    var heroCopy = document.createElement('p')
+    heroCopy.className = 'hero-copy'
+    heroCopy.textContent = 'Full map of the major systems that come together: purpose, maturity level, source contracts, connectors, runtime jobs, notes, backlog, and next-level plan.'
+    heroInner.appendChild(heroCopy)
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = systems.length + ' systems mapped · ' + (sourceData.sources || []).length + ' source contracts · ' + ((hub.foundationJobs && hub.foundationJobs.jobs) || []).length + ' runtime jobs'
+    heroInner.appendChild(heroMeta)
+    hero.appendChild(heroInner)
+
+    var actions = document.createElement('div')
+    actions.className = 'foundation-hero-actions'
+    actions.appendChild(createActionLink('Open Overview', '/foundation#current-state'))
+    actions.appendChild(createActionLink('Open Runtime Health', '/foundation#system-health', 'print-button'))
+    actions.appendChild(createActionLink('Open Data Sources', '/foundation#source-overview', 'print-button'))
+    actions.appendChild(createActionLink('Open Menu Audit', '/doc?path=docs/audits/2026-04-26-foundation-menu-and-systems-audit.md', 'print-button'))
+    hero.appendChild(actions)
+    container.appendChild(hero)
+
+    var statusPanel = renderOverviewStatusPanel([
+      {
+        label: 'Purpose',
+        status: 'connected',
+        detail: 'This page answers what each system is for and what has to happen before it reaches the next level.',
+      },
+      {
+        label: 'Source Proof',
+        status: 'connected',
+        detail: 'Every system lists the source contracts and source notes that prove what AIOS understands.',
+      },
+      {
+        label: 'Execution Path',
+        status: 'pending',
+        detail: 'Each system lists mapped jobs and backlog cards so next work does not disappear into chat.',
+      },
+    ], {
+      eyebrow: 'How To Use This',
+      title: 'Systems Are The Middle Layer',
+      intro: 'Sources are the raw inputs. Systems are the operating bundles. Hubs use systems.',
+    })
+    if (statusPanel) container.appendChild(statusPanel)
+
+    var sourceContractMap = buildByKey(sourceData.sources || [], 'sourceId')
+    var connectorMap = buildByKey(sourceData.connectors || [], 'connectorId')
+    var backlogMap = buildByKey(hub.backlogItems || [], 'id')
+    var jobs = (hub.foundationJobs && hub.foundationJobs.jobs) || []
+    var latestRuns = (hub.foundationJobs && hub.foundationJobs.latestRuns) || []
+    var jobMap = buildByKey(jobs, 'key')
+    var latestRunMap = buildByKey(latestRuns, 'jobKey')
+
+    var panel = document.createElement('section')
+    panel.className = 'panel foundation-systems-panel'
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+    var left = document.createElement('div')
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'System Map'
+    left.appendChild(eyebrow)
+    var title = document.createElement('h3')
+    title.textContent = 'Major Foundation Systems'
+    left.appendChild(title)
+    var intro = document.createElement('p')
+    intro.className = 'section-intro'
+    intro.textContent = 'Open a system to see the same kind of source-backed detail as the source pages: what it does, what feeds it, which jobs run it, what notes prove it, and what backlog cards move it forward.'
+    left.appendChild(intro)
+    header.appendChild(left)
+    panel.appendChild(header)
+
+    var stack = document.createElement('div')
+    stack.className = 'foundation-system-stack'
+    systems.forEach(function(system) {
+      stack.appendChild(renderFoundationSystemFullCard(system, {
+        sourceContractMap,
+        connectorMap,
+        backlogMap,
+        jobMap,
+        latestRunMap,
+      }))
+    })
+    panel.appendChild(stack)
+    container.appendChild(panel)
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load systems: ' + error.message
+    container.appendChild(msg)
+  })
 }
 
 function renderSourceConnectorsPanel(sourceConnectors, options) {
@@ -10229,6 +10571,8 @@ function route() {
 
   if (section === 'current-state') {
     renderCurrentState()
+  } else if (section === 'systems') {
+    renderFoundationSystems()
   } else if (section === 'overview') {
     renderOverview()
   } else if (strategyDocPaths[section]) {

@@ -1117,6 +1117,164 @@ body {
   gap: 12px;
 }
 
+.foundation-system-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.foundation-system-stack-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.foundation-system-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.foundation-system-summary-left {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.foundation-system-summary-title {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 1.08rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.foundation-system-summary-meta {
+  color: var(--text-tertiary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.foundation-system-summary-tags {
+  justify-content: flex-end;
+  margin: 0;
+}
+
+.foundation-system-body {
+  display: grid;
+  gap: 16px;
+  padding: 0 16px 18px;
+}
+
+.foundation-system-purpose {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.foundation-system-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.foundation-system-detail-list,
+.foundation-system-jobs,
+.foundation-system-backlog {
+  display: grid;
+  gap: 8px;
+}
+
+.foundation-system-detail-title {
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.foundation-system-detail-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.foundation-system-pill {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.3;
+  padding: 6px 10px;
+  text-decoration: none;
+}
+
+.foundation-system-pill:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.foundation-system-empty {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 0.84rem;
+}
+
+.foundation-system-job-row,
+.foundation-system-backlog-row {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  padding: 10px;
+}
+
+.foundation-system-backlog-row {
+  color: inherit;
+  text-decoration: none;
+}
+
+.foundation-system-backlog-row:hover {
+  border-color: var(--brand);
+}
+
+.foundation-system-job-label,
+.foundation-system-backlog-title {
+  color: var(--text-primary);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.foundation-system-job-meta,
+.foundation-system-backlog-next,
+.foundation-system-backlog-top {
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.foundation-system-backlog-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 .current-state-surface-head,
 .current-state-surface-summary,
 .current-state-package-table-head,
@@ -4825,7 +4983,10 @@ code {
   .foundation-module-grid,
   .foundation-closeout-grid,
   .foundation-shortcut-grid,
-  .foundation-sequence-grid { grid-template-columns: 1fr; }
+  .foundation-sequence-grid,
+  .foundation-system-status-grid { grid-template-columns: 1fr; }
+  .foundation-system-summary { grid-template-columns: 1fr; }
+  .foundation-system-summary-tags { justify-content: flex-start; }
   .current-state-surface-head { display: none; }
   .current-state-surface-summary,
   .current-state-package-table-head,
