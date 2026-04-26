@@ -120,6 +120,8 @@ These assistants should not:
 - directly own global system policy
 - silently bypass the orchestrator on business-critical multi-step work
 
+Personal assistants also need a real onboarding loop. The target is not a generic welcome message; it is a governed profile-building process that helps create a private personal profile, learns goals/preferences/context, captures feedback, and eventually sends one useful daily nugget. `ME.md` is only a working label for that profile. See [Personal Agent Onboarding](../agents/personal-agent-onboarding.md).
+
 ### Orchestrator Layer
 
 **Crewbert** is the system orchestrator.
@@ -310,9 +312,10 @@ The first sequence should be:
 2. define Crewbert's orchestrator contract
 3. define the project registry
 4. define the agent franchise contract
-5. build one trusted assistant loop for Harlan
-6. prove delegation to one specialist workflow
-7. only then add more assistants or specialists
+5. recover the old bot-onboarding/coaching lessons into the personal-agent onboarding contract
+6. build one trusted assistant loop for Harlan
+7. prove delegation to one specialist workflow
+8. only then add more assistants or specialists
 
 ## What We Are Not Doing
 

@@ -196,6 +196,7 @@ async function main() {
   const agentModelDoc = await readRepoFile('docs/agents/README.md')
   const harlanDoc = await readRepoFile('docs/agents/harlan.md')
   const crewbertDoc = await readRepoFile('docs/agents/crewbert.md')
+  const personalAgentOnboardingDoc = await readRepoFile('docs/agents/personal-agent-onboarding.md')
   const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const opsHtmlSource = await readRepoFile('public/ops.html')
@@ -279,12 +280,18 @@ async function main() {
     checks,
     foundationHtmlSource.includes('<div class="found-nav-label">People / Agents</div>') &&
       foundationHtmlSource.includes('data-section="users">People Overview</a>') &&
+      foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#user-steve"') &&
       foundationHtmlSource.includes('data-section="agents">Agent Model</a>') &&
+      foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#agent-harlan"') &&
+      foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#agent-crewbert"') &&
       !foundationHtmlSource.includes('<div class="found-nav-subgroup">Users</div>') &&
       !foundationHtmlSource.includes('<div class="found-nav-subgroup">Agents</div>') &&
-      [usersDoc, steveDoc, agentModelDoc, harlanDoc, crewbertDoc].every(source => source.includes('Last reviewed: 2026-04-26') && source.includes('Update Trigger')),
+      [usersDoc, steveDoc, agentModelDoc, harlanDoc, crewbertDoc, personalAgentOnboardingDoc].every(source => source.includes('Last reviewed: 2026-04-26') && source.includes('Update Trigger')) &&
+      includesAll(agentModelDoc, ['Personal Agent Onboarding', 'personal profile', 'daily nugget']) &&
+      includesAll(harlanDoc, ['personal profile', 'daily nugget', 'AGENT-010']) &&
+      includesAll(personalAgentOnboardingDoc, ['AGENT-010', 'personal profile', '`ME.md` is only a working label', 'daily nugget', 'old BCrew-Buddy', 'Harlan Pilot']),
     'People / Agents nav and docs stay clear and review-marked',
-    'People / Agents nav is flat, Overview labels are specific, and user/agent docs have review/update triggers',
+    'People / Agents nav uses one clean child indent, docs have review/update triggers, and personal-agent onboarding doctrine is captured',
   )
   ensure(
     checks,

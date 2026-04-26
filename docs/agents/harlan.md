@@ -21,6 +21,7 @@ He is not the whole BCrew AI OS and he is not the system orchestrator.
 
 - keep Harlan as the personal assistant layer
 - move his long-term identity and memory spine outside this repo when the first trusted assistant loop is ready
+- use Harlan as the first personal-agent onboarding / `ME.md` pilot
 - do not confuse Harlan with Crewbert or with repo-local coding tools
 
 ## Important Rule
@@ -28,6 +29,12 @@ He is not the whole BCrew AI OS and he is not the system orchestrator.
 Harlan should be able to reach the system.
 
 That does not mean Harlan should permanently live inside the system repo.
+
+## Personal Onboarding Direction
+
+Harlan should eventually help Steve build and maintain a private personal profile that captures role, business goals, personal goals Steve chooses to share, family/life context Steve chooses to share, communication preferences, operating preferences, and approval boundaries.
+
+The first useful loop should include a short calibration interview, saved profile updates, feedback capture, and one small daily nugget about how Harlan can help Steve better. `ME.md` is only a working label for the private profile. The old BCrew-Buddy bot-onboarding plan is evidence to recover through `AGENT-010`, not something to copy blindly.
 
 ## Outbound Identity Direction
 

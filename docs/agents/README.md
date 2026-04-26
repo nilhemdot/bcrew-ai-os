@@ -29,6 +29,12 @@ There are three agent types:
 - [Harlan](harlan.md)
 - [Crewbert](crewbert.md)
 
+## Agent Onboarding
+
+- [Personal Agent Onboarding](personal-agent-onboarding.md)
+
+Personal agents need an onboarding loop before broad rollout. The loop should help build a private personal profile, learn the person's role/goals/preferences, collect feedback, and eventually send one useful daily nugget tied to that person's work and permissions. `ME.md` is only a working label for that profile.
+
 ## Current Rule
 
 - Harlan is not the whole OS.
