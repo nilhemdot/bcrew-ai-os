@@ -103,6 +103,16 @@ body {
   margin-top: 26px;
 }
 
+.google-login-wrap {
+  display: grid;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+#google-login-button {
+  min-height: 44px;
+}
+
 .login-form label {
   display: grid;
   gap: 7px;
@@ -161,6 +171,11 @@ body {
   font-size: 0.84rem;
   line-height: 1.45;
   padding: 10px 12px;
+}
+
+.login-help {
+  color: var(--text-tertiary);
+  font-size: 0.78rem;
 }
 
 /* ── LAYOUT ── */

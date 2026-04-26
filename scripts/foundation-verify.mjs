@@ -313,6 +313,7 @@ async function main() {
     checks,
     includesAll(serverSource, [
       "app.post('/api/auth/login'",
+      "app.post('/api/auth/google'",
       "app.get('/api/auth/session'",
       "app.post('/api/auth/logout'",
       "app.get('/login'",
@@ -322,15 +323,17 @@ async function main() {
     ]) &&
       includesAll(appAuthSource, [
         'AIOS_AUTH_USERS_JSON',
+        'AIOS_GOOGLE_CLIENT_ID',
         'AIOS_SESSION_SECRET',
         'pbkdf2-sha256',
         'aios_session',
+        'getAllowedAuthUser',
         'getSafeRedirectPath',
       ]) &&
-      includesAll(loginHtmlSource, ['BCrew AI OS', 'login-form', '/login.js']) &&
-      includesAll(loginUiSource, ['/api/auth/login', '/api/auth/session']),
+      includesAll(loginHtmlSource, ['BCrew AI OS', 'accounts.google.com/gsi/client', 'google-login-button', '/login.js']) &&
+      includesAll(loginUiSource, ['/api/auth/google', '/api/auth/session', 'google.accounts.id.renderButton']),
     'app auth gates live surfaces by role',
-    'login routes, signed cookie sessions, owner/ops page gates, and Ops-only API allowlist are wired',
+    'Google login route, signed cookie sessions, owner/ops page gates, and Ops-only API allowlist are wired',
   )
   ensure(
     checks,

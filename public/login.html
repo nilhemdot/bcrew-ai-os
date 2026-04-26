@@ -15,9 +15,14 @@
         <img src="/assets/bc-logo.svg" alt="Benson Crew logo" class="login-logo" />
         <div class="login-kicker">BCrew AI OS</div>
         <h1>Log in</h1>
-        <p>Use your AIOS login to open the right workspace.</p>
+        <p>Use your Benson Crew Google account. AIOS will open the right workspace for your email.</p>
 
-        <form class="login-form" id="login-form">
+        <div class="google-login-wrap" id="google-login-wrap">
+          <div id="google-login-button"></div>
+          <div class="login-error" id="login-error" role="alert" hidden></div>
+        </div>
+
+        <form class="login-form login-form-fallback" id="login-form" hidden>
           <label>
             Email
             <input id="login-email" name="email" type="email" autocomplete="email" required />
@@ -27,10 +32,11 @@
             <input id="login-password" name="password" type="password" autocomplete="current-password" required />
           </label>
           <button type="submit" id="login-submit">Log in</button>
-          <div class="login-error" id="login-error" role="alert" hidden></div>
+          <div class="login-help">Temporary fallback only. Use Google sign-in when available.</div>
         </form>
       </section>
     </main>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="/login.js?v=20260425a"></script>
   </body>
 </html>

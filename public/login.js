@@ -1,3 +1,5 @@
+var sessionState = null
+
 function getNextPath() {
   var params = new URLSearchParams(window.location.search)
   var next = params.get('next') || ''
@@ -29,16 +31,69 @@ function redirectTo(path) {
   window.location.assign(path || '/')
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  fetch('/api/auth/session', { cache: 'no-store' }).then(function(response) {
-    return response.json()
-  }).then(function(session) {
-    if (session.authenticated) {
-      redirectTo(getNextPath() || session.defaultRoute || '/')
-    }
-  }).catch(function() {
-    // Let the form handle the next request.
+function showPasswordFallback() {
+  var form = document.getElementById('login-form')
+  if (form) form.hidden = false
+}
+
+function shouldShowPasswordFallback() {
+  return new URLSearchParams(window.location.search).get('password') === '1'
+}
+
+function submitGoogleCredential(credential) {
+  hideError()
+  return fetch('/api/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      credential: credential,
+      next: getNextPath(),
+    }),
+  }).then(function(response) {
+    return response.json().catch(function() { return null }).then(function(payload) {
+      if (!response.ok) {
+        throw new Error(payload && payload.error && payload.error.message ? payload.error.message : 'Google login failed.')
+      }
+      redirectTo(payload.redirectTo || '/')
+    })
+  }).catch(function(error) {
+    showError(error.message)
   })
+}
+
+function renderGoogleButton() {
+  if (!sessionState || !sessionState.googleConfigured || !sessionState.googleClientId) {
+    showError('Google login is not configured yet.')
+    showPasswordFallback()
+    return
+  }
+
+  if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+    window.setTimeout(renderGoogleButton, 120)
+    return
+  }
+
+  window.google.accounts.id.initialize({
+    client_id: sessionState.googleClientId,
+    callback: function(response) {
+      submitGoogleCredential(response.credential)
+    },
+  })
+
+  window.google.accounts.id.renderButton(
+    document.getElementById('google-login-button'),
+    {
+      theme: 'outline',
+      size: 'large',
+      text: 'signin_with',
+      shape: 'rectangular',
+      width: 360,
+    }
+  )
+}
+
+function setupPasswordFallback() {
+  if (shouldShowPasswordFallback()) showPasswordFallback()
 
   var form = document.getElementById('login-form')
   if (!form) return
@@ -67,5 +122,23 @@ document.addEventListener('DOMContentLoaded', function() {
       showError(error.message)
       setBusy(false)
     })
+  })
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setupPasswordFallback()
+
+  fetch('/api/auth/session', { cache: 'no-store' }).then(function(response) {
+    return response.json()
+  }).then(function(session) {
+    sessionState = session
+    if (session.authenticated) {
+      redirectTo(getNextPath() || session.defaultRoute || '/')
+      return
+    }
+    renderGoogleButton()
+  }).catch(function() {
+    showError('Login is not available right now.')
+    showPasswordFallback()
   })
 })

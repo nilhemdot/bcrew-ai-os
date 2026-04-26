@@ -68,12 +68,15 @@ import { getClickUpListSnapshot } from './lib/clickup.js'
 import {
   authenticateAuthUser,
   clearAuthCookie,
+  getAllowedAuthUser,
   getAuthUserFromRequest,
   getDefaultRouteForUser,
+  getGoogleClientId,
   getSafeRedirectPath,
   isAuthConfigured,
   setAuthCookie,
 } from './lib/app-auth.js'
+import { OAuth2Client } from 'google-auth-library'
 import { runSheetsStructureVerification } from './scripts/sheets-structure-verify.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -85,6 +88,7 @@ const port = process.env.PORT || 3000
 const host = process.env.HOST || '127.0.0.1'
 const execFileAsync = promisify(execFile)
 const adminToken = process.env.ADMIN_TOKEN || process.env.DASHBOARD_API_KEY || ''
+const googleOauthClient = new OAuth2Client()
 app.disable('x-powered-by')
 
 const docsDir = path.join(__dirname, 'docs')
@@ -338,11 +342,60 @@ app.post('/api/auth/login', (req, res) => {
     redirectTo: getSafeRedirectPath(req.body?.next, user),
   })
 })
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    if (!isAuthConfigured()) {
+      sendApiError(res, 503, 'auth_unconfigured', 'AIOS login is not configured yet.')
+      return
+    }
+
+    const clientId = getGoogleClientId()
+    if (!clientId) {
+      sendApiError(res, 503, 'google_login_unconfigured', 'Google login is not configured yet.')
+      return
+    }
+
+    const idToken = String(req.body?.credential || '').trim()
+    if (!idToken) {
+      sendApiError(res, 400, 'missing_google_credential', 'Google sign-in credential is missing.')
+      return
+    }
+
+    const ticket = await googleOauthClient.verifyIdToken({
+      idToken,
+      audience: clientId,
+    })
+    const payload = ticket.getPayload()
+    const email = String(payload?.email || '').trim().toLowerCase()
+
+    if (!payload?.email_verified || !email.endsWith('@bensoncrew.ca')) {
+      sendApiError(res, 403, 'google_account_not_allowed', 'Use your Benson Crew Google account.')
+      return
+    }
+
+    const user = getAllowedAuthUser(email)
+    if (!user) {
+      sendApiError(res, 403, 'user_not_allowed', 'This Benson Crew account is not enabled for AIOS yet.')
+      return
+    }
+
+    setAuthCookie(req, res, user)
+    res.json({
+      user,
+      redirectTo: getSafeRedirectPath(req.body?.next, user),
+    })
+  } catch (error) {
+    console.error('Google login failed:', error)
+    sendApiError(res, 401, 'google_login_failed', 'Google login failed. Try again or ask Steve to confirm access.')
+  }
+})
 app.get('/api/auth/session', (req, res) => {
   const user = getRequestAuthUser(req) || getLocalDevUser(req)
   res.json({
     authenticated: Boolean(user),
     configured: isAuthConfigured(),
+    googleConfigured: Boolean(getGoogleClientId()),
+    googleClientId: getGoogleClientId(),
     user,
     defaultRoute: user ? getDefaultRouteForUser(user) : '/login',
   })

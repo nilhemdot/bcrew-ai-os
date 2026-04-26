@@ -8,14 +8,15 @@ Scope: one spec covering identity, tiers, meeting-note vault, and tier-aware int
 
 The first shareable gate is intentionally small:
 
-- `/login` authenticates against local `.env` users configured by `npm run auth:configure-local`.
+- `/login` authenticates with Google Identity Services against a configured Google OAuth client ID.
+- Signed-in emails must be verified `@bensoncrew.ca` accounts and present in the AIOS allowlist.
 - Sessions use a signed HTTP-only `aios_session` cookie.
 - `owner` can open all hubs and full Foundation APIs.
 - `ops` can open `/ops` and only the restricted Ops APIs needed by that surface.
 - `/api/ops-hub` returns Ops-serving job metadata only, instead of exposing the full `/api/foundation-hub` payload.
 - Localhost keeps a dev bypass so `foundation:verify` and operator work do not require browser login.
 
-This is not the final auth architecture. The final public setup still needs Cloudflare Access, stable domain/tunnel, durable user/tier storage, and the raw-data vault/redaction layers below.
+This is not the final auth architecture. The final public setup still needs Cloudflare Access or a stable named tunnel/DNS, durable user/tier storage, and the raw-data vault/redaction layers below.
 
 ## Why this spec exists
 
