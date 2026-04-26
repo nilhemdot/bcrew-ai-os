@@ -8,12 +8,16 @@ Rule: if a package depends on open live inputs, open runtime activation, or open
 
 ## Level Guide
 
-| Level | Meaning |
-| --- | --- |
-| Level 1 | The system can reach and read the source. |
-| Level 2 | The trusted unit and meaning are reviewed and signed off. |
-| Level 3 | Refresh cadence, stale-state visibility, and runtime ownership are explicit. |
-| Level 4 | Approved writes and governed automation are live. |
+| Level | Name | Meaning |
+| --- | --- | --- |
+| Level 1 | Connected | AIOS can reach and read the source. |
+| Level 2 | Trusted | The trusted unit, fields, and meaning are signed off. |
+| Level 3 | Monitored | Refresh cadence, stale-state visibility, drift, and runtime ownership are explicit. |
+| Level 4 | Extracted | Source content is filed as governed artifacts/atoms with provenance. |
+| Level 5 | Synthesized | Evidence becomes useful source-backed intelligence. |
+| Level 6 | Routed | Intelligence becomes owner-bound decisions, tasks, questions, contradictions, or actions. |
+| Level 7 | Governed Apply | Approved writes or workflow changes can happen safely and audibly. |
+| Level 8 | Closed Loop | Resolution is captured, stale findings stop reappearing, and history stays intact. |
 
 ## Short Version
 

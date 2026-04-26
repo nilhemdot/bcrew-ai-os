@@ -5706,7 +5706,7 @@ function renderCurrentStateSurfaceTable(rows) {
 
   var thead = document.createElement('thead')
   var headRow = document.createElement('tr')
-  ;['Surface', 'What Exists Now', 'What Closes Next', 'Later / Not A Blocker'].forEach(function(label) {
+  ;['Area', 'What Exists Now', 'Next Level / Closeout', 'Later / Not A Blocker'].forEach(function(label) {
     var th = document.createElement('th')
     th.textContent = label
     headRow.appendChild(th)
@@ -5715,6 +5715,11 @@ function renderCurrentStateSurfaceTable(rows) {
   table.appendChild(thead)
 
   var tbody = document.createElement('tbody')
+
+  function getSourceToggleText(count, shouldOpen) {
+    var label = count + ' source' + (count === 1 ? '' : 's')
+    return label + ' - ' + (shouldOpen ? 'click to collapse' : 'click to expand')
+  }
 
   rows.forEach(function(row) {
     var hasParts = Array.isArray(row.packageParts) && row.packageParts.length
@@ -5761,7 +5766,7 @@ function renderCurrentStateSurfaceTable(rows) {
       var toggle = document.createElement('button')
       toggle.type = 'button'
       toggle.className = 'current-state-expand-button'
-      toggle.textContent = (row.packageParts.length || 0) + ' sources · ' + (shouldOpen ? 'click to collapse' : 'click to expand')
+      toggle.textContent = getSourceToggleText(row.packageParts.length || 0, shouldOpen)
       toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false')
       surfaceCell.appendChild(toggle)
 
@@ -5777,7 +5782,7 @@ function renderCurrentStateSurfaceTable(rows) {
       function toggleDetailRow() {
         var isOpen = !detailRow.hidden
         detailRow.hidden = isOpen
-        toggle.textContent = (row.packageParts.length || 0) + ' sources · ' + (isOpen ? 'click to expand' : 'click to collapse')
+        toggle.textContent = getSourceToggleText(row.packageParts.length || 0, !isOpen)
         toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true')
       }
 
@@ -5791,9 +5796,6 @@ function renderCurrentStateSurfaceTable(rows) {
         if (interactive) return
         toggleDetailRow()
       })
-    } else {
-      var stamp = renderCurrentStateSourceStamp(row.sourceId)
-      if (stamp) surfaceCell.appendChild(stamp)
     }
     summaryRow.appendChild(surfaceCell)
 
@@ -5823,12 +5825,16 @@ function renderCurrentStateSurfaceTable(rows) {
 
 function renderCurrentStateLevelGuide(currentPath) {
   return renderTable([
-    '| Level | What it means | Done at this level |',
+    '| Level | Name | What advances |',
     '| --- | --- | --- |',
-    '| Level 1 | The system can reach the source and read it. | Visible and readable. |',
-    '| Level 2 | The exact trusted unit and meaning are reviewed and signed off. | Trust boundary is clear and signed off. |',
-    '| Level 3 | Refresh rules and stale-state visibility are explicit. | Drift becomes visible. |',
-    '| Level 4 | Approved writes and governed automation are live. | Automation is auditable. |',
+    '| Level 1 | Connected | AIOS can reach and read the source. |',
+    '| Level 2 | Trusted | The trusted unit, fields, and meaning are signed off. |',
+    '| Level 3 | Monitored | Refresh, freshness, stale state, and drift are visible. |',
+    '| Level 4 | Extracted | Content is filed as governed artifacts/atoms with provenance. |',
+    '| Level 5 | Synthesized | Evidence becomes useful source-backed intelligence. |',
+    '| Level 6 | Routed | Intelligence becomes owner-bound decisions, tasks, questions, contradictions, or actions. |',
+    '| Level 7 | Governed Apply | Approved writes or workflow changes can happen safely and audibly. |',
+    '| Level 8 | Closed Loop | Resolution is captured; stale findings stop reappearing; history stays intact. |',
   ], currentPath)
 }
 
@@ -5859,7 +5865,7 @@ function renderFoundationExecutionOrderPanel(currentPath) {
     '| 2 | Monitor capture and extraction | Current-day and history missions should keep filing source-backed artifacts, candidates, skip reasons, and run evidence. |',
     '| 3 | Harden missing corpus lanes | Build the next Drive, email, video, browser, Mycro, Skool, Loom, Zoom, OCR, Slides, Sheets, and Office extraction slices in governed bites. |',
     '| 4 | Add freshness and health checks | KPI, finance, Drive/video corpus, connectors, schema drift, and extraction queues need visible Level 3 health before hubs depend on them continuously. |',
-    '| 5 | Close the action loop | Action Router, approval-gated writeback, resolution awareness, temporal truth, and richer provenance make Foundation more than a reading layer. |',
+    '| 5 | Close the action loop | Level 6-8 work: Action Router, approval-gated writeback, resolution awareness, temporal truth, and richer provenance make Foundation more than a reading layer. |',
   ], currentPath))
 
   return nextPanel
@@ -6274,14 +6280,14 @@ function renderCurrentState() {
     var surfacesLeft = document.createElement('div')
     var surfacesEyebrow = document.createElement('div')
     surfacesEyebrow.className = 'eyebrow'
-    surfacesEyebrow.textContent = 'Foundation Surfaces'
+    surfacesEyebrow.textContent = 'Foundation Areas'
     surfacesLeft.appendChild(surfacesEyebrow)
     var surfacesTitle = document.createElement('h3')
-    surfacesTitle.textContent = 'Foundation Surface Readiness'
+    surfacesTitle.textContent = 'Maturity Map'
     surfacesLeft.appendChild(surfacesTitle)
     var surfacesIntro = document.createElement('p')
     surfacesIntro.className = 'section-intro'
-    surfacesIntro.textContent = 'This is not the live backlog. It shows which source and system surfaces are trustworthy enough to use, what still needs hardening, and where follow-on work belongs.'
+    surfacesIntro.textContent = 'This is not the live backlog. It shows each Foundation area, the maturity level it has reached, what can be trusted now, and what must happen before the next level.'
     surfacesLeft.appendChild(surfacesIntro)
     surfacesHeader.appendChild(surfacesLeft)
     surfacesPanel.appendChild(surfacesHeader)
@@ -6294,7 +6300,7 @@ function renderCurrentState() {
     levelGuideHeader.appendChild(levelGuideEyebrow)
     var levelGuideIntro = document.createElement('p')
     levelGuideIntro.className = 'section-intro'
-    levelGuideIntro.textContent = 'The level shown on each row tells you how mature that surface is right now.'
+    levelGuideIntro.textContent = 'The level shown on each row is the highest capability proven for that area. Human-led strategy can use Level 2 with caveats; always-on read hubs should depend on Level 3; operational inboxes need Level 6; AIOS source changes need Level 7; true Foundation closure is Level 8.'
     levelGuideHeader.appendChild(levelGuideIntro)
     surfacesPanel.appendChild(levelGuideHeader)
     surfacesPanel.appendChild(renderCurrentStateLevelGuide(currentPath))
@@ -6324,20 +6330,21 @@ function renderCurrentState() {
         sourceId: ['SRC-STRATEGY-001', 'SRC-FREEDOM-COMMUNITY-001', 'SRC-FREEDOM-BHAG-001', 'SRC-FREEDOM-ENGINE-001', 'SRC-OWNERS-001'],
         statusKey: 'connected',
         statusLabel: 'Ready source package',
-        levelLabel: 'Level 2 - meaning signed off',
-        currentSummary: 'The current strategy input package is connected, verified, and understood. Extraction, synthesis, and action routing are later Foundation layers, not blockers to this source package closeout.',
+        levelLabel: 'Mixed Level 2/3 - docs monitored, inputs trusted',
+        currentSummary: 'The current strategy input package is connected, verified, and understood. Strategy docs have first-pass change/watch/provenance visibility; supporting inputs are signed off for current-reality meaning. Extraction, synthesis, and action routing are later Foundation layers, not blockers to this source package closeout.',
         packageParts: [
           {
             sourceId: 'SRC-STRATEGY-001',
             statusKey: 'connected',
-            statusLabel: 'Ready',
-            body: 'Canonical strategy doc and supporting docs are signed off.',
+            statusLabel: 'Level 3',
+            body: 'Canonical strategy doc and supporting docs are signed off, with first-pass change watch, decision traceability, and visible proposal/history flow.',
             role: 'Strategy docs',
+            next: 'Deeper temporal truth and provenance remain later Foundation work.',
           },
           {
             sourceId: 'SRC-FREEDOM-COMMUNITY-001',
             statusKey: 'connected',
-            statusLabel: 'Ready',
+            statusLabel: 'Level 2',
             body: 'Mapped and understood for strategy use.',
             role: 'Freedom input',
             next: 'Nothing else here now.',
@@ -6345,7 +6352,7 @@ function renderCurrentState() {
           {
             sourceId: 'SRC-FREEDOM-BHAG-001',
             statusKey: 'connected',
-            statusLabel: 'Ready',
+            statusLabel: 'Level 2',
             body: 'Mapped and understood for strategy use.',
             role: 'Freedom input',
             next: 'Nothing else here now.',
@@ -6353,7 +6360,7 @@ function renderCurrentState() {
           {
             sourceId: 'SRC-FREEDOM-ENGINE-001',
             statusKey: 'connected',
-            statusLabel: 'Ready',
+            statusLabel: 'Level 2',
             body: 'Mapped and understood for strategy use.',
             role: 'Freedom input',
             next: 'Nothing else here now.',
@@ -6361,7 +6368,7 @@ function renderCurrentState() {
           {
             sourceId: 'SRC-OWNERS-001',
             statusKey: 'connected',
-            statusLabel: 'Ready',
+            statusLabel: 'Level 3',
             body: 'Strategy-used Owners slice is signed off through the Owners Admin package and current-reality finance/list boundaries.',
             role: 'Owners slice used in strategy',
             next: 'Nothing else blocks the current strategy-input package.',
@@ -6410,21 +6417,21 @@ function renderCurrentState() {
         sourceId: ['SRC-OWNERS-001', 'SRC-FUB-001'],
         statusKey: 'connected',
         statusLabel: 'Ready for v1',
-        levelLabel: 'Level 3 - paced review live',
+        levelLabel: 'Level 6 - findings routed to Ops',
         currentSummary: 'Admin-tab meaning is signed off. FUB joins through Column BZ, v1 lead-source lineage, and Admin review rules are locked for v1. The review runner checks split math, governed source rules, company/agent expectation, FUB source/stage/ISA evidence, pre-2026-04-01 Freedom follow-through, and post-2026-04-01 ClickUp Deal Data Entry follow-through. Foundation deal-review jobs re-check marked Admin/Conditional rows first, then pace first-pass Admin backlog inspection at 5 newest eligible June 2025+ deals per day using Date Firm (Executed) and a 10-day maturity gate. Ops Hub owns the resulting cleanup queue.',
         packageParts: [
           {
             sourceId: 'SRC-OWNERS-001',
             statusKey: 'connected',
-            statusLabel: 'Ready',
-            body: 'Admin-tab meaning is signed off.',
+            statusLabel: 'Level 3',
+            body: 'Admin-tab meaning is signed off and review/freshness guardrails are visible for the v1 deal-review lane.',
             role: 'Owners base source',
           },
           {
             sourceId: 'SRC-FUB-001',
             statusKey: 'connected',
-            statusLabel: 'Ready for v1',
-            body: 'FUB joins, lead-source lineage rules, and Admin review enforcement are locked for v1. Missing FUB links, invalid lead sources, and duplicate-credit edge cases now surface as Ops cleanup findings instead of blocking the source package.',
+            statusLabel: 'Level 6',
+            body: 'FUB joins, lead-source lineage rules, and Admin review enforcement are locked for v1. Missing FUB links, invalid lead sources, and duplicate-credit edge cases now surface as routed Ops cleanup findings instead of blocking the source package.',
             role: 'Dependency source',
             next: 'Work the Ops queue as findings appear.',
           },
@@ -6439,8 +6446,18 @@ function renderCurrentState() {
         sourceId: 'SRC-FUB-001',
         statusKey: 'connected',
         statusLabel: 'Ready for v1',
-        levelLabel: 'Level 2 - taxonomy signed off',
+        levelLabel: 'Level 6 - source issues routed to Ops',
         currentSummary: 'The review tool is live, FUB source drift is clear, and v1 source-lineage/company-agent rules are locked. The Lee FUBZahnd middleware repo is now captured as evidence for opportunity re-entry and LeadDate / LeadClaimedDate semantics.',
+        packageParts: [
+          {
+            sourceId: 'SRC-FUB-001',
+            statusKey: 'connected',
+            statusLabel: 'Level 6',
+            body: 'FUB is readable, v1 source-lineage rules are locked, drift is visible, and invalid-source cleanup routes through Ops instead of blocking source sign-off.',
+            role: 'FUB source contract',
+            next: 'Keep deeper opportunity semantics and stage-table proof in Sales Hub follow-on work.',
+          },
+        ],
         next: 'No v1 taxonomy closeout remains. Ops Hub owns invalid-source and missing-link cleanup findings.',
         later: 'Deepen Sales Hub opportunity semantics, live stage-table proof, broader issue routing, and agent coaching support.',
         backlogIds: [],
@@ -6453,6 +6470,16 @@ function renderCurrentState() {
         statusLabel: 'Ready for current reality',
         levelLabel: 'Level 2 - meaning signed off',
         currentSummary: 'Weekly Actuals, Cashflow Dash, finance roll-ups, budgets, and the Unspent helper are signed off for current-reality meaning. QuickBooks is optional compliance verification, not a current rebuild dependency.',
+        packageParts: [
+          {
+            sourceId: 'SRC-FINANCE-001',
+            statusKey: 'connected',
+            statusLabel: 'Level 2',
+            body: 'Finance current-reality meaning is signed off across Weekly Actuals, Cashflow Dash, roll-ups, budgets, and the Unspent helper.',
+            role: 'Finance source contract',
+            next: 'Add freshness/payment reconciliation only when finance becomes a continuous automation reader.',
+          },
+        ],
         next: 'No source-signoff rediscovery work remains here.',
         later: 'Define Level 3 freshness, payment reconciliation, and automation rules only when finance automation starts reading this continuously.',
         backlogIds: ['FOUNDATION-003'],
@@ -6465,6 +6492,16 @@ function renderCurrentState() {
         statusLabel: 'Ready for read rules',
         levelLabel: 'Level 2 - read rules locked',
         currentSummary: 'SRC-SUPABASE-001 is readable, the Lee / zahnd-team-dashboard repo and Supabase audit checkpoint are captured, and AI OS has locked first-pass read rules for pipeline, Shopping List, executed deals, goals, competition, and usage.',
+        packageParts: [
+          {
+            sourceId: 'SRC-SUPABASE-001',
+            statusKey: 'connected',
+            statusLabel: 'Level 2',
+            body: 'KPI Supabase is readable and first-pass read rules are locked for pipeline, Shopping List, executed deals, goals, competition, and usage.',
+            role: 'KPI source contract',
+            next: 'Add visible freshness, schema/code drift review, and Sales Hub health checks before continuous dependency.',
+          },
+        ],
         next: 'No current-state source-signoff work remains.',
         later: 'Add KPI health checks, visible freshness, schema/code drift review, and future Sales Hub surfaces.',
         backlogIds: [],
