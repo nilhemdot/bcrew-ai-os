@@ -4473,90 +4473,6 @@ function renderOverviewStatusPanel(items, options) {
   return panel
 }
 
-function renderFoundationSystemMapPanel(items) {
-  var panel = document.createElement('section')
-  panel.className = 'panel foundation-system-map-panel'
-
-  var header = document.createElement('div')
-  header.className = 'panel-header'
-
-  var left = document.createElement('div')
-  var eyebrow = document.createElement('div')
-  eyebrow.className = 'eyebrow'
-  eyebrow.textContent = 'System Map'
-  left.appendChild(eyebrow)
-
-  var title = document.createElement('h3')
-  title.textContent = 'What Foundation Systems Exist'
-  left.appendChild(title)
-
-  var intro = document.createElement('p')
-  intro.className = 'section-intro'
-  intro.textContent = 'This is the simple map. Runtime Health is only for job/debug detail; this panel shows the major systems, maturity level, current use, and missing piece.'
-  left.appendChild(intro)
-
-  header.appendChild(left)
-  panel.appendChild(header)
-
-  var grid = document.createElement('div')
-  grid.className = 'foundation-system-map-grid'
-
-  ;(items || []).forEach(function(item) {
-    var card = document.createElement('article')
-    card.className = 'foundation-system-card foundation-system-card-' + item.statusKey
-
-    var top = document.createElement('div')
-    top.className = 'foundation-system-card-top'
-    top.appendChild(renderCurrentStateStatus(item.statusKey, item.stateLabel || item.level))
-
-    var titleWrap = document.createElement('div')
-    titleWrap.className = 'foundation-system-card-title-wrap'
-    var cardTitle = document.createElement('h4')
-    cardTitle.textContent = item.title
-    titleWrap.appendChild(cardTitle)
-    var cardMeta = document.createElement('div')
-    cardMeta.className = 'foundation-system-card-meta'
-    cardMeta.textContent = item.level
-    titleWrap.appendChild(cardMeta)
-    top.appendChild(titleWrap)
-    card.appendChild(top)
-
-    var state = document.createElement('div')
-    state.className = 'foundation-system-card-state'
-    state.textContent = item.stateLabel
-    card.appendChild(state)
-
-    var useFor = document.createElement('p')
-    useFor.className = 'foundation-system-card-copy'
-    var useForLabel = document.createElement('strong')
-    useForLabel.textContent = 'Use now:'
-    useFor.appendChild(useForLabel)
-    useFor.appendChild(document.createTextNode(' ' + (item.useFor || '')))
-    card.appendChild(useFor)
-
-    var missing = document.createElement('p')
-    missing.className = 'foundation-system-card-copy foundation-system-card-missing'
-    var missingLabel = document.createElement('strong')
-    missingLabel.textContent = 'Missing:'
-    missing.appendChild(missingLabel)
-    missing.appendChild(document.createTextNode(' ' + (item.missing || '')))
-    card.appendChild(missing)
-
-    if (item.href) {
-      var link = document.createElement('a')
-      link.className = 'secondary-button foundation-system-card-link'
-      link.href = item.href
-      link.textContent = item.cta || 'Open'
-      card.appendChild(link)
-    }
-
-    grid.appendChild(card)
-  })
-
-  panel.appendChild(grid)
-  return panel
-}
-
 function renderRecentChangesPanel(items, options) {
   if (!items || !items.length) return null
 
@@ -6314,89 +6230,6 @@ function renderCurrentState() {
 
     container.appendChild(renderFoundationExecutionOrderPanel(currentPath))
 
-    container.appendChild(renderFoundationSystemMapPanel([
-      {
-        title: 'Source Truth Layer',
-        statusKey: 'connected',
-        stateLabel: 'Readable / signed-off by surface',
-        level: 'Level 2-3',
-        useFor: 'Knowing which source owns which truth and whether a source package is safe for current work.',
-        missing: 'Universal freshness and drift rules for every source.',
-        href: '/foundation#source-overview',
-        cta: 'Open Sources',
-      },
-      {
-        title: 'Runtime Jobs',
-        statusKey: 'connected',
-        stateLabel: 'Scheduled and ledgered',
-        level: 'Level 3',
-        useFor: 'Seeing whether scheduled captures, extractors, verifiers, and Ops routines are running.',
-        missing: 'SYSTEM-010 kill/decommission/dead-man controls.',
-        href: '/foundation#system-health',
-        cta: 'Open Runtime',
-      },
-      {
-        title: 'Meeting Intelligence',
-        statusKey: 'pending',
-        stateLabel: 'Owner-usable now',
-        level: 'Level 5',
-        useFor: 'Steve strategy work, decision mining, meeting follow-through, and transcript-backed evidence from Google Meet notes/transcripts.',
-        missing: 'Subject-person redaction for future agent/team queries and rich meeting video/recording understanding.',
-        href: '/foundation#current-state-surface-meeting-notes-transcript-intelligence',
-        cta: 'Open Row',
-      },
-      {
-        title: 'Shared Communications',
-        statusKey: 'pending',
-        stateLabel: 'Captured and mined',
-        level: 'Level 5',
-        useFor: 'Gmail, Missive, Slack, meetings, and Zoom text/audio history as source-backed candidates for strategy, ops, sales, and follow-through.',
-        missing: 'Cross-source synthesis hardening, retrieval, privacy filtering, and Action Router handoff.',
-        href: '/doc?path=docs/source-notes/shared-communications.md',
-        cta: 'Open Note',
-      },
-      {
-        title: 'Owners / Ops Review',
-        statusKey: 'connected',
-        stateLabel: 'Findings routed',
-        level: 'Level 6',
-        useFor: 'Admin deal review, Conditional cleanup, FUB source drift, Agent Roster feedback, and Ops cleanup queues.',
-        missing: 'Approval-gated apply/writeback and resolution awareness.',
-        href: '/ops',
-        cta: 'Open Ops',
-      },
-      {
-        title: 'Drive / Corpus Extraction',
-        statusKey: 'pending',
-        stateLabel: 'First text slice live',
-        level: 'Level 4',
-        useFor: 'Drive Docs, PDFs, text files, Gmail PDF/text attachments, and first strategy-folder evidence extraction.',
-        missing: 'Sheets, Slides, Office conversion, shortcuts, OCR, audio, and video files.',
-        href: '/doc?path=docs/source-notes/google-drive-corpus.md',
-        cta: 'Open Drive Note',
-      },
-      {
-        title: 'Video / GOD-Mode Extractor',
-        statusKey: 'pending',
-        stateLabel: 'Transcript slice only',
-        level: 'Level 4',
-        useFor: 'YouTube subtitle transcripts from the video manifest, including Steve-priority videos.',
-        missing: 'Watching screens, screenshots/keyframes, Loom, Skool, Mycro, Drive videos, Zoom recordings, OCR, and browser navigation.',
-        href: '/doc?path=docs/source-notes/video-link-inventory.md',
-        cta: 'Open Video Note',
-      },
-      {
-        title: 'Action Loop',
-        statusKey: 'planned',
-        stateLabel: 'Not built',
-        level: 'Level 6-8 gap',
-        useFor: 'Nothing autonomous yet; today it is still human-reviewed intelligence.',
-        missing: 'Action Router, approval-gated writeback, and resolution feedback so stale findings stop reappearing.',
-        href: '/foundation#backlog:ACTION-ROUTER-001',
-        cta: 'Open Backlog',
-      },
-    ]))
-
     var surfacesPanel = document.createElement('section')
     surfacesPanel.className = 'panel'
     var surfacesHeader = document.createElement('div')
@@ -6404,30 +6237,29 @@ function renderCurrentState() {
     var surfacesLeft = document.createElement('div')
     var surfacesEyebrow = document.createElement('div')
     surfacesEyebrow.className = 'eyebrow'
-    surfacesEyebrow.textContent = 'Foundation Areas'
+    surfacesEyebrow.textContent = 'Foundation Systems'
     surfacesLeft.appendChild(surfacesEyebrow)
     var surfacesTitle = document.createElement('h3')
-    surfacesTitle.textContent = 'Maturity Map'
+    surfacesTitle.textContent = 'System Maturity'
     surfacesLeft.appendChild(surfacesTitle)
     var surfacesIntro = document.createElement('p')
     surfacesIntro.className = 'section-intro'
-    surfacesIntro.textContent = 'This is not the live backlog. It shows each Foundation area, the maturity level it has reached, what can be trusted now, and what must happen before the next level.'
+    surfacesIntro.textContent = 'This is the one system-status view. It shows each Foundation system or source package, its proven level, what can be trusted now, and what must happen before the next level. Runtime Health is the job/debug page; Backlog is the build queue.'
     surfacesLeft.appendChild(surfacesIntro)
     surfacesHeader.appendChild(surfacesLeft)
     surfacesPanel.appendChild(surfacesHeader)
 
-    var levelGuideHeader = document.createElement('div')
-    levelGuideHeader.className = 'current-state-level-guide-header'
-    var levelGuideEyebrow = document.createElement('div')
-    levelGuideEyebrow.className = 'eyebrow'
-    levelGuideEyebrow.textContent = 'Maturity Key'
-    levelGuideHeader.appendChild(levelGuideEyebrow)
+    var levelGuide = document.createElement('details')
+    levelGuide.className = 'current-state-level-guide'
+    var levelGuideSummary = document.createElement('summary')
+    levelGuideSummary.textContent = 'Show maturity level key'
+    levelGuide.appendChild(levelGuideSummary)
     var levelGuideIntro = document.createElement('p')
     levelGuideIntro.className = 'section-intro'
     levelGuideIntro.textContent = 'The level shown on each row is the highest capability proven for that area. Human-led strategy can use Level 2 with caveats; always-on read hubs should depend on Level 3; operational inboxes need Level 6; AIOS source changes need Level 7; true Foundation closure is Level 8.'
-    levelGuideHeader.appendChild(levelGuideIntro)
-    surfacesPanel.appendChild(levelGuideHeader)
-    surfacesPanel.appendChild(renderCurrentStateLevelGuide(currentPath))
+    levelGuide.appendChild(levelGuideIntro)
+    levelGuide.appendChild(renderCurrentStateLevelGuide(currentPath))
+    surfacesPanel.appendChild(levelGuide)
 
     var legend = document.createElement('div')
     legend.className = 'current-state-legend'
