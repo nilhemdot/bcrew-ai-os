@@ -243,10 +243,22 @@ function renderOpsSystemPill(job, queueStats) {
 }
 
 function renderOpsSystemSummaryCard(job) {
+  var labels = {
+    'admin-deal-review-readonly': 'Admin re-checks',
+    'admin-deal-backlog-review': 'Admin backlog scan',
+    'conditional-deal-review-readonly': 'Conditional forecast sync',
+    'agent-roster-review': 'Agent onboarding check',
+  }
+  var summaries = {
+    'admin-deal-review-readonly': 'Re-checks Admin deals after someone marks them ready for review.',
+    'admin-deal-backlog-review': 'Checks 5 older eligible Admin deals per day so the backlog clears without flooding Ops.',
+    'conditional-deal-review-readonly': 'Keeps the conditional forecast sheet rebuilt from the ClickUp deal board.',
+    'agent-roster-review': 'Checks the Agent Roster and tracks 30/60/90 onboarding feedback.',
+  }
   return renderStatusCard({
-    label: job.title || job.key,
+    label: labels[job.key] || job.title || job.key,
     status: job.status === 'live' ? 'live' : (job.status || 'pending'),
-    detail: (job.systemSummary || job.description || 'No summary recorded.') + ' Open Running Systems for run state and boundaries.',
+    detail: summaries[job.key] || job.description || 'Running in the background for Ops.',
   })
 }
 
@@ -401,47 +413,6 @@ function renderOpsIssueSection(queueStats, key, config, maxItems) {
   return wrap
 }
 
-function renderOpsModeNote(queueStats) {
-  var note = document.createElement('div')
-  note.className = 'ops-mode-note'
-  var rows = [
-    {
-      label: 'Admin review',
-      text: 'One full check covers the Owners deal row, FUB parity, ClickUp follow-through, Internal Agent Onboarding, Internal Agent Deal, Client NPS, and Client Review.',
-    },
-    {
-      label: 'Re-review lane',
-      text: 'Rows marked Review This Deal are checked first. Current marked Admin re-review count: ' + queueStats.sections.admin.queuedReview + '.',
-    },
-    {
-      label: 'Backlog lane',
-      text: 'Five mature Admin deals are inspected each day, newest to older, using Date Firm (Executed), the 2025-06-01 merger cutoff, and a 10-day maturity gate.',
-    },
-    {
-      label: 'Conditional lane',
-      text: 'Conditional forecast comes from ClickUp. Mutual-release tasks are excluded, and column N can be marked Review This Conditional for a re-check.',
-    },
-    {
-      label: 'People lane',
-      text: 'Agent roster checks cover roster blockers and 30/60/90 onboarding feedback accountability.',
-    },
-    {
-      label: 'Writeback boundary',
-      text: 'Scheduled Admin writeback updates only AI status, action, and findings. Source-field fixes stay human-owned.',
-    },
-  ]
-  rows.forEach(function(row) {
-    var item = document.createElement('div')
-    item.className = 'ops-mode-note-row'
-    var label = document.createElement('strong')
-    label.textContent = row.label
-    item.appendChild(label)
-    item.appendChild(document.createTextNode(row.text))
-    note.appendChild(item)
-  })
-  return note
-}
-
 function renderOpsInboxFilters() {
   var filters = [
     { key: 'all', label: 'All' },
@@ -479,8 +450,8 @@ function renderOpsInboxPanel(queueStats, options) {
   var showItems = options && options.showItems
   var panel = renderPanel(
     'Ops Inbox',
-    'Operational Inspection Queue',
-    'These are source-backed review items surfaced for Ops. Foundation detects the issue; Ops fixes the source data or triggers a re-check.'
+    'Work Queue',
+    'Start here. These are the deals, conditional records, FUB items, and agent follow-ups that need Ops attention.'
   )
 
   var grid = document.createElement('div')
@@ -488,31 +459,29 @@ function renderOpsInboxPanel(queueStats, options) {
   grid.appendChild(renderStatusCard({
     label: 'Admin deal review',
     status: queueStats.sections.admin.openItems ? 'pending' : 'live',
-    detail: queueStats.sections.admin.openItems + ' Admin deals have open review findings or source-row cleanup work.',
+    detail: queueStats.sections.admin.openItems + ' Admin deals need cleanup before they can pass review.',
   }))
   grid.appendChild(renderStatusCard({
     label: 'Conditional forecast',
     status: queueStats.sections.conditional.openItems ? 'pending' : 'live',
-    detail: queueStats.sections.conditional.openItems + ' conditional/listing rows have missing forecast data.',
+    detail: queueStats.sections.conditional.openItems + ' conditional/listing records are missing forecast details.',
   }))
   grid.appendChild(renderStatusCard({
     label: 'FUB drift',
     status: queueStats.sections.fubDrift.openItems ? 'risk' : 'live',
-    detail: queueStats.sections.fubDrift.openItems + ' Follow Up Boss taxonomy or parity items are open.',
+    detail: queueStats.sections.fubDrift.openItems + ' Follow Up Boss source/rule issues are open.',
   }))
   grid.appendChild(renderStatusCard({
     label: 'Owners list drift',
     status: queueStats.sections.ownersGovernance.openItems ? 'risk' : 'live',
-    detail: queueStats.sections.ownersGovernance.openItems + ' Owners dropdown governance items are open.',
+    detail: queueStats.sections.ownersGovernance.openItems + ' Owners dropdown/list issues are open.',
   }))
   grid.appendChild(renderStatusCard({
     label: 'Agent onboarding',
     status: queueStats.sections.agentRoster.openItems ? 'pending' : 'live',
-    detail: queueStats.sections.agentRoster.openItems + ' roster/onboarding accountability items are open.',
+    detail: queueStats.sections.agentRoster.openItems + ' agent roster or onboarding follow-ups are open.',
   }))
   panel.appendChild(grid)
-
-  panel.appendChild(renderOpsModeNote(queueStats))
 
   if (showItems) {
     panel.appendChild(renderOpsInboxFilters())
@@ -551,9 +520,9 @@ function renderOpsSystemsPanel(jobs, queueStats, options) {
   var compact = options && options.compact
   var panel = renderPanel(
     'Running Systems',
-    'Systems Serving Ops',
+    compact ? 'Background Checks' : 'Systems Serving Ops',
     compact
-      ? 'These are the scheduled Foundation checks feeding the Ops inbox. Open Running Systems for run state and boundaries.'
+      ? 'These checks run in the background and keep the Ops inbox current.'
       : 'Open a system to see what it reads, what it checks, what it outputs, and where its work lands.'
   )
 
@@ -596,12 +565,12 @@ function renderHero(jobs, queueStats) {
 
   var meta = document.createElement('p')
   meta.className = 'hero-copy'
-  meta.textContent = jobs.length + ' running systems serving Ops · ' + queueStats.openItems + ' open inspection items'
+  meta.textContent = jobs.length + ' checks running · ' + queueStats.openItems + ' open Ops items'
   heroInner.appendChild(meta)
 
   var note = document.createElement('p')
   note.className = 'hero-copy'
-  note.textContent = 'Ops is the cockpit for operational work. Foundation remains the control plane that connects, verifies, runs checks, and records provenance.'
+  note.textContent = 'This is where Ops sees what needs cleanup. Foundation runs the checks in the background and keeps the audit trail.'
   heroInner.appendChild(note)
 
   hero.appendChild(heroInner)
