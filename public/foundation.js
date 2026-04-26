@@ -6135,7 +6135,6 @@ function renderCurrentState() {
     fetchDoc('docs/rebuild/current-state.md'),
     fetchFoundationHub(),
     fetchSheetStructureStatus().catch(function() { return null }),
-    fetchOwnersReviewQueue().catch(function() { return null }),
   ]).then(function(results) {
     var doc = results[0]
     var currentPath = 'docs/rebuild/current-state.md'
@@ -6173,96 +6172,6 @@ function renderCurrentState() {
     hero.appendChild(heroActions)
 
     container.appendChild(hero)
-
-    var closeoutItems = [
-      {
-        label: 'Closed',
-        title: 'Foundation pieces we can call closed for this rebuild pass',
-        statusKey: 'connected',
-        statusLabel: 'Closed',
-        detail: 'These are not future-proof forever. They are closed enough that they should not keep reopening the queue right now.',
-        rows: [
-          {
-            title: 'Strategy docs',
-            body: 'Canonical strategy narrative is signed off through `SRC-STRATEGY-001`.',
-            backlogIds: [],
-          },
-          {
-            title: 'System strategy',
-            body: 'Doctrine, runtime position, and agent-boundary direction are written down.',
-            backlogIds: [],
-          },
-          {
-            title: 'Rebuild visibility',
-            body: 'Current Plan, Current State, runtime map, and audit trail now live in this repo.',
-            backlogIds: [],
-          },
-          {
-            title: 'Verification baseline',
-            body: '`npm run foundation:verify` exists and is passing.',
-            backlogIds: [],
-          },
-          {
-            title: 'Owners Admin-tab meaning',
-            body: '`SRC-OWNERS-001` is signed off for meaning at Level 2.',
-            backlogIds: [],
-          },
-          {
-            title: 'Finance current-reality sign-off',
-            body: '`SRC-FINANCE-001` is signed off for current-reality meaning through Weekly Actuals and Cashflow Dash.',
-            backlogIds: ['FOUNDATION-003'],
-          },
-          {
-            title: 'Strategy input package',
-            body: 'Strategy docs, Freedom Community, BHAG, Agent Engine, and the strategy-used Owners slice are connected, verified, and understood for current-reality strategy use.',
-            backlogIds: ['FOUNDATION-001', 'SOURCE-014'],
-          },
-        ],
-      },
-      {
-        label: 'Partial',
-        title: 'Packages that are real but still not operationally closed',
-        statusKey: 'pending',
-        statusLabel: 'Partial',
-        detail: 'This is the actual closeout queue. Finish these before expanding the system again.',
-        rows: [
-          {
-            title: 'Shared freshness rules',
-            body: 'The first Owners/FUB freshness guardrails are live. Wider finance, KPI, connector, and corpus freshness rules still come later.',
-            backlogIds: ['DATA-020'],
-          },
-        ],
-      },
-      {
-        label: 'Not built yet',
-        title: 'Important work that should stay visible, but should not pretend to be closed',
-        statusKey: 'planned',
-        statusLabel: 'Not built yet',
-        detail: 'This is real future foundation work, not current closeout work.',
-        rows: [
-          {
-            title: 'Strategy hardening',
-            body: 'Freedom drift monitoring, source-backed value hardening, deeper decision provenance, and temporal truth still need the next hardening pass.',
-            backlogIds: ['DATA-001', 'DATA-003', 'ENGINE-001', 'MEMORY-005', 'DECISION-005'],
-          },
-          {
-            title: 'Wider source revalidation',
-            body: 'After Owners and KPI are stable, close the required rebuild-era sources by pillar instead of wiring random extras.',
-            backlogIds: ['SOURCE-001', 'SOURCE-002', 'SOURCE-003', 'SOURCE-004', 'SOURCE-005', 'SOURCE-006', 'SOURCE-009', 'SOURCE-010', 'SOURCE-011', 'SOURCE-016'],
-          },
-          {
-            title: 'Queue and hub ownership model',
-            body: 'The root queue still needs the future hub and scope model instead of temporary hardcoding.',
-            backlogIds: ['SYSTEM-006', 'SYSTEM-009'],
-          },
-          {
-            title: 'Runtime memory + first trusted loop',
-            body: 'OpenClaw native memory baseline and the first trusted Harlan loop are still later-stage work.',
-            backlogIds: ['MEMORY-002', 'SLICE-001'],
-          },
-        ],
-      },
-    ]
 
     var levelPanel = document.createElement('section')
     levelPanel.className = 'panel'
@@ -6485,8 +6394,33 @@ function renderCurrentState() {
     surfacesPanel.appendChild(renderCurrentStateSurfaceTable(surfaceRows, results[1]))
     container.appendChild(surfacesPanel)
 
-    var ownersQueuePanel = renderOwnersReviewQueuePanel(results[3])
-    if (ownersQueuePanel) container.appendChild(ownersQueuePanel)
+    var workPanel = document.createElement('section')
+    workPanel.className = 'panel'
+    var workHeader = document.createElement('div')
+    workHeader.className = 'panel-header'
+    var workLeft = document.createElement('div')
+    var workEyebrow = document.createElement('div')
+    workEyebrow.className = 'eyebrow'
+    workEyebrow.textContent = 'Operational Work'
+    workLeft.appendChild(workEyebrow)
+    var workTitle = document.createElement('h3')
+    workTitle.textContent = 'Live Inboxes Are Separate'
+    workLeft.appendChild(workTitle)
+    var workIntro = document.createElement('p')
+    workIntro.className = 'section-intro'
+    workIntro.textContent = 'Current State is for source status and closeout clarity. Live cleanup cards and build work belong in their own hubs.'
+    workLeft.appendChild(workIntro)
+    workHeader.appendChild(workLeft)
+    workPanel.appendChild(workHeader)
+
+    workPanel.appendChild(renderTable([
+      '| Inbox | Use it for | Open |',
+      '| --- | --- | --- |',
+      '| Ops Hub | Admin, Conditional, FUB drift, People, and re-review cleanup cards. | [Open Ops Hub](/ops) |',
+      '| Foundation Backlog | Scoped build work such as GOD-mode extraction, KPI health, action routing, and source hardening. | [Open Backlog](/foundation#backlog) |',
+      '| Data Sources | Source contracts, connection proof, status, and source notes. | [Open Data Sources](/foundation#source-overview) |',
+    ], currentPath))
+    container.appendChild(workPanel)
 
     var nextPanel = document.createElement('section')
     nextPanel.className = 'panel'
@@ -6498,32 +6432,25 @@ function renderCurrentState() {
     nextEyebrow.textContent = 'Next'
     nextLeft.appendChild(nextEyebrow)
     var nextTitle = document.createElement('h3')
-    nextTitle.textContent = 'Actual Execution Order'
+    nextTitle.textContent = 'Strategy-Ready Next Steps'
     nextLeft.appendChild(nextTitle)
     var nextIntro = document.createElement('p')
     nextIntro.className = 'section-intro'
-    nextIntro.textContent = 'This is the order to follow right now.'
+    nextIntro.textContent = 'This is the clean order to follow from here. Closed source packages stay closed unless new evidence proves otherwise.'
     nextLeft.appendChild(nextIntro)
     nextHeader.appendChild(nextLeft)
     nextPanel.appendChild(nextHeader)
 
     nextPanel.appendChild(renderTable([
-      '| Order | Surface | Why it is next |',
+      '| Order | Work | Why it is next |',
       '| --- | --- | --- |',
-      '| 1 | Owners package | This closes FUB parity, attribution lineage, enforcement, and the remaining strategy-used Owners slice. |',
-      '| 2 | Finance | This is the next source sign-off once Owners is stable enough to trust. |',
-      '| 3 | KPI health checks | This proves the live KPI reads stay fresh after the read rules are locked. |',
-      '| 4 | Required connectors by pillar | This prevents random connector sprawl and keeps marketing split by company, Steve, and MarketMasters. |',
-      '| 5 | Shared freshness rules | This tells the system how to show stale data once meaning is trusted. |',
+      '| 1 | Strategy pass | Use the extracted Drive, meeting, KPI/FUB, Owners, and finance evidence to shape strategic issues and priorities. |',
+      '| 2 | Capture strategy gaps | If a missing source blocks an answer, route it to the right backlog card instead of reopening closed source packages. |',
+      '| 3 | GOD-mode proof | Build the first visual video/web proof when strategy needs on-screen workflow evidence from Mycro, Loom, Drive, Zoom, Skool, or web apps. |',
+      '| 4 | KPI health checks | Add visible freshness and schema/code drift checks before Sales Hub depends on KPI continuously. |',
+      '| 5 | Action Router | Close the loop after synthesis produces decisions, tasks, contradictions, and approval-gated actions. |',
     ], currentPath))
     container.appendChild(nextPanel)
-
-    var closeoutBoard = renderCurrentStateCloseoutBoard(closeoutItems, results[1])
-    if (closeoutBoard) {
-      var closeoutHeader = closeoutBoard.querySelector('h3')
-      if (closeoutHeader) closeoutHeader.textContent = 'Closed, Partial, And Not Built Yet'
-      container.appendChild(closeoutBoard)
-    }
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
