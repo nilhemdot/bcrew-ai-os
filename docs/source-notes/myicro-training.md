@@ -78,6 +78,25 @@ Phase B steps:
 8. Store outputs as governed artifacts, not chat-only notes.
 9. Convert only the useful lessons into atoms/backlog/doc updates.
 
+## Browser Session Preflight
+
+Browser automation has to know which human/service identity it is acting as.
+
+The 2026-04-26 Drive access test showed the risk: the local browser profile was logged in as `steve.zahnd@bensoncrew.ca`, so it opened a document Steve could already see instead of showing the `ai@bensoncrew.ca` request-access flow. A governed web/app extractor cannot rely on "a browser is open" as proof of the right identity.
+
+Before the Mycro or any paid-app proof is considered real, AIOS needs to record:
+
+- intended actor account
+- browser profile/session used
+- visible logged-in account proof where available
+- source/app URL
+- access boundary and content-use class
+- whether login, request-access, or owner approval was required
+- screenshots or page text proving the state
+- any manual action Steve took outside the worker
+
+This belongs under `WEB-GODMODE-001` as a general browser-worker rule, not only under Mycro.
+
 ## Open Questions
 
 - What is the canonical spelling/URL for the app/source: Mycro, myICOR, or another brand name?

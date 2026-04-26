@@ -2372,6 +2372,7 @@ const strategyAdvisorDocPaths = [
   path.join(docsDir, 'rebuild', 'current-state.md'),
   path.join(docsDir, 'rebuild', 'intelligence-pipeline.md'),
   path.join(docsDir, 'source-notes', 'google-drive-corpus.md'),
+  path.join(docsDir, 'audits', '2026-04-26-scott-pre-strat-visual-review.md'),
   path.join(docsDir, 'source-notes', 'video-link-inventory.md'),
   path.join(docsDir, 'source-notes', 'myicro-training.md'),
   ...strategyDocs,

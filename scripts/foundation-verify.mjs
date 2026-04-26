@@ -903,7 +903,10 @@ async function main() {
     checks,
     serverSource.includes("app.post('/api/strategic-execution/advisor'") &&
       serverSource.includes('strategy_advisor_v1') &&
+      serverSource.includes('2026-04-26-scott-pre-strat-visual-review.md') &&
       serverSource.includes('callLlm') &&
+      foundationDbSource.includes('STRATEGY-007') &&
+      foundationDbSource.includes('fast/deep modes') &&
       includesAll(strategicExecutionUiSource, [
         'Strategy Advisor',
         'Strategy Review Board',
@@ -914,7 +917,7 @@ async function main() {
         'Proof gap:',
       ]),
     'Strategy Hub advisor and review board are wired',
-    'Strategic Execution can ask the routed LLM and review packet items by Attract / Grow / Retain',
+    'Strategic Execution can ask the routed LLM, include Scott visual pre-strat context, and review packet items by Attract / Grow / Retain',
   )
   ensure(
     checks,

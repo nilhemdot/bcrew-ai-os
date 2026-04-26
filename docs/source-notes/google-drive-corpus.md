@@ -130,10 +130,10 @@ Every unsupported file should receive an explicit skip reason through the extrac
 
 Proof on 2026-04-26:
 
-- Total Drive content artifacts archived so far: `34`.
-- Total extracted Drive text archived so far: `673,792` chars.
-- Artifact types: `21` `drive_document`, `12` `drive_pdf`, `1` `drive_text`.
-- Strategy-evidence Drive artifacts archived so far: `19` / `616,046` chars.
+- Total Drive content artifacts archived so far: `35`.
+- Total extracted Drive text archived so far: `679,888` chars.
+- Artifact types: `21` `drive_document`, `13` `drive_pdf`, `1` `drive_text`.
+- Strategy-evidence Drive artifacts archived so far: `20` / `622,142` chars.
 - Priority strategy-folder extracted artifacts include:
   - `KT Binder MAR 2026.pdf` - John strategy/mastermind binder, `142,435` chars
   - `Benson Crew 2026 Q1 Strategic Planning Agenda` - John Q1 agenda, `28,545` chars
@@ -155,6 +155,9 @@ John Q1 agenda link-following proof on 2026-04-26:
 - Link inventory found `13` Drive/Docs/Sheets links.
 - `10` linked files/folders were accessible and recorded into `source_crawl_items`.
 - `4` access gaps were recorded; `1` access-request email was sent from `ai@bensoncrew.ca` to `john@johnkitchens.coach`.
+- Steve manually requested access for the remaining linked strategy docs the system could not access.
+- Browser/Playwright-style native "Request access" is not proved for AIOS yet because the available local Chrome profile was logged in as `steve.zahnd@bensoncrew.ca`, not `ai@bensoncrew.ca`. Opening the inaccessible John doc in that browser showed Steve's owner/editor view instead of an `ai@` request-access screen.
+- Before claiming browser-based Drive access repair as automated, AIOS needs an approved `ai@` browser profile/session preflight: active account, allowed source, login state, request-access button detection, screenshot capture, and recorded result.
 - Accessible linked Google Docs were extracted into Drive artifacts before the refreshed Strategy Evidence Packet run.
 
 This proves Drive access was not the main blocker. The blocker was extractor implementation and per-file access/format handling. Docs/PDF/text/markdown and rough OCR are now live; Sheets, Slides, shortcut resolution, Office conversion, high-confidence handwriting/vision, and media remain separate file-type workers.
@@ -178,8 +181,9 @@ Quarterly workflow target:
 
 What is live now:
 
-- Strategy-folder inventory, Docs/PDF/text/markdown extraction, Q1 agenda link inventory, and rough scanned-PDF OCR fallback.
+- Strategy-folder inventory, Docs/PDF/text/markdown extraction, Q1 agenda link inventory, rough scanned-PDF OCR fallback, and a manual visual review for Scott's handwritten pre-strat PDF.
 - Source-backed artifacts for the John binder, John Q1 agenda and accessible linked docs, team pre-work, Q2 PDFs, Steve/Carson notes, Scott handwritten scan, Steve Q2 draft, and Q1 vision/core-values material.
+- Scott's handwritten pre-strat visual review is captured in `docs/audits/2026-04-26-scott-pre-strat-visual-review.md`; use that note over the raw OCR when asking about Scott's themes until vision-grade extraction is built.
 
 What is still needed before this becomes a high-value strategy engine:
 

@@ -81,6 +81,10 @@ Fix applied:
 | Mycro / myICOR logged-in app extraction is a separate source lane from public YouTube proof | `docs/source-notes/myicro-training.md` | `MYICRO-TRAINING-001`; proposed `SRC-MYICRO-001` after access proof | Captured |
 | The crawler may be code with a brain, a worker, or later an agent; the durable need is a governed GOD-mode tool that agents can call | `docs/source-notes/myicro-training.md`, `docs/rebuild/agent-architecture.md` | `WEB-GODMODE-001`, `AGENT-001`, `MULTIMODAL-EXTRACTOR-001` | Captured |
 | Multiple paid model/subscription seats are allowed if treated as named compliant capacity lanes, not blind account rotation | `memory/2026-04-26.md`, `docs/handoffs/2026-04-26-video-extraction-checkpoint.md` | `LLM-HUB-CAPACITY-001` | Captured |
+| Native Google Drive request-access through browser automation requires the browser to be logged in as the requesting account | `docs/source-notes/google-drive-corpus.md`, `docs/source-notes/myicro-training.md` | `WEB-GODMODE-001`, `CONNECTOR-CREDENTIAL-001` | Captured |
+| Steve manually requested access for remaining John-linked strategy docs after AIOS recorded access gaps | `docs/source-notes/google-drive-corpus.md`, `memory/2026-04-26.md` | `DRIVE-CONTENT-001` | Captured |
+| Scott's handwritten Q2 pre-strat needs visual review, not only OCR | `docs/audits/2026-04-26-scott-pre-strat-visual-review.md`, `docs/source-notes/google-drive-corpus.md` | `MULTIMODAL-EXTRACTOR-001`, `STRATEGY-004` | Captured |
+| Strategy Advisor bubble is useful but too small for tomorrow's working session; needs full-screen chat plus fast/deep modes | `docs/handoffs/2026-04-26-strategy-access-scott-hard-checkpoint.md` | `STRATEGY-007`, `LLM-HUB-CAPACITY-001` | Captured |
 
 ## Items That Still Need Real Work
 
@@ -95,6 +99,7 @@ These are not lost; they are tracked work:
 - `CONNECTOR-CREDENTIAL-001`: build preflight registry so future agents know whether keys exist before starting deep audits.
 - `WEB-GODMODE-001`: build the governed browser-capable worker/tool for authorized web apps, page navigation, screenshots, visual workflow detection, and source-backed artifact filing.
 - `MYICRO-TRAINING-001`: validate logged-in Mycro/myICOR paid-training extraction as the first app/course proof after the public YouTube visual proof.
+- `STRATEGY-007`: make the Strategy Advisor usable for a live strategy session with a full-screen chat surface, fast/deep modes, saved thread context, and visible evidence links.
 
 ## Process Fix
 
