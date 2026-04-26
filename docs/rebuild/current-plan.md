@@ -565,7 +565,7 @@ Build:
 - rich multimodal extractor contract for Zoom, Loom, YouTube, Skool, web pages, screenshots, transcripts, slides, and demos
 - normalized creator/source watchlist for YouTube, blogs, Skool, X, LinkedIn, newsletters, and websites
 - YouTube discovery and Gemini video-intelligence MVP after the retrieval spine is live
-- web/video crawler boundary for YouTube, Loom, Vimeo, Wistia, public web, and paid/community sources
+- web/video crawler boundary for YouTube, Loom, Vimeo, Wistia, public web, Mycro/myICOR-style paid training apps, and paid/community sources
 - video-link inventory lane: system discovers Loom/Drive/YouTube/Vimeo/Wistia/Zoom/Skool links from archives and authorized crawlers so Steve is not manually collecting URLs
 - video-content extraction lane: first YouTube subtitle transcript slice is live through DataForSEO and the shared video manifest, including manual Steve priority URLs such as the Mycro `The AI Team Setup Nobody Talks About` proof; richer visual review, no-subtitle videos, Loom, Drive videos, Zoom recordings, and Skool embeds stay under the multimodal contract
 - old-system report miner
@@ -601,6 +601,8 @@ Backlog/cards:
 - `PLATFORM-INTEL-001`
 - `HUB-INTEL-001`
 - `WEB-CRAWLER-001`
+- `WEB-GODMODE-001`
+- `MYICRO-TRAINING-001`
 
 Acceptance:
 
