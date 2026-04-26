@@ -471,6 +471,16 @@ Lee middleware proof:
 Reference:
 
 - [FUBZahnd middleware logic](fub-zahnd-middleware.md)
+- [FUB / KPI / Deal Data connection map](fub-kpi-deal-connection-map.md)
+
+Live connection proof on `2026-04-26`:
+
+- `53 / 53` FUB-linked Owners deal groups matched KPI `persons` by FUB `personid`
+- `53 / 53` matched KPI `deal_data` by `Deal #`
+- `37 / 53` had KPI appointment history
+- `8 / 53` had multiple KPI `persons` rows for the same FUB person, proving live multiple-opportunity / re-entry behavior
+- `6 / 53` had `leadclaimeddate`, proving claimed/recycled lead timing exists live
+- live `stages.leadstage = true` includes `Active Client`, `Conditional Deal`, and `Firm Deal`, so coaching must use date/episode context instead of naive current-stage labels
 
 Future coaching behavior should be:
 
