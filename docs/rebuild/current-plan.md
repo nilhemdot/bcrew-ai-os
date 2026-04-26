@@ -144,11 +144,22 @@ A feature is done only when it is:
 
 If Steve or a builder has to remember to run it from a terminal, it is still a prototype.
 
-## Active Build Order
+## Phase Gates And Backlog Traceability
+
+This section is not a second backlog.
+
+Priority resolves in this order:
+
+1. Foundation Overview gives the command order for what to work on next.
+2. The live Backlog owns task status, priority, lane, owner, and next action.
+3. This Rebuild Plan explains doctrine, phase gates, and the definition of done.
+
+If these disagree, fix the live Backlog and the active docs together instead of letting two work queues compete.
+If a builder chat drifts into lower-priority work, the assistant should name the drift, route the idea to backlog, or ask Steve to explicitly override the current command order.
 
 ### Immediate Foundation Closeout Checklist
 
-This checklist is the current anti-drift queue after the 2026-04-26 systems/source review. Treat it as backlog order, not a new plan.
+This checklist is the current phase-gate trace after the 2026-04-26 systems/source review. Treat it as a map to live backlog cards, not a standalone work queue.
 
 1. `SECURITY-003` — Close direct LLM/transcription spend bypasses.
    - `scripts/transcribe-zoom-audio-archive.mjs` is paused/fail-closed for non-dry-run use.

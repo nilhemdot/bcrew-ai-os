@@ -69,6 +69,7 @@ It supports the human leadership team. It does not replace it.
 7. Agents can support, analyze, and operationalize strategy, but they do not set or change strategy on their own.
 8. The system should meet people in their natural workflows before forcing them into a new surface.
 9. If the system says something is live, connected, or working, it should reflect real current state.
+10. Foundation priority is an operating guardrail. Overview gives the command order, live Backlog owns task truth, and Rebuild Plan explains doctrine/phase gates. If work drifts from that order, the system should say so and require an explicit override or backlog routing.
 
 ## Change Doctrine
 

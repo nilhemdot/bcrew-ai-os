@@ -95,17 +95,21 @@ Automation truth:
 
 ## Active Execution Order
 
-1. Finish Runtime MVP hardening.
-2. Harden the LLM router with Claude Code / Agent SDK subscription adapter and hub capacity lanes.
-3. Finish first extraction-control cursor/lease proof.
-4. Intelligence job ledger, atom schema, and retrieval spine.
-5. Retrieval/entity/synthesis hardening.
-6. Auth/tier/subject-person redaction and `SYSTEM-010` controls.
-7. Action Router v1.
-8. Source trust closures.
-9. Drive, Skool, video, creator-watchlist, and old-system mining.
-10. Strategy Hub.
-11. First useful agents.
+Use this priority model:
+
+1. Foundation Overview gives the command order for what to work on next.
+2. The live Backlog owns task status, priority, lane, owner, and next action.
+3. The Rebuild Plan explains doctrine, phase gates, and the definition of done.
+
+If these disagree, fix the live Backlog and active docs together instead of letting two work queues compete.
+
+Current command order:
+
+1. Keep source truth clean.
+2. Monitor capture and extraction.
+3. Harden missing corpus lanes.
+4. Add freshness and health checks.
+5. Close the action loop.
 
 ## Active Plan Docs
 

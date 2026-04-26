@@ -190,6 +190,7 @@ async function main() {
   const currentPlan = await readRepoFile('docs/rebuild/current-plan.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const systemStrategy = await readRepoFile('docs/system-strategy.md')
+  const agentsSource = await readRepoFile('AGENTS.md')
   const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const opsHtmlSource = await readRepoFile('public/ops.html')
@@ -260,11 +261,14 @@ async function main() {
         'daily Gmail attachment extraction',
         'daily YouTube subtitle transcript extraction',
       ]) &&
+      includesAll(currentPlan, ['Overview gives the command order', 'live Backlog owns task status', 'Rebuild Plan explains doctrine']) &&
+      includesAll(currentState, ['Overview gives the command order', 'live Backlog owns task status', 'Current command order']) &&
+      includesAll(agentsSource, ['Foundation priority as an operating guardrail', 'Overview is the command order', 'live Backlog is task truth']) &&
       foundationHtmlSource.includes('data-section="system-strategy">Doctrine</a>') &&
       foundationHtmlSource.includes('data-section="rebuild-plan">Rebuild Plan</a>') &&
       !foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#rebuild-plan"'),
     'system strategy and rebuild plan reflect current Foundation architecture',
-    'System Strategy names the Systems Layer, Rebuild Plan names Systems page / SOURCE-010 closeout / Ops Hub v1 / extraction slices, and nav treats Doctrine + Rebuild Plan as peer pages',
+    'System Strategy names the Systems Layer, Rebuild Plan names Systems page / SOURCE-010 closeout / Ops Hub v1 / extraction slices, priority hierarchy is documented, and nav treats Doctrine + Rebuild Plan as peer pages',
   )
   ensure(
     checks,

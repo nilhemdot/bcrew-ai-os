@@ -5855,7 +5855,7 @@ function renderFoundationExecutionOrderPanel(currentPath) {
   nextLeft.appendChild(nextTitle)
   var nextIntro = document.createElement('p')
   nextIntro.className = 'section-intro'
-  nextIntro.textContent = 'Start here when deciding what to work on next. Closed source packages stay closed unless new evidence proves drift.'
+  nextIntro.textContent = 'Start here when deciding what to work on next. This is the command order; the live Backlog is task truth, and the Rebuild Plan explains doctrine and phase gates.'
   nextLeft.appendChild(nextIntro)
   nextHeader.appendChild(nextLeft)
   nextPanel.appendChild(nextHeader)
@@ -6930,12 +6930,12 @@ function renderRebuildPlanBacklogPanel(hub) {
   left.appendChild(eyebrow)
 
   var title = document.createElement('h3')
-  title.textContent = 'Rebuild Plan ↔ Backlog'
+  title.textContent = 'Phase Gates ↔ Live Backlog'
   left.appendChild(title)
 
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'These backlog cards carry the rebuild. If the plan and cards disagree, fix the backlog.'
+  intro.textContent = 'This is traceability, not a second priority queue. Overview gives the command order; the live Backlog owns card status and next actions; the Rebuild Plan explains why the gates exist.'
   left.appendChild(intro)
 
   header.appendChild(left)

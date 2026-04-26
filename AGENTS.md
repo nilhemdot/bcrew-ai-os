@@ -253,6 +253,7 @@ Use these rules only for durable system work. Do not turn every conversation int
 - Do not treat old-system notes, chat claims, or historical audits as active truth until the useful part is promoted into a source contract, DB-backed backlog/decision, current doc, or verifier.
 - Capture lessons at the lowest durable layer that fits: daily memory for raw context, `MEMORY.md` for private long-term context, `AGENTS.md` for future operating rules, and docs/backlog/verifier for repo truth.
 - Before calling a Foundation section "done," check whether the review exposed a schema, provenance, source, privacy, or scheduling rule that should become a verifier check instead of another reminder.
+- Treat Foundation priority as an operating guardrail, not just UI. Overview is the command order, live Backlog is task truth, and Rebuild Plan is doctrine/phase gates. If Steve or an agent drifts into lower-priority work, name the drift, route it to backlog, or ask Steve to explicitly override the current order.
 
 ## Chat Archive Discipline
 
