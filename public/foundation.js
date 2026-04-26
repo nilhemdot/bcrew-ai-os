@@ -8477,6 +8477,121 @@ function renderSourceSystemsPanel(sourceContracts, options) {
   return panel
 }
 
+function renderGroupedSourceSystemCard(system, sourceContractMap, connectorMap) {
+  var article = document.createElement('article')
+  article.className = 'section-card source-card'
+
+  var titleWrap = document.createElement('div')
+  titleWrap.className = 'source-card-title-wrap'
+
+  var title = document.createElement('h4')
+  title.textContent = system.title || system.systemId || 'Grouped source system'
+  titleWrap.appendChild(title)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-id'
+  meta.textContent = system.systemId || 'Grouped system'
+  titleWrap.appendChild(meta)
+  article.appendChild(titleWrap)
+
+  var tags = document.createElement('div')
+  tags.className = 'source-card-tags'
+  tags.appendChild(renderSourceTag(system.status || 'Mapped system', 'planned'))
+  tags.appendChild(renderSourceTag(system.trustState || 'Cross-source map', 'neutral'))
+  article.appendChild(tags)
+
+  var copy = document.createElement('p')
+  copy.className = 'source-card-copy'
+  copy.textContent = system.purpose || ''
+  article.appendChild(copy)
+
+  var sourceIds = Array.isArray(system.sourceIds) ? system.sourceIds : []
+  var connectorIds = Array.isArray(system.connectorIds) ? system.connectorIds : []
+  var backlogIds = Array.isArray(system.backlogIds) ? system.backlogIds : []
+
+  var grid = document.createElement('div')
+  grid.className = 'source-card-meta-grid'
+  grid.appendChild(renderSourceMetaItem('Source contracts', String(sourceIds.length)))
+  grid.appendChild(renderSourceMetaItem('Connectors', String(connectorIds.length)))
+  grid.appendChild(renderSourceMetaItem('Backlog cards', String(backlogIds.length)))
+  if (system.trustState) grid.appendChild(renderSourceMetaItem('Boundary', system.trustState))
+  article.appendChild(grid)
+
+  var sourceNames = sourceIds.map(function(id) {
+    var contract = sourceContractMap[id]
+    return contract ? id + ' - ' + contract.title : id
+  })
+  if (sourceNames.length) {
+    article.appendChild(renderSourceBulletGroup('Connected source contracts', sourceNames))
+  }
+
+  var connectorNames = connectorIds.map(function(id) {
+    var connector = connectorMap[id]
+    return connector ? id + ' - ' + connector.title : id
+  })
+  if (connectorNames.length) {
+    article.appendChild(renderSourceBulletGroup('Connector layer', connectorNames))
+  }
+
+  if (Array.isArray(system.appliesTo) && system.appliesTo.length) {
+    article.appendChild(renderSourceBulletGroup('Applies to', system.appliesTo))
+  }
+
+  if (backlogIds.length) {
+    article.appendChild(renderSourceBulletGroup('Tracked work', backlogIds))
+  }
+
+  appendSourceActions(article, system.actions || [])
+  return article
+}
+
+function renderGroupedSourceSystemsPanel(groupedSystems, sourceContracts, sourceConnectors) {
+  var systems = Array.isArray(groupedSystems) ? groupedSystems : []
+  if (!systems.length) return null
+
+  var panel = document.createElement('section')
+  panel.className = 'panel source-zone-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Grouped Systems'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'What these sources power'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'These maps show the big operating systems that cross individual connectors. They explain what each bundle is for and which source contracts feed it.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var sourceContractMap = {}
+  ;(sourceContracts || []).forEach(function(contract) {
+    if (contract.sourceId) sourceContractMap[contract.sourceId] = contract
+  })
+
+  var connectorMap = {}
+  ;(sourceConnectors || []).forEach(function(connector) {
+    if (connector.connectorId) connectorMap[connector.connectorId] = connector
+  })
+
+  var board = document.createElement('div')
+  board.className = 'source-contract-stack'
+  systems.forEach(function(system) {
+    board.appendChild(renderGroupedSourceSystemCard(system, sourceContractMap, connectorMap))
+  })
+  panel.appendChild(board)
+  return panel
+}
+
 function renderSourceConnectorsPanel(sourceConnectors, options) {
   var opts = options || {}
   var connectorPanel = document.createElement('section')
@@ -9716,6 +9831,9 @@ function renderSourceRegistry(section) {
           intro: 'Signed off and fresh are not the same thing.',
         }
       ))
+
+      var groupedPanel = renderGroupedSourceSystemsPanel(data.groupedSystems || [], sourceContracts, sourceConnectors)
+      if (groupedPanel) container.appendChild(groupedPanel)
 
       container.appendChild(renderFoundationShortcutPanel(
         'Open The Right Source Surfaces',

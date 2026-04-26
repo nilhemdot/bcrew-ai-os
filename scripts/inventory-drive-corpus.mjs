@@ -135,6 +135,7 @@ function classifyDriveItem(file, selectedFolder) {
   if (name.includes('houseable') || name.includes('crm') || name.includes('software')) valueRoute = 'software_product_ip'
   if (selectedFolder.sensitivity === 'owners_private' || name.includes('private')) valueRoute = 'sensitive_skip'
   if (selectedFolder.sensitivity === 'steve_marketmasters') valueRoute = 'marketmasters_training'
+  if (selectedFolder.sensitivity === 'strategy_internal') valueRoute = 'strategy_evidence'
   if (selectedFolder.sensitivity === 'steve_owned_sensitive' && valueRoute === 'archive_only') valueRoute = 'unchained_monetization'
 
   return { valueRoute, extractionStatus, skipReason }

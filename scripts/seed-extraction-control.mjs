@@ -20,6 +20,7 @@ function parseArgs(argv) {
 }
 
 const driveCorpusRoots = [
+  { name: 'Strategy Folder - Quarterly Strategy and Team Prework', folderId: '1XsdsQ0Q0LKkbdZYipfZZEXC3__-8PbSF', sensitivity: 'strategy_internal' },
   { name: 'Zahnd TEAM OG Folder', folderId: '0AJ4EQ018BaWwUk9PVA', sensitivity: 'internal' },
   { name: 'Zahnd Team 2023+', folderId: '0AE5bQZviXUrhUk9PVA', sensitivity: 'internal' },
   { name: 'MarketMasters training folder', folderId: '0AJZun9Ce_rOnUk9PVA', sensitivity: 'steve_marketmasters' },
@@ -113,6 +114,38 @@ const extractionTargets = [
     dedupePolicy: { key: 'drive_file_id:modified_time', idempotent: true },
     metadata: { foundationJobKey: 'drive-corpus-inventory-bite', scheduleEveryMinutes: 1440, backlogIds: ['DRIVE-CORPUS-001', 'EXTRACTION-TEAM-001'], sourceNote: 'docs/source-notes/google-drive-corpus.md', promotionGate: 'read-only direct-child inventory proof before export/copy/extract', futureExtractionMission: { unit: 'file_outputs', maxPerDay: 5, requiresFiledOutput: true } },
     notes: 'Scheduled daily mission lane, not a blind timer: inventory one bounded Drive bite, then later promote to about five filed Drive extractions per day.',
+  },
+  {
+    targetKey: 'drive-content-extract-backfill',
+    sourceId: 'SRC-GDRIVE-001',
+    title: 'Google Drive Docs/PDF content extraction lane',
+    lane: 'backfill',
+    targetType: 'drive_file_content_text',
+    status: 'active',
+    priority: 'P0',
+    runtimeMode: 'scheduled',
+    cursorState: { cursorType: 'drive_inventory_content_queue', inventoryTargetKey: 'drive-corpus-backfill' },
+    budget: {
+      missionMode: 'daily_quota',
+      missionUnit: 'drive_text_outputs',
+      dailyMissionQuota: 5,
+      maxItemsPerRun: 5,
+      maxRuntimeSeconds: 3900,
+      maxTextChars: 250000,
+      maxPdfBytes: 80000000,
+      retrySkippedReasonPrefixes: ['pdf_too_large_for_v1'],
+      llmBudget: 'none_for_archive',
+      requiresFiledOutput: true,
+    },
+    dedupePolicy: { key: 'drive_file_id:modified_time:extraction_method', idempotent: true },
+    metadata: {
+      foundationJobKey: 'drive-content-extract-bite',
+      scheduleEveryMinutes: 1440,
+      backlogIds: ['DRIVE-CONTENT-001', 'EXTRACTION-TEAM-001'],
+      sourceNote: 'docs/source-notes/google-drive-corpus.md',
+      officialApiBasis: ['Drive files.export for Google Docs', 'Drive files.get alt=media for PDFs/text blobs'],
+    },
+    notes: 'Scheduled daily mission lane: extract a bounded quota of Google Docs/PDF/text content from the Drive inventory queue into source-backed artifacts. Unsupported files get explicit skip reasons.',
   },
   {
     targetKey: 'skool-corpus-backfill',

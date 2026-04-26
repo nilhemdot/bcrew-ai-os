@@ -60,7 +60,7 @@ import {
   resolveFubContext,
 } from './lib/fub.js'
 import { getDriveFileMetadata, getSheetValues } from './lib/google-delegated.js'
-import { getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
+import { getGroupedSourceSystems, getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
 import { writeAgentFeedbackToClickUp } from './lib/agent-feedback-clickup.js'
@@ -2894,6 +2894,7 @@ app.get('/api/source-of-truth', requireAdminToken, (_req, res) => {
   const sourceRegistry = readFileSafe(sourceRegistryPath)
   const sourceContracts = getSourceContracts()
   const sourceConnectors = getSourceConnectors()
+  const groupedSourceSystems = getGroupedSourceSystems()
   const signedOffSourceCount = sourceContracts.filter(source => source.validation === 'Signed Off').length
   const readableSourceCount = sourceContracts.filter(source =>
     source.validation === 'Readable Only' || source.status === 'Verified Readable'
@@ -2914,6 +2915,7 @@ app.get('/api/source-of-truth', requireAdminToken, (_req, res) => {
     },
     sources: sourceContracts,
     connectors: sourceConnectors,
+    groupedSystems: groupedSourceSystems,
     systemStatus: [
       {
         key: 'strategy-doc',

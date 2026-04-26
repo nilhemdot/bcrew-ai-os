@@ -435,6 +435,7 @@ async function main() {
       "key: 'missive-extract-latest'",
       "key: 'meeting-transcripts-extract-backlog'",
       "key: 'slack-extract-latest'",
+      "key: 'drive-content-extract-bite'",
       "runtimeMode: 'scheduled'",
       'scheduleEveryMinutes: 1440',
       "'--onlyWithoutCandidates=true'",
@@ -443,11 +444,33 @@ async function main() {
         "targetKey: 'meetings-current-day'",
         "targetKey: 'slack-current-day'",
         "targetKey: 'drive-corpus-backfill'",
+        "targetKey: 'drive-content-extract-backfill'",
         "runtimeMode: 'scheduled'",
         'scheduleEveryMinutes: 1440',
       ]),
     'core sources have scheduled current-day and daily history/mission lanes',
-    'meetings/slack current sync, Gmail/Missive/meeting/Slack extraction, and Drive inventory are scheduled with daily quotas',
+    'meetings/slack current sync, Gmail/Missive/meeting/Slack extraction, Drive inventory, and Drive content extraction are scheduled with daily quotas',
+  )
+  ensure(
+    checks,
+    includesAll(extractionTargetSource, [
+      "target.targetKey === 'drive-content-extract-backfill'",
+      '--maxPdfBytes=',
+      '--retrySkippedReasonPrefixes=',
+    ]) &&
+      includesAll(extractionControlSeedSource, [
+        "maxPdfBytes: 80000000",
+        "retrySkippedReasonPrefixes: ['pdf_too_large_for_v1']",
+      ]) &&
+      includesAll(foundationDbSource, [
+        'listDriveContentExtractionQueue',
+        'retrySkippedReasonPrefixes',
+        "drive_document",
+        "drive_pdf",
+        "drive_text",
+      ]),
+    'Drive content extraction target supports governed Docs/PDF/text retries',
+    'target runner passes content caps/retry prefixes and DB queue supports Drive document/PDF/text artifacts',
   )
   ensure(
     checks,
@@ -495,6 +518,7 @@ async function main() {
     : []
   const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
   const driveCorpusTarget = extractionTargets.find(target => target.targetKey === 'drive-corpus-backfill')
+  const driveContentTarget = extractionTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
 
   ensure(
     checks,
@@ -507,6 +531,17 @@ async function main() {
     Array.isArray(sourceOfTruth.connectors) && sourceOfTruth.connectors.length === sourceConnectors.length,
     'api/source-of-truth exposes the full connector set',
     `${Array.isArray(sourceOfTruth.connectors) ? sourceOfTruth.connectors.length : 'invalid'} live / ${sourceConnectors.length} code`,
+  )
+  ensure(
+    checks,
+    Array.isArray(sourceOfTruth.groupedSystems) &&
+      sourceOfTruth.groupedSystems.some(system => system.systemId === 'SYS-SALES-DATA-001') &&
+      sourceOfTruth.groupedSystems.some(system => system.systemId === 'SYS-CORPUS-INTEL-001') &&
+      foundationUiSource.includes('renderGroupedSourceSystemsPanel'),
+    'api/source-of-truth exposes grouped source systems for Foundation visibility',
+    Array.isArray(sourceOfTruth.groupedSystems)
+      ? `${sourceOfTruth.groupedSystems.length} grouped systems`
+      : 'missing grouped systems payload',
   )
 
   const liveOwnersContract = findSourceById(sourceOfTruth.sources, 'SRC-OWNERS-001')
@@ -697,6 +732,18 @@ async function main() {
     foundationHub.driveCorpusInventory?.summary
       ? `${foundationHub.driveCorpusInventory.summary.totalItems} items / ${foundationHub.driveCorpusInventory.valueRoutes?.length || 0} value routes`
       : 'missing Drive corpus inventory payload',
+  )
+  ensure(
+    checks,
+    driveContentTarget?.status === 'active' &&
+      driveContentTarget.runtimeMode === 'scheduled' &&
+      Number(driveContentTarget.budget?.maxPdfBytes || 0) >= 80000000 &&
+      Array.isArray(driveContentTarget.budget?.retrySkippedReasonPrefixes) &&
+      Number(driveContentTarget.cursorState?.artifactCount || 0) > 0,
+    'api/foundation-hub exposes scheduled Drive content extraction target',
+    driveContentTarget
+      ? `${driveContentTarget.status} / ${driveContentTarget.runtimeMode} / ${driveContentTarget.cursorState?.artifactCount || 0} Drive artifacts`
+      : 'missing Drive content extraction target',
   )
   ensure(
     checks,

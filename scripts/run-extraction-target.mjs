@@ -50,6 +50,15 @@ function numberFromBudget(target, key, fallback) {
   return Number.isFinite(value) && value > 0 ? value : fallback
 }
 
+function listFromBudget(target, key) {
+  const value = target?.budget?.[key]
+  if (Array.isArray(value)) return value.map(item => String(item || '').trim()).filter(Boolean)
+  return String(value || '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean)
+}
+
 function getTargetRunner(target) {
   const maxItemsPerRun = numberFromBudget(target, 'maxItemsPerRun', 25)
   const maxFoldersPerRun = numberFromBudget(target, 'maxFoldersPerRun', 1)
@@ -130,6 +139,33 @@ function getTargetRunner(target) {
       ],
       inspectedPattern: /Drive items inspected:\s*(\d+)/i,
       archivedPattern: /Drive files discovered:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
+      summaryPattern: /^EXTRACTION_TARGET_SUMMARY\s+(\{.+\})$/m,
+    }
+  }
+
+  if (target.targetKey === 'drive-content-extract-backfill') {
+    const maxTextChars = numberFromBudget(target, 'maxTextChars', 250000)
+    const maxPdfBytes = numberFromBudget(target, 'maxPdfBytes', 25 * 1024 * 1024)
+    const retrySkippedReasonPrefixes = listFromBudget(target, 'retrySkippedReasonPrefixes')
+    return {
+      command: 'npm',
+      args: [
+        'run',
+        'drive:extract-content',
+        '--',
+        `--target=${target.targetKey}`,
+        `--limit=${maxItemsPerRun}`,
+        `--maxTextChars=${maxTextChars}`,
+        `--maxPdfBytes=${maxPdfBytes}`,
+        ...(retrySkippedReasonPrefixes.length
+          ? [`--retrySkippedReasonPrefixes=${retrySkippedReasonPrefixes.join(',')}`]
+          : []),
+        '--controlledByTargetRunner=true',
+      ],
+      inspectedPattern: /Drive content files inspected:\s*(\d+)/i,
+      archivedPattern: /Drive content extracted:\s*(\d+)/i,
+      extractedPattern: /Drive content extracted:\s*(\d+)/i,
       itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
       summaryPattern: /^EXTRACTION_TARGET_SUMMARY\s+(\{.+\})$/m,
     }
@@ -345,6 +381,12 @@ async function main() {
     const archivedDelta = Number.isFinite(Number(runnerSummary?.archived))
       ? Number(runnerSummary.archived)
       : Math.max(Number(afterStats.artifacts || 0) - Number(beforeStats.artifacts || 0), 0)
+    const extractedParsed = Number.isFinite(Number(runnerSummary?.extracted))
+      ? Number(runnerSummary.extracted)
+      : runner.extractedPattern
+        ? parseFirstInteger(runner.extractedPattern, outcome.outputTail)
+        : null
+    const extractedDelta = Number.isFinite(Number(extractedParsed)) ? Number(extractedParsed) : 0
     const inspectedDelta = inspectedParsed == null ? archivedDelta : inspectedParsed
 
     await finishSourceCrawlTargetRun(
@@ -357,6 +399,7 @@ async function main() {
         lastError: effectiveError,
         inspectedDelta,
         archivedDelta,
+        extractedDelta,
         cursorState: {
           artifactCount: afterStats.artifacts,
           latestArtifactUpdatedAt: afterStats.latestArtifactUpdatedAt,
@@ -372,6 +415,7 @@ async function main() {
           parsed: {
             inspected: inspectedParsed,
             archivedThisRun: archivedParsed,
+            extractedThisRun: extractedParsed,
             itemFailures: itemFailuresParsed,
             nextRunAt: getNextRunAt(leasedTarget, outcome.finishedAt),
           },
