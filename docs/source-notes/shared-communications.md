@@ -123,6 +123,7 @@ What already exists now:
   - permalink reads
 - current repo now has the first governed archive slice for shared communications:
   - Gmail thread artifacts archived in PostgreSQL
+  - Gmail PDF/text attachment artifacts archived in PostgreSQL through `email-attachments-backfill`
   - Missive thread artifacts archived in PostgreSQL
   - Slack thread artifacts archived in PostgreSQL
   - meeting-note artifacts archived in PostgreSQL
@@ -132,7 +133,15 @@ What already exists now:
   - transcript-gap reporting for organizers and recurring series, so forward-looking transcript failures can be found explicitly instead of guessed from missing summaries
   - a Crewbert Drive mirror path that can copy and organize archived meeting notes / transcripts without changing source-file ACLs yet
   - governed candidate extraction now live for meeting transcripts, Gmail threads, Missive threads, and Slack threads with Foundation context
+  - governed Gmail attachment extraction now live for PDFs and text-like blobs, with images, audio, video, Office, slides, spreadsheets, and calendar invites marked by explicit skip reasons instead of silently disappearing
 - old repo still holds additional Missive search patterns worth borrowing
+
+Current attachment boundary:
+
+- Gmail attachment extraction v1 uses the Gmail `users.messages.attachments.get` path.
+- The durable dedupe key is `mailbox:message_id:part_id:filename:size`, not Gmail's raw `attachmentId`, because the attachment ID can vary between reads.
+- V1 archives only PDF/text-like attachments. It stores extracted text as `gmail_attachment` artifacts and records skipped unsupported files in `source_crawl_items`.
+- Missive attachments are still a follow-on proof. Missive thread bodies and internal comments are archived, but attachment download/extraction must be validated against live object shape before it is treated as built.
 
 Best implementation path:
 

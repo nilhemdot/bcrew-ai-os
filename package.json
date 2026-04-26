@@ -46,6 +46,7 @@
     "zoom:extract-audio-candidates": "node --env-file-if-exists=.env scripts/extract-zoom-audio-transcript-candidates.mjs",
     "zoom:transcribe-audio": "node --env-file-if-exists=.env scripts/transcribe-zoom-audio-archive.mjs",
     "gmail:extract-candidates": "node --env-file-if-exists=.env scripts/extract-gmail-thread-candidates.mjs",
+    "email:extract-attachments": "node --env-file-if-exists=.env scripts/extract-email-attachments.mjs",
     "gmail:sync-archive": "node --env-file-if-exists=.env scripts/sync-gmail-archive.mjs",
     "missive:extract-candidates": "node --env-file-if-exists=.env scripts/extract-missive-thread-candidates.mjs",
     "missive:sync-archive": "node --env-file-if-exists=.env scripts/sync-missive-archive.mjs",

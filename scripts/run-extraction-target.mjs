@@ -171,6 +171,32 @@ function getTargetRunner(target) {
     }
   }
 
+  if (target.targetKey === 'email-attachments-backfill') {
+    const maxAttachmentBytes = numberFromBudget(target, 'maxAttachmentBytes', 25 * 1024 * 1024)
+    const maxTextChars = numberFromBudget(target, 'maxTextChars', 250000)
+    const query = String(target.cursorState?.query || 'has:attachment newer_than:30d')
+    return {
+      command: 'npm',
+      args: [
+        'run',
+        'email:extract-attachments',
+        '--',
+        `--target=${target.targetKey}`,
+        '--team=true',
+        `--limit=${maxItemsPerRun}`,
+        `--query=${query}`,
+        `--maxAttachmentBytes=${maxAttachmentBytes}`,
+        `--maxTextChars=${maxTextChars}`,
+        '--controlledByTargetRunner=true',
+      ],
+      inspectedPattern: /Email attachments inspected:\s*(\d+)/i,
+      archivedPattern: /Email attachments extracted:\s*(\d+)/i,
+      extractedPattern: /Email attachments extracted:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
+      summaryPattern: /^EXTRACTION_TARGET_SUMMARY\s+(\{.+\})$/m,
+    }
+  }
+
   if (target.targetKey === 'video-link-inventory') {
     const maxArtifactsPerRun = numberFromBudget(target, 'maxArtifactsPerRun', maxItemsPerRun)
     return {

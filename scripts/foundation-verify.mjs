@@ -436,6 +436,7 @@ async function main() {
       "key: 'meeting-transcripts-extract-backlog'",
       "key: 'slack-extract-latest'",
       "key: 'drive-content-extract-bite'",
+      "key: 'email-attachment-extract-bite'",
       "runtimeMode: 'scheduled'",
       'scheduleEveryMinutes: 1440',
       "'--onlyWithoutCandidates=true'",
@@ -445,11 +446,12 @@ async function main() {
         "targetKey: 'slack-current-day'",
         "targetKey: 'drive-corpus-backfill'",
         "targetKey: 'drive-content-extract-backfill'",
+        "targetKey: 'email-attachments-backfill'",
         "runtimeMode: 'scheduled'",
         'scheduleEveryMinutes: 1440',
       ]),
     'core sources have scheduled current-day and daily history/mission lanes',
-    'meetings/slack current sync, Gmail/Missive/meeting/Slack extraction, Drive inventory, and Drive content extraction are scheduled with daily quotas',
+    'meetings/slack current sync, Gmail/Missive/meeting/Slack extraction, Drive inventory/content, and Gmail attachment extraction are scheduled with daily quotas',
   )
   ensure(
     checks,
@@ -471,6 +473,25 @@ async function main() {
       ]),
     'Drive content extraction target supports governed Docs/PDF/text retries',
     'target runner passes content caps/retry prefixes and DB queue supports Drive document/PDF/text artifacts',
+  )
+  ensure(
+    checks,
+    includesAll(extractionTargetSource, [
+      "target.targetKey === 'email-attachments-backfill'",
+      '--maxAttachmentBytes=',
+      '--maxTextChars=',
+    ]) &&
+      includesAll(extractionControlSeedSource, [
+        "targetKey: 'email-attachments-backfill'",
+        "maxAttachmentBytes: 80000000",
+        "missionUnit: 'email_attachment_text_outputs'",
+      ]) &&
+      includesAll(foundationDbSource, [
+        'getSourceCrawlItemsByExternalId',
+        "gmail_attachment",
+      ]),
+    'Gmail attachment extraction target is governed and source-ledgered',
+    'target runner passes attachment/text caps and DB artifacts/crawl items include gmail_attachment support',
   )
   ensure(
     checks,
