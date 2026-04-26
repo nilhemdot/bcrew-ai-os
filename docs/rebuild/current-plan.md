@@ -30,6 +30,8 @@ Reason for v6:
 
 ## Locked Doctrine
 
+Locked doctrine means current operating default, not permanent dogma. If research from operators, paid training, YouTube/creator intelligence, Mycro/myICOR, customer evidence, or better system proof shows a better way, update the plan through the Foundation change path: capture the evidence, confirm the owner decision, update docs/backlog/source notes, and add or adjust verifier checks.
+
 - Mac Mini stays the primary machine for this phase.
 - Foundation-first stays the build order.
 - OpenClaw stays the current Harlan channel/runtime adapter and possible later live-agent adapter, not the whole OS.

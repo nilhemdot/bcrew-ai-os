@@ -82,6 +82,8 @@ Meaningful changes should be traceable and visibly reviewable: what changed, why
 Approvals should follow role and ownership boundaries, not default back to one person.
 Conflicting decisions should be surfaced and cleaned up, not allowed to silently coexist.
 
+Doctrine and the rebuild plan are governed, not frozen. Research from operators, paid training, YouTube/creator intelligence, Mycro/myICOR, customer evidence, or better system proof can change the plan when the new evidence is useful and Steve or the right owner confirms the update. When that happens, update the doctrine, rebuild plan, backlog, decisions, source notes, and verifier checks together instead of treating the old plan as permanent.
+
 ## Agent Doctrine
 
 Agents support strategy. They do not define it.

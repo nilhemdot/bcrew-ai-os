@@ -189,6 +189,7 @@ async function main() {
   const docsReadmeSource = await readRepoFile('docs/README.md')
   const currentPlan = await readRepoFile('docs/rebuild/current-plan.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
+  const systemStrategy = await readRepoFile('docs/system-strategy.md')
   const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const opsHtmlSource = await readRepoFile('public/ops.html')
@@ -247,6 +248,23 @@ async function main() {
     includesAll(currentState, ['Unspent -L3M + Actual Helper', 'IMPORTRANGE', 'SRC-OWNERS-LISTS-001']),
     'docs/rebuild/current-state.md reflects helper and mirror source boundaries',
     'current state explains finance helper coverage and Owners Lists mirror boundary',
+  )
+  ensure(
+    checks,
+    includesAll(systemStrategy, ['Systems Layer', 'operating bundles', 'source contracts', 'runtime jobs', 'Doctrine and the rebuild plan are governed, not frozen']) &&
+      includesAll(currentPlan, [
+        'Locked doctrine means current operating default, not permanent dogma',
+        'Foundation Systems page: 12 major operating systems',
+        'KPI/Supabase read rules are closed for `SOURCE-010`',
+        'Ops Hub v1',
+        'daily Gmail attachment extraction',
+        'daily YouTube subtitle transcript extraction',
+      ]) &&
+      foundationHtmlSource.includes('data-section="system-strategy">Doctrine</a>') &&
+      foundationHtmlSource.includes('data-section="rebuild-plan">Rebuild Plan</a>') &&
+      !foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#rebuild-plan"'),
+    'system strategy and rebuild plan reflect current Foundation architecture',
+    'System Strategy names the Systems Layer, Rebuild Plan names Systems page / SOURCE-010 closeout / Ops Hub v1 / extraction slices, and nav treats Doctrine + Rebuild Plan as peer pages',
   )
   ensure(
     checks,
