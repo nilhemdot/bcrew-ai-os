@@ -344,6 +344,60 @@ function summarizeOpsItem(entry) {
   return lines.join('\n')
 }
 
+function getOpsItemTitle(item) {
+  return item.title || item.id || 'Review item'
+}
+
+function getOpsLaneBullets(item, lane) {
+  var bullets = []
+  parseOpsFindings(item.findingsPreview || '').forEach(function(block) {
+    ;(block.bullets || []).forEach(function(bullet) {
+      if (getFindingLane(bullet, block.label).indexOf(lane) !== -1) bullets.push(bullet)
+    })
+  })
+  return bullets
+}
+
+function findOpsLaneEntries(queueStats, lane) {
+  return flattenOpsQueueItems(queueStats).filter(function(entry) {
+    var item = entry.item || {}
+    return getOpsIssueLanes(item).indexOf(lane) !== -1 || getOpsLaneBullets(item, lane).length > 0
+  })
+}
+
+function formatOpsLaneEntry(entry, queueStats, lane, includeLink) {
+  var item = entry.item || {}
+  var bullets = getOpsLaneBullets(item, lane)
+  var lines = []
+  lines.push(getOpsItemTitle(item) + (item.subtitle ? ' - ' + item.subtitle : ''))
+  if (bullets.length) lines.push('Cleanup: ' + bullets.slice(0, 2).join(' | '))
+  if (includeLink) {
+    var href = getQueueItemHref(queueStats, item) || item.feedbackUrl || ''
+    if (href) lines.push('Open source row: ' + href)
+  }
+  return lines.join('\n')
+}
+
+function buildOpsLaneCleanupReply(queueStats, lane, label, emptyText, includeLink, oneOnly) {
+  var entries = findOpsLaneEntries(queueStats, lane)
+  if (!entries.length) return emptyText
+  var shown = oneOnly ? entries.slice(0, 1) : entries.slice(0, 5)
+  var lines = [
+    oneOnly
+      ? 'Use this ' + label + ' cleanup card:'
+      : label + ' cleanup cards open right now:',
+    '',
+  ]
+  shown.forEach(function(entry) {
+    lines.push(formatOpsLaneEntry(entry, queueStats, lane, includeLink))
+    lines.push('')
+  })
+  if (!oneOnly && entries.length > shown.length) {
+    lines.push((entries.length - shown.length) + ' more ' + label + ' item' + (entries.length - shown.length === 1 ? '' : 's') + ' are open.')
+  }
+  return lines.join('\n').trim()
+}
+
 function findOpsQueueMatches(queueStats, question) {
   var normalized = String(question || '').toLowerCase()
   var tokens = normalized.match(/t#?\d+|[a-z0-9][a-z0-9'-]{2,}/g) || []
@@ -369,23 +423,9 @@ function buildOpsHelperReply(question, queueStats) {
   var text = String(question || '').trim()
   var lower = text.toLowerCase()
   var matches = findOpsQueueMatches(queueStats, text)
-
-  if (matches.length && /t#?\d+|row|deal|card|why|clear|fix|flag|issue|this/i.test(text)) {
-    return matches.map(summarizeOpsItem).join('\n\n')
-  }
-
-  if ((lower.indexOf('clear') !== -1 || lower.indexOf('fix') !== -1) && lower.indexOf('deal') !== -1) {
-    return [
-      'To clear an Admin deal card:',
-      '',
-      '1. Open the source row from the card.',
-      '2. Fix the Owners, FUB, or ClickUp fields listed in the findings.',
-      '3. If an internal review, NPS, or Google review is not applicable, use the correct status/reason instead of leaving it blank.',
-      '4. Mark the Admin row Review This Deal so AIOS re-checks it.',
-      '',
-      'If the card still appears after re-check, the source data still has an open issue.',
-    ].join('\n')
-  }
+  var asksForLink = lower.indexOf('link') !== -1 || lower.indexOf('open') !== -1
+  var asksForOne = asksForLink || lower.indexOf('one') !== -1 || lower.indexOf('single') !== -1
+  var asksWhich = lower.indexOf('which') !== -1 || lower.indexOf('what card') !== -1 || lower.indexOf('what cards') !== -1 || lower.indexOf('needs') !== -1 || lower.indexOf('cleanup') !== -1 || lower.indexOf('clean up') !== -1
 
   if (lower.indexOf('skip') !== -1 || lower.indexOf('not eligible') !== -1 || lower.indexOf('blocked') !== -1) {
     return [
@@ -404,6 +444,16 @@ function buildOpsHelperReply(question, queueStats) {
   }
 
   if (lower.indexOf('nps') !== -1) {
+    if (asksWhich || asksForLink) {
+      return buildOpsLaneCleanupReply(
+        queueStats,
+        'clientNps',
+        'Client NPS',
+        'No Client NPS cleanup cards are open right now.',
+        asksForLink,
+        asksForOne
+      )
+    }
     return [
       'Client NPS clears when NPS Status is Requested, Completed, or Not Eligible.',
       '',
@@ -424,6 +474,16 @@ function buildOpsHelperReply(question, queueStats) {
   }
 
   if (lower.indexOf('internal') !== -1 || lower.indexOf('onboarding') !== -1) {
+    if (asksWhich || asksForLink) {
+      return buildOpsLaneCleanupReply(
+        queueStats,
+        'internalReview',
+        'Internal review',
+        'No Internal review cleanup cards are open right now.',
+        asksForLink,
+        asksForOne
+      )
+    }
     return [
       'Internal reviews are team-feedback checks, separate from client NPS and Google reviews.',
       '',
@@ -434,6 +494,16 @@ function buildOpsHelperReply(question, queueStats) {
   }
 
   if (lower.indexOf('google') !== -1 || lower.indexOf('review status') !== -1 || lower.indexOf('client review') !== -1) {
+    if (asksWhich || asksForLink) {
+      return buildOpsLaneCleanupReply(
+        queueStats,
+        'googleReview',
+        'Google review',
+        'No Google Review cleanup cards are open right now.',
+        asksForLink,
+        asksForOne
+      )
+    }
     return [
       'Google Review clears when Review Status is Requested, Captured, or Not Eligible.',
       '',
@@ -450,6 +520,23 @@ function buildOpsHelperReply(question, queueStats) {
       'Buyer/seller conditional tags determine the row. Mutual-release/dead deals are excluded.',
       '',
       'Fix missing forecast fields in ClickUp/source data, then mark column N as Review This Conditional for a re-check.',
+    ].join('\n')
+  }
+
+  if (matches.length && /t#?\d+|row|deal|card|why|clear|fix|flag|issue|this/i.test(text)) {
+    return matches.map(summarizeOpsItem).join('\n\n')
+  }
+
+  if ((lower.indexOf('clear') !== -1 || lower.indexOf('fix') !== -1) && lower.indexOf('deal') !== -1) {
+    return [
+      'To clear an Admin deal card:',
+      '',
+      '1. Open the source row from the card.',
+      '2. Fix the Owners, FUB, or ClickUp fields listed in the findings.',
+      '3. If an internal review, NPS, or Google review is not applicable, use the correct status/reason instead of leaving it blank.',
+      '4. Mark the Admin row Review This Deal so AIOS re-checks it.',
+      '',
+      'If the card still appears after re-check, the source data still has an open issue.',
     ].join('\n')
   }
 
@@ -521,7 +608,19 @@ function buildOpsHelperPanel() {
     bubble.className = 'ops-helper-message ops-helper-message-' + role
     String(text || '').split('\n').forEach(function(line, index) {
       if (index) bubble.appendChild(document.createElement('br'))
-      bubble.appendChild(document.createTextNode(line))
+      var parts = line.split(/(https?:\/\/[^\s]+)/g)
+      parts.forEach(function(part) {
+        if (/^https?:\/\//.test(part)) {
+          var link = document.createElement('a')
+          link.href = part
+          link.target = '_blank'
+          link.rel = 'noopener noreferrer'
+          link.textContent = part
+          bubble.appendChild(link)
+        } else {
+          bubble.appendChild(document.createTextNode(part))
+        }
+      })
     })
     messages.appendChild(bubble)
     messages.scrollTop = messages.scrollHeight
@@ -534,6 +633,7 @@ function buildOpsHelperPanel() {
   ;[
     'How do I clear a deal card?',
     'When do I use Skipped?',
+    'Which cards need NPS?',
     'What clears NPS?',
     'What clears Google review?',
   ].forEach(function(label) {

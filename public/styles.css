@@ -832,6 +832,13 @@ body {
   color: #fff;
 }
 
+.ops-helper-message a {
+  color: inherit;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+}
+
 .ops-helper-quick {
   display: flex;
   flex-wrap: wrap;
