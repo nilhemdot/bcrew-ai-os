@@ -39,14 +39,17 @@ The new job is:
 Already true:
 
 - browser access works
-- the correct repo has been audited
+- the correct Lee-provided repo, `/Users/bensoncrew/.inspection/zahnd-team-dashboard`, has been audited
 - core tables are updating live
 - key company RPCs respond
+- AI OS has locked the core read model for the first KPI jobs
 
-Still open:
+Audit basis:
 
-- AI OS has not yet locked one clean read model for each KPI job
-- KPI runs on multiple truth layers, not one single table
+- prior 2026-04-20 deep pass over the live Supabase database and KPI app
+- local review of the actual React/Supabase code Lee provided
+- review of Supabase generated types, migrations, table reads, and RPC definitions
+- 2026-04-26 recheck of actual `.from(...)` and `.rpc(...)` usage before closing `SOURCE-010`
 
 ## Foundation Scope Now
 
@@ -78,6 +81,28 @@ Critical foundation reads:
   - target math and pace math
 - `users_activity`
   - app engagement only, not proof of good data hygiene
+
+## AI OS Core Read Rules
+
+Locked on `2026-04-26` from the `zahnd-team-dashboard` code, Supabase types, migrations, and the prior live database audit.
+
+| AI OS job | Read from | Do not substitute | Notes |
+| --- | --- | --- | --- |
+| Identity / roster joins | `profiles` + `users` | profile email alone | `profiles` owns app users and roles. `users` owns the FUB-style numeric `userid` bridge used by pipeline/activity tables. |
+| Pipeline / CRM lead flow | `persons` + `appointments` + activity tables | `leads` | Use this for lead-inbox, stage, appointment, consult, signed-client, source, call/text/email/task, and pipeline hygiene reads. |
+| Shopping List / active-opportunity hygiene | `leads` | `persons` | The table name is misleading. In founder meaning this is the coached Shopping List / active client-opportunity layer, including score, action plan, signed flag, estimated value, and stale-list checks. |
+| Executed deals / finance | `deal_data` | `leads` executed fields | Use `deal_data` for executed-deal count, volume credit, commission credit, GCI, agent/company portions, deposit/close timing, and company financial leaderboard reads. |
+| Goals / target pacing | `goals`, `company_goals`, `expansion_goals` | static markdown target math | Use personal goals for agent target math, company goals for leadership/company pacing, and expansion goals only when expansion-planning logic is explicit. |
+| Company dashboard pacing | `get_company_dashboard_stats` RPC + underlying `persons`, `appointments`, `deal_data` | ad hoc table blends | This RPC intentionally combines pipeline-adjusted lead/consult/signed-client windows with executed-deal finance math. |
+| Company pipeline / appointments | `get_company_leads`, `get_company_appointments` RPCs | Shopping List rows | These are company-wide CRM/pipeline reads backed by `persons`, `appointments`, `users`, and `profiles`. |
+| Competition / MQY | leaderboard tables + `get_team_mqy_build_metrics`, `get_team_mqy_perform_metrics` RPCs | company financial leaderboard alone | Builder and performer competitions use dedicated RPCs and challenge/team/member tables. |
+| Usage / adoption | `users_activity`, `admin_user_activity_reports` | Shopping List update proof | App activity proves login/visibility/usage, not whether an agent maintained the Shopping List correctly. |
+
+Boundary rule:
+
+- `leads` and `deal_data` both contain execution-ish fields, but they are not the same truth layer.
+- AI OS should use `deal_data` for executed-deal and finance truth unless a job explicitly says it is auditing Shopping List execution fields.
+- AI OS should use `leads` for Shopping List quality and stale active-opportunity management.
 
 ## Not Foundation Yet
 
@@ -579,16 +604,15 @@ Once the top 20 reads are signed off, AI OS should be able to answer:
 - FUB / KPI cross-checks
 - HomeOptima / KPI cross-checks
 
-## `SOURCE-010` Closeout Goal
+## `SOURCE-010` Closeout
 
-`SOURCE-010` is no longer about deciding whether KPI exists.
+`SOURCE-010` is no longer about deciding whether KPI exists. It is closed for the current read-rule layer:
 
-It is about:
+1. truth-layer boundaries are locked
+2. first AI OS job reads are mapped to the correct tables/RPCs
+3. Shopping List meaning, quality checks, and usage-vs-maintenance boundaries are documented
 
-1. locking these truth-layer boundaries
-2. defining which AI OS jobs read which layer
-3. locking Shopping List meaning, quality checks, and usage-vs-maintenance boundaries
-4. adding health checks so drift is visible
+The remaining work is not SOURCE-010. It belongs to `KPI-HEALTH-001`: add health checks, freshness indicators, and repeatable Lee repo / Supabase schema drift review before broader Sales Hub automation depends on KPI continuously.
 
 Audit checkpoint:
 

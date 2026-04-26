@@ -159,8 +159,8 @@ var foundationNowSequence = [
     cta: 'Open Finance Source',
   },
   {
-    title: 'Lock KPI read rules',
-    body: 'Use SOURCE-010 to split KPI into explicit pipeline, shopping-list, executed-deal, goal, competition, and usage read rules.',
+    title: 'KPI read rules are locked',
+    body: 'SOURCE-010 is closed for first-pass KPI read discipline: pipeline, shopping list, executed deals, goals, competition, and usage each have a named truth layer.',
     href: '/foundation#source-overview',
     cta: 'Open Data Sources',
   },
@@ -6227,11 +6227,6 @@ function renderCurrentState() {
         detail: 'This is the actual closeout queue. Finish these before expanding the system again.',
         rows: [
           {
-            title: 'KPI read model',
-            body: 'KPI is live and readable. The open work is locking which truth layer AI OS should read for each job.',
-            backlogIds: ['SOURCE-010'],
-          },
-          {
             title: 'Shared freshness rules',
             body: 'The first Owners/FUB freshness guardrails are live. Wider finance, KPI, connector, and corpus freshness rules still come later.',
             backlogIds: ['DATA-020'],
@@ -6467,12 +6462,13 @@ function renderCurrentState() {
       {
         title: 'KPI foundation system',
         surfaceType: 'Data source',
-        statusKey: 'pending',
-        statusLabel: 'Open',
-        currentSummary: 'SRC-SUPABASE-001 is readable now. KPI is live, but AI OS has not yet locked which truth layer to read for each KPI job.',
-        next: 'Use SOURCE-010 to split pipeline, shopping-list, executed-deal, goal, competition, and usage read rules.',
-        later: 'Then add health checks, visible freshness, and future sales-hub extensions.',
-        backlogIds: ['SOURCE-010'],
+        sourceId: 'SRC-SUPABASE-001',
+        statusKey: 'connected',
+        statusLabel: 'Done for read rules',
+        currentSummary: 'SRC-SUPABASE-001 is readable, the Lee / zahnd-team-dashboard repo and Supabase audit checkpoint are captured, and AI OS has locked first-pass read rules for pipeline, Shopping List, executed deals, goals, competition, and usage.',
+        next: 'No current-state source-signoff work remains for SOURCE-010.',
+        later: 'Add KPI health checks, visible freshness, schema/code drift review, and future Sales Hub surfaces through KPI-HEALTH-001.',
+        backlogIds: ['KPI-HEALTH-001'],
       },
       {
         title: 'Shared freshness rules',
@@ -6516,7 +6512,7 @@ function renderCurrentState() {
       '| --- | --- | --- |',
       '| 1 | Owners package | This closes FUB parity, attribution lineage, enforcement, and the remaining strategy-used Owners slice. |',
       '| 2 | Finance | This is the next source sign-off once Owners is stable enough to trust. |',
-      '| 3 | KPI read rules | This locks how AI OS reads the live KPI foundation system without mixing truth layers by accident. |',
+      '| 3 | KPI health checks | This proves the live KPI reads stay fresh after the read rules are locked. |',
       '| 4 | Required connectors by pillar | This prevents random connector sprawl and keeps marketing split by company, Steve, and MarketMasters. |',
       '| 5 | Shared freshness rules | This tells the system how to show stale data once meaning is trusted. |',
     ], currentPath))
