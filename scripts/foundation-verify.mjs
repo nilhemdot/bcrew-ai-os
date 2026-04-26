@@ -685,6 +685,31 @@ async function main() {
       ? `${foundationHub.dbConstraintAudit.registeredSourceIds} source IDs / ${foundationHub.dbConstraintAudit.invalidSourceReferenceCount} invalid source refs`
       : 'missing DB constraint audit payload',
   )
+  const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
+    ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
+  )
+  ensure(
+    checks,
+    legacyQuestions.length === 5 &&
+      legacyQuestions.every(item => item.status === 'resolved') &&
+      includesAll(foundationUiSource, [
+        'function renderFoundationOperationsPurposePanel',
+        'Backlog Page Job',
+        'Decision Page Job',
+        'Question Page Job',
+        'Activity Page Job',
+        'Runtime Health Page Job',
+      ]) &&
+      includesAll(currentState, [
+        'Foundation Operations Surfaces',
+        'Working as a manual first slice',
+        'old stale carry-forward questions were resolved',
+        'SYSTEM-007',
+        'SYSTEM-008',
+      ]),
+    'Foundation Operations pages state their purpose and stale questions are cleared',
+    legacyQuestions.map(item => `${item.id}=${item.status}`).join(' / '),
+  )
   const opsServedJobs = (foundationHub.foundationJobs?.jobs || []).filter(job =>
     Array.isArray(job.servesHubs) && job.servesHubs.includes('ops')
   )

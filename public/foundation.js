@@ -4515,6 +4515,133 @@ function renderRecentChangesPanel(items, options) {
   return panel
 }
 
+function renderFoundationOperationsPurposePanel(surfaceKey, hub) {
+  var backlogCount = (hub.backlogItems || []).length
+  var decisions = hub.decisions || []
+  var questions = hub.openQuestions || []
+  var openQuestionCount = questions.filter(function(item) { return item.status !== 'resolved' }).length
+  var resolvedQuestionCount = questions.filter(function(item) { return item.status === 'resolved' }).length
+  var foundationJobs = hub.foundationJobs || {}
+  var extractionControl = hub.extractionControl || {}
+
+  var configs = {
+    backlog: {
+      title: 'Backlog Page Job',
+      intro: 'This page earns its place as the root Foundation build queue. It is task truth, not a strategy doc and not an Ops inbox.',
+      items: [
+        {
+          label: 'Purpose',
+          status: 'connected',
+          detail: 'Track scoped work, priority, lane, owner, and next action. If future build work matters, it belongs here or in a governed hub queue.',
+        },
+        {
+          label: 'Backed by',
+          status: 'connected',
+          detail: backlogCount + ' live Postgres backlog rows with admin-gated create/update APIs and seed/live drift checks.',
+        },
+        {
+          label: 'Boundary',
+          status: 'pending',
+          detail: 'This is the root Foundation queue. SYSTEM-006 owns the future split between root records and hub-local execution queues.',
+        },
+      ],
+    },
+    decisions: {
+      title: 'Decision Page Job',
+      intro: 'This page earns its place as the canonical governance ledger, but it is still a manual first slice.',
+      items: [
+        {
+          label: 'Purpose',
+          status: 'connected',
+          detail: 'Record system, rebuild, source, execution, people, and promoted strategy agreements with provenance.',
+        },
+        {
+          label: 'Backed by',
+          status: 'connected',
+          detail: decisions.length + ' live decision records, ' + ((hub.pendingDocUpdates || []).length) + ' pending doc updates, and ' + ((hub.decisionReview && hub.decisionReview.total) || 0) + ' current review flags.',
+        },
+        {
+          label: 'Not automatic yet',
+          status: 'pending',
+          detail: 'It does not yet auto-import every meeting/chat decision. DECISION-007 reconciles old decision lists; ACTION-ROUTER-001 routes future synthesis into this ledger.',
+        },
+      ],
+    },
+    'open-questions': {
+      title: 'Question Page Job',
+      intro: 'This page only earns its place as an exception queue for real unresolved Foundation blockers. It should not become a second backlog.',
+      items: [
+        {
+          label: 'Purpose',
+          status: openQuestionCount ? 'pending' : 'connected',
+          detail: 'Hold questions that block source truth, a decision, or a routed action when the answer is genuinely unknown.',
+        },
+        {
+          label: 'Backed by',
+          status: 'connected',
+          detail: openQuestionCount + ' open and ' + resolvedQuestionCount + ' resolved Postgres question records with admin-gated create/update APIs.',
+        },
+        {
+          label: 'Current rule',
+          status: 'connected',
+          detail: 'Old carry-forward questions were resolved or routed to backlog/source docs. New questions should be rare, owner-bound, and cleared quickly.',
+        },
+      ],
+    },
+    'system-activity': {
+      title: 'Activity Page Job',
+      intro: 'This page earns its place as the short audit feed for what the trust layer just changed.',
+      items: [
+        {
+          label: 'Purpose',
+          status: 'connected',
+          detail: 'Show the latest change events for operator review and debugging without turning the page into a giant firehose.',
+        },
+        {
+          label: 'Backed by',
+          status: 'connected',
+          detail: ((hub.recentChanges || []).length) + ' newest events from the DB change-event log are visible here.',
+        },
+        {
+          label: 'Not enough yet',
+          status: 'pending',
+          detail: 'This is not the full searchable audit explorer. SYSTEM-007 owns search, filters, date range, and deeper metadata inspection.',
+        },
+      ],
+    },
+    'system-health': {
+      title: 'Runtime Health Page Job',
+      intro: 'This page earns its place as the operator diagnostic surface for the running system.',
+      items: [
+        {
+          label: 'Purpose',
+          status: 'connected',
+          detail: 'Inspect jobs, schedules, extraction targets, LLM routes, source queues, and low-level runtime state.',
+        },
+        {
+          label: 'Backed by',
+          status: 'connected',
+          detail: ((foundationJobs.jobs || []).length) + ' jobs, ' + ((extractionControl.targets || []).length) + ' extraction targets, and ' + ((hub.memoryStatus || []).length) + ' trust-layer components.',
+        },
+        {
+          label: 'Not alerting yet',
+          status: 'pending',
+          detail: 'This is live diagnostics, not a full alert/degradation model. SYSTEM-008 owns thresholds, warnings, and deeper health semantics.',
+        },
+      ],
+    },
+  }
+
+  var config = configs[surfaceKey]
+  if (!config) return null
+
+  return renderOverviewStatusPanel(config.items, {
+    eyebrow: 'Page Purpose',
+    title: config.title,
+    intro: config.intro,
+  })
+}
+
 function getStrategyChangeContext(hub, docPath) {
   var targetPaths = docPath ? [docPath] : strategyPacketDocPaths.slice()
   var targetPathSet = new Set(targetPaths)
@@ -7050,6 +7177,9 @@ function renderBacklog() {
     }
     container.appendChild(hero)
 
+    var purposePanel = renderFoundationOperationsPurposePanel('backlog', hub)
+    if (purposePanel) container.appendChild(purposePanel)
+
     container.appendChild(renderOperatorToolsDrawer(
       'Operator Tools',
       'Write access and backlog editing live here when you need them. The queue itself stays front and center.',
@@ -7235,6 +7365,9 @@ function renderDecisions() {
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
+
+    var purposePanel = renderFoundationOperationsPurposePanel('decisions', hub)
+    if (purposePanel) container.appendChild(purposePanel)
 
     container.appendChild(renderOperatorToolsDrawer(
       'Operator Tools',
@@ -7547,11 +7680,14 @@ function renderOpenQuestions() {
 
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'Only real unresolved Foundation questions belong here. Legacy carry-forward questions should be reviewed, resolved, merged, or promoted into backlog so this page does not become a junk drawer.'
+    heroNote.textContent = 'Only real unresolved Foundation blockers belong here. If the work is already scoped, it belongs in Backlog. If the answer is known, close the question.'
     heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
+
+    var purposePanel = renderFoundationOperationsPurposePanel('open-questions', hub)
+    if (purposePanel) container.appendChild(purposePanel)
 
     container.appendChild(renderOperatorToolsDrawer(
       'Operator Tools',
@@ -10338,6 +10474,9 @@ function renderDataHealth() {
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
+    var purposePanel = renderFoundationOperationsPurposePanel('system-health', hub)
+    if (purposePanel) container.appendChild(purposePanel)
+
     var jobsPanel = renderFoundationJobsPanel(hub.foundationJobs)
     if (jobsPanel) container.appendChild(jobsPanel)
 
@@ -10405,6 +10544,9 @@ function renderSystemActivity() {
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
+
+    var purposePanel = renderFoundationOperationsPurposePanel('system-activity', hub)
+    if (purposePanel) container.appendChild(purposePanel)
 
     var changesPanel = renderRecentChangesPanel(hub.recentChanges || [], {
       eyebrow: 'Internal Feed',

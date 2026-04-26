@@ -1,6 +1,6 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-04-25
+Last updated: 2026-04-26
 Status: Active
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
@@ -110,6 +110,18 @@ Current command order:
 3. Harden missing corpus lanes.
 4. Add freshness and health checks.
 5. Close the action loop.
+
+## Foundation Operations Surfaces
+
+These pages are operator surfaces, not strategy pages.
+
+| Page | Why it exists | Current truth |
+| --- | --- | --- |
+| Backlog | Root Foundation build queue. | Live and primary for task status, priority, lane, owner, and next action. |
+| Decisions | Canonical governance ledger. | Working as a manual first slice; not yet automatic meeting/chat decision capture. `DECISION-007` owns old-decision reconciliation and `ACTION-ROUTER-001` owns future routing from synthesis. |
+| Open Questions | Exception queue for real unresolved blockers. | Technically working, but the old stale carry-forward questions were resolved or routed into backlog/source docs on 2026-04-26. New questions should be rare, owner-bound, and cleared quickly. |
+| System Activity | Short audit feed. | Live latest-event view from `change_events`; `SYSTEM-007` owns the future searchable explorer. |
+| Runtime Health | Operator diagnostic surface. | Live job/LLM/extraction/source-crawl view; `SYSTEM-008` owns deeper alert/degradation semantics. |
 
 ## Active Plan Docs
 
