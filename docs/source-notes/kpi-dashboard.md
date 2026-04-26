@@ -460,6 +460,18 @@ Current safe read:
 - use `leadclaimeddate` / `leaddate` for what the KPI app is literally counting today
 - do not assume current-stage labels alone explain the metric
 
+Lee middleware proof:
+
+- the `FUBZahnd` repo confirms these date fields were written upstream from FUB stage/owner transitions
+- `LeadDate` is set when the person enters `Lead` or any stage marked `LeadStage = true`
+- `LeadClaimedDate` is set when a record moves from the old unclaimed/pond owner ID (`22`) to a non-`22` user
+- if a non-lead active row re-enters a lead stage, the old row is made inactive and a new active opportunity row is created for the same FUB person
+- therefore KPI lead counts can represent agent-claimed recycled opportunities, not only brand-new humans
+
+Reference:
+
+- [FUBZahnd middleware logic](fub-zahnd-middleware.md)
+
 Future coaching behavior should be:
 
 - flag likely fake leads

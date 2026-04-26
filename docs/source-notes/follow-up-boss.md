@@ -265,6 +265,14 @@ Important business rule:
 - that is not the same thing as a brand-new human appearing for the first time
 - future AI coaching must preserve that distinction
 
+Lee middleware proof:
+
+- `SOURCE-021` now has the `Lee-InvIT/FUBZahnd` repo as direct implementation evidence.
+- The old database model confirms the distinction between raw FUB `PersonID` and the internal active opportunity row (`PID` / `PersonUid`).
+- If an active record exists in a non-lead stage and the current FUB stage comes in as a lead stage, the middleware deactivates the old row and creates a new active opportunity row for the same FUB person.
+- This is the exact rule that lets a supporter, past client, or old non-lead become a new opportunity later without pretending they are a brand-new human.
+- See [FUBZahnd middleware logic](fub-zahnd-middleware.md).
+
 Founder-confirmed active opportunity stages right now:
 
 - `Lead`
@@ -286,6 +294,7 @@ That means a new opportunity may come from:
 Still open:
 
 - whether `Active Client` should be treated as part of the same opportunity-counting path
+- live `Stage.LeadStage` rows must be checked before that edge case is closed; the FUBZahnd repo includes the stage schema but not the seed rows
 
 That means FUB should support three separate reads:
 
