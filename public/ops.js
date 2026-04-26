@@ -246,7 +246,7 @@ function renderOpsSystemSummaryCard(job) {
   return renderStatusCard({
     label: job.title || job.key,
     status: job.status === 'live' ? 'live' : (job.status || 'pending'),
-    detail: (job.systemSummary || job.description || 'No summary recorded.') + ' Open Running Systems for inputs, outputs, run state, and writeback boundary.',
+    detail: (job.systemSummary || job.description || 'No summary recorded.') + ' Open Running Systems for run state and boundaries.',
   })
 }
 
@@ -404,8 +404,41 @@ function renderOpsIssueSection(queueStats, key, config, maxItems) {
 function renderOpsModeNote(queueStats) {
   var note = document.createElement('div')
   note.className = 'ops-mode-note'
-  note.textContent = 'Admin deal inspection is one full review. Marked Admin rows are re-checked first, then the backlog scans 5 mature deals per day, newest to older, using Date Firm (Executed) on or after 2025-06-01 and waiting 10 days after firm date. That same review checks the Owners deal row, FUB parity, ClickUp follow-through, Internal Agent Onboarding, Internal Agent Deal, Client NPS, and Client Review. Conditional pipeline is ClickUp-generated, mutual-release tasks are excluded, and column N can be marked Review This Conditional for a re-check. Current marked Admin re-review count: ' +
-    queueStats.sections.admin.queuedReview + '. Admin writeback updates only AI status, action, and findings; source-field fixes stay human-owned.'
+  var rows = [
+    {
+      label: 'Admin review',
+      text: 'One full check covers the Owners deal row, FUB parity, ClickUp follow-through, Internal Agent Onboarding, Internal Agent Deal, Client NPS, and Client Review.',
+    },
+    {
+      label: 'Re-review lane',
+      text: 'Rows marked Review This Deal are checked first. Current marked Admin re-review count: ' + queueStats.sections.admin.queuedReview + '.',
+    },
+    {
+      label: 'Backlog lane',
+      text: 'Five mature Admin deals are inspected each day, newest to older, using Date Firm (Executed), the 2025-06-01 merger cutoff, and a 10-day maturity gate.',
+    },
+    {
+      label: 'Conditional lane',
+      text: 'Conditional forecast comes from ClickUp. Mutual-release tasks are excluded, and column N can be marked Review This Conditional for a re-check.',
+    },
+    {
+      label: 'People lane',
+      text: 'Agent roster checks cover roster blockers and 30/60/90 onboarding feedback accountability.',
+    },
+    {
+      label: 'Writeback boundary',
+      text: 'Scheduled Admin writeback updates only AI status, action, and findings. Source-field fixes stay human-owned.',
+    },
+  ]
+  rows.forEach(function(row) {
+    var item = document.createElement('div')
+    item.className = 'ops-mode-note-row'
+    var label = document.createElement('strong')
+    label.textContent = row.label
+    item.appendChild(label)
+    item.appendChild(document.createTextNode(row.text))
+    note.appendChild(item)
+  })
   return note
 }
 
@@ -416,7 +449,7 @@ function renderOpsInboxFilters() {
     { key: 'conditional', label: 'Conditional / listings' },
     { key: 'fubDrift', label: 'FUB drift' },
     { key: 'ownersGovernance', label: 'Owners lists' },
-    { key: 'agentRoster', label: 'Agent roster' },
+    { key: 'agentRoster', label: 'Agent onboarding' },
   ]
   var wrap = document.createElement('div')
   wrap.className = 'ops-filter-bar'
@@ -447,7 +480,7 @@ function renderOpsInboxPanel(queueStats, options) {
   var panel = renderPanel(
     'Ops Inbox',
     'Operational Inspection Queue',
-    'These are source-backed review items surfaced for Ops. Foundation detects them; Ops owns cleanup decisions, assignment, and source-row fixes.'
+    'These are source-backed review items surfaced for Ops. Foundation detects the issue; Ops fixes the source data or triggers a re-check.'
   )
 
   var grid = document.createElement('div')
@@ -473,9 +506,9 @@ function renderOpsInboxPanel(queueStats, options) {
     detail: queueStats.sections.ownersGovernance.openItems + ' Owners dropdown governance items are open.',
   }))
   grid.appendChild(renderStatusCard({
-    label: 'Agent roster',
+    label: 'Agent onboarding',
     status: queueStats.sections.agentRoster.openItems ? 'pending' : 'live',
-    detail: queueStats.sections.agentRoster.openItems + ' roster accountability items are open.',
+    detail: queueStats.sections.agentRoster.openItems + ' roster/onboarding accountability items are open.',
   }))
   panel.appendChild(grid)
 
@@ -500,8 +533,8 @@ function renderOpsInboxPanel(queueStats, options) {
       emptyText: 'No Owners dropdown drift items are open.',
     }))
     panel.appendChild(renderOpsIssueSection(queueStats, 'agentRoster', {
-      title: 'Agent roster accountability',
-      emptyText: 'No agent roster accountability items are open.',
+      title: 'Agent onboarding / roster accountability',
+      emptyText: 'No agent onboarding or roster accountability items are open.',
     }))
   } else {
     var actions = document.createElement('div')
@@ -520,7 +553,7 @@ function renderOpsSystemsPanel(jobs, queueStats, options) {
     'Running Systems',
     'Systems Serving Ops',
     compact
-      ? 'These are the Foundation systems currently serving Ops. Open Running Systems for run state and boundaries.'
+      ? 'These are the scheduled Foundation checks feeding the Ops inbox. Open Running Systems for run state and boundaries.'
       : 'Open a system to see what it reads, what it checks, what it outputs, and where its work lands.'
   )
 
