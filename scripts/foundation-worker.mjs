@@ -6,6 +6,7 @@ import {
   closeFoundationDb,
   getFoundationJobRunSnapshot,
   initFoundationDb,
+  markStaleFoundationJobRuns,
 } from '../lib/foundation-db.js';
 import { runFoundationJob } from './run-foundation-job.mjs';
 
@@ -36,7 +37,14 @@ function selectDueJobs(snapshot, { jobKey, maxJobs }) {
     .slice(0, maxJobs);
 }
 
-async function runWorkerPass({ actor, dryRun, jobKey, maxJobs }) {
+async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes }) {
+  if (!dryRun) {
+    const reapedRuns = await markStaleFoundationJobRuns({ olderThanMinutes: staleRunMinutes }, actor);
+    if (reapedRuns.length) {
+      console.warn(`Foundation worker: marked ${reapedRuns.length} stale active run(s) failed before selecting jobs.`);
+    }
+  }
+
   const snapshot = await getFoundationJobRunSnapshot({ limit: 50 });
   const jobs = selectDueJobs(snapshot, { jobKey, maxJobs });
 
@@ -49,8 +57,14 @@ async function runWorkerPass({ actor, dryRun, jobKey, maxJobs }) {
   for (const job of jobs) {
     console.log(`Foundation worker: ${dryRun ? 'would run' : 'running'} ${job.key} (${job.scheduleDetail})`);
     if (dryRun) continue;
-    const exitCode = await runFoundationJob(job.key, { actor });
-    if (exitCode !== 0) failed += 1;
+    try {
+      const exitCode = await runFoundationJob(job.key, { actor });
+      if (exitCode !== 0) failed += 1;
+    } catch (error) {
+      failed += 1;
+      console.error(`Foundation worker: job ${job.key} failed before completion.`);
+      console.error(error instanceof Error ? error.stack || error.message : String(error));
+    }
   }
 
   return { ran: dryRun ? 0 : jobs.length, failed };
@@ -64,6 +78,7 @@ async function main() {
   const intervalMs = Math.max(10_000, Number(args.intervalMs || process.env.FOUNDATION_WORKER_INTERVAL_MS || 60_000));
   const maxJobs = Math.max(1, Math.min(5, Number(args.maxJobs || 1)));
   const jobKey = args.job ? String(args.job) : '';
+  const staleRunMinutes = Math.max(30, Number(args.staleRunMinutes || process.env.FOUNDATION_WORKER_STALE_RUN_MINUTES || 180));
 
   await initFoundationDb();
 
@@ -71,8 +86,14 @@ async function main() {
 
   let exitCode = 0;
   do {
-    const result = await runWorkerPass({ actor, dryRun, jobKey, maxJobs });
-    if (result.failed > 0) exitCode = 1;
+    try {
+      const result = await runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes });
+      if (result.failed > 0) exitCode = 1;
+    } catch (error) {
+      exitCode = 1;
+      console.error('Foundation worker pass failed.');
+      console.error(error instanceof Error ? error.stack || error.message : String(error));
+    }
     if (!once) await sleep(intervalMs);
   } while (!once);
 
@@ -88,4 +109,3 @@ main()
   .finally(async () => {
     await closeFoundationDb();
   });
-

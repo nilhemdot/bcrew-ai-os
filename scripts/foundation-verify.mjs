@@ -207,6 +207,7 @@ async function main() {
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
+  const foundationWorkerSource = await readRepoFile('scripts/foundation-worker.mjs')
   const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
   const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -325,6 +326,7 @@ async function main() {
         'AIOS_AUTH_USERS_JSON',
         'AIOS_GOOGLE_CLIENT_ID',
         'AIOS_SESSION_SECRET',
+        'assertSessionSecretConfigured',
         'pbkdf2-sha256',
         'aios_session',
         'getAllowedAuthUser',
@@ -386,6 +388,13 @@ async function main() {
       foundationDbSource.includes('entityId: item.itemKey'),
     'source crawl ledger is run-id, lease-owner, and item-key safe',
     'target leases create run rows, finishes carry crawlRunId and require matching lease owner, and item events use the actual returned row key',
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, ['markStaleFoundationJobRuns', 'Marked failed by stale active-run reaper']) &&
+      includesAll(foundationWorkerSource, ['markStaleFoundationJobRuns', 'job ' + '${job.key}' + ' failed before completion', 'Foundation worker pass failed']),
+    'Foundation worker catches job failures and reaps stale active runs',
+    'worker pass catches per-job failures, continues looping, and marks stale queued/running job runs failed before selecting due jobs',
   )
   ensure(
     checks,
@@ -548,7 +557,10 @@ async function main() {
   )
   ensure(
     checks,
-      includesAll(agentFeedbackSource, ['createAgentFeedbackToken', 'verifyAgentFeedbackToken', 'hashAgentFeedbackToken']) &&
+      includesAll(agentFeedbackSource, ['createAgentFeedbackToken', 'verifyAgentFeedbackToken', 'hashAgentFeedbackToken', 'AGENT_FEEDBACK_SECRET', 'assertAgentFeedbackSecretConfigured', 'iat', 'exp']) &&
+      !agentFeedbackSource.includes('local-agent-feedback-dev-secret') &&
+      !agentFeedbackSource.includes('process.env.ADMIN_TOKEN') &&
+      includesAll(foundationDbSource, ['ON CONFLICT (token_hash) DO NOTHING', 'Feedback link has already been used.']) &&
       includesAll(agentFeedbackEmailSource, ['buildAgentFeedbackEmail', 'Start check-in', 'How have your first', 'Benson Crew']) &&
       includesAll(googleDelegatedSource, ['sendGmailMessage', 'multipart/alternative', 'gmail.send']) &&
       includesAll(agentFeedbackClickUpSource, ['writeAgentFeedbackToClickUp', 'Onboarding NPS 30 Score', 'Onboarding NPS 90 Feedback']) &&
@@ -558,8 +570,8 @@ async function main() {
       includesAll(agentFeedbackHtmlSource, ['agent-feedback-form', 'score-grid', 'Submit feedback']) &&
       includesAll(agentFeedbackUiSource, ['/api/agent-feedback/session', '/api/agent-feedback/submit']) &&
       includesAll(opsUiSource, ['Open feedback form']),
-    'agent onboarding feedback form is source-backed',
-    'signed link helper, DB response table, public form, and Ops feedback action are wired',
+    'agent onboarding feedback form is source-backed and replay-hardened',
+    'signed expiring link helper, DB response table, public form, one-time token storage, and Ops feedback action are wired',
   )
   ensure(
     checks,

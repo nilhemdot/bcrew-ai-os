@@ -140,6 +140,7 @@ This workspace has both **repo truth** and **local-only workspace state**. Don't
 ### Keep Local Only
 
 - `.openclaw/` — local runtime state
+- `.claude/` — local Claude CLI/runtime state
 - `memory/` and `MEMORY.md` — session memory and long-term private memory
 - `USER.md` — personal context about the human
 - `IDENTITY.md` — local assistant identity state

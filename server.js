@@ -62,7 +62,7 @@ import {
 import { getDriveFileMetadata, getSheetValues } from './lib/google-delegated.js'
 import { getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
-import { verifyAgentFeedbackToken } from './lib/agent-feedback.js'
+import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
 import { writeAgentFeedbackToClickUp } from './lib/agent-feedback-clickup.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import {
@@ -74,6 +74,7 @@ import {
   getGoogleClientId,
   getSafeRedirectPath,
   isAuthConfigured,
+  assertSessionSecretConfigured,
   setAuthCookie,
 } from './lib/app-auth.js'
 import { OAuth2Client } from 'google-auth-library'
@@ -1222,8 +1223,11 @@ function toRelativeDocPath(filePath) {
   return path.relative(__dirname, filePath)
 }
 
-function getRequestActor() {
-  return 'steve'
+function getRequestActor(req) {
+  const user = req ? getRequestAuthUser(req) || getLocalDevUser(req) : null
+  if (user?.email) return user.email
+  if (req && tokensMatch(req.get('X-Admin-Token') || '', adminToken)) return 'admin-token'
+  return 'system'
 }
 
 function getDefaultFubLeadSourceGroup(sourceName) {
@@ -3122,13 +3126,13 @@ app.post('/api/fub/lead-sources/refresh', requireAdminToken, async (req, res) =>
       contextLabel: live.context.label,
       sources: live.sources,
       scan: live.stats,
-    }, getRequestActor())
+    }, getRequestActor(req))
     const rules = await listFubLeadSourceRules()
     const payload = buildFubLeadSourcePayload(snapshot, rules, {
       key: live.context.key,
       label: live.context.label,
     })
-    const syncResult = await syncFubLeadSourceDriftEvent(payload, getRequestActor())
+    const syncResult = await syncFubLeadSourceDriftEvent(payload, getRequestActor(req))
     payload.freshness = buildSourceWatchFreshness(syncResult && syncResult.event ? syncResult.event : null, payload.drift.status === 'review', {
       forcedStatus: payload.drift && payload.drift.stale && payload.drift.stale.isStale ? 'stale' : '',
       forcedReason: payload.drift && payload.drift.stale && payload.drift.stale.isStale
@@ -3190,7 +3194,7 @@ app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
       flagState,
       sourceGroup,
       notes,
-    }, getRequestActor())
+    }, getRequestActor(req))
     const resolvedContext = resolveFubContext(contextKey || undefined)
     const snapshot = await getFubLeadSourceSnapshot(resolvedContext.key)
     const rules = await listFubLeadSourceRules()
@@ -3198,7 +3202,7 @@ app.patch('/api/fub/lead-sources', requireAdminToken, async (req, res) => {
       key: resolvedContext.key,
       label: resolvedContext.label,
     })
-    const syncResult = await syncFubLeadSourceDriftEvent(current, getRequestActor())
+    const syncResult = await syncFubLeadSourceDriftEvent(current, getRequestActor(req))
     current.freshness = !current.snapshot.available
       ? buildSourceWatchFreshness(syncResult && syncResult.event ? syncResult.event : null, false, {
           missing: true,
@@ -4029,7 +4033,7 @@ app.post('/api/foundation/backlog', requireAdminToken, async (req, res) => {
       nextAction,
       statusNote,
       owner,
-    }, getRequestActor())
+    }, getRequestActor(req))
     cacheHeadersNoStore(res)
     res.status(201).json({ item })
   } catch (error) {
@@ -4064,7 +4068,7 @@ app.patch('/api/foundation/backlog/:id', requireAdminToken, async (req, res) => 
       ...req.body,
       scope: requestedScope,
       rank,
-    }, getRequestActor())
+    }, getRequestActor(req))
     cacheHeadersNoStore(res)
     res.json({ item })
   } catch (error) {
@@ -4117,7 +4121,7 @@ app.post('/api/foundation/decisions', requireAdminToken, async (req, res) => {
       participantNames,
       contextRef,
       evidenceNotes,
-    }, getRequestActor())
+    }, getRequestActor(req))
     cacheHeadersNoStore(res)
     res.status(201).json({ decision })
   } catch (error) {
@@ -4172,7 +4176,7 @@ app.patch('/api/foundation/decisions/:id', requireAdminToken, async (req, res) =
       participantNames,
       contextRef,
       evidenceNotes,
-    }, getRequestActor())
+    }, getRequestActor(req))
     cacheHeadersNoStore(res)
     res.json({ decision })
   } catch (error) {
@@ -4203,7 +4207,7 @@ app.post('/api/foundation/questions', requireAdminToken, async (req, res) => {
   }
 
   try {
-    const question = await createOpenQuestion({ title, summary, owner }, getRequestActor())
+    const question = await createOpenQuestion({ title, summary, owner }, getRequestActor(req))
     cacheHeadersNoStore(res)
     res.status(201).json({ question })
   } catch (error) {
@@ -4227,7 +4231,7 @@ app.patch('/api/foundation/questions/:id', requireAdminToken, async (req, res) =
   }
 
   try {
-    const question = await updateOpenQuestion(req.params.id, req.body, getRequestActor())
+    const question = await updateOpenQuestion(req.params.id, req.body, getRequestActor(req))
     cacheHeadersNoStore(res)
     res.json({ question })
   } catch (error) {
@@ -4287,7 +4291,7 @@ app.post('/api/foundation/doc-updates', requireAdminToken, async (req, res) => {
         currentHash: hashText(section.currentText),
         heading: section.heading,
       },
-    }, getRequestActor())
+    }, getRequestActor(req))
     cacheHeadersNoStore(res)
     res.status(201).json({ docUpdate })
   } catch (error) {
@@ -4297,7 +4301,7 @@ app.post('/api/foundation/doc-updates', requireAdminToken, async (req, res) => {
 
 app.post('/api/foundation/doc-updates/:id/approve', requireAdminToken, async (req, res) => {
   try {
-    const docUpdate = await approvePendingDocUpdate(req.params.id, getRequestActor())
+    const docUpdate = await approvePendingDocUpdate(req.params.id, getRequestActor(req))
     cacheHeadersNoStore(res)
     res.json({ docUpdate })
   } catch (error) {
@@ -4315,7 +4319,7 @@ app.post('/api/foundation/doc-updates/:id/approve', requireAdminToken, async (re
 
 app.post('/api/foundation/doc-updates/:id/reject', requireAdminToken, async (req, res) => {
   try {
-    const docUpdate = await rejectPendingDocUpdate(req.params.id, getRequestActor())
+    const docUpdate = await rejectPendingDocUpdate(req.params.id, getRequestActor(req))
     cacheHeadersNoStore(res)
     res.json({ docUpdate })
   } catch (error) {
@@ -4618,6 +4622,8 @@ app.get('*', requirePageAccess('owner'), (_req, res) => {
 })
 
 async function start() {
+  assertSessionSecretConfigured()
+  assertAgentFeedbackSecretConfigured()
   await initFoundationDb()
 
   const server = app.listen(port, host, () => {
