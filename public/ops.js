@@ -642,8 +642,7 @@ function renderOpsInboxFilters() {
       panel.querySelectorAll('.ops-issue-section').forEach(function(section) {
         var visibleCards = 0
         section.querySelectorAll('.ops-issue-card').forEach(function(card) {
-          var lanes = String(card.dataset.opsLanes || '').split(/\s+/).filter(Boolean)
-          var visible = selected === 'all' || lanes.indexOf(selected) !== -1
+          var visible = cardMatchesFilter(card, selected)
           card.hidden = !visible
           if (visible) {
             visibleCards += 1
@@ -667,17 +666,40 @@ function renderOpsInboxFilters() {
   return wrap
 }
 
+function getNodeLanes(node) {
+  return String(node && node.dataset ? node.dataset.opsLanes || '' : '').split(/\s+/).filter(Boolean)
+}
+
+function nodeMatchesFilter(node, selected) {
+  if (selected === 'all') return true
+  var lanes = getNodeLanes(node)
+  return lanes.indexOf(selected) !== -1
+}
+
+function cardMatchesFilter(card, selected) {
+  if (selected === 'all') return true
+  if (nodeMatchesFilter(card, selected)) return true
+  return Array.from(card.querySelectorAll('[data-ops-lanes]')).some(function(node) {
+    return nodeMatchesFilter(node, selected)
+  })
+}
+
 function filterCardFindings(card, selected) {
   card.querySelectorAll('.ops-finding-chip').forEach(function(chip) {
-    var lanes = String(chip.dataset.opsLanes || '').split(/\s+/).filter(Boolean)
-    chip.hidden = selected !== 'all' && lanes.length && lanes.indexOf(selected) === -1
+    chip.hidden = !nodeMatchesFilter(chip, selected)
+  })
+
+  card.querySelectorAll('.ops-finding-summary').forEach(function(summary) {
+    var visibleChips = Array.from(summary.querySelectorAll('.ops-finding-chip')).some(function(chip) {
+      return !chip.hidden
+    })
+    summary.hidden = selected !== 'all' && !visibleChips
   })
 
   card.querySelectorAll('.ops-finding-block').forEach(function(block) {
     var visibleItems = 0
     block.querySelectorAll('li').forEach(function(item) {
-      var lanes = String(item.dataset.opsLanes || block.dataset.opsLanes || '').split(/\s+/).filter(Boolean)
-      var visible = selected === 'all' || !lanes.length || lanes.indexOf(selected) !== -1
+      var visible = nodeMatchesFilter(item, selected)
       item.hidden = !visible
       if (visible) visibleItems += 1
     })

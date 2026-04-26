@@ -424,6 +424,14 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+.ops-issue-card[hidden],
+.ops-finding-summary[hidden],
+.ops-finding-chip[hidden],
+.ops-finding-block[hidden],
+.ops-finding-block li[hidden] {
+  display: none !important;
+}
+
 .ops-issue-head {
   display: flex;
   align-items: start;
