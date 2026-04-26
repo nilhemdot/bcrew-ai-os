@@ -1200,6 +1200,22 @@ body {
   color: var(--text-secondary);
 }
 
+.current-state-surface-level {
+  display: inline-flex;
+  margin: 0 0 10px 20px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.current-state-level-guide-header {
+  margin: 6px 0 10px;
+}
+
 .current-state-surface-top {
   display: flex;
   align-items: flex-start;
