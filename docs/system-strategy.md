@@ -1,7 +1,7 @@
 # System Strategy
 
 Status: Active
-Last updated: 2026-04-25
+Last updated: 2026-04-26
 
 This page defines how the BCrew AI OS works as an operating system around the business.
 
@@ -23,7 +23,7 @@ Its job is to:
 - keep live values tied to real sources instead of stale documents
 - make every future hub plug into shared truth instead of becoming its own truth system
 
-Foundation has three layers:
+Foundation has four layers:
 
 - **Business Foundation**  
   The durable business strategy and the supporting docs that clarify it.
@@ -33,6 +33,9 @@ Foundation has three layers:
 
 - **Source Layer**  
   The live truth layer: source contracts, connector status, source-backed views, and source trust.
+
+- **Systems Layer**  
+  The operating bundles that connect sources, connectors, runtime jobs, source notes, backlog cards, and maturity levels into something hubs can use.
 
 ## Truth Model
 
@@ -157,6 +160,7 @@ That means they:
 - read durable business and system strategy
 - read and write operating memory through approved APIs
 - use source contracts for live values
+- use Foundation systems as their operating bundles instead of each hub inventing its own hidden source map
 - publish decisions and changes back into the shared record
 
 ## What This Is Not

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-04-25
-Version: v6.7 — Source intelligence lifecycle and strategy-input closeout
+Last updated: 2026-04-26
+Version: v6.8 — Systems map and extraction proof alignment
 Status: Active
 
 Use this doc for one question:
@@ -75,6 +75,7 @@ Built and useful now:
 - Foundation verifier.
 - Strategy, decision, backlog, open-question, and change-event database surfaces.
 - Source-backed dashboard/Foundation UI.
+- Foundation Systems page: 12 major operating systems mapped with purpose, maturity level, source contracts, connectors, runtime jobs, source notes, backlog cards, and next-level plan.
 - Google delegated read path for Workspace sources.
 - Gmail, Calendar, Missive, Slack, meeting notes, and meeting transcript reads.
 - Shared-communications archive in Postgres.
@@ -84,7 +85,11 @@ Built and useful now:
 - First Foundation job registry and DB-backed job run ledger.
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Policy-aware LLM router: credential/route/probe/call tables, executable OpenClaw/Codex subscription adapter, auth-path audit job, call ledger, route status visibility, and shared intelligence extraction/synthesis migrated behind the router.
-- Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, scheduled current-day lanes for Gmail/Missive/meetings/Slack, daily shared-comms extraction missions, and daily Drive inventory mission.
+- Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, scheduled current-day lanes for Gmail/Missive/meetings/Slack, daily shared-comms extraction missions, daily Drive inventory/content missions, daily Gmail attachment extraction, and daily YouTube subtitle transcript extraction from the video manifest.
+- Drive content extraction first slice: Google Docs, PDFs, and plain-text files are archived as source-backed artifacts with explicit skip reasons for unsupported file types.
+- Gmail attachment extraction first slice: Gmail PDF/text attachments are archived; images/media/Office/OCR classes are skipped into explicit future lanes.
+- Video transcript extraction first slice: YouTube subtitles are extracted through DataForSEO from the shared video-link manifest; no-subtitle/visual-review work routes to the multimodal lane.
+- KPI/Supabase read rules are closed for `SOURCE-010`; health/freshness and Lee repo/schema drift now belong to `KPI-HEALTH-001`.
 - Row-scoped Owners / deal-review runners.
 - Owners Dashboard imported `Lists` repair: governed FUB lead sources now live in upstream `SRC-OWNERS-LISTS-001`, Admin `N` and `P` reuse the same source list, Admin `S` uses imported active agents, and Google delegated writes are blocked from the imported mirror range.
 - Owners/FUB v1 parity rules: Admin column `BZ` joins to FUB person records, governed FUB source rules drive company/agent expectations, and Admin review flags invalid source, source-lineage, stale-stage, and ISA mismatch issues.
@@ -92,13 +97,13 @@ Built and useful now:
 - Skool corpus access and policy boundary captured in `docs/source-notes/skool-corpus.md`.
 - Marketing source evidence from the old system and current connector checks.
 - Doc cleanup plan and generated doc indexes.
-- Ops Hub v0 as its own hub surface for systems serving Ops, starting with Admin and conditional deal-review inspections. Scheduled jobs now run marked re-reviews first, then pace Admin first-pass backlog at one newest eligible June 2025+ deal per 8-hour run (3 per day), writing AI status/action/findings only. Foundation remains the control plane; Ops owns the human cockpit.
+- Ops Hub v1 as its own hub surface for systems serving Ops, starting with Admin, Conditional, FUB drift, and Agent Roster inspections. Scheduled jobs now run marked re-reviews first, then pace Admin first-pass backlog at 5 newest eligible June 2025+ deals per day, writing AI status/action/findings only. Foundation remains the control plane; Ops owns the human cockpit.
 
 Still not done:
 
 - durable source cursors, target-run IDs, and backfill leases beyond the current-day target proof
 - router-ledged transcription workload and enforced model-route budgets/caps beyond the direct-host verifier
-- failed-item retry policy for Drive and non-meeting crawl records beyond the first meeting retry path
+- failed-item retry policy for Drive/video/non-meeting crawl records beyond the first meeting retry path
 - proof that partial-run job failure/alert semantics work on a real failed meeting/Drive item
 - operator UI/verifier hardening for job/target schedule truth now that Foundation jobs own scheduled crawl lanes
 - Claude Code / Claude Agent SDK subscription adapter under the BCrew router
@@ -115,7 +120,7 @@ Still not done:
 - Action Router v1: synthesized items do not yet route into decisions, backlog tasks, open questions, contradictions, ignore/snooze, or owner-bound actions with back-links
 - source-backed Strategy Hub
 - Harlan/Crewbert useful runtime
-- Drive and Skool crawler workers
+- Drive Sheets/Slides/Office/shortcut/OCR/media extractors and Skool/Loom/Drive-video crawler workers
 - clean marketing account/property map by lane
 - hub consumer map for mined corpus value: strategy, ops, sales, marketing, recruiting, agent coaching, Steve personal brand, MarketMasters, and Steve-owned education/monetization
 
@@ -141,7 +146,7 @@ If Steve or a builder has to remember to run it from a terminal, it is still a p
 
 ### Immediate Foundation Closeout Checklist
 
-This checklist is the current anti-drift queue from the 2026-04-25 top-down review. Treat it as backlog order, not a new plan.
+This checklist is the current anti-drift queue after the 2026-04-26 systems/source review. Treat it as backlog order, not a new plan.
 
 1. `SECURITY-003` — Close direct LLM/transcription spend bypasses.
    - `scripts/transcribe-zoom-audio-archive.mjs` is paused/fail-closed for non-dry-run use.
@@ -157,11 +162,12 @@ This checklist is the current anti-drift queue from the 2026-04-25 top-down revi
    - Enforce job-level budget tags or rename them as descriptive tags.
    - Bound large Foundation snapshot reads with limits or paging.
    - Finish decommission, dead-man, cost/process visibility, and stop controls.
-4. `EXTRACTION-TEAM-001` — Finish controlled miner/corpus lanes.
+4. `EXTRACTION-TEAM-001` / `DRIVE-CONTENT-001` / `EMAIL-ATTACHMENTS-001` / `MEETING-VIDEO-001` — Finish controlled miner/corpus lanes.
    - Build paced miner v1: one-at-a-time, cursors, leases, retry/backoff, spacing, per-source timeouts.
-   - `video-link-inventory-bite` now runs through `extraction:target`; finish stable cursor/provenance-occurrence semantics before scheduling.
+   - Keep daily Drive Docs/PDF/text, Gmail PDF/text attachment, and YouTube subtitle transcript missions stable.
+   - Add Missive attachments, Drive Sheets/Slides/Office/shortcuts/OCR, meeting-linked Drive/Zoom/Loom video priority, and richer multimodal/GOD-mode extraction as separate ledged slices.
    - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
-   - Keep Skool/Loom extraction blocked until authorized proof paths are validated.
+   - Keep Skool/Loom/Mycro extraction governed by authorized access, use rights, cost/route ledgering, quotas, and stop controls.
 5. `INTEL-JOBS-001` / `INTEL-ATOM-001` / `RETRIEVAL-001` through `RETRIEVAL-003` — Build the memory/retrieval spine.
    - Add a run/cost/cursor ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation.
    - Define the source-backed atom schema before scaling video/web/Skool extraction.
@@ -171,12 +177,10 @@ This checklist is the current anti-drift queue from the 2026-04-25 top-down revi
    - Refresh stale FUB source snapshot.
    - Sign off trusted FUB source taxonomy baseline and new-source review rules.
    - Lock Owners dropdown/list parity against FUB lineage.
-7. `DATA-007` through `DATA-009` — Clear Ops/deal-validation source-quality work.
-   - Invalid lead-source row backfill.
-   - Missing FUB link backfill.
-   - Suspicious duplicate full-credit row resolution.
-8. `SOURCE-010` — Close KPI truth-layer map.
-   - Split pipeline, shopping-list, executed-deal, goal, competition, and usage read rules before KPI jobs become trusted operating intelligence.
+7. `DATA-007` through `DATA-009` — Parked Ops/deal-validation cleanup, not Foundation source blockers.
+   - Invalid lead-source row backfill, missing FUB link backfill, and suspicious duplicate full-credit row resolution now route through Ops/source-quality cleanup unless new evidence proves a v1 rule is wrong.
+8. `KPI-HEALTH-001` — Add KPI health, freshness, and schema/code drift checks after `SOURCE-010`.
+   - `SOURCE-010` is closed for first-pass read rules. The next work is recurring health/freshness and Lee repo/Supabase schema drift proof.
 9. `SYNTHESIS-ENGINE-001` / `SYNTHESIS-FACTS-001` / `ACTION-ROUTER-001` — Close the intelligence loop.
    - Prove synthesis against bounded input that fits the subscription adapter.
    - Ground synthesis in source-backed KPI, finance, strategy, Owners/FUB facts.
@@ -224,8 +228,8 @@ Activate only 3 to 5 jobs first:
 - `shared-comms:coverage`
 - deal-review queued/backlog runner
 - synthesis as manual or scheduled with explicit route and budget visibility
-- one current-day sync lane if stable
-- bounded candidate-extraction bites for already-archived material, still manual until the paced miner cadence is deliberately activated
+- current-day sync lanes for Gmail, Missive, meetings, and Slack
+- daily quota missions for shared-comms extraction, Drive content, Gmail attachments, and video transcript outputs
 
 Backlog/cards:
 
@@ -254,6 +258,9 @@ Current partial proof:
 - Gmail and Missive current-day sync jobs now run through the extraction target ledger.
 - Missive current-day sync has been promoted to scheduled every 2 hours after exact-ID idempotency proof.
 - Gmail current-day sync now has item-level thread ledgering and is scheduled every 2 hours after repeated bounded runs showed `0` item failures and explainable net-new/changed threads.
+- Meeting notes current-day and Slack current-day lanes are scheduled.
+- Daily shared-comms extraction missions are scheduled for Gmail, Missive, meeting transcripts, and Slack.
+- Drive content extraction, Gmail attachment extraction, and video transcript extraction are scheduled as daily quota missions with filed-output proof.
 - Dashboard pause/resume buttons are live on the System Health job cards and were round-trip tested through `gmail-sync-current`.
 - Remaining Phase 1 gap: monitor scheduled current-day/extraction runs, prove alert behavior on real partial failures, and raise daily quotas only after runs stay stable.
 
