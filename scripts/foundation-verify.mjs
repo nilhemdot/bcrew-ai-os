@@ -191,6 +191,11 @@ async function main() {
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const systemStrategy = await readRepoFile('docs/system-strategy.md')
   const agentsSource = await readRepoFile('AGENTS.md')
+  const usersDoc = await readRepoFile('docs/users/README.md')
+  const steveDoc = await readRepoFile('docs/users/steve.md')
+  const agentModelDoc = await readRepoFile('docs/agents/README.md')
+  const harlanDoc = await readRepoFile('docs/agents/harlan.md')
+  const crewbertDoc = await readRepoFile('docs/agents/crewbert.md')
   const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const opsHtmlSource = await readRepoFile('public/ops.html')
@@ -269,6 +274,17 @@ async function main() {
       !foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#rebuild-plan"'),
     'system strategy and rebuild plan reflect current Foundation architecture',
     'System Strategy names the Systems Layer, Rebuild Plan names Systems page / SOURCE-010 closeout / Ops Hub v1 / extraction slices, priority hierarchy is documented, and nav treats Doctrine + Rebuild Plan as peer pages',
+  )
+  ensure(
+    checks,
+    foundationHtmlSource.includes('<div class="found-nav-label">People / Agents</div>') &&
+      foundationHtmlSource.includes('data-section="users">People Overview</a>') &&
+      foundationHtmlSource.includes('data-section="agents">Agent Model</a>') &&
+      !foundationHtmlSource.includes('<div class="found-nav-subgroup">Users</div>') &&
+      !foundationHtmlSource.includes('<div class="found-nav-subgroup">Agents</div>') &&
+      [usersDoc, steveDoc, agentModelDoc, harlanDoc, crewbertDoc].every(source => source.includes('Last reviewed: 2026-04-26') && source.includes('Update Trigger')),
+    'People / Agents nav and docs stay clear and review-marked',
+    'People / Agents nav is flat, Overview labels are specific, and user/agent docs have review/update triggers',
   )
   ensure(
     checks,

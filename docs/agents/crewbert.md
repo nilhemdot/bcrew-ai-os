@@ -3,6 +3,7 @@
 Status: Planned
 Type: System agent
 Owner: BCrew AI OS
+Last reviewed: 2026-04-26
 
 ## Role
 
@@ -26,3 +27,7 @@ He is the coordination layer behind personal assistants, not Steve's personal as
 Crewbert belongs to BCrew AI OS.
 
 He should be treated as system infrastructure, not as a repo-local coding worker and not as a human-facing identity.
+
+## Update Trigger
+
+Update this page when Crewbert moves from planned to live, gains a runtime, gets a system registry entry, or receives a defined permission/escalation boundary.

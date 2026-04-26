@@ -3,6 +3,7 @@
 Status: Live
 Type: Personal agent
 Owner: Steve
+Last reviewed: 2026-04-26
 
 ## Role
 
@@ -41,3 +42,7 @@ That does not mean Harlan should permanently live inside the system repo.
   - final sender name
   - signature HTML
   - avatar asset
+
+## Update Trigger
+
+Update this page when Harlan's runtime home, channel binding, permissions, outbound identity, or relationship to BCrew AI OS changes.

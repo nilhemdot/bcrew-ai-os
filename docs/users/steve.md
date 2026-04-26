@@ -2,6 +2,7 @@
 
 Status: Active user
 Scope: Benson Crew operator / owner
+Last reviewed: 2026-04-26
 
 ## What This File Is
 
@@ -27,3 +28,7 @@ It is **not** the same thing as local `USER.md`.
 ## Current Working Rule
 
 If something matters to the shared system, it should be written into tracked docs or Foundation surfaces rather than left only in local runtime files.
+
+## Update Trigger
+
+Update this page when Steve's visible role, system-facing preferences, approval boundary, or shared Foundation operating expectations change. Keep private context in local-only `USER.md` / `MEMORY.md`.

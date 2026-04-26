@@ -1,5 +1,8 @@
 # Agents
 
+Status: Active model doc
+Last reviewed: 2026-04-26
+
 This is the visible Foundation agent layer.
 
 Use this folder to answer:
@@ -44,3 +47,7 @@ There are three agent types:
 - their role
 - whether they are live
 - whether they belong to a human, the system, or a repo
+
+## Update Trigger
+
+Update this section when an agent becomes live, moves runtime homes, gains a new permission boundary, or changes owner/purpose. Do not add speculative swarm members before they have a real system role.
