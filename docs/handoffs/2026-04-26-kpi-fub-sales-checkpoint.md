@@ -311,21 +311,56 @@ Verified:
 - `npm run -s foundation:verify` passed `61/61`
 - `git diff --check`
 
+## Next Deep Pass Completed
+
+After this checkpoint, the first recommended pass was completed.
+
+New durable tooling:
+
+- `scripts/audit-kpi-agent-data-quality.mjs`
+- `npm run kpi:data-quality`
+
+Repeatable command:
+
+```bash
+npm run -s kpi:data-quality -- --windowDays=90 --since=2026-01-01 --topLimit=5 --sampleLimit=0
+```
+
+Live proof captured on `2026-04-26`:
+
+- KPI Supabase and AIOS FUB source-rule connectors were both readable
+- `3442` active appointment rows
+- `951` missing appointment outcomes
+- `53` non-standard outcome labels
+- `142` known outcome labels used against the wrong appointment-type context
+- `52` likely same-person / same-type appointment stacks covering `119` rows inside the `90` day current-year window
+- `21` buy/sell context people detected as legitimate exception review
+- `16657` active KPI lead-stage person rows
+- `6726` invalid/generic source rows:
+  - `Import`: `5030`
+  - `<unspecified>`: `1485`
+  - `Sphere`: `208`
+  - blank: `3`
+- `5095` pond/unclaimed lead-stage rows
+
+Durable docs/backlog updated:
+
+- `docs/audits/2026-04-26-kpi-agent-data-quality-audit.md`
+- `docs/source-notes/kpi-dashboard.md`
+- `KPI-APPT-QUALITY-001`
+- `KPI-LEAD-VALIDATION-001`
+
 ## Recommended Next Deep Passes
 
 Do not do five broad passes by default. Do three focused deep passes first, then decide if two more are needed.
 
 Recommended order:
 
-1. `KPI-APPT-QUALITY-001` and `KPI-LEAD-VALIDATION-001`
-   - build agent-level read-only audits for appointment stacking, missing/wrong outcomes, and fake/unvalidated leads
-   - output ranked agent examples with source links and human-review language
-
-2. `KPI-SHOPPING-001`
+1. `KPI-SHOPPING-001`
    - mine Reilly Mitchell and Sofia Fischman Shopping List coaching calls
    - lock weekly discipline rules and agent-coach language
 
-3. `DRIVE-CONTENT-001` / `EMAIL-ATTACHMENTS-001` / `MEETING-VIDEO-001`
+2. `DRIVE-CONTENT-001` / `EMAIL-ATTACHMENTS-001` / `MEETING-VIDEO-001`
    - prove Docs/PDF/attachments/video extraction with skip reasons, source links, route/cost ledgering, and small daily quotas
 
 Optional fourth:

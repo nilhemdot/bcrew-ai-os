@@ -556,11 +556,19 @@ Business rule:
 - if it is the same client/opportunity moving toward one signed-client outcome, the agent should usually update/move the original appointment and set the correct outcome
 - stacking ten appointment records and one signed-client result makes conversion look like `10%`, even if the real motion was one opportunity that took multiple touches
 
-Live appointment-quality proof on `2026-04-26`:
+Repeatable live appointment-quality proof on `2026-04-26`:
 
 - active appointment rows: `3442`
-- same-person/same-appointment-type stacks: `289` groups
-- rows inside those stacked groups: `838`
+- recent appointment rows used for same-person / same-type stack detection since `2026-01-01`: `799`
+- likely same-person / same-type stacks inside a `90` day window: `52` groups
+- rows inside those likely stacked groups: `119`
+- buy/sell context people detected as likely legitimate exception review: `21`
+
+Audit command:
+
+```bash
+npm run -s kpi:data-quality -- --windowDays=90 --since=2026-01-01 --topLimit=5 --sampleLimit=0
+```
 
 Coaching rule:
 
@@ -580,8 +588,7 @@ Agents often fail to update appointment outcomes after the meeting.
 Live proof on `2026-04-26`:
 
 - active appointment rows missing outcome: `951 / 3442`
-- active appointment rows since `2026-01-01`: `798`
-- since `2026-01-01`, missing outcomes: `284 / 798`
+- recent appointment rows included in the stacking audit since `2026-01-01`: `799`
 
 Coaching rule:
 
@@ -595,11 +602,14 @@ Agents sometimes use the wrong outcome label even though the How To page spells 
 Live proof on `2026-04-26`:
 
 - active appointment rows with non-standard outcomes: `53`
-- current-year sampled wrong-outcome count was `0`, so this looks more historical than current in the first pass
+- active appointment rows with a known outcome label used against the wrong appointment-type context: `142`
 
 Coaching rule:
 
 - do not silently count non-standard outcomes as valid wins or losses
+- split wrong-outcome cleanup into:
+  - labels that are not canonical at all
+  - canonical labels used on the wrong appointment type
 - normalize only after a governed mapping is approved
 
 ### Lead Validation
@@ -610,10 +620,13 @@ The KPI system already tries to show agents what they did wrong through the lead
 
 Live proof on `2026-04-26`:
 
-- exact active lead-stage check returned `13005` active rows in lead-like stages
-- `4497` active lead-stage rows had source `Import`
-- `1647` active lead-stage rows had source `<unspecified>`
-- `2` active lead-stage rows had no source value
+- repeatable KPI/FUB audit returned `16657` active rows in lead-like stages
+- `6726` active lead-stage rows had invalid/generic source values
+- `5030` active lead-stage rows had source `Import`
+- `1485` active lead-stage rows had source `<unspecified>`
+- `208` active lead-stage rows had source `Sphere`
+- `3` active lead-stage rows had no source value
+- `5095` active lead-stage rows belonged to the pond/unclaimed `Benson Crew Assistant` context
 - local KPI code still contains source-validation helpers such as `ALLOWED_LEAD_SOURCES`, `FIX_ALLOWED_SOURCES`, `isValidLeadSource`, `filterDealsBySource`, and `filterAppointmentsBySource`, but those sections are commented out / disabled in `dataFetching.ts`
 
 Validated-source doctrine:
