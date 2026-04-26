@@ -1,7 +1,7 @@
 # Data Sources Operator Note
 
 Status: Active
-Last updated: 2026-04-25
+Last updated: 2026-04-26
 
 This note backs the `Data Sources` page.
 
@@ -19,6 +19,20 @@ Every source needs three things:
    - signed off, partial, readable only, pending, or gap
 
 Connectors matter too, but connector access does **not** mean trusted business meaning.
+
+## Grouped Source Systems
+
+Some business questions span multiple source contracts. Those grouped systems are maps over the source layer, not replacement source IDs.
+
+| Grouped system | Connected sources | Purpose | Operator note |
+| --- | --- | --- | --- |
+| Sales Data / KPI-FUB-Deal System | `SRC-FUB-001`, `SRC-SUPABASE-001`, `SRC-OWNERS-001`, `SRC-OWNERS-LISTS-001`, `SRC-CLICKUP-001`, `SRC-MEETINGS-001`, plus Lee `FUBZahnd` code evidence | Person -> opportunity -> appointment -> Shopping List -> executed deal -> Ops follow-through | [FUB / KPI / Deal Data connection map](source-notes/fub-kpi-deal-connection-map.md) |
+
+Rule:
+
+- use source contracts for individual business truth
+- use grouped maps only when a job crosses systems
+- promote repeatable cross-system checks into scripts, backlog cards, and verifier coverage
 
 ## Current Trust State
 

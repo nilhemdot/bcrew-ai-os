@@ -21,6 +21,7 @@
     "clickup:conditional-forecast": "node --env-file-if-exists=.env scripts/sync-clickup-conditional-forecast.mjs",
     "connection:audit": "node --env-file-if-exists=.env scripts/audit-fub-kpi-deal-connection.mjs",
     "kpi:data-quality": "node --env-file-if-exists=.env scripts/audit-kpi-agent-data-quality.mjs",
+    "kpi:shopping-list": "node --env-file-if-exists=.env scripts/audit-kpi-shopping-list-quality.mjs",
     "agent-roster:review": "node --env-file-if-exists=.env scripts/review-agent-roster.mjs",
     "agent-feedback:test-email": "node --env-file-if-exists=.env scripts/send-agent-feedback-test-email.mjs",
     "auth:configure-local": "node scripts/configure-local-auth.mjs",

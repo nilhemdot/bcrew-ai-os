@@ -4,6 +4,63 @@ This note captures the live connection proof between Follow Up Boss, Lee's KPI/S
 
 Use this note before building Sales Hub, agent coaches, CRM replacement logic, or strategy answers that depend on lead/opportunity/deal truth.
 
+## Foundation Grouped System Map
+
+This note is the grouped Foundation view for the Sales Data / KPI-FUB-Deal system.
+
+It is not a replacement source contract. It connects the individual contracts and source notes so future AI OS work can reason across the whole sales chain without flattening the system into one vague "CRM data" bucket.
+
+Grouped system:
+
+- `SALES-DATA-KPI-FUB-DEAL`
+
+Business job:
+
+- understand and coach the path from person to opportunity to appointment to Shopping List to executed deal to Ops follow-through
+- preserve the difference between CRM human identity, KPI opportunity episodes, appointments, active working opportunities, executed deal math, and Ops tasks
+- support future Sales Hub, agent KPI coach, source hygiene assistant, and eventual CRM replacement work
+
+Connected source contracts:
+
+| Source ID | Role in grouped system | Detail note |
+| --- | --- | --- |
+| `SRC-FUB-001` | CRM person/contact truth, stage/source/tag/assigned-user context, referral/source lineage, support-network hygiene | [Follow Up Boss](follow-up-boss.md) |
+| `SRC-SUPABASE-001` | KPI app database: `persons`, `appointments`, Shopping List `leads`, `deal_data`, goals, competitions, usage | [KPI Dashboard / Supabase](kpi-dashboard.md) |
+| `FUBZahnd` code evidence | Lee middleware implementation proof for FUB -> KPI translation, opportunity re-entry, and `leaddate` / `leadclaimeddate` behavior | [FUBZahnd middleware](fub-zahnd-middleware.md) |
+| `SRC-OWNERS-001` | governed transaction ledger, source-row correction surface, split/cash/trade-number deal truth | [Owners Dashboard](owners-dashboard.md) |
+| `SRC-OWNERS-LISTS-001` | governed source dropdown/list data and active-agent roster inputs flowing into Owners/Admin | [BHAG Builder Lists](bhag-builder-lists.md) |
+| `SRC-CLICKUP-001` | deal workflow/accountability follow-through, conditional forecast inputs, Agent Roster, review/NPS task fields | [ClickUp](clickup.md) |
+| `SRC-MEETINGS-001` | coaching doctrine evidence from leadership, sales, and agent coaching calls | [Meeting source boundary](../source-registry.md) |
+
+Repeatable proofs and audits:
+
+- `npm run connection:audit`
+- `npm run kpi:data-quality`
+- `npm run kpi:shopping-list`
+- `npm run deal-review:admin`
+- `npm run deal-review:conditional`
+
+Tracked backlog / next work:
+
+- `SOURCE-010` - KPI read rules locked
+- `SOURCE-021` - FUB/KPI opportunity semantics
+- `SOURCE-017` - FUB source lineage and support-network doctrine
+- `KPI-APPT-QUALITY-001` - appointment stacking / outcome hygiene
+- `KPI-LEAD-VALIDATION-001` - fake-lead and source validation
+- `KPI-SHOPPING-001` - Shopping List weekly discipline
+- `KPI-HEALTH-001` - KPI freshness / schema / code drift health
+- `OPS-008` - ClickUp Deal Data Entry Trade Number coverage
+- `SALES-004` - future agent-facing KPI coach / daily nugget loop
+- `SALES-005` - agent-authorized KPI/FUB fix and apply layer
+- `CONNECTOR-CREDENTIAL-001` - no-secret connector preflight registry
+
+Read boundary:
+
+- read the individual source notes for per-source meaning
+- use this grouped map only when the question crosses systems
+- do not create a new source ID just because the business question spans multiple sources
+- if a cross-system rule becomes operational, promote it into a script, backlog card, verifier, or source-specific note
+
 ## Live Proof Snapshot
 
 Command:

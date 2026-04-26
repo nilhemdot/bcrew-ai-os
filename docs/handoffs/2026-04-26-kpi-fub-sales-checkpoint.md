@@ -356,9 +356,10 @@ Do not do five broad passes by default. Do three focused deep passes first, then
 
 Recommended order:
 
-1. `KPI-SHOPPING-001`
-   - mine Reilly Mitchell and Sofia Fischman Shopping List coaching calls
-   - lock weekly discipline rules and agent-coach language
+1. `KPI-SHOPPING-001` - completed after this checkpoint
+   - repeatable live audit exists as `npm run kpi:shopping-list`
+   - durable audit exists at `docs/audits/2026-04-26-kpi-shopping-list-discipline-audit.md`
+   - Shopping List doctrine is connected to `SRC-MEETINGS-001` evidence and `SRC-SUPABASE-001` `leads`
 
 2. `DRIVE-CONTENT-001` / `EMAIL-ATTACHMENTS-001` / `MEETING-VIDEO-001`
    - prove Docs/PDF/attachments/video extraction with skip reasons, source links, route/cost ledgering, and small daily quotas
@@ -378,3 +379,48 @@ Optional fifth:
 1. `Import`, `<unspecified>`, generic `Sphere`, and similar placeholders are not valid final lead-source truth. They should trigger guided correction against the governed FUB source doctrine.
 2. Appointment stacking should use a `60` to `90` day review window and ask context. Buy+sell, multiple properties, and separate deal paths are legitimate exceptions; one opportunity with repeated meetings should update/move the original appointment.
 3. Future apply can eventually touch every connected system, but v1 should write only to confident surfaces. Most hygiene writes go to FUB; KPI direct writes are mainly goals and Shopping List.
+
+## Next Deep Pass Completed: Shopping List
+
+New durable tooling:
+
+- `scripts/audit-kpi-shopping-list-quality.mjs`
+- `npm run kpi:shopping-list`
+
+Repeatable command:
+
+```bash
+npm run -s kpi:shopping-list -- --topLimit=0 --sampleLimit=0
+```
+
+Live proof captured on `2026-04-26`:
+
+- KPI Supabase `leads` table was readable
+- `673` total Shopping List rows
+- `293` active rows
+- `380` closed rows
+- `376` closed executed rows
+- `137` active signed rows
+- `91` active high-score rows
+- `16` active stale high-score rows
+- `36` active rows past their score-specific expected window
+- `49` active blank action-plan rows
+- `17` active high-score blank action-plan rows
+- `35` duplicate active client clusters
+- `85` duplicate active client rows
+- `1` closed execution drift row
+
+Durable docs/backlog updated:
+
+- `docs/source-notes/fub-kpi-deal-connection-map.md`
+- `docs/source-notes/kpi-dashboard.md`
+- `docs/source-registry.md`
+- `docs/audits/2026-04-26-kpi-shopping-list-discipline-audit.md`
+- `KPI-SHOPPING-001`
+
+Important structure decision:
+
+- the FUB/KPI/Deal work is now mapped as a grouped source system, not a loose set of notes
+- the grouped map is `docs/source-notes/fub-kpi-deal-connection-map.md`
+- individual source notes still own source-specific truth
+- grouped maps are for cross-system jobs like Sales Hub, agent coaching, source hygiene, and CRM replacement logic

@@ -656,11 +656,34 @@ The Shopping List is critical because it is the manual working-opportunity layer
 Founder clarification:
 
 - Shopping List should be updated weekly
-- coaching calls with Reilly Mitchell and Sofia Fischman explain the intended behavior and should be mined from Drive/meeting archives before final Sales Hub coaching language is locked
+- the agent starts with active Shopping List clients because these are closest to money
+- a useful review asks what can be done this week to move each client to the next step
+- score windows matter: a high-score opportunity sitting too long usually means the score is wrong, the plan is missing, or the deal is stalled
+- the Shopping List directly affects leadership's view of company pipeline dollars and where coaching/support should go
+- coaching calls with Sofia Fischman, team Shopping List sessions, leadership meetings, morning huddles, and future Reilly Mitchell evidence should be mined before final Sales Hub coaching language is locked
+
+Meeting evidence already found in `SRC-MEETINGS-001`:
+
+- `Sales Team Meeting - Survey & Shopping List` on `2025-05-27`
+- `Weekly Leadership Meeting - Review the Week and Plan The Next` on `2025-01-10`
+- `Aidan / Steve` on `2026-04-07`
+- `The Morning Huddle` on `2026-04-17`
+- `Sales Leadership Meeting` / Nick & John prep artifacts around `2026-04-14`
+- `Sofia and Steve` coaching artifacts from January and February `2026`
 
 Coaching rule:
 
 - stale high-score Shopping List rows, blank action plans, duplicate active opportunities, and missing weekly updates are pipeline-quality signals
+- use score-specific expected windows before waiting for a generic 60-day stale rule:
+  - `10`: about `15` days
+  - `9`: about `30` days
+  - `8`: about `45` days
+  - `7`: about `60` days
+  - `6`: about `90` days
+  - `5`: about `180` days
+  - `4`: about `365` days
+- duplicate active Shopping List rows should trigger a question first, because buy/sell, multiple properties, or separate opportunity paths can be legitimate
+- blank action plans on active opportunities should trigger a practical "what is the next action this week?" prompt
 - agent coaching should combine FUB lead validation, appointment outcome hygiene, Shopping List discipline, goals, and executed deal data
 
 ### Agent Coach Action Destination
@@ -685,22 +708,60 @@ This destination is tracked by `SALES-004` and `SALES-005`.
 
 ## Audit Snapshot: Shopping List Quality
 
-Date: `2026-04-20`
+Date: `2026-04-26`
 
 This is not permanent live truth. It is the current audit snapshot used to understand how healthy the Shopping List discipline is today.
 
-What the extra pass proved:
+Command:
 
-- active shopping-list rows: `289`
-- signed active rows: `135`
-- active rows with blank `action_plan`: `47`
-- stale active high-score rows (`7+` and older than `60` days): `16`
+```bash
+npm run -s kpi:shopping-list -- --topLimit=0 --sampleLimit=0
+```
+
+Connector proof:
+
+- KPI Supabase project: `ayqykfsapzgqmqrrhque.supabase.co`
+- table: `leads`
+
+Live proof:
+
+- total Shopping List rows: `673`
+- active shopping-list rows: `293`
+- closed rows: `380`
+- closed executed rows: `376`
+- closed fell-through rows: `4`
+- signed active rows: `137`
+- active high-score rows (`score >= 7`): `91`
+- active stale high-score rows (`7+` and older than `60` days): `16`
+- active rows past their score-specific expected window: `36`
+- active rows with blank `action_plan`: `49`
+- active high-score rows with blank `action_plan`: `17`
+- active rows missing score: `0`
+- active rows missing type: `0`
+- active rows missing estimated economics: `2`
+- duplicate active client clusters: `35`
+- duplicate active client rows: `85`
+- closed execution drift rows: `1`
+
+Active score distribution:
+
+- `10`: `5`
+- `9`: `10`
+- `8`: `30`
+- `7`: `46`
+- `6`: `51`
+- `5`: `66`
+- `4`: `50`
+- `3`: `11`
+- `2`: `9`
+- `1`: `15`
 
 Known quality risks seen live:
 
 - duplicate active shopping-list entries still exist for some agents
 - stale `7+` and `8+` rows still exist with empty action plans
 - some agents clearly use the app, but that does not prove they are maintaining Shopping List correctly
+- score-window expiry catches some issues earlier than the generic stale-high-score check
 
 Useful current operator read:
 
