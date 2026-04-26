@@ -8461,6 +8461,149 @@ function renderSourceHero(config, sourceContracts, sourceConnectors) {
   return hero
 }
 
+function countSourcePresence(sourceContracts) {
+  var counts = {
+    signedOff: 0,
+    connected: 0,
+    needsVerification: 0,
+    notConnected: 0,
+  }
+
+  ;(sourceContracts || []).forEach(function(contract) {
+    var presence = getSourcePresence(contract).key
+    if (presence === 'signed-off') counts.signedOff += 1
+    else if (presence === 'connected') counts.connected += 1
+    else if (presence === 'needs-verification') counts.needsVerification += 1
+    else counts.notConnected += 1
+  })
+
+  return counts
+}
+
+function countConnectorStates(sourceConnectors) {
+  var counts = {
+    connected: 0,
+    needsVerification: 0,
+    notConnected: 0,
+  }
+
+  ;(sourceConnectors || []).forEach(function(connector) {
+    var state = getConnectorState(connector).key
+    if (state === 'connected') counts.connected += 1
+    else if (state === 'needs-verification') counts.needsVerification += 1
+    else counts.notConnected += 1
+  })
+
+  return counts
+}
+
+function renderDataSourcePurposePanel(section, config, sourceContracts, sourceConnectors, groupedSystems) {
+  var sourceCounts = countSourcePresence(sourceContracts)
+  var connectorCounts = countConnectorStates(sourceConnectors)
+  var systemCount = Array.isArray(groupedSystems) ? groupedSystems.length : groupSourceContractsBySystem(sourceContracts).length
+  var statusCards = []
+  var title = config.title + ' Page Job'
+
+  if (section === 'source-overview') {
+    statusCards = [
+      {
+        label: 'Page job',
+        status: 'connected',
+        detail: 'Show the whole source layer: grouped systems, source contracts, validation units, and connector paths.',
+      },
+      {
+        label: 'Live backing',
+        status: 'connected',
+        detail: systemCount + ' grouped systems, ' + sourceContracts.length + ' source contracts, and ' + sourceConnectors.length + ' connectors from /api/source-of-truth.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'Use Systems for how sources combine into operating systems, Runtime Health for job status, and Backlog for work ownership.',
+      },
+    ]
+  } else if (section === 'source-docs') {
+    statusCards = [
+      {
+        label: 'Page job',
+        status: 'connected',
+        detail: 'Show doc-backed source contracts only: strategy packets, rebuild doctrine, source notes, and file-backed truth units.',
+      },
+      {
+        label: 'Live backing',
+        status: 'connected',
+        detail: sourceContracts.length + ' doc-backed validation units. ' + sourceCounts.signedOff + ' signed off, ' + sourceCounts.connected + ' connected/provisional.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'This is not the All Docs file inventory. It only shows docs that are source contracts or trusted validation units.',
+      },
+    ]
+  } else if (section === 'source-sheets') {
+    statusCards = [
+      {
+        label: 'Page job',
+        status: 'connected',
+        detail: 'Show spreadsheet-backed source contracts at the workbook, tab, range, and validation-unit level.',
+      },
+      {
+        label: 'Live backing',
+        status: 'connected',
+        detail: sourceContracts.length + ' spreadsheet validation units. Sheet access is separate from signed-off meaning.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'A Google Sheets connector proves reach. This page proves which sheet units are actually trusted and what they own.',
+      },
+    ]
+  } else if (section === 'source-apis') {
+    statusCards = [
+      {
+        label: 'Page job',
+        status: 'connected',
+        detail: 'Show app, API, and database-backed business sources such as FUB, KPI Supabase, ClickUp, Gmail, Missive, Slack, meetings, and marketing systems.',
+      },
+      {
+        label: 'Live backing',
+        status: 'connected',
+        detail: sourceContracts.length + ' app/API validation units. ' + sourceCounts.needsVerification + ' still need verification and ' + sourceCounts.notConnected + ' are explicit gaps.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'Do not treat API access as trust. Each app still needs a source contract, signed-off meaning, freshness, and write boundary.',
+      },
+    ]
+  } else if (section === 'source-connectors') {
+    statusCards = [
+      {
+        label: 'Page job',
+        status: 'connected',
+        detail: 'Show the connector layer only: technical pipes, installed apps, API paths, and access status.',
+      },
+      {
+        label: 'Live backing',
+        status: 'connected',
+        detail: sourceConnectors.length + ' connectors tracked: ' + connectorCounts.connected + ' working, ' + connectorCounts.needsVerification + ' need validation, ' + connectorCounts.notConnected + ' not wired.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'Connector does not equal trusted source. Trust lives on source contracts, source notes, grouped systems, and verifier checks.',
+      },
+    ]
+  }
+
+  if (!statusCards.length) return null
+  return renderOverviewStatusPanel(statusCards, {
+    eyebrow: 'Page Purpose',
+    title: title,
+    intro: 'This page earns its menu slot only if it answers a distinct Foundation question.',
+  })
+}
+
 function renderSourceSystemsPanel(sourceContracts, options) {
   var opts = options || {}
   var panel = document.createElement('section')
@@ -9974,7 +10117,7 @@ function renderInventoryDocs() {
     heroInner.appendChild(heroEyebrow)
 
     var heroTitle = document.createElement('h1')
-    heroTitle.textContent = 'Docs / Storage'
+    heroTitle.textContent = 'All Docs'
     heroInner.appendChild(heroTitle)
 
     var heroMeta = document.createElement('p')
@@ -9984,11 +10127,18 @@ function renderInventoryDocs() {
 
     var heroCopy = document.createElement('p')
     heroCopy.className = 'hero-copy'
-    heroCopy.textContent = 'File-level inventory. Use this page when auditing what exists in the repo.'
+    heroCopy.textContent = 'File-level inventory. Use this page when auditing what exists in the repo and what is intentionally local-private.'
     heroInner.appendChild(heroCopy)
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
+
+    var purposePanel = renderSystemInventoryPurposePanel('inventory-docs', {
+      inventory: inventory,
+      trackedDocs: trackedDocs,
+      privateLocalDocs: privateLocalDocs,
+    })
+    if (purposePanel) container.appendChild(purposePanel)
 
     var statusPanel = renderOverviewStatusPanel([
       {
@@ -10100,13 +10250,113 @@ function renderInventoryDocs() {
   })
 }
 
+function renderSystemInventoryPurposePanel(section, context) {
+  var ctx = context || {}
+  var inventory = ctx.inventory || {}
+  var trackedDocs = ctx.trackedDocs || (inventory.docs && inventory.docs.tracked) || []
+  var privateLocalDocs = ctx.privateLocalDocs || (inventory.docs && inventory.docs.privateLocal) || []
+  var skills = ctx.skills || inventory.skills || []
+  var plugins = ctx.plugins || inventory.plugins || []
+  var agentSystem = ctx.agentSystem || null
+  var title = 'Inventory Page Job'
+  var statusCards = []
+
+  if (section === 'inventory-docs') {
+    title = 'All Docs Inventory Job'
+    statusCards = [
+      {
+        label: 'Page job',
+        status: 'connected',
+        detail: 'Show every tracked markdown doc plus local-private markdown docs with a reason, so storage does not become invisible.',
+      },
+      {
+        label: 'Live backing',
+        status: 'connected',
+        detail: trackedDocs.length + ' tracked docs and ' + privateLocalDocs.length + ' local-private docs from /api/system-inventory.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'All Docs is storage inventory, not active doctrine. Current Plan, Overview, Systems, Data Sources, and the live Backlog decide operational truth.',
+      },
+    ]
+  } else if (section === 'capabilities-skills') {
+    title = 'Skills Inventory Job'
+    statusCards = [
+      {
+        label: 'Page job',
+        status: 'connected',
+        detail: 'Show reusable Codex/runtime instructions available in this environment.',
+      },
+      {
+        label: 'Live backing',
+        status: skills.length ? 'connected' : 'pending',
+        detail: skills.length + ' skills detected from the local runtime inventory.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'Skills guide assistants. They are not business agents, data sources, or source-signoff proof.',
+      },
+    ]
+  } else if (section === 'capabilities-plugins') {
+    title = 'Plugins / MCPs Inventory Job'
+    statusCards = [
+      {
+        label: 'Page job',
+        status: 'connected',
+        detail: 'Show installed local plugin and MCP surfaces available to the coding/runtime layer.',
+      },
+      {
+        label: 'Live backing',
+        status: plugins.length ? 'connected' : 'pending',
+        detail: plugins.length + ' plugin/MCP surfaces detected from the local runtime inventory.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'A plugin can exist even when the related business source is not signed off. Use Data Sources for source truth.',
+      },
+    ]
+  } else if (section === 'capabilities-agents') {
+    title = 'Agents Inventory Job'
+    statusCards = [
+      {
+        label: 'Page job',
+        status: 'pending',
+        detail: 'Show the current agent-system boundary while the real Agent Registry and Agent Operations surfaces are still backlog work.',
+      },
+      {
+        label: 'Live backing',
+        status: agentSystem ? 'connected' : 'pending',
+        detail: agentSystem
+          ? 'Backed by ' + agentSystem.systemId + ' in the Foundation Systems map: ' + (agentSystem.status || 'mapped') + '.'
+          : 'No source-backed agent system is mapped yet.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'This is not a live Agent Registry yet. AGENT-006 owns registry, AGENT-007 owns operations, and AGENT-010 owns personal-agent onboarding.',
+      },
+    ]
+  }
+
+  if (!statusCards.length) return null
+  return renderOverviewStatusPanel(statusCards, {
+    eyebrow: 'Page Purpose',
+    title: title,
+    intro: 'System Inventory pages show repo/runtime capability surfaces. They do not replace Data Sources or Systems.',
+  })
+}
+
 function renderCapabilitySection(section) {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading capabilities...</p>'
 
-  Promise.all([fetchFoundationHub(), fetchSystemInventory()]).then(function(results) {
+  Promise.all([fetchFoundationHub(), fetchSystemInventory(), fetchSourceOfTruth()]).then(function(results) {
     var hub = results[0]
     var inventory = results[1]
+    var sourceData = results[2]
     container.innerHTML = ''
 
     var config = capabilityCatalog[section]
@@ -10117,6 +10367,9 @@ function renderCapabilitySection(section) {
 
     var liveItems = config.items || []
     var statusCards = config.statusCards || []
+    var agentSystem = (sourceData.groupedSystems || []).filter(function(system) {
+      return system.systemId === 'SYS-AGENTS-001'
+    })[0] || null
 
     if (section === 'capabilities-skills') {
       liveItems = (inventory.skills || []).map(function(skill) {
@@ -10134,14 +10387,19 @@ function renderCapabilitySection(section) {
       var workspaceSkills = liveItems.filter(function(item) { return item.type === 'Workspace skill' }).length
       statusCards = [
         {
-          label: 'Workspace skills',
+          label: 'Workspace skill',
           status: workspaceSkills ? 'connected' : 'pending',
-          detail: workspaceSkills + ' workspace-level skills are installed in this environment.',
+          detail: workspaceSkills + ' repo-specific workspace skill is installed in this environment.',
         },
         {
           label: 'System skills',
           status: liveItems.length - workspaceSkills ? 'connected' : 'pending',
           detail: (liveItems.length - workspaceSkills) + ' built-in system skills are available in this environment.',
+        },
+        {
+          label: 'Boundary',
+          status: 'pending',
+          detail: 'Skills are assistant instructions, not business sources or agent registry records.',
         },
       ]
     } else if (section === 'capabilities-plugins') {
@@ -10166,9 +10424,46 @@ function renderCapabilitySection(section) {
           detail: liveItems.length + ' plugin or MCP surfaces are installed in this environment.',
         },
         {
-          label: 'Still open',
+          label: 'Boundary',
           status: 'pending',
-          detail: 'Foundation still needs the richer live capabilities registry so these surfaces stop living only as runtime context.',
+          detail: 'Installed plugin does not mean the business source is signed off. Source trust stays in Data Sources.',
+        },
+      ]
+    } else if (section === 'capabilities-agents') {
+      liveItems = []
+      if (agentSystem) {
+        liveItems.push({
+          id: agentSystem.systemId,
+          title: agentSystem.title,
+          type: agentSystem.maturityLevel || 'Mapped system',
+          state: agentSystem.status || 'Mapped',
+          tone: 'pending',
+          availableTo: 'Foundation Systems map and future agent surfaces',
+          purpose: [
+            agentSystem.currentState || agentSystem.purpose,
+            agentSystem.nextLevelPlan ? 'Next: ' + agentSystem.nextLevelPlan : '',
+          ].filter(Boolean).join(' '),
+        })
+      }
+      liveItems = liveItems.concat(config.items || [])
+
+      statusCards = [
+        {
+          label: 'Agent system map',
+          status: agentSystem ? 'connected' : 'pending',
+          detail: agentSystem
+            ? (agentSystem.systemId + ' is mapped in Foundation Systems at ' + (agentSystem.maturityLevel || 'an early level') + '.')
+            : 'No agent system map exists yet.',
+        },
+        {
+          label: 'Registry',
+          status: 'pending',
+          detail: 'Not a live Agent Registry yet. AGENT-006 owns the contract-backed registry.',
+        },
+        {
+          label: 'Operations',
+          status: 'pending',
+          detail: 'Agent runtime status is not live here yet. AGENT-007 owns the operations surface.',
         },
       ]
     }
@@ -10195,6 +10490,14 @@ function renderCapabilitySection(section) {
 
     hero.appendChild(heroInner)
     container.appendChild(hero)
+
+    var purposePanel = renderSystemInventoryPurposePanel(section, {
+      inventory: inventory,
+      skills: inventory.skills || [],
+      plugins: inventory.plugins || [],
+      agentSystem: agentSystem,
+    })
+    if (purposePanel) container.appendChild(purposePanel)
 
     var statusPanel = renderOverviewStatusPanel(statusCards, {
       eyebrow: 'Lane State',
@@ -10295,6 +10598,8 @@ function renderSourceRegistry(section) {
     var sourceContracts = getSourceContractsForSection(data.sources || [], config)
     var sourceConnectors = data.connectors || []
     container.appendChild(renderSourceHero(config, sourceContracts, sourceConnectors))
+    var purposePanel = renderDataSourcePurposePanel(section, config, sourceContracts, sourceConnectors, data.groupedSystems || [])
+    if (purposePanel) container.appendChild(purposePanel)
 
     if (section === 'source-overview') {
       container.appendChild(renderOverviewStatusPanel(

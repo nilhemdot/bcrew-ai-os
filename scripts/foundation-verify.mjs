@@ -597,6 +597,7 @@ async function main() {
   )
 
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
+  const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
   const opsHub = await fetchJson(baseUrl, '/api/ops-hub')
   const ownersLeadSourceGovernance = await fetchJson(baseUrl, '/api/owners/lead-source-governance')
@@ -637,6 +638,51 @@ async function main() {
     missingGroupedSystemIds.length
       ? `missing ${missingGroupedSystemIds.join(', ')}`
       : `${liveGroupedSystemIds.length} live / ${groupedSourceSystems.length} code`,
+  )
+  ensure(
+    checks,
+    includesAll(foundationUiSource, [
+      'renderDataSourcePurposePanel',
+      'Show the whole source layer',
+      'doc-backed source contracts only',
+      'spreadsheet-backed source contracts',
+      'Show app, API, and database-backed business sources',
+      'Show the connector layer only',
+      'Connector does not equal trusted source',
+    ]),
+    'Data Sources pages explain purpose and connector boundary',
+    'Overview, Docs, Spreadsheets, APIs / Apps, and Connectors have explicit page-purpose copy',
+  )
+  ensure(
+    checks,
+    systemInventory?.docs &&
+      Array.isArray(systemInventory.docs.tracked) &&
+      Array.isArray(systemInventory.docs.privateLocal) &&
+      Array.isArray(systemInventory.skills) &&
+      Array.isArray(systemInventory.plugins) &&
+      includesAll(foundationUiSource, [
+        'renderSystemInventoryPurposePanel',
+        'All Docs Inventory Job',
+        'Skills Inventory Job',
+        'Plugins / MCPs Inventory Job',
+        'Agents Inventory Job',
+        'not a live Agent Registry yet',
+      ]),
+    'System Inventory pages explain live backing and boundaries',
+    `${systemInventory?.docs?.tracked?.length ?? 'invalid'} docs / ${systemInventory?.skills?.length ?? 'invalid'} skills / ${systemInventory?.plugins?.length ?? 'invalid'} plugins`,
+  )
+  ensure(
+    checks,
+    includesAll(currentState, [
+      'Data Sources And System Inventory Surfaces',
+      'Connector does not equal trusted source',
+      'not a live Agent Registry yet',
+      'AGENT-006',
+      'AGENT-007',
+      'AGENT-010',
+    ]),
+    'current-state documents Data Sources and System Inventory purpose boundaries',
+    'source, connector, docs, skills, plugins, and agent inventory boundaries are captured',
   )
 
   const liveOwnersContract = findSourceById(sourceOfTruth.sources, 'SRC-OWNERS-001')

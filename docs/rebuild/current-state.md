@@ -123,6 +123,22 @@ These pages are operator surfaces, not strategy pages.
 | System Activity | Short audit feed. | Live latest-event view from `change_events`; `SYSTEM-007` owns the future searchable explorer. |
 | Runtime Health | Operator diagnostic surface. | Live job/LLM/extraction/source-crawl view; `SYSTEM-008` owns deeper alert/degradation semantics. |
 
+## Data Sources And System Inventory Surfaces
+
+These pages are visibility surfaces. They do not replace the live Backlog, Foundation Systems map, or Runtime Health.
+
+| Page | Why it exists | Current truth |
+| --- | --- | --- |
+| Data Sources Overview | Front door to the source layer. | Live from `/api/source-of-truth`: grouped systems, source contracts, validation units, connector paths, and source-trust states. |
+| Docs | Doc-backed source contracts only. | Useful for seeing written packets and file-backed truth units. It is not the same thing as All Docs storage inventory. |
+| Spreadsheets | Workbook/tab/range source contracts. | Useful for sheet-by-sheet trust. Connector access is separated from which sheet units are actually signed off. |
+| APIs / Apps | External app, API, database, and Workspace source contracts. | Useful for FUB, KPI, ClickUp, Gmail, Missive, Slack, meetings, Drive, video, and marketing source boundaries. API reach does not equal trust. |
+| Connectors | Technical pipes and access paths. | Useful for seeing what is installed, wired, or missing. Connector does not equal trusted source. |
+| All Docs | File-level repo and local-private markdown inventory. | Live from `/api/system-inventory`; shows tracked docs and intentionally private local docs. It is storage inventory, not active doctrine. |
+| Skills | Local skill inventory. | Shows reusable assistant instructions available in this runtime. Skills are not business agents or source contracts. |
+| Plugins / MCPs | Local plugin and MCP inventory. | Shows runtime capabilities such as Google Drive, Gmail, Calendar, GitHub, and Canva. Installed plugin does not mean the matching source is signed off. |
+| Agents | Agent-system boundary view. | Backed by `SYS-AGENTS-001` plus backlog links, but not a live Agent Registry yet. `AGENT-006` owns registry, `AGENT-007` owns operations, and `AGENT-010` owns personal-agent onboarding. |
+
 ## Active Plan Docs
 
 Trust these first:
