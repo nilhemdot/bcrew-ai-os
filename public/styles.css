@@ -1193,6 +1193,13 @@ body {
   color: var(--text-tertiary);
 }
 
+.current-state-surface-status-label {
+  margin: -2px 0 8px 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
 .current-state-surface-top {
   display: flex;
   align-items: flex-start;

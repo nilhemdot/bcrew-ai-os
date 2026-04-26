@@ -4329,7 +4329,7 @@ var sectionLabels = {
   'departments': 'Department Mandates',
   'core-values': 'Core Values',
   'marketmasters': 'MarketMasters',
-  'current-state': 'Current State',
+  'current-state': 'Overview',
   'rebuild-plan': 'Rebuild Plan',
   'users': 'Users',
   'user-steve': 'Steve',
@@ -4844,7 +4844,7 @@ function getFoundationHomeWaitingItems() {
   return [
     {
       title: 'Use the active plan, not handoffs',
-      body: 'Current Plan and Current State are the authority. Handoffs, audits, specs, and research are evidence unless promoted.',
+      body: 'Current Plan and Foundation Overview are the authority. Handoffs, audits, specs, and research are evidence unless promoted.',
       meta: 'Doc authority',
       href: '/doc?path=docs/rebuild/current-plan.md',
       cta: 'Open Current Plan',
@@ -4861,7 +4861,7 @@ function getFoundationHomeWaitingItems() {
       body: 'Synthesized items must route into decisions, tasks, questions, contradictions, ignore/snooze, or owner-bound actions with source evidence.',
       meta: 'Action Router v1',
       href: '/foundation#current-state',
-      cta: 'Open Current State',
+      cta: 'Open Overview',
     },
     {
       title: 'Finish source trust in order',
@@ -4876,11 +4876,11 @@ function getFoundationHomeWaitingItems() {
 function getFoundationHomeActionItems() {
   return [
     {
-      title: 'Current State',
-      body: 'Shortest read on what is done, not done, and next.',
+      title: 'Foundation Overview',
+      body: 'Shortest read on trusted sources, live systems, open gaps, and next execution.',
       meta: 'Best first click',
       href: '/foundation#current-state',
-      cta: 'Open Current State',
+      cta: 'Open Overview',
     },
     {
       title: 'Rebuild Plan',
@@ -5665,7 +5665,7 @@ function renderCurrentStatePackageDetailTable(parts, claimedFocusIds) {
   return wrap
 }
 
-function renderCurrentStateSurfaceTable(rows, hub) {
+function renderCurrentStateSurfaceTable(rows) {
   var wrap = document.createElement('div')
   wrap.className = 'md-table-wrap'
   var focusId = getSectionFocus()
@@ -5697,7 +5697,7 @@ function renderCurrentStateSurfaceTable(rows, hub) {
   table.className = 'md-table current-state-master-table'
 
   var colgroup = document.createElement('colgroup')
-  ;['29%', '28%', '31%', '12%'].forEach(function(width) {
+  ;['26%', '34%', '22%', '18%'].forEach(function(width) {
     var col = document.createElement('col')
     col.style.width = width
     colgroup.appendChild(col)
@@ -5706,7 +5706,7 @@ function renderCurrentStateSurfaceTable(rows, hub) {
 
   var thead = document.createElement('thead')
   var headRow = document.createElement('tr')
-  ;['Surface', 'What Exists Now', 'What Closes Next', 'Backlog'].forEach(function(label) {
+  ;['Surface', 'What Exists Now', 'What Closes Next', 'Later / Not A Blocker'].forEach(function(label) {
     var th = document.createElement('th')
     th.textContent = label
     headRow.appendChild(th)
@@ -5741,6 +5741,13 @@ function renderCurrentStateSurfaceTable(rows, hub) {
       surfaceType.className = 'current-state-surface-kind'
       surfaceType.textContent = row.surfaceType
       surfaceCell.appendChild(surfaceType)
+    }
+
+    if (row.statusLabel) {
+      var statusText = document.createElement('div')
+      statusText.className = 'current-state-surface-status-label'
+      statusText.textContent = row.statusLabel
+      surfaceCell.appendChild(statusText)
     }
 
     if (hasParts) {
@@ -5790,21 +5797,13 @@ function renderCurrentStateSurfaceTable(rows, hub) {
 
     var nextCell = document.createElement('td')
     nextCell.className = 'current-state-table-copy'
-    var nextMain = document.createElement('div')
-    nextMain.textContent = row.next || ''
-    nextCell.appendChild(nextMain)
-    if (row.later) {
-      var later = document.createElement('div')
-      later.className = 'current-state-table-subnote'
-      later.textContent = 'Later: ' + row.later
-      nextCell.appendChild(later)
-    }
+    nextCell.textContent = row.next || ''
     summaryRow.appendChild(nextCell)
 
-    var backlogCell = document.createElement('td')
-    backlogCell.className = 'current-state-backlog-cell'
-    backlogCell.appendChild(renderCurrentStateBacklogCell(hub, row.backlogIds))
-    summaryRow.appendChild(backlogCell)
+    var laterCell = document.createElement('td')
+    laterCell.className = 'current-state-table-copy'
+    laterCell.textContent = row.later || ''
+    summaryRow.appendChild(laterCell)
 
     tbody.appendChild(summaryRow)
     if (detailRow) tbody.appendChild(detailRow)
@@ -6147,12 +6146,12 @@ function renderCurrentState() {
     heroInner.className = 'hero-inner'
 
     var heroTitle = document.createElement('h1')
-    heroTitle.textContent = 'Current State'
+    heroTitle.textContent = 'Foundation Overview'
     heroInner.appendChild(heroTitle)
 
     var heroCopy = document.createElement('p')
     heroCopy.className = 'hero-copy'
-    heroCopy.textContent = 'One page: what is actually closed, what is still partial, and what closes next.'
+    heroCopy.textContent = 'Foundation operating view: trusted sources, capture and extraction systems, governance gaps, and where unresolved work belongs.'
     heroInner.appendChild(heroCopy)
 
     var heroMeta = document.createElement('p')
@@ -6164,11 +6163,10 @@ function renderCurrentState() {
 
     var heroActions = document.createElement('div')
     heroActions.className = 'foundation-hero-actions'
-    heroActions.appendChild(createActionLink('Open Rebuild Plan', '/foundation#rebuild-plan'))
-    heroActions.appendChild(createActionLink('Open System Health', '/foundation#system-health', 'print-button'))
+    heroActions.appendChild(createActionLink('Open System Health', '/foundation#system-health'))
+    heroActions.appendChild(createActionLink('Open Data Sources', '/foundation#source-overview', 'print-button'))
+    heroActions.appendChild(createActionLink('Open Ops Hub', '/ops', 'print-button'))
     heroActions.appendChild(createActionLink('Open Backlog', '/foundation#backlog', 'print-button'))
-    heroActions.appendChild(createActionLink('Open Doc Authority', buildDocHref('docs/rebuild/doc-cleanup-plan.md', currentPath), 'print-button'))
-    heroActions.appendChild(createActionLink('Open Owners Closeout', buildDocHref('docs/rebuild/owners-closeout.md', currentPath), 'print-button'))
     hero.appendChild(heroActions)
 
     container.appendChild(hero)
@@ -6199,8 +6197,48 @@ function renderCurrentState() {
     ], currentPath))
     container.appendChild(levelPanel)
 
-    var changeWatchPanel = renderCurrentStateChangeWatchPanel(results[1], results[2])
-    if (changeWatchPanel) container.appendChild(changeWatchPanel)
+    var systemsPanel = renderOverviewStatusPanel([
+      {
+        label: 'Source Truth Layer',
+        status: 'connected',
+        detail: 'Source contracts, source notes, verifier checks, and Foundation Overview show which business systems are readable, signed off, and safe to use.',
+      },
+      {
+        label: 'Runtime Jobs',
+        status: 'connected',
+        detail: 'The Foundation worker, job registry, run ledger, verifier, and LaunchAgents operate the scheduled system routines instead of leaving work in chat.',
+      },
+      {
+        label: 'Current-Day Capture',
+        status: 'connected',
+        detail: 'Gmail, Missive, meetings, Slack, Admin review, Conditional sync, and Agent Roster lanes keep the live operating picture moving forward.',
+      },
+      {
+        label: 'History Extraction',
+        status: 'connected',
+        detail: 'Daily quota missions are filing Drive content, Gmail attachments, shared-comms candidates, meeting transcripts, Slack candidates, and YouTube subtitle transcripts.',
+      },
+      {
+        label: 'GOD-Mode Corpus',
+        status: 'pending',
+        detail: 'Drive Docs/PDF/text and YouTube captions are live first slices. Visual video understanding, Mycro/Skool/Loom/Zoom, browser navigation, OCR, Slides, Sheets, and Office conversion remain build lanes.',
+      },
+      {
+        label: 'Decision Truth',
+        status: 'pending',
+        detail: 'Decision ledger, traceability, and contradiction checks have first slices. Temporal truth, richer provenance, and source-backed supersession are still backlog work.',
+      },
+      {
+        label: 'Action Loop',
+        status: 'planned',
+        detail: 'Synthesis can produce intelligence, but governed action routing, approval-gated writeback, and resolution awareness are still the Foundation loop-closing work.',
+      },
+    ], {
+      eyebrow: 'Overview',
+      title: 'Major Systems At A Glance',
+      intro: 'Foundation is the control plane. Hubs consume this truth; this page shows the shared systems underneath them.',
+    })
+    if (systemsPanel) container.appendChild(systemsPanel)
 
     var surfacesPanel = document.createElement('section')
     surfacesPanel.className = 'panel'
@@ -6212,15 +6250,19 @@ function renderCurrentState() {
     surfacesEyebrow.textContent = 'Foundation Surfaces'
     surfacesLeft.appendChild(surfacesEyebrow)
     var surfacesTitle = document.createElement('h3')
-    surfacesTitle.textContent = 'What Exists And What Closes Next'
+    surfacesTitle.textContent = 'Foundation Surface Readiness'
     surfacesLeft.appendChild(surfacesTitle)
+    var surfacesIntro = document.createElement('p')
+    surfacesIntro.className = 'section-intro'
+    surfacesIntro.textContent = 'This is not the live backlog. It shows which source and system surfaces are trustworthy enough to use, what still needs hardening, and where follow-on work belongs.'
+    surfacesLeft.appendChild(surfacesIntro)
     surfacesHeader.appendChild(surfacesLeft)
     surfacesPanel.appendChild(surfacesHeader)
 
     var legend = document.createElement('div')
     legend.className = 'current-state-legend'
     ;[
-      { key: 'connected', label: 'Done' },
+      { key: 'connected', label: 'Ready' },
       { key: 'pending', label: 'Open now' },
       { key: 'planned', label: 'Later' },
     ].forEach(function(item) {
@@ -6241,20 +6283,20 @@ function renderCurrentState() {
         surfaceType: 'Package',
         sourceId: ['SRC-STRATEGY-001', 'SRC-FREEDOM-COMMUNITY-001', 'SRC-FREEDOM-BHAG-001', 'SRC-FREEDOM-ENGINE-001', 'SRC-OWNERS-001'],
         statusKey: 'connected',
-        statusLabel: 'Connected / verified / understood',
+        statusLabel: 'Ready source package',
         currentSummary: 'The current strategy input package is connected, verified, and understood. Extraction, synthesis, and action routing are later Foundation layers, not blockers to this source package closeout.',
         packageParts: [
           {
             sourceId: 'SRC-STRATEGY-001',
             statusKey: 'connected',
-            statusLabel: 'Done',
+            statusLabel: 'Ready',
             body: 'Canonical strategy doc and supporting docs are signed off.',
             role: 'Strategy docs',
           },
           {
             sourceId: 'SRC-FREEDOM-COMMUNITY-001',
             statusKey: 'connected',
-            statusLabel: 'Done',
+            statusLabel: 'Ready',
             body: 'Mapped and understood for strategy use.',
             role: 'Freedom input',
             next: 'Nothing else here now.',
@@ -6262,7 +6304,7 @@ function renderCurrentState() {
           {
             sourceId: 'SRC-FREEDOM-BHAG-001',
             statusKey: 'connected',
-            statusLabel: 'Done',
+            statusLabel: 'Ready',
             body: 'Mapped and understood for strategy use.',
             role: 'Freedom input',
             next: 'Nothing else here now.',
@@ -6270,7 +6312,7 @@ function renderCurrentState() {
           {
             sourceId: 'SRC-FREEDOM-ENGINE-001',
             statusKey: 'connected',
-            statusLabel: 'Done',
+            statusLabel: 'Ready',
             body: 'Mapped and understood for strategy use.',
             role: 'Freedom input',
             next: 'Nothing else here now.',
@@ -6278,21 +6320,21 @@ function renderCurrentState() {
           {
             sourceId: 'SRC-OWNERS-001',
             statusKey: 'connected',
-            statusLabel: 'Done',
+            statusLabel: 'Ready',
             body: 'Strategy-used Owners slice is signed off through the Owners Admin package and current-reality finance/list boundaries.',
             role: 'Owners slice used in strategy',
             next: 'Nothing else blocks the current strategy-input package.',
           },
         ],
         next: 'No source sign-off closeout work remains for this package.',
-        later: 'Then extract/synthesize/source-route business insights through the Foundation pipeline and deepen Freedom drift monitoring, source-backed value hardening, decision provenance, and temporal history.',
+        later: 'Extract and synthesize business insights through the Foundation pipeline, then deepen Freedom drift monitoring, source-backed value hardening, decision provenance, and temporal history.',
         backlogIds: ['FOUNDATION-001', 'SOURCE-014'],
       },
       {
         title: 'System strategy',
         surfaceType: 'Docs',
         statusKey: 'connected',
-        statusLabel: 'Done',
+        statusLabel: 'Ready',
         currentSummary: 'Doctrine, boundaries, and rebuild direction are visible and signed off for this phase.',
         next: 'No closeout work right now.',
         later: 'Update only when the doctrine changes.',
@@ -6302,8 +6344,8 @@ function renderCurrentState() {
         title: 'Rebuild visibility',
         surfaceType: 'System',
         statusKey: 'connected',
-        statusLabel: 'Done',
-        currentSummary: 'Current State and Rebuild Plan are live in the repo and visible in the site.',
+        statusLabel: 'Ready',
+        currentSummary: 'Foundation Overview and Rebuild Plan are live in the repo and visible in the site.',
         next: 'Keep this aligned with backlog truth.',
         later: 'Do not let side docs drift away from this page.',
         backlogIds: [],
@@ -6312,7 +6354,7 @@ function renderCurrentState() {
         title: 'Verification baseline',
         surfaceType: 'System',
         statusKey: 'connected',
-        statusLabel: 'Done',
+        statusLabel: 'Ready',
         currentSummary: 'foundation:verify exists, is visible, and is passing.',
         next: 'No baseline closeout work left.',
         later: 'Add checks only when new source surfaces close.',
@@ -6323,20 +6365,20 @@ function renderCurrentState() {
         surfaceType: 'Package',
         sourceId: ['SRC-OWNERS-001', 'SRC-FUB-001'],
         statusKey: 'connected',
-        statusLabel: 'Done for v1',
+        statusLabel: 'Ready for v1',
         currentSummary: 'Admin-tab meaning is signed off. FUB joins through Column BZ, v1 lead-source lineage, and Admin review rules are locked for v1. The review runner checks split math, governed source rules, company/agent expectation, FUB source/stage/ISA evidence, pre-2026-04-01 Freedom follow-through, and post-2026-04-01 ClickUp Deal Data Entry follow-through. Foundation deal-review jobs re-check marked Admin/Conditional rows first, then pace first-pass Admin backlog inspection at 5 newest eligible June 2025+ deals per day using Date Firm (Executed) and a 10-day maturity gate. Ops Hub owns the resulting cleanup queue.',
         packageParts: [
           {
             sourceId: 'SRC-OWNERS-001',
             statusKey: 'connected',
-            statusLabel: 'Done',
+            statusLabel: 'Ready',
             body: 'Admin-tab meaning is signed off.',
             role: 'Owners base source',
           },
           {
             sourceId: 'SRC-FUB-001',
             statusKey: 'connected',
-            statusLabel: 'Done for v1',
+            statusLabel: 'Ready for v1',
             body: 'FUB joins, lead-source lineage rules, and Admin review enforcement are locked for v1. Missing FUB links, invalid lead sources, and duplicate-credit edge cases now surface as Ops cleanup findings instead of blocking the source package.',
             role: 'Dependency source',
             next: 'Work the Ops queue as findings appear.',
@@ -6351,18 +6393,18 @@ function renderCurrentState() {
         surfaceType: 'Data source',
         sourceId: 'SRC-FUB-001',
         statusKey: 'connected',
-        statusLabel: 'Done for v1',
+        statusLabel: 'Ready for v1',
         currentSummary: 'The review tool is live, FUB source drift is clear, and v1 source-lineage/company-agent rules are locked. The Lee FUBZahnd middleware repo is now captured as evidence for opportunity re-entry and LeadDate / LeadClaimedDate semantics.',
-        next: 'Work invalid-source or missing-link findings from the Ops queue. Keep SOURCE-021 as the deeper Sales Hub/FUB opportunity-semantics proof, not a blocker to v1 taxonomy closeout.',
-        later: 'Then add broader issue routing, live stage-table proof, and Sales Hub support.',
-        backlogIds: ['SOURCE-021'],
+        next: 'No v1 taxonomy closeout remains. Ops Hub owns invalid-source and missing-link cleanup findings.',
+        later: 'Deepen Sales Hub opportunity semantics, live stage-table proof, broader issue routing, and agent coaching support.',
+        backlogIds: [],
       },
       {
         title: 'Finance sign-off',
         surfaceType: 'Data source',
         sourceId: 'SRC-FINANCE-001',
         statusKey: 'connected',
-        statusLabel: 'Done for current reality',
+        statusLabel: 'Ready for current reality',
         currentSummary: 'Weekly Actuals, Cashflow Dash, finance roll-ups, budgets, and the Unspent helper are signed off for current-reality meaning. QuickBooks is optional compliance verification, not a current rebuild dependency.',
         next: 'No source-signoff rediscovery work remains here.',
         later: 'Define Level 3 freshness, payment reconciliation, and automation rules only when finance automation starts reading this continuously.',
@@ -6373,17 +6415,17 @@ function renderCurrentState() {
         surfaceType: 'Data source',
         sourceId: 'SRC-SUPABASE-001',
         statusKey: 'connected',
-        statusLabel: 'Done for read rules',
+        statusLabel: 'Ready for read rules',
         currentSummary: 'SRC-SUPABASE-001 is readable, the Lee / zahnd-team-dashboard repo and Supabase audit checkpoint are captured, and AI OS has locked first-pass read rules for pipeline, Shopping List, executed deals, goals, competition, and usage.',
-        next: 'No current-state source-signoff work remains for SOURCE-010.',
-        later: 'Add KPI health checks, visible freshness, schema/code drift review, and future Sales Hub surfaces through KPI-HEALTH-001.',
+        next: 'No current-state source-signoff work remains.',
+        later: 'Add KPI health checks, visible freshness, schema/code drift review, and future Sales Hub surfaces.',
         backlogIds: [],
       },
       {
         title: 'Shared freshness rules',
         surfaceType: 'Rule set',
         statusKey: 'connected',
-        statusLabel: 'Done for Owners/FUB first layer',
+        statusLabel: 'Ready for Owners/FUB first layer',
         currentSummary: 'The maturity model defines Level 3, and the first Owners/FUB freshness guardrails are live through DATA-020. Wider stale-data rollout is still later.',
         next: 'No active freshness-rule closeout remains for the current Owners/FUB layer.',
         later: 'Reuse this pattern for finance, KPI, connectors, Drive/video corpus, and future source surfaces when those readers become continuous.',
@@ -6391,7 +6433,7 @@ function renderCurrentState() {
       },
     ]
 
-    surfacesPanel.appendChild(renderCurrentStateSurfaceTable(surfaceRows, results[1]))
+    surfacesPanel.appendChild(renderCurrentStateSurfaceTable(surfaceRows))
     container.appendChild(surfacesPanel)
 
     var workPanel = document.createElement('section')
@@ -6408,7 +6450,7 @@ function renderCurrentState() {
     workLeft.appendChild(workTitle)
     var workIntro = document.createElement('p')
     workIntro.className = 'section-intro'
-    workIntro.textContent = 'Current State is for source status and closeout clarity. Live cleanup cards and build work belong in their own hubs.'
+    workIntro.textContent = 'Foundation Overview is for status and closeout clarity. Live cleanup cards and build work belong in their own hubs.'
     workLeft.appendChild(workIntro)
     workHeader.appendChild(workLeft)
     workPanel.appendChild(workHeader)
@@ -6432,11 +6474,11 @@ function renderCurrentState() {
     nextEyebrow.textContent = 'Next'
     nextLeft.appendChild(nextEyebrow)
     var nextTitle = document.createElement('h3')
-    nextTitle.textContent = 'Strategy-Ready Next Steps'
+    nextTitle.textContent = 'Foundation Execution Order'
     nextLeft.appendChild(nextTitle)
     var nextIntro = document.createElement('p')
     nextIntro.className = 'section-intro'
-    nextIntro.textContent = 'This is the clean order to follow from here. Closed source packages stay closed unless new evidence proves otherwise.'
+    nextIntro.textContent = 'This is the clean order to keep Foundation moving without turning this page into a second backlog.'
     nextLeft.appendChild(nextIntro)
     nextHeader.appendChild(nextLeft)
     nextPanel.appendChild(nextHeader)
@@ -6444,11 +6486,11 @@ function renderCurrentState() {
     nextPanel.appendChild(renderTable([
       '| Order | Work | Why it is next |',
       '| --- | --- | --- |',
-      '| 1 | Strategy pass | Use the extracted Drive, meeting, KPI/FUB, Owners, and finance evidence to shape strategic issues and priorities. |',
-      '| 2 | Capture strategy gaps | If a missing source blocks an answer, route it to the right backlog card instead of reopening closed source packages. |',
-      '| 3 | GOD-mode proof | Build the first visual video/web proof when strategy needs on-screen workflow evidence from Mycro, Loom, Drive, Zoom, Skool, or web apps. |',
-      '| 4 | KPI health checks | Add visible freshness and schema/code drift checks before Sales Hub depends on KPI continuously. |',
-      '| 5 | Action Router | Close the loop after synthesis produces decisions, tasks, contradictions, and approval-gated actions. |',
+      '| 1 | Keep source truth clean | Closed source packages stay closed unless new evidence proves drift. New questions route to Data Sources or Backlog. |',
+      '| 2 | Monitor capture and extraction | Current-day and history missions should keep filing source-backed artifacts, candidates, skip reasons, and run evidence. |',
+      '| 3 | Harden missing corpus lanes | Build the next Drive, email, video, browser, Mycro, Skool, Loom, Zoom, OCR, Slides, Sheets, and Office extraction slices in governed bites. |',
+      '| 4 | Add freshness and health checks | KPI, finance, Drive/video corpus, connectors, schema drift, and extraction queues need visible Level 3 health before hubs depend on them continuously. |',
+      '| 5 | Close the action loop | Action Router, approval-gated writeback, resolution awareness, temporal truth, and richer provenance make Foundation more than a reading layer. |',
     ], currentPath))
     container.appendChild(nextPanel)
   }).catch(function(error) {
@@ -6578,13 +6620,13 @@ function renderFoundationHome() {
     heroLeft.appendChild(heroTitle)
 
     var heroCopy = document.createElement('p')
-    heroCopy.textContent = 'Use this page to see the current state, the closeout order, and what needs Steve.'
+    heroCopy.textContent = 'Use this page to see Foundation overview, source truth, live systems, and what needs Steve.'
     heroLeft.appendChild(heroCopy)
     hero.appendChild(heroLeft)
 
     var heroActions = document.createElement('div')
     heroActions.className = 'foundation-hero-actions'
-    heroActions.appendChild(createActionLink('Current State', '/foundation#current-state', 'print-button'))
+    heroActions.appendChild(createActionLink('Overview', '/foundation#current-state', 'print-button'))
     heroActions.appendChild(createActionLink('Data Sources', '/foundation#source-overview'))
     heroActions.appendChild(createActionLink('Backlog', '/foundation#backlog'))
     hero.appendChild(heroActions)
@@ -9650,7 +9692,7 @@ function renderCapabilitySection(section) {
     container.appendChild(hero)
 
     var statusPanel = renderOverviewStatusPanel(statusCards, {
-      eyebrow: 'Current State',
+      eyebrow: 'Lane State',
       title: config.title + ' state',
       intro: 'This lane is separate from Data Sources.',
     })
@@ -9768,10 +9810,10 @@ function renderSourceRegistry(section) {
         [
           {
             title: 'Strategy Inputs',
-            body: 'Freedom Community, BHAG, and Agent Engine are captured for current reality. The strategy-used Owners slice is the remaining strategy-input closeout pass.',
-            meta: 'Current gap',
+            body: 'Freedom Community, BHAG, Agent Engine, Owners, finance, FUB, and KPI are visible from the Foundation overview.',
+            meta: 'Foundation overview',
             href: '/foundation#current-state',
-            cta: 'Open Current State',
+            cta: 'Open Overview',
           },
         {
           title: 'FUB Review',
@@ -9788,11 +9830,11 @@ function renderSourceRegistry(section) {
             cta: 'Open Connectors',
           },
           {
-            title: 'Current State',
-            body: 'If you want the shortest possible answer to what is done vs not done, start there first.',
+            title: 'Foundation Overview',
+            body: 'If you want the shortest possible answer to what is ready, open, and later, start there first.',
             meta: 'Tight rebuild read',
             href: '/foundation#current-state',
-            cta: 'Open Current State',
+            cta: 'Open Overview',
           },
         ]
       ))
