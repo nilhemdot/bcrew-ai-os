@@ -415,6 +415,7 @@ body {
 
 .ops-issue-card {
   display: grid;
+  align-content: start;
   gap: 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -471,10 +472,69 @@ body {
 }
 
 .ops-issue-findings {
+  display: grid;
+  gap: 10px;
   margin: 0;
   color: var(--text-secondary);
   font-size: 0.84rem;
   line-height: 1.55;
+}
+
+.ops-issue-findings p {
+  margin: 0;
+}
+
+.ops-finding-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ops-finding-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ops-finding-chip-pass {
+  background: var(--green-bg);
+  color: #047857;
+}
+
+.ops-finding-chip-risk {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.ops-finding-block {
+  display: grid;
+  gap: 5px;
+  border-top: 1px solid var(--border);
+  padding-top: 9px;
+}
+
+.ops-finding-heading {
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ops-finding-block ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 17px;
+}
+
+.ops-finding-block li {
+  padding-left: 2px;
 }
 
 .ops-issue-actions {

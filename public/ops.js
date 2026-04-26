@@ -320,6 +320,129 @@ function getQueueItemHref(queueStats, item) {
   return ''
 }
 
+function parseFindingHeader(part) {
+  var parenMatch = part.match(/^(.+?)\s+\((\d+)\/(\d+)\s+passed\)$/i)
+  if (parenMatch) {
+    return {
+      label: parenMatch[1],
+      passed: Number(parenMatch[2]),
+      total: Number(parenMatch[3]),
+    }
+  }
+
+  var dashMatch = part.match(/^(.+?)\s+[—-]\s+(\d+)\/(\d+)\s+passed(?:\s+·\s+\d+\s+failed)?$/i)
+  if (dashMatch) {
+    return {
+      label: dashMatch[1],
+      passed: Number(dashMatch[2]),
+      total: Number(dashMatch[3]),
+    }
+  }
+
+  return null
+}
+
+function parseOpsFindings(text) {
+  var parts = String(text || '').split(/\s+\|\s+/).map(function(part) {
+    return part.trim()
+  }).filter(Boolean)
+  var blocks = []
+  var current = null
+
+  function startBlock(label, score) {
+    current = {
+      label: label || 'Finding',
+      passed: score && Number.isFinite(score.passed) ? score.passed : null,
+      total: score && Number.isFinite(score.total) ? score.total : null,
+      bullets: [],
+    }
+    blocks.push(current)
+    return current
+  }
+
+  parts.forEach(function(part) {
+    var isBullet = /^[-•]\s+/.test(part)
+    if (isBullet) {
+      if (!current) startBlock('Finding')
+      current.bullets.push(part.replace(/^[-•]\s+/, ''))
+      return
+    }
+
+    var score = parseFindingHeader(part)
+    if (score) {
+      startBlock(score.label, score)
+      return
+    }
+
+    if (parts.length === 1) {
+      startBlock('Finding').bullets.push(part)
+      return
+    }
+
+    startBlock(part)
+  })
+
+  return blocks
+}
+
+function renderOpsFindings(text) {
+  var wrap = document.createElement('div')
+  wrap.className = 'ops-issue-findings'
+
+  if (!text) {
+    var empty = document.createElement('p')
+    empty.textContent = 'No findings text is recorded yet.'
+    wrap.appendChild(empty)
+    return wrap
+  }
+
+  var blocks = parseOpsFindings(text)
+  var scoredBlocks = blocks.filter(function(block) {
+    return block.passed !== null && block.total !== null
+  })
+
+  if (scoredBlocks.length) {
+    var summary = document.createElement('div')
+    summary.className = 'ops-finding-summary'
+    scoredBlocks.forEach(function(block) {
+      var chip = document.createElement('span')
+      chip.className = 'ops-finding-chip ' + (block.passed === block.total ? 'ops-finding-chip-pass' : 'ops-finding-chip-risk')
+      chip.textContent = block.label + ' ' + block.passed + '/' + block.total
+      summary.appendChild(chip)
+    })
+    wrap.appendChild(summary)
+  }
+
+  blocks.forEach(function(block) {
+    if (!block.bullets.length) return
+
+    var section = document.createElement('div')
+    section.className = 'ops-finding-block'
+
+    var heading = document.createElement('div')
+    heading.className = 'ops-finding-heading'
+    heading.textContent = block.label
+    section.appendChild(heading)
+
+    var list = document.createElement('ul')
+    block.bullets.forEach(function(bullet) {
+      var li = document.createElement('li')
+      li.textContent = bullet
+      list.appendChild(li)
+    })
+    section.appendChild(list)
+    wrap.appendChild(section)
+  })
+
+  if (!wrap.children.length) {
+    var fallback = document.createElement('p')
+    fallback.textContent = text
+    wrap.appendChild(fallback)
+  }
+
+  return wrap
+}
+
 function renderOpsIssueCard(queueStats, item) {
   var card = document.createElement('article')
   card.className = 'ops-issue-card'
@@ -352,10 +475,7 @@ function renderOpsIssueCard(queueStats, item) {
   status.textContent = [item.reviewStatus, item.reviewAction].filter(Boolean).join(' · ')
   card.appendChild(status)
 
-  var findings = document.createElement('p')
-  findings.className = 'ops-issue-findings'
-  findings.textContent = item.findingsPreview || 'No findings text is recorded yet.'
-  card.appendChild(findings)
+  card.appendChild(renderOpsFindings(item.findingsPreview))
 
   var href = getQueueItemHref(queueStats, item)
   if (href || item.feedbackUrl) {
