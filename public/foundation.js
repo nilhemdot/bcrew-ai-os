@@ -6220,15 +6220,6 @@ function renderCurrentState() {
 
     hero.appendChild(heroInner)
 
-    var heroActions = document.createElement('div')
-    heroActions.className = 'foundation-hero-actions'
-    heroActions.appendChild(createActionLink('Open Systems', '/foundation#systems'))
-    heroActions.appendChild(createActionLink('Open Runtime Health', '/foundation#system-health'))
-    heroActions.appendChild(createActionLink('Open Data Sources', '/foundation#source-overview', 'print-button'))
-    heroActions.appendChild(createActionLink('Open Ops Hub', '/ops', 'print-button'))
-    heroActions.appendChild(createActionLink('Open Backlog', '/foundation#backlog', 'print-button'))
-    hero.appendChild(heroActions)
-
     container.appendChild(hero)
 
     container.appendChild(renderFoundationExecutionOrderPanel(currentPath))
@@ -8866,13 +8857,6 @@ function renderFoundationSystems() {
     heroInner.appendChild(heroMeta)
     hero.appendChild(heroInner)
 
-    var actions = document.createElement('div')
-    actions.className = 'foundation-hero-actions'
-    actions.appendChild(createActionLink('Open Overview', '/foundation#current-state'))
-    actions.appendChild(createActionLink('Open Runtime Health', '/foundation#system-health', 'print-button'))
-    actions.appendChild(createActionLink('Open Data Sources', '/foundation#source-overview', 'print-button'))
-    actions.appendChild(createActionLink('Open Menu Audit', '/doc?path=docs/audits/2026-04-26-foundation-menu-and-systems-audit.md', 'print-button'))
-    hero.appendChild(actions)
     container.appendChild(hero)
 
     var statusPanel = renderOverviewStatusPanel([
