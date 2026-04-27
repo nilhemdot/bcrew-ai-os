@@ -14,6 +14,7 @@ import {
   getIntelligenceAtomSpineSnapshot,
   getIntelligenceJobLedgerSnapshot,
   getIntelligenceRetrievalSnapshot,
+  getSynthesisFactsSnapshot,
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleLlmCalls,
   getStrategyGoalTruthSnapshot,
@@ -154,6 +155,7 @@ async function main() {
   const intelligenceJobLedgerSnapshot = await getIntelligenceJobLedgerSnapshot({ limit: 20 })
   const intelligenceAtomSpineSnapshot = await getIntelligenceAtomSpineSnapshot({ limit: 20 })
   const intelligenceRetrievalSnapshot = await getIntelligenceRetrievalSnapshot({ limit: 20 })
+  const synthesisFactsSnapshot = await getSynthesisFactsSnapshot({ limit: 20 })
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
@@ -246,6 +248,8 @@ async function main() {
   const intelligenceRetrievalProofSource = await readRepoFile('scripts/intelligence-retrieval-proof.mjs')
   const intelligenceSemanticRetrievalProofSource = await readRepoFile('scripts/intelligence-semantic-retrieval-proof.mjs')
   const intelligenceHybridRetrievalProofSource = await readRepoFile('scripts/intelligence-hybrid-retrieval-proof.mjs')
+  const intelligenceSynthesisFactsSource = await readRepoFile('lib/intelligence-synthesis-facts.js')
+  const intelligenceSynthesisFactsProofSource = await readRepoFile('scripts/intelligence-synthesis-facts-proof.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
@@ -262,6 +266,8 @@ async function main() {
   const atomImplementationPresent = [foundationDbSource, intelligenceAtomsSource].some(source =>
     /CREATE TABLE IF NOT EXISTS\s+(business_atoms|intelligence_atoms|atom_hits|intelligence_atom_hits)/.test(source)
   )
+  const synthesisFactTypes = new Set((synthesisFactsSnapshot.factsByType || []).map(row => row.factType))
+  const synthesisFactSources = new Set((synthesisFactsSnapshot.factsBySource || []).map(row => row.sourceId))
 
   ensure(
     checks,
@@ -759,6 +765,59 @@ async function main() {
       intelligenceRetrievalSnapshot.latestHybridProofRun?.maxTier <= 1,
     'RETRIEVAL-003 exposes governed hybrid evidence retrieval with tier guard',
     `${intelligenceRetrievalSnapshot.latestHybridProofRun?.searchResultCount || 0} hybrid proof results / query=${intelligenceRetrievalSnapshot.latestHybridProofRun?.searchQuery || 'missing'}`,
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, [
+      'createIntelligenceSynthesisFactStore',
+      'intelligenceSynthesisFactsSchemaSql',
+      'intelligenceSynthesisFacts',
+      "id: 'SYNTHESIS-FACTS-001'",
+      'Source-backed synthesis fact ledger persists',
+      "id: 'SYNTHESIS-ENGINE-001'",
+    ]) &&
+      includesAll(intelligenceSynthesisFactsSource, [
+        'CREATE TABLE IF NOT EXISTS intelligence_synthesis_fact_runs',
+        'CREATE TABLE IF NOT EXISTS intelligence_synthesis_facts',
+        'source_contract',
+        'goal_truth',
+        'operating_truth',
+        'kpi_truth',
+        'source_snapshot',
+        'source_health',
+        'retrieved_evidence',
+        'collectSourceBackedSynthesisFacts',
+        'buildSourceContractFacts',
+        'buildGoalTruthFacts',
+        'buildOperatingTruthFacts',
+        'buildHybridEvidenceFacts',
+        'synthesis fact queries require maxTier >= 1',
+        'assertRegisteredSourceIds',
+      ]) &&
+      packageSource.includes('"intelligence:synthesis-facts-proof"') &&
+      includesAll(intelligenceSynthesisFactsProofSource, [
+        'callEmbedding',
+        'collectSourceBackedSynthesisFacts',
+        'upsertSynthesisFactsBundle',
+        'source_fact_proof',
+        'maxTier: 1',
+        'SRC-STRATEGY-001',
+        'SRC-FINANCE-001',
+        'SRC-OWNERS-001',
+        'SRC-FUB-001',
+        'SRC-SUPABASE-001',
+        'SRC-FREEDOM-BHAG-001',
+        'SRC-MEETINGS-001',
+        'SYNTHESIS-ENGINE-001',
+      ]) &&
+      synthesisFactsSnapshot.latestFactRun?.runType === 'source_fact_proof' &&
+      synthesisFactsSnapshot.totalActiveFacts >= 20 &&
+      synthesisFactsSnapshot.factsWithEvidence >= 1 &&
+      synthesisFactsSnapshot.distinctSources >= 7 &&
+      ['source_contract', 'goal_truth', 'operating_truth', 'kpi_truth', 'source_snapshot', 'source_health', 'retrieved_evidence'].every(type => synthesisFactTypes.has(type)) &&
+      ['SRC-STRATEGY-001', 'SRC-FINANCE-001', 'SRC-OWNERS-001', 'SRC-FUB-001', 'SRC-SUPABASE-001', 'SRC-FREEDOM-BHAG-001', 'SRC-MEETINGS-001'].every(sourceId => synthesisFactSources.has(sourceId)),
+    'SYNTHESIS-FACTS-001 persists source-backed facts and hybrid evidence for governed synthesis',
+    `${synthesisFactsSnapshot.totalActiveFacts} facts / ${synthesisFactsSnapshot.distinctSources} sources / evidence-backed=${synthesisFactsSnapshot.factsWithEvidence}`,
   )
   ensure(
     checks,

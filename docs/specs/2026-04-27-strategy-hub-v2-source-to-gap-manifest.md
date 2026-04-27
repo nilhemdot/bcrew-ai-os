@@ -86,7 +86,7 @@ The prerequisite spine is:
 4. `RETRIEVAL-001` - done v1: real shared-communications candidates promoted into atoms and candidate-backed lexical chunks with explicit `maxTier`
 5. `RETRIEVAL-002` - done v1: pgvector semantic retrieval over candidate-backed chunks with explicit `maxTier`
 6. `RETRIEVAL-003` - done v1: hybrid evidence API
-7. `SYNTHESIS-FACTS-001` - source-backed fact grounding for synthesis
+7. `SYNTHESIS-FACTS-001` - done v1: persisted source-backed fact grounding for synthesis
 8. `SYNTHESIS-ENGINE-001` - governed synthesis engine
 9. `ACTION-ROUTER-001` - loop closure from insight to routed action to resolution
 
@@ -131,7 +131,7 @@ Every metric that receives a "why," doctrine citation, evidence drilldown, AI re
 - `REPORT-MINING-001` must preserve the useful old Director, Scoper, Gold Library, and report artifact shapes before atom implementation.
 - `INTEL-ATOM-001` now stores source-backed atoms with source ID, artifact ID, entity, topic, claim, confidence, linked metric, governed report artifact links, lifecycle/review state, and direct Scoper query fields.
 - `RETRIEVAL-001` now retrieves candidate-backed atom chunks by lexical filters with explicit `maxTier`; `RETRIEVAL-002` retrieves the same corpus semantically through pgvector; `RETRIEVAL-003` fuses lexical, semantic, and direct atom matches into the governed evidence API.
-- `SYNTHESIS-FACTS-001` must prove claims against live source facts and retrieved evidence.
+- `SYNTHESIS-FACTS-001` now persists source-backed strategy/source-contract, goal, operating, KPI, source-snapshot, source-health, and retrieved-evidence facts with explicit `maxTier`.
 - `SYNTHESIS-ENGINE-001` must enforce structured output, doctrine priority, and contradiction handling.
 
 Until those cards are real, Strategy Hub may display deterministic metric gaps only. It must not display AI explanations, AI priorities, AI analyst notes, or recommendations.

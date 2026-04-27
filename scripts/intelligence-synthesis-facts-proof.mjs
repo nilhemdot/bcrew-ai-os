@@ -1,0 +1,144 @@
+#!/usr/bin/env node
+
+import {
+  closeFoundationDb,
+  collectSourceBackedSynthesisFacts,
+  getIntelligenceRetrievalSnapshot,
+  getSynthesisFactsSnapshot,
+  initFoundationDb,
+  updateBacklogItem,
+  upsertSynthesisFactsBundle,
+} from '../lib/foundation-db.js'
+import { callEmbedding } from '../lib/llm-router.js'
+
+const EMBEDDING_DIMENSIONS = 1536
+
+function requireFactType(facts, factType) {
+  const found = facts.find(fact => fact.factType === factType)
+  if (!found) throw new Error(`SYNTHESIS-FACTS-001 proof is missing fact type ${factType}.`)
+  return found
+}
+
+function requireSource(facts, sourceId) {
+  const found = facts.find(fact => Array.isArray(fact.sourceIds) && fact.sourceIds.includes(sourceId))
+  if (!found) throw new Error(`SYNTHESIS-FACTS-001 proof is missing source ${sourceId}.`)
+  return found
+}
+
+async function main() {
+  await initFoundationDb()
+
+  const retrievalSnapshot = await getIntelligenceRetrievalSnapshot({ limit: 20 })
+  const query = retrievalSnapshot.latestHybridProofRun?.searchQuery || 'Steve rebuilding system'
+  const queryEmbeddingResult = await callEmbedding({
+    input: query,
+    dimensions: EMBEDDING_DIMENSIONS,
+    metadata: {
+      backlogCardId: 'SYNTHESIS-FACTS-001',
+      purpose: 'source_fact_grounding_hybrid_evidence',
+      query,
+    },
+  })
+
+  const factBundle = await collectSourceBackedSynthesisFacts({
+    query,
+    queryEmbedding: queryEmbeddingResult.embeddings[0],
+    maxTier: 1,
+    limit: 120,
+    evidenceLimit: 5,
+  })
+
+  const requiredTypes = [
+    'source_contract',
+    'goal_truth',
+    'operating_truth',
+    'kpi_truth',
+    'source_snapshot',
+    'source_health',
+    'retrieved_evidence',
+  ]
+  for (const factType of requiredTypes) requireFactType(factBundle.facts, factType)
+
+  const requiredSources = [
+    'SRC-STRATEGY-001',
+    'SRC-FINANCE-001',
+    'SRC-OWNERS-001',
+    'SRC-FUB-001',
+    'SRC-SUPABASE-001',
+    'SRC-FREEDOM-BHAG-001',
+    'SRC-MEETINGS-001',
+  ]
+  for (const sourceId of requiredSources) requireSource(factBundle.facts, sourceId)
+
+  const evidenceFact = factBundle.facts.find(fact =>
+    fact.factType === 'retrieved_evidence' &&
+    fact.evidenceId &&
+    fact.atomId &&
+    fact.candidateKey &&
+    fact.minTier <= 1
+  )
+  if (!evidenceFact) {
+    throw new Error('SYNTHESIS-FACTS-001 proof needs at least one tier-1 retrieved evidence fact linked to an atom and candidate.')
+  }
+
+  const saved = await upsertSynthesisFactsBundle({
+    runId: `synthesis-facts-proof-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}`,
+    runType: 'source_fact_proof',
+    status: 'succeeded',
+    requestedBy: 'synthesis-facts-proof',
+    sourceIds: factBundle.sourceIds,
+    facts: factBundle.facts,
+    maxTier: 1,
+    metadata: {
+      backlogCardId: 'SYNTHESIS-FACTS-001',
+      proofCommand: 'npm run intelligence:synthesis-facts-proof',
+      query,
+      queryEmbeddingCallId: queryEmbeddingResult.call.callId,
+      evidence: factBundle.evidence,
+      requiredTypes,
+      requiredSources,
+    },
+  }, 'synthesis-facts-proof')
+
+  const savedEvidenceFact = saved.facts.find(fact => fact.factId === evidenceFact.factId) || evidenceFact
+  const snapshot = await getSynthesisFactsSnapshot({ limit: 20 })
+  if (snapshot.totalActiveFacts < saved.facts.length || snapshot.factsWithEvidence < 1 || snapshot.distinctSources < requiredSources.length) {
+    throw new Error('SYNTHESIS-FACTS-001 snapshot did not retain the saved source-backed fact proof.')
+  }
+
+  const updatedFactsCard = await updateBacklogItem('SYNTHESIS-FACTS-001', {
+    lane: 'done',
+    nextAction: 'Build SYNTHESIS-ENGINE-001 on top of persisted source-backed synthesis facts and the RETRIEVAL-003 hybrid evidence API. Keep Strategy Hub UI/advisor/recommendations blocked until governed synthesis and Action Router are live.',
+    statusNote: 'Done v1 on 2026-04-27. Source-backed synthesis fact ledger persists strategy/source-contract, goal, operating, KPI, source-snapshot, source-health, and retrieved-evidence facts with maxTier and source IDs.',
+  }, 'synthesis-facts-proof')
+
+  const updatedSynthesisCard = await updateBacklogItem('SYNTHESIS-ENGINE-001', {
+    lane: 'scoped',
+    nextAction: 'Build governed synthesis over intelligence_synthesis_facts plus hybrid evidence results; persist synthesized items with fact/evidence links before any Strategy Hub surface resumes.',
+    statusNote: 'Next Foundation spine gate after SYNTHESIS-FACTS-001. Use persisted source facts and hybrid evidence; do not restart Strategy Hub UI/advisor work.',
+  }, 'synthesis-facts-proof')
+
+  console.log(JSON.stringify({
+    run: saved.run,
+    facts: {
+      saved: saved.facts.length,
+      sourceIds: factBundle.sourceIds,
+      factsByType: snapshot.factsByType,
+      factsBySource: snapshot.factsBySource.slice(0, 12),
+      evidenceFact: savedEvidenceFact,
+    },
+    cards: {
+      facts: updatedFactsCard,
+      synthesis: updatedSynthesisCard,
+    },
+  }, null, 2))
+}
+
+main()
+  .catch(error => {
+    console.error(error)
+    process.exitCode = 1
+  })
+  .finally(async () => {
+    await closeFoundationDb()
+  })
