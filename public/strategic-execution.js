@@ -4,6 +4,7 @@
     data: null,
     error: null,
     busyRouteId: null,
+    section: 'overview',
   }
 
   function appendText(parent, tagName, text, className) {
@@ -42,6 +43,17 @@
 
   function count(value) {
     return Array.isArray(value) ? value.length : 0
+  }
+
+  function shortenText(value, limit) {
+    var normalized = String(value || '').replace(/\s+/g, ' ').trim()
+    if (normalized.length <= limit) return normalized
+    return normalized.slice(0, limit - 3).trim() + '...'
+  }
+
+  function sectionFromHash() {
+    var hash = window.location.hash.replace('#', '')
+    return ['overview', 'source-to-gap', 'route-review'].indexOf(hash) === -1 ? 'overview' : hash
   }
 
   function statusTone(value) {
@@ -118,16 +130,31 @@
   function renderHero(container, data) {
     var actionRouter = data.actionRouter || {}
     var evalRun = data.retrievalEval || {}
+    var businessRoutes = strategyVisibleRoutes(actionRouter.recentRoutes || [])
+    var pendingBusinessRoutes = businessRoutes.filter(function(route) { return route.approvalStatus === 'pending' }).length
+    var heroCopy = {
+      overview: {
+        label: 'Strategy Hub v2',
+        title: 'Strategy command',
+        body: 'Live goals, operating source status, and the business review queue in one place.',
+      },
+      'source-to-gap': {
+        label: 'Source-To-Gap',
+        title: 'Goal and operating truth',
+        body: 'Current target, actual, and gap by source-backed business measure.',
+      },
+      'route-review': {
+        label: 'Review Queue',
+        title: 'Business follow-ups',
+        body: 'Source-backed items waiting for a human decision before they become work, questions, or ignored/snoozed items.',
+      },
+    }[state.section] || {}
     var hero = document.createElement('section')
     hero.className = 'hero strategy-v2-hero'
     hero.id = 'overview'
-    appendText(hero, 'div', 'Strategy Hub v2', 'eyebrow')
-    appendText(hero, 'h1', 'Source-to-gap command')
-    appendText(
-      hero,
-      'p',
-      'Deterministic goals, operating truth, and approval-gated Action Router records are live. Advisor chat and old recommendation surfaces remain offline.',
-    )
+    appendText(hero, 'div', heroCopy.label || 'Strategy Hub v2', 'eyebrow')
+    appendText(hero, 'h1', heroCopy.title || 'Strategy command')
+    appendText(hero, 'p', heroCopy.body || 'Live source-backed strategy view.')
 
     var strip = document.createElement('div')
     strip.className = 'strategy-v2-status-strip'
@@ -136,7 +163,7 @@
       data.sourceTruthStatus === 'degraded' ? 'Source fallback active' : 'Source truth live',
       data.sourceTruthStatus === 'degraded' ? 'watch' : 'good'
     ))
-    strip.appendChild(makePill(String(actionRouter.pendingRoutes || 0) + ' pending routes', actionRouter.pendingRoutes ? 'watch' : 'good'))
+    strip.appendChild(makePill(String(pendingBusinessRoutes) + ' pending reviews', pendingBusinessRoutes ? 'watch' : 'good'))
     strip.appendChild(makePill(String(actionRouter.appliedRoutes || 0) + ' applied routes', actionRouter.appliedRoutes ? 'good' : 'neutral'))
     strip.appendChild(makePill(
       'Eval ' + emptyText(evalRun.status, 'unknown'),
@@ -152,6 +179,32 @@
       )
     }
     container.appendChild(hero)
+  }
+
+  function displayFactsForGoalGroup(group) {
+    var facts = (group.facts || []).map(function(fact) {
+      return Object.assign({}, fact)
+    })
+    if (group.key === 'team_volume') {
+      var longTermTarget = facts.find(function(fact) { return fact.label === '2035' }) ||
+        facts.find(function(fact) { return fact.label === '2033' })
+      var filtered = facts.filter(function(fact) {
+        return fact.label !== '2033' && fact.label !== '2035'
+      })
+      if (longTermTarget) {
+        filtered.push(Object.assign({}, longTermTarget, { label: 'Long-Term Target' }))
+      }
+      return filtered
+    }
+    if (group.key === 'agent_engine_capacity') {
+      return facts.map(function(fact) {
+        if (fact.label === 'Required Start-of-Year Agents') {
+          return Object.assign({}, fact, { label: 'Required Agents Next Year' })
+        }
+        return fact
+      })
+    }
+    return facts
   }
 
   function renderFactList(parent, facts, limit) {
@@ -179,7 +232,7 @@
     var copy = document.createElement('div')
     appendText(copy, 'div', 'Source-To-Gap', 'eyebrow')
     appendText(copy, 'h3', 'Goal truth')
-    appendText(copy, 'p', emptyText(goalTruth.rule, 'Goal truth is sourced from approved contracts.'), 'strategy-v2-muted')
+    appendText(copy, 'p', 'Current targets, actuals, and gaps pulled from the approved strategy sources.', 'strategy-v2-muted')
     header.appendChild(copy)
     appendText(header, 'div', formatDateTime(goalTruth.generatedAt), 'doc-meta')
     panel.appendChild(header)
@@ -194,8 +247,7 @@
       appendText(top, 'h4', group.title)
       top.appendChild(makePill(emptyText(group.statusLabel, group.status || 'status'), statusTone(group.status)))
       card.appendChild(top)
-      appendText(card, 'p', emptyText(group.caveat || group.rule, 'No caveat recorded.'), 'strategy-v2-muted')
-      renderFactList(card, group.facts, 6)
+      renderFactList(card, displayFactsForGoalGroup(group), 6)
       grid.appendChild(card)
     })
     panel.appendChild(grid)
@@ -237,13 +289,98 @@
     container.appendChild(panel)
   }
 
+  function renderOverview(container, data) {
+    var goalTruth = data.goalTruth || {}
+    var operatingTruth = data.operatingTruth || {}
+    var actionRouter = data.actionRouter || {}
+    var businessRoutes = strategyVisibleRoutes(actionRouter.recentRoutes || [])
+
+    var panel = document.createElement('section')
+    panel.className = 'panel strategy-v2-panel'
+    panel.id = 'overview-summary'
+
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+    var copy = document.createElement('div')
+    appendText(copy, 'div', 'Overview', 'eyebrow')
+    appendText(copy, 'h3', 'Current read')
+    appendText(copy, 'p', 'A short business view. Details live under Source-to-Gap and Review Queue.', 'strategy-v2-muted')
+    header.appendChild(copy)
+    appendText(header, 'div', formatDateTime(data.generatedAt), 'doc-meta')
+    panel.appendChild(header)
+
+    var grid = document.createElement('div')
+    grid.className = 'strategy-v2-overview-grid'
+
+    var paceCard = document.createElement('article')
+    paceCard.className = 'strategy-v2-card'
+    appendText(paceCard, 'h4', 'Business Pace')
+    ;(goalTruth.groups || []).forEach(function(group) {
+      var row = document.createElement('div')
+      row.className = 'strategy-v2-overview-row'
+      appendText(row, 'span', group.title)
+      row.appendChild(makePill(emptyText(group.statusLabel, group.status || 'status'), statusTone(group.status)))
+      paceCard.appendChild(row)
+    })
+    grid.appendChild(paceCard)
+
+    var sourceCard = document.createElement('article')
+    sourceCard.className = 'strategy-v2-card'
+    appendText(sourceCard, 'h4', 'Operating Sources')
+    ;(operatingTruth.sourceCards || []).forEach(function(source) {
+      var row = document.createElement('div')
+      row.className = 'strategy-v2-overview-row'
+      appendText(row, 'span', source.sourceId)
+      row.appendChild(makePill(emptyText(source.validation, source.status || 'source'), statusTone(source.validation || source.status)))
+      sourceCard.appendChild(row)
+    })
+    grid.appendChild(sourceCard)
+
+    var queueCard = document.createElement('article')
+    queueCard.className = 'strategy-v2-card'
+    appendText(queueCard, 'h4', 'Review Queue')
+    appendText(queueCard, 'p', String(businessRoutes.length) + ' business-facing items shown from ' + String(actionRouter.totalRoutes || 0) + ' total routed records.', 'strategy-v2-muted')
+    appendText(queueCard, 'p', String(actionRouter.pendingRoutes || 0) + ' pending / ' + String(actionRouter.appliedRoutes || 0) + ' applied.', 'strategy-v2-muted')
+    grid.appendChild(queueCard)
+
+    panel.appendChild(grid)
+    container.appendChild(panel)
+  }
+
   function routeTitle(route) {
     return emptyText(route.proposedPayload && route.proposedPayload.title, route.routeType + ' route')
   }
 
   function routeSummary(route) {
     var payload = route.proposedPayload || {}
-    return emptyText(payload.summary || payload.reason || route.routingReason, 'No route summary recorded.')
+    return shortenText(emptyText(payload.summary || payload.reason || route.routingReason, 'No route summary recorded.'), 360)
+  }
+
+  function destinationLabel(route) {
+    var table = route.destinationTable || ''
+    if (table === 'backlog_items') return 'Work item'
+    if (table === 'decisions') return 'Decision'
+    if (table === 'open_questions') return 'Question'
+    if (table === 'intelligence_synthesized_items') return route.routeType === 'snooze' ? 'Snooze' : 'Ignore'
+    return table || 'Record'
+  }
+
+  function strategyVisibleRoutes(routes) {
+    return (routes || []).filter(function(route) {
+      var owner = String(route.owner || '').toLowerCase()
+      var text = [
+        routeTitle(route),
+        routeSummary(route),
+        route.routeType,
+        route.destinationTable,
+      ].join(' ').toLowerCase()
+      if (['marketing', 'sales leadership', 'finance'].indexOf(owner) !== -1) return true
+      if (text.indexOf('marketing/source map') !== -1) return true
+      if (/\b(q2|strategy|source map|agent|recruit|production|lead|listing|creative|finance|cash|pattison|fub|kpi|owners)\b/.test(text)) {
+        return !/\b(sql server|database kpi|repository access|foundation-plus-hubs architecture)\b/.test(text)
+      }
+      return false
+    })
   }
 
   function routeSortValue(route) {
@@ -277,27 +414,24 @@
     var pills = document.createElement('div')
     pills.className = 'strategy-v2-route-pills'
     pills.appendChild(makePill(route.approvalStatus, statusTone(route.approvalStatus)))
-    pills.appendChild(makePill(route.destinationTable, 'neutral'))
+    pills.appendChild(makePill(destinationLabel(route), 'neutral'))
     top.appendChild(pills)
     card.appendChild(top)
 
     var meta = document.createElement('div')
     meta.className = 'strategy-v2-route-meta'
     appendText(meta, 'span', 'Owner: ' + emptyText(route.owner, 'missing'))
-    appendText(meta, 'span', 'Tier: ' + emptyText(route.minTier, '1'))
+    appendText(meta, 'span', 'Type: ' + destinationLabel(route))
     appendText(meta, 'span', 'Sources: ' + count(route.sourceIds))
-    appendText(meta, 'span', 'Facts: ' + count(route.factRefs))
-    appendText(meta, 'span', 'Atoms: ' + count(route.evidenceRefs))
-    appendText(meta, 'span', 'Chunks: ' + count(route.evidenceChunkRefs))
     card.appendChild(meta)
 
     var provenance = document.createElement('details')
     provenance.className = 'strategy-v2-provenance'
-    appendText(provenance, 'summary', 'Provenance refs')
+    appendText(provenance, 'summary', 'Source proof')
     appendText(provenance, 'p', 'Synthesized item: ' + route.synthesizedItemId)
-    appendText(provenance, 'p', 'Fact refs: ' + (route.factRefs || []).join(', '))
-    appendText(provenance, 'p', 'Evidence refs: ' + (route.evidenceRefs || []).join(', '))
-    appendText(provenance, 'p', 'Chunk refs: ' + (route.evidenceChunkRefs || []).join(', '))
+    appendText(provenance, 'p', 'Facts: ' + (route.factRefs || []).join(', '))
+    appendText(provenance, 'p', 'Atoms: ' + (route.evidenceRefs || []).join(', '))
+    appendText(provenance, 'p', 'Chunks: ' + (route.evidenceChunkRefs || []).join(', '))
     card.appendChild(provenance)
 
     var actions = document.createElement('div')
@@ -312,7 +446,7 @@
       actions.appendChild(actionButton(route, 'approve_apply', 'Apply approved route', 'primary'))
       actions.appendChild(actionButton(route, 'reject', 'Reject', 'danger'))
     } else if (route.approvalStatus === 'applied') {
-      appendText(actions, 'span', 'Applied to ' + route.destinationTable + ': ' + emptyText(route.destinationRecordId, 'record pending'), 'strategy-v2-applied-note')
+      appendText(actions, 'span', 'Applied to ' + destinationLabel(route) + ': ' + emptyText(route.destinationRecordId, 'record pending'), 'strategy-v2-applied-note')
     } else {
       appendText(actions, 'span', 'Route is ' + route.approvalStatus, 'strategy-v2-applied-note')
     }
@@ -322,6 +456,15 @@
 
   function renderRouteReview(container, data) {
     var actionRouter = data.actionRouter || {}
+    var routes = strategyVisibleRoutes(actionRouter.recentRoutes || []).slice().sort(function(a, b) {
+      return routeSortValue(a) - routeSortValue(b) || String(b.routedAt || '').localeCompare(String(a.routedAt || ''))
+    })
+    var pendingRoutes = routes.filter(function(route) { return route.approvalStatus === 'pending' }).length
+    var approvedRoutes = routes.filter(function(route) { return route.approvalStatus === 'approved' }).length
+    var appliedRoutes = routes.filter(function(route) { return route.approvalStatus === 'applied' }).length
+    var appliedWithDestination = routes.filter(function(route) {
+      return route.approvalStatus === 'applied' && route.destinationRecordId
+    }).length
     var panel = document.createElement('section')
     panel.className = 'panel strategy-v2-panel'
     panel.id = 'route-review'
@@ -329,28 +472,25 @@
     var header = document.createElement('div')
     header.className = 'panel-header'
     var copy = document.createElement('div')
-    appendText(copy, 'div', 'Action Router', 'eyebrow')
-    appendText(copy, 'h3', 'Review and promote routes')
-    appendText(copy, 'p', 'Every route preserves synthesized item, fact, atom, and retrieval chunk provenance before it becomes an operating ledger record.', 'strategy-v2-muted')
+    appendText(copy, 'div', 'Review Queue', 'eyebrow')
+    appendText(copy, 'h3', 'Business follow-ups')
+    appendText(copy, 'p', 'Source-backed follow-ups waiting for a human call. Foundation maintenance routes are hidden from this Strategy view.', 'strategy-v2-muted')
     header.appendChild(copy)
-    appendText(header, 'div', String(actionRouter.totalRoutes || 0) + ' total routes', 'doc-meta')
+    appendText(header, 'div', String(routes.length) + ' shown / ' + String(actionRouter.totalRoutes || 0) + ' total routed records', 'doc-meta')
     panel.appendChild(header)
 
     var summary = document.createElement('div')
     summary.className = 'strategy-v2-route-summary'
-    summary.appendChild(makePill(String(actionRouter.pendingRoutes || 0) + ' pending', actionRouter.pendingRoutes ? 'watch' : 'good'))
-    summary.appendChild(makePill(String(actionRouter.approvedRoutes || 0) + ' approved', actionRouter.approvedRoutes ? 'watch' : 'neutral'))
-    summary.appendChild(makePill(String(actionRouter.appliedRoutes || 0) + ' applied', actionRouter.appliedRoutes ? 'good' : 'neutral'))
-    summary.appendChild(makePill(String(actionRouter.appliedRoutesWithDestinationRecord || 0) + ' destination records', actionRouter.appliedRoutesWithDestinationRecord ? 'good' : 'neutral'))
+    summary.appendChild(makePill(String(pendingRoutes) + ' pending', pendingRoutes ? 'watch' : 'good'))
+    summary.appendChild(makePill(String(approvedRoutes) + ' approved', approvedRoutes ? 'watch' : 'neutral'))
+    summary.appendChild(makePill(String(appliedRoutes) + ' applied', appliedRoutes ? 'good' : 'neutral'))
+    summary.appendChild(makePill(String(appliedWithDestination) + ' destination records', appliedWithDestination ? 'good' : 'neutral'))
     panel.appendChild(summary)
 
-    var routes = (actionRouter.recentRoutes || []).slice().sort(function(a, b) {
-      return routeSortValue(a) - routeSortValue(b) || String(b.routedAt || '').localeCompare(String(a.routedAt || ''))
-    })
     var stack = document.createElement('div')
     stack.className = 'strategy-v2-route-stack'
     if (!routes.length) {
-      appendText(stack, 'p', 'No Action Router records are waiting for review.', 'strategy-v2-muted')
+      appendText(stack, 'p', 'No business-facing routed records are waiting for review.', 'strategy-v2-muted')
     } else {
       routes.forEach(function(route) {
         stack.appendChild(renderRouteCard(route))
@@ -384,10 +524,15 @@
     }
     container.innerHTML = ''
     renderHero(container, state.data)
-    renderSourceToGap(container, state.data)
-    renderOperatingTruth(container, state.data)
-    renderRouteReview(container, state.data)
-    renderTrustGate(container)
+    if (state.section === 'source-to-gap') {
+      renderSourceToGap(container, state.data)
+      renderOperatingTruth(container, state.data)
+    } else if (state.section === 'route-review') {
+      renderRouteReview(container, state.data)
+      renderTrustGate(container)
+    } else {
+      renderOverview(container, state.data)
+    }
   }
 
   async function load() {
@@ -432,17 +577,29 @@
   }
 
   function initNav() {
+    state.section = sectionFromHash()
     var navItems = Array.prototype.slice.call(document.querySelectorAll('[data-section]'))
+    function updateActiveNav() {
+      navItems.forEach(function(other) {
+        other.classList.toggle('found-nav-active', other.getAttribute('data-section') === state.section)
+      })
+      var active = document.querySelector('[data-section="' + state.section + '"]')
+      var breadcrumb = document.getElementById('found-breadcrumb-page')
+      if (breadcrumb && active) breadcrumb.textContent = active.textContent
+    }
     navItems.forEach(function(item) {
       item.addEventListener('click', function() {
-        navItems.forEach(function(other) { other.classList.remove('found-nav-active') })
-        item.classList.add('found-nav-active')
-        var breadcrumb = document.getElementById('found-breadcrumb-page')
-        if (breadcrumb) breadcrumb.textContent = item.textContent
+        state.section = item.getAttribute('data-section') || 'overview'
+        updateActiveNav()
+        renderApp()
       })
     })
-    var first = document.querySelector('[data-section="overview"]')
-    if (first) first.classList.add('found-nav-active')
+    window.addEventListener('hashchange', function() {
+      state.section = sectionFromHash()
+      updateActiveNav()
+      renderApp()
+    })
+    updateActiveNav()
 
     var toggleBtn = document.getElementById('found-mobile-toggle')
     var nav = document.getElementById('found-nav')

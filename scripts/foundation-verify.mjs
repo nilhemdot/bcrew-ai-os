@@ -1501,7 +1501,8 @@ async function main() {
       !strategyEvidencePacketSource.includes("packetSection: 'recommended_90_day_priorities'") &&
       !strategyEvidencePacketSource.includes("itemType: 'action_item'") &&
       includesAll(strategicExecutionUiSource, [
-        'Source-to-gap command',
+        'Strategy command',
+        'Goal and operating truth',
         'source-to-gap manifest',
         'Advisor remains blocked',
       ]),
@@ -1560,7 +1561,10 @@ async function main() {
       strategicExecutionUiSource.includes('/api/strategic-execution/v2') &&
       strategicExecutionUiSource.includes('/api/strategic-execution/action-routes/') &&
       strategicExecutionUiSource.includes('function renderSourceToGap') &&
+      strategicExecutionUiSource.includes('function renderOverview') &&
       strategicExecutionUiSource.includes('function renderRouteReview') &&
+      strategicExecutionUiSource.includes('function sectionFromHash') &&
+      strategicExecutionUiSource.includes('Business follow-ups') &&
       strategicExecutionUiSource.includes('window.confirm') &&
       strategicExecutionUiSource.includes('Optional review note') &&
       strategicExecutionUiSource.includes('Source fallback active') &&

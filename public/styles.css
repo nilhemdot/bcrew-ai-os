@@ -6185,7 +6185,8 @@ code {
 }
 
 .strategy-v2-goal-grid,
-.strategy-v2-source-grid {
+.strategy-v2-source-grid,
+.strategy-v2-overview-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
@@ -6193,6 +6194,23 @@ code {
 
 .strategy-v2-source-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.strategy-v2-overview-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 38px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.strategy-v2-overview-row span {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.3;
 }
 
 .strategy-v2-card,
@@ -6278,7 +6296,7 @@ code {
 
 .strategy-v2-route-meta {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -6378,6 +6396,7 @@ code {
 @media (max-width: 880px) {
   .strategy-v2-goal-grid,
   .strategy-v2-source-grid,
+  .strategy-v2-overview-grid,
   .strategy-v2-card-top,
   .strategy-v2-route-top {
     grid-template-columns: 1fr;
