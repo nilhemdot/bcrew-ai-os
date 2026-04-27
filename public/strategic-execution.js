@@ -107,7 +107,7 @@
     panel.className = 'panel strategy-v2-panel'
     appendText(panel, 'div', 'Loading', 'eyebrow')
     appendText(panel, 'h2', 'Building source-to-gap command view')
-    appendText(panel, 'p', 'Loading source truth, retrieval eval status, and pending Action Router records.', 'strategy-v2-muted')
+    appendText(panel, 'p', 'Loading source truth, retrieval eval status, and Strategy review records.', 'strategy-v2-muted')
     container.appendChild(panel)
   }
 
@@ -129,56 +129,109 @@
 
   function renderHero(container, data) {
     var actionRouter = data.actionRouter || {}
-    var evalRun = data.retrievalEval || {}
-    var businessRoutes = strategyVisibleRoutes(actionRouter.recentRoutes || [])
-    var pendingBusinessRoutes = businessRoutes.filter(function(route) { return route.approvalStatus === 'pending' }).length
+    var goalTruth = data.goalTruth || {}
+    var teamGroup = goalGroupByKey(goalTruth, 'team_volume')
+    var strategyRoutes = strategyVisibleRoutes(actionRouter.recentRoutes || [])
+    var pendingStrategyRoutes = strategyRoutes.filter(function(route) { return route.approvalStatus === 'pending' }).length
     var heroCopy = {
       overview: {
         label: 'Strategy Hub v2',
-        title: 'Strategy command',
-        body: 'Live goals, operating source status, and the business review queue in one place.',
+        title: 'Strategy Command',
+        body: 'Current pace, capacity pressure, cash posture, and strategy-specific review items.',
       },
       'source-to-gap': {
         label: 'Source-To-Gap',
-        title: 'Goal and operating truth',
+        title: 'Goal And Operating Truth',
         body: 'Current target, actual, and gap by source-backed business measure.',
       },
       'route-review': {
-        label: 'Review Queue',
-        title: 'Business follow-ups',
-        body: 'Source-backed items waiting for a human decision before they become work, questions, or ignored/snoozed items.',
+        label: 'Strategy Review Queue',
+        title: 'Strategic Review',
+        body: 'Only strategy prep, source-map gaps, goal gaps, and pillar decisions belong here.',
       },
     }[state.section] || {}
     var hero = document.createElement('section')
     hero.className = 'hero strategy-v2-hero'
     hero.id = 'overview'
-    appendText(hero, 'div', heroCopy.label || 'Strategy Hub v2', 'eyebrow')
-    appendText(hero, 'h1', heroCopy.title || 'Strategy command')
-    appendText(hero, 'p', heroCopy.body || 'Live source-backed strategy view.')
+
+    var copy = document.createElement('div')
+    copy.className = 'strategy-v2-hero-copy'
+    appendText(copy, 'div', heroCopy.label || 'Strategy Hub v2', 'eyebrow')
+    appendText(copy, 'h1', heroCopy.title || 'Strategy command')
+    appendText(copy, 'p', heroCopy.body || 'Live source-backed strategy view.')
+    hero.appendChild(copy)
+
+    var status = document.createElement('div')
+    status.className = 'strategy-v2-hero-status'
 
     var strip = document.createElement('div')
     strip.className = 'strategy-v2-status-strip'
-    strip.appendChild(makePill('Advisor offline', 'neutral'))
     strip.appendChild(makePill(
       data.sourceTruthStatus === 'degraded' ? 'Source fallback active' : 'Source truth live',
       data.sourceTruthStatus === 'degraded' ? 'watch' : 'good'
     ))
-    strip.appendChild(makePill(String(pendingBusinessRoutes) + ' pending reviews', pendingBusinessRoutes ? 'watch' : 'good'))
-    strip.appendChild(makePill(String(actionRouter.appliedRoutes || 0) + ' applied routes', actionRouter.appliedRoutes ? 'good' : 'neutral'))
-    strip.appendChild(makePill(
-      'Eval ' + emptyText(evalRun.status, 'unknown'),
-      evalRun.status === 'succeeded' ? 'good' : 'watch'
-    ))
-    hero.appendChild(strip)
+    if (state.section === 'route-review') {
+      strip.appendChild(makePill(String(pendingStrategyRoutes) + ' strategy reviews', pendingStrategyRoutes ? 'watch' : 'good'))
+    } else {
+      strip.appendChild(makePill(emptyText(teamGroup && teamGroup.statusLabel, 'Team pace missing'), statusTone(teamGroup && teamGroup.statusLabel)))
+      strip.appendChild(makePill(String(pendingStrategyRoutes) + ' strategy reviews', pendingStrategyRoutes ? 'watch' : 'good'))
+    }
+    status.appendChild(strip)
     if (data.sourceTruthStatus === 'degraded' && data.fallback) {
       appendText(
-        hero,
+        status,
         'p',
-        'Using last-known-good source snapshot from ' + formatDateTime(data.fallback.lastKnownGoodAt) + '. Reason: ' + data.fallback.reason,
+        'Using last-known-good source snapshot from ' + formatDateTime(data.fallback.lastKnownGoodAt) + '. ' + fallbackSummary(data.fallback.reason),
         'strategy-v2-fallback-note'
       )
     }
+    hero.appendChild(status)
     container.appendChild(hero)
+  }
+
+  function goalGroupByKey(goalTruth, key) {
+    return (goalTruth && goalTruth.groups || []).find(function(group) {
+      return group.key === key
+    }) || null
+  }
+
+  function sourceCardById(operatingTruth, sourceId) {
+    return (operatingTruth && operatingTruth.sourceCards || []).find(function(card) {
+      return card.sourceId === sourceId
+    }) || null
+  }
+
+  function factByLabel(groupOrCard, label) {
+    return (groupOrCard && groupOrCard.facts || []).find(function(fact) {
+      return fact.label === label
+    }) || null
+  }
+
+  function factValue(groupOrCard, label, fallback) {
+    var fact = factByLabel(groupOrCard, label)
+    return emptyText(fact && fact.value, fallback || 'Missing')
+  }
+
+  function factSource(groupOrCard, label, fallback) {
+    var fact = factByLabel(groupOrCard, label)
+    return emptyText(fact && fact.sourceId, fallback || '')
+  }
+
+  function compactGapValue(value) {
+    return String(value || '').replace(/\s*\([^)]*\)/g, '').trim()
+  }
+
+  function fallbackSummary(reason) {
+    var normalized = String(reason || '').toLowerCase()
+    if (normalized.indexOf('429') !== -1 || normalized.indexOf('quota') !== -1 || normalized.indexOf('rate') !== -1) {
+      return 'Live Sheets refresh is temporarily rate-limited.'
+    }
+    return 'Live source refresh is temporarily unavailable.'
+  }
+
+  function appendSource(parent, text) {
+    if (!text) return null
+    return appendText(parent, 'small', text, 'strategy-v2-source-id')
   }
 
   function displayFactsForGoalGroup(group) {
@@ -293,58 +346,140 @@
     var goalTruth = data.goalTruth || {}
     var operatingTruth = data.operatingTruth || {}
     var actionRouter = data.actionRouter || {}
-    var businessRoutes = strategyVisibleRoutes(actionRouter.recentRoutes || [])
+    var teamGroup = goalGroupByKey(goalTruth, 'team_volume')
+    var communityGroup = goalGroupByKey(goalTruth, 'community_agents')
+    var capacityGroup = goalGroupByKey(goalTruth, 'agent_engine_capacity')
+    var financeCard = sourceCardById(operatingTruth, 'SRC-FINANCE-001')
+    var ownersCard = sourceCardById(operatingTruth, 'SRC-OWNERS-001')
+    var fubCard = sourceCardById(operatingTruth, 'SRC-FUB-001')
+    var kpiCard = sourceCardById(operatingTruth, 'SRC-SUPABASE-001')
+    var strategyRoutes = strategyVisibleRoutes(actionRouter.recentRoutes || [])
+    var pendingStrategyRoutes = strategyRoutes.filter(function(route) { return route.approvalStatus === 'pending' })
 
-    var panel = document.createElement('section')
-    panel.className = 'panel strategy-v2-panel'
-    panel.id = 'overview-summary'
+    var page = document.createElement('section')
+    page.className = 'strategy-v2-overview-page'
+    page.id = 'overview-summary'
 
-    var header = document.createElement('div')
-    header.className = 'panel-header'
+    var kpis = document.createElement('div')
+    kpis.className = 'strategy-v2-kpi-grid'
+    kpis.appendChild(renderOverviewKpi({
+      label: 'Team Production',
+      value: compactGapValue(factValue(teamGroup, 'Pace', teamGroup && teamGroup.statusLabel)),
+      detail: factValue(teamGroup, 'Actual', 'Actual missing') + ' vs ' + factValue(teamGroup, 'Should Be', 'target missing') + ' should be',
+      source: factSource(teamGroup, 'Actual', 'SRC-OWNERS-001'),
+      tone: 'watch',
+    }))
+    kpis.appendChild(renderOverviewKpi({
+      label: 'Agent Capacity',
+      value: factValue(capacityGroup, 'Current Active Agents', 'Active agents missing') + ' / ' + factValue(capacityGroup, 'Required Agents This Year', 'requirement missing'),
+      detail: compactGapValue(factValue(capacityGroup, 'Gap This Year', capacityGroup && capacityGroup.statusLabel)),
+      source: factSource(capacityGroup, 'Current Active Agents', 'SRC-FREEDOM-ENGINE-001'),
+      tone: 'watch',
+    }))
+    kpis.appendChild(renderOverviewKpi({
+      label: 'Recruiting Pace',
+      value: factValue(capacityGroup, 'Current Recruiting Pace', 'pace missing') + ' / ' + factValue(capacityGroup, 'Required Recruiting Pace', 'required missing'),
+      detail: 'Current pace vs required monthly pace',
+      source: factSource(capacityGroup, 'Current Recruiting Pace', 'SRC-FREEDOM-ENGINE-001'),
+      tone: 'watch',
+    }))
+    kpis.appendChild(renderOverviewKpi({
+      label: 'Cash Posture',
+      value: factValue(financeCard, 'Available Cash', 'cash missing'),
+      detail: factValue(financeCard, 'Expected AR', 'AR missing') + ' expected AR',
+      source: 'SRC-FINANCE-001',
+      tone: 'neutral',
+    }))
+    page.appendChild(kpis)
+
+    var layout = document.createElement('div')
+    layout.className = 'strategy-v2-overview-layout'
+
+    var read = document.createElement('article')
+    read.className = 'strategy-v2-focus-panel'
+    appendText(read, 'div', 'Current Strategy Read', 'eyebrow')
+    appendText(read, 'h3', 'Where the pressure is')
+    var focusList = document.createElement('div')
+    focusList.className = 'strategy-v2-focus-list'
+    focusList.appendChild(renderFocusRow('Production', compactGapValue(factValue(teamGroup, 'Pace', teamGroup && teamGroup.statusLabel)), 'Team volume is behind the prorated 2026 target.'))
+    focusList.appendChild(renderFocusRow('Capacity', compactGapValue(factValue(capacityGroup, 'Gap This Year', capacityGroup && capacityGroup.statusLabel)), 'The agent engine is short active productive capacity for the current model.'))
+    focusList.appendChild(renderFocusRow('Community', compactGapValue(factValue(communityGroup, 'Pace', communityGroup && communityGroup.statusLabel)), 'The Real Broker community path is ahead, but it is not the team-production constraint.'))
+    focusList.appendChild(renderFocusRow('Collection', factValue(ownersCard, 'Collecting April Net To Team', 'April collection missing') + ' April / ' + factValue(ownersCard, 'Collecting May Net To Team', 'May collection missing') + ' May', 'Conditional collection is current from the Owners forecast.'))
+    read.appendChild(focusList)
+    layout.appendChild(read)
+
+    var queue = document.createElement('article')
+    queue.className = 'strategy-v2-focus-panel'
+    appendText(queue, 'div', 'Strategy Queue', 'eyebrow')
+    appendText(queue, 'h3', String(pendingStrategyRoutes.length) + ' items need review')
+    appendText(queue, 'p', 'Only routes explicitly marked for Strategy Hub are shown here. Operating tasks stay out of Strategy.', 'strategy-v2-muted')
+    var miniList = document.createElement('div')
+    miniList.className = 'strategy-v2-route-mini-list'
+    pendingStrategyRoutes.slice(0, 4).forEach(function(route) {
+      miniList.appendChild(renderRouteMini(route))
+    })
+    if (!pendingStrategyRoutes.length) {
+      appendText(miniList, 'p', 'No strategy-specific review items are pending.', 'strategy-v2-muted')
+    }
+    queue.appendChild(miniList)
+    layout.appendChild(queue)
+    page.appendChild(layout)
+
+    var sources = document.createElement('div')
+    sources.className = 'strategy-v2-source-compact-grid'
+    ;[
+      ['Finance', financeCard, 'Cash + weekly actuals'],
+      ['Owners', ownersCard, 'Production + conditional forecast'],
+      ['FUB', fubCard, 'CRM source hygiene'],
+      ['KPI', kpiCard, 'KPI read rules'],
+    ].forEach(function(item) {
+      sources.appendChild(renderSourceCompact(item[0], item[1], item[2]))
+    })
+    page.appendChild(sources)
+    container.appendChild(page)
+  }
+
+  function renderOverviewKpi(config) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-kpi-card strategy-v2-kpi-' + (config.tone || 'neutral')
+    appendText(card, 'div', config.label, 'strategy-v2-kpi-label')
+    appendText(card, 'strong', config.value, 'strategy-v2-kpi-value')
+    appendText(card, 'p', config.detail, 'strategy-v2-kpi-detail')
+    appendSource(card, config.source)
+    return card
+  }
+
+  function renderFocusRow(label, value, detail) {
+    var row = document.createElement('div')
+    row.className = 'strategy-v2-focus-row'
+    appendText(row, 'span', label, 'strategy-v2-focus-label')
     var copy = document.createElement('div')
-    appendText(copy, 'div', 'Overview', 'eyebrow')
-    appendText(copy, 'h3', 'Current read')
-    appendText(copy, 'p', 'A short business view. Details live under Source-to-Gap and Review Queue.', 'strategy-v2-muted')
-    header.appendChild(copy)
-    appendText(header, 'div', formatDateTime(data.generatedAt), 'doc-meta')
-    panel.appendChild(header)
+    appendText(copy, 'strong', value)
+    appendText(copy, 'p', detail)
+    row.appendChild(copy)
+    return row
+  }
 
-    var grid = document.createElement('div')
-    grid.className = 'strategy-v2-overview-grid'
+  function renderRouteMini(route) {
+    var card = document.createElement('div')
+    card.className = 'strategy-v2-route-mini'
+    appendText(card, 'strong', routeTitle(route), 'strategy-v2-route-mini-title')
+    var meta = document.createElement('div')
+    meta.className = 'strategy-v2-route-mini-meta'
+    meta.appendChild(makePill(destinationLabel(route), 'neutral'))
+    appendText(meta, 'span', emptyText(route.owner, 'Owner missing'))
+    card.appendChild(meta)
+    return card
+  }
 
-    var paceCard = document.createElement('article')
-    paceCard.className = 'strategy-v2-card'
-    appendText(paceCard, 'h4', 'Business Pace')
-    ;(goalTruth.groups || []).forEach(function(group) {
-      var row = document.createElement('div')
-      row.className = 'strategy-v2-overview-row'
-      appendText(row, 'span', group.title)
-      row.appendChild(makePill(emptyText(group.statusLabel, group.status || 'status'), statusTone(group.status)))
-      paceCard.appendChild(row)
-    })
-    grid.appendChild(paceCard)
-
-    var sourceCard = document.createElement('article')
-    sourceCard.className = 'strategy-v2-card'
-    appendText(sourceCard, 'h4', 'Operating Sources')
-    ;(operatingTruth.sourceCards || []).forEach(function(source) {
-      var row = document.createElement('div')
-      row.className = 'strategy-v2-overview-row'
-      appendText(row, 'span', source.sourceId)
-      row.appendChild(makePill(emptyText(source.validation, source.status || 'source'), statusTone(source.validation || source.status)))
-      sourceCard.appendChild(row)
-    })
-    grid.appendChild(sourceCard)
-
-    var queueCard = document.createElement('article')
-    queueCard.className = 'strategy-v2-card'
-    appendText(queueCard, 'h4', 'Review Queue')
-    appendText(queueCard, 'p', String(businessRoutes.length) + ' business-facing items shown from ' + String(actionRouter.totalRoutes || 0) + ' total routed records.', 'strategy-v2-muted')
-    appendText(queueCard, 'p', String(actionRouter.pendingRoutes || 0) + ' pending / ' + String(actionRouter.appliedRoutes || 0) + ' applied.', 'strategy-v2-muted')
-    grid.appendChild(queueCard)
-
-    panel.appendChild(grid)
-    container.appendChild(panel)
+  function renderSourceCompact(label, source, detail) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-source-compact'
+    appendText(card, 'span', label, 'strategy-v2-source-compact-label')
+    appendText(card, 'strong', emptyText(source && source.validation, source && source.status || 'Missing'), 'strategy-v2-source-compact-status')
+    appendText(card, 'p', detail)
+    appendSource(card, source && source.sourceId)
+    return card
   }
 
   function routeTitle(route) {
@@ -367,19 +502,17 @@
 
   function strategyVisibleRoutes(routes) {
     return (routes || []).filter(function(route) {
-      var owner = String(route.owner || '').toLowerCase()
-      var text = [
-        routeTitle(route),
-        routeSummary(route),
-        route.routeType,
-        route.destinationTable,
-      ].join(' ').toLowerCase()
-      if (['marketing', 'sales leadership', 'finance'].indexOf(owner) !== -1) return true
-      if (text.indexOf('marketing/source map') !== -1) return true
-      if (/\b(q2|strategy|source map|agent|recruit|production|lead|listing|creative|finance|cash|pattison|fub|kpi|owners)\b/.test(text)) {
-        return !/\b(sql server|database kpi|repository access|foundation-plus-hubs architecture)\b/.test(text)
-      }
-      return false
+      var metadata = route.metadata || {}
+      var surface = String(
+        metadata.strategySurface ||
+        metadata.hubSurface ||
+        metadata.reviewSurface ||
+        ''
+      ).toLowerCase()
+      return metadata.strategyHubEligible === true ||
+        surface === 'strategy' ||
+        surface === 'strategy_hub' ||
+        surface === 'strategic_execution'
     })
   }
 
@@ -472,11 +605,11 @@
     var header = document.createElement('div')
     header.className = 'panel-header'
     var copy = document.createElement('div')
-    appendText(copy, 'div', 'Review Queue', 'eyebrow')
-    appendText(copy, 'h3', 'Business follow-ups')
-    appendText(copy, 'p', 'Source-backed follow-ups waiting for a human call. Foundation maintenance routes are hidden from this Strategy view.', 'strategy-v2-muted')
+    appendText(copy, 'div', 'Strategy Review Queue', 'eyebrow')
+    appendText(copy, 'h3', 'Strategic review')
+    appendText(copy, 'p', 'This view is reserved for strategy prep, source-map gaps, goal gaps, and pillar decisions. Operating work stays in Ops or Foundation.', 'strategy-v2-muted')
     header.appendChild(copy)
-    appendText(header, 'div', String(routes.length) + ' shown / ' + String(actionRouter.totalRoutes || 0) + ' total routed records', 'doc-meta')
+    appendText(header, 'div', String(routes.length) + ' strategy routes', 'doc-meta')
     panel.appendChild(header)
 
     var summary = document.createElement('div')
@@ -490,7 +623,7 @@
     var stack = document.createElement('div')
     stack.className = 'strategy-v2-route-stack'
     if (!routes.length) {
-      appendText(stack, 'p', 'No business-facing routed records are waiting for review.', 'strategy-v2-muted')
+      appendText(stack, 'p', 'No Strategy Hub review records are ready yet.', 'strategy-v2-muted')
     } else {
       routes.forEach(function(route) {
         stack.appendChild(renderRouteCard(route))
@@ -506,7 +639,7 @@
     panel.id = 'trust-gate'
     appendText(panel, 'div', 'Trust Gate', 'eyebrow')
     appendText(panel, 'h3', 'Advisor remains blocked')
-    appendText(panel, 'p', 'Strategy Hub v2 can only render source-to-gap snapshots and Action Router review records until the next accepted hub slice changes that gate.', 'strategy-v2-muted')
+    appendText(panel, 'p', 'Strategy Hub v2 can only render source-to-gap snapshots and strategy-marked review records until the next accepted hub slice changes that gate.', 'strategy-v2-muted')
     appendLink(panel, '/doc?path=' + encodeURIComponent(manifestPath), 'Open source-to-gap manifest', 'section-support-link')
     container.appendChild(panel)
   }
@@ -529,7 +662,6 @@
       renderOperatingTruth(container, state.data)
     } else if (state.section === 'route-review') {
       renderRouteReview(container, state.data)
-      renderTrustGate(container)
     } else {
       renderOverview(container, state.data)
     }

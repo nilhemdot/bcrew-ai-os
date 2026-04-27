@@ -1501,8 +1501,8 @@ async function main() {
       !strategyEvidencePacketSource.includes("packetSection: 'recommended_90_day_priorities'") &&
       !strategyEvidencePacketSource.includes("itemType: 'action_item'") &&
       includesAll(strategicExecutionUiSource, [
-        'Strategy command',
-        'Goal and operating truth',
+        'Strategy Command',
+        'Goal And Operating Truth',
         'source-to-gap manifest',
         'Advisor remains blocked',
       ]),
@@ -1555,6 +1555,7 @@ async function main() {
       serverSource.includes('rerouteActionRoute') &&
       serverSource.includes('saveStrategyHubSnapshot') &&
       serverSource.includes('getStrategyHubSnapshot') &&
+      serverSource.includes('isStrategyHubReviewRoute') &&
       foundationDbSource.includes('CREATE TABLE IF NOT EXISTS strategy_hub_snapshots') &&
       serverSource.includes('strategy_hub_v2_in_progress') &&
       serverSource.includes('Strategy Advisor is offline while Strategy Hub v2 rebuilds deterministic source snapshots') &&
@@ -1564,7 +1565,9 @@ async function main() {
       strategicExecutionUiSource.includes('function renderOverview') &&
       strategicExecutionUiSource.includes('function renderRouteReview') &&
       strategicExecutionUiSource.includes('function sectionFromHash') &&
-      strategicExecutionUiSource.includes('Business follow-ups') &&
+      strategicExecutionUiSource.includes('Strategic review') &&
+      strategicExecutionUiSource.includes('strategy prep, source-map gaps, goal gaps, and pillar decisions') &&
+      strategicExecutionUiSource.includes('Operating tasks stay out of Strategy') &&
       strategicExecutionUiSource.includes('window.confirm') &&
       strategicExecutionUiSource.includes('Optional review note') &&
       strategicExecutionUiSource.includes('Source fallback active') &&
@@ -1574,8 +1577,10 @@ async function main() {
       ['live', 'degraded'].includes(strategyHubV2Api.sourceTruthStatus) &&
       strategyHubV2Api.goalTruth?.groups?.length >= 3 &&
       strategyHubV2Api.operatingTruth?.sourceCards?.length >= 4 &&
-      strategyHubV2Api.actionRouter?.totalRoutes >= 1 &&
-      strategyHubV2Routes.some(route =>
+      Array.isArray(strategyHubV2Routes) &&
+      strategyHubV2Api.actionRouter?.totalRoutes === strategyHubV2Routes.length &&
+      Number(strategyHubV2Api.operationalRouteSummary?.hiddenRoutes || 0) >= 1 &&
+      strategyHubV2Routes.every(route =>
         route.approvalRequired === true &&
         route.synthesizedItemId &&
         Array.isArray(route.factRefs) && route.factRefs.length > 0 &&
@@ -1589,7 +1594,7 @@ async function main() {
       !strategicExecutionUiSource.includes('AI-Suggested 90-Day Priorities') &&
       !serverSource.includes('recommended90DayPriorities:'),
     'Strategy Hub v2 renders source-to-gap and route review while advisor remains offline',
-    `routes=${strategyHubV2Api.actionRouter?.totalRoutes || 0} / pending=${strategyHubV2Api.actionRouter?.pendingRoutes || 0} / eval=${strategyHubV2Api.retrievalEval?.status || 'missing'}`,
+    `strategyRoutes=${strategyHubV2Api.actionRouter?.totalRoutes || 0} / hiddenOperational=${strategyHubV2Api.operationalRouteSummary?.hiddenRoutes || 0} / eval=${strategyHubV2Api.retrievalEval?.status || 'missing'}`,
   )
   ensure(
     checks,
