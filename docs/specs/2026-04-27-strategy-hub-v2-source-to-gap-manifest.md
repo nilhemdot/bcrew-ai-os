@@ -134,7 +134,7 @@ Every metric that receives a "why," doctrine citation, evidence drilldown, AI re
 - `SYNTHESIS-FACTS-001` now persists source-backed strategy/source-contract, goal, operating, KPI, source-snapshot, source-health, and retrieved-evidence facts with explicit `maxTier`.
 - `SYNTHESIS-ENGINE-001` now persists structured source-backed synthesized items; `ACTION-ROUTER-001` now routes those items into governed ledgers behind human approval.
 
-Strategy Hub v2 may now consume source facts, synthesized items, and Action Router records, but only as a source-to-gap operating dashboard plus review/promote queue. It must not revive advisor chat, old recommendation feeds, or unsupported priority generation.
+Strategy Hub v2 may now consume source facts, synthesized items, and Action Router records, but only as a source-to-gap operating dashboard plus review/promote queue. Retrieval eval baseline `retrieval-eval-baseline-2026-04-27` must pass before major retrieval/synthesis changes. Strategy Hub must not revive advisor chat, old recommendation feeds, or unsupported priority generation.
 
 ### Source Precedence Rules
 

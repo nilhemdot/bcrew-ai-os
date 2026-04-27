@@ -55,7 +55,7 @@ Locked doctrine means current operating default, not permanent dogma. If researc
 - Foundation is the control plane for systems; hubs are the human/business cockpits. A job can run in Foundation while its queue, decisions, and cleanup work surface in the hub it serves.
 - Admin-only proof surfaces can exist behind `requireAdminToken`, but no broad hub, assistant, query, or human-facing read surface may expose shared-communications intelligence until auth/tier filtering and subject-person redaction are implemented and verified.
 - `SYSTEM-010` controls are a Foundation gate, not a later ops polish item: running jobs, agents, miners, and paid/subscription model calls must be visible, pausable/stoppable, failure-tracked, and decommissionable before autonomous loops expand.
-- Strategy Hub is the first major consumer, not the old advisor surface. Now that the spine has Action Router v1, resume Strategy Hub only as a source-to-gap operating dashboard on top of source-backed facts, synthesized items, and routed approval records.
+- Strategy Hub is the first major consumer, not the old advisor surface. Now that the spine has Action Router v1 and retrieval eval coverage, resume Strategy Hub only as a source-to-gap operating dashboard on top of source-backed facts, synthesized items, and routed approval records.
 
 ## Source Intelligence Lifecycle
 
@@ -185,7 +185,7 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Add a run/cost/cursor ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation.
    - `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001` done as the v1 report/atom substrate, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, `SYNTHESIS-ENGINE-001`, and `ACTION-ROUTER-001` are now done/hardened enough for Strategy Hub v2 to consume routed proof.
    - Use `intelligence_report_artifacts`, `intelligence_atoms`, `intelligence_atom_hits`, `intelligence_retrieval_chunks`, `intelligence_synthesis_facts`, and `intelligence_synthesized_items` as the governed report/atom/retrieval/fact/synthesis substrate before scaling video/web/Skool extraction.
-   - Build Strategy Hub v2 next from deterministic source-to-gap snapshots and routed action records, not the old advisor/recommendation surface.
+   - Build Strategy Hub v2 next from deterministic source-to-gap snapshots and routed action records, not the old advisor/recommendation surface. Run `npm run intelligence:retrieval-eval` before major retrieval/synthesis changes.
    - Keep Graphiti/Zep deferred until Postgres memory proves itself.
 6. `SOURCE-008` / `DATA-005` — Close FUB Level 2 taxonomy and Owners/FUB lineage.
    - Refresh stale FUB source snapshot.
@@ -657,7 +657,7 @@ Strategy Hub should:
 - produce a tight owner-level strategy packet
 - track follow-through after the meeting
 
-Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface is still intentionally a Strategy Hub v2 safety stub; the advisor endpoint returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation is disabled. The Foundation spine is now closed enough for routed review and apply: `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, `SYNTHESIS-ENGINE-001`, and `ACTION-ROUTER-001` are done for v1, with one Action Router route approved/applied into `ACTION-001`. The next Strategy Hub work should resume as deterministic source-to-gap dashboarding plus review/promote against Action Router records, not old chat/advisor polish.
+Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface is still intentionally a Strategy Hub v2 safety stub; the advisor endpoint returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation is disabled. The Foundation spine is now closed enough for routed review and apply: `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, `SYNTHESIS-ENGINE-001`, and `ACTION-ROUTER-001` are done for v1, with one Action Router route approved/applied into `ACTION-001`. `npm run intelligence:retrieval-eval` now guards 20 expected hybrid retrieval matches across Gmail, Meetings, and Missive before Strategy Hub depends on evidence recall. The next Strategy Hub work should resume as deterministic source-to-gap dashboarding plus review/promote against Action Router records, not old chat/advisor polish.
 
 Acceptance:
 

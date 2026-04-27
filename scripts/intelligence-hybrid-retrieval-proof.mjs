@@ -93,8 +93,8 @@ async function main() {
   const updatedHybridCard = await updateBacklogItem('RETRIEVAL-003', {
     lane: 'done',
     summary: 'Combine lexical search, semantic vector search, direct atom search, source filters, and sensitivity/tier rules into one evidence API for synthesis and future chat recall.',
-    nextAction: 'Keep RETRIEVAL-003 closed and stable as the governed hybrid evidence API. Next work is Strategy Hub v2 source-to-gap plus route review/promote on top of facts, synthesized items, and action routes; add retrieval eval baseline before major retrieval/synthesis changes.',
-    statusNote: 'Done v1 on 2026-04-27. Hybrid evidence search fuses lexical, semantic, and atom matches with explicit maxTier and source-backed result payloads.',
+    nextAction: 'Keep RETRIEVAL-003 closed and stable as the governed hybrid evidence API. Next work is Strategy Hub v2 source-to-gap plus route review/promote on top of facts, synthesized items, and action routes; run retrieval eval before major retrieval/synthesis changes.',
+    statusNote: 'Done v1 on 2026-04-27. Hybrid evidence search fuses lexical, semantic, and atom matches with explicit maxTier and source-backed result payloads. Retrieval eval baseline now guards 20 expected matches across Gmail, Meetings, and Missive.',
   }, 'hybrid-retrieval-proof')
 
   const updatedFactsCard = await updateBacklogItem('SYNTHESIS-FACTS-001', {

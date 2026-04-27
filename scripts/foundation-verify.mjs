@@ -252,6 +252,9 @@ async function main() {
   const intelligenceRetrievalProofSource = await readRepoFile('scripts/intelligence-retrieval-proof.mjs')
   const intelligenceSemanticRetrievalProofSource = await readRepoFile('scripts/intelligence-semantic-retrieval-proof.mjs')
   const intelligenceHybridRetrievalProofSource = await readRepoFile('scripts/intelligence-hybrid-retrieval-proof.mjs')
+  const intelligenceRetrievalEvalSource = await readRepoFile('scripts/intelligence-retrieval-eval.mjs')
+  const intelligenceRetrievalEvalFixtureSource = await readRepoFile('docs/specs/2026-04-27-intelligence-retrieval-eval-baseline.json')
+  const intelligenceRetrievalEvalFixture = JSON.parse(intelligenceRetrievalEvalFixtureSource)
   const intelligenceSynthesisFactsSource = await readRepoFile('lib/intelligence-synthesis-facts.js')
   const intelligenceSynthesisFactsProofSource = await readRepoFile('scripts/intelligence-synthesis-facts-proof.mjs')
   const intelligenceSynthesisSource = await readRepoFile('lib/intelligence-synthesis.js')
@@ -276,6 +279,11 @@ async function main() {
   )
   const synthesisFactTypes = new Set((synthesisFactsSnapshot.factsByType || []).map(row => row.factType))
   const synthesisFactSources = new Set((synthesisFactsSnapshot.factsBySource || []).map(row => row.sourceId))
+  const retrievalEvalCases = Array.isArray(intelligenceRetrievalEvalFixture.cases)
+    ? intelligenceRetrievalEvalFixture.cases
+    : []
+  const retrievalEvalSources = new Set(retrievalEvalCases.map(item => item.sourceId).filter(Boolean))
+  const latestRetrievalEvalMetadata = intelligenceRetrievalSnapshot.latestEvalRun?.metadata || {}
 
   ensure(
     checks,
@@ -773,6 +781,46 @@ async function main() {
       intelligenceRetrievalSnapshot.latestHybridProofRun?.maxTier <= 1,
     'RETRIEVAL-003 exposes governed hybrid evidence retrieval with tier guard',
     `${intelligenceRetrievalSnapshot.latestHybridProofRun?.searchResultCount || 0} hybrid proof results / query=${intelligenceRetrievalSnapshot.latestHybridProofRun?.searchQuery || 'missing'}`,
+  )
+  ensure(
+    checks,
+    packageSource.includes('"intelligence:retrieval-eval"') &&
+      includesAll(intelligenceRetrievalSource, [
+        'retrieval_eval',
+        'latestEvalRun',
+      ]) &&
+      includesAll(intelligenceRetrievalEvalSource, [
+        'searchIntelligenceChunks',
+        'searchIntelligenceEvidenceHybrid',
+        'requiredMatchedBy',
+        'expectedAtomId',
+        'retrieval_eval',
+        'recordRetrievalRun',
+        'callEmbedding',
+      ]) &&
+      retrievalEvalCases.length >= 20 &&
+      retrievalEvalSources.size >= Number(intelligenceRetrievalEvalFixture.requiredDistinctSources || 3) &&
+      retrievalEvalCases.every(item =>
+        item.id &&
+        item.query &&
+        item.sourceId &&
+        item.expectedAtomId &&
+        Array.isArray(item.requiredMatchedBy) &&
+        item.requiredMatchedBy.includes('lexical') &&
+        item.requiredMatchedBy.includes('semantic') &&
+        item.requiredMatchedBy.includes('atom')
+      ) &&
+      intelligenceRetrievalSnapshot.latestEvalRun?.runType === 'retrieval_eval' &&
+      intelligenceRetrievalSnapshot.latestEvalRun?.status === 'succeeded' &&
+      intelligenceRetrievalSnapshot.latestEvalRun?.maxTier <= 1 &&
+      latestRetrievalEvalMetadata.fixtureId === intelligenceRetrievalEvalFixture.id &&
+      Number(latestRetrievalEvalMetadata.totalCases || 0) >= retrievalEvalCases.length &&
+      Number(latestRetrievalEvalMetadata.passedCases || 0) >= retrievalEvalCases.length &&
+      Number(latestRetrievalEvalMetadata.distinctSources || 0) >= retrievalEvalSources.size &&
+      Array.isArray(latestRetrievalEvalMetadata.failedCases) &&
+      latestRetrievalEvalMetadata.failedCases.length === 0,
+    'retrieval eval baseline guards hybrid recall before Strategy Hub consumes evidence',
+    `${latestRetrievalEvalMetadata.passedCases || 0}/${retrievalEvalCases.length} cases / sources=${latestRetrievalEvalMetadata.distinctSources || 0}`,
   )
   ensure(
     checks,

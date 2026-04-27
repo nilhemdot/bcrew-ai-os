@@ -1,0 +1,170 @@
+{
+  "id": "retrieval-eval-baseline-2026-04-27",
+  "description": "Fixed retrieval regression baseline for the Foundation intelligence spine. Each case must return the expected atom from governed hybrid retrieval before major retrieval, synthesis, or Strategy Hub changes.",
+  "maxTier": 1,
+  "limit": 10,
+  "minPassRate": 1,
+  "requiredDistinctSources": 3,
+  "cases": [
+    {
+      "id": "pattison-scotben-invoice",
+      "query": "Pattison invoice SCOTBEN balance",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:ee01cf7d8a6ed629a602e9a3",
+      "expectedTitleIncludes": "Pattison invoice",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "scott-benson-creative",
+      "query": "old Scott Benson creative locations Pattison",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:160418c70272025eeab92608",
+      "expectedTitleIncludes": "Scott Benson creative",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "union-street-invoice",
+      "query": "Union Street Media invoice H15933",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:40e79eb6af3a06955dcf75a5",
+      "expectedTitleIncludes": "Union Street Media invoice",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "sql-server-database-copy",
+      "query": "copy SQL Server database data Lee",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:a60885798e3a8edb54498b66",
+      "expectedTitleIncludes": "SQL Server database data",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "kpi-github-access",
+      "query": "GitHub repository access database KPI system code",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:04bdcac01ce8390aa5bf5b95",
+      "expectedTitleIncludes": "repository access",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "q2-strategy-prep",
+      "query": "Q2 strategy prep materials Steve John Friday EOD",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:52310fc1a021d2cf2086a11b",
+      "expectedTitleIncludes": "Q2 strategy prep",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "kpi-data-missing",
+      "query": "KPI data disappearance all pages",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:df86a072ad1de848c3f7031d",
+      "expectedTitleIncludes": "KPI data disappearance",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "sred-report-corrections",
+      "query": "Review and correct FY25 SR ED report details before submission",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:8753e90b1d465946fd30af16",
+      "expectedTitleIncludes": "FY25 SR&ED report",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "email-intel-failing",
+      "query": "email intel weekly automation failing auto pause",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:953b66020090a246fafd56dc",
+      "expectedTitleIncludes": "email-intel-weekly automation",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "marketing-source-map",
+      "query": "clean live source map three lanes Benson Crew Steve Zahnd MarketMasters",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:20c235b72f20de47f1f58ef3",
+      "expectedTitleIncludes": "Marketing/source map",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "socialpilot-reconnect",
+      "query": "reconnect disconnected SocialPilot accounts",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:acffb5b09611623cef06493e",
+      "expectedTitleIncludes": "SocialPilot accounts",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "loom-trial-billing",
+      "query": "Loom Business AI trial billing May 7 2026",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:218a94d4a6a051a7c69513d0",
+      "expectedTitleIncludes": "Loom Business",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "carl-duvall-lead",
+      "query": "Carl Duvall BCrew Google Ads lead",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:120e59d344a81267167d9da4",
+      "expectedTitleIncludes": "Carl Duvall",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "atlassian-admin",
+      "query": "Atlassian user access admin privileges Steve Zahnd",
+      "sourceId": "SRC-GMAIL-001",
+      "expectedAtomId": "atom:shared-candidate:915ce6851f9565a9ee58c576",
+      "expectedTitleIncludes": "Atlassian user access admin privileges",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "foundation-hubs-atoms",
+      "query": "Foundation hubs source backed atoms per hub agent experiences",
+      "sourceId": "SRC-MEETINGS-001",
+      "expectedAtomId": "atom:shared-candidate:cf622794e081825695bd14bd",
+      "expectedTitleIncludes": "Foundation-plus-hubs architecture",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "ten-agents-month",
+      "query": "10 agents per month sustainable systems",
+      "sourceId": "SRC-MEETINGS-001",
+      "expectedAtomId": "atom:shared-candidate:b368d06bf17cc495d188a6a5",
+      "expectedTitleIncludes": "10 agents per month",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "marketmasters-ghl",
+      "query": "MarketMasters reusable GoHighLevel system base",
+      "sourceId": "SRC-MEETINGS-001",
+      "expectedAtomId": "atom:shared-candidate:e439eeafb50a54419f8da87f",
+      "expectedTitleIncludes": "GoHighLevel system base",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "referral-180-days",
+      "query": "referral system 180 days 30 days this week",
+      "sourceId": "SRC-MEETINGS-001",
+      "expectedAtomId": "atom:shared-candidate:a52e3105843ef4ae341222d1",
+      "expectedTitleIncludes": "Referral system planning",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "seller-decision-maker",
+      "query": "seller discovery true decision maker both parties involved",
+      "sourceId": "SRC-MEETINGS-001",
+      "expectedAtomId": "atom:shared-candidate:00593ed4688bc84afd59c0df",
+      "expectedTitleIncludes": "true decision maker",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    },
+    {
+      "id": "missive-showings",
+      "query": "Missive showings confirmation Bellflower transaction activity",
+      "sourceId": "SRC-MISSIVE-001",
+      "expectedAtomId": "atom:shared-candidate:91df34710b2ccb7074e06066",
+      "expectedTitleIncludes": "Showings confirmation",
+      "requiredMatchedBy": ["lexical", "semantic", "atom"]
+    }
+  ]
+}

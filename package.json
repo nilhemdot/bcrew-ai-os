@@ -62,6 +62,7 @@
     "intelligence:retrieval-proof": "node --env-file-if-exists=.env scripts/intelligence-retrieval-proof.mjs",
     "intelligence:semantic-proof": "node --env-file-if-exists=.env scripts/intelligence-semantic-retrieval-proof.mjs",
     "intelligence:hybrid-proof": "node --env-file-if-exists=.env scripts/intelligence-hybrid-retrieval-proof.mjs",
+    "intelligence:retrieval-eval": "node --env-file-if-exists=.env scripts/intelligence-retrieval-eval.mjs",
     "intelligence:synthesis-facts-proof": "node --env-file-if-exists=.env scripts/intelligence-synthesis-facts-proof.mjs",
     "intelligence:synthesis-proof": "node --env-file-if-exists=.env scripts/intelligence-synthesis-engine-proof.mjs",
     "intelligence:synthesis-refresh": "node --env-file-if-exists=.env scripts/intelligence-synthesis-engine-proof.mjs --refresh=true",

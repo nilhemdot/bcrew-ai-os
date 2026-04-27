@@ -99,13 +99,13 @@ async function main() {
   const updatedRetrievalCard = await updateBacklogItem('RETRIEVAL-001', {
     lane: 'done',
     summary: 'Add chunk tables and Postgres full-text lexical search over real shared-communications candidates/artifacts promoted into atoms before relying on vector search.',
-    nextAction: 'Keep RETRIEVAL-001 closed and stable as lexical retrieval over candidate-backed atom chunks. Next work is Strategy Hub v2 source-to-gap plus route review/promote on top of facts, synthesized items, and action routes; add retrieval eval baseline before major retrieval/synthesis changes.',
+    nextAction: 'Keep RETRIEVAL-001 closed and stable as lexical retrieval over candidate-backed atom chunks. Next work is Strategy Hub v2 source-to-gap plus route review/promote on top of facts, synthesized items, and action routes; run retrieval eval before major retrieval/synthesis changes.',
     statusNote: 'Done v1 on 2026-04-27. RETRIEVAL-001 now promotes real shared_communication_candidates into intelligence_atoms, stores candidate-backed chunks in intelligence_retrieval_chunks, and proves lexical search with explicit maxTier enforcement.',
   }, 'retrieval-proof')
 
   const updatedSemanticCard = await updateBacklogItem('RETRIEVAL-002', {
     lane: 'done',
-    nextAction: 'Keep RETRIEVAL-002 closed and stable as semantic retrieval over candidate-backed chunks. Next work is Strategy Hub v2 source-to-gap plus route review/promote on top of facts, synthesized items, and action routes; add retrieval eval baseline before major retrieval/synthesis changes.',
+    nextAction: 'Keep RETRIEVAL-002 closed and stable as semantic retrieval over candidate-backed chunks. Next work is Strategy Hub v2 source-to-gap plus route review/promote on top of facts, synthesized items, and action routes; run retrieval eval before major retrieval/synthesis changes.',
     statusNote: 'Done v1 on 2026-04-27. pgvector is installed, candidate-backed chunks have 1536-dimension OpenAI embeddings, semantic search requires explicit maxTier, and proof runs over the real RETRIEVAL-001 corpus.',
   }, 'retrieval-proof')
 
