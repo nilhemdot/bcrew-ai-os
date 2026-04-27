@@ -4112,7 +4112,33 @@ app.get('/api/strategic-execution/operating-truth', requireAdminToken, async (re
   }
 })
 
+function isStrategyHubReviewRoute(route = {}) {
+  const metadata = route.metadata && typeof route.metadata === 'object' ? route.metadata : {}
+  const surface = String(
+    metadata.strategySurface ||
+    metadata.hubSurface ||
+    metadata.reviewSurface ||
+    ''
+  ).toLowerCase()
+  return metadata.strategyHubEligible === true ||
+    surface === 'strategy' ||
+    surface === 'strategy_hub' ||
+    surface === 'strategic_execution'
+}
+
 function buildStrategyHubV2Payload({ goalTruth, operatingTruth, actionRouter, retrieval, sourceTruthStatus = 'live', fallback = null }) {
+  const allRoutes = Array.isArray(actionRouter.recentRoutes) ? actionRouter.recentRoutes : []
+  const strategyRoutes = allRoutes.filter(isStrategyHubReviewRoute)
+  const strategyActionRouter = {
+    ...actionRouter,
+    totalRoutes: strategyRoutes.length,
+    pendingRoutes: strategyRoutes.filter(route => route.approvalStatus === 'pending').length,
+    approvedRoutes: strategyRoutes.filter(route => route.approvalStatus === 'approved').length,
+    appliedRoutes: strategyRoutes.filter(route => route.approvalStatus === 'applied').length,
+    recentRoutes: strategyRoutes,
+    operationalTotalRoutes: actionRouter.totalRoutes || allRoutes.length,
+    hiddenOperationalRoutes: Math.max(0, Number(actionRouter.totalRoutes || allRoutes.length || 0) - strategyRoutes.length),
+  }
   return {
     generatedAt: new Date().toISOString(),
     mode: 'source_to_gap_route_review',
@@ -4121,13 +4147,18 @@ function buildStrategyHubV2Payload({ goalTruth, operatingTruth, actionRouter, re
     fallback,
     goalTruth,
     operatingTruth,
-    actionRouter,
+    actionRouter: strategyActionRouter,
     retrievalEval: retrieval.latestEvalRun || null,
+    operationalRouteSummary: {
+      totalRoutes: actionRouter.totalRoutes || allRoutes.length,
+      hiddenRoutes: strategyActionRouter.hiddenOperationalRoutes,
+      visibilityRule: 'Strategy Hub only shows routes explicitly marked strategyHubEligible or routed to the strategy review surface.',
+    },
     routeReview: {
-      pendingRoutes: actionRouter.pendingRoutes || 0,
-      approvedRoutes: actionRouter.approvedRoutes || 0,
-      appliedRoutes: actionRouter.appliedRoutes || 0,
-      recentRoutes: actionRouter.recentRoutes || [],
+      pendingRoutes: strategyActionRouter.pendingRoutes,
+      approvedRoutes: strategyActionRouter.approvedRoutes,
+      appliedRoutes: strategyActionRouter.appliedRoutes,
+      recentRoutes: strategyRoutes,
     },
   }
 }
