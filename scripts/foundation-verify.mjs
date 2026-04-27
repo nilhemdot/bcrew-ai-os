@@ -788,6 +788,7 @@ async function main() {
       includesAll(intelligenceRetrievalSource, [
         'retrieval_eval',
         'latestEvalRun',
+        'latestSuccessfulEvalRun',
       ]) &&
       includesAll(intelligenceRetrievalEvalSource, [
         'searchIntelligenceChunks',
@@ -812,6 +813,7 @@ async function main() {
       ) &&
       intelligenceRetrievalSnapshot.latestEvalRun?.runType === 'retrieval_eval' &&
       intelligenceRetrievalSnapshot.latestEvalRun?.status === 'succeeded' &&
+      intelligenceRetrievalSnapshot.latestSuccessfulEvalRun?.runId === intelligenceRetrievalSnapshot.latestEvalRun?.runId &&
       intelligenceRetrievalSnapshot.latestEvalRun?.maxTier <= 1 &&
       latestRetrievalEvalMetadata.fixtureId === intelligenceRetrievalEvalFixture.id &&
       Number(latestRetrievalEvalMetadata.totalCases || 0) >= retrievalEvalCases.length &&
