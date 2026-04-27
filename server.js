@@ -46,6 +46,7 @@ import {
   recordReviewQueueChange,
   recordSourceDriftChange,
   saveFubLeadSourceSnapshot,
+  searchIntelligenceEvidenceHybrid,
   updateSharedCommunicationCandidateStatus,
   upsertFubLeadSourceRule,
   updateBacklogItem,
@@ -65,6 +66,7 @@ import {
 } from './lib/fub.js'
 import { getDriveFileMetadata, getSheetValues } from './lib/google-delegated.js'
 import { getGroupedSourceSystems, getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
+import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
 import { writeAgentFeedbackToClickUp } from './lib/agent-feedback-clickup.js'
@@ -3819,6 +3821,53 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       500,
       'foundation_hub_load_failed',
       error instanceof Error ? error.message : 'Failed to load foundation hub data.'
+    )
+  }
+})
+
+app.post('/api/intelligence/evidence', requireAdminToken, async (req, res) => {
+  try {
+    const query = String(req.body?.query || '').trim()
+    if (!query) {
+      sendApiError(res, 400, 'missing_query', 'query is required.')
+      return
+    }
+    const maxTier = Number(req.body?.maxTier ?? req.body?.max_tier)
+    if (!Number.isFinite(maxTier) || maxTier < 1) {
+      sendApiError(res, 400, 'missing_max_tier', 'maxTier >= 1 is required.')
+      return
+    }
+    const embedding = await callEmbedding({
+      input: query,
+      dimensions: 1536,
+      metadata: {
+        backlogCardId: 'RETRIEVAL-003',
+        purpose: 'hybrid_evidence_api_query',
+        actor: getRequestActor(req),
+      },
+    })
+    const evidence = await searchIntelligenceEvidenceHybrid({
+      ...req.body,
+      query,
+      queryEmbedding: embedding.embeddings[0],
+      maxTier,
+      limit: req.body?.limit,
+    })
+    cacheHeadersNoStore(res)
+    res.json({
+      ...evidence,
+      embedding: {
+        model: embedding.model,
+        dimensions: embedding.dimensions,
+        callId: embedding.call.callId,
+      },
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'intelligence_evidence_failed',
+      error instanceof Error ? error.message : 'Failed to retrieve intelligence evidence.'
     )
   }
 })

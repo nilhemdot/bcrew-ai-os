@@ -61,6 +61,7 @@
     "intelligence:atoms-proof": "node --env-file-if-exists=.env scripts/intelligence-atom-spine-proof.mjs",
     "intelligence:retrieval-proof": "node --env-file-if-exists=.env scripts/intelligence-retrieval-proof.mjs",
     "intelligence:semantic-proof": "node --env-file-if-exists=.env scripts/intelligence-semantic-retrieval-proof.mjs",
+    "intelligence:hybrid-proof": "node --env-file-if-exists=.env scripts/intelligence-hybrid-retrieval-proof.mjs",
     "codex:usage": "node scripts/codex-usage.mjs",
     "codex:usage-web": "node scripts/codex-usage-web.mjs",
     "backlog:seed-drift": "node --env-file-if-exists=.env scripts/report-backlog-seed-drift.mjs",

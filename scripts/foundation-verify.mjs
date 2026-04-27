@@ -245,6 +245,7 @@ async function main() {
   const intelligenceRetrievalSource = await readRepoFile('lib/intelligence-retrieval.js')
   const intelligenceRetrievalProofSource = await readRepoFile('scripts/intelligence-retrieval-proof.mjs')
   const intelligenceSemanticRetrievalProofSource = await readRepoFile('scripts/intelligence-semantic-retrieval-proof.mjs')
+  const intelligenceHybridRetrievalProofSource = await readRepoFile('scripts/intelligence-hybrid-retrieval-proof.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
@@ -378,6 +379,7 @@ async function main() {
     checks,
     [
       "app.get('/api/foundation-hub', requireAdminToken",
+      "app.post('/api/intelligence/evidence', requireAdminToken",
       "app.get('/api/ops-hub', requireAdminToken",
       "app.get('/api/source-of-truth', requireAdminToken",
       "app.get('/api/doc', requireAdminToken",
@@ -393,7 +395,7 @@ async function main() {
       "app.get('/foundation/export/strategy.pdf', requireAdminToken",
     ].every(pattern => serverSource.includes(pattern)),
     'broad Foundation/Ops/doc read APIs are admin-gated',
-    'source-of-truth, doc reads, foundation hub, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, doc updates, and PDF export require admin token outside localhost',
+    'source-of-truth, doc reads, foundation hub, intelligence evidence, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, doc updates, and PDF export require admin token outside localhost',
   )
   ensure(
     checks,
@@ -717,6 +719,46 @@ async function main() {
       intelligenceRetrievalSnapshot.tierOneChunksWithEmbeddings >= 1,
     'RETRIEVAL-002 stores pgvector embeddings and semantic search over real atom chunks',
     `${intelligenceRetrievalSnapshot.chunksWithEmbeddings} embedded chunks / candidate-backed=${intelligenceRetrievalSnapshot.candidateAtomChunksWithEmbeddings}`,
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, [
+      "id: 'RETRIEVAL-003'",
+      'Hybrid evidence search fuses lexical, semantic, and atom matches',
+      'searchIntelligenceEvidenceHybrid',
+      'SYNTHESIS-FACTS-001',
+    ]) &&
+      includesAll(intelligenceRetrievalSource, [
+        'hybrid_proof',
+        'searchIntelligenceEvidenceHybrid',
+        'query is required for hybrid evidence retrieval',
+        'queryEmbedding is required for hybrid evidence retrieval',
+        'rrfScore',
+        'lexicalResults.forEach',
+        'semanticResults.forEach',
+        'atomResults.forEach',
+      ]) &&
+      includesAll(serverSource, [
+        "app.post('/api/intelligence/evidence', requireAdminToken",
+        'searchIntelligenceEvidenceHybrid',
+        'callEmbedding',
+        "backlogCardId: 'RETRIEVAL-003'",
+      ]) &&
+      packageSource.includes('"intelligence:hybrid-proof"') &&
+      includesAll(intelligenceHybridRetrievalProofSource, [
+        'callEmbedding',
+        'searchIntelligenceEvidenceHybrid',
+        'hybrid_proof',
+        'maxTier: 1',
+        'tierGuardProof',
+        'RETRIEVAL-003',
+        'SYNTHESIS-FACTS-001',
+      ]) &&
+      intelligenceRetrievalSnapshot.latestHybridProofRun?.runType === 'hybrid_proof' &&
+      intelligenceRetrievalSnapshot.latestHybridProofRun?.searchResultCount >= 1 &&
+      intelligenceRetrievalSnapshot.latestHybridProofRun?.maxTier <= 1,
+    'RETRIEVAL-003 exposes governed hybrid evidence retrieval with tier guard',
+    `${intelligenceRetrievalSnapshot.latestHybridProofRun?.searchResultCount || 0} hybrid proof results / query=${intelligenceRetrievalSnapshot.latestHybridProofRun?.searchQuery || 'missing'}`,
   )
   ensure(
     checks,
