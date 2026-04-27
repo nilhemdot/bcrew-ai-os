@@ -2426,10 +2426,50 @@ function compactStrategyBacklogItem(item) {
   }
 }
 
-async function getStrategyAdvisorContext(question = '') {
+const strategyAdvisorModeProfiles = {
+  fast: {
+    label: 'Fast',
+    intent: 'live_meeting_fast',
+    intelligence: 'smallest source-backed context that can answer live strategy questions quickly',
+    requestedReasoningEffort: 'low',
+    contextCharLimit: 8000,
+    maxOutputTokens: 450,
+    timeoutMs: 60000,
+    packetItemLimit: 6,
+    directArtifactLimit: 4,
+    directArtifactExcerptChars: 700,
+    backlogLimit: 10,
+    decisionLimit: 3,
+    openQuestionLimit: 3,
+    includeDocSnapshots: false,
+  },
+  deep: {
+    label: 'Deep',
+    intent: 'smartest_available_xhigh',
+    intelligence: 'widest source-backed context on the smartest runnable subscription route',
+    requestedReasoningEffort: 'xhigh',
+    contextCharLimit: 75000,
+    maxOutputTokens: 2200,
+    timeoutMs: 420000,
+    packetItemLimit: 36,
+    directArtifactLimit: 18,
+    directArtifactExcerptChars: 2600,
+    backlogLimit: 55,
+    decisionLimit: 15,
+    openQuestionLimit: 15,
+    includeDocSnapshots: true,
+  },
+}
+
+function getStrategyAdvisorModeProfile(mode) {
+  return strategyAdvisorModeProfiles[mode === 'deep' ? 'deep' : 'fast']
+}
+
+async function getStrategyAdvisorContext(question = '', { mode = 'fast' } = {}) {
+  const profile = getStrategyAdvisorModeProfile(mode)
   const synthesis = await getSharedCommunicationSynthesisSnapshot({
     limit: 1,
-    itemLimit: 30,
+    itemLimit: profile.packetItemLimit,
     packetType: 'strategy_evidence_packet_v1',
   })
   const foundation = await getFoundationSnapshot()
@@ -2463,8 +2503,8 @@ async function getStrategyAdvisorContext(question = '') {
         'slack_thread',
         'video_transcript',
       ],
-    limit: 14,
-    excerptChars: 2400,
+    limit: profile.directArtifactLimit,
+    excerptChars: profile.directArtifactExcerptChars,
   })
   const packetJson = synthesis.latestRun?.metadata?.packetJson || {}
   const criticalBacklog = (foundation.backlogItems || [])
@@ -2484,26 +2524,38 @@ async function getStrategyAdvisorContext(question = '') {
         searchable.includes('finance')
       )
     })
-    .slice(0, 40)
+    .slice(0, profile.backlogLimit)
     .map(compactStrategyBacklogItem)
 
   const docSnapshots = []
-  for (const docPath of [
-    'docs/business-strategy.md',
-    'docs/strategy/agent-engine.md',
-    'docs/strategy/bhag-model.md',
-    'docs/strategy/quarterly-priorities.md',
-    'docs/strategy/strategic-issues.md',
-  ]) {
-    try {
-      docSnapshots.push(await getDocSourceSnapshot(docPath))
-    } catch (error) {
-      docSnapshots.push({ docPath, error: error instanceof Error ? error.message : 'snapshot unavailable' })
+  if (profile.includeDocSnapshots) {
+    for (const docPath of [
+      'docs/business-strategy.md',
+      'docs/strategy/agent-engine.md',
+      'docs/strategy/bhag-model.md',
+      'docs/strategy/quarterly-priorities.md',
+      'docs/strategy/strategic-issues.md',
+    ]) {
+      try {
+        docSnapshots.push(await getDocSourceSnapshot(docPath))
+      } catch (error) {
+        docSnapshots.push({ docPath, error: error instanceof Error ? error.message : 'snapshot unavailable' })
+      }
     }
   }
 
   return {
     generatedAt: new Date().toISOString(),
+    advisorModeProfile: {
+      mode: mode === 'deep' ? 'deep' : 'fast',
+      label: profile.label,
+      intent: profile.intent,
+      intelligence: profile.intelligence,
+      requestedReasoningEffort: profile.requestedReasoningEffort,
+      rule: mode === 'deep'
+        ? 'Use the smartest available subscription route and do the xhigh-style cross-source read.'
+        : 'Prioritize live meeting latency. Answer from live truth, direct artifact matches, and packet essentials.',
+    },
     doctrine: {
       northStar: 'Benson Crew strategy work should map to Attract, Grow, Retain, finance/cash truth, operating accountability, and Foundation reliability.',
       answerRule: 'Use source-backed facts first, call out inference, then name missing evidence and the next operating move. currentOperatingTruth and currentGoalTruth override packet summaries, meeting chatter, and older notes.',
@@ -2542,8 +2594,8 @@ async function getStrategyAdvisorContext(question = '') {
     docs: strategyAdvisorDocPaths.map(compactStrategyAdvisorDoc),
     docSourceSnapshots: docSnapshots,
     backlog: criticalBacklog,
-    decisions: (foundation.decisions || []).slice(0, 12),
-    openQuestions: (foundation.openQuestions || []).slice(0, 12),
+    decisions: (foundation.decisions || []).slice(0, profile.decisionLimit),
+    openQuestions: (foundation.openQuestions || []).slice(0, profile.openQuestionLimit),
     runtime: {
       latestSynthesisRun: foundation.sharedCommunicationSynthesis?.latestRun || null,
       extractionControl: foundation.extractionControl?.summary || foundation.extractionControl || null,
@@ -4023,20 +4075,24 @@ app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res)
       return
     }
 
-    const context = await getStrategyAdvisorContext(question)
-    const contextText = truncateForPrompt(JSON.stringify(context, null, 2), mode === 'deep' ? 65000 : 30000)
+    const modeProfile = getStrategyAdvisorModeProfile(mode)
+    const context = await getStrategyAdvisorContext(question, { mode })
+    const contextText = truncateForPrompt(JSON.stringify(context, null, 2), modeProfile.contextCharLimit)
     const modeInstruction = mode === 'deep'
-      ? 'Deep mode: synthesize across the wider context and include the evidence trail, caveats, and decision-quality next moves. Stay practical, but do the harder cross-source read.'
-      : 'Fast mode: answer for a live strategy conversation. Be concise, prioritize the direct read, the strongest evidence, the biggest caveat, and the next move.'
+      ? 'Deep mode: use the smartest available subscription route and do an xhigh-style read across the wider context. Include the evidence trail, caveats, and decision-quality next moves. Stay practical, but do the harder cross-source synthesis.'
+      : 'Fast mode: answer for a live strategy conversation. Use the compact context, be concise, prioritize the direct read, strongest source evidence, biggest caveat, and next move. Do not write a long memo.'
     const result = await callLlm({
       workload: 'synthesis',
       hubKey: 'foundation',
       dryRun: false,
-      maxOutputTokens: mode === 'deep' ? 1800 : 950,
+      maxOutputTokens: modeProfile.maxOutputTokens,
       metadata: {
         feature: 'strategy_advisor_v1',
         mode,
-        timeoutMs: mode === 'deep' ? 300000 : 150000,
+        strategyModeIntent: modeProfile.intent,
+        requestedReasoningEffort: modeProfile.requestedReasoningEffort,
+        contextCharLimit: modeProfile.contextCharLimit,
+        timeoutMs: modeProfile.timeoutMs,
         questionLength: question.length,
         latestPacketRunId: context.latestPacket.run?.runId || null,
       },
@@ -4054,6 +4110,7 @@ app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res)
             'Before recommending a strategic gap, check currentOperatingTruth. Shared-comms candidates and meeting quotes can raise a concern, but live Owners, Finance, FUB, KPI, BHAG, and Agent Engine source truth decides whether the problem is current, already handled, or only a health/freshness/proof gap.',
             'If Steve asks about goals, $2B, 10,000 agents, BHAG, behind/ahead, agent attraction, recruiting pace, or active-agent capacity, use currentGoalTruth first. Do not say the 10,000-agent community path is behind when currentGoalTruth says Ahead; do not confuse that community path with Agent Engine active productive agent capacity.',
             'Keep the answer tight enough to use in a strategy meeting.',
+            `Mode profile: ${modeProfile.intent}; requested reasoning effort: ${modeProfile.requestedReasoningEffort}; ${modeProfile.intelligence}.`,
             modeInstruction,
           ].join(' '),
         },
@@ -4086,6 +4143,12 @@ app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res)
       routeKey: result.routeKey,
       model: result.model,
       mode,
+      modeProfile: {
+        intent: modeProfile.intent,
+        requestedReasoningEffort: modeProfile.requestedReasoningEffort,
+        contextCharLimit: modeProfile.contextCharLimit,
+        timeoutMs: modeProfile.timeoutMs,
+      },
       latencyMs: Date.now() - startedAt,
       llmCallId: result.call?.callId || null,
       latestPacketRunId: context.latestPacket.run?.runId || null,

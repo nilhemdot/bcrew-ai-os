@@ -568,7 +568,7 @@ function normalizeStrategyAdvisorMode(mode) {
 }
 
 function getStrategyAdvisorModeLabel(mode) {
-  return normalizeStrategyAdvisorMode(mode) === 'deep' ? 'Deep' : 'Fast'
+  return normalizeStrategyAdvisorMode(mode) === 'deep' ? 'Deep / XHigh' : 'Fast'
 }
 
 function loadStrategyAdvisorMode() {
@@ -626,7 +626,7 @@ function ensureStrategyAdvisorWelcome() {
   if (cache.strategyAdvisorMessages.length) return
   cache.strategyAdvisorMessages.push({
     role: 'assistant',
-    text: 'I am wired to the latest strategy evidence packet and Foundation context. Use Fast mode for live strategy flow and Deep mode when you want slower synthesis across the packet, backlog, docs, and source notes.',
+    text: 'I am wired to the latest strategy evidence packet and live Foundation truth. Use Fast for live strategy conversation and Deep / XHigh when you want the smartest available subscription-route synthesis.',
     meta: 'Local thread saved for this browser session',
   })
   saveStrategyAdvisorMessages()
@@ -673,8 +673,8 @@ function buildStrategyAdvisorModeControl() {
   wrap.setAttribute('aria-label', 'Strategy advisor answer mode')
 
   ;[
-    ['fast', 'Fast', 'Shorter answers for live meeting flow'],
-    ['deep', 'Deep', 'Slower synthesis with larger context'],
+    ['fast', 'Fast', 'Live meeting mode with compact context and shorter answers'],
+    ['deep', 'Deep / XHigh', 'Smartest available subscription-route synthesis with wider context'],
   ].forEach(function(option) {
     var button = document.createElement('button')
     button.type = 'button'
@@ -1398,6 +1398,9 @@ function submitStrategyAdvisorQuestion(question, options) {
     var latency = result.latencyMs ? (Number(result.latencyMs) / 1000).toFixed(1) + 's' : ''
     var meta = [
       getStrategyAdvisorModeLabel(result.mode || mode) + ' mode',
+      result.modeProfile && result.modeProfile.requestedReasoningEffort
+        ? 'effort ' + result.modeProfile.requestedReasoningEffort
+        : '',
       latency,
       result.model,
       result.provider,
@@ -1444,7 +1447,7 @@ function renderStrategyAdvisorWorkspace(packetData, preworkCoverage, goalTruth, 
 
   var intro = document.createElement('p')
   intro.className = 'strategy-packet-summary'
-  intro.textContent = 'Ask against the latest packet, strategy docs, source notes, backlog, decisions, runtime facts, and extraction context. Answers separate evidence from inference.'
+  intro.textContent = 'Ask against live source truth, direct artifacts, the latest packet, strategy docs, backlog, decisions, runtime facts, and extraction context. Fast is for the room; Deep / XHigh is for harder synthesis.'
   topCopy.appendChild(intro)
   top.appendChild(topCopy)
 

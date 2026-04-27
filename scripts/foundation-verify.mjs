@@ -979,9 +979,14 @@ async function main() {
   )
   ensure(
     checks,
-    serverSource.includes("app.post('/api/strategic-execution/advisor'") &&
+      serverSource.includes("app.post('/api/strategic-execution/advisor'") &&
       serverSource.includes('strategy_advisor_v1') &&
       serverSource.includes("payload.mode === 'deep'") &&
+      serverSource.includes('strategyAdvisorModeProfiles') &&
+      serverSource.includes("requestedReasoningEffort: 'xhigh'") &&
+      serverSource.includes("requestedReasoningEffort: 'low'") &&
+      serverSource.includes('contextCharLimit') &&
+      serverSource.includes('smartest available subscription route') &&
       serverSource.includes('latencyMs: Date.now() - startedAt') &&
       serverSource.includes('directArtifactSearch') &&
       foundationDbSource.includes('searchSharedCommunicationArtifactsForContext') &&
@@ -995,6 +1000,8 @@ async function main() {
         'STRATEGY_ADVISOR_MESSAGES_KEY',
         'strategy-advisor-workspace',
         'strategy-mode-toggle',
+        'Deep / XHigh',
+        'Fast for live strategy conversation',
         'Strategy Review Board',
         'Attract',
         'Grow',
