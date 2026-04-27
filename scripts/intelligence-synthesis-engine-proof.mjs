@@ -254,9 +254,42 @@ async function main() {
   if (invalidItem) {
     throw new Error(`SYNTHESIS-ENGINE-001 synthesized item is missing governed provenance: ${invalidItem.synthesizedItemId}`)
   }
+  const itemsMissingThemeMetadata = synthesis.items.filter(item =>
+    !item.attributes?.themeKey ||
+    item.attributes?.synthesisQuality !== 'clustered' ||
+    !item.attributes?.routeScope
+  )
+  if (itemsMissingThemeMetadata.length) {
+    throw new Error(`SYNTHESIS-ENGINE-001 produced items without cluster/theme metadata: ${itemsMissingThemeMetadata.map(item => item.synthesizedItemId).join(', ')}`)
+  }
+  const duplicateThemeKeys = synthesis.items
+    .map(item => item.attributes?.themeKey)
+    .filter(Boolean)
+    .filter((themeKey, index, list) => list.indexOf(themeKey) !== index)
+  if (duplicateThemeKeys.length) {
+    throw new Error(`SYNTHESIS-ENGINE-001 did not collapse duplicate theme keys: ${Array.from(new Set(duplicateThemeKeys)).join(', ')}`)
+  }
+  const strategyEligibleItems = synthesis.items.filter(item =>
+    item.metadata?.strategyHubEligible === true ||
+    item.attributes?.strategyHubEligible === true
+  )
+  if (!strategyEligibleItems.length) {
+    throw new Error('SYNTHESIS-ENGINE-001 proof produced no Strategy-eligible clustered item.')
+  }
+  const strategySingleEvidenceItems = strategyEligibleItems.filter(item =>
+    (item.evidenceRefs?.length || 0) < 2 ||
+    (item.evidenceChunkRefs?.length || 0) < 2
+  )
+  if (strategySingleEvidenceItems.length) {
+    throw new Error(`SYNTHESIS-ENGINE-001 marked single-evidence items as Strategy-eligible: ${strategySingleEvidenceItems.map(item => item.synthesizedItemId).join(', ')}`)
+  }
   const activeItemSourceCount = new Set(synthesis.items.flatMap(item => item.sourceIds || [])).size
   if (activeItemSourceCount < 2) {
     throw new Error('SYNTHESIS-ENGINE-001 proof must synthesize items from at least two active evidence sources.')
+  }
+  const humanSampleRows = synthesis.run.metadata?.humanSample?.rows || []
+  if (humanSampleRows.length < Math.min(5, synthesis.items.length)) {
+    throw new Error('SYNTHESIS-ENGINE-001 proof must persist a 5-row human-readable sample in run metadata.')
   }
 
   const snapshot = await getSynthesisEngineSnapshot({ limit: 20 })
@@ -270,18 +303,32 @@ async function main() {
   ) {
     throw new Error('SYNTHESIS-ENGINE-001 snapshot did not retain synthesized items with fact and evidence provenance.')
   }
+  const quality = snapshot.latestProofQuality || {}
+  if (
+    quality.activeItems < synthesis.items.length ||
+    quality.clusteredItems < quality.activeItems ||
+    quality.itemsWithThemeMetadata < quality.activeItems ||
+    quality.strategyEligibleItems < 1 ||
+    quality.strategyItemsWithMultiEvidence < quality.strategyEligibleItems ||
+    quality.strategySingleEvidenceItems !== 0 ||
+    quality.duplicateThemeKeys !== 0 ||
+    quality.humanSampleRows < Math.min(5, synthesis.items.length)
+  ) {
+    throw new Error(`SYNTHESIS-ENGINE-001 quality snapshot failed clustered-output gates: ${JSON.stringify(quality)}`)
+  }
 
   const updatedSynthesisCard = refreshMode ? null : await updateBacklogItem('SYNTHESIS-ENGINE-001', {
-    lane: 'done',
-    nextAction: 'Keep governed synthesis v1 operating as the source-backed item layer feeding Action Router and Strategy Hub v2. Next work is Strategy Hub v2 source-to-gap plus route review/promote on top of facts, synthesized items, and action routes; no advisor chat or recommendation surface.',
-    statusNote: 'Done v1 on 2026-04-27. Governed synthesis persists owner-suggested synthesized items with source fact refs, hybrid evidence refs, evidence chunk refs, maxTier, structured attributes, and corpus-diversity proof.',
+    lane: 'executing',
+    nextAction: 'Steve must review the 5-row synthesis sample before SYNTHESIS-ENGINE-001 can close again. Passing code gates now require clustered themes, duplicate collapse, Strategy/operational classification, and multi-evidence Strategy items.',
+    statusNote: 'Repair build landed on 2026-04-27 and proof gates now check output quality, not just provenance form. Keep the card executing until Steve accepts the human-readable sample as strategy-grade.',
   }, actor)
 
-  const updatedActionRouterCard = refreshMode ? null : await updateBacklogItem('ACTION-ROUTER-001', {
-    lane: 'done',
-    nextAction: 'Keep Action Router v1 operating as the approval gate from synthesized items into decisions, backlog, open questions, ignore/snooze, and owner-bound actions. Resume Strategy Hub v2 only on top of this routed loop.',
-    statusNote: 'Done v1 on 2026-04-27. Action Router creates pending, human-approval-required routes from governed synthesized items into existing operating ledgers with fact/evidence/chunk provenance, explicit owner or needs-owner queue, and no autopilot destination writes.',
-  }, actor)
+  const updatedActionRouterCard = null
+
+  console.log('SYNTHESIS HUMAN SAMPLE')
+  for (const row of humanSampleRows) {
+    console.log(`${row.n}. [${row.scope}${row.strategyHubEligible ? ' strategy' : ''}] ${row.title} (facts=${row.facts}, atoms=${row.atoms}, chunks=${row.chunks})`)
+  }
 
   console.log(JSON.stringify({
     corpusDiversity: {
@@ -301,6 +348,9 @@ async function main() {
     synthesis: {
       run: synthesis.run,
       itemCount: synthesis.items.length,
+      strategyEligibleItems: strategyEligibleItems.length,
+      humanSample: humanSampleRows,
+      quality,
       firstItem: synthesis.items[0],
       snapshot,
     },

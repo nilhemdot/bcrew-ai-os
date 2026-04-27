@@ -894,7 +894,7 @@ async function main() {
       'intelligenceSynthesisSchemaSql',
       'intelligenceSynthesis',
       "id: 'SYNTHESIS-ENGINE-001'",
-      'Governed synthesis persists owner-suggested synthesized items',
+      'Steve must review the 5-row synthesis sample before SYNTHESIS-ENGINE-001 can close again',
       "id: 'ACTION-ROUTER-001'",
     ]) &&
       includesAll(intelligenceSynthesisSource, [
@@ -911,6 +911,11 @@ async function main() {
         'no_clear_owner_signal',
         'synthesized items require evidenceChunkRefs.',
         'intelligence synthesis queries require maxTier >= 1',
+        'themeKeyForFact',
+        'classifyCluster',
+        'strategyHubEligible',
+        'humanSampleRowsForItems',
+        'latestProofQuality',
         'rankingPolicy',
         'ordered-for-review-without-weighted-score',
         'stale_after_governed_synthesis_refresh',
@@ -929,8 +934,12 @@ async function main() {
         'factRefs',
         'evidenceRefs',
         'evidenceChunkRefs',
+        'strategyEligibleItems',
+        'strategySingleEvidenceItems',
+        'SYNTHESIS HUMAN SAMPLE',
+        'humanSampleRows',
         'maxTier: 1',
-        'ACTION-ROUTER-001',
+        'Steve must review the 5-row synthesis sample',
       ]) &&
       synthesisEngineSnapshot.latestProofRun?.runType === 'governed_synthesis_proof' &&
       synthesisEngineSnapshot.latestProofRun?.runId &&
@@ -944,9 +953,17 @@ async function main() {
       synthesisEngineSnapshot.itemsWithActiveEvidenceChunkRefs >= synthesisEngineSnapshot.activeItems &&
       synthesisEngineSnapshot.tierOneItems >= synthesisEngineSnapshot.activeItems &&
       synthesisEngineSnapshot.distinctItemSources >= 2 &&
+      synthesisEngineSnapshot.latestProofQuality?.activeItems >= 1 &&
+      synthesisEngineSnapshot.latestProofQuality?.clusteredItems >= synthesisEngineSnapshot.latestProofQuality?.activeItems &&
+      synthesisEngineSnapshot.latestProofQuality?.itemsWithThemeMetadata >= synthesisEngineSnapshot.latestProofQuality?.activeItems &&
+      synthesisEngineSnapshot.latestProofQuality?.strategyEligibleItems >= 1 &&
+      synthesisEngineSnapshot.latestProofQuality?.strategyItemsWithMultiEvidence >= synthesisEngineSnapshot.latestProofQuality?.strategyEligibleItems &&
+      synthesisEngineSnapshot.latestProofQuality?.strategySingleEvidenceItems === 0 &&
+      synthesisEngineSnapshot.latestProofQuality?.duplicateThemeKeys === 0 &&
+      synthesisEngineSnapshot.latestProofQuality?.humanSampleRows >= 5 &&
       intelligenceRetrievalSnapshot.bySource.filter(source => source.count > 0).length >= 2,
-    'SYNTHESIS-ENGINE-001 persists governed synthesized items with fact/evidence provenance and corpus diversity',
-    `${synthesisEngineSnapshot.activeItems} active items / itemSources=${synthesisEngineSnapshot.distinctItemSources} / latestProof=${synthesisEngineSnapshot.latestProofRun?.runId || 'missing'}`,
+    'SYNTHESIS-ENGINE-001 clusters and classifies synthesized items instead of atom-thread spam',
+    `${synthesisEngineSnapshot.activeItems} active items / latestProofQuality=${JSON.stringify(synthesisEngineSnapshot.latestProofQuality || {})} / latestProof=${synthesisEngineSnapshot.latestProofRun?.runId || 'missing'}`,
   )
   ensure(
     checks,
@@ -977,6 +994,9 @@ async function main() {
         "approval_status = 'rejected'",
         "routing_status = 'ignored'",
         'rejected_by_human_review',
+        'strategyHubEligible',
+        'reviewSurface',
+        'synthesizedItemAttributes',
       ]) &&
       includesAll(packageSource, [
         '"intelligence:synthesis-refresh"',
