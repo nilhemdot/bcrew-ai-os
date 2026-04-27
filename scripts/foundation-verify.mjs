@@ -882,8 +882,8 @@ async function main() {
         'maxTier: 1',
         'ACTION-ROUTER-001',
       ]) &&
-      synthesisEngineSnapshot.latestRun?.runType === 'governed_synthesis_proof' &&
-      synthesisEngineSnapshot.latestRun?.runId &&
+      synthesisEngineSnapshot.latestProofRun?.runType === 'governed_synthesis_proof' &&
+      synthesisEngineSnapshot.latestProofRun?.runId &&
       synthesisEngineSnapshot.activeItems >= 1 &&
       synthesisEngineSnapshot.itemsWithFactRefs >= synthesisEngineSnapshot.activeItems &&
       synthesisEngineSnapshot.itemsWithEvidenceRefs >= synthesisEngineSnapshot.activeItems &&
@@ -896,17 +896,18 @@ async function main() {
       synthesisEngineSnapshot.distinctItemSources >= 2 &&
       intelligenceRetrievalSnapshot.bySource.filter(source => source.count > 0).length >= 2,
     'SYNTHESIS-ENGINE-001 persists governed synthesized items with fact/evidence provenance and corpus diversity',
-    `${synthesisEngineSnapshot.activeItems} active items / itemSources=${synthesisEngineSnapshot.distinctItemSources} / latestRun=${synthesisEngineSnapshot.latestRun?.runId || 'missing'}`,
+    `${synthesisEngineSnapshot.activeItems} active items / itemSources=${synthesisEngineSnapshot.distinctItemSources} / latestProof=${synthesisEngineSnapshot.latestProofRun?.runId || 'missing'}`,
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
-      'createIntelligenceActionRouterStore',
-      'intelligenceActionRouterSchemaSql',
-      'intelligenceActionRouter',
-      'proposeActionRoutes',
-      'getActionRouterSnapshot',
-    ]) &&
+      includesAll(foundationDbSource, [
+        'createIntelligenceActionRouterStore',
+        'intelligenceActionRouterSchemaSql',
+        'intelligenceActionRouter',
+        'proposeActionRoutes',
+        'getActionRoute',
+        'getActionRouterSnapshot',
+      ]) &&
       includesAll(intelligenceActionRouterSource, [
         'CREATE TABLE IF NOT EXISTS intelligence_action_router_runs',
         'CREATE TABLE IF NOT EXISTS intelligence_action_routes',
@@ -921,13 +922,20 @@ async function main() {
         'evidence_refs TEXT[]',
         'evidence_chunk_refs TEXT[]',
         'intelligence action router requires maxTier >= 1',
+        'routes_with_active_synthesized_items',
+        'applied_routes_with_destination_record',
       ]) &&
       includesAll(packageSource, [
+        '"intelligence:synthesis-refresh"',
         '"intelligence:action-router-proof"',
+        '"intelligence:action-router-proposals"',
+        '"intelligence:action-router-apply"',
       ]) &&
       includesAll(foundationJobsSource, [
         'intelligence-synthesis-spine-refresh',
+        "args: ['run', 'intelligence:synthesis-refresh']",
         'intelligence-action-router-proposals',
+        "args: ['run', 'intelligence:action-router-proposals']",
         'human-approval-required routes',
       ]) &&
       includesAll(intelligenceActionRouterProofSource, [
@@ -942,18 +950,24 @@ async function main() {
         'ACTION-ROUTER-001',
         'STRATEGY-004',
       ]) &&
-      actionRouterSnapshot.latestRun?.runType === 'router_proof' &&
+      actionRouterSnapshot.latestProofRun?.runType === 'router_proof' &&
       actionRouterSnapshot.totalRoutes >= 1 &&
       actionRouterSnapshot.pendingRoutes >= 1 &&
       actionRouterSnapshot.routesWithSourceProvenance >= actionRouterSnapshot.totalRoutes &&
       actionRouterSnapshot.routesWithOwner >= actionRouterSnapshot.totalRoutes &&
       actionRouterSnapshot.routesRequiringApproval >= actionRouterSnapshot.totalRoutes &&
       actionRouterSnapshot.tierOneRoutes >= actionRouterSnapshot.totalRoutes &&
+      actionRouterSnapshot.routesWithActiveSynthesizedItems >= actionRouterSnapshot.guardedRoutes &&
+      actionRouterSnapshot.routesWithActiveFactRefs >= actionRouterSnapshot.guardedRoutes &&
+      actionRouterSnapshot.routesWithActiveEvidenceRefs >= actionRouterSnapshot.guardedRoutes &&
+      actionRouterSnapshot.routesWithActiveEvidenceChunkRefs >= actionRouterSnapshot.guardedRoutes &&
+      actionRouterSnapshot.appliedRoutes >= 1 &&
+      actionRouterSnapshot.appliedRoutesWithDestinationRecord >= actionRouterSnapshot.appliedRoutesChecked &&
       ['backlog_items', 'decisions', 'open_questions', 'intelligence_synthesized_items'].every(destinationTable =>
         (actionRouterSnapshot.routesByDestination || []).some(row => row.destinationTable === destinationTable && row.count >= 1)
       ),
     'ACTION-ROUTER-001 creates approval-gated routes with owner and provenance before Strategy Hub resumes',
-    `${actionRouterSnapshot.totalRoutes} routes / pending=${actionRouterSnapshot.pendingRoutes} / latestRun=${actionRouterSnapshot.latestRun?.runId || 'missing'}`,
+    `${actionRouterSnapshot.totalRoutes} routes / pending=${actionRouterSnapshot.pendingRoutes} / applied=${actionRouterSnapshot.appliedRoutes} / latestProof=${actionRouterSnapshot.latestProofRun?.runId || 'missing'}`,
   )
   ensure(
     checks,

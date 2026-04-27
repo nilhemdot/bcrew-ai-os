@@ -30,6 +30,16 @@ const SAFE_QUERY_PATTERNS = [
 ]
 const BLOCKED_QUERY_PATTERN = /(password|verification|code|api key|otp|login|reset|statement|stubhub|ticket|promo|unsubscribe|receipt|invoice)/i
 
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = {}
+  for (const arg of argv) {
+    if (!arg.startsWith('--')) continue
+    const [rawKey, ...rawValue] = arg.slice(2).split('=')
+    args[rawKey] = rawValue.length ? rawValue.join('=') : 'true'
+  }
+  return args
+}
+
 function stableHash(value) {
   return createHash('sha256').update(String(value || '')).digest('hex')
 }
@@ -63,7 +73,7 @@ function pickSynthesisQuery(promotion, snapshot) {
   return words.slice(0, 5).join(' ') || snapshot.latestHybridProofRun?.searchQuery || 'Steve rebuilding system'
 }
 
-async function embedChunks(chunks) {
+async function embedChunks(chunks, actor = 'synthesis-engine-proof') {
   if (!chunks.length) return []
   const inputs = chunks.map(chunk => buildRetrievalEmbeddingInput(chunk))
   const embeddingResult = await callEmbedding({
@@ -88,12 +98,18 @@ async function embedChunks(chunks) {
       embeddingDimensions: EMBEDDING_DIMENSIONS,
       embeddingInputHash: stableHash(inputText),
       embeddingLlmCallId: embeddingResult.call.callId,
-    }, 'synthesis-engine-proof'))
+    }, actor))
   }
   return embedded
 }
 
 async function main() {
+  const args = parseArgs()
+  const refreshMode = args.refresh === 'true' || args.refreshMode === 'true' || args.refresh_mode === 'true'
+  const actor = refreshMode ? 'synthesis-engine-refresh' : 'synthesis-engine-proof'
+  const commandName = refreshMode ? 'npm run intelligence:synthesis-refresh' : 'npm run intelligence:synthesis-proof'
+  const runSuffix = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)
+
   await initFoundationDb()
 
   const beforeRetrievalSnapshot = await getIntelligenceRetrievalSnapshot({ limit: 50 })
@@ -106,12 +122,12 @@ async function main() {
         promoted: [],
       }
     : await promoteSharedCommunicationCandidatesToAtoms({
-        runId: `retrieval-corpus-diversity-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}`,
+        runId: `retrieval-corpus-diversity-${runSuffix}`,
         reportArtifactId: 'report-artifact:synthesis-engine-corpus-diversity',
         sourceIds: [DIVERSITY_SOURCE_ID],
         maxTier: 1,
         limit: 10,
-      }, 'synthesis-engine-proof')
+      }, actor)
 
   const chunksForEmbedding = await selectRetrievalChunksForEmbedding({
     sourceIds: [DIVERSITY_SOURCE_ID],
@@ -120,7 +136,7 @@ async function main() {
     embeddingModel: EMBEDDING_MODEL,
     embeddingDimensions: EMBEDDING_DIMENSIONS,
   })
-  const embedded = await embedChunks(chunksForEmbedding)
+  const embedded = await embedChunks(chunksForEmbedding, actor)
 
   const retrievalSnapshot = await getIntelligenceRetrievalSnapshot({ limit: 50 })
   const activeSourceCount = retrievalSnapshot.bySource.filter(source => source.count > 0).length
@@ -181,28 +197,28 @@ async function main() {
     },
   }
   const savedFacts = await upsertSynthesisFactsBundle({
-    runId: `synthesis-engine-fact-refresh-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}`,
+    runId: `synthesis-engine-fact-refresh-${runSuffix}`,
     runType: 'fact_refresh',
     status: 'succeeded',
-    requestedBy: 'synthesis-engine-proof',
+    requestedBy: actor,
     sourceIds: factBundle.sourceIds,
     facts: factBundle.facts,
     maxTier: 1,
     metadata: {
       backlogCardId: 'SYNTHESIS-ENGINE-001',
-      proofCommand: 'npm run intelligence:synthesis-proof',
+      [refreshMode ? 'scheduledCommand' : 'proofCommand']: commandName,
       queries,
       queryEmbeddingCallId: queryEmbeddingResult.call.callId,
       evidence: factBundle.evidence,
       corpusDiversitySourceId: DIVERSITY_SOURCE_ID,
     },
-  }, 'synthesis-engine-proof')
+  }, actor)
 
   const synthesis = await runGovernedSynthesis({
-    runId: `synthesis-engine-proof-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}`,
-    runType: 'governed_synthesis_proof',
+    runId: `${refreshMode ? 'synthesis-engine-refresh' : 'synthesis-engine-proof'}-${runSuffix}`,
+    runType: refreshMode ? 'governed_synthesis' : 'governed_synthesis_proof',
     status: 'succeeded',
-    requestedBy: 'synthesis-engine-proof',
+    requestedBy: actor,
     sourceIds: factBundle.sourceIds,
     facts: savedFacts.facts,
     evidence: factBundle.evidence,
@@ -211,7 +227,7 @@ async function main() {
     synthesisScopeKey: 'foundation-spine-proof',
     metadata: {
       backlogCardId: 'SYNTHESIS-ENGINE-001',
-      proofCommand: 'npm run intelligence:synthesis-proof',
+      [refreshMode ? 'scheduledCommand' : 'proofCommand']: commandName,
       synthesisScopeKey: 'foundation-spine-proof',
       queries,
       queryEmbeddingCallId: queryEmbeddingResult.call.callId,
@@ -223,7 +239,7 @@ async function main() {
         embedded: embedded.length,
       },
     },
-  }, 'synthesis-engine-proof')
+  }, actor)
 
   if (!synthesis.items.length) throw new Error('SYNTHESIS-ENGINE-001 proof produced no synthesized items.')
   const invalidItem = synthesis.items.find(item =>
@@ -255,17 +271,17 @@ async function main() {
     throw new Error('SYNTHESIS-ENGINE-001 snapshot did not retain synthesized items with fact and evidence provenance.')
   }
 
-  const updatedSynthesisCard = await updateBacklogItem('SYNTHESIS-ENGINE-001', {
+  const updatedSynthesisCard = refreshMode ? null : await updateBacklogItem('SYNTHESIS-ENGINE-001', {
     lane: 'done',
     nextAction: 'Build ACTION-ROUTER-001 so synthesized items route into governed decisions, backlog, open questions, contradictions, ignore/snooze records, or owner-bound actions. Keep Strategy Hub UI/advisor/recommendations blocked until Action Router is live.',
     statusNote: 'Done v1 on 2026-04-27. Governed synthesis persists owner-suggested synthesized items with source fact refs, hybrid evidence refs, evidence chunk refs, maxTier, structured attributes, and corpus-diversity proof.',
-  }, 'synthesis-engine-proof')
+  }, actor)
 
-  const updatedActionRouterCard = await updateBacklogItem('ACTION-ROUTER-001', {
+  const updatedActionRouterCard = refreshMode ? null : await updateBacklogItem('ACTION-ROUTER-001', {
     lane: 'scoped',
     nextAction: 'Build Action Router v1 from intelligence_synthesized_items into decision/backlog/open-question/contradiction/ignore/snooze/action ledgers with approval gates and source-proof links.',
     statusNote: 'Next Foundation spine gate after SYNTHESIS-ENGINE-001. Do not resume Strategy Hub UI/advisor work until synthesized items can route into governed action ledgers.',
-  }, 'synthesis-engine-proof')
+  }, actor)
 
   console.log(JSON.stringify({
     corpusDiversity: {
