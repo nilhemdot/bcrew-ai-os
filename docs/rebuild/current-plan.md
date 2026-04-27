@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-26
-Version: v6.8 — Systems map and extraction proof alignment
+Version: v6.9 — Strategy pre-work coverage and live planning alignment
 Status: Active
 
 Use this doc for one question:
@@ -656,7 +656,7 @@ Strategy Hub should:
 - produce a tight owner-level strategy packet
 - track follow-through after the meeting
 
-Latest proof exists: `strategy:evidence-packet` generated `strategy-packet-20260426T220426Z-0a7a650a6c` through the OpenClaw subscription synthesis route. It read 220 mined candidates, 58 direct Drive/video/email/meeting artifacts, 8 strategy docs, backlog/decision/runtime facts, and persisted 17 synthesized packet items after Q2 pre-strat Drive refresh, John agenda link inventory, Scott OCR, and Steve draft updates. A follow-up visual review captured Scott's handwritten pre-strat themes more reliably than rough OCR in `docs/audits/2026-04-26-scott-pre-strat-visual-review.md`. Strategic Execution now has Strategy Advisor v1: a routed LLM question surface, full-screen chat workspace, Fast/Deep modes, direct artifact search for specific who-said-what questions, saved local thread context, floating chat launcher, and a Review Board that maps packet items into Attract / Grow / Retain / Finance / Foundation lenses, shows AI-suggested moves, and calls out missing proof. This is still owner-review intelligence, not a closed-loop Strategy Hub. The next work is review/promote control: Steve accept/reject/needs-evidence actions, promotion into quarterly priorities, decisions, backlog items, and Action Router records.
+Latest proof exists: `strategy:evidence-packet` generated `strategy-packet-20260426T220426Z-0a7a650a6c` through the OpenClaw subscription synthesis route. It read 220 mined candidates, 58 direct Drive/video/email/meeting artifacts, 8 strategy docs, backlog/decision/runtime facts, and persisted 17 synthesized packet items after Q2 pre-strat Drive refresh, John agenda link inventory, Scott OCR, and Steve draft updates. A follow-up visual review captured Scott's handwritten pre-strat themes more reliably than rough OCR in `docs/audits/2026-04-26-scott-pre-strat-visual-review.md`. Strategic Execution now has Strategy Advisor v1: a routed LLM question surface, full-screen chat workspace, Fast/Deep modes, direct artifact search for specific who-said-what questions, saved local thread context, floating chat launcher, and a Review Board that maps packet items into Attract / Grow / Retain / Finance / Foundation lenses, shows AI-suggested moves, and calls out missing proof. It also has a pre-strat read-coverage engine: `/api/strategic-execution/prework-coverage` shows 8 of 9 expected Q2 pre-work rows read, 10 current Q2 artifacts indexed, Scott covered through manual visual review, Ryan/Carson/Georgia/Ahsan covered through PDF form fields, and Blake still explicit as missing. This is still owner-review intelligence, not a closed-loop Strategy Hub. The next work is review/promote control: Steve accept/reject/needs-evidence actions, promotion into quarterly priorities, decisions, backlog items, and Action Router records, plus the Strategy Package UI/UX cleanup tracked by `STRATEGY-009`.
 
 Acceptance:
 

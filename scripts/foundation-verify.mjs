@@ -13,6 +13,7 @@ import {
   getFoundationDbConstraintAudit,
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleLlmCalls,
+  getStrategyPreworkCoverageSnapshot,
   initFoundationDb,
 } from '../lib/foundation-db.js'
 
@@ -142,6 +143,7 @@ async function main() {
   const freedomCommunityContract = findSourceById(sourceContracts, 'SRC-FREEDOM-COMMUNITY-001')
   await initFoundationDb()
   const backlogSeedDrift = await getBacklogSeedDriftSnapshot({ limit: 10 })
+  const strategyPreworkCoverageSnapshot = await getStrategyPreworkCoverageSnapshot()
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
@@ -619,6 +621,7 @@ async function main() {
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
   const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
+  const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const opsHub = await fetchJson(baseUrl, '/api/ops-hub')
   const ownersLeadSourceGovernance = await fetchJson(baseUrl, '/api/owners/lead-source-governance')
   const ownersReviewQueue = await fetchJson(baseUrl, '/api/owners/review-queue')
@@ -628,6 +631,16 @@ async function main() {
   const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
   const driveCorpusTarget = extractionTargets.find(target => target.targetKey === 'drive-corpus-backfill')
   const driveContentTarget = extractionTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
+  const strategyPreworkParticipants = Array.isArray(strategyPreworkCoverageSnapshot.participants)
+    ? strategyPreworkCoverageSnapshot.participants
+    : []
+  const strategyPreworkApiParticipants = Array.isArray(strategyPreworkCoverageApi.participants)
+    ? strategyPreworkCoverageApi.participants
+    : []
+  const strategyPreworkNames = strategyPreworkParticipants.map(participant => participant.name)
+  const strategyPreworkReadNames = strategyPreworkParticipants
+    .filter(participant => participant.status !== 'missing')
+    .map(participant => participant.name)
 
   ensure(
     checks,
@@ -926,6 +939,28 @@ async function main() {
       ]),
     'Strategy Hub advisor and review board are wired',
     'Strategic Execution can ask the routed LLM, include Scott visual pre-strat context, and review packet items by Attract / Grow / Retain',
+  )
+  ensure(
+    checks,
+    strategyPreworkCoverageSnapshot.summary?.expectedCount >= 9 &&
+      strategyPreworkCoverageSnapshot.summary?.readCount >= 8 &&
+      strategyPreworkCoverageSnapshot.summary?.artifactCount >= 10 &&
+      strategyPreworkApiParticipants.length === strategyPreworkParticipants.length &&
+      ['Steve Zahnd', 'Scott Benson', 'Ryan Campbell', 'Carson', 'Georgia Huntley', 'Nick Bergmann', 'Clare', 'Ahsan', 'Blake Berfelz'].every(name => strategyPreworkNames.includes(name)) &&
+      ['Steve Zahnd', 'Scott Benson', 'Ryan Campbell', 'Carson', 'Georgia Huntley', 'Nick Bergmann', 'Clare', 'Ahsan'].every(name => strategyPreworkReadNames.includes(name)) &&
+      serverSource.includes("app.get('/api/strategic-execution/prework-coverage'") &&
+      serverSource.includes('preworkReadCoverage') &&
+      foundationDbSource.includes('getStrategyPreworkCoverageSnapshot') &&
+      foundationDbSource.includes('strategyPreworkExpectedParticipants') &&
+      foundationDbSource.includes('pdfFormFieldsUsed') &&
+      includesAll(strategicExecutionUiSource, [
+        'fetchStrategyPreworkCoverage',
+        'renderStrategyPreworkCoverage',
+        'Pre-Strat Read Coverage',
+        '/api/strategic-execution/prework-coverage',
+      ]),
+    'Strategy pre-work read coverage is visible and source-backed',
+    `${strategyPreworkCoverageSnapshot.summary?.readCount || 0}/${strategyPreworkCoverageSnapshot.summary?.expectedCount || 0} expected notes read; missing rows remain explicit instead of hidden`,
   )
   ensure(
     checks,

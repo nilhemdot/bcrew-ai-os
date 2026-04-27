@@ -23,6 +23,7 @@ import {
   getSharedCommunicationCandidateSnapshot,
   getSharedCommunicationCoverageSnapshot,
   getSharedCommunicationSynthesisSnapshot,
+  getStrategyPreworkCoverageSnapshot,
   getFoundationBacklogScopes,
   getDocSourceSnapshot,
   getFoundationBacklogIdPrefixes,
@@ -2430,6 +2431,7 @@ async function getStrategyAdvisorContext(question = '') {
     packetType: 'strategy_evidence_packet_v1',
   })
   const foundation = await getFoundationSnapshot()
+  const preworkCoverage = await getStrategyPreworkCoverageSnapshot()
   const asksAboutPrework = /\bpre[-\s]?(strat|start|work)\b/i.test(question)
   const directArtifacts = await searchSharedCommunicationArtifactsForContext({
     query: question,
@@ -2507,6 +2509,7 @@ async function getStrategyAdvisorContext(question = '') {
       rule: 'Use these exact artifact excerpts before packet summaries when Steve asks who said what or asks about a specific person/document.',
       items: directArtifacts,
     },
+    preworkReadCoverage: preworkCoverage,
     latestPacket: {
       run: synthesis.latestRun
         ? {
@@ -3945,6 +3948,21 @@ app.get('/api/shared-communications/synthesis', requireAdminToken, async (req, r
       500,
       'shared_communications_synthesis_failed',
       error instanceof Error ? error.message : 'Failed to load shared communications synthesis.'
+    )
+  }
+})
+
+app.get('/api/strategic-execution/prework-coverage', requireAdminToken, async (req, res) => {
+  try {
+    const coverage = await getStrategyPreworkCoverageSnapshot()
+    cacheHeadersNoStore(res)
+    res.json(coverage)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'strategy_prework_coverage_failed',
+      error instanceof Error ? error.message : 'Failed to load strategy pre-work coverage.'
     )
   }
 })

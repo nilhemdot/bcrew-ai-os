@@ -554,6 +554,7 @@ var cache = {
   sourceOfTruth: null,
   docs: {},
   strategyEvidencePacket: null,
+  strategyPreworkCoverage: null,
   strategyAdvisorMessages: loadStrategyAdvisorMessages(),
   strategyAdvisorMode: loadStrategyAdvisorMode(),
 }
@@ -735,6 +736,18 @@ function fetchStrategyEvidencePacket() {
   })
 }
 
+function fetchStrategyPreworkCoverage() {
+  if (cache.strategyPreworkCoverage) return Promise.resolve(cache.strategyPreworkCoverage)
+
+  return fetchWithAdmin('/api/strategic-execution/prework-coverage').then(function(res) {
+    if (!res.ok) throw new Error('Strategy pre-work coverage API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.strategyPreworkCoverage = data
+    return data
+  })
+}
+
 function postStrategyAdvisorQuestion(question, mode) {
   return fetch('/api/strategic-execution/advisor', {
     method: 'POST',
@@ -879,6 +892,120 @@ function renderStrategyHealthCard(packetData) {
     gap.className = 'strategy-packet-gap'
     gap.textContent = 'Biggest caveat: ' + readiness.most_important_gap
     article.appendChild(gap)
+  }
+
+  return article
+}
+
+function getPreworkStatusModifier(status) {
+  if (status === 'read') return 'grow'
+  if (status === 'needs_visual_review') return 'finance'
+  return 'status'
+}
+
+function compactPreworkExcerpt(excerpt) {
+  var text = String(excerpt || '').replace(/\s+/g, ' ').trim()
+  if (!text) return ''
+  return text.length > 340 ? text.slice(0, 337).trim() + '...' : text
+}
+
+function renderStrategyPreworkCoverage(coverage, options) {
+  var compact = options && options.compact
+  var article = document.createElement('article')
+  article.className = 'section-card strategy-prework-card'
+
+  var title = document.createElement('h4')
+  title.textContent = 'Pre-Strat Read Coverage'
+  article.appendChild(title)
+
+  var summary = coverage && coverage.summary ? coverage.summary : {}
+  var intro = document.createElement('p')
+  intro.className = 'strategy-packet-summary'
+  intro.textContent = coverage
+    ? summary.readCount + '/' + summary.expectedCount + ' expected notes have readable artifacts. ' + summary.artifactCount + ' pre-work artifacts are indexed with source links, extraction method, and read status.'
+    : 'Pre-strat read coverage is not available yet.'
+  article.appendChild(intro)
+
+  if (!coverage) return article
+
+  var metaGrid = document.createElement('div')
+  metaGrid.className = 'strategy-packet-meta-grid'
+  ;[
+    ['Read', (summary.readCount || 0) + '/' + (summary.expectedCount || 0)],
+    ['Missing', String(summary.missingCount || 0)],
+    ['Needs Visual', String(summary.needsVisualReviewCount || 0)],
+    ['Text', (summary.totalContentLength || 0).toLocaleString() + ' chars'],
+  ].forEach(function(pair) {
+    var pill = document.createElement('div')
+    pill.className = 'strategy-packet-meta-pill'
+    var label = document.createElement('span')
+    label.textContent = pair[0]
+    pill.appendChild(label)
+    var value = document.createElement('strong')
+    value.textContent = pair[1]
+    pill.appendChild(value)
+    metaGrid.appendChild(pill)
+  })
+  article.appendChild(metaGrid)
+
+  var list = document.createElement('div')
+  list.className = 'strategy-prework-list'
+  var participants = coverage.participants || []
+  participants.slice(0, compact ? 6 : participants.length).forEach(function(participant) {
+    var row = document.createElement('div')
+    row.className = 'strategy-prework-row strategy-prework-row-' + participant.status
+
+    var top = document.createElement('div')
+    top.className = 'strategy-review-top'
+    appendChip(top, participant.statusLabel || participant.status, getPreworkStatusModifier(participant.status))
+    appendChip(top, (participant.contentLength || 0).toLocaleString() + ' chars', 'status')
+    row.appendChild(top)
+
+    var name = document.createElement('strong')
+    name.textContent = participant.name
+    row.appendChild(name)
+
+    var primary = participant.primaryArtifact
+    var detail = document.createElement('p')
+    detail.textContent = primary
+      ? primary.title + ' · ' + primary.readMethod.replace(/_/g, ' ') + ' · ' + (primary.artifactCount || participant.artifactCount || 1) + ' artifact(s)'
+      : participant.gap || 'No extracted pre-strat artifact found.'
+    row.appendChild(detail)
+
+    var proofExcerpt = primary && !compact ? compactPreworkExcerpt(primary.excerpt) : ''
+    if (proofExcerpt) {
+      var excerpt = document.createElement('p')
+      excerpt.className = 'strategy-prework-excerpt'
+      excerpt.textContent = proofExcerpt
+      row.appendChild(excerpt)
+    }
+
+    if (primary && primary.sourceUrl) {
+      var link = document.createElement('a')
+      link.className = 'section-support-link'
+      link.href = primary.sourceUrl
+      link.target = '_blank'
+      link.rel = 'noopener noreferrer'
+      link.textContent = 'Open source'
+      row.appendChild(link)
+    }
+
+    list.appendChild(row)
+  })
+  article.appendChild(list)
+
+  if (compact && participants.length > 6) {
+    var note = document.createElement('p')
+    note.className = 'strategy-review-sources'
+    note.textContent = 'Open Evidence Packet for all participant rows.'
+    article.appendChild(note)
+  }
+
+  if (coverage.unassignedArtifacts && coverage.unassignedArtifacts.length && !compact) {
+    var unassigned = document.createElement('p')
+    unassigned.className = 'strategy-packet-gap'
+    unassigned.textContent = 'Other pre-work artifacts found: ' + coverage.unassignedArtifacts.slice(0, 4).map(function(item) { return item.title }).join(' · ')
+    article.appendChild(unassigned)
   }
 
   return article
@@ -1117,7 +1244,7 @@ function submitStrategyAdvisorQuestion(question, options) {
   })
 }
 
-function renderStrategyAdvisorWorkspace(packetData) {
+function renderStrategyAdvisorWorkspace(packetData, preworkCoverage) {
   ensureStrategyAdvisorWelcome()
 
   var workspace = document.createElement('section')
@@ -1225,6 +1352,7 @@ function renderStrategyAdvisorWorkspace(packetData) {
   promptCard.appendChild(promptRow)
   rail.appendChild(promptCard)
 
+  rail.appendChild(renderStrategyPreworkCoverage(preworkCoverage, { compact: true }))
   rail.appendChild(renderStrategyPacketCard(packetData, { compact: true }))
   rail.appendChild(renderStrategyReviewBoard(packetData, { compact: true }))
   workspace.appendChild(rail)
@@ -1481,9 +1609,10 @@ function renderOverview() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading overview...</p>'
 
-  Promise.all([fetchSourceOfTruth(), fetchStrategyEvidencePacket()]).then(function(results) {
+  Promise.all([fetchSourceOfTruth(), fetchStrategyEvidencePacket(), fetchStrategyPreworkCoverage()]).then(function(results) {
     var data = results[0]
     var packetData = results[1]
+    var preworkCoverage = results[2]
     var quarterlyDoc = (data.foundation.supportingStrategy || []).find(function(doc) {
       return doc.meta && doc.meta.path === strategicDocPaths['quarterly-priorities']
     })
@@ -1522,7 +1651,8 @@ function renderOverview() {
       ? quarterlyDoc.meta.path
       : strategicDocPaths['quarterly-priorities']
     sectionList.appendChild(renderStrategyHealthCard(packetData))
-    sectionList.appendChild(renderStrategyReviewBoard(packetData, { compact: true }))
+    sectionList.appendChild(renderStrategyPreworkCoverage(preworkCoverage, { compact: true }))
+    sectionList.appendChild(renderRecommendedPriorities(packetData))
     sectionList.appendChild(renderCurrentQuarterSection(currentQuarterSection, quarterPath, quarterlyDoc))
     sectionList.appendChild(renderStrategyPacketCard(packetData, { compact: true }))
     sectionList.appendChild(renderSupportingDocsCard())
@@ -1540,7 +1670,9 @@ function renderStrategyEvidencePacket() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading strategy evidence packet...</p>'
 
-  fetchStrategyEvidencePacket().then(function(packetData) {
+  Promise.all([fetchStrategyEvidencePacket(), fetchStrategyPreworkCoverage()]).then(function(results) {
+    var packetData = results[0]
+    var preworkCoverage = results[1]
     container.innerHTML = ''
 
     var panel = document.createElement('section')
@@ -1569,6 +1701,7 @@ function renderStrategyEvidencePacket() {
 
     var list = document.createElement('div')
     list.className = 'section-list'
+    list.appendChild(renderStrategyPreworkCoverage(preworkCoverage, { compact: false }))
     list.appendChild(renderStrategyPacketCard(packetData, { compact: false }))
     panel.appendChild(list)
     container.appendChild(panel)
@@ -1584,7 +1717,9 @@ function renderStrategyAdvisor() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading strategy advisor...</p>'
 
-  fetchStrategyEvidencePacket().then(function(packetData) {
+  Promise.all([fetchStrategyEvidencePacket(), fetchStrategyPreworkCoverage()]).then(function(results) {
+    var packetData = results[0]
+    var preworkCoverage = results[1]
     container.innerHTML = ''
 
     var panel = document.createElement('section')
@@ -1613,7 +1748,7 @@ function renderStrategyAdvisor() {
 
     var list = document.createElement('div')
     list.className = 'section-list'
-    list.appendChild(renderStrategyAdvisorWorkspace(packetData))
+    list.appendChild(renderStrategyAdvisorWorkspace(packetData, preworkCoverage))
     list.appendChild(renderRecommendedPriorities(packetData))
     panel.appendChild(list)
     container.appendChild(panel)

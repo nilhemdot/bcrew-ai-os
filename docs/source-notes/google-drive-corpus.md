@@ -148,6 +148,20 @@ Proof on 2026-04-26:
   - `2` shortcuts: `unsupported_drive_mime_type_for_v1_text_extraction`
   - handwritten/scanned files may archive through rough OCR, but still need the future vision-grade handwriting lane before relying on exact quotes or high-confidence semantic extraction
 
+Pre-strat read-coverage proof on 2026-04-26:
+
+- Endpoint: `/api/strategic-execution/prework-coverage`.
+- Purpose: prove which expected Q2 pre-strat participant notes are actually extracted and readable before the live strategy session.
+- Current expected rows: Steve Zahnd, Scott Benson, Ryan Campbell, Carson, Georgia Huntley, Nick Bergmann, Clare, Ahsan, and Blake Berfelz.
+- Current proof: `8/9` expected rows are readable, `10` current Q2 artifacts are indexed, and `100,382` chars of pre-work text are available to the Strategy Advisor.
+- Read methods:
+  - Scott: manual visual review over the handwritten PDF, plus rough OCR retained for search.
+  - Ryan, Carson, Georgia, Ahsan: fillable PDF form fields extracted, not just blank template text.
+  - Nick, Clare: PDF text extraction.
+  - Steve: first-person AIOS draft markdown in Drive.
+- Current explicit gap: Blake remains `Missing` until his artifact is uploaded, shared, or extracted. This is intentional; missing participant coverage should show as a red/yellow gap, not hide inside a packet summary.
+- Strategy Advisor context now receives this coverage as `preworkReadCoverage`, so who-said-what answers can distinguish direct artifact proof from packet inference.
+
 John Q1 agenda link-following proof on 2026-04-26:
 
 - Source doc: `Benson Crew 2026 Q1 Strategic Planning Agenda` (`1WdpCsM4elMgjYf7TJFy-1FHLjk5Io-jhZFxQqoA-Ux0`).
