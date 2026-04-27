@@ -1,11 +1,11 @@
 # Strategy Hub v2 Source-To-Gap Manifest
 
-Status: Phase 0 artifact only; Strategy Hub remains paused after the Phase 1 safety stub
+Status: Accepted gate; Strategy Hub v2 source-to-gap command view is active; advisor/recommendation surfaces remain blocked
 Date: 2026-04-27
 
 This manifest is the trust gate for Strategy Execution OS v2.
 
-No Strategy Hub v2 UI, synthesis rewrite, action router, or old-surface cleanup should start until Steve approves this source-to-gap map.
+No Strategy Hub v2 advisor, recommendation feed, synthesis rewrite, or unsupported priority surface should start unless it preserves this source-to-gap map.
 
 ## Operating Rule
 
@@ -50,7 +50,7 @@ The LLM may explain a gap. It may not decide whether a gap exists.
 | P10 | `npm run kpi:data-quality` | Active appointments `3443`; missing appointment outcomes `951`; invalid lead-source rows `6728`; active lead-stage persons `16665`; pond/unclaimed rows `5088`. |
 | P11 | `npm run connection:audit -- --limit=80` | Owners/FUB/KPI/ClickUp chain is live: Owners groups `1304`, FUB-linked groups `57`, KPI person matches `57/57`, KPI deal-data matches `53/57`, ClickUp address fallback `50/57`. |
 | P12 | Direct Google Sheets read: `'BenCrew Marketing'!A1:Z20` plus `docs/source-notes/freedom-marketing.md` | Freedom marketing sheet has old four-pillar performance dashboard data, but publishing/performance sources remain source-map work, not signed-off Strategy Hub truth. |
-| P13 | `rg -n "AI-Suggested 90-Day Priorities|recommended_90_day_priorities|renderRecommendedPriorities" public scripts lib server.js` | Phase 0 found the old active recommendation-feed path in `public/strategic-execution.js`, `server.js`, and `scripts/generate-strategy-evidence-packet.mjs`. Phase 1 safety stub now removes the active display path, disables priority action-item generation, and adds a verifier guard so the old surface cannot quietly return. |
+| P13 | `rg -n "AI-Suggested 90-Day Priorities|recommended_90_day_priorities|renderRecommendedPriorities" public scripts lib server.js` | Phase 0 found the old active recommendation-feed path in `public/strategic-execution.js`, `server.js`, and `scripts/generate-strategy-evidence-packet.mjs`. Phase 1 safety work removed the active display path, disabled priority action-item generation, and added a verifier guard so the old surface cannot quietly return. The active page now renders source-to-gap and Action Router route review, not AI priorities. |
 
 ## Sequencing Gate
 
@@ -63,9 +63,9 @@ The current rebuild doctrine still controls sequencing:
 - `docs/rebuild/current-plan.md:198`: synthesis and fact grounding must close before trusted AI interpretation.
 - `docs/rebuild/current-plan.md:638`: Strategy Hub depends on extraction, synthesis hardening, Action Router, and trust boundaries.
 
-Phase 1 safety stub is complete. No further Strategy Hub surface work is approved right now.
+Phase 1 safety stub and the first source-to-gap command slice are complete. Strategy Hub surface work is approved only where it consumes live source truth, retrieval eval status, governed synthesized items, and Action Router records.
 
-The next build lane is the Foundation intelligence spine. Deterministic source snapshots and gap math stay future Strategy Hub v2 work; they should not jump ahead of the memory/retrieval/action spine unless Steve explicitly overrides the command order.
+The Foundation intelligence spine is complete for v1. Next Strategy Hub work should harden route resolution, due dates, person-owner resolution, completion feedback, and missing-reader source cards without jumping back to advisor chat or unsupported recommendation generation.
 
 Blocked until the memory/retrieval/action spine is real:
 
@@ -75,7 +75,6 @@ Blocked until the memory/retrieval/action spine is real:
 - AI recommendations
 - LLM-generated dashboard content
 - doctrine/evidence drilldowns
-- promoted routed actions
 - full Strategy Hub v2 acceptance
 
 The prerequisite spine is:
@@ -197,8 +196,8 @@ When sources overlap, Strategy Hub must not blend them into false certainty.
 | ID | Pillar / metric | Target source | Actual source and current value | Calculation / current gap | Thresholds, stale rule, fallback | Owner | UI card and evidence inputs | Phase 1 requirement |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | M25 | Source health / core strategy sources | Source contracts in `lib/source-contracts.js` and `docs/source-registry.md`. Target: every visible Strategy Hub metric has a signed/readable source, freshness status, and fallback state. | Current live proof exists for goal truth, operating truth, sheets, KPI, FUB/KPI/Owners/ClickUp chain. Missing/partial: ASI source contract naming, reviews source, marketing publishing/performance source, reusable target readers. Proof: P1-P12. | Count source-backed metrics vs total metrics; current manifest has mixed live, structurally verified, mapped, and missing-reader states. | Green: all visible metrics live proven. Yellow: structurally verified with explicit missing-reader badge. Red: metric shown as current without source proof. | Foundation/System | Source health strip; evidence from source contracts, verifier, direct proof commands. | Build dashboard source health model before showing broad strategy recommendations. |
-| M26 | Action loop / unresolved decisions and routed actions | `SYS-ACTION-LOOP-001`, backlog `ACTION-ROUTER-001`. Target: every approved recommendation has owner, due date, evidence, doctrine, status, and resolution condition. | Current system status: Action Router v1 creates pending, human-approval-required routes from governed synthesized items into decisions, backlog, open questions, ignore/snooze, and owner-bound action lanes. Proof: `npm run intelligence:action-router-proof` and verifier behavior check. | Current gap: Strategy Hub v2 still lacks a local review/promote surface that consumes pending Action Router records and captures approval/resolution. | Green when Strategy Hub review/promote exists and verifier checks owner/due/resolution. Yellow while routes exist but review/apply UI is not built. | Foundation/System + Steve | Decision queue and active action lane. | Build Strategy Hub review/promote on top of Action Router records before external ClickUp handoff. |
-| M27 | Unsafe old recommendation-feed surface | Target: no active Strategy Hub surface may display AI priorities without target/actual/gap/source proof/doctrine/owner. | Phase 0 code contained the old active recommendation path. Phase 1 safety stub has replaced the visible page, disabled the active advisor endpoint, and removed priority action-item generation from new strategy packets. Proof: P13. | Current gap: active surface is offline; remaining work is to keep the verifier guard permanent while v2 rebuilds. | Hard fail if the old active surface returns. Fallback: Strategy Hub v2 in-progress stub and old packets as debug/history only. | Foundation/System | Not a dashboard card; this is a release blocker guard. | Phase 1 safety stub shipped; keep guard through v2. |
+| M26 | Action loop / unresolved decisions and routed actions | `SYS-ACTION-LOOP-001`, backlog `ACTION-ROUTER-001`. Target: every approved recommendation has owner, due date, evidence, doctrine, status, and resolution condition. | Current system status: Action Router v1 creates pending, human-approval-required routes from governed synthesized items into decisions, backlog, open questions, ignore/snooze, and owner-bound action lanes. Strategy Hub v2 now renders those routes with approve/apply, needs-owner, ignore, snooze, and reject controls. Proof: `npm run intelligence:action-router-proof`, `npm run foundation:verify`, and `/api/strategic-execution/v2`. | Current gap: due dates, completion feedback, person-owner resolution, and post-apply resolution conditions are still hardening work. | Green when Strategy Hub review/promote exists and verifier checks owner/due/resolution. Yellow while review/apply exists but resolution feedback is incomplete. | Foundation/System + Steve | Decision queue and active action lane. | Harden Strategy Hub route resolution before external ClickUp handoff. |
+| M27 | Unsafe old recommendation-feed surface | Target: no active Strategy Hub surface may display AI priorities without target/actual/gap/source proof/doctrine/owner. | Phase 0 code contained the old active recommendation path. Phase 1 safety work replaced the visible page, disabled the active advisor endpoint, removed priority action-item generation from new strategy packets, and then grew the visible page into source-to-gap plus Action Router review. Proof: P13. | Current gap: keep the verifier guard permanent while v2 adds richer source cards and resolution workflows. | Hard fail if the old active surface returns. Fallback: source-to-gap command view and old packets as debug/history only. | Foundation/System | Not a dashboard card; this is a release blocker guard. | Keep guard through v2. |
 
 ## Required Snapshot Contract For Phase 1
 
@@ -253,8 +252,8 @@ These are the concrete gaps exposed by Phase 0:
 4. NPS/Google Reviews must move from historical/current-process Freedom rows to post-2026-04-01 ClickUp Deal Data Entry plus FUB evidence before final claims.
 5. `SRC-REVIEWS-001` is still not signed off.
 6. Marketing publishing/performance cannot be treated as live strategy truth until `SRC-PUBLISH-001` and performance-source contracts are validated.
-7. Action Router v1 exists as a pending approval route ledger; recommendations cannot be considered closed-loop until Strategy Hub review/promote and approved apply/resolution feedback exist.
-8. The old AI priority surface existed during Phase 0; Phase 1 has now stubbed the visible page, disabled the active advisor endpoint, removed active priority action-item generation, and added verifier protection.
+7. Action Router v1 exists and Strategy Hub review/promote can approve/apply routes; recommendations cannot be considered fully closed-loop until due dates, completion feedback, and resolution conditions are captured.
+8. The old AI priority surface existed during Phase 0; Phase 1 has now replaced it with source-to-gap plus route review, disabled the active advisor endpoint, removed active priority action-item generation, and added verifier protection.
 9. Future-dated source rows must be labeled scheduled/forecast and cannot be used as current-actual freshness.
 10. Owners-vs-KPI precedence must be enforced before any display combines production, deal, or finance values.
 
@@ -286,7 +285,7 @@ The real state is:
 - KPI/Supabase can read appointments, Shopping List, lead-source hygiene, and deal_data
 - Owners/FUB/KPI/ClickUp cross-system proof exists, but ClickUp exact deal-number joins are weak
 - marketing has a clear source map, but not enough signed-off live source proof for a full performance dashboard
-- Action Router is still the closed-loop gap
-- the old AI priority surface was present during Phase 0 and has now been killed as an active surface by the Phase 1 safety stub
+- Action Router and Strategy Hub review/promote now close the first source-to-applied-record loop
+- the old AI priority surface was present during Phase 0 and has now been killed as an active surface by the Phase 1 safety work
 
-Phase 1 safety stub is complete. Steve approval is required before the next build phase starts.
+Phase 1 safety and source-to-gap command v1 are complete. Steve approval is required before adding advisor chat, AI priority generation, or any recommendation surface that is not source-to-gap and route-review backed.

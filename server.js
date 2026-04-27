@@ -8,6 +8,8 @@ import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
 import {
+  approveActionRoute,
+  applyApprovedActionRoute,
   approvePendingDocUpdate,
   closeFoundationDb,
   createBacklogItem,
@@ -26,12 +28,15 @@ import {
   getStrategyGoalTruthSnapshot,
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
+  getActionRoute,
+  getActionRouterSnapshot,
   getFoundationBacklogScopes,
   getDocSourceSnapshot,
   getFoundationBacklogIdPrefixes,
   getFoundationJobRunSnapshot,
   getFoundationSnapshot,
   getFubLeadSourceSnapshot,
+  getIntelligenceRetrievalSnapshot,
   listFubLeadSourceRules,
   getPendingDocUpdate,
   getRecentChangeEvents,
@@ -45,6 +50,8 @@ import {
   rejectPendingDocUpdate,
   recordReviewQueueChange,
   recordSourceDriftChange,
+  rejectActionRoute,
+  rerouteActionRoute,
   saveFubLeadSourceSnapshot,
   searchIntelligenceEvidenceHybrid,
   updateSharedCommunicationCandidateStatus,
@@ -4099,6 +4106,116 @@ app.get('/api/strategic-execution/operating-truth', requireAdminToken, async (re
       500,
       'strategy_operating_truth_failed',
       error instanceof Error ? error.message : 'Failed to load strategy operating truth.'
+    )
+  }
+})
+
+app.get('/api/strategic-execution/v2', requireAdminToken, async (_req, res) => {
+  try {
+    const [goalTruth, operatingTruth, actionRouter, retrieval] = await Promise.all([
+      getStrategyGoalTruthSnapshot(),
+      getStrategyOperatingTruthSnapshot(),
+      getActionRouterSnapshot({ limit: 50 }),
+      getIntelligenceRetrievalSnapshot({ limit: 20 }),
+    ])
+    cacheHeadersNoStore(res)
+    res.json({
+      generatedAt: new Date().toISOString(),
+      mode: 'source_to_gap_route_review',
+      advisorStatus: 'strategy_hub_v2_in_progress',
+      goalTruth,
+      operatingTruth,
+      actionRouter,
+      retrievalEval: retrieval.latestEvalRun || null,
+      routeReview: {
+        pendingRoutes: actionRouter.pendingRoutes || 0,
+        approvedRoutes: actionRouter.approvedRoutes || 0,
+        appliedRoutes: actionRouter.appliedRoutes || 0,
+        recentRoutes: actionRouter.recentRoutes || [],
+      },
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'strategy_hub_v2_failed',
+      error instanceof Error ? error.message : 'Failed to load Strategy Hub v2 source-to-gap snapshot.'
+    )
+  }
+})
+
+app.get('/api/strategic-execution/action-routes', requireAdminToken, async (_req, res) => {
+  try {
+    const actionRouter = await getActionRouterSnapshot({ limit: 50 })
+    cacheHeadersNoStore(res)
+    res.json(actionRouter)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'strategy_action_routes_failed',
+      error instanceof Error ? error.message : 'Failed to load Strategy Hub action routes.'
+    )
+  }
+})
+
+app.post('/api/strategic-execution/action-routes/:routeId/review', requireAdminToken, async (req, res) => {
+  try {
+    const routeId = String(req.params.routeId || '').trim()
+    const action = String(req.body?.action || '').trim()
+    const note = String(req.body?.note || '').trim()
+    const actor = getRequestActor(req)
+    const approvedBy = String(req.body?.approvedBy || req.body?.approved_by || actor).trim()
+    let route = await getActionRoute(routeId)
+    if (!route) {
+      sendApiError(res, 404, 'action_route_not_found', `Action route not found: ${routeId}`)
+      return
+    }
+
+    if (action === 'approve_apply') {
+      if (route.approvalStatus === 'pending') {
+        route = await approveActionRoute(routeId, { approvedBy, approvalNote: note }, actor)
+      }
+      if (route.approvalStatus === 'approved') {
+        route = await applyApprovedActionRoute(routeId, { applyNote: note }, actor)
+      } else if (route.approvalStatus !== 'applied') {
+        sendApiError(res, 409, 'action_route_not_approvable', `Action route cannot be approved/applied from status ${route.approvalStatus}.`)
+        return
+      }
+    } else if (action === 'reject') {
+      if (!['pending', 'approved'].includes(route.approvalStatus)) {
+        sendApiError(res, 409, 'action_route_not_rejectable', `Action route cannot be rejected from status ${route.approvalStatus}.`)
+        return
+      }
+      route = await rejectActionRoute(routeId, { rejectedBy: approvedBy, rejectionNote: note }, actor)
+    } else if (action === 'needs_owner') {
+      route = await rerouteActionRoute(routeId, {
+        routeType: 'needs_owner_decision',
+        note: note || 'Human review requested owner assignment before this route becomes work.',
+      }, actor)
+      route = await approveActionRoute(routeId, { approvedBy, approvalNote: note }, actor)
+      route = await applyApprovedActionRoute(routeId, { applyNote: note }, actor)
+    } else if (action === 'ignore' || action === 'snooze') {
+      route = await rerouteActionRoute(routeId, {
+        routeType: action,
+        note: note || `Human review marked this route as ${action}.`,
+      }, actor)
+      route = await approveActionRoute(routeId, { approvedBy, approvalNote: note }, actor)
+      route = await applyApprovedActionRoute(routeId, { applyNote: note }, actor)
+    } else {
+      sendApiError(res, 400, 'unsupported_route_review_action', 'Supported actions: approve_apply, reject, needs_owner, ignore, snooze.')
+      return
+    }
+
+    const actionRouter = await getActionRouterSnapshot({ limit: 50 })
+    cacheHeadersNoStore(res)
+    res.json({ route, actionRouter })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'strategy_action_route_review_failed',
+      error instanceof Error ? error.message : 'Failed to review Strategy Hub action route.'
     )
   }
 })

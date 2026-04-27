@@ -1033,7 +1033,7 @@ async function main() {
       source.includes("rel = 'noopener noreferrer'")
     ),
     'markdown-rendered links sanitize unsafe schemes',
-    'Foundation and doc views disable unsafe href schemes and isolate external links; Strategy Hub v2 stub does not render markdown',
+    'Foundation and doc views disable unsafe href schemes and isolate external links; Strategy Hub v2 source-to-gap view does not render markdown',
   )
   ensure(
     checks,
@@ -1198,6 +1198,7 @@ async function main() {
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
   const strategyOperatingTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/operating-truth')
+  const strategyHubV2Api = await fetchJson(baseUrl, '/api/strategic-execution/v2')
   const opsHub = await fetchJson(baseUrl, '/api/ops-hub')
   const ownersLeadSourceGovernance = await fetchJson(baseUrl, '/api/owners/lead-source-governance')
   const ownersReviewQueue = await fetchJson(baseUrl, '/api/owners/review-queue')
@@ -1221,6 +1222,9 @@ async function main() {
   const strategyGoalApiGroups = new Map((strategyGoalTruthApi.groups || []).map(group => [group.key, group]))
   const strategyOperatingSourceIds = new Set((strategyOperatingTruthSnapshot.sourceCards || []).map(card => card.sourceId))
   const strategyOperatingApiSourceIds = new Set((strategyOperatingTruthApi.sourceCards || []).map(card => card.sourceId))
+  const strategyHubV2Routes = Array.isArray(strategyHubV2Api.actionRouter?.recentRoutes)
+    ? strategyHubV2Api.actionRouter.recentRoutes
+    : []
 
   ensure(
     checks,
@@ -1494,9 +1498,9 @@ async function main() {
       !strategyEvidencePacketSource.includes("packetSection: 'recommended_90_day_priorities'") &&
       !strategyEvidencePacketSource.includes("itemType: 'action_item'") &&
       includesAll(strategicExecutionUiSource, [
-        'Strategy Hub v2 in progress',
+        'Source-to-gap command',
         'source-to-gap manifest',
-        'Live advisor-style synthesis on the Strategy Hub page',
+        'Advisor remains blocked',
       ]),
     'Strategy Evidence Packet v1 remains debug/history while active priority generation is disabled',
     'strategy:evidence-packet persists packetType=strategy_evidence_packet_v1, but no longer generates active 90-day priority action items',
@@ -1539,17 +1543,39 @@ async function main() {
   ensure(
     checks,
       serverSource.includes("app.post('/api/strategic-execution/advisor'") &&
+      serverSource.includes("app.get('/api/strategic-execution/v2'") &&
+      serverSource.includes("app.post('/api/strategic-execution/action-routes/:routeId/review'") &&
+      serverSource.includes('approveActionRoute') &&
+      serverSource.includes('applyApprovedActionRoute') &&
+      serverSource.includes('rejectActionRoute') &&
+      serverSource.includes('rerouteActionRoute') &&
       serverSource.includes('strategy_hub_v2_in_progress') &&
       serverSource.includes('Strategy Advisor is offline while Strategy Hub v2 rebuilds deterministic source snapshots') &&
-      strategicExecutionUiSource.includes('Unsafe recommendation surface is offline') &&
-      strategicExecutionUiSource.includes('Strategy Hub v2 in progress') &&
+      strategicExecutionUiSource.includes('/api/strategic-execution/v2') &&
+      strategicExecutionUiSource.includes('/api/strategic-execution/action-routes/') &&
+      strategicExecutionUiSource.includes('function renderSourceToGap') &&
+      strategicExecutionUiSource.includes('function renderRouteReview') &&
+      strategicExecutionUiSource.includes('Advisor remains blocked') &&
+      strategyHubV2Api.mode === 'source_to_gap_route_review' &&
+      strategyHubV2Api.advisorStatus === 'strategy_hub_v2_in_progress' &&
+      strategyHubV2Api.goalTruth?.groups?.length >= 3 &&
+      strategyHubV2Api.operatingTruth?.sourceCards?.length >= 4 &&
+      strategyHubV2Api.actionRouter?.totalRoutes >= 1 &&
+      strategyHubV2Routes.some(route =>
+        route.approvalRequired === true &&
+        route.synthesizedItemId &&
+        Array.isArray(route.factRefs) && route.factRefs.length > 0 &&
+        Array.isArray(route.evidenceRefs) && route.evidenceRefs.length > 0 &&
+        Array.isArray(route.evidenceChunkRefs) && route.evidenceChunkRefs.length > 0
+      ) &&
+      strategyHubV2Api.retrievalEval?.status === 'succeeded' &&
       !strategicExecutionUiSource.includes('/api/strategic-execution/advisor') &&
       !strategicExecutionUiSource.includes('renderStrategyAdvisorWorkspace') &&
       !strategicExecutionUiSource.includes('renderRecommendedPriorities') &&
       !strategicExecutionUiSource.includes('AI-Suggested 90-Day Priorities') &&
       !serverSource.includes('recommended90DayPriorities:'),
-    'Strategy Hub v2 safety stub disables active AI advisor and priority feed',
-    'active page is a rebuild stub, advisor endpoint returns strategy_hub_v2_in_progress, and old priority display cannot render',
+    'Strategy Hub v2 renders source-to-gap and route review while advisor remains offline',
+    `routes=${strategyHubV2Api.actionRouter?.totalRoutes || 0} / pending=${strategyHubV2Api.actionRouter?.pendingRoutes || 0} / eval=${strategyHubV2Api.retrievalEval?.status || 'missing'}`,
   )
   ensure(
     checks,
@@ -1564,8 +1590,8 @@ async function main() {
       foundationDbSource.includes('getStrategyPreworkCoverageSnapshot') &&
       foundationDbSource.includes('strategyPreworkExpectedParticipants') &&
       foundationDbSource.includes('pdfFormFieldsUsed'),
-    'Strategy pre-work read coverage API remains source-backed while Strategy Hub v2 page is stubbed',
-    `${strategyPreworkCoverageSnapshot.summary?.readCount || 0}/${strategyPreworkCoverageSnapshot.summary?.expectedCount || 0} expected notes read; API keeps missing rows explicit while active UI is offline`,
+    'Strategy pre-work read coverage API remains source-backed while advisor stays offline',
+    `${strategyPreworkCoverageSnapshot.summary?.readCount || 0}/${strategyPreworkCoverageSnapshot.summary?.expectedCount || 0} expected notes read; API keeps missing rows explicit while source-to-gap view is active`,
   )
   ensure(
     checks,

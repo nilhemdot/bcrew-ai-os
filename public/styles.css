@@ -6101,6 +6101,249 @@ code {
   margin: 14px 0 22px;
 }
 
+.strategy-v2-hero {
+  background: #000;
+  color: #fff;
+}
+
+.strategy-v2-hero .eyebrow,
+.strategy-v2-hero p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.strategy-v2-status-strip,
+.strategy-v2-route-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.strategy-v2-panel {
+  display: grid;
+  gap: 18px;
+  border-radius: var(--radius-sm);
+}
+
+.strategy-v2-muted {
+  max-width: 78ch;
+  color: var(--text-secondary);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.strategy-v2-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: #fff;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.strategy-v2-pill-good {
+  border-color: rgba(16, 185, 129, 0.28);
+  background: var(--green-bg);
+  color: #047857;
+}
+
+.strategy-v2-pill-watch {
+  border-color: rgba(245, 158, 11, 0.34);
+  background: var(--amber-bg);
+  color: #92400e;
+}
+
+.strategy-v2-pill-bad {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: var(--red-bg);
+  color: #b91c1c;
+}
+
+.strategy-v2-pill-neutral {
+  border-color: rgba(0, 132, 201, 0.2);
+  background: var(--brand-glow);
+  color: var(--brand-dark);
+}
+
+.strategy-v2-goal-grid,
+.strategy-v2-source-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.strategy-v2-source-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.strategy-v2-card,
+.strategy-v2-route-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.strategy-v2-card-top,
+.strategy-v2-route-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.strategy-v2-card h4,
+.strategy-v2-route-card h4 {
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.08;
+  text-transform: uppercase;
+}
+
+.strategy-v2-card-title {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.strategy-v2-fact-list {
+  display: grid;
+  gap: 8px;
+}
+
+.strategy-v2-fact-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) auto;
+  gap: 4px 10px;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #ebebeb;
+  padding: 8px 10px;
+}
+
+.strategy-v2-fact-label,
+.strategy-v2-source-id {
+  color: var(--text-tertiary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.strategy-v2-fact-value {
+  color: #000;
+  font-size: 0.86rem;
+  line-height: 1.25;
+  text-align: right;
+}
+
+.strategy-v2-source-id {
+  grid-column: 1 / -1;
+}
+
+.strategy-v2-route-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.strategy-v2-route-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.strategy-v2-route-meta {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.strategy-v2-route-meta span,
+.strategy-v2-applied-note {
+  min-height: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1.25;
+  padding: 8px;
+}
+
+.strategy-v2-provenance {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  padding: 10px 12px;
+}
+
+.strategy-v2-provenance summary {
+  cursor: pointer;
+  color: var(--brand-dark);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.strategy-v2-provenance p {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.strategy-v2-route-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.strategy-v2-action-btn {
+  min-height: 36px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 900;
+  line-height: 1.2;
+  padding: 8px 12px;
+}
+
+.strategy-v2-action-btn:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.strategy-v2-action-primary {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+
+.strategy-v2-action-danger {
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #b91c1c;
+}
+
+.strategy-v2-error {
+  border-color: rgba(239, 68, 68, 0.24);
+}
+
 @media (max-width: 640px) {
   .ops-issue-head {
     min-height: 0;
@@ -6109,9 +6352,32 @@ code {
   .feedback-score-grid {
     grid-template-columns: repeat(5, minmax(42px, 1fr));
   }
+
+  .strategy-v2-route-actions {
+    display: grid;
+  }
+
+  .strategy-v2-action-btn {
+    width: 100%;
+  }
 }
 
 @media (max-width: 880px) {
+  .strategy-v2-goal-grid,
+  .strategy-v2-source-grid,
+  .strategy-v2-card-top,
+  .strategy-v2-route-top {
+    grid-template-columns: 1fr;
+  }
+
+  .strategy-v2-route-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .strategy-v2-route-pills {
+    justify-content: flex-start;
+  }
+
   .strategy-export-meta-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
