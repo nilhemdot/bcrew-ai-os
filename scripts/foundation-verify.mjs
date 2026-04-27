@@ -244,6 +244,7 @@ async function main() {
   const intelligenceAtomProofSource = await readRepoFile('scripts/intelligence-atom-spine-proof.mjs')
   const intelligenceRetrievalSource = await readRepoFile('lib/intelligence-retrieval.js')
   const intelligenceRetrievalProofSource = await readRepoFile('scripts/intelligence-retrieval-proof.mjs')
+  const intelligenceSemanticRetrievalProofSource = await readRepoFile('scripts/intelligence-semantic-retrieval-proof.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
@@ -627,7 +628,7 @@ async function main() {
       "id: 'RETRIEVAL-001'",
       'Done v1 on 2026-04-27',
       "id: 'RETRIEVAL-002'",
-      'Next Foundation spine gate after RETRIEVAL-001',
+      'RETRIEVAL-003 hybrid retrieval',
     ]) &&
       includesAll(intelligenceRetrievalSource, [
         'CREATE TABLE IF NOT EXISTS intelligence_retrieval_runs',
@@ -669,6 +670,53 @@ async function main() {
       ),
     'RETRIEVAL-001 promotes real candidates into atom-backed lexical chunks with tier guard',
     `${intelligenceRetrievalSnapshot.totalChunks} chunks / candidate-backed=${intelligenceRetrievalSnapshot.chunksFromCandidates} / missing chunks=${intelligenceRetrievalSnapshot.activeCandidateAtomsMissingRetrievalChunks} / latest query=${intelligenceRetrievalSnapshot.latestLexicalProofQuery || 'missing'}`,
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, [
+      "id: 'RETRIEVAL-002'",
+      'pgvector is installed',
+      'searchIntelligenceChunksSemantic',
+      'selectRetrievalChunksForEmbedding',
+      'upsertRetrievalChunkEmbedding',
+      'buildRetrievalEmbeddingInput',
+      'RETRIEVAL-003',
+    ]) &&
+      includesAll(intelligenceRetrievalSource, [
+        'CREATE EXTENSION IF NOT EXISTS vector',
+        'embedding vector(1536)',
+        'USING hnsw (embedding vector_cosine_ops)',
+        'semantic_proof',
+        'selectRetrievalChunksForEmbedding',
+        'upsertRetrievalChunkEmbedding',
+        'searchIntelligenceChunksSemantic',
+        'queryEmbedding is required',
+        'chunk.embedding <=> $1::vector(1536)',
+        'intelligence retrieval queries require maxTier >= 1',
+      ]) &&
+      includesAll(llmRouterSource, [
+        'callEmbedding',
+        'https://api.openai.com/v1/embeddings',
+        "workload: 'embedding'",
+        "encoding_format: 'float'",
+        'dimensions',
+      ]) &&
+      packageSource.includes('"intelligence:semantic-proof"') &&
+      includesAll(intelligenceSemanticRetrievalProofSource, [
+        'callEmbedding',
+        'selectRetrievalChunksForEmbedding',
+        'upsertRetrievalChunkEmbedding',
+        'searchIntelligenceChunksSemantic',
+        'maxTier: 1',
+        'tierGuardProof',
+        'RETRIEVAL-002',
+        'RETRIEVAL-003',
+      ]) &&
+      intelligenceRetrievalSnapshot.chunksWithEmbeddings >= 1 &&
+      intelligenceRetrievalSnapshot.candidateAtomChunksWithEmbeddings >= 1 &&
+      intelligenceRetrievalSnapshot.tierOneChunksWithEmbeddings >= 1,
+    'RETRIEVAL-002 stores pgvector embeddings and semantic search over real atom chunks',
+    `${intelligenceRetrievalSnapshot.chunksWithEmbeddings} embedded chunks / candidate-backed=${intelligenceRetrievalSnapshot.candidateAtomChunksWithEmbeddings}`,
   )
   ensure(
     checks,

@@ -184,9 +184,9 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Keep Skool/Loom/Mycro extraction governed by authorized access, use rights, cost/route ledgering, quotas, and stop controls.
 5. `INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001` through `RETRIEVAL-003` — Build the memory/retrieval spine.
    - Add a run/cost/cursor ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation.
-   - `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, and `RETRIEVAL-001` are now done/hardened enough for the next gate.
+   - `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, `RETRIEVAL-001`, and `RETRIEVAL-002` are now done/hardened enough for the next gate.
    - Use `intelligence_report_artifacts`, `intelligence_atoms`, `intelligence_atom_hits`, and `intelligence_retrieval_chunks` as the governed report/atom/retrieval substrate before scaling video/web/Skool extraction.
-   - Build pgvector semantic retrieval next, then hybrid evidence retrieval.
+   - Build hybrid evidence retrieval next.
    - Keep Graphiti/Zep deferred until Postgres memory proves itself.
 6. `SOURCE-008` / `DATA-005` — Close FUB Level 2 taxonomy and Owners/FUB lineage.
    - Refresh stale FUB source snapshot.
@@ -658,7 +658,7 @@ Strategy Hub should:
 - produce a tight owner-level strategy packet
 - track follow-through after the meeting
 
-Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface is now intentionally a Strategy Hub v2 safety stub; the advisor endpoint returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation is disabled. The next Strategy Hub work is not review/promote UI, chat polish, or more recommendations. The command order is Foundation spine first: `INTEL-JOBS-001` done/hardened, `REPORT-MINING-001` accepted as the old-system salvage gate, `INTEL-ATOM-001` done as the v1 report/atom substrate, `RETRIEVAL-001` done as candidate-backed lexical retrieval, then semantic/hybrid retrieval, synthesis facts, governed synthesis, and Action Router. Only after that spine exists should Strategy Hub v2 resume as a source-to-gap operating dashboard.
+Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface is now intentionally a Strategy Hub v2 safety stub; the advisor endpoint returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation is disabled. The next Strategy Hub work is not review/promote UI, chat polish, or more recommendations. The command order is Foundation spine first: `INTEL-JOBS-001` done/hardened, `REPORT-MINING-001` accepted as the old-system salvage gate, `INTEL-ATOM-001` done as the v1 report/atom substrate, `RETRIEVAL-001` done as candidate-backed lexical retrieval, `RETRIEVAL-002` done as pgvector semantic retrieval, then hybrid retrieval, synthesis facts, governed synthesis, and Action Router. Only after that spine exists should Strategy Hub v2 resume as a source-to-gap operating dashboard.
 
 Acceptance:
 

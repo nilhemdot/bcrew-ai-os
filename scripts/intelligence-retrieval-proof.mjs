@@ -99,14 +99,14 @@ async function main() {
   const updatedRetrievalCard = await updateBacklogItem('RETRIEVAL-001', {
     lane: 'done',
     summary: 'Add chunk tables and Postgres full-text lexical search over real shared-communications candidates/artifacts promoted into atoms before relying on vector search.',
-    nextAction: 'Build RETRIEVAL-002 semantic retrieval on top of intelligence_retrieval_chunks after lexical retrieval stays green. Keep Strategy Hub review/promote UI, advisor chat, and recommendations blocked until semantic/hybrid retrieval, synthesis facts, governed synthesis, and Action Router are live.',
+    nextAction: 'RETRIEVAL-001 remains closed. Continue through RETRIEVAL-003 hybrid retrieval and evidence API after the semantic slice; keep Strategy Hub review/promote UI, advisor chat, and recommendations blocked until hybrid retrieval, synthesis facts, governed synthesis, and Action Router are live.',
     statusNote: 'Done v1 on 2026-04-27. RETRIEVAL-001 now promotes real shared_communication_candidates into intelligence_atoms, stores candidate-backed chunks in intelligence_retrieval_chunks, and proves lexical search with explicit maxTier enforcement.',
   }, 'retrieval-proof')
 
   const updatedSemanticCard = await updateBacklogItem('RETRIEVAL-002', {
-    lane: 'scoped',
-    nextAction: 'Build pgvector semantic retrieval against the proven intelligence_retrieval_chunks corpus. Do not skip the maxTier/access guard or jump to Strategy Hub synthesis.',
-    statusNote: 'Next Foundation spine gate after RETRIEVAL-001 lexical retrieval. Start from candidate-backed chunks and atoms, not a synthetic fixture.',
+    lane: 'done',
+    nextAction: 'Build RETRIEVAL-003 hybrid retrieval and evidence API over lexical search, semantic search, atoms, source filters, recency, confidence, and sensitivity rules. Keep Strategy Hub UI/advisor/recommendations blocked.',
+    statusNote: 'Done v1 on 2026-04-27. pgvector is installed, candidate-backed chunks have 1536-dimension OpenAI embeddings, semantic search requires explicit maxTier, and proof runs over the real RETRIEVAL-001 corpus.',
   }, 'retrieval-proof')
 
   console.log(JSON.stringify({
