@@ -110,7 +110,10 @@ async function listClickUpTasks(listId) {
 
 function fieldMap(task) {
   const fields = new Map()
-  for (const field of task.custom_fields || []) fields.set(field.name, decodeClickUpFieldValue(field))
+  for (const field of task.custom_fields || []) {
+    const value = decodeClickUpFieldValue(field)
+    if (value !== '' || !fields.has(field.name)) fields.set(field.name, value)
+  }
   return fields
 }
 
@@ -141,11 +144,11 @@ function conditionalSideFromTags(task) {
   return ''
 }
 
-function expectedTeamCollection(fields) {
+function forecastNetToTeam(fields) {
   return firstValue(
+    fields.get('Net To Team'),
     fields.get('Company/Team Lead Portion'),
     fields.get('Gross To Team'),
-    fields.get('Net To Team'),
     fields.get('Expected Cash Deposit'),
     fields.get('Gross Commission'),
     fields.get('Commission Charged'),
@@ -174,7 +177,7 @@ function inRange(iso, startInclusive, endExclusive) {
 }
 
 function sumRows(rows, predicate) {
-  return rows.reduce((total, row) => total + (predicate(row) ? (Number(row.expectedTeamCollection) || 0) : 0), 0)
+  return rows.reduce((total, row) => total + (predicate(row) ? (Number(row.netToTeamForecast) || 0) : 0), 0)
 }
 
 function countDueOrPast(rows, today) {
@@ -199,7 +202,7 @@ function buildRecord(task) {
     conditionalDeadline: normalizeDateValue(fields.get('Conditional Deadline')),
     closingDate,
     expectedCommissionDepositDate: closingDate,
-    expectedTeamCollection: expectedTeamCollection(fields),
+    netToTeamForecast: forecastNetToTeam(fields),
     depositStatus: normalizeText(fields.get('Deposit Status (Conditional)')),
     depositReceivedDate: normalizeDateValue(fields.get('Deposit Received Date')),
     tradeNumber: normalizeText(fields.get('Deal #')),
@@ -210,7 +213,7 @@ function buildRecord(task) {
   if (!record.agent) missing.push('agent')
   if (!record.side) missing.push('side')
   if (!record.closingDate) missing.push('closing date')
-  if (!record.expectedTeamCollection) missing.push('expected team collection')
+  if (!record.netToTeamForecast) missing.push('net to team')
   if (!record.tradeNumber) missing.push('trade number')
   if (!record.fubLink) missing.push('FUB link')
   record.missingData = missing.join(', ')
@@ -263,11 +266,11 @@ function buildSheetValues(records, existingReviewActions) {
     ['Metric', 'Value'],
     ['Active conditional tasks', records.length],
     ['Conditions due / past due', countDueOrPast(records, bounds.today)],
-    ['Expected team $ this month', sumRows(records, row => inRange(row.expectedCommissionDepositDate, bounds.currentStart, bounds.nextStart))],
-    ['Expected team $ next month', sumRows(records, row => inRange(row.expectedCommissionDepositDate, bounds.nextStart, bounds.followingStart))],
-    ['Expected team $ next 90 days', sumRows(records, row => inRange(row.expectedCommissionDepositDate, bounds.today, bounds.ninetyEnd))],
+    ['Net to team $ this month', sumRows(records, row => inRange(row.expectedCommissionDepositDate, bounds.currentStart, bounds.nextStart))],
+    ['Net to team $ next month', sumRows(records, row => inRange(row.expectedCommissionDepositDate, bounds.nextStart, bounds.followingStart))],
+    ['Net to team $ next 90 days', sumRows(records, row => inRange(row.expectedCommissionDepositDate, bounds.today, bounds.ninetyEnd))],
     ['Missing closing date', records.filter(row => !row.closingDate).length],
-    ['Missing expected team $', records.filter(row => !row.expectedTeamCollection).length],
+    ['Missing net to team $', records.filter(row => !row.netToTeamForecast).length],
     ['Missing trade number', records.filter(row => !row.tradeNumber).length],
     ['Missing FUB link', records.filter(row => !row.fubLink).length],
     ['Marked re-review', queuedReviewCount],
@@ -280,7 +283,7 @@ function buildSheetValues(records, existingReviewActions) {
     'Accepted Offer Date',
     'Conditional Deadline',
     'Closing Date',
-    'Expected Team $',
+    'Net To Team $',
     'Deposit Status',
     'Deposit Received Date',
     'Trade Number',
@@ -306,7 +309,7 @@ function buildSheetValues(records, existingReviewActions) {
       row.acceptedOfferDate,
       row.conditionalDeadline,
       row.closingDate,
-      row.expectedTeamCollection,
+      row.netToTeamForecast,
       row.depositStatus,
       row.depositReceivedDate,
       row.tradeNumber,
@@ -589,7 +592,7 @@ async function main() {
     sourceListId: CLICKUP_DEAL_DATA_ENTRY_LIST_ID,
     conditionalTasks: records.length,
     missingClosingDate: records.filter(row => !row.closingDate).length,
-    missingExpectedTeamCollection: records.filter(row => !row.expectedTeamCollection).length,
+    missingNetToTeam: records.filter(row => !row.netToTeamForecast).length,
     missingTradeNumber: records.filter(row => !row.tradeNumber).length,
     missingFubLink: records.filter(row => !row.fubLink).length,
   }, null, 2))

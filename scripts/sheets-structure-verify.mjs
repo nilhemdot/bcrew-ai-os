@@ -217,7 +217,7 @@ const WORKBOOKS = [
           A16: 'Conditional Deal',
           E16: 'Conditional Deadline',
           F16: 'Closing Date',
-          G16: 'Expected Team $',
+          G16: 'Net To Team $',
           I16: 'Deposit Received Date',
           K16: 'FUB Link',
           L16: 'ClickUp URL',

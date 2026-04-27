@@ -1034,7 +1034,7 @@ The old manual conditional layout above is historical context. For v1, this tab 
 Current generated table:
 
 - `A:O`
-  - conditional deal, side, agent, accepted offer date, conditional deadline, closing date, expected team dollars, deposit status, deposit received date, Trade Number, FUB link, ClickUp URL, and missing/action-needed notes
+  - conditional deal, side, agent, accepted offer date, conditional deadline, closing date, Net To Team dollars, deposit status, deposit received date, Trade Number, FUB link, ClickUp URL, and missing/action-needed notes
   - `N` preserves the manual `THIS ROW ONLY: CONDITIONAL REVIEW ACTION` value
   - `O` records `AI Conditional Findings / Suggestions`
 - buyer/seller conditional tags in ClickUp determine the conditional lane
@@ -1052,7 +1052,7 @@ What this tab needs next if we want true governed conditional parity:
 
 - maintained Trade Number
 - maintained closing date
-- maintained expected team dollars
+- maintained Net To Team dollars
 - maintained FUB link
 - then AI can check whether the ClickUp conditional task still belongs in the conditional lane, should already have moved into Admin, or needs FUB cleanup
 

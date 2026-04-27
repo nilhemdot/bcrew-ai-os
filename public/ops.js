@@ -456,7 +456,7 @@ function buildOpsFieldReferenceReply(question) {
       'Agent',
       'Side',
       'Closing Date',
-      'Expected Team $',
+      'Net To Team $',
       'Trade Number',
       'FUB Link',
       'THIS ROW ONLY: CONDITIONAL REVIEW ACTION',
