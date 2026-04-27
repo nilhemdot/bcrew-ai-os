@@ -69,14 +69,14 @@
     ])
 
     appendCard(list, 'Approved next sequence', [
-      'Finish this safety stub and verifier guard.',
-      'Start INTEL-JOBS-001 so future atoms, retrieval, synthesis, and action routing share one provenance ledger.',
-      'Only after the memory/retrieval spine is real, resume Strategy Hub v2 synthesis and recommendation surfaces.',
+      'Keep this safety stub and verifier guard active.',
+      'REPORT-MINING-001 is accepted and INTEL-ATOM-001 has the v1 report/atom/hit substrate.',
+      'Build retrieval next, then synthesis facts, synthesis, and Action Router.',
     ])
 
     var manifestCard = appendCard(list, 'Trust gate artifact', [
       'Phase 0 source-to-gap manifest is the controlling artifact for the next build.',
-      'Deterministic source snapshots and gap math may proceed only after explicit approval.',
+      'Deterministic source snapshots and gap math are future Strategy Hub work, not the current build lane.',
       'LLM explanations, doctrine drilldowns, recommended actions, and routing remain blocked until their prerequisites are real.',
     ])
     var link = document.createElement('a')

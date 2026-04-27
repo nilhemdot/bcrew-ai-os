@@ -1,6 +1,6 @@
 # Strategy Hub v2 Source-To-Gap Manifest
 
-Status: Phase 0 artifact only
+Status: Phase 0 artifact only; Strategy Hub remains paused after the Phase 1 safety stub
 Date: 2026-04-27
 
 This manifest is the trust gate for Strategy Execution OS v2.
@@ -63,11 +63,9 @@ The current rebuild doctrine still controls sequencing:
 - `docs/rebuild/current-plan.md:198`: synthesis and fact grounding must close before trusted AI interpretation.
 - `docs/rebuild/current-plan.md:638`: Strategy Hub depends on extraction, synthesis hardening, Action Router, and trust boundaries.
 
-After this manifest is approved, the only allowed Strategy Hub work is:
+Phase 1 safety stub is complete. No further Strategy Hub surface work is approved right now.
 
-1. Safety stub: remove or stub the unsafe old active Strategy Hub surface and remove the `AI-Suggested 90-Day Priorities` generation path at code level.
-2. Deterministic source snapshots: build `StrategyMetricSnapshot` objects from live source reads and source contracts.
-3. Deterministic gap engine: compute status, thresholds, freshness, owner, and fallback state without any LLM-generated explanation.
+The next build lane is the Foundation intelligence spine. Deterministic source snapshots and gap math stay future Strategy Hub v2 work; they should not jump ahead of the memory/retrieval/action spine unless Steve explicitly overrides the command order.
 
 Blocked until the memory/retrieval/action spine is real:
 
@@ -82,14 +80,15 @@ Blocked until the memory/retrieval/action spine is real:
 
 The prerequisite spine is:
 
-1. `INTEL-JOBS-001` - intelligence job ledger
-2. `INTEL-ATOM-001` - durable source-backed memory atoms
-3. `RETRIEVAL-001` - chunk-level lexical retrieval
-4. `RETRIEVAL-002` - pgvector semantic retrieval
-5. `RETRIEVAL-003` - hybrid evidence API
-6. `SYNTHESIS-ENGINE-001` - governed synthesis engine
+1. `INTEL-JOBS-001` - intelligence job ledger, done and hardened through governed extraction
+2. `REPORT-MINING-001` - accepted old-system Director/Scoper/Gold Library/report-shape salvage gate
+3. `INTEL-ATOM-001` - done v1: durable source-backed memory atoms plus governed report artifacts and direct Scoper query contract
+4. `RETRIEVAL-001` - chunk-level lexical retrieval
+5. `RETRIEVAL-002` - pgvector semantic retrieval
+6. `RETRIEVAL-003` - hybrid evidence API
 7. `SYNTHESIS-FACTS-001` - source-backed fact grounding for synthesis
-8. `ACTION-ROUTER-001` - loop closure from insight to routed action to resolution
+8. `SYNTHESIS-ENGINE-001` - governed synthesis engine
+9. `ACTION-ROUTER-001` - loop closure from insight to routed action to resolution
 
 ### Metric Build Classification
 
@@ -129,7 +128,8 @@ Class 1 only authorizes deterministic source-read and math work. It does not aut
 
 Every metric that receives a "why," doctrine citation, evidence drilldown, AI recommendation, or recommended owner/action also requires class 3 work before it can ship:
 
-- `INTEL-ATOM-001` must store source-backed atoms with source ID, artifact ID, entity, topic, claim, date, confidence, and linked metric.
+- `REPORT-MINING-001` must preserve the useful old Director, Scoper, Gold Library, and report artifact shapes before atom implementation.
+- `INTEL-ATOM-001` now stores source-backed atoms with source ID, artifact ID, entity, topic, claim, confidence, linked metric, governed report artifact links, lifecycle/review state, and direct Scoper query fields.
 - `RETRIEVAL-001` / `RETRIEVAL-002` / `RETRIEVAL-003` must retrieve evidence by lexical, semantic, and metric-linked filters.
 - `SYNTHESIS-FACTS-001` must prove claims against live source facts and retrieved evidence.
 - `SYNTHESIS-ENGINE-001` must enforce structured output, doctrine priority, and contradiction handling.

@@ -11,6 +11,7 @@ import {
   closeFoundationDb,
   getBacklogSeedDriftSnapshot,
   getFoundationDbConstraintAudit,
+  getIntelligenceAtomSpineSnapshot,
   getIntelligenceJobLedgerSnapshot,
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleLlmCalls,
@@ -150,6 +151,7 @@ async function main() {
   const strategyGoalTruthSnapshot = await getStrategyGoalTruthSnapshot()
   const strategyOperatingTruthSnapshot = await getStrategyOperatingTruthSnapshot()
   const intelligenceJobLedgerSnapshot = await getIntelligenceJobLedgerSnapshot({ limit: 20 })
+  const intelligenceAtomSpineSnapshot = await getIntelligenceAtomSpineSnapshot({ limit: 20 })
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
@@ -197,6 +199,8 @@ async function main() {
   const docsReadmeSource = await readRepoFile('docs/README.md')
   const currentPlan = await readRepoFile('docs/rebuild/current-plan.md')
   const intelligencePipelineSource = await readRepoFile('docs/rebuild/intelligence-pipeline.md')
+  const intelligenceSalvageSpecSource = await readRepoFile('docs/specs/2026-04-27-intelligence-spine-old-system-salvage.md')
+  const strategyHubManifestSource = await readRepoFile('docs/specs/2026-04-27-strategy-hub-v2-source-to-gap-manifest.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const systemStrategy = await readRepoFile('docs/system-strategy.md')
   const packageSource = await readRepoFile('package.json')
@@ -235,8 +239,10 @@ async function main() {
   const driveLinkInventorySource = await readRepoFile('scripts/inventory-drive-linked-files.mjs')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
+  const intelligenceAtomProofSource = await readRepoFile('scripts/intelligence-atom-spine-proof.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
+  const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
   const directModelHostOffenders = await auditDirectModelHostUsage()
   const governedExtractionLedgerRuns = intelligenceJobLedgerSnapshot.recentRuns.filter(run =>
@@ -246,6 +252,9 @@ async function main() {
     run.nextRunState?.targetKey &&
     run.itemCounts &&
     Object.prototype.hasOwnProperty.call(run.itemCounts, 'inspected')
+  )
+  const atomImplementationPresent = [foundationDbSource, intelligenceAtomsSource].some(source =>
+    /CREATE TABLE IF NOT EXISTS\s+(business_atoms|intelligence_atoms|atom_hits|intelligence_atom_hits)/.test(source)
   )
 
   ensure(
@@ -508,15 +517,35 @@ async function main() {
     checks,
     includesAll(foundationDbSource, [
       "id: 'REPORT-MINING-001'",
-      "priority: 'P0'",
-      'Blocks atom schema implementation until the old Director/Scoper/Gold Library/report-shape salvage spec is accepted',
+      "lane: 'done'",
+      'Accepted on 2026-04-27 in `docs/specs/2026-04-27-intelligence-spine-old-system-salvage.md`',
       "id: 'INTEL-ATOM-001'",
-      'Blocked until REPORT-MINING-001 produces the old-system intelligence salvage spec',
-      'direct scoper query fields',
+      'Done v1 on 2026-04-27',
+      'direct Scoper query fields',
     ]) &&
+      includesAll(intelligenceSalvageSpecSource, [
+        'Status: Accepted build gate',
+        'Report Shapes To Preserve',
+        'Old Atom Fields To Preserve',
+        'Governed Report Artifact Contract',
+        'Required Changes To INTEL-ATOM-001',
+        'A Scoper must query atoms/retrieval directly before producing scoped work',
+        '`candidate_key` when promoted from extracted candidates',
+        '`input_candidate_keys`',
+      ]) &&
+      !intelligenceSalvageSpecSource.includes('candidate_id') &&
+      !intelligenceSalvageSpecSource.includes('input_candidate_ids') &&
+      includesAll(strategyHubManifestSource, [
+        '`REPORT-MINING-001` - accepted old-system Director/Scoper/Gold Library/report-shape salvage gate',
+        '`INTEL-ATOM-001` - done v1: durable source-backed memory atoms plus governed report artifacts and direct Scoper query contract',
+      ]) &&
+      (!atomImplementationPresent || intelligenceSalvageSpecSource.includes('Status: Accepted build gate')) &&
       includesAll(currentPlan, [
         '`INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001`',
-        'source-backed atom and governed report/brief artifact schema',
+        'intelligence_report_artifacts',
+        'intelligence_atoms',
+        'intelligence_atom_hits',
+        '`INTEL-ATOM-001` done as the v1 report/atom substrate',
         'old-system report-shape salvage',
       ]) &&
       includesAll(intelligencePipelineSource, [
@@ -525,8 +554,65 @@ async function main() {
         'The anti-pattern is: Director summarizes research',
         'old-system report-shape salvage gate',
       ]),
-    'REPORT-MINING-001 gates INTEL-ATOM-001 before atom implementation',
-    'old Director/Scoper/Gold Library salvage is a P0 prerequisite, not a chat-only reminder',
+    'REPORT-MINING-001 salvage spec gates INTEL-ATOM-001 before atom implementation',
+    `old Director/Scoper/Gold Library salvage accepted; atom implementation present=${atomImplementationPresent}`,
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, [
+      'createIntelligenceAtomStore',
+      'intelligenceAtomSchemaSql',
+      'getRegisteredSourceContractIds',
+      'intelligenceAtomSpine',
+    ]) &&
+      includesAll(intelligenceAtomsSource, [
+        'CREATE TABLE IF NOT EXISTS intelligence_report_artifacts',
+        'CREATE TABLE IF NOT EXISTS intelligence_atoms',
+        'CREATE TABLE IF NOT EXISTS intelligence_atom_hits',
+        'source_id TEXT NOT NULL',
+        'report_artifact_id TEXT',
+        'dedup_hash TEXT NOT NULL',
+        'min_tier INTEGER NOT NULL DEFAULT 1',
+        'assertRegisteredSourceIds',
+        'SELECT pg_advisory_xact_lock(hashtext($1))',
+        'WHERE dedup_hash = $1',
+        'requestedAtomId',
+        'queryIntelligenceAtomsForScoper requires maxTier >= 1',
+        'ON intelligence_atoms(dedup_hash)',
+      ]) &&
+      includesAll([foundationDbSource, intelligenceAtomsSource].join('\n'), [
+      'upsertIntelligenceReportArtifact',
+      'upsertIntelligenceAtom',
+      'recordIntelligenceAtomHit',
+      'queryIntelligenceAtomsForScoper',
+      'getIntelligenceAtomSpineSnapshot',
+      ]) &&
+      packageSource.includes('"intelligence:atoms-proof"') &&
+      includesAll(intelligenceAtomProofSource, [
+        'INTEL-ATOM-001',
+        'REPORT-MINING-001',
+        'upsertIntelligenceReportArtifact',
+        'upsertIntelligenceAtom',
+        'recordIntelligenceAtomHit',
+        'queryIntelligenceAtomsForScoper',
+        'getIntelligenceAtomSpineSnapshot',
+        'duplicateAtomProof',
+        'Duplicate atom proof did not merge on dedup_hash',
+        'tierGuardProof',
+        'explicit maxTier',
+      ]) &&
+      intelligenceAtomSpineSnapshot.totalReports >= 1 &&
+      intelligenceAtomSpineSnapshot.totalAtoms >= 1 &&
+      intelligenceAtomSpineSnapshot.totalHits >= 1 &&
+      intelligenceAtomSpineSnapshot.atomsWithReportArtifact >= 1 &&
+      intelligenceAtomSpineSnapshot.atomsWithScoperQueryFields >= 1 &&
+      intelligenceAtomSpineSnapshot.latestScoperQueryProof.some(atom =>
+        atom.reportArtifactId &&
+        atom.metricRefs?.includes('INTEL-ATOM-001') &&
+        atom.minTier <= 1
+      ),
+    'INTEL-ATOM-001 stores governed report artifacts, atoms, hits, and Scoper-queryable proof',
+    `${intelligenceAtomSpineSnapshot.totalReports} reports / ${intelligenceAtomSpineSnapshot.totalAtoms} atoms / ${intelligenceAtomSpineSnapshot.totalHits} hits`,
   )
   ensure(
     checks,
