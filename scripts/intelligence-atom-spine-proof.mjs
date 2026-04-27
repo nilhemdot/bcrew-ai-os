@@ -76,14 +76,14 @@ async function main() {
     ],
     actionRequiredItems: [
       {
-        backlogCardId: 'RETRIEVAL-001',
-        action: 'Build lexical retrieval on top of intelligence_atoms after this proof passes.',
+        backlogCardId: 'RETRIEVAL-002',
+        action: 'Continue the spine through semantic retrieval on top of the proven candidate-backed lexical corpus.',
       },
     ],
     openQuestions: [
       {
-        question: 'Which production extractors should promote candidate findings into atoms first?',
-        routedTo: 'RETRIEVAL-001 / extraction hardening',
+        question: 'Which additional production extractors should promote candidate findings into atoms after the shared-comms path?',
+        routedTo: 'extraction hardening / RETRIEVAL-002',
       },
     ],
     structuredOutputJson: {
@@ -131,7 +131,7 @@ async function main() {
     acceptedAt: new Date().toISOString(),
     acceptedBy: 'intel-atom-proof',
     suggestedOwner: 'Foundation',
-    suggestedAction: 'Build RETRIEVAL-001 on intelligence_atoms, not Strategy Hub chat polish.',
+    suggestedAction: 'Continue to RETRIEVAL-002 on the proven atom/chunk substrate, not Strategy Hub chat polish.',
     tags: ['INTEL-ATOM-001', 'REPORT-MINING-001', 'foundation-spine'],
     metadata: {
       backlogCardId: 'INTEL-ATOM-001',
@@ -229,7 +229,7 @@ async function main() {
 
   const updatedCard = await updateBacklogItem('INTEL-ATOM-001', {
     lane: 'done',
-    nextAction: 'Build RETRIEVAL-001 lexical retrieval on top of intelligence_atoms and intelligence_report_artifacts. Keep Strategy Hub review/promote UI, advisor chat, and recommendations blocked until retrieval, synthesis facts, governed synthesis, and Action Router are live.',
+    nextAction: 'INTEL-ATOM-001 remains closed. Continue the Foundation spine through RETRIEVAL-002 semantic retrieval on top of the RETRIEVAL-001 candidate-backed lexical corpus; keep Strategy Hub review/promote UI, advisor chat, and recommendations blocked until semantic/hybrid retrieval, synthesis facts, governed synthesis, and Action Router are live.',
     statusNote: 'Done v1 on 2026-04-27. INTEL-ATOM-001 now has DB-backed intelligence_report_artifacts, intelligence_atoms, intelligence_atom_hits, direct Scoper query fields/helpers, Foundation snapshot exposure, and a repeatable proof command.',
   }, 'intel-atom-proof')
 

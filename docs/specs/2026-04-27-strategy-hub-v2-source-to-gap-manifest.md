@@ -83,7 +83,7 @@ The prerequisite spine is:
 1. `INTEL-JOBS-001` - intelligence job ledger, done and hardened through governed extraction
 2. `REPORT-MINING-001` - accepted old-system Director/Scoper/Gold Library/report-shape salvage gate
 3. `INTEL-ATOM-001` - done v1: durable source-backed memory atoms plus governed report artifacts and direct Scoper query contract
-4. `RETRIEVAL-001` - chunk-level lexical retrieval
+4. `RETRIEVAL-001` - done v1: real shared-communications candidates promoted into atoms and candidate-backed lexical chunks with explicit `maxTier`
 5. `RETRIEVAL-002` - pgvector semantic retrieval
 6. `RETRIEVAL-003` - hybrid evidence API
 7. `SYNTHESIS-FACTS-001` - source-backed fact grounding for synthesis
@@ -130,7 +130,7 @@ Every metric that receives a "why," doctrine citation, evidence drilldown, AI re
 
 - `REPORT-MINING-001` must preserve the useful old Director, Scoper, Gold Library, and report artifact shapes before atom implementation.
 - `INTEL-ATOM-001` now stores source-backed atoms with source ID, artifact ID, entity, topic, claim, confidence, linked metric, governed report artifact links, lifecycle/review state, and direct Scoper query fields.
-- `RETRIEVAL-001` / `RETRIEVAL-002` / `RETRIEVAL-003` must retrieve evidence by lexical, semantic, and metric-linked filters.
+- `RETRIEVAL-001` now retrieves candidate-backed atom chunks by lexical filters with explicit `maxTier`; `RETRIEVAL-002` / `RETRIEVAL-003` must add semantic and hybrid evidence retrieval.
 - `SYNTHESIS-FACTS-001` must prove claims against live source facts and retrieved evidence.
 - `SYNTHESIS-ENGINE-001` must enforce structured output, doctrine priority, and contradiction handling.
 

@@ -13,6 +13,7 @@ import {
   getFoundationDbConstraintAudit,
   getIntelligenceAtomSpineSnapshot,
   getIntelligenceJobLedgerSnapshot,
+  getIntelligenceRetrievalSnapshot,
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleLlmCalls,
   getStrategyGoalTruthSnapshot,
@@ -152,6 +153,7 @@ async function main() {
   const strategyOperatingTruthSnapshot = await getStrategyOperatingTruthSnapshot()
   const intelligenceJobLedgerSnapshot = await getIntelligenceJobLedgerSnapshot({ limit: 20 })
   const intelligenceAtomSpineSnapshot = await getIntelligenceAtomSpineSnapshot({ limit: 20 })
+  const intelligenceRetrievalSnapshot = await getIntelligenceRetrievalSnapshot({ limit: 20 })
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
@@ -240,6 +242,8 @@ async function main() {
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
   const intelligenceAtomProofSource = await readRepoFile('scripts/intelligence-atom-spine-proof.mjs')
+  const intelligenceRetrievalSource = await readRepoFile('lib/intelligence-retrieval.js')
+  const intelligenceRetrievalProofSource = await readRepoFile('scripts/intelligence-retrieval-proof.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
@@ -613,6 +617,54 @@ async function main() {
       ),
     'INTEL-ATOM-001 stores governed report artifacts, atoms, hits, and Scoper-queryable proof',
     `${intelligenceAtomSpineSnapshot.totalReports} reports / ${intelligenceAtomSpineSnapshot.totalAtoms} atoms / ${intelligenceAtomSpineSnapshot.totalHits} hits`,
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, [
+      'createIntelligenceRetrievalStore',
+      'intelligenceRetrievalSchemaSql',
+      'intelligenceRetrieval',
+      "id: 'RETRIEVAL-001'",
+      'Done v1 on 2026-04-27',
+      "id: 'RETRIEVAL-002'",
+      'Next Foundation spine gate after RETRIEVAL-001',
+    ]) &&
+      includesAll(intelligenceRetrievalSource, [
+        'CREATE TABLE IF NOT EXISTS intelligence_retrieval_runs',
+        'CREATE TABLE IF NOT EXISTS intelligence_retrieval_chunks',
+        'search_vector TSVECTOR NOT NULL',
+        'USING GIN(search_vector)',
+        'promoteSharedCommunicationCandidatesToAtoms',
+        'searchIntelligenceChunks',
+        'intelligence retrieval queries require maxTier >= 1',
+        'FROM shared_communication_candidates c',
+        'JOIN shared_communication_artifacts artifact',
+        'NOT EXISTS (',
+        'upsertIntelligenceAtom',
+        'recordIntelligenceAtomHit',
+      ]) &&
+      packageSource.includes('"intelligence:retrieval-proof"') &&
+      includesAll(intelligenceRetrievalProofSource, [
+        'promoteSharedCommunicationCandidatesToAtoms',
+        'searchIntelligenceChunks',
+        'maxTier: 1',
+        'tierGuardProof',
+        'RETRIEVAL-001',
+        'RETRIEVAL-002',
+      ]) &&
+      intelligenceRetrievalSnapshot.totalChunks >= 1 &&
+      intelligenceRetrievalSnapshot.activeChunks >= 1 &&
+      intelligenceRetrievalSnapshot.chunksWithAtoms >= 1 &&
+      intelligenceRetrievalSnapshot.chunksFromCandidates >= 1 &&
+      intelligenceRetrievalSnapshot.chunksWithReportArtifact >= 1 &&
+      intelligenceRetrievalSnapshot.tierOneChunks >= 1 &&
+      intelligenceRetrievalSnapshot.latestLexicalProof.some(chunk =>
+        chunk.candidateKey &&
+        chunk.atomId &&
+        chunk.minTier <= 1
+      ),
+    'RETRIEVAL-001 promotes real candidates into atom-backed lexical chunks with tier guard',
+    `${intelligenceRetrievalSnapshot.totalChunks} chunks / candidate-backed=${intelligenceRetrievalSnapshot.chunksFromCandidates} / latest query=${intelligenceRetrievalSnapshot.latestLexicalProofQuery || 'missing'}`,
   )
   ensure(
     checks,
