@@ -640,6 +640,9 @@ async function main() {
         'FROM shared_communication_candidates c',
         'JOIN shared_communication_artifacts artifact',
         'NOT EXISTS (',
+        'FROM intelligence_retrieval_chunks chunk',
+        'chunk.candidate_key = c.candidate_key',
+        'chunk.atom_id IS NOT NULL',
         'upsertIntelligenceAtom',
         'recordIntelligenceAtomHit',
       ]) &&
@@ -658,13 +661,14 @@ async function main() {
       intelligenceRetrievalSnapshot.chunksFromCandidates >= 1 &&
       intelligenceRetrievalSnapshot.chunksWithReportArtifact >= 1 &&
       intelligenceRetrievalSnapshot.tierOneChunks >= 1 &&
+      intelligenceRetrievalSnapshot.activeCandidateAtomsMissingRetrievalChunks === 0 &&
       intelligenceRetrievalSnapshot.latestLexicalProof.some(chunk =>
         chunk.candidateKey &&
         chunk.atomId &&
         chunk.minTier <= 1
       ),
     'RETRIEVAL-001 promotes real candidates into atom-backed lexical chunks with tier guard',
-    `${intelligenceRetrievalSnapshot.totalChunks} chunks / candidate-backed=${intelligenceRetrievalSnapshot.chunksFromCandidates} / latest query=${intelligenceRetrievalSnapshot.latestLexicalProofQuery || 'missing'}`,
+    `${intelligenceRetrievalSnapshot.totalChunks} chunks / candidate-backed=${intelligenceRetrievalSnapshot.chunksFromCandidates} / missing chunks=${intelligenceRetrievalSnapshot.activeCandidateAtomsMissingRetrievalChunks} / latest query=${intelligenceRetrievalSnapshot.latestLexicalProofQuery || 'missing'}`,
   )
   ensure(
     checks,
