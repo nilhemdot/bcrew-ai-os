@@ -1,6 +1,6 @@
 # Intelligence Pipeline Operating Model
 
-Last updated: 2026-04-25
+Last updated: 2026-04-27
 Status: Foundation doctrine for extraction, synthesis, action routing, and future hub views
 
 This doc answers one question:
@@ -15,11 +15,13 @@ It should be a governed pipeline:
 
 1. source-specific ingestion routines
 2. source-specific extraction routines
-3. one source-backed memory spine
-4. one shared synthesis layer
-5. one governed action-routing layer
-6. consumer-specific hub views and approved packet outputs
-7. approved apply paths into backlog, decisions, ClickUp, CRM, or source systems
+3. one source-backed memory spine of atoms, chunks, facts, and governed report/brief artifacts
+4. department intelligence briefs/report artifacts generated from approved atoms and evidence
+5. one shared master synthesis layer that sees across department reports and source-backed facts
+6. hub Scopers that query atoms/retrieval directly before producing scoped work
+7. one governed action-routing layer
+8. consumer-specific hub views and approved packet outputs
+9. approved apply paths into backlog, decisions, ClickUp, CRM, or source systems
 
 Agents can use this pipeline.
 
@@ -51,6 +53,18 @@ Even when individual reports were useful, the system had no single governed laye
 - what should reach a human today
 
 The rebuild should keep the useful report patterns and remove the sprawl.
+
+The corrected carry-forward shape is:
+
+1. sources
+2. source-specific ingestion and extraction
+3. atoms and candidates with source evidence
+4. department intelligence briefs as governed report artifacts
+5. master synthesis across department reports, atoms, and operating facts
+6. hub Scopers that query the atom/retrieval layer directly
+7. action routing into decisions, tasks, questions, contradictions, snoozes, or owner-bound actions
+
+The anti-pattern is: Director summarizes research, Scoper reads only the Director summary, Writer or builder trusts the Scoper. That loses the hard evidence. Any future Scoper must query atoms/retrieval directly and cite the atom or evidence IDs it used.
 
 ## The New Model
 
@@ -133,10 +147,14 @@ The product is the closed operating loop:
 
 Synthesis is a function inside that loop, not a standalone digest.
 
+Department intelligence briefs are allowed as intermediate products, but only as governed artifacts that record their inputs, source coverage, missing/stale sections, and generated-by job run. They are not private agent memory and they are not a substitute for atom/retrieval access.
+
 Before broad video, Skool, YouTube, or old-system mining scales up, the memory spine needs to exist:
 
 - an intelligence job ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation
+- an old-system report-shape salvage gate so atom design inherits the useful Director/Scoper/Gold Library patterns before implementation
 - a source-backed atom schema for extracted observations, demonstrated workflows, claims, decisions, risks, corrections, content ideas, and action candidates
+- a governed report/brief artifact model for department intelligence and master synthesis outputs
 - chunk-level lexical search over archived artifacts using Postgres full-text and trigram search
 - pgvector semantic retrieval after lexical search is working
 - hybrid retrieval that returns source evidence, not fuzzy memory
@@ -177,7 +195,7 @@ This is the missing continuity layer between extraction and synthesis.
 
 Raw artifacts are too large.
 
-Reports are too coarse.
+Reports alone are too coarse.
 
 The system needs durable, reviewable units:
 
@@ -185,6 +203,7 @@ The system needs durable, reviewable units:
 - normalized chunks
 - extracted candidates
 - accepted/rejected/superseded atoms
+- generated report/brief artifacts with source links, input atom IDs, and stale/missing-source flags
 - source-backed operating facts
 - retrieval results with exact evidence links
 
@@ -199,6 +218,7 @@ Every extracted item must know:
 - confidence and sensitivity
 - content-use boundary
 - value route
+- generated report/brief link when it came from a department or master intelligence product
 - owner/action suggestion, if any
 - review state
 - supersession or expiry state
@@ -270,6 +290,8 @@ Examples:
 The old Directors of Intelligence are useful here as output inspiration.
 
 They should not come back as independent source-reading agents.
+
+Scopers are also consumer views, but with a harder rule: a Scoper may read Director or department briefs for narrative context, yet it must query atoms/retrieval directly before creating scoped work. This preserves the Session 217 Gold Library lesson: the evidence library has to reach the person deciding what gets built or written.
 
 ### 6.5 Hub Supply Chain
 

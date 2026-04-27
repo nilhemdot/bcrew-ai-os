@@ -182,9 +182,10 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Add Missive attachments, Drive Sheets/Slides/Office/shortcuts/vision-grade OCR, meeting-linked Drive/Zoom/Loom video priority, and richer multimodal/GOD-mode extraction as separate ledged slices.
    - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
    - Keep Skool/Loom/Mycro extraction governed by authorized access, use rights, cost/route ledgering, quotas, and stop controls.
-5. `INTEL-JOBS-001` / `INTEL-ATOM-001` / `RETRIEVAL-001` through `RETRIEVAL-003` — Build the memory/retrieval spine.
+5. `INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001` through `RETRIEVAL-003` — Build the memory/retrieval spine.
    - Add a run/cost/cursor ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation.
-   - Define the source-backed atom schema before scaling video/web/Skool extraction.
+   - Before atom schema implementation, salvage the useful old-system Director/Scoper/Gold Library/report shapes and reject the agent-sprawl patterns.
+   - Define the source-backed atom and governed report/brief artifact schema before scaling video/web/Skool extraction.
    - Add chunk-level lexical search first, then pgvector semantic retrieval, then hybrid evidence retrieval.
    - Keep Graphiti/Zep deferred until Postgres memory proves itself.
 6. `SOURCE-008` / `DATA-005` — Close FUB Level 2 taxonomy and Owners/FUB lineage.
@@ -589,7 +590,7 @@ Build:
 - web/video crawler boundary for YouTube, Loom, Vimeo, Wistia, public web, Mycro/myICOR-style paid training apps, and paid/community sources
 - video-link inventory lane: system discovers Loom/Drive/YouTube/Vimeo/Wistia/Zoom/Skool links from archives and authorized crawlers so Steve is not manually collecting URLs
 - video-content extraction lane: first YouTube subtitle transcript slice is live through DataForSEO and the shared video manifest, including manual Steve priority URLs such as the Mycro `The AI Team Setup Nobody Talks About` proof; richer visual review, no-subtitle videos, Loom, Drive videos, Zoom recordings, and Skool embeds stay under the multimodal contract
-- old-system report miner
+- old-system report miner (broad corpus mining stays here; the pre-atom report-shape salvage gate is `REPORT-MINING-001` in the memory spine)
 - value classifier for content/course/training/recruiting/strategy material
 - hub handoff queues for mined assets
 - source fingerprints and duplicate detection
@@ -641,6 +642,7 @@ Prerequisites:
 - router MVP classified
 - extraction current-day lane active
 - synthesis hardening producing ranked live intelligence
+- memory/retrieval spine complete enough for Strategy: `INTEL-JOBS-001`, accepted old-system report-shape salvage, `INTEL-ATOM-001`, lexical retrieval, and the direct Scoper-to-atom query rule
 - Action Router v1 producing governed decisions/tasks/questions/contradictions/ignore/snooze records with source back-links
 - strategy/Owners/FUB/finance/KPI trust boundaries clear enough for strategy use
 - subject-person privacy/redaction active for any sensitive people evidence used in the hub

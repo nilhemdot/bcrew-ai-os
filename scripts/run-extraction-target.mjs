@@ -9,6 +9,8 @@ import {
   getSharedCommunicationSourceStats,
   initFoundationDb,
   leaseSourceCrawlTarget,
+  listSourceCrawlItems,
+  upsertIntelligenceJobRun,
 } from '../lib/foundation-db.js'
 
 const OUTPUT_TAIL_LIMIT = 20000
@@ -273,6 +275,102 @@ function getNextRunAt(target, finishedAt) {
   return new Date(finishedMs + scheduleEveryMinutes * 60 * 1000).toISOString()
 }
 
+function normalizeIntelligenceLedgerStatus(status) {
+  if (status === 'running') return 'started'
+  if (status === 'partial') return 'failed'
+  if (['succeeded', 'failed', 'skipped'].includes(status)) return status
+  return 'failed'
+}
+
+function buildIntelligenceJobId(crawlRunId) {
+  return `intel-extraction:${crawlRunId}`
+}
+
+function buildRunnerCommand(runner) {
+  return [runner.command, ...runner.args]
+}
+
+async function getTargetOutputArtifactIds(targetKey, sourceId) {
+  const recentItems = await listSourceCrawlItems({
+    targetKey,
+    status: 'succeeded',
+    limit: 100,
+    order: 'desc',
+  })
+  return recentItems
+    .filter(item => item.sourceId === sourceId && item.artifactId)
+    .map(item => item.artifactId)
+    .slice(0, 20)
+}
+
+async function recordExtractionIntelligenceJob({
+  leasedTarget,
+  runner,
+  actor,
+  status,
+  startedAt = null,
+  finishedAt = null,
+  durationMs = null,
+  inspectedDelta = 0,
+  archivedDelta = 0,
+  extractedDelta = 0,
+  failureCount = 0,
+  outputArtifactIds = [],
+  nextRunAt = null,
+  resultSummary = {},
+  errorMessage = null,
+  cursorState = null,
+}) {
+  if (!leasedTarget?.crawlRunId) return null
+  return upsertIntelligenceJobRun(
+    {
+      jobId: buildIntelligenceJobId(leasedTarget.crawlRunId),
+      jobType: 'extraction_target',
+      sourceId: leasedTarget.sourceId,
+      sourceCrawlRunId: leasedTarget.crawlRunId,
+      status: normalizeIntelligenceLedgerStatus(status),
+      cursorState: cursorState || leasedTarget.cursorState || {},
+      budget: leasedTarget.budget || {},
+      model: null,
+      provider: null,
+      authPath: 'existing-source-connector',
+      routeKey: null,
+      costUsd: null,
+      itemCounts: {
+        inspected: Number(inspectedDelta || 0),
+        archived: Number(archivedDelta || 0),
+        extracted: Number(extractedDelta || 0),
+      },
+      failureCount: Number(failureCount || 0),
+      outputArtifactIds,
+      nextRunState: {
+        targetKey: leasedTarget.targetKey,
+        targetStatus: leasedTarget.status || null,
+        runtimeMode: leasedTarget.effectiveRuntimeMode || leasedTarget.runtimeMode || null,
+        nextRunAt,
+      },
+      resultSummary: {
+        targetTitle: leasedTarget.title || leasedTarget.targetKey,
+        command: buildRunnerCommand(runner),
+        ...resultSummary,
+      },
+      errorMessage,
+      provenance: {
+        caller: 'scripts/run-extraction-target.mjs',
+        backlogCardId: 'INTEL-JOBS-001',
+        sourceTable: 'source_crawl_target_runs',
+        parentRunId: leasedTarget.crawlRunId,
+        targetKey: leasedTarget.targetKey,
+        actor,
+      },
+      startedAt,
+      finishedAt,
+      durationMs,
+    },
+    actor,
+  )
+}
+
 async function runCommand(runner, { timeoutSeconds }) {
   const startedAt = new Date()
   let outputTail = ''
@@ -400,6 +498,19 @@ async function main() {
   const beforeStats = await getSharedCommunicationSourceStats(leasedTarget.sourceId)
   let afterStats = beforeStats
   let outcome = null
+  const ledgerStartedAt = new Date().toISOString()
+
+  await recordExtractionIntelligenceJob({
+    leasedTarget,
+    runner,
+    actor,
+    status: 'started',
+    startedAt: ledgerStartedAt,
+    nextRunAt: leasedTarget.nextRunAt || null,
+    resultSummary: {
+      runStatus: 'started',
+    },
+  })
 
   try {
     outcome = await runCommand(runner, { timeoutSeconds: maxRuntimeSeconds })
@@ -435,25 +546,27 @@ async function main() {
         : null
     const extractedDelta = Number.isFinite(Number(extractedParsed)) ? Number(extractedParsed) : 0
     const inspectedDelta = inspectedParsed == null ? archivedDelta : inspectedParsed
+    const nextRunAt = getNextRunAt(leasedTarget, outcome.finishedAt)
+    const cursorState = {
+      artifactCount: afterStats.artifacts,
+      latestArtifactUpdatedAt: afterStats.latestArtifactUpdatedAt,
+      latestIngestedAt: afterStats.latestIngestedAt,
+      lastRunnerAt: outcome.finishedAt,
+      ...(runnerSummary?.cursorState || {}),
+    }
 
     await finishSourceCrawlTargetRun(
       targetKey,
       {
         runId: leasedTarget.crawlRunId,
         lastRunAt: outcome.finishedAt,
-        nextRunAt: getNextRunAt(leasedTarget, outcome.finishedAt),
+        nextRunAt,
         lastStatus: effectiveStatus,
         lastError: effectiveError,
         inspectedDelta,
         archivedDelta,
         extractedDelta,
-        cursorState: {
-          artifactCount: afterStats.artifacts,
-          latestArtifactUpdatedAt: afterStats.latestArtifactUpdatedAt,
-          latestIngestedAt: afterStats.latestIngestedAt,
-          lastRunnerAt: outcome.finishedAt,
-          ...(runnerSummary?.cursorState || {}),
-        },
+        cursorState,
         metadata: {
           command: [runner.command, ...runner.args],
           durationMs: outcome.durationMs,
@@ -464,7 +577,7 @@ async function main() {
             archivedThisRun: archivedParsed,
             extractedThisRun: extractedParsed,
             itemFailures: itemFailuresParsed,
-            nextRunAt: getNextRunAt(leasedTarget, outcome.finishedAt),
+            nextRunAt,
           },
           runnerSummary: runnerSummary || null,
           ...(runnerSummary?.metadata || {}),
@@ -475,6 +588,37 @@ async function main() {
       },
       actor,
     )
+
+    const outputArtifactIds = await getTargetOutputArtifactIds(targetKey, leasedTarget.sourceId)
+    await recordExtractionIntelligenceJob({
+      leasedTarget,
+      runner,
+      actor,
+      status: effectiveStatus,
+      startedAt: outcome.startedAt || ledgerStartedAt,
+      finishedAt: outcome.finishedAt,
+      durationMs: outcome.durationMs,
+      inspectedDelta,
+      archivedDelta,
+      extractedDelta,
+      failureCount: Number(itemFailuresParsed || 0) || (effectiveStatus === 'failed' ? 1 : 0),
+      outputArtifactIds,
+      nextRunAt,
+      cursorState,
+      errorMessage: effectiveError,
+      resultSummary: {
+        runStatus: effectiveStatus,
+        exitCode: outcome.exitCode,
+        signal: outcome.signal,
+        runnerSummary: runnerSummary || null,
+        parsed: {
+          inspected: inspectedParsed,
+          archivedThisRun: archivedParsed,
+          extractedThisRun: extractedParsed,
+          itemFailures: itemFailuresParsed,
+        },
+      },
+    })
 
     console.log(`Extraction target ${effectiveStatus}: ${targetKey}`)
     console.log(`  Inspected: ${inspectedDelta}`)
@@ -489,22 +633,25 @@ async function main() {
     const message = error instanceof Error ? error.message : String(error)
     try {
       afterStats = await getSharedCommunicationSourceStats(leasedTarget.sourceId)
+      const archivedDelta = Math.max(Number(afterStats.artifacts || 0) - Number(beforeStats.artifacts || 0), 0)
+      const nextRunAt = getNextRunAt(leasedTarget, finishedAt)
+      const cursorState = {
+        artifactCount: afterStats.artifacts,
+        latestArtifactUpdatedAt: afterStats.latestArtifactUpdatedAt,
+        latestIngestedAt: afterStats.latestIngestedAt,
+        lastRunnerAt: finishedAt,
+      }
       await finishSourceCrawlTargetRun(
         targetKey,
         {
           runId: leasedTarget.crawlRunId,
           lastRunAt: finishedAt,
-          nextRunAt: getNextRunAt(leasedTarget, finishedAt),
+          nextRunAt,
           lastStatus: 'failed',
           lastError: message,
           inspectedDelta: 0,
-          archivedDelta: Math.max(Number(afterStats.artifacts || 0) - Number(beforeStats.artifacts || 0), 0),
-          cursorState: {
-            artifactCount: afterStats.artifacts,
-            latestArtifactUpdatedAt: afterStats.latestArtifactUpdatedAt,
-            latestIngestedAt: afterStats.latestIngestedAt,
-            lastRunnerAt: finishedAt,
-          },
+          archivedDelta,
+          cursorState,
           metadata: {
             command: [runner.command, ...runner.args],
             failedBeforeOutcome: !outcome,
@@ -515,6 +662,27 @@ async function main() {
         },
         actor,
       )
+      await recordExtractionIntelligenceJob({
+        leasedTarget,
+        runner,
+        actor,
+        status: 'failed',
+        startedAt: outcome?.startedAt || ledgerStartedAt,
+        finishedAt,
+        durationMs: outcome?.durationMs || Math.max(0, Date.parse(finishedAt) - Date.parse(ledgerStartedAt)),
+        inspectedDelta: 0,
+        archivedDelta,
+        extractedDelta: 0,
+        failureCount: 1,
+        outputArtifactIds: await getTargetOutputArtifactIds(targetKey, leasedTarget.sourceId),
+        nextRunAt,
+        cursorState,
+        errorMessage: message,
+        resultSummary: {
+          runStatus: 'failed',
+          failedBeforeOutcome: !outcome,
+        },
+      })
     } catch (finishError) {
       console.error('Failed to record extraction target failure.')
       console.error(finishError instanceof Error ? finishError.message : String(finishError))

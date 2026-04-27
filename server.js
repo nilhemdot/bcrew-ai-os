@@ -2587,7 +2587,6 @@ async function getStrategyAdvisorContext(question = '', { mode = 'fast' } = {}) 
       items: (synthesis.latestItems || []).map(compactStrategyPacketItem),
       strategicIssues: (packetJson.strategic_issues || []).map(compactStrategyPacketItem).slice(0, 12),
       decisionCandidates: (packetJson.decisionCandidates || packetJson.decision_candidates || []).slice(0, 8),
-      recommended90DayPriorities: (packetJson.recommended90DayPriorities || packetJson.recommended_90_day_priorities || []).slice(0, 8),
       openQuestions: (packetJson.open_questions || packetJson.openQuestions || []).slice(0, 10),
       sourceCoverage: (packetJson.source_coverage || packetJson.sourceCoverage || []).slice(0, 12),
     },
@@ -4056,112 +4055,13 @@ app.get('/api/strategic-execution/operating-truth', requireAdminToken, async (re
 })
 
 app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res) => {
-  try {
-    const payload =
-      req.body && typeof req.body === 'object' && !Array.isArray(req.body)
-        ? req.body
-        : {}
-    const question = typeof payload.question === 'string' ? payload.question.trim() : ''
-    const mode = payload.mode === 'deep' ? 'deep' : 'fast'
-    const startedAt = Date.now()
-
-    if (!question) {
-      sendApiError(res, 400, 'strategy_advisor_question_required', 'Ask a strategy question.')
-      return
-    }
-
-    if (question.length > 2400) {
-      sendApiError(res, 400, 'strategy_advisor_question_too_long', 'Keep strategy questions under 2400 characters.')
-      return
-    }
-
-    const modeProfile = getStrategyAdvisorModeProfile(mode)
-    const context = await getStrategyAdvisorContext(question, { mode })
-    const contextText = truncateForPrompt(JSON.stringify(context, null, 2), modeProfile.contextCharLimit)
-    const modeInstruction = mode === 'deep'
-      ? 'Deep mode: use the smartest available subscription route and do an xhigh-style read across the wider context. Include the evidence trail, caveats, and decision-quality next moves. Stay practical, but do the harder cross-source synthesis.'
-      : 'Fast mode: answer for a live strategy conversation. Use the compact context, be concise, prioritize the direct read, strongest source evidence, biggest caveat, and next move. Do not write a long memo.'
-    const result = await callLlm({
-      workload: 'synthesis',
-      hubKey: 'foundation',
-      dryRun: false,
-      maxOutputTokens: modeProfile.maxOutputTokens,
-      metadata: {
-        feature: 'strategy_advisor_v1',
-        mode,
-        strategyModeIntent: modeProfile.intent,
-        requestedReasoningEffort: modeProfile.requestedReasoningEffort,
-        contextCharLimit: modeProfile.contextCharLimit,
-        timeoutMs: modeProfile.timeoutMs,
-        questionLength: question.length,
-        latestPacketRunId: context.latestPacket.run?.runId || null,
-      },
-      messages: [
-        {
-          role: 'system',
-          content: [
-            'You are the BCrew Strategy Advisor inside the Strategic Execution Hub.',
-            'Answer from the supplied source-backed context only. Do not pretend to have read sources outside the context.',
-            'When you infer, label it as inference. When evidence is missing, name the exact missing source or proof.',
-            'Map recommendations to Attract, Grow, Retain, Finance/Cash, Department Accountability, or Foundation Reliability when useful.',
-            'Be direct and operator-grade. Prefer concrete decisions, questions, owners, metrics, and next moves over general advice.',
-            'If Steve asks which department is stuck, separate source-backed evidence from your judgment.',
-            'If Steve asks who said what, use directArtifactSearch excerpts first and cite the artifact title/source. Do not rely only on packet summaries.',
-            'Before recommending a strategic gap, check currentOperatingTruth. Shared-comms candidates and meeting quotes can raise a concern, but live Owners, Finance, FUB, KPI, BHAG, and Agent Engine source truth decides whether the problem is current, already handled, or only a health/freshness/proof gap.',
-            'If Steve asks about goals, $2B, 10,000 agents, BHAG, behind/ahead, agent attraction, recruiting pace, or active-agent capacity, use currentGoalTruth first. Do not say the 10,000-agent community path is behind when currentGoalTruth says Ahead; do not confuse that community path with Agent Engine active productive agent capacity.',
-            'Keep the answer tight enough to use in a strategy meeting.',
-            `Mode profile: ${modeProfile.intent}; requested reasoning effort: ${modeProfile.requestedReasoningEffort}; ${modeProfile.intelligence}.`,
-            modeInstruction,
-          ].join(' '),
-        },
-        {
-          role: 'user',
-          content: [
-            'SOURCE-BACKED STRATEGY CONTEXT:',
-            contextText,
-            '',
-            'STEVE QUESTION:',
-            question,
-            '',
-            'Return a practical answer with these sections when relevant:',
-            '- Direct read',
-            '- Attract / Grow / Retain impact',
-            '- Evidence used',
-            '- Missing data or caveats',
-            '- Recommended next move',
-          ].join('\n'),
-        },
-      ],
-    })
-
-    cacheHeadersNoStore(res)
-    res.json({
-      answer: result.outputText || '',
-      generatedAt: new Date().toISOString(),
-      provider: result.provider,
-      authPath: result.authPath,
-      routeKey: result.routeKey,
-      model: result.model,
-      mode,
-      modeProfile: {
-        intent: modeProfile.intent,
-        requestedReasoningEffort: modeProfile.requestedReasoningEffort,
-        contextCharLimit: modeProfile.contextCharLimit,
-        timeoutMs: modeProfile.timeoutMs,
-      },
-      latencyMs: Date.now() - startedAt,
-      llmCallId: result.call?.callId || null,
-      latestPacketRunId: context.latestPacket.run?.runId || null,
-      latestPacketGeneratedAt: context.latestPacket.run?.generatedAt || null,
-    })
-  } catch (error) {
-    sendApiError(
-      res,
-      500,
-      'strategy_advisor_failed',
-      error instanceof Error ? error.message : 'Strategy advisor failed.'
-    )
-  }
+  cacheHeadersNoStore(res)
+  sendApiError(
+    res,
+    423,
+    'strategy_hub_v2_in_progress',
+    'Strategy Advisor is offline while Strategy Hub v2 rebuilds deterministic source snapshots, memory/retrieval, synthesis facts, and action routing.'
+  )
 })
 
 app.post('/api/shared-communications/candidates/:candidateKey/apply-to-backlog', requireAdminToken, async (req, res) => {

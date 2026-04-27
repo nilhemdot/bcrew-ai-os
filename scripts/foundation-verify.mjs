@@ -11,6 +11,7 @@ import {
   closeFoundationDb,
   getBacklogSeedDriftSnapshot,
   getFoundationDbConstraintAudit,
+  getIntelligenceJobLedgerSnapshot,
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleLlmCalls,
   getStrategyGoalTruthSnapshot,
@@ -148,6 +149,7 @@ async function main() {
   const strategyPreworkCoverageSnapshot = await getStrategyPreworkCoverageSnapshot()
   const strategyGoalTruthSnapshot = await getStrategyGoalTruthSnapshot()
   const strategyOperatingTruthSnapshot = await getStrategyOperatingTruthSnapshot()
+  const intelligenceJobLedgerSnapshot = await getIntelligenceJobLedgerSnapshot({ limit: 20 })
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
@@ -194,6 +196,7 @@ async function main() {
   const docsIndexSource = await readRepoFile('docs/INDEX.md')
   const docsReadmeSource = await readRepoFile('docs/README.md')
   const currentPlan = await readRepoFile('docs/rebuild/current-plan.md')
+  const intelligencePipelineSource = await readRepoFile('docs/rebuild/intelligence-pipeline.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const systemStrategy = await readRepoFile('docs/system-strategy.md')
   const packageSource = await readRepoFile('package.json')
@@ -231,10 +234,19 @@ async function main() {
   const driveContentExtractionSource = await readRepoFile('scripts/extract-drive-content.mjs')
   const driveLinkInventorySource = await readRepoFile('scripts/inventory-drive-linked-files.mjs')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
+  const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
   const directModelHostOffenders = await auditDirectModelHostUsage()
+  const governedExtractionLedgerRuns = intelligenceJobLedgerSnapshot.recentRuns.filter(run =>
+    run.provenance?.caller === 'scripts/run-extraction-target.mjs' &&
+    run.sourceCrawlRunId &&
+    run.sourceId &&
+    run.nextRunState?.targetKey &&
+    run.itemCounts &&
+    Object.prototype.hasOwnProperty.call(run.itemCounts, 'inspected')
+  )
 
   ensure(
     checks,
@@ -450,6 +462,74 @@ async function main() {
   )
   ensure(
     checks,
+    includesAll(foundationDbSource, [
+      'CREATE TABLE IF NOT EXISTS intelligence_job_runs',
+      'CREATE TABLE IF NOT EXISTS intelligence_job_llm_calls',
+      'source_id TEXT',
+      'cursor_state JSONB',
+      'budget JSONB',
+      'model TEXT',
+      'provider TEXT',
+      'auth_path TEXT',
+      'cost_usd NUMERIC',
+      'item_counts JSONB',
+      'failure_count INTEGER',
+      'output_artifact_ids TEXT[]',
+      'next_run_state JSONB',
+      'upsertIntelligenceJobRun',
+      'getIntelligenceJobLedgerSnapshot',
+      ]) &&
+      includesAll(extractionTargetSource, [
+        'upsertIntelligenceJobRun',
+        'recordExtractionIntelligenceJob',
+        'scripts/run-extraction-target.mjs',
+        'intel-extraction:',
+        'source_crawl_target_runs',
+      ]) &&
+      packageSource.includes('"intelligence:jobs-proof"') &&
+      includesAll(intelligenceJobProofSource, [
+        'INTEL-JOBS-001',
+        'source_crawl_target_runs',
+        'upsertIntelligenceJobRun',
+        'getIntelligenceJobLedgerSnapshot',
+      ]) &&
+      intelligenceJobLedgerSnapshot.totalRuns >= 1 &&
+      governedExtractionLedgerRuns.length >= 1 &&
+      intelligenceJobLedgerSnapshot.recentRuns.some(run =>
+        run.provenance?.backlogCardId === 'INTEL-JOBS-001' &&
+        run.sourceCrawlRunId &&
+        run.itemCounts &&
+        Object.prototype.hasOwnProperty.call(run.itemCounts, 'inspected')
+      ),
+    'INTEL-JOBS-001 intelligence job ledger is schema-backed and wired into governed extraction',
+    `${intelligenceJobLedgerSnapshot.totalRuns} ledger rows / governed extraction writers=${governedExtractionLedgerRuns.length} / latest=${intelligenceJobLedgerSnapshot.recentRuns[0]?.jobId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, [
+      "id: 'REPORT-MINING-001'",
+      "priority: 'P0'",
+      'Blocks atom schema implementation until the old Director/Scoper/Gold Library/report-shape salvage spec is accepted',
+      "id: 'INTEL-ATOM-001'",
+      'Blocked until REPORT-MINING-001 produces the old-system intelligence salvage spec',
+      'direct scoper query fields',
+    ]) &&
+      includesAll(currentPlan, [
+        '`INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001`',
+        'source-backed atom and governed report/brief artifact schema',
+        'old-system report-shape salvage',
+      ]) &&
+      includesAll(intelligencePipelineSource, [
+        'department intelligence briefs as governed report artifacts',
+        'hub Scopers that query atoms/retrieval directly',
+        'The anti-pattern is: Director summarizes research',
+        'old-system report-shape salvage gate',
+      ]),
+    'REPORT-MINING-001 gates INTEL-ATOM-001 before atom implementation',
+    'old Director/Scoper/Gold Library salvage is a P0 prerequisite, not a chat-only reminder',
+  )
+  ensure(
+    checks,
     includesAll(foundationDbSource, ['markStaleFoundationJobRuns', 'Marked failed by stale active-run reaper', 'markStaleLlmCalls', 'Marked failed by stale LLM call reaper']) &&
       includesAll(foundationWorkerSource, ['markStaleFoundationJobRuns', 'markStaleLlmCalls', 'job ' + '${job.key}' + ' failed before completion', 'Foundation worker pass failed']),
     'Foundation worker catches job failures and reaps stale active runs/calls',
@@ -457,13 +537,13 @@ async function main() {
   )
   ensure(
     checks,
-    [foundationUiSource, strategicExecutionUiSource, docUiSource].every(source =>
+    [foundationUiSource, docUiSource].every(source =>
       source.includes('isSafeDirectHref') &&
       source.includes("return isSafeDirectHref(href) ? href.trim() : '#'") &&
       source.includes("rel = 'noopener noreferrer'")
     ),
     'markdown-rendered links sanitize unsafe schemes',
-    'Foundation, Strategic Execution, and doc views disable unsafe href schemes and isolate external links',
+    'Foundation and doc views disable unsafe href schemes and isolate external links; Strategy Hub v2 stub does not render markdown',
   )
   ensure(
     checks,
@@ -919,14 +999,17 @@ async function main() {
         'Strategy Evidence Packet V1',
       ]) &&
       serverSource.includes('packetType = req.query.packetType') &&
+      strategyEvidencePacketSource.includes('priorityRecommendationFeedDisabled: true') &&
+      !strategyEvidencePacketSource.includes('recommended_90_day_priorities: {') &&
+      !strategyEvidencePacketSource.includes("packetSection: 'recommended_90_day_priorities'") &&
+      !strategyEvidencePacketSource.includes("itemType: 'action_item'") &&
       includesAll(strategicExecutionUiSource, [
-        'fetchStrategyEvidencePacket',
-        'strategy_evidence_packet_v1',
-        'renderStrategyPacketCard',
-        'Evidence Packet',
+        'Strategy Hub v2 in progress',
+        'source-to-gap manifest',
+        'Live advisor-style synthesis on the Strategy Hub page',
       ]),
-    'Strategy Evidence Packet v1 is wired from script to job to Strategic Execution',
-    'strategy:evidence-packet persists packetType=strategy_evidence_packet_v1 and Strategic Execution renders the latest packet',
+    'Strategy Evidence Packet v1 remains debug/history while active priority generation is disabled',
+    'strategy:evidence-packet persists packetType=strategy_evidence_packet_v1, but no longer generates active 90-day priority action items',
   )
   ensure(
     checks,
@@ -939,17 +1022,10 @@ async function main() {
       strategyGoalApiGroups.get('community_agents')?.status === 'ahead' &&
       serverSource.includes("app.get('/api/strategic-execution/goal-truth'") &&
       serverSource.includes('currentGoalTruth') &&
-      serverSource.includes('Do not say the 10,000-agent community path is behind') &&
       foundationDbSource.includes('getStrategyGoalTruthSnapshot') &&
       foundationDbSource.includes('Team Goal: $2B') &&
       foundationDbSource.includes('Community Goal: 10,000 Agents') &&
-      foundationDbSource.includes('Agent Engine Capacity') &&
-      includesAll(strategicExecutionUiSource, [
-        'fetchStrategyGoalTruth',
-        'renderStrategyGoalTruthCard',
-        'Live Goal Truth',
-        '/api/strategic-execution/goal-truth',
-      ]),
+      foundationDbSource.includes('Agent Engine Capacity'),
     'Strategy goal truth guardrails distinguish live BHAG and Agent Engine pace',
     [
       `team=${strategyGoalGroups.get('team_volume')?.statusLabel || 'missing'}`,
@@ -965,52 +1041,25 @@ async function main() {
       strategyOperatingTruthSnapshot.rule?.includes('Shared-comms candidates are leads/evidence, not final operating truth') &&
       serverSource.includes("app.get('/api/strategic-execution/operating-truth'") &&
       serverSource.includes('currentOperatingTruth') &&
-      serverSource.includes('Before recommending a strategic gap, check currentOperatingTruth') &&
       foundationDbSource.includes('getStrategyOperatingTruthSnapshot') &&
-      foundationDbSource.includes('Do not recommend "install weekly finance truth" as if the source does not exist') &&
-      includesAll(strategicExecutionUiSource, [
-        'fetchStrategyOperatingTruth',
-        'renderStrategyOperatingTruthCard',
-        'Live Operating Truth',
-        '/api/strategic-execution/operating-truth',
-      ]),
+      foundationDbSource.includes('Do not recommend "install weekly finance truth" as if the source does not exist'),
     'Strategy operating truth guardrails force live Owners/Finance/FUB/KPI checks before recommendations',
     `sources=${Array.from(strategyOperatingSourceIds).join(', ')}`,
   )
   ensure(
     checks,
       serverSource.includes("app.post('/api/strategic-execution/advisor'") &&
-      serverSource.includes('strategy_advisor_v1') &&
-      serverSource.includes("payload.mode === 'deep'") &&
-      serverSource.includes('strategyAdvisorModeProfiles') &&
-      serverSource.includes("requestedReasoningEffort: 'xhigh'") &&
-      serverSource.includes("requestedReasoningEffort: 'low'") &&
-      serverSource.includes('contextCharLimit') &&
-      serverSource.includes('smartest available subscription route') &&
-      serverSource.includes('latencyMs: Date.now() - startedAt') &&
-      serverSource.includes('directArtifactSearch') &&
-      foundationDbSource.includes('searchSharedCommunicationArtifactsForContext') &&
-      serverSource.includes('2026-04-26-scott-pre-strat-visual-review.md') &&
-      serverSource.includes('callLlm') &&
-      foundationDbSource.includes('STRATEGY-007') &&
-      foundationDbSource.includes('fast/deep modes') &&
-      includesAll(strategicExecutionUiSource, [
-        'Strategy Advisor',
-        'renderStrategyAdvisorWorkspace',
-        'STRATEGY_ADVISOR_MESSAGES_KEY',
-        'strategy-advisor-workspace',
-        'strategy-mode-toggle',
-        'Deep / XHigh',
-        'Fast for live strategy conversation',
-        'Strategy Review Board',
-        'Attract',
-        'Grow',
-        'Retain',
-        '/api/strategic-execution/advisor',
-        'Proof gap:',
-      ]),
-    'Strategy Hub advisor and review board are wired',
-    'Strategic Execution can ask the routed LLM, include Scott visual pre-strat context, and review packet items by Attract / Grow / Retain',
+      serverSource.includes('strategy_hub_v2_in_progress') &&
+      serverSource.includes('Strategy Advisor is offline while Strategy Hub v2 rebuilds deterministic source snapshots') &&
+      strategicExecutionUiSource.includes('Unsafe recommendation surface is offline') &&
+      strategicExecutionUiSource.includes('Strategy Hub v2 in progress') &&
+      !strategicExecutionUiSource.includes('/api/strategic-execution/advisor') &&
+      !strategicExecutionUiSource.includes('renderStrategyAdvisorWorkspace') &&
+      !strategicExecutionUiSource.includes('renderRecommendedPriorities') &&
+      !strategicExecutionUiSource.includes('AI-Suggested 90-Day Priorities') &&
+      !serverSource.includes('recommended90DayPriorities:'),
+    'Strategy Hub v2 safety stub disables active AI advisor and priority feed',
+    'active page is a rebuild stub, advisor endpoint returns strategy_hub_v2_in_progress, and old priority display cannot render',
   )
   ensure(
     checks,
@@ -1024,15 +1073,9 @@ async function main() {
       serverSource.includes('preworkReadCoverage') &&
       foundationDbSource.includes('getStrategyPreworkCoverageSnapshot') &&
       foundationDbSource.includes('strategyPreworkExpectedParticipants') &&
-      foundationDbSource.includes('pdfFormFieldsUsed') &&
-      includesAll(strategicExecutionUiSource, [
-        'fetchStrategyPreworkCoverage',
-        'renderStrategyPreworkCoverage',
-        'Pre-Strat Read Coverage',
-        '/api/strategic-execution/prework-coverage',
-      ]),
-    'Strategy pre-work read coverage is visible and source-backed',
-    `${strategyPreworkCoverageSnapshot.summary?.readCount || 0}/${strategyPreworkCoverageSnapshot.summary?.expectedCount || 0} expected notes read; missing rows remain explicit instead of hidden`,
+      foundationDbSource.includes('pdfFormFieldsUsed'),
+    'Strategy pre-work read coverage API remains source-backed while Strategy Hub v2 page is stubbed',
+    `${strategyPreworkCoverageSnapshot.summary?.readCount || 0}/${strategyPreworkCoverageSnapshot.summary?.expectedCount || 0} expected notes read; API keeps missing rows explicit while active UI is offline`,
   )
   ensure(
     checks,

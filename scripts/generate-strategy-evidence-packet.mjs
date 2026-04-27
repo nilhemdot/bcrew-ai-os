@@ -227,44 +227,6 @@ const OUTPUT_SCHEMA = {
         additionalProperties: false,
       },
     },
-    recommended_90_day_priorities: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          rank: { type: 'integer' },
-          priority: { type: 'string' },
-          expected_outcome: { type: 'string' },
-          leading_metrics: { type: 'array', items: { type: 'string' } },
-          owner_hint: { type: 'string' },
-          why_this_matters: { type: 'string' },
-          evidence_summary: { type: 'string' },
-          source_ids: { type: 'array', items: { type: 'string' } },
-          candidate_keys: { type: 'array', items: { type: 'string' } },
-          artifact_ids: { type: 'array', items: { type: 'string' } },
-          confidence: { type: 'number', minimum: 0, maximum: 1 },
-          sensitivity: {
-            type: 'string',
-            enum: ['neutral', 'positive', 'performance_concern', 'termination_risk', 'comp_discussion', 'undisclosed_feedback'],
-          },
-        },
-        required: [
-          'rank',
-          'priority',
-          'expected_outcome',
-          'leading_metrics',
-          'owner_hint',
-          'why_this_matters',
-          'evidence_summary',
-          'source_ids',
-          'candidate_keys',
-          'artifact_ids',
-          'confidence',
-          'sensitivity',
-        ],
-        additionalProperties: false,
-      },
-    },
     open_questions: {
       type: 'array',
       items: {
@@ -299,7 +261,6 @@ const OUTPUT_SCHEMA = {
     'source_coverage',
     'strategic_issues',
     'decision_candidates',
-    'recommended_90_day_priorities',
     'open_questions',
     'suppressed_or_deferred',
   ],
@@ -909,7 +870,7 @@ function sanitizePacket(packet, allowedSourceIds) {
     source_coverage: Array.isArray(packet.source_coverage) ? packet.source_coverage : [],
     strategic_issues: Array.isArray(packet.strategic_issues) ? packet.strategic_issues : [],
     decision_candidates: Array.isArray(packet.decision_candidates) ? packet.decision_candidates : [],
-    recommended_90_day_priorities: Array.isArray(packet.recommended_90_day_priorities) ? packet.recommended_90_day_priorities : [],
+    recommended_90_day_priorities: [],
     open_questions: Array.isArray(packet.open_questions) ? packet.open_questions : [],
     suppressed_or_deferred: Array.isArray(packet.suppressed_or_deferred) ? packet.suppressed_or_deferred : [],
   };
@@ -938,17 +899,6 @@ function sanitizePacket(packet, allowedSourceIds) {
     ...item,
     rank: Number(item.rank || index + 1),
     options: normalizeArray(item.options),
-    source_ids: normalizeSourceIds(item.source_ids, allowedSourceIds),
-    candidate_keys: normalizeArray(item.candidate_keys),
-    artifact_ids: normalizeArray(item.artifact_ids),
-    confidence: normalizeConfidence(item.confidence),
-    sensitivity: normalizeSensitivity(item.sensitivity),
-  }));
-
-  safe.recommended_90_day_priorities = safe.recommended_90_day_priorities.map((item, index) => ({
-    ...item,
-    rank: Number(item.rank || index + 1),
-    leading_metrics: normalizeArray(item.leading_metrics),
     source_ids: normalizeSourceIds(item.source_ids, allowedSourceIds),
     candidate_keys: normalizeArray(item.candidate_keys),
     artifact_ids: normalizeArray(item.artifact_ids),
@@ -1019,31 +969,6 @@ function toSynthesizedItems(packet, runId) {
     });
   }
 
-  for (const item of packet.recommended_90_day_priorities || []) {
-    items.push({
-      synthesisItemId: `${runId}:priority:${String(items.length + 1).padStart(2, '0')}`,
-      rank: items.length + 1,
-      itemType: 'action_item',
-      status: 'needs_owner',
-      title: item.priority,
-      oneLine: item.expected_outcome,
-      whyItMatters: item.why_this_matters,
-      recommendedNextAction: item.expected_outcome,
-      suggestedOwner: item.owner_hint,
-      sourceCount: item.source_ids?.length || 0,
-      candidateKeys: item.candidate_keys || [],
-      sourceIds: item.source_ids || [],
-      evidenceSummary: item.evidence_summary,
-      confidence: item.confidence,
-      sensitivity: item.sensitivity,
-      metadata: {
-        packetSection: 'recommended_90_day_priorities',
-        artifactIds: item.artifact_ids || [],
-        leadingMetrics: item.leading_metrics || [],
-      },
-    });
-  }
-
   return items.filter(item => VALID_ITEM_TYPES.has(item.itemType));
 }
 
@@ -1107,22 +1032,6 @@ function renderMarkdown(packet, { generatedAt, model, inputSummary, llm }) {
     lines.push(`- Options: ${renderListItemArray(item.options)}`);
     lines.push(`- Sources: ${renderListItemArray(item.source_ids)}`);
     lines.push(`- Evidence: ${item.evidence_summary}`);
-    lines.push('');
-  }
-
-  lines.push('## Recommended 90-Day Priorities');
-  lines.push('');
-  for (const item of packet.recommended_90_day_priorities || []) {
-    lines.push(`### ${item.rank}. ${item.priority}`);
-    lines.push('');
-    lines.push(`- Expected outcome: ${item.expected_outcome}`);
-    lines.push(`- Owner hint: ${item.owner_hint || 'unassigned'}`);
-    lines.push(`- Leading metrics: ${renderListItemArray(item.leading_metrics)}`);
-    lines.push(`- Sources: ${renderListItemArray(item.source_ids)}`);
-    lines.push('');
-    lines.push(`Why this matters: ${item.why_this_matters}`);
-    lines.push('');
-    lines.push(`Evidence: ${item.evidence_summary}`);
     lines.push('');
   }
 
@@ -1285,7 +1194,8 @@ async function main() {
           script: 'scripts/generate-strategy-evidence-packet.mjs',
           executiveSummary: packet.executive_summary || '',
           strategyReadiness: packet.strategy_readiness || {},
-          recommended90DayPriorities: packet.recommended_90_day_priorities || [],
+          priorityRecommendationFeedDisabled: true,
+          priorityRecommendationFeedDisabledAt: '2026-04-27',
           decisionCandidates: packet.decision_candidates || [],
           packetJson: packet,
           requestedModel: llm.requestedModel || model,
