@@ -636,7 +636,7 @@ async function main() {
       "id: 'RETRIEVAL-001'",
       'Done v1 on 2026-04-27',
       "id: 'RETRIEVAL-002'",
-      'RETRIEVAL-003 hybrid retrieval',
+      'SYNTHESIS-ENGINE-001',
     ]) &&
       includesAll(intelligenceRetrievalSource, [
         'CREATE TABLE IF NOT EXISTS intelligence_retrieval_runs',
@@ -779,6 +779,8 @@ async function main() {
       includesAll(intelligenceSynthesisFactsSource, [
         'CREATE TABLE IF NOT EXISTS intelligence_synthesis_fact_runs',
         'CREATE TABLE IF NOT EXISTS intelligence_synthesis_facts',
+        'natural_key TEXT',
+        'idx_intelligence_synthesis_facts_active_natural_key',
         'source_contract',
         'goal_truth',
         'operating_truth',
@@ -793,6 +795,8 @@ async function main() {
         'buildHybridEvidenceFacts',
         'synthesis fact queries require maxTier >= 1',
         'assertRegisteredSourceIds',
+        'stale_after_synthesis_fact_refresh',
+        'source_ids &&',
       ]) &&
       packageSource.includes('"intelligence:synthesis-facts-proof"') &&
       includesAll(intelligenceSynthesisFactsProofSource, [
@@ -809,15 +813,20 @@ async function main() {
         'SRC-FREEDOM-BHAG-001',
         'SRC-MEETINGS-001',
         'SYNTHESIS-ENGINE-001',
+        'querySynthesisFacts',
+        'sourceOverlapProof',
       ]) &&
       synthesisFactsSnapshot.latestFactRun?.runType === 'source_fact_proof' &&
       synthesisFactsSnapshot.totalActiveFacts >= 20 &&
       synthesisFactsSnapshot.factsWithEvidence >= 1 &&
       synthesisFactsSnapshot.distinctSources >= 7 &&
+      synthesisFactsSnapshot.activeFactsWithoutNaturalKey === 0 &&
+      synthesisFactsSnapshot.duplicateActiveNaturalKeys === 0 &&
+      synthesisFactsSnapshot.secondarySourceFacts >= 1 &&
       ['source_contract', 'goal_truth', 'operating_truth', 'kpi_truth', 'source_snapshot', 'source_health', 'retrieved_evidence'].every(type => synthesisFactTypes.has(type)) &&
       ['SRC-STRATEGY-001', 'SRC-FINANCE-001', 'SRC-OWNERS-001', 'SRC-FUB-001', 'SRC-SUPABASE-001', 'SRC-FREEDOM-BHAG-001', 'SRC-MEETINGS-001'].every(sourceId => synthesisFactSources.has(sourceId)),
     'SYNTHESIS-FACTS-001 persists source-backed facts and hybrid evidence for governed synthesis',
-    `${synthesisFactsSnapshot.totalActiveFacts} facts / ${synthesisFactsSnapshot.distinctSources} sources / evidence-backed=${synthesisFactsSnapshot.factsWithEvidence}`,
+    `${synthesisFactsSnapshot.totalActiveFacts} facts / ${synthesisFactsSnapshot.distinctSources} sources / evidence-backed=${synthesisFactsSnapshot.factsWithEvidence} / duplicate-natural-keys=${synthesisFactsSnapshot.duplicateActiveNaturalKeys}`,
   )
   ensure(
     checks,

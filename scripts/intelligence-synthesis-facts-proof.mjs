@@ -6,6 +6,7 @@ import {
   getIntelligenceRetrievalSnapshot,
   getSynthesisFactsSnapshot,
   initFoundationDb,
+  querySynthesisFacts,
   updateBacklogItem,
   upsertSynthesisFactsBundle,
 } from '../lib/foundation-db.js'
@@ -101,15 +102,36 @@ async function main() {
   }, 'synthesis-facts-proof')
 
   const savedEvidenceFact = saved.facts.find(fact => fact.factId === evidenceFact.factId) || evidenceFact
+  const ownerSourceFacts = await querySynthesisFacts({
+    sourceIds: ['SRC-OWNERS-001'],
+    factTypes: ['goal_truth'],
+    maxTier: 1,
+    limit: 50,
+  })
+  const sourceOverlapProof = ownerSourceFacts.some(fact =>
+    fact.sourceId !== 'SRC-OWNERS-001' &&
+    Array.isArray(fact.sourceIds) &&
+    fact.sourceIds.includes('SRC-OWNERS-001')
+  )
+  if (!sourceOverlapProof) {
+    throw new Error('SYNTHESIS-FACTS-001 source filter did not match facts where the requested source is secondary in source_ids.')
+  }
   const snapshot = await getSynthesisFactsSnapshot({ limit: 20 })
-  if (snapshot.totalActiveFacts < saved.facts.length || snapshot.factsWithEvidence < 1 || snapshot.distinctSources < requiredSources.length) {
+  if (
+    snapshot.totalActiveFacts < saved.facts.length ||
+    snapshot.factsWithEvidence < 1 ||
+    snapshot.distinctSources < requiredSources.length ||
+    snapshot.activeFactsWithoutNaturalKey !== 0 ||
+    snapshot.duplicateActiveNaturalKeys !== 0 ||
+    snapshot.secondarySourceFacts < 1
+  ) {
     throw new Error('SYNTHESIS-FACTS-001 snapshot did not retain the saved source-backed fact proof.')
   }
 
   const updatedFactsCard = await updateBacklogItem('SYNTHESIS-FACTS-001', {
     lane: 'done',
     nextAction: 'Build SYNTHESIS-ENGINE-001 on top of persisted source-backed synthesis facts and the RETRIEVAL-003 hybrid evidence API. Keep Strategy Hub UI/advisor/recommendations blocked until governed synthesis and Action Router are live.',
-    statusNote: 'Done v1 on 2026-04-27. Source-backed synthesis fact ledger persists strategy/source-contract, goal, operating, KPI, source-snapshot, source-health, and retrieved-evidence facts with maxTier and source IDs.',
+    statusNote: 'Done v1 on 2026-04-27. Source-backed synthesis fact ledger persists strategy/source-contract, goal, operating, KPI, source-snapshot, source-health, and retrieved-evidence facts with maxTier, stable natural keys, stale-run archival, and source-overlap filtering.',
   }, 'synthesis-facts-proof')
 
   const updatedSynthesisCard = await updateBacklogItem('SYNTHESIS-ENGINE-001', {
@@ -125,6 +147,8 @@ async function main() {
       sourceIds: factBundle.sourceIds,
       factsByType: snapshot.factsByType,
       factsBySource: snapshot.factsBySource.slice(0, 12),
+      archivedStaleFacts: saved.archivedStaleFacts,
+      sourceOverlapProof,
       evidenceFact: savedEvidenceFact,
     },
     cards: {

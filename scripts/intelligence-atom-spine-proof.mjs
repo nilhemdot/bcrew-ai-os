@@ -131,7 +131,7 @@ async function main() {
     acceptedAt: new Date().toISOString(),
     acceptedBy: 'intel-atom-proof',
     suggestedOwner: 'Foundation',
-    suggestedAction: 'Continue to RETRIEVAL-003 on the proven atom/chunk/retrieval substrate, not Strategy Hub chat polish.',
+    suggestedAction: 'Continue to SYNTHESIS-ENGINE-001 on the proven atom/chunk/retrieval/fact substrate, not Strategy Hub chat polish.',
     tags: ['INTEL-ATOM-001', 'REPORT-MINING-001', 'foundation-spine'],
     metadata: {
       backlogCardId: 'INTEL-ATOM-001',
@@ -229,7 +229,7 @@ async function main() {
 
   const updatedCard = await updateBacklogItem('INTEL-ATOM-001', {
     lane: 'done',
-    nextAction: 'INTEL-ATOM-001 remains closed. Continue the Foundation spine through RETRIEVAL-003 hybrid retrieval on top of the candidate-backed lexical and semantic corpus; keep Strategy Hub review/promote UI, advisor chat, and recommendations blocked until hybrid retrieval, synthesis facts, governed synthesis, and Action Router are live.',
+    nextAction: 'INTEL-ATOM-001 remains closed. Continue the Foundation spine through SYNTHESIS-ENGINE-001 and ACTION-ROUTER-001 on top of the candidate-backed retrieval and source-backed fact corpus; keep Strategy Hub review/promote UI, advisor chat, and recommendations blocked until governed synthesis and Action Router are live.',
     statusNote: 'Done v1 on 2026-04-27. INTEL-ATOM-001 now has DB-backed intelligence_report_artifacts, intelligence_atoms, intelligence_atom_hits, direct Scoper query fields/helpers, Foundation snapshot exposure, and a repeatable proof command.',
   }, 'intel-atom-proof')
 
