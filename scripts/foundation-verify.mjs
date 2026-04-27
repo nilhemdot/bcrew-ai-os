@@ -13,6 +13,8 @@ import {
   getFoundationDbConstraintAudit,
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleLlmCalls,
+  getStrategyGoalTruthSnapshot,
+  getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
   initFoundationDb,
 } from '../lib/foundation-db.js'
@@ -144,6 +146,8 @@ async function main() {
   await initFoundationDb()
   const backlogSeedDrift = await getBacklogSeedDriftSnapshot({ limit: 10 })
   const strategyPreworkCoverageSnapshot = await getStrategyPreworkCoverageSnapshot()
+  const strategyGoalTruthSnapshot = await getStrategyGoalTruthSnapshot()
+  const strategyOperatingTruthSnapshot = await getStrategyOperatingTruthSnapshot()
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
@@ -622,6 +626,8 @@ async function main() {
   const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
+  const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
+  const strategyOperatingTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/operating-truth')
   const opsHub = await fetchJson(baseUrl, '/api/ops-hub')
   const ownersLeadSourceGovernance = await fetchJson(baseUrl, '/api/owners/lead-source-governance')
   const ownersReviewQueue = await fetchJson(baseUrl, '/api/owners/review-queue')
@@ -641,6 +647,10 @@ async function main() {
   const strategyPreworkReadNames = strategyPreworkParticipants
     .filter(participant => participant.status !== 'missing')
     .map(participant => participant.name)
+  const strategyGoalGroups = new Map((strategyGoalTruthSnapshot.groups || []).map(group => [group.key, group]))
+  const strategyGoalApiGroups = new Map((strategyGoalTruthApi.groups || []).map(group => [group.key, group]))
+  const strategyOperatingSourceIds = new Set((strategyOperatingTruthSnapshot.sourceCards || []).map(card => card.sourceId))
+  const strategyOperatingApiSourceIds = new Set((strategyOperatingTruthApi.sourceCards || []).map(card => card.sourceId))
 
   ensure(
     checks,
@@ -894,6 +904,12 @@ async function main() {
       includesAll(strategyEvidencePacketSource, [
         'strategy_evidence_packet_v1',
         'direct_strategy_artifacts',
+        'getStrategyGoalTruthSnapshot',
+        'getStrategyOperatingTruthSnapshot',
+        'current_goal_truth',
+        'current_operating_truth',
+        'goal_claim_rule',
+        'operating_truth_rule',
         'recordSharedCommunicationSynthesisRun',
         "packetType: 'strategy_evidence_packet_v1'",
       ]) &&
@@ -911,6 +927,55 @@ async function main() {
       ]),
     'Strategy Evidence Packet v1 is wired from script to job to Strategic Execution',
     'strategy:evidence-packet persists packetType=strategy_evidence_packet_v1 and Strategic Execution renders the latest packet',
+  )
+  ensure(
+    checks,
+    strategyGoalGroups.get('team_volume')?.status === 'behind' &&
+      /Behind/.test(strategyGoalGroups.get('team_volume')?.statusLabel || '') &&
+      strategyGoalGroups.get('community_agents')?.status === 'ahead' &&
+      /Ahead/.test(strategyGoalGroups.get('community_agents')?.statusLabel || '') &&
+      strategyGoalGroups.get('agent_engine_capacity')?.status === 'behind' &&
+      /Behind/.test(strategyGoalGroups.get('agent_engine_capacity')?.statusLabel || '') &&
+      strategyGoalApiGroups.get('community_agents')?.status === 'ahead' &&
+      serverSource.includes("app.get('/api/strategic-execution/goal-truth'") &&
+      serverSource.includes('currentGoalTruth') &&
+      serverSource.includes('Do not say the 10,000-agent community path is behind') &&
+      foundationDbSource.includes('getStrategyGoalTruthSnapshot') &&
+      foundationDbSource.includes('Team Goal: $2B') &&
+      foundationDbSource.includes('Community Goal: 10,000 Agents') &&
+      foundationDbSource.includes('Agent Engine Capacity') &&
+      includesAll(strategicExecutionUiSource, [
+        'fetchStrategyGoalTruth',
+        'renderStrategyGoalTruthCard',
+        'Live Goal Truth',
+        '/api/strategic-execution/goal-truth',
+      ]),
+    'Strategy goal truth guardrails distinguish live BHAG and Agent Engine pace',
+    [
+      `team=${strategyGoalGroups.get('team_volume')?.statusLabel || 'missing'}`,
+      `community=${strategyGoalGroups.get('community_agents')?.statusLabel || 'missing'}`,
+      `capacity=${strategyGoalGroups.get('agent_engine_capacity')?.statusLabel || 'missing'}`,
+    ].join(' / '),
+  )
+  ensure(
+    checks,
+    ['SRC-OWNERS-001', 'SRC-FINANCE-001', 'SRC-FUB-001', 'SRC-SUPABASE-001'].every(sourceId =>
+      strategyOperatingSourceIds.has(sourceId) && strategyOperatingApiSourceIds.has(sourceId)
+    ) &&
+      strategyOperatingTruthSnapshot.rule?.includes('Shared-comms candidates are leads/evidence, not final operating truth') &&
+      serverSource.includes("app.get('/api/strategic-execution/operating-truth'") &&
+      serverSource.includes('currentOperatingTruth') &&
+      serverSource.includes('Before recommending a strategic gap, check currentOperatingTruth') &&
+      foundationDbSource.includes('getStrategyOperatingTruthSnapshot') &&
+      foundationDbSource.includes('Do not recommend "install weekly finance truth" as if the source does not exist') &&
+      includesAll(strategicExecutionUiSource, [
+        'fetchStrategyOperatingTruth',
+        'renderStrategyOperatingTruthCard',
+        'Live Operating Truth',
+        '/api/strategic-execution/operating-truth',
+      ]),
+    'Strategy operating truth guardrails force live Owners/Finance/FUB/KPI checks before recommendations',
+    `sources=${Array.from(strategyOperatingSourceIds).join(', ')}`,
   )
   ensure(
     checks,

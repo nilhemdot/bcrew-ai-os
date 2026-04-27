@@ -555,6 +555,8 @@ var cache = {
   docs: {},
   strategyEvidencePacket: null,
   strategyPreworkCoverage: null,
+  strategyGoalTruth: null,
+  strategyOperatingTruth: null,
   strategyAdvisorMessages: loadStrategyAdvisorMessages(),
   strategyAdvisorMode: loadStrategyAdvisorMode(),
 }
@@ -748,6 +750,30 @@ function fetchStrategyPreworkCoverage() {
   })
 }
 
+function fetchStrategyGoalTruth() {
+  if (cache.strategyGoalTruth) return Promise.resolve(cache.strategyGoalTruth)
+
+  return fetchWithAdmin('/api/strategic-execution/goal-truth').then(function(res) {
+    if (!res.ok) throw new Error('Strategy goal truth API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.strategyGoalTruth = data
+    return data
+  })
+}
+
+function fetchStrategyOperatingTruth() {
+  if (cache.strategyOperatingTruth) return Promise.resolve(cache.strategyOperatingTruth)
+
+  return fetchWithAdmin('/api/strategic-execution/operating-truth').then(function(res) {
+    if (!res.ok) throw new Error('Strategy operating truth API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.strategyOperatingTruth = data
+    return data
+  })
+}
+
 function postStrategyAdvisorQuestion(question, mode) {
   return fetch('/api/strategic-execution/advisor', {
     method: 'POST',
@@ -848,7 +874,157 @@ function appendChip(parent, text, modifier) {
   parent.appendChild(chip)
 }
 
-function renderStrategyHealthCard(packetData) {
+function getGoalStatusModifier(status) {
+  if (status === 'ahead') return 'grow'
+  if (status === 'behind') return 'finance'
+  return 'status'
+}
+
+function getGoalFactValue(group, label) {
+  var fact = ((group && group.facts) || []).find(function(item) { return item.label === label })
+  return fact ? fact.value : ''
+}
+
+function renderStrategyGoalTruthCard(goalTruth, options) {
+  var compact = options && options.compact
+  var article = document.createElement('article')
+  article.className = 'section-card strategy-goal-truth-card'
+
+  var title = document.createElement('h4')
+  title.textContent = 'Live Goal Truth'
+  article.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'strategy-packet-summary'
+  intro.textContent = goalTruth
+    ? 'Source-backed pace facts from BHAG, Agent Engine, Owners, and Freedom Community. These override packet summaries for behind/ahead claims.'
+    : 'Live goal truth is not available yet.'
+  article.appendChild(intro)
+
+  if (!goalTruth) return article
+
+  var list = document.createElement('div')
+  list.className = 'strategy-goal-truth-list'
+  ;(goalTruth.groups || []).forEach(function(group) {
+    var row = document.createElement('div')
+    row.className = 'strategy-goal-truth-row strategy-goal-truth-row-' + (group.status || 'neutral')
+
+    var top = document.createElement('div')
+    top.className = 'strategy-review-top'
+    appendChip(top, group.statusLabel || group.status || 'Source-backed', getGoalStatusModifier(group.status))
+    if (group.asOf) appendChip(top, formatDate(group.asOf), 'status')
+    row.appendChild(top)
+
+    var name = document.createElement('strong')
+    name.textContent = group.title
+    row.appendChild(name)
+
+    var facts = document.createElement('p')
+    if (group.key === 'team_volume') {
+      facts.textContent = '2026 target ' + getGoalFactValue(group, '2026') + ' · Should be ' + getGoalFactValue(group, 'Should Be') + ' · Actual ' + getGoalFactValue(group, 'Actual')
+    } else if (group.key === 'community_agents') {
+      facts.textContent = '2026 target ' + getGoalFactValue(group, '2026') + ' · Should be ' + getGoalFactValue(group, 'Should Be') + ' · Actual ' + getGoalFactValue(group, 'Actual')
+    } else {
+      facts.textContent = 'Active agents ' + getGoalFactValue(group, 'Current Active Agents') + ' · Required this year ' + getGoalFactValue(group, 'Required Agents This Year') + ' · Recruiting pace ' + getGoalFactValue(group, 'Current Recruiting Pace') + ' vs ' + getGoalFactValue(group, 'Required Recruiting Pace')
+    }
+    row.appendChild(facts)
+
+    if (!compact && group.rule) {
+      var rule = document.createElement('p')
+      rule.className = 'strategy-goal-rule'
+      rule.textContent = group.rule
+      row.appendChild(rule)
+    }
+
+    list.appendChild(row)
+  })
+  article.appendChild(list)
+
+  if (!compact && goalTruth.rule) {
+    var guardrail = document.createElement('p')
+    guardrail.className = 'strategy-packet-gap'
+    guardrail.textContent = goalTruth.rule
+    article.appendChild(guardrail)
+  }
+
+  return article
+}
+
+function buildLiveGoalSummary(goalTruth) {
+  if (!goalTruth || !goalTruth.groups) return ''
+  var team = goalTruth.groups.find(function(group) { return group.key === 'team_volume' })
+  var community = goalTruth.groups.find(function(group) { return group.key === 'community_agents' })
+  var capacity = goalTruth.groups.find(function(group) { return group.key === 'agent_engine_capacity' })
+  return [
+    team ? 'Team volume: ' + team.statusLabel : '',
+    community ? '10k community path: ' + community.statusLabel : '',
+    capacity ? 'Agent Engine capacity: ' + capacity.statusLabel : '',
+  ].filter(Boolean).join('. ') + '.'
+}
+
+function renderStrategyOperatingTruthCard(operatingTruth, options) {
+  var compact = options && options.compact
+  var article = document.createElement('article')
+  article.className = 'section-card strategy-operating-truth-card'
+
+  var title = document.createElement('h4')
+  title.textContent = 'Live Operating Truth'
+  article.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'strategy-packet-summary'
+  intro.textContent = operatingTruth
+    ? 'Owners, finance, FUB, KPI, BHAG, and Agent Engine source truth that strategy recommendations must check before trusting meeting chatter.'
+    : 'Live operating truth is not available yet.'
+  article.appendChild(intro)
+
+  if (!operatingTruth) return article
+
+  var list = document.createElement('div')
+  list.className = 'strategy-goal-truth-list'
+  ;(operatingTruth.sourceCards || []).slice(0, compact ? 4 : 8).forEach(function(card) {
+    var row = document.createElement('div')
+    row.className = 'strategy-goal-truth-row'
+
+    var top = document.createElement('div')
+    top.className = 'strategy-review-top'
+    appendChip(top, card.sourceId || 'source', 'status')
+    appendChip(top, card.validation || card.status || 'source-backed', card.validation && card.validation.indexOf('Signed') !== -1 ? 'grow' : 'status')
+    row.appendChild(top)
+
+    var name = document.createElement('strong')
+    name.textContent = (card.title || card.sourceId || 'Source') + (card.unitName ? ' · ' + card.unitName : '')
+    row.appendChild(name)
+
+    var currentRead = document.createElement('p')
+    currentRead.textContent = card.currentRead || card.owns || ''
+    row.appendChild(currentRead)
+
+    if (!compact && Array.isArray(card.facts) && card.facts.length) {
+      var factText = document.createElement('p')
+      factText.className = 'strategy-goal-rule'
+      factText.textContent = card.facts
+        .slice(0, 5)
+        .map(function(fact) { return fact.label + ': ' + fact.value })
+        .join(' · ')
+      row.appendChild(factText)
+    }
+
+    list.appendChild(row)
+  })
+  article.appendChild(list)
+
+  if (!compact && operatingTruth.rule) {
+    var guardrail = document.createElement('p')
+    guardrail.className = 'strategy-packet-gap'
+    guardrail.textContent = operatingTruth.rule
+    article.appendChild(guardrail)
+  }
+
+  return article
+}
+
+function renderStrategyHealthCard(packetData, goalTruth) {
   var article = document.createElement('article')
   article.className = 'section-card strategy-command-card'
 
@@ -862,9 +1038,9 @@ function renderStrategyHealthCard(packetData) {
 
   var summary = document.createElement('p')
   summary.className = 'strategy-packet-summary'
-  summary.textContent = run && run.metadata && run.metadata.executiveSummary
+  summary.textContent = buildLiveGoalSummary(goalTruth) || (run && run.metadata && run.metadata.executiveSummary
     ? run.metadata.executiveSummary
-    : 'Use this hub to ask source-backed strategy questions, review Attract / Grow / Retain signals, and decide what needs owner review next.'
+    : 'Use this hub to ask source-backed strategy questions, review Attract / Grow / Retain signals, and decide what needs owner review next.')
   article.appendChild(summary)
 
   var grid = document.createElement('div')
@@ -1244,7 +1420,7 @@ function submitStrategyAdvisorQuestion(question, options) {
   })
 }
 
-function renderStrategyAdvisorWorkspace(packetData, preworkCoverage) {
+function renderStrategyAdvisorWorkspace(packetData, preworkCoverage, goalTruth, operatingTruth) {
   ensureStrategyAdvisorWelcome()
 
   var workspace = document.createElement('section')
@@ -1352,6 +1528,8 @@ function renderStrategyAdvisorWorkspace(packetData, preworkCoverage) {
   promptCard.appendChild(promptRow)
   rail.appendChild(promptCard)
 
+  rail.appendChild(renderStrategyGoalTruthCard(goalTruth, { compact: true }))
+  rail.appendChild(renderStrategyOperatingTruthCard(operatingTruth, { compact: true }))
   rail.appendChild(renderStrategyPreworkCoverage(preworkCoverage, { compact: true }))
   rail.appendChild(renderStrategyPacketCard(packetData, { compact: true }))
   rail.appendChild(renderStrategyReviewBoard(packetData, { compact: true }))
@@ -1609,10 +1787,12 @@ function renderOverview() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading overview...</p>'
 
-  Promise.all([fetchSourceOfTruth(), fetchStrategyEvidencePacket(), fetchStrategyPreworkCoverage()]).then(function(results) {
+  Promise.all([fetchSourceOfTruth(), fetchStrategyEvidencePacket(), fetchStrategyPreworkCoverage(), fetchStrategyGoalTruth(), fetchStrategyOperatingTruth()]).then(function(results) {
     var data = results[0]
     var packetData = results[1]
     var preworkCoverage = results[2]
+    var goalTruth = results[3]
+    var operatingTruth = results[4]
     var quarterlyDoc = (data.foundation.supportingStrategy || []).find(function(doc) {
       return doc.meta && doc.meta.path === strategicDocPaths['quarterly-priorities']
     })
@@ -1650,7 +1830,9 @@ function renderOverview() {
     var quarterPath = quarterlyDoc && quarterlyDoc.meta && quarterlyDoc.meta.path
       ? quarterlyDoc.meta.path
       : strategicDocPaths['quarterly-priorities']
-    sectionList.appendChild(renderStrategyHealthCard(packetData))
+    sectionList.appendChild(renderStrategyGoalTruthCard(goalTruth, { compact: true }))
+    sectionList.appendChild(renderStrategyOperatingTruthCard(operatingTruth, { compact: true }))
+    sectionList.appendChild(renderStrategyHealthCard(packetData, goalTruth))
     sectionList.appendChild(renderStrategyPreworkCoverage(preworkCoverage, { compact: true }))
     sectionList.appendChild(renderRecommendedPriorities(packetData))
     sectionList.appendChild(renderCurrentQuarterSection(currentQuarterSection, quarterPath, quarterlyDoc))
@@ -1670,9 +1852,11 @@ function renderStrategyEvidencePacket() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading strategy evidence packet...</p>'
 
-  Promise.all([fetchStrategyEvidencePacket(), fetchStrategyPreworkCoverage()]).then(function(results) {
+  Promise.all([fetchStrategyEvidencePacket(), fetchStrategyPreworkCoverage(), fetchStrategyGoalTruth(), fetchStrategyOperatingTruth()]).then(function(results) {
     var packetData = results[0]
     var preworkCoverage = results[1]
+    var goalTruth = results[2]
+    var operatingTruth = results[3]
     container.innerHTML = ''
 
     var panel = document.createElement('section')
@@ -1701,6 +1885,8 @@ function renderStrategyEvidencePacket() {
 
     var list = document.createElement('div')
     list.className = 'section-list'
+    list.appendChild(renderStrategyGoalTruthCard(goalTruth, { compact: false }))
+    list.appendChild(renderStrategyOperatingTruthCard(operatingTruth, { compact: false }))
     list.appendChild(renderStrategyPreworkCoverage(preworkCoverage, { compact: false }))
     list.appendChild(renderStrategyPacketCard(packetData, { compact: false }))
     panel.appendChild(list)
@@ -1717,9 +1903,11 @@ function renderStrategyAdvisor() {
   var container = document.getElementById('strategic-execution-content')
   container.innerHTML = '<p>Loading strategy advisor...</p>'
 
-  Promise.all([fetchStrategyEvidencePacket(), fetchStrategyPreworkCoverage()]).then(function(results) {
+  Promise.all([fetchStrategyEvidencePacket(), fetchStrategyPreworkCoverage(), fetchStrategyGoalTruth(), fetchStrategyOperatingTruth()]).then(function(results) {
     var packetData = results[0]
     var preworkCoverage = results[1]
+    var goalTruth = results[2]
+    var operatingTruth = results[3]
     container.innerHTML = ''
 
     var panel = document.createElement('section')
@@ -1748,7 +1936,7 @@ function renderStrategyAdvisor() {
 
     var list = document.createElement('div')
     list.className = 'section-list'
-    list.appendChild(renderStrategyAdvisorWorkspace(packetData, preworkCoverage))
+    list.appendChild(renderStrategyAdvisorWorkspace(packetData, preworkCoverage, goalTruth, operatingTruth))
     list.appendChild(renderRecommendedPriorities(packetData))
     panel.appendChild(list)
     container.appendChild(panel)

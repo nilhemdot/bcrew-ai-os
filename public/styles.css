@@ -2976,6 +2976,11 @@ body {
   gap: 10px;
 }
 
+.strategy-goal-truth-list {
+  display: grid;
+  gap: 10px;
+}
+
 .strategy-review-item {
   display: grid;
   gap: 7px;
@@ -2993,6 +2998,25 @@ body {
   border: 1px solid var(--border);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.9);
+}
+
+.strategy-goal-truth-row {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.strategy-goal-truth-row-ahead {
+  border-color: rgba(72, 142, 94, 0.32);
+  background: rgba(72, 142, 94, 0.07);
+}
+
+.strategy-goal-truth-row-behind {
+  border-color: rgba(180, 119, 54, 0.34);
+  background: rgba(180, 119, 54, 0.07);
 }
 
 .strategy-prework-row-missing {
@@ -3017,6 +3041,12 @@ body {
   line-height: 1.35;
 }
 
+.strategy-goal-truth-row strong {
+  color: var(--text-primary);
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
 .strategy-review-item p {
   margin: 0;
   color: var(--text-secondary);
@@ -3029,6 +3059,20 @@ body {
   color: var(--text-secondary);
   font-size: 0.8rem;
   line-height: 1.45;
+}
+
+.strategy-goal-truth-row p,
+.strategy-goal-rule {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.strategy-goal-rule {
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-primary);
 }
 
 .strategy-prework-excerpt {

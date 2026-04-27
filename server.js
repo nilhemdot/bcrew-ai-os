@@ -23,6 +23,8 @@ import {
   getSharedCommunicationCandidateSnapshot,
   getSharedCommunicationCoverageSnapshot,
   getSharedCommunicationSynthesisSnapshot,
+  getStrategyGoalTruthSnapshot,
+  getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
   getFoundationBacklogScopes,
   getDocSourceSnapshot,
@@ -2431,6 +2433,8 @@ async function getStrategyAdvisorContext(question = '') {
     packetType: 'strategy_evidence_packet_v1',
   })
   const foundation = await getFoundationSnapshot()
+  const goalTruth = await getStrategyGoalTruthSnapshot()
+  const operatingTruth = await getStrategyOperatingTruthSnapshot()
   const preworkCoverage = await getStrategyPreworkCoverageSnapshot()
   const asksAboutPrework = /\bpre[-\s]?(strat|start|work)\b/i.test(question)
   const directArtifacts = await searchSharedCommunicationArtifactsForContext({
@@ -2502,8 +2506,10 @@ async function getStrategyAdvisorContext(question = '') {
     generatedAt: new Date().toISOString(),
     doctrine: {
       northStar: 'Benson Crew strategy work should map to Attract, Grow, Retain, finance/cash truth, operating accountability, and Foundation reliability.',
-      answerRule: 'Use source-backed facts first, call out inference, then name missing evidence and the next operating move.',
+      answerRule: 'Use source-backed facts first, call out inference, then name missing evidence and the next operating move. currentOperatingTruth and currentGoalTruth override packet summaries, meeting chatter, and older notes.',
     },
+    currentGoalTruth: goalTruth,
+    currentOperatingTruth: operatingTruth,
     directArtifactSearch: {
       query: question,
       rule: 'Use these exact artifact excerpts before packet summaries when Steve asks who said what or asks about a specific person/document.',
@@ -3967,6 +3973,36 @@ app.get('/api/strategic-execution/prework-coverage', requireAdminToken, async (r
   }
 })
 
+app.get('/api/strategic-execution/goal-truth', requireAdminToken, async (req, res) => {
+  try {
+    const goalTruth = await getStrategyGoalTruthSnapshot()
+    cacheHeadersNoStore(res)
+    res.json(goalTruth)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'strategy_goal_truth_failed',
+      error instanceof Error ? error.message : 'Failed to load strategy goal truth.'
+    )
+  }
+})
+
+app.get('/api/strategic-execution/operating-truth', requireAdminToken, async (req, res) => {
+  try {
+    const operatingTruth = await getStrategyOperatingTruthSnapshot()
+    cacheHeadersNoStore(res)
+    res.json(operatingTruth)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'strategy_operating_truth_failed',
+      error instanceof Error ? error.message : 'Failed to load strategy operating truth.'
+    )
+  }
+})
+
 app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res) => {
   try {
     const payload =
@@ -4015,6 +4051,8 @@ app.post('/api/strategic-execution/advisor', requireAdminToken, async (req, res)
             'Be direct and operator-grade. Prefer concrete decisions, questions, owners, metrics, and next moves over general advice.',
             'If Steve asks which department is stuck, separate source-backed evidence from your judgment.',
             'If Steve asks who said what, use directArtifactSearch excerpts first and cite the artifact title/source. Do not rely only on packet summaries.',
+            'Before recommending a strategic gap, check currentOperatingTruth. Shared-comms candidates and meeting quotes can raise a concern, but live Owners, Finance, FUB, KPI, BHAG, and Agent Engine source truth decides whether the problem is current, already handled, or only a health/freshness/proof gap.',
+            'If Steve asks about goals, $2B, 10,000 agents, BHAG, behind/ahead, agent attraction, recruiting pace, or active-agent capacity, use currentGoalTruth first. Do not say the 10,000-agent community path is behind when currentGoalTruth says Ahead; do not confuse that community path with Agent Engine active productive agent capacity.',
             'Keep the answer tight enough to use in a strategy meeting.',
             modeInstruction,
           ].join(' '),

@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url';
 import { Pool } from 'pg';
 import {
   closeFoundationDb,
+  getStrategyGoalTruthSnapshot,
+  getStrategyOperatingTruthSnapshot,
   initFoundationDb,
   recordSharedCommunicationSynthesisRun,
 } from '../lib/foundation-db.js';
@@ -46,6 +48,15 @@ const STRATEGY_ARTIFACT_SOURCE_IDS = [
   'SRC-YOUTUBE-INTEL-001',
   'SRC-MEETINGS-001',
   'SRC-GMAIL-001',
+];
+
+const OPERATING_TRUTH_SOURCE_IDS = [
+  'SRC-OWNERS-001',
+  'SRC-FINANCE-001',
+  'SRC-FUB-001',
+  'SRC-SUPABASE-001',
+  'SRC-FREEDOM-BHAG-001',
+  'SRC-FREEDOM-ENGINE-001',
 ];
 
 const EXCERPT_TERMS = [
@@ -589,6 +600,8 @@ async function fetchStrategyArtifacts(pool, { limit, maxExcerptChars }) {
 async function fetchSourceFacts(pool) {
   const [
     docFacts,
+    strategyGoalTruth,
+    strategyOperatingTruth,
     criticalBacklog,
     decisions,
     openQuestions,
@@ -604,6 +617,8 @@ async function fetchSourceFacts(pool) {
         LIMIT 100
       `,
     ),
+    getStrategyGoalTruthSnapshot(),
+    getStrategyOperatingTruthSnapshot(),
     pool.query(
       `
         SELECT id, title, team, lane, priority, summary, next_action, status_note
@@ -676,6 +691,8 @@ async function fetchSourceFacts(pool) {
       detail: shorten(row.detail || '', 240),
       as_of: row.as_of,
     })),
+    current_goal_truth: strategyGoalTruth,
+    current_operating_truth: strategyOperatingTruth,
     critical_backlog: criticalBacklog.rows.map(row => ({
       id: row.id,
       title: row.title,
@@ -777,6 +794,9 @@ function buildInputSummary({ candidates, artifacts, archiveSummary, candidateSum
     candidate_summary_rows: candidateSummary.length,
     source_fact_counts: {
       doc_source_facts: sourceFacts.doc_source_facts.length,
+      current_goal_truth_groups: sourceFacts.current_goal_truth?.groups?.length || 0,
+      current_operating_truth_sources: sourceFacts.current_operating_truth?.sourceCards?.length || 0,
+      operating_truth_source_ids: OPERATING_TRUTH_SOURCE_IDS.length,
       critical_backlog: sourceFacts.critical_backlog.length,
       decisions: sourceFacts.decisions.length,
       open_questions: sourceFacts.open_questions.length,
@@ -809,6 +829,9 @@ async function runStrategyPacket({ input, model, maxItems }) {
           'The goal is not to write final strategy. The goal is to turn source-backed evidence into the strategic issues, decision questions, and 90-day priorities Steve should review.',
           'Use the direct Drive/video artifacts as first-class evidence even if they have not yet been mined into candidate rows.',
           'Use source-backed operating facts, backlog state, decisions, runtime coverage, and current strategy docs to rank what matters.',
+          'Before recommending any strategic gap, check source_backed_operating_facts.current_operating_truth. Shared-comms candidates and meeting quotes can raise a concern, but live Owners, Finance, FUB, KPI, BHAG, and Agent Engine source truth decides whether the problem is current, already handled, or only a health/freshness/proof gap.',
+          'If a live source says a system already exists or is signed off, do not frame the recommendation as building it from scratch. Reframe as a precise health, freshness, reconciliation, collections, coaching, or proof gap only when live source facts support that.',
+          'For any $2B, 10,000-agent, BHAG, behind/ahead, recruiting pace, or active-agent capacity claim, use source_backed_operating_facts.current_goal_truth first. Do not confuse the 10,000-agent community path with Agent Engine active productive team-agent capacity.',
           'Do not invent metrics, dates, owners, source IDs, candidate keys, or artifact IDs.',
           'Every important item must cite source_ids and either candidate_keys, artifact_ids, or a source-backed fact.',
           'If evidence is partial, say so as a caveat instead of pretending the system is complete.',
@@ -832,6 +855,8 @@ async function runStrategyPacket({ input, model, maxItems }) {
             packet_rules: {
               strategy_folder_rule: 'Drive Strategy Folder is quarterly evidence intake under SRC-GDRIVE-001, not canonical strategy.',
               final_truth_rule: 'Final approved strategy belongs in Strategic Execution / strategy docs / decision ledger, not the raw Drive folder.',
+              goal_claim_rule: 'Live goal truth overrides older packet text, old docs, and meeting chatter for behind/ahead claims. The 10,000-agent community path is separate from active productive Benson Crew agent capacity.',
+              operating_truth_rule: 'Live operating truth from Owners, Finance, FUB, KPI, BHAG, and Agent Engine overrides shared-comms candidate summaries. Meeting mentions alone are not enough to call something an unresolved strategic gap.',
               current_goal: 'Prepare Steve for a strategy session with source-backed issues, decisions, open questions, and 90-day options.',
             },
           },
