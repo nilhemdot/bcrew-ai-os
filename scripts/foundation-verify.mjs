@@ -9,6 +9,7 @@ import process from 'node:process'
 import { getGroupedSourceSystems, getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
 import {
   closeFoundationDb,
+  getActionRouterSnapshot,
   getBacklogSeedDriftSnapshot,
   getFoundationDbConstraintAudit,
   getIntelligenceAtomSpineSnapshot,
@@ -158,6 +159,7 @@ async function main() {
   const intelligenceRetrievalSnapshot = await getIntelligenceRetrievalSnapshot({ limit: 20 })
   const synthesisFactsSnapshot = await getSynthesisFactsSnapshot({ limit: 20 })
   const synthesisEngineSnapshot = await getSynthesisEngineSnapshot({ limit: 20 })
+  const actionRouterSnapshot = await getActionRouterSnapshot({ limit: 40 })
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
@@ -254,6 +256,8 @@ async function main() {
   const intelligenceSynthesisFactsProofSource = await readRepoFile('scripts/intelligence-synthesis-facts-proof.mjs')
   const intelligenceSynthesisSource = await readRepoFile('lib/intelligence-synthesis.js')
   const intelligenceSynthesisProofSource = await readRepoFile('scripts/intelligence-synthesis-engine-proof.mjs')
+  const intelligenceActionRouterSource = await readRepoFile('lib/intelligence-action-router.js')
+  const intelligenceActionRouterProofSource = await readRepoFile('scripts/intelligence-action-router-proof.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
@@ -893,6 +897,63 @@ async function main() {
       intelligenceRetrievalSnapshot.bySource.filter(source => source.count > 0).length >= 2,
     'SYNTHESIS-ENGINE-001 persists governed synthesized items with fact/evidence provenance and corpus diversity',
     `${synthesisEngineSnapshot.activeItems} active items / itemSources=${synthesisEngineSnapshot.distinctItemSources} / latestRun=${synthesisEngineSnapshot.latestRun?.runId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, [
+      'createIntelligenceActionRouterStore',
+      'intelligenceActionRouterSchemaSql',
+      'intelligenceActionRouter',
+      'proposeActionRoutes',
+      'getActionRouterSnapshot',
+    ]) &&
+      includesAll(intelligenceActionRouterSource, [
+        'CREATE TABLE IF NOT EXISTS intelligence_action_router_runs',
+        'CREATE TABLE IF NOT EXISTS intelligence_action_routes',
+        'approval_required BOOLEAN NOT NULL DEFAULT TRUE',
+        'approval_status TEXT NOT NULL DEFAULT',
+        'human_required_before_destination_write',
+        'needs-owner-decision',
+        'applyApprovedActionRoute',
+        'Action route approval requires an explicit human approver.',
+        'destination_table TEXT NOT NULL',
+        'fact_refs TEXT[]',
+        'evidence_refs TEXT[]',
+        'evidence_chunk_refs TEXT[]',
+        'intelligence action router requires maxTier >= 1',
+      ]) &&
+      includesAll(packageSource, [
+        '"intelligence:action-router-proof"',
+      ]) &&
+      includesAll(foundationJobsSource, [
+        'intelligence-synthesis-spine-refresh',
+        'intelligence-action-router-proposals',
+        'human-approval-required routes',
+      ]) &&
+      includesAll(intelligenceActionRouterProofSource, [
+        'proposeActionRoutes',
+        'getActionRouterSnapshot',
+        'backlog_items',
+        'decisions',
+        'open_questions',
+        'intelligence_synthesized_items',
+        'routesWithSourceProvenance',
+        'routesRequiringApproval',
+        'ACTION-ROUTER-001',
+        'STRATEGY-004',
+      ]) &&
+      actionRouterSnapshot.latestRun?.runType === 'router_proof' &&
+      actionRouterSnapshot.totalRoutes >= 1 &&
+      actionRouterSnapshot.pendingRoutes >= 1 &&
+      actionRouterSnapshot.routesWithSourceProvenance >= actionRouterSnapshot.totalRoutes &&
+      actionRouterSnapshot.routesWithOwner >= actionRouterSnapshot.totalRoutes &&
+      actionRouterSnapshot.routesRequiringApproval >= actionRouterSnapshot.totalRoutes &&
+      actionRouterSnapshot.tierOneRoutes >= actionRouterSnapshot.totalRoutes &&
+      ['backlog_items', 'decisions', 'open_questions', 'intelligence_synthesized_items'].every(destinationTable =>
+        (actionRouterSnapshot.routesByDestination || []).some(row => row.destinationTable === destinationTable && row.count >= 1)
+      ),
+    'ACTION-ROUTER-001 creates approval-gated routes with owner and provenance before Strategy Hub resumes',
+    `${actionRouterSnapshot.totalRoutes} routes / pending=${actionRouterSnapshot.pendingRoutes} / latestRun=${actionRouterSnapshot.latestRun?.runId || 'missing'}`,
   )
   ensure(
     checks,
