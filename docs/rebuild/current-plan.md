@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-27
-Version: v6.11 — Action Router v1 proof
+Version: v6.12 — Action Router closure proof
 Status: Active
 
 Use this doc for one question:
@@ -51,7 +51,7 @@ Locked doctrine means current operating default, not permanent dogma. If researc
 - Extraction is a Foundation supply chain, not a one-off research chore. It must keep current sources fresh, mine old corpora one bounded bite at a time, and preserve what each hub can use.
 - Drive and Skool mining belong in Foundation while they inventory, archive, classify, extract, and organize evidence. Course creation, content production, recruiting outreach, coaching, and monetization are Hub work built on that Foundation output.
 - The brand/hub lanes must stay separate: Benson Crew residential, Zahnd Team Ag, Steve Zahnd personal brand, MarketMasters, and Steve-owned monetization/education assets are different consumers with different risk boundaries.
-- Foundation is not done until source evidence can move through the full loop: source -> archive/artifact -> candidate/atom -> synthesized item -> routed decision/task/question/contradiction/action -> resolution.
+- Foundation is not done until source evidence can move through the full loop: source -> archive/artifact -> candidate/atom -> synthesized item -> routed decision/task/question/contradiction/action -> resolution. V1 now proves this through one approved/applied Action Router route into a live backlog row; the remaining hardening is review UX, closure feedback, and recurrence durability.
 - Foundation is the control plane for systems; hubs are the human/business cockpits. A job can run in Foundation while its queue, decisions, and cleanup work surface in the hub it serves.
 - Admin-only proof surfaces can exist behind `requireAdminToken`, but no broad hub, assistant, query, or human-facing read surface may expose shared-communications intelligence until auth/tier filtering and subject-person redaction are implemented and verified.
 - `SYSTEM-010` controls are a Foundation gate, not a later ops polish item: running jobs, agents, miners, and paid/subscription model calls must be visible, pausable/stoppable, failure-tracked, and decommissionable before autonomous loops expand.
@@ -119,7 +119,7 @@ Still not done:
 - full `SYSTEM-010` decommission, dead-man, and cost/process-control layer
 - scheduled broad corpus promotion beyond the current proof/mission lanes
 - broader KPI / finance / FUB fact expansion inside synthesis
-- Action Router v1 proof: synthesized items now create pending, human-approval-required routes into decisions, backlog tasks, open questions, ignore/snooze, and owner-bound action lanes with source back-links. Apply/closed-loop resolution feedback is still later.
+- Action Router closure proof: synthesized items now create human-approval-required routes into decisions, backlog tasks, open questions, ignore/snooze, and owner-bound action lanes with source back-links. One route has been approved/applied into live backlog item `ACTION-001`; pending queue size is no longer a verifier dependency.
 - source-backed Strategy Hub
 - Harlan/Crewbert useful runtime
 - Drive Sheets/Slides/Office/shortcut/vision-grade OCR/media extractors and Skool/Loom/Drive-video crawler workers
@@ -657,7 +657,7 @@ Strategy Hub should:
 - produce a tight owner-level strategy packet
 - track follow-through after the meeting
 
-Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface is still intentionally a Strategy Hub v2 safety stub; the advisor endpoint returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation is disabled. The Foundation spine is now closed enough for routed review: `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, `SYNTHESIS-ENGINE-001`, and `ACTION-ROUTER-001` are done for v1. The next Strategy Hub work should resume as deterministic source-to-gap dashboarding plus review/promote against pending Action Router records, not old chat/advisor polish.
+Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface is still intentionally a Strategy Hub v2 safety stub; the advisor endpoint returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation is disabled. The Foundation spine is now closed enough for routed review and apply: `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, `SYNTHESIS-ENGINE-001`, and `ACTION-ROUTER-001` are done for v1, with one Action Router route approved/applied into `ACTION-001`. The next Strategy Hub work should resume as deterministic source-to-gap dashboarding plus review/promote against Action Router records, not old chat/advisor polish.
 
 Acceptance:
 

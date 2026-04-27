@@ -273,14 +273,14 @@ async function main() {
 
   const updatedSynthesisCard = refreshMode ? null : await updateBacklogItem('SYNTHESIS-ENGINE-001', {
     lane: 'done',
-    nextAction: 'Build ACTION-ROUTER-001 so synthesized items route into governed decisions, backlog, open questions, contradictions, ignore/snooze records, or owner-bound actions. Keep Strategy Hub UI/advisor/recommendations blocked until Action Router is live.',
+    nextAction: 'Keep governed synthesis v1 operating as the source-backed item layer feeding Action Router and Strategy Hub v2. Next work is Strategy Hub v2 source-to-gap plus route review/promote on top of facts, synthesized items, and action routes; no advisor chat or recommendation surface.',
     statusNote: 'Done v1 on 2026-04-27. Governed synthesis persists owner-suggested synthesized items with source fact refs, hybrid evidence refs, evidence chunk refs, maxTier, structured attributes, and corpus-diversity proof.',
   }, actor)
 
   const updatedActionRouterCard = refreshMode ? null : await updateBacklogItem('ACTION-ROUTER-001', {
-    lane: 'scoped',
-    nextAction: 'Build Action Router v1 from intelligence_synthesized_items into decision/backlog/open-question/contradiction/ignore/snooze/action ledgers with approval gates and source-proof links.',
-    statusNote: 'Next Foundation spine gate after SYNTHESIS-ENGINE-001. Do not resume Strategy Hub UI/advisor work until synthesized items can route into governed action ledgers.',
+    lane: 'done',
+    nextAction: 'Keep Action Router v1 operating as the approval gate from synthesized items into decisions, backlog, open questions, ignore/snooze, and owner-bound actions. Resume Strategy Hub v2 only on top of this routed loop.',
+    statusNote: 'Done v1 on 2026-04-27. Action Router creates pending, human-approval-required routes from governed synthesized items into existing operating ledgers with fact/evidence/chunk provenance, explicit owner or needs-owner queue, and no autopilot destination writes.',
   }, actor)
 
   console.log(JSON.stringify({

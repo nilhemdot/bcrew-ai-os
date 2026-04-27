@@ -952,7 +952,6 @@ async function main() {
       ]) &&
       actionRouterSnapshot.latestProofRun?.runType === 'router_proof' &&
       actionRouterSnapshot.totalRoutes >= 1 &&
-      actionRouterSnapshot.pendingRoutes >= 1 &&
       actionRouterSnapshot.routesWithSourceProvenance >= actionRouterSnapshot.totalRoutes &&
       actionRouterSnapshot.routesWithOwner >= actionRouterSnapshot.totalRoutes &&
       actionRouterSnapshot.routesRequiringApproval >= actionRouterSnapshot.totalRoutes &&

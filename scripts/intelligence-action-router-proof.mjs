@@ -46,8 +46,8 @@ async function main() {
   if (!snapshot.latestRun?.runId || snapshot.latestRun.runId !== proof.run.runId) {
     throw new Error('ACTION-ROUTER-001 latest run did not persist.')
   }
-  if (snapshot.totalRoutes < 1 || snapshot.pendingRoutes < 1) {
-    throw new Error('ACTION-ROUTER-001 requires pending action routes.')
+  if (snapshot.totalRoutes < 1 || snapshot.appliedRoutesWithDestinationRecord < 1) {
+    throw new Error('ACTION-ROUTER-001 requires a durable route ledger with at least one applied destination record.')
   }
   if (snapshot.routesWithSourceProvenance < snapshot.totalRoutes) {
     throw new Error('ACTION-ROUTER-001 routes must preserve source fact/evidence/chunk provenance.')
@@ -71,8 +71,8 @@ async function main() {
   const updatedStrategyCard = await updateBacklogItem('STRATEGY-004', {
     lane: 'scoped',
     priority: 'P0',
-    nextAction: 'Resume Strategy Hub v2 from deterministic source-to-gap snapshots and the completed intelligence spine. Do not revive old advisor/recommendation UI; build review/promote on top of routed Action Router records.',
-    statusNote: 'Unblocked after Action Router v1 proof. Strategy Hub v2 can resume only as a source-to-gap operating dashboard consuming source-backed facts, synthesized items, and pending action routes.',
+    nextAction: 'Resume Strategy Hub v2 from deterministic source-to-gap snapshots, governed synthesized items, and Action Router review/promote records. Do not revive old advisor chat, unsupported recommendations, or AI priority feed surfaces.',
+    statusNote: 'Unblocked after Action Router v1 closure proof. Strategy Hub v2 can resume only as a source-to-gap operating dashboard consuming source-backed facts, synthesized items, and Action Router records with review/promote controls.',
   }, 'action-router-proof')
 
   console.log(JSON.stringify({

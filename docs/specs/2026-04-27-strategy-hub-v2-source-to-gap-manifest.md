@@ -87,8 +87,8 @@ The prerequisite spine is:
 5. `RETRIEVAL-002` - done v1: pgvector semantic retrieval over candidate-backed chunks with explicit `maxTier`
 6. `RETRIEVAL-003` - done v1: hybrid evidence API
 7. `SYNTHESIS-FACTS-001` - done v1: persisted source-backed fact grounding for synthesis
-8. `SYNTHESIS-ENGINE-001` - governed synthesis engine
-9. `ACTION-ROUTER-001` - loop closure from insight to routed action to resolution
+8. `SYNTHESIS-ENGINE-001` - done v1: governed synthesized items with fact/evidence/chunk provenance
+9. `ACTION-ROUTER-001` - done v1: human-approval-required routes plus one proved approved/applied destination record
 
 ### Metric Build Classification
 
@@ -132,9 +132,9 @@ Every metric that receives a "why," doctrine citation, evidence drilldown, AI re
 - `INTEL-ATOM-001` now stores source-backed atoms with source ID, artifact ID, entity, topic, claim, confidence, linked metric, governed report artifact links, lifecycle/review state, and direct Scoper query fields.
 - `RETRIEVAL-001` now retrieves candidate-backed atom chunks by lexical filters with explicit `maxTier`; `RETRIEVAL-002` retrieves the same corpus semantically through pgvector; `RETRIEVAL-003` fuses lexical, semantic, and direct atom matches into the governed evidence API.
 - `SYNTHESIS-FACTS-001` now persists source-backed strategy/source-contract, goal, operating, KPI, source-snapshot, source-health, and retrieved-evidence facts with explicit `maxTier`.
-- `SYNTHESIS-ENGINE-001` must enforce structured output, doctrine priority, and contradiction handling.
+- `SYNTHESIS-ENGINE-001` now persists structured source-backed synthesized items; `ACTION-ROUTER-001` now routes those items into governed ledgers behind human approval.
 
-Until those cards are real, Strategy Hub may display deterministic metric gaps only. It must not display AI explanations, AI priorities, AI analyst notes, or recommendations.
+Strategy Hub v2 may now consume source facts, synthesized items, and Action Router records, but only as a source-to-gap operating dashboard plus review/promote queue. It must not revive advisor chat, old recommendation feeds, or unsupported priority generation.
 
 ### Source Precedence Rules
 
