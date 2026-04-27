@@ -316,6 +316,18 @@ async function main() {
   ) {
     throw new Error(`SYNTHESIS-ENGINE-001 quality snapshot failed clustered-output gates: ${JSON.stringify(quality)}`)
   }
+  if (
+    snapshot.activeUnclusteredUnprotectedItems !== 0 ||
+    snapshot.routeableUnclusteredItems !== 0 ||
+    snapshot.activeClusteredItems < quality.activeItems
+  ) {
+    throw new Error(`SYNTHESIS-ENGINE-001 active surface still contains unclustered routeable output: ${JSON.stringify({
+      activeClusteredItems: snapshot.activeClusteredItems,
+      activeLegacyProtectedItems: snapshot.activeLegacyProtectedItems,
+      activeUnclusteredUnprotectedItems: snapshot.activeUnclusteredUnprotectedItems,
+      routeableUnclusteredItems: snapshot.routeableUnclusteredItems,
+    })}`)
+  }
 
   const updatedSynthesisCard = refreshMode ? null : await updateBacklogItem('SYNTHESIS-ENGINE-001', {
     lane: 'executing',
@@ -351,6 +363,13 @@ async function main() {
       strategyEligibleItems: strategyEligibleItems.length,
       humanSample: humanSampleRows,
       quality,
+      activeSurfaceQuality: {
+        activeClusteredItems: snapshot.activeClusteredItems,
+        activeLegacyProtectedItems: snapshot.activeLegacyProtectedItems,
+        activeUnclusteredUnprotectedItems: snapshot.activeUnclusteredUnprotectedItems,
+        routeableActiveItems: snapshot.routeableActiveItems,
+        routeableUnclusteredItems: snapshot.routeableUnclusteredItems,
+      },
       firstItem: synthesis.items[0],
       snapshot,
     },

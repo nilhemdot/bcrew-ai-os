@@ -914,6 +914,9 @@ async function main() {
         'themeKeyForFact',
         'classifyCluster',
         'strategyHubEligible',
+        'legacy_unclustered_replaced_by_clustered_synthesis',
+        'activeUnclusteredUnprotectedItems',
+        'routeableUnclusteredItems',
         'humanSampleRowsForItems',
         'latestProofQuality',
         'rankingPolicy',
@@ -938,6 +941,8 @@ async function main() {
         'strategySingleEvidenceItems',
         'SYNTHESIS HUMAN SAMPLE',
         'humanSampleRows',
+        'activeSurfaceQuality',
+        'routeableUnclusteredItems',
         'maxTier: 1',
         'Steve must review the 5-row synthesis sample',
       ]) &&
@@ -961,6 +966,9 @@ async function main() {
       synthesisEngineSnapshot.latestProofQuality?.strategySingleEvidenceItems === 0 &&
       synthesisEngineSnapshot.latestProofQuality?.duplicateThemeKeys === 0 &&
       synthesisEngineSnapshot.latestProofQuality?.humanSampleRows >= 5 &&
+      synthesisEngineSnapshot.activeClusteredItems >= synthesisEngineSnapshot.latestProofQuality?.activeItems &&
+      synthesisEngineSnapshot.activeUnclusteredUnprotectedItems === 0 &&
+      synthesisEngineSnapshot.routeableUnclusteredItems === 0 &&
       intelligenceRetrievalSnapshot.bySource.filter(source => source.count > 0).length >= 2,
     'SYNTHESIS-ENGINE-001 clusters and classifies synthesized items instead of atom-thread spam',
     `${synthesisEngineSnapshot.activeItems} active items / latestProofQuality=${JSON.stringify(synthesisEngineSnapshot.latestProofQuality || {})} / latestProof=${synthesisEngineSnapshot.latestProofRun?.runId || 'missing'}`,
@@ -997,6 +1005,8 @@ async function main() {
         'strategyHubEligible',
         'reviewSurface',
         'synthesizedItemAttributes',
+        "attributes->>'synthesisQuality'",
+        "metadata->>'legacySynthesisProtected'",
       ]) &&
       includesAll(packageSource, [
         '"intelligence:synthesis-refresh"',
