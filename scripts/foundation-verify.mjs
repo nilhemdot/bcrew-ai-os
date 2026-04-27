@@ -800,6 +800,7 @@ async function main() {
         'synthesis fact queries require maxTier >= 1',
         'assertRegisteredSourceIds',
         'stale_after_synthesis_fact_refresh',
+        'stale_fact_refs_after_synthesis_fact_refresh',
         'source_ids &&',
       ]) &&
       packageSource.includes('"intelligence:synthesis-facts-proof"') &&
@@ -845,9 +846,15 @@ async function main() {
       includesAll(intelligenceSynthesisSource, [
         'CREATE TABLE IF NOT EXISTS intelligence_synthesis_runs',
         'CREATE TABLE IF NOT EXISTS intelligence_synthesized_items',
+        'natural_key TEXT',
+        'synthesis_scope_key TEXT',
+        'idx_intelligence_synthesized_items_active_natural_key',
         'fact_refs TEXT[]',
         'evidence_refs TEXT[]',
         'evidence_chunk_refs TEXT[]',
+        'owner_confidence TEXT',
+        'ownerDecisionForFact',
+        'no_clear_owner_signal',
         'synthesized items require evidenceChunkRefs.',
         'intelligence synthesis queries require maxTier >= 1',
         'rankingPolicy',
@@ -861,6 +868,7 @@ async function main() {
         'promoteSharedCommunicationCandidatesToAtoms',
         'DIVERSITY_SOURCE_ID',
         'SRC-GMAIL-001',
+        'synthesisScopeKey',
         'collectSourceBackedSynthesisFacts',
         'upsertSynthesisFactsBundle',
         'runGovernedSynthesis',
@@ -876,6 +884,10 @@ async function main() {
       synthesisEngineSnapshot.itemsWithFactRefs >= synthesisEngineSnapshot.activeItems &&
       synthesisEngineSnapshot.itemsWithEvidenceRefs >= synthesisEngineSnapshot.activeItems &&
       synthesisEngineSnapshot.itemsWithEvidenceChunkRefs >= synthesisEngineSnapshot.activeItems &&
+      synthesisEngineSnapshot.itemsWithOwnerConfidence >= synthesisEngineSnapshot.activeItems &&
+      synthesisEngineSnapshot.itemsWithActiveFactRefs >= synthesisEngineSnapshot.activeItems &&
+      synthesisEngineSnapshot.itemsWithActiveEvidenceRefs >= synthesisEngineSnapshot.activeItems &&
+      synthesisEngineSnapshot.itemsWithActiveEvidenceChunkRefs >= synthesisEngineSnapshot.activeItems &&
       synthesisEngineSnapshot.tierOneItems >= synthesisEngineSnapshot.activeItems &&
       synthesisEngineSnapshot.distinctItemSources >= 2 &&
       intelligenceRetrievalSnapshot.bySource.filter(source => source.count > 0).length >= 2,

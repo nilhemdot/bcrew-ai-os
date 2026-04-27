@@ -4,9 +4,11 @@ import {
   closeFoundationDb,
   collectSourceBackedSynthesisFacts,
   getIntelligenceRetrievalSnapshot,
+  getSynthesisEngineSnapshot,
   getSynthesisFactsSnapshot,
   initFoundationDb,
   querySynthesisFacts,
+  runGovernedSynthesis,
   updateBacklogItem,
   upsertSynthesisFactsBundle,
 } from '../lib/foundation-db.js'
@@ -128,6 +130,33 @@ async function main() {
     throw new Error('SYNTHESIS-FACTS-001 snapshot did not retain the saved source-backed fact proof.')
   }
 
+  const synthesis = await runGovernedSynthesis({
+    runId: `synthesis-facts-proof-refresh-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}`,
+    runType: 'governed_synthesis_proof',
+    status: 'succeeded',
+    requestedBy: 'synthesis-facts-proof',
+    sourceIds: factBundle.sourceIds,
+    facts: saved.facts,
+    evidence: factBundle.evidence,
+    maxTier: 1,
+    itemLimit: 5,
+    metadata: {
+      backlogCardId: 'SYNTHESIS-FACTS-001',
+      proofCommand: 'npm run intelligence:synthesis-facts-proof',
+      synthesisScopeKey: 'foundation-spine-proof',
+      refreshedAfterFactRunId: saved.run.runId,
+    },
+  }, 'synthesis-facts-proof')
+  const synthesisSnapshot = await getSynthesisEngineSnapshot({ limit: 20 })
+  if (
+    !synthesis.items.length ||
+    synthesisSnapshot.itemsWithActiveFactRefs < synthesisSnapshot.activeItems ||
+    synthesisSnapshot.itemsWithActiveEvidenceRefs < synthesisSnapshot.activeItems ||
+    synthesisSnapshot.itemsWithActiveEvidenceChunkRefs < synthesisSnapshot.activeItems
+  ) {
+    throw new Error('SYNTHESIS-FACTS-001 proof did not leave active synthesized items pointing at active facts/evidence/chunks.')
+  }
+
   const updatedFactsCard = await updateBacklogItem('SYNTHESIS-FACTS-001', {
     lane: 'done',
     nextAction: 'SYNTHESIS-FACTS-001 remains closed. Build ACTION-ROUTER-001 so governed synthesized items can route into operating ledgers. Keep Strategy Hub UI/advisor/recommendations blocked until Action Router is live.',
@@ -148,8 +177,17 @@ async function main() {
       factsByType: snapshot.factsByType,
       factsBySource: snapshot.factsBySource.slice(0, 12),
       archivedStaleFacts: saved.archivedStaleFacts,
+      archivedSynthesizedItemsWithStaleFacts: saved.archivedSynthesizedItemsWithStaleFacts,
       sourceOverlapProof,
       evidenceFact: savedEvidenceFact,
+    },
+    synthesis: {
+      refreshedRun: synthesis.run,
+      itemCount: synthesis.items.length,
+      activeItems: synthesisSnapshot.activeItems,
+      itemsWithActiveFactRefs: synthesisSnapshot.itemsWithActiveFactRefs,
+      itemsWithActiveEvidenceRefs: synthesisSnapshot.itemsWithActiveEvidenceRefs,
+      itemsWithActiveEvidenceChunkRefs: synthesisSnapshot.itemsWithActiveEvidenceChunkRefs,
     },
     cards: {
       facts: updatedFactsCard,

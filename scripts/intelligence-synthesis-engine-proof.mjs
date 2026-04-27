@@ -208,9 +208,11 @@ async function main() {
     evidence: factBundle.evidence,
     maxTier: 1,
     itemLimit: 8,
+    synthesisScopeKey: 'foundation-spine-proof',
     metadata: {
       backlogCardId: 'SYNTHESIS-ENGINE-001',
       proofCommand: 'npm run intelligence:synthesis-proof',
+      synthesisScopeKey: 'foundation-spine-proof',
       queries,
       queryEmbeddingCallId: queryEmbeddingResult.call.callId,
       corpusDiversity: {
@@ -226,6 +228,8 @@ async function main() {
   if (!synthesis.items.length) throw new Error('SYNTHESIS-ENGINE-001 proof produced no synthesized items.')
   const invalidItem = synthesis.items.find(item =>
     !item.runId ||
+    !item.naturalKey ||
+    item.synthesizedItemId.includes(synthesis.run.runId) ||
     item.minTier > 1 ||
     !item.factRefs?.length ||
     !item.evidenceRefs?.length ||
