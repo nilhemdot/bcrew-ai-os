@@ -14,6 +14,7 @@ import {
   getIntelligenceAtomSpineSnapshot,
   getIntelligenceJobLedgerSnapshot,
   getIntelligenceRetrievalSnapshot,
+  getSynthesisEngineSnapshot,
   getSynthesisFactsSnapshot,
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleLlmCalls,
@@ -156,6 +157,7 @@ async function main() {
   const intelligenceAtomSpineSnapshot = await getIntelligenceAtomSpineSnapshot({ limit: 20 })
   const intelligenceRetrievalSnapshot = await getIntelligenceRetrievalSnapshot({ limit: 20 })
   const synthesisFactsSnapshot = await getSynthesisFactsSnapshot({ limit: 20 })
+  const synthesisEngineSnapshot = await getSynthesisEngineSnapshot({ limit: 20 })
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
@@ -250,6 +252,8 @@ async function main() {
   const intelligenceHybridRetrievalProofSource = await readRepoFile('scripts/intelligence-hybrid-retrieval-proof.mjs')
   const intelligenceSynthesisFactsSource = await readRepoFile('lib/intelligence-synthesis-facts.js')
   const intelligenceSynthesisFactsProofSource = await readRepoFile('scripts/intelligence-synthesis-facts-proof.mjs')
+  const intelligenceSynthesisSource = await readRepoFile('lib/intelligence-synthesis.js')
+  const intelligenceSynthesisProofSource = await readRepoFile('scripts/intelligence-synthesis-engine-proof.mjs')
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
@@ -816,7 +820,7 @@ async function main() {
         'querySynthesisFacts',
         'sourceOverlapProof',
       ]) &&
-      synthesisFactsSnapshot.latestFactRun?.runType === 'source_fact_proof' &&
+      synthesisFactsSnapshot.latestSourceFactProofRun?.runType === 'source_fact_proof' &&
       synthesisFactsSnapshot.totalActiveFacts >= 20 &&
       synthesisFactsSnapshot.factsWithEvidence >= 1 &&
       synthesisFactsSnapshot.distinctSources >= 7 &&
@@ -827,6 +831,56 @@ async function main() {
       ['SRC-STRATEGY-001', 'SRC-FINANCE-001', 'SRC-OWNERS-001', 'SRC-FUB-001', 'SRC-SUPABASE-001', 'SRC-FREEDOM-BHAG-001', 'SRC-MEETINGS-001'].every(sourceId => synthesisFactSources.has(sourceId)),
     'SYNTHESIS-FACTS-001 persists source-backed facts and hybrid evidence for governed synthesis',
     `${synthesisFactsSnapshot.totalActiveFacts} facts / ${synthesisFactsSnapshot.distinctSources} sources / evidence-backed=${synthesisFactsSnapshot.factsWithEvidence} / duplicate-natural-keys=${synthesisFactsSnapshot.duplicateActiveNaturalKeys}`,
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, [
+      'createIntelligenceSynthesisStore',
+      'intelligenceSynthesisSchemaSql',
+      'intelligenceSynthesis',
+      "id: 'SYNTHESIS-ENGINE-001'",
+      'Governed synthesis persists owner-suggested synthesized items',
+      "id: 'ACTION-ROUTER-001'",
+    ]) &&
+      includesAll(intelligenceSynthesisSource, [
+        'CREATE TABLE IF NOT EXISTS intelligence_synthesis_runs',
+        'CREATE TABLE IF NOT EXISTS intelligence_synthesized_items',
+        'fact_refs TEXT[]',
+        'evidence_refs TEXT[]',
+        'evidence_chunk_refs TEXT[]',
+        'synthesized items require evidenceChunkRefs.',
+        'intelligence synthesis queries require maxTier >= 1',
+        'rankingPolicy',
+        'ordered-for-review-without-weighted-score',
+        'stale_after_governed_synthesis_refresh',
+        'runGovernedSynthesis',
+        'getSynthesisEngineSnapshot',
+      ]) &&
+      packageSource.includes('"intelligence:synthesis-proof"') &&
+      includesAll(intelligenceSynthesisProofSource, [
+        'promoteSharedCommunicationCandidatesToAtoms',
+        'DIVERSITY_SOURCE_ID',
+        'SRC-GMAIL-001',
+        'collectSourceBackedSynthesisFacts',
+        'upsertSynthesisFactsBundle',
+        'runGovernedSynthesis',
+        'factRefs',
+        'evidenceRefs',
+        'evidenceChunkRefs',
+        'maxTier: 1',
+        'ACTION-ROUTER-001',
+      ]) &&
+      synthesisEngineSnapshot.latestRun?.runType === 'governed_synthesis_proof' &&
+      synthesisEngineSnapshot.latestRun?.runId &&
+      synthesisEngineSnapshot.activeItems >= 1 &&
+      synthesisEngineSnapshot.itemsWithFactRefs >= synthesisEngineSnapshot.activeItems &&
+      synthesisEngineSnapshot.itemsWithEvidenceRefs >= synthesisEngineSnapshot.activeItems &&
+      synthesisEngineSnapshot.itemsWithEvidenceChunkRefs >= synthesisEngineSnapshot.activeItems &&
+      synthesisEngineSnapshot.tierOneItems >= synthesisEngineSnapshot.activeItems &&
+      synthesisEngineSnapshot.distinctItemSources >= 2 &&
+      intelligenceRetrievalSnapshot.bySource.filter(source => source.count > 0).length >= 2,
+    'SYNTHESIS-ENGINE-001 persists governed synthesized items with fact/evidence provenance and corpus diversity',
+    `${synthesisEngineSnapshot.activeItems} active items / itemSources=${synthesisEngineSnapshot.distinctItemSources} / latestRun=${synthesisEngineSnapshot.latestRun?.runId || 'missing'}`,
   )
   ensure(
     checks,

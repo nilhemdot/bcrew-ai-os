@@ -130,14 +130,14 @@ async function main() {
 
   const updatedFactsCard = await updateBacklogItem('SYNTHESIS-FACTS-001', {
     lane: 'done',
-    nextAction: 'Build SYNTHESIS-ENGINE-001 on top of persisted source-backed synthesis facts and the RETRIEVAL-003 hybrid evidence API. Keep Strategy Hub UI/advisor/recommendations blocked until governed synthesis and Action Router are live.',
+    nextAction: 'SYNTHESIS-FACTS-001 remains closed. Build ACTION-ROUTER-001 so governed synthesized items can route into operating ledgers. Keep Strategy Hub UI/advisor/recommendations blocked until Action Router is live.',
     statusNote: 'Done v1 on 2026-04-27. Source-backed synthesis fact ledger persists strategy/source-contract, goal, operating, KPI, source-snapshot, source-health, and retrieved-evidence facts with maxTier, stable natural keys, stale-run archival, and source-overlap filtering.',
   }, 'synthesis-facts-proof')
 
   const updatedSynthesisCard = await updateBacklogItem('SYNTHESIS-ENGINE-001', {
-    lane: 'scoped',
-    nextAction: 'Build governed synthesis over intelligence_synthesis_facts plus hybrid evidence results; persist synthesized items with fact/evidence links before any Strategy Hub surface resumes.',
-    statusNote: 'Next Foundation spine gate after SYNTHESIS-FACTS-001. Use persisted source facts and hybrid evidence; do not restart Strategy Hub UI/advisor work.',
+    lane: 'done',
+    nextAction: 'Build ACTION-ROUTER-001 so synthesized items route into governed decisions, backlog, open questions, contradictions, ignore/snooze records, or owner-bound actions. Keep Strategy Hub UI/advisor/recommendations blocked until Action Router is live.',
+    statusNote: 'Done v1 on 2026-04-27. Governed synthesis persists owner-suggested synthesized items with source fact refs, hybrid evidence refs, evidence chunk refs, maxTier, structured attributes, and corpus-diversity proof.',
   }, 'synthesis-facts-proof')
 
   console.log(JSON.stringify({

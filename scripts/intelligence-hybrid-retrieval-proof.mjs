@@ -93,13 +93,13 @@ async function main() {
   const updatedHybridCard = await updateBacklogItem('RETRIEVAL-003', {
     lane: 'done',
     summary: 'Combine lexical search, semantic vector search, direct atom search, source filters, and sensitivity/tier rules into one evidence API for synthesis and future chat recall.',
-    nextAction: 'Build SYNTHESIS-ENGINE-001 on top of persisted source-backed synthesis facts and the RETRIEVAL-003 hybrid evidence API. Keep Strategy Hub UI/advisor/recommendations blocked until governed synthesis and Action Router are live.',
+    nextAction: 'RETRIEVAL-003 remains closed. Build ACTION-ROUTER-001 on top of governed synthesis. Keep Strategy Hub UI/advisor/recommendations blocked until Action Router is live.',
     statusNote: 'Done v1 on 2026-04-27. Hybrid evidence search fuses lexical, semantic, and atom matches with explicit maxTier and source-backed result payloads.',
   }, 'hybrid-retrieval-proof')
 
   const updatedFactsCard = await updateBacklogItem('SYNTHESIS-FACTS-001', {
     lane: 'done',
-    nextAction: 'Build SYNTHESIS-ENGINE-001 on top of persisted source-backed synthesis facts and the RETRIEVAL-003 hybrid evidence API. Keep Strategy Hub UI/advisor/recommendations blocked until governed synthesis and Action Router are live.',
+    nextAction: 'SYNTHESIS-FACTS-001 remains closed. Build ACTION-ROUTER-001 so governed synthesized items can route into operating ledgers. Keep Strategy Hub UI/advisor/recommendations blocked until Action Router is live.',
     statusNote: 'Done v1 on 2026-04-27. Source-backed synthesis fact ledger persists strategy/source-contract, goal, operating, KPI, source-snapshot, source-health, and retrieved-evidence facts with maxTier, stable natural keys, stale-run archival, and source-overlap filtering.',
   }, 'hybrid-retrieval-proof')
 

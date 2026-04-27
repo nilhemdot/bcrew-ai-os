@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-04-26
-Version: v6.9 — Strategy pre-work coverage and live planning alignment
+Last updated: 2026-04-27
+Version: v6.10 — Governed synthesis engine and Action Router gate
 Status: Active
 
 Use this doc for one question:
@@ -85,6 +85,7 @@ Built and useful now:
 - Candidate extraction lanes for meetings, Gmail, Missive, Slack, and recovered Zoom material.
 - Historical meeting context reaching back to October 2024 where recovered/transcribed.
 - Persisted synthesis runs/items in Postgres.
+- Memory/retrieval/synthesis spine through governed synthesis: intelligence job runs, old-system salvage contract, report artifacts, atoms, atom hits, lexical chunks/search, pgvector semantic search, hybrid evidence retrieval, source-backed facts, and governed synthesized items with fact/evidence/chunk provenance.
 - First Foundation job registry and DB-backed job run ledger.
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Policy-aware LLM router: credential/route/probe/call tables, executable OpenClaw/Codex subscription adapter, auth-path audit job, call ledger, route status visibility, and shared intelligence extraction/synthesis migrated behind the router.
@@ -116,10 +117,8 @@ Still not done:
 - auth/tier middleware and subject-person redaction implementation from `docs/specs/2026-04-23-auth-tiers-vault.md`
 - final auth/tier middleware and redacted/public split for broad Foundation/Ops read APIs after interim admin gating
 - full `SYSTEM-010` decommission, dead-man, and cost/process-control layer
-- intelligence job ledger for extraction, embedding, video analysis, synthesis, and brief runs
-- source-backed atom schema that turns rich extraction into durable, reviewable memory units
-- retrieval spine: chunk-level lexical search, pgvector semantic search, and hybrid evidence API
-- richer KPI / finance / FUB grounding inside synthesis
+- scheduled broad corpus promotion beyond the current proof/mission lanes
+- broader KPI / finance / FUB fact expansion inside synthesis
 - Action Router v1: synthesized items do not yet route into decisions, backlog tasks, open questions, contradictions, ignore/snooze, or owner-bound actions with back-links
 - source-backed Strategy Hub
 - Harlan/Crewbert useful runtime
@@ -182,11 +181,11 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Add Missive attachments, Drive Sheets/Slides/Office/shortcuts/vision-grade OCR, meeting-linked Drive/Zoom/Loom video priority, and richer multimodal/GOD-mode extraction as separate ledged slices.
    - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
    - Keep Skool/Loom/Mycro extraction governed by authorized access, use rights, cost/route ledgering, quotas, and stop controls.
-5. `INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001` through `SYNTHESIS-FACTS-001` — Build the memory/retrieval/fact spine.
+5. `INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001` through `SYNTHESIS-ENGINE-001` — Build the memory/retrieval/synthesis spine.
    - Add a run/cost/cursor ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation.
-   - `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, and `SYNTHESIS-FACTS-001` are now done/hardened enough for governed synthesis.
-   - Use `intelligence_report_artifacts`, `intelligence_atoms`, `intelligence_atom_hits`, `intelligence_retrieval_chunks`, and `intelligence_synthesis_facts` as the governed report/atom/retrieval/fact substrate before scaling video/web/Skool extraction.
-   - Build governed synthesis next.
+   - `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, and `SYNTHESIS-ENGINE-001` are now done/hardened enough for action routing.
+   - Use `intelligence_report_artifacts`, `intelligence_atoms`, `intelligence_atom_hits`, `intelligence_retrieval_chunks`, `intelligence_synthesis_facts`, and `intelligence_synthesized_items` as the governed report/atom/retrieval/fact/synthesis substrate before scaling video/web/Skool extraction.
+   - Build Action Router next.
    - Keep Graphiti/Zep deferred until Postgres memory proves itself.
 6. `SOURCE-008` / `DATA-005` — Close FUB Level 2 taxonomy and Owners/FUB lineage.
    - Refresh stale FUB source snapshot.
@@ -197,8 +196,8 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
 8. `KPI-HEALTH-001` — Add KPI health, freshness, and schema/code drift checks after `SOURCE-010`.
    - `SOURCE-010` is closed for first-pass read rules. The next work is recurring health/freshness and Lee repo/Supabase schema drift proof.
 9. `SYNTHESIS-ENGINE-001` / `SYNTHESIS-FACTS-001` / `ACTION-ROUTER-001` — Close the intelligence loop.
-   - Prove synthesis against bounded input that fits the subscription adapter.
-   - Source-backed KPI, finance, strategy, Owners/FUB fact grounding is now persisted in `intelligence_synthesis_facts`.
+   - Governed synthesis now persists owner-suggested synthesized items from source-backed facts and hybrid evidence.
+   - Source-backed strategy/source-contract, goal, operating, KPI, source-health, and retrieved-evidence grounding is now persisted in `intelligence_synthesis_facts`.
    - Route synthesized items into governed decisions, backlog tasks, questions, contradictions, ignore/snooze, or owner-bound actions with back-links.
 
 ### Phase 0 — Keep The Existing Proof Stable
@@ -641,8 +640,8 @@ Prerequisites:
 - runtime MVP active
 - router MVP classified
 - extraction current-day lane active
-- synthesis hardening producing ranked live intelligence
-- memory/retrieval/fact spine complete enough for governed synthesis: `INTEL-JOBS-001`, accepted old-system report-shape salvage, `INTEL-ATOM-001`, `RETRIEVAL-001` lexical retrieval, `RETRIEVAL-002` semantic retrieval, `RETRIEVAL-003` hybrid evidence retrieval, `SYNTHESIS-FACTS-001` source-backed fact grounding, and the direct Scoper-to-atom query rule
+- synthesis hardening producing governed synthesized items
+- memory/retrieval/fact/synthesis spine complete enough for routing: `INTEL-JOBS-001`, accepted old-system report-shape salvage, `INTEL-ATOM-001`, `RETRIEVAL-001` lexical retrieval, `RETRIEVAL-002` semantic retrieval, `RETRIEVAL-003` hybrid evidence retrieval, `SYNTHESIS-FACTS-001` source-backed fact grounding, `SYNTHESIS-ENGINE-001` governed synthesized items, and the direct Scoper-to-atom query rule
 - Action Router v1 producing governed decisions/tasks/questions/contradictions/ignore/snooze records with source back-links
 - strategy/Owners/FUB/finance/KPI trust boundaries clear enough for strategy use
 - subject-person privacy/redaction active for any sensitive people evidence used in the hub
@@ -658,7 +657,7 @@ Strategy Hub should:
 - produce a tight owner-level strategy packet
 - track follow-through after the meeting
 
-Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface is now intentionally a Strategy Hub v2 safety stub; the advisor endpoint returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation is disabled. The next Strategy Hub work is not review/promote UI, chat polish, or more recommendations. The command order is Foundation spine first: `INTEL-JOBS-001` done/hardened, `REPORT-MINING-001` accepted as the old-system salvage gate, `INTEL-ATOM-001` done as the v1 report/atom substrate, `RETRIEVAL-001` done as candidate-backed lexical retrieval, `RETRIEVAL-002` done as pgvector semantic retrieval, `RETRIEVAL-003` done as hybrid evidence retrieval, `SYNTHESIS-FACTS-001` done as persisted source-backed fact grounding, then governed synthesis and Action Router. Only after that spine exists should Strategy Hub v2 resume as a source-to-gap operating dashboard.
+Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface is now intentionally a Strategy Hub v2 safety stub; the advisor endpoint returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation is disabled. The next Strategy Hub work is not review/promote UI, chat polish, or more recommendations. The command order is Foundation spine first: `INTEL-JOBS-001` done/hardened, `REPORT-MINING-001` accepted as the old-system salvage gate, `INTEL-ATOM-001` done as the v1 report/atom substrate, `RETRIEVAL-001` done as candidate-backed lexical retrieval, `RETRIEVAL-002` done as pgvector semantic retrieval, `RETRIEVAL-003` done as hybrid evidence retrieval, `SYNTHESIS-FACTS-001` done as persisted source-backed fact grounding, `SYNTHESIS-ENGINE-001` done as governed synthesized items with fact/evidence/chunk provenance, then Action Router. Only after that spine exists should Strategy Hub v2 resume as a source-to-gap operating dashboard.
 
 Acceptance:
 

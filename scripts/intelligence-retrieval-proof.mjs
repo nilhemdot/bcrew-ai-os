@@ -99,13 +99,13 @@ async function main() {
   const updatedRetrievalCard = await updateBacklogItem('RETRIEVAL-001', {
     lane: 'done',
     summary: 'Add chunk tables and Postgres full-text lexical search over real shared-communications candidates/artifacts promoted into atoms before relying on vector search.',
-    nextAction: 'RETRIEVAL-001 remains closed. Continue the Foundation spine through SYNTHESIS-ENGINE-001 and ACTION-ROUTER-001; keep Strategy Hub review/promote UI, advisor chat, and recommendations blocked until governed synthesis and action routing are live.',
+    nextAction: 'RETRIEVAL-001 remains closed. Continue the Foundation spine through ACTION-ROUTER-001 on top of governed synthesis; keep Strategy Hub review/promote UI, advisor chat, and recommendations blocked until action routing is live.',
     statusNote: 'Done v1 on 2026-04-27. RETRIEVAL-001 now promotes real shared_communication_candidates into intelligence_atoms, stores candidate-backed chunks in intelligence_retrieval_chunks, and proves lexical search with explicit maxTier enforcement.',
   }, 'retrieval-proof')
 
   const updatedSemanticCard = await updateBacklogItem('RETRIEVAL-002', {
     lane: 'done',
-    nextAction: 'RETRIEVAL-002 remains closed. Continue the Foundation spine through SYNTHESIS-ENGINE-001 and ACTION-ROUTER-001 on top of hybrid evidence and source-backed facts. Keep Strategy Hub UI/advisor/recommendations blocked.',
+    nextAction: 'RETRIEVAL-002 remains closed. Continue the Foundation spine through ACTION-ROUTER-001 on top of hybrid evidence, source-backed facts, and governed synthesis. Keep Strategy Hub UI/advisor/recommendations blocked.',
     statusNote: 'Done v1 on 2026-04-27. pgvector is installed, candidate-backed chunks have 1536-dimension OpenAI embeddings, semantic search requires explicit maxTier, and proof runs over the real RETRIEVAL-001 corpus.',
   }, 'retrieval-proof')
 

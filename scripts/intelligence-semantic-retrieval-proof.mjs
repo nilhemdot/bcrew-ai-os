@@ -149,14 +149,14 @@ async function main() {
   const updatedSemanticCard = await updateBacklogItem('RETRIEVAL-002', {
     lane: 'done',
     summary: 'Enable pgvector in Postgres and add 1536-dimension embeddings for the candidate-backed intelligence_retrieval_chunks corpus.',
-    nextAction: 'RETRIEVAL-002 remains closed. Continue the Foundation spine through SYNTHESIS-ENGINE-001 and ACTION-ROUTER-001 on top of hybrid evidence and source-backed facts. Keep Strategy Hub UI/advisor/recommendations blocked.',
+    nextAction: 'RETRIEVAL-002 remains closed. Continue the Foundation spine through ACTION-ROUTER-001 on top of hybrid evidence, source-backed facts, and governed synthesis. Keep Strategy Hub UI/advisor/recommendations blocked.',
     statusNote: 'Done v1 on 2026-04-27. pgvector is installed, candidate-backed chunks have 1536-dimension OpenAI embeddings, semantic search requires explicit maxTier, and proof runs over the real RETRIEVAL-001 corpus.',
   }, 'semantic-retrieval-proof')
 
   const updatedHybridCard = await updateBacklogItem('RETRIEVAL-003', {
     lane: 'done',
     summary: 'Combine lexical search, semantic vector search, direct atom search, source filters, and sensitivity/tier rules into one evidence API for synthesis and future chat recall.',
-    nextAction: 'Build SYNTHESIS-ENGINE-001 on top of persisted source-backed synthesis facts and the RETRIEVAL-003 hybrid evidence API. Keep Strategy Hub UI/advisor/recommendations blocked until governed synthesis and Action Router are live.',
+    nextAction: 'RETRIEVAL-003 remains closed. Build ACTION-ROUTER-001 on top of governed synthesis. Keep Strategy Hub UI/advisor/recommendations blocked until Action Router is live.',
     statusNote: 'Done v1 on 2026-04-27. Hybrid evidence search fuses lexical, semantic, and atom matches with explicit maxTier and source-backed result payloads.',
   }, 'semantic-retrieval-proof')
 
