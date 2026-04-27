@@ -132,6 +132,10 @@
     var strip = document.createElement('div')
     strip.className = 'strategy-v2-status-strip'
     strip.appendChild(makePill('Advisor offline', 'neutral'))
+    strip.appendChild(makePill(
+      data.sourceTruthStatus === 'degraded' ? 'Source fallback active' : 'Source truth live',
+      data.sourceTruthStatus === 'degraded' ? 'watch' : 'good'
+    ))
     strip.appendChild(makePill(String(actionRouter.pendingRoutes || 0) + ' pending routes', actionRouter.pendingRoutes ? 'watch' : 'good'))
     strip.appendChild(makePill(String(actionRouter.appliedRoutes || 0) + ' applied routes', actionRouter.appliedRoutes ? 'good' : 'neutral'))
     strip.appendChild(makePill(
@@ -139,6 +143,14 @@
       evalRun.status === 'succeeded' ? 'good' : 'watch'
     ))
     hero.appendChild(strip)
+    if (data.sourceTruthStatus === 'degraded' && data.fallback) {
+      appendText(
+        hero,
+        'p',
+        'Using last-known-good source snapshot from ' + formatDateTime(data.fallback.lastKnownGoodAt) + '. Reason: ' + data.fallback.reason,
+        'strategy-v2-fallback-note'
+      )
+    }
     container.appendChild(hero)
   }
 
@@ -391,13 +403,24 @@
   }
 
   async function reviewRoute(routeId, action) {
+    var actionLabels = {
+      approve_apply: 'approve and apply this route into its destination ledger',
+      reject: 'reject this route and remove the source item from future proposal refreshes',
+      needs_owner: 'route this item to the needs-owner question queue',
+      ignore: 'mark this synthesized item ignored',
+      snooze: 'mark this synthesized item snoozed',
+    }
+    var confirmed = window.confirm('Confirm: ' + (actionLabels[action] || action) + '?')
+    if (!confirmed) return
+    var note = window.prompt('Optional review note', '')
+    if (note === null) return
     state.busyRouteId = routeId
     renderApp()
     try {
       var response = await fetchJson('/api/strategic-execution/action-routes/' + encodeURIComponent(routeId) + '/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: action }),
+        body: JSON.stringify({ action: action, note: note }),
       })
       if (state.data) state.data.actionRouter = response.actionRouter
       state.error = null

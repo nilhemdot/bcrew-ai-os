@@ -974,6 +974,9 @@ async function main() {
         'intelligence action router requires maxTier >= 1',
         'routes_with_active_synthesized_items',
         'applied_routes_with_destination_record',
+        "approval_status = 'rejected'",
+        "routing_status = 'ignored'",
+        'rejected_by_human_review',
       ]) &&
       includesAll(packageSource, [
         '"intelligence:synthesis-refresh"',
@@ -1549,15 +1552,22 @@ async function main() {
       serverSource.includes('applyApprovedActionRoute') &&
       serverSource.includes('rejectActionRoute') &&
       serverSource.includes('rerouteActionRoute') &&
+      serverSource.includes('saveStrategyHubSnapshot') &&
+      serverSource.includes('getStrategyHubSnapshot') &&
+      foundationDbSource.includes('CREATE TABLE IF NOT EXISTS strategy_hub_snapshots') &&
       serverSource.includes('strategy_hub_v2_in_progress') &&
       serverSource.includes('Strategy Advisor is offline while Strategy Hub v2 rebuilds deterministic source snapshots') &&
       strategicExecutionUiSource.includes('/api/strategic-execution/v2') &&
       strategicExecutionUiSource.includes('/api/strategic-execution/action-routes/') &&
       strategicExecutionUiSource.includes('function renderSourceToGap') &&
       strategicExecutionUiSource.includes('function renderRouteReview') &&
+      strategicExecutionUiSource.includes('window.confirm') &&
+      strategicExecutionUiSource.includes('Optional review note') &&
+      strategicExecutionUiSource.includes('Source fallback active') &&
       strategicExecutionUiSource.includes('Advisor remains blocked') &&
       strategyHubV2Api.mode === 'source_to_gap_route_review' &&
       strategyHubV2Api.advisorStatus === 'strategy_hub_v2_in_progress' &&
+      ['live', 'degraded'].includes(strategyHubV2Api.sourceTruthStatus) &&
       strategyHubV2Api.goalTruth?.groups?.length >= 3 &&
       strategyHubV2Api.operatingTruth?.sourceCards?.length >= 4 &&
       strategyHubV2Api.actionRouter?.totalRoutes >= 1 &&

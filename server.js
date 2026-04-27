@@ -26,6 +26,7 @@ import {
   getSharedCommunicationCoverageSnapshot,
   getSharedCommunicationSynthesisSnapshot,
   getStrategyGoalTruthSnapshot,
+  getStrategyHubSnapshot,
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
   getActionRoute,
@@ -54,6 +55,7 @@ import {
   rerouteActionRoute,
   saveFubLeadSourceSnapshot,
   searchIntelligenceEvidenceHybrid,
+  saveStrategyHubSnapshot,
   updateSharedCommunicationCandidateStatus,
   upsertFubLeadSourceRule,
   updateBacklogItem,
@@ -4110,7 +4112,27 @@ app.get('/api/strategic-execution/operating-truth', requireAdminToken, async (re
   }
 })
 
-app.get('/api/strategic-execution/v2', requireAdminToken, async (_req, res) => {
+function buildStrategyHubV2Payload({ goalTruth, operatingTruth, actionRouter, retrieval, sourceTruthStatus = 'live', fallback = null }) {
+  return {
+    generatedAt: new Date().toISOString(),
+    mode: 'source_to_gap_route_review',
+    advisorStatus: 'strategy_hub_v2_in_progress',
+    sourceTruthStatus,
+    fallback,
+    goalTruth,
+    operatingTruth,
+    actionRouter,
+    retrievalEval: retrieval.latestEvalRun || null,
+    routeReview: {
+      pendingRoutes: actionRouter.pendingRoutes || 0,
+      approvedRoutes: actionRouter.approvedRoutes || 0,
+      appliedRoutes: actionRouter.appliedRoutes || 0,
+      recentRoutes: actionRouter.recentRoutes || [],
+    },
+  }
+}
+
+app.get('/api/strategic-execution/v2', requireAdminToken, async (req, res) => {
   try {
     const [goalTruth, operatingTruth, actionRouter, retrieval] = await Promise.all([
       getStrategyGoalTruthSnapshot(),
@@ -4118,23 +4140,40 @@ app.get('/api/strategic-execution/v2', requireAdminToken, async (_req, res) => {
       getActionRouterSnapshot({ limit: 50 }),
       getIntelligenceRetrievalSnapshot({ limit: 20 }),
     ])
+    const payload = buildStrategyHubV2Payload({ goalTruth, operatingTruth, actionRouter, retrieval })
+    try {
+      await saveStrategyHubSnapshot({
+        snapshotKey: 'source_to_gap_route_review',
+        payload,
+        sourceStatus: 'live',
+        generatedAt: payload.generatedAt,
+      }, getRequestActor(req))
+    } catch (snapshotError) {
+      console.warn(`Strategy Hub v2 last-known-good snapshot save failed: ${snapshotError instanceof Error ? snapshotError.message : String(snapshotError)}`)
+    }
     cacheHeadersNoStore(res)
-    res.json({
-      generatedAt: new Date().toISOString(),
-      mode: 'source_to_gap_route_review',
-      advisorStatus: 'strategy_hub_v2_in_progress',
-      goalTruth,
-      operatingTruth,
-      actionRouter,
-      retrievalEval: retrieval.latestEvalRun || null,
-      routeReview: {
-        pendingRoutes: actionRouter.pendingRoutes || 0,
-        approvedRoutes: actionRouter.approvedRoutes || 0,
-        appliedRoutes: actionRouter.appliedRoutes || 0,
-        recentRoutes: actionRouter.recentRoutes || [],
-      },
-    })
+    res.json(payload)
   } catch (error) {
+    let fallbackSnapshot = null
+    try {
+      fallbackSnapshot = await getStrategyHubSnapshot('source_to_gap_route_review')
+    } catch (snapshotError) {
+      console.warn(`Strategy Hub v2 last-known-good snapshot read failed: ${snapshotError instanceof Error ? snapshotError.message : String(snapshotError)}`)
+    }
+    if (fallbackSnapshot?.payload) {
+      cacheHeadersNoStore(res)
+      res.json({
+        ...fallbackSnapshot.payload,
+        generatedAt: new Date().toISOString(),
+        sourceTruthStatus: 'degraded',
+        fallback: {
+          reason: error instanceof Error ? error.message : 'Strategy Hub source read failed.',
+          lastKnownGoodAt: fallbackSnapshot.generatedAt || fallbackSnapshot.updatedAt,
+          snapshotKey: fallbackSnapshot.snapshotKey,
+        },
+      })
+      return
+    }
     sendApiError(
       res,
       500,
