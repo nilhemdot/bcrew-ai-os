@@ -391,6 +391,17 @@ async function main() {
   )
   ensure(
     checks,
+    includesAll(foundationDbSource, [
+      'assertBacklogDoneCloseout',
+      'moving to done requires a closeout statusNote with build/change proof',
+      'createBacklogItem',
+      'updateBacklogItem',
+    ]),
+    'backlog cards moving to done require build/change closeout proof',
+    'create/update paths guard done-lane transitions with source/status closeout proof instead of relying on memory',
+  )
+  ensure(
+    checks,
     dbConstraintAudit.invalidDecisionCategoryCount === 0 &&
       dbConstraintAudit.invalidSourceReferenceCount === 0 &&
       dbConstraintAudit.pendingDocUpdateStateIssueCount === 0,
@@ -895,7 +906,7 @@ async function main() {
       'intelligenceSynthesisSchemaSql',
       'intelligenceSynthesis',
       "id: 'SYNTHESIS-ENGINE-001'",
-      'Steve must review the 5-row synthesis sample before SYNTHESIS-ENGINE-001 can close again',
+      'Closed on 2026-04-27 after Steve accepted the repaired sample grain',
       "id: 'ACTION-ROUTER-001'",
     ]) &&
       includesAll(intelligenceSynthesisSource, [
@@ -916,6 +927,7 @@ async function main() {
         'classifyCluster',
         'strategyHubEligible',
         'legacy_unclustered_replaced_by_clustered_synthesis',
+        'Clarify where leads come from',
         'activeUnclusteredUnprotectedItems',
         'routeableUnclusteredItems',
         'humanSampleRowsForItems',
@@ -945,7 +957,7 @@ async function main() {
         'activeSurfaceQuality',
         'routeableUnclusteredItems',
         'maxTier: 1',
-        'Steve must review the 5-row synthesis sample',
+        'STRATEGY_TITLE_JARGON_PATTERN',
       ]) &&
       synthesisEngineSnapshot.latestProofRun?.runType === 'governed_synthesis_proof' &&
       synthesisEngineSnapshot.latestProofRun?.runId &&
@@ -1006,8 +1018,13 @@ async function main() {
         'strategyHubEligible',
         'reviewSurface',
         'synthesizedItemAttributes',
+        'routeScopeFilter',
         "attributes->>'synthesisQuality'",
         "metadata->>'legacySynthesisProtected'",
+        "COALESCE(item.attributes->>'legacySynthesisProtected', item.metadata->>'legacySynthesisProtected', 'false') != 'true'",
+        'itemsVisibleToRouter',
+        'strategyItemsVisibleToRouter',
+        'strategyRoutes',
       ]) &&
       includesAll(packageSource, [
         '"intelligence:synthesis-refresh"',
@@ -1046,11 +1063,15 @@ async function main() {
       actionRouterSnapshot.routesWithActiveEvidenceChunkRefs >= actionRouterSnapshot.guardedRoutes &&
       actionRouterSnapshot.appliedRoutes >= 1 &&
       actionRouterSnapshot.appliedRoutesWithDestinationRecord >= actionRouterSnapshot.appliedRoutesChecked &&
+      actionRouterSnapshot.itemsVisibleToRouter === actionRouterSnapshot.activeClusteredItems &&
+      (actionRouterSnapshot.strategyItemsVisibleToRouter >= 1 || actionRouterSnapshot.strategyRoutes >= 1) &&
+      actionRouterSnapshot.unclusteredItemsVisibleToRouter === 0 &&
+      actionRouterSnapshot.legacyProtectedItemsVisibleToRouter === 0 &&
       ['backlog_items', 'decisions', 'open_questions', 'intelligence_synthesized_items'].every(destinationTable =>
         (actionRouterSnapshot.routesByDestination || []).some(row => row.destinationTable === destinationTable && row.count >= 1)
       ),
     'ACTION-ROUTER-001 creates approval-gated routes with owner and provenance before Strategy Hub resumes',
-    `${actionRouterSnapshot.totalRoutes} routes / pending=${actionRouterSnapshot.pendingRoutes} / applied=${actionRouterSnapshot.appliedRoutes} / latestProof=${actionRouterSnapshot.latestProofRun?.runId || 'missing'}`,
+    `${actionRouterSnapshot.totalRoutes} routes / pending=${actionRouterSnapshot.pendingRoutes} / applied=${actionRouterSnapshot.appliedRoutes} / strategyRoutes=${actionRouterSnapshot.strategyRoutes} / routerVisible=${actionRouterSnapshot.itemsVisibleToRouter}/${actionRouterSnapshot.activeClusteredItems} / strategyVisible=${actionRouterSnapshot.strategyItemsVisibleToRouter} / latestProof=${actionRouterSnapshot.latestProofRun?.runId || 'missing'}`,
   )
   ensure(
     checks,
@@ -1786,6 +1807,7 @@ async function main() {
     foundationCloseout ? `${foundationCloseout.lane} / ${foundationCloseout.title}` : 'missing',
   )
   const foundationSurfaceSweep = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-SWEEP-001') || null
+  const foundationChangelog = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-CHANGELOG-001') || null
   ensure(
     checks,
     foundationSurfaceSweep?.lane === 'scoped' &&
@@ -1798,6 +1820,16 @@ async function main() {
       ? `${foundationSurfaceSweep.lane} / ${foundationSurfaceSweep.priority} / ${foundationSurfaceSweep.title}`
       : 'missing FOUNDATION-SWEEP-001',
   )
+  ensure(
+    checks,
+    foundationChangelog?.lane === 'done' &&
+      foundationChangelog?.priority === 'P0' &&
+      /Recent Builds/.test(foundationChangelog?.summary || foundationChangelog?.nextAction || '') &&
+      /done-lane guard/.test(foundationChangelog?.nextAction || '') &&
+      includesAll(foundationDbSource, ['assertBacklogDoneCloseout', 'FOUNDATION-CHANGELOG-001']),
+    'Foundation build closeout discipline is tracked and enforced',
+    foundationChangelog ? `${foundationChangelog.lane} / ${foundationChangelog.title}` : 'missing FOUNDATION-CHANGELOG-001',
+  )
   const strategyLayerCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-001') || null
   const strategyInputCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-014') || null
   ensure(
@@ -1807,6 +1839,41 @@ async function main() {
     `FOUNDATION-001=${strategyLayerCloseout?.lane || 'missing'} / SOURCE-014=${strategyInputCloseout?.lane || 'missing'}`,
   )
   const sourceLifecycleContent = (foundationHub.backlogItems || []).find(item => item.id === 'MKT-004') || null
+  const systemStrategyReview = (foundationHub.backlogItems || []).find(item => item.id === 'SYSTEM-STRATEGY-REVIEW-001') || null
+  const strategyMeetingReady = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGY-HUB-MEETING-READY-001') || null
+  const strategyQuarter = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGY-QUARTER-001') || null
+  const agentFactory = (foundationHub.backlogItems || []).find(item => item.id === 'AGENT-005') || null
+  const backlogItemText = item => [
+    item?.title,
+    item?.summary,
+    item?.whyItMatters,
+    item?.nextAction,
+    item?.statusNote,
+  ].filter(Boolean).join('\n')
+  const systemStrategyReviewText = backlogItemText(systemStrategyReview)
+  const strategyMeetingReadyText = backlogItemText(strategyMeetingReady)
+  const strategyQuarterText = backlogItemText(strategyQuarter)
+  const agentFactoryText = backlogItemText(agentFactory)
+  ensure(
+    checks,
+    systemStrategyReview?.lane === 'scoped' &&
+      systemStrategyReviewText.includes('function-vs-form testing') &&
+      strategyMeetingReady?.lane === 'scoped' &&
+      strategyMeetingReadyText.includes('plain-English') &&
+      strategyMeetingReadyText.includes('live ownership meetings') &&
+      strategyQuarter?.lane === 'scoped' &&
+      strategyQuarterText.includes('PostgreSQL-backed canonical records') &&
+      strategyQuarterText.includes('Strategy Hub owner/admin forms') &&
+      strategyQuarterText.includes('strategy-quarter fact types') &&
+      agentFactoryText.includes('STRATEGY-QUARTER-001 has been used in production for at least two weekly ownership cycles'),
+    'AIOS strategy follow-up cards are pinned with data store, write path, synthesis path, and agent deferral gate',
+    [
+      `review=${systemStrategyReview?.lane || 'missing'}`,
+      `meeting=${strategyMeetingReady?.lane || 'missing'}`,
+      `quarter=${strategyQuarter?.lane || 'missing'}`,
+      `agent=${agentFactory?.lane || 'missing'}`,
+    ].join(' / '),
+  )
   ensure(
     checks,
     sourceLifecycleContent?.team === 'marketing' &&

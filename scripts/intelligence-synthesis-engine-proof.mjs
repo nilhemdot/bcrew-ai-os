@@ -11,7 +11,6 @@ import {
   promoteSharedCommunicationCandidatesToAtoms,
   runGovernedSynthesis,
   selectRetrievalChunksForEmbedding,
-  updateBacklogItem,
   upsertRetrievalChunkEmbedding,
   upsertSynthesisFactsBundle,
 } from '../lib/foundation-db.js'
@@ -29,6 +28,7 @@ const SAFE_QUERY_PATTERNS = [
   /video content/i,
 ]
 const BLOCKED_QUERY_PATTERN = /(password|verification|code|api key|otp|login|reset|statement|stubhub|ticket|promo|unsubscribe|receipt|invoice)/i
+const STRATEGY_TITLE_JARGON_PATTERN = /\bsource-map\b|map\|source\|strategy|review repeated .+ pattern/i
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}
@@ -283,6 +283,10 @@ async function main() {
   if (strategySingleEvidenceItems.length) {
     throw new Error(`SYNTHESIS-ENGINE-001 marked single-evidence items as Strategy-eligible: ${strategySingleEvidenceItems.map(item => item.synthesizedItemId).join(', ')}`)
   }
+  const jargonStrategyTitle = strategyEligibleItems.find(item => STRATEGY_TITLE_JARGON_PATTERN.test(String(item.title || '')))
+  if (jargonStrategyTitle) {
+    throw new Error(`SYNTHESIS-ENGINE-001 strategy title is not meeting-readable: ${jargonStrategyTitle.title}`)
+  }
   const activeItemSourceCount = new Set(synthesis.items.flatMap(item => item.sourceIds || [])).size
   if (activeItemSourceCount < 2) {
     throw new Error('SYNTHESIS-ENGINE-001 proof must synthesize items from at least two active evidence sources.')
@@ -329,12 +333,7 @@ async function main() {
     })}`)
   }
 
-  const updatedSynthesisCard = refreshMode ? null : await updateBacklogItem('SYNTHESIS-ENGINE-001', {
-    lane: 'executing',
-    nextAction: 'Steve must review the 5-row synthesis sample before SYNTHESIS-ENGINE-001 can close again. Passing code gates now require clustered themes, duplicate collapse, Strategy/operational classification, and multi-evidence Strategy items.',
-    statusNote: 'Repair build landed on 2026-04-27 and proof gates now check output quality, not just provenance form. Keep the card executing until Steve accepts the human-readable sample as strategy-grade.',
-  }, actor)
-
+  const updatedSynthesisCard = null
   const updatedActionRouterCard = null
 
   console.log('SYNTHESIS HUMAN SAMPLE')
