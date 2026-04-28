@@ -1037,6 +1037,14 @@ Current generated table:
   - conditional deal, side, agent, accepted offer date, conditional deadline, closing date, Net To Team dollars, deposit status, deposit received date, Trade Number, FUB link, ClickUp URL, and missing/action-needed notes
   - `N` preserves the manual `THIS ROW ONLY: CONDITIONAL REVIEW ACTION` value
   - `O` records `AI Conditional Findings / Suggestions`
+- summary rows now show conditional Net To Team buckets for the active collection months:
+  - current month, e.g. `Collecting April`
+  - next month, e.g. `Collecting May`
+  - following month, e.g. `Collecting June`
+  - `Collecting Future`
+- `Net To Team missing closing date` shows conditional Net To Team that is visible in ClickUp but excluded from collection cash because no closing date exists yet
+- when the calendar month flips, the labels roll forward automatically; for example May becomes the current collection month, June the next month, and July the following month
+- cash bucket logic uses `Closing Date` only; `Conditional Deadline` is used for due/past-due follow-up, not cash timing
 - buyer/seller conditional tags in ClickUp determine the conditional lane
 - mutual-release tags are excluded because they are dead deals
 - there is no separate legacy conditional review lane in v1; re-review is only the preserved action cell on this generated forecast

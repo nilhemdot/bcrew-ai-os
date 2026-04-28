@@ -148,19 +148,19 @@ Proof on 2026-04-26:
   - `2` shortcuts: `unsupported_drive_mime_type_for_v1_text_extraction`
   - handwritten/scanned files may archive through rough OCR, but still need the future vision-grade handwriting lane before relying on exact quotes or high-confidence semantic extraction
 
-Pre-strat read-coverage proof on 2026-04-26:
+Pre-strat read-coverage proof on 2026-04-27:
 
 - Endpoint: `/api/strategic-execution/prework-coverage`.
 - Purpose: prove which expected Q2 pre-strat participant notes are actually extracted and readable before the live strategy session.
 - Current expected rows: Steve Zahnd, Scott Benson, Ryan Campbell, Carson, Georgia Huntley, Nick Bergmann, Clare, Ahsan, and Blake Berfelz.
-- Current proof: `8/9` expected rows are readable, `10` current Q2 artifacts are indexed, and `100,382` chars of pre-work text are available to the Strategy Advisor.
+- Current proof: `9/9` expected rows are readable, `11` current Q2 artifacts are indexed, and `112,122` chars of pre-work text are available to the Strategy source-to-gap surface.
 - Read methods:
   - Scott: manual visual review over the handwritten PDF, plus rough OCR retained for search.
   - Ryan, Carson, Georgia, Ahsan: fillable PDF form fields extracted, not just blank template text.
-  - Nick, Clare: PDF text extraction.
+  - Nick, Clare, Blake: PDF text extraction.
   - Steve: first-person AIOS draft markdown in Drive.
-- Current explicit gap: Blake remains `Missing` until his artifact is uploaded, shared, or extracted. This is intentional; missing participant coverage should show as a red/yellow gap, not hide inside a packet summary.
-- Strategy Advisor context now receives this coverage as `preworkReadCoverage`, so who-said-what answers can distinguish direct artifact proof from packet inference.
+- Blake's late upload, `PreStrat Doc 2.0_fillable - Q2 (1)Blake.pdf`, was extracted as `SRC-GDRIVE-001:drive_pdf:1x5UsSybYWbHdZQRN7yE6vnjnXsWnUWa9`.
+- The prework coverage API now returns `read_complete`; if any later artifact appears, rerun Drive content extraction and confirm the participant row stays source-backed rather than inferred from packet summaries.
 
 John Q1 agenda link-following proof on 2026-04-26:
 

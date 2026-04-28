@@ -4,6 +4,26 @@ import { getSheetGridData } from '../lib/google-delegated.js'
 import { fileURLToPath } from 'node:url'
 
 const USER = 'service-account'
+const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+
+function collectingMonthLabel(offset) {
+  const date = new Date()
+  date.setMonth(date.getMonth() + offset, 1)
+  return `Collecting ${MONTH_NAMES[date.getMonth()]}`
+}
 
 const WORKBOOKS = [
   {
@@ -206,24 +226,29 @@ const WORKBOOKS = [
       },
       {
         title: 'Listings and Conditional Deals',
-        range: "'Listings and Conditional Deals'!A1:O16",
+        range: "'Listings and Conditional Deals'!A1:O17",
         cells: {
           A1: 'Conditional Pipeline Forecast - ClickUp Generated',
           A2: 'Last sync',
           A3: 'Source',
           A5: 'Metric',
           A6: 'Active conditional tasks',
-          A15: 'Marked re-review',
-          A16: 'Conditional Deal',
-          E16: 'Conditional Deadline',
-          F16: 'Closing Date',
-          G16: 'Net To Team $',
-          I16: 'Deposit Received Date',
-          K16: 'FUB Link',
-          L16: 'ClickUp URL',
-          M16: 'Missing / Action Needed',
-          N16: 'THIS ROW ONLY: CONDITIONAL REVIEW ACTION',
-          O16: 'AI Conditional Findings / Suggestions',
+          A8: collectingMonthLabel(0),
+          A9: collectingMonthLabel(1),
+          A10: collectingMonthLabel(2),
+          A11: 'Collecting Future',
+          A12: 'Net To Team missing closing date',
+          A16: 'Missing FUB link',
+          A17: 'Conditional Deal',
+          E17: 'Conditional Deadline',
+          F17: 'Closing Date',
+          G17: 'Net To Team $',
+          I17: 'Deposit Received Date',
+          K17: 'FUB Link',
+          L17: 'ClickUp URL',
+          M17: 'Missing / Action Needed',
+          N17: 'THIS ROW ONLY: CONDITIONAL REVIEW ACTION',
+          O17: 'AI Conditional Findings / Suggestions',
         },
       },
       {

@@ -14,10 +14,24 @@ const OWNERS_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk'
 const SHEET_TITLE = 'Listings and Conditional Deals'
 const SHEET_ID = 131346715
 const CLICKUP_DEAL_DATA_ENTRY_LIST_ID = process.env.CLICKUP_DEAL_DATA_ENTRY_LIST_ID || '901112153939'
-const TABLE_HEADER_ROW_INDEX = 15
+const TABLE_HEADER_ROW_INDEX = 16
 const TABLE_COLUMN_COUNT = 15
 const REVIEW_ACTION_NO_ACTION = 'No Action'
 const REVIEW_ACTION_REVIEW = 'Review This Conditional'
+const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
 
 function normalizeText(value) {
   return value == null ? '' : String(value).trim()
@@ -155,25 +169,36 @@ function forecastNetToTeam(fields) {
   )
 }
 
-function currentMonthBounds(now = new Date()) {
-  const year = now.getFullYear()
-  const month = now.getMonth()
-  const start = new Date(year, month, 1)
-  const next = new Date(year, month + 1, 1)
-  const following = new Date(year, month + 2, 1)
-  const ninety = new Date(now)
-  ninety.setDate(ninety.getDate() + 90)
+function monthBucketFromDate(now, offset) {
+  const date = new Date(Date.UTC(now.getFullYear(), now.getMonth() + offset, 1))
   return {
-    currentStart: start.toISOString().slice(0, 10),
-    nextStart: next.toISOString().slice(0, 10),
-    followingStart: following.toISOString().slice(0, 10),
-    ninetyEnd: ninety.toISOString().slice(0, 10),
-    today: now.toISOString().slice(0, 10),
+    key: `month${offset}`,
+    label: `Collecting ${MONTH_NAMES[date.getUTCMonth()]}`,
+    startIso: date.toISOString().slice(0, 10),
   }
 }
 
-function inRange(iso, startInclusive, endExclusive) {
-  return Boolean(iso && iso >= startInclusive && iso < endExclusive)
+function currentMonthBounds(now = new Date()) {
+  return {
+    today: now.toISOString().slice(0, 10),
+    month0: monthBucketFromDate(now, 0),
+    month1: monthBucketFromDate(now, 1),
+    month2: monthBucketFromDate(now, 2),
+    month3: monthBucketFromDate(now, 3),
+    future: {
+      key: 'future',
+      label: 'Collecting Future',
+    },
+  }
+}
+
+function conditionalCashBucket(row, bounds) {
+  const forecastDate = row.expectedCommissionDepositDate
+  if (!forecastDate) return null
+  if (forecastDate < bounds.month1.startIso) return bounds.month0.key
+  if (forecastDate < bounds.month2.startIso) return bounds.month1.key
+  if (forecastDate < bounds.month3.startIso) return bounds.month2.key
+  return bounds.future.key
 }
 
 function sumRows(rows, predicate) {
@@ -190,6 +215,7 @@ function buildRecord(task) {
   if (hasReleasedTag(task)) return null
   if (dealStatus !== 'Conditional') return null
   const closingDate = normalizeDateValue(firstValue(fields.get('Closing Date'), fields.get('Expected Closing')))
+  const conditionalDeadline = normalizeDateValue(fields.get('Conditional Deadline'))
   const conditionalSide = conditionalSideFromTags(task)
   const record = {
     name: normalizeText(task.name),
@@ -199,7 +225,7 @@ function buildRecord(task) {
     conditionalType: conditionalSide,
     agent: normalizeText(firstValue(fields.get('👤 Agent'), fields.get('Agent'))),
     acceptedOfferDate: normalizeDateValue(fields.get('Accepted Offer Date')),
-    conditionalDeadline: normalizeDateValue(fields.get('Conditional Deadline')),
+    conditionalDeadline,
     closingDate,
     expectedCommissionDepositDate: closingDate,
     netToTeamForecast: forecastNetToTeam(fields),
@@ -227,7 +253,8 @@ function recordReviewKey(record) {
 }
 
 async function readExistingReviewActions() {
-  const res = await getSheetValues('ai@bensoncrew.ca', OWNERS_SHEET_ID, `'${SHEET_TITLE}'!A16:O500`)
+  const headerRowNumber = TABLE_HEADER_ROW_INDEX + 1
+  const res = await getSheetValues('ai@bensoncrew.ca', OWNERS_SHEET_ID, `'${SHEET_TITLE}'!A${headerRowNumber}:O500`)
   const rows = res.values || []
   const header = rows[0] || []
   const find = name => header.findIndex(value => normalizeText(value) === name)
@@ -257,7 +284,6 @@ async function readExistingReviewActions() {
 
 function buildSheetValues(records, existingReviewActions) {
   const bounds = currentMonthBounds()
-  const queuedReviewCount = records.filter(row => existingReviewActions.get(recordReviewKey(row)) === REVIEW_ACTION_REVIEW).length
   const summaryRows = [
     ['Conditional Pipeline Forecast - ClickUp Generated'],
     ['Last sync', new Date().toISOString()],
@@ -266,14 +292,15 @@ function buildSheetValues(records, existingReviewActions) {
     ['Metric', 'Value'],
     ['Active conditional tasks', records.length],
     ['Conditions due / past due', countDueOrPast(records, bounds.today)],
-    ['Net to team $ this month', sumRows(records, row => inRange(row.expectedCommissionDepositDate, bounds.currentStart, bounds.nextStart))],
-    ['Net to team $ next month', sumRows(records, row => inRange(row.expectedCommissionDepositDate, bounds.nextStart, bounds.followingStart))],
-    ['Net to team $ next 90 days', sumRows(records, row => inRange(row.expectedCommissionDepositDate, bounds.today, bounds.ninetyEnd))],
+    [bounds.month0.label, sumRows(records, row => conditionalCashBucket(row, bounds) === bounds.month0.key)],
+    [bounds.month1.label, sumRows(records, row => conditionalCashBucket(row, bounds) === bounds.month1.key)],
+    [bounds.month2.label, sumRows(records, row => conditionalCashBucket(row, bounds) === bounds.month2.key)],
+    [bounds.future.label, sumRows(records, row => conditionalCashBucket(row, bounds) === bounds.future.key)],
+    ['Net To Team missing closing date', sumRows(records, row => !row.closingDate)],
     ['Missing closing date', records.filter(row => !row.closingDate).length],
     ['Missing net to team $', records.filter(row => !row.netToTeamForecast).length],
     ['Missing trade number', records.filter(row => !row.tradeNumber).length],
     ['Missing FUB link', records.filter(row => !row.fubLink).length],
-    ['Marked re-review', queuedReviewCount],
   ]
 
   const header = [
@@ -462,6 +489,23 @@ async function formatSheet(records) {
           repeatCell: {
             range: {
               sheetId: SHEET_ID,
+              startRowIndex: 7,
+              endRowIndex: 12,
+              startColumnIndex: 1,
+              endColumnIndex: 2,
+            },
+            cell: {
+              userEnteredFormat: {
+                numberFormat: { type: 'CURRENCY', pattern: '$#,##0' },
+              },
+            },
+            fields: 'userEnteredFormat.numberFormat',
+          },
+        },
+        {
+          repeatCell: {
+            range: {
+              sheetId: SHEET_ID,
               startRowIndex: TABLE_HEADER_ROW_INDEX + 1,
               endRowIndex: tableEndRowIndex,
               startColumnIndex: 3,
@@ -588,9 +632,19 @@ async function main() {
   ])
   await formatSheet(records)
 
+  const bounds = currentMonthBounds()
   console.log(JSON.stringify({
     sourceListId: CLICKUP_DEAL_DATA_ENTRY_LIST_ID,
     conditionalTasks: records.length,
+    collectingCurrentMonthLabel: bounds.month0.label,
+    collectingCurrentMonth: sumRows(records, row => conditionalCashBucket(row, bounds) === bounds.month0.key),
+    collectingNextMonthLabel: bounds.month1.label,
+    collectingNextMonth: sumRows(records, row => conditionalCashBucket(row, bounds) === bounds.month1.key),
+    collectingFollowingMonthLabel: bounds.month2.label,
+    collectingFollowingMonth: sumRows(records, row => conditionalCashBucket(row, bounds) === bounds.month2.key),
+    collectingFutureLabel: bounds.future.label,
+    collectingFuture: sumRows(records, row => conditionalCashBucket(row, bounds) === bounds.future.key),
+    netToTeamMissingClosingDate: sumRows(records, row => !row.closingDate),
     missingClosingDate: records.filter(row => !row.closingDate).length,
     missingNetToTeam: records.filter(row => !row.netToTeamForecast).length,
     missingTradeNumber: records.filter(row => !row.tradeNumber).length,
