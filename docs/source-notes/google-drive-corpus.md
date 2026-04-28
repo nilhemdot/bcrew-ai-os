@@ -174,7 +174,7 @@ John Q1 agenda link-following proof on 2026-04-26:
 - Before claiming browser-based Drive access repair as automated, AIOS needs an approved `ai@` browser profile/session preflight: active account, allowed source, login state, request-access button detection, screenshot capture, and recorded result.
 - Accessible linked Google Docs were extracted into Drive artifacts before the refreshed Strategy Evidence Packet run.
 
-This proves Drive access was not the main blocker. The blocker was extractor implementation and per-file access/format handling. Docs/PDF/text/markdown and rough OCR are now live; Sheets, Slides, shortcut resolution, Office conversion, high-confidence handwriting/vision, and media remain separate file-type workers.
+This proves Drive access was not the main blocker. The blocker was extractor implementation and per-file access/format handling. Docs/Sheets/PDF/text/markdown and rough OCR are now live; Slides, shortcut resolution, Office conversion, high-confidence handwriting/vision, and media remain separate file-type workers.
 
 ## Strategy Folder Operating Model
 
@@ -195,13 +195,13 @@ Quarterly workflow target:
 
 What is live now:
 
-- Strategy-folder inventory, Docs/PDF/text/markdown extraction, Q1 agenda link inventory, rough scanned-PDF OCR fallback, and a manual visual review for Scott's handwritten pre-strat PDF.
+- Strategy-folder inventory, Docs/Sheets/PDF/text/markdown extraction, Q1 agenda link inventory, rough scanned-PDF OCR fallback, and a manual visual review for Scott's handwritten pre-strat PDF.
 - Source-backed artifacts for the John binder, John Q1 agenda and accessible linked docs, team pre-work, Q2 PDFs, Steve/Carson notes, Scott handwritten scan, Steve Q2 draft, and Q1 vision/core-values material.
 - Scott's handwritten pre-strat visual review is captured in `docs/audits/2026-04-26-scott-pre-strat-visual-review.md`; use that note over the raw OCR when asking about Scott's themes until vision-grade extraction is built.
 
 What is still needed before this becomes a high-value strategy engine:
 
-- Sheets, Slides, shortcut target resolution, Office files, vision-grade handwriting/screenshot extraction, Drive videos, and linked-video extraction.
+- Slides, shortcut target resolution, Office files, vision-grade handwriting/screenshot extraction, Drive videos, and linked-video extraction.
 - Synthesis that turns extracted artifacts into strategy issues, contradictions, risks, priorities, and recommendations.
 - Action Router / Strategy Hub handoff so approved outputs become decisions, tasks, questions, or execution records instead of another raw document pile.
 

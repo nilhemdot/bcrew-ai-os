@@ -15,7 +15,12 @@ import {
   upsertSharedCommunicationArtifact,
   upsertSourceCrawlItem,
 } from '../lib/foundation-db.js'
-import { driveDownloadFile, driveExportDoc } from '../lib/google-delegated.js'
+import {
+  driveDownloadFile,
+  driveExportDoc,
+  getSpreadsheetMetadata,
+  getSheetValues,
+} from '../lib/google-delegated.js'
 
 const execFile = promisify(execFileCallback)
 
@@ -23,6 +28,7 @@ const DEFAULT_SOURCE_USER = process.env.GOOGLE_DRIVE_CORPUS_USER || 'steve.zahnd
 const DEFAULT_INVENTORY_TARGET = 'drive-corpus-backfill'
 const DEFAULT_EXTRACTION_TARGET = 'drive-content-extract-backfill'
 const GOOGLE_DOC_MIME = 'application/vnd.google-apps.document'
+const GOOGLE_SHEET_MIME = 'application/vnd.google-apps.spreadsheet'
 const PDF_MIME = 'application/pdf'
 const TEXT_MIME = 'text/plain'
 const MARKDOWN_MIME = 'text/markdown'
@@ -88,6 +94,13 @@ function classifyDriveContentItem(item) {
       supported: true,
       artifactType: 'drive_document',
       extractionMethod: 'drive_google_doc_export_text_v1',
+    }
+  }
+  if (mimeType === GOOGLE_SHEET_MIME) {
+    return {
+      supported: true,
+      artifactType: 'drive_spreadsheet',
+      extractionMethod: 'drive_google_sheet_values_v1',
     }
   }
   if (mimeType === PDF_MIME) {
@@ -249,6 +262,80 @@ async function extractPdfTextWithOcr(
   }
 }
 
+function columnNumberToLetters(value) {
+  let num = Math.max(1, Number(value || 1))
+  let letters = ''
+  while (num > 0) {
+    const mod = (num - 1) % 26
+    letters = String.fromCharCode(65 + mod) + letters
+    num = Math.floor((num - mod) / 26)
+  }
+  return letters
+}
+
+function quoteSheetNameForA1(title) {
+  return `'${String(title || 'Sheet1').replace(/'/g, "''")}'`
+}
+
+function normalizeSheetCell(value) {
+  if (value == null) return ''
+  if (typeof value === 'string') return value.replace(/\s+/g, ' ').trim()
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  return JSON.stringify(value)
+}
+
+function formatSheetValues(values = []) {
+  return values
+    .map(row => {
+      const cells = (Array.isArray(row) ? row : [])
+        .map(normalizeSheetCell)
+      while (cells.length && !cells[cells.length - 1]) cells.pop()
+      return cells.join('\t')
+    })
+    .filter(line => line.trim())
+    .join('\n')
+}
+
+async function extractGoogleSheetText(userEmail, fileId, {
+  maxSheets = 8,
+  maxSheetRows = 200,
+  maxSheetColumns = 26,
+} = {}) {
+  const metadata = await getSpreadsheetMetadata(userEmail, fileId)
+  const spreadsheetTitle = metadata?.properties?.title || fileId
+  const sheets = (Array.isArray(metadata?.sheets) ? metadata.sheets : [])
+    .map(sheet => sheet.properties || {})
+    .filter(sheet => sheet.title && sheet.hidden !== true)
+    .sort((left, right) => Number(left.index || 0) - Number(right.index || 0))
+    .slice(0, Math.max(1, Number(maxSheets || 8)))
+
+  const maxRows = Math.max(1, Number(maxSheetRows || 200))
+  const maxColumns = Math.max(1, Number(maxSheetColumns || 26))
+  const lastColumn = columnNumberToLetters(maxColumns)
+  const chunks = [`# Spreadsheet: ${spreadsheetTitle}`]
+  let sheetsRead = 0
+
+  for (const sheet of sheets) {
+    const rowLimit = Math.min(maxRows, Number(sheet.gridProperties?.rowCount || maxRows) || maxRows)
+    const colLimit = Math.min(maxColumns, Number(sheet.gridProperties?.columnCount || maxColumns) || maxColumns)
+    const range = `${quoteSheetNameForA1(sheet.title)}!A1:${columnNumberToLetters(colLimit)}${rowLimit}`
+    const response = await getSheetValues(userEmail, fileId, range)
+    const body = formatSheetValues(response?.values || [])
+    if (!body) continue
+    sheetsRead += 1
+    chunks.push(`## Sheet: ${sheet.title}\n${body}`)
+  }
+
+  return {
+    text: chunks.length > 1 ? chunks.join('\n\n') : '',
+    extractionMethod: 'drive_google_sheet_values_v1',
+    sheetCount: sheets.length,
+    sheetsRead,
+    maxSheetRows: maxRows,
+    maxSheetColumns: maxColumns,
+  }
+}
+
 async function extractItemText(item, {
   userEmail,
   maxPdfBytes,
@@ -258,6 +345,9 @@ async function extractItemText(item, {
   tesseractBin,
   maxOcrPages,
   ocrDpi,
+  maxSheets,
+  maxSheetRows,
+  maxSheetColumns,
 }) {
   const fileId = getFileId(item)
   const mimeType = getMimeType(item)
@@ -265,6 +355,22 @@ async function extractItemText(item, {
 
   if (mimeType === GOOGLE_DOC_MIME) {
     return driveExportDoc(userEmail, fileId)
+  }
+
+  if (mimeType === GOOGLE_SHEET_MIME) {
+    const sheetText = await extractGoogleSheetText(userEmail, fileId, {
+      maxSheets,
+      maxSheetRows,
+      maxSheetColumns,
+    })
+    if (normalizeText(sheetText.text)) return sheetText
+    return {
+      skipped: true,
+      skipReason: 'empty_text_after_sheet_export',
+      extractionMethod: sheetText.extractionMethod,
+      sheetCount: sheetText.sheetCount,
+      sheetsRead: sheetText.sheetsRead,
+    }
   }
 
   if (mimeType === PDF_MIME) {
@@ -423,6 +529,7 @@ async function archiveExtractedText({
     ...extractionMetadata,
     officialApiBasis: [
       'Drive files.export for Google Workspace docs',
+      'Sheets API spreadsheets.values.get for Google Sheets',
       'Drive files.get alt=media for blob files',
     ],
   }
@@ -488,6 +595,9 @@ async function main() {
   const ocrEmptyPdf = args.ocrEmptyPdf == null ? false : boolValue(args.ocrEmptyPdf)
   const maxOcrPages = Math.min(30, Math.max(1, Number(args.maxOcrPages || 8) || 8))
   const ocrDpi = Math.min(300, Math.max(120, Number(args.ocrDpi || 180) || 180))
+  const maxSheets = Math.min(25, Math.max(1, Number(args.maxSheets || 8) || 8))
+  const maxSheetRows = Math.min(1000, Math.max(1, Number(args.maxSheetRows || 200) || 200))
+  const maxSheetColumns = Math.min(100, Math.max(1, Number(args.maxSheetColumns || 26) || 26))
   const includeUnsupported = args.includeUnsupported == null ? true : boolValue(args.includeUnsupported)
   const retrySkippedReasonPrefixes = listValue(args.retrySkippedReasonPrefixes || args.retrySkippedPrefix)
   const parentPathIncludes = String(args.parentPathIncludes || '').trim()
@@ -568,6 +678,9 @@ async function main() {
           tesseractBin,
           maxOcrPages,
           ocrDpi,
+          maxSheets,
+          maxSheetRows,
+          maxSheetColumns,
         })
         if (textResult && typeof textResult === 'object' && textResult.skipped) {
           skipped += 1
@@ -579,6 +692,8 @@ async function main() {
             metadata: {
               extractionMethod: textResult.extractionMethod || classification.extractionMethod,
               needsVisionExtraction: Boolean(textResult.needsVisionExtraction),
+              sheetCount: textResult.sheetCount == null ? undefined : textResult.sheetCount,
+              sheetsRead: textResult.sheetsRead == null ? undefined : textResult.sheetsRead,
             },
           })
           processed.push({ itemKey: item.itemKey, status: 'skipped', reason: textResult.skipReason || 'extraction_skipped' })
@@ -595,6 +710,10 @@ async function main() {
           ? {
             ocrFallbackUsed: Boolean(textResult.ocrFallbackUsed),
             pdfFormFieldsUsed: Boolean(textResult.pdfFormFieldsUsed),
+            sheetCount: textResult.sheetCount == null ? undefined : textResult.sheetCount,
+            sheetsRead: textResult.sheetsRead == null ? undefined : textResult.sheetsRead,
+            maxSheetRows: textResult.maxSheetRows == null ? undefined : textResult.maxSheetRows,
+            maxSheetColumns: textResult.maxSheetColumns == null ? undefined : textResult.maxSheetColumns,
           }
           : {}
 
@@ -660,6 +779,9 @@ async function main() {
         ocrEmptyPdf,
         maxOcrPages,
         ocrDpi,
+        maxSheets,
+        maxSheetRows,
+        maxSheetColumns,
         retrySkippedReasonPrefixes,
         processed: processed.slice(0, 25),
       },

@@ -1192,23 +1192,35 @@ async function main() {
     includesAll(extractionTargetSource, [
       "target.targetKey === 'drive-content-extract-backfill'",
       '--maxPdfBytes=',
+      '--maxSheets=',
+      '--maxSheetRows=',
       '--retrySkippedReasonPrefixes=',
     ]) &&
       includesAll(extractionControlSeedSource, [
         "maxPdfBytes: 80000000",
-        "retrySkippedReasonPrefixes: ['pdf_too_large_for_v1']",
+        "retrySkippedReasonPrefixes: ['pdf_too_large_for_v1', 'sheet_text_extraction_not_in_v1']",
+        "maxSheetRows: 200",
       ]) &&
       includesAll(foundationDbSource, [
         'listDriveContentExtractionQueue',
         'retrySkippedReasonPrefixes',
         "drive_document",
+        "drive_spreadsheet",
         "drive_pdf",
         "drive_text",
+        "application/vnd.google-apps.spreadsheet",
         "text/markdown",
         'parentPathIncludes',
         'fileIds',
       ]) &&
+      includesAll(googleDelegatedSource, [
+        'getSpreadsheetMetadata',
+        'getSheetValues',
+      ]) &&
       includesAll(driveContentExtractionSource, [
+        'GOOGLE_SHEET_MIME',
+        'extractGoogleSheetText',
+        'drive_google_sheet_values_v1',
         'extractPdfTextWithOcr',
         'empty_text_after_ocr_needs_vision_handwriting_extraction',
         'drive_pdf_tesseract_ocr_v1',
@@ -1220,8 +1232,8 @@ async function main() {
         'sendGmailMessage',
         'drive_link_access_request',
       ]),
-    'Drive content extraction target supports governed Docs/PDF/text/markdown/OCR/link inventory',
-    'target runner passes content caps/retry prefixes and DB queue/script support Drive document/PDF/text/markdown artifacts, OCR fallback, scoped retries, and linked-doc access requests',
+    'Drive content extraction target supports governed Docs/Sheets/PDF/text/markdown/OCR/link inventory',
+    'target runner passes sheet/PDF caps, retry prefixes, and DB queue/script support Drive document/spreadsheet/PDF/text/markdown artifacts, OCR fallback, and linked-doc access requests',
   )
   ensure(
     checks,
@@ -1338,6 +1350,9 @@ async function main() {
   const driveContentTarget = extractionTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
   const driveCorpusCoverage = extractionCoverageTargets.find(target => target.targetKey === 'drive-corpus-backfill')
   const driveContentCoverage = extractionCoverageTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
+  const googleDriveArchiveCoverage = Array.isArray(foundationHub.sharedCommunicationsCoverage?.sources)
+    ? foundationHub.sharedCommunicationsCoverage.sources.find(source => source.sourceId === 'SRC-GDRIVE-001')
+    : null
   const strategyPreworkParticipants = Array.isArray(strategyPreworkCoverageSnapshot.participants)
     ? strategyPreworkCoverageSnapshot.participants
     : []
@@ -1578,6 +1593,10 @@ async function main() {
     (build.backlogIds || []).includes('EXTRACT-METRICS-001') &&
       build.closeoutKey === 'extract-metrics-coverage-by-target'
   )
+  const buildLogDriveSheetsBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('DRIVE-CONTENT-001') &&
+      build.closeoutKey === 'drive-content-sheets-text-extraction'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1588,6 +1607,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-SCHEDULE-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-METRICS-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-SURFACE-UPDATES-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('DRIVE-CONTENT-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -1704,6 +1724,21 @@ async function main() {
     buildLogCoverageByTargetBuild
       ? `${buildLogCoverageByTargetBuild.shortSha} / ${buildLogCoverageByTargetBuild.acceptanceState} / ${buildLogCoverageByTargetBuild.proofStatus}`
       : 'missing extraction coverage-by-target closeout',
+  )
+  ensure(
+    checks,
+    buildLogDriveSheetsBuild?.operatorCloseout === true &&
+      buildLogDriveSheetsBuild.relatedBacklog?.some(item => item.id === 'DRIVE-CONTENT-001' && item.lane === 'scoped') &&
+      buildLogDriveSheetsBuild.relatedBacklog?.some(item => item.id === 'RUNTIME-SUPERVISOR-001' && item.lane === 'scoped') &&
+      buildLogDriveSheetsBuild.proofCommands?.some(command => command.includes('--target=drive-content-extract-backfill')) &&
+      buildLogDriveSheetsBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /Google Sheets|drive_spreadsheet/i.test(buildLogDriveSheetsBuild.whatChanged || '') &&
+      /308,697 chars|foundation:verify/i.test(buildLogDriveSheetsBuild.proofStatus || '') &&
+      /EXTRACT-RETRY-001/i.test(buildLogDriveSheetsBuild.knownLimits?.join(' ') || ''),
+    'Recent Builds v2 carries closeout proof for Drive Sheets text extraction',
+    buildLogDriveSheetsBuild
+      ? `${buildLogDriveSheetsBuild.shortSha} / ${buildLogDriveSheetsBuild.acceptanceState} / ${buildLogDriveSheetsBuild.proofStatus}`
+      : 'missing Drive Sheets text extraction closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2078,6 +2113,14 @@ async function main() {
   )
   ensure(
     checks,
+    Number(googleDriveArchiveCoverage?.artifactTypes?.drive_spreadsheet?.total || 0) >= 5,
+    'Drive Sheets extraction archived source artifacts',
+    googleDriveArchiveCoverage?.artifactTypes?.drive_spreadsheet
+      ? `${googleDriveArchiveCoverage.artifactTypes.drive_spreadsheet.total} Drive spreadsheet artifacts`
+      : 'missing drive_spreadsheet artifacts',
+  )
+  ensure(
+    checks,
     slackCurrentDayTarget?.itemSummary &&
       Number(slackCurrentDayTarget.itemSummary.totalItems || 0) > 0 &&
       Array.isArray(slackCurrentDayTarget.healthFindings) &&
@@ -2329,6 +2372,26 @@ async function main() {
     foundationUsersAdmin
       ? `${foundationUsersAdmin.lane} / ${foundationUsersAdmin.priority} / ${foundationUsersAdmin.title}`
       : 'missing FOUNDATION-USERS-001',
+  )
+  const systemProcessControl = (foundationHub.backlogItems || []).find(item => item.id === 'SYSTEM-010') || null
+  const runtimeSupervisor = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-SUPERVISOR-001') || null
+  const runtimeSupervisorText = [
+    systemProcessControl?.nextAction,
+    systemProcessControl?.statusNote,
+    runtimeSupervisor?.nextAction,
+    runtimeSupervisor?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    systemProcessControl?.lane === 'scoped' &&
+      systemProcessControl?.priority === 'P0' &&
+      runtimeSupervisor?.lane === 'scoped' &&
+      runtimeSupervisor?.priority === 'P0' &&
+      runtimeSupervisorText.includes('served-code-equals-HEAD') &&
+      runtimeSupervisorText.includes('auto-restart-on-push') &&
+      currentPlan.includes('served-code-equals-HEAD or auto-restart-on-push'),
+    'SYSTEM-010 owns dashboard served-code/deploy freshness follow-up',
+    `SYSTEM-010=${systemProcessControl?.lane || 'missing'} / RUNTIME-SUPERVISOR-001=${runtimeSupervisor?.lane || 'missing'}`,
   )
   const extractRetry = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-RETRY-001') || null
   const extractRetryText = [

@@ -90,7 +90,7 @@ Built and useful now:
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Policy-aware LLM router: credential/route/probe/call tables, executable OpenClaw/Codex subscription adapter, auth-path audit job, call ledger, route status visibility, and shared intelligence extraction/synthesis migrated behind the router.
 - Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, scheduled current-day lanes for Gmail/Missive/meetings/Slack, daily shared-comms extraction missions, daily Drive inventory/content missions, daily Gmail attachment extraction, and daily YouTube subtitle transcript extraction from the video manifest.
-- Drive content extraction first slice: Google Docs, PDFs, and plain-text files are archived as source-backed artifacts with explicit skip reasons for unsupported file types.
+- Drive content extraction first slices: Google Docs, Google Sheets, PDFs, markdown, and plain-text files are archived as source-backed artifacts with explicit skip reasons for unsupported file types.
 - Gmail attachment extraction first slice: Gmail PDF/text attachments are archived; images/media/Office/OCR classes are skipped into explicit future lanes.
 - Video transcript extraction first slice: YouTube subtitles are extracted through DataForSEO from the shared video-link manifest; no-subtitle/visual-review work routes to the multimodal lane.
 - KPI/Supabase read rules are closed for `SOURCE-010`; health/freshness and Lee repo/schema drift now belong to `KPI-HEALTH-001`.
@@ -122,7 +122,7 @@ Still not done:
 - Action Router closure proof: synthesized items now create human-approval-required routes into decisions, backlog tasks, open questions, ignore/snooze, and owner-bound action lanes with source back-links. One route has been approved/applied into live backlog item `ACTION-001`; pending queue size is no longer a verifier dependency.
 - source-backed Strategy Hub
 - Harlan/Crewbert useful runtime
-- Drive Sheets/Slides/Office/shortcut/vision-grade OCR/media extractors and Skool/Loom/Drive-video crawler workers
+- Drive Slides/Office/shortcut/vision-grade OCR/media extractors and Skool/Loom/Drive-video crawler workers
 - clean marketing account/property map by lane
 - hub consumer map for mined corpus value: strategy, ops, sales, marketing, recruiting, agent coaching, Steve personal brand, MarketMasters, and Steve-owned education/monetization
 
@@ -173,14 +173,15 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - `FOUNDATION-SURFACE-UPDATES-001` is the P1 follow-up for Recent Builds/app visibility: major closeouts should link to the app surface or doc section, classify visible/backend-only/doc-only changes, and mark affected Foundation pages/cards as New or Recently updated. Do not build it inside the extraction coverage slice.
 3. `SYSTEM-010` — Finish runtime/process-control hardening.
    - Keep dashboard and worker LaunchAgent plists in repo.
+   - Add a served-code-equals-HEAD or auto-restart-on-push check so the dashboard cannot stay alive while serving stale code after a verified commit.
    - Router fallback is manual-explicit, not automatic; keep code/docs/UI from implying automatic paid fallback.
    - Enforce job-level budget tags or rename them as descriptive tags.
    - Bound large Foundation snapshot reads with limits or paging.
    - Finish decommission, dead-man, cost/process visibility, and stop controls.
 4. `EXTRACTION-TEAM-001` / `DRIVE-CONTENT-001` / `EMAIL-ATTACHMENTS-001` / `MEETING-VIDEO-001` — Finish controlled miner/corpus lanes.
    - Build paced miner v1: one-at-a-time, cursors, leases, retry/backoff, spacing, per-source timeouts.
-   - Keep daily Drive Docs/PDF/text/markdown, scanned-PDF OCR fallback, Gmail PDF/text attachment, and YouTube subtitle transcript missions stable.
-   - Add Missive attachments, Drive Sheets/Slides/Office/shortcuts/vision-grade OCR, meeting-linked Drive/Zoom/Loom video priority, and richer multimodal/GOD-mode extraction as separate ledged slices.
+   - Keep daily Drive Docs/Sheets/PDF/text/markdown, scanned-PDF OCR fallback, Gmail PDF/text attachment, and YouTube subtitle transcript missions stable.
+   - Add Missive attachments, Drive Slides/Office/shortcuts/vision-grade OCR, meeting-linked Drive/Zoom/Loom video priority, and richer multimodal/GOD-mode extraction as separate ledged slices.
    - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
    - Keep Skool/Loom/Mycro extraction governed by authorized access, use rights, cost/route ledgering, quotas, and stop controls.
 5. `INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001` through `SYNTHESIS-ENGINE-001` — Build the memory/retrieval/synthesis spine.
@@ -347,6 +348,7 @@ Current partial proof:
 - `npm run foundation:job -- --snapshot` now exposes scheduled, due, and manual job counts plus next-run status.
 - `ai.bcrew.foundation-worker` is loaded as a LaunchAgent and running the worker loop.
 - `ai.bcrew.dashboard` is loaded as a LaunchAgent and was restarted after the runtime changes.
+- `RUNTIME-SUPERVISOR-001` now explicitly owns the dashboard served-code-equals-HEAD / auto-restart-on-push gap exposed by the Recent Builds closeout review.
 - Active-run locking is enforced with a unique active-run index per job, so a second worker/manual trigger cannot start the same job while it is already queued/running.
 - Job timeout cleanup now kills the process group with `SIGTERM` and escalates to `SIGKILL`.
 - Operator-controlled job pause/resume is DB-backed and exposed through `/api/foundation/jobs/:jobKey/control`.
@@ -515,6 +517,7 @@ Current partial proof:
 - `docs/audits/2026-04-28-extraction-lane-item-shape.md` preserves the lane-consistency inspection for `EXTRACT-METRICS-001`: Slack, Gmail, meetings, Drive corpus/content, attachments, video, and Missive now all expose item ledger rows; the audit-time Drive content failures stay routed to future retry/backoff handling if they reappear.
 - Runtime Health now exposes Extraction Control: Coverage By Target from `/api/foundation-hub`, with last success, last failure, next bite, item totals, top failed/skipped reasons, and remaining backlog indicators where available.
 - `EXTRACT-CONTROL-001` v1 is closed through that coverage panel. Further retry/backoff execution belongs to `EXTRACT-RETRY-001`; richer app-surface breadcrumbs and updated markers belong to `FOUNDATION-SURFACE-UPDATES-001`.
+- Drive Sheets text extraction was picked from Runtime Health evidence: `sheet_text_extraction_not_in_v1` was the largest actionable Drive content skipped reason. Proof run `crawl-drive-content-extract-backfill-20260428181558392-93bfbd63` inspected 5 existing sheet-skipped items, archived 5 `drive_spreadsheet` artifacts / 308,697 chars through Sheets API values, and recorded 0 crawl item failures.
 - Partial target runs now exit nonzero from `run-extraction-target`, so item-level failures cannot look like green Foundation jobs.
 - `meeting-notes-retry-failed` is registered as a manual Foundation job and retries failed meeting crawl items from `source_crawl_items` instead of rerunning the whole current-day window.
 - First retry proof found `0` failed meeting crawl items and succeeded as a no-op.
@@ -540,7 +543,7 @@ Current partial proof:
 - Foundation now exposes a Drive corpus inventory review snapshot with item totals, folder/file counts, pending extraction counts, candidate value routes, and queue state.
 - Raw Drive inventory script writes are guarded: non-dry-run inventory must be run through `extraction:target` so leases and target cursors advance with item writes.
 - Shared-comms synthesis was run through the subscription router and recorded `synth-20260424T203755Z-e6b01782ad` with `5` ranked live intelligence items. Top issues surfaced: KPI deal-data display/sync failure, June cash gap, SocialPilot access/publishing instability, Union Street delivery retry, and Loom access migration issue.
-- Remaining Phase 3 gap: monitor scheduled current-day/extraction runs, prove partial failure on a real failed item, extend retry semantics to Drive/video lanes, add Missive attachment extraction and richer Gmail attachment file types, prove meeting-linked video review, tune subscription-route miners with per-source timeouts and pacing, prove synthesis as Strategy Hub/action-router input, and build review/export gates before broad backfill. Drive Docs/PDF/text/markdown, agenda link inventory, rough scanned-PDF OCR fallback, and Gmail PDF/text attachment filed-output extraction are now live first slices, not unbuilt gaps.
+- Remaining Phase 3 gap: monitor scheduled current-day/extraction runs, prove partial failure on a real failed item, extend retry semantics to Drive/video lanes, add Missive attachment extraction and richer Gmail attachment file types, prove meeting-linked video review, tune subscription-route miners with per-source timeouts and pacing, prove synthesis as Strategy Hub/action-router input, and build review/export gates before broad backfill. Drive Docs/Sheets/PDF/text/markdown, agenda link inventory, rough scanned-PDF OCR fallback, and Gmail PDF/text attachment filed-output extraction are now live first slices, not unbuilt gaps.
 
 ### Phase 4 — Retrieval, Entity, And Synthesis Hardening
 
