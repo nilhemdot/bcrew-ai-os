@@ -1874,10 +1874,16 @@ async function main() {
       strategicIntelText.includes('intelligence_strategic_issues') &&
       strategicIntelText.includes('urgency, impact, confidence, and staleness') &&
       strategicIntelText.includes('resolution feedback') &&
-      strategicIntelText.includes('10x value metrics') &&
+      strategicIntelText.includes('Depends on STRATEGY-HUB-MEETING-READY-001') &&
+      strategicIntelText.includes('blocks INTEL-SCOPER-001') &&
+      strategicIntelText.includes('>= 5 strategic issues surfaced/week') &&
+      strategicIntelText.includes('>= 2 resolved-to-applied/week') &&
       intelScoper?.lane === 'scoped' &&
       intelScoper?.priority === 'P0' &&
       intelScoperText.includes('gap analysis') &&
+      intelScoperText.includes('Depends on STRATEGIC-INTEL-001') &&
+      intelScoperText.includes('"Scope this"') &&
+      intelScoperText.includes('verified / partial / remaining-gaps sections') &&
       intelScoperText.includes('Every verified claim must cite') &&
       intelScoperText.includes('minimal Agent Spec') &&
       strategyQuarter?.lane === 'scoped' &&
@@ -1888,6 +1894,8 @@ async function main() {
       strategyQuarterText.includes('quarter context/input layer') &&
       modelRouting?.lane === 'scoped' &&
       modelRouting?.priority === 'P1' &&
+      modelRoutingText.includes('docs/rebuild/current-runtime-map.md') &&
+      !modelRoutingText.includes('likely in') &&
       modelRoutingText.includes('subscriptions are for humans') &&
       modelRoutingText.includes('official APIs and governed adapters') &&
       agentFactoryText.includes('STRATEGY-QUARTER-001 has been used in production for at least two weekly ownership cycles'),

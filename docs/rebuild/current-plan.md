@@ -212,15 +212,20 @@ Order:
 2. `STRATEGIC-INTEL-001` — scoped / P0.
    - Spec gate before more Strategic Intelligence code.
    - Must define the strategic issue data model, continuous mining cadence, urgency/impact/confidence/staleness fields, resolution feedback writes, old scout/director/scoper/sprint mapping, and 10x value metrics.
+   - Depends on `STRATEGY-HUB-MEETING-READY-001`; blocks `INTEL-SCOPER-001`.
+   - Initial 10x targets for the first pilot: >= 5 strategic issues surfaced/week, >= 3 scoped/week, >= 2 resolved-to-applied/week, and median manual investigation time <= 30 minutes per issue.
 3. `INTEL-SCOPER-001` — scoped / P0.
    - Build the gap-resolving Scoper, not a generic research brief.
    - It must answer what is already verified, what is partial, what actually remains, who likely owns it, and the smallest useful next steps, with evidence pointers for every verified claim.
+   - Depends on the approved `STRATEGIC-INTEL-001` issue-ledger/schema decision.
+   - Hub UI must support `Scope this` and render the scoped result as verified / partial / remaining-gaps sections with evidence chips and next steps.
 4. `STRATEGY-QUARTER-001` — scoped / P1.
    - Build the Strategy Quarter input/context layer: quarter theme, critical number, unresolved strategic issues, department targets, open decisions, weekly outputs, and meeting follow-through.
    - This gives Strategic Intelligence context; it is not the value layer by itself.
 5. `MODEL-ROUTING-001` — scoped / P1.
    - Document model/runtime routing doctrine before Scoper and agent work expand.
    - Preserve the boundary: subscriptions are for humans/operator use when allowed and logged; system runtime uses official APIs and governed adapters by default.
+   - Canonical destination is `docs/rebuild/current-runtime-map.md`.
 6. `SYSTEM-STRATEGY-REVIEW-001` — scoped / P1.
    - Mine Apr 26-28 builder/reviewer conversations and promote durable doctrine into repo truth/backlog/verifiers.
 
