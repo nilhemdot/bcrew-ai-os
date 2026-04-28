@@ -10935,6 +10935,60 @@ function renderSystemActivity() {
   })
 }
 
+function renderBuildTextList(items, className) {
+  var values = (items || []).filter(Boolean)
+  if (!values.length) return null
+  var list = document.createElement('ul')
+  list.className = className || 'build-log-fact-list'
+  values.forEach(function(value) {
+    var item = document.createElement('li')
+    item.textContent = value
+    list.appendChild(item)
+  })
+  return list
+}
+
+function renderBuildBacklogLinks(build) {
+  var related = build.relatedBacklog || []
+  var ids = (build.backlogIds || []).filter(Boolean)
+  if (!related.length && !ids.length) return null
+
+  var wrap = document.createElement('div')
+  wrap.className = 'build-log-backlog-links'
+  ;(related.length ? related : ids.map(function(id) { return { id: id } })).forEach(function(item) {
+    var link = document.createElement('a')
+    link.className = 'build-log-backlog-link'
+    link.href = '/foundation#backlog:' + encodeURIComponent(item.id)
+    link.textContent = [
+      item.id,
+      item.lane ? getBacklogLaneLabel(item.lane) : null,
+      item.priority || null,
+    ].filter(Boolean).join(' · ')
+    wrap.appendChild(link)
+  })
+  return wrap
+}
+
+function renderBuildFact(label, value, options) {
+  if (!value || (Array.isArray(value) && !value.length)) return null
+  var row = document.createElement('div')
+  row.className = 'build-log-fact'
+  var strong = document.createElement('strong')
+  strong.textContent = label
+  row.appendChild(strong)
+  if (Array.isArray(value)) {
+    var list = renderBuildTextList(value, options && options.mono ? 'build-log-fact-list build-log-fact-list-mono' : 'build-log-fact-list')
+    if (list) row.appendChild(list)
+  } else if (value instanceof Node) {
+    row.appendChild(value)
+  } else {
+    var copy = document.createElement('span')
+    copy.textContent = value
+    row.appendChild(copy)
+  }
+  return row
+}
+
 function renderBuildCard(build) {
   var card = document.createElement('article')
   card.className = 'build-log-card'
@@ -10952,23 +11006,36 @@ function renderBuildCard(build) {
   top.appendChild(copy)
   var areaWrap = document.createElement('div')
   areaWrap.className = 'foundation-system-summary-tags'
-  ;(build.areas || []).forEach(function(area) {
+  ;([build.operatorStatus, build.acceptanceState].concat(build.areas || [])).filter(Boolean).forEach(function(area) {
     var pill = document.createElement('span')
-    pill.className = 'foundation-system-pill'
+    pill.className = area === build.operatorStatus
+      ? 'foundation-system-pill build-log-status-pill build-log-status-' + String(build.operatorStatus || 'unknown').replace(/[^a-z0-9-]/gi, '-').toLowerCase()
+      : 'foundation-system-pill'
     pill.textContent = area
     areaWrap.appendChild(pill)
   })
   top.appendChild(areaWrap)
   card.appendChild(top)
 
-  var purpose = document.createElement('p')
-  purpose.className = 'build-log-purpose'
-  purpose.textContent = 'What changed: ' + (build.subject || 'Repo update') + '.'
-  card.appendChild(purpose)
+  var facts = document.createElement('div')
+  facts.className = 'build-log-facts'
+  ;[
+    renderBuildFact('What changed', build.whatChanged || build.subject || 'Repo update'),
+    renderBuildFact('What it does', build.whatItDoes),
+    renderBuildFact('Why it matters', build.whyItMatters),
+    renderBuildFact('Backlog', renderBuildBacklogLinks(build)),
+    renderBuildFact('Proof', (build.proofCommands || []).length ? (build.proofCommands || []).join(' · ') + ' — ' + (build.proofStatus || 'proof recorded') : build.proofStatus),
+    renderBuildFact('Where it lives', build.whereItLives || build.fileGroups || [], { mono: true }),
+    renderBuildFact('Review next', build.reviewNext),
+    renderBuildFact('Known limits', build.knownLimits || []),
+  ].forEach(function(row) {
+    if (row) facts.appendChild(row)
+  })
+  card.appendChild(facts)
 
   var groups = document.createElement('p')
   groups.className = 'build-log-files'
-  groups.textContent = 'Where it lives: ' + ((build.fileGroups || []).join(', ') || 'Repo') + ' · ' + (build.fileCount || 0) + ' files'
+  groups.textContent = ((build.fileGroups || []).join(', ') || 'Repo') + ' · ' + (build.fileCount || 0) + ' files'
   card.appendChild(groups)
 
   if ((build.primaryFiles || []).length) {
@@ -10990,6 +11057,68 @@ function renderBuildCard(build) {
   return card
 }
 
+function groupBuildsByDayAndArea(builds) {
+  var dayMap = new Map()
+  ;(builds || []).forEach(function(build) {
+    var day = String(build.committedAt || '').slice(0, 10) || 'Unknown date'
+    var area = build.systemArea || build.primaryArea || (build.areas && build.areas[0]) || 'Repo'
+    if (!dayMap.has(day)) dayMap.set(day, new Map())
+    var areaMap = dayMap.get(day)
+    if (!areaMap.has(area)) areaMap.set(area, [])
+    areaMap.get(area).push(build)
+  })
+  return Array.from(dayMap.entries()).map(function(dayEntry) {
+    return {
+      day: dayEntry[0],
+      systemGroups: Array.from(dayEntry[1].entries()).map(function(areaEntry) {
+        return {
+          systemArea: areaEntry[0],
+          builds: areaEntry[1],
+        }
+      }),
+    }
+  })
+}
+
+function renderBuildGroups(buildLog, builds) {
+  var groups = buildLog.groups && buildLog.groups.length
+    ? buildLog.groups
+    : groupBuildsByDayAndArea(builds)
+  var wrap = document.createElement('div')
+  wrap.className = 'build-log-day-list'
+
+  groups.forEach(function(dayGroup) {
+    var daySection = document.createElement('section')
+    daySection.className = 'build-log-day-group'
+
+    var dayTitle = document.createElement('h4')
+    dayTitle.textContent = dayGroup.day === 'unknown-date' ? 'Unknown Date' : formatDate(dayGroup.day)
+    daySection.appendChild(dayTitle)
+
+    ;(dayGroup.systemGroups || []).forEach(function(systemGroup) {
+      var areaSection = document.createElement('div')
+      areaSection.className = 'build-log-area-group'
+
+      var areaTitle = document.createElement('div')
+      areaTitle.className = 'build-log-area-title'
+      areaTitle.textContent = systemGroup.systemArea || 'Repo'
+      areaSection.appendChild(areaTitle)
+
+      var list = document.createElement('div')
+      list.className = 'build-log-list'
+      ;(systemGroup.builds || []).forEach(function(build) {
+        list.appendChild(renderBuildCard(build))
+      })
+      areaSection.appendChild(list)
+      daySection.appendChild(areaSection)
+    })
+
+    wrap.appendChild(daySection)
+  })
+
+  return wrap
+}
+
 function renderBuildLog() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading recent builds...</p>'
@@ -11009,7 +11138,7 @@ function renderBuildLog() {
     heroInner.appendChild(heroTitle)
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = builds.length + ' recent commits from repo truth'
+    heroMeta.textContent = builds.length + ' recent commits · ' + ((buildLog.summary && buildLog.summary.closeoutBuilds) || 0) + ' v2 closeouts'
     heroInner.appendChild(heroMeta)
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
@@ -11027,12 +11156,17 @@ function renderBuildLog() {
       {
         label: 'Backed by',
         status: 'connected',
-        detail: 'Git commit history on main, grouped by system area and changed file type.',
+        detail: 'Git commit history on main plus repo-truth closeout records for major Foundation builds.',
+      },
+      {
+        label: 'Coverage',
+        status: ((buildLog.summary && buildLog.summary.closeoutBuilds) || 0) ? 'connected' : 'pending',
+        detail: ((buildLog.summary && buildLog.summary.backlogLinkedBuilds) || 0) + ' commits link to backlog cards; ' + ((buildLog.summary && buildLog.summary.proofLinkedBuilds) || 0) + ' carry proof commands.',
       },
       {
         label: 'Boundary',
         status: 'pending',
-        detail: 'This is the build changelog. System Activity remains the DB trust-event feed; Runtime Health remains the job/worker view.',
+        detail: 'This is the build changelog. System Activity remains the DB trust-event feed; Runtime Health remains the job/worker view. Older commits without closeout metadata remain derived summaries.',
       },
     ], {
       eyebrow: 'Build Visibility',
@@ -11051,21 +11185,16 @@ function renderBuildLog() {
     eyebrow.textContent = 'Repo Build Log'
     left.appendChild(eyebrow)
     var title = document.createElement('h3')
-    title.textContent = 'Newest First'
+    title.textContent = 'Grouped By Day And System'
     left.appendChild(title)
     var intro = document.createElement('p')
     intro.className = 'section-intro'
-    intro.textContent = 'This page is organized by commits. For task truth, open Backlog; for live job state, open Runtime Health; for DB events, open System Activity.'
+    intro.textContent = 'Major builds carry explicit closeout records. Smaller commits still show derived summaries so the repo timeline stays complete.'
     left.appendChild(intro)
     header.appendChild(left)
     panel.appendChild(header)
 
-    var list = document.createElement('div')
-    list.className = 'build-log-list'
-    builds.forEach(function(build) {
-      list.appendChild(renderBuildCard(build))
-    })
-    panel.appendChild(list)
+    panel.appendChild(renderBuildGroups(buildLog, builds))
     container.appendChild(panel)
 
     var changesPanel = renderRecentChangesPanel((hub.recentChanges || []).slice(0, 5), {

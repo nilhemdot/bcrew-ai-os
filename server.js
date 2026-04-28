@@ -16,6 +16,7 @@ import {
   createDecision,
   createOpenQuestion,
   createPendingDocUpdate,
+  getBacklogItemsByIds,
   getExtractionControlSnapshot,
   getCanonicalDecisionCategories,
   getLatestChangeEventForEntity,
@@ -64,6 +65,13 @@ import {
   updateOpenQuestion,
   upsertAgentOnboardingFeedbackResponse,
 } from './lib/foundation-db.js'
+import {
+  attachBacklogCardsToBuilds,
+  enrichFoundationBuildLogCommit,
+  groupFoundationBuildLog,
+  summarizeFoundationBuildLog,
+  FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
+} from './lib/foundation-build-log.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
 import {
   fubJsonFetch,
@@ -3201,16 +3209,19 @@ async function getRecentBuildLog(limit = 30) {
     if (current) current.files.push(line.trim())
   })
 
-  return commits.map(commit => {
+  const enrichedBuilds = commits.map(commit => {
     const files = commit.files.filter(Boolean)
-    return {
+    return enrichFoundationBuildLogCommit({
       ...commit,
       areas: classifyBuildArea(files, commit.subject),
       fileGroups: buildChangedFileGroups(files),
       fileCount: files.length,
       primaryFiles: files.slice(0, 8),
-    }
+    })
   })
+  const backlogIds = Array.from(new Set(enrichedBuilds.flatMap(build => build.backlogIds || [])))
+  const backlogItems = await getBacklogItemsByIds(backlogIds)
+  return attachBacklogCardsToBuilds(enrichedBuilds, backlogItems)
 }
 
 app.get('/api/source-of-truth', requireAdminToken, (_req, res) => {
@@ -4639,6 +4650,9 @@ app.get('/api/foundation/build-log', requireAdminToken, async (req, res) => {
     res.json({
       generatedAt: new Date().toISOString(),
       source: 'git log on main',
+      schemaVersion: FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
+      summary: summarizeFoundationBuildLog(builds),
+      groups: groupFoundationBuildLog(builds),
       builds,
     })
   } catch (error) {

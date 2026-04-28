@@ -8,6 +8,11 @@ import fs from 'node:fs/promises'
 import process from 'node:process'
 import { getGroupedSourceSystems, getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
 import {
+  getFoundationBuildCloseouts,
+  getFoundationBuildCloseoutValidation,
+  FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
+} from '../lib/foundation-build-log.js'
+import {
   closeFoundationDb,
   getActionRouterSnapshot,
   getBacklogSeedDriftSnapshot,
@@ -1293,6 +1298,7 @@ async function main() {
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
   const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
+  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=40')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
   const strategyOperatingTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/operating-truth')
@@ -1310,6 +1316,8 @@ async function main() {
     ? foundationHub.extractionControl.recentStaleReapedRuns
     : []
   const foundationSurfaceMap = getFoundationSurfaceMap()
+  const foundationBuildCloseouts = getFoundationBuildCloseouts()
+  const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
   const foundationNavSections = Array.from(new Set(
     Array.from(foundationHtmlSource.matchAll(/data-section="([^"]+)"/g)).map(match => match[1])
   ))
@@ -1536,6 +1544,78 @@ async function main() {
     foundationHub.surfaceFreshnessSweep?.summary
       ? `${foundationHub.surfaceFreshnessSweep.summary.mappedSurfaceCount} surfaces / risk=${foundationHub.surfaceFreshnessSweep.summary.riskSurfaces} / stale active runs=${foundationHub.surfaceFreshnessSweep.summary.staleActiveRunCount}`
       : 'missing surface freshness sweep payload',
+  )
+  const buildLogSweepBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('FOUNDATION-SWEEP-001')
+  )
+  const buildLogChangelogBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('FOUNDATION-CHANGELOG-002')
+  )
+  ensure(
+    checks,
+    foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
+      foundationBuildCloseoutValidation.invalidCloseoutKeys.length === 0 &&
+      foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-SWEEP-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-CHANGELOG-002') &&
+      foundationBuildCloseouts.every(record =>
+        record.whereItLives.length &&
+        record.proofCommands.length &&
+        record.reviewNext &&
+        record.whatChanged &&
+        record.whatItDoes &&
+        record.whyItMatters
+      ),
+    'Foundation build closeout records satisfy the Recent Builds v2 schema',
+    `${foundationBuildCloseoutValidation.closeoutCount} closeouts / invalid=${foundationBuildCloseoutValidation.invalidCloseoutKeys.length}`,
+  )
+  ensure(
+    checks,
+    foundationBuildLog.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
+      foundationBuildLog.summary?.closeoutBuilds >= 2 &&
+      foundationBuildLog.summary?.backlogLinkedBuilds >= 2 &&
+      foundationBuildLog.summary?.proofLinkedBuilds >= 2 &&
+      Array.isArray(foundationBuildLog.groups) &&
+      foundationBuildLog.groups.some(day => Array.isArray(day.systemGroups) && day.systemGroups.length) &&
+      includesAll(foundationUiSource, [
+        'renderBuildGroups',
+        'renderBuildBacklogLinks',
+        'Grouped By Day And System',
+        'v2 closeouts',
+      ]),
+    'api/foundation/build-log exposes operator-readable grouped closeouts',
+    foundationBuildLog.summary
+      ? `${foundationBuildLog.summary.closeoutBuilds} closeouts / ${foundationBuildLog.summary.backlogLinkedBuilds} backlog-linked / ${foundationBuildLog.summary.proofLinkedBuilds} proof-linked`
+      : 'missing build log summary',
+  )
+  ensure(
+    checks,
+    buildLogSweepBuild?.operatorCloseout === true &&
+      buildLogSweepBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SWEEP-001' && item.lane === 'done') &&
+      buildLogSweepBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /31|Foundation nav|stale/i.test(buildLogSweepBuild.whatChanged || '') &&
+      buildLogSweepBuild.reviewNext &&
+      buildLogSweepBuild.knownLimits?.length,
+    'Recent Builds v2 carries closeout proof for FOUNDATION-SWEEP-001',
+    buildLogSweepBuild
+      ? `${buildLogSweepBuild.shortSha} / ${buildLogSweepBuild.acceptanceState} / ${buildLogSweepBuild.proofStatus}`
+      : 'missing FOUNDATION-SWEEP-001 build closeout',
+  )
+  ensure(
+    checks,
+    buildLogChangelogBuild?.operatorCloseout === true &&
+      buildLogChangelogBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-CHANGELOG-002' && item.lane === 'done') &&
+      buildLogChangelogBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /operator changelog|Recent Builds/i.test(buildLogChangelogBuild.whatChanged || '') &&
+      /backlog/i.test([
+        buildLogChangelogBuild.whatChanged,
+        buildLogChangelogBuild.whatItDoes,
+        buildLogChangelogBuild.reviewNext,
+      ].filter(Boolean).join(' ')) &&
+      buildLogChangelogBuild.knownLimits?.length,
+    'Recent Builds v2 carries closeout proof for FOUNDATION-CHANGELOG-002',
+    buildLogChangelogBuild
+      ? `${buildLogChangelogBuild.shortSha} / ${buildLogChangelogBuild.acceptanceState} / ${buildLogChangelogBuild.proofStatus}`
+      : 'missing FOUNDATION-CHANGELOG-002 build closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -1976,14 +2056,16 @@ async function main() {
   )
   ensure(
     checks,
-    foundationChangelogV2?.lane === 'scoped' &&
+    foundationChangelogV2?.lane === 'done' &&
       foundationChangelogV2?.priority === 'P0' &&
       /operator changelog/.test(foundationChangelogV2?.summary || '') &&
       /related backlog card/.test(foundationChangelogV2?.summary || foundationChangelogV2?.nextAction || '') &&
       /proof command/.test(foundationChangelogV2?.summary || foundationChangelogV2?.nextAction || '') &&
-      /what should Steve review next/.test(foundationChangelogV2?.nextAction || '') &&
-      currentPlan.includes('FOUNDATION-CHANGELOG-002'),
-    'Foundation Recent Builds v2 operator changelog hardening is captured',
+      /repo-truth closeout records/.test(foundationChangelogV2?.statusNote || foundationChangelogV2?.nextAction || '') &&
+      /foundation:verify/.test(foundationChangelogV2?.statusNote || '') &&
+      currentPlan.includes('Recent Builds v2 merges git history') &&
+      currentState.includes('Recent Builds groups work by day/system area'),
+    'Foundation Recent Builds v2 operator changelog hardening is closed',
     foundationChangelogV2 ? `${foundationChangelogV2.lane} / ${foundationChangelogV2.title}` : 'missing FOUNDATION-CHANGELOG-002',
   )
   const strategyLayerCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-001') || null

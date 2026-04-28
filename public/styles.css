@@ -2722,6 +2722,36 @@ body {
   gap: 10px;
 }
 
+.build-log-day-list {
+  display: grid;
+  gap: 18px;
+}
+
+.build-log-day-group {
+  display: grid;
+  gap: 12px;
+}
+
+.build-log-day-group h4 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.build-log-area-group {
+  display: grid;
+  gap: 8px;
+}
+
+.build-log-area-title {
+  color: var(--text-tertiary);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
 .build-log-card {
   display: grid;
   gap: 10px;
@@ -2757,6 +2787,91 @@ body {
   color: var(--text-tertiary);
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+.build-log-status-pill {
+  border-color: transparent;
+}
+
+.build-log-status-accepted,
+.build-log-status-shipped {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.build-log-status-hardened,
+.build-log-status-recorded {
+  background: rgba(59, 130, 246, 0.10);
+  color: #2563eb;
+}
+
+.build-log-status-repo-change {
+  background: var(--surface);
+  color: var(--text-tertiary);
+}
+
+.build-log-facts {
+  display: grid;
+  gap: 8px;
+}
+
+.build-log-fact {
+  display: grid;
+  gap: 3px;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.build-log-fact strong {
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.build-log-fact span {
+  overflow-wrap: anywhere;
+}
+
+.build-log-fact-list {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.build-log-fact-list li {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.build-log-fact-list-mono li {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.76rem;
+}
+
+.build-log-backlog-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.build-log-backlog-link {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--brand-dark);
+  font-size: 0.74rem;
+  font-weight: 900;
+  padding: 5px 9px;
+  text-decoration: none;
+}
+
+.build-log-backlog-link:hover {
+  border-color: var(--brand);
+  color: var(--brand);
 }
 
 .build-log-details {

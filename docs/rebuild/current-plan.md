@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-28
-Version: v6.14 — Foundation surface sweep v1
+Version: v6.15 — Recent Builds v2 closeout
 Status: Active
 
 Use this doc for one question:
@@ -221,9 +221,10 @@ Order now:
    - Runtime Health now surfaces stale source-crawl target runs.
    - The stale Slack proof run `crawl-slack-current-day-20260427145904292-3f93bebd` was caught and marked failed by the stale source-crawl run reaper.
    - `foundation:verify` now guards the surface map, stale-run payload, and no-stale-active-run state.
-3. `FOUNDATION-CHANGELOG-002` — scoped / P0.
-   - Recent Builds v1 exists, but Steve still cannot quickly answer what was built, what it does, where it lives, and what should be reviewed.
-   - Upgrade Recent Builds into an operator-readable changelog tied to backlog cards, proof, status, and system area.
+3. `FOUNDATION-CHANGELOG-002` — done / P0.
+   - Recent Builds v2 merges git history with repo-truth closeout records for major Foundation builds.
+   - The page now groups builds by day and system area, links related backlog cards, shows proof commands/status, explains where the work lives, and names what Steve should review next.
+   - `foundation:verify` guards the v2 closeout schema and the visible closeout proof for `FOUNDATION-SWEEP-001` and `FOUNDATION-CHANGELOG-002`.
 4. Resume existing Foundation command order.
    - runtime/source freshness
    - extraction/corpus hardening

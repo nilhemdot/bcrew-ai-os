@@ -53,7 +53,7 @@ Open:
 - broader production extractor promotion into atoms beyond the first shared-communications candidate path
 - broader production synthesis hardening against resolved/stale/duplicated items after the first governed engine proof
 - Action Router apply/closed-loop feedback after pending routes are human-approved
-- Foundation hardening after the Apr 27-28 Strategy detour: surface-freshness sweep v1 is done; operator-readable build log and cleaner recurring closeout visibility remain open
+- Foundation hardening after the Apr 27-28 Strategy detour: surface-freshness sweep v1 and operator-readable Recent Builds v2 are done; broader DB-backed build records remain deferred unless the repo-truth closeout layer proves too thin
 - router-ledged transcription workload if Zoom audio recovery is reopened
 - full tier/redaction replacement for the interim admin gates on broad Foundation/Ops read APIs
 - auth/tier middleware and explicit subject-person privacy/redaction before hubs, assistants, or non-admin users read sensitive people evidence
@@ -111,17 +111,15 @@ Hard checkpoint call from 2026-04-28:
 - Strategy Hub route-review proof plumbing advanced, but Steve did not accept the UI as meeting-ready.
 - `STRATEGIC-INTEL-001`, `INTEL-SCOPER-001`, `STRATEGY-QUARTER-001`, and `MODEL-ROUTING-001` remain pinned, but they are not tomorrow's first build.
 - `FOUNDATION-SWEEP-001` is done for v1: all Foundation nav pages are mapped to backing APIs/docs/tables/source IDs/backlog owners, Runtime Health surfaces stale source-crawl runs, and `foundation:verify` guards the sweep.
-- `FOUNDATION-CHANGELOG-002` is the next Foundation build so Steve can see what was built, where it lives, and what needs review without reading git logs.
+- `FOUNDATION-CHANGELOG-002` is done for v1: Recent Builds groups work by day/system area and shows closeout records with backlog cards, proof commands, review-next notes, and known limits.
 
 Current command order:
 
-1. Build `FOUNDATION-CHANGELOG-002`: operator-readable Recent Builds with card/proof/status links.
-2. Keep the `FOUNDATION-SWEEP-001` map current when Foundation nav, APIs, docs, source contracts, jobs, System Inventory, or hub links change.
-3. Keep source truth clean while the sweep is built.
-4. Monitor capture and extraction.
-5. Harden missing corpus lanes.
-6. Add freshness and health checks.
-7. Close the action loop.
+1. Keep the `FOUNDATION-SWEEP-001` map and `FOUNDATION-CHANGELOG-002` closeout records current when Foundation nav, APIs, docs, source contracts, jobs, System Inventory, hub links, or major build cards change.
+2. Monitor capture and extraction.
+3. Harden missing corpus lanes.
+4. Add freshness and health checks.
+5. Close the action loop.
 
 ## Foundation Operations Surfaces
 
