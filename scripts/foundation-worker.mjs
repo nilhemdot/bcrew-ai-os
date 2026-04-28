@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 
+import { execFile as execFileCallback } from 'node:child_process';
+import path from 'node:path';
 import process from 'node:process';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 import {
   closeFoundationDb,
   getFoundationJobRunSnapshot,
@@ -9,8 +13,16 @@ import {
   markStaleLlmCalls,
   markStaleFoundationJobRuns,
   markStaleSourceCrawlTargetRuns,
+  recordFoundationRuntimeStatus,
 } from '../lib/foundation-db.js';
 import { runFoundationJob } from './run-foundation-job.mjs';
+
+const execFile = promisify(execFileCallback);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const repoRoot = path.resolve(__dirname, '..');
+const workerStartedAt = new Date().toISOString();
+const workerRestartCommand = 'launchctl kickstart -k gui/$(id -u)/ai.bcrew.foundation-worker';
 
 function parseArgs(argv) {
   const result = {};
@@ -24,6 +36,55 @@ function parseArgs(argv) {
 
 function isTrue(value) {
   return value === true || value === 'true' || value === '1';
+}
+
+function normalizeGitSha(value) {
+  const sha = String(value || '').trim();
+  return /^[0-9a-f]{40}$/i.test(sha) ? sha.toLowerCase() : null;
+}
+
+async function captureWorkerRuntimeMetadata({ actor, once, dryRun, intervalMs, maxJobs }) {
+  try {
+    const { stdout } = await execFile('git', ['rev-parse', 'HEAD'], {
+      cwd: repoRoot,
+      maxBuffer: 1024 * 64,
+    });
+    const runningCommit = normalizeGitSha(stdout);
+    if (!runningCommit) throw new Error('git rev-parse HEAD did not return a commit.');
+    const runningShortCommit = runningCommit.slice(0, 7);
+    await recordFoundationRuntimeStatus({
+      serviceKey: 'foundation-worker',
+      serviceLabel: 'Foundation Worker',
+      status: 'live',
+      startedAt: workerStartedAt,
+      processId: process.pid,
+      runningCommit,
+      runningShortCommit,
+      checkName: 'worker-startup-code-equals-HEAD',
+      restartCommand: workerRestartCommand,
+      plainEnglish: `Foundation worker started from commit ${runningShortCommit}. foundation:verify compares this worker-start commit to repo HEAD and the LaunchAgent process id so reviewers can catch stale worker code.`,
+      metadata: { actor, once, dryRun, intervalMs, maxJobs },
+    });
+  } catch (error) {
+    await recordFoundationRuntimeStatus({
+      serviceKey: 'foundation-worker',
+      serviceLabel: 'Foundation Worker',
+      status: 'risk',
+      startedAt: workerStartedAt,
+      processId: process.pid,
+      checkName: 'worker-startup-code-equals-HEAD',
+      restartCommand: workerRestartCommand,
+      plainEnglish: `Foundation worker could not capture its startup commit. Run: ${workerRestartCommand} to restart it, then rerun foundation:verify.`,
+      metadata: {
+        actor,
+        once,
+        dryRun,
+        intervalMs,
+        maxJobs,
+        error: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
 }
 
 function selectDueJobs(snapshot, { jobKey, maxJobs }) {
@@ -97,6 +158,7 @@ async function main() {
   const staleLlmCallGraceSeconds = Math.max(0, Number(args.staleLlmCallGraceSeconds || process.env.FOUNDATION_WORKER_STALE_LLM_CALL_GRACE_SECONDS || 60));
 
   await initFoundationDb();
+  await captureWorkerRuntimeMetadata({ actor, once, dryRun, intervalMs, maxJobs });
 
   console.log(`Foundation worker started. once=${once} dryRun=${dryRun} intervalMs=${intervalMs} maxJobs=${maxJobs}`);
 

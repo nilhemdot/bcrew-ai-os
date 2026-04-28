@@ -36,6 +36,7 @@ import {
   getDocSourceSnapshot,
   getFoundationBacklogIdPrefixes,
   getFoundationJobRunSnapshot,
+  getFoundationRuntimeStatus,
   getFoundationSnapshot,
   getFubLeadSourceSnapshot,
   getIntelligenceRetrievalSnapshot,
@@ -175,6 +176,23 @@ async function captureDashboardRuntimeMetadata() {
 function getDashboardRuntimeMetadata() {
   return {
     ...dashboardRuntimeMetadata,
+  }
+}
+
+function getMissingWorkerRuntimeMetadata() {
+  return {
+    serviceKey: 'foundation-worker',
+    serviceLabel: 'Foundation Worker',
+    status: 'risk',
+    startedAt: null,
+    processId: null,
+    runningCommit: null,
+    runningShortCommit: null,
+    capturedAt: null,
+    checkName: 'worker-startup-code-equals-HEAD',
+    restartCommand: 'launchctl kickstart -k gui/$(id -u)/ai.bcrew.foundation-worker',
+    plainEnglish: 'Foundation has not captured the worker startup commit yet. Run: launchctl kickstart -k gui/$(id -u)/ai.bcrew.foundation-worker to restart the worker, then rerun foundation:verify.',
+    metadata: {},
   }
 }
 const repoRoot = path.resolve(__dirname)
@@ -3975,12 +3993,14 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       backlogItems: snapshot.backlogItems || [],
       closeouts: getFoundationBuildCloseouts(),
     })
+    const workerCode = await getFoundationRuntimeStatus('foundation-worker')
     res.json({
       ...snapshot,
       kpiHealth,
       backlogHygiene,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
+        workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
       },
     })
   } catch (error) {

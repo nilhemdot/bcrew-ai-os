@@ -5630,6 +5630,30 @@ function renderServedCodeTrustPanel(runtimeSupervisor) {
   )
 }
 
+function renderWorkerCodeTrustPanel(runtimeSupervisor) {
+  var workerCode = runtimeSupervisor && runtimeSupervisor.workerCode
+  if (!workerCode) return null
+
+  var runningCommit = workerCode.runningShortCommit || workerCode.runningCommit || 'Not captured'
+  var status = workerCode.status === 'live' ? 'live' : 'risk'
+  var detail = workerCode.plainEnglish || 'Foundation worker reports the code commit it started from. foundation:verify compares this to repo HEAD and the supervised worker process.'
+  if (workerCode.restartCommand) {
+    detail += ' If this is stale, run: ' + workerCode.restartCommand
+  }
+
+  return renderStatusGroupPanel(
+    'Worker Code Trust',
+    'Shows the exact code version the background worker started with, so scheduled jobs cannot keep running old code quietly.',
+    [
+      {
+        label: 'Worker-start commit',
+        status: status,
+        detail: 'Running commit: ' + runningCommit + '. Process id: ' + (workerCode.processId || 'Not captured') + '. Started ' + formatDate(workerCode.startedAt) + '. ' + detail,
+      },
+    ]
+  )
+}
+
 function renderBacklogHygienePanel(backlogHygiene) {
   if (!backlogHygiene || !backlogHygiene.summary) return null
   var summary = backlogHygiene.summary || {}
@@ -11683,6 +11707,9 @@ function renderDataHealth() {
 
     var servedCodePanel = renderServedCodeTrustPanel(hub.runtimeSupervisor)
     if (servedCodePanel) container.appendChild(servedCodePanel)
+
+    var workerCodePanel = renderWorkerCodeTrustPanel(hub.runtimeSupervisor)
+    if (workerCodePanel) container.appendChild(workerCodePanel)
 
     var backlogHygienePanel = renderBacklogHygienePanel(hub.backlogHygiene)
     if (backlogHygienePanel) container.appendChild(backlogHygienePanel)

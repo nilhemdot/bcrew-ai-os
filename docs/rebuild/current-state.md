@@ -128,7 +128,8 @@ Hard checkpoint call from 2026-04-28:
 Current command order:
 
 1. Keep the `FOUNDATION-SWEEP-001` map and `FOUNDATION-CHANGELOG-002` closeout records current when Foundation nav, APIs, docs, source contracts, jobs, System Inventory, hub links, or major build cards change.
-2. Stop and re-plan with Steve before auto-picking another Foundation slice. The decision is whether Foundation is good enough to un-pause Scoper, dev intelligence, and agent-managed backlog work.
+2. Finish the post-audit trust hit list before new feature work. Card 0 `PROCESS-FANOUT-001` is repaired. Wave 2 is active: `WORKER-CODE-TRUST-001` proves the supervised worker is running current code, while `VERIFIER-DONE-COVERAGE-001` and `VERIFIER-ARTIFACT-EXISTS-001` wait for a revised 9.8 plan.
+3. After the trust hit list and re-audit, re-plan with Steve before un-pausing Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work.
 
 ## Operator Surface Pattern
 

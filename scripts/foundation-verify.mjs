@@ -102,6 +102,28 @@ async function getCurrentRepoHead() {
   return String(stdout || '').trim().toLowerCase()
 }
 
+async function getLaunchAgentStatus(label) {
+  try {
+    const { stdout } = await execFile('launchctl', ['list'], {
+      cwd: repoRoot,
+      maxBuffer: 1024 * 1024,
+    })
+    const line = String(stdout || '').split(/\r?\n/).find(item => item.includes(label)) || ''
+    if (!line) return { ok: false, pid: null, status: null, line: '', error: `LaunchAgent ${label} was not listed.` }
+    const [pidRaw, statusRaw] = line.trim().split(/\s+/)
+    const pid = /^\d+$/.test(pidRaw) ? Number(pidRaw) : null
+    return { ok: Boolean(pid), pid, status: statusRaw || null, line, error: pid ? '' : `LaunchAgent ${label} is listed but has no running pid.` }
+  } catch (error) {
+    return {
+      ok: false,
+      pid: null,
+      status: null,
+      line: '',
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
 function ensure(checks, condition, check, detail) {
   if (!condition) {
     checks.push({ ok: false, check, detail })
@@ -173,6 +195,7 @@ async function main() {
   line('  Repo root', repoRoot)
 
   const currentRepoHead = await getCurrentRepoHead()
+  const workerLaunchAgent = await getLaunchAgentStatus('ai.bcrew.foundation-worker')
   const sourceContracts = getSourceContracts()
   const sourceConnectors = getSourceConnectors()
   const groupedSourceSystems = getGroupedSourceSystems()
@@ -308,6 +331,8 @@ async function main() {
   const processHooksApproval = JSON.parse(processHooksApprovalSource)
   const processFanoutApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-FANOUT-001.json')
   const processFanoutApproval = JSON.parse(processFanoutApprovalSource)
+  const workerCodeTrustApprovalSource = await readRepoFile('docs/process/approvals/WORKER-CODE-TRUST-001.json')
+  const workerCodeTrustApproval = JSON.parse(workerCodeTrustApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -1375,15 +1400,24 @@ async function main() {
   const foundationHubKpiHealth = foundationHub.kpiHealth || {}
   const backlogHygieneApi = foundationHub.backlogHygiene || {}
   const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
+  const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const dashboardRunningCommit = String(runtimeServedCode.runningCommit || '').trim().toLowerCase()
   const dashboardRunningShortCommit = String(runtimeServedCode.runningShortCommit || dashboardRunningCommit.slice(0, 7) || 'missing')
+  const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
+  const workerRunningShortCommit = String(runtimeWorkerCode.runningShortCommit || workerRunningCommit.slice(0, 7) || 'missing')
   const currentRepoShortHead = currentRepoHead.slice(0, 7)
   const dashboardRestartCommand = runtimeServedCode.restartCommand || 'launchctl kickstart -k gui/$(id -u)/ai.bcrew.dashboard'
+  const workerRestartCommand = runtimeWorkerCode.restartCommand || 'launchctl kickstart -k gui/$(id -u)/ai.bcrew.foundation-worker'
   const servedCodeTrustDetail = dashboardRunningCommit
     ? dashboardRunningCommit === currentRepoHead
       ? `Dashboard is serving current commit ${dashboardRunningShortCommit}; HEAD is ${currentRepoShortHead}.`
       : `Dashboard is serving commit ${dashboardRunningShortCommit}; HEAD is ${currentRepoShortHead}. Run: ${dashboardRestartCommand} to restart.`
     : `Dashboard did not expose its server-start commit. Run: ${dashboardRestartCommand} to restart, then rerun foundation:verify.`
+  const workerCodeTrustDetail = workerRunningCommit
+    ? workerRunningCommit === currentRepoHead && workerLaunchAgent.pid === Number(runtimeWorkerCode.processId)
+      ? `Foundation worker is running current commit ${workerRunningShortCommit}; HEAD is ${currentRepoShortHead}; LaunchAgent pid is ${workerLaunchAgent.pid}.`
+      : `Foundation worker is serving commit ${workerRunningShortCommit}; HEAD is ${currentRepoShortHead}; recorded pid is ${runtimeWorkerCode.processId || 'missing'} and LaunchAgent pid is ${workerLaunchAgent.pid || 'missing'}. Run: ${workerRestartCommand} to restart.`
+    : `Foundation worker did not expose its startup commit. Run: ${workerRestartCommand} to restart, then rerun foundation:verify.`
   const foundationSurfaceMap = getFoundationSurfaceMap()
   const foundationBuildCloseouts = getFoundationBuildCloseouts()
   const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
@@ -1692,6 +1726,22 @@ async function main() {
   )
   ensure(
     checks,
+    /^[0-9a-f]{40}$/.test(workerRunningCommit) &&
+      workerRunningCommit === currentRepoHead &&
+      runtimeWorkerCode.status === 'live' &&
+      Number(runtimeWorkerCode.processId) === workerLaunchAgent.pid &&
+      workerLaunchAgent.ok === true &&
+      String(runtimeWorkerCode.plainEnglish || '').includes('worker-start commit') &&
+      String(runtimeWorkerCode.restartCommand || '').includes('launchctl kickstart') &&
+      foundationWorkerSource.includes('recordFoundationRuntimeStatus') &&
+      serverSource.includes('runtimeSupervisor') &&
+      serverSource.includes('workerCode') &&
+      foundationUiSource.includes('renderWorkerCodeTrustPanel'),
+    'Foundation worker startup code matches current repo HEAD',
+    workerLaunchAgent.ok ? workerCodeTrustDetail : `${workerCodeTrustDetail} LaunchAgent check: ${workerLaunchAgent.error}`,
+  )
+  ensure(
+    checks,
     foundationHub.backlogSeedDrift?.policy &&
       Array.isArray(foundationHub.backlogSeedDrift.items) &&
       Array.isArray(foundationHub.backlogSeedDrift.stableFields) &&
@@ -1803,6 +1853,10 @@ async function main() {
     (build.backlogIds || []).includes('PROCESS-FANOUT-001') &&
       build.closeoutKey === 'process-fanout-v1-repair'
   )
+  const buildLogWorkerCodeTrustBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('WORKER-CODE-TRUST-001') &&
+      build.closeoutKey === 'worker-code-trust-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1825,6 +1879,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('DEV-PROCESS-AUDIT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-HOOKS-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-FANOUT-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('WORKER-CODE-TRUST-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
@@ -2091,6 +2146,22 @@ async function main() {
     buildLogProcessFanoutBuild
       ? `${buildLogProcessFanoutBuild.shortSha} / ${buildLogProcessFanoutBuild.acceptanceState} / ${buildLogProcessFanoutBuild.proofStatus}`
       : 'missing process fanout repair closeout',
+  )
+  ensure(
+    checks,
+    buildLogWorkerCodeTrustBuild?.operatorCloseout === true &&
+      buildLogWorkerCodeTrustBuild.relatedBacklog?.some(item => item.id === 'WORKER-CODE-TRUST-001' && item.lane === 'done') &&
+      buildLogWorkerCodeTrustBuild.proofCommands?.some(command => command.includes('launchctl kickstart')) &&
+      buildLogWorkerCodeTrustBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      buildLogWorkerCodeTrustBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
+      buildLogWorkerCodeTrustBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /startup commit|LaunchAgent pid|repo HEAD/i.test(buildLogWorkerCodeTrustBuild.proofStatus || '') &&
+      /Worker Code Trust/i.test(buildLogWorkerCodeTrustBuild.whereItLives?.join(' ') || '') &&
+      /continuous liveness/i.test(buildLogWorkerCodeTrustBuild.knownLimits?.join(' ') || ''),
+    'Recent Builds v2 carries closeout proof for worker code trust',
+    buildLogWorkerCodeTrustBuild
+      ? `${buildLogWorkerCodeTrustBuild.shortSha} / ${buildLogWorkerCodeTrustBuild.acceptanceState} / ${buildLogWorkerCodeTrustBuild.proofStatus}`
+      : 'missing worker code trust closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2715,6 +2786,7 @@ async function main() {
   const devProcessAudit = (foundationHub.backlogItems || []).find(item => item.id === 'DEV-PROCESS-AUDIT-001') || null
   const processHooks = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-001') || null
   const processFanout = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-FANOUT-001') || null
+  const workerCodeTrust = (foundationHub.backlogItems || []).find(item => item.id === 'WORKER-CODE-TRUST-001') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
   const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
@@ -2738,6 +2810,12 @@ async function main() {
     processFanout?.whyItMatters,
     processFanout?.nextAction,
     processFanout?.statusNote,
+  ].filter(Boolean).join('\n')
+  const workerCodeTrustText = [
+    workerCodeTrust?.summary,
+    workerCodeTrust?.whyItMatters,
+    workerCodeTrust?.nextAction,
+    workerCodeTrust?.statusNote,
   ].filter(Boolean).join('\n')
   const backlogHygieneText = [
     backlogHygiene?.summary,
@@ -2890,6 +2968,40 @@ async function main() {
     processFanoutClaimedArtifacts.every(item => item.ok),
     'PROCESS-FANOUT-001 claimed artifacts are concrete and verifier-visible',
     processFanoutClaimedArtifacts.map(item => item.label).join(', '),
+  )
+  ensure(
+    checks,
+    workerCodeTrust?.lane === 'done' &&
+      workerCodeTrust?.priority === 'P0' &&
+      workerCodeTrustApproval.cardId === 'WORKER-CODE-TRUST-001' &&
+      Number(workerCodeTrustApproval.score) >= 9.8 &&
+      workerCodeTrustApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(workerCodeTrustApproval.approvedAt).getTime()) &&
+      includesAll(workerCodeTrustText, [
+        'foundation_runtime_status',
+        'runtimeSupervisor.workerCode',
+        'Worker Code Trust',
+        'LaunchAgent pid',
+        'worker-code-trust-v1',
+      ]) &&
+      includesAll(foundationWorkerSource, [
+        'captureWorkerRuntimeMetadata',
+        'recordFoundationRuntimeStatus',
+        'worker-startup-code-equals-HEAD',
+        'ai.bcrew.foundation-worker',
+      ]) &&
+      includesAll(serverSource, [
+        'getFoundationRuntimeStatus',
+        'getMissingWorkerRuntimeMetadata',
+        'workerCode',
+      ]) &&
+      foundationUiSource.includes('renderWorkerCodeTrustPanel') &&
+      currentPlan.includes('WORKER-CODE-TRUST-001') &&
+      currentState.includes('WORKER-CODE-TRUST-001'),
+    'WORKER-CODE-TRUST-001 closes worker served-code trust with proof',
+    workerCodeTrust
+      ? `${workerCodeTrust.lane} / approval=${workerCodeTrustApproval.score} / worker=${workerRunningShortCommit}`
+      : 'missing WORKER-CODE-TRUST-001',
   )
   ensure(
     checks,

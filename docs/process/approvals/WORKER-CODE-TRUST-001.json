@@ -1,0 +1,8 @@
+{
+  "cardId": "WORKER-CODE-TRUST-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-28T23:45:00Z",
+  "approvalSource": "Steve approved Plan B / Card 3 after reviewer scored it 9.8/10.",
+  "notes": "Approval covers the worker served-code trust slice: worker startup commit capture, DB-backed runtime status, Foundation Hub API exposure, Runtime Health panel, verifier check against repo HEAD and LaunchAgent pid, plain-English restart command, Recent Builds closeout, process gate, fanout check, and no feature work."
+}
