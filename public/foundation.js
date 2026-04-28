@@ -5248,86 +5248,249 @@ function renderLlmRuntimePanel(llmRuntime) {
   )
 }
 
+function formatCoverageCount(value) {
+  var count = Number(value || 0)
+  return count.toLocaleString()
+}
+
+function formatCoverageReason(value) {
+  return String(value || 'unspecified')
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function getExtractionCoverageStatus(record) {
+  var counts = record.counts || {}
+  if (record.status === 'blocked' || Number(counts.failedItems || 0) > 0 || record.lastStatus === 'failed') return 'risk'
+  if (record.lastStatus === 'partial' || Number(counts.skippedItems || 0) > 0 || Number(counts.pendingItems || 0) > 0) return 'pending'
+  if (record.status === 'active') return 'live'
+  if (record.status === 'paused') return 'pending'
+  return 'planned'
+}
+
+function appendExtractionCoverageMetric(container, labelText, valueText, detailText) {
+  var item = document.createElement('div')
+  item.className = 'extraction-coverage-metric'
+
+  var label = document.createElement('span')
+  label.textContent = labelText
+  item.appendChild(label)
+
+  var value = document.createElement('strong')
+  value.textContent = valueText || 'Not available'
+  item.appendChild(value)
+
+  if (detailText) {
+    var detail = document.createElement('small')
+    detail.textContent = detailText
+    item.appendChild(detail)
+  }
+
+  container.appendChild(item)
+}
+
+function appendExtractionCoverageChip(container, text, kind) {
+  var chip = document.createElement('span')
+  chip.className = 'extraction-coverage-chip' + (kind ? ' extraction-coverage-chip-' + kind : '')
+  chip.textContent = text
+  container.appendChild(chip)
+}
+
+function renderExtractionCoverageCard(record) {
+  var counts = record.counts || {}
+  var status = getExtractionCoverageStatus(record)
+  var card = document.createElement('article')
+  card.className = 'extraction-coverage-card status-' + status
+
+  var header = document.createElement('div')
+  header.className = 'extraction-coverage-card-header'
+
+  var titleWrap = document.createElement('div')
+  var title = document.createElement('h4')
+  title.textContent = record.title || record.targetKey
+  titleWrap.appendChild(title)
+
+  var meta = document.createElement('p')
+  meta.textContent = [
+    record.targetKey,
+    record.sourceId,
+    record.lane,
+    record.effectiveRuntimeMode || record.runtimeMode,
+  ].filter(Boolean).join(' · ')
+  titleWrap.appendChild(meta)
+  header.appendChild(titleWrap)
+
+  var pill = document.createElement('span')
+  pill.className = 'status-pill'
+  pill.textContent = status
+  header.appendChild(pill)
+  card.appendChild(header)
+
+  var metrics = document.createElement('div')
+  metrics.className = 'extraction-coverage-metrics'
+  appendExtractionCoverageMetric(metrics, 'Last success', formatDate(record.lastSuccessAt), record.successfulRuns ? formatCoverageCount(record.successfulRuns) + ' successful runs' : '')
+  appendExtractionCoverageMetric(metrics, 'Last failure', formatDate(record.lastFailureAt), record.latestFailureStatus || record.latestFailureError || '')
+  appendExtractionCoverageMetric(metrics, 'Next bite', formatDate(record.nextBiteAt), record.scheduleStatus || record.scheduleTruth || '')
+  appendExtractionCoverageMetric(
+    metrics,
+    'Runner checkpoint',
+    formatDate(record.crawlCheckpointNextRunAt),
+    record.crawlCheckpointNextRunAt && record.crawlCheckpointNextRunAt !== record.nextBiteAt ? 'Target checkpoint' : 'Aligned with next bite'
+  )
+  appendExtractionCoverageMetric(
+    metrics,
+    'Items',
+    formatCoverageCount(counts.totalItems),
+    formatCoverageCount(counts.succeededItems) + ' succeeded · '
+      + formatCoverageCount(counts.skippedItems) + ' skipped · '
+      + formatCoverageCount(counts.failedItems) + ' failed'
+  )
+  card.appendChild(metrics)
+
+  var reasons = document.createElement('div')
+  reasons.className = 'extraction-coverage-section'
+  var reasonsTitle = document.createElement('h5')
+  reasonsTitle.textContent = 'Top failed/skipped reasons'
+  reasons.appendChild(reasonsTitle)
+  var reasonChips = document.createElement('div')
+  reasonChips.className = 'extraction-coverage-chip-row'
+  var topReasons = Array.isArray(record.topReasons) ? record.topReasons : []
+  if (topReasons.length) {
+    topReasons.forEach(function(reason) {
+      appendExtractionCoverageChip(
+        reasonChips,
+        formatCoverageCount(reason.count) + ' ' + reason.status + ' - ' + formatCoverageReason(reason.reason),
+        reason.status === 'failed' ? 'risk' : 'pending'
+      )
+    })
+  } else {
+    appendExtractionCoverageChip(reasonChips, 'No failed/skipped reasons recorded', 'neutral')
+  }
+  reasons.appendChild(reasonChips)
+  card.appendChild(reasons)
+
+  var remaining = document.createElement('div')
+  remaining.className = 'extraction-coverage-section'
+  var remainingTitle = document.createElement('h5')
+  remainingTitle.textContent = 'Remaining backlog'
+  remaining.appendChild(remainingTitle)
+  var remainingChips = document.createElement('div')
+  remainingChips.className = 'extraction-coverage-chip-row'
+  var indicators = Array.isArray(record.remainingBacklogIndicators) ? record.remainingBacklogIndicators : []
+  if (indicators.length) {
+    indicators.forEach(function(indicator) {
+      appendExtractionCoverageChip(
+        remainingChips,
+        formatCoverageCount(indicator.count) + ' ' + formatCoverageReason(indicator.label),
+        'backlog'
+      )
+    })
+  } else {
+    appendExtractionCoverageChip(remainingChips, 'No explicit backlog indicator exposed', 'neutral')
+  }
+  remaining.appendChild(remainingChips)
+  card.appendChild(remaining)
+
+  var findings = Array.isArray(record.healthFindings) ? record.healthFindings : []
+  if (findings.length) {
+    var findingLine = document.createElement('p')
+    findingLine.className = 'extraction-coverage-finding-line'
+    findingLine.textContent = 'Findings: ' + findings.slice(0, 2).map(function(finding) {
+      return finding.detail || finding.type || 'Extraction health finding.'
+    }).join(' ')
+    card.appendChild(findingLine)
+  }
+
+  return card
+}
+
 function renderExtractionControlPanel(extractionControl) {
   if (!extractionControl) return null
-  var targets = Array.isArray(extractionControl.targets) ? extractionControl.targets : []
+  var targets = Array.isArray(extractionControl.coverageByTarget)
+    ? extractionControl.coverageByTarget
+    : []
+  if (!targets.length) {
+    targets = (Array.isArray(extractionControl.targets) ? extractionControl.targets : []).map(function(target) {
+      return {
+        targetKey: target.targetKey,
+        title: target.title,
+        sourceId: target.sourceId,
+        lane: target.lane,
+        status: target.status,
+        runtimeMode: target.runtimeMode,
+        effectiveRuntimeMode: target.effectiveRuntimeMode,
+        scheduleStatus: target.scheduler && target.scheduler.scheduleStatus,
+        scheduleTruth: target.scheduler && target.scheduler.scheduleTruth,
+        nextBiteAt: target.effectiveNextRunAt || target.nextRunAt,
+        lastRunAt: target.lastRunAt,
+        lastStatus: target.lastStatus,
+        lastError: target.lastError,
+        lastSuccessAt: target.lastStatus === 'succeeded' ? target.lastRunAt : null,
+        lastFailureAt: target.lastStatus === 'failed' || target.lastStatus === 'partial' ? target.lastRunAt : null,
+        counts: {
+          inspectedCount: target.inspectedCount,
+          archivedCount: target.archivedCount,
+          extractedCount: target.extractedCount,
+          totalItems: target.itemSummary && target.itemSummary.totalItems,
+          succeededItems: target.itemSummary && target.itemSummary.succeededItems,
+          skippedItems: target.itemSummary && target.itemSummary.skippedItems,
+          failedItems: target.itemSummary && target.itemSummary.failedItems,
+          pendingItems: target.itemSummary && target.itemSummary.pendingItems,
+        },
+        topReasons: (target.itemSummary && target.itemSummary.reasons || []).filter(function(reason) {
+          return reason.status === 'failed' || reason.status === 'skipped'
+        }).slice(0, 5),
+        remainingBacklogIndicators: [],
+        healthFindings: target.healthFindings || [],
+      }
+    })
+  }
   if (!targets.length) return null
 
-  var summary = 'Current-day and bounded-backfill crawl targets. '
+  var summary = 'Coverage by target for current-day and bounded-backfill crawl lanes. '
     + ((extractionControl.summary && extractionControl.summary.currentDayTargets) || 0) + ' current-day, '
     + ((extractionControl.summary && extractionControl.summary.backfillTargets) || 0) + ' backfill, '
     + ((extractionControl.summary && extractionControl.summary.corpusMiningTargets) || 0) + ' corpus-mining, '
     + ((extractionControl.summary && extractionControl.summary.scheduledTargets) || 0) + ' scheduled, '
     + ((extractionControl.summary && extractionControl.summary.pausedTargets) || 0) + ' paused, '
     + ((extractionControl.summary && extractionControl.summary.recentItemFailures) || 0) + ' recent item failures, '
+    + ((extractionControl.summary && extractionControl.summary.coverageTargetsWithRemainingBacklog) || 0) + ' targets with remaining backlog indicators, '
     + ((extractionControl.summary && extractionControl.summary.targetRiskFindings) || 0) + ' risk findings, '
     + ((extractionControl.summary && extractionControl.summary.targetWarningFindings) || 0) + ' warnings.'
 
-  var items = targets.slice(0, 10).map(function(target) {
-    var budget = target.budget || {}
-    var budgetParts = []
-    if (budget.maxItemsPerRun) budgetParts.push('max ' + budget.maxItemsPerRun + ' items/run')
-    if (budget.maxFoldersPerRun) budgetParts.push('max ' + budget.maxFoldersPerRun + ' folder/run')
-    if (budget.maxFilesPerRun) budgetParts.push('max ' + budget.maxFilesPerRun + ' files/run')
-    var itemSummary = target.itemSummary || {}
-    var itemParts = []
-    if (itemSummary.totalItems != null) itemParts.push(itemSummary.totalItems + ' crawl items')
-    if (itemSummary.failedItems) itemParts.push(itemSummary.failedItems + ' failed')
-    if (itemSummary.skippedItems) itemParts.push(itemSummary.skippedItems + ' skipped')
-    if (itemSummary.succeededItems) itemParts.push(itemSummary.succeededItems + ' succeeded')
-    var itemLine = itemParts.length ? ' Items: ' + itemParts.join(', ') + '.' : ''
-    var findings = Array.isArray(target.healthFindings) ? target.healthFindings : []
-    var findingLine = findings.length
-      ? ' Findings: ' + findings.slice(0, 3).map(function(finding) {
-        return finding.detail || finding.type || 'Extraction health finding needs review.'
-      }).join(' ')
-      : ''
-    var counts = target.inspectedCount + ' inspected, ' + target.archivedCount + ' archived, ' + target.extractedCount + ' extracted.'
-    var lastState = target.lastStatus ? ' Last run: ' + target.lastStatus + (target.lastError ? ' — ' + target.lastError : '') + '.' : ''
-    var scheduler = target.scheduler || {}
-    var schedulerMode = scheduler.runtimeMode || target.runtimeMode
-    var schedulerSource = scheduler.source === 'foundation_job' && scheduler.foundationJobKey
-      ? ' job ' + scheduler.foundationJobKey
-      : ' target'
-    var scheduleLine = scheduler.scheduleStatus
-      ? ' Schedule: ' + scheduler.scheduleStatus + ' via' + schedulerSource
-        + (scheduler.nextRunAt ? ', next ' + formatDate(scheduler.nextRunAt) : '')
-        + (scheduler.scheduleDetail ? '. ' + scheduler.scheduleDetail : '.')
-      : ''
-    var checkpointLine = scheduler.source === 'foundation_job' &&
-      scheduler.crawlCheckpointNextRunAt &&
-      scheduler.crawlCheckpointNextRunAt !== scheduler.nextRunAt
-      ? ' Runner checkpoint: ' + formatDate(scheduler.crawlCheckpointNextRunAt) + '.'
-      : ''
-    var detail = target.sourceId + ' · ' + target.lane + ' · ' + schedulerMode + '. ' + counts
-      + (budgetParts.length ? ' Budget: ' + budgetParts.join(', ') + '.' : '')
-      + itemLine
-      + lastState
-      + scheduleLine
-      + checkpointLine
-      + findingLine
-      + ' ' + (target.notes || '')
-    var hasRiskFinding = findings.some(function(finding) { return finding.severity === 'risk' })
-    var hasWarningFinding = findings.some(function(finding) { return finding.severity === 'warning' })
-    var status = target.status === 'blocked' || hasRiskFinding || target.lastStatus === 'failed'
-      ? 'risk'
-      : hasWarningFinding || target.lastStatus === 'partial'
-        ? 'pending'
-        : target.status === 'active'
-          ? 'live'
-          : 'planned'
-    return {
-      label: target.title,
-      status: status,
-      detail: detail,
-    }
-  })
+  var panel = document.createElement('section')
+  panel.className = 'panel extraction-coverage-panel'
 
-  return renderStatusGroupPanel(
-    'Extraction Control',
-    summary,
-    items
-  )
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Live State'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Extraction Control: Coverage By Target'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = summary
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'extraction-coverage-grid'
+  targets.forEach(function(target) {
+    grid.appendChild(renderExtractionCoverageCard(target))
+  })
+  panel.appendChild(grid)
+
+  return panel
 }
 
 function renderSurfaceFreshnessSweepPanel(sweep) {

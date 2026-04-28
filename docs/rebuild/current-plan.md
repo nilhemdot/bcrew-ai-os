@@ -170,6 +170,7 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Interim admin gating is live for source-of-truth, doc reads, Foundation hub, FUB reads, Owners queue/governance, sheet structure, system inventory, changes, and doc-update reads.
    - Later replace stop-gap gating with tier and subject-person redaction.
    - `FOUNDATION-USERS-001` is the smaller P1 follow-up for owner-only user administration from Foundation: list users, add email/name/role, disable users, audit changes, avoid password exposure, and prove non-owners cannot manage access. Do not build it inside extraction-control schedule reconciliation.
+   - `FOUNDATION-SURFACE-UPDATES-001` is the P1 follow-up for Recent Builds/app visibility: major closeouts should link to the app surface or doc section, classify visible/backend-only/doc-only changes, and mark affected Foundation pages/cards as New or Recently updated. Do not build it inside the extraction coverage slice.
 3. `SYSTEM-010` — Finish runtime/process-control hardening.
    - Keep dashboard and worker LaunchAgent plists in repo.
    - Router fallback is manual-explicit, not automatic; keep code/docs/UI from implying automatic paid fallback.
@@ -226,12 +227,16 @@ Order now:
    - Recent Builds v2 merges git history with repo-truth closeout records for major Foundation builds.
    - The page now groups builds by day and system area, links related backlog cards, shows proof commands/status, explains where the work lives, and names what Steve should review next.
    - `foundation:verify` guards the v2 closeout schema and the visible closeout proof for `FOUNDATION-SWEEP-001` and `FOUNDATION-CHANGELOG-002`.
-4. Resume existing Foundation command order.
+4. `EXTRACT-CONTROL-001` / `EXTRACT-METRICS-001` — done for v1 / P0 + P1.
+   - Runtime Health now exposes Extraction Control: Coverage By Target.
+   - The coverage panel shows last success, last failure, next bite, item totals, succeeded/skipped/failed counts, top failed/skipped reasons, and remaining backlog indicators where lanes already expose them.
+   - `EXTRACT-CONTROL-001` v1 is closed; failed-item retry/backoff remains in `EXTRACT-RETRY-001`, and surface breadcrumb/update polish remains in `FOUNDATION-SURFACE-UPDATES-001`.
+5. Resume existing Foundation command order.
    - runtime/source freshness
    - extraction/corpus hardening
    - closed-loop action/resolution feedback
    - privacy/tier/process controls
-5. Resume Strategic Intelligence only after the Foundation checkpoint work is stable.
+6. Resume Strategic Intelligence only after the Foundation checkpoint work is stable.
 
 ### Parked Next Leg — Strategic Intelligence Operating Loop
 
@@ -481,6 +486,7 @@ Backlog/cards:
 - `EXTRACT-RETRY-001`
 - `EXTRACT-SCHEDULE-001`
 - `EXTRACT-METRICS-001`
+- `FOUNDATION-SURFACE-UPDATES-001`
 - `COMMS-BACKFILL-001`
 - `EXTRACTION-TEAM-001`
 - `HUB-INTEL-001`
@@ -506,7 +512,9 @@ Current partial proof:
 - `meeting-notes-sync-current` now calls `npm run extraction:target -- --target=meetings-current-day` through the Foundation job runner.
 - `slack-current-day` now records channel-level `source_crawl_items`; the 2026-04-28 proof run inspected 61 channels, archived 481 threads, marked 51 channel items succeeded, marked 10 skipped with `no_archivable_messages`, and replaced the stale Apr 27 reaped run as the latest target state.
 - `missive-current-day` now records conversation-level `source_crawl_items`; the 2026-04-28 proof run inspected 100 conversations, wrote/refreshed 17, marked 82 already-current skips, marked 1 empty-thread skip, and produced 0 item failures.
-- `docs/audits/2026-04-28-extraction-lane-item-shape.md` preserves the lane-consistency inspection for `EXTRACT-METRICS-001`: Slack, Gmail, meetings, Drive corpus/content, attachments, video, and Missive now all expose item ledger rows, while Drive content still has 4 failed items for the future retry/backoff slice.
+- `docs/audits/2026-04-28-extraction-lane-item-shape.md` preserves the lane-consistency inspection for `EXTRACT-METRICS-001`: Slack, Gmail, meetings, Drive corpus/content, attachments, video, and Missive now all expose item ledger rows; the audit-time Drive content failures stay routed to future retry/backoff handling if they reappear.
+- Runtime Health now exposes Extraction Control: Coverage By Target from `/api/foundation-hub`, with last success, last failure, next bite, item totals, top failed/skipped reasons, and remaining backlog indicators where available.
+- `EXTRACT-CONTROL-001` v1 is closed through that coverage panel. Further retry/backoff execution belongs to `EXTRACT-RETRY-001`; richer app-surface breadcrumbs and updated markers belong to `FOUNDATION-SURFACE-UPDATES-001`.
 - Partial target runs now exit nonzero from `run-extraction-target`, so item-level failures cannot look like green Foundation jobs.
 - `meeting-notes-retry-failed` is registered as a manual Foundation job and retries failed meeting crawl items from `source_crawl_items` instead of rerunning the whole current-day window.
 - First retry proof found `0` failed meeting crawl items and succeeded as a no-op.

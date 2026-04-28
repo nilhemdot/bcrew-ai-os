@@ -1312,6 +1312,9 @@ async function main() {
   const extractionTargets = Array.isArray(foundationHub.extractionControl?.targets)
     ? foundationHub.extractionControl.targets
     : []
+  const extractionCoverageTargets = Array.isArray(foundationHub.extractionControl?.coverageByTarget)
+    ? foundationHub.extractionControl.coverageByTarget
+    : []
   const extractionStaleActiveRuns = Array.isArray(foundationHub.extractionControl?.staleActiveRuns)
     ? foundationHub.extractionControl.staleActiveRuns
     : []
@@ -1333,6 +1336,8 @@ async function main() {
   const missiveCurrentDayTarget = extractionTargets.find(target => target.targetKey === 'missive-current-day')
   const driveCorpusTarget = extractionTargets.find(target => target.targetKey === 'drive-corpus-backfill')
   const driveContentTarget = extractionTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
+  const driveCorpusCoverage = extractionCoverageTargets.find(target => target.targetKey === 'drive-corpus-backfill')
+  const driveContentCoverage = extractionCoverageTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
   const strategyPreworkParticipants = Array.isArray(strategyPreworkCoverageSnapshot.participants)
     ? strategyPreworkCoverageSnapshot.participants
     : []
@@ -1569,6 +1574,10 @@ async function main() {
     (build.backlogIds || []).includes('EXTRACT-METRICS-001') &&
       build.closeoutKey === 'extract-metrics-missive-item-ledger'
   )
+  const buildLogCoverageByTargetBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('EXTRACT-METRICS-001') &&
+      build.closeoutKey === 'extract-metrics-coverage-by-target'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1578,6 +1587,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('EXTRACTION-TEAM-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-SCHEDULE-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-METRICS-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-SURFACE-UPDATES-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -1655,7 +1665,7 @@ async function main() {
   ensure(
     checks,
     buildLogScheduleTruthBuild?.operatorCloseout === true &&
-      buildLogScheduleTruthBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && item.lane === 'scoped') &&
+      buildLogScheduleTruthBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && ['scoped', 'done'].includes(item.lane)) &&
       buildLogScheduleTruthBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-SCHEDULE-001' && item.lane === 'done') &&
       buildLogScheduleTruthBuild.proofCommands?.includes('npm run foundation:verify') &&
       /Foundation job runtime as visible next-run truth/i.test(buildLogScheduleTruthBuild.whatChanged || '') &&
@@ -1668,8 +1678,8 @@ async function main() {
   ensure(
     checks,
     buildLogMissiveItemLedgerBuild?.operatorCloseout === true &&
-      buildLogMissiveItemLedgerBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-METRICS-001' && item.lane === 'scoped') &&
-      buildLogMissiveItemLedgerBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && item.lane === 'scoped') &&
+      buildLogMissiveItemLedgerBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-METRICS-001' && ['scoped', 'done'].includes(item.lane)) &&
+      buildLogMissiveItemLedgerBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && ['scoped', 'done'].includes(item.lane)) &&
       buildLogMissiveItemLedgerBuild.proofCommands?.some(command => command.includes('--target=missive-current-day')) &&
       buildLogMissiveItemLedgerBuild.proofCommands?.includes('npm run foundation:verify') &&
       /Missive current-day|conversation/i.test(buildLogMissiveItemLedgerBuild.whatChanged || '') &&
@@ -1679,6 +1689,21 @@ async function main() {
     buildLogMissiveItemLedgerBuild
       ? `${buildLogMissiveItemLedgerBuild.shortSha} / ${buildLogMissiveItemLedgerBuild.acceptanceState} / ${buildLogMissiveItemLedgerBuild.proofStatus}`
       : 'missing Missive item-ledger build closeout',
+  )
+  ensure(
+    checks,
+    buildLogCoverageByTargetBuild?.operatorCloseout === true &&
+      buildLogCoverageByTargetBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-METRICS-001' && item.lane === 'done') &&
+      buildLogCoverageByTargetBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && item.lane === 'done') &&
+      buildLogCoverageByTargetBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SURFACE-UPDATES-001' && item.lane === 'scoped') &&
+      buildLogCoverageByTargetBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /coverage-by-target|Coverage By Target/i.test(buildLogCoverageByTargetBuild.whatChanged || '') &&
+      /Runtime Health/i.test(buildLogCoverageByTargetBuild.whereItLives?.join(' ') || '') &&
+      /EXTRACT-RETRY-001/i.test(buildLogCoverageByTargetBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for extraction coverage-by-target',
+    buildLogCoverageByTargetBuild
+      ? `${buildLogCoverageByTargetBuild.shortSha} / ${buildLogCoverageByTargetBuild.acceptanceState} / ${buildLogCoverageByTargetBuild.proofStatus}`
+      : 'missing extraction coverage-by-target closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2013,6 +2038,46 @@ async function main() {
   )
   ensure(
     checks,
+    extractionCoverageTargets.length === extractionTargets.length &&
+      extractionCoverageTargets.length > 0 &&
+      extractionCoverageTargets.every(target =>
+        target.targetKey &&
+        Object.prototype.hasOwnProperty.call(target, 'lastSuccessAt') &&
+        Object.prototype.hasOwnProperty.call(target, 'lastFailureAt') &&
+        Object.prototype.hasOwnProperty.call(target, 'nextBiteAt') &&
+        target.counts &&
+        Object.prototype.hasOwnProperty.call(target.counts, 'totalItems') &&
+        Object.prototype.hasOwnProperty.call(target.counts, 'succeededItems') &&
+        Object.prototype.hasOwnProperty.call(target.counts, 'skippedItems') &&
+        Object.prototype.hasOwnProperty.call(target.counts, 'failedItems') &&
+        Array.isArray(target.topReasons) &&
+        Array.isArray(target.remainingBacklogIndicators)
+      ) &&
+      extractionCoverageTargets.some(target => Number(target.counts.skippedItems || 0) > 0 && target.topReasons.length > 0) &&
+      driveCorpusCoverage?.remainingBacklogIndicators?.some(indicator => /Queued Drive folders/i.test(indicator.label || '')) &&
+      driveContentCoverage?.topReasons?.some(reason => reason.status === 'skipped') &&
+      includesAll(foundationDbSource, [
+        'getSourceCrawlTargetRunCoverage',
+        'buildSourceCrawlTargetCoverage',
+        'coverageByTarget',
+        'remainingBacklogIndicators',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderExtractionCoverageCard',
+        'Extraction Control: Coverage By Target',
+        'Last success',
+        'Last failure',
+        'Next bite',
+        'Top failed/skipped reasons',
+        'Remaining backlog',
+      ]),
+    'Runtime Health exposes extraction coverage-by-target',
+    extractionCoverageTargets.length
+      ? `${extractionCoverageTargets.length} targets / skipped-visible=${extractionCoverageTargets.filter(target => Number(target.counts?.skippedItems || 0) > 0).length} / backlog-indicators=${extractionCoverageTargets.filter(target => target.remainingBacklogIndicators?.length).length}`
+      : 'missing coverageByTarget payload',
+  )
+  ensure(
+    checks,
     slackCurrentDayTarget?.itemSummary &&
       Number(slackCurrentDayTarget.itemSummary.totalItems || 0) > 0 &&
       Array.isArray(slackCurrentDayTarget.healthFindings) &&
@@ -2213,6 +2278,34 @@ async function main() {
     'Foundation Recent Builds v2 operator changelog hardening is closed',
     foundationChangelogV2 ? `${foundationChangelogV2.lane} / ${foundationChangelogV2.title}` : 'missing FOUNDATION-CHANGELOG-002',
   )
+  const foundationSurfaceUpdates = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-SURFACE-UPDATES-001') || null
+  const foundationSurfaceUpdatesText = [
+    foundationSurfaceUpdates?.title,
+    foundationSurfaceUpdates?.summary,
+    foundationSurfaceUpdates?.whyItMatters,
+    foundationSurfaceUpdates?.nextAction,
+    foundationSurfaceUpdates?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    foundationSurfaceUpdates?.lane === 'scoped' &&
+      foundationSurfaceUpdates?.priority === 'P1' &&
+      foundationSurfaceUpdatesText.includes('clickable app breadcrumbs') &&
+      foundationSurfaceUpdatesText.includes('New or Recently updated') &&
+      foundationSurfaceUpdatesText.includes('backend-only') &&
+      foundationSurfaceUpdatesText.includes('doc-only') &&
+      foundationSurfaceUpdatesText.includes('app surface metadata') &&
+      foundationSurfaceUpdatesText.includes('at least 3 recent closeouts') &&
+      foundationSurfaceUpdatesText.includes('not build during EXTRACT-METRICS-001') &&
+      foundationSurfaceMap.some(surface =>
+        surface.section === 'build-log' &&
+          (surface.backlogIds || []).includes('FOUNDATION-SURFACE-UPDATES-001')
+      ),
+    'Foundation shipped-change surface visibility follow-up is parked as scoped P1',
+    foundationSurfaceUpdates
+      ? `${foundationSurfaceUpdates.lane} / ${foundationSurfaceUpdates.priority} / ${foundationSurfaceUpdates.title}`
+      : 'missing FOUNDATION-SURFACE-UPDATES-001',
+  )
   const foundationUsersAdmin = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-USERS-001') || null
   const foundationUsersAdminText = [
     foundationUsersAdmin?.title,
@@ -2275,30 +2368,34 @@ async function main() {
   ].filter(Boolean).join('\n')
   ensure(
     checks,
-      extractControl?.lane === 'scoped' &&
+      extractControl?.lane === 'done' &&
       extractControl?.priority === 'P0' &&
       extractControlText.includes('coverage-by-target') &&
       extractControlText.includes('Foundation-job schedule truth') &&
+      extractControlText.includes('EXTRACT-RETRY-001') &&
+      extractControlText.includes('foundation:verify') &&
       extractSchedule?.lane === 'done' &&
       extractSchedule?.priority === 'P1' &&
       extractScheduleText.includes('crawlCheckpointNextRunAt') &&
       extractScheduleText.includes('job_target_schedule_mismatch') &&
       currentPlan.includes('crawlCheckpointNextRunAt') &&
-      currentState.includes('crawlCheckpointNextRunAt'),
-    'extraction schedule truth is closed while coverage stays next',
+      currentState.includes('EXTRACT-CONTROL-001 v1 is closed'),
+    'extraction schedule truth and control-plane v1 are closed',
     `EXTRACT-CONTROL-001=${extractControl?.lane || 'missing'} / EXTRACT-SCHEDULE-001=${extractSchedule?.lane || 'missing'}`,
   )
   ensure(
     checks,
-    extractMetrics?.lane === 'scoped' &&
+    extractMetrics?.lane === 'done' &&
       extractMetrics?.priority === 'P1' &&
       extractMetricsText.includes('coverage-by-target') &&
+      extractMetricsText.includes('Runtime Health') &&
       extractMetricsText.includes('Missive current-day') &&
       extractMetricsText.includes('missive_conversation') &&
-      extractControlText.includes('V1 should close after coverage-by-target ships under EXTRACT-METRICS-001') &&
-      currentState.includes('`EXTRACT-METRICS-001` is the primary card for the coverage-by-target slice') &&
+      extractMetricsText.includes('foundation:verify') &&
+      extractControlText.includes('Closed on 2026-04-28') &&
+      currentState.includes('`EXTRACT-METRICS-001` is done for v1') &&
       currentPlan.includes('docs/audits/2026-04-28-extraction-lane-item-shape.md'),
-    'EXTRACT-METRICS-001 owns the coverage-by-target slice with Missive ledger proof',
+    'EXTRACT-METRICS-001 closes the coverage-by-target slice with Missive ledger proof',
     extractMetrics
       ? `${extractMetrics.lane} / ${extractMetrics.priority} / ${extractMetrics.title}`
       : 'missing EXTRACT-METRICS-001',

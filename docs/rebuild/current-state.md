@@ -112,12 +112,13 @@ Hard checkpoint call from 2026-04-28:
 - `STRATEGIC-INTEL-001`, `INTEL-SCOPER-001`, `STRATEGY-QUARTER-001`, and `MODEL-ROUTING-001` remain pinned, but they are not tomorrow's first build.
 - `FOUNDATION-SWEEP-001` is done for v1: all Foundation nav pages are mapped to backing APIs/docs/tables/source IDs/backlog owners, Runtime Health surfaces stale source-crawl runs, and `foundation:verify` guards the sweep.
 - `FOUNDATION-CHANGELOG-002` is done for v1: Recent Builds groups work by day/system area and shows closeout records with backlog cards, proof commands, review-next notes, and known limits.
-- `EXTRACT-METRICS-001` is the primary card for the coverage-by-target slice, linked to `EXTRACT-CONTROL-001`. Lane-shape inspection is saved in `docs/audits/2026-04-28-extraction-lane-item-shape.md`; Missive current-day was the smallest missing item-ledger lane and now emits `missive_conversation` crawl items.
+- `EXTRACT-METRICS-001` is done for v1, linked to `EXTRACT-CONTROL-001`. Lane-shape inspection is saved in `docs/audits/2026-04-28-extraction-lane-item-shape.md`; Missive current-day was the smallest missing item-ledger lane and now emits `missive_conversation` crawl items; Runtime Health now shows Extraction Control: Coverage By Target with last success, last failure, next bite, item totals, top failed/skipped reasons, and available remaining-backlog indicators.
+- `EXTRACT-CONTROL-001 v1 is closed`: the control plane now has target/item ledgers, schedule truth, stale-run visibility, item summaries/findings, Slack/Missive item proof, and coverage-by-target. Failed-item retry/backoff remains a child card under `EXTRACT-RETRY-001`; app-surface breadcrumbs and updated markers are parked under `FOUNDATION-SURFACE-UPDATES-001`.
 
 Current command order:
 
 1. Keep the `FOUNDATION-SWEEP-001` map and `FOUNDATION-CHANGELOG-002` closeout records current when Foundation nav, APIs, docs, source contracts, jobs, System Inventory, hub links, or major build cards change.
-2. Monitor capture and extraction.
+2. Monitor capture and extraction through Runtime Health coverage-by-target; let the unhealthy/thin list choose the next extraction slice.
 3. Harden missing corpus lanes.
 4. Add freshness and health checks.
 5. Close the action loop.
