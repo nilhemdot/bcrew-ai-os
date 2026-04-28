@@ -1280,6 +1280,19 @@ async function main() {
   const strategyHubV2Routes = Array.isArray(strategyHubV2Api.actionRouter?.recentRoutes)
     ? strategyHubV2Api.actionRouter.recentRoutes
     : []
+  const strategyHubProofRoutes = strategyHubV2Routes.filter(route =>
+    Array.isArray(route.sourceProof?.items) && route.sourceProof.items.length > 0
+  )
+  const strategyHubHumanProofItems = strategyHubProofRoutes
+    .flatMap(route => route.sourceProof.items)
+    .filter(item =>
+      item?.sourceId &&
+      item?.title &&
+      item?.occurredAt &&
+      (item?.from || (Array.isArray(item?.participants) && item.participants.length > 0)) &&
+      item?.threadStatus &&
+      item?.quote
+    )
 
   ensure(
     checks,
@@ -1620,6 +1633,24 @@ async function main() {
       strategicExecutionUiSource.includes('Strategic review') &&
       strategicExecutionUiSource.includes('strategy prep, source-map gaps, goal gaps, and pillar decisions') &&
       strategicExecutionUiSource.includes('Operating tasks stay out of Strategy') &&
+      strategicExecutionUiSource.includes('function renderSourceProof') &&
+      strategicExecutionUiSource.includes('Owner decision') &&
+      strategicExecutionUiSource.includes('Snooze for') &&
+      strategicExecutionUiSource.includes('1 day') &&
+      strategicExecutionUiSource.includes('1 week') &&
+      strategicExecutionUiSource.includes('1 month') &&
+      strategicExecutionUiSource.includes('1 quarter') &&
+      strategicExecutionUiSource.includes('Custom date') &&
+      strategicExecutionUiSource.includes('Action guide') &&
+      strategicExecutionUiSource.includes('Applied / done') &&
+      strategicExecutionUiSource.includes('Technical refs') &&
+      strategicExecutionUiSource.includes('Proof items: ') &&
+      strategicExecutionUiSource.includes("provenance.open = route.approvalStatus === 'pending'") &&
+      intelligenceActionRouterSource.includes('buildSourceProofForRoute') &&
+      intelligenceActionRouterSource.includes('enrichRoutesWithSourceProof') &&
+      serverSource.includes('resolveSnoozeUntil') &&
+      serverSource.includes('snoozeDuration') &&
+      serverSource.includes('normalizeRouteOwnerInput') &&
       strategicExecutionUiSource.includes('window.confirm') &&
       strategicExecutionUiSource.includes('Optional review note') &&
       strategicExecutionUiSource.includes('Source fallback active') &&
@@ -1632,6 +1663,8 @@ async function main() {
       Array.isArray(strategyHubV2Routes) &&
       strategyHubV2Api.actionRouter?.totalRoutes === strategyHubV2Routes.length &&
       Number(strategyHubV2Api.operationalRouteSummary?.hiddenRoutes || 0) >= 1 &&
+      strategyHubProofRoutes.length >= 1 &&
+      strategyHubHumanProofItems.length >= strategyHubProofRoutes.length &&
       strategyHubV2Routes.every(route =>
         route.approvalRequired === true &&
         route.synthesizedItemId &&

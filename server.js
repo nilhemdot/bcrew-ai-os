@@ -4303,6 +4303,31 @@ app.get('/api/strategic-execution/action-routes', requireAdminToken, async (_req
   }
 })
 
+function normalizeRouteOwnerInput(value) {
+  const normalized = String(value || '').trim()
+  if (!normalized || normalized === 'keep-current') return ''
+  return normalized
+}
+
+function isNeedsOwnerQueueValue(value) {
+  return String(value || '').trim() === 'needs-owner-decision'
+}
+
+function resolveSnoozeUntil(duration, customValue) {
+  const custom = String(customValue || '').trim()
+  if (custom) {
+    const parsed = new Date(custom)
+    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString()
+  }
+  const now = new Date()
+  const normalized = String(duration || '1w').trim()
+  if (normalized === '1d') now.setDate(now.getDate() + 1)
+  else if (normalized === '1m') now.setMonth(now.getMonth() + 1)
+  else if (normalized === '1q') now.setMonth(now.getMonth() + 3)
+  else now.setDate(now.getDate() + 7)
+  return now.toISOString()
+}
+
 app.post('/api/strategic-execution/action-routes/:routeId/review', requireAdminToken, async (req, res) => {
   try {
     const routeId = String(req.params.routeId || '').trim()
@@ -4310,6 +4335,10 @@ app.post('/api/strategic-execution/action-routes/:routeId/review', requireAdminT
     const note = String(req.body?.note || '').trim()
     const actor = getRequestActor(req)
     const approvedBy = String(req.body?.approvedBy || req.body?.approved_by || actor).trim()
+    const selectedOwner = normalizeRouteOwnerInput(req.body?.owner || req.body?.selectedOwner || req.body?.selected_owner)
+    const concreteSelectedOwner = selectedOwner && !isNeedsOwnerQueueValue(selectedOwner) ? selectedOwner : ''
+    const snoozeDuration = String(req.body?.snoozeDuration || req.body?.snooze_duration || '').trim()
+    const snoozeUntil = resolveSnoozeUntil(snoozeDuration, req.body?.snoozeUntil || req.body?.snooze_until)
     let route = await getActionRoute(routeId)
     if (!route) {
       sendApiError(res, 404, 'action_route_not_found', `Action route not found: ${routeId}`)
@@ -4317,6 +4346,18 @@ app.post('/api/strategic-execution/action-routes/:routeId/review', requireAdminT
     }
 
     if (action === 'approve_apply') {
+      if (
+        route.approvalStatus === 'pending' &&
+        concreteSelectedOwner &&
+        concreteSelectedOwner !== route.owner
+      ) {
+        route = await rerouteActionRoute(routeId, {
+          routeType: route.routeType,
+          owner: concreteSelectedOwner,
+          ownerConfidence: 'high',
+          note: note || `Human review assigned owner ${concreteSelectedOwner}.`,
+        }, actor)
+      }
       if (route.approvalStatus === 'pending') {
         route = await approveActionRoute(routeId, { approvedBy, approvalNote: note }, actor)
       }
@@ -4333,15 +4374,26 @@ app.post('/api/strategic-execution/action-routes/:routeId/review', requireAdminT
       }
       route = await rejectActionRoute(routeId, { rejectedBy: approvedBy, rejectionNote: note }, actor)
     } else if (action === 'needs_owner') {
-      route = await rerouteActionRoute(routeId, {
-        routeType: 'needs_owner_decision',
-        note: note || 'Human review requested owner assignment before this route becomes work.',
-      }, actor)
+      if (concreteSelectedOwner) {
+        route = await rerouteActionRoute(routeId, {
+          routeType: route.routeType,
+          owner: concreteSelectedOwner,
+          ownerConfidence: 'high',
+          note: note || `Human review assigned owner ${concreteSelectedOwner}.`,
+        }, actor)
+      } else {
+        route = await rerouteActionRoute(routeId, {
+          routeType: 'needs_owner_decision',
+          note: note || 'Human review requested owner assignment before this route becomes work.',
+        }, actor)
+      }
       route = await approveActionRoute(routeId, { approvedBy, approvalNote: note }, actor)
       route = await applyApprovedActionRoute(routeId, { applyNote: note }, actor)
     } else if (action === 'ignore' || action === 'snooze') {
       route = await rerouteActionRoute(routeId, {
         routeType: action,
+        snoozeDuration: action === 'snooze' ? (snoozeDuration || '1w') : '',
+        snoozeUntil: action === 'snooze' ? snoozeUntil : '',
         note: note || `Human review marked this route as ${action}.`,
       }, actor)
       route = await approveActionRoute(routeId, { approvedBy, approvalNote: note }, actor)

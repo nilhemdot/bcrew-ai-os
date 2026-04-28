@@ -5,6 +5,7 @@
     error: null,
     busyRouteId: null,
     section: 'overview',
+    routeControls: {},
   }
 
   function appendText(parent, tagName, text, className) {
@@ -631,6 +632,16 @@
 
   function routeSummary(route) {
     var payload = route.proposedPayload || {}
+    var proofItems = route.sourceProof && Array.isArray(route.sourceProof.items) ? route.sourceProof.items : []
+    if (proofItems.length) {
+      var latest = proofItems[0] || {}
+      var proofText = latest.quote || latest.context || payload.summary || route.routingReason
+      return shortenText(
+        proofItems.length + ' source signal' + (proofItems.length === 1 ? '' : 's') +
+          ' point to this issue. Latest proof: ' + proofText,
+        360
+      )
+    }
     return shortenText(emptyText(payload.summary || payload.reason || route.routingReason, 'No route summary recorded.'), 360)
   }
 
@@ -664,16 +675,192 @@
     return order[route.approvalStatus] == null ? 5 : order[route.approvalStatus]
   }
 
+  function routeControl(route, key, fallback) {
+    var id = route.routeId
+    state.routeControls[id] = state.routeControls[id] || {}
+    if (state.routeControls[id][key] == null) state.routeControls[id][key] = fallback
+    return state.routeControls[id][key]
+  }
+
+  function setRouteControl(route, key, value, shouldRender) {
+    var id = route.routeId
+    state.routeControls[id] = state.routeControls[id] || {}
+    state.routeControls[id][key] = value
+    if (shouldRender) renderApp()
+  }
+
+  function ownerOptions(route) {
+    var current = emptyText(route.owner, 'Foundation')
+    return [
+      { value: 'keep-current', label: 'Keep owner: ' + current },
+      { value: 'Strategy', label: 'Strategy' },
+      { value: 'Marketing', label: 'Marketing' },
+      { value: 'Sales Leadership', label: 'Sales Leadership' },
+      { value: 'Finance', label: 'Finance' },
+      { value: 'Operations', label: 'Operations' },
+      { value: 'Foundation', label: 'Foundation' },
+      { value: 'Steve', label: 'Steve' },
+      { value: 'Tanner', label: 'Tanner' },
+      { value: 'needs-owner-decision', label: 'Needs owner decision' },
+    ].filter(function(option, index, list) {
+      return list.findIndex(function(other) { return other.value === option.value }) === index
+    })
+  }
+
+  function renderRouteControls(card, route) {
+    if (!['pending', 'approved'].includes(route.approvalStatus)) return
+    var controls = document.createElement('div')
+    controls.className = 'strategy-v2-route-controls'
+
+    var ownerLabel = document.createElement('label')
+    appendText(ownerLabel, 'span', 'Owner decision')
+    var ownerSelect = document.createElement('select')
+    ownerOptions(route).forEach(function(option) {
+      var el = document.createElement('option')
+      el.value = option.value
+      el.textContent = option.label
+      ownerSelect.appendChild(el)
+    })
+    ownerSelect.value = routeControl(route, 'owner', 'keep-current')
+    ownerSelect.addEventListener('change', function() {
+      setRouteControl(route, 'owner', ownerSelect.value)
+    })
+    ownerLabel.appendChild(ownerSelect)
+    controls.appendChild(ownerLabel)
+
+    var snoozeLabel = document.createElement('label')
+    appendText(snoozeLabel, 'span', 'Snooze for')
+    var snoozeSelect = document.createElement('select')
+    ;[
+      ['1d', '1 day'],
+      ['1w', '1 week'],
+      ['1m', '1 month'],
+      ['1q', '1 quarter'],
+      ['custom', 'Custom date'],
+    ].forEach(function(option) {
+      var el = document.createElement('option')
+      el.value = option[0]
+      el.textContent = option[1]
+      snoozeSelect.appendChild(el)
+    })
+    snoozeSelect.value = routeControl(route, 'snoozeDuration', '1w')
+    snoozeSelect.addEventListener('change', function() {
+      setRouteControl(route, 'snoozeDuration', snoozeSelect.value, true)
+    })
+    snoozeLabel.appendChild(snoozeSelect)
+    controls.appendChild(snoozeLabel)
+
+    if (routeControl(route, 'snoozeDuration', '1w') === 'custom') {
+      var customLabel = document.createElement('label')
+      appendText(customLabel, 'span', 'Snooze until')
+      var customInput = document.createElement('input')
+      customInput.type = 'date'
+      customInput.value = routeControl(route, 'snoozeUntil', '')
+      customInput.addEventListener('change', function() {
+        setRouteControl(route, 'snoozeUntil', customInput.value)
+      })
+      customLabel.appendChild(customInput)
+      controls.appendChild(customLabel)
+    }
+
+    var noteLabel = document.createElement('label')
+    noteLabel.className = 'strategy-v2-route-note-field'
+    appendText(noteLabel, 'span', 'Review note')
+    var noteInput = document.createElement('input')
+    noteInput.type = 'text'
+    noteInput.placeholder = 'Optional review note for this action'
+    noteInput.value = routeControl(route, 'note', '')
+    noteInput.addEventListener('input', function() {
+      setRouteControl(route, 'note', noteInput.value)
+    })
+    noteLabel.appendChild(noteInput)
+    controls.appendChild(noteLabel)
+
+    card.appendChild(controls)
+  }
+
   function actionButton(route, action, label, tone) {
     var button = document.createElement('button')
     button.type = 'button'
     button.className = 'strategy-v2-action-btn strategy-v2-action-' + (tone || 'neutral')
     button.textContent = state.busyRouteId === route.routeId ? 'Working...' : label
+    button.title = actionHelp(action)
+    button.setAttribute('aria-label', label + '. ' + actionHelp(action))
     button.disabled = Boolean(state.busyRouteId)
     button.addEventListener('click', function() {
-      reviewRoute(route.routeId, action)
+      reviewRoute(route, action)
     })
     return button
+  }
+
+  function actionHelp(action) {
+    return {
+      approve_apply: 'Approve and write this route to the destination record. Strategy routes remain visible in Applied.',
+      needs_owner: 'Use the owner picker. With a selected owner, apply with that owner; otherwise send to needs-owner decision.',
+      snooze: 'Park this proposal until the selected snooze date. It stays out of active review until then.',
+      ignore: 'Mark this proposal ignored without creating a work record.',
+      reject: 'Reject this proposal and suppress it from future route refreshes.',
+    }[action] || 'Review this route.'
+  }
+
+  function renderSourceProof(provenance, route) {
+    var proof = route.sourceProof || {}
+    var items = Array.isArray(proof.items) ? proof.items : []
+    if (!items.length) {
+      appendText(provenance, 'p', 'No human-readable proof was attached to this route yet.', 'strategy-v2-muted')
+      return
+    }
+    appendText(provenance, 'p', proof.summary || 'Source evidence attached for review.', 'strategy-v2-proof-summary')
+    var list = document.createElement('div')
+    list.className = 'strategy-v2-proof-list'
+    items.forEach(function(item) {
+      var proofCard = document.createElement('article')
+      proofCard.className = 'strategy-v2-proof-card'
+      var title = emptyText(item.title, 'Source evidence')
+      appendText(proofCard, 'h5', title)
+      var meta = document.createElement('div')
+      meta.className = 'strategy-v2-proof-meta'
+      appendText(meta, 'span', emptyText(item.sourceId, 'source missing'))
+      appendText(meta, 'span', emptyText(item.sourceType, 'source'))
+      appendText(meta, 'span', formatDateTime(item.occurredAt))
+      if (item.from) appendText(meta, 'span', 'From: ' + item.from)
+      proofCard.appendChild(meta)
+      if (item.to) appendText(proofCard, 'p', 'To: ' + item.to, 'strategy-v2-proof-small')
+      if (Array.isArray(item.participants) && item.participants.length) {
+        appendText(proofCard, 'p', 'Participants: ' + item.participants.join(', '), 'strategy-v2-proof-small')
+      }
+      appendText(proofCard, 'p', emptyText(item.threadStatus, 'Thread status not captured'), 'strategy-v2-proof-small')
+      if (item.quote) {
+        appendText(proofCard, 'blockquote', item.quote, 'strategy-v2-proof-quote')
+      }
+      if (item.context) appendText(proofCard, 'p', item.context, 'strategy-v2-muted')
+      if (item.includedBecause) {
+        appendText(proofCard, 'p', 'Why included: ' + item.includedBecause, 'strategy-v2-proof-small')
+      }
+      if (Array.isArray(item.factSummaries) && item.factSummaries.length) {
+        var facts = document.createElement('div')
+        facts.className = 'strategy-v2-proof-facts'
+        item.factSummaries.forEach(function(fact) {
+          facts.appendChild(makePill(fact, 'neutral'))
+        })
+        proofCard.appendChild(facts)
+      }
+      if (item.sourceUrl) {
+        appendLink(proofCard, item.sourceUrl, 'Open source', 'section-support-link')
+      }
+      list.appendChild(proofCard)
+    })
+    provenance.appendChild(list)
+
+    var refs = proof.technicalRefs || {}
+    var tech = document.createElement('details')
+    tech.className = 'strategy-v2-technical-refs'
+    appendText(tech, 'summary', 'Technical refs')
+    appendText(tech, 'p', 'Synthesized item: ' + emptyText(refs.synthesizedItemId, route.synthesizedItemId || 'missing'))
+    appendText(tech, 'p', 'Facts: ' + ((refs.factRefs || route.factRefs || []).join(', ') || 'none'))
+    appendText(tech, 'p', 'Atoms: ' + ((refs.atomRefs || route.evidenceRefs || []).join(', ') || 'none'))
+    appendText(tech, 'p', 'Chunks: ' + ((refs.chunkRefs || route.evidenceChunkRefs || []).join(', ') || 'none'))
+    provenance.appendChild(tech)
   }
 
   function renderRouteCard(route) {
@@ -698,17 +885,17 @@
     meta.className = 'strategy-v2-route-meta'
     appendText(meta, 'span', 'Owner: ' + emptyText(route.owner, 'missing'))
     appendText(meta, 'span', 'Type: ' + destinationLabel(route))
-    appendText(meta, 'span', 'Sources: ' + count(route.sourceIds))
+    appendText(meta, 'span', 'Proof items: ' + count(route.sourceProof && route.sourceProof.items))
     card.appendChild(meta)
 
     var provenance = document.createElement('details')
     provenance.className = 'strategy-v2-provenance'
+    provenance.open = route.approvalStatus === 'pending' && Boolean(route.sourceProof && Array.isArray(route.sourceProof.items) && route.sourceProof.items.length)
     appendText(provenance, 'summary', 'Source proof')
-    appendText(provenance, 'p', 'Synthesized item: ' + route.synthesizedItemId)
-    appendText(provenance, 'p', 'Facts: ' + (route.factRefs || []).join(', '))
-    appendText(provenance, 'p', 'Atoms: ' + (route.evidenceRefs || []).join(', '))
-    appendText(provenance, 'p', 'Chunks: ' + (route.evidenceChunkRefs || []).join(', '))
+    renderSourceProof(provenance, route)
     card.appendChild(provenance)
+
+    renderRouteControls(card, route)
 
     var actions = document.createElement('div')
     actions.className = 'strategy-v2-route-actions'
@@ -734,6 +921,12 @@
     var actionRouter = data.actionRouter || {}
     var routes = strategyVisibleRoutes(actionRouter.recentRoutes || []).slice().sort(function(a, b) {
       return routeSortValue(a) - routeSortValue(b) || String(b.routedAt || '').localeCompare(String(a.routedAt || ''))
+    })
+    var reviewRoutes = routes.filter(function(route) {
+      return ['pending', 'approved'].indexOf(route.approvalStatus) !== -1
+    })
+    var appliedDoneRoutes = routes.filter(function(route) {
+      return ['applied', 'rejected', 'cancelled'].indexOf(route.approvalStatus) !== -1
     })
     var pendingRoutes = routes.filter(function(route) { return route.approvalStatus === 'pending' }).length
     var approvedRoutes = routes.filter(function(route) { return route.approvalStatus === 'approved' }).length
@@ -763,14 +956,41 @@
     summary.appendChild(makePill(String(appliedWithDestination) + ' destination records', appliedWithDestination ? 'good' : 'neutral'))
     panel.appendChild(summary)
 
+    var legend = document.createElement('div')
+    legend.className = 'strategy-v2-action-legend'
+    appendText(legend, 'strong', 'Action guide')
+    ;[
+      ['Approve and apply', 'Writes the route to its destination and keeps Strategy routes visible in Applied.'],
+      ['Needs owner', 'Use the owner picker first. Without an owner, it creates a needs-owner question.'],
+      ['Snooze', 'Parks the route for the selected duration.'],
+      ['Ignore', 'Dismisses without creating work.'],
+      ['Reject', 'Suppresses the proposal from future route refreshes after confirmation.'],
+    ].forEach(function(item) {
+      appendText(legend, 'span', item[0] + ': ' + item[1])
+    })
+    panel.appendChild(legend)
+
     var stack = document.createElement('div')
     stack.className = 'strategy-v2-route-stack'
     if (!routes.length) {
       appendText(stack, 'p', 'No Strategy Hub review records are ready yet. This is intentional: generic operating work is hidden, and Strategy proposals should be generated only after the clustered synthesis sample is accepted.', 'strategy-v2-muted')
     } else {
-      routes.forEach(function(route) {
-        stack.appendChild(renderRouteCard(route))
-      })
+      appendText(stack, 'h4', 'Needs review', 'strategy-v2-route-group-title')
+      if (reviewRoutes.length) {
+        reviewRoutes.forEach(function(route) {
+          stack.appendChild(renderRouteCard(route))
+        })
+      } else {
+        appendText(stack, 'p', 'No pending or approved Strategy routes need review.', 'strategy-v2-muted')
+      }
+      appendText(stack, 'h4', 'Applied / done', 'strategy-v2-route-group-title')
+      if (appliedDoneRoutes.length) {
+        appliedDoneRoutes.forEach(function(route) {
+          stack.appendChild(renderRouteCard(route))
+        })
+      } else {
+        appendText(stack, 'p', 'No Strategy routes have been applied or closed yet.', 'strategy-v2-muted')
+      }
     }
     panel.appendChild(stack)
     container.appendChild(panel)
@@ -822,25 +1042,41 @@
     renderApp()
   }
 
-  async function reviewRoute(routeId, action) {
+  function snoozeUntilForControl(route) {
+    var duration = routeControl(route, 'snoozeDuration', '1w')
+    if (duration === 'custom') return routeControl(route, 'snoozeUntil', '')
+    return ''
+  }
+
+  async function reviewRoute(route, action) {
     var actionLabels = {
-      approve_apply: 'approve and apply this route into its destination ledger',
-      reject: 'reject this route and remove the source item from future proposal refreshes',
-      needs_owner: 'route this item to the needs-owner question queue',
-      ignore: 'mark this synthesized item ignored',
-      snooze: 'mark this synthesized item snoozed',
+      approve_apply: 'Approve and apply this route into its destination ledger.',
+      reject: 'Reject this route and remove the source item from future proposal refreshes.',
+      needs_owner: 'Use the owner picker. If no clear owner is selected, send it to the needs-owner question queue.',
+      ignore: 'Mark this synthesized item ignored without creating work.',
+      snooze: 'Snooze this item for the selected duration.',
     }
-    var confirmed = window.confirm('Confirm: ' + (actionLabels[action] || action) + '?')
+    var routeId = route.routeId
+    var confirmMessage = action === 'reject'
+      ? 'Reject this Strategy proposal? This suppresses the proposal from future route refreshes but keeps provenance.'
+      : 'Confirm: ' + (actionLabels[action] || action)
+    var confirmed = window.confirm(confirmMessage)
     if (!confirmed) return
-    var note = window.prompt('Optional review note', '')
-    if (note === null) return
+    var controls = state.routeControls[routeId] || {}
+    var note = controls.note || ''
     state.busyRouteId = routeId
     renderApp()
     try {
       var response = await fetchJson('/api/strategic-execution/action-routes/' + encodeURIComponent(routeId) + '/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: action, note: note }),
+        body: JSON.stringify({
+          action: action,
+          note: note,
+          owner: controls.owner || route.owner || '',
+          snoozeDuration: controls.snoozeDuration || '1w',
+          snoozeUntil: snoozeUntilForControl(route),
+        }),
       })
       if (state.data) state.data.actionRouter = response.actionRouter
       state.error = null
