@@ -71,6 +71,7 @@
     "intelligence:action-router-apply": "node --env-file-if-exists=.env scripts/intelligence-action-router-apply.mjs",
     "codex:usage": "node scripts/codex-usage.mjs",
     "codex:usage-web": "node scripts/codex-usage-web.mjs",
+    "process:ship-check": "node --env-file-if-exists=.env scripts/process-ship-check.mjs",
     "backlog:seed-drift": "node --env-file-if-exists=.env scripts/report-backlog-seed-drift.mjs",
     "backlog:hygiene": "node --env-file-if-exists=.env scripts/backlog-hygiene.mjs",
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",

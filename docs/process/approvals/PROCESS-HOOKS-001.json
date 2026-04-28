@@ -1,0 +1,8 @@
+{
+  "cardId": "PROCESS-HOOKS-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-28T21:55:00.000-04:00",
+  "source": "Steve approved the revised PROCESS-HOOKS-001 plan in chat with 'go'.",
+  "notes": "Approval applies to the evidence-file gate, required skip reason, no new process card unless a real v2 gap remains, and returning to ACTION-REVIEW-APPLY-001 after this slice."
+}

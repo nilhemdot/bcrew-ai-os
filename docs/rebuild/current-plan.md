@@ -189,7 +189,7 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - `BACKLOG-HYGIENE-PASS-001` is the one-time cleanup that moved stale/unclear cards out of executing or split their proof from remaining work.
    - `BACKLOG-HYGIENE-001` is done for v1: `npm run backlog:hygiene`, `/api/foundation-hub > backlogHygiene`, Runtime Health > Backlog Hygiene, synthetic stale-card proof, and verifier coverage are live.
    - `DEV-PROCESS-AUDIT-001` is done for v1: `docs/audits/2026-04-28-dev-process-audit.md` maps the 2026-04-28 failures to hook/verifier/backlog/UX owners and gives `PROCESS-HOOKS-001` 10 concrete v1 requirements.
-   - `PROCESS-HOOKS-001` is next and owns pre-commit/post-ship enforcement: card reference, external 9.8+ plan, verifier plan, seven-field closeout draft, live dashboard/served-code proof, backlog update, where-it-lives metadata, and red-verifier stop behavior.
+   - `PROCESS-HOOKS-001` is done for v1: `npm run process:ship-check` requires a live backlog card, approval evidence file, score >= 9.8, seven-field closeout, where-it-lives metadata, served-code proof, and default `foundation:verify` unless a skip reason is explicit.
 
 1. `SECURITY-003` — Close direct LLM/transcription spend bypasses.
    - `scripts/transcribe-zoom-audio-archive.mjs` is paused/fail-closed for non-dry-run use.
@@ -233,7 +233,7 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Governed synthesis now persists owner-suggested synthesized items from source-backed facts and hybrid evidence.
    - Source-backed strategy/source-contract, goal, operating, KPI, source-health, and retrieved-evidence grounding is now persisted in `intelligence_synthesis_facts`.
    - Action Router v1 now proposes governed routes into decisions, backlog tasks, questions, ignore/snooze, or owner-bound action lanes with back-links and human approval required before destination writes.
-   - `ACTION-REVIEW-APPLY-001` is the next product slice after backlog hygiene and process gates: make the 18 pending routes easy to review, approve/reject, apply, and confirm with destination-record proof. Do not reopen broad `ACTION-ROUTER-001` for this.
+   - `ACTION-REVIEW-APPLY-001` is the next product slice now that backlog hygiene and process gates are in place: make the 18 pending routes easy to review, approve/reject, apply, and confirm with destination-record proof. Do not reopen broad `ACTION-ROUTER-001` for this.
 
 10. `RESEARCH-INBOX-001` — Park the pre-backlog research inbox.
    - This captures Steve's outside ideas, YouTube/Mycro/myICOR/course/article inputs, and AI-system-building patterns before they become committed backlog. Workflow: capture -> plain-English triage -> promote to backlog or archive with reason.
