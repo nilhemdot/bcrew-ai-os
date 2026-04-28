@@ -85,6 +85,15 @@ async function runHealthScript(scriptName) {
   return (stdout || stderr).trim()
 }
 
+async function runHealthScriptWithArgs(scriptName, args = []) {
+  const { stdout, stderr } = await execFile('npm', ['run', '-s', scriptName, '--', ...args], {
+    cwd: repoRoot,
+    env: process.env,
+    maxBuffer: 1024 * 1024,
+  })
+  return (stdout || stderr).trim()
+}
+
 async function getCurrentRepoHead() {
   const { stdout } = await execFile('git', ['rev-parse', 'HEAD'], {
     cwd: repoRoot,
@@ -1352,6 +1361,7 @@ async function main() {
     : []
   const sourceTruthKpiHealth = sourceOfTruth.kpiHealth || {}
   const foundationHubKpiHealth = foundationHub.kpiHealth || {}
+  const backlogHygieneApi = foundationHub.backlogHygiene || {}
   const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
   const dashboardRunningCommit = String(runtimeServedCode.runningCommit || '').trim().toLowerCase()
   const dashboardRunningShortCommit = String(runtimeServedCode.runningShortCommit || dashboardRunningCommit.slice(0, 7) || 'missing')
@@ -1504,6 +1514,27 @@ async function main() {
     missingKpiTables.length || missingKpiRpcs.length
       ? `missing tables=${missingKpiTables.join(',') || 'none'} rpcs=${missingKpiRpcs.join(',') || 'none'}`
       : `${sourceTruthKpiTables.length} tables / ${sourceTruthKpiRpcs.length} RPCs / status=${sourceTruthKpiHealth.summary?.status || 'unknown'}`,
+  )
+  ensure(
+    checks,
+    backlogHygieneApi.contractVersion === 1 &&
+      backlogHygieneApi.surface === 'Foundation > Runtime Health > Backlog Hygiene' &&
+      backlogHygieneApi.thresholds?.staleExecutingDays === 3 &&
+      Number.isFinite(Number(backlogHygieneApi.summary?.cardCount)) &&
+      Number.isFinite(Number(backlogHygieneApi.summary?.criticalFindings)) &&
+      Array.isArray(backlogHygieneApi.findings) &&
+      Array.isArray(backlogHygieneApi.visibleFindings) &&
+      backlogHygieneApi.visibleFindings.every(finding => finding.severity !== 'info') &&
+      includesAll(packageSource, ['"backlog:hygiene"', 'scripts/backlog-hygiene.mjs']) &&
+      includesAll(serverSource, ['buildBacklogHygieneSnapshot', 'backlogHygiene']) &&
+      includesAll(foundationUiSource, [
+        'renderBacklogHygienePanel',
+        'Backlog Hygiene',
+        'Stale executing threshold',
+        'No visible hygiene findings',
+      ]),
+    'Runtime Health exposes automatic Backlog Hygiene findings',
+    `${backlogHygieneApi.summary?.criticalFindings ?? 'unknown'} critical / ${backlogHygieneApi.summary?.warningFindings ?? 'unknown'} warnings / threshold=${backlogHygieneApi.thresholds?.staleExecutingDays ?? 'missing'} days`,
   )
   ensure(
     checks,
@@ -1740,6 +1771,10 @@ async function main() {
     (build.backlogIds || []).includes('BACKLOG-HYGIENE-PASS-001') &&
       build.closeoutKey === 'backlog-hygiene-pass'
   )
+  const buildLogBacklogHygieneProbeBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('BACKLOG-HYGIENE-001') &&
+      build.closeoutKey === 'backlog-hygiene-probe'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1942,7 +1977,7 @@ async function main() {
     checks,
     buildLogBacklogHygieneBuild?.operatorCloseout === true &&
       buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-PASS-001' && item.lane === 'done') &&
-      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-001' && item.lane === 'scoped') &&
+      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-001' && item.lane === 'done') &&
       buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && item.lane === 'scoped') &&
       buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SURFACE-UPDATES-001' && item.lane === 'scoped') &&
       buildLogBacklogHygieneBuild.proofCommands?.includes('npm run foundation:verify') &&
@@ -1953,6 +1988,21 @@ async function main() {
     buildLogBacklogHygieneBuild
       ? `${buildLogBacklogHygieneBuild.shortSha} / ${buildLogBacklogHygieneBuild.acceptanceState} / ${buildLogBacklogHygieneBuild.proofStatus}`
       : 'missing backlog hygiene pass closeout',
+  )
+  ensure(
+    checks,
+    buildLogBacklogHygieneProbeBuild?.operatorCloseout === true &&
+      buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-001' && item.lane === 'done') &&
+      buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'DEV-PROCESS-AUDIT-001' && item.lane === 'scoped') &&
+      buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && item.lane === 'scoped') &&
+      buildLogBacklogHygieneProbeBuild.proofCommands?.some(command => command.includes('backlog:hygiene')) &&
+      buildLogBacklogHygieneProbeBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /stale executing|done cards without proof|scoped cards/i.test(buildLogBacklogHygieneProbeBuild.whatItDoes || '') &&
+      /DEV-PROCESS-AUDIT-001/i.test(buildLogBacklogHygieneProbeBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for backlog hygiene probe',
+    buildLogBacklogHygieneProbeBuild
+      ? `${buildLogBacklogHygieneProbeBuild.shortSha} / ${buildLogBacklogHygieneProbeBuild.acceptanceState} / ${buildLogBacklogHygieneProbeBuild.proofStatus}`
+      : 'missing backlog hygiene probe closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2598,16 +2648,21 @@ async function main() {
       String(backlogHygienePass.statusNote || '').includes('DOC-AUTHORITY-001') &&
       String(backlogHygienePass.statusNote || '').includes('SOURCE-021-PROOF-001') &&
       String(backlogHygienePass.statusNote || '').includes('SECURITY-001') &&
-      backlogHygiene?.lane === 'scoped' &&
+      backlogHygiene?.lane === 'done' &&
       backlogHygiene?.priority === 'P0' &&
       devProcessAudit?.lane === 'scoped' &&
       processHooks?.lane === 'scoped' &&
       backlogHygieneText.includes('autonomous backlog hygiene probe') &&
-      backlogHygieneText.includes('9.8 plan') &&
-      backlogHygieneText.includes('Recent Builds') &&
+      backlogHygieneText.includes('npm run backlog:hygiene') &&
+      backlogHygieneText.includes('synthetic stale-card proof') &&
+      backlogHygieneText.includes('Default stale executing threshold is 3 days') &&
+      backlogHygieneText.includes('Runtime Health') &&
+      backlogHygieneText.includes('PROCESS-HOOKS-001') &&
       currentPlan.includes('BACKLOG-HYGIENE-PASS-001') &&
+      currentPlan.includes('BACKLOG-HYGIENE-001` is done for v1') &&
       currentPlan.includes('Before code, each slice needs a card ID') &&
-      currentState.includes('BACKLOG-HYGIENE-PASS-001` is done for v1'),
+      currentState.includes('BACKLOG-HYGIENE-PASS-001` is done for v1') &&
+      currentState.includes('3-day stale executing threshold'),
     'Backlog hygiene and process-gate cards are captured',
     `pass=${backlogHygienePass?.lane || 'missing'} / probe=${backlogHygiene?.lane || 'missing'} / hooks=${processHooks?.lane || 'missing'}`,
   )
@@ -2627,6 +2682,27 @@ async function main() {
       String(security006?.statusNote || '').includes('moved this out of executing'),
     'Known stale/unclear executing cards were handled',
     `DOC=${docAuthority?.lane || 'missing'} / DATA=${dataStructuredContracts?.lane || 'missing'} / SOURCE-021=${source021?.lane || 'missing'} + proof=${source021Proof?.lane || 'missing'} / SECURITY=${security001?.lane || 'missing'},${security006?.lane || 'missing'}`,
+  )
+  const knownCleanedCardIds = new Set([
+    'DOC-AUTHORITY-001',
+    'DATA-004',
+    'SOURCE-021',
+    'SOURCE-021-PROOF-001',
+    'SECURITY-001',
+    'SECURITY-006',
+  ])
+  const knownCleanedCriticalFindings = Array.isArray(backlogHygieneApi.findings)
+    ? backlogHygieneApi.findings.filter(finding =>
+      finding.severity === 'critical' && knownCleanedCardIds.has(finding.cardId)
+    )
+    : []
+  ensure(
+    checks,
+    knownCleanedCriticalFindings.length === 0,
+    'Backlog Hygiene does not re-flag cleaned cards as critical drift',
+    knownCleanedCriticalFindings.length
+      ? knownCleanedCriticalFindings.map(finding => finding.cardId).join(', ')
+      : 'known cleanup set has no critical hygiene finding',
   )
   const actionReviewApply = (foundationHub.backlogItems || []).find(item => item.id === 'ACTION-REVIEW-APPLY-001') || null
   const actionReviewApplyText = [
@@ -2972,6 +3048,31 @@ async function main() {
       .split('\n')
       .filter(lineValue => /^(  Status|  Tables|  RPCs|KPI_HEALTH_SUMMARY)/.test(lineValue))
       .join(' | '),
+  )
+
+  const backlogHygieneOutput = await runHealthScriptWithArgs('backlog:hygiene', ['--includeSynthetic=true'])
+  const backlogHygieneSummaryLine = backlogHygieneOutput.split('\n').find(lineValue => lineValue.startsWith('BACKLOG_HYGIENE_SUMMARY '))
+  let backlogHygieneSummary = null
+  if (backlogHygieneSummaryLine) {
+    try {
+      backlogHygieneSummary = JSON.parse(backlogHygieneSummaryLine.replace('BACKLOG_HYGIENE_SUMMARY ', ''))
+    } catch {
+      backlogHygieneSummary = null
+    }
+  }
+  ensure(
+    checks,
+    backlogHygieneOutput.includes('Backlog hygiene') &&
+      backlogHygieneOutput.includes('SYNTHETIC-STALE-EXECUTING-001') &&
+      backlogHygieneOutput.includes('stale_executing_card') &&
+      backlogHygieneOutput.includes('BACKLOG_HYGIENE_SUMMARY') &&
+      backlogHygieneSummary?.syntheticFindings >= 1 &&
+      backlogHygieneSummary?.criticalFindings === 0 &&
+      backlogHygieneSummary?.staleExecutingDays === 3,
+    'backlog:hygiene proves the synthetic stale-card detector',
+    backlogHygieneSummary
+      ? `status=${backlogHygieneSummary.status} / synthetic=${backlogHygieneSummary.syntheticFindings} / critical=${backlogHygieneSummary.criticalFindings} / threshold=${backlogHygieneSummary.staleExecutingDays}`
+      : 'missing BACKLOG_HYGIENE_SUMMARY',
   )
 
   const clickUpVerify = await runHealthScript('clickup:verify')

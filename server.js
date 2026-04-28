@@ -69,9 +69,11 @@ import {
   attachBacklogCardsToBuilds,
   enrichFoundationBuildLogCommit,
   groupFoundationBuildLog,
+  getFoundationBuildCloseouts,
   summarizeFoundationBuildLog,
   FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
 } from './lib/foundation-build-log.js'
+import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
 import {
   fubJsonFetch,
@@ -3969,9 +3971,14 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
   try {
     const snapshot = await getFoundationSnapshot()
     const kpiHealth = await getSafeKpiHealthSnapshot()
+    const backlogHygiene = buildBacklogHygieneSnapshot({
+      backlogItems: snapshot.backlogItems || [],
+      closeouts: getFoundationBuildCloseouts(),
+    })
     res.json({
       ...snapshot,
       kpiHealth,
+      backlogHygiene,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
       },

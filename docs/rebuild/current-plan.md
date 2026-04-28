@@ -187,8 +187,8 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
 
 0. `BACKLOG-HYGIENE-PASS-001` -> `BACKLOG-HYGIENE-001` -> `DEV-PROCESS-AUDIT-001` -> `PROCESS-HOOKS-001` — Restore backlog-pulled dev discipline before more product UI.
    - `BACKLOG-HYGIENE-PASS-001` is the one-time cleanup that moved stale/unclear cards out of executing or split their proof from remaining work.
-   - `BACKLOG-HYGIENE-001` is the autonomous probe so Steve is not the stale-card detector.
-   - `DEV-PROCESS-AUDIT-001` turns the 2026-04-28 failures into concrete hook requirements.
+   - `BACKLOG-HYGIENE-001` is done for v1: `npm run backlog:hygiene`, `/api/foundation-hub > backlogHygiene`, Runtime Health > Backlog Hygiene, synthetic stale-card proof, and verifier coverage are live.
+   - `DEV-PROCESS-AUDIT-001` is next: turn the 2026-04-28 failures into concrete hook requirements.
    - `PROCESS-HOOKS-001` owns pre-commit/post-ship enforcement: card reference, 9.8 plan, verifier plan, closeout draft, dashboard placement, backlog update, links, and plain-English Recent Builds/Recent Work entry.
 
 1. `SECURITY-003` — Close direct LLM/transcription spend bypasses.

@@ -5242,6 +5242,44 @@ function renderServedCodeTrustPanel(runtimeSupervisor) {
   )
 }
 
+function renderBacklogHygienePanel(backlogHygiene) {
+  if (!backlogHygiene || !backlogHygiene.summary) return null
+  var summary = backlogHygiene.summary || {}
+  var thresholds = backlogHygiene.thresholds || {}
+  var visibleFindings = Array.isArray(backlogHygiene.visibleFindings)
+    ? backlogHygiene.visibleFindings
+    : []
+  var intro = 'Read-only check for stale, half-closed, or mismatched backlog cards. '
+    + (summary.criticalFindings || 0) + ' critical, '
+    + (summary.warningFindings || 0) + ' warning, '
+    + (summary.infoFindings || 0) + ' info. '
+    + 'Stale executing threshold: ' + (thresholds.staleExecutingDays || 3) + ' days without active-work proof.'
+
+  var items = visibleFindings.slice(0, 8).map(function(finding) {
+    return {
+      label: finding.cardId + ' - ' + String(finding.type || '').replace(/_/g, ' '),
+      status: finding.severity === 'critical' ? 'risk' : 'pending',
+      detail: (finding.issue || 'Backlog hygiene finding.')
+        + ' Evidence: ' + (finding.evidence || 'No evidence detail.')
+        + ' Next: ' + (finding.recommendedAction || 'Review the card.'),
+    }
+  })
+
+  if (!items.length) {
+    items.push({
+      label: 'No visible hygiene findings',
+      status: summary.status === 'healthy' ? 'live' : 'pending',
+      detail: 'The backlog hygiene probe is running. Info-level findings stay in the CLI for v1.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Backlog Hygiene',
+    intro,
+    items
+  )
+}
+
 function renderLlmRuntimePanel(llmRuntime) {
   if (!llmRuntime) return null
   var routes = Array.isArray(llmRuntime.routes) ? llmRuntime.routes : []
@@ -11248,6 +11286,9 @@ function renderDataHealth() {
 
     var servedCodePanel = renderServedCodeTrustPanel(hub.runtimeSupervisor)
     if (servedCodePanel) container.appendChild(servedCodePanel)
+
+    var backlogHygienePanel = renderBacklogHygienePanel(hub.backlogHygiene)
+    if (backlogHygienePanel) container.appendChild(backlogHygienePanel)
 
     var surfaceSweepPanel = renderSurfaceFreshnessSweepPanel(hub.surfaceFreshnessSweep)
     if (surfaceSweepPanel) container.appendChild(surfaceSweepPanel)

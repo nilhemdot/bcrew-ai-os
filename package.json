@@ -72,6 +72,7 @@
     "codex:usage": "node scripts/codex-usage.mjs",
     "codex:usage-web": "node scripts/codex-usage-web.mjs",
     "backlog:seed-drift": "node --env-file-if-exists=.env scripts/report-backlog-seed-drift.mjs",
+    "backlog:hygiene": "node --env-file-if-exists=.env scripts/backlog-hygiene.mjs",
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",
     "kpi:health": "node --env-file-if-exists=.env scripts/kpi-supabase-health.mjs",
     "bhag:update": "node scripts/update-bhag-builder-paths.mjs"
