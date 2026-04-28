@@ -280,6 +280,7 @@ async function main() {
   const driveContentExtractionSource = await readRepoFile('scripts/extract-drive-content.mjs')
   const driveLinkInventorySource = await readRepoFile('scripts/inventory-drive-linked-files.mjs')
   const extractionLaneItemShapeAudit = await readRepoFile('docs/audits/2026-04-28-extraction-lane-item-shape.md')
+  const devProcessAuditSource = await readRepoFile('docs/audits/2026-04-28-dev-process-audit.md')
   const kpiHealthSource = await readRepoFile('lib/kpi-health.js')
   const kpiHealthScriptSource = await readRepoFile('scripts/kpi-supabase-health.mjs')
   const kpiSourceNote = await readRepoFile('docs/source-notes/kpi-dashboard.md')
@@ -1775,6 +1776,10 @@ async function main() {
     (build.backlogIds || []).includes('BACKLOG-HYGIENE-001') &&
       build.closeoutKey === 'backlog-hygiene-probe'
   )
+  const buildLogDevProcessAuditBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('DEV-PROCESS-AUDIT-001') &&
+      build.closeoutKey === 'dev-process-audit-hook-map'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1993,7 +1998,7 @@ async function main() {
     checks,
     buildLogBacklogHygieneProbeBuild?.operatorCloseout === true &&
       buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-001' && item.lane === 'done') &&
-      buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'DEV-PROCESS-AUDIT-001' && item.lane === 'scoped') &&
+      buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'DEV-PROCESS-AUDIT-001' && item.lane === 'done') &&
       buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && item.lane === 'scoped') &&
       buildLogBacklogHygieneProbeBuild.proofCommands?.some(command => command.includes('backlog:hygiene')) &&
       buildLogBacklogHygieneProbeBuild.proofCommands?.includes('npm run foundation:verify') &&
@@ -2003,6 +2008,21 @@ async function main() {
     buildLogBacklogHygieneProbeBuild
       ? `${buildLogBacklogHygieneProbeBuild.shortSha} / ${buildLogBacklogHygieneProbeBuild.acceptanceState} / ${buildLogBacklogHygieneProbeBuild.proofStatus}`
       : 'missing backlog hygiene probe closeout',
+  )
+  ensure(
+    checks,
+    buildLogDevProcessAuditBuild?.operatorCloseout === true &&
+      buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'DEV-PROCESS-AUDIT-001' && item.lane === 'done') &&
+      buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && item.lane === 'scoped') &&
+      buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && item.lane === 'scoped') &&
+      buildLogDevProcessAuditBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /exactly one owner/i.test(buildLogDevProcessAuditBuild.whatItDoes || '') &&
+      /PROCESS-HOOKS-001/i.test(buildLogDevProcessAuditBuild.reviewNext || '') &&
+      /creates no new process cards/i.test(buildLogDevProcessAuditBuild.knownLimits?.join(' ') || ''),
+    'Recent Builds v2 carries closeout proof for dev-process audit',
+    buildLogDevProcessAuditBuild
+      ? `${buildLogDevProcessAuditBuild.shortSha} / ${buildLogDevProcessAuditBuild.acceptanceState} / ${buildLogDevProcessAuditBuild.proofStatus}`
+      : 'missing dev-process audit closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2632,14 +2652,25 @@ async function main() {
   const source021Proof = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021-PROOF-001') || null
   const security001 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-001') || null
   const security006 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-006') || null
+  const devProcessAuditText = [
+    devProcessAudit?.summary,
+    devProcessAudit?.whyItMatters,
+    devProcessAudit?.nextAction,
+    devProcessAudit?.statusNote,
+  ].filter(Boolean).join('\n')
+  const processHooksText = [
+    processHooks?.summary,
+    processHooks?.whyItMatters,
+    processHooks?.nextAction,
+    processHooks?.statusNote,
+  ].filter(Boolean).join('\n')
   const backlogHygieneText = [
     backlogHygiene?.summary,
     backlogHygiene?.whyItMatters,
     backlogHygiene?.nextAction,
     backlogHygiene?.statusNote,
-    devProcessAudit?.summary,
-    processHooks?.summary,
-    processHooks?.statusNote,
+    devProcessAuditText,
+    processHooksText,
   ].filter(Boolean).join('\n')
   ensure(
     checks,
@@ -2650,7 +2681,7 @@ async function main() {
       String(backlogHygienePass.statusNote || '').includes('SECURITY-001') &&
       backlogHygiene?.lane === 'done' &&
       backlogHygiene?.priority === 'P0' &&
-      devProcessAudit?.lane === 'scoped' &&
+      devProcessAudit?.lane === 'done' &&
       processHooks?.lane === 'scoped' &&
       backlogHygieneText.includes('autonomous backlog hygiene probe') &&
       backlogHygieneText.includes('npm run backlog:hygiene') &&
@@ -2665,6 +2696,39 @@ async function main() {
       currentState.includes('3-day stale executing threshold'),
     'Backlog hygiene and process-gate cards are captured',
     `pass=${backlogHygienePass?.lane || 'missing'} / probe=${backlogHygiene?.lane || 'missing'} / hooks=${processHooks?.lane || 'missing'}`,
+  )
+  ensure(
+    checks,
+    devProcessAudit?.lane === 'done' &&
+      devProcessAudit?.priority === 'P0' &&
+      includesAll(devProcessAuditSource, [
+        'Stale backlog lane state',
+        'Work shipped before plan score',
+        'Backlog updates stayed manual',
+        'Dashboard served old code',
+        'Recent Builds did not always say where work lives',
+        'Verifier claims depended on manual restart timing',
+        'Plan, backlog, and phase labels disagreed',
+        'Transient source quota made the verifier non-reproducible',
+        'Each failure has one owner',
+        'Do not create more process cards',
+        'ACTION-REVIEW-APPLY-001` stays next after process hooks',
+      ]) &&
+      includesAll(processHooksText, [
+        'external 9.8+ plan',
+        'seven-field closeout draft',
+        'served dashboard commit equals repo HEAD',
+        'where-it-lives metadata',
+        'stop-on-red-verifier',
+      ]) &&
+      currentPlan.includes('DEV-PROCESS-AUDIT-001` is done for v1') &&
+      currentPlan.includes('PROCESS-HOOKS-001` is next') &&
+      currentState.includes('DEV-PROCESS-AUDIT-001` is done for v1') &&
+      currentState.includes('transient verifier failures'),
+    'DEV-PROCESS-AUDIT-001 maps failures to hook requirements before hooks build',
+    devProcessAudit
+      ? `${devProcessAudit.lane} / ${processHooks?.lane || 'missing'} / audit requirements captured`
+      : 'missing DEV-PROCESS-AUDIT-001',
   )
   ensure(
     checks,

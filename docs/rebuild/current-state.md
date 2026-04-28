@@ -119,15 +119,16 @@ Hard checkpoint call from 2026-04-28:
 - Served-code trust is now active: Runtime Health shows the dashboard server-start commit, and `foundation:verify` compares it to repo HEAD before reviewers trust a closeout pass.
 - `BACKLOG-HYGIENE-PASS-001` is done for v1: stale/unclear executing cards were cleaned up, proof was split from remaining work where needed, and structural follow-up cards were created.
 - `BACKLOG-HYGIENE-001` is done for v1: `npm run backlog:hygiene`, `/api/foundation-hub > backlogHygiene`, Runtime Health > Backlog Hygiene, synthetic stale-card proof, 3-day stale executing threshold, and verifier coverage are live.
-- `DEV-PROCESS-AUDIT-001` and `PROCESS-HOOKS-001` now sit ahead of product UI so the rebuild returns to backlog-pulled, plan-reviewed work.
-- `ACTION-REVIEW-APPLY-001` remains the next product build slice, but it waits behind the backlog hygiene probe and process gates.
+- `DEV-PROCESS-AUDIT-001` is done for v1: `docs/audits/2026-04-28-dev-process-audit.md` maps stale lanes, pre-score shipping, manual backlog updates, stale served code, weak where-it-lives metadata, restart-dependent verifier claims, plan/backlog phase confusion, and transient verifier failures to exact owners.
+- `PROCESS-HOOKS-001` now sits ahead of product UI so the rebuild returns to backlog-pulled, plan-reviewed work with enforceable gates.
+- `ACTION-REVIEW-APPLY-001` remains the next product build slice, but it waits behind process hooks.
 - `RESEARCH-INBOX-001` is parked as the pre-backlog research inbox for YouTube, Mycro/myICOR, courses, articles, and good AI-system ideas. It is not next.
 - `RUNTIME-HEALTH-SIMPLIFY-001` is parked so Runtime Health can later get a plain-English top layer without weakening the diagnostic detail.
 
 Current command order:
 
 1. Keep the `FOUNDATION-SWEEP-001` map and `FOUNDATION-CHANGELOG-002` closeout records current when Foundation nav, APIs, docs, source contracts, jobs, System Inventory, hub links, or major build cards change.
-2. Run `DEV-PROCESS-AUDIT-001`, then build `PROCESS-HOOKS-001` so future commits have card, plan, verifier, closeout, dashboard-placement, backlog-update, and Recent Builds link gates.
+2. Build `PROCESS-HOOKS-001` so future commits have card, external 9.8+ plan, verifier, seven-field closeout, live dashboard/served-code, backlog-update, where-it-lives metadata, and red-verifier stop gates.
 3. Close the action loop through `ACTION-REVIEW-APPLY-001`.
 4. Stop and re-plan with Steve before auto-picking another Foundation slice. The decision is whether Foundation is good enough to un-pause Scoper, dev intelligence, and agent-managed backlog work.
 
