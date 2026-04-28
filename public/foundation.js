@@ -5218,6 +5218,30 @@ function renderFoundationJobsPanel(foundationJobs) {
   )
 }
 
+function renderServedCodeTrustPanel(runtimeSupervisor) {
+  var servedCode = runtimeSupervisor && runtimeSupervisor.servedCode
+  if (!servedCode) return null
+
+  var runningCommit = servedCode.runningShortCommit || servedCode.runningCommit || 'Not captured'
+  var status = servedCode.status === 'live' ? 'live' : 'risk'
+  var detail = servedCode.plainEnglish || 'Dashboard reports the code commit it started from. foundation:verify compares this to repo HEAD.'
+  if (servedCode.restartCommand) {
+    detail += ' If this is stale, run: ' + servedCode.restartCommand
+  }
+
+  return renderStatusGroupPanel(
+    'Dashboard Code Trust',
+    'Shows the exact code version the dashboard started with, so reviewer checks can catch stale served code.',
+    [
+      {
+        label: 'Server-start commit',
+        status: status,
+        detail: 'Running commit: ' + runningCommit + '. Started ' + formatDate(servedCode.startedAt) + '. ' + detail,
+      },
+    ]
+  )
+}
+
 function renderLlmRuntimePanel(llmRuntime) {
   if (!llmRuntime) return null
   var routes = Array.isArray(llmRuntime.routes) ? llmRuntime.routes : []
@@ -11221,6 +11245,9 @@ function renderDataHealth() {
 
     var kpiWarningPanel = renderKpiHealthRuntimeWarning(hub.kpiHealth)
     if (kpiWarningPanel) container.appendChild(kpiWarningPanel)
+
+    var servedCodePanel = renderServedCodeTrustPanel(hub.runtimeSupervisor)
+    if (servedCodePanel) container.appendChild(servedCodePanel)
 
     var surfaceSweepPanel = renderSurfaceFreshnessSweepPanel(hub.surfaceFreshnessSweep)
     if (surfaceSweepPanel) container.appendChild(surfaceSweepPanel)

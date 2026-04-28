@@ -85,6 +85,14 @@ async function runHealthScript(scriptName) {
   return (stdout || stderr).trim()
 }
 
+async function getCurrentRepoHead() {
+  const { stdout } = await execFile('git', ['rev-parse', 'HEAD'], {
+    cwd: repoRoot,
+    maxBuffer: 1024 * 64,
+  })
+  return String(stdout || '').trim().toLowerCase()
+}
+
 function ensure(checks, condition, check, detail) {
   if (!condition) {
     checks.push({ ok: false, check, detail })
@@ -155,6 +163,7 @@ async function main() {
   line('  Base URL', baseUrl)
   line('  Repo root', repoRoot)
 
+  const currentRepoHead = await getCurrentRepoHead()
   const sourceContracts = getSourceContracts()
   const sourceConnectors = getSourceConnectors()
   const groupedSourceSystems = getGroupedSourceSystems()
@@ -1343,6 +1352,16 @@ async function main() {
     : []
   const sourceTruthKpiHealth = sourceOfTruth.kpiHealth || {}
   const foundationHubKpiHealth = foundationHub.kpiHealth || {}
+  const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
+  const dashboardRunningCommit = String(runtimeServedCode.runningCommit || '').trim().toLowerCase()
+  const dashboardRunningShortCommit = String(runtimeServedCode.runningShortCommit || dashboardRunningCommit.slice(0, 7) || 'missing')
+  const currentRepoShortHead = currentRepoHead.slice(0, 7)
+  const dashboardRestartCommand = runtimeServedCode.restartCommand || 'launchctl kickstart -k gui/$(id -u)/ai.bcrew.dashboard'
+  const servedCodeTrustDetail = dashboardRunningCommit
+    ? dashboardRunningCommit === currentRepoHead
+      ? `Dashboard is serving current commit ${dashboardRunningShortCommit}; HEAD is ${currentRepoShortHead}.`
+      : `Dashboard is serving commit ${dashboardRunningShortCommit}; HEAD is ${currentRepoShortHead}. Run: ${dashboardRestartCommand} to restart.`
+    : `Dashboard did not expose its server-start commit. Run: ${dashboardRestartCommand} to restart, then rerun foundation:verify.`
   const foundationSurfaceMap = getFoundationSurfaceMap()
   const foundationBuildCloseouts = getFoundationBuildCloseouts()
   const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
@@ -1618,6 +1637,18 @@ async function main() {
   )
   ensure(
     checks,
+    /^[0-9a-f]{40}$/.test(dashboardRunningCommit) &&
+      dashboardRunningCommit === currentRepoHead &&
+      runtimeServedCode.status === 'live' &&
+      String(runtimeServedCode.plainEnglish || '').includes('server-start commit') &&
+      String(runtimeServedCode.restartCommand || '').includes('launchctl kickstart') &&
+      serverSource.includes('await captureDashboardRuntimeMetadata()') &&
+      foundationUiSource.includes('renderServedCodeTrustPanel'),
+    'dashboard served code matches current repo HEAD',
+    servedCodeTrustDetail,
+  )
+  ensure(
+    checks,
     foundationHub.backlogSeedDrift?.policy &&
       Array.isArray(foundationHub.backlogSeedDrift.items) &&
       Array.isArray(foundationHub.backlogSeedDrift.stableFields) &&
@@ -1701,6 +1732,10 @@ async function main() {
     (build.backlogIds || []).includes('FOUNDATION-SURFACE-UPDATES-001') &&
       build.closeoutKey === 'foundation-operator-ux-capture'
   )
+  const buildLogServedCodeTrustBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('RUNTIME-SUPERVISOR-001') &&
+      build.closeoutKey === 'runtime-supervisor-served-code-trust'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1716,6 +1751,8 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('ACTION-REVIEW-APPLY-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('RESEARCH-INBOX-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('RUNTIME-HEALTH-SIMPLIFY-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('RUNTIME-SUPERVISOR-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('SYSTEM-010') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -1876,6 +1913,21 @@ async function main() {
     buildLogOperatorUxCaptureBuild
       ? `${buildLogOperatorUxCaptureBuild.shortSha} / ${buildLogOperatorUxCaptureBuild.acceptanceState} / ${buildLogOperatorUxCaptureBuild.proofStatus}`
       : 'missing Foundation operator UX capture closeout',
+  )
+  ensure(
+    checks,
+    buildLogServedCodeTrustBuild?.operatorCloseout === true &&
+      buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'RUNTIME-SUPERVISOR-001' && item.lane === 'scoped') &&
+      buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'SYSTEM-010' && item.lane === 'scoped') &&
+      buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && item.lane === 'scoped') &&
+      buildLogServedCodeTrustBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /server-start commit|repo HEAD|restart command/i.test(buildLogServedCodeTrustBuild.whatItDoes || '') &&
+      /ACTION-REVIEW-APPLY-001/i.test(buildLogServedCodeTrustBuild.reviewNext || '') &&
+      /auto-restart-on-push/i.test(buildLogServedCodeTrustBuild.knownLimits?.join(' ') || ''),
+    'Recent Builds v2 carries closeout proof for served-code trust',
+    buildLogServedCodeTrustBuild
+      ? `${buildLogServedCodeTrustBuild.shortSha} / ${buildLogServedCodeTrustBuild.acceptanceState} / ${buildLogServedCodeTrustBuild.proofStatus}`
+      : 'missing served-code trust closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2606,7 +2658,8 @@ async function main() {
       runtimeSupervisor?.priority === 'P0' &&
       runtimeSupervisorText.includes('served-code-equals-HEAD') &&
       runtimeSupervisorText.includes('auto-restart-on-push') &&
-      currentPlan.includes('served-code-equals-HEAD or auto-restart-on-push'),
+      currentPlan.includes('Served-code-equals-HEAD check is live') &&
+      currentPlan.includes('Add auto-restart-on-push next'),
     'SYSTEM-010 owns dashboard served-code/deploy freshness follow-up',
     `SYSTEM-010=${systemProcessControl?.lane || 'missing'} / RUNTIME-SUPERVISOR-001=${runtimeSupervisor?.lane || 'missing'}`,
   )

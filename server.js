@@ -118,6 +118,63 @@ const googleOauthClient = new OAuth2Client()
 app.disable('x-powered-by')
 
 const docsDir = path.join(__dirname, 'docs')
+const dashboardStartedAt = new Date().toISOString()
+const dashboardRestartCommand = 'launchctl kickstart -k gui/$(id -u)/ai.bcrew.dashboard'
+let dashboardRuntimeMetadata = {
+  service: 'dashboard',
+  status: 'starting',
+  startedAt: dashboardStartedAt,
+  processId: process.pid,
+  runningCommit: null,
+  runningShortCommit: null,
+  capturedAt: null,
+  checkName: 'served-code-equals-HEAD',
+  restartCommand: dashboardRestartCommand,
+  plainEnglish: 'Dashboard is starting. Foundation has not captured the server-start commit yet.',
+}
+
+function normalizeGitSha(value) {
+  const sha = String(value || '').trim()
+  return /^[0-9a-f]{40}$/i.test(sha) ? sha.toLowerCase() : null
+}
+
+async function captureDashboardRuntimeMetadata() {
+  try {
+    const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], {
+      cwd: __dirname,
+      maxBuffer: 1024 * 64,
+    })
+    const runningCommit = normalizeGitSha(stdout)
+    if (!runningCommit) throw new Error('git rev-parse HEAD did not return a commit.')
+    const runningShortCommit = runningCommit.slice(0, 7)
+    dashboardRuntimeMetadata = {
+      service: 'dashboard',
+      status: 'live',
+      startedAt: dashboardStartedAt,
+      processId: process.pid,
+      runningCommit,
+      runningShortCommit,
+      capturedAt: new Date().toISOString(),
+      checkName: 'served-code-equals-HEAD',
+      restartCommand: dashboardRestartCommand,
+      plainEnglish: `Dashboard started from commit ${runningShortCommit}. foundation:verify compares this server-start commit to repo HEAD so reviewers can catch stale dashboard code.`,
+    }
+  } catch (error) {
+    dashboardRuntimeMetadata = {
+      ...dashboardRuntimeMetadata,
+      status: 'risk',
+      capturedAt: new Date().toISOString(),
+      plainEnglish: 'Dashboard could not capture its server-start commit. Restart the dashboard and rerun foundation:verify before trusting closeout proof.',
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
+function getDashboardRuntimeMetadata() {
+  return {
+    ...dashboardRuntimeMetadata,
+  }
+}
 const repoRoot = path.resolve(__dirname)
 const businessStrategyPath = path.join(docsDir, 'business-strategy.md')
 const sourceRegistryPath = path.join(docsDir, 'source-registry.md')
@@ -3915,6 +3972,9 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
     res.json({
       ...snapshot,
       kpiHealth,
+      runtimeSupervisor: {
+        servedCode: getDashboardRuntimeMetadata(),
+      },
     })
   } catch (error) {
     sendApiError(
@@ -5323,6 +5383,7 @@ app.get('*', requirePageAccess('owner'), (_req, res) => {
 async function start() {
   assertSessionSecretConfigured()
   assertAgentFeedbackSecretConfigured()
+  await captureDashboardRuntimeMetadata()
   await initFoundationDb()
 
   const server = app.listen(port, host, () => {

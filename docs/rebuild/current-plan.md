@@ -195,7 +195,8 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - `FOUNDATION-SURFACE-UPDATES-001` is the P1 follow-up for Foundation operator clarity: plain-English status/copy, Overview -> Systems -> Backlog -> Recent Work nav order, collapsed Recent Work with app/doc breadcrumbs, done-velocity visibility, and plan/backlog grouping convergence. Do not build it inside the action-loop Review/Apply slice unless Steve explicitly switches scope.
 3. `SYSTEM-010` — Finish runtime/process-control hardening.
    - Keep dashboard and worker LaunchAgent plists in repo.
-   - Add a served-code-equals-HEAD or auto-restart-on-push check so the dashboard cannot stay alive while serving stale code after a verified commit.
+   - Served-code-equals-HEAD check is live: the dashboard captures its server-start commit and `foundation:verify` fails with a restart command if the served commit does not match repo HEAD.
+   - Add auto-restart-on-push next so the dashboard updates itself after verified commits instead of only failing loudly.
    - Router fallback is manual-explicit, not automatic; keep code/docs/UI from implying automatic paid fallback.
    - Enforce job-level budget tags or rename them as descriptive tags.
    - Bound large Foundation snapshot reads with limits or paging.
@@ -379,7 +380,7 @@ Current partial proof:
 - `npm run foundation:job -- --snapshot` now exposes scheduled, due, and manual job counts plus next-run status.
 - `ai.bcrew.foundation-worker` is loaded as a LaunchAgent and running the worker loop.
 - `ai.bcrew.dashboard` is loaded as a LaunchAgent and was restarted after the runtime changes.
-- `RUNTIME-SUPERVISOR-001` now explicitly owns the dashboard served-code-equals-HEAD / auto-restart-on-push gap exposed by the Recent Builds closeout review.
+- `RUNTIME-SUPERVISOR-001` now explicitly owns the dashboard served-code-equals-HEAD / auto-restart-on-push gap exposed by the Recent Builds closeout review. The served-code verifier slice is live; auto-restart-on-push remains open.
 - Active-run locking is enforced with a unique active-run index per job, so a second worker/manual trigger cannot start the same job while it is already queued/running.
 - Job timeout cleanup now kills the process group with `SIGTERM` and escalates to `SIGKILL`.
 - Operator-controlled job pause/resume is DB-backed and exposed through `/api/foundation/jobs/:jobKey/control`.
