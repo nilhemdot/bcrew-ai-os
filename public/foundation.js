@@ -5303,6 +5303,43 @@ function renderExtractionControlPanel(extractionControl) {
   )
 }
 
+function renderSurfaceFreshnessSweepPanel(sweep) {
+  if (!sweep || !sweep.summary || !Array.isArray(sweep.surfaces)) return null
+  var summary = sweep.summary.mappedSurfaceCount + ' Foundation surfaces mapped to backing APIs/docs/tables. '
+    + sweep.summary.riskSurfaces + ' risk, '
+    + sweep.summary.warningSurfaces + ' warning, '
+    + sweep.summary.staleActiveRunCount + ' stale active source-crawl runs.'
+
+  var items = []
+  var findings = Array.isArray(sweep.findings) ? sweep.findings : []
+  findings.slice(0, 6).forEach(function(finding) {
+    items.push({
+      label: finding.surfaceLabel + ' - ' + finding.type,
+      status: finding.severity === 'risk' ? 'risk' : 'pending',
+      detail: finding.detail || 'Surface freshness finding needs review.',
+    })
+  })
+
+  sweep.surfaces.forEach(function(surface) {
+    var owners = []
+    if ((surface.backingApis || []).length) owners.push('APIs: ' + surface.backingApis.join(', '))
+    if ((surface.backingDocs || []).length) owners.push('Docs: ' + surface.backingDocs.join(', '))
+    if ((surface.backlogIds || []).length) owners.push('Backlog: ' + surface.backlogIds.join(', '))
+    if ((surface.sourceIds || []).length) owners.push('Sources: ' + surface.sourceIds.join(', '))
+    items.push({
+      label: surface.label,
+      status: surface.status === 'risk' ? 'risk' : surface.status === 'warning' ? 'pending' : 'live',
+      detail: 'Owner: ' + surface.owner + '. ' + owners.join(' · '),
+    })
+  })
+
+  return renderStatusGroupPanel(
+    'Foundation Surface Sweep',
+    summary,
+    items
+  )
+}
+
 function formatCoveragePercent(value) {
   var numeric = Number(value || 0)
   if (!Number.isFinite(numeric)) return '0%'
@@ -10801,6 +10838,9 @@ function renderDataHealth() {
 
     var purposePanel = renderFoundationOperationsPurposePanel('system-health', hub)
     if (purposePanel) container.appendChild(purposePanel)
+
+    var surfaceSweepPanel = renderSurfaceFreshnessSweepPanel(hub.surfaceFreshnessSweep)
+    if (surfaceSweepPanel) container.appendChild(surfaceSweepPanel)
 
     var jobsPanel = renderFoundationJobsPanel(hub.foundationJobs)
     if (jobsPanel) container.appendChild(jobsPanel)

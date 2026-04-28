@@ -18,12 +18,14 @@ import {
   getSynthesisEngineSnapshot,
   getSynthesisFactsSnapshot,
   getSharedCommunicationProcessingProvenanceGaps,
+  getStaleSourceCrawlTargetRuns,
   getStaleLlmCalls,
   getStrategyGoalTruthSnapshot,
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
   initFoundationDb,
 } from '../lib/foundation-db.js'
+import { getFoundationSurfaceMap } from '../lib/foundation-surface-map.js'
 
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
@@ -1115,10 +1117,10 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, ['markStaleFoundationJobRuns', 'Marked failed by stale active-run reaper', 'markStaleLlmCalls', 'Marked failed by stale LLM call reaper']) &&
-      includesAll(foundationWorkerSource, ['markStaleFoundationJobRuns', 'markStaleLlmCalls', 'job ' + '${job.key}' + ' failed before completion', 'Foundation worker pass failed']),
+    includesAll(foundationDbSource, ['markStaleFoundationJobRuns', 'Marked failed by stale active-run reaper', 'markStaleLlmCalls', 'Marked failed by stale LLM call reaper', 'markStaleSourceCrawlTargetRuns', 'Marked failed by stale source-crawl run reaper']) &&
+      includesAll(foundationWorkerSource, ['markStaleFoundationJobRuns', 'markStaleLlmCalls', 'markStaleSourceCrawlTargetRuns', 'job ' + '${job.key}' + ' failed before completion', 'Foundation worker pass failed']),
     'Foundation worker catches job failures and reaps stale active runs/calls',
-    'worker pass catches per-job failures, continues looping, and marks stale queued/running job runs plus planned/started LLM calls failed before selecting due jobs',
+    'worker pass catches per-job failures, continues looping, and marks stale queued/running job runs, stale source-crawl target runs, and planned/started LLM calls failed before selecting due jobs',
   )
   ensure(
     checks,
@@ -1286,6 +1288,7 @@ async function main() {
       ? staleLlmCalls.map(item => `${item.callId}:${item.status}:${item.ageSeconds}s>${item.timeoutSeconds + item.graceSeconds}s`).join(', ')
       : 'no planned/started LLM calls older than their timeout plus grace',
   )
+  const staleSourceCrawlRuns = await getStaleSourceCrawlTargetRuns({ olderThanMinutes: 30, limit: 10 })
 
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
   const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
@@ -1300,6 +1303,19 @@ async function main() {
   const extractionTargets = Array.isArray(foundationHub.extractionControl?.targets)
     ? foundationHub.extractionControl.targets
     : []
+  const extractionStaleActiveRuns = Array.isArray(foundationHub.extractionControl?.staleActiveRuns)
+    ? foundationHub.extractionControl.staleActiveRuns
+    : []
+  const extractionRecentStaleReapedRuns = Array.isArray(foundationHub.extractionControl?.recentStaleReapedRuns)
+    ? foundationHub.extractionControl.recentStaleReapedRuns
+    : []
+  const foundationSurfaceMap = getFoundationSurfaceMap()
+  const foundationNavSections = Array.from(new Set(
+    Array.from(foundationHtmlSource.matchAll(/data-section="([^"]+)"/g)).map(match => match[1])
+  ))
+  const foundationMappedSections = new Set(foundationSurfaceMap.map(surface => surface.section))
+  const foundationSweepSections = new Set((foundationHub.surfaceFreshnessSweep?.surfaces || []).map(surface => surface.section))
+  const knownStaleSlackRunId = 'crawl-slack-current-day-20260427145904292-3f93bebd'
   const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
   const driveCorpusTarget = extractionTargets.find(target => target.targetKey === 'drive-corpus-backfill')
   const driveContentTarget = extractionTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
@@ -1492,6 +1508,34 @@ async function main() {
     foundationHub.dbConstraintAudit
       ? `${foundationHub.dbConstraintAudit.registeredSourceIds} source IDs / ${foundationHub.dbConstraintAudit.invalidSourceReferenceCount} invalid source refs`
       : 'missing DB constraint audit payload',
+  )
+  ensure(
+    checks,
+    foundationSurfaceMap.length === foundationNavSections.length &&
+      foundationNavSections.every(section => foundationMappedSections.has(section)) &&
+      foundationNavSections.every(section => foundationSweepSections.has(section)) &&
+      foundationSurfaceMap.every(surface =>
+        surface.owner &&
+        surface.href &&
+        (surface.backingApis.length || surface.backingDocs.length || surface.backingTables.length) &&
+        Array.isArray(surface.sourceIds) &&
+        Array.isArray(surface.backlogIds)
+      ) &&
+      foundationHub.surfaceFreshnessSweep?.summary?.mappedSurfaceCount === foundationNavSections.length,
+    'Foundation pages are mapped to backing APIs/docs/tables/source IDs/backlog owners',
+    `${foundationSurfaceMap.length} mapped surfaces / ${foundationNavSections.length} nav sections`,
+  )
+  ensure(
+    checks,
+    foundationHub.surfaceFreshnessSweep?.summary &&
+      typeof foundationHub.surfaceFreshnessSweep.summary.riskSurfaces === 'number' &&
+      typeof foundationHub.surfaceFreshnessSweep.summary.staleActiveRunCount === 'number' &&
+      Array.isArray(foundationHub.surfaceFreshnessSweep.findings) &&
+      foundationUiSource.includes('renderSurfaceFreshnessSweepPanel'),
+    'api/foundation-hub exposes the Foundation surface freshness sweep',
+    foundationHub.surfaceFreshnessSweep?.summary
+      ? `${foundationHub.surfaceFreshnessSweep.summary.mappedSurfaceCount} surfaces / risk=${foundationHub.surfaceFreshnessSweep.summary.riskSurfaces} / stale active runs=${foundationHub.surfaceFreshnessSweep.summary.staleActiveRunCount}`
+      : 'missing surface freshness sweep payload',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -1781,13 +1825,37 @@ async function main() {
     checks,
     foundationHub.extractionControl?.summary &&
       Number(foundationHub.extractionControl.summary.targetCount || 0) > 0 &&
+      typeof foundationHub.extractionControl.summary.staleActiveRuns === 'number' &&
+      typeof foundationHub.extractionControl.summary.recentStaleReapedRuns === 'number' &&
+      Array.isArray(foundationHub.extractionControl.staleActiveRuns) &&
+      Array.isArray(foundationHub.extractionControl.recentStaleReapedRuns) &&
       extractionTargets.length > 0 &&
       Array.isArray(foundationHub.extractionControl.recentItems) &&
       Array.isArray(foundationHub.extractionControl.recentRuns),
     'api/foundation-hub exposes extraction control targets',
     foundationHub.extractionControl?.summary
-      ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day / ${foundationHub.extractionControl.recentItems?.length ?? 0} recent items / ${foundationHub.extractionControl.recentRuns?.length ?? 0} recent runs`
+      ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day / ${foundationHub.extractionControl.recentItems?.length ?? 0} recent items / ${foundationHub.extractionControl.recentRuns?.length ?? 0} recent runs / stale active=${foundationHub.extractionControl.summary.staleActiveRuns}`
       : 'missing extraction control payload',
+  )
+  ensure(
+    checks,
+    staleSourceCrawlRuns.length === 0 &&
+      extractionStaleActiveRuns.length === 0,
+    'source_crawl_target_runs has no stale active runs',
+    staleSourceCrawlRuns.length || extractionStaleActiveRuns.length
+      ? [...staleSourceCrawlRuns, ...extractionStaleActiveRuns].map(run => `${run.targetKey}:${run.runId}`).join(', ')
+      : 'no running source-crawl target runs past lease/threshold',
+  )
+  ensure(
+    checks,
+    extractionRecentStaleReapedRuns.some(run => run.runId === knownStaleSlackRunId) ||
+      extractionStaleActiveRuns.some(run => run.runId === knownStaleSlackRunId),
+    'Foundation sweep catches the known stale Slack crawl proof case',
+    extractionRecentStaleReapedRuns.some(run => run.runId === knownStaleSlackRunId)
+      ? `${knownStaleSlackRunId} visible as reaped stale run`
+      : extractionStaleActiveRuns.some(run => run.runId === knownStaleSlackRunId)
+        ? `${knownStaleSlackRunId} visible as active stale run`
+        : `${knownStaleSlackRunId} not visible in extraction control stale-run payload`,
   )
   ensure(
     checks,
@@ -1884,13 +1952,14 @@ async function main() {
   const foundationChangelogV2 = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-CHANGELOG-002') || null
   ensure(
     checks,
-    foundationSurfaceSweep?.lane === 'executing' &&
+    foundationSurfaceSweep?.lane === 'done' &&
       foundationSurfaceSweep?.priority === 'P0' &&
       /source contracts, connectors, jobs, docs, backlog cards, or system maps change/.test(foundationSurfaceSweep?.summary || '') &&
-      /2026-04-28 hard checkpoint/.test(foundationSurfaceSweep?.statusNote || '') &&
+      /31 Foundation nav pages/.test(foundationSurfaceSweep?.statusNote || '') &&
+      /crawl-slack-current-day-20260427145904292-3f93bebd/.test(foundationSurfaceSweep?.statusNote || '') &&
       currentPlan.includes('Foundation surfaces must not rely on Steve noticing stale truth') &&
       currentPlan.includes('FOUNDATION-SWEEP-001'),
-    'Foundation surface freshness sweep is tracked as P0 work',
+    'Foundation surface freshness sweep v1 is closed with stale-run proof',
     foundationSurfaceSweep
       ? `${foundationSurfaceSweep.lane} / ${foundationSurfaceSweep.priority} / ${foundationSurfaceSweep.title}`
       : 'missing FOUNDATION-SWEEP-001',

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-28
-Version: v6.13 — Foundation hard checkpoint after Strategy detour
+Version: v6.14 — Foundation surface sweep v1
 Status: Active
 
 Use this doc for one question:
@@ -216,9 +216,11 @@ Order now:
 1. `SYSTEM-STRATEGY-REVIEW-001` — done / P1.
    - Apr 26-28 builder/reviewer lessons were promoted into system strategy, current plan/state, and backlog cards.
    - The handoff evidence is `docs/handoffs/2026-04-28-foundation-hard-checkpoint.md`.
-2. `FOUNDATION-SWEEP-001` — executing / P0.
-   - Build the first Foundation surface-freshness sweep.
-   - This is the next Foundation build before more Strategy polish.
+2. `FOUNDATION-SWEEP-001` — done / P0.
+   - V1 maps every Foundation nav page to backing APIs/docs/tables/source IDs/backlog owners.
+   - Runtime Health now surfaces stale source-crawl target runs.
+   - The stale Slack proof run `crawl-slack-current-day-20260427145904292-3f93bebd` was caught and marked failed by the stale source-crawl run reaper.
+   - `foundation:verify` now guards the surface map, stale-run payload, and no-stale-active-run state.
 3. `FOUNDATION-CHANGELOG-002` — scoped / P0.
    - Recent Builds v1 exists, but Steve still cannot quickly answer what was built, what it does, where it lives, and what should be reviewed.
    - Upgrade Recent Builds into an operator-readable changelog tied to backlog cards, proof, status, and system area.

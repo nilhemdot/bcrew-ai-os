@@ -8,6 +8,7 @@ import {
   initFoundationDb,
   markStaleLlmCalls,
   markStaleFoundationJobRuns,
+  markStaleSourceCrawlTargetRuns,
 } from '../lib/foundation-db.js';
 import { runFoundationJob } from './run-foundation-job.mjs';
 
@@ -38,7 +39,7 @@ function selectDueJobs(snapshot, { jobKey, maxJobs }) {
     .slice(0, maxJobs);
 }
 
-async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes, staleLlmCallSeconds, staleLlmCallGraceSeconds }) {
+async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes, staleSourceCrawlRunMinutes, staleLlmCallSeconds, staleLlmCallGraceSeconds }) {
   if (!dryRun) {
     const reapedRuns = await markStaleFoundationJobRuns({ olderThanMinutes: staleRunMinutes }, actor);
     if (reapedRuns.length) {
@@ -50,6 +51,10 @@ async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes, 
     }, actor);
     if (reapedLlmCalls.length) {
       console.warn(`Foundation worker: marked ${reapedLlmCalls.length} stale LLM call(s) failed before selecting jobs.`);
+    }
+    const reapedSourceCrawlRuns = await markStaleSourceCrawlTargetRuns({ olderThanMinutes: staleSourceCrawlRunMinutes }, actor);
+    if (reapedSourceCrawlRuns.length) {
+      console.warn(`Foundation worker: marked ${reapedSourceCrawlRuns.length} stale source-crawl run(s) failed before selecting jobs.`);
     }
   }
 
@@ -87,6 +92,7 @@ async function main() {
   const maxJobs = Math.max(1, Math.min(5, Number(args.maxJobs || 1)));
   const jobKey = args.job ? String(args.job) : '';
   const staleRunMinutes = Math.max(30, Number(args.staleRunMinutes || process.env.FOUNDATION_WORKER_STALE_RUN_MINUTES || 180));
+  const staleSourceCrawlRunMinutes = Math.max(5, Number(args.staleSourceCrawlRunMinutes || process.env.FOUNDATION_WORKER_STALE_SOURCE_CRAWL_RUN_MINUTES || 30));
   const staleLlmCallSeconds = Math.max(30, Number(args.staleLlmCallSeconds || process.env.FOUNDATION_WORKER_STALE_LLM_CALL_SECONDS || 240));
   const staleLlmCallGraceSeconds = Math.max(0, Number(args.staleLlmCallGraceSeconds || process.env.FOUNDATION_WORKER_STALE_LLM_CALL_GRACE_SECONDS || 60));
 
@@ -103,6 +109,7 @@ async function main() {
         jobKey,
         maxJobs,
         staleRunMinutes,
+        staleSourceCrawlRunMinutes,
         staleLlmCallSeconds,
         staleLlmCallGraceSeconds,
       });
