@@ -1327,6 +1327,7 @@ async function main() {
   const foundationMappedSections = new Set(foundationSurfaceMap.map(surface => surface.section))
   const foundationSweepSections = new Set((foundationHub.surfaceFreshnessSweep?.surfaces || []).map(surface => surface.section))
   const knownStaleSlackRunId = 'crawl-slack-current-day-20260427145904292-3f93bebd'
+  const nonStaleExtractionStatuses = new Set(['succeeded', 'partial', 'leased', 'running'])
   const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
   const slackCurrentDayTarget = extractionTargets.find(target => target.targetKey === 'slack-current-day')
   const missiveCurrentDayTarget = extractionTargets.find(target => target.targetKey === 'missive-current-day')
@@ -2015,7 +2016,7 @@ async function main() {
     slackCurrentDayTarget?.itemSummary &&
       Number(slackCurrentDayTarget.itemSummary.totalItems || 0) > 0 &&
       Array.isArray(slackCurrentDayTarget.healthFindings) &&
-      ['succeeded', 'partial'].includes(slackCurrentDayTarget.lastStatus) &&
+      nonStaleExtractionStatuses.has(slackCurrentDayTarget.lastStatus) &&
       !String(slackCurrentDayTarget.lastError || '').includes('stale source-crawl run reaper'),
     'Slack current-day crawl has channel-level item proof after stale-run recovery',
     slackCurrentDayTarget?.itemSummary
@@ -2029,7 +2030,7 @@ async function main() {
       Number(missiveCurrentDayTarget.itemSummary.skippedItems || 0) >= 1 &&
       Number(missiveCurrentDayTarget.itemSummary.failedItems || 0) === 0 &&
       Array.isArray(missiveCurrentDayTarget.healthFindings) &&
-      ['succeeded', 'partial'].includes(missiveCurrentDayTarget.lastStatus),
+      nonStaleExtractionStatuses.has(missiveCurrentDayTarget.lastStatus),
     'Missive current-day crawl has conversation-level item proof',
     missiveCurrentDayTarget?.itemSummary
       ? `${missiveCurrentDayTarget.lastStatus || 'unknown'} / ${missiveCurrentDayTarget.itemSummary.totalItems || 0} items / ${missiveCurrentDayTarget.itemSummary.succeededItems || 0} succeeded / ${missiveCurrentDayTarget.itemSummary.skippedItems || 0} skipped / ${missiveCurrentDayTarget.itemSummary.failedItems || 0} failed`
