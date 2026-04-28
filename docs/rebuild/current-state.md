@@ -121,15 +121,14 @@ Hard checkpoint call from 2026-04-28:
 - `BACKLOG-HYGIENE-001` is done for v1: `npm run backlog:hygiene`, `/api/foundation-hub > backlogHygiene`, Runtime Health > Backlog Hygiene, synthetic stale-card proof, 3-day stale executing threshold, and verifier coverage are live.
 - `DEV-PROCESS-AUDIT-001` is done for v1: `docs/audits/2026-04-28-dev-process-audit.md` maps stale lanes, pre-score shipping, manual backlog updates, stale served code, weak where-it-lives metadata, restart-dependent verifier claims, plan/backlog phase confusion, and transient verifier failures to exact owners.
 - `PROCESS-HOOKS-001` is done for v1: `npm run process:ship-check` requires backlog card evidence, an approval file with score >= 9.8, a seven-field closeout, where-it-lives metadata, served-code proof, and default `foundation:verify` unless a skip reason is explicit.
-- `ACTION-REVIEW-APPLY-001` is the next product build slice.
+- `ACTION-REVIEW-APPLY-001` is done for v1: Foundation > Backlog > Action Review shows pending and approved routes, supports approve/reject/apply, requires reject reasons, exposes aged/stuck routes, and shows destination-record proof after apply.
 - `RESEARCH-INBOX-001` is parked as the pre-backlog research inbox for YouTube, Mycro/myICOR, courses, articles, and good AI-system ideas. It is not next.
 - `RUNTIME-HEALTH-SIMPLIFY-001` is parked so Runtime Health can later get a plain-English top layer without weakening the diagnostic detail.
 
 Current command order:
 
 1. Keep the `FOUNDATION-SWEEP-001` map and `FOUNDATION-CHANGELOG-002` closeout records current when Foundation nav, APIs, docs, source contracts, jobs, System Inventory, hub links, or major build cards change.
-2. Close the action loop through `ACTION-REVIEW-APPLY-001`.
-3. Stop and re-plan with Steve before auto-picking another Foundation slice. The decision is whether Foundation is good enough to un-pause Scoper, dev intelligence, and agent-managed backlog work.
+2. Stop and re-plan with Steve before auto-picking another Foundation slice. The decision is whether Foundation is good enough to un-pause Scoper, dev intelligence, and agent-managed backlog work.
 
 ## Operator Surface Pattern
 

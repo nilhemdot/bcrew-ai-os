@@ -193,6 +193,11 @@ var backlogViewState = {
   ids: [],
 }
 
+var actionReviewState = {
+  busyRouteId: null,
+  notes: {},
+}
+
 var sourceViewState = {
   query: '',
   kind: 'all',
@@ -2049,6 +2054,371 @@ function renderBacklogWorkflowStack(group, items) {
 
   details.appendChild(body)
   return details
+}
+
+function actionReviewTitle(route) {
+  var payload = route.proposedPayload || {}
+  return payload.title || route.title || route.routeId || 'Action route'
+}
+
+function actionReviewSummary(route) {
+  var payload = route.proposedPayload || {}
+  return payload.summary || payload.reason || route.routingReason || 'No plain-English summary was recorded for this route.'
+}
+
+function actionReviewDestinationLabel(route) {
+  if (route.actionReview && route.actionReview.destinationLabel) return route.actionReview.destinationLabel
+  if (route.destinationTable === 'backlog_items') return 'Backlog work item'
+  if (route.destinationTable === 'decisions') return 'Decision'
+  if (route.destinationTable === 'open_questions') return 'Open question'
+  if (route.destinationTable === 'intelligence_synthesized_items') return route.routeType === 'snooze' ? 'Snoozed finding' : 'Ignored finding'
+  return route.destinationTable || 'Destination record'
+}
+
+function actionReviewDestinationHref(route) {
+  if (!route.destinationRecordId) return ''
+  if (route.destinationTable === 'backlog_items') return '/foundation#backlog:' + encodeURIComponent(route.destinationRecordId)
+  if (route.destinationTable === 'decisions') return '/foundation#decisions'
+  if (route.destinationTable === 'open_questions') return '/foundation#open-questions'
+  return ''
+}
+
+function actionReviewTone(value) {
+  var normalized = String(value || '').toLowerCase()
+  if (normalized === 'applied' || normalized.includes('destination')) return 'good'
+  if (normalized === 'pending' || normalized.includes('review') || normalized === 'approved') return 'pending'
+  if (normalized === 'rejected' || normalized.includes('stuck')) return 'risk'
+  return 'connected'
+}
+
+function renderActionReviewPill(text, tone) {
+  var pill = document.createElement('span')
+  pill.className = 'status-pill status-pill-static status-' + actionReviewTone(tone || text)
+  pill.textContent = text
+  return pill
+}
+
+function getActionReviewNote(route) {
+  var key = route.routeId
+  if (actionReviewState.notes[key] == null) actionReviewState.notes[key] = ''
+  return actionReviewState.notes[key]
+}
+
+function setActionReviewNote(route, value) {
+  actionReviewState.notes[route.routeId] = value
+}
+
+function renderActionReviewProof(route) {
+  var proof = route.sourceProof || {}
+  var items = Array.isArray(proof.items) ? proof.items : []
+  var details = document.createElement('details')
+  details.className = 'action-review-proof'
+
+  var summary = document.createElement('summary')
+  summary.textContent = items.length ? 'Source proof (' + items.length + ')' : 'Source proof'
+  details.appendChild(summary)
+
+  if (proof.summary) {
+    var proofSummary = document.createElement('p')
+    proofSummary.className = 'backlog-copy'
+    proofSummary.textContent = proof.summary
+    details.appendChild(proofSummary)
+  }
+
+  if (!items.length) {
+    var empty = document.createElement('p')
+    empty.className = 'backlog-copy backlog-copy-secondary'
+    empty.textContent = 'No human-readable proof is attached yet.'
+    details.appendChild(empty)
+    return details
+  }
+
+  var list = document.createElement('div')
+  list.className = 'action-review-proof-list'
+  items.slice(0, 3).forEach(function(item) {
+    var card = document.createElement('article')
+    card.className = 'action-review-proof-card'
+
+    var title = document.createElement('h5')
+    title.textContent = item.title || 'Source evidence'
+    card.appendChild(title)
+
+    var meta = document.createElement('p')
+    meta.className = 'backlog-copy-secondary'
+    meta.textContent = [
+      item.sourceId,
+      item.sourceType,
+      item.occurredAt ? formatDate(item.occurredAt) : null,
+      item.from ? 'From: ' + item.from : null,
+    ].filter(Boolean).join(' · ')
+    card.appendChild(meta)
+
+    if (item.quote) {
+      var quote = document.createElement('blockquote')
+      quote.textContent = item.quote
+      card.appendChild(quote)
+    } else if (item.context) {
+      var context = document.createElement('p')
+      context.className = 'backlog-copy'
+      context.textContent = item.context
+      card.appendChild(context)
+    }
+
+    if (item.sourceUrl) {
+      var link = document.createElement('a')
+      link.href = item.sourceUrl
+      link.className = 'section-support-link'
+      link.textContent = 'Open source'
+      card.appendChild(link)
+    }
+
+    list.appendChild(card)
+  })
+  details.appendChild(list)
+  return details
+}
+
+function reviewFoundationActionRoute(route, action) {
+  var note = getActionReviewNote(route).trim()
+  if (action === 'reject' && !note) {
+    window.alert('Reject needs a reason so the finding is not silently lost.')
+    return
+  }
+  var confirmCopy = action === 'approve'
+    ? 'Approve this route? It will be ready to apply, but will not write a destination record yet.'
+    : action === 'apply'
+      ? 'Apply this approved route now? This writes the destination record.'
+      : 'Reject this route? The reason will be saved so the finding is not lost.'
+  if (!window.confirm(confirmCopy)) return
+
+  actionReviewState.busyRouteId = route.routeId
+  renderBacklog()
+  foundationMutation('/api/foundation/action-review/' + encodeURIComponent(route.routeId) + '/review', 'POST', {
+    action: action,
+    note: note,
+    reviewedBy: 'Steve',
+  }).then(function(payload) {
+    cache.actionReview = payload.actionReview
+    actionReviewState.busyRouteId = null
+    if (action !== 'reject') actionReviewState.notes[route.routeId] = ''
+    renderBacklog()
+  }).catch(function(error) {
+    actionReviewState.busyRouteId = null
+    window.alert(error.message || 'Action Review update failed.')
+    renderBacklog()
+  })
+}
+
+function renderActionReviewButton(route, action, label, tone) {
+  var button = document.createElement('button')
+  button.type = 'button'
+  button.className = 'action-review-button action-review-button-' + (tone || 'neutral')
+  button.textContent = actionReviewState.busyRouteId === route.routeId ? 'Working...' : label
+  button.disabled = Boolean(actionReviewState.busyRouteId)
+  button.addEventListener('click', function() {
+    reviewFoundationActionRoute(route, action)
+  })
+  return button
+}
+
+function renderActionReviewCard(route) {
+  var details = document.createElement('details')
+  details.className = 'action-review-card'
+
+  var summary = document.createElement('summary')
+  summary.className = 'action-review-card-summary'
+
+  var left = document.createElement('div')
+  left.className = 'action-review-card-left'
+  var title = document.createElement('h4')
+  title.textContent = actionReviewTitle(route)
+  left.appendChild(title)
+
+  var meta = document.createElement('p')
+  meta.textContent = [
+    route.routeId,
+    'Owner: ' + (route.owner || 'missing'),
+    actionReviewDestinationLabel(route),
+    route.actionReview && route.actionReview.ageDays !== null ? route.actionReview.ageDays + ' days old' : null,
+  ].filter(Boolean).join(' · ')
+  left.appendChild(meta)
+  summary.appendChild(left)
+
+  var pills = document.createElement('div')
+  pills.className = 'action-review-card-pills'
+  pills.appendChild(renderActionReviewPill(route.actionReview?.plainStatus || route.approvalStatus, route.approvalStatus))
+  if (route.actionReview?.isAgedPending) pills.appendChild(renderActionReviewPill('Aged', 'pending'))
+  if (route.destinationRecordId) pills.appendChild(renderActionReviewPill('Destination proof', 'applied'))
+  summary.appendChild(pills)
+
+  details.appendChild(summary)
+
+  var body = document.createElement('div')
+  body.className = 'action-review-card-body'
+
+  var copy = document.createElement('p')
+  copy.className = 'backlog-copy'
+  copy.textContent = actionReviewSummary(route)
+  body.appendChild(copy)
+
+  body.appendChild(renderLabeledCopy('backlog-note', 'What this would create', actionReviewDestinationLabel(route)))
+  body.appendChild(renderLabeledCopy('backlog-note', 'Why it was routed', route.routingReason || 'No routing reason recorded.'))
+
+  if (route.destinationRecordId) {
+    var href = actionReviewDestinationHref(route)
+    var destination = document.createElement('p')
+    destination.className = 'backlog-next'
+    var strong = document.createElement('strong')
+    strong.textContent = 'Applied proof:'
+    destination.appendChild(strong)
+    destination.appendChild(document.createTextNode(' ' + actionReviewDestinationLabel(route) + ' ' + route.destinationRecordId))
+    if (href) {
+      destination.appendChild(document.createTextNode(' '))
+      var link = document.createElement('a')
+      link.href = href
+      link.textContent = 'Open'
+      destination.appendChild(link)
+    }
+    body.appendChild(destination)
+  }
+
+  body.appendChild(renderActionReviewProof(route))
+
+  if (route.approvalStatus === 'pending' || route.approvalStatus === 'approved') {
+    var reviewBox = document.createElement('div')
+    reviewBox.className = 'action-review-controls'
+
+    var noteLabel = document.createElement('label')
+    var noteText = document.createElement('span')
+    noteText.textContent = 'Review note'
+    noteLabel.appendChild(noteText)
+    var noteInput = document.createElement('input')
+    noteInput.type = 'text'
+    noteInput.placeholder = 'Required for Reject, optional for Approve/Apply'
+    noteInput.value = getActionReviewNote(route)
+    noteInput.addEventListener('input', function() {
+      setActionReviewNote(route, noteInput.value)
+    })
+    noteLabel.appendChild(noteInput)
+    reviewBox.appendChild(noteLabel)
+
+    var actions = document.createElement('div')
+    actions.className = 'action-review-actions'
+    if (route.approvalStatus === 'pending') {
+      actions.appendChild(renderActionReviewButton(route, 'approve', 'Approve', 'primary'))
+      actions.appendChild(renderActionReviewButton(route, 'reject', 'Reject', 'danger'))
+    } else if (route.approvalStatus === 'approved') {
+      actions.appendChild(renderActionReviewButton(route, 'apply', 'Apply approved route', 'primary'))
+      actions.appendChild(renderActionReviewButton(route, 'reject', 'Reject', 'danger'))
+    }
+    reviewBox.appendChild(actions)
+    body.appendChild(reviewBox)
+  }
+
+  details.appendChild(body)
+  return details
+}
+
+function renderActionReviewPanel(actionReview) {
+  var panel = document.createElement('section')
+  panel.className = 'panel action-review-panel'
+  panel.id = 'action-review'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var copy = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Action Loop'
+  copy.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Action Review'
+  copy.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Foundation > Backlog > Action Review. Review system findings, approve the useful ones, reject weak ones with a reason, then apply approved routes into real work records.'
+  copy.appendChild(intro)
+  header.appendChild(copy)
+  panel.appendChild(header)
+
+  if (actionReview && actionReview.error) {
+    var errorCopy = document.createElement('p')
+    errorCopy.className = 'backlog-copy'
+    errorCopy.textContent = 'Action Review could not load: ' + actionReview.error
+    panel.appendChild(errorCopy)
+    return panel
+  }
+
+  var summary = actionReview?.summary || {}
+  var summaryRow = document.createElement('div')
+  summaryRow.className = 'action-review-summary'
+  summaryRow.appendChild(renderStatusCard({
+    label: 'Needs review',
+    status: summary.pendingRoutes ? 'pending' : 'connected',
+    detail: (summary.pendingRoutes || 0) + ' pending routes waiting for a human decision.',
+  }))
+  summaryRow.appendChild(renderStatusCard({
+    label: 'Ready to apply',
+    status: summary.approvedRoutes ? 'pending' : 'connected',
+    detail: (summary.approvedRoutes || 0) + ' approved routes ready to write destination records.',
+  }))
+  summaryRow.appendChild(renderStatusCard({
+    label: 'Applied',
+    status: summary.appliedRoutesWithDestinationRecord ? 'connected' : 'pending',
+    detail: (summary.appliedRoutes || 0) + ' applied routes; ' + (summary.appliedRoutesWithDestinationRecord || 0) + ' have destination proof.',
+  }))
+  summaryRow.appendChild(renderStatusCard({
+    label: 'Aged / stuck',
+    status: summary.agedPendingRoutes ? 'pending' : 'connected',
+    detail: (summary.agedPendingRoutes || 0) + ' pending routes are older than ' + ((actionReview?.thresholds && actionReview.thresholds.agedPendingDays) || 3) + ' days.',
+  }))
+  panel.appendChild(summaryRow)
+
+  var routes = Array.isArray(actionReview?.routes) ? actionReview.routes.slice() : []
+  var activeRoutes = routes.filter(function(route) {
+    return route.approvalStatus === 'pending' || route.approvalStatus === 'approved'
+  })
+  var closedRoutes = routes.filter(function(route) {
+    return route.approvalStatus === 'applied' || route.approvalStatus === 'rejected'
+  })
+
+  var activeStack = document.createElement('div')
+  activeStack.className = 'action-review-stack'
+  var activeTitle = document.createElement('h4')
+  activeTitle.textContent = 'Needs Human Review'
+  activeStack.appendChild(activeTitle)
+  if (!activeRoutes.length) {
+    var empty = document.createElement('p')
+    empty.className = 'lane-empty'
+    empty.textContent = 'No pending or approved routes need review right now.'
+    activeStack.appendChild(empty)
+  } else {
+    activeRoutes.forEach(function(route) {
+      activeStack.appendChild(renderActionReviewCard(route))
+    })
+  }
+  panel.appendChild(activeStack)
+
+  var closedDetails = document.createElement('details')
+  closedDetails.className = 'action-review-history'
+  var closedSummary = document.createElement('summary')
+  closedSummary.textContent = 'Applied / rejected history (' + closedRoutes.length + ')'
+  closedDetails.appendChild(closedSummary)
+  var closedStack = document.createElement('div')
+  closedStack.className = 'action-review-stack'
+  if (!closedRoutes.length) {
+    var noneClosed = document.createElement('p')
+    noneClosed.className = 'lane-empty'
+    noneClosed.textContent = 'No applied or rejected routes yet.'
+    closedStack.appendChild(noneClosed)
+  } else {
+    closedRoutes.forEach(function(route) {
+      closedStack.appendChild(renderActionReviewCard(route))
+    })
+  }
+  closedDetails.appendChild(closedStack)
+  panel.appendChild(closedDetails)
+  return panel
 }
 
 function formatDecisionStatusLabel(status) {
@@ -4013,6 +4383,7 @@ function renderQuestionEditor(item) {
 var cache = {
   sourceOfTruth: null,
   foundationHub: null,
+  actionReview: null,
   systemInventory: null,
   buildLog: null,
   sheetStructureStatus: null,
@@ -4067,6 +4438,22 @@ function fetchFoundationHub() {
     return res.json()
   }).then(function(data) {
     cache.foundationHub = data
+    return data
+  })
+}
+
+function fetchActionReview() {
+  if (cache.actionReview) return Promise.resolve(cache.actionReview)
+
+  return foundationRead('/api/foundation/action-review').then(function(res) {
+    if (!res.ok) {
+      return res.json().catch(function() { return null }).then(function(payload) {
+        throw parseApiErrorPayload(payload, 'Action Review failed to load.')
+      })
+    }
+    return res.json()
+  }).then(function(data) {
+    cache.actionReview = data
     return data
   })
 }
@@ -4197,6 +4584,7 @@ function setStoredAdminToken(value) {
 function clearFoundationCaches() {
   cache.sourceOfTruth = null
   cache.foundationHub = null
+  cache.actionReview = null
   cache.systemInventory = null
   cache.fubLeadSources = {}
   cache.ownersLeadSourceGovernance = null
@@ -7431,7 +7819,14 @@ function renderBacklog() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading backlog...</p>'
 
-  fetchFoundationHub().then(function(hub) {
+  Promise.all([
+    fetchFoundationHub(),
+    fetchActionReview().catch(function(error) {
+      return { error: error.message || 'Action Review failed to load.' }
+    }),
+  ]).then(function(results) {
+    var hub = results[0]
+    var actionReview = results[1]
     var focusedIds = getSection() === 'backlog'
       ? getSectionFocus().split(',').map(function(id) { return id.trim() }).filter(Boolean)
       : []
@@ -7488,6 +7883,8 @@ function renderBacklog() {
       [renderAdminTokenPanel(), renderBacklogCreatePanel(hub)],
       false
     ))
+
+    container.appendChild(renderActionReviewPanel(actionReview))
 
     var boardPanel = document.createElement('section')
     boardPanel.className = 'panel'

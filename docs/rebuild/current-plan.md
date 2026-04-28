@@ -233,7 +233,7 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Governed synthesis now persists owner-suggested synthesized items from source-backed facts and hybrid evidence.
    - Source-backed strategy/source-contract, goal, operating, KPI, source-health, and retrieved-evidence grounding is now persisted in `intelligence_synthesis_facts`.
    - Action Router v1 now proposes governed routes into decisions, backlog tasks, questions, ignore/snooze, or owner-bound action lanes with back-links and human approval required before destination writes.
-   - `ACTION-REVIEW-APPLY-001` is the next product slice now that backlog hygiene and process gates are in place: make the 18 pending routes easy to review, approve/reject, apply, and confirm with destination-record proof. Do not reopen broad `ACTION-ROUTER-001` for this.
+   - `ACTION-REVIEW-APPLY-001` is done for v1: Foundation > Backlog > Action Review makes pending and approved routes visible, supports approve/reject/apply, requires reject reasons, and shows destination-record proof after apply. Do not reopen broad `ACTION-ROUTER-001` for this.
 
 10. `RESEARCH-INBOX-001` — Park the pre-backlog research inbox.
    - This captures Steve's outside ideas, YouTube/Mycro/myICOR/course/article inputs, and AI-system-building patterns before they become committed backlog. Workflow: capture -> plain-English triage -> promote to backlog or archive with reason.
@@ -252,7 +252,7 @@ Current call:
 - pause Strategy Hub UI polish
 - do not build the Scoper yet
 - do not start Agent Factory / Health Auditor / cleanup agents
-- return to Foundation visibility, freshness, and checkpoint discipline
+- stop and re-plan with Steve after the first Action Review slice
 
 Order now:
 
@@ -272,7 +272,10 @@ Order now:
    - Runtime Health now exposes Extraction Control: Coverage By Target.
    - The coverage panel shows last success, last failure, next bite, item totals, succeeded/skipped/failed counts, top failed/skipped reasons, and remaining backlog indicators where lanes already expose them.
    - `EXTRACT-CONTROL-001` v1 is closed; failed-item retry/backoff remains in `EXTRACT-RETRY-001`, and surface breadcrumb/update polish remains in `FOUNDATION-SURFACE-UPDATES-001`.
-5. Resume existing Foundation command order.
+5. `ACTION-REVIEW-APPLY-001` — done for v1 / P0.
+   - Foundation > Backlog > Action Review is the first human action-loop surface.
+   - Pending routes can be approved or rejected with a required reason; approved routes can be applied; applied routes show destination-record proof.
+   - Next is not automatic. Stop and re-plan with Steve before un-pausing Scoper, dev intelligence, agent-managed backlog, Strategy UI, or another Foundation slice.
    - runtime/source freshness
    - extraction/corpus hardening
    - closed-loop action/resolution feedback

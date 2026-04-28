@@ -4388,6 +4388,93 @@ app.get('/api/strategic-execution/action-routes', requireAdminToken, async (_req
   }
 })
 
+const ACTION_REVIEW_AGED_ROUTE_DAYS = 3
+
+function getRouteAgeDays(route) {
+  const timestamp = route?.routedAt || route?.createdAt || route?.updatedAt || ''
+  const parsed = new Date(timestamp)
+  if (Number.isNaN(parsed.getTime())) return null
+  return Math.max(0, Math.floor((Date.now() - parsed.getTime()) / (1000 * 60 * 60 * 24)))
+}
+
+function actionReviewDestinationLabel(route) {
+  const table = String(route?.destinationTable || '').trim()
+  if (table === 'backlog_items') return 'Backlog work item'
+  if (table === 'decisions') return 'Decision'
+  if (table === 'open_questions') return 'Open question'
+  if (table === 'intelligence_synthesized_items') {
+    return route?.routeType === 'snooze' ? 'Snoozed finding' : 'Ignored finding'
+  }
+  return table || 'Destination record'
+}
+
+function buildFoundationActionReviewSnapshot(actionRouter) {
+  const routes = (actionRouter?.recentRoutes || []).map(route => {
+    const ageDays = getRouteAgeDays(route)
+    const isAgedPending = route.approvalStatus === 'pending' &&
+      ageDays !== null &&
+      ageDays >= ACTION_REVIEW_AGED_ROUTE_DAYS
+    return {
+      ...route,
+      actionReview: {
+        ageDays,
+        isAgedPending,
+        destinationLabel: actionReviewDestinationLabel(route),
+        plainStatus: route.approvalStatus === 'pending'
+          ? 'Needs review'
+          : route.approvalStatus === 'approved'
+            ? 'Approved, ready to apply'
+            : route.approvalStatus === 'applied'
+              ? 'Applied to its destination'
+              : route.approvalStatus === 'rejected'
+                ? 'Rejected by human review'
+                : String(route.approvalStatus || 'Unknown'),
+      },
+    }
+  })
+  const pendingRoutes = routes.filter(route => route.approvalStatus === 'pending')
+  const approvedRoutes = routes.filter(route => route.approvalStatus === 'approved')
+  const appliedRoutes = routes.filter(route => route.approvalStatus === 'applied')
+  const rejectedRoutes = routes.filter(route => route.approvalStatus === 'rejected')
+  const agedPendingRoutes = routes.filter(route => route.actionReview?.isAgedPending)
+  return {
+    generatedAt: new Date().toISOString(),
+    visibleHome: 'Foundation > Backlog > Action Review',
+    thresholds: {
+      agedPendingDays: ACTION_REVIEW_AGED_ROUTE_DAYS,
+    },
+    summary: {
+      totalRoutes: actionRouter?.totalRoutes || routes.length,
+      pendingRoutes: pendingRoutes.length,
+      approvedRoutes: approvedRoutes.length,
+      appliedRoutes: appliedRoutes.length,
+      rejectedRoutes: rejectedRoutes.length,
+      agedPendingRoutes: agedPendingRoutes.length,
+      appliedRoutesWithDestinationRecord: actionRouter?.appliedRoutesWithDestinationRecord || 0,
+      routesRequiringApproval: actionRouter?.routesRequiringApproval || 0,
+      routesWithSourceProvenance: actionRouter?.routesWithSourceProvenance || 0,
+      routesByDestination: actionRouter?.routesByDestination || [],
+      routesByType: actionRouter?.routesByType || [],
+    },
+    routes,
+  }
+}
+
+app.get('/api/foundation/action-review', requireAdminToken, async (_req, res) => {
+  try {
+    const actionRouter = await getActionRouterSnapshot({ limit: 100 })
+    cacheHeadersNoStore(res)
+    res.json(buildFoundationActionReviewSnapshot(actionRouter))
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_action_review_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation Action Review.'
+    )
+  }
+})
+
 function normalizeRouteOwnerInput(value) {
   const normalized = String(value || '').trim()
   if (!normalized || normalized === 'keep-current') return ''
@@ -4497,6 +4584,59 @@ app.post('/api/strategic-execution/action-routes/:routeId/review', requireAdminT
       500,
       'strategy_action_route_review_failed',
       error instanceof Error ? error.message : 'Failed to review Strategy Hub action route.'
+    )
+  }
+})
+
+app.post('/api/foundation/action-review/:routeId/review', requireAdminToken, async (req, res) => {
+  try {
+    const routeId = String(req.params.routeId || '').trim()
+    const action = String(req.body?.action || '').trim()
+    const note = String(req.body?.note || '').trim()
+    const actor = getRequestActor(req)
+    const reviewedBy = String(req.body?.reviewedBy || req.body?.approvedBy || req.body?.approved_by || actor).trim()
+    let route = await getActionRoute(routeId)
+    if (!route) {
+      sendApiError(res, 404, 'action_route_not_found', `Action route not found: ${routeId}`)
+      return
+    }
+
+    if (action === 'approve') {
+      if (route.approvalStatus !== 'pending') {
+        sendApiError(res, 409, 'action_route_not_approvable', `Action route must be pending before approval. Current status: ${route.approvalStatus}.`)
+        return
+      }
+      route = await approveActionRoute(routeId, { approvedBy: reviewedBy, approvalNote: note }, actor)
+    } else if (action === 'apply') {
+      if (route.approvalStatus !== 'approved') {
+        sendApiError(res, 409, 'action_route_not_applicable', `Action route must be approved before apply. Current status: ${route.approvalStatus}.`)
+        return
+      }
+      route = await applyApprovedActionRoute(routeId, { applyNote: note }, actor)
+    } else if (action === 'reject') {
+      if (!note) {
+        sendApiError(res, 400, 'action_route_reject_reason_required', 'Reject needs a reason so the finding is not silently lost.')
+        return
+      }
+      if (!['pending', 'approved'].includes(route.approvalStatus)) {
+        sendApiError(res, 409, 'action_route_not_rejectable', `Action route cannot be rejected from status ${route.approvalStatus}.`)
+        return
+      }
+      route = await rejectActionRoute(routeId, { rejectedBy: reviewedBy, rejectionNote: note }, actor)
+    } else {
+      sendApiError(res, 400, 'unsupported_action_review_action', 'Supported actions: approve, apply, reject.')
+      return
+    }
+
+    const actionRouter = await getActionRouterSnapshot({ limit: 100 })
+    cacheHeadersNoStore(res)
+    res.json({ route, actionReview: buildFoundationActionReviewSnapshot(actionRouter) })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_action_review_mutation_failed',
+      error instanceof Error ? error.message : 'Failed to update Foundation Action Review route.'
     )
   }
 })

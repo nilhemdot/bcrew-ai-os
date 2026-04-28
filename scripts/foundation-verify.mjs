@@ -304,6 +304,8 @@ async function main() {
   const processShipCheckDoc = await readRepoFile('docs/process/ship-check.md')
   const processHooksApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-HOOKS-001.json')
   const processHooksApproval = JSON.parse(processHooksApprovalSource)
+  const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
+  const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
@@ -1344,6 +1346,7 @@ async function main() {
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
   const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
+  const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=40')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
@@ -1788,6 +1791,10 @@ async function main() {
     (build.backlogIds || []).includes('PROCESS-HOOKS-001') &&
       build.closeoutKey === 'process-hooks-v1'
   )
+  const buildLogActionReviewApplyBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('ACTION-REVIEW-APPLY-001') &&
+      build.closeoutKey === 'action-review-apply-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1961,7 +1968,7 @@ async function main() {
     checks,
     buildLogOperatorUxCaptureBuild?.operatorCloseout === true &&
       buildLogOperatorUxCaptureBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SURFACE-UPDATES-001' && item.lane === 'scoped') &&
-      buildLogOperatorUxCaptureBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && item.lane === 'scoped') &&
+      buildLogOperatorUxCaptureBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && ['scoped', 'done'].includes(item.lane)) &&
       buildLogOperatorUxCaptureBuild.proofCommands?.includes('npm run foundation:verify') &&
       /plain-English Foundation UX standard/i.test(buildLogOperatorUxCaptureBuild.whatChanged || '') &&
       /Overview -> Systems -> Backlog -> Recent Work/i.test(buildLogOperatorUxCaptureBuild.whatItDoes || '') &&
@@ -1976,7 +1983,7 @@ async function main() {
     buildLogServedCodeTrustBuild?.operatorCloseout === true &&
       buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'RUNTIME-SUPERVISOR-001' && item.lane === 'scoped') &&
       buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'SYSTEM-010' && item.lane === 'scoped') &&
-      buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && item.lane === 'scoped') &&
+      buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && ['scoped', 'done'].includes(item.lane)) &&
       buildLogServedCodeTrustBuild.proofCommands?.includes('npm run foundation:verify') &&
       /server-start commit|repo HEAD|restart command/i.test(buildLogServedCodeTrustBuild.whatItDoes || '') &&
       /ACTION-REVIEW-APPLY-001/i.test(buildLogServedCodeTrustBuild.reviewNext || '') &&
@@ -2022,7 +2029,7 @@ async function main() {
     buildLogDevProcessAuditBuild?.operatorCloseout === true &&
       buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'DEV-PROCESS-AUDIT-001' && item.lane === 'done') &&
       buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && item.lane === 'scoped') &&
+      buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && ['scoped', 'done'].includes(item.lane)) &&
       buildLogDevProcessAuditBuild.proofCommands?.includes('npm run foundation:verify') &&
       /exactly one owner/i.test(buildLogDevProcessAuditBuild.whatItDoes || '') &&
       /PROCESS-HOOKS-001/i.test(buildLogDevProcessAuditBuild.reviewNext || '') &&
@@ -2036,7 +2043,7 @@ async function main() {
     checks,
     buildLogProcessHooksBuild?.operatorCloseout === true &&
       buildLogProcessHooksBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && item.lane === 'done') &&
-      buildLogProcessHooksBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && item.lane === 'scoped') &&
+      buildLogProcessHooksBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && ['scoped', 'done'].includes(item.lane)) &&
       buildLogProcessHooksBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
       buildLogProcessHooksBuild.proofCommands?.includes('npm run foundation:verify') &&
       /approval-file evidence|served-code proof/i.test(buildLogProcessHooksBuild.proofStatus || '') &&
@@ -2046,6 +2053,20 @@ async function main() {
     buildLogProcessHooksBuild
       ? `${buildLogProcessHooksBuild.shortSha} / ${buildLogProcessHooksBuild.acceptanceState} / ${buildLogProcessHooksBuild.proofStatus}`
       : 'missing process hooks closeout',
+  )
+  ensure(
+    checks,
+    buildLogActionReviewApplyBuild?.operatorCloseout === true &&
+      buildLogActionReviewApplyBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && item.lane === 'done') &&
+      buildLogActionReviewApplyBuild.proofCommands?.includes('npm run foundation:verify') &&
+      buildLogActionReviewApplyBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      /Foundation > Backlog > Action Review/i.test(buildLogActionReviewApplyBuild.whereItLives?.join(' ') || '') &&
+      /destination-record proof|process gate/i.test(buildLogActionReviewApplyBuild.proofStatus || '') &&
+      /Stop and re-plan with Steve/i.test(buildLogActionReviewApplyBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for Action Review apply loop',
+    buildLogActionReviewApplyBuild
+      ? `${buildLogActionReviewApplyBuild.shortSha} / ${buildLogActionReviewApplyBuild.acceptanceState} / ${buildLogActionReviewApplyBuild.proofStatus}`
+      : 'missing Action Review closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2783,8 +2804,8 @@ async function main() {
       !Number.isNaN(new Date(processHooksApproval.approvedAt).getTime()) &&
       processHooksText.includes('npm run process:ship-check') &&
       processHooksText.includes('V1 is manual/scripted') &&
-      currentPlan.includes('ACTION-REVIEW-APPLY-001` is the next product slice now') &&
-      currentState.includes('ACTION-REVIEW-APPLY-001` is the next product build slice'),
+      currentPlan.includes('`ACTION-REVIEW-APPLY-001` is done for v1') &&
+      currentState.includes('`ACTION-REVIEW-APPLY-001` is done for v1'),
     'PROCESS-HOOKS-001 ships evidence-based process ship check before action-loop work',
     processHooks
       ? `${processHooks.lane} / approval=${processHooksApproval.score} / script=process:ship-check`
@@ -2836,22 +2857,68 @@ async function main() {
     actionReviewApply?.nextAction,
     actionReviewApply?.statusNote,
   ].filter(Boolean).join('\n')
+  const actionReviewApplyTextLower = actionReviewApplyText.toLowerCase()
   ensure(
     checks,
-    actionReviewApply?.lane === 'scoped' &&
+    actionReviewApply?.lane === 'done' &&
       actionReviewApply?.priority === 'P0' &&
       actionReviewApplyText.includes('18 pending') &&
-      actionReviewApplyText.includes('Approve/Reject') &&
-      actionReviewApplyText.includes('destination record') &&
-      actionReviewApplyText.includes('aged-route') &&
-      actionReviewApplyText.includes('apply-success-rate verifier') &&
-      actionReviewApplyText.includes('Resolution hardening waits') &&
-      currentPlan.includes('`ACTION-REVIEW-APPLY-001` is the next product slice now') &&
-      currentState.includes('`ACTION-REVIEW-APPLY-001` is the next product build slice'),
-    'Action Router review/apply child card is scoped before coding',
+      actionReviewApplyText.includes('Foundation > Backlog > Action Review') &&
+      actionReviewApplyTextLower.includes('approve') &&
+      actionReviewApplyTextLower.includes('reject') &&
+      actionReviewApplyTextLower.includes('apply') &&
+      actionReviewApplyTextLower.includes('destination proof') &&
+      actionReviewApplyTextLower.includes('aged/stuck') &&
+      actionReviewApplyText.includes('Stop and re-plan with Steve') &&
+      currentPlan.includes('`ACTION-REVIEW-APPLY-001` is done for v1') &&
+      currentState.includes('`ACTION-REVIEW-APPLY-001` is done for v1'),
+    'Action Router review/apply child card is closed with visible home and stop-to-replan guardrail',
     actionReviewApply
       ? `${actionReviewApply.lane} / ${actionReviewApply.priority} / ${actionReviewApply.title}`
       : 'missing ACTION-REVIEW-APPLY-001',
+  )
+  ensure(
+    checks,
+    actionReviewApi.visibleHome === 'Foundation > Backlog > Action Review' &&
+      actionReviewApi.summary?.totalRoutes === actionRouterSnapshot.totalRoutes &&
+      actionReviewApi.summary?.pendingRoutes === actionRouterSnapshot.pendingRoutes &&
+      actionReviewApi.summary?.appliedRoutesWithDestinationRecord === actionRouterSnapshot.appliedRoutesWithDestinationRecord &&
+      actionReviewApi.thresholds?.agedPendingDays === 3 &&
+      Array.isArray(actionReviewApi.routes) &&
+      actionReviewApi.routes.length >= actionRouterSnapshot.recentRoutes.length &&
+      actionReviewApi.routes.some(route => route.approvalStatus === 'pending' && route.actionReview?.plainStatus === 'Needs review') &&
+      actionReviewApi.routes.some(route => route.approvalStatus === 'applied' && route.destinationRecordId),
+    'Foundation Action Review API exposes pending/apply state and destination proof',
+    `${actionReviewApi.summary?.pendingRoutes || 0} pending / ${actionReviewApi.summary?.appliedRoutesWithDestinationRecord || 0} applied destination proofs / home=${actionReviewApi.visibleHome || 'missing'}`,
+  )
+  ensure(
+    checks,
+    serverSource.includes("app.get('/api/foundation/action-review'") &&
+      serverSource.includes("app.post('/api/foundation/action-review/:routeId/review'") &&
+      serverSource.includes("action === 'approve'") &&
+      serverSource.includes("action === 'apply'") &&
+      serverSource.includes("action === 'reject'") &&
+      serverSource.includes('Reject needs a reason so the finding is not silently lost.') &&
+      foundationUiSource.includes('function renderActionReviewPanel') &&
+      foundationUiSource.includes('/api/foundation/action-review') &&
+      foundationUiSource.includes('Foundation > Backlog > Action Review') &&
+      foundationUiSource.includes('Reject needs a reason so the finding is not silently lost.') &&
+      foundationUiSource.includes('Applied proof:') &&
+      foundationUiSource.includes("renderActionReviewButton(route, 'approve'") &&
+      foundationUiSource.includes("renderActionReviewButton(route, 'apply'") &&
+      foundationUiSource.includes("renderActionReviewButton(route, 'reject'"),
+    'Foundation Backlog renders Action Review approve/reject/apply controls',
+    'API wrapper, plain-English panel, reject reason, and destination proof are present',
+  )
+  ensure(
+    checks,
+    actionReviewApproval.cardId === 'ACTION-REVIEW-APPLY-001' &&
+      Number(actionReviewApproval.score) >= 9.8 &&
+      actionReviewApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(actionReviewApproval.approvedAt).getTime()) &&
+      /risks and mitigations/i.test(actionReviewApproval.approvalSource || ''),
+    'Action Review plan approval evidence exists for process gate',
+    `${actionReviewApproval.score || 'missing'} by ${actionReviewApproval.approvedBy || 'missing'}`,
   )
   const researchInbox = (foundationHub.backlogItems || []).find(item => item.id === 'RESEARCH-INBOX-001') || null
   const researchInboxText = [

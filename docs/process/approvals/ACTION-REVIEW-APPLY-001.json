@@ -1,0 +1,8 @@
+{
+  "cardId": "ACTION-REVIEW-APPLY-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-28T22:30:16Z",
+  "approvalSource": "Steve approved the revised plan in chat after risks and mitigations were added.",
+  "notes": "Approval covers Foundation > Backlog > Action Review v1: pending route cards, Approve, Reject with required reason, Apply approved route, destination-record proof, aged/stuck visibility, verifier coverage, Recent Builds closeout, and process:ship-check before push."
+}
