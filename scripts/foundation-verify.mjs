@@ -1841,7 +1841,10 @@ async function main() {
   const sourceLifecycleContent = (foundationHub.backlogItems || []).find(item => item.id === 'MKT-004') || null
   const systemStrategyReview = (foundationHub.backlogItems || []).find(item => item.id === 'SYSTEM-STRATEGY-REVIEW-001') || null
   const strategyMeetingReady = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGY-HUB-MEETING-READY-001') || null
+  const strategicIntel = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGIC-INTEL-001') || null
+  const intelScoper = (foundationHub.backlogItems || []).find(item => item.id === 'INTEL-SCOPER-001') || null
   const strategyQuarter = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGY-QUARTER-001') || null
+  const modelRouting = (foundationHub.backlogItems || []).find(item => item.id === 'MODEL-ROUTING-001') || null
   const agentFactory = (foundationHub.backlogItems || []).find(item => item.id === 'AGENT-005') || null
   const backlogItemText = item => [
     item?.title,
@@ -1852,25 +1855,50 @@ async function main() {
   ].filter(Boolean).join('\n')
   const systemStrategyReviewText = backlogItemText(systemStrategyReview)
   const strategyMeetingReadyText = backlogItemText(strategyMeetingReady)
+  const strategicIntelText = backlogItemText(strategicIntel)
+  const intelScoperText = backlogItemText(intelScoper)
   const strategyQuarterText = backlogItemText(strategyQuarter)
+  const modelRoutingText = backlogItemText(modelRouting)
   const agentFactoryText = backlogItemText(agentFactory)
   ensure(
     checks,
     systemStrategyReview?.lane === 'scoped' &&
       systemStrategyReviewText.includes('function-vs-form testing') &&
-      strategyMeetingReady?.lane === 'scoped' &&
+      systemStrategyReviewText.includes('memory-versus-repo-truth discipline') &&
+      strategyMeetingReady?.lane === 'executing' &&
       strategyMeetingReadyText.includes('plain-English') &&
       strategyMeetingReadyText.includes('live ownership meetings') &&
+      strategyMeetingReadyText.includes('1 day / 1 week / 1 month / 1 quarter / custom') &&
+      strategicIntel?.lane === 'scoped' &&
+      strategicIntel?.priority === 'P0' &&
+      strategicIntelText.includes('intelligence_strategic_issues') &&
+      strategicIntelText.includes('urgency, impact, confidence, and staleness') &&
+      strategicIntelText.includes('resolution feedback') &&
+      strategicIntelText.includes('10x value metrics') &&
+      intelScoper?.lane === 'scoped' &&
+      intelScoper?.priority === 'P0' &&
+      intelScoperText.includes('gap analysis') &&
+      intelScoperText.includes('Every verified claim must cite') &&
+      intelScoperText.includes('minimal Agent Spec') &&
       strategyQuarter?.lane === 'scoped' &&
+      strategyQuarter?.priority === 'P1' &&
       strategyQuarterText.includes('PostgreSQL-backed canonical records') &&
       strategyQuarterText.includes('Strategy Hub owner/admin forms') &&
       strategyQuarterText.includes('strategy-quarter fact types') &&
+      strategyQuarterText.includes('quarter context/input layer') &&
+      modelRouting?.lane === 'scoped' &&
+      modelRouting?.priority === 'P1' &&
+      modelRoutingText.includes('subscriptions are for humans') &&
+      modelRoutingText.includes('official APIs and governed adapters') &&
       agentFactoryText.includes('STRATEGY-QUARTER-001 has been used in production for at least two weekly ownership cycles'),
-    'AIOS strategy follow-up cards are pinned with data store, write path, synthesis path, and agent deferral gate',
+    'AIOS Strategic Intelligence next-leg cards are pinned with UX, schema, Scoper, quarter-context, model-routing, and agent deferral gates',
     [
       `review=${systemStrategyReview?.lane || 'missing'}`,
       `meeting=${strategyMeetingReady?.lane || 'missing'}`,
+      `intel=${strategicIntel?.lane || 'missing'}`,
+      `scoper=${intelScoper?.lane || 'missing'}`,
       `quarter=${strategyQuarter?.lane || 'missing'}`,
+      `model=${modelRouting?.lane || 'missing'}`,
       `agent=${agentFactory?.lane || 'missing'}`,
     ].join(' / '),
   )

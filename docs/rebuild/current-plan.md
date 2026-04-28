@@ -200,6 +200,37 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Source-backed strategy/source-contract, goal, operating, KPI, source-health, and retrieved-evidence grounding is now persisted in `intelligence_synthesis_facts`.
    - Action Router v1 now proposes governed routes into decisions, backlog tasks, questions, ignore/snooze, or owner-bound action lanes with back-links and human approval required before destination writes.
 
+### Next Leg — Strategic Intelligence Operating Loop
+
+This is the active next-leg plan after the 2026-04-28 Strategy Hub route review. The goal is not a one-time quarterly planning dashboard. The goal is a continuously useful Strategic Intelligence loop that mines company signals, surfaces needle-moving issues, scopes what is already answered versus truly missing, and helps the ownership team move those issues to resolution.
+
+Order:
+
+1. `STRATEGY-HUB-MEETING-READY-001` — executing / P0.
+   - Fix the current Strategy Hub route review so Steve can use it in weekly ownership meetings.
+   - Required: human-readable source proof instead of internal IDs, button legend/tooltips, owner picker, snooze durations, Strategy-local applied/done visibility, and reject confirmation.
+2. `STRATEGIC-INTEL-001` — scoped / P0.
+   - Spec gate before more Strategic Intelligence code.
+   - Must define the strategic issue data model, continuous mining cadence, urgency/impact/confidence/staleness fields, resolution feedback writes, old scout/director/scoper/sprint mapping, and 10x value metrics.
+3. `INTEL-SCOPER-001` — scoped / P0.
+   - Build the gap-resolving Scoper, not a generic research brief.
+   - It must answer what is already verified, what is partial, what actually remains, who likely owns it, and the smallest useful next steps, with evidence pointers for every verified claim.
+4. `STRATEGY-QUARTER-001` — scoped / P1.
+   - Build the Strategy Quarter input/context layer: quarter theme, critical number, unresolved strategic issues, department targets, open decisions, weekly outputs, and meeting follow-through.
+   - This gives Strategic Intelligence context; it is not the value layer by itself.
+5. `MODEL-ROUTING-001` — scoped / P1.
+   - Document model/runtime routing doctrine before Scoper and agent work expand.
+   - Preserve the boundary: subscriptions are for humans/operator use when allowed and logged; system runtime uses official APIs and governed adapters by default.
+6. `SYSTEM-STRATEGY-REVIEW-001` — scoped / P1.
+   - Mine Apr 26-28 builder/reviewer conversations and promote durable doctrine into repo truth/backlog/verifiers.
+
+Discipline rules for this leg:
+
+- Memory is not backlog. If a conversation changes the build, it must land in repo truth or a DB-backed backlog card in the same session.
+- Each card closes only on measurable acceptance criteria, proof, and a human-readable sample where applicable.
+- Steve reads the Strategy/Scoper sample rows before closeout; verifier success alone is not enough.
+- Do not start Agent Factory, System Health Auditor, cleanup agents, or department director agents until the existing deferral gate is met.
+
 ### Phase 0 — Keep The Existing Proof Stable
 
 Goal: do not break the working Foundation while we activate it.
@@ -657,7 +688,7 @@ Strategy Hub should:
 - produce a tight owner-level strategy packet
 - track follow-through after the meeting
 
-Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface now renders the Strategy Hub v2 source-to-gap command view: live goal truth, operating source cards, retrieval eval status, and Action Router review/promote records. The advisor endpoint still returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation remains disabled. The Foundation spine is closed enough for routed review and apply: `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, `SYNTHESIS-ENGINE-001`, and `ACTION-ROUTER-001` are done for v1, with one Action Router route approved/applied into `ACTION-001`. `npm run intelligence:retrieval-eval` guards 20 expected hybrid retrieval matches across Gmail, Meetings, and Missive before Strategy Hub depends on evidence recall. Next Strategy Hub hardening should deepen route resolution, due dates, person-owner resolution, and missing-reader source cards; it must not revive chat/advisor polish.
+Latest proof remains useful historical/debug evidence: `strategy:evidence-packet` generated source-backed packet material from mined candidates, Drive/video/email/meeting artifacts, strategy docs, backlog/decision/runtime facts, and live goal/operating truth. That work exposed the right operating metrics and proved the danger of letting packet/advisor synthesis outrun the Foundation spine. The active Strategic Execution surface now renders the Strategy Hub v2 source-to-gap command view: live goal truth, operating source cards, retrieval eval status, and Action Router review/promote records. The advisor endpoint still returns `strategy_hub_v2_in_progress`, and old active 90-day priority generation remains disabled. The Foundation spine is closed enough for routed review and apply: `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001`, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, `SYNTHESIS-ENGINE-001`, and `ACTION-ROUTER-001` are done for v1, with one Strategy route created after the synthesis/router repair and old operational routes hidden from Strategy. `npm run intelligence:retrieval-eval` guards 20 expected hybrid retrieval matches across Gmail, Meetings, and Missive before Strategy Hub depends on evidence recall. Next Strategy Hub hardening should make the current route review meeting-ready, then define Strategic Intelligence and build the gap-resolving Scoper. It must not revive chat/advisor polish.
 
 Acceptance:
 
