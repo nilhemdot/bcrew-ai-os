@@ -156,6 +156,8 @@ Priority resolves in this order:
 
 If these disagree, fix the live Backlog and the active docs together instead of letting two work queues compete.
 If a builder chat drifts into lower-priority work, the assistant should name the drift, route the idea to backlog, or ask Steve to explicitly override the current command order.
+All implementation work must be backlog-pulled. Evidence chooses which formal card to pull next; it does not justify chat-only work.
+Before code, each slice needs a card ID, scope, implementation plan, acceptance criteria, verifier plan, closeout plan, and risk notes reviewed to the 9.8/10 quality bar.
 
 ### Operator Surface Standard
 
@@ -175,13 +177,19 @@ The daily Foundation nav target is:
 3. Backlog
 4. Recent Work
 
-The Overview should act like a scrum-master / CEO dashboard for the Foundation build: active command order, system grade, recent shipped work, done velocity, and the next decision. Done sections should show when work moved to done and sort newest done to oldest done. Recent Work should default collapsed and show where each change lives in the app or docs.
+The Overview should act like a scrum-master / CEO dashboard for the Foundation build: active command order, system grade, recent shipped work, done velocity, and the next decision. Done sections should show when work moved to done and sort newest done to oldest done. Recent Builds / Recent Work should default collapsed and show where each change lives in the app or docs.
 
 The old Foundation Overview grouping that reads like `Phase 1 · Truth Cleanup` must not compete with this Rebuild Plan's phase numbers. Either reconcile the UI to the plan's phase numbering or replace those groups with the current command-order view: keep maps/build log current -> monitor extraction -> harden corpus -> source health/freshness -> close action loop.
 
 ### Immediate Foundation Closeout Checklist
 
 This checklist is the current phase-gate trace after the 2026-04-26 systems/source review. Treat it as a map to live backlog cards, not a standalone work queue.
+
+0. `BACKLOG-HYGIENE-PASS-001` -> `BACKLOG-HYGIENE-001` -> `DEV-PROCESS-AUDIT-001` -> `PROCESS-HOOKS-001` — Restore backlog-pulled dev discipline before more product UI.
+   - `BACKLOG-HYGIENE-PASS-001` is the one-time cleanup that moved stale/unclear cards out of executing or split their proof from remaining work.
+   - `BACKLOG-HYGIENE-001` is the autonomous probe so Steve is not the stale-card detector.
+   - `DEV-PROCESS-AUDIT-001` turns the 2026-04-28 failures into concrete hook requirements.
+   - `PROCESS-HOOKS-001` owns pre-commit/post-ship enforcement: card reference, 9.8 plan, verifier plan, closeout draft, dashboard placement, backlog update, links, and plain-English Recent Builds/Recent Work entry.
 
 1. `SECURITY-003` — Close direct LLM/transcription spend bypasses.
    - `scripts/transcribe-zoom-audio-archive.mjs` is paused/fail-closed for non-dry-run use.
@@ -192,7 +200,7 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Interim admin gating is live for source-of-truth, doc reads, Foundation hub, FUB reads, Owners queue/governance, sheet structure, system inventory, changes, and doc-update reads.
    - Later replace stop-gap gating with tier and subject-person redaction.
    - `FOUNDATION-USERS-001` is the smaller P1 follow-up for owner-only user administration from Foundation: list users, add email/name/role, disable users, audit changes, avoid password exposure, and prove non-owners cannot manage access. Do not build it inside extraction-control schedule reconciliation.
-   - `FOUNDATION-SURFACE-UPDATES-001` is the P1 follow-up for Foundation operator clarity: plain-English status/copy, Overview -> Systems -> Backlog -> Recent Work nav order, collapsed Recent Work with app/doc breadcrumbs, done-velocity visibility, and plan/backlog grouping convergence. Do not build it inside the action-loop Review/Apply slice unless Steve explicitly switches scope.
+   - `FOUNDATION-SURFACE-UPDATES-001` is the P1 follow-up for Foundation operator clarity: plain-English status/copy, Overview -> Systems -> Backlog -> Recent Work nav order, collapsed Recent Builds / Recent Work with app/doc breadcrumbs, done-velocity visibility, and plan/backlog grouping convergence. Do not build it inside hygiene/process slices unless Steve explicitly switches scope.
 3. `SYSTEM-010` — Finish runtime/process-control hardening.
    - Keep dashboard and worker LaunchAgent plists in repo.
    - Served-code-equals-HEAD check is live: the dashboard captures its server-start commit and `foundation:verify` fails with a restart command if the served commit does not match repo HEAD.
@@ -225,7 +233,7 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Governed synthesis now persists owner-suggested synthesized items from source-backed facts and hybrid evidence.
    - Source-backed strategy/source-contract, goal, operating, KPI, source-health, and retrieved-evidence grounding is now persisted in `intelligence_synthesis_facts`.
    - Action Router v1 now proposes governed routes into decisions, backlog tasks, questions, ignore/snooze, or owner-bound action lanes with back-links and human approval required before destination writes.
-   - `ACTION-REVIEW-APPLY-001` is the next narrow child slice: make the 18 pending routes easy to review, approve/reject, apply, and confirm with destination-record proof. Do not reopen broad `ACTION-ROUTER-001` for this.
+   - `ACTION-REVIEW-APPLY-001` is the next product slice after backlog hygiene and process gates: make the 18 pending routes easy to review, approve/reject, apply, and confirm with destination-record proof. Do not reopen broad `ACTION-ROUTER-001` for this.
 
 10. `RESEARCH-INBOX-001` — Park the pre-backlog research inbox.
    - This captures Steve's outside ideas, YouTube/Mycro/myICOR/course/article inputs, and AI-system-building patterns before they become committed backlog. Workflow: capture -> plain-English triage -> promote to backlog or archive with reason.

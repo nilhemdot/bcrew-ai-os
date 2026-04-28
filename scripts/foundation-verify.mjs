@@ -1736,6 +1736,10 @@ async function main() {
     (build.backlogIds || []).includes('RUNTIME-SUPERVISOR-001') &&
       build.closeoutKey === 'runtime-supervisor-served-code-trust'
   )
+  const buildLogBacklogHygieneBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('BACKLOG-HYGIENE-PASS-001') &&
+      build.closeoutKey === 'backlog-hygiene-pass'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1753,6 +1757,11 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('RUNTIME-HEALTH-SIMPLIFY-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('RUNTIME-SUPERVISOR-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SYSTEM-010') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('BACKLOG-HYGIENE-PASS-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('BACKLOG-HYGIENE-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('DEV-PROCESS-AUDIT-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-HOOKS-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -1928,6 +1937,22 @@ async function main() {
     buildLogServedCodeTrustBuild
       ? `${buildLogServedCodeTrustBuild.shortSha} / ${buildLogServedCodeTrustBuild.acceptanceState} / ${buildLogServedCodeTrustBuild.proofStatus}`
       : 'missing served-code trust closeout',
+  )
+  ensure(
+    checks,
+    buildLogBacklogHygieneBuild?.operatorCloseout === true &&
+      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-PASS-001' && item.lane === 'done') &&
+      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-001' && item.lane === 'scoped') &&
+      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && item.lane === 'scoped') &&
+      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SURFACE-UPDATES-001' && item.lane === 'scoped') &&
+      buildLogBacklogHygieneBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /stale|unclear|split completed proof/i.test(buildLogBacklogHygieneBuild.whatChanged || '') &&
+      /BACKLOG-HYGIENE-001/i.test(buildLogBacklogHygieneBuild.reviewNext || '') &&
+      /FOUNDATION-SURFACE-UPDATES-001/i.test(buildLogBacklogHygieneBuild.knownLimits?.join(' ') || ''),
+    'Recent Builds v2 carries closeout proof for backlog hygiene pass',
+    buildLogBacklogHygieneBuild
+      ? `${buildLogBacklogHygieneBuild.shortSha} / ${buildLogBacklogHygieneBuild.acceptanceState} / ${buildLogBacklogHygieneBuild.proofStatus}`
+      : 'missing backlog hygiene pass closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2532,9 +2557,11 @@ async function main() {
       foundationSurfaceUpdatesText.includes('backend-only') &&
       foundationSurfaceUpdatesText.includes('app surface metadata') &&
       foundationSurfaceUpdatesText.includes('at least 3 recent closeouts') &&
+      foundationSurfaceUpdatesText.includes('Recent Builds / Recent Work owns') &&
       foundationSurfaceUpdatesText.includes('technical terms must have a plain-English meaning next to them') &&
       currentPlan.includes('Foundation is the CEO dashboard for system-building') &&
       currentPlan.includes('Overview -> Systems -> Backlog -> Recent Work') &&
+      currentPlan.includes('Recent Builds / Recent Work should default collapsed') &&
       currentState.includes("Steve's operator UX standard is now active") &&
       foundationSurfaceMap.some(surface =>
         surface.section === 'build-log' &&
@@ -2544,6 +2571,62 @@ async function main() {
     foundationSurfaceUpdates
       ? `${foundationSurfaceUpdates.lane} / ${foundationSurfaceUpdates.priority} / ${foundationSurfaceUpdates.title}`
       : 'missing FOUNDATION-SURFACE-UPDATES-001',
+  )
+  const backlogHygienePass = (foundationHub.backlogItems || []).find(item => item.id === 'BACKLOG-HYGIENE-PASS-001') || null
+  const backlogHygiene = (foundationHub.backlogItems || []).find(item => item.id === 'BACKLOG-HYGIENE-001') || null
+  const devProcessAudit = (foundationHub.backlogItems || []).find(item => item.id === 'DEV-PROCESS-AUDIT-001') || null
+  const processHooks = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-001') || null
+  const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
+  const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
+  const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
+  const source021Proof = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021-PROOF-001') || null
+  const security001 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-001') || null
+  const security006 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-006') || null
+  const backlogHygieneText = [
+    backlogHygiene?.summary,
+    backlogHygiene?.whyItMatters,
+    backlogHygiene?.nextAction,
+    backlogHygiene?.statusNote,
+    devProcessAudit?.summary,
+    processHooks?.summary,
+    processHooks?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    backlogHygienePass?.lane === 'done' &&
+      backlogHygienePass?.priority === 'P0' &&
+      String(backlogHygienePass.statusNote || '').includes('DOC-AUTHORITY-001') &&
+      String(backlogHygienePass.statusNote || '').includes('SOURCE-021-PROOF-001') &&
+      String(backlogHygienePass.statusNote || '').includes('SECURITY-001') &&
+      backlogHygiene?.lane === 'scoped' &&
+      backlogHygiene?.priority === 'P0' &&
+      devProcessAudit?.lane === 'scoped' &&
+      processHooks?.lane === 'scoped' &&
+      backlogHygieneText.includes('autonomous backlog hygiene probe') &&
+      backlogHygieneText.includes('9.8 plan') &&
+      backlogHygieneText.includes('Recent Builds') &&
+      currentPlan.includes('BACKLOG-HYGIENE-PASS-001') &&
+      currentPlan.includes('Before code, each slice needs a card ID') &&
+      currentState.includes('BACKLOG-HYGIENE-PASS-001` is done for v1'),
+    'Backlog hygiene and process-gate cards are captured',
+    `pass=${backlogHygienePass?.lane || 'missing'} / probe=${backlogHygiene?.lane || 'missing'} / hooks=${processHooks?.lane || 'missing'}`,
+  )
+  ensure(
+    checks,
+    docAuthority?.lane === 'done' &&
+      dataStructuredContracts?.lane === 'done' &&
+      source021?.lane === 'executing' &&
+      source021Proof?.lane === 'done' &&
+      security001?.lane === 'scoped' &&
+      security006?.lane === 'scoped' &&
+      String(docAuthority?.statusNote || '').includes('Proof command: `npm run foundation:verify`') &&
+      String(dataStructuredContracts?.statusNote || '').includes('/api/source-of-truth') &&
+      String(source021?.statusNote || '').includes('split completed v1 evidence') &&
+      String(source021Proof?.statusNote || '').includes('53/53') &&
+      String(security001?.statusNote || '').includes('moved this out of executing') &&
+      String(security006?.statusNote || '').includes('moved this out of executing'),
+    'Known stale/unclear executing cards were handled',
+    `DOC=${docAuthority?.lane || 'missing'} / DATA=${dataStructuredContracts?.lane || 'missing'} / SOURCE-021=${source021?.lane || 'missing'} + proof=${source021Proof?.lane || 'missing'} / SECURITY=${security001?.lane || 'missing'},${security006?.lane || 'missing'}`,
   )
   const actionReviewApply = (foundationHub.backlogItems || []).find(item => item.id === 'ACTION-REVIEW-APPLY-001') || null
   const actionReviewApplyText = [
@@ -2563,8 +2646,8 @@ async function main() {
       actionReviewApplyText.includes('aged-route') &&
       actionReviewApplyText.includes('apply-success-rate verifier') &&
       actionReviewApplyText.includes('Resolution hardening waits') &&
-      currentPlan.includes('`ACTION-REVIEW-APPLY-001` is the next narrow child slice') &&
-      currentState.includes('`ACTION-REVIEW-APPLY-001` is the next intended build slice'),
+      currentPlan.includes('`ACTION-REVIEW-APPLY-001` is the next product slice after backlog hygiene and process gates') &&
+      currentState.includes('`ACTION-REVIEW-APPLY-001` remains the next product build slice'),
     'Action Router review/apply child card is scoped before coding',
     actionReviewApply
       ? `${actionReviewApply.lane} / ${actionReviewApply.priority} / ${actionReviewApply.title}`

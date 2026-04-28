@@ -117,18 +117,19 @@ Hard checkpoint call from 2026-04-28:
 - `KPI-HEALTH-001` is done for v1: `npm run kpi:health` checks the load-bearing KPI tables/RPCs, freshness windows, expected Supabase schema/output fields, and Lee `zahnd-team-dashboard` references; `/api/source-of-truth` and `/api/foundation-hub` expose `kpiHealth`; Data Sources renders the KPI / Supabase Health panel; Runtime Health only surfaces KPI when unhealthy.
 - Steve's operator UX standard is now active: plain English first, technical terms translated inline, Overview as the CEO dashboard for system-building, and top nav target of Overview -> Systems -> Backlog -> Recent Work. `FOUNDATION-SURFACE-UPDATES-001` owns the UI work.
 - Served-code trust is now active: Runtime Health shows the dashboard server-start commit, and `foundation:verify` compares it to repo HEAD before reviewers trust a closeout pass.
-- `ACTION-REVIEW-APPLY-001` is the next intended build slice: make pending Action Router routes easy to review, approve/reject, apply, and verify with destination-record proof.
+- `BACKLOG-HYGIENE-PASS-001` is done for v1: stale/unclear executing cards were cleaned up, proof was split from remaining work where needed, and structural follow-up cards were created.
+- `BACKLOG-HYGIENE-001`, `DEV-PROCESS-AUDIT-001`, and `PROCESS-HOOKS-001` now sit ahead of product UI so the rebuild returns to backlog-pulled, plan-reviewed work.
+- `ACTION-REVIEW-APPLY-001` remains the next product build slice, but it waits behind the backlog hygiene probe and process gates.
 - `RESEARCH-INBOX-001` is parked as the pre-backlog research inbox for YouTube, Mycro/myICOR, courses, articles, and good AI-system ideas. It is not next.
 - `RUNTIME-HEALTH-SIMPLIFY-001` is parked so Runtime Health can later get a plain-English top layer without weakening the diagnostic detail.
 
 Current command order:
 
 1. Keep the `FOUNDATION-SWEEP-001` map and `FOUNDATION-CHANGELOG-002` closeout records current when Foundation nav, APIs, docs, source contracts, jobs, System Inventory, hub links, or major build cards change.
-2. Monitor capture and extraction through Runtime Health coverage-by-target; let the unhealthy/thin list choose the next extraction slice.
-3. Harden missing corpus lanes.
-4. Keep freshness and health checks visible as source readers become continuous.
-5. Close the action loop through `ACTION-REVIEW-APPLY-001`.
-6. Stop and re-plan with Steve before auto-picking another Foundation slice. The decision is whether Foundation is good enough to un-pause Scoper, dev intelligence, and agent-managed backlog work.
+2. Build `BACKLOG-HYGIENE-001` so stale backlog state becomes an automatic finding instead of Steve manually spotting it.
+3. Run `DEV-PROCESS-AUDIT-001`, then build `PROCESS-HOOKS-001` so future commits have card, plan, verifier, closeout, dashboard-placement, backlog-update, and Recent Builds link gates.
+4. Close the action loop through `ACTION-REVIEW-APPLY-001`.
+5. Stop and re-plan with Steve before auto-picking another Foundation slice. The decision is whether Foundation is good enough to un-pause Scoper, dev intelligence, and agent-managed backlog work.
 
 ## Operator Surface Pattern
 
@@ -139,7 +140,7 @@ Every hub overview should eventually follow the same CEO-dashboard pattern:
 - recent improvements
 - what needs attention right now
 
-For Foundation, this means Overview should become the high-level command dashboard, Systems should explain what the system is, Backlog should show queued/done work, and Recent Work should show what shipped and where it lives.
+For Foundation, this means Overview should become the high-level command dashboard, Systems should explain what the system is, Backlog should show queued/done work, and Recent Builds / Recent Work should show what shipped and where it lives.
 
 ## Foundation Operations Surfaces
 
