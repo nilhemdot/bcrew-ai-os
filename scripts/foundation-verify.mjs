@@ -251,6 +251,7 @@ async function main() {
   const foundationWorkerSource = await readRepoFile('scripts/foundation-worker.mjs')
   const extractionControlSeedSource = await readRepoFile('scripts/seed-extraction-control.mjs')
   const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
+  const syncSlackSource = await readRepoFile('scripts/sync-slack-archive.mjs')
   const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
   const driveContentExtractionSource = await readRepoFile('scripts/extract-drive-content.mjs')
   const driveLinkInventorySource = await readRepoFile('scripts/inventory-drive-linked-files.mjs')
@@ -1325,6 +1326,7 @@ async function main() {
   const foundationSweepSections = new Set((foundationHub.surfaceFreshnessSweep?.surfaces || []).map(surface => surface.section))
   const knownStaleSlackRunId = 'crawl-slack-current-day-20260427145904292-3f93bebd'
   const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
+  const slackCurrentDayTarget = extractionTargets.find(target => target.targetKey === 'slack-current-day')
   const driveCorpusTarget = extractionTargets.find(target => target.targetKey === 'drive-corpus-backfill')
   const driveContentTarget = extractionTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
   const strategyPreworkParticipants = Array.isArray(strategyPreworkCoverageSnapshot.participants)
@@ -1551,12 +1553,17 @@ async function main() {
   const buildLogChangelogBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('FOUNDATION-CHANGELOG-002')
   )
+  const buildLogSlackProofBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('EXTRACTION-TEAM-001') &&
+      build.closeoutKey === 'slack-current-day-channel-proof'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
       foundationBuildCloseoutValidation.invalidCloseoutKeys.length === 0 &&
       foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-SWEEP-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-CHANGELOG-002') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('EXTRACTION-TEAM-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -1616,6 +1623,20 @@ async function main() {
     buildLogChangelogBuild
       ? `${buildLogChangelogBuild.shortSha} / ${buildLogChangelogBuild.acceptanceState} / ${buildLogChangelogBuild.proofStatus}`
       : 'missing FOUNDATION-CHANGELOG-002 build closeout',
+  )
+  ensure(
+    checks,
+    buildLogSlackProofBuild?.operatorCloseout === true &&
+      buildLogSlackProofBuild.relatedBacklog?.some(item => item.id === 'EXTRACTION-TEAM-001' && item.lane === 'scoped') &&
+      buildLogSlackProofBuild.proofCommands?.some(command => command.includes('--target=slack-current-day')) &&
+      buildLogSlackProofBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /Slack current-day|channel/i.test(buildLogSlackProofBuild.whatChanged || '') &&
+      /61 channel items|foundation:verify/i.test(buildLogSlackProofBuild.proofStatus || '') &&
+      buildLogSlackProofBuild.knownLimits?.some(limit => /broad Slack history|broad backfill/i.test(limit)),
+    'Recent Builds v2 carries closeout proof for Slack current-day item proof',
+    buildLogSlackProofBuild
+      ? `${buildLogSlackProofBuild.shortSha} / ${buildLogSlackProofBuild.acceptanceState} / ${buildLogSlackProofBuild.proofStatus}`
+      : 'missing Slack current-day build closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -1907,15 +1928,52 @@ async function main() {
       Number(foundationHub.extractionControl.summary.targetCount || 0) > 0 &&
       typeof foundationHub.extractionControl.summary.staleActiveRuns === 'number' &&
       typeof foundationHub.extractionControl.summary.recentStaleReapedRuns === 'number' &&
+      typeof foundationHub.extractionControl.summary.targetRiskFindings === 'number' &&
+      typeof foundationHub.extractionControl.summary.targetWarningFindings === 'number' &&
       Array.isArray(foundationHub.extractionControl.staleActiveRuns) &&
       Array.isArray(foundationHub.extractionControl.recentStaleReapedRuns) &&
       extractionTargets.length > 0 &&
+      extractionTargets.every(target => target.itemSummary && Array.isArray(target.healthFindings)) &&
       Array.isArray(foundationHub.extractionControl.recentItems) &&
       Array.isArray(foundationHub.extractionControl.recentRuns),
     'api/foundation-hub exposes extraction control targets',
     foundationHub.extractionControl?.summary
-      ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day / ${foundationHub.extractionControl.recentItems?.length ?? 0} recent items / ${foundationHub.extractionControl.recentRuns?.length ?? 0} recent runs / stale active=${foundationHub.extractionControl.summary.staleActiveRuns}`
+      ? `${foundationHub.extractionControl.summary.targetCount} targets / ${foundationHub.extractionControl.summary.currentDayTargets} current-day / ${foundationHub.extractionControl.recentItems?.length ?? 0} recent items / ${foundationHub.extractionControl.recentRuns?.length ?? 0} recent runs / stale active=${foundationHub.extractionControl.summary.staleActiveRuns} / findings=${foundationHub.extractionControl.summary.targetRiskFindings} risk ${foundationHub.extractionControl.summary.targetWarningFindings} warning`
       : 'missing extraction control payload',
+  )
+  ensure(
+    checks,
+    includesAll(foundationDbSource, [
+      'getSourceCrawlTargetItemSummaries',
+      'buildSourceCrawlTargetHealthFindings',
+      'missing_slack_channel_item_proof',
+    ]) &&
+      includesAll(foundationUiSource, [
+        'itemSummary',
+        'healthFindings',
+        'targetRiskFindings',
+        'targetWarningFindings',
+      ]) &&
+      includesAll(syncSlackSource, [
+        'upsertSourceCrawlItem',
+        'slack_channel',
+        'EXTRACTION_TARGET_SUMMARY',
+        'Crawl items failed',
+      ]),
+    'Runtime Health surfaces extraction item summaries and findings',
+    'Foundation DB, UI, and Slack runner include item-level proof/finding hooks',
+  )
+  ensure(
+    checks,
+    slackCurrentDayTarget?.itemSummary &&
+      Number(slackCurrentDayTarget.itemSummary.totalItems || 0) > 0 &&
+      Array.isArray(slackCurrentDayTarget.healthFindings) &&
+      ['succeeded', 'partial'].includes(slackCurrentDayTarget.lastStatus) &&
+      !String(slackCurrentDayTarget.lastError || '').includes('stale source-crawl run reaper'),
+    'Slack current-day crawl has channel-level item proof after stale-run recovery',
+    slackCurrentDayTarget?.itemSummary
+      ? `${slackCurrentDayTarget.lastStatus || 'unknown'} / ${slackCurrentDayTarget.itemSummary.totalItems || 0} items / ${slackCurrentDayTarget.itemSummary.succeededItems || 0} succeeded / ${slackCurrentDayTarget.itemSummary.skippedItems || 0} skipped / ${slackCurrentDayTarget.itemSummary.failedItems || 0} failed`
+      : 'missing slack-current-day target item summary',
   )
   ensure(
     checks,

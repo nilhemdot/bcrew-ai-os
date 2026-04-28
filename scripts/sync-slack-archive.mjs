@@ -11,6 +11,7 @@ import {
   closeFoundationDb,
   getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
+  upsertSourceCrawlItem,
   upsertSharedCommunicationArtifact,
 } from '../lib/foundation-db.js';
 import { transcriptTextHash } from '../lib/meeting-transcripts.js';
@@ -69,13 +70,52 @@ function buildThreadTitle(channel, rootMessage) {
   return rootText ? `#${channel.name}: ${rootText}` : `#${channel.name} thread`;
 }
 
+function buildCrawlItemKey(crawlTargetKey, channelId) {
+  return `${crawlTargetKey}:${channelId}`;
+}
+
+async function recordSlackChannelCrawlItem(crawlTargetKey, channel, input) {
+  if (!crawlTargetKey || !channel?.id) return null;
+
+  return upsertSourceCrawlItem(
+    {
+      itemKey: buildCrawlItemKey(crawlTargetKey, channel.id),
+      targetKey: crawlTargetKey,
+      sourceId: 'SRC-SLACK-001',
+      externalId: channel.id,
+      itemType: 'slack_channel',
+      status: input.status,
+      fingerprint: input.fingerprint || '',
+      incrementAttempt: Boolean(input.incrementAttempt),
+      lastError: input.lastError || null,
+      artifactId: input.artifactId || null,
+      processedAt: input.processedAt || null,
+      metadata: {
+        channelId: channel.id,
+        channelName: channel.name,
+        isPrivate: channel.isPrivate,
+        isMember: channel.isMember,
+        memberCount: channel.memberCount,
+        reason: input.reason || null,
+        messageCount: input.messageCount ?? null,
+        archivedThreadCount: input.archivedThreadCount ?? null,
+        latestMessageAt: input.latestMessageAt || null,
+        latestThreadArtifactId: input.latestThreadArtifactId || null,
+      },
+    },
+    'slack-sync',
+  );
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const limit = Math.min(500, Math.max(1, Number(args.limit || 50)));
   const requestedChannelNames = splitCsv(args.channels || process.env.SLACK_ARCHIVE_CHANNELS || '');
+  const crawlTargetKey = String(args.crawlTarget || args.targetKey || '').trim();
 
   console.log('Sync Slack threads into shared communications archive');
   console.log(`  Limit per channel: ${limit}`);
+  if (crawlTargetKey) console.log(`  Crawl target: ${crawlTargetKey}`);
 
   await initFoundationDb();
 
@@ -96,6 +136,16 @@ async function main() {
   let archived = 0;
   let skipped = 0;
   let unreadable = unreadableChannels.length;
+  let itemFailures = 0;
+
+  for (const channel of unreadableChannels.map(name => selectedChannels.find(channel => channel.name === name)).filter(Boolean)) {
+    await recordSlackChannelCrawlItem(crawlTargetKey, channel, {
+      status: 'skipped',
+      reason: 'bot_not_in_channel',
+      incrementAttempt: false,
+      processedAt: new Date().toISOString(),
+    });
+  }
 
   for (const channel of readableChannels) {
     let history;
@@ -106,12 +156,30 @@ async function main() {
       if (message.includes('not_in_channel')) {
         unreadable += 1;
         console.log(`  #${channel.name}: skipped (bot not in channel)`);
+        await recordSlackChannelCrawlItem(crawlTargetKey, channel, {
+          status: 'skipped',
+          reason: 'bot_not_in_channel',
+          incrementAttempt: true,
+          processedAt: new Date().toISOString(),
+        });
         continue;
       }
-      throw error;
+      itemFailures += 1;
+      console.log(`  #${channel.name}: failed (${message})`);
+      await recordSlackChannelCrawlItem(crawlTargetKey, channel, {
+        status: 'failed',
+        reason: 'slack_channel_history_failed',
+        incrementAttempt: true,
+        lastError: message,
+        processedAt: new Date().toISOString(),
+      });
+      continue;
     }
     const seenThreadTs = new Set();
     console.log(`  #${channel.name}: ${history.length} messages`);
+    let channelArchived = 0;
+    let latestThreadArtifactId = '';
+    let latestMessageAt = '';
 
     for (const message of history) {
       const threadTs = message.threadTs || message.ts;
@@ -130,6 +198,7 @@ async function main() {
       }
 
       const permalink = await getSlackPermalink(channel.id, threadTs);
+      const artifactId = `SRC-SLACK-001:${channel.id}:${threadTs}`;
       await upsertSharedCommunicationArtifact(
         {
           sourceId: 'SRC-SLACK-001',
@@ -158,7 +227,23 @@ async function main() {
       );
 
       archived += 1;
+      channelArchived += 1;
+      latestThreadArtifactId = artifactId;
+      latestMessageAt = messages[messages.length - 1]?.createdAt || message.createdAt || latestMessageAt;
     }
+
+    await recordSlackChannelCrawlItem(crawlTargetKey, channel, {
+      status: channelArchived ? 'succeeded' : 'skipped',
+      reason: channelArchived ? null : 'no_archivable_messages',
+      incrementAttempt: true,
+      artifactId: latestThreadArtifactId || null,
+      fingerprint: latestMessageAt || '',
+      messageCount: history.length,
+      archivedThreadCount: channelArchived,
+      latestMessageAt,
+      latestThreadArtifactId,
+      processedAt: new Date().toISOString(),
+    });
   }
 
   const snapshot = await getSharedCommunicationArchiveSnapshot({
@@ -170,12 +255,36 @@ async function main() {
   console.log(`  Archived this run: ${archived}`);
   console.log(`  Skipped empty threads: ${skipped}`);
   console.log(`  Unreadable channels skipped: ${unreadable}`);
+  console.log(`  Crawl items failed: ${itemFailures}`);
   console.log(`  Archive total: ${snapshot.totalArtifacts}`);
   if (snapshot.items[0]) {
     console.log(
       `  Latest thread: ${snapshot.items[0].artifactId} (${snapshot.items[0].contentLength} chars)`,
     );
   }
+  console.log(`EXTRACTION_TARGET_SUMMARY ${JSON.stringify({
+    inspected: readableChannels.length + unreadable,
+    archived,
+    skipped: skipped + unreadable,
+    itemFailures,
+    cursorState: {
+      slackSync: {
+        lastRunAt: new Date().toISOString(),
+        channelsVisible: allChannels.length,
+        channelsSelected: selectedChannels.length,
+        channelsReadable: readableChannels.length,
+        channelsUnreadable: unreadable,
+        archivedThisRun: archived,
+        skippedEmptyThreads: skipped,
+        itemFailures,
+      },
+    },
+    metadata: {
+      extractorVersion: 'slack_archive_v1',
+      crawlTargetKey: crawlTargetKey || null,
+      unreadableChannels,
+    },
+  })}`);
 }
 
 main()

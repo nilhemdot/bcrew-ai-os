@@ -5259,7 +5259,9 @@ function renderExtractionControlPanel(extractionControl) {
     + ((extractionControl.summary && extractionControl.summary.corpusMiningTargets) || 0) + ' corpus-mining, '
     + ((extractionControl.summary && extractionControl.summary.scheduledTargets) || 0) + ' scheduled, '
     + ((extractionControl.summary && extractionControl.summary.pausedTargets) || 0) + ' paused, '
-    + ((extractionControl.summary && extractionControl.summary.recentItemFailures) || 0) + ' recent item failures.'
+    + ((extractionControl.summary && extractionControl.summary.recentItemFailures) || 0) + ' recent item failures, '
+    + ((extractionControl.summary && extractionControl.summary.targetRiskFindings) || 0) + ' risk findings, '
+    + ((extractionControl.summary && extractionControl.summary.targetWarningFindings) || 0) + ' warnings.'
 
   var items = targets.slice(0, 10).map(function(target) {
     var budget = target.budget || {}
@@ -5267,6 +5269,19 @@ function renderExtractionControlPanel(extractionControl) {
     if (budget.maxItemsPerRun) budgetParts.push('max ' + budget.maxItemsPerRun + ' items/run')
     if (budget.maxFoldersPerRun) budgetParts.push('max ' + budget.maxFoldersPerRun + ' folder/run')
     if (budget.maxFilesPerRun) budgetParts.push('max ' + budget.maxFilesPerRun + ' files/run')
+    var itemSummary = target.itemSummary || {}
+    var itemParts = []
+    if (itemSummary.totalItems != null) itemParts.push(itemSummary.totalItems + ' crawl items')
+    if (itemSummary.failedItems) itemParts.push(itemSummary.failedItems + ' failed')
+    if (itemSummary.skippedItems) itemParts.push(itemSummary.skippedItems + ' skipped')
+    if (itemSummary.succeededItems) itemParts.push(itemSummary.succeededItems + ' succeeded')
+    var itemLine = itemParts.length ? ' Items: ' + itemParts.join(', ') + '.' : ''
+    var findings = Array.isArray(target.healthFindings) ? target.healthFindings : []
+    var findingLine = findings.length
+      ? ' Findings: ' + findings.slice(0, 3).map(function(finding) {
+        return finding.detail || finding.type || 'Extraction health finding needs review.'
+      }).join(' ')
+      : ''
     var counts = target.inspectedCount + ' inspected, ' + target.archivedCount + ' archived, ' + target.extractedCount + ' extracted.'
     var lastState = target.lastStatus ? ' Last run: ' + target.lastStatus + (target.lastError ? ' — ' + target.lastError : '') + '.' : ''
     var scheduler = target.scheduler || {}
@@ -5281,14 +5296,20 @@ function renderExtractionControlPanel(extractionControl) {
       : ''
     var detail = target.sourceId + ' · ' + target.lane + ' · ' + schedulerMode + '. ' + counts
       + (budgetParts.length ? ' Budget: ' + budgetParts.join(', ') + '.' : '')
+      + itemLine
       + lastState
       + scheduleLine
+      + findingLine
       + ' ' + (target.notes || '')
-    var status = target.status === 'blocked' || target.lastStatus === 'failed' || target.lastStatus === 'partial'
+    var hasRiskFinding = findings.some(function(finding) { return finding.severity === 'risk' })
+    var hasWarningFinding = findings.some(function(finding) { return finding.severity === 'warning' })
+    var status = target.status === 'blocked' || hasRiskFinding || target.lastStatus === 'failed'
       ? 'risk'
-      : target.status === 'active'
-        ? 'live'
-        : 'planned'
+      : hasWarningFinding || target.lastStatus === 'partial'
+        ? 'pending'
+        : target.status === 'active'
+          ? 'live'
+          : 'planned'
     return {
       label: target.title,
       status: status,

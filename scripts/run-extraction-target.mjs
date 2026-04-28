@@ -121,9 +121,12 @@ function getTargetRunner(target) {
         'slack:sync-archive',
         '--',
         `--limit=${messagesPerChannel}`,
+        `--crawlTarget=${target.targetKey}`,
       ],
       inspectedPattern: /Channels readable by bot:\s*(\d+)/i,
       archivedPattern: /Archived this run:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
+      summaryPattern: /^EXTRACTION_TARGET_SUMMARY\s+(\{.+\})$/m,
     }
   }
 
