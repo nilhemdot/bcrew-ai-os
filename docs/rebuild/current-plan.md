@@ -505,6 +505,8 @@ Current partial proof:
 - `missive-sync-current` now calls `npm run extraction:target -- --target=missive-current-day` through the Foundation job runner.
 - `meeting-notes-sync-current` now calls `npm run extraction:target -- --target=meetings-current-day` through the Foundation job runner.
 - `slack-current-day` now records channel-level `source_crawl_items`; the 2026-04-28 proof run inspected 61 channels, archived 481 threads, marked 51 channel items succeeded, marked 10 skipped with `no_archivable_messages`, and replaced the stale Apr 27 reaped run as the latest target state.
+- `missive-current-day` now records conversation-level `source_crawl_items`; the 2026-04-28 proof run inspected 100 conversations, wrote/refreshed 17, marked 82 already-current skips, marked 1 empty-thread skip, and produced 0 item failures.
+- `docs/audits/2026-04-28-extraction-lane-item-shape.md` preserves the lane-consistency inspection for `EXTRACT-METRICS-001`: Slack, Gmail, meetings, Drive corpus/content, attachments, video, and Missive now all expose item ledger rows, while Drive content still has 4 failed items for the future retry/backoff slice.
 - Partial target runs now exit nonzero from `run-extraction-target`, so item-level failures cannot look like green Foundation jobs.
 - `meeting-notes-retry-failed` is registered as a manual Foundation job and retries failed meeting crawl items from `source_crawl_items` instead of rerunning the whole current-day window.
 - First retry proof found `0` failed meeting crawl items and succeeded as a no-op.

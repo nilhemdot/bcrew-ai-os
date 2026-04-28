@@ -112,6 +112,7 @@ Hard checkpoint call from 2026-04-28:
 - `STRATEGIC-INTEL-001`, `INTEL-SCOPER-001`, `STRATEGY-QUARTER-001`, and `MODEL-ROUTING-001` remain pinned, but they are not tomorrow's first build.
 - `FOUNDATION-SWEEP-001` is done for v1: all Foundation nav pages are mapped to backing APIs/docs/tables/source IDs/backlog owners, Runtime Health surfaces stale source-crawl runs, and `foundation:verify` guards the sweep.
 - `FOUNDATION-CHANGELOG-002` is done for v1: Recent Builds groups work by day/system area and shows closeout records with backlog cards, proof commands, review-next notes, and known limits.
+- `EXTRACT-METRICS-001` is the primary card for the coverage-by-target slice, linked to `EXTRACT-CONTROL-001`. Lane-shape inspection is saved in `docs/audits/2026-04-28-extraction-lane-item-shape.md`; Missive current-day was the smallest missing item-ledger lane and now emits `missive_conversation` crawl items.
 
 Current command order:
 

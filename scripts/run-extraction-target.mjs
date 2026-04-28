@@ -87,9 +87,19 @@ function getTargetRunner(target) {
   if (target.targetKey === 'missive-current-day') {
     return {
       command: 'npm',
-      args: ['run', 'missive:sync-archive', '--', '--all=true', `--limit=${maxItemsPerRun}`, '--pageSize=50'],
+      args: [
+        'run',
+        'missive:sync-archive',
+        '--',
+        '--all=true',
+        `--limit=${maxItemsPerRun}`,
+        '--pageSize=50',
+        `--crawlTarget=${target.targetKey}`,
+      ],
       inspectedPattern: /Conversations selected:\s*(\d+)/i,
       archivedPattern: /Archived this run:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
+      summaryPattern: /^EXTRACTION_TARGET_SUMMARY\s+(\{.+\})$/m,
     }
   }
 

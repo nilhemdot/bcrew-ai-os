@@ -252,9 +252,11 @@ async function main() {
   const extractionControlSeedSource = await readRepoFile('scripts/seed-extraction-control.mjs')
   const extractionTargetSource = await readRepoFile('scripts/run-extraction-target.mjs')
   const syncSlackSource = await readRepoFile('scripts/sync-slack-archive.mjs')
+  const syncMissiveSource = await readRepoFile('scripts/sync-missive-archive.mjs')
   const videoInventorySource = await readRepoFile('scripts/inventory-video-links.mjs')
   const driveContentExtractionSource = await readRepoFile('scripts/extract-drive-content.mjs')
   const driveLinkInventorySource = await readRepoFile('scripts/inventory-drive-linked-files.mjs')
+  const extractionLaneItemShapeAudit = await readRepoFile('docs/audits/2026-04-28-extraction-lane-item-shape.md')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
   const intelligenceAtomProofSource = await readRepoFile('scripts/intelligence-atom-spine-proof.mjs')
@@ -1327,6 +1329,7 @@ async function main() {
   const knownStaleSlackRunId = 'crawl-slack-current-day-20260427145904292-3f93bebd'
   const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
   const slackCurrentDayTarget = extractionTargets.find(target => target.targetKey === 'slack-current-day')
+  const missiveCurrentDayTarget = extractionTargets.find(target => target.targetKey === 'missive-current-day')
   const driveCorpusTarget = extractionTargets.find(target => target.targetKey === 'drive-corpus-backfill')
   const driveContentTarget = extractionTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
   const strategyPreworkParticipants = Array.isArray(strategyPreworkCoverageSnapshot.participants)
@@ -1561,6 +1564,10 @@ async function main() {
     (build.backlogIds || []).includes('EXTRACT-CONTROL-001') &&
       build.closeoutKey === 'extract-control-schedule-truth'
   )
+  const buildLogMissiveItemLedgerBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('EXTRACT-METRICS-001') &&
+      build.closeoutKey === 'extract-metrics-missive-item-ledger'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1569,6 +1576,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-CHANGELOG-002') &&
       foundationBuildCloseoutValidation.backlogIds.includes('EXTRACTION-TEAM-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-SCHEDULE-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-METRICS-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -1655,6 +1663,21 @@ async function main() {
     buildLogScheduleTruthBuild
       ? `${buildLogScheduleTruthBuild.shortSha} / ${buildLogScheduleTruthBuild.acceptanceState} / ${buildLogScheduleTruthBuild.proofStatus}`
       : 'missing extraction schedule truth closeout',
+  )
+  ensure(
+    checks,
+    buildLogMissiveItemLedgerBuild?.operatorCloseout === true &&
+      buildLogMissiveItemLedgerBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-METRICS-001' && item.lane === 'scoped') &&
+      buildLogMissiveItemLedgerBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && item.lane === 'scoped') &&
+      buildLogMissiveItemLedgerBuild.proofCommands?.some(command => command.includes('--target=missive-current-day')) &&
+      buildLogMissiveItemLedgerBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /Missive current-day|conversation/i.test(buildLogMissiveItemLedgerBuild.whatChanged || '') &&
+      /100 conversation items|foundation:verify/i.test(buildLogMissiveItemLedgerBuild.proofStatus || '') &&
+      /coverage-by-target/i.test(buildLogMissiveItemLedgerBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for Missive current-day item ledger',
+    buildLogMissiveItemLedgerBuild
+      ? `${buildLogMissiveItemLedgerBuild.shortSha} / ${buildLogMissiveItemLedgerBuild.acceptanceState} / ${buildLogMissiveItemLedgerBuild.proofStatus}`
+      : 'missing Missive item-ledger build closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -1977,9 +2000,15 @@ async function main() {
         'slack_channel',
         'EXTRACTION_TARGET_SUMMARY',
         'Crawl items failed',
+      ]) &&
+      includesAll(syncMissiveSource, [
+        'upsertSourceCrawlItem',
+        'missive_conversation',
+        'EXTRACTION_TARGET_SUMMARY',
+        'Crawl items failed',
       ]),
     'Runtime Health surfaces extraction item summaries and findings',
-    'Foundation DB, UI, and Slack runner include item-level proof/finding hooks',
+    'Foundation DB, UI, Slack runner, and Missive runner include item-level proof/finding hooks',
   )
   ensure(
     checks,
@@ -1992,6 +2021,32 @@ async function main() {
     slackCurrentDayTarget?.itemSummary
       ? `${slackCurrentDayTarget.lastStatus || 'unknown'} / ${slackCurrentDayTarget.itemSummary.totalItems || 0} items / ${slackCurrentDayTarget.itemSummary.succeededItems || 0} succeeded / ${slackCurrentDayTarget.itemSummary.skippedItems || 0} skipped / ${slackCurrentDayTarget.itemSummary.failedItems || 0} failed`
       : 'missing slack-current-day target item summary',
+  )
+  ensure(
+    checks,
+    missiveCurrentDayTarget?.itemSummary &&
+      Number(missiveCurrentDayTarget.itemSummary.totalItems || 0) >= 100 &&
+      Number(missiveCurrentDayTarget.itemSummary.skippedItems || 0) >= 1 &&
+      Number(missiveCurrentDayTarget.itemSummary.failedItems || 0) === 0 &&
+      Array.isArray(missiveCurrentDayTarget.healthFindings) &&
+      ['succeeded', 'partial'].includes(missiveCurrentDayTarget.lastStatus),
+    'Missive current-day crawl has conversation-level item proof',
+    missiveCurrentDayTarget?.itemSummary
+      ? `${missiveCurrentDayTarget.lastStatus || 'unknown'} / ${missiveCurrentDayTarget.itemSummary.totalItems || 0} items / ${missiveCurrentDayTarget.itemSummary.succeededItems || 0} succeeded / ${missiveCurrentDayTarget.itemSummary.skippedItems || 0} skipped / ${missiveCurrentDayTarget.itemSummary.failedItems || 0} failed`
+      : 'missing missive-current-day target item summary',
+  )
+  ensure(
+    checks,
+    includesAll(extractionLaneItemShapeAudit, [
+      'missive-current-day',
+      'Before normalization',
+      'missive_conversation',
+      'drive-content-extract-backfill',
+      '4 failed crawl items',
+      'EXTRACT-RETRY-001',
+    ]),
+    'extraction lane item-shape inspection is persisted as repo evidence',
+    'docs/audits/2026-04-28-extraction-lane-item-shape.md records Missive normalization and remaining Drive failures',
   )
   ensure(
     checks,
@@ -2202,6 +2257,7 @@ async function main() {
   )
   const extractControl = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-CONTROL-001') || null
   const extractSchedule = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-SCHEDULE-001') || null
+  const extractMetrics = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-METRICS-001') || null
   const extractControlText = [
     extractControl?.nextAction,
     extractControl?.statusNote,
@@ -2210,12 +2266,18 @@ async function main() {
     extractSchedule?.nextAction,
     extractSchedule?.statusNote,
   ].filter(Boolean).join('\n')
+  const extractMetricsText = [
+    extractMetrics?.title,
+    extractMetrics?.summary,
+    extractMetrics?.nextAction,
+    extractMetrics?.statusNote,
+  ].filter(Boolean).join('\n')
   ensure(
     checks,
-    extractControl?.lane === 'scoped' &&
+      extractControl?.lane === 'scoped' &&
       extractControl?.priority === 'P0' &&
       extractControlText.includes('coverage-by-target') &&
-      extractControlText.includes('scheduled targets now display Foundation job schedule as visible truth') &&
+      extractControlText.includes('Foundation-job schedule truth') &&
       extractSchedule?.lane === 'done' &&
       extractSchedule?.priority === 'P1' &&
       extractScheduleText.includes('crawlCheckpointNextRunAt') &&
@@ -2224,6 +2286,21 @@ async function main() {
       currentState.includes('crawlCheckpointNextRunAt'),
     'extraction schedule truth is closed while coverage stays next',
     `EXTRACT-CONTROL-001=${extractControl?.lane || 'missing'} / EXTRACT-SCHEDULE-001=${extractSchedule?.lane || 'missing'}`,
+  )
+  ensure(
+    checks,
+    extractMetrics?.lane === 'scoped' &&
+      extractMetrics?.priority === 'P1' &&
+      extractMetricsText.includes('coverage-by-target') &&
+      extractMetricsText.includes('Missive current-day') &&
+      extractMetricsText.includes('missive_conversation') &&
+      extractControlText.includes('V1 should close after coverage-by-target ships under EXTRACT-METRICS-001') &&
+      currentState.includes('`EXTRACT-METRICS-001` is the primary card for the coverage-by-target slice') &&
+      currentPlan.includes('docs/audits/2026-04-28-extraction-lane-item-shape.md'),
+    'EXTRACT-METRICS-001 owns the coverage-by-target slice with Missive ledger proof',
+    extractMetrics
+      ? `${extractMetrics.lane} / ${extractMetrics.priority} / ${extractMetrics.title}`
+      : 'missing EXTRACT-METRICS-001',
   )
   const strategyLayerCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-001') || null
   const strategyInputCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-014') || null
