@@ -9129,6 +9129,194 @@ function renderGroupedSourceSystemsPanel(groupedSystems, sourceContracts, source
   return panel
 }
 
+function getKpiHealthTone(status) {
+  if (status === 'healthy') return 'connected'
+  if (status === 'warning') return 'pending'
+  if (status === 'risk') return 'missing'
+  return 'neutral'
+}
+
+function renderKpiHealthTableCard(table) {
+  var article = document.createElement('article')
+  article.className = 'source-card'
+
+  var top = document.createElement('div')
+  top.className = 'source-card-title-wrap'
+  var title = document.createElement('h4')
+  title.textContent = table.table || 'KPI table'
+  top.appendChild(title)
+  var id = document.createElement('div')
+  id.className = 'source-card-id'
+  id.textContent = table.readRule || 'KPI read rule'
+  top.appendChild(id)
+  article.appendChild(top)
+
+  var tags = document.createElement('div')
+  tags.className = 'source-card-tags'
+  tags.appendChild(renderSourceTag(table.status || 'unknown', getKpiHealthTone(table.status)))
+  tags.appendChild(renderSourceTag(table.freshnessStatus || 'freshness unknown', getKpiHealthTone(table.freshnessStatus === 'stale' ? 'warning' : table.freshnessStatus === 'fresh' ? 'healthy' : 'unknown')))
+  article.appendChild(tags)
+
+  var copy = document.createElement('p')
+  copy.className = 'source-card-copy'
+  copy.textContent = table.dashboardSurface || 'Load-bearing KPI dashboard table.'
+  article.appendChild(copy)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-meta-grid'
+  meta.appendChild(renderSourceMetaItem('Rows', table.rowCount == null ? 'Unknown' : String(table.rowCount)))
+  meta.appendChild(renderSourceMetaItem('Freshness window', (table.freshnessWindowDays || 0) + ' days'))
+  meta.appendChild(renderSourceMetaItem('Latest field', table.freshnessColumn || 'None detected'))
+  meta.appendChild(renderSourceMetaItem('Latest value', table.latestValue ? formatDate(table.latestValue) : 'Unknown'))
+  article.appendChild(meta)
+
+  if (table.freshnessFinding) {
+    article.appendChild(renderSourceBulletGroup('Finding', [table.freshnessFinding]))
+  }
+  if (Array.isArray(table.missingColumns) && table.missingColumns.length) {
+    article.appendChild(renderSourceBulletGroup('Missing columns', table.missingColumns))
+  }
+  return article
+}
+
+function renderKpiHealthRpcCard(rpc) {
+  var article = document.createElement('article')
+  article.className = 'source-card'
+
+  var top = document.createElement('div')
+  top.className = 'source-card-title-wrap'
+  var title = document.createElement('h4')
+  title.textContent = rpc.rpc || 'KPI RPC'
+  top.appendChild(title)
+  var id = document.createElement('div')
+  id.className = 'source-card-id'
+  id.textContent = rpc.readRule || 'KPI read rule'
+  top.appendChild(id)
+  article.appendChild(top)
+
+  var tags = document.createElement('div')
+  tags.className = 'source-card-tags'
+  tags.appendChild(renderSourceTag(rpc.status || 'unknown', getKpiHealthTone(rpc.status)))
+  tags.appendChild(renderSourceTag('Read-only probe', 'neutral'))
+  article.appendChild(tags)
+
+  var copy = document.createElement('p')
+  copy.className = 'source-card-copy'
+  copy.textContent = rpc.dashboardSurface || 'Load-bearing KPI dashboard RPC.'
+  article.appendChild(copy)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-meta-grid'
+  meta.appendChild(renderSourceMetaItem('Rows returned', rpc.rowCount == null ? 'Unknown' : String(rpc.rowCount)))
+  meta.appendChild(renderSourceMetaItem('Expected output fields', (rpc.expectedColumns || []).join(', ')))
+  article.appendChild(meta)
+
+  if (rpc.error) article.appendChild(renderSourceBulletGroup('Error', [rpc.error]))
+  if (Array.isArray(rpc.missingColumns) && rpc.missingColumns.length) {
+    article.appendChild(renderSourceBulletGroup('Missing output fields', rpc.missingColumns))
+  }
+  return article
+}
+
+function renderKpiSupabaseHealthPanel(kpiHealth) {
+  if (!kpiHealth || !kpiHealth.summary) return null
+  var summary = kpiHealth.summary || {}
+  var panel = document.createElement('section')
+  panel.className = 'panel source-zone-panel source-zone-panel-systems'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'KPI / Supabase Health'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Load-bearing KPI freshness and schema drift'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Read-only probe for the KPI tables and RPCs Steve relies on for Sales, finance, Owners pulse, competition, and usage dashboards.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var tags = document.createElement('div')
+  tags.className = 'source-card-tags'
+  tags.appendChild(renderSourceTag(summary.status || 'unknown', getKpiHealthTone(summary.status)))
+  tags.appendChild(renderSourceTag((summary.tableCount || 0) + ' tables', 'neutral'))
+  tags.appendChild(renderSourceTag((summary.rpcCount || 0) + ' RPCs', 'neutral'))
+  tags.appendChild(renderSourceTag((summary.staleTables || 0) + ' stale', summary.staleTables ? 'pending' : 'connected'))
+  header.appendChild(tags)
+  panel.appendChild(header)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-meta-grid'
+  meta.appendChild(renderSourceMetaItem('Project', kpiHealth.projectHost || 'Unknown'))
+  meta.appendChild(renderSourceMetaItem('Checked', formatDate(kpiHealth.generatedAt)))
+  meta.appendChild(renderSourceMetaItem('Schema drift', kpiHealth.schemaDrift?.status || 'Unknown'))
+  meta.appendChild(renderSourceMetaItem('Lee repo', kpiHealth.leeRepo?.exists ? kpiHealth.leeRepo.repoPath : 'Missing'))
+  panel.appendChild(meta)
+
+  var findings = []
+  ;(summary.riskFindings || []).forEach(function(item) { findings.push('Risk: ' + item) })
+  ;(summary.warningFindings || []).forEach(function(item) { findings.push('Warning: ' + item) })
+  if (findings.length) panel.appendChild(renderSourceBulletGroup('Current findings', findings))
+
+  var driftItems = [
+    'Live Supabase columns must match the locked KPI read rules.',
+    'Lee zahnd-team-dashboard code/migrations must still reference the expected KPI tables and RPCs.',
+    'Freshness windows are per source, not a generic table-exists check.',
+  ]
+  panel.appendChild(renderSourceBulletGroup('Drift checklist', driftItems))
+
+  var tableStack = document.createElement('div')
+  tableStack.className = 'source-contract-stack'
+  ;(kpiHealth.tables || []).forEach(function(table) {
+    tableStack.appendChild(renderKpiHealthTableCard(table))
+  })
+  panel.appendChild(tableStack)
+
+  var rpcStack = document.createElement('div')
+  rpcStack.className = 'source-contract-stack'
+  ;(kpiHealth.rpcs || []).forEach(function(rpc) {
+    rpcStack.appendChild(renderKpiHealthRpcCard(rpc))
+  })
+  panel.appendChild(rpcStack)
+
+  return panel
+}
+
+function renderKpiHealthRuntimeWarning(kpiHealth) {
+  if (!kpiHealth || !kpiHealth.summary || kpiHealth.summary.status === 'healthy') return null
+  var summary = kpiHealth.summary
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'KPI Health Warning'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'KPI / Supabase needs attention'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Runtime Health only surfaces KPI here when freshness, schema drift, or the health probe itself is unhealthy. The full probe lives in Data Sources.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  header.appendChild(createActionLink('Open KPI Health', '/foundation#source-apis:kpi-supabase-health'))
+  panel.appendChild(header)
+
+  var findings = []
+  ;(summary.riskFindings || []).forEach(function(item) { findings.push('Risk: ' + item) })
+  ;(summary.warningFindings || []).forEach(function(item) { findings.push('Warning: ' + item) })
+  panel.appendChild(renderSourceBulletGroup('Findings', findings.length ? findings : ['KPI status is ' + summary.status]))
+  return panel
+}
+
 function buildByKey(items, keyName) {
   var map = {}
   ;(items || []).forEach(function(item) {
@@ -10963,6 +11151,8 @@ function renderSourceRegistry(section) {
     }
 
     if (section === 'source-apis') {
+      var kpiHealthPanel = renderKpiSupabaseHealthPanel(data.kpiHealth)
+      if (kpiHealthPanel) container.appendChild(kpiHealthPanel)
       container.appendChild(renderFubLeadSourceManagerPanel())
     }
 
@@ -11028,6 +11218,9 @@ function renderDataHealth() {
 
     var purposePanel = renderFoundationOperationsPurposePanel('system-health', hub)
     if (purposePanel) container.appendChild(purposePanel)
+
+    var kpiWarningPanel = renderKpiHealthRuntimeWarning(hub.kpiHealth)
+    if (kpiWarningPanel) container.appendChild(kpiWarningPanel)
 
     var surfaceSweepPanel = renderSurfaceFreshnessSweepPanel(hub.surfaceFreshnessSweep)
     if (surfaceSweepPanel) container.appendChild(surfaceSweepPanel)

@@ -1,129 +1,80 @@
 #!/usr/bin/env node
 
-import fs from 'node:fs'
 import process from 'node:process'
+import {
+  EXPECTED_KPI_RPCS,
+  EXPECTED_KPI_TABLES,
+  getKpiHealthSnapshot,
+  KPI_HEALTH_PRIMARY_SURFACE,
+} from '../lib/kpi-health.js'
 
-const LOCAL_KPI_ENV = 'store/kpi-audit.env'
-
-const TABLES = [
-  'profiles',
-  'users',
-  'persons',
-  'appointments',
-  'leads',
-  'deal_data',
-  'goals',
-  'company_goals',
-  'expansion_goals',
-  'users_activity',
-]
-
-function loadLocalEnv(path) {
-  if (!fs.existsSync(path)) return false
-  const lines = fs.readFileSync(path, 'utf8').split(/\r?\n/)
-  for (const line of lines) {
-    const trimmed = line.trim()
-    if (!trimmed || trimmed.startsWith('#')) continue
-    const match = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/)
-    if (!match) continue
-    const key = match[1]
-    if (process.env[key]) continue
-    let value = match[2].trim()
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1)
-    }
-    process.env[key] = value
-  }
-  return true
+function formatAge(days) {
+  return typeof days === 'number' ? `${days.toFixed(1)}d` : 'unknown'
 }
 
-function normalizeSupabaseUrl(value) {
-  const raw = String(value || '').trim().replace(/\/+$/, '')
-  if (!raw) throw new Error('SUPABASE_URL is required for KPI health.')
-  if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(raw)) {
-    throw new Error('SUPABASE_URL must be a Supabase project URL.')
-  }
-  return raw
-}
-
-function getCredential() {
-  const credential = String(
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      process.env.KPI_SUPABASE_SERVICE_ROLE_KEY ||
-      process.env.SUPABASE_ANON_KEY ||
-      process.env.KPI_SUPABASE_ANON_KEY ||
-      '',
-  ).trim()
-  if (!credential) {
-    throw new Error('A Supabase service-role or anon key is required for KPI health.')
-  }
-  return credential
-}
-
-function parseTotal(contentRange) {
-  const raw = String(contentRange || '')
-  const match = raw.match(/\/(\d+|\*)$/)
-  return match && match[1] !== '*' ? Number(match[1]) : null
-}
-
-async function probeTable(baseUrl, credential, table) {
-  const url = `${baseUrl}/rest/v1/${encodeURIComponent(table)}?select=*`
-  const response = await fetch(url, {
-    headers: {
-      apikey: credential,
-      Authorization: `Bearer ${credential}`,
-      Prefer: 'count=exact',
-      Range: '0-0',
-    },
-  })
-  const text = await response.text()
-  if (!response.ok) {
-    let message = text
-    try {
-      const parsed = JSON.parse(text)
-      message = parsed.message || parsed.error || text
-    } catch {
-      // Keep the raw response message.
-    }
-    throw new Error(`${table}: ${response.status} ${message}`)
-  }
-  return {
-    table,
-    total: parseTotal(response.headers.get('content-range')),
-  }
-}
-
-async function main() {
-  const loadedLocalEnv = loadLocalEnv(LOCAL_KPI_ENV)
-  const baseUrl = normalizeSupabaseUrl(process.env.SUPABASE_URL || process.env.KPI_SUPABASE_URL)
-  const credential = getCredential()
-  const host = new URL(baseUrl).host
-
+function printSnapshot(snapshot) {
+  const summary = snapshot.summary || {}
   console.log('KPI Supabase health')
-  console.log(`  Project: ${host}`)
-  console.log(`  Local KPI env: ${loadedLocalEnv ? LOCAL_KPI_ENV : 'not loaded'}`)
+  console.log(`  Project: ${snapshot.projectHost || 'unknown'}`)
+  console.log(`  Contract: v${snapshot.contractVersion}`)
+  console.log(`  Surface: ${KPI_HEALTH_PRIMARY_SURFACE}`)
+  console.log(`  Status: ${summary.status || 'unknown'}`)
+  console.log(`  Tables: ${summary.healthyTables || 0}/${summary.tableCount || 0} healthy`)
+  console.log(`  RPCs: ${summary.healthyRpcs || 0}/${summary.rpcCount || 0} healthy`)
 
-  const failures = []
-  for (const table of TABLES) {
-    try {
-      const result = await probeTable(baseUrl, credential, table)
-      console.log(`PASS ${result.table}: readable${result.total == null ? '' : ` (${result.total} rows)`}`)
-    } catch (error) {
-      failures.push(error.message)
-      console.log(`FAIL ${error.message}`)
-    }
+  console.log('\nLoad-bearing tables')
+  ;(snapshot.tables || []).forEach(table => {
+    const status = table.status === 'healthy' ? 'PASS' : table.status === 'warning' ? 'WARN' : 'FAIL'
+    const latest = table.latestValue ? ` latest ${table.freshnessColumn}=${table.latestValue} (${formatAge(table.latestAgeDays)})` : ''
+    const missing = table.missingColumns?.length ? ` missing=${table.missingColumns.join(',')}` : ''
+    console.log(`${status} ${table.table}: ${table.readRule}; rows=${table.rowCount ?? 'unknown'}; window=${table.freshnessWindowDays}d${latest}${missing}`)
+  })
+
+  console.log('\nLoad-bearing RPCs')
+  ;(snapshot.rpcs || []).forEach(rpc => {
+    const status = rpc.status === 'healthy' ? 'PASS' : 'FAIL'
+    const missing = rpc.missingColumns?.length ? ` missing=${rpc.missingColumns.join(',')}` : ''
+    const error = rpc.error ? ` error=${rpc.error}` : ''
+    console.log(`${status} ${rpc.rpc}: ${rpc.readRule}; rows=${rpc.rowCount ?? 'unknown'}${missing}${error}`)
+  })
+
+  const leeRepo = snapshot.leeRepo || {}
+  console.log('\nLee repo/schema drift checklist')
+  console.log(`  Repo: ${leeRepo.repoPath || 'unknown'}`)
+  console.log(`  Files scanned: ${leeRepo.filesScanned || 0}`)
+  console.log(`  Status: ${leeRepo.status || 'unknown'}`)
+  if (leeRepo.missingReferences?.length) {
+    console.log(`  Missing references: ${leeRepo.missingReferences.join(', ')}`)
   }
 
-  if (failures.length) {
-    throw new Error(`${failures.length} KPI Supabase health check(s) failed.`)
+  if (summary.warningFindings?.length) {
+    console.log('\nWarnings')
+    summary.warningFindings.forEach(item => console.log(`  - ${item}`))
   }
-  console.log('KPI Supabase health passed.')
+  if (summary.riskFindings?.length) {
+    console.log('\nRisks')
+    summary.riskFindings.forEach(item => console.log(`  - ${item}`))
+  }
+
+  console.log(`\nKPI_HEALTH_SUMMARY ${JSON.stringify({
+    status: summary.status,
+    generatedAt: snapshot.generatedAt,
+    tableCount: summary.tableCount,
+    rpcCount: summary.rpcCount,
+    staleTables: summary.staleTables,
+    probeSilent: summary.probeSilent,
+    schemaDriftStatus: snapshot.schemaDrift?.status,
+    expectedTables: EXPECTED_KPI_TABLES.map(item => item.table),
+    expectedRpcs: EXPECTED_KPI_RPCS.map(item => item.rpc),
+  })}`)
 }
 
-main().catch(error => {
-  console.error(error.message)
+getKpiHealthSnapshot().then(snapshot => {
+  printSnapshot(snapshot)
+  if (snapshot.summary?.status === 'risk' || snapshot.summary?.probeSilent) {
+    process.exitCode = 1
+  }
+}).catch(error => {
+  console.error(error instanceof Error ? error.message : 'KPI Supabase health failed.')
   process.exitCode = 1
 })

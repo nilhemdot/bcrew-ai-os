@@ -31,6 +31,11 @@ import {
   initFoundationDb,
 } from '../lib/foundation-db.js'
 import { getFoundationSurfaceMap } from '../lib/foundation-surface-map.js'
+import {
+  EXPECTED_KPI_RPCS,
+  EXPECTED_KPI_TABLES,
+  KPI_HEALTH_PRIMARY_SURFACE,
+} from '../lib/kpi-health.js'
 
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
@@ -257,6 +262,9 @@ async function main() {
   const driveContentExtractionSource = await readRepoFile('scripts/extract-drive-content.mjs')
   const driveLinkInventorySource = await readRepoFile('scripts/inventory-drive-linked-files.mjs')
   const extractionLaneItemShapeAudit = await readRepoFile('docs/audits/2026-04-28-extraction-lane-item-shape.md')
+  const kpiHealthSource = await readRepoFile('lib/kpi-health.js')
+  const kpiHealthScriptSource = await readRepoFile('scripts/kpi-supabase-health.mjs')
+  const kpiSourceNote = await readRepoFile('docs/source-notes/kpi-dashboard.md')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
   const intelligenceAtomProofSource = await readRepoFile('scripts/intelligence-atom-spine-proof.mjs')
@@ -1333,6 +1341,8 @@ async function main() {
   const extractionRecentStaleReapedRuns = Array.isArray(foundationHub.extractionControl?.recentStaleReapedRuns)
     ? foundationHub.extractionControl.recentStaleReapedRuns
     : []
+  const sourceTruthKpiHealth = sourceOfTruth.kpiHealth || {}
+  const foundationHubKpiHealth = foundationHub.kpiHealth || {}
   const foundationSurfaceMap = getFoundationSurfaceMap()
   const foundationBuildCloseouts = getFoundationBuildCloseouts()
   const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
@@ -1451,6 +1461,92 @@ async function main() {
     ]),
     'Data Sources pages explain purpose and connector boundary',
     'Overview, Docs, Spreadsheets, APIs / Apps, and Connectors have explicit page-purpose copy',
+  )
+  const expectedKpiTableNames = EXPECTED_KPI_TABLES.map(item => item.table)
+  const expectedKpiRpcNames = EXPECTED_KPI_RPCS.map(item => item.rpc)
+  const sourceTruthKpiTables = Array.isArray(sourceTruthKpiHealth.tables) ? sourceTruthKpiHealth.tables : []
+  const sourceTruthKpiRpcs = Array.isArray(sourceTruthKpiHealth.rpcs) ? sourceTruthKpiHealth.rpcs : []
+  const sourceTruthKpiTableNames = sourceTruthKpiTables.map(item => item.table)
+  const sourceTruthKpiRpcNames = sourceTruthKpiRpcs.map(item => item.rpc)
+  const missingKpiTables = expectedKpiTableNames.filter(table => !sourceTruthKpiTableNames.includes(table))
+  const missingKpiRpcs = expectedKpiRpcNames.filter(rpc => !sourceTruthKpiRpcNames.includes(rpc))
+  ensure(
+    checks,
+    sourceTruthKpiHealth.contractVersion === 1 &&
+      sourceTruthKpiHealth.primarySurface === KPI_HEALTH_PRIMARY_SURFACE &&
+      sourceTruthKpiHealth.summary?.probeSilent === false &&
+      sourceTruthKpiTables.length === expectedKpiTableNames.length &&
+      sourceTruthKpiRpcs.length === expectedKpiRpcNames.length &&
+      missingKpiTables.length === 0 &&
+      missingKpiRpcs.length === 0 &&
+      sourceTruthKpiHealth.schemaDrift?.status &&
+      foundationHubKpiHealth.summary?.probeSilent === false,
+    'Data Sources exposes KPI / Supabase health contract',
+    missingKpiTables.length || missingKpiRpcs.length
+      ? `missing tables=${missingKpiTables.join(',') || 'none'} rpcs=${missingKpiRpcs.join(',') || 'none'}`
+      : `${sourceTruthKpiTables.length} tables / ${sourceTruthKpiRpcs.length} RPCs / status=${sourceTruthKpiHealth.summary?.status || 'unknown'}`,
+  )
+  ensure(
+    checks,
+    expectedKpiTableNames.every(table => kpiHealthSource.includes(`table: '${table}'`)) &&
+      expectedKpiRpcNames.every(rpc => kpiHealthSource.includes(`rpc: '${rpc}'`)) &&
+      includesAll(kpiHealthSource, [
+        'KPI_HEALTH_CONTRACT_VERSION',
+        'KPI_HEALTH_PRIMARY_SURFACE',
+        'freshnessWindowDays',
+        'KPI_HEALTH_LEE_REPO_PATH',
+        'schemaDrift',
+        'probeSilent',
+      ]) &&
+      includesAll(kpiHealthScriptSource, [
+        'getKpiHealthSnapshot',
+        'KPI_HEALTH_SUMMARY',
+        'process.exitCode = 1',
+      ]) &&
+      includesAll(kpiSourceNote, [
+        'Load-bearing tables',
+        'Load-bearing RPCs',
+        'Freshness windows are per source',
+        'Lee repo/Supabase schema drift',
+        'Foundation > Data Sources > APIs / Apps > KPI / Supabase Health',
+      ]),
+    'KPI health probe codifies read rules, freshness, schema drift, and proof output',
+    `${expectedKpiTableNames.length} tables / ${expectedKpiRpcNames.length} RPCs guarded in lib/kpi-health.js`,
+  )
+  const kpiHealthBacklog = (foundationHub.backlogItems || []).find(item => item.id === 'KPI-HEALTH-001') || null
+  const kpiHealthBacklogText = [
+    kpiHealthBacklog?.summary,
+    kpiHealthBacklog?.whyItMatters,
+    kpiHealthBacklog?.nextAction,
+    kpiHealthBacklog?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    kpiHealthBacklog?.lane === 'done' &&
+      kpiHealthBacklog?.priority === 'P1' &&
+      expectedKpiTableNames.every(table => kpiHealthBacklogText.includes(table)) &&
+      expectedKpiRpcNames.every(rpc => kpiHealthBacklogText.includes(rpc)) &&
+      kpiHealthBacklogText.includes('Foundation > Data Sources > APIs / Apps > KPI / Supabase Health') &&
+      kpiHealthBacklogText.includes('Runtime Health should only warn when the probe is unhealthy') &&
+      currentPlan.includes('KPI-HEALTH-001` v1 now probes') &&
+      currentState.includes('KPI-HEALTH-001` is done for v1'),
+    'KPI-HEALTH-001 backlog and docs capture exact v1 acceptance',
+    kpiHealthBacklog
+      ? `${kpiHealthBacklog.lane} / ${kpiHealthBacklog.priority} / ${expectedKpiTableNames.length} tables / ${expectedKpiRpcNames.length} RPCs`
+      : 'missing KPI-HEALTH-001',
+  )
+  ensure(
+    checks,
+    includesAll(foundationUiSource, [
+      'renderKpiSupabaseHealthPanel',
+      'KPI / Supabase Health',
+      'Load-bearing KPI freshness and schema drift',
+      'renderKpiHealthRuntimeWarning',
+      'Runtime Health only surfaces KPI here when freshness, schema drift, or the health probe itself is unhealthy',
+      '/foundation#source-apis:kpi-supabase-health',
+    ]),
+    'Foundation UI shows KPI health in Data Sources and warnings in Runtime Health',
+    'primary KPI health panel is Data Sources; Runtime Health is warning-only',
   )
   ensure(
     checks,
@@ -1597,6 +1693,10 @@ async function main() {
     (build.backlogIds || []).includes('DRIVE-CONTENT-001') &&
       build.closeoutKey === 'drive-content-sheets-text-extraction'
   )
+  const buildLogKpiHealthBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('KPI-HEALTH-001') &&
+      build.closeoutKey === 'kpi-health-supabase-probe'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1608,6 +1708,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-METRICS-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-SURFACE-UPDATES-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('DRIVE-CONTENT-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('KPI-HEALTH-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -1739,6 +1840,21 @@ async function main() {
     buildLogDriveSheetsBuild
       ? `${buildLogDriveSheetsBuild.shortSha} / ${buildLogDriveSheetsBuild.acceptanceState} / ${buildLogDriveSheetsBuild.proofStatus}`
       : 'missing Drive Sheets text extraction closeout',
+  )
+  ensure(
+    checks,
+    buildLogKpiHealthBuild?.operatorCloseout === true &&
+      buildLogKpiHealthBuild.relatedBacklog?.some(item => item.id === 'KPI-HEALTH-001' && item.lane === 'done') &&
+      buildLogKpiHealthBuild.relatedBacklog?.some(item => item.id === 'SOURCE-010' && item.lane === 'done') &&
+      buildLogKpiHealthBuild.proofCommands?.includes('npm run kpi:health') &&
+      buildLogKpiHealthBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /KPI \/ Supabase health probe/i.test(buildLogKpiHealthBuild.whatChanged || '') &&
+      /14\/14 tables|5\/5 RPCs|foundation:verify/i.test(buildLogKpiHealthBuild.proofStatus || '') &&
+      /Action Router/i.test(buildLogKpiHealthBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for KPI health',
+    buildLogKpiHealthBuild
+      ? `${buildLogKpiHealthBuild.shortSha} / ${buildLogKpiHealthBuild.acceptanceState} / ${buildLogKpiHealthBuild.proofStatus}`
+      : 'missing KPI health closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2591,6 +2707,33 @@ async function main() {
     fubHealth
       .split('\n')
       .filter(lineValue => lineValue.includes('Context:') || lineValue.includes('Status:'))
+      .join(' | '),
+  )
+
+  const kpiHealth = await runHealthScript('kpi:health')
+  const kpiHealthSummaryLine = kpiHealth.split('\n').find(lineValue => lineValue.startsWith('KPI_HEALTH_SUMMARY '))
+  let kpiHealthSummary = null
+  if (kpiHealthSummaryLine) {
+    try {
+      kpiHealthSummary = JSON.parse(kpiHealthSummaryLine.replace('KPI_HEALTH_SUMMARY ', ''))
+    } catch {
+      kpiHealthSummary = null
+    }
+  }
+  ensure(
+    checks,
+    kpiHealth.includes('KPI Supabase health') &&
+      kpiHealth.includes('Status:') &&
+      kpiHealth.includes('KPI_HEALTH_SUMMARY') &&
+      kpiHealthSummary?.tableCount === EXPECTED_KPI_TABLES.length &&
+      kpiHealthSummary?.rpcCount === EXPECTED_KPI_RPCS.length &&
+      kpiHealthSummary?.probeSilent === false &&
+      kpiHealthSummary?.schemaDriftStatus === 'healthy' &&
+      kpiHealthSummary?.status !== 'risk',
+    'kpi:health passes for load-bearing KPI tables/RPCs',
+    kpiHealth
+      .split('\n')
+      .filter(lineValue => /^(  Status|  Tables|  RPCs|KPI_HEALTH_SUMMARY)/.test(lineValue))
       .join(' | '),
   )
 

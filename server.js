@@ -83,6 +83,7 @@ import {
 } from './lib/fub.js'
 import { getDriveFileMetadata, getSheetValues } from './lib/google-delegated.js'
 import { getGroupedSourceSystems, getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
+import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -3224,7 +3225,7 @@ async function getRecentBuildLog(limit = 30) {
   return attachBacklogCardsToBuilds(enrichedBuilds, backlogItems)
 }
 
-app.get('/api/source-of-truth', requireAdminToken, (_req, res) => {
+app.get('/api/source-of-truth', requireAdminToken, async (_req, res) => {
   const businessStrategy = readFileSafe(businessStrategyPath)
   const sourceRegistry = readFileSafe(sourceRegistryPath)
   const sourceContracts = getSourceContracts()
@@ -3234,6 +3235,7 @@ app.get('/api/source-of-truth', requireAdminToken, (_req, res) => {
   const readableSourceCount = sourceContracts.filter(source =>
     source.validation === 'Readable Only' || source.status === 'Verified Readable'
   ).length
+  const kpiHealth = await getSafeKpiHealthSnapshot()
 
   res.json({
     title: 'BCrew AI OS',
@@ -3251,6 +3253,7 @@ app.get('/api/source-of-truth', requireAdminToken, (_req, res) => {
     sources: sourceContracts,
     connectors: sourceConnectors,
     groupedSystems: groupedSourceSystems,
+    kpiHealth,
     systemStatus: [
       {
         key: 'strategy-doc',
@@ -3908,7 +3911,11 @@ app.get('/api/sheets/structure-status', requireAdminToken, async (_req, res) => 
 app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
   try {
     const snapshot = await getFoundationSnapshot()
-    res.json(snapshot)
+    const kpiHealth = await getSafeKpiHealthSnapshot()
+    res.json({
+      ...snapshot,
+      kpiHealth,
+    })
   } catch (error) {
     sendApiError(
       res,

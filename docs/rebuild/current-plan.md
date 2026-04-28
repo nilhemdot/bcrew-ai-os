@@ -93,7 +93,7 @@ Built and useful now:
 - Drive content extraction first slices: Google Docs, Google Sheets, PDFs, markdown, and plain-text files are archived as source-backed artifacts with explicit skip reasons for unsupported file types.
 - Gmail attachment extraction first slice: Gmail PDF/text attachments are archived; images/media/Office/OCR classes are skipped into explicit future lanes.
 - Video transcript extraction first slice: YouTube subtitles are extracted through DataForSEO from the shared video-link manifest; no-subtitle/visual-review work routes to the multimodal lane.
-- KPI/Supabase read rules are closed for `SOURCE-010`; health/freshness and Lee repo/schema drift now belong to `KPI-HEALTH-001`.
+- KPI/Supabase read rules are closed for `SOURCE-010`; `KPI-HEALTH-001` v1 now probes load-bearing KPI tables/RPCs, freshness windows, and Lee repo/Supabase schema drift.
 - Row-scoped Owners / deal-review runners.
 - Owners Dashboard imported `Lists` repair: governed FUB lead sources now live in upstream `SRC-OWNERS-LISTS-001`, Admin `N` and `P` reuse the same source list, Admin `S` uses imported active agents, and Google delegated writes are blocked from the imported mirror range.
 - Owners/FUB v1 parity rules: Admin column `BZ` joins to FUB person records, governed FUB source rules drive company/agent expectations, and Admin review flags invalid source, source-lineage, stale-stage, and ISA mismatch issues.
@@ -196,8 +196,8 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Lock Owners dropdown/list parity against FUB lineage.
 7. `DATA-007` through `DATA-009` — Parked Ops/deal-validation cleanup, not Foundation source blockers.
    - Invalid lead-source row backfill, missing FUB link backfill, and suspicious duplicate full-credit row resolution now route through Ops/source-quality cleanup unless new evidence proves a v1 rule is wrong.
-8. `KPI-HEALTH-001` — Add KPI health, freshness, and schema/code drift checks after `SOURCE-010`.
-   - `SOURCE-010` is closed for first-pass read rules. The next work is recurring health/freshness and Lee repo/Supabase schema drift proof.
+8. `KPI-HEALTH-001` — Done for v1 after `SOURCE-010`.
+   - `SOURCE-010` is closed for first-pass read rules. KPI health now has a read-only probe, Data Sources surface, Runtime Health warning hook, Lee repo/Supabase schema drift checklist, and verifier coverage.
 9. `SYNTHESIS-ENGINE-001` / `SYNTHESIS-FACTS-001` / `ACTION-ROUTER-001` — Close the intelligence loop.
    - Governed synthesis now persists owner-suggested synthesized items from source-backed facts and hybrid evidence.
    - Source-backed strategy/source-contract, goal, operating, KPI, source-health, and retrieved-evidence grounding is now persisted in `intelligence_synthesis_facts`.
@@ -518,6 +518,7 @@ Current partial proof:
 - Runtime Health now exposes Extraction Control: Coverage By Target from `/api/foundation-hub`, with last success, last failure, next bite, item totals, top failed/skipped reasons, and remaining backlog indicators where available.
 - `EXTRACT-CONTROL-001` v1 is closed through that coverage panel. Further retry/backoff execution belongs to `EXTRACT-RETRY-001`; richer app-surface breadcrumbs and updated markers belong to `FOUNDATION-SURFACE-UPDATES-001`.
 - Drive Sheets text extraction was picked from Runtime Health evidence: `sheet_text_extraction_not_in_v1` was the largest actionable Drive content skipped reason. Proof run `crawl-drive-content-extract-backfill-20260428181558392-93bfbd63` inspected 5 existing sheet-skipped items, archived 5 `drive_spreadsheet` artifacts / 308,697 chars through Sheets API values, and recorded 0 crawl item failures.
+- KPI health was picked from the broader Runtime Health/source evidence frame: failed extraction items were 0, synthesis quality was green, Action Router had pending work but no approved-stuck breakage, and `KPI-HEALTH-001` was the smallest closeable freshness/health slice. The v1 probe checks 14 load-bearing KPI tables, 5 KPI RPCs, per-source freshness windows, expected Supabase columns/RPC output fields, and Lee `zahnd-team-dashboard` table/RPC references. Primary surface is Foundation > Data Sources > APIs / Apps > KPI / Supabase Health; Runtime Health only warns when unhealthy.
 - Partial target runs now exit nonzero from `run-extraction-target`, so item-level failures cannot look like green Foundation jobs.
 - `meeting-notes-retry-failed` is registered as a manual Foundation job and retries failed meeting crawl items from `source_crawl_items` instead of rerunning the whole current-day window.
 - First retry proof found `0` failed meeting crawl items and succeeded as a no-op.

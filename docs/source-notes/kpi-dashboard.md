@@ -857,7 +857,17 @@ Once the top 20 reads are signed off, AI OS should be able to answer:
 2. first AI OS job reads are mapped to the correct tables/RPCs
 3. Shopping List meaning, quality checks, and usage-vs-maintenance boundaries are documented
 
-The remaining work is not SOURCE-010. It belongs to `KPI-HEALTH-001`: add health checks, freshness indicators, and repeatable Lee repo / Supabase schema drift review before broader Sales Hub automation depends on KPI continuously.
+`KPI-HEALTH-001` v1 is now the operational health layer for that read model. It is intentionally read-only and checks the surfaces that would burn Steve in a meeting if they drifted:
+
+- Load-bearing tables: `profiles`, `users`, `persons`, `appointments`, `leads`, `deal_data`, `goals`, `company_goals`, `expansion_goals`, `users_activity`, `admin_user_activity_reports`, `leaderboard_challenges`, `leaderboard_teams`, `leaderboard_team_members`.
+- Load-bearing RPCs: `get_company_dashboard_stats`, `get_company_leads`, `get_company_appointments`, `get_team_mqy_build_metrics`, `get_team_mqy_perform_metrics`.
+- Freshness windows are per source: current pipeline/activity tables are tight, goal and leaderboard setup tables are slower-moving, and stale windows are visible instead of treated as generic table-read success.
+- Lee repo/Supabase schema drift means either live Supabase is missing an expected column/RPC output field or Lee's local `zahnd-team-dashboard` code/migrations no longer reference the expected KPI table/RPC.
+- Primary surface: Foundation > Data Sources > APIs / Apps > KPI / Supabase Health.
+- Runtime Health only raises a KPI warning if the health probe is unhealthy.
+- Proof command: `npm run kpi:health`; build gate: `npm run foundation:verify`.
+
+This still does not rebuild KPI, create Sales Hub coaching, or automate Action Router closure. Those are separate slices.
 
 Audit checkpoint:
 
