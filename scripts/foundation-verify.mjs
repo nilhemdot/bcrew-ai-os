@@ -302,8 +302,12 @@ async function main() {
   const intelligenceActionRouterProofSource = await readRepoFile('scripts/intelligence-action-router-proof.mjs')
   const processShipCheckSource = await readRepoFile('scripts/process-ship-check.mjs')
   const processShipCheckDoc = await readRepoFile('docs/process/ship-check.md')
+  const processFanoutCheckSource = await readRepoFile('scripts/process-fanout-check.mjs')
+  const processFanoutCheckDoc = await readRepoFile('docs/process/ship-fanout.md')
   const processHooksApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-HOOKS-001.json')
   const processHooksApproval = JSON.parse(processHooksApprovalSource)
+  const processFanoutApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-FANOUT-001.json')
+  const processFanoutApproval = JSON.parse(processFanoutApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -1795,6 +1799,10 @@ async function main() {
     (build.backlogIds || []).includes('ACTION-REVIEW-APPLY-001') &&
       build.closeoutKey === 'action-review-apply-v1'
   )
+  const buildLogProcessFanoutBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('PROCESS-FANOUT-001') &&
+      build.closeoutKey === 'process-fanout-v1-repair'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1816,6 +1824,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('BACKLOG-HYGIENE-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('DEV-PROCESS-AUDIT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-HOOKS-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-FANOUT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
@@ -2067,6 +2076,21 @@ async function main() {
     buildLogActionReviewApplyBuild
       ? `${buildLogActionReviewApplyBuild.shortSha} / ${buildLogActionReviewApplyBuild.acceptanceState} / ${buildLogActionReviewApplyBuild.proofStatus}`
       : 'missing Action Review closeout',
+  )
+  ensure(
+    checks,
+    buildLogProcessFanoutBuild?.operatorCloseout === true &&
+      buildLogProcessFanoutBuild.relatedBacklog?.some(item => item.id === 'PROCESS-FANOUT-001' && item.lane === 'done') &&
+      buildLogProcessFanoutBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
+      buildLogProcessFanoutBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      buildLogProcessFanoutBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /claimed artifact existence|actual script|npm command/i.test(buildLogProcessFanoutBuild.proofStatus || '') &&
+      /Wave 2/i.test(buildLogProcessFanoutBuild.reviewNext || '') &&
+      /script gate/i.test(buildLogProcessFanoutBuild.knownLimits?.join(' ') || ''),
+    'Recent Builds v2 carries closeout proof for process fanout repair',
+    buildLogProcessFanoutBuild
+      ? `${buildLogProcessFanoutBuild.shortSha} / ${buildLogProcessFanoutBuild.acceptanceState} / ${buildLogProcessFanoutBuild.proofStatus}`
+      : 'missing process fanout repair closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2690,6 +2714,7 @@ async function main() {
   const backlogHygiene = (foundationHub.backlogItems || []).find(item => item.id === 'BACKLOG-HYGIENE-001') || null
   const devProcessAudit = (foundationHub.backlogItems || []).find(item => item.id === 'DEV-PROCESS-AUDIT-001') || null
   const processHooks = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-001') || null
+  const processFanout = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-FANOUT-001') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
   const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
@@ -2708,6 +2733,12 @@ async function main() {
     processHooks?.nextAction,
     processHooks?.statusNote,
   ].filter(Boolean).join('\n')
+  const processFanoutText = [
+    processFanout?.summary,
+    processFanout?.whyItMatters,
+    processFanout?.nextAction,
+    processFanout?.statusNote,
+  ].filter(Boolean).join('\n')
   const backlogHygieneText = [
     backlogHygiene?.summary,
     backlogHygiene?.whyItMatters,
@@ -2715,6 +2746,7 @@ async function main() {
     backlogHygiene?.statusNote,
     devProcessAuditText,
     processHooksText,
+    processFanoutText,
   ].filter(Boolean).join('\n')
   ensure(
     checks,
@@ -2810,6 +2842,54 @@ async function main() {
     processHooks
       ? `${processHooks.lane} / approval=${processHooksApproval.score} / script=process:ship-check`
       : 'missing PROCESS-HOOKS-001',
+  )
+  ensure(
+    checks,
+    processFanout?.lane === 'done' &&
+      processFanout?.priority === 'P0' &&
+      includesAll(packageSource, ['"process:fanout-check"', 'scripts/process-fanout-check.mjs']) &&
+      includesAll(processFanoutCheckSource, [
+        'claimed files and docs exist',
+        'claimed npm scripts exist',
+        'Recent Builds exposes this closeout',
+        'dashboard served commit matches repo HEAD',
+        'process:fanout-check',
+        'process:ship-check',
+        'foundation:verify',
+      ]) &&
+      includesAll(processFanoutCheckDoc, [
+        'Did the ship update every place it claimed to update?',
+        'scripts/process-fanout-check.mjs',
+        'docs/process/ship-fanout.md',
+        'npm run process:fanout-check',
+        'false-done card',
+      ]) &&
+      processFanoutApproval.cardId === 'PROCESS-FANOUT-001' &&
+      Number(processFanoutApproval.score) >= 9.8 &&
+      processFanoutApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(processFanoutApproval.approvedAt).getTime()) &&
+      processFanoutText.includes('process-fanout-v1-repair') &&
+      processFanoutText.includes('scripts/process-fanout-check.mjs') &&
+      processFanoutText.includes('docs/process/ship-fanout.md') &&
+      processFanoutText.includes('npm run process:fanout-check') &&
+      processFanoutText.includes('files, docs, npm scripts') &&
+      processFanoutText.includes('Wave 2 next'),
+    'PROCESS-FANOUT-001 repair makes the false-done card true',
+    processFanout
+      ? `${processFanout.lane} / approval=${processFanoutApproval.score} / script=process:fanout-check`
+      : 'missing PROCESS-FANOUT-001',
+  )
+  const processFanoutClaimedArtifacts = [
+    { label: 'scripts/process-fanout-check.mjs', ok: processFanoutCheckSource.includes('Process fanout check') },
+    { label: 'docs/process/ship-fanout.md', ok: processFanoutCheckDoc.includes('Process Fanout Check') },
+    { label: 'package.json script process:fanout-check', ok: packageSource.includes('"process:fanout-check"') },
+    { label: 'docs/process/approvals/PROCESS-FANOUT-001.json', ok: processFanoutApproval.cardId === 'PROCESS-FANOUT-001' },
+  ]
+  ensure(
+    checks,
+    processFanoutClaimedArtifacts.every(item => item.ok),
+    'PROCESS-FANOUT-001 claimed artifacts are concrete and verifier-visible',
+    processFanoutClaimedArtifacts.map(item => item.label).join(', '),
   )
   ensure(
     checks,

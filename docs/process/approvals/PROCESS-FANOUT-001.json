@@ -1,0 +1,8 @@
+{
+  "cardId": "PROCESS-FANOUT-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-28T23:16:07Z",
+  "approvalSource": "Steve approved Card 0 PROCESS-FANOUT-001 repair plan in chat after reviewer scored it 9.8/10.",
+  "notes": "Approval covers Path A repair: add the actual process fanout check script, plain-English doc, npm script, closeout key process-fanout-v1-repair, verifier coverage for claimed artifact existence, process gate proof, foundation verifier proof, and no feature work."
+}
