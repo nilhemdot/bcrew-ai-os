@@ -209,6 +209,8 @@ async function main() {
   const intelligencePipelineSource = await readRepoFile('docs/rebuild/intelligence-pipeline.md')
   const intelligenceSalvageSpecSource = await readRepoFile('docs/specs/2026-04-27-intelligence-spine-old-system-salvage.md')
   const strategyHubManifestSource = await readRepoFile('docs/specs/2026-04-27-strategy-hub-v2-source-to-gap-manifest.md')
+  const strategicIntelSpecSource = await readRepoFile('docs/specs/2026-04-28-strategic-intelligence-loop.md')
+  const foundationHardCheckpointSource = await readRepoFile('docs/handoffs/2026-04-28-foundation-hard-checkpoint.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const systemStrategy = await readRepoFile('docs/system-strategy.md')
   const packageSource = await readRepoFile('package.json')
@@ -335,6 +337,44 @@ async function main() {
       !foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#rebuild-plan"'),
     'system strategy and rebuild plan reflect current Foundation architecture',
     'System Strategy names the Systems Layer, Rebuild Plan names Systems page / SOURCE-010 closeout / Ops Hub v1 / extraction slices, priority hierarchy is documented, and nav treats Doctrine + Rebuild Plan as peer pages',
+  )
+  ensure(
+    checks,
+    includesAll(systemStrategy, [
+      'memory is not backlog',
+      'Strategic Intelligence Doctrine',
+      'gap-resolving Scoper',
+      'Strategy route-review UI proof plumbing is not the same thing as meeting-ready UX',
+    ]) &&
+      includesAll(currentPlan, [
+        'Hard Checkpoint — 2026-04-28 Foundation Return',
+        'Parked Next Leg — Strategic Intelligence Operating Loop',
+        'FOUNDATION-CHANGELOG-002',
+        'INTEL-THREAD-CONTEXT-001',
+      ]) &&
+      includesAll(currentState, [
+        'Hard checkpoint call from 2026-04-28',
+        'Strategy Hub route-review proof plumbing advanced, but Steve did not accept the UI as meeting-ready',
+        'FOUNDATION-SWEEP-001',
+        'FOUNDATION-CHANGELOG-002',
+      ]) &&
+      includesAll(strategicIntelSpecSource, [
+        'intelligence_strategic_issues',
+        'already_answered',
+        'partially_answered',
+        'real_gap',
+        'Thread-Context Requirement',
+        'Resolution Feedback',
+      ]) &&
+      includesAll(foundationHardCheckpointSource, [
+        'Nothing from Apr 27-28 should remain only in chat memory',
+        'FOUNDATION-SWEEP-001',
+        'FOUNDATION-CHANGELOG-002',
+        'crawl-slack-current-day-20260427145904292-3f93bebd',
+        'Not Next',
+      ]),
+    '2026-04-28 hard checkpoint artifacts are promoted into repo truth',
+    'system strategy, current plan/state, Strategic Intel spec, and handoff all carry the Foundation-return decision and parked Strategy/Scoper work',
   )
   ensure(
     checks,
@@ -1841,11 +1881,13 @@ async function main() {
   )
   const foundationSurfaceSweep = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-SWEEP-001') || null
   const foundationChangelog = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-CHANGELOG-001') || null
+  const foundationChangelogV2 = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-CHANGELOG-002') || null
   ensure(
     checks,
-    foundationSurfaceSweep?.lane === 'scoped' &&
+    foundationSurfaceSweep?.lane === 'executing' &&
       foundationSurfaceSweep?.priority === 'P0' &&
       /source contracts, connectors, jobs, docs, backlog cards, or system maps change/.test(foundationSurfaceSweep?.summary || '') &&
+      /2026-04-28 hard checkpoint/.test(foundationSurfaceSweep?.statusNote || '') &&
       currentPlan.includes('Foundation surfaces must not rely on Steve noticing stale truth') &&
       currentPlan.includes('FOUNDATION-SWEEP-001'),
     'Foundation surface freshness sweep is tracked as P0 work',
@@ -1863,6 +1905,18 @@ async function main() {
     'Foundation build closeout discipline is tracked and enforced',
     foundationChangelog ? `${foundationChangelog.lane} / ${foundationChangelog.title}` : 'missing FOUNDATION-CHANGELOG-001',
   )
+  ensure(
+    checks,
+    foundationChangelogV2?.lane === 'scoped' &&
+      foundationChangelogV2?.priority === 'P0' &&
+      /operator changelog/.test(foundationChangelogV2?.summary || '') &&
+      /related backlog card/.test(foundationChangelogV2?.summary || foundationChangelogV2?.nextAction || '') &&
+      /proof command/.test(foundationChangelogV2?.summary || foundationChangelogV2?.nextAction || '') &&
+      /what should Steve review next/.test(foundationChangelogV2?.nextAction || '') &&
+      currentPlan.includes('FOUNDATION-CHANGELOG-002'),
+    'Foundation Recent Builds v2 operator changelog hardening is captured',
+    foundationChangelogV2 ? `${foundationChangelogV2.lane} / ${foundationChangelogV2.title}` : 'missing FOUNDATION-CHANGELOG-002',
+  )
   const strategyLayerCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-001') || null
   const strategyInputCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-014') || null
   ensure(
@@ -1876,6 +1930,7 @@ async function main() {
   const strategyMeetingReady = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGY-HUB-MEETING-READY-001') || null
   const strategicIntel = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGIC-INTEL-001') || null
   const intelScoper = (foundationHub.backlogItems || []).find(item => item.id === 'INTEL-SCOPER-001') || null
+  const intelThreadContext = (foundationHub.backlogItems || []).find(item => item.id === 'INTEL-THREAD-CONTEXT-001') || null
   const strategyQuarter = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGY-QUARTER-001') || null
   const modelRouting = (foundationHub.backlogItems || []).find(item => item.id === 'MODEL-ROUTING-001') || null
   const agentFactory = (foundationHub.backlogItems || []).find(item => item.id === 'AGENT-005') || null
@@ -1890,25 +1945,29 @@ async function main() {
   const strategyMeetingReadyText = backlogItemText(strategyMeetingReady)
   const strategicIntelText = backlogItemText(strategicIntel)
   const intelScoperText = backlogItemText(intelScoper)
+  const intelThreadContextText = backlogItemText(intelThreadContext)
   const strategyQuarterText = backlogItemText(strategyQuarter)
   const modelRoutingText = backlogItemText(modelRouting)
   const agentFactoryText = backlogItemText(agentFactory)
   ensure(
     checks,
-    systemStrategyReview?.lane === 'scoped' &&
+    systemStrategyReview?.lane === 'done' &&
       systemStrategyReviewText.includes('function-vs-form testing') &&
       systemStrategyReviewText.includes('memory-versus-repo-truth discipline') &&
-      strategyMeetingReady?.lane === 'executing' &&
+      systemStrategyReviewText.includes('docs/handoffs/2026-04-28-foundation-hard-checkpoint.md') &&
+      strategyMeetingReady?.lane === 'scoped' &&
+      strategyMeetingReady?.priority === 'P1' &&
       strategyMeetingReadyText.includes('plain-English') &&
       strategyMeetingReadyText.includes('live ownership meetings') &&
       strategyMeetingReadyText.includes('1 day / 1 week / 1 month / 1 quarter / custom') &&
+      strategyMeetingReadyText.includes('UI quality as meeting-ready') &&
       strategicIntel?.lane === 'scoped' &&
       strategicIntel?.priority === 'P0' &&
       strategicIntelText.includes('intelligence_strategic_issues') &&
+      strategicIntelText.includes('docs/specs/2026-04-28-strategic-intelligence-loop.md') &&
       strategicIntelText.includes('urgency, impact, confidence, and staleness') &&
       strategicIntelText.includes('resolution feedback') &&
-      strategicIntelText.includes('Depends on STRATEGY-HUB-MEETING-READY-001') &&
-      strategicIntelText.includes('blocks INTEL-SCOPER-001') &&
+      strategicIntelText.includes('blocks `INTEL-SCOPER-001`') &&
       strategicIntelText.includes('>= 5 strategic issues surfaced/week') &&
       strategicIntelText.includes('>= 2 resolved-to-applied/week') &&
       intelScoper?.lane === 'scoped' &&
@@ -1916,9 +1975,15 @@ async function main() {
       intelScoperText.includes('gap analysis') &&
       intelScoperText.includes('Depends on STRATEGIC-INTEL-001') &&
       intelScoperText.includes('"Scope this"') &&
+      intelScoperText.includes('already_answered') &&
       intelScoperText.includes('verified / partial / remaining-gaps sections') &&
       intelScoperText.includes('Every verified claim must cite') &&
       intelScoperText.includes('minimal Agent Spec') &&
+      intelThreadContext?.lane === 'scoped' &&
+      intelThreadContext?.priority === 'P1' &&
+      intelThreadContextText.includes('reply count') &&
+      intelThreadContextText.includes('one-message thread') &&
+      intelThreadContextText.includes('cross-source corroboration') &&
       strategyQuarter?.lane === 'scoped' &&
       strategyQuarter?.priority === 'P1' &&
       strategyQuarterText.includes('PostgreSQL-backed canonical records') &&
@@ -1938,6 +2003,7 @@ async function main() {
       `meeting=${strategyMeetingReady?.lane || 'missing'}`,
       `intel=${strategicIntel?.lane || 'missing'}`,
       `scoper=${intelScoper?.lane || 'missing'}`,
+      `thread=${intelThreadContext?.lane || 'missing'}`,
       `quarter=${strategyQuarter?.lane || 'missing'}`,
       `model=${modelRouting?.lane || 'missing'}`,
       `agent=${agentFactory?.lane || 'missing'}`,

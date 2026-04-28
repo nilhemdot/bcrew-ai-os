@@ -1,7 +1,7 @@
 # System Strategy
 
 Status: Active
-Last updated: 2026-04-26
+Last updated: 2026-04-28
 
 This page defines how the BCrew AI OS works as an operating system around the business.
 
@@ -84,6 +84,36 @@ Approvals should follow role and ownership boundaries, not default back to one p
 Conflicting decisions should be surfaced and cleaned up, not allowed to silently coexist.
 
 Doctrine and the rebuild plan are governed, not frozen. Research from operators, paid training, YouTube/creator intelligence, Mycro/myICOR, customer evidence, or better system proof can change the plan when the new evidence is useful and Steve or the right owner confirms the update. When that happens, update the doctrine, rebuild plan, backlog, decisions, source notes, and verifier checks together instead of treating the old plan as permanent.
+
+## Build Discipline
+
+Heavy build days must close through Foundation, not through chat memory.
+
+Operating rules:
+
+- memory is not backlog; if a conversation changes the build, it must land in repo truth or a DB-backed backlog/decision record
+- a verifier can guard a spec, but it must not become the only spec
+- human-readable sample rows matter; verifier green is not enough when output quality is the product
+- UI work is not accepted just because the backend is correct
+- after a major surface or doctrine pass, run a checkpoint before moving on: what changed, what was learned, what belongs in backlog, what belongs in docs, and what verifier should prevent regression
+- Recent Builds must let Steve understand what changed, what it does, where it lives, and what to review next without reading long chats or git diffs
+
+When the system learns something durable during a builder/reviewer loop, capture it at the lowest durable layer that fits: backlog card, source contract, current plan/state, system strategy, or verifier. Handoffs are evidence; active docs and live backlog are operating truth.
+
+## Strategic Intelligence Doctrine
+
+Strategy Hub is not a one-time quarterly-planning page. The long-term direction is a continuous Strategic Intelligence loop:
+
+1. mine company signals from governed sources
+2. separate strategic issues from operational noise
+3. prove where the signal came from
+4. scope what is already answered, what is partial, and what is truly missing
+5. route decisions, questions, tasks, or issues to the right owner and hub
+6. record resolution so stale issues stop resurfacing as fresh work
+
+The gap-resolving Scoper is the first intended depth layer, but it must not be built as an agent swarm. It should be on-demand, tool-using, evidence-cited, cost-bounded, and built after the strategic issue schema/spec is approved. The Scoper's job is not to write a deeper research essay; its job is to narrow ambiguity into verified facts, remaining gaps, owner, and next steps.
+
+The current Strategy Hub route-review UI proved useful plumbing but was not accepted as a meeting-ready product. Strategy route-review UI proof plumbing is not the same thing as meeting-ready UX. Until Foundation freshness, build visibility, and checkpoint discipline are stable, Strategy Hub polish should pause and Foundation should return to the command order.
 
 ## Agent Doctrine
 

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-04-27
-Version: v6.12 — Action Router closure proof
+Last updated: 2026-04-28
+Version: v6.13 — Foundation hard checkpoint after Strategy detour
 Status: Active
 
 Use this doc for one question:
@@ -200,14 +200,46 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Source-backed strategy/source-contract, goal, operating, KPI, source-health, and retrieved-evidence grounding is now persisted in `intelligence_synthesis_facts`.
    - Action Router v1 now proposes governed routes into decisions, backlog tasks, questions, ignore/snooze, or owner-bound action lanes with back-links and human approval required before destination writes.
 
-### Next Leg — Strategic Intelligence Operating Loop
+### Hard Checkpoint — 2026-04-28 Foundation Return
+
+The Apr 27-28 Strategy push was useful because it proved the source -> atom -> retrieval -> facts -> synthesis -> route spine and exposed the next Strategic Intelligence requirements. It also proved the danger of climbing too high before Foundation can explain and police what was built.
+
+Current call:
+
+- pause Strategy Hub UI polish
+- do not build the Scoper yet
+- do not start Agent Factory / Health Auditor / cleanup agents
+- return to Foundation visibility, freshness, and checkpoint discipline
+
+Order now:
+
+1. `SYSTEM-STRATEGY-REVIEW-001` — done / P1.
+   - Apr 26-28 builder/reviewer lessons were promoted into system strategy, current plan/state, and backlog cards.
+   - The handoff evidence is `docs/handoffs/2026-04-28-foundation-hard-checkpoint.md`.
+2. `FOUNDATION-SWEEP-001` — executing / P0.
+   - Build the first Foundation surface-freshness sweep.
+   - This is the next Foundation build before more Strategy polish.
+3. `FOUNDATION-CHANGELOG-002` — scoped / P0.
+   - Recent Builds v1 exists, but Steve still cannot quickly answer what was built, what it does, where it lives, and what should be reviewed.
+   - Upgrade Recent Builds into an operator-readable changelog tied to backlog cards, proof, status, and system area.
+4. Resume existing Foundation command order.
+   - runtime/source freshness
+   - extraction/corpus hardening
+   - closed-loop action/resolution feedback
+   - privacy/tier/process controls
+5. Resume Strategic Intelligence only after the Foundation checkpoint work is stable.
+
+### Parked Next Leg — Strategic Intelligence Operating Loop
 
 This is the active next-leg plan after the 2026-04-28 Strategy Hub route review. The goal is not a one-time quarterly planning dashboard. The goal is a continuously useful Strategic Intelligence loop that mines company signals, surfaces needle-moving issues, scopes what is already answered versus truly missing, and helps the ownership team move those issues to resolution.
 
+This leg remains correct, but it is not the next build until Foundation visibility catches up.
+
 Order:
 
-1. `STRATEGY-HUB-MEETING-READY-001` — executing / P0.
-   - Fix the current Strategy Hub route review so Steve can use it in weekly ownership meetings.
+1. `STRATEGY-HUB-MEETING-READY-001` — scoped / P1.
+   - V1 proof plumbing shipped, but Steve did not accept the UI quality as meeting-ready.
+   - Resume only after Foundation freshness/build-visibility work is stable.
    - Required: human-readable source proof instead of internal IDs, button legend/tooltips, owner picker, snooze durations, Strategy-local applied/done visibility, and reject confirmation.
 2. `STRATEGIC-INTEL-001` — scoped / P0.
    - Spec gate before more Strategic Intelligence code.
@@ -219,15 +251,18 @@ Order:
    - It must answer what is already verified, what is partial, what actually remains, who likely owns it, and the smallest useful next steps, with evidence pointers for every verified claim.
    - Depends on the approved `STRATEGIC-INTEL-001` issue-ledger/schema decision.
    - Hub UI must support `Scope this` and render the scoped result as verified / partial / remaining-gaps sections with evidence chips and next steps.
-4. `STRATEGY-QUARTER-001` — scoped / P1.
+4. `INTEL-THREAD-CONTEXT-001` — scoped / P1.
+   - Evidence proof must show reply count, participants, latest activity, weak-proof flags, and cross-source corroboration where available.
+   - This prevents one-way or test-like emails from looking like confirmed strategic issues.
+5. `STRATEGY-QUARTER-001` — scoped / P1.
    - Build the Strategy Quarter input/context layer: quarter theme, critical number, unresolved strategic issues, department targets, open decisions, weekly outputs, and meeting follow-through.
    - This gives Strategic Intelligence context; it is not the value layer by itself.
-5. `MODEL-ROUTING-001` — scoped / P1.
+6. `MODEL-ROUTING-001` — scoped / P1.
    - Document model/runtime routing doctrine before Scoper and agent work expand.
    - Preserve the boundary: subscriptions are for humans/operator use when allowed and logged; system runtime uses official APIs and governed adapters by default.
    - Canonical destination is `docs/rebuild/current-runtime-map.md`.
-6. `SYSTEM-STRATEGY-REVIEW-001` — scoped / P1.
-   - Mine Apr 26-28 builder/reviewer conversations and promote durable doctrine into repo truth/backlog/verifiers.
+7. `SYSTEM-STRATEGY-REVIEW-001` — done / P1.
+   - Apr 26-28 builder/reviewer conversations were mined into repo truth/backlog/verifiers by the hard checkpoint.
 
 Discipline rules for this leg:
 
@@ -235,6 +270,7 @@ Discipline rules for this leg:
 - Each card closes only on measurable acceptance criteria, proof, and a human-readable sample where applicable.
 - Steve reads the Strategy/Scoper sample rows before closeout; verifier success alone is not enough.
 - Do not start Agent Factory, System Health Auditor, cleanup agents, or department director agents until the existing deferral gate is met.
+- Foundation remains the control plane. Hubs are consumers and work surfaces; if the system cannot explain its own changes and current plan, do not climb higher into hub UX.
 
 ### Phase 0 — Keep The Existing Proof Stable
 
