@@ -115,6 +115,10 @@ Hard checkpoint call from 2026-04-28:
 - `EXTRACT-METRICS-001` is done for v1, linked to `EXTRACT-CONTROL-001`. Lane-shape inspection is saved in `docs/audits/2026-04-28-extraction-lane-item-shape.md`; Missive current-day was the smallest missing item-ledger lane and now emits `missive_conversation` crawl items; Runtime Health now shows Extraction Control: Coverage By Target with last success, last failure, next bite, item totals, top failed/skipped reasons, and available remaining-backlog indicators.
 - `EXTRACT-CONTROL-001 v1 is closed`: the control plane now has target/item ledgers, schedule truth, stale-run visibility, item summaries/findings, Slack/Missive item proof, and coverage-by-target. Failed-item retry/backoff remains a child card under `EXTRACT-RETRY-001`; app-surface breadcrumbs and updated markers are parked under `FOUNDATION-SURFACE-UPDATES-001`.
 - `KPI-HEALTH-001` is done for v1: `npm run kpi:health` checks the load-bearing KPI tables/RPCs, freshness windows, expected Supabase schema/output fields, and Lee `zahnd-team-dashboard` references; `/api/source-of-truth` and `/api/foundation-hub` expose `kpiHealth`; Data Sources renders the KPI / Supabase Health panel; Runtime Health only surfaces KPI when unhealthy.
+- Steve's operator UX standard is now active: plain English first, technical terms translated inline, Overview as the CEO dashboard for system-building, and top nav target of Overview -> Systems -> Backlog -> Recent Work. `FOUNDATION-SURFACE-UPDATES-001` owns the UI work.
+- `ACTION-REVIEW-APPLY-001` is the next intended build slice: make pending Action Router routes easy to review, approve/reject, apply, and verify with destination-record proof.
+- `RESEARCH-INBOX-001` is parked as the pre-backlog research inbox for YouTube, Mycro/myICOR, courses, articles, and good AI-system ideas. It is not next.
+- `RUNTIME-HEALTH-SIMPLIFY-001` is parked so Runtime Health can later get a plain-English top layer without weakening the diagnostic detail.
 
 Current command order:
 
@@ -122,7 +126,19 @@ Current command order:
 2. Monitor capture and extraction through Runtime Health coverage-by-target; let the unhealthy/thin list choose the next extraction slice.
 3. Harden missing corpus lanes.
 4. Keep freshness and health checks visible as source readers become continuous.
-5. Close the action loop.
+5. Close the action loop through `ACTION-REVIEW-APPLY-001`.
+6. Stop and re-plan with Steve before auto-picking another Foundation slice. The decision is whether Foundation is good enough to un-pause Scoper, dev intelligence, and agent-managed backlog work.
+
+## Operator Surface Pattern
+
+Every hub overview should eventually follow the same CEO-dashboard pattern:
+
+- what the system can do
+- system and code health grade
+- recent improvements
+- what needs attention right now
+
+For Foundation, this means Overview should become the high-level command dashboard, Systems should explain what the system is, Backlog should show queued/done work, and Recent Work should show what shipped and where it lives.
 
 ## Foundation Operations Surfaces
 
@@ -130,11 +146,12 @@ These pages are operator surfaces, not strategy pages.
 
 | Page | Why it exists | Current truth |
 | --- | --- | --- |
-| Backlog | Root Foundation build queue. | Live and primary for task status, priority, lane, owner, and next action. |
+| Backlog | Root Foundation build queue. | Live and primary for task status, priority, lane, owner, and next action. Needs done-date and newest-done sorting under `FOUNDATION-SURFACE-UPDATES-001`. |
 | Decisions | Canonical governance ledger. | Working as a manual first slice; not yet automatic meeting/chat decision capture. `DECISION-007` owns old-decision reconciliation and `ACTION-ROUTER-001` owns future routing from synthesis. |
 | Open Questions | Exception queue for real unresolved blockers. | Technically working, but the old stale carry-forward questions were resolved or routed into backlog/source docs on 2026-04-26. New questions should be rare, owner-bound, and cleared quickly. |
+| Recent Work | Operator changelog. | Currently Recent Builds v2. It should move near the top nav, default collapsed, and link each change to the app/doc/system surface where it lives under `FOUNDATION-SURFACE-UPDATES-001`. |
 | System Activity | Short audit feed. | Live latest-event view from `change_events`; `SYSTEM-007` owns the future searchable explorer. |
-| Runtime Health | Operator diagnostic surface. | Live job/LLM/extraction/source-crawl view; `SYSTEM-008` owns deeper alert/degradation semantics. |
+| Runtime Health | Operator diagnostic surface. | Live job/LLM/extraction/source-crawl view; `SYSTEM-008` owns deeper alert/degradation semantics and `RUNTIME-HEALTH-SIMPLIFY-001` owns later readability simplification. |
 
 ## Data Sources And System Inventory Surfaces
 

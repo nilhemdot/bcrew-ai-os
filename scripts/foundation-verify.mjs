@@ -1697,6 +1697,10 @@ async function main() {
     (build.backlogIds || []).includes('KPI-HEALTH-001') &&
       build.closeoutKey === 'kpi-health-supabase-probe'
   )
+  const buildLogOperatorUxCaptureBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('FOUNDATION-SURFACE-UPDATES-001') &&
+      build.closeoutKey === 'foundation-operator-ux-capture'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1709,6 +1713,9 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-SURFACE-UPDATES-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('DRIVE-CONTENT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('KPI-HEALTH-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('ACTION-REVIEW-APPLY-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('RESEARCH-INBOX-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('RUNTIME-HEALTH-SIMPLIFY-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -1855,6 +1862,20 @@ async function main() {
     buildLogKpiHealthBuild
       ? `${buildLogKpiHealthBuild.shortSha} / ${buildLogKpiHealthBuild.acceptanceState} / ${buildLogKpiHealthBuild.proofStatus}`
       : 'missing KPI health closeout',
+  )
+  ensure(
+    checks,
+    buildLogOperatorUxCaptureBuild?.operatorCloseout === true &&
+      buildLogOperatorUxCaptureBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SURFACE-UPDATES-001' && item.lane === 'scoped') &&
+      buildLogOperatorUxCaptureBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && item.lane === 'scoped') &&
+      buildLogOperatorUxCaptureBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /plain-English Foundation UX standard/i.test(buildLogOperatorUxCaptureBuild.whatChanged || '') &&
+      /Overview -> Systems -> Backlog -> Recent Work/i.test(buildLogOperatorUxCaptureBuild.whatItDoes || '') &&
+      /ACTION-REVIEW-APPLY-001/i.test(buildLogOperatorUxCaptureBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for Foundation operator UX capture',
+    buildLogOperatorUxCaptureBuild
+      ? `${buildLogOperatorUxCaptureBuild.shortSha} / ${buildLogOperatorUxCaptureBuild.acceptanceState} / ${buildLogOperatorUxCaptureBuild.proofStatus}`
+      : 'missing Foundation operator UX capture closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2449,21 +2470,101 @@ async function main() {
     checks,
     foundationSurfaceUpdates?.lane === 'scoped' &&
       foundationSurfaceUpdates?.priority === 'P1' &&
+      foundationSurfaceUpdatesText.includes('plain-English') &&
+      foundationSurfaceUpdatesText.includes('Overview -> Systems -> Backlog -> Recent Work') &&
       foundationSurfaceUpdatesText.includes('clickable app breadcrumbs') &&
-      foundationSurfaceUpdatesText.includes('New or Recently updated') &&
+      foundationSurfaceUpdatesText.includes('done-velocity') &&
+      foundationSurfaceUpdatesText.includes('moved-to-done date') &&
+      foundationSurfaceUpdatesText.includes('Phase 1 / Truth Cleanup') &&
+      foundationSurfaceUpdatesText.includes('command-order') &&
       foundationSurfaceUpdatesText.includes('backend-only') &&
-      foundationSurfaceUpdatesText.includes('doc-only') &&
       foundationSurfaceUpdatesText.includes('app surface metadata') &&
       foundationSurfaceUpdatesText.includes('at least 3 recent closeouts') &&
-      foundationSurfaceUpdatesText.includes('not build during EXTRACT-METRICS-001') &&
+      foundationSurfaceUpdatesText.includes('technical terms must have a plain-English meaning next to them') &&
+      currentPlan.includes('Foundation is the CEO dashboard for system-building') &&
+      currentPlan.includes('Overview -> Systems -> Backlog -> Recent Work') &&
+      currentState.includes("Steve's operator UX standard is now active") &&
       foundationSurfaceMap.some(surface =>
         surface.section === 'build-log' &&
           (surface.backlogIds || []).includes('FOUNDATION-SURFACE-UPDATES-001')
       ),
-    'Foundation shipped-change surface visibility follow-up is parked as scoped P1',
+    'Foundation operator UX and Recent Work follow-up is parked as scoped P1',
     foundationSurfaceUpdates
       ? `${foundationSurfaceUpdates.lane} / ${foundationSurfaceUpdates.priority} / ${foundationSurfaceUpdates.title}`
       : 'missing FOUNDATION-SURFACE-UPDATES-001',
+  )
+  const actionReviewApply = (foundationHub.backlogItems || []).find(item => item.id === 'ACTION-REVIEW-APPLY-001') || null
+  const actionReviewApplyText = [
+    actionReviewApply?.title,
+    actionReviewApply?.summary,
+    actionReviewApply?.whyItMatters,
+    actionReviewApply?.nextAction,
+    actionReviewApply?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    actionReviewApply?.lane === 'scoped' &&
+      actionReviewApply?.priority === 'P0' &&
+      actionReviewApplyText.includes('18 pending') &&
+      actionReviewApplyText.includes('Approve/Reject') &&
+      actionReviewApplyText.includes('destination record') &&
+      actionReviewApplyText.includes('aged-route') &&
+      actionReviewApplyText.includes('apply-success-rate verifier') &&
+      actionReviewApplyText.includes('Resolution hardening waits') &&
+      currentPlan.includes('`ACTION-REVIEW-APPLY-001` is the next narrow child slice') &&
+      currentState.includes('`ACTION-REVIEW-APPLY-001` is the next intended build slice'),
+    'Action Router review/apply child card is scoped before coding',
+    actionReviewApply
+      ? `${actionReviewApply.lane} / ${actionReviewApply.priority} / ${actionReviewApply.title}`
+      : 'missing ACTION-REVIEW-APPLY-001',
+  )
+  const researchInbox = (foundationHub.backlogItems || []).find(item => item.id === 'RESEARCH-INBOX-001') || null
+  const researchInboxText = [
+    researchInbox?.title,
+    researchInbox?.summary,
+    researchInbox?.whyItMatters,
+    researchInbox?.nextAction,
+    researchInbox?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    researchInbox?.lane === 'scoped' &&
+      researchInbox?.priority === 'P1' &&
+      researchInboxText.includes('pre-backlog') &&
+      researchInboxText.includes('YouTube') &&
+      researchInboxText.includes('Mycro/myICOR') &&
+      researchInboxText.includes('promote into backlog with acceptance criteria or archive with the reason') &&
+      researchInboxText.includes('WEB-GODMODE-001') &&
+      researchInboxText.includes('MULTIMODAL-EXTRACTOR-001') &&
+      currentPlan.includes('`RESEARCH-INBOX-001`') &&
+      currentState.includes('`RESEARCH-INBOX-001` is parked'),
+    'Research Inbox pre-backlog card is parked',
+    researchInbox
+      ? `${researchInbox.lane} / ${researchInbox.priority} / ${researchInbox.title}`
+      : 'missing RESEARCH-INBOX-001',
+  )
+  const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
+  const runtimeHealthSimplifyText = [
+    runtimeHealthSimplify?.title,
+    runtimeHealthSimplify?.summary,
+    runtimeHealthSimplify?.whyItMatters,
+    runtimeHealthSimplify?.nextAction,
+    runtimeHealthSimplify?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    runtimeHealthSimplify?.lane === 'scoped' &&
+      runtimeHealthSimplify?.priority === 'P1' &&
+      runtimeHealthSimplifyText.includes('too dense') &&
+      runtimeHealthSimplifyText.includes('plain-English top layer') &&
+      runtimeHealthSimplifyText.includes('collapsed-by-default diagnostic groups') &&
+      runtimeHealthSimplifyText.includes('Parked follow-up, not next') &&
+      currentPlan.includes('`RUNTIME-HEALTH-SIMPLIFY-001`') &&
+      currentState.includes('`RUNTIME-HEALTH-SIMPLIFY-001` is parked'),
+    'Runtime Health simplification card is parked',
+    runtimeHealthSimplify
+      ? `${runtimeHealthSimplify.lane} / ${runtimeHealthSimplify.priority} / ${runtimeHealthSimplify.title}`
+      : 'missing RUNTIME-HEALTH-SIMPLIFY-001',
   )
   const foundationUsersAdmin = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-USERS-001') || null
   const foundationUsersAdminText = [
