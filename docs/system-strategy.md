@@ -115,6 +115,10 @@ The gap-resolving Scoper is the first intended depth layer, but it must not be b
 
 The current Strategy Hub route-review UI proved useful plumbing but was not accepted as a meeting-ready product. Strategy route-review UI proof plumbing is not the same thing as meeting-ready UX. Until Foundation freshness, build visibility, and checkpoint discipline are stable, Strategy Hub polish should pause and Foundation should return to the command order.
 
+The primary operating cadence is weekly ownership review. Strategy Hub, Scoper output, and routed actions are designed for a recurring meeting where the team reads, discusses, and resolves issues together — not for async single-user inbox processing.
+
+AIOS is designed to be open during meetings, talked-with in real-time. The Hub is a co-participant in the conversation, not a dashboard people glance at. Plain-English titles, evidence pointers a human can click through, and dialogue-friendly framing matter more than visual polish; UI features should be evaluated against the test of whether they hold up when the ownership team reads them out loud and discusses next moves live.
+
 ## Agent Doctrine
 
 Agents support strategy. They do not define it.
