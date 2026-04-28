@@ -1557,6 +1557,10 @@ async function main() {
     (build.backlogIds || []).includes('EXTRACTION-TEAM-001') &&
       build.closeoutKey === 'slack-current-day-channel-proof'
   )
+  const buildLogScheduleTruthBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('EXTRACT-CONTROL-001') &&
+      build.closeoutKey === 'extract-control-schedule-truth'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1564,6 +1568,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-SWEEP-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-CHANGELOG-002') &&
       foundationBuildCloseoutValidation.backlogIds.includes('EXTRACTION-TEAM-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-SCHEDULE-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -1637,6 +1642,19 @@ async function main() {
     buildLogSlackProofBuild
       ? `${buildLogSlackProofBuild.shortSha} / ${buildLogSlackProofBuild.acceptanceState} / ${buildLogSlackProofBuild.proofStatus}`
       : 'missing Slack current-day build closeout',
+  )
+  ensure(
+    checks,
+    buildLogScheduleTruthBuild?.operatorCloseout === true &&
+      buildLogScheduleTruthBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && item.lane === 'scoped') &&
+      buildLogScheduleTruthBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-SCHEDULE-001' && item.lane === 'done') &&
+      buildLogScheduleTruthBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /Foundation job runtime as visible next-run truth/i.test(buildLogScheduleTruthBuild.whatChanged || '') &&
+      /coverage-by-target/i.test(buildLogScheduleTruthBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for extraction schedule truth',
+    buildLogScheduleTruthBuild
+      ? `${buildLogScheduleTruthBuild.shortSha} / ${buildLogScheduleTruthBuild.acceptanceState} / ${buildLogScheduleTruthBuild.proofStatus}`
+      : 'missing extraction schedule truth closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -1998,10 +2016,23 @@ async function main() {
   ensure(
     checks,
     scheduledExtractionTargets.length > 0 &&
-      scheduledExtractionTargets.every(target => target.foundationJobKey && target.scheduler?.scheduleStatus),
+      scheduledExtractionTargets.every(target =>
+        target.foundationJobKey &&
+        target.scheduler?.scheduleStatus &&
+        target.scheduler?.scheduleTruth === 'foundation_job' &&
+        target.nextRunAt === target.scheduler?.nextRunAt &&
+        target.effectiveNextRunAt === target.scheduler?.nextRunAt &&
+        Object.prototype.hasOwnProperty.call(target.scheduler, 'crawlCheckpointNextRunAt')
+      ) &&
+      !scheduledExtractionTargets.some(target =>
+        (target.healthFindings || []).some(finding => finding.type === 'job_target_schedule_mismatch')
+      ) &&
+      includesAll(foundationDbSource, ['scheduleTruth', 'crawlCheckpointNextRunAt']) &&
+      !foundationDbSource.includes('targetNextRunAt') &&
+      includesAll(foundationUiSource, ['crawlCheckpointNextRunAt', 'Runner checkpoint']),
     'api/foundation-hub derives extraction schedules from Foundation jobs',
     scheduledExtractionTargets.length
-      ? `${scheduledExtractionTargets.length} targets derive schedule from job runtime`
+      ? `${scheduledExtractionTargets.length} targets derive visible schedule from job runtime`
       : 'no target schedule derivations found',
   )
   ensure(
@@ -2168,6 +2199,31 @@ async function main() {
     extractRetry
       ? `${extractRetry.lane} / ${extractRetry.priority} / ${extractRetry.title}`
       : 'missing EXTRACT-RETRY-001',
+  )
+  const extractControl = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-CONTROL-001') || null
+  const extractSchedule = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-SCHEDULE-001') || null
+  const extractControlText = [
+    extractControl?.nextAction,
+    extractControl?.statusNote,
+  ].filter(Boolean).join('\n')
+  const extractScheduleText = [
+    extractSchedule?.nextAction,
+    extractSchedule?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    extractControl?.lane === 'scoped' &&
+      extractControl?.priority === 'P0' &&
+      extractControlText.includes('coverage-by-target') &&
+      extractControlText.includes('scheduled targets now display Foundation job schedule as visible truth') &&
+      extractSchedule?.lane === 'done' &&
+      extractSchedule?.priority === 'P1' &&
+      extractScheduleText.includes('crawlCheckpointNextRunAt') &&
+      extractScheduleText.includes('job_target_schedule_mismatch') &&
+      currentPlan.includes('crawlCheckpointNextRunAt') &&
+      currentState.includes('crawlCheckpointNextRunAt'),
+    'extraction schedule truth is closed while coverage stays next',
+    `EXTRACT-CONTROL-001=${extractControl?.lane || 'missing'} / EXTRACT-SCHEDULE-001=${extractSchedule?.lane || 'missing'}`,
   )
   const strategyLayerCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-001') || null
   const strategyInputCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-014') || null

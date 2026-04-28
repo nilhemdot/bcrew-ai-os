@@ -500,6 +500,7 @@ Current partial proof:
 - Seeded targets cover Gmail, Missive, meetings, Slack, Drive, Skool, old-system report mining, and historical Zoom recovery.
 - Current-day targets are separate from bounded backfill/corpus/recovery targets.
 - `scripts/run-extraction-target.mjs` wraps supported targets with a lease, process-group timeout, source before/after stats, output tail, and target run-state update.
+- Scheduled crawl targets now display Foundation job runtime as the visible next-run truth; target-level `next_run_at` remains available only as `crawlCheckpointNextRunAt` runner checkpoint metadata.
 - `gmail-sync-current` now calls `npm run extraction:target -- --target=gmail-current-day` through the Foundation job runner.
 - `missive-sync-current` now calls `npm run extraction:target -- --target=missive-current-day` through the Foundation job runner.
 - `meeting-notes-sync-current` now calls `npm run extraction:target -- --target=meetings-current-day` through the Foundation job runner.

@@ -5294,11 +5294,17 @@ function renderExtractionControlPanel(extractionControl) {
         + (scheduler.nextRunAt ? ', next ' + formatDate(scheduler.nextRunAt) : '')
         + (scheduler.scheduleDetail ? '. ' + scheduler.scheduleDetail : '.')
       : ''
+    var checkpointLine = scheduler.source === 'foundation_job' &&
+      scheduler.crawlCheckpointNextRunAt &&
+      scheduler.crawlCheckpointNextRunAt !== scheduler.nextRunAt
+      ? ' Runner checkpoint: ' + formatDate(scheduler.crawlCheckpointNextRunAt) + '.'
+      : ''
     var detail = target.sourceId + ' · ' + target.lane + ' · ' + schedulerMode + '. ' + counts
       + (budgetParts.length ? ' Budget: ' + budgetParts.join(', ') + '.' : '')
       + itemLine
       + lastState
       + scheduleLine
+      + checkpointLine
       + findingLine
       + ' ' + (target.notes || '')
     var hasRiskFinding = findings.some(function(finding) { return finding.severity === 'risk' })
