@@ -2126,6 +2126,49 @@ async function main() {
     'Foundation Recent Builds v2 operator changelog hardening is closed',
     foundationChangelogV2 ? `${foundationChangelogV2.lane} / ${foundationChangelogV2.title}` : 'missing FOUNDATION-CHANGELOG-002',
   )
+  const foundationUsersAdmin = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-USERS-001') || null
+  const foundationUsersAdminText = [
+    foundationUsersAdmin?.title,
+    foundationUsersAdmin?.summary,
+    foundationUsersAdmin?.whyItMatters,
+    foundationUsersAdmin?.nextAction,
+    foundationUsersAdmin?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    foundationUsersAdmin?.lane === 'scoped' &&
+      foundationUsersAdmin?.priority === 'P1' &&
+      foundationUsersAdminText.includes('owner-only') &&
+      foundationUsersAdminText.includes('without editing `.env`') &&
+      foundationUsersAdminText.includes('disable') &&
+      foundationUsersAdminText.includes('audit') &&
+      foundationUsersAdminText.includes('non-owners cannot manage access') &&
+      foundationUsersAdminText.includes('SECURITY-002') &&
+      currentPlan.includes('FOUNDATION-USERS-001'),
+    'Foundation user/access control panel is parked as scoped P1 follow-up',
+    foundationUsersAdmin
+      ? `${foundationUsersAdmin.lane} / ${foundationUsersAdmin.priority} / ${foundationUsersAdmin.title}`
+      : 'missing FOUNDATION-USERS-001',
+  )
+  const extractRetry = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-RETRY-001') || null
+  const extractRetryText = [
+    extractRetry?.summary,
+    extractRetry?.nextAction,
+    extractRetry?.statusNote,
+  ].filter(Boolean).join('\n')
+  ensure(
+    checks,
+    extractRetry?.lane === 'scoped' &&
+      extractRetry?.priority === 'P1' &&
+      extractRetryText.includes('retry/backoff') &&
+      extractRetryText.includes('failed `source_crawl_items`') &&
+      extractRetryText.includes('Partial target runs now exit nonzero') &&
+      extractRetryText.includes('Runtime Health shows failed/skipped item summaries'),
+    'failed-item retry/backoff remains parked in live backlog truth',
+    extractRetry
+      ? `${extractRetry.lane} / ${extractRetry.priority} / ${extractRetry.title}`
+      : 'missing EXTRACT-RETRY-001',
+  )
   const strategyLayerCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-001') || null
   const strategyInputCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-014') || null
   ensure(
