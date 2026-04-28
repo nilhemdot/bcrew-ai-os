@@ -2717,6 +2717,73 @@ body {
   line-height: 1.45;
 }
 
+.build-log-list {
+  display: grid;
+  gap: 10px;
+}
+
+.build-log-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  padding: 14px 16px;
+}
+
+.build-log-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.build-log-top strong {
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.build-log-meta,
+.build-log-files,
+.build-log-purpose {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.build-log-meta,
+.build-log-files {
+  color: var(--text-tertiary);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.build-log-details {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.build-log-details summary {
+  cursor: pointer;
+  color: var(--brand-dark);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.build-log-details ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.build-log-details li {
+  color: var(--text-tertiary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .decision-card-memory,
 .capture-card-memory,
 .doc-update-card {
@@ -6104,11 +6171,13 @@ code {
 .hero.strategy-v2-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, auto);
-  background: #000;
-  color: #fff;
+  background: #fff;
+  color: var(--text-primary);
   align-items: center;
-  border-color: #000;
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--brand);
   border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
   padding: 24px 28px;
 }
 
@@ -6128,13 +6197,13 @@ code {
 
 .strategy-v2-hero .eyebrow,
 .strategy-v2-hero p {
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--text-secondary);
 }
 
 .strategy-v2-hero h1 {
   max-width: 620px;
   margin: 7px 0 8px;
-  color: #fff;
+  color: var(--text-primary);
   font-family: 'stratum-1-web', 'Arial Black', sans-serif;
   font-size: clamp(1.7rem, 2.4vw, 2.35rem);
   font-weight: 900;
@@ -6221,7 +6290,7 @@ code {
 .strategy-v2-source-grid,
 .strategy-v2-overview-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 12px;
 }
 
@@ -6243,7 +6312,8 @@ code {
 
 .strategy-v2-kpi-card,
 .strategy-v2-focus-panel,
-.strategy-v2-source-compact {
+.strategy-v2-source-compact,
+.strategy-v2-model-panel {
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -6299,6 +6369,109 @@ code {
   grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
   gap: 12px;
   align-items: start;
+}
+
+.strategy-v2-model-panel {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.strategy-v2-model-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, auto);
+  gap: 18px;
+  align-items: start;
+}
+
+.strategy-v2-model-header h3,
+.strategy-v2-model-projection strong {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.strategy-v2-model-header h3 {
+  font-size: 1.22rem;
+}
+
+.strategy-v2-model-projection {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  padding: 12px;
+  text-align: right;
+}
+
+.strategy-v2-model-projection span,
+.strategy-v2-model-projection small {
+  color: var(--text-tertiary);
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.strategy-v2-model-projection strong {
+  font-size: 1.34rem;
+}
+
+.strategy-v2-bar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.strategy-v2-bar-row {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.strategy-v2-bar-top {
+  display: grid;
+  gap: 4px;
+}
+
+.strategy-v2-bar-top span {
+  color: var(--text-tertiary);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.strategy-v2-bar-top strong {
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.strategy-v2-bar-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+.strategy-v2-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.strategy-v2-bar-fill-watch {
+  background: #f59e0b;
+}
+
+.strategy-v2-bar-fill-good {
+  background: #10b981;
 }
 
 .strategy-v2-focus-panel {
@@ -6412,18 +6585,23 @@ code {
 
 .strategy-v2-card-top,
 .strategy-v2-route-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: start;
+  justify-content: space-between;
 }
 
 .strategy-v2-card h4,
 .strategy-v2-route-card h4 {
+  max-width: 100%;
   font-family: 'stratum-1-web', 'Arial Black', sans-serif;
   font-size: 1.05rem;
   line-height: 1.08;
   text-transform: uppercase;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: manual;
 }
 
 .strategy-v2-card-title {
@@ -6439,7 +6617,7 @@ code {
 
 .strategy-v2-fact-row {
   display: grid;
-  grid-template-columns: minmax(90px, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 4px 10px;
   min-height: 44px;
   border: 1px solid var(--border);
@@ -6461,10 +6639,21 @@ code {
   font-size: 0.86rem;
   line-height: 1.25;
   text-align: right;
+  white-space: normal;
 }
 
 .strategy-v2-source-id {
   grid-column: 1 / -1;
+}
+
+.strategy-v2-source-note {
+  border-left: 3px solid var(--brand);
+  margin: 0;
+  background: var(--brand-glow);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  padding: 8px 10px;
 }
 
 .strategy-v2-route-stack {
@@ -6585,6 +6774,8 @@ code {
   .strategy-v2-kpi-grid,
   .strategy-v2-overview-layout,
   .strategy-v2-source-compact-grid,
+  .strategy-v2-model-header,
+  .strategy-v2-bar-grid,
   .hero.strategy-v2-hero,
   .strategy-v2-card-top,
   .strategy-v2-route-top {

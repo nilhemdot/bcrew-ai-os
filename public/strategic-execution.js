@@ -221,6 +221,47 @@
     return String(value || '').replace(/\s*\([^)]*\)/g, '').trim()
   }
 
+  function numericValue(value) {
+    var normalized = String(value || '').replace(/,/g, '').trim()
+    var match = normalized.match(/-?\d+(?:\.\d+)?/)
+    if (!match) return null
+    var number = Number(match[0])
+    if (Number.isNaN(number)) return null
+    if (/[kK]\b/.test(normalized)) return number * 1000
+    if (/[mM]\b/.test(normalized)) return number * 1000000
+    return number
+  }
+
+  function percentValue(value) {
+    var parsed = numericValue(value)
+    return parsed == null ? null : parsed / 100
+  }
+
+  function formatCompactMoney(value) {
+    if (value == null || Number.isNaN(value)) return 'Missing'
+    var abs = Math.abs(value)
+    var sign = value < 0 ? '-' : ''
+    if (abs >= 1000000) return sign + '$' + (abs / 1000000).toFixed(abs >= 10000000 ? 0 : 1).replace(/\.0$/, '') + 'M'
+    if (abs >= 1000) return sign + '$' + Math.round(abs / 1000) + 'K'
+    return sign + '$' + Math.round(abs)
+  }
+
+  function monthEndCashWatch(financeCard, ownersCard) {
+    var cash = numericValue(factValue(financeCard, 'Available Cash', ''))
+    var ar = numericValue(factValue(financeCard, 'Expected AR', ''))
+    var april = numericValue(factValue(ownersCard, 'Collecting April Net To Team', ''))
+    if (cash == null) return 'Missing'
+    return formatCompactMoney(cash + (ar || 0) + (april || 0))
+  }
+
+  function weeklyProfitLabel(financeCard) {
+    var revenue = numericValue(factValue(financeCard, 'Latest Weekly Revenue Cell', ''))
+    var expense = numericValue(factValue(financeCard, 'Latest Weekly Expense Cell', ''))
+    if (revenue == null || expense == null) return 'Weekly result missing'
+    var result = revenue - expense
+    return formatCompactMoney(result) + ' / wk'
+  }
+
   function fallbackSummary(reason) {
     var normalized = String(reason || '').toLowerCase()
     if (normalized.indexOf('429') !== -1 || normalized.indexOf('quota') !== -1 || normalized.indexOf('rate') !== -1) {
@@ -285,7 +326,7 @@
     var copy = document.createElement('div')
     appendText(copy, 'div', 'Source-To-Gap', 'eyebrow')
     appendText(copy, 'h3', 'Goal truth')
-    appendText(copy, 'p', 'Current targets, actuals, and gaps pulled from the approved strategy sources.', 'strategy-v2-muted')
+    appendText(copy, 'p', 'Current targets, actuals, and gaps from the signed strategy sources.', 'strategy-v2-muted')
     header.appendChild(copy)
     appendText(header, 'div', formatDateTime(goalTruth.generatedAt), 'doc-meta')
     panel.appendChild(header)
@@ -294,7 +335,8 @@
     grid.className = 'strategy-v2-goal-grid'
     ;(goalTruth.groups || []).forEach(function(group) {
       var card = document.createElement('article')
-      card.className = 'strategy-v2-card'
+      card.className = 'strategy-v2-card strategy-v2-goal-card'
+      card.setAttribute('data-goal-key', group.key || 'goal')
       var top = document.createElement('div')
       top.className = 'strategy-v2-card-top'
       appendText(top, 'h4', group.title)
@@ -317,8 +359,8 @@
     header.className = 'panel-header'
     var copy = document.createElement('div')
     appendText(copy, 'div', 'Operating Truth', 'eyebrow')
-    appendText(copy, 'h3', 'Signed source cards')
-    appendText(copy, 'p', emptyText(operatingTruth.rule, 'Operating truth is loaded from source contracts.'), 'strategy-v2-muted')
+    appendText(copy, 'h3', 'Operating inputs')
+    appendText(copy, 'p', 'Live source checks behind the Strategy snapshot. These are inputs, not recommendations.', 'strategy-v2-muted')
     header.appendChild(copy)
     appendText(header, 'div', formatDateTime(operatingTruth.generatedAt), 'doc-meta')
     panel.appendChild(header)
@@ -335,7 +377,10 @@
       card.appendChild(top)
       appendText(card, 'strong', emptyText(cardData.title, 'Untitled source'), 'strategy-v2-card-title')
       appendText(card, 'p', emptyText(cardData.currentRead || cardData.guardrail, 'No current read recorded.'), 'strategy-v2-muted')
-      renderFactList(card, cardData.facts, 5)
+      if (cardData.sourceId === 'SRC-OWNERS-001') {
+        appendText(card, 'p', 'Conditional deals are not firm cash. They stay as forecast risk until the deal firms and has a closing date.', 'strategy-v2-source-note')
+      }
+      renderFactList(card, displayFactsForSourceCard(cardData), 5)
       grid.appendChild(card)
     })
     panel.appendChild(grid)
@@ -385,12 +430,13 @@
     }))
     kpis.appendChild(renderOverviewKpi({
       label: 'Cash Posture',
-      value: factValue(financeCard, 'Available Cash', 'cash missing'),
-      detail: factValue(financeCard, 'Expected AR', 'AR missing') + ' expected AR',
+      value: factValue(financeCard, 'Available Cash', 'cash missing') + ' today',
+      detail: 'Month-end watch ' + monthEndCashWatch(financeCard, ownersCard) + ' before new expenses; ' + factValue(financeCard, 'Expected AR', 'AR missing') + ' AR',
       source: 'SRC-FINANCE-001',
       tone: 'neutral',
     }))
     page.appendChild(kpis)
+    page.appendChild(renderAgentEngineModel(teamGroup, capacityGroup, financeCard))
 
     var layout = document.createElement('div')
     layout.className = 'strategy-v2-overview-layout'
@@ -403,27 +449,25 @@
     focusList.className = 'strategy-v2-focus-list'
     focusList.appendChild(renderFocusRow('Production', compactGapValue(factValue(teamGroup, 'Pace', teamGroup && teamGroup.statusLabel)), 'Team volume is behind the prorated 2026 target.'))
     focusList.appendChild(renderFocusRow('Capacity', compactGapValue(factValue(capacityGroup, 'Gap This Year', capacityGroup && capacityGroup.statusLabel)), 'The agent engine is short active productive capacity for the current model.'))
-    focusList.appendChild(renderFocusRow('Community', compactGapValue(factValue(communityGroup, 'Pace', communityGroup && communityGroup.statusLabel)), 'The Real Broker community path is ahead, but it is not the team-production constraint.'))
-    focusList.appendChild(renderFocusRow('Collection', factValue(ownersCard, 'Collecting April Net To Team', 'April collection missing') + ' April / ' + factValue(ownersCard, 'Collecting May Net To Team', 'May collection missing') + ' May', 'Conditional collection is current from the Owners forecast.'))
+    focusList.appendChild(renderFocusRow('Productivity', compactGapValue(factValue(capacityGroup, 'Production Gap', 'production gap missing')), 'Average production per agent is below the model target.'))
+    focusList.appendChild(renderFocusRow('Cash', weeklyProfitLabel(financeCard), factValue(financeCard, 'Latest Weekly Revenue Cell', 'revenue missing') + ' weekly revenue vs ' + factValue(financeCard, 'Latest Weekly Expense Cell', 'expense missing') + ' weekly expenses.'))
     read.appendChild(focusList)
     layout.appendChild(read)
 
-    var queue = document.createElement('article')
-    queue.className = 'strategy-v2-focus-panel'
-    appendText(queue, 'div', 'Strategy Queue', 'eyebrow')
-    appendText(queue, 'h3', String(pendingStrategyRoutes.length) + ' items need review')
-    appendText(queue, 'p', 'Only routes explicitly marked for Strategy Hub are shown here. Operating tasks stay out of Strategy.', 'strategy-v2-muted')
-    var miniList = document.createElement('div')
-    miniList.className = 'strategy-v2-route-mini-list'
-    pendingStrategyRoutes.slice(0, 4).forEach(function(route) {
-      miniList.appendChild(renderRouteMini(route))
-    })
-    if (!pendingStrategyRoutes.length) {
-      appendText(miniList, 'p', 'No strategy-specific review items are pending.', 'strategy-v2-muted')
-    }
-    queue.appendChild(miniList)
-    layout.appendChild(queue)
+    var wins = document.createElement('article')
+    wins.className = 'strategy-v2-focus-panel'
+    appendText(wins, 'div', 'Current Wins', 'eyebrow')
+    appendText(wins, 'h3', 'Where we are winning')
+    var winList = document.createElement('div')
+    winList.className = 'strategy-v2-focus-list'
+    winList.appendChild(renderFocusRow('Community', compactGapValue(factValue(communityGroup, 'Pace', communityGroup && communityGroup.statusLabel)), 'The Real Broker community path is ahead of plan.'))
+    winList.appendChild(renderFocusRow('Split', factValue(capacityGroup, 'Split Gap', 'split gap missing'), factValue(capacityGroup, 'Actual Split', 'actual split missing') + ' actual vs ' + factValue(capacityGroup, 'Target Split', 'target split missing') + ' target.'))
+    winList.appendChild(renderFocusRow('Source Truth', data.sourceTruthStatus === 'degraded' ? 'Fallback active' : 'Live', 'Signed sources are available for the Strategy read.'))
+    wins.appendChild(winList)
+    layout.appendChild(wins)
     page.appendChild(layout)
+
+    page.appendChild(renderStrategyQueuePreview(pendingStrategyRoutes, actionRouter))
 
     var sources = document.createElement('div')
     sources.className = 'strategy-v2-source-compact-grid'
@@ -447,6 +491,86 @@
     appendText(card, 'p', config.detail, 'strategy-v2-kpi-detail')
     appendSource(card, config.source)
     return card
+  }
+
+  function renderAgentEngineModel(teamGroup, capacityGroup, financeCard) {
+    var activeAgents = numericValue(factValue(capacityGroup, 'Current Active Agents', ''))
+    var requiredAgents = numericValue(factValue(capacityGroup, 'Required Agents This Year', ''))
+    var nextYearAgents = numericValue(factValue(capacityGroup, 'Required Start-of-Year Agents', ''))
+    var avgProduction = numericValue(factValue(capacityGroup, 'Current Avg Production / Agent', ''))
+    var targetProduction = numericValue(factValue(capacityGroup, 'Production Target / Agent', ''))
+    var actualSplit = percentValue(factValue(capacityGroup, 'Actual Split', ''))
+    var targetSplit = percentValue(factValue(capacityGroup, 'Target Split', ''))
+    var projectedNet = activeAgents && avgProduction && actualSplit ? activeAgents * avgProduction * 12 * actualSplit : null
+    var targetNet = (nextYearAgents || requiredAgents) && targetProduction && targetSplit ? (nextYearAgents || requiredAgents) * targetProduction * 12 * targetSplit : null
+
+    var panel = document.createElement('article')
+    panel.className = 'strategy-v2-model-panel'
+    var header = document.createElement('div')
+    header.className = 'strategy-v2-model-header'
+    var copy = document.createElement('div')
+    appendText(copy, 'div', 'Agent Engine Model', 'eyebrow')
+    appendText(copy, 'h3', 'If the model stays this way')
+    appendText(copy, 'p', 'Active agents, production per agent, and split explain the annualized net-to-company gap.', 'strategy-v2-muted')
+    header.appendChild(copy)
+    var projection = document.createElement('div')
+    projection.className = 'strategy-v2-model-projection'
+    appendText(projection, 'span', 'Projected net to company')
+    appendText(projection, 'strong', formatCompactMoney(projectedNet))
+    appendText(projection, 'small', 'Model target ' + formatCompactMoney(targetNet))
+    header.appendChild(projection)
+    panel.appendChild(header)
+
+    var bars = document.createElement('div')
+    bars.className = 'strategy-v2-bar-grid'
+    bars.appendChild(renderMetricBar('Active agents', activeAgents, requiredAgents, factValue(capacityGroup, 'Current Active Agents', 'missing') + ' / ' + factValue(capacityGroup, 'Required Agents This Year', 'missing')))
+    bars.appendChild(renderMetricBar('Production / agent', avgProduction, targetProduction, factValue(capacityGroup, 'Current Avg Production / Agent', 'missing') + ' / ' + factValue(capacityGroup, 'Production Target / Agent', 'missing')))
+    bars.appendChild(renderMetricBar('Recruiting pace', numericValue(factValue(capacityGroup, 'Current Recruiting Pace', '')), numericValue(factValue(capacityGroup, 'Required Recruiting Pace', '')), factValue(capacityGroup, 'Current Recruiting Pace', 'missing') + ' / ' + factValue(capacityGroup, 'Required Recruiting Pace', 'missing')))
+    bars.appendChild(renderMetricBar('Average split', actualSplit, targetSplit, factValue(capacityGroup, 'Actual Split', 'missing') + ' / ' + factValue(capacityGroup, 'Target Split', 'missing'), true))
+    panel.appendChild(bars)
+    appendSource(panel, factSource(capacityGroup, 'Current Active Agents', 'SRC-FREEDOM-ENGINE-001') + ' + ' + factSource(teamGroup, 'Actual', 'SRC-OWNERS-001'))
+    return panel
+  }
+
+  function renderMetricBar(label, actual, target, detail, higherIsOk) {
+    var row = document.createElement('div')
+    row.className = 'strategy-v2-bar-row'
+    var top = document.createElement('div')
+    top.className = 'strategy-v2-bar-top'
+    appendText(top, 'span', label)
+    appendText(top, 'strong', detail)
+    row.appendChild(top)
+    var track = document.createElement('div')
+    track.className = 'strategy-v2-bar-track'
+    var fill = document.createElement('span')
+    var ratio = actual != null && target ? Math.max(0, Math.min(1.2, actual / target)) : 0
+    fill.style.width = Math.round(Math.min(1, ratio) * 100) + '%'
+    fill.className = 'strategy-v2-bar-fill ' + (ratio >= 1 || higherIsOk && ratio >= 1 ? 'strategy-v2-bar-fill-good' : 'strategy-v2-bar-fill-watch')
+    track.appendChild(fill)
+    row.appendChild(track)
+    return row
+  }
+
+  function renderStrategyQueuePreview(pendingStrategyRoutes, actionRouter) {
+    var queue = document.createElement('article')
+    queue.className = 'strategy-v2-focus-panel strategy-v2-queue-preview'
+    appendText(queue, 'div', 'Strategy Queue', 'eyebrow')
+    appendText(queue, 'h3', String(pendingStrategyRoutes.length) + ' strategy items need review')
+    appendText(queue, 'p', pendingStrategyRoutes.length
+      ? 'Only Strategy-qualified routes are shown here. Operating tasks stay out of Strategy.'
+      : 'No Strategy routes are ready yet. The backend now has one clustered Strategy sample; proposals should run only after that sample is accepted.',
+      'strategy-v2-muted'
+    )
+    var miniList = document.createElement('div')
+    miniList.className = 'strategy-v2-route-mini-list'
+    pendingStrategyRoutes.slice(0, 4).forEach(function(route) {
+      miniList.appendChild(renderRouteMini(route))
+    })
+    if (!pendingStrategyRoutes.length) {
+      appendText(miniList, 'p', String(actionRouter.hiddenOperationalRoutes || 0) + ' operational routes are hidden from this Strategy view.', 'strategy-v2-muted')
+    }
+    queue.appendChild(miniList)
+    return queue
   }
 
   function renderFocusRow(label, value, detail) {
@@ -481,6 +605,25 @@
     appendSource(card, source && source.sourceId)
     return card
   }
+
+  function displayFactsForSourceCard(cardData) {
+    var labels = {
+      'Conditional Last Sync': 'Forecast last synced',
+      'Active Conditional Tasks': 'Conditional deals under review',
+      'Conditions Due / Past Due': 'Conditions due or past due',
+      'Collecting April Net To Team': 'April firm/dated net to team',
+      'Collecting May Net To Team': 'May dated conditional upside',
+      'Collecting June Net To Team': 'June dated conditional upside',
+      'Collecting Future Net To Team': 'Future dated conditional upside',
+      'Net To Team Missing Closing Date': 'Conditional upside missing close date',
+      'Latest Weekly Revenue Cell': 'Latest weekly revenue',
+      'Latest Weekly Expense Cell': 'Latest weekly expense',
+    }
+    return (cardData.facts || []).map(function(fact) {
+      return Object.assign({}, fact, { label: labels[fact.label] || fact.label })
+    })
+  }
+
 
   function routeTitle(route) {
     return emptyText(route.proposedPayload && route.proposedPayload.title, route.routeType + ' route')
@@ -623,7 +766,7 @@
     var stack = document.createElement('div')
     stack.className = 'strategy-v2-route-stack'
     if (!routes.length) {
-      appendText(stack, 'p', 'No Strategy Hub review records are ready yet.', 'strategy-v2-muted')
+      appendText(stack, 'p', 'No Strategy Hub review records are ready yet. This is intentional: generic operating work is hidden, and Strategy proposals should be generated only after the clustered synthesis sample is accepted.', 'strategy-v2-muted')
     } else {
       routes.forEach(function(route) {
         stack.appendChild(renderRouteCard(route))

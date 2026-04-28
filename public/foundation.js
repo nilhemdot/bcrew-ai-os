@@ -4014,6 +4014,7 @@ var cache = {
   sourceOfTruth: null,
   foundationHub: null,
   systemInventory: null,
+  buildLog: null,
   sheetStructureStatus: null,
   fubLeadSources: {},
   ownersLeadSourceGovernance: null,
@@ -4078,6 +4079,18 @@ function fetchSystemInventory() {
     return res.json()
   }).then(function(data) {
     cache.systemInventory = data
+    return data
+  })
+}
+
+function fetchFoundationBuildLog() {
+  if (cache.buildLog) return Promise.resolve(cache.buildLog)
+
+  return foundationRead('/api/foundation/build-log?limit=35').then(function(res) {
+    if (!res.ok) throw new Error('Foundation build log API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.buildLog = data
     return data
   })
 }
@@ -10882,6 +10895,153 @@ function renderSystemActivity() {
   })
 }
 
+function renderBuildCard(build) {
+  var card = document.createElement('article')
+  card.className = 'build-log-card'
+
+  var top = document.createElement('div')
+  top.className = 'build-log-top'
+  var copy = document.createElement('div')
+  var title = document.createElement('strong')
+  title.textContent = build.subject || 'Untitled build'
+  copy.appendChild(title)
+  var meta = document.createElement('p')
+  meta.className = 'build-log-meta'
+  meta.textContent = (build.shortSha || '').toString() + ' · ' + formatDate(build.committedAt)
+  copy.appendChild(meta)
+  top.appendChild(copy)
+  var areaWrap = document.createElement('div')
+  areaWrap.className = 'foundation-system-summary-tags'
+  ;(build.areas || []).forEach(function(area) {
+    var pill = document.createElement('span')
+    pill.className = 'foundation-system-pill'
+    pill.textContent = area
+    areaWrap.appendChild(pill)
+  })
+  top.appendChild(areaWrap)
+  card.appendChild(top)
+
+  var purpose = document.createElement('p')
+  purpose.className = 'build-log-purpose'
+  purpose.textContent = 'What changed: ' + (build.subject || 'Repo update') + '.'
+  card.appendChild(purpose)
+
+  var groups = document.createElement('p')
+  groups.className = 'build-log-files'
+  groups.textContent = 'Where it lives: ' + ((build.fileGroups || []).join(', ') || 'Repo') + ' · ' + (build.fileCount || 0) + ' files'
+  card.appendChild(groups)
+
+  if ((build.primaryFiles || []).length) {
+    var files = document.createElement('details')
+    files.className = 'build-log-details'
+    var summary = document.createElement('summary')
+    summary.textContent = 'Changed files'
+    files.appendChild(summary)
+    var list = document.createElement('ul')
+    ;(build.primaryFiles || []).forEach(function(file) {
+      var item = document.createElement('li')
+      item.textContent = file
+      list.appendChild(item)
+    })
+    files.appendChild(list)
+    card.appendChild(files)
+  }
+
+  return card
+}
+
+function renderBuildLog() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading recent builds...</p>'
+
+  Promise.all([fetchFoundationBuildLog(), fetchFoundationHub()]).then(function(results) {
+    var buildLog = results[0]
+    var hub = results[1]
+    var builds = buildLog.builds || []
+    container.innerHTML = ''
+
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Recent Builds'
+    heroInner.appendChild(heroTitle)
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = builds.length + ' recent commits from repo truth'
+    heroInner.appendChild(heroMeta)
+    var heroNote = document.createElement('p')
+    heroNote.className = 'hero-copy'
+    heroNote.textContent = 'Operator changelog for what was built, what system it belongs to, and where to look next.'
+    heroInner.appendChild(heroNote)
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    var purposePanel = renderOverviewStatusPanel([
+      {
+        label: 'Purpose',
+        status: 'connected',
+        detail: 'Show Steve what changed while builders were moving quickly, without reading every commit or handoff.',
+      },
+      {
+        label: 'Backed by',
+        status: 'connected',
+        detail: 'Git commit history on main, grouped by system area and changed file type.',
+      },
+      {
+        label: 'Boundary',
+        status: 'pending',
+        detail: 'This is the build changelog. System Activity remains the DB trust-event feed; Runtime Health remains the job/worker view.',
+      },
+    ], {
+      eyebrow: 'Build Visibility',
+      title: 'What Changed And Where It Lives',
+      intro: 'Use this after a heavy build day before deciding what to test, review, or explain.',
+    })
+    if (purposePanel) container.appendChild(purposePanel)
+
+    var panel = document.createElement('section')
+    panel.className = 'panel'
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+    var left = document.createElement('div')
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Repo Build Log'
+    left.appendChild(eyebrow)
+    var title = document.createElement('h3')
+    title.textContent = 'Newest First'
+    left.appendChild(title)
+    var intro = document.createElement('p')
+    intro.className = 'section-intro'
+    intro.textContent = 'This page is organized by commits. For task truth, open Backlog; for live job state, open Runtime Health; for DB events, open System Activity.'
+    left.appendChild(intro)
+    header.appendChild(left)
+    panel.appendChild(header)
+
+    var list = document.createElement('div')
+    list.className = 'build-log-list'
+    builds.forEach(function(build) {
+      list.appendChild(renderBuildCard(build))
+    })
+    panel.appendChild(list)
+    container.appendChild(panel)
+
+    var changesPanel = renderRecentChangesPanel((hub.recentChanges || []).slice(0, 5), {
+      eyebrow: 'Related Trust Events',
+      title: 'Latest DB Changes',
+      intro: 'Recent build commits explain code/doc changes; these records show the latest DB trust-layer events.',
+    })
+    if (changesPanel) container.appendChild(changesPanel)
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Failed to load recent builds: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
 /* ── router ──────────────────────────────────────────────── */
 
 function getSection() {
@@ -11021,6 +11181,8 @@ function route() {
     renderDecisions()
   } else if (section === 'open-questions') {
     renderOpenQuestions()
+  } else if (section === 'build-log') {
+    renderBuildLog()
   } else if (sourceSectionConfigs[section]) {
     renderSourceRegistry(section)
   } else if (section === 'inventory-docs') {

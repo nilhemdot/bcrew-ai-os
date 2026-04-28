@@ -413,11 +413,12 @@ async function main() {
       "app.get('/api/sheets/structure-status', requireAdminToken",
       "app.get('/api/system-inventory', requireAdminToken",
       "app.get('/api/foundation/changes', requireAdminToken",
+      "app.get('/api/foundation/build-log', requireAdminToken",
       "app.get('/api/foundation/doc-updates', requireAdminToken",
       "app.get('/foundation/export/strategy.pdf', requireAdminToken",
     ].every(pattern => serverSource.includes(pattern)),
     'broad Foundation/Ops/doc read APIs are admin-gated',
-    'source-of-truth, doc reads, foundation hub, intelligence evidence, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, doc updates, and PDF export require admin token outside localhost',
+    'source-of-truth, doc reads, foundation hub, intelligence evidence, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, build log, doc updates, and PDF export require admin token outside localhost',
   )
   ensure(
     checks,

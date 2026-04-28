@@ -3139,6 +3139,80 @@ function sanitizeFubRequestHeaders(rawHeaders) {
   return sanitized
 }
 
+function classifyBuildArea(files = [], subject = '') {
+  const text = `${subject} ${files.join(' ')}`.toLowerCase()
+  const areas = []
+  const add = area => {
+    if (!areas.includes(area)) areas.push(area)
+  }
+  if (text.includes('strategic-execution') || text.includes('strategy hub') || text.includes('strategy')) add('Strategy Hub')
+  if (text.includes('intelligence-') || text.includes('retrieval') || text.includes('synthesis') || text.includes('action-router')) add('Intelligence spine')
+  if (text.includes('foundation-db') || text.includes('foundation-jobs') || text.includes('foundation:verify') || text.includes('foundation-verify')) add('Foundation runtime')
+  if (text.includes('sync-clickup') || text.includes('owners-dashboard') || text.includes('conditional forecast') || text.includes('ops')) add('Ops / Owners')
+  if (text.includes('docs/specs') || text.includes('manifest') || text.includes('salvage') || text.includes('handoff')) add('Specs / handoffs')
+  if (text.includes('source-notes') || text.includes('source contract') || text.includes('source registry')) add('Source truth')
+  return areas.length ? areas : ['Repo']
+}
+
+function buildChangedFileGroups(files = []) {
+  const groups = new Set()
+  files.forEach(file => {
+    if (file.startsWith('lib/intelligence-')) groups.add('Intelligence modules')
+    else if (file.startsWith('lib/')) groups.add('Backend library')
+    else if (file.startsWith('public/')) groups.add('UI surface')
+    else if (file.startsWith('scripts/')) groups.add('Proof / automation script')
+    else if (file.startsWith('docs/specs/')) groups.add('Accepted spec')
+    else if (file.startsWith('docs/source-notes/')) groups.add('Source note')
+    else if (file.startsWith('docs/')) groups.add('Docs')
+    else groups.add('Repo file')
+  })
+  return Array.from(groups)
+}
+
+async function getRecentBuildLog(limit = 30) {
+  const boundedLimit = Math.min(60, Math.max(1, Number(limit) || 30))
+  const { stdout } = await execFileAsync('git', [
+    'log',
+    `--max-count=${boundedLimit}`,
+    '--date=iso-strict',
+    '--name-only',
+    '--pretty=format:@@BUILD@@%H%x1f%h%x1f%ad%x1f%s',
+  ], {
+    cwd: repoRoot,
+    maxBuffer: 1024 * 1024,
+  })
+
+  const commits = []
+  let current = null
+  stdout.split(/\r?\n/).forEach(line => {
+    if (!line.trim()) return
+    if (line.startsWith('@@BUILD@@')) {
+      const [sha, shortSha, committedAt, subject] = line.slice('@@BUILD@@'.length).split('\x1f')
+      current = {
+        sha,
+        shortSha,
+        committedAt,
+        subject,
+        files: [],
+      }
+      commits.push(current)
+      return
+    }
+    if (current) current.files.push(line.trim())
+  })
+
+  return commits.map(commit => {
+    const files = commit.files.filter(Boolean)
+    return {
+      ...commit,
+      areas: classifyBuildArea(files, commit.subject),
+      fileGroups: buildChangedFileGroups(files),
+      fileCount: files.length,
+      primaryFiles: files.slice(0, 8),
+    }
+  })
+}
+
 app.get('/api/source-of-truth', requireAdminToken, (_req, res) => {
   const businessStrategy = readFileSafe(businessStrategyPath)
   const sourceRegistry = readFileSafe(sourceRegistryPath)
@@ -4502,6 +4576,25 @@ app.get('/api/foundation/changes', requireAdminToken, async (req, res) => {
       500,
       'foundation_changes_load_failed',
       error instanceof Error ? error.message : 'Failed to load recent changes.'
+    )
+  }
+})
+
+app.get('/api/foundation/build-log', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(60, Math.max(1, Number(req.query.limit) || 30))
+    const builds = await getRecentBuildLog(limit)
+    res.json({
+      generatedAt: new Date().toISOString(),
+      source: 'git log on main',
+      builds,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_build_log_load_failed',
+      error instanceof Error ? error.message : 'Failed to load recent build log.'
     )
   }
 })
