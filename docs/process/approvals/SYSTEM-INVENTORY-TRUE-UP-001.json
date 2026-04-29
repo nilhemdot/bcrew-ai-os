@@ -1,0 +1,8 @@
+{
+  "cardId": "SYSTEM-INVENTORY-TRUE-UP-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T02:05:36Z",
+  "approvalSource": "Steve approved Phase C Track 2 in chat after reviewer scored it 9.8/10.",
+  "notes": "Approval covers trueing up System Inventory plugin discovery to include the nine configured plugin surfaces, with the explicit v1 limit that inventory is config/filesystem-backed and not live MCP introspection."
+}

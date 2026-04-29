@@ -68,7 +68,7 @@ import {
 } from './lib/foundation-db.js'
 import {
   attachBacklogCardsToBuilds,
-  enrichFoundationBuildLogCommit,
+  enrichFoundationBuildLogCommitEntries,
   groupFoundationBuildLog,
   getFoundationBuildCloseouts,
   summarizeFoundationBuildLog,
@@ -3103,17 +3103,20 @@ function getSkillInventory() {
 
 function getPluginInventory() {
   const grouped = {}
+  const pluginTitles = {
+    github: 'GitHub',
+  }
 
   walkFiles(codexPluginsDir, 'SKILL.md').forEach(filePath => {
     const normalizedPath = filePath.replace(/\\/g, '/')
-    const pluginMatch = normalizedPath.match(/\/plugins\/cache\/openai-curated\/([^/]+)\//)
+    const pluginMatch = normalizedPath.match(/\/plugins\/cache\/(?:openai-curated|openai-bundled|openai-primary-runtime)\/([^/]+)\//)
     if (!pluginMatch) return
 
     const pluginKey = pluginMatch[1]
     if (!grouped[pluginKey]) {
       grouped[pluginKey] = {
         id: pluginKey,
-        title: pluginKey
+        title: pluginTitles[pluginKey] || pluginKey
           .split('-')
           .map(part => part.charAt(0).toUpperCase() + part.slice(1))
           .join(' '),
@@ -3290,9 +3293,9 @@ async function getRecentBuildLog(limit = 30) {
     if (current) current.files.push(line.trim())
   })
 
-  const enrichedBuilds = commits.map(commit => {
+  const enrichedBuilds = commits.flatMap(commit => {
     const files = commit.files.filter(Boolean)
-    return enrichFoundationBuildLogCommit({
+    return enrichFoundationBuildLogCommitEntries({
       ...commit,
       areas: classifyBuildArea(files, commit.subject),
       fileGroups: buildChangedFileGroups(files),

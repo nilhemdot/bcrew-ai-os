@@ -1,6 +1,6 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-04-28
+Last updated: 2026-04-29
 Status: Active
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
@@ -131,7 +131,7 @@ Current command order:
 2. Finish the post-audit trust hit list before new feature work. Card 0 `PROCESS-FANOUT-001` is repaired. Wave 2 is complete: `WORKER-CODE-TRUST-001` proves the supervised worker is running current code; `VERIFIER-DONE-COVERAGE-001` and `VERIFIER-ARTIFACT-EXISTS-001` add done-card proof and claimed-artifact verifier gates.
 3. Wave 3 is complete: `POST-SHIP-FAN-OUT-001` adds the post-ship fanout gate, and `SHEETS-QUOTA-HARDENING-001` adds short TTL Sheets read caching, batchGet support, and Runtime Health quota visibility before Wave 5 parallel ramp. `EXCEPTION-CURATION-001` is scoped for Phase D cleanup before the 2026-07-27 verifier-exception deadline.
 4. Wave 4 closes Phase B: `DOCTRINE-PROPAGATION-001` keeps the active bcrew-foundation skill aligned with current operating doctrine, `DECISION-AUTO-EMIT-001` turns explicit decision language into proposed decisions, and `HIT-LIST-RECONCILE-001` is scoped to prevent external hit-list drift later.
-5. After Wave 4 review, open Phase C visibility work with Cards 7-12 in parallel chats. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work until the hit list and re-audit say Foundation is ready.
+5. Phase C visibility work is active: `PHANTOM-CARD-CHECK-001` and `PHASE-NUMBERING-RECONCILE-001` add card-reference trust and command-order UI; `SUB-SURFACE-MAPPING-001` and `SYSTEM-INVENTORY-TRUE-UP-001` make surfaces/plugins accurate; `SOURCE-CONTRACT-CLEANUP-001` and `VERIFIER-CONSOLIDATION-001` clean source IDs and verifier language. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work until the hit list and re-audit say Foundation is ready.
 
 ## Operator Surface Pattern
 

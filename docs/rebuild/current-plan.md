@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-04-28
-Version: v6.15 — Recent Builds v2 closeout
+Last updated: 2026-04-29
+Version: v6.16 — Phase C visibility cleanup
 Status: Active
 
 Use this doc for one question:
@@ -839,8 +839,12 @@ Current order:
 5. Card 6.5: `SHEETS-QUOTA-HARDENING-001` — done for v1. Sheets reads now have short TTL caching, batchGet support, and Runtime Health quota visibility before Wave 5 parallel ramp.
 6. Wave 4 Card 5: `DOCTRINE-PROPAGATION-001` — done for v1. The active bcrew-foundation skill now carries the current operating doctrine through a generated section without copying private memory content.
 7. Wave 4 Card 6: `DECISION-AUTO-EMIT-001` — done for v1. Explicit commit/checkpoint decision language can now become proposed decisions through a dry-run-first tool.
-8. `EXCEPTION-CURATION-001` — scoped Phase D cleanup follow-up for the 24 historical verifier exceptions before the 2026-07-27 expiry deadline.
-9. `HIT-LIST-RECONCILE-001` — scoped follow-up for reconciling Steve's external canonical hit list against live backlog state.
+8. Phase C Track 1: `PHANTOM-CARD-CHECK-001` + `PHASE-NUMBERING-RECONCILE-001` — done for v1. Active card references must point at live backlog cards, and the Foundation UI now shows command order instead of competing phase labels.
+9. Phase C Track 2: `SUB-SURFACE-MAPPING-001` + `SYSTEM-INVENTORY-TRUE-UP-001` — done for v1. Foundation maps critical sub-surfaces/API routes and System Inventory reports all nine configured plugin surfaces.
+10. Phase C Track 3: `SOURCE-CONTRACT-CLEANUP-001` + `VERIFIER-CONSOLIDATION-001` — done for v1. Active source references resolve to source contracts, historical source aliases are classified, and verifier messaging is cleaner.
+11. `EXCEPTION-CURATION-001` — scoped Phase D cleanup follow-up for the 24 historical verifier exceptions before the 2026-07-27 expiry deadline.
+12. `HIT-LIST-RECONCILE-001` — scoped follow-up for reconciling Steve's external canonical hit list against live backlog state.
+13. `RECENT-BUILDS-MULTI-CLOSEOUT-001` — scoped Phase D follow-up for showing multiple closeouts under one commit in Recent Work.
 
 Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts until the trust hit list and follow-up re-audit say Foundation is ready.
 

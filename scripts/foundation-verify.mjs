@@ -51,6 +51,11 @@ import {
   extractDecisionCandidatesFromText,
   scanDecisionAutoEmitCandidates,
 } from '../lib/decision-auto-emit.js'
+import {
+  buildCardReferenceTrustStatus,
+  buildSyntheticPhantomCardReferenceStatus,
+} from '../lib/card-reference-trust.js'
+import { buildSourceReferenceTrustStatus } from '../lib/source-reference-trust.js'
 
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
@@ -308,6 +313,16 @@ function ensure(checks, condition, check, detail) {
   checks.push({ ok: true, check, detail })
 }
 
+function ensureIncludesAll(checks, text, patterns, check, detail) {
+  const missing = patterns.filter(pattern => !String(text || '').includes(pattern))
+  ensure(
+    checks,
+    missing.length === 0,
+    check,
+    missing.length ? `Missing expected text: ${missing.join(', ')}` : detail,
+  )
+}
+
 function findSourceById(sources, sourceId) {
   return (sources || []).find(source => source.sourceId === sourceId || source.id === sourceId) || null
 }
@@ -540,6 +555,9 @@ async function main() {
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
+  const sourceContractsSource = await readRepoFile('lib/source-contracts.js')
+  const sourceContractCleanupDoc = await readRepoFile('docs/process/source-contract-cleanup.md')
+  const verifierConsolidationDoc = await readRepoFile('docs/process/verifier-consolidation.md')
   const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
   const directModelHostOffenders = await auditDirectModelHostUsage()
@@ -1606,6 +1624,13 @@ async function main() {
   const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
   const doneBacklogCards = (foundationHub.backlogItems || []).filter(item => item.lane === 'done')
   const doneBacklogCardIds = new Set(doneBacklogCards.map(item => item.id))
+  const liveBacklogCardIds = new Set((foundationHub.backlogItems || []).map(item => item.id))
+  const cardReferenceTrust = await buildCardReferenceTrustStatus({
+    repoRoot,
+    declaredCardIds: liveBacklogCardIds,
+  })
+  const syntheticCardReferenceTrust = buildSyntheticPhantomCardReferenceStatus()
+  const sourceReferenceTrust = await buildSourceReferenceTrustStatus({ repoRoot })
   const verifierExceptionValidation = validateVerifierExceptionLedger(verifierExceptionLedger, doneBacklogCardIds)
   const doneCardsWithoutVerifierCoverage = findDoneCardsWithoutVerifierCoverage(
     doneBacklogCards,
@@ -1660,6 +1685,50 @@ async function main() {
   ))
   const foundationMappedSections = new Set(foundationSurfaceMap.map(surface => surface.section))
   const foundationSweepSections = new Set((foundationHub.surfaceFreshnessSweep?.surfaces || []).map(surface => surface.section))
+  const foundationMappedApis = new Set(foundationSurfaceMap.flatMap(surface => surface.backingApis || []))
+  const requiredSubSurfaces = [
+    'dashboard-code-trust',
+    'worker-code-trust',
+    'post-ship-fanout',
+    'doctrine-propagation',
+    'decision-auto-emit',
+    'sheets-api-trust',
+    'backlog-hygiene',
+    'card-reference-trust',
+    'source-contract-trust',
+    'extraction-coverage-by-target',
+  ]
+  const requiredFoundationApiRoutes = [
+    '/api/foundation-hub',
+    '/api/source-of-truth',
+    '/api/system-inventory',
+    '/api/foundation/build-log',
+    '/api/foundation/jobs',
+    '/api/foundation/extraction-control',
+    '/api/foundation/action-review',
+    '/api/strategic-execution/v2',
+    '/api/ops-hub',
+  ]
+  const inventoryPluginNames = (systemInventory.plugins || []).map(plugin => plugin.title)
+  const requiredPluginNames = ['Browser Use', 'Canva', 'Documents', 'GitHub', 'Gmail', 'Google Calendar', 'Google Drive', 'Presentations', 'Spreadsheets']
+  const phaseCVisibilityCardIds = [
+    'PHANTOM-CARD-CHECK-001',
+    'PHASE-NUMBERING-RECONCILE-001',
+    'SUB-SURFACE-MAPPING-001',
+    'SYSTEM-INVENTORY-TRUE-UP-001',
+    'SOURCE-CONTRACT-CLEANUP-001',
+    'VERIFIER-CONSOLIDATION-001',
+  ]
+  const phaseCApprovalFilesPresent = await Promise.all(
+    phaseCVisibilityCardIds.map(async cardId => {
+      try {
+        await fs.stat(path.join(repoRoot, `docs/process/approvals/${cardId}.json`))
+        return true
+      } catch {
+        return false
+      }
+    })
+  )
   const knownStaleSlackRunId = 'crawl-slack-current-day-20260427145904292-3f93bebd'
   const nonStaleExtractionStatuses = new Set(['succeeded', 'partial', 'leased', 'running'])
   const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
@@ -1818,6 +1887,78 @@ async function main() {
   )
   ensure(
     checks,
+    foundationHub.cardReferenceTrust?.summary &&
+      foundationHub.cardReferenceTrust.summary.missingCardReferenceCount === 0 &&
+      cardReferenceTrust.summary.missingCardReferenceCount === 0 &&
+      includesAll(foundationUiSource, [
+        'renderCardReferenceTrustPanel',
+        'Card Reference Trust',
+        'No missing active card references',
+      ]),
+    'Card Reference Trust has no missing active backlog cards',
+    foundationHub.cardReferenceTrust?.summary
+      ? `${foundationHub.cardReferenceTrust.summary.missingCardReferenceCount} missing references across ${foundationHub.cardReferenceTrust.summary.scannedFileCount} active files`
+      : 'missing Runtime Health card-reference payload',
+  )
+  ensure(
+    checks,
+    syntheticCardReferenceTrust.summary.missingCardReferenceCount === 1 &&
+      syntheticCardReferenceTrust.findings.some(finding => finding.cardId === 'PHANTOM-CARD-CHECK-999'),
+    'Card Reference Trust catches a synthetic phantom card',
+    syntheticCardReferenceTrust.findings.map(finding => `${finding.cardId} in ${finding.path}`).join(', ') || 'synthetic phantom was not caught',
+  )
+  ensure(
+    checks,
+    foundationHub.sourceReferenceTrust?.summary &&
+      foundationHub.sourceReferenceTrust.summary.undeclaredActiveReferenceCount === 0 &&
+      sourceReferenceTrust.summary.undeclaredActiveReferenceCount === 0 &&
+      sourceReferenceTrust.summary.historicalClassifiedCount >= 5 &&
+      includesAll(foundationUiSource, [
+        'renderSourceReferenceTrustPanel',
+        'Source Contract Trust',
+        'No undeclared active source IDs',
+      ]),
+    'Source Contract Trust has no undeclared active source IDs',
+    foundationHub.sourceReferenceTrust?.summary
+      ? `${foundationHub.sourceReferenceTrust.summary.undeclaredActiveReferenceCount} undeclared active refs / ${foundationHub.sourceReferenceTrust.summary.historicalClassifiedCount} historical classified`
+      : 'missing Runtime Health source-reference payload',
+  )
+  ensure(
+    checks,
+    includesAll(sourceContractsSource, [
+      "sourceId: 'SRC-STRATEGY-QUARTER-001'",
+      "sourceId: 'SRC-MYICRO-001'",
+      'Scoped, not connected',
+    ]) &&
+      includesAll(sourceContractCleanupDoc, [
+        'SRC-STRATEGY-QUARTER-001',
+        'SRC-MYICRO-001',
+        'SRC-AGENT-SATISFACTION-001',
+        'historical-alias',
+      ]),
+    'Source cleanup declares active refs and classifies historical aliases',
+    'Strategy Quarter and Mycro are proposed contracts; historical source aliases are documented instead of promoted into fake truth',
+  )
+  ensure(
+    checks,
+    includesAll(foundationVerifySource, [
+      'function ensureIncludesAll',
+      'buildSourceReferenceTrustStatus',
+      'buildCardReferenceTrustStatus',
+    ]) &&
+      includesAll(verifierConsolidationDoc, [
+        'Consolidated Check Patterns',
+        'Message Rewrites',
+        'Source Contract Trust has no undeclared active source IDs',
+        'System Inventory shows all nine configured plugin surfaces',
+        'Foundation pages, sub-surfaces, and critical API routes are mapped',
+        'Dashboard is serving the same code as the repo',
+      ]),
+    'Verifier uses shared trust helpers and documents plain-English rewrites',
+    'six consolidation patterns and 11 operator-facing message rewrites are documented',
+  )
+  ensure(
+    checks,
     expectedKpiTableNames.every(table => kpiHealthSource.includes(`table: '${table}'`)) &&
       expectedKpiRpcNames.every(rpc => kpiHealthSource.includes(`rpc: '${rpc}'`)) &&
       includesAll(kpiHealthSource, [
@@ -1885,6 +2026,8 @@ async function main() {
       Array.isArray(systemInventory.docs.privateLocal) &&
       Array.isArray(systemInventory.skills) &&
       Array.isArray(systemInventory.plugins) &&
+      systemInventory.plugins.length === 9 &&
+      requiredPluginNames.every(pluginName => inventoryPluginNames.includes(pluginName)) &&
       includesAll(foundationUiSource, [
         'renderSystemInventoryPurposePanel',
         'All Docs Inventory Job',
@@ -1893,8 +2036,8 @@ async function main() {
         'Agents Inventory Job',
         'not a live Agent Registry yet',
       ]),
-    'System Inventory pages explain live backing and boundaries',
-    `${systemInventory?.docs?.tracked?.length ?? 'invalid'} docs / ${systemInventory?.skills?.length ?? 'invalid'} skills / ${systemInventory?.plugins?.length ?? 'invalid'} plugins`,
+    'System Inventory shows all nine configured plugin surfaces',
+    `${systemInventory?.docs?.tracked?.length ?? 'invalid'} docs / ${systemInventory?.skills?.length ?? 'invalid'} skills / ${systemInventory?.plugins?.length ?? 'invalid'} plugins: ${inventoryPluginNames.join(', ')}`,
   )
   ensure(
     checks,
@@ -1908,6 +2051,38 @@ async function main() {
     ]),
     'current-state documents Data Sources and System Inventory purpose boundaries',
     'source, connector, docs, skills, plugins, and agent inventory boundaries are captured',
+  )
+  ensure(
+    checks,
+    includesAll(foundationUiSource, [
+      'Command Order ↔ Live Backlog',
+      'Keep Maps Current',
+      'Monitor Extraction',
+      'Harden Corpus Lanes',
+      'Freshness And Health',
+      'Enforce The Process',
+      'Clean Visibility Drift',
+      'Close The Action Loop',
+      'Re-Audit Before Features',
+    ]) &&
+      !foundationUiSource.includes('Phase Gates ↔ Live Backlog') &&
+      !foundationUiSource.includes('Phase 1 · Truth Cleanup'),
+    'Rebuild Plan UI shows command order instead of conflicting phase labels',
+    'docs keep rebuild phase doctrine; UI shows Steve-facing command order',
+  )
+  ensure(
+    checks,
+    phaseCApprovalFilesPresent.every(Boolean) &&
+      phaseCVisibilityCardIds.every(cardId => {
+      const card = (foundationHub.backlogItems || []).find(item => item.id === cardId)
+      return card?.lane === 'done' &&
+        card.statusNote &&
+        foundationDbSource.includes(`id: '${cardId}'`) &&
+        foundationVerifySource.includes(cardId) &&
+        packageSource.includes('foundation:verify')
+    }),
+    'Phase C visibility cards are done with ID-named verifier coverage',
+    phaseCVisibilityCardIds.join(', '),
   )
   const driveCorpusNote = await readRepoFile('docs/source-notes/google-drive-corpus.md')
   ensure(
@@ -2032,9 +2207,11 @@ async function main() {
   )
   ensure(
     checks,
-    foundationSurfaceMap.length === foundationNavSections.length &&
+    foundationSurfaceMap.length >= 75 &&
       foundationNavSections.every(section => foundationMappedSections.has(section)) &&
       foundationNavSections.every(section => foundationSweepSections.has(section)) &&
+      requiredSubSurfaces.every(section => foundationMappedSections.has(section)) &&
+      requiredFoundationApiRoutes.every(route => foundationMappedApis.has(route)) &&
       foundationSurfaceMap.every(surface =>
         surface.owner &&
         surface.href &&
@@ -2042,9 +2219,9 @@ async function main() {
         Array.isArray(surface.sourceIds) &&
         Array.isArray(surface.backlogIds)
       ) &&
-      foundationHub.surfaceFreshnessSweep?.summary?.mappedSurfaceCount === foundationNavSections.length,
-    'Foundation pages are mapped to backing APIs/docs/tables/source IDs/backlog owners',
-    `${foundationSurfaceMap.length} mapped surfaces / ${foundationNavSections.length} nav sections`,
+      foundationHub.surfaceFreshnessSweep?.summary?.mappedSurfaceCount === foundationSurfaceMap.length,
+    'Foundation pages, sub-surfaces, and critical API routes are mapped',
+    `${foundationSurfaceMap.length} mapped surfaces / ${foundationNavSections.length} nav sections / ${requiredSubSurfaces.length} required sub-surfaces`,
   )
   ensure(
     checks,

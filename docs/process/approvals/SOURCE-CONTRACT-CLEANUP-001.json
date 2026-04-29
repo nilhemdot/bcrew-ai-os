@@ -1,0 +1,8 @@
+{
+  "cardId": "SOURCE-CONTRACT-CLEANUP-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T02:05:36Z",
+  "approvalSource": "Steve approved Phase C Track 3 in chat after reviewer scored it 9.8/10.",
+  "notes": "Approval covers active source-reference cleanup, classification of historical/audit-only source refs, proposed contracts for active undeclared source IDs, verifier coverage, and no source ingestion/backfill."
+}

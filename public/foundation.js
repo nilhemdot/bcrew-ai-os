@@ -369,7 +369,7 @@ var capabilityCatalog = {
     intro: 'Agents are not data sources. This lane is for the agent model, registry, and operations layer.',
     items: [
       {
-        id: 'AGENT-STATE-001',
+        id: 'AGENT-STATE-CURRENT',
         title: 'Business Agents',
         type: 'Current state',
         state: 'Not live yet',
@@ -4785,54 +4785,54 @@ var sectionParents = {
   'capabilities-agents': { label: 'System Inventory', href: '/foundation#inventory-docs' },
 }
 
-var rebuildPlanBacklogGroups = [
+var rebuildPlanCommandOrderGroups = [
   {
-    key: 'truth-cleanup',
-    title: 'Phase 1 · Truth Cleanup',
-    intro: 'Stop truth drift between source contracts, notes, docs, and backlog state.',
-    ids: ['FOUNDATION-002', 'DATA-004'],
+    key: 'maps-current',
+    title: 'Keep Maps Current',
+    intro: 'Foundation must show where work lives, what changed, and which surfaces/backlog cards own it.',
+    ids: ['FOUNDATION-SWEEP-001', 'FOUNDATION-CHANGELOG-002', 'FOUNDATION-SURFACE-UPDATES-001'],
   },
   {
-    key: 'verification',
-    title: 'Phase 2 · Verification Baseline',
-    intro: 'Put one repeatable proof path under Foundation before more automation lands.',
-    ids: ['FOUNDATION-VERIFY-001'],
+    key: 'monitor-extraction',
+    title: 'Monitor Extraction',
+    intro: 'Capture and extraction lanes need item-level proof, schedule truth, and coverage by target.',
+    ids: ['EXTRACT-CONTROL-001', 'EXTRACT-METRICS-001'],
   },
   {
-    key: 'strategy-inputs',
-    title: 'Phase 3A · Strategy Live Inputs',
-    intro: 'Close the full strategy live-input boundary before calling the strategy input layer done.',
-    ids: ['SOURCE-014'],
+    key: 'harden-corpus',
+    title: 'Harden Corpus Lanes',
+    intro: 'Add narrow source readers only when Runtime Health shows a real coverage gap.',
+    ids: ['DRIVE-CONTENT-001', 'EMAIL-ATTACHMENTS-001', 'MEETING-VIDEO-001'],
   },
   {
-    key: 'source-trust',
-    title: 'Phase 3B · Owners/FUB Source Trust',
-    intro: 'Owners Admin and FUB source trust are closed for v1. Remaining row cleanup is routed through Ops findings instead of blocking the source package.',
-    ids: ['SOURCE-008', 'DATA-005', 'DATA-006', 'DATA-018', 'DATA-019', 'DATA-020'],
+    key: 'freshness-health',
+    title: 'Freshness And Health',
+    intro: 'Operator dashboards need freshness, schema drift, and served-code trust before feature work resumes.',
+    ids: ['KPI-HEALTH-001', 'RUNTIME-SUPERVISOR-001', 'WORKER-CODE-TRUST-001', 'SHEETS-QUOTA-HARDENING-001'],
   },
   {
-    key: 'structure-hardening',
-    title: 'Phase 4 · Foundation Structure Hardening',
-    intro: 'Fix the root queue model before future hubs calcify around temporary shortcuts.',
-    ids: ['SYSTEM-009', 'SYSTEM-006'],
+    key: 'enforce-truth',
+    title: 'Enforce The Process',
+    intro: 'The system must catch false-done cards, missing artifacts, stale doctrine, missing decisions, and post-ship fan-out gaps.',
+    ids: ['PROCESS-FANOUT-001', 'VERIFIER-DONE-COVERAGE-001', 'VERIFIER-ARTIFACT-EXISTS-001', 'POST-SHIP-FAN-OUT-001', 'DOCTRINE-PROPAGATION-001', 'DECISION-AUTO-EMIT-001'],
   },
   {
-    key: 'memory-baseline',
-    title: 'Phase 5 · Memory Baseline',
-    intro: 'Only after the trust layer is believable should the first agent-memory layer turn on.',
-    ids: ['MEMORY-002'],
+    key: 'visibility-cleanup',
+    title: 'Clean Visibility Drift',
+    intro: 'Phase C makes card references, source contracts, system inventory, surface maps, and verifier language match reality.',
+    ids: ['PHANTOM-CARD-CHECK-001', 'PHASE-NUMBERING-RECONCILE-001', 'SUB-SURFACE-MAPPING-001', 'SYSTEM-INVENTORY-TRUE-UP-001', 'SOURCE-CONTRACT-CLEANUP-001', 'VERIFIER-CONSOLIDATION-001'],
   },
   {
-    key: 'agent-architecture-lock',
-    title: 'Phase 6 · Agent Architecture Lock',
-    intro: 'Lock where Harlan lives, where system agents live, and where repo-local coding agents live before live agent sprawl begins.',
-    ids: ['AGENT-008', 'SYSTEM-011', 'AGENT-001', 'AGENT-005'],
+    key: 'close-action-loop',
+    title: 'Close The Action Loop',
+    intro: 'Once Foundation maintains itself, approved intelligence needs to move into real operating ledgers.',
+    ids: ['ACTION-REVIEW-APPLY-001'],
   },
   {
-    key: 'first-agent-loop',
-    title: 'Phase 7 · First Agent Loop',
-    intro: 'Prove one trusted assistant loop with visible supervision before any second agent loop starts.',
-    ids: ['SLICE-001', 'UX-002', 'AGENT-006', 'AGENT-007', 'SYSTEM-010', 'INFRA-003'],
+    key: 'reaudit-before-features',
+    title: 'Re-Audit Before Features',
+    intro: 'Phase E confirms cleanup landed before Strategy, Scoper, Agent Factory, or corpus expansion resumes.',
+    ids: ['FULL-SYSTEM-RE-AUDIT-001'],
   },
 ]
 
@@ -5725,6 +5725,75 @@ function renderPostShipFanoutPanel(postShipFanout) {
 
   return renderStatusGroupPanel(
     'Post-Ship Fanout',
+    intro,
+    items
+  )
+}
+
+function renderCardReferenceTrustPanel(cardReferenceTrust) {
+  if (!cardReferenceTrust || !cardReferenceTrust.summary) return null
+  var summary = cardReferenceTrust.summary || {}
+  var findings = Array.isArray(cardReferenceTrust.findings) ? cardReferenceTrust.findings : []
+  var status = cardReferenceTrust.status === 'critical' ? 'risk' : 'live'
+  var intro = 'Checks active Foundation docs and code for backlog-card IDs that do not exist in the live backlog. '
+    + (summary.missingCardReferenceCount || 0) + ' missing reference'
+    + ((summary.missingCardReferenceCount || 0) === 1 ? '' : 's')
+    + ' across ' + (summary.scannedFileCount || 0) + ' active files.'
+
+  var items = findings.slice(0, 8).map(function(finding) {
+    return {
+      label: finding.cardId || 'Missing card reference',
+      status: finding.severity === 'critical' ? 'risk' : 'pending',
+      detail: (finding.detail || 'A card reference does not exist in the live backlog.')
+        + ' Next: create the card, fix the reference, or move historical text out of active docs.',
+    }
+  })
+
+  if (!items.length) {
+    items.push({
+      label: 'No missing active card references',
+      status: status,
+      detail: 'Scanned active rebuild docs and Foundation code. Historical handoffs/audits are out of scope for v1.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Card Reference Trust',
+    intro,
+    items
+  )
+}
+
+function renderSourceReferenceTrustPanel(sourceReferenceTrust) {
+  if (!sourceReferenceTrust || !sourceReferenceTrust.summary) return null
+  var summary = sourceReferenceTrust.summary || {}
+  var findings = Array.isArray(sourceReferenceTrust.undeclaredActiveReferences)
+    ? sourceReferenceTrust.undeclaredActiveReferences
+    : []
+  var status = sourceReferenceTrust.status === 'critical' ? 'risk' : 'live'
+  var intro = 'Checks active Foundation files for source IDs that do not exist in source contracts. '
+    + (summary.undeclaredActiveReferenceCount || 0) + ' undeclared active reference'
+    + ((summary.undeclaredActiveReferenceCount || 0) === 1 ? '' : 's')
+    + '. Historical aliases classified: ' + (summary.historicalClassifiedCount || 0) + '.'
+
+  var items = findings.slice(0, 8).map(function(finding) {
+    return {
+      label: finding.sourceId || 'Undeclared source',
+      status: 'risk',
+      detail: (finding.path || 'Active file') + ' uses a source ID that is not declared. Add a source contract or correct the reference.',
+    }
+  })
+
+  if (!items.length) {
+    items.push({
+      label: 'No undeclared active source IDs',
+      status: status,
+      detail: 'Active source references resolve to source contracts. Historical/audit-only aliases are documented separately.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Source Contract Trust',
     intro,
     items
   )
@@ -7930,12 +7999,12 @@ function renderRebuildPlanBacklogPanel(hub) {
   left.appendChild(eyebrow)
 
   var title = document.createElement('h3')
-  title.textContent = 'Phase Gates ↔ Live Backlog'
+  title.textContent = 'Command Order ↔ Live Backlog'
   left.appendChild(title)
 
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'This is traceability, not a second priority queue. Overview gives the command order; the live Backlog owns card status and next actions; the Rebuild Plan explains why the gates exist.'
+  intro.textContent = 'This is traceability, not a second priority queue. The Rebuild Plan keeps phase doctrine; this view shows the working order Steve should see.'
   left.appendChild(intro)
 
   header.appendChild(left)
@@ -7953,7 +8022,7 @@ function renderRebuildPlanBacklogPanel(hub) {
     itemsById.set(item.id, item)
   })
 
-  rebuildPlanBacklogGroups.forEach(function(group) {
+  rebuildPlanCommandOrderGroups.forEach(function(group) {
     var groupPanel = document.createElement('section')
     groupPanel.className = 'panel'
 
@@ -7983,7 +8052,7 @@ function renderRebuildPlanBacklogPanel(hub) {
     if (!matched.length) {
       var empty = document.createElement('p')
       empty.className = 'section-intro'
-      empty.textContent = 'No live backlog cards are mapped to this phase yet.'
+      empty.textContent = 'No live backlog cards are mapped to this command-order step yet.'
       list.appendChild(empty)
     } else {
       matched.forEach(function(item) {
@@ -11875,6 +11944,12 @@ function renderDataHealth() {
 
     var backlogHygienePanel = renderBacklogHygienePanel(hub.backlogHygiene)
     if (backlogHygienePanel) container.appendChild(backlogHygienePanel)
+
+    var cardReferenceTrustPanel = renderCardReferenceTrustPanel(hub.cardReferenceTrust)
+    if (cardReferenceTrustPanel) container.appendChild(cardReferenceTrustPanel)
+
+    var sourceReferenceTrustPanel = renderSourceReferenceTrustPanel(hub.sourceReferenceTrust)
+    if (sourceReferenceTrustPanel) container.appendChild(sourceReferenceTrustPanel)
 
     var postShipFanoutPanel = renderPostShipFanoutPanel(hub.postShipFanout)
     if (postShipFanoutPanel) container.appendChild(postShipFanoutPanel)

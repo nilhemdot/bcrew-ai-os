@@ -1,0 +1,8 @@
+{
+  "cardId": "PHASE-NUMBERING-RECONCILE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T02:05:36Z",
+  "approvalSource": "Steve approved Phase C Track 1 in chat after reviewer scored it 9.8/10.",
+  "notes": "Approval covers preserving Phase 0-8 as rebuild doctrine in docs while replacing the Foundation UI backlog traceability labels with plain-English command-order steps."
+}
