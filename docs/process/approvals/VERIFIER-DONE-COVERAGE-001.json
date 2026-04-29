@@ -1,0 +1,8 @@
+{
+  "cardId": "VERIFIER-DONE-COVERAGE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-28T23:58:00Z",
+  "approvalSource": "Steve approved revised Plan A after reviewer scored the exception spec 9.8/10.",
+  "notes": "Approval covers the done-card verifier coverage gate: same-session backlog card, constrained exception ledger at docs/process/verifier-exceptions.json, synthetic done-card-without-proof test, exception validation, expired/stale-open-ended exception failure, Recent Builds closeout, process gate, fanout check, and no feature work."
+}

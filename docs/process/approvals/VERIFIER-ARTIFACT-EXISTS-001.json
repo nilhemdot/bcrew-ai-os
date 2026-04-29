@@ -1,0 +1,8 @@
+{
+  "cardId": "VERIFIER-ARTIFACT-EXISTS-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-28T23:58:00Z",
+  "approvalSource": "Steve approved revised Plan A after reviewer scored the exception spec 9.8/10.",
+  "notes": "Approval covers the artifact-existence verifier gate: same-session backlog card, claimed file/doc/npm script/API route scanning, synthetic missing-artifact test, Recent Builds closeout, process gate, fanout check, and no feature work."
+}

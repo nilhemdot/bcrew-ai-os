@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "policy": "Every lane: done backlog card must have ID-named verifier coverage or an explicit approved exception. Exceptions are visible loopholes, not hidden passes.",
+  "maxOpenEndedDays": 90,
+  "exceptions": [
+    {
+      "cardId": "SYSTEM-001",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "FOUNDATION-003",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "MEMORY-001",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "FOUNDATION-VERIFY-001",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "SCHEMA-001",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "SECURITY-003",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "SECURITY-004",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "FOUNDATION-SHIP-FANOUT-001",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "SOURCE-008",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "DATA-005",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "DATA-006",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "DECISION-001",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "DECISION-002",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "DECISION-003",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "STRATEGY-007",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "STRATEGY-008",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "STRATEGY-010",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "GOVERNANCE-IMPORTRANGE-001",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "UX-003",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "UX-004",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "SYSTEM-009",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "SOURCE-004",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "SOURCE-005",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    },
+    {
+      "cardId": "VIDEO-001",
+      "reason": "Historical done card predates the ID-named verifier coverage rule. It remains accepted only until a future cleanup adds direct verifier coverage or retires the card.",
+      "approver": "Steve",
+      "approvedAt": "2026-04-28T23:58:00Z",
+      "expiresAt": null
+    }
+  ]
+}

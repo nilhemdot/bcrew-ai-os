@@ -833,9 +833,10 @@ Before new feature work resumes, finish the post-audit trust repairs that protec
 Current order:
 
 1. `PROCESS-FANOUT-001` repair — done for v1. The false-done card now has the actual fanout check, doc, npm command, closeout proof, and verifier coverage.
-2. Wave 2 Chat B: `WORKER-CODE-TRUST-001` — prove the supervised Foundation worker started from repo `HEAD`, expose it in Runtime Health, and fail with the exact `launchctl` restart command if stale.
-3. Wave 2 Chat A: `VERIFIER-DONE-COVERAGE-001` + `VERIFIER-ARTIFACT-EXISTS-001` — wait for the revised 9.8 plan, then add done-card proof and claimed-artifact existence gates.
-4. After Wave 2, continue the ordered hit list instead of auto-picking features.
+2. Wave 2 Chat B: `WORKER-CODE-TRUST-001` — done for v1. The supervised Foundation worker now exposes startup commit and LaunchAgent pid proof.
+3. Wave 2 Chat A: `VERIFIER-DONE-COVERAGE-001` + `VERIFIER-ARTIFACT-EXISTS-001` — add done-card proof and claimed-artifact existence gates with a constrained exception ledger.
+4. Card 6.5: `SHEETS-QUOTA-HARDENING-001` — scoped P1 follow-up before Wave 5 parallel ramp so repeated ship gates do not keep tripping Google Sheets quota.
+5. After Wave 2, plan `POST-SHIP-FAN-OUT-001` and continue the ordered hit list instead of auto-picking features.
 
 Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts until the trust hit list and follow-up re-audit say Foundation is ready.
 

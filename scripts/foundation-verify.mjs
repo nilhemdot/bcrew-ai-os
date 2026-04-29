@@ -124,6 +124,167 @@ async function getLaunchAgentStatus(label) {
   }
 }
 
+async function repoFileExists(relativePath) {
+  const normalized = String(relativePath || '').trim()
+  if (!normalized || normalized.includes('..')) return false
+  const absolutePath = path.resolve(repoRoot, normalized)
+  if (!absolutePath.startsWith(repoRoot)) return false
+  try {
+    const stat = await fs.stat(absolutePath)
+    return stat.isFile()
+  } catch {
+    return false
+  }
+}
+
+function normalizeClaim(value) {
+  return String(value || '')
+    .trim()
+    .replace(/[),.;:'"`]+$/g, '')
+}
+
+function extractClaimedFilesFromText(text) {
+  const claims = new Set()
+  const pattern = /\b(?:scripts|docs|lib|public)\/[A-Za-z0-9._/-]+\.(?:mjs|js|md|html|css|json)\b/g
+  for (const match of String(text || '').matchAll(pattern)) {
+    claims.add(normalizeClaim(match[0]))
+  }
+  return Array.from(claims)
+}
+
+function extractClaimedNpmScriptsFromText(text) {
+  const claims = new Set()
+  const pattern = /\bnpm\s+run\s+([a-z][a-z0-9:-]*)\b/g
+  for (const match of String(text || '').matchAll(pattern)) {
+    const scriptName = normalizeClaim(match[1])
+    if (!scriptName.includes(':')) continue
+    claims.add(scriptName)
+  }
+  return Array.from(claims)
+}
+
+function extractClaimedApiRoutesFromText(text) {
+  const claims = new Set()
+  const pattern = /\/api\/[A-Za-z0-9._~:/?=&-]+/g
+  for (const match of String(text || '').matchAll(pattern)) {
+    const route = normalizeClaim(match[0]).replace(/\?.*$/, '')
+    claims.add(route)
+  }
+  return Array.from(claims)
+}
+
+function apiRouteExists(serverSource, route) {
+  const normalized = normalizeClaim(route)
+  if (!normalized) return false
+  return serverSource.includes(`'${normalized}'`) ||
+    serverSource.includes(`"${normalized}"`) ||
+    serverSource.includes(`\`${normalized}\``)
+}
+
+function backlogCardText(card) {
+  return [
+    card?.id,
+    card?.title,
+    card?.summary,
+    card?.whyItMatters,
+    card?.nextAction,
+    card?.statusNote,
+    card?.source,
+  ].filter(Boolean).join('\n')
+}
+
+function buildCloseoutText(closeout) {
+  return [
+    closeout?.key,
+    ...(closeout?.backlogIds || []),
+    closeout?.whatChanged,
+    closeout?.whatItDoes,
+    closeout?.whyItMatters,
+    ...(closeout?.whereItLives || []),
+    ...(closeout?.proofCommands || []),
+    closeout?.proofStatus,
+    closeout?.reviewNext,
+    ...(closeout?.knownLimits || []),
+  ].filter(Boolean).join('\n')
+}
+
+function validateVerifierExceptionLedger(ledger, doneCardIds, now = new Date()) {
+  const exceptions = Array.isArray(ledger?.exceptions) ? ledger.exceptions : []
+  const maxOpenEndedDays = Math.max(1, Number(ledger?.maxOpenEndedDays || 90))
+  const invalid = []
+  const expired = []
+  const staleOpenEnded = []
+  const duplicates = []
+  const seen = new Set()
+  const validExceptionIds = new Set()
+
+  for (const exception of exceptions) {
+    const cardId = String(exception?.cardId || '').trim()
+    const missingFields = []
+    for (const field of ['cardId', 'reason', 'approver', 'approvedAt', 'expiresAt']) {
+      if (!Object.prototype.hasOwnProperty.call(exception || {}, field)) missingFields.push(field)
+    }
+    if (!String(exception?.reason || '').trim()) missingFields.push('reason')
+    if (!String(exception?.approver || '').trim()) missingFields.push('approver')
+    const approvedAtMs = Date.parse(exception?.approvedAt)
+    if (!Number.isFinite(approvedAtMs)) missingFields.push('approvedAt')
+    if (!doneCardIds.has(cardId)) missingFields.push('done-card')
+    if (seen.has(cardId)) duplicates.push(cardId)
+    seen.add(cardId)
+
+    let expiresAtMs = null
+    if (exception?.expiresAt !== null) {
+      expiresAtMs = Date.parse(exception?.expiresAt)
+      if (!Number.isFinite(expiresAtMs)) missingFields.push('expiresAt')
+      else if (expiresAtMs < now.getTime()) expired.push(cardId)
+    } else if (Number.isFinite(approvedAtMs)) {
+      const ageDays = (now.getTime() - approvedAtMs) / (24 * 60 * 60 * 1000)
+      if (ageDays > maxOpenEndedDays) staleOpenEnded.push(`${cardId}:${Math.floor(ageDays)}d`)
+    }
+
+    if (missingFields.length) {
+      invalid.push(`${cardId || 'missing-card'}:${Array.from(new Set(missingFields)).join(',')}`)
+      continue
+    }
+    validExceptionIds.add(cardId)
+  }
+
+  return {
+    total: exceptions.length,
+    openEnded: exceptions.filter(exception => exception?.expiresAt === null).length,
+    validExceptionIds,
+    invalid,
+    expired,
+    staleOpenEnded,
+    duplicates,
+    maxOpenEndedDays,
+  }
+}
+
+function findDoneCardsWithoutVerifierCoverage(doneCards, verifierSource, validExceptionIds) {
+  return doneCards.filter(card => {
+    if (String(verifierSource || '').includes(card.id)) return false
+    return !validExceptionIds.has(card.id)
+  })
+}
+
+async function findMissingArtifactClaims(records, packageScripts, serverSource) {
+  const missing = []
+  for (const record of records) {
+    const text = record.text || ''
+    for (const filePath of extractClaimedFilesFromText(text)) {
+      if (!await repoFileExists(filePath)) missing.push(`${record.label}: missing file ${filePath}`)
+    }
+    for (const scriptName of extractClaimedNpmScriptsFromText(text)) {
+      if (!packageScripts[scriptName]) missing.push(`${record.label}: missing npm script ${scriptName}`)
+    }
+    for (const apiRoute of extractClaimedApiRoutesFromText(text)) {
+      if (!apiRouteExists(serverSource, apiRoute)) missing.push(`${record.label}: missing API route ${apiRoute}`)
+    }
+  }
+  return missing
+}
+
 function ensure(checks, condition, check, detail) {
   if (!condition) {
     checks.push({ ok: false, check, detail })
@@ -267,6 +428,10 @@ async function main() {
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const systemStrategy = await readRepoFile('docs/system-strategy.md')
   const packageSource = await readRepoFile('package.json')
+  const packageJson = JSON.parse(packageSource)
+  const foundationVerifySource = await readRepoFile('scripts/foundation-verify.mjs')
+  const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
+  const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
   const usersDoc = await readRepoFile('docs/users/README.md')
   const steveDoc = await readRepoFile('docs/users/steve.md')
@@ -333,6 +498,10 @@ async function main() {
   const processFanoutApproval = JSON.parse(processFanoutApprovalSource)
   const workerCodeTrustApprovalSource = await readRepoFile('docs/process/approvals/WORKER-CODE-TRUST-001.json')
   const workerCodeTrustApproval = JSON.parse(workerCodeTrustApprovalSource)
+  const verifierDoneCoverageApprovalSource = await readRepoFile('docs/process/approvals/VERIFIER-DONE-COVERAGE-001.json')
+  const verifierDoneCoverageApproval = JSON.parse(verifierDoneCoverageApprovalSource)
+  const verifierArtifactExistsApprovalSource = await readRepoFile('docs/process/approvals/VERIFIER-ARTIFACT-EXISTS-001.json')
+  const verifierArtifactExistsApproval = JSON.parse(verifierArtifactExistsApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -1399,6 +1568,39 @@ async function main() {
   const sourceTruthKpiHealth = sourceOfTruth.kpiHealth || {}
   const foundationHubKpiHealth = foundationHub.kpiHealth || {}
   const backlogHygieneApi = foundationHub.backlogHygiene || {}
+  const foundationBuildCloseouts = getFoundationBuildCloseouts()
+  const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
+  const doneBacklogCards = (foundationHub.backlogItems || []).filter(item => item.lane === 'done')
+  const doneBacklogCardIds = new Set(doneBacklogCards.map(item => item.id))
+  const verifierExceptionValidation = validateVerifierExceptionLedger(verifierExceptionLedger, doneBacklogCardIds)
+  const doneCardsWithoutVerifierCoverage = findDoneCardsWithoutVerifierCoverage(
+    doneBacklogCards,
+    foundationVerifySource,
+    verifierExceptionValidation.validExceptionIds,
+  )
+  const syntheticMissingProofCardId = ['SYNTHETIC', 'DONE', 'NO', 'PROOF', '999'].join('-')
+  const syntheticDoneCoverageMisses = findDoneCardsWithoutVerifierCoverage(
+    [{ id: syntheticMissingProofCardId, lane: 'done' }],
+    '',
+    verifierExceptionValidation.validExceptionIds,
+  )
+  const artifactClaimRecords = [
+    ...doneBacklogCards.map(card => ({ label: `card ${card.id}`, text: backlogCardText(card) })),
+    ...foundationBuildCloseouts.map(closeout => ({ label: `closeout ${closeout.key}`, text: buildCloseoutText(closeout) })),
+  ]
+  const missingArtifactClaims = await findMissingArtifactClaims(
+    artifactClaimRecords,
+    packageJson.scripts || {},
+    serverSource,
+  )
+  const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
+    [{
+      label: 'synthetic missing artifact',
+      text: 'docs/process/synthetic-missing-artifact.md npm run synthetic:missing /api/synthetic-missing-artifact',
+    }],
+    packageJson.scripts || {},
+    serverSource,
+  )
   const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const dashboardRunningCommit = String(runtimeServedCode.runningCommit || '').trim().toLowerCase()
@@ -1419,8 +1621,6 @@ async function main() {
       : `Foundation worker is serving commit ${workerRunningShortCommit}; HEAD is ${currentRepoShortHead}; recorded pid is ${runtimeWorkerCode.processId || 'missing'} and LaunchAgent pid is ${workerLaunchAgent.pid || 'missing'}. Run: ${workerRestartCommand} to restart.`
     : `Foundation worker did not expose its startup commit. Run: ${workerRestartCommand} to restart, then rerun foundation:verify.`
   const foundationSurfaceMap = getFoundationSurfaceMap()
-  const foundationBuildCloseouts = getFoundationBuildCloseouts()
-  const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
   const foundationNavSections = Array.from(new Set(
     Array.from(foundationHtmlSource.matchAll(/data-section="([^"]+)"/g)).map(match => match[1])
   ))
@@ -1742,6 +1942,39 @@ async function main() {
   )
   ensure(
     checks,
+    verifierExceptionLedger.schemaVersion === 1 &&
+      verifierExceptionValidation.invalid.length === 0 &&
+      verifierExceptionValidation.expired.length === 0 &&
+      verifierExceptionValidation.staleOpenEnded.length === 0 &&
+      verifierExceptionValidation.duplicates.length === 0 &&
+      verifierExceptionSource.includes('"maxOpenEndedDays": 90') &&
+      verifierExceptionSource.includes('"cardId"') &&
+      verifierExceptionSource.includes('"approvedAt"'),
+    'verifier exceptions are explicit, approved, and not stale',
+    `${verifierExceptionValidation.total} exceptions / ${verifierExceptionValidation.openEnded} open-ended / max ${verifierExceptionValidation.maxOpenEndedDays} days`,
+  )
+  ensure(
+    checks,
+    doneCardsWithoutVerifierCoverage.length === 0 &&
+      syntheticDoneCoverageMisses.some(item => item.id === syntheticMissingProofCardId),
+    'done backlog cards have verifier coverage or explicit exception',
+    doneCardsWithoutVerifierCoverage.length
+      ? doneCardsWithoutVerifierCoverage.map(item => item.id).join(', ')
+      : `${doneBacklogCards.length} done cards checked; synthetic missing-proof card was caught`,
+  )
+  ensure(
+    checks,
+    missingArtifactClaims.length === 0 &&
+      syntheticMissingArtifactClaims.some(item => item.includes('missing file docs/process/synthetic-missing-artifact.md')) &&
+      syntheticMissingArtifactClaims.some(item => item.includes('missing npm script synthetic:missing')) &&
+      syntheticMissingArtifactClaims.some(item => item.includes('missing API route /api/synthetic-missing-artifact')),
+    'done cards and closeouts do not claim missing artifacts',
+    missingArtifactClaims.length
+      ? missingArtifactClaims.slice(0, 12).join(' | ')
+      : `${artifactClaimRecords.length} records scanned; synthetic missing file/script/API route was caught`,
+  )
+  ensure(
+    checks,
     foundationHub.backlogSeedDrift?.policy &&
       Array.isArray(foundationHub.backlogSeedDrift.items) &&
       Array.isArray(foundationHub.backlogSeedDrift.stableFields) &&
@@ -1857,6 +2090,11 @@ async function main() {
     (build.backlogIds || []).includes('WORKER-CODE-TRUST-001') &&
       build.closeoutKey === 'worker-code-trust-v1'
   )
+  const buildLogVerifierDoneArtifactBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('VERIFIER-DONE-COVERAGE-001') &&
+      (build.backlogIds || []).includes('VERIFIER-ARTIFACT-EXISTS-001') &&
+      build.closeoutKey === 'verifier-done-artifact-gates'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -1880,6 +2118,9 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-HOOKS-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-FANOUT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('WORKER-CODE-TRUST-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('VERIFIER-DONE-COVERAGE-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('VERIFIER-ARTIFACT-EXISTS-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('SHEETS-QUOTA-HARDENING-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
@@ -2162,6 +2403,23 @@ async function main() {
     buildLogWorkerCodeTrustBuild
       ? `${buildLogWorkerCodeTrustBuild.shortSha} / ${buildLogWorkerCodeTrustBuild.acceptanceState} / ${buildLogWorkerCodeTrustBuild.proofStatus}`
       : 'missing worker code trust closeout',
+  )
+  ensure(
+    checks,
+    buildLogVerifierDoneArtifactBuild?.operatorCloseout === true &&
+      buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item => item.id === 'VERIFIER-DONE-COVERAGE-001' && item.lane === 'done') &&
+      buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item => item.id === 'VERIFIER-ARTIFACT-EXISTS-001' && item.lane === 'done') &&
+      buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item => item.id === 'SHEETS-QUOTA-HARDENING-001' && item.lane === 'scoped') &&
+      buildLogVerifierDoneArtifactBuild.proofCommands?.filter(command => command.includes('process:ship-check')).length >= 2 &&
+      buildLogVerifierDoneArtifactBuild.proofCommands?.filter(command => command.includes('process:fanout-check')).length >= 2 &&
+      buildLogVerifierDoneArtifactBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /24 explicit legacy exceptions/i.test(buildLogVerifierDoneArtifactBuild.proofStatus || '') &&
+      /90 days/i.test(buildLogVerifierDoneArtifactBuild.knownLimits?.join(' ') || '') &&
+      /POST-SHIP-FAN-OUT-001/i.test(buildLogVerifierDoneArtifactBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for done coverage and artifact gates',
+    buildLogVerifierDoneArtifactBuild
+      ? `${buildLogVerifierDoneArtifactBuild.shortSha} / ${buildLogVerifierDoneArtifactBuild.acceptanceState} / ${buildLogVerifierDoneArtifactBuild.proofStatus}`
+      : 'missing verifier done/artifact closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -2787,6 +3045,9 @@ async function main() {
   const processHooks = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-001') || null
   const processFanout = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-FANOUT-001') || null
   const workerCodeTrust = (foundationHub.backlogItems || []).find(item => item.id === 'WORKER-CODE-TRUST-001') || null
+  const verifierDoneCoverage = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-DONE-COVERAGE-001') || null
+  const verifierArtifactExists = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-ARTIFACT-EXISTS-001') || null
+  const sheetsQuotaHardening = (foundationHub.backlogItems || []).find(item => item.id === 'SHEETS-QUOTA-HARDENING-001') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
   const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
@@ -2816,6 +3077,18 @@ async function main() {
     workerCodeTrust?.whyItMatters,
     workerCodeTrust?.nextAction,
     workerCodeTrust?.statusNote,
+  ].filter(Boolean).join('\n')
+  const verifierDoneCoverageText = [
+    verifierDoneCoverage?.summary,
+    verifierDoneCoverage?.whyItMatters,
+    verifierDoneCoverage?.nextAction,
+    verifierDoneCoverage?.statusNote,
+  ].filter(Boolean).join('\n')
+  const verifierArtifactExistsText = [
+    verifierArtifactExists?.summary,
+    verifierArtifactExists?.whyItMatters,
+    verifierArtifactExists?.nextAction,
+    verifierArtifactExists?.statusNote,
   ].filter(Boolean).join('\n')
   const backlogHygieneText = [
     backlogHygiene?.summary,
@@ -3002,6 +3275,67 @@ async function main() {
     workerCodeTrust
       ? `${workerCodeTrust.lane} / approval=${workerCodeTrustApproval.score} / worker=${workerRunningShortCommit}`
       : 'missing WORKER-CODE-TRUST-001',
+  )
+  ensure(
+    checks,
+    verifierDoneCoverage?.lane === 'done' &&
+      verifierDoneCoverage?.priority === 'P0' &&
+      verifierDoneCoverageApproval.cardId === 'VERIFIER-DONE-COVERAGE-001' &&
+      Number(verifierDoneCoverageApproval.score) >= 9.8 &&
+      verifierDoneCoverageApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(verifierDoneCoverageApproval.approvedAt).getTime()) &&
+      includesAll(verifierDoneCoverageText, [
+        'docs/process/verifier-exceptions.json',
+        'synthetic done-card-without-proof',
+        '90 days',
+        'verifier-done-artifact-gates',
+      ]) &&
+      includesAll(foundationVerifySource, [
+        'validateVerifierExceptionLedger',
+        'findDoneCardsWithoutVerifierCoverage',
+        'SYNTHETIC-DONE-NO-PROOF-999',
+      ]),
+    'VERIFIER-DONE-COVERAGE-001 closes done-card proof enforcement',
+    verifierDoneCoverage
+      ? `${verifierDoneCoverage.lane} / approval=${verifierDoneCoverageApproval.score} / exceptions=${verifierExceptionValidation.total}`
+      : 'missing VERIFIER-DONE-COVERAGE-001',
+  )
+  ensure(
+    checks,
+    verifierArtifactExists?.lane === 'done' &&
+      verifierArtifactExists?.priority === 'P0' &&
+      verifierArtifactExistsApproval.cardId === 'VERIFIER-ARTIFACT-EXISTS-001' &&
+      Number(verifierArtifactExistsApproval.score) >= 9.8 &&
+      verifierArtifactExistsApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(verifierArtifactExistsApproval.approvedAt).getTime()) &&
+      includesAll(verifierArtifactExistsText, [
+        'files/docs',
+        'npm run',
+        'API routes',
+        'synthetic missing-artifact',
+        'verifier-done-artifact-gates',
+      ]) &&
+      includesAll(foundationVerifySource, [
+        'findMissingArtifactClaims',
+        'extractClaimedFilesFromText',
+        'extractClaimedNpmScriptsFromText',
+        'extractClaimedApiRoutesFromText',
+        'synthetic-missing-artifact',
+      ]),
+    'VERIFIER-ARTIFACT-EXISTS-001 closes claimed-artifact enforcement',
+    verifierArtifactExists
+      ? `${verifierArtifactExists.lane} / approval=${verifierArtifactExistsApproval.score} / artifact findings=${missingArtifactClaims.length}`
+      : 'missing VERIFIER-ARTIFACT-EXISTS-001',
+  )
+  ensure(
+    checks,
+    sheetsQuotaHardening?.lane === 'scoped' &&
+      sheetsQuotaHardening?.priority === 'P1' &&
+      /Sheets API Trust/.test(sheetsQuotaHardening?.statusNote || '') &&
+      /Card 6.5/.test(sheetsQuotaHardening?.nextAction || '') &&
+      /batchGet/.test(sheetsQuotaHardening?.nextAction || ''),
+    'SHEETS-QUOTA-HARDENING-001 is scoped as a Wave 5 prerequisite, not built now',
+    sheetsQuotaHardening ? `${sheetsQuotaHardening.lane} / ${sheetsQuotaHardening.priority} / ${sheetsQuotaHardening.title}` : 'missing SHEETS-QUOTA-HARDENING-001',
   )
   ensure(
     checks,
