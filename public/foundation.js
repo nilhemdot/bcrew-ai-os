@@ -5692,6 +5692,44 @@ function renderBacklogHygienePanel(backlogHygiene) {
   )
 }
 
+function renderPostShipFanoutPanel(postShipFanout) {
+  if (!postShipFanout || !postShipFanout.summary) return null
+  var summary = postShipFanout.summary || {}
+  var findings = Array.isArray(postShipFanout.findings) ? postShipFanout.findings : []
+  var rules = Array.isArray(postShipFanout.rules) ? postShipFanout.rules : []
+  var intro = 'Checks whether the latest trusted ship updated the surrounding truth: Backlog, Recent Work, verifier proof, UI surface notes, and rebuild plan/state docs. '
+    + (summary.criticalFindings || 0) + ' critical finding'
+    + ((summary.criticalFindings || 0) === 1 ? '' : 's')
+    + ' across ' + (summary.ruleCount || rules.length || 0) + ' rules.'
+
+  var items = findings.slice(0, 6).map(function(finding) {
+    return {
+      label: String(finding.type || 'fanout finding').replace(/_/g, ' '),
+      status: finding.severity === 'critical' ? 'risk' : 'pending',
+      detail: (finding.issue || 'Post-ship fanout finding.')
+        + ' Next: ' + (finding.recommendedAction || 'Review the closeout.'),
+    }
+  })
+
+  if (!items.length) {
+    items.push({
+      label: postShipFanout.closeoutKey || 'Latest closeout',
+      status: postShipFanout.status === 'healthy' ? 'live' : 'pending',
+      detail: 'Fanout is clean for commit '
+        + (postShipFanout.commitSubject || postShipFanout.commitRef || 'HEAD')
+        + '. Changed files checked: '
+        + (postShipFanout.changedFileCount || 0)
+        + '.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Post-Ship Fanout',
+    intro,
+    items
+  )
+}
+
 function renderLlmRuntimePanel(llmRuntime) {
   if (!llmRuntime) return null
   var routes = Array.isArray(llmRuntime.routes) ? llmRuntime.routes : []
@@ -11713,6 +11751,9 @@ function renderDataHealth() {
 
     var backlogHygienePanel = renderBacklogHygienePanel(hub.backlogHygiene)
     if (backlogHygienePanel) container.appendChild(backlogHygienePanel)
+
+    var postShipFanoutPanel = renderPostShipFanoutPanel(hub.postShipFanout)
+    if (postShipFanoutPanel) container.appendChild(postShipFanoutPanel)
 
     var surfaceSweepPanel = renderSurfaceFreshnessSweepPanel(hub.surfaceFreshnessSweep)
     if (surfaceSweepPanel) container.appendChild(surfaceSweepPanel)

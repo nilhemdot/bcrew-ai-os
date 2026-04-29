@@ -1,0 +1,8 @@
+{
+  "cardId": "POST-SHIP-FAN-OUT-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T00:40:00Z",
+  "approvalSource": "Steve approved Plan C in chat after reviewer scored POST-SHIP-FAN-OUT-001 at 9.8/10.",
+  "notes": "Approval covers v1 check-and-report fanout automation: backlog card, post-ship fanout rule engine, CLI command, plain-English rule doc, Runtime Health summary, Recent Builds closeout, synthetic missing-fanout proof, EXCEPTION-CURATION-001 scoped follow-up, process gates, and no feature work."
+}

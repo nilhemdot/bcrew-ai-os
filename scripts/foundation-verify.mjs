@@ -36,6 +36,10 @@ import {
   EXPECTED_KPI_TABLES,
   KPI_HEALTH_PRIMARY_SURFACE,
 } from '../lib/kpi-health.js'
+import {
+  evaluatePostShipFanout,
+  POST_SHIP_FANOUT_RULES,
+} from '../lib/post-ship-fanout.js'
 
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
@@ -492,10 +496,15 @@ async function main() {
   const processShipCheckDoc = await readRepoFile('docs/process/ship-check.md')
   const processFanoutCheckSource = await readRepoFile('scripts/process-fanout-check.mjs')
   const processFanoutCheckDoc = await readRepoFile('docs/process/ship-fanout.md')
+  const postShipFanoutSource = await readRepoFile('lib/post-ship-fanout.js')
+  const postShipFanoutScriptSource = await readRepoFile('scripts/process-post-ship-fanout.mjs')
+  const postShipFanoutDoc = await readRepoFile('docs/process/post-ship-fanout.md')
   const processHooksApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-HOOKS-001.json')
   const processHooksApproval = JSON.parse(processHooksApprovalSource)
   const processFanoutApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-FANOUT-001.json')
   const processFanoutApproval = JSON.parse(processFanoutApprovalSource)
+  const postShipFanoutApprovalSource = await readRepoFile('docs/process/approvals/POST-SHIP-FAN-OUT-001.json')
+  const postShipFanoutApproval = JSON.parse(postShipFanoutApprovalSource)
   const workerCodeTrustApprovalSource = await readRepoFile('docs/process/approvals/WORKER-CODE-TRUST-001.json')
   const workerCodeTrustApproval = JSON.parse(workerCodeTrustApprovalSource)
   const verifierDoneCoverageApprovalSource = await readRepoFile('docs/process/approvals/VERIFIER-DONE-COVERAGE-001.json')
@@ -2095,6 +2104,10 @@ async function main() {
       (build.backlogIds || []).includes('VERIFIER-ARTIFACT-EXISTS-001') &&
       build.closeoutKey === 'verifier-done-artifact-gates'
   )
+  const buildLogPostShipFanoutBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('POST-SHIP-FAN-OUT-001') &&
+      build.closeoutKey === 'post-ship-fanout-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -2121,6 +2134,8 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('VERIFIER-DONE-COVERAGE-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('VERIFIER-ARTIFACT-EXISTS-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SHEETS-QUOTA-HARDENING-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('POST-SHIP-FAN-OUT-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('EXCEPTION-CURATION-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
@@ -2420,6 +2435,23 @@ async function main() {
     buildLogVerifierDoneArtifactBuild
       ? `${buildLogVerifierDoneArtifactBuild.shortSha} / ${buildLogVerifierDoneArtifactBuild.acceptanceState} / ${buildLogVerifierDoneArtifactBuild.proofStatus}`
       : 'missing verifier done/artifact closeout',
+  )
+  ensure(
+    checks,
+    buildLogPostShipFanoutBuild?.operatorCloseout === true &&
+      buildLogPostShipFanoutBuild.relatedBacklog?.some(item => item.id === 'POST-SHIP-FAN-OUT-001' && item.lane === 'done') &&
+      buildLogPostShipFanoutBuild.relatedBacklog?.some(item => item.id === 'EXCEPTION-CURATION-001' && item.lane === 'scoped') &&
+      buildLogPostShipFanoutBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
+      buildLogPostShipFanoutBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      buildLogPostShipFanoutBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
+      buildLogPostShipFanoutBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /synthetic missing-fanout/i.test(buildLogPostShipFanoutBuild.proofStatus || '') &&
+      /2026-07-27/i.test(buildLogPostShipFanoutBuild.knownLimits?.join(' ') || '') &&
+      /Phase C/i.test(buildLogPostShipFanoutBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for post-ship fanout',
+    buildLogPostShipFanoutBuild
+      ? `${buildLogPostShipFanoutBuild.shortSha} / ${buildLogPostShipFanoutBuild.acceptanceState} / ${buildLogPostShipFanoutBuild.proofStatus}`
+      : 'missing post-ship fanout closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -3047,7 +3079,9 @@ async function main() {
   const workerCodeTrust = (foundationHub.backlogItems || []).find(item => item.id === 'WORKER-CODE-TRUST-001') || null
   const verifierDoneCoverage = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-DONE-COVERAGE-001') || null
   const verifierArtifactExists = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-ARTIFACT-EXISTS-001') || null
+  const postShipFanout = (foundationHub.backlogItems || []).find(item => item.id === 'POST-SHIP-FAN-OUT-001') || null
   const sheetsQuotaHardening = (foundationHub.backlogItems || []).find(item => item.id === 'SHEETS-QUOTA-HARDENING-001') || null
+  const exceptionCuration = (foundationHub.backlogItems || []).find(item => item.id === 'EXCEPTION-CURATION-001') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
   const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
@@ -3089,6 +3123,12 @@ async function main() {
     verifierArtifactExists?.whyItMatters,
     verifierArtifactExists?.nextAction,
     verifierArtifactExists?.statusNote,
+  ].filter(Boolean).join('\n')
+  const postShipFanoutText = [
+    postShipFanout?.summary,
+    postShipFanout?.whyItMatters,
+    postShipFanout?.nextAction,
+    postShipFanout?.statusNote,
   ].filter(Boolean).join('\n')
   const backlogHygieneText = [
     backlogHygiene?.summary,
@@ -3326,6 +3366,74 @@ async function main() {
     verifierArtifactExists
       ? `${verifierArtifactExists.lane} / approval=${verifierArtifactExistsApproval.score} / artifact findings=${missingArtifactClaims.length}`
       : 'missing VERIFIER-ARTIFACT-EXISTS-001',
+  )
+  const syntheticPostShipFanoutFindings = evaluatePostShipFanout({
+    cardId: 'SYNTHETIC-FANOUT-001',
+    closeout: {
+      key: 'synthetic-missing-fanout',
+      backlogIds: ['SYNTHETIC-FANOUT-001'],
+      whatChanged: 'Changed verifier code.',
+      whatItDoes: 'Proves the detector.',
+      whyItMatters: 'Synthetic proof.',
+      whereItLives: ['Foundation'],
+      proofCommands: [],
+      knownLimits: ['Synthetic only.'],
+      reviewNext: 'None.',
+    },
+    changedFiles: ['scripts/foundation-verify.mjs'],
+    backlogItems: [{ id: 'SYNTHETIC-FANOUT-001' }],
+    includeSynthetic: false,
+  })
+  ensure(
+    checks,
+    postShipFanout?.lane === 'done' &&
+      postShipFanout?.priority === 'P0' &&
+      postShipFanoutApproval.cardId === 'POST-SHIP-FAN-OUT-001' &&
+      Number(postShipFanoutApproval.score) >= 9.8 &&
+      postShipFanoutApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(postShipFanoutApproval.approvedAt).getTime()) &&
+      includesAll(packageSource, ['"process:post-ship-fanout"', 'scripts/process-post-ship-fanout.mjs']) &&
+      includesAll(postShipFanoutSource, [
+        'POST_SHIP_FANOUT_RULES',
+        'evaluatePostShipFanout',
+        'buildPostShipFanoutStatus',
+        'synthetic_detector_failed',
+      ]) &&
+      includesAll(postShipFanoutScriptSource, [
+        'process-post-ship-fanout',
+        'fanout findings are clean',
+        'commit changed files are visible',
+      ]) &&
+      includesAll(postShipFanoutDoc, [
+        'Commit touches `lib/foundation-db.js`',
+        'Commit touches `scripts/foundation-verify.mjs`',
+        'Commit touches `public/foundation.js`',
+        'Commit touches `docs/rebuild/*`',
+        'V1 checks and reports',
+      ]) &&
+      includesAll(serverSource, ['buildPostShipFanoutStatus', 'postShipFanout']) &&
+      includesAll(foundationUiSource, ['renderPostShipFanoutPanel', 'Post-Ship Fanout']) &&
+      foundationHub.postShipFanout?.summary?.ruleCount >= POST_SHIP_FANOUT_RULES.length &&
+      syntheticPostShipFanoutFindings.some(finding => finding.type === 'missing_fanout_proof') &&
+      includesAll(postShipFanoutText, [
+        'process:post-ship-fanout',
+        'Runtime Health > Post-Ship Fanout',
+        'post-ship-fanout-v1',
+      ]),
+    'POST-SHIP-FAN-OUT-001 closes post-ship fanout gate with proof',
+    postShipFanout
+      ? `${postShipFanout.lane} / approval=${postShipFanoutApproval.score} / runtime=${foundationHub.postShipFanout?.status || 'missing'}`
+      : 'missing POST-SHIP-FAN-OUT-001',
+  )
+  ensure(
+    checks,
+    exceptionCuration?.lane === 'scoped' &&
+      exceptionCuration?.priority === 'P1' &&
+      /2026-07-27/.test(exceptionCuration?.statusNote || '') &&
+      /24 historical verifier exceptions/i.test(exceptionCuration?.summary || '') &&
+      /docs\/process\/verifier-exceptions\.json/.test(exceptionCuration?.nextAction || ''),
+    'EXCEPTION-CURATION-001 is scoped for the 90-day exception cleanup',
+    exceptionCuration ? `${exceptionCuration.lane} / ${exceptionCuration.priority} / ${exceptionCuration.title}` : 'missing EXCEPTION-CURATION-001',
   )
   ensure(
     checks,

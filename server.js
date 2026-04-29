@@ -76,6 +76,7 @@ import {
 } from './lib/foundation-build-log.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
+import { buildPostShipFanoutStatus } from './lib/post-ship-fanout.js'
 import {
   fubJsonFetch,
   getFubContextsSummary,
@@ -3993,11 +3994,16 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       backlogItems: snapshot.backlogItems || [],
       closeouts: getFoundationBuildCloseouts(),
     })
+    const postShipFanout = await buildPostShipFanoutStatus({
+      closeouts: getFoundationBuildCloseouts(),
+      backlogItems: snapshot.backlogItems || [],
+    })
     const workerCode = await getFoundationRuntimeStatus('foundation-worker')
     res.json({
       ...snapshot,
       kpiHealth,
       backlogHygiene,
+      postShipFanout,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),

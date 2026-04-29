@@ -128,9 +128,9 @@ Hard checkpoint call from 2026-04-28:
 Current command order:
 
 1. Keep the `FOUNDATION-SWEEP-001` map and `FOUNDATION-CHANGELOG-002` closeout records current when Foundation nav, APIs, docs, source contracts, jobs, System Inventory, hub links, or major build cards change.
-2. Finish the post-audit trust hit list before new feature work. Card 0 `PROCESS-FANOUT-001` is repaired. Wave 2 is closing: `WORKER-CODE-TRUST-001` proves the supervised worker is running current code; `VERIFIER-DONE-COVERAGE-001` and `VERIFIER-ARTIFACT-EXISTS-001` add done-card proof and claimed-artifact verifier gates. `SHEETS-QUOTA-HARDENING-001` is scoped as Card 6.5 before Wave 5 parallel ramp, not built yet.
-3. Next planning wave after Wave 2 review: `POST-SHIP-FAN-OUT-001`, with `SHEETS-QUOTA-HARDENING-001` as an optional parallel slice if Steve approves.
-4. After the trust hit list and re-audit, re-plan with Steve before un-pausing Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work.
+2. Finish the post-audit trust hit list before new feature work. Card 0 `PROCESS-FANOUT-001` is repaired. Wave 2 is complete: `WORKER-CODE-TRUST-001` proves the supervised worker is running current code; `VERIFIER-DONE-COVERAGE-001` and `VERIFIER-ARTIFACT-EXISTS-001` add done-card proof and claimed-artifact verifier gates.
+3. Wave 3 is active: `POST-SHIP-FAN-OUT-001` adds the post-ship fanout gate, and `SHEETS-QUOTA-HARDENING-001` is green-lit as an optional parallel slice before Wave 5 parallel ramp. `EXCEPTION-CURATION-001` is scoped for Phase D cleanup before the 2026-07-27 verifier-exception deadline.
+4. After Wave 3 review, open Phase C visibility work with Cards 7-12 in parallel chats. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work until the hit list and re-audit say Foundation is ready.
 
 ## Operator Surface Pattern
 

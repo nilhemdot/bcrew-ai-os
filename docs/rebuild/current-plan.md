@@ -834,9 +834,10 @@ Current order:
 
 1. `PROCESS-FANOUT-001` repair — done for v1. The false-done card now has the actual fanout check, doc, npm command, closeout proof, and verifier coverage.
 2. Wave 2 Chat B: `WORKER-CODE-TRUST-001` — done for v1. The supervised Foundation worker now exposes startup commit and LaunchAgent pid proof.
-3. Wave 2 Chat A: `VERIFIER-DONE-COVERAGE-001` + `VERIFIER-ARTIFACT-EXISTS-001` — add done-card proof and claimed-artifact existence gates with a constrained exception ledger.
-4. Card 6.5: `SHEETS-QUOTA-HARDENING-001` — scoped P1 follow-up before Wave 5 parallel ramp so repeated ship gates do not keep tripping Google Sheets quota.
-5. After Wave 2, plan `POST-SHIP-FAN-OUT-001` and continue the ordered hit list instead of auto-picking features.
+3. Wave 2 Chat A: `VERIFIER-DONE-COVERAGE-001` + `VERIFIER-ARTIFACT-EXISTS-001` — done for v1. Done cards now need verifier proof or an explicit exception, and claimed artifacts must exist.
+4. Wave 3 Card 4: `POST-SHIP-FAN-OUT-001` — done for v1. The post-ship fanout gate checks that closeouts prove surrounding truth moved with the code.
+5. Card 6.5: `SHEETS-QUOTA-HARDENING-001` — green-lit as an optional parallel Wave 3 slice before Wave 5 parallel ramp so repeated ship gates do not keep tripping Google Sheets quota.
+6. `EXCEPTION-CURATION-001` — scoped Phase D cleanup follow-up for the 24 historical verifier exceptions before the 2026-07-27 expiry deadline.
 
 Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts until the trust hit list and follow-up re-audit say Foundation is ready.
 
