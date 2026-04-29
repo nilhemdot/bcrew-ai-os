@@ -1,0 +1,8 @@
+{
+  "cardId": "LOCAL-DOC-LINK-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T11:24:28Z",
+  "approvalSource": "Steve approved the revised Wave Cleanup A plan in chat after the local-doc endpoint mechanism, non-local detection, and privacy verifier tests were specified.",
+  "notes": "Approval covers the localhost-only private doc endpoint, allowlist, served-code trust gate, repo-root path guard, 403 default, System Inventory UI links, privacy documentation, and verifier coverage."
+}

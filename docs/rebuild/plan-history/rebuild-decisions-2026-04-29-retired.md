@@ -4,7 +4,7 @@ description: All architecture and strategy decisions made during the BCrew AI OS
 type: project
 ---
 
-Current execution plan: [docs/rebuild/current-plan.md](docs/rebuild/current-plan.md)
+Current execution plan: [docs/rebuild/current-plan.md](../current-plan.md)
 
 ## Platform Decisions
 - **OpenClaw** is the production runtime (model-agnostic, 30+ channels, MIT licensed)

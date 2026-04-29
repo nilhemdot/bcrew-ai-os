@@ -2997,6 +2997,17 @@ function getDocSurfaceMeta(relativePath) {
     }
   }
 
+  if (['docs/process/local-doc-link.md', 'docs/process/doc-other-triage.md'].includes(relativePath)) {
+    return {
+      surfaceLabel: 'Foundation > System Inventory',
+      surfaceHref: '/foundation#inventory-docs',
+      role: 'Process runbook',
+      category: 'Process & Runbooks',
+      usage: 'runtime',
+      storageClass: 'Process doc',
+    }
+  }
+
   return {
     surfaceLabel: '',
     surfaceHref: '',
@@ -3066,13 +3077,120 @@ async function getTrackedMarkdownDocs() {
     })
 }
 
-function getPrivateLocalMarkdownDocs() {
+async function getCurrentRepoHeadCommit() {
+  const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], {
+    cwd: __dirname,
+    maxBuffer: 1024 * 64,
+  })
+  return normalizeGitSha(stdout)
+}
+
+function getLocalDocHostGate(req) {
+  if (!isLocalRequest(req)) {
+    return {
+      ok: false,
+      reason: 'Local private docs can only be opened from this machine.',
+    }
+  }
+
+  if (!isLocalHostHeader(req)) {
+    return {
+      ok: false,
+      reason: 'Local private docs can only be opened from localhost, 127.0.0.1, or ::1.',
+    }
+  }
+
+  return { ok: true, reason: 'Request is from the local machine.' }
+}
+
+async function getServedCodeTrustGate() {
+  const servedCode = getDashboardRuntimeMetadata()
+  if (!servedCode.runningCommit || servedCode.status !== 'live') {
+    return {
+      ok: false,
+      reason: 'Served-code trust is not healthy. Restart the dashboard and rerun foundation:verify before opening private local docs.',
+    }
+  }
+
+  try {
+    const currentHead = await getCurrentRepoHeadCommit()
+    if (servedCode.runningCommit !== currentHead) {
+      return {
+        ok: false,
+        reason: 'Served-code trust is stale. Restart the dashboard so served code matches repo HEAD before opening private local docs.',
+      }
+    }
+  } catch (error) {
+    return {
+      ok: false,
+      reason: 'Served-code trust could not compare the running commit to repo HEAD.',
+    }
+  }
+
+  return { ok: true, reason: 'Served-code trust is healthy.' }
+}
+
+function resolvePrivateLocalDoc(name) {
+  const requestedName = String(name || '').trim()
+  if (!Object.prototype.hasOwnProperty.call(privateLocalMarkdownMeta, requestedName)) {
+    return {
+      ok: false,
+      reason: 'Only allowlisted private local docs can be opened.',
+    }
+  }
+
+  if (requestedName.includes('/') || requestedName.includes('\\') || requestedName.includes('..')) {
+    return {
+      ok: false,
+      reason: 'Path traversal is not allowed for private local docs.',
+    }
+  }
+
+  const absolutePath = path.resolve(repoRoot, requestedName)
+  const relativePath = path.relative(repoRoot, absolutePath)
+  if (relativePath !== requestedName || relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+    return {
+      ok: false,
+      reason: 'Private local docs must resolve inside the repo root.',
+    }
+  }
+
+  if (!fs.existsSync(absolutePath)) {
+    return {
+      ok: false,
+      reason: 'The requested private local doc does not exist on this machine.',
+    }
+  }
+
+  return {
+    ok: true,
+    requestedName,
+    absolutePath,
+    meta: privateLocalMarkdownMeta[requestedName],
+  }
+}
+
+async function getPrivateLocalDocAccess(req, name) {
+  const hostGate = getLocalDocHostGate(req)
+  if (!hostGate.ok) return hostGate
+
+  const servedCodeGate = await getServedCodeTrustGate()
+  if (!servedCodeGate.ok) return servedCodeGate
+
+  return resolvePrivateLocalDoc(name)
+}
+
+async function getPrivateLocalMarkdownDocs(req) {
+  const hostGate = getLocalDocHostGate(req)
+  const servedCodeGate = hostGate.ok ? await getServedCodeTrustGate() : hostGate
+  const canOpenLocalDocs = hostGate.ok && servedCodeGate.ok
+
   return Object.entries(privateLocalMarkdownMeta)
     .filter(([relativePath]) => fs.existsSync(path.join(repoRoot, relativePath)))
     .map(([relativePath, info]) => ({
       path: relativePath,
       title: path.basename(relativePath, '.md'),
-      openHref: '',
+      openHref: canOpenLocalDocs ? '/api/foundation/local-doc/' + encodeURIComponent(relativePath) : '',
       surfaceLabel: 'Local workspace only',
       surfaceHref: '',
       role: info.role,
@@ -3084,6 +3202,8 @@ function getPrivateLocalMarkdownDocs() {
       daysOld: getDocMeta(path.join(repoRoot, relativePath)).daysOld,
       lines: getDocMeta(path.join(repoRoot, relativePath)).lines,
       whyHidden: info.whyHidden,
+      localOpenEligible: canOpenLocalDocs,
+      localOpenReason: canOpenLocalDocs ? 'Local open is available on this machine.' : servedCodeGate.reason,
     }))
 }
 
@@ -3957,10 +4077,42 @@ app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
   }
 })
 
-app.get('/api/system-inventory', requireAdminToken, async (_req, res) => {
+app.get('/api/foundation/local-doc/:name', async (req, res) => {
+  try {
+    const access = await getPrivateLocalDocAccess(req, req.params.name)
+    if (!access.ok) {
+      cacheHeadersNoStore(res)
+      res.status(403).json({
+        error: 'local_doc_forbidden',
+        message: access.reason,
+      })
+      return
+    }
+
+    cacheHeadersNoStore(res)
+    res.type('text/markdown').send(fs.readFileSync(access.absolutePath, 'utf8'))
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'local_doc_failed',
+      error instanceof Error ? error.message : 'Failed to open private local doc.'
+    )
+  }
+})
+
+app.get('/api/foundation/local-doc/*', (_req, res) => {
+  cacheHeadersNoStore(res)
+  res.status(403).json({
+    error: 'local_doc_forbidden',
+    message: 'Only allowlisted private local docs can be opened.',
+  })
+})
+
+app.get('/api/system-inventory', requireAdminToken, async (req, res) => {
   try {
     const trackedDocs = await getTrackedMarkdownDocs()
-    const privateLocalDocs = getPrivateLocalMarkdownDocs()
+    const privateLocalDocs = await getPrivateLocalMarkdownDocs(req)
     const skills = getSkillInventory()
     const plugins = getPluginInventory()
 

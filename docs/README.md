@@ -38,12 +38,12 @@ These files are the current source of truth for the rebuild:
 - [`strategy/`](strategy/) — supporting strategy packet docs
 - [`source-notes/`](source-notes/) — source-specific operator notes and validation evidence
 - [`specs/`](specs/) — design contracts until promoted into active implementation
-- [`rebuild-decisions.md`](rebuild-decisions.md) — historical locked decisions; use current runtime map before trusting runtime/model claims
 
 ## Evidence
 
 - [`handoffs/`](handoffs/) — session checkpoints, source validations, and reconstructed transcripts
 - [`audits/`](audits/) — historical and current audit artifacts
+- [`rebuild/plan-history/`](rebuild/plan-history/) — retired rebuild plans and decision snapshots kept for traceability, not current doctrine
 - [`research/`](research/) — research notes and older doctrine debates
 - [`superpowers/`](superpowers/) — older design work and implementation plans
 - [`decks/`](decks/) — presentation assets

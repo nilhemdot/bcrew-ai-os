@@ -42,6 +42,7 @@ Built:
 - Owners/deal-review runners
 - doc cleanup plan and generated evidence indexes
 - Phase D cleanup: historical evidence docs moved to `docs/_archive/`, stale rebuild docs moved to plan history, research cards preserved for review, verifier exceptions classified, hit-list snapshot checked, and Recent Builds can show multiple closeouts under one commit
+- Wave Cleanup A: local-private docs open only from trusted localhost, doc authority/index drift is repaired, and the 127-doc `Other` bucket has an inspect-only triage report for Cleanup B
 
 Open:
 
@@ -65,6 +66,8 @@ Open:
 - Strategy Hub
 - Harlan/Crewbert useful runtime
 - Strategy Hub v2 rebuild on top of the completed v1 spine and Action Router route records
+- Cleanup B for the remaining `Other` docs, using `docs/process/doc-other-triage.md` as input
+- Foundation Phase G source lifecycle completion and UI/menu/layout polish before broader feature lanes resume
 
 ## Foundation Surfaces
 
@@ -135,7 +138,8 @@ Current command order:
 5. Phase C is complete: `PHANTOM-CARD-CHECK-001`, `PHASE-NUMBERING-RECONCILE-001`, `SUB-SURFACE-MAPPING-001`, `SYSTEM-INVENTORY-TRUE-UP-001`, `SOURCE-CONTRACT-CLEANUP-001`, and `VERIFIER-CONSOLIDATION-001` clean active references, surface mapping, inventory truth, source IDs, and verifier language.
 6. Phase D is complete for v1: `DOC-ARCHIVE-AUTO-001`, `RESEARCH-CURATION-001`, `REBUILD-DOCS-RETIRE-001`, `ARCHIVE-RETIRE-001`, `EXCEPTION-CURATION-001`, `HIT-LIST-RECONCILE-001`, and `RECENT-BUILDS-MULTI-CLOSEOUT-001` landed cleanup, curation, and multi-closeout visibility.
 7. Phase E is done for v1: `FULL-SYSTEM-RE-AUDIT-001` found 0 blockers, 9 minor-drift areas, and 3 clean areas across the 12-area re-audit.
-8. Phase F can open with follow-up cards. The named Phase F card, `ACTION-REVIEW-APPLY-001`, is already done for v1 and safe to use; if more action-loop work is needed, scope the next narrow child slice after Steve reviews the re-audit. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work by default without that re-plan.
+8. Wave Cleanup A is done for v1: `LOCAL-DOC-LINK-001`, `DOC-AUTHORITY-INDEX-REPAIR-001`, and `DOC-OTHER-TRIAGE-001` close the local-doc UX gap, stale doc-authority drift, and the inspect-only 127-doc Other triage report.
+9. Cleanup B is next if Steve keeps Path A. Use `docs/process/doc-other-triage.md`; do not move or delete docs without a new 9.8 plan. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work by default without that re-plan.
 
 ## Operator Surface Pattern
 

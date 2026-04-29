@@ -7,7 +7,7 @@ This file preserves the original rebuild baseline so the current repo no longer 
 
 This is not the live execution plan.
 
-Use [current-plan.md](current-plan.md) for the active execution order.
+Use [current-plan.md](../current-plan.md) for the active execution order.
 
 ## Original Baseline
 
@@ -45,4 +45,4 @@ What changed is execution clarity:
 
 - use it to remember the original rebuild intent
 - do not use it as the live execution checklist
-- if this file conflicts with [current-plan.md](current-plan.md), the current plan wins
+- if this file conflicts with [current-plan.md](../current-plan.md), the current plan wins

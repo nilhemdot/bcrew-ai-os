@@ -733,7 +733,7 @@ function appendSourceActions(target, actions) {
     var link = document.createElement('a')
     link.className = 'doc-source-link'
     link.href = action.href
-    if (/^https?:/i.test(action.href)) {
+    if (action.targetBlank || /^https?:/i.test(action.href)) {
       link.target = '_blank'
       link.rel = 'noreferrer'
     }
@@ -7696,25 +7696,25 @@ function renderCurrentState() {
         backlogIds: ['FOUNDATION-003'],
       },
       {
-        title: 'KPI foundation system',
+        title: 'KPI source health system',
         surfaceType: 'Data source',
         sourceId: 'SRC-SUPABASE-001',
         statusKey: 'connected',
-        statusLabel: 'Ready for read rules',
-        levelLabel: 'Level 2 - read rules locked',
-        currentSummary: 'SRC-SUPABASE-001 is readable, the Lee / zahnd-team-dashboard repo and Supabase audit checkpoint are captured, and AI OS has locked first-pass read rules for pipeline, Shopping List, executed deals, goals, competition, and usage.',
+        statusLabel: 'Health probe active',
+        levelLabel: 'Level 3 - read rules plus health checks',
+        currentSummary: 'SRC-SUPABASE-001 is readable, first-pass KPI read rules are locked, and KPI Health now checks 14/14 tables plus 5/5 RPCs so Foundation can see source availability and drift risk.',
         packageParts: [
           {
             sourceId: 'SRC-SUPABASE-001',
             statusKey: 'connected',
-            statusLabel: 'Level 2',
-            body: 'KPI Supabase is readable and first-pass read rules are locked for pipeline, Shopping List, executed deals, goals, competition, and usage.',
+            statusLabel: 'Level 3',
+            body: 'KPI Supabase is readable, first-pass read rules are locked, and KPI Health verifies table/RPC availability for the current source layer.',
             role: 'KPI source contract',
-            next: 'Add visible freshness, schema/code drift review, and Sales Hub health checks before continuous dependency.',
+            next: 'Add freshness cadence and deeper schema/code drift review before continuous Sales Hub dependency.',
           },
         ],
         next: 'No current-state source-signoff work remains.',
-        later: 'Add KPI health checks, visible freshness, schema/code drift review, and future Sales Hub surfaces.',
+        later: 'Add visible freshness, deeper schema/code drift review, and future Sales Hub surfaces.',
         backlogIds: [],
       },
       {
@@ -11351,6 +11351,10 @@ function renderInventoryDocCard(doc) {
     title.className = 'inventory-doc-link'
     title.href = doc.openHref
     title.textContent = doc.title
+    if (doc.usage === 'private-local') {
+      title.target = '_blank'
+      title.rel = 'noopener noreferrer'
+    }
   } else {
     title = document.createElement('h4')
     title.textContent = doc.title
@@ -11388,8 +11392,12 @@ function renderInventoryDocCard(doc) {
     article.appendChild(renderLabeledCopy('decision-meta', 'Why hidden', doc.whyHidden))
   }
 
+  if (doc.usage === 'private-local' && doc.localOpenReason) {
+    article.appendChild(renderLabeledCopy('decision-meta', 'Local open status', doc.localOpenReason))
+  }
+
   var actions = []
-  if (doc.openHref) actions.push({ label: 'Open Doc', href: doc.openHref })
+  if (doc.openHref) actions.push({ label: doc.usage === 'private-local' ? 'Open Local Doc' : 'Open Doc', href: doc.openHref, targetBlank: doc.usage === 'private-local' })
   if (doc.surfaceHref) actions.push({ label: 'Open Surface', href: doc.surfaceHref })
   appendSourceActions(article, actions)
 
@@ -12495,7 +12503,7 @@ function renderBuildGroups(buildLog, builds) {
 
 function renderBuildLog() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading recent builds...</p>'
+  container.innerHTML = '<p>Loading recent work...</p>'
 
   Promise.all([fetchFoundationBuildLog(), fetchFoundationHub()]).then(function(results) {
     var buildLog = results[0]
@@ -12508,7 +12516,7 @@ function renderBuildLog() {
     var heroInner = document.createElement('div')
     heroInner.className = 'hero-inner'
     var heroTitle = document.createElement('h1')
-    heroTitle.textContent = 'Recent Builds'
+    heroTitle.textContent = 'Recent Work'
     heroInner.appendChild(heroTitle)
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
@@ -12580,7 +12588,7 @@ function renderBuildLog() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load recent builds: ' + error.message
+    msg.textContent = 'Failed to load recent work: ' + error.message
     container.appendChild(msg)
   })
 }

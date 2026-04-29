@@ -5,6 +5,8 @@ import { promisify } from 'node:util'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
+import http from 'node:http'
+import https from 'node:https'
 import process from 'node:process'
 import { getGroupedSourceSystems, getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
 import {
@@ -101,6 +103,43 @@ async function fetchJson(baseUrl, pathname) {
     throw new Error(`${pathname} returned ${response.status} ${response.statusText}`)
   }
   return response.json()
+}
+
+async function fetchTextResponse(baseUrl, pathname, options = {}) {
+  const response = await fetch(new URL(pathname, baseUrl), options)
+  return {
+    ok: response.ok,
+    status: response.status,
+    text: await response.text(),
+  }
+}
+
+async function fetchTextResponseWithHostHeader(baseUrl, pathname, hostHeader) {
+  const url = new URL(pathname, baseUrl)
+  const client = url.protocol === 'https:' ? https : http
+  return new Promise((resolve, reject) => {
+    const request = client.request({
+      hostname: url.hostname,
+      port: url.port || (url.protocol === 'https:' ? 443 : 80),
+      path: `${url.pathname}${url.search}`,
+      method: 'GET',
+      headers: {
+        Host: hostHeader,
+      },
+    }, response => {
+      const chunks = []
+      response.on('data', chunk => chunks.push(chunk))
+      response.on('end', () => {
+        resolve({
+          ok: response.statusCode >= 200 && response.statusCode < 300,
+          status: response.statusCode,
+          text: Buffer.concat(chunks).toString('utf8'),
+        })
+      })
+    })
+    request.on('error', reject)
+    request.end()
+  })
 }
 
 async function runHealthScript(scriptName) {
@@ -550,6 +589,8 @@ async function main() {
   const hitListSnapshotSource = await readRepoFile('docs/process/hit-list-snapshot.json')
   const hitListSnapshot = JSON.parse(hitListSnapshotSource)
   const fullSystemReAuditSource = await readRepoFile('docs/audits/2026-04-29-full-system-re-audit.md')
+  const localDocLinkDoc = await readRepoFile('docs/process/local-doc-link.md')
+  const docOtherTriageSource = await readRepoFile('docs/process/doc-other-triage.md')
   const rebuildDocRetireManifestSource = await readRepoFile('docs/process/rebuild-doc-retire-manifest.json')
   const rebuildDocRetireManifest = JSON.parse(rebuildDocRetireManifestSource)
   const archiveRetireManifestSource = await readRepoFile('docs/process/archive-retire-manifest.json')
@@ -588,6 +629,12 @@ async function main() {
   const recentBuildsMultiCloseoutApproval = JSON.parse(recentBuildsMultiCloseoutApprovalSource)
   const fullSystemReAuditApprovalSource = await readRepoFile('docs/process/approvals/FULL-SYSTEM-RE-AUDIT-001.json')
   const fullSystemReAuditApproval = JSON.parse(fullSystemReAuditApprovalSource)
+  const localDocLinkApprovalSource = await readRepoFile('docs/process/approvals/LOCAL-DOC-LINK-001.json')
+  const localDocLinkApproval = JSON.parse(localDocLinkApprovalSource)
+  const docAuthorityIndexRepairApprovalSource = await readRepoFile('docs/process/approvals/DOC-AUTHORITY-INDEX-REPAIR-001.json')
+  const docAuthorityIndexRepairApproval = JSON.parse(docAuthorityIndexRepairApprovalSource)
+  const docOtherTriageApprovalSource = await readRepoFile('docs/process/approvals/DOC-OTHER-TRIAGE-001.json')
+  const docOtherTriageApproval = JSON.parse(docOtherTriageApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -1643,6 +1690,14 @@ async function main() {
   const opsHub = await fetchJson(baseUrl, '/api/ops-hub')
   const ownersLeadSourceGovernance = await fetchJson(baseUrl, '/api/owners/lead-source-governance')
   const ownersReviewQueue = await fetchJson(baseUrl, '/api/owners/review-queue')
+  const localDocSuccessResponse = await fetchTextResponse(baseUrl, '/api/foundation/local-doc/USER.md')
+    .catch(error => ({ ok: false, status: 0, text: error instanceof Error ? error.message : String(error) }))
+  const localDocNonLocalResponse = await fetchTextResponseWithHostHeader(baseUrl, '/api/foundation/local-doc/USER.md', 'example.com')
+    .catch(error => ({ ok: false, status: 0, text: error instanceof Error ? error.message : String(error) }))
+  const localDocTraversalResponse = await fetchTextResponse(baseUrl, '/api/foundation/local-doc/..%2F..%2F..%2Fetc%2Fpasswd')
+    .catch(error => ({ ok: false, status: 0, text: error instanceof Error ? error.message : String(error) }))
+  const localDocNonAllowlistedResponse = await fetchTextResponse(baseUrl, '/api/foundation/local-doc/AGENTS.md')
+    .catch(error => ({ ok: false, status: 0, text: error instanceof Error ? error.message : String(error) }))
   const extractionTargets = Array.isArray(foundationHub.extractionControl?.targets)
     ? foundationHub.extractionControl.targets
     : []
@@ -2391,6 +2446,12 @@ async function main() {
     (build.backlogIds || []).includes('FULL-SYSTEM-RE-AUDIT-001') &&
       build.closeoutKey === 'full-system-re-audit-v1'
   )
+  const buildLogWaveCleanupABuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('LOCAL-DOC-LINK-001') &&
+      (build.backlogIds || []).includes('DOC-AUTHORITY-INDEX-REPAIR-001') &&
+      (build.backlogIds || []).includes('DOC-OTHER-TRIAGE-001') &&
+      build.closeoutKey === 'wave-cleanup-a-local-docs-triage-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -2428,6 +2489,9 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('ARCHIVE-RETIRE-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('RECENT-BUILDS-MULTI-CLOSEOUT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('FULL-SYSTEM-RE-AUDIT-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('LOCAL-DOC-LINK-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('DOC-AUTHORITY-INDEX-REPAIR-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('DOC-OTHER-TRIAGE-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
@@ -3484,6 +3548,8 @@ async function main() {
   const recentBuildsMultiCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'RECENT-BUILDS-MULTI-CLOSEOUT-001') || null
   const fullSystemReAudit = (foundationHub.backlogItems || []).find(item => item.id === 'FULL-SYSTEM-RE-AUDIT-001') || null
   const docAuthorityIndexRepair = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-INDEX-REPAIR-001') || null
+  const localDocLink = (foundationHub.backlogItems || []).find(item => item.id === 'LOCAL-DOC-LINK-001') || null
+  const docOtherTriage = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-OTHER-TRIAGE-001') || null
   const doctrinePropagationV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-002') || null
   const processHooksV2 = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-002') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
@@ -4042,7 +4108,7 @@ async function main() {
         'DOCTRINE-PROPAGATION-002',
         'PROCESS-HOOKS-002',
       ]) &&
-      docAuthorityIndexRepair?.lane === 'scoped' &&
+      ['scoped', 'done'].includes(docAuthorityIndexRepair?.lane) &&
       doctrinePropagationV2?.lane === 'scoped' &&
       processHooksV2?.lane === 'scoped' &&
       fullSystemReAuditText.includes('0 blockers') &&
@@ -4057,6 +4123,136 @@ async function main() {
     fullSystemReAudit
       ? `${fullSystemReAudit.lane} / verdicts=${fullSystemReAuditVerdicts.length} / phaseF=open-with-follow-ups`
       : 'missing FULL-SYSTEM-RE-AUDIT-001',
+  )
+  const privateLocalDocs = systemInventory.docs?.privateLocal || []
+  const privateLocalDocPaths = privateLocalDocs.map(doc => doc.path).sort()
+  const expectedPrivateLocalDocs = ['HEARTBEAT.md', 'IDENTITY.md', 'MEMORY.md', 'TOOLS.md', 'USER.md']
+  const docOtherTriageRows = docOtherTriageSource.split('\n').filter(line => line.startsWith('| docs/')).length
+  const docOtherTriageCategories = [
+    'Active doctrine',
+    'Process & runbooks',
+    'Source notes',
+    'Specs',
+    'Strategy reference',
+    'Agent personas',
+    'User profile',
+    'Recent handoffs - active',
+    'Recent audits - active',
+    'Plan history',
+    'Archive',
+    'Local-private',
+  ]
+  ensure(
+    checks,
+    localDocLink?.lane === 'done' &&
+      docAuthorityIndexRepair?.lane === 'done' &&
+      docOtherTriage?.lane === 'done' &&
+      localDocLinkApproval.cardId === 'LOCAL-DOC-LINK-001' &&
+      Number(localDocLinkApproval.score) >= 9.8 &&
+      docAuthorityIndexRepairApproval.cardId === 'DOC-AUTHORITY-INDEX-REPAIR-001' &&
+      Number(docAuthorityIndexRepairApproval.score) >= 9.8 &&
+      docOtherTriageApproval.cardId === 'DOC-OTHER-TRIAGE-001' &&
+      Number(docOtherTriageApproval.score) >= 9.8,
+    'Wave Cleanup A backlog cards have approved 9.8 plans and done state',
+    `local=${localDocLink?.lane || 'missing'} / authority=${docAuthorityIndexRepair?.lane || 'missing'} / triage=${docOtherTriage?.lane || 'missing'}`,
+  )
+  ensure(
+    checks,
+    localDocSuccessResponse.status === 200 &&
+      localDocSuccessResponse.text.length > 20 &&
+      localDocNonLocalResponse.status === 403 &&
+      /local_doc_forbidden|localhost|127\.0\.0\.1|::1/i.test(localDocNonLocalResponse.text) &&
+      localDocTraversalResponse.status === 403 &&
+      /local_doc_forbidden|allowlisted|traversal/i.test(localDocTraversalResponse.text) &&
+      localDocNonAllowlistedResponse.status === 403 &&
+      /local_doc_forbidden|allowlisted/i.test(localDocNonAllowlistedResponse.text),
+    'local private doc endpoint fails closed for non-local, traversal, and non-allowlisted requests',
+    `local=${localDocSuccessResponse.status} nonLocal=${localDocNonLocalResponse.status} traversal=${localDocTraversalResponse.status} nonAllow=${localDocNonAllowlistedResponse.status}`,
+  )
+  ensure(
+    checks,
+    JSON.stringify(privateLocalDocPaths) === JSON.stringify(expectedPrivateLocalDocs) &&
+      privateLocalDocs.every(doc => doc.usage === 'private-local' && doc.openHref === `/api/foundation/local-doc/${encodeURIComponent(doc.path)}`) &&
+      privateLocalDocs.every(doc => doc.localOpenEligible === true && /local/i.test(doc.localOpenReason || '')),
+    'System Inventory exposes local-private docs only through the gated endpoint',
+    `${privateLocalDocs.length} private docs / hrefs=${privateLocalDocs.map(doc => doc.openHref || 'metadata-only').join(', ')}`,
+  )
+  ensure(
+    checks,
+    includesAll(serverSource, [
+      "app.get('/api/foundation/local-doc/:name'",
+      'getPrivateLocalDocAccess',
+      'getServedCodeTrustGate',
+      'resolvePrivateLocalDoc',
+      'Only allowlisted private local docs can be opened.',
+    ]) &&
+      includesAll(localDocLinkDoc, [
+        'GET /api/foundation/local-doc/:name',
+        'localhost',
+        '127.0.0.1',
+        '::1',
+        'Served-code trust',
+        'repo root',
+        '403',
+      ]) &&
+      !foundationUiSource.includes('file://'),
+    'LOCAL-DOC-LINK-001 documents and implements the privacy boundary',
+    'allowlist + host gate + served-code gate + repo-root guard documented',
+  )
+  ensure(
+    checks,
+    !docsReadmeSource.includes('[`rebuild-decisions.md`](rebuild-decisions.md)') &&
+      docsReadmeSource.includes('rebuild/plan-history/') &&
+      docsIndexSource.includes('| [rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md](rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md) | 2026-04-29 | foundation | superseded-evidence') &&
+      docsIndexSource.includes('| [rebuild/plan-history/rebuild-master-plan-2026-04-29-retired.md](rebuild/plan-history/rebuild-master-plan-2026-04-29-retired.md) | 2026-04-29 | foundation | superseded-evidence'),
+    'DOC-AUTHORITY-INDEX-REPAIR-001 keeps retired rebuild docs out of active truth',
+    'README points to plan-history evidence and docs/INDEX marks retired docs superseded-evidence',
+  )
+  ensure(
+    checks,
+    docOtherTriageRows === 127 &&
+      docOtherTriageCategories.every(category => docOtherTriageSource.includes(category)) &&
+      includesAll(docOtherTriageSource, [
+        'Other docs reviewed: 127',
+        '| Path | Current Category | Proposed Category | Status | Reason | Recommended Owner Card |',
+        'This report does not move, delete, or rewrite the listed docs.',
+      ]),
+    'DOC-OTHER-TRIAGE-001 classifies the Other docs without moving or deleting them',
+    `${docOtherTriageRows} rows / ${docOtherTriageCategories.length} categories`,
+  )
+  ensure(
+    checks,
+    foundationHtmlSource.includes('data-section="build-log">Recent Work</a>') &&
+      foundationUiSource.includes("heroTitle.textContent = 'Recent Work'") &&
+      foundationUiSource.includes("container.innerHTML = '<p>Loading recent work...</p>'") &&
+      foundationUiSource.includes("title: 'KPI source health system'") &&
+      foundationUiSource.includes('14/14 tables plus 5/5 RPCs'),
+    'Foundation copy cleanup reflects Recent Work and current KPI health status',
+    'Recent Work label and KPI Level 3 health copy present',
+  )
+  ensure(
+    checks,
+    currentPlan.includes('Wave Cleanup A') &&
+      currentPlan.includes('Cleanup B') &&
+      currentPlan.includes('LOCAL-DOC-LINK-001') &&
+      currentPlan.includes('DOC-OTHER-TRIAGE-001') &&
+      currentState.includes('Wave Cleanup A') &&
+      currentState.includes('docs/process/doc-other-triage.md') &&
+      currentState.includes('Cleanup B is next'),
+    'current plan/state point to Cleanup B after Wave Cleanup A',
+    'Wave Cleanup A done; Cleanup B is next under 9.8 planning',
+  )
+  ensure(
+    checks,
+    buildLogWaveCleanupABuild?.operatorCloseout === true &&
+      buildLogWaveCleanupABuild.relatedBacklog?.some(item => item.id === 'LOCAL-DOC-LINK-001' && item.lane === 'done') &&
+      buildLogWaveCleanupABuild.relatedBacklog?.some(item => item.id === 'DOC-AUTHORITY-INDEX-REPAIR-001' && item.lane === 'done') &&
+      buildLogWaveCleanupABuild.relatedBacklog?.some(item => item.id === 'DOC-OTHER-TRIAGE-001' && item.lane === 'done') &&
+      /wave-cleanup-a-local-docs-triage-v1/.test(buildLogWaveCleanupABuild?.closeoutKey || ''),
+    'Recent Work carries Wave Cleanup A closeout proof',
+    buildLogWaveCleanupABuild
+      ? `${buildLogWaveCleanupABuild.shortSha} / ${buildLogWaveCleanupABuild.closeoutKey}`
+      : 'missing Wave Cleanup A closeout',
   )
   ensure(
     checks,

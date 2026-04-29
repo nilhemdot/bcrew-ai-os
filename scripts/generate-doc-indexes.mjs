@@ -85,11 +85,7 @@ function inferStatus(relPath, heading, statusLine, directory) {
     return 'evidence';
   }
 
-  if ([
-    'docs/business-strategy.md',
-    'docs/rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md',
-    'docs/rebuild/plan-history/rebuild-master-plan-2026-04-29-retired.md',
-  ].includes(relPath)) {
+  if (relPath === 'docs/business-strategy.md') {
     return 'supporting-truth';
   }
 

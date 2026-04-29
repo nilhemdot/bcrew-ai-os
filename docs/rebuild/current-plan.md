@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-29
-Version: v6.17 — Phase D cleanup complete
+Version: v6.18 — Wave Cleanup A complete
 Status: Active
 
 Use this doc for one question:
@@ -847,9 +847,11 @@ Current order:
 13. Phase D drift remediation: `EXCEPTION-CURATION-001` + `HIT-LIST-RECONCILE-001` — done for v1. The 24 historical verifier exceptions are classified without extending the 2026-07-27 deadline, and the canonical hit-list snapshot is checked without auto-reading Steve's private Google Doc.
 14. Phase D Recent Work UX: `RECENT-BUILDS-MULTI-CLOSEOUT-001` — done for v1. Recent Builds can show multiple closeouts under one collapsed same-commit group.
 15. Phase E: `FULL-SYSTEM-RE-AUDIT-001` — done for v1. The 12-area re-audit found 0 blockers, 9 minor-drift areas, and 3 clean areas. Phase F can open with follow-up cards.
-16. Phase F: action-loop work can resume from the already-shipped `ACTION-REVIEW-APPLY-001` v1 surface. If more action-loop work is needed, scope the next narrow child card after Steve reviews the re-audit.
+16. Wave Cleanup A: `LOCAL-DOC-LINK-001`, `DOC-AUTHORITY-INDEX-REPAIR-001`, and `DOC-OTHER-TRIAGE-001` — done for v1. Private local docs can open only from trusted localhost, stale doc-authority links/statuses are repaired, and the 127-doc `Other` bucket has an inspect-only triage report.
+17. Cleanup B: use `docs/process/doc-other-triage.md` as input for the next doc cleanup wave. No moves or deletes happen without a new 9.8 plan.
+18. Foundation Phase G: source lifecycle expansion and UI/menu/layout polish remain future scoped work. No Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or broader feature lane starts by default before Steve explicitly re-plans the next Foundation slice.
 
-Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts by default. The Phase E re-audit says Foundation has no blockers, but Steve still chooses the next feature/action-loop slice.
+Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts by default. The Phase E re-audit found no structural blockers, but Steve's Path A expansion adds Cleanup B and Foundation Phase G before broader feature work.
 
 ## Active Docs Only
 

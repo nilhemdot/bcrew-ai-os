@@ -1,0 +1,8 @@
+{
+  "cardId": "DOC-OTHER-TRIAGE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T11:24:28Z",
+  "approvalSource": "Steve approved the revised Wave Cleanup A plan in chat after the 12 doc-triage categories and per-doc output structure were specified.",
+  "notes": "Approval covers inspect-only classification of the System Inventory Other bucket into the approved 12 categories, with path, current category, proposed category, status, reason, and recommended owner card for Cleanup B."
+}

@@ -1,0 +1,8 @@
+{
+  "cardId": "DOC-AUTHORITY-INDEX-REPAIR-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T11:24:28Z",
+  "approvalSource": "Steve approved Wave Cleanup A in chat with DOC-AUTHORITY-INDEX-REPAIR-001 included as a minor-drift repair from the Phase E re-audit.",
+  "notes": "Approval covers stale docs/README.md authority links, retired plan-history link repairs, regenerated doc indexes, and verifier proof that retired rebuild docs stay evidence/history instead of active truth."
+}
