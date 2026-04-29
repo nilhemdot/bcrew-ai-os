@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "importedAt": "2026-04-29T03:00:02Z",
+  "source": "Steve canonical hit list copied into chat and promoted into repo snapshot by HIT-LIST-RECONCILE-001. No Google Doc auto-import in v1.",
+  "staleAfterDays": 14,
+  "privacyBoundary": "Manual snapshot only. The system does not read Steve’s Google Doc directly.",
+  "entries": [
+    {
+      "cardId": "PROCESS-FANOUT-001",
+      "expectedLane": "done",
+      "phase": "A",
+      "sequence": "0"
+    },
+    {
+      "cardId": "VERIFIER-DONE-COVERAGE-001",
+      "expectedLane": "done",
+      "phase": "B",
+      "sequence": "1"
+    },
+    {
+      "cardId": "VERIFIER-ARTIFACT-EXISTS-001",
+      "expectedLane": "done",
+      "phase": "B",
+      "sequence": "2"
+    },
+    {
+      "cardId": "WORKER-CODE-TRUST-001",
+      "expectedLane": "done",
+      "phase": "B",
+      "sequence": "3"
+    },
+    {
+      "cardId": "POST-SHIP-FAN-OUT-001",
+      "expectedLane": "done",
+      "phase": "B",
+      "sequence": "4"
+    },
+    {
+      "cardId": "DOCTRINE-PROPAGATION-001",
+      "expectedLane": "done",
+      "phase": "B",
+      "sequence": "5"
+    },
+    {
+      "cardId": "DECISION-AUTO-EMIT-001",
+      "expectedLane": "done",
+      "phase": "B",
+      "sequence": "6"
+    },
+    {
+      "cardId": "SHEETS-QUOTA-HARDENING-001",
+      "expectedLane": "done",
+      "phase": "B",
+      "sequence": "6.5"
+    },
+    {
+      "cardId": "PHANTOM-CARD-CHECK-001",
+      "expectedLane": "done",
+      "phase": "C",
+      "sequence": "7"
+    },
+    {
+      "cardId": "PHASE-NUMBERING-RECONCILE-001",
+      "expectedLane": "done",
+      "phase": "C",
+      "sequence": "8"
+    },
+    {
+      "cardId": "SUB-SURFACE-MAPPING-001",
+      "expectedLane": "done",
+      "phase": "C",
+      "sequence": "9"
+    },
+    {
+      "cardId": "SYSTEM-INVENTORY-TRUE-UP-001",
+      "expectedLane": "done",
+      "phase": "C",
+      "sequence": "10"
+    },
+    {
+      "cardId": "SOURCE-CONTRACT-CLEANUP-001",
+      "expectedLane": "done",
+      "phase": "C",
+      "sequence": "11"
+    },
+    {
+      "cardId": "VERIFIER-CONSOLIDATION-001",
+      "expectedLane": "done",
+      "phase": "C",
+      "sequence": "12"
+    },
+    {
+      "cardId": "DOC-ARCHIVE-AUTO-001",
+      "expectedLane": "done",
+      "phase": "D",
+      "sequence": "13"
+    },
+    {
+      "cardId": "RESEARCH-CURATION-001",
+      "expectedLane": "done",
+      "phase": "D",
+      "sequence": "14"
+    },
+    {
+      "cardId": "REBUILD-DOCS-RETIRE-001",
+      "expectedLane": "done",
+      "phase": "D",
+      "sequence": "15"
+    },
+    {
+      "cardId": "ARCHIVE-RETIRE-001",
+      "expectedLane": "done",
+      "phase": "D",
+      "sequence": "16"
+    },
+    {
+      "cardId": "EXCEPTION-CURATION-001",
+      "expectedLane": "done",
+      "phase": "D",
+      "sequence": "D-follow-up"
+    },
+    {
+      "cardId": "HIT-LIST-RECONCILE-001",
+      "expectedLane": "done",
+      "phase": "D",
+      "sequence": "D-follow-up"
+    },
+    {
+      "cardId": "RECENT-BUILDS-MULTI-CLOSEOUT-001",
+      "expectedLane": "done",
+      "phase": "D",
+      "sequence": "D-follow-up"
+    },
+    {
+      "cardId": "FULL-SYSTEM-RE-AUDIT-001",
+      "expectedLane": "scoped",
+      "phase": "E",
+      "sequence": "17"
+    },
+    {
+      "cardId": "ACTION-REVIEW-APPLY-001",
+      "expectedLane": "done",
+      "phase": "F",
+      "sequence": "18"
+    }
+  ]
+}

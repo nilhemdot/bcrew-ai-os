@@ -4709,8 +4709,8 @@ var foundationDocPathToSection = {
   'docs/rebuild/current-runtime-map.md': 'rebuild-plan',
   'docs/rebuild/agent-architecture.md': 'rebuild-plan',
   'docs/rebuild/current-plan.md': 'rebuild-plan',
-  'docs/rebuild/rebuild-master-plan.md': 'rebuild-plan',
-  'docs/rebuild-decisions.md': 'rebuild-plan',
+  'docs/rebuild/plan-history/rebuild-master-plan-2026-04-29-retired.md': 'rebuild-plan',
+  'docs/rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md': 'rebuild-plan',
   'docs/source-registry.md': 'source-overview',
 }
 
@@ -5797,6 +5797,198 @@ function renderSourceReferenceTrustPanel(sourceReferenceTrust) {
     intro,
     items
   )
+}
+
+function renderDocArchiveCleanupPanel(docArchiveCleanup) {
+  if (!docArchiveCleanup || !docArchiveCleanup.summary) return null
+  var summary = docArchiveCleanup.summary || {}
+  var findings = Array.isArray(docArchiveCleanup.findings) ? docArchiveCleanup.findings : []
+  var intro = 'Shows whether old handoffs, audits, and research notes were moved out of active folders without deleting them. '
+    + (summary.archivedFileCount || 0) + ' files preserved in archive: '
+    + (summary.handoffCount || 0) + ' handoffs, '
+    + (summary.auditCount || 0) + ' audits, '
+    + (summary.researchDocCount || 0) + ' research docs.'
+
+  var items = findings.slice(0, 6).map(function(finding) {
+    return {
+      label: String(finding.type || 'archive finding').replace(/_/g, ' '),
+      status: finding.severity === 'critical' ? 'risk' : 'pending',
+      detail: (finding.issue || 'Archive cleanup finding.')
+        + ' Next: ' + (finding.recommendedAction || 'Review the archive manifest.'),
+    }
+  })
+
+  if (!items.length) {
+    items.push({
+      label: 'Archive manifest is clean',
+      status: docArchiveCleanup.status === 'healthy' ? 'live' : 'pending',
+      detail: 'Active evidence folders are cleaner, and archived docs remain searchable under docs/_archive.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Doc Archive Cleanup',
+    intro,
+    items
+  )
+}
+
+function renderExceptionCurationPanel(exceptionCuration) {
+  if (!exceptionCuration || !exceptionCuration.summary) return null
+  var summary = exceptionCuration.summary || {}
+  var findings = Array.isArray(exceptionCuration.findings) ? exceptionCuration.findings : []
+  var deadlineText = exceptionCuration.deadline ? ' Deadline: ' + exceptionCuration.deadline + '.' : ''
+  var intro = 'Tracks the temporary verifier exceptions so they do not become permanent loopholes. '
+    + (summary.curatedCount || 0) + ' of '
+    + (summary.exceptionCount || 0) + ' exceptions classified.'
+    + deadlineText
+
+  var items = findings.slice(0, 6).map(function(finding) {
+    return {
+      label: String(finding.type || 'exception finding').replace(/_/g, ' '),
+      status: finding.severity === 'critical' ? 'risk' : 'pending',
+      detail: (finding.issue || 'Exception curation finding.')
+        + ' Next: ' + (finding.recommendedAction || 'Review the exception curation file.'),
+    }
+  })
+
+  if (!items.length) {
+    items.push({
+      label: 'Exception curation is complete for v1',
+      status: exceptionCuration.status === 'critical' ? 'risk' : exceptionCuration.status === 'warning' ? 'pending' : 'live',
+      detail: 'Each exception is classified as real coverage, retire/restructure, or re-approve only if still needed. Days until stale: '
+        + (summary.daysUntilStale === null || summary.daysUntilStale === undefined ? 'unknown' : summary.daysUntilStale)
+        + '.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Exception Curation',
+    intro,
+    items
+  )
+}
+
+function renderHitListReconcilePanel(hitListReconcile) {
+  if (!hitListReconcile || !hitListReconcile.summary) return null
+  var summary = hitListReconcile.summary || {}
+  var findings = Array.isArray(hitListReconcile.findings) ? hitListReconcile.findings : []
+  var status = hitListReconcile.status === 'critical' ? 'risk' : hitListReconcile.status === 'warning' ? 'pending' : 'live'
+  var intro = 'Compares Steve’s repo-tracked hit-list snapshot against live Backlog state without auto-reading the private Google Doc. '
+    + (summary.matchedCardCount || 0) + ' of '
+    + (summary.hitListCardCount || 0) + ' hit-list cards match. Snapshot age: '
+    + (summary.snapshotAgeDays === null || summary.snapshotAgeDays === undefined ? 'unknown' : summary.snapshotAgeDays + ' days')
+    + '.'
+
+  var items = findings.slice(0, 6).map(function(finding) {
+    return {
+      label: String(finding.type || 'hit-list finding').replace(/_/g, ' '),
+      status: finding.severity === 'critical' ? 'risk' : 'pending',
+      detail: (finding.issue || 'Hit-list reconciliation finding.')
+        + ' Next: ' + (finding.recommendedAction || 'Refresh the snapshot or fix the backlog state.'),
+    }
+  })
+
+  if (!items.length) {
+    items.push({
+      label: 'Hit-list snapshot matches live Backlog',
+      status: status,
+      detail: hitListReconcile.privacyBoundary || 'V1 uses a repo-tracked snapshot and does not auto-import private docs.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Hit-List Reconcile',
+    intro,
+    items
+  )
+}
+
+function renderArchiveRetirePanel(archiveRetire) {
+  if (!archiveRetire || !archiveRetire.summary) return null
+  var summary = archiveRetire.summary || {}
+  var findings = Array.isArray(archiveRetire.findings) ? archiveRetire.findings : []
+  var intro = 'Shows the narrow Phase D delete lane. Rebuild docs are moved to plan history; only allowlisted regenerable safe-delete junk may be deleted. '
+    + (summary.retiredRebuildDocCount || 0) + ' rebuild docs retired, '
+    + (summary.deletedCount || 0) + ' safe-delete entries deleted, '
+    + (summary.refusedCount || 0) + ' refused.'
+
+  var items = findings.slice(0, 6).map(function(finding) {
+    return {
+      label: String(finding.type || 'archive retire finding').replace(/_/g, ' '),
+      status: finding.severity === 'critical' ? 'risk' : finding.severity === 'warning' ? 'pending' : 'live',
+      detail: (finding.issue || 'Archive retire finding.')
+        + ' Next: ' + (finding.recommendedAction || 'Review the retire manifest.'),
+    }
+  })
+
+  if (!items.length) {
+    items.push({
+      label: 'Archive retire guardrails are clean',
+      status: archiveRetire.status === 'critical' ? 'risk' : 'live',
+      detail: 'The script either deleted only allowlisted safe-delete junk or recorded that no safe-delete archive was present.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Archive Retire',
+    intro,
+    items
+  )
+}
+
+function renderResearchCurationPanel(researchCuration) {
+  if (!researchCuration || !researchCuration.summary) return null
+  var summary = researchCuration.summary || {}
+  var cards = Array.isArray(researchCuration.cards) ? researchCuration.cards : []
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Phase D Cleanup'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Research Curation'
+  left.appendChild(title)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = (summary.preservedCardCount || 0)
+    + ' research cards preserved. Auto-closed: '
+    + (summary.autoClosedCount || 0)
+    + '. V1 labels the lane; Steve still decides what to promote or retire.'
+  panel.appendChild(intro)
+
+  var list = document.createElement('div')
+  list.className = 'backlog-list'
+  cards.slice(0, 12).forEach(function(card) {
+    var item = document.createElement('details')
+    item.className = 'backlog-accordion-item'
+    var summaryEl = document.createElement('summary')
+    summaryEl.textContent = card.id + ' · ' + (card.subTag || 'research') + ' · ' + (card.curationState || 'leave parked')
+    item.appendChild(summaryEl)
+    var body = document.createElement('p')
+    body.className = 'section-intro'
+    body.textContent = card.plainEnglish || 'Preserved in Research for later review.'
+    item.appendChild(body)
+    list.appendChild(item)
+  })
+
+  if (!cards.length) {
+    var empty = document.createElement('p')
+    empty.className = 'section-intro'
+    empty.textContent = 'No research cards found in the current backlog.'
+    list.appendChild(empty)
+  }
+
+  panel.appendChild(list)
+  return panel
 }
 
 function renderSheetsApiTrustPanel(sheetsApiTrust) {
@@ -8137,6 +8329,9 @@ function renderBacklog() {
     ))
 
     container.appendChild(renderActionReviewPanel(actionReview))
+
+    var researchCurationPanel = renderResearchCurationPanel(hub.researchCuration)
+    if (researchCurationPanel) container.appendChild(researchCurationPanel)
 
     var boardPanel = document.createElement('section')
     boardPanel.className = 'panel'
@@ -11954,6 +12149,18 @@ function renderDataHealth() {
     var postShipFanoutPanel = renderPostShipFanoutPanel(hub.postShipFanout)
     if (postShipFanoutPanel) container.appendChild(postShipFanoutPanel)
 
+    var docArchiveCleanupPanel = renderDocArchiveCleanupPanel(hub.docArchiveCleanup)
+    if (docArchiveCleanupPanel) container.appendChild(docArchiveCleanupPanel)
+
+    var exceptionCurationPanel = renderExceptionCurationPanel(hub.exceptionCuration)
+    if (exceptionCurationPanel) container.appendChild(exceptionCurationPanel)
+
+    var hitListReconcilePanel = renderHitListReconcilePanel(hub.hitListReconcile)
+    if (hitListReconcilePanel) container.appendChild(hitListReconcilePanel)
+
+    var archiveRetirePanel = renderArchiveRetirePanel(hub.archiveRetire)
+    if (archiveRetirePanel) container.appendChild(archiveRetirePanel)
+
     var sheetsApiTrustPanel = renderSheetsApiTrustPanel(hub.sheetsApiTrust)
     if (sheetsApiTrustPanel) container.appendChild(sheetsApiTrustPanel)
 
@@ -12201,6 +12408,48 @@ function groupBuildsByDayAndArea(builds) {
   })
 }
 
+function groupBuildsByCommit(builds) {
+  var commitMap = new Map()
+  ;(builds || []).forEach(function(build) {
+    var key = build.sha || build.shortSha || build.subject || ('build-' + commitMap.size)
+    if (!commitMap.has(key)) {
+      commitMap.set(key, {
+        sha: build.sha || '',
+        shortSha: build.shortSha || '',
+        subject: build.subject || 'Repo change',
+        committedAt: build.committedAt || '',
+        builds: [],
+      })
+    }
+    commitMap.get(key).builds.push(build)
+  })
+  return Array.from(commitMap.values())
+}
+
+function renderBuildCommitGroup(commitGroup) {
+  var details = document.createElement('details')
+  details.className = 'build-log-commit-group'
+
+  var summary = document.createElement('summary')
+  summary.className = 'build-log-commit-summary'
+  var shortSha = commitGroup.shortSha || String(commitGroup.sha || '').slice(0, 7) || 'commit'
+  summary.textContent = shortSha + ' · Multiple Closeouts · '
+    + commitGroup.builds.length + ' closeouts · '
+    + (commitGroup.subject || 'Repo change')
+  details.appendChild(summary)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'One commit can carry multiple closeouts when a coordinated wave ships together. Each card below keeps its own proof, where-it-lives links, and review-next note.'
+  details.appendChild(intro)
+
+  commitGroup.builds.forEach(function(build) {
+    details.appendChild(renderBuildCard(build))
+  })
+
+  return details
+}
+
 function renderBuildGroups(buildLog, builds) {
   var groups = buildLog.groups && buildLog.groups.length
     ? buildLog.groups
@@ -12227,8 +12476,12 @@ function renderBuildGroups(buildLog, builds) {
 
       var list = document.createElement('div')
       list.className = 'build-log-list'
-      ;(systemGroup.builds || []).forEach(function(build) {
-        list.appendChild(renderBuildCard(build))
+      groupBuildsByCommit(systemGroup.builds || []).forEach(function(commitGroup) {
+        if (commitGroup.builds.length > 1) {
+          list.appendChild(renderBuildCommitGroup(commitGroup))
+          return
+        }
+        list.appendChild(renderBuildCard(commitGroup.builds[0]))
       })
       areaSection.appendChild(list)
       daySection.appendChild(areaSection)

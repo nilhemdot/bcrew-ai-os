@@ -56,6 +56,13 @@ import {
   buildSyntheticPhantomCardReferenceStatus,
 } from '../lib/card-reference-trust.js'
 import { buildSourceReferenceTrustStatus } from '../lib/source-reference-trust.js'
+import {
+  buildArchiveRetireStatus,
+  buildDocArchiveCleanupStatus,
+  buildExceptionCurationStatus,
+  buildHitListReconcileStatusFromFile,
+  buildResearchCurationStatus,
+} from '../lib/phase-d-cleanup.js'
 
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
@@ -448,6 +455,7 @@ async function main() {
 
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
   const docsIndexSource = await readRepoFile('docs/INDEX.md')
+  const archiveIndexSource = await readRepoFile('docs/_archive/INDEX.md')
   const docsReadmeSource = await readRepoFile('docs/README.md')
   const currentPlan = await readRepoFile('docs/rebuild/current-plan.md')
   const intelligencePipelineSource = await readRepoFile('docs/rebuild/intelligence-pipeline.md')
@@ -533,6 +541,18 @@ async function main() {
   const decisionAutoEmitScriptSource = await readRepoFile('scripts/decision-auto-emit.mjs')
   const decisionAutoEmitDoc = await readRepoFile('docs/process/decision-auto-emit.md')
   const sheetsQuotaHardeningDoc = await readRepoFile('docs/process/sheets-quota-hardening.md')
+  const phaseDCleanupSource = await readRepoFile('scripts/phase-d-cleanup.mjs')
+  const phaseDCleanupLibSource = await readRepoFile('lib/phase-d-cleanup.js')
+  const docArchiveManifestSource = await readRepoFile('docs/process/doc-archive-manifest.json')
+  const docArchiveManifest = JSON.parse(docArchiveManifestSource)
+  const verifierExceptionCurationSource = await readRepoFile('docs/process/verifier-exception-curation.json')
+  const verifierExceptionCuration = JSON.parse(verifierExceptionCurationSource)
+  const hitListSnapshotSource = await readRepoFile('docs/process/hit-list-snapshot.json')
+  const hitListSnapshot = JSON.parse(hitListSnapshotSource)
+  const rebuildDocRetireManifestSource = await readRepoFile('docs/process/rebuild-doc-retire-manifest.json')
+  const rebuildDocRetireManifest = JSON.parse(rebuildDocRetireManifestSource)
+  const archiveRetireManifestSource = await readRepoFile('docs/process/archive-retire-manifest.json')
+  const archiveRetireManifest = JSON.parse(archiveRetireManifestSource)
   const processHooksApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-HOOKS-001.json')
   const processHooksApproval = JSON.parse(processHooksApprovalSource)
   const processFanoutApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-FANOUT-001.json')
@@ -551,6 +571,20 @@ async function main() {
   const doctrinePropagationApproval = JSON.parse(doctrinePropagationApprovalSource)
   const decisionAutoEmitApprovalSource = await readRepoFile('docs/process/approvals/DECISION-AUTO-EMIT-001.json')
   const decisionAutoEmitApproval = JSON.parse(decisionAutoEmitApprovalSource)
+  const docArchiveAutoApprovalSource = await readRepoFile('docs/process/approvals/DOC-ARCHIVE-AUTO-001.json')
+  const docArchiveAutoApproval = JSON.parse(docArchiveAutoApprovalSource)
+  const researchCurationApprovalSource = await readRepoFile('docs/process/approvals/RESEARCH-CURATION-001.json')
+  const researchCurationApproval = JSON.parse(researchCurationApprovalSource)
+  const rebuildDocsRetireApprovalSource = await readRepoFile('docs/process/approvals/REBUILD-DOCS-RETIRE-001.json')
+  const rebuildDocsRetireApproval = JSON.parse(rebuildDocsRetireApprovalSource)
+  const archiveRetireApprovalSource = await readRepoFile('docs/process/approvals/ARCHIVE-RETIRE-001.json')
+  const archiveRetireApproval = JSON.parse(archiveRetireApprovalSource)
+  const exceptionCurationApprovalSource = await readRepoFile('docs/process/approvals/EXCEPTION-CURATION-001.json')
+  const exceptionCurationApproval = JSON.parse(exceptionCurationApprovalSource)
+  const hitListReconcileApprovalSource = await readRepoFile('docs/process/approvals/HIT-LIST-RECONCILE-001.json')
+  const hitListReconcileApproval = JSON.parse(hitListReconcileApprovalSource)
+  const recentBuildsMultiCloseoutApprovalSource = await readRepoFile('docs/process/approvals/RECENT-BUILDS-MULTI-CLOSEOUT-001.json')
+  const recentBuildsMultiCloseoutApproval = JSON.parse(recentBuildsMultiCloseoutApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -694,13 +728,14 @@ async function main() {
   )
   ensure(
     checks,
-    docsIndexSource.includes('Generated at:') &&
+      docsIndexSource.includes('Generated at:') &&
       docsIndexSource.includes('| File | Date | Category | Status | Promoted To | Words | Value |') &&
       !docsIndexSource.includes('active-reference') &&
-      docsIndexSource.includes('| [rebuild-decisions.md](rebuild-decisions.md) | - | foundation | supporting-truth |') &&
+      docsIndexSource.includes('rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md') &&
+      archiveIndexSource.includes('Archived Evidence Index') &&
       !docsReadmeSource.includes('10. [`rebuild-decisions.md`'),
     'docs authority index separates active truth from evidence',
-    'generated index has promoted-to column, no active-reference status, and rebuild decisions are not read-first active truth',
+    'generated index has promoted-to column, no active-reference status, archive index, and retired rebuild decisions are not read-first active truth',
   )
   ensure(
     checks,
@@ -1631,6 +1666,14 @@ async function main() {
   })
   const syntheticCardReferenceTrust = buildSyntheticPhantomCardReferenceStatus()
   const sourceReferenceTrust = await buildSourceReferenceTrustStatus({ repoRoot })
+  const docArchiveCleanupStatus = await buildDocArchiveCleanupStatus({ repoRoot })
+  const researchCurationStatus = buildResearchCurationStatus({ backlogItems: foundationHub.backlogItems || [] })
+  const exceptionCurationStatus = await buildExceptionCurationStatus({ repoRoot })
+  const hitListReconcileStatus = await buildHitListReconcileStatusFromFile({
+    repoRoot,
+    backlogItems: foundationHub.backlogItems || [],
+  })
+  const archiveRetireStatus = await buildArchiveRetireStatus({ repoRoot })
   const verifierExceptionValidation = validateVerifierExceptionLedger(verifierExceptionLedger, doneBacklogCardIds)
   const doneCardsWithoutVerifierCoverage = findDoneCardsWithoutVerifierCoverage(
     doneBacklogCards,
@@ -2322,6 +2365,25 @@ async function main() {
     (build.backlogIds || []).includes('DECISION-AUTO-EMIT-001') &&
       build.closeoutKey === 'decision-auto-emit-v1'
   )
+  const buildLogDocArchiveResearchBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('DOC-ARCHIVE-AUTO-001') &&
+      (build.backlogIds || []).includes('RESEARCH-CURATION-001') &&
+      build.closeoutKey === 'doc-archive-research-curation-v1'
+  )
+  const buildLogRebuildArchiveRetireBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('REBUILD-DOCS-RETIRE-001') &&
+      (build.backlogIds || []).includes('ARCHIVE-RETIRE-001') &&
+      build.closeoutKey === 'rebuild-docs-archive-retire-v1'
+  )
+  const buildLogExceptionHitListBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('EXCEPTION-CURATION-001') &&
+      (build.backlogIds || []).includes('HIT-LIST-RECONCILE-001') &&
+      build.closeoutKey === 'exception-hit-list-curation-v1'
+  )
+  const buildLogRecentMultiCloseoutBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('RECENT-BUILDS-MULTI-CLOSEOUT-001') &&
+      build.closeoutKey === 'recent-builds-multi-closeout-ux-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -2353,6 +2415,11 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('DOCTRINE-PROPAGATION-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('DECISION-AUTO-EMIT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('HIT-LIST-RECONCILE-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('DOC-ARCHIVE-AUTO-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('RESEARCH-CURATION-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('REBUILD-DOCS-RETIRE-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('ARCHIVE-RETIRE-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('RECENT-BUILDS-MULTI-CLOSEOUT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
@@ -2659,7 +2726,7 @@ async function main() {
     checks,
     buildLogPostShipFanoutBuild?.operatorCloseout === true &&
       buildLogPostShipFanoutBuild.relatedBacklog?.some(item => item.id === 'POST-SHIP-FAN-OUT-001' && item.lane === 'done') &&
-      buildLogPostShipFanoutBuild.relatedBacklog?.some(item => item.id === 'EXCEPTION-CURATION-001' && item.lane === 'scoped') &&
+      buildLogPostShipFanoutBuild.relatedBacklog?.some(item => item.id === 'EXCEPTION-CURATION-001' && ['scoped', 'done'].includes(item.lane)) &&
       buildLogPostShipFanoutBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
       buildLogPostShipFanoutBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
       buildLogPostShipFanoutBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
@@ -2692,7 +2759,7 @@ async function main() {
     checks,
     buildLogDoctrinePropagationBuild?.operatorCloseout === true &&
       buildLogDoctrinePropagationBuild.relatedBacklog?.some(item => item.id === 'DOCTRINE-PROPAGATION-001' && item.lane === 'done') &&
-      buildLogDoctrinePropagationBuild.relatedBacklog?.some(item => item.id === 'HIT-LIST-RECONCILE-001' && item.lane === 'scoped') &&
+      buildLogDoctrinePropagationBuild.relatedBacklog?.some(item => item.id === 'HIT-LIST-RECONCILE-001' && ['scoped', 'done'].includes(item.lane)) &&
       buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('doctrine:propagation-check')) &&
       buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
       buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
@@ -2722,6 +2789,53 @@ async function main() {
     buildLogDecisionAutoEmitBuild
       ? `${buildLogDecisionAutoEmitBuild.shortSha} / ${buildLogDecisionAutoEmitBuild.acceptanceState} / ${buildLogDecisionAutoEmitBuild.proofStatus}`
       : 'missing decision auto-emit closeout',
+  )
+  ensure(
+    checks,
+    buildLogDocArchiveResearchBuild?.operatorCloseout === true &&
+      buildLogDocArchiveResearchBuild.relatedBacklog?.some(item => item.id === 'DOC-ARCHIVE-AUTO-001' && item.lane === 'done') &&
+      buildLogDocArchiveResearchBuild.relatedBacklog?.some(item => item.id === 'RESEARCH-CURATION-001' && item.lane === 'done') &&
+      buildLogDocArchiveResearchBuild.proofCommands?.some(command => command.includes('phase-d:cleanup')) &&
+      buildLogDocArchiveResearchBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      buildLogDocArchiveResearchBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
+      buildLogDocArchiveResearchBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
+      /113 preserved files/i.test(buildLogDocArchiveResearchBuild.proofStatus || '') &&
+      /zero auto-closures/i.test(buildLogDocArchiveResearchBuild.proofStatus || ''),
+    'Recent Builds v2 carries closeout proof for doc archive and research curation',
+    buildLogDocArchiveResearchBuild
+      ? `${buildLogDocArchiveResearchBuild.shortSha} / ${buildLogDocArchiveResearchBuild.acceptanceState} / ${buildLogDocArchiveResearchBuild.proofStatus}`
+      : 'missing doc archive/research curation closeout',
+  )
+  ensure(
+    checks,
+    buildLogRebuildArchiveRetireBuild?.operatorCloseout === true &&
+      buildLogRebuildArchiveRetireBuild.relatedBacklog?.some(item => item.id === 'REBUILD-DOCS-RETIRE-001' && item.lane === 'done') &&
+      buildLogRebuildArchiveRetireBuild.relatedBacklog?.some(item => item.id === 'ARCHIVE-RETIRE-001' && item.lane === 'done') &&
+      buildLogRebuildArchiveRetireBuild.proofCommands?.some(command => command.includes('phase-d:cleanup')) &&
+      buildLogRebuildArchiveRetireBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      buildLogRebuildArchiveRetireBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
+      buildLogRebuildArchiveRetireBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
+      /0 files were deleted|deleted 0 files/i.test(buildLogRebuildArchiveRetireBuild.proofStatus || '') &&
+      /only delete card/i.test(buildLogRebuildArchiveRetireBuild.knownLimits?.join(' ') || ''),
+    'Recent Builds v2 carries closeout proof for rebuild-doc retire and archive retire',
+    buildLogRebuildArchiveRetireBuild
+      ? `${buildLogRebuildArchiveRetireBuild.shortSha} / ${buildLogRebuildArchiveRetireBuild.acceptanceState} / ${buildLogRebuildArchiveRetireBuild.proofStatus}`
+      : 'missing rebuild-doc/archive retire closeout',
+  )
+  ensure(
+    checks,
+    buildLogExceptionHitListBuild?.operatorCloseout === true &&
+      buildLogExceptionHitListBuild.relatedBacklog?.some(item => item.id === 'EXCEPTION-CURATION-001' && item.lane === 'done') &&
+      buildLogExceptionHitListBuild.relatedBacklog?.some(item => item.id === 'HIT-LIST-RECONCILE-001' && item.lane === 'done') &&
+      buildLogExceptionHitListBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      buildLogExceptionHitListBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
+      buildLogExceptionHitListBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
+      /24 verifier exceptions/i.test(buildLogExceptionHitListBuild.proofStatus || '') &&
+      /does not auto-import private Google Docs/i.test(buildLogExceptionHitListBuild.knownLimits?.join(' ') || ''),
+    'Recent Builds v2 carries closeout proof for exception curation and hit-list reconcile',
+    buildLogExceptionHitListBuild
+      ? `${buildLogExceptionHitListBuild.shortSha} / ${buildLogExceptionHitListBuild.acceptanceState} / ${buildLogExceptionHitListBuild.proofStatus}`
+      : 'missing exception/hit-list closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -3351,10 +3465,15 @@ async function main() {
   const verifierArtifactExists = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-ARTIFACT-EXISTS-001') || null
   const postShipFanout = (foundationHub.backlogItems || []).find(item => item.id === 'POST-SHIP-FAN-OUT-001') || null
   const sheetsQuotaHardening = (foundationHub.backlogItems || []).find(item => item.id === 'SHEETS-QUOTA-HARDENING-001') || null
+  const docArchiveAuto = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-ARCHIVE-AUTO-001') || null
+  const researchCuration = (foundationHub.backlogItems || []).find(item => item.id === 'RESEARCH-CURATION-001') || null
+  const rebuildDocsRetire = (foundationHub.backlogItems || []).find(item => item.id === 'REBUILD-DOCS-RETIRE-001') || null
+  const archiveRetire = (foundationHub.backlogItems || []).find(item => item.id === 'ARCHIVE-RETIRE-001') || null
   const exceptionCuration = (foundationHub.backlogItems || []).find(item => item.id === 'EXCEPTION-CURATION-001') || null
   const doctrinePropagation = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-001') || null
   const decisionAutoEmit = (foundationHub.backlogItems || []).find(item => item.id === 'DECISION-AUTO-EMIT-001') || null
   const hitListReconcile = (foundationHub.backlogItems || []).find(item => item.id === 'HIT-LIST-RECONCILE-001') || null
+  const recentBuildsMultiCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'RECENT-BUILDS-MULTI-CLOSEOUT-001') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
   const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
@@ -3414,6 +3533,48 @@ async function main() {
     decisionAutoEmit?.whyItMatters,
     decisionAutoEmit?.nextAction,
     decisionAutoEmit?.statusNote,
+  ].filter(Boolean).join('\n')
+  const docArchiveAutoText = [
+    docArchiveAuto?.summary,
+    docArchiveAuto?.whyItMatters,
+    docArchiveAuto?.nextAction,
+    docArchiveAuto?.statusNote,
+  ].filter(Boolean).join('\n')
+  const researchCurationText = [
+    researchCuration?.summary,
+    researchCuration?.whyItMatters,
+    researchCuration?.nextAction,
+    researchCuration?.statusNote,
+  ].filter(Boolean).join('\n')
+  const rebuildDocsRetireText = [
+    rebuildDocsRetire?.summary,
+    rebuildDocsRetire?.whyItMatters,
+    rebuildDocsRetire?.nextAction,
+    rebuildDocsRetire?.statusNote,
+  ].filter(Boolean).join('\n')
+  const archiveRetireText = [
+    archiveRetire?.summary,
+    archiveRetire?.whyItMatters,
+    archiveRetire?.nextAction,
+    archiveRetire?.statusNote,
+  ].filter(Boolean).join('\n')
+  const exceptionCurationText = [
+    exceptionCuration?.summary,
+    exceptionCuration?.whyItMatters,
+    exceptionCuration?.nextAction,
+    exceptionCuration?.statusNote,
+  ].filter(Boolean).join('\n')
+  const hitListReconcileText = [
+    hitListReconcile?.summary,
+    hitListReconcile?.whyItMatters,
+    hitListReconcile?.nextAction,
+    hitListReconcile?.statusNote,
+  ].filter(Boolean).join('\n')
+  const recentBuildsMultiCloseoutText = [
+    recentBuildsMultiCloseout?.summary,
+    recentBuildsMultiCloseout?.whyItMatters,
+    recentBuildsMultiCloseout?.nextAction,
+    recentBuildsMultiCloseout?.statusNote,
   ].filter(Boolean).join('\n')
   const backlogHygieneText = [
     backlogHygiene?.summary,
@@ -3712,13 +3873,125 @@ async function main() {
   )
   ensure(
     checks,
-    exceptionCuration?.lane === 'scoped' &&
-      exceptionCuration?.priority === 'P1' &&
-      /2026-07-27/.test(exceptionCuration?.statusNote || '') &&
-      /24 historical verifier exceptions/i.test(exceptionCuration?.summary || '') &&
-      /docs\/process\/verifier-exceptions\.json/.test(exceptionCuration?.nextAction || ''),
-    'EXCEPTION-CURATION-001 is scoped for the 90-day exception cleanup',
-    exceptionCuration ? `${exceptionCuration.lane} / ${exceptionCuration.priority} / ${exceptionCuration.title}` : 'missing EXCEPTION-CURATION-001',
+    docArchiveAuto?.lane === 'done' &&
+      researchCuration?.lane === 'done' &&
+      docArchiveAutoApproval.cardId === 'DOC-ARCHIVE-AUTO-001' &&
+      researchCurationApproval.cardId === 'RESEARCH-CURATION-001' &&
+      Number(docArchiveAutoApproval.score) >= 9.8 &&
+      Number(researchCurationApproval.score) >= 9.8 &&
+      docArchiveManifest.summary?.total === 113 &&
+      docArchiveManifest.summary?.byType?.handoff === 87 &&
+      docArchiveManifest.summary?.byType?.audit === 18 &&
+      docArchiveManifest.summary?.byType?.research === 8 &&
+      docArchiveCleanupStatus.summary?.archivedFileCount === 113 &&
+      docArchiveCleanupStatus.status === 'healthy' &&
+      researchCurationStatus.summary?.researchCardCount >= 100 &&
+      researchCurationStatus.summary?.autoClosedCount === 0 &&
+      includesAll(phaseDCleanupSource, [
+        'docs/_archive/handoffs',
+        'docs/_archive/audits',
+        'docs/_archive/research',
+        'doc-archive-manifest.json',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderDocArchiveCleanupPanel',
+        'Doc Archive Cleanup',
+        'renderResearchCurationPanel',
+        'Research Curation',
+      ]) &&
+      includesAll(serverSource, ['docArchiveCleanup', 'researchCuration']) &&
+      archiveIndexSource.includes('Archived Evidence Index') &&
+      docArchiveAutoText.includes('113 files') &&
+      researchCurationText.includes('zero auto-closed research cards'),
+    'Phase D Cards 13+14 preserve old evidence and research cards without deleting or auto-closing',
+    `${docArchiveCleanupStatus.summary?.archivedFileCount || 0} archived / research preserved=${researchCurationStatus.summary?.preservedCardCount || 0}`,
+  )
+  ensure(
+    checks,
+    rebuildDocsRetire?.lane === 'done' &&
+      archiveRetire?.lane === 'done' &&
+      rebuildDocsRetireApproval.cardId === 'REBUILD-DOCS-RETIRE-001' &&
+      archiveRetireApproval.cardId === 'ARCHIVE-RETIRE-001' &&
+      Number(rebuildDocsRetireApproval.score) >= 9.8 &&
+      Number(archiveRetireApproval.score) >= 9.8 &&
+      rebuildDocRetireManifest.movedFiles?.length === 2 &&
+      rebuildDocRetireManifest.movedFiles.every(item => item.action === 'moved' || item.action === 'already_moved') &&
+      archiveRetireManifest.summary?.deletedCount === 0 &&
+      archiveRetireManifest.summary?.safeDeleteEntryCount === 0 &&
+      archiveRetireStatus.summary?.retiredRebuildDocCount === 2 &&
+      archiveRetireStatus.summary?.deletedCount === 0 &&
+      archiveRetireStatus.status === 'healthy' &&
+      includesAll(phaseDCleanupSource, [
+        'safeDeleteAllowlistNames',
+        'refusedEntries',
+        'No explicit safe-delete archive was present',
+        'Explicit no-touch path for ARCHIVE-RETIRE-001',
+      ]) &&
+      includesAll(foundationUiSource, ['renderArchiveRetirePanel', 'Archive Retire']) &&
+      includesAll(serverSource, ['archiveRetire']) &&
+      rebuildDocsRetireText.includes('plan-history') &&
+      archiveRetireText.includes('0 files were deleted'),
+    'Phase D Cards 15+16 retire stale rebuild docs and keep delete lane allowlisted',
+    `retired=${archiveRetireStatus.summary?.retiredRebuildDocCount || 0} / deleted=${archiveRetireStatus.summary?.deletedCount || 0} / refused=${archiveRetireStatus.summary?.refusedCount || 0}`,
+  )
+  ensure(
+    checks,
+    exceptionCuration?.lane === 'done' &&
+      hitListReconcile?.lane === 'done' &&
+      exceptionCurationApproval.cardId === 'EXCEPTION-CURATION-001' &&
+      hitListReconcileApproval.cardId === 'HIT-LIST-RECONCILE-001' &&
+      Number(exceptionCurationApproval.score) >= 9.8 &&
+      Number(hitListReconcileApproval.score) >= 9.8 &&
+      verifierExceptionCuration.deadline === '2026-07-27' &&
+      verifierExceptionCuration.decisions?.length === 24 &&
+      exceptionCurationStatus.summary?.curatedCount === 24 &&
+      exceptionCurationStatus.status === 'healthy' &&
+      hitListSnapshot.entries?.length >= 20 &&
+      hitListReconcileStatus.summary?.hitListCardCount >= 20 &&
+      hitListReconcileStatus.status === 'healthy' &&
+      hitListReconcileStatus.summary?.snapshotAgeDays <= 14 &&
+      hitListReconcileStatus.privacyBoundary.includes('does not auto-read') &&
+      includesAll(phaseDCleanupLibSource, [
+        'buildExceptionCurationStatus',
+        'buildHitListReconcileStatusFromFile',
+        'Snapshot can drift when Steve updates the Google Doc',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderExceptionCurationPanel',
+        'Exception Curation',
+        'renderHitListReconcilePanel',
+        'Hit-List Reconcile',
+      ]) &&
+      includesAll(serverSource, ['exceptionCuration', 'hitListReconcile']) &&
+      exceptionCurationText.includes('2026-07-27') &&
+      hitListReconcileText.includes('does not auto-read'),
+    'Phase D Exception Curation and Hit-List Reconcile close loopholes without private-doc auto-import',
+    `exceptions=${exceptionCurationStatus.summary?.curatedCount || 0} / hit-list cards=${hitListReconcileStatus.summary?.hitListCardCount || 0}`,
+  )
+  const multiCloseoutCommitGroups = (foundationBuildLog.builds || []).reduce((acc, build) => {
+    const key = build.sha || build.shortSha || build.subject || 'unknown'
+    acc[key] = (acc[key] || 0) + (build.operatorCloseout ? 1 : 0)
+    return acc
+  }, {})
+  ensure(
+    checks,
+    recentBuildsMultiCloseout?.lane === 'done' &&
+      recentBuildsMultiCloseoutApproval.cardId === 'RECENT-BUILDS-MULTI-CLOSEOUT-001' &&
+      Number(recentBuildsMultiCloseoutApproval.score) >= 9.8 &&
+      Object.values(multiCloseoutCommitGroups).some(count => count >= 3) &&
+      includesAll(foundationUiSource, [
+        'groupBuildsByCommit',
+        'renderBuildCommitGroup',
+        'Multiple Closeouts',
+        'One commit can carry multiple closeouts',
+      ]) &&
+      buildLogRecentMultiCloseoutBuild?.operatorCloseout === true &&
+      buildLogRecentMultiCloseoutBuild.relatedBacklog?.some(item => item.id === 'RECENT-BUILDS-MULTI-CLOSEOUT-001' && item.lane === 'done') &&
+      /multi-closeout/i.test(recentBuildsMultiCloseoutText),
+    'RECENT-BUILDS-MULTI-CLOSEOUT-001 keeps same-commit closeouts visible',
+    buildLogRecentMultiCloseoutBuild
+      ? `${buildLogRecentMultiCloseoutBuild.shortSha} / grouped multi-closeout visible`
+      : 'missing recent-builds multi-closeout closeout',
   )
   ensure(
     checks,
@@ -3771,7 +4044,7 @@ async function main() {
     checks,
     doctrinePropagation?.lane === 'done' &&
       doctrinePropagation?.priority === 'P0' &&
-      hitListReconcile?.lane === 'scoped' &&
+      hitListReconcile?.lane === 'done' &&
       hitListReconcile?.priority === 'P1' &&
       doctrinePropagationApproval.cardId === 'DOCTRINE-PROPAGATION-001' &&
       Number(doctrinePropagationApproval.score) >= 9.8 &&

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-04-29
-Version: v6.16 — Phase C visibility cleanup
+Version: v6.17 — Phase D cleanup complete
 Status: Active
 
 Use this doc for one question:
@@ -842,9 +842,11 @@ Current order:
 8. Phase C Track 1: `PHANTOM-CARD-CHECK-001` + `PHASE-NUMBERING-RECONCILE-001` — done for v1. Active card references must point at live backlog cards, and the Foundation UI now shows command order instead of competing phase labels.
 9. Phase C Track 2: `SUB-SURFACE-MAPPING-001` + `SYSTEM-INVENTORY-TRUE-UP-001` — done for v1. Foundation maps critical sub-surfaces/API routes and System Inventory reports all nine configured plugin surfaces.
 10. Phase C Track 3: `SOURCE-CONTRACT-CLEANUP-001` + `VERIFIER-CONSOLIDATION-001` — done for v1. Active source references resolve to source contracts, historical source aliases are classified, and verifier messaging is cleaner.
-11. `EXCEPTION-CURATION-001` — scoped Phase D cleanup follow-up for the 24 historical verifier exceptions before the 2026-07-27 expiry deadline.
-12. `HIT-LIST-RECONCILE-001` — scoped follow-up for reconciling Steve's external canonical hit list against live backlog state.
-13. `RECENT-BUILDS-MULTI-CLOSEOUT-001` — scoped Phase D follow-up for showing multiple closeouts under one commit in Recent Work.
+11. Phase D Cards 13+14: `DOC-ARCHIVE-AUTO-001` + `RESEARCH-CURATION-001` — done for v1. Historical handoffs/audits/research docs moved to `docs/_archive/` without deletion, and research-lane cards remain preserved for later human curation.
+12. Phase D Cards 15+16: `REBUILD-DOCS-RETIRE-001` + `ARCHIVE-RETIRE-001` — done for v1. Stale rebuild docs moved to plan history, and the only delete lane recorded that no safe-delete archive was present, so nothing was deleted.
+13. Phase D drift remediation: `EXCEPTION-CURATION-001` + `HIT-LIST-RECONCILE-001` — done for v1. The 24 historical verifier exceptions are classified without extending the 2026-07-27 deadline, and the canonical hit-list snapshot is checked without auto-reading Steve's private Google Doc.
+14. Phase D Recent Work UX: `RECENT-BUILDS-MULTI-CLOSEOUT-001` — done for v1. Recent Builds can show multiple closeouts under one collapsed same-commit group.
+15. Phase E next: `FULL-SYSTEM-RE-AUDIT-001` — scoped. Run the full re-audit after Phase D review is clean; do not start new feature work before it.
 
 Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts until the trust hit list and follow-up re-audit say Foundation is ready.
 

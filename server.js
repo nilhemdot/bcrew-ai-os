@@ -77,6 +77,13 @@ import {
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import { buildDoctrinePropagationStatus } from './lib/doctrine-propagation.js'
 import { buildDecisionAutoEmitSummary, scanDecisionAutoEmitCandidates } from './lib/decision-auto-emit.js'
+import {
+  buildArchiveRetireStatus,
+  buildDocArchiveCleanupStatus,
+  buildExceptionCurationStatus,
+  buildHitListReconcileStatusFromFile,
+  buildResearchCurationStatus,
+} from './lib/phase-d-cleanup.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
 import { buildPostShipFanoutStatus } from './lib/post-ship-fanout.js'
 import {
@@ -2803,10 +2810,10 @@ function getDocSurfaceMeta(relativePath) {
       usage: 'reference',
       storageClass: 'Reference doc',
     },
-    'docs/rebuild-decisions.md': {
+    'docs/rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md': {
       surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
       surfaceHref: '/foundation#rebuild-plan',
-      role: 'Rebuild decision log',
+      role: 'Retired rebuild decision log',
       category: 'Rebuild',
       usage: 'reference',
       storageClass: 'Decision log',
@@ -2867,7 +2874,7 @@ function getDocSurfaceMeta(relativePath) {
       usage: 'reference',
       storageClass: 'Closeout plan',
     },
-    'docs/rebuild/rebuild-master-plan.md': {
+    'docs/rebuild/plan-history/rebuild-master-plan-2026-04-29-retired.md': {
       surfaceLabel: 'Foundation > System Strategy > Rebuild Plan',
       surfaceHref: '/foundation#rebuild-plan',
       role: 'Archived rebuild baseline',
@@ -3999,6 +4006,14 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       backlogItems: snapshot.backlogItems || [],
       closeouts: getFoundationBuildCloseouts(),
     })
+    const docArchiveCleanup = await buildDocArchiveCleanupStatus({ repoRoot: __dirname })
+    const researchCuration = buildResearchCurationStatus({ backlogItems: snapshot.backlogItems || [] })
+    const exceptionCuration = await buildExceptionCurationStatus({ repoRoot: __dirname })
+    const hitListReconcile = await buildHitListReconcileStatusFromFile({
+      repoRoot: __dirname,
+      backlogItems: snapshot.backlogItems || [],
+    })
+    const archiveRetire = await buildArchiveRetireStatus({ repoRoot: __dirname })
     const postShipFanout = await buildPostShipFanoutStatus({
       closeouts: getFoundationBuildCloseouts(),
       backlogItems: snapshot.backlogItems || [],
@@ -4022,6 +4037,11 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       ...snapshot,
       kpiHealth,
       backlogHygiene,
+      docArchiveCleanup,
+      researchCuration,
+      exceptionCuration,
+      hitListReconcile,
+      archiveRetire,
       postShipFanout,
       doctrinePropagation,
       decisionAutoEmit,

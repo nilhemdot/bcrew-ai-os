@@ -125,8 +125,8 @@ var foundationDocPathToSection = {
   'docs/rebuild/current-runtime-map.md': 'rebuild-plan',
   'docs/rebuild/agent-architecture.md': 'rebuild-plan',
   'docs/rebuild/current-plan.md': 'rebuild-plan',
-  'docs/rebuild/rebuild-master-plan.md': 'rebuild-plan',
-  'docs/rebuild-decisions.md': 'rebuild-plan',
+  'docs/rebuild/plan-history/rebuild-master-plan-2026-04-29-retired.md': 'rebuild-plan',
+  'docs/rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md': 'rebuild-plan',
 }
 
 var strategicExecutionDocPathToSection = {

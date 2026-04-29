@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-29T03:06:21.697Z",
+  "mode": "apply",
+  "plainEnglish": "Stale rebuild docs were moved into plan history. Current plan and current state remain the active rebuild truth.",
+  "movedFiles": [
+    {
+      "from": "docs/rebuild/rebuild-master-plan.md",
+      "to": "docs/rebuild/plan-history/rebuild-master-plan-2026-04-29-retired.md",
+      "reason": "Old rebuild plan preserved as history; docs/rebuild/current-plan.md is active doctrine.",
+      "action": "moved"
+    },
+    {
+      "from": "docs/rebuild-decisions.md",
+      "to": "docs/rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md",
+      "reason": "Old rebuild decisions preserved as history; live decisions/backlog/current-plan are active truth.",
+      "action": "moved"
+    }
+  ],
+  "activeDocs": [
+    "docs/rebuild/current-plan.md",
+    "docs/rebuild/current-state.md",
+    "docs/rebuild/current-runtime-map.md",
+    "docs/rebuild/intelligence-pipeline.md",
+    "docs/rebuild/agent-architecture.md",
+    "docs/rebuild/doc-cleanup-plan.md"
+  ]
+}

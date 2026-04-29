@@ -1,0 +1,8 @@
+{
+  "cardId": "RECENT-BUILDS-MULTI-CLOSEOUT-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T03:00:02Z",
+  "approvalSource": "Steve approved all four Phase D plans in chat at 9.8/10 before coding.",
+  "notes": "Approval covers multi-closeout Recent Builds UX, collapsed scan-friendly display, regression check for ba5ec81 closeouts, verifier coverage, and closeout proof."
+}

@@ -1,0 +1,8 @@
+{
+  "cardId": "HIT-LIST-RECONCILE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T03:00:02Z",
+  "approvalSource": "Steve approved all four Phase D plans in chat at 9.8/10 before coding.",
+  "notes": "Approval covers repo-tracked hit-list snapshot reconciliation, no Google Doc auto-import, 14-day staleness warning, verifier coverage, and closeout proof."
+}

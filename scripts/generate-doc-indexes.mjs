@@ -66,6 +66,7 @@ function inferStatus(relPath, heading, statusLine, directory) {
   const evidencePath = relPath.startsWith('docs/handoffs/')
     || relPath.startsWith('docs/audits/')
     || relPath.startsWith('docs/research/')
+    || relPath.startsWith('docs/_archive/')
     || relPath.startsWith('docs/rebuild/plan-history/');
   const explicitStatus = ['needs-promotion', 'needs-reconciliation', 'design-reference', 'supporting-truth', 'evidence', 'superseded-evidence', 'duplicate-candidate'].find((status) =>
     statusLine.toLowerCase().includes(status)
@@ -86,14 +87,15 @@ function inferStatus(relPath, heading, statusLine, directory) {
 
   if ([
     'docs/business-strategy.md',
-    'docs/rebuild-decisions.md',
-    'docs/rebuild/rebuild-master-plan.md',
+    'docs/rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md',
+    'docs/rebuild/plan-history/rebuild-master-plan-2026-04-29-retired.md',
   ].includes(relPath)) {
     return 'supporting-truth';
   }
 
   if (relPath.startsWith('docs/source-notes/') || relPath.startsWith('docs/specs/') || relPath.startsWith('docs/strategy/')) return 'supporting-truth';
   if (relPath.startsWith('docs/users/')) return 'supporting-truth';
+  if (relPath.startsWith('docs/_archive/')) return 'superseded-evidence';
   if (relPath.startsWith('docs/rebuild/plan-history/')) return 'superseded-evidence';
   if (relPath.startsWith('docs/research/')) return 'evidence';
   if (relPath.startsWith('docs/superpowers/')) return 'design-reference';
@@ -161,6 +163,7 @@ function writeIndex(directory, title) {
 
 writeIndex('docs/handoffs', 'Handoff Index');
 writeIndex('docs/audits', 'Audit Index');
+writeIndex('docs/_archive', 'Archived Evidence Index');
 writeIndex('docs', 'Documentation Index');
 
-console.log('Generated docs/INDEX.md, docs/handoffs/INDEX.md, and docs/audits/INDEX.md');
+console.log('Generated docs/INDEX.md, docs/handoffs/INDEX.md, docs/audits/INDEX.md, and docs/_archive/INDEX.md');

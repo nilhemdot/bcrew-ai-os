@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-29T03:00:02Z",
+  "deadline": "2026-07-27",
+  "plainEnglish": "Each historical verifier exception now has a curation decision. This does not clear the exception; it tells the next cleanup pass what to do before the deadline.",
+  "decisions": [
+    {
+      "cardId": "SYSTEM-001",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "FOUNDATION-003",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "MEMORY-001",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "FOUNDATION-VERIFY-001",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "SCHEMA-001",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "SECURITY-003",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "SECURITY-004",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "FOUNDATION-SHIP-FANOUT-001",
+      "decision": "retire_or_restructure_card",
+      "reason": "This historical done card appears superseded by newer process/decision/UX cards. Retire or restructure it instead of keeping a permanent loophole.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Prepare retirement/restructure in a cleanup slice."
+    },
+    {
+      "cardId": "SOURCE-008",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "DATA-005",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "DATA-006",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "DECISION-001",
+      "decision": "retire_or_restructure_card",
+      "reason": "This historical done card appears superseded by newer process/decision/UX cards. Retire or restructure it instead of keeping a permanent loophole.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Prepare retirement/restructure in a cleanup slice."
+    },
+    {
+      "cardId": "DECISION-002",
+      "decision": "retire_or_restructure_card",
+      "reason": "This historical done card appears superseded by newer process/decision/UX cards. Retire or restructure it instead of keeping a permanent loophole.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Prepare retirement/restructure in a cleanup slice."
+    },
+    {
+      "cardId": "DECISION-003",
+      "decision": "retire_or_restructure_card",
+      "reason": "This historical done card appears superseded by newer process/decision/UX cards. Retire or restructure it instead of keeping a permanent loophole.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Prepare retirement/restructure in a cleanup slice."
+    },
+    {
+      "cardId": "STRATEGY-007",
+      "decision": "reapprove_only_if_still_needed",
+      "reason": "Keep only if Steve still wants this historical done card accepted after review; otherwise add coverage or retire it.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Re-approve with a fresh reason only if still useful."
+    },
+    {
+      "cardId": "STRATEGY-008",
+      "decision": "reapprove_only_if_still_needed",
+      "reason": "Keep only if Steve still wants this historical done card accepted after review; otherwise add coverage or retire it.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Re-approve with a fresh reason only if still useful."
+    },
+    {
+      "cardId": "STRATEGY-010",
+      "decision": "reapprove_only_if_still_needed",
+      "reason": "Keep only if Steve still wants this historical done card accepted after review; otherwise add coverage or retire it.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Re-approve with a fresh reason only if still useful."
+    },
+    {
+      "cardId": "GOVERNANCE-IMPORTRANGE-001",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "UX-003",
+      "decision": "retire_or_restructure_card",
+      "reason": "This historical done card appears superseded by newer process/decision/UX cards. Retire or restructure it instead of keeping a permanent loophole.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Prepare retirement/restructure in a cleanup slice."
+    },
+    {
+      "cardId": "UX-004",
+      "decision": "retire_or_restructure_card",
+      "reason": "This historical done card appears superseded by newer process/decision/UX cards. Retire or restructure it instead of keeping a permanent loophole.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Prepare retirement/restructure in a cleanup slice."
+    },
+    {
+      "cardId": "SYSTEM-009",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "SOURCE-004",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "SOURCE-005",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    },
+    {
+      "cardId": "VIDEO-001",
+      "decision": "add_real_verifier_coverage",
+      "reason": "This historical done card still represents active Foundation trust, source, security, UX, or data behavior. Add ID-named verifier coverage before the exception deadline.",
+      "reviewedBy": "Steve-approved Phase D curation plan",
+      "reviewedAt": "2026-04-29T03:00:02Z",
+      "nextAction": "Add direct verifier coverage or convert to a scoped cleanup card."
+    }
+  ]
+}

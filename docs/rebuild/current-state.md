@@ -41,6 +41,7 @@ Built:
 - Video link inventory source contract and manual inventory lane for Loom/Drive/YouTube/Vimeo/Wistia/Zoom/Skool URLs
 - Owners/deal-review runners
 - doc cleanup plan and generated evidence indexes
+- Phase D cleanup: historical evidence docs moved to `docs/_archive/`, stale rebuild docs moved to plan history, research cards preserved for review, verifier exceptions classified, hit-list snapshot checked, and Recent Builds can show multiple closeouts under one commit
 
 Open:
 
@@ -129,9 +130,11 @@ Current command order:
 
 1. Keep the `FOUNDATION-SWEEP-001` map and `FOUNDATION-CHANGELOG-002` closeout records current when Foundation nav, APIs, docs, source contracts, jobs, System Inventory, hub links, or major build cards change.
 2. Finish the post-audit trust hit list before new feature work. Card 0 `PROCESS-FANOUT-001` is repaired. Wave 2 is complete: `WORKER-CODE-TRUST-001` proves the supervised worker is running current code; `VERIFIER-DONE-COVERAGE-001` and `VERIFIER-ARTIFACT-EXISTS-001` add done-card proof and claimed-artifact verifier gates.
-3. Wave 3 is complete: `POST-SHIP-FAN-OUT-001` adds the post-ship fanout gate, and `SHEETS-QUOTA-HARDENING-001` adds short TTL Sheets read caching, batchGet support, and Runtime Health quota visibility before Wave 5 parallel ramp. `EXCEPTION-CURATION-001` is scoped for Phase D cleanup before the 2026-07-27 verifier-exception deadline.
-4. Wave 4 closes Phase B: `DOCTRINE-PROPAGATION-001` keeps the active bcrew-foundation skill aligned with current operating doctrine, `DECISION-AUTO-EMIT-001` turns explicit decision language into proposed decisions, and `HIT-LIST-RECONCILE-001` is scoped to prevent external hit-list drift later.
-5. Phase C visibility work is active: `PHANTOM-CARD-CHECK-001` and `PHASE-NUMBERING-RECONCILE-001` add card-reference trust and command-order UI; `SUB-SURFACE-MAPPING-001` and `SYSTEM-INVENTORY-TRUE-UP-001` make surfaces/plugins accurate; `SOURCE-CONTRACT-CLEANUP-001` and `VERIFIER-CONSOLIDATION-001` clean source IDs and verifier language. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work until the hit list and re-audit say Foundation is ready.
+3. Wave 3 is complete: `POST-SHIP-FAN-OUT-001` adds the post-ship fanout gate, and `SHEETS-QUOTA-HARDENING-001` adds short TTL Sheets read caching, batchGet support, and Runtime Health quota visibility before parallel ramp.
+4. Wave 4 closes Phase B: `DOCTRINE-PROPAGATION-001` keeps the active bcrew-foundation skill aligned with current operating doctrine, and `DECISION-AUTO-EMIT-001` turns explicit decision language into proposed decisions.
+5. Phase C is complete: `PHANTOM-CARD-CHECK-001`, `PHASE-NUMBERING-RECONCILE-001`, `SUB-SURFACE-MAPPING-001`, `SYSTEM-INVENTORY-TRUE-UP-001`, `SOURCE-CONTRACT-CLEANUP-001`, and `VERIFIER-CONSOLIDATION-001` clean active references, surface mapping, inventory truth, source IDs, and verifier language.
+6. Phase D is complete for v1: `DOC-ARCHIVE-AUTO-001`, `RESEARCH-CURATION-001`, `REBUILD-DOCS-RETIRE-001`, `ARCHIVE-RETIRE-001`, `EXCEPTION-CURATION-001`, `HIT-LIST-RECONCILE-001`, and `RECENT-BUILDS-MULTI-CLOSEOUT-001` landed cleanup, curation, and multi-closeout visibility.
+7. Next is Phase E: `FULL-SYSTEM-RE-AUDIT-001`. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work until the re-audit says Foundation is ready.
 
 ## Operator Surface Pattern
 

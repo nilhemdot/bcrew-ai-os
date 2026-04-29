@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-29T03:06:21.702Z",
+  "mode": "apply",
+  "plainEnglish": "No explicit safe-delete archive was present, so nothing was deleted and the script did not improvise.",
+  "allowlist": [
+    ".venv",
+    "BCrew-Buddy",
+    "BCrew-Buddy-duplicate",
+    "bcrew-buddy-duplicate",
+    "node_modules"
+  ],
+  "searchedRoots": [
+    ".safe-delete",
+    "safe-delete",
+    "docs/_archive/safe-delete",
+    "docs/_archive/safe_delete"
+  ],
+  "deletedEntries": [],
+  "refusedEntries": [],
+  "protectedPathStatus": [
+    {
+      "path": "node_modules",
+      "exists": true,
+      "protected": true,
+      "reason": "Explicit no-touch path for ARCHIVE-RETIRE-001."
+    },
+    {
+      "path": "bcrew-buddy-reference",
+      "exists": false,
+      "protected": true,
+      "reason": "Explicit no-touch path for ARCHIVE-RETIRE-001."
+    },
+    {
+      "path": "FUBZahnd",
+      "exists": false,
+      "protected": true,
+      "reason": "Explicit no-touch path for ARCHIVE-RETIRE-001."
+    },
+    {
+      "path": "zahnd-team-dashboard/src",
+      "exists": false,
+      "protected": true,
+      "reason": "Explicit no-touch path for ARCHIVE-RETIRE-001."
+    }
+  ],
+  "summary": {
+    "safeDeleteEntryCount": 0,
+    "deletedCount": 0,
+    "refusedCount": 0,
+    "bytesDeleted": 0
+  }
+}

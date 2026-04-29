@@ -1,0 +1,739 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-29T03:01:23.656Z",
+  "mode": "apply",
+  "plainEnglish": "Historical handoffs, audits, and research docs were moved into docs/_archive so active folders stop looking like current operating truth. Files are preserved, not deleted.",
+  "movedFiles": [
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-14-full-convo-1.md",
+      "to": "docs/_archive/handoffs/2026-04-14-full-convo-1.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-14-full-convo-2.md",
+      "to": "docs/_archive/handoffs/2026-04-14-full-convo-2.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-15-full-convo-3.md",
+      "to": "docs/_archive/handoffs/2026-04-15-full-convo-3.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-15-full-convo-4.md",
+      "to": "docs/_archive/handoffs/2026-04-15-full-convo-4.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-17-full-convo-5.md",
+      "to": "docs/_archive/handoffs/2026-04-17-full-convo-5.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-17-full-convo-6-reconstructed-transcript.md",
+      "to": "docs/_archive/handoffs/2026-04-17-full-convo-6-reconstructed-transcript.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-17-source-014-validation-packet.md",
+      "to": "docs/_archive/handoffs/2026-04-17-source-014-validation-packet.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-18-freedom-validation-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-18-freedom-validation-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-18-owners-split-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-18-owners-split-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-18-owners-tabs-closeout-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-18-owners-tabs-closeout-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-18-sales-and-deposit-chain.md",
+      "to": "docs/_archive/handoffs/2026-04-18-sales-and-deposit-chain.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-19-cashflow-review-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-19-cashflow-review-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-19-cashflow-runway-a30-l62-map.md",
+      "to": "docs/_archive/handoffs/2026-04-19-cashflow-runway-a30-l62-map.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-19-cashflow-runway-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-19-cashflow-runway-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-19-finance-spine-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-19-finance-spine-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-19-weekly-actuals-deep-review.md",
+      "to": "docs/_archive/handoffs/2026-04-19-weekly-actuals-deep-review.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-19-weekly-actuals-validation-sequence.md",
+      "to": "docs/_archive/handoffs/2026-04-19-weekly-actuals-validation-sequence.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-20-fub-live-collections-audit.md",
+      "to": "docs/_archive/handoffs/2026-04-20-fub-live-collections-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-20-goal-kpi-calculator-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-20-goal-kpi-calculator-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-20-kpi-app-live-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-20-kpi-app-live-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-20-kpi-foundation-alignment.md",
+      "to": "docs/_archive/handoffs/2026-04-20-kpi-foundation-alignment.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-20-kpi-fub-opportunity-hygiene.md",
+      "to": "docs/_archive/handoffs/2026-04-20-kpi-fub-opportunity-hygiene.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-20-kpi-fub-question-stack.md",
+      "to": "docs/_archive/handoffs/2026-04-20-kpi-fub-question-stack.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-20-kpi-top-20-read-map.md",
+      "to": "docs/_archive/handoffs/2026-04-20-kpi-top-20-read-map.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-20-old-kpi-engine-source-map.md",
+      "to": "docs/_archive/handoffs/2026-04-20-old-kpi-engine-source-map.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-admin-deal-review-batch-01.md",
+      "to": "docs/_archive/handoffs/2026-04-21-admin-deal-review-batch-01.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-admin-deal-review-batch-02-top-down.md",
+      "to": "docs/_archive/handoffs/2026-04-21-admin-deal-review-batch-02-top-down.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-agent-contract-registry-doctrine.md",
+      "to": "docs/_archive/handoffs/2026-04-21-agent-contract-registry-doctrine.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-connector-hardening-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-21-connector-hardening-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-current-state-change-infra.md",
+      "to": "docs/_archive/handoffs/2026-04-21-current-state-change-infra.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-end-of-night-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-21-end-of-night-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-fub-drift-layer.md",
+      "to": "docs/_archive/handoffs/2026-04-21-fub-drift-layer.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-isa-validation-doctrine.md",
+      "to": "docs/_archive/handoffs/2026-04-21-isa-validation-doctrine.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-matt-allman-contract-package.md",
+      "to": "docs/_archive/handoffs/2026-04-21-matt-allman-contract-package.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-owners-dropdown-drift.md",
+      "to": "docs/_archive/handoffs/2026-04-21-owners-dropdown-drift.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-post-merge-lead-source-cleanup.md",
+      "to": "docs/_archive/handoffs/2026-04-21-post-merge-lead-source-cleanup.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-source-008-row-validation-examples.md",
+      "to": "docs/_archive/handoffs/2026-04-21-source-008-row-validation-examples.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-strategy-change-watch.md",
+      "to": "docs/_archive/handoffs/2026-04-21-strategy-change-watch.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-21-t-26100-ai-review.md",
+      "to": "docs/_archive/handoffs/2026-04-21-t-26100-ai-review.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-atoms-overlays-and-scopers.md",
+      "to": "docs/_archive/handoffs/2026-04-22-atoms-overlays-and-scopers.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-conditional-review-runner.md",
+      "to": "docs/_archive/handoffs/2026-04-22-conditional-review-runner.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-data-020-freshness-guardrails.md",
+      "to": "docs/_archive/handoffs/2026-04-22-data-020-freshness-guardrails.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-decision-review-slice.md",
+      "to": "docs/_archive/handoffs/2026-04-22-decision-review-slice.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-decision-traceability-slice.md",
+      "to": "docs/_archive/handoffs/2026-04-22-decision-traceability-slice.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-full-convo-shared-comms-atoms-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-22-full-convo-shared-comms-atoms-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-night-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-22-night-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-old-system-shared-comms-audit.md",
+      "to": "docs/_archive/handoffs/2026-04-22-old-system-shared-comms-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-provenance-backfill-and-review-queue.md",
+      "to": "docs/_archive/handoffs/2026-04-22-provenance-backfill-and-review-queue.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-shared-comms-source-map-by-pillar.md",
+      "to": "docs/_archive/handoffs/2026-04-22-shared-comms-source-map-by-pillar.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-shared-comms-tool-audit.md",
+      "to": "docs/_archive/handoffs/2026-04-22-shared-comms-tool-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-shared-communications-read-check.md",
+      "to": "docs/_archive/handoffs/2026-04-22-shared-communications-read-check.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-strategy-change-ledger-slice.md",
+      "to": "docs/_archive/handoffs/2026-04-22-strategy-change-ledger-slice.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-22-youtube-extraction-tool-audit-convo.md",
+      "to": "docs/_archive/handoffs/2026-04-22-youtube-extraction-tool-audit-convo.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-email-depth-and-extraction-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-23-email-depth-and-extraction-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-late-night-foundation-clean-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-23-late-night-foundation-clean-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-marketing-source-closeout-audit.md",
+      "to": "docs/_archive/handoffs/2026-04-23-marketing-source-closeout-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-persisted-synthesis-proof.md",
+      "to": "docs/_archive/handoffs/2026-04-23-persisted-synthesis-proof.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-plan-reset-after-regroup.md",
+      "to": "docs/_archive/handoffs/2026-04-23-plan-reset-after-regroup.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-shared-comms-deep-backfill-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-23-shared-comms-deep-backfill-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-shared-comms-synthesis-persisted-proof.md",
+      "to": "docs/_archive/handoffs/2026-04-23-shared-comms-synthesis-persisted-proof.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-shared-comms-synthesis-source-facts-proof.md",
+      "to": "docs/_archive/handoffs/2026-04-23-shared-comms-synthesis-source-facts-proof.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-shared-comms-synthesis-v1.md",
+      "to": "docs/_archive/handoffs/2026-04-23-shared-comms-synthesis-v1.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-sunday-strategy-prep-working-brief.md",
+      "to": "docs/_archive/handoffs/2026-04-23-sunday-strategy-prep-working-brief.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-unchained-realtor-split-handoff.md",
+      "to": "docs/_archive/handoffs/2026-04-23-unchained-realtor-split-handoff.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-23-zoom-text-recovery-lane.md",
+      "to": "docs/_archive/handoffs/2026-04-23-zoom-text-recovery-lane.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-24-drive-skool-corpus-crawl-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-24-drive-skool-corpus-crawl-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-24-extraction-processing-provenance-hardening.md",
+      "to": "docs/_archive/handoffs/2026-04-24-extraction-processing-provenance-hardening.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-24-foundation-closeout-and-doc-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-24-foundation-closeout-and-doc-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-24-runtime-router-current-day-sync-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-24-runtime-router-current-day-sync-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-24-strategy-action-loop-correction.md",
+      "to": "docs/_archive/handoffs/2026-04-24-strategy-action-loop-correction.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-24-subscription-first-extraction-runtime-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-24-subscription-first-extraction-runtime-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-24-subscription-router-and-intelligence-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-24-subscription-router-and-intelligence-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-24-video-link-inventory-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-24-video-link-inventory-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-drive-strategy-corpus-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-26-drive-strategy-corpus-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-email-attachments-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-26-email-attachments-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-fresh-chat-start-after-ops-v1.md",
+      "to": "docs/_archive/handoffs/2026-04-26-fresh-chat-start-after-ops-v1.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-full-hard-checkpoint-god-mode-next.md",
+      "to": "docs/_archive/handoffs/2026-04-26-full-hard-checkpoint-god-mode-next.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-kpi-fub-sales-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-26-kpi-fub-sales-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-ops-hub-v1-closeout.md",
+      "to": "docs/_archive/handoffs/2026-04-26-ops-hub-v1-closeout.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-source-automation-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-26-source-automation-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-strategy-access-scott-hard-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-26-strategy-access-scott-hard-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-strategy-advisor-workspace-v1.md",
+      "to": "docs/_archive/handoffs/2026-04-26-strategy-advisor-workspace-v1.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-strategy-drive-advisor-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-26-strategy-drive-advisor-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-strategy-live-operating-truth-correction.md",
+      "to": "docs/_archive/handoffs/2026-04-26-strategy-live-operating-truth-correction.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-strategy-prework-coverage-ui-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-26-strategy-prework-coverage-ui-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-26-video-extraction-checkpoint.md",
+      "to": "docs/_archive/handoffs/2026-04-26-video-extraction-checkpoint.md",
+      "action": "moved"
+    },
+    {
+      "type": "handoff",
+      "from": "docs/handoffs/2026-04-27-q2-strategy-synthesis-report.md",
+      "to": "docs/_archive/handoffs/2026-04-27-q2-strategy-synthesis-report.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-14-foundation-reset-audit.md",
+      "to": "docs/_archive/audits/2026-04-14-foundation-reset-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-15-foundation-reset-audit.md",
+      "to": "docs/_archive/audits/2026-04-15-foundation-reset-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-17-foundation-clarity-audit.md",
+      "to": "docs/_archive/audits/2026-04-17-foundation-clarity-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-22-youtube-extraction-tool-audit.md",
+      "to": "docs/_archive/audits/2026-04-22-youtube-extraction-tool-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-23-foundation-audit-claude.md",
+      "to": "docs/_archive/audits/2026-04-23-foundation-audit-claude.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-23-foundation-full-audit.md",
+      "to": "docs/_archive/audits/2026-04-23-foundation-full-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-24-codex-deep-intelligence-audit.md",
+      "to": "docs/_archive/audits/2026-04-24-codex-deep-intelligence-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-24-killer-intelligence-system-build-plan.md",
+      "to": "docs/_archive/audits/2026-04-24-killer-intelligence-system-build-plan.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-24-nuke-power-rebuild-roadmap.md",
+      "to": "docs/_archive/audits/2026-04-24-nuke-power-rebuild-roadmap.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-25-foundation-memory-source-audit.md",
+      "to": "docs/_archive/audits/2026-04-25-foundation-memory-source-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-25-full-system-closeout-audit.md",
+      "to": "docs/_archive/audits/2026-04-25-full-system-closeout-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-26-conversation-knowledge-capture-audit.md",
+      "to": "docs/_archive/audits/2026-04-26-conversation-knowledge-capture-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-26-drive-content-extraction-proof.md",
+      "to": "docs/_archive/audits/2026-04-26-drive-content-extraction-proof.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-26-gmail-attachment-extraction-proof.md",
+      "to": "docs/_archive/audits/2026-04-26-gmail-attachment-extraction-proof.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-26-kpi-agent-data-quality-audit.md",
+      "to": "docs/_archive/audits/2026-04-26-kpi-agent-data-quality-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-26-kpi-shopping-list-discipline-audit.md",
+      "to": "docs/_archive/audits/2026-04-26-kpi-shopping-list-discipline-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-26-scott-pre-strat-visual-review.md",
+      "to": "docs/_archive/audits/2026-04-26-scott-pre-strat-visual-review.md",
+      "action": "moved"
+    },
+    {
+      "type": "audit",
+      "from": "docs/audits/2026-04-26-video-transcript-extraction-proof.md",
+      "to": "docs/_archive/audits/2026-04-26-video-transcript-extraction-proof.md",
+      "action": "moved"
+    },
+    {
+      "type": "research",
+      "from": "docs/research/2026-04-15-backlog-additions.md",
+      "to": "docs/_archive/research/2026-04-15-backlog-additions.md",
+      "action": "moved"
+    },
+    {
+      "type": "research",
+      "from": "docs/research/2026-04-15-ghost-agent-lesson.md",
+      "to": "docs/_archive/research/2026-04-15-ghost-agent-lesson.md",
+      "action": "moved"
+    },
+    {
+      "type": "research",
+      "from": "docs/research/2026-04-15-mark-kashef-claudeclaw-review.md",
+      "to": "docs/_archive/research/2026-04-15-mark-kashef-claudeclaw-review.md",
+      "action": "moved"
+    },
+    {
+      "type": "research",
+      "from": "docs/research/2026-04-17-agent-doctrine-decisions.md",
+      "to": "docs/_archive/research/2026-04-17-agent-doctrine-decisions.md",
+      "action": "moved"
+    },
+    {
+      "type": "research",
+      "from": "docs/research/2026-04-17-rebuild-audit-claude-opus-4-7.md",
+      "to": "docs/_archive/research/2026-04-17-rebuild-audit-claude-opus-4-7.md",
+      "action": "moved"
+    },
+    {
+      "type": "research",
+      "from": "docs/research/2026-04-23-old-system-retrospective.md",
+      "to": "docs/_archive/research/2026-04-23-old-system-retrospective.md",
+      "action": "moved"
+    },
+    {
+      "type": "research",
+      "from": "docs/research/2026-04-24-full-system-audit.md",
+      "to": "docs/_archive/research/2026-04-24-full-system-audit.md",
+      "action": "moved"
+    },
+    {
+      "type": "research",
+      "from": "docs/research/2026-04-26-full-system-audit.md",
+      "to": "docs/_archive/research/2026-04-26-full-system-audit.md",
+      "action": "moved"
+    }
+  ],
+  "protectedFiles": [
+    {
+      "type": "handoff",
+      "path": "docs/handoffs/2026-04-17-src-fub-001-validation-packet.md",
+      "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
+    },
+    {
+      "type": "handoff",
+      "path": "docs/handoffs/2026-04-20-kpi-system-audit-checkpoint.md",
+      "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
+    },
+    {
+      "type": "handoff",
+      "path": "docs/handoffs/2026-04-21-ai-deal-review-checklist.md",
+      "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
+    },
+    {
+      "type": "handoff",
+      "path": "docs/handoffs/2026-04-21-deal-review-queue-model.md",
+      "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
+    },
+    {
+      "type": "handoff",
+      "path": "docs/handoffs/2026-04-28-foundation-hard-checkpoint.md",
+      "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
+    },
+    {
+      "type": "audit",
+      "path": "docs/audits/2026-04-26-foundation-menu-and-systems-audit.md",
+      "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
+    },
+    {
+      "type": "audit",
+      "path": "docs/audits/2026-04-28-dev-process-audit.md",
+      "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
+    },
+    {
+      "type": "audit",
+      "path": "docs/audits/2026-04-28-extraction-lane-item-shape.md",
+      "reason": "Still referenced by active source contracts, verifier, or rebuild docs."
+    }
+  ],
+  "summary": {
+    "total": 113,
+    "byType": {
+      "handoff": 87,
+      "audit": 18,
+      "research": 8
+    },
+    "byAction": {
+      "moved": 113
+    }
+  }
+}

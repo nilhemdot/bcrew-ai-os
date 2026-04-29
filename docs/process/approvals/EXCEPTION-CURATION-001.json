@@ -1,0 +1,8 @@
+{
+  "cardId": "EXCEPTION-CURATION-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T03:00:02Z",
+  "approvalSource": "Steve approved all four Phase D plans in chat at 9.8/10 before coding.",
+  "notes": "Approval covers classifying all historical verifier exceptions without silently extending deadlines, privacy-safe status, verifier coverage, and closeout proof."
+}
