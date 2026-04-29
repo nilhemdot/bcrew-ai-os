@@ -1,0 +1,8 @@
+{
+  "cardId": "DECISION-AUTO-EMIT-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T01:04:53Z",
+  "approvalSource": "Steve approved Plan B in chat after reviewer scored DECISION-AUTO-EMIT-001 at 9.8/10.",
+  "notes": "Approval covers the isolated core only: dry-run default, apply-required proposed decision writes, decision-verb scanning for commits/provided text/synthetic proof, canonical categories only, idempotent dedupe by source commit plus normalized title, plain-English output, and no shared integration file edits in this slice."
+}

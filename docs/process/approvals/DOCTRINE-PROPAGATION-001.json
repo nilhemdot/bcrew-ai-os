@@ -1,0 +1,8 @@
+{
+  "cardId": "DOCTRINE-PROPAGATION-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T01:05:00Z",
+  "approvalSource": "Steve approved Plan A in chat after reviewer scored DOCTRINE-PROPAGATION-001 at 9.8/10.",
+  "notes": "Approval covers v1 doctrine propagation: hardcoded plain-English doctrine source list, generated bcrew-foundation skill section, private-memory timestamp signals only, tier-two review flags, synthetic stale-skill proof, HIT-LIST-RECONCILE-001 scoped follow-up, process gates, and no Phase C or feature work."
+}

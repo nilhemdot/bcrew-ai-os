@@ -75,6 +75,8 @@ import {
   FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
 } from './lib/foundation-build-log.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
+import { buildDoctrinePropagationStatus } from './lib/doctrine-propagation.js'
+import { buildDecisionAutoEmitSummary, scanDecisionAutoEmitCandidates } from './lib/decision-auto-emit.js'
 import { isDocUpdateAllowlisted } from './lib/doc-allowlist.js'
 import { buildPostShipFanoutStatus } from './lib/post-ship-fanout.js'
 import {
@@ -3998,6 +4000,19 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       closeouts: getFoundationBuildCloseouts(),
       backlogItems: snapshot.backlogItems || [],
     })
+    const doctrinePropagation = await buildDoctrinePropagationStatus({
+      repoRoot: __dirname,
+      apply: false,
+    })
+    const decisionAutoEmitScan = await scanDecisionAutoEmitCandidates({ synthetic: true, cwd: __dirname })
+    const decisionAutoEmit = {
+      status: decisionAutoEmitScan.candidateCount > 0 ? 'healthy' : 'risk',
+      summary: buildDecisionAutoEmitSummary(decisionAutoEmitScan),
+      candidates: decisionAutoEmitScan.candidates,
+      dryRunDefault: true,
+      applyRequired: true,
+      plainEnglish: 'Decision Auto-Emit finds obvious decision language and creates proposed decisions only when apply mode is explicitly used.',
+    }
     const sheetsApiTrust = await getGoogleSheetsCacheStats()
     const workerCode = await getFoundationRuntimeStatus('foundation-worker')
     res.json({
@@ -4005,6 +4020,8 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       kpiHealth,
       backlogHygiene,
       postShipFanout,
+      doctrinePropagation,
+      decisionAutoEmit,
       sheetsApiTrust,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),

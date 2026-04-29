@@ -74,6 +74,8 @@
     "process:ship-check": "node --env-file-if-exists=.env scripts/process-ship-check.mjs",
     "process:fanout-check": "node --env-file-if-exists=.env scripts/process-fanout-check.mjs",
     "process:post-ship-fanout": "node --env-file-if-exists=.env scripts/process-post-ship-fanout.mjs",
+    "doctrine:propagation-check": "node --env-file-if-exists=.env scripts/doctrine-propagation-check.mjs",
+    "decision:auto-emit": "node --env-file-if-exists=.env scripts/decision-auto-emit.mjs",
     "backlog:seed-drift": "node --env-file-if-exists=.env scripts/report-backlog-seed-drift.mjs",
     "backlog:hygiene": "node --env-file-if-exists=.env scripts/backlog-hygiene.mjs",
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",

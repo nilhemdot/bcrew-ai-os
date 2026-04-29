@@ -40,6 +40,17 @@ import {
   evaluatePostShipFanout,
   POST_SHIP_FANOUT_RULES,
 } from '../lib/post-ship-fanout.js'
+import {
+  buildDoctrinePropagationStatus,
+  buildSyntheticStaleSkillSource,
+  DOCTRINE_PROPAGATION_SOURCES,
+  evaluateDoctrineSkillSource,
+} from '../lib/doctrine-propagation.js'
+import {
+  CANONICAL_DECISION_CATEGORIES,
+  extractDecisionCandidatesFromText,
+  scanDecisionAutoEmitCandidates,
+} from '../lib/decision-auto-emit.js'
 
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
@@ -500,6 +511,12 @@ async function main() {
   const postShipFanoutSource = await readRepoFile('lib/post-ship-fanout.js')
   const postShipFanoutScriptSource = await readRepoFile('scripts/process-post-ship-fanout.mjs')
   const postShipFanoutDoc = await readRepoFile('docs/process/post-ship-fanout.md')
+  const doctrinePropagationSource = await readRepoFile('lib/doctrine-propagation.js')
+  const doctrinePropagationScriptSource = await readRepoFile('scripts/doctrine-propagation-check.mjs')
+  const doctrinePropagationDoc = await readRepoFile('docs/process/doctrine-propagation.md')
+  const decisionAutoEmitSource = await readRepoFile('lib/decision-auto-emit.js')
+  const decisionAutoEmitScriptSource = await readRepoFile('scripts/decision-auto-emit.mjs')
+  const decisionAutoEmitDoc = await readRepoFile('docs/process/decision-auto-emit.md')
   const sheetsQuotaHardeningDoc = await readRepoFile('docs/process/sheets-quota-hardening.md')
   const processHooksApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-HOOKS-001.json')
   const processHooksApproval = JSON.parse(processHooksApprovalSource)
@@ -515,6 +532,10 @@ async function main() {
   const verifierArtifactExistsApproval = JSON.parse(verifierArtifactExistsApprovalSource)
   const sheetsQuotaHardeningApprovalSource = await readRepoFile('docs/process/approvals/SHEETS-QUOTA-HARDENING-001.json')
   const sheetsQuotaHardeningApproval = JSON.parse(sheetsQuotaHardeningApprovalSource)
+  const doctrinePropagationApprovalSource = await readRepoFile('docs/process/approvals/DOCTRINE-PROPAGATION-001.json')
+  const doctrinePropagationApproval = JSON.parse(doctrinePropagationApprovalSource)
+  const decisionAutoEmitApprovalSource = await readRepoFile('docs/process/approvals/DECISION-AUTO-EMIT-001.json')
+  const decisionAutoEmitApproval = JSON.parse(decisionAutoEmitApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -2116,6 +2137,14 @@ async function main() {
     (build.backlogIds || []).includes('SHEETS-QUOTA-HARDENING-001') &&
       build.closeoutKey === 'sheets-quota-hardening-v1'
   )
+  const buildLogDoctrinePropagationBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('DOCTRINE-PROPAGATION-001') &&
+      build.closeoutKey === 'doctrine-propagation-v1'
+  )
+  const buildLogDecisionAutoEmitBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('DECISION-AUTO-EMIT-001') &&
+      build.closeoutKey === 'decision-auto-emit-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -2144,6 +2173,9 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('SHEETS-QUOTA-HARDENING-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('POST-SHIP-FAN-OUT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('EXCEPTION-CURATION-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('DOCTRINE-PROPAGATION-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('DECISION-AUTO-EMIT-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('HIT-LIST-RECONCILE-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
@@ -2478,6 +2510,41 @@ async function main() {
     buildLogSheetsQuotaBuild
       ? `${buildLogSheetsQuotaBuild.shortSha} / ${buildLogSheetsQuotaBuild.acceptanceState} / ${buildLogSheetsQuotaBuild.proofStatus}`
       : 'missing Sheets quota hardening closeout',
+  )
+  ensure(
+    checks,
+    buildLogDoctrinePropagationBuild?.operatorCloseout === true &&
+      buildLogDoctrinePropagationBuild.relatedBacklog?.some(item => item.id === 'DOCTRINE-PROPAGATION-001' && item.lane === 'done') &&
+      buildLogDoctrinePropagationBuild.relatedBacklog?.some(item => item.id === 'HIT-LIST-RECONCILE-001' && item.lane === 'scoped') &&
+      buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('doctrine:propagation-check')) &&
+      buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
+      buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
+      buildLogDoctrinePropagationBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /private memory content is not copied/i.test(buildLogDoctrinePropagationBuild.proofStatus || '') &&
+      /hardcoded.*doctrine source list/i.test(buildLogDoctrinePropagationBuild.knownLimits?.join(' ') || '') &&
+      /DECISION-AUTO-EMIT-001|Phase C/i.test(buildLogDoctrinePropagationBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for doctrine propagation',
+    buildLogDoctrinePropagationBuild
+      ? `${buildLogDoctrinePropagationBuild.shortSha} / ${buildLogDoctrinePropagationBuild.acceptanceState} / ${buildLogDoctrinePropagationBuild.proofStatus}`
+      : 'missing doctrine propagation closeout',
+  )
+  ensure(
+    checks,
+    buildLogDecisionAutoEmitBuild?.operatorCloseout === true &&
+      buildLogDecisionAutoEmitBuild.relatedBacklog?.some(item => item.id === 'DECISION-AUTO-EMIT-001' && item.lane === 'done') &&
+      buildLogDecisionAutoEmitBuild.proofCommands?.some(command => command.includes('decision:auto-emit')) &&
+      buildLogDecisionAutoEmitBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      buildLogDecisionAutoEmitBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
+      buildLogDecisionAutoEmitBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
+      buildLogDecisionAutoEmitBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /proposed candidates/i.test(buildLogDecisionAutoEmitBuild.proofStatus || '') &&
+      /does not lock decisions/i.test(buildLogDecisionAutoEmitBuild.knownLimits?.join(' ') || '') &&
+      /Phase B is complete|Phase C/i.test(buildLogDecisionAutoEmitBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for decision auto-emit',
+    buildLogDecisionAutoEmitBuild
+      ? `${buildLogDecisionAutoEmitBuild.shortSha} / ${buildLogDecisionAutoEmitBuild.acceptanceState} / ${buildLogDecisionAutoEmitBuild.proofStatus}`
+      : 'missing decision auto-emit closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -3108,6 +3175,9 @@ async function main() {
   const postShipFanout = (foundationHub.backlogItems || []).find(item => item.id === 'POST-SHIP-FAN-OUT-001') || null
   const sheetsQuotaHardening = (foundationHub.backlogItems || []).find(item => item.id === 'SHEETS-QUOTA-HARDENING-001') || null
   const exceptionCuration = (foundationHub.backlogItems || []).find(item => item.id === 'EXCEPTION-CURATION-001') || null
+  const doctrinePropagation = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-001') || null
+  const decisionAutoEmit = (foundationHub.backlogItems || []).find(item => item.id === 'DECISION-AUTO-EMIT-001') || null
+  const hitListReconcile = (foundationHub.backlogItems || []).find(item => item.id === 'HIT-LIST-RECONCILE-001') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
   const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
@@ -3155,6 +3225,18 @@ async function main() {
     postShipFanout?.whyItMatters,
     postShipFanout?.nextAction,
     postShipFanout?.statusNote,
+  ].filter(Boolean).join('\n')
+  const doctrinePropagationText = [
+    doctrinePropagation?.summary,
+    doctrinePropagation?.whyItMatters,
+    doctrinePropagation?.nextAction,
+    doctrinePropagation?.statusNote,
+  ].filter(Boolean).join('\n')
+  const decisionAutoEmitText = [
+    decisionAutoEmit?.summary,
+    decisionAutoEmit?.whyItMatters,
+    decisionAutoEmit?.nextAction,
+    decisionAutoEmit?.statusNote,
   ].filter(Boolean).join('\n')
   const backlogHygieneText = [
     backlogHygiene?.summary,
@@ -3500,6 +3582,101 @@ async function main() {
       /batchGet/.test(sheetsQuotaHardening?.statusNote || ''),
     'SHEETS-QUOTA-HARDENING-001 closes Sheets API quota hardening',
     sheetsQuotaHardening ? `${sheetsQuotaHardening.lane} / ${sheetsQuotaHardening.priority} / ${sheetsQuotaHardening.title}` : 'missing SHEETS-QUOTA-HARDENING-001',
+  )
+  const doctrinePropagationStatus = await buildDoctrinePropagationStatus({
+    repoRoot,
+    apply: false,
+  })
+  const syntheticDoctrineFindings = evaluateDoctrineSkillSource(buildSyntheticStaleSkillSource(), {
+    includeSynthetic: false,
+  })
+  ensure(
+    checks,
+    doctrinePropagation?.lane === 'done' &&
+      doctrinePropagation?.priority === 'P0' &&
+      hitListReconcile?.lane === 'scoped' &&
+      hitListReconcile?.priority === 'P1' &&
+      doctrinePropagationApproval.cardId === 'DOCTRINE-PROPAGATION-001' &&
+      Number(doctrinePropagationApproval.score) >= 9.8 &&
+      doctrinePropagationApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(doctrinePropagationApproval.approvedAt).getTime()) &&
+      includesAll(packageSource, ['"doctrine:propagation-check"', 'scripts/doctrine-propagation-check.mjs']) &&
+      includesAll(doctrinePropagationSource, [
+        'DOCTRINE_PROPAGATION_SOURCES',
+        'buildDoctrinePropagationStatus',
+        'Private memory stays private',
+        'Canonical hit list controls sequence',
+      ]) &&
+      includesAll(doctrinePropagationScriptSource, [
+        'Doctrine propagation check',
+        'DOCTRINE_PROPAGATION_SUMMARY',
+        '--apply',
+      ]) &&
+      includesAll(doctrinePropagationDoc, [
+        'Private memory files can trigger review',
+        'content is not copied',
+        'hardcoded doctrine source list',
+        'HIT-LIST-RECONCILE-001',
+      ]) &&
+      includesAll(serverSource, ['buildDoctrinePropagationStatus', 'doctrinePropagation']) &&
+      includesAll(foundationUiSource, ['renderDoctrinePropagationPanel', 'Doctrine Propagation']) &&
+      foundationHub.doctrinePropagation?.summary?.doctrineCount >= DOCTRINE_PROPAGATION_SOURCES.length &&
+      doctrinePropagationStatus.summary?.criticalFindings === 0 &&
+      syntheticDoctrineFindings.some(finding => finding.type === 'missing_doctrine' && finding.doctrineId === 'plan-gate-98') &&
+      /private memory/i.test(doctrinePropagationText) &&
+      /doctrine-propagation-v1/.test(doctrinePropagationText),
+    'DOCTRINE-PROPAGATION-001 closes skill doctrine propagation with proof',
+    doctrinePropagation
+      ? `${doctrinePropagation.lane} / approval=${doctrinePropagationApproval.score} / runtime=${foundationHub.doctrinePropagation?.status || 'missing'}`
+      : 'missing DOCTRINE-PROPAGATION-001',
+  )
+  const syntheticDecisionScan = await scanDecisionAutoEmitCandidates({ synthetic: true, cwd: repoRoot })
+  const duplicateDecisionCandidates = extractDecisionCandidatesFromText({
+    text: 'Adopt evidence-based gates before feature work.\nAdopt evidence-based gates before feature work.',
+    sourceLabel: 'synthetic duplicate proof',
+  })
+  ensure(
+    checks,
+    decisionAutoEmit?.lane === 'done' &&
+      decisionAutoEmit?.priority === 'P0' &&
+      decisionAutoEmitApproval.cardId === 'DECISION-AUTO-EMIT-001' &&
+      Number(decisionAutoEmitApproval.score) >= 9.8 &&
+      decisionAutoEmitApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(decisionAutoEmitApproval.approvedAt).getTime()) &&
+      includesAll(packageSource, ['"decision:auto-emit"', 'scripts/decision-auto-emit.mjs']) &&
+      includesAll(decisionAutoEmitSource, [
+        'DECISION_AUTO_EMIT_VERBS',
+        'scanDecisionAutoEmitCandidates',
+        'applyDecisionAutoEmitCandidates',
+        'Synthetic decision auto-emit mode is read-only',
+      ]) &&
+      includesAll(decisionAutoEmitScriptSource, [
+        'Decision auto-emit',
+        'Dry run only',
+        'DECISION_AUTO_EMIT_SUMMARY',
+      ]) &&
+      includesAll(decisionAutoEmitDoc, [
+        'proposed',
+        'Dry-run is the default',
+        'does not expand the decision category taxonomy',
+        'strategy',
+        'system',
+        'execution',
+        'people',
+      ]) &&
+      includesAll(serverSource, ['scanDecisionAutoEmitCandidates', 'decisionAutoEmit']) &&
+      includesAll(foundationUiSource, ['renderDecisionAutoEmitPanel', 'Auto-Emitted Decisions']) &&
+      CANONICAL_DECISION_CATEGORIES.length === 4 &&
+      ['strategy', 'system', 'execution', 'people'].every(category => CANONICAL_DECISION_CATEGORIES.includes(category)) &&
+      syntheticDecisionScan.candidateCount >= 2 &&
+      duplicateDecisionCandidates.length === 1 &&
+      foundationHub.decisionAutoEmit?.summary?.candidateCount >= 2 &&
+      /proposed-only|proposed decisions/i.test(decisionAutoEmitText) &&
+      /decision-auto-emit-v1/.test(decisionAutoEmitText),
+    'DECISION-AUTO-EMIT-001 closes proposed decision auto-emission with proof',
+    decisionAutoEmit
+      ? `${decisionAutoEmit.lane} / approval=${decisionAutoEmitApproval.score} / synthetic=${syntheticDecisionScan.candidateCount}`
+      : 'missing DECISION-AUTO-EMIT-001',
   )
   ensure(
     checks,

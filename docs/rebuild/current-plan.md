@@ -837,7 +837,10 @@ Current order:
 3. Wave 2 Chat A: `VERIFIER-DONE-COVERAGE-001` + `VERIFIER-ARTIFACT-EXISTS-001` — done for v1. Done cards now need verifier proof or an explicit exception, and claimed artifacts must exist.
 4. Wave 3 Card 4: `POST-SHIP-FAN-OUT-001` — done for v1. The post-ship fanout gate checks that closeouts prove surrounding truth moved with the code.
 5. Card 6.5: `SHEETS-QUOTA-HARDENING-001` — done for v1. Sheets reads now have short TTL caching, batchGet support, and Runtime Health quota visibility before Wave 5 parallel ramp.
-6. `EXCEPTION-CURATION-001` — scoped Phase D cleanup follow-up for the 24 historical verifier exceptions before the 2026-07-27 expiry deadline.
+6. Wave 4 Card 5: `DOCTRINE-PROPAGATION-001` — done for v1. The active bcrew-foundation skill now carries the current operating doctrine through a generated section without copying private memory content.
+7. Wave 4 Card 6: `DECISION-AUTO-EMIT-001` — done for v1. Explicit commit/checkpoint decision language can now become proposed decisions through a dry-run-first tool.
+8. `EXCEPTION-CURATION-001` — scoped Phase D cleanup follow-up for the 24 historical verifier exceptions before the 2026-07-27 expiry deadline.
+9. `HIT-LIST-RECONCILE-001` — scoped follow-up for reconciling Steve's external canonical hit list against live backlog state.
 
 Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts until the trust hit list and follow-up re-audit say Foundation is ready.
 

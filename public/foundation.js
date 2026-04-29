@@ -5770,6 +5770,87 @@ function renderSheetsApiTrustPanel(sheetsApiTrust) {
   )
 }
 
+function renderDoctrinePropagationPanel(doctrinePropagation) {
+  if (!doctrinePropagation || !doctrinePropagation.summary) return null
+  var summary = doctrinePropagation.summary || {}
+  var status = doctrinePropagation.status === 'risk'
+    ? 'risk'
+    : doctrinePropagation.status === 'watch'
+      ? 'pending'
+      : 'live'
+  var items = [
+    {
+      label: 'bcrew-foundation skill doctrine',
+      status: status,
+      detail: 'Generated section: '
+        + (doctrinePropagation.generatedSectionPresent ? 'present' : 'missing')
+        + '. Doctrines tracked: ' + (doctrinePropagation.doctrineCount || 0)
+        + '. Private memory files checked by timestamp only: ' + (doctrinePropagation.privateMemoryFileCount || 0)
+        + '.',
+    },
+  ]
+
+  ;(doctrinePropagation.findings || []).slice(0, 5).forEach(function(finding) {
+    items.push({
+      label: String(finding.type || 'doctrine finding').replace(/_/g, ' '),
+      status: finding.severity === 'critical' ? 'risk' : 'pending',
+      detail: (finding.issue || 'Doctrine propagation finding.')
+        + ' Next: ' + (finding.recommendedAction || 'Review doctrine propagation.'),
+    })
+  })
+
+  return renderStatusGroupPanel(
+    'Doctrine Propagation',
+    'Keeps current Foundation operating rules in the active bcrew-foundation skill without copying private memory content into repo truth. Critical findings: '
+      + (summary.criticalFindings || 0)
+      + '. Warnings: '
+      + (summary.warningFindings || 0)
+      + '.',
+    items
+  )
+}
+
+function renderDecisionAutoEmitPanel(decisionAutoEmit) {
+  if (!decisionAutoEmit || !decisionAutoEmit.summary) return null
+  var summary = decisionAutoEmit.summary || {}
+  var categories = summary.categories || {}
+  var items = [
+    {
+      label: 'Synthetic decision proof',
+      status: decisionAutoEmit.status === 'healthy' ? 'live' : 'risk',
+      detail: 'Dry-run default is on. Apply is required before writing proposed decisions. Synthetic candidates found: '
+        + (summary.candidateCount || 0)
+        + '. Categories: strategy '
+        + (categories.strategy || 0)
+        + ', system '
+        + (categories.system || 0)
+        + ', execution '
+        + (categories.execution || 0)
+        + ', people '
+        + (categories.people || 0)
+        + '.',
+    },
+  ]
+
+  ;(decisionAutoEmit.candidates || []).slice(0, 4).forEach(function(candidate) {
+    items.push({
+      label: candidate.title || 'Proposed decision candidate',
+      status: 'pending',
+      detail: 'Would be proposed as '
+        + (candidate.category || 'system')
+        + '. Source: '
+        + (candidate.sourceRef || 'synthetic proof')
+        + '.',
+    })
+  })
+
+  return renderStatusGroupPanel(
+    'Auto-Emitted Decisions',
+    'Finds obvious decision language in commits or checkpoint text and creates proposed decisions only when apply mode is explicitly used.',
+    items
+  )
+}
+
 function renderLlmRuntimePanel(llmRuntime) {
   if (!llmRuntime) return null
   var routes = Array.isArray(llmRuntime.routes) ? llmRuntime.routes : []
@@ -8178,6 +8259,9 @@ function renderDecisions() {
     ))
 
     container.appendChild(renderDecisionReviewPanel(hub))
+
+    var decisionAutoEmitPanel = renderDecisionAutoEmitPanel(hub.decisionAutoEmit)
+    if (decisionAutoEmitPanel) container.appendChild(decisionAutoEmitPanel)
 
     /* decision cards */
     var decisionPanel = document.createElement('section')
@@ -11797,6 +11881,9 @@ function renderDataHealth() {
 
     var sheetsApiTrustPanel = renderSheetsApiTrustPanel(hub.sheetsApiTrust)
     if (sheetsApiTrustPanel) container.appendChild(sheetsApiTrustPanel)
+
+    var doctrinePropagationPanel = renderDoctrinePropagationPanel(hub.doctrinePropagation)
+    if (doctrinePropagationPanel) container.appendChild(doctrinePropagationPanel)
 
     var surfaceSweepPanel = renderSurfaceFreshnessSweepPanel(hub.surfaceFreshnessSweep)
     if (surfaceSweepPanel) container.appendChild(surfaceSweepPanel)
