@@ -75,6 +75,11 @@ import {
   FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
 } from './lib/foundation-build-log.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
+import {
+  classifyDocInventoryPath,
+  parseDocOtherTriageReport,
+  summarizeDocInventoryCategories,
+} from './lib/doc-categorization.js'
 import { buildDoctrinePropagationStatus } from './lib/doctrine-propagation.js'
 import { buildDecisionAutoEmitSummary, scanDecisionAutoEmitCandidates } from './lib/decision-auto-emit.js'
 import {
@@ -3049,6 +3054,7 @@ function walkFiles(rootDir, targetFileName, results = []) {
 
 async function getTrackedMarkdownDocs() {
   const { stdout } = await runGit(['ls-files'])
+  const triageByPath = parseDocOtherTriageReport(readFileSafe(path.join(repoRoot, 'docs/process/doc-other-triage.md')))
   return stdout
     .split('\n')
     .map(line => line.trim())
@@ -3058,6 +3064,7 @@ async function getTrackedMarkdownDocs() {
       const content = readFileSafe(absolutePath)
       const meta = getDocMeta(absolutePath)
       const surface = getDocSurfaceMeta(relativePath)
+      const category = classifyDocInventoryPath(relativePath, { triageByPath })
 
       return {
         path: relativePath,
@@ -3066,7 +3073,8 @@ async function getTrackedMarkdownDocs() {
         surfaceLabel: surface.surfaceLabel,
         surfaceHref: surface.surfaceHref,
         role: surface.role,
-        category: surface.category,
+        category,
+        legacyCategory: surface.category,
         usage: surface.usage,
         storageClass: surface.storageClass,
         editMode: isDocUpdateAllowlisted(relativePath) ? 'System apply allowlisted' : 'Manual only',
@@ -3194,7 +3202,7 @@ async function getPrivateLocalMarkdownDocs(req) {
       surfaceLabel: 'Local workspace only',
       surfaceHref: '',
       role: info.role,
-      category: 'Workspace Private',
+      category: 'Local-private',
       usage: 'private-local',
       storageClass: 'Private local doc',
       editMode: 'Local file only',
@@ -4121,6 +4129,7 @@ app.get('/api/system-inventory', requireAdminToken, async (req, res) => {
       docs: {
         tracked: trackedDocs,
         privateLocal: privateLocalDocs,
+        categorySummary: summarizeDocInventoryCategories(trackedDocs.concat(privateLocalDocs)),
       },
       skills,
       plugins,

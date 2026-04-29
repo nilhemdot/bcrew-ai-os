@@ -11456,6 +11456,8 @@ function renderInventoryDocs() {
     var runtimeDocs = trackedDocs.filter(function(doc) { return doc.usage === 'runtime' })
     var referenceDocs = trackedDocs.filter(function(doc) { return doc.usage !== 'runtime' })
     var surfacedDocs = trackedDocs.filter(function(doc) { return !!doc.surfaceHref })
+    var docCategorySummary = inventory.docs && inventory.docs.categorySummary ? inventory.docs.categorySummary : {}
+    var trackedOtherCount = trackedDocs.filter(function(doc) { return doc.category === 'Other' }).length
 
     var hero = document.createElement('section')
     hero.className = 'hero'
@@ -11514,6 +11516,11 @@ function renderInventoryDocs() {
         detail: privateLocalDocs.length
           ? privateLocalDocs.length + ' local-private docs exist and are listed with a reason instead of being silently hidden.'
           : 'No private local markdown files detected.',
+      },
+      {
+        label: 'Doc categories',
+        status: trackedOtherCount ? 'risk' : 'connected',
+        detail: Object.keys(docCategorySummary).length + ' approved categories tracked; ' + trackedOtherCount + ' tracked docs remain in Other.',
       },
     ], {
       eyebrow: 'Inventory State',

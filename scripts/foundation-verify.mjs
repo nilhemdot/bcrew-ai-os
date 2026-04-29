@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import fs from 'node:fs/promises'
 import http from 'node:http'
 import https from 'node:https'
+import os from 'node:os'
 import process from 'node:process'
 import { getGroupedSourceSystems, getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
 import {
@@ -44,10 +45,12 @@ import {
 } from '../lib/post-ship-fanout.js'
 import {
   buildDoctrinePropagationStatus,
+  buildGeneratedDoctrineSection,
   buildSyntheticStaleSkillSource,
   DOCTRINE_PROPAGATION_SOURCES,
   evaluateDoctrineSkillSource,
 } from '../lib/doctrine-propagation.js'
+import { DOC_INVENTORY_CATEGORIES } from '../lib/doc-categorization.js'
 import {
   CANONICAL_DECISION_CATEGORIES,
   extractDecisionCandidatesFromText,
@@ -111,6 +114,60 @@ async function fetchTextResponse(baseUrl, pathname, options = {}) {
     ok: response.ok,
     status: response.status,
     text: await response.text(),
+  }
+}
+
+async function verifyPrivateMemorySyntheticProbe() {
+  const token = 'WAVE_CLEANUP_B_PRIVATE_MEMORY_SHOULD_NOT_LEAK'
+  const tmpRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'bcrew-private-memory-probe-'))
+  try {
+    await fs.mkdir(path.join(tmpRoot, 'memory'), { recursive: true })
+    await fs.mkdir(path.join(tmpRoot, 'docs/users'), { recursive: true })
+    await fs.mkdir(path.join(tmpRoot, 'docs/agents'), { recursive: true })
+    await fs.writeFile(path.join(tmpRoot, 'MEMORY.md'), token, 'utf8')
+    await fs.writeFile(path.join(tmpRoot, 'memory/2026-04-29.md'), token, 'utf8')
+    await fs.writeFile(path.join(tmpRoot, 'SOUL.md'), 'Be helpful and resourceful. Keep private context respectful.\n', 'utf8')
+    await fs.writeFile(path.join(tmpRoot, 'docs/users/steve.md'), 'This is the visible Foundation profile, not local `USER.md`. It carries system-facing preferences and shared Foundation operating expectations.\n', 'utf8')
+    await fs.writeFile(path.join(tmpRoot, 'docs/agents/harlan.md'), 'Personal agent. Owner: Steve. Harlan is not the whole BCrew AI OS and not the system orchestrator. Update Trigger: permissions.\n', 'utf8')
+    await fs.writeFile(path.join(tmpRoot, 'docs/agents/crewbert.md'), 'System agent. Owner: BCrew AI OS. Crewbert is separate from Harlan and system infrastructure. Update Trigger: permission.\n', 'utf8')
+    await fs.writeFile(path.join(tmpRoot, 'docs/agents/personal-agent-onboarding.md'), 'Private-context boundaries, approval boundaries, private profile not committed into this repo, one nugget per day maximum, source-backed.\n', 'utf8')
+    const skillPath = path.join(tmpRoot, 'skill.md')
+    await fs.writeFile(skillPath, buildGeneratedDoctrineSection({ generatedAt: '2026-04-29T00:00:00.000Z' }), 'utf8')
+    const status = await buildDoctrinePropagationStatus({
+      repoRoot: tmpRoot,
+      skillPath,
+      includeSynthetic: false,
+    })
+    const serialized = JSON.stringify(status)
+    return {
+      ok: !serialized.includes(token) &&
+        status.privateMemorySignalMode === 'metadata-only' &&
+        status.summary?.privateMemoryContentCopied === false &&
+        (status.privateMemoryStats || []).every(item => item.contentMode === 'metadata-only' && item.contentCopied === false),
+      detail: `${status.privateMemoryStats?.filter(item => item.exists).length || 0} synthetic private files / token copied=${serialized.includes(token)}`,
+    }
+  } finally {
+    await fs.rm(tmpRoot, { recursive: true, force: true }).catch(() => {})
+  }
+}
+
+async function verifyProcessFoundationShipRefusesMissingArgs() {
+  try {
+    await execFile('node', ['scripts/process-foundation-ship.mjs'], {
+      cwd: repoRoot,
+      env: process.env,
+      maxBuffer: 1024 * 256,
+    })
+    return { ok: false, detail: 'malformed invocation unexpectedly passed' }
+  } catch (error) {
+    const output = `${error?.stdout || ''}${error?.stderr || ''}`
+    return {
+      ok: /Missing required argument\(s\)/.test(output) &&
+        !output.includes('== process:ship-check ==') &&
+        !output.includes('== process:fanout-check ==') &&
+        !output.includes('== process:post-ship-fanout =='),
+      detail: output.split('\n').filter(Boolean).slice(0, 4).join(' | '),
+    }
   }
 }
 
@@ -573,6 +630,9 @@ async function main() {
   const postShipFanoutSource = await readRepoFile('lib/post-ship-fanout.js')
   const postShipFanoutScriptSource = await readRepoFile('scripts/process-post-ship-fanout.mjs')
   const postShipFanoutDoc = await readRepoFile('docs/process/post-ship-fanout.md')
+  const processFoundationShipSource = await readRepoFile('scripts/process-foundation-ship.mjs')
+  const processFoundationShipDoc = await readRepoFile('docs/process/foundation-ship-gate.md')
+  const docCategorizationSource = await readRepoFile('lib/doc-categorization.js')
   const doctrinePropagationSource = await readRepoFile('lib/doctrine-propagation.js')
   const doctrinePropagationScriptSource = await readRepoFile('scripts/doctrine-propagation-check.mjs')
   const doctrinePropagationDoc = await readRepoFile('docs/process/doctrine-propagation.md')
@@ -635,6 +695,12 @@ async function main() {
   const docAuthorityIndexRepairApproval = JSON.parse(docAuthorityIndexRepairApprovalSource)
   const docOtherTriageApprovalSource = await readRepoFile('docs/process/approvals/DOC-OTHER-TRIAGE-001.json')
   const docOtherTriageApproval = JSON.parse(docOtherTriageApprovalSource)
+  const docCategorizationApprovalSource = await readRepoFile('docs/process/approvals/DOC-CATEGORIZATION-001.json')
+  const docCategorizationApproval = JSON.parse(docCategorizationApprovalSource)
+  const doctrinePropagationV2ApprovalSource = await readRepoFile('docs/process/approvals/DOCTRINE-PROPAGATION-002.json')
+  const doctrinePropagationV2Approval = JSON.parse(doctrinePropagationV2ApprovalSource)
+  const processHooksV2ApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-HOOKS-002.json')
+  const processHooksV2Approval = JSON.parse(processHooksV2ApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -2452,6 +2518,12 @@ async function main() {
       (build.backlogIds || []).includes('DOC-OTHER-TRIAGE-001') &&
       build.closeoutKey === 'wave-cleanup-a-local-docs-triage-v1'
   )
+  const buildLogWaveCleanupBBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('DOC-CATEGORIZATION-001') &&
+      (build.backlogIds || []).includes('DOCTRINE-PROPAGATION-002') &&
+      (build.backlogIds || []).includes('PROCESS-HOOKS-002') &&
+      build.closeoutKey === 'wave-cleanup-b-doc-categories-doctrine-hooks-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -2492,6 +2564,9 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('LOCAL-DOC-LINK-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('DOC-AUTHORITY-INDEX-REPAIR-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('DOC-OTHER-TRIAGE-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('DOC-CATEGORIZATION-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('DOCTRINE-PROPAGATION-002') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-HOOKS-002') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
@@ -3550,6 +3625,7 @@ async function main() {
   const docAuthorityIndexRepair = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-INDEX-REPAIR-001') || null
   const localDocLink = (foundationHub.backlogItems || []).find(item => item.id === 'LOCAL-DOC-LINK-001') || null
   const docOtherTriage = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-OTHER-TRIAGE-001') || null
+  const docCategorization = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-CATEGORIZATION-001') || null
   const doctrinePropagationV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-002') || null
   const processHooksV2 = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-002') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
@@ -4109,8 +4185,8 @@ async function main() {
         'PROCESS-HOOKS-002',
       ]) &&
       ['scoped', 'done'].includes(docAuthorityIndexRepair?.lane) &&
-      doctrinePropagationV2?.lane === 'scoped' &&
-      processHooksV2?.lane === 'scoped' &&
+      ['scoped', 'done'].includes(doctrinePropagationV2?.lane) &&
+      ['scoped', 'done'].includes(processHooksV2?.lane) &&
       fullSystemReAuditText.includes('0 blockers') &&
       fullSystemReAuditText.includes('Open Phase F') &&
       currentPlan.includes('`FULL-SYSTEM-RE-AUDIT-001` — done for v1') &&
@@ -4238,9 +4314,9 @@ async function main() {
       currentPlan.includes('DOC-OTHER-TRIAGE-001') &&
       currentState.includes('Wave Cleanup A') &&
       currentState.includes('docs/process/doc-other-triage.md') &&
-      currentState.includes('Cleanup B is next'),
-    'current plan/state point to Cleanup B after Wave Cleanup A',
-    'Wave Cleanup A done; Cleanup B is next under 9.8 planning',
+      (currentState.includes('Cleanup B is next') || currentState.includes('Cleanup B is done')),
+    'current plan/state carried Cleanup B after Wave Cleanup A',
+    currentState.includes('Cleanup B is done') ? 'Cleanup B done; Phase G planning next' : 'Wave Cleanup A done; Cleanup B is next under 9.8 planning',
   )
   ensure(
     checks,
@@ -4253,6 +4329,92 @@ async function main() {
     buildLogWaveCleanupABuild
       ? `${buildLogWaveCleanupABuild.shortSha} / ${buildLogWaveCleanupABuild.closeoutKey}`
       : 'missing Wave Cleanup A closeout',
+  )
+  const trackedDocCategories = systemInventory.docs?.tracked?.map(doc => doc.category) || []
+  const trackedOtherDocs = (systemInventory.docs?.tracked || []).filter(doc => doc.category === 'Other')
+  const categorySummary = systemInventory.docs?.categorySummary || {}
+  const doctrinePropagationV2Status = await buildDoctrinePropagationStatus({
+    repoRoot,
+    apply: false,
+  })
+  const privateMemoryProbe = await verifyPrivateMemorySyntheticProbe()
+  const processFoundationShipMissingArgs = await verifyProcessFoundationShipRefusesMissingArgs()
+  ensure(
+    checks,
+    docCategorization?.lane === 'done' &&
+      doctrinePropagationV2?.lane === 'done' &&
+      processHooksV2?.lane === 'done' &&
+      docCategorizationApproval.cardId === 'DOC-CATEGORIZATION-001' &&
+      Number(docCategorizationApproval.score) >= 9.8 &&
+      doctrinePropagationV2Approval.cardId === 'DOCTRINE-PROPAGATION-002' &&
+      Number(doctrinePropagationV2Approval.score) >= 9.8 &&
+      processHooksV2Approval.cardId === 'PROCESS-HOOKS-002' &&
+      Number(processHooksV2Approval.score) >= 9.8,
+    'Wave Cleanup B backlog cards have approved 9.8 plans and done state',
+    `doc=${docCategorization?.lane || 'missing'} / doctrine=${doctrinePropagationV2?.lane || 'missing'} / hooks=${processHooksV2?.lane || 'missing'}`,
+  )
+  ensure(
+    checks,
+    DOC_INVENTORY_CATEGORIES.every(category => docCategorizationSource.includes(category)) &&
+      DOC_INVENTORY_CATEGORIES.every(category => Object.prototype.hasOwnProperty.call(categorySummary, category)) &&
+      trackedDocCategories.every(category => DOC_INVENTORY_CATEGORIES.includes(category)) &&
+      trackedOtherDocs.length === 0 &&
+      privateLocalDocs.every(doc => doc.category === 'Local-private') &&
+      includesAll(serverSource, ['parseDocOtherTriageReport', 'classifyDocInventoryPath', 'summarizeDocInventoryCategories', 'legacyCategory']) &&
+      includesAll(foundationUiSource, ['Doc categories', 'tracked docs remain in Other']) &&
+      docOtherTriageRows === 127,
+    'DOC-CATEGORIZATION-001 replaces vague Other with the 12 approved doc categories',
+    `${Object.keys(categorySummary).length} categories / Other=${trackedOtherDocs.length}`,
+  )
+  ensure(
+    checks,
+    doctrinePropagationV2Status.privateMemorySignalMode === 'metadata-only' &&
+      doctrinePropagationV2Status.summary?.privateMemoryContentCopied === false &&
+      doctrinePropagationV2Status.privateMemoryFileCount >= 5 &&
+      (doctrinePropagationV2Status.privateMemoryStats || []).every(item => item.contentMode === 'metadata-only' && item.contentCopied === false) &&
+      privateMemoryProbe.ok &&
+      includesAll(doctrinePropagationSource, ['PRIVATE_MEMORY_ROOT_FILES', 'listPrivateMemorySignalPaths', 'contentCopied: false', 'reviewSignals']) &&
+      includesAll(doctrinePropagationDoc, ['metadata only', 'memory/*.md', 'contentCopied: false', 'Tier-two persona surfaces']) &&
+      includesAll(doctrinePropagationScriptSource, ['Private memory mode', 'privateMemoryContentCopied']) &&
+      /metadata-only/.test(JSON.stringify(foundationHub.doctrinePropagation || {})),
+    'DOCTRINE-PROPAGATION-002 keeps private memory checks metadata-only',
+    privateMemoryProbe.detail,
+  )
+  ensure(
+    checks,
+    includesAll(packageSource, ['"process:foundation-ship"', 'scripts/process-foundation-ship.mjs']) &&
+      includesAll(processFoundationShipSource, [
+        'Foundation ship gate',
+        'Missing required argument(s)',
+        'process:ship-check',
+        'process:fanout-check',
+        'process:post-ship-fanout',
+        'foundation:verify',
+      ]) &&
+      includesAll(processFoundationShipDoc, [
+        'one command',
+        'does not replace Steve',
+        'refuses to run',
+        'does not silently skip',
+      ]) &&
+      processFoundationShipMissingArgs.ok,
+    'PROCESS-HOOKS-002 adds one canonical ship gate wrapper that refuses missing args',
+    processFoundationShipMissingArgs.detail,
+  )
+  ensure(
+    checks,
+    buildLogWaveCleanupBBuild?.operatorCloseout === true &&
+      buildLogWaveCleanupBBuild.relatedBacklog?.some(item => item.id === 'DOC-CATEGORIZATION-001' && item.lane === 'done') &&
+      buildLogWaveCleanupBBuild.relatedBacklog?.some(item => item.id === 'DOCTRINE-PROPAGATION-002' && item.lane === 'done') &&
+      buildLogWaveCleanupBBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-002' && item.lane === 'done') &&
+      /wave-cleanup-b-doc-categories-doctrine-hooks-v1/.test(buildLogWaveCleanupBBuild?.closeoutKey || '') &&
+      currentPlan.includes('Cleanup B: `DOC-CATEGORIZATION-001`, `DOCTRINE-PROPAGATION-002`, and `PROCESS-HOOKS-002` — done for v1') &&
+      currentState.includes('Cleanup B is done for v1') &&
+      currentState.includes('Phase G planning is next'),
+    'Recent Work carries Wave Cleanup B closeout and Phase G boundary',
+    buildLogWaveCleanupBBuild
+      ? `${buildLogWaveCleanupBBuild.shortSha} / ${buildLogWaveCleanupBBuild.closeoutKey}`
+      : 'missing Wave Cleanup B closeout',
   )
   ensure(
     checks,

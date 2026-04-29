@@ -1,0 +1,8 @@
+{
+  "cardId": "DOC-CATEGORIZATION-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T21:03:13Z",
+  "approvalSource": "Steve approved the Wave Cleanup B plan in chat after the seven-field closeout draft was added and Harlan-preservation language was removed.",
+  "notes": "Approval covers replacing vague System Inventory Other grouping with the 12 approved doc categories using docs/process/doc-other-triage.md as inspect-only input, with no doc moves or deletes."
+}

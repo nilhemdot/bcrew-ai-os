@@ -139,7 +139,8 @@ Current command order:
 6. Phase D is complete for v1: `DOC-ARCHIVE-AUTO-001`, `RESEARCH-CURATION-001`, `REBUILD-DOCS-RETIRE-001`, `ARCHIVE-RETIRE-001`, `EXCEPTION-CURATION-001`, `HIT-LIST-RECONCILE-001`, and `RECENT-BUILDS-MULTI-CLOSEOUT-001` landed cleanup, curation, and multi-closeout visibility.
 7. Phase E is done for v1: `FULL-SYSTEM-RE-AUDIT-001` found 0 blockers, 9 minor-drift areas, and 3 clean areas across the 12-area re-audit.
 8. Wave Cleanup A is done for v1: `LOCAL-DOC-LINK-001`, `DOC-AUTHORITY-INDEX-REPAIR-001`, and `DOC-OTHER-TRIAGE-001` close the local-doc UX gap, stale doc-authority drift, and the inspect-only 127-doc Other triage report.
-9. Cleanup B is next if Steve keeps Path A. Use `docs/process/doc-other-triage.md`; do not move or delete docs without a new 9.8 plan. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work by default without that re-plan.
+9. Cleanup B is done for v1: `DOC-CATEGORIZATION-001`, `DOCTRINE-PROPAGATION-002`, and `PROCESS-HOOKS-002` replace the vague System Inventory Other bucket with 12 doc categories, extend doctrine propagation to private-memory metadata signals without copying content, and add one canonical `process:foundation-ship` gate wrapper.
+10. Phase G planning is next if Steve keeps Path A. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, source lifecycle expansion, UI/menu/layout polish, or broader agent work by default without that Phase G plan.
 
 ## Operator Surface Pattern
 

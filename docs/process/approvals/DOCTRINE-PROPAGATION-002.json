@@ -1,0 +1,8 @@
+{
+  "cardId": "DOCTRINE-PROPAGATION-002",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T21:03:13Z",
+  "approvalSource": "Steve approved the Wave Cleanup B plan in chat after privacy boundaries and metadata-only memory checks were specified.",
+  "notes": "Approval covers wildcard private/daily memory freshness detection by metadata only, semantic tier-two persona checks, no private content copying, verifier coverage, and no Phase G work."
+}

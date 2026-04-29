@@ -74,6 +74,7 @@
     "process:ship-check": "node --env-file-if-exists=.env scripts/process-ship-check.mjs",
     "process:fanout-check": "node --env-file-if-exists=.env scripts/process-fanout-check.mjs",
     "process:post-ship-fanout": "node --env-file-if-exists=.env scripts/process-post-ship-fanout.mjs",
+    "process:foundation-ship": "node --env-file-if-exists=.env scripts/process-foundation-ship.mjs",
     "doctrine:propagation-check": "node --env-file-if-exists=.env scripts/doctrine-propagation-check.mjs",
     "decision:auto-emit": "node --env-file-if-exists=.env scripts/decision-auto-emit.mjs",
     "phase-d:cleanup": "node --env-file-if-exists=.env scripts/phase-d-cleanup.mjs",

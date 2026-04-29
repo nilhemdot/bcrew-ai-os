@@ -41,6 +41,7 @@ async function main() {
   console.log(`  Status: ${status.status}`)
   console.log(`  Doctrines: ${status.doctrineCount}`)
   console.log(`  Private memory files checked: ${status.privateMemoryFileCount}`)
+  console.log(`  Private memory mode: ${status.privateMemorySignalMode}`)
   console.log(`  Critical findings: ${status.summary.criticalFindings}`)
   console.log(`  Warning findings: ${status.summary.warningFindings}`)
 
@@ -65,6 +66,8 @@ async function main() {
     criticalFindings: status.summary.criticalFindings,
     warningFindings: status.summary.warningFindings,
     generatedSectionPresent: status.generatedSectionPresent,
+    privateMemorySignalMode: status.privateMemorySignalMode,
+    privateMemoryContentCopied: status.summary.privateMemoryContentCopied,
     applied: status.applied,
   })}`)
 

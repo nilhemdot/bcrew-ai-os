@@ -2,6 +2,18 @@
 
 Plain English: this is the manual v1 gate before a Foundation ship is trusted.
 
+For normal ships, prefer the v2 wrapper:
+
+```bash
+npm run process:foundation-ship -- \
+  --card=<CARD_ID> \
+  --planApprovalRef=docs/process/approvals/<CARD_ID>.json \
+  --closeoutKey=<CLOSEOUT_KEY> \
+  --commitRef=HEAD
+```
+
+The wrapper runs this check, `process:fanout-check`, `process:post-ship-fanout`, and `foundation:verify` in order. It refuses missing required arguments instead of silently skipping gates.
+
 Run it after the plan is approved and before the ship is treated as done:
 
 ```bash

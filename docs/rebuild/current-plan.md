@@ -848,7 +848,7 @@ Current order:
 14. Phase D Recent Work UX: `RECENT-BUILDS-MULTI-CLOSEOUT-001` — done for v1. Recent Builds can show multiple closeouts under one collapsed same-commit group.
 15. Phase E: `FULL-SYSTEM-RE-AUDIT-001` — done for v1. The 12-area re-audit found 0 blockers, 9 minor-drift areas, and 3 clean areas. Phase F can open with follow-up cards.
 16. Wave Cleanup A: `LOCAL-DOC-LINK-001`, `DOC-AUTHORITY-INDEX-REPAIR-001`, and `DOC-OTHER-TRIAGE-001` — done for v1. Private local docs can open only from trusted localhost, stale doc-authority links/statuses are repaired, and the 127-doc `Other` bucket has an inspect-only triage report.
-17. Cleanup B: use `docs/process/doc-other-triage.md` as input for the next doc cleanup wave. No moves or deletes happen without a new 9.8 plan.
+17. Cleanup B: `DOC-CATEGORIZATION-001`, `DOCTRINE-PROPAGATION-002`, and `PROCESS-HOOKS-002` — done for v1. System Inventory now uses the 12 approved doc categories, doctrine propagation watches private memory metadata without copying content, and `process:foundation-ship` gives builders one canonical gate wrapper.
 18. Foundation Phase G: source lifecycle expansion and UI/menu/layout polish remain future scoped work. No Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or broader feature lane starts by default before Steve explicitly re-plans the next Foundation slice.
 
 Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts by default. The Phase E re-audit found no structural blockers, but Steve's Path A expansion adds Cleanup B and Foundation Phase G before broader feature work.
