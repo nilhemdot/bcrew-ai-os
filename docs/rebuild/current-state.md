@@ -134,7 +134,8 @@ Current command order:
 4. Wave 4 closes Phase B: `DOCTRINE-PROPAGATION-001` keeps the active bcrew-foundation skill aligned with current operating doctrine, and `DECISION-AUTO-EMIT-001` turns explicit decision language into proposed decisions.
 5. Phase C is complete: `PHANTOM-CARD-CHECK-001`, `PHASE-NUMBERING-RECONCILE-001`, `SUB-SURFACE-MAPPING-001`, `SYSTEM-INVENTORY-TRUE-UP-001`, `SOURCE-CONTRACT-CLEANUP-001`, and `VERIFIER-CONSOLIDATION-001` clean active references, surface mapping, inventory truth, source IDs, and verifier language.
 6. Phase D is complete for v1: `DOC-ARCHIVE-AUTO-001`, `RESEARCH-CURATION-001`, `REBUILD-DOCS-RETIRE-001`, `ARCHIVE-RETIRE-001`, `EXCEPTION-CURATION-001`, `HIT-LIST-RECONCILE-001`, and `RECENT-BUILDS-MULTI-CLOSEOUT-001` landed cleanup, curation, and multi-closeout visibility.
-7. Next is Phase E: `FULL-SYSTEM-RE-AUDIT-001`. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work until the re-audit says Foundation is ready.
+7. Phase E is done for v1: `FULL-SYSTEM-RE-AUDIT-001` found 0 blockers, 9 minor-drift areas, and 3 clean areas across the 12-area re-audit.
+8. Phase F can open with follow-up cards. The named Phase F card, `ACTION-REVIEW-APPLY-001`, is already done for v1 and safe to use; if more action-loop work is needed, scope the next narrow child slice after Steve reviews the re-audit. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, or broader agent work by default without that re-plan.
 
 ## Operator Surface Pattern
 

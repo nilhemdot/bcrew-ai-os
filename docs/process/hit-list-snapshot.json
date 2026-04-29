@@ -133,7 +133,7 @@
     },
     {
       "cardId": "FULL-SYSTEM-RE-AUDIT-001",
-      "expectedLane": "scoped",
+      "expectedLane": "done",
       "phase": "E",
       "sequence": "17"
     },

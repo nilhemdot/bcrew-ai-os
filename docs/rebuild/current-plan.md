@@ -846,9 +846,10 @@ Current order:
 12. Phase D Cards 15+16: `REBUILD-DOCS-RETIRE-001` + `ARCHIVE-RETIRE-001` — done for v1. Stale rebuild docs moved to plan history, and the only delete lane recorded that no safe-delete archive was present, so nothing was deleted.
 13. Phase D drift remediation: `EXCEPTION-CURATION-001` + `HIT-LIST-RECONCILE-001` — done for v1. The 24 historical verifier exceptions are classified without extending the 2026-07-27 deadline, and the canonical hit-list snapshot is checked without auto-reading Steve's private Google Doc.
 14. Phase D Recent Work UX: `RECENT-BUILDS-MULTI-CLOSEOUT-001` — done for v1. Recent Builds can show multiple closeouts under one collapsed same-commit group.
-15. Phase E next: `FULL-SYSTEM-RE-AUDIT-001` — scoped. Run the full re-audit after Phase D review is clean; do not start new feature work before it.
+15. Phase E: `FULL-SYSTEM-RE-AUDIT-001` — done for v1. The 12-area re-audit found 0 blockers, 9 minor-drift areas, and 3 clean areas. Phase F can open with follow-up cards.
+16. Phase F: action-loop work can resume from the already-shipped `ACTION-REVIEW-APPLY-001` v1 surface. If more action-loop work is needed, scope the next narrow child card after Steve reviews the re-audit.
 
-Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts until the trust hit list and follow-up re-audit say Foundation is ready.
+Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts by default. The Phase E re-audit says Foundation has no blockers, but Steve still chooses the next feature/action-loop slice.
 
 ## Active Docs Only
 

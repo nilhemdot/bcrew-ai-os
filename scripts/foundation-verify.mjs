@@ -549,6 +549,7 @@ async function main() {
   const verifierExceptionCuration = JSON.parse(verifierExceptionCurationSource)
   const hitListSnapshotSource = await readRepoFile('docs/process/hit-list-snapshot.json')
   const hitListSnapshot = JSON.parse(hitListSnapshotSource)
+  const fullSystemReAuditSource = await readRepoFile('docs/audits/2026-04-29-full-system-re-audit.md')
   const rebuildDocRetireManifestSource = await readRepoFile('docs/process/rebuild-doc-retire-manifest.json')
   const rebuildDocRetireManifest = JSON.parse(rebuildDocRetireManifestSource)
   const archiveRetireManifestSource = await readRepoFile('docs/process/archive-retire-manifest.json')
@@ -585,6 +586,8 @@ async function main() {
   const hitListReconcileApproval = JSON.parse(hitListReconcileApprovalSource)
   const recentBuildsMultiCloseoutApprovalSource = await readRepoFile('docs/process/approvals/RECENT-BUILDS-MULTI-CLOSEOUT-001.json')
   const recentBuildsMultiCloseoutApproval = JSON.parse(recentBuildsMultiCloseoutApprovalSource)
+  const fullSystemReAuditApprovalSource = await readRepoFile('docs/process/approvals/FULL-SYSTEM-RE-AUDIT-001.json')
+  const fullSystemReAuditApproval = JSON.parse(fullSystemReAuditApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -2384,6 +2387,10 @@ async function main() {
     (build.backlogIds || []).includes('RECENT-BUILDS-MULTI-CLOSEOUT-001') &&
       build.closeoutKey === 'recent-builds-multi-closeout-ux-v1'
   )
+  const buildLogFullSystemReAuditBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('FULL-SYSTEM-RE-AUDIT-001') &&
+      build.closeoutKey === 'full-system-re-audit-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -2420,6 +2427,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('REBUILD-DOCS-RETIRE-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('ARCHIVE-RETIRE-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('RECENT-BUILDS-MULTI-CLOSEOUT-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes('FULL-SYSTEM-RE-AUDIT-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
@@ -3474,6 +3482,10 @@ async function main() {
   const decisionAutoEmit = (foundationHub.backlogItems || []).find(item => item.id === 'DECISION-AUTO-EMIT-001') || null
   const hitListReconcile = (foundationHub.backlogItems || []).find(item => item.id === 'HIT-LIST-RECONCILE-001') || null
   const recentBuildsMultiCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'RECENT-BUILDS-MULTI-CLOSEOUT-001') || null
+  const fullSystemReAudit = (foundationHub.backlogItems || []).find(item => item.id === 'FULL-SYSTEM-RE-AUDIT-001') || null
+  const docAuthorityIndexRepair = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-INDEX-REPAIR-001') || null
+  const doctrinePropagationV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-002') || null
+  const processHooksV2 = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-002') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
   const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
@@ -3575,6 +3587,12 @@ async function main() {
     recentBuildsMultiCloseout?.whyItMatters,
     recentBuildsMultiCloseout?.nextAction,
     recentBuildsMultiCloseout?.statusNote,
+  ].filter(Boolean).join('\n')
+  const fullSystemReAuditText = [
+    fullSystemReAudit?.summary,
+    fullSystemReAudit?.whyItMatters,
+    fullSystemReAudit?.nextAction,
+    fullSystemReAudit?.statusNote,
   ].filter(Boolean).join('\n')
   const backlogHygieneText = [
     backlogHygiene?.summary,
@@ -3992,6 +4010,53 @@ async function main() {
     buildLogRecentMultiCloseoutBuild
       ? `${buildLogRecentMultiCloseoutBuild.shortSha} / grouped multi-closeout visible`
       : 'missing recent-builds multi-closeout closeout',
+  )
+  const fullSystemReAuditVerdicts = fullSystemReAuditSource.match(/\*\*Verdict:\*\* `(clean|minor drift|blocker)`/g) || []
+  ensure(
+    checks,
+    fullSystemReAudit?.lane === 'done' &&
+      fullSystemReAudit?.priority === 'P0' &&
+      fullSystemReAuditApproval.cardId === 'FULL-SYSTEM-RE-AUDIT-001' &&
+      Number(fullSystemReAuditApproval.score) >= 9.8 &&
+      fullSystemReAuditApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(fullSystemReAuditApproval.approvedAt).getTime()) &&
+      fullSystemReAuditVerdicts.length === 12 &&
+      !fullSystemReAuditVerdicts.some(item => item.includes('`blocker`')) &&
+      includesAll(fullSystemReAuditSource, [
+        '## 1. Backlog Truth',
+        '## 2. Process Gates',
+        '## 3. Recent Builds',
+        '## 4. Foundation Surfaces',
+        '## 5. Verifier Coverage',
+        '## 6. Source Contracts',
+        '## 7. Decisions',
+        '## 8. Doctrine Propagation',
+        '## 9. Archive And Doc Cleanup',
+        '## 10. Runtime And Code Trust',
+        '## 11. Manual Pattern Scan',
+        '## 12. Feature Readiness For Phase F',
+        'Blockers: 0',
+        'Open Phase F with follow-up cards',
+        'New follow-up cards created from this audit',
+        'DOC-AUTHORITY-INDEX-REPAIR-001',
+        'DOCTRINE-PROPAGATION-002',
+        'PROCESS-HOOKS-002',
+      ]) &&
+      docAuthorityIndexRepair?.lane === 'scoped' &&
+      doctrinePropagationV2?.lane === 'scoped' &&
+      processHooksV2?.lane === 'scoped' &&
+      fullSystemReAuditText.includes('0 blockers') &&
+      fullSystemReAuditText.includes('Open Phase F') &&
+      currentPlan.includes('`FULL-SYSTEM-RE-AUDIT-001` — done for v1') &&
+      currentPlan.includes('Phase F can open with follow-up cards') &&
+      currentState.includes('`FULL-SYSTEM-RE-AUDIT-001` found 0 blockers') &&
+      buildLogFullSystemReAuditBuild?.operatorCloseout === true &&
+      buildLogFullSystemReAuditBuild.relatedBacklog?.some(item => item.id === 'FULL-SYSTEM-RE-AUDIT-001' && item.lane === 'done') &&
+      /full-system-re-audit-v1/.test(buildLogFullSystemReAuditBuild?.closeoutKey || ''),
+    'FULL-SYSTEM-RE-AUDIT-001 closes Phase E with no blockers',
+    fullSystemReAudit
+      ? `${fullSystemReAudit.lane} / verdicts=${fullSystemReAuditVerdicts.length} / phaseF=open-with-follow-ups`
+      : 'missing FULL-SYSTEM-RE-AUDIT-001',
   )
   ensure(
     checks,
