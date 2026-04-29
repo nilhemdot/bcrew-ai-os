@@ -141,14 +141,14 @@ Current command order:
 8. Wave Cleanup A is done for v1: `LOCAL-DOC-LINK-001`, `DOC-AUTHORITY-INDEX-REPAIR-001`, and `DOC-OTHER-TRIAGE-001` close the local-doc UX gap, stale doc-authority drift, and the inspect-only 127-doc Other triage report.
 9. Cleanup B is done for v1: `DOC-CATEGORIZATION-001`, `DOCTRINE-PROPAGATION-002`, and `PROCESS-HOOKS-002` replace the vague System Inventory Other bucket with 12 doc categories, extend doctrine propagation to private-memory metadata signals without copying content, and add one canonical `process:foundation-ship` gate wrapper.
 10. Phase G Track 1 is done for v1: `GATE-PERFORMANCE-001` speeds up the canonical Foundation ship wrapper by removing the duplicate embedded verifier, running fanout checks in parallel, and printing timing.
-11. Hard-checkpoint backlog reconciliation is done for v1: `FOUNDATION-PLAN-RECONCILE-001` promoted the sprint-order repair and Tier 0 cards into backlog truth before Phase G Track 2. Remaining scoped Tier 0 follow-ups are `PERSONAL-WORKSPACE-BOUNDARY-001`, `CEO-DASHBOARD-PATTERN-001`, `DOCTRINE-PROPAGATION-003`, and `DECISION-AUTO-EMIT-002`.
+11. Hard-checkpoint backlog reconciliation is done for v1: `FOUNDATION-PLAN-RECONCILE-001` promoted the sprint-order repair and Tier 0 cards into backlog truth before Phase G Track 2.
 12. Phase 1 enforcement is done for v1: `APPROVAL-FILE-INTEGRITY-001`, `BUILD-LOG-BACKLOG-ID-FIX-001`, `PRE-COMMIT-HOOK-INSTALL-001`, and `CLOSEOUT-BACKFILL-001` added approval-plan hashing, exact Recent Work backlog ownership, repo-managed Foundation Git hooks, and bounded closeout-proof backfill.
-13. Gate reliability still needs a narrow follow-up: `GATE-RELIABILITY-001` is scoped after the Phase 1 verification run because raw `npm run foundation:verify` hit one transient `deadlock detected` failure before passing on rerun. This is not a Phase G UI blocker, but it belongs in the Foundation completion plan so gate failures remain trustworthy.
+13. Foundation control layer is done for v1: `GATE-RELIABILITY-001`, `PERSONAL-WORKSPACE-BOUNDARY-001`, `DOCTRINE-PROPAGATION-003`, `DECISION-AUTO-EMIT-002`, and `CEO-DASHBOARD-PATTERN-001` close the remaining control layer before review-queue cleanup or Phase G operator UI. The slice adds deterministic injected gate-reliability proof, metadata-only real private file boundaries with synthetic sentinel leak tests, generated doctrine for the missing operating rules, explicit-source/proposed-only decision auto-emit hardening, and the CEO dashboard pattern contract without UI polish.
 14. Remaining Phase G work is still not done: plain-English sweep, comprehensive changelog, Recent Builds executive UI, daily executive summary, source lifecycle expansion, and UI/menu/layout polish. The UI/menu/layout plan must hide archive/history docs from the default System Inventory current-doc view and expose them separately. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, source lifecycle expansion, UI/menu/layout polish, or broader agent work by default without the next approved Foundation plan.
 
 ## Operator Surface Pattern
 
-Every hub overview should eventually follow the same CEO-dashboard pattern:
+Every hub overview should eventually follow the same CEO-dashboard pattern now defined in `docs/process/ceo-dashboard-pattern.md`:
 
 - what the system can do
 - system and code health grade

@@ -74,6 +74,7 @@ async function main() {
   const apply = boolArg(args.apply)
   const options = {
     synthetic,
+    foundationSources: boolArg(args.foundationSources),
     text: normalizeText(args.text),
     textFile: normalizeText(args.textFile),
     sourceLabel: normalizeText(args.sourceLabel),

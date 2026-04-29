@@ -3,6 +3,10 @@
 import { execFile as execFileCallback } from 'node:child_process'
 import process from 'node:process'
 import { promisify } from 'node:util'
+import {
+  isTransientFoundationGateError,
+  sleep,
+} from '../lib/foundation-gate-reliability.js'
 import { recordFoundationShipProof } from '../lib/process-git-hooks.js'
 
 const execFile = promisify(execFileCallback)
@@ -52,15 +56,6 @@ function printStepResult(result) {
   if (result.stderr) process.stderr.write(result.stderr)
 }
 
-function isTransientGateError(error) {
-  const output = `${error?.stdout || ''}\n${error?.stderr || ''}\n${error?.message || ''}`
-  return /deadlock detected|ECONNRESET|ETIMEDOUT|429 Too Many Requests|quota/i.test(output)
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 async function runStep(label, npmArgs, options = {}) {
   const startedAt = Date.now()
   const retries = Number(options.retries ?? 1)
@@ -84,7 +79,7 @@ async function runStep(label, npmArgs, options = {}) {
     } catch (error) {
       stdoutBuffer += error?.stdout || ''
       stderrBuffer += error?.stderr || ''
-      if (attempt <= retries && isTransientGateError(error)) {
+      if (attempt <= retries && isTransientFoundationGateError(error)) {
         stderrBuffer += `\n${label} hit a transient gate error; retrying attempt ${attempt + 1}/${retries + 1}.\n`
         await sleep(1500 * attempt)
         continue

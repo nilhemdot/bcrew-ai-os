@@ -1,0 +1,13 @@
+{
+  "cardId": "CEO-DASHBOARD-PATTERN-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T23:50:20Z",
+  "approvalSource": "Steve said go after the revised Foundation control layer plan addressed metadata-only privacy proof, deterministic gate reliability injection, and proposed-only decision auto-emit apply mode.",
+  "notes": "Approval covers only the remaining Foundation control layer bundle: gate reliability, personal workspace boundary, doctrine propagation v3, decision auto-emit v2, and CEO dashboard pattern doctrine. It does not approve Phase G Track 2, UI polish, Strategy, Scoper, Agent Factory, or corpus expansion.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/foundation-control-layer-v1.md",
+  "approvedPlanSha256": "b9ea229a082ef796a852c622d0ec755bf312cc7d345eea7d4742288cef749736",
+  "approvedRepoHead": "cbbf7bfef826ac98d3cec8d2d3deec42a2eef938",
+  "approvalDigest": "3456dba9313fe975cc14277034e2f92a2caf0cfe91d41baa0f8df04410f2612f"
+}

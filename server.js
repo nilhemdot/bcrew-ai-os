@@ -82,6 +82,9 @@ import {
 } from './lib/doc-categorization.js'
 import { buildDoctrinePropagationStatus } from './lib/doctrine-propagation.js'
 import { buildDecisionAutoEmitSummary, scanDecisionAutoEmitCandidates } from './lib/decision-auto-emit.js'
+import { buildSyntheticGateReliabilityProof } from './lib/foundation-gate-reliability.js'
+import { buildPersonalWorkspaceBoundaryStatus } from './lib/foundation-personal-workspace-boundary.js'
+import { buildCeoDashboardPatternStatus } from './lib/foundation-ceo-dashboard-pattern.js'
 import {
   buildArchiveRetireStatus,
   buildDocArchiveCleanupStatus,
@@ -4183,6 +4186,14 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       repoRoot: __dirname,
       apply: false,
     })
+    const gateReliability = await buildSyntheticGateReliabilityProof()
+    const personalWorkspaceBoundary = await buildPersonalWorkspaceBoundaryStatus({
+      repoRoot: __dirname,
+      includeSynthetic: true,
+    })
+    const ceoDashboardPattern = await buildCeoDashboardPatternStatus({
+      repoRoot: __dirname,
+    })
     const decisionAutoEmitScan = await scanDecisionAutoEmitCandidates({ synthetic: true, cwd: __dirname })
     const decisionAutoEmit = {
       status: decisionAutoEmitScan.candidateCount > 0 ? 'healthy' : 'risk',
@@ -4204,6 +4215,9 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       hitListReconcile,
       archiveRetire,
       postShipFanout,
+      gateReliability,
+      personalWorkspaceBoundary,
+      ceoDashboardPattern,
       doctrinePropagation,
       decisionAutoEmit,
       sheetsApiTrust,

@@ -25,7 +25,7 @@ async function readStdin() {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2))
-  const mode = String(args.mode || '').trim()
+  const mode = String(args.mode || 'pre-commit').trim()
   let status = null
 
   if (mode === 'pre-commit') {

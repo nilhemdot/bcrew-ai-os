@@ -48,6 +48,20 @@ npm run doctrine:propagation-check -- --apply
 - Tier-two persona surfaces include `SOUL.md`, `docs/users/steve.md`, and agent-persona docs. They are checked through semantic signal groups rather than one brittle exact phrase.
 - Private memory stats expose `contentMode: metadata-only` and `contentCopied: false`.
 
+## V3 Control-Layer Rules
+
+`DOCTRINE-PROPAGATION-003` adds the remaining control-layer doctrine:
+
+- nothing manual stays trusted
+- memory is not backlog
+- pre-commit and ship gates are required for protected Foundation paths
+- real private files are metadata-only proof
+- gate failures must be reliable signals
+- auto-detected decisions are proposed only
+- CEO dashboard surfaces answer the operator questions
+
+These are plain-English repo rules. They are not copied from private memory content.
+
 ## Limits
 
 - V2 does not automatically update `SOUL.md`, `docs/users/steve.md`, or agent personas.

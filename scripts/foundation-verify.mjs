@@ -24,6 +24,16 @@ import {
   validatePlanApprovalFile,
 } from '../lib/approval-integrity.js'
 import {
+  buildSyntheticGateReliabilityProof,
+  runWithFoundationGateRetry,
+} from '../lib/foundation-gate-reliability.js'
+import {
+  buildPersonalWorkspaceBoundaryStatus,
+} from '../lib/foundation-personal-workspace-boundary.js'
+import {
+  buildCeoDashboardPatternStatus,
+} from '../lib/foundation-ceo-dashboard-pattern.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -65,6 +75,7 @@ import {
 } from '../lib/doctrine-propagation.js'
 import { DOC_INVENTORY_CATEGORIES } from '../lib/doc-categorization.js'
 import {
+  buildDecisionAutoEmitSafetyProof,
   CANONICAL_DECISION_CATEGORIES,
   extractDecisionCandidatesFromText,
   scanDecisionAutoEmitCandidates,
@@ -652,6 +663,13 @@ async function main() {
   const decisionAutoEmitSource = await readRepoFile('lib/decision-auto-emit.js')
   const decisionAutoEmitScriptSource = await readRepoFile('scripts/decision-auto-emit.mjs')
   const decisionAutoEmitDoc = await readRepoFile('docs/process/decision-auto-emit.md')
+  const gateReliabilitySource = await readRepoFile('lib/foundation-gate-reliability.js')
+  const gateReliabilityScriptSource = await readRepoFile('scripts/process-gate-reliability-check.mjs')
+  const personalWorkspaceBoundarySource = await readRepoFile('lib/foundation-personal-workspace-boundary.js')
+  const personalWorkspaceBoundaryScriptSource = await readRepoFile('scripts/process-personal-workspace-boundary-check.mjs')
+  const personalWorkspaceBoundaryDoc = await readRepoFile('docs/process/personal-workspace-boundary.md')
+  const ceoDashboardPatternSource = await readRepoFile('lib/foundation-ceo-dashboard-pattern.js')
+  const ceoDashboardPatternDoc = await readRepoFile('docs/process/ceo-dashboard-pattern.md')
   const sheetsQuotaHardeningDoc = await readRepoFile('docs/process/sheets-quota-hardening.md')
   const phaseDCleanupSource = await readRepoFile('scripts/phase-d-cleanup.mjs')
   const phaseDCleanupLibSource = await readRepoFile('lib/phase-d-cleanup.js')
@@ -722,7 +740,17 @@ async function main() {
     'CLOSEOUT-BACKFILL-001': 'docs/process/approvals/CLOSEOUT-BACKFILL-001.json',
     'PRE-COMMIT-HOOK-INSTALL-001': 'docs/process/approvals/PRE-COMMIT-HOOK-INSTALL-001.json',
   }
+  const foundationControlApprovalRefs = {
+    'GATE-RELIABILITY-001': 'docs/process/approvals/GATE-RELIABILITY-001.json',
+    'PERSONAL-WORKSPACE-BOUNDARY-001': 'docs/process/approvals/PERSONAL-WORKSPACE-BOUNDARY-001.json',
+    'DOCTRINE-PROPAGATION-003': 'docs/process/approvals/DOCTRINE-PROPAGATION-003.json',
+    'DECISION-AUTO-EMIT-002': 'docs/process/approvals/DECISION-AUTO-EMIT-002.json',
+    'CEO-DASHBOARD-PATTERN-001': 'docs/process/approvals/CEO-DASHBOARD-PATTERN-001.json',
+  }
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
+    validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
+  ))
+  const foundationControlApprovalValidations = await Promise.all(Object.entries(foundationControlApprovalRefs).map(async ([cardId, approvalRef]) =>
     validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
   ))
   const approvalIntegritySynthetic = await buildSyntheticApprovalIntegrityStatus()
@@ -730,6 +758,7 @@ async function main() {
   const gitHookScopeProof = buildSyntheticGitHookScopeProof()
   const buildLogOwnershipProof = buildSyntheticBuildLogOwnershipProof()
   const phase1ApprovedPlan = await readRepoFile(PHASE_1_ENFORCEMENT_PLAN_REF)
+  const foundationControlApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-control-layer-v1.md')
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2576,6 +2605,14 @@ async function main() {
       (build.backlogIds || []).includes('PRE-COMMIT-HOOK-INSTALL-001') &&
       build.closeoutKey === 'phase-1-enforcement-v1'
   )
+  const buildLogFoundationControlBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('GATE-RELIABILITY-001') &&
+      (build.backlogIds || []).includes('PERSONAL-WORKSPACE-BOUNDARY-001') &&
+      (build.backlogIds || []).includes('DOCTRINE-PROPAGATION-003') &&
+      (build.backlogIds || []).includes('DECISION-AUTO-EMIT-002') &&
+      (build.backlogIds || []).includes('CEO-DASHBOARD-PATTERN-001') &&
+      build.closeoutKey === 'foundation-control-layer-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -3686,6 +3723,11 @@ async function main() {
   const buildLogBacklogIdFix = (foundationHub.backlogItems || []).find(item => item.id === 'BUILD-LOG-BACKLOG-ID-FIX-001') || null
   const closeoutBackfill = (foundationHub.backlogItems || []).find(item => item.id === 'CLOSEOUT-BACKFILL-001') || null
   const preCommitHookInstall = (foundationHub.backlogItems || []).find(item => item.id === 'PRE-COMMIT-HOOK-INSTALL-001') || null
+  const gateReliability = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-RELIABILITY-001') || null
+  const personalWorkspaceBoundary = (foundationHub.backlogItems || []).find(item => item.id === 'PERSONAL-WORKSPACE-BOUNDARY-001') || null
+  const doctrinePropagationV3 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-003') || null
+  const decisionAutoEmitV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DECISION-AUTO-EMIT-002') || null
+  const ceoDashboardPattern = (foundationHub.backlogItems || []).find(item => item.id === 'CEO-DASHBOARD-PATTERN-001') || null
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -4662,6 +4704,165 @@ async function main() {
     'PRE-COMMIT-HOOK-INSTALL-001 installs repo-managed Foundation Git hooks',
     `core.hooksPath=${gitHookInstallStatus.hooksPath || 'unset'} protected=${PROTECTED_FOUNDATION_PATH_PATTERNS.length}`,
   )
+  const foundationControlCards = [
+    gateReliability,
+    personalWorkspaceBoundary,
+    doctrinePropagationV3,
+    decisionAutoEmitV2,
+    ceoDashboardPattern,
+  ]
+  const gateReliabilityProof = await buildSyntheticGateReliabilityProof()
+  const personalWorkspaceBoundaryStatus = await buildPersonalWorkspaceBoundaryStatus({ repoRoot, includeSynthetic: true })
+  const decisionAutoEmitSafetyProof = await buildDecisionAutoEmitSafetyProof({ cwd: repoRoot })
+  const ceoDashboardPatternStatus = await buildCeoDashboardPatternStatus({ repoRoot })
+  const foundationControlBuildLogExact = buildLogFoundationControlBuild?.backlogIds?.length === 5 &&
+    Object.keys(foundationControlApprovalRefs).every(id => buildLogFoundationControlBuild.backlogIds.includes(id)) &&
+    !(buildLogFoundationControlBuild.backlogIds || []).includes('FOUNDATION-PLAN-RECONCILE-001') &&
+    !(buildLogFoundationControlBuild.backlogIds || []).includes('GATE-PERFORMANCE-001')
+  ensure(
+    checks,
+    foundationControlCards.every(card => card?.lane === 'done') &&
+      foundationControlCards.every(card => /foundation-control-layer-v1/.test(card?.statusNote || '')) &&
+      foundationControlApprovalValidations.every(validation => validation.ok && validation.mode === 'v2') &&
+      foundationControlApprovalValidations.every(validation => validation.approval?.approvedPlanRef === 'docs/process/approved-plans/foundation-control-layer-v1.md') &&
+      foundationControlApprovedPlan.includes('metadata-only for real private files') &&
+      foundationControlApprovedPlan.includes('deterministic injected/fixture errors') &&
+      foundationControlApprovedPlan.includes('proposed decision records only') &&
+      buildLogFoundationControlBuild?.operatorCloseout === true &&
+      foundationControlBuildLogExact &&
+      currentPlan.includes('Foundation control layer') &&
+      currentPlan.includes('review-queue cleanup or Phase G Track 2') &&
+      currentState.includes('Foundation control layer is done for v1') &&
+      currentState.includes('docs/process/ceo-dashboard-pattern.md'),
+    'Foundation control-layer cards have approved 9.8 plan evidence and exact closeout ownership',
+    `cards=${foundationControlCards.filter(card => card?.lane === 'done').length}/5 approvals=${foundationControlApprovalValidations.filter(validation => validation.ok).length}/5 closeout=${buildLogFoundationControlBuild?.closeoutKey || 'missing'}`,
+  )
+  ensure(
+    checks,
+    gateReliability?.lane === 'done' &&
+      gateReliabilityProof.ok &&
+      foundationHub.gateReliability?.ok === true &&
+      foundationHub.gateReliability?.realDeadlockInduced === false &&
+      includesAll(packageSource, ['"process:gate-reliability-check"', 'scripts/process-gate-reliability-check.mjs']) &&
+      includesAll(gateReliabilitySource, [
+        'runWithFoundationGateRetry',
+        'deadlock detected',
+        'deterministic-injected-fixture',
+        'schema verifier failed',
+      ]) &&
+      includesAll(gateReliabilityScriptSource, [
+        'Real DB deadlock induced',
+        'Transient retry passed',
+        'Permanent failure failed closed',
+      ]) &&
+      includesAll(foundationVerifySource, [
+        'runWithFoundationGateRetry',
+        'foundation:verify hit a transient gate error',
+      ]),
+    'GATE-RELIABILITY-001 proves deterministic transient retry and permanent fail-closed behavior',
+    `transientAttempts=${gateReliabilityProof.transient.attempts} permanentAttempts=${gateReliabilityProof.permanent.attempts}`,
+  )
+  ensure(
+    checks,
+    personalWorkspaceBoundary?.lane === 'done' &&
+      personalWorkspaceBoundaryStatus.status === 'healthy' &&
+      personalWorkspaceBoundaryStatus.realPrivateProofMode === 'metadata-only' &&
+      personalWorkspaceBoundaryStatus.realPrivateFilesRead === false &&
+      personalWorkspaceBoundaryStatus.realPrivateContentCopied === false &&
+      personalWorkspaceBoundaryStatus.syntheticProof?.ok === true &&
+      personalWorkspaceBoundaryStatus.syntheticProof?.sentinelValuesReturned === false &&
+      foundationHub.personalWorkspaceBoundary?.realPrivateFilesRead === false &&
+      foundationHub.personalWorkspaceBoundary?.realPrivateContentCopied === false &&
+      includesAll(personalWorkspaceBoundarySource, [
+        'metadata-only',
+        'buildSyntheticPrivacyLeakProof',
+        'sentinelValuesReturned: false',
+        'contentRead: false',
+        'contentCopied: false',
+      ]) &&
+      includesAll(personalWorkspaceBoundaryScriptSource, [
+        'Real private files read',
+        'Real private content copied',
+        'Synthetic sentinel leak proof',
+      ]) &&
+      includesAll(personalWorkspaceBoundaryDoc, [
+        'metadata-only proof sources',
+        'synthetic sentinel fixtures',
+        'must never be copied',
+        'must never be copied, quoted, summarized, tokenized, or logged',
+      ]),
+    'PERSONAL-WORKSPACE-BOUNDARY-001 keeps real private proof metadata-only and leak tests synthetic',
+    `privatePaths=${personalWorkspaceBoundaryStatus.summary.privatePathCount} existing=${personalWorkspaceBoundaryStatus.summary.existingPrivatePathCount}`,
+  )
+  ensure(
+    checks,
+    doctrinePropagationV3?.lane === 'done' &&
+      doctrinePropagationV2Status.summary?.criticalFindings === 0 &&
+      DOCTRINE_PROPAGATION_SOURCES.length >= 15 &&
+      includesAll(doctrinePropagationSource, [
+        'nothing-manual',
+        'memory-is-not-backlog',
+        'ship-gate-required',
+        'private-workspace-metadata-only',
+        'decision-auto-emit-proposed-only',
+        'ceo-dashboard-pattern',
+      ]) &&
+      includesAll(doctrinePropagationDoc, [
+        'nothing manual stays trusted',
+        'memory is not backlog',
+        'pre-commit and ship gates are required',
+        'real private files are metadata-only proof',
+      ]) &&
+      foundationHub.doctrinePropagation?.summary?.doctrineCount >= DOCTRINE_PROPAGATION_SOURCES.length,
+    'DOCTRINE-PROPAGATION-003 closes remaining generated doctrine gaps',
+    `doctrines=${DOCTRINE_PROPAGATION_SOURCES.length} status=${foundationHub.doctrinePropagation?.status || 'missing'}`,
+  )
+  ensure(
+    checks,
+    decisionAutoEmitV2?.lane === 'done' &&
+      decisionAutoEmitSafetyProof.ok &&
+      includesAll(decisionAutoEmitSource, [
+        'override',
+        'sequence_change',
+        'DECISION_AUTO_EMIT_APPROVED_SOURCE_SURFACES',
+        'refuses private workspace text files',
+        'Decision auto-emit expected proposed-only write mode',
+      ]) &&
+      includesAll(decisionAutoEmitScriptSource, [
+        'foundationSources',
+      ]) &&
+      includesAll(decisionAutoEmitDoc, [
+        'V2 also recognizes explicit Override and sequence-change language',
+        'Refuses private workspace text files before reading them',
+        'Apply mode writes proposed decision records only',
+      ]) &&
+      foundationHub.decisionAutoEmit?.summary?.candidateCount >= 5,
+    'DECISION-AUTO-EMIT-002 keeps detected decisions explicit-source and proposed-only',
+    `synthetic=${decisionAutoEmitSafetyProof.syntheticCandidateCount} privateBlocked=${decisionAutoEmitSafetyProof.privateSourceBlocked}`,
+  )
+  ensure(
+    checks,
+    ceoDashboardPattern?.lane === 'done' &&
+      ceoDashboardPatternStatus.status === 'healthy' &&
+      ceoDashboardPatternStatus.uiImplementationIncluded === false &&
+      foundationHub.ceoDashboardPattern?.status === 'healthy' &&
+      includesAll(ceoDashboardPatternSource, [
+        'CEO_DASHBOARD_REQUIRED_FIELDS',
+        'uiImplementationIncluded: false',
+        'not a Phase G UI polish implementation',
+      ]) &&
+      includesAll(ceoDashboardPatternDoc, [
+        'what changed',
+        'where it lives',
+        'what to review',
+        'what is blocked',
+        'what is next',
+        'proof supports confidence',
+        'not a UI polish pass',
+      ]),
+    'CEO-DASHBOARD-PATTERN-001 defines the operator surface pattern without Phase G UI work',
+    `fields=${ceoDashboardPatternStatus.requiredFields.length} ui=${ceoDashboardPatternStatus.uiImplementationIncluded ? 'yes' : 'no'}`,
+  )
   ensure(
     checks,
     sheetsQuotaHardening?.lane === 'done' &&
@@ -5293,7 +5494,19 @@ async function main() {
   console.log('Foundation verification passed.')
 }
 
-main()
+runWithFoundationGateRetry(
+  'foundation:verify',
+  () => main(),
+  {
+    retries: 1,
+    beforeRetry: async () => {
+      await closeFoundationDb().catch(() => {})
+    },
+    onRetry: event => {
+      console.error(`foundation:verify hit a transient gate error; retrying attempt ${event.nextAttempt}/${event.maxAttempts}.`)
+    },
+  },
+)
   .catch(error => {
     console.error('Foundation verification failed.')
     console.error(error instanceof Error ? error.message : String(error))
