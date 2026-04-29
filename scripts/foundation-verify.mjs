@@ -2530,6 +2530,10 @@ async function main() {
     (build.backlogIds || []).includes('GATE-PERFORMANCE-001') &&
       build.closeoutKey === 'gate-performance-v1'
   )
+  const buildLogPlanReconcileBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('FOUNDATION-PLAN-RECONCILE-001') &&
+      build.closeoutKey === 'foundation-plan-reconcile-backlog-depth-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -3635,6 +3639,20 @@ async function main() {
   const doctrinePropagationV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-002') || null
   const processHooksV2 = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-002') || null
   const gatePerformance = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-PERFORMANCE-001') || null
+  const foundationPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-PLAN-RECONCILE-001') || null
+  const hardCheckpointTier0Ids = [
+    'PERSONAL-WORKSPACE-BOUNDARY-001',
+    'CEO-DASHBOARD-PATTERN-001',
+    'APPROVAL-FILE-INTEGRITY-001',
+    'DOCTRINE-PROPAGATION-003',
+    'DECISION-AUTO-EMIT-002',
+    'BUILD-LOG-BACKLOG-ID-FIX-001',
+    'PRE-COMMIT-HOOK-INSTALL-001',
+    'CLOSEOUT-BACKFILL-001',
+  ]
+  const hardCheckpointTier0Cards = hardCheckpointTier0Ids.map(id =>
+    (foundationHub.backlogItems || []).find(item => item.id === id) || null
+  )
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
   const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
@@ -4464,6 +4482,43 @@ async function main() {
     buildLogGatePerformanceBuild
       ? `${buildLogGatePerformanceBuild.shortSha} / ${buildLogGatePerformanceBuild.closeoutKey}`
       : 'missing GATE-PERFORMANCE-001 closeout',
+  )
+  ensure(
+    checks,
+    foundationPlanReconcile?.lane === 'scoped' &&
+      foundationPlanReconcile?.priority === 'P0' &&
+      /hard-checkpoint sprint plan/.test(foundationPlanReconcile?.summary || '') &&
+      /before Phase G Track 2/.test(foundationPlanReconcile?.nextAction || '') &&
+      hardCheckpointTier0Cards.every(card =>
+        card?.lane === 'scoped' &&
+          ['P0', 'P1'].includes(card.priority) &&
+          (card.summary || '').length > 80 &&
+          (card.whyItMatters || '').length > 80 &&
+          (card.nextAction || '').length > 80 &&
+          (card.statusNote || '').length > 40
+      ) &&
+      currentPlan.includes('Hard-checkpoint backlog reconciliation') &&
+      currentPlan.includes('PERSONAL-WORKSPACE-BOUNDARY-001') &&
+      currentPlan.includes('CLOSEOUT-BACKFILL-001') &&
+      currentState.includes('The current next slice is hard-checkpoint backlog reconciliation') &&
+      currentState.includes('PRE-COMMIT-HOOK-INSTALL-001'),
+    'Hard-checkpoint Tier 0 cards are promoted into backlog and plan truth',
+    foundationPlanReconcile
+      ? `${foundationPlanReconcile.lane} / missing=${hardCheckpointTier0Cards.filter(card => !card).length}`
+      : 'missing FOUNDATION-PLAN-RECONCILE-001',
+  )
+  ensure(
+    checks,
+    buildLogPlanReconcileBuild?.operatorCloseout === true &&
+      buildLogPlanReconcileBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-PLAN-RECONCILE-001' && item.lane === 'scoped') &&
+      hardCheckpointTier0Ids.every(id =>
+        buildLogPlanReconcileBuild.relatedBacklog?.some(item => item.id === id && item.lane === 'scoped')
+      ) &&
+      /foundation-plan-reconcile-backlog-depth-v1/.test(buildLogPlanReconcileBuild?.closeoutKey || ''),
+    'Recent Work carries hard-checkpoint backlog reconcile closeout',
+    buildLogPlanReconcileBuild
+      ? `${buildLogPlanReconcileBuild.shortSha} / ${buildLogPlanReconcileBuild.closeoutKey}`
+      : 'missing FOUNDATION-PLAN-RECONCILE-001 closeout',
   )
   ensure(
     checks,
