@@ -18,6 +18,8 @@ npm run process:foundation-ship -- --card=<CARD_ID> --planApprovalRef=docs/proce
 
 The wrapper intentionally runs `foundation:verify` once at the end. It passes an explicit skip reason into `process:ship-check` so the same live verifier does not run twice in the same wrapper call.
 
+After all gates pass, the wrapper records a local proof file in `.git/foundation-ship-proof.json`. The repo-managed pre-push hook uses that local proof to confirm protected Foundation changes were shipped through the canonical gate.
+
 ## Required Inputs
 
 - `--card`
@@ -32,6 +34,7 @@ If any required input is missing, the wrapper refuses to run and prints the miss
 - The wrapper does not replace the 9.8 plan score.
 - Emergency bypass still needs a reason and follow-up card through the existing ship-check behavior.
 - Strict mode remains available with `--strictShipCheckVerify=true` when an operator wants the old duplicate verifier behavior for a one-off investigation.
+- Run this command once per card unless the wrapper is explicitly upgraded and verified to support multi-card invocation. A shared closeout key is allowed only when each card's proof ownership stays exact.
 
 ## Timing
 

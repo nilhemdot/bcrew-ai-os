@@ -11,10 +11,23 @@ import os from 'node:os'
 import process from 'node:process'
 import { getGroupedSourceSystems, getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
 import {
+  buildSyntheticBuildLogOwnershipProof,
   getFoundationBuildCloseouts,
   getFoundationBuildCloseoutValidation,
   FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
 } from '../lib/foundation-build-log.js'
+import {
+  buildSyntheticApprovalIntegrityStatus,
+  PHASE_1_ENFORCEMENT_CARD_IDS,
+  PHASE_1_ENFORCEMENT_PLAN_REF,
+  PHASE_1_ENFORCEMENT_PLAN_SHA256,
+  validatePlanApprovalFile,
+} from '../lib/approval-integrity.js'
+import {
+  buildGitHookInstallStatus,
+  buildSyntheticGitHookScopeProof,
+  PROTECTED_FOUNDATION_PATH_PATTERNS,
+} from '../lib/process-git-hooks.js'
 import {
   closeFoundationDb,
   getActionRouterSnapshot,
@@ -703,10 +716,32 @@ async function main() {
   const processHooksV2Approval = JSON.parse(processHooksV2ApprovalSource)
   const gatePerformanceApprovalSource = await readRepoFile('docs/process/approvals/GATE-PERFORMANCE-001.json')
   const gatePerformanceApproval = JSON.parse(gatePerformanceApprovalSource)
+  const phase1ApprovalRefs = {
+    'APPROVAL-FILE-INTEGRITY-001': 'docs/process/approvals/APPROVAL-FILE-INTEGRITY-001.json',
+    'BUILD-LOG-BACKLOG-ID-FIX-001': 'docs/process/approvals/BUILD-LOG-BACKLOG-ID-FIX-001.json',
+    'CLOSEOUT-BACKFILL-001': 'docs/process/approvals/CLOSEOUT-BACKFILL-001.json',
+    'PRE-COMMIT-HOOK-INSTALL-001': 'docs/process/approvals/PRE-COMMIT-HOOK-INSTALL-001.json',
+  }
+  const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
+    validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
+  ))
+  const approvalIntegritySynthetic = await buildSyntheticApprovalIntegrityStatus()
+  const gitHookInstallStatus = await buildGitHookInstallStatus({ repoRoot })
+  const gitHookScopeProof = buildSyntheticGitHookScopeProof()
+  const buildLogOwnershipProof = buildSyntheticBuildLogOwnershipProof()
+  const phase1ApprovedPlan = await readRepoFile(PHASE_1_ENFORCEMENT_PLAN_REF)
+  const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
+  const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
+  const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
+  const approvalIntegrityDoc = await readRepoFile('docs/process/approval-integrity.md')
+  const closeoutBackfillDoc = await readRepoFile('docs/process/closeout-backfill-phase-1.md')
+  const approvalLegacyLedgerSource = await readRepoFile('docs/process/approval-legacy-exceptions.json')
+  const approvalLegacyLedger = JSON.parse(approvalLegacyLedgerSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
+  const foundationBuildLogSource = await readRepoFile('lib/foundation-build-log.js')
   const sourceContractsSource = await readRepoFile('lib/source-contracts.js')
   const sourceContractCleanupDoc = await readRepoFile('docs/process/source-contract-cleanup.md')
   const verifierConsolidationDoc = await readRepoFile('docs/process/verifier-consolidation.md')
@@ -2534,6 +2569,13 @@ async function main() {
     (build.backlogIds || []).includes('FOUNDATION-PLAN-RECONCILE-001') &&
       build.closeoutKey === 'foundation-plan-reconcile-backlog-depth-v1'
   )
+  const buildLogPhase1EnforcementBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('APPROVAL-FILE-INTEGRITY-001') &&
+      (build.backlogIds || []).includes('BUILD-LOG-BACKLOG-ID-FIX-001') &&
+      (build.backlogIds || []).includes('CLOSEOUT-BACKFILL-001') &&
+      (build.backlogIds || []).includes('PRE-COMMIT-HOOK-INSTALL-001') &&
+      build.closeoutKey === 'phase-1-enforcement-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -3640,6 +3682,10 @@ async function main() {
   const processHooksV2 = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-002') || null
   const gatePerformance = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-PERFORMANCE-001') || null
   const foundationPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-PLAN-RECONCILE-001') || null
+  const approvalFileIntegrity = (foundationHub.backlogItems || []).find(item => item.id === 'APPROVAL-FILE-INTEGRITY-001') || null
+  const buildLogBacklogIdFix = (foundationHub.backlogItems || []).find(item => item.id === 'BUILD-LOG-BACKLOG-ID-FIX-001') || null
+  const closeoutBackfill = (foundationHub.backlogItems || []).find(item => item.id === 'CLOSEOUT-BACKFILL-001') || null
+  const preCommitHookInstall = (foundationHub.backlogItems || []).find(item => item.id === 'PRE-COMMIT-HOOK-INSTALL-001') || null
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -3835,9 +3881,9 @@ async function main() {
       includesAll(packageSource, ['"process:ship-check"', 'scripts/process-ship-check.mjs']) &&
       includesAll(processShipCheckSource, [
         'planApprovalRef',
-        'Number(approval?.score) >= 9.8',
-        'approvedBy',
-        'approvedAt',
+        'validatePlanApprovalFile',
+        'approvalValidation?.ok',
+        'plan approval integrity passes',
         'requiredCloseoutFields',
         'whereItLives',
         'skipLiveVerifyReason',
@@ -4490,7 +4536,7 @@ async function main() {
       /hard-checkpoint sprint plan/.test(foundationPlanReconcile?.summary || '') &&
       /before Phase G Track 2/.test(foundationPlanReconcile?.nextAction || '') &&
       hardCheckpointTier0Cards.every(card =>
-        card?.lane === 'scoped' &&
+        ['scoped', 'done'].includes(card?.lane) &&
           ['P0', 'P1'].includes(card.priority) &&
           (card.summary || '').length > 80 &&
           (card.whyItMatters || '').length > 80 &&
@@ -4500,7 +4546,10 @@ async function main() {
       currentPlan.includes('Hard-checkpoint backlog reconciliation') &&
       currentPlan.includes('PERSONAL-WORKSPACE-BOUNDARY-001') &&
       currentPlan.includes('CLOSEOUT-BACKFILL-001') &&
-      currentState.includes('The current next slice is hard-checkpoint backlog reconciliation') &&
+      (
+        currentState.includes('The current next slice is hard-checkpoint backlog reconciliation') ||
+        currentState.includes('Phase 1 enforcement is done for v1')
+      ) &&
       currentState.includes('PRE-COMMIT-HOOK-INSTALL-001'),
     'Hard-checkpoint Tier 0 cards are promoted into backlog and plan truth',
     foundationPlanReconcile
@@ -4512,13 +4561,106 @@ async function main() {
     buildLogPlanReconcileBuild?.operatorCloseout === true &&
       buildLogPlanReconcileBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-PLAN-RECONCILE-001' && item.lane === 'scoped') &&
       hardCheckpointTier0Ids.every(id =>
-        buildLogPlanReconcileBuild.relatedBacklog?.some(item => item.id === id && item.lane === 'scoped')
+        buildLogPlanReconcileBuild.relatedBacklog?.some(item => item.id === id && ['scoped', 'done'].includes(item.lane))
       ) &&
       /foundation-plan-reconcile-backlog-depth-v1/.test(buildLogPlanReconcileBuild?.closeoutKey || ''),
     'Recent Work carries hard-checkpoint backlog reconcile closeout',
     buildLogPlanReconcileBuild
       ? `${buildLogPlanReconcileBuild.shortSha} / ${buildLogPlanReconcileBuild.closeoutKey}`
       : 'missing FOUNDATION-PLAN-RECONCILE-001 closeout',
+  )
+  const phase1Cards = [approvalFileIntegrity, buildLogBacklogIdFix, closeoutBackfill, preCommitHookInstall]
+  const phase1CloseoutTargets = [
+    'MEMORY-001',
+    'SCHEMA-001',
+    'DECISION-001',
+    'DECISION-002',
+    'DECISION-003',
+    'DATA-018',
+    'DATA-019',
+    'DATA-020',
+    'GOVERNANCE-IMPORTRANGE-001',
+    'UX-003',
+    'SYSTEM-009',
+    'SOURCE-004',
+    'SOURCE-005',
+  ]
+  const phase1CloseoutTargetCards = phase1CloseoutTargets.map(id =>
+    (foundationHub.backlogItems || []).find(item => item.id === id) || null
+  )
+  const phase1BuildLogExact = buildLogPhase1EnforcementBuild?.backlogIds?.length === 4 &&
+    PHASE_1_ENFORCEMENT_CARD_IDS.every(id => buildLogPhase1EnforcementBuild.backlogIds.includes(id)) &&
+    !(buildLogPhase1EnforcementBuild.backlogIds || []).includes('FOUNDATION-PLAN-RECONCILE-001') &&
+    !(buildLogPhase1EnforcementBuild.backlogIds || []).includes('GATE-PERFORMANCE-001')
+  ensure(
+    checks,
+    phase1Cards.every(card => card?.lane === 'done') &&
+      phase1Cards.every(card => /phase-1-enforcement-v1/.test(card?.statusNote || '')) &&
+      phase1ApprovalValidations.every(validation => validation.ok && validation.mode === 'v2') &&
+      phase1ApprovalValidations.every(validation => validation.approval?.approvedPlanRef === PHASE_1_ENFORCEMENT_PLAN_REF) &&
+      phase1ApprovalValidations.every(validation => validation.approval?.approvedPlanSha256 === PHASE_1_ENFORCEMENT_PLAN_SHA256) &&
+      approvalIntegritySynthetic.ok &&
+      includesAll(approvalIntegritySource, [
+        'approvalSchemaVersion',
+        'approvedPlanSha256',
+        'approvalDigest',
+        'bootstrapFromLegacy',
+      ]) &&
+      approvalLegacyLedger.legacyApprovals?.length >= 30 &&
+      approvalIntegrityDoc.includes('Legacy approvals') &&
+      phase1ApprovedPlan.includes('Protected Foundation Paths'),
+    'APPROVAL-FILE-INTEGRITY-001 makes 9.8 approvals tamper-evident',
+    `phase1=${phase1ApprovalValidations.filter(validation => validation.ok).length}/${phase1ApprovalValidations.length} synthetic=${approvalIntegritySynthetic.ok}`,
+  )
+  ensure(
+    checks,
+    buildLogBacklogIdFix?.lane === 'done' &&
+      buildLogOwnershipProof.ok &&
+      includesAll(foundationBuildLogSource, [
+        'mentionedBacklogIds',
+        'buildSyntheticBuildLogOwnershipProof',
+        'relatedBacklog: normalizeList(build.backlogIds).map(mapBacklogId)',
+      ]) &&
+      buildLogPhase1EnforcementBuild?.operatorCloseout === true &&
+      phase1BuildLogExact &&
+      Array.isArray(buildLogPhase1EnforcementBuild.mentionedBacklog) &&
+      buildLogPhase1EnforcementBuild.mentionedBacklog?.some(item => item.id === 'FOUNDATION-PLAN-RECONCILE-001') &&
+      Object.values(multiCloseoutCommitGroups).some(count => count >= 3),
+    'BUILD-LOG-BACKLOG-ID-FIX-001 keeps closeout ownership exact in Recent Work',
+    buildLogPhase1EnforcementBuild
+      ? `${buildLogPhase1EnforcementBuild.shortSha} / owners=${buildLogPhase1EnforcementBuild.backlogIds.join(',')}`
+      : 'missing phase-1 enforcement closeout',
+  )
+  ensure(
+    checks,
+    closeoutBackfill?.lane === 'done' &&
+      phase1CloseoutTargets.every(id => closeoutBackfillDoc.includes(id)) &&
+      phase1CloseoutTargetCards.every(card => card?.lane === 'done' && /Closeout backfilled on 2026-04-29/.test(card.statusNote || '')) &&
+      !backlogHygieneApi.findings?.some(finding =>
+        finding.type === 'done_without_closeout_proof' && phase1CloseoutTargets.includes(finding.cardId)
+      ),
+    'CLOSEOUT-BACKFILL-001 snapshots and resolves the 13 done-without-proof targets',
+    `targets=${phase1CloseoutTargetCards.filter(Boolean).length}/${phase1CloseoutTargets.length}`,
+  )
+  ensure(
+    checks,
+    preCommitHookInstall?.lane === 'done' &&
+      gitHookInstallStatus.ok &&
+      gitHookScopeProof.ok &&
+      PROTECTED_FOUNDATION_PATH_PATTERNS.length >= 17 &&
+      includesAll(processGitHooksSource, [
+        'runPreCommitHook',
+        'runPrePushHook',
+        'FOUNDATION_HOOK_BYPASS_REASON',
+        'FOUNDATION_HOOK_BYPASS_CARD',
+        'recordFoundationShipProof',
+      ]) &&
+      gitHooksDoc.includes('pre-commit') &&
+      gitHooksDoc.includes('pre-push') &&
+      gitHooksDoc.includes('foundation:verify does not run on every tiny commit') &&
+      gitHooksDoc.includes('git config core.hooksPath .githooks'),
+    'PRE-COMMIT-HOOK-INSTALL-001 installs repo-managed Foundation Git hooks',
+    `core.hooksPath=${gitHookInstallStatus.hooksPath || 'unset'} protected=${PROTECTED_FOUNDATION_PATH_PATTERNS.length}`,
   )
   ensure(
     checks,

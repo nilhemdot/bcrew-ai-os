@@ -3,6 +3,7 @@
 import { execFile as execFileCallback } from 'node:child_process'
 import process from 'node:process'
 import { promisify } from 'node:util'
+import { recordFoundationShipProof } from '../lib/process-git-hooks.js'
 
 const execFile = promisify(execFileCallback)
 
@@ -215,6 +216,14 @@ async function main() {
   } else {
     console.log('  status: within target')
   }
+
+  const proof = await recordFoundationShipProof({
+    repoRoot: process.cwd(),
+    cardId: normalize(args.card),
+    closeoutKey: normalize(args.closeoutKey),
+    commitRef,
+  })
+  console.log(`  proof: recorded local Foundation ship proof for ${proof.shortSha} / ${proof.cardId}`)
 
   console.log('')
   console.log('Foundation ship gate passed.')

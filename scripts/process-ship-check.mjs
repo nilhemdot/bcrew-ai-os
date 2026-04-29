@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 import { execFile as execFileCallback } from 'node:child_process'
-import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
   closeFoundationDb,
   getFoundationSnapshot,
@@ -47,14 +47,6 @@ function ensure(checks, condition, check, detail = '') {
 
 function normalizeText(value) {
   return String(value || '').trim()
-}
-
-async function readJson(relativePath) {
-  const absolutePath = path.resolve(repoRoot, relativePath)
-  if (!absolutePath.startsWith(repoRoot)) {
-    throw new Error(`Approval file must live inside the repo: ${relativePath}`)
-  }
-  return JSON.parse(await fs.readFile(absolutePath, 'utf8'))
 }
 
 async function getRepoHead() {
@@ -116,18 +108,25 @@ async function main() {
     console.log('  Follow-up required: create or update a backlog card for anything bypassed.')
   }
 
+  let approvalValidation = null
   let approval = null
   if (planApprovalRef) {
-    try {
-      approval = await readJson(planApprovalRef)
-    } catch (error) {
-      ensure(checks, false, 'plan approval file can be read', error instanceof Error ? error.message : String(error))
+    approvalValidation = await validatePlanApprovalFile({
+      repoRoot,
+      approvalRef: planApprovalRef,
+      cardId,
+    })
+    approval = approvalValidation.approval
+    for (const check of approvalValidation.checks) {
+      ensure(checks, check.ok, check.check, check.detail)
     }
   }
-  ensure(checks, approval?.cardId === cardId, 'plan approval matches card', approval?.cardId || 'missing approval cardId')
-  ensure(checks, Number(approval?.score) >= 9.8, 'plan approval score is at least 9.8', String(approval?.score ?? 'missing'))
-  ensure(checks, normalizeText(approval?.approvedBy), 'plan approval has an approver', approval?.approvedBy || 'missing approvedBy')
-  ensure(checks, !Number.isNaN(new Date(approval?.approvedAt).getTime()), 'plan approval has a valid timestamp', approval?.approvedAt || 'missing approvedAt')
+  ensure(
+    checks,
+    approvalValidation?.ok,
+    'plan approval integrity passes',
+    approvalValidation ? approvalValidation.mode : 'missing validation',
+  )
 
   await initFoundationDb()
   const foundation = await getFoundationSnapshot()

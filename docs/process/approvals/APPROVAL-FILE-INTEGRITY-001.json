@@ -1,0 +1,14 @@
+{
+  "cardId": "APPROVAL-FILE-INTEGRITY-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T22:24:00Z",
+  "approvalSource": "Steve said go after the final Phase 1 enforcement plan revision defined protected Foundation paths and process:foundation-ship per-card gate behavior.",
+  "notes": "Approval covers the Phase 1 enforcement bundle only: approval-integrity v2 bootstrap, build-log backlog-ID ownership cleanup, bounded closeout backfill for the 13 snapshotted cards, and repo-managed Git hook installation. No Phase G Track 2, UI polish, Strategy, Scoper, Agent Factory, or corpus expansion is approved.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/phase-1-enforcement-v1.md",
+  "approvedPlanSha256": "e80b85420fda0e008b5db13edaec8724f1635617f62e6d46c6dd96c10f9f9101",
+  "approvedRepoHead": "870c865d9d80bac14cc647ff932c39e00221086d",
+  "bootstrapFromLegacy": true,
+  "approvalDigest": "ab2db77aae61074cf2e4522918dbba91af11aacbfb4e75fadde3e1a1b2b6c684"
+}

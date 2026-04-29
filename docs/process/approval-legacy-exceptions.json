@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "policy": "Approval files created before APPROVAL-FILE-INTEGRITY-001 are accepted only when explicitly listed here. New approval files must use approvalSchemaVersion 2 with an approved-plan hash and approval digest.",
+  "introducedBy": "APPROVAL-FILE-INTEGRITY-001",
+  "legacyApprovals": [
+    {
+      "approvalRef": "docs/process/approvals/ACTION-REVIEW-APPLY-001.json",
+      "cardId": "ACTION-REVIEW-APPLY-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/ARCHIVE-RETIRE-001.json",
+      "cardId": "ARCHIVE-RETIRE-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/DECISION-AUTO-EMIT-001.json",
+      "cardId": "DECISION-AUTO-EMIT-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/DOC-ARCHIVE-AUTO-001.json",
+      "cardId": "DOC-ARCHIVE-AUTO-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/DOC-AUTHORITY-INDEX-REPAIR-001.json",
+      "cardId": "DOC-AUTHORITY-INDEX-REPAIR-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/DOC-CATEGORIZATION-001.json",
+      "cardId": "DOC-CATEGORIZATION-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/DOC-OTHER-TRIAGE-001.json",
+      "cardId": "DOC-OTHER-TRIAGE-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/DOCTRINE-PROPAGATION-001.json",
+      "cardId": "DOCTRINE-PROPAGATION-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/DOCTRINE-PROPAGATION-002.json",
+      "cardId": "DOCTRINE-PROPAGATION-002",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/EXCEPTION-CURATION-001.json",
+      "cardId": "EXCEPTION-CURATION-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/FULL-SYSTEM-RE-AUDIT-001.json",
+      "cardId": "FULL-SYSTEM-RE-AUDIT-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/GATE-PERFORMANCE-001.json",
+      "cardId": "GATE-PERFORMANCE-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/HIT-LIST-RECONCILE-001.json",
+      "cardId": "HIT-LIST-RECONCILE-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/LOCAL-DOC-LINK-001.json",
+      "cardId": "LOCAL-DOC-LINK-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/PHANTOM-CARD-CHECK-001.json",
+      "cardId": "PHANTOM-CARD-CHECK-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/PHASE-NUMBERING-RECONCILE-001.json",
+      "cardId": "PHASE-NUMBERING-RECONCILE-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/POST-SHIP-FAN-OUT-001.json",
+      "cardId": "POST-SHIP-FAN-OUT-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/PROCESS-FANOUT-001.json",
+      "cardId": "PROCESS-FANOUT-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/PROCESS-HOOKS-001.json",
+      "cardId": "PROCESS-HOOKS-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/PROCESS-HOOKS-002.json",
+      "cardId": "PROCESS-HOOKS-002",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/REBUILD-DOCS-RETIRE-001.json",
+      "cardId": "REBUILD-DOCS-RETIRE-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/RECENT-BUILDS-MULTI-CLOSEOUT-001.json",
+      "cardId": "RECENT-BUILDS-MULTI-CLOSEOUT-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/RESEARCH-CURATION-001.json",
+      "cardId": "RESEARCH-CURATION-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/SHEETS-QUOTA-HARDENING-001.json",
+      "cardId": "SHEETS-QUOTA-HARDENING-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/SOURCE-CONTRACT-CLEANUP-001.json",
+      "cardId": "SOURCE-CONTRACT-CLEANUP-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/SUB-SURFACE-MAPPING-001.json",
+      "cardId": "SUB-SURFACE-MAPPING-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/SYSTEM-INVENTORY-TRUE-UP-001.json",
+      "cardId": "SYSTEM-INVENTORY-TRUE-UP-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/VERIFIER-ARTIFACT-EXISTS-001.json",
+      "cardId": "VERIFIER-ARTIFACT-EXISTS-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/VERIFIER-CONSOLIDATION-001.json",
+      "cardId": "VERIFIER-CONSOLIDATION-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/VERIFIER-DONE-COVERAGE-001.json",
+      "cardId": "VERIFIER-DONE-COVERAGE-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    },
+    {
+      "approvalRef": "docs/process/approvals/WORKER-CODE-TRUST-001.json",
+      "cardId": "WORKER-CODE-TRUST-001",
+      "legacyAccepted": true,
+      "reason": "Historical approval file predates approval-integrity v2 and is explicitly grandfathered for existing shipped cards."
+    }
+  ]
+}
