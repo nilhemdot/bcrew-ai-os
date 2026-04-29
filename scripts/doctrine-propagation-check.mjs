@@ -6,6 +6,8 @@ import {
   DEFAULT_BCREW_FOUNDATION_SKILL_PATH,
 } from '../lib/doctrine-propagation.js'
 
+const applyFlag = '--apply'
+
 function parseArgs(argv) {
   const result = {}
   for (const arg of argv) {
@@ -35,7 +37,7 @@ async function main() {
 
   console.log('Doctrine propagation check')
   console.log(`  Skill: ${skillPath}`)
-  console.log(`  Apply: ${apply ? 'yes' : 'no'}`)
+  console.log(`  Apply: ${apply ? 'yes' : 'no'} (${applyFlag})`)
   console.log(`  Status: ${status.status}`)
   console.log(`  Doctrines: ${status.doctrineCount}`)
   console.log(`  Private memory files checked: ${status.privateMemoryFileCount}`)
