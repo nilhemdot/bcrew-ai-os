@@ -19,7 +19,7 @@ import {
   driveDownloadFile,
   driveExportDoc,
   getSpreadsheetMetadata,
-  getSheetValues,
+  getSheetValuesBatch,
 } from '../lib/google-delegated.js'
 
 const execFile = promisify(execFileCallback)
@@ -315,11 +315,21 @@ async function extractGoogleSheetText(userEmail, fileId, {
   const chunks = [`# Spreadsheet: ${spreadsheetTitle}`]
   let sheetsRead = 0
 
-  for (const sheet of sheets) {
+  const sheetRanges = sheets.map(sheet => {
     const rowLimit = Math.min(maxRows, Number(sheet.gridProperties?.rowCount || maxRows) || maxRows)
     const colLimit = Math.min(maxColumns, Number(sheet.gridProperties?.columnCount || maxColumns) || maxColumns)
-    const range = `${quoteSheetNameForA1(sheet.title)}!A1:${columnNumberToLetters(colLimit)}${rowLimit}`
-    const response = await getSheetValues(userEmail, fileId, range)
+    return {
+      sheet,
+      range: `${quoteSheetNameForA1(sheet.title)}!A1:${columnNumberToLetters(colLimit)}${rowLimit}`,
+    }
+  })
+  const batchResponse = sheetRanges.length
+    ? await getSheetValuesBatch(userEmail, fileId, sheetRanges.map(item => item.range))
+    : { valueRanges: [] }
+
+  for (let index = 0; index < sheetRanges.length; index += 1) {
+    const sheet = sheetRanges[index].sheet
+    const response = Array.isArray(batchResponse?.valueRanges) ? batchResponse.valueRanges[index] : null
     const body = formatSheetValues(response?.values || [])
     if (!body) continue
     sheetsRead += 1

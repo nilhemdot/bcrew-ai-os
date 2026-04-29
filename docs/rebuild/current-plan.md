@@ -836,7 +836,7 @@ Current order:
 2. Wave 2 Chat B: `WORKER-CODE-TRUST-001` — done for v1. The supervised Foundation worker now exposes startup commit and LaunchAgent pid proof.
 3. Wave 2 Chat A: `VERIFIER-DONE-COVERAGE-001` + `VERIFIER-ARTIFACT-EXISTS-001` — done for v1. Done cards now need verifier proof or an explicit exception, and claimed artifacts must exist.
 4. Wave 3 Card 4: `POST-SHIP-FAN-OUT-001` — done for v1. The post-ship fanout gate checks that closeouts prove surrounding truth moved with the code.
-5. Card 6.5: `SHEETS-QUOTA-HARDENING-001` — green-lit as an optional parallel Wave 3 slice before Wave 5 parallel ramp so repeated ship gates do not keep tripping Google Sheets quota.
+5. Card 6.5: `SHEETS-QUOTA-HARDENING-001` — done for v1. Sheets reads now have short TTL caching, batchGet support, and Runtime Health quota visibility before Wave 5 parallel ramp.
 6. `EXCEPTION-CURATION-001` — scoped Phase D cleanup follow-up for the 24 historical verifier exceptions before the 2026-07-27 expiry deadline.
 
 Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or new feature lane starts until the trust hit list and follow-up re-audit say Foundation is ready.

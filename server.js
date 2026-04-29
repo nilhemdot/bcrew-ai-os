@@ -85,7 +85,7 @@ import {
   listFubLeadSources,
   resolveFubContext,
 } from './lib/fub.js'
-import { getDriveFileMetadata, getSheetValues } from './lib/google-delegated.js'
+import { getDriveFileMetadata, getGoogleSheetsCacheStats, getSheetValues } from './lib/google-delegated.js'
 import { getGroupedSourceSystems, getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
@@ -3998,12 +3998,14 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       closeouts: getFoundationBuildCloseouts(),
       backlogItems: snapshot.backlogItems || [],
     })
+    const sheetsApiTrust = await getGoogleSheetsCacheStats()
     const workerCode = await getFoundationRuntimeStatus('foundation-worker')
     res.json({
       ...snapshot,
       kpiHealth,
       backlogHygiene,
       postShipFanout,
+      sheetsApiTrust,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),

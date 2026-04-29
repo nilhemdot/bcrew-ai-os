@@ -5730,6 +5730,46 @@ function renderPostShipFanoutPanel(postShipFanout) {
   )
 }
 
+function renderSheetsApiTrustPanel(sheetsApiTrust) {
+  if (!sheetsApiTrust) return null
+  var status = sheetsApiTrust.quotaRisk === 'high'
+    ? 'risk'
+    : sheetsApiTrust.quotaRisk === 'watch'
+      ? 'pending'
+      : 'live'
+  var enabled = sheetsApiTrust.enabled ? 'enabled' : 'disabled'
+  var ttlSeconds = Math.round(Number(sheetsApiTrust.ttlMs || 0) / 1000)
+  var detail = 'Cache is ' + enabled
+    + '. TTL: ' + ttlSeconds + ' seconds.'
+    + ' Hits: ' + (sheetsApiTrust.hits || 0)
+    + '. Misses: ' + (sheetsApiTrust.misses || 0)
+    + '. Live reads in last minute: ' + (sheetsApiTrust.liveReadsLastMinute || 0)
+    + ' of ' + (sheetsApiTrust.userQuotaPerMinute || 60)
+    + '. Recent 429s: ' + (sheetsApiTrust.quota429Count || 0) + '.'
+
+  var items = [
+    {
+      label: 'Sheets read cache',
+      status: status,
+      detail: detail,
+    },
+  ]
+
+  ;(sheetsApiTrust.recentQuotaEvents || []).slice(-3).forEach(function(event) {
+    items.push({
+      label: String(event.type || 'Sheets quota event').replace(/_/g, ' '),
+      status: event.type === 'google_sheets_429' ? 'risk' : 'pending',
+      detail: (event.message || 'Sheets API event.') + ' At: ' + formatDate(event.at),
+    })
+  })
+
+  return renderStatusGroupPanel(
+    'Sheets API Trust',
+    'Shows whether Foundation is reducing repeated Google Sheets reads during verifier and ship-check loops. Writes are never cached.',
+    items
+  )
+}
+
 function renderLlmRuntimePanel(llmRuntime) {
   if (!llmRuntime) return null
   var routes = Array.isArray(llmRuntime.routes) ? llmRuntime.routes : []
@@ -11754,6 +11794,9 @@ function renderDataHealth() {
 
     var postShipFanoutPanel = renderPostShipFanoutPanel(hub.postShipFanout)
     if (postShipFanoutPanel) container.appendChild(postShipFanoutPanel)
+
+    var sheetsApiTrustPanel = renderSheetsApiTrustPanel(hub.sheetsApiTrust)
+    if (sheetsApiTrustPanel) container.appendChild(sheetsApiTrustPanel)
 
     var surfaceSweepPanel = renderSurfaceFreshnessSweepPanel(hub.surfaceFreshnessSweep)
     if (surfaceSweepPanel) container.appendChild(surfaceSweepPanel)

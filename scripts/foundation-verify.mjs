@@ -462,6 +462,7 @@ async function main() {
   const agentFeedbackClickUpSource = await readRepoFile('lib/agent-feedback-clickup.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
+  const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
   const foundationWorkerSource = await readRepoFile('scripts/foundation-worker.mjs')
   const extractionControlSeedSource = await readRepoFile('scripts/seed-extraction-control.mjs')
@@ -499,6 +500,7 @@ async function main() {
   const postShipFanoutSource = await readRepoFile('lib/post-ship-fanout.js')
   const postShipFanoutScriptSource = await readRepoFile('scripts/process-post-ship-fanout.mjs')
   const postShipFanoutDoc = await readRepoFile('docs/process/post-ship-fanout.md')
+  const sheetsQuotaHardeningDoc = await readRepoFile('docs/process/sheets-quota-hardening.md')
   const processHooksApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-HOOKS-001.json')
   const processHooksApproval = JSON.parse(processHooksApprovalSource)
   const processFanoutApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-FANOUT-001.json')
@@ -511,6 +513,8 @@ async function main() {
   const verifierDoneCoverageApproval = JSON.parse(verifierDoneCoverageApprovalSource)
   const verifierArtifactExistsApprovalSource = await readRepoFile('docs/process/approvals/VERIFIER-ARTIFACT-EXISTS-001.json')
   const verifierArtifactExistsApproval = JSON.parse(verifierArtifactExistsApprovalSource)
+  const sheetsQuotaHardeningApprovalSource = await readRepoFile('docs/process/approvals/SHEETS-QUOTA-HARDENING-001.json')
+  const sheetsQuotaHardeningApproval = JSON.parse(sheetsQuotaHardeningApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -2108,6 +2112,10 @@ async function main() {
     (build.backlogIds || []).includes('POST-SHIP-FAN-OUT-001') &&
       build.closeoutKey === 'post-ship-fanout-v1'
   )
+  const buildLogSheetsQuotaBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('SHEETS-QUOTA-HARDENING-001') &&
+      build.closeoutKey === 'sheets-quota-hardening-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -2424,7 +2432,9 @@ async function main() {
     buildLogVerifierDoneArtifactBuild?.operatorCloseout === true &&
       buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item => item.id === 'VERIFIER-DONE-COVERAGE-001' && item.lane === 'done') &&
       buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item => item.id === 'VERIFIER-ARTIFACT-EXISTS-001' && item.lane === 'done') &&
-      buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item => item.id === 'SHEETS-QUOTA-HARDENING-001' && item.lane === 'scoped') &&
+      buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item =>
+        item.id === 'SHEETS-QUOTA-HARDENING-001' && ['scoped', 'done'].includes(item.lane)
+      ) &&
       buildLogVerifierDoneArtifactBuild.proofCommands?.filter(command => command.includes('process:ship-check')).length >= 2 &&
       buildLogVerifierDoneArtifactBuild.proofCommands?.filter(command => command.includes('process:fanout-check')).length >= 2 &&
       buildLogVerifierDoneArtifactBuild.proofCommands?.includes('npm run foundation:verify') &&
@@ -2452,6 +2462,22 @@ async function main() {
     buildLogPostShipFanoutBuild
       ? `${buildLogPostShipFanoutBuild.shortSha} / ${buildLogPostShipFanoutBuild.acceptanceState} / ${buildLogPostShipFanoutBuild.proofStatus}`
       : 'missing post-ship fanout closeout',
+  )
+  ensure(
+    checks,
+    buildLogSheetsQuotaBuild?.operatorCloseout === true &&
+      buildLogSheetsQuotaBuild.relatedBacklog?.some(item => item.id === 'SHEETS-QUOTA-HARDENING-001' && item.lane === 'done') &&
+      buildLogSheetsQuotaBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
+      buildLogSheetsQuotaBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
+      buildLogSheetsQuotaBuild.proofCommands?.includes('npm run foundation:verify') &&
+      /batchGet/i.test(buildLogSheetsQuotaBuild.whatItDoes || '') &&
+      /Writes remain uncached|errors are not cached/i.test(buildLogSheetsQuotaBuild.proofStatus || '') &&
+      /Google Cloud quota increase/i.test(buildLogSheetsQuotaBuild.knownLimits?.join(' ') || '') &&
+      /Phase C/i.test(buildLogSheetsQuotaBuild.reviewNext || ''),
+    'Recent Builds v2 carries closeout proof for Sheets quota hardening',
+    buildLogSheetsQuotaBuild
+      ? `${buildLogSheetsQuotaBuild.shortSha} / ${buildLogSheetsQuotaBuild.acceptanceState} / ${buildLogSheetsQuotaBuild.proofStatus}`
+      : 'missing Sheets quota hardening closeout',
   )
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
@@ -3437,12 +3463,42 @@ async function main() {
   )
   ensure(
     checks,
-    sheetsQuotaHardening?.lane === 'scoped' &&
+    sheetsQuotaHardening?.lane === 'done' &&
       sheetsQuotaHardening?.priority === 'P1' &&
+      sheetsQuotaHardeningApproval.cardId === 'SHEETS-QUOTA-HARDENING-001' &&
+      Number(sheetsQuotaHardeningApproval.score) >= 9.8 &&
+      sheetsQuotaHardeningApproval.approvedBy === 'Steve' &&
+      !Number.isNaN(new Date(sheetsQuotaHardeningApproval.approvedAt).getTime()) &&
+      includesAll(googleSheetsCacheSource, [
+        'readGoogleSheetsCachedJson',
+        'getGoogleSheetsCacheStats',
+        'GOOGLE_SHEETS_CACHE_DISABLED',
+        'quota429Count',
+        'quotaRisk',
+      ]) &&
+      includesAll(googleDelegatedSource, [
+        'getSheetValuesBatch',
+        'getGoogleSheetsCacheStats',
+        'readGoogleSheetsCachedJson',
+      ]) &&
+      includesAll(driveContentExtractionSource, [
+        'getSheetValuesBatch',
+        'batchResponse',
+      ]) &&
+      includesAll(serverSource, ['getGoogleSheetsCacheStats', 'sheetsApiTrust']) &&
+      includesAll(foundationUiSource, ['renderSheetsApiTrustPanel', 'Sheets API Trust']) &&
+      includesAll(sheetsQuotaHardeningDoc, [
+        'Writes are never cached',
+        'Failed Google API reads are never cached as healthy data',
+        'GOOGLE_SHEETS_CACHE_DISABLED',
+        'per-user requests per minute: 600',
+      ]) &&
+      foundationHub.sheetsApiTrust &&
+      Object.prototype.hasOwnProperty.call(foundationHub.sheetsApiTrust, 'hits') &&
+      Object.prototype.hasOwnProperty.call(foundationHub.sheetsApiTrust, 'misses') &&
       /Sheets API Trust/.test(sheetsQuotaHardening?.statusNote || '') &&
-      /Card 6.5/.test(sheetsQuotaHardening?.nextAction || '') &&
-      /batchGet/.test(sheetsQuotaHardening?.nextAction || ''),
-    'SHEETS-QUOTA-HARDENING-001 is scoped as a Wave 5 prerequisite, not built now',
+      /batchGet/.test(sheetsQuotaHardening?.statusNote || ''),
+    'SHEETS-QUOTA-HARDENING-001 closes Sheets API quota hardening',
     sheetsQuotaHardening ? `${sheetsQuotaHardening.lane} / ${sheetsQuotaHardening.priority} / ${sheetsQuotaHardening.title}` : 'missing SHEETS-QUOTA-HARDENING-001',
   )
   ensure(
