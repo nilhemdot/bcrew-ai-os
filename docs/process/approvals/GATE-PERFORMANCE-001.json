@@ -1,0 +1,8 @@
+{
+  "cardId": "GATE-PERFORMANCE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-29T21:44:55Z",
+  "approvalSource": "Steve said \"go\" after the Phase G plan identified GATE-PERFORMANCE-001 as the first slice because the Wave Cleanup B wrapper run was too slow.",
+  "notes": "Approval covers a narrow v1 performance slice only: remove the duplicate foundation:verify call inside the foundation ship wrapper, run independent fanout gates in parallel, keep strict mode available, and print per-step timing. It does not approve the rest of Phase G for build."
+}

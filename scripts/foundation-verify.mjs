@@ -701,6 +701,8 @@ async function main() {
   const doctrinePropagationV2Approval = JSON.parse(doctrinePropagationV2ApprovalSource)
   const processHooksV2ApprovalSource = await readRepoFile('docs/process/approvals/PROCESS-HOOKS-002.json')
   const processHooksV2Approval = JSON.parse(processHooksV2ApprovalSource)
+  const gatePerformanceApprovalSource = await readRepoFile('docs/process/approvals/GATE-PERFORMANCE-001.json')
+  const gatePerformanceApproval = JSON.parse(gatePerformanceApprovalSource)
   const actionReviewApprovalSource = await readRepoFile('docs/process/approvals/ACTION-REVIEW-APPLY-001.json')
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
@@ -2524,6 +2526,10 @@ async function main() {
       (build.backlogIds || []).includes('PROCESS-HOOKS-002') &&
       build.closeoutKey === 'wave-cleanup-b-doc-categories-doctrine-hooks-v1'
   )
+  const buildLogGatePerformanceBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('GATE-PERFORMANCE-001') &&
+      build.closeoutKey === 'gate-performance-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -3628,6 +3634,7 @@ async function main() {
   const docCategorization = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-CATEGORIZATION-001') || null
   const doctrinePropagationV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-002') || null
   const processHooksV2 = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-002') || null
+  const gatePerformance = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-PERFORMANCE-001') || null
   const docAuthority = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-AUTHORITY-001') || null
   const dataStructuredContracts = (foundationHub.backlogItems || []).find(item => item.id === 'DATA-004') || null
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
@@ -4410,11 +4417,53 @@ async function main() {
       /wave-cleanup-b-doc-categories-doctrine-hooks-v1/.test(buildLogWaveCleanupBBuild?.closeoutKey || '') &&
       currentPlan.includes('Cleanup B: `DOC-CATEGORIZATION-001`, `DOCTRINE-PROPAGATION-002`, and `PROCESS-HOOKS-002` — done for v1') &&
       currentState.includes('Cleanup B is done for v1') &&
-      currentState.includes('Phase G planning is next'),
+      (
+        currentState.includes('Phase G planning is next') ||
+        currentState.includes('Phase G Track 1 is done for v1')
+      ),
     'Recent Work carries Wave Cleanup B closeout and Phase G boundary',
     buildLogWaveCleanupBBuild
       ? `${buildLogWaveCleanupBBuild.shortSha} / ${buildLogWaveCleanupBBuild.closeoutKey}`
       : 'missing Wave Cleanup B closeout',
+  )
+  ensure(
+    checks,
+    gatePerformance?.lane === 'done' &&
+      gatePerformance?.priority === 'P1' &&
+      gatePerformanceApproval.cardId === 'GATE-PERFORMANCE-001' &&
+      Number(gatePerformanceApproval.score) >= 9.8 &&
+      includesAll(processFoundationShipSource, [
+        'strictShipCheckVerify',
+        'process:foundation-ship runs final foundation:verify once after fanout gates',
+        'Promise.allSettled',
+        'transient gate error',
+        'Gate timing summary',
+        'targetMs',
+      ]) &&
+      includesAll(processFoundationShipDoc, [
+        'runs `foundation:verify` once at the end',
+        '`npm run process:fanout-check` and `npm run process:post-ship-fanout` in parallel',
+        'Strict mode remains available',
+        'one retry',
+        'under five minutes',
+      ]),
+    'GATE-PERFORMANCE-001 removes duplicate verifier work and exposes gate timing',
+    gatePerformance
+      ? `${gatePerformance.lane} / ${gatePerformance.priority} / strict=${processFoundationShipSource.includes('strictShipCheckVerify')}`
+      : 'missing GATE-PERFORMANCE-001',
+  )
+  ensure(
+    checks,
+    buildLogGatePerformanceBuild?.operatorCloseout === true &&
+      buildLogGatePerformanceBuild.relatedBacklog?.some(item => item.id === 'GATE-PERFORMANCE-001' && item.lane === 'done') &&
+      /gate-performance-v1/.test(buildLogGatePerformanceBuild?.closeoutKey || '') &&
+      currentPlan.includes('Phase G Track 1: `GATE-PERFORMANCE-001` — done for v1') &&
+      currentState.includes('Phase G Track 1 is done for v1') &&
+      currentState.includes('hide archive/history docs from the default System Inventory current-doc view'),
+    'Recent Work carries GATE-PERFORMANCE-001 closeout and remaining Phase G boundary',
+    buildLogGatePerformanceBuild
+      ? `${buildLogGatePerformanceBuild.shortSha} / ${buildLogGatePerformanceBuild.closeoutKey}`
+      : 'missing GATE-PERFORMANCE-001 closeout',
   )
   ensure(
     checks,

@@ -37,21 +37,101 @@ function printUsage() {
   console.log('  4. npm run foundation:verify')
 }
 
-async function runStep(label, npmArgs) {
+function formatDuration(ms) {
+  const seconds = Math.round(ms / 100) / 10
+  return `${seconds}s`
+}
+
+function printStepResult(result) {
   console.log('')
-  console.log(`== ${label} ==`)
-  const { stdout, stderr } = await execFile('npm', npmArgs, {
-    env: process.env,
-    maxBuffer: 1024 * 1024 * 12,
-  })
-  if (stdout) process.stdout.write(stdout)
-  if (stderr) process.stderr.write(stderr)
+  console.log(`== ${result.label} ==`)
+  console.log(`Duration: ${formatDuration(result.durationMs)}`)
+  if (result.attempts > 1) console.log(`Attempts: ${result.attempts}`)
+  if (result.stdout) process.stdout.write(result.stdout)
+  if (result.stderr) process.stderr.write(result.stderr)
+}
+
+function isTransientGateError(error) {
+  const output = `${error?.stdout || ''}\n${error?.stderr || ''}\n${error?.message || ''}`
+  return /deadlock detected|ECONNRESET|ETIMEDOUT|429 Too Many Requests|quota/i.test(output)
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function runStep(label, npmArgs, options = {}) {
+  const startedAt = Date.now()
+  const retries = Number(options.retries ?? 1)
+  let stdoutBuffer = ''
+  let stderrBuffer = ''
+  let attempt = 0
+  while (attempt <= retries) {
+    attempt += 1
+    try {
+      const { stdout, stderr } = await execFile('npm', npmArgs, {
+        env: process.env,
+        maxBuffer: 1024 * 1024 * 12,
+      })
+      return {
+        label,
+        stdout: stdoutBuffer + (stdout || ''),
+        stderr: stderrBuffer + (stderr || ''),
+        durationMs: Date.now() - startedAt,
+        attempts: attempt,
+      }
+    } catch (error) {
+      stdoutBuffer += error?.stdout || ''
+      stderrBuffer += error?.stderr || ''
+      if (attempt <= retries && isTransientGateError(error)) {
+        stderrBuffer += `\n${label} hit a transient gate error; retrying attempt ${attempt + 1}/${retries + 1}.\n`
+        await sleep(1500 * attempt)
+        continue
+      }
+      error.stdout = stdoutBuffer
+      error.stderr = stderrBuffer
+      error.durationMs = Date.now() - startedAt
+      error.attempts = attempt
+      throw error
+    }
+  }
+}
+
+async function runParallelSteps(steps) {
+  const settled = await Promise.allSettled(steps.map(step => runStep(step.label, step.npmArgs)))
+  const results = []
+  const failures = []
+  for (let index = 0; index < settled.length; index += 1) {
+    const outcome = settled[index]
+    if (outcome.status === 'fulfilled') {
+      results.push(outcome.value)
+    } else {
+      const error = outcome.reason
+      failures.push({ label: steps[index].label, error })
+      results.push({
+        label: steps[index].label,
+        stdout: error?.stdout || '',
+        stderr: error?.stderr || '',
+        durationMs: error?.durationMs || 0,
+        attempts: error?.attempts || 1,
+      })
+    }
+  }
+  for (const result of results) printStepResult(result)
+  if (failures.length) {
+    const labels = failures.map(item => item.label).join(', ')
+    throw new Error(`Parallel gate step(s) failed: ${labels}`)
+  }
+  return results
 }
 
 async function main() {
+  const gateStartedAt = Date.now()
   const args = parseArgs(process.argv.slice(2))
   const missing = requiredArgs.filter(key => !normalize(args[key]))
   const commitRef = normalize(args.commitRef) || 'HEAD'
+  const strictShipCheckVerify = args.strictShipCheckVerify === true || args.strictShipCheckVerify === 'true'
+  const targetMs = Number(args.targetMs || 300000)
 
   console.log('Foundation ship gate')
   console.log(`  Card: ${normalize(args.card) || 'missing'}`)
@@ -82,24 +162,59 @@ async function main() {
   if (normalize(args.emergencyBypassReason)) {
     shipCheckArgs.push(buildArg('emergencyBypassReason', args.emergencyBypassReason))
   }
+  if (!strictShipCheckVerify && !normalize(args.skipLiveVerifyReason)) {
+    shipCheckArgs.push(
+      '--skipLiveVerify=true',
+      buildArg('skipLiveVerifyReason', 'process:foundation-ship runs final foundation:verify once after fanout gates'),
+    )
+  }
 
-  await runStep('process:ship-check', shipCheckArgs)
-  await runStep('process:fanout-check', [
-    'run',
-    'process:fanout-check',
-    '--',
-    buildArg('card', args.card),
-    buildArg('closeoutKey', args.closeoutKey),
+  const timing = []
+  const shipCheck = await runStep('process:ship-check', shipCheckArgs, { retries: 1 })
+  printStepResult(shipCheck)
+  timing.push(shipCheck)
+
+  const parallelResults = await runParallelSteps([
+    {
+      label: 'process:fanout-check',
+      npmArgs: [
+        'run',
+        'process:fanout-check',
+        '--',
+        buildArg('card', args.card),
+        buildArg('closeoutKey', args.closeoutKey),
+      ],
+    },
+    {
+      label: 'process:post-ship-fanout',
+      npmArgs: [
+        'run',
+        'process:post-ship-fanout',
+        '--',
+        buildArg('card', args.card),
+        buildArg('closeoutKey', args.closeoutKey),
+        buildArg('commitRef', commitRef),
+      ],
+    },
   ])
-  await runStep('process:post-ship-fanout', [
-    'run',
-    'process:post-ship-fanout',
-    '--',
-    buildArg('card', args.card),
-    buildArg('closeoutKey', args.closeoutKey),
-    buildArg('commitRef', commitRef),
-  ])
-  await runStep('foundation:verify', ['run', 'foundation:verify'])
+  timing.push(...parallelResults)
+
+  const foundationVerify = await runStep('foundation:verify', ['run', 'foundation:verify'], { retries: 1 })
+  printStepResult(foundationVerify)
+  timing.push(foundationVerify)
+
+  const totalMs = Date.now() - gateStartedAt
+  console.log('')
+  console.log('Gate timing summary')
+  for (const result of timing) {
+    console.log(`  ${result.label}: ${formatDuration(result.durationMs)}`)
+  }
+  console.log(`  total: ${formatDuration(totalMs)} / target ${formatDuration(targetMs)}`)
+  if (Number.isFinite(targetMs) && totalMs > targetMs) {
+    console.log('  status: above target; keep the ship result but profile the slow step before the next gate-performance pass.')
+  } else {
+    console.log('  status: within target')
+  }
 
   console.log('')
   console.log('Foundation ship gate passed.')
