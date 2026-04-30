@@ -68,6 +68,15 @@ import {
   RECENT_BUILDS_UI_MANUAL_REVIEW_PATH,
 } from '../lib/foundation-recent-builds-ui.js'
 import {
+  buildChangeLogComprehensiveStatus,
+  CHANGE_LOG_COMPREHENSIVE_APPROVAL_PATH,
+  CHANGE_LOG_COMPREHENSIVE_APPROVED_PLAN_PATH,
+  CHANGE_LOG_COMPREHENSIVE_BASELINE_PATH,
+  CHANGE_LOG_COMPREHENSIVE_CARD_ID,
+  CHANGE_LOG_COMPREHENSIVE_CLOSEOUT_KEY,
+  CHANGE_LOG_COMPREHENSIVE_MANUAL_REVIEW_PATH,
+} from '../lib/foundation-change-log.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -145,6 +154,10 @@ const UI_MENU_LAYOUT_POLISH_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const RECENT_BUILDS_UI_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'RECENT-BUILDS-BILLION-DOLLAR-UI-001',
+]
+
+const CHANGE_LOG_COMPREHENSIVE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'CHANGE-LOG-COMPREHENSIVE-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -817,6 +830,7 @@ async function main() {
   const plainEnglishSweepApprovalRef = 'docs/process/approvals/PLAIN-ENGLISH-SWEEP-001.json'
   const uiMenuLayoutPolishApprovalRef = UI_MENU_LAYOUT_POLISH_APPROVAL_PATH
   const recentBuildsUiApprovalRef = RECENT_BUILDS_UI_APPROVAL_PATH
+  const changeLogComprehensiveApprovalRef = CHANGE_LOG_COMPREHENSIVE_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -843,6 +857,11 @@ async function main() {
     approvalRef: recentBuildsUiApprovalRef,
     cardId: RECENT_BUILDS_UI_CARD_ID,
   })
+  const changeLogComprehensiveApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: changeLogComprehensiveApprovalRef,
+    cardId: CHANGE_LOG_COMPREHENSIVE_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -863,6 +882,7 @@ async function main() {
   const plainEnglishSweepApprovedPlan = await readRepoFile('docs/process/approved-plans/plain-english-sweep-v1.md')
   const uiMenuLayoutPolishApprovedPlan = await readRepoFile(UI_MENU_LAYOUT_POLISH_APPROVED_PLAN_PATH)
   const recentBuildsUiApprovedPlan = await readRepoFile(RECENT_BUILDS_UI_APPROVED_PLAN_PATH)
+  const changeLogComprehensiveApprovedPlan = await readRepoFile(CHANGE_LOG_COMPREHENSIVE_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -871,6 +891,8 @@ async function main() {
   const uiMenuLayoutPolishManualReview = await readRepoFile(UI_MENU_LAYOUT_POLISH_MANUAL_REVIEW_PATH)
   const recentBuildsUiBaseline = await readRepoFile(RECENT_BUILDS_UI_BASELINE_PATH)
   const recentBuildsUiManualReview = await readRepoFile(RECENT_BUILDS_UI_MANUAL_REVIEW_PATH)
+  const changeLogComprehensiveBaseline = await readRepoFile(CHANGE_LOG_COMPREHENSIVE_BASELINE_PATH)
+  const changeLogComprehensiveManualReview = await readRepoFile(CHANGE_LOG_COMPREHENSIVE_MANUAL_REVIEW_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -1927,6 +1949,8 @@ async function main() {
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
   const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=80')
+  const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
+  const foundationChangesApi = await fetchJson(baseUrl, '/api/foundation/changes?limit=20')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
   const strategyOperatingTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/operating-truth')
@@ -1986,6 +2010,12 @@ async function main() {
   const recentBuildsUiStatus = await buildRecentBuildsBillionDollarUiStatus({
     repoRoot,
     foundationBuildLog,
+  })
+  const changeLogComprehensiveStatus = await buildChangeLogComprehensiveStatus({
+    repoRoot,
+    changeLog: foundationChangeLog,
+    changesApi: foundationChangesApi,
+    buildLog: foundationBuildLog,
   })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
@@ -2761,6 +2791,10 @@ async function main() {
   const buildLogRecentBuildsUiBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(RECENT_BUILDS_UI_CARD_ID) &&
       build.closeoutKey === RECENT_BUILDS_UI_CLOSEOUT_KEY
+  )
+  const buildLogChangeLogComprehensiveBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(CHANGE_LOG_COMPREHENSIVE_CARD_ID) &&
+      build.closeoutKey === CHANGE_LOG_COMPREHENSIVE_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -3895,6 +3929,7 @@ async function main() {
   const plainEnglishSweep = (foundationHub.backlogItems || []).find(item => item.id === PLAIN_ENGLISH_SWEEP_CARD_ID) || null
   const uiMenuLayoutPolish = (foundationHub.backlogItems || []).find(item => item.id === UI_MENU_LAYOUT_POLISH_CARD_ID) || null
   const recentBuildsUi = (foundationHub.backlogItems || []).find(item => item.id === RECENT_BUILDS_UI_CARD_ID) || null
+  const changeLogComprehensive = (foundationHub.backlogItems || []).find(item => item.id === CHANGE_LOG_COMPREHENSIVE_CARD_ID) || null
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -5385,15 +5420,93 @@ async function main() {
         '.build-log-card-summary',
         '.build-log-context-link',
       ]) &&
-      foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard === 'CHANGE-LOG-COMPREHENSIVE-001' &&
+      ['CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001'].includes(foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard) &&
       buildLogRecentBuildsUiBuild?.operatorCloseout === true &&
       recentBuildsUiBuildLogExact &&
       currentPlan.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1') &&
       currentPlan.includes('CHANGE-LOG-COMPREHENSIVE-001') &&
       currentState.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1') &&
-      currentState.includes('Next expected card is `CHANGE-LOG-COMPREHENSIVE-001`'),
+      (currentState.includes('Next expected card is `CHANGE-LOG-COMPREHENSIVE-001`') ||
+        currentState.includes('Next expected card is `DAILY-EXEC-SUMMARY-001`')),
     'RECENT-BUILDS-BILLION-DOLLAR-UI-001 upgrades Recent Work without smearing ownership',
     `closeouts=${recentBuildsUiStatus.summary?.closeoutBuilds} sameCommit=${recentBuildsUiStatus.summary?.sameCommitGroups} manual=${recentBuildsUiStatus.summary?.manualRouteChecks}/10 closeout=${buildLogRecentBuildsUiBuild?.closeoutKey || 'missing'}`,
+  )
+  const changeLogComprehensiveBuildLogExact = buildLogChangeLogComprehensiveBuild?.backlogIds?.length === 1 &&
+    buildLogChangeLogComprehensiveBuild.backlogIds.includes(CHANGE_LOG_COMPREHENSIVE_CARD_ID) &&
+    !['PLAIN-ENGLISH-SWEEP-001', 'UI-MENU-LAYOUT-POLISH-001', 'RECENT-BUILDS-BILLION-DOLLAR-UI-001', 'DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001']
+      .some(id => buildLogChangeLogComprehensiveBuild.backlogIds.includes(id))
+  ensure(
+    checks,
+    changeLogComprehensive?.lane === 'done' &&
+      /change-log-comprehensive-v1/.test(changeLogComprehensive?.statusNote || '') &&
+      changeLogComprehensiveApprovalValidation.ok &&
+      changeLogComprehensiveApprovalValidation.mode === 'v2' &&
+      changeLogComprehensiveApprovalValidation.approval?.approvedPlanRef === CHANGE_LOG_COMPREHENSIVE_APPROVED_PLAN_PATH &&
+      includesAll(changeLogComprehensiveApprovedPlan, [
+        '40+ changelog entries total',
+        '20+ verified closeout-backed entries',
+        'at least 8 of the 10 required change types',
+        '/api/foundation/changes keeps its existing shape',
+        'Private/local docs may appear only as metadata/classification',
+      ]) &&
+      includesAll(foundationVerifySource, CHANGE_LOG_COMPREHENSIVE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:change-log-comprehensive-check"', 'scripts/process-change-log-comprehensive-check.mjs']) &&
+      changeLogComprehensiveStatus.status === 'healthy' &&
+      changeLogComprehensiveStatus.summary?.totalEntries >= 40 &&
+      changeLogComprehensiveStatus.summary?.verifiedCloseoutBackedEntries >= 20 &&
+      changeLogComprehensiveStatus.summary?.representedChangeTypes >= 8 &&
+      changeLogComprehensiveStatus.summary?.latestRecentBuildsRepresented >= 5 &&
+      changeLogComprehensiveStatus.summary?.latestChangeLogCloseoutRepresented === true &&
+      changeLogComprehensiveStatus.summary?.ownershipContextSmearing === 0 &&
+      changeLogComprehensiveStatus.summary?.missingTypesWithoutProof === 0 &&
+      changeLogComprehensiveStatus.summary?.privateEvidenceLeaks === 0 &&
+      includesAll(changeLogComprehensiveBaseline, [
+        'Baseline source: 95e47e7',
+        'Existing closeout-backed entries available',
+        'Existing change_events available',
+        'Latest Recent Builds represented',
+      ]) &&
+      includesAll(changeLogComprehensiveManualReview, [
+        'Failures: 0',
+        'recent highlights visible',
+        'by-surface grouping visible',
+        'by-type grouping visible',
+        'raw evidence feed visible',
+        'evidence refs inspectable',
+        'ownership/context separation visible',
+        'desktop 1440x900',
+        'mobile 390x844',
+      ]) &&
+      foundationChangeLog.schemaVersion === 1 &&
+      foundationChangeLog.summary?.totalEntries >= 40 &&
+      Array.isArray(foundationChangeLog.groups?.recentHighlights) &&
+      Array.isArray(foundationChangeLog.groups?.bySurface) &&
+      Array.isArray(foundationChangeLog.groups?.byType) &&
+      Array.isArray(foundationChangeLog.groups?.rawEvidence) &&
+      Array.isArray(foundationChangesApi.changes) &&
+      includesAll(foundationUiSource, [
+        'fetchFoundationChangeLog',
+        'renderChangeLogHighlights',
+        'renderChangeLogSurfaceGroups',
+        'renderChangeLogTypeGroups',
+        'renderChangeLogRawEvidence',
+        'Owning cards',
+        'Context cards',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.change-log-summary-grid',
+        '.change-log-group-grid',
+        '.change-log-evidence-list',
+      ]) &&
+      foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard === 'DAILY-EXEC-SUMMARY-001' &&
+      buildLogChangeLogComprehensiveBuild?.operatorCloseout === true &&
+      changeLogComprehensiveBuildLogExact &&
+      currentPlan.includes('CHANGE-LOG-COMPREHENSIVE-001` is done for v1') &&
+      currentPlan.includes('DAILY-EXEC-SUMMARY-001') &&
+      currentState.includes('CHANGE-LOG-COMPREHENSIVE-001` is done for v1') &&
+      currentState.includes('Next expected card is `DAILY-EXEC-SUMMARY-001`'),
+    'CHANGE-LOG-COMPREHENSIVE-001 adds comprehensive source-backed changelog coverage',
+    `entries=${changeLogComprehensiveStatus.summary?.totalEntries} closeoutBacked=${changeLogComprehensiveStatus.summary?.verifiedCloseoutBackedEntries} types=${changeLogComprehensiveStatus.summary?.representedChangeTypes}/10 closeout=${buildLogChangeLogComprehensiveBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

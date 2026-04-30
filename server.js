@@ -74,6 +74,9 @@ import {
   summarizeFoundationBuildLog,
   FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
 } from './lib/foundation-build-log.js'
+import {
+  buildFoundationChangeLog,
+} from './lib/foundation-change-log.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -5110,6 +5113,30 @@ app.get('/api/foundation/changes', requireAdminToken, async (req, res) => {
       500,
       'foundation_changes_load_failed',
       error instanceof Error ? error.message : 'Failed to load recent changes.'
+    )
+  }
+})
+
+app.get('/api/foundation/change-log', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 100))
+    const [builds, changeEvents] = await Promise.all([
+      getRecentBuildLog(60),
+      getRecentChangeEvents(Math.max(100, limit)),
+    ])
+    const changeLog = buildFoundationChangeLog({
+      builds,
+      changeEvents,
+      limit,
+    })
+    cacheHeadersNoStore(res)
+    res.json(changeLog)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_change_log_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation change log.'
     )
   }
 })

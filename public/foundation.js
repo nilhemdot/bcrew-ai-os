@@ -4412,6 +4412,7 @@ var cache = {
   actionReview: null,
   systemInventory: null,
   buildLog: null,
+  changeLog: null,
   sheetStructureStatus: null,
   fubLeadSources: {},
   ownersLeadSourceGovernance: null,
@@ -4504,6 +4505,18 @@ function fetchFoundationBuildLog() {
     return res.json()
   }).then(function(data) {
     cache.buildLog = data
+    return data
+  })
+}
+
+function fetchFoundationChangeLog() {
+  if (cache.changeLog) return Promise.resolve(cache.changeLog)
+
+  return foundationRead('/api/foundation/change-log?limit=100').then(function(res) {
+    if (!res.ok) throw new Error('Foundation change log API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.changeLog = data
     return data
   })
 }
@@ -4941,6 +4954,298 @@ function renderRecentChangesPanel(items, options) {
   })
   panel.appendChild(list)
 
+  return panel
+}
+
+function renderChangeLogMetric(label, value, detail) {
+  var card = document.createElement('div')
+  card.className = 'build-log-summary-metric'
+  var strong = document.createElement('strong')
+  strong.textContent = value
+  card.appendChild(strong)
+  var span = document.createElement('span')
+  span.textContent = label
+  card.appendChild(span)
+  if (detail) {
+    var copy = document.createElement('p')
+    copy.textContent = detail
+    card.appendChild(copy)
+  }
+  return card
+}
+
+function renderChangeLogSummary(changeLog) {
+  var summary = changeLog.summary || {}
+  var panel = document.createElement('section')
+  panel.className = 'build-log-executive-summary change-log-summary'
+  panel.setAttribute('data-change-log-section', 'summary')
+
+  var copy = document.createElement('div')
+  copy.className = 'build-log-executive-copy'
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Comprehensive Changelog'
+  copy.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'What changed across Foundation'
+  copy.appendChild(title)
+  var intro = document.createElement('p')
+  intro.textContent = 'This layer combines verified closeouts, DB trust events, and changed-file evidence. Recent Work stays the shipped-build review surface; this page tracks the broader change trail by type and surface.'
+  copy.appendChild(intro)
+  panel.appendChild(copy)
+
+  var grid = document.createElement('div')
+  grid.className = 'build-log-summary-grid change-log-summary-grid'
+  grid.appendChild(renderChangeLogMetric('Entries', String(summary.totalEntries || 0), 'Source-backed changelog rows currently shown.'))
+  grid.appendChild(renderChangeLogMetric('Verified closeout rows', String(summary.verifiedCloseoutBackedEntries || 0), 'Rows backed by v2 verified closeouts.'))
+  grid.appendChild(renderChangeLogMetric('Change types', String(summary.representedChangeTypes || 0) + '/10', 'Required types represented unless evidence is absent.'))
+  grid.appendChild(renderChangeLogMetric('Recent builds', String(summary.latestRecentBuildsRepresented || 0) + '/5', 'Newest Recent Work builds represented here.'))
+  panel.appendChild(grid)
+
+  return panel
+}
+
+function renderChangeLogCardLinks(values, label, className) {
+  var ids = (values || []).filter(Boolean)
+  if (!ids.length) return null
+
+  var wrap = document.createElement('div')
+  wrap.className = 'build-log-fact'
+  wrap.setAttribute('data-change-log-owner-context', label)
+  var strong = document.createElement('strong')
+  strong.textContent = label
+  wrap.appendChild(strong)
+  var links = document.createElement('div')
+  links.className = 'build-log-backlog-links'
+  ids.forEach(function(id) {
+    var link = document.createElement('a')
+    link.className = className || 'build-log-backlog-link'
+    link.href = '/foundation#backlog:' + id
+    link.textContent = id
+    links.appendChild(link)
+  })
+  wrap.appendChild(links)
+  return wrap
+}
+
+function renderChangeLogEntryCard(entry) {
+  var card = document.createElement('article')
+  card.className = 'change-log-entry'
+
+  var top = document.createElement('div')
+  top.className = 'change-log-entry-top'
+  var left = document.createElement('div')
+  left.className = 'change-log-entry-copy'
+  var title = document.createElement('strong')
+  title.textContent = entry.title || entry.summary || 'Foundation change'
+  left.appendChild(title)
+  var summary = document.createElement('p')
+  summary.textContent = entry.summary || 'Source-backed Foundation change.'
+  left.appendChild(summary)
+  top.appendChild(left)
+  var stamp = document.createElement('span')
+  stamp.className = 'change-stamp'
+  stamp.textContent = formatDate(entry.occurredAt)
+  top.appendChild(stamp)
+  card.appendChild(top)
+
+  var meta = document.createElement('div')
+  meta.className = 'change-log-entry-meta'
+  meta.textContent = [
+    entry.changeTypeLabel || entry.changeType,
+    entry.surface,
+    entry.sourceKind,
+    entry.commit ? 'commit ' + entry.commit : null,
+    entry.closeoutKey,
+  ].filter(Boolean).join(' · ')
+  card.appendChild(meta)
+
+  var ownerLinks = renderChangeLogCardLinks(entry.backlogIds, 'Owning cards', 'build-log-backlog-link')
+  if (ownerLinks) card.appendChild(ownerLinks)
+  var contextLinks = renderChangeLogCardLinks(entry.mentionedBacklogIds, 'Context cards', 'build-log-backlog-link build-log-context-link')
+  if (contextLinks) card.appendChild(contextLinks)
+
+  if ((entry.evidenceRefs || []).length) {
+    var details = document.createElement('details')
+    details.className = 'change-log-evidence'
+    details.setAttribute('data-change-log-evidence-group', 'refs')
+    var detailsSummary = document.createElement('summary')
+    detailsSummary.textContent = 'Evidence refs'
+    details.appendChild(detailsSummary)
+    var list = document.createElement('ul')
+    list.className = 'change-log-evidence-list'
+    ;(entry.evidenceRefs || []).slice(0, 12).forEach(function(ref) {
+      var item = document.createElement('li')
+      item.setAttribute('data-change-log-evidence-ref', 'true')
+      item.textContent = ref
+      list.appendChild(item)
+    })
+    details.appendChild(list)
+    card.appendChild(details)
+  }
+
+  return card
+}
+
+function renderChangeLogHighlights(changeLog) {
+  var highlights = changeLog.groups && changeLog.groups.recentHighlights || []
+  if (!highlights.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel change-log-panel'
+  panel.setAttribute('data-change-log-section', 'recent-highlights')
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Recent Highlights'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Review these changes first'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Highlighted rows are recent, verified, plan/state, or process-impacting changes.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+  var list = document.createElement('div')
+  list.className = 'change-log-entry-list'
+  highlights.slice(0, 8).forEach(function(entry) {
+    list.appendChild(renderChangeLogEntryCard(entry))
+  })
+  panel.appendChild(list)
+  return panel
+}
+
+function renderChangeLogGroupCard(group, mode) {
+  var card = document.createElement('article')
+  card.className = 'change-log-group-card'
+  var top = document.createElement('div')
+  top.className = 'change-log-group-top'
+  var title = document.createElement('strong')
+  title.textContent = group.label || group.key
+  top.appendChild(title)
+  var count = document.createElement('span')
+  count.className = 'status-pill status-pill-static status-connected'
+  count.textContent = (group.count || 0) + ' changes'
+  top.appendChild(count)
+  card.appendChild(top)
+
+  if (group.absenceProof) {
+    var missing = document.createElement('p')
+    missing.className = 'change-log-missing-proof'
+    missing.textContent = group.absenceProof.reason
+    card.appendChild(missing)
+  }
+
+  var items = group.items || []
+  if (items.length) {
+    var list = document.createElement('ul')
+    list.className = 'change-log-group-list'
+    items.slice(0, 5).forEach(function(entry) {
+      var item = document.createElement('li')
+      item.textContent = mode === 'type'
+        ? [entry.surface, entry.title].filter(Boolean).join(' · ')
+        : [entry.changeTypeLabel, entry.title].filter(Boolean).join(' · ')
+      list.appendChild(item)
+    })
+    card.appendChild(list)
+  }
+
+  return card
+}
+
+function renderChangeLogSurfaceGroups(changeLog) {
+  var groups = changeLog.groups && changeLog.groups.bySurface || []
+  if (!groups.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel change-log-panel'
+  panel.setAttribute('data-change-log-section', 'by-surface')
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'By Surface'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Where the changes live'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Surface grouping shows whether the change affected Backlog, Recent Work, Runtime Health, System Inventory, Data Sources, docs, gates, or intelligence lanes.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+  var grid = document.createElement('div')
+  grid.className = 'change-log-group-grid'
+  groups.forEach(function(group) {
+    grid.appendChild(renderChangeLogGroupCard(group, 'surface'))
+  })
+  panel.appendChild(grid)
+  return panel
+}
+
+function renderChangeLogTypeGroups(changeLog) {
+  var groups = changeLog.groups && changeLog.groups.byType || []
+  if (!groups.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel change-log-panel'
+  panel.setAttribute('data-change-log-section', 'by-type')
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'By Type'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'What kind of change happened'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'All required change categories are listed. A missing category must show why there is no real evidence instead of disappearing.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+  var grid = document.createElement('div')
+  grid.className = 'change-log-group-grid change-log-type-grid'
+  groups.forEach(function(group) {
+    grid.appendChild(renderChangeLogGroupCard(group, 'type'))
+  })
+  panel.appendChild(grid)
+  return panel
+}
+
+function renderChangeLogRawEvidence(changeLog) {
+  var entries = changeLog.groups && changeLog.groups.rawEvidence || []
+  if (!entries.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel change-log-panel'
+  panel.setAttribute('data-change-log-section', 'raw-evidence')
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Raw Evidence Feed'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Inspectable source-backed rows'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Every row points back to a closeout, commit, changed file, or DB change event. Private/local docs stay metadata-only.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+  var list = document.createElement('div')
+  list.className = 'change-log-entry-list'
+  entries.slice(0, 30).forEach(function(entry) {
+    list.appendChild(renderChangeLogEntryCard(entry))
+  })
+  panel.appendChild(list)
   return panel
 }
 
@@ -12486,7 +12791,10 @@ function renderSystemActivity() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading system activity.</p>'
 
-  fetchFoundationHub().then(function(hub) {
+  Promise.all([fetchFoundationHub(), fetchFoundationChangeLog()]).then(function(results) {
+    var hub = results[0]
+    var changeLog = results[1]
+    var changeSummary = changeLog.summary || {}
     container.innerHTML = ''
 
     var hero = document.createElement('section')
@@ -12501,12 +12809,12 @@ function renderSystemActivity() {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = 'Latest ' + (hub.recentChanges || []).length + ' trust-layer events'
+    heroMeta.textContent = (changeSummary.totalEntries || 0) + ' source-backed changes · ' + (changeSummary.representedChangeTypes || 0) + ' change types'
     heroInner.appendChild(heroMeta)
 
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'Short audit feed for recent trust-layer changes.'
+    heroNote.textContent = 'Comprehensive changelog for Foundation changes by surface, type, highlight, and evidence. Recent Work remains the shipped-build review surface.'
     heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
@@ -12515,10 +12823,24 @@ function renderSystemActivity() {
     var purposePanel = renderFoundationOperationsPurposePanel('system-activity', hub)
     if (purposePanel) container.appendChild(purposePanel)
 
+    container.appendChild(renderChangeLogSummary(changeLog))
+
+    var highlightsPanel = renderChangeLogHighlights(changeLog)
+    if (highlightsPanel) container.appendChild(highlightsPanel)
+
+    var surfacePanel = renderChangeLogSurfaceGroups(changeLog)
+    if (surfacePanel) container.appendChild(surfacePanel)
+
+    var typePanel = renderChangeLogTypeGroups(changeLog)
+    if (typePanel) container.appendChild(typePanel)
+
+    var rawPanel = renderChangeLogRawEvidence(changeLog)
+    if (rawPanel) container.appendChild(rawPanel)
+
     var changesPanel = renderRecentChangesPanel(hub.recentChanges || [], {
       eyebrow: 'Internal Feed',
-      title: 'Recent changes',
-      intro: 'Only the latest 20 events are shown here so the page stays readable. Older history still exists in the change-event log; a searchable audit surface can come later.',
+      title: 'Latest DB trust events',
+      intro: 'Backward-compatible view of the existing change_events feed. The comprehensive changelog above adds build closeouts and changed-file evidence without replacing this feed.',
     })
 
     if (changesPanel) {

@@ -1,0 +1,13 @@
+{
+  "cardId": "CHANGE-LOG-COMPREHENSIVE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T16:31:16Z",
+  "approvalSource": "Steve gave GREEN LIGHT for the revised CHANGE-LOG-COMPREHENSIVE-001 plan with hard coverage thresholds and explicit UI/API/privacy gates.",
+  "notes": "Approval covers only the comprehensive Foundation changelog layer on System Activity, the additive /api/foundation/change-log endpoint, source-backed backfill from existing evidence, verifier/process coverage, and manual UI proof. It does not approve Daily Exec Summary, source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus work, research cleanup, or a new feature lane.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/change-log-comprehensive-v1.md",
+  "approvedPlanSha256": "2ab6b0925245ef65c372a0ff72a95a34cb624d9f01b4badc4026a35606c4f86a",
+  "approvedRepoHead": "95e47e76d748b61e26a565e76bafa4e08049a3db",
+  "approvalDigest": "1ded8a09f92b897025db7b87fe567fa247be4384b19e1ac61e55c66f3e4de6f6"
+}

@@ -80,6 +80,7 @@
     "process:plain-english-sweep-check": "node --env-file-if-exists=.env scripts/process-plain-english-sweep-check.mjs",
     "process:ui-menu-layout-polish-check": "node --env-file-if-exists=.env scripts/process-ui-menu-layout-polish-check.mjs",
     "process:recent-builds-billion-dollar-ui-check": "node --env-file-if-exists=.env scripts/process-recent-builds-billion-dollar-ui-check.mjs",
+    "process:change-log-comprehensive-check": "node --env-file-if-exists=.env scripts/process-change-log-comprehensive-check.mjs",
     "process:personal-workspace-boundary-check": "node --env-file-if-exists=.env scripts/process-personal-workspace-boundary-check.mjs",
     "process:install-hooks": "node --env-file-if-exists=.env scripts/install-git-hooks.mjs",
     "process:git-hook-check": "node --env-file-if-exists=.env scripts/process-git-hook-check.mjs",
