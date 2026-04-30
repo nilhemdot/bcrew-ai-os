@@ -55,6 +55,7 @@ import {
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
   initFoundationDb,
+  resetFoundationDb,
 } from '../lib/foundation-db.js'
 import { getFoundationSurfaceMap } from '../lib/foundation-surface-map.js'
 import {
@@ -4711,7 +4712,16 @@ async function main() {
     decisionAutoEmitV2,
     ceoDashboardPattern,
   ]
-  const gateReliabilityProof = await buildSyntheticGateReliabilityProof()
+  const gateReliabilityProof = await buildSyntheticGateReliabilityProof({
+    transientAfterCleanup: {
+      probe: async () => {
+        await getFoundationDbConstraintAudit({ limit: 1 })
+      },
+      cleanup: async () => {
+        await resetFoundationDb()
+      },
+    },
+  })
   const personalWorkspaceBoundaryStatus = await buildPersonalWorkspaceBoundaryStatus({ repoRoot, includeSynthetic: true })
   const decisionAutoEmitSafetyProof = await buildDecisionAutoEmitSafetyProof({ cwd: repoRoot })
   const ceoDashboardPatternStatus = await buildCeoDashboardPatternStatus({ repoRoot })
@@ -4741,6 +4751,8 @@ async function main() {
     checks,
     gateReliability?.lane === 'done' &&
       gateReliabilityProof.ok &&
+      gateReliabilityProof.transientAfterCleanup?.passedAfterCleanup === true &&
+      gateReliabilityProof.transientAfterCleanup?.cleanupCalls === 1 &&
       foundationHub.gateReliability?.ok === true &&
       foundationHub.gateReliability?.realDeadlockInduced === false &&
       includesAll(packageSource, ['"process:gate-reliability-check"', 'scripts/process-gate-reliability-check.mjs']) &&
@@ -4749,18 +4761,21 @@ async function main() {
         'deadlock detected',
         'deterministic-injected-fixture',
         'schema verifier failed',
+        'synthetic transient after DB cleanup',
       ]) &&
       includesAll(gateReliabilityScriptSource, [
         'Real DB deadlock induced',
         'Transient retry passed',
+        'Transient after DB cleanup retry passed',
         'Permanent failure failed closed',
       ]) &&
       includesAll(foundationVerifySource, [
         'runWithFoundationGateRetry',
         'foundation:verify hit a transient gate error',
+        'resetFoundationDb',
       ]),
-    'GATE-RELIABILITY-001 proves deterministic transient retry and permanent fail-closed behavior',
-    `transientAttempts=${gateReliabilityProof.transient.attempts} permanentAttempts=${gateReliabilityProof.permanent.attempts}`,
+    'GATE-RELIABILITY-001 proves deterministic transient retry, DB-cleanup retry, and permanent fail-closed behavior',
+    `transientAttempts=${gateReliabilityProof.transient.attempts} cleanupAttempts=${gateReliabilityProof.transientAfterCleanup.attempts} permanentAttempts=${gateReliabilityProof.permanent.attempts}`,
   )
   ensure(
     checks,
@@ -5500,7 +5515,7 @@ runWithFoundationGateRetry(
   {
     retries: 1,
     beforeRetry: async () => {
-      await closeFoundationDb().catch(() => {})
+      await resetFoundationDb().catch(() => {})
     },
     onRetry: event => {
       console.error(`foundation:verify hit a transient gate error; retrying attempt ${event.nextAttempt}/${event.maxAttempts}.`)
