@@ -25,6 +25,7 @@ import {
 } from '../lib/approval-integrity.js'
 import {
   buildSyntheticGateReliabilityProof,
+  formatFoundationGateRetryMessage,
   runWithFoundationGateRetry,
 } from '../lib/foundation-gate-reliability.js'
 import {
@@ -118,6 +119,10 @@ const FOUNDATION_1100_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const PLAIN_ENGLISH_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'PLAIN-ENGLISH-SWEEP-001',
+]
+
+const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'GATE-RELIABILITY-002',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -778,6 +783,7 @@ async function main() {
     FOUNDATION_REVIEW_SPRINT_CARD_IDS.map(cardId => [cardId, `docs/process/approvals/${cardId}.json`])
   )
   const plainEnglishSweepApprovalRef = 'docs/process/approvals/PLAIN-ENGLISH-SWEEP-001.json'
+  const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
     validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
   ))
@@ -792,6 +798,11 @@ async function main() {
     approvalRef: plainEnglishSweepApprovalRef,
     cardId: PLAIN_ENGLISH_SWEEP_CARD_ID,
   })
+  const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: gateReliabilityRecurringApprovalRef,
+    cardId: 'GATE-RELIABILITY-002',
+  })
   const approvalIntegritySynthetic = await buildSyntheticApprovalIntegrityStatus()
   const gitHookInstallStatus = await buildGitHookInstallStatus({ repoRoot })
   const gitHookScopeProof = buildSyntheticGitHookScopeProof()
@@ -800,6 +811,7 @@ async function main() {
   const foundationControlApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-control-layer-v1.md')
   const foundation1100ReviewApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-1100-review-v1.md')
   const plainEnglishSweepApprovedPlan = await readRepoFile('docs/process/approved-plans/plain-english-sweep-v1.md')
+  const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
   const plainEnglishSweepManualReview = await readRepoFile(PLAIN_ENGLISH_SWEEP_MANUAL_REVIEW_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
@@ -2675,6 +2687,10 @@ async function main() {
     (build.backlogIds || []).includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
       build.closeoutKey === PLAIN_ENGLISH_SWEEP_CLOSEOUT_KEY
   )
+  const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
+      build.closeoutKey === 'gate-reliability-recurring-transient-v1'
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -3787,6 +3803,7 @@ async function main() {
   const closeoutBackfill = (foundationHub.backlogItems || []).find(item => item.id === 'CLOSEOUT-BACKFILL-001') || null
   const preCommitHookInstall = (foundationHub.backlogItems || []).find(item => item.id === 'PRE-COMMIT-HOOK-INSTALL-001') || null
   const gateReliability = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-RELIABILITY-001') || null
+  const gateReliabilityRecurring = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-RELIABILITY-002') || null
   const personalWorkspaceBoundary = (foundationHub.backlogItems || []).find(item => item.id === 'PERSONAL-WORKSPACE-BOUNDARY-001') || null
   const doctrinePropagationV3 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-003') || null
   const decisionAutoEmitV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DECISION-AUTO-EMIT-002') || null
@@ -4609,7 +4626,7 @@ async function main() {
         'strictShipCheckVerify',
         'process:foundation-ship runs final foundation:verify once after fanout gates',
         'Promise.allSettled',
-        'transient gate error',
+        'formatFoundationGateRetryMessage',
         'Gate timing summary',
         'targetMs',
       ]) &&
@@ -4839,11 +4856,65 @@ async function main() {
       ]) &&
       includesAll(foundationVerifySource, [
         'runWithFoundationGateRetry',
-        'foundation:verify hit a transient gate error',
+        'formatFoundationGateRetryMessage',
         'resetFoundationDb',
       ]),
     'GATE-RELIABILITY-001 proves deterministic transient retry, DB-cleanup retry, and permanent fail-closed behavior',
     `transientAttempts=${gateReliabilityProof.transient.attempts} cleanupAttempts=${gateReliabilityProof.transientAfterCleanup.attempts} permanentAttempts=${gateReliabilityProof.permanent.attempts}`,
+  )
+  const gateReliabilityRecurringBuildLogExact = buildLogGateReliabilityRecurringBuild?.backlogIds?.length === 1 &&
+    buildLogGateReliabilityRecurringBuild.backlogIds.includes('GATE-RELIABILITY-002') &&
+    ![
+      'GATE-RELIABILITY-001',
+      'PLAIN-ENGLISH-SWEEP-001',
+      'UI-MENU-LAYOUT-POLISH-001',
+      'RECENT-BUILDS-BILLION-DOLLAR-UI-001',
+    ].some(id => buildLogGateReliabilityRecurringBuild.backlogIds.includes(id))
+  ensure(
+    checks,
+    gateReliabilityRecurring?.lane === 'done' &&
+      /gate-reliability-recurring-transient-v1/.test(gateReliabilityRecurring?.statusNote || '') &&
+      gateReliabilityRecurringApprovalValidation.ok &&
+      gateReliabilityRecurringApprovalValidation.mode === 'v2' &&
+      gateReliabilityRecurringApprovalValidation.approval?.approvedPlanRef === 'docs/process/approved-plans/gate-reliability-recurring-transient-v1.md' &&
+      gateReliabilityRecurringApprovedPlan.includes('Inspect the latest verifier retry output/log path') &&
+      gateReliabilityRecurringApprovedPlan.includes('No UI-MENU-LAYOUT-POLISH-001') &&
+      includesAll(foundationVerifySource, GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      gateReliabilityProof.recurringDeadlockDiagnostic?.ok === true &&
+      gateReliabilityProof.recurringDeadlockDiagnostic?.transientClass === 'postgres-deadlock' &&
+      gateReliabilityProof.recurringDeadlockDiagnostic?.subsystem === 'postgres' &&
+      /class=postgres-deadlock; subsystem=postgres/.test(gateReliabilityProof.recurringDeadlockDiagnostic?.formattedMessage || '') &&
+      foundationHub.gateReliability?.recurringDeadlockDiagnostic?.transientClass === 'postgres-deadlock' &&
+      includesAll(gateReliabilitySource, [
+        'classifyFoundationGateError',
+        'formatFoundationGateRetryMessage',
+        'postgres-deadlock',
+        'foundation-db-pool-closed',
+        'deterministic-recurring-deadlock-diagnostic-fixture',
+      ]) &&
+      includesAll(gateReliabilityScriptSource, [
+        'Recurring deadlock diagnostic',
+        'GATE_RELIABILITY_SUMMARY',
+      ]) &&
+      includesAll(processFoundationShipSource, [
+        'classifyFoundationGateError',
+        'formatFoundationGateRetryMessage',
+        'diagnostic',
+        'parallelFanout',
+        'runSequentialSteps',
+      ]) &&
+      includesAll(processFoundationShipDoc, [
+        'Fanout runs sequentially by default',
+        '--parallelFanout=true',
+      ]) &&
+      buildLogGateReliabilityRecurringBuild?.operatorCloseout === true &&
+      gateReliabilityRecurringBuildLogExact &&
+      currentPlan.includes('GATE-RELIABILITY-002') &&
+      currentPlan.includes('gate-reliability-recurring-transient-v1') &&
+      currentState.includes('GATE-RELIABILITY-002') &&
+      currentState.includes('Next expected Phase G card remains `UI-MENU-LAYOUT-POLISH-001`'),
+    'GATE-RELIABILITY-002 diagnoses recurring transient retries without opening Phase G UI work',
+    `class=${gateReliabilityProof.recurringDeadlockDiagnostic?.transientClass || 'missing'} subsystem=${gateReliabilityProof.recurringDeadlockDiagnostic?.subsystem || 'missing'} closeout=${buildLogGateReliabilityRecurringBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,
@@ -5679,7 +5750,7 @@ runWithFoundationGateRetry(
       await resetFoundationDb().catch(() => {})
     },
     onRetry: event => {
-      console.error(`foundation:verify hit a transient gate error; retrying attempt ${event.nextAttempt}/${event.maxAttempts}.`)
+      console.error(formatFoundationGateRetryMessage('foundation:verify', event))
     },
   },
 )

@@ -4,7 +4,8 @@ import { execFile as execFileCallback } from 'node:child_process'
 import process from 'node:process'
 import { promisify } from 'node:util'
 import {
-  isTransientFoundationGateError,
+  classifyFoundationGateError,
+  formatFoundationGateRetryMessage,
   sleep,
 } from '../lib/foundation-gate-reliability.js'
 import { recordFoundationShipProof } from '../lib/process-git-hooks.js'
@@ -79,8 +80,16 @@ async function runStep(label, npmArgs, options = {}) {
     } catch (error) {
       stdoutBuffer += error?.stdout || ''
       stderrBuffer += error?.stderr || ''
-      if (attempt <= retries && isTransientFoundationGateError(error)) {
-        stderrBuffer += `\n${label} hit a transient gate error; retrying attempt ${attempt + 1}/${retries + 1}.\n`
+      const diagnostic = classifyFoundationGateError(error)
+      if (attempt <= retries && diagnostic.transient) {
+        stderrBuffer += `\n${formatFoundationGateRetryMessage(label, {
+          label,
+          attempt,
+          nextAttempt: attempt + 1,
+          maxAttempts: retries + 1,
+          error,
+          diagnostic,
+        })}\n`
         await sleep(1500 * attempt)
         continue
       }
@@ -121,12 +130,23 @@ async function runParallelSteps(steps) {
   return results
 }
 
+async function runSequentialSteps(steps) {
+  const results = []
+  for (const step of steps) {
+    const result = await runStep(step.label, step.npmArgs)
+    printStepResult(result)
+    results.push(result)
+  }
+  return results
+}
+
 async function main() {
   const gateStartedAt = Date.now()
   const args = parseArgs(process.argv.slice(2))
   const missing = requiredArgs.filter(key => !normalize(args[key]))
   const commitRef = normalize(args.commitRef) || 'HEAD'
   const strictShipCheckVerify = args.strictShipCheckVerify === true || args.strictShipCheckVerify === 'true'
+  const parallelFanout = args.parallelFanout === true || args.parallelFanout === 'true'
   const targetMs = Number(args.targetMs || 300000)
 
   console.log('Foundation ship gate')
@@ -134,6 +154,7 @@ async function main() {
   console.log(`  Closeout: ${normalize(args.closeoutKey) || 'missing'}`)
   console.log(`  Approval: ${normalize(args.planApprovalRef) || 'missing'}`)
   console.log(`  Commit ref: ${commitRef}`)
+  console.log(`  Fanout mode: ${parallelFanout ? 'parallel' : 'sequential'}`)
 
   if (missing.length) {
     console.error('')
@@ -170,7 +191,7 @@ async function main() {
   printStepResult(shipCheck)
   timing.push(shipCheck)
 
-  const parallelResults = await runParallelSteps([
+  const fanoutSteps = [
     {
       label: 'process:fanout-check',
       npmArgs: [
@@ -192,8 +213,11 @@ async function main() {
         buildArg('commitRef', commitRef),
       ],
     },
-  ])
-  timing.push(...parallelResults)
+  ]
+  const fanoutResults = parallelFanout
+    ? await runParallelSteps(fanoutSteps)
+    : await runSequentialSteps(fanoutSteps)
+  timing.push(...fanoutResults)
 
   const foundationVerify = await runStep('foundation:verify', ['run', 'foundation:verify'], { retries: 1 })
   printStepResult(foundationVerify)

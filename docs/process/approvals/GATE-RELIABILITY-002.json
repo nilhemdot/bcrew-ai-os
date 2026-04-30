@@ -1,0 +1,13 @@
+{
+  "cardId": "GATE-RELIABILITY-002",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T11:09:08Z",
+  "approvalSource": "Steve directed a narrow GATE-RELIABILITY-002 patch before UI-MENU-LAYOUT-POLISH-001 to diagnose or eliminate recurring foundation:verify transient retries after the retry pool reset patch.",
+  "notes": "Approval covers only the recurring Foundation gate transient reliability patch. It does not approve UI/menu/layout polish, Recent Work redesign, source expansion, Strategy, Scoper, Agent Factory, corpus, research, or action-review work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/gate-reliability-recurring-transient-v1.md",
+  "approvedPlanSha256": "59616cdfbda3445a7d292452f8c21416087086b391ec39b57fc853fead8aa57e",
+  "approvedRepoHead": "a101bd734485877d51807b8a778072b2eca1a83a",
+  "approvalDigest": "dc60788a82bc09550f1fefd4be497ec8e8e2e8fb5f4ba653092ed561c0afd5f2"
+}

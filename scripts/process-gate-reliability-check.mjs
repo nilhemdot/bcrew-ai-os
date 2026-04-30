@@ -26,6 +26,7 @@ async function main() {
   console.log(`  Real DB deadlock induced: ${proof.realDeadlockInduced ? 'yes' : 'no'}`)
   console.log(`  Transient retry passed: ${proof.transient.passedAfterRetry ? 'yes' : 'no'} (${proof.transient.attempts} attempts)`)
   console.log(`  Transient after DB cleanup retry passed: ${proof.transientAfterCleanup.passedAfterCleanup ? 'yes' : 'no'} (${proof.transientAfterCleanup.attempts} attempts, ${proof.transientAfterCleanup.cleanupCalls} cleanup)`)
+  console.log(`  Recurring deadlock diagnostic: ${proof.recurringDeadlockDiagnostic.transientClass || 'missing'} / ${proof.recurringDeadlockDiagnostic.subsystem || 'missing'} (${proof.recurringDeadlockDiagnostic.attempts} attempts)`)
   console.log(`  Permanent failure failed closed: ${proof.permanent.failedClosed ? 'yes' : 'no'} (${proof.permanent.attempts} attempt)`)
   console.log(`GATE_RELIABILITY_SUMMARY ${JSON.stringify(proof)}`)
 
