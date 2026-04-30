@@ -3,6 +3,7 @@
 import { buildSyntheticGateReliabilityProof } from '../lib/foundation-gate-reliability.js'
 import {
   closeFoundationDb,
+  getActionRouterSnapshot,
   getFoundationDbConstraintAudit,
   resetFoundationDb,
 } from '../lib/foundation-db.js'
@@ -12,6 +13,7 @@ async function main() {
     transientAfterCleanup: {
       probe: async () => {
         await getFoundationDbConstraintAudit({ limit: 1 })
+        await getActionRouterSnapshot({ limit: 1 })
       },
       cleanup: async () => {
         await resetFoundationDb()

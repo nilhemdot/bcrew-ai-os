@@ -34,6 +34,13 @@ import {
   buildCeoDashboardPatternStatus,
 } from '../lib/foundation-ceo-dashboard-pattern.js'
 import {
+  buildFoundationReviewSprintStatus,
+  FOUNDATION_REVIEW_SPRINT_CARD_IDS,
+  FOUNDATION_REVIEW_SPRINT_CLOSEOUT_KEY,
+  FOUNDATION_REVIEW_SPRINT_PHASE_G_ORDER,
+  loadFoundationReviewSprintArtifact,
+} from '../lib/foundation-review-sprint.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -93,6 +100,13 @@ import {
   buildHitListReconcileStatusFromFile,
   buildResearchCurationStatus,
 } from '../lib/phase-d-cleanup.js'
+
+const FOUNDATION_1100_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'BACKLOG-HYGIENE-PASS-002',
+  'ACTION-REVIEW-CLEANUP-001',
+  'RESEARCH-CURATION-002',
+  'PHASE-G-READINESS-001',
+]
 
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
@@ -748,10 +762,16 @@ async function main() {
     'DECISION-AUTO-EMIT-002': 'docs/process/approvals/DECISION-AUTO-EMIT-002.json',
     'CEO-DASHBOARD-PATTERN-001': 'docs/process/approvals/CEO-DASHBOARD-PATTERN-001.json',
   }
+  const foundation1100ReviewApprovalRefs = Object.fromEntries(
+    FOUNDATION_REVIEW_SPRINT_CARD_IDS.map(cardId => [cardId, `docs/process/approvals/${cardId}.json`])
+  )
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
     validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
   ))
   const foundationControlApprovalValidations = await Promise.all(Object.entries(foundationControlApprovalRefs).map(async ([cardId, approvalRef]) =>
+    validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
+  ))
+  const foundation1100ReviewApprovalValidations = await Promise.all(Object.entries(foundation1100ReviewApprovalRefs).map(async ([cardId, approvalRef]) =>
     validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
   ))
   const approvalIntegritySynthetic = await buildSyntheticApprovalIntegrityStatus()
@@ -760,6 +780,7 @@ async function main() {
   const buildLogOwnershipProof = buildSyntheticBuildLogOwnershipProof()
   const phase1ApprovedPlan = await readRepoFile(PHASE_1_ENFORCEMENT_PLAN_REF)
   const foundationControlApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-control-layer-v1.md')
+  const foundation1100ReviewApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-1100-review-v1.md')
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -1858,7 +1879,17 @@ async function main() {
   const syntheticCardReferenceTrust = buildSyntheticPhantomCardReferenceStatus()
   const sourceReferenceTrust = await buildSourceReferenceTrustStatus({ repoRoot })
   const docArchiveCleanupStatus = await buildDocArchiveCleanupStatus({ repoRoot })
-  const researchCurationStatus = buildResearchCurationStatus({ backlogItems: foundationHub.backlogItems || [] })
+  const foundation1100Artifact = await loadFoundationReviewSprintArtifact({ repoRoot })
+  const foundation1100ReviewStatus = buildFoundationReviewSprintStatus({
+    artifact: foundation1100Artifact,
+    backlogItems: foundationHub.backlogItems || [],
+    actionRouter: foundationHub.intelligenceActionRouter || {},
+    hygiene: backlogHygieneApi,
+  })
+  const researchCurationStatus = buildResearchCurationStatus({
+    backlogItems: foundationHub.backlogItems || [],
+    foundationReviewSprint: foundation1100ReviewStatus,
+  })
   const exceptionCurationStatus = await buildExceptionCurationStatus({ repoRoot })
   const hitListReconcileStatus = await buildHitListReconcileStatusFromFile({
     repoRoot,
@@ -2613,6 +2644,10 @@ async function main() {
       (build.backlogIds || []).includes('DECISION-AUTO-EMIT-002') &&
       (build.backlogIds || []).includes('CEO-DASHBOARD-PATTERN-001') &&
       build.closeoutKey === 'foundation-control-layer-v1'
+  )
+  const buildLogFoundation1100ReviewBuild = (foundationBuildLog.builds || []).find(build =>
+    FOUNDATION_REVIEW_SPRINT_CARD_IDS.every(id => (build.backlogIds || []).includes(id)) &&
+      build.closeoutKey === FOUNDATION_REVIEW_SPRINT_CLOSEOUT_KEY
   )
   ensure(
     checks,
@@ -3729,6 +3764,9 @@ async function main() {
   const doctrinePropagationV3 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-003') || null
   const decisionAutoEmitV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DECISION-AUTO-EMIT-002') || null
   const ceoDashboardPattern = (foundationHub.backlogItems || []).find(item => item.id === 'CEO-DASHBOARD-PATTERN-001') || null
+  const foundation1100ReviewCards = FOUNDATION_REVIEW_SPRINT_CARD_IDS.map(id =>
+    (foundationHub.backlogItems || []).find(item => item.id === id) || null
+  )
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -4716,6 +4754,7 @@ async function main() {
     transientAfterCleanup: {
       probe: async () => {
         await getFoundationDbConstraintAudit({ limit: 1 })
+        await getActionRouterSnapshot({ limit: 1 })
       },
       cleanup: async () => {
         await resetFoundationDb()
@@ -4741,8 +4780,9 @@ async function main() {
       buildLogFoundationControlBuild?.operatorCloseout === true &&
       foundationControlBuildLogExact &&
       currentPlan.includes('Foundation control layer') &&
-      currentPlan.includes('review-queue cleanup or Phase G Track 2') &&
+      currentPlan.includes('foundation-control-layer-v1') &&
       currentState.includes('Foundation control layer is done for v1') &&
+      currentState.includes('review-queue cleanup or Phase G operator UI') &&
       currentState.includes('docs/process/ceo-dashboard-pattern.md'),
     'Foundation control-layer cards have approved 9.8 plan evidence and exact closeout ownership',
     `cards=${foundationControlCards.filter(card => card?.lane === 'done').length}/5 approvals=${foundationControlApprovalValidations.filter(validation => validation.ok).length}/5 closeout=${buildLogFoundationControlBuild?.closeoutKey || 'missing'}`,
@@ -4877,6 +4917,41 @@ async function main() {
       ]),
     'CEO-DASHBOARD-PATTERN-001 defines the operator surface pattern without Phase G UI work',
     `fields=${ceoDashboardPatternStatus.requiredFields.length} ui=${ceoDashboardPatternStatus.uiImplementationIncluded ? 'yes' : 'no'}`,
+  )
+  const foundation1100BuildLogExact = buildLogFoundation1100ReviewBuild?.backlogIds?.length === FOUNDATION_REVIEW_SPRINT_CARD_IDS.length &&
+    FOUNDATION_REVIEW_SPRINT_CARD_IDS.every(id => buildLogFoundation1100ReviewBuild.backlogIds.includes(id)) &&
+    !FOUNDATION_REVIEW_SPRINT_PHASE_G_ORDER.some(id => buildLogFoundation1100ReviewBuild.backlogIds.includes(id))
+  ensure(
+    checks,
+    foundation1100ReviewCards.every(card => card?.lane === 'done') &&
+      foundation1100ReviewCards.every(card => /foundation-1100-review-v1/.test(card?.statusNote || '')) &&
+      foundation1100ReviewApprovalValidations.every(validation => validation.ok && validation.mode === 'v2') &&
+      foundation1100ReviewApprovalValidations.every(validation => validation.approval?.approvedPlanRef === 'docs/process/approved-plans/foundation-1100-review-v1.md') &&
+      foundation1100ReviewApprovedPlan.includes('RESEARCH-CURATION-002 is disposition-only') &&
+      foundation1100ReviewApprovedPlan.includes('may apply only safe Foundation/system housekeeping routes') &&
+      foundation1100ReviewApprovedPlan.includes('create them with full context before cleanup work') &&
+      includesAll(foundationVerifySource, FOUNDATION_1100_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      foundation1100Artifact?.baseline?.counts?.backlogCards === 289 &&
+      foundation1100Artifact?.baseline?.hygiene?.findings?.length === 20 &&
+      foundation1100Artifact?.baseline?.actionReview?.pendingRoutes?.length === 18 &&
+      foundation1100Artifact?.baseline?.researchCuration?.dispositions?.length === 102 &&
+      foundation1100ReviewStatus.status === 'healthy' &&
+      foundation1100ReviewStatus.summary?.currentHygieneCritical === 0 &&
+      foundation1100ReviewStatus.summary?.currentHygieneWarnings === 0 &&
+      foundation1100ReviewStatus.summary?.actionRoutesCurated === 18 &&
+      foundation1100ReviewStatus.summary?.actionRoutesAppliedBySprint === 0 &&
+      foundation1100ReviewStatus.summary?.researchCardsDispositionOnly === 102 &&
+      JSON.stringify(foundation1100ReviewStatus.phaseGReadiness?.finalOrder || []) === JSON.stringify(FOUNDATION_REVIEW_SPRINT_PHASE_G_ORDER) &&
+      foundationHub.foundation1100Review?.status === 'healthy' &&
+      foundationHub.foundation1100Review?.summary?.actionRoutesCurated === 18 &&
+      buildLogFoundation1100ReviewBuild?.operatorCloseout === true &&
+      foundation1100BuildLogExact &&
+      currentPlan.includes('Foundation 1100 Review Sprint') &&
+      currentPlan.includes('No Phase G UI work starts inside this cleanup sprint') &&
+      currentState.includes('Foundation 1100 Review Sprint is done for v1') &&
+      currentState.includes('Next step is a separate 9.8 plan for PLAIN-ENGLISH-SWEEP-001'),
+    'Foundation 1100 Review Sprint cleans hygiene/action/research layers before Phase G',
+    `cards=${foundation1100ReviewCards.filter(card => card?.lane === 'done').length}/4 hygiene=${foundation1100ReviewStatus.summary?.currentHygieneWarnings} action=${foundation1100ReviewStatus.summary?.actionRoutesCurated}/18 research=${foundation1100ReviewStatus.summary?.researchCardsDispositionOnly}/102 closeout=${buildLogFoundation1100ReviewBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

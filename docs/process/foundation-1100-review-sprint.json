@@ -1,0 +1,1872 @@
+{
+  "schemaVersion": 1,
+  "closeoutKey": "foundation-1100-review-v1",
+  "artifactPath": "docs/process/foundation-1100-review-sprint.json",
+  "baseline": {
+    "schemaVersion": 1,
+    "closeoutKey": "foundation-1100-review-v1",
+    "capturedAt": "2026-04-30T00:51:43.339Z",
+    "repoHead": "c36f6ccc6ae35c568400cd42dc3bc06d9fc7b4e9",
+    "counts": {
+      "backlogCards": 289,
+      "done": 94,
+      "scoped": 83,
+      "research": 102,
+      "actionRoutesTotal": 19,
+      "actionRoutesPending": 18,
+      "hygieneFindings": 20,
+      "hygieneCritical": 0,
+      "hygieneWarnings": 20
+    },
+    "wrapperCardsBefore": [
+      {
+        "cardId": "BACKLOG-HYGIENE-PASS-002",
+        "exists": false,
+        "lane": null
+      },
+      {
+        "cardId": "ACTION-REVIEW-CLEANUP-001",
+        "exists": false,
+        "lane": null
+      },
+      {
+        "cardId": "RESEARCH-CURATION-002",
+        "exists": false,
+        "lane": null
+      },
+      {
+        "cardId": "PHASE-G-READINESS-001",
+        "exists": false,
+        "lane": null
+      }
+    ],
+    "hygiene": {
+      "summary": {
+        "status": "warning",
+        "cardCount": 289,
+        "findingCount": 20,
+        "visibleFindingCount": 12,
+        "criticalFindings": 0,
+        "warningFindings": 20,
+        "infoFindings": 0,
+        "syntheticFindings": 0,
+        "typeCounts": {
+          "missing_process_gate_fields": 10,
+          "scoped_card_claims_active_work": 10
+        }
+      },
+      "findings": [
+        {
+          "findingKey": "missing_process_gate_fields:MEMORY-002:MEMORY-002 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "MEMORY-002",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "MEMORY-002 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:SOURCE-001:SOURCE-001 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "SOURCE-001",
+          "lane": "scoped",
+          "priority": "P1",
+          "issue": "SOURCE-001 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:SOURCE-002:SOURCE-002 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "SOURCE-002",
+          "lane": "scoped",
+          "priority": "P1",
+          "issue": "SOURCE-002 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:SYSTEM-010:SYSTEM-010 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "SYSTEM-010",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "SYSTEM-010 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        },
+        {
+          "findingKey": "missing_process_gate_fields:SYSTEM-010:SYSTEM-010 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "SYSTEM-010",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "SYSTEM-010 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:RUNTIME-ACTIVATION-001:RUNTIME-ACTIVATION-001 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "RUNTIME-ACTIVATION-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "RUNTIME-ACTIVATION-001 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        },
+        {
+          "findingKey": "missing_process_gate_fields:CONNECTOR-CREDENTIAL-001:CONNECTOR-CREDENTIAL-001 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "CONNECTOR-CREDENTIAL-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "CONNECTOR-CREDENTIAL-001 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "missing_process_gate_fields:LLM-CREDENTIAL-REGISTRY-001:LLM-CREDENTIAL-REGISTRY-001 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "LLM-CREDENTIAL-REGISTRY-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "LLM-CREDENTIAL-REGISTRY-001 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "missing_process_gate_fields:LLM-HUB-CAPACITY-001:LLM-HUB-CAPACITY-001 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "LLM-HUB-CAPACITY-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "LLM-HUB-CAPACITY-001 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:EXTRACTION-TEAM-001:EXTRACTION-TEAM-001 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "EXTRACTION-TEAM-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "EXTRACTION-TEAM-001 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        },
+        {
+          "findingKey": "missing_process_gate_fields:EXTRACT-CURRENT-001:EXTRACT-CURRENT-001 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "EXTRACT-CURRENT-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "EXTRACT-CURRENT-001 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "missing_process_gate_fields:EXTRACT-BACKFILL-001:EXTRACT-BACKFILL-001 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "EXTRACT-BACKFILL-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "EXTRACT-BACKFILL-001 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:EMAIL-ATTACHMENTS-001:EMAIL-ATTACHMENTS-001 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "EMAIL-ATTACHMENTS-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "EMAIL-ATTACHMENTS-001 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        },
+        {
+          "findingKey": "missing_process_gate_fields:EMAIL-ATTACHMENTS-001:EMAIL-ATTACHMENTS-001 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "EMAIL-ATTACHMENTS-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "EMAIL-ATTACHMENTS-001 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:DECISION-005:DECISION-005 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "DECISION-005",
+          "lane": "scoped",
+          "priority": "P1",
+          "issue": "DECISION-005 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        },
+        {
+          "findingKey": "missing_process_gate_fields:LEGACY-SYSTEM-AUDIT-001:LEGACY-SYSTEM-AUDIT-001 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "LEGACY-SYSTEM-AUDIT-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "LEGACY-SYSTEM-AUDIT-001 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "missing_process_gate_fields:STRATEGIC-INTEL-001:STRATEGIC-INTEL-001 is active P0 work but is missing process-gate clarity.",
+          "type": "missing_process_gate_fields",
+          "severity": "warning",
+          "cardId": "STRATEGIC-INTEL-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "STRATEGIC-INTEL-001 is active P0 work but is missing process-gate clarity.",
+          "recommendedAction": "Add scope, proof/acceptance language, and a clear next action before build work starts."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:SOURCE-006:SOURCE-006 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "SOURCE-006",
+          "lane": "scoped",
+          "priority": "P2",
+          "issue": "SOURCE-006 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:MULTIMODAL-EXTRACTOR-001:MULTIMODAL-EXTRACTOR-001 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "MULTIMODAL-EXTRACTOR-001",
+          "lane": "scoped",
+          "priority": "P0",
+          "issue": "MULTIMODAL-EXTRACTOR-001 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        },
+        {
+          "findingKey": "scoped_card_claims_active_work:YOUTUBE-SCOUT-001:YOUTUBE-SCOUT-001 is scoped, but the copy sounds like work is already active.",
+          "type": "scoped_card_claims_active_work",
+          "severity": "warning",
+          "cardId": "YOUTUBE-SCOUT-001",
+          "lane": "scoped",
+          "priority": "P1",
+          "issue": "YOUTUBE-SCOUT-001 is scoped, but the copy sounds like work is already active.",
+          "recommendedAction": "Move it to executing if work is active, or clarify that it is parked/scoped and not currently being worked."
+        }
+      ]
+    },
+    "actionReview": {
+      "policy": "Disposition-only unless a route is safe Foundation/system housekeeping with no external/business side effect. No route is auto-applied in this sprint.",
+      "pendingRoutes": [
+        {
+          "routeId": "action-route:4a887a779e8ecc21834afb81",
+          "routeType": "decision",
+          "destinationTable": "decisions",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-MEETINGS-001"
+          ],
+          "disposition": "recommend-decision-review",
+          "recommendation": "Recommend human decision review only; do not silently create applied/locked decisions.",
+          "foundationHousekeeping": true,
+          "businessSideEffect": false,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:bc3bd69233d3c3864de9a2db",
+          "routeType": "decision",
+          "destinationTable": "decisions",
+          "approvalStatusBefore": "pending",
+          "owner": "Finance",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "recommend-decision-review",
+          "recommendation": "Recommend human decision review only; do not silently create applied/locked decisions.",
+          "foundationHousekeeping": false,
+          "businessSideEffect": true,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:fd272385f867696a35f7a98d",
+          "routeType": "ignore",
+          "destinationTable": "intelligence_synthesized_items",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "recommend-reject-noisy-route",
+          "recommendation": "Recommend rejecting as non-work/noisy route; no destination apply in this sprint.",
+          "foundationHousekeeping": true,
+          "businessSideEffect": false,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:04ab28666607d153b5460c38",
+          "routeType": "owner_action",
+          "destinationTable": "backlog_items",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "classify-business-or-owner-action",
+          "recommendation": "Classify and hold. Finance, sales, people, customer, invoice, access-grant, and owner-action routes require Steve route-specific approval before apply.",
+          "foundationHousekeeping": false,
+          "businessSideEffect": true,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:345e3401cca7d848e00f4db3",
+          "routeType": "open_question",
+          "destinationTable": "open_questions",
+          "approvalStatusBefore": "pending",
+          "owner": "Marketing",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "recommend-question-review",
+          "recommendation": "Recommend human question review only; do not create or reopen questions without route-specific approval.",
+          "foundationHousekeeping": true,
+          "businessSideEffect": false,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:bec5ba70036b02e94af448f1",
+          "routeType": "open_question",
+          "destinationTable": "open_questions",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "recommend-question-review",
+          "recommendation": "Recommend human question review only; do not create or reopen questions without route-specific approval.",
+          "foundationHousekeeping": true,
+          "businessSideEffect": false,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:e47e9242b40d9eab21549ad5",
+          "routeType": "owner_action",
+          "destinationTable": "backlog_items",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "classify-business-or-owner-action",
+          "recommendation": "Classify and hold. Finance, sales, people, customer, invoice, access-grant, and owner-action routes require Steve route-specific approval before apply.",
+          "foundationHousekeeping": false,
+          "businessSideEffect": true,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:f49fdec1289d13c01400bfa2",
+          "routeType": "open_question",
+          "destinationTable": "open_questions",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "recommend-question-review",
+          "recommendation": "Recommend human question review only; do not create or reopen questions without route-specific approval.",
+          "foundationHousekeeping": true,
+          "businessSideEffect": false,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:1da74bd929137d8dda18de5a",
+          "routeType": "owner_action",
+          "destinationTable": "backlog_items",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "classify-business-or-owner-action",
+          "recommendation": "Classify and hold. Finance, sales, people, customer, invoice, access-grant, and owner-action routes require Steve route-specific approval before apply.",
+          "foundationHousekeeping": false,
+          "businessSideEffect": true,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:71c478ec633ab7ac74c25657",
+          "routeType": "owner_action",
+          "destinationTable": "backlog_items",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "classify-business-or-owner-action",
+          "recommendation": "Classify and hold. Finance, sales, people, customer, invoice, access-grant, and owner-action routes require Steve route-specific approval before apply.",
+          "foundationHousekeeping": false,
+          "businessSideEffect": true,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:c66b9533637097e91d4ffa06",
+          "routeType": "owner_action",
+          "destinationTable": "backlog_items",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "classify-business-or-owner-action",
+          "recommendation": "Classify and hold. Finance, sales, people, customer, invoice, access-grant, and owner-action routes require Steve route-specific approval before apply.",
+          "foundationHousekeeping": false,
+          "businessSideEffect": true,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:5c043fb129b869b60e9549c6",
+          "routeType": "decision",
+          "destinationTable": "decisions",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-MEETINGS-001"
+          ],
+          "disposition": "recommend-decision-review",
+          "recommendation": "Recommend human decision review only; do not silently create applied/locked decisions.",
+          "foundationHousekeeping": true,
+          "businessSideEffect": false,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:002009fd5d7713973477ab84",
+          "routeType": "decision",
+          "destinationTable": "decisions",
+          "approvalStatusBefore": "pending",
+          "owner": "Finance",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "recommend-decision-review",
+          "recommendation": "Recommend human decision review only; do not silently create applied/locked decisions.",
+          "foundationHousekeeping": false,
+          "businessSideEffect": true,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:efb9c86481d6e1ad0ab95a5b",
+          "routeType": "ignore",
+          "destinationTable": "intelligence_synthesized_items",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "recommend-reject-noisy-route",
+          "recommendation": "Recommend rejecting as non-work/noisy route; no destination apply in this sprint.",
+          "foundationHousekeeping": true,
+          "businessSideEffect": false,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:5f8972a336e052890fbb047b",
+          "routeType": "owner_action",
+          "destinationTable": "backlog_items",
+          "approvalStatusBefore": "pending",
+          "owner": "Sales Leadership",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "classify-business-or-owner-action",
+          "recommendation": "Classify and hold. Finance, sales, people, customer, invoice, access-grant, and owner-action routes require Steve route-specific approval before apply.",
+          "foundationHousekeeping": false,
+          "businessSideEffect": true,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:b77adeb5d012121a4b540e33",
+          "routeType": "open_question",
+          "destinationTable": "open_questions",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "recommend-question-review",
+          "recommendation": "Recommend human question review only; do not create or reopen questions without route-specific approval.",
+          "foundationHousekeeping": true,
+          "businessSideEffect": false,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:07f8ede4aa79119553bf6e1d",
+          "routeType": "open_question",
+          "destinationTable": "open_questions",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "recommend-question-review",
+          "recommendation": "Recommend human question review only; do not create or reopen questions without route-specific approval.",
+          "foundationHousekeeping": true,
+          "businessSideEffect": false,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        },
+        {
+          "routeId": "action-route:e911a7d6d80138c0145e7c71",
+          "routeType": "owner_action",
+          "destinationTable": "backlog_items",
+          "approvalStatusBefore": "pending",
+          "owner": "Foundation",
+          "sourceIds": [
+            "SRC-GMAIL-001"
+          ],
+          "disposition": "classify-business-or-owner-action",
+          "recommendation": "Classify and hold. Finance, sales, people, customer, invoice, access-grant, and owner-action routes require Steve route-specific approval before apply.",
+          "foundationHousekeeping": false,
+          "businessSideEffect": true,
+          "applyAllowedWithoutSteve": false,
+          "externalSideEffectAllowed": false,
+          "reviewedOnly": true
+        }
+      ],
+      "byDisposition": {
+        "recommend-decision-review": 4,
+        "recommend-reject-noisy-route": 2,
+        "classify-business-or-owner-action": 7,
+        "recommend-question-review": 5
+      }
+    },
+    "researchCuration": {
+      "policy": "Disposition-only. No deep research, implementation, source expansion, or corpus expansion.",
+      "dispositions": [
+        {
+          "cardId": "MEMORY-003",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 3,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 4,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-003",
+          "laneBefore": "research",
+          "priority": "P0",
+          "rank": 4,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "MEMORY-004",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 4,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "ENGINE-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 5,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "MEMORY-005",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 5,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "STRATEGY-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 6,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "FINANCE-001",
+          "laneBefore": "research",
+          "priority": "P0",
+          "rank": 6,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SOURCE-013",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 6,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "GOV-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 7,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "PEOPLE-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 8,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 9,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-010",
+          "laneBefore": "research",
+          "priority": "P0",
+          "rank": 12,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "GOV-002",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 13,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-011",
+          "laneBefore": "research",
+          "priority": "P0",
+          "rank": 13,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DECISION-004",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 13,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "PEOPLE-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 14,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-012",
+          "laneBefore": "research",
+          "priority": "P0",
+          "rank": 14,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "STRATEGY-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 15,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-013",
+          "laneBefore": "research",
+          "priority": "P0",
+          "rank": 15,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DECISION-006",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 15,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "STRATEGY-003",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 16,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-014",
+          "laneBefore": "research",
+          "priority": "P0",
+          "rank": 16,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-015",
+          "laneBefore": "research",
+          "priority": "P0",
+          "rank": 17,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "GOV-003",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 18,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-016",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 18,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "FINANCE-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 18,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SYSTEM-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 19,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-017",
+          "laneBefore": "research",
+          "priority": "P0",
+          "rank": 19,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "FINANCE-003",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 19,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "AGENT-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 20,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "STRATEGY-006",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 20,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "PEOPLE-003",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 22,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DEV-001",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 23,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "UX-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 24,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DEV-002",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 24,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "CLEANUP-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 26,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "MANDATE-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 27,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "UX-005",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 27,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "UX-006",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 28,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "AGENT-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 29,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "STRATEGY-005",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 30,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "AGENT-003",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 30,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "MANDATE-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 31,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "AGENT-004",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 31,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SYSTEM-004",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 32,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "MANDATE-003",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 33,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SYSTEM-005",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 33,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "EXEC-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 34,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "AGENT-005",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 34,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SYSTEM-006",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 34,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SALES-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 35,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SALES-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 35,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "AGENT-006",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 35,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "EXEC-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 35,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "RETAIN-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 36,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "AGENT-007",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 36,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SALES-004",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 36,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "OPS-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 37,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SOURCE-012",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 37,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "RETAIN-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 37,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SALES-005",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 37,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "PEOPLE-004",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 38,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SYSTEM-007",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 38,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SOURCE-015",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 38,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "OPS-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 39,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SOURCE-007",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 39,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SYSTEM-008",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 39,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SOURCE-016",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 39,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "PEOPLE-005",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 40,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SOURCE-009",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 40,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SYSTEM-012",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 40,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "AGENT-008",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 41,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-022",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 41,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SOURCE-011",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 42,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "INFRA-003",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 42,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SOURCE-017",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 42,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SYSTEM-011",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 43,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "OPS-006",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 43,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SKOOL-001",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 44,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "LOOM-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 44,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "CLEANUP-002",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 45,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DRIVE-CORPUS-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 46,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "WEB-CRAWLER-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 46,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "ZOOM-RECOVERY-001",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 46,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SKOOL-WORKER-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 46,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "SOURCE-022",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 46,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "PLATFORM-INTEL-001",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 47,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "CRM-OWNERSHIP-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 48,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "CRM-LEGACY-001",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 48,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "CRM-RECRUIT-001",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 48,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "PM-BASE-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 49,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "FUB-AGENT-TOOLS-001",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 49,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "ENGINE-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": null,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "DATA-021",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": null,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "ENGINE-003",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": null,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "ENGINE-004",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": null,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "CLEANUP-004",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": null,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "MKT-002",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 2,
+          "subTag": "research",
+          "disposition": "keep-research",
+          "reason": "Disposition-only triage: keep in research until a later approved investigation scopes it.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "MKT-004",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 4,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "AVATAR-001",
+          "laneBefore": "research",
+          "priority": "P2",
+          "rank": 6,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        },
+        {
+          "cardId": "HUB-INTEL-001",
+          "laneBefore": "research",
+          "priority": "P1",
+          "rank": 47,
+          "subTag": "future-build",
+          "disposition": "park-future-build",
+          "reason": "Disposition-only triage: park as future-build idea until later hub or source proof makes it current.",
+          "noDeepResearch": true,
+          "noImplementation": true,
+          "noSourceExpansion": true
+        }
+      ],
+      "byDisposition": {
+        "park-future-build": 85,
+        "keep-research": 17
+      },
+      "bySubTag": {
+        "future-build": 85,
+        "research": 17
+      }
+    },
+    "phaseGReadiness": {
+      "finalOrder": [
+        "PLAIN-ENGLISH-SWEEP-001",
+        "UI-MENU-LAYOUT-POLISH-001",
+        "RECENT-BUILDS-BILLION-DOLLAR-UI-001",
+        "CHANGE-LOG-COMPREHENSIVE-001",
+        "DAILY-EXEC-SUMMARY-001",
+        "SOURCE-LIFECYCLE-EXPANSION-001"
+      ],
+      "notStarted": true,
+      "reason": "Phase G starts only after this cleanup sprint is shipped and reviewed.",
+      "nextPlanCard": "PLAIN-ENGLISH-SWEEP-001",
+      "longParkedGateDecisions": [
+        {
+          "cardId": "SECURITY-002",
+          "decision": "required-before-broader-hub-or-assistant-read-work"
+        },
+        {
+          "cardId": "SYSTEM-010",
+          "decision": "required-before-autonomous-runtime-or-broader-hub-work"
+        },
+        {
+          "cardId": "EXTRACT-RETRY-001",
+          "decision": "build-only-when-failed-crawl-items-justify-retry-backoff"
+        }
+      ]
+    },
+    "scopeControls": {
+      "noPhaseGUiWork": true,
+      "noStrategyUi": true,
+      "noScoper": true,
+      "noAgentFactory": true,
+      "noCorpusExpansion": true,
+      "noResearchDeepDive": true,
+      "noBusinessActionApplyWithoutSteve": true
+    }
+  },
+  "proof": {
+    "lastCheckedAt": "2026-04-30T00:57:40.695Z",
+    "status": "healthy",
+    "summary": {
+      "wrapperCardCount": 4,
+      "wrapperCardsDone": 4,
+      "baselineBacklogCards": 289,
+      "baselineHygieneFindings": 20,
+      "currentHygieneCritical": 0,
+      "currentHygieneWarnings": 0,
+      "actionRoutesSnapshotted": 18,
+      "actionRoutesCurated": 18,
+      "actionRoutesAppliedBySprint": 0,
+      "researchCardsSnapshotted": 102,
+      "researchCardsDispositionOnly": 102,
+      "phaseGOrderCount": 6,
+      "findingCount": 0
+    },
+    "findingCount": 0
+  }
+}

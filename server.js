@@ -86,6 +86,10 @@ import { buildSyntheticGateReliabilityProof } from './lib/foundation-gate-reliab
 import { buildPersonalWorkspaceBoundaryStatus } from './lib/foundation-personal-workspace-boundary.js'
 import { buildCeoDashboardPatternStatus } from './lib/foundation-ceo-dashboard-pattern.js'
 import {
+  buildFoundationReviewSprintStatus,
+  loadFoundationReviewSprintArtifact,
+} from './lib/foundation-review-sprint.js'
+import {
   buildArchiveRetireStatus,
   buildDocArchiveCleanupStatus,
   buildExceptionCurationStatus,
@@ -4170,8 +4174,17 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       backlogItems: snapshot.backlogItems || [],
       closeouts: getFoundationBuildCloseouts(),
     })
+    const foundation1100Review = buildFoundationReviewSprintStatus({
+      artifact: await loadFoundationReviewSprintArtifact({ repoRoot: __dirname }),
+      backlogItems: snapshot.backlogItems || [],
+      actionRouter: snapshot.intelligenceActionRouter || {},
+      hygiene: backlogHygiene,
+    })
     const docArchiveCleanup = await buildDocArchiveCleanupStatus({ repoRoot: __dirname })
-    const researchCuration = buildResearchCurationStatus({ backlogItems: snapshot.backlogItems || [] })
+    const researchCuration = buildResearchCurationStatus({
+      backlogItems: snapshot.backlogItems || [],
+      foundationReviewSprint: foundation1100Review,
+    })
     const exceptionCuration = await buildExceptionCurationStatus({ repoRoot: __dirname })
     const hitListReconcile = await buildHitListReconcileStatusFromFile({
       repoRoot: __dirname,
@@ -4209,6 +4222,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       ...snapshot,
       kpiHealth,
       backlogHygiene,
+      foundation1100Review,
       docArchiveCleanup,
       researchCuration,
       exceptionCuration,

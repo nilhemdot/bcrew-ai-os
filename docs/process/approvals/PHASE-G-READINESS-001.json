@@ -1,0 +1,13 @@
+{
+  "cardId": "PHASE-G-READINESS-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T00:49:00Z",
+  "approvalSource": "Steve gave GREEN LIGHT for the revised Foundation 1100 Review Sprint plan after the plan added disposition-only research curation, business-route no-apply limits, and wrapper-card bootstrap proof.",
+  "notes": "Approval covers only the Foundation 1100 Review Sprint cleanup bundle. It does not approve Phase G UI work, Strategy, Scoper, Agent Factory, or corpus expansion.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/foundation-1100-review-v1.md",
+  "approvedPlanSha256": "91bd5dfc7a5aed8770fa5ab5871160d6c680fddd0a7339248c498edbdc4e0905",
+  "approvedRepoHead": "c36f6ccc6ae35c568400cd42dc3bc06d9fc7b4e9",
+  "approvalDigest": "4494c3a7278c3a3b99fc487ef0ad3e4b04fed10e4a15f25a1855c56f16a45460"
+}
