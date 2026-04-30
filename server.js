@@ -80,6 +80,9 @@ import {
 import {
   buildFoundationDailyExecSummary,
 } from './lib/foundation-daily-exec-summary.js'
+import {
+  buildSourceLifecycleStatus,
+} from './lib/source-lifecycle.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -114,6 +117,7 @@ import {
 } from './lib/fub.js'
 import { getDriveFileMetadata, getGoogleSheetsCacheStats, getSheetValues } from './lib/google-delegated.js'
 import { getGroupedSourceSystems, getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
+import { getFoundationJobDefinitions } from './lib/foundation-jobs.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -3530,6 +3534,28 @@ app.get('/api/source-of-truth', requireAdminToken, async (_req, res) => {
   })
 })
 
+app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res) => {
+  try {
+    const extractionControl = await getExtractionControlSnapshot({ limit: 200 })
+    const sourceLifecycle = buildSourceLifecycleStatus({
+      sources: getSourceContracts(),
+      connectors: getSourceConnectors(),
+      groupedSystems: getGroupedSourceSystems(),
+      extractionControl,
+      foundationJobs: getFoundationJobDefinitions(),
+    })
+    cacheHeadersNoStore(res)
+    res.json(sourceLifecycle)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_source_lifecycle_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation source lifecycle.'
+    )
+  }
+})
+
 app.get('/api/fub/health', requireAdminToken, async (req, res) => {
   try {
     const requestedContext = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
@@ -4224,6 +4250,13 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
     }
     const sheetsApiTrust = await getGoogleSheetsCacheStats()
     const workerCode = await getFoundationRuntimeStatus('foundation-worker')
+    const sourceLifecycle = buildSourceLifecycleStatus({
+      sources: getSourceContracts(),
+      connectors: getSourceConnectors(),
+      groupedSystems: getGroupedSourceSystems(),
+      extractionControl: snapshot.extractionControl,
+      foundationJobs: getFoundationJobDefinitions(),
+    })
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4241,6 +4274,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       doctrinePropagation,
       decisionAutoEmit,
       sheetsApiTrust,
+      sourceLifecycle,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),

@@ -86,6 +86,17 @@ import {
   DAILY_EXEC_SUMMARY_MANUAL_REVIEW_PATH,
 } from '../lib/foundation-daily-exec-summary.js'
 import {
+  buildSourceLifecycleExpansionCheck,
+  SOURCE_LIFECYCLE_API_PATH,
+  SOURCE_LIFECYCLE_APPROVAL_PATH,
+  SOURCE_LIFECYCLE_APPROVED_PLAN_PATH,
+  SOURCE_LIFECYCLE_BASELINE_PATH,
+  SOURCE_LIFECYCLE_CARD_ID,
+  SOURCE_LIFECYCLE_CLOSEOUT_KEY,
+  SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH,
+  SOURCE_LIFECYCLE_ROUTE,
+} from '../lib/source-lifecycle.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -171,6 +182,10 @@ const CHANGE_LOG_COMPREHENSIVE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const DAILY_EXEC_SUMMARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'DAILY-EXEC-SUMMARY-001',
+]
+
+const SOURCE_LIFECYCLE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SOURCE-LIFECYCLE-EXPANSION-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -845,6 +860,7 @@ async function main() {
   const recentBuildsUiApprovalRef = RECENT_BUILDS_UI_APPROVAL_PATH
   const changeLogComprehensiveApprovalRef = CHANGE_LOG_COMPREHENSIVE_APPROVAL_PATH
   const dailyExecSummaryApprovalRef = DAILY_EXEC_SUMMARY_APPROVAL_PATH
+  const sourceLifecycleApprovalRef = SOURCE_LIFECYCLE_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -881,6 +897,11 @@ async function main() {
     approvalRef: dailyExecSummaryApprovalRef,
     cardId: DAILY_EXEC_SUMMARY_CARD_ID,
   })
+  const sourceLifecycleApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: sourceLifecycleApprovalRef,
+    cardId: SOURCE_LIFECYCLE_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -903,6 +924,7 @@ async function main() {
   const recentBuildsUiApprovedPlan = await readRepoFile(RECENT_BUILDS_UI_APPROVED_PLAN_PATH)
   const changeLogComprehensiveApprovedPlan = await readRepoFile(CHANGE_LOG_COMPREHENSIVE_APPROVED_PLAN_PATH)
   const dailyExecSummaryApprovedPlan = await readRepoFile(DAILY_EXEC_SUMMARY_APPROVED_PLAN_PATH)
+  const sourceLifecycleApprovedPlan = await readRepoFile(SOURCE_LIFECYCLE_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -915,6 +937,8 @@ async function main() {
   const changeLogComprehensiveManualReview = await readRepoFile(CHANGE_LOG_COMPREHENSIVE_MANUAL_REVIEW_PATH)
   const dailyExecSummaryBaseline = await readRepoFile(DAILY_EXEC_SUMMARY_BASELINE_PATH)
   const dailyExecSummaryManualReview = await readRepoFile(DAILY_EXEC_SUMMARY_MANUAL_REVIEW_PATH)
+  const sourceLifecycleBaseline = await readRepoFile(SOURCE_LIFECYCLE_BASELINE_PATH)
+  const sourceLifecycleManualReview = await readRepoFile(SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -1975,6 +1999,7 @@ async function main() {
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=80')
   const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
   const foundationDailySummary = await fetchJson(baseUrl, '/api/foundation/daily-summary?date=2026-04-30&days=7')
+  const foundationSourceLifecycle = await fetchJson(baseUrl, SOURCE_LIFECYCLE_API_PATH)
   const foundationChangesApi = await fetchJson(baseUrl, '/api/foundation/changes?limit=20')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
@@ -2048,6 +2073,12 @@ async function main() {
     buildLog: foundationBuildLog,
     changeLog: foundationChangeLog,
     changesApi: foundationChangesApi,
+    foundationHub,
+  })
+  const sourceLifecycleStatus = await buildSourceLifecycleExpansionCheck({
+    repoRoot,
+    sourceLifecycle: foundationSourceLifecycle,
+    sourceOfTruth,
     foundationHub,
   })
   const researchCurationStatus = buildResearchCurationStatus({
@@ -2832,6 +2863,10 @@ async function main() {
   const buildLogDailyExecSummaryBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(DAILY_EXEC_SUMMARY_CARD_ID) &&
       build.closeoutKey === DAILY_EXEC_SUMMARY_CLOSEOUT_KEY
+  )
+  const buildLogSourceLifecycleBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(SOURCE_LIFECYCLE_CARD_ID) &&
+      build.closeoutKey === SOURCE_LIFECYCLE_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -3968,6 +4003,11 @@ async function main() {
   const recentBuildsUi = (foundationHub.backlogItems || []).find(item => item.id === RECENT_BUILDS_UI_CARD_ID) || null
   const changeLogComprehensive = (foundationHub.backlogItems || []).find(item => item.id === CHANGE_LOG_COMPREHENSIVE_CARD_ID) || null
   const dailyExecSummary = (foundationHub.backlogItems || []).find(item => item.id === DAILY_EXEC_SUMMARY_CARD_ID) || null
+  const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
+  const sourceLifecycleDone = sourceLifecycle?.lane === 'done' &&
+    /source-lifecycle-expansion-v1/.test(sourceLifecycle?.statusNote || '')
+  const phaseGNextCard = foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard || null
+  const phaseGTrack2Complete = sourceLifecycleDone && phaseGNextCard === null
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -5388,12 +5428,12 @@ async function main() {
         "'Recent audits - active'",
         "'Recent handoffs - active'",
       ]) &&
-      [
+      ([
         'RECENT-BUILDS-BILLION-DOLLAR-UI-001',
         'CHANGE-LOG-COMPREHENSIVE-001',
         'DAILY-EXEC-SUMMARY-001',
         'SOURCE-LIFECYCLE-EXPANSION-001',
-      ].includes(foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard) &&
+      ].includes(phaseGNextCard) || phaseGTrack2Complete) &&
       buildLogUiMenuLayoutPolishBuild?.operatorCloseout === true &&
       uiMenuLayoutPolishBuildLogExact &&
       currentPlan.includes('UI-MENU-LAYOUT-POLISH-001` is done for v1') &&
@@ -5458,7 +5498,7 @@ async function main() {
         '.build-log-card-summary',
         '.build-log-context-link',
       ]) &&
-      ['CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001'].includes(foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard) &&
+      (['CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001'].includes(phaseGNextCard) || phaseGTrack2Complete) &&
       buildLogRecentBuildsUiBuild?.operatorCloseout === true &&
       recentBuildsUiBuildLogExact &&
       currentPlan.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1') &&
@@ -5466,7 +5506,8 @@ async function main() {
       currentState.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1') &&
       (currentState.includes('Next expected card is `CHANGE-LOG-COMPREHENSIVE-001`') ||
         currentState.includes('Next expected card is `DAILY-EXEC-SUMMARY-001`') ||
-        currentState.includes('Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`')),
+        currentState.includes('Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`') ||
+        currentState.includes('SOURCE-LIFECYCLE-EXPANSION-001` is done for v1')),
     'RECENT-BUILDS-BILLION-DOLLAR-UI-001 upgrades Recent Work without smearing ownership',
     `closeouts=${recentBuildsUiStatus.summary?.closeoutBuilds} sameCommit=${recentBuildsUiStatus.summary?.sameCommitGroups} manual=${recentBuildsUiStatus.summary?.manualRouteChecks}/10 closeout=${buildLogRecentBuildsUiBuild?.closeoutKey || 'missing'}`,
   )
@@ -5537,14 +5578,15 @@ async function main() {
         '.change-log-group-grid',
         '.change-log-evidence-list',
       ]) &&
-      ['DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001'].includes(foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard) &&
+      (['DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001'].includes(phaseGNextCard) || phaseGTrack2Complete) &&
       buildLogChangeLogComprehensiveBuild?.operatorCloseout === true &&
       changeLogComprehensiveBuildLogExact &&
       currentPlan.includes('CHANGE-LOG-COMPREHENSIVE-001` is done for v1') &&
       currentPlan.includes('DAILY-EXEC-SUMMARY-001') &&
       currentState.includes('CHANGE-LOG-COMPREHENSIVE-001` is done for v1') &&
       (currentState.includes('Next expected card is `DAILY-EXEC-SUMMARY-001`') ||
-        currentState.includes('Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`')),
+        currentState.includes('Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`') ||
+        currentState.includes('SOURCE-LIFECYCLE-EXPANSION-001` is done for v1')),
     'CHANGE-LOG-COMPREHENSIVE-001 adds comprehensive source-backed changelog coverage',
     `entries=${changeLogComprehensiveStatus.summary?.totalEntries} closeoutBacked=${changeLogComprehensiveStatus.summary?.verifiedCloseoutBackedEntries} types=${changeLogComprehensiveStatus.summary?.representedChangeTypes}/10 closeout=${buildLogChangeLogComprehensiveBuild?.closeoutKey || 'missing'}`,
   )
@@ -5573,9 +5615,9 @@ async function main() {
       dailyExecSummaryStatus.summary?.latestRecentBuildsRepresented >= 5 &&
       dailyExecSummaryStatus.summary?.latestDailyCloseoutRepresented === true &&
       dailyExecSummaryStatus.summary?.shippedTodayCount > 0 &&
-      dailyExecSummaryStatus.summary?.stillOpenCount > 0 &&
+      (dailyExecSummaryStatus.summary?.stillOpenCount > 0 || phaseGTrack2Complete) &&
       dailyExecSummaryStatus.summary?.needsReviewCount > 0 &&
-      dailyExecSummaryStatus.summary?.nextBuildCount > 0 &&
+      (dailyExecSummaryStatus.summary?.nextBuildCount > 0 || phaseGTrack2Complete) &&
       dailyExecSummaryStatus.summary?.ownershipContextSmearing === 0 &&
       dailyExecSummaryStatus.summary?.privateEvidenceLeaks === 0 &&
       includesAll(dailyExecSummaryBaseline, [
@@ -5629,15 +5671,95 @@ async function main() {
         '.daily-summary-item',
         '.daily-summary-evidence',
       ]) &&
-      foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard === 'SOURCE-LIFECYCLE-EXPANSION-001' &&
+      (phaseGNextCard === 'SOURCE-LIFECYCLE-EXPANSION-001' || phaseGTrack2Complete) &&
       buildLogDailyExecSummaryBuild?.operatorCloseout === true &&
       dailyExecSummaryBuildLogExact &&
       currentPlan.includes('DAILY-EXEC-SUMMARY-001` is done for v1') &&
       currentPlan.includes('SOURCE-LIFECYCLE-EXPANSION-001') &&
       currentState.includes('DAILY-EXEC-SUMMARY-001` is done for v1') &&
-      currentState.includes('Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`'),
+      (currentState.includes('Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`') ||
+        currentState.includes('SOURCE-LIFECYCLE-EXPANSION-001` is done for v1')),
     'DAILY-EXEC-SUMMARY-001 adds source-backed daily executive summaries',
     `date=${foundationDailySummary.query?.selectedDate || 'missing'} shipped=${dailyExecSummaryStatus.summary?.shippedTodayCount} evidence=${dailyExecSummaryStatus.summary?.sectionEvidenceComplete} closeout=${buildLogDailyExecSummaryBuild?.closeoutKey || 'missing'}`,
+  )
+  const sourceLifecycleBuildLogExact = buildLogSourceLifecycleBuild?.backlogIds?.length === 1 &&
+    buildLogSourceLifecycleBuild.backlogIds.includes(SOURCE_LIFECYCLE_CARD_ID) &&
+    !['PLAIN-ENGLISH-SWEEP-001', 'UI-MENU-LAYOUT-POLISH-001', 'RECENT-BUILDS-BILLION-DOLLAR-UI-001', 'CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001']
+      .some(id => buildLogSourceLifecycleBuild.backlogIds.includes(id))
+  ensure(
+    checks,
+    sourceLifecycle?.lane === 'done' &&
+      /source-lifecycle-expansion-v1/.test(sourceLifecycle?.statusNote || '') &&
+      sourceLifecycleApprovalValidation.ok &&
+      sourceLifecycleApprovalValidation.mode === 'v2' &&
+      sourceLifecycleApprovalValidation.approval?.approvedPlanRef === SOURCE_LIFECYCLE_APPROVED_PLAN_PATH &&
+      includesAll(sourceLifecycleApprovedPlan, [
+        'source lifecycle visibility/control only',
+        'No new extraction targets',
+        'No extraction quota increases',
+        'Evidence refs are metadata only',
+      ]) &&
+      includesAll(foundationVerifySource, SOURCE_LIFECYCLE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:source-lifecycle-expansion-check"', 'scripts/process-source-lifecycle-expansion-check.mjs']) &&
+      sourceLifecycleStatus.status === 'healthy' &&
+      sourceLifecycleStatus.summary?.sourceContractCount >= 35 &&
+      sourceLifecycleStatus.summary?.extractionTargetCount === 12 &&
+      sourceLifecycleStatus.summary?.includedSourceMissingCount === 0 &&
+      sourceLifecycleStatus.summary?.laneCompletenessFailures === 0 &&
+      sourceLifecycleStatus.summary?.extractionCapsUnchanged === true &&
+      sourceLifecycleStatus.summary?.targetBaselineChanges === 0 &&
+      sourceLifecycleStatus.summary?.targetBaselineExtraTargets === 0 &&
+      sourceLifecycleStatus.summary?.blockedPausedPlannedActivated === 0 &&
+      sourceLifecycleStatus.summary?.privateEvidenceLeaks === 0 &&
+      sourceLifecycleStatus.summary?.rawContentKeyFindings === 0 &&
+      includesAll(sourceLifecycleBaseline, [
+        'Baseline source: 6fb1781',
+        'Source contracts: 35',
+        'Extraction targets: 12',
+        'No extraction target, schedule, or quota changed in the baseline',
+      ]) &&
+      includesAll(sourceLifecycleManualReview, [
+        'Failures: 0',
+        'source lifecycle route',
+        'active source lanes',
+        'parked/blocked lanes',
+        'extraction caps',
+        'evidence refs',
+        'lifecycle definitions',
+        'desktop 1440x900',
+        'mobile 390x844',
+      ]) &&
+      foundationSourceLifecycle.schemaVersion === 1 &&
+      foundationSourceLifecycle.route === SOURCE_LIFECYCLE_ROUTE &&
+      foundationSourceLifecycle.summary?.sourceContractCount >= 35 &&
+      foundationSourceLifecycle.summary?.extractionTargetCount === 12 &&
+      foundationSourceLifecycle.summary?.extractionCapsUnchanged === true &&
+      foundationHub.sourceLifecycle?.summary?.extractionTargetCount === 12 &&
+      sourceOfTruth.sources?.length >= 35 &&
+      Array.isArray(sourceOfTruth.connectors) &&
+      includesAll(foundationHtmlSource, [
+        'data-section="source-lifecycle"',
+        'Lifecycle',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'fetchSourceLifecycle',
+        'renderSourceLifecycle',
+        'data-source-lifecycle-section',
+        'Source Lifecycle',
+        'parked-blocked-lanes',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.source-lifecycle-definition-grid',
+        '.source-lifecycle-target-grid',
+        '.source-lifecycle-evidence',
+      ]) &&
+      phaseGTrack2Complete &&
+      buildLogSourceLifecycleBuild?.operatorCloseout === true &&
+      sourceLifecycleBuildLogExact &&
+      currentPlan.includes('SOURCE-LIFECYCLE-EXPANSION-001` is done for v1') &&
+      currentState.includes('SOURCE-LIFECYCLE-EXPANSION-001` is done for v1'),
+    'SOURCE-LIFECYCLE-EXPANSION-001 adds source lifecycle visibility/control without ingestion',
+    `sources=${sourceLifecycleStatus.summary?.sourceContractCount} targets=${sourceLifecycleStatus.summary?.extractionTargetCount} caps=${sourceLifecycleStatus.summary?.extractionCapsUnchanged} closeout=${buildLogSourceLifecycleBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

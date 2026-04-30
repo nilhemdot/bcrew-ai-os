@@ -275,6 +275,14 @@ var sourceSectionConfigs = {
     showConnectors: true,
     showKindFilter: false,
   },
+  'source-lifecycle': {
+    title: 'Source Lifecycle',
+    eyebrow: 'Source Control',
+    intro: 'Connect, verify, extract, review, retry, or park source lanes without starting new ingestion.',
+    showSystems: false,
+    showConnectors: false,
+    showKindFilter: false,
+  },
 }
 
 var capabilityCatalog = {
@@ -4414,6 +4422,7 @@ var cache = {
   buildLog: null,
   changeLog: null,
   dailySummary: {},
+  sourceLifecycle: null,
   sheetStructureStatus: null,
   fubLeadSources: {},
   ownersLeadSourceGovernance: null,
@@ -4543,6 +4552,18 @@ function fetchFoundationDailySummary(date) {
   })
 }
 
+function fetchSourceLifecycle() {
+  if (cache.sourceLifecycle) return Promise.resolve(cache.sourceLifecycle)
+
+  return foundationRead('/api/foundation/source-lifecycle').then(function(res) {
+    if (!res.ok) throw new Error('Foundation source lifecycle API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.sourceLifecycle = data
+    return data
+  })
+}
+
 function fetchFubLeadSources(contextKey) {
   var key = contextKey || 'owner'
   if (cache.fubLeadSources[key]) return Promise.resolve(cache.fubLeadSources[key])
@@ -4648,6 +4669,7 @@ function clearFoundationCaches() {
   cache.actionReview = null
   cache.systemInventory = null
   cache.fubLeadSources = {}
+  cache.sourceLifecycle = null
   cache.ownersLeadSourceGovernance = null
   cache.ownersReviewQueue = null
 }
@@ -4813,6 +4835,7 @@ var sectionLabels = {
   'source-sheets': 'Spreadsheets',
   'source-apis': 'APIs and apps',
   'source-connectors': 'Connectors',
+  'source-lifecycle': 'Source Lifecycle',
   'inventory-docs': 'Current Docs',
   'inventory-archive-history': 'Archive / History',
   'capabilities-skills': 'Skills',
@@ -4843,6 +4866,7 @@ var sectionParents = {
   'source-sheets': { label: 'Data Sources', href: '/foundation#source-overview' },
   'source-apis': { label: 'Data Sources', href: '/foundation#source-overview' },
   'source-connectors': { label: 'Data Sources', href: '/foundation#source-overview' },
+  'source-lifecycle': { label: 'Data Sources', href: '/foundation#source-overview' },
   'inventory-docs': { label: 'System Inventory', href: '/foundation#inventory-docs' },
   'inventory-archive-history': { label: 'System Inventory', href: '/foundation#inventory-docs' },
   'capabilities-skills': { label: 'System Inventory', href: '/foundation#inventory-docs' },
@@ -10196,6 +10220,365 @@ function renderDataSourcePurposePanel(section, config, sourceContracts, sourceCo
   })
 }
 
+function sourceLifecycleTone(value) {
+  var normalized = String(value || '').toLowerCase()
+  if (normalized === 'active' || normalized === 'extracted' || normalized === 'reviewed' || normalized === 'yes') return 'connected'
+  if (normalized === 'connected' || normalized === 'verified' || normalized === 'visible') return 'planned'
+  if (normalized.indexOf('park') !== -1 || normalized.indexOf('block') !== -1 || normalized.indexOf('pause') !== -1 || normalized === 'needs-review') return 'pending'
+  if (normalized === 'no' || normalized === 'missing') return 'missing'
+  return 'neutral'
+}
+
+function renderSourceLifecycleHero(lifecycle) {
+  var summary = lifecycle.summary || {}
+  var hero = document.createElement('section')
+  hero.className = 'hero source-lifecycle-hero'
+  hero.setAttribute('data-source-lifecycle-section', 'hero')
+
+  var heroInner = document.createElement('div')
+  heroInner.className = 'hero-inner'
+
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Source Control'
+  heroInner.appendChild(eyebrow)
+
+  var title = document.createElement('h1')
+  title.textContent = 'Source Lifecycle'
+  heroInner.appendChild(title)
+
+  var meta = document.createElement('p')
+  meta.className = 'hero-copy'
+  meta.textContent = [
+    (summary.sourceContractCount || 0) + ' source contracts',
+    (summary.extractionTargetCount || 0) + ' extraction targets',
+    (summary.parkedOrBlockedVisible || 0) + ' parked or blocked signals visible',
+  ].join(' · ')
+  heroInner.appendChild(meta)
+
+  var note = document.createElement('p')
+  note.className = 'hero-copy'
+  note.textContent = 'This view shows whether each source lane is connected, verified, extracted, reviewed, retried, or parked. It does not start new ingestion.'
+  heroInner.appendChild(note)
+
+  hero.appendChild(heroInner)
+  return hero
+}
+
+function renderSourceLifecycleSummary(lifecycle) {
+  var summary = lifecycle.summary || {}
+  return renderOverviewStatusPanel([
+    {
+      label: 'Source contracts',
+      status: summary.allSourceContractsCovered ? 'connected' : 'risk',
+      detail: (summary.sourceContractCount || 0) + ' contracts covered from source truth. Required minimum is 35.',
+    },
+    {
+      label: 'Extraction targets',
+      status: summary.allExtractionTargetsCovered ? 'connected' : 'risk',
+      detail: (summary.extractionTargetCount || 0) + ' governed targets visible. Required count is 12.',
+    },
+    {
+      label: 'Caps and schedules',
+      status: summary.extractionCapsUnchanged ? 'connected' : 'risk',
+      detail: summary.extractionCapsUnchanged
+        ? 'Budgets, schedules, and target states match the approved baseline.'
+        : (summary.targetBaselineChanges || 0) + ' target baseline change(s) need review.',
+    },
+    {
+      label: 'Parked lanes',
+      status: summary.parkedOrBlockedVisible > 0 ? 'pending' : 'risk',
+      detail: (summary.parkedOrBlockedVisible || 0) + ' parked, blocked, planned, or paused signals are visible instead of hidden.',
+    },
+  ], {
+    eyebrow: 'Lifecycle Proof',
+    title: 'Control status',
+    intro: 'These checks prove this is a visibility layer over existing source contracts and extraction control, not a new ingestion lane.',
+  })
+}
+
+function renderSourceLifecycleDefinitions(definitions) {
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+  panel.setAttribute('data-source-lifecycle-section', 'definitions')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Lifecycle Definitions'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'What each status means'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'A lane can be readable before it is reviewed, and visible before it is approved for more extraction.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'source-lifecycle-definition-grid'
+  ;(definitions || []).forEach(function(definition) {
+    var item = document.createElement('article')
+    item.className = 'source-lifecycle-definition'
+    item.appendChild(renderSourceTag(definition.label, sourceLifecycleTone(definition.key)))
+    var copy = document.createElement('p')
+    copy.textContent = definition.definition
+    item.appendChild(copy)
+    grid.appendChild(item)
+  })
+  panel.appendChild(grid)
+  return panel
+}
+
+function renderSourceLifecycleEvidence(refs) {
+  var list = document.createElement('div')
+  list.className = 'source-lifecycle-evidence'
+  ;(refs || []).slice(0, 8).forEach(function(ref) {
+    var item = document.createElement('span')
+    item.textContent = ref
+    list.appendChild(item)
+  })
+  return list
+}
+
+function renderSourceLifecycleLaneCard(lane) {
+  var article = document.createElement('article')
+  article.className = 'source-lifecycle-card'
+  article.setAttribute('data-source-lifecycle-lane', lane.key)
+
+  var top = document.createElement('div')
+  top.className = 'source-lifecycle-card-top'
+  var title = document.createElement('h4')
+  title.textContent = lane.title
+  top.appendChild(title)
+  top.appendChild(renderSourceTag(lane.status, sourceLifecycleTone(lane.status)))
+  article.appendChild(top)
+
+  var copy = document.createElement('p')
+  copy.textContent = lane.description
+  article.appendChild(copy)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-meta-grid'
+  meta.appendChild(renderSourceMetaItem('Sources', String((lane.sourceIds || []).length)))
+  meta.appendChild(renderSourceMetaItem('Targets', String((lane.targetKeys || []).length)))
+  meta.appendChild(renderSourceMetaItem('Parked signals', String(lane.parkedCount || 0)))
+  meta.appendChild(renderSourceMetaItem('Proof state', lane.complete ? 'Complete' : 'Needs review'))
+  article.appendChild(meta)
+  article.appendChild(renderSourceLifecycleEvidence(lane.evidenceRefs || []))
+  return article
+}
+
+function renderSourceLifecycleLanes(lifecycle) {
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+  panel.setAttribute('data-source-lifecycle-section', 'active-source-lanes')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Included Lanes'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Connected, extracted, or parked'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'The slice includes the lanes below and shows their proof without activating excluded source work.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'source-lifecycle-grid'
+  ;(lifecycle.lanes || []).forEach(function(lane) {
+    grid.appendChild(renderSourceLifecycleLaneCard(lane))
+  })
+  panel.appendChild(grid)
+  return panel
+}
+
+function renderSourceLifecycleTargetCard(target) {
+  var article = document.createElement('article')
+  article.className = 'source-lifecycle-target'
+  article.setAttribute('data-source-lifecycle-target', target.targetKey)
+
+  var top = document.createElement('div')
+  top.className = 'source-lifecycle-card-top'
+  var title = document.createElement('h4')
+  title.textContent = target.title || target.targetKey
+  top.appendChild(title)
+  top.appendChild(renderSourceTag(target.status, sourceLifecycleTone(target.status)))
+  article.appendChild(top)
+
+  var body = document.createElement('p')
+  body.textContent = [
+    target.sourceId,
+    target.lane,
+    target.targetType,
+    target.parkedReason ? 'parked: ' + target.parkedReason : target.lifecycleStage,
+  ].filter(Boolean).join(' · ')
+  article.appendChild(body)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-meta-grid'
+  meta.appendChild(renderSourceMetaItem('Runtime', target.runtimeMode || 'Not set'))
+  meta.appendChild(renderSourceMetaItem('Schedule', target.schedulerMode || 'Not set'))
+  meta.appendChild(renderSourceMetaItem('Succeeded', String(target.counts && target.counts.succeededItems || 0)))
+  meta.appendChild(renderSourceMetaItem('Skipped', String(target.counts && target.counts.skippedItems || 0)))
+  article.appendChild(meta)
+
+  var capValues = Object.keys(target.budgetCaps || {}).map(function(key) {
+    return key + '=' + target.budgetCaps[key]
+  })
+  if (capValues.length) {
+    var caps = document.createElement('p')
+    caps.className = 'source-lifecycle-caps'
+    caps.textContent = capValues.join(' · ')
+    article.appendChild(caps)
+  }
+
+  if ((target.reasonSummary || []).length) {
+    var reasons = document.createElement('ul')
+    reasons.className = 'source-lifecycle-reasons'
+    target.reasonSummary.slice(0, 4).forEach(function(reason) {
+      var item = document.createElement('li')
+      item.textContent = reason.status + ': ' + reason.reason + ' (' + reason.count + ')'
+      reasons.appendChild(item)
+    })
+    article.appendChild(reasons)
+  }
+
+  article.appendChild(renderSourceLifecycleEvidence(target.evidenceRefs || []))
+  return article
+}
+
+function renderSourceLifecycleTargets(lifecycle) {
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+  panel.setAttribute('data-source-lifecycle-section', 'extraction-caps')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Extraction Control'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Targets, caps, and parked states'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Caps are shown from the existing target ledger. This card does not add targets or raise quotas.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'source-lifecycle-target-grid'
+  ;(lifecycle.targets || []).forEach(function(target) {
+    grid.appendChild(renderSourceLifecycleTargetCard(target))
+  })
+  panel.appendChild(grid)
+  return panel
+}
+
+function renderSourceLifecycleParked(lifecycle) {
+  var parkedSources = (lifecycle.sources || []).filter(function(source) {
+    return source.lifecycle && source.lifecycle.parked === 'yes'
+  })
+  if (!parkedSources.length) return null
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+  panel.setAttribute('data-source-lifecycle-section', 'parked-blocked-lanes')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Parked / Blocked'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Visible but not started'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'These lanes stay visible with a reason. They are not extraction approval.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var list = document.createElement('div')
+  list.className = 'source-lifecycle-parked-list'
+  parkedSources.forEach(function(source) {
+    var row = document.createElement('article')
+    row.className = 'source-lifecycle-parked-row'
+    var titleRow = document.createElement('div')
+    titleRow.className = 'source-lifecycle-card-top'
+    var name = document.createElement('h4')
+    name.textContent = source.sourceId + ' · ' + source.title
+    titleRow.appendChild(name)
+    titleRow.appendChild(renderSourceTag(source.lifecycleStage, sourceLifecycleTone(source.lifecycleStage)))
+    row.appendChild(titleRow)
+    var detail = document.createElement('p')
+    detail.textContent = source.noTargetReason || source.validation || source.status
+    row.appendChild(detail)
+    row.appendChild(renderSourceLifecycleEvidence(source.evidenceRefs || []))
+    list.appendChild(row)
+  })
+  panel.appendChild(list)
+  return panel
+}
+
+function renderSourceLifecycleScope(lifecycle) {
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+  panel.setAttribute('data-source-lifecycle-section', 'scope-boundary')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Scope Boundary'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Excluded lanes stay excluded'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'This proof keeps source lifecycle visibility separate from Strategy, Scoper, Agent Factory, corpus expansion, and new source builds.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'source-lifecycle-scope-grid'
+  ;(lifecycle.scope && lifecycle.scope.hardConstraints || []).forEach(function(item) {
+    var tag = document.createElement('span')
+    tag.className = 'source-lifecycle-scope-item'
+    tag.textContent = item
+    grid.appendChild(tag)
+  })
+  ;(lifecycle.scope && lifecycle.scope.excludedLanes || []).forEach(function(item) {
+    var tag = document.createElement('span')
+    tag.className = 'source-lifecycle-scope-item source-lifecycle-scope-excluded'
+    tag.textContent = item
+    grid.appendChild(tag)
+  })
+  panel.appendChild(grid)
+  return panel
+}
+
 function renderSourceSystemsPanel(sourceContracts, options) {
   var opts = options || {}
   var panel = document.createElement('section')
@@ -12530,6 +12913,31 @@ function renderCapabilitySection(section) {
   })
 }
 
+function renderSourceLifecycle() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading source lifecycle.</p>'
+
+  fetchSourceLifecycle().then(function(lifecycle) {
+    container.innerHTML = ''
+    container.appendChild(renderSourceLifecycleHero(lifecycle))
+    var summary = renderSourceLifecycleSummary(lifecycle)
+    if (summary) container.appendChild(summary)
+    container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
+    container.appendChild(renderSourceLifecycleLanes(lifecycle))
+    container.appendChild(renderSourceLifecycleTargets(lifecycle))
+    var parked = renderSourceLifecycleParked(lifecycle)
+    if (parked) container.appendChild(parked)
+    container.appendChild(renderSourceLifecycleScope(lifecycle))
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Source lifecycle could not load. Details: ' + error.message
+    container.appendChild(msg)
+  }).finally(function() {
+    applySectionFocus()
+  })
+}
+
 function renderSourceRegistry(section) {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading data sources...</p>'
@@ -12585,6 +12993,13 @@ function renderSourceRegistry(section) {
             meta: 'Technical reach',
             href: '/foundation#source-connectors',
             cta: 'Open Connectors',
+          },
+          {
+            title: 'Source lifecycle',
+            body: 'See which lanes are connected, verified, extracted, reviewed, retried, or parked before approving more source work.',
+            meta: 'Control layer',
+            href: '/foundation#source-lifecycle',
+            cta: 'Open Lifecycle',
           },
           {
             title: 'Foundation overview',
@@ -13744,6 +14159,8 @@ function route() {
     renderOpenQuestions()
   } else if (section === 'build-log') {
     renderBuildLog()
+  } else if (section === 'source-lifecycle') {
+    renderSourceLifecycle()
   } else if (sourceSectionConfigs[section]) {
     renderSourceRegistry(section)
   } else if (section === 'inventory-docs') {

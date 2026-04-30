@@ -1,0 +1,13 @@
+{
+  "cardId": "SOURCE-LIFECYCLE-EXPANSION-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T17:38:00Z",
+  "approvalSource": "Steve gave GREEN LIGHT for the SOURCE-LIFECYCLE-EXPANSION-001 plan with visibility/control-only constraints and explicit no-ingestion gates.",
+  "notes": "Approval covers only the source lifecycle visibility/control layer, the additive /api/foundation/source-lifecycle endpoint, Foundation route /foundation#source-lifecycle, all-source/all-target lifecycle status, metadata-only evidence refs, verifier/process coverage, and manual UI proof. It does not approve new extraction targets, quota increases, Strategy Hub activation, Scoper, Agent Factory, corpus expansion, research cleanup, Action Review applying, or a new feature lane.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/source-lifecycle-expansion-v1.md",
+  "approvedPlanSha256": "0e5f8dceaae94349a7aea8906d4db245e0f680cfdb64c1a83f9f11c6d5bd8544",
+  "approvedRepoHead": "6fb17817cc0115a73e1801486e797efaccf7ff22",
+  "approvalDigest": "09371ad669f67b03ef820c65ea8de350f1827122a49076da4c8e85e7f465987f"
+}
