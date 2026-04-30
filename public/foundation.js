@@ -4499,7 +4499,7 @@ function fetchSystemInventory() {
 function fetchFoundationBuildLog() {
   if (cache.buildLog) return Promise.resolve(cache.buildLog)
 
-  return foundationRead('/api/foundation/build-log?limit=35').then(function(res) {
+  return foundationRead('/api/foundation/build-log?limit=60').then(function(res) {
     if (!res.ok) throw new Error('Foundation build log API failed.')
     return res.json()
   }).then(function(data) {
@@ -12550,25 +12550,187 @@ function renderBuildTextList(items, className) {
   return list
 }
 
-function renderBuildBacklogLinks(build) {
-  var related = build.relatedBacklog || []
-  var ids = (build.backlogIds || []).filter(Boolean)
-  if (!related.length && !ids.length) return null
+function sanitizeBuildAnchor(value) {
+  return String(value || 'build')
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'build'
+}
 
+function getBuildAnchorId(build) {
+  return 'build-closeout-' + sanitizeBuildAnchor(build.closeoutKey || build.shortSha || build.sha || build.subject)
+}
+
+function getBuildReviewNext(build) {
+  return build.reviewNext || 'Review this build if it affects an active surface.'
+}
+
+function getBuildFirstWhere(build) {
+  var where = build.whereItLives || build.fileGroups || []
+  return where.length ? where[0] : 'Repo'
+}
+
+function buildProofSummary(build) {
+  var commandCount = (build.proofCommands || []).length
+  if (commandCount) return commandCount + ' proof command' + (commandCount === 1 ? '' : 's') + ' recorded'
+  return build.proofStatus || 'No explicit proof command attached.'
+}
+
+function renderBuildPill(label, className) {
+  if (!label) return null
+  var pill = document.createElement('span')
+  pill.className = className || 'foundation-system-pill'
+  pill.textContent = label
+  return pill
+}
+
+function renderBuildBacklogPills(items, options) {
+  var values = (items || []).filter(Boolean)
+  if (!values.length) return null
   var wrap = document.createElement('div')
-  wrap.className = 'build-log-backlog-links'
-  ;(related.length ? related : ids.map(function(id) { return { id: id } })).forEach(function(item) {
-    var link = document.createElement('a')
-    link.className = 'build-log-backlog-link'
-    link.href = '/foundation#backlog:' + encodeURIComponent(item.id)
-    link.textContent = [
+  wrap.className = 'build-log-backlog-links' + (options && options.kind === 'context' ? ' build-log-context-links' : '')
+  values.forEach(function(item) {
+    var label = [
       item.id,
       item.lane ? getBacklogLaneLabel(item.lane) : null,
       item.priority || null,
     ].filter(Boolean).join(' · ')
+    if (options && options.link === false) {
+      var span = document.createElement('span')
+      span.className = 'build-log-backlog-link' + (options.kind === 'context' ? ' build-log-context-link' : '')
+      span.textContent = label
+      wrap.appendChild(span)
+      return
+    }
+    var link = document.createElement('a')
+    link.className = 'build-log-backlog-link' + (options && options.kind === 'context' ? ' build-log-context-link' : '')
+    link.href = '/foundation#backlog:' + encodeURIComponent(item.id)
+    link.textContent = label
     wrap.appendChild(link)
   })
   return wrap
+}
+
+function renderBuildBacklogLinks(build, options) {
+  var kind = options && options.kind === 'context' ? 'context' : 'owned'
+  var related = kind === 'context' ? (build.mentionedBacklog || []) : (build.relatedBacklog || [])
+  var ids = kind === 'context' ? (build.mentionedBacklogIds || []) : (build.backlogIds || [])
+  var fallbackItems = ids.filter(Boolean).map(function(id) { return { id: id } })
+  var items = related.length ? related : fallbackItems
+  if (!items.length) return null
+  return renderBuildBacklogPills(items, options)
+}
+
+function renderBuildSummaryMetric(label, value, detail) {
+  var card = document.createElement('div')
+  card.className = 'build-log-summary-metric'
+  var strong = document.createElement('strong')
+  strong.textContent = value
+  card.appendChild(strong)
+  var labelNode = document.createElement('span')
+  labelNode.textContent = label
+  card.appendChild(labelNode)
+  if (detail) {
+    var detailNode = document.createElement('p')
+    detailNode.textContent = detail
+    card.appendChild(detailNode)
+  }
+  return card
+}
+
+function renderBuildExecutiveSummary(buildLog, builds) {
+  var latestCloseout = (builds || []).find(function(build) { return build.operatorCloseout }) || builds[0] || null
+  var section = document.createElement('section')
+  section.className = 'build-log-executive-summary'
+
+  var copy = document.createElement('div')
+  copy.className = 'build-log-executive-copy'
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Executive Review'
+  copy.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = latestCloseout ? latestCloseout.subject || 'Latest shipped work' : 'No recent builds loaded'
+  copy.appendChild(title)
+  var intro = document.createElement('p')
+  intro.textContent = latestCloseout
+    ? 'Review next: ' + getBuildReviewNext(latestCloseout)
+    : 'Recent Work will show shipped builds when closeouts are available.'
+  copy.appendChild(intro)
+  section.appendChild(copy)
+
+  var metrics = document.createElement('div')
+  metrics.className = 'build-log-summary-grid'
+  var summary = buildLog.summary || {}
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Closeouts',
+    String(summary.closeoutBuilds || 0),
+    'Major builds with explicit proof and review notes.'
+  ))
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Proof linked',
+    String(summary.proofLinkedBuilds || 0),
+    'Builds with recorded proof commands.'
+  ))
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Review notes',
+    String(summary.reviewNextBuilds || 0),
+    'Builds that say what to inspect next.'
+  ))
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Ownership',
+    'Exact',
+    'Owning cards and context cards stay separate.'
+  ))
+  section.appendChild(metrics)
+
+  return section
+}
+
+function renderBuildReviewQueue(builds) {
+  var reviewBuilds = (builds || []).filter(function(build) {
+    return build.operatorCloseout && getBuildReviewNext(build)
+  }).slice(0, 5)
+  if (!reviewBuilds.length) return null
+
+  var panel = document.createElement('section')
+  panel.className = 'panel build-log-review-panel'
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Review Next'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'What Steve should inspect first'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Short queue from the latest closeouts. Open a row to inspect proof, where it lives, and known limits.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var list = document.createElement('div')
+  list.className = 'build-log-review-list'
+  reviewBuilds.forEach(function(build) {
+    var link = document.createElement('a')
+    link.className = 'build-log-review-link'
+    link.href = '/foundation#build-log:' + encodeURIComponent(getBuildAnchorId(build))
+    var titleNode = document.createElement('strong')
+    titleNode.textContent = build.closeoutKey || build.subject || 'Build closeout'
+    link.appendChild(titleNode)
+    var body = document.createElement('span')
+    body.textContent = getBuildReviewNext(build)
+    link.appendChild(body)
+    var meta = document.createElement('small')
+    meta.textContent = (build.shortSha || 'commit') + ' · ' + (build.backlogIds || []).join(', ')
+    link.appendChild(meta)
+    list.appendChild(link)
+  })
+  panel.appendChild(list)
+  return panel
 }
 
 function renderBuildFact(label, value, options) {
@@ -12592,41 +12754,62 @@ function renderBuildFact(label, value, options) {
 }
 
 function renderBuildCard(build) {
-  var card = document.createElement('article')
-  card.className = 'build-log-card'
+  var card = document.createElement('details')
+  card.className = 'build-log-card build-log-executive-card'
+  card.id = getBuildAnchorId(build)
 
-  var top = document.createElement('div')
-  top.className = 'build-log-top'
+  var summary = document.createElement('summary')
+  summary.className = 'build-log-card-summary'
   var copy = document.createElement('div')
+  copy.className = 'build-log-card-summary-main'
   var title = document.createElement('strong')
-  title.textContent = build.subject || 'Untitled build'
+  title.textContent = build.closeoutKey || build.subject || 'Untitled build'
   copy.appendChild(title)
   var meta = document.createElement('p')
   meta.className = 'build-log-meta'
-  meta.textContent = (build.shortSha || '').toString() + ' · ' + formatDate(build.committedAt)
+  meta.textContent = [
+    build.shortSha || 'commit',
+    formatDate(build.committedAt),
+    build.subject || null,
+  ].filter(Boolean).join(' · ')
   copy.appendChild(meta)
-  top.appendChild(copy)
+  var review = document.createElement('p')
+  review.className = 'build-log-card-review-next'
+  review.textContent = getBuildReviewNext(build)
+  copy.appendChild(review)
+
   var areaWrap = document.createElement('div')
   areaWrap.className = 'foundation-system-summary-tags'
-  ;([build.operatorStatus, build.acceptanceState].concat(build.areas || [])).filter(Boolean).forEach(function(area) {
-    var pill = document.createElement('span')
-    pill.className = area === build.operatorStatus
-      ? 'foundation-system-pill build-log-status-pill build-log-status-' + String(build.operatorStatus || 'unknown').replace(/[^a-z0-9-]/gi, '-').toLowerCase()
-      : 'foundation-system-pill'
-    pill.textContent = area
-    areaWrap.appendChild(pill)
+  ;([build.operatorStatus, build.acceptanceState, build.systemArea]).filter(Boolean).forEach(function(area, index) {
+    areaWrap.appendChild(renderBuildPill(
+      area,
+      index === 0
+        ? 'foundation-system-pill build-log-status-pill build-log-status-' + String(build.operatorStatus || 'unknown').replace(/[^a-z0-9-]/gi, '-').toLowerCase()
+        : 'foundation-system-pill'
+    ))
   })
-  top.appendChild(areaWrap)
-  card.appendChild(top)
+  summary.appendChild(copy)
+  summary.appendChild(areaWrap)
+  card.appendChild(summary)
+
+  var quick = document.createElement('div')
+  quick.className = 'build-log-quick-strip'
+  quick.appendChild(renderBuildSummaryMetric('Owned cards', String((build.backlogIds || []).length || '0'), (build.backlogIds || []).join(', ') || 'No owning card'))
+  quick.appendChild(renderBuildSummaryMetric('Where it lives', getBuildFirstWhere(build), null))
+  quick.appendChild(renderBuildSummaryMetric('Proof', buildProofSummary(build), build.proofStatus || null))
+  quick.appendChild(renderBuildSummaryMetric('Known limits', String((build.knownLimits || []).length), 'Limits are listed inside this closeout.'))
+  card.appendChild(quick)
 
   var facts = document.createElement('div')
-  facts.className = 'build-log-facts'
+  facts.className = 'build-log-facts build-log-card-body'
   ;[
     renderBuildFact('What changed', build.whatChanged || build.subject || 'Repo update'),
-    renderBuildFact('What it does', build.whatItDoes),
     renderBuildFact('Why it matters', build.whyItMatters),
-    renderBuildFact('Backlog', renderBuildBacklogLinks(build)),
-    renderBuildFact('Proof', (build.proofCommands || []).length ? (build.proofCommands || []).join(' · ') + ' — ' + (build.proofStatus || 'proof recorded') : build.proofStatus),
+    renderBuildFact('What it does', build.whatItDoes),
+    renderBuildFact('Owned cards', renderBuildBacklogLinks(build, { kind: 'owned' })),
+    renderBuildFact('Context cards', renderBuildBacklogLinks(build, { kind: 'context' })),
+    renderBuildFact('Proof status', build.proofStatus),
+    renderBuildFact('Proof commands', build.proofCommands || [], { mono: true }),
     renderBuildFact('Where it lives', build.whereItLives || build.fileGroups || [], { mono: true }),
     renderBuildFact('Review next', build.reviewNext),
     renderBuildFact('Known limits', build.knownLimits || []),
@@ -12707,14 +12890,20 @@ function renderBuildCommitGroup(commitGroup) {
   var summary = document.createElement('summary')
   summary.className = 'build-log-commit-summary'
   var shortSha = commitGroup.shortSha || String(commitGroup.sha || '').slice(0, 7) || 'commit'
-  summary.textContent = shortSha + ' · Multiple closeouts · '
+  var ownedIds = []
+  ;(commitGroup.builds || []).forEach(function(build) {
+    ;(build.backlogIds || []).forEach(function(id) {
+      if (ownedIds.indexOf(id) === -1) ownedIds.push(id)
+    })
+  })
+  summary.textContent = shortSha + ' · Multiple closeouts · Grouped same-commit closeouts · '
     + commitGroup.builds.length + ' closeouts · '
-    + (commitGroup.subject || 'Repo change')
+    + ownedIds.length + ' owning card' + (ownedIds.length === 1 ? '' : 's')
   details.appendChild(summary)
 
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'One commit can carry multiple closeouts when a coordinated wave ships together. Each card below keeps its own proof, where-it-lives links, and review-next note.'
+  intro.textContent = 'One commit can carry multiple closeouts when a coordinated wave ships together. Each closeout below stays collapsed, individually reviewable, and tied only to its own owning backlog cards.'
   details.appendChild(intro)
 
   commitGroup.builds.forEach(function(build) {
@@ -12790,10 +12979,12 @@ function renderBuildLog() {
     heroInner.appendChild(heroMeta)
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'Plain-English changelog for what changed, why it matters, proof, and where to review next.'
+    heroNote.textContent = 'Plain-English changelog for what changed, why it matters, proof, and where to review next. Closeout cards are collapsed by default and explicit about owning cards versus context cards.'
     heroInner.appendChild(heroNote)
     hero.appendChild(heroInner)
     container.appendChild(hero)
+
+    container.appendChild(renderBuildExecutiveSummary(buildLog, builds))
 
     var purposePanel = renderOverviewStatusPanel([
       {
@@ -12814,7 +13005,7 @@ function renderBuildLog() {
       {
         label: 'Boundary',
         status: 'pending',
-        detail: 'This is the build changelog. System Activity remains the DB trust-event feed; Runtime Health remains the job/worker view. Older commits without closeout metadata remain derived summaries.',
+        detail: 'This is the build review surface. Closeout cards are collapsed by default. System Activity remains the DB trust-event feed; Runtime Health remains the job/worker view.',
       },
     ], {
       eyebrow: 'Build Visibility',
@@ -12822,6 +13013,9 @@ function renderBuildLog() {
       intro: 'Use this after a heavy build day before deciding what to test, review, or explain.',
     })
     if (purposePanel) container.appendChild(purposePanel)
+
+    var reviewQueue = renderBuildReviewQueue(builds)
+    if (reviewQueue) container.appendChild(reviewQueue)
 
     var panel = document.createElement('section')
     panel.className = 'panel'
@@ -12837,7 +13031,7 @@ function renderBuildLog() {
     left.appendChild(title)
     var intro = document.createElement('p')
     intro.className = 'section-intro'
-    intro.textContent = 'Major builds carry explicit closeout records. Smaller commits still show derived summaries so the repo timeline stays complete.'
+    intro.textContent = 'Major builds carry explicit closeout records. Same-commit groups stay together, while each closeout keeps exact owning cards, context cards, proof, and review notes.'
     left.appendChild(intro)
     header.appendChild(left)
     panel.appendChild(header)

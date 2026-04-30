@@ -59,6 +59,15 @@ import {
   UI_MENU_LAYOUT_POLISH_MANUAL_REVIEW_PATH,
 } from '../lib/foundation-ui-menu-layout-polish.js'
 import {
+  buildRecentBuildsBillionDollarUiStatus,
+  RECENT_BUILDS_UI_APPROVAL_PATH,
+  RECENT_BUILDS_UI_APPROVED_PLAN_PATH,
+  RECENT_BUILDS_UI_BASELINE_PATH,
+  RECENT_BUILDS_UI_CARD_ID,
+  RECENT_BUILDS_UI_CLOSEOUT_KEY,
+  RECENT_BUILDS_UI_MANUAL_REVIEW_PATH,
+} from '../lib/foundation-recent-builds-ui.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -132,6 +141,10 @@ const PLAIN_ENGLISH_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const UI_MENU_LAYOUT_POLISH_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'UI-MENU-LAYOUT-POLISH-001',
+]
+
+const RECENT_BUILDS_UI_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'RECENT-BUILDS-BILLION-DOLLAR-UI-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -648,6 +661,7 @@ async function main() {
   const personalAgentOnboardingDoc = await readRepoFile('docs/agents/personal-agent-onboarding.md')
   const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
+  const foundationStylesSource = await readRepoFile('public/styles.css')
   const opsHtmlSource = await readRepoFile('public/ops.html')
   const opsUiSource = await readRepoFile('public/ops.js')
   const loginHtmlSource = await readRepoFile('public/login.html')
@@ -802,6 +816,7 @@ async function main() {
   )
   const plainEnglishSweepApprovalRef = 'docs/process/approvals/PLAIN-ENGLISH-SWEEP-001.json'
   const uiMenuLayoutPolishApprovalRef = UI_MENU_LAYOUT_POLISH_APPROVAL_PATH
+  const recentBuildsUiApprovalRef = RECENT_BUILDS_UI_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -823,6 +838,11 @@ async function main() {
     approvalRef: uiMenuLayoutPolishApprovalRef,
     cardId: UI_MENU_LAYOUT_POLISH_CARD_ID,
   })
+  const recentBuildsUiApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: recentBuildsUiApprovalRef,
+    cardId: RECENT_BUILDS_UI_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -842,12 +862,15 @@ async function main() {
   const foundation1100ReviewApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-1100-review-v1.md')
   const plainEnglishSweepApprovedPlan = await readRepoFile('docs/process/approved-plans/plain-english-sweep-v1.md')
   const uiMenuLayoutPolishApprovedPlan = await readRepoFile(UI_MENU_LAYOUT_POLISH_APPROVED_PLAN_PATH)
+  const recentBuildsUiApprovedPlan = await readRepoFile(RECENT_BUILDS_UI_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
   const plainEnglishSweepManualReview = await readRepoFile(PLAIN_ENGLISH_SWEEP_MANUAL_REVIEW_PATH)
   const uiMenuLayoutPolishBaseline = await readRepoFile(UI_MENU_LAYOUT_POLISH_BASELINE_PATH)
   const uiMenuLayoutPolishManualReview = await readRepoFile(UI_MENU_LAYOUT_POLISH_MANUAL_REVIEW_PATH)
+  const recentBuildsUiBaseline = await readRepoFile(RECENT_BUILDS_UI_BASELINE_PATH)
+  const recentBuildsUiManualReview = await readRepoFile(RECENT_BUILDS_UI_MANUAL_REVIEW_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -1960,6 +1983,10 @@ async function main() {
     foundationHub,
     foundationBuildLog,
   })
+  const recentBuildsUiStatus = await buildRecentBuildsBillionDollarUiStatus({
+    repoRoot,
+    foundationBuildLog,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -2731,6 +2758,10 @@ async function main() {
     (build.backlogIds || []).includes(UI_MENU_LAYOUT_POLISH_CARD_ID) &&
       build.closeoutKey === UI_MENU_LAYOUT_POLISH_CLOSEOUT_KEY
   )
+  const buildLogRecentBuildsUiBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(RECENT_BUILDS_UI_CARD_ID) &&
+      build.closeoutKey === RECENT_BUILDS_UI_CLOSEOUT_KEY
+  )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
       build.closeoutKey === 'gate-reliability-recurring-transient-v1'
@@ -2784,6 +2815,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-HOOKS-002') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
+      foundationBuildCloseoutValidation.backlogIds.includes(RECENT_BUILDS_UI_CARD_ID) &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -3862,6 +3894,7 @@ async function main() {
   )
   const plainEnglishSweep = (foundationHub.backlogItems || []).find(item => item.id === PLAIN_ENGLISH_SWEEP_CARD_ID) || null
   const uiMenuLayoutPolish = (foundationHub.backlogItems || []).find(item => item.id === UI_MENU_LAYOUT_POLISH_CARD_ID) || null
+  const recentBuildsUi = (foundationHub.backlogItems || []).find(item => item.id === RECENT_BUILDS_UI_CARD_ID) || null
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -5242,7 +5275,7 @@ async function main() {
       uiMenuLayoutPolishStatus.summary?.archiveHistoryDocCount >= 133 &&
       uiMenuLayoutPolishStatus.summary?.currentArchiveLeakCount === 0 &&
       uiMenuLayoutPolishStatus.summary?.privateLocalDocCount === 5 &&
-      uiMenuLayoutPolishStatus.summary?.nextPlanCard === 'RECENT-BUILDS-BILLION-DOLLAR-UI-001' &&
+      uiMenuLayoutPolishStatus.summary?.nextPlanCardStillAfterUiMenu === true &&
       includesAll(uiMenuLayoutPolishBaseline, [
         'Before build',
         'Current docs after split: 78',
@@ -5282,15 +5315,85 @@ async function main() {
         "'Recent audits - active'",
         "'Recent handoffs - active'",
       ]) &&
-      foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard === 'RECENT-BUILDS-BILLION-DOLLAR-UI-001' &&
+      [
+        'RECENT-BUILDS-BILLION-DOLLAR-UI-001',
+        'CHANGE-LOG-COMPREHENSIVE-001',
+        'DAILY-EXEC-SUMMARY-001',
+        'SOURCE-LIFECYCLE-EXPANSION-001',
+      ].includes(foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard) &&
       buildLogUiMenuLayoutPolishBuild?.operatorCloseout === true &&
       uiMenuLayoutPolishBuildLogExact &&
       currentPlan.includes('UI-MENU-LAYOUT-POLISH-001` is done for v1') &&
       currentPlan.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001') &&
       currentState.includes('UI-MENU-LAYOUT-POLISH-001` is done for v1') &&
-      currentState.includes('Next expected card is `RECENT-BUILDS-BILLION-DOLLAR-UI-001`'),
+      currentState.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001'),
     'UI-MENU-LAYOUT-POLISH-001 closes nav/layout polish with current-doc archive split',
     `current=${uiMenuLayoutPolishStatus.summary?.currentDocCount}>=78 archive=${uiMenuLayoutPolishStatus.summary?.archiveHistoryDocCount}>=133 routeViewports=${uiMenuLayoutPolishStatus.summary?.routeViewportChecks}/30 closeout=${buildLogUiMenuLayoutPolishBuild?.closeoutKey || 'missing'}`,
+  )
+  const recentBuildsUiBuildLogExact = buildLogRecentBuildsUiBuild?.backlogIds?.length === 1 &&
+    buildLogRecentBuildsUiBuild.backlogIds.includes(RECENT_BUILDS_UI_CARD_ID) &&
+    !['PLAIN-ENGLISH-SWEEP-001', 'UI-MENU-LAYOUT-POLISH-001', 'CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001']
+      .some(id => buildLogRecentBuildsUiBuild.backlogIds.includes(id))
+  ensure(
+    checks,
+    recentBuildsUi?.lane === 'done' &&
+      /recent-builds-billion-dollar-ui-v1/.test(recentBuildsUi?.statusNote || '') &&
+      recentBuildsUiApprovalValidation.ok &&
+      recentBuildsUiApprovalValidation.mode === 'v2' &&
+      recentBuildsUiApprovalValidation.approval?.approvedPlanRef === RECENT_BUILDS_UI_APPROVED_PLAN_PATH &&
+      includesAll(recentBuildsUiApprovedPlan, [
+        'collapsed by default',
+        'backlogIds = owning cards only',
+        'mentioned/context cards stay context only',
+        'same-commit closeouts',
+        'No comprehensive changelog',
+      ]) &&
+      includesAll(foundationVerifySource, RECENT_BUILDS_UI_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:recent-builds-billion-dollar-ui-check"', 'scripts/process-recent-builds-billion-dollar-ui-check.mjs']) &&
+      recentBuildsUiStatus.status === 'healthy' &&
+      recentBuildsUiStatus.summary?.closeoutBuilds >= 42 &&
+      recentBuildsUiStatus.summary?.proofLinkedBuilds >= 42 &&
+      recentBuildsUiStatus.summary?.sameCommitGroups >= 2 &&
+      recentBuildsUiStatus.summary?.manualRouteChecks === 10 &&
+      recentBuildsUiStatus.summary?.manualRouteFailures === 0 &&
+      recentBuildsUiStatus.summary?.newCloseoutPresent === true &&
+      includesAll(recentBuildsUiBaseline, [
+        'Before build: `99a0100`',
+        'Closeout builds: 42',
+        'same-commit closeout groups',
+        'backlogIds are owning cards only',
+      ]) &&
+      includesAll(recentBuildsUiManualReview, [
+        'Failures: 0',
+        'desktop 1440x900',
+        'mobile 390x844',
+        'collapsed by default',
+        'same-commit closeouts stay grouped',
+        'owned cards stay separate from context cards',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderBuildExecutiveSummary',
+        'renderBuildReviewQueue',
+        'build-log-executive-summary',
+        'build-log-card-summary',
+        'build-log-context-link',
+        'Grouped same-commit closeouts',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.build-log-executive-summary',
+        '.build-log-review-link',
+        '.build-log-card-summary',
+        '.build-log-context-link',
+      ]) &&
+      foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard === 'CHANGE-LOG-COMPREHENSIVE-001' &&
+      buildLogRecentBuildsUiBuild?.operatorCloseout === true &&
+      recentBuildsUiBuildLogExact &&
+      currentPlan.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1') &&
+      currentPlan.includes('CHANGE-LOG-COMPREHENSIVE-001') &&
+      currentState.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1') &&
+      currentState.includes('Next expected card is `CHANGE-LOG-COMPREHENSIVE-001`'),
+    'RECENT-BUILDS-BILLION-DOLLAR-UI-001 upgrades Recent Work without smearing ownership',
+    `closeouts=${recentBuildsUiStatus.summary?.closeoutBuilds} sameCommit=${recentBuildsUiStatus.summary?.sameCommitGroups} manual=${recentBuildsUiStatus.summary?.manualRouteChecks}/10 closeout=${buildLogRecentBuildsUiBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,
