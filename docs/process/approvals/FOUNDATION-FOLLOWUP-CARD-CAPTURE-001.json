@@ -1,0 +1,13 @@
+{
+  "cardId": "FOUNDATION-FOLLOWUP-CARD-CAPTURE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T00:00:00.000Z",
+  "approvalSource": "Steve gave GREEN LIGHT for the FOUNDATION-FOLLOWUP-CARD-CAPTURE-001 capture/scope plan with no-feature-work constraints.",
+  "notes": "Build only the capture/scope card. Create and scope FOUNDATION-SYSTEMS-SERVICE-GROUPING-001, AGENT-ONBOARDING-FEEDBACK-SYSTEM-001, and AGENT-FEEDBACK-SEND-001 with full context. No Gmail send, no ClickUp Requested writeback, no Systems grouping implementation, and no feature work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/foundation-followup-card-capture-v1.md",
+  "approvedPlanSha256": "79ea9fab4f86fe8cc7ac557a28d1d80f07959542aeb6247ce4f21b590ea8351d",
+  "approvedRepoHead": "ae68ceb4e6f68dd95c31c6b7645c8adb4442f0ca",
+  "approvalDigest": "e32d8b91a278a0221aeb3551c0ebdf4a9b8d3fba8bcffe6e998fceed1014695c"
+}

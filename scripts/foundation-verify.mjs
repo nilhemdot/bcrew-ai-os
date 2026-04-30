@@ -97,6 +97,17 @@ import {
   SOURCE_LIFECYCLE_ROUTE,
 } from '../lib/source-lifecycle.js'
 import {
+  buildFoundationFollowupCardCaptureStatus,
+  FOUNDATION_FOLLOWUP_BUILD_ORDER,
+  FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH,
+  FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH,
+  FOUNDATION_FOLLOWUP_CARD_CAPTURE_AUDIT_PATH,
+  FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
+  FOUNDATION_FOLLOWUP_CARD_CAPTURE_CLOSEOUT_KEY,
+  FOUNDATION_FOLLOWUP_NON_SCOPE_PHRASES,
+  FOUNDATION_SYSTEMS_SERVICE_GROUPS,
+} from '../lib/foundation-followup-card-capture.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -186,6 +197,10 @@ const DAILY_EXEC_SUMMARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const SOURCE_LIFECYCLE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'SOURCE-LIFECYCLE-EXPANSION-001',
+]
+
+const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-FOLLOWUP-CARD-CAPTURE-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -861,6 +876,7 @@ async function main() {
   const changeLogComprehensiveApprovalRef = CHANGE_LOG_COMPREHENSIVE_APPROVAL_PATH
   const dailyExecSummaryApprovalRef = DAILY_EXEC_SUMMARY_APPROVAL_PATH
   const sourceLifecycleApprovalRef = SOURCE_LIFECYCLE_APPROVAL_PATH
+  const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -902,6 +918,11 @@ async function main() {
     approvalRef: sourceLifecycleApprovalRef,
     cardId: SOURCE_LIFECYCLE_CARD_ID,
   })
+  const foundationFollowupCardCaptureApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: foundationFollowupCardCaptureApprovalRef,
+    cardId: FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -925,6 +946,7 @@ async function main() {
   const changeLogComprehensiveApprovedPlan = await readRepoFile(CHANGE_LOG_COMPREHENSIVE_APPROVED_PLAN_PATH)
   const dailyExecSummaryApprovedPlan = await readRepoFile(DAILY_EXEC_SUMMARY_APPROVED_PLAN_PATH)
   const sourceLifecycleApprovedPlan = await readRepoFile(SOURCE_LIFECYCLE_APPROVED_PLAN_PATH)
+  const foundationFollowupCardCaptureApprovedPlan = await readRepoFile(FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -939,6 +961,7 @@ async function main() {
   const dailyExecSummaryManualReview = await readRepoFile(DAILY_EXEC_SUMMARY_MANUAL_REVIEW_PATH)
   const sourceLifecycleBaseline = await readRepoFile(SOURCE_LIFECYCLE_BASELINE_PATH)
   const sourceLifecycleManualReview = await readRepoFile(SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH)
+  const foundationFollowupCardCaptureAudit = await readRepoFile(FOUNDATION_FOLLOWUP_CARD_CAPTURE_AUDIT_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2081,6 +2104,11 @@ async function main() {
     sourceOfTruth,
     foundationHub,
   })
+  const foundationFollowupCardCaptureStatus = await buildFoundationFollowupCardCaptureStatus({
+    repoRoot,
+    foundationHub,
+    foundationBuildLog,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -2867,6 +2895,10 @@ async function main() {
   const buildLogSourceLifecycleBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SOURCE_LIFECYCLE_CARD_ID) &&
       build.closeoutKey === SOURCE_LIFECYCLE_CLOSEOUT_KEY
+  )
+  const buildLogFoundationFollowupCardCaptureBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
+      build.closeoutKey === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -4004,6 +4036,10 @@ async function main() {
   const changeLogComprehensive = (foundationHub.backlogItems || []).find(item => item.id === CHANGE_LOG_COMPREHENSIVE_CARD_ID) || null
   const dailyExecSummary = (foundationHub.backlogItems || []).find(item => item.id === DAILY_EXEC_SUMMARY_CARD_ID) || null
   const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
+  const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
+  const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
+    (foundationHub.backlogItems || []).find(item => item.id === id) || null
+  )
   const sourceLifecycleDone = sourceLifecycle?.lane === 'done' &&
     /source-lifecycle-expansion-v1/.test(sourceLifecycle?.statusNote || '')
   const phaseGNextCard = foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard || null
@@ -5760,6 +5796,55 @@ async function main() {
       currentState.includes('SOURCE-LIFECYCLE-EXPANSION-001` is done for v1'),
     'SOURCE-LIFECYCLE-EXPANSION-001 adds source lifecycle visibility/control without ingestion',
     `sources=${sourceLifecycleStatus.summary?.sourceContractCount} targets=${sourceLifecycleStatus.summary?.extractionTargetCount} caps=${sourceLifecycleStatus.summary?.extractionCapsUnchanged} closeout=${buildLogSourceLifecycleBuild?.closeoutKey || 'missing'}`,
+  )
+  const foundationFollowupCardCaptureBuildLogExact = buildLogFoundationFollowupCardCaptureBuild?.backlogIds?.length === 1 &&
+    buildLogFoundationFollowupCardCaptureBuild.backlogIds.includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
+    FOUNDATION_FOLLOWUP_BUILD_ORDER.every(id => (buildLogFoundationFollowupCardCaptureBuild.mentionedBacklogIds || []).includes(id)) &&
+    (buildLogFoundationFollowupCardCaptureBuild.mentionedBacklogIds || []).includes('PEOPLE-006') &&
+    ![...FOUNDATION_FOLLOWUP_BUILD_ORDER, 'PEOPLE-006'].some(id =>
+      (buildLogFoundationFollowupCardCaptureBuild.backlogIds || []).includes(id)
+    )
+  ensure(
+    checks,
+    foundationFollowupCardCapture?.lane === 'done' &&
+      /foundation-followup-card-capture-v1/.test(foundationFollowupCardCapture?.statusNote || '') &&
+      foundationFollowupCards.length === 3 &&
+      foundationFollowupCards.every(card => card?.lane === 'scoped') &&
+      foundationFollowupCardCaptureApprovalValidation.ok &&
+      foundationFollowupCardCaptureApprovalValidation.mode === 'v2' &&
+      foundationFollowupCardCaptureApprovalValidation.approval?.approvedPlanRef === FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH &&
+      includesAll(foundationFollowupCardCaptureApprovedPlan, [
+        FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
+        ...FOUNDATION_FOLLOWUP_BUILD_ORDER,
+        ...FOUNDATION_FOLLOWUP_NON_SCOPE_PHRASES,
+        '`PEOPLE-006` stays related/context only',
+        'Submitted feedback still writes Completed, score, and feedback text back to the correct ClickUp Onboarding NPS 30/60/90 Status, Score, and Feedback fields',
+      ]) &&
+      includesAll(foundationFollowupCardCaptureAudit, [
+        FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
+        ...FOUNDATION_FOLLOWUP_BUILD_ORDER,
+        ...FOUNDATION_FOLLOWUP_NON_SCOPE_PHRASES,
+      ]) &&
+      includesAll(foundationVerifySource, FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:foundation-followup-card-capture-check"', 'scripts/process-foundation-followup-card-capture-check.mjs']) &&
+      foundationFollowupCardCaptureStatus.status === 'healthy' &&
+      foundationFollowupCardCaptureStatus.summary?.scopedCardCount === 3 &&
+      foundationFollowupCardCaptureStatus.summary?.scopedCardsRemainScoped === true &&
+      foundationFollowupCardCaptureStatus.summary?.requiredGroups === FOUNDATION_SYSTEMS_SERVICE_GROUPS.length &&
+      foundationFollowupCardCaptureStatus.summary?.peopleContextOnly === true &&
+      foundationFollowupCardCaptureStatus.summary?.closeoutOwnsOnlyCapture === true &&
+      buildLogFoundationFollowupCardCaptureBuild?.operatorCloseout === true &&
+      foundationFollowupCardCaptureBuildLogExact &&
+      currentPlan.includes('FOUNDATION-FOLLOWUP-CARD-CAPTURE-001` is done for v1') &&
+      currentPlan.includes('1. FOUNDATION-SYSTEMS-SERVICE-GROUPING-001') &&
+      currentPlan.includes('2. AGENT-ONBOARDING-FEEDBACK-SYSTEM-001') &&
+      currentPlan.includes('3. AGENT-FEEDBACK-SEND-001') &&
+      currentState.includes('FOUNDATION-FOLLOWUP-CARD-CAPTURE-001` is done for v1') &&
+      currentState.includes('1. FOUNDATION-SYSTEMS-SERVICE-GROUPING-001') &&
+      currentState.includes('2. AGENT-ONBOARDING-FEEDBACK-SYSTEM-001') &&
+      currentState.includes('3. AGENT-FEEDBACK-SEND-001'),
+    'FOUNDATION-FOLLOWUP-CARD-CAPTURE-001 captures missing follow-up cards without feature work',
+    `scoped=${foundationFollowupCardCaptureStatus.summary?.scopedCardCount}/3 groups=${foundationFollowupCardCaptureStatus.summary?.requiredGroups} closeout=${buildLogFoundationFollowupCardCaptureBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,
