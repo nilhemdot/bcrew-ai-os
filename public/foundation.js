@@ -4413,6 +4413,7 @@ var cache = {
   systemInventory: null,
   buildLog: null,
   changeLog: null,
+  dailySummary: {},
   sheetStructureStatus: null,
   fubLeadSources: {},
   ownersLeadSourceGovernance: null,
@@ -4517,6 +4518,27 @@ function fetchFoundationChangeLog() {
     return res.json()
   }).then(function(data) {
     cache.changeLog = data
+    return data
+  })
+}
+
+function getDailySummaryDate() {
+  var focus = getSectionFocus()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(focus)) return focus
+  return ''
+}
+
+function fetchFoundationDailySummary(date) {
+  var key = date || 'today'
+  if (cache.dailySummary[key]) return Promise.resolve(cache.dailySummary[key])
+
+  var path = '/api/foundation/daily-summary?days=7'
+  if (date) path += '&date=' + encodeURIComponent(date)
+  return foundationRead(path).then(function(res) {
+    if (!res.ok) throw new Error('Foundation daily summary API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.dailySummary[key] = data
     return data
   })
 }
@@ -4778,6 +4800,7 @@ var sectionLabels = {
   'agent-harlan': 'Harlan',
   'agent-crewbert': 'Crewbert',
   'backlog': 'Backlog',
+  'daily-summary': 'Daily Summary',
   'decisions': 'Decisions',
   'open-questions': 'Open Questions',
   'system-strategy': 'System Strategy',
@@ -4811,6 +4834,7 @@ var sectionParents = {
   'agent-crewbert': { label: 'Agent Model', href: '/foundation#agents' },
   'decisions': { label: 'Foundation Operations', href: '/foundation#backlog' },
   'backlog': { label: 'Foundation Operations', href: '/foundation#backlog' },
+  'daily-summary': { label: 'Foundation Operations', href: '/foundation#backlog' },
   'open-questions': { label: 'Foundation Operations', href: '/foundation#backlog' },
   'system-activity': { label: 'Foundation Operations', href: '/foundation#backlog' },
   'system-health': { label: 'Foundation Operations', href: '/foundation#backlog' },
@@ -12859,6 +12883,208 @@ function renderSystemActivity() {
   })
 }
 
+function renderDailySummaryMetric(label, value, detail) {
+  var card = document.createElement('div')
+  card.className = 'build-log-summary-metric daily-summary-metric'
+  var strong = document.createElement('strong')
+  strong.textContent = value
+  card.appendChild(strong)
+  var span = document.createElement('span')
+  span.textContent = label
+  card.appendChild(span)
+  if (detail) {
+    var copy = document.createElement('p')
+    copy.textContent = detail
+    card.appendChild(copy)
+  }
+  return card
+}
+
+function renderDailySummaryEvidenceRefs(refs) {
+  var values = (refs || []).filter(Boolean)
+  if (!values.length) return null
+  var details = document.createElement('details')
+  details.className = 'daily-summary-evidence'
+  details.setAttribute('data-daily-summary-evidence', 'refs')
+  var summary = document.createElement('summary')
+  summary.textContent = 'Evidence refs'
+  details.appendChild(summary)
+  var list = document.createElement('ul')
+  list.className = 'change-log-evidence-list'
+  values.slice(0, 16).forEach(function(ref) {
+    var item = document.createElement('li')
+    item.setAttribute('data-daily-summary-evidence-ref', 'true')
+    item.textContent = ref
+    list.appendChild(item)
+  })
+  details.appendChild(list)
+  return details
+}
+
+function renderDailySummaryItem(item) {
+  var row = document.createElement('article')
+  row.className = 'daily-summary-item'
+  var title = document.createElement('strong')
+  title.textContent = item.closeoutKey || item.cardId || item.nextCard || item.title || item.source || item.changeTypeLabel || 'Source-backed item'
+  row.appendChild(title)
+  var summary = document.createElement('p')
+  summary.textContent = item.reviewNext || item.summary || item.nextAction || item.lesson || item.remaining || item.proofStatus || item.subject || ''
+  row.appendChild(summary)
+
+  var cards = (item.owningCards || item.contextCards || item.cardId ? [item.cardId].filter(Boolean) : []).filter(Boolean)
+  if ((item.owningCards || []).length) cards = item.owningCards
+  if (cards.length) {
+    var links = renderChangeLogCardLinks(cards, 'Owning cards', 'build-log-backlog-link')
+    if (links) row.appendChild(links)
+  }
+  if ((item.contextCards || []).length) {
+    var context = renderChangeLogCardLinks(item.contextCards, 'Context cards', 'build-log-backlog-link build-log-context-link')
+    if (context) row.appendChild(context)
+  }
+  var evidence = renderDailySummaryEvidenceRefs(item.evidenceRefs)
+  if (evidence) row.appendChild(evidence)
+  return row
+}
+
+function renderDailySummarySection(section) {
+  var panel = document.createElement('section')
+  panel.className = 'panel daily-summary-section'
+  panel.setAttribute('data-daily-summary-section', section.key)
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Daily Summary'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = section.title
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = section.summary
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var items = section.items || []
+  if (items.length) {
+    var list = document.createElement('div')
+    list.className = 'daily-summary-item-list'
+    items.slice(0, 12).forEach(function(item) {
+      list.appendChild(renderDailySummaryItem(item))
+    })
+    panel.appendChild(list)
+  }
+  var evidence = renderDailySummaryEvidenceRefs(section.evidenceRefs)
+  if (evidence) panel.appendChild(evidence)
+  return panel
+}
+
+function renderDailySummaryDaySelector(summary) {
+  var panel = document.createElement('section')
+  panel.className = 'panel daily-summary-day-selector'
+  panel.setAttribute('data-daily-summary-section', 'recent-day-selector')
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Recent Days'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Choose a source-backed day'
+  left.appendChild(title)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var list = document.createElement('div')
+  list.className = 'daily-summary-day-list'
+  ;(summary.recentDays || []).forEach(function(day) {
+    var link = document.createElement('a')
+    link.className = 'daily-summary-day-link' + (day.date === summary.query.selectedDate ? ' daily-summary-day-link-active' : '')
+    link.href = '/foundation#daily-summary:' + encodeURIComponent(day.date)
+    link.textContent = day.date + ' · ' + day.shipped + ' shipped · ' + day.changes + ' changes'
+    link.setAttribute('data-daily-summary-day', day.date)
+    list.appendChild(link)
+  })
+  panel.appendChild(list)
+  return panel
+}
+
+function renderDailySummary() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading daily summary.</p>'
+
+  fetchFoundationDailySummary(getDailySummaryDate()).then(function(summary) {
+    var day = summary.days && summary.days[0] ? summary.days[0] : null
+    var data = summary.summary || {}
+    container.innerHTML = ''
+
+    var hero = document.createElement('section')
+    hero.className = 'hero daily-summary-hero'
+    hero.setAttribute('data-daily-summary-section', 'selected-date')
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+    var title = document.createElement('h1')
+    title.textContent = 'Daily Summary'
+    heroInner.appendChild(title)
+    var meta = document.createElement('p')
+    meta.className = 'hero-copy'
+    meta.textContent = 'Selected date: ' + (summary.query && summary.query.selectedDate ? summary.query.selectedDate : 'today')
+    heroInner.appendChild(meta)
+    var note = document.createElement('p')
+    note.className = 'hero-copy'
+    note.textContent = 'Source-backed daily readout: where we started, what changed, what shipped, what remains, what we learned, and what is next.'
+    heroInner.appendChild(note)
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    var overview = document.createElement('section')
+    overview.className = 'build-log-executive-summary daily-summary-overview'
+    overview.setAttribute('data-daily-summary-section', 'overview')
+    var copy = document.createElement('div')
+    copy.className = 'build-log-executive-copy'
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Executive Readout'
+    copy.appendChild(eyebrow)
+    var overviewTitle = document.createElement('h3')
+    overviewTitle.textContent = day && day.hasEvidence ? 'Evidence found for this day' : 'No source-backed evidence found for this day'
+    copy.appendChild(overviewTitle)
+    var intro = document.createElement('p')
+    intro.textContent = 'This surface does not create narrative on its own. Every section below points back to build-log, changelog, backlog, plan/state, or proof evidence.'
+    copy.appendChild(intro)
+    overview.appendChild(copy)
+    var metrics = document.createElement('div')
+    metrics.className = 'build-log-summary-grid daily-summary-grid'
+    metrics.appendChild(renderDailySummaryMetric('Shipped today', String(data.shippedTodayCount || 0), 'Verified closeout-backed builds for the selected date.'))
+    metrics.appendChild(renderDailySummaryMetric('Still open', String(data.stillOpenCount || 0), 'Live Foundation backlog items that remain open for the current day.'))
+    metrics.appendChild(renderDailySummaryMetric('Needs review', String(data.needsReviewCount || 0), 'Closeout review-next items.'))
+    metrics.appendChild(renderDailySummaryMetric('Next build', String(data.nextBuildCount || 0), 'Source-backed next card signal.'))
+    overview.appendChild(metrics)
+    container.appendChild(overview)
+
+    container.appendChild(renderDailySummaryDaySelector(summary))
+
+    if (!day) {
+      var empty = document.createElement('p')
+      empty.textContent = 'Daily summary could not find a selected day payload.'
+      container.appendChild(empty)
+      return
+    }
+
+    ;['whereWeStarted', 'whatChanged', 'whatShipped', 'whatRemains', 'whatWeLearned', 'whatIsNext', 'proof'].forEach(function(key) {
+      if (day.sections && day.sections[key]) container.appendChild(renderDailySummarySection(day.sections[key]))
+    })
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Daily Summary could not load. Details: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
 function renderBuildTextList(items, className) {
   var values = (items || []).filter(Boolean)
   if (!values.length) return null
@@ -13510,6 +13736,8 @@ function route() {
     renderStrategyDoc(section)
   } else if (section === 'backlog') {
     renderBacklog()
+  } else if (section === 'daily-summary') {
+    renderDailySummary()
   } else if (section === 'decisions') {
     renderDecisions()
   } else if (section === 'open-questions') {

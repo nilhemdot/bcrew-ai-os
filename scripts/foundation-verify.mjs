@@ -77,6 +77,15 @@ import {
   CHANGE_LOG_COMPREHENSIVE_MANUAL_REVIEW_PATH,
 } from '../lib/foundation-change-log.js'
 import {
+  buildDailyExecSummaryStatus,
+  DAILY_EXEC_SUMMARY_APPROVAL_PATH,
+  DAILY_EXEC_SUMMARY_APPROVED_PLAN_PATH,
+  DAILY_EXEC_SUMMARY_BASELINE_PATH,
+  DAILY_EXEC_SUMMARY_CARD_ID,
+  DAILY_EXEC_SUMMARY_CLOSEOUT_KEY,
+  DAILY_EXEC_SUMMARY_MANUAL_REVIEW_PATH,
+} from '../lib/foundation-daily-exec-summary.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -158,6 +167,10 @@ const RECENT_BUILDS_UI_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const CHANGE_LOG_COMPREHENSIVE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'CHANGE-LOG-COMPREHENSIVE-001',
+]
+
+const DAILY_EXEC_SUMMARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'DAILY-EXEC-SUMMARY-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -831,6 +844,7 @@ async function main() {
   const uiMenuLayoutPolishApprovalRef = UI_MENU_LAYOUT_POLISH_APPROVAL_PATH
   const recentBuildsUiApprovalRef = RECENT_BUILDS_UI_APPROVAL_PATH
   const changeLogComprehensiveApprovalRef = CHANGE_LOG_COMPREHENSIVE_APPROVAL_PATH
+  const dailyExecSummaryApprovalRef = DAILY_EXEC_SUMMARY_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -862,6 +876,11 @@ async function main() {
     approvalRef: changeLogComprehensiveApprovalRef,
     cardId: CHANGE_LOG_COMPREHENSIVE_CARD_ID,
   })
+  const dailyExecSummaryApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: dailyExecSummaryApprovalRef,
+    cardId: DAILY_EXEC_SUMMARY_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -883,6 +902,7 @@ async function main() {
   const uiMenuLayoutPolishApprovedPlan = await readRepoFile(UI_MENU_LAYOUT_POLISH_APPROVED_PLAN_PATH)
   const recentBuildsUiApprovedPlan = await readRepoFile(RECENT_BUILDS_UI_APPROVED_PLAN_PATH)
   const changeLogComprehensiveApprovedPlan = await readRepoFile(CHANGE_LOG_COMPREHENSIVE_APPROVED_PLAN_PATH)
+  const dailyExecSummaryApprovedPlan = await readRepoFile(DAILY_EXEC_SUMMARY_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -893,6 +913,8 @@ async function main() {
   const recentBuildsUiManualReview = await readRepoFile(RECENT_BUILDS_UI_MANUAL_REVIEW_PATH)
   const changeLogComprehensiveBaseline = await readRepoFile(CHANGE_LOG_COMPREHENSIVE_BASELINE_PATH)
   const changeLogComprehensiveManualReview = await readRepoFile(CHANGE_LOG_COMPREHENSIVE_MANUAL_REVIEW_PATH)
+  const dailyExecSummaryBaseline = await readRepoFile(DAILY_EXEC_SUMMARY_BASELINE_PATH)
+  const dailyExecSummaryManualReview = await readRepoFile(DAILY_EXEC_SUMMARY_MANUAL_REVIEW_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -1108,12 +1130,14 @@ async function main() {
       "app.get('/api/sheets/structure-status', requireAdminToken",
       "app.get('/api/system-inventory', requireAdminToken",
       "app.get('/api/foundation/changes', requireAdminToken",
+      "app.get('/api/foundation/change-log', requireAdminToken",
+      "app.get('/api/foundation/daily-summary', requireAdminToken",
       "app.get('/api/foundation/build-log', requireAdminToken",
       "app.get('/api/foundation/doc-updates', requireAdminToken",
       "app.get('/foundation/export/strategy.pdf', requireAdminToken",
     ].every(pattern => serverSource.includes(pattern)),
     'broad Foundation/Ops/doc read APIs are admin-gated',
-    'source-of-truth, doc reads, foundation hub, intelligence evidence, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, build log, doc updates, and PDF export require admin token outside localhost',
+    'source-of-truth, doc reads, foundation hub, intelligence evidence, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, changelog, daily summary, build log, doc updates, and PDF export require admin token outside localhost',
   )
   ensure(
     checks,
@@ -1950,6 +1974,7 @@ async function main() {
   const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=80')
   const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
+  const foundationDailySummary = await fetchJson(baseUrl, '/api/foundation/daily-summary?date=2026-04-30&days=7')
   const foundationChangesApi = await fetchJson(baseUrl, '/api/foundation/changes?limit=20')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
@@ -2016,6 +2041,14 @@ async function main() {
     changeLog: foundationChangeLog,
     changesApi: foundationChangesApi,
     buildLog: foundationBuildLog,
+  })
+  const dailyExecSummaryStatus = await buildDailyExecSummaryStatus({
+    repoRoot,
+    dailySummary: foundationDailySummary,
+    buildLog: foundationBuildLog,
+    changeLog: foundationChangeLog,
+    changesApi: foundationChangesApi,
+    foundationHub,
   })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
@@ -2795,6 +2828,10 @@ async function main() {
   const buildLogChangeLogComprehensiveBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(CHANGE_LOG_COMPREHENSIVE_CARD_ID) &&
       build.closeoutKey === CHANGE_LOG_COMPREHENSIVE_CLOSEOUT_KEY
+  )
+  const buildLogDailyExecSummaryBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(DAILY_EXEC_SUMMARY_CARD_ID) &&
+      build.closeoutKey === DAILY_EXEC_SUMMARY_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -3930,6 +3967,7 @@ async function main() {
   const uiMenuLayoutPolish = (foundationHub.backlogItems || []).find(item => item.id === UI_MENU_LAYOUT_POLISH_CARD_ID) || null
   const recentBuildsUi = (foundationHub.backlogItems || []).find(item => item.id === RECENT_BUILDS_UI_CARD_ID) || null
   const changeLogComprehensive = (foundationHub.backlogItems || []).find(item => item.id === CHANGE_LOG_COMPREHENSIVE_CARD_ID) || null
+  const dailyExecSummary = (foundationHub.backlogItems || []).find(item => item.id === DAILY_EXEC_SUMMARY_CARD_ID) || null
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -5420,14 +5458,15 @@ async function main() {
         '.build-log-card-summary',
         '.build-log-context-link',
       ]) &&
-      ['CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001'].includes(foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard) &&
+      ['CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001'].includes(foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard) &&
       buildLogRecentBuildsUiBuild?.operatorCloseout === true &&
       recentBuildsUiBuildLogExact &&
       currentPlan.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1') &&
       currentPlan.includes('CHANGE-LOG-COMPREHENSIVE-001') &&
       currentState.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1') &&
       (currentState.includes('Next expected card is `CHANGE-LOG-COMPREHENSIVE-001`') ||
-        currentState.includes('Next expected card is `DAILY-EXEC-SUMMARY-001`')),
+        currentState.includes('Next expected card is `DAILY-EXEC-SUMMARY-001`') ||
+        currentState.includes('Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`')),
     'RECENT-BUILDS-BILLION-DOLLAR-UI-001 upgrades Recent Work without smearing ownership',
     `closeouts=${recentBuildsUiStatus.summary?.closeoutBuilds} sameCommit=${recentBuildsUiStatus.summary?.sameCommitGroups} manual=${recentBuildsUiStatus.summary?.manualRouteChecks}/10 closeout=${buildLogRecentBuildsUiBuild?.closeoutKey || 'missing'}`,
   )
@@ -5498,15 +5537,107 @@ async function main() {
         '.change-log-group-grid',
         '.change-log-evidence-list',
       ]) &&
-      foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard === 'DAILY-EXEC-SUMMARY-001' &&
+      ['DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001'].includes(foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard) &&
       buildLogChangeLogComprehensiveBuild?.operatorCloseout === true &&
       changeLogComprehensiveBuildLogExact &&
       currentPlan.includes('CHANGE-LOG-COMPREHENSIVE-001` is done for v1') &&
       currentPlan.includes('DAILY-EXEC-SUMMARY-001') &&
       currentState.includes('CHANGE-LOG-COMPREHENSIVE-001` is done for v1') &&
-      currentState.includes('Next expected card is `DAILY-EXEC-SUMMARY-001`'),
+      (currentState.includes('Next expected card is `DAILY-EXEC-SUMMARY-001`') ||
+        currentState.includes('Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`')),
     'CHANGE-LOG-COMPREHENSIVE-001 adds comprehensive source-backed changelog coverage',
     `entries=${changeLogComprehensiveStatus.summary?.totalEntries} closeoutBacked=${changeLogComprehensiveStatus.summary?.verifiedCloseoutBackedEntries} types=${changeLogComprehensiveStatus.summary?.representedChangeTypes}/10 closeout=${buildLogChangeLogComprehensiveBuild?.closeoutKey || 'missing'}`,
+  )
+  const dailyExecSummaryBuildLogExact = buildLogDailyExecSummaryBuild?.backlogIds?.length === 1 &&
+    buildLogDailyExecSummaryBuild.backlogIds.includes(DAILY_EXEC_SUMMARY_CARD_ID) &&
+    !['PLAIN-ENGLISH-SWEEP-001', 'UI-MENU-LAYOUT-POLISH-001', 'RECENT-BUILDS-BILLION-DOLLAR-UI-001', 'CHANGE-LOG-COMPREHENSIVE-001', 'SOURCE-LIFECYCLE-EXPANSION-001']
+      .some(id => buildLogDailyExecSummaryBuild.backlogIds.includes(id))
+  ensure(
+    checks,
+    dailyExecSummary?.lane === 'done' &&
+      /daily-exec-summary-v1/.test(dailyExecSummary?.statusNote || '') &&
+      dailyExecSummaryApprovalValidation.ok &&
+      dailyExecSummaryApprovalValidation.mode === 'v2' &&
+      dailyExecSummaryApprovalValidation.approval?.approvedPlanRef === DAILY_EXEC_SUMMARY_APPROVED_PLAN_PATH &&
+      includesAll(dailyExecSummaryApprovedPlan, [
+        'source-backed inputs only',
+        'No generated narrative without evidence',
+        'Every summary section must carry evidence refs',
+        'No private/local file content copied',
+      ]) &&
+      includesAll(foundationVerifySource, DAILY_EXEC_SUMMARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:daily-exec-summary-check"', 'scripts/process-daily-exec-summary-check.mjs']) &&
+      dailyExecSummaryStatus.status === 'healthy' &&
+      dailyExecSummaryStatus.summary?.selectedDateHasEvidence === true &&
+      dailyExecSummaryStatus.summary?.sectionEvidenceComplete === true &&
+      dailyExecSummaryStatus.summary?.latestRecentBuildsRepresented >= 5 &&
+      dailyExecSummaryStatus.summary?.latestDailyCloseoutRepresented === true &&
+      dailyExecSummaryStatus.summary?.shippedTodayCount > 0 &&
+      dailyExecSummaryStatus.summary?.stillOpenCount > 0 &&
+      dailyExecSummaryStatus.summary?.needsReviewCount > 0 &&
+      dailyExecSummaryStatus.summary?.nextBuildCount > 0 &&
+      dailyExecSummaryStatus.summary?.ownershipContextSmearing === 0 &&
+      dailyExecSummaryStatus.summary?.privateEvidenceLeaks === 0 &&
+      includesAll(dailyExecSummaryBaseline, [
+        'Baseline source: 289dc62',
+        'Closeout-backed builds available',
+        'Changelog entries available',
+        'Latest five Recent Work closeouts',
+      ]) &&
+      includesAll(dailyExecSummaryManualReview, [
+        'Failures: 0',
+        'selected date',
+        'recent-day selector/list',
+        'where we started',
+        'what changed',
+        'what shipped',
+        'what remains',
+        'what we learned',
+        'what is next',
+        'proof/evidence refs',
+        'desktop 1440x900',
+        'mobile 390x844',
+      ]) &&
+      foundationDailySummary.schemaVersion === 1 &&
+      foundationDailySummary.query?.selectedDate === '2026-04-30' &&
+      Array.isArray(foundationDailySummary.days) &&
+      foundationDailySummary.days[0]?.sections?.whereWeStarted?.evidenceRefs?.length > 0 &&
+      foundationDailySummary.days[0]?.sections?.whatChanged?.evidenceRefs?.length > 0 &&
+      foundationDailySummary.days[0]?.sections?.whatShipped?.evidenceRefs?.length > 0 &&
+      foundationDailySummary.days[0]?.sections?.whatRemains?.evidenceRefs?.length > 0 &&
+      foundationDailySummary.days[0]?.sections?.whatWeLearned?.evidenceRefs?.length > 0 &&
+      foundationDailySummary.days[0]?.sections?.whatIsNext?.evidenceRefs?.length > 0 &&
+      foundationDailySummary.days[0]?.sections?.proof?.evidenceRefs?.length > 0 &&
+      foundationBuildLog.schemaVersion === 2 &&
+      foundationChangeLog.schemaVersion === 1 &&
+      Array.isArray(foundationChangesApi.changes) &&
+      includesAll(foundationHtmlSource, [
+        'data-section="daily-summary"',
+        'Daily Summary',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'fetchFoundationDailySummary',
+        'renderDailySummary',
+        'data-daily-summary-section',
+        'Shipped today',
+        'Still open',
+        'Needs review',
+        'Next build',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.daily-summary-day-list',
+        '.daily-summary-item',
+        '.daily-summary-evidence',
+      ]) &&
+      foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard === 'SOURCE-LIFECYCLE-EXPANSION-001' &&
+      buildLogDailyExecSummaryBuild?.operatorCloseout === true &&
+      dailyExecSummaryBuildLogExact &&
+      currentPlan.includes('DAILY-EXEC-SUMMARY-001` is done for v1') &&
+      currentPlan.includes('SOURCE-LIFECYCLE-EXPANSION-001') &&
+      currentState.includes('DAILY-EXEC-SUMMARY-001` is done for v1') &&
+      currentState.includes('Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`'),
+    'DAILY-EXEC-SUMMARY-001 adds source-backed daily executive summaries',
+    `date=${foundationDailySummary.query?.selectedDate || 'missing'} shipped=${dailyExecSummaryStatus.summary?.shippedTodayCount} evidence=${dailyExecSummaryStatus.summary?.sectionEvidenceComplete} closeout=${buildLogDailyExecSummaryBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

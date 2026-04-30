@@ -1,0 +1,13 @@
+{
+  "cardId": "DAILY-EXEC-SUMMARY-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T17:04:30Z",
+  "approvalSource": "Steve gave GREEN LIGHT for the DAILY-EXEC-SUMMARY-001 plan with source-backed daily summary constraints and explicit UI/API/privacy gates.",
+  "notes": "Approval covers only the daily executive summary route /foundation#daily-summary, the additive /api/foundation/daily-summary endpoint, date-scoped evidence-backed summaries, verifier/process coverage, and manual UI proof. It does not approve source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus work, research cleanup, Action Review applying, or a new feature lane.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/daily-exec-summary-v1.md",
+  "approvedPlanSha256": "90c3a2d8beb4e2e37a6c6cb1d2db9cc4a5611bf1ca0f3f11c2715141dac08227",
+  "approvedRepoHead": "289dc62a542b5740e909f7dcd213d87729aea63a",
+  "approvalDigest": "5aebf79ff63304442e0018279dbf2a83980548bec06e78f42c1e319629971caf"
+}

@@ -67,7 +67,7 @@ Open:
 - Harlan/Crewbert useful runtime
 - Strategy Hub v2 rebuild on top of the completed v1 spine and Action Router route records
 - Cleanup B for the remaining `Other` docs, using `docs/process/doc-other-triage.md` as input
-- Foundation Phase G daily executive summary and source lifecycle completion before broader feature lanes resume
+- Foundation Phase G source lifecycle completion before broader feature lanes resume
 
 ## Foundation Surfaces
 
@@ -151,7 +151,8 @@ Current command order:
 18. `GATE-RELIABILITY-003` is done for v1 under `gate-reliability-direct-verifier-deadlock-v1`: independent review accepted UI/menu/layout, then found direct `foundation:verify` could still hit a bounded `postgres-deadlock` retry. Direct verifier, process ship/fanout gates, post-ship fanout, and backlog hygiene now use read-only gate checks against initialized DB metadata instead of running write-heavy schema/seed initialization during normal review. Safe diagnostics identify Postgres code, relation OIDs, process IDs, routine, gate label, and retry attempt without row data, source content, or private content.
 19. `RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1 under `recent-builds-billion-dollar-ui-v1`: Recent Work now has an executive summary, review-next queue, collapsed-by-default closeout cards, proof/known-limit/where-it-lives sections, separate owning-card and context-card treatments, and same-commit groups that stay grouped while each closeout stays individually reviewable. Ownership semantics remain exact: `backlogIds` own cards only, mentioned/context cards stay context only. This did not implement comprehensive changelog, daily summary, source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus, research cleanup, or a new feature lane.
 20. `CHANGE-LOG-COMPREHENSIVE-001` is done for v1 under `change-log-comprehensive-v1`: System Activity now has a comprehensive source-backed changelog with recent highlights, by-surface grouping, by-type grouping, raw evidence rows, inspectable evidence refs, and owner/context card separation. The layer uses verified closeouts, DB `change_events`, and changed-file evidence; `/api/foundation/changes` remains backward-compatible and `/api/foundation/change-log` is additive. This did not implement Daily Exec Summary, source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus, research cleanup, or a new feature lane.
-21. Remaining Phase G work is still not done: daily executive summary and source lifecycle expansion. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, source lifecycle expansion, or broader agent work by default without the next approved Foundation plan. Next expected card is `DAILY-EXEC-SUMMARY-001`.
+21. `DAILY-EXEC-SUMMARY-001` is done for v1 under `daily-exec-summary-v1`: Foundation now has a date-scoped daily executive summary at `/foundation#daily-summary` and `/api/foundation/daily-summary`, with selected date, recent-day selector/list, where we started, what changed, what shipped, what remains, what we learned, what is next, and proof/evidence refs. The layer uses Recent Work, comprehensive changelog, current plan/state, live backlog truth, action/research disposition summaries, and recorded proof only; it does not generate narrative without evidence refs.
+22. Remaining Phase G work is still not done: source lifecycle expansion. Do not un-pause Scoper, dev intelligence, agent-managed backlog work, Strategy UI, corpus expansion, source lifecycle expansion, or broader agent work by default without the next approved Foundation plan. Next expected card is `SOURCE-LIFECYCLE-EXPANSION-001`.
 
 ## Operator Surface Pattern
 
@@ -171,6 +172,7 @@ These pages are operator surfaces, not strategy pages.
 | Page | Why it exists | Current truth |
 | --- | --- | --- |
 | Backlog | Root Foundation build queue. | Live and primary for task status, priority, lane, owner, and next action. Needs done-date and newest-done sorting under `FOUNDATION-SURFACE-UPDATES-001`. |
+| Daily Summary | Date-scoped executive readout. | Live source-backed daily summary from `/api/foundation/daily-summary`: Recent Work, comprehensive changelog, current plan/state, live backlog truth, action/research disposition summaries, and recorded proof grouped into where we started, what changed, what shipped, what remains, what we learned, what is next, and evidence refs. |
 | Decisions | Canonical governance ledger. | Working as a manual first slice; not yet automatic meeting/chat decision capture. `DECISION-007` owns old-decision reconciliation and `ACTION-ROUTER-001` owns future routing from synthesis. |
 | Open Questions | Exception queue for real unresolved blockers. | Technically working, but the old stale carry-forward questions were resolved or routed into backlog/source docs on 2026-04-26. New questions should be rare, owner-bound, and cleared quickly. |
 | Recent Work | Shipped-build review. | Recent Builds executive UI is now live for v1: collapsed closeout cards, review-next queue, proof, known limits, where-it-lives, owning cards, context cards, and same-commit groups that remain individually reviewable. It is not the broader comprehensive changelog. |
