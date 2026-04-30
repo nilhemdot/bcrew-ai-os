@@ -403,6 +403,32 @@ var capabilityCatalog = {
   },
 }
 
+var currentInventoryDocCategories = [
+  'Active doctrine',
+  'Process & runbooks',
+  'Source notes',
+  'Specs',
+  'Strategy reference',
+  'Agent personas',
+  'User profile',
+]
+
+var archiveHistoryInventoryDocCategories = [
+  'Archive',
+  'Plan history',
+  'Recent audits - active',
+  'Recent handoffs - active',
+]
+
+var phaseGOperatorOrder = [
+  'PLAIN-ENGLISH-SWEEP-001',
+  'UI-MENU-LAYOUT-POLISH-001',
+  'RECENT-BUILDS-BILLION-DOLLAR-UI-001',
+  'CHANGE-LOG-COMPREHENSIVE-001',
+  'DAILY-EXEC-SUMMARY-001',
+  'SOURCE-LIFECYCLE-EXPANSION-001',
+]
+
 /* ── inline formatting (from app.js) ─────────────────────── */
 
 function appendFormattedText(text, parent, currentPath) {
@@ -4751,7 +4777,8 @@ var sectionLabels = {
   'source-sheets': 'Spreadsheets',
   'source-apis': 'APIs and apps',
   'source-connectors': 'Connectors',
-  'inventory-docs': 'All Docs',
+  'inventory-docs': 'Current Docs',
+  'inventory-archive-history': 'Archive / History',
   'capabilities-skills': 'Skills',
   'capabilities-plugins': 'Plugins and MCPs',
   'capabilities-agents': 'Agents',
@@ -4780,6 +4807,7 @@ var sectionParents = {
   'source-apis': { label: 'Data Sources', href: '/foundation#source-overview' },
   'source-connectors': { label: 'Data Sources', href: '/foundation#source-overview' },
   'inventory-docs': { label: 'System Inventory', href: '/foundation#inventory-docs' },
+  'inventory-archive-history': { label: 'System Inventory', href: '/foundation#inventory-docs' },
   'capabilities-skills': { label: 'System Inventory', href: '/foundation#inventory-docs' },
   'capabilities-plugins': { label: 'System Inventory', href: '/foundation#inventory-docs' },
   'capabilities-agents': { label: 'System Inventory', href: '/foundation#inventory-docs' },
@@ -7101,6 +7129,83 @@ function renderCurrentStateLevelGuide(currentPath) {
   ], currentPath)
 }
 
+function getPhaseGCard(hub, cardId) {
+  return ((hub && hub.backlogItems) || []).find(function(item) {
+    return item.id === cardId
+  }) || null
+}
+
+function getPhaseGNextCard(hub) {
+  var cards = phaseGOperatorOrder.map(function(cardId) {
+    return getPhaseGCard(hub, cardId)
+  }).filter(Boolean)
+  return cards.find(function(card) {
+    return card.lane !== 'done'
+  }) || cards[cards.length - 1] || null
+}
+
+function getPhaseGFollowingCard(hub, cardId) {
+  var index = phaseGOperatorOrder.indexOf(cardId)
+  if (index === -1) return null
+  for (var i = index + 1; i < phaseGOperatorOrder.length; i += 1) {
+    var card = getPhaseGCard(hub, phaseGOperatorOrder[i])
+    if (card && card.lane !== 'done') return card
+  }
+  return null
+}
+
+function renderFoundationCurrentTruthPanel(hub) {
+  var nextCard = getPhaseGNextCard(hub)
+  var followingCard = nextCard ? getPhaseGFollowingCard(hub, nextCard.id) : null
+  var doneCount = phaseGOperatorOrder.filter(function(cardId) {
+    var card = getPhaseGCard(hub, cardId)
+    return card && card.lane === 'done'
+  }).length
+
+  var items = [
+    {
+      label: 'Current card',
+      status: nextCard ? 'pending' : 'connected',
+      detail: nextCard
+        ? nextCard.id + ' - ' + (nextCard.title || 'Next Phase G card')
+        : 'No open Phase G card is detected.',
+    },
+    {
+      label: 'After this',
+      status: followingCard ? 'planned' : 'connected',
+      detail: followingCard
+        ? followingCard.id + ' - ' + (followingCard.title || 'Next follow-up card')
+        : 'No later Phase G card is waiting in the recorded order.',
+    },
+    {
+      label: 'Phase G progress',
+      status: doneCount >= phaseGOperatorOrder.length ? 'connected' : 'pending',
+      detail: doneCount + '/' + phaseGOperatorOrder.length + ' Phase G cards are done in the recorded order.',
+    },
+    {
+      label: 'Review rule',
+      status: 'connected',
+      detail: 'Each card still needs its own 9.8 plan, exact closeout, proof commands, served-commit check, and review stop.',
+    },
+  ]
+
+  var panel = renderOverviewStatusPanel(items, {
+    eyebrow: 'Current Truth',
+    title: 'What to work on next',
+    intro: 'This is the first check before clicking deeper pages. The live Backlog stays task truth; this panel shows the next Phase G command move.',
+  })
+
+  if (!panel || !nextCard) return panel
+
+  var actions = document.createElement('div')
+  actions.className = 'doc-source-actions'
+  actions.appendChild(createActionLink('Open Current Card', '/foundation#backlog:' + encodeURIComponent(nextCard.id), 'doc-source-link'))
+  actions.appendChild(createActionLink('Open Recent Work', '/foundation#build-log', 'doc-source-link'))
+  actions.appendChild(createActionLink('Open Current Docs', '/foundation#inventory-docs', 'doc-source-link'))
+  panel.appendChild(actions)
+  return panel
+}
+
 function renderFoundationExecutionOrderPanel(currentPath) {
   var nextPanel = document.createElement('section')
   nextPanel.className = 'panel'
@@ -7456,6 +7561,7 @@ function renderCurrentState() {
     fetchSheetStructureStatus().catch(function() { return null }),
   ]).then(function(results) {
     var doc = results[0]
+    var hub = results[1]
     var currentPath = 'docs/rebuild/current-state.md'
     container.innerHTML = ''
 
@@ -7483,6 +7589,7 @@ function renderCurrentState() {
 
     container.appendChild(hero)
 
+    container.appendChild(renderFoundationCurrentTruthPanel(hub))
     container.appendChild(renderFoundationExecutionOrderPanel(currentPath))
 
     var surfacesPanel = document.createElement('section')
@@ -11444,6 +11551,39 @@ function renderInventoryGroupStack(groupTitle, introText, items) {
   return details
 }
 
+function isArchiveHistoryDoc(doc) {
+  var category = String(doc && doc.category || '')
+  var docPath = String(doc && doc.path || '')
+  if (archiveHistoryInventoryDocCategories.indexOf(category) !== -1) return true
+  if (docPath.indexOf('docs/_archive/') === 0) return true
+  if (docPath.indexOf('docs/rebuild/plan-history/') === 0) return true
+  return /\b(retired|superseded|history|archive)\b/i.test(docPath)
+}
+
+function isCurrentInventoryDoc(doc) {
+  return currentInventoryDocCategories.indexOf(String(doc && doc.category || '')) !== -1 && !isArchiveHistoryDoc(doc)
+}
+
+function splitInventoryDocs(trackedDocs) {
+  var split = {
+    currentDocs: [],
+    archiveHistoryDocs: [],
+    uncategorizedDocs: [],
+  }
+
+  ;(trackedDocs || []).forEach(function(doc) {
+    if (isArchiveHistoryDoc(doc)) {
+      split.archiveHistoryDocs.push(doc)
+    } else if (isCurrentInventoryDoc(doc)) {
+      split.currentDocs.push(doc)
+    } else {
+      split.uncategorizedDocs.push(doc)
+    }
+  })
+
+  return split
+}
+
 function renderInventoryDocs() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading docs inventory.</p>'
@@ -11453,11 +11593,14 @@ function renderInventoryDocs() {
 
     var trackedDocs = inventory.docs && inventory.docs.tracked ? inventory.docs.tracked : []
     var privateLocalDocs = inventory.docs && inventory.docs.privateLocal ? inventory.docs.privateLocal : []
-    var runtimeDocs = trackedDocs.filter(function(doc) { return doc.usage === 'runtime' })
-    var referenceDocs = trackedDocs.filter(function(doc) { return doc.usage !== 'runtime' })
-    var surfacedDocs = trackedDocs.filter(function(doc) { return !!doc.surfaceHref })
+    var inventorySplit = splitInventoryDocs(trackedDocs)
+    var currentDocs = inventorySplit.currentDocs
+    var archiveHistoryDocs = inventorySplit.archiveHistoryDocs
+    var runtimeDocs = currentDocs.filter(function(doc) { return doc.usage === 'runtime' })
+    var referenceDocs = currentDocs.filter(function(doc) { return doc.usage !== 'runtime' })
+    var surfacedDocs = currentDocs.filter(function(doc) { return !!doc.surfaceHref })
     var docCategorySummary = inventory.docs && inventory.docs.categorySummary ? inventory.docs.categorySummary : {}
-    var trackedOtherCount = trackedDocs.filter(function(doc) { return doc.category === 'Other' }).length
+    var trackedOtherCount = currentDocs.filter(function(doc) { return doc.category === 'Other' }).length
 
     var hero = document.createElement('section')
     hero.className = 'hero'
@@ -11471,17 +11614,17 @@ function renderInventoryDocs() {
     heroInner.appendChild(heroEyebrow)
 
     var heroTitle = document.createElement('h1')
-    heroTitle.textContent = 'All Docs'
+    heroTitle.textContent = 'Current Docs'
     heroInner.appendChild(heroTitle)
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = trackedDocs.length + ' tracked markdown docs · ' + privateLocalDocs.length + ' private local docs'
+    heroMeta.textContent = currentDocs.length + ' current docs · ' + archiveHistoryDocs.length + ' archive/history docs preserved separately · ' + privateLocalDocs.length + ' private local docs'
     heroInner.appendChild(heroMeta)
 
     var heroCopy = document.createElement('p')
     heroCopy.className = 'hero-copy'
-    heroCopy.textContent = 'Use this to see which docs are tracked in the repo and which are intentionally local-private.'
+    heroCopy.textContent = 'Use this default view for current operating docs. Archive and history evidence stay preserved in their own lane.'
     heroInner.appendChild(heroCopy)
 
     hero.appendChild(heroInner)
@@ -11489,8 +11632,9 @@ function renderInventoryDocs() {
 
     var purposePanel = renderSystemInventoryPurposePanel('inventory-docs', {
       inventory: inventory,
-      trackedDocs: trackedDocs,
+      trackedDocs: currentDocs,
       privateLocalDocs: privateLocalDocs,
+      archiveHistoryDocs: archiveHistoryDocs,
     })
     if (purposePanel) container.appendChild(purposePanel)
 
@@ -11501,14 +11645,19 @@ function renderInventoryDocs() {
         detail: runtimeDocs.length + ' docs are part of the active operating system right now.',
       },
       {
-        label: 'Reference docs',
+        label: 'Current reference docs',
         status: 'pending',
-        detail: referenceDocs.length + ' docs are stored as audits, handoffs, research, specs, or history.',
+        detail: referenceDocs.length + ' current docs are stored as references, specs, source notes, or strategy support.',
       },
       {
         label: 'Shown in Foundation',
         status: 'connected',
         detail: surfacedDocs.length + ' docs are directly tied to a visible system surface today.',
+      },
+      {
+        label: 'Archive / History',
+        status: 'connected',
+        detail: archiveHistoryDocs.length + ' archive, plan-history, audit, and handoff docs are preserved in Archive / History instead of this default view.',
       },
       {
         label: 'Private local docs',
@@ -11530,7 +11679,7 @@ function renderInventoryDocs() {
     if (statusPanel) container.appendChild(statusPanel)
 
     var groups = {}
-    trackedDocs.forEach(function(doc) {
+    currentDocs.forEach(function(doc) {
       if (!groups[doc.category]) groups[doc.category] = []
       groups[doc.category].push(doc)
     })
@@ -11553,7 +11702,7 @@ function renderInventoryDocs() {
 
     var intro = document.createElement('p')
     intro.className = 'section-intro'
-    intro.textContent = 'Every tracked markdown doc is grouped by its current role.'
+    intro.textContent = 'Current tracked markdown docs are grouped by role. Archive, plan-history, audit, and handoff evidence is intentionally separated from this default view.'
     left.appendChild(intro)
 
     header.appendChild(left)
@@ -11562,7 +11711,7 @@ function renderInventoryDocs() {
     var board = document.createElement('div')
     board.className = 'source-contract-stack'
     Object.keys(groups).sort().forEach(function(groupKey) {
-      var stack = renderInventoryGroupStack(groupKey, 'Grouped by role so the system can show what is live doctrine versus stored history.', groups[groupKey])
+      var stack = renderInventoryGroupStack(groupKey, 'Grouped by role so current operating docs stay separate from preserved history.', groups[groupKey])
       if (stack) board.appendChild(stack)
     })
     panel.appendChild(board)
@@ -11609,11 +11758,121 @@ function renderInventoryDocs() {
   })
 }
 
+function renderInventoryArchiveHistory() {
+  var container = document.getElementById('found-content')
+  container.innerHTML = '<p>Loading archive and history inventory.</p>'
+
+  fetchSystemInventory().then(function(inventory) {
+    container.innerHTML = ''
+
+    var trackedDocs = inventory.docs && inventory.docs.tracked ? inventory.docs.tracked : []
+    var inventorySplit = splitInventoryDocs(trackedDocs)
+    var archiveHistoryDocs = inventorySplit.archiveHistoryDocs
+    var currentDocs = inventorySplit.currentDocs
+
+    var hero = document.createElement('section')
+    hero.className = 'hero'
+
+    var heroInner = document.createElement('div')
+    heroInner.className = 'hero-inner'
+
+    var heroEyebrow = document.createElement('div')
+    heroEyebrow.className = 'eyebrow'
+    heroEyebrow.textContent = 'System Inventory'
+    heroInner.appendChild(heroEyebrow)
+
+    var heroTitle = document.createElement('h1')
+    heroTitle.textContent = 'Archive / History'
+    heroInner.appendChild(heroTitle)
+
+    var heroMeta = document.createElement('p')
+    heroMeta.className = 'hero-copy'
+    heroMeta.textContent = archiveHistoryDocs.length + ' preserved archive/history docs · ' + currentDocs.length + ' current docs stay in Current Docs'
+    heroInner.appendChild(heroMeta)
+
+    var heroCopy = document.createElement('p')
+    heroCopy.className = 'hero-copy'
+    heroCopy.textContent = 'Use this lane when you need old evidence, audits, handoffs, or retired plans. It is preserved history, not the current command surface.'
+    heroInner.appendChild(heroCopy)
+
+    hero.appendChild(heroInner)
+    container.appendChild(hero)
+
+    var purposePanel = renderOverviewStatusPanel([
+      {
+        label: 'Purpose',
+        status: 'connected',
+        detail: 'Preserve old evidence without mixing it into the current-doc default view.',
+      },
+      {
+        label: 'Current docs separated',
+        status: 'connected',
+        detail: currentDocs.length + ' current docs remain in System Inventory > Current Docs.',
+      },
+      {
+        label: 'History preserved',
+        status: archiveHistoryDocs.length ? 'connected' : 'pending',
+        detail: archiveHistoryDocs.length + ' archive, plan-history, audit, and handoff docs are still reachable here.',
+      },
+    ], {
+      eyebrow: 'Archive Boundary',
+      title: 'Preserved evidence, not current command truth',
+      intro: 'Current Plan, Current State, Systems, Data Sources, and Backlog remain the daily truth surfaces.',
+    })
+    if (purposePanel) container.appendChild(purposePanel)
+
+    var groups = {}
+    archiveHistoryDocs.forEach(function(doc) {
+      if (!groups[doc.category]) groups[doc.category] = []
+      groups[doc.category].push(doc)
+    })
+
+    var panel = document.createElement('section')
+    panel.className = 'panel'
+
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+
+    var left = document.createElement('div')
+    var eyebrow = document.createElement('div')
+    eyebrow.className = 'eyebrow'
+    eyebrow.textContent = 'Preserved Docs'
+    left.appendChild(eyebrow)
+
+    var title = document.createElement('h3')
+    title.textContent = 'Archive and history docs by role'
+    left.appendChild(title)
+
+    var intro = document.createElement('p')
+    intro.className = 'section-intro'
+    intro.textContent = 'These docs are kept for evidence and continuity. They do not compete with current doctrine or the live Backlog.'
+    left.appendChild(intro)
+
+    header.appendChild(left)
+    panel.appendChild(header)
+
+    var board = document.createElement('div')
+    board.className = 'source-contract-stack'
+    Object.keys(groups).sort().forEach(function(groupKey) {
+      var stack = renderInventoryGroupStack(groupKey, 'Preserved history kept reachable without crowding the current-doc view.', groups[groupKey])
+      if (stack) board.appendChild(stack)
+    })
+    panel.appendChild(board)
+    container.appendChild(panel)
+  }).catch(function(error) {
+    container.innerHTML = ''
+    var msg = document.createElement('p')
+    msg.textContent = 'Archive and history inventory could not load. Details: ' + error.message
+    container.appendChild(msg)
+  })
+}
+
 function renderSystemInventoryPurposePanel(section, context) {
   var ctx = context || {}
   var inventory = ctx.inventory || {}
   var trackedDocs = ctx.trackedDocs || (inventory.docs && inventory.docs.tracked) || []
   var privateLocalDocs = ctx.privateLocalDocs || (inventory.docs && inventory.docs.privateLocal) || []
+  var archiveHistoryDocs = ctx.archiveHistoryDocs || []
   var skills = ctx.skills || inventory.skills || []
   var plugins = ctx.plugins || inventory.plugins || []
   var agentSystem = ctx.agentSystem || null
@@ -11621,22 +11880,22 @@ function renderSystemInventoryPurposePanel(section, context) {
   var statusCards = []
 
   if (section === 'inventory-docs') {
-    title = 'All Docs inventory job'
+    title = 'Current Docs inventory job'
     statusCards = [
       {
         label: 'Page job',
         status: 'connected',
-        detail: 'Show every tracked markdown doc plus local-private markdown docs with a reason, so storage does not become invisible.',
+        detail: 'Show current tracked markdown docs plus local-private metadata, while keeping archive/history evidence out of the default view.',
       },
       {
         label: 'Live backing',
         status: 'connected',
-        detail: trackedDocs.length + ' tracked docs and ' + privateLocalDocs.length + ' local-private docs from /api/system-inventory.',
+        detail: trackedDocs.length + ' current docs, ' + archiveHistoryDocs.length + ' archive/history docs, and ' + privateLocalDocs.length + ' local-private docs from /api/system-inventory.',
       },
       {
         label: 'Boundary',
         status: 'pending',
-        detail: 'All Docs is storage inventory, not active doctrine. Current Plan, Overview, Systems, Data Sources, and the live Backlog decide operational truth.',
+        detail: 'Current Docs is storage inventory, not active doctrine. Current Plan, Overview, Systems, Data Sources, and the live Backlog decide operational truth.',
       },
     ]
   } else if (section === 'capabilities-skills') {
@@ -12745,6 +13004,8 @@ function route() {
     renderSourceRegistry(section)
   } else if (section === 'inventory-docs') {
     renderInventoryDocs()
+  } else if (section === 'inventory-archive-history') {
+    renderInventoryArchiveHistory()
   } else if (capabilityCatalog[section]) {
     renderCapabilitySection(section)
   } else if (section === 'system-health') {

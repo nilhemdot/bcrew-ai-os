@@ -1,0 +1,13 @@
+{
+  "cardId": "UI-MENU-LAYOUT-POLISH-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T11:43:10Z",
+  "approvalSource": "Steve gave GREEN LIGHT for the revised UI-MENU-LAYOUT-POLISH-001 plan after it added exact inventory split rules, concrete desktop/mobile acceptance, named artifacts, clear API boundary, current-truth correction, verifier coverage, and explicit no-scope boundaries.",
+  "notes": "Approval covers only UI/menu/layout polish, System Inventory current-vs-archive/history split, current-truth next-card correction, route/manual review proof, and verifier/process coverage. It does not approve Recent Work redesign, comprehensive changelog, daily summary, source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus, research cleanup, action-review cleanup, or a new feature lane.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/ui-menu-layout-polish-v1.md",
+  "approvedPlanSha256": "1b0f4033f8e09a996f051f15f98f7946c552cb9618c4345a6fb553edffd6a902",
+  "approvedRepoHead": "16cf8baad67f6f1c5c5dd782193b908bd1c4655a",
+  "approvalDigest": "b3fede3b0cc84fbecaa75e8c2ed63c43396b52724181f81629339d0eb63883a1"
+}

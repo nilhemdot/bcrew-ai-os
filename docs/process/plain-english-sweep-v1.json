@@ -554,6 +554,9 @@
       "before": "File-level inventory. Use this page when auditing what exists in the repo and what is intentionally local-private.",
       "after": "Use this to see which docs are tracked in the repo and which are intentionally local-private.",
       "proofText": "Use this to see which docs are tracked in the repo and which are intentionally local-private.",
+      "successorProofText": [
+        "Use this default view for current operating docs. Archive and history evidence stay preserved in their own lane."
+      ],
       "rule": "Hero copy starts with the operator task.",
       "outcome": "changed",
       "protectedIdentifiersChanged": false
@@ -614,6 +617,9 @@
       "before": "Everything tracked in git is grouped below.",
       "after": "Every tracked markdown doc is grouped by its current role.",
       "proofText": "Every tracked markdown doc is grouped by its current role.",
+      "successorProofText": [
+        "Current tracked markdown docs are grouped by role. Archive, plan-history, audit, and handoff evidence is intentionally separated from this default view."
+      ],
       "rule": "Intro copy says what the grouping means.",
       "outcome": "changed",
       "protectedIdentifiersChanged": false
@@ -698,6 +704,9 @@
       "before": "Foundation Operations",
       "after": "Foundation work",
       "proofText": "Foundation work",
+      "successorProofText": [
+        "Review queues"
+      ],
       "rule": "Nav labels use operator language.",
       "outcome": "changed",
       "protectedIdentifiersChanged": false

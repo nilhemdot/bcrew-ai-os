@@ -50,6 +50,15 @@ import {
   PLAIN_ENGLISH_SWEEP_MANUAL_REVIEW_PATH,
 } from '../lib/foundation-plain-english.js'
 import {
+  buildUiMenuLayoutPolishStatus,
+  UI_MENU_LAYOUT_POLISH_APPROVAL_PATH,
+  UI_MENU_LAYOUT_POLISH_APPROVED_PLAN_PATH,
+  UI_MENU_LAYOUT_POLISH_BASELINE_PATH,
+  UI_MENU_LAYOUT_POLISH_CARD_ID,
+  UI_MENU_LAYOUT_POLISH_CLOSEOUT_KEY,
+  UI_MENU_LAYOUT_POLISH_MANUAL_REVIEW_PATH,
+} from '../lib/foundation-ui-menu-layout-polish.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -119,6 +128,10 @@ const FOUNDATION_1100_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const PLAIN_ENGLISH_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'PLAIN-ENGLISH-SWEEP-001',
+]
+
+const UI_MENU_LAYOUT_POLISH_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'UI-MENU-LAYOUT-POLISH-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -783,6 +796,7 @@ async function main() {
     FOUNDATION_REVIEW_SPRINT_CARD_IDS.map(cardId => [cardId, `docs/process/approvals/${cardId}.json`])
   )
   const plainEnglishSweepApprovalRef = 'docs/process/approvals/PLAIN-ENGLISH-SWEEP-001.json'
+  const uiMenuLayoutPolishApprovalRef = UI_MENU_LAYOUT_POLISH_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
     validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
@@ -798,6 +812,11 @@ async function main() {
     approvalRef: plainEnglishSweepApprovalRef,
     cardId: PLAIN_ENGLISH_SWEEP_CARD_ID,
   })
+  const uiMenuLayoutPolishApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: uiMenuLayoutPolishApprovalRef,
+    cardId: UI_MENU_LAYOUT_POLISH_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -811,9 +830,12 @@ async function main() {
   const foundationControlApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-control-layer-v1.md')
   const foundation1100ReviewApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-1100-review-v1.md')
   const plainEnglishSweepApprovedPlan = await readRepoFile('docs/process/approved-plans/plain-english-sweep-v1.md')
+  const uiMenuLayoutPolishApprovedPlan = await readRepoFile(UI_MENU_LAYOUT_POLISH_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
   const plainEnglishSweepManualReview = await readRepoFile(PLAIN_ENGLISH_SWEEP_MANUAL_REVIEW_PATH)
+  const uiMenuLayoutPolishBaseline = await readRepoFile(UI_MENU_LAYOUT_POLISH_BASELINE_PATH)
+  const uiMenuLayoutPolishManualReview = await readRepoFile(UI_MENU_LAYOUT_POLISH_MANUAL_REVIEW_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -1920,6 +1942,12 @@ async function main() {
     hygiene: backlogHygieneApi,
   })
   const plainEnglishSweepStatus = await buildPlainEnglishSweepStatus({ repoRoot })
+  const uiMenuLayoutPolishStatus = await buildUiMenuLayoutPolishStatus({
+    repoRoot,
+    systemInventory,
+    foundationHub,
+    foundationBuildLog,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -2329,7 +2357,7 @@ async function main() {
       requiredPluginNames.every(pluginName => inventoryPluginNames.includes(pluginName)) &&
       includesAll(foundationUiSource, [
         'renderSystemInventoryPurposePanel',
-        'All Docs inventory job',
+        'Current Docs inventory job',
         'Skills inventory job',
         'Plugins and MCPs inventory job',
         'Agents inventory job',
@@ -2686,6 +2714,10 @@ async function main() {
   const buildLogPlainEnglishSweepBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
       build.closeoutKey === PLAIN_ENGLISH_SWEEP_CLOSEOUT_KEY
+  )
+  const buildLogUiMenuLayoutPolishBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(UI_MENU_LAYOUT_POLISH_CARD_ID) &&
+      build.closeoutKey === UI_MENU_LAYOUT_POLISH_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -3812,6 +3844,7 @@ async function main() {
     (foundationHub.backlogItems || []).find(item => item.id === id) || null
   )
   const plainEnglishSweep = (foundationHub.backlogItems || []).find(item => item.id === PLAIN_ENGLISH_SWEEP_CARD_ID) || null
+  const uiMenuLayoutPolish = (foundationHub.backlogItems || []).find(item => item.id === UI_MENU_LAYOUT_POLISH_CARD_ID) || null
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -4649,7 +4682,7 @@ async function main() {
       /gate-performance-v1/.test(buildLogGatePerformanceBuild?.closeoutKey || '') &&
       currentPlan.includes('Phase G Track 1: `GATE-PERFORMANCE-001` — done for v1') &&
       currentState.includes('Phase G Track 1 is done for v1') &&
-      currentState.includes('hide archive/history docs from the default System Inventory current-doc view'),
+      currentState.includes('UI-MENU-LAYOUT-POLISH-001` is done for v1'),
     'Recent Work carries GATE-PERFORMANCE-001 closeout and remaining Phase G boundary',
     buildLogGatePerformanceBuild
       ? `${buildLogGatePerformanceBuild.shortSha} / ${buildLogGatePerformanceBuild.closeoutKey}`
@@ -4912,7 +4945,7 @@ async function main() {
       currentPlan.includes('GATE-RELIABILITY-002') &&
       currentPlan.includes('gate-reliability-recurring-transient-v1') &&
       currentState.includes('GATE-RELIABILITY-002') &&
-      currentState.includes('Next expected Phase G card remains `UI-MENU-LAYOUT-POLISH-001`'),
+      currentState.includes('classifies retryable gate failures'),
     'GATE-RELIABILITY-002 diagnoses recurring transient retries without opening Phase G UI work',
     `class=${gateReliabilityProof.recurringDeadlockDiagnostic?.transientClass || 'missing'} subsystem=${gateReliabilityProof.recurringDeadlockDiagnostic?.subsystem || 'missing'} closeout=${buildLogGateReliabilityRecurringBuild?.closeoutKey || 'missing'}`,
   )
@@ -5093,12 +5126,13 @@ async function main() {
         'Live diagnostic view for the dashboard',
         'Plain-English changelog for what changed',
         'A source can be readable before it is trusted.',
-        'Use this to see which docs are tracked in the repo',
+        'Show current tracked markdown docs plus local-private metadata',
         'Backlog could not load. No cards were changed. Details:',
       ]) &&
       includesAll(foundationHtmlSource, [
         'Strategy docs',
-        'Foundation work',
+        'Review queues',
+        'Current Docs',
         'Open or close Foundation navigation',
       ]) &&
       buildLogPlainEnglishSweepBuild?.operatorCloseout === true &&
@@ -5106,9 +5140,87 @@ async function main() {
       currentPlan.includes('PLAIN-ENGLISH-SWEEP-001` is done for v1') &&
       currentPlan.includes('UI-MENU-LAYOUT-POLISH-001') &&
       currentState.includes('PLAIN-ENGLISH-SWEEP-001`, now done for v1') &&
-      currentState.includes('Next expected card is `UI-MENU-LAYOUT-POLISH-001`'),
+      currentState.includes('UI-MENU-LAYOUT-POLISH-001'),
     'PLAIN-ENGLISH-SWEEP-001 closes the copy-only Foundation operator language pass',
     `entries=${plainEnglishSweepStatus.summary?.totalEntries}/60 manual=${plainEnglishSweepStatus.summary?.manualRouteChecks}/24 closeout=${buildLogPlainEnglishSweepBuild?.closeoutKey || 'missing'}`,
+  )
+  const uiMenuLayoutPolishBuildLogExact = buildLogUiMenuLayoutPolishBuild?.backlogIds?.length === 1 &&
+    buildLogUiMenuLayoutPolishBuild.backlogIds.includes(UI_MENU_LAYOUT_POLISH_CARD_ID) &&
+    !['PLAIN-ENGLISH-SWEEP-001', 'RECENT-BUILDS-BILLION-DOLLAR-UI-001', 'CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001']
+      .some(id => buildLogUiMenuLayoutPolishBuild.backlogIds.includes(id))
+  ensure(
+    checks,
+    uiMenuLayoutPolish?.lane === 'done' &&
+      /ui-menu-layout-polish-v1/.test(uiMenuLayoutPolish?.statusNote || '') &&
+      uiMenuLayoutPolishApprovalValidation.ok &&
+      uiMenuLayoutPolishApprovalValidation.mode === 'v2' &&
+      uiMenuLayoutPolishApprovalValidation.approval?.approvedPlanRef === UI_MENU_LAYOUT_POLISH_APPROVED_PLAN_PATH &&
+      includesAll(uiMenuLayoutPolishApprovedPlan, [
+        'Default current-doc view',
+        '/foundation#inventory-archive-history',
+        'Desktop `1440x900`',
+        'mobile/narrow `390x844`',
+        'The archive/current split is UI-only',
+        'No Recent Work redesign',
+      ]) &&
+      includesAll(foundationVerifySource, UI_MENU_LAYOUT_POLISH_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:ui-menu-layout-polish-check"', 'scripts/process-ui-menu-layout-polish-check.mjs']) &&
+      uiMenuLayoutPolishStatus.status === 'healthy' &&
+      uiMenuLayoutPolishStatus.summary?.requiredRoutes === 15 &&
+      uiMenuLayoutPolishStatus.summary?.routeViewportChecks === 30 &&
+      uiMenuLayoutPolishStatus.summary?.currentDocCount >= 78 &&
+      uiMenuLayoutPolishStatus.summary?.archiveHistoryDocCount >= 133 &&
+      uiMenuLayoutPolishStatus.summary?.currentArchiveLeakCount === 0 &&
+      uiMenuLayoutPolishStatus.summary?.privateLocalDocCount === 5 &&
+      uiMenuLayoutPolishStatus.summary?.nextPlanCard === 'RECENT-BUILDS-BILLION-DOLLAR-UI-001' &&
+      includesAll(uiMenuLayoutPolishBaseline, [
+        'Before build',
+        'Current docs after split: 78',
+        'Archive/history docs after split: 133',
+        'Private/local docs stay metadata-only',
+      ]) &&
+      includesAll(uiMenuLayoutPolishManualReview, [
+        'Failures: 0',
+        'desktop 1440x900',
+        'mobile 390x844',
+        '/foundation#inventory-archive-history',
+        'current truth / next card visible without digging',
+      ]) &&
+      includesAll(foundationHtmlSource, [
+        'Current Docs',
+        'Archive / History',
+        'Open or close Foundation navigation',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderInventoryArchiveHistory',
+        'splitInventoryDocs',
+        'currentInventoryDocCategories',
+        'archiveHistoryInventoryDocCategories',
+        'renderFoundationCurrentTruthPanel',
+        'RECENT-BUILDS-BILLION-DOLLAR-UI-001',
+      ]) &&
+      includesAll(foundationUiSource, [
+        "'Active doctrine'",
+        "'Process & runbooks'",
+        "'Source notes'",
+        "'Specs'",
+        "'Strategy reference'",
+        "'Agent personas'",
+        "'User profile'",
+        "'Archive'",
+        "'Plan history'",
+        "'Recent audits - active'",
+        "'Recent handoffs - active'",
+      ]) &&
+      foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard === 'RECENT-BUILDS-BILLION-DOLLAR-UI-001' &&
+      buildLogUiMenuLayoutPolishBuild?.operatorCloseout === true &&
+      uiMenuLayoutPolishBuildLogExact &&
+      currentPlan.includes('UI-MENU-LAYOUT-POLISH-001` is done for v1') &&
+      currentPlan.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001') &&
+      currentState.includes('UI-MENU-LAYOUT-POLISH-001` is done for v1') &&
+      currentState.includes('Next expected card is `RECENT-BUILDS-BILLION-DOLLAR-UI-001`'),
+    'UI-MENU-LAYOUT-POLISH-001 closes nav/layout polish with current-doc archive split',
+    `current=${uiMenuLayoutPolishStatus.summary?.currentDocCount}>=78 archive=${uiMenuLayoutPolishStatus.summary?.archiveHistoryDocCount}>=133 routeViewports=${uiMenuLayoutPolishStatus.summary?.routeViewportChecks}/30 closeout=${buildLogUiMenuLayoutPolishBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

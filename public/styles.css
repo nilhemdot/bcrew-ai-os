@@ -5547,10 +5547,11 @@ code {
 /* ── FOUNDATION LAYOUT ── */
 .found-shell {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
   min-height: 100vh;
   position: relative;
   z-index: 1;
+  overflow-x: hidden;
 }
 
 .found-sidebar {
@@ -5664,6 +5665,7 @@ code {
   border-left: 3px solid transparent;
   margin-bottom: 1px;
   transition: all 0.12s ease;
+  overflow-wrap: anywhere;
 }
 
 .found-nav-item-sub {
@@ -5685,7 +5687,10 @@ code {
   position: relative;
   z-index: 1;
   padding: 32px 44px;
+  width: 100%;
+  max-width: 1380px;
   min-width: 0;
+  overflow-x: hidden;
 }
 
 /* Frosted glass treatment for Foundation content panels */
@@ -5700,7 +5705,17 @@ code {
 }
 
 .found-main .status-grid {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+}
+
+.found-main h1,
+.found-main h2,
+.found-main h3,
+.found-main p,
+.found-main .status-card,
+.found-main .backlog-item-title,
+.found-main .backlog-item-detail {
+  overflow-wrap: anywhere;
 }
 
 .found-breadcrumb {
@@ -5710,6 +5725,7 @@ code {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .found-breadcrumb a {
@@ -6067,8 +6083,17 @@ code {
   .source-focus-summary-right { justify-content: flex-start; }
   .found-shell { grid-template-columns: 1fr; }
   .found-sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+  .found-brand { margin-bottom: 14px; padding-bottom: 12px; }
   .found-nav { display: none; }
-  .found-nav.found-nav-open { display: block; }
+  .found-nav.found-nav-open {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px 10px;
+    max-height: calc(100vh - 118px);
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .found-nav-group { margin-bottom: 0; }
   .found-mobile-toggle { display: flex; align-items: center; justify-content: center; position: absolute; top: 24px; right: 18px; width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; }
   .hub-grid { grid-template-columns: repeat(2, 1fr); }
   .harlan-panel { width: 100%; right: 0; bottom: 0; border-radius: 20px 20px 0 0; }
@@ -6107,6 +6132,10 @@ code {
   .ops-helper-panel { height: 100vh; width: 100%; border-radius: 0; }
   .ops-helper-toggle { right: 16px; bottom: 16px; }
   .found-main { padding: 18px 14px; }
+  .found-sidebar { padding: 20px 14px; }
+  .found-nav.found-nav-open { grid-template-columns: 1fr; max-height: calc(100vh - 104px); }
+  .found-mobile-toggle { top: 20px; right: 14px; }
+  .found-brand-title { font-size: 18px; }
   .backlog-item-summary,
   .backlog-stack-summary,
   .foundation-stage-summary,
