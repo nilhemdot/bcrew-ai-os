@@ -6102,7 +6102,7 @@ async function main() {
       ['scoped', 'done'].includes(agentOnboardingFeedbackSystemStatus.summary?.sendCardLane) &&
       agentOnboardingFeedbackSystemStatus.summary?.emptyAuditLane === 'scoped' &&
       agentOnboardingFeedbackSystemStatus.summary?.georgiaDue === true &&
-      agentOnboardingFeedbackSystemStatus.summary?.chrisNotDue === true &&
+      agentOnboardingFeedbackSystemStatus.summary?.chrisMetadataCurrent === true &&
       agentOnboardingFeedbackSystemStatus.summary?.privacyMetadataOnly === true &&
       agentOnboardingFeedbackSystemStatus.summary?.closeoutOwnsOnlyAgentOnboarding === true &&
       buildLogAgentOnboardingFeedbackSystemBuild?.operatorCloseout === true &&
@@ -6173,6 +6173,19 @@ async function main() {
       agentFeedbackSendStatus.summary?.milestoneDay === 30 &&
       agentFeedbackSendStatus.summary?.dueStatus === 'due' &&
       Array.isArray(agentFeedbackSendStatus.summary?.blockers) &&
+      agentFeedbackSendStatus.summary?.recipientRule === 'clickup-company-email' &&
+      agentFeedbackSendStatus.summary?.recipientSource === 'company_email' &&
+      agentFeedbackSendStatus.summary?.recipientSourceFieldName === 'Company Email' &&
+      agentFeedbackSendStatus.summary?.recipientSourceFieldHashPresent === true &&
+      agentFeedbackSendStatus.summary?.recipientSourcePresent === true &&
+      agentFeedbackSendStatus.summary?.recipientSourceValid === true &&
+      !(agentFeedbackSendStatus.summary?.blockers || []).includes('missing_personal_email') &&
+      !(agentFeedbackSendStatus.summary?.blockers || []).includes('invalid_personal_email') &&
+      !(agentFeedbackSendStatus.summary?.blockers || []).includes('missing_cc_role_config') &&
+      agentFeedbackSendStatus.summary?.internalOversightMode === 'bcc' &&
+      ['Steve', 'Carson', 'Ryan', 'Georgia'].every(role => (agentFeedbackSendStatus.summary?.bccRolesApplied || []).includes(role)) &&
+      (agentFeedbackSendStatus.summary?.bccMissingConfiguredRoles || []).length === 0 &&
+      (agentFeedbackSendStatus.summary?.bccRecipientDedupedRoles || []).includes('Georgia') &&
       agentFeedbackSendStatus.summary?.tokenHashPresent === true &&
       agentFeedbackSendStatus.summary?.gmailSent === false &&
       agentFeedbackSendStatus.summary?.clickUpRequestedWritten === false &&
@@ -6187,7 +6200,7 @@ async function main() {
       currentState.includes('AGENT-FEEDBACK-SEND-001` is done for Stage 1') &&
       currentState.includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID),
     'AGENT-FEEDBACK-SEND-001 builds Stage 1 send infrastructure with dry-run proof only',
-    `target=${agentFeedbackSendStatus.summary?.target || 'missing'} day=${agentFeedbackSendStatus.summary?.milestoneDay || 'missing'} eligible=${agentFeedbackSendStatus.summary?.eligible ? 'yes' : 'no'} blockers=${agentFeedbackSendStatus.summary?.blockers?.join(', ') || 'none'} closeout=${buildLogAgentFeedbackSendBuild?.closeoutKey || 'missing'}`,
+    `target=${agentFeedbackSendStatus.summary?.target || 'missing'} day=${agentFeedbackSendStatus.summary?.milestoneDay || 'missing'} recipientSource=${agentFeedbackSendStatus.summary?.recipientSource || 'missing'} eligible=${agentFeedbackSendStatus.summary?.eligible ? 'yes' : 'no'} blockers=${agentFeedbackSendStatus.summary?.blockers?.join(', ') || 'none'} closeout=${buildLogAgentFeedbackSendBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

@@ -62,7 +62,7 @@ async function main() {
   console.log(`  Send card lane: ${status.summary.sendCardLane}`)
   console.log(`  Empty-group audit lane: ${status.summary.emptyAuditLane}`)
   console.log(`  Georgia due metadata proof: ${status.summary.georgiaDue ? 'yes' : 'no'}`)
-  console.log(`  Chris non-fire metadata proof: ${status.summary.chrisNotDue ? 'yes' : 'no'}`)
+  console.log(`  Chris current source-state proof: ${status.summary.chrisMetadataCurrent ? 'yes' : 'no'}`)
   console.log(`  Privacy metadata-only proof: ${status.summary.privacyMetadataOnly ? 'yes' : 'no'}`)
   console.log(`  Closeout owns only card: ${status.summary.closeoutOwnsOnlyAgentOnboarding ? 'yes' : 'no'}`)
   for (const finding of status.findings) {
