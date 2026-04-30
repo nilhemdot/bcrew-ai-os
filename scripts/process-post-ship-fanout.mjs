@@ -3,9 +3,9 @@
 import process from 'node:process'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
+  assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
   getFoundationSnapshot,
-  initFoundationDb,
 } from '../lib/foundation-db.js'
 import { buildPostShipFanoutStatus } from '../lib/post-ship-fanout.js'
 
@@ -45,7 +45,7 @@ async function main() {
   ensure(checks, cardId, 'card argument is present', cardId || 'missing --card')
   ensure(checks, closeoutKey, 'closeout key argument is present', closeoutKey || 'missing --closeoutKey')
 
-  await initFoundationDb()
+  await assertFoundationDbReadyForReadOnlyGate('process:post-ship-fanout')
   const foundation = await getFoundationSnapshot()
   const card = (foundation.backlogItems || []).find(item => item.id === cardId) || null
   const closeout = getFoundationBuildCloseouts().find(record => record.key === closeoutKey) || null

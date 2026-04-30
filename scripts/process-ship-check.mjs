@@ -8,9 +8,9 @@ import { promisify } from 'node:util'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
+  assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
   getFoundationSnapshot,
-  initFoundationDb,
 } from '../lib/foundation-db.js'
 
 const execFile = promisify(execFileCallback)
@@ -128,7 +128,7 @@ async function main() {
     approvalValidation ? approvalValidation.mode : 'missing validation',
   )
 
-  await initFoundationDb()
+  await assertFoundationDbReadyForReadOnlyGate('process:ship-check')
   const foundation = await getFoundationSnapshot()
   const card = (foundation.backlogItems || []).find(item => item.id === cardId) || null
   ensure(checks, Boolean(card), 'backlog card exists', card ? `${card.id} / ${card.lane}` : 'missing card')

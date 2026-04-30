@@ -34,6 +34,8 @@ What it checks:
 - the dashboard is serving the same commit as repo `HEAD`
 - default `npm run foundation:verify` passes on `localhost:3000`
 
+For normal review, this check reads live Foundation state after a read-only DB readiness check. It does not run schema/seed initialization.
+
 If live verification is intentionally skipped, `--skipLiveVerifyReason="..."` is required.
 
 If an emergency bypass is ever used, `--emergencyBypassReason="..."` is required and a follow-up backlog card must be created or updated.

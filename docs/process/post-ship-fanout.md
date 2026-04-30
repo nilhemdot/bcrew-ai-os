@@ -10,6 +10,8 @@ Run it after `process:ship-check` and `process:fanout-check`:
 npm run process:post-ship-fanout -- --card=POST-SHIP-FAN-OUT-001 --closeoutKey=post-ship-fanout-v1
 ```
 
+For normal review, this check reads live Foundation state after a read-only DB readiness check. It does not run schema/seed initialization.
+
 ## V1 Rules
 
 - Commit touches `lib/foundation-db.js` -> the closeout must reference Backlog state changes.

@@ -1,0 +1,13 @@
+{
+  "cardId": "GATE-RELIABILITY-003",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T13:36:09Z",
+  "approvalSource": "Steve approved the GATE-RELIABILITY-003 direct verifier Postgres deadlock patch at 9.8 before starting RECENT-BUILDS-BILLION-DOLLAR-UI-001.",
+  "notes": "Approval covers only the direct foundation:verify Postgres deadlock reliability patch. It does not approve Recent Work redesign, UI/menu/layout work, changelog, daily summary, source lifecycle expansion, Strategy, Scoper, Agent Factory, corpus, research cleanup, or any new feature lane.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md",
+  "approvedPlanSha256": "17a06c2f9e5b84e6fe8c8e0b3dde8d08664963b53596a0f2633b8090d5401a94",
+  "approvedRepoHead": "005b259f0cecaa92e61b6f6e769c8dfef7413ac0",
+  "approvalDigest": "0e7f533716a3c22df9c16b4171f227ef0f75d0f2dffd0f6a67503d54b7f17b80"
+}

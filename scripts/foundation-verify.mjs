@@ -64,6 +64,7 @@ import {
   PROTECTED_FOUNDATION_PATH_PATTERNS,
 } from '../lib/process-git-hooks.js'
 import {
+  assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
   getActionRouterSnapshot,
   getBacklogSeedDriftSnapshot,
@@ -79,7 +80,6 @@ import {
   getStrategyGoalTruthSnapshot,
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
-  initFoundationDb,
   resetFoundationDb,
 } from '../lib/foundation-db.js'
 import { getFoundationSurfaceMap } from '../lib/foundation-surface-map.js'
@@ -136,6 +136,10 @@ const UI_MENU_LAYOUT_POLISH_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'GATE-RELIABILITY-002',
+]
+
+const GATE_RELIABILITY_DIRECT_VERIFIER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'GATE-RELIABILITY-003',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -565,7 +569,7 @@ async function main() {
   const ownersContract = findSourceById(sourceContracts, 'SRC-OWNERS-001')
   const financeContract = findSourceById(sourceContracts, 'SRC-FINANCE-001')
   const freedomCommunityContract = findSourceById(sourceContracts, 'SRC-FREEDOM-COMMUNITY-001')
-  await initFoundationDb()
+  await assertFoundationDbReadyForReadOnlyGate('foundation:verify')
   const backlogSeedDrift = await getBacklogSeedDriftSnapshot({ limit: 10 })
   const strategyPreworkCoverageSnapshot = await getStrategyPreworkCoverageSnapshot()
   const strategyGoalTruthSnapshot = await getStrategyGoalTruthSnapshot()
@@ -696,6 +700,7 @@ async function main() {
   const processShipCheckDoc = await readRepoFile('docs/process/ship-check.md')
   const processFanoutCheckSource = await readRepoFile('scripts/process-fanout-check.mjs')
   const processFanoutCheckDoc = await readRepoFile('docs/process/ship-fanout.md')
+  const backlogHygieneScriptSource = await readRepoFile('scripts/backlog-hygiene.mjs')
   const postShipFanoutSource = await readRepoFile('lib/post-ship-fanout.js')
   const postShipFanoutScriptSource = await readRepoFile('scripts/process-post-ship-fanout.mjs')
   const postShipFanoutDoc = await readRepoFile('docs/process/post-ship-fanout.md')
@@ -798,6 +803,7 @@ async function main() {
   const plainEnglishSweepApprovalRef = 'docs/process/approvals/PLAIN-ENGLISH-SWEEP-001.json'
   const uiMenuLayoutPolishApprovalRef = UI_MENU_LAYOUT_POLISH_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
+  const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
     validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
   ))
@@ -822,6 +828,11 @@ async function main() {
     approvalRef: gateReliabilityRecurringApprovalRef,
     cardId: 'GATE-RELIABILITY-002',
   })
+  const gateReliabilityDirectVerifierApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: gateReliabilityDirectVerifierApprovalRef,
+    cardId: 'GATE-RELIABILITY-003',
+  })
   const approvalIntegritySynthetic = await buildSyntheticApprovalIntegrityStatus()
   const gitHookInstallStatus = await buildGitHookInstallStatus({ repoRoot })
   const gitHookScopeProof = buildSyntheticGitHookScopeProof()
@@ -832,6 +843,7 @@ async function main() {
   const plainEnglishSweepApprovedPlan = await readRepoFile('docs/process/approved-plans/plain-english-sweep-v1.md')
   const uiMenuLayoutPolishApprovedPlan = await readRepoFile(UI_MENU_LAYOUT_POLISH_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
+  const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
   const plainEnglishSweepManualReview = await readRepoFile(PLAIN_ENGLISH_SWEEP_MANUAL_REVIEW_PATH)
   const uiMenuLayoutPolishBaseline = await readRepoFile(UI_MENU_LAYOUT_POLISH_BASELINE_PATH)
@@ -1891,7 +1903,7 @@ async function main() {
   const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
   const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
-  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=40')
+  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=80')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
   const strategyOperatingTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/operating-truth')
@@ -2722,6 +2734,10 @@ async function main() {
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
       build.closeoutKey === 'gate-reliability-recurring-transient-v1'
+  )
+  const buildLogGateReliabilityDirectVerifierBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('GATE-RELIABILITY-003') &&
+      build.closeoutKey === 'gate-reliability-direct-verifier-deadlock-v1'
   )
   ensure(
     checks,
@@ -3836,6 +3852,7 @@ async function main() {
   const preCommitHookInstall = (foundationHub.backlogItems || []).find(item => item.id === 'PRE-COMMIT-HOOK-INSTALL-001') || null
   const gateReliability = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-RELIABILITY-001') || null
   const gateReliabilityRecurring = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-RELIABILITY-002') || null
+  const gateReliabilityDirectVerifier = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-RELIABILITY-003') || null
   const personalWorkspaceBoundary = (foundationHub.backlogItems || []).find(item => item.id === 'PERSONAL-WORKSPACE-BOUNDARY-001') || null
   const doctrinePropagationV3 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-003') || null
   const decisionAutoEmitV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DECISION-AUTO-EMIT-002') || null
@@ -4948,6 +4965,59 @@ async function main() {
       currentState.includes('classifies retryable gate failures'),
     'GATE-RELIABILITY-002 diagnoses recurring transient retries without opening Phase G UI work',
     `class=${gateReliabilityProof.recurringDeadlockDiagnostic?.transientClass || 'missing'} subsystem=${gateReliabilityProof.recurringDeadlockDiagnostic?.subsystem || 'missing'} closeout=${buildLogGateReliabilityRecurringBuild?.closeoutKey || 'missing'}`,
+  )
+  const gateReliabilityDirectVerifierBuildLogExact = buildLogGateReliabilityDirectVerifierBuild?.backlogIds?.length === 1 &&
+    buildLogGateReliabilityDirectVerifierBuild.backlogIds.includes('GATE-RELIABILITY-003') &&
+    ![
+      'GATE-RELIABILITY-001',
+      'GATE-RELIABILITY-002',
+      'UI-MENU-LAYOUT-POLISH-001',
+      'RECENT-BUILDS-BILLION-DOLLAR-UI-001',
+    ].some(id => buildLogGateReliabilityDirectVerifierBuild.backlogIds.includes(id))
+  ensure(
+    checks,
+    gateReliabilityDirectVerifier?.lane === 'done' &&
+      /gate-reliability-direct-verifier-deadlock-v1/.test(gateReliabilityDirectVerifier?.statusNote || '') &&
+      gateReliabilityDirectVerifierApprovalValidation.ok &&
+      gateReliabilityDirectVerifierApprovalValidation.mode === 'v2' &&
+      gateReliabilityDirectVerifierApprovalValidation.approval?.approvedPlanRef === 'docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md' &&
+      gateReliabilityDirectVerifierApprovedPlan.includes('Safe diagnostics only') &&
+      gateReliabilityDirectVerifierApprovedPlan.includes('No row data, source content, or private content') &&
+      includesAll(foundationVerifySource, GATE_RELIABILITY_DIRECT_VERIFIER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(foundationVerifySource, [
+        'assertFoundationDbReadyForReadOnlyGate',
+        'foundation:verify',
+      ]) &&
+      !foundationVerifySource.includes('\n  initFoundationDb,') &&
+      includesAll(processShipCheckSource, ['assertFoundationDbReadyForReadOnlyGate', 'Process ship check']) &&
+      includesAll(processFanoutCheckSource, ['assertFoundationDbReadyForReadOnlyGate', 'Process fanout check']) &&
+      includesAll(postShipFanoutScriptSource, ['assertFoundationDbReadyForReadOnlyGate', 'Post-ship fanout check']) &&
+      includesAll(backlogHygieneScriptSource, ['assertFoundationDbReadyForReadOnlyGate', 'Backlog hygiene']) &&
+      gateReliabilityProof.directVerifierDeadlockDiagnostic?.ok === true &&
+      gateReliabilityProof.directVerifierDeadlockDiagnostic?.transientClass === 'postgres-deadlock' &&
+      gateReliabilityProof.directVerifierDeadlockDiagnostic?.subsystem === 'postgres' &&
+      gateReliabilityProof.directVerifierDeadlockDiagnostic?.postgresCode === '40P01' &&
+      (gateReliabilityProof.directVerifierDeadlockDiagnostic?.relationOids || []).includes('16402') &&
+      (gateReliabilityProof.directVerifierDeadlockDiagnostic?.relationOids || []).includes('16389') &&
+      foundationHub.gateReliability?.directVerifierDeadlockDiagnostic?.transientClass === 'postgres-deadlock' &&
+      includesAll(gateReliabilitySource, [
+        'extractPostgresGateErrorMetadata',
+        'deterministic-direct-verifier-postgres-deadlock-fixture',
+        'relationOids',
+        'processIds',
+      ]) &&
+      includesAll(gateReliabilityScriptSource, [
+        'Direct verifier deadlock diagnostic',
+        'GATE_RELIABILITY_SUMMARY',
+      ]) &&
+      buildLogGateReliabilityDirectVerifierBuild?.operatorCloseout === true &&
+      gateReliabilityDirectVerifierBuildLogExact &&
+      currentPlan.includes('GATE-RELIABILITY-003') &&
+      currentPlan.includes('gate-reliability-direct-verifier-deadlock-v1') &&
+      currentState.includes('GATE-RELIABILITY-003') &&
+      currentState.includes('read-only gate checks'),
+    'GATE-RELIABILITY-003 removes write-heavy DB initialization from direct verifier gates',
+    `class=${gateReliabilityProof.directVerifierDeadlockDiagnostic?.transientClass || 'missing'} pgCode=${gateReliabilityProof.directVerifierDeadlockDiagnostic?.postgresCode || 'missing'} closeout=${buildLogGateReliabilityDirectVerifierBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

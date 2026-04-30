@@ -8,9 +8,9 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
+  assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
   getFoundationSnapshot,
-  initFoundationDb,
 } from '../lib/foundation-db.js'
 
 const execFile = promisify(execFileCallback)
@@ -146,7 +146,7 @@ async function main() {
   ensure(checks, cardId, 'card argument is present', cardId || 'missing --card')
   ensure(checks, closeoutKey, 'closeout key argument is present', closeoutKey || 'missing --closeoutKey')
 
-  await initFoundationDb()
+  await assertFoundationDbReadyForReadOnlyGate('process:fanout-check')
   const foundation = await getFoundationSnapshot()
   const card = (foundation.backlogItems || []).find(item => item.id === cardId) || null
   const closeout = getFoundationBuildCloseouts().find(record => record.key === closeoutKey) || null

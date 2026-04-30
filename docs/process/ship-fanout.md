@@ -21,6 +21,8 @@ npm run process:fanout-check -- --card=PROCESS-FANOUT-001 --closeoutKey=process-
 - Proof commands include `process:fanout-check`, `process:ship-check`, and `foundation:verify`.
 - The live dashboard is serving the same commit as repo `HEAD`.
 
+For normal review, this check reads live Foundation state after a read-only DB readiness check. It does not run schema/seed initialization.
+
 ## Why It Exists
 
 `PROCESS-FANOUT-001` was marked done while claiming these artifacts existed:

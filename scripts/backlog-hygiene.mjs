@@ -6,9 +6,9 @@ import {
   buildBacklogHygieneSnapshot,
 } from '../lib/backlog-hygiene.js'
 import {
+  assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
   getFoundationSnapshot,
-  initFoundationDb,
 } from '../lib/foundation-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 
@@ -74,7 +74,7 @@ function printSnapshot(snapshot) {
 async function main() {
   const args = parseArgs(process.argv.slice(2))
   const staleExecutingDays = Number(args.staleExecutingDays || process.env.BACKLOG_HYGIENE_STALE_EXECUTING_DAYS || BACKLOG_HYGIENE_DEFAULT_STALE_EXECUTING_DAYS)
-  await initFoundationDb()
+  await assertFoundationDbReadyForReadOnlyGate('backlog:hygiene')
   const foundation = await getFoundationSnapshot()
   const snapshot = buildBacklogHygieneSnapshot({
     backlogItems: foundation.backlogItems || [],
