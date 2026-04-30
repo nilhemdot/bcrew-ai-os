@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-04-29
-Version: v6.18 — Wave Cleanup A complete
+Last updated: 2026-04-30
+Version: v6.19 — Plain-English sweep complete
 Status: Active
 
 Use this doc for one question:
@@ -854,9 +854,10 @@ Current order:
 20. Phase 1 enforcement: `APPROVAL-FILE-INTEGRITY-001`, `BUILD-LOG-BACKLOG-ID-FIX-001`, `PRE-COMMIT-HOOK-INSTALL-001`, and `CLOSEOUT-BACKFILL-001` are done for v1. Approval files are tamper-evident, Recent Work separates owned backlog IDs from mentioned context IDs, the 13 closeout-proof targets are backfilled or explicitly exceptioned, and repo-managed Git hooks protect Foundation paths while keeping `process:foundation-ship` as the full gate.
 21. Foundation control layer: `GATE-RELIABILITY-001`, `PERSONAL-WORKSPACE-BOUNDARY-001`, `DOCTRINE-PROPAGATION-003`, `DECISION-AUTO-EMIT-002`, and `CEO-DASHBOARD-PATTERN-001` are done for v1 under `foundation-control-layer-v1`. Gate reliability uses deterministic injected transient/permanent proof, bounded raw-verifier retry, and a targeted `gate-reliability-retry-pool-reset-v1` patch proving retry after DB cleanup resets the Foundation DB pool before the second attempt; personal workspace proof is metadata-only for real private files with synthetic sentinel leak tests; doctrine propagation carries the missing control rules; decision auto-emit is explicit-source and proposed-only; CEO dashboard pattern is a doctrine/schema contract, not UI polish.
 22. Foundation 1100 Review Sprint: `BACKLOG-HYGIENE-PASS-002`, `ACTION-REVIEW-CLEANUP-001`, `RESEARCH-CURATION-002`, and `PHASE-G-READINESS-001` are done for v1 under `foundation-1100-review-v1`. The sprint froze the 289-card baseline before wrapper-card creation, cleaned the 20 Backlog Hygiene warnings to 0 findings, curated the 18 pending Action Review routes without applying business/owner-action routes, dispositioned 102 research/future-build cards without deep research or source expansion, and recorded the Phase G order. No Phase G UI work starts inside this cleanup sprint.
-23. Foundation Phase G remaining scope: plain-English sweep, comprehensive changelog, Recent Builds executive UI, daily executive summary, source lifecycle expansion, and UI/menu/layout polish remain future scoped work. System Inventory archive/history docs must be hidden from the current-doc default view and exposed in a separate Archive/History section. No Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or broader feature lane starts by default before Steve explicitly re-plans and approves the next Foundation slice.
+23. Phase G Track 2: `PLAIN-ENGLISH-SWEEP-001` is done for v1 under `plain-english-sweep-v1`. Foundation operator copy was tightened across Backlog/Action Review, Runtime Health, Recent Work/Build Log, Data Sources, System Inventory, and shell/nav/mobile/error/empty states with 60 audited entries and 24/24 manual route/viewport passes. This was copy-only: no IDs, selectors, API shapes, route names, data contract keys, source IDs, card IDs, table names, proof commands, source-contract strings, layout, Recent Work redesign, source expansion, Strategy, Scoper, Agent Factory, corpus, research, or action-review workflows changed.
+24. Foundation Phase G remaining scope: UI/menu/layout polish, comprehensive changelog, Recent Builds executive UI, daily executive summary, and source lifecycle expansion remain future scoped work. System Inventory archive/history docs must be hidden from the current-doc default view and exposed in a separate Archive/History section. No Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff, or broader feature lane starts by default before Steve explicitly re-plans and approves the next Foundation slice.
 
-Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff expansion, or new feature lane starts by default. Phase 1 enforcement, the Foundation control layer, and the Foundation 1100 Review Sprint are now in place; the exact next step is review-only, then a separate 9.8 plan for `PLAIN-ENGLISH-SWEEP-001` unless Steve changes the Phase G order.
+Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff expansion, or new feature lane starts by default. Phase 1 enforcement, the Foundation control layer, the Foundation 1100 Review Sprint, and `PLAIN-ENGLISH-SWEEP-001` are now in place; stop for review, then submit a separate 9.8-ready plan for `UI-MENU-LAYOUT-POLISH-001` unless Steve changes the Phase G order.
 
 ## Active Docs Only
 

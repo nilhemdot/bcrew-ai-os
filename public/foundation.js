@@ -234,7 +234,7 @@ var sourceSectionConfigs = {
   'source-overview': {
     title: 'Data Sources',
     eyebrow: 'Source Layer',
-    intro: 'This is the overview. It shows the full source map: source systems, validation units, and the connector layer underneath them.',
+    intro: 'Full source map: source systems, validation units, and the connector layer underneath them.',
     showSystems: true,
     showConnectors: true,
     showKindFilter: true,
@@ -243,7 +243,7 @@ var sourceSectionConfigs = {
   'source-docs': {
     title: 'Docs',
     eyebrow: 'Data Sources',
-    intro: 'Repo docs and markdown-backed truth only. Use this lane when you want to see which written packets are signed off, what those packets include, and what is still outside the closure.',
+    intro: 'Repo docs and markdown-backed truth only. Use this lane to see which written packets are signed off, what they include, and what is still outside the closure.',
     showSystems: true,
     showConnectors: false,
     showKindFilter: false,
@@ -252,16 +252,16 @@ var sourceSectionConfigs = {
   'source-sheets': {
     title: 'Spreadsheets',
     eyebrow: 'Data Sources',
-    intro: 'Workbook-level sources and their validation units. This is the lane for sheet-by-sheet trust work.',
+    intro: 'Workbook-level sources and validation units. Use this lane for sheet-by-sheet trust work.',
     showSystems: true,
     showConnectors: false,
     showKindFilter: false,
     allowedKinds: ['sheets'],
   },
   'source-apis': {
-    title: 'APIs / Apps',
+    title: 'APIs and apps',
     eyebrow: 'Data Sources',
-    intro: 'External systems, APIs, and app-backed business sources. Use this lane when the truth lives outside the repo and outside spreadsheets.',
+    intro: 'External systems, APIs, and app-backed business sources. Use this lane when truth lives outside the repo and outside spreadsheets.',
     showSystems: true,
     showConnectors: false,
     showKindFilter: false,
@@ -270,7 +270,7 @@ var sourceSectionConfigs = {
   'source-connectors': {
     title: 'Connectors',
     eyebrow: 'Connector Layer',
-    intro: 'Just the pipes. This lane is about access paths and technical reach, not whether the source itself is trusted.',
+    intro: 'Access paths and technical reach only. This lane does not prove the source itself is trusted.',
     showSystems: false,
     showConnectors: true,
     showKindFilter: false,
@@ -308,9 +308,9 @@ var capabilityCatalog = {
     ],
   },
   'capabilities-plugins': {
-    title: 'Plugins / MCPs',
+    title: 'Plugins and MCPs',
     eyebrow: 'System Inventory',
-    intro: 'These are runtime integration surfaces available to the coding stack. They are separate from business sources: a plugin can exist even when no business source is signed off yet.',
+    intro: 'Runtime integration surfaces available to the coding stack. They are separate from business sources: a plugin can exist even when no business source is signed off yet.',
     items: [
       {
         id: 'PLUGIN-GDRIVE-001',
@@ -2027,7 +2027,7 @@ function renderBacklogWorkflowStack(group, items) {
   intro.className = 'backlog-stack-intro'
   intro.textContent = items.length
     ? group.intro
-    : 'Nothing in this stage right now.'
+    : 'No cards are in this stage right now.'
   labelWrap.appendChild(intro)
   summary.appendChild(labelWrap)
 
@@ -2044,7 +2044,7 @@ function renderBacklogWorkflowStack(group, items) {
   if (!items.length) {
     var empty = document.createElement('p')
     empty.className = 'lane-empty'
-    empty.textContent = 'Nothing here yet.'
+    empty.textContent = 'No cards are in this stage yet.'
     body.appendChild(empty)
   } else {
     sortBacklogItems(items).forEach(function(item) {
@@ -2063,7 +2063,7 @@ function actionReviewTitle(route) {
 
 function actionReviewSummary(route) {
   var payload = route.proposedPayload || {}
-  return payload.summary || payload.reason || route.routingReason || 'No plain-English summary was recorded for this route.'
+  return payload.summary || payload.reason || route.routingReason || 'No plain-English summary has been recorded for this route yet.'
 }
 
 function actionReviewDestinationLabel(route) {
@@ -2072,7 +2072,7 @@ function actionReviewDestinationLabel(route) {
   if (route.destinationTable === 'decisions') return 'Decision'
   if (route.destinationTable === 'open_questions') return 'Open question'
   if (route.destinationTable === 'intelligence_synthesized_items') return route.routeType === 'snooze' ? 'Snoozed finding' : 'Ignored finding'
-  return route.destinationTable || 'Destination record'
+  return route.destinationTable || 'Destination record not chosen yet'
 }
 
 function actionReviewDestinationHref(route) {
@@ -2128,7 +2128,7 @@ function renderActionReviewProof(route) {
   if (!items.length) {
     var empty = document.createElement('p')
     empty.className = 'backlog-copy backlog-copy-secondary'
-    empty.textContent = 'No human-readable proof is attached yet.'
+    empty.textContent = 'No readable source proof is attached yet.'
     details.appendChild(empty)
     return details
   }
@@ -2187,7 +2187,7 @@ function reviewFoundationActionRoute(route, action) {
   var confirmCopy = action === 'approve'
     ? 'Approve this route? It will be ready to apply, but will not write a destination record yet.'
     : action === 'apply'
-      ? 'Apply this approved route now? This writes the destination record.'
+      ? 'Apply this approved route now? This writes the destination record, so use it only when the route is meant to become real work.'
       : 'Reject this route? The reason will be saved so the finding is not lost.'
   if (!window.confirm(confirmCopy)) return
 
@@ -2204,7 +2204,7 @@ function reviewFoundationActionRoute(route, action) {
     renderBacklog()
   }).catch(function(error) {
     actionReviewState.busyRouteId = null
-    window.alert(error.message || 'Action Review update failed.')
+    window.alert(error.message || 'Action Review could not save the route update.')
     renderBacklog()
   })
 }
@@ -2294,7 +2294,7 @@ function renderActionReviewCard(route) {
     noteLabel.appendChild(noteText)
     var noteInput = document.createElement('input')
     noteInput.type = 'text'
-    noteInput.placeholder = 'Required for Reject, optional for Approve/Apply'
+    noteInput.placeholder = 'Reject requires a reason; approve or apply can include a note'
     noteInput.value = getActionReviewNote(route)
     noteInput.addEventListener('input', function() {
       setActionReviewNote(route, noteInput.value)
@@ -2329,14 +2329,14 @@ function renderActionReviewPanel(actionReview) {
   var copy = document.createElement('div')
   var eyebrow = document.createElement('div')
   eyebrow.className = 'eyebrow'
-  eyebrow.textContent = 'Action Loop'
+  eyebrow.textContent = 'Action review'
   copy.appendChild(eyebrow)
   var title = document.createElement('h3')
   title.textContent = 'Action Review'
   copy.appendChild(title)
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'Foundation > Backlog > Action Review. Review system findings, approve the useful ones, reject weak ones with a reason, then apply approved routes into real work records.'
+  intro.textContent = 'Review system findings before they become decisions, backlog cards, questions, ignored findings, or owner actions.'
   copy.appendChild(intro)
   header.appendChild(copy)
   panel.appendChild(header)
@@ -2344,7 +2344,7 @@ function renderActionReviewPanel(actionReview) {
   if (actionReview && actionReview.error) {
     var errorCopy = document.createElement('p')
     errorCopy.className = 'backlog-copy'
-    errorCopy.textContent = 'Action Review could not load: ' + actionReview.error
+    errorCopy.textContent = 'Action Review could not load. No routes were changed. Details: ' + actionReview.error
     panel.appendChild(errorCopy)
     return panel
   }
@@ -2353,12 +2353,12 @@ function renderActionReviewPanel(actionReview) {
   var summaryRow = document.createElement('div')
   summaryRow.className = 'action-review-summary'
   summaryRow.appendChild(renderStatusCard({
-    label: 'Needs review',
+    label: 'Needs human decision',
     status: summary.pendingRoutes ? 'pending' : 'connected',
     detail: (summary.pendingRoutes || 0) + ' pending routes waiting for a human decision.',
   }))
   summaryRow.appendChild(renderStatusCard({
-    label: 'Ready to apply',
+    label: 'Approved, not applied',
     status: summary.approvedRoutes ? 'pending' : 'connected',
     detail: (summary.approvedRoutes || 0) + ' approved routes ready to write destination records.',
   }))
@@ -2368,7 +2368,7 @@ function renderActionReviewPanel(actionReview) {
     detail: (summary.appliedRoutes || 0) + ' applied routes; ' + (summary.appliedRoutesWithDestinationRecord || 0) + ' have destination proof.',
   }))
   summaryRow.appendChild(renderStatusCard({
-    label: 'Aged / stuck',
+    label: 'Old pending routes',
     status: summary.agedPendingRoutes ? 'pending' : 'connected',
     detail: (summary.agedPendingRoutes || 0) + ' pending routes are older than ' + ((actionReview?.thresholds && actionReview.thresholds.agedPendingDays) || 3) + ' days.',
   }))
@@ -2385,12 +2385,12 @@ function renderActionReviewPanel(actionReview) {
   var activeStack = document.createElement('div')
   activeStack.className = 'action-review-stack'
   var activeTitle = document.createElement('h4')
-  activeTitle.textContent = 'Needs Human Review'
+  activeTitle.textContent = 'Needs human review'
   activeStack.appendChild(activeTitle)
   if (!activeRoutes.length) {
     var empty = document.createElement('p')
     empty.className = 'lane-empty'
-    empty.textContent = 'No pending or approved routes need review right now.'
+    empty.textContent = 'No pending or approved routes need a human review right now.'
     activeStack.appendChild(empty)
   } else {
     activeRoutes.forEach(function(route) {
@@ -2402,14 +2402,14 @@ function renderActionReviewPanel(actionReview) {
   var closedDetails = document.createElement('details')
   closedDetails.className = 'action-review-history'
   var closedSummary = document.createElement('summary')
-  closedSummary.textContent = 'Applied / rejected history (' + closedRoutes.length + ')'
+  closedSummary.textContent = 'Applied and rejected history (' + closedRoutes.length + ')'
   closedDetails.appendChild(closedSummary)
   var closedStack = document.createElement('div')
   closedStack.className = 'action-review-stack'
   if (!closedRoutes.length) {
     var noneClosed = document.createElement('p')
     noneClosed.className = 'lane-empty'
-    noneClosed.textContent = 'No applied or rejected routes yet.'
+    noneClosed.textContent = 'No routes have been applied or rejected yet.'
     closedStack.appendChild(noneClosed)
   } else {
     closedRoutes.forEach(function(route) {
@@ -4749,11 +4749,11 @@ var sectionLabels = {
   'source-overview': 'Data Sources',
   'source-docs': 'Docs',
   'source-sheets': 'Spreadsheets',
-  'source-apis': 'APIs / Apps',
+  'source-apis': 'APIs and apps',
   'source-connectors': 'Connectors',
   'inventory-docs': 'All Docs',
   'capabilities-skills': 'Skills',
-  'capabilities-plugins': 'Plugins / MCPs',
+  'capabilities-plugins': 'Plugins and MCPs',
   'capabilities-agents': 'Agents',
 }
 
@@ -4928,12 +4928,12 @@ function renderFoundationOperationsPurposePanel(surfaceKey, hub) {
   var configs = {
     backlog: {
       title: 'Backlog Page Job',
-      intro: 'This page earns its place as the root Foundation build queue. It is task truth, not a strategy doc and not an Ops inbox.',
+    intro: 'This is the root Foundation build queue: task truth, not a strategy doc and not an Ops inbox.',
       items: [
         {
           label: 'Purpose',
           status: 'connected',
-          detail: 'Track scoped work, priority, lane, owner, and next action. If future build work matters, it belongs here or in a governed hub queue.',
+          detail: 'Track work, priority, lane, owner, and next action. If future build work matters, it belongs here or in a governed hub queue.',
         },
         {
           label: 'Backed by',
@@ -4943,13 +4943,13 @@ function renderFoundationOperationsPurposePanel(surfaceKey, hub) {
         {
           label: 'Boundary',
           status: 'pending',
-          detail: 'This is the root Foundation queue. SYSTEM-006 owns the future split between root records and hub-local execution queues.',
+          detail: 'This is the root Foundation queue. SYSTEM-006 owns the later split between root records and hub-local execution queues.',
         },
       ],
     },
     decisions: {
       title: 'Decision Page Job',
-      intro: 'This page earns its place as the canonical governance ledger, but it is still a manual first slice.',
+      intro: 'This is the governance ledger. It is still a manual first slice.',
       items: [
         {
           label: 'Purpose',
@@ -4964,13 +4964,13 @@ function renderFoundationOperationsPurposePanel(surfaceKey, hub) {
         {
           label: 'Not automatic yet',
           status: 'pending',
-          detail: 'It does not yet auto-import every meeting/chat decision. DECISION-007 reconciles old decision lists; ACTION-ROUTER-001 routes future synthesis into this ledger.',
+          detail: 'It does not auto-import every meeting or chat decision yet. DECISION-007 reconciles old decision lists; ACTION-ROUTER-001 routes future synthesis into this ledger.',
         },
       ],
     },
     'open-questions': {
       title: 'Question Page Job',
-      intro: 'This page only earns its place as an exception queue for real unresolved Foundation blockers. It should not become a second backlog.',
+      intro: 'This is the exception queue for real unresolved Foundation blockers. It should not become a second backlog.',
       items: [
         {
           label: 'Purpose',
@@ -4991,12 +4991,12 @@ function renderFoundationOperationsPurposePanel(surfaceKey, hub) {
     },
     'system-activity': {
       title: 'Activity Page Job',
-      intro: 'This page earns its place as the short audit feed for what the trust layer just changed.',
+      intro: 'This is the short audit feed for recent trust-layer changes.',
       items: [
         {
           label: 'Purpose',
           status: 'connected',
-          detail: 'Show the latest change events for operator review and debugging without turning the page into a giant firehose.',
+          detail: 'Show the latest change events for operator review and debugging without turning the page into an unreadable feed.',
         },
         {
           label: 'Backed by',
@@ -5006,18 +5006,18 @@ function renderFoundationOperationsPurposePanel(surfaceKey, hub) {
         {
           label: 'Not enough yet',
           status: 'pending',
-          detail: 'This is not the full searchable audit explorer. SYSTEM-007 owns search, filters, date range, and deeper metadata inspection.',
+          detail: 'This is not the full searchable audit explorer. SYSTEM-007 owns search, filters, date range, and deeper metadata review.',
         },
       ],
     },
     'system-health': {
       title: 'Runtime Health Page Job',
-      intro: 'This page earns its place as the operator diagnostic surface for the running system.',
+      intro: 'This page answers what is running, what is stale, and where the next runtime fix belongs.',
       items: [
         {
           label: 'Purpose',
           status: 'connected',
-          detail: 'Inspect jobs, schedules, extraction targets, LLM routes, source queues, and low-level runtime state.',
+          detail: 'Check jobs, schedules, extraction targets, LLM routes, source queues, and low-level runtime state.',
         },
         {
           label: 'Backed by',
@@ -5025,7 +5025,7 @@ function renderFoundationOperationsPurposePanel(surfaceKey, hub) {
           detail: ((foundationJobs.jobs || []).length) + ' jobs, ' + ((extractionControl.targets || []).length) + ' extraction targets, and ' + ((hub.memoryStatus || []).length) + ' trust-layer components.',
         },
         {
-          label: 'Not alerting yet',
+          label: 'Alerting not built yet',
           status: 'pending',
           detail: 'This is live diagnostics, not a full alert/degradation model. SYSTEM-008 owns thresholds, warnings, and deeper health semantics.',
         },
@@ -5406,7 +5406,7 @@ function getFoundationHomeWaitingItems() {
 function getFoundationHomeActionItems() {
   return [
     {
-      title: 'Foundation Overview',
+          title: 'Foundation overview',
       body: 'Shortest read on trusted sources, live systems, open gaps, and next execution.',
       meta: 'Best first click',
       href: '/foundation#current-state',
@@ -5661,7 +5661,7 @@ function renderBacklogHygienePanel(backlogHygiene) {
   var visibleFindings = Array.isArray(backlogHygiene.visibleFindings)
     ? backlogHygiene.visibleFindings
     : []
-  var intro = 'Read-only check for stale, half-closed, or mismatched backlog cards. '
+  var intro = 'Read-only check for stale work, half-closed cards, and backlog records that do not match their proof. '
     + (summary.criticalFindings || 0) + ' critical, '
     + (summary.warningFindings || 0) + ' warning, '
     + (summary.infoFindings || 0) + ' info. '
@@ -5679,9 +5679,9 @@ function renderBacklogHygienePanel(backlogHygiene) {
 
   if (!items.length) {
     items.push({
-      label: 'No visible hygiene findings',
+      label: 'No visible backlog hygiene findings',
       status: summary.status === 'healthy' ? 'live' : 'pending',
-      detail: 'The backlog hygiene probe is running. Info-level findings stay in the CLI for v1.',
+      detail: 'The backlog hygiene probe is running. Info-level details stay in the CLI for v1.',
     })
   }
 
@@ -5697,7 +5697,7 @@ function renderPostShipFanoutPanel(postShipFanout) {
   var summary = postShipFanout.summary || {}
   var findings = Array.isArray(postShipFanout.findings) ? postShipFanout.findings : []
   var rules = Array.isArray(postShipFanout.rules) ? postShipFanout.rules : []
-  var intro = 'Checks whether the latest trusted ship updated the surrounding truth: Backlog, Recent Work, verifier proof, UI surface notes, and rebuild plan/state docs. '
+  var intro = 'Checks whether the latest trusted ship updated the truth around it: Backlog, Recent Work, verifier proof, UI surface notes, and rebuild plan/state docs. '
     + (summary.criticalFindings || 0) + ' critical finding'
     + ((summary.criticalFindings || 0) === 1 ? '' : 's')
     + ' across ' + (summary.ruleCount || rules.length || 0) + ' rules.'
@@ -5735,7 +5735,7 @@ function renderCardReferenceTrustPanel(cardReferenceTrust) {
   var summary = cardReferenceTrust.summary || {}
   var findings = Array.isArray(cardReferenceTrust.findings) ? cardReferenceTrust.findings : []
   var status = cardReferenceTrust.status === 'critical' ? 'risk' : 'live'
-  var intro = 'Checks active Foundation docs and code for backlog-card IDs that do not exist in the live backlog. '
+  var intro = 'Checks active Foundation docs and code for backlog card IDs that are missing from the live backlog. '
     + (summary.missingCardReferenceCount || 0) + ' missing reference'
     + ((summary.missingCardReferenceCount || 0) === 1 ? '' : 's')
     + ' across ' + (summary.scannedFileCount || 0) + ' active files.'
@@ -5751,7 +5751,7 @@ function renderCardReferenceTrustPanel(cardReferenceTrust) {
 
   if (!items.length) {
     items.push({
-      label: 'No missing active card references',
+      label: 'No missing active backlog card references',
       status: status,
       detail: 'Scanned active rebuild docs and Foundation code. Historical handoffs/audits are out of scope for v1.',
     })
@@ -5771,7 +5771,7 @@ function renderSourceReferenceTrustPanel(sourceReferenceTrust) {
     ? sourceReferenceTrust.undeclaredActiveReferences
     : []
   var status = sourceReferenceTrust.status === 'critical' ? 'risk' : 'live'
-  var intro = 'Checks active Foundation files for source IDs that do not exist in source contracts. '
+  var intro = 'Checks active Foundation files for source IDs that are missing from source contracts. '
     + (summary.undeclaredActiveReferenceCount || 0) + ' undeclared active reference'
     + ((summary.undeclaredActiveReferenceCount || 0) === 1 ? '' : 's')
     + '. Historical aliases classified: ' + (summary.historicalClassifiedCount || 0) + '.'
@@ -5786,7 +5786,7 @@ function renderSourceReferenceTrustPanel(sourceReferenceTrust) {
 
   if (!items.length) {
     items.push({
-      label: 'No undeclared active source IDs',
+      label: 'No missing active source IDs',
       status: status,
       detail: 'Active source references resolve to source contracts. Historical/audit-only aliases are documented separately.',
     })
@@ -7448,7 +7448,7 @@ function renderOwnersReviewQueuePanel(payload) {
 
 function renderCurrentState() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading current state...</p>'
+  container.innerHTML = '<p>Loading current state.</p>'
 
   Promise.all([
     fetchDoc('docs/rebuild/current-state.md'),
@@ -7794,7 +7794,7 @@ function renderCurrentState() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load current state: ' + error.message
+    msg.textContent = 'Current State could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -7896,7 +7896,7 @@ function renderLiveDocFreshnessPanel(docPath, sourceSnapshot, sourceContracts) {
 
 function renderFoundationHome() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading Foundation...</p>'
+  container.innerHTML = '<p>Loading Foundation.</p>'
 
   Promise.all([fetchSourceOfTruth(), fetchFoundationHub()]).then(function(results) {
     var data = results[0]
@@ -7986,7 +7986,7 @@ function renderFoundationHome() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load Foundation home: ' + error.message
+    msg.textContent = 'Foundation home could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -7995,7 +7995,7 @@ function renderFoundationHome() {
 
 function renderOverview() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading overview...</p>'
+  container.innerHTML = '<p>Loading overview.</p>'
 
   Promise.all([fetchSourceOfTruth(), fetchFoundationHub()]).then(function(results) {
     var data = results[0]
@@ -8078,7 +8078,7 @@ function renderOverview() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load overview: ' + error.message
+    msg.textContent = 'Overview could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -8088,7 +8088,7 @@ function renderStrategyDoc(sectionKey) {
   if (!docPath) return
 
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading document...</p>'
+  container.innerHTML = '<p>Loading document.</p>'
 
   var loader
   if (sectionKey === 'system-strategy') {
@@ -8172,7 +8172,7 @@ function renderStrategyDoc(sectionKey) {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load document: ' + error.message
+    msg.textContent = 'Document could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -8261,12 +8261,12 @@ function renderRebuildPlanBacklogPanel(hub) {
 
 function renderBacklog() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading backlog...</p>'
+  container.innerHTML = '<p>Loading live backlog.</p>'
 
   Promise.all([
     fetchFoundationHub(),
     fetchActionReview().catch(function(error) {
-      return { error: error.message || 'Action Review failed to load.' }
+      return { error: error.message || 'Action Review could not load.' }
     }),
   ]).then(function(results) {
     var hub = results[0]
@@ -8306,7 +8306,7 @@ function renderBacklog() {
     }).filter(Boolean).join(' · ')
     heroMeta.textContent = focusedIds.length
       ? focusedIds.length + ' linked cards from the page you clicked. Clear focus to see the full queue.'
-      : hub.backlogItems.length + ' active items · workflow-first queue' + (scopeSummary ? ' · ' + scopeSummary : '')
+      : hub.backlogItems.length + ' live cards · workflow-first queue' + (scopeSummary ? ' · ' + scopeSummary : '')
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)
@@ -8322,8 +8322,8 @@ function renderBacklog() {
     if (purposePanel) container.appendChild(purposePanel)
 
     container.appendChild(renderOperatorToolsDrawer(
-      'Operator Tools',
-      'Write access and backlog editing live here when you need them. The queue itself stays front and center.',
+      'Operator tools',
+      'Create and edit controls live here when you need them. The queue itself stays front and center.',
       [renderAdminTokenPanel(), renderBacklogCreatePanel(hub)],
       false
     ))
@@ -8346,14 +8346,14 @@ function renderBacklog() {
     boardLeft.appendChild(boardEyebrow)
 
     var boardTitle = document.createElement('h3')
-    boardTitle.textContent = 'How We Manage Work'
+    boardTitle.textContent = 'Work queue'
     boardLeft.appendChild(boardTitle)
 
     var boardIntro = document.createElement('p')
     boardIntro.className = 'section-intro'
     boardIntro.textContent = focusedIds.length
-      ? 'This is the exact queue for the surface you clicked. Workflow stage still comes first.'
-      : 'Workflow stages are the main view. Priority is secondary.'
+      ? 'This is the exact queue for the surface you clicked. Review workflow stage first, then priority.'
+      : 'Review workflow stage first, then priority.'
     boardLeft.appendChild(boardIntro)
 
     boardHeader.appendChild(boardLeft)
@@ -8364,7 +8364,7 @@ function renderBacklog() {
 
     var searchField = document.createElement('div')
     searchField.className = 'operations-search'
-    var searchInput = buildInput('search', 'Search by ID, title, owner, source, or closeout note')
+    var searchInput = buildInput('search', 'Search cards by ID, title, owner, source, or closeout note')
     searchInput.value = backlogViewState.query
     searchField.appendChild(searchInput)
     controls.appendChild(searchField)
@@ -8450,8 +8450,8 @@ function renderBacklog() {
         : getBacklogScopeShortLabel(backlogViewState.scope) + ' items'
       var priorityLabel = backlogViewState.priority === 'all' ? 'all priorities' : backlogViewState.priority
       backlogResults.textContent = focusedIds.length
-        ? 'Showing ' + filteredItems.length + ' linked cards · grouped as To Do, To Do Scoped, Doing, Waiting, and Done'
-        : 'Showing ' + filteredItems.length + ' ' + scopeLabel + ' · ' + priorityLabel + ' · grouped as To Do, To Do Scoped, Doing, Waiting, and Done'
+        ? 'Showing ' + filteredItems.length + ' linked cards grouped by workflow stage.'
+        : 'Showing ' + filteredItems.length + ' ' + scopeLabel + ' · ' + priorityLabel + ' · grouped by workflow stage.'
 
       boardWrap.innerHTML = ''
 
@@ -8473,14 +8473,14 @@ function renderBacklog() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load backlog: ' + error.message
+    msg.textContent = 'Backlog could not load. No cards were changed. Details: ' + error.message
     container.appendChild(msg)
   })
 }
 
 function renderDecisions() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading decisions...</p>'
+  container.innerHTML = '<p>Loading decisions.</p>'
 
   fetchFoundationHub().then(function(hub) {
     container.innerHTML = ''
@@ -8646,7 +8646,7 @@ function renderDecisions() {
       if (!filteredDecisions.length) {
         var empty = document.createElement('div')
         empty.className = 'decision-empty-state'
-        empty.textContent = 'No decisions match this filter yet.'
+        empty.textContent = 'No decisions match these filters yet.'
         decisionList.appendChild(empty)
         return
       }
@@ -8797,14 +8797,14 @@ function renderDecisions() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load decisions: ' + error.message
+    msg.textContent = 'Decisions could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
 
 function renderOpenQuestions() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading open questions...</p>'
+  container.innerHTML = '<p>Loading open questions.</p>'
 
   fetchFoundationHub().then(function(hub) {
     container.innerHTML = ''
@@ -8876,7 +8876,7 @@ function renderOpenQuestions() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load open questions: ' + error.message
+    msg.textContent = 'Open Questions could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -9693,7 +9693,7 @@ function renderDataSourcePurposePanel(section, config, sourceContracts, sourceCo
       {
         label: 'Boundary',
         status: 'pending',
-        detail: 'This is not the All Docs file inventory. It only shows docs that are source contracts or trusted validation units.',
+        detail: 'This is not the All Docs file inventory. It only shows docs that act as source contracts or trusted validation units.',
       },
     ]
   } else if (section === 'source-sheets') {
@@ -9711,7 +9711,7 @@ function renderDataSourcePurposePanel(section, config, sourceContracts, sourceCo
       {
         label: 'Boundary',
         status: 'pending',
-        detail: 'A Google Sheets connector proves reach. This page proves which sheet units are actually trusted and what they own.',
+        detail: 'A Google Sheets connector proves reach. This page shows which sheet units are trusted and what each unit owns.',
       },
     ]
   } else if (section === 'source-apis') {
@@ -9737,7 +9737,7 @@ function renderDataSourcePurposePanel(section, config, sourceContracts, sourceCo
       {
         label: 'Page job',
         status: 'connected',
-        detail: 'Show the connector layer only: technical pipes, installed apps, API paths, and access status.',
+        detail: 'Show the connector layer only: access paths, installed apps, API paths, and connection status.',
       },
       {
         label: 'Live backing',
@@ -9756,7 +9756,7 @@ function renderDataSourcePurposePanel(section, config, sourceContracts, sourceCo
   return renderOverviewStatusPanel(statusCards, {
     eyebrow: 'Page Purpose',
     title: title,
-    intro: 'This page earns its menu slot only if it answers a distinct Foundation question.',
+    intro: 'Each Data Sources page must answer a specific Foundation trust question.',
   })
 }
 
@@ -9791,7 +9791,7 @@ function renderSourceSystemsPanel(sourceContracts, options) {
 
   var searchField = document.createElement('div')
   searchField.className = 'operations-search'
-  var searchInput = buildInput('search', 'Search by source ID, source, owner, access, or what it owns')
+    var searchInput = buildInput('search', 'Search by source ID, source, owner, access, or what it owns')
   searchInput.value = sourceViewState.query
   searchField.appendChild(searchInput)
   controls.appendChild(searchField)
@@ -9909,7 +9909,7 @@ function renderSourceSystemsPanel(sourceContracts, options) {
     if (!board.childNodes.length) {
       var empty = document.createElement('div')
       empty.className = 'decision-empty-state'
-      empty.textContent = 'No source contracts match this lane yet.'
+    empty.textContent = 'No source contracts match these filters yet.'
       board.appendChild(empty)
     }
   }
@@ -10455,7 +10455,7 @@ function renderFoundationSystemFullCard(system, context) {
 
 function renderFoundationSystems() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading systems...</p>'
+  container.innerHTML = '<p>Loading systems.</p>'
 
   Promise.all([fetchSourceOfTruth(), fetchFoundationHub()]).then(function(results) {
     var sourceData = results[0]
@@ -10548,7 +10548,7 @@ function renderFoundationSystems() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load systems: ' + error.message
+    msg.textContent = 'Systems could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -11446,7 +11446,7 @@ function renderInventoryGroupStack(groupTitle, introText, items) {
 
 function renderInventoryDocs() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading docs inventory...</p>'
+  container.innerHTML = '<p>Loading docs inventory.</p>'
 
   fetchSystemInventory().then(function(inventory) {
     container.innerHTML = ''
@@ -11481,7 +11481,7 @@ function renderInventoryDocs() {
 
     var heroCopy = document.createElement('p')
     heroCopy.className = 'hero-copy'
-    heroCopy.textContent = 'File-level inventory. Use this page when auditing what exists in the repo and what is intentionally local-private.'
+    heroCopy.textContent = 'Use this to see which docs are tracked in the repo and which are intentionally local-private.'
     heroInner.appendChild(heroCopy)
 
     hero.appendChild(heroInner)
@@ -11506,7 +11506,7 @@ function renderInventoryDocs() {
         detail: referenceDocs.length + ' docs are stored as audits, handoffs, research, specs, or history.',
       },
       {
-        label: 'Surfaced in UI',
+        label: 'Shown in Foundation',
         status: 'connected',
         detail: surfacedDocs.length + ' docs are directly tied to a visible system surface today.',
       },
@@ -11525,7 +11525,7 @@ function renderInventoryDocs() {
     ], {
       eyebrow: 'Inventory State',
       title: 'Doc visibility',
-      intro: 'Every doc should be surfaced, inventoried, or deliberately private with a reason.',
+      intro: 'Every doc should be shown, inventoried, or deliberately private with a reason.',
     })
     if (statusPanel) container.appendChild(statusPanel)
 
@@ -11544,16 +11544,16 @@ function renderInventoryDocs() {
     var left = document.createElement('div')
     var eyebrow = document.createElement('div')
     eyebrow.className = 'eyebrow'
-    eyebrow.textContent = 'Tracked Docs'
+    eyebrow.textContent = 'Tracked docs'
     left.appendChild(eyebrow)
 
     var title = document.createElement('h3')
-    title.textContent = 'Repo docs and storage inventory'
+    title.textContent = 'Repo docs by role'
     left.appendChild(title)
 
     var intro = document.createElement('p')
     intro.className = 'section-intro'
-    intro.textContent = 'Everything tracked in git is grouped below.'
+    intro.textContent = 'Every tracked markdown doc is grouped by its current role.'
     left.appendChild(intro)
 
     header.appendChild(left)
@@ -11582,12 +11582,12 @@ function renderInventoryDocs() {
       privateLeft.appendChild(privateEyebrow)
 
       var privateTitle = document.createElement('h3')
-      privateTitle.textContent = 'Docs intentionally kept out of the shared web surface'
+      privateTitle.textContent = 'Local-private docs not shown in shared pages'
       privateLeft.appendChild(privateTitle)
 
       var privateIntro = document.createElement('p')
       privateIntro.className = 'section-intro'
-      privateIntro.textContent = 'These files are listed here on purpose, but not exposed in the shared UI by default.'
+      privateIntro.textContent = 'These files are listed with a reason, but their content stays out of shared pages by default.'
       privateLeft.appendChild(privateIntro)
 
       privateHeader.appendChild(privateLeft)
@@ -11604,7 +11604,7 @@ function renderInventoryDocs() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load docs inventory: ' + error.message
+    msg.textContent = 'Docs inventory could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -11621,7 +11621,7 @@ function renderSystemInventoryPurposePanel(section, context) {
   var statusCards = []
 
   if (section === 'inventory-docs') {
-    title = 'All Docs Inventory Job'
+    title = 'All Docs inventory job'
     statusCards = [
       {
         label: 'Page job',
@@ -11640,7 +11640,7 @@ function renderSystemInventoryPurposePanel(section, context) {
       },
     ]
   } else if (section === 'capabilities-skills') {
-    title = 'Skills Inventory Job'
+    title = 'Skills inventory job'
     statusCards = [
       {
         label: 'Page job',
@@ -11659,7 +11659,7 @@ function renderSystemInventoryPurposePanel(section, context) {
       },
     ]
   } else if (section === 'capabilities-plugins') {
-    title = 'Plugins / MCPs Inventory Job'
+    title = 'Plugins and MCPs inventory job'
     statusCards = [
       {
         label: 'Page job',
@@ -11678,7 +11678,7 @@ function renderSystemInventoryPurposePanel(section, context) {
       },
     ]
   } else if (section === 'capabilities-agents') {
-    title = 'Agents Inventory Job'
+    title = 'Agents inventory job'
     statusCards = [
       {
         label: 'Page job',
@@ -11704,13 +11704,13 @@ function renderSystemInventoryPurposePanel(section, context) {
   return renderOverviewStatusPanel(statusCards, {
     eyebrow: 'Page Purpose',
     title: title,
-    intro: 'System Inventory pages show repo/runtime capability surfaces. They do not replace Data Sources or Systems.',
+    intro: 'System Inventory pages show repo and runtime capability surfaces. They do not replace Data Sources or Systems.',
   })
 }
 
 function renderCapabilitySection(section) {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading capabilities...</p>'
+  container.innerHTML = '<p>Loading capabilities.</p>'
 
   Promise.all([fetchFoundationHub(), fetchSystemInventory(), fetchSourceOfTruth()]).then(function(results) {
     var hub = results[0]
@@ -11785,7 +11785,7 @@ function renderCapabilitySection(section) {
         {
           label: 'Boundary',
           status: 'pending',
-          detail: 'Installed plugin does not mean the business source is signed off. Source trust stays in Data Sources.',
+          detail: 'An installed plugin does not mean the business source is signed off. Source trust stays in Data Sources.',
         },
       ]
     } else if (section === 'capabilities-agents') {
@@ -11859,7 +11859,7 @@ function renderCapabilitySection(section) {
     if (purposePanel) container.appendChild(purposePanel)
 
     var statusPanel = renderOverviewStatusPanel(statusCards, {
-      eyebrow: 'Lane State',
+      eyebrow: 'Lane state',
       title: config.title + ' state',
       intro: 'This lane is separate from Data Sources.',
     })
@@ -11883,7 +11883,7 @@ function renderCapabilitySection(section) {
 
     var catalogIntro = document.createElement('p')
     catalogIntro.className = 'section-intro'
-    catalogIntro.textContent = 'Current lane-level view.'
+    catalogIntro.textContent = 'Current lane-level view of what exists now.'
     catalogLeft.appendChild(catalogIntro)
 
     catalogHeader.appendChild(catalogLeft)
@@ -11937,7 +11937,7 @@ function renderCapabilitySection(section) {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load capabilities: ' + error.message
+    msg.textContent = 'Capabilities could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -11966,7 +11966,7 @@ function renderSourceRegistry(section) {
         {
           eyebrow: 'Right Now',
           title: 'What Is Actually Trusted',
-          intro: 'Signed off and fresh are not the same thing.',
+          intro: 'A source can be readable before it is trusted.',
         }
       ))
 
@@ -11974,18 +11974,18 @@ function renderSourceRegistry(section) {
       if (groupedPanel) container.appendChild(groupedPanel)
 
       container.appendChild(renderFoundationShortcutPanel(
-        'Open The Right Source Surfaces',
+        'Open the right source view',
         'Use these links instead of scanning the whole source model every time.',
         [
           {
-            title: 'Strategy Inputs',
+            title: 'Strategy inputs',
             body: 'Freedom Community, BHAG, Agent Engine, Owners, finance, FUB, and KPI are visible from the Foundation overview.',
             meta: 'Foundation overview',
             href: '/foundation#current-state',
             cta: 'Open Overview',
           },
         {
-          title: 'FUB Review',
+          title: 'FUB review',
           body: 'Lead-source taxonomy manager and the remaining parity work for SRC-FUB-001.',
             meta: 'Next source closeout',
             href: '/foundation#source-apis:fub-lead-source-taxonomy',
@@ -11999,7 +11999,7 @@ function renderSourceRegistry(section) {
             cta: 'Open Connectors',
           },
           {
-            title: 'Foundation Overview',
+            title: 'Foundation overview',
             body: 'If you want the shortest possible answer to what is ready, open, and later, start there first.',
             meta: 'Tight rebuild read',
             href: '/foundation#current-state',
@@ -12009,7 +12009,7 @@ function renderSourceRegistry(section) {
       ))
 
       container.appendChild(renderOperatorToolsDrawer(
-        'How To Read This',
+        'How to read this',
         'Definitions for source system, validation unit, connector layer, and trust state.',
         [renderSourceLegendPanel()],
         false
@@ -12083,7 +12083,7 @@ function renderSourceRegistry(section) {
     if (config.showSystems && config.showConnectors) {
       var divider = document.createElement('div')
       divider.className = 'source-layer-divider'
-      divider.textContent = 'Below this line is the connector layer.'
+      divider.textContent = 'Connector layer starts below.'
       container.appendChild(divider)
     }
 
@@ -12091,7 +12091,7 @@ function renderSourceRegistry(section) {
       container.appendChild(renderSourceConnectorsPanel(sourceConnectors, {
         eyebrow: 'Connector Layer',
         title: 'Connections and access paths',
-        intro: 'These are the pipes. Pipe does not equal trust.',
+        intro: 'These are access paths. A connector alone does not make a source trusted.',
       }))
     }
 
@@ -12102,7 +12102,7 @@ function renderSourceRegistry(section) {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load data sources: ' + error.message
+    msg.textContent = 'Data Sources could not load. Details: ' + error.message
     container.appendChild(msg)
   }).finally(function() {
     applySectionFocus()
@@ -12111,7 +12111,7 @@ function renderSourceRegistry(section) {
 
 function renderDataHealth() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading runtime health...</p>'
+  container.innerHTML = '<p>Loading runtime health.</p>'
 
   fetchFoundationHub().then(function(hub) {
     container.innerHTML = ''
@@ -12134,7 +12134,7 @@ function renderDataHealth() {
 
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'Operator view for jobs, LLM routes, extraction targets, source-crawl queues, and low-level runtime checks.'
+    heroNote.textContent = 'Live diagnostic view for the dashboard, worker, jobs, LLM routes, extraction targets, and source-crawl queues.'
     heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
@@ -12218,14 +12218,14 @@ function renderDataHealth() {
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load runtime health: ' + error.message
+    msg.textContent = 'Runtime Health could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
 
 function renderSystemActivity() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading system activity...</p>'
+  container.innerHTML = '<p>Loading system activity.</p>'
 
   fetchFoundationHub().then(function(hub) {
     container.innerHTML = ''
@@ -12247,7 +12247,7 @@ function renderSystemActivity() {
 
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'Short audit feed for operator review and debugging.'
+    heroNote.textContent = 'Short audit feed for recent trust-layer changes.'
     heroInner.appendChild(heroNote)
 
     hero.appendChild(heroInner)
@@ -12258,8 +12258,8 @@ function renderSystemActivity() {
 
     var changesPanel = renderRecentChangesPanel(hub.recentChanges || [], {
       eyebrow: 'Internal Feed',
-      title: 'Recent Changes',
-      intro: 'Only the latest 20 events are shown here so the page stays readable. Older history still exists in the change-event log; a fuller searchable audit surface can come later.',
+      title: 'Recent changes',
+      intro: 'Only the latest 20 events are shown here so the page stays readable. Older history still exists in the change-event log; a searchable audit surface can come later.',
     })
 
     if (changesPanel) {
@@ -12268,12 +12268,12 @@ function renderSystemActivity() {
     }
 
     var empty = document.createElement('p')
-    empty.textContent = 'No recent trust-layer events yet.'
+    empty.textContent = 'No recent trust-layer events are recorded yet.'
     container.appendChild(empty)
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load system activity: ' + error.message
+    msg.textContent = 'System Activity could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }
@@ -12385,7 +12385,7 @@ function renderBuildCard(build) {
     var files = document.createElement('details')
     files.className = 'build-log-details'
     var summary = document.createElement('summary')
-    summary.textContent = 'Changed files'
+    summary.textContent = 'Files changed'
     files.appendChild(summary)
     var list = document.createElement('ul')
     ;(build.primaryFiles || []).forEach(function(file) {
@@ -12448,7 +12448,7 @@ function renderBuildCommitGroup(commitGroup) {
   var summary = document.createElement('summary')
   summary.className = 'build-log-commit-summary'
   var shortSha = commitGroup.shortSha || String(commitGroup.sha || '').slice(0, 7) || 'commit'
-  summary.textContent = shortSha + ' · Multiple Closeouts · '
+  summary.textContent = shortSha + ' · Multiple closeouts · '
     + commitGroup.builds.length + ' closeouts · '
     + (commitGroup.subject || 'Repo change')
   details.appendChild(summary)
@@ -12510,7 +12510,7 @@ function renderBuildGroups(buildLog, builds) {
 
 function renderBuildLog() {
   var container = document.getElementById('found-content')
-  container.innerHTML = '<p>Loading recent work...</p>'
+  container.innerHTML = '<p>Loading recent work.</p>'
 
   Promise.all([fetchFoundationBuildLog(), fetchFoundationHub()]).then(function(results) {
     var buildLog = results[0]
@@ -12531,7 +12531,7 @@ function renderBuildLog() {
     heroInner.appendChild(heroMeta)
     var heroNote = document.createElement('p')
     heroNote.className = 'hero-copy'
-    heroNote.textContent = 'Operator changelog for what was built, what system it belongs to, and where to look next.'
+    heroNote.textContent = 'Plain-English changelog for what changed, why it matters, proof, and where to review next.'
     heroInner.appendChild(heroNote)
     hero.appendChild(heroInner)
     container.appendChild(hero)
@@ -12543,12 +12543,12 @@ function renderBuildLog() {
         detail: 'Show Steve what changed while builders were moving quickly, without reading every commit or handoff.',
       },
       {
-        label: 'Backed by',
+        label: 'Data backing',
         status: 'connected',
         detail: 'Git commit history on main plus repo-truth closeout records for major Foundation builds.',
       },
       {
-        label: 'Coverage',
+        label: 'Backlog and proof coverage',
         status: ((buildLog.summary && buildLog.summary.closeoutBuilds) || 0) ? 'connected' : 'pending',
         detail: ((buildLog.summary && buildLog.summary.backlogLinkedBuilds) || 0) + ' commits link to backlog cards; ' + ((buildLog.summary && buildLog.summary.proofLinkedBuilds) || 0) + ' carry proof commands.',
       },
@@ -12559,7 +12559,7 @@ function renderBuildLog() {
       },
     ], {
       eyebrow: 'Build Visibility',
-      title: 'What Changed And Where It Lives',
+      title: 'What changed and where to review',
       intro: 'Use this after a heavy build day before deciding what to test, review, or explain.',
     })
     if (purposePanel) container.appendChild(purposePanel)
@@ -12574,7 +12574,7 @@ function renderBuildLog() {
     eyebrow.textContent = 'Repo Build Log'
     left.appendChild(eyebrow)
     var title = document.createElement('h3')
-    title.textContent = 'Grouped By Day And System'
+    title.textContent = 'Grouped by day and system'
     left.appendChild(title)
     var intro = document.createElement('p')
     intro.className = 'section-intro'
@@ -12588,14 +12588,14 @@ function renderBuildLog() {
 
     var changesPanel = renderRecentChangesPanel((hub.recentChanges || []).slice(0, 5), {
       eyebrow: 'Related Trust Events',
-      title: 'Latest DB Changes',
+      title: 'Latest DB changes',
       intro: 'Recent build commits explain code/doc changes; these records show the latest DB trust-layer events.',
     })
     if (changesPanel) container.appendChild(changesPanel)
   }).catch(function(error) {
     container.innerHTML = ''
     var msg = document.createElement('p')
-    msg.textContent = 'Failed to load recent work: ' + error.message
+    msg.textContent = 'Recent Work could not load. Details: ' + error.message
     container.appendChild(msg)
   })
 }

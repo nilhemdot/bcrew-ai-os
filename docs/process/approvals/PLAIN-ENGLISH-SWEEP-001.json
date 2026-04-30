@@ -1,0 +1,13 @@
+{
+  "cardId": "PLAIN-ENGLISH-SWEEP-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T00:00:00Z",
+  "approvalSource": "Steve gave GREEN LIGHT for the revised PLAIN-ENGLISH-SWEEP-001 plan after it added the 60-entry coverage floor, per-route/per-viewport manual pass/fail review, and explicit protection for IDs, selectors, API shapes, routes, data contract keys, source IDs, card IDs, table names, proof commands, and source-contract strings.",
+  "notes": "Approval covers only the PLAIN-ENGLISH-SWEEP-001 copy-only Foundation operator wording sweep. It does not approve UI redesign, layout polish, Recent Work redesign, source expansion, Strategy, Scoper, Agent Factory, corpus, research, or action-review work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/plain-english-sweep-v1.md",
+  "approvedPlanSha256": "e57997cc8563f0895e1f3fdf53d356b86a8487d959e19190a00dbe8af1967837",
+  "approvedRepoHead": "7a89e809a6fd4eb4e7b5e48c25374e3f6213b92f",
+  "approvalDigest": "3392f4938f42b652d98ff21548e0d45e7251a1dfa207c1b5852952cb37241f56"
+}

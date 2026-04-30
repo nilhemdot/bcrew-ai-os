@@ -41,6 +41,14 @@ import {
   loadFoundationReviewSprintArtifact,
 } from '../lib/foundation-review-sprint.js'
 import {
+  buildPlainEnglishSweepStatus,
+  PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
+  PLAIN_ENGLISH_SWEEP_CARD_ID,
+  PLAIN_ENGLISH_SWEEP_CATEGORY_MINIMUMS,
+  PLAIN_ENGLISH_SWEEP_CLOSEOUT_KEY,
+  PLAIN_ENGLISH_SWEEP_MANUAL_REVIEW_PATH,
+} from '../lib/foundation-plain-english.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -106,6 +114,10 @@ const FOUNDATION_1100_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'ACTION-REVIEW-CLEANUP-001',
   'RESEARCH-CURATION-002',
   'PHASE-G-READINESS-001',
+]
+
+const PLAIN_ENGLISH_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'PLAIN-ENGLISH-SWEEP-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -765,6 +777,7 @@ async function main() {
   const foundation1100ReviewApprovalRefs = Object.fromEntries(
     FOUNDATION_REVIEW_SPRINT_CARD_IDS.map(cardId => [cardId, `docs/process/approvals/${cardId}.json`])
   )
+  const plainEnglishSweepApprovalRef = 'docs/process/approvals/PLAIN-ENGLISH-SWEEP-001.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
     validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
   ))
@@ -774,6 +787,11 @@ async function main() {
   const foundation1100ReviewApprovalValidations = await Promise.all(Object.entries(foundation1100ReviewApprovalRefs).map(async ([cardId, approvalRef]) =>
     validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
   ))
+  const plainEnglishSweepApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: plainEnglishSweepApprovalRef,
+    cardId: PLAIN_ENGLISH_SWEEP_CARD_ID,
+  })
   const approvalIntegritySynthetic = await buildSyntheticApprovalIntegrityStatus()
   const gitHookInstallStatus = await buildGitHookInstallStatus({ repoRoot })
   const gitHookScopeProof = buildSyntheticGitHookScopeProof()
@@ -781,6 +799,9 @@ async function main() {
   const phase1ApprovedPlan = await readRepoFile(PHASE_1_ENFORCEMENT_PLAN_REF)
   const foundationControlApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-control-layer-v1.md')
   const foundation1100ReviewApprovedPlan = await readRepoFile('docs/process/approved-plans/foundation-1100-review-v1.md')
+  const plainEnglishSweepApprovedPlan = await readRepoFile('docs/process/approved-plans/plain-english-sweep-v1.md')
+  const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
+  const plainEnglishSweepManualReview = await readRepoFile(PLAIN_ENGLISH_SWEEP_MANUAL_REVIEW_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -909,7 +930,7 @@ async function main() {
   )
   ensure(
     checks,
-    foundationHtmlSource.includes('<div class="found-nav-label">People / Agents</div>') &&
+    foundationHtmlSource.includes('<div class="found-nav-label">People and agents</div>') &&
       foundationHtmlSource.includes('data-section="users">People Overview</a>') &&
       foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#user-steve"') &&
       foundationHtmlSource.includes('data-section="agents">Agent Model</a>') &&
@@ -1886,6 +1907,7 @@ async function main() {
     actionRouter: foundationHub.intelligenceActionRouter || {},
     hygiene: backlogHygieneApi,
   })
+  const plainEnglishSweepStatus = await buildPlainEnglishSweepStatus({ repoRoot })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -2103,7 +2125,7 @@ async function main() {
       'Connector does not equal trusted source',
     ]),
     'Data Sources pages explain purpose and connector boundary',
-    'Overview, Docs, Spreadsheets, APIs / Apps, and Connectors have explicit page-purpose copy',
+    'Overview, Docs, Spreadsheets, APIs and apps, and Connectors have explicit page-purpose copy',
   )
   const expectedKpiTableNames = EXPECTED_KPI_TABLES.map(item => item.table)
   const expectedKpiRpcNames = EXPECTED_KPI_RPCS.map(item => item.rpc)
@@ -2145,7 +2167,7 @@ async function main() {
         'renderBacklogHygienePanel',
         'Backlog Hygiene',
         'Stale executing threshold',
-        'No visible hygiene findings',
+        'No visible backlog hygiene findings',
       ]),
     'Runtime Health exposes automatic Backlog Hygiene findings',
     `${backlogHygieneApi.summary?.criticalFindings ?? 'unknown'} critical / ${backlogHygieneApi.summary?.warningFindings ?? 'unknown'} warnings / threshold=${backlogHygieneApi.thresholds?.staleExecutingDays ?? 'missing'} days`,
@@ -2158,7 +2180,7 @@ async function main() {
       includesAll(foundationUiSource, [
         'renderCardReferenceTrustPanel',
         'Card Reference Trust',
-        'No missing active card references',
+        'No missing active backlog card references',
       ]),
     'Card Reference Trust has no missing active backlog cards',
     foundationHub.cardReferenceTrust?.summary
@@ -2181,7 +2203,7 @@ async function main() {
       includesAll(foundationUiSource, [
         'renderSourceReferenceTrustPanel',
         'Source Contract Trust',
-        'No undeclared active source IDs',
+        'No missing active source IDs',
       ]),
     'Source Contract Trust has no undeclared active source IDs',
     foundationHub.sourceReferenceTrust?.summary
@@ -2295,10 +2317,10 @@ async function main() {
       requiredPluginNames.every(pluginName => inventoryPluginNames.includes(pluginName)) &&
       includesAll(foundationUiSource, [
         'renderSystemInventoryPurposePanel',
-        'All Docs Inventory Job',
-        'Skills Inventory Job',
-        'Plugins / MCPs Inventory Job',
-        'Agents Inventory Job',
+        'All Docs inventory job',
+        'Skills inventory job',
+        'Plugins and MCPs inventory job',
+        'Agents inventory job',
         'not a live Agent Registry yet',
       ]),
     'System Inventory shows all nine configured plugin surfaces',
@@ -2649,6 +2671,10 @@ async function main() {
     FOUNDATION_REVIEW_SPRINT_CARD_IDS.every(id => (build.backlogIds || []).includes(id)) &&
       build.closeoutKey === FOUNDATION_REVIEW_SPRINT_CLOSEOUT_KEY
   )
+  const buildLogPlainEnglishSweepBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
+      build.closeoutKey === PLAIN_ENGLISH_SWEEP_CLOSEOUT_KEY
+  )
   ensure(
     checks,
     foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
@@ -2693,6 +2719,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('DOCTRINE-PROPAGATION-002') &&
       foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-HOOKS-002') &&
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
+      foundationBuildCloseoutValidation.backlogIds.includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -2715,7 +2742,7 @@ async function main() {
       includesAll(foundationUiSource, [
         'renderBuildGroups',
         'renderBuildBacklogLinks',
-        'Grouped By Day And System',
+        'Grouped by day and system',
         'v2 closeouts',
       ]),
     'api/foundation/build-log exposes operator-readable grouped closeouts',
@@ -3767,6 +3794,7 @@ async function main() {
   const foundation1100ReviewCards = FOUNDATION_REVIEW_SPRINT_CARD_IDS.map(id =>
     (foundationHub.backlogItems || []).find(item => item.id === id) || null
   )
+  const plainEnglishSweep = (foundationHub.backlogItems || []).find(item => item.id === PLAIN_ENGLISH_SWEEP_CARD_ID) || null
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -4294,7 +4322,7 @@ async function main() {
       includesAll(foundationUiSource, [
         'groupBuildsByCommit',
         'renderBuildCommitGroup',
-        'Multiple Closeouts',
+        'Multiple closeouts',
         'One commit can carry multiple closeouts',
       ]) &&
       buildLogRecentMultiCloseoutBuild?.operatorCloseout === true &&
@@ -4452,7 +4480,7 @@ async function main() {
     checks,
     foundationHtmlSource.includes('data-section="build-log">Recent Work</a>') &&
       foundationUiSource.includes("heroTitle.textContent = 'Recent Work'") &&
-      foundationUiSource.includes("container.innerHTML = '<p>Loading recent work...</p>'") &&
+      foundationUiSource.includes("container.innerHTML = '<p>Loading recent work.</p>'") &&
       foundationUiSource.includes("title: 'KPI source health system'") &&
       foundationUiSource.includes('14/14 tables plus 5/5 RPCs'),
     'Foundation copy cleanup reflects Recent Work and current KPI health status',
@@ -4949,9 +4977,67 @@ async function main() {
       currentPlan.includes('Foundation 1100 Review Sprint') &&
       currentPlan.includes('No Phase G UI work starts inside this cleanup sprint') &&
       currentState.includes('Foundation 1100 Review Sprint is done for v1') &&
-      currentState.includes('Next step is a separate 9.8 plan for PLAIN-ENGLISH-SWEEP-001'),
+      currentState.includes('recorded Phase G order under `foundation-1100-review-v1`'),
     'Foundation 1100 Review Sprint cleans hygiene/action/research layers before Phase G',
     `cards=${foundation1100ReviewCards.filter(card => card?.lane === 'done').length}/4 hygiene=${foundation1100ReviewStatus.summary?.currentHygieneWarnings} action=${foundation1100ReviewStatus.summary?.actionRoutesCurated}/18 research=${foundation1100ReviewStatus.summary?.researchCardsDispositionOnly}/102 closeout=${buildLogFoundation1100ReviewBuild?.closeoutKey || 'missing'}`,
+  )
+  const plainEnglishBuildLogExact = buildLogPlainEnglishSweepBuild?.backlogIds?.length === 1 &&
+    buildLogPlainEnglishSweepBuild.backlogIds.includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
+    !['UI-MENU-LAYOUT-POLISH-001', 'RECENT-BUILDS-BILLION-DOLLAR-UI-001', 'CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001']
+      .some(id => buildLogPlainEnglishSweepBuild.backlogIds.includes(id))
+  ensure(
+    checks,
+    plainEnglishSweep?.lane === 'done' &&
+      /plain-english-sweep-v1/.test(plainEnglishSweep?.statusNote || '') &&
+      plainEnglishSweepApprovalValidation.ok &&
+      plainEnglishSweepApprovalValidation.mode === 'v2' &&
+      plainEnglishSweepApprovalValidation.approval?.approvedPlanRef === 'docs/process/approved-plans/plain-english-sweep-v1.md' &&
+      plainEnglishSweepApprovedPlan.includes('Minimum 60 audited copy entries') &&
+      plainEnglishSweepApprovedPlan.includes('Manual review requires pass/fail') &&
+      plainEnglishSweepApprovedPlan.includes('Do not change IDs, selectors, API shapes') &&
+      includesAll(foundationVerifySource, PLAIN_ENGLISH_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:plain-english-sweep-check"', 'scripts/process-plain-english-sweep-check.mjs']) &&
+      plainEnglishSweepStatus.status === 'healthy' &&
+      plainEnglishSweepStatus.summary?.totalEntries >= 60 &&
+      Object.entries(PLAIN_ENGLISH_SWEEP_CATEGORY_MINIMUMS).every(([category, minimum]) =>
+        (plainEnglishSweepStatus.summary?.categoryCounts?.[category] || 0) >= minimum
+      ) &&
+      plainEnglishSweepStatus.summary?.manualRouteChecks === 24 &&
+      plainEnglishSweepStatus.summary?.manualRouteFailures === 0 &&
+      plainEnglishSweepArtifactSource.includes('"copyOnly": true') &&
+      plainEnglishSweepArtifactSource.includes('"noIdsSelectorsContractsChanged": true') &&
+      plainEnglishSweepManualReview.includes('Failures: 0') &&
+      includesAll(plainEnglishSweepManualReview, [
+        '/foundation#backlog',
+        '/foundation#system-health',
+        '/foundation#build-log',
+        '/foundation#source-overview',
+        '/foundation#inventory-docs',
+        'desktop',
+        'mobile',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'No cards are in this stage right now.',
+        'Needs human decision',
+        'Live diagnostic view for the dashboard',
+        'Plain-English changelog for what changed',
+        'A source can be readable before it is trusted.',
+        'Use this to see which docs are tracked in the repo',
+        'Backlog could not load. No cards were changed. Details:',
+      ]) &&
+      includesAll(foundationHtmlSource, [
+        'Strategy docs',
+        'Foundation work',
+        'Open or close Foundation navigation',
+      ]) &&
+      buildLogPlainEnglishSweepBuild?.operatorCloseout === true &&
+      plainEnglishBuildLogExact &&
+      currentPlan.includes('PLAIN-ENGLISH-SWEEP-001` is done for v1') &&
+      currentPlan.includes('UI-MENU-LAYOUT-POLISH-001') &&
+      currentState.includes('PLAIN-ENGLISH-SWEEP-001`, now done for v1') &&
+      currentState.includes('Next expected card is `UI-MENU-LAYOUT-POLISH-001`'),
+    'PLAIN-ENGLISH-SWEEP-001 closes the copy-only Foundation operator language pass',
+    `entries=${plainEnglishSweepStatus.summary?.totalEntries}/60 manual=${plainEnglishSweepStatus.summary?.manualRouteChecks}/24 closeout=${buildLogPlainEnglishSweepBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,
@@ -5178,7 +5264,7 @@ async function main() {
       serverSource.includes('Reject needs a reason so the finding is not silently lost.') &&
       foundationUiSource.includes('function renderActionReviewPanel') &&
       foundationUiSource.includes('/api/foundation/action-review') &&
-      foundationUiSource.includes('Foundation > Backlog > Action Review') &&
+      foundationUiSource.includes('Review system findings before they become decisions') &&
       foundationUiSource.includes('Reject needs a reason so the finding is not silently lost.') &&
       foundationUiSource.includes('Applied proof:') &&
       foundationUiSource.includes("renderActionReviewButton(route, 'approve'") &&
