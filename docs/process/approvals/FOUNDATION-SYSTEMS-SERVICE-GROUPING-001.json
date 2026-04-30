@@ -1,0 +1,13 @@
+{
+  "cardId": "FOUNDATION-SYSTEMS-SERVICE-GROUPING-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T00:00:00.000Z",
+  "approvalSource": "Steve gave GREEN LIGHT to build FOUNDATION-SYSTEMS-SERVICE-GROUPING-001 exactly per the approved plan.",
+  "notes": "Build only Systems service-area grouping. No Gmail send, no ClickUp Requested writeback, no Agent Onboarding Feedback system build, no AGENT-FEEDBACK-SEND-001, no Strategy, Scoper, Agent Factory, corpus/source expansion, research cleanup, or new feature lane.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/foundation-systems-service-grouping-v1.md",
+  "approvedPlanSha256": "b1c31ad80142cb69eea566a9a206c4ee840c59ab5b089c77e40bb5f449920ee1",
+  "approvedRepoHead": "137d4280330ebfc607f0acfb0fbf20c2caf3e1b1",
+  "approvalDigest": "3a8593059fb082daed16c995815ec0b1b442990e22c07a523c4b327c0aab8e64"
+}

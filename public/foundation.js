@@ -11216,12 +11216,13 @@ function renderFoundationSystemFullCard(system, context) {
   left.appendChild(title)
   var meta = document.createElement('div')
   meta.className = 'foundation-system-summary-meta'
-  meta.textContent = [system.systemId, system.maturityLevel, system.status].filter(Boolean).join(' · ')
+  meta.textContent = [system.serviceArea, system.systemId, system.maturityLevel, system.status].filter(Boolean).join(' · ')
   left.appendChild(meta)
   summary.appendChild(left)
 
   var tags = document.createElement('div')
   tags.className = 'source-card-tags foundation-system-summary-tags'
+  tags.appendChild(renderSourceTag(system.implementationState || 'partial', getFoundationSystemImplementationTone(system.implementationState)))
   tags.appendChild(renderSourceTag(system.maturityLabel || system.maturityLevel || 'Mapped', 'neutral'))
   tags.appendChild(renderSourceTag(system.status || 'Mapped', system.status === 'Not built' ? 'missing' : 'planned'))
   summary.appendChild(tags)
@@ -11237,10 +11238,15 @@ function renderFoundationSystemFullCard(system, context) {
 
   var statusGrid = document.createElement('div')
   statusGrid.className = 'foundation-system-status-grid'
+  statusGrid.appendChild(renderSourceMetaItem('Primary service area', system.serviceArea || 'Needs service area'))
   statusGrid.appendChild(renderSourceMetaItem('Current state', system.currentState || system.trustState || 'Not documented'))
   statusGrid.appendChild(renderSourceMetaItem('Next level plan', system.nextLevelPlan || 'Not documented'))
   statusGrid.appendChild(renderSourceMetaItem('Boundary', system.trustState || 'Not documented'))
   body.appendChild(statusGrid)
+
+  if (Array.isArray(system.secondaryServiceAreas) && system.secondaryServiceAreas.length) {
+    body.appendChild(renderSourceBulletGroup('Secondary service areas', system.secondaryServiceAreas))
+  }
 
   var sourceItems = (system.sourceIds || []).map(function(id) {
     var contract = sourceContractMap[id]
@@ -11272,6 +11278,105 @@ function renderFoundationSystemFullCard(system, context) {
   return details
 }
 
+function getFoundationSystemImplementationTone(state) {
+  if (state === 'live') return 'connected'
+  if (state === 'planned') return 'pending'
+  if (state === 'partial') return 'planned'
+  return 'missing'
+}
+
+function groupFoundationSystemsByServiceArea(systems, serviceAreas) {
+  var grouped = {}
+  ;(serviceAreas || []).forEach(function(area) {
+    grouped[area] = []
+  })
+
+  ;(systems || []).forEach(function(system) {
+    var area = system.serviceArea || 'Needs service area'
+    if (!grouped[area]) grouped[area] = []
+    grouped[area].push(system)
+  })
+
+  return grouped
+}
+
+function renderFoundationSystemsServiceAreaSummary(systems, serviceAreas) {
+  var panel = document.createElement('section')
+  panel.className = 'panel foundation-service-area-summary'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Business View'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Service areas'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Systems are grouped by the part of the business they serve first. Technical details stay inside each system card.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'foundation-service-area-summary-grid'
+  var grouped = groupFoundationSystemsByServiceArea(systems, serviceAreas)
+  ;(serviceAreas || []).forEach(function(area) {
+    var item = document.createElement('div')
+    item.className = 'foundation-service-area-summary-item'
+    var label = document.createElement('div')
+    label.className = 'foundation-service-area-summary-label'
+    label.textContent = area
+    item.appendChild(label)
+    var count = document.createElement('div')
+    count.className = 'foundation-service-area-summary-count'
+    var total = (grouped[area] || []).length
+    count.textContent = total + (total === 1 ? ' system' : ' systems')
+    item.appendChild(count)
+    grid.appendChild(item)
+  })
+  panel.appendChild(grid)
+  return panel
+}
+
+function renderFoundationSystemsServiceAreaGroup(area, systems, context) {
+  var group = document.createElement('section')
+  group.className = 'foundation-service-area-group'
+  group.setAttribute('data-service-area', area)
+
+  var header = document.createElement('div')
+  header.className = 'foundation-service-area-header'
+  var left = document.createElement('div')
+  var title = document.createElement('h4')
+  title.textContent = area
+  left.appendChild(title)
+  var detail = document.createElement('p')
+  detail.textContent = systems.length
+    ? systems.length + (systems.length === 1 ? ' mapped system' : ' mapped systems')
+    : 'No mapped systems yet.'
+  left.appendChild(detail)
+  header.appendChild(left)
+  group.appendChild(header)
+
+  var body = document.createElement('div')
+  body.className = 'foundation-service-area-systems'
+  if (!systems.length) {
+    var empty = document.createElement('p')
+    empty.className = 'foundation-system-empty'
+    empty.textContent = 'No mapped systems yet.'
+    body.appendChild(empty)
+  } else {
+    systems.forEach(function(system) {
+      body.appendChild(renderFoundationSystemFullCard(system, context))
+    })
+  }
+  group.appendChild(body)
+  return group
+}
+
 function renderFoundationSystems() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading systems.</p>'
@@ -11280,6 +11385,7 @@ function renderFoundationSystems() {
     var sourceData = results[0]
     var hub = results[1]
     var systems = sourceData.groupedSystems || []
+    var serviceAreas = sourceData.systemServiceAreas || []
     container.innerHTML = ''
 
     var hero = document.createElement('section')
@@ -11291,11 +11397,11 @@ function renderFoundationSystems() {
     heroInner.appendChild(heroTitle)
     var heroCopy = document.createElement('p')
     heroCopy.className = 'hero-copy'
-    heroCopy.textContent = 'Full map of the major systems that come together: purpose, maturity level, source contracts, connectors, runtime jobs, notes, backlog, and next-level plan.'
+    heroCopy.textContent = 'Business-first map of the systems that run the company: what each system is for, which service area owns it, what is partial, and which source-backed details prove it.'
     heroInner.appendChild(heroCopy)
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = systems.length + ' systems mapped · ' + (sourceData.sources || []).length + ' source contracts · ' + ((hub.foundationJobs && hub.foundationJobs.jobs) || []).length + ' runtime jobs'
+    heroMeta.textContent = systems.length + ' systems mapped · ' + serviceAreas.length + ' service areas · ' + (sourceData.sources || []).length + ' source contracts · ' + ((hub.foundationJobs && hub.foundationJobs.jobs) || []).length + ' runtime jobs'
     heroInner.appendChild(heroMeta)
     hero.appendChild(heroInner)
 
@@ -11323,6 +11429,7 @@ function renderFoundationSystems() {
       intro: 'Sources are the raw inputs. Systems are the operating bundles. Hubs use systems.',
     })
     if (statusPanel) container.appendChild(statusPanel)
+    container.appendChild(renderFoundationSystemsServiceAreaSummary(systems, serviceAreas))
 
     var sourceContractMap = buildByKey(sourceData.sources || [], 'sourceId')
     var connectorMap = buildByKey(sourceData.connectors || [], 'connectorId')
@@ -11342,24 +11449,25 @@ function renderFoundationSystems() {
     eyebrow.textContent = 'System Map'
     left.appendChild(eyebrow)
     var title = document.createElement('h3')
-    title.textContent = 'Major Foundation Systems'
+    title.textContent = 'Systems by service area'
     left.appendChild(title)
     var intro = document.createElement('p')
     intro.className = 'section-intro'
-    intro.textContent = 'Open a system to see the same kind of source-backed detail as the source pages: what it does, what feeds it, which jobs run it, what notes prove it, and what backlog cards move it forward.'
+    intro.textContent = 'Open a system to see business purpose first, then source contracts, connectors, runtime jobs, notes, backlog cards, and next-level plan.'
     left.appendChild(intro)
     header.appendChild(left)
     panel.appendChild(header)
 
     var stack = document.createElement('div')
-    stack.className = 'foundation-system-stack'
-    systems.forEach(function(system) {
-      stack.appendChild(renderFoundationSystemFullCard(system, {
-        sourceContractMap,
-        connectorMap,
-        backlogMap,
-        jobMap,
-        latestRunMap,
+    stack.className = 'foundation-service-area-stack'
+    var grouped = groupFoundationSystemsByServiceArea(systems, serviceAreas)
+    serviceAreas.forEach(function(area) {
+      stack.appendChild(renderFoundationSystemsServiceAreaGroup(area, grouped[area] || [], {
+        sourceContractMap: sourceContractMap,
+        connectorMap: connectorMap,
+        backlogMap: backlogMap,
+        jobMap: jobMap,
+        latestRunMap: latestRunMap,
       }))
     })
     panel.appendChild(stack)

@@ -1259,6 +1259,74 @@ body {
   gap: 12px;
 }
 
+.foundation-service-area-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.foundation-service-area-summary-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  padding: 12px;
+}
+
+.foundation-service-area-summary-label {
+  color: var(--text-primary);
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.foundation-service-area-summary-count {
+  color: var(--text-tertiary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-top: 4px;
+}
+
+.foundation-service-area-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.foundation-service-area-group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 14px;
+}
+
+.foundation-service-area-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.foundation-service-area-header h4 {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 1rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.foundation-service-area-header p {
+  margin: 4px 0 0;
+  color: var(--text-tertiary);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.foundation-service-area-systems {
+  display: grid;
+  gap: 10px;
+}
+
 .foundation-system-stack-item {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);

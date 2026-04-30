@@ -866,12 +866,12 @@ Current order:
    1. FOUNDATION-SYSTEMS-SERVICE-GROUPING-001
    2. AGENT-ONBOARDING-FEEDBACK-SYSTEM-001
    3. AGENT-FEEDBACK-SEND-001
+32. Foundation Systems service grouping: `FOUNDATION-SYSTEMS-SERVICE-GROUPING-001` is done for v1 under `foundation-systems-service-grouping-v1`. It groups the 12 existing `/api/source-of-truth` `groupedSystems` records by the 14 approved business/service areas on `/foundation#systems`, gives every system one valid primary `serviceArea`, keeps valid `secondaryServiceAreas`, labels partial/planned systems, shows empty groups as `No mapped systems yet.`, and keeps Sales and Recruiting separate with no combined bucket. This did not invent systems, send Gmail, write ClickUp Requested, build Agent Onboarding Feedback, build `AGENT-FEEDBACK-SEND-001`, or start Strategy, Scoper, Agent Factory, corpus/source expansion, research cleanup, or a new feature lane. Next expected card is `AGENT-ONBOARDING-FEEDBACK-SYSTEM-001`.
 
-Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff expansion, source build, or new feature lane starts by default. Phase 1 enforcement, the Foundation control layer, the Foundation 1100 Review Sprint, `PLAIN-ENGLISH-SWEEP-001`, `GATE-RELIABILITY-002`, `UI-MENU-LAYOUT-POLISH-001`, `GATE-RELIABILITY-003`, `RECENT-BUILDS-BILLION-DOLLAR-UI-001`, `CHANGE-LOG-COMPREHENSIVE-001`, `DAILY-EXEC-SUMMARY-001`, `SOURCE-LIFECYCLE-EXPANSION-001`, and `FOUNDATION-FOLLOWUP-CARD-CAPTURE-001` are now in place; stop for review before opening the next approved build in this order:
+Guardrail: no Strategy UI, Scoper, Agent Factory, corpus expansion, retry/backoff expansion, source build, or new feature lane starts by default. Phase 1 enforcement, the Foundation control layer, the Foundation 1100 Review Sprint, `PLAIN-ENGLISH-SWEEP-001`, `GATE-RELIABILITY-002`, `UI-MENU-LAYOUT-POLISH-001`, `GATE-RELIABILITY-003`, `RECENT-BUILDS-BILLION-DOLLAR-UI-001`, `CHANGE-LOG-COMPREHENSIVE-001`, `DAILY-EXEC-SUMMARY-001`, `SOURCE-LIFECYCLE-EXPANSION-001`, `FOUNDATION-FOLLOWUP-CARD-CAPTURE-001`, and `FOUNDATION-SYSTEMS-SERVICE-GROUPING-001` are now in place; stop for review before opening the next approved build in this order:
 
-1. FOUNDATION-SYSTEMS-SERVICE-GROUPING-001
-2. AGENT-ONBOARDING-FEEDBACK-SYSTEM-001
-3. AGENT-FEEDBACK-SEND-001
+1. AGENT-ONBOARDING-FEEDBACK-SYSTEM-001
+2. AGENT-FEEDBACK-SEND-001
 
 ## Active Docs Only
 

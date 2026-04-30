@@ -157,6 +157,7 @@ Current command order:
    1. FOUNDATION-SYSTEMS-SERVICE-GROUPING-001
    2. AGENT-ONBOARDING-FEEDBACK-SYSTEM-001
    3. AGENT-FEEDBACK-SEND-001
+24. `FOUNDATION-SYSTEMS-SERVICE-GROUPING-001` is done for v1 under `foundation-systems-service-grouping-v1`: `/foundation#systems` now groups the 12 existing source-backed grouped systems by 14 approved service areas from `/api/source-of-truth`, with valid primary `serviceArea`, valid `secondaryServiceAreas`, visible partial/planned labels, empty-group handling, and Sales/Recruiting kept separate. No fake systems, Gmail send, ClickUp Requested writeback, Agent Onboarding Feedback build, feedback-send build, Strategy, Scoper, Agent Factory, corpus/source expansion, research cleanup, or new feature lane happened. Next expected card is `AGENT-ONBOARDING-FEEDBACK-SYSTEM-001`.
 
 ## Operator Surface Pattern
 

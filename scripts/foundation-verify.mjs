@@ -108,6 +108,16 @@ import {
   FOUNDATION_SYSTEMS_SERVICE_GROUPS,
 } from '../lib/foundation-followup-card-capture.js'
 import {
+  buildFoundationSystemsServiceGroupingStatus,
+  FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH,
+  FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH,
+  FOUNDATION_SYSTEMS_SERVICE_GROUPING_BASELINE_PATH,
+  FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
+  FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY,
+  FOUNDATION_SYSTEMS_SERVICE_GROUPING_MANUAL_REVIEW_PATH,
+  FOUNDATION_SYSTEMS_SERVICE_GROUPING_NON_SCOPE_PHRASES,
+} from '../lib/foundation-systems-service-grouping.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -201,6 +211,10 @@ const SOURCE_LIFECYCLE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-FOLLOWUP-CARD-CAPTURE-001',
+]
+
+const FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-SYSTEMS-SERVICE-GROUPING-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -877,6 +891,7 @@ async function main() {
   const dailyExecSummaryApprovalRef = DAILY_EXEC_SUMMARY_APPROVAL_PATH
   const sourceLifecycleApprovalRef = SOURCE_LIFECYCLE_APPROVAL_PATH
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
+  const foundationSystemsServiceGroupingApprovalRef = FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -923,6 +938,11 @@ async function main() {
     approvalRef: foundationFollowupCardCaptureApprovalRef,
     cardId: FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
   })
+  const foundationSystemsServiceGroupingApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: foundationSystemsServiceGroupingApprovalRef,
+    cardId: FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -947,6 +967,7 @@ async function main() {
   const dailyExecSummaryApprovedPlan = await readRepoFile(DAILY_EXEC_SUMMARY_APPROVED_PLAN_PATH)
   const sourceLifecycleApprovedPlan = await readRepoFile(SOURCE_LIFECYCLE_APPROVED_PLAN_PATH)
   const foundationFollowupCardCaptureApprovedPlan = await readRepoFile(FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH)
+  const foundationSystemsServiceGroupingApprovedPlan = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -962,6 +983,8 @@ async function main() {
   const sourceLifecycleBaseline = await readRepoFile(SOURCE_LIFECYCLE_BASELINE_PATH)
   const sourceLifecycleManualReview = await readRepoFile(SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH)
   const foundationFollowupCardCaptureAudit = await readRepoFile(FOUNDATION_FOLLOWUP_CARD_CAPTURE_AUDIT_PATH)
+  const foundationSystemsServiceGroupingBaseline = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_BASELINE_PATH)
+  const foundationSystemsServiceGroupingManualReview = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_MANUAL_REVIEW_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2109,6 +2132,12 @@ async function main() {
     foundationHub,
     foundationBuildLog,
   })
+  const foundationSystemsServiceGroupingStatus = await buildFoundationSystemsServiceGroupingStatus({
+    repoRoot,
+    sourceOfTruth,
+    foundationHub,
+    foundationBuildLog,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -2899,6 +2928,10 @@ async function main() {
   const buildLogFoundationFollowupCardCaptureBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
       build.closeoutKey === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CLOSEOUT_KEY
+  )
+  const buildLogFoundationSystemsServiceGroupingBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) &&
+      build.closeoutKey === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -4037,6 +4070,7 @@ async function main() {
   const dailyExecSummary = (foundationHub.backlogItems || []).find(item => item.id === DAILY_EXEC_SUMMARY_CARD_ID) || null
   const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
+  const foundationSystemsServiceGrouping = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) || null
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
     (foundationHub.backlogItems || []).find(item => item.id === id) || null
   )
@@ -5804,12 +5838,19 @@ async function main() {
     ![...FOUNDATION_FOLLOWUP_BUILD_ORDER, 'PEOPLE-006'].some(id =>
       (buildLogFoundationFollowupCardCaptureBuild.backlogIds || []).includes(id)
     )
+  const foundationFollowupCardsHaveAllowedState = foundationFollowupCards.length === 3 &&
+    foundationFollowupCards.every(card => {
+      if (card?.id === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) {
+        return card?.lane === 'scoped' ||
+          (card?.lane === 'done' && /foundation-systems-service-grouping-v1/.test(card?.statusNote || ''))
+      }
+      return card?.lane === 'scoped'
+    })
   ensure(
     checks,
     foundationFollowupCardCapture?.lane === 'done' &&
       /foundation-followup-card-capture-v1/.test(foundationFollowupCardCapture?.statusNote || '') &&
-      foundationFollowupCards.length === 3 &&
-      foundationFollowupCards.every(card => card?.lane === 'scoped') &&
+      foundationFollowupCardsHaveAllowedState &&
       foundationFollowupCardCaptureApprovalValidation.ok &&
       foundationFollowupCardCaptureApprovalValidation.mode === 'v2' &&
       foundationFollowupCardCaptureApprovalValidation.approval?.approvedPlanRef === FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH &&
@@ -5845,6 +5886,75 @@ async function main() {
       currentState.includes('3. AGENT-FEEDBACK-SEND-001'),
     'FOUNDATION-FOLLOWUP-CARD-CAPTURE-001 captures missing follow-up cards without feature work',
     `scoped=${foundationFollowupCardCaptureStatus.summary?.scopedCardCount}/3 groups=${foundationFollowupCardCaptureStatus.summary?.requiredGroups} closeout=${buildLogFoundationFollowupCardCaptureBuild?.closeoutKey || 'missing'}`,
+  )
+  const foundationSystemsServiceGroupingBuildLogExact = buildLogFoundationSystemsServiceGroupingBuild?.backlogIds?.length === 1 &&
+    buildLogFoundationSystemsServiceGroupingBuild.backlogIds.includes(FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) &&
+    (buildLogFoundationSystemsServiceGroupingBuild.mentionedBacklogIds || []).includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001') &&
+    !(buildLogFoundationSystemsServiceGroupingBuild.backlogIds || []).includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001') &&
+    !(buildLogFoundationSystemsServiceGroupingBuild.backlogIds || []).includes('AGENT-FEEDBACK-SEND-001')
+  ensure(
+    checks,
+    foundationSystemsServiceGrouping?.lane === 'done' &&
+      /foundation-systems-service-grouping-v1/.test(foundationSystemsServiceGrouping?.statusNote || '') &&
+      foundationSystemsServiceGroupingApprovalValidation.ok &&
+      foundationSystemsServiceGroupingApprovalValidation.mode === 'v2' &&
+      foundationSystemsServiceGroupingApprovalValidation.approval?.approvedPlanRef === FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH &&
+      includesAll(foundationSystemsServiceGroupingApprovedPlan, [
+        FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
+        FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY,
+        ...FOUNDATION_SYSTEMS_SERVICE_GROUPS,
+        ...FOUNDATION_SYSTEMS_SERVICE_GROUPING_NON_SCOPE_PHRASES,
+        'No combined Sales/Recruiting bucket',
+        'Unclassified systems must fail the check',
+      ]) &&
+      includesAll(foundationSystemsServiceGroupingBaseline, [
+        'Baseline source: 137d428',
+        'Existing grouped systems: 12',
+        'Approved service groups: 14',
+      ]) &&
+      includesAll(foundationSystemsServiceGroupingManualReview, [
+        'Failures: 0',
+        'desktop 1440x900',
+        'mobile 390x844',
+        '/foundation#systems',
+        'no horizontal overflow',
+        'no overlapping text',
+        'service groups visible',
+        'system cards readable',
+        'technical metadata still reachable',
+      ]) &&
+      includesAll(foundationVerifySource, FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:foundation-systems-service-grouping-check"', 'scripts/process-foundation-systems-service-grouping-check.mjs']) &&
+      Array.isArray(sourceOfTruth.systemServiceAreas) &&
+      sourceOfTruth.systemServiceAreas.length === FOUNDATION_SYSTEMS_SERVICE_GROUPS.length &&
+      Array.isArray(sourceOfTruth.groupedSystems) &&
+      sourceOfTruth.groupedSystems.length === 12 &&
+      foundationSystemsServiceGroupingStatus.status === 'healthy' &&
+      foundationSystemsServiceGroupingStatus.summary?.approvedServiceGroupCount === FOUNDATION_SYSTEMS_SERVICE_GROUPS.length &&
+      foundationSystemsServiceGroupingStatus.summary?.groupedSystemCount === 12 &&
+      foundationSystemsServiceGroupingStatus.summary?.primaryAssignedCount === 12 &&
+      foundationSystemsServiceGroupingStatus.summary?.invalidSystemCount === 0 &&
+      foundationSystemsServiceGroupingStatus.summary?.salesRecruitingSeparated === true &&
+      foundationSystemsServiceGroupingStatus.summary?.closeoutOwnsOnlyGrouping === true &&
+      includesAll(sourceContractsSource, ['FOUNDATION_SYSTEM_SERVICE_AREAS', 'serviceArea', 'secondaryServiceAreas']) &&
+      includesAll(foundationUiSource, [
+        'renderFoundationSystemsServiceAreaSummary',
+        'renderFoundationSystemsServiceAreaGroup',
+        'No mapped systems yet.',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.foundation-service-area-summary-grid',
+        '.foundation-service-area-stack',
+        '.foundation-service-area-group',
+      ]) &&
+      buildLogFoundationSystemsServiceGroupingBuild?.operatorCloseout === true &&
+      foundationSystemsServiceGroupingBuildLogExact &&
+      currentPlan.includes('FOUNDATION-SYSTEMS-SERVICE-GROUPING-001` is done for v1') &&
+      currentPlan.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001') &&
+      currentState.includes('FOUNDATION-SYSTEMS-SERVICE-GROUPING-001` is done for v1') &&
+      currentState.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001'),
+    'FOUNDATION-SYSTEMS-SERVICE-GROUPING-001 groups Systems by service area only',
+    `systems=${foundationSystemsServiceGroupingStatus.summary?.groupedSystemCount}/12 groups=${foundationSystemsServiceGroupingStatus.summary?.approvedServiceGroupCount}/${FOUNDATION_SYSTEMS_SERVICE_GROUPS.length} closeout=${buildLogFoundationSystemsServiceGroupingBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

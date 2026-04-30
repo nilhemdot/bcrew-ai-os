@@ -116,7 +116,7 @@ import {
   resolveFubContext,
 } from './lib/fub.js'
 import { getDriveFileMetadata, getGoogleSheetsCacheStats, getSheetValues } from './lib/google-delegated.js'
-import { getGroupedSourceSystems, getSourceContracts, getSourceContractsByIds, getSourceConnectors } from './lib/source-contracts.js'
+import { getGroupedSourceSystems, getSourceContracts, getSourceContractsByIds, getSourceConnectors, getSystemServiceAreas } from './lib/source-contracts.js'
 import { getFoundationJobDefinitions } from './lib/foundation-jobs.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
@@ -3466,6 +3466,7 @@ app.get('/api/source-of-truth', requireAdminToken, async (_req, res) => {
   const sourceContracts = getSourceContracts()
   const sourceConnectors = getSourceConnectors()
   const groupedSourceSystems = getGroupedSourceSystems()
+  const systemServiceAreas = getSystemServiceAreas()
   const signedOffSourceCount = sourceContracts.filter(source => source.validation === 'Signed Off').length
   const readableSourceCount = sourceContracts.filter(source =>
     source.validation === 'Readable Only' || source.status === 'Verified Readable'
@@ -3488,6 +3489,7 @@ app.get('/api/source-of-truth', requireAdminToken, async (_req, res) => {
     sources: sourceContracts,
     connectors: sourceConnectors,
     groupedSystems: groupedSourceSystems,
+    systemServiceAreas,
     kpiHealth,
     systemStatus: [
       {
