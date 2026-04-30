@@ -1,0 +1,13 @@
+{
+  "cardId": "AGENT-ONBOARDING-FEEDBACK-SYSTEM-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T00:00:00.000Z",
+  "approvalSource": "Steve gave GREEN LIGHT to build AGENT-ONBOARDING-FEEDBACK-SYSTEM-001 with auditor hard gates for partial implementation state, 12 to 13 groupedSystems count, clean empty-group audit ownership, and metadata-only privacy proof.",
+  "notes": "Build only the Agent Onboarding Feedback system visibility/control card. No Gmail send, no ClickUp Requested writeback, no Georgia survey, no production email path, no AGENT-FEEDBACK-SEND-001 build, and FOUNDATION-SYSTEMS-EMPTY-GROUP-AUDIT-001 stays context/mentioned only.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/agent-onboarding-feedback-system-v1.md",
+  "approvedPlanSha256": "669e6ec7ad8eafd31feabff8cdad9abfcbc9c8fc82beeb8633e22e64c811168d",
+  "approvedRepoHead": "14601907e6d958c42eb6f04d8964b802bb097744",
+  "approvalDigest": "ccd35401bdd8992d9afa5ef78a7ce30dec22f6af54f3b386a3736fa4f088ebed"
+}

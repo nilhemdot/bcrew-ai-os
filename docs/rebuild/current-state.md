@@ -158,6 +158,7 @@ Current command order:
    2. AGENT-ONBOARDING-FEEDBACK-SYSTEM-001
    3. AGENT-FEEDBACK-SEND-001
 24. `FOUNDATION-SYSTEMS-SERVICE-GROUPING-001` is done for v1 under `foundation-systems-service-grouping-v1`: `/foundation#systems` now groups the 12 existing source-backed grouped systems by 14 approved service areas from `/api/source-of-truth`, with valid primary `serviceArea`, valid `secondaryServiceAreas`, visible partial/planned labels, empty-group handling, and Sales/Recruiting kept separate. No fake systems, Gmail send, ClickUp Requested writeback, Agent Onboarding Feedback build, feedback-send build, Strategy, Scoper, Agent Factory, corpus/source expansion, research cleanup, or new feature lane happened. Next expected card is `AGENT-ONBOARDING-FEEDBACK-SYSTEM-001`.
+25. `AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1 under `agent-onboarding-feedback-system-v1`: `/api/source-of-truth` now exposes `SYS-AGENT-ONBOARDING-FEEDBACK-001` as the 13th grouped system while preserving the existing 12. The system is mapped to `Agent Onboarding`, marked partial until `AGENT-FEEDBACK-SEND-001` ships, and connects the ClickUp Agent Roster source of truth, Real Start Date + 30/60/90 trigger, Agent Roster / Ops review queue, `/agent-feedback` private-token form, `agent_onboarding_feedback_responses`, Onboarding NPS 30/60/90 Status/Score/Feedback writeback fields, statuses, blockers, proof surfaces, and privacy boundary. Georgia/Chris proof is metadata-only. `FOUNDATION-SYSTEMS-EMPTY-GROUP-AUDIT-001` is created/scoped as context only, `AGENT-FEEDBACK-SEND-001` remains scoped, and no Gmail send, ClickUp Requested writeback, Georgia survey, production email path, broad Systems regrouping, or private feedback/token/email leakage happened.
 
 ## Operator Surface Pattern
 
@@ -190,7 +191,7 @@ These pages are visibility surfaces. They do not replace the live Backlog, Found
 
 | Page | Why it exists | Current truth |
 | --- | --- | --- |
-| Data Sources Overview | Front door to the source layer. | Live from `/api/source-of-truth`: grouped systems, source contracts, validation units, connector paths, and source-trust states. |
+| Data Sources Overview | Front door to the source layer. | Live from `/api/source-of-truth`: 13 grouped systems, source contracts, validation units, connector paths, and source-trust states. `SYS-AGENT-ONBOARDING-FEEDBACK-001` is visible as a partial Agent Onboarding system; the production send path is still separate. |
 | Docs | Doc-backed source contracts only. | Useful for seeing written packets and file-backed truth units. It is not the same thing as All Docs storage inventory. |
 | Spreadsheets | Workbook/tab/range source contracts. | Useful for sheet-by-sheet trust. Connector access is separated from which sheet units are actually signed off. |
 | APIs / Apps | External app, API, database, and Workspace source contracts. | Useful for FUB, KPI, ClickUp, Gmail, Missive, Slack, meetings, Drive, video, and marketing source boundaries. API reach does not equal trust. The KPI / Supabase Health panel lives here as the primary KPI freshness/schema surface. |
@@ -199,7 +200,7 @@ These pages are visibility surfaces. They do not replace the live Backlog, Found
 | All Docs | File-level repo and local-private markdown inventory. | Live from `/api/system-inventory`; shows tracked docs and intentionally private local docs. It is storage inventory, not active doctrine. |
 | Skills | Local skill inventory. | Shows reusable assistant instructions available in this runtime. Skills are not business agents or source contracts. |
 | Plugins / MCPs | Local plugin and MCP inventory. | Shows runtime capabilities such as Google Drive, Gmail, Calendar, GitHub, and Canva. Installed plugin does not mean the matching source is signed off. |
-| Agents | Agent-system boundary view. | Backed by `SYS-AGENTS-001` plus backlog links, but not a live Agent Registry yet. `AGENT-006` owns registry, `AGENT-007` owns operations, and `AGENT-010` owns personal-agent onboarding. |
+| Agents | Agent-system boundary view. | Backed by `SYS-AGENTS-001` plus backlog links, but not a live Agent Registry yet. `AGENT-006` owns registry, `AGENT-007` owns operations, and `AGENT-010` owns personal-agent onboarding. Agent Onboarding Feedback is now a separate partial Systems record under Agent Onboarding, not a production send path. |
 
 ## Active Plan Docs
 

@@ -109,6 +109,8 @@ import {
 } from '../lib/foundation-followup-card-capture.js'
 import {
   buildFoundationSystemsServiceGroupingStatus,
+  FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT,
+  FOUNDATION_SYSTEMS_BASELINE_GROUPED_SYSTEM_COUNT,
   FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH,
   FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH,
   FOUNDATION_SYSTEMS_SERVICE_GROUPING_BASELINE_PATH,
@@ -117,6 +119,19 @@ import {
   FOUNDATION_SYSTEMS_SERVICE_GROUPING_MANUAL_REVIEW_PATH,
   FOUNDATION_SYSTEMS_SERVICE_GROUPING_NON_SCOPE_PHRASES,
 } from '../lib/foundation-systems-service-grouping.js'
+import {
+  AGENT_FEEDBACK_SEND_CARD_ID,
+  AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVAL_PATH,
+  AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVED_PLAN_PATH,
+  AGENT_ONBOARDING_FEEDBACK_SYSTEM_BASELINE_PATH,
+  AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
+  AGENT_ONBOARDING_FEEDBACK_SYSTEM_CLOSEOUT_KEY,
+  AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID,
+  AGENT_ONBOARDING_FEEDBACK_SYSTEM_HARD_BOUNDARIES,
+  AGENT_ONBOARDING_FEEDBACK_SYSTEM_MANUAL_REVIEW_PATH,
+  AGENT_ONBOARDING_FEEDBACK_SYSTEM_REQUIRED_CONTEXT,
+  buildAgentOnboardingFeedbackSystemStatus,
+} from '../lib/agent-onboarding-feedback-system.js'
 import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
@@ -215,6 +230,10 @@ const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-SYSTEMS-SERVICE-GROUPING-001',
+]
+
+const AGENT_ONBOARDING_FEEDBACK_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -892,6 +911,7 @@ async function main() {
   const sourceLifecycleApprovalRef = SOURCE_LIFECYCLE_APPROVAL_PATH
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
   const foundationSystemsServiceGroupingApprovalRef = FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH
+  const agentOnboardingFeedbackSystemApprovalRef = AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -943,6 +963,11 @@ async function main() {
     approvalRef: foundationSystemsServiceGroupingApprovalRef,
     cardId: FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
   })
+  const agentOnboardingFeedbackSystemApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: agentOnboardingFeedbackSystemApprovalRef,
+    cardId: AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -968,6 +993,7 @@ async function main() {
   const sourceLifecycleApprovedPlan = await readRepoFile(SOURCE_LIFECYCLE_APPROVED_PLAN_PATH)
   const foundationFollowupCardCaptureApprovedPlan = await readRepoFile(FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH)
   const foundationSystemsServiceGroupingApprovedPlan = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH)
+  const agentOnboardingFeedbackSystemApprovedPlan = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -985,6 +1011,8 @@ async function main() {
   const foundationFollowupCardCaptureAudit = await readRepoFile(FOUNDATION_FOLLOWUP_CARD_CAPTURE_AUDIT_PATH)
   const foundationSystemsServiceGroupingBaseline = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_BASELINE_PATH)
   const foundationSystemsServiceGroupingManualReview = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_MANUAL_REVIEW_PATH)
+  const agentOnboardingFeedbackSystemBaseline = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_BASELINE_PATH)
+  const agentOnboardingFeedbackSystemManualReview = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_MANUAL_REVIEW_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2138,6 +2166,14 @@ async function main() {
     foundationHub,
     foundationBuildLog,
   })
+  const agentOnboardingFeedbackSystemStatus = await buildAgentOnboardingFeedbackSystemStatus({
+    repoRoot,
+    sourceOfTruth,
+    foundationHub,
+    foundationBuildLog,
+    ownersReviewQueue,
+    opsHub,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -2932,6 +2968,10 @@ async function main() {
   const buildLogFoundationSystemsServiceGroupingBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) &&
       build.closeoutKey === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY
+  )
+  const buildLogAgentOnboardingFeedbackSystemBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) &&
+      build.closeoutKey === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -4071,6 +4111,9 @@ async function main() {
   const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
   const foundationSystemsServiceGrouping = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) || null
+  const agentOnboardingFeedbackSystem = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) || null
+  const agentFeedbackSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_CARD_ID) || null
+  const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
     (foundationHub.backlogItems || []).find(item => item.id === id) || null
   )
@@ -5844,6 +5887,10 @@ async function main() {
         return card?.lane === 'scoped' ||
           (card?.lane === 'done' && /foundation-systems-service-grouping-v1/.test(card?.statusNote || ''))
       }
+      if (card?.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) {
+        return card?.lane === 'scoped' ||
+          (card?.lane === 'done' && /agent-onboarding-feedback-system-v1/.test(card?.statusNote || ''))
+      }
       return card?.lane === 'scoped'
     })
   ensure(
@@ -5928,11 +5975,11 @@ async function main() {
       Array.isArray(sourceOfTruth.systemServiceAreas) &&
       sourceOfTruth.systemServiceAreas.length === FOUNDATION_SYSTEMS_SERVICE_GROUPS.length &&
       Array.isArray(sourceOfTruth.groupedSystems) &&
-      sourceOfTruth.groupedSystems.length === 12 &&
+      sourceOfTruth.groupedSystems.length === FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT &&
       foundationSystemsServiceGroupingStatus.status === 'healthy' &&
       foundationSystemsServiceGroupingStatus.summary?.approvedServiceGroupCount === FOUNDATION_SYSTEMS_SERVICE_GROUPS.length &&
-      foundationSystemsServiceGroupingStatus.summary?.groupedSystemCount === 12 &&
-      foundationSystemsServiceGroupingStatus.summary?.primaryAssignedCount === 12 &&
+      foundationSystemsServiceGroupingStatus.summary?.groupedSystemCount === FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT &&
+      foundationSystemsServiceGroupingStatus.summary?.primaryAssignedCount === FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT &&
       foundationSystemsServiceGroupingStatus.summary?.invalidSystemCount === 0 &&
       foundationSystemsServiceGroupingStatus.summary?.salesRecruitingSeparated === true &&
       foundationSystemsServiceGroupingStatus.summary?.closeoutOwnsOnlyGrouping === true &&
@@ -5954,7 +6001,79 @@ async function main() {
       currentState.includes('FOUNDATION-SYSTEMS-SERVICE-GROUPING-001` is done for v1') &&
       currentState.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001'),
     'FOUNDATION-SYSTEMS-SERVICE-GROUPING-001 groups Systems by service area only',
-    `systems=${foundationSystemsServiceGroupingStatus.summary?.groupedSystemCount}/12 groups=${foundationSystemsServiceGroupingStatus.summary?.approvedServiceGroupCount}/${FOUNDATION_SYSTEMS_SERVICE_GROUPS.length} closeout=${buildLogFoundationSystemsServiceGroupingBuild?.closeoutKey || 'missing'}`,
+    `systems=${foundationSystemsServiceGroupingStatus.summary?.groupedSystemCount}/${FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT} groups=${foundationSystemsServiceGroupingStatus.summary?.approvedServiceGroupCount}/${FOUNDATION_SYSTEMS_SERVICE_GROUPS.length} closeout=${buildLogFoundationSystemsServiceGroupingBuild?.closeoutKey || 'missing'}`,
+  )
+  const agentOnboardingFeedbackSystemBuildLogExact = buildLogAgentOnboardingFeedbackSystemBuild?.backlogIds?.length === 1 &&
+    buildLogAgentOnboardingFeedbackSystemBuild.backlogIds.includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) &&
+    (buildLogAgentOnboardingFeedbackSystemBuild.mentionedBacklogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) &&
+    (buildLogAgentOnboardingFeedbackSystemBuild.mentionedBacklogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID) &&
+    !(buildLogAgentOnboardingFeedbackSystemBuild.backlogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) &&
+    !(buildLogAgentOnboardingFeedbackSystemBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID)
+  ensure(
+    checks,
+    agentOnboardingFeedbackSystem?.lane === 'done' &&
+      /agent-onboarding-feedback-system-v1/.test(agentOnboardingFeedbackSystem?.statusNote || '') &&
+      agentFeedbackSend?.lane === 'scoped' &&
+      foundationSystemsEmptyGroupAudit?.lane === 'scoped' &&
+      agentOnboardingFeedbackSystemApprovalValidation.ok &&
+      agentOnboardingFeedbackSystemApprovalValidation.mode === 'v2' &&
+      agentOnboardingFeedbackSystemApprovalValidation.approval?.approvedPlanRef === AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVED_PLAN_PATH &&
+      includesAll(agentOnboardingFeedbackSystemApprovedPlan, [
+        AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
+        AGENT_ONBOARDING_FEEDBACK_SYSTEM_CLOSEOUT_KEY,
+        'SYS-AGENT-ONBOARDING-FEEDBACK-001',
+        'implementationState: partial',
+        'Before: 12 grouped systems',
+        'After: 13 grouped systems',
+        AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID,
+        ...AGENT_ONBOARDING_FEEDBACK_SYSTEM_REQUIRED_CONTEXT,
+        ...AGENT_ONBOARDING_FEEDBACK_SYSTEM_HARD_BOUNDARIES,
+      ]) &&
+      includesAll(agentOnboardingFeedbackSystemBaseline, [
+        'Baseline source: 1460190',
+        'Grouped systems before: 12',
+        'Agent Onboarding empty before build: yes',
+        'FOUNDATION-SYSTEMS-EMPTY-GROUP-AUDIT-001: missing',
+        'Georgia metadata proof: due, day 30, due date 2026-04-28',
+        'Chris metadata proof: no due item surfaced',
+        'No private feedback tokens, feedback content, or personal email addresses recorded',
+      ]) &&
+      includesAll(agentOnboardingFeedbackSystemManualReview, [
+        'Failures: 0',
+        'desktop 1440x900',
+        'mobile 390x844',
+        '/foundation#systems',
+        '/ops',
+        'Agent Onboarding group non-empty',
+        'implementationState partial',
+        'no horizontal overflow',
+        'no overlapping text',
+      ]) &&
+      includesAll(foundationVerifySource, AGENT_ONBOARDING_FEEDBACK_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:agent-onboarding-feedback-system-check"', 'scripts/process-agent-onboarding-feedback-system-check.mjs']) &&
+      agentOnboardingFeedbackSystemStatus.status === 'healthy' &&
+      agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountBefore === FOUNDATION_SYSTEMS_BASELINE_GROUPED_SYSTEM_COUNT &&
+      agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountAfter === FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT &&
+      agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCount === FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT &&
+      agentOnboardingFeedbackSystemStatus.summary?.baselinePreservedCount === FOUNDATION_SYSTEMS_BASELINE_GROUPED_SYSTEM_COUNT &&
+      agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingSystemCount === 1 &&
+      agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingGroupCount >= 1 &&
+      agentOnboardingFeedbackSystemStatus.summary?.implementationState === 'partial' &&
+      agentOnboardingFeedbackSystemStatus.summary?.sendCardLane === 'scoped' &&
+      agentOnboardingFeedbackSystemStatus.summary?.emptyAuditLane === 'scoped' &&
+      agentOnboardingFeedbackSystemStatus.summary?.georgiaDue === true &&
+      agentOnboardingFeedbackSystemStatus.summary?.chrisNotDue === true &&
+      agentOnboardingFeedbackSystemStatus.summary?.privacyMetadataOnly === true &&
+      agentOnboardingFeedbackSystemStatus.summary?.closeoutOwnsOnlyAgentOnboarding === true &&
+      buildLogAgentOnboardingFeedbackSystemBuild?.operatorCloseout === true &&
+      agentOnboardingFeedbackSystemBuildLogExact &&
+      currentPlan.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1') &&
+      currentPlan.includes('SYS-AGENT-ONBOARDING-FEEDBACK-001') &&
+      currentPlan.includes('FOUNDATION-SYSTEMS-EMPTY-GROUP-AUDIT-001') &&
+      currentState.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1') &&
+      currentState.includes('SYS-AGENT-ONBOARDING-FEEDBACK-001'),
+    'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001 exposes partial Agent Onboarding Feedback system without send work',
+    `systems=${agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountBefore}->${agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCount} agentGroup=${agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingGroupCount} closeout=${buildLogAgentOnboardingFeedbackSystemBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

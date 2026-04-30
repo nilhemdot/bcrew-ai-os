@@ -44,7 +44,7 @@ async function main() {
   console.log(`  Closeout: ${FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY}`)
   console.log(`  Base URL: ${baseUrl}`)
   console.log(`  Status: ${status.status}`)
-  console.log(`  Existing systems: ${status.summary.groupedSystemCount}`)
+  console.log(`  Approved grouped systems: ${status.summary.groupedSystemCount}`)
   console.log(`  Approved service groups: ${status.summary.approvedServiceGroupCount}`)
   console.log(`  Primary assigned: ${status.summary.primaryAssignedCount}`)
   console.log(`  Invalid systems: ${status.summary.invalidSystemCount}`)
