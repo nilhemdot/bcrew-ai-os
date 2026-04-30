@@ -1,0 +1,13 @@
+{
+  "cardId": "AGENT-FEEDBACK-SEND-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-04-30T00:00:00.000Z",
+  "approvalSource": "Steve approved Stage 1 only for AGENT-FEEDBACK-SEND-001 at 9.8: eligibility, dry-run, duplicate protection, Gmail send path wiring, Requested writeback sequencing, privacy checks, verifier coverage, and Georgia metadata-only dry-run proof.",
+  "notes": "No Gmail send, no ClickUp Requested writeback, no Georgia survey, and no Stage 2 execution. Real send requires Steve exact SEND APPROVED naming Georgia, milestone/day, recipient rule, CC roles, and one-send limit.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/agent-feedback-send-v1.md",
+  "approvedPlanSha256": "906bad24180a3334c97f2f9ae3fbcb742e65ab797c43aa3992750c75dbccf7f6",
+  "approvedRepoHead": "6ac02da46ac8669dd82a9645a575b0bee3ff61a5",
+  "approvalDigest": "e5be9129a97912998c42b86eb46d335af01c9aa2d9669be621a8909338d86158"
+}

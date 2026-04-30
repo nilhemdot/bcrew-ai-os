@@ -86,6 +86,7 @@
     "process:foundation-followup-card-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-followup-card-capture-check.mjs",
     "process:foundation-systems-service-grouping-check": "node --env-file-if-exists=.env scripts/process-foundation-systems-service-grouping-check.mjs",
     "process:agent-onboarding-feedback-system-check": "node --env-file-if-exists=.env scripts/process-agent-onboarding-feedback-system-check.mjs",
+    "process:agent-feedback-send-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-send-check.mjs",
     "process:personal-workspace-boundary-check": "node --env-file-if-exists=.env scripts/process-personal-workspace-boundary-check.mjs",
     "process:install-hooks": "node --env-file-if-exists=.env scripts/install-git-hooks.mjs",
     "process:git-hook-check": "node --env-file-if-exists=.env scripts/process-git-hook-check.mjs",
