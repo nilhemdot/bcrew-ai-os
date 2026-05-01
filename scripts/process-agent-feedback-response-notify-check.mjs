@@ -35,7 +35,7 @@ async function main() {
   ])
   const [foundationHub, foundationBuildLog] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation-hub'),
-    fetchJson(baseUrl, '/api/foundation/build-log?limit=5'),
+    fetchJson(baseUrl, '/api/foundation/build-log?limit=80'),
   ])
   const status = await buildAgentFeedbackResponseNotifyStatus({
     repoRoot: process.cwd(),

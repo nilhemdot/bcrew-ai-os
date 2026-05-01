@@ -34,7 +34,7 @@ async function main() {
     opsHub,
   ] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation-hub'),
-    fetchJson(baseUrl, '/api/foundation/build-log?limit=5'),
+    fetchJson(baseUrl, '/api/foundation/build-log?limit=80'),
     fetchJson(baseUrl, '/api/ops-hub'),
   ])
   const status = await buildAgentFeedbackAutoSendStatus({

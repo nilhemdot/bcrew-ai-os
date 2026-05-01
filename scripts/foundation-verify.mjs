@@ -159,6 +159,15 @@ import {
   buildAgentFeedbackResponseNotifyStatus,
 } from '../lib/agent-feedback-response-notify.js'
 import {
+  AGENT_FEEDBACK_REMINDER_APPROVAL_PATH,
+  AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH,
+  AGENT_FEEDBACK_REMINDER_CARD_ID,
+  AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_REMINDER_JOB_KEY,
+  AGENT_FEEDBACK_REMINDER_PROOF_PATH,
+  buildAgentFeedbackReminderStatus,
+} from '../lib/agent-feedback-reminders.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -272,6 +281,10 @@ const AGENT_FEEDBACK_AUTO_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const AGENT_FEEDBACK_RESPONSE_NOTIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'AGENT-FEEDBACK-RESPONSE-NOTIFY-001',
+]
+
+const AGENT_FEEDBACK_REMINDER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'AGENT-FEEDBACK-REMINDER-CADENCE-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -807,6 +820,7 @@ async function main() {
   const agentFeedbackSendSource = await readRepoFile('lib/agent-feedback-send.js')
   const agentFeedbackAutoSendSource = await readRepoFile('lib/agent-feedback-auto-send.js')
   const agentFeedbackResponseNotifySource = await readRepoFile('lib/agent-feedback-response-notify.js')
+  const agentFeedbackReminderSource = await readRepoFile('lib/agent-feedback-reminders.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
@@ -956,6 +970,7 @@ async function main() {
   const agentFeedbackSendApprovalRef = AGENT_FEEDBACK_SEND_APPROVAL_PATH
   const agentFeedbackAutoSendApprovalRef = AGENT_FEEDBACK_AUTO_SEND_APPROVAL_PATH
   const agentFeedbackResponseNotifyApprovalRef = AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVAL_PATH
+  const agentFeedbackReminderApprovalRef = AGENT_FEEDBACK_REMINDER_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -1027,6 +1042,11 @@ async function main() {
     approvalRef: agentFeedbackResponseNotifyApprovalRef,
     cardId: AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
   })
+  const agentFeedbackReminderApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: agentFeedbackReminderApprovalRef,
+    cardId: AGENT_FEEDBACK_REMINDER_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -1056,6 +1076,7 @@ async function main() {
   const agentFeedbackSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_SEND_APPROVED_PLAN_PATH)
   const agentFeedbackAutoSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH)
   const agentFeedbackResponseNotifyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH)
+  const agentFeedbackReminderApprovedPlan = await readRepoFile(AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -1079,6 +1100,7 @@ async function main() {
   const agentFeedbackSendDryRunProof = await readRepoFile(AGENT_FEEDBACK_SEND_DRY_RUN_PROOF_PATH)
   const agentFeedbackAutoSendReadinessProof = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH)
   const agentFeedbackResponseNotifyProof = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_PROOF_PATH)
+  const agentFeedbackReminderProof = await readRepoFile(AGENT_FEEDBACK_REMINDER_PROOF_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2257,6 +2279,12 @@ async function main() {
     foundationHub,
     foundationBuildLog,
   })
+  const agentFeedbackReminderStatus = await buildAgentFeedbackReminderStatus({
+    repoRoot,
+    foundationHub,
+    foundationBuildLog,
+    opsHub,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3067,6 +3095,10 @@ async function main() {
   const buildLogAgentFeedbackResponseNotifyBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY
+  )
+  const buildLogAgentFeedbackReminderBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AGENT_FEEDBACK_REMINDER_CARD_ID) &&
+      build.closeoutKey === AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -4210,6 +4242,7 @@ async function main() {
   const agentFeedbackSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_CARD_ID) || null
   const agentFeedbackAutoSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_AUTO_SEND_CARD_ID) || null
   const agentFeedbackResponseNotify = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID) || null
+  const agentFeedbackReminder = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REMINDER_CARD_ID) || null
   const agentFeedbackGeorgiaSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) || null
   const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
@@ -6176,7 +6209,7 @@ async function main() {
       currentPlan.includes('FOUNDATION-SYSTEMS-EMPTY-GROUP-AUDIT-001') &&
       currentState.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1') &&
       currentState.includes('SYS-AGENT-ONBOARDING-FEEDBACK-001'),
-    'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001 exposes partial Agent Onboarding Feedback system without send work',
+    'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001 exposes partial Agent Onboarding Feedback system with clean ownership',
     `systems=${agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountBefore}->${agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCount} agentGroup=${agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingGroupCount} closeout=${buildLogAgentOnboardingFeedbackSystemBuild?.closeoutKey || 'missing'}`,
   )
   const agentFeedbackSendBuildLogExact = buildLogAgentFeedbackSendBuild?.backlogIds?.length === 1 &&
@@ -6433,6 +6466,92 @@ async function main() {
       currentState.includes('Georgia live-send remains paused'),
     'AGENT-FEEDBACK-RESPONSE-NOTIFY-001 sends internal response notifications after saved feedback',
     `roles=${agentFeedbackResponseNotifyStatus.summary?.recipientRoles?.join(',') || 'missing'} repair=${agentFeedbackResponseNotifyStatus.summary?.clickUpRepairProof || 'missing'} closeout=${buildLogAgentFeedbackResponseNotifyBuild?.closeoutKey || 'missing'}`,
+  )
+  const agentFeedbackReminderBuildLogExact = buildLogAgentFeedbackReminderBuild?.backlogIds?.length === 1 &&
+    buildLogAgentFeedbackReminderBuild.backlogIds.includes(AGENT_FEEDBACK_REMINDER_CARD_ID) &&
+    (buildLogAgentFeedbackReminderBuild.mentionedBacklogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) &&
+    !(buildLogAgentFeedbackReminderBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) &&
+    !(buildLogAgentFeedbackReminderBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID) &&
+    !(buildLogAgentFeedbackReminderBuild.backlogIds || []).includes(AGENT_FEEDBACK_AUTO_SEND_CARD_ID) &&
+    !(buildLogAgentFeedbackReminderBuild.backlogIds || []).includes(AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID)
+  ensure(
+    checks,
+    agentFeedbackReminder?.lane === 'done' &&
+      /agent-feedback-reminder-cadence-v1/.test(agentFeedbackReminder?.statusNote || '') &&
+      agentFeedbackGeorgiaSend?.lane === 'scoped' &&
+      agentFeedbackReminderApprovalValidation.ok &&
+      agentFeedbackReminderApprovalValidation.mode === 'v2' &&
+      agentFeedbackReminderApprovalValidation.approval?.approvedPlanRef === AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH &&
+      includesAll(agentFeedbackReminderApprovedPlan, [
+        AGENT_FEEDBACK_REMINDER_CARD_ID,
+        AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY,
+        'reminder cadence readiness only',
+        'Do not send reminders live',
+        'Do not write ClickUp Requested',
+        'Day 1 after successful initial request',
+        '6 reminders, or',
+        '30 days after initial request',
+        'roles/hashes only',
+      ]) &&
+      includesAll(agentFeedbackReminderProof, [
+        AGENT_FEEDBACK_REMINDER_CARD_ID,
+        'successful initial Requested send creates pending reminder slots',
+        'no successful initial request blocks reminder',
+        'completed feedback stops reminder',
+        'duplicate slot is protected',
+        'No live reminder',
+        'no raw email addresses',
+      ]) &&
+      includesAll(foundationVerifySource, AGENT_FEEDBACK_REMINDER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"agent-feedback:reminders"', '"process:agent-feedback-reminder-cadence-check"']) &&
+      includesAll(agentFeedbackReminderSource, [
+        'AGENT_FEEDBACK_REMINDER_OFFSETS_DAYS',
+        '[1, 3, 7, 10, 14, 17]',
+        'AGENT_FEEDBACK_REMINDER_MAX_COUNT = 6',
+        'AGENT_FEEDBACK_REMINDER_MAX_AGE_DAYS = 30',
+        'no_successful_initial_request',
+        'duplicateSlotProtected',
+        'dry-run-report-only',
+      ]) &&
+      includesAll(agentFeedbackEmailSource, ['buildAgentFeedbackReminderEmail', 'Onboarding feedback reminder']) &&
+      includesAll(foundationDbSource, [
+        'agent_onboarding_feedback_reminder_attempts',
+        'idx_agent_feedback_reminder_slot_once',
+        'listAgentFeedbackReminderAttemptsForMilestone',
+        'getAgentOnboardingFeedbackResponseForMilestone',
+      ]) &&
+      includesAll(foundationJobsSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'agent-feedback:reminders', '--mode=dry-run']) &&
+      includesAll(serverSource, ['buildAgentFeedbackReminderReadiness', 'agentFeedbackReminders']) &&
+      includesAll(foundationUiSource, ['renderAgentFeedbackReminderPanel', 'agentFeedbackReminders']) &&
+      includesAll(opsUiSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'reminder cadence']) &&
+      agentFeedbackReminderStatus.status === 'healthy' &&
+      agentFeedbackReminderStatus.summary?.noReminderBeforeInitialRequest === true &&
+      agentFeedbackReminderStatus.summary?.completedSkippedBlockedStop === true &&
+      agentFeedbackReminderStatus.summary?.duplicateSlotProtected === true &&
+      agentFeedbackReminderStatus.summary?.capStopsAtSixOrThirtyDays === true &&
+      agentFeedbackReminderStatus.summary?.dryRunOnly === true &&
+      agentFeedbackReminderStatus.summary?.metadataOnly === true &&
+      Number.isFinite(Number(agentFeedbackReminderStatus.summary?.pendingReminderCount)) &&
+      Number.isFinite(Number(agentFeedbackReminderStatus.summary?.sentReminderCount)) &&
+      Number.isFinite(Number(agentFeedbackReminderStatus.summary?.blockedReminderCount)) &&
+      Number.isFinite(Number(agentFeedbackReminderStatus.summary?.skippedReminderCount)) &&
+      Number.isFinite(Number(agentFeedbackReminderStatus.summary?.maxedOutReminderCount)) &&
+      Number.isFinite(Number(agentFeedbackReminderStatus.summary?.repairReminderCount)) &&
+      Array.isArray(agentFeedbackReminderStatus.summary?.nextReminderDueDates) &&
+      foundationHub.agentFeedbackReminders?.summary?.dryRunOnly === true &&
+      opsHub.agentFeedbackReminders?.summary?.dryRunOnly === true &&
+      opsHub.foundationJobs?.jobs?.some(job => job.key === AGENT_FEEDBACK_REMINDER_JOB_KEY) &&
+      agentFeedbackReminderStatus.summary?.reminderCardLane === 'done' &&
+      agentFeedbackReminderStatus.summary?.georgiaSendCardLane === 'scoped' &&
+      agentFeedbackReminderStatus.summary?.closeoutOwnsOnlyReminder === true &&
+      buildLogAgentFeedbackReminderBuild?.operatorCloseout === true &&
+      agentFeedbackReminderBuildLogExact &&
+      currentPlan.includes('AGENT-FEEDBACK-REMINDER-CADENCE-001` is done') &&
+      currentPlan.includes('Steve full-loop test') &&
+      currentState.includes('AGENT-FEEDBACK-REMINDER-CADENCE-001` is done') &&
+      currentState.includes('No live reminder send'),
+    'AGENT-FEEDBACK-REMINDER-CADENCE-001 builds dry-run reminder cadence readiness',
+    `pending=${agentFeedbackReminderStatus.summary?.pendingReminderCount ?? 'missing'} blocked=${agentFeedbackReminderStatus.summary?.blockedReminderCount ?? 'missing'} closeout=${buildLogAgentFeedbackReminderBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

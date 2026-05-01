@@ -35,7 +35,7 @@ async function main() {
   ] = await Promise.all([
     fetchJson(baseUrl, '/api/source-of-truth'),
     fetchJson(baseUrl, '/api/foundation-hub'),
-    fetchJson(baseUrl, '/api/foundation/build-log?limit=5'),
+    fetchJson(baseUrl, '/api/foundation/build-log?limit=80'),
     fetchJson(baseUrl, '/api/owners/review-queue'),
     fetchJson(baseUrl, '/api/ops-hub'),
   ])

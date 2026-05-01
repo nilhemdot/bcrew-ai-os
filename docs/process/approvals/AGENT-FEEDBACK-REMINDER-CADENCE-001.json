@@ -1,0 +1,13 @@
+{
+  "cardId": "AGENT-FEEDBACK-REMINDER-CADENCE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-01T00:00:00.000Z",
+  "approvalSource": "Steve approved AGENT-FEEDBACK-REMINDER-CADENCE-001 at 9.8 as reminder cadence readiness only before the full-loop test.",
+  "notes": "Build dry-run/report reminder cadence readiness. Do not send reminders live, send Georgia, send Steve test, enable production auto-send, or write ClickUp Requested.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/agent-feedback-reminder-cadence-v1.md",
+  "approvedPlanSha256": "9b4520a2ce1d3d6553aa6cd9d9272e9a59ea4b99b4a6dd3e50b1124277c34912",
+  "approvedRepoHead": "f918cdbb18c2331f8b1ae7f984574a611013411a",
+  "approvalDigest": "883a4f7e41ed8e96b32b9476f59123388d4ccfd051677a66a2e99ee955bb3441"
+}

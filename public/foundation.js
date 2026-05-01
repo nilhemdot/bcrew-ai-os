@@ -6018,6 +6018,39 @@ function renderAgentFeedbackAutoSendPanel(agentFeedbackAutoSend) {
   )
 }
 
+function renderAgentFeedbackReminderPanel(agentFeedbackReminders) {
+  if (!agentFeedbackReminders || !agentFeedbackReminders.summary) return null
+  var summary = agentFeedbackReminders.summary || {}
+  var counts = [
+    'pending ' + (summary.pendingReminderCount || 0),
+    'sent ' + (summary.sentReminderCount || 0),
+    'skipped ' + (summary.skippedReminderCount || 0),
+    'blocked ' + (summary.blockedReminderCount || 0),
+    'maxed out ' + (summary.maxedOutReminderCount || 0),
+    'repairs ' + (summary.repairReminderCount || 0),
+  ].join(' · ')
+  var nextDue = Array.isArray(summary.nextReminderDueDates) && summary.nextReminderDueDates.length
+    ? summary.nextReminderDueDates.slice(0, 3).map(formatDate).join(' · ')
+    : 'No due reminders found.'
+
+  return renderStatusGroupPanel(
+    'Agent Feedback Reminders',
+    'Dry-run reminder cadence for onboarding feedback after a successful initial request. Live reminder sends are not enabled in this build.',
+    [
+      {
+        label: 'Reminder counts',
+        status: agentFeedbackReminders.status === 'healthy' ? 'live' : 'risk',
+        detail: counts + '. Next due: ' + nextDue,
+      },
+      {
+        label: 'Cadence guard',
+        status: summary.dryRunOnly ? 'pending' : 'risk',
+        detail: 'Schedule is day 1, day 3, day 7, day 10, day 14, day 17. Cap is 6 reminders or 30 days. No reminder runs before a successful initial request.',
+      },
+    ]
+  )
+}
+
 function renderServedCodeTrustPanel(runtimeSupervisor) {
   var servedCode = runtimeSupervisor && runtimeSupervisor.servedCode
   if (!servedCode) return null
@@ -13329,6 +13362,9 @@ function renderDataHealth() {
 
     var agentFeedbackAutoSendPanel = renderAgentFeedbackAutoSendPanel(hub.agentFeedbackAutoSend)
     if (agentFeedbackAutoSendPanel) container.appendChild(agentFeedbackAutoSendPanel)
+
+    var agentFeedbackReminderPanel = renderAgentFeedbackReminderPanel(hub.agentFeedbackReminders)
+    if (agentFeedbackReminderPanel) container.appendChild(agentFeedbackReminderPanel)
 
     var jobsPanel = renderFoundationJobsPanel(hub.foundationJobs)
     if (jobsPanel) container.appendChild(jobsPanel)

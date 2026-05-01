@@ -39,7 +39,7 @@ async function main() {
     sourceOfTruth,
   ] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation-hub'),
-    fetchJson(baseUrl, '/api/foundation/build-log?limit=5'),
+    fetchJson(baseUrl, '/api/foundation/build-log?limit=80'),
     fetchJson(baseUrl, '/api/source-of-truth'),
   ])
 

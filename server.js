@@ -125,6 +125,7 @@ import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from '.
 import { writeAgentFeedbackToClickUp } from './lib/agent-feedback-clickup.js'
 import { buildAgentFeedbackAutoSendReadiness } from './lib/agent-feedback-auto-send.js'
 import { sendAgentFeedbackResponseNotification } from './lib/agent-feedback-response-notify.js'
+import { buildAgentFeedbackReminderReadiness } from './lib/agent-feedback-reminders.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import {
   authenticateAuthUser,
@@ -4265,6 +4266,9 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       repoRoot: __dirname,
       includeCandidates: false,
     })
+    const agentFeedbackReminders = await buildAgentFeedbackReminderReadiness({
+      includeCandidates: false,
+    })
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4284,6 +4288,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       sheetsApiTrust,
       sourceLifecycle,
       agentFeedbackAutoSend,
+      agentFeedbackReminders,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
@@ -4354,6 +4359,9 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
       repoRoot: __dirname,
       includeCandidates: false,
     })
+    const agentFeedbackReminders = await buildAgentFeedbackReminderReadiness({
+      includeCandidates: false,
+    })
     const jobs = Array.isArray(foundationJobs.jobs)
       ? foundationJobs.jobs.filter(job => Array.isArray(job.servesHubs) && job.servesHubs.includes('ops'))
       : []
@@ -4374,6 +4382,7 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
         latestRuns,
       },
       agentFeedbackAutoSend,
+      agentFeedbackReminders,
       meta: {
         generatedAt: snapshot.meta?.generatedAt || new Date().toISOString(),
         surface: 'ops',
