@@ -1,0 +1,13 @@
+{
+  "cardId": "FOUNDATION-VERIFY-HEALTH-REPAIR-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-01T14:00:00.000Z",
+  "approvalSource": "Steve direct mission: repair the three remaining foundation:verify health failures before production auto-send.",
+  "notes": "Approves only worker code-trust repair, DAILY-EXEC-SUMMARY-001 stale expectation repair, and AGENT-ONBOARDING-FEEDBACK-SYSTEM-001 stale source-context repair. No production auto-send, Gmail send, ClickUp writeback, gate-speed work, or broader scope.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/foundation-verify-health-repair-v1.md",
+  "approvedPlanSha256": "5456c0803edbbcab5165022be623daf90c57881c0c352c2b752cdb848b8ad810",
+  "approvedRepoHead": "2dba1fcc0130b384fa2a68217ea686794f74372d",
+  "approvalDigest": "b888893a7c7e8a962196e65b786edb671c9d8972137da13bdf734758410291b3"
+}

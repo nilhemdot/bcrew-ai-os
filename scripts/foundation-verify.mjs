@@ -193,6 +193,14 @@ import {
   buildAgentFeedbackRealUserSubmitRepairStatus,
 } from '../lib/agent-feedback-real-user-submit-repair.js'
 import {
+  buildFoundationVerifyHealthRepairStatus,
+  FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVAL_PATH,
+  FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVED_PLAN_PATH,
+  FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID,
+  FOUNDATION_VERIFY_HEALTH_REPAIR_CLOSEOUT_KEY,
+  FOUNDATION_VERIFY_HEALTH_REPAIR_PROOF_PATH,
+} from '../lib/foundation-verify-health-repair.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -322,6 +330,10 @@ const AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = 
 
 const AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001',
+]
+
+const FOUNDATION_VERIFY_HEALTH_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-VERIFY-HEALTH-REPAIR-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -861,6 +873,7 @@ async function main() {
   const agentFeedbackCompanyEmailPolicySource = await readRepoFile('lib/agent-feedback-company-email-policy.js')
   const agentFeedbackSteveFullLoopTestSource = await readRepoFile('lib/agent-feedback-steve-full-loop-test.js')
   const agentFeedbackRealUserSubmitRepairSource = await readRepoFile('lib/agent-feedback-real-user-submit-repair.js')
+  const foundationVerifyHealthRepairSource = await readRepoFile('lib/foundation-verify-health-repair.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
@@ -1014,6 +1027,7 @@ async function main() {
   const agentFeedbackCompanyEmailPolicyApprovalRef = AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVAL_PATH
   const agentFeedbackSteveFullLoopTestApprovalRef = AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVAL_PATH
   const agentFeedbackRealUserSubmitRepairApprovalRef = AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVAL_PATH
+  const foundationVerifyHealthRepairApprovalRef = FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -1105,6 +1119,11 @@ async function main() {
     approvalRef: agentFeedbackRealUserSubmitRepairApprovalRef,
     cardId: AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
   })
+  const foundationVerifyHealthRepairApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: foundationVerifyHealthRepairApprovalRef,
+    cardId: FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -1138,6 +1157,7 @@ async function main() {
   const agentFeedbackCompanyEmailPolicyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVED_PLAN_PATH)
   const agentFeedbackSteveFullLoopTestApprovedPlan = await readRepoFile(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVED_PLAN_PATH)
   const agentFeedbackRealUserSubmitRepairApprovedPlan = await readRepoFile(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVED_PLAN_PATH)
+  const foundationVerifyHealthRepairApprovedPlan = await readRepoFile(FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -1165,6 +1185,7 @@ async function main() {
   const agentFeedbackCompanyEmailPolicyProof = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_PROOF_PATH)
   const agentFeedbackSteveFullLoopTestProof = await readRepoFile(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_PROOF_PATH)
   const agentFeedbackRealUserSubmitRepairProof = await readRepoFile(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_PROOF_PATH)
+  const foundationVerifyHealthRepairProof = await readRepoFile(FOUNDATION_VERIFY_HEALTH_REPAIR_PROOF_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2365,6 +2386,14 @@ async function main() {
     foundationBuildLog,
     includeDuplicateProbe: true,
   })
+  const foundationVerifyHealthRepairStatus = await buildFoundationVerifyHealthRepairStatus({
+    repoRoot,
+    foundationHub,
+    foundationBuildLog,
+    dailyExecSummaryStatus,
+    agentOnboardingFeedbackSystemStatus,
+    agentFeedbackRealUserSubmitRepairStatus,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3191,6 +3220,10 @@ async function main() {
   const buildLogAgentFeedbackRealUserSubmitRepairBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CLOSEOUT_KEY
+  )
+  const buildLogFoundationVerifyHealthRepairBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID) &&
+      build.closeoutKey === FOUNDATION_VERIFY_HEALTH_REPAIR_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -6843,6 +6876,59 @@ async function main() {
       currentState.includes('real browser submission'),
     'AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001 proves real Steve browser submit before production',
     `phase=${agentFeedbackRealUserSubmitRepairStatus.phase || 'missing'} response=${agentFeedbackRealUserSubmitRepairStatus.summary?.realBrowserResponse ? 'yes' : 'no'} duplicate=${agentFeedbackRealUserSubmitRepairStatus.summary?.duplicateResendBlocked ? 'blocked' : 'missing'} closeout=${buildLogAgentFeedbackRealUserSubmitRepairBuild?.closeoutKey || 'missing'}`,
+  )
+  const foundationVerifyHealthRepairBuildLogExact =
+    buildLogFoundationVerifyHealthRepairBuild?.backlogIds?.length === 1 &&
+    buildLogFoundationVerifyHealthRepairBuild.backlogIds.includes(FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID) &&
+    [
+      AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
+      AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
+      DAILY_EXEC_SUMMARY_CARD_ID,
+      AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
+      'WORKER-CODE-TRUST-001',
+    ].every(id => (buildLogFoundationVerifyHealthRepairBuild.mentionedBacklogIds || []).includes(id)) &&
+    !(buildLogFoundationVerifyHealthRepairBuild.backlogIds || []).includes(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) &&
+    !(buildLogFoundationVerifyHealthRepairBuild.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
+    !(buildLogFoundationVerifyHealthRepairBuild.backlogIds || []).includes(DAILY_EXEC_SUMMARY_CARD_ID) &&
+    !(buildLogFoundationVerifyHealthRepairBuild.backlogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID)
+  ensure(
+    checks,
+    foundationVerifyHealthRepairStatus.status === 'healthy' &&
+      foundationVerifyHealthRepairApprovalValidation.ok &&
+      foundationVerifyHealthRepairApprovalValidation.mode === 'v2' &&
+      foundationVerifyHealthRepairApprovalValidation.approval?.approvedPlanRef === FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVED_PLAN_PATH &&
+      includesAll(foundationVerifyHealthRepairApprovedPlan, [
+        FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID,
+        FOUNDATION_VERIFY_HEALTH_REPAIR_CLOSEOUT_KEY,
+        'worker startup code trust',
+        'DAILY-EXEC-SUMMARY-001',
+        'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001',
+        'Production auto-send remains disabled',
+      ]) &&
+      includesAll(foundationVerifyHealthRepairProof, [
+        FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID,
+        'worker startup code trust',
+        'DAILY-EXEC-SUMMARY-001',
+        'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001',
+        'Production auto-send remains disabled',
+      ]) &&
+      includesAll(foundationVerifySource, FOUNDATION_VERIFY_HEALTH_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:foundation-verify-health-repair-check"', 'scripts/process-foundation-verify-health-repair-check.mjs']) &&
+      includesAll(foundationVerifyHealthRepairSource, [
+        'buildFoundationVerifyHealthRepairStatus',
+        'latestBuildsAsOfSelectedDate',
+        'Chris metadata-only source-state proof is current',
+        'AGENT_FEEDBACK_AUTO_SEND_ENABLED',
+      ]) &&
+      buildLogFoundationVerifyHealthRepairBuild?.operatorCloseout === true &&
+      foundationVerifyHealthRepairBuildLogExact &&
+      currentPlan.includes('FOUNDATION-VERIFY-HEALTH-REPAIR-001` is done') &&
+      currentPlan.includes('AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001') &&
+      currentState.includes('FOUNDATION-VERIFY-HEALTH-REPAIR-001` is done') &&
+      (currentState.includes('`foundation:verify` is fully green') ||
+        currentState.includes('foundation:verify is fully green')),
+    'FOUNDATION-VERIFY-HEALTH-REPAIR-001 restores full Foundation verifier health before production',
+    `health=${foundationVerifyHealthRepairStatus.status} worker=${foundationVerifyHealthRepairStatus.summary?.workerCommit || 'missing'} daily=${foundationVerifyHealthRepairStatus.summary?.dailyStatus || 'missing'} onboarding=${foundationVerifyHealthRepairStatus.summary?.onboardingStatus || 'missing'} production=${foundationVerifyHealthRepairStatus.summary?.productionCardLane || 'missing'} closeout=${buildLogFoundationVerifyHealthRepairBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,
