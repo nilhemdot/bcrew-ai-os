@@ -40,7 +40,7 @@ assert(salesJs.includes('sales-save-status'), 'Sales Hub must show explicit save
 assert(salesJs.includes('Outcome: '), 'Sales Hub listings and projects must expose outcome/sold state in the work surface.')
 assert(salesJs.includes('Moved / sold cases'), 'Sales Hub dashboard must expose tracked moved/sold GLS cases without adding another menu item.')
 assert(salesJs.includes('Active GLS pipeline') && salesJs.includes('Total GLS cases'), 'GLS dashboard must split active work from all-time case outcomes.')
-assert(salesJs.includes('GLS exists to move stale active listings') && salesJs.includes('Identify stale'), 'GLS dashboard must include a compact purpose/workflow summary.')
+assert(salesJs.includes('Get Listings Sold (GLS)') && salesJs.includes('Identify stale'), 'GLS dashboard must spell out Get Listings Sold and include a compact workflow summary.')
 assert(salesJs.includes('Cases still being worked right now. Sold and failed cases leave this active view.'), 'Active GLS dashboard must keep sold/failed out of the active pipeline.')
 assert(salesJs.includes('This is where sold, failed, and conversion outcomes belong.'), 'Total GLS dashboard must own sold/failed outcome counts.')
 assert(stylesCss.includes('sales-dashboard-panel-active') && stylesCss.includes('sales-dashboard-panel-total'), 'GLS dashboard sections must be visually differentiated.')
@@ -49,6 +49,10 @@ assert(!salesJs.includes('Active GLS work'), 'GLS dashboard should not repeat th
 assert(!salesJs.includes('GLS outcomes'), 'GLS dashboard should not repeat outcome cards below the top scoreboard.')
 assert(salesJs.includes('Manager queue'), 'GLS Manager must open as an action queue, not another repeated dashboard.')
 assert(!/function renderGlsSystem[\\s\\S]*?renderMetrics\\(report\\)/.test(salesJs), 'GLS Manager should not repeat the full dashboard metric block.')
+assert(salesJs.includes('Case history') && salesJs.includes('renderCaseHistory'), 'GLS Manager must expose a visible per-case history ledger.')
+assert(salesJs.includes('No game plan reason') && salesJs.includes('renderCaseCurrentNote'), 'GLS Manager must show the current game-plan note or no-plan reason on the case card.')
+assert(salesJs.includes('pendingActionPlanState'), 'GLS game-plan state must save together with its plan/reason text.')
+assert(stylesCss.includes('sales-case-history') && stylesCss.includes('sales-case-note'), 'GLS case history and current-note UI must be styled.')
 assert(salesJs.includes('Sales leader scoreboard'), 'GLS dashboard must expose sales leader performance.')
 assert(salesJs.includes('Weekly cohort view'), 'GLS dashboard must expose weekly cohort progress.')
 assert(salesJs.includes('Cells show grouped GLS cases.') && !salesJs.includes('Cells show listings / grouped cases.'), 'Weekly cohort view must show case counts only, not listing/case slash values.')
@@ -100,6 +104,7 @@ for (const state of ['unknown', 'yes', 'no']) {
   assert(report.actionPlanStateOptions.some(item => item.key === state), `Missing action-plan state option: ${state}.`)
 }
 assert(Array.isArray(report.trackedCases), 'Tracked sales listing cases must be present.')
+assert(report.trackedCases.every(item => Array.isArray(item.caseHistory)), 'Tracked cases must expose a sanitized caseHistory array.')
 assert(Array.isArray(report.projectSuggestions), 'GLS project merge suggestions must be present.')
 assert(report.summary.projectMergeSuggestions === report.projectSuggestions.length, 'GLS project suggestion count must match the summary.')
 for (const project of report.projectSuggestions) {
@@ -107,6 +112,7 @@ for (const project of report.projectSuggestions) {
   assert(project.listingCount >= 2, 'Every GLS project suggestion must include at least two listings.')
   assert(Array.isArray(project.taskIds) && project.taskIds.length === project.listingCount, 'Every GLS project suggestion must expose all task IDs.')
   assert(Array.isArray(project.listings) && project.listings.length === project.listingCount, 'Every GLS project suggestion must expose member listings.')
+  assert(Array.isArray(project.caseHistory), 'Every GLS project suggestion must expose aggregated case history.')
 }
 assert(report.summary.trackedCases >= report.summary.staleActiveListings, 'Tracked cases must cover current stale active listings after case sync.')
 assert(

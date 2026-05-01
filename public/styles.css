@@ -8495,6 +8495,11 @@ code {
   grid-column: 1 / -1;
 }
 
+.sales-listing-next .sales-case-note,
+.sales-listing-next .sales-case-history {
+  grid-column: 1 / -1;
+}
+
 .sales-leader-assignment {
   width: 100%;
 }
@@ -8557,6 +8562,83 @@ code {
   color: var(--text-primary);
   font: inherit;
   font-size: 0.9rem;
+}
+
+.sales-case-note {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(14, 116, 144, 0.18);
+  border-radius: var(--radius-sm);
+  background: rgba(14, 116, 144, 0.06);
+}
+
+.sales-case-note strong {
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.sales-case-note p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.sales-case-history {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.sales-case-history > summary {
+  min-height: 38px;
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.sales-case-history-list {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+.sales-case-history-item {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+}
+
+.sales-case-history-title {
+  color: var(--text-primary);
+  font-weight: 900;
+}
+
+.sales-case-history-meta,
+.sales-case-history-change,
+.sales-case-history-empty {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.sales-case-history-note {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.sales-case-history-empty {
+  margin: 0;
+  padding: 0 12px 12px;
 }
 
 .sales-save-button {

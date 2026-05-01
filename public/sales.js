@@ -97,6 +97,19 @@ function formatDate(value) {
   }).format(date)
 }
 
+function formatDateTime(value) {
+  if (!value) return 'Missing'
+  var date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date)
+}
+
 function formatPercent(value) {
   if (value == null || Number.isNaN(Number(value))) return 'n/a'
   return Number(value).toFixed(Number(value) % 1 === 0 ? 0 : 1) + '%'
@@ -257,7 +270,7 @@ function renderDashboardExecSummary() {
   var section = el('section', 'sales-exec-summary')
   var purpose = el('article', 'sales-exec-summary-card sales-exec-summary-purpose')
   purpose.appendChild(el('div', 'sales-metric-label', 'Purpose'))
-  purpose.appendChild(el('p', null, 'GLS exists to move stale active listings: assign a sales leader, get the agent to a real game plan, reposition the listing, and track whether it sells or fails.'))
+  purpose.appendChild(el('p', null, 'Get Listings Sold (GLS) exists to move stale active listings: assign a sales leader, get the agent to a real game plan, reposition the listing, and track whether it sells or fails.'))
   section.appendChild(purpose)
 
   var workflow = el('article', 'sales-exec-summary-card')
@@ -375,9 +388,9 @@ function renderWeeklyCohorts(report) {
 function renderDashboard(report) {
   var wrap = el('div')
   wrap.appendChild(renderHero(report, {
-    kicker: 'GLS System dashboard',
-    title: 'GLS Dashboard',
-    subtitle: 'Two scoreboards: current active cases first, then total GLS case outcomes across history.',
+    kicker: 'Get Listings Sold system',
+    title: 'Get Listings Sold (GLS) Dashboard',
+    subtitle: 'Current active cases first, then total GLS case outcomes across history.',
   }))
   wrap.appendChild(renderDashboardExecSummary())
   wrap.appendChild(renderActivePipelineDashboard(report))
@@ -455,6 +468,9 @@ function renderProjectSuggestions(report, options) {
     header.appendChild(statusRow)
     card.appendChild(header)
     card.appendChild(el('p', 'sales-project-suggestion', project.suggestion))
+    var currentProjectNote = renderCaseCurrentNote(project)
+    if (currentProjectNote) card.appendChild(currentProjectNote)
+    card.appendChild(renderCaseHistory(project.caseHistory || [], 'No project case history yet. The next assignment, game-plan, outcome, or adjustment save will appear here.'))
     if (interactive) {
       card.appendChild(renderProjectControls(project, report))
     } else {
@@ -516,6 +532,56 @@ function getOutcomeClass(outcomeStatus) {
 
 function renderStatusPill(label, className) {
   return el('span', className || 'status-pill status-pill-neutral', label)
+}
+
+function renderCaseCurrentNote(record) {
+  var actionPlanState = record && record.actionPlanState
+  var note = ''
+  var label = ''
+  if (actionPlanState === 'no' && record.actionPlanNoReason) {
+    label = 'No game plan reason'
+    note = record.actionPlanNoReason
+  } else if (record && record.actionPlanText) {
+    label = 'Game plan note'
+    note = record.actionPlanText
+  }
+  if (!note) return null
+  var box = el('div', 'sales-case-note')
+  box.appendChild(el('strong', null, label))
+  box.appendChild(el('p', null, note))
+  return box
+}
+
+function renderCaseHistory(history, fallback) {
+  var events = Array.isArray(history) ? history.slice().reverse() : []
+  var details = document.createElement('details')
+  details.className = 'sales-case-history'
+  var summary = el('summary', null, 'Case history' + (events.length ? ' · ' + events.length : ''))
+  details.appendChild(summary)
+
+  if (!events.length) {
+    details.appendChild(el('p', 'sales-case-history-empty', fallback || 'No saved history yet. Future saves will appear here.'))
+    return details
+  }
+
+  var list = el('div', 'sales-case-history-list')
+  events.slice(0, 8).forEach(function(event) {
+    var item = el('div', 'sales-case-history-item')
+    item.appendChild(el('div', 'sales-case-history-title', event.title || 'Case updated'))
+    var meta = [
+      event.at ? formatDateTime(event.at) : '',
+      event.actor || '',
+      event.listingCount > 1 ? 'Applied to ' + formatNumber(event.listingCount) + ' listings' : '',
+    ].filter(Boolean).join(' · ')
+    if (meta) item.appendChild(el('div', 'sales-case-history-meta', meta))
+    if (event.note) item.appendChild(el('p', 'sales-case-history-note', event.note))
+    ;(event.changes || []).slice(0, 4).forEach(function(change) {
+      item.appendChild(el('div', 'sales-case-history-change', (change.label || change.field) + ': ' + (change.from || 'blank') + ' -> ' + (change.to || 'blank')))
+    })
+    list.appendChild(item)
+  })
+  details.appendChild(list)
+  return details
 }
 
 function stopControlToggle(control) {
@@ -612,6 +678,7 @@ function saveCaseUpdate(listing, updates, control) {
 
 function renderProjectControls(project, report) {
   var wrap = el('div', 'sales-project-controls')
+  var pendingActionPlanState = project.actionPlanState || 'unknown'
   wrap.appendChild(renderLeaderSelect(project.assignedLeaderKey || '', report.salesLeaders || [], function(value, select) {
     saveProjectUpdate(project, { assignedLeaderKey: value }, select)
   }, 'Assign sales leader for GLS project ' + project.baseAddress))
@@ -620,11 +687,6 @@ function renderProjectControls(project, report) {
   }))
   wrap.appendChild(renderCaseSelect('Outcome', project.outcomeStatus || 'open', report.outcomeStatusOptions || [], function(value, select) {
     saveProjectUpdate(project, { outcomeStatus: value }, select)
-  }))
-  wrap.appendChild(renderCaseSelect('Game plan?', project.actionPlanState || 'unknown', report.actionPlanStateOptions || [], function(value, select) {
-    var updates = { actionPlanState: value }
-    if (value === 'yes') updates.caseStatus = 'action_plan_created'
-    saveProjectUpdate(project, updates, select)
   }))
 
   var note = document.createElement('textarea')
@@ -635,6 +697,10 @@ function renderProjectControls(project, report) {
     ? (project.actionPlanNoReason || '')
     : (project.actionPlanText || '')
   stopControlToggle(note)
+  wrap.appendChild(renderCaseSelect('Game plan?', pendingActionPlanState, report.actionPlanStateOptions || [], function(value) {
+    pendingActionPlanState = value
+    note.placeholder = (value === 'no') ? 'Why no project-level game plan?' : 'Project-level game plan'
+  }))
   wrap.appendChild(note)
 
   var button = document.createElement('button')
@@ -642,11 +708,14 @@ function renderProjectControls(project, report) {
   button.className = 'secondary-button sales-save-button'
   button.textContent = 'Save to all ' + project.listingCount
   button.addEventListener('click', function() {
-    var updates = {}
-    if ((project.actionPlanState || 'unknown') === 'no') {
+    var updates = { actionPlanState: pendingActionPlanState }
+    if (pendingActionPlanState === 'yes') updates.caseStatus = 'action_plan_created'
+    if (pendingActionPlanState === 'no') {
       updates.actionPlanNoReason = note.value
+      updates.actionPlanText = ''
     } else {
       updates.actionPlanText = note.value
+      updates.actionPlanNoReason = ''
     }
     saveProjectUpdate(project, updates, button)
   })
@@ -724,11 +793,7 @@ function renderCaseControls(listing, report) {
 function renderActionPlanControls(listing, report) {
   var assignment = listing.salesLeaderAssignment || listing
   var wrap = el('div', 'sales-action-plan-box')
-  wrap.appendChild(renderCaseSelect('Game plan?', assignment.actionPlanState || 'unknown', report.actionPlanStateOptions || [], function(value, select) {
-    var updates = { actionPlanState: value }
-    if (value === 'yes') updates.caseStatus = 'action_plan_created'
-    saveCaseUpdate(listing, updates, select)
-  }))
+  var pendingActionPlanState = assignment.actionPlanState || 'unknown'
 
   var note = document.createElement('textarea')
   note.className = 'sales-action-plan-note'
@@ -738,6 +803,10 @@ function renderActionPlanControls(listing, report) {
       ? (assignment.actionPlanNoReason || '')
       : (assignment.actionPlanText || '')
   stopControlToggle(note)
+  wrap.appendChild(renderCaseSelect('Game plan?', pendingActionPlanState, report.actionPlanStateOptions || [], function(value) {
+    pendingActionPlanState = value
+    note.placeholder = (value === 'no') ? 'Why no action plan?' : 'Plan / next move'
+  }))
   wrap.appendChild(note)
 
   var button = document.createElement('button')
@@ -745,11 +814,14 @@ function renderActionPlanControls(listing, report) {
   button.className = 'secondary-button sales-save-button'
   button.textContent = 'Save game plan'
   button.addEventListener('click', function() {
-    var updates = {}
-    if ((assignment.actionPlanState || 'unknown') === 'no') {
+    var updates = { actionPlanState: pendingActionPlanState }
+    if (pendingActionPlanState === 'yes') updates.caseStatus = 'action_plan_created'
+    if (pendingActionPlanState === 'no') {
       updates.actionPlanNoReason = note.value
+      updates.actionPlanText = ''
     } else {
       updates.actionPlanText = note.value
+      updates.actionPlanNoReason = ''
     }
     saveCaseUpdate(listing, updates, button)
   })
@@ -790,6 +862,9 @@ function renderListing(listing, report) {
   next.appendChild(renderActionPlanControls(listing, report))
   next.appendChild(el('span', getActionPlanClass(listing.shoppingListMatch), getActionPlanLabel(listing.shoppingListMatch)))
   next.appendChild(el('span', 'sales-listing-next-copy', getActionPlanCopy(listing)))
+  var currentNote = renderCaseCurrentNote(assignment)
+  if (currentNote) next.appendChild(currentNote)
+  next.appendChild(renderCaseHistory(assignment.caseHistory || [], 'No listing case history yet. The next save will appear here.'))
   item.appendChild(next)
   return item
 }
@@ -920,6 +995,9 @@ function renderCases(report) {
       row.appendChild(casePills)
       row.appendChild(renderCaseControls(item, report))
       row.appendChild(renderActionPlanControls(item, report))
+      var currentNote = renderCaseCurrentNote(item)
+      if (currentNote) row.appendChild(currentNote)
+      row.appendChild(renderCaseHistory(item.caseHistory || [], 'No case history yet. The next save will appear here.'))
       list.appendChild(row)
     })
     section.appendChild(list)
