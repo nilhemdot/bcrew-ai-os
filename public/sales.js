@@ -88,9 +88,37 @@ function renderMetrics(report) {
   var grid = el('section', 'sales-metric-grid')
   grid.appendChild(renderMetric('Stale active listings', summary.staleActiveListings, '30+ days since list date or last price adjustment.'))
   grid.appendChild(renderMetric('Agents to review', summary.agentsWithStaleListings, 'Grouped by the ClickUp Agent field.'))
-  grid.appendChild(renderMetric('Active on market', summary.activeListings, 'Only rows with Deal Status = Active.'))
-  grid.appendChild(renderMetric('Recently reset', summary.recentlyResetActiveListings, 'Active listings under the 30-day threshold.'))
+  grid.appendChild(renderMetric('Action plans found', summary.actionPlanFound, 'Safe matches in KPI Shopping List with an action plan.'))
+  grid.appendChild(renderMetric('Needs plan/source match', (summary.actionPlanMissing || 0) + (summary.actionPlanUnmatched || 0), 'No KPI plan found or no safe KPI row match yet.'))
   return grid
+}
+
+function getActionPlanLabel(match) {
+  if (!match || match.status === 'source_unavailable') return 'KPI unavailable'
+  if (match.status === 'matched_action_plan') return 'Action plan found'
+  if (match.status === 'matched_missing_action_plan') return 'Plan missing'
+  return 'No KPI match'
+}
+
+function getActionPlanClass(match) {
+  if (!match || match.status === 'source_unavailable') return 'status-pill status-pill-risk'
+  if (match.status === 'matched_action_plan') return 'status-pill status-pill-success'
+  if (match.status === 'matched_missing_action_plan') return 'status-pill status-pill-warning'
+  return 'status-pill status-pill-neutral'
+}
+
+function getActionPlanCopy(listing) {
+  var match = listing.shoppingListMatch || {}
+  if (match.status === 'matched_action_plan') {
+    return 'KPI plan: ' + match.actionPlan
+  }
+  if (match.status === 'matched_missing_action_plan') {
+    return 'KPI row matched, but action plan is blank. Sales leader should get the next price/listing action from the agent.'
+  }
+  if (match.status === 'source_unavailable') {
+    return match.reason || 'KPI Shopping List could not be read.'
+  }
+  return 'No safe KPI Shopping List match. Confirm whether the agent has a Shopping List row for this listing, then create or collect the plan.'
 }
 
 function renderListing(listing) {
@@ -110,8 +138,8 @@ function renderListing(listing) {
   item.appendChild(main)
 
   var next = el('div', 'sales-listing-next')
-  next.appendChild(el('span', 'status-pill status-pill-warning', 'Needs action plan'))
-  next.appendChild(el('span', 'sales-listing-next-copy', listing.actionPlanStatus || 'Sales leader should confirm price strategy, action plan, and next adjustment date.'))
+  next.appendChild(el('span', getActionPlanClass(listing.shoppingListMatch), getActionPlanLabel(listing.shoppingListMatch)))
+  next.appendChild(el('span', 'sales-listing-next-copy', getActionPlanCopy(listing)))
   item.appendChild(next)
   return item
 }
@@ -170,7 +198,8 @@ function renderGaps(report) {
 
   var list = el('div', 'sales-gap-list')
   var actionPlan = gaps.actionPlanTracking || {}
-  list.appendChild(renderGap('Action plans created', actionPlan.available ? 'Tracked' : 'Not tracked yet', actionPlan.note || 'Needs a governed source field.'))
+  var shopping = report.shoppingList || {}
+  list.appendChild(renderGap('KPI action-plan match', formatNumber(shopping.withActionPlan || 0) + ' found', 'Matched stale listings to KPI Shopping List only when the address match is safe. Unmatched rows need a confirmed KPI row or a new action plan.'))
   list.appendChild(renderGap('Price adjusted / relisted', 'Partially visible', 'Listings reset when the date field changes. A weekly snapshot will make before/after progress measurable.'))
   list.appendChild(renderGap('Moved / sold', 'Needs outcome definition', 'Decide whether moved means conditional, firm, sold, expired, cancelled, or relisted.'))
   list.appendChild(renderGap('Missing source data', formatNumber(summary.missingResetDate + summary.missingAgent) + ' active rows', 'Rows missing reset date or agent cannot be managed cleanly.'))

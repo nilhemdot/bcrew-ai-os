@@ -8218,6 +8218,37 @@ code {
   color: #92400e;
 }
 
+.status-pill-warning::before {
+  background: #f59e0b;
+}
+
+.status-pill-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
+.status-pill-success::before {
+  background: #10b981;
+}
+
+.status-pill-risk {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
+
+.status-pill-risk::before {
+  background: #ef4444;
+}
+
+.status-pill-neutral {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+}
+
+.status-pill-neutral::before {
+  background: #94a3b8;
+}
+
 .sales-gap-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

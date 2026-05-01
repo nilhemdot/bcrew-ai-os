@@ -26,6 +26,16 @@ assert(tooYoung.length === 0, 'Stale listings must be 30+ days since list date /
 
 const groupTotal = report.groups.reduce((sum, group) => sum + group.staleCount, 0)
 assert(groupTotal === report.summary.staleActiveListings, 'Agent group stale counts do not match the summary.')
+assert(report.shoppingList?.available === true, 'KPI Shopping List match source must be available.')
+assert(report.shoppingList.activeRows > 0, 'KPI Shopping List active rows were not read.')
+assert(
+  report.shoppingList.matched + report.shoppingList.unmatched === report.summary.staleActiveListings,
+  'KPI Shopping List match counts must cover every stale active listing.'
+)
+assert(
+  report.shoppingList.withActionPlan + report.shoppingList.missingActionPlan === report.shoppingList.matched,
+  'KPI Shopping List action-plan counts must equal matched stale listings.'
+)
 
 const duplicatePrimaryRows = new Set()
 for (const group of report.groups) {
@@ -47,5 +57,9 @@ console.log(JSON.stringify({
   agentsWithStaleListings: report.summary.agentsWithStaleListings,
   missingResetDate: report.summary.missingResetDate,
   missingAgent: report.summary.missingAgent,
-  actionPlanTrackingAvailable: report.fieldGaps.actionPlanTracking.available,
+  kpiShoppingListActiveRows: report.shoppingList.activeRows,
+  kpiShoppingListMatches: report.shoppingList.matched,
+  actionPlanFound: report.shoppingList.withActionPlan,
+  actionPlanMissing: report.shoppingList.missingActionPlan,
+  actionPlanUnmatched: report.shoppingList.unmatched,
 }, null, 2))
