@@ -52,6 +52,27 @@ function clearNode(node) {
   while (node.firstChild) node.removeChild(node.firstChild)
 }
 
+function getSalesStatusNode() {
+  var root = document.getElementById('sales-content')
+  if (!root) return null
+  var node = document.getElementById('sales-save-status')
+  if (!node) {
+    node = el('div', 'sales-save-status')
+    node.id = 'sales-save-status'
+    node.setAttribute('role', 'status')
+    root.parentNode.insertBefore(node, root)
+  }
+  return node
+}
+
+function setSalesStatus(message, type) {
+  var node = getSalesStatusNode()
+  if (!node) return
+  node.textContent = message || ''
+  node.className = 'sales-save-status sales-save-status-' + (type || 'info')
+  node.hidden = !message
+}
+
 function el(tag, className, text) {
   var node = document.createElement(tag)
   if (className) node.className = className
@@ -167,6 +188,7 @@ function renderDashboard(report) {
   var wrap = el('div')
   wrap.appendChild(renderHero(report))
   wrap.appendChild(renderMetrics(report))
+  wrap.appendChild(renderMovedCases(report))
   wrap.appendChild(renderGlsWorkflow(report))
   wrap.appendChild(renderProjectSuggestions(report, { interactive: false }))
 
@@ -186,6 +208,49 @@ function renderDashboard(report) {
   return wrap
 }
 
+function isMovedOutcome(outcomeStatus) {
+  return ['adjusted', 'conditional', 'firm', 'closed'].includes(outcomeStatus || '')
+}
+
+function renderMovedCases(report) {
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'Moved / sold cases'))
+  section.appendChild(el('p', 'sales-panel-copy', 'When a stale listing gets adjusted, goes conditional, firms up, or closes, the tracked GLS case shows here so the result does not disappear from the active listing list.'))
+
+  var moved = (report.trackedCases || []).filter(function(item) {
+    return isMovedOutcome(item.outcomeStatus)
+  }).slice(0, 8)
+
+  if (!moved.length) {
+    section.appendChild(el('p', 'empty-state', 'No tracked GLS cases have moved, firmed, or closed yet.'))
+    return section
+  }
+
+  var list = el('div', 'sales-case-list')
+  moved.forEach(function(item) {
+    var row = el('article', 'sales-case-row')
+    var title = item.listingUrl ? el('a', 'sales-listing-title', item.listingTitle || item.clickUpTaskId) : el('strong', 'sales-listing-title', item.listingTitle || item.clickUpTaskId)
+    if (item.listingUrl) {
+      title.href = item.listingUrl
+      title.target = '_blank'
+      title.rel = 'noopener noreferrer'
+    }
+    row.appendChild(title)
+    row.appendChild(el('div', 'sales-listing-meta', [
+      item.agentName || 'Unassigned agent',
+      item.assignedLeaderName ? 'Leader ' + item.assignedLeaderName : 'No leader assigned',
+      item.adjustedAt ? 'Adjusted ' + formatDate(item.adjustedAt) : '',
+    ].filter(Boolean).join(' · ')))
+    var pills = el('div', 'sales-listing-status-row')
+    pills.appendChild(renderStatusPill('Outcome: ' + labelFromOptions(report.outcomeStatusOptions || [], item.outcomeStatus || 'open', item.outcomeStatus || 'open'), getOutcomeClass(item.outcomeStatus || 'open')))
+    pills.appendChild(renderStatusPill('Game plan: ' + labelFromOptions(report.actionPlanStateOptions || [], item.actionPlanState || 'unknown', item.actionPlanState || 'unknown'), item.actionPlanState === 'yes' ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
+    row.appendChild(pills)
+    list.appendChild(row)
+  })
+  section.appendChild(list)
+  return section
+}
+
 function renderProjectSuggestions(report, options) {
   var interactive = !options || options.interactive !== false
   var section = el('section', 'sales-panel')
@@ -202,6 +267,12 @@ function renderProjectSuggestions(report, options) {
     var card = el('article', 'sales-project-card')
     card.appendChild(el('div', 'sales-gap-title', project.baseAddress))
     card.appendChild(el('div', 'sales-gap-status', project.listingCount + ' listings · ' + project.agent))
+    var statusRow = el('div', 'sales-listing-status-row')
+    statusRow.appendChild(renderStatusPill('Leader: ' + (project.assignedLeaderName || 'unassigned'), project.assignedLeaderName ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
+    statusRow.appendChild(renderStatusPill('Case: ' + labelFromOptions(report.caseStatusOptions || [], project.caseStatus || 'identified', project.caseStatus || 'identified'), 'status-pill status-pill-neutral'))
+    statusRow.appendChild(renderStatusPill('Outcome: ' + labelFromOptions(report.outcomeStatusOptions || [], project.outcomeStatus || 'open', project.outcomeStatus || 'open'), getOutcomeClass(project.outcomeStatus || 'open')))
+    statusRow.appendChild(renderStatusPill('Game plan: ' + labelFromOptions(report.actionPlanStateOptions || [], project.actionPlanState || 'unknown', project.actionPlanState || 'unknown'), project.actionPlanState === 'yes' ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
+    card.appendChild(statusRow)
     card.appendChild(el('p', null, project.suggestion))
     if (interactive) {
       card.appendChild(renderProjectControls(project, report))
@@ -253,6 +324,32 @@ function getActionPlanClass(match) {
   return 'status-pill status-pill-neutral'
 }
 
+function labelFromOptions(options, key, fallback) {
+  var match = (options || []).find(function(option) {
+    return option.key === key
+  })
+  return (match && match.label) || fallback || key || 'Unknown'
+}
+
+function getOutcomeClass(outcomeStatus) {
+  if (['closed', 'firm'].includes(outcomeStatus)) return 'status-pill status-pill-success'
+  if (['conditional', 'adjusted'].includes(outcomeStatus)) return 'status-pill status-pill-warning'
+  if (outcomeStatus === 'lost') return 'status-pill status-pill-risk'
+  return 'status-pill status-pill-neutral'
+}
+
+function renderStatusPill(label, className) {
+  return el('span', className || 'status-pill status-pill-neutral', label)
+}
+
+function stopControlToggle(control) {
+  ;['click', 'mousedown', 'pointerdown'].forEach(function(eventName) {
+    control.addEventListener(eventName, function(event) {
+      event.stopPropagation()
+    })
+  })
+}
+
 function getActionPlanCopy(listing) {
   var match = listing.shoppingListMatch || {}
   if (match.status === 'matched_action_plan') {
@@ -269,28 +366,37 @@ function getActionPlanCopy(listing) {
 
 function saveLeaderAssignment(taskId, leaderKey, select) {
   if (select) select.disabled = true
+  setSalesStatus('Saving assignment...', 'info')
   postJson('/api/sales-hub/listing-assignment', {
     taskId: taskId,
     assignedLeaderKey: leaderKey,
-  }).then(load).catch(function(error) {
-    window.alert(error && error.message ? error.message : 'Sales leader assignment could not be saved.')
+  }).then(function() {
+    setSalesStatus('Saved. Refreshing GLS data...', 'success')
+    load({ refresh: true })
+  }).catch(function(error) {
+    setSalesStatus(error && error.message ? error.message : 'Sales leader assignment could not be saved.', 'error')
     if (select) select.disabled = false
   })
 }
 
 function saveGroupAssignment(agentName, leaderKey, select) {
   if (select) select.disabled = true
+  setSalesStatus('Saving group assignment...', 'info')
   postJson('/api/sales-hub/group-assignment', {
     agentName: agentName,
     assignedLeaderKey: leaderKey,
-  }).then(load).catch(function(error) {
-    window.alert(error && error.message ? error.message : 'Sales leader group assignment could not be saved.')
+  }).then(function(response) {
+    setSalesStatus('Saved ' + formatNumber(response.updatedCount || 0) + ' listings. Refreshing GLS data...', 'success')
+    load({ refresh: true })
+  }).catch(function(error) {
+    setSalesStatus(error && error.message ? error.message : 'Sales leader group assignment could not be saved.', 'error')
     if (select) select.disabled = false
   })
 }
 
 function saveProjectUpdate(project, updates, control) {
   if (control) control.disabled = true
+  setSalesStatus('Saving project case...', 'info')
   postJson('/api/sales-hub/project-case', Object.assign({
     projectKey: project.key,
     assignedLeaderKey: project.assignedLeaderKey || '',
@@ -299,14 +405,18 @@ function saveProjectUpdate(project, updates, control) {
     actionPlanState: project.actionPlanState || 'unknown',
     actionPlanNoReason: project.actionPlanNoReason || '',
     actionPlanText: project.actionPlanText || '',
-  }, updates || {})).then(load).catch(function(error) {
-    window.alert(error && error.message ? error.message : 'GLS project update could not be saved.')
+  }, updates || {})).then(function(response) {
+    setSalesStatus('Saved project case to ' + formatNumber(response.updatedCount || 0) + ' listings. Refreshing GLS data...', 'success')
+    load({ refresh: true })
+  }).catch(function(error) {
+    setSalesStatus(error && error.message ? error.message : 'GLS project update could not be saved.', 'error')
     if (control) control.disabled = false
   })
 }
 
 function saveCaseUpdate(listing, updates, control) {
   if (control) control.disabled = true
+  setSalesStatus('Saving listing case...', 'info')
   postJson('/api/sales-hub/listing-case', Object.assign({
     taskId: listing.taskId || listing.clickUpTaskId,
     assignedLeaderKey: listing.salesLeaderAssignment?.assignedLeaderKey || listing.assignedLeaderKey || '',
@@ -315,8 +425,11 @@ function saveCaseUpdate(listing, updates, control) {
     actionPlanState: listing.salesLeaderAssignment?.actionPlanState || listing.actionPlanState || 'unknown',
     actionPlanNoReason: listing.salesLeaderAssignment?.actionPlanNoReason || listing.actionPlanNoReason || '',
     actionPlanText: listing.salesLeaderAssignment?.actionPlanText || listing.actionPlanText || '',
-  }, updates || {})).then(load).catch(function(error) {
-    window.alert(error && error.message ? error.message : 'Sales listing case could not be updated.')
+  }, updates || {})).then(function() {
+    setSalesStatus('Saved listing case. Refreshing GLS data...', 'success')
+    load({ refresh: true })
+  }).catch(function(error) {
+    setSalesStatus(error && error.message ? error.message : 'Sales listing case could not be updated.', 'error')
     if (control) control.disabled = false
   })
 }
@@ -345,6 +458,7 @@ function renderProjectControls(project, report) {
   note.value = (project.actionPlanState === 'no')
     ? (project.actionPlanNoReason || '')
     : (project.actionPlanText || '')
+  stopControlToggle(note)
   wrap.appendChild(note)
 
   var button = document.createElement('button')
@@ -385,6 +499,7 @@ function renderLeaderSelect(value, leaders, onChange, ariaLabel) {
   select.addEventListener('change', function() {
     onChange(select.value, select)
   })
+  stopControlToggle(select)
   return select
 }
 
@@ -413,6 +528,7 @@ function renderCaseSelect(labelText, value, options, onChange) {
   select.addEventListener('change', function() {
     onChange(select.value, select)
   })
+  stopControlToggle(select)
   label.appendChild(select)
   return label
 }
@@ -445,6 +561,7 @@ function renderActionPlanControls(listing, report) {
   note.value = (assignment.actionPlanState === 'no')
       ? (assignment.actionPlanNoReason || '')
       : (assignment.actionPlanText || '')
+  stopControlToggle(note)
   wrap.appendChild(note)
 
   var button = document.createElement('button')
@@ -472,12 +589,23 @@ function renderListing(listing, report) {
   title.target = '_blank'
   title.rel = 'noopener noreferrer'
   main.appendChild(title)
+  var assignment = listing.salesLeaderAssignment || listing
+  var outcomeStatus = assignment.outcomeStatus || listing.outcomeStatus || 'open'
+  var caseStatus = assignment.caseStatus || listing.caseStatus || 'identified'
   main.appendChild(el('div', 'sales-listing-meta', [
     formatNumber(listing.daysSinceReset) + ' days',
     'Reset ' + formatDate(listing.resetDate),
     listing.clickUpStatus,
     listing.price ? 'Price ' + listing.price : '',
+    'Leader ' + (assignment.assignedLeaderName || 'unassigned'),
+    'Case ' + labelFromOptions(report.caseStatusOptions || [], caseStatus, caseStatus),
+    'Outcome ' + labelFromOptions(report.outcomeStatusOptions || [], outcomeStatus, outcomeStatus),
   ].filter(Boolean).join(' · ')))
+  var pills = el('div', 'sales-listing-status-row')
+  pills.appendChild(renderStatusPill('Case: ' + labelFromOptions(report.caseStatusOptions || [], caseStatus, caseStatus), 'status-pill status-pill-neutral'))
+  pills.appendChild(renderStatusPill('Outcome: ' + labelFromOptions(report.outcomeStatusOptions || [], outcomeStatus, outcomeStatus), getOutcomeClass(outcomeStatus)))
+  pills.appendChild(renderStatusPill('Game plan: ' + labelFromOptions(report.actionPlanStateOptions || [], assignment.actionPlanState || 'unknown', assignment.actionPlanState || 'unknown'), (assignment.actionPlanState === 'yes') ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
+  main.appendChild(pills)
   item.appendChild(main)
 
   var next = el('div', 'sales-listing-next')
@@ -523,7 +651,7 @@ function renderAgentStats(group) {
     return listing.salesLeaderAssignment?.actionPlanState === 'yes'
   }).length
   var adjusted = listings.filter(function(listing) {
-    return ['adjusted', 'conditional', 'firm', 'closed'].includes(listing.salesLeaderAssignment?.outcomeStatus || '')
+    return isMovedOutcome(listing.salesLeaderAssignment?.outcomeStatus || '')
   }).length
 
   var wrap = el('div', 'sales-agent-pill-row')
@@ -609,6 +737,11 @@ function renderCases(report) {
         item.staleSinceDate ? 'Hit stale ' + formatDate(item.staleSinceDate) : '',
         item.adjustedAt ? 'Adjusted ' + formatDate(item.adjustedAt) : '',
       ].filter(Boolean).join(' · ')))
+      var casePills = el('div', 'sales-listing-status-row')
+      casePills.appendChild(renderStatusPill('Case: ' + labelFromOptions(report.caseStatusOptions || [], item.caseStatus || 'identified', item.caseStatus || 'identified'), 'status-pill status-pill-neutral'))
+      casePills.appendChild(renderStatusPill('Outcome: ' + labelFromOptions(report.outcomeStatusOptions || [], item.outcomeStatus || 'open', item.outcomeStatus || 'open'), getOutcomeClass(item.outcomeStatus || 'open')))
+      casePills.appendChild(renderStatusPill('Game plan: ' + labelFromOptions(report.actionPlanStateOptions || [], item.actionPlanState || 'unknown', item.actionPlanState || 'unknown'), item.actionPlanState === 'yes' ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
+      row.appendChild(casePills)
       row.appendChild(renderCaseControls(item, report))
       row.appendChild(renderActionPlanControls(item, report))
       list.appendChild(row)
@@ -746,8 +879,9 @@ function render(payload) {
   else root.appendChild(renderDashboard(report))
 }
 
-function load() {
-  fetchJson('/api/sales-hub')
+function load(options) {
+  var url = options && options.refresh ? '/api/sales-hub?refresh=1' : '/api/sales-hub'
+  fetchJson(url)
     .then(render)
     .catch(function(error) {
       var root = document.getElementById('sales-content')

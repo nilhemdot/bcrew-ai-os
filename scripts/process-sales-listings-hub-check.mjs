@@ -11,6 +11,7 @@ function assert(condition, message) {
 
 const report = await buildSalesListingInventory()
 const salesHtml = await readFile(new URL('../public/sales.html', import.meta.url), 'utf8')
+const salesJs = await readFile(new URL('../public/sales.js', import.meta.url), 'utf8')
 
 assert(report.source.sourceId === 'SRC-CLICKUP-001', 'Sales listing inventory must be source-backed by SRC-CLICKUP-001.')
 assert(report.source.listId === SALES_LISTING_SOURCE.listId, 'Sales listing inventory used the wrong ClickUp list.')
@@ -22,6 +23,10 @@ assert(Array.isArray(report.system?.workflow) && report.system.workflow.length >
 assert(Array.isArray(report.system?.playbooks) && report.system.playbooks.some(item => item.key === 'aggressive-underlisting'), 'GLS System must expose the Aggressive Underlisting Playbook.')
 assert((salesHtml.match(/class="found-nav-item"/g) || []).length === 2, 'Sales Hub sidebar should stay tight: Dashboard and GLS System only.')
 assert(salesHtml.includes('href="#gls-system"'), 'Sales Hub sidebar must link to the grouped GLS System work surface.')
+assert(salesJs.includes('/api/sales-hub?refresh=1'), 'Sales Hub saves must force a fresh post-write reload instead of showing stale cached data.')
+assert(salesJs.includes('sales-save-status'), 'Sales Hub must show explicit save/failure status for GLS writes.')
+assert(salesJs.includes('Outcome: '), 'Sales Hub listings and projects must expose outcome/sold state in the work surface.')
+assert(salesJs.includes('Moved / sold cases'), 'Sales Hub dashboard must expose tracked moved/sold GLS cases without adding another menu item.')
 assert(report.rule.plainEnglish.includes('Deal Status = Active'), 'Active-stage rule must be visible in the report.')
 assert(report.summary.totalTasksRead > 0, 'ClickUp Deal Data Entry returned no tasks.')
 assert(report.summary.activeListings >= 0, 'Active listing count is invalid.')
