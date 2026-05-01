@@ -8338,6 +8338,17 @@ code {
   width: 100%;
 }
 
+.sales-project-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+
+.sales-project-controls .sales-action-plan-note {
+  grid-column: 1 / -1;
+}
+
 .sales-action-plan-note {
   width: 100%;
   min-height: 74px;
@@ -8482,8 +8493,13 @@ code {
   .sales-system-card-grid,
   .sales-workflow-grid,
   .sales-project-list,
+  .sales-project-controls,
   .sales-case-controls {
     grid-template-columns: 1fr;
+  }
+
+  .sales-project-controls .sales-action-plan-note {
+    grid-column: auto;
   }
 
   .sales-hero-action {

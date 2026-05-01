@@ -725,6 +725,7 @@ function isSalesApiPath(req) {
   if (req.method === 'GET' && req.path === '/api/sales-hub') return true
   if (req.method === 'POST' && req.path === '/api/sales-hub/listing-assignment') return true
   if (req.method === 'POST' && req.path === '/api/sales-hub/group-assignment') return true
+  if (req.method === 'POST' && req.path === '/api/sales-hub/project-case') return true
   if (req.method === 'POST' && req.path === '/api/sales-hub/listing-case') return true
   if (req.method === 'POST' && req.path === '/api/sales-hub/sync-cases') return true
   return false
@@ -4687,6 +4688,82 @@ app.post('/api/sales-hub/group-assignment', requireAdminToken, async (req, res) 
       500,
       'sales_group_assignment_failed',
       error instanceof Error ? error.message : 'Failed to save Sales Hub group assignment.'
+    )
+  }
+})
+
+app.post('/api/sales-hub/project-case', requireAdminToken, async (req, res) => {
+  try {
+    const projectKey = String(req.body?.projectKey || '').trim()
+    if (!projectKey) {
+      sendApiError(res, 400, 'missing_project_key', 'Project key is required.')
+      return
+    }
+
+    const listingInventory = await buildSalesListingInventory()
+    const project = (listingInventory.projectSuggestions || []).find(item => item.key === projectKey)
+    if (!project) {
+      sendApiError(res, 404, 'project_group_not_found', 'That project suggestion is not in the current GLS opportunity list.')
+      return
+    }
+
+    const leaderKey = Object.prototype.hasOwnProperty.call(req.body || {}, 'assignedLeaderKey')
+      ? String(req.body?.assignedLeaderKey || '').trim().toLowerCase()
+      : project.assignedLeaderKey || ''
+    const leader = leaderKey ? resolveSalesListingLeader(leaderKey) : null
+    if (leaderKey && !leader) {
+      sendApiError(res, 400, 'invalid_sales_leader', 'Sales leader must be Ryan, Blake, Nick, Scott, or Steve.')
+      return
+    }
+
+    const caseStatus = resolveSalesListingCaseStatus(req.body?.caseStatus || project.caseStatus || 'identified')
+    const outcomeStatus = resolveSalesListingOutcomeStatus(req.body?.outcomeStatus || project.outcomeStatus || 'open')
+    const actionPlanState = resolveSalesListingActionPlanState(req.body?.actionPlanState || project.actionPlanState || 'unknown')
+    const nextCaseStatus = actionPlanState.key === 'yes' && ['identified', 'assigned', 'contacted_agent'].includes(caseStatus.key)
+      ? 'action_plan_created'
+      : caseStatus.key
+    const actor = getRequestAuthUser(req) || getLocalDevUser(req) || { email: 'unknown', name: 'Unknown' }
+    const staleByTaskId = new Map((listingInventory.staleListings || []).map(item => [item.taskId, item]))
+    const updated = []
+    for (const member of project.listings || []) {
+      const listing = staleByTaskId.get(member.taskId) || member
+      updated.push(await upsertSalesListingAssignment({
+        clickUpTaskId: member.taskId,
+        listingTitle: listing.title || member.title || '',
+        listingUrl: listing.url || member.url || '',
+        agentName: listing.agent || project.agent || '',
+        resetDate: listing.resetDate || null,
+        daysSinceReset: listing.daysSinceReset ?? member.daysSinceReset ?? null,
+        assignedLeaderKey: leader?.key || '',
+        assignedLeaderName: leader?.name || '',
+        assignedLeaderEmail: leader?.email || '',
+        caseStatus: nextCaseStatus,
+        outcomeStatus: outcomeStatus.key,
+        actionPlanState: actionPlanState.key,
+        actionPlanNoReason: String(req.body?.actionPlanNoReason ?? project.actionPlanNoReason ?? '').trim(),
+        actionPlanText: String(req.body?.actionPlanText ?? project.actionPlanText ?? '').trim(),
+        metadata: {
+          source: 'sales-hub-project-case',
+          assignmentSurface: '/sales#gls-system',
+          projectKey,
+          baseAddress: project.baseAddress,
+        },
+      }, actor.email || actor.name || 'sales-hub'))
+    }
+
+    clearSalesHubCache()
+    cacheHeadersNoStore(res)
+    res.json({
+      status: 'healthy',
+      projectKey,
+      updatedCount: updated.length,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'sales_project_case_update_failed',
+      error instanceof Error ? error.message : 'Failed to update GLS project case.'
     )
   }
 })

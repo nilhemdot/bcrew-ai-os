@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { readFile } from 'node:fs/promises'
 import {
   SALES_LISTING_SOURCE,
   buildSalesListingInventory,
@@ -9,6 +10,7 @@ function assert(condition, message) {
 }
 
 const report = await buildSalesListingInventory()
+const salesHtml = await readFile(new URL('../public/sales.html', import.meta.url), 'utf8')
 
 assert(report.source.sourceId === 'SRC-CLICKUP-001', 'Sales listing inventory must be source-backed by SRC-CLICKUP-001.')
 assert(report.source.listId === SALES_LISTING_SOURCE.listId, 'Sales listing inventory used the wrong ClickUp list.')
@@ -18,6 +20,8 @@ assert(report.system?.key === 'gls', 'Sales Hub listing workflow must be grouped
 assert(report.system?.fullName === 'Get Listings Sold', 'GLS System must expose its plain-English name.')
 assert(Array.isArray(report.system?.workflow) && report.system.workflow.length >= 6, 'GLS System must expose the workflow stages.')
 assert(Array.isArray(report.system?.playbooks) && report.system.playbooks.some(item => item.key === 'aggressive-underlisting'), 'GLS System must expose the Aggressive Underlisting Playbook.')
+assert((salesHtml.match(/class="found-nav-item"/g) || []).length === 2, 'Sales Hub sidebar should stay tight: Dashboard and GLS System only.')
+assert(salesHtml.includes('href="#gls-system"'), 'Sales Hub sidebar must link to the grouped GLS System work surface.')
 assert(report.rule.plainEnglish.includes('Deal Status = Active'), 'Active-stage rule must be visible in the report.')
 assert(report.summary.totalTasksRead > 0, 'ClickUp Deal Data Entry returned no tasks.')
 assert(report.summary.activeListings >= 0, 'Active listing count is invalid.')
@@ -63,6 +67,12 @@ for (const state of ['unknown', 'yes', 'no']) {
 assert(Array.isArray(report.trackedCases), 'Tracked sales listing cases must be present.')
 assert(Array.isArray(report.projectSuggestions), 'GLS project merge suggestions must be present.')
 assert(report.summary.projectMergeSuggestions === report.projectSuggestions.length, 'GLS project suggestion count must match the summary.')
+for (const project of report.projectSuggestions) {
+  assert(project.key && project.baseAddress && project.agent, 'Every GLS project suggestion needs a stable key, base address, and agent.')
+  assert(project.listingCount >= 2, 'Every GLS project suggestion must include at least two listings.')
+  assert(Array.isArray(project.taskIds) && project.taskIds.length === project.listingCount, 'Every GLS project suggestion must expose all task IDs.')
+  assert(Array.isArray(project.listings) && project.listings.length === project.listingCount, 'Every GLS project suggestion must expose member listings.')
+}
 assert(report.summary.trackedCases >= report.summary.staleActiveListings, 'Tracked cases must cover current stale active listings after case sync.')
 assert(
   report.summary.caseActionPlanYes + report.summary.caseActionPlanNo + report.summary.caseActionPlanUnknown === report.summary.trackedCases,

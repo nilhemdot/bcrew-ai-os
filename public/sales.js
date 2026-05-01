@@ -1,5 +1,6 @@
 var SALES_SECTION_ALIASES = {
   '': 'gls-dashboard',
+  'gls-system': 'gls-system',
   'stale-listings': 'gls-opportunities',
   opportunities: 'gls-opportunities',
   cases: 'gls-cases',
@@ -74,11 +75,13 @@ function formatDate(value) {
 }
 
 function setActiveNav(section) {
+  var activeSection = section === 'gls-dashboard' ? 'gls-dashboard' : 'gls-system'
   document.querySelectorAll('.found-nav-item').forEach(function(item) {
-    item.classList.toggle('active', item.dataset.section === section)
+    item.classList.toggle('active', item.dataset.section === activeSection)
   })
   var labels = {
     'gls-dashboard': 'GLS Dashboard',
+    'gls-system': 'GLS System',
     'gls-opportunities': 'Opportunities',
     'gls-cases': 'Cases',
     'gls-playbooks': 'Playbooks',
@@ -165,17 +168,16 @@ function renderDashboard(report) {
   wrap.appendChild(renderHero(report))
   wrap.appendChild(renderMetrics(report))
   wrap.appendChild(renderGlsWorkflow(report))
-  wrap.appendChild(renderProjectSuggestions(report))
+  wrap.appendChild(renderProjectSuggestions(report, { interactive: false }))
 
   var section = el('section', 'sales-panel')
   section.appendChild(el('h2', null, 'This week'))
   section.appendChild(el('p', 'sales-panel-copy', 'Start with the opportunity list, assign every stale listing, then use Cases to record whether the agent was contacted, whether there is a game plan, and whether it was implemented.'))
 
   var cards = el('div', 'sales-system-card-grid')
-  cards.appendChild(renderSystemCard('Opportunities', formatNumber(report.summary?.staleActiveListings), 'Active listings currently over the GLS threshold.', '#gls-opportunities'))
-  cards.appendChild(renderSystemCard('Cases', formatNumber(report.summary?.trackedCases), 'Persistent stale-listing work that stays visible after a reset date changes.', '#gls-cases'))
+  cards.appendChild(renderSystemCard('Open GLS work', formatNumber(report.summary?.staleActiveListings), 'Active listing opportunities plus saved case progress in one work surface.', '#gls-system'))
   cards.appendChild(renderSystemCard('Playbooks', formatNumber((system.playbooks || []).length), 'Approved strategy frameworks leaders can use with agents.', '#gls-playbooks'))
-  cards.appendChild(renderSystemCard('Results', formatNumber(report.summary?.caseAdjustedOrMoved), 'Adjusted, relisted, conditional, firm, or closed movement.', '#gls-results'))
+  cards.appendChild(renderSystemCard('Adjusted / moved', formatNumber(report.summary?.caseAdjustedOrMoved), 'Scoreboard result shown here, not a separate page.', '#gls-dashboard'))
   section.appendChild(cards)
 
   var threshold = system.threshold || {}
@@ -184,7 +186,8 @@ function renderDashboard(report) {
   return wrap
 }
 
-function renderProjectSuggestions(report) {
+function renderProjectSuggestions(report, options) {
+  var interactive = !options || options.interactive !== false
   var section = el('section', 'sales-panel')
   section.appendChild(el('h2', null, 'Smart project suggestions'))
   section.appendChild(el('p', 'sales-panel-copy', 'When one agent has multiple stale listings at the same base address, GLS flags them as a likely project so the team can handle them with one project-level game plan.'))
@@ -200,6 +203,13 @@ function renderProjectSuggestions(report) {
     card.appendChild(el('div', 'sales-gap-title', project.baseAddress))
     card.appendChild(el('div', 'sales-gap-status', project.listingCount + ' listings · ' + project.agent))
     card.appendChild(el('p', null, project.suggestion))
+    if (interactive) {
+      card.appendChild(renderProjectControls(project, report))
+    } else {
+      var link = el('a', 'secondary-button sales-save-button', 'Manage in GLS System')
+      link.href = '#gls-system'
+      card.appendChild(link)
+    }
     var ul = el('ul')
     ;(project.listings || []).slice(0, 6).forEach(function(listing) {
       ul.appendChild(el('li', null, listing.title + ' · ' + formatNumber(listing.daysSinceReset) + ' days'))
@@ -209,6 +219,15 @@ function renderProjectSuggestions(report) {
   })
   section.appendChild(list)
   return section
+}
+
+function renderGlsSystem(report) {
+  var wrap = el('div')
+  wrap.appendChild(renderHero(report))
+  wrap.appendChild(renderMetrics(report))
+  wrap.appendChild(renderProjectSuggestions(report))
+  wrap.appendChild(renderOpportunitiesSection(report))
+  return wrap
 }
 
 function renderSystemCard(title, value, copy, href) {
@@ -270,6 +289,22 @@ function saveGroupAssignment(agentName, leaderKey, select) {
   })
 }
 
+function saveProjectUpdate(project, updates, control) {
+  if (control) control.disabled = true
+  postJson('/api/sales-hub/project-case', Object.assign({
+    projectKey: project.key,
+    assignedLeaderKey: project.assignedLeaderKey || '',
+    caseStatus: project.caseStatus || 'identified',
+    outcomeStatus: project.outcomeStatus || 'open',
+    actionPlanState: project.actionPlanState || 'unknown',
+    actionPlanNoReason: project.actionPlanNoReason || '',
+    actionPlanText: project.actionPlanText || '',
+  }, updates || {})).then(load).catch(function(error) {
+    window.alert(error && error.message ? error.message : 'GLS project update could not be saved.')
+    if (control) control.disabled = false
+  })
+}
+
 function saveCaseUpdate(listing, updates, control) {
   if (control) control.disabled = true
   postJson('/api/sales-hub/listing-case', Object.assign({
@@ -284,6 +319,49 @@ function saveCaseUpdate(listing, updates, control) {
     window.alert(error && error.message ? error.message : 'Sales listing case could not be updated.')
     if (control) control.disabled = false
   })
+}
+
+function renderProjectControls(project, report) {
+  var wrap = el('div', 'sales-project-controls')
+  wrap.appendChild(renderLeaderSelect(project.assignedLeaderKey || '', report.salesLeaders || [], function(value, select) {
+    saveProjectUpdate(project, { assignedLeaderKey: value }, select)
+  }, 'Assign sales leader for GLS project ' + project.baseAddress))
+  wrap.appendChild(renderCaseSelect('Case status', project.caseStatus || 'identified', report.caseStatusOptions || [], function(value, select) {
+    saveProjectUpdate(project, { caseStatus: value }, select)
+  }))
+  wrap.appendChild(renderCaseSelect('Outcome', project.outcomeStatus || 'open', report.outcomeStatusOptions || [], function(value, select) {
+    saveProjectUpdate(project, { outcomeStatus: value }, select)
+  }))
+  wrap.appendChild(renderCaseSelect('Game plan?', project.actionPlanState || 'unknown', report.actionPlanStateOptions || [], function(value, select) {
+    var updates = { actionPlanState: value }
+    if (value === 'yes') updates.caseStatus = 'action_plan_created'
+    saveProjectUpdate(project, updates, select)
+  }))
+
+  var note = document.createElement('textarea')
+  note.className = 'sales-action-plan-note'
+  note.rows = 3
+  note.placeholder = (project.actionPlanState === 'no') ? 'Why no project-level game plan?' : 'Project-level game plan'
+  note.value = (project.actionPlanState === 'no')
+    ? (project.actionPlanNoReason || '')
+    : (project.actionPlanText || '')
+  wrap.appendChild(note)
+
+  var button = document.createElement('button')
+  button.type = 'button'
+  button.className = 'secondary-button sales-save-button'
+  button.textContent = 'Save to all ' + project.listingCount
+  button.addEventListener('click', function() {
+    var updates = {}
+    if ((project.actionPlanState || 'unknown') === 'no') {
+      updates.actionPlanNoReason = note.value
+    } else {
+      updates.actionPlanText = note.value
+    }
+    saveProjectUpdate(project, updates, button)
+  })
+  wrap.appendChild(button)
+  return wrap
 }
 
 function renderLeaderSelect(value, leaders, onChange, ariaLabel) {
@@ -438,24 +516,49 @@ function renderAgentGroup(group, report) {
   return details
 }
 
-function renderStaleListings(report) {
-  var wrap = el('div')
-  wrap.appendChild(renderHero(report))
-  wrap.appendChild(renderMetrics(report))
-
+function renderOpportunitiesSection(report) {
   var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'GLS opportunities by agent'))
-  section.appendChild(el('p', 'sales-panel-copy', 'This is the weekly owner-meeting list: active listings that need sales-leader ownership because they have not been listed or price-adjusted in 30+ days.'))
+  var projectTaskIds = new Set()
+  ;(report.projectSuggestions || []).forEach(function(project) {
+    ;(project.taskIds || []).forEach(function(taskId) {
+      projectTaskIds.add(taskId)
+    })
+  })
+  var individualGroups = (report.groups || []).map(function(group) {
+    var listings = (group.listings || []).filter(function(listing) {
+      return !projectTaskIds.has(listing.taskId)
+    })
+    return Object.assign({}, group, {
+      listings: listings,
+      staleCount: listings.length,
+      oldestDays: listings.reduce(function(max, listing) {
+        return Math.max(max, listing.daysSinceReset || 0)
+      }, 0),
+    })
+  }).filter(function(group) {
+    return group.listings.length > 0
+  })
 
-  if (!report.groups.length) {
-    section.appendChild(el('p', 'empty-state', 'No active listings are 30+ days stale right now.'))
+  section.appendChild(el('h2', null, 'Individual listing rows'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Use these rows only when the listing is not part of a grouped project. Project members are managed from the project cards above.'))
+
+  if (!individualGroups.length) {
+    section.appendChild(el('p', 'empty-state', 'All current stale listings are covered by project cards or there are no individual stale listings right now.'))
   } else {
-    report.groups.forEach(function(group) {
+    individualGroups.forEach(function(group) {
       section.appendChild(renderAgentGroup(group, report))
     })
   }
 
-  wrap.appendChild(section)
+  return section
+}
+
+function renderStaleListings(report) {
+  var wrap = el('div')
+  wrap.appendChild(renderHero(report))
+  wrap.appendChild(renderMetrics(report))
+  wrap.appendChild(renderProjectSuggestions(report))
+  wrap.appendChild(renderOpportunitiesSection(report))
   return wrap
 }
 
@@ -610,13 +713,14 @@ function renderError(error) {
 
 function render(payload) {
   var section = getSection()
-  if (!['gls-dashboard', 'gls-opportunities', 'gls-cases', 'gls-playbooks', 'gls-results'].includes(section)) section = 'gls-dashboard'
+  if (!['gls-dashboard', 'gls-system', 'gls-opportunities', 'gls-cases', 'gls-playbooks', 'gls-results'].includes(section)) section = 'gls-dashboard'
   setActiveNav(section)
 
   var root = document.getElementById('sales-content')
   clearNode(root)
   var report = payload.listingInventory
-  if (section === 'gls-opportunities') root.appendChild(renderStaleListings(report))
+  if (section === 'gls-system') root.appendChild(renderGlsSystem(report))
+  else if (section === 'gls-opportunities') root.appendChild(renderStaleListings(report))
   else if (section === 'gls-cases') root.appendChild(renderCases(report))
   else if (section === 'gls-playbooks') root.appendChild(renderPlaybooks(report))
   else if (section === 'gls-results') root.appendChild(renderResults(report))
