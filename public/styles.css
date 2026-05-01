@@ -8495,6 +8495,37 @@ code {
   font-size: 0.74rem !important;
 }
 
+.sales-leader-performance-table {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.2fr) repeat(7, minmax(78px, 0.65fr));
+  gap: 1px;
+  margin-top: 16px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--border);
+}
+
+.sales-leader-performance-table > div {
+  min-width: 78px;
+  padding: 10px;
+  background: #fff;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.sales-table-head {
+  color: var(--text-primary) !important;
+  background: var(--surface-soft) !important;
+  text-transform: uppercase;
+  font-size: 0.74rem !important;
+}
+
+.sales-table-name {
+  color: var(--text-primary) !important;
+}
+
 .sales-agent-actions {
   display: grid;
   grid-template-columns: auto minmax(170px, 220px);
