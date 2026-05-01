@@ -106,6 +106,7 @@ function getScoreboard(report) {
     allTimeFunnel: {},
     activePipeline: {},
     resolvedResults: {},
+    outcomeSummary: {},
     leaderPerformance: [],
     conversionRates: [],
     weeklyCohorts: [],
@@ -185,16 +186,15 @@ function renderHero(report) {
 function renderMetrics(report) {
   var scoreboard = getScoreboard(report)
   var active = scoreboard.activePipeline || {}
-  var resolved = scoreboard.resolvedResults || {}
+  var outcomes = scoreboard.outcomeSummary || {}
   var grid = el('section', 'sales-metric-grid')
   grid.appendChild(renderMetric('Active GLS cases', active.total?.caseCount, formatCaseMetric(active.total)))
-  grid.appendChild(renderMetric('Assigned+', active.takenOn?.caseCount, formatCaseMetric(active.takenOn)))
+  grid.appendChild(renderMetric('Assigned', active.takenOn?.caseCount, formatCaseMetric(active.takenOn)))
   grid.appendChild(renderMetric('Game plans', active.gamePlanCreated?.caseCount, formatCaseMetric(active.gamePlanCreated)))
-  grid.appendChild(renderMetric('Implemented', active.implemented?.caseCount, formatCaseMetric(active.implemented)))
-  grid.appendChild(renderMetric('Resolved', resolved.total?.caseCount, formatCaseMetric(resolved.total)))
-  grid.appendChild(renderMetric('Adjusted', resolved.adjustedRelisted?.caseCount, formatCaseMetric(resolved.adjustedRelisted)))
-  grid.appendChild(renderMetric('Sold', resolved.soldClosed?.caseCount, formatCaseMetric(resolved.soldClosed)))
+  grid.appendChild(renderMetric('Adjusted / implemented', outcomes.adjustedOrImplemented?.caseCount, formatCaseMetric(outcomes.adjustedOrImplemented)))
+  grid.appendChild(renderMetric('Sold', outcomes.soldClosed?.caseCount, formatCaseMetric(outcomes.soldClosed)))
   grid.appendChild(renderMetric('Stuck', active.stuck?.caseCount, (active.stuckThresholdDays || 14) + '+ days open.'))
+  grid.appendChild(renderMetric('Failed', outcomes.failed?.caseCount, 'No action, blocked, cancelled, or expired.'))
   return grid
 }
 
@@ -210,32 +210,32 @@ function renderActivePipeline(report) {
   var scoreboard = getScoreboard(report)
   var active = scoreboard.activePipeline || {}
   var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'Active GLS pipeline'))
-  section.appendChild(el('p', 'sales-panel-copy', 'Unresolved GLS cases only. Resolved cases move into results and all-time conversion.'))
+  section.appendChild(el('h2', null, 'Active GLS work'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Cases still being worked. Adjusted/repositioned, sold, and failed cases leave this section.'))
 
   var grid = el('div', 'sales-score-grid')
-  ;(active.stages || []).forEach(function(stage) {
-    grid.appendChild(renderScorePair(stage.label, stage.metric))
-  })
-  grid.appendChild(renderScorePair('Stuck / aging', active.stuck, (active.stuckThresholdDays || 14) + '+ days open. Oldest active case: ' + formatDays(active.oldestActiveDays)))
+  grid.appendChild(renderScorePair('Needs owner', active.unassigned))
+  grid.appendChild(renderScorePair('Assigned', active.takenOn))
+  grid.appendChild(renderScorePair('Game plan', active.gamePlanCreated))
+  grid.appendChild(renderScorePair('Stuck', active.stuck, (active.stuckThresholdDays || 14) + '+ days open. Oldest active case: ' + formatDays(active.oldestActiveDays)))
   section.appendChild(grid)
   return section
 }
 
-function renderResolvedResults(report) {
-  var resolved = getScoreboard(report).resolvedResults || {}
+function renderOutcomes(report) {
+  var scoreboard = getScoreboard(report)
+  var outcomes = scoreboard.outcomeSummary || {}
+  var resolved = scoreboard.resolvedResults || {}
   var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'Resolved GLS results'))
-  section.appendChild(el('p', 'sales-panel-copy', 'Cases leave the active pipeline here when they adjust, move, sell, or are intentionally closed out.'))
+  section.appendChild(el('h2', null, 'GLS outcomes'))
+  section.appendChild(el('p', 'sales-panel-copy', 'The goal is to reposition the listing or get it sold. Failed means no action, blocked, cancelled, or expired.'))
 
   var grid = el('div', 'sales-score-grid')
-  grid.appendChild(renderScorePair('Resolved total', resolved.total))
-  grid.appendChild(renderScorePair('Adjusted / relisted', resolved.adjustedRelisted))
-  grid.appendChild(renderScorePair('Conditional / firm', resolved.moved))
-  grid.appendChild(renderScorePair('Sold / closed', resolved.soldClosed))
-  grid.appendChild(renderScorePair('No action / blocked', resolved.noActionOrBlocked))
+  grid.appendChild(renderScorePair('Adjusted / implemented', outcomes.adjustedOrImplemented))
+  grid.appendChild(renderScorePair('Sold', outcomes.soldClosed))
+  grid.appendChild(renderScorePair('Failed', outcomes.failed))
   var avg = el('article', 'sales-score-item')
-  avg.appendChild(el('div', 'sales-gap-title', 'Avg days to result'))
+  avg.appendChild(el('div', 'sales-gap-title', 'Avg days to outcome'))
   avg.appendChild(el('div', 'sales-gap-status', formatDays(resolved.averageDaysToResolution)))
   grid.appendChild(avg)
   section.appendChild(grid)
@@ -246,24 +246,24 @@ function renderLeaderPerformance(report) {
   var rows = getScoreboard(report).leaderPerformance || []
   var section = el('section', 'sales-panel')
   section.appendChild(el('h2', null, 'Sales leader scoreboard'))
-  section.appendChild(el('p', 'sales-panel-copy', 'Active workload beside resolved volume and rate.'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Who owns active cases and who gets listings repositioned or sold.'))
   if (!rows.length) {
     section.appendChild(el('p', 'empty-state', 'No GLS leader performance yet.'))
     return section
   }
   var table = el('div', 'sales-leader-performance-table')
-  ;['Leader', 'Active', 'Resolved', 'Adjusted', 'Sold', 'Rate', 'Avg days', 'Stuck'].forEach(function(label) {
+  ;['Leader', 'Active', 'Plans', 'Adj/Impl', 'Sold', 'Stuck', 'Failed', 'Win rate'].forEach(function(label) {
     table.appendChild(el('div', 'sales-table-head', label))
   })
   rows.forEach(function(row) {
     table.appendChild(el('div', 'sales-table-name', row.name))
     table.appendChild(el('div', null, formatNumber(row.activeCases)))
-    table.appendChild(el('div', null, formatNumber(row.resolvedCases)))
-    table.appendChild(el('div', null, formatNumber(row.adjustedCases)))
+    table.appendChild(el('div', null, formatNumber(row.gamePlanCases)))
+    table.appendChild(el('div', null, formatNumber(row.adjustedOrImplementedCases)))
     table.appendChild(el('div', null, formatNumber(row.soldCases)))
-    table.appendChild(el('div', null, formatPercent(row.resolutionRate)))
-    table.appendChild(el('div', null, formatDays(row.averageDaysToResolution)))
     table.appendChild(el('div', null, formatNumber(row.stuckCases)))
+    table.appendChild(el('div', null, formatNumber(row.noActionOrBlockedCases)))
+    table.appendChild(el('div', null, formatPercent(row.winRate)))
   })
   section.appendChild(table)
   return section
@@ -340,10 +340,8 @@ function renderDashboard(report) {
   wrap.appendChild(renderHero(report))
   wrap.appendChild(renderMetrics(report))
   wrap.appendChild(renderActivePipeline(report))
-  wrap.appendChild(renderResolvedResults(report))
+  wrap.appendChild(renderOutcomes(report))
   wrap.appendChild(renderLeaderPerformance(report))
-  wrap.appendChild(renderConversionRates(report))
-  wrap.appendChild(renderAllTimeFunnel(report))
   wrap.appendChild(renderWeeklyCohorts(report))
   wrap.appendChild(renderMovedCases(report))
   return wrap

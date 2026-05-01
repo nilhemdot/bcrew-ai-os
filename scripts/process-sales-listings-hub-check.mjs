@@ -35,13 +35,12 @@ assert(salesJs.includes('/api/sales-hub?refresh=1'), 'Sales Hub saves must force
 assert(salesJs.includes('sales-save-status'), 'Sales Hub must show explicit save/failure status for GLS writes.')
 assert(salesJs.includes('Outcome: '), 'Sales Hub listings and projects must expose outcome/sold state in the work surface.')
 assert(salesJs.includes('Moved / sold cases'), 'Sales Hub dashboard must expose tracked moved/sold GLS cases without adding another menu item.')
-assert(salesJs.includes('Active GLS pipeline'), 'GLS dashboard must expose unresolved active GLS pipeline counts.')
-assert(salesJs.includes('Resolved GLS results'), 'GLS dashboard must expose resolved GLS result counts.')
+assert(salesJs.includes('Active GLS work'), 'GLS dashboard must expose active GLS work counts.')
+assert(salesJs.includes('GLS outcomes'), 'GLS dashboard must expose adjusted/sold/failed outcome counts.')
 assert(salesJs.includes('Sales leader scoreboard'), 'GLS dashboard must expose sales leader performance.')
-assert(salesJs.includes('All-time conversion funnel'), 'GLS dashboard must expose the all-time conversion funnel.')
 assert(salesJs.includes('Weekly cohort view'), 'GLS dashboard must expose weekly cohort progress.')
 assert(salesJs.includes('formatDualCount'), 'GLS scoreboard must show listing count and grouped case count together.')
-assert(salesJs.includes('Adjusted') && salesJs.includes('Sold'), 'GLS top scoreboard must split adjusted and sold counts.')
+assert(salesJs.includes('Adjusted / implemented') && salesJs.includes('Sold') && salesJs.includes('Failed'), 'GLS top scoreboard must expose adjusted/implemented, sold, and failed counts.')
 assert(report.rule.plainEnglish.includes('Deal Status = Active'), 'Active-stage rule must be visible in the report.')
 assert(report.summary.totalTasksRead > 0, 'ClickUp Deal Data Entry returned no tasks.')
 assert(report.summary.activeListings >= 0, 'Active listing count is invalid.')
@@ -109,6 +108,9 @@ assert(report.scoreboard.allTimeFunnel.identified.caseCount <= report.scoreboard
 assert(report.scoreboard.activePipeline.total.caseCount + report.scoreboard.resolvedResults.total.caseCount === report.scoreboard.allTimeFunnel.identified.caseCount, 'Active plus resolved GLS cases must equal all-time identified cases.')
 assert(report.scoreboard.activePipeline.total.caseCount === report.summary.activePipelineCases, 'Active pipeline case summary must match scoreboard.')
 assert(report.scoreboard.resolvedResults.total.caseCount === report.summary.resolvedGlsCases, 'Resolved GLS case summary must match scoreboard.')
+assert(report.scoreboard.outcomeSummary.adjustedOrImplemented.caseCount >= report.scoreboard.resolvedResults.adjustedRelisted.caseCount, 'Adjusted/implemented outcome count must include adjusted cases.')
+assert(report.scoreboard.outcomeSummary.soldClosed.caseCount === report.scoreboard.resolvedResults.soldClosed.caseCount, 'Sold outcome count must match sold/closed results.')
+assert(report.scoreboard.outcomeSummary.failed.caseCount === report.scoreboard.resolvedResults.noActionOrBlocked.caseCount, 'Failed outcome count must match no-action/blocked results.')
 assert(Array.isArray(report.scoreboard.activePipeline.stages) && report.scoreboard.activePipeline.stages.length >= 5, 'Active pipeline stages must be present.')
 assert(Array.isArray(report.scoreboard.leaderPerformance) && report.scoreboard.leaderPerformance.length >= 5, 'Sales leader performance rows must be present.')
 assert(Array.isArray(report.scoreboard.weeklyCohorts), 'GLS weekly cohort rows must be present.')
@@ -193,10 +195,12 @@ assert(syntheticScoreboard.currentActive.caseCount === 1, 'Synthetic Nick proof 
 assert(syntheticScoreboard.activePipeline.total.caseCount === 1, 'Synthetic active pipeline must include only unresolved grouped cases.')
 assert(syntheticScoreboard.resolvedResults.total.caseCount === 2, 'Synthetic resolved results must include adjusted and sold/closed cases.')
 assert(syntheticScoreboard.resolvedResults.adjustedRelisted.caseCount === 1, 'Synthetic adjusted case must move into resolved results.')
+assert(syntheticScoreboard.outcomeSummary.adjustedOrImplemented.caseCount === 1, 'Synthetic adjusted case must count as adjusted/implemented.')
+assert(syntheticScoreboard.outcomeSummary.soldClosed.caseCount === 1, 'Synthetic sold case must count as sold.')
 assert(syntheticScoreboard.allTimeFunnel.soldClosed.listingCount === 1, 'Synthetic sold proof must count the sold listing.')
 assert(syntheticScoreboard.allTimeFunnel.soldClosed.caseCount === 1, 'Synthetic sold proof must count the sold case.')
 assert(syntheticScoreboard.movedSoldCases.some(item => item.key.includes('closed agent') && item.currentOutcome === 'closed'), 'Synthetic sold/closed case must remain visible from persisted history.')
-assert(syntheticScoreboard.leaderPerformance.some(item => item.key === 'blake' && item.adjustedCases === 1 && item.resolvedCases === 1), 'Sales leader scoreboard must credit resolved adjusted cases to the leader.')
+assert(syntheticScoreboard.leaderPerformance.some(item => item.key === 'blake' && item.adjustedOrImplementedCases === 1 && item.adjustedCases === 1), 'Sales leader scoreboard must credit adjusted/implemented cases to the leader.')
 
 const duplicatePrimaryRows = new Set()
 for (const group of report.groups) {
@@ -237,6 +241,7 @@ console.log(JSON.stringify({
   allTimeTakenOnCases: report.scoreboard.allTimeFunnel.takenOn.caseCount,
   activePipelineCases: report.scoreboard.activePipeline.total.caseCount,
   resolvedGlsCases: report.scoreboard.resolvedResults.total.caseCount,
+  adjustedOrImplementedCases: report.scoreboard.outcomeSummary.adjustedOrImplemented.caseCount,
   allTimeAdjustedCases: report.scoreboard.allTimeFunnel.adjustedRelisted.caseCount,
   allTimeSoldCases: report.scoreboard.allTimeFunnel.soldClosed.caseCount,
   leaderPerformance: report.scoreboard.leaderPerformance.map(row => ({
@@ -244,8 +249,11 @@ console.log(JSON.stringify({
     activeCases: row.activeCases,
     resolvedCases: row.resolvedCases,
     adjustedCases: row.adjustedCases,
+    adjustedOrImplementedCases: row.adjustedOrImplementedCases,
     soldCases: row.soldCases,
-    resolutionRate: row.resolutionRate,
+    stuckCases: row.stuckCases,
+    failedCases: row.noActionOrBlockedCases,
+    winRate: row.winRate,
   })),
   weeklyCohorts: report.scoreboard.weeklyCohorts.slice(0, 4),
   movedSoldCases: report.scoreboard.movedSoldCases.length,
