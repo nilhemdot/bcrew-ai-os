@@ -52,8 +52,14 @@ function loadSession(token) {
   return fetch('/api/agent-feedback/session?token=' + encodeURIComponent(token), {
     cache: 'no-store',
   }).then(function(response) {
-    if (!response.ok) throw new Error('This feedback link is not valid.')
-    return response.json()
+    return response.json().then(function(payload) {
+      if (!response.ok) {
+        throw new Error(payload && payload.error && payload.error.message
+          ? payload.error.message
+          : 'This feedback link is not valid.')
+      }
+      return payload
+    })
   })
 }
 
@@ -67,8 +73,14 @@ function submitFeedback(token, payload) {
       improvementFeedback: payload.improvementFeedback,
     }),
   }).then(function(response) {
-    if (!response.ok) throw new Error('Feedback could not be submitted.')
-    return response.json()
+    return response.json().then(function(payload) {
+      if (!response.ok) {
+        throw new Error(payload && payload.error && payload.error.message
+          ? payload.error.message
+          : 'Feedback could not be submitted.')
+      }
+      return payload
+    })
   })
 }
 

@@ -4,7 +4,11 @@ Card: `AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001`
 Closeout key: `agent-feedback-steve-full-loop-test-v1`
 Date: 2026-05-01
 
-## Live Test Result
+## Not Accepted
+
+This run is preserved as failure evidence only. The live script sent the Steve Day-30 request and then submitted a controlled response with the same emailed token before Steve could use the real browser link. Production auto-send remains stopped until `AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001` proves a fresh send-only request and Steve's real browser submission from the emailed link.
+
+## Historical Live Test Result
 
 ```json
 {

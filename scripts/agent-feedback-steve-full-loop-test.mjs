@@ -7,7 +7,8 @@ import {
   AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_MILESTONE_DAY,
   AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_TARGET,
   buildAgentFeedbackSteveFullLoopDryRunProof,
-  executeApprovedSteveFullLoopTest,
+  buildAgentFeedbackSteveFullLoopSyntheticSubmitProof,
+  executeApprovedSteveFullLoopSendOnly,
 } from '../lib/agent-feedback-steve-full-loop-test.js'
 import { assertFoundationDbReadyForReadOnlyGate, closeFoundationDb } from '../lib/foundation-db.js'
 
@@ -37,8 +38,17 @@ async function main() {
     return
   }
 
-  if (mode !== 'send') {
-    throw new Error('Mode must be dry-run or send.')
+  if (mode === 'synthetic-submit') {
+    printMetadataOnly(buildAgentFeedbackSteveFullLoopSyntheticSubmitProof())
+    return
+  }
+
+  if (mode === 'send') {
+    throw new Error('Mode send is disabled because it consumed the live emailed token. Use send-only.')
+  }
+
+  if (mode !== 'send-only') {
+    throw new Error('Mode must be dry-run, synthetic-submit, or send-only.')
   }
 
   const approval = await readApproval(argValue('approvalRef', AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVAL_PATH))
@@ -49,7 +59,7 @@ async function main() {
     throw new Error('Steve full-loop test command only supports Steve Zahnd Day-30.')
   }
 
-  const result = await executeApprovedSteveFullLoopTest({ approval })
+  const result = await executeApprovedSteveFullLoopSendOnly({ approval })
   printMetadataOnly(result)
 }
 

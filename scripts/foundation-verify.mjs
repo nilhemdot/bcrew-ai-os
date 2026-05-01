@@ -185,6 +185,14 @@ import {
   buildAgentFeedbackSteveFullLoopTestStatus,
 } from '../lib/agent-feedback-steve-full-loop-test.js'
 import {
+  AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVAL_PATH,
+  AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVED_PLAN_PATH,
+  AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
+  AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_PROOF_PATH,
+  buildAgentFeedbackRealUserSubmitRepairStatus,
+} from '../lib/agent-feedback-real-user-submit-repair.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -310,6 +318,10 @@ const AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = 
 
 const AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001',
+]
+
+const AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -848,6 +860,7 @@ async function main() {
   const agentFeedbackReminderSource = await readRepoFile('lib/agent-feedback-reminders.js')
   const agentFeedbackCompanyEmailPolicySource = await readRepoFile('lib/agent-feedback-company-email-policy.js')
   const agentFeedbackSteveFullLoopTestSource = await readRepoFile('lib/agent-feedback-steve-full-loop-test.js')
+  const agentFeedbackRealUserSubmitRepairSource = await readRepoFile('lib/agent-feedback-real-user-submit-repair.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
@@ -1000,6 +1013,7 @@ async function main() {
   const agentFeedbackReminderApprovalRef = AGENT_FEEDBACK_REMINDER_APPROVAL_PATH
   const agentFeedbackCompanyEmailPolicyApprovalRef = AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVAL_PATH
   const agentFeedbackSteveFullLoopTestApprovalRef = AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVAL_PATH
+  const agentFeedbackRealUserSubmitRepairApprovalRef = AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -1086,6 +1100,11 @@ async function main() {
     approvalRef: agentFeedbackSteveFullLoopTestApprovalRef,
     cardId: AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
   })
+  const agentFeedbackRealUserSubmitRepairApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: agentFeedbackRealUserSubmitRepairApprovalRef,
+    cardId: AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -1118,6 +1137,7 @@ async function main() {
   const agentFeedbackReminderApprovedPlan = await readRepoFile(AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH)
   const agentFeedbackCompanyEmailPolicyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVED_PLAN_PATH)
   const agentFeedbackSteveFullLoopTestApprovedPlan = await readRepoFile(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVED_PLAN_PATH)
+  const agentFeedbackRealUserSubmitRepairApprovedPlan = await readRepoFile(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -1144,6 +1164,7 @@ async function main() {
   const agentFeedbackReminderProof = await readRepoFile(AGENT_FEEDBACK_REMINDER_PROOF_PATH)
   const agentFeedbackCompanyEmailPolicyProof = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_PROOF_PATH)
   const agentFeedbackSteveFullLoopTestProof = await readRepoFile(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_PROOF_PATH)
+  const agentFeedbackRealUserSubmitRepairProof = await readRepoFile(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_PROOF_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2338,6 +2359,12 @@ async function main() {
     foundationHub,
     foundationBuildLog,
   })
+  const agentFeedbackRealUserSubmitRepairStatus = await buildAgentFeedbackRealUserSubmitRepairStatus({
+    repoRoot,
+    foundationHub,
+    foundationBuildLog,
+    includeDuplicateProbe: true,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3160,6 +3187,10 @@ async function main() {
   const buildLogAgentFeedbackSteveFullLoopTestBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CLOSEOUT_KEY
+  )
+  const buildLogAgentFeedbackRealUserSubmitRepairBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) &&
+      build.closeoutKey === AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -4306,6 +4337,7 @@ async function main() {
   const agentFeedbackReminder = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REMINDER_CARD_ID) || null
   const agentFeedbackCompanyEmailPolicy = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID) || null
   const agentFeedbackSteveFullLoopTest = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) || null
+  const agentFeedbackRealUserSubmitRepair = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) || null
   const agentFeedbackProductionAutoSendEnable = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) || null
   const agentFeedbackGeorgiaSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) || null
   const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
@@ -6674,6 +6706,7 @@ async function main() {
   const agentFeedbackSteveFullLoopTestBuildLogExact =
     buildLogAgentFeedbackSteveFullLoopTestBuild?.backlogIds?.length === 1 &&
     buildLogAgentFeedbackSteveFullLoopTestBuild.backlogIds.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) &&
+    buildLogAgentFeedbackSteveFullLoopTestBuild.acceptanceState === 'Not accepted' &&
     [
       AGENT_FEEDBACK_SEND_CARD_ID,
       AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
@@ -6682,14 +6715,16 @@ async function main() {
       AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID,
       AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
       AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID,
-    ].every(id => (buildLogAgentFeedbackSteveFullLoopTestBuild.mentionedBacklogIds || []).includes(id)) &&
-    !(buildLogAgentFeedbackSteveFullLoopTestBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID) &&
+      AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
+    ].every(id => (buildLogAgentFeedbackSteveFullLoopTestBuild.mentionedBacklogIds || []).includes(id) ||
+      String(buildLogAgentFeedbackSteveFullLoopTestBuild.reviewNext || '').includes(id)) &&
+    !(buildLogAgentFeedbackSteveFullLoopTestBuild.backlogIds || []).includes(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) &&
     !(buildLogAgentFeedbackSteveFullLoopTestBuild.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
     !(buildLogAgentFeedbackSteveFullLoopTestBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID)
   ensure(
     checks,
-    agentFeedbackSteveFullLoopTest?.lane === 'done' &&
-      /agent-feedback-steve-full-loop-test-v1/.test(agentFeedbackSteveFullLoopTest?.statusNote || '') &&
+    agentFeedbackSteveFullLoopTest?.lane === 'scoped' &&
+      String(agentFeedbackSteveFullLoopTest?.statusNote || '').includes(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) &&
       agentFeedbackProductionAutoSendEnable?.lane === 'scoped' &&
       agentFeedbackGeorgiaSend?.lane === 'scoped' &&
       agentFeedbackSteveFullLoopTestApprovalValidation.ok &&
@@ -6698,49 +6733,116 @@ async function main() {
       includesAll(agentFeedbackSteveFullLoopTestApprovedPlan, [
         AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
         AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CLOSEOUT_KEY,
-        'Steve Zahnd only',
-        'Do not enable production auto-send',
-        'Do not use Georgia as the live request target',
-        'Gmail-before-Requested',
-        'metadata-only',
+        'Steve Zahnd Day-30 only',
+        'production-all auto-send',
+        'Georgia as the live feedback-request target',
+        'write ClickUp Requested only after Gmail succeeds',
+        'tracked proof',
       ]) &&
       includesAll(agentFeedbackSteveFullLoopTestProof, [
         AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
-        'Gmail succeeded before ClickUp Requested was written',
-        'Duplicate resend was blocked before Gmail or ClickUp side effects',
-        'No production auto-send',
-        'Georgia-as-target',
+        'Not Accepted',
+        'same emailed token',
+        AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
       ]) &&
       includesAll(foundationVerifySource, AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
       includesAll(packageSource, ['"agent-feedback:steve-full-loop-test"', '"process:agent-feedback-steve-full-loop-test-check"']) &&
       includesAll(agentFeedbackSteveFullLoopTestSource, [
         'executeApprovedSteveFullLoopTest',
+        'Live synthetic submission is disabled',
+        'Historical script-consumed full-loop execution is disabled',
         'productionAutoSendEnabled: false',
         'georgiaTargeted: false',
-        'feedback_completed',
       ]) &&
       includesAll(agentFeedbackSendSource, ['tokenIssuedAtMs', 'loadAgentFeedbackCandidateForTarget']) &&
       agentFeedbackSteveFullLoopTestStatus.status === 'healthy' &&
-      agentFeedbackSteveFullLoopTestStatus.summary?.gmailMessageIdPresent === true &&
-      agentFeedbackSteveFullLoopTestStatus.summary?.clickUpRequestedWritten === true &&
-      agentFeedbackSteveFullLoopTestStatus.summary?.dbResponseSaved === true &&
+      agentFeedbackSteveFullLoopTestStatus.summary?.accepted === false &&
+      agentFeedbackSteveFullLoopTestStatus.summary?.historicalScriptConsumedToken === true &&
+      agentFeedbackSteveFullLoopTestStatus.summary?.realBrowserResponse === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.clickUpCompletedWritten === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.responseNotificationSent === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.reminderStopped === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.duplicateBlocked === true &&
+      agentFeedbackSteveFullLoopTestStatus.summary?.duplicateSubmitClearMessage === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.productionAutoSendEnabled === false &&
       agentFeedbackSteveFullLoopTestStatus.summary?.georgiaTargeted === false &&
       agentFeedbackSteveFullLoopTestStatus.summary?.metadataOnly === true &&
-      agentFeedbackSteveFullLoopTestStatus.summary?.steveCardLane === 'done' &&
+      agentFeedbackSteveFullLoopTestStatus.summary?.steveCardLane === 'scoped' &&
+      ['executing', 'done'].includes(agentFeedbackSteveFullLoopTestStatus.summary?.repairCardLane) &&
       agentFeedbackSteveFullLoopTestStatus.summary?.productionCardLane === 'scoped' &&
       buildLogAgentFeedbackSteveFullLoopTestBuild?.operatorCloseout === true &&
       agentFeedbackSteveFullLoopTestBuildLogExact &&
-      currentPlan.includes('AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` is done') &&
-      currentPlan.includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
-      currentState.includes('AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` is done') &&
-      currentState.includes('No production auto-send'),
-    'AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001 proves one Steve-only full loop',
-    `gmail=${agentFeedbackSteveFullLoopTestStatus.summary?.gmailMessageIdPresent ? 'present' : 'missing'} requested=${agentFeedbackSteveFullLoopTestStatus.summary?.clickUpRequestedWritten ? 'yes' : 'no'} duplicate=${agentFeedbackSteveFullLoopTestStatus.summary?.duplicateBlocked ? 'blocked' : 'missing'} closeout=${buildLogAgentFeedbackSteveFullLoopTestBuild?.closeoutKey || 'missing'}`,
+      currentPlan.includes('AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` is not accepted') &&
+      currentPlan.includes(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) &&
+      currentState.includes('AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` is not accepted') &&
+      currentState.includes('real browser submission'),
+    'AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001 is reopened and gated by real-user repair',
+    `historicalScriptConsumed=${agentFeedbackSteveFullLoopTestStatus.summary?.historicalScriptConsumedToken ? 'yes' : 'no'} repair=${agentFeedbackSteveFullLoopTestStatus.summary?.repairStatus || 'missing'} phase=${agentFeedbackSteveFullLoopTestStatus.summary?.repairPhase || 'missing'} closeout=${buildLogAgentFeedbackSteveFullLoopTestBuild?.closeoutKey || 'missing'}`,
+  )
+  const agentFeedbackRealUserSubmitRepairBuildLogExact =
+    buildLogAgentFeedbackRealUserSubmitRepairBuild?.backlogIds?.length === 1 &&
+    buildLogAgentFeedbackRealUserSubmitRepairBuild.backlogIds.includes(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) &&
+    [
+      AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
+      AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
+      AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID,
+    ].every(id => (buildLogAgentFeedbackRealUserSubmitRepairBuild.mentionedBacklogIds || []).includes(id)) &&
+    !(buildLogAgentFeedbackRealUserSubmitRepairBuild.backlogIds || []).includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) &&
+    !(buildLogAgentFeedbackRealUserSubmitRepairBuild.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
+    !(buildLogAgentFeedbackRealUserSubmitRepairBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID)
+  ensure(
+    checks,
+    agentFeedbackRealUserSubmitRepair?.lane === 'done' &&
+      /agent-feedback-real-user-submit-repair-v1/.test(agentFeedbackRealUserSubmitRepair?.statusNote || '') &&
+      agentFeedbackSteveFullLoopTest?.lane === 'scoped' &&
+      agentFeedbackProductionAutoSendEnable?.lane === 'scoped' &&
+      agentFeedbackGeorgiaSend?.lane === 'scoped' &&
+      agentFeedbackRealUserSubmitRepairApprovalValidation.ok &&
+      agentFeedbackRealUserSubmitRepairApprovalValidation.mode === 'v2' &&
+      agentFeedbackRealUserSubmitRepairApprovalValidation.approval?.approvedPlanRef === AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVED_PLAN_PATH &&
+      includesAll(agentFeedbackRealUserSubmitRepairApprovedPlan, [
+        AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
+        AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CLOSEOUT_KEY,
+        'send-only/manual-user',
+        'synthetic-submit',
+        'real browser submission',
+        'production auto-send remains a later card',
+      ]) &&
+      includesAll(agentFeedbackRealUserSubmitRepairProof, [
+        AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
+        'real browser',
+        'Duplicate submit',
+        'rawEmailsLogged',
+        'rawTokenLogged',
+      ]) &&
+      includesAll(foundationVerifySource, AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"agent-feedback:real-user-submit-repair"', '"process:agent-feedback-real-user-submit-repair-check"']) &&
+      includesAll(agentFeedbackRealUserSubmitRepairSource, [
+        'executeApprovedRealUserSubmitRepairSendOnly',
+        'buildAgentFeedbackRealUserSyntheticSubmitProof',
+        'supersedeAgentOnboardingFeedbackResponseForRepair',
+        'includeDuplicateProbe',
+      ]) &&
+      serverSource.includes('agent_feedback_link_already_submitted') &&
+      serverSource.includes('This feedback link has already been submitted.') &&
+      agentFeedbackRealUserSubmitRepairStatus.status === 'healthy' &&
+      agentFeedbackRealUserSubmitRepairStatus.phase === 'real_user_submitted' &&
+      Boolean(agentFeedbackRealUserSubmitRepairStatus.summary?.realBrowserResponse) &&
+      agentFeedbackRealUserSubmitRepairStatus.summary?.notification?.status === 'sent' &&
+      agentFeedbackRealUserSubmitRepairStatus.summary?.reminderStopped === true &&
+      agentFeedbackRealUserSubmitRepairStatus.summary?.duplicateResendBlocked === true &&
+      agentFeedbackRealUserSubmitRepairStatus.summary?.duplicateSubmitClearMessage === true &&
+      agentFeedbackRealUserSubmitRepairStatus.summary?.productionAutoSendEnabled === false &&
+      agentFeedbackRealUserSubmitRepairStatus.summary?.georgiaTargeted === false &&
+      agentFeedbackRealUserSubmitRepairStatus.summary?.metadataOnly === true &&
+      buildLogAgentFeedbackRealUserSubmitRepairBuild?.operatorCloseout === true &&
+      agentFeedbackRealUserSubmitRepairBuildLogExact &&
+      currentPlan.includes('AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001` is done') &&
+      currentPlan.includes('Production auto-send remains stopped') &&
+      currentState.includes('AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001` is done') &&
+      currentState.includes('real browser submission'),
+    'AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001 proves real Steve browser submit before production',
+    `phase=${agentFeedbackRealUserSubmitRepairStatus.phase || 'missing'} response=${agentFeedbackRealUserSubmitRepairStatus.summary?.realBrowserResponse ? 'yes' : 'no'} duplicate=${agentFeedbackRealUserSubmitRepairStatus.summary?.duplicateResendBlocked ? 'blocked' : 'missing'} closeout=${buildLogAgentFeedbackRealUserSubmitRepairBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

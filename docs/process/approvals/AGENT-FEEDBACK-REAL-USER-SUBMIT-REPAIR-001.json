@@ -1,0 +1,30 @@
+{
+  "cardId": "AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-01T00:30:00.000Z",
+  "approvalSource": "Steve direct repair mission: stop production enablement, do not build production auto-send, repair Steve full-loop so Steve submits the real emailed browser link.",
+  "notes": "Approves one Steve Zahnd Day-30 send-only/manual-user repair. Supersede only previous script-consumed Steve test artifacts. Reset ClickUp NPS 30 Status to Requested only as required for the fresh repair send. Do not clear ClickUp score or feedback. No synthetic submission of the live emailed token. No production auto-send. No Georgia request target.",
+  "sendOnlyApproved": true,
+  "targetName": "Steve Zahnd",
+  "milestoneDay": 30,
+  "recipientRule": "clickup-company-email",
+  "bccRoles": [
+    "Steve",
+    "Carson",
+    "Ryan",
+    "Georgia"
+  ],
+  "oneSendLimit": true,
+  "supersedePreviousScriptArtifactsApproved": true,
+  "clickUpStatusResetToRequestedApproved": true,
+  "clickUpScoreFeedbackResetApproved": false,
+  "syntheticSubmitLiveTokenApproved": false,
+  "productionAutoSendApproved": false,
+  "georgiaSendApproved": false,
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/agent-feedback-real-user-submit-repair-v1.md",
+  "approvedPlanSha256": "cc8f7e454807de94b5898d6cd2843c7f30a04a470a39d471c0b3284ffd92d8f1",
+  "approvedRepoHead": "eecfdedd40816467d61c1e3e293812daeacf9ea4",
+  "approvalDigest": "cacb6778b5e2a5a6771a3f2466bc5e4fd77fffbf923f0f4abccc3ae9a906fc63"
+}

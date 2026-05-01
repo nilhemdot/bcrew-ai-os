@@ -64,6 +64,7 @@ import {
   updateDecision,
   updateFoundationJobControl,
   updateOpenQuestion,
+  getAgentOnboardingFeedbackResponseByTokenHash,
   upsertAgentOnboardingFeedbackResponse,
 } from './lib/foundation-db.js'
 import {
@@ -5751,6 +5752,16 @@ app.post('/api/foundation/doc-updates/:id/apply', requireAdminToken, async (req,
 app.get('/api/agent-feedback/session', async (req, res) => {
   try {
     const session = verifyAgentFeedbackToken(req.query.token)
+    const existingResponse = await getAgentOnboardingFeedbackResponseByTokenHash(session.tokenHash)
+    if (existingResponse) {
+      sendApiError(
+        res,
+        409,
+        'agent_feedback_link_already_submitted',
+        'This feedback link has already been submitted.'
+      )
+      return
+    }
     cacheHeadersNoStore(res)
     res.json({
       agentName: session.agentName,
@@ -5760,6 +5771,15 @@ app.get('/api/agent-feedback/session', async (req, res) => {
       privacyNote: 'This will only be read by Steve so you can be open and honest about what would make the experience better.',
     })
   } catch (error) {
+    if (error instanceof Error && /already been used/i.test(error.message)) {
+      sendApiError(
+        res,
+        409,
+        'agent_feedback_link_already_submitted',
+        'This feedback link has already been submitted.'
+      )
+      return
+    }
     sendApiError(
       res,
       400,
@@ -5772,6 +5792,17 @@ app.get('/api/agent-feedback/session', async (req, res) => {
 app.post('/api/agent-feedback/submit', async (req, res) => {
   try {
     const session = verifyAgentFeedbackToken(req.body?.token)
+    const existingResponse = await getAgentOnboardingFeedbackResponseByTokenHash(session.tokenHash)
+    if (existingResponse) {
+      sendApiError(
+        res,
+        409,
+        'agent_feedback_link_already_submitted',
+        'This feedback link has already been submitted.'
+      )
+      return
+    }
+
     const score = Number(req.body?.score)
     const improvementFeedback = String(req.body?.improvementFeedback || '').trim().slice(0, 5000)
 
@@ -5828,6 +5859,15 @@ app.post('/api/agent-feedback/submit', async (req, res) => {
       },
     })
   } catch (error) {
+    if (error instanceof Error && /already been used/i.test(error.message)) {
+      sendApiError(
+        res,
+        409,
+        'agent_feedback_link_already_submitted',
+        'This feedback link has already been submitted.'
+      )
+      return
+    }
     sendApiError(
       res,
       400,
