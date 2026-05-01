@@ -1,0 +1,27 @@
+{
+  "cardId": "AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-01T00:00:00.000Z",
+  "approvalSource": "Steve direct mission: build only AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001; no production auto-send, no Georgia send, no unrelated gate-speed work.",
+  "notes": "Approves one controlled Steve Zahnd Day-30 live full-loop test only. Company Email To. BCC Steve, Carson, Ryan, and Georgia with Steve deduped. Gmail-before-ClickUp Requested. Controlled form submission. No production-all auto-send. Georgia is not the feedback-request target.",
+  "sendApproved": true,
+  "targetName": "Steve Zahnd",
+  "milestoneDay": 30,
+  "recipientRule": "clickup-company-email",
+  "bccRoles": [
+    "Steve",
+    "Carson",
+    "Ryan",
+    "Georgia"
+  ],
+  "oneSendLimit": true,
+  "liveExternalSideEffectsApproved": true,
+  "productionAutoSendApproved": false,
+  "georgiaSendApproved": false,
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/agent-feedback-steve-full-loop-test-v1.md",
+  "approvedPlanSha256": "5d7b5ece46747df44efc162f65f97ddfb8acb658977ded014ef7d29c9ce72ec3",
+  "approvedRepoHead": "9fca5ed39cd5d534b42d8107f0e158fd2ffc4d38",
+  "approvalDigest": "31e07797592cbdb3501e7c2b5459ec34a2972792d61fdee4a81c84ba985b5c75"
+}
