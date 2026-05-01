@@ -142,6 +142,15 @@ import {
   buildAgentFeedbackSendStatus,
 } from '../lib/agent-feedback-send.js'
 import {
+  AGENT_FEEDBACK_AUTO_SEND_APPROVAL_PATH,
+  AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH,
+  AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
+  AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_AUTO_SEND_JOB_KEY,
+  AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH,
+  buildAgentFeedbackAutoSendStatus,
+} from '../lib/agent-feedback-auto-send.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -247,6 +256,10 @@ const AGENT_ONBOARDING_FEEDBACK_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const AGENT_FEEDBACK_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'AGENT-FEEDBACK-SEND-001',
+]
+
+const AGENT_FEEDBACK_AUTO_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'AGENT-FEEDBACK-AUTO-SEND-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -780,6 +793,7 @@ async function main() {
   const agentFeedbackEmailSource = await readRepoFile('lib/agent-feedback-email.js')
   const agentFeedbackClickUpSource = await readRepoFile('lib/agent-feedback-clickup.js')
   const agentFeedbackSendSource = await readRepoFile('lib/agent-feedback-send.js')
+  const agentFeedbackAutoSendSource = await readRepoFile('lib/agent-feedback-auto-send.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
@@ -927,6 +941,7 @@ async function main() {
   const foundationSystemsServiceGroupingApprovalRef = FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH
   const agentOnboardingFeedbackSystemApprovalRef = AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVAL_PATH
   const agentFeedbackSendApprovalRef = AGENT_FEEDBACK_SEND_APPROVAL_PATH
+  const agentFeedbackAutoSendApprovalRef = AGENT_FEEDBACK_AUTO_SEND_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -988,6 +1003,11 @@ async function main() {
     approvalRef: agentFeedbackSendApprovalRef,
     cardId: AGENT_FEEDBACK_SEND_CARD_ID,
   })
+  const agentFeedbackAutoSendApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: agentFeedbackAutoSendApprovalRef,
+    cardId: AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -1015,6 +1035,7 @@ async function main() {
   const foundationSystemsServiceGroupingApprovedPlan = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH)
   const agentOnboardingFeedbackSystemApprovedPlan = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVED_PLAN_PATH)
   const agentFeedbackSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_SEND_APPROVED_PLAN_PATH)
+  const agentFeedbackAutoSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -1036,6 +1057,7 @@ async function main() {
   const agentOnboardingFeedbackSystemManualReview = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_MANUAL_REVIEW_PATH)
   const agentFeedbackSendBaseline = await readRepoFile(AGENT_FEEDBACK_SEND_BASELINE_PATH)
   const agentFeedbackSendDryRunProof = await readRepoFile(AGENT_FEEDBACK_SEND_DRY_RUN_PROOF_PATH)
+  const agentFeedbackAutoSendReadinessProof = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2203,6 +2225,12 @@ async function main() {
     foundationHub,
     foundationBuildLog,
   })
+  const agentFeedbackAutoSendStatus = await buildAgentFeedbackAutoSendStatus({
+    repoRoot,
+    foundationHub,
+    foundationBuildLog,
+    opsHub,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3005,6 +3033,10 @@ async function main() {
   const buildLogAgentFeedbackSendBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_SEND_CLOSEOUT_KEY
+  )
+  const buildLogAgentFeedbackAutoSendBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AGENT_FEEDBACK_AUTO_SEND_CARD_ID) &&
+      build.closeoutKey === AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -4146,6 +4178,7 @@ async function main() {
   const foundationSystemsServiceGrouping = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) || null
   const agentOnboardingFeedbackSystem = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) || null
   const agentFeedbackSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_CARD_ID) || null
+  const agentFeedbackAutoSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_AUTO_SEND_CARD_ID) || null
   const agentFeedbackGeorgiaSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) || null
   const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
@@ -6206,6 +6239,100 @@ async function main() {
       currentState.includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID),
     'AGENT-FEEDBACK-SEND-001 builds Stage 1 send infrastructure with dry-run proof only',
     `target=${agentFeedbackSendStatus.summary?.target || 'missing'} day=${agentFeedbackSendStatus.summary?.milestoneDay || 'missing'} recipientSource=${agentFeedbackSendStatus.summary?.recipientSource || 'missing'} eligible=${agentFeedbackSendStatus.summary?.eligible ? 'yes' : 'no'} blockers=${agentFeedbackSendStatus.summary?.blockers?.join(', ') || 'none'} closeout=${buildLogAgentFeedbackSendBuild?.closeoutKey || 'missing'}`,
+  )
+  const agentFeedbackAutoSendBuildLogExact = buildLogAgentFeedbackAutoSendBuild?.backlogIds?.length === 1 &&
+    buildLogAgentFeedbackAutoSendBuild.backlogIds.includes(AGENT_FEEDBACK_AUTO_SEND_CARD_ID) &&
+    (buildLogAgentFeedbackAutoSendBuild.mentionedBacklogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID) &&
+    (buildLogAgentFeedbackAutoSendBuild.mentionedBacklogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) &&
+    !(buildLogAgentFeedbackAutoSendBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID) &&
+    !(buildLogAgentFeedbackAutoSendBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID)
+  ensure(
+    checks,
+    agentFeedbackAutoSend?.lane === 'done' &&
+      /agent-feedback-auto-send-v1/.test(agentFeedbackAutoSend?.statusNote || '') &&
+      agentFeedbackGeorgiaSend?.lane === 'scoped' &&
+      agentFeedbackAutoSendApprovalValidation.ok &&
+      agentFeedbackAutoSendApprovalValidation.mode === 'v2' &&
+      agentFeedbackAutoSendApprovalValidation.approval?.approvedPlanRef === AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH &&
+      includesAll(agentFeedbackAutoSendApprovedPlan, [
+        AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
+        AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY,
+        'default dry-run/report-only',
+        'toggle alone cannot send',
+        'allowlist alone cannot send',
+        'production-all mode is impossible without a separate production approval artifact',
+        'Georgia Day-30 is discovered as `would_send` in dry-run',
+      ]) &&
+      includesAll(agentFeedbackAutoSendReadinessProof, [
+        AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
+        'Mode: dry-run/report-only',
+        'Expected action: `would_send`',
+        'Default dry-run/report-only cannot send',
+        'Runtime toggle alone cannot send',
+        'Approved allowlist alone cannot send',
+        'Production-all cannot send without a separate approval artifact',
+        'Gmail sent: no',
+        'ClickUp Requested written: no',
+        'raw email addresses',
+      ]) &&
+      includesAll(foundationVerifySource, AGENT_FEEDBACK_AUTO_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"agent-feedback:auto-send"', '"process:agent-feedback-auto-send-check"']) &&
+      includesAll(agentFeedbackAutoSendSource, [
+        'buildAgentFeedbackAutoSendDryRunReport',
+        'evaluateAgentFeedbackAutoSendLiveGuard',
+        'buildAgentFeedbackAutoSendGuardMatrix',
+        'defaultDryRunCannotSend',
+        'toggleAloneCannotSend',
+        'allowlistAloneCannotSend',
+        'productionAllWithoutSeparateApprovalCannotSend',
+        'dry-run-report-only',
+      ]) &&
+      includesAll(agentFeedbackSendSource, [
+        'repairState',
+        'clickup_requested_writeback_failed',
+        'resendAllowed: false',
+      ]) &&
+      includesAll(foundationJobsSource, [
+        AGENT_FEEDBACK_AUTO_SEND_JOB_KEY,
+        'agent-feedback:auto-send',
+        '--mode=dry-run',
+        "servesHubs: ['ops']",
+      ]) &&
+      includesAll(serverSource, ['buildAgentFeedbackAutoSendReadiness', 'agentFeedbackAutoSend']) &&
+      includesAll(foundationUiSource, ['renderAgentFeedbackAutoSendPanel', 'Agent Feedback Auto-Send']) &&
+      includesAll(opsUiSource, ['agent-feedback-auto-send-readiness', 'Feedback auto-send readiness']) &&
+      agentFeedbackAutoSendStatus.status === 'healthy' &&
+      agentFeedbackAutoSendStatus.summary?.georgiaDay30Action === 'would_send' &&
+      agentFeedbackAutoSendStatus.summary?.georgiaDay30Eligible === true &&
+      agentFeedbackAutoSendStatus.summary?.georgiaDay30RecipientSource === 'company_email' &&
+      ['Steve', 'Carson', 'Ryan', 'Georgia'].every(role => (agentFeedbackAutoSendStatus.summary?.georgiaDay30BccRolesApplied || []).includes(role)) &&
+      agentFeedbackAutoSendStatus.summary?.defaultCannotSend === true &&
+      agentFeedbackAutoSendStatus.summary?.toggleAloneCannotSend === true &&
+      agentFeedbackAutoSendStatus.summary?.allowlistAloneCannotSend === true &&
+      agentFeedbackAutoSendStatus.summary?.bothKeysRequired === true &&
+      agentFeedbackAutoSendStatus.summary?.productionAllRequiresSeparateApproval === true &&
+      agentFeedbackAutoSendStatus.summary?.liveGuardDecision === 'report_only' &&
+      agentFeedbackAutoSendStatus.summary?.metadataOnly === true &&
+      Number(agentFeedbackAutoSendStatus.summary?.wouldSendCount) >= 1 &&
+      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.sentCount)) &&
+      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.skippedCount)) &&
+      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.blockedCount)) &&
+      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.warningCount)) &&
+      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.repairCount)) &&
+      agentFeedbackAutoSendStatus.summary?.autoSendCardLane === 'done' &&
+      agentFeedbackAutoSendStatus.summary?.georgiaSendCardLane === 'scoped' &&
+      agentFeedbackAutoSendStatus.summary?.closeoutOwnsOnlyAutoSend === true &&
+      foundationHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action === 'would_send' &&
+      opsHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action === 'would_send' &&
+      opsHub.foundationJobs?.jobs?.some(job => job.key === AGENT_FEEDBACK_AUTO_SEND_JOB_KEY) &&
+      buildLogAgentFeedbackAutoSendBuild?.operatorCloseout === true &&
+      agentFeedbackAutoSendBuildLogExact &&
+      currentPlan.includes('AGENT-FEEDBACK-AUTO-SEND-001` is done for readiness') &&
+      currentPlan.includes('test-only Georgia/day-30 live-send mode') &&
+      currentState.includes('AGENT-FEEDBACK-AUTO-SEND-001` is done for readiness') &&
+      currentState.includes('test-only Georgia/day-30 live-send mode'),
+    'AGENT-FEEDBACK-AUTO-SEND-001 builds governed auto-send readiness without live send',
+    `georgia=${agentFeedbackAutoSendStatus.summary?.georgiaDay30Action || 'missing'} wouldSend=${agentFeedbackAutoSendStatus.summary?.wouldSendCount ?? 'missing'} guard=${agentFeedbackAutoSendStatus.summary?.liveGuardDecision || 'missing'} closeout=${buildLogAgentFeedbackAutoSendBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

@@ -123,6 +123,7 @@ import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
 import { writeAgentFeedbackToClickUp } from './lib/agent-feedback-clickup.js'
+import { buildAgentFeedbackAutoSendReadiness } from './lib/agent-feedback-auto-send.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import {
   authenticateAuthUser,
@@ -4259,6 +4260,10 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       extractionControl: snapshot.extractionControl,
       foundationJobs: getFoundationJobDefinitions(),
     })
+    const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
+      repoRoot: __dirname,
+      includeCandidates: false,
+    })
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4277,6 +4282,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       decisionAutoEmit,
       sheetsApiTrust,
       sourceLifecycle,
+      agentFeedbackAutoSend,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
@@ -4343,6 +4349,10 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
   try {
     const snapshot = await getFoundationSnapshot()
     const foundationJobs = snapshot.foundationJobs || {}
+    const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
+      repoRoot: __dirname,
+      includeCandidates: false,
+    })
     const jobs = Array.isArray(foundationJobs.jobs)
       ? foundationJobs.jobs.filter(job => Array.isArray(job.servesHubs) && job.servesHubs.includes('ops'))
       : []
@@ -4362,6 +4372,7 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
         jobs,
         latestRuns,
       },
+      agentFeedbackAutoSend,
       meta: {
         generatedAt: snapshot.meta?.generatedAt || new Date().toISOString(),
         surface: 'ops',

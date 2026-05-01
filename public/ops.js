@@ -250,12 +250,14 @@ function renderOpsSystemSummaryCard(job) {
     'admin-deal-backlog-review': 'Admin backlog scan',
     'conditional-deal-review-readonly': 'Conditional forecast sync',
     'agent-roster-review': 'Agent onboarding check',
+    'agent-feedback-auto-send-readiness': 'Feedback auto-send readiness',
   }
   var summaries = {
     'admin-deal-review-readonly': 'Re-checks Admin deals after someone marks them ready for review.',
     'admin-deal-backlog-review': 'Checks 5 older eligible Admin deals per day so the backlog clears without flooding Ops.',
     'conditional-deal-review-readonly': 'Keeps the conditional forecast sheet rebuilt from the ClickUp deal board.',
     'agent-roster-review': 'Checks the Agent Roster and tracks 30/60/90 onboarding feedback.',
+    'agent-feedback-auto-send-readiness': 'Reports who would receive onboarding feedback without sending until both live-send controls are approved.',
   }
   return renderStatusCard({
     label: labels[job.key] || job.title || job.key,

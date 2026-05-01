@@ -5987,6 +5987,37 @@ function renderFoundationJobsPanel(foundationJobs) {
   )
 }
 
+function renderAgentFeedbackAutoSendPanel(agentFeedbackAutoSend) {
+  if (!agentFeedbackAutoSend || !agentFeedbackAutoSend.summary) return null
+  var summary = agentFeedbackAutoSend.summary || {}
+  var guard = agentFeedbackAutoSend.liveGuard || {}
+  var counts = [
+    'would-send ' + (summary.wouldSendCount || 0),
+    'sent ' + (summary.sentCount || 0),
+    'skipped ' + (summary.skippedCount || 0),
+    'blocked ' + (summary.blockedCount || 0),
+    'warnings ' + (summary.warningCount || 0),
+    'repairs ' + (summary.repairCount || 0),
+  ].join(' · ')
+
+  return renderStatusGroupPanel(
+    'Agent Feedback Auto-Send',
+    'Daily dry-run scanner for 30/60/90 onboarding feedback requests. Live sends need both the runtime toggle and an approved allowlist or production artifact.',
+    [
+      {
+        label: 'Readiness counts',
+        status: agentFeedbackAutoSend.status === 'healthy' ? 'live' : 'risk',
+        detail: counts + '. Georgia Day-30: ' + (summary.georgiaDay30Action || 'missing') + '.',
+      },
+      {
+        label: 'Live-send guard',
+        status: guard.decision === 'report_only' ? 'pending' : 'risk',
+        detail: 'Current mode: ' + (summary.liveGuardDecision || guard.decision || 'unknown') + '. Default dry-run only; toggle alone cannot send and allowlist alone cannot send.',
+      },
+    ]
+  )
+}
+
 function renderServedCodeTrustPanel(runtimeSupervisor) {
   var servedCode = runtimeSupervisor && runtimeSupervisor.servedCode
   if (!servedCode) return null
@@ -13295,6 +13326,9 @@ function renderDataHealth() {
 
     var surfaceSweepPanel = renderSurfaceFreshnessSweepPanel(hub.surfaceFreshnessSweep)
     if (surfaceSweepPanel) container.appendChild(surfaceSweepPanel)
+
+    var agentFeedbackAutoSendPanel = renderAgentFeedbackAutoSendPanel(hub.agentFeedbackAutoSend)
+    if (agentFeedbackAutoSendPanel) container.appendChild(agentFeedbackAutoSendPanel)
 
     var jobsPanel = renderFoundationJobsPanel(hub.foundationJobs)
     if (jobsPanel) container.appendChild(jobsPanel)

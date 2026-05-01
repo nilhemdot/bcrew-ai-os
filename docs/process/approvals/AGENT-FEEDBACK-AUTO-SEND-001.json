@@ -1,0 +1,13 @@
+{
+  "cardId": "AGENT-FEEDBACK-AUTO-SEND-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-01T00:00:00.000Z",
+  "approvalSource": "Steve approved AGENT-FEEDBACK-AUTO-SEND-001 at 9.8 as auto-send readiness only, with two-key live-send controls and no Gmail send or ClickUp Requested writeback during build.",
+  "notes": "Default dry-run/report-only. Live sends require AGENT_FEEDBACK_AUTO_SEND_ENABLED=true plus approved mode/allowlist artifact; toggle alone cannot send, allowlist alone cannot send, and production-all requires a separate approval artifact.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/agent-feedback-auto-send-v1.md",
+  "approvedPlanSha256": "a8782c89887e52385ad9993bc2ddfbbe729bcbdd197f09de6dbdc11696fbbd24",
+  "approvedRepoHead": "ddfd125a4e18f9b746b4cbe2720eb66c2d61b3ac",
+  "approvalDigest": "7e7f146ea3ab18aceef191790336c9fc556f6d16131b692a0e96ffd912412330"
+}
