@@ -8126,6 +8126,13 @@ code {
   margin-bottom: 18px;
 }
 
+.sales-score-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
 .sales-metric {
   min-height: 118px;
   padding: 16px;
@@ -8170,7 +8177,8 @@ code {
 .sales-system-card,
 .sales-workflow-step,
 .sales-playbook-card,
-.sales-project-card {
+.sales-project-card,
+.sales-score-item {
   min-width: 0;
   padding: 16px;
   border: 1px solid var(--border);
@@ -8432,6 +8440,61 @@ code {
   margin-top: 16px;
 }
 
+.sales-leader-score-list,
+.sales-conversion-list,
+.sales-grouped-proof-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.sales-leader-score-row,
+.sales-conversion-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(110px, auto) minmax(110px, auto);
+  gap: 12px;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+}
+
+.sales-leader-score-row span,
+.sales-conversion-row span {
+  color: var(--text-muted);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.sales-cohort-table {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) repeat(5, minmax(92px, 0.7fr));
+  gap: 1px;
+  margin-top: 16px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--border);
+}
+
+.sales-cohort-table > div {
+  min-width: 92px;
+  padding: 10px;
+  background: #fff;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.sales-cohort-head {
+  color: var(--text-primary) !important;
+  background: var(--surface-soft) !important;
+  text-transform: uppercase;
+  font-size: 0.74rem !important;
+}
+
 .sales-agent-actions {
   display: grid;
   grid-template-columns: auto minmax(170px, 220px);
@@ -8554,8 +8617,14 @@ code {
   .sales-system-card-grid,
   .sales-workflow-grid,
   .sales-project-list,
+  .sales-score-grid,
   .sales-project-controls,
   .sales-case-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-leader-score-row,
+  .sales-conversion-row {
     grid-template-columns: 1fr;
   }
 

@@ -468,10 +468,14 @@ function clearSalesHubCache() {
 
 async function buildSalesHubPayload() {
   const listingInventory = await buildSalesListingInventory()
+  const caseSync = await syncSalesListingCasesFromInventory(listingInventory, {
+    actor: 'sales-hub-refresh',
+  })
   return {
     status: 'healthy',
     hub: 'sales',
     listingInventory,
+    caseSync,
     meta: {
       generatedAt: new Date().toISOString(),
       sourceId: listingInventory.source.sourceId,

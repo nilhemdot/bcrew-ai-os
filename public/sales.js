@@ -95,6 +95,25 @@ function formatDate(value) {
   }).format(date)
 }
 
+function formatPercent(value) {
+  if (value == null || Number.isNaN(Number(value))) return 'n/a'
+  return Number(value).toFixed(Number(value) % 1 === 0 ? 0 : 1) + '%'
+}
+
+function getScoreboard(report) {
+  return report.scoreboard || {
+    currentActive: {},
+    allTimeFunnel: {},
+    conversionRates: [],
+    weeklyCohorts: [],
+    movedSoldCases: [],
+  }
+}
+
+function formatDualCount(metric) {
+  return formatNumber(metric?.listingCount || 0) + ' listings · ' + formatNumber(metric?.caseCount || 0) + ' cases'
+}
+
 function setActiveNav(section) {
   var activeSection = section === 'gls-dashboard' ? 'gls-dashboard' : 'gls-system'
   document.querySelectorAll('.found-nav-item').forEach(function(item) {
@@ -153,14 +172,17 @@ function renderHero(report) {
 
 function renderMetrics(report) {
   var summary = report.summary || {}
+  var scoreboard = getScoreboard(report)
+  var funnel = scoreboard.allTimeFunnel || {}
   var grid = el('section', 'sales-metric-grid')
   grid.appendChild(renderMetric('Stale active listings', summary.staleActiveListings, '30+ days since list date or last price adjustment.'))
+  grid.appendChild(renderMetric('Active GLS cases', summary.currentActiveGlsCases, 'Grouped case/project count. Multi-unit projects count once.'))
   grid.appendChild(renderMetric('Assigned to leader', summary.assignedSalesLeader, 'Stale listings with Ryan, Blake, Nick, Scott, or Steve assigned.'))
-  grid.appendChild(renderMetric('Agent connected', summary.caseAgentConnected, 'Cases where the leader has connected with the agent or moved the case forward.'))
-  grid.appendChild(renderMetric('Game plan yes', summary.caseActionPlanYes, 'Tracked in AIOS cases; KPI is supporting evidence only.'))
-  grid.appendChild(renderMetric('Game plan no', summary.caseActionPlanNo, 'Requires a reason so the opportunity can be reviewed.'))
-  grid.appendChild(renderMetric('Implemented', summary.caseImplemented, 'Plan implemented, adjusted/relisted, conditional, firm, or closed.'))
-  grid.appendChild(renderMetric('Adjusted or moved', summary.caseAdjustedOrMoved, 'Cases where ClickUp reset date or outcome shows movement.'))
+  grid.appendChild(renderMetric('Unassigned', summary.unassignedSalesLeader, 'Current stale listing rows without a sales leader.'))
+  grid.appendChild(renderMetric('All-time identified', funnel.identified?.caseCount || summary.allTimeIdentifiedCases, formatDualCount(funnel.identified || {})))
+  grid.appendChild(renderMetric('Taken on', funnel.takenOn?.caseCount || summary.allTimeTakenOnCases, formatDualCount(funnel.takenOn || {})))
+  grid.appendChild(renderMetric('Game plans', funnel.gamePlanCreated?.caseCount || summary.caseActionPlansCreated, formatDualCount(funnel.gamePlanCreated || {})))
+  grid.appendChild(renderMetric('Adjusted / sold', funnel.adjustedOrSold?.caseCount || 0, formatDualCount(funnel.adjustedOrSold || {})))
   grid.appendChild(renderMetric('Project suggestions', summary.projectMergeSuggestions, 'Multiple stale unit listings that likely belong to one project-level GLS case.'))
   return grid
 }
@@ -183,11 +205,123 @@ function renderGlsWorkflow(report) {
   return section
 }
 
+function renderScorePair(label, metric, helper) {
+  var item = el('article', 'sales-score-item')
+  item.appendChild(el('div', 'sales-gap-title', label))
+  item.appendChild(el('div', 'sales-gap-status', formatDualCount(metric || {})))
+  if (helper) item.appendChild(el('p', null, helper))
+  return item
+}
+
+function renderCurrentActiveScoreboard(report) {
+  var scoreboard = getScoreboard(report)
+  var current = scoreboard.currentActive || {}
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'Current active GLS'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Current active count is live from ClickUp Active listings. Case count groups multi-unit projects so one project does not inflate the GLS case count.'))
+
+  var grid = el('div', 'sales-score-grid')
+  grid.appendChild(renderMetric('Active stale listings', current.listingCount, 'Raw listing opportunities.'))
+  grid.appendChild(renderMetric('Active GLS cases', current.caseCount, 'Grouped cases/projects.'))
+  grid.appendChild(renderMetric('Assigned listings', current.assignedListings, 'Current stale listing rows with a leader.'))
+  grid.appendChild(renderMetric('Unassigned listings', current.unassignedListings, 'Current stale listing rows without a leader.'))
+  section.appendChild(grid)
+
+  var leaderList = el('div', 'sales-leader-score-list')
+  ;(current.bySalesLeader || []).forEach(function(row) {
+    var leader = el('article', 'sales-leader-score-row')
+    leader.appendChild(el('strong', null, row.name))
+    leader.appendChild(el('span', null, formatNumber(row.listingCount) + ' listings'))
+    leader.appendChild(el('span', null, formatNumber(row.caseCount) + ' cases'))
+    leaderList.appendChild(leader)
+  })
+  section.appendChild(leaderList)
+
+  if (current.groupedProjectCases && current.groupedProjectCases.length) {
+    var projectList = el('div', 'sales-grouped-proof-list')
+    current.groupedProjectCases.forEach(function(project) {
+      projectList.appendChild(el('div', 'sales-source-line', project.agent + ' · ' + project.baseAddress + ' · ' + formatNumber(project.listingCount) + ' listings = 1 GLS case'))
+    })
+    section.appendChild(projectList)
+  }
+  return section
+}
+
+function renderAllTimeFunnel(report) {
+  var funnel = getScoreboard(report).allTimeFunnel || {}
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'All-time GLS funnel'))
+  section.appendChild(el('p', 'sales-panel-copy', 'All-time counts come from persisted GLS case history, so adjusted, firmed, closed, or no-longer-active listings stay visible after leaving the live Active list.'))
+
+  var grid = el('div', 'sales-score-grid')
+  grid.appendChild(renderScorePair('Identified', funnel.identified, 'Entered GLS after crossing the stale threshold.'))
+  grid.appendChild(renderScorePair('Taken on', funnel.takenOn, 'Leader assigned or case moved past identified.'))
+  grid.appendChild(renderScorePair('Connected', funnel.connected, 'Agent contacted or later.'))
+  grid.appendChild(renderScorePair('Game plan created', funnel.gamePlanCreated, 'Game plan yes or action-plan status.'))
+  grid.appendChild(renderScorePair('Implemented', funnel.implemented, 'Plan implemented or listing moved.'))
+  grid.appendChild(renderScorePair('Adjusted/relisted', funnel.adjustedRelisted, 'Reset date changed after GLS entry or adjusted outcome.'))
+  grid.appendChild(renderScorePair('Conditional/firm', funnel.moved, 'Listing moved to conditional, firm, or closed.'))
+  grid.appendChild(renderScorePair('Sold/closed', funnel.soldClosed, 'Outcome or status is closed/sold.'))
+  grid.appendChild(renderScorePair('Not taken on', funnel.notTakenOn, 'Identified with no leader/action yet.'))
+  grid.appendChild(renderScorePair('No action / blocked', funnel.noActionOrBlocked, 'Reviewed and intentionally not worked or blocked.'))
+  section.appendChild(grid)
+  return section
+}
+
+function renderConversionRates(report) {
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'Conversion rates'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Case rate is the primary GLS management rate. Listing rate stays beside it so multi-unit projects remain visible.'))
+  var list = el('div', 'sales-conversion-list')
+  ;(getScoreboard(report).conversionRates || []).forEach(function(rate) {
+    var row = el('article', 'sales-conversion-row')
+    row.appendChild(el('strong', null, rate.label))
+    row.appendChild(el('span', null, 'Cases ' + formatPercent(rate.caseRate) + ' (' + formatNumber(rate.caseNumerator) + '/' + formatNumber(rate.caseDenominator) + ')'))
+    row.appendChild(el('span', null, 'Listings ' + formatPercent(rate.listingRate) + ' (' + formatNumber(rate.listingNumerator) + '/' + formatNumber(rate.listingDenominator) + ')'))
+    list.appendChild(row)
+  })
+  section.appendChild(list)
+  return section
+}
+
+function renderWeeklyCohorts(report) {
+  var cohorts = getScoreboard(report).weeklyCohorts || []
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'Weekly cohort view'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Each row starts with the week a listing entered GLS and tracks how much of that cohort was taken on, adjusted, sold, or is still open.'))
+  if (!cohorts.length) {
+    section.appendChild(el('p', 'empty-state', 'No persisted GLS case history with entry dates yet.'))
+    return section
+  }
+  var table = el('div', 'sales-cohort-table')
+  table.appendChild(el('div', 'sales-cohort-head', 'Week'))
+  table.appendChild(el('div', 'sales-cohort-head', 'Identified'))
+  table.appendChild(el('div', 'sales-cohort-head', 'Taken on'))
+  table.appendChild(el('div', 'sales-cohort-head', 'Adjusted'))
+  table.appendChild(el('div', 'sales-cohort-head', 'Sold'))
+  table.appendChild(el('div', 'sales-cohort-head', 'Still open'))
+  cohorts.slice(0, 10).forEach(function(cohort) {
+    table.appendChild(el('div', null, formatDate(cohort.weekStart)))
+    table.appendChild(el('div', null, formatNumber(cohort.listingsIdentified) + ' / ' + formatNumber(cohort.casesIdentified)))
+    table.appendChild(el('div', null, formatNumber(cohort.takenOnListings) + ' / ' + formatNumber(cohort.takenOnCases)))
+    table.appendChild(el('div', null, formatNumber(cohort.adjustedListings) + ' / ' + formatNumber(cohort.adjustedCases)))
+    table.appendChild(el('div', null, formatNumber(cohort.soldListings) + ' / ' + formatNumber(cohort.soldCases)))
+    table.appendChild(el('div', null, formatNumber(cohort.stillOpenListings) + ' / ' + formatNumber(cohort.stillOpenCases)))
+  })
+  section.appendChild(table)
+  section.appendChild(el('p', 'sales-source-line', 'Cells show listings / grouped cases.'))
+  return section
+}
+
 function renderDashboard(report) {
   var system = getGlsSystem(report)
   var wrap = el('div')
   wrap.appendChild(renderHero(report))
   wrap.appendChild(renderMetrics(report))
+  wrap.appendChild(renderCurrentActiveScoreboard(report))
+  wrap.appendChild(renderAllTimeFunnel(report))
+  wrap.appendChild(renderConversionRates(report))
+  wrap.appendChild(renderWeeklyCohorts(report))
   wrap.appendChild(renderMovedCases(report))
   wrap.appendChild(renderGlsWorkflow(report))
   wrap.appendChild(renderProjectSuggestions(report, { interactive: false }))
@@ -213,13 +347,12 @@ function isMovedOutcome(outcomeStatus) {
 }
 
 function renderMovedCases(report) {
+  var scoreboard = getScoreboard(report)
   var section = el('section', 'sales-panel')
   section.appendChild(el('h2', null, 'Moved / sold cases'))
   section.appendChild(el('p', 'sales-panel-copy', 'When a stale listing gets adjusted, goes conditional, firms up, or closes, the tracked GLS case shows here so the result does not disappear from the active listing list.'))
 
-  var moved = (report.trackedCases || []).filter(function(item) {
-    return isMovedOutcome(item.outcomeStatus)
-  }).slice(0, 8)
+  var moved = (scoreboard.movedSoldCases || []).slice(0, 12)
 
   if (!moved.length) {
     section.appendChild(el('p', 'empty-state', 'No tracked GLS cases have moved, firmed, or closed yet.'))
@@ -229,21 +362,19 @@ function renderMovedCases(report) {
   var list = el('div', 'sales-case-list')
   moved.forEach(function(item) {
     var row = el('article', 'sales-case-row')
-    var title = item.listingUrl ? el('a', 'sales-listing-title', item.listingTitle || item.clickUpTaskId) : el('strong', 'sales-listing-title', item.listingTitle || item.clickUpTaskId)
-    if (item.listingUrl) {
-      title.href = item.listingUrl
-      title.target = '_blank'
-      title.rel = 'noopener noreferrer'
-    }
+    var title = el('strong', 'sales-listing-title', item.listingProject || item.key)
     row.appendChild(title)
     row.appendChild(el('div', 'sales-listing-meta', [
-      item.agentName || 'Unassigned agent',
-      item.assignedLeaderName ? 'Leader ' + item.assignedLeaderName : 'No leader assigned',
-      item.adjustedAt ? 'Adjusted ' + formatDate(item.adjustedAt) : '',
+      item.agent || 'Unassigned agent',
+      item.salesLeader ? 'Leader ' + item.salesLeader : 'No leader assigned',
+      item.dateEnteredGls ? 'Entered GLS ' + formatDate(item.dateEnteredGls) : '',
+      item.dateAdjusted ? 'Adjusted ' + formatDate(item.dateAdjusted) : '',
+      item.daysFromEntryToMovementOrSale != null ? formatNumber(item.daysFromEntryToMovementOrSale) + ' days to movement' : '',
+      formatNumber(item.listingCount || 0) + ' listings · ' + formatNumber(item.caseCount || 1) + ' case',
     ].filter(Boolean).join(' · ')))
     var pills = el('div', 'sales-listing-status-row')
-    pills.appendChild(renderStatusPill('Outcome: ' + labelFromOptions(report.outcomeStatusOptions || [], item.outcomeStatus || 'open', item.outcomeStatus || 'open'), getOutcomeClass(item.outcomeStatus || 'open')))
-    pills.appendChild(renderStatusPill('Game plan: ' + labelFromOptions(report.actionPlanStateOptions || [], item.actionPlanState || 'unknown', item.actionPlanState || 'unknown'), item.actionPlanState === 'yes' ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
+    pills.appendChild(renderStatusPill('Outcome: ' + labelFromOptions(report.outcomeStatusOptions || [], item.currentOutcome || 'open', item.currentOutcome || 'open'), getOutcomeClass(item.currentOutcome || 'open')))
+    pills.appendChild(renderStatusPill('Case: ' + labelFromOptions(report.caseStatusOptions || [], item.caseStatus || 'identified', item.caseStatus || 'identified'), 'status-pill status-pill-neutral'))
     row.appendChild(pills)
     list.appendChild(row)
   })

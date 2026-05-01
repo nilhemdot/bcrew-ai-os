@@ -2,14 +2,22 @@
 import { readFile } from 'node:fs/promises'
 import {
   SALES_LISTING_SOURCE,
+  buildGlsScoreboard,
   buildSalesListingInventory,
 } from '../lib/sales-listing-inventory.js'
+import { syncSalesListingCasesFromInventory } from '../lib/sales-listing-cases.js'
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
 }
 
-const report = await buildSalesListingInventory()
+let report = await buildSalesListingInventory()
+const caseSync = await syncSalesListingCasesFromInventory(report, {
+  actor: 'process:sales-listings-hub-check',
+})
+if (caseSync.totalTouched > 0) {
+  report = await buildSalesListingInventory()
+}
 const salesHtml = await readFile(new URL('../public/sales.html', import.meta.url), 'utf8')
 const salesJs = await readFile(new URL('../public/sales.js', import.meta.url), 'utf8')
 
@@ -27,9 +35,14 @@ assert(salesJs.includes('/api/sales-hub?refresh=1'), 'Sales Hub saves must force
 assert(salesJs.includes('sales-save-status'), 'Sales Hub must show explicit save/failure status for GLS writes.')
 assert(salesJs.includes('Outcome: '), 'Sales Hub listings and projects must expose outcome/sold state in the work surface.')
 assert(salesJs.includes('Moved / sold cases'), 'Sales Hub dashboard must expose tracked moved/sold GLS cases without adding another menu item.')
+assert(salesJs.includes('Current active GLS'), 'GLS dashboard must expose current active scoreboard counts.')
+assert(salesJs.includes('All-time GLS funnel'), 'GLS dashboard must expose the all-time GLS funnel.')
+assert(salesJs.includes('Weekly cohort view'), 'GLS dashboard must expose weekly cohort progress.')
+assert(salesJs.includes('formatDualCount'), 'GLS scoreboard must show listing count and grouped case count together.')
 assert(report.rule.plainEnglish.includes('Deal Status = Active'), 'Active-stage rule must be visible in the report.')
 assert(report.summary.totalTasksRead > 0, 'ClickUp Deal Data Entry returned no tasks.')
 assert(report.summary.activeListings >= 0, 'Active listing count is invalid.')
+assert(report.summary.totalTasksRead >= report.summary.activeListings, 'ClickUp read must cover the current active listing list.')
 
 const nonActiveStale = report.staleListings.filter(item => item.activeStage !== SALES_LISTING_SOURCE.activeStageValue || !item.isActiveListing)
 assert(nonActiveStale.length === 0, 'Stale listings must include only active-market listings.')
@@ -85,6 +98,74 @@ assert(
 )
 assert(report.summary.caseAgentConnected >= 0, 'GLS agent-connected count must be present.')
 assert(report.summary.caseImplemented >= 0, 'GLS implemented count must be present.')
+assert(report.scoreboard, 'GLS scoreboard must be present in the Sales Hub report.')
+assert(report.scoreboard.currentActive.listingCount === report.summary.staleActiveListings, 'Current active GLS listing count must match current stale active listings.')
+assert(report.scoreboard.currentActive.caseCount <= report.scoreboard.currentActive.listingCount, 'Grouped GLS case count must not exceed raw listing count.')
+assert(report.scoreboard.allTimeFunnel.identified.listingCount === report.summary.trackedCases, 'All-time identified listing count must come from persisted GLS cases.')
+assert(report.scoreboard.allTimeFunnel.identified.caseCount <= report.scoreboard.allTimeFunnel.identified.listingCount, 'All-time identified case count must be grouped, not inflated by listing units.')
+assert(Array.isArray(report.scoreboard.weeklyCohorts), 'GLS weekly cohort rows must be present.')
+assert(Array.isArray(report.scoreboard.movedSoldCases), 'GLS moved/sold case list must be present.')
+
+const currentProjectListingCount = (report.scoreboard.currentActive.groupedProjectCases || []).reduce((sum, project) => sum + project.listingCount, 0)
+const currentProjectCaseCount = (report.scoreboard.currentActive.groupedProjectCases || []).reduce((sum, project) => sum + project.caseCount, 0)
+assert(currentProjectCaseCount <= currentProjectListingCount, 'Grouped project cases must collapse multiple listings into fewer cases.')
+
+const nickProject = (report.scoreboard.currentActive.groupedProjectCases || []).find(project => /nick/i.test(project.agent) && project.listingCount >= 7)
+if (nickProject) {
+  assert(nickProject.caseCount === 1, 'Nick grouped project must count as one GLS case.')
+}
+
+const syntheticNickListings = Array.from({ length: 7 }, (_item, index) => ({
+  taskId: `synthetic-nick-${index + 1}`,
+  title: `${index + 1}-1020 Goderich St`,
+  agent: 'Nick Bergmann',
+  resetDate: '2026-03-01',
+  daysSinceReset: 61,
+  salesLeaderAssignment: {
+    assignedLeaderKey: 'nick',
+    assignedLeaderName: 'Nick Bergmann',
+    caseStatus: 'assigned',
+    outcomeStatus: 'open',
+    actionPlanState: 'unknown',
+    firstSeenStaleDate: '2026-04-01',
+    staleSinceDate: '2026-03-31',
+    originalResetDate: '2026-03-01',
+    currentResetDate: '2026-03-01',
+  },
+}))
+const syntheticClosedCase = {
+  clickUpTaskId: 'synthetic-closed-1',
+  listingTitle: '18 Closed Example Ave',
+  agentName: 'Closed Agent',
+  assignedLeaderKey: 'ryan',
+  assignedLeaderName: 'Ryan Campbell',
+  caseStatus: 'closed',
+  outcomeStatus: 'closed',
+  firstSeenStaleDate: '2026-03-15',
+  staleSinceDate: '2026-03-14',
+  originalResetDate: '2026-02-12',
+  currentResetDate: '2026-02-12',
+  updatedAt: '2026-04-20T12:00:00.000Z',
+  metadata: { clickUpStatus: 'Closed', activeStage: 'Closed' },
+}
+const syntheticScoreboard = buildGlsScoreboard({
+  staleListings: syntheticNickListings,
+  trackedCases: [
+    ...syntheticNickListings.map(listing => ({
+      clickUpTaskId: listing.taskId,
+      listingTitle: listing.title,
+      agentName: listing.agent,
+      ...listing.salesLeaderAssignment,
+    })),
+    syntheticClosedCase,
+  ],
+  salesLeaders: report.salesLeaders,
+})
+assert(syntheticScoreboard.currentActive.listingCount === 7, 'Synthetic Nick proof must start with seven listing opportunities.')
+assert(syntheticScoreboard.currentActive.caseCount === 1, 'Synthetic Nick proof must collapse seven units into one grouped GLS case.')
+assert(syntheticScoreboard.allTimeFunnel.soldClosed.listingCount === 1, 'Synthetic sold proof must count the sold listing.')
+assert(syntheticScoreboard.allTimeFunnel.soldClosed.caseCount === 1, 'Synthetic sold proof must count the sold case.')
+assert(syntheticScoreboard.movedSoldCases.some(item => item.key.includes('closed agent') && item.currentOutcome === 'closed'), 'Synthetic sold/closed case must remain visible from persisted history.')
 
 const duplicatePrimaryRows = new Set()
 for (const group of report.groups) {
@@ -101,6 +182,7 @@ console.log(JSON.stringify({
   sourceId: report.source.sourceId,
   listId: report.source.listId,
   viewId: report.source.viewId,
+  caseSync,
   thresholdDays: report.thresholdDays,
   activeListings: report.summary.activeListings,
   staleActiveListings: report.summary.staleActiveListings,
@@ -116,7 +198,18 @@ console.log(JSON.stringify({
   salesLeaders: report.salesLeaders.map(leader => leader.key),
   assignedSalesLeader: report.assignmentSummary.assigned,
   unassignedSalesLeader: report.assignmentSummary.unassigned,
+  currentActiveGlsCases: report.scoreboard.currentActive.caseCount,
+  groupedProjectCases: report.scoreboard.currentActive.groupedProjectCases,
   trackedCases: report.summary.trackedCases,
+  allTimeIdentifiedListings: report.scoreboard.allTimeFunnel.identified.listingCount,
+  allTimeIdentifiedCases: report.scoreboard.allTimeFunnel.identified.caseCount,
+  allTimeTakenOnCases: report.scoreboard.allTimeFunnel.takenOn.caseCount,
+  allTimeAdjustedCases: report.scoreboard.allTimeFunnel.adjustedRelisted.caseCount,
+  allTimeSoldCases: report.scoreboard.allTimeFunnel.soldClosed.caseCount,
+  weeklyCohorts: report.scoreboard.weeklyCohorts.slice(0, 4),
+  movedSoldCases: report.scoreboard.movedSoldCases.length,
+  syntheticNickSevenListingsOneCase: syntheticScoreboard.currentActive.caseCount,
+  syntheticSoldClosedVisibleAfterLeavingActive: syntheticScoreboard.movedSoldCases.length,
   caseAgentConnected: report.summary.caseAgentConnected,
   caseActionPlansCreated: report.summary.caseActionPlansCreated,
   caseActionPlanYes: report.summary.caseActionPlanYes,
