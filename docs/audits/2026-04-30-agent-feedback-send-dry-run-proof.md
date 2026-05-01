@@ -1,6 +1,7 @@
 # Agent Feedback Send Stage 1 Dry-Run Proof
 
 Proof date: 2026-04-30
+Readiness patch update: 2026-05-01
 
 Command:
 
@@ -18,18 +19,22 @@ Command:
 - Overdue days at proof time: 2
 - Send window days: 15
 - Current milestone status: empty
-- Eligible: no
-- Blockers:
-  - missing_personal_email
-  - invalid_personal_email
+- Eligible: yes
+- Blockers: none
+- Contract Link status: missing_warning
+- Data-quality warnings:
   - missing_contract_link
-- Recipient rule: clickup-personal-email
-- To role: agent
-- To address present: no
-- CC roles requested: Steve, Carson, Ryan, Georgia
-- CC roles applied after duplicate removal: Steve, Carson, Ryan
-- Georgia duplicate CC removed: yes
-- Approved CC addresses configured for Stage 2: none in tracked proof
+- Recipient rule: clickup-company-email
+- Recipient source: company_email
+- Recipient source field: Company Email
+- To role: internal-team-recipient
+- To address present: yes
+- BCC/internal oversight mode: bcc
+- BCC roles requested: Steve, Carson, Ryan, Georgia
+- BCC roles applied: Steve, Carson, Ryan, Georgia
+- BCC actual send roles after To-recipient dedupe: Steve, Carson, Ryan
+- Georgia duplicate BCC removed: yes
+- Approved BCC/internal oversight addresses configured for Stage 2: role/hash proof only
 - Token hash proof: present
 - Token URL logged: no
 - ClickUp Requested writeback plan: write Requested only after Gmail send succeeds
@@ -52,4 +57,4 @@ No raw email addresses, token URLs, or feedback content are recorded in this art
 
 ## Next Review
 
-Steve must review this dry-run proof. Real send requires exact `SEND APPROVED` naming Georgia, milestone/day, recipient rule, CC roles, and one-send limit.
+Steve must review this dry-run proof. Real send requires exact `SEND APPROVED` naming Georgia, milestone/day, To: ClickUp Company Email, BCC/internal oversight roles, one-send limit, and Gmail-before-Requested sequencing.

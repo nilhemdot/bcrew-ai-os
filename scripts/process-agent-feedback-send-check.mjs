@@ -62,6 +62,8 @@ async function main() {
   console.log(`  Due status: ${status.summary.dueStatus}`)
   console.log(`  Eligible: ${status.summary.eligible ? 'yes' : 'no'}`)
   console.log(`  Blockers: ${status.summary.blockers.length ? status.summary.blockers.join(', ') : 'none'}`)
+  console.log(`  Contract Link status: ${status.summary.contractLinkStatus || 'missing'}`)
+  console.log(`  Data-quality warnings: ${status.summary.dataQualityWarnings.length ? status.summary.dataQualityWarnings.join(', ') : 'none'}`)
   console.log(`  Recipient rule: ${status.summary.recipientRule || 'missing'}`)
   console.log(`  Recipient source: ${status.summary.recipientSource || 'missing'}`)
   console.log(`  Recipient field: ${status.summary.recipientSourceFieldName || 'missing'}`)

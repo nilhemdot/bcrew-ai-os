@@ -6173,6 +6173,10 @@ async function main() {
       agentFeedbackSendStatus.summary?.milestoneDay === 30 &&
       agentFeedbackSendStatus.summary?.dueStatus === 'due' &&
       Array.isArray(agentFeedbackSendStatus.summary?.blockers) &&
+      agentFeedbackSendStatus.summary?.eligible === true &&
+      agentFeedbackSendStatus.summary?.blockers.length === 0 &&
+      agentFeedbackSendStatus.summary?.contractLinkStatus === 'missing_warning' &&
+      (agentFeedbackSendStatus.summary?.dataQualityWarnings || []).includes('missing_contract_link') &&
       agentFeedbackSendStatus.summary?.recipientRule === 'clickup-company-email' &&
       agentFeedbackSendStatus.summary?.recipientSource === 'company_email' &&
       agentFeedbackSendStatus.summary?.recipientSourceFieldName === 'Company Email' &&
@@ -6182,6 +6186,7 @@ async function main() {
       !(agentFeedbackSendStatus.summary?.blockers || []).includes('missing_personal_email') &&
       !(agentFeedbackSendStatus.summary?.blockers || []).includes('invalid_personal_email') &&
       !(agentFeedbackSendStatus.summary?.blockers || []).includes('missing_cc_role_config') &&
+      !(agentFeedbackSendStatus.summary?.blockers || []).includes('missing_contract_link') &&
       agentFeedbackSendStatus.summary?.internalOversightMode === 'bcc' &&
       ['Steve', 'Carson', 'Ryan', 'Georgia'].every(role => (agentFeedbackSendStatus.summary?.bccRolesApplied || []).includes(role)) &&
       (agentFeedbackSendStatus.summary?.bccMissingConfiguredRoles || []).length === 0 &&
