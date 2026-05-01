@@ -124,6 +124,7 @@ import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
 import { writeAgentFeedbackToClickUp } from './lib/agent-feedback-clickup.js'
 import { buildAgentFeedbackAutoSendReadiness } from './lib/agent-feedback-auto-send.js'
+import { sendAgentFeedbackResponseNotification } from './lib/agent-feedback-response-notify.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import {
   authenticateAuthUser,
@@ -5779,11 +5780,30 @@ app.post('/api/agent-feedback/submit', async (req, res) => {
       improvementFeedback,
       userAgent: req.get('user-agent') || '',
     })
-    const clickUpWriteback = await writeAgentFeedbackToClickUp({
-      taskId: session.taskId,
-      milestoneDay: session.milestoneDay,
-      score,
-      improvementFeedback,
+    let clickUpWriteback = null
+    try {
+      const writebackResult = await writeAgentFeedbackToClickUp({
+        taskId: session.taskId,
+        milestoneDay: session.milestoneDay,
+        score,
+        improvementFeedback,
+      })
+      clickUpWriteback = {
+        status: 'succeeded',
+        repairStatus: 'none',
+        ...writebackResult,
+      }
+    } catch (error) {
+      clickUpWriteback = {
+        status: 'failed',
+        repairStatus: 'clickup_completed_writeback_failed',
+        errorClass: error instanceof Error ? error.name : 'Error',
+      }
+    }
+
+    const responseNotification = await sendAgentFeedbackResponseNotification({
+      response,
+      clickUpWriteback,
     })
 
     cacheHeadersNoStore(res)
@@ -5791,6 +5811,12 @@ app.post('/api/agent-feedback/submit', async (req, res) => {
       ok: true,
       submittedAt: response.submittedAt,
       clickUpWriteback,
+      responseNotification: {
+        status: responseNotification.status,
+        recipientRoles: responseNotification.recipientRoles,
+        duplicateBlocked: Boolean(responseNotification.duplicateBlocked),
+        repairStatus: responseNotification.repairStatus || 'none',
+      },
     })
   } catch (error) {
     sendApiError(

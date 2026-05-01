@@ -1,0 +1,13 @@
+{
+  "cardId": "AGENT-FEEDBACK-RESPONSE-NOTIFY-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-01T00:00:00.000Z",
+  "approvalSource": "Steve approved AGENT-FEEDBACK-RESPONSE-NOTIFY-001 at 9.8 as response notification only before any Georgia live-send.",
+  "notes": "Build internal response notification after DB save and ClickUp writeback attempt; no Georgia onboarding survey, external survey email, ClickUp Requested writeback, or live auto-send during build.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/agent-feedback-response-notify-v1.md",
+  "approvedPlanSha256": "8f908240e45f4b18b6bf26214850e911047b4de301674616b8b51c20d8b7f2e7",
+  "approvedRepoHead": "afe4535f43979a694c2296b5c4e4ec042d40c07c",
+  "approvalDigest": "6c7f596b1bc1d6d1201ddb9889a925d7b8cbb094aac73d8c99852f68047879f5"
+}

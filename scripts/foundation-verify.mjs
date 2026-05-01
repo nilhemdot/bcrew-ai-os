@@ -151,6 +151,14 @@ import {
   buildAgentFeedbackAutoSendStatus,
 } from '../lib/agent-feedback-auto-send.js'
 import {
+  AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVAL_PATH,
+  AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH,
+  AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
+  AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_RESPONSE_NOTIFY_PROOF_PATH,
+  buildAgentFeedbackResponseNotifyStatus,
+} from '../lib/agent-feedback-response-notify.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -260,6 +268,10 @@ const AGENT_FEEDBACK_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const AGENT_FEEDBACK_AUTO_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'AGENT-FEEDBACK-AUTO-SEND-001',
+]
+
+const AGENT_FEEDBACK_RESPONSE_NOTIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'AGENT-FEEDBACK-RESPONSE-NOTIFY-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -794,6 +806,7 @@ async function main() {
   const agentFeedbackClickUpSource = await readRepoFile('lib/agent-feedback-clickup.js')
   const agentFeedbackSendSource = await readRepoFile('lib/agent-feedback-send.js')
   const agentFeedbackAutoSendSource = await readRepoFile('lib/agent-feedback-auto-send.js')
+  const agentFeedbackResponseNotifySource = await readRepoFile('lib/agent-feedback-response-notify.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
@@ -942,6 +955,7 @@ async function main() {
   const agentOnboardingFeedbackSystemApprovalRef = AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVAL_PATH
   const agentFeedbackSendApprovalRef = AGENT_FEEDBACK_SEND_APPROVAL_PATH
   const agentFeedbackAutoSendApprovalRef = AGENT_FEEDBACK_AUTO_SEND_APPROVAL_PATH
+  const agentFeedbackResponseNotifyApprovalRef = AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -1008,6 +1022,11 @@ async function main() {
     approvalRef: agentFeedbackAutoSendApprovalRef,
     cardId: AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
   })
+  const agentFeedbackResponseNotifyApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: agentFeedbackResponseNotifyApprovalRef,
+    cardId: AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -1036,6 +1055,7 @@ async function main() {
   const agentOnboardingFeedbackSystemApprovedPlan = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVED_PLAN_PATH)
   const agentFeedbackSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_SEND_APPROVED_PLAN_PATH)
   const agentFeedbackAutoSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH)
+  const agentFeedbackResponseNotifyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -1058,6 +1078,7 @@ async function main() {
   const agentFeedbackSendBaseline = await readRepoFile(AGENT_FEEDBACK_SEND_BASELINE_PATH)
   const agentFeedbackSendDryRunProof = await readRepoFile(AGENT_FEEDBACK_SEND_DRY_RUN_PROOF_PATH)
   const agentFeedbackAutoSendReadinessProof = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH)
+  const agentFeedbackResponseNotifyProof = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_PROOF_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2231,6 +2252,11 @@ async function main() {
     foundationBuildLog,
     opsHub,
   })
+  const agentFeedbackResponseNotifyStatus = await buildAgentFeedbackResponseNotifyStatus({
+    repoRoot,
+    foundationHub,
+    foundationBuildLog,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3037,6 +3063,10 @@ async function main() {
   const buildLogAgentFeedbackAutoSendBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_AUTO_SEND_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY
+  )
+  const buildLogAgentFeedbackResponseNotifyBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID) &&
+      build.closeoutKey === AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -4179,6 +4209,7 @@ async function main() {
   const agentOnboardingFeedbackSystem = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) || null
   const agentFeedbackSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_CARD_ID) || null
   const agentFeedbackAutoSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_AUTO_SEND_CARD_ID) || null
+  const agentFeedbackResponseNotify = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID) || null
   const agentFeedbackGeorgiaSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) || null
   const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
@@ -6333,6 +6364,75 @@ async function main() {
       currentState.includes('test-only Georgia/day-30 live-send mode'),
     'AGENT-FEEDBACK-AUTO-SEND-001 builds governed auto-send readiness without live send',
     `georgia=${agentFeedbackAutoSendStatus.summary?.georgiaDay30Action || 'missing'} wouldSend=${agentFeedbackAutoSendStatus.summary?.wouldSendCount ?? 'missing'} guard=${agentFeedbackAutoSendStatus.summary?.liveGuardDecision || 'missing'} closeout=${buildLogAgentFeedbackAutoSendBuild?.closeoutKey || 'missing'}`,
+  )
+  const agentFeedbackResponseNotifyBuildLogExact = buildLogAgentFeedbackResponseNotifyBuild?.backlogIds?.length === 1 &&
+    buildLogAgentFeedbackResponseNotifyBuild.backlogIds.includes(AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID) &&
+    (buildLogAgentFeedbackResponseNotifyBuild.mentionedBacklogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) &&
+    !(buildLogAgentFeedbackResponseNotifyBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) &&
+    !(buildLogAgentFeedbackResponseNotifyBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID) &&
+    !(buildLogAgentFeedbackResponseNotifyBuild.backlogIds || []).includes(AGENT_FEEDBACK_AUTO_SEND_CARD_ID)
+  ensure(
+    checks,
+    agentFeedbackResponseNotify?.lane === 'done' &&
+      /agent-feedback-response-notify-v1/.test(agentFeedbackResponseNotify?.statusNote || '') &&
+      agentFeedbackGeorgiaSend?.lane === 'scoped' &&
+      agentFeedbackResponseNotifyApprovalValidation.ok &&
+      agentFeedbackResponseNotifyApprovalValidation.mode === 'v2' &&
+      agentFeedbackResponseNotifyApprovalValidation.approval?.approvedPlanRef === AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH &&
+      includesAll(agentFeedbackResponseNotifyApprovedPlan, [
+        AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
+        AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY,
+        'response notification only',
+        'Do not send Georgia onboarding survey',
+        'Do not write ClickUp Requested',
+        'ClickUp writeback fails but DB save succeeds',
+        'roles/hashes only',
+      ]) &&
+      includesAll(agentFeedbackResponseNotifyProof, [
+        AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
+        'Success path: dry-run',
+        'Repair path: dry-run',
+        'ClickUp repair status: clickup_completed_writeback_failed',
+        'Gmail sent: no',
+        'ClickUp Requested written: no',
+        'No raw emails, token URLs, or feedback text',
+      ]) &&
+      includesAll(foundationVerifySource, AGENT_FEEDBACK_RESPONSE_NOTIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"agent-feedback:response-notify"', '"process:agent-feedback-response-notify-check"']) &&
+      includesAll(agentFeedbackResponseNotifySource, [
+        'buildAgentFeedbackResponseNotificationDryRunProof',
+        'sendAgentFeedbackResponseNotification',
+        'agent_onboarding_feedback_response_notifications.response_id',
+        'clickup_completed_writeback_failed',
+      ]) &&
+      includesAll(agentFeedbackEmailSource, ['buildAgentFeedbackResponseNotificationEmail', 'Feedback text', 'ClickUp writeback']) &&
+      includesAll(foundationDbSource, [
+        'agent_onboarding_feedback_response_notifications',
+        'createAgentFeedbackResponseNotification',
+        'updateAgentFeedbackResponseNotificationStatus',
+      ]) &&
+      includesAll(serverSource, ['sendAgentFeedbackResponseNotification', 'responseNotification', 'clickup_completed_writeback_failed']) &&
+      agentFeedbackResponseNotifyStatus.status === 'healthy' &&
+      agentFeedbackResponseNotifyStatus.summary?.successDryRun === true &&
+      agentFeedbackResponseNotifyStatus.summary?.repairDryRun === true &&
+      ['Steve', 'Carson', 'Ryan', 'Georgia'].every(role => (agentFeedbackResponseNotifyStatus.summary?.recipientRoles || []).includes(role)) &&
+      (agentFeedbackResponseNotifyStatus.summary?.missingRecipientRoles || []).length === 0 &&
+      agentFeedbackResponseNotifyStatus.summary?.duplicateProtected === true &&
+      agentFeedbackResponseNotifyStatus.summary?.clickUpRepairProof === 'clickup_completed_writeback_failed' &&
+      agentFeedbackResponseNotifyStatus.summary?.gmailSent === false &&
+      agentFeedbackResponseNotifyStatus.summary?.clickUpRequestedWritten === false &&
+      agentFeedbackResponseNotifyStatus.summary?.metadataOnly === true &&
+      agentFeedbackResponseNotifyStatus.summary?.notifyCardLane === 'done' &&
+      agentFeedbackResponseNotifyStatus.summary?.georgiaSendCardLane === 'scoped' &&
+      agentFeedbackResponseNotifyStatus.summary?.closeoutOwnsOnlyResponseNotify === true &&
+      buildLogAgentFeedbackResponseNotifyBuild?.operatorCloseout === true &&
+      agentFeedbackResponseNotifyBuildLogExact &&
+      currentPlan.includes('AGENT-FEEDBACK-RESPONSE-NOTIFY-001` is done') &&
+      currentPlan.includes('Do not send Georgia onboarding survey') &&
+      currentState.includes('AGENT-FEEDBACK-RESPONSE-NOTIFY-001` is done') &&
+      currentState.includes('Georgia live-send remains paused'),
+    'AGENT-FEEDBACK-RESPONSE-NOTIFY-001 sends internal response notifications after saved feedback',
+    `roles=${agentFeedbackResponseNotifyStatus.summary?.recipientRoles?.join(',') || 'missing'} repair=${agentFeedbackResponseNotifyStatus.summary?.clickUpRepairProof || 'missing'} closeout=${buildLogAgentFeedbackResponseNotifyBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,
