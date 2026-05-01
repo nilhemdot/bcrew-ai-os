@@ -1,5 +1,20 @@
+var SALES_SECTION_ALIASES = {
+  '': 'gls-dashboard',
+  'stale-listings': 'gls-opportunities',
+  opportunities: 'gls-opportunities',
+  cases: 'gls-cases',
+  gaps: 'gls-results',
+  results: 'gls-results',
+  playbooks: 'gls-playbooks',
+}
+
+function normalizeSection(raw) {
+  var key = String(raw || '').replace('#', '')
+  return SALES_SECTION_ALIASES[key] || key || 'gls-dashboard'
+}
+
 function getSection() {
-  return window.location.hash.replace('#', '') || 'stale-listings'
+  return normalizeSection(window.location.hash)
 }
 
 function getAdminHeaders() {
@@ -63,12 +78,25 @@ function setActiveNav(section) {
     item.classList.toggle('active', item.dataset.section === section)
   })
   var labels = {
-    'stale-listings': 'Stale Listings',
-    cases: 'Cases',
-    gaps: 'Tracking Gaps',
+    'gls-dashboard': 'GLS Dashboard',
+    'gls-opportunities': 'Opportunities',
+    'gls-cases': 'Cases',
+    'gls-playbooks': 'Playbooks',
+    'gls-results': 'Results',
   }
   var page = document.getElementById('found-breadcrumb-page')
-  if (page) page.textContent = labels[section] || 'Stale Listings'
+  if (page) page.textContent = labels[section] || 'GLS Dashboard'
+}
+
+function getGlsSystem(report) {
+  return report.system || {
+    name: 'GLS System',
+    fullName: 'Get Listings Sold',
+    purpose: 'Identify stale active listings, assign ownership, create a game plan, and track movement.',
+    workflow: [],
+    playbooks: [],
+    threshold: { defaultDays: report.thresholdDays || 30 },
+  }
 }
 
 function renderMetric(label, value, helper) {
@@ -80,11 +108,12 @@ function renderMetric(label, value, helper) {
 }
 
 function renderHero(report) {
+  var system = getGlsSystem(report)
   var hero = el('section', 'sales-hero')
   var left = el('div')
-  left.appendChild(el('div', 'found-brand-kicker', 'Sales priority'))
-  left.appendChild(el('h1', 'sales-title', 'Sell Existing Listings'))
-  left.appendChild(el('p', 'sales-subtitle', report.rule.plainEnglish))
+  left.appendChild(el('div', 'found-brand-kicker', 'Sales Hub system'))
+  left.appendChild(el('h1', 'sales-title', system.name))
+  left.appendChild(el('p', 'sales-subtitle', system.fullName + ': ' + system.purpose))
   hero.appendChild(left)
 
   var action = el('div', 'sales-hero-action')
@@ -93,7 +122,7 @@ function renderHero(report) {
   link.target = '_blank'
   link.rel = 'noopener noreferrer'
   action.appendChild(link)
-  action.appendChild(el('p', 'sales-source-line', report.source.sourceId + ' · ' + report.source.viewName))
+  action.appendChild(el('p', 'sales-source-line', report.source.sourceId + ' · Active listings only · ' + (report.thresholdDays || 30) + '+ day threshold'))
   hero.appendChild(action)
   return hero
 }
@@ -103,10 +132,92 @@ function renderMetrics(report) {
   var grid = el('section', 'sales-metric-grid')
   grid.appendChild(renderMetric('Stale active listings', summary.staleActiveListings, '30+ days since list date or last price adjustment.'))
   grid.appendChild(renderMetric('Assigned to leader', summary.assignedSalesLeader, 'Stale listings with Ryan, Blake, Nick, Scott, or Steve assigned.'))
-  grid.appendChild(renderMetric('Action plan yes', summary.caseActionPlanYes, 'Tracked in AIOS cases; KPI is supporting evidence only.'))
-  grid.appendChild(renderMetric('Action plan no', summary.caseActionPlanNo, 'Requires a reason so the opportunity can be reviewed.'))
+  grid.appendChild(renderMetric('Agent connected', summary.caseAgentConnected, 'Cases where the leader has connected with the agent or moved the case forward.'))
+  grid.appendChild(renderMetric('Game plan yes', summary.caseActionPlanYes, 'Tracked in AIOS cases; KPI is supporting evidence only.'))
+  grid.appendChild(renderMetric('Game plan no', summary.caseActionPlanNo, 'Requires a reason so the opportunity can be reviewed.'))
+  grid.appendChild(renderMetric('Implemented', summary.caseImplemented, 'Plan implemented, adjusted/relisted, conditional, firm, or closed.'))
   grid.appendChild(renderMetric('Adjusted or moved', summary.caseAdjustedOrMoved, 'Cases where ClickUp reset date or outcome shows movement.'))
+  grid.appendChild(renderMetric('Project suggestions', summary.projectMergeSuggestions, 'Multiple stale unit listings that likely belong to one project-level GLS case.'))
   return grid
+}
+
+function renderGlsWorkflow(report) {
+  var system = getGlsSystem(report)
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'GLS workflow'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Use one system for the whole owner-meeting loop: identify the listing, assign the leader, connect with the agent, create the game plan, implement it, and track the outcome.'))
+
+  var grid = el('div', 'sales-workflow-grid')
+  ;(system.workflow || []).forEach(function(step, index) {
+    var card = el('article', 'sales-workflow-step')
+    card.appendChild(el('div', 'sales-workflow-number', String(index + 1)))
+    card.appendChild(el('h3', null, step.label))
+    card.appendChild(el('p', null, step.proof))
+    grid.appendChild(card)
+  })
+  section.appendChild(grid)
+  return section
+}
+
+function renderDashboard(report) {
+  var system = getGlsSystem(report)
+  var wrap = el('div')
+  wrap.appendChild(renderHero(report))
+  wrap.appendChild(renderMetrics(report))
+  wrap.appendChild(renderGlsWorkflow(report))
+  wrap.appendChild(renderProjectSuggestions(report))
+
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'This week'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Start with the opportunity list, assign every stale listing, then use Cases to record whether the agent was contacted, whether there is a game plan, and whether it was implemented.'))
+
+  var cards = el('div', 'sales-system-card-grid')
+  cards.appendChild(renderSystemCard('Opportunities', formatNumber(report.summary?.staleActiveListings), 'Active listings currently over the GLS threshold.', '#gls-opportunities'))
+  cards.appendChild(renderSystemCard('Cases', formatNumber(report.summary?.trackedCases), 'Persistent stale-listing work that stays visible after a reset date changes.', '#gls-cases'))
+  cards.appendChild(renderSystemCard('Playbooks', formatNumber((system.playbooks || []).length), 'Approved strategy frameworks leaders can use with agents.', '#gls-playbooks'))
+  cards.appendChild(renderSystemCard('Results', formatNumber(report.summary?.caseAdjustedOrMoved), 'Adjusted, relisted, conditional, firm, or closed movement.', '#gls-results'))
+  section.appendChild(cards)
+
+  var threshold = system.threshold || {}
+  section.appendChild(el('p', 'sales-source-line', 'Current threshold: ' + (threshold.defaultDays || report.thresholdDays || 30) + ' days. Adjustable controls come after weekly snapshots are stable.'))
+  wrap.appendChild(section)
+  return wrap
+}
+
+function renderProjectSuggestions(report) {
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'Smart project suggestions'))
+  section.appendChild(el('p', 'sales-panel-copy', 'When one agent has multiple stale listings at the same base address, GLS flags them as a likely project so the team can handle them with one project-level game plan.'))
+
+  if (!report.projectSuggestions || !report.projectSuggestions.length) {
+    section.appendChild(el('p', 'empty-state', 'No likely project groups found in the current stale list.'))
+    return section
+  }
+
+  var list = el('div', 'sales-project-list')
+  report.projectSuggestions.forEach(function(project) {
+    var card = el('article', 'sales-project-card')
+    card.appendChild(el('div', 'sales-gap-title', project.baseAddress))
+    card.appendChild(el('div', 'sales-gap-status', project.listingCount + ' listings · ' + project.agent))
+    card.appendChild(el('p', null, project.suggestion))
+    var ul = el('ul')
+    ;(project.listings || []).slice(0, 6).forEach(function(listing) {
+      ul.appendChild(el('li', null, listing.title + ' · ' + formatNumber(listing.daysSinceReset) + ' days'))
+    })
+    card.appendChild(ul)
+    list.appendChild(card)
+  })
+  section.appendChild(list)
+  return section
+}
+
+function renderSystemCard(title, value, copy, href) {
+  var card = el('a', 'sales-system-card')
+  card.href = href
+  card.appendChild(el('div', 'sales-gap-title', title))
+  card.appendChild(el('div', 'sales-metric-value', value))
+  card.appendChild(el('p', null, copy))
+  return card
 }
 
 function getActionPlanLabel(match) {
@@ -243,7 +354,7 @@ function renderCaseControls(listing, report) {
 function renderActionPlanControls(listing, report) {
   var assignment = listing.salesLeaderAssignment || listing
   var wrap = el('div', 'sales-action-plan-box')
-  wrap.appendChild(renderCaseSelect('Action plan?', assignment.actionPlanState || 'unknown', report.actionPlanStateOptions || [], function(value, select) {
+  wrap.appendChild(renderCaseSelect('Game plan?', assignment.actionPlanState || 'unknown', report.actionPlanStateOptions || [], function(value, select) {
     var updates = { actionPlanState: value }
     if (value === 'yes') updates.caseStatus = 'action_plan_created'
     saveCaseUpdate(listing, updates, select)
@@ -254,14 +365,14 @@ function renderActionPlanControls(listing, report) {
   note.rows = 3
   note.placeholder = (assignment.actionPlanState === 'no') ? 'Why no action plan?' : 'Plan / next move'
   note.value = (assignment.actionPlanState === 'no')
-    ? (assignment.actionPlanNoReason || '')
-    : (assignment.actionPlanText || '')
+      ? (assignment.actionPlanNoReason || '')
+      : (assignment.actionPlanText || '')
   wrap.appendChild(note)
 
   var button = document.createElement('button')
   button.type = 'button'
   button.className = 'secondary-button sales-save-button'
-  button.textContent = 'Save plan'
+  button.textContent = 'Save game plan'
   button.addEventListener('click', function() {
     var updates = {}
     if ((assignment.actionPlanState || 'unknown') === 'no') {
@@ -333,8 +444,8 @@ function renderStaleListings(report) {
   wrap.appendChild(renderMetrics(report))
 
   var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'Stale listings by agent'))
-  section.appendChild(el('p', 'sales-panel-copy', 'This is the weekly owner-meeting list: active listings that need a sales-leader action plan because they have not been listed or price-adjusted in 30+ days.'))
+  section.appendChild(el('h2', null, 'GLS opportunities by agent'))
+  section.appendChild(el('p', 'sales-panel-copy', 'This is the weekly owner-meeting list: active listings that need sales-leader ownership because they have not been listed or price-adjusted in 30+ days.'))
 
   if (!report.groups.length) {
     section.appendChild(el('p', 'empty-state', 'No active listings are 30+ days stale right now.'))
@@ -354,7 +465,7 @@ function renderCases(report) {
   wrap.appendChild(renderMetrics(report))
 
   var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'Tracked stale-listing cases'))
+  section.appendChild(el('h2', null, 'GLS cases'))
   section.appendChild(el('p', 'sales-panel-copy', 'AIOS keeps these cases after a listing is adjusted, so the work does not disappear just because the ClickUp reset date changes.'))
 
   if (!report.trackedCases || !report.trackedCases.length) {
@@ -387,22 +498,82 @@ function renderCases(report) {
   return wrap
 }
 
-function renderGaps(report) {
-  var gaps = report.fieldGaps || {}
-  var summary = report.summary || {}
+function renderPlaybooks(report) {
+  var system = getGlsSystem(report)
   var wrap = el('div')
   wrap.appendChild(renderHero(report))
 
   var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'What is not tracked yet'))
-  section.appendChild(el('p', 'sales-panel-copy', 'The stale-listing list is live. The progress scoreboard needs the next tracking fields or a weekly snapshot so we can prove action plans, adjustments, and moved/sold outcomes over time.'))
+  section.appendChild(el('h2', null, 'GLS playbooks'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Playbooks are strategy options sales leaders can use with an agent after a stale listing is identified. The current source-backed playbook is Nick’s Aggressive Underlisting framework.'))
+
+  var list = el('div', 'sales-playbook-list')
+  ;(system.playbooks || []).forEach(function(playbook) {
+    var card = el('article', 'sales-playbook-card')
+    var title = el('a', 'sales-listing-title', playbook.title)
+    title.href = playbook.sourceUrl
+    title.target = '_blank'
+    title.rel = 'noopener noreferrer'
+    card.appendChild(title)
+    card.appendChild(el('p', 'sales-panel-copy', playbook.fitRule))
+
+    var phases = el('div', 'sales-playbook-section')
+    phases.appendChild(el('h3', null, 'Phases'))
+    var phaseList = el('ol')
+    ;(playbook.phases || []).forEach(function(phase) {
+      phaseList.appendChild(el('li', null, phase))
+    })
+    phases.appendChild(phaseList)
+    card.appendChild(phases)
+
+    var checklist = el('div', 'sales-playbook-section')
+    checklist.appendChild(el('h3', null, 'Checklist'))
+    var checklistList = el('ul')
+    ;(playbook.checklist || []).forEach(function(item) {
+      checklistList.appendChild(el('li', null, item))
+    })
+    checklist.appendChild(checklistList)
+    card.appendChild(checklist)
+
+    var results = el('div', 'sales-playbook-section')
+    results.appendChild(el('h3', null, 'Results to track'))
+    var resultList = el('ul')
+    ;(playbook.resultFields || []).forEach(function(item) {
+      resultList.appendChild(el('li', null, item))
+    })
+    results.appendChild(resultList)
+    card.appendChild(results)
+
+    card.appendChild(el('p', 'sales-source-line', playbook.sourceId + ' · ' + playbook.sourceName))
+    list.appendChild(card)
+  })
+  section.appendChild(list)
+  wrap.appendChild(section)
+  return wrap
+}
+
+function renderResults(report) {
+  var gaps = report.fieldGaps || {}
+  var summary = report.summary || {}
+  var wrap = el('div')
+  wrap.appendChild(renderHero(report))
+  wrap.appendChild(renderMetrics(report))
+
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'GLS results and gaps'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Use this to see what the system can prove now and what still needs a stronger source or weekly snapshot.'))
 
   var list = el('div', 'sales-gap-list')
   var actionPlan = gaps.actionPlanTracking || {}
   var shopping = report.shoppingList || {}
-  list.appendChild(renderGap('KPI action-plan match', formatNumber(shopping.withActionPlan || 0) + ' found', 'Matched stale listings to KPI Shopping List only when the address match is safe. Unmatched rows need a confirmed KPI row or a new action plan.'))
-  list.appendChild(renderGap('Price adjusted / relisted', 'Partially visible', 'Listings reset when the date field changes. A weekly snapshot will make before/after progress measurable.'))
-  list.appendChild(renderGap('Moved / sold', 'Needs outcome definition', 'Decide whether moved means conditional, firm, sold, expired, cancelled, or relisted.'))
+  list.appendChild(renderGap('Identified', formatNumber(summary.staleActiveListings || 0), 'Active listings currently inside GLS because their list date / last price adjustment is over the threshold.'))
+  list.appendChild(renderGap('Assigned', formatNumber(summary.assignedSalesLeader || 0), 'Cases with a sales leader assigned to own the agent conversation.'))
+  list.appendChild(renderGap('Connected with agent', formatNumber(summary.caseAgentConnected || 0), 'Case has reached agent contacted or later in the GLS workflow.'))
+  list.appendChild(renderGap('Game plan yes', formatNumber(summary.caseActionPlanYes || 0), 'AIOS case says the agent has a game plan. KPI Shopping List is supporting evidence only.'))
+  list.appendChild(renderGap('Implemented', formatNumber(summary.caseImplemented || 0), 'The plan has been implemented or the listing has moved through adjustment/outcome proof.'))
+  list.appendChild(renderGap('Adjusted or moved', formatNumber(summary.caseAdjustedOrMoved || 0), 'Cases where ClickUp reset date or case outcome shows movement.'))
+  list.appendChild(renderGap('KPI action-plan match', formatNumber(shopping.withActionPlan || 0) + ' found', 'Matched stale listings to KPI Shopping List only when the address match is safe. Unmatched rows need a confirmed KPI row or a new GLS plan.'))
+  list.appendChild(renderGap('Weekly trend', 'Next gap', 'A weekly snapshot will prove new stale, still stale, adjusted/relisted, conditional, firm, closed, and no-longer-active movement.'))
   list.appendChild(renderGap('Missing source data', formatNumber(summary.missingResetDate + summary.missingAgent) + ' active rows', 'Rows missing reset date or agent cannot be managed cleanly.'))
   section.appendChild(list)
 
@@ -439,13 +610,17 @@ function renderError(error) {
 
 function render(payload) {
   var section = getSection()
-  if (!['stale-listings', 'cases', 'gaps'].includes(section)) section = 'stale-listings'
+  if (!['gls-dashboard', 'gls-opportunities', 'gls-cases', 'gls-playbooks', 'gls-results'].includes(section)) section = 'gls-dashboard'
   setActiveNav(section)
 
   var root = document.getElementById('sales-content')
   clearNode(root)
   var report = payload.listingInventory
-  root.appendChild(section === 'gaps' ? renderGaps(report) : section === 'cases' ? renderCases(report) : renderStaleListings(report))
+  if (section === 'gls-opportunities') root.appendChild(renderStaleListings(report))
+  else if (section === 'gls-cases') root.appendChild(renderCases(report))
+  else if (section === 'gls-playbooks') root.appendChild(renderPlaybooks(report))
+  else if (section === 'gls-results') root.appendChild(renderResults(report))
+  else root.appendChild(renderDashboard(report))
 }
 
 function load() {

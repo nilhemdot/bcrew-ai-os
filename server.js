@@ -451,6 +451,89 @@ function cacheHeadersNoStore(res) {
   res.setHeader('Cache-Control', 'no-store')
 }
 
+const SALES_HUB_CACHE_TTL_MS = Math.max(15, Number(process.env.SALES_HUB_CACHE_TTL_SECONDS || 120)) * 1000
+let salesHubCache = {
+  payload: null,
+  createdAtMs: 0,
+  pending: null,
+}
+
+function clearSalesHubCache() {
+  salesHubCache = {
+    payload: null,
+    createdAtMs: 0,
+    pending: null,
+  }
+}
+
+async function buildSalesHubPayload() {
+  const listingInventory = await buildSalesListingInventory()
+  return {
+    status: 'healthy',
+    hub: 'sales',
+    listingInventory,
+    meta: {
+      generatedAt: new Date().toISOString(),
+      sourceId: listingInventory.source.sourceId,
+      sourceListId: listingInventory.source.listId,
+      sourceViewId: listingInventory.source.viewId,
+    },
+  }
+}
+
+async function getSalesHubPayload({ forceRefresh = false } = {}) {
+  const now = Date.now()
+  const ageMs = salesHubCache.payload ? now - salesHubCache.createdAtMs : null
+  if (!forceRefresh && salesHubCache.payload && ageMs != null && ageMs < SALES_HUB_CACHE_TTL_MS) {
+    return {
+      ...salesHubCache.payload,
+      meta: {
+        ...salesHubCache.payload.meta,
+        cache: {
+          status: 'hit',
+          ageMs,
+          ttlMs: SALES_HUB_CACHE_TTL_MS,
+        },
+      },
+    }
+  }
+
+  if (!forceRefresh && salesHubCache.pending) {
+    const payload = await salesHubCache.pending
+    return {
+      ...payload,
+      meta: {
+        ...payload.meta,
+        cache: {
+          status: 'shared_refresh',
+          ageMs: 0,
+          ttlMs: SALES_HUB_CACHE_TTL_MS,
+        },
+      },
+    }
+  }
+
+  salesHubCache.pending = buildSalesHubPayload()
+  try {
+    const payload = await salesHubCache.pending
+    salesHubCache.payload = payload
+    salesHubCache.createdAtMs = Date.now()
+    return {
+      ...payload,
+      meta: {
+        ...payload.meta,
+        cache: {
+          status: forceRefresh ? 'forced_refresh' : 'refresh',
+          ageMs: 0,
+          ttlMs: SALES_HUB_CACHE_TTL_MS,
+        },
+      },
+    }
+  } finally {
+    salesHubCache.pending = null
+  }
+}
+
 async function closeServer(server) {
   await new Promise((resolve, reject) => {
     server.close(error => {
@@ -4469,21 +4552,11 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
   }
 })
 
-app.get('/api/sales-hub', requireAdminToken, async (_req, res) => {
+app.get('/api/sales-hub', requireAdminToken, async (req, res) => {
   try {
-    const listingInventory = await buildSalesListingInventory()
+    const payload = await getSalesHubPayload({ forceRefresh: req.query?.refresh === '1' || req.query?.refresh === 'true' })
     cacheHeadersNoStore(res)
-    res.json({
-      status: 'healthy',
-      hub: 'sales',
-      listingInventory,
-      meta: {
-        generatedAt: new Date().toISOString(),
-        sourceId: listingInventory.source.sourceId,
-        sourceListId: listingInventory.source.listId,
-        sourceViewId: listingInventory.source.viewId,
-      },
-    })
+    res.json(payload)
   } catch (error) {
     sendApiError(
       res,
@@ -4538,6 +4611,7 @@ app.post('/api/sales-hub/listing-assignment', requireAdminToken, async (req, res
       },
     }, actor.email || actor.name || 'sales-hub')
 
+    clearSalesHubCache()
     cacheHeadersNoStore(res)
     res.json({
       status: 'healthy',
@@ -4600,6 +4674,7 @@ app.post('/api/sales-hub/group-assignment', requireAdminToken, async (req, res) 
       }, actor.email || actor.name || 'sales-hub'))
     }
 
+    clearSalesHubCache()
     cacheHeadersNoStore(res)
     res.json({
       status: 'healthy',
@@ -4670,6 +4745,7 @@ app.post('/api/sales-hub/listing-case', requireAdminToken, async (req, res) => {
       },
     }, actor.email || actor.name || 'sales-hub')
 
+    clearSalesHubCache()
     cacheHeadersNoStore(res)
     res.json({
       status: 'healthy',
@@ -4693,6 +4769,7 @@ app.post('/api/sales-hub/sync-cases', requireAdminToken, async (req, res) => {
     const sync = await syncSalesListingCasesFromInventory(listingInventory, {
       actor: actor.email || actor.name || 'sales-hub',
     })
+    clearSalesHubCache()
     cacheHeadersNoStore(res)
     res.json({
       status: 'healthy',

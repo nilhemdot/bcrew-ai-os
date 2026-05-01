@@ -14,6 +14,10 @@ assert(report.source.sourceId === 'SRC-CLICKUP-001', 'Sales listing inventory mu
 assert(report.source.listId === SALES_LISTING_SOURCE.listId, 'Sales listing inventory used the wrong ClickUp list.')
 assert(report.source.viewId === SALES_LISTING_SOURCE.viewId, 'Sales listing inventory must point to the Full Deal List view.')
 assert(report.thresholdDays === 30, 'Stale listing threshold must be 30 days.')
+assert(report.system?.key === 'gls', 'Sales Hub listing workflow must be grouped as the GLS System.')
+assert(report.system?.fullName === 'Get Listings Sold', 'GLS System must expose its plain-English name.')
+assert(Array.isArray(report.system?.workflow) && report.system.workflow.length >= 6, 'GLS System must expose the workflow stages.')
+assert(Array.isArray(report.system?.playbooks) && report.system.playbooks.some(item => item.key === 'aggressive-underlisting'), 'GLS System must expose the Aggressive Underlisting Playbook.')
 assert(report.rule.plainEnglish.includes('Deal Status = Active'), 'Active-stage rule must be visible in the report.')
 assert(report.summary.totalTasksRead > 0, 'ClickUp Deal Data Entry returned no tasks.')
 assert(report.summary.activeListings >= 0, 'Active listing count is invalid.')
@@ -57,11 +61,15 @@ for (const state of ['unknown', 'yes', 'no']) {
   assert(report.actionPlanStateOptions.some(item => item.key === state), `Missing action-plan state option: ${state}.`)
 }
 assert(Array.isArray(report.trackedCases), 'Tracked sales listing cases must be present.')
+assert(Array.isArray(report.projectSuggestions), 'GLS project merge suggestions must be present.')
+assert(report.summary.projectMergeSuggestions === report.projectSuggestions.length, 'GLS project suggestion count must match the summary.')
 assert(report.summary.trackedCases >= report.summary.staleActiveListings, 'Tracked cases must cover current stale active listings after case sync.')
 assert(
   report.summary.caseActionPlanYes + report.summary.caseActionPlanNo + report.summary.caseActionPlanUnknown === report.summary.trackedCases,
   'Action-plan yes/no/unknown counts must equal tracked cases.'
 )
+assert(report.summary.caseAgentConnected >= 0, 'GLS agent-connected count must be present.')
+assert(report.summary.caseImplemented >= 0, 'GLS implemented count must be present.')
 
 const duplicatePrimaryRows = new Set()
 for (const group of report.groups) {
@@ -82,6 +90,7 @@ console.log(JSON.stringify({
   activeListings: report.summary.activeListings,
   staleActiveListings: report.summary.staleActiveListings,
   agentsWithStaleListings: report.summary.agentsWithStaleListings,
+  projectMergeSuggestions: report.summary.projectMergeSuggestions,
   missingResetDate: report.summary.missingResetDate,
   missingAgent: report.summary.missingAgent,
   kpiShoppingListActiveRows: report.shoppingList.activeRows,
@@ -93,9 +102,11 @@ console.log(JSON.stringify({
   assignedSalesLeader: report.assignmentSummary.assigned,
   unassignedSalesLeader: report.assignmentSummary.unassigned,
   trackedCases: report.summary.trackedCases,
+  caseAgentConnected: report.summary.caseAgentConnected,
   caseActionPlansCreated: report.summary.caseActionPlansCreated,
   caseActionPlanYes: report.summary.caseActionPlanYes,
   caseActionPlanNo: report.summary.caseActionPlanNo,
   caseActionPlanUnknown: report.summary.caseActionPlanUnknown,
+  caseImplemented: report.summary.caseImplemented,
   caseAdjustedOrMoved: report.summary.caseAdjustedOrMoved,
 }, null, 2))
