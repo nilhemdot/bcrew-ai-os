@@ -131,9 +131,12 @@ import { sendAgentFeedbackResponseNotification } from './lib/agent-feedback-resp
 import { buildAgentFeedbackReminderReadiness } from './lib/agent-feedback-reminders.js'
 import { buildSalesListingInventory } from './lib/sales-listing-inventory.js'
 import {
+  resolveSalesListingCaseStatus,
   resolveSalesListingLeader,
+  resolveSalesListingOutcomeStatus,
   sanitizeSalesListingAssignment,
 } from './lib/sales-listing-assignments.js'
+import { syncSalesListingCasesFromInventory } from './lib/sales-listing-cases.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import {
   authenticateAuthUser,
@@ -637,6 +640,8 @@ function isOpsApiPath(req) {
 function isSalesApiPath(req) {
   if (req.method === 'GET' && req.path === '/api/sales-hub') return true
   if (req.method === 'POST' && req.path === '/api/sales-hub/listing-assignment') return true
+  if (req.method === 'POST' && req.path === '/api/sales-hub/listing-case') return true
+  if (req.method === 'POST' && req.path === '/api/sales-hub/sync-cases') return true
   return false
 }
 
@@ -4510,6 +4515,10 @@ app.post('/api/sales-hub/listing-assignment', requireAdminToken, async (req, res
     }
 
     const actor = getRequestAuthUser(req) || getLocalDevUser(req) || { email: 'unknown', name: 'Unknown' }
+    const existingCaseStatus = listing.salesLeaderAssignment?.caseStatus || ''
+    const caseStatus = leader && (!existingCaseStatus || existingCaseStatus === 'identified')
+      ? 'assigned'
+      : existingCaseStatus || undefined
     const assignment = await upsertSalesListingAssignment({
       clickUpTaskId: listing.taskId,
       listingTitle: listing.title,
@@ -4520,6 +4529,7 @@ app.post('/api/sales-hub/listing-assignment', requireAdminToken, async (req, res
       assignedLeaderKey: leader?.key || '',
       assignedLeaderName: leader?.name || '',
       assignedLeaderEmail: leader?.email || '',
+      caseStatus,
       metadata: {
         source: 'sales-hub',
         assignmentSurface: '/sales#stale-listings',
@@ -4538,6 +4548,92 @@ app.post('/api/sales-hub/listing-assignment', requireAdminToken, async (req, res
       500,
       'sales_assignment_failed',
       error instanceof Error ? error.message : 'Failed to save Sales Hub assignment.'
+    )
+  }
+})
+
+app.post('/api/sales-hub/listing-case', requireAdminToken, async (req, res) => {
+  try {
+    const taskId = String(req.body?.taskId || '').trim()
+    if (!taskId) {
+      sendApiError(res, 400, 'missing_task_id', 'ClickUp task ID is required.')
+      return
+    }
+
+    const listingInventory = await buildSalesListingInventory()
+    const listing = (listingInventory.staleListings || []).find(item => item.taskId === taskId)
+    const existingCase = (listingInventory.trackedCases || []).find(item => item.clickUpTaskId === taskId)
+    const source = listing || existingCase
+    if (!source) {
+      sendApiError(res, 404, 'listing_case_not_found', 'That listing case is not tracked yet.')
+      return
+    }
+
+    const leaderKey = Object.prototype.hasOwnProperty.call(req.body || {}, 'assignedLeaderKey')
+      ? String(req.body?.assignedLeaderKey || '').trim().toLowerCase()
+      : source.assignedLeaderKey || ''
+    const leader = leaderKey ? resolveSalesListingLeader(leaderKey) : null
+    if (leaderKey && !leader) {
+      sendApiError(res, 400, 'invalid_sales_leader', 'Sales leader must be Ryan, Blake, Nick, Scott, or Steve.')
+      return
+    }
+
+    const caseStatus = resolveSalesListingCaseStatus(req.body?.caseStatus || source.caseStatus || 'identified')
+    const outcomeStatus = resolveSalesListingOutcomeStatus(req.body?.outcomeStatus || source.outcomeStatus || 'open')
+    const actor = getRequestAuthUser(req) || getLocalDevUser(req) || { email: 'unknown', name: 'Unknown' }
+    const assignment = await upsertSalesListingAssignment({
+      clickUpTaskId: taskId,
+      listingTitle: source.title || source.listingTitle || '',
+      listingUrl: source.url || source.listingUrl || '',
+      agentName: source.agent || source.agentName || '',
+      resetDate: source.resetDate || source.currentResetDate || null,
+      daysSinceReset: source.daysSinceReset,
+      assignedLeaderKey: leader?.key || '',
+      assignedLeaderName: leader?.name || '',
+      assignedLeaderEmail: leader?.email || '',
+      caseStatus: caseStatus.key,
+      outcomeStatus: outcomeStatus.key,
+      actionPlanText: String(req.body?.actionPlanText ?? source.actionPlanText ?? '').trim(),
+      metadata: {
+        source: 'sales-hub-case-update',
+        assignmentSurface: '/sales#stale-listings',
+      },
+    }, actor.email || actor.name || 'sales-hub')
+
+    cacheHeadersNoStore(res)
+    res.json({
+      status: 'healthy',
+      taskId,
+      assignment: sanitizeSalesListingAssignment(assignment),
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'sales_case_update_failed',
+      error instanceof Error ? error.message : 'Failed to update Sales Hub listing case.'
+    )
+  }
+})
+
+app.post('/api/sales-hub/sync-cases', requireAdminToken, async (req, res) => {
+  try {
+    const actor = getRequestAuthUser(req) || getLocalDevUser(req) || { email: 'unknown', name: 'Unknown' }
+    const listingInventory = await buildSalesListingInventory()
+    const sync = await syncSalesListingCasesFromInventory(listingInventory, {
+      actor: actor.email || actor.name || 'sales-hub',
+    })
+    cacheHeadersNoStore(res)
+    res.json({
+      status: 'healthy',
+      sync,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'sales_case_sync_failed',
+      error instanceof Error ? error.message : 'Failed to sync Sales Hub listing cases.'
     )
   }
 })

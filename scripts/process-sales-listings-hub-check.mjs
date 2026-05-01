@@ -50,6 +50,10 @@ assert(
   Array.isArray(report.assignmentSummary.assignedByLeader) && report.assignmentSummary.assignedByLeader.length === 5,
   'Assignment summary must include counts for all five sales leaders.'
 )
+assert(Array.isArray(report.caseStatusOptions) && report.caseStatusOptions.length >= 6, 'Sales listing case status options must be present.')
+assert(Array.isArray(report.outcomeStatusOptions) && report.outcomeStatusOptions.length >= 6, 'Sales listing outcome status options must be present.')
+assert(Array.isArray(report.trackedCases), 'Tracked sales listing cases must be present.')
+assert(report.summary.trackedCases >= report.summary.staleActiveListings, 'Tracked cases must cover current stale active listings after case sync.')
 
 const duplicatePrimaryRows = new Set()
 for (const group of report.groups) {
@@ -80,4 +84,7 @@ console.log(JSON.stringify({
   salesLeaders: report.salesLeaders.map(leader => leader.key),
   assignedSalesLeader: report.assignmentSummary.assigned,
   unassignedSalesLeader: report.assignmentSummary.unassigned,
+  trackedCases: report.summary.trackedCases,
+  caseActionPlansCreated: report.summary.caseActionPlansCreated,
+  caseAdjustedOrMoved: report.summary.caseAdjustedOrMoved,
 }, null, 2))

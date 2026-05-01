@@ -19,6 +19,7 @@
     "deal-review:admin": "node --env-file-if-exists=.env scripts/review-admin-deals.mjs",
     "deal-review:conditional": "node --env-file-if-exists=.env scripts/review-conditional-deals.mjs",
     "sales:listings-check": "node --env-file-if-exists=.env scripts/process-sales-listings-hub-check.mjs",
+    "sales:listings-sync-cases": "node --env-file-if-exists=.env scripts/sync-sales-listing-cases.mjs",
     "process:sales-listings-hub-check": "node --env-file-if-exists=.env scripts/process-sales-listings-hub-check.mjs",
     "clickup:conditional-forecast": "node --env-file-if-exists=.env scripts/sync-clickup-conditional-forecast.mjs",
     "connection:audit": "node --env-file-if-exists=.env scripts/audit-fub-kpi-deal-connection.mjs",

@@ -8216,7 +8216,8 @@ code {
   width: 100%;
 }
 
-.sales-leader-assignment label {
+.sales-leader-assignment label,
+.sales-case-controls label {
   display: grid;
   gap: 5px;
   color: var(--text-muted);
@@ -8236,6 +8237,28 @@ code {
   font-size: 0.9rem;
   font-weight: 700;
   text-transform: none;
+}
+
+.sales-case-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.sales-case-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.sales-case-row {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
 }
 
 .status-pill-warning {
@@ -8340,7 +8363,8 @@ code {
 @media (max-width: 760px) {
   .sales-hero,
   .sales-listing-row,
-  .sales-gap-list {
+  .sales-gap-list,
+  .sales-case-controls {
     grid-template-columns: 1fr;
   }
 

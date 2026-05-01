@@ -64,6 +64,7 @@ function setActiveNav(section) {
   })
   var labels = {
     'stale-listings': 'Stale Listings',
+    cases: 'Cases',
     gaps: 'Tracking Gaps',
   }
   var page = document.getElementById('found-breadcrumb-page')
@@ -103,8 +104,8 @@ function renderMetrics(report) {
   grid.appendChild(renderMetric('Stale active listings', summary.staleActiveListings, '30+ days since list date or last price adjustment.'))
   grid.appendChild(renderMetric('Agents to review', summary.agentsWithStaleListings, 'Grouped by the ClickUp Agent field.'))
   grid.appendChild(renderMetric('Assigned to leader', summary.assignedSalesLeader, 'Stale listings with Ryan, Blake, Nick, Scott, or Steve assigned.'))
-  grid.appendChild(renderMetric('Action plans found', summary.actionPlanFound, 'Safe matches in KPI Shopping List with an action plan.'))
-  grid.appendChild(renderMetric('Needs plan/source match', (summary.actionPlanMissing || 0) + (summary.actionPlanUnmatched || 0), 'No KPI plan found or no safe KPI row match yet.'))
+  grid.appendChild(renderMetric('Action plans created', summary.caseActionPlansCreated, 'Tracked in AIOS cases; KPI is supporting evidence only.'))
+  grid.appendChild(renderMetric('Adjusted or moved', summary.caseAdjustedOrMoved, 'Cases where ClickUp reset date or outcome shows movement.'))
   return grid
 }
 
@@ -147,6 +148,19 @@ function saveLeaderAssignment(taskId, leaderKey, select) {
   })
 }
 
+function saveCaseUpdate(listing, updates, control) {
+  if (control) control.disabled = true
+  postJson('/api/sales-hub/listing-case', Object.assign({
+    taskId: listing.taskId || listing.clickUpTaskId,
+    assignedLeaderKey: listing.salesLeaderAssignment?.assignedLeaderKey || listing.assignedLeaderKey || '',
+    caseStatus: listing.salesLeaderAssignment?.caseStatus || listing.caseStatus || 'identified',
+    outcomeStatus: listing.salesLeaderAssignment?.outcomeStatus || listing.outcomeStatus || 'open',
+  }, updates || {})).then(load).catch(function(error) {
+    window.alert(error && error.message ? error.message : 'Sales listing case could not be updated.')
+    if (control) control.disabled = false
+  })
+}
+
 function renderLeaderAssignment(listing, leaders) {
   var wrap = el('div', 'sales-leader-assignment')
   var label = el('label', null, 'Sales leader')
@@ -175,7 +189,37 @@ function renderLeaderAssignment(listing, leaders) {
   return wrap
 }
 
-function renderListing(listing, leaders) {
+function renderCaseSelect(labelText, value, options, onChange) {
+  var label = el('label', null, labelText)
+  var select = document.createElement('select')
+  select.className = 'sales-leader-select'
+  ;(options || []).forEach(function(option) {
+    var node = document.createElement('option')
+    node.value = option.key
+    node.textContent = option.label
+    select.appendChild(node)
+  })
+  select.value = value || (options && options[0] && options[0].key) || ''
+  select.addEventListener('change', function() {
+    onChange(select.value, select)
+  })
+  label.appendChild(select)
+  return label
+}
+
+function renderCaseControls(listing, report) {
+  var assignment = listing.salesLeaderAssignment || listing
+  var wrap = el('div', 'sales-case-controls')
+  wrap.appendChild(renderCaseSelect('Case status', assignment.caseStatus || 'identified', report.caseStatusOptions || [], function(value, select) {
+    saveCaseUpdate(listing, { caseStatus: value }, select)
+  }))
+  wrap.appendChild(renderCaseSelect('Outcome', assignment.outcomeStatus || 'open', report.outcomeStatusOptions || [], function(value, select) {
+    saveCaseUpdate(listing, { outcomeStatus: value }, select)
+  }))
+  return wrap
+}
+
+function renderListing(listing, report) {
   var item = el('article', 'sales-listing-row')
   var main = el('div', 'sales-listing-main')
   var title = el('a', 'sales-listing-title', listing.title)
@@ -192,14 +236,15 @@ function renderListing(listing, leaders) {
   item.appendChild(main)
 
   var next = el('div', 'sales-listing-next')
-  next.appendChild(renderLeaderAssignment(listing, leaders))
+  next.appendChild(renderLeaderAssignment(listing, report.salesLeaders || []))
+  next.appendChild(renderCaseControls(listing, report))
   next.appendChild(el('span', getActionPlanClass(listing.shoppingListMatch), getActionPlanLabel(listing.shoppingListMatch)))
   next.appendChild(el('span', 'sales-listing-next-copy', getActionPlanCopy(listing)))
   item.appendChild(next)
   return item
 }
 
-function renderAgentGroup(group, leaders) {
+function renderAgentGroup(group, report) {
   var details = document.createElement('details')
   details.className = 'sales-agent-group'
   details.open = true
@@ -214,7 +259,7 @@ function renderAgentGroup(group, leaders) {
 
   var body = el('div', 'sales-agent-body')
   group.listings.forEach(function(listing) {
-    body.appendChild(renderListing(listing, leaders))
+    body.appendChild(renderListing(listing, report))
   })
   details.appendChild(body)
   return details
@@ -233,8 +278,46 @@ function renderStaleListings(report) {
     section.appendChild(el('p', 'empty-state', 'No active listings are 30+ days stale right now.'))
   } else {
     report.groups.forEach(function(group) {
-      section.appendChild(renderAgentGroup(group, report.salesLeaders || []))
+      section.appendChild(renderAgentGroup(group, report))
     })
+  }
+
+  wrap.appendChild(section)
+  return wrap
+}
+
+function renderCases(report) {
+  var wrap = el('div')
+  wrap.appendChild(renderHero(report))
+  wrap.appendChild(renderMetrics(report))
+
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'Tracked stale-listing cases'))
+  section.appendChild(el('p', 'sales-panel-copy', 'AIOS keeps these cases after a listing is adjusted, so the work does not disappear just because the ClickUp reset date changes.'))
+
+  if (!report.trackedCases || !report.trackedCases.length) {
+    section.appendChild(el('p', 'empty-state', 'No tracked cases yet. Run the stale-listing case sync from the Sales Hub proof command.'))
+  } else {
+    var list = el('div', 'sales-case-list')
+    report.trackedCases.forEach(function(item) {
+      var row = el('article', 'sales-case-row')
+      var title = item.listingUrl ? el('a', 'sales-listing-title', item.listingTitle || item.clickUpTaskId) : el('strong', 'sales-listing-title', item.listingTitle || item.clickUpTaskId)
+      if (item.listingUrl) {
+        title.href = item.listingUrl
+        title.target = '_blank'
+        title.rel = 'noopener noreferrer'
+      }
+      row.appendChild(title)
+      row.appendChild(el('div', 'sales-listing-meta', [
+        item.agentName || 'Unassigned agent',
+        item.assignedLeaderName ? 'Leader ' + item.assignedLeaderName : 'No leader assigned',
+        item.staleSinceDate ? 'Hit stale ' + formatDate(item.staleSinceDate) : '',
+        item.adjustedAt ? 'Adjusted ' + formatDate(item.adjustedAt) : '',
+      ].filter(Boolean).join(' · ')))
+      row.appendChild(renderCaseControls(item, report))
+      list.appendChild(row)
+    })
+    section.appendChild(list)
   }
 
   wrap.appendChild(section)
@@ -293,13 +376,13 @@ function renderError(error) {
 
 function render(payload) {
   var section = getSection()
-  if (!['stale-listings', 'gaps'].includes(section)) section = 'stale-listings'
+  if (!['stale-listings', 'cases', 'gaps'].includes(section)) section = 'stale-listings'
   setActiveNav(section)
 
   var root = document.getElementById('sales-content')
   clearNode(root)
   var report = payload.listingInventory
-  root.appendChild(section === 'gaps' ? renderGaps(report) : renderStaleListings(report))
+  root.appendChild(section === 'gaps' ? renderGaps(report) : section === 'cases' ? renderCases(report) : renderStaleListings(report))
 }
 
 function load() {
