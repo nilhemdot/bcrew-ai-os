@@ -51,6 +51,7 @@ assert(!salesJs.includes('GLS outcomes'), 'GLS dashboard should not repeat outco
 assert(salesJs.includes('Manager queue'), 'GLS Manager must open as an action queue, not another repeated dashboard.')
 assert(!/function renderGlsSystem[\\s\\S]*?renderMetrics\\(report\\)/.test(salesJs), 'GLS Manager should not repeat the full dashboard metric block.')
 assert(salesJs.includes('Case history') && salesJs.includes('renderCaseHistory'), 'GLS Manager must expose a visible per-case history ledger.')
+assert(salesJs.includes('visibleCaseHistory') && salesJs.includes('isNoisyCaseHistoryEvent'), 'GLS case history must hide noisy system baseline entries when meaningful events exist.')
 assert(salesJs.includes('pendingActionPlanState'), 'GLS game-plan state must save together with its plan/reason text.')
 assert(salesJs.includes('Clear note') && !salesJs.includes('function renderCaseCurrentNote'), 'GLS Manager must let users clear the plan/reason without duplicating it above history.')
 assert(salesJs.includes('No-game-plan reason captured') || foundationDbJs.includes('No-game-plan reason captured'), 'GLS history must capture existing no-game-plan reasons when old saves missed the ledger.')

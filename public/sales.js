@@ -532,8 +532,25 @@ function renderStatusPill(label, className) {
   return el('span', className || 'status-pill status-pill-neutral', label)
 }
 
+function isNoisyCaseHistoryEvent(event) {
+  return event &&
+    event.title === 'Current state captured' &&
+    (event.source === 'sales-listing-case-sync' || event.actor === 'Sales Hub check' || event.actor === 'GLS sync')
+}
+
+function visibleCaseHistory(history) {
+  var events = Array.isArray(history) ? history.slice() : []
+  var hasMeaningfulEvent = events.some(function(event) {
+    return !isNoisyCaseHistoryEvent(event)
+  })
+  if (!hasMeaningfulEvent) return events
+  return events.filter(function(event) {
+    return !isNoisyCaseHistoryEvent(event)
+  })
+}
+
 function renderCaseHistory(history, fallback) {
-  var events = Array.isArray(history) ? history.slice().reverse() : []
+  var events = visibleCaseHistory(history).reverse()
   var details = document.createElement('details')
   details.className = 'sales-case-history'
   var summary = el('summary', null, 'Case history' + (events.length ? ' · ' + events.length : ''))
