@@ -52,8 +52,16 @@ assert(
 )
 assert(Array.isArray(report.caseStatusOptions) && report.caseStatusOptions.length >= 6, 'Sales listing case status options must be present.')
 assert(Array.isArray(report.outcomeStatusOptions) && report.outcomeStatusOptions.length >= 6, 'Sales listing outcome status options must be present.')
+assert(Array.isArray(report.actionPlanStateOptions) && report.actionPlanStateOptions.length === 3, 'Sales listing action-plan yes/no options must be present.')
+for (const state of ['unknown', 'yes', 'no']) {
+  assert(report.actionPlanStateOptions.some(item => item.key === state), `Missing action-plan state option: ${state}.`)
+}
 assert(Array.isArray(report.trackedCases), 'Tracked sales listing cases must be present.')
 assert(report.summary.trackedCases >= report.summary.staleActiveListings, 'Tracked cases must cover current stale active listings after case sync.')
+assert(
+  report.summary.caseActionPlanYes + report.summary.caseActionPlanNo + report.summary.caseActionPlanUnknown === report.summary.trackedCases,
+  'Action-plan yes/no/unknown counts must equal tracked cases.'
+)
 
 const duplicatePrimaryRows = new Set()
 for (const group of report.groups) {
@@ -86,5 +94,8 @@ console.log(JSON.stringify({
   unassignedSalesLeader: report.assignmentSummary.unassigned,
   trackedCases: report.summary.trackedCases,
   caseActionPlansCreated: report.summary.caseActionPlansCreated,
+  caseActionPlanYes: report.summary.caseActionPlanYes,
+  caseActionPlanNo: report.summary.caseActionPlanNo,
+  caseActionPlanUnknown: report.summary.caseActionPlanUnknown,
   caseAdjustedOrMoved: report.summary.caseAdjustedOrMoved,
 }, null, 2))

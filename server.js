@@ -131,6 +131,7 @@ import { sendAgentFeedbackResponseNotification } from './lib/agent-feedback-resp
 import { buildAgentFeedbackReminderReadiness } from './lib/agent-feedback-reminders.js'
 import { buildSalesListingInventory } from './lib/sales-listing-inventory.js'
 import {
+  resolveSalesListingActionPlanState,
   resolveSalesListingCaseStatus,
   resolveSalesListingLeader,
   resolveSalesListingOutcomeStatus,
@@ -640,6 +641,7 @@ function isOpsApiPath(req) {
 function isSalesApiPath(req) {
   if (req.method === 'GET' && req.path === '/api/sales-hub') return true
   if (req.method === 'POST' && req.path === '/api/sales-hub/listing-assignment') return true
+  if (req.method === 'POST' && req.path === '/api/sales-hub/group-assignment') return true
   if (req.method === 'POST' && req.path === '/api/sales-hub/listing-case') return true
   if (req.method === 'POST' && req.path === '/api/sales-hub/sync-cases') return true
   return false
@@ -4552,6 +4554,68 @@ app.post('/api/sales-hub/listing-assignment', requireAdminToken, async (req, res
   }
 })
 
+app.post('/api/sales-hub/group-assignment', requireAdminToken, async (req, res) => {
+  try {
+    const agentName = String(req.body?.agentName || '').trim()
+    const leaderKey = String(req.body?.assignedLeaderKey || '').trim().toLowerCase()
+    if (!agentName) {
+      sendApiError(res, 400, 'missing_agent_name', 'Agent name is required.')
+      return
+    }
+    const leader = leaderKey ? resolveSalesListingLeader(leaderKey) : null
+    if (leaderKey && !leader) {
+      sendApiError(res, 400, 'invalid_sales_leader', 'Sales leader must be Ryan Campbell, Blake Berfelz, Nick Bergmann, Scott Benson, or Steve Zahnd.')
+      return
+    }
+
+    const actor = getRequestAuthUser(req) || getLocalDevUser(req) || { email: 'unknown', name: 'Unknown' }
+    const listingInventory = await buildSalesListingInventory()
+    const group = (listingInventory.groups || []).find(item => item.agent === agentName)
+    if (!group) {
+      sendApiError(res, 404, 'agent_group_not_found', 'That agent group is not in the current stale active listing list.')
+      return
+    }
+
+    const updated = []
+    for (const listing of group.listings || []) {
+      const existingCaseStatus = listing.salesLeaderAssignment?.caseStatus || ''
+      updated.push(await upsertSalesListingAssignment({
+        clickUpTaskId: listing.taskId,
+        listingTitle: listing.title,
+        listingUrl: listing.url,
+        agentName: listing.agent,
+        resetDate: listing.resetDate || null,
+        daysSinceReset: listing.daysSinceReset,
+        assignedLeaderKey: leader?.key || '',
+        assignedLeaderName: leader?.name || '',
+        assignedLeaderEmail: leader?.email || '',
+        caseStatus: leader && (!existingCaseStatus || existingCaseStatus === 'identified')
+          ? 'assigned'
+          : existingCaseStatus || undefined,
+        metadata: {
+          source: 'sales-hub-group-assignment',
+          assignmentSurface: '/sales#stale-listings',
+          agentName,
+        },
+      }, actor.email || actor.name || 'sales-hub'))
+    }
+
+    cacheHeadersNoStore(res)
+    res.json({
+      status: 'healthy',
+      agentName,
+      updatedCount: updated.length,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'sales_group_assignment_failed',
+      error instanceof Error ? error.message : 'Failed to save Sales Hub group assignment.'
+    )
+  }
+})
+
 app.post('/api/sales-hub/listing-case', requireAdminToken, async (req, res) => {
   try {
     const taskId = String(req.body?.taskId || '').trim()
@@ -4580,6 +4644,10 @@ app.post('/api/sales-hub/listing-case', requireAdminToken, async (req, res) => {
 
     const caseStatus = resolveSalesListingCaseStatus(req.body?.caseStatus || source.caseStatus || 'identified')
     const outcomeStatus = resolveSalesListingOutcomeStatus(req.body?.outcomeStatus || source.outcomeStatus || 'open')
+    const actionPlanState = resolveSalesListingActionPlanState(req.body?.actionPlanState || source.actionPlanState || 'unknown')
+    const nextCaseStatus = actionPlanState.key === 'yes' && ['identified', 'assigned', 'contacted_agent'].includes(caseStatus.key)
+      ? 'action_plan_created'
+      : caseStatus.key
     const actor = getRequestAuthUser(req) || getLocalDevUser(req) || { email: 'unknown', name: 'Unknown' }
     const assignment = await upsertSalesListingAssignment({
       clickUpTaskId: taskId,
@@ -4591,8 +4659,10 @@ app.post('/api/sales-hub/listing-case', requireAdminToken, async (req, res) => {
       assignedLeaderKey: leader?.key || '',
       assignedLeaderName: leader?.name || '',
       assignedLeaderEmail: leader?.email || '',
-      caseStatus: caseStatus.key,
+      caseStatus: nextCaseStatus,
       outcomeStatus: outcomeStatus.key,
+      actionPlanState: actionPlanState.key,
+      actionPlanNoReason: String(req.body?.actionPlanNoReason ?? source.actionPlanNoReason ?? '').trim(),
       actionPlanText: String(req.body?.actionPlanText ?? source.actionPlanText ?? '').trim(),
       metadata: {
         source: 'sales-hub-case-update',

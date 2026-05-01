@@ -8217,7 +8217,8 @@ code {
 }
 
 .sales-leader-assignment label,
-.sales-case-controls label {
+.sales-case-controls label,
+.sales-action-plan-box label {
   display: grid;
   gap: 5px;
   color: var(--text-muted);
@@ -8246,10 +8247,39 @@ code {
   width: 100%;
 }
 
+.sales-action-plan-box {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.sales-action-plan-note {
+  width: 100%;
+  min-height: 74px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 10px;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.sales-save-button {
+  justify-self: start;
+}
+
 .sales-case-list {
   display: grid;
   gap: 10px;
   margin-top: 16px;
+}
+
+.sales-agent-actions {
+  display: grid;
+  grid-template-columns: auto minmax(170px, 220px);
+  gap: 10px;
+  align-items: center;
 }
 
 .sales-case-row {
@@ -8379,6 +8409,11 @@ code {
   .sales-agent-summary {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .sales-agent-actions {
+    grid-template-columns: 1fr;
+    width: 100%;
   }
 
   .sales-agent-age {

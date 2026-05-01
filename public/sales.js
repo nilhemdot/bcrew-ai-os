@@ -102,9 +102,9 @@ function renderMetrics(report) {
   var summary = report.summary || {}
   var grid = el('section', 'sales-metric-grid')
   grid.appendChild(renderMetric('Stale active listings', summary.staleActiveListings, '30+ days since list date or last price adjustment.'))
-  grid.appendChild(renderMetric('Agents to review', summary.agentsWithStaleListings, 'Grouped by the ClickUp Agent field.'))
   grid.appendChild(renderMetric('Assigned to leader', summary.assignedSalesLeader, 'Stale listings with Ryan, Blake, Nick, Scott, or Steve assigned.'))
-  grid.appendChild(renderMetric('Action plans created', summary.caseActionPlansCreated, 'Tracked in AIOS cases; KPI is supporting evidence only.'))
+  grid.appendChild(renderMetric('Action plan yes', summary.caseActionPlanYes, 'Tracked in AIOS cases; KPI is supporting evidence only.'))
+  grid.appendChild(renderMetric('Action plan no', summary.caseActionPlanNo, 'Requires a reason so the opportunity can be reviewed.'))
   grid.appendChild(renderMetric('Adjusted or moved', summary.caseAdjustedOrMoved, 'Cases where ClickUp reset date or outcome shows movement.'))
   return grid
 }
@@ -148,6 +148,17 @@ function saveLeaderAssignment(taskId, leaderKey, select) {
   })
 }
 
+function saveGroupAssignment(agentName, leaderKey, select) {
+  if (select) select.disabled = true
+  postJson('/api/sales-hub/group-assignment', {
+    agentName: agentName,
+    assignedLeaderKey: leaderKey,
+  }).then(load).catch(function(error) {
+    window.alert(error && error.message ? error.message : 'Sales leader group assignment could not be saved.')
+    if (select) select.disabled = false
+  })
+}
+
 function saveCaseUpdate(listing, updates, control) {
   if (control) control.disabled = true
   postJson('/api/sales-hub/listing-case', Object.assign({
@@ -155,18 +166,19 @@ function saveCaseUpdate(listing, updates, control) {
     assignedLeaderKey: listing.salesLeaderAssignment?.assignedLeaderKey || listing.assignedLeaderKey || '',
     caseStatus: listing.salesLeaderAssignment?.caseStatus || listing.caseStatus || 'identified',
     outcomeStatus: listing.salesLeaderAssignment?.outcomeStatus || listing.outcomeStatus || 'open',
+    actionPlanState: listing.salesLeaderAssignment?.actionPlanState || listing.actionPlanState || 'unknown',
+    actionPlanNoReason: listing.salesLeaderAssignment?.actionPlanNoReason || listing.actionPlanNoReason || '',
+    actionPlanText: listing.salesLeaderAssignment?.actionPlanText || listing.actionPlanText || '',
   }, updates || {})).then(load).catch(function(error) {
     window.alert(error && error.message ? error.message : 'Sales listing case could not be updated.')
     if (control) control.disabled = false
   })
 }
 
-function renderLeaderAssignment(listing, leaders) {
-  var wrap = el('div', 'sales-leader-assignment')
-  var label = el('label', null, 'Sales leader')
+function renderLeaderSelect(value, leaders, onChange, ariaLabel) {
   var select = document.createElement('select')
   select.className = 'sales-leader-select'
-  select.setAttribute('aria-label', 'Assign sales leader for ' + listing.title)
+  if (ariaLabel) select.setAttribute('aria-label', ariaLabel)
 
   var empty = document.createElement('option')
   empty.value = ''
@@ -180,10 +192,19 @@ function renderLeaderAssignment(listing, leaders) {
     select.appendChild(option)
   })
 
-  select.value = listing.salesLeaderAssignment?.assignedLeaderKey || ''
+  select.value = value || ''
   select.addEventListener('change', function() {
-    saveLeaderAssignment(listing.taskId, select.value, select)
+    onChange(select.value, select)
   })
+  return select
+}
+
+function renderLeaderAssignment(listing, leaders) {
+  var wrap = el('div', 'sales-leader-assignment')
+  var label = el('label', null, 'Sales leader')
+  var select = renderLeaderSelect(listing.salesLeaderAssignment?.assignedLeaderKey || '', leaders, function(_value, select) {
+    saveLeaderAssignment(listing.taskId, select.value, select)
+  }, 'Assign sales leader for ' + listing.title)
   label.appendChild(select)
   wrap.appendChild(label)
   return wrap
@@ -219,6 +240,41 @@ function renderCaseControls(listing, report) {
   return wrap
 }
 
+function renderActionPlanControls(listing, report) {
+  var assignment = listing.salesLeaderAssignment || listing
+  var wrap = el('div', 'sales-action-plan-box')
+  wrap.appendChild(renderCaseSelect('Action plan?', assignment.actionPlanState || 'unknown', report.actionPlanStateOptions || [], function(value, select) {
+    var updates = { actionPlanState: value }
+    if (value === 'yes') updates.caseStatus = 'action_plan_created'
+    saveCaseUpdate(listing, updates, select)
+  }))
+
+  var note = document.createElement('textarea')
+  note.className = 'sales-action-plan-note'
+  note.rows = 3
+  note.placeholder = (assignment.actionPlanState === 'no') ? 'Why no action plan?' : 'Plan / next move'
+  note.value = (assignment.actionPlanState === 'no')
+    ? (assignment.actionPlanNoReason || '')
+    : (assignment.actionPlanText || '')
+  wrap.appendChild(note)
+
+  var button = document.createElement('button')
+  button.type = 'button'
+  button.className = 'secondary-button sales-save-button'
+  button.textContent = 'Save plan'
+  button.addEventListener('click', function() {
+    var updates = {}
+    if ((assignment.actionPlanState || 'unknown') === 'no') {
+      updates.actionPlanNoReason = note.value
+    } else {
+      updates.actionPlanText = note.value
+    }
+    saveCaseUpdate(listing, updates, button)
+  })
+  wrap.appendChild(button)
+  return wrap
+}
+
 function renderListing(listing, report) {
   var item = el('article', 'sales-listing-row')
   var main = el('div', 'sales-listing-main')
@@ -238,6 +294,7 @@ function renderListing(listing, report) {
   var next = el('div', 'sales-listing-next')
   next.appendChild(renderLeaderAssignment(listing, report.salesLeaders || []))
   next.appendChild(renderCaseControls(listing, report))
+  next.appendChild(renderActionPlanControls(listing, report))
   next.appendChild(el('span', getActionPlanClass(listing.shoppingListMatch), getActionPlanLabel(listing.shoppingListMatch)))
   next.appendChild(el('span', 'sales-listing-next-copy', getActionPlanCopy(listing)))
   item.appendChild(next)
@@ -254,7 +311,12 @@ function renderAgentGroup(group, report) {
   left.appendChild(el('strong', null, group.agent))
   left.appendChild(el('span', null, group.staleCount + ' stale listing' + (group.staleCount === 1 ? '' : 's')))
   summary.appendChild(left)
-  summary.appendChild(el('span', 'sales-agent-age', 'Oldest ' + group.oldestDays + ' days'))
+  var right = el('div', 'sales-agent-actions')
+  right.appendChild(el('span', 'sales-agent-age', 'Oldest ' + group.oldestDays + ' days'))
+  right.appendChild(renderLeaderSelect('', report.salesLeaders || [], function(value, select) {
+    saveGroupAssignment(group.agent, value, select)
+  }, 'Assign all stale listings for ' + group.agent))
+  summary.appendChild(right)
   details.appendChild(summary)
 
   var body = el('div', 'sales-agent-body')
@@ -315,6 +377,7 @@ function renderCases(report) {
         item.adjustedAt ? 'Adjusted ' + formatDate(item.adjustedAt) : '',
       ].filter(Boolean).join(' · ')))
       row.appendChild(renderCaseControls(item, report))
+      row.appendChild(renderActionPlanControls(item, report))
       list.appendChild(row)
     })
     section.appendChild(list)
