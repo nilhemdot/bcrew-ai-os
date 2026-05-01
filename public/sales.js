@@ -189,6 +189,7 @@ function renderMetrics(report) {
   var outcomes = scoreboard.outcomeSummary || {}
   var grid = el('section', 'sales-metric-grid')
   grid.appendChild(renderMetric('Active GLS cases', active.total?.caseCount, formatCaseMetric(active.total)))
+  grid.appendChild(renderMetric('Needs owner', active.unassigned?.caseCount, formatCaseMetric(active.unassigned)))
   grid.appendChild(renderMetric('Assigned', active.takenOn?.caseCount, formatCaseMetric(active.takenOn)))
   grid.appendChild(renderMetric('Game plans', active.gamePlanCreated?.caseCount, formatCaseMetric(active.gamePlanCreated)))
   grid.appendChild(renderMetric('Adjusted / implemented', outcomes.adjustedOrImplemented?.caseCount, formatCaseMetric(outcomes.adjustedOrImplemented)))
@@ -204,42 +205,6 @@ function renderScorePair(label, metric, helper) {
   item.appendChild(el('div', 'sales-gap-status', formatDualCount(metric || {})))
   if (helper) item.appendChild(el('p', null, helper))
   return item
-}
-
-function renderActivePipeline(report) {
-  var scoreboard = getScoreboard(report)
-  var active = scoreboard.activePipeline || {}
-  var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'Active GLS work'))
-  section.appendChild(el('p', 'sales-panel-copy', 'Cases still being worked. Adjusted/repositioned, sold, and failed cases leave this section.'))
-
-  var grid = el('div', 'sales-score-grid')
-  grid.appendChild(renderScorePair('Needs owner', active.unassigned))
-  grid.appendChild(renderScorePair('Assigned', active.takenOn))
-  grid.appendChild(renderScorePair('Game plan', active.gamePlanCreated))
-  grid.appendChild(renderScorePair('Stuck', active.stuck, (active.stuckThresholdDays || 14) + '+ days open. Oldest active case: ' + formatDays(active.oldestActiveDays)))
-  section.appendChild(grid)
-  return section
-}
-
-function renderOutcomes(report) {
-  var scoreboard = getScoreboard(report)
-  var outcomes = scoreboard.outcomeSummary || {}
-  var resolved = scoreboard.resolvedResults || {}
-  var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'GLS outcomes'))
-  section.appendChild(el('p', 'sales-panel-copy', 'The goal is to reposition the listing or get it sold. Failed means no action, blocked, cancelled, or expired.'))
-
-  var grid = el('div', 'sales-score-grid')
-  grid.appendChild(renderScorePair('Adjusted / implemented', outcomes.adjustedOrImplemented))
-  grid.appendChild(renderScorePair('Sold', outcomes.soldClosed))
-  grid.appendChild(renderScorePair('Failed', outcomes.failed))
-  var avg = el('article', 'sales-score-item')
-  avg.appendChild(el('div', 'sales-gap-title', 'Avg days to outcome'))
-  avg.appendChild(el('div', 'sales-gap-status', formatDays(resolved.averageDaysToResolution)))
-  grid.appendChild(avg)
-  section.appendChild(grid)
-  return section
 }
 
 function renderLeaderPerformance(report) {
@@ -339,8 +304,6 @@ function renderDashboard(report) {
   var wrap = el('div')
   wrap.appendChild(renderHero(report))
   wrap.appendChild(renderMetrics(report))
-  wrap.appendChild(renderActivePipeline(report))
-  wrap.appendChild(renderOutcomes(report))
   wrap.appendChild(renderLeaderPerformance(report))
   wrap.appendChild(renderWeeklyCohorts(report))
   wrap.appendChild(renderMovedCases(report))
