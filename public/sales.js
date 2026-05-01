@@ -1,0 +1,240 @@
+function getSection() {
+  return window.location.hash.replace('#', '') || 'stale-listings'
+}
+
+function getAdminHeaders() {
+  try {
+    var token = window.localStorage && window.localStorage.getItem('BCREW_ADMIN_TOKEN')
+    return token ? { 'X-Admin-Token': token } : {}
+  } catch (error) {
+    return {}
+  }
+}
+
+function fetchJson(url) {
+  return fetch(url, { cache: 'no-store', headers: getAdminHeaders() }).then(function(response) {
+    if (!response.ok) throw new Error(url + ' returned ' + response.status)
+    return response.json()
+  })
+}
+
+function clearNode(node) {
+  while (node.firstChild) node.removeChild(node.firstChild)
+}
+
+function el(tag, className, text) {
+  var node = document.createElement(tag)
+  if (className) node.className = className
+  if (text != null) node.textContent = text
+  return node
+}
+
+function formatNumber(value) {
+  return new Intl.NumberFormat('en-CA').format(Number(value) || 0)
+}
+
+function formatDate(value) {
+  if (!value) return 'Missing'
+  var date = new Date(value + 'T12:00:00')
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
+function setActiveNav(section) {
+  document.querySelectorAll('.found-nav-item').forEach(function(item) {
+    item.classList.toggle('active', item.dataset.section === section)
+  })
+  var labels = {
+    'stale-listings': 'Stale Listings',
+    gaps: 'Tracking Gaps',
+  }
+  var page = document.getElementById('found-breadcrumb-page')
+  if (page) page.textContent = labels[section] || 'Stale Listings'
+}
+
+function renderMetric(label, value, helper) {
+  var card = el('article', 'sales-metric')
+  card.appendChild(el('div', 'sales-metric-label', label))
+  card.appendChild(el('div', 'sales-metric-value', formatNumber(value)))
+  if (helper) card.appendChild(el('p', 'sales-metric-helper', helper))
+  return card
+}
+
+function renderHero(report) {
+  var hero = el('section', 'sales-hero')
+  var left = el('div')
+  left.appendChild(el('div', 'found-brand-kicker', 'Sales priority'))
+  left.appendChild(el('h1', 'sales-title', 'Sell Existing Listings'))
+  left.appendChild(el('p', 'sales-subtitle', report.rule.plainEnglish))
+  hero.appendChild(left)
+
+  var action = el('div', 'sales-hero-action')
+  var link = el('a', 'primary-button', 'Open ClickUp View')
+  link.href = report.source.clickUpViewUrl
+  link.target = '_blank'
+  link.rel = 'noopener noreferrer'
+  action.appendChild(link)
+  action.appendChild(el('p', 'sales-source-line', report.source.sourceId + ' · ' + report.source.viewName))
+  hero.appendChild(action)
+  return hero
+}
+
+function renderMetrics(report) {
+  var summary = report.summary || {}
+  var grid = el('section', 'sales-metric-grid')
+  grid.appendChild(renderMetric('Stale active listings', summary.staleActiveListings, '30+ days since list date or last price adjustment.'))
+  grid.appendChild(renderMetric('Agents to review', summary.agentsWithStaleListings, 'Grouped by the ClickUp Agent field.'))
+  grid.appendChild(renderMetric('Active on market', summary.activeListings, 'Only rows with Deal Status = Active.'))
+  grid.appendChild(renderMetric('Recently reset', summary.recentlyResetActiveListings, 'Active listings under the 30-day threshold.'))
+  return grid
+}
+
+function renderListing(listing) {
+  var item = el('article', 'sales-listing-row')
+  var main = el('div', 'sales-listing-main')
+  var title = el('a', 'sales-listing-title', listing.title)
+  title.href = listing.url
+  title.target = '_blank'
+  title.rel = 'noopener noreferrer'
+  main.appendChild(title)
+  main.appendChild(el('div', 'sales-listing-meta', [
+    formatNumber(listing.daysSinceReset) + ' days',
+    'Reset ' + formatDate(listing.resetDate),
+    listing.clickUpStatus,
+    listing.price ? 'Price ' + listing.price : '',
+  ].filter(Boolean).join(' · ')))
+  item.appendChild(main)
+
+  var next = el('div', 'sales-listing-next')
+  next.appendChild(el('span', 'status-pill status-pill-warning', 'Needs action plan'))
+  next.appendChild(el('span', 'sales-listing-next-copy', listing.actionPlanStatus || 'Sales leader should confirm price strategy, action plan, and next adjustment date.'))
+  item.appendChild(next)
+  return item
+}
+
+function renderAgentGroup(group) {
+  var details = document.createElement('details')
+  details.className = 'sales-agent-group'
+  details.open = true
+
+  var summary = el('summary', 'sales-agent-summary')
+  var left = el('div')
+  left.appendChild(el('strong', null, group.agent))
+  left.appendChild(el('span', null, group.staleCount + ' stale listing' + (group.staleCount === 1 ? '' : 's')))
+  summary.appendChild(left)
+  summary.appendChild(el('span', 'sales-agent-age', 'Oldest ' + group.oldestDays + ' days'))
+  details.appendChild(summary)
+
+  var body = el('div', 'sales-agent-body')
+  group.listings.forEach(function(listing) {
+    body.appendChild(renderListing(listing))
+  })
+  details.appendChild(body)
+  return details
+}
+
+function renderStaleListings(report) {
+  var wrap = el('div')
+  wrap.appendChild(renderHero(report))
+  wrap.appendChild(renderMetrics(report))
+
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'Stale listings by agent'))
+  section.appendChild(el('p', 'sales-panel-copy', 'This is the weekly owner-meeting list: active listings that need a sales-leader action plan because they have not been listed or price-adjusted in 30+ days.'))
+
+  if (!report.groups.length) {
+    section.appendChild(el('p', 'empty-state', 'No active listings are 30+ days stale right now.'))
+  } else {
+    report.groups.forEach(function(group) {
+      section.appendChild(renderAgentGroup(group))
+    })
+  }
+
+  wrap.appendChild(section)
+  return wrap
+}
+
+function renderGaps(report) {
+  var gaps = report.fieldGaps || {}
+  var summary = report.summary || {}
+  var wrap = el('div')
+  wrap.appendChild(renderHero(report))
+
+  var section = el('section', 'sales-panel')
+  section.appendChild(el('h2', null, 'What is not tracked yet'))
+  section.appendChild(el('p', 'sales-panel-copy', 'The stale-listing list is live. The progress scoreboard needs the next tracking fields or a weekly snapshot so we can prove action plans, adjustments, and moved/sold outcomes over time.'))
+
+  var list = el('div', 'sales-gap-list')
+  var actionPlan = gaps.actionPlanTracking || {}
+  list.appendChild(renderGap('Action plans created', actionPlan.available ? 'Tracked' : 'Not tracked yet', actionPlan.note || 'Needs a governed source field.'))
+  list.appendChild(renderGap('Price adjusted / relisted', 'Partially visible', 'Listings reset when the date field changes. A weekly snapshot will make before/after progress measurable.'))
+  list.appendChild(renderGap('Moved / sold', 'Needs outcome definition', 'Decide whether moved means conditional, firm, sold, expired, cancelled, or relisted.'))
+  list.appendChild(renderGap('Missing source data', formatNumber(summary.missingResetDate + summary.missingAgent) + ' active rows', 'Rows missing reset date or agent cannot be managed cleanly.'))
+  section.appendChild(list)
+
+  if (actionPlan.recommendedFields && actionPlan.recommendedFields.length) {
+    var fields = el('div', 'sales-recommended-fields')
+    fields.appendChild(el('h3', null, 'Recommended next ClickUp fields'))
+    var ul = el('ul')
+    actionPlan.recommendedFields.forEach(function(field) {
+      ul.appendChild(el('li', null, field))
+    })
+    fields.appendChild(ul)
+    section.appendChild(fields)
+  }
+
+  wrap.appendChild(section)
+  return wrap
+}
+
+function renderGap(title, status, copy) {
+  var item = el('article', 'sales-gap-item')
+  item.appendChild(el('div', 'sales-gap-title', title))
+  item.appendChild(el('div', 'sales-gap-status', status))
+  item.appendChild(el('p', null, copy))
+  return item
+}
+
+function renderError(error) {
+  var wrap = el('section', 'sales-panel')
+  wrap.appendChild(el('h1', null, 'Sales Hub could not load'))
+  wrap.appendChild(el('p', 'sales-panel-copy', error && error.message ? error.message : 'Unknown error.'))
+  wrap.appendChild(el('p', 'sales-panel-copy', 'Check the ClickUp token and rerun the Sales Hub check.'))
+  return wrap
+}
+
+function render(payload) {
+  var section = getSection()
+  if (!['stale-listings', 'gaps'].includes(section)) section = 'stale-listings'
+  setActiveNav(section)
+
+  var root = document.getElementById('sales-content')
+  clearNode(root)
+  var report = payload.listingInventory
+  root.appendChild(section === 'gaps' ? renderGaps(report) : renderStaleListings(report))
+}
+
+function load() {
+  fetchJson('/api/sales-hub')
+    .then(render)
+    .catch(function(error) {
+      var root = document.getElementById('sales-content')
+      clearNode(root)
+      root.appendChild(renderError(error))
+    })
+}
+
+var toggle = document.getElementById('found-mobile-toggle')
+if (toggle) {
+  toggle.addEventListener('click', function() {
+    var sidebar = document.getElementById('found-sidebar')
+    if (sidebar) sidebar.classList.toggle('found-sidebar-open')
+  })
+}
+
+window.addEventListener('hashchange', load)
+load()

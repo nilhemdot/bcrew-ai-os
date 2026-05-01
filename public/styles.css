@@ -8020,6 +8020,217 @@ code {
   border-color: rgba(239, 68, 68, 0.24);
 }
 
+.sales-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 18px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.sales-title {
+  margin: 4px 0 8px;
+  color: var(--text-primary);
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.sales-subtitle,
+.sales-panel-copy,
+.sales-source-line,
+.sales-metric-helper,
+.sales-listing-meta,
+.sales-listing-next-copy,
+.sales-gap-item p {
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.sales-subtitle {
+  max-width: 820px;
+  margin: 0;
+}
+
+.sales-hero-action {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.sales-source-line {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.sales-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.sales-metric {
+  min-height: 118px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.sales-metric-label {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.sales-metric-value {
+  margin-top: 8px;
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.sales-metric-helper {
+  margin: 10px 0 0;
+  font-size: 0.86rem;
+}
+
+.sales-panel {
+  margin-bottom: 18px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.sales-panel h2 {
+  margin: 0 0 8px;
+}
+
+.sales-agent-group {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+  overflow: hidden;
+}
+
+.sales-agent-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  min-height: 56px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.sales-agent-summary strong,
+.sales-agent-summary span {
+  display: block;
+}
+
+.sales-agent-summary span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.sales-agent-age {
+  color: var(--text-primary);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.sales-agent-body {
+  display: grid;
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+
+.sales-listing-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.72fr);
+  gap: 16px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.sales-listing-title {
+  color: var(--text-primary);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.sales-listing-title:hover {
+  text-decoration: underline;
+}
+
+.sales-listing-meta {
+  margin-top: 5px;
+  font-size: 0.86rem;
+}
+
+.sales-listing-next {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.status-pill-warning {
+  border-color: rgba(245, 158, 11, 0.32);
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+}
+
+.sales-gap-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.sales-gap-item {
+  min-height: 140px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+}
+
+.sales-gap-title {
+  color: var(--text-primary);
+  font-weight: 900;
+}
+
+.sales-gap-status {
+  margin: 8px 0;
+  color: var(--brand);
+  font-weight: 900;
+}
+
+.sales-gap-item p {
+  margin: 0;
+}
+
+.sales-recommended-fields {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.sales-recommended-fields h3 {
+  margin-top: 0;
+}
+
 @media (max-width: 640px) {
   .ops-issue-head {
     min-height: 0;
@@ -8039,6 +8250,41 @@ code {
 
   .strategy-v2-action-btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .sales-hero,
+  .sales-listing-row,
+  .sales-gap-list {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-hero-action {
+    justify-items: start;
+  }
+
+  .sales-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sales-agent-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sales-agent-age {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 460px) {
+  .sales-metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sales-title {
+    font-size: 1.6rem;
   }
 }
 

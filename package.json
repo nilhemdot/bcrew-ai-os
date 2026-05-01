@@ -18,6 +18,8 @@
     "clickup:verify": "node --env-file-if-exists=.env scripts/clickup-source-verify.mjs",
     "deal-review:admin": "node --env-file-if-exists=.env scripts/review-admin-deals.mjs",
     "deal-review:conditional": "node --env-file-if-exists=.env scripts/review-conditional-deals.mjs",
+    "sales:listings-check": "node --env-file-if-exists=.env scripts/process-sales-listings-hub-check.mjs",
+    "process:sales-listings-hub-check": "node --env-file-if-exists=.env scripts/process-sales-listings-hub-check.mjs",
     "clickup:conditional-forecast": "node --env-file-if-exists=.env scripts/sync-clickup-conditional-forecast.mjs",
     "connection:audit": "node --env-file-if-exists=.env scripts/audit-fub-kpi-deal-connection.mjs",
     "kpi:data-quality": "node --env-file-if-exists=.env scripts/audit-kpi-agent-data-quality.mjs",

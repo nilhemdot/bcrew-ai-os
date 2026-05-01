@@ -128,6 +128,7 @@ import { buildAgentFeedbackAutoSendReadiness } from './lib/agent-feedback-auto-s
 import { buildAgentFeedbackProductionAutoSendDryRunReport } from './lib/agent-feedback-production-autosend-dry-run.js'
 import { sendAgentFeedbackResponseNotification } from './lib/agent-feedback-response-notify.js'
 import { buildAgentFeedbackReminderReadiness } from './lib/agent-feedback-reminders.js'
+import { buildSalesListingInventory } from './lib/sales-listing-inventory.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import {
   authenticateAuthUser,
@@ -549,6 +550,7 @@ app.use((req, res, next) => {
     '/index.html': '/',
     '/foundation.html': '/foundation',
     '/ops.html': '/ops',
+    '/sales.html': '/sales',
     '/strategic-execution.html': '/strategic-execution',
     '/doc.html': '/doc',
     '/strategy-export.html': '/foundation/export/strategy',
@@ -623,6 +625,7 @@ function isOpsApiPath(req) {
   return req.method === 'GET' && [
     '/api/ops-hub',
     '/api/owners/review-queue',
+    '/api/sales-hub',
   ].includes(req.path)
 }
 
@@ -4433,6 +4436,31 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
   }
 })
 
+app.get('/api/sales-hub', requireAdminToken, async (_req, res) => {
+  try {
+    const listingInventory = await buildSalesListingInventory()
+    cacheHeadersNoStore(res)
+    res.json({
+      status: 'healthy',
+      hub: 'sales',
+      listingInventory,
+      meta: {
+        generatedAt: new Date().toISOString(),
+        sourceId: listingInventory.source.sourceId,
+        sourceListId: listingInventory.source.listId,
+        sourceViewId: listingInventory.source.viewId,
+      },
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'sales_hub_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Sales hub data.'
+    )
+  }
+})
+
 app.get('/api/ops/agent-feedback-production-dry-run', requireAdminToken, async (req, res) => {
   try {
     const includeCandidates = String(req.query?.includeCandidates || '').toLowerCase() === 'true'
@@ -6019,6 +6047,11 @@ app.get('/foundation/export/strategy', requirePageAccess('owner'), (_req, res) =
 app.get('/strategic-execution', requirePageAccess('owner'), (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'strategic-execution.html'))
+})
+
+app.get('/sales', requirePageAccess('ops'), (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store')
+  res.sendFile(path.join(__dirname, 'public', 'sales.html'))
 })
 
 app.get('/ops', requirePageAccess('ops'), (_req, res) => {
