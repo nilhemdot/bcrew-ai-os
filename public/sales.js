@@ -190,7 +190,7 @@ function renderHero(report, options) {
 function renderActivePipelineDashboard(report) {
   var scoreboard = getScoreboard(report)
   var active = scoreboard.activePipeline || {}
-  var section = el('section', 'sales-panel sales-dashboard-panel')
+  var section = el('section', 'sales-panel sales-dashboard-panel sales-dashboard-panel-active')
   section.appendChild(el('h2', null, 'Active GLS pipeline'))
   section.appendChild(el('p', 'sales-panel-copy', 'Cases still being worked right now. Sold and failed cases leave this active view.'))
   var grid = el('div', 'sales-metric-grid sales-metric-grid-dashboard')
@@ -209,7 +209,7 @@ function renderTotalCasesDashboard(report) {
   var funnel = scoreboard.allTimeFunnel || {}
   var active = scoreboard.activePipeline || {}
   var outcomes = scoreboard.outcomeSummary || {}
-  var section = el('section', 'sales-panel sales-dashboard-panel')
+  var section = el('section', 'sales-panel sales-dashboard-panel sales-dashboard-panel-total')
   section.appendChild(el('h2', null, 'Total GLS cases'))
   section.appendChild(el('p', 'sales-panel-copy', 'All-time persisted GLS cases. This is where sold, failed, and conversion outcomes belong. Date filters can layer on later.'))
   var grid = el('div', 'sales-metric-grid sales-metric-grid-dashboard')
@@ -251,6 +251,24 @@ function renderManagerSummary(report) {
 
 function renderMetrics(report) {
   return renderActivePipelineDashboard(report)
+}
+
+function renderDashboardExecSummary() {
+  var section = el('section', 'sales-exec-summary')
+  var purpose = el('article', 'sales-exec-summary-card sales-exec-summary-purpose')
+  purpose.appendChild(el('div', 'sales-metric-label', 'Purpose'))
+  purpose.appendChild(el('p', null, 'GLS exists to move stale active listings: assign a sales leader, get the agent to a real game plan, reposition the listing, and track whether it sells or fails.'))
+  section.appendChild(purpose)
+
+  var workflow = el('article', 'sales-exec-summary-card')
+  workflow.appendChild(el('div', 'sales-metric-label', 'Workflow'))
+  var steps = el('div', 'sales-workflow-strip')
+  ;['Identify stale', 'Assign owner', 'Create game plan', 'Adjust / reposition', 'Sold or failed'].forEach(function(step) {
+    steps.appendChild(el('span', 'sales-workflow-chip', step))
+  })
+  workflow.appendChild(steps)
+  section.appendChild(workflow)
+  return section
 }
 
 function renderScorePair(label, metric, helper) {
@@ -329,7 +347,7 @@ function renderWeeklyCohorts(report) {
   var cohorts = getScoreboard(report).weeklyCohorts || []
   var section = el('section', 'sales-panel')
   section.appendChild(el('h2', null, 'Weekly cohort view'))
-  section.appendChild(el('p', 'sales-panel-copy', 'Each row starts with the week a listing entered GLS and tracks how much of that cohort was taken on, adjusted, sold, or is still open.'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Each row starts with the week a GLS case entered the system and tracks how many cases were taken on, adjusted, sold, or are still open.'))
   if (!cohorts.length) {
     section.appendChild(el('p', 'empty-state', 'No persisted GLS case history with entry dates yet.'))
     return section
@@ -343,14 +361,14 @@ function renderWeeklyCohorts(report) {
   table.appendChild(el('div', 'sales-cohort-head', 'Still open'))
   cohorts.slice(0, 10).forEach(function(cohort) {
     table.appendChild(el('div', null, formatDate(cohort.weekStart)))
-    table.appendChild(el('div', null, formatNumber(cohort.listingsIdentified) + ' / ' + formatNumber(cohort.casesIdentified)))
-    table.appendChild(el('div', null, formatNumber(cohort.takenOnListings) + ' / ' + formatNumber(cohort.takenOnCases)))
-    table.appendChild(el('div', null, formatNumber(cohort.adjustedListings) + ' / ' + formatNumber(cohort.adjustedCases)))
-    table.appendChild(el('div', null, formatNumber(cohort.soldListings) + ' / ' + formatNumber(cohort.soldCases)))
-    table.appendChild(el('div', null, formatNumber(cohort.stillOpenListings) + ' / ' + formatNumber(cohort.stillOpenCases)))
+    table.appendChild(el('div', null, formatNumber(cohort.casesIdentified)))
+    table.appendChild(el('div', null, formatNumber(cohort.takenOnCases)))
+    table.appendChild(el('div', null, formatNumber(cohort.adjustedCases)))
+    table.appendChild(el('div', null, formatNumber(cohort.soldCases)))
+    table.appendChild(el('div', null, formatNumber(cohort.stillOpenCases)))
   })
   section.appendChild(table)
-  section.appendChild(el('p', 'sales-source-line', 'Cells show listings / grouped cases.'))
+  section.appendChild(el('p', 'sales-source-line', 'Cells show grouped GLS cases.'))
   return section
 }
 
@@ -361,6 +379,7 @@ function renderDashboard(report) {
     title: 'GLS Dashboard',
     subtitle: 'Two scoreboards: current active cases first, then total GLS case outcomes across history.',
   }))
+  wrap.appendChild(renderDashboardExecSummary())
   wrap.appendChild(renderActivePipelineDashboard(report))
   wrap.appendChild(renderTotalCasesDashboard(report))
   wrap.appendChild(renderLeaderPerformance(report))

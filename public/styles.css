@@ -8132,6 +8132,84 @@ code {
   margin-bottom: 0;
 }
 
+.sales-exec-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 1.2fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.sales-exec-summary-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 104px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.sales-exec-summary-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.sales-exec-summary-purpose {
+  border-color: rgba(16, 185, 129, 0.24);
+}
+
+.sales-workflow-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sales-workflow-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid rgba(14, 116, 144, 0.18);
+  border-radius: 999px;
+  background: rgba(14, 116, 144, 0.08);
+  color: #155e75;
+  font-size: 0.8rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.sales-dashboard-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.sales-dashboard-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+}
+
+.sales-dashboard-panel-active {
+  border-color: rgba(16, 185, 129, 0.28);
+  background: #f8fffc;
+}
+
+.sales-dashboard-panel-active::before {
+  background: #10b981;
+}
+
+.sales-dashboard-panel-total {
+  border-color: rgba(14, 116, 144, 0.28);
+  background: #f7fcff;
+}
+
+.sales-dashboard-panel-total::before {
+  background: #0e7490;
+}
+
 .sales-metric-grid-dashboard {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -8148,8 +8226,8 @@ code {
 }
 
 .sales-metric {
-  min-height: 118px;
-  padding: 16px;
+  min-height: 98px;
+  padding: 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: #fff;
@@ -8163,16 +8241,16 @@ code {
 }
 
 .sales-metric-value {
-  margin-top: 8px;
+  margin-top: 6px;
   color: var(--text-primary);
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 900;
   line-height: 1;
 }
 
 .sales-metric-helper {
-  margin: 10px 0 0;
-  font-size: 0.86rem;
+  margin: 8px 0 0;
+  font-size: 0.82rem;
 }
 
 .sales-system-card-grid,
@@ -8697,6 +8775,7 @@ code {
   .sales-listing-row,
   .sales-listing-next,
   .sales-gap-list,
+  .sales-exec-summary,
   .sales-system-card-grid,
   .sales-workflow-grid,
   .sales-project-list,

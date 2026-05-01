@@ -44,7 +44,7 @@ function getAdminHeaders() {
 function getAllowedHubs(role) {
   if (role === 'owner') return ['foundation', 'strategy', 'sales', 'ops']
   if (role === 'sales') return ['sales']
-  if (role === 'ops') return ['ops']
+  if (role === 'ops') return ['sales', 'ops']
   return []
 }
 
@@ -70,7 +70,11 @@ function applyHubAccess(user) {
 function populateLimitedStatusBar(user) {
   var sourcesEl = document.getElementById('home-sources')
   var pendingEl = document.getElementById('home-pending')
-  if (sourcesEl) sourcesEl.textContent = user && user.role === 'sales' ? 'Sales Hub access' : 'Limited access'
+  if (sourcesEl) sourcesEl.textContent = user && user.role === 'sales'
+    ? 'Sales Hub access'
+    : user && user.role === 'ops'
+      ? 'Ops + Sales Hub access'
+      : 'Limited access'
   if (pendingEl) pendingEl.textContent = 'Other hubs locked'
 }
 
