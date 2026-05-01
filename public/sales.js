@@ -174,35 +174,16 @@ function renderMetrics(report) {
   var summary = report.summary || {}
   var scoreboard = getScoreboard(report)
   var funnel = scoreboard.allTimeFunnel || {}
+  var current = scoreboard.currentActive || {}
   var grid = el('section', 'sales-metric-grid')
-  grid.appendChild(renderMetric('Stale active listings', summary.staleActiveListings, '30+ days since list date or last price adjustment.'))
-  grid.appendChild(renderMetric('Active GLS cases', summary.currentActiveGlsCases, 'Grouped case/project count. Multi-unit projects count once.'))
-  grid.appendChild(renderMetric('Assigned to leader', summary.assignedSalesLeader, 'Stale listings with Ryan, Blake, Nick, Scott, or Steve assigned.'))
-  grid.appendChild(renderMetric('Unassigned', summary.unassignedSalesLeader, 'Current stale listing rows without a sales leader.'))
-  grid.appendChild(renderMetric('All-time identified', funnel.identified?.caseCount || summary.allTimeIdentifiedCases, formatDualCount(funnel.identified || {})))
-  grid.appendChild(renderMetric('Taken on', funnel.takenOn?.caseCount || summary.allTimeTakenOnCases, formatDualCount(funnel.takenOn || {})))
-  grid.appendChild(renderMetric('Game plans', funnel.gamePlanCreated?.caseCount || summary.caseActionPlansCreated, formatDualCount(funnel.gamePlanCreated || {})))
-  grid.appendChild(renderMetric('Adjusted / sold', funnel.adjustedOrSold?.caseCount || 0, formatDualCount(funnel.adjustedOrSold || {})))
-  grid.appendChild(renderMetric('Project suggestions', summary.projectMergeSuggestions, 'Multiple stale unit listings that likely belong to one project-level GLS case.'))
+  grid.appendChild(renderMetric('Open cases now', current.caseCount || summary.currentActiveGlsCases, formatNumber(current.listingCount || summary.staleActiveListings) + ' current listing rows behind those cases.'))
+  grid.appendChild(renderMetric('Unassigned now', current.unassignedCases, formatNumber(current.unassignedListings || summary.unassignedSalesLeader) + ' listing rows still need ownership.'))
+  grid.appendChild(renderMetric('All-time identified', funnel.identified?.caseCount || summary.allTimeIdentifiedCases, 'Persisted GLS case history.'))
+  grid.appendChild(renderMetric('All-time taken on', funnel.takenOn?.caseCount || summary.allTimeTakenOnCases, 'Leader assigned or case moved forward.'))
+  grid.appendChild(renderMetric('All-time game plans', funnel.gamePlanCreated?.caseCount || summary.caseActionPlansCreated, 'Game plan or action-plan status exists.'))
+  grid.appendChild(renderMetric('All-time adjusted', funnel.adjustedRelisted?.caseCount || summary.allTimeAdjustedCases, 'Adjusted/relisted cases only.'))
+  grid.appendChild(renderMetric('All-time sold', funnel.soldClosed?.caseCount || summary.allTimeSoldCases, 'Sold/closed cases only.'))
   return grid
-}
-
-function renderGlsWorkflow(report) {
-  var system = getGlsSystem(report)
-  var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'GLS workflow'))
-  section.appendChild(el('p', 'sales-panel-copy', 'Use one system for the whole owner-meeting loop: identify the listing, assign the leader, connect with the agent, create the game plan, implement it, and track the outcome.'))
-
-  var grid = el('div', 'sales-workflow-grid')
-  ;(system.workflow || []).forEach(function(step, index) {
-    var card = el('article', 'sales-workflow-step')
-    card.appendChild(el('div', 'sales-workflow-number', String(index + 1)))
-    card.appendChild(el('h3', null, step.label))
-    card.appendChild(el('p', null, step.proof))
-    grid.appendChild(card)
-  })
-  section.appendChild(grid)
-  return section
 }
 
 function renderScorePair(label, metric, helper) {
@@ -217,22 +198,15 @@ function renderCurrentActiveScoreboard(report) {
   var scoreboard = getScoreboard(report)
   var current = scoreboard.currentActive || {}
   var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'Current active GLS'))
-  section.appendChild(el('p', 'sales-panel-copy', 'Current active count is live from ClickUp Active listings. Case count groups multi-unit projects so one project does not inflate the GLS case count.'))
-
-  var grid = el('div', 'sales-score-grid')
-  grid.appendChild(renderMetric('Active stale listings', current.listingCount, 'Raw listing opportunities.'))
-  grid.appendChild(renderMetric('Active GLS cases', current.caseCount, 'Grouped cases/projects.'))
-  grid.appendChild(renderMetric('Assigned listings', current.assignedListings, 'Current stale listing rows with a leader.'))
-  grid.appendChild(renderMetric('Unassigned listings', current.unassignedListings, 'Current stale listing rows without a leader.'))
-  section.appendChild(grid)
+  section.appendChild(el('h2', null, 'Open GLS case ownership'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Open GLS is case-first. Listing rows only appear as supporting context where one case contains multiple units.'))
 
   var leaderList = el('div', 'sales-leader-score-list')
   ;(current.bySalesLeader || []).forEach(function(row) {
     var leader = el('article', 'sales-leader-score-row')
     leader.appendChild(el('strong', null, row.name))
-    leader.appendChild(el('span', null, formatNumber(row.listingCount) + ' listings'))
     leader.appendChild(el('span', null, formatNumber(row.caseCount) + ' cases'))
+    leader.appendChild(el('span', null, formatNumber(row.listingCount) + ' listings'))
     leaderList.appendChild(leader)
   })
   section.appendChild(leaderList)
@@ -251,7 +225,7 @@ function renderAllTimeFunnel(report) {
   var funnel = getScoreboard(report).allTimeFunnel || {}
   var section = el('section', 'sales-panel')
   section.appendChild(el('h2', null, 'All-time GLS funnel'))
-  section.appendChild(el('p', 'sales-panel-copy', 'All-time counts come from persisted GLS case history, so adjusted, firmed, closed, or no-longer-active listings stay visible after leaving the live Active list.'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Top cards are the quick case summary. This funnel is persisted history, including cases that later adjust, firm, close, or leave the Active list.'))
 
   var grid = el('div', 'sales-score-grid')
   grid.appendChild(renderScorePair('Identified', funnel.identified, 'Entered GLS after crossing the stale threshold.'))
@@ -314,7 +288,6 @@ function renderWeeklyCohorts(report) {
 }
 
 function renderDashboard(report) {
-  var system = getGlsSystem(report)
   var wrap = el('div')
   wrap.appendChild(renderHero(report))
   wrap.appendChild(renderMetrics(report))
@@ -323,22 +296,6 @@ function renderDashboard(report) {
   wrap.appendChild(renderConversionRates(report))
   wrap.appendChild(renderWeeklyCohorts(report))
   wrap.appendChild(renderMovedCases(report))
-  wrap.appendChild(renderGlsWorkflow(report))
-  wrap.appendChild(renderProjectSuggestions(report, { interactive: false }))
-
-  var section = el('section', 'sales-panel')
-  section.appendChild(el('h2', null, 'This week'))
-  section.appendChild(el('p', 'sales-panel-copy', 'Start with the opportunity list, assign every stale listing, then use Cases to record whether the agent was contacted, whether there is a game plan, and whether it was implemented.'))
-
-  var cards = el('div', 'sales-system-card-grid')
-  cards.appendChild(renderSystemCard('Open GLS work', formatNumber(report.summary?.staleActiveListings), 'Active listing opportunities plus saved case progress in one work surface.', '#gls-system'))
-  cards.appendChild(renderSystemCard('Playbooks', formatNumber((system.playbooks || []).length), 'Approved strategy frameworks leaders can use with agents.', '#gls-playbooks'))
-  cards.appendChild(renderSystemCard('Adjusted / moved', formatNumber(report.summary?.caseAdjustedOrMoved), 'Scoreboard result shown here, not a separate page.', '#gls-dashboard'))
-  section.appendChild(cards)
-
-  var threshold = system.threshold || {}
-  section.appendChild(el('p', 'sales-source-line', 'Current threshold: ' + (threshold.defaultDays || report.thresholdDays || 30) + ' days. Adjustable controls come after weekly snapshots are stable.'))
-  wrap.appendChild(section)
   return wrap
 }
 
@@ -430,15 +387,6 @@ function renderGlsSystem(report) {
   wrap.appendChild(renderProjectSuggestions(report))
   wrap.appendChild(renderOpportunitiesSection(report))
   return wrap
-}
-
-function renderSystemCard(title, value, copy, href) {
-  var card = el('a', 'sales-system-card')
-  card.href = href
-  card.appendChild(el('div', 'sales-gap-title', title))
-  card.appendChild(el('div', 'sales-metric-value', value))
-  card.appendChild(el('p', null, copy))
-  return card
 }
 
 function getActionPlanLabel(match) {
