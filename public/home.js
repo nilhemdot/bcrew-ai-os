@@ -41,6 +41,45 @@ function getAdminHeaders() {
   }
 }
 
+function getAllowedHubs(role) {
+  if (role === 'owner') return ['foundation', 'strategy', 'sales', 'ops']
+  if (role === 'sales') return ['sales']
+  if (role === 'ops') return ['ops']
+  return []
+}
+
+function applyHubAccess(user) {
+  var role = user && user.role ? user.role : ''
+  var allowed = getAllowedHubs(role)
+  document.querySelectorAll('.hub-card').forEach(function(card) {
+    var hub = card.getAttribute('data-hub')
+    var isAllowed = allowed.indexOf(hub) !== -1
+    card.classList.toggle('hub-card-locked', !isAllowed)
+    card.setAttribute('aria-disabled', isAllowed ? 'false' : 'true')
+    if (!card.dataset.originalHref) card.dataset.originalHref = card.getAttribute('href') || '#'
+    card.setAttribute('href', isAllowed ? card.dataset.originalHref : '#')
+
+    var status = card.querySelector('.hub-status')
+    if (status && !isAllowed) {
+      status.className = 'hub-status hub-status-locked'
+      status.innerHTML = '<div class="hub-dot"></div> Locked'
+    }
+  })
+}
+
+function populateLimitedStatusBar(user) {
+  var sourcesEl = document.getElementById('home-sources')
+  var pendingEl = document.getElementById('home-pending')
+  if (sourcesEl) sourcesEl.textContent = user && user.role === 'sales' ? 'Sales Hub access' : 'Limited access'
+  if (pendingEl) pendingEl.textContent = 'Other hubs locked'
+}
+
+document.addEventListener('click', function(event) {
+  var card = event.target.closest && event.target.closest('.hub-card')
+  if (!card || !card.classList.contains('hub-card-locked')) return
+  event.preventDefault()
+})
+
 function buildHarlanPanel() {
   var panel = document.getElementById('harlan-panel')
   if (!panel) return
@@ -248,23 +287,39 @@ function handleGlobalKeydown(e) {
 /* ── Init ─────────────────────────────────────────────────────── */
 
 ;(function init() {
-  fetch('/api/source-of-truth', { headers: getAdminHeaders() })
+  fetch('/api/auth/session', { cache: 'no-store' })
     .then(function(res) {
-      if (!res.ok) throw new Error('Status bar fetch failed.')
+      if (!res.ok) throw new Error('Session fetch failed.')
       return res.json()
     })
-    .then(function(data) {
-      if (data.systemStatus) {
-        var connected = 0
-        data.systemStatus.forEach(function(item) {
-          if (item.status === 'connected') connected++
-        })
-        harlanStatus.sourceLabel = connected + ' Foundation sources live'
+    .then(function(session) {
+      var user = session.user || null
+      applyHubAccess(user)
+
+      if (!user || user.role !== 'owner') {
+        populateLimitedStatusBar(user)
+        return null
       }
-      if (data.systemStatus) populateStatusBar(data.systemStatus)
+
+      return fetch('/api/source-of-truth', { headers: getAdminHeaders() })
+        .then(function(res) {
+          if (!res.ok) throw new Error('Status bar fetch failed.')
+          return res.json()
+        })
+        .then(function(data) {
+          if (data.systemStatus) {
+            var connected = 0
+            data.systemStatus.forEach(function(item) {
+              if (item.status === 'connected') connected++
+            })
+            harlanStatus.sourceLabel = connected + ' Foundation sources live'
+          }
+          if (data.systemStatus) populateStatusBar(data.systemStatus)
+        })
     })
     .catch(function() {
-      /* status bar stays at default text */
+      applyHubAccess(null)
+      populateLimitedStatusBar(null)
     })
 
   var toggle = document.getElementById('harlan-toggle')

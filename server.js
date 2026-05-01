@@ -629,6 +629,10 @@ function isOpsApiPath(req) {
   ].includes(req.path)
 }
 
+function isSalesApiPath(req) {
+  return req.method === 'GET' && req.path === '/api/sales-hub'
+}
+
 function requireAdminToken(req, res, next) {
   if (isLocalDevRequest(req)) {
     next()
@@ -642,6 +646,11 @@ function requireAdminToken(req, res, next) {
   }
 
   if (user?.role === 'ops' && isOpsApiPath(req)) {
+    next()
+    return
+  }
+
+  if (user?.role === 'sales' && isSalesApiPath(req)) {
     next()
     return
   }
@@ -683,12 +692,22 @@ function requirePageAccess(area) {
       return
     }
 
-    if (area === 'ops') {
+    if (area === 'home') {
       next()
       return
     }
 
-    res.redirect('/ops')
+    if (area === 'ops' && user.role === 'ops') {
+      next()
+      return
+    }
+
+    if (area === 'sales' && (user.role === 'sales' || user.role === 'ops')) {
+      next()
+      return
+    }
+
+    res.redirect(getDefaultRouteForUser(user))
   }
 }
 
@@ -6049,7 +6068,7 @@ app.get('/strategic-execution', requirePageAccess('owner'), (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'strategic-execution.html'))
 })
 
-app.get('/sales', requirePageAccess('ops'), (_req, res) => {
+app.get('/sales', requirePageAccess('sales'), (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
   res.sendFile(path.join(__dirname, 'public', 'sales.html'))
 })
@@ -6068,7 +6087,7 @@ app.use('/api', (_req, res) => {
   sendApiError(res, 404, 'api_not_found', 'API endpoint not found.')
 })
 
-app.get('/', requirePageAccess('owner'), (req, res) => {
+app.get('/', requirePageAccess('home'), (req, res) => {
   const user = getRequestAuthUser(req) || getLocalDevUser(req)
   if (user?.role === 'ops') {
     res.redirect('/ops')
