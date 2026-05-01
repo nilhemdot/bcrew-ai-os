@@ -493,15 +493,13 @@ function renderListing(listing, report) {
 function renderAgentGroup(group, report) {
   var details = document.createElement('details')
   details.className = 'sales-agent-group'
-  details.open = true
 
   var summary = el('summary', 'sales-agent-summary')
   var left = el('div')
   left.appendChild(el('strong', null, group.agent))
-  left.appendChild(el('span', null, group.staleCount + ' stale listing' + (group.staleCount === 1 ? '' : 's')))
+  left.appendChild(renderAgentStats(group))
   summary.appendChild(left)
   var right = el('div', 'sales-agent-actions')
-  right.appendChild(el('span', 'sales-agent-age', 'Oldest ' + group.oldestDays + ' days'))
   right.appendChild(renderLeaderSelect('', report.salesLeaders || [], function(value, select) {
     saveGroupAssignment(group.agent, value, select)
   }, 'Assign all stale listings for ' + group.agent))
@@ -514,6 +512,27 @@ function renderAgentGroup(group, report) {
   })
   details.appendChild(body)
   return details
+}
+
+function renderAgentStats(group) {
+  var listings = group.listings || []
+  var assigned = listings.filter(function(listing) {
+    return Boolean(listing.salesLeaderAssignment?.assignedLeaderKey)
+  }).length
+  var planYes = listings.filter(function(listing) {
+    return listing.salesLeaderAssignment?.actionPlanState === 'yes'
+  }).length
+  var adjusted = listings.filter(function(listing) {
+    return ['adjusted', 'conditional', 'firm', 'closed'].includes(listing.salesLeaderAssignment?.outcomeStatus || '')
+  }).length
+
+  var wrap = el('div', 'sales-agent-pill-row')
+  wrap.appendChild(el('span', 'sales-agent-pill', group.staleCount + ' stale'))
+  wrap.appendChild(el('span', 'sales-agent-pill', 'oldest ' + group.oldestDays + 'd'))
+  wrap.appendChild(el('span', assigned ? 'sales-agent-pill sales-agent-pill-good' : 'sales-agent-pill', assigned + ' assigned'))
+  wrap.appendChild(el('span', planYes ? 'sales-agent-pill sales-agent-pill-good' : 'sales-agent-pill', planYes + ' plans'))
+  wrap.appendChild(el('span', adjusted ? 'sales-agent-pill sales-agent-pill-good' : 'sales-agent-pill', adjusted + ' moved'))
+  return wrap
 }
 
 function renderOpportunitiesSection(report) {
