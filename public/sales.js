@@ -134,7 +134,7 @@ function setActiveNav(section) {
   })
   var labels = {
     'gls-dashboard': 'GLS Dashboard',
-    'gls-system': 'GLS System',
+    'gls-system': 'GLS Manager',
     'gls-opportunities': 'Opportunities',
     'gls-cases': 'Cases',
     'gls-playbooks': 'Playbooks',
@@ -376,7 +376,7 @@ function renderProjectSuggestions(report, options) {
     if (interactive) {
       card.appendChild(renderProjectControls(project, report))
     } else {
-      var link = el('a', 'secondary-button sales-save-button', 'Manage in GLS System')
+      var link = el('a', 'secondary-button sales-save-button', 'Manage in GLS Manager')
       link.href = '#gls-system'
       card.appendChild(link)
     }
