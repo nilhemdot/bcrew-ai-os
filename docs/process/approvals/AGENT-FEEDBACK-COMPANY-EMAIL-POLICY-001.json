@@ -1,0 +1,13 @@
+{
+  "cardId": "AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-01T00:00:00.000Z",
+  "approvalSource": "Steve direct mission approved AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001 as the first card to get Agent Feedback live.",
+  "notes": "Build Company Email-only policy globally. No Gmail send, no ClickUp Requested writeback, no production auto-send, and no Georgia live test.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/agent-feedback-company-email-policy-v1.md",
+  "approvedPlanSha256": "7391f753213a31cbd3ec3deaa7ad5523fddefdc6b64f2873ee451fd5891eb3ab",
+  "approvedRepoHead": "dac7d9fe3615c7862e6affd7059c0bc2e52b8ed1",
+  "approvalDigest": "8dddf91429a688e5cc6809f3d8b6fde1fd627c422acde22a17b12fc20e0e13cb"
+}

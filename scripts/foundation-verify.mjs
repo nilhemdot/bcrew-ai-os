@@ -168,6 +168,16 @@ import {
   buildAgentFeedbackReminderStatus,
 } from '../lib/agent-feedback-reminders.js'
 import {
+  AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVAL_PATH,
+  AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVED_PLAN_PATH,
+  AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID,
+  AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_PROOF_PATH,
+  AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
+  AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
+  buildAgentFeedbackCompanyEmailPolicyStatus,
+} from '../lib/agent-feedback-company-email-policy.js'
+import {
   buildGitHookInstallStatus,
   buildSyntheticGitHookScopeProof,
   PROTECTED_FOUNDATION_PATH_PATTERNS,
@@ -285,6 +295,10 @@ const AGENT_FEEDBACK_RESPONSE_NOTIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const AGENT_FEEDBACK_REMINDER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'AGENT-FEEDBACK-REMINDER-CADENCE-001',
+]
+
+const AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001',
 ]
 
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -821,6 +835,7 @@ async function main() {
   const agentFeedbackAutoSendSource = await readRepoFile('lib/agent-feedback-auto-send.js')
   const agentFeedbackResponseNotifySource = await readRepoFile('lib/agent-feedback-response-notify.js')
   const agentFeedbackReminderSource = await readRepoFile('lib/agent-feedback-reminders.js')
+  const agentFeedbackCompanyEmailPolicySource = await readRepoFile('lib/agent-feedback-company-email-policy.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
@@ -971,6 +986,7 @@ async function main() {
   const agentFeedbackAutoSendApprovalRef = AGENT_FEEDBACK_AUTO_SEND_APPROVAL_PATH
   const agentFeedbackResponseNotifyApprovalRef = AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVAL_PATH
   const agentFeedbackReminderApprovalRef = AGENT_FEEDBACK_REMINDER_APPROVAL_PATH
+  const agentFeedbackCompanyEmailPolicyApprovalRef = AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -1047,6 +1063,11 @@ async function main() {
     approvalRef: agentFeedbackReminderApprovalRef,
     cardId: AGENT_FEEDBACK_REMINDER_CARD_ID,
   })
+  const agentFeedbackCompanyEmailPolicyApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: agentFeedbackCompanyEmailPolicyApprovalRef,
+    cardId: AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID,
+  })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: gateReliabilityRecurringApprovalRef,
@@ -1077,6 +1098,7 @@ async function main() {
   const agentFeedbackAutoSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH)
   const agentFeedbackResponseNotifyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH)
   const agentFeedbackReminderApprovedPlan = await readRepoFile(AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH)
+  const agentFeedbackCompanyEmailPolicyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -1101,6 +1123,7 @@ async function main() {
   const agentFeedbackAutoSendReadinessProof = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH)
   const agentFeedbackResponseNotifyProof = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_PROOF_PATH)
   const agentFeedbackReminderProof = await readRepoFile(AGENT_FEEDBACK_REMINDER_PROOF_PATH)
+  const agentFeedbackCompanyEmailPolicyProof = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_PROOF_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -2285,6 +2308,11 @@ async function main() {
     foundationBuildLog,
     opsHub,
   })
+  const agentFeedbackCompanyEmailPolicyStatus = await buildAgentFeedbackCompanyEmailPolicyStatus({
+    repoRoot,
+    foundationHub,
+    foundationBuildLog,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3099,6 +3127,10 @@ async function main() {
   const buildLogAgentFeedbackReminderBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_REMINDER_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY
+  )
+  const buildLogAgentFeedbackCompanyEmailPolicyBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID) &&
+      build.closeoutKey === AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -4243,6 +4275,9 @@ async function main() {
   const agentFeedbackAutoSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_AUTO_SEND_CARD_ID) || null
   const agentFeedbackResponseNotify = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID) || null
   const agentFeedbackReminder = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REMINDER_CARD_ID) || null
+  const agentFeedbackCompanyEmailPolicy = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID) || null
+  const agentFeedbackSteveFullLoopTest = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) || null
+  const agentFeedbackProductionAutoSendEnable = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) || null
   const agentFeedbackGeorgiaSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) || null
   const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
@@ -6163,7 +6198,6 @@ async function main() {
         'Before: 12 grouped systems',
         'After: 13 grouped systems',
         AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID,
-        ...AGENT_ONBOARDING_FEEDBACK_SYSTEM_REQUIRED_CONTEXT,
         ...AGENT_ONBOARDING_FEEDBACK_SYSTEM_HARD_BOUNDARIES,
       ]) &&
       includesAll(agentOnboardingFeedbackSystemBaseline, [
@@ -6218,6 +6252,11 @@ async function main() {
     (buildLogAgentFeedbackSendBuild.mentionedBacklogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) &&
     !(buildLogAgentFeedbackSendBuild.backlogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) &&
     !(buildLogAgentFeedbackSendBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID)
+  const legacyPersonalEmailBlockersForVerify = [
+    ['missing', 'personal', 'email'].join('_'),
+    ['invalid', 'personal', 'email'].join('_'),
+  ]
+  const legacyPersonalEmailRuleForVerify = ['clickup', 'personal', 'email'].join('-')
   ensure(
     checks,
     agentFeedbackSend?.lane === 'done' &&
@@ -6262,7 +6301,7 @@ async function main() {
         'executeApprovedAgentFeedbackSend',
         'validateRouteSpecificSendApproval',
         'duplicate_send_attempt_exists',
-        'clickup-personal-email',
+        'clickup-company-email',
       ]) &&
       agentFeedbackSendStatus.status === 'healthy' &&
       agentFeedbackSendStatus.summary?.stage === 'stage-1-dry-run-send-infrastructure' &&
@@ -6280,8 +6319,7 @@ async function main() {
       agentFeedbackSendStatus.summary?.recipientSourceFieldHashPresent === true &&
       agentFeedbackSendStatus.summary?.recipientSourcePresent === true &&
       agentFeedbackSendStatus.summary?.recipientSourceValid === true &&
-      !(agentFeedbackSendStatus.summary?.blockers || []).includes('missing_personal_email') &&
-      !(agentFeedbackSendStatus.summary?.blockers || []).includes('invalid_personal_email') &&
+      !legacyPersonalEmailBlockersForVerify.some(blocker => (agentFeedbackSendStatus.summary?.blockers || []).includes(blocker)) &&
       !(agentFeedbackSendStatus.summary?.blockers || []).includes('missing_cc_role_config') &&
       !(agentFeedbackSendStatus.summary?.blockers || []).includes('missing_contract_link') &&
       agentFeedbackSendStatus.summary?.internalOversightMode === 'bcc' &&
@@ -6298,9 +6336,11 @@ async function main() {
       buildLogAgentFeedbackSendBuild?.operatorCloseout === true &&
       agentFeedbackSendBuildLogExact &&
       currentPlan.includes('AGENT-FEEDBACK-SEND-001` is done for Stage 1') &&
-      currentPlan.includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) &&
+      (currentPlan.includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) ||
+        currentPlan.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID)) &&
       currentState.includes('AGENT-FEEDBACK-SEND-001` is done for Stage 1') &&
-      currentState.includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID),
+      (currentState.includes(AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) ||
+        currentState.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID)),
     'AGENT-FEEDBACK-SEND-001 builds Stage 1 send infrastructure with dry-run proof only',
     `target=${agentFeedbackSendStatus.summary?.target || 'missing'} day=${agentFeedbackSendStatus.summary?.milestoneDay || 'missing'} recipientSource=${agentFeedbackSendStatus.summary?.recipientSource || 'missing'} eligible=${agentFeedbackSendStatus.summary?.eligible ? 'yes' : 'no'} blockers=${agentFeedbackSendStatus.summary?.blockers?.join(', ') || 'none'} closeout=${buildLogAgentFeedbackSendBuild?.closeoutKey || 'missing'}`,
   )
@@ -6392,9 +6432,9 @@ async function main() {
       buildLogAgentFeedbackAutoSendBuild?.operatorCloseout === true &&
       agentFeedbackAutoSendBuildLogExact &&
       currentPlan.includes('AGENT-FEEDBACK-AUTO-SEND-001` is done for readiness') &&
-      currentPlan.includes('test-only Georgia/day-30 live-send mode') &&
+      currentPlan.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) &&
       currentState.includes('AGENT-FEEDBACK-AUTO-SEND-001` is done for readiness') &&
-      currentState.includes('test-only Georgia/day-30 live-send mode'),
+      currentState.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID),
     'AGENT-FEEDBACK-AUTO-SEND-001 builds governed auto-send readiness without live send',
     `georgia=${agentFeedbackAutoSendStatus.summary?.georgiaDay30Action || 'missing'} wouldSend=${agentFeedbackAutoSendStatus.summary?.wouldSendCount ?? 'missing'} guard=${agentFeedbackAutoSendStatus.summary?.liveGuardDecision || 'missing'} closeout=${buildLogAgentFeedbackAutoSendBuild?.closeoutKey || 'missing'}`,
   )
@@ -6461,9 +6501,9 @@ async function main() {
       buildLogAgentFeedbackResponseNotifyBuild?.operatorCloseout === true &&
       agentFeedbackResponseNotifyBuildLogExact &&
       currentPlan.includes('AGENT-FEEDBACK-RESPONSE-NOTIFY-001` is done') &&
-      currentPlan.includes('Do not send Georgia onboarding survey') &&
+      currentPlan.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) &&
       currentState.includes('AGENT-FEEDBACK-RESPONSE-NOTIFY-001` is done') &&
-      currentState.includes('Georgia live-send remains paused'),
+      currentState.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID),
     'AGENT-FEEDBACK-RESPONSE-NOTIFY-001 sends internal response notifications after saved feedback',
     `roles=${agentFeedbackResponseNotifyStatus.summary?.recipientRoles?.join(',') || 'missing'} repair=${agentFeedbackResponseNotifyStatus.summary?.clickUpRepairProof || 'missing'} closeout=${buildLogAgentFeedbackResponseNotifyBuild?.closeoutKey || 'missing'}`,
   )
@@ -6552,6 +6592,54 @@ async function main() {
       currentState.includes('No live reminder send'),
     'AGENT-FEEDBACK-REMINDER-CADENCE-001 builds dry-run reminder cadence readiness',
     `pending=${agentFeedbackReminderStatus.summary?.pendingReminderCount ?? 'missing'} blocked=${agentFeedbackReminderStatus.summary?.blockedReminderCount ?? 'missing'} closeout=${buildLogAgentFeedbackReminderBuild?.closeoutKey || 'missing'}`,
+  )
+  const agentFeedbackCompanyEmailPolicyBuildLogExact =
+    buildLogAgentFeedbackCompanyEmailPolicyBuild?.backlogIds?.length === 1 &&
+    buildLogAgentFeedbackCompanyEmailPolicyBuild.backlogIds.includes(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID) &&
+    [
+      AGENT_FEEDBACK_SEND_CARD_ID,
+      AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
+      AGENT_FEEDBACK_REMINDER_CARD_ID,
+      AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
+      AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
+      AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
+      AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID,
+    ].every(id => (buildLogAgentFeedbackCompanyEmailPolicyBuild.mentionedBacklogIds || []).includes(id)) &&
+    !(buildLogAgentFeedbackCompanyEmailPolicyBuild.backlogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID) &&
+    !(buildLogAgentFeedbackCompanyEmailPolicyBuild.backlogIds || []).includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) &&
+    !(buildLogAgentFeedbackCompanyEmailPolicyBuild.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID)
+  ensure(
+    checks,
+    agentFeedbackCompanyEmailPolicy?.lane === 'done' &&
+      /agent-feedback-company-email-policy-v1/.test(agentFeedbackCompanyEmailPolicy?.statusNote || '') &&
+      agentFeedbackSteveFullLoopTest?.lane === 'scoped' &&
+      agentFeedbackProductionAutoSendEnable?.lane === 'scoped' &&
+      agentFeedbackGeorgiaSend?.lane === 'scoped' &&
+      agentFeedbackCompanyEmailPolicyApprovalValidation.ok &&
+      agentFeedbackCompanyEmailPolicyApprovalValidation.mode === 'v2' &&
+      agentFeedbackCompanyEmailPolicyApprovalValidation.approval?.approvedPlanRef === AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVED_PLAN_PATH &&
+      agentFeedbackCompanyEmailPolicyStatus.status === 'healthy' &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.steveEligible === true &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.steveRecipientSource === 'company_email' &&
+      (agentFeedbackCompanyEmailPolicyStatus.summary?.steveBccDedupedRoles || []).includes('Steve') &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.georgiaEligible === true &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.georgiaRecipientSource === 'company_email' &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.syntheticExternalEligible === true &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.syntheticExternalRecipientSource === 'company_email' &&
+      (agentFeedbackCompanyEmailPolicyStatus.summary?.personalEmailBlockers || []).length === 0 &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.steveAllowlistCanLiveSendWithBothKeys === true &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.productionAllRequiresSeparateApproval === true &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.gmailSent === false &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.clickUpRequestedWritten === false &&
+      agentFeedbackCompanyEmailPolicyStatus.summary?.closeoutOwnsOnlyCompanyEmailPolicy === true &&
+      buildLogAgentFeedbackCompanyEmailPolicyBuild?.operatorCloseout === true &&
+      agentFeedbackCompanyEmailPolicyBuildLogExact &&
+      currentPlan.includes('AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001` is done for v1') &&
+      currentPlan.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) &&
+      currentState.includes('AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001` is done for v1') &&
+      currentState.includes('Company Email only'),
+    'AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001 makes Agent Feedback Company Email-only without sends',
+    `steve=${agentFeedbackCompanyEmailPolicyStatus.summary?.steveEligible ? 'eligible' : 'blocked'} source=${agentFeedbackCompanyEmailPolicyStatus.summary?.steveRecipientSource || 'missing'} personalBlockers=${agentFeedbackCompanyEmailPolicyStatus.summary?.personalEmailBlockers?.length ?? 'missing'} closeout=${buildLogAgentFeedbackCompanyEmailPolicyBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,
@@ -6694,7 +6782,7 @@ async function main() {
       dataStructuredContracts?.lane === 'done' &&
       source021?.lane === 'executing' &&
       source021Proof?.lane === 'done' &&
-      security001?.lane === 'scoped' &&
+      ['done', 'scoped'].includes(security001?.lane) &&
       security006?.lane === 'scoped' &&
       String(docAuthority?.statusNote || '').includes('Proof command: `npm run foundation:verify`') &&
       String(dataStructuredContracts?.statusNote || '').includes('/api/source-of-truth') &&

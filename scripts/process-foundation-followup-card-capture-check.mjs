@@ -28,7 +28,7 @@ async function main() {
   const baseUrl = String(args.baseUrl || process.env.FOUNDATION_BASE_URL || 'http://localhost:3000')
   const [foundationHub, foundationBuildLog] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation-hub'),
-    fetchJson(baseUrl, '/api/foundation/build-log?limit=5'),
+    fetchJson(baseUrl, '/api/foundation/build-log?limit=80'),
   ])
 
   const status = await buildFoundationFollowupCardCaptureStatus({
