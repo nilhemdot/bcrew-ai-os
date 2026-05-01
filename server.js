@@ -125,6 +125,7 @@ import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
 import { writeAgentFeedbackToClickUp } from './lib/agent-feedback-clickup.js'
 import { buildAgentFeedbackAutoSendReadiness } from './lib/agent-feedback-auto-send.js'
+import { buildAgentFeedbackProductionAutoSendDryRunReport } from './lib/agent-feedback-production-autosend-dry-run.js'
 import { sendAgentFeedbackResponseNotification } from './lib/agent-feedback-response-notify.js'
 import { buildAgentFeedbackReminderReadiness } from './lib/agent-feedback-reminders.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
@@ -4267,6 +4268,9 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       repoRoot: __dirname,
       includeCandidates: false,
     })
+    const agentFeedbackProductionAutoSendDryRun = await buildAgentFeedbackProductionAutoSendDryRunReport({
+      includeCandidates: false,
+    })
     const agentFeedbackReminders = await buildAgentFeedbackReminderReadiness({
       includeCandidates: false,
     })
@@ -4289,6 +4293,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       sheetsApiTrust,
       sourceLifecycle,
       agentFeedbackAutoSend,
+      agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
@@ -4301,6 +4306,31 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       500,
       'foundation_hub_load_failed',
       error instanceof Error ? error.message : 'Failed to load foundation hub data.'
+    )
+  }
+})
+
+app.get('/api/foundation/agent-feedback-production-dry-run', requireAdminToken, async (req, res) => {
+  try {
+    const includeCandidates = String(req.query?.includeCandidates || '').toLowerCase() === 'true'
+    const report = await buildAgentFeedbackProductionAutoSendDryRunReport({
+      includeCandidates,
+    })
+    cacheHeadersNoStore(res)
+    res.json({
+      status: 'healthy',
+      report,
+      summary: report.summary,
+      sideEffects: report.sideEffects,
+      productionEnablement: report.productionEnablement,
+      privacy: report.privacy,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'agent_feedback_production_dry_run_failed',
+      error instanceof Error ? error.message : 'Failed to load Agent Feedback production dry-run report.'
     )
   }
 })
@@ -4360,6 +4390,9 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
       repoRoot: __dirname,
       includeCandidates: false,
     })
+    const agentFeedbackProductionAutoSendDryRun = await buildAgentFeedbackProductionAutoSendDryRunReport({
+      includeCandidates: false,
+    })
     const agentFeedbackReminders = await buildAgentFeedbackReminderReadiness({
       includeCandidates: false,
     })
@@ -4383,6 +4416,7 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
         latestRuns,
       },
       agentFeedbackAutoSend,
+      agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,
       meta: {
         generatedAt: snapshot.meta?.generatedAt || new Date().toISOString(),
@@ -4395,6 +4429,31 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
       500,
       'ops_hub_load_failed',
       error instanceof Error ? error.message : 'Failed to load Ops hub data.'
+    )
+  }
+})
+
+app.get('/api/ops/agent-feedback-production-dry-run', requireAdminToken, async (req, res) => {
+  try {
+    const includeCandidates = String(req.query?.includeCandidates || '').toLowerCase() === 'true'
+    const report = await buildAgentFeedbackProductionAutoSendDryRunReport({
+      includeCandidates,
+    })
+    cacheHeadersNoStore(res)
+    res.json({
+      status: 'healthy',
+      report,
+      summary: report.summary,
+      sideEffects: report.sideEffects,
+      productionEnablement: report.productionEnablement,
+      privacy: report.privacy,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'ops_agent_feedback_production_dry_run_failed',
+      error instanceof Error ? error.message : 'Failed to load Ops Agent Feedback production dry-run report.'
     )
   }
 })

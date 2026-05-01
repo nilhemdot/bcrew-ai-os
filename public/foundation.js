@@ -6018,6 +6018,48 @@ function renderAgentFeedbackAutoSendPanel(agentFeedbackAutoSend) {
   )
 }
 
+function renderAgentFeedbackProductionDryRunPanel(agentFeedbackProductionAutoSendDryRun) {
+  if (!agentFeedbackProductionAutoSendDryRun || !agentFeedbackProductionAutoSendDryRun.summary) return null
+  var summary = agentFeedbackProductionAutoSendDryRun.summary || {}
+  var counts = summary.byClassification || {}
+  var countLine = [
+    'would-send ' + (counts.would_send || 0),
+    'warning ' + (counts.warning || 0),
+    'already requested ' + (counts.already_requested || 0),
+    'completed ' + (counts.completed || 0),
+    'outside window ' + (counts.outside_window || 0),
+    'blocked ' + (counts.blocked || 0),
+    'skipped ' + (counts.skipped || 0),
+  ].join(' · ')
+  var preview = Array.isArray(summary.wouldBeEmailedPreview) && summary.wouldBeEmailedPreview.length
+    ? summary.wouldBeEmailedPreview.slice(0, 8).map(function(candidate) {
+      return candidate.agentName + ' day ' + candidate.milestoneDay
+    }).join(' · ')
+    : 'No sendable candidates in the preview.'
+
+  return renderStatusGroupPanel(
+    'Agent Feedback Production Dry-Run',
+    'Stage 1 production report only. This shows who would receive 30/60/90 onboarding feedback before any production auto-send is enabled.',
+    [
+      {
+        label: 'Roster scan',
+        status: agentFeedbackProductionAutoSendDryRun.mode === 'production-dry-run-report-only' ? 'pending' : 'risk',
+        detail: (summary.totalCandidates || 0) + ' milestone candidates from the Agent Roster. ' + countLine + '.',
+      },
+      {
+        label: 'Would be emailed',
+        status: (summary.sendableCount || 0) > 0 ? 'pending' : 'live',
+        detail: (summary.sendableCount || 0) + ' candidates would be emailed if production were enabled: ' + preview + '.',
+      },
+      {
+        label: 'Production guard',
+        status: agentFeedbackProductionAutoSendDryRun.productionEnablement && agentFeedbackProductionAutoSendDryRun.productionEnablement.enabled === false ? 'pending' : 'risk',
+        detail: 'Production auto-send remains disabled. Steve reviews this list before any enablement.',
+      },
+    ]
+  )
+}
+
 function renderAgentFeedbackReminderPanel(agentFeedbackReminders) {
   if (!agentFeedbackReminders || !agentFeedbackReminders.summary) return null
   var summary = agentFeedbackReminders.summary || {}
@@ -13362,6 +13404,9 @@ function renderDataHealth() {
 
     var agentFeedbackAutoSendPanel = renderAgentFeedbackAutoSendPanel(hub.agentFeedbackAutoSend)
     if (agentFeedbackAutoSendPanel) container.appendChild(agentFeedbackAutoSendPanel)
+
+    var agentFeedbackProductionDryRunPanel = renderAgentFeedbackProductionDryRunPanel(hub.agentFeedbackProductionAutoSendDryRun)
+    if (agentFeedbackProductionDryRunPanel) container.appendChild(agentFeedbackProductionDryRunPanel)
 
     var agentFeedbackReminderPanel = renderAgentFeedbackReminderPanel(hub.agentFeedbackReminders)
     if (agentFeedbackReminderPanel) container.appendChild(agentFeedbackReminderPanel)

@@ -151,6 +151,12 @@ import {
   buildAgentFeedbackAutoSendStatus,
 } from '../lib/agent-feedback-auto-send.js'
 import {
+  AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_PROOF_PATH,
+  AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_STAGE,
+  buildAgentFeedbackProductionAutoSendDryRunStatus,
+} from '../lib/agent-feedback-production-autosend-dry-run.js'
+import {
   AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVAL_PATH,
   AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH,
   AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
@@ -868,6 +874,7 @@ async function main() {
   const agentFeedbackClickUpSource = await readRepoFile('lib/agent-feedback-clickup.js')
   const agentFeedbackSendSource = await readRepoFile('lib/agent-feedback-send.js')
   const agentFeedbackAutoSendSource = await readRepoFile('lib/agent-feedback-auto-send.js')
+  const agentFeedbackProductionAutoSendDryRunSource = await readRepoFile('lib/agent-feedback-production-autosend-dry-run.js')
   const agentFeedbackResponseNotifySource = await readRepoFile('lib/agent-feedback-response-notify.js')
   const agentFeedbackReminderSource = await readRepoFile('lib/agent-feedback-reminders.js')
   const agentFeedbackCompanyEmailPolicySource = await readRepoFile('lib/agent-feedback-company-email-policy.js')
@@ -1180,6 +1187,7 @@ async function main() {
   const agentFeedbackSendBaseline = await readRepoFile(AGENT_FEEDBACK_SEND_BASELINE_PATH)
   const agentFeedbackSendDryRunProof = await readRepoFile(AGENT_FEEDBACK_SEND_DRY_RUN_PROOF_PATH)
   const agentFeedbackAutoSendReadinessProof = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH)
+  const agentFeedbackProductionAutoSendDryRunProof = await readRepoFile(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_PROOF_PATH)
   const agentFeedbackResponseNotifyProof = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_PROOF_PATH)
   const agentFeedbackReminderProof = await readRepoFile(AGENT_FEEDBACK_REMINDER_PROOF_PATH)
   const agentFeedbackCompanyEmailPolicyProof = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_PROOF_PATH)
@@ -2359,6 +2367,12 @@ async function main() {
     foundationBuildLog,
     opsHub,
   })
+  const agentFeedbackProductionAutoSendDryRunStatus = await buildAgentFeedbackProductionAutoSendDryRunStatus({
+    repoRoot,
+    foundationHub,
+    foundationBuildLog,
+    opsDryRun: opsHub.agentFeedbackProductionAutoSendDryRun,
+  })
   const agentFeedbackResponseNotifyStatus = await buildAgentFeedbackResponseNotifyStatus({
     repoRoot,
     foundationHub,
@@ -3224,6 +3238,10 @@ async function main() {
   const buildLogFoundationVerifyHealthRepairBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID) &&
       build.closeoutKey === FOUNDATION_VERIFY_HEALTH_REPAIR_CLOSEOUT_KEY
+  )
+  const buildLogAgentFeedbackProductionAutoSendDryRunBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
+      build.closeoutKey === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_CLOSEOUT_KEY
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -6929,6 +6947,53 @@ async function main() {
         currentState.includes('foundation:verify is fully green')),
     'FOUNDATION-VERIFY-HEALTH-REPAIR-001 restores full Foundation verifier health before production',
     `health=${foundationVerifyHealthRepairStatus.status} worker=${foundationVerifyHealthRepairStatus.summary?.workerCommit || 'missing'} daily=${foundationVerifyHealthRepairStatus.summary?.dailyStatus || 'missing'} onboarding=${foundationVerifyHealthRepairStatus.summary?.onboardingStatus || 'missing'} production=${foundationVerifyHealthRepairStatus.summary?.productionCardLane || 'missing'} closeout=${buildLogFoundationVerifyHealthRepairBuild?.closeoutKey || 'missing'}`,
+  )
+  ensure(
+    checks,
+    agentFeedbackProductionAutoSendDryRunStatus.status === 'healthy' &&
+      agentFeedbackProductionAutoSendDryRunStatus.stage === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_STAGE &&
+      agentFeedbackProductionAutoSendDryRunStatus.summary?.totalCandidates > 0 &&
+      Number(agentFeedbackProductionAutoSendDryRunStatus.summary?.sendableCount) >= 0 &&
+      agentFeedbackProductionAutoSendDryRunStatus.summary?.productionAutoSendEnabled === false &&
+      agentFeedbackProductionAutoSendDryRunStatus.summary?.envToggleEnabled === false &&
+      agentFeedbackProductionAutoSendDryRunStatus.summary?.productionApprovalArtifactExists === false &&
+      agentFeedbackProductionAutoSendDryRunStatus.summary?.metadataOnly === true &&
+      ['scoped', 'executing'].includes(agentFeedbackProductionAutoSendDryRunStatus.summary?.cardLane) &&
+      agentFeedbackProductionAutoSendDryRunStatus.summary?.closeoutStatus === 'stage-complete' &&
+      agentFeedbackProductionAutoSendDryRunStatus.summary?.closeoutAcceptanceState === 'Stage 1 verified' &&
+      buildLogAgentFeedbackProductionAutoSendDryRunBuild?.operatorCloseout === true &&
+      buildLogAgentFeedbackProductionAutoSendDryRunBuild?.backlogIds?.length === 1 &&
+      buildLogAgentFeedbackProductionAutoSendDryRunBuild.backlogIds.includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
+      includesAll(agentFeedbackProductionAutoSendDryRunProof, [
+        AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
+        AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_STAGE,
+        'No Gmail sends',
+        'No ClickUp Requested writeback',
+        'Steve reviews the would-send list',
+      ]) &&
+      includesAll(agentFeedbackProductionAutoSendDryRunSource, [
+        'buildAgentFeedbackProductionAutoSendDryRunReport',
+        'listAgentFeedbackReminderAttemptsForMilestone',
+        'getAgentOnboardingFeedbackResponseForMilestone',
+        'production-dry-run-report-only',
+      ]) &&
+      !agentFeedbackProductionAutoSendDryRunSource.includes('sendGmailMessage') &&
+      !agentFeedbackProductionAutoSendDryRunSource.includes('markAgentFeedbackRequestedInClickUp') &&
+      includesAll(packageSource, [
+        '"agent-feedback:production-dry-run"',
+        '"process:agent-feedback-production-autosend-dry-run-check"',
+      ]) &&
+      includesAll(serverSource, [
+        'agentFeedbackProductionAutoSendDryRun',
+        '/api/foundation/agent-feedback-production-dry-run',
+        '/api/ops/agent-feedback-production-dry-run',
+      ]) &&
+      currentPlan.includes('Stage 1 production dry-run report') &&
+      currentPlan.includes('Production auto-send remains stopped') &&
+      currentState.includes('Stage 1 production dry-run report') &&
+      currentState.includes('production auto-send remains disabled'),
+    'AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 Stage 1 dry-run report is safe and not enabled',
+    `candidates=${agentFeedbackProductionAutoSendDryRunStatus.summary?.totalCandidates || 0} sendable=${agentFeedbackProductionAutoSendDryRunStatus.summary?.sendableCount || 0} enabled=${agentFeedbackProductionAutoSendDryRunStatus.summary?.productionAutoSendEnabled ? 'yes' : 'no'} card=${agentFeedbackProductionAutoSendDryRunStatus.summary?.cardLane || 'missing'} closeout=${buildLogAgentFeedbackProductionAutoSendDryRunBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,
