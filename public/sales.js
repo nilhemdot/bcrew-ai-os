@@ -1,6 +1,8 @@
 var SALES_SECTION_ALIASES = {
   '': 'gls-dashboard',
+  dashboard: 'gls-dashboard',
   'gls-system': 'gls-system',
+  'gls-dashboard': 'gls-dashboard',
   'stale-listings': 'gls-opportunities',
   opportunities: 'gls-opportunities',
   cases: 'gls-cases',
@@ -128,7 +130,8 @@ function formatDays(value) {
 }
 
 function setActiveNav(section) {
-  var activeSection = section === 'gls-dashboard' ? 'gls-dashboard' : 'gls-system'
+  var activeSection = section
+  if (['gls-opportunities', 'gls-cases', 'gls-playbooks', 'gls-results'].includes(section)) activeSection = 'gls-system'
   document.querySelectorAll('.found-nav-item').forEach(function(item) {
     item.classList.toggle('active', item.dataset.section === activeSection)
   })
@@ -155,21 +158,22 @@ function getGlsSystem(report) {
   }
 }
 
-function renderMetric(label, value, helper) {
-  var card = el('article', 'sales-metric')
+function renderMetric(label, value, helper, className) {
+  var card = el('article', ['sales-metric', className].filter(Boolean).join(' '))
   card.appendChild(el('div', 'sales-metric-label', label))
   card.appendChild(el('div', 'sales-metric-value', formatNumber(value)))
   if (helper) card.appendChild(el('p', 'sales-metric-helper', helper))
   return card
 }
 
-function renderHero(report) {
+function renderHero(report, options) {
+  var opts = options || {}
   var system = getGlsSystem(report)
   var hero = el('section', 'sales-hero')
   var left = el('div')
-  left.appendChild(el('div', 'found-brand-kicker', 'Sales Hub system'))
-  left.appendChild(el('h1', 'sales-title', system.name))
-  left.appendChild(el('p', 'sales-subtitle', system.fullName + ': ' + system.purpose))
+  left.appendChild(el('div', 'found-brand-kicker', opts.kicker || 'Sales Hub system'))
+  left.appendChild(el('h1', 'sales-title', opts.title || system.name))
+  left.appendChild(el('p', 'sales-subtitle', opts.subtitle || (system.fullName + ': ' + system.purpose)))
   hero.appendChild(left)
 
   var action = el('div', 'sales-hero-action')
@@ -183,20 +187,70 @@ function renderHero(report) {
   return hero
 }
 
-function renderMetrics(report) {
+function renderActivePipelineDashboard(report) {
   var scoreboard = getScoreboard(report)
   var active = scoreboard.activePipeline || {}
-  var outcomes = scoreboard.outcomeSummary || {}
-  var grid = el('section', 'sales-metric-grid')
+  var section = el('section', 'sales-panel sales-dashboard-panel')
+  section.appendChild(el('h2', null, 'Active GLS pipeline'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Cases still being worked right now. Sold and failed cases leave this active view.'))
+  var grid = el('div', 'sales-metric-grid sales-metric-grid-dashboard')
   grid.appendChild(renderMetric('Active GLS cases', active.total?.caseCount, formatCaseMetric(active.total)))
   grid.appendChild(renderMetric('Needs owner', active.unassigned?.caseCount, formatCaseMetric(active.unassigned)))
   grid.appendChild(renderMetric('Assigned', active.takenOn?.caseCount, formatCaseMetric(active.takenOn)))
   grid.appendChild(renderMetric('Game plans', active.gamePlanCreated?.caseCount, formatCaseMetric(active.gamePlanCreated)))
+  grid.appendChild(renderMetric('Adjusted / implemented', active.implemented?.caseCount, formatCaseMetric(active.implemented)))
+  grid.appendChild(renderMetric('Stuck', active.stuck?.caseCount, (active.stuckThresholdDays || 14) + '+ days open.'))
+  section.appendChild(grid)
+  return section
+}
+
+function renderTotalCasesDashboard(report) {
+  var scoreboard = getScoreboard(report)
+  var funnel = scoreboard.allTimeFunnel || {}
+  var active = scoreboard.activePipeline || {}
+  var outcomes = scoreboard.outcomeSummary || {}
+  var section = el('section', 'sales-panel sales-dashboard-panel')
+  section.appendChild(el('h2', null, 'Total GLS cases'))
+  section.appendChild(el('p', 'sales-panel-copy', 'All-time persisted GLS cases. This is where sold, failed, and conversion outcomes belong. Date filters can layer on later.'))
+  var grid = el('div', 'sales-metric-grid sales-metric-grid-dashboard')
+  grid.appendChild(renderMetric('Identified', funnel.identified?.caseCount, formatCaseMetric(funnel.identified)))
+  grid.appendChild(renderMetric('Taken on', funnel.takenOn?.caseCount, formatCaseMetric(funnel.takenOn)))
   grid.appendChild(renderMetric('Adjusted / implemented', outcomes.adjustedOrImplemented?.caseCount, formatCaseMetric(outcomes.adjustedOrImplemented)))
   grid.appendChild(renderMetric('Sold', outcomes.soldClosed?.caseCount, formatCaseMetric(outcomes.soldClosed)))
-  grid.appendChild(renderMetric('Stuck', active.stuck?.caseCount, (active.stuckThresholdDays || 14) + '+ days open.'))
   grid.appendChild(renderMetric('Failed', outcomes.failed?.caseCount, 'No action, blocked, cancelled, or expired.'))
-  return grid
+  grid.appendChild(renderMetric('Still active', active.total?.caseCount, formatCaseMetric(active.total)))
+  section.appendChild(grid)
+  return section
+}
+
+function renderManagerSummary(report) {
+  var scoreboard = getScoreboard(report)
+  var active = scoreboard.activePipeline || {}
+  var projectTaskIds = new Set()
+  ;(report.projectSuggestions || []).forEach(function(project) {
+    ;(project.taskIds || []).forEach(function(taskId) {
+      projectTaskIds.add(taskId)
+    })
+  })
+  var individualRows = (report.staleListings || []).filter(function(listing) {
+    return !projectTaskIds.has(listing.taskId)
+  }).length
+  var totalCases = active.total?.caseCount || 0
+  var planCases = active.gamePlanCreated?.caseCount || 0
+  var section = el('section', 'sales-panel sales-manager-summary')
+  section.appendChild(el('h2', null, 'Manager queue'))
+  section.appendChild(el('p', 'sales-panel-copy', 'Work the current active GLS cases: assign an owner, create the game plan, and update movement.'))
+  var grid = el('div', 'sales-metric-grid sales-manager-metric-grid')
+  grid.appendChild(renderMetric('Needs owner', active.unassigned?.caseCount, formatCaseMetric(active.unassigned)))
+  grid.appendChild(renderMetric('Smart projects', (report.projectSuggestions || []).length, 'Grouped address cases to manage together.'))
+  grid.appendChild(renderMetric('Individual rows', individualRows, 'Current stale listings not inside a project group.'))
+  grid.appendChild(renderMetric('No game plan yet', Math.max(0, totalCases - planCases), formatNumber(planCases) + ' active cases have a game plan.'))
+  section.appendChild(grid)
+  return section
+}
+
+function renderMetrics(report) {
+  return renderActivePipelineDashboard(report)
 }
 
 function renderScorePair(label, metric, helper) {
@@ -302,8 +356,13 @@ function renderWeeklyCohorts(report) {
 
 function renderDashboard(report) {
   var wrap = el('div')
-  wrap.appendChild(renderHero(report))
-  wrap.appendChild(renderMetrics(report))
+  wrap.appendChild(renderHero(report, {
+    kicker: 'GLS System dashboard',
+    title: 'GLS Dashboard',
+    subtitle: 'Two scoreboards: current active cases first, then total GLS case outcomes across history.',
+  }))
+  wrap.appendChild(renderActivePipelineDashboard(report))
+  wrap.appendChild(renderTotalCasesDashboard(report))
   wrap.appendChild(renderLeaderPerformance(report))
   wrap.appendChild(renderWeeklyCohorts(report))
   wrap.appendChild(renderMovedCases(report))
@@ -364,15 +423,19 @@ function renderProjectSuggestions(report, options) {
   var list = el('div', 'sales-project-list')
   report.projectSuggestions.forEach(function(project) {
     var card = el('article', 'sales-project-card')
-    card.appendChild(el('div', 'sales-gap-title', project.baseAddress))
-    card.appendChild(el('div', 'sales-gap-status', project.listingCount + ' listings · ' + project.agent))
+    var header = el('div', 'sales-project-card-head')
+    var headerText = el('div')
+    headerText.appendChild(el('div', 'sales-gap-title', project.baseAddress))
+    headerText.appendChild(el('div', 'sales-gap-status', project.listingCount + ' listings · ' + project.agent))
+    header.appendChild(headerText)
     var statusRow = el('div', 'sales-listing-status-row')
     statusRow.appendChild(renderStatusPill('Leader: ' + (project.assignedLeaderName || 'unassigned'), project.assignedLeaderName ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
     statusRow.appendChild(renderStatusPill('Case: ' + labelFromOptions(report.caseStatusOptions || [], project.caseStatus || 'identified', project.caseStatus || 'identified'), 'status-pill status-pill-neutral'))
     statusRow.appendChild(renderStatusPill('Outcome: ' + labelFromOptions(report.outcomeStatusOptions || [], project.outcomeStatus || 'open', project.outcomeStatus || 'open'), getOutcomeClass(project.outcomeStatus || 'open')))
     statusRow.appendChild(renderStatusPill('Game plan: ' + labelFromOptions(report.actionPlanStateOptions || [], project.actionPlanState || 'unknown', project.actionPlanState || 'unknown'), project.actionPlanState === 'yes' ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
-    card.appendChild(statusRow)
-    card.appendChild(el('p', null, project.suggestion))
+    header.appendChild(statusRow)
+    card.appendChild(header)
+    card.appendChild(el('p', 'sales-project-suggestion', project.suggestion))
     if (interactive) {
       card.appendChild(renderProjectControls(project, report))
     } else {
@@ -380,7 +443,7 @@ function renderProjectSuggestions(report, options) {
       link.href = '#gls-system'
       card.appendChild(link)
     }
-    var ul = el('ul')
+    var ul = el('ul', 'sales-project-member-list')
     ;(project.listings || []).slice(0, 6).forEach(function(listing) {
       ul.appendChild(el('li', null, listing.title + ' · ' + formatNumber(listing.daysSinceReset) + ' days'))
     })
@@ -393,8 +456,12 @@ function renderProjectSuggestions(report, options) {
 
 function renderGlsSystem(report) {
   var wrap = el('div')
-  wrap.appendChild(renderHero(report))
-  wrap.appendChild(renderMetrics(report))
+  wrap.appendChild(renderHero(report, {
+    kicker: 'GLS System work queue',
+    title: 'GLS Manager',
+    subtitle: 'Manage active stale-listing cases: assign ownership, create the game plan, and update movement.',
+  }))
+  wrap.appendChild(renderManagerSummary(report))
   wrap.appendChild(renderProjectSuggestions(report))
   wrap.appendChild(renderOpportunitiesSection(report))
   return wrap
