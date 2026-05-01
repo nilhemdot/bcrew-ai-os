@@ -468,8 +468,6 @@ function renderProjectSuggestions(report, options) {
     header.appendChild(statusRow)
     card.appendChild(header)
     card.appendChild(el('p', 'sales-project-suggestion', project.suggestion))
-    var currentProjectNote = renderCaseCurrentNote(project)
-    if (currentProjectNote) card.appendChild(currentProjectNote)
     card.appendChild(renderCaseHistory(project.caseHistory || [], 'No project case history yet. The next assignment, game-plan, outcome, or adjustment save will appear here.'))
     if (interactive) {
       card.appendChild(renderProjectControls(project, report))
@@ -532,24 +530,6 @@ function getOutcomeClass(outcomeStatus) {
 
 function renderStatusPill(label, className) {
   return el('span', className || 'status-pill status-pill-neutral', label)
-}
-
-function renderCaseCurrentNote(record) {
-  var actionPlanState = record && record.actionPlanState
-  var note = ''
-  var label = ''
-  if (actionPlanState === 'no' && record.actionPlanNoReason) {
-    label = 'No game plan reason'
-    note = record.actionPlanNoReason
-  } else if (record && record.actionPlanText) {
-    label = 'Game plan note'
-    note = record.actionPlanText
-  }
-  if (!note) return null
-  var box = el('div', 'sales-case-note')
-  box.appendChild(el('strong', null, label))
-  box.appendChild(el('p', null, note))
-  return box
 }
 
 function renderCaseHistory(history, fallback) {
@@ -720,6 +700,19 @@ function renderProjectControls(project, report) {
     saveProjectUpdate(project, updates, button)
   })
   wrap.appendChild(button)
+  var clearButton = document.createElement('button')
+  clearButton.type = 'button'
+  clearButton.className = 'secondary-button sales-save-button'
+  clearButton.textContent = 'Clear note'
+  clearButton.addEventListener('click', function() {
+    note.value = ''
+    saveProjectUpdate(project, {
+      actionPlanState: pendingActionPlanState,
+      actionPlanNoReason: '',
+      actionPlanText: '',
+    }, clearButton)
+  })
+  wrap.appendChild(clearButton)
   return wrap
 }
 
@@ -826,6 +819,19 @@ function renderActionPlanControls(listing, report) {
     saveCaseUpdate(listing, updates, button)
   })
   wrap.appendChild(button)
+  var clearButton = document.createElement('button')
+  clearButton.type = 'button'
+  clearButton.className = 'secondary-button sales-save-button'
+  clearButton.textContent = 'Clear note'
+  clearButton.addEventListener('click', function() {
+    note.value = ''
+    saveCaseUpdate(listing, {
+      actionPlanState: pendingActionPlanState,
+      actionPlanNoReason: '',
+      actionPlanText: '',
+    }, clearButton)
+  })
+  wrap.appendChild(clearButton)
   return wrap
 }
 
@@ -862,8 +868,6 @@ function renderListing(listing, report) {
   next.appendChild(renderActionPlanControls(listing, report))
   next.appendChild(el('span', getActionPlanClass(listing.shoppingListMatch), getActionPlanLabel(listing.shoppingListMatch)))
   next.appendChild(el('span', 'sales-listing-next-copy', getActionPlanCopy(listing)))
-  var currentNote = renderCaseCurrentNote(assignment)
-  if (currentNote) next.appendChild(currentNote)
   next.appendChild(renderCaseHistory(assignment.caseHistory || [], 'No listing case history yet. The next save will appear here.'))
   item.appendChild(next)
   return item
@@ -995,8 +999,6 @@ function renderCases(report) {
       row.appendChild(casePills)
       row.appendChild(renderCaseControls(item, report))
       row.appendChild(renderActionPlanControls(item, report))
-      var currentNote = renderCaseCurrentNote(item)
-      if (currentNote) row.appendChild(currentNote)
       row.appendChild(renderCaseHistory(item.caseHistory || [], 'No case history yet. The next save will appear here.'))
       list.appendChild(row)
     })
