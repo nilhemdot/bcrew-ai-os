@@ -18,6 +18,20 @@ function fetchJson(url) {
   })
 }
 
+function postJson(url, body) {
+  var headers = getAdminHeaders()
+  headers['Content-Type'] = 'application/json'
+  return fetch(url, {
+    method: 'POST',
+    cache: 'no-store',
+    headers: headers,
+    body: JSON.stringify(body || {}),
+  }).then(function(response) {
+    if (!response.ok) throw new Error(url + ' returned ' + response.status)
+    return response.json()
+  })
+}
+
 function clearNode(node) {
   while (node.firstChild) node.removeChild(node.firstChild)
 }
@@ -88,6 +102,7 @@ function renderMetrics(report) {
   var grid = el('section', 'sales-metric-grid')
   grid.appendChild(renderMetric('Stale active listings', summary.staleActiveListings, '30+ days since list date or last price adjustment.'))
   grid.appendChild(renderMetric('Agents to review', summary.agentsWithStaleListings, 'Grouped by the ClickUp Agent field.'))
+  grid.appendChild(renderMetric('Assigned to leader', summary.assignedSalesLeader, 'Stale listings with Ryan, Blake, Nick, Scott, or Steve assigned.'))
   grid.appendChild(renderMetric('Action plans found', summary.actionPlanFound, 'Safe matches in KPI Shopping List with an action plan.'))
   grid.appendChild(renderMetric('Needs plan/source match', (summary.actionPlanMissing || 0) + (summary.actionPlanUnmatched || 0), 'No KPI plan found or no safe KPI row match yet.'))
   return grid
@@ -121,7 +136,46 @@ function getActionPlanCopy(listing) {
   return 'No safe KPI Shopping List match. Confirm whether the agent has a Shopping List row for this listing, then create or collect the plan.'
 }
 
-function renderListing(listing) {
+function saveLeaderAssignment(taskId, leaderKey, select) {
+  if (select) select.disabled = true
+  postJson('/api/sales-hub/listing-assignment', {
+    taskId: taskId,
+    assignedLeaderKey: leaderKey,
+  }).then(load).catch(function(error) {
+    window.alert(error && error.message ? error.message : 'Sales leader assignment could not be saved.')
+    if (select) select.disabled = false
+  })
+}
+
+function renderLeaderAssignment(listing, leaders) {
+  var wrap = el('div', 'sales-leader-assignment')
+  var label = el('label', null, 'Sales leader')
+  var select = document.createElement('select')
+  select.className = 'sales-leader-select'
+  select.setAttribute('aria-label', 'Assign sales leader for ' + listing.title)
+
+  var empty = document.createElement('option')
+  empty.value = ''
+  empty.textContent = 'Unassigned'
+  select.appendChild(empty)
+
+  ;(leaders || []).forEach(function(leader) {
+    var option = document.createElement('option')
+    option.value = leader.key
+    option.textContent = leader.name
+    select.appendChild(option)
+  })
+
+  select.value = listing.salesLeaderAssignment?.assignedLeaderKey || ''
+  select.addEventListener('change', function() {
+    saveLeaderAssignment(listing.taskId, select.value, select)
+  })
+  label.appendChild(select)
+  wrap.appendChild(label)
+  return wrap
+}
+
+function renderListing(listing, leaders) {
   var item = el('article', 'sales-listing-row')
   var main = el('div', 'sales-listing-main')
   var title = el('a', 'sales-listing-title', listing.title)
@@ -138,13 +192,14 @@ function renderListing(listing) {
   item.appendChild(main)
 
   var next = el('div', 'sales-listing-next')
+  next.appendChild(renderLeaderAssignment(listing, leaders))
   next.appendChild(el('span', getActionPlanClass(listing.shoppingListMatch), getActionPlanLabel(listing.shoppingListMatch)))
   next.appendChild(el('span', 'sales-listing-next-copy', getActionPlanCopy(listing)))
   item.appendChild(next)
   return item
 }
 
-function renderAgentGroup(group) {
+function renderAgentGroup(group, leaders) {
   var details = document.createElement('details')
   details.className = 'sales-agent-group'
   details.open = true
@@ -159,7 +214,7 @@ function renderAgentGroup(group) {
 
   var body = el('div', 'sales-agent-body')
   group.listings.forEach(function(listing) {
-    body.appendChild(renderListing(listing))
+    body.appendChild(renderListing(listing, leaders))
   })
   details.appendChild(body)
   return details
@@ -178,7 +233,7 @@ function renderStaleListings(report) {
     section.appendChild(el('p', 'empty-state', 'No active listings are 30+ days stale right now.'))
   } else {
     report.groups.forEach(function(group) {
-      section.appendChild(renderAgentGroup(group))
+      section.appendChild(renderAgentGroup(group, report.salesLeaders || []))
     })
   }
 

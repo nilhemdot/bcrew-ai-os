@@ -8212,6 +8212,32 @@ code {
   justify-items: start;
 }
 
+.sales-leader-assignment {
+  width: 100%;
+}
+
+.sales-leader-assignment label {
+  display: grid;
+  gap: 5px;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.sales-leader-select {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
 .status-pill-warning {
   border-color: rgba(245, 158, 11, 0.32);
   background: rgba(245, 158, 11, 0.12);

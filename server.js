@@ -65,6 +65,7 @@ import {
   updateFoundationJobControl,
   updateOpenQuestion,
   getAgentOnboardingFeedbackResponseByTokenHash,
+  upsertSalesListingAssignment,
   upsertAgentOnboardingFeedbackResponse,
 } from './lib/foundation-db.js'
 import {
@@ -129,6 +130,10 @@ import { buildAgentFeedbackProductionAutoSendDryRunReport } from './lib/agent-fe
 import { sendAgentFeedbackResponseNotification } from './lib/agent-feedback-response-notify.js'
 import { buildAgentFeedbackReminderReadiness } from './lib/agent-feedback-reminders.js'
 import { buildSalesListingInventory } from './lib/sales-listing-inventory.js'
+import {
+  resolveSalesListingLeader,
+  sanitizeSalesListingAssignment,
+} from './lib/sales-listing-assignments.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import {
   authenticateAuthUser,
@@ -630,7 +635,9 @@ function isOpsApiPath(req) {
 }
 
 function isSalesApiPath(req) {
-  return req.method === 'GET' && req.path === '/api/sales-hub'
+  if (req.method === 'GET' && req.path === '/api/sales-hub') return true
+  if (req.method === 'POST' && req.path === '/api/sales-hub/listing-assignment') return true
+  return false
 }
 
 function requireAdminToken(req, res, next) {
@@ -4476,6 +4483,61 @@ app.get('/api/sales-hub', requireAdminToken, async (_req, res) => {
       500,
       'sales_hub_load_failed',
       error instanceof Error ? error.message : 'Failed to load Sales hub data.'
+    )
+  }
+})
+
+app.post('/api/sales-hub/listing-assignment', requireAdminToken, async (req, res) => {
+  try {
+    const taskId = String(req.body?.taskId || '').trim()
+    const leaderKey = String(req.body?.assignedLeaderKey || '').trim().toLowerCase()
+    if (!taskId) {
+      sendApiError(res, 400, 'missing_task_id', 'ClickUp task ID is required.')
+      return
+    }
+
+    const leader = leaderKey ? resolveSalesListingLeader(leaderKey) : null
+    if (leaderKey && !leader) {
+      sendApiError(res, 400, 'invalid_sales_leader', 'Sales leader must be Ryan, Blake, Nick, Scott, or Steve.')
+      return
+    }
+
+    const listingInventory = await buildSalesListingInventory()
+    const listing = (listingInventory.staleListings || []).find(item => item.taskId === taskId)
+    if (!listing) {
+      sendApiError(res, 404, 'stale_listing_not_found', 'That listing is not in the current stale active listing list.')
+      return
+    }
+
+    const actor = getRequestAuthUser(req) || getLocalDevUser(req) || { email: 'unknown', name: 'Unknown' }
+    const assignment = await upsertSalesListingAssignment({
+      clickUpTaskId: listing.taskId,
+      listingTitle: listing.title,
+      listingUrl: listing.url,
+      agentName: listing.agent,
+      resetDate: listing.resetDate || null,
+      daysSinceReset: listing.daysSinceReset,
+      assignedLeaderKey: leader?.key || '',
+      assignedLeaderName: leader?.name || '',
+      assignedLeaderEmail: leader?.email || '',
+      metadata: {
+        source: 'sales-hub',
+        assignmentSurface: '/sales#stale-listings',
+      },
+    }, actor.email || actor.name || 'sales-hub')
+
+    cacheHeadersNoStore(res)
+    res.json({
+      status: 'healthy',
+      taskId: listing.taskId,
+      assignment: sanitizeSalesListingAssignment(assignment),
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'sales_assignment_failed',
+      error instanceof Error ? error.message : 'Failed to save Sales Hub assignment.'
     )
   }
 })

@@ -36,6 +36,20 @@ assert(
   report.shoppingList.withActionPlan + report.shoppingList.missingActionPlan === report.shoppingList.matched,
   'KPI Shopping List action-plan counts must equal matched stale listings.'
 )
+assert(Array.isArray(report.salesLeaders), 'Sales leader options must be present.')
+assert(report.salesLeaders.length === 5, 'Sales Hub must expose the five approved sales leaders.')
+for (const leader of ['ryan', 'blake', 'nick', 'scott', 'steve']) {
+  assert(report.salesLeaders.some(item => item.key === leader), `Missing sales leader option: ${leader}.`)
+}
+assert(report.assignmentSummary, 'Sales leader assignment summary must be present.')
+assert(
+  report.assignmentSummary.assigned + report.assignmentSummary.unassigned === report.summary.staleActiveListings,
+  'Assigned and unassigned stale listings must equal the stale active listing count.'
+)
+assert(
+  Array.isArray(report.assignmentSummary.assignedByLeader) && report.assignmentSummary.assignedByLeader.length === 5,
+  'Assignment summary must include counts for all five sales leaders.'
+)
 
 const duplicatePrimaryRows = new Set()
 for (const group of report.groups) {
@@ -43,6 +57,7 @@ for (const group of report.groups) {
   for (const listing of group.listings) {
     assert(!duplicatePrimaryRows.has(listing.taskId), `Listing ${listing.taskId} appears in more than one primary group.`)
     duplicatePrimaryRows.add(listing.taskId)
+    assert(listing.salesLeaderAssignment, `Listing ${listing.taskId} is missing sales leader assignment state.`)
   }
 }
 
@@ -62,4 +77,7 @@ console.log(JSON.stringify({
   actionPlanFound: report.shoppingList.withActionPlan,
   actionPlanMissing: report.shoppingList.missingActionPlan,
   actionPlanUnmatched: report.shoppingList.unmatched,
+  salesLeaders: report.salesLeaders.map(leader => leader.key),
+  assignedSalesLeader: report.assignmentSummary.assigned,
+  unassignedSalesLeader: report.assignmentSummary.unassigned,
 }, null, 2))
