@@ -24,6 +24,7 @@ const stylesCss = await readFile(new URL('../public/styles.css', import.meta.url
 const homeJs = await readFile(new URL('../public/home.js', import.meta.url), 'utf8')
 const appAuthJs = await readFile(new URL('../lib/app-auth.js', import.meta.url), 'utf8')
 const foundationDbJs = await readFile(new URL('../lib/foundation-db.js', import.meta.url), 'utf8')
+const serverJs = await readFile(new URL('../server.js', import.meta.url), 'utf8')
 
 assert(report.source.sourceId === 'SRC-CLICKUP-001', 'Sales listing inventory must be source-backed by SRC-CLICKUP-001.')
 assert(report.source.listId === SALES_LISTING_SOURCE.listId, 'Sales listing inventory used the wrong ClickUp list.')
@@ -63,6 +64,7 @@ assert(salesJs.includes('formatDualCount'), 'GLS scoreboard must show listing co
 assert(salesJs.includes('Adjusted / implemented') && salesJs.includes('Sold') && salesJs.includes('Failed'), 'GLS total case dashboard must expose adjusted/implemented, sold, and failed counts.')
 assert(appAuthJs.includes('John Kitchens') && appAuthJs.includes('john@johnkitchens.coach'), 'John Kitchens must have Sales Hub access in default auth users.')
 assert(homeJs.includes("if (role === 'ops') return ['sales', 'ops']"), 'Ops users such as Carson must see Sales Hub from the home screen.')
+assert(serverJs.includes('This Google account is not enabled for AIOS yet.') && !serverJs.includes("email.endsWith('@bensoncrew.ca')"), 'Google login must allow explicitly enabled external Sales Hub users such as John Kitchens.')
 assert(report.rule.plainEnglish.includes('Deal Status = Active'), 'Active-stage rule must be visible in the report.')
 assert(report.summary.totalTasksRead > 0, 'ClickUp Deal Data Entry returned no tasks.')
 assert(report.summary.activeListings >= 0, 'Active listing count is invalid.')

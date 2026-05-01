@@ -605,14 +605,14 @@ app.post('/api/auth/google', async (req, res) => {
     const payload = ticket.getPayload()
     const email = String(payload?.email || '').trim().toLowerCase()
 
-    if (!payload?.email_verified || !email.endsWith('@bensoncrew.ca')) {
-      sendApiError(res, 403, 'google_account_not_allowed', 'Use your Benson Crew Google account.')
+    if (!payload?.email_verified) {
+      sendApiError(res, 403, 'google_account_not_verified', 'Use a verified Google account.')
       return
     }
 
     const user = getAllowedAuthUser(email)
     if (!user) {
-      sendApiError(res, 403, 'user_not_allowed', 'This Benson Crew account is not enabled for AIOS yet.')
+      sendApiError(res, 403, 'user_not_allowed', 'This Google account is not enabled for AIOS yet.')
       return
     }
 
