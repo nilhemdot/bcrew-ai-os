@@ -168,6 +168,12 @@ import {
   buildAgentFeedbackResponseNotifyStatus,
 } from '../lib/agent-feedback-response-notify.js'
 import {
+  AGENT_FEEDBACK_LIVE_REMINDERS_APPROVAL_PATH,
+  AGENT_FEEDBACK_LIVE_REMINDERS_APPROVED_PLAN_PATH,
+  AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
+  AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_LIVE_REMINDERS_LIVE_APPROVAL_PATH,
+  AGENT_FEEDBACK_LIVE_REMINDERS_PROOF_PATH,
   AGENT_FEEDBACK_REMINDER_APPROVAL_PATH,
   AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH,
   AGENT_FEEDBACK_REMINDER_CARD_ID,
@@ -327,6 +333,10 @@ const AGENT_FEEDBACK_RESPONSE_NOTIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const AGENT_FEEDBACK_REMINDER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'AGENT-FEEDBACK-REMINDER-CADENCE-001',
+]
+
+const AGENT_FEEDBACK_LIVE_REMINDERS_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'AGENT-FEEDBACK-LIVE-REMINDERS-001',
 ]
 
 const AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -1041,6 +1051,7 @@ async function main() {
   const agentFeedbackAutoSendApprovalRef = AGENT_FEEDBACK_AUTO_SEND_APPROVAL_PATH
   const agentFeedbackResponseNotifyApprovalRef = AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVAL_PATH
   const agentFeedbackReminderApprovalRef = AGENT_FEEDBACK_REMINDER_APPROVAL_PATH
+  const agentFeedbackLiveRemindersApprovalRef = AGENT_FEEDBACK_LIVE_REMINDERS_APPROVAL_PATH
   const agentFeedbackCompanyEmailPolicyApprovalRef = AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVAL_PATH
   const agentFeedbackSteveFullLoopTestApprovalRef = AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVAL_PATH
   const agentFeedbackRealUserSubmitRepairApprovalRef = AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVAL_PATH
@@ -1121,6 +1132,11 @@ async function main() {
     approvalRef: agentFeedbackReminderApprovalRef,
     cardId: AGENT_FEEDBACK_REMINDER_CARD_ID,
   })
+  const agentFeedbackLiveRemindersApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: agentFeedbackLiveRemindersApprovalRef,
+    cardId: AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
+  })
   const agentFeedbackCompanyEmailPolicyApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: agentFeedbackCompanyEmailPolicyApprovalRef,
@@ -1171,6 +1187,7 @@ async function main() {
   const agentFeedbackAutoSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH)
   const agentFeedbackResponseNotifyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH)
   const agentFeedbackReminderApprovedPlan = await readRepoFile(AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH)
+  const agentFeedbackLiveRemindersApprovedPlan = await readRepoFile(AGENT_FEEDBACK_LIVE_REMINDERS_APPROVED_PLAN_PATH)
   const agentFeedbackCompanyEmailPolicyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVED_PLAN_PATH)
   const agentFeedbackSteveFullLoopTestApprovedPlan = await readRepoFile(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVED_PLAN_PATH)
   const agentFeedbackRealUserSubmitRepairApprovedPlan = await readRepoFile(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVED_PLAN_PATH)
@@ -1201,6 +1218,8 @@ async function main() {
   const agentFeedbackProductionAutoSendEnableProof = await readRepoFile(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_PROOF_PATH)
   const agentFeedbackResponseNotifyProof = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_PROOF_PATH)
   const agentFeedbackReminderProof = await readRepoFile(AGENT_FEEDBACK_REMINDER_PROOF_PATH)
+  const agentFeedbackLiveRemindersProof = await readRepoFile(AGENT_FEEDBACK_LIVE_REMINDERS_PROOF_PATH)
+  const agentFeedbackLiveRemindersApprovalSource = await readRepoFile(AGENT_FEEDBACK_LIVE_REMINDERS_LIVE_APPROVAL_PATH)
   const agentFeedbackCompanyEmailPolicyProof = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_PROOF_PATH)
   const agentFeedbackSteveFullLoopTestProof = await readRepoFile(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_PROOF_PATH)
   const agentFeedbackRealUserSubmitRepairProof = await readRepoFile(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_PROOF_PATH)
@@ -3240,6 +3259,20 @@ async function main() {
     (build.backlogIds || []).includes(AGENT_FEEDBACK_REMINDER_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY
   )
+  const buildLogAgentFeedbackLiveRemindersBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID) &&
+      build.closeoutKey === AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
+        backlogIds: [AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID],
+        mentionedBacklogIds: [
+          AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
+          AGENT_FEEDBACK_REMINDER_CARD_ID,
+        ],
+        operatorCloseout: true,
+      }
+    : null)
   const buildLogAgentFeedbackCompanyEmailPolicyBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CLOSEOUT_KEY
@@ -4411,6 +4444,7 @@ async function main() {
   const agentFeedbackAutoSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_AUTO_SEND_CARD_ID) || null
   const agentFeedbackResponseNotify = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID) || null
   const agentFeedbackReminder = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REMINDER_CARD_ID) || null
+  const agentFeedbackLiveReminders = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID) || null
   const agentFeedbackCompanyEmailPolicy = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID) || null
   const agentFeedbackSteveFullLoopTest = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) || null
   const agentFeedbackRealUserSubmitRepair = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) || null
@@ -6700,10 +6734,10 @@ async function main() {
         'listAgentFeedbackReminderAttemptsForMilestone',
         'getAgentOnboardingFeedbackResponseForMilestone',
       ]) &&
-      includesAll(foundationJobsSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'agent-feedback:reminders', '--mode=dry-run']) &&
+      includesAll(foundationJobsSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'agent-feedback:reminders']) &&
       includesAll(serverSource, ['buildAgentFeedbackReminderReadiness', 'agentFeedbackReminders']) &&
       includesAll(foundationUiSource, ['renderAgentFeedbackReminderPanel', 'agentFeedbackReminders']) &&
-      includesAll(opsUiSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'reminder cadence']) &&
+      includesAll(opsUiSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'live reminders']) &&
       agentFeedbackReminderStatus.status === 'healthy' &&
       agentFeedbackReminderStatus.summary?.noReminderBeforeInitialRequest === true &&
       agentFeedbackReminderStatus.summary?.completedSkippedBlockedStop === true &&
@@ -6718,20 +6752,101 @@ async function main() {
       Number.isFinite(Number(agentFeedbackReminderStatus.summary?.maxedOutReminderCount)) &&
       Number.isFinite(Number(agentFeedbackReminderStatus.summary?.repairReminderCount)) &&
       Array.isArray(agentFeedbackReminderStatus.summary?.nextReminderDueDates) &&
-      foundationHub.agentFeedbackReminders?.summary?.dryRunOnly === true &&
-      opsHub.agentFeedbackReminders?.summary?.dryRunOnly === true &&
+      foundationHub.agentFeedbackReminders?.summary?.liveRemindersEnabled === true &&
+      opsHub.agentFeedbackReminders?.summary?.liveRemindersEnabled === true &&
       opsHub.foundationJobs?.jobs?.some(job => job.key === AGENT_FEEDBACK_REMINDER_JOB_KEY) &&
       agentFeedbackReminderStatus.summary?.reminderCardLane === 'done' &&
       agentFeedbackReminderStatus.summary?.georgiaSendCardLane === 'scoped' &&
-      agentFeedbackReminderStatus.summary?.closeoutOwnsOnlyReminder === true &&
       buildLogAgentFeedbackReminderBuild?.operatorCloseout === true &&
       agentFeedbackReminderBuildLogExact &&
       currentPlan.includes('AGENT-FEEDBACK-REMINDER-CADENCE-001` is done') &&
-      currentPlan.includes('Steve full-loop test') &&
+      currentPlan.includes(AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID) &&
       currentState.includes('AGENT-FEEDBACK-REMINDER-CADENCE-001` is done') &&
-      currentState.includes('No live reminder send'),
-    'AGENT-FEEDBACK-REMINDER-CADENCE-001 builds dry-run reminder cadence readiness',
+      currentState.includes(AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID),
+    'AGENT-FEEDBACK-REMINDER-CADENCE-001 remains the proven reminder cadence foundation',
     `pending=${agentFeedbackReminderStatus.summary?.pendingReminderCount ?? 'missing'} blocked=${agentFeedbackReminderStatus.summary?.blockedReminderCount ?? 'missing'} closeout=${buildLogAgentFeedbackReminderBuild?.closeoutKey || 'missing'}`,
+  )
+  const agentFeedbackLiveRemindersBuildLogExact =
+    buildLogAgentFeedbackLiveRemindersBuild?.backlogIds?.length === 1 &&
+    buildLogAgentFeedbackLiveRemindersBuild.backlogIds.includes(AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID) &&
+    (buildLogAgentFeedbackLiveRemindersBuild.mentionedBacklogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
+    (buildLogAgentFeedbackLiveRemindersBuild.mentionedBacklogIds || []).includes(AGENT_FEEDBACK_REMINDER_CARD_ID) &&
+    !(buildLogAgentFeedbackLiveRemindersBuild.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
+    !(buildLogAgentFeedbackLiveRemindersBuild.backlogIds || []).includes(AGENT_FEEDBACK_REMINDER_CARD_ID)
+  ensure(
+    checks,
+    agentFeedbackLiveReminders?.lane === 'done' &&
+      /agent-feedback-live-reminders-v1/.test(agentFeedbackLiveReminders?.statusNote || '') &&
+      agentFeedbackLiveRemindersApprovalValidation.ok &&
+      agentFeedbackLiveRemindersApprovalValidation.mode === 'v2' &&
+      agentFeedbackLiveRemindersApprovalValidation.approval?.approvedPlanRef === AGENT_FEEDBACK_LIVE_REMINDERS_APPROVED_PLAN_PATH &&
+      includesAll(agentFeedbackLiveRemindersApprovedPlan, [
+        AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
+        AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
+        '8:30-10:00 AM America/Toronto',
+        'day 1, day 3, day 7, day 10, day 14, and day 17',
+        'Do not force an off-cadence reminder',
+        'does not write ClickUp Requested',
+      ]) &&
+      includesAll(agentFeedbackLiveRemindersApprovalSource, [
+        '"mode": "production-reminders"',
+        '"liveRemindersApproved": true',
+        '"recipientRule": "clickup-company-email"',
+        '"clickUpWritebackOnReminder": false',
+      ]) &&
+      includesAll(agentFeedbackLiveRemindersProof, [
+        AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
+        'Live reminders enabled: yes',
+        'Outside-window fail-closed',
+        'Georgia Huntley Day-30',
+        'Chris Chopite Day-30',
+        '2026-05-03T00:00:00.000Z',
+        'No raw emails, token URLs, raw tokens, or feedback content',
+      ]) &&
+      includesAll(foundationVerifySource, AGENT_FEEDBACK_LIVE_REMINDERS_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"agent-feedback:reminders"', '"process:agent-feedback-live-reminders-check"']) &&
+      includesAll(agentFeedbackReminderSource, [
+        'AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID',
+        'AGENT_FEEDBACK_REMINDERS_ENABLED',
+        'production-live-reminders',
+        'buildAgentFeedbackProductionSendWindow',
+        'duplicate_reminder_slot_attempt_exists',
+        'clickUpRequestedWritten: false',
+      ]) &&
+      includesAll(foundationJobsSource, [
+        AGENT_FEEDBACK_REMINDER_JOB_KEY,
+        '--mode=live',
+        "scheduleLocalTime: '08:30'",
+        "scheduleTimezone: 'America/Toronto'",
+      ]) &&
+      includesAll(serverSource, ['getAgentOnboardingFeedbackResponseForMilestone', 'agent_feedback_link_already_submitted']) &&
+      includesAll(foundationUiSource, ['Live reminder sends', 'duplicate reminder slots are blocked']) &&
+      includesAll(opsUiSource, ['Feedback live reminders']) &&
+      agentFeedbackReminderStatus.status === 'healthy' &&
+      agentFeedbackReminderStatus.summary?.liveRemindersEnabled === true &&
+      agentFeedbackReminderStatus.summary?.enabledState === 'enabled' &&
+      agentFeedbackReminderStatus.summary?.sendWindowStart === '08:30' &&
+      agentFeedbackReminderStatus.summary?.sendWindowEnd === '10:00' &&
+      agentFeedbackReminderStatus.summary?.sendWindowTimezone === 'America/Toronto' &&
+      agentFeedbackReminderStatus.summary?.georgiaDay30InitialRequestSuccessful === true &&
+      agentFeedbackReminderStatus.summary?.chrisDay30InitialRequestSuccessful === true &&
+      agentFeedbackReminderStatus.summary?.georgiaDay30NextReminderDueAt === '2026-05-03T00:00:00.000Z' &&
+      agentFeedbackReminderStatus.summary?.chrisDay30NextReminderDueAt === '2026-05-03T00:00:00.000Z' &&
+      agentFeedbackReminderStatus.summary?.completedSkippedBlockedStop === true &&
+      agentFeedbackReminderStatus.summary?.duplicateSlotProtected === true &&
+      agentFeedbackReminderStatus.summary?.metadataOnly === true &&
+      agentFeedbackReminderStatus.summary?.liveReminderCardLane === 'done' &&
+      agentFeedbackReminderStatus.summary?.closeoutOwnsOnlyLiveReminder === true &&
+      foundationHub.agentFeedbackReminders?.summary?.liveRemindersEnabled === true &&
+      opsHub.agentFeedbackReminders?.summary?.liveRemindersEnabled === true &&
+      buildLogAgentFeedbackLiveRemindersBuild?.operatorCloseout === true &&
+      agentFeedbackLiveRemindersBuildLogExact &&
+      currentPlan.includes('AGENT-FEEDBACK-LIVE-REMINDERS-001` is done') &&
+      currentPlan.includes('systems visibility pass') &&
+      currentState.includes('AGENT-FEEDBACK-LIVE-REMINDERS-001` is done') &&
+      currentState.includes('Live reminders are enabled'),
+    'AGENT-FEEDBACK-LIVE-REMINDERS-001 live reminders are enabled and visible',
+    `enabled=${agentFeedbackReminderStatus.summary?.liveRemindersEnabled ? 'yes' : 'no'} georgiaNext=${agentFeedbackReminderStatus.summary?.georgiaDay30NextReminderDueAt || 'missing'} chrisNext=${agentFeedbackReminderStatus.summary?.chrisDay30NextReminderDueAt || 'missing'} closeout=${buildLogAgentFeedbackLiveRemindersBuild?.closeoutKey || 'missing'}`,
   )
   const agentFeedbackCompanyEmailPolicyBuildLogExact =
     buildLogAgentFeedbackCompanyEmailPolicyBuild?.backlogIds?.length === 1 &&

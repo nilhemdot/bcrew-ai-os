@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AGENT-FEEDBACK-LIVE-REMINDERS-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-02T13:27:14Z",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/approved-plans/agent-feedback-live-reminders-v1.md",
+  "approvedPlanSha256": "2692a6025b642d16f57580499a5ae0d80af5550740af7d9f2525ff612ae3997d",
+  "approvedRepoHead": "02a3d5364cd6fe62afdafa28f1be760d10c4c617",
+  "notes": "Approves governed production Agent Onboarding Feedback live reminder sends. Use Company Email only; BCC Steve, Carson, Ryan, and Georgia with To/BCC dedupe; use the existing day 1/3/7/10/14/17 cadence; send only from 8:30-10:00 AM America/Toronto; stop after completed/skipped/blocked; duplicate reminder ledger blocks repeat slots; no ClickUp Requested writeback on reminder sends.",
+  "approvalDigest": "2772da42b7e296a052706cb6c5fb7499f6200665336cba705cbd3b66ef757bf9"
+}

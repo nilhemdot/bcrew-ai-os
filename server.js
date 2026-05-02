@@ -65,6 +65,7 @@ import {
   updateFoundationJobControl,
   updateOpenQuestion,
   getAgentOnboardingFeedbackResponseByTokenHash,
+  getAgentOnboardingFeedbackResponseForMilestone,
   upsertSalesListingAssignment,
   upsertAgentOnboardingFeedbackResponse,
 } from './lib/foundation-db.js'
@@ -4413,7 +4414,9 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       includeCandidates: false,
     })
     const agentFeedbackReminders = await buildAgentFeedbackReminderReadiness({
+      repoRoot: __dirname,
       includeCandidates: false,
+      foundationJobs: snapshot.foundationJobs,
     })
     res.json({
       ...snapshot,
@@ -4536,7 +4539,9 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
       includeCandidates: false,
     })
     const agentFeedbackReminders = await buildAgentFeedbackReminderReadiness({
+      repoRoot: __dirname,
       includeCandidates: false,
+      foundationJobs,
     })
     const jobs = Array.isArray(foundationJobs.jobs)
       ? foundationJobs.jobs.filter(job => Array.isArray(job.servesHubs) && job.servesHubs.includes('ops'))
@@ -6262,8 +6267,14 @@ app.post('/api/foundation/doc-updates/:id/apply', requireAdminToken, async (req,
 app.get('/api/agent-feedback/session', async (req, res) => {
   try {
     const session = verifyAgentFeedbackToken(req.query.token)
-    const existingResponse = await getAgentOnboardingFeedbackResponseByTokenHash(session.tokenHash)
-    if (existingResponse) {
+    const [existingResponse, existingMilestoneResponse] = await Promise.all([
+      getAgentOnboardingFeedbackResponseByTokenHash(session.tokenHash),
+      getAgentOnboardingFeedbackResponseForMilestone({
+        taskId: session.taskId,
+        milestoneDay: session.milestoneDay,
+      }),
+    ])
+    if (existingResponse || existingMilestoneResponse) {
       sendApiError(
         res,
         409,
@@ -6302,8 +6313,14 @@ app.get('/api/agent-feedback/session', async (req, res) => {
 app.post('/api/agent-feedback/submit', async (req, res) => {
   try {
     const session = verifyAgentFeedbackToken(req.body?.token)
-    const existingResponse = await getAgentOnboardingFeedbackResponseByTokenHash(session.tokenHash)
-    if (existingResponse) {
+    const [existingResponse, existingMilestoneResponse] = await Promise.all([
+      getAgentOnboardingFeedbackResponseByTokenHash(session.tokenHash),
+      getAgentOnboardingFeedbackResponseForMilestone({
+        taskId: session.taskId,
+        milestoneDay: session.milestoneDay,
+      }),
+    ])
+    if (existingResponse || existingMilestoneResponse) {
       sendApiError(
         res,
         409,

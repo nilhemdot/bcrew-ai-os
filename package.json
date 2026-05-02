@@ -105,6 +105,7 @@
     "process:agent-feedback-production-autosend-enable-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-production-autosend-enable-check.mjs",
     "process:agent-feedback-response-notify-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-response-notify-check.mjs",
     "process:agent-feedback-reminder-cadence-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-reminder-cadence-check.mjs",
+    "process:agent-feedback-live-reminders-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-live-reminders-check.mjs",
     "process:personal-workspace-boundary-check": "node --env-file-if-exists=.env scripts/process-personal-workspace-boundary-check.mjs",
     "process:install-hooks": "node --env-file-if-exists=.env scripts/install-git-hooks.mjs",
     "process:git-hook-check": "node --env-file-if-exists=.env scripts/process-git-hook-check.mjs",

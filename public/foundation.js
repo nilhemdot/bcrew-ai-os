@@ -6076,6 +6076,7 @@ function renderAgentFeedbackProductionDryRunPanel(agentFeedbackProductionAutoSen
 function renderAgentFeedbackReminderPanel(agentFeedbackReminders) {
   if (!agentFeedbackReminders || !agentFeedbackReminders.summary) return null
   var summary = agentFeedbackReminders.summary || {}
+  var liveEnabled = summary.liveRemindersEnabled === true
   var counts = [
     'pending ' + (summary.pendingReminderCount || 0),
     'sent ' + (summary.sentReminderCount || 0),
@@ -6087,10 +6088,17 @@ function renderAgentFeedbackReminderPanel(agentFeedbackReminders) {
   var nextDue = Array.isArray(summary.nextReminderDueDates) && summary.nextReminderDueDates.length
     ? summary.nextReminderDueDates.slice(0, 3).map(formatDate).join(' · ')
     : 'No due reminders found.'
+  var sendWindow = (summary.sendWindowStart || '08:30') + '-' +
+    (summary.sendWindowEnd || '10:00') + ' ' +
+    (summary.sendWindowTimezone || 'America/Toronto')
+  var runLine = 'Last run ' + (summary.lastRunAt ? formatDate(summary.lastRunAt) : 'not captured') +
+    '. Next run ' + (summary.nextRunAt ? formatDate(summary.nextRunAt) : 'not captured') + '.'
 
   return renderStatusGroupPanel(
     'Agent Feedback Reminders',
-    'Report-only reminder cadence for onboarding feedback after a successful initial request. Live reminder sends remain separate from the production initial-send enablement.',
+    liveEnabled
+      ? 'Live reminder sends for requested-but-not-completed onboarding feedback, governed by the same morning send window as initial requests.'
+      : 'Reminder cadence is visible but live sends are fail-closed until the reminder guard is enabled.',
     [
       {
         label: 'Reminder counts',
@@ -6098,9 +6106,14 @@ function renderAgentFeedbackReminderPanel(agentFeedbackReminders) {
         detail: counts + '. Next due: ' + nextDue,
       },
       {
+        label: 'Live guard',
+        status: liveEnabled ? 'live' : 'risk',
+        detail: 'Mode ' + (summary.enabledState || 'unknown') + '. Send window ' + sendWindow + '. ' + runLine,
+      },
+      {
         label: 'Cadence guard',
-        status: summary.dryRunOnly ? 'pending' : 'risk',
-        detail: 'Schedule is day 1, day 3, day 7, day 10, day 14, day 17. Cap is 6 reminders or 30 days. No reminder runs before a successful initial request. Live reminders stay report-only until a separate approval prevents surprise follow-up sends.',
+        status: summary.duplicateSlotProtected && summary.completedSkippedBlockedStop ? 'live' : 'risk',
+        detail: 'Schedule is day 1, day 3, day 7, day 10, day 14, day 17. Cap is 6 reminders or 30 days. No reminder runs before a successful initial request, duplicate reminder slots are blocked, and completed/skipped/blocked milestones stop future reminders.',
       },
     ]
   )

@@ -2,6 +2,8 @@
 
 import process from 'node:process'
 import {
+  AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
+  AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
   AGENT_FEEDBACK_REMINDER_CARD_ID,
   AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY,
   buildAgentFeedbackReminderStatus,
@@ -43,9 +45,9 @@ async function main() {
     syntheticProof,
   })
 
-  console.log('Agent Feedback reminder cadence proof')
-  console.log(`  Card: ${AGENT_FEEDBACK_REMINDER_CARD_ID}`)
-  console.log(`  Closeout: ${AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY}`)
+  console.log('Agent Feedback reminder proof')
+  console.log(`  Card: ${status.cardId || AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID || AGENT_FEEDBACK_REMINDER_CARD_ID}`)
+  console.log(`  Closeout: ${status.closeoutKey || AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY || AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY}`)
   console.log(`  Base URL: ${baseUrl}`)
   console.log(`  Status: ${status.status}`)
   console.log(`  Pending reminders: ${status.summary.pendingReminderCount}`)
@@ -58,11 +60,13 @@ async function main() {
   console.log(`  Completed/skipped/blocked stop: ${status.summary.completedSkippedBlockedStop ? 'yes' : 'no'}`)
   console.log(`  Duplicate slot protected: ${status.summary.duplicateSlotProtected ? 'yes' : 'no'}`)
   console.log(`  Cap stops at 6/30: ${status.summary.capStopsAtSixOrThirtyDays ? 'yes' : 'no'}`)
-  console.log(`  Dry-run only: ${status.summary.dryRunOnly ? 'yes' : 'no'}`)
+  console.log(`  Live reminders enabled: ${status.summary.liveRemindersEnabled ? 'yes' : 'no'}`)
+  console.log(`  Dry-run report has no side effects: ${status.summary.dryRunOnly ? 'yes' : 'no'}`)
   console.log(`  Metadata-only proof: ${status.summary.metadataOnly ? 'yes' : 'no'}`)
   console.log(`  Reminder card lane: ${status.summary.reminderCardLane || 'missing'}`)
+  console.log(`  Live reminder card lane: ${status.summary.liveReminderCardLane || 'missing'}`)
   console.log(`  Georgia send card lane: ${status.summary.georgiaSendCardLane || 'missing'}`)
-  console.log(`  Closeout owns only reminder card: ${status.summary.closeoutOwnsOnlyReminder ? 'yes' : 'no'}`)
+  console.log(`  Closeout owns only live reminder card: ${status.summary.closeoutOwnsOnlyLiveReminder ? 'yes' : 'no'}`)
   for (const finding of status.findings) {
     console.log(`FAIL ${finding.check}${finding.detail ? ` -> ${finding.detail}` : ''}`)
   }
