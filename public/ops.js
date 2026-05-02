@@ -250,7 +250,7 @@ function renderOpsSystemSummaryCard(job) {
     'admin-deal-backlog-review': 'Admin backlog scan',
     'conditional-deal-review-readonly': 'Conditional forecast sync',
     'agent-roster-review': 'Agent onboarding check',
-    'agent-feedback-auto-send-readiness': 'Feedback auto-send readiness',
+    'agent-feedback-auto-send-readiness': 'Feedback production auto-send',
     'agent-feedback-reminder-readiness': 'Feedback reminder cadence',
   }
   var summaries = {
@@ -258,8 +258,8 @@ function renderOpsSystemSummaryCard(job) {
     'admin-deal-backlog-review': 'Checks 5 older eligible Admin deals per day so the backlog clears without flooding Ops.',
     'conditional-deal-review-readonly': 'Keeps the conditional forecast sheet rebuilt from the ClickUp deal board.',
     'agent-roster-review': 'Checks the Agent Roster and tracks 30/60/90 onboarding feedback.',
-    'agent-feedback-auto-send-readiness': 'Reports who would receive onboarding feedback without sending until both live-send controls are approved.',
-    'agent-feedback-reminder-readiness': 'Reports reminder cadence readiness after an initial request is marked Requested, without sending live reminders.',
+    'agent-feedback-auto-send-readiness': 'Runs governed 30/60/90 onboarding feedback sends and fails closed unless the live guard is approved.',
+    'agent-feedback-reminder-readiness': 'Reports reminder cadence readiness after an initial request is marked Requested; live reminders remain separately gated.',
   }
   return renderStatusCard({
     label: labels[job.key] || job.title || job.key,

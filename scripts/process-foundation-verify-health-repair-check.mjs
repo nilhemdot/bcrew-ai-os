@@ -46,7 +46,7 @@ async function main() {
     changesApi,
   ] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation-hub'),
-    fetchJson(baseUrl, '/api/foundation/build-log?limit=20'),
+    fetchJson(baseUrl, '/api/foundation/build-log?limit=80'),
     fetchJson(baseUrl, '/api/source-of-truth'),
     fetchJson(baseUrl, '/api/owners/review-queue'),
     fetchJson(baseUrl, '/api/ops-hub'),

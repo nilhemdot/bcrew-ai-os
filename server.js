@@ -4407,6 +4407,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
     const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
       repoRoot: __dirname,
       includeCandidates: false,
+      foundationJobs: snapshot.foundationJobs,
     })
     const agentFeedbackProductionAutoSendDryRun = await buildAgentFeedbackProductionAutoSendDryRunReport({
       includeCandidates: false,
@@ -4529,6 +4530,7 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
     const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
       repoRoot: __dirname,
       includeCandidates: false,
+      foundationJobs,
     })
     const agentFeedbackProductionAutoSendDryRun = await buildAgentFeedbackProductionAutoSendDryRunReport({
       includeCandidates: false,

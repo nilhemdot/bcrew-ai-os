@@ -5991,6 +5991,12 @@ function renderAgentFeedbackAutoSendPanel(agentFeedbackAutoSend) {
   if (!agentFeedbackAutoSend || !agentFeedbackAutoSend.summary) return null
   var summary = agentFeedbackAutoSend.summary || {}
   var guard = agentFeedbackAutoSend.liveGuard || {}
+  var enabled = summary.productionAutoSendEnabled === true
+  var lastRun = summary.lastRunAt ? formatDate(summary.lastRunAt) + ' / ' + (summary.lastRunStatus || 'unknown') : 'No run recorded'
+  var nextRun = summary.nextRunAt ? formatDate(summary.nextRunAt) : 'No scheduled next run'
+  var windowLine = (summary.sendWindowStart && summary.sendWindowEnd)
+    ? ' Send window: ' + summary.sendWindowStart + '-' + summary.sendWindowEnd + ' ' + (summary.sendWindowTimezone || 'local') + (summary.sendWindowOpen ? ' (open).' : ' (closed now).')
+    : ''
   var counts = [
     'would-send ' + (summary.wouldSendCount || 0),
     'sent ' + (summary.sentCount || 0),
@@ -6002,17 +6008,22 @@ function renderAgentFeedbackAutoSendPanel(agentFeedbackAutoSend) {
 
   return renderStatusGroupPanel(
     'Agent Feedback Auto-Send',
-    'Daily dry-run scanner for 30/60/90 onboarding feedback requests. Live sends need both the runtime toggle and an approved allowlist or production artifact.',
+    'Daily governed production scanner for 30/60/90 onboarding feedback requests. It sends only when the live guard is enabled and writes Requested only after Gmail succeeds.',
     [
       {
-        label: 'Readiness counts',
+        label: 'Enabled state',
+        status: enabled ? 'live' : 'risk',
+        detail: (enabled ? 'Production auto-send enabled' : 'Fail-closed: ' + ((summary.failClosedReasons || []).join(', ') || 'guard not satisfied')) + '. Last run: ' + lastRun + '. Next run: ' + nextRun + '.' + windowLine,
+      },
+      {
+        label: 'Production counts',
         status: agentFeedbackAutoSend.status === 'healthy' ? 'live' : 'risk',
         detail: counts + '. Georgia Day-30: ' + (summary.georgiaDay30Action || 'missing') + '.',
       },
       {
         label: 'Live-send guard',
-        status: guard.decision === 'report_only' ? 'pending' : 'risk',
-        detail: 'Current mode: ' + (summary.liveGuardDecision || guard.decision || 'unknown') + '. Default dry-run only; toggle alone cannot send and allowlist alone cannot send.',
+        status: guard.decision === 'live_send_allowed' ? 'live' : 'risk',
+        detail: 'Current mode: ' + (summary.liveGuardDecision || guard.decision || 'unknown') + '. Toggle, approval artifact, and local send window are checked before any Gmail send.',
       },
     ]
   )
@@ -6053,8 +6064,10 @@ function renderAgentFeedbackProductionDryRunPanel(agentFeedbackProductionAutoSen
       },
       {
         label: 'Production guard',
-        status: agentFeedbackProductionAutoSendDryRun.productionEnablement && agentFeedbackProductionAutoSendDryRun.productionEnablement.enabled === false ? 'pending' : 'risk',
-        detail: 'Production auto-send remains disabled. Steve reviews this list before any enablement.',
+        status: agentFeedbackProductionAutoSendDryRun.productionEnablement && agentFeedbackProductionAutoSendDryRun.productionEnablement.enabled === true ? 'live' : 'pending',
+        detail: agentFeedbackProductionAutoSendDryRun.productionEnablement && agentFeedbackProductionAutoSendDryRun.productionEnablement.enabled === true
+          ? 'Production auto-send is enabled; this panel remains a metadata-only roster scan.'
+          : 'Production auto-send remains disabled. Steve reviews this list before any enablement.',
       },
     ]
   )
@@ -6077,7 +6090,7 @@ function renderAgentFeedbackReminderPanel(agentFeedbackReminders) {
 
   return renderStatusGroupPanel(
     'Agent Feedback Reminders',
-    'Dry-run reminder cadence for onboarding feedback after a successful initial request. Live reminder sends are not enabled in this build.',
+    'Report-only reminder cadence for onboarding feedback after a successful initial request. Live reminder sends remain separate from the production initial-send enablement.',
     [
       {
         label: 'Reminder counts',
@@ -6087,7 +6100,7 @@ function renderAgentFeedbackReminderPanel(agentFeedbackReminders) {
       {
         label: 'Cadence guard',
         status: summary.dryRunOnly ? 'pending' : 'risk',
-        detail: 'Schedule is day 1, day 3, day 7, day 10, day 14, day 17. Cap is 6 reminders or 30 days. No reminder runs before a successful initial request.',
+        detail: 'Schedule is day 1, day 3, day 7, day 10, day 14, day 17. Cap is 6 reminders or 30 days. No reminder runs before a successful initial request. Live reminders stay report-only until a separate approval prevents surprise follow-up sends.',
       },
     ]
   )

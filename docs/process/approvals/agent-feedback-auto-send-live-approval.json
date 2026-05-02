@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 1,
+  "approved": true,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-02T01:10:42.000Z",
+  "mode": "production-all",
+  "productionAllApproved": true,
+  "productionApprovalRef": "docs/process/approvals/AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001.json",
+  "separateProductionApprovalRef": "docs/process/approvals/AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001.json",
+  "cardId": "AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001",
+  "recipientRule": "clickup-company-email",
+  "bccRoles": ["Steve", "Carson", "Ryan", "Georgia"],
+  "dedupeToBcc": true,
+  "gmailBeforeClickUpRequested": true,
+  "duplicateLedgerRequired": true,
+  "repairWithoutResendRequired": true,
+  "liveRemindersApproved": false,
+  "reminderDecision": "report-only"
+}

@@ -3,6 +3,7 @@
 import process from 'node:process'
 import {
   buildAgentFeedbackAutoSendReadiness,
+  runAgentFeedbackProductionAutoSend,
 } from '../lib/agent-feedback-auto-send.js'
 import { assertFoundationDbReadyForReadOnlyGate } from '../lib/foundation-db.js'
 
@@ -21,8 +22,31 @@ async function main() {
   const mode = String(args.mode || 'dry-run').trim()
   await assertFoundationDbReadyForReadOnlyGate('agent-feedback:auto-send')
 
-  if (!['dry-run', 'report'].includes(mode)) {
-    throw new Error('Auto-send readiness build only supports --mode=dry-run or --mode=report. Live send mode requires a separate approved send/allowlist path.')
+  if (!['dry-run', 'report', 'live', 'production'].includes(mode)) {
+    throw new Error('Auto-send supports --mode=dry-run, --mode=report, or --mode=live.')
+  }
+
+  if (mode === 'live' || mode === 'production') {
+    const run = await runAgentFeedbackProductionAutoSend({
+      repoRoot: process.cwd(),
+      includeCandidates: args.includeCandidates !== 'false',
+      maxSends: args.maxSends || args.max_sends,
+    })
+    console.log(JSON.stringify({
+      ok: run.ok,
+      mode: run.mode,
+      cardId: run.cardId,
+      closeoutKey: run.closeoutKey,
+      runId: run.runId,
+      generatedAt: run.generatedAt,
+      productionEnablement: run.productionEnablement,
+      liveGuard: run.liveGuard,
+      summary: run.summary,
+      candidates: run.candidates,
+      privacy: run.privacy,
+    }, null, 2))
+    if (!run.ok) process.exitCode = 1
+    return
   }
 
   const readiness = await buildAgentFeedbackAutoSendReadiness({

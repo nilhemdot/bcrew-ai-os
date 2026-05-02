@@ -102,6 +102,7 @@
     "process:agent-feedback-real-user-submit-repair-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-real-user-submit-repair-check.mjs",
     "process:agent-feedback-auto-send-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-auto-send-check.mjs",
     "process:agent-feedback-production-autosend-dry-run-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-production-autosend-dry-run-check.mjs",
+    "process:agent-feedback-production-autosend-enable-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-production-autosend-enable-check.mjs",
     "process:agent-feedback-response-notify-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-response-notify-check.mjs",
     "process:agent-feedback-reminder-cadence-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-reminder-cadence-check.mjs",
     "process:personal-workspace-boundary-check": "node --env-file-if-exists=.env scripts/process-personal-workspace-boundary-check.mjs",

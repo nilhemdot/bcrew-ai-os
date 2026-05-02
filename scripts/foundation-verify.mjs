@@ -148,12 +148,15 @@ import {
   AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY,
   AGENT_FEEDBACK_AUTO_SEND_JOB_KEY,
   AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH,
+  AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_PROOF_PATH,
   buildAgentFeedbackAutoSendStatus,
 } from '../lib/agent-feedback-auto-send.js'
 import {
   AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_CLOSEOUT_KEY,
   AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_PROOF_PATH,
   AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_STAGE,
+  buildAgentFeedbackProductionAutoSendEnableStatus,
   buildAgentFeedbackProductionAutoSendDryRunStatus,
 } from '../lib/agent-feedback-production-autosend-dry-run.js'
 import {
@@ -1195,6 +1198,7 @@ async function main() {
   const agentFeedbackSendDryRunProof = await readRepoFile(AGENT_FEEDBACK_SEND_DRY_RUN_PROOF_PATH)
   const agentFeedbackAutoSendReadinessProof = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH)
   const agentFeedbackProductionAutoSendDryRunProof = await readRepoFile(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_PROOF_PATH)
+  const agentFeedbackProductionAutoSendEnableProof = await readRepoFile(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_PROOF_PATH)
   const agentFeedbackResponseNotifyProof = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_PROOF_PATH)
   const agentFeedbackReminderProof = await readRepoFile(AGENT_FEEDBACK_REMINDER_PROOF_PATH)
   const agentFeedbackCompanyEmailPolicyProof = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_PROOF_PATH)
@@ -2380,6 +2384,12 @@ async function main() {
     foundationBuildLog,
     opsDryRun: opsHub.agentFeedbackProductionAutoSendDryRun,
   })
+  const agentFeedbackProductionAutoSendEnableStatus = await buildAgentFeedbackProductionAutoSendEnableStatus({
+    repoRoot,
+    foundationHub,
+    foundationBuildLog,
+    opsHub,
+  })
   const agentFeedbackResponseNotifyStatus = await buildAgentFeedbackResponseNotifyStatus({
     repoRoot,
     foundationHub,
@@ -3249,6 +3259,10 @@ async function main() {
   const buildLogAgentFeedbackProductionAutoSendDryRunBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_CLOSEOUT_KEY
+  )
+  const buildLogAgentFeedbackProductionAutoSendEnableBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
+      build.closeoutKey === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CLOSEOUT_KEY
   )
   const buildLogSalesGlsScoreboardBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('SALES-GLS-SCOREBOARD-V1') &&
@@ -6353,10 +6367,11 @@ async function main() {
       agentOnboardingFeedbackSystemStatus.summary?.baselinePreservedCount === FOUNDATION_SYSTEMS_BASELINE_GROUPED_SYSTEM_COUNT &&
       agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingSystemCount === 1 &&
       agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingGroupCount >= 1 &&
-      agentOnboardingFeedbackSystemStatus.summary?.implementationState === 'partial' &&
+      agentOnboardingFeedbackSystemStatus.summary?.implementationState === 'live' &&
       ['scoped', 'done'].includes(agentOnboardingFeedbackSystemStatus.summary?.sendCardLane) &&
       agentOnboardingFeedbackSystemStatus.summary?.emptyAuditLane === 'scoped' &&
-      agentOnboardingFeedbackSystemStatus.summary?.georgiaDue === true &&
+      (agentOnboardingFeedbackSystemStatus.summary?.georgiaDue === true ||
+        agentOnboardingFeedbackSystemStatus.summary?.georgiaRequestedAfterProductionEnable === true) &&
       agentOnboardingFeedbackSystemStatus.summary?.chrisMetadataCurrent === true &&
       agentOnboardingFeedbackSystemStatus.summary?.privacyMetadataOnly === true &&
       agentOnboardingFeedbackSystemStatus.summary?.closeoutOwnsOnlyAgentOnboarding === true &&
@@ -6367,7 +6382,7 @@ async function main() {
       currentPlan.includes('FOUNDATION-SYSTEMS-EMPTY-GROUP-AUDIT-001') &&
       currentState.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1') &&
       currentState.includes('SYS-AGENT-ONBOARDING-FEEDBACK-001'),
-    'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001 exposes partial Agent Onboarding Feedback system with clean ownership',
+    'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001 exposes live Agent Onboarding Feedback system with clean ownership',
     `systems=${agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountBefore}->${agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCount} agentGroup=${agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingGroupCount} closeout=${buildLogAgentOnboardingFeedbackSystemBuild?.closeoutKey || 'missing'}`,
   )
   const agentFeedbackSendBuildLogExact = buildLogAgentFeedbackSendBuild?.backlogIds?.length === 1 &&
@@ -6433,8 +6448,10 @@ async function main() {
       agentFeedbackSendStatus.summary?.milestoneDay === 30 &&
       agentFeedbackSendStatus.summary?.dueStatus === 'due' &&
       Array.isArray(agentFeedbackSendStatus.summary?.blockers) &&
-      agentFeedbackSendStatus.summary?.eligible === true &&
-      agentFeedbackSendStatus.summary?.blockers.length === 0 &&
+      (agentFeedbackSendStatus.summary?.eligible === true ||
+        agentFeedbackSendStatus.summary?.georgiaRequestedAfterProductionEnable === true) &&
+      (agentFeedbackSendStatus.summary?.blockers.length === 0 ||
+        agentFeedbackSendStatus.summary?.georgiaRequestedAfterProductionEnable === true) &&
       agentFeedbackSendStatus.summary?.contractLinkStatus === 'missing_warning' &&
       (agentFeedbackSendStatus.summary?.dataQualityWarnings || []).includes('missing_contract_link') &&
       agentFeedbackSendStatus.summary?.recipientRule === 'clickup-company-email' &&
@@ -6455,7 +6472,7 @@ async function main() {
       agentFeedbackSendStatus.summary?.clickUpRequestedWritten === false &&
       agentFeedbackSendStatus.summary?.sendCardLane === 'done' &&
       agentFeedbackSendStatus.summary?.stageTwoCardLane === 'scoped' &&
-      agentFeedbackSendStatus.summary?.systemImplementationState === 'partial' &&
+      ['partial', 'live'].includes(agentFeedbackSendStatus.summary?.systemImplementationState) &&
       agentFeedbackSendStatus.summary?.closeoutOwnsOnlySendCard === true &&
       buildLogAgentFeedbackSendBuild?.operatorCloseout === true &&
       agentFeedbackSendBuildLogExact &&
@@ -6523,15 +6540,14 @@ async function main() {
       includesAll(foundationJobsSource, [
         AGENT_FEEDBACK_AUTO_SEND_JOB_KEY,
         'agent-feedback:auto-send',
-        '--mode=dry-run',
+        '--mode=live',
         "servesHubs: ['ops']",
       ]) &&
       includesAll(serverSource, ['buildAgentFeedbackAutoSendReadiness', 'agentFeedbackAutoSend']) &&
       includesAll(foundationUiSource, ['renderAgentFeedbackAutoSendPanel', 'Agent Feedback Auto-Send']) &&
-      includesAll(opsUiSource, ['agent-feedback-auto-send-readiness', 'Feedback auto-send readiness']) &&
+      includesAll(opsUiSource, ['agent-feedback-auto-send-readiness', 'Feedback production auto-send']) &&
       agentFeedbackAutoSendStatus.status === 'healthy' &&
-      agentFeedbackAutoSendStatus.summary?.georgiaDay30Action === 'would_send' &&
-      agentFeedbackAutoSendStatus.summary?.georgiaDay30Eligible === true &&
+      ['would_send', 'sent', 'repair', 'skipped'].includes(agentFeedbackAutoSendStatus.summary?.georgiaDay30Action) &&
       agentFeedbackAutoSendStatus.summary?.georgiaDay30RecipientSource === 'company_email' &&
       ['Steve', 'Carson', 'Ryan', 'Georgia'].every(role => (agentFeedbackAutoSendStatus.summary?.georgiaDay30BccRolesApplied || []).includes(role)) &&
       agentFeedbackAutoSendStatus.summary?.defaultCannotSend === true &&
@@ -6539,9 +6555,9 @@ async function main() {
       agentFeedbackAutoSendStatus.summary?.allowlistAloneCannotSend === true &&
       agentFeedbackAutoSendStatus.summary?.bothKeysRequired === true &&
       agentFeedbackAutoSendStatus.summary?.productionAllRequiresSeparateApproval === true &&
-      agentFeedbackAutoSendStatus.summary?.liveGuardDecision === 'report_only' &&
+      ['report_only', 'live_send_allowed'].includes(agentFeedbackAutoSendStatus.summary?.liveGuardDecision) &&
       agentFeedbackAutoSendStatus.summary?.metadataOnly === true &&
-      Number(agentFeedbackAutoSendStatus.summary?.wouldSendCount) >= 1 &&
+      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.wouldSendCount)) &&
       Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.sentCount)) &&
       Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.skippedCount)) &&
       Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.blockedCount)) &&
@@ -6550,16 +6566,16 @@ async function main() {
       agentFeedbackAutoSendStatus.summary?.autoSendCardLane === 'done' &&
       agentFeedbackAutoSendStatus.summary?.georgiaSendCardLane === 'scoped' &&
       agentFeedbackAutoSendStatus.summary?.closeoutOwnsOnlyAutoSend === true &&
-      foundationHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action === 'would_send' &&
-      opsHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action === 'would_send' &&
+      ['would_send', 'sent', 'repair', 'skipped'].includes(foundationHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) &&
+      ['would_send', 'sent', 'repair', 'skipped'].includes(opsHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) &&
       opsHub.foundationJobs?.jobs?.some(job => job.key === AGENT_FEEDBACK_AUTO_SEND_JOB_KEY) &&
       buildLogAgentFeedbackAutoSendBuild?.operatorCloseout === true &&
       agentFeedbackAutoSendBuildLogExact &&
       currentPlan.includes('AGENT-FEEDBACK-AUTO-SEND-001` is done for readiness') &&
-      currentPlan.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) &&
+      currentPlan.includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
       currentState.includes('AGENT-FEEDBACK-AUTO-SEND-001` is done for readiness') &&
-      currentState.includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID),
-    'AGENT-FEEDBACK-AUTO-SEND-001 builds governed auto-send readiness without live send',
+      currentState.includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID),
+    'AGENT-FEEDBACK-AUTO-SEND-001 keeps governed auto-send controls under production enablement',
     `georgia=${agentFeedbackAutoSendStatus.summary?.georgiaDay30Action || 'missing'} wouldSend=${agentFeedbackAutoSendStatus.summary?.wouldSendCount ?? 'missing'} guard=${agentFeedbackAutoSendStatus.summary?.liveGuardDecision || 'missing'} closeout=${buildLogAgentFeedbackAutoSendBuild?.closeoutKey || 'missing'}`,
   )
   const agentFeedbackResponseNotifyBuildLogExact = buildLogAgentFeedbackResponseNotifyBuild?.backlogIds?.length === 1 &&
@@ -6737,7 +6753,7 @@ async function main() {
     agentFeedbackCompanyEmailPolicy?.lane === 'done' &&
       /agent-feedback-company-email-policy-v1/.test(agentFeedbackCompanyEmailPolicy?.statusNote || '') &&
       ['scoped', 'done'].includes(agentFeedbackSteveFullLoopTest?.lane) &&
-      agentFeedbackProductionAutoSendEnable?.lane === 'scoped' &&
+      ['scoped', 'done'].includes(agentFeedbackProductionAutoSendEnable?.lane) &&
       agentFeedbackGeorgiaSend?.lane === 'scoped' &&
       agentFeedbackCompanyEmailPolicyApprovalValidation.ok &&
       agentFeedbackCompanyEmailPolicyApprovalValidation.mode === 'v2' &&
@@ -6747,7 +6763,8 @@ async function main() {
         agentFeedbackCompanyEmailPolicyStatus.summary?.steveClosedAfterFullLoop === true) &&
       agentFeedbackCompanyEmailPolicyStatus.summary?.steveRecipientSource === 'company_email' &&
       (agentFeedbackCompanyEmailPolicyStatus.summary?.steveBccDedupedRoles || []).includes('Steve') &&
-      agentFeedbackCompanyEmailPolicyStatus.summary?.georgiaEligible === true &&
+      (agentFeedbackCompanyEmailPolicyStatus.summary?.georgiaEligible === true ||
+        agentFeedbackCompanyEmailPolicyStatus.summary?.georgiaRequestedAfterProductionEnable === true) &&
       agentFeedbackCompanyEmailPolicyStatus.summary?.georgiaRecipientSource === 'company_email' &&
       agentFeedbackCompanyEmailPolicyStatus.summary?.syntheticExternalEligible === true &&
       agentFeedbackCompanyEmailPolicyStatus.summary?.syntheticExternalRecipientSource === 'company_email' &&
@@ -6788,7 +6805,7 @@ async function main() {
     checks,
     agentFeedbackSteveFullLoopTest?.lane === 'scoped' &&
       String(agentFeedbackSteveFullLoopTest?.statusNote || '').includes(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) &&
-      agentFeedbackProductionAutoSendEnable?.lane === 'scoped' &&
+      ['scoped', 'done'].includes(agentFeedbackProductionAutoSendEnable?.lane) &&
       agentFeedbackGeorgiaSend?.lane === 'scoped' &&
       agentFeedbackSteveFullLoopTestApprovalValidation.ok &&
       agentFeedbackSteveFullLoopTestApprovalValidation.mode === 'v2' &&
@@ -6832,7 +6849,7 @@ async function main() {
       agentFeedbackSteveFullLoopTestStatus.summary?.metadataOnly === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.steveCardLane === 'scoped' &&
       ['executing', 'done'].includes(agentFeedbackSteveFullLoopTestStatus.summary?.repairCardLane) &&
-      agentFeedbackSteveFullLoopTestStatus.summary?.productionCardLane === 'scoped' &&
+      ['scoped', 'done'].includes(agentFeedbackSteveFullLoopTestStatus.summary?.productionCardLane) &&
       buildLogAgentFeedbackSteveFullLoopTestBuild?.operatorCloseout === true &&
       agentFeedbackSteveFullLoopTestBuildLogExact &&
       currentPlan.includes('AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` is not accepted') &&
@@ -6858,7 +6875,7 @@ async function main() {
     agentFeedbackRealUserSubmitRepair?.lane === 'done' &&
       /agent-feedback-real-user-submit-repair-v1/.test(agentFeedbackRealUserSubmitRepair?.statusNote || '') &&
       agentFeedbackSteveFullLoopTest?.lane === 'scoped' &&
-      agentFeedbackProductionAutoSendEnable?.lane === 'scoped' &&
+      ['scoped', 'done'].includes(agentFeedbackProductionAutoSendEnable?.lane) &&
       agentFeedbackGeorgiaSend?.lane === 'scoped' &&
       agentFeedbackRealUserSubmitRepairApprovalValidation.ok &&
       agentFeedbackRealUserSubmitRepairApprovalValidation.mode === 'v2' &&
@@ -6895,13 +6912,14 @@ async function main() {
       agentFeedbackRealUserSubmitRepairStatus.summary?.reminderStopped === true &&
       agentFeedbackRealUserSubmitRepairStatus.summary?.duplicateResendBlocked === true &&
       agentFeedbackRealUserSubmitRepairStatus.summary?.duplicateSubmitClearMessage === true &&
-      agentFeedbackRealUserSubmitRepairStatus.summary?.productionAutoSendEnabled === false &&
+      typeof agentFeedbackRealUserSubmitRepairStatus.summary?.productionAutoSendEnabled === 'boolean' &&
       agentFeedbackRealUserSubmitRepairStatus.summary?.georgiaTargeted === false &&
       agentFeedbackRealUserSubmitRepairStatus.summary?.metadataOnly === true &&
       buildLogAgentFeedbackRealUserSubmitRepairBuild?.operatorCloseout === true &&
       agentFeedbackRealUserSubmitRepairBuildLogExact &&
       currentPlan.includes('AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001` is done') &&
-      currentPlan.includes('Production auto-send remains stopped') &&
+      (currentPlan.includes('It cleared the gate for the separate production enablement card') ||
+        currentPlan.includes('Production auto-send remains stopped')) &&
       currentState.includes('AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001` is done') &&
       currentState.includes('real browser submission'),
     'AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001 proves real Steve browser submit before production',
@@ -6962,50 +6980,54 @@ async function main() {
   )
   ensure(
     checks,
-    agentFeedbackProductionAutoSendDryRunStatus.status === 'healthy' &&
-      agentFeedbackProductionAutoSendDryRunStatus.stage === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_STAGE &&
-      agentFeedbackProductionAutoSendDryRunStatus.summary?.totalCandidates > 0 &&
-      Number(agentFeedbackProductionAutoSendDryRunStatus.summary?.sendableCount) >= 0 &&
-      agentFeedbackProductionAutoSendDryRunStatus.summary?.productionAutoSendEnabled === false &&
-      agentFeedbackProductionAutoSendDryRunStatus.summary?.envToggleEnabled === false &&
-      agentFeedbackProductionAutoSendDryRunStatus.summary?.productionApprovalArtifactExists === false &&
-      agentFeedbackProductionAutoSendDryRunStatus.summary?.metadataOnly === true &&
-      ['scoped', 'executing'].includes(agentFeedbackProductionAutoSendDryRunStatus.summary?.cardLane) &&
-      agentFeedbackProductionAutoSendDryRunStatus.summary?.closeoutStatus === 'stage-complete' &&
-      agentFeedbackProductionAutoSendDryRunStatus.summary?.closeoutAcceptanceState === 'Stage 1 verified' &&
-      buildLogAgentFeedbackProductionAutoSendDryRunBuild?.operatorCloseout === true &&
-      buildLogAgentFeedbackProductionAutoSendDryRunBuild?.backlogIds?.length === 1 &&
-      buildLogAgentFeedbackProductionAutoSendDryRunBuild.backlogIds.includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
-      includesAll(agentFeedbackProductionAutoSendDryRunProof, [
+    agentFeedbackProductionAutoSendEnableStatus.status === 'healthy' &&
+      agentFeedbackProductionAutoSendEnableStatus.summary?.productionAutoSendEnabled === true &&
+      agentFeedbackProductionAutoSendEnableStatus.summary?.liveGuardDecision === 'live_send_allowed' &&
+      agentFeedbackProductionAutoSendEnableStatus.summary?.sendWindow === '08:30-10:00 America/Toronto' &&
+      agentFeedbackProductionAutoSendEnableStatus.summary?.lastRunStatus === 'succeeded' &&
+      Boolean(agentFeedbackProductionAutoSendEnableStatus.summary?.lastRunAt) &&
+      Boolean(agentFeedbackProductionAutoSendEnableStatus.summary?.nextRunAt) &&
+      Number.isFinite(Number(agentFeedbackProductionAutoSendEnableStatus.summary?.sentCount)) &&
+      Number.isFinite(Number(agentFeedbackProductionAutoSendEnableStatus.summary?.skippedCount)) &&
+      Number.isFinite(Number(agentFeedbackProductionAutoSendEnableStatus.summary?.blockedCount)) &&
+      Number.isFinite(Number(agentFeedbackProductionAutoSendEnableStatus.summary?.warningCount)) &&
+      Number.isFinite(Number(agentFeedbackProductionAutoSendEnableStatus.summary?.repairCount)) &&
+      agentFeedbackProductionAutoSendEnableStatus.summary?.metadataOnly === true &&
+      agentFeedbackProductionAutoSendEnableStatus.summary?.cardLane === 'done' &&
+      agentFeedbackProductionAutoSendEnableStatus.summary?.closeoutStatus === 'shipped' &&
+      agentFeedbackProductionAutoSendEnableStatus.summary?.closeoutAcceptanceState === 'Verified' &&
+      buildLogAgentFeedbackProductionAutoSendEnableBuild?.operatorCloseout === true &&
+      buildLogAgentFeedbackProductionAutoSendEnableBuild?.backlogIds?.length === 1 &&
+      buildLogAgentFeedbackProductionAutoSendEnableBuild.backlogIds.includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
+      includesAll(agentFeedbackProductionAutoSendEnableProof, [
         AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
-        AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_STAGE,
-        'No Gmail sends',
-        'No ClickUp Requested writeback',
-        'Steve reviews the would-send list',
+        'production auto-send is live',
+        'Gmail succeeded before ClickUp Requested',
+        'metadata-only',
       ]) &&
       includesAll(agentFeedbackProductionAutoSendDryRunSource, [
         'buildAgentFeedbackProductionAutoSendDryRunReport',
-        'listAgentFeedbackReminderAttemptsForMilestone',
-        'getAgentOnboardingFeedbackResponseForMilestone',
-        'production-dry-run-report-only',
+        'buildAgentFeedbackProductionAutoSendEnableStatus',
       ]) &&
-      !agentFeedbackProductionAutoSendDryRunSource.includes('sendGmailMessage') &&
-      !agentFeedbackProductionAutoSendDryRunSource.includes('markAgentFeedbackRequestedInClickUp') &&
+      includesAll(agentFeedbackAutoSendSource, [
+        'runAgentFeedbackProductionAutoSend',
+        'sendGmailMessage',
+        'markAgentFeedbackRequestedInClickUp',
+        'outside_approved_send_window',
+        'resendAllowed: false',
+      ]) &&
       includesAll(packageSource, [
         '"agent-feedback:production-dry-run"',
-        '"process:agent-feedback-production-autosend-dry-run-check"',
+        '"process:agent-feedback-production-autosend-enable-check"',
       ]) &&
       includesAll(serverSource, [
-        'agentFeedbackProductionAutoSendDryRun',
-        '/api/foundation/agent-feedback-production-dry-run',
-        '/api/ops/agent-feedback-production-dry-run',
+        'agentFeedbackAutoSend',
+        'foundationJobs',
       ]) &&
-      currentPlan.includes('Stage 1 production dry-run report') &&
-      currentPlan.includes('Production auto-send remains stopped') &&
-      currentState.includes('Stage 1 production dry-run report') &&
-      currentState.includes('production auto-send remains disabled'),
-    'AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 Stage 1 dry-run report is safe and not enabled',
-    `candidates=${agentFeedbackProductionAutoSendDryRunStatus.summary?.totalCandidates || 0} sendable=${agentFeedbackProductionAutoSendDryRunStatus.summary?.sendableCount || 0} enabled=${agentFeedbackProductionAutoSendDryRunStatus.summary?.productionAutoSendEnabled ? 'yes' : 'no'} card=${agentFeedbackProductionAutoSendDryRunStatus.summary?.cardLane || 'missing'} closeout=${buildLogAgentFeedbackProductionAutoSendDryRunBuild?.closeoutKey || 'missing'}`,
+      currentPlan.includes('production auto-send is live') &&
+      currentState.includes('production auto-send is live'),
+    'AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 production auto-send is live and visible',
+    `sent=${agentFeedbackProductionAutoSendEnableStatus.summary?.sentCount ?? 'missing'} skipped=${agentFeedbackProductionAutoSendEnableStatus.summary?.skippedCount ?? 'missing'} blocked=${agentFeedbackProductionAutoSendEnableStatus.summary?.blockedCount ?? 'missing'} repair=${agentFeedbackProductionAutoSendEnableStatus.summary?.repairCount ?? 'missing'} closeout=${buildLogAgentFeedbackProductionAutoSendEnableBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,
