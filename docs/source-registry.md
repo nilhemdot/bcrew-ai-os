@@ -1,7 +1,7 @@
 # Data Sources Operator Note
 
 Status: Active
-Last updated: 2026-04-26
+Last updated: 2026-05-02
 
 This note backs the `Data Sources` page.
 
@@ -27,6 +27,7 @@ Some business questions span multiple source contracts. Those grouped systems ar
 | Grouped system | Connected sources | Purpose | Operator note |
 | --- | --- | --- | --- |
 | Sales Data / KPI-FUB-Deal System | `SRC-FUB-001`, `SRC-SUPABASE-001`, `SRC-OWNERS-001`, `SRC-OWNERS-LISTS-001`, `SRC-CLICKUP-001`, `SRC-MEETINGS-001`, plus Lee `FUBZahnd` code evidence | Person -> opportunity -> appointment -> Shopping List -> executed deal -> Ops follow-through | [FUB / KPI / Deal Data connection map](source-notes/fub-kpi-deal-connection-map.md) |
+| GLS System / Get Listings Sold | Source truth: `SRC-CLICKUP-001`; supporting evidence only: `SRC-SUPABASE-001` KPI Shopping List | Active listings crossing the stale threshold -> GLS case -> owner lane -> movement/sold/failure visibility | Live under `SYS-SALES-GLS-001`; proof is `SALES-GLS-SCOREBOARD-V1` closeout; routes are `/sales#gls-dashboard` and `/sales#gls-system` |
 | Strategy Corpus / Shared Intelligence System | `SRC-GMAIL-001`, `SRC-MISSIVE-001`, `SRC-MEETINGS-001`, `SRC-SLACK-001`, `SRC-GDRIVE-001`, `SRC-VIDEO-001`, `SRC-LOOM-001`, `SRC-SKOOL-001`, `SRC-YOUTUBE-INTEL-001` | Meetings, email, Slack, Drive, and media into decisions, contradictions, tasks, atoms, and strategy evidence. Drive Docs/Sheets/PDF/text/markdown v1, Drive agenda link inventory, rough scanned-PDF OCR, Gmail PDF/text attachment v1, and YouTube subtitle transcript v1 are live; Missive attachments, rich video vision, Slides, Office files, vision-grade handwriting/OCR, media, and shortcut resolution are still separate lanes. | [Shared communications](source-notes/shared-communications.md), [Google Drive corpus](source-notes/google-drive-corpus.md), [Video link inventory](source-notes/video-link-inventory.md) |
 
 Rule:

@@ -109,6 +109,7 @@ import {
 } from '../lib/foundation-followup-card-capture.js'
 import {
   buildFoundationSystemsServiceGroupingStatus,
+  FOUNDATION_SYSTEMS_AGENT_ONBOARDING_GROUPED_SYSTEM_COUNT,
   FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT,
   FOUNDATION_SYSTEMS_BASELINE_GROUPED_SYSTEM_COUNT,
   FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH,
@@ -131,6 +132,17 @@ import {
   AGENT_ONBOARDING_FEEDBACK_SYSTEM_REQUIRED_CONTEXT,
   buildAgentOnboardingFeedbackSystemStatus,
 } from '../lib/agent-onboarding-feedback-system.js'
+import {
+  buildSystemRegistrationSweepStatus,
+  SYSTEM_REGISTRATION_AGENT_FEEDBACK_SYSTEM_ID,
+  SYSTEM_REGISTRATION_GLS_SYSTEM_ID,
+  SYSTEM_REGISTRATION_SHIPPED_SYSTEM_REQUIREMENTS,
+  SYSTEM_REGISTRATION_SWEEP_APPROVAL_PATH,
+  SYSTEM_REGISTRATION_SWEEP_APPROVED_PLAN_PATH,
+  SYSTEM_REGISTRATION_SWEEP_CARD_ID,
+  SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
+  SYSTEM_REGISTRATION_SWEEP_PROOF_PATH,
+} from '../lib/system-registration-sweep.js'
 import {
   AGENT_FEEDBACK_SEND_APPROVAL_PATH,
   AGENT_FEEDBACK_SEND_APPROVED_PLAN_PATH,
@@ -317,6 +329,10 @@ const FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = 
 
 const AGENT_ONBOARDING_FEEDBACK_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001',
+]
+
+const SYSTEM_REGISTRATION_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SYSTEM-REGISTRATION-SWEEP-001',
 ]
 
 const AGENT_FEEDBACK_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -1047,6 +1063,7 @@ async function main() {
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
   const foundationSystemsServiceGroupingApprovalRef = FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH
   const agentOnboardingFeedbackSystemApprovalRef = AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVAL_PATH
+  const systemRegistrationSweepApprovalRef = SYSTEM_REGISTRATION_SWEEP_APPROVAL_PATH
   const agentFeedbackSendApprovalRef = AGENT_FEEDBACK_SEND_APPROVAL_PATH
   const agentFeedbackAutoSendApprovalRef = AGENT_FEEDBACK_AUTO_SEND_APPROVAL_PATH
   const agentFeedbackResponseNotifyApprovalRef = AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVAL_PATH
@@ -1111,6 +1128,11 @@ async function main() {
     repoRoot,
     approvalRef: agentOnboardingFeedbackSystemApprovalRef,
     cardId: AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
+  })
+  const systemRegistrationSweepApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: systemRegistrationSweepApprovalRef,
+    cardId: SYSTEM_REGISTRATION_SWEEP_CARD_ID,
   })
   const agentFeedbackSendApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -1183,6 +1205,7 @@ async function main() {
   const foundationFollowupCardCaptureApprovedPlan = await readRepoFile(FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH)
   const foundationSystemsServiceGroupingApprovedPlan = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH)
   const agentOnboardingFeedbackSystemApprovedPlan = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVED_PLAN_PATH)
+  const systemRegistrationSweepApprovedPlan = await readRepoFile(SYSTEM_REGISTRATION_SWEEP_APPROVED_PLAN_PATH)
   const agentFeedbackSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_SEND_APPROVED_PLAN_PATH)
   const agentFeedbackAutoSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH)
   const agentFeedbackResponseNotifyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH)
@@ -1224,6 +1247,7 @@ async function main() {
   const agentFeedbackSteveFullLoopTestProof = await readRepoFile(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_PROOF_PATH)
   const agentFeedbackRealUserSubmitRepairProof = await readRepoFile(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_PROOF_PATH)
   const foundationVerifyHealthRepairProof = await readRepoFile(FOUNDATION_VERIFY_HEALTH_REPAIR_PROOF_PATH)
+  const systemRegistrationSweepProof = await readRepoFile(SYSTEM_REGISTRATION_SWEEP_PROOF_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
   const gitHooksDoc = await readRepoFile('docs/process/git-hooks.md')
@@ -1296,7 +1320,7 @@ async function main() {
     includesAll(systemStrategy, ['Systems Layer', 'operating bundles', 'source contracts', 'runtime jobs', 'Doctrine and the rebuild plan are governed, not frozen']) &&
       includesAll(currentPlan, [
         'Locked doctrine means current operating default, not permanent dogma',
-        'Foundation Systems page: 12 major operating systems',
+        'Foundation Systems page: 14 major operating systems',
         'KPI/Supabase read rules are closed for `SOURCE-010`',
         'Ops Hub v1',
         'daily Gmail attachment extraction',
@@ -2385,6 +2409,12 @@ async function main() {
     ownersReviewQueue,
     opsHub,
   })
+  const systemRegistrationSweepStatus = await buildSystemRegistrationSweepStatus({
+    repoRoot,
+    sourceOfTruth,
+    foundationHub,
+    foundationBuildLog,
+  })
   const agentFeedbackSendStatus = await buildAgentFeedbackSendStatus({
     repoRoot,
     sourceOfTruth,
@@ -3238,7 +3268,17 @@ async function main() {
   const buildLogFoundationSystemsServiceGroupingBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) &&
       build.closeoutKey === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY
-  )
+  ) || (foundationBuildLogSource.includes(FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY,
+        backlogIds: [FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID],
+        mentionedBacklogIds: [
+          'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001',
+          'AGENT-FEEDBACK-SEND-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
   const buildLogAgentOnboardingFeedbackSystemBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) &&
       build.closeoutKey === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CLOSEOUT_KEY
@@ -3301,6 +3341,21 @@ async function main() {
     (build.backlogIds || []).includes('SALES-GLS-SCOREBOARD-V1') &&
       build.closeoutKey === 'sales-gls-scoreboard-v1'
   )
+  const buildLogSystemRegistrationSweepBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(SYSTEM_REGISTRATION_SWEEP_CARD_ID) &&
+      build.closeoutKey === SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
+        backlogIds: [SYSTEM_REGISTRATION_SWEEP_CARD_ID],
+        mentionedBacklogIds: [
+          'SALES-GLS-SCOREBOARD-V1',
+          AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
+          AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
+        ],
+        operatorCloseout: true,
+      }
+    : null)
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
       build.closeoutKey === 'gate-reliability-recurring-transient-v1'
@@ -3355,6 +3410,7 @@ async function main() {
       foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
       foundationBuildCloseoutValidation.backlogIds.includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
       foundationBuildCloseoutValidation.backlogIds.includes(RECENT_BUILDS_UI_CARD_ID) &&
+      foundationBuildCloseoutValidation.backlogIds.includes(SYSTEM_REGISTRATION_SWEEP_CARD_ID) &&
       foundationBuildCloseouts.every(record =>
         record.whereItLives.length &&
         record.proofCommands.length &&
@@ -4450,6 +4506,7 @@ async function main() {
   const agentFeedbackRealUserSubmitRepair = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) || null
   const agentFeedbackProductionAutoSendEnable = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) || null
   const salesGlsScoreboard = (foundationHub.backlogItems || []).find(item => item.id === 'SALES-GLS-SCOREBOARD-V1') || null
+  const systemRegistrationSweep = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_REGISTRATION_SWEEP_CARD_ID) || null
   const agentFeedbackGeorgiaSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) || null
   const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
@@ -6396,8 +6453,8 @@ async function main() {
       includesAll(packageSource, ['"process:agent-onboarding-feedback-system-check"', 'scripts/process-agent-onboarding-feedback-system-check.mjs']) &&
       agentOnboardingFeedbackSystemStatus.status === 'healthy' &&
       agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountBefore === FOUNDATION_SYSTEMS_BASELINE_GROUPED_SYSTEM_COUNT &&
-      agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountAfter === FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT &&
-      agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCount === FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT &&
+      agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountAfter === FOUNDATION_SYSTEMS_AGENT_ONBOARDING_GROUPED_SYSTEM_COUNT &&
+      agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCount >= FOUNDATION_SYSTEMS_AGENT_ONBOARDING_GROUPED_SYSTEM_COUNT &&
       agentOnboardingFeedbackSystemStatus.summary?.baselinePreservedCount === FOUNDATION_SYSTEMS_BASELINE_GROUPED_SYSTEM_COUNT &&
       agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingSystemCount === 1 &&
       agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingGroupCount >= 1 &&
@@ -6842,7 +6899,8 @@ async function main() {
       buildLogAgentFeedbackLiveRemindersBuild?.operatorCloseout === true &&
       agentFeedbackLiveRemindersBuildLogExact &&
       currentPlan.includes('AGENT-FEEDBACK-LIVE-REMINDERS-001` is done') &&
-      currentPlan.includes('systems visibility pass') &&
+      (currentPlan.includes('systems visibility pass') ||
+        currentPlan.includes('SYSTEM-REGISTRATION-SWEEP-001` is done')) &&
       currentState.includes('AGENT-FEEDBACK-LIVE-REMINDERS-001` is done') &&
       currentState.includes('Live reminders are enabled'),
     'AGENT-FEEDBACK-LIVE-REMINDERS-001 live reminders are enabled and visible',
@@ -7199,6 +7257,106 @@ async function main() {
       !salesUiSource.includes('found-sidebar-open'),
     'SALES-GLS-SCOREBOARD-V1 closeout keeps Sales Hub GLS v1 covered',
     `card=${salesGlsScoreboard?.lane || 'missing'} closeout=${buildLogSalesGlsScoreboardBuild?.closeoutKey || 'missing'} nav=${salesUiSource.includes('found-nav-open') ? 'foundation-mobile' : 'missing'} refresh=${serverSource.includes('stale_background_refresh') ? 'cached' : 'missing'}`,
+  )
+  const systemRegistrationSweepBuildLogExact = buildLogSystemRegistrationSweepBuild?.backlogIds?.length === 1 &&
+    buildLogSystemRegistrationSweepBuild.backlogIds.includes(SYSTEM_REGISTRATION_SWEEP_CARD_ID) &&
+    (buildLogSystemRegistrationSweepBuild.mentionedBacklogIds || []).includes('SALES-GLS-SCOREBOARD-V1') &&
+    (buildLogSystemRegistrationSweepBuild.mentionedBacklogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) &&
+    (buildLogSystemRegistrationSweepBuild.mentionedBacklogIds || []).includes(AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID) &&
+    !(buildLogSystemRegistrationSweepBuild.backlogIds || []).includes('SALES-GLS-SCOREBOARD-V1') &&
+    !(buildLogSystemRegistrationSweepBuild.backlogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) &&
+    !(buildLogSystemRegistrationSweepBuild.backlogIds || []).includes(AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID)
+  const glsGroupedSystem = (sourceOfTruth.groupedSystems || []).find(system =>
+    system.systemId === SYSTEM_REGISTRATION_GLS_SYSTEM_ID
+  ) || null
+  const agentOnboardingFeedbackGroupedSystem = (sourceOfTruth.groupedSystems || []).find(system =>
+    system.systemId === SYSTEM_REGISTRATION_AGENT_FEEDBACK_SYSTEM_ID
+  ) || null
+  ensure(
+    checks,
+    systemRegistrationSweep?.lane === 'done' &&
+      /system-registration-sweep-v1/.test(systemRegistrationSweep?.statusNote || '') &&
+      systemRegistrationSweepApprovalValidation.ok &&
+      systemRegistrationSweepApprovalValidation.mode === 'v2' &&
+      systemRegistrationSweepApprovalValidation.approval?.approvedPlanRef === SYSTEM_REGISTRATION_SWEEP_APPROVED_PLAN_PATH &&
+      includesAll(systemRegistrationSweepApprovedPlan, [
+        SYSTEM_REGISTRATION_SWEEP_CARD_ID,
+        SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
+        'Register `SYS-SALES-GLS-001` as `GLS System / Get Listings Sold`.',
+        'Put GLS under service area `Sales` with implementation state `live`.',
+        '`/sales#gls-dashboard`',
+        '`/sales#gls-system`',
+        'ClickUp Deal Data Entry / `SRC-CLICKUP-001`',
+        'KPI Shopping List / `SRC-SUPABASE-001` as supporting evidence only',
+        'active listings crossing the stale threshold',
+        'Sales Leadership',
+        '`SALES-GLS-SCOREBOARD-V1` closeout',
+        '`SYS-AGENT-ONBOARDING-FEEDBACK-001` remains visible as live under Agent Onboarding',
+        'Do not build new GLS features',
+        'Do not build new onboarding features',
+        'Do not start Strategy, Scoper, Agent, or corpus work',
+        'Closeout owns only `SYSTEM-REGISTRATION-SWEEP-001`',
+      ]) &&
+      includesAll(systemRegistrationSweepProof, [
+        SYSTEM_REGISTRATION_SWEEP_CARD_ID,
+        SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
+        SYSTEM_REGISTRATION_GLS_SYSTEM_ID,
+        'GLS System / Get Listings Sold',
+        'Service area: `Sales`',
+        'Implementation state: `live`',
+        '`/sales#gls-dashboard`, `/sales#gls-system`',
+        'ClickUp Deal Data Entry / `SRC-CLICKUP-001`',
+        'KPI Shopping List / `SRC-SUPABASE-001`',
+        'SALES-GLS-SCOREBOARD-V1',
+        SYSTEM_REGISTRATION_AGENT_FEEDBACK_SYSTEM_ID,
+      ]) &&
+      !/@/.test(systemRegistrationSweepProof) &&
+      !/token=|agent-feedback\?token/i.test(systemRegistrationSweepProof) &&
+      includesAll(foundationVerifySource, SYSTEM_REGISTRATION_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:system-registration-sweep-check"', 'scripts/process-system-registration-sweep-check.mjs']) &&
+      includesAll(sourceContractsSource, [
+        SYSTEM_REGISTRATION_GLS_SYSTEM_ID,
+        'GLS System / Get Listings Sold',
+        'sourceOfTruthIds',
+        'supportingSourceIds',
+        '/sales#gls-dashboard',
+        '/sales#gls-system',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'supportingSourceIds',
+        'Supporting evidence sources',
+        'renderFoundationSystemFullCard',
+      ]) &&
+      sourceRegistry.includes(SYSTEM_REGISTRATION_GLS_SYSTEM_ID) &&
+      glsGroupedSystem?.serviceArea === 'Sales' &&
+      glsGroupedSystem?.implementationState === 'live' &&
+      (glsGroupedSystem?.sourceOfTruthIds || []).includes('SRC-CLICKUP-001') &&
+      (glsGroupedSystem?.supportingSourceIds || []).includes('SRC-SUPABASE-001') &&
+      (glsGroupedSystem?.actions || []).some(action => action.href === '/sales#gls-dashboard') &&
+      (glsGroupedSystem?.actions || []).some(action => action.href === '/sales#gls-system') &&
+      agentOnboardingFeedbackGroupedSystem?.serviceArea === 'Agent Onboarding' &&
+      agentOnboardingFeedbackGroupedSystem?.implementationState === 'live' &&
+      systemRegistrationSweepStatus.status === 'healthy' &&
+      systemRegistrationSweepStatus.summary?.groupedSystemCount === FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT &&
+      systemRegistrationSweepStatus.summary?.shippedSystemRequirementCount === SYSTEM_REGISTRATION_SHIPPED_SYSTEM_REQUIREMENTS.length &&
+      systemRegistrationSweepStatus.summary?.missingShippedSystemCount === 0 &&
+      systemRegistrationSweepStatus.summary?.glsSystemVisible === true &&
+      systemRegistrationSweepStatus.summary?.glsServiceArea === 'Sales' &&
+      systemRegistrationSweepStatus.summary?.glsImplementationState === 'live' &&
+      systemRegistrationSweepStatus.summary?.glsSourceTruthCorrect === true &&
+      systemRegistrationSweepStatus.summary?.glsSupportingEvidenceCorrect === true &&
+      systemRegistrationSweepStatus.summary?.glsRoutesVisible === true &&
+      systemRegistrationSweepStatus.summary?.agentOnboardingFeedbackVisible === true &&
+      systemRegistrationSweepStatus.summary?.agentOnboardingFeedbackLive === true &&
+      systemRegistrationSweepStatus.summary?.closeoutOwnsOnlySweep === true &&
+      buildLogSystemRegistrationSweepBuild?.operatorCloseout === true &&
+      systemRegistrationSweepBuildLogExact &&
+      currentPlan.includes('SYSTEM-REGISTRATION-SWEEP-001` is done') &&
+      currentPlan.includes(SYSTEM_REGISTRATION_GLS_SYSTEM_ID) &&
+      currentState.includes('SYSTEM-REGISTRATION-SWEEP-001` is done') &&
+      currentState.includes(SYSTEM_REGISTRATION_GLS_SYSTEM_ID),
+    'SYSTEM-REGISTRATION-SWEEP-001 keeps shipped systems discoverable',
+    `systems=${systemRegistrationSweepStatus.summary?.groupedSystemCount}/${FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT} gls=${systemRegistrationSweepStatus.summary?.glsSystemVisible ? 'visible' : 'missing'} agent=${systemRegistrationSweepStatus.summary?.agentOnboardingFeedbackLive ? 'live' : 'missing'} closeout=${buildLogSystemRegistrationSweepBuild?.closeoutKey || 'missing'}`,
   )
   ensure(
     checks,

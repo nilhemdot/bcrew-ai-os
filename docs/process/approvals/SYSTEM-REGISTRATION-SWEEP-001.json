@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYSTEM-REGISTRATION-SWEEP-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-02T14:30:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/approved-plans/system-registration-sweep-v1.md",
+  "approvedPlanSha256": "63e463f5c8ad05b5a0369c8adcd78d63b874032da5a511168e611e1ae30d872b",
+  "approvedRepoHead": "87178b7800e70f6fd23b1f819c86d99ea9706463",
+  "notes": "Approves a narrow shipped-system registration sweep: register GLS as SYS-SALES-GLS-001 in Foundation Systems/source truth, keep Agent Onboarding Feedback visible as live, and add verifier/check coverage. No new GLS features, onboarding features, Strategy, Scoper, Agent, corpus, or broad Foundation cleanup.",
+  "approvalDigest": "00e76240dccc9c873c4268addb71fb214c11817717248849bfb0a2fbca53ed40"
+}

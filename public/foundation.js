@@ -10903,12 +10903,16 @@ function renderGroupedSourceSystemCard(system, sourceContractMap, connectorMap) 
   article.appendChild(copy)
 
   var sourceIds = Array.isArray(system.sourceIds) ? system.sourceIds : []
+  var supportingSourceIds = Array.isArray(system.supportingSourceIds) ? system.supportingSourceIds : []
   var connectorIds = Array.isArray(system.connectorIds) ? system.connectorIds : []
   var backlogIds = Array.isArray(system.backlogIds) ? system.backlogIds : []
 
   var grid = document.createElement('div')
   grid.className = 'source-card-meta-grid'
   grid.appendChild(renderSourceMetaItem('Source contracts', String(sourceIds.length)))
+  if (supportingSourceIds.length) {
+    grid.appendChild(renderSourceMetaItem('Supporting sources', String(supportingSourceIds.length)))
+  }
   grid.appendChild(renderSourceMetaItem('Connectors', String(connectorIds.length)))
   grid.appendChild(renderSourceMetaItem('Backlog cards', String(backlogIds.length)))
   if (system.trustState) grid.appendChild(renderSourceMetaItem('Boundary', system.trustState))
@@ -10920,6 +10924,14 @@ function renderGroupedSourceSystemCard(system, sourceContractMap, connectorMap) 
   })
   if (sourceNames.length) {
     article.appendChild(renderSourceBulletGroup('Connected source contracts', sourceNames))
+  }
+
+  var supportingSourceNames = supportingSourceIds.map(function(id) {
+    var contract = sourceContractMap[id]
+    return contract ? id + ' - ' + contract.title : id
+  })
+  if (supportingSourceNames.length) {
+    article.appendChild(renderSourceBulletGroup('Supporting evidence sources', supportingSourceNames))
   }
 
   var connectorNames = connectorIds.map(function(id) {
@@ -11388,6 +11400,17 @@ function renderFoundationSystemFullCard(system, context) {
     }
   })
   body.appendChild(renderFoundationSystemLinkedList('Source contracts', sourceItems))
+
+  var supportingSourceItems = (system.supportingSourceIds || []).map(function(id) {
+    var contract = sourceContractMap[id]
+    return {
+      label: contract ? id + ' - ' + contract.title : id,
+      href: '/foundation#source-overview:' + id,
+    }
+  })
+  if (supportingSourceItems.length) {
+    body.appendChild(renderFoundationSystemLinkedList('Supporting evidence sources', supportingSourceItems))
+  }
 
   var connectorItems = (system.connectorIds || []).map(function(id) {
     var connector = connectorMap[id]
