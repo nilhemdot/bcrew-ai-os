@@ -40,6 +40,7 @@ import {
   getFoundationSnapshot,
   getFubLeadSourceSnapshot,
   getIntelligenceRetrievalSnapshot,
+  listFoundationUsers,
   listFubLeadSourceRules,
   getPendingDocUpdate,
   getRecentChangeEvents,
@@ -152,6 +153,15 @@ import {
   assertSessionSecretConfigured,
   setAuthCookie,
 } from './lib/app-auth.js'
+import {
+  AccessDeniedError,
+  authorizeRouteAccess,
+  buildAccessContext,
+  buildRedactedCollectionResponse,
+  deriveActorTier,
+  filterRecordsForActor,
+  findRoutePosture,
+} from './lib/security-access.js'
 import { callLlm } from './lib/llm-router.js'
 import { OAuth2Client } from 'google-auth-library'
 import { runSheetsStructureVerification } from './scripts/sheets-structure-verify.mjs'
@@ -448,6 +458,15 @@ function sendApiError(res, statusCode, code, message, details) {
   })
 }
 
+function sendAccessDenied(res, error) {
+  if (error instanceof AccessDeniedError) {
+    sendApiError(res, error.statusCode || 403, error.code || 'access_denied', error.message, error.details)
+    return
+  }
+
+  sendApiError(res, 403, 'access_denied', error instanceof Error ? error.message : 'Access denied.')
+}
+
 function cacheHeadersNoStore(res) {
   res.setHeader('Cache-Control', 'no-store')
 }
@@ -570,9 +589,13 @@ async function closeServer(server) {
 app.use(setSecurityHeaders)
 app.use(logApiRequest)
 app.use(express.json({ limit: '1mb' }))
-app.use((req, _res, next) => {
-  req.authUser = getAuthUserFromRequest(req)
-  next()
+app.use(async (req, _res, next) => {
+  try {
+    await attachRequestAccessContext(req)
+    next()
+  } catch (error) {
+    next(error)
+  }
 })
 app.get('/login', (_req, res) => {
   res.setHeader('Cache-Control', 'no-store')
@@ -731,55 +754,82 @@ function getLocalDevUser(req) {
     email: 'local-dev@bensoncrew.ai',
     name: 'Local Dev',
     role: 'owner',
+    tier: 1,
+    userType: 'human',
   }
 }
 
-function isOpsApiPath(req) {
-  return req.method === 'GET' && [
-    '/api/ops-hub',
-    '/api/owners/review-queue',
-    '/api/sales-hub',
-  ].includes(req.path)
+const FOUNDATION_USER_CACHE_TTL_MS = 30 * 1000
+let foundationUserAccessCache = {
+  loadedAtMs: 0,
+  byEmail: new Map(),
+  pending: null,
 }
 
-function isSalesApiPath(req) {
-  if (req.method === 'GET' && req.path === '/api/sales-hub') return true
-  if (req.method === 'POST' && req.path === '/api/sales-hub/listing-assignment') return true
-  if (req.method === 'POST' && req.path === '/api/sales-hub/group-assignment') return true
-  if (req.method === 'POST' && req.path === '/api/sales-hub/project-case') return true
-  if (req.method === 'POST' && req.path === '/api/sales-hub/listing-case') return true
-  if (req.method === 'POST' && req.path === '/api/sales-hub/sync-cases') return true
-  return false
+function normalizeAccessEmail(value) {
+  return String(value || '').trim().toLowerCase()
+}
+
+async function getFoundationUsersForAccess() {
+  const now = Date.now()
+  if (foundationUserAccessCache.byEmail.size && now - foundationUserAccessCache.loadedAtMs < FOUNDATION_USER_CACHE_TTL_MS) {
+    return foundationUserAccessCache.byEmail
+  }
+  if (!foundationUserAccessCache.pending) {
+    foundationUserAccessCache.pending = listFoundationUsers({ activeOnly: false })
+      .then(users => {
+        const byEmail = new Map()
+        for (const user of users || []) {
+          const email = normalizeAccessEmail(user.email)
+          if (email) byEmail.set(email, user)
+        }
+        foundationUserAccessCache = {
+          loadedAtMs: Date.now(),
+          byEmail,
+          pending: null,
+        }
+        return byEmail
+      })
+      .catch(error => {
+        foundationUserAccessCache.pending = null
+        console.warn(`Foundation user access lookup failed: ${error instanceof Error ? error.message : String(error)}`)
+        return new Map()
+      })
+  }
+  return foundationUserAccessCache.pending
+}
+
+async function getFoundationUserForAccess(email) {
+  const normalizedEmail = normalizeAccessEmail(email)
+  if (!normalizedEmail) return null
+  const byEmail = await getFoundationUsersForAccess()
+  return byEmail.get(normalizedEmail) || null
+}
+
+async function attachRequestAccessContext(req) {
+  req.authUser = getAuthUserFromRequest(req)
+  const localDevUser = getLocalDevUser(req)
+  const providedToken = req.get('X-Admin-Token') || ''
+  const adminTokenValid = Boolean(adminToken && tokensMatch(providedToken, adminToken))
+  const authEmail = normalizeAccessEmail(localDevUser?.email || req.authUser?.email)
+  const foundationUser = localDevUser || adminTokenValid ? null : await getFoundationUserForAccess(authEmail)
+  req.accessContext = buildAccessContext({
+    authUser: req.authUser,
+    localDevUser,
+    adminTokenValid,
+    foundationUser,
+  })
+  return req.accessContext
 }
 
 function requireAdminToken(req, res, next) {
-  if (isLocalDevRequest(req)) {
-    next()
+  const providedToken = req.get('X-Admin-Token') || ''
+  if (!getRequestAuthUser(req) && !isLocalDevRequest(req) && providedToken && !tokensMatch(providedToken, adminToken)) {
+    sendApiError(res, 401, 'invalid_admin_token', 'Valid admin token required.')
     return
   }
 
-  const user = getRequestAuthUser(req)
-  if (user?.role === 'owner') {
-    next()
-    return
-  }
-
-  if (user?.role === 'ops' && isOpsApiPath(req)) {
-    next()
-    return
-  }
-
-  if (user?.role === 'sales' && isSalesApiPath(req)) {
-    next()
-    return
-  }
-
-  if (user) {
-    sendApiError(res, 403, 'insufficient_access', 'This login does not have access to that area.')
-    return
-  }
-
-  if (!adminToken) {
+  if (!getRequestAuthUser(req) && !isLocalDevRequest(req) && !providedToken) {
     const authMessage = isAuthConfigured()
       ? 'Login required.'
       : 'Protected routes are not available outside localhost until AIOS auth is configured.'
@@ -787,13 +837,13 @@ function requireAdminToken(req, res, next) {
     return
   }
 
-  const providedToken = req.get('X-Admin-Token') || ''
-  if (!tokensMatch(providedToken, adminToken)) {
-    sendApiError(res, 401, 'invalid_admin_token', 'Valid admin token required.')
-    return
+  try {
+    const posture = findRoutePosture(req.method, req.path)
+    authorizeRouteAccess(req, posture)
+    next()
+  } catch (error) {
+    sendAccessDenied(res, error)
   }
-
-  next()
 }
 
 function requirePageAccess(area) {
@@ -3695,6 +3745,10 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
     cacheHeadersNoStore(res)
     res.json(sourceLifecycle)
   } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
     sendApiError(
       res,
       500,
@@ -4486,16 +4540,13 @@ app.post('/api/intelligence/evidence', requireAdminToken, async (req, res) => {
       sendApiError(res, 400, 'missing_query', 'query is required.')
       return
     }
-    const maxTier = Number(req.body?.maxTier ?? req.body?.max_tier)
-    if (!Number.isFinite(maxTier) || maxTier < 1) {
-      sendApiError(res, 400, 'missing_max_tier', 'maxTier >= 1 is required.')
-      return
-    }
+    const actorTier = deriveActorTier(req)
+    const retrievalMaxTier = actorTier === 1 ? 3 : actorTier
     const embedding = await callEmbedding({
       input: query,
       dimensions: 1536,
       metadata: {
-        backlogCardId: 'RETRIEVAL-003',
+        backlogCardId: 'SECURITY-002',
         purpose: 'hybrid_evidence_api_query',
         actor: getRequestActor(req),
       },
@@ -4504,19 +4555,34 @@ app.post('/api/intelligence/evidence', requireAdminToken, async (req, res) => {
       ...req.body,
       query,
       queryEmbedding: embedding.embeddings[0],
-      maxTier,
+      maxTier: retrievalMaxTier,
       limit: req.body?.limit,
     })
-    cacheHeadersNoStore(res)
-    res.json({
-      ...evidence,
-      embedding: {
-        model: embedding.model,
-        dimensions: embedding.dimensions,
-        callId: embedding.call.callId,
-      },
+    const filtered = filterRecordsForActor(evidence.results || [], req, {
+      failClosedOnMissingClassification: true,
     })
+    cacheHeadersNoStore(res)
+    res.json(buildRedactedCollectionResponse({
+      actor: req,
+      generatedAt: evidence.generatedAt,
+      data: {
+        ...evidence,
+        maxTier: undefined,
+        actorTier,
+        resultCount: filtered.items.length,
+        results: filtered.items,
+        embedding: {
+          model: embedding.model,
+          dimensions: embedding.dimensions,
+          callId: embedding.call.callId,
+        },
+      },
+    }))
   } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
     sendApiError(
       res,
       500,

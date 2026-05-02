@@ -882,6 +882,11 @@ async function main() {
   const packageJson = JSON.parse(packageSource)
   const foundationVerifySource = await readRepoFile('scripts/foundation-verify.mjs')
   const source021WriterProofCheckSource = await readRepoFile('scripts/process-source-021-writer-proof-check.mjs')
+  const securityAccessSource = await readRepoFile('lib/security-access.js')
+  const security002ProofCheckSource = await readRepoFile('scripts/process-security-002-check.mjs')
+  const security002PlanSource = await readRepoFile('docs/process/security-002-auth-tier-redaction-plan.md')
+  const security002ApprovalSource = await readRepoFile('docs/process/approvals/SECURITY-002.json')
+  const security002Approval = JSON.parse(security002ApprovalSource)
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -1486,7 +1491,14 @@ async function main() {
       "app.get('/login'",
       "requirePageAccess('owner')",
       "requirePageAccess('ops')",
-      "isOpsApiPath",
+      'findRoutePosture(req.method, req.path)',
+      'authorizeRouteAccess(req, posture)',
+    ]) &&
+      includesAll(securityAccessSource, [
+        "route('GET', '/api/ops-hub'",
+        "route('GET', '/api/sales-hub'",
+        'const roleOps',
+        'const roleSales',
     ]) &&
       includesAll(appAuthSource, [
         'AIOS_AUTH_USERS_JSON',
@@ -1821,8 +1833,8 @@ async function main() {
         "app.post('/api/intelligence/evidence', requireAdminToken",
         'searchIntelligenceEvidenceHybrid',
         'callEmbedding',
-        "backlogCardId: 'RETRIEVAL-003'",
       ]) &&
+      (serverSource.includes("backlogCardId: 'RETRIEVAL-003'") || serverSource.includes("backlogCardId: 'SECURITY-002'")) &&
       packageSource.includes('"intelligence:hybrid-proof"') &&
       includesAll(intelligenceHybridRetrievalProofSource, [
         'callEmbedding',
@@ -4538,6 +4550,7 @@ async function main() {
   const source021 = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021') || null
   const source021Proof = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-021-PROOF-001') || null
   const security001 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-001') || null
+  const security002 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-002') || null
   const security006 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-006') || null
   const devProcessAuditText = [
     devProcessAudit?.summary,
@@ -6472,7 +6485,8 @@ async function main() {
       agentOnboardingFeedbackSystemStatus.summary?.closeoutOwnsOnlyAgentOnboarding === true &&
       buildLogAgentOnboardingFeedbackSystemBuild?.operatorCloseout === true &&
       agentOnboardingFeedbackSystemBuildLogExact &&
-      currentPlan.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1') &&
+      (currentPlan.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1') ||
+        currentPlan.includes('Agent Onboarding Feedback system visibility: `AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1')) &&
       currentPlan.includes('SYS-AGENT-ONBOARDING-FEEDBACK-001') &&
       currentPlan.includes('FOUNDATION-SYSTEMS-EMPTY-GROUP-AUDIT-001') &&
       currentState.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1') &&
@@ -7530,6 +7544,62 @@ async function main() {
       currentState.includes('paused only for exact production writer/replication proof'),
     'SOURCE-021 is paused with exact writer-proof blocker and locked coaching semantics',
     `card=${source021?.lane || 'missing'} / script=${packageJson.scripts?.['process:source-021-writer-proof-check'] ? 'yes' : 'missing'} / docs=${fubZahndMiddlewareSource.includes('2026-05-02 proof pass') ? 'yes' : 'missing'}`,
+  )
+  ensure(
+    checks,
+    security002?.lane === 'done' &&
+      String(security002?.statusNote || '').includes('security-002-auth-tier-redaction-v1') &&
+      security002Approval.cardId === 'SECURITY-002' &&
+      security002Approval.score >= 9.8 &&
+      security002Approval.approvedPlanRef === 'docs/process/security-002-auth-tier-redaction-plan.md' &&
+      foundationBuildLogSource.includes('security-002-auth-tier-redaction-v1') &&
+      security002PlanSource.includes('route posture') &&
+      security002PlanSource.includes('subject_people') &&
+      security002PlanSource.includes('owner-preserving') &&
+      includesAll(securityAccessSource, [
+        'export function assertTier',
+        'export function assertRole',
+        'export function buildAccessContext',
+        'export const SECURITY_ROUTE_POSTURES',
+        'buildRedactedCollectionResponse',
+        'buildFilteredArtifactSummaryResponse',
+        'subjectPeople',
+        'sensitivity',
+        'minTier',
+        'DEFAULT_PROTECTED_ROUTE_POSTURE',
+      ]) &&
+      includesAll(securityAccessSource, [
+        "route('POST', '/api/intelligence/evidence'",
+        "route('GET', '/api/shared-communications/archive'",
+        "route('GET', '/api/shared-communications/candidates'",
+        "route('GET', '/api/shared-communications/synthesis'",
+        "route('GET', '/api/foundation-hub'",
+        "route('GET', '/api/doc'",
+        "route('GET', '/api/ops-hub'",
+        "route('GET', '/api/sales-hub'",
+        "route('GET', '/api/agent-feedback/session'",
+      ]) &&
+      includesAll(serverSource, [
+        'buildAccessContext',
+        'listFoundationUsers({ activeOnly: false })',
+        'findRoutePosture(req.method, req.path)',
+        'authorizeRouteAccess(req, posture)',
+        'deriveActorTier(req)',
+        'maxTier: retrievalMaxTier',
+      ]) &&
+      !serverSource.includes('req.body?.maxTier') &&
+      !serverSource.includes('req.body?.max_tier') &&
+      includesAll(packageSource, ['"process:security-002-check"', 'scripts/process-security-002-check.mjs']) &&
+      includesAll(security002ProofCheckSource, [
+        'SECURITY_002_CHECK_SUMMARY',
+        'john@johnkitchens.coach',
+        'ryanc@bensoncrew.ca',
+        'georgia.huntley@bensoncrew.ca',
+        'filtered_summary_only',
+        'route posture registry covers every route named in the plan',
+      ]),
+    'SECURITY-002 auth/tier/redaction layer is centrally implemented and verifier-covered',
+    `card=${security002?.lane || 'missing'} / approval=${security002Approval.score} / script=${packageJson.scripts?.['process:security-002-check'] ? 'yes' : 'missing'}`,
   )
   const knownCleanedCardIds = new Set([
     'DOC-AUTHORITY-001',

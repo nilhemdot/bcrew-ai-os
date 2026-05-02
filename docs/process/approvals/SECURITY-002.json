@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SECURITY-002",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-02T12:00:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/security-002-auth-tier-redaction-plan.md",
+  "approvedPlanSha256": "44e1acd0c459170335285645a7f930e455ebdf9a5fc06529bf5ebf0a460febbc",
+  "approvedRepoHead": "525f6c43e87a552aa141b5e3088085b3b43d7fa3",
+  "notes": "SECURITY-002 plan approved at 9.8 with the implementation condition that the builder starts with a central security/access layer and route posture registry before broad route edits; implementation stays inside auth/tier/redaction, subject_people/sensitivity/min_tier enforcement, owner-preserving meeting/shared-comms rules, fail-closed behavior, process proof, and foundation verifier coverage.",
+  "approvalDigest": "9b8d3cf1f7c25a8feea027d4729b47e01928035fb6c93dbf8351cef2e20a287a"
+}

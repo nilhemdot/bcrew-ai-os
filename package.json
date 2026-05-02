@@ -97,6 +97,7 @@
     "process:foundation-systems-service-grouping-check": "node --env-file-if-exists=.env scripts/process-foundation-systems-service-grouping-check.mjs",
     "process:system-registration-sweep-check": "node --env-file-if-exists=.env scripts/process-system-registration-sweep-check.mjs",
     "process:source-021-writer-proof-check": "node --env-file-if-exists=.env scripts/process-source-021-writer-proof-check.mjs",
+    "process:security-002-check": "node --env-file-if-exists=.env scripts/process-security-002-check.mjs",
     "process:agent-onboarding-feedback-system-check": "node --env-file-if-exists=.env scripts/process-agent-onboarding-feedback-system-check.mjs",
     "process:agent-feedback-send-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-send-check.mjs",
     "process:agent-feedback-company-email-policy-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-company-email-policy-check.mjs",

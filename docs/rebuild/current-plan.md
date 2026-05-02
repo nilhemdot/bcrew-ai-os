@@ -197,8 +197,8 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Later: rebuild transcription as a router-ledged transcription workload before reopening Zoom audio recovery.
    - Keep sanctioned auth probes explicit.
 2. `SECURITY-004` / `SECURITY-002` — Gate broad read APIs before any broader dashboard, hub, assistant, or user-facing access.
-   - Interim admin gating is live for source-of-truth, doc reads, Foundation hub, FUB reads, Owners queue/governance, sheet structure, system inventory, changes, and doc-update reads.
-   - Later replace stop-gap gating with tier and subject-person redaction.
+   - `SECURITY-002` is done for v1 under `security-002-auth-tier-redaction-v1`: central request access context, route posture registry, `assertTier`/`assertRole`, server-derived intelligence evidence tier, stable redacted response helpers, subject_people/sensitivity/min_tier filtering proof, and Tier 1-only fail-closed posture for unproven shared-comms/intelligence access.
+   - Interim admin gating remains for legacy broad read surfaces, but it now runs behind central route posture instead of scattered route allowlists.
    - `FOUNDATION-USERS-001` is the smaller P1 follow-up for owner-only user administration from Foundation: list users, add email/name/role, disable users, audit changes, avoid password exposure, and prove non-owners cannot manage access. Do not build it inside extraction-control schedule reconciliation.
    - `FOUNDATION-SURFACE-UPDATES-001` is the P1 follow-up for Foundation operator clarity: plain-English status/copy, Overview -> Systems -> Backlog -> Recent Work nav order, collapsed Recent Builds / Recent Work with app/doc breadcrumbs, done-velocity visibility, and plan/backlog grouping convergence. Do not build it inside hygiene/process slices unless Steve explicitly switches scope.
 3. `SYSTEM-010` — Finish runtime/process-control hardening.
@@ -651,19 +651,18 @@ Goal: prevent the old-system leak pattern before hubs or assistants consume sens
 
 Build:
 
-- app-level authenticated user and tier attachment
-- tier-aware read filters for shared intelligence surfaces
-- subject-person tagging and sensitivity policy for comms-derived items
-- subject-person redaction before any non-Steve / non-admin response
-- uniform response shape that does not reveal that content was suppressed
-- owner-preserving raw meeting/doc access policy from `docs/specs/2026-04-23-auth-tiers-vault.md`
+- app-level authenticated user and tier attachment — done for v1 through `lib/security-access.js`
+- tier-aware read filters for shared intelligence surfaces — done synthetically, with unproven routes left Tier 1-only
+- subject-person tagging and sensitivity policy for comms-derived items — done for v1 proof; broader real-data filtering remains future approved work
+- subject-person redaction before any non-Steve / non-admin response — done for v1 proof and route posture
+- uniform response shape that does not reveal that content was suppressed — done for v1 helpers
+- owner-preserving raw meeting/doc access policy from `docs/specs/2026-04-23-auth-tiers-vault.md` — done for fail-closed summary boundary
 - `ai@bensoncrew.ca` front-office identity stays invite/delegated-read only; `crewbert@bensoncrew.ca` owns private vault/back-office access
 - verifier checks proving lower-tier users and subject people cannot read restricted material
 - `SYSTEM-010` decommission/dead-man/cost/process controls for scheduled miners and future agents
 
 Backlog/cards:
 
-- `SECURITY-002`
 - `SYSTEM-010`
 
 Acceptance:
@@ -880,9 +879,9 @@ Current order:
 43. Agent Feedback live reminders: `AGENT-FEEDBACK-LIVE-REMINDERS-001` is done under `agent-feedback-live-reminders-v1`. Live reminders are enabled for requested-but-not-completed onboarding feedback using the existing day 1, 3, 7, 10, 14, and 17 cadence after the initial Requested send. The reminder job runs at 8:30 AM America/Toronto and fails closed outside the 8:30-10:00 AM America/Toronto send window before Gmail, ClickUp, or reminder ledger side effects. It uses Company Email only, BCCs Steve/Carson/Ryan/Georgia with To/BCC dedupe, does not write ClickUp Requested, blocks duplicate reminder slots through `agent_onboarding_feedback_reminder_attempts`, stops after feedback is completed/skipped/blocked, and exposes live mode, next due, last run, next run, and sent/skipped/blocked/warning/repair counts in Runtime/Ops. Georgia Huntley Day-30 and Chris Chopite Day-30 have exactly one protected Requested initial attempt each; as of the proof run no reminder was due and both next reminder states were deferred to 2026-05-03T00:00:00.000Z.
 44. System registration sweep: `SYSTEM-REGISTRATION-SWEEP-001` is done under `system-registration-sweep-v1`. `/api/source-of-truth` and Foundation Systems now include `SYS-SALES-GLS-001` as `GLS System / Get Listings Sold`, a live Sales system with routes `/sales#gls-dashboard` and `/sales#gls-system`, source truth ClickUp Deal Data Entry / `SRC-CLICKUP-001`, supporting evidence only from KPI Shopping List / `SRC-SUPABASE-001`, trigger active listings crossing stale threshold, owner lane Sales Leadership, and proof from `SALES-GLS-SCOREBOARD-V1`. `SYS-AGENT-ONBOARDING-FEEDBACK-001` remains visible as live under Agent Onboarding. `process:system-registration-sweep-check` and `foundation:verify` now protect shipped-system discoverability.
 
-Guardrail: Agent Feedback production enablement, live reminders, and the system registration sweep are complete; stop for Steve review. No unrelated hub work, new GLS features, onboarding expansion, Scoper, Agent Factory, corpus expansion, retry/backoff expansion, source build, broad Foundation cleanup, or new feature lane starts by default. Phase 1 enforcement, the Foundation control layer, the Foundation 1100 Review Sprint, `PLAIN-ENGLISH-SWEEP-001`, `GATE-RELIABILITY-002`, `UI-MENU-LAYOUT-POLISH-001`, `GATE-RELIABILITY-003`, `RECENT-BUILDS-BILLION-DOLLAR-UI-001`, `CHANGE-LOG-COMPREHENSIVE-001`, `DAILY-EXEC-SUMMARY-001`, `SOURCE-LIFECYCLE-EXPANSION-001`, `FOUNDATION-FOLLOWUP-CARD-CAPTURE-001`, `FOUNDATION-SYSTEMS-SERVICE-GROUPING-001`, `AGENT-ONBOARDING-FEEDBACK-SYSTEM-001`, `AGENT-FEEDBACK-SEND-001` Stage 1, `AGENT-FEEDBACK-AUTO-SEND-001` readiness, `AGENT-FEEDBACK-RESPONSE-NOTIFY-001`, `AGENT-FEEDBACK-REMINDER-CADENCE-001` readiness, `AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001`, `AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001`, `FOUNDATION-VERIFY-HEALTH-REPAIR-001`, `AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001`, `AGENT-FEEDBACK-LIVE-REMINDERS-001`, and `SYSTEM-REGISTRATION-SWEEP-001` are in place; `AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` remains reopened/not accepted as the old failure evidence, with the real-user repair now accepted. Next work is:
+Guardrail: Agent Feedback production enablement, live reminders, the system registration sweep, and `SECURITY-002` auth/tier/redaction v1 are complete; stop for Steve review. No unrelated hub work, new GLS features, onboarding expansion, Scoper, Agent Factory, corpus expansion, retry/backoff expansion, source build, broad Foundation cleanup, broad query surfaces, or new feature lane starts by default. Phase 1 enforcement, the Foundation control layer, the Foundation 1100 Review Sprint, `PLAIN-ENGLISH-SWEEP-001`, `GATE-RELIABILITY-002`, `UI-MENU-LAYOUT-POLISH-001`, `GATE-RELIABILITY-003`, `RECENT-BUILDS-BILLION-DOLLAR-UI-001`, `CHANGE-LOG-COMPREHENSIVE-001`, `DAILY-EXEC-SUMMARY-001`, `SOURCE-LIFECYCLE-EXPANSION-001`, `FOUNDATION-FOLLOWUP-CARD-CAPTURE-001`, `FOUNDATION-SYSTEMS-SERVICE-GROUPING-001`, `AGENT-ONBOARDING-FEEDBACK-SYSTEM-001`, `AGENT-FEEDBACK-SEND-001` Stage 1, `AGENT-FEEDBACK-AUTO-SEND-001` readiness, `AGENT-FEEDBACK-RESPONSE-NOTIFY-001`, `AGENT-FEEDBACK-REMINDER-CADENCE-001` readiness, `AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001`, `AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001`, `FOUNDATION-VERIFY-HEALTH-REPAIR-001`, `AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001`, `AGENT-FEEDBACK-LIVE-REMINDERS-001`, `SYSTEM-REGISTRATION-SWEEP-001`, and `SECURITY-002` are in place; `AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` remains reopened/not accepted as the old failure evidence, with the real-user repair now accepted. Next work is:
 
-1. Steve review of `SYSTEM-REGISTRATION-SWEEP-001`.
+1. Steve review of `SECURITY-002`.
 2. Stop until Steve explicitly pulls the next card.
 
 ## Active Docs Only
