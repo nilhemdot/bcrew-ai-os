@@ -874,10 +874,14 @@ async function main() {
   const strategicIntelSpecSource = await readRepoFile('docs/specs/2026-04-28-strategic-intelligence-loop.md')
   const foundationHardCheckpointSource = await readRepoFile('docs/handoffs/2026-04-28-foundation-hard-checkpoint.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
+  const fubZahndMiddlewareSource = await readRepoFile('docs/source-notes/fub-zahnd-middleware.md')
+  const fubKpiConnectionMapSource = await readRepoFile('docs/source-notes/fub-kpi-deal-connection-map.md')
+  const kpiDashboardSource = await readRepoFile('docs/source-notes/kpi-dashboard.md')
   const systemStrategy = await readRepoFile('docs/system-strategy.md')
   const packageSource = await readRepoFile('package.json')
   const packageJson = JSON.parse(packageSource)
   const foundationVerifySource = await readRepoFile('scripts/foundation-verify.mjs')
+  const source021WriterProofCheckSource = await readRepoFile('scripts/process-source-021-writer-proof-check.mjs')
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -7497,18 +7501,35 @@ async function main() {
     checks,
     docAuthority?.lane === 'done' &&
       dataStructuredContracts?.lane === 'done' &&
-      source021?.lane === 'executing' &&
+      source021?.lane === 'scoped' &&
       source021Proof?.lane === 'done' &&
       ['done', 'scoped'].includes(security001?.lane) &&
       security006?.lane === 'scoped' &&
       String(docAuthority?.statusNote || '').includes('Proof command: `npm run foundation:verify`') &&
       String(dataStructuredContracts?.statusNote || '').includes('/api/source-of-truth') &&
-      String(source021?.statusNote || '').includes('split completed v1 evidence') &&
+      String(source021?.statusNote || '').includes('Paused on 2026-05-02') &&
+      String(source021?.statusNote || '').includes('exact production writer/replication path') &&
+      String(source021?.statusNote || '').includes('process:source-021-writer-proof-check') &&
       String(source021Proof?.statusNote || '').includes('53/53') &&
       String(security001?.statusNote || '').includes('moved this out of executing') &&
       String(security006?.statusNote || '').includes('moved this out of executing'),
     'Known stale/unclear executing cards were handled',
     `DOC=${docAuthority?.lane || 'missing'} / DATA=${dataStructuredContracts?.lane || 'missing'} / SOURCE-021=${source021?.lane || 'missing'} + proof=${source021Proof?.lane || 'missing'} / SECURITY=${security001?.lane || 'missing'},${security006?.lane || 'missing'}`,
+  )
+  ensure(
+    checks,
+    packageJson.scripts?.['process:source-021-writer-proof-check'] &&
+      source021WriterProofCheckSource.includes('SOURCE_021_WRITER_PROOF_SUMMARY') &&
+      source021WriterProofCheckSource.includes('paused_exact_writer_path_not_proven') &&
+      fubZahndMiddlewareSource.includes('2026-05-02 proof pass') &&
+      fubZahndMiddlewareSource.includes('InsertPersonToSupabase` does **not** write `leaddate`') &&
+      fubZahndMiddlewareSource.includes('exact production path that copies or writes the rich date fields into live Supabase is **not** proven') &&
+      fubKpiConnectionMapSource.includes('Plain-English coaching language') &&
+      fubKpiConnectionMapSource.includes('Do not say "the agent created a lead" unless the record proves a brand-new human') &&
+      kpiDashboardSource.includes('paused exact writer ownership') &&
+      currentState.includes('paused only for exact production writer/replication proof'),
+    'SOURCE-021 is paused with exact writer-proof blocker and locked coaching semantics',
+    `card=${source021?.lane || 'missing'} / script=${packageJson.scripts?.['process:source-021-writer-proof-check'] ? 'yes' : 'missing'} / docs=${fubZahndMiddlewareSource.includes('2026-05-02 proof pass') ? 'yes' : 'missing'}`,
   )
   const knownCleanedCardIds = new Set([
     'DOC-AUTHORITY-001',

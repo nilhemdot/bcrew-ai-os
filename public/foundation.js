@@ -8250,7 +8250,7 @@ function renderCurrentState() {
         statusKey: 'connected',
         statusLabel: 'Ready for v1',
         levelLabel: 'Level 6 - source issues routed to Ops',
-        currentSummary: 'The review tool is live, FUB source drift is clear, and v1 source-lineage/company-agent rules are locked. The Lee FUBZahnd middleware repo is now captured as evidence for opportunity re-entry and LeadDate / LeadClaimedDate semantics.',
+        currentSummary: 'The review tool is live, FUB source drift is clear, and v1 source-lineage/company-agent rules are locked. Lee FUBZahnd evidence plus live Supabase proof now lock LeadDate / LeadClaimedDate read semantics; exact production writer proof remains paused.',
         packageParts: [
           {
             sourceId: 'SRC-FUB-001',

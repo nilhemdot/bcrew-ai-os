@@ -495,7 +495,7 @@ Practical read:
 
 - `leadclaimeddate` is a live field AI OS can read for coaching and attribution.
 - It is not limited to rows currently in lead stages, because a claimed opportunity can later move to supporter, past-client, closed, or other stages.
-- The old checked-in C# Supabase writer does not fully explain the rich date-field writes, so writer ownership remains open before AI OS rebuilds or writes this pipeline.
+- 2026-05-02 proof confirmed the coaching semantics but paused exact writer ownership: the Lee/FUBZahnd SQL stored procedure explains `LeadDate` and `LeadClaimedDate`, live Supabase still receives current rich date values, and the checked-in direct Supabase helper does not write those rich date fields. AI OS may read and explain the fields, but must not rebuild or write this pipeline until the current production writer/replication path into Supabase is proven.
 
 Future coaching behavior should be:
 
@@ -503,6 +503,7 @@ Future coaching behavior should be:
 - suggest moving them to `Delete Lead` first when that temporary cleanup is appropriate
 - then suggest the correct destination stage
 - protect pipeline truth before reporting on it
+- describe `leaddate` as opportunity-entry timing, `leadclaimeddate` as claim/recycle timing, and `Active Client` as downstream opportunity context rather than fresh lead creation
 
 ## Current Implementation Caution
 

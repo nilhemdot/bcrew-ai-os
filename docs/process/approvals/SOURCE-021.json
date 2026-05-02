@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-021",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-02T11:42:18-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/approved-plans/source-021-writer-proof-pause-v1.md",
+  "approvedPlanSha256": "9d12d488252876786efe783397b8cd833792cd92ce938a83c66379143a76bd0b",
+  "approvedRepoHead": "d75c716cb2043227aa0f4acc8860592957ad632e",
+  "notes": "Approval is from Steve accepting the SOURCE-021 review: keep SOURCE-021 scoped/paused with exact missing production writer/replication proof into live Supabase, lock read/coaching semantics, run final proof and ship, then plan SECURITY-002 only.",
+  "approvalDigest": "0d56712494a29d12733da8071eb7f2021538afe8df7bf31b215b9b4a03a2ab2c"
+}

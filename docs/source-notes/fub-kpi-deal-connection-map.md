@@ -184,7 +184,19 @@ Read implication:
 
 - AI OS can read `leadclaimeddate` as live evidence, not just legacy theory.
 - Do not treat `leadclaimeddate` as only current lead-stage evidence. Claimed opportunities can later move into non-lead stages while retaining the claim date.
-- The checked-in C# Supabase writer proves re-entry active-row behavior, but does not by itself explain every rich date field write. Keep writer ownership open before AI OS writes or rebuilds this pipeline.
+- 2026-05-02 proof tightened the read/coaching contract and paused the writer-path closeout honestly:
+  - `fub.up_InsertPerson` is the checked-in Lee/FUBZahnd writer that explains `LeadDate` and `LeadClaimedDate` semantics.
+  - the checked-in direct Supabase helper does not write `leaddate`, `leadclaimeddate`, `activeclientdate`, or other rich stage-date fields.
+  - live Supabase is still receiving current rich date values: `102` rows had `leaddate >= 2026-04-27`, `32` rows had `leadclaimeddate >= 2026-04-27`, and `0 / 95` recent active lead-stage rows created since 2026-04-27 were missing `leaddate`.
+  - exact production writer/replication path into live Supabase is still the missing proof; do not rebuild or write this pipeline until that path is identified.
+
+Plain-English coaching language:
+
+- Say "new opportunity episode" when `leaddate` is the timing proof.
+- Say "claimed/recycled opportunity" or "claimed from the older/unclaimed pool" when `leadclaimeddate` is the timing proof.
+- Do not say "the agent created a lead" unless the record proves a brand-new human entered the system as a real opportunity.
+- If the current stage is `Active Client`, describe it as downstream active-client context inside the KPI opportunity path. Do not count the current label alone as fresh lead creation.
+- Use `PID`, `PersonID`, `leadclaimeddate`, `leaddate`, current stage, and source hygiene together before praising or diagnosing lead generation.
 
 ## What The Proof Establishes
 
@@ -245,6 +257,7 @@ When answering sales strategy, production, or coaching questions:
 8. Compare Owners source against FUB/KPI source before making attribution claims.
 9. Do not treat a new opportunity as a brand-new human unless the record proves it.
 10. Preserve re-entry: one FUB person can create more than one KPI opportunity episode over time.
+11. Treat `Active Client` as part of the KPI opportunity path, not as automatic evidence of a newly created lead.
 
 ## First Atom Shape
 

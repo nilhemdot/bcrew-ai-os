@@ -239,13 +239,28 @@ The SQL Server stored procedure writes rich person semantics:
 
 The checked-in C# direct Supabase writer appears to write the re-entry active-row behavior, but only basic person fields in `InsertPersonToSupabase`.
 
-That means one of these is true:
+2026-05-02 proof pass:
 
-- the live Supabase population came from a fuller writer path not obvious in this repo
-- the checked-in Supabase writer is partial / later / not the whole production job
-- some stage date fields may be historical from a prior migration rather than still updated by the current writer
+- `Lee-InvIT/FUBZahnd` `origin/main` still points at `e6816b2`; the local inspection copy is not behind the public repo.
+- `FUBProcessor.cs` calls `fub.up_InsertPerson` for person events before `InsertPersonToSupabase(person)`.
+- `fub.up_InsertPerson` is the checked-in writer that explains the rich date fields:
+  - `LeadDate` is written on a new/re-entered row when the current stage is `Lead` or any stage marked `LeadStage = true`.
+  - on ordinary updates, `LeadDate` is preserved except when a row newly enters stage `Lead`.
+  - `LeadClaimedDate` is written when an existing row moves from user ID `22` to a non-`22` user.
+- `InsertPersonToSupabase` does **not** write `leaddate`, `leadclaimeddate`, `activeclientdate`, or the other rich stage-date fields. It writes basic person identity, owner, stage, source, contact, update/error state, and active-row re-entry.
+- The KPI dashboard repo reads `leadclaimeddate` first, then `leaddate`; it does not contain a richer person-date writer.
+- Live Supabase still receives current rich date values: on 2026-05-02, rows existed with `leaddate >= 2026-04-27` and `leadclaimeddate >= 2026-04-27`, and recent active lead-stage rows created since 2026-04-27 were not missing `leaddate`.
 
-Do not close `SOURCE-021` until the live database proves which path is currently authoritative.
+Current honest status:
+
+- The field semantics are proven well enough for AI OS reads and coaching language.
+- The exact production path that copies or writes the rich date fields into live Supabase is **not** proven from current local access.
+- The available evidence points to a Lee/FUBZahnd-compatible upstream writer, but the checked-in direct Supabase helper is not that complete writer.
+- Do not rebuild or write this pipeline until one of these is obtained:
+  - current production FUB sync runner source or deployment package
+  - SQL Server Agent / scheduled job proof for the active `fub.up_InsertPerson` pipeline
+  - direct live Postgres metadata/log access proving the Supabase-side writer or replication path
+  - Lee confirmation with the current deployed writer path and where it runs
 
 ## AI OS Read Contract
 
@@ -259,15 +274,19 @@ Before answering Sales Hub questions about lead generation, opportunity creation
 6. do not infer current doctrine from stage names alone; check `Stage.LeadStage` plus founder-approved doctrine
 7. use `deal_data` for executed-deal finance, not the FUB deal pipeline
 
-## Remaining Proof For `SOURCE-021`
+## `SOURCE-021` Status After 2026-05-02 Proof Pass
 
 - current live `stages` rows were queried on `2026-04-26`: `Active Client`, `Conditional Deal`, and `Firm Deal` are marked `leadstage = true`; no rows are marked `clientstage = true`
 - user ID `22` was identified in KPI as active `Benson Crew Assistant`
 - a live FUB/KPI/Owners proof matched `53 / 53` FUB-linked Owners deal groups to KPI `persons`, and `53 / 53` to KPI `deal_data`
 - second-pass live Supabase proof found `16645 / 16657` active lead-stage rows have `leaddate`, `2451` active non-deleted rows have `leadclaimeddate` with current user not `22`, and latest sampled `leadclaimeddate` rows were updated on `2026-04-26`
 - read proof for `leaddate` / `leadclaimeddate` is strong enough for AI OS to use those fields in Sales/KPI reads
-- writer ownership is still not closed: the checked-in C# Supabase writer proves the active-row re-entry behavior, but does not fully explain the rich date-field writes; do not rebuild or write this pipeline until the current writer path is identified
-- decide the coaching language for `Active Client`: live KPI table includes it in `leadstage`, but Sales Hub should still avoid treating every current Active Client as fresh lead creation
+- 2026-05-02 live Supabase proof found `82403` active non-deleted `persons`, `16647` active lead-stage rows, `16635` active lead-stage rows with `leaddate`, `6013` active non-deleted rows with `leadclaimeddate`, `102` rows with `leaddate >= 2026-04-27`, `32` rows with `leadclaimeddate >= 2026-04-27`, and `0 / 95` recent active lead-stage rows created since 2026-04-27 missing `leaddate`
+- 2026-05-02 `Active Client` proof found stage `57` is `leadstage = true` and `clientstage = false`; `310` active `Active Client` rows existed, `308` had `leaddate`, and `16` had `leadclaimeddate`
+- coaching language is now locked: `leaddate` means an opportunity episode entered the KPI lead-stage path; `leadclaimeddate` means the opportunity was claimed or ownership changed from the unclaimed/pond path; neither field by itself proves an agent created a brand-new human lead
+- `Active Client` belongs to the KPI opportunity path, but coaches must describe it as active-client/downstream opportunity context, not as fresh lead creation
+- writer ownership remains paused, not closed: the checked-in C# Supabase writer proves active-row re-entry behavior but does not explain live rich date-field writes; the missing proof is the exact production writer/replication path into live Supabase
 - add a governed Sales Hub read that uses this contract instead of reverse-engineering it each time
+- runnable proof: `npm run process:source-021-writer-proof-check`
 
 See [FUB / KPI / Deal Data Connection Map](fub-kpi-deal-connection-map.md).
