@@ -1,0 +1,13 @@
+{
+  "cardId": "SALES-GLS-SCOREBOARD-V1",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-01T20:35:00.000-04:00",
+  "approvalSource": "Steve asked to build the reviewed GLS Scoreboard V1 plan, approved the final review pass with go for it, and asked for a full closeout.",
+  "notes": "Approval applies only to GLS Scoreboard V1 closeout: current active pipeline, total outcomes, GLS Manager, grouped case behavior, history visibility, source freshness, backlog follow-up capture, and proof gates. It does not approve CRM, agent coach, GBS, Strategy, Scoper, broad source expansion, production auto-send, or unrelated work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approved-plans/sales-gls-scoreboard-v1.md",
+  "approvedPlanSha256": "b59abb27f9d42bf0b0bd2c7849b3d57215d9779997499fa16a69534b89ff9e37",
+  "approvedRepoHead": "183c1bba808e0bad273fa07cf07061f26c51c4d9",
+  "approvalDigest": "717e1c5097023e8b7000e9e3b6dd53fd70b4c0a87c7afdffe51296cee7fa6923"
+}

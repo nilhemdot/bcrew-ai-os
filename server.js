@@ -488,15 +488,31 @@ async function buildSalesHubPayload() {
 async function getSalesHubPayload({ forceRefresh = false } = {}) {
   const now = Date.now()
   const ageMs = salesHubCache.payload ? now - salesHubCache.createdAtMs : null
-  if (!forceRefresh && salesHubCache.payload && ageMs != null && ageMs < SALES_HUB_CACHE_TTL_MS) {
+  if (!forceRefresh && salesHubCache.payload) {
+    if (ageMs != null && ageMs >= SALES_HUB_CACHE_TTL_MS && !salesHubCache.pending) {
+      salesHubCache.pending = buildSalesHubPayload()
+        .then(payload => {
+          salesHubCache.payload = payload
+          salesHubCache.createdAtMs = Date.now()
+          return payload
+        })
+        .catch(error => {
+          console.warn(`Sales Hub background refresh failed: ${error instanceof Error ? error.message : String(error)}`)
+          return null
+        })
+        .finally(() => {
+          salesHubCache.pending = null
+        })
+    }
     return {
       ...salesHubCache.payload,
       meta: {
         ...salesHubCache.payload.meta,
         cache: {
-          status: 'hit',
+          status: ageMs != null && ageMs >= SALES_HUB_CACHE_TTL_MS ? 'stale_background_refresh' : 'hit',
           ageMs,
           ttlMs: SALES_HUB_CACHE_TTL_MS,
+          backgroundRefresh: Boolean(ageMs != null && ageMs >= SALES_HUB_CACHE_TTL_MS),
         },
       },
     }
@@ -3543,7 +3559,7 @@ function buildChangedFileGroups(files = []) {
 }
 
 async function getRecentBuildLog(limit = 30) {
-  const boundedLimit = Math.min(60, Math.max(1, Number(limit) || 30))
+  const boundedLimit = Math.min(240, Math.max(1, Number(limit) || 30))
   const { stdout } = await execFileAsync('git', [
     'log',
     `--max-count=${boundedLimit}`,
@@ -5751,7 +5767,7 @@ app.get('/api/foundation/daily-summary', requireAdminToken, async (req, res) => 
 
 app.get('/api/foundation/build-log', requireAdminToken, async (req, res) => {
   try {
-    const limit = Math.min(60, Math.max(1, Number(req.query.limit) || 30))
+    const limit = Math.min(240, Math.max(1, Number(req.query.limit) || 30))
     const builds = await getRecentBuildLog(limit)
     res.json({
       generatedAt: new Date().toISOString(),

@@ -342,6 +342,10 @@ const FOUNDATION_VERIFY_HEALTH_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-VERIFY-HEALTH-REPAIR-001',
 ]
 
+const SALES_GLS_SCOREBOARD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SALES-GLS-SCOREBOARD-V1',
+]
+
 const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'GATE-RELIABILITY-002',
 ]
@@ -857,6 +861,9 @@ async function main() {
   const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const foundationStylesSource = await readRepoFile('public/styles.css')
+  const salesHtmlSource = await readRepoFile('public/sales.html')
+  const salesUiSource = await readRepoFile('public/sales.js')
+  const salesHubCheckSource = await readRepoFile('scripts/process-sales-listings-hub-check.mjs')
   const opsHtmlSource = await readRepoFile('public/ops.html')
   const opsUiSource = await readRepoFile('public/ops.js')
   const loginHtmlSource = await readRepoFile('public/login.html')
@@ -2251,7 +2258,7 @@ async function main() {
   const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
   const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
-  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=80')
+  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=240')
   const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
   const foundationDailySummary = await fetchJson(baseUrl, '/api/foundation/daily-summary?date=2026-04-30&days=7')
   const foundationSourceLifecycle = await fetchJson(baseUrl, SOURCE_LIFECYCLE_API_PATH)
@@ -3242,6 +3249,10 @@ async function main() {
   const buildLogAgentFeedbackProductionAutoSendDryRunBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_CLOSEOUT_KEY
+  )
+  const buildLogSalesGlsScoreboardBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes('SALES-GLS-SCOREBOARD-V1') &&
+      build.closeoutKey === 'sales-gls-scoreboard-v1'
   )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
@@ -4390,6 +4401,7 @@ async function main() {
   const agentFeedbackSteveFullLoopTest = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) || null
   const agentFeedbackRealUserSubmitRepair = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) || null
   const agentFeedbackProductionAutoSendEnable = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) || null
+  const salesGlsScoreboard = (foundationHub.backlogItems || []).find(item => item.id === 'SALES-GLS-SCOREBOARD-V1') || null
   const agentFeedbackGeorgiaSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) || null
   const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
@@ -6994,6 +7006,62 @@ async function main() {
       currentState.includes('production auto-send remains disabled'),
     'AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001 Stage 1 dry-run report is safe and not enabled',
     `candidates=${agentFeedbackProductionAutoSendDryRunStatus.summary?.totalCandidates || 0} sendable=${agentFeedbackProductionAutoSendDryRunStatus.summary?.sendableCount || 0} enabled=${agentFeedbackProductionAutoSendDryRunStatus.summary?.productionAutoSendEnabled ? 'yes' : 'no'} card=${agentFeedbackProductionAutoSendDryRunStatus.summary?.cardLane || 'missing'} closeout=${buildLogAgentFeedbackProductionAutoSendDryRunBuild?.closeoutKey || 'missing'}`,
+  )
+  ensure(
+    checks,
+    salesGlsScoreboard?.lane === 'done' &&
+      salesGlsScoreboard?.priority === 'P1' &&
+      /sales-gls-scoreboard-v1|docs\/handoffs\/2026-05-01-sales-gls-v1-closeout\.md/i.test(salesGlsScoreboard?.statusNote || '') &&
+      buildLogSalesGlsScoreboardBuild?.operatorCloseout === true &&
+      buildLogSalesGlsScoreboardBuild?.backlogIds?.length === 1 &&
+      buildLogSalesGlsScoreboardBuild.backlogIds.includes('SALES-GLS-SCOREBOARD-V1') &&
+      buildLogSalesGlsScoreboardBuild.proofCommands?.includes('npm run process:sales-listings-hub-check') &&
+      includesAll(foundationVerifySource, SALES_GLS_SCOREBOARD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      includesAll(packageSource, ['"process:sales-listings-hub-check"', 'scripts/process-sales-listings-hub-check.mjs']) &&
+      includesAll(serverSource, [
+        '/api/sales-hub',
+        'stale_background_refresh',
+        '/api/sales-hub/project-case',
+        '/api/sales-hub/listing-case',
+      ]) &&
+      includesAll(salesHtmlSource, [
+        'GLS System',
+        'GLS Manager',
+        'Open or close Sales navigation',
+        'sales.js?v=20260501t',
+      ]) &&
+      includesAll(salesUiSource, [
+        'Get Listings Sold (GLS) Dashboard',
+        'Active GLS pipeline',
+        'Total GLS cases',
+        'Sales leader scoreboard',
+        'Weekly cohort view',
+        'Moved / sold cases',
+        'Case history',
+        'Refresh from ClickUp',
+        'Last ClickUp refresh',
+        'GLS edits save to AIOS immediately',
+        'found-nav-active',
+        'found-nav-open',
+      ]) &&
+      includesAll(salesHubCheckSource, [
+        'Nick grouped project must count as one GLS case',
+        'Synthetic Nick proof must collapse seven units into one grouped GLS case',
+        'Synthetic sold/closed case must remain visible from persisted history',
+        'Sales Hub must serve cached data immediately while stale ClickUp refresh runs in the background',
+      ]) &&
+      includesAll(foundationDbSource, [
+        'SALES-GLS-GROUPING-OVERRIDES-001',
+        'SALES-GLS-RESTALE-REOPEN-001',
+        'SALES-GLS-MANAGER-USABILITY-001',
+        'SALES-GLS-LEADER-ACCOUNTABILITY-001',
+        'SALES-GLS-FUNNEL-FILTERS-001',
+        'SALES-GLS-HISTORY-CONTROLS-001',
+      ]) &&
+      !salesUiSource.includes('Open ClickUp View') &&
+      !salesUiSource.includes('found-sidebar-open'),
+    'SALES-GLS-SCOREBOARD-V1 closeout keeps Sales Hub GLS v1 covered',
+    `card=${salesGlsScoreboard?.lane || 'missing'} closeout=${buildLogSalesGlsScoreboardBuild?.closeoutKey || 'missing'} nav=${salesUiSource.includes('found-nav-open') ? 'foundation-mobile' : 'missing'} refresh=${serverSource.includes('stale_background_refresh') ? 'cached' : 'missing'}`,
   )
   ensure(
     checks,

@@ -11,6 +11,8 @@ var SALES_SECTION_ALIASES = {
   playbooks: 'gls-playbooks',
 }
 
+var currentSalesHubPayload = null
+
 function normalizeSection(raw) {
   var key = String(raw || '').replace('#', '')
   return SALES_SECTION_ALIASES[key] || key || 'gls-dashboard'
@@ -110,6 +112,35 @@ function formatDateTime(value) {
   }).format(date)
 }
 
+function formatRefreshAge(ageMs) {
+  if (!Number.isFinite(Number(ageMs))) return ''
+  var minutes = Math.max(0, Math.round(Number(ageMs) / 60000))
+  if (minutes < 1) return 'just now'
+  if (minutes === 1) return '1 min old'
+  if (minutes < 60) return minutes + ' min old'
+  var hours = Math.round(minutes / 60)
+  return hours === 1 ? '1 hr old' : hours + ' hr old'
+}
+
+function getSalesFreshnessCopy(report) {
+  var payload = currentSalesHubPayload || {}
+  var meta = payload.meta || {}
+  var cache = meta.cache || {}
+  var refreshedAt = report.generatedAt || meta.generatedAt
+  var stamp = refreshedAt ? formatDateTime(refreshedAt) : 'time unavailable'
+  var age = formatRefreshAge(cache.ageMs)
+  if (cache.status === 'forced_refresh' || cache.status === 'refresh') {
+    return 'Fresh from ClickUp ' + stamp + '.'
+  }
+  if (cache.status === 'stale_background_refresh') {
+    return 'Last ClickUp refresh ' + stamp + '. Showing AIOS cache now while a background refresh runs.'
+  }
+  if (cache.status === 'shared_refresh') {
+    return 'ClickUp refresh is already running. Showing the latest AIOS view.'
+  }
+  return 'Last ClickUp refresh ' + stamp + (age ? ' · AIOS cache ' + age + '.' : '.')
+}
+
 function formatPercent(value) {
   if (value == null || Number.isNaN(Number(value))) return 'n/a'
   return Number(value).toFixed(Number(value) % 1 === 0 ? 0 : 1) + '%'
@@ -146,7 +177,8 @@ function setActiveNav(section) {
   var activeSection = section
   if (['gls-opportunities', 'gls-cases', 'gls-playbooks', 'gls-results'].includes(section)) activeSection = 'gls-system'
   document.querySelectorAll('.found-nav-item').forEach(function(item) {
-    item.classList.toggle('active', item.dataset.section === activeSection)
+    item.classList.remove('found-nav-active')
+    if (item.dataset.section === activeSection) item.classList.add('found-nav-active')
   })
   var labels = {
     'gls-dashboard': 'GLS Dashboard',
@@ -190,12 +222,19 @@ function renderHero(report, options) {
   hero.appendChild(left)
 
   var action = el('div', 'sales-hero-action')
-  var link = el('a', 'primary-button', 'Open ClickUp View')
-  link.href = report.source.clickUpViewUrl
-  link.target = '_blank'
-  link.rel = 'noopener noreferrer'
-  action.appendChild(link)
-  action.appendChild(el('p', 'sales-source-line', report.source.sourceId + ' · Active listings only · ' + (report.thresholdDays || 30) + '+ day threshold'))
+  action.appendChild(el('p', 'sales-data-freshness', getSalesFreshnessCopy(report)))
+  var refresh = document.createElement('button')
+  refresh.type = 'button'
+  refresh.className = 'secondary-button sales-refresh-button'
+  refresh.textContent = 'Refresh from ClickUp'
+  refresh.addEventListener('click', function() {
+    refresh.disabled = true
+    refresh.textContent = 'Refreshing...'
+    setSalesStatus('Refreshing GLS data from ClickUp...', 'info')
+    load({ refresh: true })
+  })
+  action.appendChild(refresh)
+  action.appendChild(el('p', 'sales-source-line', report.source.sourceId + ' · AIOS cached view · Active listings only · ' + (report.thresholdDays || 30) + '+ day threshold. GLS edits save to AIOS immediately; refresh only pulls new ClickUp listing/date/status changes.'))
   hero.appendChild(action)
   return hero
 }
@@ -611,7 +650,7 @@ function saveLeaderAssignment(taskId, leaderKey, select) {
     assignedLeaderKey: leaderKey,
   }).then(function() {
     setSalesStatus('Saved. Refreshing GLS data...', 'success')
-    load({ refresh: true })
+    load()
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'Sales leader assignment could not be saved.', 'error')
     if (select) select.disabled = false
@@ -626,7 +665,7 @@ function saveGroupAssignment(agentName, leaderKey, select) {
     assignedLeaderKey: leaderKey,
   }).then(function(response) {
     setSalesStatus('Saved ' + formatNumber(response.updatedCount || 0) + ' listings. Refreshing GLS data...', 'success')
-    load({ refresh: true })
+    load()
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'Sales leader group assignment could not be saved.', 'error')
     if (select) select.disabled = false
@@ -646,7 +685,7 @@ function saveProjectUpdate(project, updates, control) {
     actionPlanText: project.actionPlanText || '',
   }, updates || {})).then(function(response) {
     setSalesStatus('Saved project case to ' + formatNumber(response.updatedCount || 0) + ' listings. Refreshing GLS data...', 'success')
-    load({ refresh: true })
+    load()
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'GLS project update could not be saved.', 'error')
     if (control) control.disabled = false
@@ -666,7 +705,7 @@ function saveCaseUpdate(listing, updates, control) {
     actionPlanText: listing.salesLeaderAssignment?.actionPlanText || listing.actionPlanText || '',
   }, updates || {})).then(function() {
     setSalesStatus('Saved listing case. Refreshing GLS data...', 'success')
-    load({ refresh: true })
+    load()
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'Sales listing case could not be updated.', 'error')
     if (control) control.disabled = false
@@ -1137,9 +1176,12 @@ function renderError(error) {
 }
 
 function render(payload) {
+  currentSalesHubPayload = payload || null
   var section = getSection()
   if (!['gls-dashboard', 'gls-system', 'gls-opportunities', 'gls-cases', 'gls-playbooks', 'gls-results'].includes(section)) section = 'gls-dashboard'
   setActiveNav(section)
+  var nav = document.getElementById('found-nav')
+  if (nav) nav.classList.remove('found-nav-open')
 
   var root = document.getElementById('sales-content')
   clearNode(root)
@@ -1155,7 +1197,12 @@ function render(payload) {
 function load(options) {
   var url = options && options.refresh ? '/api/sales-hub?refresh=1' : '/api/sales-hub'
   fetchJson(url)
-    .then(render)
+    .then(function(payload) {
+      render(payload)
+      if (options && options.refresh) {
+        setSalesStatus('Fresh ClickUp data loaded: ' + formatDateTime(payload.listingInventory?.generatedAt), 'success')
+      }
+    })
     .catch(function(error) {
       var root = document.getElementById('sales-content')
       clearNode(root)
@@ -1166,8 +1213,8 @@ function load(options) {
 var toggle = document.getElementById('found-mobile-toggle')
 if (toggle) {
   toggle.addEventListener('click', function() {
-    var sidebar = document.getElementById('found-sidebar')
-    if (sidebar) sidebar.classList.toggle('found-sidebar-open')
+    var nav = document.getElementById('found-nav')
+    if (nav) nav.classList.toggle('found-nav-open')
   })
 }
 

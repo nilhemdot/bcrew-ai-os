@@ -8112,11 +8112,26 @@ code {
   display: grid;
   gap: 8px;
   justify-items: end;
+  max-width: 360px;
+}
+
+.sales-data-freshness {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.sales-refresh-button {
+  padding: 8px 12px;
 }
 
 .sales-source-line {
   margin: 0;
   font-size: 0.82rem;
+  text-align: right;
 }
 
 .sales-metric-grid {
@@ -8855,6 +8870,11 @@ code {
 
   .sales-hero-action {
     justify-items: start;
+  }
+
+  .sales-data-freshness,
+  .sales-source-line {
+    text-align: left;
   }
 
   .sales-metric-grid {
