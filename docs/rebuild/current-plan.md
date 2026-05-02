@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-04-30
-Version: v6.22 — comprehensive changelog complete
+Last updated: 2026-05-02
+Version: v6.23 — missing-card capture after SECURITY-002
 Status: Active
 
 Use this doc for one question:
@@ -53,7 +53,9 @@ Locked doctrine means current operating default, not permanent dogma. If researc
 - The brand/hub lanes must stay separate: Benson Crew residential, Zahnd Team Ag, Steve Zahnd personal brand, MarketMasters, and Steve-owned monetization/education assets are different consumers with different risk boundaries.
 - Foundation is not done until source evidence can move through the full loop: source -> archive/artifact -> candidate/atom -> synthesized item -> routed decision/task/question/contradiction/action -> resolution. V1 now proves this through one approved/applied Action Router route into a live backlog row; the remaining hardening is review UX, closure feedback, and recurrence durability.
 - Foundation is the control plane for systems; hubs are the human/business cockpits. A job can run in Foundation while its queue, decisions, and cleanup work surface in the hub it serves.
-- Admin-only proof surfaces can exist behind `requireAdminToken`, but no broad hub, assistant, query, or human-facing read surface may expose shared-communications intelligence until auth/tier filtering and subject-person redaction are implemented and verified.
+- SECURITY-002 v1 is live for app-side auth/tier/redaction. Shared-comms and intelligence routes that cannot yet prove filtered access stay Tier 1-only until `SECURITY-FILTERED-COMMS-ACCESS-001` closes.
+- Raw meeting notes are a separate Drive/vault boundary. `SECURITY-002` controls AIOS responses, but it does not remove access to original Google Docs. `MEETING-VAULT-ACL-001` owns owner-preserving raw meeting-note ACL enforcement.
+- No public/broader external exposure happens until `SECURITY-EDGE-001` or an explicit approved successor proves the edge auth/tunnel/access posture.
 - `SYSTEM-010` controls are a Foundation gate, not a later ops polish item: running jobs, agents, miners, and paid/subscription model calls must be visible, pausable/stoppable, failure-tracked, and decommissionable before autonomous loops expand.
 - Strategy Hub is the first major consumer, not the old advisor surface. Now that the spine has Action Router v1 and retrieval eval coverage, resume Strategy Hub only as a source-to-gap operating dashboard on top of source-backed facts, synthesized items, and routed approval records.
 
@@ -113,9 +115,10 @@ Still not done:
 - Claude Code / Claude Agent SDK subscription adapter under the BCrew router
 - hub-dedicated model capacity allocation beyond the first Foundation subscription path
 - source-budget and failure visibility
-- full subject-person privacy/query layer
-- auth/tier middleware and subject-person redaction implementation from `docs/specs/2026-04-23-auth-tiers-vault.md`
-- final auth/tier middleware and redacted/public split for broad Foundation/Ops read APIs after interim admin gating
+- raw meeting-note Drive/vault ACL enforcement
+- real-data filtered shared-comms summaries for approved non-Tier-1 users
+- public edge auth/tunnel hardening before broader external exposure
+- provider-side rotation/retirement proof for exposed credentials
 - full `SYSTEM-010` decommission, dead-man, and cost/process-control layer
 - scheduled broad corpus promotion beyond the current proof/mission lanes
 - broader KPI / finance / FUB fact expansion inside synthesis
@@ -159,6 +162,30 @@ If a builder chat drifts into lower-priority work, the assistant should name the
 All implementation work must be backlog-pulled. Evidence chooses which formal card to pull next; it does not justify chat-only work.
 Before code, each slice needs a card ID, scope, implementation plan, acceptance criteria, verifier plan, closeout plan, and risk notes reviewed to the 9.8/10 quality bar.
 
+### 2026-05-02 Missing-Card Capture
+
+After the SECURITY-002 closeout, Steve asked for a full sweep of specs, audits, handoffs, source notes, memory, and backlog state to catch work that had been discussed but never promoted into real backlog cards. The sweep found more than the meeting-note issue. The following work is now captured in backlog truth and must be planned before implementation:
+
+- `MEETING-VAULT-ACL-001` — raw Google Drive meeting-note ACL enforcement. SECURITY-002 does not remove Drive access from original files.
+- `SECURITY-FILTERED-COMMS-ACCESS-001` — real-data filtered shared-comms/intelligence summaries for approved non-Tier-1 users.
+- `SECURITY-EDGE-001` — public edge auth/tunnel hardening before broader external exposure.
+- `SECURITY-PROVIDER-ROTATION-PROOF-001` — provider-side proof for exposed or retired credentials.
+- `DRIVE-ACCESS-REQUEST-001` — delegated Drive access-request and ACL repair preflights.
+- `FOUNDATION-DONE-TEST-001` — explicit Foundation readiness exit gate.
+- `SYSTEM-010-GHOST-CLOSEOUT-001` — dead-man, autorestart, kill/decommission, active-process, and cost-control closeout.
+- `SOURCE-LIFECYCLE-COMPLETION-001` — source lifecycle completion/revalidation gate.
+- `EXTRACT-RUN-HARDENING-001` — extraction run ID, retry/backoff, partial failure, stale lease, cursor, and bounded backfill hardening.
+- `SYNTHESIS-VERIFY-001` — source-evidence verification gate for synthesized claims before Strategy/scout consumption.
+- `MEETING-FORWARD-TRANSCRIPT-ENFORCEMENT-001` — future meeting transcript capture and gap handling.
+- `PROCESS-ACK-STATES-001` — governed acknowledged-state handling for accepted gaps and intentional pauses.
+- `VERIFIER-INCREMENTAL-COVERAGE-001` — incremental/card-scoped verifier path.
+
+Disposition notes:
+
+- `FOUNDATION-SURFACE-UPDATES-001` and `RUNTIME-HEALTH-SIMPLIFY-001` already cover the Foundation command-center/UI clarity work; do not create a duplicate command-center card unless Steve explicitly wants a separate build.
+- Existing source cards still own source-specific work where they are already precise enough. The new cards above exist only where audits found missing ownership or an umbrella that could hide a Foundation gate.
+- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order.
+
 ### Operator Surface Standard
 
 Foundation is the CEO dashboard for system-building. It must answer in plain English:
@@ -199,6 +226,10 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
 2. `SECURITY-004` / `SECURITY-002` — Gate broad read APIs before any broader dashboard, hub, assistant, or user-facing access.
    - `SECURITY-002` is done for v1 under `security-002-auth-tier-redaction-v1`: central request access context, route posture registry, `assertTier`/`assertRole`, server-derived intelligence evidence tier, stable redacted response helpers, subject_people/sensitivity/min_tier filtering proof, and Tier 1-only fail-closed posture for unproven shared-comms/intelligence access.
    - Interim admin gating remains for legacy broad read surfaces, but it now runs behind central route posture instead of scattered route allowlists.
+   - `MEETING-VAULT-ACL-001` owns raw Google Drive meeting-note ACL enforcement. Do not treat SECURITY-002 as removing access from original Drive files.
+   - `SECURITY-FILTERED-COMMS-ACCESS-001` owns non-Tier-1 filtered summary access on real shared-comms data.
+   - `SECURITY-EDGE-001` owns public edge auth/tunnel hardening before broader external exposure.
+   - `SECURITY-PROVIDER-ROTATION-PROOF-001` owns provider-side credential rotation/retirement proof.
    - `FOUNDATION-USERS-001` is the smaller P1 follow-up for owner-only user administration from Foundation: list users, add email/name/role, disable users, audit changes, avoid password exposure, and prove non-owners cannot manage access. Do not build it inside extraction-control schedule reconciliation.
    - `FOUNDATION-SURFACE-UPDATES-001` is the P1 follow-up for Foundation operator clarity: plain-English status/copy, Overview -> Systems -> Backlog -> Recent Work nav order, collapsed Recent Builds / Recent Work with app/doc breadcrumbs, done-velocity visibility, and plan/backlog grouping convergence. Do not build it inside hygiene/process slices unless Steve explicitly switches scope.
 3. `SYSTEM-010` — Finish runtime/process-control hardening.
@@ -209,12 +240,14 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Enforce job-level budget tags or rename them as descriptive tags.
    - Bound large Foundation snapshot reads with limits or paging.
    - Finish decommission, dead-man, cost/process visibility, and stop controls.
+   - `SYSTEM-010-GHOST-CLOSEOUT-001` captures the remaining ghost-process/dead-man/decommission/cost-control proof so the umbrella cannot sound more finished than it is.
 4. `EXTRACTION-TEAM-001` / `DRIVE-CONTENT-001` / `EMAIL-ATTACHMENTS-001` / `MEETING-VIDEO-001` — Finish controlled miner/corpus lanes.
    - Build paced miner v1: one-at-a-time, cursors, leases, retry/backoff, spacing, per-source timeouts.
    - Keep daily Drive Docs/Sheets/PDF/text/markdown, scanned-PDF OCR fallback, Gmail PDF/text attachment, and YouTube subtitle transcript missions stable.
    - Add Missive attachments, Drive Slides/Office/shortcuts/vision-grade OCR, meeting-linked Drive/Zoom/Loom video priority, and richer multimodal/GOD-mode extraction as separate ledged slices.
    - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
    - Keep Skool/Loom/Mycro extraction governed by authorized access, use rights, cost/route ledgering, quotas, and stop controls.
+   - `EXTRACT-RUN-HARDENING-001` consolidates run IDs, retry/backoff, partial failure alerts, stale leases, bounded backfill windows, and next-safe-command proof across the existing extraction cards.
 5. `INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001` through `SYNTHESIS-ENGINE-001` — Build the memory/retrieval/synthesis spine.
    - Add a run/cost/cursor ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation.
    - `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001` done as the v1 report/atom substrate, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, `SYNTHESIS-ENGINE-001`, and `ACTION-ROUTER-001` are now done/hardened enough for Strategy Hub v2 to consume routed proof.
