@@ -97,6 +97,19 @@ import {
   SOURCE_LIFECYCLE_ROUTE,
 } from '../lib/source-lifecycle.js'
 import {
+  FOUNDATION_DONE_TEST_APPROVAL_PATH,
+  FOUNDATION_DONE_TEST_CARD_ID,
+  FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
+  FOUNDATION_DONE_TEST_DOC_PATH,
+  FOUNDATION_DONE_TEST_PLAN_PATH,
+  FOUNDATION_DONE_TEST_REGISTRY_PATH,
+  FOUNDATION_DONE_TEST_SCRIPT_PATH,
+  FOUNDATION_DONE_TEST_SUMMARY_MARKER,
+  FOUNDATION_READINESS_GATE_CARD_IDS,
+  FOUNDATION_READINESS_REQUIRED_LEG_KEYS,
+  buildFoundationReadinessStatus,
+} from '../lib/foundation-readiness-gates.js'
+import {
   buildFoundationFollowupCardCaptureStatus,
   FOUNDATION_FOLLOWUP_BUILD_ORDER,
   FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH,
@@ -887,6 +900,12 @@ async function main() {
   const security002PlanSource = await readRepoFile('docs/process/security-002-auth-tier-redaction-plan.md')
   const security002ApprovalSource = await readRepoFile('docs/process/approvals/SECURITY-002.json')
   const security002Approval = JSON.parse(security002ApprovalSource)
+  const foundationDoneTestRegistrySource = await readRepoFile(FOUNDATION_DONE_TEST_REGISTRY_PATH)
+  const foundationDoneTestScriptSource = await readRepoFile(FOUNDATION_DONE_TEST_SCRIPT_PATH)
+  const foundationDoneTestPlanSource = await readRepoFile(FOUNDATION_DONE_TEST_PLAN_PATH)
+  const foundationDoneTestDocSource = await readRepoFile(FOUNDATION_DONE_TEST_DOC_PATH)
+  const foundationDoneTestApprovalSource = await readRepoFile(FOUNDATION_DONE_TEST_APPROVAL_PATH)
+  const foundationDoneTestApproval = JSON.parse(foundationDoneTestApprovalSource)
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -1069,6 +1088,7 @@ async function main() {
   const changeLogComprehensiveApprovalRef = CHANGE_LOG_COMPREHENSIVE_APPROVAL_PATH
   const dailyExecSummaryApprovalRef = DAILY_EXEC_SUMMARY_APPROVAL_PATH
   const sourceLifecycleApprovalRef = SOURCE_LIFECYCLE_APPROVAL_PATH
+  const foundationDoneTestApprovalRef = FOUNDATION_DONE_TEST_APPROVAL_PATH
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
   const foundationSystemsServiceGroupingApprovalRef = FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH
   const agentOnboardingFeedbackSystemApprovalRef = AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVAL_PATH
@@ -1122,6 +1142,11 @@ async function main() {
     repoRoot,
     approvalRef: sourceLifecycleApprovalRef,
     cardId: SOURCE_LIFECYCLE_CARD_ID,
+  })
+  const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: foundationDoneTestApprovalRef,
+    cardId: FOUNDATION_DONE_TEST_CARD_ID,
   })
   const foundationFollowupCardCaptureApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2406,6 +2431,26 @@ async function main() {
     sourceOfTruth,
     foundationHub,
   })
+  const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
+    foundationHub,
+    closeouts: foundationBuildCloseouts,
+    repo: {
+      packageJson,
+      securityAccessHasRegistry: includesAll(securityAccessSource, [
+        'SECURITY_ROUTE_POSTURES',
+        'export function assertTier',
+        'buildRedactedCollectionResponse',
+      ]),
+      securityScriptHasExternalDenials: includesAll(security002ProofCheckSource, [
+        'John cannot read Foundation Hub',
+        'John cannot read shared-comms archive',
+        'does not read client maxTier',
+      ]),
+      scriptHasSummaryMarker: foundationDoneTestScriptSource.includes(FOUNDATION_DONE_TEST_SUMMARY_MARKER),
+      scriptSupportsReportOnly: foundationDoneTestScriptSource.includes('report-only') &&
+        foundationDoneTestScriptSource.includes('reportOnly'),
+    },
+  })
   const foundationFollowupCardCaptureStatus = await buildFoundationFollowupCardCaptureStatus({
     repoRoot,
     foundationHub,
@@ -3277,6 +3322,24 @@ async function main() {
     (build.backlogIds || []).includes(SOURCE_LIFECYCLE_CARD_ID) &&
       build.closeoutKey === SOURCE_LIFECYCLE_CLOSEOUT_KEY
   )
+  const buildLogFoundationDoneTestBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(FOUNDATION_DONE_TEST_CARD_ID) &&
+      build.closeoutKey === FOUNDATION_DONE_TEST_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(FOUNDATION_DONE_TEST_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
+        backlogIds: [FOUNDATION_DONE_TEST_CARD_ID],
+        mentionedBacklogIds: [
+          'SOURCE-LIFECYCLE-COMPLETION-001',
+          'SYNTHESIS-VERIFY-001',
+          'SYSTEM-010-GHOST-CLOSEOUT-001',
+          'EXTRACT-RUN-HARDENING-001',
+          'MEETING-VAULT-ACL-001',
+          'DRIVE-ACCESS-REQUEST-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
   const buildLogFoundationFollowupCardCaptureBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
       build.closeoutKey === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CLOSEOUT_KEY
@@ -4509,6 +4572,7 @@ async function main() {
   const changeLogComprehensive = (foundationHub.backlogItems || []).find(item => item.id === CHANGE_LOG_COMPREHENSIVE_CARD_ID) || null
   const dailyExecSummary = (foundationHub.backlogItems || []).find(item => item.id === DAILY_EXEC_SUMMARY_CARD_ID) || null
   const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
+  const foundationDoneTest = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DONE_TEST_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
   const foundationSystemsServiceGrouping = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) || null
   const agentOnboardingFeedbackSystem = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) || null
@@ -7600,6 +7664,77 @@ async function main() {
       ]),
     'SECURITY-002 auth/tier/redaction layer is centrally implemented and verifier-covered',
     `card=${security002?.lane || 'missing'} / approval=${security002Approval.score} / script=${packageJson.scripts?.['process:security-002-check'] ? 'yes' : 'missing'}`,
+  )
+  const foundationDoneFailedKeys = new Set((foundationDoneTestReadinessStatus.failedLegs || []).map(leg => leg.key))
+  const foundationDoneBlockingCards = new Set(foundationDoneTestReadinessStatus.blockingCards || [])
+  const foundationDonePassedKeys = new Set((foundationDoneTestReadinessStatus.legs || [])
+    .filter(leg => leg.status === 'pass')
+    .map(leg => leg.key))
+  const foundationDoneBuildLogExact = buildLogFoundationDoneTestBuild?.backlogIds?.length === 1 &&
+    buildLogFoundationDoneTestBuild.backlogIds.includes(FOUNDATION_DONE_TEST_CARD_ID) &&
+    ['SOURCE-LIFECYCLE-COMPLETION-001', 'SYNTHESIS-VERIFY-001', 'SYSTEM-010-GHOST-CLOSEOUT-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      .every(id => (buildLogFoundationDoneTestBuild.mentionedBacklogIds || []).includes(id)) &&
+    !['SECURITY-002', 'MEETING-VAULT-ACL-001', 'EXTRACT-RUN-HARDENING-001']
+      .some(id => (buildLogFoundationDoneTestBuild.backlogIds || []).includes(id))
+  ensure(
+    checks,
+    foundationDoneTest?.lane === 'done' &&
+      String(foundationDoneTest?.statusNote || '').includes(FOUNDATION_DONE_TEST_CLOSEOUT_KEY) &&
+      foundationDoneTestApprovalValidation.ok &&
+      foundationDoneTestApprovalValidation.mode === 'v2' &&
+      foundationDoneTestApproval.cardId === FOUNDATION_DONE_TEST_CARD_ID &&
+      foundationDoneTestApproval.score >= 9.8 &&
+      foundationDoneTestApproval.approvedPlanRef === FOUNDATION_DONE_TEST_PLAN_PATH &&
+      foundationDoneTestApprovalValidation.approval?.approvedPlanRef === FOUNDATION_DONE_TEST_PLAN_PATH &&
+      includesAll(foundationDoneTestPlanSource, [
+        'Source-verifiable answer',
+        'Tier/redaction safety',
+        'Structural Verifier Coverage For Every P0 Gate',
+        'Runtime/Process Control Health Test',
+        'Extraction Retry/Ledger/Backfill Health Test',
+        'Meeting Raw Drive ACL/Vault',
+        'It does not have to make Foundation pass the exit test',
+      ]) &&
+      includesAll(foundationDoneTestRegistrySource, [
+        FOUNDATION_DONE_TEST_CARD_ID,
+        FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
+        ...FOUNDATION_READINESS_REQUIRED_LEG_KEYS,
+        ...FOUNDATION_READINESS_GATE_CARD_IDS,
+        'buildFoundationReadinessStatus',
+      ]) &&
+      includesAll(foundationDoneTestScriptSource, [
+        FOUNDATION_DONE_TEST_SUMMARY_MARKER,
+        'reportOnly',
+        'report-only',
+        '/api/foundation-hub',
+        'buildFoundationReadinessStatus',
+      ]) &&
+      includesAll(foundationDoneTestDocSource, [
+        'Foundation Readiness Exit Test',
+        'not_ready',
+        'SOURCE-LIFECYCLE-COMPLETION-001',
+        'MEETING-VAULT-ACL-001',
+      ]) &&
+      packageJson.scripts?.['process:foundation-done-test'] === 'node --env-file-if-exists=.env scripts/process-foundation-done-test.mjs' &&
+      foundationDoneTestReadinessStatus.status === 'not_ready' &&
+      foundationDoneTestReadinessStatus.readyForStrategy === false &&
+      FOUNDATION_READINESS_REQUIRED_LEG_KEYS.every(key =>
+        (foundationDoneTestReadinessStatus.legs || []).some(leg => leg.key === key)
+      ) &&
+      ['source_verifiable_answer', 'runtime_process_control', 'extraction_retry_ledger_backfill', 'meeting_raw_drive_acl_vault']
+        .every(key => foundationDoneFailedKeys.has(key)) &&
+      ['tier_redaction_safety', 'p0_structural_coverage', 'clear_pass_fail_output']
+        .every(key => foundationDonePassedKeys.has(key)) &&
+      ['SOURCE-LIFECYCLE-COMPLETION-001', 'SYNTHESIS-VERIFY-001', 'SYSTEM-010-GHOST-CLOSEOUT-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+        .every(id => foundationDoneBlockingCards.has(id)) &&
+      buildLogFoundationDoneTestBuild?.operatorCloseout === true &&
+      foundationDoneBuildLogExact &&
+      currentPlan.includes('foundation-done-test-v1') &&
+      currentPlan.includes('does not make the blocker cards pass') &&
+      currentState.includes('FOUNDATION-DONE-TEST-001` is done') &&
+      currentState.includes('That means the test exists, not that Foundation is ready'),
+    'FOUNDATION-DONE-TEST-001 defines an honest Foundation readiness exit gate',
+    `status=${foundationDoneTestReadinessStatus.status} failed=${foundationDoneTestReadinessStatus.summary?.failedLegs} blockers=${foundationDoneTestReadinessStatus.blockingCards.join(',')}`,
   )
   const knownCleanedCardIds = new Set([
     'DOC-AUTHORITY-001',

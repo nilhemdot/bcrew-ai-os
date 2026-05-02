@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DONE-TEST-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-02T13:05:38-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/foundation-done-test-001-plan.md",
+  "approvedPlanSha256": "fbb9b9e73cdeab315a5672813f1356b28769331c19601646b4371603db65eb2d",
+  "approvedRepoHead": "ab3d7eede850089b3417b5380d31854cbbf2cba3",
+  "notes": "FOUNDATION-DONE-TEST-001 plan approved at 9.8. Implement exactly as planned: central readiness registry, process script, docs, verifier coverage, approval-backed closeout, and process:foundation-ship. The first valid output may be not_ready if it names blocker cards clearly. Do not make Foundation pass artificially, reopen SECURITY-002, mutate Drive ACLs, broaden public/external access, or start Strategy, Sales, Agent Feedback, Scoper, Agent Factory, corpus expansion, or UI polish.",
+  "approvalDigest": "d05266b3f6de56b6f18b685ca9cd21d671a6a94424be23b87b342d955afd0997"
+}

@@ -171,7 +171,7 @@ After the SECURITY-002 closeout, Steve asked for a full sweep of specs, audits, 
 - `SECURITY-EDGE-001` — public edge auth/tunnel hardening before broader external exposure.
 - `SECURITY-PROVIDER-ROTATION-PROOF-001` — provider-side proof for exposed or retired credentials.
 - `DRIVE-ACCESS-REQUEST-001` — delegated Drive access-request and ACL repair preflights.
-- `FOUNDATION-DONE-TEST-001` — explicit Foundation readiness exit gate.
+- `FOUNDATION-DONE-TEST-001` — explicit Foundation readiness exit gate. Done for the gate implementation under `foundation-done-test-v1`; the current gate may still report `not_ready` while blocker cards remain open.
 - `SYSTEM-010-GHOST-CLOSEOUT-001` — dead-man, autorestart, kill/decommission, active-process, and cost-control closeout.
 - `SOURCE-LIFECYCLE-COMPLETION-001` — source lifecycle completion/revalidation gate.
 - `EXTRACT-RUN-HARDENING-001` — extraction run ID, retry/backoff, partial failure, stale lease, cursor, and bounded backfill hardening.
@@ -184,7 +184,7 @@ Disposition notes:
 
 - `FOUNDATION-SURFACE-UPDATES-001` and `RUNTIME-HEALTH-SIMPLIFY-001` already cover the Foundation command-center/UI clarity work; do not create a duplicate command-center card unless Steve explicitly wants a separate build.
 - Existing source cards still own source-specific work where they are already precise enough. The new cards above exist only where audits found missing ownership or an umbrella that could hide a Foundation gate.
-- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order.
+- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order. `FOUNDATION-DONE-TEST-001` is the exception now pulled and implemented as the readiness detector; it does not make the blocker cards pass.
 
 ### Operator Surface Standard
 
