@@ -120,6 +120,15 @@ import {
   SYNTHESIS_VERIFY_SUMMARY_MARKER,
 } from '../lib/synthesis-claim-verification.js'
 import {
+  EXTRACT_RUN_HARDENING_APPROVAL_PATH,
+  EXTRACT_RUN_HARDENING_CARD_ID,
+  EXTRACT_RUN_HARDENING_CLOSEOUT_KEY,
+  EXTRACT_RUN_HARDENING_DOC_PATH,
+  EXTRACT_RUN_HARDENING_PLAN_PATH,
+  EXTRACT_RUN_HARDENING_SCRIPT_PATH,
+  EXTRACT_RUN_HARDENING_SUMMARY_MARKER,
+} from '../lib/extraction-run-hardening.js'
+import {
   FOUNDATION_DONE_TEST_APPROVAL_PATH,
   FOUNDATION_DONE_TEST_CARD_ID,
   FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
@@ -1069,6 +1078,12 @@ async function main() {
   const synthesisVerifyDocSource = await readRepoFile(SYNTHESIS_VERIFY_DOC_PATH)
   const synthesisVerifyApprovalSource = await readRepoFile(SYNTHESIS_VERIFY_APPROVAL_PATH)
   const synthesisVerifyApproval = JSON.parse(synthesisVerifyApprovalSource)
+  const extractRunHardeningSource = await readRepoFile('lib/extraction-run-hardening.js')
+  const extractRunHardeningScriptSource = await readRepoFile(EXTRACT_RUN_HARDENING_SCRIPT_PATH)
+  const extractRunHardeningPlanSource = await readRepoFile(EXTRACT_RUN_HARDENING_PLAN_PATH)
+  const extractRunHardeningDocSource = await readRepoFile(EXTRACT_RUN_HARDENING_DOC_PATH)
+  const extractRunHardeningApprovalSource = await readRepoFile(EXTRACT_RUN_HARDENING_APPROVAL_PATH)
+  const extractRunHardeningApproval = JSON.parse(extractRunHardeningApprovalSource)
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -1253,6 +1268,7 @@ async function main() {
   const sourceLifecycleApprovalRef = SOURCE_LIFECYCLE_APPROVAL_PATH
   const sourceLifecycleCompletionApprovalRef = SOURCE_LIFECYCLE_COMPLETION_APPROVAL_PATH
   const synthesisVerifyApprovalRef = SYNTHESIS_VERIFY_APPROVAL_PATH
+  const extractRunHardeningApprovalRef = EXTRACT_RUN_HARDENING_APPROVAL_PATH
   const foundationDoneTestApprovalRef = FOUNDATION_DONE_TEST_APPROVAL_PATH
   const system010ApprovalRef = SYSTEM_010_APPROVAL_PATH
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
@@ -1318,6 +1334,11 @@ async function main() {
     repoRoot,
     approvalRef: synthesisVerifyApprovalRef,
     cardId: SYNTHESIS_VERIFY_CARD_ID,
+  })
+  const extractRunHardeningApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: extractRunHardeningApprovalRef,
+    cardId: EXTRACT_RUN_HARDENING_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3560,6 +3581,22 @@ async function main() {
         operatorCloseout: true,
       }
     : null)
+  const buildLogExtractRunHardeningBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(EXTRACT_RUN_HARDENING_CARD_ID) &&
+      build.closeoutKey === EXTRACT_RUN_HARDENING_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: EXTRACT_RUN_HARDENING_CLOSEOUT_KEY,
+        backlogIds: [EXTRACT_RUN_HARDENING_CARD_ID],
+        mentionedBacklogIds: [
+          FOUNDATION_DONE_TEST_CARD_ID,
+          'MEETING-VAULT-ACL-001',
+          'DRIVE-ACCESS-REQUEST-001',
+          'MULTIMODAL-EXTRACTOR-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
   const buildLogFoundationDoneTestBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_DONE_TEST_CARD_ID) &&
       build.closeoutKey === FOUNDATION_DONE_TEST_CLOSEOUT_KEY
@@ -4831,6 +4868,7 @@ async function main() {
   const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
   const sourceLifecycleCompletion = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_COMPLETION_CARD_ID) || null
   const synthesisVerify = (foundationHub.backlogItems || []).find(item => item.id === SYNTHESIS_VERIFY_CARD_ID) || null
+  const extractRunHardening = (foundationHub.backlogItems || []).find(item => item.id === EXTRACT_RUN_HARDENING_CARD_ID) || null
   const foundationDoneTest = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DONE_TEST_CARD_ID) || null
   const system010GhostCloseout = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_010_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
@@ -6752,6 +6790,80 @@ async function main() {
     'SYNTHESIS-VERIFY-001 closes synthesized-claim verification readiness blocker honestly',
     `lane=${synthesisVerify?.lane || 'missing'} closeout=${SYNTHESIS_VERIFY_CLOSEOUT_KEY} readinessNamesSynthesis=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(SYNTHESIS_VERIFY_CARD_ID)}`,
   )
+  const extractRunHardeningBuildLogExact = buildLogExtractRunHardeningBuild?.backlogIds?.length === 1 &&
+    buildLogExtractRunHardeningBuild.backlogIds.includes(EXTRACT_RUN_HARDENING_CARD_ID) &&
+    ['MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      .every(id => (buildLogExtractRunHardeningBuild.mentionedBacklogIds || []).includes(id)) &&
+    !['MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      .some(id => (buildLogExtractRunHardeningBuild.backlogIds || []).includes(id))
+  ensure(
+    checks,
+    extractRunHardening?.lane === 'done' &&
+      String(extractRunHardening?.statusNote || '').includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY) &&
+      extractRunHardeningApprovalValidation.ok &&
+      extractRunHardeningApprovalValidation.mode === 'v2' &&
+      extractRunHardeningApproval.cardId === EXTRACT_RUN_HARDENING_CARD_ID &&
+      Number(extractRunHardeningApproval.score) >= 9.8 &&
+      extractRunHardeningApproval.approvedPlanRef === EXTRACT_RUN_HARDENING_PLAN_PATH &&
+      extractRunHardeningApprovalValidation.approval?.approvedPlanRef === EXTRACT_RUN_HARDENING_PLAN_PATH &&
+      includesAll(extractRunHardeningPlanSource, [
+        'retry/backoff',
+        'Run IDs And Idempotency',
+        'stale item lease',
+        'bounded backfill',
+      ]) &&
+      includesAll(extractRunHardeningSource, [
+        EXTRACT_RUN_HARDENING_CLOSEOUT_KEY,
+        'EXTRACTION_RETRY_STATES',
+        'normalizeExtractionRetryPolicy',
+        'classifyExtractionItemRetry',
+        'buildExtractionNextSafeCommand',
+        'buildSyntheticExtractionRunHardeningProof',
+      ]) &&
+      includesAll(foundationDbSource, [
+        'source_crawl_item_attempts',
+        'retry_state',
+        'last_source_crawl_run_id',
+        'getRetryableSourceCrawlItems',
+        'leaseRetryableSourceCrawlItems',
+        'markStaleSourceCrawlItems',
+        'getExtractionRunHardeningSnapshot',
+      ]) &&
+      includesAll(extractionTargetSource, [
+        '--crawlRunId=',
+        'EXTRACTION_CRAWL_RUN_ID',
+        'classifySourceCrawlItemRetries',
+        'buildExtractionNextSafeCommand',
+      ]) &&
+      includesAll(foundationWorkerSource, [
+        'markStaleSourceCrawlItems',
+        'stale source-crawl item lease',
+      ]) &&
+      includesAll(extractRunHardeningScriptSource, [
+        EXTRACT_RUN_HARDENING_SUMMARY_MARKER,
+        'buildSyntheticExtractionRunHardeningProof',
+        'failed items have queryable retry state',
+        'partial/failed targets expose next safe command or blocker',
+      ]) &&
+      includesAll(extractRunHardeningDocSource, [
+        'Extraction Run Hardening',
+        'queryable retry fields',
+        'source_crawl_item_attempts',
+        'Foundation may still report `not_ready`',
+      ]) &&
+      packageJson.scripts?.['process:extract-run-hardening-check'] === 'node --env-file-if-exists=.env scripts/process-extract-run-hardening-check.mjs' &&
+      foundationHub.extractionControl?.hardeningStatus?.status === 'healthy' &&
+      Number(foundationHub.extractionControl?.summary?.targetCount || 0) >= 12 &&
+      Number(foundationHub.extractionControl?.summary?.failedItemsWithoutRetryState || 0) === 0 &&
+      Number(foundationHub.extractionControl?.summary?.staleLeasedItems || 0) === 0 &&
+      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(EXTRACT_RUN_HARDENING_CARD_ID) &&
+      buildLogExtractRunHardeningBuild?.operatorCloseout === true &&
+      extractRunHardeningBuildLogExact &&
+      currentPlan.includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY) &&
+      currentState.includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY),
+    'EXTRACT-RUN-HARDENING-001 closes extraction retry/ledger/backfill readiness blocker honestly',
+    `lane=${extractRunHardening?.lane || 'missing'} hardening=${foundationHub.extractionControl?.hardeningStatus?.status || 'missing'} readinessNamesExtract=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(EXTRACT_RUN_HARDENING_CARD_ID)}`,
+  )
   const foundationFollowupCardCaptureBuildLogExact = buildLogFoundationFollowupCardCaptureBuild?.backlogIds?.length === 1 &&
     buildLogFoundationFollowupCardCaptureBuild.backlogIds.includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
     FOUNDATION_FOLLOWUP_BUILD_ORDER.every(id => (buildLogFoundationFollowupCardCaptureBuild.mentionedBacklogIds || []).includes(id)) &&
@@ -8135,14 +8247,16 @@ async function main() {
       FOUNDATION_READINESS_REQUIRED_LEG_KEYS.every(key =>
         (foundationDoneTestReadinessStatus.legs || []).some(leg => leg.key === key)
       ) &&
-      ['extraction_retry_ledger_backfill', 'meeting_raw_drive_acl_vault']
+      ['meeting_raw_drive_acl_vault']
         .every(key => foundationDoneFailedKeys.has(key)) &&
       !foundationDoneFailedKeys.has('source_verifiable_answer') &&
       !foundationDoneFailedKeys.has('runtime_process_control') &&
-      ['source_verifiable_answer', 'tier_redaction_safety', 'p0_structural_coverage', 'runtime_process_control', 'clear_pass_fail_output']
+      !foundationDoneFailedKeys.has('extraction_retry_ledger_backfill') &&
+      ['source_verifiable_answer', 'tier_redaction_safety', 'p0_structural_coverage', 'runtime_process_control', 'extraction_retry_ledger_backfill', 'clear_pass_fail_output']
         .every(key => foundationDonePassedKeys.has(key)) &&
-      ['EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      ['MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
         .every(id => foundationDoneBlockingCards.has(id)) &&
+      !foundationDoneBlockingCards.has(EXTRACT_RUN_HARDENING_CARD_ID) &&
       !foundationDoneBlockingCards.has(SYNTHESIS_VERIFY_CARD_ID) &&
       !foundationDoneBlockingCards.has(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
       !foundationDoneBlockingCards.has(SYSTEM_010_CARD_ID) &&

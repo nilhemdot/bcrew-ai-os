@@ -8,10 +8,12 @@ import {
   getExtractionControlSnapshot,
   getSharedCommunicationSourceStats,
   initFoundationDb,
+  classifySourceCrawlItemRetries,
   leaseSourceCrawlTarget,
   listSourceCrawlItems,
   upsertIntelligenceJobRun,
 } from '../lib/foundation-db.js'
+import { buildExtractionNextSafeCommand } from '../lib/extraction-run-hardening.js'
 
 const OUTPUT_TAIL_LIMIT = 20000
 
@@ -61,9 +63,10 @@ function listFromBudget(target, key) {
     .filter(Boolean)
 }
 
-function getTargetRunner(target) {
+function getTargetRunner(target, options = {}) {
   const maxItemsPerRun = numberFromBudget(target, 'maxItemsPerRun', 25)
   const maxFoldersPerRun = numberFromBudget(target, 'maxFoldersPerRun', 1)
+  const retryFailed = boolValue(options.retryFailed)
 
   if (target.targetKey === 'gmail-current-day') {
     const query = String(target.cursorState?.query || 'newer_than:2d')
@@ -115,6 +118,7 @@ function getTargetRunner(target) {
         `--limit=${maxItemsPerRun}`,
         `--modifiedAfter=${modifiedAfter}`,
         `--crawlTarget=${target.targetKey}`,
+        ...(retryFailed ? ['--retryFailed=true'] : []),
       ],
       inspectedPattern: /Meetings selected for archive:\s*(\d+)/i,
       archivedPattern: /Gemini notes archived:\s*(\d+)/i,
@@ -401,7 +405,10 @@ async function runCommand(runner, { timeoutSeconds }) {
     let killEscalationTimeout = null
     const child = spawn(runner.command, runner.args, {
       cwd: process.cwd(),
-      env: process.env,
+      env: {
+        ...process.env,
+        ...(runner.crawlRunId ? { EXTRACTION_CRAWL_RUN_ID: runner.crawlRunId } : {}),
+      },
       detached: true,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
@@ -477,6 +484,7 @@ async function main() {
   const actor = String(args.actor || process.env.FOUNDATION_JOB_ACTOR || 'extraction-target-runner').trim()
   const dryRun = boolValue(args.dryRun)
   const force = boolValue(args.force)
+  const retryFailed = boolValue(args.retryFailed)
 
   if (!targetKey) {
     throw new Error('Pass --target=<target-key>. Example: --target=gmail-current-day')
@@ -487,7 +495,7 @@ async function main() {
   const target = await findTarget(targetKey)
   if (!target) throw new Error(`Unknown extraction target: ${targetKey}`)
 
-  const runner = getTargetRunner(target)
+  let runner = getTargetRunner(target, { retryFailed })
   const maxRuntimeSeconds = numberFromBudget(target, 'maxRuntimeSeconds', 900)
   const leaseSeconds = maxRuntimeSeconds + 60
 
@@ -509,6 +517,13 @@ async function main() {
     leaseSeconds,
     force,
   })
+  if (leasedTarget.crawlRunId) {
+    runner = {
+      ...runner,
+      crawlRunId: leasedTarget.crawlRunId,
+      args: [...runner.args, `--crawlRunId=${leasedTarget.crawlRunId}`],
+    }
+  }
 
   console.log(`Extraction target leased: ${leasedTarget.targetKey}`)
   if (leasedTarget.crawlRunId) console.log(`Crawl run: ${leasedTarget.crawlRunId}`)
@@ -566,6 +581,12 @@ async function main() {
     const extractedDelta = Number.isFinite(Number(extractedParsed)) ? Number(extractedParsed) : 0
     const inspectedDelta = inspectedParsed == null ? archivedDelta : inspectedParsed
     const nextRunAt = getNextRunAt(leasedTarget, outcome.finishedAt)
+    const nextSafeCommand = buildExtractionNextSafeCommand(leasedTarget, {
+      retryEligibleItems: Number(itemFailuresParsed || 0),
+      retryWaitingItems: 0,
+      retryExhaustedItems: 0,
+      retryBlockedItems: 0,
+    })
     const cursorState = {
       artifactCount: afterStats.artifacts,
       latestArtifactUpdatedAt: afterStats.latestArtifactUpdatedAt,
@@ -599,6 +620,8 @@ async function main() {
             nextRunAt,
           },
           runnerSummary: runnerSummary || null,
+          nextSafeCommand,
+          retryFailed,
           ...(runnerSummary?.metadata || {}),
           beforeStats,
           afterStats,
@@ -607,6 +630,7 @@ async function main() {
       },
       actor,
     )
+    await classifySourceCrawlItemRetries({ targetKey, limit: 500 }, actor)
 
     const outputArtifactIds = await getTargetOutputArtifactIds(targetKey, leasedTarget.sourceId)
     await recordExtractionIntelligenceJob({
@@ -654,6 +678,12 @@ async function main() {
       afterStats = await getSharedCommunicationSourceStats(leasedTarget.sourceId)
       const archivedDelta = Math.max(Number(afterStats.artifacts || 0) - Number(beforeStats.artifacts || 0), 0)
       const nextRunAt = getNextRunAt(leasedTarget, finishedAt)
+      const nextSafeCommand = buildExtractionNextSafeCommand(leasedTarget, {
+        retryEligibleItems: 1,
+        retryWaitingItems: 0,
+        retryExhaustedItems: 0,
+        retryBlockedItems: 0,
+      })
       const cursorState = {
         artifactCount: afterStats.artifacts,
         latestArtifactUpdatedAt: afterStats.latestArtifactUpdatedAt,
@@ -675,6 +705,8 @@ async function main() {
             command: [runner.command, ...runner.args],
             failedBeforeOutcome: !outcome,
             errorMessage: message,
+            nextSafeCommand,
+            retryFailed,
             beforeStats,
             afterStats,
           },
@@ -702,6 +734,7 @@ async function main() {
           failedBeforeOutcome: !outcome,
         },
       })
+      await classifySourceCrawlItemRetries({ targetKey, limit: 500 }, actor)
     } catch (finishError) {
       console.error('Failed to record extraction target failure.')
       console.error(finishError instanceof Error ? finishError.message : String(finishError))

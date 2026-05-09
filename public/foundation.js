@@ -6802,8 +6802,10 @@ function formatCoverageReason(value) {
 
 function getExtractionCoverageStatus(record) {
   var counts = record.counts || {}
+  var retrySummary = record.retrySummary || {}
+  if (record.hardeningStatus === 'blocked' || Number(retrySummary.retryBlockedItems || 0) > 0 || Number(retrySummary.retryExhaustedItems || 0) > 0) return 'risk'
   if (record.status === 'blocked' || Number(counts.failedItems || 0) > 0 || record.lastStatus === 'failed') return 'risk'
-  if (record.lastStatus === 'partial' || Number(counts.skippedItems || 0) > 0 || Number(counts.pendingItems || 0) > 0) return 'pending'
+  if (record.hardeningStatus === 'retry_ready' || record.lastStatus === 'partial' || Number(counts.skippedItems || 0) > 0 || Number(counts.pendingItems || 0) > 0) return 'pending'
   if (record.status === 'active') return 'live'
   if (record.status === 'paused') return 'pending'
   return 'planned'
@@ -6839,6 +6841,7 @@ function appendExtractionCoverageChip(container, text, kind) {
 
 function renderExtractionCoverageCard(record) {
   var counts = record.counts || {}
+  var retrySummary = record.retrySummary || {}
   var status = getExtractionCoverageStatus(record)
   var card = document.createElement('article')
   card.className = 'extraction-coverage-card status-' + status
@@ -6886,6 +6889,14 @@ function renderExtractionCoverageCard(record) {
       + formatCoverageCount(counts.skippedItems) + ' skipped · '
       + formatCoverageCount(counts.failedItems) + ' failed'
   )
+  appendExtractionCoverageMetric(
+    metrics,
+    'Retry state',
+    formatCoverageCount(retrySummary.retryEligibleItems) + ' eligible',
+    formatCoverageCount(retrySummary.retryWaitingItems) + ' waiting · '
+      + formatCoverageCount(retrySummary.retryExhaustedItems) + ' exhausted · '
+      + formatCoverageCount(retrySummary.retryBlockedItems) + ' blocked'
+  )
   card.appendChild(metrics)
 
   var reasons = document.createElement('div')
@@ -6931,6 +6942,27 @@ function renderExtractionCoverageCard(record) {
   }
   remaining.appendChild(remainingChips)
   card.appendChild(remaining)
+
+  var retry = document.createElement('div')
+  retry.className = 'extraction-coverage-section'
+  var retryTitle = document.createElement('h5')
+  retryTitle.textContent = 'Retry / next safe action'
+  retry.appendChild(retryTitle)
+  var retryChips = document.createElement('div')
+  retryChips.className = 'extraction-coverage-chip-row'
+  var retryReasons = Array.isArray(retrySummary.retryReasons) ? retrySummary.retryReasons : []
+  if (retryReasons.length) {
+    retryReasons.slice(0, 4).forEach(function(reason) {
+      appendExtractionCoverageChip(
+        retryChips,
+        formatCoverageCount(reason.count) + ' ' + reason.retryState + ' - ' + formatCoverageReason(reason.reason),
+        reason.retryState === 'blocked' || reason.retryState === 'exhausted' ? 'risk' : 'pending'
+      )
+    })
+  }
+  appendExtractionCoverageChip(retryChips, record.nextSafeCommand || 'No failed item retry action needed', record.nextSafeCommand && /^Blocked/.test(record.nextSafeCommand) ? 'risk' : 'neutral')
+  retry.appendChild(retryChips)
+  card.appendChild(retry)
 
   var findings = Array.isArray(record.healthFindings) ? record.healthFindings : []
   if (findings.length) {
@@ -6982,6 +7014,9 @@ function renderExtractionControlPanel(extractionControl) {
           return reason.status === 'failed' || reason.status === 'skipped'
         }).slice(0, 5),
         remainingBacklogIndicators: [],
+        retrySummary: target.itemSummary || {},
+        nextSafeCommand: target.nextSafeCommand || '',
+        hardeningStatus: target.hardeningStatus || '',
         healthFindings: target.healthFindings || [],
       }
     })
@@ -6995,6 +7030,10 @@ function renderExtractionControlPanel(extractionControl) {
     + ((extractionControl.summary && extractionControl.summary.scheduledTargets) || 0) + ' scheduled, '
     + ((extractionControl.summary && extractionControl.summary.pausedTargets) || 0) + ' paused, '
     + ((extractionControl.summary && extractionControl.summary.recentItemFailures) || 0) + ' recent item failures, '
+    + ((extractionControl.summary && extractionControl.summary.retryEligibleItems) || 0) + ' retry eligible, '
+    + ((extractionControl.summary && extractionControl.summary.retryExhaustedItems) || 0) + ' exhausted, '
+    + ((extractionControl.summary && extractionControl.summary.retryBlockedItems) || 0) + ' blocked, '
+    + ((extractionControl.summary && extractionControl.summary.staleLeasedItems) || 0) + ' stale item leases, '
     + ((extractionControl.summary && extractionControl.summary.coverageTargetsWithRemainingBacklog) || 0) + ' targets with remaining backlog indicators, '
     + ((extractionControl.summary && extractionControl.summary.targetRiskFindings) || 0) + ' risk findings, '
     + ((extractionControl.summary && extractionControl.summary.targetWarningFindings) || 0) + ' warnings.'
@@ -14296,7 +14335,7 @@ function renderBuildGroups(buildLog, builds) {
     daySection.className = 'build-log-day-group'
 
     var dayTitle = document.createElement('h4')
-    dayTitle.textContent = dayGroup.day === 'unknown-date' ? 'Unknown Date' : formatDate(dayGroup.day)
+    dayTitle.textContent = dayGroup.day === 'unknown-date' ? 'Unknown Date' : formatAsOfDate(dayGroup.day)
     daySection.appendChild(dayTitle)
 
     ;(dayGroup.systemGroups || []).forEach(function(systemGroup) {

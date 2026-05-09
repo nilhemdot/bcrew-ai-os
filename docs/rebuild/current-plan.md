@@ -174,7 +174,7 @@ After the SECURITY-002 closeout, Steve asked for a full sweep of specs, audits, 
 - `FOUNDATION-DONE-TEST-001` — explicit Foundation readiness exit gate. Done for the gate implementation under `foundation-done-test-v1`; the current gate may still report `not_ready` while blocker cards remain open, and it does not make the blocker cards pass.
 - `SYSTEM-010-GHOST-CLOSEOUT-001` — done for the runtime/process-control readiness blocker under `system-010-ghost-closeout-v1`; active-process, liveness, stop/decommission, restart-status, and cost/process risk are visible and fail closed.
 - `SOURCE-LIFECYCLE-COMPLETION-001` — done for the source lifecycle completion/revalidation blocker under `source-lifecycle-completion-v1`; all 35 source contracts now have terminal states, load-bearing sources are complete/read-only/current-reality for current scope, and future/gap sources are accepted-blocked with owner, reason, next action, and blocker card.
-- `EXTRACT-RUN-HARDENING-001` — extraction run ID, retry/backoff, partial failure, stale lease, cursor, and bounded backfill hardening.
+- `EXTRACT-RUN-HARDENING-001` — done under `extract-run-hardening-v1`; existing extraction lanes now have central retry/backoff policy, queryable item retry state, crawlRunId attempt ledgering, stale item-lease reaping, partial/failed next-safe-command visibility, and bounded-backfill proof.
 - `SYNTHESIS-VERIFY-001` — done under `synthesis-verify-v1`; synthesized claims now require source-evidence verification before Strategy/scout/researcher/advisor consumption.
 - `MEETING-FORWARD-TRANSCRIPT-ENFORCEMENT-001` — future meeting transcript capture and gap handling.
 - `PROCESS-ACK-STATES-001` — governed acknowledged-state handling for accepted gaps and intentional pauses.
@@ -184,7 +184,7 @@ Disposition notes:
 
 - `FOUNDATION-SURFACE-UPDATES-001` and `RUNTIME-HEALTH-SIMPLIFY-001` already cover the Foundation command-center/UI clarity work; do not create a duplicate command-center card unless Steve explicitly wants a separate build.
 - Existing source cards still own source-specific work where they are already precise enough. The new cards above exist only where audits found missing ownership or an umbrella that could hide a Foundation gate.
-- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order. `FOUNDATION-DONE-TEST-001` is implemented as the readiness detector, `SYSTEM-010-GHOST-CLOSEOUT-001` closes its runtime/process-control leg, `SOURCE-LIFECYCLE-COMPLETION-001` closes its source completion/revalidation leg, and `SYNTHESIS-VERIFY-001` closes its synthesized-claim verification leg; the remaining extraction and meeting Drive/vault blocker cards still do not pass.
+- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order. `FOUNDATION-DONE-TEST-001` is implemented as the readiness detector, `SYSTEM-010-GHOST-CLOSEOUT-001` closes its runtime/process-control leg, `SOURCE-LIFECYCLE-COMPLETION-001` closes its source completion/revalidation leg, `SYNTHESIS-VERIFY-001` closes its synthesized-claim verification leg, and `EXTRACT-RUN-HARDENING-001` closes its extraction retry/ledger/backfill leg; the remaining meeting Drive/vault blocker cards still do not pass.
 
 ### Operator Surface Standard
 
@@ -247,7 +247,7 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Add Missive attachments, Drive Slides/Office/shortcuts/vision-grade OCR, meeting-linked Drive/Zoom/Loom video priority, and richer multimodal/GOD-mode extraction as separate ledged slices.
    - Extend failed-item retry/reporting beyond meetings into Drive/video/non-meeting crawl records.
    - Keep Skool/Loom/Mycro extraction governed by authorized access, use rights, cost/route ledgering, quotas, and stop controls.
-   - `EXTRACT-RUN-HARDENING-001` consolidates run IDs, retry/backoff, partial failure alerts, stale leases, bounded backfill windows, and next-safe-command proof across the existing extraction cards.
+   - `EXTRACT-RUN-HARDENING-001` is done under `extract-run-hardening-v1`; do not reopen it for new lanes or scope expansion.
 5. `INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001` through `SYNTHESIS-ENGINE-001` — Build the memory/retrieval/synthesis spine.
    - Add a run/cost/cursor ledger for ingestion, extraction, chunking, embedding, synthesis, video analysis, and brief generation.
    - `INTEL-JOBS-001`, `REPORT-MINING-001`, `INTEL-ATOM-001` done as the v1 report/atom substrate, `RETRIEVAL-001`, `RETRIEVAL-002`, `RETRIEVAL-003`, `SYNTHESIS-FACTS-001`, `SYNTHESIS-ENGINE-001`, and `ACTION-ROUTER-001` are now done/hardened enough for Strategy Hub v2 to consume routed proof.

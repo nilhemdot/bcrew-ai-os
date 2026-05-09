@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACT-RUN-HARDENING-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-09T18:08:13-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/extract-run-hardening-001-plan.md",
+  "approvedPlanSha256": "6a6301de1cc82c0866a70fe0e07082ad9f7d3b0c1d238146a97081520252db1e",
+  "approvedRepoHead": "9596b763119174a2a65b68e3d9d6d96a617d1380",
+  "notes": "EXTRACT-RUN-HARDENING-001 plan approved at 9.8. Implement only the extraction retry/ledger/backfill closeout slice: central retry/backoff policy, queryable source_crawl_items retry state, run-ID attempt ledgering, crawlRunId propagation, idempotent finish/attempt handling, stale item-lease reaping, partial/failed next-safe-command visibility, bounded backfill proof, Runtime Health retry visibility, process check, foundation verifier/readiness coverage, and process:foundation-ship. Do not build Strategy, Sales, Agent Feedback, Scoper, Agent Factory, broad corpus, researcher, video mining, meeting ACL/vault work, public access, sprint view, broad UI polish, new connectors, or new extraction lanes.",
+  "approvalDigest": "0a5b0269623c9712ad57bc3e6097a0d42e322ce108964cccb2edc2c901a2bdf9"
+}

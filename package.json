@@ -94,6 +94,7 @@
     "process:source-lifecycle-expansion-check": "node --env-file-if-exists=.env scripts/process-source-lifecycle-expansion-check.mjs",
     "process:source-lifecycle-completion-check": "node --env-file-if-exists=.env scripts/process-source-lifecycle-completion-check.mjs",
     "process:synthesis-verify-check": "node --env-file-if-exists=.env scripts/process-synthesis-verify-check.mjs",
+    "process:extract-run-hardening-check": "node --env-file-if-exists=.env scripts/process-extract-run-hardening-check.mjs",
     "process:foundation-verify-health-repair-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-health-repair-check.mjs",
     "process:foundation-followup-card-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-followup-card-capture-check.mjs",
     "process:foundation-systems-service-grouping-check": "node --env-file-if-exists=.env scripts/process-foundation-systems-service-grouping-check.mjs",

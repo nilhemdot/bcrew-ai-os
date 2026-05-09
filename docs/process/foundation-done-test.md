@@ -40,9 +40,10 @@ The readiness test covers:
 
 `SYNTHESIS-VERIFY-001` is closed under `synthesis-verify-v1`, so the synthesized-claim verification blocker should not appear in the current readiness output.
 
+`EXTRACT-RUN-HARDENING-001` is closed under `extract-run-hardening-v1`, so the extraction retry/ledger/backfill blocker should not appear in the current readiness output.
+
 The result can still be `not_ready` while these blocker cards remain open:
 
-- `EXTRACT-RUN-HARDENING-001`
 - `MEETING-VAULT-ACL-001`
 - `DRIVE-ACCESS-REQUEST-001`
 

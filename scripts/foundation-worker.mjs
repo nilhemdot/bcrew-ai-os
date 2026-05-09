@@ -12,6 +12,7 @@ import {
   initFoundationDb,
   markStaleLlmCalls,
   markStaleFoundationJobRuns,
+  markStaleSourceCrawlItems,
   markStaleSourceCrawlTargetRuns,
   recordFoundationRuntimeStatus,
 } from '../lib/foundation-db.js';
@@ -116,6 +117,10 @@ async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes, 
     const reapedSourceCrawlRuns = await markStaleSourceCrawlTargetRuns({ olderThanMinutes: staleSourceCrawlRunMinutes }, actor);
     if (reapedSourceCrawlRuns.length) {
       console.warn(`Foundation worker: marked ${reapedSourceCrawlRuns.length} stale source-crawl run(s) failed before selecting jobs.`);
+    }
+    const reapedSourceCrawlItems = await markStaleSourceCrawlItems({ olderThanMinutes: staleSourceCrawlRunMinutes }, actor);
+    if (reapedSourceCrawlItems.length) {
+      console.warn(`Foundation worker: marked ${reapedSourceCrawlItems.length} stale source-crawl item lease(s) failed before selecting jobs.`);
     }
   }
 
