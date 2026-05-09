@@ -44,6 +44,62 @@ function stableHash(value) {
   return createHash('sha256').update(String(value || '')).digest('hex')
 }
 
+function safeRunSummary(run = {}) {
+  return {
+    runId: run.runId,
+    runType: run.runType,
+    status: run.status,
+    requestedBy: run.requestedBy,
+    sourceIds: run.sourceIds || [],
+    factCount: run.factCount,
+    evidenceCount: run.evidenceCount,
+    itemCount: run.itemCount,
+    maxTier: run.maxTier,
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+  }
+}
+
+function safeHumanSample(rows = []) {
+  return rows.map(row => ({
+    n: row.n,
+    scope: row.scope,
+    strategyHubEligible: Boolean(row.strategyHubEligible),
+    titleHash: `sha256:${stableHash(row.title).slice(0, 24)}`,
+    facts: row.facts,
+    atoms: row.atoms,
+    chunks: row.chunks,
+    themeKeyHash: `sha256:${stableHash(row.themeKey).slice(0, 24)}`,
+  }))
+}
+
+function safeItemSummary(item = {}) {
+  return {
+    synthesizedItemId: item.synthesizedItemId,
+    naturalKeyHash: `sha256:${stableHash(item.naturalKey).slice(0, 24)}`,
+    runId: item.runId,
+    itemType: item.itemType,
+    status: item.status,
+    routeScope: item.attributes?.routeScope || item.metadata?.routeScope || null,
+    strategyHubEligible: item.attributes?.strategyHubEligible === true || item.metadata?.strategyHubEligible === true,
+    sourceIds: item.sourceIds || [],
+    factRefCount: item.factRefs?.length || 0,
+    evidenceRefCount: item.evidenceRefs?.length || 0,
+    evidenceChunkRefCount: item.evidenceChunkRefs?.length || 0,
+    atomRefCount: item.atomRefs?.length || 0,
+    candidateKeyCount: item.candidateKeys?.length || 0,
+    artifactIdCount: item.artifactIds?.length || 0,
+    sensitivity: item.sensitivity,
+    minTier: item.minTier,
+    synthesisVerification: {
+      status: item.synthesisVerification?.status || null,
+      supportLevel: item.synthesisVerification?.supportLevel || null,
+      verificationVersion: item.synthesisVerification?.verificationVersion || null,
+      claimTextHash: item.synthesisVerification?.claimTextHash || null,
+    },
+  }
+}
+
 function safeQueryScore(item = {}) {
   const text = `${item.title || ''} ${item.body || ''}`
   if (BLOCKED_QUERY_PATTERN.test(text)) return -1
@@ -254,6 +310,10 @@ async function main() {
   if (invalidItem) {
     throw new Error(`SYNTHESIS-ENGINE-001 synthesized item is missing governed provenance: ${invalidItem.synthesizedItemId}`)
   }
+  const unverifiedItem = synthesis.items.find(item => item.synthesisVerification?.status !== 'verified')
+  if (unverifiedItem) {
+    throw new Error(`SYNTHESIS-VERIFY-001 blocked unverified governed synthesis item: ${unverifiedItem.synthesizedItemId}`)
+  }
   const itemsMissingThemeMetadata = synthesis.items.filter(item =>
     !item.attributes?.themeKey ||
     item.attributes?.synthesisQuality !== 'clustered' ||
@@ -337,8 +397,8 @@ async function main() {
   const updatedActionRouterCard = null
 
   console.log('SYNTHESIS HUMAN SAMPLE')
-  for (const row of humanSampleRows) {
-    console.log(`${row.n}. [${row.scope}${row.strategyHubEligible ? ' strategy' : ''}] ${row.title} (facts=${row.facts}, atoms=${row.atoms}, chunks=${row.chunks})`)
+  for (const row of safeHumanSample(humanSampleRows)) {
+    console.log(`${row.n}. [${row.scope}${row.strategyHubEligible ? ' strategy' : ''}] titleHash=${row.titleHash} themeHash=${row.themeKeyHash} (facts=${row.facts}, atoms=${row.atoms}, chunks=${row.chunks})`)
   }
 
   console.log(JSON.stringify({
@@ -357,10 +417,10 @@ async function main() {
       queries,
     },
     synthesis: {
-      run: synthesis.run,
+      run: safeRunSummary(synthesis.run),
       itemCount: synthesis.items.length,
       strategyEligibleItems: strategyEligibleItems.length,
-      humanSample: humanSampleRows,
+      humanSample: safeHumanSample(humanSampleRows),
       quality,
       activeSurfaceQuality: {
         activeClusteredItems: snapshot.activeClusteredItems,
@@ -369,8 +429,21 @@ async function main() {
         routeableActiveItems: snapshot.routeableActiveItems,
         routeableUnclusteredItems: snapshot.routeableUnclusteredItems,
       },
-      firstItem: synthesis.items[0],
-      snapshot,
+      firstItem: safeItemSummary(synthesis.items[0]),
+      snapshot: {
+        generatedAt: snapshot.generatedAt,
+        totalItems: snapshot.totalItems,
+        activeItems: snapshot.activeItems,
+        itemsWithFactRefs: snapshot.itemsWithFactRefs,
+        itemsWithEvidenceRefs: snapshot.itemsWithEvidenceRefs,
+        itemsWithEvidenceChunkRefs: snapshot.itemsWithEvidenceChunkRefs,
+        itemsWithOwnerConfidence: snapshot.itemsWithOwnerConfidence,
+        activeClusteredItems: snapshot.activeClusteredItems,
+        activeLegacyProtectedItems: snapshot.activeLegacyProtectedItems,
+        activeUnclusteredUnprotectedItems: snapshot.activeUnclusteredUnprotectedItems,
+        routeableActiveItems: snapshot.routeableActiveItems,
+        routeableUnclusteredItems: snapshot.routeableUnclusteredItems,
+      },
     },
     cards: {
       synthesis: updatedSynthesisCard,

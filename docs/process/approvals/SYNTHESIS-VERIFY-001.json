@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYNTHESIS-VERIFY-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-09T17:18:52-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/synthesis-verify-001-plan.md",
+  "approvedPlanSha256": "5843fe0cb0a91fbe7947f076dacfa49fc3b7d55b178287cff6f5e6b68c8a3798",
+  "approvedRepoHead": "148f8684367d9d2d9f93a335d02978b842ab3e34",
+  "notes": "SYNTHESIS-VERIFY-001 plan approved at 9.8. Implement only the synthesized-claim verification closeout slice: central verifier for governed synthesized items, shared-comms synthesized items, and action routes; unsupported/stale/contradicted/missing-tier and single-evidence Strategy claims fail closed; route proposal/approval/apply gates; Strategy Hub verified-route filtering; advisory/blocked shared-comms downgrade; focused proof script; foundation verifier/readiness coverage. Do not build Strategy expansion, Sales, Agent Feedback, Scoper, Agent Factory, broad corpus, researcher, video mining, extraction retry/backoff, meeting ACL/vault work, public access, advisor chat, sprint view, or UI polish.",
+  "approvalDigest": "b785b4ffc33d82bc9ba140540ed99d13b0173b44dc2c72759c7d0da5abfc8cad"
+}

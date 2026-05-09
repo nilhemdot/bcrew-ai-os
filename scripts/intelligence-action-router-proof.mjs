@@ -12,6 +12,32 @@ function countBy(rows, keyName, value) {
   return Number((rows || []).find(row => row[keyName] === value)?.count || 0)
 }
 
+function safeRunSummary(run = {}) {
+  return run
+    ? {
+        runId: run.runId,
+        runType: run.runType,
+        status: run.status,
+        requestedBy: run.requestedBy,
+        routeCount: run.routeCount,
+        synthesizedItemCount: run.synthesizedItemCount,
+        maxTier: run.maxTier,
+        startedAt: run.startedAt,
+        finishedAt: run.finishedAt,
+      }
+    : null
+}
+
+function safeCardSummary(card = null) {
+  if (!card) return null
+  return {
+    id: card.id,
+    lane: card.lane,
+    priority: card.priority,
+    statusNoteHasDoneV1: /done v1|closed/i.test(String(card.statusNote || '')),
+  }
+}
+
 async function main() {
   await initFoundationDb()
 
@@ -61,6 +87,12 @@ async function main() {
   if (snapshot.tierOneRoutes < snapshot.totalRoutes) {
     throw new Error('ACTION-ROUTER-001 proof routes must respect maxTier <= 1.')
   }
+  if (snapshot.unverifiedDecisionGradeRoutes !== 0) {
+    throw new Error(`SYNTHESIS-VERIFY-001 requires zero unverified decision-grade action routes; found ${snapshot.unverifiedDecisionGradeRoutes}.`)
+  }
+  if (proof.selectedItems.some(item => item.synthesisVerification?.status !== 'verified')) {
+    throw new Error('SYNTHESIS-VERIFY-001 route proposal selected an unverified synthesized item.')
+  }
 
   const updatedActionRouterCard = await updateBacklogItem('ACTION-ROUTER-001', {
     lane: 'done',
@@ -77,14 +109,34 @@ async function main() {
 
   console.log(JSON.stringify({
     proof: {
-      run: proof.run,
+      run: safeRunSummary(proof.run),
       newRoutes: proof.routes.length,
       selectedItems: proof.selectedItems.length,
     },
-    snapshot,
+    snapshot: {
+      generatedAt: snapshot.generatedAt,
+      totalRoutes: snapshot.totalRoutes,
+      pendingRoutes: snapshot.pendingRoutes,
+      approvedRoutes: snapshot.approvedRoutes,
+      appliedRoutes: snapshot.appliedRoutes,
+      rejectedRoutes: snapshot.rejectedRoutes,
+      routesRequiringApproval: snapshot.routesRequiringApproval,
+      routesWithOwner: snapshot.routesWithOwner,
+      routesWithSourceProvenance: snapshot.routesWithSourceProvenance,
+      tierOneRoutes: snapshot.tierOneRoutes,
+      verifiedSynthesisRoutes: snapshot.verifiedSynthesisRoutes,
+      unverifiedDecisionGradeRoutes: snapshot.unverifiedDecisionGradeRoutes,
+      distinctSynthesizedItems: snapshot.distinctSynthesizedItems,
+      appliedRoutesChecked: snapshot.appliedRoutesChecked,
+      appliedRoutesWithDestinationRecord: snapshot.appliedRoutesWithDestinationRecord,
+      routesByDestination: snapshot.routesByDestination,
+      routesByStatus: snapshot.routesByStatus,
+      latestRun: safeRunSummary(snapshot.latestRun),
+      latestProofRun: safeRunSummary(snapshot.latestProofRun),
+    },
     cards: {
-      actionRouter: updatedActionRouterCard,
-      strategy: updatedStrategyCard,
+      actionRouter: safeCardSummary(updatedActionRouterCard),
+      strategy: safeCardSummary(updatedStrategyCard),
     },
   }, null, 2))
 }

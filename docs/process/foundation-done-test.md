@@ -38,9 +38,10 @@ The readiness test covers:
 
 `SOURCE-LIFECYCLE-COMPLETION-001` is closed under `source-lifecycle-completion-v1`, so the source lifecycle completion/revalidation blocker should not appear in the current readiness output.
 
+`SYNTHESIS-VERIFY-001` is closed under `synthesis-verify-v1`, so the synthesized-claim verification blocker should not appear in the current readiness output.
+
 The result can still be `not_ready` while these blocker cards remain open:
 
-- `SYNTHESIS-VERIFY-001`
 - `EXTRACT-RUN-HARDENING-001`
 - `MEETING-VAULT-ACL-001`
 - `DRIVE-ACCESS-REQUEST-001`

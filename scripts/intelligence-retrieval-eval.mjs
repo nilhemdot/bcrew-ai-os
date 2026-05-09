@@ -87,7 +87,6 @@ function evaluateCase({ testCase, lexicalResults, hybridResults, maxTier }) {
 
   return {
     id: testCase.id,
-    query: testCase.query,
     sourceId: testCase.sourceId,
     expectedAtomId: testCase.expectedAtomId,
     passed,
@@ -98,8 +97,20 @@ function evaluateCase({ testCase, lexicalResults, hybridResults, maxTier }) {
     titleOk,
     matchedByOk,
     matchedBy,
-    topHybridTitle: hybridResults.results[0]?.title || null,
-    matchedTitle: hybridMatch?.title || null,
+  }
+}
+
+function safeRunSummary(run = {}) {
+  return {
+    runId: run.runId,
+    runType: run.runType,
+    status: run.status,
+    requestedBy: run.requestedBy,
+    sourceIds: run.sourceIds || [],
+    searchResultCount: run.searchResultCount,
+    maxTier: run.maxTier,
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
   }
 }
 
@@ -202,7 +213,8 @@ async function main() {
       failedCases: caseResults.filter(item => !item.passed).map(item => item.id),
       passRate,
       distinctSources: uniqueText(fixture.cases.map(item => item.sourceId)).length,
-      run,
+      caseResults,
+      run: safeRunSummary(run),
     }
 
     console.log(JSON.stringify(summary, null, 2))

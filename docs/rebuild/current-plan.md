@@ -175,7 +175,7 @@ After the SECURITY-002 closeout, Steve asked for a full sweep of specs, audits, 
 - `SYSTEM-010-GHOST-CLOSEOUT-001` — done for the runtime/process-control readiness blocker under `system-010-ghost-closeout-v1`; active-process, liveness, stop/decommission, restart-status, and cost/process risk are visible and fail closed.
 - `SOURCE-LIFECYCLE-COMPLETION-001` — done for the source lifecycle completion/revalidation blocker under `source-lifecycle-completion-v1`; all 35 source contracts now have terminal states, load-bearing sources are complete/read-only/current-reality for current scope, and future/gap sources are accepted-blocked with owner, reason, next action, and blocker card.
 - `EXTRACT-RUN-HARDENING-001` — extraction run ID, retry/backoff, partial failure, stale lease, cursor, and bounded backfill hardening.
-- `SYNTHESIS-VERIFY-001` — source-evidence verification gate for synthesized claims before Strategy/scout consumption.
+- `SYNTHESIS-VERIFY-001` — done under `synthesis-verify-v1`; synthesized claims now require source-evidence verification before Strategy/scout/researcher/advisor consumption.
 - `MEETING-FORWARD-TRANSCRIPT-ENFORCEMENT-001` — future meeting transcript capture and gap handling.
 - `PROCESS-ACK-STATES-001` — governed acknowledged-state handling for accepted gaps and intentional pauses.
 - `VERIFIER-INCREMENTAL-COVERAGE-001` — incremental/card-scoped verifier path.
@@ -184,7 +184,7 @@ Disposition notes:
 
 - `FOUNDATION-SURFACE-UPDATES-001` and `RUNTIME-HEALTH-SIMPLIFY-001` already cover the Foundation command-center/UI clarity work; do not create a duplicate command-center card unless Steve explicitly wants a separate build.
 - Existing source cards still own source-specific work where they are already precise enough. The new cards above exist only where audits found missing ownership or an umbrella that could hide a Foundation gate.
-- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order. `FOUNDATION-DONE-TEST-001` is implemented as the readiness detector, `SYSTEM-010-GHOST-CLOSEOUT-001` closes its runtime/process-control leg, and `SOURCE-LIFECYCLE-COMPLETION-001` closes its source completion/revalidation leg; the remaining blocker cards still do not pass.
+- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order. `FOUNDATION-DONE-TEST-001` is implemented as the readiness detector, `SYSTEM-010-GHOST-CLOSEOUT-001` closes its runtime/process-control leg, `SOURCE-LIFECYCLE-COMPLETION-001` closes its source completion/revalidation leg, and `SYNTHESIS-VERIFY-001` closes its synthesized-claim verification leg; the remaining extraction and meeting Drive/vault blocker cards still do not pass.
 
 ### Operator Surface Standard
 

@@ -130,6 +130,10 @@ import {
   buildStopDecision,
   terminateProcessTree,
 } from './lib/runtime-process-control.js'
+import {
+  isDecisionGradeActionRoute,
+  isSynthesisRecordVerified,
+} from './lib/synthesis-claim-verification.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -5320,10 +5324,13 @@ function isStrategyHubReviewRoute(route = {}) {
     metadata.reviewSurface ||
     ''
   ).toLowerCase()
-  return metadata.strategyHubEligible === true ||
+  const strategyCandidate = metadata.strategyHubEligible === true ||
     surface === 'strategy' ||
     surface === 'strategy_hub' ||
     surface === 'strategic_execution'
+  if (!strategyCandidate) return false
+  if (!isDecisionGradeActionRoute(route)) return true
+  return isSynthesisRecordVerified(route)
 }
 
 function buildStrategyHubV2Payload({ goalTruth, operatingTruth, actionRouter, retrieval, sourceTruthStatus = 'live', fallback = null }) {

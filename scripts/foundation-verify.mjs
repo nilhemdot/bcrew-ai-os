@@ -111,6 +111,15 @@ import {
   buildSourceLifecycleCompletionStatus,
 } from '../lib/source-lifecycle-completion.js'
 import {
+  SYNTHESIS_VERIFY_APPROVAL_PATH,
+  SYNTHESIS_VERIFY_CARD_ID,
+  SYNTHESIS_VERIFY_CLOSEOUT_KEY,
+  SYNTHESIS_VERIFY_DOC_PATH,
+  SYNTHESIS_VERIFY_PLAN_PATH,
+  SYNTHESIS_VERIFY_SCRIPT_PATH,
+  SYNTHESIS_VERIFY_SUMMARY_MARKER,
+} from '../lib/synthesis-claim-verification.js'
+import {
   FOUNDATION_DONE_TEST_APPROVAL_PATH,
   FOUNDATION_DONE_TEST_CARD_ID,
   FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
@@ -357,6 +366,10 @@ const SOURCE_LIFECYCLE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const SOURCE_LIFECYCLE_COMPLETION_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'SOURCE-LIFECYCLE-COMPLETION-001',
+]
+
+const SYNTHESIS_VERIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SYNTHESIS-VERIFY-001',
 ]
 
 const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -1050,6 +1063,12 @@ async function main() {
   const sourceLifecycleCompletionDocSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_DOC_PATH)
   const sourceLifecycleCompletionApprovalSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_APPROVAL_PATH)
   const sourceLifecycleCompletionApproval = JSON.parse(sourceLifecycleCompletionApprovalSource)
+  const synthesisVerifyRegistrySource = await readRepoFile('lib/synthesis-claim-verification.js')
+  const synthesisVerifyScriptSource = await readRepoFile(SYNTHESIS_VERIFY_SCRIPT_PATH)
+  const synthesisVerifyPlanSource = await readRepoFile(SYNTHESIS_VERIFY_PLAN_PATH)
+  const synthesisVerifyDocSource = await readRepoFile(SYNTHESIS_VERIFY_DOC_PATH)
+  const synthesisVerifyApprovalSource = await readRepoFile(SYNTHESIS_VERIFY_APPROVAL_PATH)
+  const synthesisVerifyApproval = JSON.parse(synthesisVerifyApprovalSource)
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -1233,6 +1252,7 @@ async function main() {
   const dailyExecSummaryApprovalRef = DAILY_EXEC_SUMMARY_APPROVAL_PATH
   const sourceLifecycleApprovalRef = SOURCE_LIFECYCLE_APPROVAL_PATH
   const sourceLifecycleCompletionApprovalRef = SOURCE_LIFECYCLE_COMPLETION_APPROVAL_PATH
+  const synthesisVerifyApprovalRef = SYNTHESIS_VERIFY_APPROVAL_PATH
   const foundationDoneTestApprovalRef = FOUNDATION_DONE_TEST_APPROVAL_PATH
   const system010ApprovalRef = SYSTEM_010_APPROVAL_PATH
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
@@ -1293,6 +1313,11 @@ async function main() {
     repoRoot,
     approvalRef: sourceLifecycleCompletionApprovalRef,
     cardId: SOURCE_LIFECYCLE_COMPLETION_CARD_ID,
+  })
+  const synthesisVerifyApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: synthesisVerifyApprovalRef,
+    cardId: SYNTHESIS_VERIFY_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3516,6 +3541,25 @@ async function main() {
         operatorCloseout: true,
       }
     : null)
+  const buildLogSynthesisVerifyBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(SYNTHESIS_VERIFY_CARD_ID) &&
+      build.closeoutKey === SYNTHESIS_VERIFY_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: SYNTHESIS_VERIFY_CLOSEOUT_KEY,
+        backlogIds: [SYNTHESIS_VERIFY_CARD_ID],
+        mentionedBacklogIds: [
+          'SYNTHESIS-FACTS-001',
+          'SYNTHESIS-ENGINE-001',
+          'ACTION-ROUTER-001',
+          FOUNDATION_DONE_TEST_CARD_ID,
+          'EXTRACT-RUN-HARDENING-001',
+          'MEETING-VAULT-ACL-001',
+          'DRIVE-ACCESS-REQUEST-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
   const buildLogFoundationDoneTestBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_DONE_TEST_CARD_ID) &&
       build.closeoutKey === FOUNDATION_DONE_TEST_CLOSEOUT_KEY
@@ -4786,6 +4830,7 @@ async function main() {
   const dailyExecSummary = (foundationHub.backlogItems || []).find(item => item.id === DAILY_EXEC_SUMMARY_CARD_ID) || null
   const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
   const sourceLifecycleCompletion = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_COMPLETION_CARD_ID) || null
+  const synthesisVerify = (foundationHub.backlogItems || []).find(item => item.id === SYNTHESIS_VERIFY_CARD_ID) || null
   const foundationDoneTest = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DONE_TEST_CARD_ID) || null
   const system010GhostCloseout = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_010_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
@@ -6648,6 +6693,65 @@ async function main() {
     'SOURCE-LIFECYCLE-COMPLETION-001 closes source completion/revalidation readiness blocker honestly',
     `sources=${sourceLifecycleCompletionStatus.summary?.terminalSourceCount} loadBearing=${sourceLifecycleCompletionStatus.summary?.loadBearingSourceCount} acceptedBlocked=${sourceLifecycleCompletionStatus.summary?.acceptedBlockedSourceCount} readinessNamesSource=${sourceLifecycleCompletionStatus.summary?.readinessStillNamesSourceLifecycleCompletion}`,
   )
+  const synthesisVerifyBuildLogExact = buildLogSynthesisVerifyBuild?.backlogIds?.length === 1 &&
+    buildLogSynthesisVerifyBuild.backlogIds.includes(SYNTHESIS_VERIFY_CARD_ID) &&
+    ['EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      .every(id => (buildLogSynthesisVerifyBuild.mentionedBacklogIds || []).includes(id)) &&
+    !['EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      .some(id => (buildLogSynthesisVerifyBuild.backlogIds || []).includes(id))
+  ensure(
+    checks,
+    synthesisVerify?.lane === 'done' &&
+      String(synthesisVerify?.statusNote || '').includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY) &&
+      synthesisVerifyApprovalValidation.ok &&
+      synthesisVerifyApprovalValidation.mode === 'v2' &&
+      synthesisVerifyApproval.cardId === SYNTHESIS_VERIFY_CARD_ID &&
+      Number(synthesisVerifyApproval.score) >= 9.8 &&
+      synthesisVerifyApproval.approvedPlanRef === SYNTHESIS_VERIFY_PLAN_PATH &&
+      synthesisVerifyApprovalValidation.approval?.approvedPlanRef === SYNTHESIS_VERIFY_PLAN_PATH &&
+      includesAll(synthesisVerifyPlanSource, [
+        'central verification layer',
+        'single-evidence Strategy claims fail closed',
+        'Strategy Hub v2 only includes verified Strategy routes',
+        'Advisor remains fail-closed',
+      ]) &&
+      includesAll(synthesisVerifyRegistrySource, [
+        SYNTHESIS_VERIFY_CLOSEOUT_KEY,
+        'SYNTHESIS_CLAIM_SURFACES',
+        'verifySynthesizedRecord',
+        'requireVerifiedSynthesisRecord',
+        'filterVerifiedSynthesisRecords',
+      ]) &&
+      includesAll(synthesisVerifyScriptSource, [
+        SYNTHESIS_VERIFY_SUMMARY_MARKER,
+        'unsupported',
+        'single_evidence_strategy_claim',
+        'buildSynthesisVerificationDbReport',
+      ]) &&
+      includesAll(intelligenceSynthesisSource, [
+        'verifySynthesizedRecord',
+        'SYNTHESIS-VERIFY-001 blocked governed synthesis item',
+      ]) &&
+      includesAll(intelligenceActionRouterSource, [
+        'requireVerifiedSynthesisRecord',
+        "item.metadata->'synthesisVerification'->>'status' = 'verified'",
+        'unverified_decision_grade_routes',
+      ]) &&
+      includesAll(synthesisVerifyDocSource, [
+        'Synthesis Claim Verification Closeout',
+        'Unsupported, stale, contradicted, missing-tier',
+        'Strategy Advisor remains fail-closed',
+      ]) &&
+      includesAll(foundationVerifySource, SYNTHESIS_VERIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      packageJson.scripts?.['process:synthesis-verify-check'] === 'node --env-file-if-exists=.env scripts/process-synthesis-verify-check.mjs' &&
+      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(SYNTHESIS_VERIFY_CARD_ID) &&
+      buildLogSynthesisVerifyBuild?.operatorCloseout === true &&
+      synthesisVerifyBuildLogExact &&
+      currentPlan.includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY) &&
+      currentState.includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY),
+    'SYNTHESIS-VERIFY-001 closes synthesized-claim verification readiness blocker honestly',
+    `lane=${synthesisVerify?.lane || 'missing'} closeout=${SYNTHESIS_VERIFY_CLOSEOUT_KEY} readinessNamesSynthesis=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(SYNTHESIS_VERIFY_CARD_ID)}`,
+  )
   const foundationFollowupCardCaptureBuildLogExact = buildLogFoundationFollowupCardCaptureBuild?.backlogIds?.length === 1 &&
     buildLogFoundationFollowupCardCaptureBuild.backlogIds.includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
     FOUNDATION_FOLLOWUP_BUILD_ORDER.every(id => (buildLogFoundationFollowupCardCaptureBuild.mentionedBacklogIds || []).includes(id)) &&
@@ -8031,13 +8135,15 @@ async function main() {
       FOUNDATION_READINESS_REQUIRED_LEG_KEYS.every(key =>
         (foundationDoneTestReadinessStatus.legs || []).some(leg => leg.key === key)
       ) &&
-      ['source_verifiable_answer', 'extraction_retry_ledger_backfill', 'meeting_raw_drive_acl_vault']
+      ['extraction_retry_ledger_backfill', 'meeting_raw_drive_acl_vault']
         .every(key => foundationDoneFailedKeys.has(key)) &&
+      !foundationDoneFailedKeys.has('source_verifiable_answer') &&
       !foundationDoneFailedKeys.has('runtime_process_control') &&
-      ['tier_redaction_safety', 'p0_structural_coverage', 'runtime_process_control', 'clear_pass_fail_output']
+      ['source_verifiable_answer', 'tier_redaction_safety', 'p0_structural_coverage', 'runtime_process_control', 'clear_pass_fail_output']
         .every(key => foundationDonePassedKeys.has(key)) &&
-      ['SYNTHESIS-VERIFY-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      ['EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
         .every(id => foundationDoneBlockingCards.has(id)) &&
+      !foundationDoneBlockingCards.has(SYNTHESIS_VERIFY_CARD_ID) &&
       !foundationDoneBlockingCards.has(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
       !foundationDoneBlockingCards.has(SYSTEM_010_CARD_ID) &&
       buildLogFoundationDoneTestBuild?.operatorCloseout === true &&

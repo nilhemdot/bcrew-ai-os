@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { createHash } from 'node:crypto'
 import {
   closeFoundationDb,
   collectSourceBackedSynthesisFacts,
@@ -15,6 +16,52 @@ import {
 import { callEmbedding } from '../lib/llm-router.js'
 
 const EMBEDDING_DIMENSIONS = 1536
+
+function safeRunSummary(run = {}) {
+  return {
+    runId: run.runId,
+    runType: run.runType,
+    status: run.status,
+    requestedBy: run.requestedBy,
+    sourceIds: run.sourceIds || [],
+    factCount: run.factCount,
+    evidenceCount: run.evidenceCount,
+    itemCount: run.itemCount,
+    maxTier: run.maxTier,
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+  }
+}
+
+function safeEvidenceFactSummary(fact = {}) {
+  return {
+    factId: fact.factId,
+    factType: fact.factType,
+    sourceId: fact.sourceId,
+    sourceIds: fact.sourceIds || [],
+    evidenceId: fact.evidenceId || null,
+    atomId: fact.atomId || null,
+    candidateKeyHash: fact.candidateKey ? `sha256:${stableHash(fact.candidateKey).slice(0, 24)}` : null,
+    artifactIdHash: fact.artifactId ? `sha256:${stableHash(fact.artifactId).slice(0, 24)}` : null,
+    sensitivity: fact.sensitivity,
+    minTier: fact.minTier,
+    status: fact.status,
+  }
+}
+
+function stableHash(value) {
+  return createHash('sha256').update(String(value || '')).digest('hex')
+}
+
+function safeCardSummary(card = null) {
+  if (!card) return null
+  return {
+    id: card.id,
+    lane: card.lane,
+    priority: card.priority,
+    statusNoteHasDoneV1: /done v1|closed/i.test(String(card.statusNote || '')),
+  }
+}
 
 function requireFactType(facts, factType) {
   const found = facts.find(fact => fact.factType === factType)
@@ -170,7 +217,7 @@ async function main() {
   }, 'synthesis-facts-proof')
 
   console.log(JSON.stringify({
-    run: saved.run,
+    run: safeRunSummary(saved.run),
     facts: {
       saved: saved.facts.length,
       sourceIds: factBundle.sourceIds,
@@ -179,10 +226,10 @@ async function main() {
       archivedStaleFacts: saved.archivedStaleFacts,
       archivedSynthesizedItemsWithStaleFacts: saved.archivedSynthesizedItemsWithStaleFacts,
       sourceOverlapProof,
-      evidenceFact: savedEvidenceFact,
+      evidenceFact: safeEvidenceFactSummary(savedEvidenceFact),
     },
     synthesis: {
-      refreshedRun: synthesis.run,
+      refreshedRun: safeRunSummary(synthesis.run),
       itemCount: synthesis.items.length,
       activeItems: synthesisSnapshot.activeItems,
       itemsWithActiveFactRefs: synthesisSnapshot.itemsWithActiveFactRefs,
@@ -190,8 +237,8 @@ async function main() {
       itemsWithActiveEvidenceChunkRefs: synthesisSnapshot.itemsWithActiveEvidenceChunkRefs,
     },
     cards: {
-      facts: updatedFactsCard,
-      synthesis: updatedSynthesisCard,
+      facts: safeCardSummary(updatedFactsCard),
+      synthesis: safeCardSummary(updatedSynthesisCard),
     },
   }, null, 2))
 }

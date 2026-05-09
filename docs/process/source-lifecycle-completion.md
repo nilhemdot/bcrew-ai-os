@@ -2,7 +2,7 @@
 
 Status: shipped slice for `source-lifecycle-completion-v1`.
 
-This closeout covers the source lifecycle completion/revalidation blocker in the Foundation readiness exit test. It does not make synthesis, extraction retry/backoff, or meeting Drive ACL/vault work pass.
+This closeout covers the source lifecycle completion/revalidation blocker in the Foundation readiness exit test. It does not make extraction retry/backoff or meeting Drive ACL/vault work pass.
 
 ## What Is Now Covered
 
@@ -35,7 +35,6 @@ This closeout covers the source lifecycle completion/revalidation blocker in the
 
 Foundation can still report `not_ready` because these blocker cards remain open:
 
-- `SYNTHESIS-VERIFY-001`
 - `EXTRACT-RUN-HARDENING-001`
 - `MEETING-VAULT-ACL-001`
 - `DRIVE-ACCESS-REQUEST-001`
@@ -45,4 +44,4 @@ Foundation can still report `not_ready` because these blocker cards remain open:
 - Strategy Hub, Sales, Agent Feedback, Scoper, Agent Factory, broad corpus, researcher, video mining, sprint view, or UI polish.
 - Meeting Drive ACL/vault changes.
 - Extraction retry/backoff hardening.
-- Synthesis or claim-level verification.
+- New Strategy, scout, researcher, Scoper, or advisor output.
