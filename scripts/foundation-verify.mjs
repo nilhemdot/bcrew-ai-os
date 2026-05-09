@@ -94,8 +94,22 @@ import {
   SOURCE_LIFECYCLE_CARD_ID,
   SOURCE_LIFECYCLE_CLOSEOUT_KEY,
   SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH,
+  SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT,
   SOURCE_LIFECYCLE_ROUTE,
 } from '../lib/source-lifecycle.js'
+import {
+  SOURCE_LIFECYCLE_ACCEPTED_BLOCKED_SOURCE_IDS,
+  SOURCE_LIFECYCLE_COMPLETION_APPROVAL_PATH,
+  SOURCE_LIFECYCLE_COMPLETION_CARD_ID,
+  SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY,
+  SOURCE_LIFECYCLE_COMPLETION_DOC_PATH,
+  SOURCE_LIFECYCLE_COMPLETION_EXPECTED_SOURCE_COUNT,
+  SOURCE_LIFECYCLE_COMPLETION_PLAN_PATH,
+  SOURCE_LIFECYCLE_COMPLETION_SCRIPT_PATH,
+  SOURCE_LIFECYCLE_COMPLETION_SUMMARY_MARKER,
+  SOURCE_LIFECYCLE_LOAD_BEARING_SOURCE_IDS,
+  buildSourceLifecycleCompletionStatus,
+} from '../lib/source-lifecycle-completion.js'
 import {
   FOUNDATION_DONE_TEST_APPROVAL_PATH,
   FOUNDATION_DONE_TEST_CARD_ID,
@@ -339,6 +353,10 @@ const DAILY_EXEC_SUMMARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const SOURCE_LIFECYCLE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'SOURCE-LIFECYCLE-EXPANSION-001',
+]
+
+const SOURCE_LIFECYCLE_COMPLETION_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SOURCE-LIFECYCLE-COMPLETION-001',
 ]
 
 const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -1026,6 +1044,12 @@ async function main() {
   const system010DocSource = await readRepoFile(SYSTEM_010_DOC_PATH)
   const system010ApprovalSource = await readRepoFile(SYSTEM_010_APPROVAL_PATH)
   const system010Approval = JSON.parse(system010ApprovalSource)
+  const sourceLifecycleCompletionRegistrySource = await readRepoFile('lib/source-lifecycle-completion.js')
+  const sourceLifecycleCompletionScriptSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_SCRIPT_PATH)
+  const sourceLifecycleCompletionPlanSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_PLAN_PATH)
+  const sourceLifecycleCompletionDocSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_DOC_PATH)
+  const sourceLifecycleCompletionApprovalSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_APPROVAL_PATH)
+  const sourceLifecycleCompletionApproval = JSON.parse(sourceLifecycleCompletionApprovalSource)
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -1208,6 +1232,7 @@ async function main() {
   const changeLogComprehensiveApprovalRef = CHANGE_LOG_COMPREHENSIVE_APPROVAL_PATH
   const dailyExecSummaryApprovalRef = DAILY_EXEC_SUMMARY_APPROVAL_PATH
   const sourceLifecycleApprovalRef = SOURCE_LIFECYCLE_APPROVAL_PATH
+  const sourceLifecycleCompletionApprovalRef = SOURCE_LIFECYCLE_COMPLETION_APPROVAL_PATH
   const foundationDoneTestApprovalRef = FOUNDATION_DONE_TEST_APPROVAL_PATH
   const system010ApprovalRef = SYSTEM_010_APPROVAL_PATH
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
@@ -1263,6 +1288,11 @@ async function main() {
     repoRoot,
     approvalRef: sourceLifecycleApprovalRef,
     cardId: SOURCE_LIFECYCLE_CARD_ID,
+  })
+  const sourceLifecycleCompletionApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: sourceLifecycleCompletionApprovalRef,
+    cardId: SOURCE_LIFECYCLE_COMPLETION_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2557,6 +2587,12 @@ async function main() {
     sourceOfTruth,
     foundationHub,
   })
+  const sourceLifecycleCompletionStatus = buildSourceLifecycleCompletionStatus({
+    sourceLifecycle: foundationSourceLifecycle,
+    sourceOfTruth,
+    foundationHub,
+    repoHead: currentRepoHead,
+  })
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
     closeouts: foundationBuildCloseouts,
@@ -3464,6 +3500,22 @@ async function main() {
     (build.backlogIds || []).includes(SOURCE_LIFECYCLE_CARD_ID) &&
       build.closeoutKey === SOURCE_LIFECYCLE_CLOSEOUT_KEY
   )
+  const buildLogSourceLifecycleCompletionBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
+      build.closeoutKey === SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY,
+        backlogIds: [SOURCE_LIFECYCLE_COMPLETION_CARD_ID],
+        mentionedBacklogIds: [
+          'SYNTHESIS-VERIFY-001',
+          'EXTRACT-RUN-HARDENING-001',
+          'MEETING-VAULT-ACL-001',
+          'DRIVE-ACCESS-REQUEST-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
   const buildLogFoundationDoneTestBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_DONE_TEST_CARD_ID) &&
       build.closeoutKey === FOUNDATION_DONE_TEST_CLOSEOUT_KEY
@@ -4733,6 +4785,7 @@ async function main() {
   const changeLogComprehensive = (foundationHub.backlogItems || []).find(item => item.id === CHANGE_LOG_COMPREHENSIVE_CARD_ID) || null
   const dailyExecSummary = (foundationHub.backlogItems || []).find(item => item.id === DAILY_EXEC_SUMMARY_CARD_ID) || null
   const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
+  const sourceLifecycleCompletion = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_COMPLETION_CARD_ID) || null
   const foundationDoneTest = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DONE_TEST_CARD_ID) || null
   const system010GhostCloseout = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_010_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
@@ -6536,6 +6589,65 @@ async function main() {
     'SOURCE-LIFECYCLE-EXPANSION-001 adds source lifecycle visibility/control without ingestion',
     `sources=${sourceLifecycleStatus.summary?.sourceContractCount} targets=${sourceLifecycleStatus.summary?.extractionTargetCount} caps=${sourceLifecycleStatus.summary?.extractionCapsUnchanged} closeout=${buildLogSourceLifecycleBuild?.closeoutKey || 'missing'}`,
   )
+  const sourceLifecycleCompletionBuildLogExact = buildLogSourceLifecycleCompletionBuild?.backlogIds?.length === 1 &&
+    buildLogSourceLifecycleCompletionBuild.backlogIds.includes(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
+    ['SYNTHESIS-VERIFY-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      .every(id => (buildLogSourceLifecycleCompletionBuild.mentionedBacklogIds || []).includes(id)) &&
+    !['SYNTHESIS-VERIFY-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      .some(id => (buildLogSourceLifecycleCompletionBuild.backlogIds || []).includes(id))
+  ensure(
+    checks,
+    sourceLifecycleCompletion?.lane === 'done' &&
+      String(sourceLifecycleCompletion?.statusNote || '').includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY) &&
+      sourceLifecycleCompletionApprovalValidation.ok &&
+      sourceLifecycleCompletionApprovalValidation.mode === 'v2' &&
+      sourceLifecycleCompletionApproval.cardId === SOURCE_LIFECYCLE_COMPLETION_CARD_ID &&
+      Number(sourceLifecycleCompletionApproval.score) >= 9.8 &&
+      sourceLifecycleCompletionApproval.approvedPlanRef === SOURCE_LIFECYCLE_COMPLETION_PLAN_PATH &&
+      sourceLifecycleCompletionApprovalValidation.approval?.approvedPlanRef === SOURCE_LIFECYCLE_COMPLETION_PLAN_PATH &&
+      includesAll(sourceLifecycleCompletionPlanSource, [
+        'All 35 source contracts must be revalidated',
+        'Must Become Complete For Readiness',
+        'Must Become Accepted Blocked/Parked',
+        'Proof output is metadata-only',
+      ]) &&
+      includesAll(sourceLifecycleCompletionRegistrySource, [
+        SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY,
+        'SOURCE_LIFECYCLE_COMPLETION_RULES',
+        'SOURCE_LIFECYCLE_ACCEPTED_BLOCKED_SOURCE_IDS',
+        'buildSourceLifecycleCompletionStatus',
+        'accepted_blocked',
+        'metadata-only',
+      ]) &&
+      includesAll(sourceLifecycleCompletionScriptSource, [
+        SOURCE_LIFECYCLE_COMPLETION_SUMMARY_MARKER,
+        '/api/foundation/source-lifecycle',
+        '/api/source-of-truth',
+        '/api/foundation-hub',
+      ]) &&
+      includesAll(sourceLifecycleCompletionDocSource, [
+        'Source Lifecycle Completion Closeout',
+        '35 source contracts',
+        'metadata-only',
+        'accepted-blocked',
+      ]) &&
+      includesAll(foundationVerifySource, SOURCE_LIFECYCLE_COMPLETION_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      packageJson.scripts?.['process:source-lifecycle-completion-check'] === 'node --env-file-if-exists=.env scripts/process-source-lifecycle-completion-check.mjs' &&
+      sourceLifecycleCompletionStatus.status === 'healthy' &&
+      sourceLifecycleCompletionStatus.summary?.terminalSourceCount === SOURCE_LIFECYCLE_COMPLETION_EXPECTED_SOURCE_COUNT &&
+      sourceLifecycleCompletionStatus.summary?.loadBearingSourceCount === SOURCE_LIFECYCLE_LOAD_BEARING_SOURCE_IDS.length &&
+      sourceLifecycleCompletionStatus.summary?.acceptedBlockedSourceCount === SOURCE_LIFECYCLE_ACCEPTED_BLOCKED_SOURCE_IDS.length &&
+      sourceLifecycleCompletionStatus.summary?.privateOrRawLeakFindings === 0 &&
+      sourceLifecycleCompletionStatus.summary?.extractionTargetCount === SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT &&
+      sourceLifecycleCompletionStatus.summary?.readinessStillNamesSourceLifecycleCompletion === false &&
+      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
+      buildLogSourceLifecycleCompletionBuild?.operatorCloseout === true &&
+      sourceLifecycleCompletionBuildLogExact &&
+      currentPlan.includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY) &&
+      currentState.includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY),
+    'SOURCE-LIFECYCLE-COMPLETION-001 closes source completion/revalidation readiness blocker honestly',
+    `sources=${sourceLifecycleCompletionStatus.summary?.terminalSourceCount} loadBearing=${sourceLifecycleCompletionStatus.summary?.loadBearingSourceCount} acceptedBlocked=${sourceLifecycleCompletionStatus.summary?.acceptedBlockedSourceCount} readinessNamesSource=${sourceLifecycleCompletionStatus.summary?.readinessStillNamesSourceLifecycleCompletion}`,
+  )
   const foundationFollowupCardCaptureBuildLogExact = buildLogFoundationFollowupCardCaptureBuild?.backlogIds?.length === 1 &&
     buildLogFoundationFollowupCardCaptureBuild.backlogIds.includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
     FOUNDATION_FOLLOWUP_BUILD_ORDER.every(id => (buildLogFoundationFollowupCardCaptureBuild.mentionedBacklogIds || []).includes(id)) &&
@@ -7910,7 +8022,7 @@ async function main() {
       includesAll(foundationDoneTestDocSource, [
         'Foundation Readiness Exit Test',
         'not_ready',
-        'SOURCE-LIFECYCLE-COMPLETION-001',
+        'SYNTHESIS-VERIFY-001',
         'MEETING-VAULT-ACL-001',
       ]) &&
       packageJson.scripts?.['process:foundation-done-test'] === 'node --env-file-if-exists=.env scripts/process-foundation-done-test.mjs' &&
@@ -7924,8 +8036,9 @@ async function main() {
       !foundationDoneFailedKeys.has('runtime_process_control') &&
       ['tier_redaction_safety', 'p0_structural_coverage', 'runtime_process_control', 'clear_pass_fail_output']
         .every(key => foundationDonePassedKeys.has(key)) &&
-      ['SOURCE-LIFECYCLE-COMPLETION-001', 'SYNTHESIS-VERIFY-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      ['SYNTHESIS-VERIFY-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
         .every(id => foundationDoneBlockingCards.has(id)) &&
+      !foundationDoneBlockingCards.has(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
       !foundationDoneBlockingCards.has(SYSTEM_010_CARD_ID) &&
       buildLogFoundationDoneTestBuild?.operatorCloseout === true &&
       foundationDoneBuildLogExact &&

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-LIFECYCLE-COMPLETION-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-09T16:30:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/source-lifecycle-completion-001-plan.md",
+  "approvedPlanSha256": "099a5511c5392dc4c14d4f70c95eba32124243769cb883d240fa7ed4f85a20ae",
+  "approvedRepoHead": "800f0bff103205c23ae25033f8cbfb2f6924b256",
+  "notes": "SOURCE-LIFECYCLE-COMPLETION-001 plan approved at 9.8. Implement the smallest source lifecycle completion/revalidation closeout slice: terminal states for all 35 source contracts, metadata-only proof, accepted-blocked future/gap sources with owners/reasons/next actions/blocker cards, readiness-gate integration, focused proof script, verifier coverage, and process:foundation-ship. Do not build Strategy, Sales, Agent Feedback, Scoper, Agent Factory, broad corpus, researcher, video mining, meeting ACL changes, extraction retry/backoff, synthesis verification, sprint view, or UI polish.",
+  "approvalDigest": "e1e10dd47272de8e02ca40925081b8cac2c1eac778779da4a6ccc5604dc87a94"
+}

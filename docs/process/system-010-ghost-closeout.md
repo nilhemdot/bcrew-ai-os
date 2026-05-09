@@ -40,9 +40,8 @@ This closeout covers the runtime/process-control leg of the Foundation readiness
 
 ## Still Not Foundation Ready
 
-Foundation can still report `not_ready` because these blocker cards remain open:
+`SOURCE-LIFECYCLE-COMPLETION-001` later closed under `source-lifecycle-completion-v1`. Foundation can still report `not_ready` because these blocker cards remain open:
 
-- `SOURCE-LIFECYCLE-COMPLETION-001`
 - `SYNTHESIS-VERIFY-001`
 - `EXTRACT-RUN-HARDENING-001`
 - `MEETING-VAULT-ACL-001`
