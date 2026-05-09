@@ -170,7 +170,7 @@ After the SECURITY-002 closeout, Steve asked for a full sweep of specs, audits, 
 - `SECURITY-FILTERED-COMMS-ACCESS-001` — real-data filtered shared-comms/intelligence summaries for approved non-Tier-1 users.
 - `SECURITY-EDGE-001` — public edge auth/tunnel hardening before broader external exposure.
 - `SECURITY-PROVIDER-ROTATION-PROOF-001` — provider-side proof for exposed or retired credentials.
-- `DRIVE-ACCESS-REQUEST-001` — delegated Drive access-request and ACL repair preflights.
+- `DRIVE-ACCESS-REQUEST-001` — done under `drive-access-request-v1`; delegated Drive dry-run/preflight now proves actor shape, metadata-only permission inventory, missing-access/owner-ambiguity/request-access-needed classification, and dry-run ledgering without emails or permission mutations.
 - `FOUNDATION-DONE-TEST-001` — explicit Foundation readiness exit gate. Done for the gate implementation under `foundation-done-test-v1`; the current gate may still report `not_ready` while blocker cards remain open, and it does not make the blocker cards pass.
 - `SYSTEM-010-GHOST-CLOSEOUT-001` — done for the runtime/process-control readiness blocker under `system-010-ghost-closeout-v1`; active-process, liveness, stop/decommission, restart-status, and cost/process risk are visible and fail closed.
 - `SOURCE-LIFECYCLE-COMPLETION-001` — done for the source lifecycle completion/revalidation blocker under `source-lifecycle-completion-v1`; all 35 source contracts now have terminal states, load-bearing sources are complete/read-only/current-reality for current scope, and future/gap sources are accepted-blocked with owner, reason, next action, and blocker card.
@@ -184,7 +184,7 @@ Disposition notes:
 
 - `FOUNDATION-SURFACE-UPDATES-001` and `RUNTIME-HEALTH-SIMPLIFY-001` already cover the Foundation command-center/UI clarity work; do not create a duplicate command-center card unless Steve explicitly wants a separate build.
 - Existing source cards still own source-specific work where they are already precise enough. The new cards above exist only where audits found missing ownership or an umbrella that could hide a Foundation gate.
-- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order. `FOUNDATION-DONE-TEST-001` is implemented as the readiness detector, `SYSTEM-010-GHOST-CLOSEOUT-001` closes its runtime/process-control leg, `SOURCE-LIFECYCLE-COMPLETION-001` closes its source completion/revalidation leg, `SYNTHESIS-VERIFY-001` closes its synthesized-claim verification leg, and `EXTRACT-RUN-HARDENING-001` closes its extraction retry/ledger/backfill leg; the remaining meeting Drive/vault blocker cards still do not pass.
+- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order. `FOUNDATION-DONE-TEST-001` is implemented as the readiness detector, `SYSTEM-010-GHOST-CLOSEOUT-001` closes its runtime/process-control leg, `SOURCE-LIFECYCLE-COMPLETION-001` closes its source completion/revalidation leg, `SYNTHESIS-VERIFY-001` closes its synthesized-claim verification leg, `EXTRACT-RUN-HARDENING-001` closes its extraction retry/ledger/backfill leg, and `DRIVE-ACCESS-REQUEST-001` closes delegated Drive preflight only. `MEETING-VAULT-ACL-001` still does not pass unless Phase A proves every file safe or separately approved Phase B repairs and rechecks Drive permissions.
 
 ### Operator Surface Standard
 
@@ -227,6 +227,7 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - `SECURITY-002` is done for v1 under `security-002-auth-tier-redaction-v1`: central request access context, route posture registry, `assertTier`/`assertRole`, server-derived intelligence evidence tier, stable redacted response helpers, subject_people/sensitivity/min_tier filtering proof, and Tier 1-only fail-closed posture for unproven shared-comms/intelligence access.
    - Interim admin gating remains for legacy broad read surfaces, but it now runs behind central route posture instead of scattered route allowlists.
    - `MEETING-VAULT-ACL-001` owns raw Google Drive meeting-note ACL enforcement. Do not treat SECURITY-002 as removing access from original Drive files.
+   - `DRIVE-ACCESS-REQUEST-001` is done under `drive-access-request-v1` for dry-run/preflight only. It classifies missing access and owner ambiguity without sending emails or mutating Drive permissions.
    - `SECURITY-FILTERED-COMMS-ACCESS-001` owns non-Tier-1 filtered summary access on real shared-comms data.
    - `SECURITY-EDGE-001` owns public edge auth/tunnel hardening before broader external exposure.
    - `SECURITY-PROVIDER-ROTATION-PROOF-001` owns provider-side credential rotation/retirement proof.

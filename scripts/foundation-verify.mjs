@@ -129,6 +129,26 @@ import {
   EXTRACT_RUN_HARDENING_SUMMARY_MARKER,
 } from '../lib/extraction-run-hardening.js'
 import {
+  DRIVE_ACCESS_REQUEST_APPROVAL_PATH,
+  DRIVE_ACCESS_REQUEST_CARD_ID,
+  DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY,
+  DRIVE_ACCESS_REQUEST_DOC_PATH,
+  DRIVE_ACCESS_REQUEST_PLAN_PATH,
+  DRIVE_ACCESS_REQUEST_SCRIPT_PATH,
+  DRIVE_ACCESS_REQUEST_SUMMARY_MARKER,
+  buildSyntheticDriveAccessPreflightProof,
+} from '../lib/drive-access-preflight.js'
+import {
+  MEETING_VAULT_ACL_CARD_ID,
+  MEETING_VAULT_ACL_CLOSEOUT_KEY,
+  MEETING_VAULT_ACL_DOC_PATH,
+  MEETING_VAULT_ACL_PLAN_PATH,
+  MEETING_VAULT_ACL_SCRIPT_PATH,
+  MEETING_VAULT_ACL_SUMMARY_MARKER,
+  MEETING_VAULT_POLICY_VERSION,
+  buildSyntheticMeetingVaultAclProof,
+} from '../lib/meeting-vault-acl.js'
+import {
   FOUNDATION_DONE_TEST_APPROVAL_PATH,
   FOUNDATION_DONE_TEST_CARD_ID,
   FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
@@ -300,6 +320,8 @@ import {
   getSharedCommunicationProcessingProvenanceGaps,
   getStaleSourceCrawlTargetRuns,
   getStaleLlmCalls,
+  getLatestDriveAccessPreflightRun,
+  getLatestMeetingVaultAclAudit,
   getStrategyGoalTruthSnapshot,
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
@@ -379,6 +401,10 @@ const SOURCE_LIFECYCLE_COMPLETION_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const SYNTHESIS_VERIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'SYNTHESIS-VERIFY-001',
+]
+
+const DRIVE_ACCESS_REQUEST_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'DRIVE-ACCESS-REQUEST-001',
 ]
 
 const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -1084,6 +1110,16 @@ async function main() {
   const extractRunHardeningDocSource = await readRepoFile(EXTRACT_RUN_HARDENING_DOC_PATH)
   const extractRunHardeningApprovalSource = await readRepoFile(EXTRACT_RUN_HARDENING_APPROVAL_PATH)
   const extractRunHardeningApproval = JSON.parse(extractRunHardeningApprovalSource)
+  const driveAccessPreflightSource = await readRepoFile('lib/drive-access-preflight.js')
+  const driveAccessRequestScriptSource = await readRepoFile(DRIVE_ACCESS_REQUEST_SCRIPT_PATH)
+  const driveAccessRequestDocSource = await readRepoFile(DRIVE_ACCESS_REQUEST_DOC_PATH)
+  const driveAccessRequestPlanSource = await readRepoFile(DRIVE_ACCESS_REQUEST_PLAN_PATH)
+  const driveAccessRequestApprovalSource = await readRepoFile(DRIVE_ACCESS_REQUEST_APPROVAL_PATH)
+  const driveAccessRequestApproval = JSON.parse(driveAccessRequestApprovalSource)
+  const meetingVaultAclSource = await readRepoFile('lib/meeting-vault-acl.js')
+  const meetingVaultAclScriptSource = await readRepoFile(MEETING_VAULT_ACL_SCRIPT_PATH)
+  const meetingVaultAclDocSource = await readRepoFile(MEETING_VAULT_ACL_DOC_PATH)
+  const meetingVaultAclPlanSource = await readRepoFile(MEETING_VAULT_ACL_PLAN_PATH)
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -1269,6 +1305,7 @@ async function main() {
   const sourceLifecycleCompletionApprovalRef = SOURCE_LIFECYCLE_COMPLETION_APPROVAL_PATH
   const synthesisVerifyApprovalRef = SYNTHESIS_VERIFY_APPROVAL_PATH
   const extractRunHardeningApprovalRef = EXTRACT_RUN_HARDENING_APPROVAL_PATH
+  const driveAccessRequestApprovalRef = DRIVE_ACCESS_REQUEST_APPROVAL_PATH
   const foundationDoneTestApprovalRef = FOUNDATION_DONE_TEST_APPROVAL_PATH
   const system010ApprovalRef = SYSTEM_010_APPROVAL_PATH
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
@@ -1339,6 +1376,11 @@ async function main() {
     repoRoot,
     approvalRef: extractRunHardeningApprovalRef,
     cardId: EXTRACT_RUN_HARDENING_CARD_ID,
+  })
+  const driveAccessRequestApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: driveAccessRequestApprovalRef,
+    cardId: DRIVE_ACCESS_REQUEST_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2639,6 +2681,10 @@ async function main() {
     foundationHub,
     repoHead: currentRepoHead,
   })
+  const latestDriveAccessPreflightRun = await getLatestDriveAccessPreflightRun({ cardId: DRIVE_ACCESS_REQUEST_CARD_ID }).catch(() => null)
+  const latestMeetingVaultAclAudit = await getLatestMeetingVaultAclAudit({ cardId: MEETING_VAULT_ACL_CARD_ID }).catch(() => null)
+  const syntheticDriveAccessPreflight = buildSyntheticDriveAccessPreflightProof()
+  const syntheticMeetingVaultAcl = buildSyntheticMeetingVaultAclProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
     closeouts: foundationBuildCloseouts,
@@ -3593,6 +3639,20 @@ async function main() {
           'MEETING-VAULT-ACL-001',
           'DRIVE-ACCESS-REQUEST-001',
           'MULTIMODAL-EXTRACTOR-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogDriveAccessRequestBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID) &&
+      build.closeoutKey === DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY,
+        backlogIds: [DRIVE_ACCESS_REQUEST_CARD_ID],
+        mentionedBacklogIds: [
+          MEETING_VAULT_ACL_CARD_ID,
+          FOUNDATION_DONE_TEST_CARD_ID,
         ],
         operatorCloseout: true,
       }
@@ -4869,6 +4929,8 @@ async function main() {
   const sourceLifecycleCompletion = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_COMPLETION_CARD_ID) || null
   const synthesisVerify = (foundationHub.backlogItems || []).find(item => item.id === SYNTHESIS_VERIFY_CARD_ID) || null
   const extractRunHardening = (foundationHub.backlogItems || []).find(item => item.id === EXTRACT_RUN_HARDENING_CARD_ID) || null
+  const driveAccessRequest = (foundationHub.backlogItems || []).find(item => item.id === DRIVE_ACCESS_REQUEST_CARD_ID) || null
+  const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
   const foundationDoneTest = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DONE_TEST_CARD_ID) || null
   const system010GhostCloseout = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_010_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
@@ -6864,6 +6926,87 @@ async function main() {
     'EXTRACT-RUN-HARDENING-001 closes extraction retry/ledger/backfill readiness blocker honestly',
     `lane=${extractRunHardening?.lane || 'missing'} hardening=${foundationHub.extractionControl?.hardeningStatus?.status || 'missing'} readinessNamesExtract=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(EXTRACT_RUN_HARDENING_CARD_ID)}`,
   )
+  const driveAccessRequestBuildLogExact = buildLogDriveAccessRequestBuild?.backlogIds?.length === 1 &&
+    buildLogDriveAccessRequestBuild.backlogIds.includes(DRIVE_ACCESS_REQUEST_CARD_ID) &&
+    [MEETING_VAULT_ACL_CARD_ID, FOUNDATION_DONE_TEST_CARD_ID]
+      .every(id => (buildLogDriveAccessRequestBuild.mentionedBacklogIds || []).includes(id)) &&
+    ![MEETING_VAULT_ACL_CARD_ID, FOUNDATION_DONE_TEST_CARD_ID]
+      .some(id => (buildLogDriveAccessRequestBuild.backlogIds || []).includes(id))
+  ensure(
+    checks,
+    driveAccessRequest?.lane === 'done' &&
+      String(driveAccessRequest?.statusNote || '').includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY) &&
+      driveAccessRequestApprovalValidation.ok &&
+      driveAccessRequestApprovalValidation.mode === 'v2' &&
+      driveAccessRequestApproval.cardId === DRIVE_ACCESS_REQUEST_CARD_ID &&
+      Number(driveAccessRequestApproval.score) >= 9.8 &&
+      driveAccessRequestApproval.approvedPlanRef === DRIVE_ACCESS_REQUEST_PLAN_PATH &&
+      driveAccessRequestApprovalValidation.approval?.approvedPlanRef === DRIVE_ACCESS_REQUEST_PLAN_PATH &&
+      includesAll(driveAccessRequestPlanSource, [
+        'DRIVE-ACCESS-REQUEST-001: dry-run/preflight only',
+        'no emails',
+        'no Drive permission mutation',
+        'request-access-needed',
+      ]) &&
+      includesAll(driveAccessPreflightSource, [
+        DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY,
+        'buildDriveFilePreflight',
+        'classifyDrivePermission',
+        'classifyDriveRepairAuthority',
+        'buildSyntheticDriveAccessPreflightProof',
+        'REQUEST_ACCESS_REQUIRED',
+      ]) &&
+      !driveAccessPreflightSource.includes('createDrivePermission') &&
+      !driveAccessPreflightSource.includes('deleteDrivePermission') &&
+      includesAll(foundationDbSource, [
+        'drive_access_preflight_runs',
+        'drive_access_preflight_items',
+        'recordDriveAccessPreflightRun',
+        'listMeetingRawDriveFileCandidates',
+      ]) &&
+      includesAll(driveAccessRequestScriptSource, [
+        DRIVE_ACCESS_REQUEST_SUMMARY_MARKER,
+        'proof output is metadata-only',
+        'requestAccessNeededCount',
+        'recordDriveAccessPreflightRun',
+      ]) &&
+      includesAll(meetingVaultAclSource, [
+        MEETING_VAULT_POLICY_VERSION,
+        'assertMeetingAclMutationApproved',
+        'buildMeetingAclDryRunPlan',
+        'buildSyntheticMeetingVaultAclProof',
+      ]) &&
+      includesAll(meetingVaultAclScriptSource, [
+        MEETING_VAULT_ACL_SUMMARY_MARKER,
+        'Apply path fails closed without Phase B approval',
+        'recordMeetingVaultAclAudit',
+      ]) &&
+      includesAll(driveAccessRequestDocSource, [
+        'dry-run delegated Drive preflight only',
+        'does not send request-access emails',
+        'does not add, remove, or transfer Google Drive permissions',
+      ]) &&
+      includesAll(meetingVaultAclDocSource, [
+        'Phase A dry-run implementation only',
+        'Not Approved',
+        'real Google Drive permission mutations',
+      ]) &&
+      packageJson.scripts?.['process:drive-access-request-check'] === 'node --env-file-if-exists=.env scripts/process-drive-access-request-check.mjs' &&
+      packageJson.scripts?.['process:meeting-vault-acl-check'] === 'node --env-file-if-exists=.env scripts/process-meeting-vault-acl-check.mjs' &&
+      syntheticDriveAccessPreflight.ok &&
+      syntheticMeetingVaultAcl.ok &&
+      latestDriveAccessPreflightRun?.status === 'healthy' &&
+      Number(latestDriveAccessPreflightRun?.inspectedFileCount || 0) > 0 &&
+      latestMeetingVaultAclAudit?.status &&
+      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID) &&
+      (foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_ACL_CARD_ID) &&
+      buildLogDriveAccessRequestBuild?.operatorCloseout === true &&
+      driveAccessRequestBuildLogExact &&
+      currentPlan.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY) &&
+      currentState.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY),
+    'DRIVE-ACCESS-REQUEST-001 closes delegated Drive dry-run/preflight without mutating Drive',
+    `lane=${driveAccessRequest?.lane || 'missing'} latest=${latestDriveAccessPreflightRun?.status || 'missing'} readinessNamesDrive=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID)} meeting=${meetingVaultAcl?.lane || 'missing'}`,
+  )
   const foundationFollowupCardCaptureBuildLogExact = buildLogFoundationFollowupCardCaptureBuild?.backlogIds?.length === 1 &&
     buildLogFoundationFollowupCardCaptureBuild.backlogIds.includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
     FOUNDATION_FOLLOWUP_BUILD_ORDER.every(id => (buildLogFoundationFollowupCardCaptureBuild.mentionedBacklogIds || []).includes(id)) &&
@@ -8254,8 +8397,9 @@ async function main() {
       !foundationDoneFailedKeys.has('extraction_retry_ledger_backfill') &&
       ['source_verifiable_answer', 'tier_redaction_safety', 'p0_structural_coverage', 'runtime_process_control', 'extraction_retry_ledger_backfill', 'clear_pass_fail_output']
         .every(key => foundationDonePassedKeys.has(key)) &&
-      ['MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      [MEETING_VAULT_ACL_CARD_ID]
         .every(id => foundationDoneBlockingCards.has(id)) &&
+      !foundationDoneBlockingCards.has(DRIVE_ACCESS_REQUEST_CARD_ID) &&
       !foundationDoneBlockingCards.has(EXTRACT_RUN_HARDENING_CARD_ID) &&
       !foundationDoneBlockingCards.has(SYNTHESIS_VERIFY_CARD_ID) &&
       !foundationDoneBlockingCards.has(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&

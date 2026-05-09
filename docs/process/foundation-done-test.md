@@ -42,10 +42,11 @@ The readiness test covers:
 
 `EXTRACT-RUN-HARDENING-001` is closed under `extract-run-hardening-v1`, so the extraction retry/ledger/backfill blocker should not appear in the current readiness output.
 
-The result can still be `not_ready` while these blocker cards remain open:
+`DRIVE-ACCESS-REQUEST-001` is closed under `drive-access-request-v1`, so the delegated Drive dry-run/preflight blocker should not appear in the current readiness output.
+
+The result can still be `not_ready` while this blocker card remains open:
 
 - `MEETING-VAULT-ACL-001`
-- `DRIVE-ACCESS-REQUEST-001`
 
 Conditional gates are still visible but do not necessarily block owner-only Strategy readiness:
 

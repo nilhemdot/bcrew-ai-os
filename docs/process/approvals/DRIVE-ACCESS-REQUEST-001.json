@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DRIVE-ACCESS-REQUEST-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-09T18:48:15-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/meeting-vault-acl-001-plan.md",
+  "approvedPlanSha256": "b52d276df4b9a3a7f08141be2fae200cec5d891806e8b0b9134c2aa66aa4a6e4",
+  "approvedRepoHead": "ed39e69a4318cf333d67aa5f6dc6fe0043d796bc",
+  "notes": "DRIVE-ACCESS-REQUEST-001 approved at 9.8 for dry-run/preflight only: delegated Drive actor proof, metadata-only permission inventory, missing-access and owner-ambiguity classification, request-access-needed classification, dry-run ledger, no request-access emails, and no Google Drive permission mutations. MEETING-VAULT-ACL-001 Phase A may run as dry-run proof, but Phase B real permission mutation is not approved.",
+  "approvalDigest": "d66c8653768f687bc08e15cdfaccf9e8d7858dde1fe90825d3c1cdcb87d0c68a"
+}
