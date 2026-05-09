@@ -34,11 +34,10 @@ The readiness test covers:
 
 ## Current Expected Shape
 
-The first real result is expected to be `not_ready` while these blocker cards remain open:
+`SYSTEM-010-GHOST-CLOSEOUT-001` is closed under `system-010-ghost-closeout-v1`, so the runtime/process-control leg should pass. The result can still be `not_ready` while these blocker cards remain open:
 
 - `SOURCE-LIFECYCLE-COMPLETION-001`
 - `SYNTHESIS-VERIFY-001`
-- `SYSTEM-010-GHOST-CLOSEOUT-001`
 - `EXTRACT-RUN-HARDENING-001`
 - `MEETING-VAULT-ACL-001`
 - `DRIVE-ACCESS-REQUEST-001`

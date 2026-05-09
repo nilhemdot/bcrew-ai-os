@@ -4756,6 +4756,52 @@ function controlFoundationJob(job, action, button) {
   })
 }
 
+function stopFoundationJobRun(run, button) {
+  if (!run || !run.runId) return
+  if (button) {
+    button.disabled = true
+    button.textContent = 'Stopping...'
+  }
+
+  return foundationMutation('/api/foundation/job-runs/' + encodeURIComponent(run.runId) + '/stop', 'POST', {
+    signal: 'SIGTERM',
+    reason: 'Stopped from Runtime Health.',
+  }).then(function() {
+    cache.foundationHub = null
+    renderDataHealth()
+  }).catch(function(error) {
+    window.alert('Stop failed: ' + (error.message || 'Unknown error'))
+    if (button) {
+      button.disabled = false
+      button.textContent = 'Stop'
+    }
+  })
+}
+
+function decommissionFoundationJob(job, button) {
+  if (!job || !job.key) return
+  var expected = 'DECOMMISSION ' + job.key
+  var confirmation = window.prompt('Type ' + expected + ' to decommission this job.')
+  if (confirmation !== expected) return
+  if (button) {
+    button.disabled = true
+    button.textContent = 'Decommissioning...'
+  }
+
+  return foundationMutation('/api/foundation/jobs/' + encodeURIComponent(job.key) + '/decommission', 'POST', {
+    confirmation: confirmation,
+  }).then(function() {
+    cache.foundationHub = null
+    renderDataHealth()
+  }).catch(function(error) {
+    window.alert('Decommission failed: ' + (error.message || 'Unknown error'))
+    if (button) {
+      button.disabled = false
+      button.textContent = 'Decommission'
+    }
+  })
+}
+
 /* ── strategy doc path map ───────────────────────────────── */
 
 var strategyDocPaths = {
@@ -5961,13 +6007,27 @@ function renderFoundationJobsPanel(foundationJobs) {
         ? ' Control updated ' + formatDate(job.controlUpdatedAt) + (job.controlUpdatedBy ? ' by ' + job.controlUpdatedBy : '') + '.'
         : ''
       var actions = []
-      if (job.runtimeMode === 'paused' || job.enabled === false) {
+      if (job.runtimeMode === 'decommissioned') {
+        actions.push({
+          label: 'Decommissioned',
+          disabled: true,
+        })
+      } else if (job.runtimeMode === 'paused' || job.enabled === false) {
         actions.push({
           label: 'Resume',
           onClick: function(button) {
             controlFoundationJob(job, 'resume', button)
           },
         })
+        if (!latest || (latest.status !== 'running' && latest.status !== 'queued')) {
+          actions.push({
+            label: 'Decommission',
+            secondary: true,
+            onClick: function(button) {
+              decommissionFoundationJob(job, button)
+            },
+          })
+        }
       } else {
         actions.push({
           label: 'Pause',
@@ -5984,6 +6044,79 @@ function renderFoundationJobsPanel(foundationJobs) {
         actions: actions,
       }
     })
+  )
+}
+
+function renderRuntimeProcessControlPanel(runtimeProcessControl) {
+  if (!runtimeProcessControl || !runtimeProcessControl.summary) return null
+  var summary = runtimeProcessControl.summary || {}
+  var active = runtimeProcessControl.activeProcessView || {}
+  var controls = runtimeProcessControl.controls || {}
+  var restart = runtimeProcessControl.restartOnPush || {}
+  var costRisk = runtimeProcessControl.costRisk || {}
+  var items = [
+    {
+      label: 'Active process view',
+      status: runtimeProcessControl.status === 'healthy' ? 'live' : 'risk',
+      detail: (summary.activeFoundationJobRuns || 0) + ' Foundation job runs, '
+        + (summary.activeSourceCrawlRuns || 0) + ' source-crawl runs, '
+        + (summary.leasedSourceCrawlItems || 0) + ' leased source items, '
+        + (summary.activeLlmCalls || 0) + ' active LLM calls. Stale risks: '
+        + (summary.staleRiskCount || 0) + '.',
+    },
+    {
+      label: 'Dead-man and stop guard',
+      status: (summary.staleRiskCount || 0) > 0 ? 'risk' : 'live',
+      detail: (summary.stopEligibleRuns || 0) + ' active runs expose owned PID stop metadata. Missing or unowned PID rows fail closed instead of guessing.',
+    },
+    {
+      label: 'Restart-on-push status',
+      status: restart.status === 'automatic' ? 'live' : 'pending',
+      detail: restart.plainEnglish || 'Restart status is reported from runtime metadata and restart commands.',
+    },
+    {
+      label: 'Cost/process risk',
+      status: costRisk.status === 'quiet' ? 'live' : 'pending',
+      detail: 'Open estimated LLM cost: $' + Number(costRisk.estimatedOpenCostUsd || 0).toFixed(6)
+        + '. Connector work: ' + (costRisk.activeConnectorWork || 0)
+        + '. LLM work: ' + (costRisk.activeLlmWork || 0)
+        + '. Unknown budget work: ' + (costRisk.activeUnknownBudgetWork || 0) + '.',
+    },
+  ]
+
+  ;(Array.isArray(active.foundationJobRuns) ? active.foundationJobRuns : []).slice(0, 8).forEach(function(run) {
+    var liveness = run.liveness || {}
+    var decision = run.stopDecision || {}
+    items.push({
+      label: 'Run ' + (run.runId || run.jobKey || 'active'),
+      status: liveness.stale ? 'risk' : 'pending',
+      detail: (run.jobKey || 'Foundation job') + ' is ' + (run.status || 'active')
+        + '. Age seconds: ' + (liveness.ageSeconds == null ? 'unknown' : liveness.ageSeconds)
+        + '. Stop ' + (decision.ok ? 'available.' : 'blocked: ' + ((decision.reasons || []).join(' ') || 'not eligible.')),
+      actions: decision.ok ? [{
+        label: 'Stop',
+        secondary: true,
+        onClick: function(button) {
+          stopFoundationJobRun(run, button)
+        },
+      }] : [],
+    })
+  })
+
+  if (Array.isArray(controls.decommissionedJobs) && controls.decommissionedJobs.length) {
+    items.push({
+      label: 'Decommissioned jobs',
+      status: 'pending',
+      detail: controls.decommissionedJobs.slice(0, 8).map(function(job) {
+        return job.key || job.jobKey || job.title
+      }).join(' · ') + '.',
+    })
+  }
+
+  return renderStatusGroupPanel(
+    'Runtime Process Control',
+    'SYSTEM-010 active process, liveness, stop/decommission, restart, and spend-risk guardrails.',
+    items
   )
 }
 
@@ -13459,6 +13592,9 @@ function renderDataHealth() {
 
     var agentFeedbackReminderPanel = renderAgentFeedbackReminderPanel(hub.agentFeedbackReminders)
     if (agentFeedbackReminderPanel) container.appendChild(agentFeedbackReminderPanel)
+
+    var runtimeProcessControlPanel = renderRuntimeProcessControlPanel(hub.runtimeProcessControl)
+    if (runtimeProcessControlPanel) container.appendChild(runtimeProcessControlPanel)
 
     var jobsPanel = renderFoundationJobsPanel(hub.foundationJobs)
     if (jobsPanel) container.appendChild(jobsPanel)

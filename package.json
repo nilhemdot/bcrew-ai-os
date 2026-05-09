@@ -99,6 +99,7 @@
     "process:source-021-writer-proof-check": "node --env-file-if-exists=.env scripts/process-source-021-writer-proof-check.mjs",
     "process:security-002-check": "node --env-file-if-exists=.env scripts/process-security-002-check.mjs",
     "process:foundation-done-test": "node --env-file-if-exists=.env scripts/process-foundation-done-test.mjs",
+    "process:system-010-ghost-closeout-check": "node --env-file-if-exists=.env scripts/process-system-010-ghost-closeout-check.mjs",
     "process:agent-onboarding-feedback-system-check": "node --env-file-if-exists=.env scripts/process-agent-onboarding-feedback-system-check.mjs",
     "process:agent-feedback-send-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-send-check.mjs",
     "process:agent-feedback-company-email-policy-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-company-email-policy-check.mjs",

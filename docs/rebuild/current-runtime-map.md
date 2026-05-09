@@ -1,6 +1,6 @@
 # Current Runtime Map
 
-Last updated: 2026-04-25
+Last updated: 2026-05-09
 Status: Plain-English architecture map
 
 This doc exists for one reason:
@@ -33,6 +33,7 @@ It includes:
 - decisions
 - backlog
 - verification
+- runtime process-control: active processes, liveness, stop/decommission decisions, restart-status reporting, and cost/process risk
 
 Foundation is what the future agents are supposed to use.
 

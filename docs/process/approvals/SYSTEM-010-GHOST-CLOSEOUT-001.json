@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYSTEM-010-GHOST-CLOSEOUT-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-09T15:51:53-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/system-010-ghost-closeout-001-plan.md",
+  "approvedPlanSha256": "b562ac9dbb5ae129aa5c92a8880a3d6ab45d6edfae0d0551a86335c37ae0ce78",
+  "approvedRepoHead": "afbe75a442527b8c3386231ee4c951e5b044a678",
+  "notes": "SYSTEM-010-GHOST-CLOSEOUT-001 plan approved at 9.8. Implement only the runtime/process-control closeout slice: active process view, liveness/dead-man checks, stop/decommission controls, pause/stop safety, auto-restart-on-push status, cost/process risk visibility, focused proof script, foundation verifier coverage, and readiness-gate integration. Do not start Strategy, Sales expansion, Agent Feedback expansion, Scoper, Agent Factory, broad corpus/video mining, YouTube scout expansion, researcher/self-improvement agent work, meeting Drive ACL work, or UI polish beyond necessary Runtime Health safety controls.",
+  "approvalDigest": "a1d2162455a5d76214db3e5760719065a9749e6d0bc0cbe137a93afb5c870102"
+}

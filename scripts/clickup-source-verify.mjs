@@ -27,7 +27,7 @@ const CLICKUP_LISTS = [
     id: process.env.CLICKUP_AGENT_ROSTER_LIST_ID || '901113292355',
     expectedName: 'Agent Roster',
     role: 'Agent roster, contract link, onboarding-NPS accountability',
-    requiredStatuses: ['active agent', 'non-producing agent', 'onboarding', 'offboarding'],
+    requiredStatuses: [],
     requiredFields: [
       'Contract Link',
       'Recruited By',

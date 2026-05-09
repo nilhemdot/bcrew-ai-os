@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-02
-Version: v6.23 — missing-card capture after SECURITY-002
+Last updated: 2026-05-09
+Version: v6.24 — SYSTEM-010 runtime/process closeout
 Status: Active
 
 Use this doc for one question:
@@ -56,7 +56,7 @@ Locked doctrine means current operating default, not permanent dogma. If researc
 - SECURITY-002 v1 is live for app-side auth/tier/redaction. Shared-comms and intelligence routes that cannot yet prove filtered access stay Tier 1-only until `SECURITY-FILTERED-COMMS-ACCESS-001` closes.
 - Raw meeting notes are a separate Drive/vault boundary. `SECURITY-002` controls AIOS responses, but it does not remove access to original Google Docs. `MEETING-VAULT-ACL-001` owns owner-preserving raw meeting-note ACL enforcement.
 - No public/broader external exposure happens until `SECURITY-EDGE-001` or an explicit approved successor proves the edge auth/tunnel/access posture.
-- `SYSTEM-010` controls are a Foundation gate, not a later ops polish item: running jobs, agents, miners, and paid/subscription model calls must be visible, pausable/stoppable, failure-tracked, and decommissionable before autonomous loops expand.
+- `SYSTEM-010` controls are a Foundation gate, not a later ops polish item: running jobs, agents, miners, and paid/subscription model calls must be visible, pausable/stoppable, failure-tracked, and decommissionable before autonomous loops expand. The `SYSTEM-010-GHOST-CLOSEOUT-001` slice closes the current Foundation readiness runtime/process blocker; auto-restart-on-push remains reported honestly as manual until push-hook proof exists.
 - Strategy Hub is the first major consumer, not the old advisor surface. Now that the spine has Action Router v1 and retrieval eval coverage, resume Strategy Hub only as a source-to-gap operating dashboard on top of source-backed facts, synthesized items, and routed approval records.
 
 ## Source Intelligence Lifecycle
@@ -88,7 +88,7 @@ Built and useful now:
 - Historical meeting context reaching back to October 2024 where recovered/transcribed.
 - Persisted synthesis runs/items in Postgres.
 - Memory/retrieval/synthesis spine through governed synthesis: intelligence job runs, old-system salvage contract, report artifacts, atoms, atom hits, lexical chunks/search, pgvector semantic search, hybrid evidence retrieval, source-backed facts, and governed synthesized items with fact/evidence/chunk provenance.
-- First Foundation job registry and DB-backed job run ledger.
+- First Foundation job registry and DB-backed job run ledger, with active-process/liveness visibility, owned stop decisions, confirmation-gated decommission controls, and cost/process risk rollup under `system-010-ghost-closeout-v1`.
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Policy-aware LLM router: credential/route/probe/call tables, executable OpenClaw/Codex subscription adapter, auth-path audit job, call ledger, route status visibility, and shared intelligence extraction/synthesis migrated behind the router.
 - Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, scheduled current-day lanes for Gmail/Missive/meetings/Slack, daily shared-comms extraction missions, daily Drive inventory/content missions, daily Gmail attachment extraction, and daily YouTube subtitle transcript extraction from the video manifest.
@@ -114,12 +114,12 @@ Still not done:
 - operator UI/verifier hardening for job/target schedule truth now that Foundation jobs own scheduled crawl lanes
 - Claude Code / Claude Agent SDK subscription adapter under the BCrew router
 - hub-dedicated model capacity allocation beyond the first Foundation subscription path
-- source-budget and failure visibility
+- source-budget and failure visibility beyond the current runtime/process rollup
 - raw meeting-note Drive/vault ACL enforcement
 - real-data filtered shared-comms summaries for approved non-Tier-1 users
 - public edge auth/tunnel hardening before broader external exposure
 - provider-side rotation/retirement proof for exposed credentials
-- full `SYSTEM-010` decommission, dead-man, and cost/process-control layer
+- auto-restart-on-push proof beyond the current manual-restart status
 - scheduled broad corpus promotion beyond the current proof/mission lanes
 - broader KPI / finance / FUB fact expansion inside synthesis
 - Action Router closure proof: synthesized items now create human-approval-required routes into decisions, backlog tasks, open questions, ignore/snooze, and owner-bound action lanes with source back-links. One route has been approved/applied into live backlog item `ACTION-001`; pending queue size is no longer a verifier dependency.
@@ -171,8 +171,8 @@ After the SECURITY-002 closeout, Steve asked for a full sweep of specs, audits, 
 - `SECURITY-EDGE-001` — public edge auth/tunnel hardening before broader external exposure.
 - `SECURITY-PROVIDER-ROTATION-PROOF-001` — provider-side proof for exposed or retired credentials.
 - `DRIVE-ACCESS-REQUEST-001` — delegated Drive access-request and ACL repair preflights.
-- `FOUNDATION-DONE-TEST-001` — explicit Foundation readiness exit gate. Done for the gate implementation under `foundation-done-test-v1`; the current gate may still report `not_ready` while blocker cards remain open.
-- `SYSTEM-010-GHOST-CLOSEOUT-001` — dead-man, autorestart, kill/decommission, active-process, and cost-control closeout.
+- `FOUNDATION-DONE-TEST-001` — explicit Foundation readiness exit gate. Done for the gate implementation under `foundation-done-test-v1`; the current gate may still report `not_ready` while blocker cards remain open, and it does not make the blocker cards pass.
+- `SYSTEM-010-GHOST-CLOSEOUT-001` — done for the runtime/process-control readiness blocker under `system-010-ghost-closeout-v1`; active-process, liveness, stop/decommission, restart-status, and cost/process risk are visible and fail closed.
 - `SOURCE-LIFECYCLE-COMPLETION-001` — source lifecycle completion/revalidation gate.
 - `EXTRACT-RUN-HARDENING-001` — extraction run ID, retry/backoff, partial failure, stale lease, cursor, and bounded backfill hardening.
 - `SYNTHESIS-VERIFY-001` — source-evidence verification gate for synthesized claims before Strategy/scout consumption.
@@ -184,7 +184,7 @@ Disposition notes:
 
 - `FOUNDATION-SURFACE-UPDATES-001` and `RUNTIME-HEALTH-SIMPLIFY-001` already cover the Foundation command-center/UI clarity work; do not create a duplicate command-center card unless Steve explicitly wants a separate build.
 - Existing source cards still own source-specific work where they are already precise enough. The new cards above exist only where audits found missing ownership or an umbrella that could hide a Foundation gate.
-- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order. `FOUNDATION-DONE-TEST-001` is the exception now pulled and implemented as the readiness detector; it does not make the blocker cards pass.
+- These cards are captured so the sprint does not skip them. Capture is not approval to build them out of order. `FOUNDATION-DONE-TEST-001` is implemented as the readiness detector, and `SYSTEM-010-GHOST-CLOSEOUT-001` closes its runtime/process-control leg; the remaining blocker cards still do not pass.
 
 ### Operator Surface Standard
 
@@ -232,15 +232,15 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - `SECURITY-PROVIDER-ROTATION-PROOF-001` owns provider-side credential rotation/retirement proof.
    - `FOUNDATION-USERS-001` is the smaller P1 follow-up for owner-only user administration from Foundation: list users, add email/name/role, disable users, audit changes, avoid password exposure, and prove non-owners cannot manage access. Do not build it inside extraction-control schedule reconciliation.
    - `FOUNDATION-SURFACE-UPDATES-001` is the P1 follow-up for Foundation operator clarity: plain-English status/copy, Overview -> Systems -> Backlog -> Recent Work nav order, collapsed Recent Builds / Recent Work with app/doc breadcrumbs, done-velocity visibility, and plan/backlog grouping convergence. Do not build it inside hygiene/process slices unless Steve explicitly switches scope.
-3. `SYSTEM-010` — Finish runtime/process-control hardening.
+3. `SYSTEM-010` — Keep runtime/process-control hardening honest.
    - Keep dashboard and worker LaunchAgent plists in repo.
    - Served-code-equals-HEAD check is live: the dashboard captures its server-start commit and `foundation:verify` fails with a restart command if the served commit does not match repo HEAD.
    - Add auto-restart-on-push next so the dashboard updates itself after verified commits instead of only failing loudly.
    - Router fallback is manual-explicit, not automatic; keep code/docs/UI from implying automatic paid fallback.
    - Enforce job-level budget tags or rename them as descriptive tags.
    - Bound large Foundation snapshot reads with limits or paging.
-   - Finish decommission, dead-man, cost/process visibility, and stop controls.
-   - `SYSTEM-010-GHOST-CLOSEOUT-001` captures the remaining ghost-process/dead-man/decommission/cost-control proof so the umbrella cannot sound more finished than it is.
+   - `SYSTEM-010-GHOST-CLOSEOUT-001` is done under `system-010-ghost-closeout-v1`: active-process view, dead-man/liveness rollup, owned stop decisions, confirmation-gated decommission, and cost/process visibility are live.
+   - Keep auto-restart-on-push honest: current status is manual unless a later push-hook/WatchPaths proof closes it.
 4. `EXTRACTION-TEAM-001` / `DRIVE-CONTENT-001` / `EMAIL-ATTACHMENTS-001` / `MEETING-VIDEO-001` — Finish controlled miner/corpus lanes.
    - Build paced miner v1: one-at-a-time, cursors, leases, retry/backoff, spacing, per-source timeouts.
    - Keep daily Drive Docs/Sheets/PDF/text/markdown, scanned-PDF OCR fallback, Gmail PDF/text attachment, and YouTube subtitle transcript missions stable.
@@ -435,6 +435,7 @@ Current partial proof:
 - Daily shared-comms extraction missions are scheduled for Gmail, Missive, meeting transcripts, and Slack.
 - Drive content extraction, Gmail attachment extraction, and video transcript extraction are scheduled as daily quota missions with filed-output proof.
 - Dashboard pause/resume buttons are live on the System Health job cards and were round-trip tested through `gmail-sync-current`.
+- Runtime Health now exposes SYSTEM-010 active-process/liveness, stop/decommission controls, restart-on-push status, and cost/process risk under `system-010-ghost-closeout-v1`.
 - Remaining Phase 1 gap: monitor scheduled current-day/extraction runs, prove alert behavior on real partial failures, and raise daily quotas only after runs stay stable.
 
 ### Phase 2 — Policy-Aware LLM Router MVP

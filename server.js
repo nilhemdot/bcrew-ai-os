@@ -35,6 +35,7 @@ import {
   getFoundationBacklogScopes,
   getDocSourceSnapshot,
   getFoundationBacklogIdPrefixes,
+  getFoundationJobRunById,
   getFoundationJobRunSnapshot,
   getFoundationRuntimeStatus,
   getFoundationSnapshot,
@@ -59,6 +60,7 @@ import {
   saveFubLeadSourceSnapshot,
   searchIntelligenceEvidenceHybrid,
   saveStrategyHubSnapshot,
+  markFoundationJobRunStopped,
   updateSharedCommunicationCandidateStatus,
   upsertFubLeadSourceRule,
   updateBacklogItem,
@@ -122,6 +124,12 @@ import {
 import { getDriveFileMetadata, getGoogleSheetsCacheStats, getSheetValues } from './lib/google-delegated.js'
 import { getGroupedSourceSystems, getSourceContracts, getSourceContractsByIds, getSourceConnectors, getSystemServiceAreas } from './lib/source-contracts.js'
 import { getFoundationJobDefinitions } from './lib/foundation-jobs.js'
+import {
+  buildDecommissionDecision,
+  buildRuntimeProcessControlSnapshot,
+  buildStopDecision,
+  terminateProcessTree,
+} from './lib/runtime-process-control.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -3351,6 +3359,29 @@ async function getServedCodeTrustGate() {
   return { ok: true, reason: 'Served-code trust is healthy.' }
 }
 
+async function buildRuntimeProcessControlApiSnapshot(snapshot = null) {
+  const foundationSnapshot = snapshot || await getFoundationSnapshot()
+  const workerCode = await getFoundationRuntimeStatus('foundation-worker')
+  let currentRepoHead = null
+  try {
+    currentRepoHead = await getCurrentRepoHeadCommit()
+  } catch {
+    currentRepoHead = null
+  }
+  const runtimeSupervisor = {
+    servedCode: getDashboardRuntimeMetadata(),
+    workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
+  }
+
+  return buildRuntimeProcessControlSnapshot({
+    foundationJobs: foundationSnapshot.foundationJobs,
+    llmRuntime: foundationSnapshot.llmRuntime,
+    extractionControl: foundationSnapshot.extractionControl,
+    runtimeSupervisor,
+    currentRepoHead,
+  })
+}
+
 function resolvePrivateLocalDoc(name) {
   const requestedName = String(name || '').trim()
   if (!Object.prototype.hasOwnProperty.call(privateLocalMarkdownMeta, requestedName)) {
@@ -4472,6 +4503,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       includeCandidates: false,
       foundationJobs: snapshot.foundationJobs,
     })
+    const runtimeProcessControl = await buildRuntimeProcessControlApiSnapshot(snapshot)
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4493,6 +4525,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       agentFeedbackAutoSend,
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,
+      runtimeProcessControl,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
@@ -4997,6 +5030,21 @@ app.get('/api/foundation/jobs', requireAdminToken, async (req, res) => {
   }
 })
 
+app.get('/api/foundation/active-processes', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await buildRuntimeProcessControlApiSnapshot()
+    cacheHeadersNoStore(res)
+    res.json(snapshot)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_active_processes_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation active-process status.'
+    )
+  }
+})
+
 app.get('/api/foundation/llm-runtime', requireAdminToken, async (req, res) => {
   try {
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 30))
@@ -5033,6 +5081,10 @@ app.post('/api/foundation/jobs/:jobKey/control', requireAdminToken, async (req, 
   try {
     const jobKey = String(req.params.jobKey || '').trim()
     const actor = req.body && req.body.actor ? String(req.body.actor) : 'dashboard'
+    if (req.body?.runtimeMode === 'decommissioned') {
+      sendApiError(res, 400, 'use_decommission_route', 'Use /api/foundation/jobs/:jobKey/decommission with explicit confirmation to decommission a job.')
+      return
+    }
     const control = await updateFoundationJobControl(jobKey, {
       runtimeMode: req.body?.runtimeMode,
       enabled: typeof req.body?.enabled === 'boolean' ? req.body.enabled : undefined,
@@ -5048,6 +5100,93 @@ app.post('/api/foundation/jobs/:jobKey/control', requireAdminToken, async (req, 
       400,
       'foundation_job_control_failed',
       error instanceof Error ? error.message : 'Failed to update Foundation job control.'
+    )
+  }
+})
+
+app.post('/api/foundation/job-runs/:runId/stop', requireAdminToken, async (req, res) => {
+  try {
+    const runId = String(req.params.runId || '').trim()
+    const actor = getRequestActor(req)
+    const run = await getFoundationJobRunById(runId, { includeOutput: false })
+    if (!run) {
+      sendApiError(res, 404, 'foundation_job_run_not_found', 'Foundation job run was not found.')
+      return
+    }
+    const currentRepoHead = await getCurrentRepoHeadCommit()
+    const decision = buildStopDecision({
+      run,
+      servedCode: getDashboardRuntimeMetadata(),
+      currentRepoHead,
+      signal: req.body?.signal || 'SIGTERM',
+    })
+    if (!decision.ok) {
+      sendApiError(res, 409, 'foundation_job_run_stop_blocked', decision.reasons.join(' '))
+      return
+    }
+
+    let termination = null
+    try {
+      termination = await terminateProcessTree(decision.childPid, { signal: decision.signal })
+    } catch (error) {
+      if (error?.code === 'ESRCH') {
+        termination = {
+          ok: true,
+          pid: decision.childPid,
+          signal: decision.signal,
+          method: 'already_exited',
+        }
+      } else {
+        throw error
+      }
+    }
+
+    const stopped = await markFoundationJobRunStopped(runId, {
+      signal: decision.signal,
+      reason: String(req.body?.reason || '').trim() || 'Stopped from Runtime Health active-process controls.',
+      stopDecision: decision,
+    }, actor)
+    const snapshot = await buildRuntimeProcessControlApiSnapshot()
+    cacheHeadersNoStore(res)
+    res.json({ ok: true, decision, termination, stopped, snapshot })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_job_run_stop_failed',
+      error instanceof Error ? error.message : 'Failed to stop Foundation job run.'
+    )
+  }
+})
+
+app.post('/api/foundation/jobs/:jobKey/decommission', requireAdminToken, async (req, res) => {
+  try {
+    const jobKey = String(req.params.jobKey || '').trim()
+    const actor = getRequestActor(req)
+    const foundationJobs = await getFoundationJobRunSnapshot({ limit: 50 })
+    const job = (foundationJobs.jobs || []).find(item => item.key === jobKey) || null
+    if (!job) {
+      sendApiError(res, 404, 'foundation_job_not_found', 'Foundation job was not found.')
+      return
+    }
+    const decision = buildDecommissionDecision({
+      job,
+      confirmation: req.body?.confirmation,
+    })
+    if (!decision.ok) {
+      sendApiError(res, 409, 'foundation_job_decommission_blocked', decision.reasons.join(' '))
+      return
+    }
+    const control = await updateFoundationJobControl(jobKey, decision.control, actor)
+    const snapshot = await buildRuntimeProcessControlApiSnapshot()
+    cacheHeadersNoStore(res)
+    res.json({ ok: true, decision, control, snapshot })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_job_decommission_failed',
+      error instanceof Error ? error.message : 'Failed to decommission Foundation job.'
     )
   }
 })

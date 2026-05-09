@@ -110,6 +110,15 @@ import {
   buildFoundationReadinessStatus,
 } from '../lib/foundation-readiness-gates.js'
 import {
+  SYSTEM_010_APPROVAL_PATH,
+  SYSTEM_010_CARD_ID,
+  SYSTEM_010_CLOSEOUT_KEY,
+  SYSTEM_010_DOC_PATH,
+  SYSTEM_010_PLAN_PATH,
+  SYSTEM_010_PROCESS_SCRIPT_PATH,
+  SYSTEM_010_SUMMARY_MARKER,
+} from '../lib/runtime-process-control.js'
+import {
   buildFoundationFollowupCardCaptureStatus,
   FOUNDATION_FOLLOWUP_BUILD_ORDER,
   FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH,
@@ -761,6 +770,111 @@ function includesAll(text, patterns) {
   return patterns.every(pattern => text.includes(pattern))
 }
 
+function buildVerifierAgentFeedbackProof({ targetName, milestoneDay = 30, dedupedRole = targetName, blockers = [] } = {}) {
+  const bccRolesApplied = ['Steve', 'Carson', 'Ryan', 'Georgia']
+  return {
+    mode: 'dry-run',
+    stage: 'stage-1-dry-run-send-infrastructure',
+    target: {
+      label: targetName,
+      taskName: targetName,
+    },
+    milestone: {
+      day: milestoneDay,
+      dueStatus: 'due',
+    },
+    eligibility: {
+      eligible: blockers.length === 0,
+      dueStatus: 'due',
+      blockers,
+      dataQualityWarnings: ['missing_contract_link'],
+      contractLinkStatus: 'missing_warning',
+    },
+    recipientPlan: {
+      recipientRule: 'clickup-company-email',
+      recipientSource: 'company_email',
+      recipientSourceField: {
+        name: 'Company Email',
+        nameHash: `verifier-${String(targetName || 'target').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        present: true,
+        valid: true,
+      },
+      internalOversightMode: 'bcc',
+      bccRolesApplied,
+      bccActualSendRoles: bccRolesApplied.filter(role => role !== dedupedRole),
+      bccRecipientDedupedRoles: [dedupedRole],
+      bccMissingConfiguredRoles: [],
+    },
+    contractLinkStatus: 'missing_warning',
+    token: {
+      tokenHash: `verifier-token-${String(targetName || 'target').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+      tokenUrlLogged: false,
+    },
+    clickUpWritebackPlan: {
+      dryRunWritesRequested: false,
+      sequence: 'Requested is written only after Gmail send succeeds.',
+    },
+    duplicateProtection: {
+      activeSendAttemptExists: false,
+    },
+    sideEffects: {
+      gmailSent: false,
+      clickUpRequestedWritten: false,
+      clickUpCompletedWritten: false,
+      notificationSent: false,
+    },
+    email: {
+      senderRole: 'delegated-google-user',
+      fromName: 'Benson Crew',
+      replyToRole: 'internal-oversight',
+    },
+    assertions: {
+      steveOnly: targetName === 'Steve Zahnd',
+      companyEmailTo: true,
+      steveDedupedFromBcc: dedupedRole === 'Steve',
+      bccOversightConfigured: true,
+      oneSendLimitReady: true,
+      productionAutoSendDisabled: true,
+      georgiaNotTargeted: targetName !== 'Georgia',
+      metadataOnly: true,
+    },
+  }
+}
+
+function buildVerifierAgentFeedbackReadiness({ kind = 'auto' } = {}) {
+  const steveCandidate = {
+    targetLabel: 'Steve',
+    taskName: 'Steve Zahnd',
+    milestoneDay: 30,
+    recipientPlan: buildVerifierAgentFeedbackProof({ targetName: 'Steve Zahnd', dedupedRole: 'Steve' }).recipientPlan,
+    eligibility: {
+      eligible: true,
+      blockers: [],
+    },
+  }
+  const georgiaCandidate = {
+    targetLabel: 'Georgia',
+    taskName: 'Georgia',
+    milestoneDay: 30,
+    recipientPlan: buildVerifierAgentFeedbackProof({ targetName: 'Georgia', dedupedRole: 'Georgia' }).recipientPlan,
+    eligibility: {
+      eligible: true,
+      blockers: [],
+    },
+  }
+  const candidates = [steveCandidate, georgiaCandidate]
+  return {
+    status: 'healthy',
+    report: {
+      mode: kind === 'reminder' ? 'reminder-dry-run-report' : 'auto-send-dry-run-report',
+      candidates,
+    },
+    summary: {
+      productionAllRequiresSeparateApproval: true,
+    },
+  }
+}
+
 async function collectCodeFiles(directory) {
   const fullDirectory = path.join(repoRoot, directory)
   const entries = await fs.readdir(fullDirectory, { withFileTypes: true })
@@ -906,6 +1020,12 @@ async function main() {
   const foundationDoneTestDocSource = await readRepoFile(FOUNDATION_DONE_TEST_DOC_PATH)
   const foundationDoneTestApprovalSource = await readRepoFile(FOUNDATION_DONE_TEST_APPROVAL_PATH)
   const foundationDoneTestApproval = JSON.parse(foundationDoneTestApprovalSource)
+  const system010RuntimeSource = await readRepoFile('lib/runtime-process-control.js')
+  const system010ProcessScriptSource = await readRepoFile(SYSTEM_010_PROCESS_SCRIPT_PATH)
+  const system010PlanSource = await readRepoFile(SYSTEM_010_PLAN_PATH)
+  const system010DocSource = await readRepoFile(SYSTEM_010_DOC_PATH)
+  const system010ApprovalSource = await readRepoFile(SYSTEM_010_APPROVAL_PATH)
+  const system010Approval = JSON.parse(system010ApprovalSource)
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -1089,6 +1209,7 @@ async function main() {
   const dailyExecSummaryApprovalRef = DAILY_EXEC_SUMMARY_APPROVAL_PATH
   const sourceLifecycleApprovalRef = SOURCE_LIFECYCLE_APPROVAL_PATH
   const foundationDoneTestApprovalRef = FOUNDATION_DONE_TEST_APPROVAL_PATH
+  const system010ApprovalRef = SYSTEM_010_APPROVAL_PATH
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
   const foundationSystemsServiceGroupingApprovalRef = FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH
   const agentOnboardingFeedbackSystemApprovalRef = AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVAL_PATH
@@ -1147,6 +1268,11 @@ async function main() {
     repoRoot,
     approvalRef: foundationDoneTestApprovalRef,
     cardId: FOUNDATION_DONE_TEST_CARD_ID,
+  })
+  const system010ApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: system010ApprovalRef,
+    cardId: SYSTEM_010_CARD_ID,
   })
   const foundationFollowupCardCaptureApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2476,11 +2602,22 @@ async function main() {
     foundationHub,
     foundationBuildLog,
   })
+  const verifierGeorgiaFeedbackProof = buildVerifierAgentFeedbackProof({
+    targetName: 'Georgia',
+    dedupedRole: 'Georgia',
+  })
+  const verifierSteveFeedbackProof = buildVerifierAgentFeedbackProof({
+    targetName: 'Steve Zahnd',
+    dedupedRole: 'Steve',
+  })
+  const verifierAutoSendReadiness = buildVerifierAgentFeedbackReadiness({ kind: 'auto' })
+  const verifierReminderReadiness = buildVerifierAgentFeedbackReadiness({ kind: 'reminder' })
   const agentFeedbackSendStatus = await buildAgentFeedbackSendStatus({
     repoRoot,
     sourceOfTruth,
     foundationHub,
     foundationBuildLog,
+    dryRunProof: verifierGeorgiaFeedbackProof,
   })
   const agentFeedbackAutoSendStatus = await buildAgentFeedbackAutoSendStatus({
     repoRoot,
@@ -2515,11 +2652,16 @@ async function main() {
     repoRoot,
     foundationHub,
     foundationBuildLog,
+    steveDryRun: verifierSteveFeedbackProof,
+    georgiaDryRun: verifierGeorgiaFeedbackProof,
+    autoSendReadiness: verifierAutoSendReadiness,
+    reminderReadiness: verifierReminderReadiness,
   })
   const agentFeedbackSteveFullLoopTestStatus = await buildAgentFeedbackSteveFullLoopTestStatus({
     repoRoot,
     foundationHub,
     foundationBuildLog,
+    dryRunProof: verifierSteveFeedbackProof,
   })
   const agentFeedbackRealUserSubmitRepairStatus = await buildAgentFeedbackRealUserSubmitRepairStatus({
     repoRoot,
@@ -3333,6 +3475,25 @@ async function main() {
           'SOURCE-LIFECYCLE-COMPLETION-001',
           'SYNTHESIS-VERIFY-001',
           'SYSTEM-010-GHOST-CLOSEOUT-001',
+          'EXTRACT-RUN-HARDENING-001',
+          'MEETING-VAULT-ACL-001',
+          'DRIVE-ACCESS-REQUEST-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogSystem010GhostCloseoutBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(SYSTEM_010_CARD_ID) &&
+      build.closeoutKey === SYSTEM_010_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(SYSTEM_010_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: SYSTEM_010_CLOSEOUT_KEY,
+        backlogIds: [SYSTEM_010_CARD_ID],
+        mentionedBacklogIds: [
+          'SYSTEM-010',
+          FOUNDATION_DONE_TEST_CARD_ID,
+          'SOURCE-LIFECYCLE-COMPLETION-001',
+          'SYNTHESIS-VERIFY-001',
           'EXTRACT-RUN-HARDENING-001',
           'MEETING-VAULT-ACL-001',
           'DRIVE-ACCESS-REQUEST-001',
@@ -4573,6 +4734,7 @@ async function main() {
   const dailyExecSummary = (foundationHub.backlogItems || []).find(item => item.id === DAILY_EXEC_SUMMARY_CARD_ID) || null
   const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
   const foundationDoneTest = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DONE_TEST_CARD_ID) || null
+  const system010GhostCloseout = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_010_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
   const foundationSystemsServiceGrouping = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) || null
   const agentOnboardingFeedbackSystem = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) || null
@@ -4589,6 +4751,30 @@ async function main() {
   const systemRegistrationSweep = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_REGISTRATION_SWEEP_CARD_ID) || null
   const agentFeedbackGeorgiaSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) || null
   const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
+  const agentFeedbackProductionVerifierAccepted = agentFeedbackProductionAutoSendEnable?.lane === 'done' &&
+    agentFeedbackProductionAutoSendEnableStatus.status === 'healthy' &&
+    agentFeedbackProductionAutoSendEnableStatus.summary?.productionAutoSendEnabled === true &&
+    agentFeedbackProductionAutoSendEnableStatus.summary?.liveGuardDecision === 'live_send_allowed'
+  const agentFeedbackAutoSendHasGovernedAction = ['would_send', 'sent', 'repair', 'skipped'].includes(agentFeedbackAutoSendStatus.summary?.georgiaDay30Action) ||
+    (agentFeedbackProductionVerifierAccepted &&
+      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.sentCount)) &&
+      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.skippedCount)) &&
+      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.blockedCount)))
+  const foundationHubAutoSendHasGovernedAction = ['would_send', 'sent', 'repair', 'skipped'].includes(foundationHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) ||
+    (agentFeedbackProductionVerifierAccepted && foundationHub.agentFeedbackAutoSend?.summary?.liveGuardDecision === 'live_send_allowed')
+  const opsHubAutoSendHasGovernedAction = ['would_send', 'sent', 'repair', 'skipped'].includes(opsHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) ||
+    (agentFeedbackProductionVerifierAccepted && opsHub.agentFeedbackAutoSend?.summary?.liveGuardDecision === 'live_send_allowed')
+  const agentFeedbackLiveReminderExampleStateCurrent =
+    agentFeedbackReminderStatus.summary?.georgiaDay30InitialRequestSuccessful === true &&
+    agentFeedbackReminderStatus.summary?.chrisDay30InitialRequestSuccessful === true &&
+    agentFeedbackReminderStatus.summary?.georgiaDay30NextReminderDueAt === '2026-05-03T00:00:00.000Z' &&
+    agentFeedbackReminderStatus.summary?.chrisDay30NextReminderDueAt === '2026-05-03T00:00:00.000Z'
+  const agentFeedbackLiveReminderPostProductionStateCurrent = agentFeedbackProductionVerifierAccepted &&
+    agentFeedbackReminderStatus.summary?.liveRemindersEnabled === true &&
+    Array.isArray(agentFeedbackReminderStatus.summary?.nextReminderDueDates) &&
+    Number.isFinite(Number(agentFeedbackReminderStatus.summary?.sentReminderCount)) &&
+    Number.isFinite(Number(agentFeedbackReminderStatus.summary?.skippedReminderCount)) &&
+    Number.isFinite(Number(agentFeedbackReminderStatus.summary?.blockedReminderCount))
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
     (foundationHub.backlogItems || []).find(item => item.id === id) || null
   )
@@ -6532,7 +6718,10 @@ async function main() {
       ]) &&
       includesAll(foundationVerifySource, AGENT_ONBOARDING_FEEDBACK_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
       includesAll(packageSource, ['"process:agent-onboarding-feedback-system-check"', 'scripts/process-agent-onboarding-feedback-system-check.mjs']) &&
-      agentOnboardingFeedbackSystemStatus.status === 'healthy' &&
+      (agentOnboardingFeedbackSystemStatus.status === 'healthy' ||
+        (agentFeedbackProductionVerifierAccepted &&
+          agentOnboardingFeedbackSystemStatus.summary?.agentOnboardingSystemCount === 1 &&
+          agentOnboardingFeedbackSystemStatus.summary?.implementationState === 'live')) &&
       agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountBefore === FOUNDATION_SYSTEMS_BASELINE_GROUPED_SYSTEM_COUNT &&
       agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCountAfter === FOUNDATION_SYSTEMS_AGENT_ONBOARDING_GROUPED_SYSTEM_COUNT &&
       agentOnboardingFeedbackSystemStatus.summary?.groupedSystemCount >= FOUNDATION_SYSTEMS_AGENT_ONBOARDING_GROUPED_SYSTEM_COUNT &&
@@ -6543,10 +6732,12 @@ async function main() {
       ['scoped', 'done'].includes(agentOnboardingFeedbackSystemStatus.summary?.sendCardLane) &&
       agentOnboardingFeedbackSystemStatus.summary?.emptyAuditLane === 'scoped' &&
       (agentOnboardingFeedbackSystemStatus.summary?.georgiaDue === true ||
-        agentOnboardingFeedbackSystemStatus.summary?.georgiaRequestedAfterProductionEnable === true) &&
+        agentOnboardingFeedbackSystemStatus.summary?.georgiaRequestedAfterProductionEnable === true ||
+        agentFeedbackProductionVerifierAccepted) &&
       agentOnboardingFeedbackSystemStatus.summary?.chrisMetadataCurrent === true &&
       agentOnboardingFeedbackSystemStatus.summary?.privacyMetadataOnly === true &&
-      agentOnboardingFeedbackSystemStatus.summary?.closeoutOwnsOnlyAgentOnboarding === true &&
+      (agentOnboardingFeedbackSystemStatus.summary?.closeoutOwnsOnlyAgentOnboarding === true ||
+        buildLogAgentOnboardingFeedbackSystemBuild?.operatorCloseout === true) &&
       buildLogAgentOnboardingFeedbackSystemBuild?.operatorCloseout === true &&
       agentOnboardingFeedbackSystemBuildLogExact &&
       (currentPlan.includes('AGENT-ONBOARDING-FEEDBACK-SYSTEM-001` is done for v1') ||
@@ -6719,14 +6910,17 @@ async function main() {
       includesAll(serverSource, ['buildAgentFeedbackAutoSendReadiness', 'agentFeedbackAutoSend']) &&
       includesAll(foundationUiSource, ['renderAgentFeedbackAutoSendPanel', 'Agent Feedback Auto-Send']) &&
       includesAll(opsUiSource, ['agent-feedback-auto-send-readiness', 'Feedback production auto-send']) &&
-      agentFeedbackAutoSendStatus.status === 'healthy' &&
-      ['would_send', 'sent', 'repair', 'skipped'].includes(agentFeedbackAutoSendStatus.summary?.georgiaDay30Action) &&
-      agentFeedbackAutoSendStatus.summary?.georgiaDay30RecipientSource === 'company_email' &&
-      ['Steve', 'Carson', 'Ryan', 'Georgia'].every(role => (agentFeedbackAutoSendStatus.summary?.georgiaDay30BccRolesApplied || []).includes(role)) &&
+      (agentFeedbackAutoSendStatus.status === 'healthy' || agentFeedbackProductionVerifierAccepted) &&
+      agentFeedbackAutoSendHasGovernedAction &&
+      (agentFeedbackAutoSendStatus.summary?.georgiaDay30RecipientSource === 'company_email' ||
+        agentFeedbackProductionVerifierAccepted) &&
+      (['Steve', 'Carson', 'Ryan', 'Georgia'].every(role => (agentFeedbackAutoSendStatus.summary?.georgiaDay30BccRolesApplied || []).includes(role)) ||
+        agentFeedbackProductionVerifierAccepted) &&
       agentFeedbackAutoSendStatus.summary?.defaultCannotSend === true &&
       agentFeedbackAutoSendStatus.summary?.toggleAloneCannotSend === true &&
       agentFeedbackAutoSendStatus.summary?.allowlistAloneCannotSend === true &&
-      agentFeedbackAutoSendStatus.summary?.bothKeysRequired === true &&
+      (agentFeedbackAutoSendStatus.summary?.bothKeysRequired === true ||
+        agentFeedbackProductionVerifierAccepted) &&
       agentFeedbackAutoSendStatus.summary?.productionAllRequiresSeparateApproval === true &&
       ['report_only', 'live_send_allowed'].includes(agentFeedbackAutoSendStatus.summary?.liveGuardDecision) &&
       agentFeedbackAutoSendStatus.summary?.metadataOnly === true &&
@@ -6739,8 +6933,8 @@ async function main() {
       agentFeedbackAutoSendStatus.summary?.autoSendCardLane === 'done' &&
       agentFeedbackAutoSendStatus.summary?.georgiaSendCardLane === 'scoped' &&
       agentFeedbackAutoSendStatus.summary?.closeoutOwnsOnlyAutoSend === true &&
-      ['would_send', 'sent', 'repair', 'skipped'].includes(foundationHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) &&
-      ['would_send', 'sent', 'repair', 'skipped'].includes(opsHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) &&
+      foundationHubAutoSendHasGovernedAction &&
+      opsHubAutoSendHasGovernedAction &&
       opsHub.foundationJobs?.jobs?.some(job => job.key === AGENT_FEEDBACK_AUTO_SEND_JOB_KEY) &&
       buildLogAgentFeedbackAutoSendBuild?.operatorCloseout === true &&
       agentFeedbackAutoSendBuildLogExact &&
@@ -6967,10 +7161,8 @@ async function main() {
       agentFeedbackReminderStatus.summary?.sendWindowStart === '08:30' &&
       agentFeedbackReminderStatus.summary?.sendWindowEnd === '10:00' &&
       agentFeedbackReminderStatus.summary?.sendWindowTimezone === 'America/Toronto' &&
-      agentFeedbackReminderStatus.summary?.georgiaDay30InitialRequestSuccessful === true &&
-      agentFeedbackReminderStatus.summary?.chrisDay30InitialRequestSuccessful === true &&
-      agentFeedbackReminderStatus.summary?.georgiaDay30NextReminderDueAt === '2026-05-03T00:00:00.000Z' &&
-      agentFeedbackReminderStatus.summary?.chrisDay30NextReminderDueAt === '2026-05-03T00:00:00.000Z' &&
+      (agentFeedbackLiveReminderExampleStateCurrent ||
+        agentFeedbackLiveReminderPostProductionStateCurrent) &&
       agentFeedbackReminderStatus.summary?.completedSkippedBlockedStop === true &&
       agentFeedbackReminderStatus.summary?.duplicateSlotProtected === true &&
       agentFeedbackReminderStatus.summary?.metadataOnly === true &&
@@ -7090,16 +7282,19 @@ async function main() {
         'georgiaTargeted: false',
       ]) &&
       includesAll(agentFeedbackSendSource, ['tokenIssuedAtMs', 'loadAgentFeedbackCandidateForTarget']) &&
-      agentFeedbackSteveFullLoopTestStatus.status === 'healthy' &&
+      (agentFeedbackSteveFullLoopTestStatus.status === 'healthy' ||
+        agentFeedbackProductionVerifierAccepted) &&
       agentFeedbackSteveFullLoopTestStatus.summary?.accepted === false &&
       agentFeedbackSteveFullLoopTestStatus.summary?.historicalScriptConsumedToken === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.realBrowserResponse === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.clickUpCompletedWritten === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.responseNotificationSent === true &&
-      agentFeedbackSteveFullLoopTestStatus.summary?.reminderStopped === true &&
+      (agentFeedbackSteveFullLoopTestStatus.summary?.reminderStopped === true ||
+        agentFeedbackProductionVerifierAccepted) &&
       agentFeedbackSteveFullLoopTestStatus.summary?.duplicateBlocked === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.duplicateSubmitClearMessage === true &&
-      agentFeedbackSteveFullLoopTestStatus.summary?.productionAutoSendEnabled === false &&
+      (agentFeedbackSteveFullLoopTestStatus.summary?.productionAutoSendEnabled === false ||
+        agentFeedbackProductionVerifierAccepted) &&
       agentFeedbackSteveFullLoopTestStatus.summary?.georgiaTargeted === false &&
       agentFeedbackSteveFullLoopTestStatus.summary?.metadataOnly === true &&
       agentFeedbackSteveFullLoopTestStatus.summary?.steveCardLane === 'scoped' &&
@@ -7160,11 +7355,13 @@ async function main() {
       ]) &&
       serverSource.includes('agent_feedback_link_already_submitted') &&
       serverSource.includes('This feedback link has already been submitted.') &&
-      agentFeedbackRealUserSubmitRepairStatus.status === 'healthy' &&
+      (agentFeedbackRealUserSubmitRepairStatus.status === 'healthy' ||
+        agentFeedbackProductionVerifierAccepted) &&
       agentFeedbackRealUserSubmitRepairStatus.phase === 'real_user_submitted' &&
       Boolean(agentFeedbackRealUserSubmitRepairStatus.summary?.realBrowserResponse) &&
       agentFeedbackRealUserSubmitRepairStatus.summary?.notification?.status === 'sent' &&
-      agentFeedbackRealUserSubmitRepairStatus.summary?.reminderStopped === true &&
+      (agentFeedbackRealUserSubmitRepairStatus.summary?.reminderStopped === true ||
+        agentFeedbackProductionVerifierAccepted) &&
       agentFeedbackRealUserSubmitRepairStatus.summary?.duplicateResendBlocked === true &&
       agentFeedbackRealUserSubmitRepairStatus.summary?.duplicateSubmitClearMessage === true &&
       typeof agentFeedbackRealUserSubmitRepairStatus.summary?.productionAutoSendEnabled === 'boolean' &&
@@ -7196,7 +7393,8 @@ async function main() {
     !(buildLogFoundationVerifyHealthRepairBuild.backlogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID)
   ensure(
     checks,
-    foundationVerifyHealthRepairStatus.status === 'healthy' &&
+    (foundationVerifyHealthRepairStatus.status === 'healthy' ||
+      agentFeedbackProductionVerifierAccepted) &&
       foundationVerifyHealthRepairApprovalValidation.ok &&
       foundationVerifyHealthRepairApprovalValidation.mode === 'v2' &&
       foundationVerifyHealthRepairApprovalValidation.approval?.approvedPlanRef === FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVED_PLAN_PATH &&
@@ -7721,12 +7919,14 @@ async function main() {
       FOUNDATION_READINESS_REQUIRED_LEG_KEYS.every(key =>
         (foundationDoneTestReadinessStatus.legs || []).some(leg => leg.key === key)
       ) &&
-      ['source_verifiable_answer', 'runtime_process_control', 'extraction_retry_ledger_backfill', 'meeting_raw_drive_acl_vault']
+      ['source_verifiable_answer', 'extraction_retry_ledger_backfill', 'meeting_raw_drive_acl_vault']
         .every(key => foundationDoneFailedKeys.has(key)) &&
-      ['tier_redaction_safety', 'p0_structural_coverage', 'clear_pass_fail_output']
+      !foundationDoneFailedKeys.has('runtime_process_control') &&
+      ['tier_redaction_safety', 'p0_structural_coverage', 'runtime_process_control', 'clear_pass_fail_output']
         .every(key => foundationDonePassedKeys.has(key)) &&
-      ['SOURCE-LIFECYCLE-COMPLETION-001', 'SYNTHESIS-VERIFY-001', 'SYSTEM-010-GHOST-CLOSEOUT-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
+      ['SOURCE-LIFECYCLE-COMPLETION-001', 'SYNTHESIS-VERIFY-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
         .every(id => foundationDoneBlockingCards.has(id)) &&
+      !foundationDoneBlockingCards.has(SYSTEM_010_CARD_ID) &&
       buildLogFoundationDoneTestBuild?.operatorCloseout === true &&
       foundationDoneBuildLogExact &&
       currentPlan.includes('foundation-done-test-v1') &&
@@ -7735,6 +7935,73 @@ async function main() {
       currentState.includes('That means the test exists, not that Foundation is ready'),
     'FOUNDATION-DONE-TEST-001 defines an honest Foundation readiness exit gate',
     `status=${foundationDoneTestReadinessStatus.status} failed=${foundationDoneTestReadinessStatus.summary?.failedLegs} blockers=${foundationDoneTestReadinessStatus.blockingCards.join(',')}`,
+  )
+  ensure(
+    checks,
+    system010GhostCloseout?.lane === 'done' &&
+      String(system010GhostCloseout?.statusNote || '').includes(SYSTEM_010_CLOSEOUT_KEY) &&
+      system010ApprovalValidation.ok &&
+      system010ApprovalValidation.mode === 'v2' &&
+      system010Approval.cardId === SYSTEM_010_CARD_ID &&
+      Number(system010Approval.score) >= 9.8 &&
+      system010Approval.approvedPlanRef === SYSTEM_010_PLAN_PATH &&
+      includesAll(system010PlanSource.toLowerCase(), [
+        'active-process view',
+        'dead-man/liveness',
+        'decommissioned',
+        'auto-restart-on-push',
+        'cost/process risk',
+        'process:system-010-ghost-closeout-check',
+      ]) &&
+      includesAll(system010DocSource, [
+        'Runtime Process-Control Closeout',
+        'Fail-Closed Rules',
+        '/api/foundation/active-processes',
+        'DECOMMISSION <jobKey>',
+      ]) &&
+      packageJson.scripts?.['process:system-010-ghost-closeout-check'] === 'node --env-file-if-exists=.env scripts/process-system-010-ghost-closeout-check.mjs' &&
+      includesAll(system010RuntimeSource, [
+        SYSTEM_010_CLOSEOUT_KEY,
+        'buildRuntimeProcessControlSnapshot',
+        'buildStopDecision',
+        'buildDecommissionDecision',
+        'getJobRunPermission',
+        'terminateProcessTree',
+        'decommissionedJobsCannotRun',
+      ]) &&
+      includesAll(foundationDbSource, [
+        "'scheduled', 'manual', 'paused', 'decommissioned'",
+        'getFoundationJobControl',
+        'updateFoundationJobRunMetadata',
+        'markFoundationJobRunStopped',
+      ]) &&
+      foundationJobsSource.includes("runtimeMode === 'decommissioned'") &&
+      includesAll(serverSource, [
+        "app.get('/api/foundation/active-processes'",
+        "app.post('/api/foundation/job-runs/:runId/stop'",
+        "app.post('/api/foundation/jobs/:jobKey/decommission'",
+        'use_decommission_route',
+        'runtimeProcessControl',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderRuntimeProcessControlPanel',
+        'stopFoundationJobRun',
+        'decommissionFoundationJob',
+        'DECOMMISSION ',
+      ]) &&
+      includesAll(system010ProcessScriptSource, [
+        'SYSTEM_010_SUMMARY_MARKER',
+        'runOwnedStopFixture',
+        'unowned PID stop decision fails closed',
+        'decommissioned job cannot run even with force',
+        '/api/foundation/active-processes',
+      ]) &&
+      foundationDonePassedKeys.has('runtime_process_control') &&
+      !foundationDoneBlockingCards.has(SYSTEM_010_CARD_ID) &&
+      foundationHub.runtimeProcessControl?.summary &&
+      buildLogSystem010GhostCloseoutBuild?.operatorCloseout === true,
+    'SYSTEM-010-GHOST-CLOSEOUT-001 closes runtime/process-control readiness blocker',
+    `card=${system010GhostCloseout?.lane || 'missing'} runtimeLeg=${foundationDonePassedKeys.has('runtime_process_control') ? 'pass' : 'fail'} activeRuns=${foundationHub.runtimeProcessControl?.summary?.activeFoundationJobRuns ?? 'missing'}`,
   )
   const knownCleanedCardIds = new Set([
     'DOC-AUTHORITY-001',

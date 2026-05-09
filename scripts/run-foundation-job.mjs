@@ -7,10 +7,16 @@ import {
   closeFoundationDb,
   createFoundationJobRun,
   finishFoundationJobRun,
+  getFoundationJobControl,
   getFoundationJobRunSnapshot,
   initFoundationDb,
+  updateFoundationJobRunMetadata,
 } from '../lib/foundation-db.js';
 import { getFoundationJobDefinition, getFoundationJobDefinitions } from '../lib/foundation-jobs.js';
+import {
+  getJobRunPermission,
+  terminateProcessTree,
+} from '../lib/runtime-process-control.js';
 
 const OUTPUT_TAIL_LIMIT = 20000;
 
@@ -64,17 +70,26 @@ export async function runFoundationJob(jobKey, { actor = 'codex', dryRun = false
     throw new Error(`Unknown Foundation job: ${jobKey}. Run with --list to see available jobs.`);
   }
 
-  if (!job.enabled && !force) {
-    throw new Error(`Foundation job is not enabled: ${jobKey}. Pass --force=true to run intentionally.`);
+  const control = await getFoundationJobControl(job.key);
+  const effectiveJob = {
+    ...job,
+    enabled: typeof control?.enabled === 'boolean' ? control.enabled : job.enabled,
+    runtimeMode: control?.runtimeMode || job.runtimeMode,
+    scheduleEveryMinutes: control?.scheduleEveryMinutes ?? job.scheduleEveryMinutes,
+    pauseReason: control?.pauseReason || job.pauseReason,
+  };
+  const permission = getJobRunPermission(effectiveJob, { force });
+  if (!permission.ok) {
+    throw new Error(`Foundation job is not runnable: ${jobKey}. ${permission.reason}`);
   }
 
   const runId = makeRunId(job.key);
   if (dryRun) {
-    console.log(JSON.stringify({ runId, job }, null, 2));
+    console.log(JSON.stringify({ runId, job: effectiveJob, permission }, null, 2));
     return 0;
   }
 
-  return runCommand(job, runId, actor);
+  return runCommand(effectiveJob, runId, actor);
 }
 
 async function runCommand(job, runId, actor) {
@@ -109,25 +124,43 @@ async function runCommand(job, runId, actor) {
   console.log(`Run ID: ${runId}`);
   console.log(`Command: ${[job.command, ...job.args].join(' ')}`);
 
+  let timeout = null;
+  let killEscalationTimeout = null;
+  const child = spawn(job.command, job.args, {
+    cwd: process.cwd(),
+    env: {
+      ...process.env,
+      FOUNDATION_JOB_ACTOR: actor,
+    },
+    detached: true,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  if (child.pid) {
+    await updateFoundationJobRunMetadata(runId, {
+      childPid: child.pid,
+      processGroupId: child.pid,
+      processOwner: 'foundation-job-runner',
+      processStartedByRunId: runId,
+      processStartedAt: new Date().toISOString(),
+      maxRuntimeSeconds: job.maxRuntimeSeconds,
+      budget: job.budget,
+      stopSignals: ['SIGTERM', 'SIGKILL'],
+    }, actor);
+  }
+
   const outcome = await new Promise(resolve => {
-    let timeout = null;
-    let killEscalationTimeout = null;
-    const child = spawn(job.command, job.args, {
-      cwd: process.cwd(),
-      env: {
-        ...process.env,
-        FOUNDATION_JOB_ACTOR: actor,
-      },
-      detached: true,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
     const timeoutMs = Number(job.maxRuntimeSeconds) > 0 ? Number(job.maxRuntimeSeconds) * 1000 : null;
     timeout = timeoutMs
       ? setTimeout(() => {
           timedOut = true;
-          killJobProcess(child, 'SIGTERM');
+          terminateProcessTree(child.pid, { signal: 'SIGTERM' }).catch(() => {
+            killJobProcess(child, 'SIGTERM');
+          });
           killEscalationTimeout = setTimeout(() => {
-            killJobProcess(child, 'SIGKILL');
+            terminateProcessTree(child.pid, { signal: 'SIGKILL' }).catch(() => {
+              killJobProcess(child, 'SIGKILL');
+            });
           }, 5000);
         }, timeoutMs)
       : null;
