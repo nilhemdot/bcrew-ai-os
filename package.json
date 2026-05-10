@@ -98,6 +98,7 @@
     "process:drive-access-request-check": "node --env-file-if-exists=.env scripts/process-drive-access-request-check.mjs",
     "process:meeting-vault-acl-check": "node --env-file-if-exists=.env scripts/process-meeting-vault-acl-check.mjs",
     "process:meeting-vault-acl-apply-batch": "node --env-file-if-exists=.env scripts/apply-meeting-vault-acl-batch.mjs",
+    "process:meeting-vault-acl-front-office-batch": "node --env-file-if-exists=.env scripts/apply-meeting-vault-acl-front-office-batch.mjs",
     "process:foundation-sprint-system-check": "node --env-file-if-exists=.env scripts/process-foundation-sprint-system-check.mjs",
     "process:foundation-sprint-cadence-check": "node --env-file-if-exists=.env scripts/process-foundation-sprint-cadence-check.mjs",
     "process:foundation-verify-health-repair-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-health-repair-check.mjs",
