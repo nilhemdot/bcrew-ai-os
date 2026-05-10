@@ -32,6 +32,7 @@ import {
   getStrategyPreworkCoverageSnapshot,
   getActionRoute,
   getActionRouterSnapshot,
+  getActiveFoundationCurrentSprint,
   getFoundationBacklogScopes,
   getDocSourceSnapshot,
   getFoundationBacklogIdPrefixes,
@@ -72,6 +73,9 @@ import {
   upsertSalesListingAssignment,
   upsertAgentOnboardingFeedbackResponse,
 } from './lib/foundation-db.js'
+import {
+  buildFoundationCurrentSprintStatus,
+} from './lib/foundation-current-sprint.js'
 import {
   attachBacklogCardsToBuilds,
   enrichFoundationBuildLogCommitEntries,
@@ -4508,6 +4512,13 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       foundationJobs: snapshot.foundationJobs,
     })
     const runtimeProcessControl = await buildRuntimeProcessControlApiSnapshot(snapshot)
+    const activeFoundationSprint = await getActiveFoundationCurrentSprint()
+    const currentSprint = buildFoundationCurrentSprintStatus({
+      sprint: activeFoundationSprint.sprint,
+      items: activeFoundationSprint.items,
+      backlogItems: snapshot.backlogItems || [],
+      closeouts: getFoundationBuildCloseouts(),
+    })
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4530,6 +4541,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,
       runtimeProcessControl,
+      currentSprint,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
@@ -4541,6 +4553,30 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       500,
       'foundation_hub_load_failed',
       error instanceof Error ? error.message : 'Failed to load foundation hub data.'
+    )
+  }
+})
+
+app.get('/api/foundation/current-sprint', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const activeFoundationSprint = await getActiveFoundationCurrentSprint()
+    const currentSprint = buildFoundationCurrentSprintStatus({
+      sprint: activeFoundationSprint.sprint,
+      items: activeFoundationSprint.items,
+      backlogItems: snapshot.backlogItems || [],
+      closeouts: getFoundationBuildCloseouts(),
+    })
+    res.json({
+      generatedAt: new Date().toISOString(),
+      currentSprint,
+    })
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_current_sprint_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Current Sprint.'
     )
   }
 })

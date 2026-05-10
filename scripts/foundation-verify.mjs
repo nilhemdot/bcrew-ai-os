@@ -310,6 +310,7 @@ import {
   assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
   getActionRouterSnapshot,
+  getActiveFoundationCurrentSprint,
   getBacklogSeedDriftSnapshot,
   getFoundationDbConstraintAudit,
   getIntelligenceAtomSpineSnapshot,
@@ -327,6 +328,20 @@ import {
   getStrategyPreworkCoverageSnapshot,
   resetFoundationDb,
 } from '../lib/foundation-db.js'
+import {
+  FOUNDATION_CURRENT_SPRINT_STAGES,
+  FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+  FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
+  FOUNDATION_SPRINT_SYSTEM_APPROVAL_PATH,
+  FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+  FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY,
+  FOUNDATION_SPRINT_SYSTEM_DOC_PATH,
+  FOUNDATION_SPRINT_SYSTEM_PLAN_PATH,
+  FOUNDATION_SPRINT_SYSTEM_SCRIPT_PATH,
+  FOUNDATION_SPRINT_SYSTEM_SUMMARY_MARKER,
+  buildFoundationCurrentSprintStatus,
+  buildSyntheticFoundationCurrentSprintProof,
+} from '../lib/foundation-current-sprint.js'
 import { getFoundationSurfaceMap } from '../lib/foundation-surface-map.js'
 import {
   EXPECTED_KPI_RPCS,
@@ -405,6 +420,10 @@ const SYNTHESIS_VERIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const DRIVE_ACCESS_REQUEST_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'DRIVE-ACCESS-REQUEST-001',
+]
+
+const FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-SPRINT-SYSTEM-001',
 ]
 
 const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -1120,6 +1139,13 @@ async function main() {
   const meetingVaultAclScriptSource = await readRepoFile(MEETING_VAULT_ACL_SCRIPT_PATH)
   const meetingVaultAclDocSource = await readRepoFile(MEETING_VAULT_ACL_DOC_PATH)
   const meetingVaultAclPlanSource = await readRepoFile(MEETING_VAULT_ACL_PLAN_PATH)
+  const foundationCurrentSprintSource = await readRepoFile('lib/foundation-current-sprint.js')
+  const foundationSprintSystemScriptSource = await readRepoFile(FOUNDATION_SPRINT_SYSTEM_SCRIPT_PATH)
+  const foundationSprintSystemPlanSource = await readRepoFile(FOUNDATION_SPRINT_SYSTEM_PLAN_PATH)
+  const foundationSprintSystemDocSource = await readRepoFile(FOUNDATION_SPRINT_SYSTEM_DOC_PATH)
+  const foundationSprintSystemApprovalSource = await readRepoFile(FOUNDATION_SPRINT_SYSTEM_APPROVAL_PATH)
+  const foundationSprintSystemApproval = JSON.parse(foundationSprintSystemApprovalSource)
+  const foundationSprintCaptureSource = await readRepoFile('docs/handoffs/2026-05-10-foundation-sprint-capture.md')
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -1381,6 +1407,11 @@ async function main() {
     repoRoot,
     approvalRef: driveAccessRequestApprovalRef,
     cardId: DRIVE_ACCESS_REQUEST_CARD_ID,
+  })
+  const foundationSprintSystemApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: FOUNDATION_SPRINT_SYSTEM_APPROVAL_PATH,
+    cardId: FOUNDATION_SPRINT_SYSTEM_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2685,6 +2716,14 @@ async function main() {
   const latestMeetingVaultAclAudit = await getLatestMeetingVaultAclAudit({ cardId: MEETING_VAULT_ACL_CARD_ID }).catch(() => null)
   const syntheticDriveAccessPreflight = buildSyntheticDriveAccessPreflightProof()
   const syntheticMeetingVaultAcl = buildSyntheticMeetingVaultAclProof()
+  const activeFoundationSprint = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const foundationCurrentSprintStatus = buildFoundationCurrentSprintStatus({
+    sprint: activeFoundationSprint.sprint,
+    items: activeFoundationSprint.items,
+    backlogItems: foundationHub.backlogItems || [],
+    closeouts: foundationBuildCloseouts,
+  })
+  const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
     closeouts: foundationBuildCloseouts,
@@ -3653,6 +3692,21 @@ async function main() {
         mentionedBacklogIds: [
           MEETING_VAULT_ACL_CARD_ID,
           FOUNDATION_DONE_TEST_CARD_ID,
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogFoundationSprintSystemBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
+      build.closeoutKey === FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY,
+        backlogIds: [FOUNDATION_SPRINT_SYSTEM_CARD_ID],
+        mentionedBacklogIds: [
+          MEETING_VAULT_ACL_CARD_ID,
+          FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
+          FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
         ],
         operatorCloseout: true,
       }
@@ -4930,6 +4984,9 @@ async function main() {
   const synthesisVerify = (foundationHub.backlogItems || []).find(item => item.id === SYNTHESIS_VERIFY_CARD_ID) || null
   const extractRunHardening = (foundationHub.backlogItems || []).find(item => item.id === EXTRACT_RUN_HARDENING_CARD_ID) || null
   const driveAccessRequest = (foundationHub.backlogItems || []).find(item => item.id === DRIVE_ACCESS_REQUEST_CARD_ID) || null
+  const foundationSprintSystem = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SYSTEM_CARD_ID) || null
+  const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
+  const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
   const foundationDoneTest = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DONE_TEST_CARD_ID) || null
   const system010GhostCloseout = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_010_CARD_ID) || null
@@ -7006,6 +7063,97 @@ async function main() {
       currentState.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY),
     'DRIVE-ACCESS-REQUEST-001 closes delegated Drive dry-run/preflight without mutating Drive',
     `lane=${driveAccessRequest?.lane || 'missing'} latest=${latestDriveAccessPreflightRun?.status || 'missing'} readinessNamesDrive=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID)} meeting=${meetingVaultAcl?.lane || 'missing'}`,
+  )
+  const foundationSprintSystemBuildLogExact = buildLogFoundationSprintSystemBuild?.backlogIds?.length === 1 &&
+    buildLogFoundationSprintSystemBuild.backlogIds.includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
+    [
+      MEETING_VAULT_ACL_CARD_ID,
+      FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
+      FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+    ].every(id => (buildLogFoundationSprintSystemBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      MEETING_VAULT_ACL_CARD_ID,
+      FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
+      FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+    ].every(id => !(buildLogFoundationSprintSystemBuild.backlogIds || []).includes(id))
+  ensure(
+    checks,
+    foundationSprintSystem?.lane === 'done' &&
+      String(foundationSprintSystem?.statusNote || '').includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) &&
+      foundationSprintSystemApprovalValidation.ok &&
+      foundationSprintSystemApprovalValidation.mode === 'v2' &&
+      foundationSprintSystemApproval.cardId === FOUNDATION_SPRINT_SYSTEM_CARD_ID &&
+      Number(foundationSprintSystemApproval.score) >= 9.8 &&
+      foundationSprintSystemApproval.approvedPlanRef === FOUNDATION_SPRINT_SYSTEM_PLAN_PATH &&
+      includesAll(foundationSprintSystemPlanSource, [
+        'Current Sprint is an overlay on live backlog truth, not a second backlog',
+        '`sprint_ready`: Sprint Ready',
+        '`returned`: Returned',
+        'returnedReason',
+        'FOUNDATION-DONE-VELOCITY-001',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        'FOUNDATION_CURRENT_SPRINT_STAGES',
+        'FOUNDATION_EXISTING_WORK_CHECK_FIELDS',
+        'validateExistingWorkCheck',
+        'buildFoundationCurrentSprintStatus',
+        'buildSyntheticFoundationCurrentSprintProof',
+      ]) &&
+      FOUNDATION_CURRENT_SPRINT_STAGES.map(stage => stage.key).join(',') === 'scoping,sprint_ready,building_now,done_this_sprint,returned' &&
+      includesAll(foundationDbSource, [
+        'foundation_sprints',
+        'foundation_sprint_items',
+        'getActiveFoundationCurrentSprint',
+        'upsertFoundationCurrentSprintOverlay',
+      ]) &&
+      includesAll(serverSource, [
+        '/api/foundation/current-sprint',
+        'currentSprint',
+        'buildFoundationCurrentSprintStatus',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderCurrentSprintPanel',
+        'Current Sprint',
+        'done_this_sprint',
+        'Done cards continue into Recent Work below',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.current-sprint-panel',
+        '.current-sprint-stage-grid',
+      ]) &&
+      packageJson.scripts?.['process:foundation-sprint-system-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-sprint-system-check.mjs' &&
+      includesAll(foundationSprintSystemScriptSource, [
+        FOUNDATION_SPRINT_SYSTEM_SUMMARY_MARKER,
+        'FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES',
+        'FOUNDATION-DONE-VELOCITY-001',
+        'MEETING-VAULT-ACL-001',
+      ]) &&
+      includesAll(foundationSprintSystemDocSource, [
+        'overlay on live backlog',
+        'Sprint Ready',
+        'Returned requires',
+        FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY,
+      ]) &&
+      syntheticFoundationSprintProof.ok &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationSprintSurfaceFollowUp?.lane === 'scoped' &&
+      [foundationSprintSurfaceFollowUp?.summary, foundationSprintSurfaceFollowUp?.nextAction, foundationSprintSurfaceFollowUp?.statusNote].join(' ').includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
+      foundationSprintDoneVelocity?.lane === 'scoped' &&
+      [foundationSprintDoneVelocity?.summary, foundationSprintDoneVelocity?.nextAction, foundationSprintDoneVelocity?.statusNote].join(' ').includes('velocity') &&
+      meetingVaultAcl?.lane !== 'done' &&
+      foundationSprintCaptureSource.includes('Phase B paused') &&
+      buildLogFoundationSprintSystemBuild?.operatorCloseout === true &&
+      foundationSprintSystemBuildLogExact &&
+      currentPlan.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) &&
+      currentPlan.includes(FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) &&
+      currentPlan.includes(FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) &&
+      currentState.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) &&
+      currentState.includes('Current Sprint') &&
+      currentState.includes('MEETING-VAULT-ACL-001 remains scoped') &&
+      includesAll(foundationVerifySource, FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'FOUNDATION-SPRINT-SYSTEM-001 adds Current Sprint control without a second backlog',
+    `lane=${foundationSprintSystem?.lane || 'missing'} sprint=${foundationCurrentSprintStatus.status} api=${foundationHub.currentSprint?.status || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'}`,
   )
   const foundationFollowupCardCaptureBuildLogExact = buildLogFoundationFollowupCardCaptureBuild?.backlogIds?.length === 1 &&
     buildLogFoundationFollowupCardCaptureBuild.backlogIds.includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-SPRINT-SYSTEM-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-10T08:30:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/foundation-sprint-system-001-plan.md",
+  "approvedPlanSha256": "da98dd719baa94d64cf63d74a7b64d907c25148a479c0ee761ba99a1c84765bc",
+  "approvedRepoHead": "ae8f5ec99755325fb22c0e07e95144244f5593da",
+  "notes": "FOUNDATION-SPRINT-SYSTEM-001 approved at 9.8. Implement only the Current Sprint execution-control overlay on live backlog: central sprint registry, additive overlay tables, Sprint Ready existing-work/doctrine check, returned-reason requirement, Recent Work panel, process proof, foundation verifier coverage, and closeout. Do not build MEETING-VAULT-ACL-001 Phase B, mutate Drive permissions, send request-access emails, broaden Foundation UI polish, or start Strategy, Sales expansion, Agent Feedback expansion, Scoper, Agent Factory, broad corpus/video mining, researcher, filtered comms access, public access, or sprint-view work.",
+  "approvalDigest": "f60b49124fa409dcfebd90846041d6ef04f411780884e11a4cf46bcafaec3a90"
+}

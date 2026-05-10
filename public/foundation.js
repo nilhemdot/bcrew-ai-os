@@ -14143,6 +14143,143 @@ function renderBuildReviewQueue(builds) {
   return panel
 }
 
+function renderCurrentSprintCard(item) {
+  var card = document.createElement('details')
+  card.className = 'current-sprint-card'
+  if (item.stage === 'building_now') card.open = true
+
+  var summary = document.createElement('summary')
+  summary.className = 'current-sprint-card-summary'
+  var copy = document.createElement('div')
+  copy.className = 'current-sprint-card-main'
+  var title = document.createElement('strong')
+  title.textContent = (item.cardId || 'missing-card') + ' · ' + (item.title || 'Missing backlog card')
+  copy.appendChild(title)
+  var meta = document.createElement('p')
+  meta.textContent = [
+    item.stageLabel || item.stage || 'stage',
+    item.backlogLane ? getBacklogLaneLabel(item.backlogLane) : null,
+    item.backlogPriority || null,
+  ].filter(Boolean).join(' · ')
+  copy.appendChild(meta)
+  summary.appendChild(copy)
+  var pill = renderBuildPill(item.existingWorkCheckStatus === 'complete' ? 'Doctrine checked' : 'Doctrine missing', item.existingWorkCheckStatus === 'complete' ? 'foundation-system-pill current-sprint-ready-pill' : 'foundation-system-pill current-sprint-risk-pill')
+  if (pill) summary.appendChild(pill)
+  card.appendChild(summary)
+
+  var facts = document.createElement('div')
+  facts.className = 'current-sprint-card-body'
+  ;[
+    renderBuildFact('Definition of done', item.definitionOfDone),
+    renderBuildFact('Readiness blocker cleared', item.readinessBlockerCleared),
+    renderBuildFact('Returned reason', item.stage === 'returned' ? item.returnedReason : null),
+    renderBuildFact('Plan', item.planRef),
+    renderBuildFact('Proof commands', item.proofCommands || [], { mono: true }),
+    renderBuildFact('Not next', item.notNextBoundaries || []),
+  ].forEach(function(row) {
+    if (row) facts.appendChild(row)
+  })
+
+  var backlogLink = document.createElement('a')
+  backlogLink.className = 'build-log-backlog-link'
+  backlogLink.href = '/foundation#backlog:' + encodeURIComponent(item.cardId || '')
+  backlogLink.textContent = 'Open backlog card'
+  facts.appendChild(renderBuildFact('Backlog truth', backlogLink))
+  card.appendChild(facts)
+
+  return card
+}
+
+function renderCurrentSprintPanel(currentSprint) {
+  var panel = document.createElement('section')
+  panel.className = 'panel current-sprint-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header current-sprint-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Current Sprint'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = (currentSprint && currentSprint.goal) || 'No active sprint overlay'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Execution-control overlay on live backlog. Done cards continue into Recent Work below.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  header.appendChild(renderBuildPill(currentSprint && currentSprint.status === 'healthy' ? 'Healthy' : 'Needs attention', currentSprint && currentSprint.status === 'healthy' ? 'foundation-system-pill build-log-status-pill build-log-status-shipped' : 'foundation-system-pill current-sprint-risk-pill'))
+  panel.appendChild(header)
+
+  var summary = currentSprint && currentSprint.summary ? currentSprint.summary : {}
+  var metrics = document.createElement('div')
+  metrics.className = 'build-log-summary-grid current-sprint-metrics'
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Active blocker',
+    (currentSprint && currentSprint.activeBlocker && currentSprint.activeBlocker.cardId) || 'missing',
+    (currentSprint && currentSprint.activeBlocker && currentSprint.activeBlocker.title) || 'No blocker resolved from live backlog.'
+  ))
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Building now',
+    String(summary.buildingNowCount || 0),
+    'Limited to one card unless parallel work is explicitly approved.'
+  ))
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Returned',
+    String(summary.returnedCount || 0),
+    'Returned cards require a reason before they can leave this state.'
+  ))
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Velocity',
+    currentSprint && currentSprint.doneVelocity ? currentSprint.doneVelocity.followUpCardId : 'follow-up',
+    currentSprint && currentSprint.doneVelocity ? currentSprint.doneVelocity.reason : 'Velocity graph is outside V1.'
+  ))
+  panel.appendChild(metrics)
+
+  var findings = (currentSprint && currentSprint.findings) || []
+  if (findings.length) {
+    var findingsPanel = document.createElement('div')
+    findingsPanel.className = 'current-sprint-findings'
+    findings.slice(0, 5).forEach(function(finding) {
+      var row = document.createElement('p')
+      row.textContent = (finding.check || 'check') + ': ' + (finding.detail || 'needs attention')
+      findingsPanel.appendChild(row)
+    })
+    panel.appendChild(findingsPanel)
+  }
+
+  var currentSprintExpectedStages = ['scoping', 'sprint_ready', 'building_now', 'done_this_sprint', 'returned']
+  var stages = currentSprint && currentSprint.stages && currentSprint.stages.length
+    ? currentSprint.stages
+    : currentSprintExpectedStages.map(function(stageKey) {
+        return { key: stageKey, label: stageKey.replace(/_/g, ' '), items: [] }
+      })
+  var stageWrap = document.createElement('div')
+  stageWrap.className = 'current-sprint-stage-grid'
+  stages.forEach(function(stage) {
+    var stageSection = document.createElement('div')
+    stageSection.className = 'current-sprint-stage current-sprint-stage-' + String(stage.key || '').replace(/[^a-z0-9_-]/gi, '-')
+    var stageTitle = document.createElement('h4')
+    stageTitle.textContent = (stage.label || stage.key || 'Stage') + ' · ' + ((stage.items || []).length)
+    stageSection.appendChild(stageTitle)
+    if ((stage.items || []).length) {
+      ;(stage.items || []).forEach(function(item) {
+        stageSection.appendChild(renderCurrentSprintCard(item))
+      })
+    } else {
+      var empty = document.createElement('p')
+      empty.className = 'section-intro'
+      empty.textContent = 'No cards in this stage.'
+      stageSection.appendChild(empty)
+    }
+    stageWrap.appendChild(stageSection)
+  })
+  panel.appendChild(stageWrap)
+
+  return panel
+}
+
 function renderBuildFact(label, value, options) {
   if (!value || (Array.isArray(value) && !value.length)) return null
   var row = document.createElement('div')
@@ -14393,6 +14530,8 @@ function renderBuildLog() {
     heroInner.appendChild(heroNote)
     hero.appendChild(heroInner)
     container.appendChild(hero)
+
+    container.appendChild(renderCurrentSprintPanel(hub.currentSprint))
 
     container.appendChild(renderBuildExecutiveSummary(buildLog, builds))
 

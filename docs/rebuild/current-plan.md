@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-09
-Version: v6.24 — SYSTEM-010 runtime/process closeout
+Last updated: 2026-05-10
+Version: v6.25 — Current Sprint control overlay
 Status: Active
 
 Use this doc for one question:
@@ -89,6 +89,7 @@ Built and useful now:
 - Persisted synthesis runs/items in Postgres.
 - Memory/retrieval/synthesis spine through governed synthesis: intelligence job runs, old-system salvage contract, report artifacts, atoms, atom hits, lexical chunks/search, pgvector semantic search, hybrid evidence retrieval, source-backed facts, and governed synthesized items with fact/evidence/chunk provenance.
 - First Foundation job registry and DB-backed job run ledger, with active-process/liveness visibility, owned stop decisions, confirmation-gated decommission controls, and cost/process risk rollup under `system-010-ghost-closeout-v1`.
+- Current Sprint execution-control overlay under `foundation-sprint-system-v1`: live-backlog-backed sprint goal, active blocker, ordered cards, stages, Sprint Ready existing-work/doctrine check, returned reason, proof commands, readiness blocker, and not-next boundaries at the top of Recent Work.
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Policy-aware LLM router: credential/route/probe/call tables, executable OpenClaw/Codex subscription adapter, auth-path audit job, call ledger, route status visibility, and shared intelligence extraction/synthesis migrated behind the router.
 - Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, scheduled current-day lanes for Gmail/Missive/meetings/Slack, daily shared-comms extraction missions, daily Drive inventory/content missions, daily Gmail attachment extraction, and daily YouTube subtitle transcript extraction from the video manifest.
@@ -171,6 +172,7 @@ After the SECURITY-002 closeout, Steve asked for a full sweep of specs, audits, 
 - `SECURITY-EDGE-001` — public edge auth/tunnel hardening before broader external exposure.
 - `SECURITY-PROVIDER-ROTATION-PROOF-001` — provider-side proof for exposed or retired credentials.
 - `DRIVE-ACCESS-REQUEST-001` — done under `drive-access-request-v1`; delegated Drive dry-run/preflight now proves actor shape, metadata-only permission inventory, missing-access/owner-ambiguity/request-access-needed classification, and dry-run ledgering without emails or permission mutations.
+- `FOUNDATION-SPRINT-SYSTEM-001` — done under `foundation-sprint-system-v1`; Current Sprint is now an overlay on live Backlog, not a second backlog. `FOUNDATION-SURFACE-UPDATES-001` stays broader UI polish, `FOUNDATION-DONE-VELOCITY-001` stays the honest velocity follow-up, and `MEETING-VAULT-ACL-001` remains scoped/blocking until Phase A proves every file safe or separately approved Phase B repairs and rechecks Drive permissions.
 - `FOUNDATION-DONE-TEST-001` — explicit Foundation readiness exit gate. Done for the gate implementation under `foundation-done-test-v1`; the current gate may still report `not_ready` while blocker cards remain open, and it does not make the blocker cards pass.
 - `SYSTEM-010-GHOST-CLOSEOUT-001` — done for the runtime/process-control readiness blocker under `system-010-ghost-closeout-v1`; active-process, liveness, stop/decommission, restart-status, and cost/process risk are visible and fail closed.
 - `SOURCE-LIFECYCLE-COMPLETION-001` — done for the source lifecycle completion/revalidation blocker under `source-lifecycle-completion-v1`; all 35 source contracts now have terminal states, load-bearing sources are complete/read-only/current-reality for current scope, and future/gap sources are accepted-blocked with owner, reason, next action, and blocker card.
@@ -204,7 +206,7 @@ The daily Foundation nav target is:
 3. Backlog
 4. Recent Work
 
-The Overview should act like a scrum-master / CEO dashboard for the Foundation build: active command order, system grade, recent shipped work, done velocity, and the next decision. Done sections should show when work moved to done and sort newest done to oldest done. Recent Builds / Recent Work should default collapsed and show where each change lives in the app or docs.
+The Overview should act like a scrum-master / CEO dashboard for the Foundation build: active command order, system grade, recent shipped work, done velocity, and the next decision. Done sections should show when work moved to done and sort newest done to oldest done. Recent Builds / Recent Work should default collapsed and show where each change lives in the app or docs. Current Sprint is now owned by `FOUNDATION-SPRINT-SYSTEM-001` as an execution-control overlay; broader surface cleanup remains under `FOUNDATION-SURFACE-UPDATES-001`, and done velocity remains under `FOUNDATION-DONE-VELOCITY-001`.
 
 The old Foundation Overview grouping that reads like `Phase 1 · Truth Cleanup` must not compete with this Rebuild Plan's phase numbers. Either reconcile the UI to the plan's phase numbering or replace those groups with the current command-order view: keep maps/build log current -> monitor extraction -> harden corpus -> source health/freshness -> close action loop.
 

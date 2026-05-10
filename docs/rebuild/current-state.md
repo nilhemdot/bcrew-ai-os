@@ -1,6 +1,6 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-09
+Last updated: 2026-05-10
 Status: Active
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
@@ -35,6 +35,7 @@ Built:
 - memory/retrieval/synthesis/action spine through Action Router v1: job ledger, old-system salvage contract, atoms/report artifacts, lexical retrieval, pgvector semantic retrieval, hybrid evidence API, source-backed facts, governed synthesized items with fact/evidence/chunk provenance, and pending approval-gated action routes
 - first job registry and job-run ledger
 - SYSTEM-010 runtime/process controls: active-process view, liveness/dead-man rollup, owned stop decisions, confirmation-gated decommission, restart-status reporting, and cost/process risk rollup
+- Current Sprint execution-control overlay: live-backlog-backed sprint goal, active blocker, ordered cards, stages, Sprint Ready existing-work/doctrine check, returned reason, proof commands, and not-next boundaries at the top of Recent Work under `foundation-sprint-system-v1`
 - scheduled Missive and Gmail current-day sync lanes
 - policy-aware LLM router with a working OpenClaw/Codex subscription adapter for shared intelligence extraction and synthesis
 - extraction control target/item ledger, including Slack current-day channel-level item proof in Runtime Health
@@ -184,6 +185,7 @@ Current command order:
 41. `SYNTHESIS-VERIFY-001` is done under `synthesis-verify-v1`: `lib/synthesis-claim-verification.js` and `scripts/process-synthesis-verify-check.mjs` now verify governed synthesized items, shared-comms synthesized items, and action routes. Unsupported, stale, contradicted, missing-tier, and single-evidence Strategy-grade claims fail closed; Action Router proposal/approval/apply paths require verified decision-grade synthesis; Strategy Hub v2 filters out unverified synthesized claims; shared-comms synthesis is verified or downgraded to advisory/blocked. This does not build Strategy expansion, researcher/scout/advisor output, extraction hardening, or meeting Drive ACL/vault work.
 42. `EXTRACT-RUN-HARDENING-001` is done under `extract-run-hardening-v1`: `lib/extraction-run-hardening.js`, `source_crawl_items` retry fields, `source_crawl_item_attempts`, runner crawlRunId propagation, stale item-lease reaping, Runtime Health retry visibility, and `scripts/process-extract-run-hardening-check.mjs` close the extraction retry/ledger/backfill readiness blocker. Existing extraction lanes are hardened; no new connector, broad corpus/video mining, meeting ACL/vault work, or UI polish is included.
 43. `DRIVE-ACCESS-REQUEST-001` is done under `drive-access-request-v1`: `lib/drive-access-preflight.js`, `drive_access_preflight_runs`, `drive_access_preflight_items`, and `scripts/process-drive-access-request-check.mjs` close delegated Drive dry-run/preflight only. The system proves actor shape, metadata-only permission inventory, missing-access/owner-ambiguity/request-access-needed classification, and no raw proof leakage while sending no emails and mutating no Drive permissions. `MEETING-VAULT-ACL-001` remains the raw meeting Drive ACL/vault blocker unless Phase A proves every file safe or separately approved Phase B applies/rechecks/rolls back repairs.
+44. `FOUNDATION-SPRINT-SYSTEM-001` is done under `foundation-sprint-system-v1`: `lib/foundation-current-sprint.js`, additive `foundation_sprints` / `foundation_sprint_items`, `/api/foundation/current-sprint`, `/api/foundation-hub.currentSprint`, and the Recent Work Current Sprint panel now show the active sprint as an overlay on live backlog. Sprint Ready requires the existing-work/doctrine check, Returned requires a reason, proof commands and not-next boundaries are visible, and done sprint cards reconcile with Recent Work closeouts. `FOUNDATION-SURFACE-UPDATES-001` remains broader UI polish, `FOUNDATION-DONE-VELOCITY-001` remains the velocity follow-up, and MEETING-VAULT-ACL-001 remains scoped/blocking; no Drive permissions were mutated and no request-access emails were sent.
 
 ## Operator Surface Pattern
 
@@ -206,7 +208,7 @@ These pages are operator surfaces, not strategy pages.
 | Daily Summary | Date-scoped executive readout. | Live source-backed daily summary from `/api/foundation/daily-summary`: Recent Work, comprehensive changelog, current plan/state, live backlog truth, action/research disposition summaries, and recorded proof grouped into where we started, what changed, what shipped, what remains, what we learned, what is next, and evidence refs. |
 | Decisions | Canonical governance ledger. | Working as a manual first slice; not yet automatic meeting/chat decision capture. `DECISION-007` owns old-decision reconciliation and `ACTION-ROUTER-001` owns future routing from synthesis. |
 | Open Questions | Exception queue for real unresolved blockers. | Technically working, but the old stale carry-forward questions were resolved or routed into backlog/source docs on 2026-04-26. New questions should be rare, owner-bound, and cleared quickly. |
-| Recent Work | Shipped-build review. | Recent Builds executive UI is now live for v1: collapsed closeout cards, review-next queue, proof, known limits, where-it-lives, owning cards, context cards, and same-commit groups that remain individually reviewable. It is not the broader comprehensive changelog. |
+| Recent Work | Shipped-build review. | Recent Builds executive UI is now live for v1, with Current Sprint shown first as an execution-control overlay on live backlog. Closeout cards remain collapsed-by-default below with review-next queue, proof, known limits, where-it-lives, owning cards, context cards, and same-commit groups that remain individually reviewable. It is not the broader comprehensive changelog or broad UI polish. |
 | System Activity | Comprehensive changelog and audit feed. | Live source-backed changelog from `/api/foundation/change-log`: verified closeouts, DB `change_events`, and changed-file evidence grouped by highlight, surface, type, and raw evidence. Existing `/api/foundation/changes` remains the backward-compatible latest-event feed; `SYSTEM-007` still owns the later searchable audit explorer. |
 | Runtime Health | Operator diagnostic surface. | Live job/LLM/extraction/source-crawl view; `SYSTEM-008` owns deeper alert/degradation semantics and `RUNTIME-HEALTH-SIMPLIFY-001` owns later readability simplification. |
 
