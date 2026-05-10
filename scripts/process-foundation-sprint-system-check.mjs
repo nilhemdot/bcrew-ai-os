@@ -9,6 +9,7 @@ import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_CURRENT_SPRINT_ID,
+  FOUNDATION_SPRINT_CADENCE_CARD_ID,
   FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
   FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES,
   FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
@@ -149,11 +150,24 @@ async function main() {
   try {
     await preserveSurfaceFollowUpBoundary()
 
-    const buildingSeed = buildDefaultFoundationSprintSeed({ stage: 'building_now' })
+    const existingCards = await getBacklogItemsByIds([
+      FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+      FOUNDATION_SPRINT_CADENCE_CARD_ID,
+      'MEETING-VAULT-ACL-001',
+      FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
+      FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+    ])
+    const cadenceAlreadyDone = existingCards.some(card => card.id === FOUNDATION_SPRINT_CADENCE_CARD_ID && card.lane === 'done')
+
+    const buildingSeed = buildDefaultFoundationSprintSeed({
+      stage: 'building_now',
+      cadenceStage: cadenceAlreadyDone ? 'done_this_sprint' : 'scoping',
+    })
     await upsertFoundationCurrentSprintOverlay(buildingSeed, 'foundation-sprint-system-check')
     const buildingSprint = await getActiveFoundationCurrentSprint()
     const buildingCards = await getBacklogItemsByIds([
       FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+      FOUNDATION_SPRINT_CADENCE_CARD_ID,
       'MEETING-VAULT-ACL-001',
       FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
       FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
@@ -294,11 +308,15 @@ async function main() {
 
     await closeCardIfHealthy(summary)
     if (summary.status === 'healthy') {
-      const doneSeed = buildDefaultFoundationSprintSeed({ stage: 'done_this_sprint' })
+      const doneSeed = buildDefaultFoundationSprintSeed({
+        stage: 'done_this_sprint',
+        cadenceStage: cadenceAlreadyDone ? 'done_this_sprint' : 'scoping',
+      })
       await upsertFoundationCurrentSprintOverlay(doneSeed, 'foundation-sprint-system-check')
       const doneSprint = await getActiveFoundationCurrentSprint()
       const doneCards = await getBacklogItemsByIds([
         FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+        FOUNDATION_SPRINT_CADENCE_CARD_ID,
         'MEETING-VAULT-ACL-001',
         FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
         FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,

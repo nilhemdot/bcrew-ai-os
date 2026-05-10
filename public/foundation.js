@@ -14156,7 +14156,7 @@ function renderCurrentSprintCard(item) {
   var card = document.createElement('details')
   card.className = 'current-sprint-card'
   card.setAttribute('data-current-sprint-stage', item.stage || '')
-  if (item.stage === 'building_now' || item.stage === 'returned') card.open = true
+  if (item.stage === 'scoping' || item.stage === 'building_now' || item.stage === 'returned') card.open = true
 
   var summary = document.createElement('summary')
   summary.className = 'current-sprint-card-summary'
@@ -14184,7 +14184,7 @@ function renderCurrentSprintCard(item) {
     renderBuildFact('Definition of done', item.definitionOfDone),
     renderBuildFact('Readiness blocker cleared', item.readinessBlockerCleared),
     renderBuildFact('Returned reason', item.stage === 'returned' ? item.returnedReason : null),
-    renderBuildFact('Next action', item.stage === 'returned' ? (item.returnedReason || item.backlogNextAction) : item.backlogNextAction),
+    renderBuildFact('Next action', item.stage === 'returned' ? (item.returnedReason || item.nextAction || item.backlogNextAction) : (item.nextAction || item.backlogNextAction)),
     renderBuildFact('Plan', item.planRef),
     renderBuildFact('Proof commands', item.proofCommands || [], { mono: true }),
     renderBuildFact('Not next', item.notNextBoundaries || []),

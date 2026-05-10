@@ -7262,7 +7262,7 @@ async function main() {
       includesAll(foundationSprintCadenceScriptSource, [
         FOUNDATION_SPRINT_CADENCE_SUMMARY_MARKER,
         'Current Sprint layout is readable board/rows',
-        'MEETING-VAULT-ACL-001 remains returned/blocking',
+        'MEETING-VAULT-ACL-001 moves into Scoping after cadence closeout',
       ]) &&
       includesAll(foundationSprintCadenceDocSource, [
         FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
@@ -7285,7 +7285,7 @@ async function main() {
       currentState.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) &&
       currentState.includes('sprint command view') &&
       currentState.includes('MEETING-VAULT-ACL-001') &&
-      currentState.includes('remains returned/blocking') &&
+      currentState.includes('moves into Scoping') &&
       foundationSprintCaptureSource.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
       foundationSprintCaptureSource.includes('No Drive permission mutation is approved'),
     'FOUNDATION-SPRINT-CADENCE-001 adds readable sprint command view without Drive mutation',

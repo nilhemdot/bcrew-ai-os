@@ -22,6 +22,7 @@ import {
   FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES,
   FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
   FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+  MEETING_VAULT_ACL_SCOPING_NEXT_ACTION,
   buildDefaultFoundationSprintSeed,
   buildFoundationCurrentSprintStatus,
   buildSyntheticFoundationCurrentSprintProof,
@@ -188,7 +189,7 @@ async function main() {
     addFinding(findings, FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('executive summary')) && FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('No Drive permission mutation')), 'exit criteria include visibility and no-Drive guard', FOUNDATION_SPRINT_EXIT_CRITERIA.join(' | '), [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, systemCard?.lane === 'done', 'FOUNDATION-SPRINT-SYSTEM-001 remains done this sprint', systemCard?.lane || 'missing', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
     addFinding(findings, ['scoped', 'executing', 'done'].includes(cadenceCard?.lane), 'FOUNDATION-SPRINT-CADENCE-001 has a valid live backlog lane before proof closeout', cadenceCard?.lane || 'missing', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
-    addFinding(findings, meetingCard?.lane !== 'done', 'MEETING-VAULT-ACL-001 remains returned/blocking', meetingCard?.lane || 'missing', ['MEETING-VAULT-ACL-001'])
+    addFinding(findings, meetingCard?.lane !== 'done', 'MEETING-VAULT-ACL-001 remains open as the active blocker', meetingCard?.lane || 'missing', ['MEETING-VAULT-ACL-001'])
     addFinding(findings, includesAll(moduleSource, [
       'FOUNDATION_SPRINT_CADENCE_CARD_ID',
       'FOUNDATION_SPRINT_EXIT_CRITERIA',
@@ -232,7 +233,7 @@ async function main() {
     addFinding(findings, includesAll(scriptSource, [
       FOUNDATION_SPRINT_CADENCE_SUMMARY_MARKER,
       'Current Sprint layout is readable board/rows',
-      'MEETING-VAULT-ACL-001 remains returned/blocking',
+      'MEETING-VAULT-ACL-001 moves into Scoping after cadence closeout',
     ]), 'focused process script owns proof markers', 'missing script markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, includesAll(buildLogSource, [
       FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
@@ -241,7 +242,7 @@ async function main() {
       'No Drive permission mutation',
     ]), 'Recent Work closeout record owns cadence card and Meeting Vault context', 'missing build-log markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, currentPlan.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) && currentPlan.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID), 'current plan records cadence closeout', 'missing current-plan markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
-    addFinding(findings, currentState.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) && currentState.includes('sprint command view') && currentState.includes('MEETING-VAULT-ACL-001') && currentState.includes('remains returned/blocking'), 'current state records command-view closeout and Meeting Vault status', 'missing current-state markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
+    addFinding(findings, currentState.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) && currentState.includes('sprint command view') && currentState.includes('MEETING-VAULT-ACL-001') && currentState.includes('moves into Scoping'), 'current state records command-view closeout and Meeting Vault status', 'missing current-state markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, captureSource.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) && captureSource.includes('No Drive permission mutation is approved'), 'handoff captures sprint cadence correction', 'missing capture markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES.some(boundary => boundary.includes('MEETING-VAULT-ACL-001 Phase B')) && FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES.some(boundary => boundary.includes('Drive permissions')) && FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES.some(boundary => boundary.includes('request-access emails')), 'not-next boundaries block Meeting Vault Phase B, Drive mutation, and request emails', FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES.join(' | '), [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, noRawProof({ buildingStatus, cadencePayload, stageKeys }).length === 0, 'proof output is metadata-only', noRawProof({ buildingStatus, cadencePayload, stageKeys }).join(', '), [FOUNDATION_SPRINT_CADENCE_CARD_ID])
@@ -279,6 +280,25 @@ async function main() {
       summary.doneOverlayStatus = doneStatus.status
       summary.doneOverlayFindings = doneStatus.findings
       summary.doneCadence = doneStatus.cadence
+      if (
+        doneStatus.summary?.stageCounts?.scoping !== 1 ||
+        doneStatus.summary?.stageCounts?.returned !== 0 ||
+        doneStatus.cadence?.currentStatus !== 'scoping' ||
+        doneStatus.cadence?.nextCard?.cardId !== 'MEETING-VAULT-ACL-001' ||
+        doneStatus.cadence?.nextAction !== MEETING_VAULT_ACL_SCOPING_NEXT_ACTION
+      ) {
+        summary.status = 'blocked'
+        findings.push({
+          check: 'done cadence overlay pulls Meeting Vault into Scoping',
+          detail: JSON.stringify({
+            stageCounts: doneStatus.summary?.stageCounts || {},
+            currentStatus: doneStatus.cadence?.currentStatus || null,
+            nextCard: doneStatus.cadence?.nextCard?.cardId || null,
+            nextAction: doneStatus.cadence?.nextAction || null,
+          }),
+          blockerCards: [FOUNDATION_SPRINT_CADENCE_CARD_ID, 'MEETING-VAULT-ACL-001'],
+        })
+      }
       if (doneStatus.status !== 'healthy') {
         summary.status = 'blocked'
         findings.push({

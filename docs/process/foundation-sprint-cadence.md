@@ -30,7 +30,7 @@ Do not use skinny five-column sprint cards that force words to wrap vertically. 
 
 - `FOUNDATION-SPRINT-SYSTEM-001` is done this sprint.
 - `FOUNDATION-SPRINT-CADENCE-001` adds the command-view cadence layer.
-- `MEETING-VAULT-ACL-001` is returned/blocking.
+- `MEETING-VAULT-ACL-001` moves into Scoping as the next visible work while remaining the active Foundation blocker.
 - No Drive permission mutation is approved.
 
 ## Boundaries
