@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-SPRINT-CADENCE-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-10T11:15:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/foundation-sprint-cadence-001-plan.md",
+  "approvedPlanSha256": "4799353eefee4559e4d1936d67a38779aaf66d1b009fa063359be17949e18ebb",
+  "approvedRepoHead": "4739c9e9a41d5bf3801efb8fd9fb37aec910f295",
+  "notes": "FOUNDATION-SPRINT-CADENCE-001 approved by Steve prompt to plan/build. Implement only sprint command visibility at the top of Recent Work / Current Sprint: executive summary, sprint goal, current status, next card, current blocker, exit criteria, stage rows, definition of done, proof commands, returned reason, and next action. Do not build Meeting Vault Phase B, mutate Drive permissions, send request-access emails, broaden Foundation UI polish, build broad sprint analytics, or start Strategy, Sales, Agent Feedback, Scoper, Agent Factory, broad corpus, video mining, researcher, or public access.",
+  "approvalDigest": "7123e3d5793f8177c3ca65eb01c3e4174a061cebe7f95f6116307bfced493ae1"
+}

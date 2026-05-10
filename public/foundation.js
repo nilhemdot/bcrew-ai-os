@@ -14155,7 +14155,8 @@ function renderBuildReviewQueue(builds) {
 function renderCurrentSprintCard(item) {
   var card = document.createElement('details')
   card.className = 'current-sprint-card'
-  if (item.stage === 'building_now') card.open = true
+  card.setAttribute('data-current-sprint-stage', item.stage || '')
+  if (item.stage === 'building_now' || item.stage === 'returned') card.open = true
 
   var summary = document.createElement('summary')
   summary.className = 'current-sprint-card-summary'
@@ -14166,6 +14167,7 @@ function renderCurrentSprintCard(item) {
   copy.appendChild(title)
   var meta = document.createElement('p')
   meta.textContent = [
+    Number.isFinite(Number(item.order)) ? 'Order ' + item.order : null,
     item.stageLabel || item.stage || 'stage',
     item.backlogLane ? getBacklogLaneLabel(item.backlogLane) : null,
     item.backlogPriority || null,
@@ -14182,6 +14184,7 @@ function renderCurrentSprintCard(item) {
     renderBuildFact('Definition of done', item.definitionOfDone),
     renderBuildFact('Readiness blocker cleared', item.readinessBlockerCleared),
     renderBuildFact('Returned reason', item.stage === 'returned' ? item.returnedReason : null),
+    renderBuildFact('Next action', item.stage === 'returned' ? (item.returnedReason || item.backlogNextAction) : item.backlogNextAction),
     renderBuildFact('Plan', item.planRef),
     renderBuildFact('Proof commands', item.proofCommands || [], { mono: true }),
     renderBuildFact('Not next', item.notNextBoundaries || []),
@@ -14202,6 +14205,7 @@ function renderCurrentSprintCard(item) {
 function renderCurrentSprintPanel(currentSprint) {
   var panel = document.createElement('section')
   panel.className = 'panel current-sprint-panel'
+  var cadence = (currentSprint && currentSprint.cadence) || {}
 
   var header = document.createElement('div')
   header.className = 'panel-header current-sprint-header'
@@ -14211,11 +14215,11 @@ function renderCurrentSprintPanel(currentSprint) {
   eyebrow.textContent = 'Current Sprint'
   left.appendChild(eyebrow)
   var title = document.createElement('h3')
-  title.textContent = (currentSprint && currentSprint.goal) || 'No active sprint overlay'
+  title.textContent = 'Sprint command view'
   left.appendChild(title)
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = 'Execution-control overlay on live backlog. Done cards continue into Recent Work below.'
+  intro.textContent = (cadence && cadence.executiveSummary) || 'Execution-control overlay on live backlog. Done cards continue into Recent Work below.'
   left.appendChild(intro)
   header.appendChild(left)
   header.appendChild(renderBuildPill(currentSprint && currentSprint.status === 'healthy' ? 'Healthy' : 'Needs attention', currentSprint && currentSprint.status === 'healthy' ? 'foundation-system-pill build-log-status-pill build-log-status-shipped' : 'foundation-system-pill current-sprint-risk-pill'))
@@ -14223,28 +14227,53 @@ function renderCurrentSprintPanel(currentSprint) {
 
   var summary = currentSprint && currentSprint.summary ? currentSprint.summary : {}
   var metrics = document.createElement('div')
-  metrics.className = 'build-log-summary-grid current-sprint-metrics'
+  metrics.className = 'current-sprint-command-grid current-sprint-metrics'
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Sprint goal',
+    (currentSprint && currentSprint.goal) || 'missing',
+    'Current Sprint remains an overlay on live backlog truth.'
+  ))
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Current status',
+    (cadence.currentStatusDetail || summary.currentStatus || 'unknown'),
+    'Stage counts and findings come from the central sprint registry.'
+  ))
+  metrics.appendChild(renderBuildSummaryMetric(
+    'Next card',
+    (cadence.nextCard && cadence.nextCard.cardId) || summary.nextCardId || 'missing',
+    (cadence.nextCard && cadence.nextCard.title) || 'No next card resolved from live backlog.'
+  ))
   metrics.appendChild(renderBuildSummaryMetric(
     'Active blocker',
     (currentSprint && currentSprint.activeBlocker && currentSprint.activeBlocker.cardId) || 'missing',
     (currentSprint && currentSprint.activeBlocker && currentSprint.activeBlocker.title) || 'No blocker resolved from live backlog.'
   ))
-  metrics.appendChild(renderBuildSummaryMetric(
-    'Building now',
-    String(summary.buildingNowCount || 0),
-    'Limited to one card unless parallel work is explicitly approved.'
-  ))
-  metrics.appendChild(renderBuildSummaryMetric(
-    'Returned',
-    String(summary.returnedCount || 0),
-    'Returned cards require a reason before they can leave this state.'
-  ))
-  metrics.appendChild(renderBuildSummaryMetric(
-    'Velocity',
-    currentSprint && currentSprint.doneVelocity ? currentSprint.doneVelocity.followUpCardId : 'follow-up',
-    currentSprint && currentSprint.doneVelocity ? currentSprint.doneVelocity.reason : 'Velocity graph is outside V1.'
-  ))
   panel.appendChild(metrics)
+
+  var commandStrip = document.createElement('div')
+  commandStrip.className = 'current-sprint-command-strip'
+  ;[
+    ['Scoping', summary.stageCounts && summary.stageCounts.scoping],
+    ['Sprint Ready', summary.stageCounts && summary.stageCounts.sprint_ready],
+    ['Building Now', summary.stageCounts && summary.stageCounts.building_now],
+    ['Returned', summary.stageCounts && summary.stageCounts.returned],
+    ['Done This Sprint', summary.stageCounts && summary.stageCounts.done_this_sprint],
+  ].forEach(function(pair) {
+    var item = document.createElement('span')
+    item.textContent = pair[0] + ': ' + String(pair[1] || 0)
+    commandStrip.appendChild(item)
+  })
+  panel.appendChild(commandStrip)
+
+  if ((cadence.exitCriteria || []).length) {
+    var exit = document.createElement('div')
+    exit.className = 'current-sprint-exit'
+    var exitTitle = document.createElement('strong')
+    exitTitle.textContent = 'Exit criteria'
+    exit.appendChild(exitTitle)
+    exit.appendChild(renderBuildTextList((cadence.exitCriteria || []).slice(0, 8), 'build-log-fact-list'))
+    panel.appendChild(exit)
+  }
 
   var findings = (currentSprint && currentSprint.findings) || []
   if (findings.length) {
@@ -14258,30 +14287,33 @@ function renderCurrentSprintPanel(currentSprint) {
     panel.appendChild(findingsPanel)
   }
 
-  var currentSprintExpectedStages = ['scoping', 'sprint_ready', 'building_now', 'done_this_sprint', 'returned']
+  var currentSprintExpectedStages = ['scoping', 'sprint_ready', 'building_now', 'returned', 'done_this_sprint']
   var stages = currentSprint && currentSprint.stages && currentSprint.stages.length
     ? currentSprint.stages
     : currentSprintExpectedStages.map(function(stageKey) {
         return { key: stageKey, label: stageKey.replace(/_/g, ' '), items: [] }
       })
   var stageWrap = document.createElement('div')
-  stageWrap.className = 'current-sprint-stage-grid'
+  stageWrap.className = 'current-sprint-board'
   stages.forEach(function(stage) {
     var stageSection = document.createElement('div')
-    stageSection.className = 'current-sprint-stage current-sprint-stage-' + String(stage.key || '').replace(/[^a-z0-9_-]/gi, '-')
+    stageSection.className = 'current-sprint-stage-row current-sprint-stage-' + String(stage.key || '').replace(/[^a-z0-9_-]/gi, '-')
     var stageTitle = document.createElement('h4')
     stageTitle.textContent = (stage.label || stage.key || 'Stage') + ' · ' + ((stage.items || []).length)
     stageSection.appendChild(stageTitle)
+    var stageItems = document.createElement('div')
+    stageItems.className = 'current-sprint-stage-items'
     if ((stage.items || []).length) {
       ;(stage.items || []).forEach(function(item) {
-        stageSection.appendChild(renderCurrentSprintCard(item))
+        stageItems.appendChild(renderCurrentSprintCard(item))
       })
     } else {
       var empty = document.createElement('p')
       empty.className = 'section-intro'
       empty.textContent = 'No cards in this stage.'
-      stageSection.appendChild(empty)
+      stageItems.appendChild(empty)
     }
+    stageSection.appendChild(stageItems)
     stageWrap.appendChild(stageSection)
   })
   panel.appendChild(stageWrap)

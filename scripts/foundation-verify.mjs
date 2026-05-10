@@ -330,7 +330,15 @@ import {
 } from '../lib/foundation-db.js'
 import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
+  FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
+  FOUNDATION_SPRINT_CADENCE_CARD_ID,
+  FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
+  FOUNDATION_SPRINT_CADENCE_DOC_PATH,
+  FOUNDATION_SPRINT_CADENCE_PLAN_PATH,
+  FOUNDATION_SPRINT_CADENCE_SCRIPT_PATH,
+  FOUNDATION_SPRINT_CADENCE_SUMMARY_MARKER,
   FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+  FOUNDATION_SPRINT_EXIT_CRITERIA,
   FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
   FOUNDATION_SPRINT_SYSTEM_APPROVAL_PATH,
   FOUNDATION_SPRINT_SYSTEM_CARD_ID,
@@ -1145,6 +1153,11 @@ async function main() {
   const foundationSprintSystemDocSource = await readRepoFile(FOUNDATION_SPRINT_SYSTEM_DOC_PATH)
   const foundationSprintSystemApprovalSource = await readRepoFile(FOUNDATION_SPRINT_SYSTEM_APPROVAL_PATH)
   const foundationSprintSystemApproval = JSON.parse(foundationSprintSystemApprovalSource)
+  const foundationSprintCadenceScriptSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_SCRIPT_PATH)
+  const foundationSprintCadencePlanSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_PLAN_PATH)
+  const foundationSprintCadenceDocSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_DOC_PATH)
+  const foundationSprintCadenceApprovalSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH)
+  const foundationSprintCadenceApproval = JSON.parse(foundationSprintCadenceApprovalSource)
   const foundationSprintCaptureSource = await readRepoFile('docs/handoffs/2026-05-10-foundation-sprint-capture.md')
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
@@ -1412,6 +1425,11 @@ async function main() {
     repoRoot,
     approvalRef: FOUNDATION_SPRINT_SYSTEM_APPROVAL_PATH,
     cardId: FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+  })
+  const foundationSprintCadenceApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
+    cardId: FOUNDATION_SPRINT_CADENCE_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3711,6 +3729,22 @@ async function main() {
         operatorCloseout: true,
       }
     : null)
+  const buildLogFoundationSprintCadenceBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
+      build.closeoutKey === FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
+        backlogIds: [FOUNDATION_SPRINT_CADENCE_CARD_ID],
+        mentionedBacklogIds: [
+          FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+          MEETING_VAULT_ACL_CARD_ID,
+          FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
+          FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+        ],
+        operatorCloseout: true,
+      }
+    : null)
   const buildLogFoundationDoneTestBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_DONE_TEST_CARD_ID) &&
       build.closeoutKey === FOUNDATION_DONE_TEST_CLOSEOUT_KEY
@@ -4985,6 +5019,7 @@ async function main() {
   const extractRunHardening = (foundationHub.backlogItems || []).find(item => item.id === EXTRACT_RUN_HARDENING_CARD_ID) || null
   const driveAccessRequest = (foundationHub.backlogItems || []).find(item => item.id === DRIVE_ACCESS_REQUEST_CARD_ID) || null
   const foundationSprintSystem = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SYSTEM_CARD_ID) || null
+  const foundationSprintCadence = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_CADENCE_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -7105,7 +7140,7 @@ async function main() {
         'buildFoundationCurrentSprintStatus',
         'buildSyntheticFoundationCurrentSprintProof',
       ]) &&
-      FOUNDATION_CURRENT_SPRINT_STAGES.map(stage => stage.key).join(',') === 'scoping,sprint_ready,building_now,done_this_sprint,returned' &&
+      FOUNDATION_CURRENT_SPRINT_STAGES.map(stage => stage.key).join(',') === 'scoping,sprint_ready,building_now,returned,done_this_sprint' &&
       includesAll(foundationDbSource, [
         'foundation_sprints',
         'foundation_sprint_items',
@@ -7121,7 +7156,8 @@ async function main() {
         'renderCurrentSprintPanel',
         'Current Sprint',
         'done_this_sprint',
-        'Done cards continue into Recent Work below',
+        'Sprint command view',
+        'current-sprint-board',
         'hub.currentSprint',
         'active Current Sprint move',
         'Sprint Ready requires existing code, docs, scripts, doctrine',
@@ -7129,7 +7165,7 @@ async function main() {
       !foundationUiSource.includes('this panel shows the next Phase G command move') &&
       includesAll(foundationStylesSource, [
         '.current-sprint-panel',
-        '.current-sprint-stage-grid',
+        '.current-sprint-board',
       ]) &&
       packageJson.scripts?.['process:foundation-sprint-system-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-sprint-system-check.mjs' &&
       includesAll(foundationSprintSystemScriptSource, [
@@ -7164,6 +7200,96 @@ async function main() {
       includesAll(foundationVerifySource, FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'FOUNDATION-SPRINT-SYSTEM-001 adds Current Sprint control without a second backlog',
     `lane=${foundationSprintSystem?.lane || 'missing'} sprint=${foundationCurrentSprintStatus.status} api=${foundationHub.currentSprint?.status || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'}`,
+  )
+  const foundationSprintCadenceBuildLogExact = buildLogFoundationSprintCadenceBuild?.backlogIds?.length === 1 &&
+    buildLogFoundationSprintCadenceBuild.backlogIds.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
+    [
+      FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+      MEETING_VAULT_ACL_CARD_ID,
+      FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
+      FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+    ].every(id => (buildLogFoundationSprintCadenceBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+      MEETING_VAULT_ACL_CARD_ID,
+      FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
+      FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+    ].every(id => !(buildLogFoundationSprintCadenceBuild.backlogIds || []).includes(id))
+  ensure(
+    checks,
+    foundationSprintCadence?.lane === 'done' &&
+      String(foundationSprintCadence?.statusNote || '').includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) &&
+      foundationSprintCadenceApprovalValidation.ok &&
+      foundationSprintCadenceApprovalValidation.mode === 'v2' &&
+      foundationSprintCadenceApproval.cardId === FOUNDATION_SPRINT_CADENCE_CARD_ID &&
+      Number(foundationSprintCadenceApproval.score) >= 9.8 &&
+      foundationSprintCadenceApproval.approvedPlanRef === FOUNDATION_SPRINT_CADENCE_PLAN_PATH &&
+      includesAll(foundationSprintCadencePlanSource, [
+        'executive sprint summary',
+        'current status',
+        'next card',
+        'current blocker',
+        'exit criteria',
+        'No Google Drive permission mutation is approved',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        'FOUNDATION_SPRINT_CADENCE_CARD_ID',
+        'FOUNDATION_SPRINT_EXIT_CRITERIA',
+        'executiveSummary',
+        'nextCard',
+        'currentBlocker',
+        'stageCounts',
+      ]) &&
+      FOUNDATION_CURRENT_SPRINT_STAGES.map(stage => stage.key).join(',') === 'scoping,sprint_ready,building_now,returned,done_this_sprint' &&
+      FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('executive summary')) &&
+      FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('No Drive permission mutation')) &&
+      includesAll(foundationUiSource, [
+        'Sprint command view',
+        'current-sprint-command-grid',
+        'current-sprint-board',
+        'Exit criteria',
+        'Next action',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.current-sprint-command-grid',
+        '.current-sprint-command-strip',
+        '.current-sprint-exit',
+        '.current-sprint-board',
+        '.current-sprint-stage-row',
+      ]) &&
+      !foundationStylesSource.includes('.current-sprint-stage-grid') &&
+      packageJson.scripts?.['process:foundation-sprint-cadence-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-sprint-cadence-check.mjs' &&
+      includesAll(foundationSprintCadenceScriptSource, [
+        FOUNDATION_SPRINT_CADENCE_SUMMARY_MARKER,
+        'Current Sprint layout is readable board/rows',
+        'MEETING-VAULT-ACL-001 remains returned/blocking',
+      ]) &&
+      includesAll(foundationSprintCadenceDocSource, [
+        FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
+        'sprint command view',
+        'No Google Drive permission mutations',
+        'No request-access emails',
+      ]) &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.cadence?.executiveSummary &&
+      foundationHub.currentSprint?.cadence?.nextCard?.cardId &&
+      foundationHub.currentSprint?.cadence?.currentBlocker?.cardId &&
+      Array.isArray(foundationHub.currentSprint?.cadence?.exitCriteria) &&
+      foundationHub.currentSprint.cadence.exitCriteria.length >= 5 &&
+      meetingVaultAcl?.lane !== 'done' &&
+      buildLogFoundationSprintCadenceBuild?.operatorCloseout === true &&
+      foundationSprintCadenceBuildLogExact &&
+      currentPlan.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) &&
+      currentPlan.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
+      currentState.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) &&
+      currentState.includes('sprint command view') &&
+      currentState.includes('MEETING-VAULT-ACL-001') &&
+      currentState.includes('remains returned/blocking') &&
+      foundationSprintCaptureSource.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
+      foundationSprintCaptureSource.includes('No Drive permission mutation is approved'),
+    'FOUNDATION-SPRINT-CADENCE-001 adds readable sprint command view without Drive mutation',
+    `lane=${foundationSprintCadence?.lane || 'missing'} sprint=${foundationCurrentSprintStatus.status} api=${foundationHub.currentSprint?.status || 'missing'} next=${foundationHub.currentSprint?.cadence?.nextCard?.cardId || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'}`,
   )
   const foundationFollowupCardCaptureBuildLogExact = buildLogFoundationFollowupCardCaptureBuild?.backlogIds?.length === 1 &&
     buildLogFoundationFollowupCardCaptureBuild.backlogIds.includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
