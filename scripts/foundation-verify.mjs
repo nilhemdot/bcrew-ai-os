@@ -7029,6 +7029,9 @@ async function main() {
       ]) &&
       includesAll(meetingVaultAclSource, [
         MEETING_VAULT_POLICY_VERSION,
+        'MEETING_VAULT_SENSITIVITY_CLASSES',
+        'classifyMeetingVaultSensitivity',
+        'allowInternalUsers',
         'assertMeetingAclMutationApproved',
         'buildMeetingAclDryRunPlan',
         'buildSyntheticMeetingVaultAclProof',
@@ -7036,6 +7039,7 @@ async function main() {
       includesAll(meetingVaultAclScriptSource, [
         MEETING_VAULT_ACL_SUMMARY_MARKER,
         'Apply path fails closed without Phase B approval',
+        'sensitivityClassCounts',
         'recordMeetingVaultAclAudit',
       ]) &&
       includesAll(driveAccessRequestDocSource, [
@@ -7045,6 +7049,8 @@ async function main() {
       ]) &&
       includesAll(meetingVaultAclDocSource, [
         'Phase A dry-run implementation only',
+        'Training, all-hands, huddles, workshops, sales sessions, and broad team meetings are not sensitive by default',
+        'Unknown/unclassified files stay blocked until classified',
         'Not Approved',
         'real Google Drive permission mutations',
       ]) &&

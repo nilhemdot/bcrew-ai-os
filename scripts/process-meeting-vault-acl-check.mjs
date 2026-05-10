@@ -103,16 +103,16 @@ async function updateMeetingBacklog(status, summary) {
   if (status.cardCanClose) {
     await updateBacklogItem(MEETING_VAULT_ACL_CARD_ID, {
       lane: 'done',
-      nextAction: 'Keep MEETING-VAULT-ACL-001 closed only while Phase A proves every in-scope raw meeting file is already safe. Any new unsafe share, missing Crewbert permission, missing access, owner ambiguity, or unscanned file reopens the raw Drive ACL/vault readiness blocker.',
-      statusNote: `Closed on 2026-05-09 under \`${MEETING_VAULT_ACL_CLOSEOUT_KEY}\`. Phase A dry-run proved every in-scope raw meeting file already safe with dry-run hash ${summary.dryRunHash}; no Google Drive emails or permission mutations were sent/applied. Proof commands: \`npm run process:meeting-vault-acl-check\`, \`npm run process:foundation-done-test -- --report-only\`, \`npm run backlog:hygiene -- --json\`, and \`npm run foundation:verify\`.`,
+      nextAction: 'Keep MEETING-VAULT-ACL-001 closed only while Phase A proves every protected in-scope raw meeting file is already safe and every unknown file is classified. Any new unsafe protected share, missing Crewbert permission, missing access, owner ambiguity, unknown classification, or unscanned file reopens the raw Drive ACL/vault readiness blocker.',
+      statusNote: `Closed on 2026-05-10 under \`${MEETING_VAULT_ACL_CLOSEOUT_KEY}\`. Sensitivity-aware Phase A dry-run proved every protected in-scope raw meeting file already safe with dry-run hash ${summary.dryRunHash}; no Google Drive emails or permission mutations were sent/applied. Proof commands: \`npm run process:meeting-vault-acl-check\`, \`npm run process:foundation-done-test -- --report-only\`, \`npm run backlog:hygiene -- --json\`, and \`npm run foundation:verify\`.`,
     }, 'meeting-vault-acl-check')
     return
   }
 
   await updateBacklogItem(MEETING_VAULT_ACL_CARD_ID, {
     lane: 'scoped',
-    nextAction: `Phase A dry-run remains blocking. Dry-run hash ${summary.dryRunHash}; counts safe=${status.counts.safeCount}, unsafe=${status.counts.unsafeCount}, missingCrewbert=${status.counts.missingCrewbertCount}, missingAccess=${status.counts.missingAccessCount}, ownerAmbiguous=${status.counts.ownerAmbiguousCount}, blocked=${status.counts.blockedCount}; operation types=${Object.keys(status.proposedOperationTypes || {}).join(', ') || 'none'}. ${status.exactApprovalNeeded || 'Resolve Phase A blockers and rerun the dry-run.'}`,
-    statusNote: `Scoped/blocking on 2026-05-09 under Phase A dry-run proof only. No Google Drive emails or permission mutations were sent/applied. Dry-run hash ${summary.dryRunHash}; blocker reason=${status.blockerReason}; inventory total=${summary.inventory.totalCandidates}; scanned=${summary.inventory.scannedFileCount}; complete=${summary.inventory.permissionScanComplete ? 'yes' : 'no'}; proposed operation types=${Object.keys(status.proposedOperationTypes || {}).join(', ') || 'none'}. MEETING-VAULT-ACL-001 can close only when every in-scope file is safe, or after separate Phase B approval tied to the dry-run hash, applied repairs, recheck proof, and rollback proof.`,
+    nextAction: `Sensitivity-aware Phase A dry-run remains blocking. Dry-run hash ${summary.dryRunHash}; sensitivity classes=${JSON.stringify(status.sensitivityClassCounts || {})}; counts safe=${status.counts.safeCount}, unsafe=${status.counts.unsafeCount}, missingCrewbert=${status.counts.missingCrewbertCount}, missingAccess=${status.counts.missingAccessCount}, ownerAmbiguous=${status.counts.ownerAmbiguousCount}, blocked=${status.counts.blockedCount}; operation types=${Object.keys(status.proposedOperationTypes || {}).join(', ') || 'none'}. ${status.exactApprovalNeeded || 'Resolve Phase A blockers and rerun the dry-run.'}`,
+    statusNote: `Scoped/blocking on 2026-05-10 under sensitivity-aware Phase A dry-run proof only. No Google Drive emails or permission mutations were sent/applied. Dry-run hash ${summary.dryRunHash}; blocker reason=${status.blockerReason}; inventory total=${summary.inventory.totalCandidates}; scanned=${summary.inventory.scannedFileCount}; complete=${summary.inventory.permissionScanComplete ? 'yes' : 'no'}; sensitivity classes=${JSON.stringify(status.sensitivityClassCounts || {})}; proposed operation types=${Object.keys(status.proposedOperationTypes || {}).join(', ') || 'none'}. MEETING-VAULT-ACL-001 can close only when every protected in-scope file is safe and every unknown file is classified, or after separate Phase B approval tied to the sensitivity-aware dry-run hash, applied repairs, recheck proof, and rollback proof.`,
   }, 'meeting-vault-acl-check')
 }
 
@@ -160,6 +160,7 @@ async function main() {
     const filesToScan = inventory.items.slice(0, permissionLimit)
     const permissionScanComplete = inventory.complete && filesToScan.length === inventory.totalCandidates
     const classifications = await mapWithConcurrency(filesToScan, concurrency, async file => {
+      const policy = buildMeetingAclPolicy(file)
       const preflight = await buildDriveFilePreflight({
         fileId: file.fileId,
         intendedActor: file.sourceAccount,
@@ -167,8 +168,9 @@ async function main() {
         purpose: 'meeting_vault_acl_phase_a',
         sourceId: file.sourceId,
         artifactId: file.artifactId,
+        policy: policy.driveAccessPolicy,
       })
-      return classifyMeetingRawFileAcl(file, preflight, buildMeetingAclPolicy(file))
+      return classifyMeetingRawFileAcl(file, preflight, policy)
     })
     const dryRunPlan = buildMeetingAclDryRunPlan(classifications)
     const status = buildMeetingVaultAclStatus({
@@ -200,6 +202,7 @@ async function main() {
         permissionScanComplete,
       },
       counts: status.counts,
+      sensitivityClassCounts: status.sensitivityClassCounts,
       stateCounts: summarizeClassifications(classifications),
       proposedOperationTypes: operationTypesFromClassifications(classifications),
     }
@@ -238,6 +241,7 @@ async function main() {
       console.log(`  Status: ${summary.status}`)
       console.log(`  Card can close: ${status.cardCanClose ? 'yes' : 'no'}`)
       console.log(`  Inventory: candidates=${inventory.totalCandidates}; scanned=${filesToScan.length}; complete=${permissionScanComplete ? 'yes' : 'no'}`)
+      console.log(`  Sensitivity classes: ${JSON.stringify(status.sensitivityClassCounts || {})}`)
       console.log(`  Counts: safe=${status.counts.safeCount}; unsafe=${status.counts.unsafeCount}; missingCrewbert=${status.counts.missingCrewbertCount}; missingAccess=${status.counts.missingAccessCount}; ownerAmbiguous=${status.counts.ownerAmbiguousCount}; blocked=${status.counts.blockedCount}`)
       console.log(`  Operation types: ${Object.keys(summary.proposedOperationTypes).join(', ') || 'none'}`)
       console.log(`  Dry-run hash: ${status.dryRunHash}`)

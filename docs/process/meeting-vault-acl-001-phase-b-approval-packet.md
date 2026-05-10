@@ -1,6 +1,6 @@
 # MEETING-VAULT-ACL-001 Phase B Approval Packet
 
-Status: review proposal only. This is not a Phase B approval artifact.
+Status: superseded review proposal only. This is not a Phase B approval artifact and is not approval-ready.
 
 Dry-run hash: `bf950c74c80a1e0f5a2a8848fa2c39e6ecda8d89536770a7b2bf44110a88b8d5`
 
@@ -8,9 +8,13 @@ Source audit: `meeting-vault-acl-20260509225533-ecf2b739`
 
 Policy version: `meeting-vault-acl-phase-a-v1`
 
+Superseded reason: this packet came from the strict Phase A policy that treated every raw meeting file as protected. The current sensitivity-aware Phase A addendum is `docs/process/meeting-vault-acl-001-sensitivity-aware-phase-a.md`. The next valid Phase B approval packet must be generated from a new sensitivity-aware Phase A dry-run hash. Training, all-hands, huddles, workshops, sales sessions, and broad team meetings are not sensitive by default; leadership/owners/performance/comp/termination/undisclosed-feedback/named-person sensitive discussion is protected; unknown/unclassified files stay blocked until classified.
+
 ## Boundary
 
 This packet turns the Phase A dry-run into human-reviewable Phase B batches. It does not approve, apply, or close anything.
+
+Do not use this packet for mutation approval. Use it only as historical evidence of why blanket strict-policy cleanup was paused.
 
 Not approved by this packet:
 
