@@ -1,226 +1,330 @@
 # MEETING-VAULT-ACL-001 Phase B Approval Packet
 
-Status: superseded review proposal only. This is not a Phase B approval artifact and is not approval-ready.
+Status: human approval packet only. This is not an approval artifact, does not apply changes, does not send request-access emails, and does not close `MEETING-VAULT-ACL-001`.
 
-Dry-run hash: `bf950c74c80a1e0f5a2a8848fa2c39e6ecda8d89536770a7b2bf44110a88b8d5`
+Sensitivity-aware Phase A dry-run hash: `31c5bb2cab981f1bb19cb49ff3bdf6b0ea19b0fe1ed871b5d7385f025f34ee4d`
 
-Source audit: `meeting-vault-acl-20260509225533-ecf2b739`
+Policy version: `meeting-vault-acl-phase-a-sensitivity-v1`
 
-Policy version: `meeting-vault-acl-phase-a-v1`
+Source addendum: `docs/process/meeting-vault-acl-001-sensitivity-aware-phase-a.md`
 
-Superseded reason: this packet came from the strict Phase A policy that treated every raw meeting file as protected. The current sensitivity-aware Phase A addendum is `docs/process/meeting-vault-acl-001-sensitivity-aware-phase-a.md`. The next valid Phase B approval packet must be generated from a new sensitivity-aware Phase A dry-run hash. Training, all-hands, huddles, workshops, sales sessions, and broad team meetings are not sensitive by default; leadership/owners/performance/comp/termination/undisclosed-feedback/named-person sensitive discussion is protected; unknown/unclassified files stay blocked until classified.
+Supersedes strict packet hash: `bf950c74c80a1e0f5a2a8848fa2c39e6ecda8d89536770a7b2bf44110a88b8d5`
 
 ## Boundary
 
-This packet turns the Phase A dry-run into human-reviewable Phase B batches. It does not approve, apply, or close anything.
-
-Do not use this packet for mutation approval. Use it only as historical evidence of why blanket strict-policy cleanup was paused.
+This packet exists so Steve can review possible Phase B batches. It does not approve a blanket repair.
 
 Not approved by this packet:
 
 - real Google Drive permission mutation;
 - request-access email sends;
-- blanket repair of all unsafe files;
+- adding Crewbert to broad/standard internal files without a proven unsafe exposure reason;
+- repairing owner-ambiguous files;
+- repairing missing-access files;
 - closing `MEETING-VAULT-ACL-001`.
 
-`MEETING-VAULT-ACL-001` remains scoped/blocking until Phase B is separately approved, applied, rechecked, and rollback proof exists, or a later dry-run proves every in-scope file is already safe.
+## Phase A Summary
 
-## Phase A Proof Summary
+Inventory:
 
-Phase A scanned `898` in-scope raw meeting-note/transcript files and found no file already safe.
-
-Counts:
-
+- files scanned: `898`
+- scan complete: `yes`
 - safe files: `0`
-- unsafe files: `814`
+- unsafe files: `514`
+- unsafe permission operations: `3888`
 - missing Crewbert files: `660`
 - missing access files: `14`
 - owner-ambiguous files: `224`
 - blocked files: `0`
-- unsafe permission operations proposed: `7082`
 
-Operation counts from Phase A:
+Sensitivity classes:
+
+- `protected_sensitive`: `302`
+- `standard_internal`: `501`
+- `broad_non_sensitive`: `95`
+
+Owner/preflight split:
+
+| Sensitivity class | Owner-clear | Owner-ambiguous | Missing access |
+| --- | ---: | ---: | ---: |
+| `protected_sensitive` | `190` | `104` | `8` |
+| `standard_internal` | `391` | `104` | `6` |
+| `broad_non_sensitive` | `79` | `16` | `0` |
+
+Total proposed operation types from Phase A:
 
 - `add_crewbert_reader`: `884`
-- `remove_unsafe_permission`: `7082`
+- `remove_unsafe_permission`: `3888`
 - `request_access`: `14`
 - `block_owner_ambiguous`: `224`
 
-Additional read-only batch tally on 2026-05-10:
+## Approval Sequence
 
-- owner/preflight-clear files: `660`
-- owner/preflight-clear files needing Crewbert reader: `660`
-- owner/preflight-clear files with unsafe permissions: `590`
-- owner/preflight-clear unsafe permission removal ops: `3278`
-- owner/preflight-blocked unsafe permission removal ops: `3804`
-- removal ops with permission hash present: `7082`
-- removal ops missing permission hash: `0`
+Recommended order:
 
-The tracked proof stays metadata-only. Raw file IDs, raw permission IDs, file names, Drive links, meeting titles, and raw owner emails are not included here.
+1. Protected owner-clear `add_crewbert_reader`.
+2. Protected owner-clear `remove_unsafe_permission`, split by unsafe category.
+3. Standard/broad owner-clear `remove_unsafe_permission` only for proven external/link/domain exposure.
+4. Re-run Phase A after each approved batch.
+5. Keep missing-access and owner-ambiguous files blocked until access/ownership proof changes.
 
-## Batch 1: Add Crewbert Reader, Owner-Clear
+## Batch 1: Protected Add Crewbert Reader
 
-Count: `660` files / `660` operations
+Sensitivity class: `protected_sensitive`
 
-Risk level: medium
+Owner state: owner-clear only
 
 Operation type: `add_crewbert_reader`
 
-Batch hash: `7acfd58fdbf55f3f81fe2932083a57ed2497889308489cfb05779db108b10969`
+Count:
 
-Why this is the safest first batch:
+- files: `190`
+- operations: `190`
+- batch hash: `f4e3b19c08f53bd9d476903cc1ebc7d6356b845e590f86b08cfe6960db1d2105`
 
-- the file is readable by the delegated preflight actor;
+Risk level: medium
+
+Why it is eligible:
+
+- protected files should have Crewbert vault access;
 - owner/preflight authority is clear;
-- the operation is additive only;
-- the owner is preserved;
-- Crewbert receives `reader`, not `writer`;
-- no participant, group, domain, external, or link permission is removed in this batch.
+- operation is additive only;
+- role is `reader`;
+- no existing human, group, domain, external, or link permission is removed.
 
-Rollback path:
+Approval wording:
 
-- record the before snapshot locally before apply;
-- record the created Crewbert permission ID after each add;
-- rollback deletes only the Crewbert permission created by this batch;
-- rerun Phase A after rollback to confirm the file returns to the previous metadata state.
+`PHASE B APPROVED for MEETING-VAULT-ACL-001 Batch 1 only: add Crewbert reader to 190 protected_sensitive owner-clear files from dry-run hash 31c5bb2cab981f1bb19cb49ff3bdf6b0ea19b0fe1ed871b5d7385f025f34ee4d, batch hash f4e3b19c08f53bd9d476903cc1ebc7d6356b845e590f86b08cfe6960db1d2105. No removals and no request-access emails are approved.`
 
-Exact approval needed:
+Rollback requirements:
 
-- approve only Batch 1 against dry-run hash `bf950c74c80a1e0f5a2a8848fa2c39e6ecda8d89536770a7b2bf44110a88b8d5`;
-- allowed operation class must be exactly `add_crewbert_reader`;
-- approved Crewbert role must be exactly `reader`;
-- apply must first regenerate a local ignored manifest and confirm the live preflight still matches this batch hash;
-- no removal operations and no emails are included.
+- create a local ignored apply manifest before mutation;
+- record exact raw file ID and created Crewbert permission ID locally after each add;
+- rollback deletes only the Crewbert permissions created by this batch;
+- re-run Phase A after rollback.
 
-## Batch 2: Remove Unsafe Permissions, Owner-Clear
+## Batch 2: Protected Remove Unsafe Permissions
 
-Count: `3278` removal operations across `590` owner/preflight-clear files
+Sensitivity class: `protected_sensitive`
 
-Risk level: high
+Owner state: owner-clear only
 
 Operation type: `remove_unsafe_permission`
 
-Batch hash: `c2ac58b2dc42d0a70c0fd3b7be0c583c568c72a2d403eb37b227b1b72886a5bf`
+Count:
 
-Why this is not a blanket approval:
+- files: `172`
+- operations: `909`
+- permission hashes present: `909`
+- permission hashes missing: `0`
+- batch hash: `edde121b8a9c07779dfb094103a11376b428302cffeac29fe4f8ae8ae6b5fdeb`
 
-- removals affect existing raw Drive access;
-- tracked proof includes permission hashes, not raw permission IDs;
-- rollback requires a local before snapshot with the exact raw permission shape;
-- some removals may affect humans who currently rely on direct raw Drive access, even if that access is not allowed by the strict Phase A policy.
+Risk level: high
 
-Owner-clear removal sub-batches:
+Unsafe category split:
 
-| Sub-batch | Count | Files | Risk | Why |
-| --- | ---: | ---: | --- | --- |
-| `unsafe_front_office` | `59` | `59` | medium | Removes durable raw access for the front-office AI identity where owner authority is clear. |
-| `unsafe_anyone` + `unsafe_domain` | `9` | `9` | high | Removes broad link/domain exposure; small but sensitive because rollback must preserve exact prior shape. |
-| `unsafe_external_user` | `583` | `145` | high | Removes external raw access; needs exact ID, exact prior role/type, and owner-aware review. |
-| `unsafe_non_owner_user` | `2627` | `481` | high | Removes internal non-owner raw access; largest operational-impact batch and should be split further before approval. |
+| Sub-batch | Operations | Risk | Why eligible |
+| --- | ---: | --- | --- |
+| `unsafe_front_office` | `24` | medium | Front-office AI identity should not retain durable raw access to protected files. |
+| `unsafe_anyone` | `2` | high | Link-style raw access is unsafe for protected files. |
+| `unsafe_external_user` | `146` | high | External raw access is unsafe for protected files. |
+| `unsafe_non_owner_user` | `737` | high | Internal non-owner raw access is not approved for protected files by Phase A. |
 
-Rollback path:
+Approval wording:
 
-- record a local ignored before snapshot with exact file ID, permission ID, permission type, role, and principal for every removal;
+`PHASE B APPROVED for MEETING-VAULT-ACL-001 Batch 2 sub-batch <name> only: remove <count> unsafe permissions from protected_sensitive owner-clear files from dry-run hash 31c5bb2cab981f1bb19cb49ff3bdf6b0ea19b0fe1ed871b5d7385f025f34ee4d, batch hash edde121b8a9c07779dfb094103a11376b428302cffeac29fe4f8ae8ae6b5fdeb. No add_crewbert_reader operations, no owner-ambiguous files, no missing-access files, and no request-access emails are approved.`
+
+Rollback requirements:
+
+- create a local ignored before snapshot with exact file ID, permission ID, permission type, role, and principal;
 - remove only permission IDs present in the approved manifest;
 - rollback recreates the removed permission from the before snapshot and records the recreated permission ID;
-- if any permission lacks exact rollback data, that operation is excluded from apply.
+- exclude any operation missing exact rollback data;
+- re-run Phase A after apply and after any rollback.
 
-Exact approval needed:
+## Batch 3: Standard Internal Unsafe-Exposure Removals
 
-- do not approve all `3278` owner-clear removals at once;
-- approve one sub-batch at a time, preferably by category and then by smaller owner/file cohorts;
-- each approval must name the dry-run hash, sub-batch, operation class, count, batch hash or sub-batch hash, and rollback manifest hash;
-- apply must fail closed if live preflight, permission hash, owner hash, or rollback manifest hash differs from the approved packet.
+Sensitivity class: `standard_internal`
 
-## Batch 3: Request-Access Needed
+Owner state: owner-clear only
 
-Count: `14` files / `14` operations
+Operation type: `remove_unsafe_permission`
 
-Risk level: low for this packet; high if automated email is introduced later
+Count:
 
-Operation type: `request_access`
+- files: `104`
+- operations: `380`
+- permission hashes present: `380`
+- permission hashes missing: `0`
+- batch hash: `8a26689696b7609dcf18388614f36c05d7507d0a41a18df56e529603baa1dc53`
 
-Batch hash: `153f1b09c028544c46fb2a4874422c77ba97dbc673148c70672ab6b93e004904`
+Risk level: high
 
-Why this is blocked:
+Why this class is included:
 
-- AIOS could not safely read or repair these files through the current delegated preflight;
-- owner identity and repair authority are not sufficiently proven for mutation;
-- Phase B permission mutation approval is not request-access email approval.
+- standard internal files are not protected by default;
+- this batch includes only proven unsafe exposure reasons, not blanket Crewbert vault enforcement.
 
-Rollback path:
+Unsafe category split:
 
-- no Drive mutation occurs in this packet;
-- no email is sent in this packet;
-- if a future request-access flow is approved, it needs its own send ledger and rollback/stop policy.
+| Sub-batch | Operations | Why eligible |
+| --- | ---: | --- |
+| `unsafe_external_user` | `374` | External raw access is unsafe. |
+| `unsafe_anyone` | `5` | Link-style raw access is unsafe. |
+| `unsafe_domain` | `1` | Domain-wide raw access is unsafe unless separately approved. |
 
-Exact approval needed:
+Approval wording:
 
-- manual owner/access investigation is approved only if Steve explicitly approves it;
-- automated request-access emails require a separate explicit approval artifact;
-- after access changes, rerun Phase A and generate a new dry-run hash before any repair approval.
+`PHASE B APPROVED for MEETING-VAULT-ACL-001 Batch 3 sub-batch <name> only: remove <count> proven unsafe permissions from standard_internal owner-clear files from dry-run hash 31c5bb2cab981f1bb19cb49ff3bdf6b0ea19b0fe1ed871b5d7385f025f34ee4d, batch hash 8a26689696b7609dcf18388614f36c05d7507d0a41a18df56e529603baa1dc53. No add_crewbert_reader operations, no owner-ambiguous files, no missing-access files, and no request-access emails are approved.`
 
-## Batch 4: Owner-Ambiguous Blocked Items
+Rollback requirements: same as Batch 2.
 
-Count: `224` files / `224` `block_owner_ambiguous` operations
+## Batch 4: Broad Non-Sensitive Unsafe-Exposure Removals
 
-Risk level: blocked
+Sensitivity class: `broad_non_sensitive`
 
-Operation type: `block_owner_ambiguous`
+Owner state: owner-clear only
 
-Batch hash: `7342c14beab9bb7332f1889ce4755c878aece9d345de824fbb9b1f7529e3e53f`
+Operation type: `remove_unsafe_permission`
 
-Associated blocked operations:
+Count:
 
-- `224` blocked `add_crewbert_reader` candidates;
-- `3804` blocked `remove_unsafe_permission` candidates.
+- files: `14`
+- operations: `64`
+- permission hashes present: `64`
+- permission hashes missing: `0`
+- batch hash: `115efd686818df915e0ea9aaf370ac51b70402c8e6d0ac175298be6759555d00`
 
-Why this is blocked:
+Risk level: high
 
-- owner identity is not exactly proven by the permission inventory;
+Why this class is included:
+
+- broad/training/all-hands style files are not sensitive by default;
+- this batch includes only proven external/domain exposure, not blanket cleanup.
+
+Unsafe category split:
+
+| Sub-batch | Operations | Why eligible |
+| --- | ---: | --- |
+| `unsafe_external_user` | `63` | External raw access is unsafe. |
+| `unsafe_domain` | `1` | Domain-wide raw access is unsafe unless separately approved. |
+
+Approval wording:
+
+`PHASE B APPROVED for MEETING-VAULT-ACL-001 Batch 4 sub-batch <name> only: remove <count> proven unsafe permissions from broad_non_sensitive owner-clear files from dry-run hash 31c5bb2cab981f1bb19cb49ff3bdf6b0ea19b0fe1ed871b5d7385f025f34ee4d, batch hash 115efd686818df915e0ea9aaf370ac51b70402c8e6d0ac175298be6759555d00. No add_crewbert_reader operations, no owner-ambiguous files, no missing-access files, and no request-access emails are approved.`
+
+Rollback requirements: same as Batch 2.
+
+## Blocked: Missing Access
+
+Count:
+
+- files: `14`
+- `protected_sensitive`: `8`
+- `standard_internal`: `6`
+- `broad_non_sensitive`: `0`
+- operation type: `request_access`
+- operations: `14`
+- batch hash: `5642d789070f57a7fd2f0ce92b72b29b79c9c790b47bb6a02de3c49c54f6d58a`
+
+Status: blocked
+
+Why blocked:
+
+- current delegated preflight cannot safely read or repair these files;
+- request-access emails are not approved;
+- permission mutation cannot be planned without fresh metadata.
+
+Allowed next action:
+
+- metadata-only owner/access investigation if separately approved;
+- no automated request-access emails;
+- rerun Phase A after access changes and produce a new dry-run hash.
+
+## Blocked: Owner Ambiguous
+
+Count:
+
+- files: `224`
+- `protected_sensitive`: `104`
+- `standard_internal`: `104`
+- `broad_non_sensitive`: `16`
+- associated operations: `2983`
+- batch hash: `9e8a9521ad5a19a723db6e838d4e38d756b4eb780bf1d6b7709b82a5fe41e26b`
+
+Associated operations that remain blocked:
+
+- `block_owner_ambiguous`: `224`
+- `add_crewbert_reader`: `224`
+- `remove_unsafe_permission`: `2535`
+
+Unsafe category split inside the blocked owner-ambiguous set:
+
+- `unsafe_external_user`: `1191`
+- `unsafe_non_owner_user`: `1015`
+- `unsafe_front_office`: `104`
+- `unsafe_anyone`: `1`
+- `unsafe_domain`: `1`
+- Crewbert role exceeds approved policy: `223`
+
+Status: blocked
+
+Why blocked:
+
+- owner identity is not exactly proven;
 - owner-preserving repair cannot be guaranteed;
-- deleting or adding permissions here could remove the wrong access or grant Crewbert on a file without confirmed authority.
+- adding or removing permissions could alter the wrong owner-controlled file access.
 
-Rollback path:
+Allowed next action:
 
-- no mutation is allowed from this packet;
-- first resolve owner ambiguity through metadata-only investigation or owner confirmation;
-- rerun Phase A after owner resolution;
-- only a new dry-run hash can produce a later approval packet for these files.
+- metadata-only owner-resolution investigation;
+- rerun Phase A after owner ambiguity is resolved;
+- generate a new dry-run hash before any mutation approval.
 
-Exact approval needed:
+## Excluded: Non-Sensitive Crewbert Adds
 
-- no Phase B mutation approval should include owner-ambiguous files;
-- approval needed now is only for owner-resolution investigation, not permission mutation.
+Count:
 
-## Recommended Approval Sequence
+- files: `470`
+- operations: `470`
+- operation type: `add_crewbert_reader`
+- sensitivity classes: `standard_internal` and `broad_non_sensitive`
+- batch hash: `e58442d8889e9ba3d0fda0abf00070a2ca356215b8034b1da166963e76956258`
 
-1. Approve Batch 1 only: add Crewbert reader to the `660` owner/preflight-clear files.
-2. Re-run Phase A and compare against a new dry-run hash.
-3. If Batch 1 succeeds, consider removal sub-batches in this order:
-   - `unsafe_front_office` owner-clear removals;
-   - broad `anyone` / `domain` owner-clear removals;
-   - external-user owner-clear removals, split by owner/file cohort;
-   - internal non-owner owner-clear removals, split into smaller cohorts.
-4. Keep request-access and owner-ambiguous files blocked until access/owner proof changes.
+Status: excluded from this approval packet
 
-This sequence avoids approving a blanket `814`-file repair and keeps the highest-risk removals behind smaller explicit approvals.
+Why excluded:
+
+- missing Crewbert is not itself a proven unsafe exposure for non-sensitive files;
+- Steve explicitly did not approve broad blanket ACL cleanup;
+- standard/broad files are included above only when specific unsafe external/link/domain exposure is proven.
+
+## Required Recheck Proof
+
+After any approved Phase B batch:
+
+- rerun `npm run process:meeting-vault-acl-check`;
+- verify the new Phase A dry-run hash and count deltas;
+- rerun `npm run process:foundation-done-test -- --report-only`;
+- rerun `npm run backlog:hygiene -- --json`;
+- rerun `npm run foundation:verify`;
+- keep `MEETING-VAULT-ACL-001` scoped/blocking unless the recheck proves every protected in-scope file safe, every unknown file classified, missing-access/owner-ambiguous blockers resolved, and rollback proof recorded.
 
 ## Phase B Approval Artifact Requirements
 
-A real Phase B approval artifact must be separate from this packet and must include:
+A real approval artifact must be separate from this packet and must include:
 
 - card: `MEETING-VAULT-ACL-001`;
 - phase: `Phase B`;
-- dry-run hash: `bf950c74c80a1e0f5a2a8848fa2c39e6ecda8d89536770a7b2bf44110a88b8d5`;
-- approved batch name and batch hash;
-- approved operation classes;
-- approved counts;
-- Crewbert role, if adding Crewbert;
-- explicit statement that request-access emails remain disallowed unless separately approved;
+- approved dry-run hash: `31c5bb2cab981f1bb19cb49ff3bdf6b0ea19b0fe1ed871b5d7385f025f34ee4d`;
+- approved batch and sub-batch name;
+- approved operation type;
+- approved file count and operation count;
+- approved batch hash;
 - local ignored apply-manifest hash;
 - local ignored rollback-manifest hash;
-- freshness window;
-- fail-closed requirements for dry-run mismatch, owner mismatch, permission mismatch, missing rollback data, API error, or raw-proof leak.
+- exact no-email boundary;
+- exact exclusion of owner-ambiguous and missing-access files;
+- fail-closed rule for dry-run mismatch, owner mismatch, permission mismatch, missing rollback data, API error, or raw-proof leak.
 
-Until that artifact exists and an apply path validates it, `MEETING-VAULT-ACL-001` stays scoped/blocking.
+Until that artifact exists and an apply path validates it, no Drive permission mutation is approved.
