@@ -5945,7 +5945,7 @@ app.get('/api/foundation/change-log', requireAdminToken, async (req, res) => {
   try {
     const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 100))
     const [builds, changeEvents] = await Promise.all([
-      getRecentBuildLog(60),
+      getRecentBuildLog(240),
       getRecentChangeEvents(Math.max(100, limit)),
     ])
     const changeLog = buildFoundationChangeLog({
@@ -5971,7 +5971,7 @@ app.get('/api/foundation/daily-summary', requireAdminToken, async (req, res) => 
     const selectedDate = String(req.query.date || '').trim()
     const [snapshot, builds, changeEvents] = await Promise.all([
       getFoundationSnapshot(),
-      getRecentBuildLog(60),
+      getRecentBuildLog(240),
       getRecentChangeEvents(100),
     ])
     const backlogHygiene = buildBacklogHygieneSnapshot({

@@ -31,6 +31,14 @@ Failed operation proof:
 - `file:8608196e461a0c6d` / `perm:6d05525ae19ac204` / error hash `err:0e9eea76b30d3cbb`
 - `file:d8550b547edc3476` / `perm:6d05525ae19ac204` / error hash `err:672d2c97a8908587`
 
+Failure accounting:
+
+- Both failed operations were writer-level `unsafe_front_office` permissions in the approved manifest.
+- A read-only requery after apply returned Google Drive `notFound` for both file refs to the delegated source account. No follow-up mutation was attempted.
+- Because the files are no longer readable to the delegated source account, their exact live ACL state is unproven from current access.
+- The recheck dry-run no longer finds readable protected owner-clear `unsafe_front_office` operations, but these two file refs are not safe-cleared proof. They remain blocked/missing-access until access authority is restored and a new dry-run/approval path can classify them.
+- The pre-apply permission summaries also showed other unsafe non-owner access on both file refs, so `MEETING-VAULT-ACL-001` cannot close from this batch.
+
 Rollback proof:
 
 - Rollback operation count: `22`
