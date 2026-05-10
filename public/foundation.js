@@ -7811,54 +7811,63 @@ function getPhaseGFollowingCard(hub, cardId) {
   return null
 }
 
+function getCurrentSprintStageItems(currentSprint, stageKey) {
+  var stages = (currentSprint && currentSprint.stages) || []
+  var stage = stages.find(function(item) {
+    return item.key === stageKey
+  })
+  return stage && Array.isArray(stage.items) ? stage.items : []
+}
+
 function renderFoundationCurrentTruthPanel(hub) {
-  var nextCard = getPhaseGNextCard(hub)
-  var followingCard = nextCard ? getPhaseGFollowingCard(hub, nextCard.id) : null
-  var doneCount = phaseGOperatorOrder.filter(function(cardId) {
-    var card = getPhaseGCard(hub, cardId)
-    return card && card.lane === 'done'
-  }).length
+  var currentSprint = hub && hub.currentSprint
+  var activeBlocker = currentSprint && currentSprint.activeBlocker
+  var summary = (currentSprint && currentSprint.summary) || {}
+  var buildingNow = getCurrentSprintStageItems(currentSprint, 'building_now')
+  var sprintReady = getCurrentSprintStageItems(currentSprint, 'sprint_ready')
+  var returned = getCurrentSprintStageItems(currentSprint, 'returned')
+  var activeCard = buildingNow[0] || sprintReady[0] || returned[0] || null
+  var activeCardId = (activeCard && activeCard.cardId) || (activeBlocker && activeBlocker.cardId) || ''
+  var activeCardTitle = (activeCard && activeCard.title) || (activeBlocker && activeBlocker.title) || 'No active blocker resolved from live backlog.'
 
   var items = [
     {
+      label: 'Current sprint',
+      status: currentSprint && currentSprint.status === 'healthy' ? 'connected' : 'risk',
+      detail: (currentSprint && currentSprint.goal) || 'No active Current Sprint overlay is available.',
+    },
+    {
       label: 'Current card',
-      status: nextCard ? 'pending' : 'connected',
-      detail: nextCard
-        ? nextCard.id + ' - ' + (nextCard.title || 'Next Phase G card')
-        : 'No open Phase G card is detected.',
+      status: activeCardId ? 'pending' : 'risk',
+      detail: activeCardId ? activeCardId + ' - ' + activeCardTitle : activeCardTitle,
     },
     {
-      label: 'After this',
-      status: followingCard ? 'planned' : 'connected',
-      detail: followingCard
-        ? followingCard.id + ' - ' + (followingCard.title || 'Next follow-up card')
-        : 'No later Phase G card is waiting in the recorded order.',
+      label: 'Done this sprint',
+      status: Number(summary.doneThisSprintCount || 0) > 0 ? 'connected' : 'planned',
+      detail: String(summary.doneThisSprintCount || 0) + ' card(s) done this sprint. Done cards continue into Recent Work below.',
     },
     {
-      label: 'Phase G progress',
-      status: doneCount >= phaseGOperatorOrder.length ? 'connected' : 'pending',
-      detail: doneCount + '/' + phaseGOperatorOrder.length + ' Phase G cards are done in the recorded order.',
-    },
-    {
-      label: 'Review rule',
+      label: 'Safety rule',
       status: 'connected',
-      detail: 'Each card still needs its own 9.8 plan, exact closeout, proof commands, served-commit check, and review stop.',
+      detail: 'Sprint Ready requires existing code, docs, scripts, doctrine, exact gap, proof commands, and not-next boundaries before build.',
     },
   ]
 
   var panel = renderOverviewStatusPanel(items, {
     eyebrow: 'Current Truth',
     title: 'What to work on next',
-    intro: 'This is the first check before clicking deeper pages. The live Backlog stays task truth; this panel shows the next Phase G command move.',
+    intro: 'This is the first check before clicking deeper pages. The live Backlog stays task truth; this panel shows the active Current Sprint move.',
   })
 
-  if (!panel || !nextCard) return panel
+  if (!panel) return panel
 
   var actions = document.createElement('div')
   actions.className = 'doc-source-actions'
-  actions.appendChild(createActionLink('Open Current Card', '/foundation#backlog:' + encodeURIComponent(nextCard.id), 'doc-source-link'))
+  if (activeCardId) {
+    actions.appendChild(createActionLink('Open Current Card', '/foundation#backlog:' + encodeURIComponent(activeCardId), 'doc-source-link'))
+  }
   actions.appendChild(createActionLink('Open Recent Work', '/foundation#build-log', 'doc-source-link'))
-  actions.appendChild(createActionLink('Open Current Docs', '/foundation#inventory-docs', 'doc-source-link'))
+  actions.appendChild(createActionLink('Open Current Sprint', '/foundation#build-log', 'doc-source-link'))
   panel.appendChild(actions)
   return panel
 }

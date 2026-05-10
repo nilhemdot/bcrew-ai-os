@@ -231,6 +231,12 @@ async function main() {
       'done_this_sprint',
       'Done cards continue into Recent Work below',
     ]), 'Recent Work renders Current Sprint at the top', 'missing UI markers', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
+    addFinding(findings, includesAll(uiSource, [
+      'renderFoundationCurrentTruthPanel',
+      'hub.currentSprint',
+      'active Current Sprint move',
+      'Sprint Ready requires existing code, docs, scripts, doctrine',
+    ]) && !uiSource.includes('this panel shows the next Phase G command move'), 'Current Truth panel is backed by Current Sprint, not old Phase G order', 'stale Current Truth panel still points at Phase G', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
     addFinding(findings, stylesSource.includes('.current-sprint-panel') && stylesSource.includes('.current-sprint-stage-grid'), 'Current Sprint panel has compact styles', 'missing CSS markers', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
     addFinding(findings, packageJson.scripts?.['process:foundation-sprint-system-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-sprint-system-check.mjs', 'package exposes process:foundation-sprint-system-check', 'missing package script', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
     addFinding(findings, includesAll(scriptSource, [

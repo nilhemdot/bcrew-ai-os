@@ -7122,7 +7122,11 @@ async function main() {
         'Current Sprint',
         'done_this_sprint',
         'Done cards continue into Recent Work below',
+        'hub.currentSprint',
+        'active Current Sprint move',
+        'Sprint Ready requires existing code, docs, scripts, doctrine',
       ]) &&
+      !foundationUiSource.includes('this panel shows the next Phase G command move') &&
       includesAll(foundationStylesSource, [
         '.current-sprint-panel',
         '.current-sprint-stage-grid',
