@@ -93,12 +93,33 @@ const APPROVED_BATCHES = {
     fileCount: 90,
     operationCount: 357,
   },
+  standardInternalZahndteamPartialCleanup: {
+    key: 'standard-internal-zahndteam-external-user-partial-cleanup',
+    name: 'source_truth_originals_standard_internal_zahndteam_external_user_partial_cleanup_v2',
+    slug: 'source-truth-originals-standard-internal-zahndteam-external-user-partial-cleanup',
+    label: 'standard-internal ZahndTeam external-user partial cleanup',
+    dryRunHash: 'c3fdd4dd20bde5544c0b662fc1dfaf2de06d247a6a05523fc015fe0a434b3101',
+    batchHash: 'c5b9c93cdcc5f9e416957f73e7d3b80c6493619454ca41fb182063e8c23c2146',
+    sourceFileRole: MEETING_VAULT_SOURCE_FILE_ROLES.ORIGINAL,
+    sensitivityClass: MEETING_VAULT_SENSITIVITY_CLASSES.STANDARD_INTERNAL,
+    ownerState: 'owner_clear_only',
+    permissionCategory: 'unsafe_external_user',
+    principalDomain: 'zahndteam.ca',
+    operationType: DRIVE_PERMISSION_OPERATION_TYPES.REMOVE_UNSAFE_PERMISSION,
+    fileCount: 12,
+    operationCount: 69,
+    cleanupOfPriorApprovedDryRunHash: 'c97e5362819b31b7568aa8db90d24b5116edb417206f07dbaf23518af3a8bb68',
+    cleanupOfPriorBatchHash: '75f1ac6a23c2e9b6240a5688a5185e61a89a3697d0e56efeb30d2d2dc6fc7692',
+    cleanupOfPriorResultManifestHash: '043e3ff004e3446a55a2f159c61e703d019377c193420e7ca1b72582a518558c',
+    cleanupOfPriorResultManifestPath: 'store/meeting-vault-acl/MEETING-VAULT-ACL-001-source-truth-originals-standard-internal-zahndteam-external-user-removal-20260511180349.apply-result.json',
+  },
 }
 
 function selectApprovedBatch(argv = process.argv.slice(2)) {
   const args = parseArgs(argv)
   const key = String(args.batch || args.batchKey || '').trim().toLowerCase()
   if (['domain', 'unsafe_domain'].includes(key)) return APPROVED_BATCHES.domain
+  if (['standard-internal-zahndteam-partial-cleanup', 'zahndteam-partial-cleanup', 'standard_internal_zahndteam_external_user_partial_cleanup'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteamPartialCleanup
   if (['standard-internal-zahndteam', 'zahndteam', 'zahndteam_external_user', 'standard_internal_zahndteam_external_user'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteam
   if (key && !['public-link', 'public_link', 'unsafe_anyone'].includes(key)) {
     throw new Error(`Unsupported MEETING-VAULT-ACL-001 removal batch: ${key}`)
@@ -139,6 +160,11 @@ function stableStringify(value) {
 
 function hashObject(value) {
   return crypto.createHash('sha256').update(stableStringify(value), 'utf8').digest('hex')
+}
+
+function hashResultManifest(value) {
+  const { resultManifestHash, ...hashInput } = value || {}
+  return hashObject(hashInput)
 }
 
 function normalizeEmail(value) {
@@ -314,6 +340,50 @@ async function buildPreflightRecords({ candidateLimit, concurrency }) {
 }
 
 function operationHashInput(operations) {
+  if (APPROVED_BATCH.cleanupOfPriorResultManifestHash) {
+    return {
+      dryRunHash: APPROVED_BATCH.dryRunHash,
+      policyVersion: MEETING_VAULT_POLICY_VERSION,
+      batch: APPROVED_BATCH.name,
+      cleanupSourceResultManifestHash: APPROVED_BATCH.cleanupOfPriorResultManifestHash,
+      operationType: APPROVED_BATCH.operationType,
+      sourceFileRole: APPROVED_BATCH.sourceFileRole,
+      sensitivityClass: APPROVED_BATCH.sensitivityClass,
+      ownerState: APPROVED_BATCH.ownerState,
+      permissionCategory: APPROVED_BATCH.permissionCategory,
+      principalDomain: APPROVED_BATCH.principalDomain,
+      noFailedButDisappearedRows: true,
+      noMissingAccessRows: true,
+      noProtectedSensitive: true,
+      noBroadNonSensitive: true,
+      noOtherDomains: true,
+      noAddCrewbertReader: true,
+      noUnsafeNonOwnerUser: true,
+      noMoves: true,
+      noOwnershipTransfers: true,
+      noDeletions: true,
+      noRequestAccessEmails: true,
+      noOwnerAmbiguousFiles: true,
+      noLegacyCrewbertDuplicateCopies: true,
+      noOriginalMissingBlockedFiles: true,
+      fileCount: new Set(operations.map(operation => operation.fileRefHash)).size,
+      operationCount: operations.length,
+      operations: operations.map(operation => ({
+        fileRefHash: operation.fileRefHash,
+        ownerHash: operation.ownerHash,
+        sourceAccountHash: operation.sourceAccountHash,
+        permissionHash: operation.permissionHash,
+        operationType: operation.operationType,
+        permissionCategory: operation.permissionCategory,
+        permissionEmailHash: operation.permissionEmailHash,
+        principalDomain: operation.principalDomain,
+        role: operation.role,
+        type: operation.type,
+        sensitivityClass: operation.sensitivityClass,
+        sourceFileRole: operation.sourceFileRole,
+      })).sort((left, right) => `${left.fileRefHash}:${left.permissionHash}`.localeCompare(`${right.fileRefHash}:${right.permissionHash}`)),
+    }
+  }
   return {
     dryRunHash: APPROVED_BATCH.dryRunHash,
     policyVersion: MEETING_VAULT_POLICY_VERSION,
@@ -350,6 +420,24 @@ function operationHashInput(operations) {
   }
 }
 
+async function loadCleanupFailedRowKeys() {
+  if (!APPROVED_BATCH.cleanupOfPriorResultManifestHash) return null
+  const resultManifest = await readJson(path.resolve(APPROVED_BATCH.cleanupOfPriorResultManifestPath))
+  const manifestHash = hashResultManifest(resultManifest)
+  if (manifestHash !== APPROVED_BATCH.cleanupOfPriorResultManifestHash) {
+    throw new Error(`Cleanup fail-closed: prior result manifest hash ${manifestHash} does not match approved cleanup source ${APPROVED_BATCH.cleanupOfPriorResultManifestHash}.`)
+  }
+  if (resultManifest.approvedDryRunHash !== APPROVED_BATCH.cleanupOfPriorApprovedDryRunHash) {
+    throw new Error('Cleanup fail-closed: prior result manifest dry-run hash does not match approved cleanup source.')
+  }
+  if (resultManifest.approvedBatchHash !== APPROVED_BATCH.cleanupOfPriorBatchHash) {
+    throw new Error('Cleanup fail-closed: prior result manifest batch hash does not match approved cleanup source.')
+  }
+  return new Set((Array.isArray(resultManifest.results) ? resultManifest.results : [])
+    .filter(result => result.status === 'failed')
+    .map(result => `${result.fileRefHash}:${result.permissionHash}`))
+}
+
 async function selectApprovedOperations(records) {
   const originalUnsafeRecords = records.filter(record =>
     record.file.sourceFileRole === APPROVED_BATCH.sourceFileRole &&
@@ -359,12 +447,14 @@ async function selectApprovedOperations(records) {
     Number(record.preflight.permissionSummary?.unsafeCount || 0) > 0
   )
   const operations = []
+  const cleanupFailedRowKeys = await loadCleanupFailedRowKeys()
   await mapWithConcurrency(originalUnsafeRecords, 8, async record => {
     const permissions = await listDrivePermissionsForBatch(record.preflight.readableAccount || record.file.sourceAccount, record.file.fileId)
     for (const permission of permissions) {
       const classified = classifyDrivePermission(permission, record.policy.driveAccessPolicy)
       if (classified.operationType !== APPROVED_BATCH.operationType) continue
       if (classified.category !== APPROVED_BATCH.permissionCategory) continue
+      if (cleanupFailedRowKeys && !cleanupFailedRowKeys.has(`${record.file.fileRefHash}:${classified.permissionHash}`)) continue
       const principalDomain = emailDomain(permission.emailAddress)
       if (APPROVED_BATCH.principalDomain && principalDomain !== APPROVED_BATCH.principalDomain) continue
       operations.push({
@@ -607,6 +697,13 @@ function assertApproval(approval, args) {
   if (approval.approvedSourceFileRole !== APPROVED_BATCH.sourceFileRole) failures.push('approved source file role mismatch')
   if (APPROVED_BATCH.sensitivityClass && approval.approvedSensitivityClass !== APPROVED_BATCH.sensitivityClass) failures.push('approved sensitivity class mismatch')
   if (APPROVED_BATCH.principalDomain && approval.approvedPrincipalDomain !== APPROVED_BATCH.principalDomain) failures.push('approved principal domain mismatch')
+  if (APPROVED_BATCH.cleanupOfPriorResultManifestHash) {
+    if (approval.cleanupOfPriorApprovedDryRunHash !== APPROVED_BATCH.cleanupOfPriorApprovedDryRunHash) failures.push('cleanup source dry-run hash mismatch')
+    if (approval.cleanupOfPriorBatchHash !== APPROVED_BATCH.cleanupOfPriorBatchHash) failures.push('cleanup source batch hash mismatch')
+    if (approval.cleanupOfPriorResultManifestHash !== APPROVED_BATCH.cleanupOfPriorResultManifestHash) failures.push('cleanup source result manifest hash mismatch')
+    if (approval.failedButDisappearedRowsApproved !== false) failures.push('failed-but-disappeared rows must be false')
+    if (approval.missingAccessRowsApproved !== false) failures.push('missing-access rows must be false')
+  }
   if (Number(approval.approvedFileCount) !== APPROVED_BATCH.fileCount) failures.push('approved file count mismatch')
   if (Number(approval.approvedOperationCount) !== APPROVED_BATCH.operationCount) failures.push('approved operation count mismatch')
   if (approval.driveMutationApproved !== true) failures.push('drive mutation approval must be explicit')

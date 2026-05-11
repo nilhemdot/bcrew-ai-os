@@ -195,6 +195,11 @@ Current standard-internal ZahndTeam external-user state:
 - rollback-proven removals: `272`;
 - failed-row accounting: `69` still present, `15` failed-but-disappeared and not rollback-proven, `1` blocked by missing access on fallback recheck;
 - latest recheck hash after the partial batch: `e22e127d6d9b43456560c26c22d1eeec67eb4588018fff9a65b02d78d27f6c50`.
+- partial cleanup approved from dry-run hash `c3fdd4dd20bde5544c0b662fc1dfaf2de06d247a6a05523fc015fe0a434b3101` and batch hash `c5b9c93cdcc5f9e416957f73e7d3b80c6493619454ca41fb182063e8c23c2146`;
+- cleanup result: `55` clean removals, `14` failed rows;
+- cleanup rollback-proven removals: `55`;
+- cleanup failed-row accounting: `12` still present, `1` failed-but-disappeared and not rollback-proven, `1` owner-ambiguous on fallback recheck;
+- latest recheck hash after the cleanup batch: `b5924001d6b641ea5920ef2c7f533f7ba0f189d7e9f69c418ad8d38f2cebb35b`.
 
 No protected-sensitive removals, broad-non-sensitive removals, non-ZahndTeam external removals, add-Crewbert operations, request-access emails, moves, ownership transfers, deletions, owner-ambiguous files, legacy duplicate copies, or original-missing blocked files were approved or applied in this partial batch.
 
