@@ -21,6 +21,9 @@ import {
 import { classifyMeetingShape } from '../lib/meeting-classification.js';
 
 const DEFAULT_SOURCE_USER = process.env.GOOGLE_MEETING_SOURCE_USER || 'ai@bensoncrew.ca';
+const CREWBERT_EMAIL = 'crewbert@bensoncrew.ca';
+const DRIVE_MEETING_FILE_FIELDS =
+  'files(id,name,mimeType,modifiedTime,parents,webViewLink,owners(emailAddress,displayName)),nextPageToken';
 const GEMINI_NOTES_QUERY =
   "name contains 'Notes by Gemini' and mimeType = 'application/vnd.google-apps.document' and trashed = false";
 const TRANSCRIPT_DOC_QUERY =
@@ -74,6 +77,8 @@ function buildArtifactCandidate(userEmail, file, variant, meetingKeyOverride = '
     userEmail,
     file,
     variant,
+    ownerEmails: ownerEmailsForFile(file),
+    crewbertOwned: ownerEmailsForFile(file).includes(CREWBERT_EMAIL),
     modifiedEpoch: toEpoch(file?.modifiedTime),
     meetingKey: normalizeGroupKey(meetingKeyOverride || file?.name, file?.id),
   };
@@ -100,6 +105,10 @@ function buildCrawlItemMetadata(group, extra = {}) {
     transcriptObservedAccounts: [...group.transcriptObservedAccounts].sort(),
     noteFileIds: [...group.noteFileIds].sort(),
     transcriptFileIds: [...group.transcriptFileIds].sort(),
+    originalNoteFileId: group.originalNoteCandidate?.file?.id || group.noteCandidate?.file?.id || null,
+    originalTranscriptFileId: group.originalTranscriptCandidate?.file?.id || group.transcriptCandidate?.file?.id || null,
+    legacyCrewbertDuplicateNoteFileIds: [...group.legacyCrewbertDuplicateNoteFileIds].sort(),
+    legacyCrewbertDuplicateTranscriptFileIds: [...group.legacyCrewbertDuplicateTranscriptFileIds].sort(),
     ...extra,
   };
 }
@@ -129,6 +138,12 @@ async function recordCrawlItem(crawlTargetKey, group, input) {
 function choosePreferredArtifact(current, candidate, { preferStandalone = false } = {}) {
   if (!current) return candidate;
 
+  const currentIsCopy = Boolean(current.crewbertOwned);
+  const candidateIsCopy = Boolean(candidate.crewbertOwned);
+  if (currentIsCopy !== candidateIsCopy) {
+    return candidateIsCopy ? current : candidate;
+  }
+
   if (preferStandalone) {
     const currentStandalone = current.variant === 'standalone_transcript';
     const candidateStandalone = candidate.variant === 'standalone_transcript';
@@ -149,8 +164,12 @@ function getOrCreateMeetingGroup(groups, meetingKey) {
       transcriptObservedAccounts: new Set(),
       noteFileIds: new Set(),
       transcriptFileIds: new Set(),
+      legacyCrewbertDuplicateNoteFileIds: new Set(),
+      legacyCrewbertDuplicateTranscriptFileIds: new Set(),
       noteCandidate: null,
+      originalNoteCandidate: null,
       transcriptCandidate: null,
+      originalTranscriptCandidate: null,
       latestModifiedEpoch: 0,
     });
   }
@@ -166,16 +185,34 @@ function addArtifactCandidateToGroup(groups, candidate) {
   if (candidate.variant === 'meeting_note') {
     group.noteObservedAccounts.add(candidate.userEmail);
     group.noteFileIds.add(candidate.file.id);
+    if (candidate.crewbertOwned) {
+      group.legacyCrewbertDuplicateNoteFileIds.add(candidate.file.id);
+    } else {
+      group.originalNoteCandidate = choosePreferredArtifact(group.originalNoteCandidate, candidate);
+    }
     group.noteCandidate = choosePreferredArtifact(group.noteCandidate, candidate);
   } else if (candidate.variant === 'standalone_transcript') {
     group.transcriptObservedAccounts.add(candidate.userEmail);
     group.transcriptFileIds.add(candidate.file.id);
+    if (candidate.crewbertOwned) {
+      group.legacyCrewbertDuplicateTranscriptFileIds.add(candidate.file.id);
+    } else {
+      group.originalTranscriptCandidate = choosePreferredArtifact(group.originalTranscriptCandidate, candidate, {
+        preferStandalone: true,
+      });
+    }
     group.transcriptCandidate = choosePreferredArtifact(group.transcriptCandidate, candidate, {
       preferStandalone: true,
     });
   }
 
   return group;
+}
+
+function ownerEmailsForFile(file) {
+  return (Array.isArray(file?.owners) ? file.owners : [])
+    .map(owner => String(owner?.emailAddress || '').trim().toLowerCase())
+    .filter(Boolean);
 }
 
 async function resolveScanUsers(args) {
@@ -259,22 +296,22 @@ async function loadFailedMeetingGroups(groups, { crawlTargetKey, limit }) {
 
 async function searchMeetingArtifactsForUser(userEmail, searchLimit, queryTimeClause = '') {
   const geminiFiles = sortNewestFirst(
-    await driveSearch(
-      userEmail,
-      `${GEMINI_NOTES_QUERY}${queryTimeClause}`,
-      'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
-      searchLimit,
-      { orderBy: 'modifiedTime desc' },
+      await driveSearch(
+        userEmail,
+        `${GEMINI_NOTES_QUERY}${queryTimeClause}`,
+        DRIVE_MEETING_FILE_FIELDS,
+        searchLimit,
+        { orderBy: 'modifiedTime desc' },
     ),
   ).filter(file => file?.mimeType === 'application/vnd.google-apps.document');
 
   const transcriptDocs = sortNewestFirst(
-    await driveSearch(
-      userEmail,
-      `${TRANSCRIPT_DOC_QUERY}${queryTimeClause}`,
-      'files(id,name,mimeType,modifiedTime,parents,webViewLink),nextPageToken',
-      searchLimit,
-      { orderBy: 'modifiedTime desc' },
+      await driveSearch(
+        userEmail,
+        `${TRANSCRIPT_DOC_QUERY}${queryTimeClause}`,
+        DRIVE_MEETING_FILE_FIELDS,
+        searchLimit,
+        { orderBy: 'modifiedTime desc' },
     ),
   ).filter(file => file?.mimeType === 'application/vnd.google-apps.document');
 
@@ -309,6 +346,7 @@ async function listMeetingArtifactsFromFolders(userEmail, folderIds, searchLimit
 
     const files = await driveListFolder(userEmail, folderId, searchLimit, {
       orderBy: 'modifiedTime desc',
+      fields: DRIVE_MEETING_FILE_FIELDS,
     });
 
     for (const file of files) {
@@ -362,8 +400,11 @@ async function archiveStandaloneTranscript(group) {
         transcriptSource: 'standalone',
         primaryFileId: candidate.file.id,
         primarySourceAccount: candidate.userEmail,
+        primaryOwnerEmails: candidate.ownerEmails,
         observedAccounts: [...group.transcriptObservedAccounts].sort(),
         observedFileIds: [...group.transcriptFileIds].sort(),
+        originalFileId: group.originalTranscriptCandidate?.file?.id || candidate.file.id,
+        legacyCrewbertDuplicateFileIds: [...group.legacyCrewbertDuplicateTranscriptFileIds].sort(),
         transcriptLineCount: extractedTranscript?.transcriptLineCount || 0,
         speakerCount: extractedTranscript?.speakerNames?.length || 0,
         transcriptSectionDetected: Boolean(extractedTranscript),
@@ -441,9 +482,12 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
           transcriptSource: 'embedded_in_gemini',
           primaryFileId: candidate.file.id,
           primarySourceAccount: candidate.userEmail,
+          primaryOwnerEmails: candidate.ownerEmails,
           observedAccounts: [...group.noteObservedAccounts].sort(),
           observedFileIds: [...group.noteFileIds].sort(),
           noteExternalId: candidate.file.id,
+          originalFileId: group.originalNoteCandidate?.file?.id || candidate.file.id,
+          legacyCrewbertDuplicateFileIds: [...group.legacyCrewbertDuplicateNoteFileIds].sort(),
           transcriptLineCount: embeddedTranscript.transcriptLineCount,
           speakerCount: embeddedTranscript.speakerNames.length,
           meetingClass: meetingShape.meetingClass,
@@ -488,8 +532,11 @@ async function archiveMeetingNoteAndEmbeddedTranscript(group, standaloneTranscri
         transcriptSource,
         primaryFileId: candidate.file.id,
         primarySourceAccount: candidate.userEmail,
+        primaryOwnerEmails: candidate.ownerEmails,
         observedAccounts: [...group.noteObservedAccounts].sort(),
         observedFileIds: [...group.noteFileIds].sort(),
+        originalFileId: group.originalNoteCandidate?.file?.id || candidate.file.id,
+        legacyCrewbertDuplicateFileIds: [...group.legacyCrewbertDuplicateNoteFileIds].sort(),
         transcriptExternalId: transcriptInfo?.transcriptExternalId || null,
         transcriptMissing: !transcriptInfo,
         meetingClass: meetingShape.meetingClass,

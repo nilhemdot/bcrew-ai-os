@@ -6,14 +6,10 @@ import {
   getSharedCommunicationArchiveSnapshot,
   initFoundationDb,
 } from '../lib/foundation-db.js';
-import {
-  createDriveTextFile,
-  ensureDriveFolder,
-  findDriveFile,
-} from '../lib/google-delegated.js';
 
 const DEFAULT_ROOT_FOLDER_ID = process.env.CREWBERT_MEETING_ARCHIVE_ROOT_FOLDER_ID || '';
 const DEFAULT_CREWBERT_EMAIL = process.env.CREWBERT_ARCHIVE_EMAIL || 'crewbert@bensoncrew.ca';
+const REPORT_ONLY_REASON = 'Drive mirror writes are disabled. Meeting archive/search lives in the database; original Gemini notes remain the source of truth.';
 
 function parseArgs(argv) {
   const result = {};
@@ -89,17 +85,16 @@ async function main() {
   const rootFolderId = String(args.rootFolderId || DEFAULT_ROOT_FOLDER_ID).trim();
   const crewbertEmail = String(args.user || DEFAULT_CREWBERT_EMAIL).trim();
   const limit = Math.min(1000, Math.max(1, Number(args.limit || 100)));
-  const dryRun = Boolean(args['dry-run'] || args.dryRun);
-
-  if (!rootFolderId) {
-    throw new Error('Missing root folder id. Pass --rootFolderId=... or set CREWBERT_MEETING_ARCHIVE_ROOT_FOLDER_ID.');
+  if (args.apply === true || args.apply === 'true' || args['dry-run'] === 'false' || args.dryRun === 'false') {
+    throw new Error(REPORT_ONLY_REASON);
   }
 
-  console.log('Mirror meeting archive into Crewbert Drive');
+  console.log('Meeting archive Drive mirror report');
   console.log(`  Crewbert user: ${crewbertEmail}`);
-  console.log(`  Root folder id: ${rootFolderId}`);
+  console.log(`  Root folder id: ${rootFolderId || 'not required in report-only mode'}`);
   console.log(`  Limit: ${limit}`);
-  console.log(`  Dry run: ${dryRun ? 'yes' : 'no'}`);
+  console.log('  Mode: report-only');
+  console.log(`  Reason: ${REPORT_ONLY_REASON}`);
 
   await initFoundationDb();
 
@@ -115,42 +110,16 @@ async function main() {
 
   console.log(`  Meeting artifacts considered: ${artifacts.length}`);
 
-  let mirrored = 0;
-  let existing = 0;
-
   for (const artifact of artifacts) {
     const periodLabel = derivePeriodLabel(artifact);
     const meetingClass = getMeetingClass(artifact);
     const artifactFolderName = getArtifactFolderName(artifact);
     const fileName = buildMirrorFileName(artifact);
 
-    if (dryRun) {
-      console.log(`  DRY RUN -> ${periodLabel}/${meetingClass}/${artifactFolderName}/${fileName}`);
-      continue;
-    }
-
-    const periodFolder = await ensureDriveFolder(crewbertEmail, rootFolderId, periodLabel);
-    const classFolder = await ensureDriveFolder(crewbertEmail, periodFolder.id, meetingClass);
-    const artifactFolder = await ensureDriveFolder(crewbertEmail, classFolder.id, artifactFolderName);
-
-    const existingFile = await findDriveFile(crewbertEmail, artifactFolder.id, fileName);
-    if (existingFile?.id) {
-      existing += 1;
-      continue;
-    }
-
-    await createDriveTextFile(crewbertEmail, {
-      name: fileName,
-      parentFolderId: artifactFolder.id,
-      content: formatMirrorDocument(artifact),
-      mimeType: 'text/plain',
-    });
-
-    mirrored += 1;
+    console.log(`  REPORT ONLY -> ${periodLabel}/${meetingClass}/${artifactFolderName}/${fileName}`);
   }
 
-  console.log(`  Mirrored this run: ${mirrored}`);
-  console.log(`  Already present: ${existing}`);
+  console.log('  Drive files created: 0');
 }
 
 main()

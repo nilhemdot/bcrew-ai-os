@@ -146,6 +146,7 @@ import {
   MEETING_VAULT_ACL_SCRIPT_PATH,
   MEETING_VAULT_ACL_SUMMARY_MARKER,
   MEETING_VAULT_POLICY_VERSION,
+  buildMeetingVaultNoDuplicateGoogleDocProof,
   buildSyntheticMeetingVaultAclProof,
 } from '../lib/meeting-vault-acl.js'
 import {
@@ -1147,6 +1148,8 @@ async function main() {
   const meetingVaultAclScriptSource = await readRepoFile(MEETING_VAULT_ACL_SCRIPT_PATH)
   const meetingVaultAclDocSource = await readRepoFile(MEETING_VAULT_ACL_DOC_PATH)
   const meetingVaultAclPlanSource = await readRepoFile(MEETING_VAULT_ACL_PLAN_PATH)
+  const syncMeetingNotesArchiveSource = await readRepoFile('scripts/sync-meeting-notes-archive.mjs')
+  const mirrorMeetingArchiveToDriveSource = await readRepoFile('scripts/mirror-meeting-archive-to-drive.mjs')
   const foundationCurrentSprintSource = await readRepoFile('lib/foundation-current-sprint.js')
   const foundationSprintSystemScriptSource = await readRepoFile(FOUNDATION_SPRINT_SYSTEM_SCRIPT_PATH)
   const foundationSprintSystemPlanSource = await readRepoFile(FOUNDATION_SPRINT_SYSTEM_PLAN_PATH)
@@ -2734,6 +2737,12 @@ async function main() {
   const latestMeetingVaultAclAudit = await getLatestMeetingVaultAclAudit({ cardId: MEETING_VAULT_ACL_CARD_ID }).catch(() => null)
   const syntheticDriveAccessPreflight = buildSyntheticDriveAccessPreflightProof()
   const syntheticMeetingVaultAcl = buildSyntheticMeetingVaultAclProof()
+  const meetingVaultNoDuplicateGoogleDocProof = buildMeetingVaultNoDuplicateGoogleDocProof({
+    meetingVaultAclSource,
+    meetingVaultAclScriptSource,
+    syncMeetingNotesArchiveSource,
+    mirrorMeetingArchiveToDriveSource,
+  })
   const activeFoundationSprint = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
   const foundationCurrentSprintStatus = buildFoundationCurrentSprintStatus({
     sprint: activeFoundationSprint.sprint,
@@ -7069,13 +7078,30 @@ async function main() {
         'allowInternalUsers',
         'assertMeetingAclMutationApproved',
         'buildMeetingAclDryRunPlan',
+        'buildMeetingVaultNoDuplicateGoogleDocProof',
         'buildSyntheticMeetingVaultAclProof',
+        'MEETING_VAULT_SOURCE_FILE_ROLES',
       ]) &&
       includesAll(meetingVaultAclScriptSource, [
         MEETING_VAULT_ACL_SUMMARY_MARKER,
         'Apply path fails closed without Phase B approval',
+        'No duplicate Google Docs rule',
+        'annotateMeetingSourceRoles',
         'sensitivityClassCounts',
         'recordMeetingVaultAclAudit',
+      ]) &&
+      includesAll(syncMeetingNotesArchiveSource, [
+        'ownerEmailsForFile',
+        'crewbertOwned',
+        'return candidateIsCopy ? current : candidate',
+        'upsertSharedCommunicationArtifact',
+        'originalFileId',
+        'legacyCrewbertDuplicateFileIds',
+      ]) &&
+      includesAll(mirrorMeetingArchiveToDriveSource, [
+        'Drive mirror writes are disabled',
+        'Meeting archive/search lives in the database',
+        'Drive files created: 0',
       ]) &&
       includesAll(driveAccessRequestDocSource, [
         'dry-run delegated Drive preflight only',
@@ -7086,8 +7112,9 @@ async function main() {
         'Phase A dry-run implementation only',
         'Training, all-hands, huddles, workshops, sales sessions, and broad team meetings are not sensitive by default',
         'Unknown/unclassified files stay blocked until classified',
+        'No Duplicate Google Docs Rule',
         'Not Approved',
-        'real Google Drive permission mutations',
+        'further unapproved Google Drive permission mutations',
       ]) &&
       packageJson.scripts?.['process:drive-access-request-check'] === 'node --env-file-if-exists=.env scripts/process-drive-access-request-check.mjs' &&
       packageJson.scripts?.['process:meeting-vault-acl-check'] === 'node --env-file-if-exists=.env scripts/process-meeting-vault-acl-check.mjs' &&
@@ -7096,14 +7123,15 @@ async function main() {
       latestDriveAccessPreflightRun?.status === 'healthy' &&
       Number(latestDriveAccessPreflightRun?.inspectedFileCount || 0) > 0 &&
       latestMeetingVaultAclAudit?.status &&
+      meetingVaultNoDuplicateGoogleDocProof.ok &&
       !(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID) &&
       (foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_ACL_CARD_ID) &&
       buildLogDriveAccessRequestBuild?.operatorCloseout === true &&
       driveAccessRequestBuildLogExact &&
       currentPlan.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY) &&
       currentState.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY),
-    'DRIVE-ACCESS-REQUEST-001 closes delegated Drive dry-run/preflight without mutating Drive',
-    `lane=${driveAccessRequest?.lane || 'missing'} latest=${latestDriveAccessPreflightRun?.status || 'missing'} readinessNamesDrive=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID)} meeting=${meetingVaultAcl?.lane || 'missing'}`,
+    'DRIVE-ACCESS-REQUEST-001 closes delegated Drive dry-run/preflight while Meeting Vault Phase B mutations stay separately approved',
+    `lane=${driveAccessRequest?.lane || 'missing'} latest=${latestDriveAccessPreflightRun?.status || 'missing'} noDuplicateDocs=${meetingVaultNoDuplicateGoogleDocProof.ok ? 'yes' : meetingVaultNoDuplicateGoogleDocProof.findings.join(',')} readinessNamesDrive=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID)} meeting=${meetingVaultAcl?.lane || 'missing'}`,
   )
   const foundationSprintSystemBuildLogExact = buildLogFoundationSprintSystemBuild?.backlogIds?.length === 1 &&
     buildLogFoundationSprintSystemBuild.backlogIds.includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
