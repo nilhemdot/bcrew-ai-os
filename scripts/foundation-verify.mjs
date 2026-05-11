@@ -451,6 +451,12 @@ const FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-SPRINT-SYSTEM-001',
 ]
 
+const FOUNDATION_SPRINT_REVIEW_CARD_ID = 'FOUNDATION-SPRINT-REVIEW-001'
+const FOUNDATION_SPRINT_REVIEW_DOC_PATH = 'docs/process/foundation-sprint-review-001.md'
+const FOUNDATION_SPRINT_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  FOUNDATION_SPRINT_REVIEW_CARD_ID,
+]
+
 const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-FOLLOWUP-CARD-CAPTURE-001',
 ]
@@ -1183,6 +1189,7 @@ async function main() {
   const foundationSprintCadenceDocSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_DOC_PATH)
   const foundationSprintCadenceApprovalSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH)
   const foundationSprintCadenceApproval = JSON.parse(foundationSprintCadenceApprovalSource)
+  const foundationSprintReviewSource = await readRepoFile(FOUNDATION_SPRINT_REVIEW_DOC_PATH)
   const foundationSprintCaptureSource = await readRepoFile('docs/handoffs/2026-05-10-foundation-sprint-capture.md')
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
@@ -5072,6 +5079,7 @@ async function main() {
   const driveAccessRequest = (foundationHub.backlogItems || []).find(item => item.id === DRIVE_ACCESS_REQUEST_CARD_ID) || null
   const foundationSprintSystem = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SYSTEM_CARD_ID) || null
   const foundationSprintCadence = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_CADENCE_CARD_ID) || null
+  const foundationSprintReview = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_REVIEW_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -7460,6 +7468,38 @@ async function main() {
       foundationSprintCaptureSource.includes('No Drive permission mutation is approved'),
     'FOUNDATION-SPRINT-CADENCE-001 adds readable sprint command view without Drive mutation',
     `lane=${foundationSprintCadence?.lane || 'missing'} sprint=${foundationCurrentSprintStatus.status} api=${foundationHub.currentSprint?.status || 'missing'} next=${foundationHub.currentSprint?.cadence?.nextCard?.cardId || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'}`,
+  )
+  ensure(
+    checks,
+    foundationSprintReview?.lane === 'done' &&
+      String(foundationSprintReview?.statusNote || '').includes(FOUNDATION_SPRINT_REVIEW_DOC_PATH) &&
+      String(foundationSprintReview?.nextAction || '').includes('STRATEGY-HUB-MEETING-READY-001') &&
+      includesAll(foundationSprintReviewSource, [
+        'What Shipped',
+        'What READY Means',
+        'Meeting Vault Legacy Exceptions',
+        'Remaining Follow-Ups',
+        'Risks And Weak Spots',
+        'Recommended Next Sprint',
+        'STRATEGY-HUB-MEETING-READY-001',
+        'No Drive mutations',
+        'No Sales or Agent Feedback expansion',
+        'No advisor chat',
+      ]) &&
+      foundationSprintReviewSource.includes('readyForStrategy: true') &&
+      foundationSprintReviewSource.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY) &&
+      foundationSprintReviewSource.includes('92be8addc997a9f61ed881be6bc478fcef7021dea8425cc3f4e7368ace99caa1') &&
+      foundationDoneTestReadinessStatus.status === 'ready' &&
+      foundationDoneTestReadinessStatus.readyForStrategy === true &&
+      currentPlan.includes(FOUNDATION_SPRINT_REVIEW_CARD_ID) &&
+      currentPlan.includes(FOUNDATION_SPRINT_REVIEW_DOC_PATH) &&
+      currentPlan.includes('STRATEGY-HUB-MEETING-READY-001') &&
+      currentState.includes(FOUNDATION_SPRINT_REVIEW_CARD_ID) &&
+      currentState.includes(FOUNDATION_SPRINT_REVIEW_DOC_PATH) &&
+      currentState.includes('readyForStrategy: yes') &&
+      includesAll(foundationVerifySource, FOUNDATION_SPRINT_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'FOUNDATION-SPRINT-REVIEW-001 reviews READY sprint and names the next Strategy card without feature work',
+    `lane=${foundationSprintReview?.lane || 'missing'} readiness=${foundationDoneTestReadinessStatus.status} next=${foundationSprintReview?.nextAction || 'missing'}`,
   )
   const foundationFollowupCardCaptureBuildLogExact = buildLogFoundationFollowupCardCaptureBuild?.backlogIds?.length === 1 &&
     buildLogFoundationFollowupCardCaptureBuild.backlogIds.includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
