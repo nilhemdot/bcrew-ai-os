@@ -182,6 +182,22 @@ Current protected-sensitive external-user cleanup state:
 
 No `standard_internal` or `broad_non_sensitive` external-user removals were approved or applied in those protected-sensitive batches.
 
+## Partial Phase B Standard-Internal ZahndTeam External-User Batch
+
+Standard-internal ZahndTeam external-user proof lives in `docs/process/meeting-vault-acl-001-phase-b-standard-internal-zahndteam-apply-proof.md`.
+
+Current standard-internal ZahndTeam external-user state:
+
+- approved dry-run hash: `c97e5362819b31b7568aa8db90d24b5116edb417206f07dbaf23518af3a8bb68`;
+- approved batch hash: `75f1ac6a23c2e9b6240a5688a5185e61a89a3697d0e56efeb30d2d2dc6fc7692`;
+- scope: `357` `unsafe_external_user` permissions for principal domain `zahndteam.ca` on `90` `standard_internal` owner-clear original Gemini meeting files;
+- result: `272` clean removals, `85` failed rows;
+- rollback-proven removals: `272`;
+- failed-row accounting: `69` still present, `15` failed-but-disappeared and not rollback-proven, `1` blocked by missing access on fallback recheck;
+- latest recheck hash after the partial batch: `e22e127d6d9b43456560c26c22d1eeec67eb4588018fff9a65b02d78d27f6c50`.
+
+No protected-sensitive removals, broad-non-sensitive removals, non-ZahndTeam external removals, add-Crewbert operations, request-access emails, moves, ownership transfers, deletions, owner-ambiguous files, legacy duplicate copies, or original-missing blocked files were approved or applied in this partial batch.
+
 ## Later Duplicate Cleanup Phase
 
 Legacy Crewbert duplicate docs are not repaired or deleted under the original-note ACL batches. After originals are repaired, a separate cleanup phase must inventory legacy duplicate docs, map each duplicate to its original/source DB artifact, and propose delete/archive batches with export proof, rollback proof, exact counts, and separate approval.

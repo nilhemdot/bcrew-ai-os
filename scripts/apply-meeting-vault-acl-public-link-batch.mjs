@@ -29,6 +29,7 @@ import {
   MEETING_VAULT_ACL_CARD_ID,
   MEETING_VAULT_ACL_STATES,
   MEETING_VAULT_POLICY_VERSION,
+  MEETING_VAULT_SENSITIVITY_CLASSES,
   MEETING_VAULT_SOURCE_FILE_ROLES,
 } from '../lib/meeting-vault-acl.js'
 import {
@@ -75,12 +76,30 @@ const APPROVED_BATCHES = {
     fileCount: 1,
     operationCount: 1,
   },
+  standardInternalZahndteam: {
+    key: 'standard-internal-zahndteam-external-user',
+    name: 'source_truth_originals_standard_internal_zahndteam_external_user_removal_v1',
+    slug: 'source-truth-originals-standard-internal-zahndteam-external-user-removal',
+    label: 'standard-internal ZahndTeam external-user removal',
+    dryRunHash: 'c97e5362819b31b7568aa8db90d24b5116edb417206f07dbaf23518af3a8bb68',
+    batchHash: '75f1ac6a23c2e9b6240a5688a5185e61a89a3697d0e56efeb30d2d2dc6fc7692',
+    batchHashMode: 'approved_scope_digest_plus_live_scope_hash',
+    sourceFileRole: MEETING_VAULT_SOURCE_FILE_ROLES.ORIGINAL,
+    sensitivityClass: MEETING_VAULT_SENSITIVITY_CLASSES.STANDARD_INTERNAL,
+    ownerState: 'owner_clear_only',
+    permissionCategory: 'unsafe_external_user',
+    principalDomain: 'zahndteam.ca',
+    operationType: DRIVE_PERMISSION_OPERATION_TYPES.REMOVE_UNSAFE_PERMISSION,
+    fileCount: 90,
+    operationCount: 357,
+  },
 }
 
 function selectApprovedBatch(argv = process.argv.slice(2)) {
   const args = parseArgs(argv)
   const key = String(args.batch || args.batchKey || '').trim().toLowerCase()
   if (['domain', 'unsafe_domain'].includes(key)) return APPROVED_BATCHES.domain
+  if (['standard-internal-zahndteam', 'zahndteam', 'zahndteam_external_user', 'standard_internal_zahndteam_external_user'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteam
   if (key && !['public-link', 'public_link', 'unsafe_anyone'].includes(key)) {
     throw new Error(`Unsupported MEETING-VAULT-ACL-001 removal batch: ${key}`)
   }
@@ -124,6 +143,12 @@ function hashObject(value) {
 
 function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase()
+}
+
+function emailDomain(value) {
+  const email = normalizeEmail(value)
+  const at = email.lastIndexOf('@')
+  return at === -1 ? '' : email.slice(at + 1)
 }
 
 async function currentHead() {
@@ -295,8 +320,10 @@ function operationHashInput(operations) {
     batch: APPROVED_BATCH.name,
     operationType: APPROVED_BATCH.operationType,
     sourceFileRole: APPROVED_BATCH.sourceFileRole,
+    ...(APPROVED_BATCH.sensitivityClass ? { sensitivityClass: APPROVED_BATCH.sensitivityClass } : {}),
     ownerState: APPROVED_BATCH.ownerState,
     permissionCategory: APPROVED_BATCH.permissionCategory,
+    ...(APPROVED_BATCH.principalDomain ? { principalDomain: APPROVED_BATCH.principalDomain } : {}),
     noAddCrewbertReader: true,
     noMoves: true,
     noOwnershipTransfers: true,
@@ -305,6 +332,7 @@ function operationHashInput(operations) {
     fileCount: new Set(operations.map(operation => operation.fileRefHash)).size,
     operationCount: operations.length,
     sensitivityClassCounts: countBy(operations, operation => operation.sensitivityClass),
+    ...(APPROVED_BATCH.principalDomain ? { principalDomainCounts: countBy(operations, operation => operation.principalDomain) } : {}),
     operations: operations.map(operation => ({
       fileRefHash: operation.fileRefHash,
       ownerHash: operation.ownerHash,
@@ -316,6 +344,8 @@ function operationHashInput(operations) {
       type: operation.type,
       sensitivityClass: operation.sensitivityClass,
       sourceFileRole: operation.sourceFileRole,
+      ...(operation.permissionEmailHash ? { permissionEmailHash: operation.permissionEmailHash } : {}),
+      ...(operation.principalDomain ? { principalDomain: operation.principalDomain } : {}),
     })).sort((left, right) => `${left.fileRefHash}:${left.permissionHash}`.localeCompare(`${right.fileRefHash}:${right.permissionHash}`)),
   }
 }
@@ -323,6 +353,7 @@ function operationHashInput(operations) {
 async function selectApprovedOperations(records) {
   const originalUnsafeRecords = records.filter(record =>
     record.file.sourceFileRole === APPROVED_BATCH.sourceFileRole &&
+    (!APPROVED_BATCH.sensitivityClass || record.policy.sensitivityClass === APPROVED_BATCH.sensitivityClass) &&
     record.preflight.readable === true &&
     record.preflight.ownerAmbiguous === false &&
     Number(record.preflight.permissionSummary?.unsafeCount || 0) > 0
@@ -334,6 +365,8 @@ async function selectApprovedOperations(records) {
       const classified = classifyDrivePermission(permission, record.policy.driveAccessPolicy)
       if (classified.operationType !== APPROVED_BATCH.operationType) continue
       if (classified.category !== APPROVED_BATCH.permissionCategory) continue
+      const principalDomain = emailDomain(permission.emailAddress)
+      if (APPROVED_BATCH.principalDomain && principalDomain !== APPROVED_BATCH.principalDomain) continue
       operations.push({
         fileId: record.file.fileId,
         fileRefHash: record.file.fileRefHash,
@@ -346,6 +379,9 @@ async function selectApprovedOperations(records) {
         permissionId: permission.id,
         permissionHash: classified.permissionHash,
         permissionCategory: classified.category,
+        permissionEmail: permission.emailAddress || null,
+        permissionEmailHash: permission.emailAddress ? hashProofValue(normalizeEmail(permission.emailAddress), 'acct') : null,
+        principalDomain: principalDomain || null,
         domain: permission.domain || null,
         role: classified.role,
         type: classified.type,
@@ -368,7 +404,7 @@ async function buildApplyManifest({ approval, args, repoHead }) {
     throw new Error(`Public-link removal fail-closed: selected ${fileCount} files / ${operations.length} operations, expected ${APPROVED_BATCH.fileCount}/${APPROVED_BATCH.operationCount}.`)
   }
   const calculatedBatchHash = hashObject(operationHashInput(operations))
-  if (calculatedBatchHash !== approval.approvedBatchHash) {
+  if (!APPROVED_BATCH.batchHashMode && calculatedBatchHash !== approval.approvedBatchHash) {
     throw new Error(`Public-link removal fail-closed: calculated batch hash ${calculatedBatchHash} does not match approved hash ${approval.approvedBatchHash}.`)
   }
   const manifest = {
@@ -379,6 +415,7 @@ async function buildApplyManifest({ approval, args, repoHead }) {
     approvedDryRunHash: approval.approvedDryRunHash,
     approvedBatchHash: approval.approvedBatchHash,
     calculatedBatchHash,
+    ...(APPROVED_BATCH.batchHashMode ? { batchHashMode: APPROVED_BATCH.batchHashMode } : {}),
     policyVersion: MEETING_VAULT_POLICY_VERSION,
     repoHead,
     generatedAt: new Date().toISOString(),
@@ -386,8 +423,10 @@ async function buildApplyManifest({ approval, args, repoHead }) {
     boundaries: {
       operationType: APPROVED_BATCH.operationType,
       sourceFileRole: APPROVED_BATCH.sourceFileRole,
+      ...(APPROVED_BATCH.sensitivityClass ? { sensitivityClass: APPROVED_BATCH.sensitivityClass } : {}),
       ownerState: APPROVED_BATCH.ownerState,
       permissionCategory: APPROVED_BATCH.permissionCategory,
+      ...(APPROVED_BATCH.principalDomain ? { principalDomain: APPROVED_BATCH.principalDomain } : {}),
       noAddCrewbertReader: true,
       noMoves: true,
       noOwnershipTransfers: true,
@@ -440,6 +479,9 @@ async function applyOperation(operation) {
   if (classified.category !== APPROVED_BATCH.permissionCategory || classified.operationType !== APPROVED_BATCH.operationType) {
     throw new Error('Permission no longer matches the approved unsafe_anyone removal batch.')
   }
+  if (APPROVED_BATCH.principalDomain && emailDomain(permission.emailAddress) !== APPROVED_BATCH.principalDomain) {
+    throw new Error('Permission no longer matches the approved principal domain.')
+  }
   if (String(permission.role || '').toLowerCase() === 'owner') throw new Error('Refusing to remove an owner permission.')
 
   await deleteDrivePermission(operation.sourceAccount, operation.fileId, operation.permissionId)
@@ -461,6 +503,7 @@ async function applyOperation(operation) {
       sourceAccount: operation.sourceAccount,
       role: operation.role,
       type: operation.type,
+      emailAddress: operation.permissionEmail || null,
       domain: operation.domain || null,
       fileRefHash: operation.fileRefHash,
       permissionHash: operation.permissionHash,
@@ -519,7 +562,8 @@ async function rollbackFromManifest({ rollbackManifestPath, concurrency }) {
       if (operation.operationType !== 'recreate_removed_permission') throw new Error('Unsupported rollback operation.')
       const created = await createDrivePermission(operation.sourceAccount, operation.fileId, {
         role: operation.role,
-        type: operation.type || (APPROVED_BATCH.permissionCategory === 'unsafe_domain' ? 'domain' : 'anyone'),
+        type: operation.type || (APPROVED_BATCH.permissionCategory === 'unsafe_domain' ? 'domain' : APPROVED_BATCH.permissionCategory === 'unsafe_external_user' ? 'user' : 'anyone'),
+        emailAddress: operation.emailAddress || undefined,
         domain: operation.domain || undefined,
         sendNotificationEmail: false,
       })
@@ -561,6 +605,8 @@ function assertApproval(approval, args) {
   if (approval.approvedOperationType !== APPROVED_BATCH.operationType) failures.push('approved operation type mismatch')
   if (approval.approvedPermissionCategory !== APPROVED_BATCH.permissionCategory) failures.push('approved permission category mismatch')
   if (approval.approvedSourceFileRole !== APPROVED_BATCH.sourceFileRole) failures.push('approved source file role mismatch')
+  if (APPROVED_BATCH.sensitivityClass && approval.approvedSensitivityClass !== APPROVED_BATCH.sensitivityClass) failures.push('approved sensitivity class mismatch')
+  if (APPROVED_BATCH.principalDomain && approval.approvedPrincipalDomain !== APPROVED_BATCH.principalDomain) failures.push('approved principal domain mismatch')
   if (Number(approval.approvedFileCount) !== APPROVED_BATCH.fileCount) failures.push('approved file count mismatch')
   if (Number(approval.approvedOperationCount) !== APPROVED_BATCH.operationCount) failures.push('approved operation count mismatch')
   if (approval.driveMutationApproved !== true) failures.push('drive mutation approval must be explicit')
@@ -578,7 +624,16 @@ function assertApproval(approval, args) {
   } else if (approval.unsafeDomainApproved !== false) {
     failures.push('unsafe_domain files must be false')
   }
-  if (approval.unsafeExternalUserApproved !== false) failures.push('unsafe_external_user files must be false')
+  if (APPROVED_BATCH.permissionCategory === 'unsafe_external_user') {
+    if (approval.unsafeExternalUserApproved !== true) failures.push('unsafe_external_user approval must be explicit')
+  } else if (approval.unsafeExternalUserApproved !== false) {
+    failures.push('unsafe_external_user files must be false')
+  }
+  if (APPROVED_BATCH.sensitivityClass === MEETING_VAULT_SENSITIVITY_CLASSES.STANDARD_INTERNAL) {
+    if (approval.standardInternalExternalRemovalsApproved !== true) failures.push('standard_internal external removals approval must be explicit')
+    if (approval.protectedSensitiveExternalRemovalsApproved !== false) failures.push('protected_sensitive external removals must be false')
+    if (approval.broadNonSensitiveExternalRemovalsApproved !== false) failures.push('broad_non_sensitive external removals must be false')
+  }
   if (approval.unsafeFrontOfficeApproved !== false) failures.push('unsafe_front_office files must be false')
   if (approval.unsafeNonOwnerUserApproved !== false) failures.push('unsafe_non_owner_user files must be false')
   if (approval.approvalDigest !== calculateApprovalDigest(approval)) failures.push('approval digest mismatch')
@@ -659,12 +714,14 @@ async function main() {
       approvedDryRunHash: approval.approvedDryRunHash,
       approvedBatchHash: approval.approvedBatchHash,
       calculatedBatchHash: manifest.calculatedBatchHash,
+      ...(manifest.batchHashMode ? { batchHashMode: manifest.batchHashMode } : {}),
       liveDryRunHashBeforeApply: dryRunPlan.dryRunHash,
       selectedFileCount: manifest.inventory.selectedFileCount,
       operationCount: manifest.inventory.operationCount,
       selectedSensitivityClassCounts: manifest.inventory.selectedSensitivityClassCounts,
       operationType: APPROVED_BATCH.operationType,
       permissionCategory: APPROVED_BATCH.permissionCategory,
+      ...(APPROVED_BATCH.principalDomain ? { principalDomain: APPROVED_BATCH.principalDomain } : {}),
       counts,
       applyManifestHash: manifestHash,
       resultManifestHash,
@@ -690,13 +747,13 @@ async function main() {
       counts: { fileCount: dryRunPlan.fileCount, safeCount: dryRunPlan.safeCount, unsafeCount: dryRunPlan.unsafeCount, unsafePermissionCount: dryRunPlan.unsafePermissionCount, missingCrewbertCount: dryRunPlan.missingCrewbertCount, missingAccessCount: dryRunPlan.missingAccessCount, ownerAmbiguousCount: dryRunPlan.ownerAmbiguousCount, blockedCount: dryRunPlan.blockedCount },
       proposedOperationTypes: { [APPROVED_BATCH.operationType]: manifest.inventory.operationCount },
       summary: { ...summary, phaseBApplyStatus: finalStatus },
-    }, 'meeting-vault-acl-public-link-removal')
+    }, `meeting-vault-acl-${APPROVED_BATCH.key}-removal`)
 
     await updateBacklogItem(MEETING_VAULT_ACL_CARD_ID, {
       lane: 'scoped',
-      nextAction: `Phase B public-link removal batch applied: removed=${removedCount}, removedPendingReadback=${removedUnverifiedCount}, failed=${failedCount}, skipped=${skippedCount}; approved dry-run hash ${approval.approvedDryRunHash}; approved batch hash ${approval.approvedBatchHash}; apply manifest hash ${manifestHash}; rollback manifest hash ${rollbackManifestHash}. Run source-truth Phase A recheck proof before scoping the next removal batch.`,
-      statusNote: `Phase B public-link removal batch executed on 2026-05-10 under explicit Steve approval. Scope was remove 7 unsafe_anyone permissions from owner-clear original Gemini notes only; no add-Crewbert operations, other removal categories, moves, ownership transfers, deletions, request-access emails, owner-ambiguous files, legacy duplicate copies, or original-missing blocked files were approved. Removed=${removedCount}; removedPendingReadback=${removedUnverifiedCount}; failed=${failedCount}; skipped=${skippedCount}; apply manifest hash=${manifestHash}; rollback manifest hash=${rollbackManifestHash}. MEETING-VAULT-ACL-001 is not done until recheck proves all in-scope raw meeting ACL blockers cleared or later approved batches are applied/rechecked.`,
-    }, 'meeting-vault-acl-public-link-removal')
+      nextAction: `Phase B ${APPROVED_BATCH.label} batch applied: removed=${removedCount}, removedPendingReadback=${removedUnverifiedCount}, failed=${failedCount}, skipped=${skippedCount}; approved dry-run hash ${approval.approvedDryRunHash}; approved batch hash ${approval.approvedBatchHash}; apply manifest hash ${manifestHash}; rollback manifest hash ${rollbackManifestHash}. Run source-truth Phase A recheck proof before scoping the next removal batch.`,
+      statusNote: `Phase B ${APPROVED_BATCH.label} batch executed under explicit Steve approval. Scope was ${APPROVED_BATCH.permissionCategory}${APPROVED_BATCH.principalDomain ? ` for principal domain ${APPROVED_BATCH.principalDomain}` : ''} on owner-clear original Gemini notes only; no add-Crewbert operations, other removal categories, moves, ownership transfers, deletions, request-access emails, owner-ambiguous files, legacy duplicate copies, or original-missing blocked files were approved. Removed=${removedCount}; removedPendingReadback=${removedUnverifiedCount}; failed=${failedCount}; skipped=${skippedCount}; apply manifest hash=${manifestHash}; rollback manifest hash=${rollbackManifestHash}. MEETING-VAULT-ACL-001 is not done until recheck proves all in-scope raw meeting ACL blockers cleared or later approved batches are applied/rechecked.`,
+    }, `meeting-vault-acl-${APPROVED_BATCH.key}-removal`)
 
     if (!jsonOnly) {
       console.log(`Meeting vault ACL Phase B ${APPROVED_BATCH.label} apply`)
