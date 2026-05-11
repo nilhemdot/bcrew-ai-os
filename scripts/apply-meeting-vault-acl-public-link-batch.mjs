@@ -113,12 +113,35 @@ const APPROVED_BATCHES = {
     cleanupOfPriorResultManifestHash: '043e3ff004e3446a55a2f159c61e703d019377c193420e7ca1b72582a518558c',
     cleanupOfPriorResultManifestPath: 'store/meeting-vault-acl/MEETING-VAULT-ACL-001-source-truth-originals-standard-internal-zahndteam-external-user-removal-20260511180349.apply-result.json',
   },
+  standardInternalZahndteamSecondPartialCleanup: {
+    key: 'standard-internal-zahndteam-external-user-second-partial-cleanup',
+    name: 'source_truth_originals_standard_internal_zahndteam_external_user_second_partial_cleanup_v1',
+    slug: 'source-truth-originals-standard-internal-zahndteam-external-user-second-partial-cleanup',
+    label: 'standard-internal ZahndTeam external-user second partial cleanup',
+    dryRunHash: 'b5924001d6b641ea5920ef2c7f533f7ba0f189d7e9f69c418ad8d38f2cebb35b',
+    batchHash: '91342d964dd3ef72702fd30c522ad3b8744b722776584abb391ae58e6f7298c9',
+    sourceFileRole: MEETING_VAULT_SOURCE_FILE_ROLES.ORIGINAL,
+    sensitivityClass: MEETING_VAULT_SENSITIVITY_CLASSES.STANDARD_INTERNAL,
+    ownerState: 'owner_clear_only',
+    permissionCategory: 'unsafe_external_user',
+    principalDomain: 'zahndteam.ca',
+    operationType: DRIVE_PERMISSION_OPERATION_TYPES.REMOVE_UNSAFE_PERMISSION,
+    fileCount: 5,
+    operationCount: 12,
+    cleanupOfPriorApprovedDryRunHash: 'c3fdd4dd20bde5544c0b662fc1dfaf2de06d247a6a05523fc015fe0a434b3101',
+    cleanupOfPriorBatchHash: 'c5b9c93cdcc5f9e416957f73e7d3b80c6493619454ca41fb182063e8c23c2146',
+    cleanupOfPriorResultManifestHash: '7dd859298a8f6971b370f881247fe9071110dafdaac28abba2e6dbccb7eb8465',
+    cleanupOfPriorResultManifestPath: 'store/meeting-vault-acl/MEETING-VAULT-ACL-001-source-truth-originals-standard-internal-zahndteam-external-user-partial-cleanup-20260511210217.apply-result.json',
+    includeCleanupLineageInBatchHash: true,
+    noOwnerAmbiguousRows: true,
+  },
 }
 
 function selectApprovedBatch(argv = process.argv.slice(2)) {
   const args = parseArgs(argv)
   const key = String(args.batch || args.batchKey || '').trim().toLowerCase()
   if (['domain', 'unsafe_domain'].includes(key)) return APPROVED_BATCHES.domain
+  if (['standard-internal-zahndteam-second-partial-cleanup', 'zahndteam-second-partial-cleanup', 'standard_internal_zahndteam_external_user_second_partial_cleanup'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteamSecondPartialCleanup
   if (['standard-internal-zahndteam-partial-cleanup', 'zahndteam-partial-cleanup', 'standard_internal_zahndteam_external_user_partial_cleanup'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteamPartialCleanup
   if (['standard-internal-zahndteam', 'zahndteam', 'zahndteam_external_user', 'standard_internal_zahndteam_external_user'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteam
   if (key && !['public-link', 'public_link', 'unsafe_anyone'].includes(key)) {
@@ -346,6 +369,10 @@ function operationHashInput(operations) {
       policyVersion: MEETING_VAULT_POLICY_VERSION,
       batch: APPROVED_BATCH.name,
       cleanupSourceResultManifestHash: APPROVED_BATCH.cleanupOfPriorResultManifestHash,
+      ...(APPROVED_BATCH.includeCleanupLineageInBatchHash ? {
+        cleanupOfPriorApprovedDryRunHash: APPROVED_BATCH.cleanupOfPriorApprovedDryRunHash,
+        cleanupOfPriorBatchHash: APPROVED_BATCH.cleanupOfPriorBatchHash,
+      } : {}),
       operationType: APPROVED_BATCH.operationType,
       sourceFileRole: APPROVED_BATCH.sourceFileRole,
       sensitivityClass: APPROVED_BATCH.sensitivityClass,
@@ -354,6 +381,7 @@ function operationHashInput(operations) {
       principalDomain: APPROVED_BATCH.principalDomain,
       noFailedButDisappearedRows: true,
       noMissingAccessRows: true,
+      ...(APPROVED_BATCH.noOwnerAmbiguousRows ? { noOwnerAmbiguousRows: true } : {}),
       noProtectedSensitive: true,
       noBroadNonSensitive: true,
       noOtherDomains: true,
@@ -703,6 +731,7 @@ function assertApproval(approval, args) {
     if (approval.cleanupOfPriorResultManifestHash !== APPROVED_BATCH.cleanupOfPriorResultManifestHash) failures.push('cleanup source result manifest hash mismatch')
     if (approval.failedButDisappearedRowsApproved !== false) failures.push('failed-but-disappeared rows must be false')
     if (approval.missingAccessRowsApproved !== false) failures.push('missing-access rows must be false')
+    if (APPROVED_BATCH.noOwnerAmbiguousRows && approval.ownerAmbiguousRowsApproved !== false) failures.push('owner-ambiguous rows must be false')
   }
   if (Number(approval.approvedFileCount) !== APPROVED_BATCH.fileCount) failures.push('approved file count mismatch')
   if (Number(approval.approvedOperationCount) !== APPROVED_BATCH.operationCount) failures.push('approved operation count mismatch')

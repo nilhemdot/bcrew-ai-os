@@ -200,6 +200,12 @@ Current standard-internal ZahndTeam external-user state:
 - cleanup rollback-proven removals: `55`;
 - cleanup failed-row accounting: `12` still present, `1` failed-but-disappeared and not rollback-proven, `1` owner-ambiguous on fallback recheck;
 - latest recheck hash after the cleanup batch: `b5924001d6b641ea5920ef2c7f533f7ba0f189d7e9f69c418ad8d38f2cebb35b`.
+- second cleanup approved from dry-run hash `b5924001d6b641ea5920ef2c7f533f7ba0f189d7e9f69c418ad8d38f2cebb35b` and batch hash `91342d964dd3ef72702fd30c522ad3b8744b722776584abb391ae58e6f7298c9`;
+- second cleanup result: `0` clean removals, `12` failed rows;
+- second cleanup rollback-proven removals: `0`;
+- second cleanup failed-row accounting: `11` still present and now classified as `blocked/file-access-changed`, `1` failed-but-disappeared and not rollback-proven;
+- the `11` `blocked/file-access-changed` ZahndTeam rows must not be retried with the normal batch remover in this sprint; next action is to scope an owner-authority repair method;
+- latest recheck hash after the second cleanup attempt: `a44cb42580f4a938212599626b8b3112c2f06167f74f88b9b8c7ef388dbd6852`.
 
 No protected-sensitive removals, broad-non-sensitive removals, non-ZahndTeam external removals, add-Crewbert operations, request-access emails, moves, ownership transfers, deletions, owner-ambiguous files, legacy duplicate copies, or original-missing blocked files were approved or applied in this partial batch.
 

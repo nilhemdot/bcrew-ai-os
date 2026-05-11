@@ -219,3 +219,82 @@ Result:
 - source file roles: `776` original Gemini notes; `25` legacy Crewbert duplicate copies; `94` original-missing blocked refs.
 
 This cleanup does not close `MEETING-VAULT-ACL-001`.
+
+## Second Partial Cleanup Attempt
+
+Second cleanup approval:
+
+- Approval artifact: `docs/process/approvals/MEETING-VAULT-ACL-001-PHASE-B-STANDARD-INTERNAL-ZAHNDTEAM-EXTERNAL-USER-SECOND-PARTIAL-CLEANUP.json`
+- Approved plan snapshot: `docs/process/approved-plans/meeting-vault-acl-standard-internal-zahndteam-external-user-second-partial-cleanup-v1.md`
+- Approved dry-run hash: `b5924001d6b641ea5920ef2c7f533f7ba0f189d7e9f69c418ad8d38f2cebb35b`
+- Approved batch hash: `91342d964dd3ef72702fd30c522ad3b8744b722776584abb391ae58e6f7298c9`
+- Approved cleanup source result manifest hash: `7dd859298a8f6971b370f881247fe9071110dafdaac28abba2e6dbccb7eb8465`
+- Approved operation: `remove_unsafe_permission`
+- Approved permission category: `unsafe_external_user`
+- Approved principal domain: `zahndteam.ca`
+- Approved scope: `12` still-present rows on `5` `standard_internal` owner-clear original Gemini meeting files.
+- Not approved: failed-but-disappeared rows, owner-ambiguous rows, missing-access rows, `protected_sensitive` or `broad_non_sensitive` external removals, non-`zahndteam.ca` external-user removals, `add_crewbert_reader`, `unsafe_anyone`, `unsafe_domain`, `unsafe_front_office`, `unsafe_non_owner_user`, moves, ownership transfers, deletions, legacy Crewbert duplicate copies, original-missing blocked files, or request-access emails.
+
+Second cleanup apply manifest:
+
+- Local apply manifest hash: `0343e5ae16fe0ed7ab6fb7b92f639874a63ba758f1bccb21273b92866cda51c6`
+- Local result manifest hash: `8808fd10af655d8cf67c27420c1bf79cedc83b7163262704220a980992dccc7c`
+- Local rollback manifest hash: `f2c86476b8b2526ef2c7870049bafa64b514bb9d65454e890761bd1d0fcffdfb`
+- Operations attempted: `12`
+- Permissions removed with success result: `0`
+- Failed operations: `12`
+- Skipped operations: `0`
+- Request-access emails sent: `0`
+- Add-Crewbert operations applied: `0`
+- Other removal categories applied: `0`
+
+Second cleanup rollback proof:
+
+- Rollback operation count: `0`
+- No rollback operations exist because no second-cleanup removal was proven successful at mutation time.
+- The `12` failed second-cleanup rows do not have rollback operations.
+
+Second cleanup failure accounting:
+
+| Failure class | Rows | Reason | Cleanup meaning |
+| --- | ---: | --- | --- |
+| `file_access_changed_still_present` | `11` | The normal batch remover selected owner-clear rows, but every delete call failed; fallback read-only recheck still sees the unsafe row. Repeated normal-remover attempts are not clearing these rows. | Blocked. Requires owner-authority repair scoping before any further attempt. Do not retry through the normal batch remover in this sprint. |
+| `google_api_error_disappeared_unrollbackable` | `1` | Delete call returned failure, but fallback read-only recheck no longer sees the permission row. | Desired access state appears reached, but the row is not rollback-proven because the failed operation did not capture a rollback operation. |
+
+Second cleanup failed rows by file ref:
+
+| File ref hash | Failed rows | Current proof state |
+| --- | ---: | --- |
+| `file:52a1afe3cc4ebedf` | `8` | `7` blocked/file-access-changed still present, `1` failed-but-disappeared |
+| `file:6205c2420ef3eb31` | `1` | `1` blocked/file-access-changed still present |
+| `file:6f9561dbe8e53683` | `1` | `1` blocked/file-access-changed still present |
+| `file:81c664b6b0062b3b` | `1` | `1` blocked/file-access-changed still present |
+| `file:f7b3a73362a343a2` | `1` | `1` blocked/file-access-changed still present |
+
+Second cleanup accounting conclusion:
+
+- Second cleanup clean removals: `0`.
+- Second cleanup failed rows still present: `11`.
+- Second cleanup failed-but-disappeared rows: `1`, not rollback-proven.
+- The `11` still-present rows are classified as `blocked/file-access-changed`.
+- Required next action for those `11`: scope an owner-authority repair method. Do not retry them with the normal batch remover again in this sprint.
+- `MEETING-VAULT-ACL-001` remains open/blocking.
+
+## Recheck After Second Cleanup
+
+Command:
+
+```bash
+npm run process:meeting-vault-acl-check -- --json
+```
+
+Result:
+
+- status: `blocked_phase_b_required`
+- findings: `0`
+- recheck dry-run hash: `a44cb42580f4a938212599626b8b3112c2f06167f74f88b9b8c7ef388dbd6852`
+- current Phase A counts: `895` files; `357` safe; `438` unsafe; `4993` unsafe permissions; `5` missing Crewbert; `2` missing access; `225` owner-ambiguous; `94` blocked.
+- current proposed operation types: `4993` `remove_unsafe_permission`; `230` `add_crewbert_reader`; `225` `block_owner_ambiguous`; `2` `request_access`.
+- source file roles: `776` original Gemini notes; `25` legacy Crewbert duplicate copies; `94` original-missing blocked refs.
+
+This second cleanup does not close `MEETING-VAULT-ACL-001`.
