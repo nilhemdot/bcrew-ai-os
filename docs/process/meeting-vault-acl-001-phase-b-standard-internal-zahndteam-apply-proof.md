@@ -298,3 +298,60 @@ Result:
 - source file roles: `776` original Gemini notes; `25` legacy Crewbert duplicate copies; `94` original-missing blocked refs.
 
 This second cleanup does not close `MEETING-VAULT-ACL-001`.
+
+## Owner-Authority Direct Repair
+
+Status: applied and rechecked on 2026-05-11; `MEETING-VAULT-ACL-001` remains open/blocking.
+
+Scope:
+
+- Approval artifact: `docs/process/approvals/MEETING-VAULT-ACL-001-PHASE-B-STANDARD-INTERNAL-ZAHNDTEAM-OWNER-AUTHORITY-DIRECT-REPAIR.json`
+- Approved plan snapshot: `docs/process/approved-plans/meeting-vault-acl-standard-internal-zahndteam-owner-authority-direct-repair-v1.md`
+- Approved dry-run hash: `a44cb42580f4a938212599626b8b3112c2f06167f74f88b9b8c7ef388dbd6852`
+- Approved batch hash: `b42972a72b62065acbb9f9723eed71c7d12fa79d914a6c9d6f1284410e90f279`
+- Approved batch: `source_truth_originals_standard_internal_zahndteam_owner_authority_direct_permission_repair_v1`
+- Repair method: `delete_exact_direct_file_permissions_as_current_file_owner_via_delegated_domain_authority`
+- Cleanup source result manifest hash: `8808fd10af655d8cf67c27420c1bf79cedc83b7163262704220a980992dccc7c`
+- Approved sensitivity: `standard_internal`
+- Approved source file role: `original_gemini_note`
+- Approved operation: `remove_unsafe_permission`
+- Approved permission category: `unsafe_external_user`
+- Approved principal domain: `zahndteam.ca`
+- Approved file count: `1`
+- Approved permission count: `7`
+- Approved owner authority account hash: `acct:cb0eaa8879099ce7`
+- Not approved: normal batch remover, Gmail batch, inherited permission rows, Clare-owned rows, other domains, `protected_sensitive` or `broad_non_sensitive` external removals, `add_crewbert_reader`, `unsafe_anyone`, `unsafe_domain`, `unsafe_front_office`, `unsafe_non_owner_user`, moves, ownership transfers, deletions, legacy Crewbert duplicate copies, original-missing blocked files, or request-access emails.
+
+Apply result:
+
+- Local apply manifest hash: `b99e677b202b0ba6b7aa9c3709a11ed2bb082b9de4070af17acab6cbe2acbaaa`
+- Local result manifest hash: `983c0953b76d8cd5e9a15e25ee07f88c751b2416c602f52057098c27d241d2e9`
+- Local rollback manifest hash: `ac12ca7df3341435ae6584910019887122d7969ac5a8dacfa92843b2ed77b553`
+- Operations attempted: `7`
+- Permissions removed with success result: `7`
+- Failed operations: `0`
+- Skipped operations: `0`
+- Request-access emails sent: `0`
+- Add-Crewbert operations applied: `0`
+- Other removal categories applied: `0`
+
+Rollback proof:
+
+- Rollback operation count: `7`
+- Rollback operation type: recreate only the exact direct `zahndteam.ca` external-user permissions removed with success result by this owner-authority repair batch.
+- Rollback proof is metadata-only in tracked docs; raw local manifests remain under ignored `store/meeting-vault-acl/`.
+
+Recheck proof:
+
+- Command: `npm run process:meeting-vault-acl-check -- --json`
+- Result status: `blocked_phase_b_required`
+- Recheck dry-run hash: `277a4fafa52d3aabfb4bd4ecd902fc2e84fe96507a570677af7a1ccc2fab427b`
+- Phase A counts after repair: `895` files; `358` safe; `437` unsafe; `4986` unsafe permissions; `5` missing Crewbert; `2` missing access; `225` owner-ambiguous; `94` blocked.
+- Targeted readback: `7` scoped direct permission hashes cleared; `0` scoped direct permission hashes still present.
+- Out-of-scope inherited/Clare rows: `4` remain present and untouched.
+
+Owner-authority repair conclusion:
+
+- The `7` direct owner-authority rows are cleanly removed and rollback-proven.
+- The `4` remaining ZahndTeam rows are not part of this batch. They have inherited permission details and require a separate inherited/parent-source or limited-access repair scope before any mutation attempt.
+- `MEETING-VAULT-ACL-001` remains open/blocking.

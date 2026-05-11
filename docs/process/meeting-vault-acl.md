@@ -205,7 +205,14 @@ Current standard-internal ZahndTeam external-user state:
 - second cleanup rollback-proven removals: `0`;
 - second cleanup failed-row accounting: `11` still present and now classified as `blocked/file-access-changed`, `1` failed-but-disappeared and not rollback-proven;
 - the `11` `blocked/file-access-changed` ZahndTeam rows must not be retried with the normal batch remover in this sprint; next action is to scope an owner-authority repair method;
-- latest recheck hash after the second cleanup attempt: `a44cb42580f4a938212599626b8b3112c2f06167f74f88b9b8c7ef388dbd6852`.
+- latest recheck hash after the second cleanup attempt: `a44cb42580f4a938212599626b8b3112c2f06167f74f88b9b8c7ef388dbd6852`;
+- owner-authority direct repair approved from dry-run hash `a44cb42580f4a938212599626b8b3112c2f06167f74f88b9b8c7ef388dbd6852` and batch hash `b42972a72b62065acbb9f9723eed71c7d12fa79d914a6c9d6f1284410e90f279`;
+- owner-authority direct repair result: `7` clean removals from `1` standard-internal owner-clear original Gemini note;
+- owner-authority direct repair rollback-proven removals: `7`;
+- owner-authority direct repair manifest hashes: apply `b99e677b202b0ba6b7aa9c3709a11ed2bb082b9de4070af17acab6cbe2acbaaa`, result `983c0953b76d8cd5e9a15e25ee07f88c751b2416c602f52057098c27d241d2e9`, rollback `ac12ca7df3341435ae6584910019887122d7969ac5a8dacfa92843b2ed77b553`;
+- targeted readback proved the `7` scoped direct permission hashes are gone;
+- `4` ZahndTeam rows remain present and untouched because they include inherited permission details and require a separate inherited/parent-source or limited-access repair scope;
+- latest recheck hash after the owner-authority direct repair: `277a4fafa52d3aabfb4bd4ecd902fc2e84fe96507a570677af7a1ccc2fab427b`.
 
 No protected-sensitive removals, broad-non-sensitive removals, non-ZahndTeam external removals, add-Crewbert operations, request-access emails, moves, ownership transfers, deletions, owner-ambiguous files, legacy duplicate copies, or original-missing blocked files were approved or applied in this partial batch.
 

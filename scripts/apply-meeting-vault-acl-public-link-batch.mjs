@@ -135,12 +135,42 @@ const APPROVED_BATCHES = {
     includeCleanupLineageInBatchHash: true,
     noOwnerAmbiguousRows: true,
   },
+  standardInternalZahndteamOwnerAuthorityDirectRepair: {
+    key: 'standard-internal-zahndteam-owner-authority-direct-repair',
+    name: 'source_truth_originals_standard_internal_zahndteam_owner_authority_direct_permission_repair_v1',
+    slug: 'source-truth-originals-standard-internal-zahndteam-owner-authority-direct-permission-repair',
+    label: 'standard-internal ZahndTeam owner-authority direct-permission repair',
+    dryRunHash: 'a44cb42580f4a938212599626b8b3112c2f06167f74f88b9b8c7ef388dbd6852',
+    batchHash: 'b42972a72b62065acbb9f9723eed71c7d12fa79d914a6c9d6f1284410e90f279',
+    sourceFileRole: MEETING_VAULT_SOURCE_FILE_ROLES.ORIGINAL,
+    sensitivityClass: MEETING_VAULT_SENSITIVITY_CLASSES.STANDARD_INTERNAL,
+    ownerState: 'owner_clear_only',
+    permissionCategory: 'unsafe_external_user',
+    principalDomain: 'zahndteam.ca',
+    operationType: DRIVE_PERMISSION_OPERATION_TYPES.REMOVE_UNSAFE_PERMISSION,
+    fileCount: 1,
+    operationCount: 7,
+    cleanupOfPriorApprovedDryRunHash: 'b5924001d6b641ea5920ef2c7f533f7ba0f189d7e9f69c418ad8d38f2cebb35b',
+    cleanupOfPriorBatchHash: '91342d964dd3ef72702fd30c522ad3b8744b722776584abb391ae58e6f7298c9',
+    cleanupOfPriorResultManifestHash: '8808fd10af655d8cf67c27420c1bf79cedc83b7163262704220a980992dccc7c',
+    cleanupOfPriorResultManifestPath: 'store/meeting-vault-acl/MEETING-VAULT-ACL-001-source-truth-originals-standard-internal-zahndteam-external-user-second-partial-cleanup-20260511211809.apply-result.json',
+    operationHashMode: 'owner_authority_direct_repair',
+    repairMethod: 'delete_exact_direct_file_permissions_as_current_file_owner_via_delegated_domain_authority',
+    ownerAuthorityOnly: true,
+    ownerAccountHash: 'acct:cb0eaa8879099ce7',
+    directPermissionsOnly: true,
+    includePermissionDetailsInSelection: true,
+    noNormalBatchRemover: true,
+    noGmailBatch: true,
+    noInheritedPermissionRows: true,
+  },
 }
 
 function selectApprovedBatch(argv = process.argv.slice(2)) {
   const args = parseArgs(argv)
   const key = String(args.batch || args.batchKey || '').trim().toLowerCase()
   if (['domain', 'unsafe_domain'].includes(key)) return APPROVED_BATCHES.domain
+  if (['standard-internal-zahndteam-owner-authority-direct-repair', 'zahndteam-owner-authority-direct-repair', 'standard_internal_zahndteam_owner_authority_direct_repair'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteamOwnerAuthorityDirectRepair
   if (['standard-internal-zahndteam-second-partial-cleanup', 'zahndteam-second-partial-cleanup', 'standard_internal_zahndteam_external_user_second_partial_cleanup'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteamSecondPartialCleanup
   if (['standard-internal-zahndteam-partial-cleanup', 'zahndteam-partial-cleanup', 'standard_internal_zahndteam_external_user_partial_cleanup'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteamPartialCleanup
   if (['standard-internal-zahndteam', 'zahndteam', 'zahndteam_external_user', 'standard_internal_zahndteam_external_user'].includes(key)) return APPROVED_BATCHES.standardInternalZahndteam
@@ -227,12 +257,12 @@ function metadataPath(filePath) {
 }
 
 async function listDrivePermissionsForBatch(userEmail, fileId) {
-  if (APPROVED_BATCH.permissionCategory !== 'unsafe_domain') {
+  if (APPROVED_BATCH.permissionCategory !== 'unsafe_domain' && !APPROVED_BATCH.includePermissionDetailsInSelection) {
     return listDrivePermissions(userEmail, fileId)
   }
   const url =
     `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/permissions` +
-    '?supportsAllDrives=true&fields=permissions(id,type,role,emailAddress,domain,displayName,deleted,pendingOwner)'
+    '?supportsAllDrives=true&fields=permissions(id,type,role,emailAddress,domain,displayName,deleted,pendingOwner,permissionDetails(inherited,inheritedFrom,permissionType,role))'
   const data = await googleJsonFetch(userEmail, url, { scopes: [GOOGLE_SCOPES.drive] })
   return Array.isArray(data.permissions) ? data.permissions : []
 }
@@ -363,6 +393,52 @@ async function buildPreflightRecords({ candidateLimit, concurrency }) {
 }
 
 function operationHashInput(operations) {
+  if (APPROVED_BATCH.operationHashMode === 'owner_authority_direct_repair') {
+    return {
+      dryRunHash: APPROVED_BATCH.dryRunHash,
+      policyVersion: MEETING_VAULT_POLICY_VERSION,
+      batch: APPROVED_BATCH.name,
+      repairMethod: APPROVED_BATCH.repairMethod,
+      blockedSourceResultManifestHash: APPROVED_BATCH.cleanupOfPriorResultManifestHash,
+      priorApprovedBatchHash: APPROVED_BATCH.cleanupOfPriorBatchHash,
+      operationType: APPROVED_BATCH.operationType,
+      permissionCategory: APPROVED_BATCH.permissionCategory,
+      principalDomain: APPROVED_BATCH.principalDomain,
+      sensitivityClass: APPROVED_BATCH.sensitivityClass,
+      sourceFileRole: APPROVED_BATCH.sourceFileRole,
+      ownerAuthorityOnly: true,
+      noNormalBatchRemover: true,
+      noGmailBatch: true,
+      noOtherDomains: true,
+      noProtectedSensitive: true,
+      noBroadNonSensitive: true,
+      noAddCrewbertReader: true,
+      noUnsafeNonOwnerUser: true,
+      noMoves: true,
+      noOwnershipTransfers: true,
+      noFileDeletions: true,
+      noRequestAccessEmails: true,
+      noOwnerAmbiguousFiles: true,
+      noLegacyCrewbertDuplicateCopies: true,
+      noOriginalMissingBlockedFiles: true,
+      directPermissionsOnly: true,
+      noInheritedPermissionRows: true,
+      fileCount: new Set(operations.map(operation => operation.fileRefHash)).size,
+      operationCount: operations.length,
+      operations: operations.map(operation => ({
+        fileRefHash: operation.fileRefHash,
+        ownerAccountHash: operation.ownerAccountHash,
+        previousSourceAccountHash: operation.previousSourceAccountHash,
+        repairActorHash: operation.repairActorHash,
+        permissionHash: operation.permissionHash,
+        permissionEmailHash: operation.permissionEmailHash,
+        role: operation.role,
+        type: operation.type,
+        category: operation.permissionCategory,
+        permissionDetails: operation.permissionDetails || [],
+      })).sort((left, right) => `${left.fileRefHash}:${left.permissionHash}`.localeCompare(`${right.fileRefHash}:${right.permissionHash}`)),
+    }
+  }
   if (APPROVED_BATCH.cleanupOfPriorResultManifestHash) {
     return {
       dryRunHash: APPROVED_BATCH.dryRunHash,
@@ -448,7 +524,7 @@ function operationHashInput(operations) {
   }
 }
 
-async function loadCleanupFailedRowKeys() {
+async function loadCleanupFailedRows() {
   if (!APPROVED_BATCH.cleanupOfPriorResultManifestHash) return null
   const resultManifest = await readJson(path.resolve(APPROVED_BATCH.cleanupOfPriorResultManifestPath))
   const manifestHash = hashResultManifest(resultManifest)
@@ -461,9 +537,33 @@ async function loadCleanupFailedRowKeys() {
   if (resultManifest.approvedBatchHash !== APPROVED_BATCH.cleanupOfPriorBatchHash) {
     throw new Error('Cleanup fail-closed: prior result manifest batch hash does not match approved cleanup source.')
   }
-  return new Set((Array.isArray(resultManifest.results) ? resultManifest.results : [])
+  return new Map((Array.isArray(resultManifest.results) ? resultManifest.results : [])
     .filter(result => result.status === 'failed')
-    .map(result => `${result.fileRefHash}:${result.permissionHash}`))
+    .map(result => [`${result.fileRefHash}:${result.permissionHash}`, result]))
+}
+
+async function loadCleanupFailedRowKeys() {
+  const failedRows = await loadCleanupFailedRows()
+  if (!failedRows) return null
+  return new Set(failedRows.keys())
+}
+
+function permissionDetailsForProof(permission = {}) {
+  return (Array.isArray(permission.permissionDetails) ? permission.permissionDetails : [])
+    .map(detail => ({
+      inherited: Boolean(detail?.inherited),
+      role: String(detail?.role || '').trim().toLowerCase(),
+      permissionType: String(detail?.permissionType || '').trim().toLowerCase(),
+    }))
+}
+
+function permissionHasInheritedDetail(permission = {}) {
+  return permissionDetailsForProof(permission).some(detail => detail.inherited)
+}
+
+function permissionHasDirectDetail(permission = {}) {
+  const details = permissionDetailsForProof(permission)
+  return !details.length || details.some(detail => !detail.inherited)
 }
 
 async function selectApprovedOperations(records) {
@@ -475,22 +575,33 @@ async function selectApprovedOperations(records) {
     Number(record.preflight.permissionSummary?.unsafeCount || 0) > 0
   )
   const operations = []
-  const cleanupFailedRowKeys = await loadCleanupFailedRowKeys()
+  const cleanupFailedRows = await loadCleanupFailedRows()
+  const cleanupFailedRowKeys = cleanupFailedRows ? new Set(cleanupFailedRows.keys()) : null
   await mapWithConcurrency(originalUnsafeRecords, 8, async record => {
+    if (APPROVED_BATCH.ownerAuthorityOnly && record.preflight.ownerHash !== APPROVED_BATCH.ownerAccountHash) return
     const permissions = await listDrivePermissionsForBatch(record.preflight.readableAccount || record.file.sourceAccount, record.file.fileId)
     for (const permission of permissions) {
       const classified = classifyDrivePermission(permission, record.policy.driveAccessPolicy)
       if (classified.operationType !== APPROVED_BATCH.operationType) continue
       if (classified.category !== APPROVED_BATCH.permissionCategory) continue
-      if (cleanupFailedRowKeys && !cleanupFailedRowKeys.has(`${record.file.fileRefHash}:${classified.permissionHash}`)) continue
+      const rowKey = `${record.file.fileRefHash}:${classified.permissionHash}`
+      if (cleanupFailedRowKeys && !cleanupFailedRowKeys.has(rowKey)) continue
+      const cleanupFailedRow = cleanupFailedRows?.get(rowKey) || null
       const principalDomain = emailDomain(permission.emailAddress)
       if (APPROVED_BATCH.principalDomain && principalDomain !== APPROVED_BATCH.principalDomain) continue
+      if (APPROVED_BATCH.directPermissionsOnly) {
+        if (permissionHasInheritedDetail(permission) || !permissionHasDirectDetail(permission)) continue
+      }
+      const repairActor = record.preflight.readableAccount || record.file.sourceAccount
       operations.push({
         fileId: record.file.fileId,
         fileRefHash: record.file.fileRefHash,
-        sourceAccount: record.preflight.readableAccount || record.file.sourceAccount,
-        sourceAccountHash: record.preflight.sourceAccountHash,
+        sourceAccount: repairActor,
+        sourceAccountHash: hashProofValue(normalizeEmail(repairActor), 'acct'),
+        previousSourceAccountHash: cleanupFailedRow?.sourceAccountHash || null,
         ownerHash: record.preflight.ownerHash,
+        ownerAccountHash: record.preflight.ownerHash,
+        repairActorHash: hashProofValue(normalizeEmail(repairActor), 'acct'),
         sensitivityClass: record.policy.sensitivityClass,
         sourceFileRole: record.file.sourceFileRole,
         operationType: APPROVED_BATCH.operationType,
@@ -503,6 +614,7 @@ async function selectApprovedOperations(records) {
         domain: permission.domain || null,
         role: classified.role,
         type: classified.type,
+        permissionDetails: permissionDetailsForProof(permission),
       })
     }
   })
@@ -597,6 +709,9 @@ async function applyOperation(operation) {
   if (classified.category !== APPROVED_BATCH.permissionCategory || classified.operationType !== APPROVED_BATCH.operationType) {
     throw new Error('Permission no longer matches the approved unsafe_anyone removal batch.')
   }
+  if (APPROVED_BATCH.directPermissionsOnly && (permissionHasInheritedDetail(permission) || !permissionHasDirectDetail(permission))) {
+    throw new Error('Permission no longer matches the approved direct-permission-only owner-authority repair batch.')
+  }
   if (APPROVED_BATCH.principalDomain && emailDomain(permission.emailAddress) !== APPROVED_BATCH.principalDomain) {
     throw new Error('Permission no longer matches the approved principal domain.')
   }
@@ -615,17 +730,19 @@ async function applyOperation(operation) {
     beforePermissionSnapshotHash: hashObject(beforePermissions),
     afterPermissionSnapshotHash: hashObject(afterPermissions),
     rollbackAvailable: true,
-    rollbackOperation: {
-      operationType: 'recreate_removed_permission',
-      fileId: operation.fileId,
-      sourceAccount: operation.sourceAccount,
+      rollbackOperation: {
+        operationType: 'recreate_removed_permission',
+        fileId: operation.fileId,
+        sourceAccount: operation.sourceAccount,
       role: operation.role,
       type: operation.type,
       emailAddress: operation.permissionEmail || null,
       domain: operation.domain || null,
-      fileRefHash: operation.fileRefHash,
-      permissionHash: operation.permissionHash,
-    },
+        fileRefHash: operation.fileRefHash,
+        permissionHash: operation.permissionHash,
+        ownerAccountHash: operation.ownerAccountHash || null,
+        repairActorHash: operation.repairActorHash || null,
+      },
   }
 }
 
@@ -732,6 +849,14 @@ function assertApproval(approval, args) {
     if (approval.failedButDisappearedRowsApproved !== false) failures.push('failed-but-disappeared rows must be false')
     if (approval.missingAccessRowsApproved !== false) failures.push('missing-access rows must be false')
     if (APPROVED_BATCH.noOwnerAmbiguousRows && approval.ownerAmbiguousRowsApproved !== false) failures.push('owner-ambiguous rows must be false')
+  }
+  if (APPROVED_BATCH.ownerAuthorityOnly) {
+    if (approval.ownerAuthorityOnlyApproved !== true) failures.push('owner-authority repair approval must be explicit')
+    if (approval.normalBatchRemoverApproved !== false) failures.push('normal batch remover must be false')
+    if (approval.gmailBatchApproved !== false) failures.push('Gmail batch must be false')
+    if (approval.inheritedPermissionRowsApproved !== false) failures.push('inherited permission rows must be false')
+    if (approval.approvedOwnerAccountHash !== APPROVED_BATCH.ownerAccountHash) failures.push('approved owner account hash mismatch')
+    if (approval.approvedRepairMethod !== APPROVED_BATCH.repairMethod) failures.push('approved repair method mismatch')
   }
   if (Number(approval.approvedFileCount) !== APPROVED_BATCH.fileCount) failures.push('approved file count mismatch')
   if (Number(approval.approvedOperationCount) !== APPROVED_BATCH.operationCount) failures.push('approved operation count mismatch')
