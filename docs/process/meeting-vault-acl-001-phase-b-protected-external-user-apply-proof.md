@@ -97,7 +97,67 @@ Accounting conclusion:
 - Those `2` rows are not counted as rollback-proven because no rollback operation was captured for failed rows.
 - The batch is therefore not cleanly complete and must remain blocked until the remaining `8` protected-sensitive external permissions are separately handled or explicitly accepted as blocked.
 
-## Recheck
+## 8-Row Cleanup Accounting
+
+Status: partial cleanup applied and rechecked on 2026-05-11.
+
+Approved cleanup scope:
+
+- approved dry-run hash: `78bd36deb206bcf0803b60db69d4b1c8a97e1fa0067d4ab6eee78d26d63f7702`
+- approved batch hash: `a8e211b59d47301747b080c26785724235d6379bb4e9d74ee88ac8a37ec7b37b`
+- cleanup source: remaining permission rows from prior partial batch result manifest hash `dcf5088822f7205e3a9c3082217932f921b9f36771734398f594c54de21241f4`
+- approved scope: `8` `unsafe_external_user` permissions on `2` `protected_sensitive` owner-clear original Gemini meeting files
+- not approved: `standard_internal` or `broad_non_sensitive` external removals, add-Crewbert operations, `unsafe_anyone`, `unsafe_domain`, `unsafe_front_office`, `unsafe_non_owner_user`, moves, ownership transfers, deletions, owner-ambiguous files, legacy Crewbert duplicate copies, original-missing blocked files, or request-access emails.
+
+Cleanup manifests:
+
+- local apply manifest hash: `a77a30a9bc94c8a118c197bcb0fb65626b43b28ca5a90c88821e57ba79b44ab8`
+- local result manifest hash: `196493d0862f6a12d5285e9173fc85d64c60b478b82643c812c624e718d5dc6d`
+- local rollback manifest hash: `1827ec7da42844e491f7f73aba0e494fe2d890f4e92278d7fd1ab16bd48c8a85`
+- operations attempted: `8`
+- clean removals: `4`
+- failed operations: `4`
+- rollback operation count: `4`
+
+Clean removals:
+
+| File ref hash | Permission hash | Rollback-proven |
+| --- | --- | --- |
+| `file:5e9cab2f5df097f5` | `perm:2cbb6ffae1d5921a` | yes |
+| `file:5e9cab2f5df097f5` | `perm:797926abd453f07d` | yes |
+| `file:7069ddea5d7a130d` | `perm:2cbb6ffae1d5921a` | yes |
+| `file:7069ddea5d7a130d` | `perm:797926abd453f07d` | yes |
+
+Failed but disappeared on recheck:
+
+| File ref hash | Permission hash | Failure class | Rollback-proven |
+| --- | --- | --- | --- |
+| `file:5e9cab2f5df097f5` | `perm:ce4ec99df819aa64` | `file_access_changed` | no |
+| `file:7069ddea5d7a130d` | `perm:ce4ec99df819aa64` | `file_access_changed` | no |
+
+Still-present unsafe rows:
+
+| File ref hash | Permission hash | Failure class | Recheck state |
+| --- | --- | --- | --- |
+| `file:5e9cab2f5df097f5` | `perm:a0546dd06fbcb4aa` | `file_access_changed` | still present |
+| `file:7069ddea5d7a130d` | `perm:a0546dd06fbcb4aa` | `file_access_changed` | still present |
+
+Failure class summary:
+
+- `file_access_changed`: `4` failed cleanup rows
+- `permission_not_found`: `0`
+- `insufficient_permission`: `0`
+- `inherited_or_shared_drive_permission`: `0`
+- `rate_or_api_transient`: `0`
+- `other`: `0`
+
+Cleanup accounting conclusion:
+
+- `4` cleanup rows are clean removals and rollback-proven.
+- `2` cleanup rows reached the desired removed state despite failed API results, but they are not rollback-proven.
+- `2` cleanup rows remain unsafe and still block `MEETING-VAULT-ACL-001`.
+
+## Latest Recheck
 
 Command:
 
@@ -109,12 +169,12 @@ Result:
 
 - status: `blocked_phase_b_required`
 - findings: `0`
-- recheck dry-run hash: `78bd36deb206bcf0803b60db69d4b1c8a97e1fa0067d4ab6eee78d26d63f7702`
-- protected-sensitive owner-clear original `unsafe_external_user` remaining: `8` operations / `2` files
+- recheck dry-run hash after the 8-row cleanup: `353fe3eb298311510c5cbebf8973fd82f7cd478cde6e30fa06b2099eb59207d2`
+- protected-sensitive owner-clear original `unsafe_external_user` remaining from this cleanup set: `2` operations / `2` files
 - `standard_internal` owner-clear original `unsafe_external_user` remaining: `370` operations / `95` files
 - `broad_non_sensitive` owner-clear original `unsafe_external_user` remaining: `63` operations / `13` files
 - remaining owner-clear original removal categories:
-  - `unsafe_external_user`: `441`
+  - `unsafe_external_user`: not cleared; exact next scope must be recalculated from dry-run hash `353fe3eb298311510c5cbebf8973fd82f7cd478cde6e30fa06b2099eb59207d2`
   - `unsafe_non_owner_user`: `1786`
 
 Readiness remains blocked on `MEETING-VAULT-ACL-001`; this partial batch does not close the card.
