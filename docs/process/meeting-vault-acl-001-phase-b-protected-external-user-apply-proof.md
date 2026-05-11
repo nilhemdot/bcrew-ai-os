@@ -1,6 +1,6 @@
 # MEETING-VAULT-ACL-001 Phase B Protected External-User Apply Proof
 
-Status: partially applied and rechecked on 2026-05-11.
+Status: protected-sensitive external-user cleanup applied and rechecked on 2026-05-11; `MEETING-VAULT-ACL-001` remains open/blocking.
 
 This proof is metadata-only. Raw Drive file IDs, permission IDs, principals, and per-file manifests are stored only under ignored local storage at `store/meeting-vault-acl/`.
 
@@ -157,6 +157,42 @@ Cleanup accounting conclusion:
 - `2` cleanup rows reached the desired removed state despite failed API results, but they are not rollback-proven.
 - `2` cleanup rows remain unsafe and still block `MEETING-VAULT-ACL-001`.
 
+## 2-Row Second Cleanup Accounting
+
+Status: second cleanup applied and rechecked on 2026-05-11.
+
+Approved second cleanup scope:
+
+- approved dry-run hash: `353fe3eb298311510c5cbebf8973fd82f7cd478cde6e30fa06b2099eb59207d2`
+- approved batch hash: `ec32b9b0bad0b8328d7cda35dfdedb4bcd899462033de121a808c45790cbb7ce`
+- cleanup source: remaining permission rows from prior cleanup result manifest hash `196493d0862f6a12d5285e9173fc85d64c60b478b82643c812c624e718d5dc6d`
+- approved scope: `2` `unsafe_external_user` permissions on `2` `protected_sensitive` owner-clear original Gemini meeting files
+- not approved: `standard_internal` or `broad_non_sensitive` external removals, add-Crewbert operations, `unsafe_anyone`, `unsafe_domain`, `unsafe_front_office`, `unsafe_non_owner_user`, moves, ownership transfers, deletions, owner-ambiguous files, legacy Crewbert duplicate copies, original-missing blocked files, or request-access emails.
+
+Second cleanup manifests:
+
+- local apply manifest hash: `34a915fd4da4022dd57750fd4d06f59f8e0b94eac13a44f202c6cb179430d2c5`
+- local result manifest hash: `a970a16868edb7fb43972c2a010d3cc581d16a6bd16d0aa135ecf117c4faf715`
+- local rollback manifest hash: `5ab48d961b1b17360ab8a42d38e1d7a5686123d63046e67ac684d1c1188afefd`
+- operations attempted: `2`
+- clean removals: `2`
+- failed operations: `0`
+- rollback operation count: `2`
+
+Clean removals:
+
+| File ref hash | Permission hash | Rollback-proven |
+| --- | --- | --- |
+| `file:5e9cab2f5df097f5` | `perm:a0546dd06fbcb4aa` | yes |
+| `file:7069ddea5d7a130d` | `perm:a0546dd06fbcb4aa` | yes |
+
+Second cleanup accounting conclusion:
+
+- The `2` still-present protected-sensitive external-user rows from the prior cleanup proof were removed.
+- The `2` removals are rollback-proven by the local ignored rollback manifest.
+- No standard/internal or broad/non-sensitive rows were touched.
+- No request-access emails, moves, ownership transfers, deletions, or add-Crewbert operations were sent/applied.
+
 ## Latest Recheck
 
 Command:
@@ -169,12 +205,10 @@ Result:
 
 - status: `blocked_phase_b_required`
 - findings: `0`
-- recheck dry-run hash after the 8-row cleanup: `353fe3eb298311510c5cbebf8973fd82f7cd478cde6e30fa06b2099eb59207d2`
-- protected-sensitive owner-clear original `unsafe_external_user` remaining from this cleanup set: `2` operations / `2` files
-- `standard_internal` owner-clear original `unsafe_external_user` remaining: `370` operations / `95` files
-- `broad_non_sensitive` owner-clear original `unsafe_external_user` remaining: `63` operations / `13` files
-- remaining owner-clear original removal categories:
-  - `unsafe_external_user`: not cleared; exact next scope must be recalculated from dry-run hash `353fe3eb298311510c5cbebf8973fd82f7cd478cde6e30fa06b2099eb59207d2`
-  - `unsafe_non_owner_user`: `1786`
+- recheck dry-run hash after the 2-row second cleanup: `5c61d76a66bd742d218013ebff8a394584a73ec8bba2709c17308e07fdef4830`
+- protected-sensitive owner-clear original `unsafe_external_user` rows from this cleanup set remaining: `0`
+- current Phase A counts: `898` files; `286` safe; `518` unsafe; `5335` unsafe permissions; `0` missing Crewbert; `0` missing access; `225` owner-ambiguous; `94` blocked.
+- current proposed operation types: `5335` `remove_unsafe_permission`; `225` `add_crewbert_reader`; `225` `block_owner_ambiguous`.
+- source file roles: `771` original Gemini notes; `33` legacy Crewbert duplicate copies; `94` original-missing blocked refs.
 
-Readiness remains blocked on `MEETING-VAULT-ACL-001`; this partial batch does not close the card.
+Readiness remains blocked on `MEETING-VAULT-ACL-001`; this cleanup does not close the card.
