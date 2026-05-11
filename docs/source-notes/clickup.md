@@ -17,7 +17,7 @@ Current best read:
 Known live surfaces Steve flagged:
 
 - Agent Roster list `901113292355`
-- Agent Onboarding list `901113487352`
+- On/Offboarding list `901111775681`
 - Culture space / folder `90117028331`
 - Operations / Deals / Deal Data Entry list `901112153939`
 
@@ -25,9 +25,17 @@ V1 governed ClickUp source boundary:
 
 - `901112153939` — Operations / Deals / `Deal Data Entry`
 - `901113292355` — Operations / Agent Management / `Agent Roster`
-- `901113487352` — Operations / Agent Management / `Agent Onboarding/Offboarding`
+- `901111775681` — Sales / Agent Management / `On/Offboarding`
 - these are the only ClickUp lists treated as validated Foundation sources for the current Owners/Ops closeout phase
 - other ClickUp boards/spaces can be reviewed later, but they should not affect v1 source truth right now
+
+2026-05-11 source-drift correction:
+
+- old list `901113487352` — Operations / Agent Management / `Agent Onboarding/Offboarding` is still API-readable by ID but is marked `deleted: true`
+- the deleted list has `0` tasks and only generic task-management fields, so it is no longer a live source boundary
+- current active on/offboarding source is `901111775681` — Sales / Agent Management / `On/Offboarding`
+- the active list has real tasks, explicit onboarding/offboarding statuses, and the current onboarding handoff fields
+- this correction is a source-boundary fix, not a Meeting Vault bypass and not a Drive-permission approval
 
 Repeatable validation:
 
@@ -113,6 +121,7 @@ AIOS cleanup applied on 2026-04-25:
   - required roster/onboarding-NPS fields exist for source validation
   - recommended fields still missing from the visible roster source contract: `Contract Status`, `Membership Status`, `Production Roster Status`, and `Onboarding Stage`
   - ClickUp's public API path verifies field existence but does not safely delete custom-field definitions; field cleanup should be done through ClickUp's Custom Field Manager / hide-from-view controls unless a dedicated field-delete path is confirmed
+  - the previous Operations `Agent Onboarding/Offboarding` source note was superseded on 2026-05-11 because the list is now deleted upstream
 - no old ClickUp fields were deleted; finance/math clutter should be hidden from active views first and deleted only after backup/approval
 
 Roster cleanup recommendation:
@@ -134,9 +143,9 @@ Roster cleanup recommendation:
 
 Pipeline cleanup recommendation:
 
-- keep on Agent Onboarding/Offboarding:
+- keep on On/Offboarding:
   - pipeline status, onboarding start date, recruiter/source, contact details, notes, checklist/progress, contract handoff fields, and any fields Carson/Clare actively use to move a person through recruiting/onboarding/offboarding
-- hide/delete from Agent Onboarding/Offboarding active views:
+- hide/delete from On/Offboarding active views:
   - deal/transaction economics and duplicated Deal Data Entry fields
   - old template/rock/task-management clutter that is blank and not part of the onboarding handoff
   - duplicated split/deal math fields that belong in Owners or the Agent Roster contract layer
