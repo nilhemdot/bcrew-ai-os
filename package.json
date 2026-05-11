@@ -103,6 +103,7 @@
     "process:meeting-vault-acl-public-link-batch": "node --env-file-if-exists=.env scripts/apply-meeting-vault-acl-public-link-batch.mjs",
     "process:meeting-vault-acl-domain-batch": "node --env-file-if-exists=.env scripts/apply-meeting-vault-acl-public-link-batch.mjs --batch=domain",
     "process:meeting-vault-acl-zahndteam-batch": "node --env-file-if-exists=.env scripts/apply-meeting-vault-acl-public-link-batch.mjs --batch=standard-internal-zahndteam",
+    "process:meeting-vault-auto-enforcement-check": "node --env-file-if-exists=.env scripts/process-meeting-vault-auto-enforcement-check.mjs",
     "process:foundation-sprint-system-check": "node --env-file-if-exists=.env scripts/process-foundation-sprint-system-check.mjs",
     "process:foundation-sprint-cadence-check": "node --env-file-if-exists=.env scripts/process-foundation-sprint-cadence-check.mjs",
     "process:foundation-verify-health-repair-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-health-repair-check.mjs",

@@ -6120,6 +6120,50 @@ function renderRuntimeProcessControlPanel(runtimeProcessControl) {
   )
 }
 
+function renderMeetingVaultAutoEnforcementPanel(meetingVaultAutoEnforcement) {
+  if (!meetingVaultAutoEnforcement) return null
+  var latest = meetingVaultAutoEnforcement.latestRun || {}
+  var summary = meetingVaultAutoEnforcement.summary || {}
+  var status = meetingVaultAutoEnforcement.status || latest.status || 'missing'
+  var legacyExceptions = Array.isArray(meetingVaultAutoEnforcement.legacyExceptions)
+    ? meetingVaultAutoEnforcement.legacyExceptions
+    : []
+  var counts = [
+    'processed ' + (summary.processedCount || latest.processedCount || 0),
+    'forward ' + (summary.forwardCount || latest.forwardCount || 0),
+    'legacy exceptions ' + (summary.legacyExceptionCount || latest.legacyExceptionCount || legacyExceptions.length || 0),
+    'missing Crewbert queued ' + (summary.missingCrewbertQueuedCount || latest.missingCrewbertQueuedCount || 0),
+    'protected review ' + (summary.protectedReviewQueueCount || latest.protectedReviewQueueCount || 0),
+    'public/domain high-risk ' + (summary.publicDomainHighRiskCount || latest.highRiskCount || 0),
+  ].join(' · ')
+
+  return renderStatusGroupPanel(
+    'Meeting Vault Auto-Enforcement',
+    'Report-only forward-flow guard for original Gemini meeting notes, no duplicate Google Docs, Crewbert vault access, and bounded legacy exceptions.',
+    [
+      {
+        label: 'Forward-flow status',
+        status: latest.canCloseMeetingVaultAcl ? 'live' : (status === 'missing' ? 'pending' : 'risk'),
+        detail: (meetingVaultAutoEnforcement.plainEnglish || 'No run recorded yet.')
+          + ' Latest run: ' + (latest.createdAt ? formatDate(latest.createdAt) : 'none')
+          + '. Report hash: ' + (latest.reportHash || 'missing') + '.',
+      },
+      {
+        label: 'Daily audit counts',
+        status: latest.canCloseMeetingVaultAcl ? 'live' : 'pending',
+        detail: counts + '. Baseline: ' + (latest.enforcementStartAt ? formatDate(latest.enforcementStartAt) : 'not set') + '.',
+      },
+      {
+        label: 'Legacy exception queue',
+        status: legacyExceptions.length ? 'pending' : 'live',
+        detail: legacyExceptions.length
+          ? legacyExceptions.length + ' open legacy exceptions are bounded for later owner-authority or cleanup work.'
+          : 'No open legacy exceptions returned in the latest hub slice.',
+      },
+    ]
+  )
+}
+
 function renderAgentFeedbackAutoSendPanel(agentFeedbackAutoSend) {
   if (!agentFeedbackAutoSend || !agentFeedbackAutoSend.summary) return null
   var summary = agentFeedbackAutoSend.summary || {}
@@ -13643,6 +13687,9 @@ function renderDataHealth() {
 
     var runtimeProcessControlPanel = renderRuntimeProcessControlPanel(hub.runtimeProcessControl)
     if (runtimeProcessControlPanel) container.appendChild(runtimeProcessControlPanel)
+
+    var meetingVaultAutoEnforcementPanel = renderMeetingVaultAutoEnforcementPanel(hub.meetingVaultAutoEnforcement)
+    if (meetingVaultAutoEnforcementPanel) container.appendChild(meetingVaultAutoEnforcementPanel)
 
     var jobsPanel = renderFoundationJobsPanel(hub.foundationJobs)
     if (jobsPanel) container.appendChild(jobsPanel)

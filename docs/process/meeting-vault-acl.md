@@ -228,9 +228,18 @@ Legacy Crewbert duplicate docs are not repaired or deleted under the original-no
 - removing unsafe permissions;
 - ownership transfer.
 
+## Automatic Forward-Flow Supersession
+
+Manual historical permission batching is stopped.
+
+`MEETING-VAULT-AUTO-ENFORCEMENT-001` under `meeting-vault-auto-enforcement-v1` is the active readiness path for `MEETING-VAULT-ACL-001`. It does not declare old messy files safe. It moves old duplicate/missing-access/owner-ambiguous/high-risk rows into a bounded legacy exception queue, proves original Gemini notes are the source of truth, blocks duplicate Google Docs, and verifies that new original Gemini notes are classified/preflighted with Crewbert/high-risk actions queued.
+
+Any later historical cleanup batch, Drive permission mutation, request-access email, delete, move, or ownership transfer still needs a separate explicit approval artifact.
+
 ## Proof
 
 - `npm run process:meeting-vault-acl-check`
+- `npm run process:meeting-vault-auto-enforcement-check`
 - `npm run process:foundation-done-test -- --report-only`
 - `npm run backlog:hygiene -- --json`
 - `npm run foundation:verify`

@@ -18,7 +18,7 @@ For closeout proof of the detector itself:
 npm run process:foundation-done-test -- --report-only
 ```
 
-`--report-only` still prints `not_ready` when blockers remain; it only changes the process exit code so `FOUNDATION-DONE-TEST-001` can close honestly.
+`--report-only` still prints the real readiness status. When blockers remain, it prints `not_ready` and exits successfully so `FOUNDATION-DONE-TEST-001` can close honestly.
 
 ## Legs
 
@@ -44,9 +44,12 @@ The readiness test covers:
 
 `DRIVE-ACCESS-REQUEST-001` is closed under `drive-access-request-v1`, so the delegated Drive dry-run/preflight blocker should not appear in the current readiness output.
 
-The result can still be `not_ready` while this blocker card remains open:
+The raw meeting-note leg is allowed to pass when `MEETING-VAULT-AUTO-ENFORCEMENT-001` is closed under `meeting-vault-auto-enforcement-v1`: that closeout proves original Gemini notes are source truth, duplicate Google Docs are blocked, forward originals are classified/preflighted, Crewbert/high-risk actions are queued, and legacy messy files are bounded in the exception queue.
+
+Before that closeout, the result can still be `not_ready` while these blocker cards remain open:
 
 - `MEETING-VAULT-ACL-001`
+- `MEETING-VAULT-AUTO-ENFORCEMENT-001`
 
 Conditional gates are still visible but do not necessarily block owner-only Strategy readiness:
 

@@ -42,8 +42,10 @@ import {
   getFoundationSnapshot,
   getFubLeadSourceSnapshot,
   getIntelligenceRetrievalSnapshot,
+  getLatestMeetingVaultAutoEnforcementRun,
   listFoundationUsers,
   listFubLeadSourceRules,
+  getMeetingVaultLegacyExceptions,
   getPendingDocUpdate,
   getRecentChangeEvents,
   initFoundationDb,
@@ -4511,6 +4513,22 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       includeCandidates: false,
       foundationJobs: snapshot.foundationJobs,
     })
+    const [
+      latestMeetingVaultAutoEnforcementRun,
+      meetingVaultLegacyExceptions,
+    ] = await Promise.all([
+      getLatestMeetingVaultAutoEnforcementRun().catch(() => null),
+      getMeetingVaultLegacyExceptions({ limit: 50, status: 'open' }).catch(() => []),
+    ])
+    const meetingVaultAutoEnforcement = {
+      status: latestMeetingVaultAutoEnforcementRun?.status || 'missing',
+      latestRun: latestMeetingVaultAutoEnforcementRun,
+      legacyExceptions: meetingVaultLegacyExceptions,
+      summary: latestMeetingVaultAutoEnforcementRun?.summary?.summary || latestMeetingVaultAutoEnforcementRun?.summary || {},
+      plainEnglish: latestMeetingVaultAutoEnforcementRun?.canCloseMeetingVaultAcl
+        ? 'Automatic Meeting Vault forward-flow proof is green; historical messy files are bounded in the legacy exception queue.'
+        : 'Automatic Meeting Vault forward-flow proof is missing or blocked; keep MEETING-VAULT-ACL-001 blocking.',
+    }
     const runtimeProcessControl = await buildRuntimeProcessControlApiSnapshot(snapshot)
     const activeFoundationSprint = await getActiveFoundationCurrentSprint()
     const currentSprint = buildFoundationCurrentSprintStatus({
@@ -4540,6 +4558,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       agentFeedbackAutoSend,
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,
+      meetingVaultAutoEnforcement,
       runtimeProcessControl,
       currentSprint,
       runtimeSupervisor: {

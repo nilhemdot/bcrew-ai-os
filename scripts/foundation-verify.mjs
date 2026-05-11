@@ -150,6 +150,16 @@ import {
   buildSyntheticMeetingVaultAclProof,
 } from '../lib/meeting-vault-acl.js'
 import {
+  MEETING_VAULT_AUTO_ENFORCEMENT_APPROVAL_PATH,
+  MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID,
+  MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
+  MEETING_VAULT_AUTO_ENFORCEMENT_DOC_PATH,
+  MEETING_VAULT_AUTO_ENFORCEMENT_PLAN_PATH,
+  MEETING_VAULT_AUTO_ENFORCEMENT_SCRIPT_PATH,
+  MEETING_VAULT_AUTO_ENFORCEMENT_SUMMARY_MARKER,
+  buildSyntheticMeetingVaultAutoEnforcementProof,
+} from '../lib/meeting-vault-auto-enforcement.js'
+import {
   FOUNDATION_DONE_TEST_APPROVAL_PATH,
   FOUNDATION_DONE_TEST_CARD_ID,
   FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
@@ -324,6 +334,7 @@ import {
   getStaleLlmCalls,
   getLatestDriveAccessPreflightRun,
   getLatestMeetingVaultAclAudit,
+  getLatestMeetingVaultAutoEnforcementRun,
   getStrategyGoalTruthSnapshot,
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
@@ -429,6 +440,11 @@ const SYNTHESIS_VERIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const DRIVE_ACCESS_REQUEST_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'DRIVE-ACCESS-REQUEST-001',
+]
+
+const MEETING_VAULT_AUTO_ENFORCEMENT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'MEETING-VAULT-AUTO-ENFORCEMENT-001',
+  'MEETING-VAULT-ACL-001',
 ]
 
 const FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -1148,6 +1164,12 @@ async function main() {
   const meetingVaultAclScriptSource = await readRepoFile(MEETING_VAULT_ACL_SCRIPT_PATH)
   const meetingVaultAclDocSource = await readRepoFile(MEETING_VAULT_ACL_DOC_PATH)
   const meetingVaultAclPlanSource = await readRepoFile(MEETING_VAULT_ACL_PLAN_PATH)
+  const meetingVaultAutoEnforcementSource = await readRepoFile('lib/meeting-vault-auto-enforcement.js')
+  const meetingVaultAutoEnforcementScriptSource = await readRepoFile(MEETING_VAULT_AUTO_ENFORCEMENT_SCRIPT_PATH)
+  const meetingVaultAutoEnforcementDocSource = await readRepoFile(MEETING_VAULT_AUTO_ENFORCEMENT_DOC_PATH)
+  const meetingVaultAutoEnforcementPlanSource = await readRepoFile(MEETING_VAULT_AUTO_ENFORCEMENT_PLAN_PATH)
+  const meetingVaultAutoEnforcementApprovalSource = await readRepoFile(MEETING_VAULT_AUTO_ENFORCEMENT_APPROVAL_PATH)
+  const meetingVaultAutoEnforcementApproval = JSON.parse(meetingVaultAutoEnforcementApprovalSource)
   const syncMeetingNotesArchiveSource = await readRepoFile('scripts/sync-meeting-notes-archive.mjs')
   const mirrorMeetingArchiveToDriveSource = await readRepoFile('scripts/mirror-meeting-archive-to-drive.mjs')
   const foundationCurrentSprintSource = await readRepoFile('lib/foundation-current-sprint.js')
@@ -1423,6 +1445,11 @@ async function main() {
     repoRoot,
     approvalRef: driveAccessRequestApprovalRef,
     cardId: DRIVE_ACCESS_REQUEST_CARD_ID,
+  })
+  const meetingVaultAutoEnforcementApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: MEETING_VAULT_AUTO_ENFORCEMENT_APPROVAL_PATH,
+    cardId: MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID,
   })
   const foundationSprintSystemApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2735,8 +2762,10 @@ async function main() {
   })
   const latestDriveAccessPreflightRun = await getLatestDriveAccessPreflightRun({ cardId: DRIVE_ACCESS_REQUEST_CARD_ID }).catch(() => null)
   const latestMeetingVaultAclAudit = await getLatestMeetingVaultAclAudit({ cardId: MEETING_VAULT_ACL_CARD_ID }).catch(() => null)
+  const latestMeetingVaultAutoEnforcementRun = await getLatestMeetingVaultAutoEnforcementRun({ cardId: MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID }).catch(() => null)
   const syntheticDriveAccessPreflight = buildSyntheticDriveAccessPreflightProof()
   const syntheticMeetingVaultAcl = buildSyntheticMeetingVaultAclProof()
+  const syntheticMeetingVaultAutoEnforcement = buildSyntheticMeetingVaultAutoEnforcementProof()
   const meetingVaultNoDuplicateGoogleDocProof = buildMeetingVaultNoDuplicateGoogleDocProof({
     meetingVaultAclSource,
     meetingVaultAclScriptSource,
@@ -3718,6 +3747,20 @@ async function main() {
         backlogIds: [DRIVE_ACCESS_REQUEST_CARD_ID],
         mentionedBacklogIds: [
           MEETING_VAULT_ACL_CARD_ID,
+          FOUNDATION_DONE_TEST_CARD_ID,
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogMeetingVaultAutoEnforcementBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID) &&
+      build.closeoutKey === MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
+        backlogIds: [MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID, MEETING_VAULT_ACL_CARD_ID],
+        mentionedBacklogIds: [
+          DRIVE_ACCESS_REQUEST_CARD_ID,
           FOUNDATION_DONE_TEST_CARD_ID,
         ],
         operatorCloseout: true,
@@ -5032,6 +5075,14 @@ async function main() {
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
+  const meetingVaultAutoEnforcement = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID) || null
+  const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
+    meetingVaultAcl?.lane === 'done' &&
+    String(meetingVaultAutoEnforcement?.statusNote || '').includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY) &&
+    String(meetingVaultAcl?.statusNote || '').includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY) &&
+    latestMeetingVaultAutoEnforcementRun?.status === 'ready' &&
+    latestMeetingVaultAutoEnforcementRun?.canCloseMeetingVaultAcl === true &&
+    buildLogMeetingVaultAutoEnforcementBuild?.operatorCloseout === true
   const foundationDoneTest = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DONE_TEST_CARD_ID) || null
   const system010GhostCloseout = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_010_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
@@ -7125,13 +7176,100 @@ async function main() {
       latestMeetingVaultAclAudit?.status &&
       meetingVaultNoDuplicateGoogleDocProof.ok &&
       !(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID) &&
-      (foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_ACL_CARD_ID) &&
+      (meetingVaultAutoEnforcementClosed
+        ? !(foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_ACL_CARD_ID)
+        : (foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_ACL_CARD_ID)) &&
       buildLogDriveAccessRequestBuild?.operatorCloseout === true &&
       driveAccessRequestBuildLogExact &&
       currentPlan.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY) &&
       currentState.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY),
     'DRIVE-ACCESS-REQUEST-001 closes delegated Drive dry-run/preflight while Meeting Vault Phase B mutations stay separately approved',
     `lane=${driveAccessRequest?.lane || 'missing'} latest=${latestDriveAccessPreflightRun?.status || 'missing'} noDuplicateDocs=${meetingVaultNoDuplicateGoogleDocProof.ok ? 'yes' : meetingVaultNoDuplicateGoogleDocProof.findings.join(',')} readinessNamesDrive=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID)} meeting=${meetingVaultAcl?.lane || 'missing'}`,
+  )
+  const meetingVaultAutoEnforcementBuildLogExact = (buildLogMeetingVaultAutoEnforcementBuild?.backlogIds || []).length === 2 &&
+    [MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID, MEETING_VAULT_ACL_CARD_ID]
+      .every(id => (buildLogMeetingVaultAutoEnforcementBuild.backlogIds || []).includes(id)) &&
+    [DRIVE_ACCESS_REQUEST_CARD_ID, FOUNDATION_DONE_TEST_CARD_ID]
+      .every(id => (buildLogMeetingVaultAutoEnforcementBuild.mentionedBacklogIds || []).includes(id)) &&
+    ![DRIVE_ACCESS_REQUEST_CARD_ID, FOUNDATION_DONE_TEST_CARD_ID]
+      .some(id => (buildLogMeetingVaultAutoEnforcementBuild.backlogIds || []).includes(id))
+  ensure(
+    checks,
+    meetingVaultAutoEnforcementClosed &&
+      meetingVaultAutoEnforcementApprovalValidation.ok &&
+      meetingVaultAutoEnforcementApprovalValidation.mode === 'v2' &&
+      meetingVaultAutoEnforcementApproval.cardId === MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID &&
+      Number(meetingVaultAutoEnforcementApproval.score) >= 9.8 &&
+      meetingVaultAutoEnforcementApproval.approvedPlanRef === MEETING_VAULT_AUTO_ENFORCEMENT_PLAN_PATH &&
+      meetingVaultAutoEnforcementApprovalValidation.approval?.approvedPlanRef === MEETING_VAULT_AUTO_ENFORCEMENT_PLAN_PATH &&
+      includesAll(meetingVaultAutoEnforcementPlanSource, [
+        'Original Gemini note is source truth',
+        'Legacy Exception Queue',
+        'When MEETING-VAULT-ACL-001 Can Stop Blocking Foundation',
+        'no Drive mutation',
+      ]) &&
+      includesAll(meetingVaultAutoEnforcementSource, [
+        MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
+        'classifyMeetingVaultAutoEnforcementItem',
+        'buildMeetingVaultAutoEnforcementStatus',
+        'assertMeetingVaultAutoEnforcementMutationApproved',
+        'buildSyntheticMeetingVaultAutoEnforcementProof',
+        'legacy_exception',
+        'remove_high_risk_public_or_domain',
+      ]) &&
+      includesAll(meetingVaultAutoEnforcementScriptSource, [
+        MEETING_VAULT_AUTO_ENFORCEMENT_SUMMARY_MARKER,
+        'recordMeetingVaultAutoEnforcementRun',
+        'updateBacklogItem',
+        'noDuplicateGoogleDocProof',
+        'proof output is metadata-only',
+        'noDriveMutations',
+      ]) &&
+      includesAll(foundationDbSource, [
+        'meeting_vault_enforcement_runs',
+        'meeting_vault_enforcement_items',
+        'meeting_vault_legacy_exceptions',
+        'recordMeetingVaultAutoEnforcementRun',
+        'getLatestMeetingVaultAutoEnforcementRun',
+      ]) &&
+      includesAll(foundationDoneTestRegistrySource, [
+        MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID,
+        MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
+        'npm run process:meeting-vault-auto-enforcement-check',
+      ]) &&
+      includesAll(serverSource, [
+        'meetingVaultAutoEnforcement',
+        'getLatestMeetingVaultAutoEnforcementRun',
+        'getMeetingVaultLegacyExceptions',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderMeetingVaultAutoEnforcementPanel',
+        'Meeting Vault Auto-Enforcement',
+        'hub.meetingVaultAutoEnforcement',
+      ]) &&
+      includesAll(meetingVaultAutoEnforcementDocSource, [
+        'Meeting Vault Auto-Enforcement',
+        MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
+        'report_only',
+        'Legacy exceptions remain visible work',
+      ]) &&
+      packageJson.scripts?.['process:meeting-vault-auto-enforcement-check'] === 'node --env-file-if-exists=.env scripts/process-meeting-vault-auto-enforcement-check.mjs' &&
+      syntheticMeetingVaultAutoEnforcement.ok &&
+      meetingVaultNoDuplicateGoogleDocProof.ok &&
+      latestMeetingVaultAutoEnforcementRun?.reportHash &&
+      foundationHub.meetingVaultAutoEnforcement?.latestRun?.reportHash === latestMeetingVaultAutoEnforcementRun?.reportHash &&
+      foundationDoneTestReadinessStatus.status === 'ready' &&
+      foundationDoneTestReadinessStatus.readyForStrategy === true &&
+      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_ACL_CARD_ID) &&
+      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID) &&
+      buildLogMeetingVaultAutoEnforcementBuild?.operatorCloseout === true &&
+      meetingVaultAutoEnforcementBuildLogExact &&
+      currentPlan.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY) &&
+      currentState.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY) &&
+      currentState.includes('automatic report-only forward-flow proof') &&
+      includesAll(foundationVerifySource, MEETING_VAULT_AUTO_ENFORCEMENT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'MEETING-VAULT-AUTO-ENFORCEMENT-001 closes the meeting raw Drive ACL/vault readiness blocker through automatic forward-flow proof',
+    `auto=${meetingVaultAutoEnforcement?.lane || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'} run=${latestMeetingVaultAutoEnforcementRun?.status || 'missing'} hash=${latestMeetingVaultAutoEnforcementRun?.reportHash || 'missing'} readiness=${foundationDoneTestReadinessStatus.status}`,
   )
   const foundationSprintSystemBuildLogExact = buildLogFoundationSprintSystemBuild?.backlogIds?.length === 1 &&
     buildLogFoundationSprintSystemBuild.backlogIds.includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
@@ -7215,7 +7353,7 @@ async function main() {
       [foundationSprintSurfaceFollowUp?.summary, foundationSprintSurfaceFollowUp?.nextAction, foundationSprintSurfaceFollowUp?.statusNote].join(' ').includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
       foundationSprintDoneVelocity?.lane === 'scoped' &&
       [foundationSprintDoneVelocity?.summary, foundationSprintDoneVelocity?.nextAction, foundationSprintDoneVelocity?.statusNote].join(' ').includes('velocity') &&
-      meetingVaultAcl?.lane !== 'done' &&
+      (meetingVaultAutoEnforcementClosed || meetingVaultAcl?.lane !== 'done') &&
       foundationSprintCaptureSource.includes('Phase B paused') &&
       buildLogFoundationSprintSystemBuild?.operatorCloseout === true &&
       foundationSprintSystemBuildLogExact &&
@@ -7224,7 +7362,9 @@ async function main() {
       currentPlan.includes(FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) &&
       currentState.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) &&
       currentState.includes('Current Sprint') &&
-      currentState.includes('MEETING-VAULT-ACL-001 remains scoped') &&
+      (meetingVaultAutoEnforcementClosed
+        ? currentState.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY)
+        : currentState.includes('MEETING-VAULT-ACL-001 remains scoped')) &&
       includesAll(foundationVerifySource, FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'FOUNDATION-SPRINT-SYSTEM-001 adds Current Sprint control without a second backlog',
     `lane=${foundationSprintSystem?.lane || 'missing'} sprint=${foundationCurrentSprintStatus.status} api=${foundationHub.currentSprint?.status || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'}`,
@@ -7305,7 +7445,7 @@ async function main() {
       foundationHub.currentSprint?.cadence?.currentBlocker?.cardId &&
       Array.isArray(foundationHub.currentSprint?.cadence?.exitCriteria) &&
       foundationHub.currentSprint.cadence.exitCriteria.length >= 5 &&
-      meetingVaultAcl?.lane !== 'done' &&
+      (meetingVaultAutoEnforcementClosed || meetingVaultAcl?.lane !== 'done') &&
       buildLogFoundationSprintCadenceBuild?.operatorCloseout === true &&
       foundationSprintCadenceBuildLogExact &&
       currentPlan.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) &&
@@ -7313,7 +7453,9 @@ async function main() {
       currentState.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) &&
       currentState.includes('sprint command view') &&
       currentState.includes('MEETING-VAULT-ACL-001') &&
-      currentState.includes('moves into Scoping') &&
+      (meetingVaultAutoEnforcementClosed
+        ? currentState.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY)
+        : currentState.includes('moves into Scoping')) &&
       foundationSprintCaptureSource.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
       foundationSprintCaptureSource.includes('No Drive permission mutation is approved'),
     'FOUNDATION-SPRINT-CADENCE-001 adds readable sprint command view without Drive mutation',
@@ -8657,6 +8799,28 @@ async function main() {
       .every(id => (buildLogFoundationDoneTestBuild.mentionedBacklogIds || []).includes(id)) &&
     !['SECURITY-002', 'MEETING-VAULT-ACL-001', 'EXTRACT-RUN-HARDENING-001']
       .some(id => (buildLogFoundationDoneTestBuild.backlogIds || []).includes(id))
+  const foundationDoneReadinessExpectationMet = meetingVaultAutoEnforcementClosed
+    ? foundationDoneTestReadinessStatus.status === 'ready' &&
+      foundationDoneTestReadinessStatus.readyForStrategy === true &&
+      foundationDoneFailedKeys.size === 0 &&
+      foundationDoneBlockingCards.size === 0 &&
+      FOUNDATION_READINESS_REQUIRED_LEG_KEYS.every(key => foundationDonePassedKeys.has(key))
+    : foundationDoneTestReadinessStatus.status === 'not_ready' &&
+      foundationDoneTestReadinessStatus.readyForStrategy === false &&
+      ['meeting_raw_drive_acl_vault']
+        .every(key => foundationDoneFailedKeys.has(key)) &&
+      !foundationDoneFailedKeys.has('source_verifiable_answer') &&
+      !foundationDoneFailedKeys.has('runtime_process_control') &&
+      !foundationDoneFailedKeys.has('extraction_retry_ledger_backfill') &&
+      ['source_verifiable_answer', 'tier_redaction_safety', 'p0_structural_coverage', 'runtime_process_control', 'extraction_retry_ledger_backfill', 'clear_pass_fail_output']
+        .every(key => foundationDonePassedKeys.has(key)) &&
+      [MEETING_VAULT_ACL_CARD_ID]
+        .every(id => foundationDoneBlockingCards.has(id)) &&
+      !foundationDoneBlockingCards.has(DRIVE_ACCESS_REQUEST_CARD_ID) &&
+      !foundationDoneBlockingCards.has(EXTRACT_RUN_HARDENING_CARD_ID) &&
+      !foundationDoneBlockingCards.has(SYNTHESIS_VERIFY_CARD_ID) &&
+      !foundationDoneBlockingCards.has(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
+      !foundationDoneBlockingCards.has(SYSTEM_010_CARD_ID)
   ensure(
     checks,
     foundationDoneTest?.lane === 'done' &&
@@ -8697,25 +8861,10 @@ async function main() {
         'MEETING-VAULT-ACL-001',
       ]) &&
       packageJson.scripts?.['process:foundation-done-test'] === 'node --env-file-if-exists=.env scripts/process-foundation-done-test.mjs' &&
-      foundationDoneTestReadinessStatus.status === 'not_ready' &&
-      foundationDoneTestReadinessStatus.readyForStrategy === false &&
+      foundationDoneReadinessExpectationMet &&
       FOUNDATION_READINESS_REQUIRED_LEG_KEYS.every(key =>
         (foundationDoneTestReadinessStatus.legs || []).some(leg => leg.key === key)
       ) &&
-      ['meeting_raw_drive_acl_vault']
-        .every(key => foundationDoneFailedKeys.has(key)) &&
-      !foundationDoneFailedKeys.has('source_verifiable_answer') &&
-      !foundationDoneFailedKeys.has('runtime_process_control') &&
-      !foundationDoneFailedKeys.has('extraction_retry_ledger_backfill') &&
-      ['source_verifiable_answer', 'tier_redaction_safety', 'p0_structural_coverage', 'runtime_process_control', 'extraction_retry_ledger_backfill', 'clear_pass_fail_output']
-        .every(key => foundationDonePassedKeys.has(key)) &&
-      [MEETING_VAULT_ACL_CARD_ID]
-        .every(id => foundationDoneBlockingCards.has(id)) &&
-      !foundationDoneBlockingCards.has(DRIVE_ACCESS_REQUEST_CARD_ID) &&
-      !foundationDoneBlockingCards.has(EXTRACT_RUN_HARDENING_CARD_ID) &&
-      !foundationDoneBlockingCards.has(SYNTHESIS_VERIFY_CARD_ID) &&
-      !foundationDoneBlockingCards.has(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
-      !foundationDoneBlockingCards.has(SYSTEM_010_CARD_ID) &&
       buildLogFoundationDoneTestBuild?.operatorCloseout === true &&
       foundationDoneBuildLogExact &&
       currentPlan.includes('foundation-done-test-v1') &&

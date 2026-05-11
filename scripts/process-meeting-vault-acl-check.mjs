@@ -27,12 +27,17 @@ import {
 } from '../lib/meeting-vault-acl.js'
 import {
   closeFoundationDb,
+  getLatestMeetingVaultAutoEnforcementRun,
   initFoundationDb,
   listFoundationUsers,
   listMeetingRawDriveFileCandidates,
   recordMeetingVaultAclAudit,
   updateBacklogItem,
 } from '../lib/foundation-db.js'
+import {
+  MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID,
+  MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
+} from '../lib/meeting-vault-auto-enforcement.js'
 
 const execFile = promisify(execFileCallback)
 
@@ -209,6 +214,20 @@ function summarizeClassifications(classifications) {
 }
 
 async function updateMeetingBacklog(status, summary) {
+  const latestAutoEnforcement = await getLatestMeetingVaultAutoEnforcementRun({
+    cardId: MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID,
+  }).catch(() => null)
+  if (!status.cardCanClose &&
+    latestAutoEnforcement?.status === 'ready' &&
+    latestAutoEnforcement?.canCloseMeetingVaultAcl === true) {
+    await updateBacklogItem(MEETING_VAULT_ACL_CARD_ID, {
+      lane: 'done',
+      nextAction: 'Keep MEETING-VAULT-ACL-001 closed through the automatic forward-flow proof. Treat this legacy Phase A dry-run as evidence only; do not restart manual historical permission batches without a separate approved legacy-exception cleanup card.',
+      statusNote: `Closed on 2026-05-11 through \`${MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY}\`. Latest legacy Phase A dry-run remains evidence-only with dry-run hash ${summary.dryRunHash}; auto-enforcement report hash ${latestAutoEnforcement.reportHash}; no Google Drive emails or permission mutations were sent/applied by this proof.`,
+    }, 'meeting-vault-acl-check')
+    return
+  }
+
   if (status.cardCanClose) {
     await updateBacklogItem(MEETING_VAULT_ACL_CARD_ID, {
       lane: 'done',
