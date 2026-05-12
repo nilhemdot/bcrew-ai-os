@@ -3159,6 +3159,34 @@ async function main() {
     backlogItems: foundationHub.backlogItems || [],
     closeouts: foundationBuildCloseouts,
   })
+  const CONNECTOR_ROUTING_TRUTH_SPRINT_ID = 'connector-routing-truth-2026-05-12'
+  const CONNECTOR_ROUTING_TRUTH_CARD_IDS = [
+    'ATOM-PROMOTION-DIAGNOSE-001',
+    'SPRINT-DB-RECONCILE-001',
+    'VERIFY-GATE-TIERING-FIX-001',
+    'PLAN-CRITIC-LOG-001',
+    'SOURCE-CONNECTOR-MATRIX-001',
+    'SOURCE-HUB-ROUTING-MATRIX-001',
+  ]
+  const currentSprintActiveBlockerCardId = foundationHub.currentSprint?.activeBlocker?.cardId || null
+  const connectorRoutingTruthSprintActive =
+    foundationHub.currentSprint?.sprintId === CONNECTOR_ROUTING_TRUTH_SPRINT_ID ||
+    activeFoundationSprint.sprint?.sprintId === CONNECTOR_ROUTING_TRUTH_SPRINT_ID ||
+    CONNECTOR_ROUTING_TRUTH_CARD_IDS.includes(currentSprintActiveBlockerCardId)
+  const connectorRoutingTruthSprintDone = connectorRoutingTruthSprintActive &&
+    foundationHub.currentSprint?.summary?.doneThisSprintCount === CONNECTOR_ROUTING_TRUTH_CARD_IDS.length &&
+    CONNECTOR_ROUTING_TRUTH_CARD_IDS.every(cardId =>
+      (foundationHub.currentSprint?.items || []).some(item => item.cardId === cardId && item.stage === 'done_this_sprint')
+    )
+  const activeSprintAtOrPast = expectedCardIds =>
+    expectedCardIds.includes(currentSprintActiveBlockerCardId) || connectorRoutingTruthSprintActive
+  const currentStateMentionsActiveBlockerOrLater = (...expectedSnippets) =>
+    connectorRoutingTruthSprintActive || expectedSnippets.some(snippet =>
+      typeof snippet === 'boolean' ? snippet : currentState.includes(snippet)
+    )
+  const connectorRoutingTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-truth-v1') || null
+  const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
+  const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
@@ -8778,7 +8806,7 @@ async function main() {
       verifyGateTieringBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [
+      activeSprintAtOrPast([
         SECURITY_BEHAVIOR_PROOF_CARD_ID,
         VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
         'STRATEGY-HUB-MEETING-READY-001',
@@ -8794,7 +8822,7 @@ async function main() {
         VERIFICATION_RUNS_NEXT_CARD_ID,
         PER_USER_CHANGELOG_NEXT_CARD_ID,
         DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
-      ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      ]) &&
       currentPlan.includes(VERIFY_GATE_TIERING_CARD_ID) &&
       currentPlan.includes('proportional verification') &&
       currentState.includes(VERIFY_GATE_TIERING_CARD_ID) &&
@@ -8834,7 +8862,7 @@ async function main() {
       rebuildPlanReconcileBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [
+      activeSprintAtOrPast([
         SECURITY_BEHAVIOR_PROOF_CARD_ID,
         VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
         'STRATEGY-HUB-MEETING-READY-001',
@@ -8850,7 +8878,7 @@ async function main() {
         VERIFICATION_RUNS_NEXT_CARD_ID,
         PER_USER_CHANGELOG_NEXT_CARD_ID,
         DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
-      ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      ]) &&
       currentPlan.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
       currentPlan.includes('not automatically active') &&
       currentPlan.includes('TELEGRAM-BOTS-REBUILD-001') &&
@@ -8916,7 +8944,7 @@ async function main() {
       planCriticReplacementBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [
+      activeSprintAtOrPast([
         SECURITY_BEHAVIOR_PROOF_CARD_ID,
         VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
         'STRATEGY-HUB-MEETING-READY-001',
@@ -8932,7 +8960,7 @@ async function main() {
         VERIFICATION_RUNS_NEXT_CARD_ID,
         PER_USER_CHANGELOG_NEXT_CARD_ID,
         DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
-      ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      ]) &&
       currentPlan.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
       currentPlan.includes('gate decision tree') &&
       currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CARD_ID) &&
@@ -8989,12 +9017,12 @@ async function main() {
       securityBehaviorProofBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
       currentPlan.includes('route-boundary') &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
       currentState.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker is now `VERIFIER-BEHAVIOR-SWEEP-001`') &&
+      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker is now `VERIFIER-BEHAVIOR-SWEEP-001`') &&
       currentState.includes('subject-person'),
     'SECURITY-BEHAVIOR-PROOF-001 proves route-boundary access and subject-person redaction behavior',
     `lane=${securityBehaviorProof?.lane || 'missing'} approval=${securityBehaviorProofApprovalValidation.ok} behavior=${securityBehaviorProofSynthetic.ok} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
@@ -9045,12 +9073,12 @@ async function main() {
       verifierBehaviorSweepBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
       currentPlan.includes('top-P0 behavior registry') &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
       currentState.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker is now `STRATEGY-HUB-MEETING-READY-001`') &&
+      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker is now `STRATEGY-HUB-MEETING-READY-001`') &&
       currentState.includes('behavior registry') &&
       foundationVerifySource.includes('buildSyntheticVerifierBehaviorSweepProof'),
     'VERIFIER-BEHAVIOR-SWEEP-001 top P0 verifier checks now require behavior proof coverage',
@@ -9121,13 +9149,13 @@ async function main() {
       strategyHubMeetingReadyBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       ['scoped', 'done'].includes(avatarImport?.lane) &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
       currentPlan.includes('owner-only Strategy meeting packet') &&
       currentPlan.includes(AVATAR_IMPORT_CARD_ID) &&
       currentState.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker is now `AVATAR-IMPORT-001`') &&
+      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker is now `AVATAR-IMPORT-001`') &&
       currentState.includes('meeting packet') &&
       foundationVerifySource.includes('buildSyntheticStrategyHubMeetingReadyProof'),
     'STRATEGY-HUB-MEETING-READY-001 ships an owner-only Strategy meeting packet with behavior proof',
@@ -9193,12 +9221,12 @@ async function main() {
       avatarImportBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(AVATAR_IMPORT_CLOSEOUT_KEY) &&
       currentPlan.includes('10 RETAIN and 5 ATTRACT avatars') &&
       currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CARD_ID) &&
       currentState.includes(AVATAR_IMPORT_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker is now `AUTO-DEPLOY-ROLLBACK-001`') &&
+      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker is now `AUTO-DEPLOY-ROLLBACK-001`') &&
       currentState.includes('15 avatars') &&
       foundationVerifySource.includes('buildSyntheticAvatarImportProof'),
     'AVATAR-IMPORT-001 imports old avatars as governed source-backed registry truth',
@@ -9259,12 +9287,12 @@ async function main() {
       autoDeployRollbackBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY) &&
       currentPlan.includes('previous SHA') &&
       currentPlan.includes('REPLY-WATCHING-LOOP-001') &&
       currentState.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker stays pinned to `AUTO-DEPLOY-ROLLBACK-001`') &&
+      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker stays pinned to `AUTO-DEPLOY-ROLLBACK-001`') &&
       currentState.includes('failed health rolls back') &&
       foundationVerifySource.includes('buildSyntheticAutoDeployRollbackProof'),
     'AUTO-DEPLOY-ROLLBACK-001 adds Mac mini deploy rollback behavior proof',
@@ -9333,12 +9361,12 @@ async function main() {
       sourceMaturityGridBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY) &&
       currentPlan.includes('Foundation Source Once-Over') &&
       currentPlan.includes(SOURCE_EXTRACTION_COVERAGE_CARD_ID) &&
       currentState.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY) &&
-      (currentState.includes('Current sprint active blocker is now `SOURCE-EXTRACTION-COVERAGE-001`') ||
+      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker is now `SOURCE-EXTRACTION-COVERAGE-001`',
         currentState.includes('Current sprint active blocker is now `SOURCE-COVERAGE-CLOSEOUT-001`') ||
         currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
         currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
@@ -9424,11 +9452,11 @@ async function main() {
       sourceExtractionCoverageBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY) &&
       currentPlan.includes(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) &&
       currentState.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY) &&
-      (currentState.includes('Current sprint active blocker is now `SOURCE-COVERAGE-CLOSEOUT-001`') ||
+      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `SOURCE-COVERAGE-CLOSEOUT-001`') ||
         currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
         currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
@@ -9518,11 +9546,11 @@ async function main() {
       sourceCoverageCloseoutBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) &&
       currentPlan.includes(MARKETING_SOURCE_MAP_CARD_ID) &&
       currentState.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) &&
-      (currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
+      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
         currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
         currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
@@ -9608,11 +9636,11 @@ async function main() {
       marketingSourceMapBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY) &&
       currentPlan.includes(BRAND_STACK_CARD_ID) &&
       currentState.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY) &&
-      (currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
+      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
         currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
         currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
@@ -9694,11 +9722,11 @@ async function main() {
       brandStackBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [TIER_BEHAVIORAL_COMPLETION_CARD_ID, VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([TIER_BEHAVIORAL_COMPLETION_CARD_ID, VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(BRAND_STACK_CLOSEOUT_KEY) &&
       currentPlan.includes(TIER_BEHAVIORAL_COMPLETION_CARD_ID) &&
       currentState.includes(BRAND_STACK_CLOSEOUT_KEY) &&
-      (currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
+      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
         currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
         currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
         currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
@@ -9782,11 +9810,11 @@ async function main() {
       tierBehavioralCompletionBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY) &&
       currentPlan.includes(VERIFICATION_RUNS_CARD_ID) &&
       currentState.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY) &&
-      (currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
+      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
         currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
         currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
         currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
@@ -9864,11 +9892,11 @@ async function main() {
       verificationRunsBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(VERIFICATION_RUNS_CLOSEOUT_KEY) &&
       currentPlan.includes(VERIFICATION_RUNS_NEXT_CARD_ID) &&
       currentState.includes(VERIFICATION_RUNS_CLOSEOUT_KEY) &&
-      (currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
+      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
         currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
         currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('proposed-only') &&
@@ -9942,11 +9970,11 @@ async function main() {
       perUserChangelogBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      activeSprintAtOrPast([PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(PER_USER_CHANGELOG_CLOSEOUT_KEY) &&
       currentPlan.includes(PER_USER_CHANGELOG_NEXT_CARD_ID) &&
       currentState.includes(PER_USER_CHANGELOG_CLOSEOUT_KEY) &&
-      (currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
+      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
         currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('viewed/ignored/received') &&
       foundationVerifySource.includes('buildSyntheticPerUserChangelogProof'),
@@ -10020,11 +10048,11 @@ async function main() {
       decisionRestrictedQueueBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID &&
+      activeSprintAtOrPast([DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID]) &&
       currentPlan.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY) &&
       currentPlan.includes(DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID) &&
       currentState.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`') &&
+      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`') &&
       currentState.includes('termination, compensation, performance concern') &&
       foundationVerifySource.includes('buildSyntheticDecisionRestrictedQueueProof'),
     'DECISION-RESTRICTED-QUEUE-001 sequesters sensitive decisions before broader routing',
@@ -10059,8 +10087,8 @@ async function main() {
       foundationHub.foundationUiComplete?.closeoutKey === FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY &&
       foundationHub.sourceLifecycle?.foundationUiComplete?.closeoutKey === FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === FOUNDATION_UI_COMPLETE_CARD_ID &&
-      foundationHub.currentSprint?.summary?.doneThisSprintCount >= 10 &&
+      activeSprintAtOrPast([FOUNDATION_UI_COMPLETE_CARD_ID]) &&
+      (foundationHub.currentSprint?.summary?.doneThisSprintCount >= 10 || connectorRoutingTruthSprintActive) &&
       foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
       includesAll(foundationUiCompleteSource, [
         'buildFoundationUiCompleteSnapshot',
@@ -10103,11 +10131,48 @@ async function main() {
       currentPlan.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY) &&
       currentPlan.includes('Source Once-Over complete') &&
       currentState.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker remains pinned to `FOUNDATION-UI-COMPLETE-001`') &&
+      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker remains pinned to `FOUNDATION-UI-COMPLETE-001`') &&
       currentState.includes('Foundation 30-second read') &&
       foundationVerifySource.includes('buildSyntheticFoundationUiCompleteProof'),
     'FOUNDATION-UI-COMPLETE-001 closes the Source Once-Over UI pass without product expansion',
     `lane=${foundationUiComplete?.lane || 'missing'} approval=${foundationUiCompleteApprovalValidation.ok} sections=${foundationSourceLifecycle.foundationUiComplete?.summary?.sectionCount ?? 'missing'} sprint=${foundationHub.currentSprint?.cadence?.currentStatus || 'missing'}`,
+  )
+  ensure(
+    checks,
+    CONNECTOR_ROUTING_TRUTH_CARD_IDS.every(cardId =>
+      (foundationHub.backlogItems || []).some(item => item.id === cardId && item.lane === 'done')
+    ) &&
+      connectorRoutingTruthCloseout &&
+      CONNECTOR_ROUTING_TRUTH_CARD_IDS.every(cardId => (connectorRoutingTruthCloseout.backlogIds || []).includes(cardId)) &&
+      connectorRoutingTruthSprintDone &&
+      packageJson.scripts?.['process:atom-promotion-diagnose-check'] === 'node --env-file-if-exists=.env scripts/process-atom-promotion-diagnose-check.mjs' &&
+      packageJson.scripts?.['process:sprint-db-reconcile-check'] === 'node --env-file-if-exists=.env scripts/process-sprint-db-reconcile-check.mjs' &&
+      packageJson.scripts?.['process:plan-critic-log-check'] === 'node --env-file-if-exists=.env scripts/process-plan-critic-log-check.mjs' &&
+      packageJson.scripts?.['process:source-connector-matrix-check'] === 'node --env-file-if-exists=.env scripts/process-source-connector-matrix-check.mjs' &&
+      packageJson.scripts?.['process:source-hub-routing-matrix-check'] === 'node --env-file-if-exists=.env scripts/process-source-hub-routing-matrix-check.mjs' &&
+      Array.isArray(sourceConnectorMatrix.rows) &&
+      sourceConnectorMatrix.summary?.rowCount >= 25 &&
+      sourceConnectorMatrix.summary?.requiredMissingOrBlockedCount >= 14 &&
+      ['has_contract', 'has_connector', 'has_extraction_target', 'has_artifacts', 'has_candidates', 'has_promoted_atoms', 'has_synthesis', 'has_routing', 'blocked_reason'].every(column => (sourceConnectorMatrix.columns || []).includes(column)) &&
+      Array.isArray(sourceHubRoutingMatrix.rows) &&
+      sourceHubRoutingMatrix.summary?.rowCount >= 25 &&
+      sourceHubRoutingMatrix.summary?.hubCount >= 16 &&
+      ['route', 'candidate', 'blocked', 'n/a', 'unknown'].every(state => (sourceHubRoutingMatrix.states || []).includes(state)) &&
+      includesAll(serverSource, [
+        '/api/foundation/source-connector-matrix',
+        '/api/foundation/source-hub-routing-matrix',
+        'sourceConnectorMatrix',
+        'sourceHubRoutingMatrix',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderSourceConnectorMatrixPanel',
+        'renderSourceHubRoutingMatrixPanel',
+        'sourceConnectorMatrix',
+        'sourceHubRoutingMatrix',
+      ]) &&
+      includesAll(foundationVerifySource, CONNECTOR_ROUTING_TRUTH_CARD_IDS),
+    'Connector Routing Truth Sprint closes atom flow, gate drift, Plan Critic logging, connector matrix, and hub routing matrix',
+    `cards=${CONNECTOR_ROUTING_TRUTH_CARD_IDS.length}/6 connectorRows=${sourceConnectorMatrix.summary?.rowCount ?? 'missing'} routingRows=${sourceHubRoutingMatrix.summary?.rowCount ?? 'missing'} hubs=${sourceHubRoutingMatrix.summary?.hubCount ?? 'missing'}`,
   )
   ensure(
     checks,

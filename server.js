@@ -104,6 +104,12 @@ import {
 import {
   buildSourceCoverageCloseoutSnapshot,
 } from './lib/source-coverage-closeout.js'
+import {
+  buildSourceConnectorMatrixSnapshot,
+} from './lib/source-connector-matrix.js'
+import {
+  buildSourceHubRoutingMatrixSnapshot,
+} from './lib/source-hub-routing-matrix.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -3855,6 +3861,19 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       sourceMaturityGrid: sourceLifecycle.sourceMaturityGrid,
       sourceExtractionCoverage: sourceLifecycle.sourceExtractionCoverage,
     })
+    sourceLifecycle.sourceConnectorMatrix = buildSourceConnectorMatrixSnapshot({
+      sources: getSourceContracts(),
+      connectors: getSourceConnectors(),
+      extractionControl,
+      sharedCommunicationsCoverage: foundationSnapshot.sharedCommunicationsCoverage,
+      intelligenceSynthesisFacts: foundationSnapshot.intelligenceSynthesisFacts,
+      intelligenceSynthesis: foundationSnapshot.intelligenceSynthesis,
+      intelligenceActionRouter: foundationSnapshot.intelligenceActionRouter,
+      sourceMaturityOperational: foundationSnapshot.sourceMaturityOperational,
+    })
+    sourceLifecycle.sourceHubRoutingMatrix = buildSourceHubRoutingMatrixSnapshot({
+      connectorMatrix: sourceLifecycle.sourceConnectorMatrix,
+    })
     const marketingAvatarRegistry = buildMarketingAvatarImportSnapshot({
       referenceBriefText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_REFERENCE_BRIEF_PATH)) || '',
       retainProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_RETAIN_SOURCE_PATH)) || '',
@@ -4204,6 +4223,67 @@ app.get('/api/foundation/source-maturity-grid', requireAdminToken, async (_req, 
       500,
       'foundation_source_maturity_grid_load_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation source maturity grid.'
+    )
+  }
+})
+
+app.get('/api/foundation/source-connector-matrix', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const sourceConnectorMatrix = buildSourceConnectorMatrixSnapshot({
+      sources: getSourceContracts(),
+      connectors: getSourceConnectors(),
+      extractionControl: snapshot.extractionControl,
+      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
+      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis,
+      intelligenceActionRouter: snapshot.intelligenceActionRouter,
+      sourceMaturityOperational: snapshot.sourceMaturityOperational,
+    })
+    cacheHeadersNoStore(res)
+    res.json(sourceConnectorMatrix)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_source_connector_matrix_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation source connector matrix.'
+    )
+  }
+})
+
+app.get('/api/foundation/source-hub-routing-matrix', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const sourceConnectorMatrix = buildSourceConnectorMatrixSnapshot({
+      sources: getSourceContracts(),
+      connectors: getSourceConnectors(),
+      extractionControl: snapshot.extractionControl,
+      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
+      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis,
+      intelligenceActionRouter: snapshot.intelligenceActionRouter,
+      sourceMaturityOperational: snapshot.sourceMaturityOperational,
+    })
+    const sourceHubRoutingMatrix = buildSourceHubRoutingMatrixSnapshot({
+      connectorMatrix: sourceConnectorMatrix,
+    })
+    cacheHeadersNoStore(res)
+    res.json(sourceHubRoutingMatrix)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_source_hub_routing_matrix_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation source hub routing matrix.'
     )
   }
 })
@@ -4931,8 +5011,23 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       sourceMaturityGrid,
       sourceExtractionCoverage,
     })
+    const sourceConnectorMatrix = buildSourceConnectorMatrixSnapshot({
+      sources: getSourceContracts(),
+      connectors: getSourceConnectors(),
+      extractionControl: snapshot.extractionControl,
+      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
+      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis,
+      intelligenceActionRouter: snapshot.intelligenceActionRouter,
+      sourceMaturityOperational: snapshot.sourceMaturityOperational,
+    })
+    const sourceHubRoutingMatrix = buildSourceHubRoutingMatrixSnapshot({
+      connectorMatrix: sourceConnectorMatrix,
+    })
     sourceLifecycle.sourceCoverageCloseout = sourceCoverageCloseout
     sourceLifecycle.sourceExtractionCoverage = sourceExtractionCoverage
+    sourceLifecycle.sourceConnectorMatrix = sourceConnectorMatrix
+    sourceLifecycle.sourceHubRoutingMatrix = sourceHubRoutingMatrix
     const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
       repoRoot: __dirname,
       includeCandidates: false,
@@ -5031,6 +5126,8 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       sourceMaturityGrid,
       sourceExtractionCoverage,
       sourceCoverageCloseout,
+      sourceConnectorMatrix,
+      sourceHubRoutingMatrix,
       agentFeedbackAutoSend,
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,

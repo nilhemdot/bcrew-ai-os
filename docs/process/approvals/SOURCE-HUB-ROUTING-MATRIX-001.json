@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-HUB-ROUTING-MATRIX-001",
+  "approvedBy": "Steve direct walk-away approval; Codex sprint executor",
+  "approvedAt": "2026-05-12T20:00:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/connector-routing-truth-2026-05-12-plan.md",
+  "approvedPlanSha256": "e8679fbb17171ea28701cf2da745778f9b7a2386d748a54caee77bb7c23c281e",
+  "approvedRepoHead": "92815dcc3e75c9dc83ff3291825133e58b2fc1e8",
+  "notes": "Steve gave full permission to run the Connector/Routing Truth sprint without stopping unless blocked. Approval covers the bounded truth sprint only: atom promotion diagnosis, sprint DB reconciliation, gate tiering fix, Plan Critic durable logging, source connector matrix, source hub routing matrix, and review-next decision. It does not approve Reply/Watching Loop, new connector implementation, Drive permission mutation, MEETING-VAULT-ACL-001 Phase B, Strategy expansion, Marketing production, Telegram bots, Directors, or agents.",
+  "approvalDigest": "7f085db1c06a594f5545f761b364d93d0e50b7177a6708bf2e6067764ca3abc0"
+}

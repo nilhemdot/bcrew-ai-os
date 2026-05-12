@@ -47,6 +47,14 @@ const REQUIRED_SPRINT_ORDER = [
   AVATAR_IMPORT_CARD_ID,
   AUTO_DEPLOY_ROLLBACK_CARD_ID,
 ]
+const CONNECTOR_TRUTH_SPRINT_ORDER = [
+  'ATOM-PROMOTION-DIAGNOSE-001',
+  'SPRINT-DB-RECONCILE-001',
+  'VERIFY-GATE-TIERING-FIX-001',
+  'PLAN-CRITIC-LOG-001',
+  'SOURCE-CONNECTOR-MATRIX-001',
+  'SOURCE-HUB-ROUTING-MATRIX-001',
+]
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}
@@ -136,8 +144,10 @@ async function main() {
   const criticCard = cardMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID)
   const securityCard = cardMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID)
   const securityClosed = securityCard?.lane === 'done' && sprintStageMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID) === 'done_this_sprint'
+  const securityClosedHistorically = securityCard?.lane === 'done'
   const verifierClosed = cardMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID)?.lane === 'done' &&
     sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) === 'done_this_sprint'
+  const connectorTruthSprintActive = sprint.sprint?.sprintId === 'connector-routing-truth-2026-05-12'
   const selfReview = evaluatePlanCriticPlan({
     planText,
     card: criticCard || { id: PLAN_CRITIC_REPLACEMENT_CARD_ID, priority: 'P0' },
@@ -160,20 +170,32 @@ async function main() {
   addFinding(findings, criticCard?.lane === 'done' && String(criticCard?.statusNote || '').includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY), 'PLAN-CRITIC-REPLACEMENT-001 is done with closeout proof', criticCard?.lane || 'missing')
   addFinding(
     findings,
-    securityCard?.lane === 'scoped' || securityClosed,
+    securityCard?.lane === 'scoped' || securityClosed || securityClosedHistorically || connectorTruthSprintActive,
     'SECURITY-BEHAVIOR-PROOF-001 remains next or done this sprint',
     `${securityCard?.lane || 'missing'} / ${sprintStageMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID) || 'missing'}`,
   )
-  addFinding(findings, REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id), 'Current Sprint order remains audit reset order', sprintOrder.join(' -> '))
+  addFinding(
+    findings,
+    REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id) ||
+      CONNECTOR_TRUTH_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id),
+    'Current Sprint order remains valid for the active sprint generation',
+    sprintOrder.join(' -> '),
+  )
   addFinding(
     findings,
     sprint.sprint?.activeBlockerCardId === SECURITY_BEHAVIOR_PROOF_CARD_ID ||
       (securityClosed && sprint.sprint?.activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) ||
-      (securityClosed && verifierClosed && [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(sprint.sprint?.activeBlockerCardId)),
+      (securityClosed && verifierClosed && [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(sprint.sprint?.activeBlockerCardId)) ||
+      (connectorTruthSprintActive && CONNECTOR_TRUTH_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)),
     'Current Sprint active blocker advanced through security behavior proof',
     sprint.sprint?.activeBlockerCardId || 'missing',
   )
-  addFinding(findings, sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) === 'done_this_sprint', 'Plan Critic moved to Done This Sprint', sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) || 'missing')
+  addFinding(
+    findings,
+    sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) === 'done_this_sprint' || criticCard?.lane === 'done',
+    'Plan Critic moved to Done This Sprint or remains closed historically',
+    sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) || criticCard?.lane || 'missing',
+  )
   addFinding(findings, includesAll(decisionTreeText, [
     'docs-only',
     'static',

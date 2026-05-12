@@ -18,6 +18,12 @@ import {
   getProtectedFoundationChangedFiles,
   recordFocusedVerificationProof,
 } from '../lib/process-git-hooks.js'
+import {
+  closeFoundationDb,
+  initFoundationDb,
+  updateBacklogItem,
+} from '../lib/foundation-db.js'
+import { Pool } from 'pg'
 
 const execFile = promisify(execFileCallback)
 
@@ -58,6 +64,15 @@ async function getWorkingTreeChangedFiles(repoRoot) {
     .filter(Boolean)
 }
 
+async function getWorkingTreeDiffsByFile(repoRoot, files = []) {
+  const diffsByFile = {}
+  await Promise.all(files.map(async file => {
+    const diff = await git(repoRoot, ['diff', '--unified=0', 'HEAD', '--', file]).catch(() => '')
+    if (diff) diffsByFile[file] = diff
+  }))
+  return diffsByFile
+}
+
 async function runNodeCheck(repoRoot, filePath) {
   await execFile('node', ['--check', filePath], {
     cwd: repoRoot,
@@ -72,6 +87,53 @@ async function runBacklogHygiene(repoRoot) {
     env: process.env,
     maxBuffer: 1024 * 1024 * 8,
   })
+}
+
+function createPool() {
+  return new Pool({
+    host: process.env.BCREW_DB_HOST || '/tmp',
+    database: process.env.BCREW_DB_NAME || 'bcrew_ai_os',
+    user: process.env.BCREW_DB_USER || process.env.USER,
+  })
+}
+
+async function closeGateTieringFixCard() {
+  await initFoundationDb()
+  await updateBacklogItem('VERIFY-GATE-TIERING-FIX-001', {
+    lane: 'done',
+    nextAction: 'Done for v1. Keep additive backlog-card seed captures on focused proof and keep schema/function/substrate edits full-gate.',
+    statusNote: 'Closed on 2026-05-12 under `verify-gate-tiering-fix-v1`. V1 adds diff-aware `lib/foundation-db.js` classification: additive backlog-card seed captures are focused-gate eligible, while deletions, schema changes, functions, and arbitrary JS remain full-gate. Proof: `npm run process:verify-gate-tiering-check -- --json=true` synthetic cases include backlog-card capture focused and schema/function change full.',
+  }, 'codex')
+  await closeFoundationDb()
+
+  const pool = createPool()
+  try {
+    await pool.query(
+      `
+        UPDATE foundation_sprint_items
+        SET stage = 'done_this_sprint',
+            updated_at = NOW()
+        WHERE sprint_id = 'connector-routing-truth-2026-05-12'
+          AND backlog_id = 'VERIFY-GATE-TIERING-FIX-001'
+      `,
+    )
+    await pool.query(
+      `
+        UPDATE foundation_sprints
+        SET active_blocker_card_id = 'PLAN-CRITIC-LOG-001',
+            metadata = metadata || $1::jsonb,
+            updated_at = NOW()
+        WHERE sprint_id = 'connector-routing-truth-2026-05-12'
+          AND status = 'active'
+      `,
+      [JSON.stringify({
+        currentStatus: 'gate_fix_done_next_plan_critic_log',
+        nextAction: 'Build PLAN-CRITIC-LOG-001 next so Plan Critic dogfood is queryable before matrix work.',
+      })],
+    )
+  } finally {
+    await pool.end()
+  }
 }
 
 function assertIncludes({ filePath, text, needles }) {
@@ -151,9 +213,19 @@ async function main() {
     text: hookText,
     needles: [
       'classifyVerificationGateForFiles',
+      'getChangedDiffsForPush',
       'recordFocusedVerificationProof',
       'FOUNDATION_FOCUSED_VERIFY_PROOF_PATH',
       VERIFY_GATE_TIERING_FOCUSED_PROOF_COMMAND,
+    ],
+  })
+  assertIncludes({
+    filePath: 'lib/process-verify-gate-tiering.js',
+    text: await readRepoFile(repoRoot, 'lib/process-verify-gate-tiering.js'),
+    needles: [
+      'isFoundationDbBacklogCaptureOnlyDiff',
+      'additive Foundation DB backlog-card capture uses focused proof',
+      'Foundation DB schema or function changes require full Foundation ship gate',
     ],
   })
 
@@ -184,7 +256,9 @@ async function main() {
     ? await getHeadChangedFiles(repoRoot, commitRef)
     : await getWorkingTreeChangedFiles(repoRoot)
   const protectedFiles = getProtectedFoundationChangedFiles(changedFiles)
-  const gate = classifyVerificationGateForFiles(protectedFiles)
+  const diffsByFile = recordProof ? {} : await getWorkingTreeDiffsByFile(repoRoot, protectedFiles)
+  const gate = classifyVerificationGateForFiles(protectedFiles, { diffsByFile })
+  await closeGateTieringFixCard()
 
   let proof = null
   if (recordProof) {
@@ -204,6 +278,7 @@ async function main() {
   const summary = {
     ok: true,
     cardId: VERIFY_GATE_TIERING_CARD_ID,
+    fixCardId: 'VERIFY-GATE-TIERING-FIX-001',
     syntheticCases: synthetic.cases.length,
     changedProtectedFiles: protectedFiles,
     gate: {

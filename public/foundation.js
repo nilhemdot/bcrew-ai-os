@@ -10857,6 +10857,174 @@ function renderSourceMaturityGridPanel(grid) {
   return panel
 }
 
+function renderConnectorFlowCell(ok, label) {
+  var cell = document.createElement('td')
+  cell.className = ok ? 'source-maturity-stage-cell is-complete' : 'source-maturity-stage-cell is-gap'
+  cell.textContent = ok ? 'Yes' : 'No'
+  cell.title = label || ''
+  return cell
+}
+
+function renderSourceConnectorMatrixPanel(matrix) {
+  if (!matrix || !Array.isArray(matrix.rows) || !matrix.rows.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel source-maturity-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'source-connector-matrix')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Connector Matrix'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Old-system connectors vs source truth'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  var summary = matrix.summary || {}
+  intro.textContent = (summary.rowCount || 0) + ' connector rows with atom-flow columns. Missing/blocked: '
+    + (summary.requiredMissingOrBlockedCount || 0) + '. Atom-flow gaps: '
+    + (summary.atomFlowGapCount || 0) + '.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag((summary.connectedCount || 0) + ' connected', 'connected'))
+  right.appendChild(renderSourceTag((summary.missingContractCount || 0) + ' missing contracts', summary.missingContractCount ? 'missing' : 'connected'))
+  right.appendChild(renderSourceTag((summary.blockedCount || 0) + ' blocked', summary.blockedCount ? 'missing' : 'neutral'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var tableWrap = document.createElement('div')
+  tableWrap.className = 'source-maturity-table-wrap'
+  var table = document.createElement('table')
+  table.className = 'source-maturity-table'
+  var thead = document.createElement('thead')
+  var headerRow = document.createElement('tr')
+  ;['Connector', 'Decision', 'Contract', 'API', 'Target', 'Artifacts', 'Candidates', 'Atoms', 'Synth', 'Route', 'Blocker'].forEach(function(label) {
+    var th = document.createElement('th')
+    th.textContent = label
+    headerRow.appendChild(th)
+  })
+  thead.appendChild(headerRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+  matrix.rows.forEach(function(row) {
+    var tr = document.createElement('tr')
+    tr.setAttribute('data-source-connector-row', row.key)
+    var sourceCell = document.createElement('td')
+    sourceCell.className = 'source-maturity-source-cell'
+    var name = document.createElement('strong')
+    name.textContent = row.label
+    sourceCell.appendChild(name)
+    var detail = document.createElement('span')
+    detail.textContent = row.sourceId + ' · ' + row.connectorId
+    sourceCell.appendChild(detail)
+    tr.appendChild(sourceCell)
+
+    var decisionCell = document.createElement('td')
+    decisionCell.appendChild(renderSourceTag(row.decision || 'unknown', row.decision === 'connected' ? 'connected' : row.decision === 'blocked' ? 'missing' : 'pending'))
+    tr.appendChild(decisionCell)
+    tr.appendChild(renderConnectorFlowCell(row.hasContract, row.contractStatus))
+    tr.appendChild(renderConnectorFlowCell(row.hasConnector, row.connectorStatus))
+    tr.appendChild(renderConnectorFlowCell(row.hasExtractionTarget, row.extractionTargetCount + ' target(s)'))
+    tr.appendChild(renderConnectorFlowCell(row.hasArtifacts, (row.artifactCount || 0) + ' artifact(s)'))
+    tr.appendChild(renderConnectorFlowCell(row.hasCandidates, (row.candidateCount || 0) + ' candidate(s)'))
+    tr.appendChild(renderConnectorFlowCell(row.hasPromotedAtoms, (row.promotedAtomCount || 0) + ' atom(s)'))
+    tr.appendChild(renderConnectorFlowCell(row.hasSynthesis, (row.synthesisFactCount || 0) + ' fact(s)'))
+    tr.appendChild(renderConnectorFlowCell(row.hasRouting, (row.routeCount || 0) + ' route(s)'))
+    var blockerCell = document.createElement('td')
+    blockerCell.className = 'source-extraction-next-cell'
+    blockerCell.textContent = row.blockedReason || 'None'
+    tr.appendChild(blockerCell)
+    tbody.appendChild(tr)
+  })
+  table.appendChild(tbody)
+  tableWrap.appendChild(table)
+  panel.appendChild(tableWrap)
+  return panel
+}
+
+function renderSourceHubRoutingMatrixPanel(matrix) {
+  if (!matrix || !Array.isArray(matrix.rows) || !matrix.rows.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel source-maturity-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'source-hub-routing-matrix')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Hub Routing Matrix'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Routed to where'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  var summary = matrix.summary || {}
+  intro.textContent = (summary.rowCount || 0) + ' source classes across '
+    + (summary.hubCount || 0) + ' hubs. Routes: '
+    + (summary.routeCellCount || 0) + ', candidates: '
+    + (summary.candidateCellCount || 0) + ', blocked: '
+    + (summary.blockedCellCount || 0) + '.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag((summary.routeCellCount || 0) + ' route', 'connected'))
+  right.appendChild(renderSourceTag((summary.candidateCellCount || 0) + ' candidate', 'pending'))
+  right.appendChild(renderSourceTag((summary.blockedCellCount || 0) + ' blocked', summary.blockedCellCount ? 'missing' : 'neutral'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var tableWrap = document.createElement('div')
+  tableWrap.className = 'source-maturity-table-wrap'
+  var table = document.createElement('table')
+  table.className = 'source-maturity-table'
+  var thead = document.createElement('thead')
+  var headerRow = document.createElement('tr')
+  ;['Source'].concat(matrix.columns || []).forEach(function(label) {
+    var th = document.createElement('th')
+    th.textContent = label
+    headerRow.appendChild(th)
+  })
+  thead.appendChild(headerRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+  matrix.rows.forEach(function(row) {
+    var tr = document.createElement('tr')
+    tr.setAttribute('data-source-hub-routing-row', row.sourceKey)
+    var sourceCell = document.createElement('td')
+    sourceCell.className = 'source-maturity-source-cell'
+    var name = document.createElement('strong')
+    name.textContent = row.label
+    sourceCell.appendChild(name)
+    var detail = document.createElement('span')
+    detail.textContent = row.sourceReadiness || row.decision || ''
+    sourceCell.appendChild(detail)
+    tr.appendChild(sourceCell)
+    ;(row.cells || []).forEach(function(cell) {
+      var cellEl = document.createElement('td')
+      cellEl.appendChild(renderSourceTag(cell.state, cell.state === 'route' ? 'connected' : cell.state === 'blocked' ? 'missing' : cell.state === 'candidate' ? 'pending' : 'neutral'))
+      cellEl.title = cell.reason || ''
+      tr.appendChild(cellEl)
+    })
+    tbody.appendChild(tr)
+  })
+  table.appendChild(tbody)
+  tableWrap.appendChild(table)
+  panel.appendChild(tableWrap)
+  return panel
+}
+
 function renderSourceExtractionCoveragePanel(coverage) {
   if (!coverage || !Array.isArray(coverage.rows) || !coverage.rows.length) return null
   var panel = document.createElement('section')
@@ -14386,6 +14554,10 @@ function renderSourceLifecycle() {
     if (foundationUiComplete) container.appendChild(foundationUiComplete)
     var maturityGrid = renderSourceMaturityGridPanel(lifecycle.sourceMaturityGrid)
     if (maturityGrid) container.appendChild(maturityGrid)
+    var connectorMatrix = renderSourceConnectorMatrixPanel(lifecycle.sourceConnectorMatrix)
+    if (connectorMatrix) container.appendChild(connectorMatrix)
+    var hubRoutingMatrix = renderSourceHubRoutingMatrixPanel(lifecycle.sourceHubRoutingMatrix)
+    if (hubRoutingMatrix) container.appendChild(hubRoutingMatrix)
     var extractionCoverage = renderSourceExtractionCoveragePanel(lifecycle.sourceExtractionCoverage)
     if (extractionCoverage) container.appendChild(extractionCoverage)
     var sourceCoverageCloseout = renderSourceCoverageCloseoutPanel(lifecycle.sourceCoverageCloseout)

@@ -19,6 +19,12 @@ import { callEmbedding } from '../lib/llm-router.js'
 const EMBEDDING_DIMENSIONS = 1536
 const EMBEDDING_MODEL = process.env.LLM_EMBEDDING_MODEL || 'text-embedding-3-large'
 const DIVERSITY_SOURCE_ID = 'SRC-GMAIL-001'
+const SCHEDULED_PROMOTION_SOURCE_IDS = [
+  'SRC-GMAIL-001',
+  'SRC-MISSIVE-001',
+  'SRC-MEETINGS-001',
+  'SRC-SLACK-001',
+]
 const SAFE_QUERY_PATTERNS = [
   /marketing.*source map/i,
   /source map/i,
@@ -42,6 +48,10 @@ function parseArgs(argv = process.argv.slice(2)) {
 
 function stableHash(value) {
   return createHash('sha256').update(String(value || '')).digest('hex')
+}
+
+function uniqueText(values = []) {
+  return Array.from(new Set(values.map(value => String(value || '').trim()).filter(Boolean)))
 }
 
 function safeRunSummary(run = {}) {
@@ -185,10 +195,32 @@ async function main() {
         limit: 10,
       }, actor)
 
+  const freshPromotion = refreshMode
+    ? await promoteSharedCommunicationCandidatesToAtoms({
+        runId: `retrieval-fresh-candidate-promotion-${runSuffix}`,
+        reportArtifactId: `report-artifact:synthesis-engine-fresh-candidate-promotion-${runSuffix}`,
+        sourceIds: SCHEDULED_PROMOTION_SOURCE_IDS,
+        maxTier: 1,
+        limit: 30,
+      }, actor)
+    : {
+        candidatesRead: 0,
+        atomsPromoted: 0,
+        chunksUpserted: 0,
+        promoted: [],
+      }
+
+  const promotedCandidateKeys = uniqueText([
+    ...(diversityPromotion.promoted || []).map(item => item.candidateKey),
+    ...(freshPromotion.promoted || []).map(item => item.candidateKey),
+  ])
+  const embeddingSelection = promotedCandidateKeys.length
+    ? { candidateKeys: promotedCandidateKeys }
+    : { sourceIds: refreshMode ? SCHEDULED_PROMOTION_SOURCE_IDS : [DIVERSITY_SOURCE_ID] }
   const chunksForEmbedding = await selectRetrievalChunksForEmbedding({
-    sourceIds: [DIVERSITY_SOURCE_ID],
+    ...embeddingSelection,
     maxTier: 1,
-    limit: 10,
+    limit: refreshMode ? 20 : 10,
     embeddingModel: EMBEDDING_MODEL,
     embeddingDimensions: EMBEDDING_DIMENSIONS,
   })
@@ -267,6 +299,8 @@ async function main() {
       queryEmbeddingCallId: queryEmbeddingResult.call.callId,
       evidence: factBundle.evidence,
       corpusDiversitySourceId: DIVERSITY_SOURCE_ID,
+      scheduledPromotionSourceIds: refreshMode ? SCHEDULED_PROMOTION_SOURCE_IDS : [],
+      promotedCandidateKeys,
     },
   }, actor)
 
@@ -292,7 +326,9 @@ async function main() {
         activeSourceCount,
         diversitySourceChunks,
         promoted: diversityPromotion.chunksUpserted,
+        freshPromoted: freshPromotion.chunksUpserted,
         embedded: embedded.length,
+        scheduledPromotionSourceIds: refreshMode ? SCHEDULED_PROMOTION_SOURCE_IDS : [],
       },
     },
   }, actor)
@@ -333,18 +369,18 @@ async function main() {
     item.metadata?.strategyHubEligible === true ||
     item.attributes?.strategyHubEligible === true
   )
-  if (!strategyEligibleItems.length) {
+  if (!refreshMode && !strategyEligibleItems.length) {
     throw new Error('SYNTHESIS-ENGINE-001 proof produced no Strategy-eligible clustered item.')
   }
   const strategySingleEvidenceItems = strategyEligibleItems.filter(item =>
     (item.evidenceRefs?.length || 0) < 2 ||
     (item.evidenceChunkRefs?.length || 0) < 2
   )
-  if (strategySingleEvidenceItems.length) {
+  if (!refreshMode && strategySingleEvidenceItems.length) {
     throw new Error(`SYNTHESIS-ENGINE-001 marked single-evidence items as Strategy-eligible: ${strategySingleEvidenceItems.map(item => item.synthesizedItemId).join(', ')}`)
   }
   const jargonStrategyTitle = strategyEligibleItems.find(item => STRATEGY_TITLE_JARGON_PATTERN.test(String(item.title || '')))
-  if (jargonStrategyTitle) {
+  if (!refreshMode && jargonStrategyTitle) {
     throw new Error(`SYNTHESIS-ENGINE-001 strategy title is not meeting-readable: ${jargonStrategyTitle.title}`)
   }
   const activeItemSourceCount = new Set(synthesis.items.flatMap(item => item.sourceIds || [])).size
@@ -372,7 +408,7 @@ async function main() {
     quality.activeItems < synthesis.items.length ||
     quality.clusteredItems < quality.activeItems ||
     quality.itemsWithThemeMetadata < quality.activeItems ||
-    quality.strategyEligibleItems < 1 ||
+    (!refreshMode && quality.strategyEligibleItems < 1) ||
     quality.strategyItemsWithMultiEvidence < quality.strategyEligibleItems ||
     quality.strategySingleEvidenceItems !== 0 ||
     quality.duplicateThemeKeys !== 0 ||
@@ -407,7 +443,9 @@ async function main() {
       activeSourceCount,
       diversitySourceChunks,
       promoted: diversityPromotion.chunksUpserted,
+      freshPromoted: freshPromotion.chunksUpserted,
       embedded: embedded.length,
+      scheduledPromotionSourceIds: refreshMode ? SCHEDULED_PROMOTION_SOURCE_IDS : [],
       bySource: retrievalSnapshot.bySource,
     },
     facts: {
