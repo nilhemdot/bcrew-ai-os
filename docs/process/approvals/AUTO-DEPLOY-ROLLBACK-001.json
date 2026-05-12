@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AUTO-DEPLOY-ROLLBACK-001",
+  "approvedBy": "Codex interim reviewer per Steve build-away approval",
+  "approvedAt": "2026-05-12T10:06:16Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/auto-deploy-rollback-001-plan.md",
+  "approvedPlanSha256": "7d0e7375a623550948c813cd0d3ed082299fcadc0370d50342fc5b98037c950e",
+  "approvedRepoHead": "6a6ab150dea58d2e9d0af139ede636c0dd86066e",
+  "notes": "Approved for bounded Mac mini deploy rollback V1 only: guarded dry-run/apply runner, fast-forward pull, dashboard/worker restart, served-commit health check, rollback to captured previous SHA on failed health, focused behavior proof, and sprint closeout. This refresh only reconciles the plan hash after clarifying the failed-health wording caught by the verifier. Do not install a permanent periodic auto-pull LaunchAgent, migrate deployment platforms, or build unrelated old-system parity work in this card.",
+  "approvalDigest": "040a261adfa59c50a3410facba59c30762118811f3ddba385e24dfb0cb460b50"
+}

@@ -445,6 +445,15 @@ import {
   buildSyntheticAvatarImportProof,
 } from '../lib/marketing-avatar-registry.js'
 import {
+  AUTO_DEPLOY_ROLLBACK_APPROVAL_PATH,
+  AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY,
+  AUTO_DEPLOY_ROLLBACK_PLAN_PATH,
+  AUTO_DEPLOY_ROLLBACK_RUNNER_PATH,
+  AUTO_DEPLOY_ROLLBACK_SCRIPT_PATH,
+  AUTO_DEPLOY_ROLLBACK_SUMMARY_MARKER,
+  buildSyntheticAutoDeployRollbackProof,
+} from '../lib/auto-deploy-rollback.js'
+import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
   buildSyntheticStaleSkillSource,
@@ -1296,6 +1305,12 @@ async function main() {
   const avatarRetainSource = await readRepoFile(MARKETING_AVATAR_RETAIN_SOURCE_PATH)
   const avatarAttractSource = await readRepoFile(MARKETING_AVATAR_ATTRACT_SOURCE_PATH)
   const avatarOldReadmeSource = await readRepoFile(MARKETING_AVATAR_OLD_README_PATH)
+  const autoDeployRollbackSource = await readRepoFile('lib/auto-deploy-rollback.js')
+  const autoDeployRollbackRunnerSource = await readRepoFile(AUTO_DEPLOY_ROLLBACK_RUNNER_PATH)
+  const autoDeployRollbackScriptSource = await readRepoFile(AUTO_DEPLOY_ROLLBACK_SCRIPT_PATH)
+  const autoDeployRollbackPlanSource = await readRepoFile(AUTO_DEPLOY_ROLLBACK_PLAN_PATH)
+  const autoDeployRollbackApprovalSource = await readRepoFile(AUTO_DEPLOY_ROLLBACK_APPROVAL_PATH)
+  const autoDeployRollbackApproval = JSON.parse(autoDeployRollbackApprovalSource)
   const strategicExecutionHtmlSource = await readRepoFile('public/strategic-execution.html')
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
   const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
@@ -1608,6 +1623,11 @@ async function main() {
     repoRoot,
     approvalRef: AVATAR_IMPORT_APPROVAL_PATH,
     cardId: AVATAR_IMPORT_CARD_ID,
+  })
+  const autoDeployRollbackApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: AUTO_DEPLOY_ROLLBACK_APPROVAL_PATH,
+    cardId: AUTO_DEPLOY_ROLLBACK_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3054,6 +3074,7 @@ async function main() {
   const verifierBehaviorSweepSynthetic = buildSyntheticVerifierBehaviorSweepProof()
   const strategyHubMeetingReadySynthetic = buildSyntheticStrategyHubMeetingReadyProof()
   const avatarImportSynthetic = buildSyntheticAvatarImportProof()
+  const autoDeployRollbackSynthetic = buildSyntheticAutoDeployRollbackProof()
   const avatarImportSnapshot = buildMarketingAvatarImportSnapshot({
     referenceBriefText: avatarReferenceBriefSource,
     retainProfilesText: avatarRetainSource,
@@ -4061,6 +4082,21 @@ async function main() {
           'AVATAR-001',
           'MARKETING-PIPELINE-REBUILD-001',
           'BRAND-STACK-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogAutoDeployRollbackBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AUTO_DEPLOY_ROLLBACK_CARD_ID) &&
+      build.closeoutKey === AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY,
+        backlogIds: [AUTO_DEPLOY_ROLLBACK_CARD_ID],
+        mentionedBacklogIds: [
+          'REPLY-WATCHING-LOOP-001',
+          'SYSTEM-010-GHOST-CLOSEOUT-001',
+          'PROCESS-HOOKS-002',
         ],
         operatorCloseout: true,
       }
@@ -5348,6 +5384,7 @@ async function main() {
   const verifierBehaviorSweep = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) || null
   const strategyHubMeetingReady = (foundationHub.backlogItems || []).find(item => item.id === STRATEGY_HUB_MEETING_READY_CARD_ID) || null
   const avatarImport = (foundationHub.backlogItems || []).find(item => item.id === AVATAR_IMPORT_CARD_ID) || null
+  const autoDeployRollback = (foundationHub.backlogItems || []).find(item => item.id === AUTO_DEPLOY_ROLLBACK_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -5413,6 +5450,23 @@ async function main() {
       'package.json',
     ],
     declaredRisk: avatarImportPlanSource,
+  })
+  const autoDeployRollbackPlanReview = evaluatePlanCriticPlan({
+    planText: autoDeployRollbackPlanSource,
+    card: autoDeployRollback || { id: AUTO_DEPLOY_ROLLBACK_CARD_ID, priority: 'P1' },
+    changedFiles: [
+      AUTO_DEPLOY_ROLLBACK_PLAN_PATH,
+      AUTO_DEPLOY_ROLLBACK_APPROVAL_PATH,
+      'lib/auto-deploy-rollback.js',
+      AUTO_DEPLOY_ROLLBACK_RUNNER_PATH,
+      AUTO_DEPLOY_ROLLBACK_SCRIPT_PATH,
+      'lib/foundation-current-sprint.js',
+      'lib/foundation-db.js',
+      'lib/foundation-build-log.js',
+      'scripts/foundation-verify.mjs',
+      'package.json',
+    ],
+    declaredRisk: autoDeployRollbackPlanSource,
   })
   const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
     meetingVaultAcl?.lane === 'done' &&
@@ -7817,6 +7871,18 @@ async function main() {
       'MARKETING-PIPELINE-REBUILD-001',
       'BRAND-STACK-001',
     ].every(id => !(buildLogAvatarImportBuild.backlogIds || []).includes(id))
+  const autoDeployRollbackBuildLogExact = buildLogAutoDeployRollbackBuild?.backlogIds?.length === 1 &&
+    buildLogAutoDeployRollbackBuild.backlogIds.includes(AUTO_DEPLOY_ROLLBACK_CARD_ID) &&
+    [
+      'REPLY-WATCHING-LOOP-001',
+      'SYSTEM-010-GHOST-CLOSEOUT-001',
+      'PROCESS-HOOKS-002',
+    ].every(id => (buildLogAutoDeployRollbackBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      'REPLY-WATCHING-LOOP-001',
+      'SYSTEM-010-GHOST-CLOSEOUT-001',
+      'PROCESS-HOOKS-002',
+    ].every(id => !(buildLogAutoDeployRollbackBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -7875,7 +7941,15 @@ async function main() {
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
       foundationHub.currentSprint?.cadence?.executiveSummary &&
-      foundationHub.currentSprint?.cadence?.nextCard?.cardId &&
+      (
+        foundationHub.currentSprint?.cadence?.nextCard?.cardId ||
+        (
+          foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
+          foundationHub.currentSprint?.summary?.itemCount > 0 &&
+          foundationHub.currentSprint?.summary?.doneThisSprintCount === foundationHub.currentSprint.summary.itemCount &&
+          foundationHub.currentSprint?.cadence?.nextAction?.includes('sprint closeout')
+        )
+      ) &&
       foundationHub.currentSprint?.cadence?.currentBlocker?.cardId &&
       Array.isArray(foundationHub.currentSprint?.cadence?.exitCriteria) &&
       foundationHub.currentSprint.cadence.exitCriteria.length >= 5 &&
@@ -8321,6 +8395,72 @@ async function main() {
       foundationVerifySource.includes('buildSyntheticAvatarImportProof'),
     'AVATAR-IMPORT-001 imports old avatars as governed source-backed registry truth',
     `lane=${avatarImport?.lane || 'missing'} approval=${avatarImportApprovalValidation.ok} avatars=${avatarImportSnapshot.summary.totalAvatars} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    autoDeployRollback?.lane === 'done' &&
+      String(autoDeployRollback?.statusNote || '').includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['auto-deploy:rollback'] === `node --env-file-if-exists=.env ${AUTO_DEPLOY_ROLLBACK_RUNNER_PATH}` &&
+      packageJson.scripts?.['process:auto-deploy-rollback-check'] === `node --env-file-if-exists=.env ${AUTO_DEPLOY_ROLLBACK_SCRIPT_PATH}` &&
+      autoDeployRollbackApprovalValidation.ok &&
+      autoDeployRollbackApprovalValidation.mode === 'v2' &&
+      autoDeployRollbackApproval.cardId === AUTO_DEPLOY_ROLLBACK_CARD_ID &&
+      Number(autoDeployRollbackApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      autoDeployRollbackApproval.approvedPlanRef === AUTO_DEPLOY_ROLLBACK_PLAN_PATH &&
+      autoDeployRollbackPlanReview.status === 'pass' &&
+      autoDeployRollbackPlanReview.score >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      autoDeployRollbackSynthetic.ok &&
+      autoDeployRollbackSynthetic.summary.dirtyWorktreeRejected === true &&
+      autoDeployRollbackSynthetic.summary.missingTargetRejected === true &&
+      autoDeployRollbackSynthetic.summary.failedHealthRollsBack === true &&
+      autoDeployRollbackSynthetic.summary.healthyDeployDoesNotRollback === true &&
+      includesAll(autoDeployRollbackSource, [
+        'buildAutoDeployPlan',
+        'buildAutoDeployHealthStatus',
+        'buildRollbackDecision',
+        'buildSyntheticAutoDeployRollbackProof',
+        'dirty_worktree',
+        'failedHealthRollsBack',
+      ]) &&
+      includesAll(autoDeployRollbackRunnerSource, [
+        'isTrue(args.apply)',
+        "['merge', '--ff-only', targetRef]",
+        'git reset',
+        'waitForFoundationHealth',
+        'dirtyFiles',
+        'AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY',
+      ]) &&
+      includesAll(autoDeployRollbackScriptSource, [
+        AUTO_DEPLOY_ROLLBACK_SUMMARY_MARKER,
+        'synthetic deploy rollback proof passes',
+        'runner dry-run executes without mutation',
+      ]) &&
+      includesAll(autoDeployRollbackPlanSource, [
+        AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY,
+        'previous SHA',
+        'dry-run',
+        'failed health',
+        'Substring-only proof is rejected',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY,
+        'process:auto-deploy-rollback-check',
+        'auto-deploy rollback',
+      ]) &&
+      buildLogAutoDeployRollbackBuild?.operatorCloseout === true &&
+      autoDeployRollbackBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === AUTO_DEPLOY_ROLLBACK_CARD_ID &&
+      currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY) &&
+      currentPlan.includes('previous SHA') &&
+      currentPlan.includes('REPLY-WATCHING-LOOP-001') &&
+      currentState.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker stays pinned to `AUTO-DEPLOY-ROLLBACK-001`') &&
+      currentState.includes('failed health rolls back') &&
+      foundationVerifySource.includes('buildSyntheticAutoDeployRollbackProof'),
+    'AUTO-DEPLOY-ROLLBACK-001 adds Mac mini deploy rollback behavior proof',
+    `lane=${autoDeployRollback?.lane || 'missing'} approval=${autoDeployRollbackApprovalValidation.ok} rollback=${autoDeployRollbackSynthetic.summary.failedHealthRollsBack} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,

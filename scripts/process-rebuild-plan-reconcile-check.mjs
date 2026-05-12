@@ -152,7 +152,16 @@ async function main() {
   )
   addFinding(findings, cardMap.get(REBUILD_PLAN_RECONCILE_CARD_ID)?.lane === 'done', 'REBUILD-PLAN-RECONCILE-001 is done in live backlog', cardMap.get(REBUILD_PLAN_RECONCILE_CARD_ID)?.lane || 'missing')
   addFinding(findings, REQUIRED_OLD_SYSTEM_GAP_CARDS.every(id => cardMap.has(id)), 'old-system gap cards exist', REQUIRED_OLD_SYSTEM_GAP_CARDS.filter(id => !cardMap.has(id)).join(', '))
-  addFinding(findings, REQUIRED_OLD_SYSTEM_GAP_CARDS.every(id => ['research', 'scoped', 'ranked'].includes(cardMap.get(id)?.lane)), 'old-system gap cards are visible but not silently active', REQUIRED_OLD_SYSTEM_GAP_CARDS.map(id => `${id}:${cardMap.get(id)?.lane || 'missing'}`).join(', '))
+  addFinding(
+    findings,
+    REQUIRED_OLD_SYSTEM_GAP_CARDS.every(id => {
+      const lane = cardMap.get(id)?.lane
+      if (id === AUTO_DEPLOY_ROLLBACK_CARD_ID) return ['research', 'scoped', 'ranked', 'done'].includes(lane)
+      return ['research', 'scoped', 'ranked'].includes(lane)
+    }),
+    'old-system gap cards are visible but not silently active',
+    REQUIRED_OLD_SYSTEM_GAP_CARDS.map(id => `${id}:${cardMap.get(id)?.lane || 'missing'}`).join(', '),
+  )
   addFinding(findings, cardMap.get('CURRENT-SPRINT-DYNAMIC-TRUTH-001')?.lane === 'scoped', 'Current Sprint dynamic truth follow-up remains carded', cardMap.get('CURRENT-SPRINT-DYNAMIC-TRUTH-001')?.lane || 'missing')
   addFinding(findings, includesAll(currentPlan, [
     VERIFY_GATE_TIERING_CARD_ID,

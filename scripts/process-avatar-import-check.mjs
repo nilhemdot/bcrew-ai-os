@@ -168,7 +168,7 @@ async function main() {
   addFinding(findings, syntheticProof.ok, 'synthetic avatar proof rejects wrong-count and missing-field variants', JSON.stringify(syntheticProof.summary))
   addFinding(findings, packageJson.scripts?.['process:avatar-import-check'] === `node --env-file-if-exists=.env ${AVATAR_IMPORT_SCRIPT_PATH}`, 'package exposes focused proof script')
   addFinding(findings, avatarCard?.lane === 'done' && String(avatarCard?.statusNote || '').includes(AVATAR_IMPORT_CLOSEOUT_KEY), 'AVATAR-IMPORT-001 is done with closeout proof', avatarCard?.lane || 'missing')
-  addFinding(findings, autoDeployCard?.lane === 'scoped', 'AUTO-DEPLOY-ROLLBACK-001 remains scoped as next card', autoDeployCard?.lane || 'missing')
+  addFinding(findings, ['scoped', 'done'].includes(autoDeployCard?.lane), 'AUTO-DEPLOY-ROLLBACK-001 remains scoped or done as next card', autoDeployCard?.lane || 'missing')
   addFinding(findings, activeBlockerCardId === AUTO_DEPLOY_ROLLBACK_CARD_ID, 'Current Sprint active blocker advanced to Auto Deploy rollback', activeBlockerCardId || 'missing')
   addFinding(findings, sprintStageMap.get(AVATAR_IMPORT_CARD_ID) === 'done_this_sprint', 'Avatar import moved to Done This Sprint', sprintStageMap.get(AVATAR_IMPORT_CARD_ID) || 'missing')
   addFinding(findings, includesAll(registryReadmeText, [

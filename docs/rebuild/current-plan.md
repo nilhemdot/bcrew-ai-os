@@ -361,9 +361,9 @@ Order:
 7. `AVATAR-IMPORT-001` — done this sprint / P1 under `avatar-import-v1`.
    - Imported the old 10 RETAIN and 5 ATTRACT avatars into governed new-system truth.
    - The registry preserves stable avatar IDs, trigger language, pains, source-backed platform behavior, objections, and buying signals without restarting Marketing production.
-8. `AUTO-DEPLOY-ROLLBACK-001` — scoped / P1 / active blocker.
-   - Scope Mac mini deploy reliability next: push/pull/build/restart/health-check with rollback proof.
-   - This is reliability carry-forward, not broad deployment redesign.
+8. `AUTO-DEPLOY-ROLLBACK-001` — done this sprint / P1 / active blocker pinned for sprint closeout under `auto-deploy-rollback-v1`.
+   - Added a guarded Mac mini deploy runner: dry-run by default, explicit apply mode, fast-forward pull, dashboard/worker restart, served-commit health check, and rollback to the previous SHA on failed health.
+   - This is reliability carry-forward, not broad deployment redesign or a permanent periodic auto-pull LaunchAgent install.
 
 On-board but not automatically active:
 
@@ -976,9 +976,9 @@ Current order:
 
 Guardrail: Agent Feedback production enablement, live reminders, the system registration sweep, `SECURITY-002` auth/tier/redaction v1, `FOUNDATION-SPRINT-CADENCE-001` under `foundation-sprint-cadence-v1`, and `MEETING-VAULT-AUTO-ENFORCEMENT-001` under `meeting-vault-auto-enforcement-v1` are in place. Meeting Vault now closes Foundation readiness through automatic report-only forward-flow proof and a bounded legacy exception queue, not through more historical permission batches. `FOUNDATION-SPRINT-REVIEW-001` is complete in `docs/process/foundation-sprint-review-001.md`; Foundation reports READY only for owner-only Strategy re-entry. Next work is:
 
-1. Scope `AUTO-DEPLOY-ROLLBACK-001` as the reliability carry-forward now that Strategy meeting-ready and Avatar import are shipped.
+1. Close the sprint review and decide whether the next active product behavior card is `REPLY-WATCHING-LOOP-001`.
 2. Review `STRATEGY-HUB-MEETING-READY-001` in practice before promoting Scoper, Strategic Intelligence, or advisor-style work.
-3. Keep broad verifier rewrites as follow-up; `VERIFIER-BEHAVIOR-SWEEP-001` v1 only closed the top-P0 behavior registry.
+3. Decide separately whether to install a permanent periodic auto-pull LaunchAgent for the deploy runner; v1 intentionally did not install it.
 4. Keep `SECURITY-FILTERED-COMMS-ACCESS-001` separate; security behavior proof did not open shared communications to non-Tier-1 users.
 5. Keep historical Meeting Vault cleanup as a later separately approved legacy-exception sprint, not current Foundation readiness work.
 
