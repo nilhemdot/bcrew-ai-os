@@ -228,6 +228,7 @@ const requiredRouteKeys = [
   'POST /api/foundation/jobs/:jobKey/decommission',
   'GET /api/foundation/changes',
   'GET /api/foundation/change-log',
+  'GET /api/foundation/per-user-changelog',
   'GET /api/foundation/daily-summary',
   'GET /api/foundation/build-log',
   'GET /api/foundation/doc-updates',

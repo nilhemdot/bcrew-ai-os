@@ -11330,6 +11330,108 @@ function renderVerificationRunsPanel(run) {
   return panel
 }
 
+function renderPerUserChangelogPanel(log) {
+  if (!log || !log.summary) return null
+  var actors = Array.isArray(log.activeActors) ? log.activeActors : []
+  var missingCoverage = Array.isArray(log.missingCoverage) ? log.missingCoverage : []
+  var summary = log.summary || {}
+  var panel = document.createElement('section')
+  panel.className = 'panel per-user-changelog-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'per-user-changelog')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Per-User Changelog'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Write and approval activity'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = (summary.eventCount || 0) + ' recent change events across '
+    + (summary.actorCount || 0) + ' active actors: '
+    + (summary.changedCount || 0) + ' changed, '
+    + (summary.approvedCount || 0) + ' approved, '
+    + (summary.appliedCount || 0) + ' applied, '
+    + (summary.systemCount || 0) + ' system.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag(log.status || 'unknown', log.status === 'healthy' ? 'connected' : 'pending'))
+  right.appendChild(renderSourceTag((summary.unknownActorCount || 0) + ' unknown actors', summary.unknownActorCount ? 'pending' : 'connected'))
+  right.appendChild(renderSourceTag((summary.missingCoverageCount || 0) + ' missing coverage', summary.missingCoverageCount ? 'pending' : 'connected'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-meta-grid'
+  meta.appendChild(renderSourceMetaItem('Known users', String(summary.knownUserActorCount || 0)))
+  meta.appendChild(renderSourceMetaItem('Agents', String(summary.agentActorCount || 0)))
+  meta.appendChild(renderSourceMetaItem('System actors', String(summary.systemActorCount || 0)))
+  meta.appendChild(renderSourceMetaItem('Next card', summary.nextCardId || 'unknown'))
+  panel.appendChild(meta)
+
+  var grid = document.createElement('div')
+  grid.className = 'per-user-changelog-grid'
+  actors.slice(0, 12).forEach(function(actor) {
+    var article = document.createElement('article')
+    article.className = 'per-user-changelog-card'
+    article.setAttribute('data-per-user-actor', actor.actorKey)
+
+    var top = document.createElement('div')
+    top.className = 'source-lifecycle-card-top'
+    var name = document.createElement('h4')
+    name.textContent = actor.displayName || actor.actorKey
+    top.appendChild(name)
+    top.appendChild(renderSourceTag(actor.actorKind || 'actor', actor.actorKind === 'unknown_actor' ? 'pending' : 'connected'))
+    article.appendChild(top)
+
+    var detail = document.createElement('p')
+    detail.textContent = (actor.eventCount || 0) + ' event(s)'
+      + (actor.latestAt ? ' · latest ' + formatDate(actor.latestAt) : '')
+    article.appendChild(detail)
+
+    var actorMeta = document.createElement('div')
+    actorMeta.className = 'source-card-meta-grid'
+    actorMeta.appendChild(renderSourceMetaItem('Changed', String((actor.counts || {}).changed || 0)))
+    actorMeta.appendChild(renderSourceMetaItem('Approved', String((actor.counts || {}).approved || 0)))
+    actorMeta.appendChild(renderSourceMetaItem('Applied', String((actor.counts || {}).applied || 0)))
+    actorMeta.appendChild(renderSourceMetaItem('System', String((actor.counts || {}).system || 0)))
+    article.appendChild(actorMeta)
+
+    var activity = (actor.recentActivity || []).slice(0, 3).map(function(item) {
+      return (item.activityType || 'activity') + ': ' + (item.summary || item.eventType || item.entityId)
+    })
+    if (activity.length) article.appendChild(renderSourceBulletGroup('Latest activity', activity))
+    grid.appendChild(article)
+  })
+
+  if (!actors.length) {
+    var empty = document.createElement('p')
+    empty.className = 'section-intro'
+    empty.textContent = 'No per-user change events are currently visible.'
+    grid.appendChild(empty)
+  }
+  panel.appendChild(grid)
+
+  if (missingCoverage.length) {
+    panel.appendChild(renderSourceBulletGroup('Still missing from old-system parity', missingCoverage.map(function(item) {
+      return item.label + ': ' + item.repairPath
+    })))
+  }
+
+  if ((log.boundaries || []).length) {
+    panel.appendChild(renderSourceBulletGroup('Boundaries', log.boundaries))
+  }
+
+  return panel
+}
+
 function renderSourceLifecycleDefinitions(definitions) {
   var panel = document.createElement('section')
   panel.className = 'panel'
@@ -14100,6 +14202,8 @@ function renderSourceLifecycle() {
     if (tierBehavioralCompletion) container.appendChild(tierBehavioralCompletion)
     var verificationRuns = renderVerificationRunsPanel(lifecycle.verificationRuns)
     if (verificationRuns) container.appendChild(verificationRuns)
+    var perUserChangelog = renderPerUserChangelogPanel(lifecycle.perUserChangelog)
+    if (perUserChangelog) container.appendChild(perUserChangelog)
     container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
     container.appendChild(renderSourceLifecycleLanes(lifecycle))
     container.appendChild(renderSourceLifecycleTargets(lifecycle))

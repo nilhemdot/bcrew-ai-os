@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-12
-Version: v6.30 — Foundation Source Once-Over sprint
+Version: v6.31 — Foundation Source Once-Over sprint
 Status: Active
 
 Use this doc for one question:
@@ -88,8 +88,8 @@ Sprint order:
 5. `BRAND-STACK-001` — done under `brand-stack-v1`; Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained are modeled as Foundation brand entities with Brand Guardian boundaries, without enforcement or production.
 6. `TIER-BEHAVIORAL-COMPLETION-001` — done under `tier-behavioral-completion-v1`; fourteen first-read surfaces now have explicit route behavior decisions: Ops/Sales reads are role-filtered, Foundation/source/brand/shared-comms/Strategy/evidence reads stay owner-only.
 7. `VERIFICATION-RUNS-001` — done under `verification-runs-v1`; Foundation now exposes proposed-only stale research/finding/action-route/backlog-hygiene verification runs with zero auto-expiry.
-8. `PER-USER-CHANGELOG-001` — next active blocker; scope/build the write_audit_log equivalent from Foundation change history.
-9. `DECISION-RESTRICTED-QUEUE-001` — scope/build restricted decision auto-flag and sequestering.
+8. `PER-USER-CHANGELOG-001` — done under `per-user-changelog-v1`; Foundation now groups existing change events by user/actor, shows write/approval/apply/system activity, keeps metadata values private, and names viewed/ignored/received history as missing coverage.
+9. `DECISION-RESTRICTED-QUEUE-001` — next active blocker; scope/build restricted decision auto-flag and sequestering.
 10. `FOUNDATION-UI-COMPLETE-001` — final UI once-over so the Foundation page makes source maturity, extraction, marketing source, tier/audit, stale-verification, and restricted-decision gaps visible without another audit.
 
 Not next: Reply/Watching Loop, Telegram/mobile assistants, Department Directors/Master Director, broad Strategy Hub expansion, marketing production, new hubs, Drive permission mutation, or historical Meeting Vault cleanup.
@@ -112,6 +112,7 @@ Built and useful now:
 - Memory/retrieval/synthesis spine through governed synthesis: intelligence job runs, old-system salvage contract, report artifacts, atoms, atom hits, lexical chunks/search, pgvector semantic search, hybrid evidence retrieval, source-backed facts, and governed synthesized items with fact/evidence/chunk provenance.
 - First Foundation job registry and DB-backed job run ledger, with active-process/liveness visibility, owned stop decisions, confirmation-gated decommission controls, and cost/process risk rollup under `system-010-ghost-closeout-v1`.
 - Current Sprint execution-control overlay under `foundation-sprint-system-v1`: live-backlog-backed sprint goal, active blocker, ordered cards, stages, Sprint Ready existing-work/doctrine check, returned reason, proof commands, readiness blocker, and not-next boundaries at the top of Recent Work.
+- Per-user changelog under `per-user-changelog-v1`: existing `change_events` are grouped by known users, agents, system actors, and unknown actors with write/approval/apply/system counts; metadata values stay private and viewed/ignored/received remain explicit missing coverage.
 - First Foundation worker slice: scheduled/manual job metadata, due/next-run status, one-pass worker, deal-review jobs proven through the worker, and LaunchAgent supervision live.
 - Policy-aware LLM router: credential/route/probe/call tables, executable OpenClaw/Codex subscription adapter, auth-path audit job, call ledger, route status visibility, and shared intelligence extraction/synthesis migrated behind the router.
 - Extraction control MVP: source crawl target/item tables, seeded current-day/backfill/corpus/recovery lanes, item-level crawl reporting, scheduled current-day lanes for Gmail/Missive/meetings/Slack, daily shared-comms extraction missions, daily Drive inventory/content missions, daily Gmail attachment extraction, and daily YouTube subtitle transcript extraction from the video manifest.
@@ -396,7 +397,7 @@ Order:
 On-board but not automatically active:
 
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` — move active sprint command truth out of hardcoded JS seed strings and into live DB/backlog-backed sprint records.
-- `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `MARKETING-PIPELINE-REBUILD-001`, `PER-USER-CHANGELOG-001`, `VERIFICATION-RUNS-001`, `TELEGRAM-BOTS-REBUILD-001`, and `INTEL-DIRECTORS-REBUILD-001` — carded now so old-system value is visible, but sequenced after the active Foundation Source Once-Over order unless Steve explicitly overrides.
+- `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `MARKETING-PIPELINE-REBUILD-001`, `TELEGRAM-BOTS-REBUILD-001`, and `INTEL-DIRECTORS-REBUILD-001` — carded now so old-system value is visible, but sequenced after the active Foundation Source Once-Over order unless Steve explicitly overrides. `VERIFICATION-RUNS-001` and `PER-USER-CHANGELOG-001` are now done for v1 inside the Source Once-Over sprint.
 
 Current Sprint rollover rule:
 

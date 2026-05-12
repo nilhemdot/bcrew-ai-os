@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PER-USER-CHANGELOG-001",
+  "approvedBy": "Codex interim reviewer per Steve walk-away approval",
+  "approvedAt": "2026-05-12T17:20:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/per-user-changelog-001-plan.md",
+  "approvedPlanSha256": "702f516fa89b907b90554d4e70deca1991662ac077cae8d8233126af99ecffc9",
+  "approvedRepoHead": "eb748c3d080455c8867b8046e3102974d3fa9649",
+  "notes": "Approved for bounded Per-User Changelog V1 only: reuse existing change_events and active users, expose per-actor write/approval/apply/system activity, keep metadata values private, make viewed/ignored/received coverage explicit missing gaps, wire API/UI/focused proof/current sprint advancement, and keep new audit table, read tracking middleware, searchable audit explorer, product loops, Strategy expansion, Marketing Pipeline, Telegram bots, Directors, and Drive ACL mutation out of scope.",
+  "approvalDigest": "1d68b070a13b8368d4331274fccd8301b504dada817703183416115c23a553fc"
+}

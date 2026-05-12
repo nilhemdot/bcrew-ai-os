@@ -172,6 +172,9 @@ import {
 import {
   buildVerificationRunsSnapshot,
 } from './lib/verification-runs.js'
+import {
+  buildPerUserChangelogSnapshot,
+} from './lib/per-user-changelog.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -3859,12 +3862,18 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
     const researchCuration = buildResearchCurationStatus({
       backlogItems: foundationSnapshot.backlogItems || [],
     })
+    const perUserChangeEvents = await getRecentChangeEvents(100)
     sourceLifecycle.verificationRuns = buildVerificationRunsSnapshot({
       backlogItems: foundationSnapshot.backlogItems || [],
       researchCuration,
       intelligenceSynthesis: foundationSnapshot.intelligenceSynthesis || {},
       intelligenceActionRouter: foundationSnapshot.intelligenceActionRouter || {},
       backlogHygiene,
+    })
+    sourceLifecycle.perUserChangelog = buildPerUserChangelogSnapshot({
+      users: foundationSnapshot.users || [],
+      changeEvents: perUserChangeEvents,
+      limit: 100,
     })
     cacheHeadersNoStore(res)
     res.json(sourceLifecycle)
@@ -3988,6 +3997,34 @@ app.get('/api/foundation/verification-runs', requireAdminToken, async (_req, res
       500,
       'foundation_verification_runs_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation verification runs.'
+    )
+  }
+})
+
+app.get('/api/foundation/per-user-changelog', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 100))
+    const [users, changeEvents] = await Promise.all([
+      listFoundationUsers({ activeOnly: true }),
+      getRecentChangeEvents(limit),
+    ])
+    const perUserChangelog = buildPerUserChangelogSnapshot({
+      users,
+      changeEvents,
+      limit,
+    })
+    cacheHeadersNoStore(res)
+    res.json(perUserChangelog)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_per_user_changelog_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation per-user changelog.'
     )
   }
 })
@@ -4899,10 +4936,16 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       intelligenceActionRouter: snapshot.intelligenceActionRouter || {},
       backlogHygiene,
     })
+    const perUserChangelog = buildPerUserChangelogSnapshot({
+      users: snapshot.users || [],
+      changeEvents: await getRecentChangeEvents(100),
+      limit: 100,
+    })
     sourceLifecycle.marketingSourceMap = marketingSourceMap
     sourceLifecycle.brandStack = brandStack
     sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
     sourceLifecycle.verificationRuns = verificationRuns
+    sourceLifecycle.perUserChangelog = perUserChangelog
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4935,6 +4978,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       brandStack,
       tierBehavioralCompletion,
       verificationRuns,
+      perUserChangelog,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
