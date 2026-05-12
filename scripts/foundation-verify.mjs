@@ -382,6 +382,8 @@ import {
   STRATEGY_HUB_MEETING_READY_PLAN_PATH,
   STRATEGY_HUB_MEETING_READY_SCRIPT_PATH,
   AUTO_DEPLOY_ROLLBACK_CARD_ID,
+  FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID,
+  SOURCE_EXTRACTION_COVERAGE_CARD_ID,
   buildFoundationCurrentSprintStatus,
   buildSyntheticFoundationCurrentSprintProof,
 } from '../lib/foundation-current-sprint.js'
@@ -453,6 +455,16 @@ import {
   AUTO_DEPLOY_ROLLBACK_SUMMARY_MARKER,
   buildSyntheticAutoDeployRollbackProof,
 } from '../lib/auto-deploy-rollback.js'
+import {
+  SOURCE_MATURITY_GRID_APPROVAL_PATH,
+  SOURCE_MATURITY_GRID_CARD_ID,
+  SOURCE_MATURITY_GRID_CLOSEOUT_KEY,
+  SOURCE_MATURITY_GRID_PLAN_PATH,
+  SOURCE_MATURITY_GRID_SCRIPT_PATH,
+  SOURCE_MATURITY_GRID_SUMMARY_MARKER,
+  SOURCE_MATURITY_STAGE_KEYS,
+  buildSyntheticSourceMaturityGridProof,
+} from '../lib/source-maturity-grid.js'
 import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
@@ -1311,6 +1323,11 @@ async function main() {
   const autoDeployRollbackPlanSource = await readRepoFile(AUTO_DEPLOY_ROLLBACK_PLAN_PATH)
   const autoDeployRollbackApprovalSource = await readRepoFile(AUTO_DEPLOY_ROLLBACK_APPROVAL_PATH)
   const autoDeployRollbackApproval = JSON.parse(autoDeployRollbackApprovalSource)
+  const sourceMaturityGridSource = await readRepoFile('lib/source-maturity-grid.js')
+  const sourceMaturityGridScriptSource = await readRepoFile(SOURCE_MATURITY_GRID_SCRIPT_PATH)
+  const sourceMaturityGridPlanSource = await readRepoFile(SOURCE_MATURITY_GRID_PLAN_PATH)
+  const sourceMaturityGridApprovalSource = await readRepoFile(SOURCE_MATURITY_GRID_APPROVAL_PATH)
+  const sourceMaturityGridApproval = JSON.parse(sourceMaturityGridApprovalSource)
   const strategicExecutionHtmlSource = await readRepoFile('public/strategic-execution.html')
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
   const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
@@ -1628,6 +1645,11 @@ async function main() {
     repoRoot,
     approvalRef: AUTO_DEPLOY_ROLLBACK_APPROVAL_PATH,
     cardId: AUTO_DEPLOY_ROLLBACK_CARD_ID,
+  })
+  const sourceMaturityGridApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: SOURCE_MATURITY_GRID_APPROVAL_PATH,
+    cardId: SOURCE_MATURITY_GRID_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2841,6 +2863,7 @@ async function main() {
   const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
   const foundationDailySummary = await fetchJson(baseUrl, '/api/foundation/daily-summary?date=2026-04-30&days=7')
   const foundationSourceLifecycle = await fetchJson(baseUrl, SOURCE_LIFECYCLE_API_PATH)
+  const foundationSourceMaturityGrid = await fetchJson(baseUrl, '/api/foundation/source-maturity-grid')
   const foundationChangesApi = await fetchJson(baseUrl, '/api/foundation/changes?limit=20')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
@@ -3075,6 +3098,7 @@ async function main() {
   const strategyHubMeetingReadySynthetic = buildSyntheticStrategyHubMeetingReadyProof()
   const avatarImportSynthetic = buildSyntheticAvatarImportProof()
   const autoDeployRollbackSynthetic = buildSyntheticAutoDeployRollbackProof()
+  const sourceMaturityGridSynthetic = buildSyntheticSourceMaturityGridProof()
   const avatarImportSnapshot = buildMarketingAvatarImportSnapshot({
     referenceBriefText: avatarReferenceBriefSource,
     retainProfilesText: avatarRetainSource,
@@ -4097,6 +4121,22 @@ async function main() {
           'REPLY-WATCHING-LOOP-001',
           'SYSTEM-010-GHOST-CLOSEOUT-001',
           'PROCESS-HOOKS-002',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogSourceMaturityGridBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(SOURCE_MATURITY_GRID_CARD_ID) &&
+      build.closeoutKey === SOURCE_MATURITY_GRID_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: SOURCE_MATURITY_GRID_CLOSEOUT_KEY,
+        backlogIds: [SOURCE_MATURITY_GRID_CARD_ID],
+        mentionedBacklogIds: [
+          SOURCE_EXTRACTION_COVERAGE_CARD_ID,
+          'SOURCE-COVERAGE-CLOSEOUT-001',
+          'MARKETING-SOURCE-MAP-001',
+          'FOUNDATION-UI-COMPLETE-001',
         ],
         operatorCloseout: true,
       }
@@ -5385,6 +5425,8 @@ async function main() {
   const strategyHubMeetingReady = (foundationHub.backlogItems || []).find(item => item.id === STRATEGY_HUB_MEETING_READY_CARD_ID) || null
   const avatarImport = (foundationHub.backlogItems || []).find(item => item.id === AVATAR_IMPORT_CARD_ID) || null
   const autoDeployRollback = (foundationHub.backlogItems || []).find(item => item.id === AUTO_DEPLOY_ROLLBACK_CARD_ID) || null
+  const sourceMaturityGrid = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_MATURITY_GRID_CARD_ID) || null
+  const sourceExtractionCoverage = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_EXTRACTION_COVERAGE_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -5467,6 +5509,25 @@ async function main() {
       'package.json',
     ],
     declaredRisk: autoDeployRollbackPlanSource,
+  })
+  const sourceMaturityGridPlanReview = evaluatePlanCriticPlan({
+    planText: sourceMaturityGridPlanSource,
+    card: sourceMaturityGrid || { id: SOURCE_MATURITY_GRID_CARD_ID, priority: 'P0' },
+    changedFiles: [
+      SOURCE_MATURITY_GRID_PLAN_PATH,
+      SOURCE_MATURITY_GRID_APPROVAL_PATH,
+      'lib/source-maturity-grid.js',
+      SOURCE_MATURITY_GRID_SCRIPT_PATH,
+      'server.js',
+      'public/foundation.js',
+      'public/styles.css',
+      'lib/foundation-current-sprint.js',
+      'lib/foundation-db.js',
+      'lib/foundation-build-log.js',
+      'scripts/foundation-verify.mjs',
+      'package.json',
+    ],
+    declaredRisk: sourceMaturityGridPlanSource,
   })
   const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
     meetingVaultAcl?.lane === 'done' &&
@@ -7883,6 +7944,20 @@ async function main() {
       'SYSTEM-010-GHOST-CLOSEOUT-001',
       'PROCESS-HOOKS-002',
     ].every(id => !(buildLogAutoDeployRollbackBuild.backlogIds || []).includes(id))
+  const sourceMaturityGridBuildLogExact = buildLogSourceMaturityGridBuild?.backlogIds?.length === 1 &&
+    buildLogSourceMaturityGridBuild.backlogIds.includes(SOURCE_MATURITY_GRID_CARD_ID) &&
+    [
+      SOURCE_EXTRACTION_COVERAGE_CARD_ID,
+      'SOURCE-COVERAGE-CLOSEOUT-001',
+      'MARKETING-SOURCE-MAP-001',
+      'FOUNDATION-UI-COMPLETE-001',
+    ].every(id => (buildLogSourceMaturityGridBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      SOURCE_EXTRACTION_COVERAGE_CARD_ID,
+      'SOURCE-COVERAGE-CLOSEOUT-001',
+      'MARKETING-SOURCE-MAP-001',
+      'FOUNDATION-UI-COMPLETE-001',
+    ].every(id => !(buildLogSourceMaturityGridBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -8006,6 +8081,8 @@ async function main() {
         'STRATEGY-HUB-MEETING-READY-001',
         AVATAR_IMPORT_CARD_ID,
         AUTO_DEPLOY_ROLLBACK_CARD_ID,
+        SOURCE_MATURITY_GRID_CARD_ID,
+        SOURCE_EXTRACTION_COVERAGE_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFY_GATE_TIERING_CARD_ID) &&
       currentPlan.includes('proportional verification') &&
@@ -8052,6 +8129,8 @@ async function main() {
         'STRATEGY-HUB-MEETING-READY-001',
         AVATAR_IMPORT_CARD_ID,
         AUTO_DEPLOY_ROLLBACK_CARD_ID,
+        SOURCE_MATURITY_GRID_CARD_ID,
+        SOURCE_EXTRACTION_COVERAGE_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
       currentPlan.includes('not automatically active') &&
@@ -8124,6 +8203,8 @@ async function main() {
         'STRATEGY-HUB-MEETING-READY-001',
         AVATAR_IMPORT_CARD_ID,
         AUTO_DEPLOY_ROLLBACK_CARD_ID,
+        SOURCE_MATURITY_GRID_CARD_ID,
+        SOURCE_EXTRACTION_COVERAGE_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
       currentPlan.includes('gate decision tree') &&
@@ -8181,7 +8262,7 @@ async function main() {
       securityBehaviorProofBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
       currentPlan.includes('route-boundary') &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
@@ -8237,7 +8318,7 @@ async function main() {
       verifierBehaviorSweepBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
       currentPlan.includes('top-P0 behavior registry') &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
@@ -8313,7 +8394,7 @@ async function main() {
       strategyHubMeetingReadyBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       ['scoped', 'done'].includes(avatarImport?.lane) &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
       currentPlan.includes('owner-only Strategy meeting packet') &&
@@ -8385,7 +8466,7 @@ async function main() {
       avatarImportBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === AUTO_DEPLOY_ROLLBACK_CARD_ID &&
+      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(AVATAR_IMPORT_CLOSEOUT_KEY) &&
       currentPlan.includes('10 RETAIN and 5 ATTRACT avatars') &&
       currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CARD_ID) &&
@@ -8451,7 +8532,7 @@ async function main() {
       autoDeployRollbackBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === AUTO_DEPLOY_ROLLBACK_CARD_ID &&
+      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY) &&
       currentPlan.includes('previous SHA') &&
       currentPlan.includes('REPLY-WATCHING-LOOP-001') &&
@@ -8461,6 +8542,80 @@ async function main() {
       foundationVerifySource.includes('buildSyntheticAutoDeployRollbackProof'),
     'AUTO-DEPLOY-ROLLBACK-001 adds Mac mini deploy rollback behavior proof',
     `lane=${autoDeployRollback?.lane || 'missing'} approval=${autoDeployRollbackApprovalValidation.ok} rollback=${autoDeployRollbackSynthetic.summary.failedHealthRollsBack} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    sourceMaturityGrid?.lane === 'done' &&
+      String(sourceMaturityGrid?.statusNote || '').includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY) &&
+      ['scoped', 'done'].includes(sourceExtractionCoverage?.lane) &&
+      packageJson.scripts?.['process:source-maturity-grid-check'] === `node --env-file-if-exists=.env ${SOURCE_MATURITY_GRID_SCRIPT_PATH}` &&
+      sourceMaturityGridApprovalValidation.ok &&
+      sourceMaturityGridApprovalValidation.mode === 'v2' &&
+      sourceMaturityGridApproval.cardId === SOURCE_MATURITY_GRID_CARD_ID &&
+      Number(sourceMaturityGridApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      sourceMaturityGridApproval.approvedPlanRef === SOURCE_MATURITY_GRID_PLAN_PATH &&
+      sourceMaturityGridPlanReview.status === 'pass' &&
+      sourceMaturityGridPlanReview.score >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      sourceMaturityGridSynthetic.ok &&
+      Array.isArray(foundationSourceMaturityGrid.rows) &&
+      foundationSourceMaturityGrid.rows.length >= 35 &&
+      SOURCE_MATURITY_STAGE_KEYS.every(key => foundationSourceMaturityGrid.stageKeys?.includes(key)) &&
+      foundationSourceMaturityGrid.rows.every(row => SOURCE_MATURITY_STAGE_KEYS.every(key => typeof row.stages?.[key]?.ok === 'boolean')) &&
+      foundationSourceMaturityGrid.summary?.sourceCount === foundationSourceMaturityGrid.rows.length &&
+      Array.isArray(foundationSourceMaturityGrid.topGaps) &&
+      foundationSourceMaturityGrid.topGaps.length > 0 &&
+      foundationSourceLifecycle.sourceMaturityGrid?.closeoutKey === SOURCE_MATURITY_GRID_CLOSEOUT_KEY &&
+      foundationHub.sourceMaturityGrid?.closeoutKey === SOURCE_MATURITY_GRID_CLOSEOUT_KEY &&
+      includesAll(sourceMaturityGridSource, [
+        'buildSourceMaturityGridSnapshot',
+        'SOURCE_MATURITY_STAGE_KEYS',
+        'buildSyntheticSourceMaturityGridProof',
+        'SOURCE_MATURITY_GRID_CLOSEOUT_KEY',
+      ]) &&
+      includesAll(sourceMaturityGridScriptSource, [
+        SOURCE_MATURITY_GRID_SUMMARY_MARKER,
+        'every grid row has seven behavior stage objects',
+        'Current Sprint active blocker advanced to extraction coverage',
+      ]) &&
+      includesAll(sourceMaturityGridPlanSource, [
+        SOURCE_MATURITY_GRID_CLOSEOUT_KEY,
+        'seven stages',
+        'reject substring-only',
+        SOURCE_EXTRACTION_COVERAGE_CARD_ID,
+      ]) &&
+      includesAll(serverSource, [
+        '/api/foundation/source-maturity-grid',
+        'buildSourceMaturityGridSnapshot',
+        'sourceMaturityGrid',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderSourceMaturityGridPanel',
+        'sourceMaturityGrid',
+        'source-maturity-grid',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.source-maturity-panel',
+        '.source-maturity-table',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        'buildFoundationSourceOnceOverSprintSeed',
+        FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID,
+        SOURCE_EXTRACTION_COVERAGE_CARD_ID,
+      ]) &&
+      buildLogSourceMaturityGridBuild?.operatorCloseout === true &&
+      sourceMaturityGridBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === SOURCE_EXTRACTION_COVERAGE_CARD_ID &&
+      currentPlan.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY) &&
+      currentPlan.includes('Foundation Source Once-Over') &&
+      currentPlan.includes(SOURCE_EXTRACTION_COVERAGE_CARD_ID) &&
+      currentState.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker is now `SOURCE-EXTRACTION-COVERAGE-001`') &&
+      currentState.includes('seven-stage source maturity grid') &&
+      foundationVerifySource.includes('buildSyntheticSourceMaturityGridProof'),
+    'SOURCE-MATURITY-GRID-001 exposes source depth and advances the Source Once-Over sprint',
+    `lane=${sourceMaturityGrid?.lane || 'missing'} approval=${sourceMaturityGridApprovalValidation.ok} rows=${foundationSourceMaturityGrid.rows?.length || 0} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,

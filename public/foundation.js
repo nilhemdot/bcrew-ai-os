@@ -10658,6 +10658,109 @@ function renderSourceLifecycleSummary(lifecycle) {
   })
 }
 
+function renderSourceMaturityStageCell(row, stageKey) {
+  var stage = row.stages && row.stages[stageKey] ? row.stages[stageKey] : {}
+  var cell = document.createElement('td')
+  cell.className = 'source-maturity-stage-cell ' + (stage.ok ? 'is-complete' : 'is-gap')
+  cell.title = stage.detail || stageKey
+  var mark = document.createElement('span')
+  mark.className = 'source-maturity-mark'
+  mark.textContent = stage.ok ? 'Yes' : 'No'
+  cell.appendChild(mark)
+  return cell
+}
+
+function renderSourceMaturityGridPanel(grid) {
+  if (!grid || !Array.isArray(grid.rows) || !grid.rows.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel source-maturity-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'source-maturity-grid')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Source Maturity'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Seven-stage source grid'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'This is the Foundation finish-line map: connected, trusted, monitored, extracted, atomized, synthesized, and routed.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var summary = grid.summary || {}
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag((summary.completeSources || 0) + ' complete', summary.gapSources ? 'pending' : 'connected'))
+  right.appendChild(renderSourceTag((summary.gapSources || 0) + ' gaps', summary.gapSources ? 'missing' : 'connected'))
+  right.appendChild(renderSourceTag((summary.deferredSources || 0) + ' deferred', summary.deferredSources ? 'pending' : 'neutral'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var tableWrap = document.createElement('div')
+  tableWrap.className = 'source-maturity-table-wrap'
+  var table = document.createElement('table')
+  table.className = 'source-maturity-table'
+
+  var thead = document.createElement('thead')
+  var headerRow = document.createElement('tr')
+  ;['Source'].concat(grid.stageKeys || []).concat(['Next gap']).forEach(function(label) {
+    var th = document.createElement('th')
+    var definition = (grid.definitions || []).find(function(item) { return item.key === label })
+    th.textContent = definition ? definition.label : label
+    headerRow.appendChild(th)
+  })
+  thead.appendChild(headerRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+  grid.rows.forEach(function(row) {
+    var tr = document.createElement('tr')
+    tr.setAttribute('data-source-id', row.sourceId)
+    var sourceCell = document.createElement('td')
+    sourceCell.className = 'source-maturity-source-cell'
+    var name = document.createElement('strong')
+    name.textContent = row.sourceId
+    sourceCell.appendChild(name)
+    var detail = document.createElement('span')
+    detail.textContent = [row.title, row.unitName].filter(Boolean).join(' · ')
+    sourceCell.appendChild(detail)
+    tr.appendChild(sourceCell)
+
+    ;(grid.stageKeys || []).forEach(function(stageKey) {
+      tr.appendChild(renderSourceMaturityStageCell(row, stageKey))
+    })
+
+    var gapCell = document.createElement('td')
+    gapCell.className = 'source-maturity-gap-cell'
+    gapCell.appendChild(renderSourceTag(row.nextGap || 'unknown', row.tone || 'pending'))
+    var gapDetail = row.stages && row.stages[row.nextGap] ? row.stages[row.nextGap].detail : ''
+    if (gapDetail) {
+      var gapCopy = document.createElement('span')
+      gapCopy.textContent = gapDetail
+      gapCell.appendChild(gapCopy)
+    }
+    tr.appendChild(gapCell)
+    tbody.appendChild(tr)
+  })
+  table.appendChild(tbody)
+  tableWrap.appendChild(table)
+  panel.appendChild(tableWrap)
+
+  if ((grid.topGaps || []).length) {
+    var gaps = renderSourceBulletGroup('Top visible gaps', (grid.topGaps || []).slice(0, 8).map(function(gap) {
+      return gap.sourceId + ' -> ' + gap.nextGap + ': ' + gap.detail
+    }))
+    panel.appendChild(gaps)
+  }
+
+  return panel
+}
+
 function renderSourceLifecycleDefinitions(definitions) {
   var panel = document.createElement('section')
   panel.className = 'panel'
@@ -13414,6 +13517,8 @@ function renderSourceLifecycle() {
     container.appendChild(renderSourceLifecycleHero(lifecycle))
     var summary = renderSourceLifecycleSummary(lifecycle)
     if (summary) container.appendChild(summary)
+    var maturityGrid = renderSourceMaturityGridPanel(lifecycle.sourceMaturityGrid)
+    if (maturityGrid) container.appendChild(maturityGrid)
     container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
     container.appendChild(renderSourceLifecycleLanes(lifecycle))
     container.appendChild(renderSourceLifecycleTargets(lifecycle))

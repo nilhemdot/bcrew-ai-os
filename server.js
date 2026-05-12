@@ -95,6 +95,9 @@ import {
 import {
   buildSourceLifecycleStatus,
 } from './lib/source-lifecycle.js'
+import {
+  buildSourceMaturityGridSnapshot,
+} from './lib/source-maturity-grid.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -3785,13 +3788,24 @@ app.get('/api/source-of-truth', requireAdminToken, async (_req, res) => {
 
 app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res) => {
   try {
-    const extractionControl = await getExtractionControlSnapshot({ limit: 200 })
+    const foundationSnapshot = await getFoundationSnapshot()
+    const extractionControl = foundationSnapshot.extractionControl || await getExtractionControlSnapshot({ limit: 200 })
     const sourceLifecycle = buildSourceLifecycleStatus({
       sources: getSourceContracts(),
       connectors: getSourceConnectors(),
       groupedSystems: getGroupedSourceSystems(),
       extractionControl,
       foundationJobs: getFoundationJobDefinitions(),
+    })
+    sourceLifecycle.sourceMaturityGrid = buildSourceMaturityGridSnapshot({
+      sources: getSourceContracts(),
+      extractionControl,
+      sharedCommunicationsCoverage: foundationSnapshot.sharedCommunicationsCoverage,
+      intelligenceSynthesisFacts: foundationSnapshot.intelligenceSynthesisFacts,
+      intelligenceSynthesis: foundationSnapshot.intelligenceSynthesis,
+      intelligenceActionRouter: foundationSnapshot.intelligenceActionRouter,
+      sourceMaturityOperational: foundationSnapshot.sourceMaturityOperational,
+      lifecycle: sourceLifecycle,
     })
     cacheHeadersNoStore(res)
     res.json(sourceLifecycle)
@@ -3805,6 +3819,42 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       500,
       'foundation_source_lifecycle_load_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation source lifecycle.'
+    )
+  }
+})
+
+app.get('/api/foundation/source-maturity-grid', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const sourceLifecycle = buildSourceLifecycleStatus({
+      sources: getSourceContracts(),
+      connectors: getSourceConnectors(),
+      groupedSystems: getGroupedSourceSystems(),
+      extractionControl: snapshot.extractionControl,
+      foundationJobs: getFoundationJobDefinitions(),
+    })
+    const sourceMaturityGrid = buildSourceMaturityGridSnapshot({
+      sources: getSourceContracts(),
+      extractionControl: snapshot.extractionControl,
+      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
+      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis,
+      intelligenceActionRouter: snapshot.intelligenceActionRouter,
+      sourceMaturityOperational: snapshot.sourceMaturityOperational,
+      lifecycle: sourceLifecycle,
+    })
+    cacheHeadersNoStore(res)
+    res.json(sourceMaturityGrid)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_source_maturity_grid_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation source maturity grid.'
     )
   }
 })
@@ -4510,6 +4560,17 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       extractionControl: snapshot.extractionControl,
       foundationJobs: getFoundationJobDefinitions(),
     })
+    const sourceMaturityGrid = buildSourceMaturityGridSnapshot({
+      sources: getSourceContracts(),
+      extractionControl: snapshot.extractionControl,
+      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
+      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis,
+      intelligenceActionRouter: snapshot.intelligenceActionRouter,
+      sourceMaturityOperational: snapshot.sourceMaturityOperational,
+      lifecycle: sourceLifecycle,
+    })
+    sourceLifecycle.sourceMaturityGrid = sourceMaturityGrid
     const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
       repoRoot: __dirname,
       includeCandidates: false,
@@ -4571,6 +4632,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       decisionAutoEmit,
       sheetsApiTrust,
       sourceLifecycle,
+      sourceMaturityGrid,
       agentFeedbackAutoSend,
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,

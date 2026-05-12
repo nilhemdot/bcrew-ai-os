@@ -115,6 +115,7 @@
     "process:avatar-import-check": "node --env-file-if-exists=.env scripts/process-avatar-import-check.mjs",
     "auto-deploy:rollback": "node --env-file-if-exists=.env scripts/auto-deploy-rollback.mjs",
     "process:auto-deploy-rollback-check": "node --env-file-if-exists=.env scripts/process-auto-deploy-rollback-check.mjs",
+    "process:source-maturity-grid-check": "node --env-file-if-exists=.env scripts/process-source-maturity-grid-check.mjs",
     "process:foundation-verify-health-repair-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-health-repair-check.mjs",
     "process:foundation-followup-card-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-followup-card-capture-check.mjs",
     "process:foundation-systems-service-grouping-check": "node --env-file-if-exists=.env scripts/process-foundation-systems-service-grouping-check.mjs",

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-12
-Version: v6.26 — Audit reconciliation and behavior-proof sprint
+Version: v6.27 — Foundation Source Once-Over sprint
 Status: Active
 
 Use this doc for one question:
@@ -69,8 +69,30 @@ Foundation source work follows this order:
 4. extract useful atoms with provenance and retry/cursor control
 5. synthesize those atoms into business insight
 6. route the insight into the right hub, decision, task, contradiction, or owner-bound action
+7. close the loop when the item is resolved, stale, rejected, deferred, or superseded
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
+
+## Current Sprint: Foundation Source Once-Over
+
+The audit-reset sprint is closed for v1. It made Foundation safe for owner-only Strategy re-entry, but Steve correctly reset the finish line: Foundation is not built until source depth is visible and the remaining gaps are either flowing, explicitly deferred, or routed into the next card.
+
+The active sprint is `foundation-source-once-over-2026-05-12`.
+
+Sprint order:
+
+1. `SOURCE-MATURITY-GRID-001` — done under `source-maturity-grid-v1`; Foundation now exposes a seven-stage source maturity grid for every source contract: connected, trusted, monitored, extracted, atomized, synthesized, routed.
+2. `SOURCE-EXTRACTION-COVERAGE-001` — next active blocker; close extraction coverage visibility per source while keeping `EXTRACT-RUN-HARDENING-001` closed for v1.
+3. `SOURCE-COVERAGE-CLOSEOUT-001` — decide every non-green source row: advance, defer with blocker, or mark not required for current Foundation depth.
+4. `MARKETING-SOURCE-MAP-001` — map avatars and marketing source contracts to brand lanes without building marketing production.
+5. `BRAND-STACK-001` — model the brand entities and boundaries as Foundation truth.
+6. `TIER-BEHAVIORAL-COMPLETION-001` — decide/prove the first non-owner read surfaces or keep them owner-only.
+7. `VERIFICATION-RUNS-001` — add stale-finding/research refresh/expiry behavior so research does not become a graveyard.
+8. `PER-USER-CHANGELOG-001` — scope/build the write_audit_log equivalent from Foundation change history.
+9. `DECISION-RESTRICTED-QUEUE-001` — scope/build restricted decision auto-flag and sequestering.
+10. `FOUNDATION-UI-COMPLETE-001` — final UI once-over so the Foundation page makes source maturity, extraction, marketing source, tier/audit, stale-verification, and restricted-decision gaps visible without another audit.
+
+Not next: Reply/Watching Loop, Telegram/mobile assistants, Department Directors/Master Director, broad Strategy Hub expansion, marketing production, new hubs, Drive permission mutation, or historical Meeting Vault cleanup.
 
 ## Current Reality
 
@@ -105,6 +127,7 @@ Built and useful now:
 - Marketing source evidence from the old system and current connector checks.
 - Doc cleanup plan and generated doc indexes.
 - Ops Hub v1 as its own hub surface for systems serving Ops, starting with Admin, Conditional, FUB drift, and Agent Roster inspections. Scheduled jobs now run marked re-reviews first, then pace Admin first-pass backlog at 5 newest eligible June 2025+ deals per day, writing AI status/action/findings only. Foundation remains the control plane; Ops owns the human cockpit.
+- Source maturity grid v1 under `source-maturity-grid-v1`: every source contract is now scored across connected, trusted, monitored, extracted, atomized, synthesized, and routed stages, with first gaps and top gaps rendered from live Foundation state.
 
 Still not done:
 

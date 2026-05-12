@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-GRID-001",
+  "approvedBy": "Codex interim reviewer per Steve walk-away approval",
+  "approvedAt": "2026-05-12T16:30:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-grid-001-plan.md",
+  "approvedPlanSha256": "f3d2e8e09f2974b0e1a2caca2f3aabb77bd4f6871cd4065470bf6f326cc56c65",
+  "approvedRepoHead": "dc39801a97bd30341ec5db5fb8974eb3f85d9ec3",
+  "notes": "Approved for bounded Source Maturity Grid V1 only: expose every source contract across seven maturity stages, wire API/UI/focused proof/current sprint advancement, and keep source fixes/product loops out of scope. Do not build Reply/Watching Loop, Strategy Hub expansion, Marketing production, Telegram bots, Directors, new connectors, Drive ACL mutation, or broad ingestion.",
+  "approvalDigest": "571a0b34ab98035ccc5cbf5c0bdcea358d62557fe7a584f134dd6e893ee07ece"
+}
