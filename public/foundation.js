@@ -7885,17 +7885,21 @@ function renderFoundationCurrentTruthPanel(hub) {
       status: activeCardId ? 'pending' : 'risk',
       detail: activeCardId ? activeCardId + ' - ' + activeCardTitle : activeCardTitle,
     },
-    {
+  ]
+  if (Number(summary.doneThisSprintCount || 0) > 0) {
+    items.push({
       label: 'Done this sprint',
       status: Number(summary.doneThisSprintCount || 0) > 0 ? 'connected' : 'planned',
-      detail: String(summary.doneThisSprintCount || 0) + ' card(s) done this sprint. Done cards continue into Recent Work below.',
-    },
+      detail: String(summary.doneThisSprintCount || 0) + ' card(s) completed inside this sprint. Older done cards live in Recent Work below.',
+    })
+  }
+  items.push(
     {
       label: 'Safety rule',
       status: 'connected',
       detail: 'Sprint Ready requires existing code, docs, scripts, doctrine, exact gap, proof commands, and not-next boundaries before build.',
     },
-  ]
+  )
 
   var panel = renderOverviewStatusPanel(items, {
     eyebrow: 'Current Truth',
@@ -14203,7 +14207,7 @@ function renderCurrentSprintCard(item) {
   var card = document.createElement('details')
   card.className = 'current-sprint-card'
   card.setAttribute('data-current-sprint-stage', item.stage || '')
-  if (item.stage === 'scoping' || item.stage === 'building_now' || item.stage === 'returned') card.open = true
+  if (item.stage === 'scoping' || item.stage === 'building_now') card.open = true
 
   var summary = document.createElement('summary')
   summary.className = 'current-sprint-card-summary'
@@ -14266,7 +14270,7 @@ function renderCurrentSprintPanel(currentSprint) {
   left.appendChild(title)
   var intro = document.createElement('p')
   intro.className = 'section-intro'
-  intro.textContent = (cadence && cadence.executiveSummary) || 'Execution-control overlay on live backlog. Done cards continue into Recent Work below.'
+  intro.textContent = (cadence && cadence.executiveSummary) || 'Execution-control overlay on live backlog. Prior done and returned cards live in Backlog and Recent Work.'
   left.appendChild(intro)
   header.appendChild(left)
   header.appendChild(renderBuildPill(currentSprint && currentSprint.status === 'healthy' ? 'Healthy' : 'Needs attention', currentSprint && currentSprint.status === 'healthy' ? 'foundation-system-pill build-log-status-pill build-log-status-shipped' : 'foundation-system-pill current-sprint-risk-pill'))
@@ -14299,13 +14303,18 @@ function renderCurrentSprintPanel(currentSprint) {
 
   var commandStrip = document.createElement('div')
   commandStrip.className = 'current-sprint-command-strip'
-  ;[
+  var stripItems = [
     ['Scoping', summary.stageCounts && summary.stageCounts.scoping],
     ['Sprint Ready', summary.stageCounts && summary.stageCounts.sprint_ready],
     ['Building Now', summary.stageCounts && summary.stageCounts.building_now],
-    ['Returned', summary.stageCounts && summary.stageCounts.returned],
-    ['Done This Sprint', summary.stageCounts && summary.stageCounts.done_this_sprint],
-  ].forEach(function(pair) {
+  ]
+  if (Number(summary.stageCounts && summary.stageCounts.returned) > 0) {
+    stripItems.push(['Returned', summary.stageCounts.returned])
+  }
+  if (Number(summary.stageCounts && summary.stageCounts.done_this_sprint) > 0) {
+    stripItems.push(['Done This Sprint', summary.stageCounts.done_this_sprint])
+  }
+  stripItems.forEach(function(pair) {
     var item = document.createElement('span')
     item.textContent = pair[0] + ': ' + String(pair[1] || 0)
     commandStrip.appendChild(item)
@@ -14334,12 +14343,16 @@ function renderCurrentSprintPanel(currentSprint) {
     panel.appendChild(findingsPanel)
   }
 
-  var currentSprintExpectedStages = ['scoping', 'sprint_ready', 'building_now', 'returned', 'done_this_sprint']
+  var currentSprintExpectedStages = ['scoping', 'sprint_ready', 'building_now']
+  var alwaysVisibleStageKeys = { scoping: true, sprint_ready: true, building_now: true }
   var stages = currentSprint && currentSprint.stages && currentSprint.stages.length
     ? currentSprint.stages
     : currentSprintExpectedStages.map(function(stageKey) {
         return { key: stageKey, label: stageKey.replace(/_/g, ' '), items: [] }
       })
+  stages = stages.filter(function(stage) {
+    return alwaysVisibleStageKeys[stage.key] || ((stage.items || []).length > 0)
+  })
   var stageWrap = document.createElement('div')
   stageWrap.className = 'current-sprint-board'
   stages.forEach(function(stage) {

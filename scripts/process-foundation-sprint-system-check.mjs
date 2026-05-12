@@ -7,6 +7,7 @@ import { promisify } from 'node:util'
 
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
+  FOUNDATION_CURRENT_SPRINT_ACTIVE_CARD_IDS,
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_CURRENT_SPRINT_ID,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -151,6 +152,7 @@ async function main() {
     await preserveSurfaceFollowUpBoundary()
 
     const existingCards = await getBacklogItemsByIds([
+      ...FOUNDATION_CURRENT_SPRINT_ACTIVE_CARD_IDS,
       FOUNDATION_SPRINT_SYSTEM_CARD_ID,
       FOUNDATION_SPRINT_CADENCE_CARD_ID,
       'MEETING-VAULT-ACL-001',
@@ -166,6 +168,7 @@ async function main() {
     await upsertFoundationCurrentSprintOverlay(buildingSeed, 'foundation-sprint-system-check')
     const buildingSprint = await getActiveFoundationCurrentSprint()
     const buildingCards = await getBacklogItemsByIds([
+      ...FOUNDATION_CURRENT_SPRINT_ACTIVE_CARD_IDS,
       FOUNDATION_SPRINT_SYSTEM_CARD_ID,
       FOUNDATION_SPRINT_CADENCE_CARD_ID,
       'MEETING-VAULT-ACL-001',
@@ -315,6 +318,7 @@ async function main() {
       await upsertFoundationCurrentSprintOverlay(doneSeed, 'foundation-sprint-system-check')
       const doneSprint = await getActiveFoundationCurrentSprint()
       const doneCards = await getBacklogItemsByIds([
+        ...FOUNDATION_CURRENT_SPRINT_ACTIVE_CARD_IDS,
         FOUNDATION_SPRINT_SYSTEM_CARD_ID,
         FOUNDATION_SPRINT_CADENCE_CARD_ID,
         'MEETING-VAULT-ACL-001',

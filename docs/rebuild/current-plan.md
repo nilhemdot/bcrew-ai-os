@@ -362,6 +362,12 @@ On-board but not automatically active:
 - `AUTO-DEPLOY-ROLLBACK-001` — pull into the sprint only if Mac mini reliability or restart failures make it urgent.
 - `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `BRAND-STACK-001`, `MARKETING-PIPELINE-REBUILD-001`, `PER-USER-CHANGELOG-001`, and `VERIFICATION-RUNS-001` — carded now so old-system value is visible, but sequenced after the first Strategy operator loop unless Steve explicitly overrides.
 
+Current Sprint rollover rule:
+
+- A new sprint starts clean with only the active sprint backlog cards.
+- `Done This Sprint` is only for cards completed inside the active sprint. When the sprint closes, those cards remain in Backlog `done` and Recent Work, then leave the next sprint overlay.
+- `Returned` is only for cards returned inside the active sprint. At sprint rollover, returned cards leave the overlay and stay in the main backlog with their returned/blocker context.
+
 ### Parked Next Leg — Strategic Intelligence Operating Loop
 
 This is the active next-leg plan after the 2026-04-28 Strategy Hub route review. The goal is not a one-time quarterly planning dashboard. The goal is a continuously useful Strategic Intelligence loop that mines company signals, surfaces needle-moving issues, scopes what is already answered versus truly missing, and helps the ownership team move those issues to resolution.

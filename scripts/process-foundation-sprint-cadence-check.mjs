@@ -8,6 +8,7 @@ import { promisify } from 'node:util'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
+  FOUNDATION_CURRENT_SPRINT_ACTIVE_CARD_IDS,
   FOUNDATION_CURRENT_SPRINT_ID,
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
@@ -127,6 +128,7 @@ async function main() {
     await upsertFoundationCurrentSprintOverlay(buildingSeed, 'foundation-sprint-cadence-check')
     const buildingSprint = await getActiveFoundationCurrentSprint()
     const cardIds = [
+      ...FOUNDATION_CURRENT_SPRINT_ACTIVE_CARD_IDS,
       FOUNDATION_SPRINT_SYSTEM_CARD_ID,
       FOUNDATION_SPRINT_CADENCE_CARD_ID,
       'MEETING-VAULT-ACL-001',

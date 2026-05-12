@@ -30,12 +30,14 @@ The main drift pattern is process proof over product behavior.
 - Meeting Vault historical cleanup is parked as legacy-exception work, not the active readiness blocker.
 - Old-system carry-forward gaps are carded in backlog truth.
 - The next build starts with Plan Critic and behavior-proof work before Strategy code.
+- Current Sprint starts clean: prior done cards live in Backlog done / Recent Work, and prior returned cards live in the main backlog unless returned again during the active sprint.
 
 ## Definition Of Done
 
 - Backlog cards exist for the sprint and old-system parity gaps.
 - Current Sprint points at `REBUILD-PLAN-RECONCILE-001`.
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is captured so active sprint command truth can move out of hardcoded JS seed strings.
+- Old `Done This Sprint` and `Returned` rows are not carried into the new sprint overlay.
 - Current plan/state describe the same order.
 - Proof commands pass or any failure is explained with the next exact fix.
 
