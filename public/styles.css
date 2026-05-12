@@ -5077,6 +5077,37 @@ a.build-log-backlog-link:hover {
   line-height: 1.45;
 }
 
+.tier-behavior-panel {
+  overflow: hidden;
+}
+
+.tier-behavior-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.tier-behavior-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--surface);
+  min-width: 0;
+}
+
+.tier-behavior-card h4,
+.tier-behavior-card p,
+.tier-behavior-card li {
+  overflow-wrap: anywhere;
+}
+
+.tier-behavior-card p {
+  margin: 8px 0 12px;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
 @media (max-width: 640px) {
   .source-lifecycle-definition-grid,
   .source-lifecycle-grid,

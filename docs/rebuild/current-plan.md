@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-12
-Version: v6.28 — Foundation Source Once-Over sprint
+Version: v6.29 — Foundation Source Once-Over sprint
 Status: Active
 
 Use this doc for one question:
@@ -86,8 +86,8 @@ Sprint order:
 3. `SOURCE-COVERAGE-CLOSEOUT-001` — done under `source-coverage-closeout-v1`; every source row now has a closeout decision: covered, extraction follow-up, maturity follow-up, deferred, or not required for current Foundation depth.
 4. `MARKETING-SOURCE-MAP-001` — done under `marketing-source-map-v1`; imported avatars and marketing source contracts are now mapped to Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained lanes without building marketing production.
 5. `BRAND-STACK-001` — done under `brand-stack-v1`; Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained are modeled as Foundation brand entities with Brand Guardian boundaries, without enforcement or production.
-6. `TIER-BEHAVIORAL-COMPLETION-001` — next active blocker; decide/prove the first non-owner read surfaces or keep them owner-only.
-7. `VERIFICATION-RUNS-001` — add stale-finding/research refresh/expiry behavior so research does not become a graveyard.
+6. `TIER-BEHAVIORAL-COMPLETION-001` — done under `tier-behavioral-completion-v1`; fourteen first-read surfaces now have explicit route behavior decisions: Ops/Sales reads are role-filtered, Foundation/source/brand/shared-comms/Strategy/evidence reads stay owner-only.
+7. `VERIFICATION-RUNS-001` — next active blocker; add stale-finding/research refresh/expiry behavior so research does not become a graveyard.
 8. `PER-USER-CHANGELOG-001` — scope/build the write_audit_log equivalent from Foundation change history.
 9. `DECISION-RESTRICTED-QUEUE-001` — scope/build restricted decision auto-flag and sequestering.
 10. `FOUNDATION-UI-COMPLETE-001` — final UI once-over so the Foundation page makes source maturity, extraction, marketing source, tier/audit, stale-verification, and restricted-decision gaps visible without another audit.
@@ -131,6 +131,7 @@ Built and useful now:
 - Source coverage closeout v1 under `source-coverage-closeout-v1`: source maturity and extraction coverage gaps are now routed into covered/deferred/not-required decisions or explicit `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` / `SOURCE-MATURITY-GAP-FOLLOWUP-001` queues.
 - Marketing source map v1 under `marketing-source-map-v1`: imported avatars and registered marketing source contracts are mapped to brand lanes so future Strategy/Marketing work does not blend Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained.
 - Brand stack v1 under `brand-stack-v1`: the five brand entities now carry source/avatar links plus audience, offer, tone, approval, and Brand Guardian boundary rules; Brand Guardian enforcement and marketing production remain unbuilt.
+- Tier behavior completion v1 under `tier-behavioral-completion-v1`: fourteen first-read surfaces now have explicit behavior decisions; Ops/Sales reads are role-filtered, and Foundation/source/brand/shared-comms/Strategy/evidence reads remain owner-only until separate filtered-access cards exist.
 
 Still not done:
 
@@ -394,7 +395,7 @@ Order:
 On-board but not automatically active:
 
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` — move active sprint command truth out of hardcoded JS seed strings and into live DB/backlog-backed sprint records.
-- `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `BRAND-STACK-001`, `MARKETING-PIPELINE-REBUILD-001`, `PER-USER-CHANGELOG-001`, `VERIFICATION-RUNS-001`, `TELEGRAM-BOTS-REBUILD-001`, and `INTEL-DIRECTORS-REBUILD-001` — carded now so old-system value is visible, but sequenced after the first Strategy operator loop unless Steve explicitly overrides.
+- `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `MARKETING-PIPELINE-REBUILD-001`, `PER-USER-CHANGELOG-001`, `VERIFICATION-RUNS-001`, `TELEGRAM-BOTS-REBUILD-001`, and `INTEL-DIRECTORS-REBUILD-001` — carded now so old-system value is visible, but sequenced after the active Foundation Source Once-Over order unless Steve explicitly overrides.
 
 Current Sprint rollover rule:
 

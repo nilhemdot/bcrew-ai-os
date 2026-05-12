@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "TIER-BEHAVIORAL-COMPLETION-001",
+  "approvedBy": "Codex interim reviewer per Steve walk-away approval",
+  "approvedAt": "2026-05-12T16:21:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/tier-behavioral-completion-001-plan.md",
+  "approvedPlanSha256": "8bed26121b2b7ff27c3753cc25b1c5b6caa0d56c5971bd95d43f321ab77bb6d4",
+  "approvedRepoHead": "b545079f3801e82a4a14a48ce4f5ffd4655b1082",
+  "notes": "Approved for bounded Tier Behavioral Completion V1 only: prove the first read surfaces are either role-filtered for Ops/Sales or intentionally owner-only; expose API/UI/focused proof/current sprint advancement; keep shared communications, Strategy, Foundation command, intelligence evidence, writes, Brand Guardian enforcement, Marketing Pipeline, Reply/Watching Loop, Telegram bots, Directors, and Drive ACL mutation out of scope.",
+  "approvalDigest": "e88efd131556d82296bc35bb26532d2a5119a845b481653b4d144d96b65f7513"
+}

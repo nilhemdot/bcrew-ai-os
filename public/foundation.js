@@ -11157,6 +11157,88 @@ function renderBrandStackPanel(stack) {
   return panel
 }
 
+function renderTierBehavioralCompletionPanel(proof) {
+  if (!proof || !Array.isArray(proof.surfaces) || !proof.surfaces.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel tier-behavior-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'tier-behavioral-completion')
+
+  var summary = proof.summary || {}
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Tier Behavior'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'First non-owner read decisions'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = (summary.surfaceCount || 0) + ' surfaces checked, '
+    + (summary.nonOwnerAllowedSurfaceCount || 0) + ' role-filtered non-owner reads, '
+    + (summary.ownerOnlySurfaceCount || 0) + ' owner-only reads, '
+    + (summary.redactionReadyOwnerOnlySurfaceCount || 0) + ' redaction-ready reads still closed. '
+    + 'Subject-person proof: ' + (summary.subjectPersonProofOk ? 'pass' : 'risk') + '.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag(proof.status || 'unknown', proof.status === 'healthy' ? 'connected' : 'missing'))
+  right.appendChild(renderSourceTag((summary.missingRoutePostureCount || 0) + ' missing route postures', summary.missingRoutePostureCount ? 'missing' : 'connected'))
+  right.appendChild(renderSourceTag((summary.failedSurfaceCount || 0) + ' failed surfaces', summary.failedSurfaceCount ? 'missing' : 'connected'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'tier-behavior-grid'
+  proof.surfaces.forEach(function(surface) {
+    var article = document.createElement('article')
+    article.className = 'tier-behavior-card'
+    article.setAttribute('data-tier-surface-id', surface.id)
+
+    var top = document.createElement('div')
+    top.className = 'source-lifecycle-card-top'
+    var name = document.createElement('h4')
+    name.textContent = surface.label
+    top.appendChild(name)
+    top.appendChild(renderSourceTag(surface.decision, surface.ok ? 'connected' : 'missing'))
+    article.appendChild(top)
+
+    var route = document.createElement('p')
+    route.className = 'source-lifecycle-small'
+    route.textContent = surface.method + ' ' + surface.path + ' · ' + surface.policy
+    article.appendChild(route)
+
+    var reason = document.createElement('p')
+    reason.textContent = surface.rationale
+    article.appendChild(reason)
+
+    var meta = document.createElement('div')
+    meta.className = 'source-card-meta-grid'
+    meta.appendChild(renderSourceMetaItem('Route posture', surface.routeRegistered ? 'explicit' : 'missing'))
+    meta.appendChild(renderSourceMetaItem('Non-owner', surface.hasNonOwnerAllowed ? 'allowed by role' : 'closed'))
+    meta.appendChild(renderSourceMetaItem('Required tier', surface.requiredTier ? String(surface.requiredTier) : 'none'))
+    meta.appendChild(renderSourceMetaItem('Status', surface.ok ? 'pass' : 'risk'))
+    article.appendChild(meta)
+
+    var allowed = (surface.actorResults || [])
+      .filter(function(result) { return result.actualAllowed })
+      .map(function(result) { return result.actorKey })
+    if (allowed.length) article.appendChild(renderSourceBulletGroup('Allowed actors in proof', allowed))
+    grid.appendChild(article)
+  })
+  panel.appendChild(grid)
+
+  if ((proof.boundary || []).length) {
+    panel.appendChild(renderSourceBulletGroup('Boundaries', proof.boundary))
+  }
+
+  return panel
+}
+
 function renderSourceLifecycleDefinitions(definitions) {
   var panel = document.createElement('section')
   panel.className = 'panel'
@@ -13923,6 +14005,8 @@ function renderSourceLifecycle() {
     if (marketingSourceMap) container.appendChild(marketingSourceMap)
     var brandStack = renderBrandStackPanel(lifecycle.brandStack)
     if (brandStack) container.appendChild(brandStack)
+    var tierBehavioralCompletion = renderTierBehavioralCompletionPanel(lifecycle.tierBehavioralCompletion)
+    if (tierBehavioralCompletion) container.appendChild(tierBehavioralCompletion)
     container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
     container.appendChild(renderSourceLifecycleLanes(lifecycle))
     container.appendChild(renderSourceLifecycleTargets(lifecycle))
