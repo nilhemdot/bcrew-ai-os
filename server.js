@@ -163,6 +163,9 @@ import {
   MARKETING_SOURCE_MAP_NOTE_PATH,
   buildMarketingSourceMapSnapshot,
 } from './lib/marketing-source-map.js'
+import {
+  buildBrandStackSnapshot,
+} from './lib/brand-stack.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -3839,6 +3842,9 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       avatarRegistry: marketingAvatarRegistry,
       sourceNoteText: readFileSafe(path.join(__dirname, MARKETING_SOURCE_MAP_NOTE_PATH)) || '',
     })
+    sourceLifecycle.brandStack = buildBrandStackSnapshot({
+      marketingSourceMap: sourceLifecycle.marketingSourceMap,
+    })
     cacheHeadersNoStore(res)
     res.json(sourceLifecycle)
   } catch (error) {
@@ -3880,6 +3886,36 @@ app.get('/api/foundation/marketing-source-map', requireAdminToken, async (_req, 
       500,
       'foundation_marketing_source_map_load_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation marketing source map.'
+    )
+  }
+})
+
+app.get('/api/foundation/brand-stack', requireAdminToken, async (_req, res) => {
+  try {
+    const marketingAvatarRegistry = buildMarketingAvatarImportSnapshot({
+      referenceBriefText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_REFERENCE_BRIEF_PATH)) || '',
+      retainProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_RETAIN_SOURCE_PATH)) || '',
+      attractProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_ATTRACT_SOURCE_PATH)) || '',
+      oldReadmeText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_OLD_README_PATH)) || '',
+    })
+    const marketingSourceMap = buildMarketingSourceMapSnapshot({
+      sourceContracts: getSourceContracts(),
+      avatarRegistry: marketingAvatarRegistry,
+      sourceNoteText: readFileSafe(path.join(__dirname, MARKETING_SOURCE_MAP_NOTE_PATH)) || '',
+    })
+    const brandStack = buildBrandStackSnapshot({ marketingSourceMap })
+    cacheHeadersNoStore(res)
+    res.json(brandStack)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_brand_stack_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation brand stack.'
     )
   }
 })
@@ -4782,7 +4818,9 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       avatarRegistry: marketingAvatarRegistry,
       sourceNoteText: readFileSafe(path.join(__dirname, MARKETING_SOURCE_MAP_NOTE_PATH)) || '',
     })
+    const brandStack = buildBrandStackSnapshot({ marketingSourceMap })
     sourceLifecycle.marketingSourceMap = marketingSourceMap
+    sourceLifecycle.brandStack = brandStack
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4812,6 +4850,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       currentSprint,
       marketingAvatarRegistry,
       marketingSourceMap,
+      brandStack,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-12
-Version: v6.27 — Foundation Source Once-Over sprint
+Version: v6.28 — Foundation Source Once-Over sprint
 Status: Active
 
 Use this doc for one question:
@@ -85,8 +85,8 @@ Sprint order:
 2. `SOURCE-EXTRACTION-COVERAGE-001` — done under `source-extraction-coverage-v1`; Foundation now rolls existing extraction-control target/run/item/retry/cursor and 24-hour activity signals up to every source.
 3. `SOURCE-COVERAGE-CLOSEOUT-001` — done under `source-coverage-closeout-v1`; every source row now has a closeout decision: covered, extraction follow-up, maturity follow-up, deferred, or not required for current Foundation depth.
 4. `MARKETING-SOURCE-MAP-001` — done under `marketing-source-map-v1`; imported avatars and marketing source contracts are now mapped to Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained lanes without building marketing production.
-5. `BRAND-STACK-001` — next active blocker; model the brand entities and boundaries as Foundation truth.
-6. `TIER-BEHAVIORAL-COMPLETION-001` — decide/prove the first non-owner read surfaces or keep them owner-only.
+5. `BRAND-STACK-001` — done under `brand-stack-v1`; Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained are modeled as Foundation brand entities with Brand Guardian boundaries, without enforcement or production.
+6. `TIER-BEHAVIORAL-COMPLETION-001` — next active blocker; decide/prove the first non-owner read surfaces or keep them owner-only.
 7. `VERIFICATION-RUNS-001` — add stale-finding/research refresh/expiry behavior so research does not become a graveyard.
 8. `PER-USER-CHANGELOG-001` — scope/build the write_audit_log equivalent from Foundation change history.
 9. `DECISION-RESTRICTED-QUEUE-001` — scope/build restricted decision auto-flag and sequestering.
@@ -130,6 +130,7 @@ Built and useful now:
 - Source maturity grid v1 under `source-maturity-grid-v1`: every source contract is now scored across connected, trusted, monitored, extracted, atomized, synthesized, and routed stages, with first gaps and top gaps rendered from live Foundation state.
 - Source coverage closeout v1 under `source-coverage-closeout-v1`: source maturity and extraction coverage gaps are now routed into covered/deferred/not-required decisions or explicit `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` / `SOURCE-MATURITY-GAP-FOLLOWUP-001` queues.
 - Marketing source map v1 under `marketing-source-map-v1`: imported avatars and registered marketing source contracts are mapped to brand lanes so future Strategy/Marketing work does not blend Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained.
+- Brand stack v1 under `brand-stack-v1`: the five brand entities now carry source/avatar links plus audience, offer, tone, approval, and Brand Guardian boundary rules; Brand Guardian enforcement and marketing production remain unbuilt.
 
 Still not done:
 

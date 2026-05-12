@@ -119,6 +119,7 @@
     "process:source-extraction-coverage-check": "node --env-file-if-exists=.env scripts/process-source-extraction-coverage-check.mjs",
     "process:source-coverage-closeout-check": "node --env-file-if-exists=.env scripts/process-source-coverage-closeout-check.mjs",
     "process:marketing-source-map-check": "node --env-file-if-exists=.env scripts/process-marketing-source-map-check.mjs",
+    "process:brand-stack-check": "node --env-file-if-exists=.env scripts/process-brand-stack-check.mjs",
     "process:foundation-verify-health-repair-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-health-repair-check.mjs",
     "process:foundation-followup-card-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-followup-card-capture-check.mjs",
     "process:foundation-systems-service-grouping-check": "node --env-file-if-exists=.env scripts/process-foundation-systems-service-grouping-check.mjs",

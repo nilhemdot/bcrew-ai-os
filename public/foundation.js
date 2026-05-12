@@ -11081,6 +11081,82 @@ function renderMarketingSourceMapPanel(map) {
   return panel
 }
 
+function renderBrandStackPanel(stack) {
+  if (!stack || !Array.isArray(stack.brands) || !stack.brands.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel brand-stack-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'brand-stack')
+
+  var summary = stack.summary || {}
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Brand Stack'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Brand entities and Guardian boundaries'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = (summary.brandCount || 0) + ' brand entities, '
+    + (summary.guardianBoundaryCount || 0) + ' Guardian boundaries, '
+    + (summary.sourceRefCount || 0) + ' source refs, '
+    + (summary.avatarAssignmentCount || 0) + ' avatar assignments. '
+    + 'Guardian enforcement built: ' + (summary.brandGuardianEnforcementBuilt ? 'yes' : 'no') + '.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag((summary.activeBrandCount || 0) + ' active', 'connected'))
+  right.appendChild(renderSourceTag((summary.reviewRequiredBrandCount || 0) + ' review required', summary.reviewRequiredBrandCount ? 'pending' : 'connected'))
+  right.appendChild(renderSourceTag((summary.missingSourceRefCount || 0) + ' missing refs', summary.missingSourceRefCount ? 'missing' : 'connected'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'brand-stack-grid'
+  stack.brands.forEach(function(brand) {
+    var article = document.createElement('article')
+    article.className = 'brand-stack-card'
+    article.setAttribute('data-brand-id', brand.brandId)
+
+    var top = document.createElement('div')
+    top.className = 'source-lifecycle-card-top'
+    var name = document.createElement('h4')
+    name.textContent = brand.label
+    top.appendChild(name)
+    top.appendChild(renderSourceTag(brand.status, brand.status === 'active' ? 'connected' : 'pending'))
+    article.appendChild(top)
+
+    var role = document.createElement('p')
+    role.textContent = brand.role
+    article.appendChild(role)
+
+    var meta = document.createElement('div')
+    meta.className = 'source-card-meta-grid'
+    meta.appendChild(renderSourceMetaItem('Sources', String(brand.sourceRefCount || 0)))
+    meta.appendChild(renderSourceMetaItem('Avatars', String(brand.avatarCount || 0)))
+    meta.appendChild(renderSourceMetaItem('Gaps', String(brand.gapSourceCount || 0)))
+    meta.appendChild(renderSourceMetaItem('Boundary', brand.guardianBoundaryDefined ? 'defined' : 'missing'))
+    article.appendChild(meta)
+
+    article.appendChild(renderSourceBulletGroup('Audience boundary', [brand.audienceBoundary]))
+    article.appendChild(renderSourceBulletGroup('Guardian rules', (brand.guardianRules || []).slice(0, 3)))
+    if ((brand.sourceIds || []).length) article.appendChild(renderSourceBulletGroup('Source IDs', brand.sourceIds))
+    grid.appendChild(article)
+  })
+  panel.appendChild(grid)
+
+  if ((stack.boundary || []).length) {
+    panel.appendChild(renderSourceBulletGroup('Not built by this card', stack.boundary))
+  }
+
+  return panel
+}
+
 function renderSourceLifecycleDefinitions(definitions) {
   var panel = document.createElement('section')
   panel.className = 'panel'
@@ -13845,6 +13921,8 @@ function renderSourceLifecycle() {
     if (sourceCoverageCloseout) container.appendChild(sourceCoverageCloseout)
     var marketingSourceMap = renderMarketingSourceMapPanel(lifecycle.marketingSourceMap)
     if (marketingSourceMap) container.appendChild(marketingSourceMap)
+    var brandStack = renderBrandStackPanel(lifecycle.brandStack)
+    if (brandStack) container.appendChild(brandStack)
     container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
     container.appendChild(renderSourceLifecycleLanes(lifecycle))
     container.appendChild(renderSourceLifecycleTargets(lifecycle))

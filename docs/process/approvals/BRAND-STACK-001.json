@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BRAND-STACK-001",
+  "approvedBy": "Codex interim reviewer per Steve walk-away approval",
+  "approvedAt": "2026-05-12T15:51:22Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/brand-stack-001-plan.md",
+  "approvedPlanSha256": "66789f2f1b939fc9a0ecc82d8d2104876ed9378d61d6ae297ea97ecc91015a40",
+  "approvedRepoHead": "a6dcf4fb007b9e85fa1007ca25b4b59fc3d322d1",
+  "notes": "Approved for bounded Brand Stack V1 only: model Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained as Foundation brand entities with source/avatar links and Brand Guardian boundaries; expose API/UI/focused proof/current sprint advancement; keep Brand Guardian enforcement, marketing production, campaigns, content agents, connector repair, and Drive ACL mutation out of scope.",
+  "approvalDigest": "15743d6b6bf900820a3fc27b9c9314d6cf73a258ea1cfd523ee56871094ee97a"
+}
