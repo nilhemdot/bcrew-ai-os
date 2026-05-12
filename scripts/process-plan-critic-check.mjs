@@ -17,6 +17,7 @@ import {
   PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
   PLAN_CRITIC_REPLACEMENT_PLAN_PATH,
   PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH,
+  PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY,
   PLAN_CRITIC_SCORING_SCHEMA,
   PLAN_CRITIC_SUMMARY_MARKER,
 } from '../lib/process-plan-critic.js'
@@ -155,6 +156,8 @@ async function main() {
     sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) === 'done_this_sprint'
   const connectorTruthSprintActive = sprint.sprint?.sprintId === 'connector-routing-truth-2026-05-12'
   const processRepairVerifierSprintActive = sprint.sprint?.sprintId === 'process-repair-verifier-independence-2026-05-12'
+  const processRepairVerifierSprintComplete = processRepairVerifierSprintActive &&
+    PROCESS_REPAIR_VERIFIER_SPRINT_ORDER.every(id => sprintStageMap.get(id) === 'done_this_sprint')
   const selfReview = evaluatePlanCriticPlan({
     planText,
     card: criticCard || { id: PLAN_CRITIC_REPLACEMENT_CARD_ID, priority: 'P0' },
@@ -173,7 +176,21 @@ async function main() {
   addFinding(findings, packageJson.scripts?.['process:plan-critic-check'] === `node --env-file-if-exists=.env ${PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH}`, 'package exposes focused proof script')
   addFinding(findings, Math.abs(PLAN_CRITIC_SCORING_SCHEMA.reduce((sum, item) => sum + item.maxScore, 0) - 10) < 0.001, 'Plan Critic scoring schema totals 10')
   addFinding(findings, selfReview.status === 'pass' && selfReview.score >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic dogfoods its own approved plan', buildPlanCriticResultSummary(selfReview))
-  addFinding(findings, synthetic.ok, 'synthetic strong/weak/broad plan proof passes', synthetic.ok ? '' : JSON.stringify(synthetic, null, 2).slice(0, 1000))
+  addFinding(findings, synthetic.ok, 'synthetic strong/weak/broad/root-vs-patch plan proof passes', synthetic.ok ? '' : JSON.stringify(synthetic, null, 2).slice(0, 1000))
+  addFinding(
+    findings,
+    synthetic.symptomPatch?.status === 'revise' &&
+      synthetic.symptomPatch?.findings?.some(finding => finding.key === PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY),
+    'synthetic symptom-patch escape plan is rejected',
+    synthetic.symptomPatch ? buildPlanCriticResultSummary(synthetic.symptomPatch) : 'missing synthetic symptom patch proof',
+  )
+  addFinding(
+    findings,
+    synthetic.rootInvariant?.status === 'pass' &&
+      !synthetic.rootInvariant?.findings?.some(finding => finding.key === PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY),
+    'synthetic root-invariant verifier plan passes',
+    synthetic.rootInvariant ? buildPlanCriticResultSummary(synthetic.rootInvariant) : 'missing synthetic root invariant proof',
+  )
   addFinding(findings, criticCard?.lane === 'done' && String(criticCard?.statusNote || '').includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY), 'PLAN-CRITIC-REPLACEMENT-001 is done with closeout proof', criticCard?.lane || 'missing')
   addFinding(
     findings,
@@ -195,7 +212,8 @@ async function main() {
       (securityClosed && sprint.sprint?.activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) ||
       (securityClosed && verifierClosed && [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(sprint.sprint?.activeBlockerCardId)) ||
       (connectorTruthSprintActive && CONNECTOR_TRUTH_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)) ||
-      (processRepairVerifierSprintActive && PROCESS_REPAIR_VERIFIER_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)),
+      (processRepairVerifierSprintActive && PROCESS_REPAIR_VERIFIER_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)) ||
+      (processRepairVerifierSprintComplete && !sprint.sprint?.activeBlockerCardId),
     'Current Sprint active blocker advanced through security behavior proof',
     sprint.sprint?.activeBlockerCardId || 'missing',
   )
@@ -219,13 +237,15 @@ async function main() {
   addFinding(findings, includesAll(libraryText, [
     'PLAN_CRITIC_SCORING_SCHEMA',
     'behavior_not_substring',
+    'root_vs_patch_invariant',
     'rejectsSubstringProof',
     'classifyFoundationGateDecision',
     'buildSyntheticPlanCriticProof',
   ]), 'Plan Critic library owns scoring schema and behavior-not-substring proof')
   addFinding(findings, includesAll(scriptText, [
     'PLAN_CRITIC_SUMMARY_MARKER',
-    'synthetic strong/weak/broad plan proof passes',
+    'synthetic strong/weak/broad/root-vs-patch plan proof passes',
+    'synthetic symptom-patch escape plan is rejected',
     'Current Sprint active blocker advanced to security behavior proof',
   ]), 'Plan Critic proof script checks dogfood and sprint advancement')
   addFinding(findings, includesAll(currentSprintText, [

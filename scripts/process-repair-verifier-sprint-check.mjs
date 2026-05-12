@@ -23,6 +23,7 @@ const openSprint = args.has('--open')
 const closeProcessRepair = args.has('--close-process-repair')
 const closeVerifierIndependence = args.has('--close-verifier-independence')
 const closeVerifierModularSplit = args.has('--close-verifier-modular-split')
+const closeRootVsPatch = args.has('--close-root-vs-patch')
 
 const PROCESS_SPRINT_ID = 'process-repair-verifier-independence-2026-05-12'
 const PROCESS_SPRINT_PLAN_PATH = 'docs/process/process-repair-verifier-independence-2026-05-12-plan.md'
@@ -108,9 +109,9 @@ const CARD_PLANS = [
     priority: 'P1',
     order: 4,
     planRef: 'docs/process/process-root-vs-patch-001-plan.md',
-    definitionOfDone: 'Plan Critic has a scoped follow-up to reject symptom-patch plans that do not prove the root invariant.',
+    definitionOfDone: 'Plan Critic rejects verifier/dashboard symptom-patch plans that do not prove the root invariant.',
     proofCommands: [
-      'npm run process:repair-verifier-sprint-check -- --open --json',
+      'npm run process:root-vs-patch-check -- --json',
       'npm run process:plan-critic-check -- --json=true',
     ],
     readinessBlockerCleared: 'The same process-theatre pattern repeated as active-sprint verifier shortcuts.',
@@ -118,10 +119,11 @@ const CARD_PLANS = [
       'docs/process/process-root-vs-patch-001-plan.md',
       'lib/process-plan-critic.js',
       'scripts/process-plan-critic-check.mjs',
+      'scripts/process-root-vs-patch-check.mjs',
     ],
     exactGap: 'Plan Critic does not yet reject plans that add escape conditions instead of proving the claimed invariant.',
     existingCode: ['lib/process-plan-critic.js', 'scripts/process-plan-critic-check.mjs'],
-    existingScripts: ['scripts/process-plan-critic-check.mjs'],
+    existingScripts: ['scripts/process-plan-critic-check.mjs', 'scripts/process-root-vs-patch-check.mjs'],
   },
 ]
 
@@ -175,21 +177,28 @@ function buildExistingWorkCheck(card, overrides = {}) {
 }
 
 function buildProcessSprintSeed(stageByCard, metadata = {}) {
-  const activeCard = CARD_PLANS.find(card => stageByCard[card.cardId] === 'building_now') ||
-    CARD_PLANS.find(card => stageByCard[card.cardId] !== 'done_this_sprint') ||
-    CARD_PLANS[CARD_PLANS.length - 1]
+  const allDone = CARD_PLANS.every(card => stageByCard[card.cardId] === 'done_this_sprint')
+  const activeCard = allDone
+    ? null
+    : CARD_PLANS.find(card => stageByCard[card.cardId] === 'building_now') ||
+      CARD_PLANS.find(card => stageByCard[card.cardId] !== 'done_this_sprint') ||
+      CARD_PLANS[CARD_PLANS.length - 1]
   return {
     sprint: {
       sprintId: PROCESS_SPRINT_ID,
       status: 'active',
       goal: 'Repair skipped sprint process records, remove verifier active-sprint shortcuts, then scope verifier modularization and Plan Critic root-vs-patch hardening.',
-      activeBlockerCardId: activeCard.cardId,
+      activeBlockerCardId: metadata.activeBlockerCardId === undefined
+        ? activeCard?.cardId || null
+        : metadata.activeBlockerCardId,
       metadata: {
         overlayOnly: true,
         sprintCommandView: true,
         executiveSummary: 'This is a process repair sprint. It exists because Steve caught real Doctrine missing warnings after the Connector/Routing Truth sprint shipped too fast.',
-        currentStatus: metadata.currentStatus || `process_repair_${activeCard.cardId.toLowerCase()}`,
-        nextAction: metadata.nextAction || `Finish ${activeCard.cardId} before pulling any product work.`,
+        currentStatus: metadata.currentStatus || (allDone ? 'complete' : `process_repair_${activeCard.cardId.toLowerCase()}`),
+        nextAction: metadata.nextAction || (allDone
+          ? 'Sprint is complete. Run sprint review/rollover before pulling product work.'
+          : `Finish ${activeCard.cardId} before pulling any product work.`),
         exitCriteria: [
           'All four repair cards have scoped doctrine and Plan Critic pass rows.',
           'The six Connector/Routing cards are repaired as after-action records without fake stage history.',
@@ -546,12 +555,33 @@ async function closeVerifierModularSplitCard() {
   }), 'codex')
 }
 
+async function closeRootVsPatchCard() {
+  await initFoundationDb()
+  await updateBacklogItem('PROCESS-ROOT-VS-PATCH-001', {
+    lane: 'done',
+    nextAction: 'Done for v1. Process Repair + Verifier Independence sprint is ready for review before any product work resumes.',
+    statusNote: 'Closed on 2026-05-12 under `process-root-vs-patch-v1`. V1 adds the Plan Critic root-vs-patch invariant rule, rejects synthetic verifier/dashboard escape-condition plans that silence symptoms without proving the underlying invariant, and keeps valid root-invariant verifier plans passing. Proof: npm run process:root-vs-patch-check -- --json and npm run process:plan-critic-check -- --json=true.',
+  }, 'codex')
+  await upsertFoundationCurrentSprintOverlay(buildProcessSprintSeed({
+    'SPRINT-PROCESS-REPAIR-001': 'done_this_sprint',
+    'VERIFIER-SPRINT-INDEPENDENCE-001': 'done_this_sprint',
+    'VERIFIER-MODULAR-SPLIT-001': 'done_this_sprint',
+    'PROCESS-ROOT-VS-PATCH-001': 'done_this_sprint',
+  }, {
+    activeBlockerCardId: null,
+    currentStatus: 'process_repair_verifier_independence_complete',
+    nextAction: 'Sprint is complete. Run sprint review/rollover before pulling product work.',
+    stageProgression: 'root_vs_patch_done',
+  }), 'codex')
+}
+
 async function main() {
   let planResults = []
   if (openSprint) planResults = await openFormalSprint()
   if (closeProcessRepair) await closeSprintProcessRepair()
   if (closeVerifierIndependence) await closeVerifierSprintIndependence()
   if (closeVerifierModularSplit) await closeVerifierModularSplitCard()
+  if (closeRootVsPatch) await closeRootVsPatchCard()
 
   const [activeSprint, cards, state] = await Promise.all([
     getActiveFoundationCurrentSprint(),
@@ -574,14 +604,19 @@ async function main() {
   if (stageMap.get('SPRINT-PROCESS-REPAIR-001') === 'done_this_sprint') {
     const verifierDone = stageMap.get('VERIFIER-SPRINT-INDEPENDENCE-001') === 'done_this_sprint'
     const modularDone = stageMap.get('VERIFIER-MODULAR-SPLIT-001') === 'done_this_sprint'
-    const expectedActiveBlocker = modularDone ? 'PROCESS-ROOT-VS-PATCH-001' : verifierDone ? 'VERIFIER-MODULAR-SPLIT-001' : 'VERIFIER-SPRINT-INDEPENDENCE-001'
+    const rootDone = stageMap.get('PROCESS-ROOT-VS-PATCH-001') === 'done_this_sprint'
+    const expectedActiveBlocker = rootDone ? null : modularDone ? 'PROCESS-ROOT-VS-PATCH-001' : verifierDone ? 'VERIFIER-MODULAR-SPLIT-001' : 'VERIFIER-SPRINT-INDEPENDENCE-001'
     assert(activeSprint.sprint?.activeBlockerCardId === expectedActiveBlocker, `Active blocker should be ${expectedActiveBlocker}.`)
     if (verifierDone) {
       assert(cardsById.get('VERIFIER-SPRINT-INDEPENDENCE-001')?.lane === 'done', 'VERIFIER-SPRINT-INDEPENDENCE-001 should be done after close.')
       if (modularDone) {
         assert(cardsById.get('VERIFIER-MODULAR-SPLIT-001')?.lane === 'done', 'VERIFIER-MODULAR-SPLIT-001 should be done after close.')
-        assert(stageMap.get('PROCESS-ROOT-VS-PATCH-001') === 'building_now', 'PROCESS-ROOT-VS-PATCH-001 should be Building Now after verifier modular split closes.')
-        assert(cardsById.get('PROCESS-ROOT-VS-PATCH-001')?.lane === 'executing', 'PROCESS-ROOT-VS-PATCH-001 should be executing after verifier modular split closes.')
+        if (rootDone) {
+          assert(cardsById.get('PROCESS-ROOT-VS-PATCH-001')?.lane === 'done', 'PROCESS-ROOT-VS-PATCH-001 should be done after close.')
+        } else {
+          assert(stageMap.get('PROCESS-ROOT-VS-PATCH-001') === 'building_now', 'PROCESS-ROOT-VS-PATCH-001 should be Building Now after verifier modular split closes.')
+          assert(cardsById.get('PROCESS-ROOT-VS-PATCH-001')?.lane === 'executing', 'PROCESS-ROOT-VS-PATCH-001 should be executing after verifier modular split closes.')
+        }
       } else {
         assert(stageMap.get('VERIFIER-MODULAR-SPLIT-001') === 'building_now', 'VERIFIER-MODULAR-SPLIT-001 should be Building Now after verifier independence closes.')
         assert(cardsById.get('VERIFIER-MODULAR-SPLIT-001')?.lane === 'executing', 'VERIFIER-MODULAR-SPLIT-001 should be executing after verifier independence closes.')

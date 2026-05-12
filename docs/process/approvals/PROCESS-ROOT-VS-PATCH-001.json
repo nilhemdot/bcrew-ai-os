@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PROCESS-ROOT-VS-PATCH-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-12T22:11:33Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/process-root-vs-patch-001-plan.md",
+  "approvedPlanSha256": "883769fd333938d1c10d1446b6a2de3f3f131d61d46dfab6f6f120ca917ad22b",
+  "approvedRepoHead": "cda3aeb9685a5da21eba9d02b23331d3a7ed51d8",
+  "notes": "Approved as the fourth card in the Process Repair + Verifier Independence sprint. Scope: add the narrow Plan Critic root-vs-patch invariant rule for verifier/dashboard symptom patches. Not approved: broad reviewer framework, Reply/Watching Loop, connector builds, Drive ACL mutation, Strategy expansion, or another verifier rewrite.",
+  "approvalDigest": "c73cb88c89404577bd6e542d22428e4b9df3ed2c6eac796f4fb8ac147979d97a"
+}

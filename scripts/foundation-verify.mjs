@@ -417,6 +417,7 @@ import {
   buildSyntheticPlanCriticProof,
   evaluatePlanCriticPlan,
   PLAN_CRITIC_MIN_PASS_SCORE,
+  PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY,
   PLAN_CRITIC_SCORING_SCHEMA,
   PLAN_CRITIC_SUMMARY_MARKER,
 } from '../lib/process-plan-critic.js'
@@ -1317,6 +1318,7 @@ async function main() {
   const processRepairVerifierSprintScriptSource = await readRepoFile('scripts/process-repair-verifier-sprint-check.mjs')
   const verifierSprintProofModuleSource = await readRepoFile('lib/foundation-verifier-sprint-proof.js')
   const verifierModularSplitCheckSource = await readRepoFile('scripts/process-verifier-modular-split-check.mjs')
+  const processRootVsPatchCheckSource = await readRepoFile('scripts/process-root-vs-patch-check.mjs')
   const processRepairVerifierSprintPlanSource = await readRepoFile('docs/process/process-repair-verifier-independence-2026-05-12-plan.md')
   const sprintProcessRepairPlanSource = await readRepoFile('docs/process/sprint-process-repair-001-plan.md')
   const connectorRoutingProcessRepairSource = await readRepoFile('docs/process/connector-routing-truth-process-repair.md')
@@ -3214,6 +3216,7 @@ async function main() {
   const connectorRoutingProcessRepairCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-process-repair-v1') || null
   const verifierSprintIndependenceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'verifier-sprint-independence-v1') || null
   const verifierModularSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'verifier-modular-split-v1') || null
+  const processRootVsPatchCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'process-root-vs-patch-v1') || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const currentSprintItemsById = new Map(
@@ -5833,6 +5836,7 @@ async function main() {
   const sprintProcessRepair = (foundationHub.backlogItems || []).find(item => item.id === 'SPRINT-PROCESS-REPAIR-001') || null
   const verifierSprintIndependence = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-SPRINT-INDEPENDENCE-001') || null
   const verifierModularSplit = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-MODULAR-SPLIT-001') || null
+  const processRootVsPatch = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-ROOT-VS-PATCH-001') || null
   const foundationSprintSystem = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SYSTEM_CARD_ID) || null
   const foundationSprintCadence = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_CADENCE_CARD_ID) || null
   const foundationSprintReview = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_REVIEW_CARD_ID) || null
@@ -8793,7 +8797,14 @@ async function main() {
           )
         )
       ) &&
-      foundationHub.currentSprint?.cadence?.currentBlocker?.cardId &&
+      (
+        foundationHub.currentSprint?.cadence?.currentBlocker?.cardId ||
+        (
+          foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
+          foundationHub.currentSprint?.summary?.itemCount > 0 &&
+          foundationHub.currentSprint?.summary?.doneThisSprintCount === foundationHub.currentSprint.summary.itemCount
+        )
+      ) &&
       Array.isArray(foundationHub.currentSprint?.cadence?.exitCriteria) &&
       foundationHub.currentSprint.cadence.exitCriteria.length >= 5 &&
       (meetingVaultAutoEnforcementClosed || meetingVaultAcl?.lane !== 'done') &&
@@ -8945,13 +8956,15 @@ async function main() {
       includesAll(planCriticSource, [
         'PLAN_CRITIC_SCORING_SCHEMA',
         'behavior_not_substring',
+        PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY,
         'rejectsSubstringProof',
         'classifyFoundationGateDecision',
         'buildSyntheticPlanCriticProof',
       ]) &&
       includesAll(planCriticScriptSource, [
         'PLAN_CRITIC_SUMMARY_MARKER',
-        'synthetic strong/weak/broad plan proof passes',
+        'synthetic strong/weak/broad/root-vs-patch plan proof passes',
+        'synthetic symptom-patch escape plan is rejected',
         'Current Sprint active blocker advanced to security behavior proof',
       ]) &&
       includesAll(planCriticPlanSource, [
@@ -10213,6 +10226,7 @@ async function main() {
   const sprintProcessRepairCurrentItem = currentSprintItemsById.get('SPRINT-PROCESS-REPAIR-001')
   const verifierSprintIndependenceCurrentItem = currentSprintItemsById.get('VERIFIER-SPRINT-INDEPENDENCE-001')
   const verifierModularSplitCurrentItem = currentSprintItemsById.get('VERIFIER-MODULAR-SPLIT-001')
+  const processRootVsPatchCurrentItem = currentSprintItemsById.get('PROCESS-ROOT-VS-PATCH-001')
   const verifierSprintIndependenceIsBuilding =
     verifierSprintIndependence?.lane === 'executing' &&
     verifierSprintIndependenceCurrentItem?.stage === 'building_now' &&
@@ -10230,8 +10244,11 @@ async function main() {
       foundationHub.currentSprint?.activeBlocker?.cardId === 'VERIFIER-MODULAR-SPLIT-001') ||
       (verifierModularSplitCurrentItem?.stage === 'done_this_sprint' &&
         verifierModularSplitCurrentItem?.existingWorkCheckStatus === 'complete' &&
-        currentSprintItemsById.get('PROCESS-ROOT-VS-PATCH-001')?.stage === 'building_now' &&
-        foundationHub.currentSprint?.activeBlocker?.cardId === 'PROCESS-ROOT-VS-PATCH-001'))
+        processRootVsPatchCurrentItem?.existingWorkCheckStatus === 'complete' &&
+        ((processRootVsPatchCurrentItem?.stage === 'building_now' &&
+          foundationHub.currentSprint?.activeBlocker?.cardId === 'PROCESS-ROOT-VS-PATCH-001') ||
+          (processRootVsPatchCurrentItem?.stage === 'done_this_sprint' &&
+            foundationHub.currentSprint?.activeBlocker === null))))
   const verifierModularSplitIsBuilding =
     verifierModularSplit?.lane === 'executing' &&
     verifierModularSplitCurrentItem?.stage === 'building_now' &&
@@ -10244,9 +10261,25 @@ async function main() {
     (verifierModularSplitCloseout.backlogIds || []).includes('VERIFIER-MODULAR-SPLIT-001') &&
     verifierModularSplitCurrentItem?.stage === 'done_this_sprint' &&
     verifierModularSplitCurrentItem?.existingWorkCheckStatus === 'complete' &&
-    currentSprintItemsById.get('PROCESS-ROOT-VS-PATCH-001')?.stage === 'building_now' &&
-    currentSprintItemsById.get('PROCESS-ROOT-VS-PATCH-001')?.existingWorkCheckStatus === 'complete' &&
+    processRootVsPatchCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    ((processRootVsPatchCurrentItem?.stage === 'building_now' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === 'PROCESS-ROOT-VS-PATCH-001') ||
+      (processRootVsPatchCurrentItem?.stage === 'done_this_sprint' &&
+        foundationHub.currentSprint?.activeBlocker === null))
+  const processRootVsPatchIsBuilding =
+    processRootVsPatch?.lane === 'executing' &&
+    processRootVsPatchCurrentItem?.stage === 'building_now' &&
+    processRootVsPatchCurrentItem?.existingWorkCheckStatus === 'complete' &&
     foundationHub.currentSprint?.activeBlocker?.cardId === 'PROCESS-ROOT-VS-PATCH-001'
+  const processRootVsPatchIsClosed =
+    processRootVsPatch?.lane === 'done' &&
+    String(processRootVsPatch?.statusNote || '').includes('process-root-vs-patch-v1') &&
+    processRootVsPatchCloseout?.operatorCloseout === true &&
+    (processRootVsPatchCloseout.backlogIds || []).includes('PROCESS-ROOT-VS-PATCH-001') &&
+    processRootVsPatchCurrentItem?.stage === 'done_this_sprint' &&
+    processRootVsPatchCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker === null
   const oldConnectorRoutingShortcutA = ['connectorRoutingTruthSprintActive', 'expectedSnippets'].join(' || ')
   const oldConnectorRoutingShortcutB = ['expectedCardIds.includes(currentSprintActiveBlockerCardId)', 'connectorRoutingTruthSprintActive'].join(' || ')
   ensure(
@@ -10339,6 +10372,43 @@ async function main() {
       ]),
     'VERIFIER-MODULAR-SPLIT-001 closes first verifier module split and advances root-vs-patch',
     `lane=${verifierModularSplit?.lane || 'missing'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'} closeout=${verifierModularSplitCloseout?.key || 'missing'}`,
+  )
+  ensure(
+    checks,
+    (processRootVsPatchIsBuilding || processRootVsPatchIsClosed) &&
+      packageJson.scripts?.['process:root-vs-patch-check'] === 'node --env-file-if-exists=.env scripts/process-root-vs-patch-check.mjs' &&
+      planCriticSynthetic.symptomPatch?.status === 'revise' &&
+      planCriticSynthetic.symptomPatch?.findings?.some(finding => finding.key === PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY) &&
+      planCriticSynthetic.rootInvariant?.status === 'pass' &&
+      !planCriticSynthetic.rootInvariant?.findings?.some(finding => finding.key === PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY) &&
+      includesAll(planCriticSource, [
+        'PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY',
+        'root_vs_patch_invariant',
+        'symptomPatchSurfaceRisk',
+        'rootInvariant',
+      ]) &&
+      includesAll(processRootVsPatchCheckSource, [
+        'symptom patch plan is rejected',
+        'root invariant verifier plan passes',
+        'process:root-vs-patch-check',
+      ]),
+    'PROCESS-ROOT-VS-PATCH-001 teaches Plan Critic to reject symptom patches without root proof',
+    `lane=${processRootVsPatch?.lane || 'missing'} stage=${processRootVsPatchCurrentItem?.stage || 'missing'} synthetic=${planCriticSynthetic.symptomPatch?.status || 'missing'} root=${planCriticSynthetic.rootInvariant?.status || 'missing'}`,
+  )
+  ensure(
+    checks,
+    !processRootVsPatchIsClosed ||
+      ((processRootVsPatchCloseout.proofCommands || []).includes('npm run process:root-vs-patch-check -- --json') &&
+        (processRootVsPatchCloseout.proofCommands || []).includes('npm run process:plan-critic-check -- --json=true') &&
+        includesAll(processRepairVerifierSprintScriptSource, [
+          'closeRootVsPatchCard',
+          'process-root-vs-patch-v1',
+          'activeBlockerCardId: null',
+        ]) &&
+        foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
+        foundationHub.currentSprint?.activeBlocker === null),
+    'PROCESS-ROOT-VS-PATCH-001 closes repair sprint without a done active blocker',
+    `lane=${processRootVsPatch?.lane || 'missing'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'none'} closeout=${processRootVsPatchCloseout?.key || 'missing'}`,
   )
   ensure(
     checks,

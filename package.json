@@ -114,6 +114,7 @@
     "process:plan-critic-log-check": "node --env-file-if-exists=.env scripts/process-plan-critic-log-check.mjs",
     "process:repair-verifier-sprint-check": "node --env-file-if-exists=.env scripts/process-repair-verifier-sprint-check.mjs",
     "process:verifier-modular-split-check": "node --env-file-if-exists=.env scripts/process-verifier-modular-split-check.mjs",
+    "process:root-vs-patch-check": "node --env-file-if-exists=.env scripts/process-root-vs-patch-check.mjs",
     "process:security-behavior-proof-check": "node --env-file-if-exists=.env scripts/process-security-behavior-proof-check.mjs",
     "process:verifier-behavior-sweep-check": "node --env-file-if-exists=.env scripts/process-verifier-behavior-sweep-check.mjs",
     "process:strategy-hub-meeting-ready-check": "node --env-file-if-exists=.env scripts/process-strategy-hub-meeting-ready-check.mjs",
