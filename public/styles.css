@@ -5015,6 +5015,37 @@ a.build-log-backlog-link:hover {
   line-height: 1.35;
 }
 
+.marketing-source-map-panel {
+  overflow: hidden;
+}
+
+.marketing-source-map-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.marketing-source-map-lane {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--surface);
+  min-width: 0;
+}
+
+.marketing-source-map-lane h4,
+.marketing-source-map-lane p,
+.marketing-source-map-lane li {
+  overflow-wrap: anywhere;
+}
+
+.marketing-source-map-lane p {
+  margin: 8px 0 12px;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
 @media (max-width: 640px) {
   .source-lifecycle-definition-grid,
   .source-lifecycle-grid,

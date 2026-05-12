@@ -84,8 +84,8 @@ Sprint order:
 1. `SOURCE-MATURITY-GRID-001` — done under `source-maturity-grid-v1`; Foundation now exposes a seven-stage source maturity grid for every source contract: connected, trusted, monitored, extracted, atomized, synthesized, routed.
 2. `SOURCE-EXTRACTION-COVERAGE-001` — done under `source-extraction-coverage-v1`; Foundation now rolls existing extraction-control target/run/item/retry/cursor and 24-hour activity signals up to every source.
 3. `SOURCE-COVERAGE-CLOSEOUT-001` — done under `source-coverage-closeout-v1`; every source row now has a closeout decision: covered, extraction follow-up, maturity follow-up, deferred, or not required for current Foundation depth.
-4. `MARKETING-SOURCE-MAP-001` — next active blocker; map avatars and marketing source contracts to brand lanes without building marketing production.
-5. `BRAND-STACK-001` — model the brand entities and boundaries as Foundation truth.
+4. `MARKETING-SOURCE-MAP-001` — done under `marketing-source-map-v1`; imported avatars and marketing source contracts are now mapped to Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained lanes without building marketing production.
+5. `BRAND-STACK-001` — next active blocker; model the brand entities and boundaries as Foundation truth.
 6. `TIER-BEHAVIORAL-COMPLETION-001` — decide/prove the first non-owner read surfaces or keep them owner-only.
 7. `VERIFICATION-RUNS-001` — add stale-finding/research refresh/expiry behavior so research does not become a graveyard.
 8. `PER-USER-CHANGELOG-001` — scope/build the write_audit_log equivalent from Foundation change history.
@@ -129,6 +129,7 @@ Built and useful now:
 - Ops Hub v1 as its own hub surface for systems serving Ops, starting with Admin, Conditional, FUB drift, and Agent Roster inspections. Scheduled jobs now run marked re-reviews first, then pace Admin first-pass backlog at 5 newest eligible June 2025+ deals per day, writing AI status/action/findings only. Foundation remains the control plane; Ops owns the human cockpit.
 - Source maturity grid v1 under `source-maturity-grid-v1`: every source contract is now scored across connected, trusted, monitored, extracted, atomized, synthesized, and routed stages, with first gaps and top gaps rendered from live Foundation state.
 - Source coverage closeout v1 under `source-coverage-closeout-v1`: source maturity and extraction coverage gaps are now routed into covered/deferred/not-required decisions or explicit `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` / `SOURCE-MATURITY-GAP-FOLLOWUP-001` queues.
+- Marketing source map v1 under `marketing-source-map-v1`: imported avatars and registered marketing source contracts are mapped to brand lanes so future Strategy/Marketing work does not blend Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained.
 
 Still not done:
 

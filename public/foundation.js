@@ -11003,6 +11003,84 @@ function renderSourceCoverageCloseoutPanel(closeout) {
   return panel
 }
 
+function renderMarketingSourceMapPanel(map) {
+  if (!map || !Array.isArray(map.lanes) || !map.lanes.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel marketing-source-map-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'marketing-source-map')
+
+  var summary = map.summary || {}
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Marketing Sources'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Brand-lane source map'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = (summary.laneCount || 0) + ' brand lanes, '
+    + (summary.uniqueSourceCount || 0) + ' unique source contracts, '
+    + (summary.avatarCount || 0) + ' imported avatars, '
+    + (summary.avatarAssignmentCount || 0) + ' avatar assignments. '
+    + 'Production built: ' + (summary.marketingProductionBuilt ? 'yes' : 'no') + '.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag((summary.mappedSourceRefs || 0) + ' mapped refs', 'connected'))
+  right.appendChild(renderSourceTag((summary.pendingSourceRefs || 0) + ' pending refs', summary.pendingSourceRefs ? 'pending' : 'connected'))
+  right.appendChild(renderSourceTag((summary.gapSourceRefs || 0) + ' gap refs', summary.gapSourceRefs ? 'missing' : 'connected'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'marketing-source-map-grid'
+  map.lanes.forEach(function(lane) {
+    var article = document.createElement('article')
+    article.className = 'marketing-source-map-lane'
+    article.setAttribute('data-brand-lane-id', lane.laneId)
+
+    var top = document.createElement('div')
+    top.className = 'source-lifecycle-card-top'
+    var name = document.createElement('h4')
+    name.textContent = lane.label
+    top.appendChild(name)
+    top.appendChild(renderSourceTag(lane.status, lane.tone || 'pending'))
+    article.appendChild(top)
+
+    var purpose = document.createElement('p')
+    purpose.textContent = lane.purpose
+    article.appendChild(purpose)
+
+    var meta = document.createElement('div')
+    meta.className = 'source-card-meta-grid'
+    meta.appendChild(renderSourceMetaItem('Avatars', String(lane.avatarCount || 0)))
+    meta.appendChild(renderSourceMetaItem('Mapped', String(lane.mappedSourceCount || 0)))
+    meta.appendChild(renderSourceMetaItem('Pending', String(lane.pendingSourceCount || 0)))
+    meta.appendChild(renderSourceMetaItem('Gaps', String(lane.gapSourceCount || 0)))
+    article.appendChild(meta)
+
+    var sourceNames = (lane.sourceRefs || []).map(function(ref) {
+      return ref.sourceId + ' · ' + ref.title + ' · ' + ref.state
+    })
+    if (sourceNames.length) article.appendChild(renderSourceBulletGroup('Source contracts', sourceNames))
+    if ((lane.avatarIds || []).length) article.appendChild(renderSourceBulletGroup('Avatar IDs', lane.avatarIds))
+    grid.appendChild(article)
+  })
+  panel.appendChild(grid)
+
+  if ((map.boundary || []).length) {
+    panel.appendChild(renderSourceBulletGroup('Boundaries', map.boundary))
+  }
+
+  return panel
+}
+
 function renderSourceLifecycleDefinitions(definitions) {
   var panel = document.createElement('section')
   panel.className = 'panel'
@@ -13765,6 +13843,8 @@ function renderSourceLifecycle() {
     if (extractionCoverage) container.appendChild(extractionCoverage)
     var sourceCoverageCloseout = renderSourceCoverageCloseoutPanel(lifecycle.sourceCoverageCloseout)
     if (sourceCoverageCloseout) container.appendChild(sourceCoverageCloseout)
+    var marketingSourceMap = renderMarketingSourceMapPanel(lifecycle.marketingSourceMap)
+    if (marketingSourceMap) container.appendChild(marketingSourceMap)
     container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
     container.appendChild(renderSourceLifecycleLanes(lifecycle))
     container.appendChild(renderSourceLifecycleTargets(lifecycle))

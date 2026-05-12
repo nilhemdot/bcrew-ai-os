@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MARKETING-SOURCE-MAP-001",
+  "approvedBy": "Codex interim reviewer per Steve walk-away approval",
+  "approvedAt": "2026-05-12T15:34:30Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/marketing-source-map-001-plan.md",
+  "approvedPlanSha256": "4113e8a14bffe2ac9d927f276bc588880b213104afb7f9de47c44724e17233c7",
+  "approvedRepoHead": "5ba52facca44052c0f9e2308dc98910535a464e3",
+  "notes": "Approved for bounded Marketing Source Map V1 only: map imported avatars and registered source contracts to Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained lanes; expose API/UI/focused proof/current sprint advancement; keep marketing production, Brand Guardian enforcement, connector repair, campaigns, and Drive ACL mutation out of scope.",
+  "approvalDigest": "5dc60381a8203ab8fc8b21f51482277fcf5a62819ef149dc5822792bc550f43c"
+}
