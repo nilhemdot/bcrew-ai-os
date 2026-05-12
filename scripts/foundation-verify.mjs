@@ -372,6 +372,11 @@ import {
   PLAN_CRITIC_DECISION_TREE_PATH,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+  VERIFIER_BEHAVIOR_SWEEP_APPROVAL_PATH,
+  VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
+  VERIFIER_BEHAVIOR_SWEEP_PLAN_PATH,
+  VERIFIER_BEHAVIOR_SWEEP_SCRIPT_PATH,
+  STRATEGY_HUB_MEETING_READY_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
   buildFoundationCurrentSprintStatus,
   buildSyntheticFoundationCurrentSprintProof,
@@ -410,6 +415,11 @@ import {
   SECURITY_BEHAVIOR_PROOF_SCRIPT_PATH,
   SECURITY_BEHAVIOR_PROOF_SUMMARY_MARKER,
 } from '../lib/security-behavior-proof.js'
+import {
+  VERIFIER_BEHAVIOR_SWEEP_MIN_TARGETS,
+  VERIFIER_BEHAVIOR_SWEEP_SUMMARY_MARKER,
+  buildSyntheticVerifierBehaviorSweepProof,
+} from '../lib/verifier-behavior-sweep.js'
 import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
@@ -1242,6 +1252,11 @@ async function main() {
   const securityBehaviorProofPlanSource = await readRepoFile(SECURITY_BEHAVIOR_PROOF_PLAN_PATH)
   const securityBehaviorProofApprovalSource = await readRepoFile(SECURITY_BEHAVIOR_PROOF_APPROVAL_PATH)
   const securityBehaviorProofApproval = JSON.parse(securityBehaviorProofApprovalSource)
+  const verifierBehaviorSweepSource = await readRepoFile('lib/verifier-behavior-sweep.js')
+  const verifierBehaviorSweepScriptSource = await readRepoFile(VERIFIER_BEHAVIOR_SWEEP_SCRIPT_PATH)
+  const verifierBehaviorSweepPlanSource = await readRepoFile(VERIFIER_BEHAVIOR_SWEEP_PLAN_PATH)
+  const verifierBehaviorSweepApprovalSource = await readRepoFile(VERIFIER_BEHAVIOR_SWEEP_APPROVAL_PATH)
+  const verifierBehaviorSweepApproval = JSON.parse(verifierBehaviorSweepApprovalSource)
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
   const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
   const verifyGateTieringPlanSource = await readRepoFile(VERIFY_GATE_TIERING_PLAN_PATH)
@@ -1538,6 +1553,11 @@ async function main() {
     repoRoot,
     approvalRef: SECURITY_BEHAVIOR_PROOF_APPROVAL_PATH,
     cardId: SECURITY_BEHAVIOR_PROOF_CARD_ID,
+  })
+  const verifierBehaviorSweepApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: VERIFIER_BEHAVIOR_SWEEP_APPROVAL_PATH,
+    cardId: VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2981,6 +3001,7 @@ async function main() {
   const verifyGateTieringSynthetic = buildSyntheticVerifyGateTieringProof()
   const planCriticSynthetic = buildSyntheticPlanCriticProof()
   const securityBehaviorProofSynthetic = buildSyntheticSecurityBehaviorProof()
+  const verifierBehaviorSweepSynthetic = buildSyntheticVerifierBehaviorSweepProof()
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3935,6 +3956,21 @@ async function main() {
         mentionedBacklogIds: [
           'SECURITY-002',
           VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+          'SECURITY-FILTERED-COMMS-ACCESS-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogVerifierBehaviorSweepBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
+      build.closeoutKey === VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
+        backlogIds: [VERIFIER_BEHAVIOR_SWEEP_CARD_ID],
+        mentionedBacklogIds: [
+          STRATEGY_HUB_MEETING_READY_CARD_ID,
+          AVATAR_IMPORT_CARD_ID,
           'SECURITY-FILTERED-COMMS-ACCESS-001',
         ],
         operatorCloseout: true,
@@ -5220,6 +5256,7 @@ async function main() {
   const rebuildPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === REBUILD_PLAN_RECONCILE_CARD_ID) || null
   const planCriticReplacement = (foundationHub.backlogItems || []).find(item => item.id === PLAN_CRITIC_REPLACEMENT_CARD_ID) || null
   const securityBehaviorProof = (foundationHub.backlogItems || []).find(item => item.id === SECURITY_BEHAVIOR_PROOF_CARD_ID) || null
+  const verifierBehaviorSweep = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -7614,6 +7651,18 @@ async function main() {
       VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
       'SECURITY-FILTERED-COMMS-ACCESS-001',
     ].every(id => !(buildLogSecurityBehaviorProofBuild.backlogIds || []).includes(id))
+  const verifierBehaviorSweepBuildLogExact = buildLogVerifierBehaviorSweepBuild?.backlogIds?.length === 1 &&
+    buildLogVerifierBehaviorSweepBuild.backlogIds.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
+    [
+      STRATEGY_HUB_MEETING_READY_CARD_ID,
+      AVATAR_IMPORT_CARD_ID,
+      'SECURITY-FILTERED-COMMS-ACCESS-001',
+    ].every(id => (buildLogVerifierBehaviorSweepBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      STRATEGY_HUB_MEETING_READY_CARD_ID,
+      AVATAR_IMPORT_CARD_ID,
+      'SECURITY-FILTERED-COMMS-ACCESS-001',
+    ].every(id => !(buildLogVerifierBehaviorSweepBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -7885,7 +7934,7 @@ async function main() {
       includesAll(securityBehaviorProofScriptSource, [
         SECURITY_BEHAVIOR_PROOF_SUMMARY_MARKER,
         'route and subject-person behavior matrix passes',
-        'Current Sprint active blocker advanced to verifier behavior sweep',
+        'Current Sprint active blocker advanced through verifier behavior sweep',
       ]) &&
       includesAll(securityBehaviorProofPlanSource, [
         SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
@@ -7895,14 +7944,13 @@ async function main() {
       ]) &&
       includesAll(foundationCurrentSprintSource, [
         SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
-        'activeBlockerCardId: VERIFIER_BEHAVIOR_SWEEP_CARD_ID',
         'process:security-behavior-proof-check',
       ]) &&
       buildLogSecurityBehaviorProofBuild?.operatorCloseout === true &&
       securityBehaviorProofBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID &&
+      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
       currentPlan.includes('route-boundary') &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
@@ -7911,6 +7959,63 @@ async function main() {
       currentState.includes('subject-person'),
     'SECURITY-BEHAVIOR-PROOF-001 proves route-boundary access and subject-person redaction behavior',
     `lane=${securityBehaviorProof?.lane || 'missing'} approval=${securityBehaviorProofApprovalValidation.ok} behavior=${securityBehaviorProofSynthetic.ok} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    verifierBehaviorSweep?.lane === 'done' &&
+      String(verifierBehaviorSweep?.statusNote || '').includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['process:verifier-behavior-sweep-check'] === `node --env-file-if-exists=.env ${VERIFIER_BEHAVIOR_SWEEP_SCRIPT_PATH}` &&
+      verifierBehaviorSweepApprovalValidation.ok &&
+      verifierBehaviorSweepApprovalValidation.mode === 'v2' &&
+      verifierBehaviorSweepApproval.cardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID &&
+      Number(verifierBehaviorSweepApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      verifierBehaviorSweepApproval.approvedPlanRef === VERIFIER_BEHAVIOR_SWEEP_PLAN_PATH &&
+      verifierBehaviorSweepSynthetic.ok &&
+      verifierBehaviorSweepSynthetic.summary.targetCount >= VERIFIER_BEHAVIOR_SWEEP_MIN_TARGETS &&
+      verifierBehaviorSweepSynthetic.summary.behaviorCoveredTargetCount === verifierBehaviorSweepSynthetic.summary.targetCount &&
+      verifierBehaviorSweepSynthetic.summary.substringOnlyTargetCount === 0 &&
+      verifierBehaviorSweepSynthetic.targets.some(item => item.cardId === 'SYNTHESIS-VERIFY-001' && item.ok && item.proof?.unverifiedRejected) &&
+      verifierBehaviorSweepSynthetic.targets.some(item => item.cardId === 'SYSTEM-010-GHOST-CLOSEOUT-001' && item.ok && item.proof?.unsafeStop?.failClosed) &&
+      verifierBehaviorSweepSynthetic.targets.some(item => item.cardId === FOUNDATION_DONE_TEST_CARD_ID && item.ok && item.proof?.missingCloseout?.blockingCards?.includes('SYNTHESIS-VERIFY-001')) &&
+      includesAll(verifierBehaviorSweepSource, [
+        'VERIFIER_BEHAVIOR_TARGETS',
+        'buildSyntheticVerifierBehaviorSweepProof',
+        'verifySynthesizedRecord',
+        'buildStopDecision',
+        'buildFoundationReadinessStatus',
+        'buildSourceLifecycleCompletionStatus',
+        'substringOnlyProofRejected',
+      ]) &&
+      includesAll(verifierBehaviorSweepScriptSource, [
+        VERIFIER_BEHAVIOR_SWEEP_SUMMARY_MARKER,
+        'top P0 verifier behavior sweep passes',
+        'Current Sprint active blocker advanced to Strategy Hub meeting-ready',
+      ]) &&
+      includesAll(verifierBehaviorSweepPlanSource, [
+        VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
+        'top-P0 behavior registry',
+        'substring-only',
+        STRATEGY_HUB_MEETING_READY_CARD_ID,
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
+        'activeBlockerCardId: STRATEGY_HUB_MEETING_READY_CARD_ID',
+        'process:verifier-behavior-sweep-check',
+      ]) &&
+      buildLogVerifierBehaviorSweepBuild?.operatorCloseout === true &&
+      verifierBehaviorSweepBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === STRATEGY_HUB_MEETING_READY_CARD_ID &&
+      currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
+      currentPlan.includes('top-P0 behavior registry') &&
+      currentPlan.includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
+      currentState.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker is now `STRATEGY-HUB-MEETING-READY-001`') &&
+      currentState.includes('behavior registry') &&
+      foundationVerifySource.includes('buildSyntheticVerifierBehaviorSweepProof'),
+    'VERIFIER-BEHAVIOR-SWEEP-001 top P0 verifier checks now require behavior proof coverage',
+    `lane=${verifierBehaviorSweep?.lane || 'missing'} approval=${verifierBehaviorSweepApprovalValidation.ok} targets=${verifierBehaviorSweepSynthetic.summary.behaviorCoveredTargetCount}/${verifierBehaviorSweepSynthetic.summary.targetCount} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,

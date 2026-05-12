@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-BEHAVIOR-SWEEP-001",
+  "approvedBy": "Codex interim reviewer per Steve build-away approval",
+  "approvedAt": "2026-05-12T04:05:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-behavior-sweep-001-plan.md",
+  "approvedPlanSha256": "5a0b96ee8ac1fad81adcaba71eda5825f114f90d90f88168f53597b6f97e4866",
+  "approvedRepoHead": "d7b058e85eaa41a07be40705b6df8022918ea085",
+  "notes": "Approved for a bounded top-P0 verifier behavior sweep only: create behavior registry and focused proof for selected critical closeouts, advance Current Sprint to Strategy Hub meeting-ready, and do not rewrite every verifier check, build Strategy Hub, import avatars, open shared communications, mutate Drive permissions, or restart historical Meeting Vault cleanup.",
+  "approvalDigest": "05cc99f9946331cc1d6886d92e8a83ccb7621efd12a32cbcf2b8df31233a731e"
+}

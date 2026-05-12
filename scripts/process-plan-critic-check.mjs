@@ -23,6 +23,7 @@ import {
 import {
   AVATAR_IMPORT_CARD_ID,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
+  STRATEGY_HUB_MEETING_READY_CARD_ID,
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
   VERIFY_GATE_TIERING_CARD_ID,
   REBUILD_PLAN_RECONCILE_CARD_ID,
@@ -41,7 +42,7 @@ const REQUIRED_SPRINT_ORDER = [
   PLAN_CRITIC_REPLACEMENT_CARD_ID,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
-  'STRATEGY-HUB-MEETING-READY-001',
+  STRATEGY_HUB_MEETING_READY_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
 ]
 
@@ -122,7 +123,7 @@ async function main() {
     PLAN_CRITIC_REPLACEMENT_CARD_ID,
     SECURITY_BEHAVIOR_PROOF_CARD_ID,
     VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
-    'STRATEGY-HUB-MEETING-READY-001',
+    STRATEGY_HUB_MEETING_READY_CARD_ID,
     AVATAR_IMPORT_CARD_ID,
   ])
   await closeFoundationDb()
@@ -133,6 +134,8 @@ async function main() {
   const criticCard = cardMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID)
   const securityCard = cardMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID)
   const securityClosed = securityCard?.lane === 'done' && sprintStageMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID) === 'done_this_sprint'
+  const verifierClosed = cardMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID)?.lane === 'done' &&
+    sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) === 'done_this_sprint'
   const selfReview = evaluatePlanCriticPlan({
     planText,
     card: criticCard || { id: PLAN_CRITIC_REPLACEMENT_CARD_ID, priority: 'P0' },
@@ -163,7 +166,8 @@ async function main() {
   addFinding(
     findings,
     sprint.sprint?.activeBlockerCardId === SECURITY_BEHAVIOR_PROOF_CARD_ID ||
-      (securityClosed && sprint.sprint?.activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID),
+      (securityClosed && sprint.sprint?.activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) ||
+      (securityClosed && verifierClosed && sprint.sprint?.activeBlockerCardId === STRATEGY_HUB_MEETING_READY_CARD_ID),
     'Current Sprint active blocker advanced through security behavior proof',
     sprint.sprint?.activeBlockerCardId || 'missing',
   )

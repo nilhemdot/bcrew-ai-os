@@ -128,12 +128,15 @@ async function main() {
     cardMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID)?.lane === 'done'
   const securityClosed = sprintStageMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID) === 'done_this_sprint' &&
     cardMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID)?.lane === 'done'
+  const verifierClosed = sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) === 'done_this_sprint' &&
+    cardMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID)?.lane === 'done'
   addFinding(findings, REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id), 'Current Sprint order matches audit reset', sprintOrder.join(' -> '))
   addFinding(
     findings,
     activeBlockerCardId === PLAN_CRITIC_REPLACEMENT_CARD_ID ||
       (planCriticClosed && activeBlockerCardId === SECURITY_BEHAVIOR_PROOF_CARD_ID) ||
-      (planCriticClosed && securityClosed && activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID),
+      (planCriticClosed && securityClosed && activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) ||
+      (planCriticClosed && securityClosed && verifierClosed && activeBlockerCardId === STRATEGY_HUB_MEETING_READY_CARD_ID),
     'Current Sprint active blocker advanced through Plan Critic',
     activeBlockerCardId || 'missing',
   )

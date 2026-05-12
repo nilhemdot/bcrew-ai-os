@@ -11,6 +11,7 @@ import {
   PLAN_CRITIC_REPLACEMENT_CARD_ID,
   REBUILD_PLAN_RECONCILE_CARD_ID,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
+  STRATEGY_HUB_MEETING_READY_CARD_ID,
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
   VERIFY_GATE_TIERING_CARD_ID,
 } from '../lib/foundation-current-sprint.js'
@@ -41,7 +42,7 @@ const REQUIRED_SPRINT_ORDER = [
   PLAN_CRITIC_REPLACEMENT_CARD_ID,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
-  'STRATEGY-HUB-MEETING-READY-001',
+  STRATEGY_HUB_MEETING_READY_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
 ]
 
@@ -135,7 +136,7 @@ async function main() {
     'SECURITY-002',
     SECURITY_BEHAVIOR_PROOF_CARD_ID,
     VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
-    'STRATEGY-HUB-MEETING-READY-001',
+    STRATEGY_HUB_MEETING_READY_CARD_ID,
     AVATAR_IMPORT_CARD_ID,
   ])
   await closeFoundationDb()
@@ -159,9 +160,11 @@ async function main() {
   addFinding(findings, packageJson.scripts?.['process:security-behavior-proof-check'] === `node --env-file-if-exists=.env ${SECURITY_BEHAVIOR_PROOF_SCRIPT_PATH}`, 'package exposes focused proof script')
   addFinding(findings, security002?.lane === 'done' && String(security002?.statusNote || '').includes('security-002-auth-tier-redaction-v1'), 'SECURITY-002 remains closed as v1 base layer', security002?.lane || 'missing')
   addFinding(findings, securityCard?.lane === 'done' && String(securityCard?.statusNote || '').includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY), 'SECURITY-BEHAVIOR-PROOF-001 is done with closeout proof', securityCard?.lane || 'missing')
-  addFinding(findings, cardMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID)?.lane === 'scoped', 'VERIFIER-BEHAVIOR-SWEEP-001 remains scoped as next card', cardMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID)?.lane || 'missing')
+  const verifierClosed = cardMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID)?.lane === 'done' &&
+    sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) === 'done_this_sprint'
+  addFinding(findings, ['scoped', 'done'].includes(cardMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID)?.lane), 'VERIFIER-BEHAVIOR-SWEEP-001 remains next or done this sprint', cardMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID)?.lane || 'missing')
   addFinding(findings, REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id), 'Current Sprint order remains audit reset order', sprintOrder.join(' -> '))
-  addFinding(findings, activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID, 'Current Sprint active blocker advanced to verifier behavior sweep', activeBlockerCardId || 'missing')
+  addFinding(findings, activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID || (verifierClosed && activeBlockerCardId === STRATEGY_HUB_MEETING_READY_CARD_ID), 'Current Sprint active blocker advanced through verifier behavior sweep', activeBlockerCardId || 'missing')
   addFinding(findings, sprintStageMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID) === 'done_this_sprint', 'Security behavior proof moved to Done This Sprint', sprintStageMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID) || 'missing')
   addFinding(findings, includesAll(proofLibraryText, [
     'buildSyntheticSecurityBehaviorProof',
@@ -174,11 +177,10 @@ async function main() {
   addFinding(findings, includesAll(proofScriptText, [
     SECURITY_BEHAVIOR_PROOF_SUMMARY_MARKER,
     'route and subject-person behavior matrix passes',
-    'Current Sprint active blocker advanced to verifier behavior sweep',
+    'Current Sprint active blocker advanced through verifier behavior sweep',
   ]), 'focused proof script checks behavior and sprint advancement')
   addFinding(findings, includesAll(currentSprintText, [
     SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
-    'activeBlockerCardId: VERIFIER_BEHAVIOR_SWEEP_CARD_ID',
     'process:security-behavior-proof-check',
   ]), 'Current Sprint seed records security closeout and next blocker')
   addFinding(findings, includesAll(buildLogText, [
