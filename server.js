@@ -101,6 +101,9 @@ import {
 import {
   buildSourceExtractionCoverageSnapshot,
 } from './lib/source-extraction-coverage.js'
+import {
+  buildSourceCoverageCloseoutSnapshot,
+} from './lib/source-coverage-closeout.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -3816,6 +3819,11 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       sourceMaturityGrid: sourceLifecycle.sourceMaturityGrid,
       lifecycle: sourceLifecycle,
     })
+    sourceLifecycle.sourceCoverageCloseout = buildSourceCoverageCloseoutSnapshot({
+      sources: getSourceContracts(),
+      sourceMaturityGrid: sourceLifecycle.sourceMaturityGrid,
+      sourceExtractionCoverage: sourceLifecycle.sourceExtractionCoverage,
+    })
     cacheHeadersNoStore(res)
     res.json(sourceLifecycle)
   } catch (error) {
@@ -3828,6 +3836,53 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       500,
       'foundation_source_lifecycle_load_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation source lifecycle.'
+    )
+  }
+})
+
+app.get('/api/foundation/source-coverage-closeout', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const sourceLifecycle = buildSourceLifecycleStatus({
+      sources: getSourceContracts(),
+      connectors: getSourceConnectors(),
+      groupedSystems: getGroupedSourceSystems(),
+      extractionControl: snapshot.extractionControl,
+      foundationJobs: getFoundationJobDefinitions(),
+    })
+    const sourceMaturityGrid = buildSourceMaturityGridSnapshot({
+      sources: getSourceContracts(),
+      extractionControl: snapshot.extractionControl,
+      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
+      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis,
+      intelligenceActionRouter: snapshot.intelligenceActionRouter,
+      sourceMaturityOperational: snapshot.sourceMaturityOperational,
+      lifecycle: sourceLifecycle,
+    })
+    const sourceExtractionCoverage = buildSourceExtractionCoverageSnapshot({
+      sources: getSourceContracts(),
+      extractionControl: snapshot.extractionControl,
+      sourceMaturityGrid,
+      lifecycle: sourceLifecycle,
+    })
+    const sourceCoverageCloseout = buildSourceCoverageCloseoutSnapshot({
+      sources: getSourceContracts(),
+      sourceMaturityGrid,
+      sourceExtractionCoverage,
+    })
+    cacheHeadersNoStore(res)
+    res.json(sourceCoverageCloseout)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_source_coverage_closeout_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation source coverage closeout.'
     )
   }
 })
@@ -4628,6 +4683,12 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       sourceMaturityGrid,
       lifecycle: sourceLifecycle,
     })
+    const sourceCoverageCloseout = buildSourceCoverageCloseoutSnapshot({
+      sources: getSourceContracts(),
+      sourceMaturityGrid,
+      sourceExtractionCoverage,
+    })
+    sourceLifecycle.sourceCoverageCloseout = sourceCoverageCloseout
     sourceLifecycle.sourceExtractionCoverage = sourceExtractionCoverage
     const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
       repoRoot: __dirname,
@@ -4692,6 +4753,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       sourceLifecycle,
       sourceMaturityGrid,
       sourceExtractionCoverage,
+      sourceCoverageCloseout,
       agentFeedbackAutoSend,
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,

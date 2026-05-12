@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-COVERAGE-CLOSEOUT-001",
+  "approvedBy": "Codex interim reviewer per Steve walk-away approval",
+  "approvedAt": "2026-05-12T15:16:30Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-coverage-closeout-001-plan.md",
+  "approvedPlanSha256": "ccb9abb828ae591666aa3c43d8cf389bec1c17ba08852480572bd6e7c1d844af",
+  "approvedRepoHead": "91808ed9cd93a49cc531592318753d015b2c43e3",
+  "notes": "Approved for bounded Source Coverage Closeout V1 only: classify every source maturity/extraction row into covered, extraction follow-up, maturity follow-up, deferred, or not-required decisions; expose API/UI/focused proof/current sprint advancement; keep source-specific repairs, new crawls, connectors, product loops, marketing production, and Drive ACL mutation out of scope.",
+  "approvalDigest": "414958ca8d69142b0882b82be5a9094d543cd99cd58e1e103f80f37edbe1afc1"
+}

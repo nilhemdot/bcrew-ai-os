@@ -10876,6 +10876,133 @@ function renderSourceExtractionCoveragePanel(coverage) {
   return panel
 }
 
+function sourceCoverageCloseoutTone(decision) {
+  if (decision === 'covered_for_v1' || decision === 'not_required_for_v1') return 'connected'
+  if (decision === 'deferred_with_blocker') return 'pending'
+  if (decision === 'advance_extraction_gap') return 'missing'
+  if (decision === 'advance_maturity_gap') return 'pending'
+  return 'neutral'
+}
+
+function sourceCoverageCloseoutLabel(decision) {
+  var labels = {
+    covered_for_v1: 'Covered for v1',
+    advance_extraction_gap: 'Extraction follow-up',
+    advance_maturity_gap: 'Maturity follow-up',
+    deferred_with_blocker: 'Deferred with blocker',
+    not_required_for_v1: 'Not required for v1',
+  }
+  return labels[decision] || decision || 'Unknown'
+}
+
+function renderSourceCoverageCloseoutPanel(closeout) {
+  if (!closeout || !Array.isArray(closeout.rows) || !closeout.rows.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel source-coverage-closeout-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'source-coverage-closeout')
+
+  var summary = closeout.summary || {}
+  var decisionCounts = summary.decisionCounts || {}
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Source Closeout'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Gap decisions by source'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = (summary.sourceCount || 0) + ' sources, '
+    + (summary.closedDecisionCount || 0) + ' closed for this pass, '
+    + (summary.routedDecisionCount || 0) + ' routed to follow-up, '
+    + (summary.extractionGapFollowupCount || 0) + ' extraction gaps, '
+    + (summary.maturityGapFollowupCount || 0) + ' maturity gaps.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag((decisionCounts.covered_for_v1 || 0) + ' covered', 'connected'))
+  right.appendChild(renderSourceTag((decisionCounts.advance_extraction_gap || 0) + ' extraction', decisionCounts.advance_extraction_gap ? 'missing' : 'connected'))
+  right.appendChild(renderSourceTag((decisionCounts.advance_maturity_gap || 0) + ' maturity', decisionCounts.advance_maturity_gap ? 'pending' : 'connected'))
+  right.appendChild(renderSourceTag((decisionCounts.deferred_with_blocker || 0) + ' deferred', decisionCounts.deferred_with_blocker ? 'pending' : 'neutral'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var tableWrap = document.createElement('div')
+  tableWrap.className = 'source-coverage-closeout-table-wrap'
+  var table = document.createElement('table')
+  table.className = 'source-coverage-closeout-table'
+
+  var thead = document.createElement('thead')
+  var headerRow = document.createElement('tr')
+  ;['Source', 'Decision', 'Maturity gap', 'Extraction state', 'Next card', 'Operator action'].forEach(function(label) {
+    var th = document.createElement('th')
+    th.textContent = label
+    headerRow.appendChild(th)
+  })
+  thead.appendChild(headerRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+  closeout.rows.forEach(function(row) {
+    var tr = document.createElement('tr')
+    tr.setAttribute('data-source-id', row.sourceId)
+
+    var sourceCell = document.createElement('td')
+    sourceCell.className = 'source-coverage-closeout-source-cell'
+    var sourceName = document.createElement('strong')
+    sourceName.textContent = row.sourceId
+    sourceCell.appendChild(sourceName)
+    var sourceDetail = document.createElement('span')
+    sourceDetail.textContent = [row.title, row.unitName].filter(Boolean).join(' · ')
+    sourceCell.appendChild(sourceDetail)
+    tr.appendChild(sourceCell)
+
+    var decisionCell = document.createElement('td')
+    decisionCell.className = 'source-coverage-closeout-decision-cell'
+    decisionCell.appendChild(renderSourceTag(sourceCoverageCloseoutLabel(row.decision), sourceCoverageCloseoutTone(row.decision)))
+    var reason = document.createElement('span')
+    reason.textContent = row.reason || ''
+    decisionCell.appendChild(reason)
+    tr.appendChild(decisionCell)
+
+    var maturityCell = document.createElement('td')
+    maturityCell.textContent = row.maturityNextGap || 'unknown'
+    tr.appendChild(maturityCell)
+
+    var extractionCell = document.createElement('td')
+    extractionCell.textContent = row.extractionState || 'unknown'
+    tr.appendChild(extractionCell)
+
+    var nextCardCell = document.createElement('td')
+    nextCardCell.textContent = row.nextCardId || 'None'
+    tr.appendChild(nextCardCell)
+
+    var actionCell = document.createElement('td')
+    actionCell.className = 'source-coverage-closeout-action-cell'
+    actionCell.textContent = row.operatorAction || ''
+    tr.appendChild(actionCell)
+
+    tbody.appendChild(tr)
+  })
+  table.appendChild(tbody)
+  tableWrap.appendChild(table)
+  panel.appendChild(tableWrap)
+
+  if ((closeout.routedRows || []).length) {
+    var routed = renderSourceBulletGroup('Routed source rows', (closeout.routedRows || []).slice(0, 8).map(function(row) {
+      return row.sourceId + ' -> ' + row.nextCardId + ': ' + row.reason
+    }))
+    panel.appendChild(routed)
+  }
+
+  return panel
+}
+
 function renderSourceLifecycleDefinitions(definitions) {
   var panel = document.createElement('section')
   panel.className = 'panel'
@@ -13636,6 +13763,8 @@ function renderSourceLifecycle() {
     if (maturityGrid) container.appendChild(maturityGrid)
     var extractionCoverage = renderSourceExtractionCoveragePanel(lifecycle.sourceExtractionCoverage)
     if (extractionCoverage) container.appendChild(extractionCoverage)
+    var sourceCoverageCloseout = renderSourceCoverageCloseoutPanel(lifecycle.sourceCoverageCloseout)
+    if (sourceCoverageCloseout) container.appendChild(sourceCoverageCloseout)
     container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
     container.appendChild(renderSourceLifecycleLanes(lifecycle))
     container.appendChild(renderSourceLifecycleTargets(lifecycle))

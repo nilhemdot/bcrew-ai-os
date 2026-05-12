@@ -117,6 +117,7 @@
     "process:auto-deploy-rollback-check": "node --env-file-if-exists=.env scripts/process-auto-deploy-rollback-check.mjs",
     "process:source-maturity-grid-check": "node --env-file-if-exists=.env scripts/process-source-maturity-grid-check.mjs",
     "process:source-extraction-coverage-check": "node --env-file-if-exists=.env scripts/process-source-extraction-coverage-check.mjs",
+    "process:source-coverage-closeout-check": "node --env-file-if-exists=.env scripts/process-source-coverage-closeout-check.mjs",
     "process:foundation-verify-health-repair-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-health-repair-check.mjs",
     "process:foundation-followup-card-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-followup-card-capture-check.mjs",
     "process:foundation-systems-service-grouping-check": "node --env-file-if-exists=.env scripts/process-foundation-systems-service-grouping-check.mjs",
