@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-UI-COMPLETE-001",
+  "approvedBy": "Codex interim reviewer per Steve walk-away approval",
+  "approvedAt": "2026-05-12T18:35:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-ui-complete-001-plan.md",
+  "approvedPlanSha256": "c57051f98d42680f2659b2ade5e1ba7d0c2b6b6663e71eb12d270978824cbc0c",
+  "approvedRepoHead": "cdd27a15fb67ec2e8e494759bcaa6f814b45c0c2",
+  "notes": "Approved for bounded Foundation UI Complete V1 only: aggregate existing Source Once-Over snapshots into one 30-second read, render it on the existing Source Lifecycle page, keep visible gaps visible, pin final Current Sprint blocker to FOUNDATION-UI-COMPLETE-001 for review/rollover, and keep Reply Parser, Watching Items, Strategy expansion, Marketing production, Telegram bots, Directors, agents, new ingestion, and Drive ACL mutation out of scope.",
+  "approvalDigest": "05551ec46618ebc352657a30fd67a6760139833817749c88992daca3e261b1a0"
+}

@@ -4823,6 +4823,50 @@ a.build-log-backlog-link:hover {
   overflow: hidden;
 }
 
+.foundation-ui-complete-panel {
+  overflow: hidden;
+}
+
+.foundation-ui-complete-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.foundation-ui-complete-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 14px;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.foundation-ui-complete-card-connected {
+  border-color: rgba(18, 128, 93, 0.32);
+}
+
+.foundation-ui-complete-card-pending {
+  border-color: rgba(185, 126, 24, 0.38);
+}
+
+.foundation-ui-complete-card-missing {
+  border-color: rgba(185, 48, 48, 0.42);
+}
+
+.foundation-ui-complete-card h4,
+.foundation-ui-complete-card p {
+  margin: 0;
+}
+
+.foundation-ui-complete-metric {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .source-maturity-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);

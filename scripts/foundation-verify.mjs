@@ -545,6 +545,15 @@ import {
   buildSyntheticDecisionRestrictedQueueProof,
 } from '../lib/decision-restricted-queue.js'
 import {
+  FOUNDATION_UI_COMPLETE_APPROVAL_PATH,
+  FOUNDATION_UI_COMPLETE_CARD_ID,
+  FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY,
+  FOUNDATION_UI_COMPLETE_PLAN_PATH,
+  FOUNDATION_UI_COMPLETE_SCRIPT_PATH,
+  FOUNDATION_UI_COMPLETE_SUMMARY_MARKER,
+  buildSyntheticFoundationUiCompleteProof,
+} from '../lib/foundation-ui-complete.js'
+import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
   buildSyntheticStaleSkillSource,
@@ -1448,6 +1457,11 @@ async function main() {
   const decisionRestrictedQueuePlanSource = await readRepoFile(DECISION_RESTRICTED_QUEUE_PLAN_PATH)
   const decisionRestrictedQueueApprovalSource = await readRepoFile(DECISION_RESTRICTED_QUEUE_APPROVAL_PATH)
   const decisionRestrictedQueueApproval = JSON.parse(decisionRestrictedQueueApprovalSource)
+  const foundationUiCompleteSource = await readRepoFile('lib/foundation-ui-complete.js')
+  const foundationUiCompleteScriptSource = await readRepoFile(FOUNDATION_UI_COMPLETE_SCRIPT_PATH)
+  const foundationUiCompletePlanSource = await readRepoFile(FOUNDATION_UI_COMPLETE_PLAN_PATH)
+  const foundationUiCompleteApprovalSource = await readRepoFile(FOUNDATION_UI_COMPLETE_APPROVAL_PATH)
+  const foundationUiCompleteApproval = JSON.parse(foundationUiCompleteApprovalSource)
   const marketmastersStrategySource = await readRepoFile('docs/strategy/marketmasters.md')
   const strategicExecutionHtmlSource = await readRepoFile('public/strategic-execution.html')
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
@@ -1811,6 +1825,11 @@ async function main() {
     repoRoot,
     approvalRef: DECISION_RESTRICTED_QUEUE_APPROVAL_PATH,
     cardId: DECISION_RESTRICTED_QUEUE_CARD_ID,
+  })
+  const foundationUiCompleteApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: FOUNDATION_UI_COMPLETE_APPROVAL_PATH,
+    cardId: FOUNDATION_UI_COMPLETE_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3277,6 +3296,7 @@ async function main() {
   const verificationRunsSynthetic = buildSyntheticVerificationRunsProof()
   const perUserChangelogSynthetic = buildSyntheticPerUserChangelogProof()
   const decisionRestrictedQueueSynthetic = buildSyntheticDecisionRestrictedQueueProof()
+  const foundationUiCompleteSynthetic = buildSyntheticFoundationUiCompleteProof()
   const avatarImportSnapshot = buildMarketingAvatarImportSnapshot({
     referenceBriefText: avatarReferenceBriefSource,
     retainProfilesText: avatarRetainSource,
@@ -4449,6 +4469,28 @@ async function main() {
           'MARKETING-PIPELINE-REBUILD-001',
           'TELEGRAM-BOTS-REBUILD-001',
           'INTEL-DIRECTORS-REBUILD-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogFoundationUiCompleteBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(FOUNDATION_UI_COMPLETE_CARD_ID) &&
+      build.closeoutKey === FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY,
+        backlogIds: [FOUNDATION_UI_COMPLETE_CARD_ID],
+        mentionedBacklogIds: [
+          'SOURCE-MATURITY-GRID-001',
+          'SOURCE-EXTRACTION-COVERAGE-001',
+          'SOURCE-COVERAGE-CLOSEOUT-001',
+          'MARKETING-SOURCE-MAP-001',
+          'BRAND-STACK-001',
+          'TIER-BEHAVIORAL-COMPLETION-001',
+          'VERIFICATION-RUNS-001',
+          'PER-USER-CHANGELOG-001',
+          'DECISION-RESTRICTED-QUEUE-001',
+          'REPLY-WATCHING-LOOP-001',
         ],
         operatorCloseout: true,
       }
@@ -5748,6 +5790,7 @@ async function main() {
   const verificationRuns = (foundationHub.backlogItems || []).find(item => item.id === VERIFICATION_RUNS_CARD_ID) || null
   const perUserChangelog = (foundationHub.backlogItems || []).find(item => item.id === PER_USER_CHANGELOG_CARD_ID) || null
   const decisionRestrictedQueue = (foundationHub.backlogItems || []).find(item => item.id === DECISION_RESTRICTED_QUEUE_CARD_ID) || null
+  const foundationUiComplete = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_UI_COMPLETE_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -6015,6 +6058,26 @@ async function main() {
       'package.json',
     ],
     declaredRisk: decisionRestrictedQueuePlanSource,
+  })
+  const foundationUiCompletePlanReview = evaluatePlanCriticPlan({
+    planText: foundationUiCompletePlanSource,
+    card: foundationUiComplete || { id: FOUNDATION_UI_COMPLETE_CARD_ID, priority: 'P0' },
+    changedFiles: [
+      FOUNDATION_UI_COMPLETE_PLAN_PATH,
+      FOUNDATION_UI_COMPLETE_APPROVAL_PATH,
+      'lib/foundation-ui-complete.js',
+      FOUNDATION_UI_COMPLETE_SCRIPT_PATH,
+      'server.js',
+      'public/foundation.js',
+      'public/styles.css',
+      'lib/foundation-current-sprint.js',
+      'lib/foundation-build-log.js',
+      'scripts/foundation-verify.mjs',
+      'docs/rebuild/current-plan.md',
+      'docs/rebuild/current-state.md',
+      'package.json',
+    ],
+    declaredRisk: foundationUiCompletePlanSource,
   })
   const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
     meetingVaultAcl?.lane === 'done' &&
@@ -8569,6 +8632,32 @@ async function main() {
       'TELEGRAM-BOTS-REBUILD-001',
       'INTEL-DIRECTORS-REBUILD-001',
     ].every(id => !(buildLogDecisionRestrictedQueueBuild.backlogIds || []).includes(id))
+  const foundationUiCompleteBuildLogExact = buildLogFoundationUiCompleteBuild?.backlogIds?.length === 1 &&
+    buildLogFoundationUiCompleteBuild.backlogIds.includes(FOUNDATION_UI_COMPLETE_CARD_ID) &&
+    [
+      SOURCE_MATURITY_GRID_CARD_ID,
+      SOURCE_EXTRACTION_COVERAGE_CARD_ID,
+      SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
+      MARKETING_SOURCE_MAP_CARD_ID,
+      BRAND_STACK_CARD_ID,
+      TIER_BEHAVIORAL_COMPLETION_CARD_ID,
+      VERIFICATION_RUNS_CARD_ID,
+      PER_USER_CHANGELOG_CARD_ID,
+      DECISION_RESTRICTED_QUEUE_CARD_ID,
+      'REPLY-WATCHING-LOOP-001',
+    ].every(id => (buildLogFoundationUiCompleteBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      SOURCE_MATURITY_GRID_CARD_ID,
+      SOURCE_EXTRACTION_COVERAGE_CARD_ID,
+      SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
+      MARKETING_SOURCE_MAP_CARD_ID,
+      BRAND_STACK_CARD_ID,
+      TIER_BEHAVIORAL_COMPLETION_CARD_ID,
+      VERIFICATION_RUNS_CARD_ID,
+      PER_USER_CHANGELOG_CARD_ID,
+      DECISION_RESTRICTED_QUEUE_CARD_ID,
+      'REPLY-WATCHING-LOOP-001',
+    ].every(id => !(buildLogFoundationUiCompleteBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -8633,7 +8722,10 @@ async function main() {
           foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
           foundationHub.currentSprint?.summary?.itemCount > 0 &&
           foundationHub.currentSprint?.summary?.doneThisSprintCount === foundationHub.currentSprint.summary.itemCount &&
-          foundationHub.currentSprint?.cadence?.nextAction?.includes('sprint closeout')
+          (
+            foundationHub.currentSprint?.cadence?.nextAction?.includes('sprint closeout') ||
+            foundationHub.currentSprint?.cadence?.nextAction?.includes('sprint review/rollover')
+          )
         )
       ) &&
       foundationHub.currentSprint?.cadence?.currentBlocker?.cardId &&
@@ -9937,6 +10029,85 @@ async function main() {
       foundationVerifySource.includes('buildSyntheticDecisionRestrictedQueueProof'),
     'DECISION-RESTRICTED-QUEUE-001 sequesters sensitive decisions before broader routing',
     `lane=${decisionRestrictedQueue?.lane || 'missing'} approval=${decisionRestrictedQueueApprovalValidation.ok} restricted=${foundationRestrictedDecisionQueue.summary?.restrictedCount ?? 'missing'} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    foundationUiComplete?.lane === 'done' &&
+      String(foundationUiComplete?.statusNote || '').includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['process:foundation-ui-complete-check'] === `node --env-file-if-exists=.env ${FOUNDATION_UI_COMPLETE_SCRIPT_PATH}` &&
+      foundationUiCompleteApprovalValidation.ok &&
+      foundationUiCompleteApprovalValidation.mode === 'v2' &&
+      foundationUiCompleteApproval.cardId === FOUNDATION_UI_COMPLETE_CARD_ID &&
+      Number(foundationUiCompleteApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      foundationUiCompleteApproval.approvedPlanRef === FOUNDATION_UI_COMPLETE_PLAN_PATH &&
+      foundationUiCompletePlanReview.status === 'pass' &&
+      foundationUiCompletePlanReview.score >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      foundationUiCompleteApproval.approvedPlanSha256 === 'c57051f98d42680f2659b2ade5e1ba7d0c2b6b6663e71eb12d270978824cbc0c' &&
+      foundationUiCompleteSynthetic.ok &&
+      foundationSourceLifecycle.foundationUiComplete?.status === 'healthy' &&
+      foundationSourceLifecycle.foundationUiComplete?.closeoutKey === FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY &&
+      foundationSourceLifecycle.foundationUiComplete?.summary?.sectionCount === 10 &&
+      foundationSourceLifecycle.foundationUiComplete?.summary?.sourceCount >= 35 &&
+      foundationSourceLifecycle.foundationUiComplete?.summary?.brandLaneCount >= 5 &&
+      foundationSourceLifecycle.foundationUiComplete?.summary?.avatarCount === 15 &&
+      foundationSourceLifecycle.foundationUiComplete?.summary?.tierSurfaceCount >= 14 &&
+      typeof foundationSourceLifecycle.foundationUiComplete?.summary?.verificationCandidateCount === 'number' &&
+      typeof foundationSourceLifecycle.foundationUiComplete?.summary?.auditActorCount === 'number' &&
+      typeof foundationSourceLifecycle.foundationUiComplete?.summary?.restrictedDecisionCount === 'number' &&
+      foundationSourceLifecycle.foundationUiComplete?.summary?.productExpansionBuilt === false &&
+      (foundationSourceLifecycle.foundationUiComplete?.topVisibleGaps || []).length > 0 &&
+      foundationHub.foundationUiComplete?.closeoutKey === FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY &&
+      foundationHub.sourceLifecycle?.foundationUiComplete?.closeoutKey === FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === FOUNDATION_UI_COMPLETE_CARD_ID &&
+      foundationHub.currentSprint?.summary?.doneThisSprintCount >= 10 &&
+      foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
+      includesAll(foundationUiCompleteSource, [
+        'buildFoundationUiCompleteSnapshot',
+        'buildSyntheticFoundationUiCompleteProof',
+        'REQUIRED_SECTIONS',
+        FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY,
+      ]) &&
+      includesAll(foundationUiCompleteScriptSource, [
+        FOUNDATION_UI_COMPLETE_SUMMARY_MARKER,
+        'real Source Lifecycle payload exposes healthy Foundation UI Complete summary',
+        'all Source Once-Over sprint cards are done this sprint',
+      ]) &&
+      includesAll(foundationUiCompletePlanSource, [
+        FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY,
+        '30-Second Read',
+        'all ten Source Once-Over surfaces',
+      ]) &&
+      includesAll(serverSource, [
+        'buildFoundationUiCompleteSnapshot',
+        'sourceLifecycle.foundationUiComplete',
+        'foundationUiComplete',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderFoundationUiCompletePanel',
+        'Foundation 30-Second Read',
+        'data-foundation-ui-complete-section',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.foundation-ui-complete-panel',
+        '.foundation-ui-complete-grid',
+        '.foundation-ui-complete-card',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        'foundationUiCompleteStage',
+        'FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY',
+        'FOUNDATION_UI_COMPLETE_SCRIPT_PATH',
+      ]) &&
+      buildLogFoundationUiCompleteBuild?.operatorCloseout === true &&
+      foundationUiCompleteBuildLogExact &&
+      currentPlan.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY) &&
+      currentPlan.includes('Source Once-Over complete') &&
+      currentState.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker remains pinned to `FOUNDATION-UI-COMPLETE-001`') &&
+      currentState.includes('Foundation 30-second read') &&
+      foundationVerifySource.includes('buildSyntheticFoundationUiCompleteProof'),
+    'FOUNDATION-UI-COMPLETE-001 closes the Source Once-Over UI pass without product expansion',
+    `lane=${foundationUiComplete?.lane || 'missing'} approval=${foundationUiCompleteApprovalValidation.ok} sections=${foundationSourceLifecycle.foundationUiComplete?.summary?.sectionCount ?? 'missing'} sprint=${foundationHub.currentSprint?.cadence?.currentStatus || 'missing'}`,
   )
   ensure(
     checks,

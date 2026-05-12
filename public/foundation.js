@@ -10658,6 +10658,102 @@ function renderSourceLifecycleSummary(lifecycle) {
   })
 }
 
+function renderFoundationUiCompletePanel(scan) {
+  if (!scan || !scan.summary || !Array.isArray(scan.sections)) return null
+  var summary = scan.summary || {}
+  var panel = document.createElement('section')
+  panel.className = 'panel foundation-ui-complete-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'foundation-ui-complete')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Foundation 30-Second Read'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Foundation depth status'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = (summary.sourceCount || 0) + ' sources, '
+    + (summary.sourceGapCount || 0) + ' source maturity gaps, '
+    + (summary.extractionGapCount || 0) + ' extraction attention rows, '
+    + (summary.avatarCount || 0) + ' avatars, '
+    + (summary.brandCount || 0) + ' brands, '
+    + (summary.verificationCandidateCount || 0) + ' stale-review candidates, '
+    + (summary.restrictedDecisionCount || 0) + ' restricted decisions.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag(scan.status || 'unknown', scan.status === 'healthy' ? 'connected' : 'missing'))
+  right.appendChild(renderSourceTag((summary.reviewSectionCount || 0) + ' review sections', summary.reviewSectionCount ? 'pending' : 'connected'))
+  right.appendChild(renderSourceTag((summary.riskSectionCount || 0) + ' risk sections', summary.riskSectionCount ? 'missing' : 'connected'))
+  right.appendChild(renderSourceTag(summary.sprintComplete ? 'sprint complete' : 'sprint open', summary.sprintComplete ? 'connected' : 'pending'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'foundation-ui-complete-grid'
+  scan.sections.forEach(function(section) {
+    var article = document.createElement('article')
+    article.className = 'foundation-ui-complete-card foundation-ui-complete-card-' + (section.tone || 'neutral')
+    article.setAttribute('data-foundation-ui-complete-section', section.id)
+
+    var top = document.createElement('div')
+    top.className = 'source-lifecycle-card-top'
+    var name = document.createElement('h4')
+    name.textContent = section.label
+    top.appendChild(name)
+    top.appendChild(renderSourceTag(section.status || 'visible', section.tone || 'neutral'))
+    article.appendChild(top)
+
+    var metric = document.createElement('p')
+    metric.className = 'foundation-ui-complete-metric'
+    metric.textContent = section.metric || 'Visible'
+    article.appendChild(metric)
+
+    var detail = document.createElement('p')
+    detail.textContent = section.detail || ''
+    article.appendChild(detail)
+
+    var action = document.createElement('p')
+    action.className = 'source-lifecycle-small'
+    action.textContent = section.nextAction || ''
+    article.appendChild(action)
+
+    if (section.anchor) {
+      var jump = document.createElement('button')
+      jump.type = 'button'
+      jump.className = 'button button-small'
+      jump.textContent = 'View'
+      jump.addEventListener('click', function() {
+        var target = document.querySelector('[data-source-lifecycle-section="' + section.anchor + '"]')
+        if (target && target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+      article.appendChild(jump)
+    }
+
+    grid.appendChild(article)
+  })
+  panel.appendChild(grid)
+
+  if ((scan.topVisibleGaps || []).length) {
+    panel.appendChild(renderSourceBulletGroup('Top visible gaps', (scan.topVisibleGaps || []).slice(0, 10).map(function(item) {
+      return item.label + ' - ' + item.detail
+    })))
+  }
+
+  if ((scan.boundaries || []).length) {
+    panel.appendChild(renderSourceBulletGroup('Boundaries', scan.boundaries))
+  }
+
+  return panel
+}
+
 function renderSourceMaturityStageCell(row, stageKey) {
   var stage = row.stages && row.stages[stageKey] ? row.stages[stageKey] : {}
   var cell = document.createElement('td')
@@ -14286,6 +14382,8 @@ function renderSourceLifecycle() {
     container.appendChild(renderSourceLifecycleHero(lifecycle))
     var summary = renderSourceLifecycleSummary(lifecycle)
     if (summary) container.appendChild(summary)
+    var foundationUiComplete = renderFoundationUiCompletePanel(lifecycle.foundationUiComplete)
+    if (foundationUiComplete) container.appendChild(foundationUiComplete)
     var maturityGrid = renderSourceMaturityGridPanel(lifecycle.sourceMaturityGrid)
     if (maturityGrid) container.appendChild(maturityGrid)
     var extractionCoverage = renderSourceExtractionCoveragePanel(lifecycle.sourceExtractionCoverage)

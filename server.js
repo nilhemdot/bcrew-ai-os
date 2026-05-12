@@ -179,6 +179,9 @@ import {
   buildDecisionRestrictedQueueSnapshot,
   filterGeneralDecisionRecords,
 } from './lib/decision-restricted-queue.js'
+import {
+  buildFoundationUiCompleteSnapshot,
+} from './lib/foundation-ui-complete.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -3890,6 +3893,18 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
     sourceLifecycle.restrictedDecisionQueue = buildDecisionRestrictedQueueSnapshot({
       decisions: foundationSnapshot.decisions || [],
     })
+    const activeFoundationSprint = await getActiveFoundationCurrentSprint()
+    const currentSprint = buildFoundationCurrentSprintStatus({
+      sprint: activeFoundationSprint.sprint,
+      items: activeFoundationSprint.items,
+      backlogItems: foundationSnapshot.backlogItems || [],
+      closeouts: getFoundationBuildCloseouts(),
+    })
+    sourceLifecycle.foundationUiComplete = buildFoundationUiCompleteSnapshot({
+      sourceLifecycle,
+      currentSprint,
+    })
+    sourceLifecycle.currentSprint = currentSprint
     cacheHeadersNoStore(res)
     res.json(sourceLifecycle)
   } catch (error) {
@@ -4989,6 +5004,12 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
     sourceLifecycle.verificationRuns = verificationRuns
     sourceLifecycle.perUserChangelog = perUserChangelog
     sourceLifecycle.restrictedDecisionQueue = restrictedDecisionQueue
+    const foundationUiComplete = buildFoundationUiCompleteSnapshot({
+      sourceLifecycle,
+      currentSprint,
+    })
+    sourceLifecycle.foundationUiComplete = foundationUiComplete
+    sourceLifecycle.currentSprint = currentSprint
     res.json({
       ...snapshot,
       kpiHealth,
@@ -5023,6 +5044,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       verificationRuns,
       perUserChangelog,
       restrictedDecisionQueue,
+      foundationUiComplete,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),

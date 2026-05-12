@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-12
-Version: v6.32 — Foundation Source Once-Over sprint
+Version: v6.33 — Foundation Source Once-Over complete
 Status: Active
 
 Use this doc for one question:
@@ -90,7 +90,9 @@ Sprint order:
 7. `VERIFICATION-RUNS-001` — done under `verification-runs-v1`; Foundation now exposes proposed-only stale research/finding/action-route/backlog-hygiene verification runs with zero auto-expiry.
 8. `PER-USER-CHANGELOG-001` — done under `per-user-changelog-v1`; Foundation now groups existing change events by user/actor, shows write/approval/apply/system activity, keeps metadata values private, and names viewed/ignored/received history as missing coverage.
 9. `DECISION-RESTRICTED-QUEUE-001` — done under `decision-restricted-queue-v1`; Foundation now flags termination, compensation, performance concern, personnel/HR, and legal/compliance decisions into owner-only review and filters them out of general Strategy/extraction contexts.
-10. `FOUNDATION-UI-COMPLETE-001` — next active blocker and final UI once-over so the Foundation page makes source maturity, extraction, marketing source, tier/audit, stale-verification, and restricted-decision gaps visible without another audit.
+10. `FOUNDATION-UI-COMPLETE-001` — done under `foundation-ui-complete-v1`; Foundation Source Lifecycle now has a 30-second read that summarizes source maturity, extraction, source closeout, marketing source, brand stack, tier/audit, stale-verification, per-user changelog, restricted-decision, and Current Sprint state in one scan.
+
+Source Once-Over complete for v1. The final active blocker remains pinned to `FOUNDATION-UI-COMPLETE-001` for sprint review/rollover; do not automatically pull Reply/Watching Loop or product-layer work until the sprint is reviewed.
 
 Not next: Reply/Watching Loop, Telegram/mobile assistants, Department Directors/Master Director, broad Strategy Hub expansion, marketing production, new hubs, Drive permission mutation, or historical Meeting Vault cleanup.
 
