@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-MODULAR-SPLIT-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-12T22:11:33Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-modular-split-001-plan.md",
+  "approvedPlanSha256": "a0edf06980e6755be158280417baeea8455952671730a4bc70ff93af142737cd",
+  "approvedRepoHead": "73b1a9ee51d997eb5a5b65293e08327017fff9e9",
+  "notes": "Approved as the third card in the Process Repair + Verifier Independence sprint. Scope: extract the smallest real verifier module boundary and keep foundation:verify as the aggregate gate. Not approved: broad verifier rewrite, Reply/Watching Loop, connector builds, Drive ACL mutation, or Plan Critic root-vs-patch implementation.",
+  "approvalDigest": "ad5610d59f0c7fbf5e5c28fbdc31631d6f7812d1b97e60ebade04a4efec4e3be"
+}

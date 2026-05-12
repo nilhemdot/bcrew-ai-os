@@ -22,6 +22,7 @@ const jsonMode = args.has('--json') || args.has('--json=true')
 const openSprint = args.has('--open')
 const closeProcessRepair = args.has('--close-process-repair')
 const closeVerifierIndependence = args.has('--close-verifier-independence')
+const closeVerifierModularSplit = args.has('--close-verifier-modular-split')
 
 const PROCESS_SPRINT_ID = 'process-repair-verifier-independence-2026-05-12'
 const PROCESS_SPRINT_PLAN_PATH = 'docs/process/process-repair-verifier-independence-2026-05-12-plan.md'
@@ -521,11 +522,36 @@ async function closeVerifierSprintIndependence() {
   }), 'codex')
 }
 
+async function closeVerifierModularSplitCard() {
+  await initFoundationDb()
+  await updateBacklogItem('VERIFIER-MODULAR-SPLIT-001', {
+    lane: 'done',
+    nextAction: 'Done for v1. Continue with PROCESS-ROOT-VS-PATCH-001 before product work resumes.',
+    statusNote: 'Closed on 2026-05-12 under `verifier-modular-split-v1`. V1 extracts the historical sprint closeout proof helpers from scripts/foundation-verify.mjs into lib/foundation-verifier-sprint-proof.js, adds the focused process:verifier-modular-split-check proof, and keeps full foundation:verify as the aggregate gate. Proof: npm run process:verifier-modular-split-check -- --json and foundation:verify passed 268/268.',
+  }, 'codex')
+  await updateBacklogItem('PROCESS-ROOT-VS-PATCH-001', {
+    lane: 'executing',
+    nextAction: 'Building now. Add the narrow Plan Critic root-invariant rule for verifier/dashboard symptom patches.',
+    statusNote: `Building Now on 2026-05-12 under ${PROCESS_SPRINT_ID}. Scoped doctrine exists and Plan Critic pass row is logged. Keep this to root-vs-patch detection; do not build a broad reviewer framework.`,
+  }, 'codex')
+  await upsertFoundationCurrentSprintOverlay(buildProcessSprintSeed({
+    'SPRINT-PROCESS-REPAIR-001': 'done_this_sprint',
+    'VERIFIER-SPRINT-INDEPENDENCE-001': 'done_this_sprint',
+    'VERIFIER-MODULAR-SPLIT-001': 'done_this_sprint',
+    'PROCESS-ROOT-VS-PATCH-001': 'building_now',
+  }, {
+    currentStatus: 'verifier_modular_split_done_root_vs_patch_building_now',
+    nextAction: 'Finish PROCESS-ROOT-VS-PATCH-001 before product work resumes.',
+    stageProgression: 'verifier_modular_split_done',
+  }), 'codex')
+}
+
 async function main() {
   let planResults = []
   if (openSprint) planResults = await openFormalSprint()
   if (closeProcessRepair) await closeSprintProcessRepair()
   if (closeVerifierIndependence) await closeVerifierSprintIndependence()
+  if (closeVerifierModularSplit) await closeVerifierModularSplitCard()
 
   const [activeSprint, cards, state] = await Promise.all([
     getActiveFoundationCurrentSprint(),
@@ -547,12 +573,19 @@ async function main() {
   assert(['building_now', 'done_this_sprint'].includes(stageMap.get('SPRINT-PROCESS-REPAIR-001')), 'SPRINT-PROCESS-REPAIR-001 should be building or done after formal open.')
   if (stageMap.get('SPRINT-PROCESS-REPAIR-001') === 'done_this_sprint') {
     const verifierDone = stageMap.get('VERIFIER-SPRINT-INDEPENDENCE-001') === 'done_this_sprint'
-    const expectedActiveBlocker = verifierDone ? 'VERIFIER-MODULAR-SPLIT-001' : 'VERIFIER-SPRINT-INDEPENDENCE-001'
+    const modularDone = stageMap.get('VERIFIER-MODULAR-SPLIT-001') === 'done_this_sprint'
+    const expectedActiveBlocker = modularDone ? 'PROCESS-ROOT-VS-PATCH-001' : verifierDone ? 'VERIFIER-MODULAR-SPLIT-001' : 'VERIFIER-SPRINT-INDEPENDENCE-001'
     assert(activeSprint.sprint?.activeBlockerCardId === expectedActiveBlocker, `Active blocker should be ${expectedActiveBlocker}.`)
     if (verifierDone) {
       assert(cardsById.get('VERIFIER-SPRINT-INDEPENDENCE-001')?.lane === 'done', 'VERIFIER-SPRINT-INDEPENDENCE-001 should be done after close.')
-      assert(stageMap.get('VERIFIER-MODULAR-SPLIT-001') === 'building_now', 'VERIFIER-MODULAR-SPLIT-001 should be Building Now after verifier independence closes.')
-      assert(cardsById.get('VERIFIER-MODULAR-SPLIT-001')?.lane === 'executing', 'VERIFIER-MODULAR-SPLIT-001 should be executing after verifier independence closes.')
+      if (modularDone) {
+        assert(cardsById.get('VERIFIER-MODULAR-SPLIT-001')?.lane === 'done', 'VERIFIER-MODULAR-SPLIT-001 should be done after close.')
+        assert(stageMap.get('PROCESS-ROOT-VS-PATCH-001') === 'building_now', 'PROCESS-ROOT-VS-PATCH-001 should be Building Now after verifier modular split closes.')
+        assert(cardsById.get('PROCESS-ROOT-VS-PATCH-001')?.lane === 'executing', 'PROCESS-ROOT-VS-PATCH-001 should be executing after verifier modular split closes.')
+      } else {
+        assert(stageMap.get('VERIFIER-MODULAR-SPLIT-001') === 'building_now', 'VERIFIER-MODULAR-SPLIT-001 should be Building Now after verifier independence closes.')
+        assert(cardsById.get('VERIFIER-MODULAR-SPLIT-001')?.lane === 'executing', 'VERIFIER-MODULAR-SPLIT-001 should be executing after verifier independence closes.')
+      }
     }
     for (const row of state.connectorItems) {
       assert(CONNECTOR_ROUTING_CARD_IDS.includes(row.backlog_id), `${row.backlog_id} is not an expected Connector/Routing card.`)
