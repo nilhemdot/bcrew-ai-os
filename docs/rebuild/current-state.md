@@ -1,6 +1,6 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-10
+Last updated: 2026-05-12
 Status: Active
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
@@ -22,6 +22,13 @@ Rule: if a package depends on open live inputs, open runtime activation, or open
 ## Short Version
 
 The Foundation is real. The system is not yet fully alive.
+
+Current sprint call after the multi-auditor review:
+
+- Foundation READY means owner-only Strategy re-entry is allowed. It does not mean old-system parity, broad team access, or public exposure.
+- The active drift pattern is process proof over product behavior.
+- Next sprint starts with `REBUILD-PLAN-RECONCILE-001`, then `PLAN-CRITIC-REPLACEMENT-001`, `SECURITY-BEHAVIOR-PROOF-001`, `VERIFIER-BEHAVIOR-SWEEP-001`, `STRATEGY-HUB-MEETING-READY-001`, and `AVATAR-IMPORT-001`.
+- Meeting Vault historical cleanup remains a bounded legacy-exception lane, not the active Foundation readiness blocker.
 
 Built:
 
@@ -119,9 +126,9 @@ Hard checkpoint call from 2026-04-28:
 - `SYSTEM-010-GHOST-CLOSEOUT-001` is done under `system-010-ghost-closeout-v1`; the readiness runtime/process-control leg should now pass. Auto-restart-on-push remains a manual-status truth until a push-hook/WatchPaths proof exists.
 - `SOURCE-LIFECYCLE-COMPLETION-001` is done under `source-lifecycle-completion-v1`; the readiness source completion/revalidation blocker should no longer appear. All 35 source contracts have terminal states, all 12 governed extraction targets remain represented, load-bearing sources are complete/read-only/current-reality for current scope, and future/gap sources are accepted-blocked with blocker cards.
 - `SYSTEM-STRATEGY-REVIEW-001` is done for v1; the Apr 26-28 lessons were promoted into active docs/backlog.
-- `STRATEGY-HUB-MEETING-READY-001` is not accepted as meeting-ready; it is scoped for later redesign.
+- `STRATEGY-HUB-MEETING-READY-001` is not accepted as meeting-ready; it is scoped for the first owner-only Strategy operator loop after command truth, Plan Critic, security behavior proof, and verifier behavior proof are scoped.
 - Strategy Hub route-review proof plumbing advanced, but Steve did not accept the UI as meeting-ready.
-- `STRATEGIC-INTEL-001`, `INTEL-SCOPER-001`, `STRATEGY-QUARTER-001`, and `MODEL-ROUTING-001` remain pinned, but they are not tomorrow's first build.
+- `STRATEGIC-INTEL-001`, `INTEL-SCOPER-001`, `STRATEGY-QUARTER-001`, and `MODEL-ROUTING-001` remain pinned, but they are not the first build.
 - `FOUNDATION-SWEEP-001` is done for v1: all Foundation nav pages are mapped to backing APIs/docs/tables/source IDs/backlog owners, Runtime Health surfaces stale source-crawl runs, and `foundation:verify` guards the sweep.
 - `FOUNDATION-CHANGELOG-002` is done for v1: Recent Builds groups work by day/system area and shows closeout records with backlog cards, proof commands, review-next notes, and known limits.
 - `EXTRACT-METRICS-001` is done for v1, linked to `EXTRACT-CONTROL-001`. Lane-shape inspection is saved in `docs/audits/2026-04-28-extraction-lane-item-shape.md`; Missive current-day was the smallest missing item-ledger lane and now emits `missive_conversation` crawl items; Runtime Health now shows Extraction Control: Coverage By Target with last success, last failure, next bite, item totals, top failed/skipped reasons, and available remaining-backlog indicators.
@@ -188,7 +195,8 @@ Current command order:
 44. `FOUNDATION-SPRINT-SYSTEM-001` is done under `foundation-sprint-system-v1`: `lib/foundation-current-sprint.js`, additive `foundation_sprints` / `foundation_sprint_items`, `/api/foundation/current-sprint`, `/api/foundation-hub.currentSprint`, and the Recent Work Current Sprint panel now show the active sprint as an overlay on live backlog. Sprint Ready requires the existing-work/doctrine check, Returned requires a reason, proof commands and not-next boundaries are visible, and done sprint cards reconcile with Recent Work closeouts. `FOUNDATION-SURFACE-UPDATES-001` remains broader UI polish, `FOUNDATION-DONE-VELOCITY-001` remains the velocity follow-up, and MEETING-VAULT-ACL-001 remains scoped/blocking; no Drive permissions were mutated and no request-access emails were sent.
 45. `FOUNDATION-SPRINT-CADENCE-001` is done under `foundation-sprint-cadence-v1`: Current Sprint is now a sprint command view at the top of Recent Work with executive sprint summary, sprint goal, current status, next card, current blocker, exit criteria, Scoping/Sprint Ready/Building Now/Returned/Done This Sprint rows, card definition of done, proof commands, returned reason, and next action. The layout uses readable rows/board sections instead of skinny five-column cards. `MEETING-VAULT-ACL-001` moves into Scoping as the next visible work while remaining the active Foundation blocker; no Drive permission mutation, request-access email, Meeting Vault Phase B, broad sprint analytics, or broad Foundation UI polish shipped.
 46. `MEETING-VAULT-AUTO-ENFORCEMENT-001` is done under `meeting-vault-auto-enforcement-v1`: Meeting Vault readiness now uses automatic report-only forward-flow proof instead of endless historical Drive cleanup batches. Original Gemini notes are source truth, duplicate Google Docs are blocked, legacy Crewbert copies are excluded from ACL decisions and bounded in the legacy exception queue, new notes are classified/preflighted, Crewbert/high-risk actions are queued, and Runtime Health shows the latest audit/report hash. `MEETING-VAULT-ACL-001` can stop blocking through this forward-flow close rule when proof stays green. No Drive permission mutation, request-access email, delete, move, ownership transfer, Strategy, Sales, Agent Feedback, Scoper, Agent Factory, broad corpus/video mining, researcher, public access, or broad UI polish shipped.
-47. `FOUNDATION-SPRINT-REVIEW-001` is complete as a review artifact in `docs/process/foundation-sprint-review-001.md`: Foundation reports READY and `readyForStrategy: yes`, but the review keeps the meaning narrow. Strategy can resume only through source-backed, owner-only Strategy re-entry. The exact next card is `STRATEGY-HUB-MEETING-READY-001` planning first. Legacy Meeting Vault exceptions remain visible and bounded, not cleaned. Non-Tier-1 shared-comms access, public edge exposure, provider-rotation closure, historical Drive cleanup, Sales expansion, Agent Feedback expansion, Scoper, Agent Factory, researcher/scout, broad corpus/video mining, and advisor chat remain outside the next sprint.
+47. `FOUNDATION-SPRINT-REVIEW-001` is complete as a review artifact in `docs/process/foundation-sprint-review-001.md`: Foundation reports READY and `readyForStrategy: yes`, but the review keeps the meaning narrow. The original next card was `STRATEGY-HUB-MEETING-READY-001`; the 2026-05-12 audit reset supersedes that with `REBUILD-PLAN-RECONCILE-001` first. Legacy Meeting Vault exceptions remain visible and bounded, not cleaned. Non-Tier-1 shared-comms access, public edge exposure, provider-rotation closure, historical Drive cleanup, Sales expansion, Agent Feedback expansion, Scoper, Agent Factory, researcher/scout, broad corpus/video mining, and advisor chat remain outside the next sprint.
+48. `REBUILD-PLAN-RECONCILE-001` is now the first card in the active sprint reset. The 2026-05-12 audit consensus changed the order from direct Strategy re-entry to: reconcile command truth, rebuild Plan Critic pressure, prove security behavior, convert the riskiest verifier checks to behavior proof, then ship one owner-only Strategy meeting workflow. `AVATAR-IMPORT-001` is pulled into the sprint as the cheap old-system data carry-forward. `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is captured so active sprint command truth can move out of hardcoded JS seed strings into live DB/backlog-backed sprint records. `AUTO-DEPLOY-ROLLBACK-001`, `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `BRAND-STACK-001`, `MARKETING-PIPELINE-REBUILD-001`, `PER-USER-CHANGELOG-001`, and `VERIFICATION-RUNS-001` are on the board for old-system parity visibility but are not automatically active.
 
 ## Operator Surface Pattern
 

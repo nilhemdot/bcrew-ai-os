@@ -359,6 +359,11 @@ import {
   FOUNDATION_SPRINT_SYSTEM_PLAN_PATH,
   FOUNDATION_SPRINT_SYSTEM_SCRIPT_PATH,
   FOUNDATION_SPRINT_SYSTEM_SUMMARY_MARKER,
+  REBUILD_PLAN_RECONCILE_CARD_ID,
+  PLAN_CRITIC_REPLACEMENT_CARD_ID,
+  SECURITY_BEHAVIOR_PROOF_CARD_ID,
+  VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+  AVATAR_IMPORT_CARD_ID,
   buildFoundationCurrentSprintStatus,
   buildSyntheticFoundationCurrentSprintProof,
 } from '../lib/foundation-current-sprint.js'
@@ -7473,7 +7478,7 @@ async function main() {
     checks,
     foundationSprintReview?.lane === 'done' &&
       String(foundationSprintReview?.statusNote || '').includes(FOUNDATION_SPRINT_REVIEW_DOC_PATH) &&
-      String(foundationSprintReview?.nextAction || '').includes('STRATEGY-HUB-MEETING-READY-001') &&
+      String(foundationSprintReview?.nextAction || '').includes(REBUILD_PLAN_RECONCILE_CARD_ID) &&
       includesAll(foundationSprintReviewSource, [
         'What Shipped',
         'What READY Means',
@@ -7481,6 +7486,11 @@ async function main() {
         'Remaining Follow-Ups',
         'Risks And Weak Spots',
         'Recommended Next Sprint',
+        'Audit update on 2026-05-12',
+        REBUILD_PLAN_RECONCILE_CARD_ID,
+        PLAN_CRITIC_REPLACEMENT_CARD_ID,
+        SECURITY_BEHAVIOR_PROOF_CARD_ID,
+        VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
         'STRATEGY-HUB-MEETING-READY-001',
         'No Drive mutations',
         'No Sales or Agent Feedback expansion',
@@ -7493,12 +7503,17 @@ async function main() {
       foundationDoneTestReadinessStatus.readyForStrategy === true &&
       currentPlan.includes(FOUNDATION_SPRINT_REVIEW_CARD_ID) &&
       currentPlan.includes(FOUNDATION_SPRINT_REVIEW_DOC_PATH) &&
+      currentPlan.includes(REBUILD_PLAN_RECONCILE_CARD_ID) &&
+      currentPlan.includes(PLAN_CRITIC_REPLACEMENT_CARD_ID) &&
+      currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CARD_ID) &&
+      currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
       currentPlan.includes('STRATEGY-HUB-MEETING-READY-001') &&
       currentState.includes(FOUNDATION_SPRINT_REVIEW_CARD_ID) &&
       currentState.includes(FOUNDATION_SPRINT_REVIEW_DOC_PATH) &&
       currentState.includes('readyForStrategy: yes') &&
+      currentState.includes(REBUILD_PLAN_RECONCILE_CARD_ID) &&
       includesAll(foundationVerifySource, FOUNDATION_SPRINT_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'FOUNDATION-SPRINT-REVIEW-001 reviews READY sprint and names the next Strategy card without feature work',
+    'FOUNDATION-SPRINT-REVIEW-001 preserves READY review and points to the audit-reset next card without feature work',
     `lane=${foundationSprintReview?.lane || 'missing'} readiness=${foundationDoneTestReadinessStatus.status} next=${foundationSprintReview?.nextAction || 'missing'}`,
   )
   const foundationFollowupCardCaptureBuildLogExact = buildLogFoundationFollowupCardCaptureBuild?.backlogIds?.length === 1 &&

@@ -78,15 +78,17 @@ These are not declared safe. They are no longer the Foundation readiness blocker
 
 Recommended sprint: Strategy re-entry, narrow and source-backed.
 
-Goal: make the existing Strategy Hub v2 source-to-gap and Action Router review surface usable in live ownership meetings, without adding advisor chat, broad recommendations, Scoper, public access, Sales expansion, Agent Feedback expansion, or new data-mining lanes.
+Original goal: make the existing Strategy Hub v2 source-to-gap and Action Router review surface usable in live ownership meetings, without adding advisor chat, broad recommendations, Scoper, public access, Sales expansion, Agent Feedback expansion, or new data-mining lanes.
+
+Audit update on 2026-05-12: do not pull Strategy first. The next sprint now starts by reconciling command truth and behavior proof because the old-system, Codex, and Claude audits agreed the drift pattern is process proof over product behavior.
 
 Exact next card to pull:
 
-`STRATEGY-HUB-MEETING-READY-001`
+`REBUILD-PLAN-RECONCILE-001`
 
 First action:
 
-Create a 9.8 implementation plan only. The plan should inspect the existing Strategy Hub v2 route-review surface, Action Router records, verified synthesis gates, retrieval eval, and current source-to-gap manifest. No Strategy code should be built until that plan is approved.
+Create a 9.8 reconciliation plan only. The plan should align current plan, current state, Current Sprint, live backlog, readiness wording, and old-system capability coverage. Then pull `PLAN-CRITIC-REPLACEMENT-001`, `SECURITY-BEHAVIOR-PROOF-001`, and `VERIFIER-BEHAVIOR-SWEEP-001` before building the `STRATEGY-HUB-MEETING-READY-001` operator loop.
 
 ## Not Next
 

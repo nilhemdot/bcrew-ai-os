@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-10
-Version: v6.25 — Current Sprint control overlay
+Last updated: 2026-05-12
+Version: v6.26 — Audit reconciliation and behavior-proof sprint
 Status: Active
 
 Use this doc for one question:
@@ -317,6 +317,50 @@ Order now:
    - closed-loop action/resolution feedback
    - privacy/tier/process controls
 6. Resume Strategic Intelligence only after the Foundation checkpoint work is stable.
+
+### Active Sprint — Behavior Proof And First Operator Loop
+
+The 2026-05-12 multi-auditor review changed the next sprint order.
+
+Foundation now reports READY, but the meaning is narrow: owner-only Strategy re-entry may resume. It does not mean old-system parity, broad team access, public exposure, or full hub rebuild coverage.
+
+Consensus risk:
+
+- the substrate is real
+- too much proof is process/doc/verifier-marker proof
+- too little proof is product behavior
+- old-system rebuild targets are still too easy to lose in research or chat
+
+Current sprint goal:
+
+`Convert Foundation READY from process proof into behavior proof, then ship one owner-only Strategy operator loop.`
+
+Order:
+
+1. `REBUILD-PLAN-RECONCILE-001` — scoped / P0.
+   - Align current plan, current state, Current Sprint, live backlog, readiness wording, and old-system capability coverage.
+   - Meeting Vault historical cleanup stays a later legacy-exception sprint.
+   - Foundation READY must be worded as owner-only Strategy re-entry, not old-system parity.
+2. `PLAN-CRITIC-REPLACEMENT-001` — scoped / P0.
+   - Rebuild the old Plan Critic pressure before the verifier behavior cleanup can close.
+   - Plans must prove behavioral acceptance criteria, not only source/doc markers.
+3. `SECURITY-BEHAVIOR-PROOF-001` — scoped / P0.
+   - Prove live route behavior for owner, ops, sales, unknown user, admin-token/system, and subject-person leak cases.
+   - `assertTier` is wired through route authorization; the gap is black-box behavior proof and real filtered-access confidence.
+4. `VERIFIER-BEHAVIOR-SWEEP-001` — scoped / P0.
+   - Convert the top 10-15 P0 checks from substring/statusNote proof to real function/API/process proof where feasible.
+5. `STRATEGY-HUB-MEETING-READY-001` — scoped / P1.
+   - Build one owner-only Strategy meeting workflow that consumes source-backed facts, retrieval, synthesis, and Action Router records.
+   - This is the product proof that Foundation can support an operator, not just pass its own gates.
+6. `AVATAR-IMPORT-001` — scoped / P1.
+   - Import the old 10 RETAIN and 5 ATTRACT avatars into governed new-system truth.
+   - This is the cheap old-system carry-forward that unlocks future Marketing without restarting Marketing production.
+
+On-board but not automatically active:
+
+- `CURRENT-SPRINT-DYNAMIC-TRUTH-001` — move active sprint command truth out of hardcoded JS seed strings and into live DB/backlog-backed sprint records.
+- `AUTO-DEPLOY-ROLLBACK-001` — pull into the sprint only if Mac mini reliability or restart failures make it urgent.
+- `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `BRAND-STACK-001`, `MARKETING-PIPELINE-REBUILD-001`, `PER-USER-CHANGELOG-001`, and `VERIFICATION-RUNS-001` — carded now so old-system value is visible, but sequenced after the first Strategy operator loop unless Steve explicitly overrides.
 
 ### Parked Next Leg — Strategic Intelligence Operating Loop
 
@@ -916,10 +960,13 @@ Current order:
 43. Agent Feedback live reminders: `AGENT-FEEDBACK-LIVE-REMINDERS-001` is done under `agent-feedback-live-reminders-v1`. Live reminders are enabled for requested-but-not-completed onboarding feedback using the existing day 1, 3, 7, 10, 14, and 17 cadence after the initial Requested send. The reminder job runs at 8:30 AM America/Toronto and fails closed outside the 8:30-10:00 AM America/Toronto send window before Gmail, ClickUp, or reminder ledger side effects. It uses Company Email only, BCCs Steve/Carson/Ryan/Georgia with To/BCC dedupe, does not write ClickUp Requested, blocks duplicate reminder slots through `agent_onboarding_feedback_reminder_attempts`, stops after feedback is completed/skipped/blocked, and exposes live mode, next due, last run, next run, and sent/skipped/blocked/warning/repair counts in Runtime/Ops. Georgia Huntley Day-30 and Chris Chopite Day-30 have exactly one protected Requested initial attempt each; as of the proof run no reminder was due and both next reminder states were deferred to 2026-05-03T00:00:00.000Z.
 44. System registration sweep: `SYSTEM-REGISTRATION-SWEEP-001` is done under `system-registration-sweep-v1`. `/api/source-of-truth` and Foundation Systems now include `SYS-SALES-GLS-001` as `GLS System / Get Listings Sold`, a live Sales system with routes `/sales#gls-dashboard` and `/sales#gls-system`, source truth ClickUp Deal Data Entry / `SRC-CLICKUP-001`, supporting evidence only from KPI Shopping List / `SRC-SUPABASE-001`, trigger active listings crossing stale threshold, owner lane Sales Leadership, and proof from `SALES-GLS-SCOREBOARD-V1`. `SYS-AGENT-ONBOARDING-FEEDBACK-001` remains visible as live under Agent Onboarding. `process:system-registration-sweep-check` and `foundation:verify` now protect shipped-system discoverability.
 
-Guardrail: Agent Feedback production enablement, live reminders, the system registration sweep, and `SECURITY-002` auth/tier/redaction v1 are complete. No unrelated hub work, new GLS features, onboarding expansion, Scoper, Agent Factory, corpus expansion, retry/backoff expansion, source build, broad Foundation cleanup, broad query surfaces, or new feature lane starts by default. Phase 1 enforcement, the Foundation control layer, the Foundation 1100 Review Sprint, `PLAIN-ENGLISH-SWEEP-001`, `GATE-RELIABILITY-002`, `UI-MENU-LAYOUT-POLISH-001`, `GATE-RELIABILITY-003`, `RECENT-BUILDS-BILLION-DOLLAR-UI-001`, `CHANGE-LOG-COMPREHENSIVE-001`, `DAILY-EXEC-SUMMARY-001`, `SOURCE-LIFECYCLE-EXPANSION-001`, `FOUNDATION-FOLLOWUP-CARD-CAPTURE-001`, `FOUNDATION-SYSTEMS-SERVICE-GROUPING-001`, `AGENT-ONBOARDING-FEEDBACK-SYSTEM-001`, `AGENT-FEEDBACK-SEND-001` Stage 1, `AGENT-FEEDBACK-AUTO-SEND-001` readiness, `AGENT-FEEDBACK-RESPONSE-NOTIFY-001`, `AGENT-FEEDBACK-REMINDER-CADENCE-001` readiness, `AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001`, `AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001`, `FOUNDATION-VERIFY-HEALTH-REPAIR-001`, `AGENT-FEEDBACK-PRODUCTION-AUTOSEND-ENABLE-001`, `AGENT-FEEDBACK-LIVE-REMINDERS-001`, `SYSTEM-REGISTRATION-SWEEP-001`, `SECURITY-002`, `FOUNDATION-SPRINT-CADENCE-001` under `foundation-sprint-cadence-v1`, and `MEETING-VAULT-AUTO-ENFORCEMENT-001` under `meeting-vault-auto-enforcement-v1` are in place; `AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001` remains reopened/not accepted as the old failure evidence, with the real-user repair now accepted. Meeting Vault now closes Foundation readiness through automatic report-only forward-flow proof and a bounded legacy exception queue, not through more historical permission batches. `FOUNDATION-SPRINT-REVIEW-001` is complete in `docs/process/foundation-sprint-review-001.md`; Foundation now reports READY, so the next sprint is Strategy re-entry with a narrow meeting-ready scope. Next work is:
+Guardrail: Agent Feedback production enablement, live reminders, the system registration sweep, `SECURITY-002` auth/tier/redaction v1, `FOUNDATION-SPRINT-CADENCE-001` under `foundation-sprint-cadence-v1`, and `MEETING-VAULT-AUTO-ENFORCEMENT-001` under `meeting-vault-auto-enforcement-v1` are in place. Meeting Vault now closes Foundation readiness through automatic report-only forward-flow proof and a bounded legacy exception queue, not through more historical permission batches. `FOUNDATION-SPRINT-REVIEW-001` is complete in `docs/process/foundation-sprint-review-001.md`; Foundation reports READY only for owner-only Strategy re-entry. Next work is:
 
-1. Pull `STRATEGY-HUB-MEETING-READY-001` for a 9.8 implementation plan only.
-2. Keep historical Meeting Vault cleanup as a later separately approved legacy-exception sprint, not current Foundation readiness work.
+1. Pull `REBUILD-PLAN-RECONCILE-001` for 9.8 planning/closeout so current plan, current state, Current Sprint, live backlog, and readiness wording agree.
+2. Pull `PLAN-CRITIC-REPLACEMENT-001` before closing the verifier behavior sweep.
+3. Pull `SECURITY-BEHAVIOR-PROOF-001` and `VERIFIER-BEHAVIOR-SWEEP-001` to convert READY from process proof toward behavior proof.
+4. Pull `STRATEGY-HUB-MEETING-READY-001` for one owner-only operator workflow after the proof gates are scoped.
+5. Keep historical Meeting Vault cleanup as a later separately approved legacy-exception sprint, not current Foundation readiness work.
 
 ## Active Docs Only
 
