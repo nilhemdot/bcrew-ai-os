@@ -355,10 +355,10 @@ Order:
 5. `VERIFIER-BEHAVIOR-SWEEP-001` — done this sprint / P0 under `verifier-behavior-sweep-v1`.
    - Added the top-P0 behavior registry and focused proof for 12 high-risk closeouts.
    - The proof calls actual function/synthetic/focused process paths for security, readiness, runtime, Meeting Vault, Drive preflight, synthesis, extraction, source lifecycle, Plan Critic, proportional verification, and Current Sprint command truth.
-6. `STRATEGY-HUB-MEETING-READY-001` — scoped / P1.
-   - Build one owner-only Strategy meeting workflow that consumes source-backed facts, retrieval, synthesis, and Action Router records.
-   - This is the product proof that Foundation can support an operator, not just pass its own gates.
-7. `AVATAR-IMPORT-001` — scoped / P1.
+6. `STRATEGY-HUB-MEETING-READY-001` — done this sprint / P1 under `strategy-hub-meeting-ready-v1`.
+   - Built one owner-only Strategy meeting packet that consumes source-backed facts, retrieval status, and Strategy-qualified Action Router records.
+   - This is the first product proof that Foundation can support an operator, not just pass its own gates.
+7. `AVATAR-IMPORT-001` — scoped / P1 / active blocker.
    - Import the old 10 RETAIN and 5 ATTRACT avatars into governed new-system truth.
    - This is the cheap old-system carry-forward that unlocks future Marketing without restarting Marketing production.
 
@@ -382,10 +382,10 @@ This leg remains correct, but it is not the next build until Foundation visibili
 
 Order:
 
-1. `STRATEGY-HUB-MEETING-READY-001` — scoped / P1.
-   - V1 proof plumbing shipped, but Steve did not accept the UI quality as meeting-ready.
-   - Resume only after Foundation freshness/build-visibility work is stable.
-   - Required: human-readable source proof instead of internal IDs, button legend/tooltips, owner picker, snooze durations, Strategy-local applied/done visibility, and reject confirmation.
+1. `STRATEGY-HUB-MEETING-READY-001` — done for v1 under `strategy-hub-meeting-ready-v1`.
+   - V1 now ships the owner-only meeting packet, API field, overview preview, and focused behavior proof.
+   - Next Strategy Intelligence work should wait until this packet is reviewed or used in practice.
+   - Remaining future need: Scoper/issue-ledger workflow that turns meeting discussion into resolved Strategy work.
 2. `STRATEGIC-INTEL-001` — scoped / P0.
    - Spec gate before more Strategic Intelligence code.
    - Must define the strategic issue data model, continuous mining cadence, urgency/impact/confidence/staleness fields, resolution feedback writes, old scout/director/scoper/sprint mapping, and 10x value metrics.
@@ -974,8 +974,8 @@ Current order:
 
 Guardrail: Agent Feedback production enablement, live reminders, the system registration sweep, `SECURITY-002` auth/tier/redaction v1, `FOUNDATION-SPRINT-CADENCE-001` under `foundation-sprint-cadence-v1`, and `MEETING-VAULT-AUTO-ENFORCEMENT-001` under `meeting-vault-auto-enforcement-v1` are in place. Meeting Vault now closes Foundation readiness through automatic report-only forward-flow proof and a bounded legacy exception queue, not through more historical permission batches. `FOUNDATION-SPRINT-REVIEW-001` is complete in `docs/process/foundation-sprint-review-001.md`; Foundation reports READY only for owner-only Strategy re-entry. Next work is:
 
-1. Pull `STRATEGY-HUB-MEETING-READY-001` for one owner-only operator workflow now that the proof gates are stable.
-2. Pull `AVATAR-IMPORT-001` as the cheap old-system data carry-forward after the Strategy operator loop.
+1. Pull `AVATAR-IMPORT-001` as the cheap old-system data carry-forward now that the owner-only Strategy meeting packet is shipped.
+2. Review `STRATEGY-HUB-MEETING-READY-001` in practice before promoting Scoper, Strategic Intelligence, or advisor-style work.
 3. Keep broad verifier rewrites as follow-up; `VERIFIER-BEHAVIOR-SWEEP-001` v1 only closed the top-P0 behavior registry.
 4. Keep `SECURITY-FILTERED-COMMS-ACCESS-001` separate; security behavior proof did not open shared communications to non-Tier-1 users.
 5. Keep historical Meeting Vault cleanup as a later separately approved legacy-exception sprint, not current Foundation readiness work.

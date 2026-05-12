@@ -54,7 +54,7 @@
 
   function sectionFromHash() {
     var hash = window.location.hash.replace('#', '')
-    return ['overview', 'source-to-gap', 'route-review'].indexOf(hash) === -1 ? 'overview' : hash
+    return ['overview', 'meeting', 'source-to-gap', 'route-review'].indexOf(hash) === -1 ? 'overview' : hash
   }
 
   function statusTone(value) {
@@ -140,6 +140,11 @@
         title: 'Strategy Command',
         body: 'Current pace, capacity pressure, cash posture, and strategy-specific review items.',
       },
+      meeting: {
+        label: 'Meeting Packet',
+        title: 'Ownership Meeting',
+        body: 'Agenda, pressure readout, source proof, and Strategy review items for the next ownership discussion.',
+      },
       'source-to-gap': {
         label: 'Source-To-Gap',
         title: 'Goal And Operating Truth',
@@ -176,6 +181,9 @@
     } else {
       strip.appendChild(makePill(emptyText(teamGroup && teamGroup.statusLabel, 'Team pace missing'), statusTone(teamGroup && teamGroup.statusLabel)))
       strip.appendChild(makePill(String(pendingStrategyRoutes) + ' strategy reviews', pendingStrategyRoutes ? 'watch' : 'good'))
+      if (state.section === 'meeting') {
+        strip.appendChild(makePill(emptyText(data.meetingReady && data.meetingReady.status, 'meeting packet'), statusTone(data.meetingReady && data.meetingReady.status)))
+      }
     }
     status.appendChild(strip)
     if (data.sourceTruthStatus === 'degraded' && data.fallback) {
@@ -388,6 +396,185 @@
     container.appendChild(panel)
   }
 
+  function renderMeetingPacketPreview(meetingReady) {
+    var packet = meetingReady || {}
+    var routeReview = packet.routeReview || {}
+    var preview = document.createElement('article')
+    preview.className = 'strategy-v2-focus-panel strategy-v2-meeting-preview'
+    appendText(preview, 'div', 'Meeting Packet', 'eyebrow')
+    appendText(preview, 'h3', emptyText(packet.title, 'Ownership meeting packet'))
+    appendText(preview, 'p', emptyText(packet.primaryRead, 'Meeting packet is not available yet.'), 'strategy-v2-muted')
+    var stats = document.createElement('div')
+    stats.className = 'strategy-v2-meeting-stat-grid'
+    stats.appendChild(renderMeetingStat('Agenda', count(packet.agendaItems), 'items'))
+    stats.appendChild(renderMeetingStat('Pressure', count(packet.pressureCards), 'cards'))
+    stats.appendChild(renderMeetingStat('Pending', routeReview.pendingRoutes || 0, 'strategy'))
+    stats.appendChild(renderMeetingStat('Hidden', routeReview.hiddenOperationalRoutes || 0, 'ops routes'))
+    preview.appendChild(stats)
+    var agenda = document.createElement('div')
+    agenda.className = 'strategy-v2-meeting-agenda strategy-v2-meeting-agenda-preview'
+    ;(packet.agendaItems || []).slice(0, 3).forEach(function(item, index) {
+      agenda.appendChild(renderAgendaItem(item, index))
+    })
+    preview.appendChild(agenda)
+    var link = document.createElement('a')
+    link.className = 'section-support-link'
+    link.href = '#meeting'
+    link.textContent = 'Open meeting packet'
+    preview.appendChild(link)
+    return preview
+  }
+
+  function renderMeetingStat(label, value, suffix) {
+    var stat = document.createElement('div')
+    stat.className = 'strategy-v2-meeting-stat'
+    appendText(stat, 'span', label)
+    appendText(stat, 'strong', String(value))
+    appendText(stat, 'small', suffix)
+    return stat
+  }
+
+  function renderAgendaItem(item, index) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-agenda-item'
+    var marker = document.createElement('div')
+    marker.className = 'strategy-v2-agenda-marker'
+    marker.textContent = String(index + 1)
+    card.appendChild(marker)
+    var copy = document.createElement('div')
+    appendText(copy, 'h4', emptyText(item.title, 'Agenda item'))
+    appendText(copy, 'strong', emptyText(item.focus, 'Focus missing'), 'strategy-v2-agenda-focus')
+    appendText(copy, 'p', emptyText(item.question, 'Question missing'), 'strategy-v2-muted')
+    if (item.nextAction) appendText(copy, 'p', item.nextAction, 'strategy-v2-meeting-next')
+    var sources = document.createElement('div')
+    sources.className = 'strategy-v2-meeting-sources'
+    ;(item.sourceIds || []).slice(0, 4).forEach(function(sourceId) {
+      sources.appendChild(makePill(sourceId, 'neutral'))
+    })
+    copy.appendChild(sources)
+    card.appendChild(copy)
+    return card
+  }
+
+  function renderPressureCard(cardData) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-card strategy-v2-pressure-card'
+    appendText(card, 'div', emptyText(cardData.label, 'Pressure'), 'strategy-v2-focus-label')
+    appendText(card, 'h4', emptyText(cardData.headline, 'Missing'))
+    appendText(card, 'p', emptyText(cardData.readout, 'No readout recorded.'), 'strategy-v2-muted')
+    if (cardData.meetingQuestion) appendText(card, 'p', cardData.meetingQuestion, 'strategy-v2-meeting-question')
+    renderFactList(card, (cardData.evidence || []).map(function(item) {
+      return { label: item.label, value: item.value, sourceId: item.sourceId }
+    }), 4)
+    return card
+  }
+
+  function renderMeetingRouteItem(route) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-route-mini strategy-v2-meeting-route'
+    appendText(card, 'strong', emptyText(route.title, 'Strategy route'), 'strategy-v2-route-mini-title')
+    appendText(card, 'p', emptyText(route.readout, 'No route summary recorded.'), 'strategy-v2-muted')
+    var meta = document.createElement('div')
+    meta.className = 'strategy-v2-route-mini-meta'
+    meta.appendChild(makePill(emptyText(route.status, 'unknown'), statusTone(route.status)))
+    meta.appendChild(makePill(emptyText(route.destination, 'Record'), 'neutral'))
+    appendText(meta, 'span', 'Owner: ' + emptyText(route.owner, 'missing'))
+    appendText(meta, 'span', 'Proof: ' + String(route.proofItemCount || 0))
+    card.appendChild(meta)
+    return card
+  }
+
+  function renderMeetingReady(container, data) {
+    var packet = data.meetingReady || {}
+    var routeReview = packet.routeReview || {}
+    var panel = document.createElement('section')
+    panel.className = 'panel strategy-v2-panel strategy-v2-meeting-panel'
+    panel.id = 'meeting'
+
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+    var copy = document.createElement('div')
+    appendText(copy, 'div', 'Meeting Packet', 'eyebrow')
+    appendText(copy, 'h3', emptyText(packet.title, 'Ownership meeting packet'))
+    appendText(copy, 'p', emptyText(packet.primaryRead, 'Source-backed meeting packet is not available yet.'), 'strategy-v2-muted')
+    header.appendChild(copy)
+    var statePill = document.createElement('div')
+    statePill.className = 'strategy-v2-route-pills'
+    statePill.appendChild(makePill(emptyText(packet.status, 'missing'), statusTone(packet.status)))
+    statePill.appendChild(makePill(String(routeReview.hiddenOperationalRoutes || 0) + ' ops routes hidden', 'neutral'))
+    header.appendChild(statePill)
+    panel.appendChild(header)
+
+    var statGrid = document.createElement('div')
+    statGrid.className = 'strategy-v2-meeting-stat-grid'
+    statGrid.appendChild(renderMeetingStat('Agenda', count(packet.agendaItems), 'items'))
+    statGrid.appendChild(renderMeetingStat('Pressure', count(packet.pressureCards), 'cards'))
+    statGrid.appendChild(renderMeetingStat('Pending', routeReview.pendingRoutes || 0, 'strategy'))
+    statGrid.appendChild(renderMeetingStat('Proof', packet.proofSummary && packet.proofSummary.sourceIds ? packet.proofSummary.sourceIds.length : 0, 'sources'))
+    panel.appendChild(statGrid)
+
+    var agendaSection = document.createElement('div')
+    agendaSection.className = 'strategy-v2-meeting-grid'
+    var agenda = document.createElement('article')
+    agenda.className = 'strategy-v2-focus-panel'
+    appendText(agenda, 'div', 'Agenda', 'eyebrow')
+    appendText(agenda, 'h3', 'What to talk through')
+    var agendaList = document.createElement('div')
+    agendaList.className = 'strategy-v2-meeting-agenda'
+    ;(packet.agendaItems || []).forEach(function(item, index) {
+      agendaList.appendChild(renderAgendaItem(item, index))
+    })
+    agenda.appendChild(agendaList)
+    agendaSection.appendChild(agenda)
+
+    var actions = document.createElement('article')
+    actions.className = 'strategy-v2-focus-panel'
+    appendText(actions, 'div', 'Next Actions', 'eyebrow')
+    appendText(actions, 'h3', 'Use this in the meeting')
+    var actionList = document.createElement('div')
+    actionList.className = 'strategy-v2-focus-list'
+    ;(packet.operatorActions || []).forEach(function(action) {
+      actionList.appendChild(renderFocusRow('Action', action, 'Owner-only Strategy workflow.'))
+    })
+    actions.appendChild(actionList)
+    agendaSection.appendChild(actions)
+    panel.appendChild(agendaSection)
+
+    var pressureGrid = document.createElement('div')
+    pressureGrid.className = 'strategy-v2-goal-grid'
+    ;(packet.pressureCards || []).forEach(function(cardData) {
+      pressureGrid.appendChild(renderPressureCard(cardData))
+    })
+    panel.appendChild(pressureGrid)
+
+    var routePanel = document.createElement('article')
+    routePanel.className = 'strategy-v2-focus-panel'
+    appendText(routePanel, 'div', 'Strategy Review', 'eyebrow')
+    appendText(routePanel, 'h3', String(routeReview.pendingRoutes || 0) + ' pending review items')
+    appendText(routePanel, 'p', emptyText(routeReview.visibilityRule, 'Only strategy routes show in this meeting packet.'), 'strategy-v2-muted')
+    var routes = document.createElement('div')
+    routes.className = 'strategy-v2-route-mini-list'
+    ;(routeReview.topReviewItems || []).forEach(function(route) {
+      routes.appendChild(renderMeetingRouteItem(route))
+    })
+    if (!(routeReview.topReviewItems || []).length) {
+      appendText(routes, 'p', 'No Strategy review items are pending. Operational routes remain hidden from this packet.', 'strategy-v2-muted')
+    }
+    routePanel.appendChild(routes)
+    panel.appendChild(routePanel)
+
+    var proof = document.createElement('article')
+    proof.className = 'strategy-v2-meeting-proof'
+    appendText(proof, 'strong', 'Source proof')
+    appendText(proof, 'span', 'Retrieval eval: ' + emptyText(packet.proofSummary && packet.proofSummary.retrievalEvalStatus, 'not surfaced'))
+    appendText(proof, 'span', 'Route proof items: ' + String(packet.proofSummary && packet.proofSummary.routeProofItemCount || 0))
+    ;(packet.proofSummary && packet.proofSummary.sourceIds || []).forEach(function(sourceId) {
+      proof.appendChild(makePill(sourceId, 'neutral'))
+    })
+    panel.appendChild(proof)
+    container.appendChild(panel)
+  }
+
   function renderOverview(container, data) {
     var goalTruth = data.goalTruth || {}
     var operatingTruth = data.operatingTruth || {}
@@ -437,6 +624,7 @@
       tone: 'neutral',
     }))
     page.appendChild(kpis)
+    page.appendChild(renderMeetingPacketPreview(data.meetingReady))
     page.appendChild(renderAgentEngineModel(teamGroup, capacityGroup, financeCard))
 
     var layout = document.createElement('div')
@@ -1023,6 +1211,8 @@
     if (state.section === 'source-to-gap') {
       renderSourceToGap(container, state.data)
       renderOperatingTruth(container, state.data)
+    } else if (state.section === 'meeting') {
+      renderMeetingReady(container, state.data)
     } else if (state.section === 'route-review') {
       renderRouteReview(container, state.data)
     } else {

@@ -377,6 +377,10 @@ import {
   VERIFIER_BEHAVIOR_SWEEP_PLAN_PATH,
   VERIFIER_BEHAVIOR_SWEEP_SCRIPT_PATH,
   STRATEGY_HUB_MEETING_READY_CARD_ID,
+  STRATEGY_HUB_MEETING_READY_APPROVAL_PATH,
+  STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
+  STRATEGY_HUB_MEETING_READY_PLAN_PATH,
+  STRATEGY_HUB_MEETING_READY_SCRIPT_PATH,
   AVATAR_IMPORT_CARD_ID,
   buildFoundationCurrentSprintStatus,
   buildSyntheticFoundationCurrentSprintProof,
@@ -420,6 +424,10 @@ import {
   VERIFIER_BEHAVIOR_SWEEP_SUMMARY_MARKER,
   buildSyntheticVerifierBehaviorSweepProof,
 } from '../lib/verifier-behavior-sweep.js'
+import {
+  STRATEGY_HUB_MEETING_READY_SUMMARY_MARKER,
+  buildSyntheticStrategyHubMeetingReadyProof,
+} from '../lib/strategy-hub-meeting-ready.js'
 import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
@@ -1257,6 +1265,12 @@ async function main() {
   const verifierBehaviorSweepPlanSource = await readRepoFile(VERIFIER_BEHAVIOR_SWEEP_PLAN_PATH)
   const verifierBehaviorSweepApprovalSource = await readRepoFile(VERIFIER_BEHAVIOR_SWEEP_APPROVAL_PATH)
   const verifierBehaviorSweepApproval = JSON.parse(verifierBehaviorSweepApprovalSource)
+  const strategyHubMeetingReadySource = await readRepoFile('lib/strategy-hub-meeting-ready.js')
+  const strategyHubMeetingReadyScriptSource = await readRepoFile(STRATEGY_HUB_MEETING_READY_SCRIPT_PATH)
+  const strategyHubMeetingReadyPlanSource = await readRepoFile(STRATEGY_HUB_MEETING_READY_PLAN_PATH)
+  const strategyHubMeetingReadyApprovalSource = await readRepoFile(STRATEGY_HUB_MEETING_READY_APPROVAL_PATH)
+  const strategyHubMeetingReadyApproval = JSON.parse(strategyHubMeetingReadyApprovalSource)
+  const strategicExecutionHtmlSource = await readRepoFile('public/strategic-execution.html')
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
   const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
   const verifyGateTieringPlanSource = await readRepoFile(VERIFY_GATE_TIERING_PLAN_PATH)
@@ -1559,6 +1573,11 @@ async function main() {
     approvalRef: VERIFIER_BEHAVIOR_SWEEP_APPROVAL_PATH,
     cardId: VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
   })
+  const strategyHubMeetingReadyApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: STRATEGY_HUB_MEETING_READY_APPROVAL_PATH,
+    cardId: STRATEGY_HUB_MEETING_READY_CARD_ID,
+  })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: foundationDoneTestApprovalRef,
@@ -1807,7 +1826,7 @@ async function main() {
       ]) &&
       includesAll(currentState, [
         'Hard checkpoint call from 2026-04-28',
-        'Strategy Hub route-review proof plumbing advanced, but Steve did not accept the UI as meeting-ready',
+        'Strategy Hub route-review proof plumbing remains available',
         'FOUNDATION-SWEEP-001',
         'FOUNDATION-CHANGELOG-002',
       ]) &&
@@ -3002,6 +3021,7 @@ async function main() {
   const planCriticSynthetic = buildSyntheticPlanCriticProof()
   const securityBehaviorProofSynthetic = buildSyntheticSecurityBehaviorProof()
   const verifierBehaviorSweepSynthetic = buildSyntheticVerifierBehaviorSweepProof()
+  const strategyHubMeetingReadySynthetic = buildSyntheticStrategyHubMeetingReadyProof()
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3972,6 +3992,21 @@ async function main() {
           STRATEGY_HUB_MEETING_READY_CARD_ID,
           AVATAR_IMPORT_CARD_ID,
           'SECURITY-FILTERED-COMMS-ACCESS-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogStrategyHubMeetingReadyBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
+      build.closeoutKey === STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
+        backlogIds: [STRATEGY_HUB_MEETING_READY_CARD_ID],
+        mentionedBacklogIds: [
+          AVATAR_IMPORT_CARD_ID,
+          'INTEL-SCOPER-001',
+          'STRATEGIC-INTEL-001',
         ],
         operatorCloseout: true,
       }
@@ -5257,6 +5292,8 @@ async function main() {
   const planCriticReplacement = (foundationHub.backlogItems || []).find(item => item.id === PLAN_CRITIC_REPLACEMENT_CARD_ID) || null
   const securityBehaviorProof = (foundationHub.backlogItems || []).find(item => item.id === SECURITY_BEHAVIOR_PROOF_CARD_ID) || null
   const verifierBehaviorSweep = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) || null
+  const strategyHubMeetingReady = (foundationHub.backlogItems || []).find(item => item.id === STRATEGY_HUB_MEETING_READY_CARD_ID) || null
+  const avatarImport = (foundationHub.backlogItems || []).find(item => item.id === AVATAR_IMPORT_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -5285,6 +5322,24 @@ async function main() {
       'scripts/foundation-verify.mjs',
       'package.json',
     ],
+  })
+  const strategyHubMeetingReadyPlanReview = evaluatePlanCriticPlan({
+    planText: strategyHubMeetingReadyPlanSource,
+    card: strategyHubMeetingReady || { id: STRATEGY_HUB_MEETING_READY_CARD_ID, priority: 'P1' },
+    changedFiles: [
+      'lib/strategy-hub-meeting-ready.js',
+      STRATEGY_HUB_MEETING_READY_SCRIPT_PATH,
+      STRATEGY_HUB_MEETING_READY_PLAN_PATH,
+      'server.js',
+      'public/strategic-execution.html',
+      'public/strategic-execution.js',
+      'public/styles.css',
+      'lib/foundation-current-sprint.js',
+      'lib/foundation-db.js',
+      'scripts/foundation-verify.mjs',
+      'package.json',
+    ],
+    declaredRisk: strategyHubMeetingReadyPlanSource,
   })
   const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
     meetingVaultAcl?.lane === 'done' &&
@@ -7663,6 +7718,18 @@ async function main() {
       AVATAR_IMPORT_CARD_ID,
       'SECURITY-FILTERED-COMMS-ACCESS-001',
     ].every(id => !(buildLogVerifierBehaviorSweepBuild.backlogIds || []).includes(id))
+  const strategyHubMeetingReadyBuildLogExact = buildLogStrategyHubMeetingReadyBuild?.backlogIds?.length === 1 &&
+    buildLogStrategyHubMeetingReadyBuild.backlogIds.includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
+    [
+      AVATAR_IMPORT_CARD_ID,
+      'INTEL-SCOPER-001',
+      'STRATEGIC-INTEL-001',
+    ].every(id => (buildLogStrategyHubMeetingReadyBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      AVATAR_IMPORT_CARD_ID,
+      'INTEL-SCOPER-001',
+      'STRATEGIC-INTEL-001',
+    ].every(id => !(buildLogStrategyHubMeetingReadyBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -7950,7 +8017,7 @@ async function main() {
       securityBehaviorProofBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
       currentPlan.includes('route-boundary') &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
@@ -7999,14 +8066,14 @@ async function main() {
       ]) &&
       includesAll(foundationCurrentSprintSource, [
         VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
-        'activeBlockerCardId: STRATEGY_HUB_MEETING_READY_CARD_ID',
+        'STRATEGY_HUB_MEETING_READY_CARD_ID',
         'process:verifier-behavior-sweep-check',
       ]) &&
       buildLogVerifierBehaviorSweepBuild?.operatorCloseout === true &&
       verifierBehaviorSweepBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === STRATEGY_HUB_MEETING_READY_CARD_ID &&
+      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
       currentPlan.includes('top-P0 behavior registry') &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
@@ -8016,6 +8083,83 @@ async function main() {
       foundationVerifySource.includes('buildSyntheticVerifierBehaviorSweepProof'),
     'VERIFIER-BEHAVIOR-SWEEP-001 top P0 verifier checks now require behavior proof coverage',
     `lane=${verifierBehaviorSweep?.lane || 'missing'} approval=${verifierBehaviorSweepApprovalValidation.ok} targets=${verifierBehaviorSweepSynthetic.summary.behaviorCoveredTargetCount}/${verifierBehaviorSweepSynthetic.summary.targetCount} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    strategyHubMeetingReady?.lane === 'done' &&
+      String(strategyHubMeetingReady?.statusNote || '').includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['process:strategy-hub-meeting-ready-check'] === `node --env-file-if-exists=.env ${STRATEGY_HUB_MEETING_READY_SCRIPT_PATH}` &&
+      strategyHubMeetingReadyApprovalValidation.ok &&
+      strategyHubMeetingReadyApprovalValidation.mode === 'v2' &&
+      strategyHubMeetingReadyApproval.cardId === STRATEGY_HUB_MEETING_READY_CARD_ID &&
+      Number(strategyHubMeetingReadyApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      strategyHubMeetingReadyApproval.approvedPlanRef === STRATEGY_HUB_MEETING_READY_PLAN_PATH &&
+      strategyHubMeetingReadyPlanReview.status === 'pass' &&
+      strategyHubMeetingReadyPlanReview.score >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      strategyHubMeetingReadySynthetic.ok &&
+      strategyHubMeetingReadySynthetic.summary.pressureCardCount >= 4 &&
+      strategyHubMeetingReadySynthetic.summary.agendaItemCount >= 5 &&
+      strategyHubMeetingReadySynthetic.summary.hiddenOperationalRoutes === 1 &&
+      strategyHubMeetingReadySynthetic.summary.variantChanged === true &&
+      strategyHubMeetingReadySynthetic.summary.substringOnlyProofRejected === true &&
+      includesAll(strategyHubMeetingReadySource, [
+        'buildStrategyMeetingReadySnapshot',
+        'buildSyntheticStrategyHubMeetingReadyProof',
+        'isStrategyHubMeetingRoute',
+        'changed_values_affect_packet',
+        'hiddenOperationalRoutes',
+      ]) &&
+      includesAll(strategyHubMeetingReadyScriptSource, [
+        STRATEGY_HUB_MEETING_READY_SUMMARY_MARKER,
+        'Strategy meeting packet behavior proof passes',
+        'Current Sprint active blocker advanced to Avatar import',
+      ]) &&
+      includesAll(strategyHubMeetingReadyPlanSource, [
+        STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
+        'actual function path',
+        'changed-value',
+        'Substring-only proof is rejected',
+      ]) &&
+      includesAll(serverSource, [
+        'buildStrategyMeetingReadySnapshot',
+        'meetingReady',
+        'buildStrategyHubV2Payload',
+      ]) &&
+      includesAll(strategicExecutionHtmlSource, [
+        'data-section="meeting"',
+        'Meeting Packet',
+      ]) &&
+      includesAll(strategicExecutionUiSource, [
+        'renderMeetingReady',
+        'renderMeetingPacketPreview',
+        'meetingReady',
+        'strategy-v2-meeting-agenda',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        'strategy-v2-meeting-grid',
+        'strategy-v2-agenda-item',
+        'strategy-v2-meeting-proof',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
+        'activeBlockerCardId: AVATAR_IMPORT_CARD_ID',
+        'process:strategy-hub-meeting-ready-check',
+      ]) &&
+      buildLogStrategyHubMeetingReadyBuild?.operatorCloseout === true &&
+      strategyHubMeetingReadyBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === AVATAR_IMPORT_CARD_ID &&
+      avatarImport?.lane === 'scoped' &&
+      currentPlan.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
+      currentPlan.includes('owner-only Strategy meeting packet') &&
+      currentPlan.includes(AVATAR_IMPORT_CARD_ID) &&
+      currentState.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker is now `AVATAR-IMPORT-001`') &&
+      currentState.includes('meeting packet') &&
+      foundationVerifySource.includes('buildSyntheticStrategyHubMeetingReadyProof'),
+    'STRATEGY-HUB-MEETING-READY-001 ships an owner-only Strategy meeting packet with behavior proof',
+    `lane=${strategyHubMeetingReady?.lane || 'missing'} approval=${strategyHubMeetingReadyApprovalValidation.ok} agenda=${strategyHubMeetingReadySynthetic.summary.agendaItemCount} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,
@@ -9828,16 +9972,16 @@ async function main() {
   const agentFactoryText = backlogItemText(agentFactory)
   ensure(
     checks,
-    systemStrategyReview?.lane === 'done' &&
+      systemStrategyReview?.lane === 'done' &&
       systemStrategyReviewText.includes('function-vs-form testing') &&
       systemStrategyReviewText.includes('memory-versus-repo-truth discipline') &&
       systemStrategyReviewText.includes('docs/handoffs/2026-04-28-foundation-hard-checkpoint.md') &&
-      strategyMeetingReady?.lane === 'scoped' &&
+      strategyMeetingReady?.lane === 'done' &&
       strategyMeetingReady?.priority === 'P1' &&
-      strategyMeetingReadyText.includes('plain-English') &&
-      strategyMeetingReadyText.includes('live ownership meetings') &&
-      strategyMeetingReadyText.includes('1 day / 1 week / 1 month / 1 quarter / custom') &&
-      strategyMeetingReadyText.includes('UI quality as meeting-ready') &&
+      strategyMeetingReadyText.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
+      strategyMeetingReadyText.includes('meeting packet') &&
+      strategyMeetingReadyText.includes('source-backed') &&
+      strategyMeetingReadyText.includes('AVATAR-IMPORT-001') &&
       strategicIntel?.lane === 'scoped' &&
       strategicIntel?.priority === 'P0' &&
       strategicIntelText.includes('intelligence_strategic_issues') &&

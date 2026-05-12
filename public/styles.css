@@ -7851,6 +7851,152 @@ code {
   font-weight: 800;
 }
 
+.strategy-v2-meeting-preview {
+  border-top: 4px solid var(--brand);
+}
+
+.strategy-v2-meeting-panel {
+  align-items: stretch;
+}
+
+.strategy-v2-meeting-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.strategy-v2-meeting-stat {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  padding: 12px;
+}
+
+.strategy-v2-meeting-stat span,
+.strategy-v2-meeting-stat small {
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  font-weight: 900;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.strategy-v2-meeting-stat strong {
+  color: var(--text-primary);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 1.28rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.strategy-v2-meeting-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.strategy-v2-meeting-agenda {
+  display: grid;
+  gap: 10px;
+}
+
+.strategy-v2-meeting-agenda-preview {
+  margin-top: 4px;
+}
+
+.strategy-v2-agenda-item {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  padding: 12px;
+}
+
+.strategy-v2-agenda-marker {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.strategy-v2-agenda-item h4 {
+  margin: 0 0 4px;
+  color: var(--text-primary);
+  font-size: 0.98rem;
+  font-weight: 900;
+  line-height: 1.18;
+}
+
+.strategy-v2-agenda-focus {
+  display: block;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.strategy-v2-meeting-next,
+.strategy-v2-meeting-question {
+  border-left: 3px solid var(--brand);
+  margin: 8px 0 0;
+  background: var(--brand-glow);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.42;
+  padding: 8px 10px;
+}
+
+.strategy-v2-meeting-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.strategy-v2-pressure-card {
+  align-content: start;
+}
+
+.strategy-v2-meeting-route {
+  background: #fff;
+}
+
+.strategy-v2-meeting-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  padding: 12px;
+}
+
+.strategy-v2-meeting-proof strong,
+.strategy-v2-meeting-proof span {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.strategy-v2-meeting-proof strong {
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
 .strategy-v2-source-compact-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -9074,6 +9220,8 @@ code {
   .strategy-v2-kpi-grid,
   .strategy-v2-overview-layout,
   .strategy-v2-source-compact-grid,
+  .strategy-v2-meeting-stat-grid,
+  .strategy-v2-meeting-grid,
   .strategy-v2-model-header,
   .strategy-v2-bar-grid,
   .hero.strategy-v2-hero,

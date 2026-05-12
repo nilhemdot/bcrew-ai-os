@@ -140,6 +140,9 @@ import {
   isDecisionGradeActionRoute,
   isSynthesisRecordVerified,
 } from './lib/synthesis-claim-verification.js'
+import {
+  buildStrategyMeetingReadySnapshot,
+} from './lib/strategy-hub-meeting-ready.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -5391,6 +5394,7 @@ function isStrategyHubReviewRoute(route = {}) {
 function buildStrategyHubV2Payload({ goalTruth, operatingTruth, actionRouter, retrieval, sourceTruthStatus = 'live', fallback = null }) {
   const allRoutes = Array.isArray(actionRouter.recentRoutes) ? actionRouter.recentRoutes : []
   const strategyRoutes = allRoutes.filter(isStrategyHubReviewRoute)
+  const generatedAt = new Date().toISOString()
   const strategyActionRouter = {
     ...actionRouter,
     totalRoutes: strategyRoutes.length,
@@ -5401,8 +5405,15 @@ function buildStrategyHubV2Payload({ goalTruth, operatingTruth, actionRouter, re
     operationalTotalRoutes: actionRouter.totalRoutes || allRoutes.length,
     hiddenOperationalRoutes: Math.max(0, Number(actionRouter.totalRoutes || allRoutes.length || 0) - strategyRoutes.length),
   }
+  const meetingReady = buildStrategyMeetingReadySnapshot({
+    goalTruth,
+    operatingTruth,
+    actionRouter: strategyActionRouter,
+    retrieval,
+    generatedAt,
+  })
   return {
-    generatedAt: new Date().toISOString(),
+    generatedAt,
     mode: 'source_to_gap_route_review',
     advisorStatus: 'strategy_hub_v2_in_progress',
     sourceTruthStatus,
@@ -5410,6 +5421,7 @@ function buildStrategyHubV2Payload({ goalTruth, operatingTruth, actionRouter, re
     goalTruth,
     operatingTruth,
     actionRouter: strategyActionRouter,
+    meetingReady,
     retrievalEval: retrieval.latestEvalRun || null,
     operationalRouteSummary: {
       totalRoutes: actionRouter.totalRoutes || allRoutes.length,

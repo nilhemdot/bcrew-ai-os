@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "STRATEGY-HUB-MEETING-READY-001",
+  "approvedBy": "Codex interim reviewer per Steve build-away approval",
+  "approvedAt": "2026-05-12T05:20:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/strategy-hub-meeting-ready-001-plan.md",
+  "approvedPlanSha256": "23e4da04689f84d3d9fa8a33c19d0c0c8dd57c50ac7f282cebb3ba13eb4cca4b",
+  "approvedRepoHead": "eec07af549561977b5c1846c8423c09d6ddf3442",
+  "notes": "Approved for a bounded owner-only Strategy meeting packet V1 only: build packet transform, API field, UI section, focused behavior proof, and sprint closeout. Do not build Scoper, advisor chat, Directors, non-Tier-1 access, avatar import, old-system parity, or Drive mutations in this card.",
+  "approvalDigest": "eaf65d6d1fa31c69e1a830372b3c60e97e1c066a427cdcca97d9b436d4bf7246"
+}

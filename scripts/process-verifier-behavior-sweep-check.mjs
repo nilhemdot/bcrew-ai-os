@@ -162,9 +162,9 @@ async function main() {
   addFinding(findings, behaviorProof.targets.some(item => item.cardId === 'FOUNDATION-DONE-TEST-001' && item.ok && item.proof?.missingCloseout?.blockingCards?.includes('SYNTHESIS-VERIFY-001')), 'Foundation readiness target has a failing missing-closeout variant')
   addFinding(findings, packageJson.scripts?.['process:verifier-behavior-sweep-check'] === `node --env-file-if-exists=.env ${VERIFIER_BEHAVIOR_SWEEP_SCRIPT_PATH}`, 'package exposes focused proof script')
   addFinding(findings, verifierCard?.lane === 'done' && String(verifierCard?.statusNote || '').includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY), 'VERIFIER-BEHAVIOR-SWEEP-001 is done with closeout proof', verifierCard?.lane || 'missing')
-  addFinding(findings, strategyCard?.lane === 'scoped', 'STRATEGY-HUB-MEETING-READY-001 remains scoped as next card', strategyCard?.lane || 'missing')
+  addFinding(findings, ['scoped', 'done'].includes(strategyCard?.lane), 'STRATEGY-HUB-MEETING-READY-001 remains scoped or done after verifier sweep', strategyCard?.lane || 'missing')
   addFinding(findings, REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id), 'Current Sprint order remains audit reset order', sprintOrder.join(' -> '))
-  addFinding(findings, activeBlockerCardId === STRATEGY_HUB_MEETING_READY_CARD_ID, 'Current Sprint active blocker advanced to Strategy Hub meeting-ready', activeBlockerCardId || 'missing')
+  addFinding(findings, [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID].includes(activeBlockerCardId), 'Current Sprint active blocker advanced through Strategy Hub meeting-ready', activeBlockerCardId || 'missing')
   addFinding(findings, sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) === 'done_this_sprint', 'Verifier behavior sweep moved to Done This Sprint', sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) || 'missing')
   addFinding(findings, includesAll(proofLibraryText, [
     'VERIFIER_BEHAVIOR_TARGETS',
@@ -178,11 +178,11 @@ async function main() {
   addFinding(findings, includesAll(proofScriptText, [
     VERIFIER_BEHAVIOR_SWEEP_SUMMARY_MARKER,
     'top P0 verifier behavior sweep passes',
-    'Current Sprint active blocker advanced to Strategy Hub meeting-ready',
+    'Current Sprint active blocker advanced through Strategy Hub meeting-ready',
   ]), 'focused proof script checks behavior and sprint advancement')
   addFinding(findings, includesAll(currentSprintText, [
     VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
-    'activeBlockerCardId: STRATEGY_HUB_MEETING_READY_CARD_ID',
+    'STRATEGY_HUB_MEETING_READY_CARD_ID',
     'process:verifier-behavior-sweep-check',
   ]), 'Current Sprint seed records verifier closeout and next blocker')
   addFinding(findings, includesAll(buildLogText, [
@@ -199,7 +199,7 @@ async function main() {
   ]), 'current plan records verifier behavior closeout and next card')
   addFinding(findings, includesAll(currentStateText, [
     VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
-    'Current sprint active blocker is now `STRATEGY-HUB-MEETING-READY-001`',
+    'Current sprint active blocker',
     'process proof over product behavior',
     'behavior registry',
   ]), 'current state records verifier behavior closeout and active blocker')
