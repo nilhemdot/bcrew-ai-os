@@ -8056,7 +8056,7 @@ async function main() {
       includesAll(verifierBehaviorSweepScriptSource, [
         VERIFIER_BEHAVIOR_SWEEP_SUMMARY_MARKER,
         'top P0 verifier behavior sweep passes',
-        'Current Sprint active blocker advanced to Strategy Hub meeting-ready',
+        'Current Sprint active blocker advanced through Strategy Hub meeting-ready',
       ]) &&
       includesAll(verifierBehaviorSweepPlanSource, [
         VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
@@ -8116,7 +8116,7 @@ async function main() {
       ]) &&
       includesAll(strategyHubMeetingReadyPlanSource, [
         STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
-        'actual function path',
+        'real function path',
         'changed-value',
         'Substring-only proof is rejected',
       ]) &&
