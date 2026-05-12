@@ -4899,6 +4899,64 @@ a.build-log-backlog-link:hover {
   color: var(--amber);
 }
 
+.source-extraction-panel {
+  overflow: hidden;
+}
+
+.source-extraction-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.source-extraction-table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.source-extraction-table th,
+.source-extraction-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.source-extraction-table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  z-index: 1;
+}
+
+.source-extraction-source-cell {
+  width: 260px;
+}
+
+.source-extraction-source-cell strong,
+.source-extraction-source-cell span,
+.source-extraction-state-cell span,
+.source-extraction-next-cell {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.source-extraction-source-cell span,
+.source-extraction-state-cell span,
+.source-extraction-next-cell {
+  margin-top: 4px;
+  color: var(--text-tertiary);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
 @media (max-width: 640px) {
   .source-lifecycle-definition-grid,
   .source-lifecycle-grid,

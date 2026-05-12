@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-EXTRACTION-COVERAGE-001",
+  "approvedBy": "Codex interim reviewer per Steve walk-away approval",
+  "approvedAt": "2026-05-12T14:18:15Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-extraction-coverage-001-plan.md",
+  "approvedPlanSha256": "0888b9b17ed45200e642c8229383ce967d71580e5ed534fd0f254ca48635c304",
+  "approvedRepoHead": "42cab80de4bf622a3577ba4a24ad9a2d52731a9b",
+  "notes": "Approved for bounded Source Extraction Coverage V1 only: roll existing extraction-control target/run/item/retry/cursor and 24-hour volume signals up by source, expose API/UI/focused proof/current sprint advancement, and keep source fixes/product loops/new crawls out of scope. Do not run new extraction jobs, add connectors, reopen EXTRACT-RUN-HARDENING-001, mutate Drive ACLs, or build Reply/Watching Loop, Strategy Hub expansion, Marketing production, Telegram bots, or Directors.",
+  "approvalDigest": "ba74041b4c50a41673771e047583d89ee8632f945a6f178a58283abb3fc86428"
+}

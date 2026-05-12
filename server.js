@@ -98,6 +98,9 @@ import {
 import {
   buildSourceMaturityGridSnapshot,
 } from './lib/source-maturity-grid.js'
+import {
+  buildSourceExtractionCoverageSnapshot,
+} from './lib/source-extraction-coverage.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -3807,6 +3810,12 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       sourceMaturityOperational: foundationSnapshot.sourceMaturityOperational,
       lifecycle: sourceLifecycle,
     })
+    sourceLifecycle.sourceExtractionCoverage = buildSourceExtractionCoverageSnapshot({
+      sources: getSourceContracts(),
+      extractionControl,
+      sourceMaturityGrid: sourceLifecycle.sourceMaturityGrid,
+      lifecycle: sourceLifecycle,
+    })
     cacheHeadersNoStore(res)
     res.json(sourceLifecycle)
   } catch (error) {
@@ -3819,6 +3828,48 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       500,
       'foundation_source_lifecycle_load_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation source lifecycle.'
+    )
+  }
+})
+
+app.get('/api/foundation/source-extraction-coverage', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const sourceLifecycle = buildSourceLifecycleStatus({
+      sources: getSourceContracts(),
+      connectors: getSourceConnectors(),
+      groupedSystems: getGroupedSourceSystems(),
+      extractionControl: snapshot.extractionControl,
+      foundationJobs: getFoundationJobDefinitions(),
+    })
+    const sourceMaturityGrid = buildSourceMaturityGridSnapshot({
+      sources: getSourceContracts(),
+      extractionControl: snapshot.extractionControl,
+      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
+      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis,
+      intelligenceActionRouter: snapshot.intelligenceActionRouter,
+      sourceMaturityOperational: snapshot.sourceMaturityOperational,
+      lifecycle: sourceLifecycle,
+    })
+    const sourceExtractionCoverage = buildSourceExtractionCoverageSnapshot({
+      sources: getSourceContracts(),
+      extractionControl: snapshot.extractionControl,
+      sourceMaturityGrid,
+      lifecycle: sourceLifecycle,
+    })
+    cacheHeadersNoStore(res)
+    res.json(sourceExtractionCoverage)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_source_extraction_coverage_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation source extraction coverage.'
     )
   }
 })
@@ -4571,6 +4622,13 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       lifecycle: sourceLifecycle,
     })
     sourceLifecycle.sourceMaturityGrid = sourceMaturityGrid
+    const sourceExtractionCoverage = buildSourceExtractionCoverageSnapshot({
+      sources: getSourceContracts(),
+      extractionControl: snapshot.extractionControl,
+      sourceMaturityGrid,
+      lifecycle: sourceLifecycle,
+    })
+    sourceLifecycle.sourceExtractionCoverage = sourceExtractionCoverage
     const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
       repoRoot: __dirname,
       includeCandidates: false,
@@ -4633,6 +4691,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       sheetsApiTrust,
       sourceLifecycle,
       sourceMaturityGrid,
+      sourceExtractionCoverage,
       agentFeedbackAutoSend,
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,

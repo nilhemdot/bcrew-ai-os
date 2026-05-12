@@ -82,8 +82,8 @@ The active sprint is `foundation-source-once-over-2026-05-12`.
 Sprint order:
 
 1. `SOURCE-MATURITY-GRID-001` — done under `source-maturity-grid-v1`; Foundation now exposes a seven-stage source maturity grid for every source contract: connected, trusted, monitored, extracted, atomized, synthesized, routed.
-2. `SOURCE-EXTRACTION-COVERAGE-001` — next active blocker; close extraction coverage visibility per source while keeping `EXTRACT-RUN-HARDENING-001` closed for v1.
-3. `SOURCE-COVERAGE-CLOSEOUT-001` — decide every non-green source row: advance, defer with blocker, or mark not required for current Foundation depth.
+2. `SOURCE-EXTRACTION-COVERAGE-001` — done under `source-extraction-coverage-v1`; Foundation now rolls existing extraction-control target/run/item/retry/cursor and 24-hour activity signals up to every source.
+3. `SOURCE-COVERAGE-CLOSEOUT-001` — next active blocker; decide every non-green source row: advance, defer with blocker, or mark not required for current Foundation depth.
 4. `MARKETING-SOURCE-MAP-001` — map avatars and marketing source contracts to brand lanes without building marketing production.
 5. `BRAND-STACK-001` — model the brand entities and boundaries as Foundation truth.
 6. `TIER-BEHAVIORAL-COMPLETION-001` — decide/prove the first non-owner read surfaces or keep them owner-only.

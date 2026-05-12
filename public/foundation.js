@@ -10761,6 +10761,121 @@ function renderSourceMaturityGridPanel(grid) {
   return panel
 }
 
+function renderSourceExtractionCoveragePanel(coverage) {
+  if (!coverage || !Array.isArray(coverage.rows) || !coverage.rows.length) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel source-extraction-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'source-extraction-coverage')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Extraction Coverage'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Source-level extraction coverage'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  var summary = coverage.summary || {}
+  intro.textContent = (summary.sourceCount || 0) + ' sources, '
+    + (summary.sourcesWithTarget || 0) + ' with governed targets, '
+    + (summary.sourcesWithLastSuccess || 0) + ' with last success, '
+    + (summary.sourcesWithFailure || 0) + ' failure/gap, '
+    + (summary.sourcesDeferred || 0) + ' deferred, '
+    + (summary.sourcesNotRequired || 0) + ' not required. Last 24h: '
+    + (summary.last24hRuns || 0) + ' runs and '
+    + (summary.last24hItems || 0) + ' item updates.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag((summary.sourcesWithLastSuccess || 0) + ' last success', 'connected'))
+  right.appendChild(renderSourceTag((summary.sourcesWithFailure || 0) + ' failure/gap', summary.sourcesWithFailure ? 'missing' : 'connected'))
+  right.appendChild(renderSourceTag((summary.sourcesPending || 0) + ' pending', summary.sourcesPending ? 'pending' : 'neutral'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var tableWrap = document.createElement('div')
+  tableWrap.className = 'source-extraction-table-wrap'
+  var table = document.createElement('table')
+  table.className = 'source-extraction-table'
+
+  var thead = document.createElement('thead')
+  var headerRow = document.createElement('tr')
+  ;['Source', 'State', 'Targets', 'Last success', 'Last failure', '24h', 'Next safe action'].forEach(function(label) {
+    var th = document.createElement('th')
+    th.textContent = label
+    headerRow.appendChild(th)
+  })
+  thead.appendChild(headerRow)
+  table.appendChild(thead)
+
+  var tbody = document.createElement('tbody')
+  coverage.rows.forEach(function(row) {
+    var tr = document.createElement('tr')
+    tr.setAttribute('data-source-id', row.sourceId)
+
+    var sourceCell = document.createElement('td')
+    sourceCell.className = 'source-extraction-source-cell'
+    var sourceName = document.createElement('strong')
+    sourceName.textContent = row.sourceId
+    sourceCell.appendChild(sourceName)
+    var sourceDetail = document.createElement('span')
+    sourceDetail.textContent = [row.title, row.unitName].filter(Boolean).join(' · ')
+    sourceCell.appendChild(sourceDetail)
+    tr.appendChild(sourceCell)
+
+    var stateCell = document.createElement('td')
+    stateCell.className = 'source-extraction-state-cell'
+    stateCell.appendChild(renderSourceTag(row.label || row.extractionState || 'unknown', row.tone || 'pending'))
+    var reason = document.createElement('span')
+    reason.textContent = row.reason || ''
+    stateCell.appendChild(reason)
+    tr.appendChild(stateCell)
+
+    var targetCell = document.createElement('td')
+    targetCell.textContent = (row.targetKeys || []).length ? row.targetKeys.join(', ') : 'None'
+    tr.appendChild(targetCell)
+
+    var successCell = document.createElement('td')
+    successCell.textContent = formatDate(row.latestSuccessAt)
+    tr.appendChild(successCell)
+
+    var failureCell = document.createElement('td')
+    failureCell.textContent = formatDate(row.latestFailureAt)
+    tr.appendChild(failureCell)
+
+    var last24Cell = document.createElement('td')
+    var last24 = row.last24h || {}
+    last24Cell.textContent = (last24.runs || 0) + ' runs · ' + (last24.items || 0) + ' items'
+    tr.appendChild(last24Cell)
+
+    var nextCell = document.createElement('td')
+    nextCell.className = 'source-extraction-next-cell'
+    var commands = Array.isArray(row.nextSafeCommands) ? row.nextSafeCommands : []
+    nextCell.textContent = commands.length ? commands.slice(0, 2).join(' ') : (row.nextBiteAt ? 'Next bite ' + formatDate(row.nextBiteAt) : 'No action recorded')
+    tr.appendChild(nextCell)
+
+    tbody.appendChild(tr)
+  })
+  table.appendChild(tbody)
+  tableWrap.appendChild(table)
+  panel.appendChild(tableWrap)
+
+  if ((coverage.topAttention || []).length) {
+    var attention = renderSourceBulletGroup('Top extraction coverage attention', (coverage.topAttention || []).slice(0, 8).map(function(item) {
+      return item.sourceId + ' - ' + item.extractionState + ': ' + item.reason
+    }))
+    panel.appendChild(attention)
+  }
+
+  return panel
+}
+
 function renderSourceLifecycleDefinitions(definitions) {
   var panel = document.createElement('section')
   panel.className = 'panel'
@@ -13519,6 +13634,8 @@ function renderSourceLifecycle() {
     if (summary) container.appendChild(summary)
     var maturityGrid = renderSourceMaturityGridPanel(lifecycle.sourceMaturityGrid)
     if (maturityGrid) container.appendChild(maturityGrid)
+    var extractionCoverage = renderSourceExtractionCoveragePanel(lifecycle.sourceExtractionCoverage)
+    if (extractionCoverage) container.appendChild(extractionCoverage)
     container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
     container.appendChild(renderSourceLifecycleLanes(lifecycle))
     container.appendChild(renderSourceLifecycleTargets(lifecycle))
