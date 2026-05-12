@@ -136,7 +136,7 @@ async function closeCardIfHealthy(summary) {
   if (summary.status !== 'healthy') return
   await updateBacklogItem(FOUNDATION_SPRINT_SYSTEM_CARD_ID, {
     lane: 'done',
-    nextAction: 'Use the Current Sprint overlay to return to MEETING-VAULT-ACL-001 through the required Sprint Ready existing-work/doctrine check. Do not mutate Drive permissions or send request-access emails without the separate Phase B approval artifact.',
+    nextAction: 'Use the Current Sprint overlay as command truth. The active sprint reset now pulls REBUILD-PLAN-RECONCILE-001 after VERIFY-GATE-TIERING-001; do not mutate Drive permissions or send request-access emails without a separate approval artifact.',
     statusNote: 'Closed on 2026-05-10 under `foundation-sprint-system-v1`. V1 adds `lib/foundation-current-sprint.js`, additive `foundation_sprints` / `foundation_sprint_items` overlay tables, `/api/foundation/current-sprint` plus `currentSprint` on `/api/foundation-hub`, a compact Current Sprint panel at the top of Recent Work, `scripts/process-foundation-sprint-system-check.mjs`, package/verifier coverage, `docs/process/foundation-sprint-system.md`, and rebuild plan/state closeout notes. Proof commands: `npm run process:foundation-sprint-system-check`, `npm run backlog:hygiene -- --json`, `npm run foundation:verify`, and `npm run process:foundation-ship -- --card=FOUNDATION-SPRINT-SYSTEM-001 --planApprovalRef=docs/process/approvals/FOUNDATION-SPRINT-SYSTEM-001.json --closeoutKey=foundation-sprint-system-v1 --commitRef=HEAD`.',
   }, 'foundation-sprint-system-check')
 }
@@ -162,7 +162,7 @@ async function main() {
     const cadenceAlreadyDone = existingCards.some(card => card.id === FOUNDATION_SPRINT_CADENCE_CARD_ID && card.lane === 'done')
 
     const buildingSeed = buildDefaultFoundationSprintSeed({
-      stage: 'building_now',
+      stage: 'done_this_sprint',
       cadenceStage: cadenceAlreadyDone ? 'done_this_sprint' : 'scoping',
     })
     await upsertFoundationCurrentSprintOverlay(buildingSeed, 'foundation-sprint-system-check')
@@ -246,7 +246,7 @@ async function main() {
       'renderCurrentSprintPanel',
       'Current Sprint',
       'done_this_sprint',
-      'Done cards continue into Recent Work below',
+      'Older done cards live in Recent Work below',
     ]), 'Recent Work renders Current Sprint at the top', 'missing UI markers', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
     addFinding(findings, includesAll(uiSource, [
       'renderFoundationCurrentTruthPanel',
@@ -283,7 +283,7 @@ async function main() {
       'FOUNDATION-DONE-VELOCITY-001',
     ]), 'Recent Work closeout record owns only sprint-system card and mentions follow-ups', 'missing build-log closeout markers', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
     addFinding(findings, currentPlan.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) && currentPlan.includes('FOUNDATION-SURFACE-UPDATES-001') && currentPlan.includes('FOUNDATION-DONE-VELOCITY-001'), 'current plan records sprint-system closeout and follow-up split', 'missing current-plan markers', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
-    addFinding(findings, currentState.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) && currentState.includes('Current Sprint') && currentState.includes('MEETING-VAULT-ACL-001 remains scoped'), 'current state records sprint-system closeout without closing Meeting Vault', 'missing current-state markers', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
+    addFinding(findings, currentState.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) && currentState.includes('Current Sprint') && currentState.includes('VERIFY-GATE-TIERING-001') && currentState.includes('REBUILD-PLAN-RECONCILE-001'), 'current state records sprint-system closeout and active sprint reset', 'missing current-state markers', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
     addFinding(findings, captureSource.includes('FOUNDATION-SPRINT-SYSTEM-001') && captureSource.includes('FOUNDATION-DONE-VELOCITY-001') && captureSource.includes('Phase B paused'), 'latest capture updates are present', 'missing capture markers', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
     addFinding(findings, surfaceCard?.lane === 'scoped' && [surfaceCard.summary, surfaceCard.nextAction, surfaceCard.statusNote].join(' ').includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID), 'FOUNDATION-SURFACE-UPDATES-001 remains broader scoped UI work', `${surfaceCard?.lane || 'missing'} / ${surfaceCard?.title || 'missing'}`, [FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID])
     addFinding(findings, velocityCard?.lane === 'scoped' && [velocityCard.summary, velocityCard.nextAction, velocityCard.statusNote].join(' ').includes('velocity'), 'FOUNDATION-DONE-VELOCITY-001 remains honest follow-up', `${velocityCard?.lane || 'missing'} / ${velocityCard?.title || 'missing'}`, [FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID])

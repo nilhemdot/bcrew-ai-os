@@ -46,6 +46,15 @@ async function main() {
   if (status.checkedFiles?.length) {
     console.log(`Static checked files: ${status.checkedFiles.join(', ')}`)
   }
+  if (status.verificationGate) {
+    console.log(`Verification gate: ${status.verificationGate.level}`)
+    if (status.verificationGate.commands?.length) {
+      console.log(`Gate commands: ${status.verificationGate.commands.join('; ')}`)
+    }
+  }
+  if (status.focusedProofCount) {
+    console.log(`Focused proof records: ${status.focusedProofCount}`)
+  }
   if (status.bypass) {
     console.log('Bypass recorded locally in .git/foundation-hook-bypass.log.')
   }

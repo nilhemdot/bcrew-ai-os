@@ -106,6 +106,7 @@
     "process:meeting-vault-auto-enforcement-check": "node --env-file-if-exists=.env scripts/process-meeting-vault-auto-enforcement-check.mjs",
     "process:foundation-sprint-system-check": "node --env-file-if-exists=.env scripts/process-foundation-sprint-system-check.mjs",
     "process:foundation-sprint-cadence-check": "node --env-file-if-exists=.env scripts/process-foundation-sprint-cadence-check.mjs",
+    "process:verify-gate-tiering-check": "node --env-file-if-exists=.env scripts/process-verify-gate-tiering-check.mjs",
     "process:foundation-verify-health-repair-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-health-repair-check.mjs",
     "process:foundation-followup-card-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-followup-card-capture-check.mjs",
     "process:foundation-systems-service-grouping-check": "node --env-file-if-exists=.env scripts/process-foundation-systems-service-grouping-check.mjs",

@@ -108,7 +108,7 @@ async function closeCardIfHealthy(summary) {
   if (summary.status !== 'healthy') return
   await updateBacklogItem(FOUNDATION_SPRINT_CADENCE_CARD_ID, {
     lane: 'done',
-    nextAction: 'Return to MEETING-VAULT-ACL-001 under the Sprint Ready existing-work/doctrine rules. Do not run Phase B, mutate Drive permissions, or send request-access emails without separate approval.',
+    nextAction: 'Use Current Sprint as the command view. The active sprint reset now pulls REBUILD-PLAN-RECONCILE-001 after VERIFY-GATE-TIERING-001; do not run Meeting Vault Phase B, mutate Drive permissions, or send request-access emails without separate approval.',
     statusNote: 'Closed on 2026-05-10 under `foundation-sprint-cadence-v1`. V1 adds a Current Sprint command view at the top of Recent Work with executive summary, sprint goal, current status, next card, current blocker, exit criteria, Scoping/Sprint Ready/Building Now/Returned/Done This Sprint stage rows, card definition of done, proof commands, returned reason, and next action. It updates the central sprint cadence payload, focused proof, package/verifier coverage, process doc, and rebuild state. This does not build Meeting Vault Phase B, mutate Drive permissions, send request-access emails, build broad sprint analytics, or perform broad UI polish.',
   }, 'foundation-sprint-cadence-check')
 }
@@ -191,7 +191,7 @@ async function main() {
     addFinding(findings, FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('executive summary')) && FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('No Drive permission mutation')), 'exit criteria include visibility and no-Drive guard', FOUNDATION_SPRINT_EXIT_CRITERIA.join(' | '), [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, systemCard?.lane === 'done', 'FOUNDATION-SPRINT-SYSTEM-001 remains done this sprint', systemCard?.lane || 'missing', [FOUNDATION_SPRINT_SYSTEM_CARD_ID])
     addFinding(findings, ['scoped', 'executing', 'done'].includes(cadenceCard?.lane), 'FOUNDATION-SPRINT-CADENCE-001 has a valid live backlog lane before proof closeout', cadenceCard?.lane || 'missing', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
-    addFinding(findings, meetingCard?.lane !== 'done', 'MEETING-VAULT-ACL-001 remains open as the active blocker', meetingCard?.lane || 'missing', ['MEETING-VAULT-ACL-001'])
+    addFinding(findings, cadencePayload.nextCard?.cardId === 'REBUILD-PLAN-RECONCILE-001' && cadencePayload.currentBlocker?.cardId === 'REBUILD-PLAN-RECONCILE-001', 'cadence payload follows active sprint reset', JSON.stringify({ nextCard: cadencePayload.nextCard?.cardId, blocker: cadencePayload.currentBlocker?.cardId, meetingVaultLane: meetingCard?.lane || null }), [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, includesAll(moduleSource, [
       'FOUNDATION_SPRINT_CADENCE_CARD_ID',
       'FOUNDATION_SPRINT_EXIT_CRITERIA',
@@ -235,7 +235,7 @@ async function main() {
     addFinding(findings, includesAll(scriptSource, [
       FOUNDATION_SPRINT_CADENCE_SUMMARY_MARKER,
       'Current Sprint layout is readable board/rows',
-      'MEETING-VAULT-ACL-001 moves into Scoping after cadence closeout',
+      'REBUILD-PLAN-RECONCILE-001',
     ]), 'focused process script owns proof markers', 'missing script markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, includesAll(buildLogSource, [
       FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
@@ -244,7 +244,7 @@ async function main() {
       'No Drive permission mutation',
     ]), 'Recent Work closeout record owns cadence card and Meeting Vault context', 'missing build-log markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, currentPlan.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) && currentPlan.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID), 'current plan records cadence closeout', 'missing current-plan markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
-    addFinding(findings, currentState.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) && currentState.includes('sprint command view') && currentState.includes('MEETING-VAULT-ACL-001') && currentState.includes('moves into Scoping'), 'current state records command-view closeout and Meeting Vault status', 'missing current-state markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
+    addFinding(findings, currentState.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) && currentState.includes('sprint command view') && currentState.includes('VERIFY-GATE-TIERING-001') && currentState.includes('REBUILD-PLAN-RECONCILE-001'), 'current state records command-view closeout and active sprint reset', 'missing current-state markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, captureSource.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) && captureSource.includes('No Drive permission mutation is approved'), 'handoff captures sprint cadence correction', 'missing capture markers', [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES.some(boundary => boundary.includes('MEETING-VAULT-ACL-001 Phase B')) && FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES.some(boundary => boundary.includes('Drive permissions')) && FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES.some(boundary => boundary.includes('request-access emails')), 'not-next boundaries block Meeting Vault Phase B, Drive mutation, and request emails', FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES.join(' | '), [FOUNDATION_SPRINT_CADENCE_CARD_ID])
     addFinding(findings, noRawProof({ buildingStatus, cadencePayload, stageKeys }).length === 0, 'proof output is metadata-only', noRawProof({ buildingStatus, cadencePayload, stageKeys }).join(', '), [FOUNDATION_SPRINT_CADENCE_CARD_ID])
@@ -283,22 +283,21 @@ async function main() {
       summary.doneOverlayFindings = doneStatus.findings
       summary.doneCadence = doneStatus.cadence
       if (
-        doneStatus.summary?.stageCounts?.scoping !== 1 ||
+        Number(doneStatus.summary?.stageCounts?.done_this_sprint || 0) < 1 ||
         doneStatus.summary?.stageCounts?.returned !== 0 ||
         doneStatus.cadence?.currentStatus !== 'scoping' ||
-        doneStatus.cadence?.nextCard?.cardId !== 'MEETING-VAULT-ACL-001' ||
-        doneStatus.cadence?.nextAction !== MEETING_VAULT_ACL_SCOPING_NEXT_ACTION
+        doneStatus.cadence?.nextCard?.cardId !== 'REBUILD-PLAN-RECONCILE-001'
       ) {
         summary.status = 'blocked'
         findings.push({
-          check: 'done cadence overlay pulls Meeting Vault into Scoping',
+          check: 'done cadence overlay pulls the active reset card into Scoping',
           detail: JSON.stringify({
             stageCounts: doneStatus.summary?.stageCounts || {},
             currentStatus: doneStatus.cadence?.currentStatus || null,
             nextCard: doneStatus.cadence?.nextCard?.cardId || null,
             nextAction: doneStatus.cadence?.nextAction || null,
           }),
-          blockerCards: [FOUNDATION_SPRINT_CADENCE_CARD_ID, 'MEETING-VAULT-ACL-001'],
+          blockerCards: [FOUNDATION_SPRINT_CADENCE_CARD_ID, 'REBUILD-PLAN-RECONCILE-001'],
         })
       }
       if (doneStatus.status !== 'healthy') {

@@ -378,6 +378,14 @@ import {
   POST_SHIP_FANOUT_RULES,
 } from '../lib/post-ship-fanout.js'
 import {
+  buildSyntheticVerifyGateTieringProof,
+  VERIFY_GATE_TIERING_CARD_ID,
+  VERIFY_GATE_TIERING_CLOSEOUT_KEY,
+  VERIFY_GATE_TIERING_FOCUSED_PROOF_COMMAND,
+  VERIFY_GATE_TIERING_PLAN_PATH,
+  VERIFY_GATE_TIERING_SCRIPT_PATH,
+} from '../lib/process-verify-gate-tiering.js'
+import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
   buildSyntheticStaleSkillSource,
@@ -1194,6 +1202,9 @@ async function main() {
   const foundationSprintCadenceDocSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_DOC_PATH)
   const foundationSprintCadenceApprovalSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH)
   const foundationSprintCadenceApproval = JSON.parse(foundationSprintCadenceApprovalSource)
+  const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
+  const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
+  const verifyGateTieringPlanSource = await readRepoFile(VERIFY_GATE_TIERING_PLAN_PATH)
   const foundationSprintReviewSource = await readRepoFile(FOUNDATION_SPRINT_REVIEW_DOC_PATH)
   const foundationSprintCaptureSource = await readRepoFile('docs/handoffs/2026-05-10-foundation-sprint-capture.md')
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
@@ -2912,6 +2923,7 @@ async function main() {
     agentOnboardingFeedbackSystemStatus,
     agentFeedbackRealUserSubmitRepairStatus,
   })
+  const verifyGateTieringSynthetic = buildSyntheticVerifyGateTieringProof()
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3805,6 +3817,20 @@ async function main() {
           MEETING_VAULT_ACL_CARD_ID,
           FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
           FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogVerifyGateTieringBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(VERIFY_GATE_TIERING_CARD_ID) &&
+      build.closeoutKey === VERIFY_GATE_TIERING_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(VERIFY_GATE_TIERING_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: VERIFY_GATE_TIERING_CLOSEOUT_KEY,
+        backlogIds: [VERIFY_GATE_TIERING_CARD_ID],
+        mentionedBacklogIds: [
+          REBUILD_PLAN_RECONCILE_CARD_ID,
+          VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
         ],
         operatorCloseout: true,
       }
@@ -5085,6 +5111,7 @@ async function main() {
   const foundationSprintSystem = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SYSTEM_CARD_ID) || null
   const foundationSprintCadence = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_CADENCE_CARD_ID) || null
   const foundationSprintReview = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_REVIEW_CARD_ID) || null
+  const verifyGateTiering = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_GATE_TIERING_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -7396,6 +7423,16 @@ async function main() {
       FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
       FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
     ].every(id => !(buildLogFoundationSprintCadenceBuild.backlogIds || []).includes(id))
+  const verifyGateTieringBuildLogExact = buildLogVerifyGateTieringBuild?.backlogIds?.length === 1 &&
+    buildLogVerifyGateTieringBuild.backlogIds.includes(VERIFY_GATE_TIERING_CARD_ID) &&
+    [
+      REBUILD_PLAN_RECONCILE_CARD_ID,
+      VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+    ].every(id => (buildLogVerifyGateTieringBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      REBUILD_PLAN_RECONCILE_CARD_ID,
+      VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+    ].every(id => !(buildLogVerifyGateTieringBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -7443,7 +7480,7 @@ async function main() {
       includesAll(foundationSprintCadenceScriptSource, [
         FOUNDATION_SPRINT_CADENCE_SUMMARY_MARKER,
         'Current Sprint layout is readable board/rows',
-        'MEETING-VAULT-ACL-001 moves into Scoping after cadence closeout',
+        'REBUILD-PLAN-RECONCILE-001',
       ]) &&
       includesAll(foundationSprintCadenceDocSource, [
         FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
@@ -7473,6 +7510,45 @@ async function main() {
       foundationSprintCaptureSource.includes('No Drive permission mutation is approved'),
     'FOUNDATION-SPRINT-CADENCE-001 adds readable sprint command view without Drive mutation',
     `lane=${foundationSprintCadence?.lane || 'missing'} sprint=${foundationCurrentSprintStatus.status} api=${foundationHub.currentSprint?.status || 'missing'} next=${foundationHub.currentSprint?.cadence?.nextCard?.cardId || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'}`,
+  )
+  ensure(
+    checks,
+    verifyGateTiering?.lane === 'done' &&
+      String(verifyGateTiering?.statusNote || '').includes(VERIFY_GATE_TIERING_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['process:verify-gate-tiering-check'] === `node --env-file-if-exists=.env ${VERIFY_GATE_TIERING_SCRIPT_PATH}` &&
+      verifyGateTieringSynthetic.ok &&
+      includesAll(verifyGateTieringSource, [
+        'classifyVerificationGateForFiles',
+        'buildSyntheticVerifyGateTieringProof',
+        VERIFY_GATE_TIERING_FOCUSED_PROOF_COMMAND,
+        'fullVerifyRequired',
+      ]) &&
+      includesAll(verifyGateTieringScriptSource, [
+        'VERIFY_GATE_TIERING_OK',
+        'recordFocusedVerificationProof',
+        'runBacklogHygiene',
+      ]) &&
+      includesAll(verifyGateTieringPlanSource, [
+        VERIFY_GATE_TIERING_CARD_ID,
+        'focused verification',
+        'full Foundation ship gate',
+      ]) &&
+      includesAll(processGitHooksSource, [
+        'FOUNDATION_FOCUSED_VERIFY_PROOF_PATH',
+        'classifyVerificationGateForFiles',
+        'recordFocusedVerificationProof',
+      ]) &&
+      buildLogVerifyGateTieringBuild?.operatorCloseout === true &&
+      verifyGateTieringBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === REBUILD_PLAN_RECONCILE_CARD_ID &&
+      currentPlan.includes(VERIFY_GATE_TIERING_CARD_ID) &&
+      currentPlan.includes('proportional verification') &&
+      currentState.includes(VERIFY_GATE_TIERING_CARD_ID) &&
+      currentState.includes('proportional verification'),
+    'VERIFY-GATE-TIERING-001 adds proportional Foundation verification without weakening full-risk gates',
+    `lane=${verifyGateTiering?.lane || 'missing'} synthetic=${verifyGateTieringSynthetic.ok} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,

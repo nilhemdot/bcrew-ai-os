@@ -10,18 +10,21 @@ Reconcile the active rebuild command layer after the old-system, Codex, and Clau
 
 The new sprint order is:
 
-1. `REBUILD-PLAN-RECONCILE-001`
-2. `PLAN-CRITIC-REPLACEMENT-001`
-3. `SECURITY-BEHAVIOR-PROOF-001`
-4. `VERIFIER-BEHAVIOR-SWEEP-001`
-5. `STRATEGY-HUB-MEETING-READY-001`
-6. `AVATAR-IMPORT-001`
+1. `VERIFY-GATE-TIERING-001`
+2. `REBUILD-PLAN-RECONCILE-001`
+3. `PLAN-CRITIC-REPLACEMENT-001`
+4. `SECURITY-BEHAVIOR-PROOF-001`
+5. `VERIFIER-BEHAVIOR-SWEEP-001`
+6. `STRATEGY-HUB-MEETING-READY-001`
+7. `AVATAR-IMPORT-001`
 
 ## Why
 
 Foundation reports READY, but the audits agreed the meaning is narrow: owner-only Strategy re-entry is allowed. The system is not old-system parity, not broad multi-user ready, and not public-access ready.
 
 The main drift pattern is process proof over product behavior.
+
+Steve also corrected the verification workflow: automatic proof should not mean running the full Foundation verifier after every small bounded change. Proportional verification goes first so the rest of this sprint can move without weakening the full gate for high-risk changes.
 
 ## Acceptance Criteria
 
@@ -35,7 +38,7 @@ The main drift pattern is process proof over product behavior.
 ## Definition Of Done
 
 - Backlog cards exist for the sprint and old-system parity gaps.
-- Current Sprint points at `REBUILD-PLAN-RECONCILE-001`.
+- Current Sprint shows `VERIFY-GATE-TIERING-001` as done this sprint and points the active blocker/next card at `REBUILD-PLAN-RECONCILE-001`.
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is captured so active sprint command truth can move out of hardcoded JS seed strings.
 - Old `Done This Sprint` and `Returned` rows are not carried into the new sprint overlay.
 - Current plan/state describe the same order.

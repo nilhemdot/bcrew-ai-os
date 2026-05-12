@@ -329,30 +329,34 @@ Consensus risk:
 - the substrate is real
 - too much proof is process/doc/verifier-marker proof
 - too little proof is product behavior
+- verification has been all-or-nothing instead of proportional to blast radius
 - old-system rebuild targets are still too easy to lose in research or chat
 
 Current sprint goal:
 
-`Convert Foundation READY from process proof into behavior proof, then ship one owner-only Strategy operator loop.`
+`Make Foundation verification proportional, then convert Foundation READY from process proof into behavior proof and ship one owner-only Strategy operator loop.`
 
 Order:
 
-1. `REBUILD-PLAN-RECONCILE-001` — scoped / P0.
+1. `VERIFY-GATE-TIERING-001` — done this sprint / P0.
+   - Add proportional verification tiers so small Foundation/doc/current-sprint/process changes use focused automatic proof instead of the full ship gate every time.
+   - Full-risk paths still require `process:foundation-ship` or an explicit card/reason bypass.
+2. `REBUILD-PLAN-RECONCILE-001` — scoped / P0.
    - Align current plan, current state, Current Sprint, live backlog, readiness wording, and old-system capability coverage.
    - Meeting Vault historical cleanup stays a later legacy-exception sprint.
    - Foundation READY must be worded as owner-only Strategy re-entry, not old-system parity.
-2. `PLAN-CRITIC-REPLACEMENT-001` — scoped / P0.
+3. `PLAN-CRITIC-REPLACEMENT-001` — scoped / P0.
    - Rebuild the old Plan Critic pressure before the verifier behavior cleanup can close.
    - Plans must prove behavioral acceptance criteria, not only source/doc markers.
-3. `SECURITY-BEHAVIOR-PROOF-001` — scoped / P0.
+4. `SECURITY-BEHAVIOR-PROOF-001` — scoped / P0.
    - Prove live route behavior for owner, ops, sales, unknown user, admin-token/system, and subject-person leak cases.
    - `assertTier` is wired through route authorization; the gap is black-box behavior proof and real filtered-access confidence.
-4. `VERIFIER-BEHAVIOR-SWEEP-001` — scoped / P0.
+5. `VERIFIER-BEHAVIOR-SWEEP-001` — scoped / P0.
    - Convert the top 10-15 P0 checks from substring/statusNote proof to real function/API/process proof where feasible.
-5. `STRATEGY-HUB-MEETING-READY-001` — scoped / P1.
+6. `STRATEGY-HUB-MEETING-READY-001` — scoped / P1.
    - Build one owner-only Strategy meeting workflow that consumes source-backed facts, retrieval, synthesis, and Action Router records.
    - This is the product proof that Foundation can support an operator, not just pass its own gates.
-6. `AVATAR-IMPORT-001` — scoped / P1.
+7. `AVATAR-IMPORT-001` — scoped / P1.
    - Import the old 10 RETAIN and 5 ATTRACT avatars into governed new-system truth.
    - This is the cheap old-system carry-forward that unlocks future Marketing without restarting Marketing production.
 
