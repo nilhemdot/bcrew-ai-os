@@ -515,6 +515,16 @@ import {
   buildSyntheticTierBehavioralCompletionProof,
 } from '../lib/tier-behavioral-completion.js'
 import {
+  VERIFICATION_RUNS_APPROVAL_PATH,
+  VERIFICATION_RUNS_CARD_ID,
+  VERIFICATION_RUNS_CLOSEOUT_KEY,
+  VERIFICATION_RUNS_NEXT_CARD_ID,
+  VERIFICATION_RUNS_PLAN_PATH,
+  VERIFICATION_RUNS_SCRIPT_PATH,
+  VERIFICATION_RUNS_SUMMARY_MARKER,
+  buildSyntheticVerificationRunsProof,
+} from '../lib/verification-runs.js'
+import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
   buildSyntheticStaleSkillSource,
@@ -1403,6 +1413,11 @@ async function main() {
   const tierBehavioralCompletionPlanSource = await readRepoFile(TIER_BEHAVIORAL_COMPLETION_PLAN_PATH)
   const tierBehavioralCompletionApprovalSource = await readRepoFile(TIER_BEHAVIORAL_COMPLETION_APPROVAL_PATH)
   const tierBehavioralCompletionApproval = JSON.parse(tierBehavioralCompletionApprovalSource)
+  const verificationRunsSource = await readRepoFile('lib/verification-runs.js')
+  const verificationRunsScriptSource = await readRepoFile(VERIFICATION_RUNS_SCRIPT_PATH)
+  const verificationRunsPlanSource = await readRepoFile(VERIFICATION_RUNS_PLAN_PATH)
+  const verificationRunsApprovalSource = await readRepoFile(VERIFICATION_RUNS_APPROVAL_PATH)
+  const verificationRunsApproval = JSON.parse(verificationRunsApprovalSource)
   const marketmastersStrategySource = await readRepoFile('docs/strategy/marketmasters.md')
   const strategicExecutionHtmlSource = await readRepoFile('public/strategic-execution.html')
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
@@ -1751,6 +1766,11 @@ async function main() {
     repoRoot,
     approvalRef: TIER_BEHAVIORAL_COMPLETION_APPROVAL_PATH,
     cardId: TIER_BEHAVIORAL_COMPLETION_CARD_ID,
+  })
+  const verificationRunsApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: VERIFICATION_RUNS_APPROVAL_PATH,
+    cardId: VERIFICATION_RUNS_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2970,6 +2990,7 @@ async function main() {
   const foundationMarketingSourceMap = await fetchJson(baseUrl, '/api/foundation/marketing-source-map')
   const foundationBrandStack = await fetchJson(baseUrl, '/api/foundation/brand-stack')
   const foundationTierBehavioralCompletion = await fetchJson(baseUrl, '/api/foundation/tier-behavioral-completion')
+  const foundationVerificationRuns = await fetchJson(baseUrl, '/api/foundation/verification-runs')
   const foundationChangesApi = await fetchJson(baseUrl, '/api/foundation/changes?limit=20')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
@@ -3210,6 +3231,7 @@ async function main() {
   const marketingSourceMapSynthetic = buildSyntheticMarketingSourceMapProof()
   const brandStackSynthetic = buildSyntheticBrandStackProof()
   const tierBehavioralCompletionSynthetic = buildSyntheticTierBehavioralCompletionProof()
+  const verificationRunsSynthetic = buildSyntheticVerificationRunsProof()
   const avatarImportSnapshot = buildMarketingAvatarImportSnapshot({
     referenceBriefText: avatarReferenceBriefSource,
     retainProfilesText: avatarRetainSource,
@@ -4333,6 +4355,22 @@ async function main() {
           'PER-USER-CHANGELOG-001',
           'DECISION-RESTRICTED-QUEUE-001',
           'FOUNDATION-UI-COMPLETE-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogVerificationRunsBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(VERIFICATION_RUNS_CARD_ID) &&
+      build.closeoutKey === VERIFICATION_RUNS_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(VERIFICATION_RUNS_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: VERIFICATION_RUNS_CLOSEOUT_KEY,
+        backlogIds: [VERIFICATION_RUNS_CARD_ID],
+        mentionedBacklogIds: [
+          VERIFICATION_RUNS_NEXT_CARD_ID,
+          'DECISION-RESTRICTED-QUEUE-001',
+          'FOUNDATION-UI-COMPLETE-001',
+          'REPLY-WATCHING-LOOP-001',
         ],
         operatorCloseout: true,
       }
@@ -5629,7 +5667,8 @@ async function main() {
   const marketingSourceMap = (foundationHub.backlogItems || []).find(item => item.id === MARKETING_SOURCE_MAP_CARD_ID) || null
   const brandStack = (foundationHub.backlogItems || []).find(item => item.id === BRAND_STACK_CARD_ID) || null
   const tierBehavioralCompletion = (foundationHub.backlogItems || []).find(item => item.id === TIER_BEHAVIORAL_COMPLETION_CARD_ID) || null
-  const verificationRuns = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFICATION-RUNS-001') || null
+  const verificationRuns = (foundationHub.backlogItems || []).find(item => item.id === VERIFICATION_RUNS_CARD_ID) || null
+  const perUserChangelog = (foundationHub.backlogItems || []).find(item => item.id === VERIFICATION_RUNS_NEXT_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -5832,6 +5871,28 @@ async function main() {
       'package.json',
     ],
     declaredRisk: tierBehavioralCompletionPlanSource,
+  })
+  const verificationRunsPlanReview = evaluatePlanCriticPlan({
+    planText: verificationRunsPlanSource,
+    card: verificationRuns || { id: VERIFICATION_RUNS_CARD_ID, priority: 'P1' },
+    changedFiles: [
+      VERIFICATION_RUNS_PLAN_PATH,
+      VERIFICATION_RUNS_APPROVAL_PATH,
+      'lib/verification-runs.js',
+      VERIFICATION_RUNS_SCRIPT_PATH,
+      'server.js',
+      'public/foundation.js',
+      'public/styles.css',
+      'lib/foundation-current-sprint.js',
+      'lib/foundation-jobs.js',
+      'lib/security-access.js',
+      'lib/foundation-build-log.js',
+      'scripts/foundation-verify.mjs',
+      'docs/rebuild/current-plan.md',
+      'docs/rebuild/current-state.md',
+      'package.json',
+    ],
+    declaredRisk: verificationRunsPlanSource,
   })
   const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
     meetingVaultAcl?.lane === 'done' &&
@@ -8342,6 +8403,20 @@ async function main() {
       'DECISION-RESTRICTED-QUEUE-001',
       'FOUNDATION-UI-COMPLETE-001',
     ].every(id => !(buildLogTierBehavioralCompletionBuild.backlogIds || []).includes(id))
+  const verificationRunsBuildLogExact = buildLogVerificationRunsBuild?.backlogIds?.length === 1 &&
+    buildLogVerificationRunsBuild.backlogIds.includes(VERIFICATION_RUNS_CARD_ID) &&
+    [
+      VERIFICATION_RUNS_NEXT_CARD_ID,
+      'DECISION-RESTRICTED-QUEUE-001',
+      'FOUNDATION-UI-COMPLETE-001',
+      'REPLY-WATCHING-LOOP-001',
+    ].every(id => (buildLogVerificationRunsBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      VERIFICATION_RUNS_NEXT_CARD_ID,
+      'DECISION-RESTRICTED-QUEUE-001',
+      'FOUNDATION-UI-COMPLETE-001',
+      'REPLY-WATCHING-LOOP-001',
+    ].every(id => !(buildLogVerificationRunsBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -8472,6 +8547,7 @@ async function main() {
         BRAND_STACK_CARD_ID,
         TIER_BEHAVIORAL_COMPLETION_CARD_ID,
         'VERIFICATION-RUNS-001',
+        VERIFICATION_RUNS_NEXT_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFY_GATE_TIERING_CARD_ID) &&
       currentPlan.includes('proportional verification') &&
@@ -8525,6 +8601,7 @@ async function main() {
         BRAND_STACK_CARD_ID,
         TIER_BEHAVIORAL_COMPLETION_CARD_ID,
         'VERIFICATION-RUNS-001',
+        VERIFICATION_RUNS_NEXT_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
       currentPlan.includes('not automatically active') &&
@@ -8604,6 +8681,7 @@ async function main() {
         BRAND_STACK_CARD_ID,
         TIER_BEHAVIORAL_COMPLETION_CARD_ID,
         'VERIFICATION-RUNS-001',
+        VERIFICATION_RUNS_NEXT_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
       currentPlan.includes('gate decision tree') &&
@@ -8661,7 +8739,7 @@ async function main() {
       securityBehaviorProofBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
       currentPlan.includes('route-boundary') &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
@@ -8717,7 +8795,7 @@ async function main() {
       verifierBehaviorSweepBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
       currentPlan.includes('top-P0 behavior registry') &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
@@ -8793,7 +8871,7 @@ async function main() {
       strategyHubMeetingReadyBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       ['scoped', 'done'].includes(avatarImport?.lane) &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
       currentPlan.includes('owner-only Strategy meeting packet') &&
@@ -8865,7 +8943,7 @@ async function main() {
       avatarImportBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(AVATAR_IMPORT_CLOSEOUT_KEY) &&
       currentPlan.includes('10 RETAIN and 5 ATTRACT avatars') &&
       currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CARD_ID) &&
@@ -8931,7 +9009,7 @@ async function main() {
       autoDeployRollbackBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY) &&
       currentPlan.includes('previous SHA') &&
       currentPlan.includes('REPLY-WATCHING-LOOP-001') &&
@@ -9005,7 +9083,7 @@ async function main() {
       sourceMaturityGridBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY) &&
       currentPlan.includes('Foundation Source Once-Over') &&
       currentPlan.includes(SOURCE_EXTRACTION_COVERAGE_CARD_ID) &&
@@ -9015,7 +9093,8 @@ async function main() {
         currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
         currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`')) &&
+        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
+        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`')) &&
       currentState.includes('seven-stage source maturity grid') &&
       foundationVerifySource.includes('buildSyntheticSourceMaturityGridProof'),
     'SOURCE-MATURITY-GRID-001 exposes source depth and advances the Source Once-Over sprint',
@@ -9093,7 +9172,7 @@ async function main() {
       sourceExtractionCoverageBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY) &&
       currentPlan.includes(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) &&
       currentState.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY) &&
@@ -9101,7 +9180,8 @@ async function main() {
         currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
         currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`')) &&
+        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
+        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`')) &&
       currentState.includes('source-level extraction coverage') &&
       foundationVerifySource.includes('buildSyntheticSourceExtractionCoverageProof'),
     'SOURCE-EXTRACTION-COVERAGE-001 exposes source-level extraction coverage and advances the Source Once-Over sprint',
@@ -9184,14 +9264,15 @@ async function main() {
       sourceCoverageCloseoutBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) &&
       currentPlan.includes(MARKETING_SOURCE_MAP_CARD_ID) &&
       currentState.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) &&
       (currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
         currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`')) &&
+        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
+        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`')) &&
       currentState.includes('source coverage closeout') &&
       foundationVerifySource.includes('buildSyntheticSourceCoverageCloseoutProof'),
     'SOURCE-COVERAGE-CLOSEOUT-001 routes source gaps and advances the Source Once-Over sprint',
@@ -9271,13 +9352,14 @@ async function main() {
       marketingSourceMapBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY) &&
       currentPlan.includes(BRAND_STACK_CARD_ID) &&
       currentState.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY) &&
       (currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`')) &&
+        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
+        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`')) &&
       currentState.includes('marketing source map') &&
       foundationVerifySource.includes('buildSyntheticMarketingSourceMapProof'),
     'MARKETING-SOURCE-MAP-001 maps avatars and marketing sources to brand lanes and advances the Source Once-Over sprint',
@@ -9354,12 +9436,13 @@ async function main() {
       brandStackBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001'].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [TIER_BEHAVIORAL_COMPLETION_CARD_ID, VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(BRAND_STACK_CLOSEOUT_KEY) &&
       currentPlan.includes(TIER_BEHAVIORAL_COMPLETION_CARD_ID) &&
       currentState.includes(BRAND_STACK_CLOSEOUT_KEY) &&
       (currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`')) &&
+        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
+        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`')) &&
       currentState.includes('brand stack') &&
       foundationVerifySource.includes('buildSyntheticBrandStackProof'),
     'BRAND-STACK-001 models brand entities and Guardian boundaries and advances the Source Once-Over sprint',
@@ -9439,15 +9522,95 @@ async function main() {
       tierBehavioralCompletionBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === 'VERIFICATION-RUNS-001' &&
+      [VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY) &&
-      currentPlan.includes('VERIFICATION-RUNS-001') &&
+      currentPlan.includes(VERIFICATION_RUNS_CARD_ID) &&
       currentState.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') &&
+      (currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
+        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`')) &&
       currentState.includes('first non-owner read') &&
       foundationVerifySource.includes('buildSyntheticTierBehavioralCompletionProof'),
     'TIER-BEHAVIORAL-COMPLETION-001 proves first non-owner read decisions and advances the Source Once-Over sprint',
     `lane=${tierBehavioralCompletion?.lane || 'missing'} approval=${tierBehavioralCompletionApprovalValidation.ok} surfaces=${foundationTierBehavioralCompletion.summary?.surfaceCount || 0} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    verificationRuns?.lane === 'done' &&
+      String(verificationRuns?.statusNote || '').includes(VERIFICATION_RUNS_CLOSEOUT_KEY) &&
+      ['scoped', 'done'].includes(perUserChangelog?.lane) &&
+      packageJson.scripts?.['process:verification-runs-check'] === `node --env-file-if-exists=.env ${VERIFICATION_RUNS_SCRIPT_PATH}` &&
+      verificationRunsApprovalValidation.ok &&
+      verificationRunsApprovalValidation.mode === 'v2' &&
+      verificationRunsApproval.cardId === VERIFICATION_RUNS_CARD_ID &&
+      Number(verificationRunsApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      verificationRunsApproval.approvedPlanRef === VERIFICATION_RUNS_PLAN_PATH &&
+      verificationRunsPlanReview.status === 'pass' &&
+      verificationRunsPlanReview.score >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      verificationRunsSynthetic.ok &&
+      ['healthy', 'review_due'].includes(foundationVerificationRuns.status) &&
+      foundationVerificationRuns.summary?.proposedOnly === true &&
+      foundationVerificationRuns.summary?.autoExpiredCount === 0 &&
+      foundationVerificationRuns.summary?.nextCardId === VERIFICATION_RUNS_NEXT_CARD_ID &&
+      typeof foundationVerificationRuns.summary?.candidateCount === 'number' &&
+      foundationVerificationRuns.thresholds?.staleFindingDays >= 7 &&
+      foundationSourceLifecycle.verificationRuns?.closeoutKey === VERIFICATION_RUNS_CLOSEOUT_KEY &&
+      foundationHub.verificationRuns?.closeoutKey === VERIFICATION_RUNS_CLOSEOUT_KEY &&
+      foundationHub.sourceLifecycle?.verificationRuns?.closeoutKey === VERIFICATION_RUNS_CLOSEOUT_KEY &&
+      includesAll(verificationRunsSource, [
+        'buildVerificationRunsSnapshot',
+        'buildSyntheticVerificationRunsProof',
+        VERIFICATION_RUNS_CLOSEOUT_KEY,
+        'proposedOnly',
+        'autoExpiredCount',
+      ]) &&
+      includesAll(verificationRunsScriptSource, [
+        VERIFICATION_RUNS_SUMMARY_MARKER,
+        'synthetic verification runs proof detects stale-only candidates',
+        'Current Sprint active blocker advanced to per-user changelog',
+      ]) &&
+      includesAll(verificationRunsPlanSource, [
+        VERIFICATION_RUNS_CLOSEOUT_KEY,
+        'proposed-only',
+        VERIFICATION_RUNS_NEXT_CARD_ID,
+      ]) &&
+      includesAll(serverSource, [
+        '/api/foundation/verification-runs',
+        'buildVerificationRunsSnapshot',
+        'verificationRuns',
+      ]) &&
+      includesAll(foundationUiSource, [
+        'renderVerificationRunsPanel',
+        'verificationRuns',
+        'verification-runs',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.verification-runs-panel',
+        '.verification-runs-grid',
+      ]) &&
+      includesAll(foundationJobsSource, [
+        "key: 'verification-runs'",
+        'process:verification-runs-check',
+        'daily stale research/finding review',
+      ]) &&
+      securityAccessSource.includes('/api/foundation/verification-runs') &&
+      includesAll(foundationCurrentSprintSource, [
+        'verificationRunsStage',
+        'VERIFICATION_RUNS_CLOSEOUT_KEY',
+        VERIFICATION_RUNS_NEXT_CARD_ID,
+      ]) &&
+      buildLogVerificationRunsBuild?.operatorCloseout === true &&
+      verificationRunsBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === VERIFICATION_RUNS_NEXT_CARD_ID &&
+      currentPlan.includes(VERIFICATION_RUNS_CLOSEOUT_KEY) &&
+      currentPlan.includes(VERIFICATION_RUNS_NEXT_CARD_ID) &&
+      currentState.includes(VERIFICATION_RUNS_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') &&
+      currentState.includes('proposed-only') &&
+      foundationVerifySource.includes('buildSyntheticVerificationRunsProof'),
+    'VERIFICATION-RUNS-001 restores stale research/finding review and advances the Source Once-Over sprint',
+    `lane=${verificationRuns?.lane || 'missing'} approval=${verificationRunsApprovalValidation.ok} candidates=${foundationVerificationRuns.summary?.candidateCount ?? 'missing'} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,

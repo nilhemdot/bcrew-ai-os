@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFICATION-RUNS-001",
+  "approvedBy": "Codex interim reviewer per Steve walk-away approval",
+  "approvedAt": "2026-05-12T16:46:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verification-runs-001-plan.md",
+  "approvedPlanSha256": "f815b6fff53669b6a0cf79f04bf9df79d07048de8604a68aa4873e87e168ffeb",
+  "approvedRepoHead": "20fafba215e4f0721931e025c87cc443c8d4da89",
+  "notes": "Approved for bounded Verification Runs V1 only: build read-only stale research/finding/action-route/backlog-hygiene detection, expose API/UI/focused proof/current sprint advancement, schedule the report, and keep auto-close, route mutation, Reply/Watching Loop, per-user changelog, restricted decision queue, Strategy expansion, Marketing Pipeline, Telegram bots, Directors, and Drive ACL mutation out of scope.",
+  "approvalDigest": "1694b39841dd81f9dc4d5848e1a7c935e84f4866e0cffa9edde4a4d20298f5f9"
+}

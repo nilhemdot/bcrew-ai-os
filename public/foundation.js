@@ -11239,6 +11239,97 @@ function renderTierBehavioralCompletionPanel(proof) {
   return panel
 }
 
+function renderVerificationRunsPanel(run) {
+  if (!run || !run.summary) return null
+  var candidates = Array.isArray(run.topCandidates) ? run.topCandidates : []
+  var summary = run.summary || {}
+  var panel = document.createElement('section')
+  panel.className = 'panel verification-runs-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'verification-runs')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Verification Runs'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Stale research and finding review'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = (summary.candidateCount || 0) + ' review candidates: '
+    + (summary.staleResearchCount || 0) + ' research, '
+    + (summary.staleSynthesisCount || 0) + ' synthesized findings, '
+    + (summary.staleActionRouteCount || 0) + ' action routes, '
+    + (summary.backlogHygieneCandidateCount || 0) + ' backlog hygiene. '
+    + 'Proposed-only: ' + (summary.proposedOnly ? 'yes' : 'no') + '.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag(run.status || 'unknown', run.status === 'healthy' ? 'connected' : 'pending'))
+  right.appendChild(renderSourceTag((summary.riskCandidateCount || 0) + ' risk', summary.riskCandidateCount ? 'missing' : 'connected'))
+  right.appendChild(renderSourceTag((summary.autoExpiredCount || 0) + ' auto-expired', summary.autoExpiredCount ? 'missing' : 'connected'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-meta-grid'
+  meta.appendChild(renderSourceMetaItem('Finding threshold', String((run.thresholds || {}).staleFindingDays || 0) + 'd'))
+  meta.appendChild(renderSourceMetaItem('Research threshold', String((run.thresholds || {}).researchReviewDays || 0) + 'd'))
+  meta.appendChild(renderSourceMetaItem('Route threshold', String((run.thresholds || {}).actionRouteDays || 0) + 'd'))
+  meta.appendChild(renderSourceMetaItem('Next card', summary.nextCardId || 'unknown'))
+  panel.appendChild(meta)
+
+  var grid = document.createElement('div')
+  grid.className = 'verification-runs-grid'
+  candidates.slice(0, 12).forEach(function(candidate) {
+    var article = document.createElement('article')
+    article.className = 'verification-runs-card'
+    article.setAttribute('data-verification-candidate-id', candidate.id)
+
+    var top = document.createElement('div')
+    top.className = 'source-lifecycle-card-top'
+    var name = document.createElement('h4')
+    name.textContent = candidate.label || candidate.sourceId || candidate.id
+    top.appendChild(name)
+    top.appendChild(renderSourceTag(candidate.sourceType || 'candidate', candidate.severity === 'risk' ? 'missing' : 'pending'))
+    article.appendChild(top)
+
+    var reason = document.createElement('p')
+    reason.textContent = candidate.reason || 'Review this candidate.'
+    article.appendChild(reason)
+
+    var cardMeta = document.createElement('div')
+    cardMeta.className = 'source-card-meta-grid'
+    cardMeta.appendChild(renderSourceMetaItem('Owner', candidate.owner || 'unknown'))
+    cardMeta.appendChild(renderSourceMetaItem('Age', candidate.ageDays === null || candidate.ageDays === undefined ? 'unknown' : String(candidate.ageDays) + 'd'))
+    cardMeta.appendChild(renderSourceMetaItem('Status', candidate.status || 'unknown'))
+    cardMeta.appendChild(renderSourceMetaItem('Action', candidate.proposedAction || 'review'))
+    article.appendChild(cardMeta)
+
+    grid.appendChild(article)
+  })
+
+  if (!candidates.length) {
+    var empty = document.createElement('p')
+    empty.className = 'section-intro'
+    empty.textContent = 'No stale verification candidates are currently visible.'
+    grid.appendChild(empty)
+  }
+
+  panel.appendChild(grid)
+
+  if ((run.boundary || []).length) {
+    panel.appendChild(renderSourceBulletGroup('Boundaries', run.boundary))
+  }
+
+  return panel
+}
+
 function renderSourceLifecycleDefinitions(definitions) {
   var panel = document.createElement('section')
   panel.className = 'panel'
@@ -14007,6 +14098,8 @@ function renderSourceLifecycle() {
     if (brandStack) container.appendChild(brandStack)
     var tierBehavioralCompletion = renderTierBehavioralCompletionPanel(lifecycle.tierBehavioralCompletion)
     if (tierBehavioralCompletion) container.appendChild(tierBehavioralCompletion)
+    var verificationRuns = renderVerificationRunsPanel(lifecycle.verificationRuns)
+    if (verificationRuns) container.appendChild(verificationRuns)
     container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
     container.appendChild(renderSourceLifecycleLanes(lifecycle))
     container.appendChild(renderSourceLifecycleTargets(lifecycle))

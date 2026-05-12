@@ -169,6 +169,9 @@ import {
 import {
   buildTierBehavioralCompletionSnapshot,
 } from './lib/tier-behavioral-completion.js'
+import {
+  buildVerificationRunsSnapshot,
+} from './lib/verification-runs.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -3849,6 +3852,20 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       marketingSourceMap: sourceLifecycle.marketingSourceMap,
     })
     sourceLifecycle.tierBehavioralCompletion = buildTierBehavioralCompletionSnapshot()
+    const backlogHygiene = buildBacklogHygieneSnapshot({
+      backlogItems: foundationSnapshot.backlogItems || [],
+      closeouts: getFoundationBuildCloseouts(),
+    })
+    const researchCuration = buildResearchCurationStatus({
+      backlogItems: foundationSnapshot.backlogItems || [],
+    })
+    sourceLifecycle.verificationRuns = buildVerificationRunsSnapshot({
+      backlogItems: foundationSnapshot.backlogItems || [],
+      researchCuration,
+      intelligenceSynthesis: foundationSnapshot.intelligenceSynthesis || {},
+      intelligenceActionRouter: foundationSnapshot.intelligenceActionRouter || {},
+      backlogHygiene,
+    })
     cacheHeadersNoStore(res)
     res.json(sourceLifecycle)
   } catch (error) {
@@ -3938,6 +3955,39 @@ app.get('/api/foundation/tier-behavioral-completion', requireAdminToken, async (
       500,
       'foundation_tier_behavioral_completion_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation tier behavior proof.'
+    )
+  }
+})
+
+app.get('/api/foundation/verification-runs', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const backlogHygiene = buildBacklogHygieneSnapshot({
+      backlogItems: snapshot.backlogItems || [],
+      closeouts: getFoundationBuildCloseouts(),
+    })
+    const researchCuration = buildResearchCurationStatus({
+      backlogItems: snapshot.backlogItems || [],
+    })
+    const verificationRuns = buildVerificationRunsSnapshot({
+      backlogItems: snapshot.backlogItems || [],
+      researchCuration,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis || {},
+      intelligenceActionRouter: snapshot.intelligenceActionRouter || {},
+      backlogHygiene,
+    })
+    cacheHeadersNoStore(res)
+    res.json(verificationRuns)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_verification_runs_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation verification runs.'
     )
   }
 })
@@ -4842,9 +4892,17 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
     })
     const brandStack = buildBrandStackSnapshot({ marketingSourceMap })
     const tierBehavioralCompletion = buildTierBehavioralCompletionSnapshot()
+    const verificationRuns = buildVerificationRunsSnapshot({
+      backlogItems: snapshot.backlogItems || [],
+      researchCuration,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis || {},
+      intelligenceActionRouter: snapshot.intelligenceActionRouter || {},
+      backlogHygiene,
+    })
     sourceLifecycle.marketingSourceMap = marketingSourceMap
     sourceLifecycle.brandStack = brandStack
     sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
+    sourceLifecycle.verificationRuns = verificationRuns
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4876,6 +4934,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       marketingSourceMap,
       brandStack,
       tierBehavioralCompletion,
+      verificationRuns,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),

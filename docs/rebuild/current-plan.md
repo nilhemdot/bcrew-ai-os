@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-12
-Version: v6.29 — Foundation Source Once-Over sprint
+Version: v6.30 — Foundation Source Once-Over sprint
 Status: Active
 
 Use this doc for one question:
@@ -87,8 +87,8 @@ Sprint order:
 4. `MARKETING-SOURCE-MAP-001` — done under `marketing-source-map-v1`; imported avatars and marketing source contracts are now mapped to Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained lanes without building marketing production.
 5. `BRAND-STACK-001` — done under `brand-stack-v1`; Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained are modeled as Foundation brand entities with Brand Guardian boundaries, without enforcement or production.
 6. `TIER-BEHAVIORAL-COMPLETION-001` — done under `tier-behavioral-completion-v1`; fourteen first-read surfaces now have explicit route behavior decisions: Ops/Sales reads are role-filtered, Foundation/source/brand/shared-comms/Strategy/evidence reads stay owner-only.
-7. `VERIFICATION-RUNS-001` — next active blocker; add stale-finding/research refresh/expiry behavior so research does not become a graveyard.
-8. `PER-USER-CHANGELOG-001` — scope/build the write_audit_log equivalent from Foundation change history.
+7. `VERIFICATION-RUNS-001` — done under `verification-runs-v1`; Foundation now exposes proposed-only stale research/finding/action-route/backlog-hygiene verification runs with zero auto-expiry.
+8. `PER-USER-CHANGELOG-001` — next active blocker; scope/build the write_audit_log equivalent from Foundation change history.
 9. `DECISION-RESTRICTED-QUEUE-001` — scope/build restricted decision auto-flag and sequestering.
 10. `FOUNDATION-UI-COMPLETE-001` — final UI once-over so the Foundation page makes source maturity, extraction, marketing source, tier/audit, stale-verification, and restricted-decision gaps visible without another audit.
 
@@ -132,6 +132,7 @@ Built and useful now:
 - Marketing source map v1 under `marketing-source-map-v1`: imported avatars and registered marketing source contracts are mapped to brand lanes so future Strategy/Marketing work does not blend Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained.
 - Brand stack v1 under `brand-stack-v1`: the five brand entities now carry source/avatar links plus audience, offer, tone, approval, and Brand Guardian boundary rules; Brand Guardian enforcement and marketing production remain unbuilt.
 - Tier behavior completion v1 under `tier-behavioral-completion-v1`: fourteen first-read surfaces now have explicit behavior decisions; Ops/Sales reads are role-filtered, and Foundation/source/brand/shared-comms/Strategy/evidence reads remain owner-only until separate filtered-access cards exist.
+- Verification runs v1 under `verification-runs-v1`: stale research cards, synthesized findings, pending/approved action routes, and backlog hygiene findings are visible as proposed-only review candidates; auto-expiry and writeback remain separate future work.
 
 Still not done:
 
