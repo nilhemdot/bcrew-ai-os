@@ -131,6 +131,8 @@ async function main() {
   const sprintOrder = (sprint.items || []).map(item => item.cardId)
   const sprintStageMap = new Map((sprint.items || []).map(item => [item.cardId, item.stage]))
   const criticCard = cardMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID)
+  const securityCard = cardMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID)
+  const securityClosed = securityCard?.lane === 'done' && sprintStageMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID) === 'done_this_sprint'
   const selfReview = evaluatePlanCriticPlan({
     planText,
     card: criticCard || { id: PLAN_CRITIC_REPLACEMENT_CARD_ID, priority: 'P0' },
@@ -151,9 +153,20 @@ async function main() {
   addFinding(findings, selfReview.status === 'pass' && selfReview.score >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic dogfoods its own approved plan', buildPlanCriticResultSummary(selfReview))
   addFinding(findings, synthetic.ok, 'synthetic strong/weak/broad plan proof passes', synthetic.ok ? '' : JSON.stringify(synthetic, null, 2).slice(0, 1000))
   addFinding(findings, criticCard?.lane === 'done' && String(criticCard?.statusNote || '').includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY), 'PLAN-CRITIC-REPLACEMENT-001 is done with closeout proof', criticCard?.lane || 'missing')
-  addFinding(findings, cardMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID)?.lane === 'scoped', 'SECURITY-BEHAVIOR-PROOF-001 remains scoped as next card', cardMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID)?.lane || 'missing')
+  addFinding(
+    findings,
+    securityCard?.lane === 'scoped' || securityClosed,
+    'SECURITY-BEHAVIOR-PROOF-001 remains next or done this sprint',
+    `${securityCard?.lane || 'missing'} / ${sprintStageMap.get(SECURITY_BEHAVIOR_PROOF_CARD_ID) || 'missing'}`,
+  )
   addFinding(findings, REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id), 'Current Sprint order remains audit reset order', sprintOrder.join(' -> '))
-  addFinding(findings, sprint.sprint?.activeBlockerCardId === SECURITY_BEHAVIOR_PROOF_CARD_ID, 'Current Sprint active blocker advanced to security behavior proof', sprint.sprint?.activeBlockerCardId || 'missing')
+  addFinding(
+    findings,
+    sprint.sprint?.activeBlockerCardId === SECURITY_BEHAVIOR_PROOF_CARD_ID ||
+      (securityClosed && sprint.sprint?.activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID),
+    'Current Sprint active blocker advanced through security behavior proof',
+    sprint.sprint?.activeBlockerCardId || 'missing',
+  )
   addFinding(findings, sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) === 'done_this_sprint', 'Plan Critic moved to Done This Sprint', sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) || 'missing')
   addFinding(findings, includesAll(decisionTreeText, [
     'docs-only',
@@ -180,7 +193,7 @@ async function main() {
   ]), 'Plan Critic proof script checks dogfood and sprint advancement')
   addFinding(findings, includesAll(currentSprintText, [
     PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
-    'activeBlockerCardId: SECURITY_BEHAVIOR_PROOF_CARD_ID',
+    'SECURITY_BEHAVIOR_PROOF_CARD_ID',
     'process:plan-critic-check',
   ]), 'Current Sprint seed records Plan Critic closeout and next blocker')
   addFinding(findings, includesAll(buildLogText, [
@@ -198,8 +211,8 @@ async function main() {
   addFinding(findings, includesAll(currentStateText, [
     PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
     'Plan Critic',
-    'Current sprint active blocker is now `SECURITY-BEHAVIOR-PROOF-001`',
-  ]), 'current state records Plan Critic closeout and active blocker')
+    'SECURITY-BEHAVIOR-PROOF-001',
+  ]), 'current state records Plan Critic closeout and security handoff')
 
   await Promise.all([
     runNodeCheck('lib/process-plan-critic.js'),

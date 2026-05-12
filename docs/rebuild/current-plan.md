@@ -349,9 +349,9 @@ Order:
    - Rebuilds the old Plan Critic pressure before the verifier behavior cleanup can close.
    - Adds the gate decision tree and a 10-point scoring schema that rejects weak plans, substring-only proof, missing rollback/repair path, and missing not-next boundaries.
    - This is a thin pre-build gate, not Agent Factory or a generic reviewer persona.
-4. `SECURITY-BEHAVIOR-PROOF-001` — scoped / P0.
-   - Prove live route behavior for owner, ops, sales, unknown user, admin-token/system, and subject-person leak cases.
-   - `assertTier` is wired through route authorization; the gap is black-box behavior proof and real filtered-access confidence.
+4. `SECURITY-BEHAVIOR-PROOF-001` — done this sprint / P0 under `security-behavior-proof-v1`.
+   - Proves route-boundary behavior for owner, ops, sales, unknown user, admin-token/system, anonymous public, default fail-closed, shared-comms owner-only, Strategy owner-only, and subject-person leak cases.
+   - `assertTier` is wired through route authorization; this closeout proves behavior through actual function paths without opening non-Tier-1 shared-comms access.
 5. `VERIFIER-BEHAVIOR-SWEEP-001` — scoped / P0.
    - Convert the top 10-15 P0 checks from substring/statusNote proof to real function/API/process proof where feasible.
 6. `STRATEGY-HUB-MEETING-READY-001` — scoped / P1.
@@ -973,10 +973,10 @@ Current order:
 
 Guardrail: Agent Feedback production enablement, live reminders, the system registration sweep, `SECURITY-002` auth/tier/redaction v1, `FOUNDATION-SPRINT-CADENCE-001` under `foundation-sprint-cadence-v1`, and `MEETING-VAULT-AUTO-ENFORCEMENT-001` under `meeting-vault-auto-enforcement-v1` are in place. Meeting Vault now closes Foundation readiness through automatic report-only forward-flow proof and a bounded legacy exception queue, not through more historical permission batches. `FOUNDATION-SPRINT-REVIEW-001` is complete in `docs/process/foundation-sprint-review-001.md`; Foundation reports READY only for owner-only Strategy re-entry. Next work is:
 
-1. Pull `SECURITY-BEHAVIOR-PROOF-001` next, using `npm run process:plan-critic-check` before implementation.
-2. Pull `VERIFIER-BEHAVIOR-SWEEP-001` after security behavior proof starts to convert READY from process proof toward behavior proof.
-3. Pull `STRATEGY-HUB-MEETING-READY-001` for one owner-only operator workflow after the proof gates are scoped.
-4. Pull `AVATAR-IMPORT-001` as the cheap old-system data carry-forward after proof gates are stable.
+1. Pull `VERIFIER-BEHAVIOR-SWEEP-001` next to convert READY from process proof toward behavior proof.
+2. Pull `STRATEGY-HUB-MEETING-READY-001` for one owner-only operator workflow after the proof gates are scoped.
+3. Pull `AVATAR-IMPORT-001` as the cheap old-system data carry-forward after proof gates are stable.
+4. Keep `SECURITY-FILTERED-COMMS-ACCESS-001` separate; security behavior proof did not open shared communications to non-Tier-1 users.
 5. Keep historical Meeting Vault cleanup as a later separately approved legacy-exception sprint, not current Foundation readiness work.
 
 ## Active Docs Only

@@ -109,6 +109,7 @@
     "process:verify-gate-tiering-check": "node --env-file-if-exists=.env scripts/process-verify-gate-tiering-check.mjs",
     "process:rebuild-plan-reconcile-check": "node --env-file-if-exists=.env scripts/process-rebuild-plan-reconcile-check.mjs",
     "process:plan-critic-check": "node --env-file-if-exists=.env scripts/process-plan-critic-check.mjs",
+    "process:security-behavior-proof-check": "node --env-file-if-exists=.env scripts/process-security-behavior-proof-check.mjs",
     "process:foundation-verify-health-repair-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-health-repair-check.mjs",
     "process:foundation-followup-card-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-followup-card-capture-check.mjs",
     "process:foundation-systems-service-grouping-check": "node --env-file-if-exists=.env scripts/process-foundation-systems-service-grouping-check.mjs",

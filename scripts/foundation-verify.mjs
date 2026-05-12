@@ -403,6 +403,14 @@ import {
   PLAN_CRITIC_SUMMARY_MARKER,
 } from '../lib/process-plan-critic.js'
 import {
+  buildSyntheticSecurityBehaviorProof,
+  SECURITY_BEHAVIOR_PROOF_APPROVAL_PATH,
+  SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
+  SECURITY_BEHAVIOR_PROOF_PLAN_PATH,
+  SECURITY_BEHAVIOR_PROOF_SCRIPT_PATH,
+  SECURITY_BEHAVIOR_PROOF_SUMMARY_MARKER,
+} from '../lib/security-behavior-proof.js'
+import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
   buildSyntheticStaleSkillSource,
@@ -1229,6 +1237,11 @@ async function main() {
   const planCriticDecisionTreeSource = await readRepoFile(PLAN_CRITIC_DECISION_TREE_PATH)
   const planCriticApprovalSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH)
   const planCriticApproval = JSON.parse(planCriticApprovalSource)
+  const securityBehaviorProofSource = await readRepoFile('lib/security-behavior-proof.js')
+  const securityBehaviorProofScriptSource = await readRepoFile(SECURITY_BEHAVIOR_PROOF_SCRIPT_PATH)
+  const securityBehaviorProofPlanSource = await readRepoFile(SECURITY_BEHAVIOR_PROOF_PLAN_PATH)
+  const securityBehaviorProofApprovalSource = await readRepoFile(SECURITY_BEHAVIOR_PROOF_APPROVAL_PATH)
+  const securityBehaviorProofApproval = JSON.parse(securityBehaviorProofApprovalSource)
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
   const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
   const verifyGateTieringPlanSource = await readRepoFile(VERIFY_GATE_TIERING_PLAN_PATH)
@@ -1520,6 +1533,11 @@ async function main() {
     repoRoot,
     approvalRef: PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH,
     cardId: PLAN_CRITIC_REPLACEMENT_CARD_ID,
+  })
+  const securityBehaviorProofApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: SECURITY_BEHAVIOR_PROOF_APPROVAL_PATH,
+    cardId: SECURITY_BEHAVIOR_PROOF_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2962,6 +2980,7 @@ async function main() {
   })
   const verifyGateTieringSynthetic = buildSyntheticVerifyGateTieringProof()
   const planCriticSynthetic = buildSyntheticPlanCriticProof()
+  const securityBehaviorProofSynthetic = buildSyntheticSecurityBehaviorProof()
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3902,6 +3921,21 @@ async function main() {
           VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
           'STRATEGY-HUB-MEETING-READY-001',
           AVATAR_IMPORT_CARD_ID,
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogSecurityBehaviorProofBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(SECURITY_BEHAVIOR_PROOF_CARD_ID) &&
+      build.closeoutKey === SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
+        backlogIds: [SECURITY_BEHAVIOR_PROOF_CARD_ID],
+        mentionedBacklogIds: [
+          'SECURITY-002',
+          VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+          'SECURITY-FILTERED-COMMS-ACCESS-001',
         ],
         operatorCloseout: true,
       }
@@ -5185,6 +5219,7 @@ async function main() {
   const verifyGateTiering = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_GATE_TIERING_CARD_ID) || null
   const rebuildPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === REBUILD_PLAN_RECONCILE_CARD_ID) || null
   const planCriticReplacement = (foundationHub.backlogItems || []).find(item => item.id === PLAN_CRITIC_REPLACEMENT_CARD_ID) || null
+  const securityBehaviorProof = (foundationHub.backlogItems || []).find(item => item.id === SECURITY_BEHAVIOR_PROOF_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -5199,6 +5234,19 @@ async function main() {
       PLAN_CRITIC_DECISION_TREE_PATH,
       'lib/foundation-current-sprint.js',
       'scripts/foundation-verify.mjs',
+    ],
+  })
+  const securityBehaviorPlanReview = evaluatePlanCriticPlan({
+    planText: securityBehaviorProofPlanSource,
+    card: securityBehaviorProof || { id: SECURITY_BEHAVIOR_PROOF_CARD_ID, priority: 'P0' },
+    changedFiles: [
+      'lib/security-behavior-proof.js',
+      SECURITY_BEHAVIOR_PROOF_SCRIPT_PATH,
+      SECURITY_BEHAVIOR_PROOF_PLAN_PATH,
+      'lib/foundation-current-sprint.js',
+      'lib/foundation-db.js',
+      'scripts/foundation-verify.mjs',
+      'package.json',
     ],
   })
   const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
@@ -7554,6 +7602,18 @@ async function main() {
       'STRATEGY-HUB-MEETING-READY-001',
       AVATAR_IMPORT_CARD_ID,
     ].every(id => !(buildLogPlanCriticReplacementBuild.backlogIds || []).includes(id))
+  const securityBehaviorProofBuildLogExact = buildLogSecurityBehaviorProofBuild?.backlogIds?.length === 1 &&
+    buildLogSecurityBehaviorProofBuild.backlogIds.includes(SECURITY_BEHAVIOR_PROOF_CARD_ID) &&
+    [
+      'SECURITY-002',
+      VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+      'SECURITY-FILTERED-COMMS-ACCESS-001',
+    ].every(id => (buildLogSecurityBehaviorProofBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      'SECURITY-002',
+      VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+      'SECURITY-FILTERED-COMMS-ACCESS-001',
+    ].every(id => !(buildLogSecurityBehaviorProofBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -7663,7 +7723,12 @@ async function main() {
       verifyGateTieringBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === SECURITY_BEHAVIOR_PROOF_CARD_ID &&
+      [
+        SECURITY_BEHAVIOR_PROOF_CARD_ID,
+        VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+        'STRATEGY-HUB-MEETING-READY-001',
+        AVATAR_IMPORT_CARD_ID,
+      ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFY_GATE_TIERING_CARD_ID) &&
       currentPlan.includes('proportional verification') &&
       currentState.includes(VERIFY_GATE_TIERING_CARD_ID) &&
@@ -7703,7 +7768,12 @@ async function main() {
       rebuildPlanReconcileBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === SECURITY_BEHAVIOR_PROOF_CARD_ID &&
+      [
+        SECURITY_BEHAVIOR_PROOF_CARD_ID,
+        VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+        'STRATEGY-HUB-MEETING-READY-001',
+        AVATAR_IMPORT_CARD_ID,
+      ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
       currentPlan.includes('not automatically active') &&
       currentPlan.includes('TELEGRAM-BOTS-REBUILD-001') &&
@@ -7762,21 +7832,85 @@ async function main() {
       ]) &&
       includesAll(foundationCurrentSprintSource, [
         PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
-        'activeBlockerCardId: SECURITY_BEHAVIOR_PROOF_CARD_ID',
+        'SECURITY_BEHAVIOR_PROOF_CARD_ID',
         'process:plan-critic-check',
       ]) &&
       buildLogPlanCriticReplacementBuild?.operatorCloseout === true &&
       planCriticReplacementBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === SECURITY_BEHAVIOR_PROOF_CARD_ID &&
+      [
+        SECURITY_BEHAVIOR_PROOF_CARD_ID,
+        VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+        'STRATEGY-HUB-MEETING-READY-001',
+        AVATAR_IMPORT_CARD_ID,
+      ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
       currentPlan.includes('gate decision tree') &&
       currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CARD_ID) &&
       currentState.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker is now `SECURITY-BEHAVIOR-PROOF-001`'),
+      currentState.includes('SECURITY-BEHAVIOR-PROOF-001'),
     'PLAN-CRITIC-REPLACEMENT-001 adds a fast behavior-not-substring pre-build gate',
     `lane=${planCriticReplacement?.lane || 'missing'} approval=${planCriticApprovalValidation.ok} self=${buildPlanCriticResultSummary(planCriticSelfReview)} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    securityBehaviorProof?.lane === 'done' &&
+      String(securityBehaviorProof?.statusNote || '').includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['process:security-behavior-proof-check'] === `node --env-file-if-exists=.env ${SECURITY_BEHAVIOR_PROOF_SCRIPT_PATH}` &&
+      securityBehaviorProofApprovalValidation.ok &&
+      securityBehaviorProofApprovalValidation.mode === 'v2' &&
+      securityBehaviorProofApproval.cardId === SECURITY_BEHAVIOR_PROOF_CARD_ID &&
+      Number(securityBehaviorProofApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      securityBehaviorProofApproval.approvedPlanRef === SECURITY_BEHAVIOR_PROOF_PLAN_PATH &&
+      securityBehaviorPlanReview.status === 'pass' &&
+      securityBehaviorPlanReview.score >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      securityBehaviorProofSynthetic.ok &&
+      securityBehaviorProofSynthetic.summary.routeCaseCount >= 15 &&
+      securityBehaviorProofSynthetic.summary.coveredActors.includes('tannerSubject') &&
+      securityBehaviorProofSynthetic.subjectPerson.tannerVisibleIds.includes('team-open-operating-note') &&
+      !securityBehaviorProofSynthetic.subjectPerson.tannerVisibleIds.includes('tanner-tier1-comp') &&
+      !securityBehaviorProofSynthetic.subjectPerson.tannerVisibleIds.includes('tanner-performance-concern') &&
+      securityBehaviorProofSynthetic.routeCases.some(item => item.id === 'shared-comms-archive-stays-owner-only-for-ops' && item.ok) &&
+      securityBehaviorProofSynthetic.routeCases.some(item => item.id === 'strategy-v2-stays-owner-only-for-sales' && item.ok) &&
+      securityBehaviorProofSynthetic.routeCases.some(item => item.id === 'sales-cannot-read-unregistered-protected-route' && item.ok) &&
+      includesAll(securityBehaviorProofSource, [
+        'buildSyntheticSecurityBehaviorProof',
+        'buildSubjectPersonLeakProof',
+        'SECURITY_BEHAVIOR_ROUTE_CASES',
+        'tanner.marsh@bensoncrew.ca',
+        'authorizeRouteAccess',
+        'buildRedactedCollectionResponse',
+      ]) &&
+      includesAll(securityBehaviorProofScriptSource, [
+        SECURITY_BEHAVIOR_PROOF_SUMMARY_MARKER,
+        'route and subject-person behavior matrix passes',
+        'Current Sprint active blocker advanced to verifier behavior sweep',
+      ]) &&
+      includesAll(securityBehaviorProofPlanSource, [
+        SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
+        'actual function path',
+        'Tanner',
+        'Substring-only proof is rejected',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
+        'activeBlockerCardId: VERIFIER_BEHAVIOR_SWEEP_CARD_ID',
+        'process:security-behavior-proof-check',
+      ]) &&
+      buildLogSecurityBehaviorProofBuild?.operatorCloseout === true &&
+      securityBehaviorProofBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID &&
+      currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
+      currentPlan.includes('route-boundary') &&
+      currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
+      currentState.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker is now `VERIFIER-BEHAVIOR-SWEEP-001`') &&
+      currentState.includes('subject-person'),
+    'SECURITY-BEHAVIOR-PROOF-001 proves route-boundary access and subject-person redaction behavior',
+    `lane=${securityBehaviorProof?.lane || 'missing'} approval=${securityBehaviorProofApprovalValidation.ok} behavior=${securityBehaviorProofSynthetic.ok} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,

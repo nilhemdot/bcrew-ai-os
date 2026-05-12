@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SECURITY-BEHAVIOR-PROOF-001",
+  "approvedBy": "Codex interim reviewer per Steve build-away approval",
+  "approvedAt": "2026-05-12T03:05:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/security-behavior-proof-001-plan.md",
+  "approvedPlanSha256": "445236f5d3b8e16cb99276c7e68b8f00c39ed36f6ff6e2e9eee59444f30a9054",
+  "approvedRepoHead": "952605afdd5456b9d3ff21a7da4afd10cb9d5114",
+  "notes": "Approved for a focused route-boundary security behavior proof only: prove owner, ops, sales, unknown user, admin-token/system, anonymous public, default fail-closed, shared-comms Tier 1-only, and Tanner subject-person leak behavior through real function paths. No route expansion, no filtered shared-comms access, no Strategy Hub build, no verifier sweep, no Drive mutation, and no Meeting Vault historical cleanup.",
+  "approvalDigest": "35ac6ce4e2049a49c5568dbc7137d1a61f6e75be215cc866ea952de85544cb6c"
+}
