@@ -1,6 +1,6 @@
 # REBUILD-PLAN-RECONCILE-001 Plan
 
-Status: scoped draft from audit consolidation
+Status: done for v1 under `rebuild-plan-reconcile-v1`
 Card: `REBUILD-PLAN-RECONCILE-001`
 Date: 2026-05-12
 
@@ -37,8 +37,8 @@ Steve also corrected the verification workflow: automatic proof should not mean 
 
 ## Definition Of Done
 
-- Backlog cards exist for the sprint and old-system parity gaps.
-- Current Sprint shows `VERIFY-GATE-TIERING-001` as done this sprint and points the active blocker/next card at `REBUILD-PLAN-RECONCILE-001`.
+- Backlog cards exist for the sprint and old-system parity gaps, including Telegram/mobile bots and Directors/Master Director.
+- Current Sprint shows `VERIFY-GATE-TIERING-001` and `REBUILD-PLAN-RECONCILE-001` as done this sprint and points the active blocker/next card at `PLAN-CRITIC-REPLACEMENT-001`.
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is captured so active sprint command truth can move out of hardcoded JS seed strings.
 - Old `Done This Sprint` and `Returned` rows are not carried into the new sprint overlay.
 - Current plan/state describe the same order.
@@ -54,6 +54,5 @@ Steve also corrected the verification workflow: automatic proof should not mean 
 
 ```bash
 npm run backlog:hygiene -- --json
-npm run process:foundation-done-test -- --json
-npm run foundation:verify
+npm run process:rebuild-plan-reconcile-check
 ```

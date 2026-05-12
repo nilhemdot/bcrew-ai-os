@@ -341,7 +341,7 @@ Order:
 1. `VERIFY-GATE-TIERING-001` — done this sprint / P0.
    - Add proportional verification tiers so small Foundation/doc/current-sprint/process changes use focused automatic proof instead of the full ship gate every time.
    - Full-risk paths still require `process:foundation-ship` or an explicit card/reason bypass.
-2. `REBUILD-PLAN-RECONCILE-001` — scoped / P0.
+2. `REBUILD-PLAN-RECONCILE-001` — done this sprint / P0 under `rebuild-plan-reconcile-v1`.
    - Align current plan, current state, Current Sprint, live backlog, readiness wording, and old-system capability coverage.
    - Meeting Vault historical cleanup stays a later legacy-exception sprint.
    - Foundation READY must be worded as owner-only Strategy re-entry, not old-system parity.
@@ -364,7 +364,7 @@ On-board but not automatically active:
 
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` — move active sprint command truth out of hardcoded JS seed strings and into live DB/backlog-backed sprint records.
 - `AUTO-DEPLOY-ROLLBACK-001` — pull into the sprint only if Mac mini reliability or restart failures make it urgent.
-- `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `BRAND-STACK-001`, `MARKETING-PIPELINE-REBUILD-001`, `PER-USER-CHANGELOG-001`, and `VERIFICATION-RUNS-001` — carded now so old-system value is visible, but sequenced after the first Strategy operator loop unless Steve explicitly overrides.
+- `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `BRAND-STACK-001`, `MARKETING-PIPELINE-REBUILD-001`, `PER-USER-CHANGELOG-001`, `VERIFICATION-RUNS-001`, `TELEGRAM-BOTS-REBUILD-001`, and `INTEL-DIRECTORS-REBUILD-001` — carded now so old-system value is visible, but sequenced after the first Strategy operator loop unless Steve explicitly overrides.
 
 Current Sprint rollover rule:
 
@@ -972,10 +972,10 @@ Current order:
 
 Guardrail: Agent Feedback production enablement, live reminders, the system registration sweep, `SECURITY-002` auth/tier/redaction v1, `FOUNDATION-SPRINT-CADENCE-001` under `foundation-sprint-cadence-v1`, and `MEETING-VAULT-AUTO-ENFORCEMENT-001` under `meeting-vault-auto-enforcement-v1` are in place. Meeting Vault now closes Foundation readiness through automatic report-only forward-flow proof and a bounded legacy exception queue, not through more historical permission batches. `FOUNDATION-SPRINT-REVIEW-001` is complete in `docs/process/foundation-sprint-review-001.md`; Foundation reports READY only for owner-only Strategy re-entry. Next work is:
 
-1. Pull `REBUILD-PLAN-RECONCILE-001` for 9.8 planning/closeout so current plan, current state, Current Sprint, live backlog, and readiness wording agree.
-2. Pull `PLAN-CRITIC-REPLACEMENT-001` before closing the verifier behavior sweep.
-3. Pull `SECURITY-BEHAVIOR-PROOF-001` and `VERIFIER-BEHAVIOR-SWEEP-001` to convert READY from process proof toward behavior proof.
-4. Pull `STRATEGY-HUB-MEETING-READY-001` for one owner-only operator workflow after the proof gates are scoped.
+1. Pull `PLAN-CRITIC-REPLACEMENT-001` before closing the verifier behavior sweep.
+2. Pull `SECURITY-BEHAVIOR-PROOF-001` and `VERIFIER-BEHAVIOR-SWEEP-001` to convert READY from process proof toward behavior proof.
+3. Pull `STRATEGY-HUB-MEETING-READY-001` for one owner-only operator workflow after the proof gates are scoped.
+4. Pull `AVATAR-IMPORT-001` as the cheap old-system data carry-forward after proof gates are stable.
 5. Keep historical Meeting Vault cleanup as a later separately approved legacy-exception sprint, not current Foundation readiness work.
 
 ## Active Docs Only

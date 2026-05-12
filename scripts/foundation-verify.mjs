@@ -359,7 +359,11 @@ import {
   FOUNDATION_SPRINT_SYSTEM_PLAN_PATH,
   FOUNDATION_SPRINT_SYSTEM_SCRIPT_PATH,
   FOUNDATION_SPRINT_SYSTEM_SUMMARY_MARKER,
+  REBUILD_PLAN_RECONCILE_APPROVAL_PATH,
   REBUILD_PLAN_RECONCILE_CARD_ID,
+  REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY,
+  REBUILD_PLAN_RECONCILE_PLAN_PATH,
+  REBUILD_PLAN_RECONCILE_SCRIPT_PATH,
   PLAN_CRITIC_REPLACEMENT_CARD_ID,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
@@ -1202,6 +1206,10 @@ async function main() {
   const foundationSprintCadenceDocSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_DOC_PATH)
   const foundationSprintCadenceApprovalSource = await readRepoFile(FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH)
   const foundationSprintCadenceApproval = JSON.parse(foundationSprintCadenceApprovalSource)
+  const rebuildPlanReconcileScriptSource = await readRepoFile(REBUILD_PLAN_RECONCILE_SCRIPT_PATH)
+  const rebuildPlanReconcilePlanSource = await readRepoFile(REBUILD_PLAN_RECONCILE_PLAN_PATH)
+  const rebuildPlanReconcileApprovalSource = await readRepoFile(REBUILD_PLAN_RECONCILE_APPROVAL_PATH)
+  const rebuildPlanReconcileApproval = JSON.parse(rebuildPlanReconcileApprovalSource)
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
   const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
   const verifyGateTieringPlanSource = await readRepoFile(VERIFY_GATE_TIERING_PLAN_PATH)
@@ -1483,6 +1491,11 @@ async function main() {
     repoRoot,
     approvalRef: FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
     cardId: FOUNDATION_SPRINT_CADENCE_CARD_ID,
+  })
+  const rebuildPlanReconcileApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: REBUILD_PLAN_RECONCILE_APPROVAL_PATH,
+    cardId: REBUILD_PLAN_RECONCILE_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3835,6 +3848,23 @@ async function main() {
         operatorCloseout: true,
       }
     : null)
+  const buildLogRebuildPlanReconcileBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(REBUILD_PLAN_RECONCILE_CARD_ID) &&
+      build.closeoutKey === REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY,
+        backlogIds: [REBUILD_PLAN_RECONCILE_CARD_ID],
+        mentionedBacklogIds: [
+          PLAN_CRITIC_REPLACEMENT_CARD_ID,
+          SECURITY_BEHAVIOR_PROOF_CARD_ID,
+          VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+          'TELEGRAM-BOTS-REBUILD-001',
+          'INTEL-DIRECTORS-REBUILD-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
   const buildLogFoundationDoneTestBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_DONE_TEST_CARD_ID) &&
       build.closeoutKey === FOUNDATION_DONE_TEST_CLOSEOUT_KEY
@@ -5112,6 +5142,7 @@ async function main() {
   const foundationSprintCadence = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_CADENCE_CARD_ID) || null
   const foundationSprintReview = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_REVIEW_CARD_ID) || null
   const verifyGateTiering = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_GATE_TIERING_CARD_ID) || null
+  const rebuildPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === REBUILD_PLAN_RECONCILE_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -7433,6 +7464,22 @@ async function main() {
       REBUILD_PLAN_RECONCILE_CARD_ID,
       VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
     ].every(id => !(buildLogVerifyGateTieringBuild.backlogIds || []).includes(id))
+  const rebuildPlanReconcileBuildLogExact = buildLogRebuildPlanReconcileBuild?.backlogIds?.length === 1 &&
+    buildLogRebuildPlanReconcileBuild.backlogIds.includes(REBUILD_PLAN_RECONCILE_CARD_ID) &&
+    [
+      PLAN_CRITIC_REPLACEMENT_CARD_ID,
+      SECURITY_BEHAVIOR_PROOF_CARD_ID,
+      VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+      'TELEGRAM-BOTS-REBUILD-001',
+      'INTEL-DIRECTORS-REBUILD-001',
+    ].every(id => (buildLogRebuildPlanReconcileBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      PLAN_CRITIC_REPLACEMENT_CARD_ID,
+      SECURITY_BEHAVIOR_PROOF_CARD_ID,
+      VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+      'TELEGRAM-BOTS-REBUILD-001',
+      'INTEL-DIRECTORS-REBUILD-001',
+    ].every(id => !(buildLogRebuildPlanReconcileBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -7542,13 +7589,58 @@ async function main() {
       verifyGateTieringBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === REBUILD_PLAN_RECONCILE_CARD_ID &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === PLAN_CRITIC_REPLACEMENT_CARD_ID &&
       currentPlan.includes(VERIFY_GATE_TIERING_CARD_ID) &&
       currentPlan.includes('proportional verification') &&
       currentState.includes(VERIFY_GATE_TIERING_CARD_ID) &&
       currentState.includes('proportional verification'),
     'VERIFY-GATE-TIERING-001 adds proportional Foundation verification without weakening full-risk gates',
     `lane=${verifyGateTiering?.lane || 'missing'} synthetic=${verifyGateTieringSynthetic.ok} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    rebuildPlanReconcile?.lane === 'done' &&
+      String(rebuildPlanReconcile?.statusNote || '').includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['process:rebuild-plan-reconcile-check'] === `node --env-file-if-exists=.env ${REBUILD_PLAN_RECONCILE_SCRIPT_PATH}` &&
+      rebuildPlanReconcileApprovalValidation.ok &&
+      rebuildPlanReconcileApprovalValidation.mode === 'v2' &&
+      rebuildPlanReconcileApproval.cardId === REBUILD_PLAN_RECONCILE_CARD_ID &&
+      Number(rebuildPlanReconcileApproval.score) >= 9.8 &&
+      rebuildPlanReconcileApproval.approvedPlanRef === REBUILD_PLAN_RECONCILE_PLAN_PATH &&
+      includesAll(rebuildPlanReconcilePlanSource, [
+        REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY,
+        'owner-only Strategy re-entry',
+        'Telegram/mobile bots',
+        'Directors/Master Director',
+        PLAN_CRITIC_REPLACEMENT_CARD_ID,
+      ]) &&
+      includesAll(rebuildPlanReconcileScriptSource, [
+        'REBUILD_PLAN_RECONCILE_SUMMARY',
+        'REQUIRED_OLD_SYSTEM_GAP_CARDS',
+        'Current Sprint active blocker advanced to Plan Critic',
+        'old-system gap cards exist',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        'REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY',
+        'activeBlockerCardId: PLAN_CRITIC_REPLACEMENT_CARD_ID',
+        'REBUILD-PLAN-RECONCILE-001 is done for v1',
+      ]) &&
+      buildLogRebuildPlanReconcileBuild?.operatorCloseout === true &&
+      rebuildPlanReconcileBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === PLAN_CRITIC_REPLACEMENT_CARD_ID &&
+      currentPlan.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
+      currentPlan.includes('not automatically active') &&
+      currentPlan.includes('TELEGRAM-BOTS-REBUILD-001') &&
+      currentPlan.includes('INTEL-DIRECTORS-REBUILD-001') &&
+      currentState.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
+      currentState.includes('legacy-exception sprint') &&
+      currentState.includes(PLAN_CRITIC_REPLACEMENT_CARD_ID) &&
+      currentState.includes('TELEGRAM-BOTS-REBUILD-001') &&
+      currentState.includes('INTEL-DIRECTORS-REBUILD-001'),
+    'REBUILD-PLAN-RECONCILE-001 closes the audit reset and advances Current Sprint to Plan Critic',
+    `lane=${rebuildPlanReconcile?.lane || 'missing'} approval=${rebuildPlanReconcileApprovalValidation.ok} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,

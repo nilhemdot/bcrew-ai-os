@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "REBUILD-PLAN-RECONCILE-001",
+  "approvedBy": "Codex interim reviewer per Steve build-away approval",
+  "approvedAt": "2026-05-12T01:22:28Z",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/rebuild-plan-reconcile-001-plan.md",
+  "approvedPlanSha256": "8c85b8df3b4f91ea95e94c718461c2f112fd1f0859c3a5e10d2bb0b6e28ff993",
+  "approvedRepoHead": "b4e28fe471b91b21adc08d4d478657a1fde4533d",
+  "notes": "Approved for a narrow command-truth reconciliation only: close REBUILD-PLAN-RECONCILE-001 when current plan, current state, live backlog, Current Sprint, and readiness wording agree; card old-system gap coverage including Telegram/mobile bots and Directors/Master Director; advance the active blocker to PLAN-CRITIC-REPLACEMENT-001. No Strategy build, Drive ACL mutation, broad access, Marketing production, or old-system parity claim.",
+  "approvalDigest": "685405d2427acb55eeea80cec793400b018fa0e5e997a093d2baca3cdb54f4a3"
+}
