@@ -37,10 +37,11 @@ function printUsage() {
   console.log('  npm run process:foundation-ship -- --card=<CARD> --planApprovalRef=<APPROVAL_JSON> --closeoutKey=<CLOSEOUT_KEY> [--commitRef=HEAD]')
   console.log('')
   console.log('Runs, in order:')
-  console.log('  1. npm run process:ship-check')
-  console.log('  2. npm run process:fanout-check')
-  console.log('  3. npm run process:post-ship-fanout')
-  console.log('  4. npm run foundation:verify')
+  console.log('  1. Restart supervised dashboard/worker runtime when available')
+  console.log('  2. npm run process:ship-check')
+  console.log('  3. npm run process:fanout-check')
+  console.log('  4. npm run process:post-ship-fanout')
+  console.log('  5. npm run foundation:verify')
 }
 
 function formatDuration(ms) {
@@ -102,6 +103,66 @@ async function runStep(label, npmArgs, options = {}) {
   }
 }
 
+async function runRuntimeRestartStep(options = {}) {
+  const startedAt = Date.now()
+  const disabled = options.skipRuntimeRestart === true
+  if (disabled) {
+    return {
+      label: 'runtime restart',
+      stdout: 'Runtime restart skipped by --skipRuntimeRestart=true.\n',
+      stderr: '',
+      durationMs: Date.now() - startedAt,
+      attempts: 1,
+    }
+  }
+  if (process.platform !== 'darwin') {
+    return {
+      label: 'runtime restart',
+      stdout: 'Runtime restart skipped because launchctl is available only on macOS.\n',
+      stderr: '',
+      durationMs: Date.now() - startedAt,
+      attempts: 1,
+    }
+  }
+
+  const userId = typeof process.getuid === 'function' ? process.getuid() : null
+  if (!Number.isFinite(userId)) {
+    throw new Error('Cannot restart supervised runtime: current user id is unavailable.')
+  }
+
+  const labels = [
+    'ai.bcrew.dashboard',
+    'ai.bcrew.foundation-worker',
+  ]
+  let stdout = 'Restarting supervised runtime before served-code proof.\n'
+  let stderr = ''
+  for (const label of labels) {
+    try {
+      const result = await execFile('launchctl', ['kickstart', '-k', `gui/${userId}/${label}`], {
+        env: process.env,
+        maxBuffer: 1024 * 1024,
+      })
+      stdout += `  restarted ${label}\n`
+      stdout += result.stdout || ''
+      stderr += result.stderr || ''
+    } catch (error) {
+      error.stdout = stdout + (error?.stdout || '')
+      error.stderr = stderr + (error?.stderr || '')
+      error.durationMs = Date.now() - startedAt
+      error.attempts = 1
+      throw error
+    }
+  }
+  stdout += 'Runtime restart completed; ship-check can now compare served code to repo HEAD.\n'
+  return {
+    label: 'runtime restart',
+    stdout,
+    stderr,
+    durationMs: Date.now() - startedAt,
+    attempts: 1,
+  }
+}
+
 async function runParallelSteps(steps) {
   const settled = await Promise.allSettled(steps.map(step => runStep(step.label, step.npmArgs)))
   const results = []
@@ -147,6 +208,7 @@ async function main() {
   const commitRef = normalize(args.commitRef) || 'HEAD'
   const strictShipCheckVerify = args.strictShipCheckVerify === true || args.strictShipCheckVerify === 'true'
   const parallelFanout = args.parallelFanout === true || args.parallelFanout === 'true'
+  const skipRuntimeRestart = args.skipRuntimeRestart === true || args.skipRuntimeRestart === 'true'
   const targetMs = Number(args.targetMs || 300000)
 
   console.log('Foundation ship gate')
@@ -155,6 +217,7 @@ async function main() {
   console.log(`  Approval: ${normalize(args.planApprovalRef) || 'missing'}`)
   console.log(`  Commit ref: ${commitRef}`)
   console.log(`  Fanout mode: ${parallelFanout ? 'parallel' : 'sequential'}`)
+  console.log(`  Runtime restart: ${skipRuntimeRestart ? 'skipped' : 'enabled'}`)
 
   if (missing.length) {
     console.error('')
@@ -187,6 +250,10 @@ async function main() {
   }
 
   const timing = []
+  const runtimeRestart = await runRuntimeRestartStep({ skipRuntimeRestart })
+  printStepResult(runtimeRestart)
+  timing.push(runtimeRestart)
+
   const shipCheck = await runStep('process:ship-check', shipCheckArgs, { retries: 1 })
   printStepResult(shipCheck)
   timing.push(shipCheck)

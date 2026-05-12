@@ -123,10 +123,25 @@ async function main() {
 
   addFinding(findings, approval.ok && Number(approval.approval?.score) >= 9.8, '9.8 approval file is valid', approval.failures?.map(item => item.check).join(', ') || '')
   addFinding(findings, packageJson.scripts?.['process:rebuild-plan-reconcile-check'] === `node --env-file-if-exists=.env ${REBUILD_PLAN_RECONCILE_SCRIPT_PATH}`, 'package exposes focused proof script')
+  const activeBlockerCardId = sprint.sprint?.activeBlockerCardId || null
+  const planCriticClosed = sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) === 'done_this_sprint' &&
+    cardMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID)?.lane === 'done'
   addFinding(findings, REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id), 'Current Sprint order matches audit reset', sprintOrder.join(' -> '))
-  addFinding(findings, sprint.sprint?.activeBlockerCardId === PLAN_CRITIC_REPLACEMENT_CARD_ID, 'Current Sprint active blocker advanced to Plan Critic', sprint.sprint?.activeBlockerCardId || 'missing')
+  addFinding(
+    findings,
+    activeBlockerCardId === PLAN_CRITIC_REPLACEMENT_CARD_ID ||
+      (planCriticClosed && activeBlockerCardId === SECURITY_BEHAVIOR_PROOF_CARD_ID),
+    'Current Sprint active blocker advanced through Plan Critic',
+    activeBlockerCardId || 'missing',
+  )
   addFinding(findings, sprintStageMap.get(VERIFY_GATE_TIERING_CARD_ID) === 'done_this_sprint' && sprintStageMap.get(REBUILD_PLAN_RECONCILE_CARD_ID) === 'done_this_sprint', 'first two sprint cards are Done This Sprint')
-  addFinding(findings, sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) === 'scoping', 'Plan Critic is the next scoped card', sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) || 'missing')
+  addFinding(
+    findings,
+    sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) === 'scoping' ||
+      sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) === 'done_this_sprint',
+    'Plan Critic is next or done this sprint',
+    sprintStageMap.get(PLAN_CRITIC_REPLACEMENT_CARD_ID) || 'missing',
+  )
   addFinding(findings, cardMap.get(REBUILD_PLAN_RECONCILE_CARD_ID)?.lane === 'done', 'REBUILD-PLAN-RECONCILE-001 is done in live backlog', cardMap.get(REBUILD_PLAN_RECONCILE_CARD_ID)?.lane || 'missing')
   addFinding(findings, REQUIRED_OLD_SYSTEM_GAP_CARDS.every(id => cardMap.has(id)), 'old-system gap cards exist', REQUIRED_OLD_SYSTEM_GAP_CARDS.filter(id => !cardMap.has(id)).join(', '))
   addFinding(findings, REQUIRED_OLD_SYSTEM_GAP_CARDS.every(id => ['research', 'scoped', 'ranked'].includes(cardMap.get(id)?.lane)), 'old-system gap cards are visible but not silently active', REQUIRED_OLD_SYSTEM_GAP_CARDS.map(id => `${id}:${cardMap.get(id)?.lane || 'missing'}`).join(', '))
@@ -157,7 +172,8 @@ async function main() {
   addFinding(findings, includesAll(sprintSource, [
     'REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY',
     PLAN_CRITIC_REPLACEMENT_CARD_ID,
-    'REBUILD-PLAN-RECONCILE-001 is done for v1',
+    SECURITY_BEHAVIOR_PROOF_CARD_ID,
+    'PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY',
   ]), 'Current Sprint seed captures closed reconciliation state')
   addFinding(findings, includesAll(buildLogSource, [
     REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY,

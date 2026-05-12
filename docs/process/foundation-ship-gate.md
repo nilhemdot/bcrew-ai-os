@@ -12,12 +12,15 @@ npm run process:foundation-ship -- --card=<CARD_ID> --planApprovalRef=docs/proce
 
 ## What It Runs
 
-1. `npm run process:ship-check`
-2. `npm run process:fanout-check`
-3. `npm run process:post-ship-fanout`
-4. `npm run foundation:verify`
+1. Restart the supervised dashboard and Foundation worker through `launchctl` when running on the Mac mini.
+2. `npm run process:ship-check`
+3. `npm run process:fanout-check`
+4. `npm run process:post-ship-fanout`
+5. `npm run foundation:verify`
 
 The wrapper intentionally runs `foundation:verify` once at the end. It passes an explicit skip reason into `process:ship-check` so the same live verifier does not run twice in the same wrapper call.
+
+The runtime restart happens before `process:ship-check` because that check proves the served dashboard commit equals repo `HEAD`. Use `--skipRuntimeRestart=true` only for a deliberate one-off investigation.
 
 After all gates pass, the wrapper records a local proof file in `.git/foundation-ship-proof.json`. The repo-managed pre-push hook uses that local proof to confirm protected Foundation changes were shipped through the canonical gate.
 
@@ -35,6 +38,7 @@ If any required input is missing, the wrapper refuses to run and prints the miss
 - The wrapper does not replace the 9.8 plan score.
 - Emergency bypass still needs a reason and follow-up card through the existing ship-check behavior.
 - Strict mode remains available with `--strictShipCheckVerify=true` when an operator wants the old duplicate verifier behavior for a one-off investigation.
+- Runtime restart is automatic on macOS through `ai.bcrew.dashboard` and `ai.bcrew.foundation-worker`; non-macOS environments skip that step because LaunchAgent labels do not exist there.
 - Fanout runs sequentially by default to avoid local Postgres deadlock contention between gate scripts. The opt-in `--parallelFanout=true` profiling mode runs `npm run process:fanout-check` and `npm run process:post-ship-fanout` in parallel.
 - Run this command once per card unless the wrapper is explicitly upgraded and verified to support multi-card invocation. A shared closeout key is allowed only when each card's proof ownership stays exact.
 - Direct verifier and process gate read paths are read-only under normal review. They assert the Foundation DB is already initialized with metadata checks instead of running schema/seed initialization while dashboard and worker are live.

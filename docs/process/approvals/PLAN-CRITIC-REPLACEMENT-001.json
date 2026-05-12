@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PLAN-CRITIC-REPLACEMENT-001",
+  "approvedBy": "Codex interim reviewer per Steve build-away approval",
+  "approvedAt": "2026-05-12T02:20:00Z",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/plan-critic-replacement-001-plan.md",
+  "approvedPlanSha256": "e29da0922fc270dcec1f75810f0e4a2672a10b5113001802568f8e640bbcb898",
+  "approvedRepoHead": "db9ead1dbc54b998f80062d14dfa36277bff505e",
+  "notes": "Approved for a thin Plan Critic V1 only: score durable build plans before implementation, require behavior-not-substring proof, rollback/repair path, reuse of existing work, gate decision tree, and not-next boundaries; advance Current Sprint to SECURITY-BEHAVIOR-PROOF-001. No Agent Factory, generic reviewer persona, Strategy Hub build, security matrix implementation, verifier sweep, avatar import, Telegram bots, Directors, Marketing pipeline, or Meeting Vault historical cleanup.",
+  "approvalDigest": "ba2a2353d60bc0d5fb00b610ca5b795daf2be2b860cedabaae7436976354da72"
+}

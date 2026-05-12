@@ -365,6 +365,11 @@ import {
   REBUILD_PLAN_RECONCILE_PLAN_PATH,
   REBUILD_PLAN_RECONCILE_SCRIPT_PATH,
   PLAN_CRITIC_REPLACEMENT_CARD_ID,
+  PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH,
+  PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
+  PLAN_CRITIC_REPLACEMENT_PLAN_PATH,
+  PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH,
+  PLAN_CRITIC_DECISION_TREE_PATH,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
@@ -389,6 +394,14 @@ import {
   VERIFY_GATE_TIERING_PLAN_PATH,
   VERIFY_GATE_TIERING_SCRIPT_PATH,
 } from '../lib/process-verify-gate-tiering.js'
+import {
+  buildPlanCriticResultSummary,
+  buildSyntheticPlanCriticProof,
+  evaluatePlanCriticPlan,
+  PLAN_CRITIC_MIN_PASS_SCORE,
+  PLAN_CRITIC_SCORING_SCHEMA,
+  PLAN_CRITIC_SUMMARY_MARKER,
+} from '../lib/process-plan-critic.js'
 import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
@@ -1210,6 +1223,12 @@ async function main() {
   const rebuildPlanReconcilePlanSource = await readRepoFile(REBUILD_PLAN_RECONCILE_PLAN_PATH)
   const rebuildPlanReconcileApprovalSource = await readRepoFile(REBUILD_PLAN_RECONCILE_APPROVAL_PATH)
   const rebuildPlanReconcileApproval = JSON.parse(rebuildPlanReconcileApprovalSource)
+  const planCriticSource = await readRepoFile('lib/process-plan-critic.js')
+  const planCriticScriptSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH)
+  const planCriticPlanSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_PLAN_PATH)
+  const planCriticDecisionTreeSource = await readRepoFile(PLAN_CRITIC_DECISION_TREE_PATH)
+  const planCriticApprovalSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH)
+  const planCriticApproval = JSON.parse(planCriticApprovalSource)
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
   const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
   const verifyGateTieringPlanSource = await readRepoFile(VERIFY_GATE_TIERING_PLAN_PATH)
@@ -1496,6 +1515,11 @@ async function main() {
     repoRoot,
     approvalRef: REBUILD_PLAN_RECONCILE_APPROVAL_PATH,
     cardId: REBUILD_PLAN_RECONCILE_CARD_ID,
+  })
+  const planCriticApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH,
+    cardId: PLAN_CRITIC_REPLACEMENT_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -2937,6 +2961,7 @@ async function main() {
     agentFeedbackRealUserSubmitRepairStatus,
   })
   const verifyGateTieringSynthetic = buildSyntheticVerifyGateTieringProof()
+  const planCriticSynthetic = buildSyntheticPlanCriticProof()
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -3861,6 +3886,22 @@ async function main() {
           VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
           'TELEGRAM-BOTS-REBUILD-001',
           'INTEL-DIRECTORS-REBUILD-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogPlanCriticReplacementBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(PLAN_CRITIC_REPLACEMENT_CARD_ID) &&
+      build.closeoutKey === PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
+        backlogIds: [PLAN_CRITIC_REPLACEMENT_CARD_ID],
+        mentionedBacklogIds: [
+          SECURITY_BEHAVIOR_PROOF_CARD_ID,
+          VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+          'STRATEGY-HUB-MEETING-READY-001',
+          AVATAR_IMPORT_CARD_ID,
         ],
         operatorCloseout: true,
       }
@@ -5143,10 +5184,23 @@ async function main() {
   const foundationSprintReview = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_REVIEW_CARD_ID) || null
   const verifyGateTiering = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_GATE_TIERING_CARD_ID) || null
   const rebuildPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === REBUILD_PLAN_RECONCILE_CARD_ID) || null
+  const planCriticReplacement = (foundationHub.backlogItems || []).find(item => item.id === PLAN_CRITIC_REPLACEMENT_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
   const meetingVaultAutoEnforcement = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID) || null
+  const planCriticSelfReview = evaluatePlanCriticPlan({
+    planText: planCriticPlanSource,
+    card: planCriticReplacement || { id: PLAN_CRITIC_REPLACEMENT_CARD_ID, priority: 'P0' },
+    changedFiles: [
+      'lib/process-plan-critic.js',
+      PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH,
+      PLAN_CRITIC_REPLACEMENT_PLAN_PATH,
+      PLAN_CRITIC_DECISION_TREE_PATH,
+      'lib/foundation-current-sprint.js',
+      'scripts/foundation-verify.mjs',
+    ],
+  })
   const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
     meetingVaultAcl?.lane === 'done' &&
     String(meetingVaultAutoEnforcement?.statusNote || '').includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY) &&
@@ -5975,6 +6029,10 @@ async function main() {
       includesAll(processFoundationShipSource, [
         'Foundation ship gate',
         'Missing required argument(s)',
+        'runRuntimeRestartStep',
+        'ai.bcrew.dashboard',
+        'ai.bcrew.foundation-worker',
+        'skipRuntimeRestart',
         'process:ship-check',
         'process:fanout-check',
         'process:post-ship-fanout',
@@ -5982,6 +6040,8 @@ async function main() {
       ]) &&
       includesAll(processFoundationShipDoc, [
         'one command',
+        'Restart the supervised dashboard',
+        '--skipRuntimeRestart=true',
         'does not replace Steve',
         'refuses to run',
         'does not silently skip',
@@ -7480,6 +7540,20 @@ async function main() {
       'TELEGRAM-BOTS-REBUILD-001',
       'INTEL-DIRECTORS-REBUILD-001',
     ].every(id => !(buildLogRebuildPlanReconcileBuild.backlogIds || []).includes(id))
+  const planCriticReplacementBuildLogExact = buildLogPlanCriticReplacementBuild?.backlogIds?.length === 1 &&
+    buildLogPlanCriticReplacementBuild.backlogIds.includes(PLAN_CRITIC_REPLACEMENT_CARD_ID) &&
+    [
+      SECURITY_BEHAVIOR_PROOF_CARD_ID,
+      VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+      'STRATEGY-HUB-MEETING-READY-001',
+      AVATAR_IMPORT_CARD_ID,
+    ].every(id => (buildLogPlanCriticReplacementBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      SECURITY_BEHAVIOR_PROOF_CARD_ID,
+      VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+      'STRATEGY-HUB-MEETING-READY-001',
+      AVATAR_IMPORT_CARD_ID,
+    ].every(id => !(buildLogPlanCriticReplacementBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -7589,7 +7663,7 @@ async function main() {
       verifyGateTieringBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === PLAN_CRITIC_REPLACEMENT_CARD_ID &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === SECURITY_BEHAVIOR_PROOF_CARD_ID &&
       currentPlan.includes(VERIFY_GATE_TIERING_CARD_ID) &&
       currentPlan.includes('proportional verification') &&
       currentState.includes(VERIFY_GATE_TIERING_CARD_ID) &&
@@ -7617,19 +7691,19 @@ async function main() {
       includesAll(rebuildPlanReconcileScriptSource, [
         'REBUILD_PLAN_RECONCILE_SUMMARY',
         'REQUIRED_OLD_SYSTEM_GAP_CARDS',
-        'Current Sprint active blocker advanced to Plan Critic',
+        'Current Sprint active blocker advanced through Plan Critic',
         'old-system gap cards exist',
       ]) &&
       includesAll(foundationCurrentSprintSource, [
         'REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY',
-        'activeBlockerCardId: PLAN_CRITIC_REPLACEMENT_CARD_ID',
-        'REBUILD-PLAN-RECONCILE-001 is done for v1',
+        'PLAN_CRITIC_REPLACEMENT_CARD_ID',
+        'PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY',
       ]) &&
       buildLogRebuildPlanReconcileBuild?.operatorCloseout === true &&
       rebuildPlanReconcileBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === PLAN_CRITIC_REPLACEMENT_CARD_ID &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === SECURITY_BEHAVIOR_PROOF_CARD_ID &&
       currentPlan.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
       currentPlan.includes('not automatically active') &&
       currentPlan.includes('TELEGRAM-BOTS-REBUILD-001') &&
@@ -7639,8 +7713,70 @@ async function main() {
       currentState.includes(PLAN_CRITIC_REPLACEMENT_CARD_ID) &&
       currentState.includes('TELEGRAM-BOTS-REBUILD-001') &&
       currentState.includes('INTEL-DIRECTORS-REBUILD-001'),
-    'REBUILD-PLAN-RECONCILE-001 closes the audit reset and advances Current Sprint to Plan Critic',
+    'REBUILD-PLAN-RECONCILE-001 closes the audit reset and keeps Plan Critic in the sprint order',
     `lane=${rebuildPlanReconcile?.lane || 'missing'} approval=${rebuildPlanReconcileApprovalValidation.ok} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    planCriticReplacement?.lane === 'done' &&
+      String(planCriticReplacement?.statusNote || '').includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['process:plan-critic-check'] === `node --env-file-if-exists=.env ${PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH}` &&
+      planCriticApprovalValidation.ok &&
+      planCriticApprovalValidation.mode === 'v2' &&
+      planCriticApproval.cardId === PLAN_CRITIC_REPLACEMENT_CARD_ID &&
+      Number(planCriticApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      planCriticApproval.approvedPlanRef === PLAN_CRITIC_REPLACEMENT_PLAN_PATH &&
+      Math.abs(PLAN_CRITIC_SCORING_SCHEMA.reduce((sum, item) => sum + item.maxScore, 0) - 10) < 0.001 &&
+      planCriticSelfReview.status === 'pass' &&
+      planCriticSelfReview.score >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      planCriticSynthetic.ok &&
+      includesAll(planCriticSource, [
+        'PLAN_CRITIC_SCORING_SCHEMA',
+        'behavior_not_substring',
+        'rejectsSubstringProof',
+        'classifyFoundationGateDecision',
+        'buildSyntheticPlanCriticProof',
+      ]) &&
+      includesAll(planCriticScriptSource, [
+        'PLAN_CRITIC_SUMMARY_MARKER',
+        'synthetic strong/weak/broad plan proof passes',
+        'Current Sprint active blocker advanced to security behavior proof',
+      ]) &&
+      includesAll(planCriticPlanSource, [
+        PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
+        'behavior-not-substring',
+        'gate decision tree',
+        'substring-only',
+        SECURITY_BEHAVIOR_PROOF_CARD_ID,
+      ]) &&
+      includesAll(planCriticDecisionTreeSource, [
+        'docs-only',
+        'static',
+        'focused',
+        'full',
+        'auth',
+        'schema',
+        'package',
+        'canonical verifier',
+        'process:foundation-ship',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
+        'activeBlockerCardId: SECURITY_BEHAVIOR_PROOF_CARD_ID',
+        'process:plan-critic-check',
+      ]) &&
+      buildLogPlanCriticReplacementBuild?.operatorCloseout === true &&
+      planCriticReplacementBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === SECURITY_BEHAVIOR_PROOF_CARD_ID &&
+      currentPlan.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
+      currentPlan.includes('gate decision tree') &&
+      currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CARD_ID) &&
+      currentState.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker is now `SECURITY-BEHAVIOR-PROOF-001`'),
+    'PLAN-CRITIC-REPLACEMENT-001 adds a fast behavior-not-substring pre-build gate',
+    `lane=${planCriticReplacement?.lane || 'missing'} approval=${planCriticApprovalValidation.ok} self=${buildPlanCriticResultSummary(planCriticSelfReview)} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,
