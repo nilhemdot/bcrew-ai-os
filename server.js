@@ -143,6 +143,13 @@ import {
 import {
   buildStrategyMeetingReadySnapshot,
 } from './lib/strategy-hub-meeting-ready.js'
+import {
+  MARKETING_AVATAR_ATTRACT_SOURCE_PATH,
+  MARKETING_AVATAR_OLD_README_PATH,
+  MARKETING_AVATAR_REFERENCE_BRIEF_PATH,
+  MARKETING_AVATAR_RETAIN_SOURCE_PATH,
+  buildMarketingAvatarImportSnapshot,
+} from './lib/marketing-avatar-registry.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -4540,6 +4547,12 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       backlogItems: snapshot.backlogItems || [],
       closeouts: getFoundationBuildCloseouts(),
     })
+    const marketingAvatarRegistry = buildMarketingAvatarImportSnapshot({
+      referenceBriefText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_REFERENCE_BRIEF_PATH)) || '',
+      retainProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_RETAIN_SOURCE_PATH)) || '',
+      attractProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_ATTRACT_SOURCE_PATH)) || '',
+      oldReadmeText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_OLD_README_PATH)) || '',
+    })
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4564,6 +4577,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       meetingVaultAutoEnforcement,
       runtimeProcessControl,
       currentSprint,
+      marketingAvatarRegistry,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),

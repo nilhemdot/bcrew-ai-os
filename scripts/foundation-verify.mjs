@@ -381,7 +381,7 @@ import {
   STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
   STRATEGY_HUB_MEETING_READY_PLAN_PATH,
   STRATEGY_HUB_MEETING_READY_SCRIPT_PATH,
-  AVATAR_IMPORT_CARD_ID,
+  AUTO_DEPLOY_ROLLBACK_CARD_ID,
   buildFoundationCurrentSprintStatus,
   buildSyntheticFoundationCurrentSprintProof,
 } from '../lib/foundation-current-sprint.js'
@@ -428,6 +428,22 @@ import {
   STRATEGY_HUB_MEETING_READY_SUMMARY_MARKER,
   buildSyntheticStrategyHubMeetingReadyProof,
 } from '../lib/strategy-hub-meeting-ready.js'
+import {
+  AVATAR_IMPORT_APPROVAL_PATH,
+  AVATAR_IMPORT_CARD_ID,
+  AVATAR_IMPORT_CLOSEOUT_KEY,
+  AVATAR_IMPORT_PLAN_PATH,
+  AVATAR_IMPORT_SCRIPT_PATH,
+  AVATAR_IMPORT_SUMMARY_MARKER,
+  MARKETING_AVATAR_ATTRACT_SOURCE_PATH,
+  MARKETING_AVATAR_EXPECTED_COUNTS,
+  MARKETING_AVATAR_OLD_README_PATH,
+  MARKETING_AVATAR_REFERENCE_BRIEF_PATH,
+  MARKETING_AVATAR_REGISTRY_README_PATH,
+  MARKETING_AVATAR_RETAIN_SOURCE_PATH,
+  buildMarketingAvatarImportSnapshot,
+  buildSyntheticAvatarImportProof,
+} from '../lib/marketing-avatar-registry.js'
 import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
@@ -1270,6 +1286,16 @@ async function main() {
   const strategyHubMeetingReadyPlanSource = await readRepoFile(STRATEGY_HUB_MEETING_READY_PLAN_PATH)
   const strategyHubMeetingReadyApprovalSource = await readRepoFile(STRATEGY_HUB_MEETING_READY_APPROVAL_PATH)
   const strategyHubMeetingReadyApproval = JSON.parse(strategyHubMeetingReadyApprovalSource)
+  const avatarImportSource = await readRepoFile('lib/marketing-avatar-registry.js')
+  const avatarImportScriptSource = await readRepoFile(AVATAR_IMPORT_SCRIPT_PATH)
+  const avatarImportPlanSource = await readRepoFile(AVATAR_IMPORT_PLAN_PATH)
+  const avatarImportApprovalSource = await readRepoFile(AVATAR_IMPORT_APPROVAL_PATH)
+  const avatarImportApproval = JSON.parse(avatarImportApprovalSource)
+  const avatarRegistryReadmeSource = await readRepoFile(MARKETING_AVATAR_REGISTRY_README_PATH)
+  const avatarReferenceBriefSource = await readRepoFile(MARKETING_AVATAR_REFERENCE_BRIEF_PATH)
+  const avatarRetainSource = await readRepoFile(MARKETING_AVATAR_RETAIN_SOURCE_PATH)
+  const avatarAttractSource = await readRepoFile(MARKETING_AVATAR_ATTRACT_SOURCE_PATH)
+  const avatarOldReadmeSource = await readRepoFile(MARKETING_AVATAR_OLD_README_PATH)
   const strategicExecutionHtmlSource = await readRepoFile('public/strategic-execution.html')
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
   const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
@@ -1577,6 +1603,11 @@ async function main() {
     repoRoot,
     approvalRef: STRATEGY_HUB_MEETING_READY_APPROVAL_PATH,
     cardId: STRATEGY_HUB_MEETING_READY_CARD_ID,
+  })
+  const avatarImportApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: AVATAR_IMPORT_APPROVAL_PATH,
+    cardId: AVATAR_IMPORT_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3022,6 +3053,13 @@ async function main() {
   const securityBehaviorProofSynthetic = buildSyntheticSecurityBehaviorProof()
   const verifierBehaviorSweepSynthetic = buildSyntheticVerifierBehaviorSweepProof()
   const strategyHubMeetingReadySynthetic = buildSyntheticStrategyHubMeetingReadyProof()
+  const avatarImportSynthetic = buildSyntheticAvatarImportProof()
+  const avatarImportSnapshot = buildMarketingAvatarImportSnapshot({
+    referenceBriefText: avatarReferenceBriefSource,
+    retainProfilesText: avatarRetainSource,
+    attractProfilesText: avatarAttractSource,
+    oldReadmeText: avatarOldReadmeSource,
+  })
   const researchCurationStatus = buildResearchCurationStatus({
     backlogItems: foundationHub.backlogItems || [],
     foundationReviewSprint: foundation1100ReviewStatus,
@@ -4007,6 +4045,22 @@ async function main() {
           AVATAR_IMPORT_CARD_ID,
           'INTEL-SCOPER-001',
           'STRATEGIC-INTEL-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogAvatarImportBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(AVATAR_IMPORT_CARD_ID) &&
+      build.closeoutKey === AVATAR_IMPORT_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(AVATAR_IMPORT_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: AVATAR_IMPORT_CLOSEOUT_KEY,
+        backlogIds: [AVATAR_IMPORT_CARD_ID],
+        mentionedBacklogIds: [
+          AUTO_DEPLOY_ROLLBACK_CARD_ID,
+          'AVATAR-001',
+          'MARKETING-PIPELINE-REBUILD-001',
+          'BRAND-STACK-001',
         ],
         operatorCloseout: true,
       }
@@ -5340,6 +5394,25 @@ async function main() {
       'package.json',
     ],
     declaredRisk: strategyHubMeetingReadyPlanSource,
+  })
+  const avatarImportPlanReview = evaluatePlanCriticPlan({
+    planText: avatarImportPlanSource,
+    card: avatarImport || { id: AVATAR_IMPORT_CARD_ID, priority: 'P1' },
+    changedFiles: [
+      MARKETING_AVATAR_REGISTRY_README_PATH,
+      MARKETING_AVATAR_RETAIN_SOURCE_PATH,
+      MARKETING_AVATAR_ATTRACT_SOURCE_PATH,
+      MARKETING_AVATAR_REFERENCE_BRIEF_PATH,
+      'lib/marketing-avatar-registry.js',
+      AVATAR_IMPORT_SCRIPT_PATH,
+      'server.js',
+      'lib/foundation-current-sprint.js',
+      'lib/foundation-db.js',
+      'lib/foundation-build-log.js',
+      'scripts/foundation-verify.mjs',
+      'package.json',
+    ],
+    declaredRisk: avatarImportPlanSource,
   })
   const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
     meetingVaultAcl?.lane === 'done' &&
@@ -7730,6 +7803,20 @@ async function main() {
       'INTEL-SCOPER-001',
       'STRATEGIC-INTEL-001',
     ].every(id => !(buildLogStrategyHubMeetingReadyBuild.backlogIds || []).includes(id))
+  const avatarImportBuildLogExact = buildLogAvatarImportBuild?.backlogIds?.length === 1 &&
+    buildLogAvatarImportBuild.backlogIds.includes(AVATAR_IMPORT_CARD_ID) &&
+    [
+      AUTO_DEPLOY_ROLLBACK_CARD_ID,
+      'AVATAR-001',
+      'MARKETING-PIPELINE-REBUILD-001',
+      'BRAND-STACK-001',
+    ].every(id => (buildLogAvatarImportBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      AUTO_DEPLOY_ROLLBACK_CARD_ID,
+      'AVATAR-001',
+      'MARKETING-PIPELINE-REBUILD-001',
+      'BRAND-STACK-001',
+    ].every(id => !(buildLogAvatarImportBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -7844,6 +7931,7 @@ async function main() {
         VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
         'STRATEGY-HUB-MEETING-READY-001',
         AVATAR_IMPORT_CARD_ID,
+        AUTO_DEPLOY_ROLLBACK_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFY_GATE_TIERING_CARD_ID) &&
       currentPlan.includes('proportional verification') &&
@@ -7889,6 +7977,7 @@ async function main() {
         VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
         'STRATEGY-HUB-MEETING-READY-001',
         AVATAR_IMPORT_CARD_ID,
+        AUTO_DEPLOY_ROLLBACK_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
       currentPlan.includes('not automatically active') &&
@@ -7960,6 +8049,7 @@ async function main() {
         VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
         'STRATEGY-HUB-MEETING-READY-001',
         AVATAR_IMPORT_CARD_ID,
+        AUTO_DEPLOY_ROLLBACK_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
       currentPlan.includes('gate decision tree') &&
@@ -8017,7 +8107,7 @@ async function main() {
       securityBehaviorProofBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
       currentPlan.includes('route-boundary') &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
@@ -8073,7 +8163,7 @@ async function main() {
       verifierBehaviorSweepBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
       currentPlan.includes('top-P0 behavior registry') &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
@@ -8112,7 +8202,7 @@ async function main() {
       includesAll(strategyHubMeetingReadyScriptSource, [
         STRATEGY_HUB_MEETING_READY_SUMMARY_MARKER,
         'Strategy meeting packet behavior proof passes',
-        'Current Sprint active blocker advanced to Avatar import',
+        'Current Sprint active blocker advanced through Avatar import',
       ]) &&
       includesAll(strategyHubMeetingReadyPlanSource, [
         STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
@@ -8142,15 +8232,15 @@ async function main() {
       ]) &&
       includesAll(foundationCurrentSprintSource, [
         STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
-        'activeBlockerCardId: AVATAR_IMPORT_CARD_ID',
+        'AVATAR_IMPORT_CARD_ID',
         'process:strategy-hub-meeting-ready-check',
       ]) &&
       buildLogStrategyHubMeetingReadyBuild?.operatorCloseout === true &&
       strategyHubMeetingReadyBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === AVATAR_IMPORT_CARD_ID &&
-      avatarImport?.lane === 'scoped' &&
+      [AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      ['scoped', 'done'].includes(avatarImport?.lane) &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
       currentPlan.includes('owner-only Strategy meeting packet') &&
       currentPlan.includes(AVATAR_IMPORT_CARD_ID) &&
@@ -8160,6 +8250,77 @@ async function main() {
       foundationVerifySource.includes('buildSyntheticStrategyHubMeetingReadyProof'),
     'STRATEGY-HUB-MEETING-READY-001 ships an owner-only Strategy meeting packet with behavior proof',
     `lane=${strategyHubMeetingReady?.lane || 'missing'} approval=${strategyHubMeetingReadyApprovalValidation.ok} agenda=${strategyHubMeetingReadySynthetic.summary.agendaItemCount} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    avatarImport?.lane === 'done' &&
+      String(avatarImport?.statusNote || '').includes(AVATAR_IMPORT_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['process:avatar-import-check'] === `node --env-file-if-exists=.env ${AVATAR_IMPORT_SCRIPT_PATH}` &&
+      avatarImportApprovalValidation.ok &&
+      avatarImportApprovalValidation.mode === 'v2' &&
+      avatarImportApproval.cardId === AVATAR_IMPORT_CARD_ID &&
+      Number(avatarImportApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      avatarImportApproval.approvedPlanRef === AVATAR_IMPORT_PLAN_PATH &&
+      avatarImportPlanReview.status === 'pass' &&
+      avatarImportPlanReview.score >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      avatarImportSynthetic.ok &&
+      avatarImportSnapshot.status === 'healthy' &&
+      avatarImportSnapshot.summary.totalAvatars === MARKETING_AVATAR_EXPECTED_COUNTS.total &&
+      avatarImportSnapshot.summary.retainAvatars === MARKETING_AVATAR_EXPECTED_COUNTS.retain &&
+      avatarImportSnapshot.summary.attractAvatars === MARKETING_AVATAR_EXPECTED_COUNTS.attract &&
+      avatarImportSnapshot.summary.platformBehaviorSections === MARKETING_AVATAR_EXPECTED_COUNTS.total &&
+      avatarImportSnapshot.summary.objectionSections === MARKETING_AVATAR_EXPECTED_COUNTS.total &&
+      avatarImportSnapshot.summary.buyingSignalSections === MARKETING_AVATAR_EXPECTED_COUNTS.total &&
+      foundationHub.marketingAvatarRegistry?.status === 'healthy' &&
+      foundationHub.marketingAvatarRegistry?.summary?.totalAvatars === MARKETING_AVATAR_EXPECTED_COUNTS.total &&
+      includesAll(avatarImportSource, [
+        'parseMarketingAvatarReferenceBrief',
+        'buildMarketingAvatarImportSnapshot',
+        'buildSyntheticAvatarImportProof',
+        'missingFieldRejected',
+        'marketingPipelineBuilt: false',
+      ]) &&
+      includesAll(avatarImportScriptSource, [
+        AVATAR_IMPORT_SUMMARY_MARKER,
+        'real imported avatar registry snapshot is healthy',
+        'Current Sprint active blocker advanced to Auto Deploy rollback',
+      ]) &&
+      includesAll(avatarImportPlanSource, [
+        AVATAR_IMPORT_CLOSEOUT_KEY,
+        'real registry parser/function path',
+        'wrong-count',
+        'missing-required-field',
+        'Substring-only proof is rejected',
+      ]) &&
+      includesAll(avatarRegistryReadmeSource, [
+        'source/old-bcrew-buddy/retain-avatars.md',
+        'source/old-bcrew-buddy/attract-avatars.md',
+        'optional overlays',
+      ]) &&
+      includesAll(serverSource, [
+        'buildMarketingAvatarImportSnapshot',
+        'marketingAvatarRegistry',
+        'MARKETING_AVATAR_REFERENCE_BRIEF_PATH',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        AVATAR_IMPORT_CLOSEOUT_KEY,
+        'activeBlockerCardId: AUTO_DEPLOY_ROLLBACK_CARD_ID',
+        'process:avatar-import-check',
+      ]) &&
+      buildLogAvatarImportBuild?.operatorCloseout === true &&
+      avatarImportBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === AUTO_DEPLOY_ROLLBACK_CARD_ID &&
+      currentPlan.includes(AVATAR_IMPORT_CLOSEOUT_KEY) &&
+      currentPlan.includes('10 RETAIN and 5 ATTRACT avatars') &&
+      currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CARD_ID) &&
+      currentState.includes(AVATAR_IMPORT_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker is now `AUTO-DEPLOY-ROLLBACK-001`') &&
+      currentState.includes('15 avatars') &&
+      foundationVerifySource.includes('buildSyntheticAvatarImportProof'),
+    'AVATAR-IMPORT-001 imports old avatars as governed source-backed registry truth',
+    `lane=${avatarImport?.lane || 'missing'} approval=${avatarImportApprovalValidation.ok} avatars=${avatarImportSnapshot.summary.totalAvatars} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,

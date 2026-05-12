@@ -21,6 +21,7 @@ import {
   PLAN_CRITIC_SUMMARY_MARKER,
 } from '../lib/process-plan-critic.js'
 import {
+  AUTO_DEPLOY_ROLLBACK_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
   STRATEGY_HUB_MEETING_READY_CARD_ID,
@@ -44,6 +45,7 @@ const REQUIRED_SPRINT_ORDER = [
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
   STRATEGY_HUB_MEETING_READY_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
+  AUTO_DEPLOY_ROLLBACK_CARD_ID,
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -167,7 +169,7 @@ async function main() {
     findings,
     sprint.sprint?.activeBlockerCardId === SECURITY_BEHAVIOR_PROOF_CARD_ID ||
       (securityClosed && sprint.sprint?.activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) ||
-      (securityClosed && verifierClosed && sprint.sprint?.activeBlockerCardId === STRATEGY_HUB_MEETING_READY_CARD_ID),
+      (securityClosed && verifierClosed && [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(sprint.sprint?.activeBlockerCardId)),
     'Current Sprint active blocker advanced through security behavior proof',
     sprint.sprint?.activeBlockerCardId || 'missing',
   )

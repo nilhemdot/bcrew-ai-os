@@ -7,6 +7,7 @@ import process from 'node:process'
 import { promisify } from 'node:util'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
+  AUTO_DEPLOY_ROLLBACK_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
   FOUNDATION_CURRENT_SPRINT_ACTIVE_CARD_IDS,
   PLAN_CRITIC_REPLACEMENT_CARD_ID,
@@ -37,6 +38,7 @@ const REQUIRED_SPRINT_ORDER = [
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
   STRATEGY_HUB_MEETING_READY_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
+  AUTO_DEPLOY_ROLLBACK_CARD_ID,
 ]
 
 const REQUIRED_OLD_SYSTEM_GAP_CARDS = [
@@ -136,7 +138,7 @@ async function main() {
     activeBlockerCardId === PLAN_CRITIC_REPLACEMENT_CARD_ID ||
       (planCriticClosed && activeBlockerCardId === SECURITY_BEHAVIOR_PROOF_CARD_ID) ||
       (planCriticClosed && securityClosed && activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) ||
-      (planCriticClosed && securityClosed && verifierClosed && activeBlockerCardId === STRATEGY_HUB_MEETING_READY_CARD_ID),
+      (planCriticClosed && securityClosed && verifierClosed && [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(activeBlockerCardId)),
     'Current Sprint active blocker advanced through Plan Critic',
     activeBlockerCardId || 'missing',
   )

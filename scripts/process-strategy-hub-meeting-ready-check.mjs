@@ -7,6 +7,7 @@ import process from 'node:process'
 import { promisify } from 'node:util'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
+  AUTO_DEPLOY_ROLLBACK_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
   REBUILD_PLAN_RECONCILE_CARD_ID,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
@@ -44,6 +45,7 @@ const REQUIRED_SPRINT_ORDER = [
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
   STRATEGY_HUB_MEETING_READY_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
+  AUTO_DEPLOY_ROLLBACK_CARD_ID,
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -170,9 +172,9 @@ async function main() {
   addFinding(findings, behaviorProof.summary.substringOnlyProofRejected === true, 'substring-only proof is rejected')
   addFinding(findings, packageJson.scripts?.['process:strategy-hub-meeting-ready-check'] === `node --env-file-if-exists=.env ${STRATEGY_HUB_MEETING_READY_SCRIPT_PATH}`, 'package exposes focused proof script')
   addFinding(findings, strategyCard?.lane === 'done' && String(strategyCard?.statusNote || '').includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY), 'STRATEGY-HUB-MEETING-READY-001 is done with closeout proof', strategyCard?.lane || 'missing')
-  addFinding(findings, avatarCard?.lane === 'scoped', 'AVATAR-IMPORT-001 remains scoped as next card', avatarCard?.lane || 'missing')
+  addFinding(findings, ['scoped', 'done'].includes(avatarCard?.lane), 'AVATAR-IMPORT-001 remains scoped or done after Strategy card', avatarCard?.lane || 'missing')
   addFinding(findings, REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id), 'Current Sprint order remains audit reset order', sprintOrder.join(' -> '))
-  addFinding(findings, activeBlockerCardId === AVATAR_IMPORT_CARD_ID, 'Current Sprint active blocker advanced to Avatar import', activeBlockerCardId || 'missing')
+  addFinding(findings, [AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(activeBlockerCardId), 'Current Sprint active blocker advanced through Avatar import', activeBlockerCardId || 'missing')
   addFinding(findings, sprintStageMap.get(STRATEGY_HUB_MEETING_READY_CARD_ID) === 'done_this_sprint', 'Strategy Hub meeting-ready moved to Done This Sprint', sprintStageMap.get(STRATEGY_HUB_MEETING_READY_CARD_ID) || 'missing')
   addFinding(findings, includesAll(proofLibraryText, [
     'buildStrategyMeetingReadySnapshot',
@@ -184,7 +186,7 @@ async function main() {
   addFinding(findings, includesAll(proofScriptText, [
     STRATEGY_HUB_MEETING_READY_SUMMARY_MARKER,
     'Strategy meeting packet behavior proof passes',
-    'Current Sprint active blocker advanced to Avatar import',
+    'Current Sprint active blocker advanced through Avatar import',
   ]), 'focused proof script checks behavior and sprint advancement')
   addFinding(findings, includesAll(serverText, [
     'buildStrategyMeetingReadySnapshot',
@@ -208,7 +210,7 @@ async function main() {
   ]), 'Strategy UI styles meeting packet')
   addFinding(findings, includesAll(currentSprintText, [
     STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
-    'activeBlockerCardId: AVATAR_IMPORT_CARD_ID',
+    'AVATAR_IMPORT_CARD_ID',
     'process:strategy-hub-meeting-ready-check',
   ]), 'Current Sprint seed records Strategy closeout and next blocker')
   addFinding(findings, includesAll(buildLogText, [

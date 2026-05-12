@@ -358,14 +358,16 @@ Order:
 6. `STRATEGY-HUB-MEETING-READY-001` — done this sprint / P1 under `strategy-hub-meeting-ready-v1`.
    - Built one owner-only Strategy meeting packet that consumes source-backed facts, retrieval status, and Strategy-qualified Action Router records.
    - This is the first product proof that Foundation can support an operator, not just pass its own gates.
-7. `AVATAR-IMPORT-001` — scoped / P1 / active blocker.
-   - Import the old 10 RETAIN and 5 ATTRACT avatars into governed new-system truth.
-   - This is the cheap old-system carry-forward that unlocks future Marketing without restarting Marketing production.
+7. `AVATAR-IMPORT-001` — done this sprint / P1 under `avatar-import-v1`.
+   - Imported the old 10 RETAIN and 5 ATTRACT avatars into governed new-system truth.
+   - The registry preserves stable avatar IDs, trigger language, pains, source-backed platform behavior, objections, and buying signals without restarting Marketing production.
+8. `AUTO-DEPLOY-ROLLBACK-001` — scoped / P1 / active blocker.
+   - Scope Mac mini deploy reliability next: push/pull/build/restart/health-check with rollback proof.
+   - This is reliability carry-forward, not broad deployment redesign.
 
 On-board but not automatically active:
 
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` — move active sprint command truth out of hardcoded JS seed strings and into live DB/backlog-backed sprint records.
-- `AUTO-DEPLOY-ROLLBACK-001` — pull into the sprint only if Mac mini reliability or restart failures make it urgent.
 - `REPLY-WATCHING-LOOP-001`, `DECISION-RESTRICTED-QUEUE-001`, `BRAND-STACK-001`, `MARKETING-PIPELINE-REBUILD-001`, `PER-USER-CHANGELOG-001`, `VERIFICATION-RUNS-001`, `TELEGRAM-BOTS-REBUILD-001`, and `INTEL-DIRECTORS-REBUILD-001` — carded now so old-system value is visible, but sequenced after the first Strategy operator loop unless Steve explicitly overrides.
 
 Current Sprint rollover rule:
@@ -974,7 +976,7 @@ Current order:
 
 Guardrail: Agent Feedback production enablement, live reminders, the system registration sweep, `SECURITY-002` auth/tier/redaction v1, `FOUNDATION-SPRINT-CADENCE-001` under `foundation-sprint-cadence-v1`, and `MEETING-VAULT-AUTO-ENFORCEMENT-001` under `meeting-vault-auto-enforcement-v1` are in place. Meeting Vault now closes Foundation readiness through automatic report-only forward-flow proof and a bounded legacy exception queue, not through more historical permission batches. `FOUNDATION-SPRINT-REVIEW-001` is complete in `docs/process/foundation-sprint-review-001.md`; Foundation reports READY only for owner-only Strategy re-entry. Next work is:
 
-1. Pull `AVATAR-IMPORT-001` as the cheap old-system data carry-forward now that the owner-only Strategy meeting packet is shipped.
+1. Scope `AUTO-DEPLOY-ROLLBACK-001` as the reliability carry-forward now that Strategy meeting-ready and Avatar import are shipped.
 2. Review `STRATEGY-HUB-MEETING-READY-001` in practice before promoting Scoper, Strategic Intelligence, or advisor-style work.
 3. Keep broad verifier rewrites as follow-up; `VERIFIER-BEHAVIOR-SWEEP-001` v1 only closed the top-P0 behavior registry.
 4. Keep `SECURITY-FILTERED-COMMS-ACCESS-001` separate; security behavior proof did not open shared communications to non-Tier-1 users.

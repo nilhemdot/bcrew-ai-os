@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AVATAR-IMPORT-001",
+  "approvedBy": "Codex interim reviewer per Steve build-away approval",
+  "approvedAt": "2026-05-12T09:05:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/avatar-import-001-plan.md",
+  "approvedPlanSha256": "d70b3fe5160da8d6ced312a524704477f5ba1074aeebe8e17f25c4105825cd2d",
+  "approvedRepoHead": "0775e60b8243996e15a26dae85cd32632dc4a10f",
+  "notes": "Approved for bounded avatar import V1 only: import old RETAIN/ATTRACT source docs, expose a governed source-backed registry, prove counts/fields/source sections through function paths, and advance Current Sprint. Do not build Marketing pipeline, Brand Guardian, campaigns, content generation, monthly refresh automation, or mandatory avatars for non-marketing atoms.",
+  "approvalDigest": "04e8c15629142d99d96e9c2aa3eb5e083113b62803523c2ff72fb88bd6e87e14"
+}

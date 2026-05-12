@@ -7,6 +7,7 @@ import process from 'node:process'
 import { promisify } from 'node:util'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
+  AUTO_DEPLOY_ROLLBACK_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
   REBUILD_PLAN_RECONCILE_CARD_ID,
   SECURITY_BEHAVIOR_PROOF_CARD_ID,
@@ -45,6 +46,7 @@ const REQUIRED_SPRINT_ORDER = [
   VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
   STRATEGY_HUB_MEETING_READY_CARD_ID,
   AVATAR_IMPORT_CARD_ID,
+  AUTO_DEPLOY_ROLLBACK_CARD_ID,
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -164,7 +166,7 @@ async function main() {
   addFinding(findings, verifierCard?.lane === 'done' && String(verifierCard?.statusNote || '').includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY), 'VERIFIER-BEHAVIOR-SWEEP-001 is done with closeout proof', verifierCard?.lane || 'missing')
   addFinding(findings, ['scoped', 'done'].includes(strategyCard?.lane), 'STRATEGY-HUB-MEETING-READY-001 remains scoped or done after verifier sweep', strategyCard?.lane || 'missing')
   addFinding(findings, REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id), 'Current Sprint order remains audit reset order', sprintOrder.join(' -> '))
-  addFinding(findings, [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID].includes(activeBlockerCardId), 'Current Sprint active blocker advanced through Strategy Hub meeting-ready', activeBlockerCardId || 'missing')
+  addFinding(findings, [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(activeBlockerCardId), 'Current Sprint active blocker advanced through Strategy Hub meeting-ready', activeBlockerCardId || 'missing')
   addFinding(findings, sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) === 'done_this_sprint', 'Verifier behavior sweep moved to Done This Sprint', sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) || 'missing')
   addFinding(findings, includesAll(proofLibraryText, [
     'VERIFIER_BEHAVIOR_TARGETS',
