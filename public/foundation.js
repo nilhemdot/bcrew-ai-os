@@ -11432,6 +11432,104 @@ function renderPerUserChangelogPanel(log) {
   return panel
 }
 
+function renderRestrictedDecisionQueuePanel(queue) {
+  if (!queue || !queue.summary) return null
+  var items = Array.isArray(queue.queueItems) ? queue.queueItems : []
+  var summary = queue.summary || {}
+  var panel = document.createElement('section')
+  panel.className = 'panel restricted-decision-queue-panel'
+  panel.setAttribute('data-source-lifecycle-section', 'restricted-decision-queue')
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Restricted Decision Queue'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Owner-only decision routing'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = (summary.restrictedCount || 0) + ' restricted decisions, '
+    + (summary.generalCount || 0) + ' general decisions, '
+    + (summary.matchedCategoryCount || 0) + ' restricted rule groups. '
+    + 'Owner-only: ' + (summary.ownerOnly ? 'yes' : 'no') + '.'
+  left.appendChild(intro)
+  header.appendChild(left)
+
+  var right = document.createElement('div')
+  right.className = 'source-lifecycle-evidence'
+  right.appendChild(renderSourceTag(queue.status || 'unknown', queue.status === 'healthy' ? 'connected' : 'pending'))
+  right.appendChild(renderSourceTag((summary.proposedRestrictedCount || 0) + ' proposed', summary.proposedRestrictedCount ? 'pending' : 'connected'))
+  right.appendChild(renderSourceTag((summary.autoApplies ? 'auto-apply risk' : 'no auto-apply'), summary.autoApplies ? 'missing' : 'connected'))
+  header.appendChild(right)
+  panel.appendChild(header)
+
+  var meta = document.createElement('div')
+  meta.className = 'source-card-meta-grid'
+  meta.appendChild(renderSourceMetaItem('Termination/comp/perf', (queue.matchedCategories || []).length ? (queue.matchedCategories || []).join(', ') : 'none visible'))
+  meta.appendChild(renderSourceMetaItem('Locked restricted', String(summary.lockedRestrictedCount || 0)))
+  meta.appendChild(renderSourceMetaItem('General context', 'restricted filtered out'))
+  meta.appendChild(renderSourceMetaItem('Next card', summary.nextCardId || 'unknown'))
+  panel.appendChild(meta)
+
+  var grid = document.createElement('div')
+  grid.className = 'restricted-decision-queue-grid'
+  items.slice(0, 12).forEach(function(item) {
+    var article = document.createElement('article')
+    article.className = 'restricted-decision-queue-card'
+    article.setAttribute('data-restricted-decision-id', item.id)
+
+    var top = document.createElement('div')
+    top.className = 'source-lifecycle-card-top'
+    var name = document.createElement('h4')
+    name.textContent = item.id + ': ' + (item.title || 'Restricted decision')
+    top.appendChild(name)
+    top.appendChild(renderSourceTag((item.restriction && item.restriction.restrictionStatus) || 'restricted', 'missing'))
+    article.appendChild(top)
+
+    var detail = document.createElement('p')
+    detail.textContent = item.summary || (item.restriction && item.restriction.reason) || 'Restricted decision needs owner-only review.'
+    article.appendChild(detail)
+
+    var itemMeta = document.createElement('div')
+    itemMeta.className = 'source-card-meta-grid'
+    itemMeta.appendChild(renderSourceMetaItem('Status', item.status || 'unknown'))
+    itemMeta.appendChild(renderSourceMetaItem('Category', item.category || 'unknown'))
+    itemMeta.appendChild(renderSourceMetaItem('Owner', item.decisionOwner || 'unassigned'))
+    itemMeta.appendChild(renderSourceMetaItem('Route', (item.restriction && item.restriction.route) || 'owner_only_restricted_review'))
+    article.appendChild(itemMeta)
+
+    var matches = ((item.restriction && item.restriction.matchedCategories) || []).map(function(category) {
+      return category.replace(/_/g, ' ')
+    })
+    if (matches.length) article.appendChild(renderSourceBulletGroup('Matched restricted rules', matches))
+    grid.appendChild(article)
+  })
+
+  if (!items.length) {
+    var empty = document.createElement('p')
+    empty.className = 'section-intro'
+    empty.textContent = 'No restricted decisions are currently visible. The filter is still active for future decisions.'
+    grid.appendChild(empty)
+  }
+  panel.appendChild(grid)
+
+  if ((queue.routingRules || []).length) {
+    panel.appendChild(renderSourceBulletGroup('Routing rules', queue.routingRules.map(function(rule) {
+      return rule.decision
+    })))
+  }
+
+  if ((queue.boundaries || []).length) {
+    panel.appendChild(renderSourceBulletGroup('Boundaries', queue.boundaries))
+  }
+
+  return panel
+}
+
 function renderSourceLifecycleDefinitions(definitions) {
   var panel = document.createElement('section')
   panel.className = 'panel'
@@ -14204,6 +14302,8 @@ function renderSourceLifecycle() {
     if (verificationRuns) container.appendChild(verificationRuns)
     var perUserChangelog = renderPerUserChangelogPanel(lifecycle.perUserChangelog)
     if (perUserChangelog) container.appendChild(perUserChangelog)
+    var restrictedDecisionQueue = renderRestrictedDecisionQueuePanel(lifecycle.restrictedDecisionQueue)
+    if (restrictedDecisionQueue) container.appendChild(restrictedDecisionQueue)
     container.appendChild(renderSourceLifecycleDefinitions(lifecycle.definitions || []))
     container.appendChild(renderSourceLifecycleLanes(lifecycle))
     container.appendChild(renderSourceLifecycleTargets(lifecycle))

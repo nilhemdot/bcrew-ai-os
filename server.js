@@ -175,6 +175,10 @@ import {
 import {
   buildPerUserChangelogSnapshot,
 } from './lib/per-user-changelog.js'
+import {
+  buildDecisionRestrictedQueueSnapshot,
+  filterGeneralDecisionRecords,
+} from './lib/decision-restricted-queue.js'
 import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
@@ -2921,6 +2925,10 @@ async function getStrategyAdvisorContext(question = '', { mode = 'fast' } = {}) 
       }
     }
   }
+  const restrictedDecisionQueue = buildDecisionRestrictedQueueSnapshot({
+    decisions: foundation.decisions || [],
+  })
+  const generalDecisions = filterGeneralDecisionRecords(foundation.decisions || [])
 
   return {
     generatedAt: new Date().toISOString(),
@@ -2971,7 +2979,11 @@ async function getStrategyAdvisorContext(question = '', { mode = 'fast' } = {}) 
     docs: strategyAdvisorDocPaths.map(compactStrategyAdvisorDoc),
     docSourceSnapshots: docSnapshots,
     backlog: criticalBacklog,
-    decisions: (foundation.decisions || []).slice(0, profile.decisionLimit),
+    decisions: generalDecisions.slice(0, profile.decisionLimit),
+    restrictedDecisionQueue: {
+      summary: restrictedDecisionQueue.summary,
+      routingRules: restrictedDecisionQueue.routingRules,
+    },
     openQuestions: (foundation.openQuestions || []).slice(0, profile.openQuestionLimit),
     runtime: {
       latestSynthesisRun: foundation.sharedCommunicationSynthesis?.latestRun || null,
@@ -3875,6 +3887,9 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       changeEvents: perUserChangeEvents,
       limit: 100,
     })
+    sourceLifecycle.restrictedDecisionQueue = buildDecisionRestrictedQueueSnapshot({
+      decisions: foundationSnapshot.decisions || [],
+    })
     cacheHeadersNoStore(res)
     res.json(sourceLifecycle)
   } catch (error) {
@@ -4025,6 +4040,30 @@ app.get('/api/foundation/per-user-changelog', requireAdminToken, async (req, res
       500,
       'foundation_per_user_changelog_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation per-user changelog.'
+    )
+  }
+})
+
+app.get('/api/foundation/restricted-decision-queue', requireAdminToken, async (req, res) => {
+  try {
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 100))
+    const snapshot = await getFoundationSnapshot()
+    const restrictedDecisionQueue = buildDecisionRestrictedQueueSnapshot({
+      decisions: snapshot.decisions || [],
+      limit,
+    })
+    cacheHeadersNoStore(res)
+    res.json(restrictedDecisionQueue)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_restricted_decision_queue_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation restricted decision queue.'
     )
   }
 })
@@ -4941,11 +4980,15 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       changeEvents: await getRecentChangeEvents(100),
       limit: 100,
     })
+    const restrictedDecisionQueue = buildDecisionRestrictedQueueSnapshot({
+      decisions: snapshot.decisions || [],
+    })
     sourceLifecycle.marketingSourceMap = marketingSourceMap
     sourceLifecycle.brandStack = brandStack
     sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
     sourceLifecycle.verificationRuns = verificationRuns
     sourceLifecycle.perUserChangelog = perUserChangelog
+    sourceLifecycle.restrictedDecisionQueue = restrictedDecisionQueue
     res.json({
       ...snapshot,
       kpiHealth,
@@ -4979,6 +5022,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       tierBehavioralCompletion,
       verificationRuns,
       perUserChangelog,
+      restrictedDecisionQueue,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),

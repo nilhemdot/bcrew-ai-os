@@ -535,6 +535,16 @@ import {
   buildSyntheticPerUserChangelogProof,
 } from '../lib/per-user-changelog.js'
 import {
+  DECISION_RESTRICTED_QUEUE_APPROVAL_PATH,
+  DECISION_RESTRICTED_QUEUE_CARD_ID,
+  DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY,
+  DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
+  DECISION_RESTRICTED_QUEUE_PLAN_PATH,
+  DECISION_RESTRICTED_QUEUE_SCRIPT_PATH,
+  DECISION_RESTRICTED_QUEUE_SUMMARY_MARKER,
+  buildSyntheticDecisionRestrictedQueueProof,
+} from '../lib/decision-restricted-queue.js'
+import {
   buildDoctrinePropagationStatus,
   buildGeneratedDoctrineSection,
   buildSyntheticStaleSkillSource,
@@ -1433,6 +1443,11 @@ async function main() {
   const perUserChangelogPlanSource = await readRepoFile(PER_USER_CHANGELOG_PLAN_PATH)
   const perUserChangelogApprovalSource = await readRepoFile(PER_USER_CHANGELOG_APPROVAL_PATH)
   const perUserChangelogApproval = JSON.parse(perUserChangelogApprovalSource)
+  const decisionRestrictedQueueSource = await readRepoFile('lib/decision-restricted-queue.js')
+  const decisionRestrictedQueueScriptSource = await readRepoFile(DECISION_RESTRICTED_QUEUE_SCRIPT_PATH)
+  const decisionRestrictedQueuePlanSource = await readRepoFile(DECISION_RESTRICTED_QUEUE_PLAN_PATH)
+  const decisionRestrictedQueueApprovalSource = await readRepoFile(DECISION_RESTRICTED_QUEUE_APPROVAL_PATH)
+  const decisionRestrictedQueueApproval = JSON.parse(decisionRestrictedQueueApprovalSource)
   const marketmastersStrategySource = await readRepoFile('docs/strategy/marketmasters.md')
   const strategicExecutionHtmlSource = await readRepoFile('public/strategic-execution.html')
   const verifyGateTieringSource = await readRepoFile('lib/process-verify-gate-tiering.js')
@@ -1791,6 +1806,11 @@ async function main() {
     repoRoot,
     approvalRef: PER_USER_CHANGELOG_APPROVAL_PATH,
     cardId: PER_USER_CHANGELOG_CARD_ID,
+  })
+  const decisionRestrictedQueueApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: DECISION_RESTRICTED_QUEUE_APPROVAL_PATH,
+    cardId: DECISION_RESTRICTED_QUEUE_CARD_ID,
   })
   const foundationDoneTestApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3013,6 +3033,7 @@ async function main() {
   const foundationTierBehavioralCompletion = await fetchJson(baseUrl, '/api/foundation/tier-behavioral-completion')
   const foundationVerificationRuns = await fetchJson(baseUrl, '/api/foundation/verification-runs')
   const foundationPerUserChangelog = await fetchJson(baseUrl, '/api/foundation/per-user-changelog?limit=100')
+  const foundationRestrictedDecisionQueue = await fetchJson(baseUrl, '/api/foundation/restricted-decision-queue?limit=100')
   const foundationChangesApi = await fetchJson(baseUrl, '/api/foundation/changes?limit=20')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
@@ -3255,6 +3276,7 @@ async function main() {
   const tierBehavioralCompletionSynthetic = buildSyntheticTierBehavioralCompletionProof()
   const verificationRunsSynthetic = buildSyntheticVerificationRunsProof()
   const perUserChangelogSynthetic = buildSyntheticPerUserChangelogProof()
+  const decisionRestrictedQueueSynthetic = buildSyntheticDecisionRestrictedQueueProof()
   const avatarImportSnapshot = buildMarketingAvatarImportSnapshot({
     referenceBriefText: avatarReferenceBriefSource,
     retainProfilesText: avatarRetainSource,
@@ -4410,6 +4432,23 @@ async function main() {
           'FOUNDATION-UI-COMPLETE-001',
           'REPLY-WATCHING-LOOP-001',
           'FOUNDATION-USERS-001',
+        ],
+        operatorCloseout: true,
+      }
+    : null)
+  const buildLogDecisionRestrictedQueueBuild = (foundationBuildLog.builds || []).find(build =>
+    (build.backlogIds || []).includes(DECISION_RESTRICTED_QUEUE_CARD_ID) &&
+      build.closeoutKey === DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY
+  ) || (foundationBuildLogSource.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY)
+    ? {
+        closeoutKey: DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY,
+        backlogIds: [DECISION_RESTRICTED_QUEUE_CARD_ID],
+        mentionedBacklogIds: [
+          DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
+          'REPLY-WATCHING-LOOP-001',
+          'MARKETING-PIPELINE-REBUILD-001',
+          'TELEGRAM-BOTS-REBUILD-001',
+          'INTEL-DIRECTORS-REBUILD-001',
         ],
         operatorCloseout: true,
       }
@@ -5708,7 +5747,7 @@ async function main() {
   const tierBehavioralCompletion = (foundationHub.backlogItems || []).find(item => item.id === TIER_BEHAVIORAL_COMPLETION_CARD_ID) || null
   const verificationRuns = (foundationHub.backlogItems || []).find(item => item.id === VERIFICATION_RUNS_CARD_ID) || null
   const perUserChangelog = (foundationHub.backlogItems || []).find(item => item.id === PER_USER_CHANGELOG_CARD_ID) || null
-  const decisionRestrictedQueue = (foundationHub.backlogItems || []).find(item => item.id === PER_USER_CHANGELOG_NEXT_CARD_ID) || null
+  const decisionRestrictedQueue = (foundationHub.backlogItems || []).find(item => item.id === DECISION_RESTRICTED_QUEUE_CARD_ID) || null
   const foundationSprintSurfaceFollowUp = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) || null
   const foundationSprintDoneVelocity = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) || null
   const meetingVaultAcl = (foundationHub.backlogItems || []).find(item => item.id === MEETING_VAULT_ACL_CARD_ID) || null
@@ -5954,6 +5993,28 @@ async function main() {
       'package.json',
     ],
     declaredRisk: perUserChangelogPlanSource,
+  })
+  const decisionRestrictedQueuePlanReview = evaluatePlanCriticPlan({
+    planText: decisionRestrictedQueuePlanSource,
+    card: decisionRestrictedQueue || { id: DECISION_RESTRICTED_QUEUE_CARD_ID, priority: 'P1' },
+    changedFiles: [
+      DECISION_RESTRICTED_QUEUE_PLAN_PATH,
+      DECISION_RESTRICTED_QUEUE_APPROVAL_PATH,
+      'lib/decision-restricted-queue.js',
+      DECISION_RESTRICTED_QUEUE_SCRIPT_PATH,
+      'server.js',
+      'lib/shared-candidate-extraction.js',
+      'lib/security-access.js',
+      'public/foundation.js',
+      'public/styles.css',
+      'lib/foundation-current-sprint.js',
+      'lib/foundation-build-log.js',
+      'scripts/foundation-verify.mjs',
+      'docs/rebuild/current-plan.md',
+      'docs/rebuild/current-state.md',
+      'package.json',
+    ],
+    declaredRisk: decisionRestrictedQueuePlanSource,
   })
   const meetingVaultAutoEnforcementClosed = meetingVaultAutoEnforcement?.lane === 'done' &&
     meetingVaultAcl?.lane === 'done' &&
@@ -8492,6 +8553,22 @@ async function main() {
       'REPLY-WATCHING-LOOP-001',
       'FOUNDATION-USERS-001',
     ].every(id => !(buildLogPerUserChangelogBuild.backlogIds || []).includes(id))
+  const decisionRestrictedQueueBuildLogExact = buildLogDecisionRestrictedQueueBuild?.backlogIds?.length === 1 &&
+    buildLogDecisionRestrictedQueueBuild.backlogIds.includes(DECISION_RESTRICTED_QUEUE_CARD_ID) &&
+    [
+      DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
+      'REPLY-WATCHING-LOOP-001',
+      'MARKETING-PIPELINE-REBUILD-001',
+      'TELEGRAM-BOTS-REBUILD-001',
+      'INTEL-DIRECTORS-REBUILD-001',
+    ].every(id => (buildLogDecisionRestrictedQueueBuild.mentionedBacklogIds || []).includes(id)) &&
+    [
+      DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
+      'REPLY-WATCHING-LOOP-001',
+      'MARKETING-PIPELINE-REBUILD-001',
+      'TELEGRAM-BOTS-REBUILD-001',
+      'INTEL-DIRECTORS-REBUILD-001',
+    ].every(id => !(buildLogDecisionRestrictedQueueBuild.backlogIds || []).includes(id))
   ensure(
     checks,
     foundationSprintCadence?.lane === 'done' &&
@@ -8624,6 +8701,7 @@ async function main() {
         'VERIFICATION-RUNS-001',
         VERIFICATION_RUNS_NEXT_CARD_ID,
         PER_USER_CHANGELOG_NEXT_CARD_ID,
+        DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFY_GATE_TIERING_CARD_ID) &&
       currentPlan.includes('proportional verification') &&
@@ -8679,6 +8757,7 @@ async function main() {
         'VERIFICATION-RUNS-001',
         VERIFICATION_RUNS_NEXT_CARD_ID,
         PER_USER_CHANGELOG_NEXT_CARD_ID,
+        DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY) &&
       currentPlan.includes('not automatically active') &&
@@ -8760,6 +8839,7 @@ async function main() {
         'VERIFICATION-RUNS-001',
         VERIFICATION_RUNS_NEXT_CARD_ID,
         PER_USER_CHANGELOG_NEXT_CARD_ID,
+        DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
       ].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY) &&
       currentPlan.includes('gate decision tree') &&
@@ -8817,7 +8897,7 @@ async function main() {
       securityBehaviorProofBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [VERIFIER_BEHAVIOR_SWEEP_CARD_ID, STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY) &&
       currentPlan.includes('route-boundary') &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
@@ -8873,7 +8953,7 @@ async function main() {
       verifierBehaviorSweepBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY) &&
       currentPlan.includes('top-P0 behavior registry') &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
@@ -8949,7 +9029,7 @@ async function main() {
       strategyHubMeetingReadyBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       ['scoped', 'done'].includes(avatarImport?.lane) &&
       currentPlan.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
       currentPlan.includes('owner-only Strategy meeting packet') &&
@@ -9021,7 +9101,7 @@ async function main() {
       avatarImportBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(AVATAR_IMPORT_CLOSEOUT_KEY) &&
       currentPlan.includes('10 RETAIN and 5 ATTRACT avatars') &&
       currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CARD_ID) &&
@@ -9087,7 +9167,7 @@ async function main() {
       autoDeployRollbackBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [AUTO_DEPLOY_ROLLBACK_CARD_ID, SOURCE_MATURITY_GRID_CARD_ID, SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY) &&
       currentPlan.includes('previous SHA') &&
       currentPlan.includes('REPLY-WATCHING-LOOP-001') &&
@@ -9161,7 +9241,7 @@ async function main() {
       sourceMaturityGridBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [SOURCE_EXTRACTION_COVERAGE_CARD_ID, SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY) &&
       currentPlan.includes('Foundation Source Once-Over') &&
       currentPlan.includes(SOURCE_EXTRACTION_COVERAGE_CARD_ID) &&
@@ -9173,7 +9253,8 @@ async function main() {
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
         currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
         currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`')) &&
+        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
+        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('seven-stage source maturity grid') &&
       foundationVerifySource.includes('buildSyntheticSourceMaturityGridProof'),
     'SOURCE-MATURITY-GRID-001 exposes source depth and advances the Source Once-Over sprint',
@@ -9251,7 +9332,7 @@ async function main() {
       sourceExtractionCoverageBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [SOURCE_COVERAGE_CLOSEOUT_CARD_ID, MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY) &&
       currentPlan.includes(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) &&
       currentState.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY) &&
@@ -9261,7 +9342,8 @@ async function main() {
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
         currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
         currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`')) &&
+        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
+        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('source-level extraction coverage') &&
       foundationVerifySource.includes('buildSyntheticSourceExtractionCoverageProof'),
     'SOURCE-EXTRACTION-COVERAGE-001 exposes source-level extraction coverage and advances the Source Once-Over sprint',
@@ -9344,7 +9426,7 @@ async function main() {
       sourceCoverageCloseoutBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [MARKETING_SOURCE_MAP_CARD_ID, BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) &&
       currentPlan.includes(MARKETING_SOURCE_MAP_CARD_ID) &&
       currentState.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) &&
@@ -9353,7 +9435,8 @@ async function main() {
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
         currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
         currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`')) &&
+        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
+        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('source coverage closeout') &&
       foundationVerifySource.includes('buildSyntheticSourceCoverageCloseoutProof'),
     'SOURCE-COVERAGE-CLOSEOUT-001 routes source gaps and advances the Source Once-Over sprint',
@@ -9433,7 +9516,7 @@ async function main() {
       marketingSourceMapBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [BRAND_STACK_CARD_ID, TIER_BEHAVIORAL_COMPLETION_CARD_ID, 'VERIFICATION-RUNS-001', VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY) &&
       currentPlan.includes(BRAND_STACK_CARD_ID) &&
       currentState.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY) &&
@@ -9441,7 +9524,8 @@ async function main() {
         currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
         currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
         currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`')) &&
+        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
+        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('marketing source map') &&
       foundationVerifySource.includes('buildSyntheticMarketingSourceMapProof'),
     'MARKETING-SOURCE-MAP-001 maps avatars and marketing sources to brand lanes and advances the Source Once-Over sprint',
@@ -9518,14 +9602,15 @@ async function main() {
       brandStackBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [TIER_BEHAVIORAL_COMPLETION_CARD_ID, VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [TIER_BEHAVIORAL_COMPLETION_CARD_ID, VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(BRAND_STACK_CLOSEOUT_KEY) &&
       currentPlan.includes(TIER_BEHAVIORAL_COMPLETION_CARD_ID) &&
       currentState.includes(BRAND_STACK_CLOSEOUT_KEY) &&
       (currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
         currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
         currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`')) &&
+        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
+        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('brand stack') &&
       foundationVerifySource.includes('buildSyntheticBrandStackProof'),
     'BRAND-STACK-001 models brand entities and Guardian boundaries and advances the Source Once-Over sprint',
@@ -9605,13 +9690,14 @@ async function main() {
       tierBehavioralCompletionBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [VERIFICATION_RUNS_CARD_ID, VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY) &&
       currentPlan.includes(VERIFICATION_RUNS_CARD_ID) &&
       currentState.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY) &&
       (currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
         currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`')) &&
+        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
+        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('first non-owner read') &&
       foundationVerifySource.includes('buildSyntheticTierBehavioralCompletionProof'),
     'TIER-BEHAVIORAL-COMPLETION-001 proves first non-owner read decisions and advances the Source Once-Over sprint',
@@ -9686,12 +9772,13 @@ async function main() {
       verificationRunsBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      [VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
+      [VERIFICATION_RUNS_NEXT_CARD_ID, PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(VERIFICATION_RUNS_CLOSEOUT_KEY) &&
       currentPlan.includes(VERIFICATION_RUNS_NEXT_CARD_ID) &&
       currentState.includes(VERIFICATION_RUNS_CLOSEOUT_KEY) &&
       (currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`')) &&
+        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
+        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('proposed-only') &&
       foundationVerifySource.includes('buildSyntheticVerificationRunsProof'),
     'VERIFICATION-RUNS-001 restores stale research/finding review and advances the Source Once-Over sprint',
@@ -9763,15 +9850,93 @@ async function main() {
       perUserChangelogBuildLogExact &&
       foundationCurrentSprintStatus.status === 'healthy' &&
       foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.activeBlocker?.cardId === PER_USER_CHANGELOG_NEXT_CARD_ID &&
+      [PER_USER_CHANGELOG_NEXT_CARD_ID, DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID].includes(foundationHub.currentSprint?.activeBlocker?.cardId) &&
       currentPlan.includes(PER_USER_CHANGELOG_CLOSEOUT_KEY) &&
       currentPlan.includes(PER_USER_CHANGELOG_NEXT_CARD_ID) &&
       currentState.includes(PER_USER_CHANGELOG_CLOSEOUT_KEY) &&
-      currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') &&
+      (currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
+        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
       currentState.includes('viewed/ignored/received') &&
       foundationVerifySource.includes('buildSyntheticPerUserChangelogProof'),
     'PER-USER-CHANGELOG-001 restores per-actor write history and advances the Source Once-Over sprint',
     `lane=${perUserChangelog?.lane || 'missing'} approval=${perUserChangelogApprovalValidation.ok} actors=${foundationPerUserChangelog.summary?.actorCount ?? 'missing'} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
+  )
+  ensure(
+    checks,
+    decisionRestrictedQueue?.lane === 'done' &&
+      String(decisionRestrictedQueue?.statusNote || '').includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY) &&
+      packageJson.scripts?.['process:decision-restricted-queue-check'] === `node --env-file-if-exists=.env ${DECISION_RESTRICTED_QUEUE_SCRIPT_PATH}` &&
+      decisionRestrictedQueueApprovalValidation.ok &&
+      decisionRestrictedQueueApprovalValidation.mode === 'v2' &&
+      decisionRestrictedQueueApproval.cardId === DECISION_RESTRICTED_QUEUE_CARD_ID &&
+      Number(decisionRestrictedQueueApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      decisionRestrictedQueueApproval.approvedPlanRef === DECISION_RESTRICTED_QUEUE_PLAN_PATH &&
+      decisionRestrictedQueuePlanReview.status === 'pass' &&
+      decisionRestrictedQueuePlanReview.score >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      decisionRestrictedQueueSynthetic.ok &&
+      foundationRestrictedDecisionQueue.status === 'healthy' &&
+      typeof foundationRestrictedDecisionQueue.summary?.decisionCount === 'number' &&
+      foundationRestrictedDecisionQueue.summary?.ownerOnly === true &&
+      foundationRestrictedDecisionQueue.summary?.proposedOnly === true &&
+      foundationRestrictedDecisionQueue.summary?.autoApplies === false &&
+      foundationRestrictedDecisionQueue.summary?.autoLocks === false &&
+      foundationRestrictedDecisionQueue.summary?.nextCardId === DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID &&
+      foundationSourceLifecycle.restrictedDecisionQueue?.closeoutKey === DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY &&
+      foundationHub.restrictedDecisionQueue?.closeoutKey === DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY &&
+      foundationHub.sourceLifecycle?.restrictedDecisionQueue?.closeoutKey === DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY &&
+      includesAll(decisionRestrictedQueueSource, [
+        'classifyDecisionRestriction',
+        'buildDecisionRestrictedQueueSnapshot',
+        'filterGeneralDecisionRecords',
+        'buildSyntheticDecisionRestrictedQueueProof',
+        'owner_only_restricted_review',
+        'performance_concern',
+      ]) &&
+      includesAll(decisionRestrictedQueueScriptSource, [
+        DECISION_RESTRICTED_QUEUE_SUMMARY_MARKER,
+        'synthetic restricted queue proof covers restricted/general routing',
+        'Current Sprint active blocker advanced to Foundation UI Complete',
+      ]) &&
+      includesAll(decisionRestrictedQueuePlanSource, [
+        DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY,
+        'termination, compensation, performance concern',
+        DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
+      ]) &&
+      includesAll(serverSource, [
+        '/api/foundation/restricted-decision-queue',
+        'buildDecisionRestrictedQueueSnapshot',
+        'filterGeneralDecisionRecords',
+        'restrictedDecisionQueue',
+      ]) &&
+      sharedCandidateExtractionSource.includes('filterGeneralDecisionRecords') &&
+      securityAccessSource.includes('/api/foundation/restricted-decision-queue') &&
+      includesAll(foundationUiSource, [
+        'renderRestrictedDecisionQueuePanel',
+        'restrictedDecisionQueue',
+        'restricted-decision-queue',
+      ]) &&
+      includesAll(foundationStylesSource, [
+        '.restricted-decision-queue-panel',
+        '.restricted-decision-queue-grid',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        'decisionRestrictedQueueStage',
+        'DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY',
+        DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
+      ]) &&
+      buildLogDecisionRestrictedQueueBuild?.operatorCloseout === true &&
+      decisionRestrictedQueueBuildLogExact &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationHub.currentSprint?.activeBlocker?.cardId === DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID &&
+      currentPlan.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY) &&
+      currentPlan.includes(DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID) &&
+      currentState.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY) &&
+      currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`') &&
+      currentState.includes('termination, compensation, performance concern') &&
+      foundationVerifySource.includes('buildSyntheticDecisionRestrictedQueueProof'),
+    'DECISION-RESTRICTED-QUEUE-001 sequesters sensitive decisions before broader routing',
+    `lane=${decisionRestrictedQueue?.lane || 'missing'} approval=${decisionRestrictedQueueApprovalValidation.ok} restricted=${foundationRestrictedDecisionQueue.summary?.restrictedCount ?? 'missing'} next=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'}`,
   )
   ensure(
     checks,
