@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-SPRINT-INDEPENDENCE-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-12T22:11:33Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-sprint-independence-001-plan.md",
+  "approvedPlanSha256": "e8ee0ed238093c045294dd1a21769f3a18ceadc3c6bff9ae48737a658ba6ff67",
+  "approvedRepoHead": "23d99d442a26c701282df09ce15580eb71dc51af",
+  "notes": "Approved as the second card in the Process Repair + Verifier Independence sprint. Scope: remove active-sprint verifier shortcuts and prove old sprint checks from closeouts/artifacts only. Not approved: Reply/Watching Loop, new connectors, Drive ACL mutation, broad verifier split, or Plan Critic root-vs-patch implementation.",
+  "approvalDigest": "135b88a4e45d0b154c4a61d1b5d05b40e4a751b8a2b94b335b00cf181e6e2d22"
+}

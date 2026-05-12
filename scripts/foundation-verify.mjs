@@ -628,6 +628,11 @@ const MEETING_VAULT_AUTO_ENFORCEMENT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'MEETING-VAULT-ACL-001',
 ]
 
+const PROCESS_REPAIR_VERIFIER_SPRINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SPRINT-PROCESS-REPAIR-001',
+  'VERIFIER-SPRINT-INDEPENDENCE-001',
+]
+
 const FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-SPRINT-SYSTEM-001',
 ]
@@ -1305,6 +1310,10 @@ async function main() {
   const packageSource = await readRepoFile('package.json')
   const packageJson = JSON.parse(packageSource)
   const foundationVerifySource = await readRepoFile('scripts/foundation-verify.mjs')
+  const processRepairVerifierSprintScriptSource = await readRepoFile('scripts/process-repair-verifier-sprint-check.mjs')
+  const processRepairVerifierSprintPlanSource = await readRepoFile('docs/process/process-repair-verifier-independence-2026-05-12-plan.md')
+  const sprintProcessRepairPlanSource = await readRepoFile('docs/process/sprint-process-repair-001-plan.md')
+  const connectorRoutingProcessRepairSource = await readRepoFile('docs/process/connector-routing-truth-process-repair.md')
   const source021WriterProofCheckSource = await readRepoFile('scripts/process-source-021-writer-proof-check.mjs')
   const securityAccessSource = await readRepoFile('lib/security-access.js')
   const security002ProofCheckSource = await readRepoFile('scripts/process-security-002-check.mjs')
@@ -3159,7 +3168,6 @@ async function main() {
     backlogItems: foundationHub.backlogItems || [],
     closeouts: foundationBuildCloseouts,
   })
-  const CONNECTOR_ROUTING_TRUTH_SPRINT_ID = 'connector-routing-truth-2026-05-12'
   const CONNECTOR_ROUTING_TRUTH_CARD_IDS = [
     'ATOM-PROMOTION-DIAGNOSE-001',
     'SPRINT-DB-RECONCILE-001',
@@ -3169,24 +3177,54 @@ async function main() {
     'SOURCE-HUB-ROUTING-MATRIX-001',
   ]
   const currentSprintActiveBlockerCardId = foundationHub.currentSprint?.activeBlocker?.cardId || null
-  const connectorRoutingTruthSprintActive =
-    foundationHub.currentSprint?.sprintId === CONNECTOR_ROUTING_TRUTH_SPRINT_ID ||
-    activeFoundationSprint.sprint?.sprintId === CONNECTOR_ROUTING_TRUTH_SPRINT_ID ||
-    CONNECTOR_ROUTING_TRUTH_CARD_IDS.includes(currentSprintActiveBlockerCardId)
-  const connectorRoutingTruthSprintDone = connectorRoutingTruthSprintActive &&
-    foundationHub.currentSprint?.summary?.doneThisSprintCount === CONNECTOR_ROUTING_TRUTH_CARD_IDS.length &&
-    CONNECTOR_ROUTING_TRUTH_CARD_IDS.every(cardId =>
-      (foundationHub.currentSprint?.items || []).some(item => item.cardId === cardId && item.stage === 'done_this_sprint')
+  const backlogItemsByIdForSprintProof = new Map((foundationHub.backlogItems || []).map(item => [item.id, item]))
+  const closeoutsByBacklogIdForSprintProof = new Map()
+  for (const closeout of foundationBuildCloseouts || []) {
+    for (const backlogId of closeout.backlogIds || []) {
+      if (!closeoutsByBacklogIdForSprintProof.has(backlogId)) closeoutsByBacklogIdForSprintProof.set(backlogId, [])
+      closeoutsByBacklogIdForSprintProof.get(backlogId).push(closeout)
+    }
+  }
+  const historicalCardHasVerifiedCloseout = cardId => {
+    const card = backlogItemsByIdForSprintProof.get(cardId)
+    const closeouts = closeoutsByBacklogIdForSprintProof.get(cardId) || []
+    return card?.lane === 'done' && closeouts.some(closeout =>
+      ['accepted', 'shipped'].includes(String(closeout.status || '').toLowerCase()) &&
+      /verified/i.test(String(closeout.acceptanceState || ''))
     )
+  }
+  const connectorRoutingTruthSprintDone = CONNECTOR_ROUTING_TRUTH_CARD_IDS.every(cardId =>
+    historicalCardHasVerifiedCloseout(cardId)
+  )
+  const sourceOnceOverCardsHaveVerifiedCloseouts = [
+    SOURCE_MATURITY_GRID_CARD_ID,
+    SOURCE_EXTRACTION_COVERAGE_CARD_ID,
+    SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
+    MARKETING_SOURCE_MAP_CARD_ID,
+    BRAND_STACK_CARD_ID,
+    TIER_BEHAVIORAL_COMPLETION_CARD_ID,
+    VERIFICATION_RUNS_CARD_ID,
+    PER_USER_CHANGELOG_CARD_ID,
+    DECISION_RESTRICTED_QUEUE_CARD_ID,
+    FOUNDATION_UI_COMPLETE_CARD_ID,
+  ].every(cardId => historicalCardHasVerifiedCloseout(cardId))
   const activeSprintAtOrPast = expectedCardIds =>
-    expectedCardIds.includes(currentSprintActiveBlockerCardId) || connectorRoutingTruthSprintActive
+    expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
+    expectedCardIds.some(cardId => historicalCardHasVerifiedCloseout(cardId))
   const currentStateMentionsActiveBlockerOrLater = (...expectedSnippets) =>
-    connectorRoutingTruthSprintActive || expectedSnippets.some(snippet =>
+    expectedSnippets.some(snippet =>
       typeof snippet === 'boolean' ? snippet : currentState.includes(snippet)
     )
   const connectorRoutingTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-truth-v1') || null
+  const connectorRoutingProcessRepairCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-process-repair-v1') || null
+  const verifierSprintIndependenceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'verifier-sprint-independence-v1') || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
+  const currentSprintItemsById = new Map(
+    (foundationHub.currentSprint?.stages || [])
+      .flatMap(stage => stage.items || [])
+      .map(item => [item.cardId, item])
+  )
   const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
@@ -5796,6 +5834,8 @@ async function main() {
   const synthesisVerify = (foundationHub.backlogItems || []).find(item => item.id === SYNTHESIS_VERIFY_CARD_ID) || null
   const extractRunHardening = (foundationHub.backlogItems || []).find(item => item.id === EXTRACT_RUN_HARDENING_CARD_ID) || null
   const driveAccessRequest = (foundationHub.backlogItems || []).find(item => item.id === DRIVE_ACCESS_REQUEST_CARD_ID) || null
+  const sprintProcessRepair = (foundationHub.backlogItems || []).find(item => item.id === 'SPRINT-PROCESS-REPAIR-001') || null
+  const verifierSprintIndependence = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-SPRINT-INDEPENDENCE-001') || null
   const foundationSprintSystem = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SYSTEM_CARD_ID) || null
   const foundationSprintCadence = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_CADENCE_CARD_ID) || null
   const foundationSprintReview = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_REVIEW_CARD_ID) || null
@@ -10088,8 +10128,7 @@ async function main() {
       foundationHub.sourceLifecycle?.foundationUiComplete?.closeoutKey === FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY &&
       foundationHub.currentSprint?.status === 'healthy' &&
       activeSprintAtOrPast([FOUNDATION_UI_COMPLETE_CARD_ID]) &&
-      (foundationHub.currentSprint?.summary?.doneThisSprintCount >= 10 || connectorRoutingTruthSprintActive) &&
-      foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
+      sourceOnceOverCardsHaveVerifiedCloseouts &&
       includesAll(foundationUiCompleteSource, [
         'buildFoundationUiCompleteSnapshot',
         'buildSyntheticFoundationUiCompleteProof',
@@ -10173,6 +10212,82 @@ async function main() {
       includesAll(foundationVerifySource, CONNECTOR_ROUTING_TRUTH_CARD_IDS),
     'Connector Routing Truth Sprint closes atom flow, gate drift, Plan Critic logging, connector matrix, and hub routing matrix',
     `cards=${CONNECTOR_ROUTING_TRUTH_CARD_IDS.length}/6 connectorRows=${sourceConnectorMatrix.summary?.rowCount ?? 'missing'} routingRows=${sourceHubRoutingMatrix.summary?.rowCount ?? 'missing'} hubs=${sourceHubRoutingMatrix.summary?.hubCount ?? 'missing'}`,
+  )
+  const sprintProcessRepairCurrentItem = currentSprintItemsById.get('SPRINT-PROCESS-REPAIR-001')
+  const verifierSprintIndependenceCurrentItem = currentSprintItemsById.get('VERIFIER-SPRINT-INDEPENDENCE-001')
+  const verifierModularSplitCurrentItem = currentSprintItemsById.get('VERIFIER-MODULAR-SPLIT-001')
+  const verifierSprintIndependenceIsBuilding =
+    verifierSprintIndependence?.lane === 'executing' &&
+    verifierSprintIndependenceCurrentItem?.stage === 'building_now' &&
+    verifierSprintIndependenceCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === 'VERIFIER-SPRINT-INDEPENDENCE-001'
+  const verifierSprintIndependenceIsClosed =
+    verifierSprintIndependence?.lane === 'done' &&
+    String(verifierSprintIndependence?.statusNote || '').includes('verifier-sprint-independence-v1') &&
+    verifierSprintIndependenceCloseout?.operatorCloseout === true &&
+    (verifierSprintIndependenceCloseout.backlogIds || []).includes('VERIFIER-SPRINT-INDEPENDENCE-001') &&
+    verifierSprintIndependenceCurrentItem?.stage === 'done_this_sprint' &&
+    verifierSprintIndependenceCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    verifierModularSplitCurrentItem?.stage === 'building_now' &&
+    verifierModularSplitCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === 'VERIFIER-MODULAR-SPLIT-001'
+  const oldConnectorRoutingShortcutA = ['connectorRoutingTruthSprintActive', 'expectedSnippets'].join(' || ')
+  const oldConnectorRoutingShortcutB = ['expectedCardIds.includes(currentSprintActiveBlockerCardId)', 'connectorRoutingTruthSprintActive'].join(' || ')
+  ensure(
+    checks,
+    sprintProcessRepair?.lane === 'done' &&
+      String(sprintProcessRepair?.statusNote || '').includes('connector-routing-process-repair-v1') &&
+      (verifierSprintIndependenceIsBuilding || verifierSprintIndependenceIsClosed) &&
+      connectorRoutingProcessRepairCloseout?.operatorCloseout === true &&
+      (connectorRoutingProcessRepairCloseout.backlogIds || []).includes('SPRINT-PROCESS-REPAIR-001') &&
+      ['VERIFIER-SPRINT-INDEPENDENCE-001', 'VERIFIER-MODULAR-SPLIT-001', 'PROCESS-ROOT-VS-PATCH-001'].every(id =>
+        (connectorRoutingProcessRepairCloseout.mentionedBacklogIds || []).includes(id)
+      ) &&
+      packageJson.scripts?.['process:repair-verifier-sprint-check'] === 'node --env-file-if-exists=.env scripts/process-repair-verifier-sprint-check.mjs' &&
+      foundationHub.currentSprint?.sprintId === 'process-repair-verifier-independence-2026-05-12' &&
+      sprintProcessRepairCurrentItem?.stage === 'done_this_sprint' &&
+      sprintProcessRepairCurrentItem?.existingWorkCheckStatus === 'complete' &&
+      includesAll(processRepairVerifierSprintScriptSource, [
+        'process-repair-verifier-independence-2026-05-12',
+        'evaluateAndLogPlans',
+        'buildConnectorRoutingClosedSeed',
+        'closeVerifierSprintIndependence',
+        'SPRINT-PROCESS-REPAIR-001',
+        'VERIFIER-SPRINT-INDEPENDENCE-001',
+      ]) &&
+      includesAll(processRepairVerifierSprintPlanSource, [
+        'Scoping, Sprint Ready, and Building Now',
+        'Plan Critic',
+        'does not fake skipped stage history',
+      ]) &&
+      includesAll(sprintProcessRepairPlanSource, [
+        'after-action doctrine',
+        'does not fake historical stage progression',
+        'process:repair-verifier-sprint-check',
+      ]) &&
+      includesAll(connectorRoutingProcessRepairSource, [
+        'honest after-action repair',
+        'does not backdate Plan Critic or fake stage history',
+      ]) &&
+      includesAll(foundationVerifySource, PROCESS_REPAIR_VERIFIER_SPRINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'SPRINT-PROCESS-REPAIR-001 repairs skipped sprint doctrine without fake stage history',
+    `lane=${sprintProcessRepair?.lane || 'missing'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'} closeout=${connectorRoutingProcessRepairCloseout?.key || 'missing'}`,
+  )
+  ensure(
+    checks,
+    verifierSprintIndependenceIsClosed &&
+      (verifierSprintIndependenceCloseout.mentionedBacklogIds || []).includes('VERIFIER-MODULAR-SPLIT-001') &&
+      (verifierSprintIndependenceCloseout.proofCommands || []).includes('npm run foundation:verify') &&
+      !foundationVerifySource.includes(oldConnectorRoutingShortcutA) &&
+      !foundationVerifySource.includes(oldConnectorRoutingShortcutB) &&
+      includesAll(foundationVerifySource, [
+        'historicalCardHasVerifiedCloseout',
+        'connectorRoutingTruthSprintDone',
+        'sourceOnceOverCardsHaveVerifiedCloseouts',
+        'VERIFIER-SPRINT-INDEPENDENCE-001',
+      ]),
+    'VERIFIER-SPRINT-INDEPENDENCE-001 closes active-sprint verifier shortcut without replacing it',
+    `lane=${verifierSprintIndependence?.lane || 'missing'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'missing'} closeout=${verifierSprintIndependenceCloseout?.key || 'missing'}`,
   )
   ensure(
     checks,

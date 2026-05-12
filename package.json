@@ -112,6 +112,7 @@
     "process:rebuild-plan-reconcile-check": "node --env-file-if-exists=.env scripts/process-rebuild-plan-reconcile-check.mjs",
     "process:plan-critic-check": "node --env-file-if-exists=.env scripts/process-plan-critic-check.mjs",
     "process:plan-critic-log-check": "node --env-file-if-exists=.env scripts/process-plan-critic-log-check.mjs",
+    "process:repair-verifier-sprint-check": "node --env-file-if-exists=.env scripts/process-repair-verifier-sprint-check.mjs",
     "process:security-behavior-proof-check": "node --env-file-if-exists=.env scripts/process-security-behavior-proof-check.mjs",
     "process:verifier-behavior-sweep-check": "node --env-file-if-exists=.env scripts/process-verifier-behavior-sweep-check.mjs",
     "process:strategy-hub-meeting-ready-check": "node --env-file-if-exists=.env scripts/process-strategy-hub-meeting-ready-check.mjs",

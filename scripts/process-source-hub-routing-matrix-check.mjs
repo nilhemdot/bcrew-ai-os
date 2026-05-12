@@ -58,15 +58,15 @@ async function closeSprintCard() {
     await pool.query(
       `
         UPDATE foundation_sprints
-        SET active_blocker_card_id = $1,
+        SET status = 'closed',
+            active_blocker_card_id = $1,
             metadata = metadata || $2::jsonb,
             updated_at = NOW()
         WHERE sprint_id = 'connector-routing-truth-2026-05-12'
-          AND status = 'active'
       `,
       [SOURCE_HUB_ROUTING_MATRIX_CARD_ID, JSON.stringify({
-        currentStatus: 'connector_routing_truth_sprint_done_review_next',
-        nextAction: 'Review the connector and hub routing matrices before pulling Reply/Watching Loop or source-gap implementation.',
+        currentStatus: 'connector_routing_truth_sprint_closed',
+        nextAction: 'Closed. Process repair is handled by process-repair-verifier-independence-2026-05-12 before product work resumes.',
       })],
     )
   } finally {

@@ -55,6 +55,12 @@ const CONNECTOR_TRUTH_SPRINT_ORDER = [
   'SOURCE-CONNECTOR-MATRIX-001',
   'SOURCE-HUB-ROUTING-MATRIX-001',
 ]
+const PROCESS_REPAIR_VERIFIER_SPRINT_ORDER = [
+  'SPRINT-PROCESS-REPAIR-001',
+  'VERIFIER-SPRINT-INDEPENDENCE-001',
+  'VERIFIER-MODULAR-SPLIT-001',
+  'PROCESS-ROOT-VS-PATCH-001',
+]
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}
@@ -148,6 +154,7 @@ async function main() {
   const verifierClosed = cardMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID)?.lane === 'done' &&
     sprintStageMap.get(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) === 'done_this_sprint'
   const connectorTruthSprintActive = sprint.sprint?.sprintId === 'connector-routing-truth-2026-05-12'
+  const processRepairVerifierSprintActive = sprint.sprint?.sprintId === 'process-repair-verifier-independence-2026-05-12'
   const selfReview = evaluatePlanCriticPlan({
     planText,
     card: criticCard || { id: PLAN_CRITIC_REPLACEMENT_CARD_ID, priority: 'P0' },
@@ -177,7 +184,8 @@ async function main() {
   addFinding(
     findings,
     REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id) ||
-      CONNECTOR_TRUTH_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id),
+      CONNECTOR_TRUTH_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id) ||
+      PROCESS_REPAIR_VERIFIER_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id),
     'Current Sprint order remains valid for the active sprint generation',
     sprintOrder.join(' -> '),
   )
@@ -186,7 +194,8 @@ async function main() {
     sprint.sprint?.activeBlockerCardId === SECURITY_BEHAVIOR_PROOF_CARD_ID ||
       (securityClosed && sprint.sprint?.activeBlockerCardId === VERIFIER_BEHAVIOR_SWEEP_CARD_ID) ||
       (securityClosed && verifierClosed && [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(sprint.sprint?.activeBlockerCardId)) ||
-      (connectorTruthSprintActive && CONNECTOR_TRUTH_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)),
+      (connectorTruthSprintActive && CONNECTOR_TRUTH_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)) ||
+      (processRepairVerifierSprintActive && PROCESS_REPAIR_VERIFIER_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)),
     'Current Sprint active blocker advanced through security behavior proof',
     sprint.sprint?.activeBlockerCardId || 'missing',
   )
