@@ -497,6 +497,16 @@ import {
   buildSyntheticAtomFlowAutoDemotionProof,
 } from '../lib/atom-flow-auto-demotion.js'
 import {
+  EXTRACT_RUN_HARDENING_EXECUTION_APPROVAL_PATH,
+  EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID,
+  EXTRACT_RUN_HARDENING_EXECUTION_CLOSEOUT_KEY,
+  EXTRACT_RUN_HARDENING_EXECUTION_PLAN_PATH,
+  EXTRACT_RUN_HARDENING_EXECUTION_SCRIPT_PATH,
+  EXTRACTION_RETRY_FAILED_JOB_KEY,
+  EXTRACTION_RETRY_FAILED_SCRIPT_PATH,
+  buildSyntheticExtractionRetryExecutionProof,
+} from '../lib/extraction-run-hardening-execution.js'
+import {
   SOURCE_EXTRACTION_COVERAGE_APPROVAL_PATH,
   SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY,
   SOURCE_EXTRACTION_COVERAGE_PLAN_PATH,
@@ -1522,6 +1532,10 @@ async function main() {
   const atomFlowAutoDemotionSource = await readRepoFile('lib/atom-flow-auto-demotion.js')
   const atomFlowAutoDemotionScriptSource = await readRepoFile(ATOM_FLOW_AUTO_DEMOTION_SCRIPT_PATH)
   const atomFlowAutoDemotionPlanSource = await readRepoFile(ATOM_FLOW_AUTO_DEMOTION_PLAN_PATH)
+  const extractRunHardeningExecutionSource = await readRepoFile('lib/extraction-run-hardening-execution.js')
+  const extractionRetryFailedScriptSource = await readRepoFile(EXTRACTION_RETRY_FAILED_SCRIPT_PATH)
+  const extractRunHardeningExecutionScriptSource = await readRepoFile(EXTRACT_RUN_HARDENING_EXECUTION_SCRIPT_PATH)
+  const extractRunHardeningExecutionPlanSource = await readRepoFile(EXTRACT_RUN_HARDENING_EXECUTION_PLAN_PATH)
   const sourceExtractionCoverageSource = await readRepoFile('lib/source-extraction-coverage.js')
   const sourceExtractionCoverageScriptSource = await readRepoFile(SOURCE_EXTRACTION_COVERAGE_SCRIPT_PATH)
   const sourceExtractionCoveragePlanSource = await readRepoFile(SOURCE_EXTRACTION_COVERAGE_PLAN_PATH)
@@ -1927,6 +1941,11 @@ async function main() {
     repoRoot,
     approvalRef: ATOM_FLOW_AUTO_DEMOTION_APPROVAL_PATH,
     cardId: ATOM_FLOW_AUTO_DEMOTION_CARD_ID,
+  })
+  const extractRunHardeningExecutionApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: EXTRACT_RUN_HARDENING_EXECUTION_APPROVAL_PATH,
+    cardId: EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID,
   })
   const sourceExtractionCoverageApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3350,6 +3369,7 @@ async function main() {
   const llmAuthAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === LLM_AUTH_AUDIT_CLOSEOUT_KEY) || null
   const sourceExtractionGapFollowupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_EXTRACTION_GAP_FOLLOWUP_CLOSEOUT_KEY) || null
   const atomFlowAutoDemotionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === ATOM_FLOW_AUTO_DEMOTION_CLOSEOUT_KEY) || null
+  const extractRunHardeningExecutionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === EXTRACT_RUN_HARDENING_EXECUTION_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -3370,6 +3390,7 @@ async function main() {
   const llmAuthAuditCurrentItem = currentSprintItemsById.get(LLM_AUTH_AUDIT_CARD_ID) || null
   const sourceExtractionGapFollowupCurrentItem = currentSprintItemsById.get(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID) || null
   const atomFlowAutoDemotionCurrentItem = currentSprintItemsById.get(ATOM_FLOW_AUTO_DEMOTION_CARD_ID) || null
+  const extractRunHardeningExecutionCurrentItem = currentSprintItemsById.get(EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID) || null
   const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
@@ -3500,6 +3521,7 @@ async function main() {
   const autoDeployRollbackSynthetic = buildSyntheticAutoDeployRollbackProof()
   const sourceMaturityGridSynthetic = buildSyntheticSourceMaturityGridProof()
   const atomFlowAutoDemotionSynthetic = buildSyntheticAtomFlowAutoDemotionProof()
+  const extractRunHardeningExecutionSynthetic = buildSyntheticExtractionRetryExecutionProof()
   const sourceExtractionCoverageSynthetic = buildSyntheticSourceExtractionCoverageProof()
   const sourceCoverageCloseoutSynthetic = buildSyntheticSourceCoverageCloseoutProof()
   const marketingSourceMapSynthetic = buildSyntheticMarketingSourceMapProof()
@@ -6002,6 +6024,7 @@ async function main() {
   const autoDeployRollback = (foundationHub.backlogItems || []).find(item => item.id === AUTO_DEPLOY_ROLLBACK_CARD_ID) || null
   const sourceMaturityGrid = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_MATURITY_GRID_CARD_ID) || null
   const atomFlowAutoDemotion = (foundationHub.backlogItems || []).find(item => item.id === ATOM_FLOW_AUTO_DEMOTION_CARD_ID) || null
+  const extractRunHardeningExecution = (foundationHub.backlogItems || []).find(item => item.id === EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID) || null
   const sourceExtractionCoverage = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_EXTRACTION_COVERAGE_CARD_ID) || null
   const sourceCoverageCloseout = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_COVERAGE_CLOSEOUT_CARD_ID) || null
   const sourceExtractionGapFollowup = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID) || null
@@ -10443,6 +10466,16 @@ async function main() {
     atomFlowAutoDemotionCloseout?.operatorCloseout === true &&
     (atomFlowAutoDemotionCloseout.backlogIds || []).includes(ATOM_FLOW_AUTO_DEMOTION_CARD_ID) &&
     historicalCardHasVerifiedCloseout(ATOM_FLOW_AUTO_DEMOTION_CARD_ID)
+  const extractRunHardeningExecutionIsBuilding =
+    extractRunHardeningExecutionCurrentItem?.stage === 'building_now' &&
+    extractRunHardeningExecutionCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID
+  const extractRunHardeningExecutionIsClosed =
+    extractRunHardeningExecution?.lane === 'done' &&
+    String(extractRunHardeningExecution?.statusNote || '').includes(EXTRACT_RUN_HARDENING_EXECUTION_CLOSEOUT_KEY) &&
+    extractRunHardeningExecutionCloseout?.operatorCloseout === true &&
+    (extractRunHardeningExecutionCloseout.backlogIds || []).includes(EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID) &&
+    historicalCardHasVerifiedCloseout(EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID)
   const atomFlowRows = foundationSourceLifecycle.sourceMaturityGrid?.rows || foundationHub.sourceMaturityGrid?.rows || []
   const atomFlowRowsMissingStatus = atomFlowRows.filter(row => !row.atomFlow || !row.atomFlow.status)
   const staleAtomFlowRows = atomFlowRows.filter(row => row.atomFlow?.status === 'stale')
@@ -10915,6 +10948,47 @@ async function main() {
           (atomFlowAutoDemotionCloseout.backlogIds || []).includes(ATOM_FLOW_AUTO_DEMOTION_CARD_ID))),
     'ATOM-FLOW-AUTO-DEMOTION-001 demotes stale source atom-flow claims',
     `lane=${atomFlowAutoDemotion?.lane || 'missing'} stage=${atomFlowAutoDemotionCurrentItem?.stage || 'closed'} stale=${staleAtomFlowRows.length} missing=${atomFlowRowsMissingStatus.length}`,
+  )
+  ensure(
+    checks,
+    (extractRunHardeningExecutionIsBuilding || extractRunHardeningExecutionIsClosed) &&
+      packageJson.scripts?.['extraction:retry-failed'] === `node --env-file-if-exists=.env ${EXTRACTION_RETRY_FAILED_SCRIPT_PATH}` &&
+      packageJson.scripts?.['process:extract-run-hardening-execution-check'] === `node --env-file-if-exists=.env ${EXTRACT_RUN_HARDENING_EXECUTION_SCRIPT_PATH}` &&
+      extractRunHardeningExecutionApprovalValidation.ok &&
+      extractRunHardeningExecutionApprovalValidation.mode === 'v2' &&
+      extractRunHardeningExecutionApprovalValidation.approval?.approvedPlanRef === EXTRACT_RUN_HARDENING_EXECUTION_PLAN_PATH &&
+      extractRunHardeningExecutionSynthetic.ok &&
+      includesAll(extractRunHardeningExecutionSource, [
+        'selectEligibleExtractionRetryItems',
+        'finishExtractionRetryItem',
+        'buildSyntheticExtractionRetryExecutionProof',
+        'source_crawl_item_attempts',
+      ]) &&
+      includesAll(extractionRetryFailedScriptSource, [
+        'classifySourceCrawlItemRetries',
+        'getRetryableSourceCrawlItems',
+        '--dryRun=true',
+      ]) &&
+      includesAll(extractRunHardeningExecutionScriptSource, [
+        'runRetryDryRun',
+        'synthetic retry execution covers success',
+        'RESEARCH-LANE-PURGE-001',
+      ]) &&
+      includesAll(foundationJobsSource, [
+        EXTRACTION_RETRY_FAILED_JOB_KEY,
+        "args: ['run', 'extraction:retry-failed', '--', '--target=meetings-current-day', '--limit=10']",
+        "runtimeMode: 'manual'",
+      ]) &&
+      includesAll(extractRunHardeningExecutionPlanSource, [
+        'eligible failed `source_crawl_items`',
+        'No substring-only proof',
+        'manual-only',
+      ]) &&
+      (!extractRunHardeningExecutionIsClosed ||
+        ((extractRunHardeningExecutionCloseout.proofCommands || []).includes('npm run process:extract-run-hardening-execution-check -- --json') &&
+          (extractRunHardeningExecutionCloseout.backlogIds || []).includes(EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID))),
+    'EXTRACT-RUN-HARDENING-EXECUTION-001 runs bounded failed-item retry execution',
+    `lane=${extractRunHardeningExecution?.lane || 'missing'} stage=${extractRunHardeningExecutionCurrentItem?.stage || 'closed'} synthetic=${extractRunHardeningExecutionSynthetic.ok}`,
   )
   ensure(
     checks,
