@@ -1,6 +1,6 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-12
+Last updated: 2026-05-13
 Status: Active
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
@@ -23,15 +23,19 @@ Rule: if a package depends on open live inputs, open runtime activation, or open
 
 The Foundation is real. The system is not yet fully alive.
 
-Current sprint call after the multi-auditor review and Source Once-Over reset:
+Current sprint call:
 
-- Foundation READY means owner-only Strategy re-entry is allowed. It does not mean old-system parity, broad team access, or public exposure.
-- The active drift pattern is process proof over product behavior.
-- The audit-reset sprint closed eight v1 cards: `VERIFY-GATE-TIERING-001`, `REBUILD-PLAN-RECONCILE-001`, `PLAN-CRITIC-REPLACEMENT-001`, `SECURITY-BEHAVIOR-PROOF-001`, `VERIFIER-BEHAVIOR-SWEEP-001`, `STRATEGY-HUB-MEETING-READY-001`, `AVATAR-IMPORT-001`, and `AUTO-DEPLOY-ROLLBACK-001`.
-- The active sprint is now the Foundation Source Once-Over sprint. `SOURCE-MATURITY-GRID-001` is done under `source-maturity-grid-v1`; `SOURCE-EXTRACTION-COVERAGE-001` is done under `source-extraction-coverage-v1`; `SOURCE-COVERAGE-CLOSEOUT-001` is done under `source-coverage-closeout-v1`; `MARKETING-SOURCE-MAP-001` is done under `marketing-source-map-v1`; `BRAND-STACK-001` is done under `brand-stack-v1`; `TIER-BEHAVIORAL-COMPLETION-001` is done under `tier-behavioral-completion-v1`; `VERIFICATION-RUNS-001` is done under `verification-runs-v1`; `PER-USER-CHANGELOG-001` is done under `per-user-changelog-v1`; `DECISION-RESTRICTED-QUEUE-001` is done under `decision-restricted-queue-v1`; `FOUNDATION-UI-COMPLETE-001` is done under `foundation-ui-complete-v1`. Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`; Current sprint active blocker remains pinned to `FOUNDATION-UI-COMPLETE-001` for sprint review/rollover instead of automatically pulling product work.
-- The new sprint is foundation depth only: source maturity, extraction coverage, source gap closeout, marketing source/brand mapping, tier/audit/restricted-decision/stale-verification foundations, then final Foundation UI. No product expansion is approved.
-- Meeting Vault historical cleanup remains a bounded legacy-exception lane, not the active Foundation readiness blocker.
-- Current Sprint is the active sprint only. Prior `Done This Sprint` cards stay in Backlog done and Recent Work; prior returned cards leave the overlay and stay in the main backlog unless they are returned during the active sprint.
+- The active sprint is `control-plane-connector-readiness-2026-05-12`, a backend control-plane sprint. Current Sprint API owns the active blocker; this doc records closeout context and command doctrine.
+- `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is done under `current-sprint-dynamic-truth-v1`. Hardcoded Current Sprint defaults are bootstrap-only, and incomplete live sprint metadata fails closed.
+- `SPRINT-STAGE-GATE-001` is done under `sprint-stage-gate-v1`. Sprint Ready and Building Now require complete doctrine and Plan Critic pass rows; Done This Sprint requires done backlog truth and closeout proof. The dogfood proof rejected the original skipped Connector/Routing state and accepted the repaired after-action state.
+- `FOUNDATION-PLAN-RECONCILE-001` is done under `foundation-plan-reconcile-control-plane-v1`: rebuild plan/state/handoff truth now points to the active control-plane sprint, records Source Once-Over/Connector-Routing/Process Repair closeouts, and queues next source-truth cards without pulling them.
+- `CONNECTOR-CREDENTIAL-001` is the next ordered build after the reconcile closeout. `LLM-AUTH-AUDIT-001` and `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` remain Sprint Ready and must wait their ordered turn.
+- Source Once-Over is closed for v1 through `foundation-ui-complete-v1`. Connector/Routing Truth is closed under `connector-routing-truth-v1`. Process Repair is closed under `connector-routing-process-repair-v1`, `verifier-sprint-independence-v1`, `verifier-modular-split-v1`, and `process-root-vs-patch-v1`.
+- Queued, not pulled into this sprint: `ATOM-FLOW-AUTO-DEMOTION-001`, `EXTRACT-RUN-HARDENING-EXECUTION-001`, and `RESEARCH-LANE-PURGE-001`.
+- Foundation READY still means owner-only Strategy re-entry is allowed. It does not mean old-system parity, broad team access, public exposure, Reply/Watching Loop readiness, or source extraction completion.
+- Stop at sprint review. Do not silently roll into product work when this sprint closes.
+- Not next: Reply/Watching Loop, Strategy Hub UI expansion, Mycro/Skool/Loom/Zoom/Real/SocialPilot extraction, Telegram bots, Department Directors/Master Director, marketing production, Brand Guardian enforcement, Drive permission mutation, request-access emails, or historical Meeting Vault cleanup. Do not run MEETING-VAULT-ACL-001 Phase B, mutate Drive permissions, or send request-access emails from this sprint.
+- Historical closeout notes below preserve at-the-time "current sprint active blocker" wording. The Short Version here and `/api/foundation/current-sprint` are the operational current truth.
 
 Built:
 

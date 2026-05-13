@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-12
-Version: v6.33 — Foundation Source Once-Over complete
+Last updated: 2026-05-13
+Version: v6.34 — Control Plane + Connector Readiness active
 Status: Active
 
 Use this doc for one question:
@@ -73,28 +73,36 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Source Once-Over
+## Current Sprint: Foundation Control Plane + Connector Readiness
 
-The audit-reset sprint is closed for v1. It made Foundation safe for owner-only Strategy re-entry, but Steve correctly reset the finish line: Foundation is not built until source depth is visible and the remaining gaps are either flowing, explicitly deferred, or routed into the next card.
+Live sprint ID: `control-plane-connector-readiness-2026-05-12`.
 
-The active sprint is `foundation-source-once-over-2026-05-12`.
+This is a backend control-plane sprint. It exists because Source Once-Over, Connector/Routing Truth, and Process Repair all shipped useful work, but the system also proved that docs, sprint state, stage progression, and connector readiness can drift. Current Sprint API owns the active blocker; this doc records the doctrine and sequence, not a second live queue.
 
-Sprint order:
+The control-plane sprint order:
 
-1. `SOURCE-MATURITY-GRID-001` — done under `source-maturity-grid-v1`; Foundation now exposes a seven-stage source maturity grid for every source contract: connected, trusted, monitored, extracted, atomized, synthesized, routed.
-2. `SOURCE-EXTRACTION-COVERAGE-001` — done under `source-extraction-coverage-v1`; Foundation now rolls existing extraction-control target/run/item/retry/cursor and 24-hour activity signals up to every source.
-3. `SOURCE-COVERAGE-CLOSEOUT-001` — done under `source-coverage-closeout-v1`; every source row now has a closeout decision: covered, extraction follow-up, maturity follow-up, deferred, or not required for current Foundation depth.
-4. `MARKETING-SOURCE-MAP-001` — done under `marketing-source-map-v1`; imported avatars and marketing source contracts are now mapped to Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained lanes without building marketing production.
-5. `BRAND-STACK-001` — done under `brand-stack-v1`; Benson Crew, Zahnd Team Ag, Steve Zahnd, MarketMasters, and Unchained are modeled as Foundation brand entities with Brand Guardian boundaries, without enforcement or production.
-6. `TIER-BEHAVIORAL-COMPLETION-001` — done under `tier-behavioral-completion-v1`; fourteen first-read surfaces now have explicit route behavior decisions: Ops/Sales reads are role-filtered, Foundation/source/brand/shared-comms/Strategy/evidence reads stay owner-only.
-7. `VERIFICATION-RUNS-001` — done under `verification-runs-v1`; Foundation now exposes proposed-only stale research/finding/action-route/backlog-hygiene verification runs with zero auto-expiry.
-8. `PER-USER-CHANGELOG-001` — done under `per-user-changelog-v1`; Foundation now groups existing change events by user/actor, shows write/approval/apply/system activity, keeps metadata values private, and names viewed/ignored/received history as missing coverage.
-9. `DECISION-RESTRICTED-QUEUE-001` — done under `decision-restricted-queue-v1`; Foundation now flags termination, compensation, performance concern, personnel/HR, and legal/compliance decisions into owner-only review and filters them out of general Strategy/extraction contexts.
-10. `FOUNDATION-UI-COMPLETE-001` — done under `foundation-ui-complete-v1`; Foundation Source Lifecycle now has a 30-second read that summarizes source maturity, extraction, source closeout, marketing source, brand stack, tier/audit, stale-verification, per-user changelog, restricted-decision, and Current Sprint state in one scan.
+1. `CURRENT-SPRINT-DYNAMIC-TRUTH-001` — done under `current-sprint-dynamic-truth-v1`; active Current Sprint command truth now fails closed when live sprint metadata is incomplete, and hardcoded defaults are bootstrap-only.
+2. `SPRINT-STAGE-GATE-001` — done under `sprint-stage-gate-v1`; stage prerequisites are enforced, and the dogfood proof rejects the original skipped Connector/Routing state while accepting the repaired after-action state.
+3. `FOUNDATION-PLAN-RECONCILE-001` — done under `foundation-plan-reconcile-control-plane-v1`; rebuild plan/state/handoff truth now matches live sprint and closeout reality without product expansion.
+4. `CONNECTOR-CREDENTIAL-001` — next ordered build after the reconcile closeout; build a no-secret connector credential/preflight registry with owner, credential class, source unlocked, last probe, and blocker reason.
+5. `LLM-AUTH-AUDIT-001` — Sprint Ready; probe and classify model route/auth paths after Codex/OpenClaw runtime changes.
+6. `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` — Sprint Ready; turn connector/routing matrix gaps into a ranked triage queue only.
 
-Source Once-Over complete for v1. The final active blocker remains pinned to `FOUNDATION-UI-COMPLETE-001` for sprint review/rollover; do not automatically pull Reply/Watching Loop or product-layer work until the sprint is reviewed.
+Recently closed sprint truth that this sprint depends on:
 
-Not next: Reply/Watching Loop, Telegram/mobile assistants, Department Directors/Master Director, broad Strategy Hub expansion, marketing production, new hubs, Drive permission mutation, or historical Meeting Vault cleanup.
+- Foundation Source Once-Over is closed for v1 through `foundation-ui-complete-v1`. Closed sequence: `SOURCE-MATURITY-GRID-001` / `source-maturity-grid-v1`, `SOURCE-EXTRACTION-COVERAGE-001` / `source-extraction-coverage-v1`, `SOURCE-COVERAGE-CLOSEOUT-001` / `source-coverage-closeout-v1`, `MARKETING-SOURCE-MAP-001` / `marketing-source-map-v1`, `BRAND-STACK-001` / `brand-stack-v1`, `TIER-BEHAVIORAL-COMPLETION-001` / `tier-behavioral-completion-v1`, `VERIFICATION-RUNS-001` / `verification-runs-v1`, `PER-USER-CHANGELOG-001` / `per-user-changelog-v1`, `DECISION-RESTRICTED-QUEUE-001` / `decision-restricted-queue-v1`, and `FOUNDATION-UI-COMPLETE-001` / `foundation-ui-complete-v1`.
+- Connector/Routing Truth is closed under `connector-routing-truth-v1`: atom promotion was restored, sprint DB drift was reconciled, Plan Critic logging landed, and connector/routing matrices became visible.
+- Process Repair is closed under `connector-routing-process-repair-v1`, `verifier-sprint-independence-v1`, `verifier-modular-split-v1`, and `process-root-vs-patch-v1`: skipped doctrine was repaired as after-action truth, verifier checks were made sprint-independent, the first verifier module boundary was split, and Plan Critic now rejects symptom patches without root-invariant proof.
+
+Queued, not pulled into this sprint:
+
+- `ATOM-FLOW-AUTO-DEMOTION-001` — auto-demote maturity claims when atom flow stalls.
+- `EXTRACT-RUN-HARDENING-EXECUTION-001` — run retry/backoff execution instead of leaving retry policy on paper.
+- `RESEARCH-LANE-PURGE-001` — generate a human-confirmable report for parked research cards.
+
+Stop at sprint review. Do not silently roll into Reply/Watching Loop or another product sprint when these six cards close.
+
+Not next: Reply/Watching Loop, Strategy Hub UI expansion, Mycro/Skool/Loom/Zoom/Real/SocialPilot extraction, Telegram/mobile assistants, Department Directors/Master Director, marketing production, Brand Guardian enforcement, new hubs, Drive permission mutation, request-access emails, or historical Meeting Vault cleanup. Do not run MEETING-VAULT-ACL-001 Phase B, mutate Drive permissions, or send request-access emails from this sprint.
 
 ## Current Reality
 
@@ -350,7 +358,7 @@ Order now:
    - privacy/tier/process controls
 6. Resume Strategic Intelligence only after the Foundation checkpoint work is stable.
 
-### Active Sprint — Behavior Proof And First Operator Loop
+### Closed Sprint — Behavior Proof And First Operator Loop
 
 The 2026-05-12 multi-auditor review changed the next sprint order.
 
@@ -364,7 +372,7 @@ Consensus risk:
 - verification has been all-or-nothing instead of proportional to blast radius
 - old-system rebuild targets are still too easy to lose in research or chat
 
-Current sprint goal:
+Closed sprint goal:
 
 `Make Foundation verification proportional, then convert Foundation READY from process proof into behavior proof and ship one owner-only Strategy operator loop.`
 
@@ -397,10 +405,10 @@ Order:
    - Added a guarded Mac mini deploy runner: dry-run by default, explicit apply mode, fast-forward pull, dashboard/worker restart, served-commit health check, and rollback to the previous SHA on failed health.
    - This is reliability carry-forward, not broad deployment redesign or a permanent periodic auto-pull LaunchAgent install.
 
-On-board but not automatically active:
+Old-system parity cards preserved from that sprint:
 
-- `CURRENT-SPRINT-DYNAMIC-TRUTH-001` — move active sprint command truth out of hardcoded JS seed strings and into live DB/backlog-backed sprint records.
-- `REPLY-WATCHING-LOOP-001`, `MARKETING-PIPELINE-REBUILD-001`, `TELEGRAM-BOTS-REBUILD-001`, and `INTEL-DIRECTORS-REBUILD-001` — carded now so old-system value is visible, but sequenced after the active Foundation Source Once-Over order unless Steve explicitly overrides. `VERIFICATION-RUNS-001`, `PER-USER-CHANGELOG-001`, and `DECISION-RESTRICTED-QUEUE-001` are now done for v1 inside the Source Once-Over sprint.
+- `CURRENT-SPRINT-DYNAMIC-TRUTH-001` was pulled into the Control Plane + Connector Readiness sprint and is done under `current-sprint-dynamic-truth-v1`.
+- `REPLY-WATCHING-LOOP-001`, `MARKETING-PIPELINE-REBUILD-001`, `TELEGRAM-BOTS-REBUILD-001`, and `INTEL-DIRECTORS-REBUILD-001` remain carded so old-system value is visible, but they are not automatically active while the control-plane sprint is open. `VERIFICATION-RUNS-001`, `PER-USER-CHANGELOG-001`, `DECISION-RESTRICTED-QUEUE-001`, and `BRAND-STACK-001` are done for v1.
 
 Current Sprint rollover rule:
 

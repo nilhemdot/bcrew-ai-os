@@ -362,6 +362,11 @@ import {
   SPRINT_STAGE_GATE_CLOSEOUT_KEY,
   SPRINT_STAGE_GATE_PLAN_PATH,
   SPRINT_STAGE_GATE_SCRIPT_PATH,
+  FOUNDATION_PLAN_RECONCILE_APPROVAL_PATH,
+  FOUNDATION_PLAN_RECONCILE_CARD_ID,
+  FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY,
+  FOUNDATION_PLAN_RECONCILE_PLAN_PATH,
+  FOUNDATION_PLAN_RECONCILE_SCRIPT_PATH,
   FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
   FOUNDATION_SPRINT_EXIT_CRITERIA,
   FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
@@ -1330,6 +1335,8 @@ async function main() {
   const currentSprintDynamicTruthPlanSource = await readRepoFile(CURRENT_SPRINT_DYNAMIC_TRUTH_PLAN_PATH)
   const sprintStageGateCheckSource = await readRepoFile(SPRINT_STAGE_GATE_SCRIPT_PATH)
   const sprintStageGatePlanSource = await readRepoFile(SPRINT_STAGE_GATE_PLAN_PATH)
+  const foundationPlanReconcileCheckSource = await readRepoFile(FOUNDATION_PLAN_RECONCILE_SCRIPT_PATH)
+  const foundationPlanReconcilePlanSource = await readRepoFile(FOUNDATION_PLAN_RECONCILE_PLAN_PATH)
   const verifierSprintProofModuleSource = await readRepoFile('lib/foundation-verifier-sprint-proof.js')
   const verifierModularSplitCheckSource = await readRepoFile('scripts/process-verifier-modular-split-check.mjs')
   const processRootVsPatchCheckSource = await readRepoFile('scripts/process-root-vs-patch-check.mjs')
@@ -1786,6 +1793,11 @@ async function main() {
     repoRoot,
     approvalRef: SPRINT_STAGE_GATE_APPROVAL_PATH,
     cardId: SPRINT_STAGE_GATE_CARD_ID,
+  })
+  const foundationPlanReconcileApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: FOUNDATION_PLAN_RECONCILE_APPROVAL_PATH,
+    cardId: FOUNDATION_PLAN_RECONCILE_CARD_ID,
   })
   const rebuildPlanReconcileApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3244,6 +3256,7 @@ async function main() {
   const processRootVsPatchCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'process-root-vs-patch-v1') || null
   const currentSprintDynamicTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CURRENT_SPRINT_DYNAMIC_TRUTH_CLOSEOUT_KEY) || null
   const sprintStageGateCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SPRINT_STAGE_GATE_CLOSEOUT_KEY) || null
+  const foundationPlanReconcileCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const currentSprintItemsById = new Map(
@@ -5838,7 +5851,7 @@ async function main() {
   const doctrinePropagationV2 = (foundationHub.backlogItems || []).find(item => item.id === 'DOCTRINE-PROPAGATION-002') || null
   const processHooksV2 = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-002') || null
   const gatePerformance = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-PERFORMANCE-001') || null
-  const foundationPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-PLAN-RECONCILE-001') || null
+  const foundationPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_PLAN_RECONCILE_CARD_ID) || null
   const approvalFileIntegrity = (foundationHub.backlogItems || []).find(item => item.id === 'APPROVAL-FILE-INTEGRITY-001') || null
   const buildLogBacklogIdFix = (foundationHub.backlogItems || []).find(item => item.id === 'BUILD-LOG-BACKLOG-ID-FIX-001') || null
   const closeoutBackfill = (foundationHub.backlogItems || []).find(item => item.id === 'CLOSEOUT-BACKFILL-001') || null
@@ -7091,6 +7104,12 @@ async function main() {
     foundationPlanReconcileCurrentItem?.stage === 'building_now' &&
     foundationPlanReconcileCurrentItem?.existingWorkCheckStatus === 'complete' &&
     foundationHub.currentSprint?.activeBlocker?.cardId === 'FOUNDATION-PLAN-RECONCILE-001'
+  const foundationPlanReconcileClosedInControlPlaneSprint =
+    foundationPlanReconcile?.lane === 'done' &&
+    String(foundationPlanReconcile?.statusNote || '').includes(FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY) &&
+    foundationPlanReconcileCurrentItem?.stage === 'done_this_sprint' &&
+    foundationPlanReconcileCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    historicalCardHasVerifiedCloseout(FOUNDATION_PLAN_RECONCILE_CARD_ID)
   const hardCheckpointCardLaneIsAcceptable = card => {
     if (!card) return false
     if (card.id === 'FOUNDATION-PLAN-RECONCILE-001' && foundationPlanReconcileInControlPlaneSprint) return true
@@ -7098,11 +7117,12 @@ async function main() {
   }
   ensure(
     checks,
-    (foundationPlanReconcile?.lane === 'scoped' || foundationPlanReconcileInControlPlaneSprint) &&
+    (foundationPlanReconcile?.lane === 'scoped' || foundationPlanReconcileInControlPlaneSprint || foundationPlanReconcileClosedInControlPlaneSprint) &&
       foundationPlanReconcile?.priority === 'P0' &&
       /hard-checkpoint sprint plan/.test(foundationPlanReconcile?.summary || '') &&
       (/before Phase G Track 2/.test(foundationPlanReconcile?.nextAction || '') ||
-        foundationPlanReconcileCurrentItem?.existingWorkCheckStatus === 'complete') &&
+        foundationPlanReconcileCurrentItem?.existingWorkCheckStatus === 'complete' ||
+        foundationPlanReconcileClosedInControlPlaneSprint) &&
       hardCheckpointTier0Cards.every(card =>
         hardCheckpointCardLaneIsAcceptable(card) &&
           ['P0', 'P1'].includes(card.priority) &&
@@ -7129,7 +7149,7 @@ async function main() {
     buildLogPlanReconcileBuild?.operatorCloseout === true &&
       buildLogPlanReconcileBuild.relatedBacklog?.some(item =>
         item.id === 'FOUNDATION-PLAN-RECONCILE-001' &&
-          (item.lane === 'scoped' || (foundationPlanReconcileInControlPlaneSprint && item.lane === 'executing'))
+          (['scoped', 'done'].includes(item.lane) || (foundationPlanReconcileInControlPlaneSprint && item.lane === 'executing'))
       ) &&
       hardCheckpointTier0Ids.every(id =>
         buildLogPlanReconcileBuild.relatedBacklog?.some(item =>
@@ -9466,15 +9486,7 @@ async function main() {
       currentPlan.includes('Foundation Source Once-Over') &&
       currentPlan.includes(SOURCE_EXTRACTION_COVERAGE_CARD_ID) &&
       currentState.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker is now `SOURCE-EXTRACTION-COVERAGE-001`',
-        currentState.includes('Current sprint active blocker is now `SOURCE-COVERAGE-CLOSEOUT-001`') ||
-        currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
-        currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
-        currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
-        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
-        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('seven-stage source maturity grid') &&
       foundationVerifySource.includes('buildSyntheticSourceMaturityGridProof'),
     'SOURCE-MATURITY-GRID-001 exposes source depth and advances the Source Once-Over sprint',
@@ -9556,14 +9568,7 @@ async function main() {
       currentPlan.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY) &&
       currentPlan.includes(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) &&
       currentState.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `SOURCE-COVERAGE-CLOSEOUT-001`') ||
-        currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
-        currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
-        currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
-        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
-        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('source-level extraction coverage') &&
       foundationVerifySource.includes('buildSyntheticSourceExtractionCoverageProof'),
     'SOURCE-EXTRACTION-COVERAGE-001 exposes source-level extraction coverage and advances the Source Once-Over sprint',
@@ -9650,13 +9655,7 @@ async function main() {
       currentPlan.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) &&
       currentPlan.includes(MARKETING_SOURCE_MAP_CARD_ID) &&
       currentState.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `MARKETING-SOURCE-MAP-001`') ||
-        currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
-        currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
-        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
-        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('source coverage closeout') &&
       foundationVerifySource.includes('buildSyntheticSourceCoverageCloseoutProof'),
     'SOURCE-COVERAGE-CLOSEOUT-001 routes source gaps and advances the Source Once-Over sprint',
@@ -9740,12 +9739,7 @@ async function main() {
       currentPlan.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY) &&
       currentPlan.includes(BRAND_STACK_CARD_ID) &&
       currentState.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `BRAND-STACK-001`') ||
-        currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
-        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
-        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('marketing source map') &&
       foundationVerifySource.includes('buildSyntheticMarketingSourceMapProof'),
     'MARKETING-SOURCE-MAP-001 maps avatars and marketing sources to brand lanes and advances the Source Once-Over sprint',
@@ -9826,11 +9820,7 @@ async function main() {
       currentPlan.includes(BRAND_STACK_CLOSEOUT_KEY) &&
       currentPlan.includes(TIER_BEHAVIORAL_COMPLETION_CARD_ID) &&
       currentState.includes(BRAND_STACK_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `TIER-BEHAVIORAL-COMPLETION-001`') ||
-        currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
-        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
-        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('brand stack') &&
       foundationVerifySource.includes('buildSyntheticBrandStackProof'),
     'BRAND-STACK-001 models brand entities and Guardian boundaries and advances the Source Once-Over sprint',
@@ -9914,10 +9904,7 @@ async function main() {
       currentPlan.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY) &&
       currentPlan.includes(VERIFICATION_RUNS_CARD_ID) &&
       currentState.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `VERIFICATION-RUNS-001`') ||
-        currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
-        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('first non-owner read') &&
       foundationVerifySource.includes('buildSyntheticTierBehavioralCompletionProof'),
     'TIER-BEHAVIORAL-COMPLETION-001 proves first non-owner read decisions and advances the Source Once-Over sprint',
@@ -9996,9 +9983,7 @@ async function main() {
       currentPlan.includes(VERIFICATION_RUNS_CLOSEOUT_KEY) &&
       currentPlan.includes(VERIFICATION_RUNS_NEXT_CARD_ID) &&
       currentState.includes(VERIFICATION_RUNS_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `PER-USER-CHANGELOG-001`') ||
-        currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
-        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('proposed-only') &&
       foundationVerifySource.includes('buildSyntheticVerificationRunsProof'),
     'VERIFICATION-RUNS-001 restores stale research/finding review and advances the Source Once-Over sprint',
@@ -10074,8 +10059,7 @@ async function main() {
       currentPlan.includes(PER_USER_CHANGELOG_CLOSEOUT_KEY) &&
       currentPlan.includes(PER_USER_CHANGELOG_NEXT_CARD_ID) &&
       currentState.includes(PER_USER_CHANGELOG_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater(currentState.includes('Current sprint active blocker is now `DECISION-RESTRICTED-QUEUE-001`') ||
-        currentState.includes('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`')) &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('viewed/ignored/received') &&
       foundationVerifySource.includes('buildSyntheticPerUserChangelogProof'),
     'PER-USER-CHANGELOG-001 restores per-actor write history and advances the Source Once-Over sprint',
@@ -10152,7 +10136,7 @@ async function main() {
       currentPlan.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY) &&
       currentPlan.includes(DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID) &&
       currentState.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker is now `FOUNDATION-UI-COMPLETE-001`') &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('termination, compensation, performance concern') &&
       foundationVerifySource.includes('buildSyntheticDecisionRestrictedQueueProof'),
     'DECISION-RESTRICTED-QUEUE-001 sequesters sensitive decisions before broader routing',
@@ -10228,9 +10212,9 @@ async function main() {
       buildLogFoundationUiCompleteBuild?.operatorCloseout === true &&
       foundationUiCompleteBuildLogExact &&
       currentPlan.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY) &&
-      currentPlan.includes('Source Once-Over complete') &&
+      currentPlan.includes('Source Once-Over is closed for v1') &&
       currentState.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY) &&
-      currentStateMentionsActiveBlockerOrLater('Current sprint active blocker remains pinned to `FOUNDATION-UI-COMPLETE-001`') &&
+      currentState.includes('Source Once-Over is closed for v1') &&
       currentState.includes('Foundation 30-second read') &&
       foundationVerifySource.includes('buildSyntheticFoundationUiCompleteProof'),
     'FOUNDATION-UI-COMPLETE-001 closes the Source Once-Over UI pass without product expansion',
@@ -10299,6 +10283,16 @@ async function main() {
     sprintStageGateCloseout?.operatorCloseout === true &&
     (sprintStageGateCloseout.backlogIds || []).includes(SPRINT_STAGE_GATE_CARD_ID) &&
     historicalCardHasVerifiedCloseout(SPRINT_STAGE_GATE_CARD_ID)
+  const foundationPlanReconcileIsBuilding =
+    foundationPlanReconcileCurrentItem?.stage === 'building_now' &&
+    foundationPlanReconcileCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === FOUNDATION_PLAN_RECONCILE_CARD_ID
+  const foundationPlanReconcileIsClosed =
+    foundationPlanReconcile?.lane === 'done' &&
+    String(foundationPlanReconcile?.statusNote || '').includes(FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY) &&
+    foundationPlanReconcileCloseout?.operatorCloseout === true &&
+    (foundationPlanReconcileCloseout.backlogIds || []).includes(FOUNDATION_PLAN_RECONCILE_CARD_ID) &&
+    historicalCardHasVerifiedCloseout(FOUNDATION_PLAN_RECONCILE_CARD_ID)
   const verifierSprintIndependenceIsBuilding =
     verifierSprintIndependence?.lane === 'executing' &&
     verifierSprintIndependenceCurrentItem?.stage === 'building_now' &&
@@ -10541,6 +10535,46 @@ async function main() {
       ]),
     'SPRINT-STAGE-GATE-001 enforces visible sprint stage prerequisites',
     `lane=${sprintStageGate?.lane || 'missing'} stage=${sprintStageGateCurrentItem?.stage || 'closed'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'none'}`,
+  )
+  ensure(
+    checks,
+    (foundationPlanReconcileIsBuilding || foundationPlanReconcileIsClosed) &&
+      packageJson.scripts?.['process:foundation-plan-reconcile-check'] === `node --env-file-if-exists=.env ${FOUNDATION_PLAN_RECONCILE_SCRIPT_PATH}` &&
+      foundationPlanReconcileApprovalValidation.ok &&
+      foundationPlanReconcileApprovalValidation.mode === 'v2' &&
+      foundationPlanReconcileApprovalValidation.approval?.approvedPlanRef === FOUNDATION_PLAN_RECONCILE_PLAN_PATH &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      includesAll(foundationPlanReconcileCheckSource, [
+        '/api/foundation/current-sprint',
+        'stale active sprint markers are rejected',
+        'sectionBetween',
+        'noRawProof',
+      ]) &&
+      includesAll(foundationPlanReconcilePlanSource, [
+        '/api/foundation/current-sprint',
+        'rejects stale markers',
+        'not source substring alone',
+      ]) &&
+      includesAll(currentPlan, [
+        'Current Sprint: Foundation Control Plane + Connector Readiness',
+        'control-plane-connector-readiness-2026-05-12',
+        'Current Sprint API owns the active blocker',
+        'Queued, not pulled into this sprint',
+      ]) &&
+      includesAll(currentState, [
+        'control-plane-connector-readiness-2026-05-12',
+        'Current Sprint API owns the active blocker',
+        'Queued, not pulled into this sprint',
+        'Historical closeout notes below preserve',
+      ]) &&
+      ['ATOM-FLOW-AUTO-DEMOTION-001', 'EXTRACT-RUN-HARDENING-EXECUTION-001', 'RESEARCH-LANE-PURGE-001'].every(cardId =>
+        currentPlan.includes(cardId) && currentState.includes(cardId)
+      ) &&
+      !currentPlan.includes('## Current Sprint: Foundation Source Once-Over') &&
+      !currentState.includes('The active sprint is now the Foundation Source Once-Over sprint.'),
+    'FOUNDATION-PLAN-RECONCILE-001 reconciles rebuild docs to live control-plane sprint truth',
+    `lane=${foundationPlanReconcile?.lane || 'missing'} stage=${foundationPlanReconcileCurrentItem?.stage || 'closed'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'none'}`,
   )
   ensure(
     checks,

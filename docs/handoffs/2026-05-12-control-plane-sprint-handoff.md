@@ -6,6 +6,10 @@ Steve approved the next overnight sprint after the Process Repair + Verifier Ind
 
 This handoff exists before implementation so the sprint context survives compaction or a fresh chat.
 
+Live sprint ID: `control-plane-connector-readiness-2026-05-12`.
+
+Update: `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is closed under `current-sprint-dynamic-truth-v1`, `SPRINT-STAGE-GATE-001` is closed under `sprint-stage-gate-v1`, and `FOUNDATION-PLAN-RECONCILE-001` is closed under `foundation-plan-reconcile-control-plane-v1`. Continue in order from `CONNECTOR-CREDENTIAL-001`; stop at sprint review when the six approved cards close.
+
 ## Sprint Goal
 
 Make Foundation control-plane truth enforceable before product work resumes:
