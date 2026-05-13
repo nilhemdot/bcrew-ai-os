@@ -248,6 +248,7 @@ This is how we avoid hidden gaps, thin backlog cards, and "we talked about it bu
 
 Use these rules only for durable system work. Do not turn every conversation into memory or doctrine.
 
+- Treat Steve as the founder/operator and ideas owner, not the senior engineer. He is early in AI-assisted coding and should not be expected to catch architecture rot, file-size risk, slow endpoints, write-boundary leaks, verifier self-repair, or false-green proof. Codex owns that engineering judgment and must flag it proactively.
 - When repo seed, live Postgres, docs, and UI disagree, treat live Postgres/API as operational truth and expose the drift. Do not silently overwrite live state from seed files.
 - Keep workflow modes explicit. A queued re-review lane is not the same thing as a first-pass backlog sweep, and a read-only inspection is not the same thing as writeback.
 - Do not treat old-system notes, chat claims, or historical audits as active truth until the useful part is promoted into a source contract, DB-backed backlog/decision, current doc, or verifier.
@@ -256,6 +257,8 @@ Use these rules only for durable system work. Do not turn every conversation int
 - Treat Foundation priority as an operating guardrail, not just UI. Overview is the command order, live Backlog is task truth, and Rebuild Plan is doctrine/phase gates. If Steve or an agent drifts into lower-priority work, name the drift, route it to backlog, or ask Steve to explicitly override the current order.
 - Any card fixing an audit finding must include a dogfood proof: recreate or simulate the exact failure mode from the audit and prove the new code blocks it, fails closed, or fixes it. Compilation, substring checks, and "the report says it exists" are not enough.
 - Plans that add to files already over 5,000 lines, introduce write paths in `check` scripts, touch live state from verifier/check paths, or omit focused proof are architecture-risk plans. They should be revised before build unless Steve explicitly overrides with a documented reason.
+- Do not celebrate velocity by itself. Fast shipping without architectural review is how the old-system failure pattern returns. If files pass roughly 3,000 lines, flag them; past 5,000 lines, require a split/extraction plan; past 10,000 lines, treat the file as actively dangerous until proven otherwise.
+- Performance budgets are senior-engineer responsibility. If an operator route exceeds roughly 2 seconds or returns multi-megabyte payloads, stop treating it as polish and route it as Foundation reliability work.
 
 ## Chat Archive Discipline
 

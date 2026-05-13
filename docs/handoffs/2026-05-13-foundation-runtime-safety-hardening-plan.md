@@ -28,6 +28,14 @@ Goal:
 
 Make Foundation safe to verify and safe to operate before any product expansion: read-only verifier, no accidental check-script writes, guarded sprint/backlog mutations, separated DB init/seed/repair, and bounded hub performance.
 
+## Operating Posture For Codex
+
+Steve is the founder/operator and ideas owner. Codex is responsible for senior engineering judgment during Foundation work.
+
+Do not assume Steve will catch architecture rot, slow endpoints, giant files, unsafe write boundaries, self-repairing verifier behavior, or false-green proof. Flag those proactively. The job is not only to implement cards; it is to prevent the rebuild from becoming another system where process looks clean while the codebase rots.
+
+Velocity is not proof of quality. Every hardening card needs engineering proof that the old failure mode is blocked.
+
 ## Source Report
 
 Primary audit report:
