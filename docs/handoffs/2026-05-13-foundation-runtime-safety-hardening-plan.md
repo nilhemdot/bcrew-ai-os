@@ -50,6 +50,7 @@ Acceptance:
 - `npm run foundation:verify` must not call `resetFoundationDb()`, repair live tables, seed backlog, or advance sprint state.
 - Any repair/reset proof runs only against fixture DB/state or an explicit repair command.
 - If live state is broken, verifier fails closed and reports the broken state.
+- Dogfood proof: create or simulate broken live state, run `foundation:verify`, and prove it fails closed instead of repairing and passing.
 
 Why first:
 
@@ -64,6 +65,7 @@ Acceptance:
 - Scripts named `check` run read-only unless called with an explicit mutating flag such as `--apply`, `--close-card`, `--write-report`, or `--mutate-sprint`.
 - Mutating mode must print/write an explicit mutation posture.
 - Add a detector/proof that catches a synthetic check script attempting to write without an apply flag.
+- Dogfood proof: run a synthetic check path that attempts a write without an apply flag and prove it is blocked.
 
 Why second:
 
@@ -78,6 +80,7 @@ Acceptance:
 - Foundation job registry must classify jobs as `read_only`, `report_only`, or `mutating`.
 - Scheduled/default health jobs cannot target commands with backlog/sprint/source mutators unless explicitly marked mutating and disabled from unattended schedules.
 - Existing `verification-runs` scheduled path is made safe, disabled, or moved to explicit apply mode.
+- Dogfood proof: attempt to register or run a scheduled job that targets a mutating check and prove the registry blocks it.
 
 Why third:
 
@@ -93,6 +96,7 @@ Acceptance:
 - Seed/bootstrap is separate.
 - Live-data repair is separate and explicit.
 - Reporting commands do not call a function that can rewrite live backlog/source/sprint truth as a side effect.
+- Dogfood proof: call the schema/init path and prove it does not seed, repair, close cards, or rewrite backlog/source/sprint rows.
 
 Why fourth:
 
@@ -108,6 +112,7 @@ Acceptance:
 - Active sprint replacement requires expected previous active sprint id.
 - Item replacement produces a diff preview or change event record.
 - Helper defaults cannot close other active sprints by accident.
+- Dogfood proof: replay the broad helper path that could previously close active sprints or replace items, and prove it now requires expected previous active sprint id plus explicit apply posture.
 
 Why fifth:
 
@@ -122,6 +127,7 @@ Acceptance:
 - Backlog updates use row locking, optimistic concurrency, or field-level patch SQL.
 - A focused proof demonstrates two writers cannot silently overwrite each other's changes.
 - Change events record the correct before/after state.
+- Dogfood proof: simulate two concurrent backlog writers updating different fields and prove neither silently overwrites the other.
 
 Why sixth:
 
@@ -154,6 +160,25 @@ Prevent frontend async route races.
 - Do not make `foundation:verify` greener by repairing state inside the verifier.
 - Do not let `check` scripts write by default.
 - Every write-capable path needs an explicit posture and proof.
+- Every card must dogfood the exact audit failure it claims to fix. A card is not done because code compiles; it is done when the old failure mode is recreated and proven blocked or corrected.
+
+## Follow-Up Guardrail To Scope At Closeout
+
+When closing this sprint, confirm this already-scoped follow-up card remains staged and do not build it inside the hardening sprint:
+
+`PLAN-CRITIC-ARCHITECTURAL-RULES-001`
+
+Live backlog status as of this lock-in: `lane=scoped`, `priority=P1`, owner `Foundation Process`.
+
+Plan Critic should automatically reject durable build plans that:
+
+- add to a file already over 5,000 lines without an explicit split/extraction plan,
+- introduce a write path in a script named `check` without explicit apply posture,
+- touch live state from verifier/check paths,
+- omit a focused proof command,
+- claim to fix an audit finding without a dogfood proof that would catch the original failure.
+
+This is the forward-looking guardrail. The hardening sprint cleans current rot; this Plan Critic upgrade prevents the same rot pattern from recurring.
 
 ## Why This Makes Future Work Tighter
 

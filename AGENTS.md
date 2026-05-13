@@ -254,6 +254,8 @@ Use these rules only for durable system work. Do not turn every conversation int
 - Capture lessons at the lowest durable layer that fits: daily memory for raw context, `MEMORY.md` for private long-term context, `AGENTS.md` for future operating rules, and docs/backlog/verifier for repo truth.
 - Before calling a Foundation section "done," check whether the review exposed a schema, provenance, source, privacy, or scheduling rule that should become a verifier check instead of another reminder.
 - Treat Foundation priority as an operating guardrail, not just UI. Overview is the command order, live Backlog is task truth, and Rebuild Plan is doctrine/phase gates. If Steve or an agent drifts into lower-priority work, name the drift, route it to backlog, or ask Steve to explicitly override the current order.
+- Any card fixing an audit finding must include a dogfood proof: recreate or simulate the exact failure mode from the audit and prove the new code blocks it, fails closed, or fixes it. Compilation, substring checks, and "the report says it exists" are not enough.
+- Plans that add to files already over 5,000 lines, introduce write paths in `check` scripts, touch live state from verifier/check paths, or omit focused proof are architecture-risk plans. They should be revised before build unless Steve explicitly overrides with a documented reason.
 
 ## Chat Archive Discipline
 
