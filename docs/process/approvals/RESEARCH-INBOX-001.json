@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "RESEARCH-INBOX-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T11:58:11.293Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/research-inbox-001-plan.md",
+  "approvedPlanSha256": "86c94460f8505899a95b2d7cdf055ec9be87777703f14ead4118fba1c7b37aaf",
+  "approvedRepoHead": "c8d881b37a603cf9b60f519b2dcfc2686e935683",
+  "notes": "Approved as part of Build Intel Intake Foundation Sprint. Scope: proposal-only Research Inbox gate; no automatic backlog mutation or autonomous dev.",
+  "approvalDigest": "f284ea352b977ac6bdbfd6d70180dc61bdd1667e5423250151a0425cfad92b8b"
+}

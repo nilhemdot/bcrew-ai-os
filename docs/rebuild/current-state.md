@@ -161,7 +161,7 @@ Hard checkpoint call from 2026-04-28:
 - `DEV-PROCESS-AUDIT-001` is done for v1: `docs/audits/2026-04-28-dev-process-audit.md` maps stale lanes, pre-score shipping, manual backlog updates, stale served code, weak where-it-lives metadata, restart-dependent verifier claims, plan/backlog phase confusion, and transient verifier failures to exact owners.
 - `PROCESS-HOOKS-001` is done for v1: `npm run process:ship-check` requires backlog card evidence, an approval file with score >= 9.8, a seven-field closeout, where-it-lives metadata, served-code proof, and default `foundation:verify` unless a skip reason is explicit.
 - `ACTION-REVIEW-APPLY-001` is done for v1: Foundation > Backlog > Action Review shows pending and approved routes, supports approve/reject/apply, requires reject reasons, exposes aged/stuck routes, and shows destination-record proof after apply.
-- `RESEARCH-INBOX-001` is parked as the pre-backlog research inbox for YouTube, Mycro/myICOR, courses, articles, and good AI-system ideas. It is not next.
+- `BUILD-INTEL-INTAKE-FOUNDATION` is done under `build-intel-intake-foundation-v1`: `CREATOR-WATCHLIST-001` normalized 23 Build Intel sources and 4 later marketing-content sources, `MULTIMODAL-EXTRACTOR-001` defined the governed multimodal extractor contract, and `RESEARCH-INBOX-001` became the proposal-only gate before backlog mutation. The required next sprint is named but not opened: Build Intel Extraction Implementation Sprint.
 - `RUNTIME-HEALTH-SIMPLIFY-001` is parked so Runtime Health can later get a plain-English top layer without weakening the diagnostic detail.
 
 Current command order:

@@ -45,6 +45,19 @@ import {
   loadFoundationReviewSprintArtifact,
 } from '../lib/foundation-review-sprint.js'
 import {
+  BUILD_INTEL_INTAKE_CLOSEOUT_KEY,
+  buildCreatorWatchlistSnapshot,
+} from '../lib/build-intel-watchlist.js'
+import {
+  buildMultimodalExtractorContractSnapshot,
+  validateMultimodalExtractionEnvelope,
+} from '../lib/multimodal-extractor-contract.js'
+import {
+  buildResearchInboxContractSnapshot,
+  buildResearchInboxPromotionProposal,
+  validateResearchInboxItem,
+} from '../lib/research-inbox.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -3390,6 +3403,7 @@ async function main() {
   const atomFlowAutoDemotionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === ATOM_FLOW_AUTO_DEMOTION_CLOSEOUT_KEY) || null
   const extractRunHardeningExecutionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === EXTRACT_RUN_HARDENING_EXECUTION_CLOSEOUT_KEY) || null
   const researchLanePurgeCloseout = foundationBuildCloseouts.find(closeout => closeout.key === RESEARCH_LANE_PURGE_CLOSEOUT_KEY) || null
+  const buildIntelIntakeCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_INTAKE_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -12679,30 +12693,85 @@ async function main() {
     'Action Review plan approval evidence exists for process gate',
     `${actionReviewApproval.score || 'missing'} by ${actionReviewApproval.approvedBy || 'missing'}`,
   )
+  const creatorWatchlist = (foundationHub.backlogItems || []).find(item => item.id === 'CREATOR-WATCHLIST-001') || null
+  const multimodalExtractor = (foundationHub.backlogItems || []).find(item => item.id === 'MULTIMODAL-EXTRACTOR-001') || null
   const researchInbox = (foundationHub.backlogItems || []).find(item => item.id === 'RESEARCH-INBOX-001') || null
-  const researchInboxText = [
-    researchInbox?.title,
-    researchInbox?.summary,
-    researchInbox?.whyItMatters,
-    researchInbox?.nextAction,
-    researchInbox?.statusNote,
-  ].filter(Boolean).join('\n')
+  const buildIntelWatchlistSnapshot = buildCreatorWatchlistSnapshot()
+  const multimodalContractSnapshot = buildMultimodalExtractorContractSnapshot()
+  const researchInboxContractSnapshot = buildResearchInboxContractSnapshot()
+  const validBuildIntelInboxItem = {
+    sourceRef: 'https://www.youtube.com/watch?v=-WCNwxz3uoM',
+    sourceType: 'youtube',
+    whySteveCared: 'Builder showed an AIOS workflow pattern.',
+    plainEnglishTakeaway: 'The workflow can improve how AIOS scopes Build Intel ideas.',
+    systemFit: 'Foundation intake and future Build Scoper proposal flow.',
+    relatedCards: ['CREATOR-WATCHLIST-001', 'MULTIMODAL-EXTRACTOR-001'],
+    recommendation: 'Consider adding a bounded extraction proof.',
+    evidenceLinks: ['https://www.youtube.com/watch?v=-WCNwxz3uoM&t=60s'],
+    owner: 'Steve+Codex',
+    proposedDisposition: 'enrich_existing_card',
+    status: 'proposal_ready',
+    autoCreateBacklogCard: false,
+  }
+  const publicVideoEnvelope = {
+    sourceId: 'SRC-YOUTUBE-INTEL-001',
+    sourceType: 'public_youtube_video',
+    sourceUrl: 'https://www.youtube.com/watch?v=-WCNwxz3uoM',
+    accessClass: 'public_permitted',
+    rightsClass: 'public_reference_internal_learning',
+    contentUseBoundary: 'internal Build Intel learning only',
+    evidenceLevels: ['transcript_text', 'visual_model_observation'],
+    route: {
+      provider: 'gemini',
+      model: 'video-understanding-route',
+      authPath: 'api_route',
+      estimatedCostUsd: 0.05,
+    },
+    observations: [{ timestamp: '00:01:00', text: 'Builder demonstrates a workflow.' }],
+    sourceAnchors: [{ type: 'timestamp', value: '00:01:00' }],
+    recommendation: 'adapt',
+    confidence: 0.8,
+    captureMethod: 'official_or_video_model_first',
+    autoBacklogMutation: false,
+  }
+  const unsafeScreenshotEnvelope = {
+    ...publicVideoEnvelope,
+    evidenceLevels: ['transcript_text', 'screenshot_keyframe_reference'],
+  }
+  const publicVideoValidation = validateMultimodalExtractionEnvelope(publicVideoEnvelope)
+  const unsafeScreenshotValidation = validateMultimodalExtractionEnvelope(unsafeScreenshotEnvelope)
+  const inboxValidation = validateResearchInboxItem(validBuildIntelInboxItem)
+  const inboxProposal = buildResearchInboxPromotionProposal(validBuildIntelInboxItem)
   ensure(
     checks,
-    researchInbox?.lane === 'scoped' &&
-      researchInbox?.priority === 'P1' &&
-      researchInboxText.includes('pre-backlog') &&
-      researchInboxText.includes('YouTube') &&
-      researchInboxText.includes('Mycro/myICOR') &&
-      researchInboxText.includes('promote into backlog with acceptance criteria or archive with the reason') &&
-      researchInboxText.includes('WEB-GODMODE-001') &&
-      researchInboxText.includes('MULTIMODAL-EXTRACTOR-001') &&
-      currentPlan.includes('`RESEARCH-INBOX-001`') &&
-      currentState.includes('`RESEARCH-INBOX-001` is parked'),
-    'Research Inbox pre-backlog card is parked',
-    researchInbox
-      ? `${researchInbox.lane} / ${researchInbox.priority} / ${researchInbox.title}`
-      : 'missing RESEARCH-INBOX-001',
+    creatorWatchlist?.lane === 'done' &&
+      multimodalExtractor?.lane === 'done' &&
+      researchInbox?.lane === 'done' &&
+      [creatorWatchlist, multimodalExtractor, researchInbox].every(card => String(card?.statusNote || '').includes(BUILD_INTEL_INTAKE_CLOSEOUT_KEY)) &&
+      buildIntelIntakeCloseout?.operatorCloseout === true &&
+      ['CREATOR-WATCHLIST-001', 'MULTIMODAL-EXTRACTOR-001', 'RESEARCH-INBOX-001'].every(id => (buildIntelIntakeCloseout.backlogIds || []).includes(id)) &&
+      buildIntelWatchlistSnapshot.summary?.buildIntelCount === 23 &&
+      buildIntelWatchlistSnapshot.summary?.marketingContentLaterCount === 4 &&
+      buildIntelWatchlistSnapshot.entries.every(entry => entry.approvedForExtractionThisSprint === false) &&
+      multimodalContractSnapshot.publicYouTubePolicy?.bulkBrowserScreenshot === 'blocked' &&
+      publicVideoValidation.ok &&
+      !unsafeScreenshotValidation.ok &&
+      unsafeScreenshotValidation.findings.includes('screenshot_storage_policy_missing') &&
+      researchInboxContractSnapshot.proposalOnly === true &&
+      researchInboxContractSnapshot.autoMutationAllowed === false &&
+      inboxValidation.ok &&
+      inboxProposal.proposalOnly === true &&
+      inboxProposal.writesBacklog === false &&
+      packageJson.scripts?.['process:build-intel-intake-check'] === 'node --env-file-if-exists=.env scripts/process-build-intel-intake-check.mjs' &&
+      serverSource.includes("app.get('/api/foundation/build-intel-watchlist'") &&
+      serverSource.includes("app.get('/api/foundation/multimodal-extractor-contract'") &&
+      serverSource.includes("app.get('/api/foundation/research-inbox-contract'") &&
+      currentPlan.includes(BUILD_INTEL_INTAKE_CLOSEOUT_KEY) &&
+      currentPlan.includes('Build Intel Extraction Implementation Sprint') &&
+      currentState.includes(BUILD_INTEL_INTAKE_CLOSEOUT_KEY) &&
+      sourceRegistry.includes('/api/foundation/build-intel-watchlist'),
+    'Build Intel intake foundation closes watchlist, extractor contract, and Research Inbox gate without extraction',
+    `watchlist=${buildIntelWatchlistSnapshot.summary?.buildIntelCount || 0}+${buildIntelWatchlistSnapshot.summary?.marketingContentLaterCount || 0} extractor=${multimodalContractSnapshot.status} inbox=${researchInboxContractSnapshot.status}`,
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [

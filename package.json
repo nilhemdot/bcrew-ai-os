@@ -87,6 +87,7 @@
     "process:foundation-ship": "node --env-file-if-exists=.env scripts/process-foundation-ship.mjs",
     "process:extract-run-hardening-execution-check": "node --env-file-if-exists=.env scripts/process-extract-run-hardening-execution-check.mjs",
     "process:research-lane-purge-check": "node --env-file-if-exists=.env scripts/process-research-lane-purge-check.mjs",
+    "process:build-intel-intake-check": "node --env-file-if-exists=.env scripts/process-build-intel-intake-check.mjs",
     "process:gate-reliability-check": "node --env-file-if-exists=.env scripts/process-gate-reliability-check.mjs",
     "process:foundation-review-sprint-check": "node --env-file-if-exists=.env scripts/process-foundation-review-sprint-check.mjs",
     "process:plain-english-sweep-check": "node --env-file-if-exists=.env scripts/process-plain-english-sweep-check.mjs",

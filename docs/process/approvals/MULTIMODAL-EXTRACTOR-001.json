@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MULTIMODAL-EXTRACTOR-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T11:58:11.293Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/multimodal-extractor-001-plan.md",
+  "approvedPlanSha256": "4e847b16f19bdf47e2f1ef37aa53d0ed27d18167d7f69f660d7190009261702d",
+  "approvedRepoHead": "c8d881b37a603cf9b60f519b2dcfc2686e935683",
+  "notes": "Approved as part of Build Intel Intake Foundation Sprint. Scope: governed multimodal extractor contract only; no external video/browser/model calls, screenshots, atoms, or source crawling.",
+  "approvalDigest": "f1ec7f09e0e3905f921dc7dc3f1200438d4380625afef6f584684dc9c48807f4"
+}

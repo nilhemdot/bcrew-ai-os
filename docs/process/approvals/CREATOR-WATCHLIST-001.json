@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CREATOR-WATCHLIST-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T11:58:11.293Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/creator-watchlist-001-plan.md",
+  "approvedPlanSha256": "47985b8a0075bf555df35345040cbe1595b196acc4ff402a4ce8e79699ecc21b",
+  "approvedRepoHead": "c8d881b37a603cf9b60f519b2dcfc2686e935683",
+  "notes": "Approved as part of Build Intel Intake Foundation Sprint. Scope: normalized Build Intel watchlist registry only; no extraction, login, atom creation, or marketing production.",
+  "approvalDigest": "ce699636b1c3a46fd980fe51b54165109fb4909ad0063425def86317f83985d0"
+}

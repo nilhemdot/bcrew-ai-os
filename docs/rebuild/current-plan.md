@@ -90,6 +90,16 @@ The control-plane sprint order:
 
 The approved control-plane sprint is complete. Stop at sprint review before opening the next sprint or product work.
 
+Source Truth Guardrails is also complete under `atom-flow-auto-demotion-v1`, `extract-run-hardening-execution-v1`, and `research-lane-purge-v1`.
+
+Build Intel Intake Foundation is complete under `build-intel-intake-foundation-v1`:
+
+1. `CREATOR-WATCHLIST-001` — normalized 23 Build Intel sources and 4 later marketing-content sources into `lib/build-intel-watchlist.js` and `/api/foundation/build-intel-watchlist` without starting extraction.
+2. `MULTIMODAL-EXTRACTOR-001` — defined the governed extractor contract for public YouTube, authorized paid/private sources, evidence levels, route/cost provenance, screenshot/keyframe policy, and auto-backlog-mutation rejection.
+3. `RESEARCH-INBOX-001` — defined the proposal-only Research Inbox gate so Build Scoper/extraction findings return proposals for Steve+Codex approval before backlog mutation.
+
+Next named sprint, not silently opened: **Build Intel Extraction Implementation Sprint**. Scope: bounded YouTube watchlist proof, Steve-present access/content-use decisions for Skool/myICOR/Loom, Build Scoper proposals to Research Inbox, and Build Intel brief synthesis.
+
 Recently closed sprint truth that this sprint depends on:
 
 - Foundation Source Once-Over is closed for v1 through `foundation-ui-complete-v1`. Closed sequence: `SOURCE-MATURITY-GRID-001` / `source-maturity-grid-v1`, `SOURCE-EXTRACTION-COVERAGE-001` / `source-extraction-coverage-v1`, `SOURCE-COVERAGE-CLOSEOUT-001` / `source-coverage-closeout-v1`, `MARKETING-SOURCE-MAP-001` / `marketing-source-map-v1`, `BRAND-STACK-001` / `brand-stack-v1`, `TIER-BEHAVIORAL-COMPLETION-001` / `tier-behavioral-completion-v1`, `VERIFICATION-RUNS-001` / `verification-runs-v1`, `PER-USER-CHANGELOG-001` / `per-user-changelog-v1`, `DECISION-RESTRICTED-QUEUE-001` / `decision-restricted-queue-v1`, and `FOUNDATION-UI-COMPLETE-001` / `foundation-ui-complete-v1`.
@@ -313,9 +323,9 @@ This checklist is the current phase-gate trace after the 2026-04-26 systems/sour
    - Action Router v1 now proposes governed routes into decisions, backlog tasks, questions, ignore/snooze, or owner-bound action lanes with back-links and human approval required before destination writes.
    - `ACTION-REVIEW-APPLY-001` is done for v1: Foundation > Backlog > Action Review makes pending and approved routes visible, supports approve/reject/apply, requires reject reasons, and shows destination-record proof after apply. Do not reopen broad `ACTION-ROUTER-001` for this.
 
-10. `RESEARCH-INBOX-001` — Park the pre-backlog research inbox.
-   - This captures Steve's outside ideas, YouTube/Mycro/myICOR/course/article inputs, and AI-system-building patterns before they become committed backlog. Workflow: capture -> plain-English triage -> promote to backlog or archive with reason.
-   - Not next. It becomes important when Foundation is good enough to un-pause Scoper/dev-intelligence/agent-managed backlog work.
+10. `RESEARCH-INBOX-001` — Done for v1 as the proposal-only Build Intel inbox gate.
+   - This captures Steve's outside ideas, YouTube/Mycro/myICOR/course/article inputs, and AI-system-building patterns before they become committed backlog. Workflow: capture -> plain-English triage -> propose backlog/enrichment or archive with reason.
+   - It is not an autonomous backlog mutator; Build Scoper and extraction workers must propose to Research Inbox first, then Steve+Codex approve.
 
 11. `RUNTIME-HEALTH-SIMPLIFY-001` — Park Runtime Health simplification.
    - Runtime Health is powerful but dense. Later work should add a plain-English top layer and collapsed diagnostic groups without removing the underlying detail.

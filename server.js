@@ -113,6 +113,15 @@ import {
 import {
   buildSourceHubRoutingMatrixSnapshot,
 } from './lib/source-hub-routing-matrix.js'
+import {
+  buildCreatorWatchlistSnapshot,
+} from './lib/build-intel-watchlist.js'
+import {
+  buildMultimodalExtractorContractSnapshot,
+} from './lib/multimodal-extractor-contract.js'
+import {
+  buildResearchInboxContractSnapshot,
+} from './lib/research-inbox.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -4318,6 +4327,45 @@ app.get('/api/foundation/source-hub-routing-matrix', requireAdminToken, async (_
   }
 })
 
+app.get('/api/foundation/build-intel-watchlist', requireAdminToken, async (_req, res) => {
+  try {
+    res.json(buildCreatorWatchlistSnapshot())
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'build_intel_watchlist_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Build Intel watchlist.'
+    )
+  }
+})
+
+app.get('/api/foundation/multimodal-extractor-contract', requireAdminToken, async (_req, res) => {
+  try {
+    res.json(buildMultimodalExtractorContractSnapshot())
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'multimodal_extractor_contract_load_failed',
+      error instanceof Error ? error.message : 'Failed to load multimodal extractor contract.'
+    )
+  }
+})
+
+app.get('/api/foundation/research-inbox-contract', requireAdminToken, async (_req, res) => {
+  try {
+    res.json(buildResearchInboxContractSnapshot())
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'research_inbox_contract_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Research Inbox contract.'
+    )
+  }
+})
+
 app.get('/api/fub/health', requireAdminToken, async (req, res) => {
   try {
     const requestedContext = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
@@ -5124,6 +5172,9 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
     const restrictedDecisionQueue = buildDecisionRestrictedQueueSnapshot({
       decisions: snapshot.decisions || [],
     })
+    const buildIntelWatchlist = buildCreatorWatchlistSnapshot()
+    const multimodalExtractorContract = buildMultimodalExtractorContractSnapshot()
+    const researchInboxContract = buildResearchInboxContractSnapshot()
     sourceLifecycle.marketingSourceMap = marketingSourceMap
     sourceLifecycle.brandStack = brandStack
     sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
@@ -5172,6 +5223,9 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       verificationRuns,
       perUserChangelog,
       restrictedDecisionQueue,
+      buildIntelWatchlist,
+      multimodalExtractorContract,
+      researchInboxContract,
       foundationUiComplete,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
