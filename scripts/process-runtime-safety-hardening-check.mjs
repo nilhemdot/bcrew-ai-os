@@ -24,6 +24,8 @@ import {
   getFoundationJobRuntime,
 } from '../lib/foundation-jobs.js'
 import {
+  FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
+  buildFoundationDbInitSeedSplitDogfoodProof,
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
@@ -37,6 +39,7 @@ const CARD_IDS = [
   VERIFY_READONLY_GATE_CARD_ID,
   PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID,
   PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
+  FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -421,6 +424,106 @@ async function buildScheduledMutationGuardStatus() {
   return { checks, proof }
 }
 
+async function buildFoundationDbInitSeedSplitStatus() {
+  const checks = []
+  const cardId = FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID
+  const [
+    packageSource,
+    foundationDbSource,
+    focusedProofSource,
+    foundationVerifySource,
+  ] = await Promise.all([
+    readRepoFile('package.json'),
+    readRepoFile('lib/foundation-db.js'),
+    readRepoFile(RUNTIME_SAFETY_HARDENING_SCRIPT_PATH),
+    readRepoFile('scripts/foundation-verify.mjs'),
+  ])
+  const packageJson = JSON.parse(packageSource)
+  const approval = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: `docs/process/approvals/${cardId}.json`,
+    cardId,
+  })
+  const planCriticRuns = await getPlanCriticRunsByCardIds([cardId])
+  const backlogItems = await getBacklogItemsByIds([cardId])
+  const activeSprint = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const sprintItem = (activeSprint.items || []).find(item => item.cardId === cardId) || null
+  const card = backlogItems.find(item => item.id === cardId) || null
+  const proof = await buildFoundationDbInitSeedSplitDogfoodProof()
+
+  addCheck(
+    checks,
+    approval.ok && Number(approval.approval?.score) >= 9.8,
+    `${cardId} approval file is valid at 9.8+`,
+    approval.failures?.map(item => item.check).join(', ') || `score=${approval.approval?.score}`,
+  )
+  addCheck(
+    checks,
+    planCriticRuns.some(run => run.cardId === cardId && run.status === 'pass' && Number(run.score) >= 9.8),
+    `${cardId} has durable Plan Critic pass row`,
+    planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing',
+  )
+  addCheck(
+    checks,
+    card && ['scoped', 'done'].includes(card.lane),
+    `${cardId} exists in live backlog`,
+    card ? `${card.lane} / ${card.priority}` : 'missing',
+  )
+  addCheck(
+    checks,
+    activeSprint.sprint?.sprintId === RUNTIME_SAFETY_HARDENING_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
+    `${cardId} is active in the runtime safety sprint`,
+    activeSprint.sprint ? `${activeSprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing active sprint',
+  )
+  addCheck(
+    checks,
+    proof.ok === true &&
+      proof.schemaInitFunction === 'initFoundationDb' &&
+      proof.explicitBootstrapFunction === 'bootstrapFoundationDb' &&
+      Array.isArray(proof.changedTables) &&
+      proof.changedTables.length === 0 &&
+      proof.watchedTables.includes('backlog_items') &&
+      proof.watchedTables.includes('foundation_sprints') &&
+      proof.watchedTables.includes('foundation_sprint_items'),
+    'dogfood proof shows schema init does not rewrite backlog/source/sprint seed truth',
+    JSON.stringify(proof),
+  )
+  addCheck(
+    checks,
+    foundationDbSource.includes('FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID') &&
+      foundationDbSource.includes('includeBootstrapSeed') &&
+      foundationDbSource.includes('export async function bootstrapFoundationDb') &&
+      foundationDbSource.includes('buildFoundationDbInitSeedSplitDogfoodProof') &&
+      foundationDbSource.includes('schema-init-black-box-before-after'),
+    'foundation DB module separates schema init from explicit bootstrap and owns dogfood proof',
+    'lib/foundation-db.js',
+  )
+  addCheck(
+    checks,
+    packageJson.scripts?.['process:runtime-safety-hardening-check'] === `node --env-file-if-exists=.env ${RUNTIME_SAFETY_HARDENING_SCRIPT_PATH}` &&
+      packageJson.scripts?.['foundation:db-bootstrap'] === 'node --env-file-if-exists=.env scripts/bootstrap-foundation-db.mjs --apply',
+    'package exposes runtime proof and explicit DB bootstrap command',
+    `proof=${packageJson.scripts?.['process:runtime-safety-hardening-check'] || 'missing'} bootstrap=${packageJson.scripts?.['foundation:db-bootstrap'] || 'missing'}`,
+  )
+  addCheck(
+    checks,
+    focusedProofSource.includes('buildFoundationDbInitSeedSplitDogfoodProof') &&
+      focusedProofSource.includes('FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID'),
+    'focused proof script covers DB init seed split',
+    RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
+  )
+  addCheck(
+    checks,
+    foundationVerifySource.includes(FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID) &&
+      foundationVerifySource.includes('buildFoundationDbInitSeedSplitDogfoodProof'),
+    'foundation verifier has DB init seed split coverage',
+    FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
+  )
+
+  return { checks, proof }
+}
+
 async function main() {
   const args = parseArgs()
   const checks = []
@@ -438,6 +541,10 @@ async function main() {
     proof = status.proof
   } else if (args.card === PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID) {
     const status = await buildScheduledMutationGuardStatus()
+    checks.push(...status.checks)
+    proof = status.proof
+  } else if (args.card === FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID) {
+    const status = await buildFoundationDbInitSeedSplitStatus()
     checks.push(...status.checks)
     proof = status.proof
   }

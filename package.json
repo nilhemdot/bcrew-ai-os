@@ -7,6 +7,7 @@
     "dev": "node --env-file-if-exists=.env server.js",
     "start": "node --env-file-if-exists=.env server.js",
     "foundation:verify": "node --env-file-if-exists=.env scripts/foundation-verify.mjs",
+    "foundation:db-bootstrap": "node --env-file-if-exists=.env scripts/bootstrap-foundation-db.mjs --apply",
     "foundation:job": "node --env-file-if-exists=.env scripts/run-foundation-job.mjs",
     "foundation:worker": "node --env-file-if-exists=.env scripts/foundation-worker.mjs",
     "llm:auth-audit": "node --env-file-if-exists=.env scripts/audit-llm-auth-paths.mjs",

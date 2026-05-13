@@ -385,7 +385,9 @@ import {
   PROTECTED_FOUNDATION_PATH_PATTERNS,
 } from '../lib/process-git-hooks.js'
 import {
+  FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
   assertFoundationDbReadyForReadOnlyGate,
+  buildFoundationDbInitSeedSplitDogfoodProof,
   closeFoundationDb,
   getActionRouterSnapshot,
   getActiveFoundationCurrentSprint,
@@ -870,6 +872,7 @@ const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'VERIFY-READONLY-GATE-001',
   'PROCESS-CHECK-APPLY-BOUNDARY-001',
   'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001',
+  'FOUNDATION-DB-INIT-SEED-SPLIT-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -13229,6 +13232,29 @@ async function main() {
     processCheckScheduledMutationGuardCard
       ? `lane=${processCheckScheduledMutationGuardCard.lane} verification-runs=${verificationRunsRuntime?.scheduleStatus || 'missing'} scheduledChecks=${scheduledProcessCheckRuntimes.length}`
       : 'missing PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001',
+  )
+  const foundationDbInitSeedSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID) || null
+  const foundationDbInitSeedSplitProof = await buildFoundationDbInitSeedSplitDogfoodProof()
+  ensure(
+    checks,
+      foundationDbInitSeedSplitCard &&
+      ['scoped', 'done'].includes(foundationDbInitSeedSplitCard.lane) &&
+      foundationDbInitSeedSplitProof.ok === true &&
+      foundationDbInitSeedSplitProof.schemaInitFunction === 'initFoundationDb' &&
+      foundationDbInitSeedSplitProof.explicitBootstrapFunction === 'bootstrapFoundationDb' &&
+      (foundationDbInitSeedSplitProof.changedTables || []).length === 0 &&
+      (foundationDbInitSeedSplitProof.watchedTables || []).includes('backlog_items') &&
+      (foundationDbInitSeedSplitProof.watchedTables || []).includes('foundation_sprints') &&
+      (foundationDbInitSeedSplitProof.watchedTables || []).includes('foundation_sprint_items') &&
+      foundationDbSource.includes('export async function bootstrapFoundationDb') &&
+      foundationDbSource.includes('includeBootstrapSeed') &&
+      foundationDbSource.includes('buildFoundationDbInitSeedSplitDogfoodProof') &&
+      packageJson.scripts?.['foundation:db-bootstrap'] === 'node --env-file-if-exists=.env scripts/bootstrap-foundation-db.mjs --apply' &&
+      includesAll(foundationVerifySource, RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'FOUNDATION-DB-INIT-SEED-SPLIT-001 keeps schema init separate from seed/repair writes',
+    foundationDbInitSeedSplitCard
+      ? `lane=${foundationDbInitSeedSplitCard.lane} changedTables=${(foundationDbInitSeedSplitProof.changedTables || []).length} watched=${(foundationDbInitSeedSplitProof.watchedTables || []).length}`
+      : `missing ${FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID}`,
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [
