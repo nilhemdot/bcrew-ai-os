@@ -10,6 +10,7 @@ import {
   buildPlanCriticResultSummary,
   buildSyntheticPlanCriticProof,
   evaluatePlanCriticPlan,
+  PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID,
   PLAN_CRITIC_DECISION_TREE_PATH,
   PLAN_CRITIC_MIN_PASS_SCORE,
   PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH,
@@ -61,6 +62,9 @@ const PROCESS_REPAIR_VERIFIER_SPRINT_ORDER = [
   'VERIFIER-SPRINT-INDEPENDENCE-001',
   'VERIFIER-MODULAR-SPLIT-001',
   'PROCESS-ROOT-VS-PATCH-001',
+]
+const PLAN_CRITIC_ARCHITECTURE_GUARDRAIL_SPRINT_ORDER = [
+  PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID,
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -158,6 +162,9 @@ async function main() {
   const processRepairVerifierSprintActive = sprint.sprint?.sprintId === 'process-repair-verifier-independence-2026-05-12'
   const processRepairVerifierSprintComplete = processRepairVerifierSprintActive &&
     PROCESS_REPAIR_VERIFIER_SPRINT_ORDER.every(id => sprintStageMap.get(id) === 'done_this_sprint')
+  const planCriticArchitectureGuardrailSprintActive = sprint.sprint?.sprintId === 'plan-critic-architecture-guardrails-2026-05-13'
+  const planCriticArchitectureGuardrailSprintComplete = planCriticArchitectureGuardrailSprintActive &&
+    PLAN_CRITIC_ARCHITECTURE_GUARDRAIL_SPRINT_ORDER.every(id => sprintStageMap.get(id) === 'done_this_sprint')
   const selfReview = evaluatePlanCriticPlan({
     planText,
     card: criticCard || { id: PLAN_CRITIC_REPLACEMENT_CARD_ID, priority: 'P0' },
@@ -202,7 +209,8 @@ async function main() {
     findings,
     REQUIRED_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id) ||
       CONNECTOR_TRUTH_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id) ||
-      PROCESS_REPAIR_VERIFIER_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id),
+      PROCESS_REPAIR_VERIFIER_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id) ||
+      PLAN_CRITIC_ARCHITECTURE_GUARDRAIL_SPRINT_ORDER.every((id, index) => sprintOrder[index] === id),
     'Current Sprint order remains valid for the active sprint generation',
     sprintOrder.join(' -> '),
   )
@@ -213,7 +221,9 @@ async function main() {
       (securityClosed && verifierClosed && [STRATEGY_HUB_MEETING_READY_CARD_ID, AVATAR_IMPORT_CARD_ID, AUTO_DEPLOY_ROLLBACK_CARD_ID].includes(sprint.sprint?.activeBlockerCardId)) ||
       (connectorTruthSprintActive && CONNECTOR_TRUTH_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)) ||
       (processRepairVerifierSprintActive && PROCESS_REPAIR_VERIFIER_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)) ||
-      (processRepairVerifierSprintComplete && !sprint.sprint?.activeBlockerCardId),
+      (processRepairVerifierSprintComplete && !sprint.sprint?.activeBlockerCardId) ||
+      (planCriticArchitectureGuardrailSprintActive && PLAN_CRITIC_ARCHITECTURE_GUARDRAIL_SPRINT_ORDER.includes(sprint.sprint?.activeBlockerCardId)) ||
+      (planCriticArchitectureGuardrailSprintComplete && !sprint.sprint?.activeBlockerCardId),
     'Current Sprint active blocker advanced through security behavior proof',
     sprint.sprint?.activeBlockerCardId || 'missing',
   )

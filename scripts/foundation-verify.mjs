@@ -500,8 +500,12 @@ import {
 } from '../lib/process-verify-gate-tiering.js'
 import {
   buildPlanCriticResultSummary,
+  buildSyntheticPlanCriticArchitecturalRulesProof,
   buildSyntheticPlanCriticProof,
   evaluatePlanCriticPlan,
+  PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID,
+  PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY,
+  PLAN_CRITIC_ARCHITECTURAL_RULES_SCRIPT_PATH,
   PLAN_CRITIC_MIN_PASS_SCORE,
   PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY,
   PLAN_CRITIC_SCORING_SCHEMA,
@@ -881,6 +885,10 @@ const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-DB-INIT-SEED-SPLIT-001',
   'CURRENT-SPRINT-MUTATION-GUARDS-001',
   'BACKLOG-STORE-CONCURRENCY-001',
+]
+
+const PLAN_CRITIC_ARCHITECTURAL_RULES_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'PLAN-CRITIC-ARCHITECTURAL-RULES-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -1598,6 +1606,7 @@ async function main() {
   const rebuildPlanReconcileApproval = JSON.parse(rebuildPlanReconcileApprovalSource)
   const planCriticSource = await readRepoFile('lib/process-plan-critic.js')
   const planCriticScriptSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH)
+  const planCriticArchitecturalRulesScriptSource = await readRepoFile(PLAN_CRITIC_ARCHITECTURAL_RULES_SCRIPT_PATH)
   const planCriticPlanSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_PLAN_PATH)
   const planCriticDecisionTreeSource = await readRepoFile(PLAN_CRITIC_DECISION_TREE_PATH)
   const planCriticApprovalSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH)
@@ -3468,9 +3477,14 @@ async function main() {
     DECISION_RESTRICTED_QUEUE_CARD_ID,
     FOUNDATION_UI_COMPLETE_CARD_ID,
   ])
+  const activeSprintCompleteReview =
+    foundationCurrentSprintStatus.summary?.itemCount > 0 &&
+    foundationCurrentSprintStatus.summary?.doneThisSprintCount === foundationCurrentSprintStatus.summary.itemCount &&
+    !currentSprintActiveBlockerCardId
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
-    expectedCardIds.some(cardId => historicalCardHasVerifiedCloseout(cardId))
+    expectedCardIds.some(cardId => historicalCardHasVerifiedCloseout(cardId)) ||
+    activeSprintCompleteReview
   const currentStateMentionsActiveBlockerOrLater = (...expectedSnippets) =>
     expectedSnippets.some(snippet =>
       typeof snippet === 'boolean' ? snippet : currentState.includes(snippet)
@@ -3503,6 +3517,7 @@ async function main() {
   const buildIntelExtractionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) || null
   const gstackBuildIntelCloseout = foundationBuildCloseouts.find(closeout => closeout.key === GSTACK_BUILD_INTEL_CLOSEOUT_KEY) || null
   const codeQualityNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
+  const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -13150,6 +13165,32 @@ async function main() {
       includesAll(foundationVerifySource, CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'Code Quality Nightly Audit closes the deterministic read-only report loop without fixes, backlog writes, scheduling, or LLM detection',
     `cards=${codeQualityNightlyAuditCards.filter(card => card?.lane === 'done').length}/${CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.length} findings=${codeQualityNightlyAudit.summary?.findingCount || 0} proposed=${codeQualityNightlyAudit.proposedCards?.length || 0}`,
+  )
+  const planCriticArchitecturalRulesCard = (foundationHub.backlogItems || []).find(item => item.id === PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) || null
+  const planCriticArchitecturalRulesProof = buildSyntheticPlanCriticArchitecturalRulesProof()
+  ensure(
+    checks,
+      planCriticArchitecturalRulesCard &&
+      ['scoped', 'done'].includes(planCriticArchitecturalRulesCard.lane) &&
+      planCriticArchitecturalRulesCloseout?.operatorCloseout === true &&
+      (planCriticArchitecturalRulesCloseout.backlogIds || []).includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) &&
+      planCriticArchitecturalRulesProof.ok === true &&
+      planCriticArchitecturalRulesProof.largeFileNoSplit?.status === 'revise' &&
+      planCriticArchitecturalRulesProof.checkWriteNoApply?.status === 'revise' &&
+      planCriticArchitecturalRulesProof.verifierLiveState?.status === 'revise' &&
+      planCriticArchitecturalRulesProof.auditFixNoDogfood?.status === 'revise' &&
+      planCriticArchitecturalRulesProof.noFocusedProof?.status === 'revise' &&
+      planCriticArchitecturalRulesProof.compliant?.status === 'pass' &&
+      packageJson.scripts?.['process:plan-critic-architectural-rules-check'] === `node --env-file-if-exists=.env ${PLAN_CRITIC_ARCHITECTURAL_RULES_SCRIPT_PATH}` &&
+      planCriticSource.includes('architectural_rot_rules') &&
+      planCriticSource.includes('buildSyntheticPlanCriticArchitecturalRulesProof') &&
+      planCriticArchitecturalRulesScriptSource.includes('dogfood rejects architecture-risk plans and passes compliant plan') &&
+      foundationVerifySource.includes('buildSyntheticPlanCriticArchitecturalRulesProof') &&
+      includesAll(foundationVerifySource, PLAN_CRITIC_ARCHITECTURAL_RULES_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'PLAN-CRITIC-ARCHITECTURAL-RULES-001 rejects architecture rot plans before build',
+    planCriticArchitecturalRulesCard
+      ? `lane=${planCriticArchitecturalRulesCard.lane} dogfood=${planCriticArchitecturalRulesProof.ok ? 'pass' : 'blocked'} closeout=${planCriticArchitecturalRulesCloseout?.key || 'missing'}`
+      : `missing ${PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID}`,
   )
   const verifyReadOnlyGateCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_READONLY_GATE_CARD_ID) || null
   const verifyReadOnlyDogfoodProof = await buildVerifyReadOnlyGateDogfoodProof()

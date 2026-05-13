@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PLAN-CRITIC-ARCHITECTURAL-RULES-001",
+  "approvedBy": "Steve approved Plan Critic architecture guardrail sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T21:48:05.945Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/plan-critic-architectural-rules-001-plan.md",
+  "approvedPlanSha256": "d11b8277b15395b873296467bfaf1cc81aa53b35a29d00b7ae6dc87d0efeffad",
+  "approvedRepoHead": "51796ed215cd75cb901d0d69a98a471fa3306f14",
+  "notes": "Approved as the one-card Plan Critic Architecture Guardrails Sprint. Scope: reject large-file no-split plans, check-script writes without apply posture, verifier/check live-state writes, missing focused proof, and audit-fix plans without dogfood proof. Not approved: performance fix, monolith split, Build Intel extraction, hub/product work, autonomous dev.",
+  "approvalDigest": "85c05da089baba867296dcdfef54089d337d590a81bcecfe745325aeaf4711be"
+}
