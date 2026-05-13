@@ -12,7 +12,11 @@ import {
   initFoundationDb,
   updateFoundationJobRunMetadata,
 } from '../lib/foundation-db.js';
-import { getFoundationJobDefinition, getFoundationJobDefinitions } from '../lib/foundation-jobs.js';
+import {
+  getFoundationJobDefinition,
+  getFoundationJobDefinitions,
+  validateFoundationJobSchedulePosture,
+} from '../lib/foundation-jobs.js';
 import {
   getJobRunPermission,
   terminateProcessTree,
@@ -78,6 +82,10 @@ export async function runFoundationJob(jobKey, { actor = 'codex', dryRun = false
     scheduleEveryMinutes: control?.scheduleEveryMinutes ?? job.scheduleEveryMinutes,
     pauseReason: control?.pauseReason || job.pauseReason,
   };
+  const scheduleMutationGuard = validateFoundationJobSchedulePosture(effectiveJob);
+  if (!scheduleMutationGuard.ok) {
+    throw new Error(`Foundation job is not runnable: ${jobKey}. ${scheduleMutationGuard.reason}`);
+  }
   const permission = getJobRunPermission(effectiveJob, { force });
   if (!permission.ok) {
     throw new Error(`Foundation job is not runnable: ${jobKey}. ${permission.reason}`);

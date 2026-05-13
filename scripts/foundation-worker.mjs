@@ -92,8 +92,9 @@ function selectDueJobs(snapshot, { jobKey, maxJobs }) {
   const requestedJob = String(jobKey || '').trim();
   const jobs = Array.isArray(snapshot.jobs) ? snapshot.jobs : [];
   const runnable = jobs.filter(job => {
-    if (requestedJob) return job.key === requestedJob;
-    return job.enabled && job.runtimeMode === 'scheduled' && job.due;
+    const scheduleGuardOk = job.scheduleMutationGuard?.ok !== false && job.scheduleStatus !== 'blocked';
+    if (requestedJob) return job.key === requestedJob && scheduleGuardOk;
+    return job.enabled && job.runtimeMode === 'scheduled' && job.due && scheduleGuardOk;
   });
 
   return runnable

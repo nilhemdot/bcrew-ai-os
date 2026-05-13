@@ -42,6 +42,12 @@ import {
   buildProcessCheckApplyBoundaryDogfoodProof,
 } from '../lib/process-write-guard.js'
 import {
+  PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
+  buildScheduledMutationGuardDogfoodProof,
+  getFoundationJobDefinitions,
+  getFoundationJobRuntime,
+} from '../lib/foundation-jobs.js'
+import {
   buildPersonalWorkspaceBoundaryStatus,
 } from '../lib/foundation-personal-workspace-boundary.js'
 import {
@@ -863,6 +869,7 @@ const CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'VERIFY-READONLY-GATE-001',
   'PROCESS-CHECK-APPLY-BOUNDARY-001',
+  'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -13187,6 +13194,41 @@ async function main() {
     processCheckApplyBoundaryCard
       ? `lane=${processCheckApplyBoundaryCard.lane} noFlag=${processCheckApplyBoundaryProof.blockedNoFlag?.ok ? 'blocked' : 'missing'} apply=${processCheckApplyBoundaryProof.allowedApply?.ok ? 'allowed' : 'blocked'} highRisk=${processCheckApplyBoundaryHighRiskScripts.length}`
       : 'missing PROCESS-CHECK-APPLY-BOUNDARY-001',
+  )
+  const processCheckScheduledMutationGuardCard = (foundationHub.backlogItems || []).find(item => item.id === PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID) || null
+  const scheduledMutationGuardProof = buildScheduledMutationGuardDogfoodProof()
+  const foundationJobs = getFoundationJobDefinitions()
+  const verificationRunsJob = foundationJobs.find(job => job.key === 'verification-runs') || null
+  const verificationRunsRuntime = verificationRunsJob ? getFoundationJobRuntime(verificationRunsJob, null, new Date('2026-05-13T12:00:00.000Z')) : null
+  const scheduledProcessCheckRuntimes = foundationJobs
+    .filter(job => job.runtimeMode === 'scheduled' && job.processCheck?.isProcessCheck)
+    .map(job => ({ job, runtime: getFoundationJobRuntime(job, null, new Date('2026-05-13T12:00:00.000Z')) }))
+  ensure(
+    checks,
+      processCheckScheduledMutationGuardCard &&
+      ['scoped', 'done'].includes(processCheckScheduledMutationGuardCard.lane) &&
+      scheduledMutationGuardProof.ok === true &&
+      scheduledMutationGuardProof.scheduledMutatingCheck?.scheduleStatus === 'blocked' &&
+      scheduledMutationGuardProof.scheduledUnknownCheck?.scheduleStatus === 'blocked' &&
+      scheduledMutationGuardProof.scheduledReadOnlyCheck?.scheduleStatus !== 'blocked' &&
+      scheduledMutationGuardProof.scheduledReportOnlyCheck?.scheduleStatus !== 'blocked' &&
+      scheduledMutationGuardProof.manualMutatingCheck?.scheduleStatus === 'manual' &&
+      verificationRunsJob?.mutationPosture === 'mutating' &&
+      verificationRunsJob?.scheduleMutationGuard?.ok === false &&
+      verificationRunsRuntime?.scheduleStatus === 'blocked' &&
+      scheduledProcessCheckRuntimes.every(({ job, runtime }) =>
+        job.scheduleMutationGuard?.ok !== false || runtime.scheduleStatus === 'blocked',
+      ) &&
+      foundationJobsSource.includes('validateFoundationJobSchedulePosture') &&
+      foundationJobsSource.includes('buildScheduledMutationGuardDogfoodProof') &&
+      foundationJobsSource.includes('mutationPosture') &&
+      foundationJobsSource.includes('scheduler must block it') &&
+      foundationWorkerSource.includes("scheduleStatus !== 'blocked'") &&
+      includesAll(foundationVerifySource, RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001 blocks scheduled mutating process checks',
+    processCheckScheduledMutationGuardCard
+      ? `lane=${processCheckScheduledMutationGuardCard.lane} verification-runs=${verificationRunsRuntime?.scheduleStatus || 'missing'} scheduledChecks=${scheduledProcessCheckRuntimes.length}`
+      : 'missing PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001',
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [

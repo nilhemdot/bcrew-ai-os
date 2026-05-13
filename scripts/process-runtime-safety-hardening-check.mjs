@@ -18,6 +18,12 @@ import {
   buildProcessCheckApplyBoundaryDogfoodProof,
 } from '../lib/process-write-guard.js'
 import {
+  PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
+  buildScheduledMutationGuardDogfoodProof,
+  getFoundationJobDefinitions,
+  getFoundationJobRuntime,
+} from '../lib/foundation-jobs.js'
+import {
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
@@ -30,6 +36,7 @@ const repoRoot = path.resolve(__dirname, '..')
 const CARD_IDS = [
   VERIFY_READONLY_GATE_CARD_ID,
   PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID,
+  PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -263,6 +270,157 @@ async function buildProcessCheckApplyBoundaryStatus() {
   return { checks, proof }
 }
 
+async function buildScheduledMutationGuardStatus() {
+  const checks = []
+  const cardId = PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID
+  const [
+    packageSource,
+    foundationJobsSource,
+    foundationDbSource,
+    foundationWorkerSource,
+    runFoundationJobSource,
+    foundationVerifySource,
+    focusedProofSource,
+  ] = await Promise.all([
+    readRepoFile('package.json'),
+    readRepoFile('lib/foundation-jobs.js'),
+    readRepoFile('lib/foundation-db.js'),
+    readRepoFile('scripts/foundation-worker.mjs'),
+    readRepoFile('scripts/run-foundation-job.mjs'),
+    readRepoFile('scripts/foundation-verify.mjs'),
+    readRepoFile(RUNTIME_SAFETY_HARDENING_SCRIPT_PATH),
+  ])
+  const packageJson = JSON.parse(packageSource)
+  const approval = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: `docs/process/approvals/${cardId}.json`,
+    cardId,
+  })
+  const planCriticRuns = await getPlanCriticRunsByCardIds([cardId])
+  const backlogItems = await getBacklogItemsByIds([cardId])
+  const activeSprint = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const sprintItem = (activeSprint.items || []).find(item => item.cardId === cardId) || null
+  const card = backlogItems.find(item => item.id === cardId) || null
+  const proof = buildScheduledMutationGuardDogfoodProof()
+  const jobs = getFoundationJobDefinitions()
+  const verificationRunsJob = jobs.find(job => job.key === 'verification-runs') || null
+  const scheduledProcessChecks = jobs.filter(job => job.runtimeMode === 'scheduled' && job.processCheck?.isProcessCheck)
+  const scheduledProcessCheckRuntime = scheduledProcessChecks.map(job => ({
+    job,
+    runtime: getFoundationJobRuntime(job, null, new Date('2026-05-13T12:00:00.000Z')),
+  }))
+  const unsafeScheduledProcessChecks = scheduledProcessCheckRuntime.filter(({ job, runtime }) =>
+    job.scheduleMutationGuard?.ok === false && runtime.scheduleStatus !== 'blocked',
+  )
+
+  addCheck(
+    checks,
+    approval.ok && Number(approval.approval?.score) >= 9.8,
+    `${cardId} approval file is valid at 9.8+`,
+    approval.failures?.map(item => item.check).join(', ') || `score=${approval.approval?.score}`,
+  )
+  addCheck(
+    checks,
+    planCriticRuns.some(run => run.cardId === cardId && run.status === 'pass' && Number(run.score) >= 9.8),
+    `${cardId} has durable Plan Critic pass row`,
+    planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing',
+  )
+  addCheck(
+    checks,
+    card && ['scoped', 'done'].includes(card.lane),
+    `${cardId} exists in live backlog`,
+    card ? `${card.lane} / ${card.priority}` : 'missing',
+  )
+  addCheck(
+    checks,
+    activeSprint.sprint?.sprintId === RUNTIME_SAFETY_HARDENING_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
+    `${cardId} is active in the runtime safety sprint`,
+    activeSprint.sprint ? `${activeSprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing active sprint',
+  )
+  addCheck(
+    checks,
+    proof.ok === true &&
+      proof.scheduledMutatingCheck?.scheduleStatus === 'blocked' &&
+      proof.scheduledUnknownCheck?.scheduleStatus === 'blocked' &&
+      proof.scheduledReadOnlyCheck?.scheduleStatus !== 'blocked' &&
+      proof.scheduledReportOnlyCheck?.scheduleStatus !== 'blocked' &&
+      proof.manualMutatingCheck?.scheduleStatus === 'manual' &&
+      proof.realVerificationRuns?.scheduleStatus === 'blocked',
+    'dogfood proof blocks scheduled mutating/unknown process checks while allowing declared read-only/report-only checks',
+    JSON.stringify(proof),
+  )
+  addCheck(
+    checks,
+    verificationRunsJob?.mutationPosture === 'mutating' &&
+      verificationRunsJob?.scheduleMutationGuard?.ok === false,
+    'existing scheduled verification-runs process check is classified mutating and blocked',
+    verificationRunsJob
+      ? `${verificationRunsJob.runtimeMode}/${verificationRunsJob.mutationPosture}/${verificationRunsJob.scheduleMutationGuard?.reason || 'missing reason'}`
+      : 'missing verification-runs job',
+  )
+  addCheck(
+    checks,
+    unsafeScheduledProcessChecks.length === 0,
+    'no scheduled process-check job bypasses the schedule mutation guard',
+    unsafeScheduledProcessChecks.map(({ job }) => job.key).join(', ') || `${scheduledProcessChecks.length} scheduled process-check jobs evaluated`,
+  )
+  addCheck(
+    checks,
+    foundationJobsSource.includes('validateFoundationJobSchedulePosture') &&
+      foundationJobsSource.includes('buildScheduledMutationGuardDogfoodProof') &&
+      foundationJobsSource.includes('mutationPosture') &&
+      foundationJobsSource.includes('process:verification-runs-check') &&
+      foundationJobsSource.includes('scheduler must block it'),
+    'foundation job registry owns mutation posture and scheduler-block dogfood helper',
+    'lib/foundation-jobs.js',
+  )
+  addCheck(
+    checks,
+    foundationDbSource.includes('scheduleMutationGuard') &&
+      foundationDbSource.includes("scheduleStatus === 'blocked'"),
+    'Foundation job snapshots expose blocked schedule posture',
+    'lib/foundation-db.js',
+  )
+  addCheck(
+    checks,
+    foundationWorkerSource.includes('scheduleMutationGuard?.ok !== false') &&
+      foundationWorkerSource.includes("scheduleStatus !== 'blocked'"),
+    'Foundation worker selection refuses blocked scheduled jobs',
+    'scripts/foundation-worker.mjs',
+  )
+  addCheck(
+    checks,
+    runFoundationJobSource.includes('validateFoundationJobSchedulePosture') &&
+      runFoundationJobSource.includes('Foundation job is not runnable') &&
+      runFoundationJobSource.includes('scheduleMutationGuard.reason'),
+    'direct Foundation job runner refuses schedule-blocked jobs',
+    'scripts/run-foundation-job.mjs',
+  )
+  addCheck(
+    checks,
+    packageJson.scripts?.['process:runtime-safety-hardening-check'] === `node --env-file-if-exists=.env ${RUNTIME_SAFETY_HARDENING_SCRIPT_PATH}`,
+    'package exposes runtime safety focused proof',
+    packageJson.scripts?.['process:runtime-safety-hardening-check'] || 'missing',
+  )
+  addCheck(
+    checks,
+    focusedProofSource.includes('buildScheduledMutationGuardDogfoodProof') &&
+      focusedProofSource.includes('PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID'),
+    'focused proof script covers scheduled mutation guard',
+    RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
+  )
+  addCheck(
+    checks,
+    foundationVerifySource.includes(PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID) &&
+      foundationVerifySource.includes('buildScheduledMutationGuardDogfoodProof'),
+    'foundation verifier has scheduled mutation guard coverage',
+    PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
+  )
+
+  return { checks, proof }
+}
+
 async function main() {
   const args = parseArgs()
   const checks = []
@@ -276,6 +434,10 @@ async function main() {
     proof = status.proof
   } else if (args.card === PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID) {
     const status = await buildProcessCheckApplyBoundaryStatus()
+    checks.push(...status.checks)
+    proof = status.proof
+  } else if (args.card === PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID) {
+    const status = await buildScheduledMutationGuardStatus()
     checks.push(...status.checks)
     proof = status.proof
   }
