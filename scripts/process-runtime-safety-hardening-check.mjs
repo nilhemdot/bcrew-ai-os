@@ -7,12 +7,16 @@ import { fileURLToPath } from 'node:url'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
+  PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID,
   RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
   RUNTIME_SAFETY_HARDENING_SPRINT_ID,
   VERIFY_READONLY_GATE_CARD_ID,
   buildFoundationVerifyRetryOptions,
   buildVerifyReadOnlyGateDogfoodProof,
 } from '../lib/foundation-runtime-safety.js'
+import {
+  buildProcessCheckApplyBoundaryDogfoodProof,
+} from '../lib/process-write-guard.js'
 import {
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
@@ -25,6 +29,7 @@ const repoRoot = path.resolve(__dirname, '..')
 
 const CARD_IDS = [
   VERIFY_READONLY_GATE_CARD_ID,
+  PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID,
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -141,6 +146,123 @@ async function buildVerifyReadOnlyGateStatus() {
   return { checks, proof }
 }
 
+async function buildProcessCheckApplyBoundaryStatus() {
+  const checks = []
+  const cardId = PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID
+  const highRiskScriptPaths = [
+    'scripts/process-source-maturity-grid-check.mjs',
+    'scripts/process-connector-credential-check.mjs',
+    'scripts/process-llm-auth-audit-check.mjs',
+    'scripts/process-source-extraction-gap-followup-check.mjs',
+  ]
+  const [
+    packageSource,
+    writeGuardSource,
+    focusedProofSource,
+    foundationVerifySource,
+    ...highRiskSources
+  ] = await Promise.all([
+    readRepoFile('package.json'),
+    readRepoFile('lib/process-write-guard.js'),
+    readRepoFile(RUNTIME_SAFETY_HARDENING_SCRIPT_PATH),
+    readRepoFile('scripts/foundation-verify.mjs'),
+    ...highRiskScriptPaths.map(scriptPath => readRepoFile(scriptPath)),
+  ])
+  const packageJson = JSON.parse(packageSource)
+  const approval = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: `docs/process/approvals/${cardId}.json`,
+    cardId,
+  })
+  const planCriticRuns = await getPlanCriticRunsByCardIds([cardId])
+  const backlogItems = await getBacklogItemsByIds([cardId])
+  const activeSprint = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const sprintItem = (activeSprint.items || []).find(item => item.cardId === cardId) || null
+  const card = backlogItems.find(item => item.id === cardId) || null
+  const proof = await buildProcessCheckApplyBoundaryDogfoodProof()
+  const guardedHighRiskScripts = highRiskSources.map((source, index) => ({
+    scriptPath: highRiskScriptPaths[index],
+    guarded: source.includes('assertProcessCheckWriteAllowed') &&
+      source.includes('isProcessCheckWriteRequested') &&
+      source.includes('close-card') &&
+      source.includes('mutate-sprint'),
+  }))
+
+  addCheck(
+    checks,
+    approval.ok && Number(approval.approval?.score) >= 9.8,
+    `${cardId} approval file is valid at 9.8+`,
+    approval.failures?.map(item => item.check).join(', ') || `score=${approval.approval?.score}`,
+  )
+  addCheck(
+    checks,
+    planCriticRuns.some(run => run.cardId === cardId && run.status === 'pass' && Number(run.score) >= 9.8),
+    `${cardId} has durable Plan Critic pass row`,
+    planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing',
+  )
+  addCheck(
+    checks,
+    card && ['scoped', 'done'].includes(card.lane),
+    `${cardId} exists in live backlog`,
+    card ? `${card.lane} / ${card.priority}` : 'missing',
+  )
+  addCheck(
+    checks,
+    activeSprint.sprint?.sprintId === RUNTIME_SAFETY_HARDENING_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
+    `${cardId} is active in the runtime safety sprint`,
+    activeSprint.sprint ? `${activeSprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing active sprint',
+  )
+  addCheck(
+    checks,
+    proof.ok === true &&
+      proof.blockedNoFlag?.ok === true &&
+      proof.allowedApply?.ok === true &&
+      proof.allowedCloseCard?.ok === true &&
+      proof.blockedWrongFlag?.ok === true &&
+      proof.reportAllowed?.ok === true,
+    'dogfood proof blocks no-flag process-check writes and permits explicit write posture',
+    JSON.stringify(proof),
+  )
+  addCheck(
+    checks,
+    writeGuardSource.includes('ProcessWriteGuardError') &&
+      writeGuardSource.includes('PROCESS_CHECK_WRITE_BLOCKED') &&
+      writeGuardSource.includes('assertProcessCheckWriteAllowed') &&
+      writeGuardSource.includes('buildProcessCheckApplyBoundaryDogfoodProof'),
+    'shared process write guard owns the write-posture invariant',
+    'lib/process-write-guard.js',
+  )
+  addCheck(
+    checks,
+    guardedHighRiskScripts.every(item => item.guarded),
+    'audited high-risk process-check mutation paths route through the guard',
+    guardedHighRiskScripts.map(item => `${item.scriptPath}=${item.guarded ? 'guarded' : 'missing'}`).join(', '),
+  )
+  addCheck(
+    checks,
+    packageJson.scripts?.['process:runtime-safety-hardening-check'] === `node --env-file-if-exists=.env ${RUNTIME_SAFETY_HARDENING_SCRIPT_PATH}`,
+    'package exposes runtime safety focused proof',
+    packageJson.scripts?.['process:runtime-safety-hardening-check'] || 'missing',
+  )
+  addCheck(
+    checks,
+    focusedProofSource.includes('buildProcessCheckApplyBoundaryDogfoodProof') &&
+      focusedProofSource.includes('PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID'),
+    'focused proof script covers process-check apply boundary',
+    RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
+  )
+  addCheck(
+    checks,
+    foundationVerifySource.includes(PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID) &&
+      foundationVerifySource.includes('buildProcessCheckApplyBoundaryDogfoodProof'),
+    'foundation verifier has process-check apply boundary coverage',
+    PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID,
+  )
+
+  return { checks, proof }
+}
+
 async function main() {
   const args = parseArgs()
   const checks = []
@@ -150,6 +272,10 @@ async function main() {
     addCheck(checks, false, 'requested card is implemented in this focused proof', args.card || 'missing --card')
   } else if (args.card === VERIFY_READONLY_GATE_CARD_ID) {
     const status = await buildVerifyReadOnlyGateStatus()
+    checks.push(...status.checks)
+    proof = status.proof
+  } else if (args.card === PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID) {
+    const status = await buildProcessCheckApplyBoundaryStatus()
     checks.push(...status.checks)
     proof = status.proof
   }

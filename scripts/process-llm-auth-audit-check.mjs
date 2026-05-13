@@ -19,6 +19,10 @@ import {
   initFoundationDb,
   updateBacklogItem,
 } from '../lib/foundation-db.js'
+import {
+  assertProcessCheckWriteAllowed,
+  isProcessCheckWriteRequested,
+} from '../lib/process-write-guard.js'
 
 const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12'
 const NEXT_CARD_ID = 'SOURCE-EXTRACTION-GAP-FOLLOWUP-001'
@@ -117,7 +121,10 @@ async function closeSprintCard(status) {
 async function main() {
   const args = parseArgs()
   const jsonMode = boolArg(args.json)
-  const skipClose = boolArg(args.skipClose) || boolArg(args['skip-close'])
+  const closeRequested = isProcessCheckWriteRequested({
+    argv: process.argv.slice(2),
+    allowedFlags: ['apply', 'close-card', 'mutate-sprint'],
+  })
   const maxAgeHours = Number(args.maxAgeHours || args['max-age-hours'] || 24)
   const findings = []
 
@@ -158,7 +165,15 @@ async function main() {
       findings,
     }
 
-    if (summary.status === 'healthy' && !skipClose) await closeSprintCard(summary)
+    if (summary.status === 'healthy' && closeRequested) {
+      assertProcessCheckWriteAllowed({
+        argv: process.argv.slice(2),
+        scriptPath: LLM_AUTH_AUDIT_SCRIPT_PATH,
+        operation: 'close LLM auth audit card and mutate sprint state',
+        allowedFlags: ['apply', 'close-card', 'mutate-sprint'],
+      })
+      await closeSprintCard(summary)
+    }
 
     if (jsonMode) console.log(JSON.stringify(summary, null, 2))
     else {

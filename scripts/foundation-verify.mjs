@@ -32,11 +32,15 @@ import {
   runWithFoundationGateRetry,
 } from '../lib/foundation-gate-reliability.js'
 import {
+  PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID,
   RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
   VERIFY_READONLY_GATE_CARD_ID,
   buildFoundationVerifyRetryOptions,
   buildVerifyReadOnlyGateDogfoodProof,
 } from '../lib/foundation-runtime-safety.js'
+import {
+  buildProcessCheckApplyBoundaryDogfoodProof,
+} from '../lib/process-write-guard.js'
 import {
   buildPersonalWorkspaceBoundaryStatus,
 } from '../lib/foundation-personal-workspace-boundary.js'
@@ -858,6 +862,7 @@ const CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'VERIFY-READONLY-GATE-001',
+  'PROCESS-CHECK-APPLY-BOUNDARY-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -13151,6 +13156,37 @@ async function main() {
     verifyReadOnlyGateCard
       ? `lane=${verifyReadOnlyGateCard.lane} legacyRepair=${verifyReadOnlyDogfoodProof.legacyRepairThenPass?.wentGreenAfterRepair ? 'blocked-by-new-path' : 'missing'} failClosed=${verifyReadOnlyDogfoodProof.readOnlyFailClosed?.failedClosed ? 'yes' : 'no'} ${verifierLiveRepairFunctionToken}=absent`
       : 'missing VERIFY-READONLY-GATE-001',
+  )
+  const processCheckApplyBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID) || null
+  const processCheckApplyBoundaryProof = await buildProcessCheckApplyBoundaryDogfoodProof()
+  const processWriteGuardSource = await readRepoFile('lib/process-write-guard.js')
+  const processCheckApplyBoundaryHighRiskScripts = await Promise.all([
+    'scripts/process-source-maturity-grid-check.mjs',
+    'scripts/process-connector-credential-check.mjs',
+    'scripts/process-llm-auth-audit-check.mjs',
+    'scripts/process-source-extraction-gap-followup-check.mjs',
+  ].map(async scriptPath => ({ scriptPath, source: await readRepoFile(scriptPath) })))
+  ensure(
+    checks,
+      processCheckApplyBoundaryCard &&
+      ['scoped', 'done'].includes(processCheckApplyBoundaryCard.lane) &&
+      processCheckApplyBoundaryProof.ok === true &&
+      processCheckApplyBoundaryProof.blockedNoFlag?.ok === true &&
+      processCheckApplyBoundaryProof.allowedApply?.ok === true &&
+      processCheckApplyBoundaryProof.allowedCloseCard?.ok === true &&
+      processCheckApplyBoundaryProof.blockedWrongFlag?.ok === true &&
+      processCheckApplyBoundaryProof.reportAllowed?.ok === true &&
+      processWriteGuardSource.includes('PROCESS_CHECK_WRITE_BLOCKED') &&
+      processWriteGuardSource.includes('assertProcessCheckWriteAllowed') &&
+      processCheckApplyBoundaryHighRiskScripts.every(item =>
+        item.source.includes('assertProcessCheckWriteAllowed') &&
+        item.source.includes('isProcessCheckWriteRequested'),
+      ) &&
+      includesAll(foundationVerifySource, RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'PROCESS-CHECK-APPLY-BOUNDARY-001 blocks no-flag process-check writes while allowing explicit apply posture',
+    processCheckApplyBoundaryCard
+      ? `lane=${processCheckApplyBoundaryCard.lane} noFlag=${processCheckApplyBoundaryProof.blockedNoFlag?.ok ? 'blocked' : 'missing'} apply=${processCheckApplyBoundaryProof.allowedApply?.ok ? 'allowed' : 'blocked'} highRisk=${processCheckApplyBoundaryHighRiskScripts.length}`
+      : 'missing PROCESS-CHECK-APPLY-BOUNDARY-001',
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [

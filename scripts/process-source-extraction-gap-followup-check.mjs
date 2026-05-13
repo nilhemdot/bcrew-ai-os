@@ -26,6 +26,10 @@ import {
   updateBacklogItem,
 } from '../lib/foundation-db.js'
 import {
+  assertProcessCheckWriteAllowed,
+  isProcessCheckWriteRequested,
+} from '../lib/process-write-guard.js'
+import {
   buildConnectorCredentialRegistrySnapshot,
 } from '../lib/connector-credential-registry.js'
 import {
@@ -167,7 +171,14 @@ async function closeSprintCard(snapshot) {
 async function main() {
   const args = parseArgs()
   const jsonMode = boolArg(args.json)
-  const skipClose = boolArg(args.skipClose) || boolArg(args['skip-close'])
+  const reportRequested = isProcessCheckWriteRequested({
+    argv: process.argv.slice(2),
+    allowedFlags: ['apply', 'write-report'],
+  })
+  const closeRequested = isProcessCheckWriteRequested({
+    argv: process.argv.slice(2),
+    allowedFlags: ['apply', 'close-card', 'mutate-sprint'],
+  })
   const findings = []
 
   await initFoundationDb()
@@ -197,7 +208,15 @@ async function main() {
     const nextSprintCandidateIds = triage.queuedNextSprintCandidates.map(item => item.cardId)
     const backlogCandidateIds = backlogCandidates.map(item => item.id)
 
-    await writeReport(triage)
+    if (reportRequested) {
+      assertProcessCheckWriteAllowed({
+        argv: process.argv.slice(2),
+        scriptPath: SOURCE_EXTRACTION_GAP_FOLLOWUP_SCRIPT_PATH,
+        operation: 'write source extraction gap report',
+        allowedFlags: ['apply', 'write-report'],
+      })
+      await writeReport(triage)
+    }
 
     addFinding(
       findings,
@@ -235,7 +254,15 @@ async function main() {
       findings,
     }
 
-    if (summary.status === 'healthy' && !skipClose) await closeSprintCard(triage)
+    if (summary.status === 'healthy' && closeRequested) {
+      assertProcessCheckWriteAllowed({
+        argv: process.argv.slice(2),
+        scriptPath: SOURCE_EXTRACTION_GAP_FOLLOWUP_SCRIPT_PATH,
+        operation: 'close source extraction gap card and mutate sprint state',
+        allowedFlags: ['apply', 'close-card', 'mutate-sprint'],
+      })
+      await closeSprintCard(triage)
+    }
 
     if (jsonMode) console.log(JSON.stringify(summary, null, 2))
     else {

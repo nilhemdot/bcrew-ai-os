@@ -24,6 +24,10 @@ import {
   updateBacklogItem,
   upsertFoundationCurrentSprintOverlay,
 } from '../lib/foundation-db.js'
+import {
+  assertProcessCheckWriteAllowed,
+  isProcessCheckWriteRequested,
+} from '../lib/process-write-guard.js'
 import { getSourceContracts } from '../lib/source-contracts.js'
 import { buildSourceLifecycleStatus } from '../lib/source-lifecycle.js'
 import {
@@ -48,6 +52,10 @@ function parseArgs(argv = process.argv.slice(2)) {
     if (match) acc[match[1]] = match[2]
     return acc
   }, {})
+}
+
+function boolArg(value) {
+  return value === true || String(value || '').toLowerCase() === 'true'
 }
 
 async function readRepoFile(relativePath) {
@@ -77,7 +85,11 @@ function hasSevenStages(row) {
 
 async function main() {
   const args = parseArgs()
-  const jsonMode = String(args.json || '').toLowerCase() === 'true'
+  const jsonMode = boolArg(args.json)
+  const closeRequested = isProcessCheckWriteRequested({
+    argv: process.argv.slice(2),
+    allowedFlags: ['apply', 'close-card', 'mutate-sprint'],
+  })
   const findings = []
 
   const [
@@ -160,13 +172,6 @@ async function main() {
   })
   const syntheticProof = buildSyntheticSourceMaturityGridProof()
 
-  const closeoutNote = 'Closed on 2026-05-12 under `source-maturity-grid-v1`. V1 adds `lib/source-maturity-grid.js`, `/api/foundation/source-maturity-grid`, Source Lifecycle/Foundation Hub payload wiring, Foundation Source Lifecycle UI rendering, source operational metrics from atoms/synthesis/action routes, `scripts/process-source-maturity-grid-check.mjs`, package/verifier/current-sprint coverage, and Recent Work closeout. The behavior proof calls the real source maturity snapshot path, verifies every source row has seven stages, proves synthetic complete/deferred classification, and advances Current Sprint to `SOURCE-EXTRACTION-COVERAGE-001`. This does not ingest new sources, fix every source gap, build Reply/Watching Loop, expand Strategy Hub, build Marketing production, Telegram bots, Directors, or mutate Drive permissions.'
-  await updateBacklogItem(SOURCE_MATURITY_GRID_CARD_ID, {
-    lane: 'done',
-    nextAction: 'Closed for v1. Pull `SOURCE-EXTRACTION-COVERAGE-001` next to close extraction coverage visibility per source.',
-    statusNote: closeoutNote,
-  }, 'codex')
-
   const scopedCardIds = [
     SOURCE_EXTRACTION_COVERAGE_CARD_ID,
     'SOURCE-COVERAGE-CLOSEOUT-001',
@@ -178,17 +183,34 @@ async function main() {
     'DECISION-RESTRICTED-QUEUE-001',
     'FOUNDATION-UI-COMPLETE-001',
   ]
-  for (const cardId of scopedCardIds) {
-    const [existing] = await getBacklogItemsByIds([cardId])
-    if (existing && existing.lane !== 'done' && existing.lane !== 'scoped') {
-      await updateBacklogItem(cardId, { lane: 'scoped' }, 'codex')
-    }
-  }
 
-  await upsertFoundationCurrentSprintOverlay(
-    buildFoundationSourceOnceOverSprintSeed({ sourceMaturityStage: 'done_this_sprint' }),
-    'codex'
-  )
+  if (closeRequested) {
+    assertProcessCheckWriteAllowed({
+      argv: process.argv.slice(2),
+      scriptPath: SOURCE_MATURITY_GRID_SCRIPT_PATH,
+      operation: 'close source maturity card and mutate sprint state',
+      allowedFlags: ['apply', 'close-card', 'mutate-sprint'],
+    })
+
+    const closeoutNote = 'Closed on 2026-05-12 under `source-maturity-grid-v1`. V1 adds `lib/source-maturity-grid.js`, `/api/foundation/source-maturity-grid`, Source Lifecycle/Foundation Hub payload wiring, Foundation Source Lifecycle UI rendering, source operational metrics from atoms/synthesis/action routes, `scripts/process-source-maturity-grid-check.mjs`, package/verifier/current-sprint coverage, and Recent Work closeout. The behavior proof calls the real source maturity snapshot path, verifies every source row has seven stages, proves synthetic complete/deferred classification, and advances Current Sprint to `SOURCE-EXTRACTION-COVERAGE-001`. This does not ingest new sources, fix every source gap, build Reply/Watching Loop, expand Strategy Hub, build Marketing production, Telegram bots, Directors, or mutate Drive permissions.'
+    await updateBacklogItem(SOURCE_MATURITY_GRID_CARD_ID, {
+      lane: 'done',
+      nextAction: 'Closed for v1. Pull `SOURCE-EXTRACTION-COVERAGE-001` next to close extraction coverage visibility per source.',
+      statusNote: closeoutNote,
+    }, 'codex')
+
+    for (const cardId of scopedCardIds) {
+      const [existing] = await getBacklogItemsByIds([cardId])
+      if (existing && existing.lane !== 'done' && existing.lane !== 'scoped') {
+        await updateBacklogItem(cardId, { lane: 'scoped' }, 'codex')
+      }
+    }
+
+    await upsertFoundationCurrentSprintOverlay(
+      buildFoundationSourceOnceOverSprintSeed({ sourceMaturityStage: 'done_this_sprint' }),
+      'codex'
+    )
+  }
 
   const sprint = await getActiveFoundationCurrentSprint()
   const cards = await getBacklogItemsByIds([

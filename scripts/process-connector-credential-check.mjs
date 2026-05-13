@@ -24,6 +24,10 @@ import {
   updateBacklogItem,
 } from '../lib/foundation-db.js'
 import {
+  assertProcessCheckWriteAllowed,
+  isProcessCheckWriteRequested,
+} from '../lib/process-write-guard.js'
+import {
   getSourceConnectors,
   getSourceContracts,
 } from '../lib/source-contracts.js'
@@ -163,7 +167,10 @@ async function closeSprintCard() {
 async function main() {
   const args = parseArgs()
   const jsonMode = boolArg(args.json)
-  const skipClose = boolArg(args.skipClose) || boolArg(args['skip-close'])
+  const closeRequested = isProcessCheckWriteRequested({
+    argv: process.argv.slice(2),
+    allowedFlags: ['apply', 'close-card', 'mutate-sprint'],
+  })
   const findings = []
 
   await initFoundationDb()
@@ -242,7 +249,15 @@ async function main() {
       findings,
     }
 
-    if (summary.status === 'healthy' && !skipClose) await closeSprintCard()
+    if (summary.status === 'healthy' && closeRequested) {
+      assertProcessCheckWriteAllowed({
+        argv: process.argv.slice(2),
+        scriptPath: CONNECTOR_CREDENTIAL_SCRIPT_PATH,
+        operation: 'close connector credential card and mutate sprint state',
+        allowedFlags: ['apply', 'close-card', 'mutate-sprint'],
+      })
+      await closeSprintCard()
+    }
 
     if (jsonMode) console.log(JSON.stringify(summary, null, 2))
     else {
