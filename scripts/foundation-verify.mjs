@@ -385,6 +385,7 @@ import {
   PROTECTED_FOUNDATION_PATH_PATTERNS,
 } from '../lib/process-git-hooks.js'
 import {
+  BACKLOG_STORE_CONCURRENCY_CARD_ID,
   CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
   FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
   buildCurrentSprintMutationGuardsDogfoodProof,
@@ -410,6 +411,9 @@ import {
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
 } from '../lib/foundation-db.js'
+import {
+  buildBacklogStoreConcurrencyDogfoodProof,
+} from '../lib/backlog-store-concurrency.js'
 import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
@@ -876,6 +880,7 @@ const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001',
   'FOUNDATION-DB-INIT-SEED-SPLIT-001',
   'CURRENT-SPRINT-MUTATION-GUARDS-001',
+  'BACKLOG-STORE-CONCURRENCY-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -13283,6 +13288,30 @@ async function main() {
     currentSprintMutationGuardsCard
       ? `lane=${currentSprintMutationGuardsCard.lane} blocked=${currentSprintMutationGuardsProof.unsafeNoApply?.blocked ? 'yes' : 'no'} diff=${currentSprintMutationGuardsProof.explicitAllowed?.itemDiff?.changedCount || 0}`
       : `missing ${CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID}`,
+  )
+  const backlogStoreConcurrencySource = await readRepoFile('lib/backlog-store-concurrency.js')
+  const backlogStoreConcurrencyCard = (foundationHub.backlogItems || []).find(item => item.id === BACKLOG_STORE_CONCURRENCY_CARD_ID) || null
+  const backlogStoreConcurrencyProof = await buildBacklogStoreConcurrencyDogfoodProof()
+  ensure(
+    checks,
+      backlogStoreConcurrencyCard &&
+      ['scoped', 'done'].includes(backlogStoreConcurrencyCard.lane) &&
+      backlogStoreConcurrencyProof.ok === true &&
+      backlogStoreConcurrencyProof.legacyLostUpdate?.lostWriterAUpdate === true &&
+      backlogStoreConcurrencyProof.safeConcurrentWriters?.preservedWriterAUpdate === true &&
+      backlogStoreConcurrencyProof.safeConcurrentWriters?.preservedWriterBUpdate === true &&
+      backlogStoreConcurrencyProof.safeConcurrentWriters?.writerBReadSawWriterACommit === true &&
+      backlogStoreConcurrencyProof.changeEventProof?.hasFullBeforeAfter === true &&
+      foundationDbSource.includes('SELECT * FROM backlog_items WHERE id = $1 FOR UPDATE') &&
+      foundationDbSource.includes('changedFields') &&
+      backlogStoreConcurrencySource.includes('buildBacklogStoreConcurrencyDogfoodProof') &&
+      backlogStoreConcurrencySource.includes('legacyUnsafeBacklogMergeWrite') &&
+      backlogStoreConcurrencySource.includes('bcrew_ai_os_dogfood_') &&
+      includesAll(foundationVerifySource, RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'BACKLOG-STORE-CONCURRENCY-001 prevents silent backlog lost updates',
+    backlogStoreConcurrencyCard
+      ? `lane=${backlogStoreConcurrencyCard.lane} legacyLost=${backlogStoreConcurrencyProof.legacyLostUpdate?.lostWriterAUpdate ? 'yes' : 'no'} final=${backlogStoreConcurrencyProof.safeConcurrentWriters?.finalSummary || 'missing'}/${backlogStoreConcurrencyProof.safeConcurrentWriters?.finalStatusNote || 'missing'}`
+      : `missing ${BACKLOG_STORE_CONCURRENCY_CARD_ID}`,
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [

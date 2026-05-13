@@ -25,6 +25,7 @@ import {
 } from '../lib/foundation-jobs.js'
 import {
   CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
+  BACKLOG_STORE_CONCURRENCY_CARD_ID,
   FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
   buildCurrentSprintMutationGuardsDogfoodProof,
   buildFoundationDbInitSeedSplitDogfoodProof,
@@ -33,6 +34,9 @@ import {
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
 } from '../lib/foundation-db.js'
+import {
+  buildBacklogStoreConcurrencyDogfoodProof,
+} from '../lib/backlog-store-concurrency.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -43,6 +47,7 @@ const CARD_IDS = [
   PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
   FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
   CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
+  BACKLOG_STORE_CONCURRENCY_CARD_ID,
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -629,6 +634,106 @@ async function buildCurrentSprintMutationGuardsStatus() {
   return { checks, proof }
 }
 
+async function buildBacklogStoreConcurrencyStatus() {
+  const checks = []
+  const cardId = BACKLOG_STORE_CONCURRENCY_CARD_ID
+  const [
+    packageSource,
+    backlogConcurrencySource,
+    foundationDbSource,
+    focusedProofSource,
+    foundationVerifySource,
+  ] = await Promise.all([
+    readRepoFile('package.json'),
+    readRepoFile('lib/backlog-store-concurrency.js'),
+    readRepoFile('lib/foundation-db.js'),
+    readRepoFile(RUNTIME_SAFETY_HARDENING_SCRIPT_PATH),
+    readRepoFile('scripts/foundation-verify.mjs'),
+  ])
+  const packageJson = JSON.parse(packageSource)
+  const approval = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: `docs/process/approvals/${cardId}.json`,
+    cardId,
+  })
+  const planCriticRuns = await getPlanCriticRunsByCardIds([cardId])
+  const backlogItems = await getBacklogItemsByIds([cardId])
+  const activeSprint = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const sprintItem = (activeSprint.items || []).find(item => item.cardId === cardId) || null
+  const card = backlogItems.find(item => item.id === cardId) || null
+  const proof = await buildBacklogStoreConcurrencyDogfoodProof()
+
+  addCheck(
+    checks,
+    approval.ok && Number(approval.approval?.score) >= 9.8,
+    `${cardId} approval file is valid at 9.8+`,
+    approval.failures?.map(item => item.check).join(', ') || `score=${approval.approval?.score}`,
+  )
+  addCheck(
+    checks,
+    planCriticRuns.some(run => run.cardId === cardId && run.status === 'pass' && Number(run.score) >= 9.8),
+    `${cardId} has durable Plan Critic pass row`,
+    planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing',
+  )
+  addCheck(
+    checks,
+    card && ['scoped', 'done'].includes(card.lane),
+    `${cardId} exists in live backlog`,
+    card ? `${card.lane} / ${card.priority}` : 'missing',
+  )
+  addCheck(
+    checks,
+    activeSprint.sprint?.sprintId === RUNTIME_SAFETY_HARDENING_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
+    `${cardId} is active in the runtime safety sprint`,
+    activeSprint.sprint ? `${activeSprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing active sprint',
+  )
+  addCheck(
+    checks,
+    proof.ok === true &&
+      proof.legacyLostUpdate?.lostWriterAUpdate === true &&
+      proof.safeConcurrentWriters?.preservedWriterAUpdate === true &&
+      proof.safeConcurrentWriters?.preservedWriterBUpdate === true &&
+      proof.safeConcurrentWriters?.writerBReadSawWriterACommit === true &&
+      proof.changeEventProof?.hasFullBeforeAfter === true,
+    'dogfood proof shows old backlog merge writes lose updates and locked updates preserve both writers',
+    JSON.stringify(proof),
+  )
+  addCheck(
+    checks,
+    foundationDbSource.includes('BACKLOG_STORE_CONCURRENCY_CARD_ID') &&
+      foundationDbSource.includes('SELECT * FROM backlog_items WHERE id = $1 FOR UPDATE') &&
+      foundationDbSource.includes('changedFields') &&
+      backlogConcurrencySource.includes('buildBacklogStoreConcurrencyDogfoodProof') &&
+      backlogConcurrencySource.includes('legacyUnsafeBacklogMergeWrite') &&
+      backlogConcurrencySource.includes('bcrew_ai_os_dogfood_'),
+    'foundation DB module owns backlog row locking, full change-event metadata, and dogfood proof',
+    'lib/foundation-db.js + lib/backlog-store-concurrency.js',
+  )
+  addCheck(
+    checks,
+    packageJson.scripts?.['process:runtime-safety-hardening-check'] === `node --env-file-if-exists=.env ${RUNTIME_SAFETY_HARDENING_SCRIPT_PATH}`,
+    'package exposes runtime safety focused proof',
+    packageJson.scripts?.['process:runtime-safety-hardening-check'] || 'missing',
+  )
+  addCheck(
+    checks,
+    focusedProofSource.includes('buildBacklogStoreConcurrencyDogfoodProof') &&
+      focusedProofSource.includes('BACKLOG_STORE_CONCURRENCY_CARD_ID'),
+    'focused proof script covers backlog store concurrency',
+    RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
+  )
+  addCheck(
+    checks,
+    foundationVerifySource.includes(BACKLOG_STORE_CONCURRENCY_CARD_ID) &&
+      foundationVerifySource.includes('buildBacklogStoreConcurrencyDogfoodProof'),
+    'foundation verifier has backlog store concurrency coverage',
+    BACKLOG_STORE_CONCURRENCY_CARD_ID,
+  )
+
+  return { checks, proof }
+}
+
 async function main() {
   const args = parseArgs()
   const checks = []
@@ -654,6 +759,10 @@ async function main() {
     proof = status.proof
   } else if (args.card === CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID) {
     const status = await buildCurrentSprintMutationGuardsStatus()
+    checks.push(...status.checks)
+    proof = status.proof
+  } else if (args.card === BACKLOG_STORE_CONCURRENCY_CARD_ID) {
+    const status = await buildBacklogStoreConcurrencyStatus()
     checks.push(...status.checks)
     proof = status.proof
   }
