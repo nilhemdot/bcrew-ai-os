@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYSTEM-FLOW-MAP-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T13:16:15.361Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/system-flow-map-001-plan.md",
+  "approvedPlanSha256": "c772bc979ca7b9cff55b47c3878f5f2d021bafe1fc85512757b08b38be97de25",
+  "approvedRepoHead": "df02994d3e6fc4b812d46c64f5e92dbd7afc1d5e",
+  "notes": "Approved as part of Foundation Control + Backlog Compression Sprint. Scope: proposal-only control primitives for feedback, backlog compression, sprint advising, flow visibility, done velocity, acknowledged states, and incremental verifier planning. Not approved: autonomous dev, external extraction, paid-source auth, hub work, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "c908598b92929c31097d56279fa58b4710108c8f26971c953ffa1d6d2f95a25f"
+}

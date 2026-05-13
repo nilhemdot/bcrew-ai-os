@@ -100,6 +100,19 @@ Build Intel Intake Foundation is complete under `build-intel-intake-foundation-v
 
 Next named sprint, not silently opened: **Build Intel Extraction Implementation Sprint**. Scope: bounded YouTube watchlist proof, Steve-present access/content-use decisions for Skool/myICOR/Loom, Build Scoper proposals to Research Inbox, and Build Intel brief synthesis.
 
+Foundation Control + Backlog Compression is complete under `foundation-control-backlog-compression-v1`:
+
+1. `FEEDBACK-CAPTURE-001` — schema-backed Foundation feedback capture exists so Steve feedback can be stored for review instead of living only in chat.
+2. `FEEDBACK-TRIAGE-001` — deterministic triage proposes routing only; it does not create backlog cards, decisions, docs, sprints, or code changes.
+3. `BACKLOG-MONITOR-001` — live backlog pressure, research survivors, duplicate candidates, proof risks, stale candidates, and ghost-completion candidates are reported without mutation.
+4. `SPRINT-MASTER-ADVISOR-001` — next-sprint options are proposed with rationale and blockers, but Steve+Codex still approve and open the sprint manually.
+5. `SYSTEM-FLOW-MAP-001` — Foundation now has a live source -> job -> atom -> synthesis -> route/proposal -> backlog -> sprint -> ship map.
+6. `FOUNDATION-DONE-VELOCITY-001` — Foundation done velocity is exposed with honest date confidence.
+7. `PROCESS-ACK-STATES-001` — acknowledged states now carry owner, reason, review date, expiry, and related card/source refs without suppressing critical verifier failures automatically.
+8. `VERIFIER-INCREMENTAL-COVERAGE-001` — incremental proof planning exists for safe focused checks while protected server/security/database/runtime/verifier paths fall back to full verification.
+
+Stop at sprint review. Good next sprint options are Internal Implementation Scoper for thin-card enrichment (`INTERNAL-SCOPER-001`), Runtime + Extraction Hardening Foundation, Build Intel Extraction Implementation with Steve-present auth decisions, or research-lane promotion review from the backlog monitor.
+
 Recently closed sprint truth that this sprint depends on:
 
 - Foundation Source Once-Over is closed for v1 through `foundation-ui-complete-v1`. Closed sequence: `SOURCE-MATURITY-GRID-001` / `source-maturity-grid-v1`, `SOURCE-EXTRACTION-COVERAGE-001` / `source-extraction-coverage-v1`, `SOURCE-COVERAGE-CLOSEOUT-001` / `source-coverage-closeout-v1`, `MARKETING-SOURCE-MAP-001` / `marketing-source-map-v1`, `BRAND-STACK-001` / `brand-stack-v1`, `TIER-BEHAVIORAL-COMPLETION-001` / `tier-behavioral-completion-v1`, `VERIFICATION-RUNS-001` / `verification-runs-v1`, `PER-USER-CHANGELOG-001` / `per-user-changelog-v1`, `DECISION-RESTRICTED-QUEUE-001` / `decision-restricted-queue-v1`, and `FOUNDATION-UI-COMPLETE-001` / `foundation-ui-complete-v1`.

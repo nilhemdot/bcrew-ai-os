@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DONE-VELOCITY-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T13:16:15.361Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-done-velocity-001-plan.md",
+  "approvedPlanSha256": "8f22e8015ebb5d2eb1d39816e076b9b59bb90ef149429c024eb4b4478553ae8a",
+  "approvedRepoHead": "df02994d3e6fc4b812d46c64f5e92dbd7afc1d5e",
+  "notes": "Approved as part of Foundation Control + Backlog Compression Sprint. Scope: proposal-only control primitives for feedback, backlog compression, sprint advising, flow visibility, done velocity, acknowledged states, and incremental verifier planning. Not approved: autonomous dev, external extraction, paid-source auth, hub work, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "c1502f9cc339c82d02f3ec0ce12522f0b168f48b688a402f2a8180cd58e37e2d"
+}

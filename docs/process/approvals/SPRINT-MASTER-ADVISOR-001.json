@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SPRINT-MASTER-ADVISOR-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T13:16:15.361Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/sprint-master-advisor-001-plan.md",
+  "approvedPlanSha256": "294908ffbecfa403aa048a2345615ef8330ca455558334aa99e5e0b679625dcc",
+  "approvedRepoHead": "df02994d3e6fc4b812d46c64f5e92dbd7afc1d5e",
+  "notes": "Approved as part of Foundation Control + Backlog Compression Sprint. Scope: proposal-only control primitives for feedback, backlog compression, sprint advising, flow visibility, done velocity, acknowledged states, and incremental verifier planning. Not approved: autonomous dev, external extraction, paid-source auth, hub work, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "51366b059d4375c1f94b52388958633bc01c2396d488e3453788f6f8547b3257"
+}

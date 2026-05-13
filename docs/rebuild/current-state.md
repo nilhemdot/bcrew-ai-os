@@ -25,7 +25,9 @@ The Foundation is real. The system is not yet fully alive.
 
 Current sprint call:
 
-- The active sprint is `control-plane-connector-readiness-2026-05-12`, a backend control-plane sprint. Current Sprint API owns the active blocker; this doc records closeout context and command doctrine.
+- The latest completed sprint is `foundation-control-backlog-compression-2026-05-13`, closed under `foundation-control-backlog-compression-v1`. Current Sprint API owns the live stage truth; this doc records closeout context and command doctrine.
+- `FEEDBACK-CAPTURE-001`, `FEEDBACK-TRIAGE-001`, `BACKLOG-MONITOR-001`, `SPRINT-MASTER-ADVISOR-001`, `SYSTEM-FLOW-MAP-001`, `FOUNDATION-DONE-VELOCITY-001`, `PROCESS-ACK-STATES-001`, and `VERIFIER-INCREMENTAL-COVERAGE-001` are done under `foundation-control-backlog-compression-v1`. The outputs are proposal-only/control-plane primitives: durable feedback queue, deterministic triage, backlog monitor, sprint advisor, live flow map, done velocity, acknowledged states, and incremental verifier planning.
+- The sprint does not open extraction, Skool/myICOR/Loom auth, hubs, autonomous dev, Drive permission mutation, or request-access emails. Stop at sprint review before opening the next sprint.
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is done under `current-sprint-dynamic-truth-v1`. Hardcoded Current Sprint defaults are bootstrap-only, and incomplete live sprint metadata fails closed.
 - `SPRINT-STAGE-GATE-001` is done under `sprint-stage-gate-v1`. Sprint Ready and Building Now require complete doctrine and Plan Critic pass rows; Done This Sprint requires done backlog truth and closeout proof. The dogfood proof rejected the original skipped Connector/Routing state and accepted the repaired after-action state.
 - `FOUNDATION-PLAN-RECONCILE-001` is done under `foundation-plan-reconcile-control-plane-v1`: rebuild plan/state/handoff truth now points to the active control-plane sprint, records Source Once-Over/Connector-Routing/Process Repair closeouts, and queues next source-truth cards without pulling them.
@@ -35,7 +37,7 @@ Current sprint call:
 - Source Once-Over is closed for v1 through `foundation-ui-complete-v1`. Connector/Routing Truth is closed under `connector-routing-truth-v1`. Process Repair is closed under `connector-routing-process-repair-v1`, `verifier-sprint-independence-v1`, `verifier-modular-split-v1`, and `process-root-vs-patch-v1`.
 - Queued, not pulled into this sprint: `ATOM-FLOW-AUTO-DEMOTION-001`, `EXTRACT-RUN-HARDENING-EXECUTION-001`, and `RESEARCH-LANE-PURGE-001`.
 - Foundation READY still means owner-only Strategy re-entry is allowed. It does not mean old-system parity, broad team access, public exposure, Reply/Watching Loop readiness, or source extraction completion.
-- Stop at sprint review. Do not silently roll into product work now that this sprint is closed.
+- Stop at sprint review. Do not silently roll into product work now that the latest sprint is closed.
 - Not next: Reply/Watching Loop, Strategy Hub UI expansion, Mycro/Skool/Loom/Zoom/Real/SocialPilot extraction, Telegram bots, Department Directors/Master Director, marketing production, Brand Guardian enforcement, Drive permission mutation, request-access emails, or historical Meeting Vault cleanup. Do not run MEETING-VAULT-ACL-001 Phase B, mutate Drive permissions, or send request-access emails from this sprint.
 - Historical closeout notes below preserve at-the-time "current sprint active blocker" wording. The Short Version here and `/api/foundation/current-sprint` are the operational current truth.
 
@@ -162,6 +164,8 @@ Hard checkpoint call from 2026-04-28:
 - `PROCESS-HOOKS-001` is done for v1: `npm run process:ship-check` requires backlog card evidence, an approval file with score >= 9.8, a seven-field closeout, where-it-lives metadata, served-code proof, and default `foundation:verify` unless a skip reason is explicit.
 - `ACTION-REVIEW-APPLY-001` is done for v1: Foundation > Backlog > Action Review shows pending and approved routes, supports approve/reject/apply, requires reject reasons, exposes aged/stuck routes, and shows destination-record proof after apply.
 - `BUILD-INTEL-INTAKE-FOUNDATION` is done under `build-intel-intake-foundation-v1`: `CREATOR-WATCHLIST-001` normalized 23 Build Intel sources and 4 later marketing-content sources, `MULTIMODAL-EXTRACTOR-001` defined the governed multimodal extractor contract, and `RESEARCH-INBOX-001` became the proposal-only gate before backlog mutation. The required next sprint is named but not opened: Build Intel Extraction Implementation Sprint.
+- `FOUNDATION-CONTROL-BACKLOG-COMPRESSION` is done under `foundation-control-backlog-compression-v1`: feedback capture, proposal-only feedback triage, backlog monitor, Sprint Master Advisor, live system flow map, done velocity, acknowledged states, and incremental verifier planning are live as Foundation control primitives. These outputs propose and report only; they do not mutate backlog/sprints/decisions/docs/code without Steve+Codex approval.
+- `INTERNAL-SCOPER-001` is scoped from the 2026-05-13 sprint review as the missing internal counterpart to external Build Scoper: it should enrich thin scoped/research Foundation cards into 7-section build-ready doctrine and existing-work checks, proposal-only, with no automatic backlog/sprint/code mutation.
 - `RUNTIME-HEALTH-SIMPLIFY-001` is parked so Runtime Health can later get a plain-English top layer without weakening the diagnostic detail.
 
 Current command order:

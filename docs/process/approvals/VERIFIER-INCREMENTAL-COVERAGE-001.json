@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-INCREMENTAL-COVERAGE-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T13:16:15.361Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-incremental-coverage-001-plan.md",
+  "approvedPlanSha256": "f04256f60aeac35525f42732d5b314658e5ec8ce0eb1d0714a66d0b2d52823bc",
+  "approvedRepoHead": "df02994d3e6fc4b812d46c64f5e92dbd7afc1d5e",
+  "notes": "Approved as part of Foundation Control + Backlog Compression Sprint. Scope: proposal-only control primitives for feedback, backlog compression, sprint advising, flow visibility, done velocity, acknowledged states, and incremental verifier planning. Not approved: autonomous dev, external extraction, paid-source auth, hub work, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "cbd56b11508d5d408340f59117d7c98a3346059e7352b4752d78a167c32c7f6b"
+}

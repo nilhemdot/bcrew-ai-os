@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FEEDBACK-TRIAGE-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T13:16:15.361Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/feedback-triage-001-plan.md",
+  "approvedPlanSha256": "a02bda35916b3a052a29ea57a1531abd1960c527896db74bcb05f4c835a8d61a",
+  "approvedRepoHead": "df02994d3e6fc4b812d46c64f5e92dbd7afc1d5e",
+  "notes": "Approved as part of Foundation Control + Backlog Compression Sprint. Scope: proposal-only control primitives for feedback, backlog compression, sprint advising, flow visibility, done velocity, acknowledged states, and incremental verifier planning. Not approved: autonomous dev, external extraction, paid-source auth, hub work, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "1381a1b28d0364db659a9bbbc7d2b4d3960c50c1fc544bb3bf80c974a4c6f5f7"
+}

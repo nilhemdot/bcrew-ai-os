@@ -58,6 +58,11 @@ import {
   validateResearchInboxItem,
 } from '../lib/research-inbox.js'
 import {
+  FOUNDATION_CONTROL_COMPRESSION_CARD_IDS,
+  FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY,
+  buildIncrementalVerifierCoveragePlan,
+} from '../lib/foundation-control-compression.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -3404,6 +3409,7 @@ async function main() {
   const extractRunHardeningExecutionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === EXTRACT_RUN_HARDENING_EXECUTION_CLOSEOUT_KEY) || null
   const researchLanePurgeCloseout = foundationBuildCloseouts.find(closeout => closeout.key === RESEARCH_LANE_PURGE_CLOSEOUT_KEY) || null
   const buildIntelIntakeCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_INTAKE_CLOSEOUT_KEY) || null
+  const foundationControlCompressionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -8664,7 +8670,9 @@ async function main() {
       foundationHub.currentSprint?.status === 'healthy' &&
       foundationSprintSurfaceFollowUp?.lane === 'scoped' &&
       [foundationSprintSurfaceFollowUp?.summary, foundationSprintSurfaceFollowUp?.nextAction, foundationSprintSurfaceFollowUp?.statusNote].join(' ').includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
-      foundationSprintDoneVelocity?.lane === 'scoped' &&
+      (foundationSprintDoneVelocity?.lane === 'scoped' ||
+        (foundationSprintDoneVelocity?.lane === 'done' &&
+          String(foundationSprintDoneVelocity?.statusNote || '').includes(FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY))) &&
       [foundationSprintDoneVelocity?.summary, foundationSprintDoneVelocity?.nextAction, foundationSprintDoneVelocity?.statusNote].join(' ').includes('velocity') &&
       (meetingVaultAutoEnforcementClosed || meetingVaultAcl?.lane !== 'done') &&
       foundationSprintCaptureSource.includes('Phase B paused') &&
@@ -9027,8 +9035,8 @@ async function main() {
           foundationHub.currentSprint?.summary?.itemCount > 0 &&
           foundationHub.currentSprint?.summary?.doneThisSprintCount === foundationHub.currentSprint.summary.itemCount &&
           (
-            foundationHub.currentSprint?.cadence?.nextAction?.includes('sprint closeout') ||
-            foundationHub.currentSprint?.cadence?.nextAction?.includes('sprint review/rollover')
+            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint closeout') ||
+            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint review/rollover')
           )
         )
       ) &&
@@ -10798,12 +10806,15 @@ async function main() {
         'Current Sprint API owns the active blocker',
         'Queued, not pulled into this sprint',
       ]) &&
-      includesAll(currentState, [
+      (includesAll(currentState, [
         'control-plane-connector-readiness-2026-05-12',
         'Current Sprint API owns the active blocker',
         'Queued, not pulled into this sprint',
-        'Historical closeout notes below preserve',
-      ]) &&
+      ]) ||
+        includesAll(currentState, [
+          FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY,
+          'Historical closeout notes below preserve',
+        ])) &&
       ['ATOM-FLOW-AUTO-DEMOTION-001', 'EXTRACT-RUN-HARDENING-EXECUTION-001', 'RESEARCH-LANE-PURGE-001'].every(cardId =>
         currentPlan.includes(cardId) && currentState.includes(cardId)
       ) &&
@@ -12772,6 +12783,60 @@ async function main() {
       sourceRegistry.includes('/api/foundation/build-intel-watchlist'),
     'Build Intel intake foundation closes watchlist, extractor contract, and Research Inbox gate without extraction',
     `watchlist=${buildIntelWatchlistSnapshot.summary?.buildIntelCount || 0}+${buildIntelWatchlistSnapshot.summary?.marketingContentLaterCount || 0} extractor=${multimodalContractSnapshot.status} inbox=${researchInboxContractSnapshot.status}`,
+  )
+  const foundationControlCompressionCards = FOUNDATION_CONTROL_COMPRESSION_CARD_IDS
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const foundationControlCompressionVerifierCoverageIds = [
+    'FEEDBACK-CAPTURE-001',
+    'FEEDBACK-TRIAGE-001',
+    'BACKLOG-MONITOR-001',
+    'SPRINT-MASTER-ADVISOR-001',
+    'SYSTEM-FLOW-MAP-001',
+    'FOUNDATION-DONE-VELOCITY-001',
+    'PROCESS-ACK-STATES-001',
+    'VERIFIER-INCREMENTAL-COVERAGE-001',
+  ]
+  const foundationControlCompression = foundationHub.foundationControlCompression || {}
+  const incrementalStaticPlan = buildIncrementalVerifierCoveragePlan({
+    cardId: 'VERIFIER-INCREMENTAL-COVERAGE-001',
+    changedFiles: ['docs/process/verifier-incremental-coverage-001-plan.md'],
+  })
+  const incrementalFullPlan = buildIncrementalVerifierCoveragePlan({
+    cardId: 'VERIFIER-INCREMENTAL-COVERAGE-001',
+    changedFiles: ['server.js', 'scripts/foundation-verify.mjs'],
+  })
+  ensure(
+    checks,
+      foundationControlCompressionCards.every(card => card?.lane === 'done' && String(card?.statusNote || '').includes(FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY)) &&
+      foundationControlCompressionCloseout?.operatorCloseout === true &&
+      FOUNDATION_CONTROL_COMPRESSION_CARD_IDS.every(id => (foundationControlCompressionCloseout.backlogIds || []).includes(id)) &&
+      foundationControlCompressionVerifierCoverageIds.every(id => FOUNDATION_CONTROL_COMPRESSION_CARD_IDS.includes(id)) &&
+      FOUNDATION_CONTROL_COMPRESSION_CARD_IDS.every(id => foundationControlCompressionVerifierCoverageIds.includes(id)) &&
+      foundationControlCompression.proposalOnly === true &&
+      foundationControlCompression.writesBacklog === false &&
+      foundationControlCompression.writesSprint === false &&
+      foundationControlCompression.feedbackCapture?.writesBacklog === false &&
+      foundationControlCompression.feedbackTriage?.proposalOnly === true &&
+      foundationControlCompression.feedbackTriage?.writesBacklog === false &&
+      foundationControlCompression.backlogMonitor?.counts?.total >= 300 &&
+      foundationControlCompression.backlogMonitor?.counts?.foundationResearch >= 100 &&
+      foundationControlCompression.backlogMonitor?.writesBacklog === false &&
+      foundationControlCompression.sprintAdvisor?.proposalOnly === true &&
+      foundationControlCompression.sprintAdvisor?.opensSprint === false &&
+      foundationControlCompression.sprintAdvisor?.options?.length >= 3 &&
+      foundationControlCompression.systemFlowMap?.liveData === true &&
+      /flowchart LR/.test(foundationControlCompression.systemFlowMap?.mermaid || '') &&
+      foundationControlCompression.doneVelocity?.totalDone >= 100 &&
+      foundationControlCompression.doneVelocity?.writesBacklog === false &&
+      foundationControlCompression.acknowledgedStates?.suppressesCriticalVerifierFailures === false &&
+      incrementalStaticPlan.focusedProofAllowed === true &&
+      incrementalFullPlan.fullVerifyRequired === true &&
+      packageJson.scripts?.['process:foundation-control-compression-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-control-compression-check.mjs' &&
+      serverSource.includes("app.get('/api/foundation/control-compression'") &&
+      currentPlan.includes(FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY),
+    'Foundation control compression closes feedback, backlog, sprint advisor, flow, velocity, ack, and incremental proof primitives',
+    `cards=${foundationControlCompressionCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_CONTROL_COMPRESSION_CARD_IDS.length} backlog=${foundationControlCompression.backlogMonitor?.counts?.total || 0} proposals=${foundationControlCompression.sprintAdvisor?.options?.length || 0}`,
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [

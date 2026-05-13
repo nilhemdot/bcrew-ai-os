@@ -43,6 +43,8 @@ import {
   getFubLeadSourceSnapshot,
   getIntelligenceRetrievalSnapshot,
   getLatestMeetingVaultAutoEnforcementRun,
+  listFoundationAcknowledgedStates,
+  listFoundationFeedbackItems,
   listFoundationUsers,
   listFubLeadSourceRules,
   getMeetingVaultLegacyExceptions,
@@ -122,6 +124,9 @@ import {
 import {
   buildResearchInboxContractSnapshot,
 } from './lib/research-inbox.js'
+import {
+  buildFoundationControlCompressionSnapshot,
+} from './lib/foundation-control-compression.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -4366,6 +4371,36 @@ app.get('/api/foundation/research-inbox-contract', requireAdminToken, async (_re
   }
 })
 
+app.get('/api/foundation/control-compression', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const activeFoundationSprint = await getActiveFoundationCurrentSprint()
+    const [feedbackItems, ackStates] = await Promise.all([
+      listFoundationFeedbackItems({ limit: 50 }).catch(() => []),
+      listFoundationAcknowledgedStates({ limit: 50 }).catch(() => []),
+    ])
+    res.json(buildFoundationControlCompressionSnapshot({
+      backlogItems: snapshot.backlogItems || [],
+      closeouts: getFoundationBuildCloseouts(),
+      currentSprint: activeFoundationSprint,
+      feedbackItems,
+      ackStates,
+      sources: getSourceContracts(),
+      extractionControl: snapshot.extractionControl,
+      intelligenceAtomSpine: snapshot.intelligenceAtomSpine,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis,
+      intelligenceActionRouter: snapshot.intelligenceActionRouter,
+    }))
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_control_compression_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation control compression snapshot.'
+    )
+  }
+})
+
 app.get('/api/fub/health', requireAdminToken, async (req, res) => {
   try {
     const requestedContext = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
@@ -5175,6 +5210,22 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
     const buildIntelWatchlist = buildCreatorWatchlistSnapshot()
     const multimodalExtractorContract = buildMultimodalExtractorContractSnapshot()
     const researchInboxContract = buildResearchInboxContractSnapshot()
+    const [foundationFeedbackItems, foundationAckStates] = await Promise.all([
+      listFoundationFeedbackItems({ limit: 50 }).catch(() => []),
+      listFoundationAcknowledgedStates({ limit: 50 }).catch(() => []),
+    ])
+    const foundationControlCompression = buildFoundationControlCompressionSnapshot({
+      backlogItems: snapshot.backlogItems || [],
+      closeouts: getFoundationBuildCloseouts(),
+      currentSprint: activeFoundationSprint,
+      feedbackItems: foundationFeedbackItems,
+      ackStates: foundationAckStates,
+      sources: getSourceContracts(),
+      extractionControl: snapshot.extractionControl,
+      intelligenceAtomSpine: snapshot.intelligenceAtomSpine,
+      intelligenceSynthesis: snapshot.intelligenceSynthesis,
+      intelligenceActionRouter: snapshot.intelligenceActionRouter,
+    })
     sourceLifecycle.marketingSourceMap = marketingSourceMap
     sourceLifecycle.brandStack = brandStack
     sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
@@ -5226,6 +5277,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       buildIntelWatchlist,
       multimodalExtractorContract,
       researchInboxContract,
+      foundationControlCompression,
       foundationUiComplete,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
