@@ -24,7 +24,9 @@ import {
   getFoundationJobRuntime,
 } from '../lib/foundation-jobs.js'
 import {
+  CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
   FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
+  buildCurrentSprintMutationGuardsDogfoodProof,
   buildFoundationDbInitSeedSplitDogfoodProof,
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
@@ -40,6 +42,7 @@ const CARD_IDS = [
   PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID,
   PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
   FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
+  CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
 ]
 
 function parseArgs(argv = process.argv.slice(2)) {
@@ -524,6 +527,108 @@ async function buildFoundationDbInitSeedSplitStatus() {
   return { checks, proof }
 }
 
+async function buildCurrentSprintMutationGuardsStatus() {
+  const checks = []
+  const cardId = CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID
+  const [
+    packageSource,
+    foundationDbSource,
+    focusedProofSource,
+    foundationVerifySource,
+  ] = await Promise.all([
+    readRepoFile('package.json'),
+    readRepoFile('lib/foundation-db.js'),
+    readRepoFile(RUNTIME_SAFETY_HARDENING_SCRIPT_PATH),
+    readRepoFile('scripts/foundation-verify.mjs'),
+  ])
+  const packageJson = JSON.parse(packageSource)
+  const approval = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: `docs/process/approvals/${cardId}.json`,
+    cardId,
+  })
+  const planCriticRuns = await getPlanCriticRunsByCardIds([cardId])
+  const backlogItems = await getBacklogItemsByIds([cardId])
+  const activeSprint = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const sprintItem = (activeSprint.items || []).find(item => item.cardId === cardId) || null
+  const card = backlogItems.find(item => item.id === cardId) || null
+  const proof = await buildCurrentSprintMutationGuardsDogfoodProof()
+
+  addCheck(
+    checks,
+    approval.ok && Number(approval.approval?.score) >= 9.8,
+    `${cardId} approval file is valid at 9.8+`,
+    approval.failures?.map(item => item.check).join(', ') || `score=${approval.approval?.score}`,
+  )
+  addCheck(
+    checks,
+    planCriticRuns.some(run => run.cardId === cardId && run.status === 'pass' && Number(run.score) >= 9.8),
+    `${cardId} has durable Plan Critic pass row`,
+    planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing',
+  )
+  addCheck(
+    checks,
+    card && ['scoped', 'done'].includes(card.lane),
+    `${cardId} exists in live backlog`,
+    card ? `${card.lane} / ${card.priority}` : 'missing',
+  )
+  addCheck(
+    checks,
+    activeSprint.sprint?.sprintId === RUNTIME_SAFETY_HARDENING_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
+    `${cardId} is active in the runtime safety sprint`,
+    activeSprint.sprint ? `${activeSprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing active sprint',
+  )
+  addCheck(
+    checks,
+    proof.ok === true &&
+      proof.unsafeNoApply?.blocked === true &&
+      proof.missingExpectedPreviousActiveSprintId?.blocked === true &&
+      proof.missingAllowItemReplacement?.blocked === true &&
+      proof.explicitAllowed?.ok === true &&
+      proof.explicitAllowed?.itemDiff?.changedCount >= 2 &&
+      proof.syntheticRollback?.active_sprint_restored === true &&
+      proof.syntheticRollback?.existing_item_restored === true &&
+      proof.syntheticRollback?.replacement_card_exists === false,
+    'dogfood proof blocks unsafe Current Sprint overlay calls and allows explicit apply+expected-id+replacement posture',
+    JSON.stringify(proof),
+  )
+  addCheck(
+    checks,
+    foundationDbSource.includes('FoundationCurrentSprintMutationGuardError') &&
+      foundationDbSource.includes('FOUNDATION_CURRENT_SPRINT_MUTATION_BLOCKED') &&
+      foundationDbSource.includes('expectedPreviousActiveSprintId') &&
+      foundationDbSource.includes('allowItemReplacement') &&
+      foundationDbSource.includes('buildCurrentSprintMutationGuardsDogfoodProof') &&
+      foundationDbSource.includes('mutationPosture') &&
+      foundationDbSource.includes('itemDiff'),
+    'foundation DB module owns Current Sprint mutation guard and diff proof',
+    'lib/foundation-db.js',
+  )
+  addCheck(
+    checks,
+    packageJson.scripts?.['process:runtime-safety-hardening-check'] === `node --env-file-if-exists=.env ${RUNTIME_SAFETY_HARDENING_SCRIPT_PATH}`,
+    'package exposes runtime safety focused proof',
+    packageJson.scripts?.['process:runtime-safety-hardening-check'] || 'missing',
+  )
+  addCheck(
+    checks,
+    focusedProofSource.includes('buildCurrentSprintMutationGuardsDogfoodProof') &&
+      focusedProofSource.includes('CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID'),
+    'focused proof script covers Current Sprint mutation guards',
+    RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
+  )
+  addCheck(
+    checks,
+    foundationVerifySource.includes(CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID) &&
+      foundationVerifySource.includes('buildCurrentSprintMutationGuardsDogfoodProof'),
+    'foundation verifier has Current Sprint mutation guard coverage',
+    CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
+  )
+
+  return { checks, proof }
+}
+
 async function main() {
   const args = parseArgs()
   const checks = []
@@ -545,6 +650,10 @@ async function main() {
     proof = status.proof
   } else if (args.card === FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID) {
     const status = await buildFoundationDbInitSeedSplitStatus()
+    checks.push(...status.checks)
+    proof = status.proof
+  } else if (args.card === CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID) {
+    const status = await buildCurrentSprintMutationGuardsStatus()
     checks.push(...status.checks)
     proof = status.proof
   }

@@ -385,7 +385,9 @@ import {
   PROTECTED_FOUNDATION_PATH_PATTERNS,
 } from '../lib/process-git-hooks.js'
 import {
+  CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID,
   FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,
+  buildCurrentSprintMutationGuardsDogfoodProof,
   assertFoundationDbReadyForReadOnlyGate,
   buildFoundationDbInitSeedSplitDogfoodProof,
   closeFoundationDb,
@@ -873,6 +875,7 @@ const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'PROCESS-CHECK-APPLY-BOUNDARY-001',
   'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001',
   'FOUNDATION-DB-INIT-SEED-SPLIT-001',
+  'CURRENT-SPRINT-MUTATION-GUARDS-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -13255,6 +13258,31 @@ async function main() {
     foundationDbInitSeedSplitCard
       ? `lane=${foundationDbInitSeedSplitCard.lane} changedTables=${(foundationDbInitSeedSplitProof.changedTables || []).length} watched=${(foundationDbInitSeedSplitProof.watchedTables || []).length}`
       : `missing ${FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID}`,
+  )
+  const currentSprintMutationGuardsCard = (foundationHub.backlogItems || []).find(item => item.id === CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID) || null
+  const currentSprintMutationGuardsProof = await buildCurrentSprintMutationGuardsDogfoodProof()
+  ensure(
+    checks,
+      currentSprintMutationGuardsCard &&
+      ['scoped', 'done'].includes(currentSprintMutationGuardsCard.lane) &&
+      currentSprintMutationGuardsProof.ok === true &&
+      currentSprintMutationGuardsProof.unsafeNoApply?.blocked === true &&
+      currentSprintMutationGuardsProof.missingExpectedPreviousActiveSprintId?.blocked === true &&
+      currentSprintMutationGuardsProof.missingAllowItemReplacement?.blocked === true &&
+      currentSprintMutationGuardsProof.explicitAllowed?.ok === true &&
+      currentSprintMutationGuardsProof.explicitAllowed?.itemDiff?.changedCount >= 2 &&
+      currentSprintMutationGuardsProof.syntheticRollback?.active_sprint_restored === true &&
+      currentSprintMutationGuardsProof.syntheticRollback?.existing_item_restored === true &&
+      currentSprintMutationGuardsProof.syntheticRollback?.replacement_card_exists === false &&
+      foundationDbSource.includes('FoundationCurrentSprintMutationGuardError') &&
+      foundationDbSource.includes('expectedPreviousActiveSprintId') &&
+      foundationDbSource.includes('allowItemReplacement') &&
+      foundationDbSource.includes('buildCurrentSprintMutationGuardsDogfoodProof') &&
+      includesAll(foundationVerifySource, RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'CURRENT-SPRINT-MUTATION-GUARDS-001 blocks unsafe Current Sprint overlay mutation',
+    currentSprintMutationGuardsCard
+      ? `lane=${currentSprintMutationGuardsCard.lane} blocked=${currentSprintMutationGuardsProof.unsafeNoApply?.blocked ? 'yes' : 'no'} diff=${currentSprintMutationGuardsProof.explicitAllowed?.itemDiff?.changedCount || 0}`
+      : `missing ${CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID}`,
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [
