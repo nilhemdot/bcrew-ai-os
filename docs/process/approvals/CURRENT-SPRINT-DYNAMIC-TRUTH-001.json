@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CURRENT-SPRINT-DYNAMIC-TRUTH-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T00:01:21Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/current-sprint-dynamic-truth-001-plan.md",
+  "approvedPlanSha256": "4fb5be64221b7fa17cc46665db86ce450f4c1fe2b7266588980e6c451b57d2f9",
+  "approvedRepoHead": "9bf04dafe9e977da501e94329e7dfe5254b906c2",
+  "notes": "Approved as card 1 in the Control Plane + Connector Readiness Sprint. Scope: move active sprint command truth to live DB/backlog-backed records and prove fallback/bootstrap cannot overrule live truth. Not approved: UI redesign, product loop work, connector extraction, MEETING-VAULT-ACL-001 Phase B, or Drive permissions mutation.",
+  "approvalDigest": "d1fb5349bbcbfdb14d0e27324132e524ec7b7edf522ca04bfb5345de4e19ac96"
+}

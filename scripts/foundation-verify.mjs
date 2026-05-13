@@ -352,6 +352,11 @@ import {
   FOUNDATION_SPRINT_CADENCE_PLAN_PATH,
   FOUNDATION_SPRINT_CADENCE_SCRIPT_PATH,
   FOUNDATION_SPRINT_CADENCE_SUMMARY_MARKER,
+  CURRENT_SPRINT_DYNAMIC_TRUTH_APPROVAL_PATH,
+  CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID,
+  CURRENT_SPRINT_DYNAMIC_TRUTH_CLOSEOUT_KEY,
+  CURRENT_SPRINT_DYNAMIC_TRUTH_PLAN_PATH,
+  CURRENT_SPRINT_DYNAMIC_TRUTH_SCRIPT_PATH,
   FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
   FOUNDATION_SPRINT_EXIT_CRITERIA,
   FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
@@ -1316,6 +1321,8 @@ async function main() {
   const packageJson = JSON.parse(packageSource)
   const foundationVerifySource = await readRepoFile('scripts/foundation-verify.mjs')
   const processRepairVerifierSprintScriptSource = await readRepoFile('scripts/process-repair-verifier-sprint-check.mjs')
+  const currentSprintDynamicTruthCheckSource = await readRepoFile(CURRENT_SPRINT_DYNAMIC_TRUTH_SCRIPT_PATH)
+  const currentSprintDynamicTruthPlanSource = await readRepoFile(CURRENT_SPRINT_DYNAMIC_TRUTH_PLAN_PATH)
   const verifierSprintProofModuleSource = await readRepoFile('lib/foundation-verifier-sprint-proof.js')
   const verifierModularSplitCheckSource = await readRepoFile('scripts/process-verifier-modular-split-check.mjs')
   const processRootVsPatchCheckSource = await readRepoFile('scripts/process-root-vs-patch-check.mjs')
@@ -1762,6 +1769,11 @@ async function main() {
     repoRoot,
     approvalRef: FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
     cardId: FOUNDATION_SPRINT_CADENCE_CARD_ID,
+  })
+  const currentSprintDynamicTruthApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: CURRENT_SPRINT_DYNAMIC_TRUTH_APPROVAL_PATH,
+    cardId: CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID,
   })
   const rebuildPlanReconcileApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3217,6 +3229,7 @@ async function main() {
   const verifierSprintIndependenceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'verifier-sprint-independence-v1') || null
   const verifierModularSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'verifier-modular-split-v1') || null
   const processRootVsPatchCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'process-root-vs-patch-v1') || null
+  const currentSprintDynamicTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CURRENT_SPRINT_DYNAMIC_TRUTH_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const currentSprintItemsById = new Map(
@@ -3224,6 +3237,9 @@ async function main() {
       .flatMap(stage => stage.items || [])
       .map(item => [item.cardId, item])
   )
+  const foundationPlanReconcileCurrentItem = currentSprintItemsById.get(REBUILD_PLAN_RECONCILE_CARD_ID) ||
+    currentSprintItemsById.get('FOUNDATION-PLAN-RECONCILE-001') ||
+    null
   const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
@@ -5839,6 +5855,7 @@ async function main() {
   const processRootVsPatch = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-ROOT-VS-PATCH-001') || null
   const foundationSprintSystem = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SYSTEM_CARD_ID) || null
   const foundationSprintCadence = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_CADENCE_CARD_ID) || null
+  const currentSprintDynamicTruth = (foundationHub.backlogItems || []).find(item => item.id === CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID) || null
   const foundationSprintReview = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_REVIEW_CARD_ID) || null
   const verifyGateTiering = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_GATE_TIERING_CARD_ID) || null
   const rebuildPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === REBUILD_PLAN_RECONCILE_CARD_ID) || null
@@ -7059,7 +7076,8 @@ async function main() {
     foundationPlanReconcile?.lane === 'scoped' &&
       foundationPlanReconcile?.priority === 'P0' &&
       /hard-checkpoint sprint plan/.test(foundationPlanReconcile?.summary || '') &&
-      /before Phase G Track 2/.test(foundationPlanReconcile?.nextAction || '') &&
+      (/before Phase G Track 2/.test(foundationPlanReconcile?.nextAction || '') ||
+        foundationPlanReconcileCurrentItem?.existingWorkCheckStatus === 'complete') &&
       hardCheckpointTier0Cards.every(card =>
         ['scoped', 'done'].includes(card?.lane) &&
           ['P0', 'P1'].includes(card.priority) &&
@@ -10227,21 +10245,46 @@ async function main() {
   const verifierSprintIndependenceCurrentItem = currentSprintItemsById.get('VERIFIER-SPRINT-INDEPENDENCE-001')
   const verifierModularSplitCurrentItem = currentSprintItemsById.get('VERIFIER-MODULAR-SPLIT-001')
   const processRootVsPatchCurrentItem = currentSprintItemsById.get('PROCESS-ROOT-VS-PATCH-001')
+  const currentSprintDynamicTruthCurrentItem = currentSprintItemsById.get(CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID)
+  const currentSprintDynamicTruthIsBuilding =
+    currentSprintDynamicTruthCurrentItem?.stage === 'building_now' &&
+    currentSprintDynamicTruthCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID
+  const currentSprintDynamicTruthIsClosed =
+    currentSprintDynamicTruth?.lane === 'done' &&
+    String(currentSprintDynamicTruth?.statusNote || '').includes(CURRENT_SPRINT_DYNAMIC_TRUTH_CLOSEOUT_KEY) &&
+    currentSprintDynamicTruthCloseout?.operatorCloseout === true &&
+    (currentSprintDynamicTruthCloseout.backlogIds || []).includes(CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID) &&
+    historicalCardHasVerifiedCloseout(CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID)
   const verifierSprintIndependenceIsBuilding =
     verifierSprintIndependence?.lane === 'executing' &&
     verifierSprintIndependenceCurrentItem?.stage === 'building_now' &&
     verifierSprintIndependenceCurrentItem?.existingWorkCheckStatus === 'complete' &&
     foundationHub.currentSprint?.activeBlocker?.cardId === 'VERIFIER-SPRINT-INDEPENDENCE-001'
-  const verifierSprintIndependenceIsClosed =
+  const verifierSprintIndependenceClosedByArtifacts =
     verifierSprintIndependence?.lane === 'done' &&
     String(verifierSprintIndependence?.statusNote || '').includes('verifier-sprint-independence-v1') &&
     verifierSprintIndependenceCloseout?.operatorCloseout === true &&
     (verifierSprintIndependenceCloseout.backlogIds || []).includes('VERIFIER-SPRINT-INDEPENDENCE-001') &&
-    verifierSprintIndependenceCurrentItem?.stage === 'done_this_sprint' &&
-    verifierSprintIndependenceCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    historicalCardHasVerifiedCloseout('VERIFIER-SPRINT-INDEPENDENCE-001')
+  const verifierModularSplitClosedByArtifacts =
+    verifierModularSplit?.lane === 'done' &&
+    String(verifierModularSplit?.statusNote || '').includes('verifier-modular-split-v1') &&
+    verifierModularSplitCloseout?.operatorCloseout === true &&
+    (verifierModularSplitCloseout.backlogIds || []).includes('VERIFIER-MODULAR-SPLIT-001') &&
+    historicalCardHasVerifiedCloseout('VERIFIER-MODULAR-SPLIT-001')
+  const processRootVsPatchClosedByArtifacts =
+    processRootVsPatch?.lane === 'done' &&
+    String(processRootVsPatch?.statusNote || '').includes('process-root-vs-patch-v1') &&
+    processRootVsPatchCloseout?.operatorCloseout === true &&
+    (processRootVsPatchCloseout.backlogIds || []).includes('PROCESS-ROOT-VS-PATCH-001') &&
+    historicalCardHasVerifiedCloseout('PROCESS-ROOT-VS-PATCH-001')
+  const verifierSprintIndependenceIsClosed =
+    verifierSprintIndependenceClosedByArtifacts &&
     ((verifierModularSplitCurrentItem?.stage === 'building_now' &&
       verifierModularSplitCurrentItem?.existingWorkCheckStatus === 'complete' &&
       foundationHub.currentSprint?.activeBlocker?.cardId === 'VERIFIER-MODULAR-SPLIT-001') ||
+      verifierModularSplitClosedByArtifacts ||
       (verifierModularSplitCurrentItem?.stage === 'done_this_sprint' &&
         verifierModularSplitCurrentItem?.existingWorkCheckStatus === 'complete' &&
         processRootVsPatchCurrentItem?.existingWorkCheckStatus === 'complete' &&
@@ -10255,15 +10298,10 @@ async function main() {
     verifierModularSplitCurrentItem?.existingWorkCheckStatus === 'complete' &&
     foundationHub.currentSprint?.activeBlocker?.cardId === 'VERIFIER-MODULAR-SPLIT-001'
   const verifierModularSplitIsClosed =
-    verifierModularSplit?.lane === 'done' &&
-    String(verifierModularSplit?.statusNote || '').includes('verifier-modular-split-v1') &&
-    verifierModularSplitCloseout?.operatorCloseout === true &&
-    (verifierModularSplitCloseout.backlogIds || []).includes('VERIFIER-MODULAR-SPLIT-001') &&
-    verifierModularSplitCurrentItem?.stage === 'done_this_sprint' &&
-    verifierModularSplitCurrentItem?.existingWorkCheckStatus === 'complete' &&
-    processRootVsPatchCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    verifierModularSplitClosedByArtifacts &&
     ((processRootVsPatchCurrentItem?.stage === 'building_now' &&
       foundationHub.currentSprint?.activeBlocker?.cardId === 'PROCESS-ROOT-VS-PATCH-001') ||
+      processRootVsPatchClosedByArtifacts ||
       (processRootVsPatchCurrentItem?.stage === 'done_this_sprint' &&
         foundationHub.currentSprint?.activeBlocker === null))
   const processRootVsPatchIsBuilding =
@@ -10272,14 +10310,7 @@ async function main() {
     processRootVsPatchCurrentItem?.existingWorkCheckStatus === 'complete' &&
     foundationHub.currentSprint?.activeBlocker?.cardId === 'PROCESS-ROOT-VS-PATCH-001'
   const processRootVsPatchIsClosed =
-    processRootVsPatch?.lane === 'done' &&
-    String(processRootVsPatch?.statusNote || '').includes('process-root-vs-patch-v1') &&
-    processRootVsPatchCloseout?.operatorCloseout === true &&
-    (processRootVsPatchCloseout.backlogIds || []).includes('PROCESS-ROOT-VS-PATCH-001') &&
-    processRootVsPatchCurrentItem?.stage === 'done_this_sprint' &&
-    processRootVsPatchCurrentItem?.existingWorkCheckStatus === 'complete' &&
-    foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
-    foundationHub.currentSprint?.activeBlocker === null
+    processRootVsPatchClosedByArtifacts
   const oldConnectorRoutingShortcutA = ['connectorRoutingTruthSprintActive', 'expectedSnippets'].join(' || ')
   const oldConnectorRoutingShortcutB = ['expectedCardIds.includes(currentSprintActiveBlockerCardId)', 'connectorRoutingTruthSprintActive'].join(' || ')
   ensure(
@@ -10293,9 +10324,7 @@ async function main() {
         (connectorRoutingProcessRepairCloseout.mentionedBacklogIds || []).includes(id)
       ) &&
       packageJson.scripts?.['process:repair-verifier-sprint-check'] === 'node --env-file-if-exists=.env scripts/process-repair-verifier-sprint-check.mjs' &&
-      foundationHub.currentSprint?.sprintId === 'process-repair-verifier-independence-2026-05-12' &&
-      sprintProcessRepairCurrentItem?.stage === 'done_this_sprint' &&
-      sprintProcessRepairCurrentItem?.existingWorkCheckStatus === 'complete' &&
+      historicalCardHasVerifiedCloseout('SPRINT-PROCESS-REPAIR-001') &&
       includesAll(processRepairVerifierSprintScriptSource, [
         'process-repair-verifier-independence-2026-05-12',
         'evaluateAndLogPlans',
@@ -10404,11 +10433,39 @@ async function main() {
           'closeRootVsPatchCard',
           'process-root-vs-patch-v1',
           'activeBlockerCardId: null',
-        ]) &&
-        foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
-        foundationHub.currentSprint?.activeBlocker === null),
+        ])),
     'PROCESS-ROOT-VS-PATCH-001 closes repair sprint without a done active blocker',
     `lane=${processRootVsPatch?.lane || 'missing'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'none'} closeout=${processRootVsPatchCloseout?.key || 'missing'}`,
+  )
+  ensure(
+    checks,
+    (currentSprintDynamicTruthIsBuilding || currentSprintDynamicTruthIsClosed) &&
+      packageJson.scripts?.['process:current-sprint-dynamic-truth-check'] === `node --env-file-if-exists=.env ${CURRENT_SPRINT_DYNAMIC_TRUTH_SCRIPT_PATH}` &&
+      currentSprintDynamicTruthApprovalValidation.ok &&
+      currentSprintDynamicTruthApprovalValidation.mode === 'v2' &&
+      currentSprintDynamicTruthApprovalValidation.approval?.approvedPlanRef === CURRENT_SPRINT_DYNAMIC_TRUTH_PLAN_PATH &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      foundationHub.currentSprint?.cadence?.truthSource?.sprintRecord === 'live-db' &&
+      foundationHub.currentSprint?.cadence?.truthSource?.exitCriteria === 'live-db-metadata' &&
+      includesAll(currentSprintDynamicTruthCheckSource, [
+        'dynamic-truth-proof',
+        'restoreLiveSnapshot',
+        'sprint_exit_criteria_required',
+        '/api/foundation/current-sprint',
+      ]) &&
+      includesAll(currentSprintDynamicTruthPlanSource, [
+        'Hardcoded seed/default builders are limited',
+        'stale-hardcoded',
+        'actual function path and API route',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        'sprint_exit_criteria_required',
+        'truthSource',
+        'bootstrap-default',
+      ]),
+    'CURRENT-SPRINT-DYNAMIC-TRUTH-001 makes active sprint command truth live-DB-backed',
+    `lane=${currentSprintDynamicTruth?.lane || 'missing'} stage=${currentSprintDynamicTruthCurrentItem?.stage || 'closed'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'none'}`,
   )
   ensure(
     checks,

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "LLM-AUTH-AUDIT-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T00:01:21Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/llm-auth-audit-001-plan.md",
+  "approvedPlanSha256": "abefc917ea99d14be7fdb181c605b2d9d0d321e4b789a0a36a777dc3a27d3d70",
+  "approvedRepoHead": "9bf04dafe9e977da501e94329e7dfe5254b906c2",
+  "notes": "Approved as card 5 in the Control Plane + Connector Readiness Sprint. Scope: fresh metadata-only model route/auth probes for current OpenAI/Claude/subscription/API usability. Not approved: provider rotation, prompt migration, customer-facing dependency changes, MEETING-VAULT-ACL-001 Phase B, or Drive permissions mutation.",
+  "approvalDigest": "8de104736e0ed1341e0e7a3efc36d09a3d478094691800681b5d8c4aa489e7da"
+}

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-EXTRACTION-GAP-FOLLOWUP-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T00:01:21Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-extraction-gap-followup-001-plan.md",
+  "approvedPlanSha256": "a0d4b6e0502fc0433201cbfee4a04163f57eea479592c39b26a7c3be099554ff",
+  "approvedRepoHead": "9bf04dafe9e977da501e94329e7dfe5254b906c2",
+  "notes": "Approved as card 6 in the Control Plane + Connector Readiness Sprint. Scope: triage ranked source extraction gaps from existing matrices into safe/blocked/needs-Steve/not-next queues. Not approved: broad ingestion, external crawling, auth-required extraction, MEETING-VAULT-ACL-001 Phase B, or Drive permissions mutation.",
+  "approvalDigest": "5455bbae7b4f591230c1fc3b7cb6d0535d58d07bdebf899bfe35cc51dd2a81ce"
+}

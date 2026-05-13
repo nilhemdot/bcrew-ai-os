@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-PLAN-RECONCILE-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T00:01:21Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-plan-reconcile-001-plan.md",
+  "approvedPlanSha256": "3411723b4a0caf8986de0d48e67c6815edf1771202fb521f8c7df19b97aed3d8",
+  "approvedRepoHead": "9bf04dafe9e977da501e94329e7dfe5254b906c2",
+  "notes": "Approved as card 3 in the Control Plane + Connector Readiness Sprint. Scope: reconcile current rebuild docs to shipped sprint truth and verifier expectations. Not approved: new strategy doctrine, product UI, live metric hardcoding, MEETING-VAULT-ACL-001 Phase B, or Drive permissions mutation.",
+  "approvalDigest": "519a6222342687046ecd436bf0eaee813cadb0924545e4115b9d8129ca5d39e7"
+}

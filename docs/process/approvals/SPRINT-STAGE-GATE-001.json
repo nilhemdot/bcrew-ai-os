@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SPRINT-STAGE-GATE-001",
+  "approvedBy": "Steve approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T00:01:21Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/sprint-stage-gate-001-plan.md",
+  "approvedPlanSha256": "e28b2afaf1e48cbb586096da5534e74a078aab25092d06d9b8181695c35004cc",
+  "approvedRepoHead": "9bf04dafe9e977da501e94329e7dfe5254b906c2",
+  "notes": "Approved as card 2 in the Control Plane + Connector Readiness Sprint. Scope: enforce Scoping -> Sprint Ready -> Building Now -> Done progression and dogfood against the skipped Connector/Routing state. Not approved: fake historical rewrites, UI polish, MEETING-VAULT-ACL-001 Phase B, or Drive permissions mutation.",
+  "approvalDigest": "af126d7438435492a0053360aa27d420584345b82c5e5ef30cbda935decf33f4"
+}
