@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PROCESS-CHECK-APPLY-BOUNDARY-001",
+  "approvedBy": "Steve approved runtime safety hardening sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T19:15:31.068Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/process-check-apply-boundary-001-plan.md",
+  "approvedPlanSha256": "aa23a650c61f9ebbcecc924fbdaeafbd864e070370f1197e0e328db1a9052f31",
+  "approvedRepoHead": "ee306c7823ecbda5802bf247753f038b17ddb091",
+  "notes": "Approved as part of Foundation Runtime Safety Hardening Sprint. Every card requires dogfood proof recreating/simulating the specific audit failure it fixes. No feature work, no Build Intel extraction, no broad monolith refactor.",
+  "approvalDigest": "c0256c3d694db2c0e75d679993bbe06b5e5ead570ea7f73cf32a75b2dcb3bfe1"
+}

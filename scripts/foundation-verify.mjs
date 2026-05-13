@@ -32,6 +32,12 @@ import {
   runWithFoundationGateRetry,
 } from '../lib/foundation-gate-reliability.js'
 import {
+  RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
+  VERIFY_READONLY_GATE_CARD_ID,
+  buildFoundationVerifyRetryOptions,
+  buildVerifyReadOnlyGateDogfoodProof,
+} from '../lib/foundation-runtime-safety.js'
+import {
   buildPersonalWorkspaceBoundaryStatus,
 } from '../lib/foundation-personal-workspace-boundary.js'
 import {
@@ -389,7 +395,6 @@ import {
   getStrategyGoalTruthSnapshot,
   getStrategyOperatingTruthSnapshot,
   getStrategyPreworkCoverageSnapshot,
-  resetFoundationDb,
 } from '../lib/foundation-db.js'
 import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
@@ -849,6 +854,10 @@ const CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'VERIFIER-ASSUMPTION-REGISTRY-001',
   'SPRINT-STATE-MUTATION-AUDIT-001',
   'NIGHTLY-AUDIT-REPORT-001',
+]
+
+const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'VERIFY-READONLY-GATE-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -7502,9 +7511,7 @@ async function main() {
         await getFoundationDbConstraintAudit({ limit: 1 })
         await getActionRouterSnapshot({ limit: 1 })
       },
-      cleanup: async () => {
-        await resetFoundationDb()
-      },
+      cleanup: async () => {},
     },
   })
   const personalWorkspaceBoundaryStatus = await buildPersonalWorkspaceBoundaryStatus({ repoRoot, includeSynthetic: true })
@@ -7558,7 +7565,6 @@ async function main() {
       includesAll(foundationVerifySource, [
         'runWithFoundationGateRetry',
         'formatFoundationGateRetryMessage',
-        'resetFoundationDb',
       ]),
     'GATE-RELIABILITY-001 proves deterministic transient retry, DB-cleanup retry, and permanent fail-closed behavior',
     `transientAttempts=${gateReliabilityProof.transient.attempts} cleanupAttempts=${gateReliabilityProof.transientAfterCleanup.attempts} permanentAttempts=${gateReliabilityProof.permanent.attempts}`,
@@ -13122,6 +13128,30 @@ async function main() {
     'Code Quality Nightly Audit closes the deterministic read-only report loop without fixes, backlog writes, scheduling, or LLM detection',
     `cards=${codeQualityNightlyAuditCards.filter(card => card?.lane === 'done').length}/${CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.length} findings=${codeQualityNightlyAudit.summary?.findingCount || 0} proposed=${codeQualityNightlyAudit.proposedCards?.length || 0}`,
   )
+  const verifyReadOnlyGateCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_READONLY_GATE_CARD_ID) || null
+  const verifyReadOnlyDogfoodProof = await buildVerifyReadOnlyGateDogfoodProof()
+  const verifierLiveRepairFunctionToken = ['reset', 'Foundation', 'Db'].join('')
+  const verifierRetryRepairHookToken = ['before', 'Retry'].join('')
+  ensure(
+    checks,
+      verifyReadOnlyGateCard &&
+      ['scoped', 'done'].includes(verifyReadOnlyGateCard.lane) &&
+      verifyReadOnlyDogfoodProof.ok === true &&
+      verifyReadOnlyDogfoodProof.legacyRepairThenPass?.wentGreenAfterRepair === true &&
+      verifyReadOnlyDogfoodProof.readOnlyFailClosed?.failedClosed === true &&
+      verifyReadOnlyDogfoodProof.readOnlyFailClosed?.repairCalls === 0 &&
+      verifyReadOnlyDogfoodProof.repairHookRejected?.ok === true &&
+      packageJson.scripts?.['process:runtime-safety-hardening-check'] === `node --env-file-if-exists=.env ${RUNTIME_SAFETY_HARDENING_SCRIPT_PATH}` &&
+      foundationVerifySource.includes('buildFoundationVerifyRetryOptions') &&
+      foundationVerifySource.includes('buildVerifyReadOnlyGateDogfoodProof') &&
+      !foundationVerifySource.includes(verifierLiveRepairFunctionToken) &&
+      !foundationVerifySource.includes(verifierRetryRepairHookToken) &&
+      includesAll(foundationVerifySource, RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'VERIFY-READONLY-GATE-001 keeps foundation:verify read-only and proves repair-then-pass is blocked',
+    verifyReadOnlyGateCard
+      ? `lane=${verifyReadOnlyGateCard.lane} legacyRepair=${verifyReadOnlyDogfoodProof.legacyRepairThenPass?.wentGreenAfterRepair ? 'blocked-by-new-path' : 'missing'} failClosed=${verifyReadOnlyDogfoodProof.readOnlyFailClosed?.failedClosed ? 'yes' : 'no'} ${verifierLiveRepairFunctionToken}=absent`
+      : 'missing VERIFY-READONLY-GATE-001',
+  )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [
     runtimeHealthSimplify?.title,
@@ -13487,15 +13517,12 @@ async function main() {
 runWithFoundationGateRetry(
   'foundation:verify',
   () => main(),
-  {
+  buildFoundationVerifyRetryOptions({
     retries: 1,
-    beforeRetry: async () => {
-      await resetFoundationDb().catch(() => {})
-    },
     onRetry: event => {
       console.error(formatFoundationGateRetryMessage('foundation:verify', event))
     },
-  },
+  }),
 )
   .catch(error => {
     console.error('Foundation verification failed.')

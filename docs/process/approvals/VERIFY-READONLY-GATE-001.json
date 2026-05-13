@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFY-READONLY-GATE-001",
+  "approvedBy": "Steve approved runtime safety hardening sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T19:15:31.068Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verify-readonly-gate-001-plan.md",
+  "approvedPlanSha256": "e87995975e6e5501a4f2440b4f8b2b82135a34793952f9085d40265c4519a8da",
+  "approvedRepoHead": "ee306c7823ecbda5802bf247753f038b17ddb091",
+  "notes": "Approved as part of Foundation Runtime Safety Hardening Sprint. Every card requires dogfood proof recreating/simulating the specific audit failure it fixes. No feature work, no Build Intel extraction, no broad monolith refactor.",
+  "approvalDigest": "96200a0c318dc3542d869583e4fedd444a9209aa441150f2d4c35c8d6b196290"
+}

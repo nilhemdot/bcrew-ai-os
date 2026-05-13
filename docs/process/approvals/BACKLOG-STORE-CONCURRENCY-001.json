@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BACKLOG-STORE-CONCURRENCY-001",
+  "approvedBy": "Steve approved runtime safety hardening sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T19:15:31.068Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/backlog-store-concurrency-001-plan.md",
+  "approvedPlanSha256": "c409207cab471f719f8073ea7b3f4b1750068d8cefb7dbe9d05b447fc122e229",
+  "approvedRepoHead": "ee306c7823ecbda5802bf247753f038b17ddb091",
+  "notes": "Approved as part of Foundation Runtime Safety Hardening Sprint. Every card requires dogfood proof recreating/simulating the specific audit failure it fixes. No feature work, no Build Intel extraction, no broad monolith refactor.",
+  "approvalDigest": "db54c9d76c2bc8ae0bab73e241ac0cb9a33e2392cadd20ec58c127b3e62f5c58"
+}

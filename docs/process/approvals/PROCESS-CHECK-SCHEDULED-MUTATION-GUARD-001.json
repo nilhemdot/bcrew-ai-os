@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001",
+  "approvedBy": "Steve approved runtime safety hardening sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T19:15:31.068Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/process-check-scheduled-mutation-guard-001-plan.md",
+  "approvedPlanSha256": "2b1fb91434a7d013a1979363bf861b31bdddf18ebb0f655d915a43399c77b5f4",
+  "approvedRepoHead": "ee306c7823ecbda5802bf247753f038b17ddb091",
+  "notes": "Approved as part of Foundation Runtime Safety Hardening Sprint. Every card requires dogfood proof recreating/simulating the specific audit failure it fixes. No feature work, no Build Intel extraction, no broad monolith refactor.",
+  "approvalDigest": "b4abe40549d987df0fb1431991537de7c121f6a23b4594fa833ec8d2d81732b0"
+}

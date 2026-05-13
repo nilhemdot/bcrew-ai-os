@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-INIT-SEED-SPLIT-001",
+  "approvedBy": "Steve approved runtime safety hardening sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T19:15:31.068Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-db-init-seed-split-001-plan.md",
+  "approvedPlanSha256": "2ab4f8879d00805b8aaaf07c4f976ef7afb1ccf9b6f86a55d093460c6c91dea5",
+  "approvedRepoHead": "ee306c7823ecbda5802bf247753f038b17ddb091",
+  "notes": "Approved as part of Foundation Runtime Safety Hardening Sprint. Every card requires dogfood proof recreating/simulating the specific audit failure it fixes. No feature work, no Build Intel extraction, no broad monolith refactor.",
+  "approvalDigest": "58f937ee3a80e5a0c9bcdc1b5b4307b48b97064e28dea79e4a088111071d888d"
+}
