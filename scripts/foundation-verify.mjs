@@ -507,6 +507,16 @@ import {
   buildSyntheticExtractionRetryExecutionProof,
 } from '../lib/extraction-run-hardening-execution.js'
 import {
+  RESEARCH_LANE_PURGE_APPROVAL_PATH,
+  RESEARCH_LANE_PURGE_CARD_ID,
+  RESEARCH_LANE_PURGE_CLOSEOUT_KEY,
+  RESEARCH_LANE_PURGE_PLAN_PATH,
+  RESEARCH_LANE_PURGE_REPORT_PATH,
+  RESEARCH_LANE_PURGE_SCRIPT_PATH,
+  buildResearchLanePurgeSnapshot,
+  buildSyntheticResearchLanePurgeProof,
+} from '../lib/research-lane-purge.js'
+import {
   SOURCE_EXTRACTION_COVERAGE_APPROVAL_PATH,
   SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY,
   SOURCE_EXTRACTION_COVERAGE_PLAN_PATH,
@@ -1536,6 +1546,10 @@ async function main() {
   const extractionRetryFailedScriptSource = await readRepoFile(EXTRACTION_RETRY_FAILED_SCRIPT_PATH)
   const extractRunHardeningExecutionScriptSource = await readRepoFile(EXTRACT_RUN_HARDENING_EXECUTION_SCRIPT_PATH)
   const extractRunHardeningExecutionPlanSource = await readRepoFile(EXTRACT_RUN_HARDENING_EXECUTION_PLAN_PATH)
+  const researchLanePurgeSource = await readRepoFile('lib/research-lane-purge.js')
+  const researchLanePurgeScriptSource = await readRepoFile(RESEARCH_LANE_PURGE_SCRIPT_PATH)
+  const researchLanePurgePlanSource = await readRepoFile(RESEARCH_LANE_PURGE_PLAN_PATH)
+  const researchLanePurgeReportSource = await readRepoFile(RESEARCH_LANE_PURGE_REPORT_PATH).catch(() => '')
   const sourceExtractionCoverageSource = await readRepoFile('lib/source-extraction-coverage.js')
   const sourceExtractionCoverageScriptSource = await readRepoFile(SOURCE_EXTRACTION_COVERAGE_SCRIPT_PATH)
   const sourceExtractionCoveragePlanSource = await readRepoFile(SOURCE_EXTRACTION_COVERAGE_PLAN_PATH)
@@ -1946,6 +1960,11 @@ async function main() {
     repoRoot,
     approvalRef: EXTRACT_RUN_HARDENING_EXECUTION_APPROVAL_PATH,
     cardId: EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID,
+  })
+  const researchLanePurgeApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: RESEARCH_LANE_PURGE_APPROVAL_PATH,
+    cardId: RESEARCH_LANE_PURGE_CARD_ID,
   })
   const sourceExtractionCoverageApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3370,6 +3389,7 @@ async function main() {
   const sourceExtractionGapFollowupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_EXTRACTION_GAP_FOLLOWUP_CLOSEOUT_KEY) || null
   const atomFlowAutoDemotionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === ATOM_FLOW_AUTO_DEMOTION_CLOSEOUT_KEY) || null
   const extractRunHardeningExecutionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === EXTRACT_RUN_HARDENING_EXECUTION_CLOSEOUT_KEY) || null
+  const researchLanePurgeCloseout = foundationBuildCloseouts.find(closeout => closeout.key === RESEARCH_LANE_PURGE_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -3391,6 +3411,7 @@ async function main() {
   const sourceExtractionGapFollowupCurrentItem = currentSprintItemsById.get(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID) || null
   const atomFlowAutoDemotionCurrentItem = currentSprintItemsById.get(ATOM_FLOW_AUTO_DEMOTION_CARD_ID) || null
   const extractRunHardeningExecutionCurrentItem = currentSprintItemsById.get(EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID) || null
+  const researchLanePurgeCurrentItem = currentSprintItemsById.get(RESEARCH_LANE_PURGE_CARD_ID) || null
   const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
@@ -3522,6 +3543,7 @@ async function main() {
   const sourceMaturityGridSynthetic = buildSyntheticSourceMaturityGridProof()
   const atomFlowAutoDemotionSynthetic = buildSyntheticAtomFlowAutoDemotionProof()
   const extractRunHardeningExecutionSynthetic = buildSyntheticExtractionRetryExecutionProof()
+  const researchLanePurgeSynthetic = buildSyntheticResearchLanePurgeProof()
   const sourceExtractionCoverageSynthetic = buildSyntheticSourceExtractionCoverageProof()
   const sourceCoverageCloseoutSynthetic = buildSyntheticSourceCoverageCloseoutProof()
   const marketingSourceMapSynthetic = buildSyntheticMarketingSourceMapProof()
@@ -6025,6 +6047,7 @@ async function main() {
   const sourceMaturityGrid = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_MATURITY_GRID_CARD_ID) || null
   const atomFlowAutoDemotion = (foundationHub.backlogItems || []).find(item => item.id === ATOM_FLOW_AUTO_DEMOTION_CARD_ID) || null
   const extractRunHardeningExecution = (foundationHub.backlogItems || []).find(item => item.id === EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID) || null
+  const researchLanePurge = (foundationHub.backlogItems || []).find(item => item.id === RESEARCH_LANE_PURGE_CARD_ID) || null
   const sourceExtractionCoverage = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_EXTRACTION_COVERAGE_CARD_ID) || null
   const sourceCoverageCloseout = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_COVERAGE_CLOSEOUT_CARD_ID) || null
   const sourceExtractionGapFollowup = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID) || null
@@ -10476,6 +10499,19 @@ async function main() {
     extractRunHardeningExecutionCloseout?.operatorCloseout === true &&
     (extractRunHardeningExecutionCloseout.backlogIds || []).includes(EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID) &&
     historicalCardHasVerifiedCloseout(EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID)
+  const researchLanePurgeIsBuilding =
+    researchLanePurgeCurrentItem?.stage === 'building_now' &&
+    researchLanePurgeCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === RESEARCH_LANE_PURGE_CARD_ID
+  const researchLanePurgeIsClosed =
+    researchLanePurge?.lane === 'done' &&
+    String(researchLanePurge?.statusNote || '').includes(RESEARCH_LANE_PURGE_CLOSEOUT_KEY) &&
+    researchLanePurgeCloseout?.operatorCloseout === true &&
+    (researchLanePurgeCloseout.backlogIds || []).includes(RESEARCH_LANE_PURGE_CARD_ID) &&
+    historicalCardHasVerifiedCloseout(RESEARCH_LANE_PURGE_CARD_ID)
+  const researchLanePurgeSnapshot = buildResearchLanePurgeSnapshot({
+    backlogItems: foundationHub.backlogItems || [],
+  })
   const atomFlowRows = foundationSourceLifecycle.sourceMaturityGrid?.rows || foundationHub.sourceMaturityGrid?.rows || []
   const atomFlowRowsMissingStatus = atomFlowRows.filter(row => !row.atomFlow || !row.atomFlow.status)
   const staleAtomFlowRows = atomFlowRows.filter(row => row.atomFlow?.status === 'stale')
@@ -10989,6 +11025,45 @@ async function main() {
           (extractRunHardeningExecutionCloseout.backlogIds || []).includes(EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID))),
     'EXTRACT-RUN-HARDENING-EXECUTION-001 runs bounded failed-item retry execution',
     `lane=${extractRunHardeningExecution?.lane || 'missing'} stage=${extractRunHardeningExecutionCurrentItem?.stage || 'closed'} synthetic=${extractRunHardeningExecutionSynthetic.ok}`,
+  )
+  ensure(
+    checks,
+    (researchLanePurgeIsBuilding || researchLanePurgeIsClosed) &&
+      packageJson.scripts?.['process:research-lane-purge-check'] === `node --env-file-if-exists=.env ${RESEARCH_LANE_PURGE_SCRIPT_PATH}` &&
+      researchLanePurgeApprovalValidation.ok &&
+      researchLanePurgeApprovalValidation.mode === 'v2' &&
+      researchLanePurgeApprovalValidation.approval?.approvedPlanRef === RESEARCH_LANE_PURGE_PLAN_PATH &&
+      researchLanePurgeSynthetic.ok &&
+      researchLanePurgeSnapshot.summary?.researchCardCount >= 100 &&
+      researchLanePurgeSnapshot.summary?.researchCardCount === researchLanePurgeSnapshot.items.length &&
+      researchLanePurgeSnapshot.items.every(item => item.proposedOnly === true && item.cardId && item.updateSignal && item.proposedDisposition && item.reason) &&
+      includesAll(researchLanePurgeSource, [
+        'buildResearchLanePurgeSnapshot',
+        'renderResearchLanePurgeReport',
+        'researchLaneSignature',
+        'buildSyntheticResearchLanePurgeProof',
+      ]) &&
+      includesAll(researchLanePurgeScriptSource, [
+        'beforeResearchSignature',
+        'afterResearchSignature',
+        'writeReport',
+        'skipClose',
+      ]) &&
+      includesAll(researchLanePurgePlanSource, [
+        'No substring-only proof',
+        'No backlog card is moved',
+        'docs/handoffs/research-purge-2026-05-13.md',
+      ]) &&
+      includesAll(researchLanePurgeReportSource, [
+        'PROPOSED ONLY',
+        'No backlog cards were deleted, closed, or moved by this report.',
+        'No future-concepts parking doc is edited or created',
+      ]) &&
+      (!researchLanePurgeIsClosed ||
+        ((researchLanePurgeCloseout.proofCommands || []).includes('npm run process:research-lane-purge-check -- --json') &&
+          (researchLanePurgeCloseout.backlogIds || []).includes(RESEARCH_LANE_PURGE_CARD_ID))),
+    'RESEARCH-LANE-PURGE-001 generates proposed-only research purge report',
+    `lane=${researchLanePurge?.lane || 'missing'} stage=${researchLanePurgeCurrentItem?.stage || 'closed'} rows=${researchLanePurgeSnapshot.summary?.researchCardCount || 0} synthetic=${researchLanePurgeSynthetic.ok}`,
   )
   ensure(
     checks,
