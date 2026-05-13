@@ -86,7 +86,9 @@ The control-plane sprint order:
 3. `FOUNDATION-PLAN-RECONCILE-001` — done under `foundation-plan-reconcile-control-plane-v1`; rebuild plan/state/handoff truth now matches live sprint and closeout reality without product expansion.
 4. `CONNECTOR-CREDENTIAL-001` — done under `connector-credential-v1`; the no-secret connector credential/preflight registry now records owner, credential class, source-unlocked state, last probe status, and blocker reason without exposing credential values.
 5. `LLM-AUTH-AUDIT-001` — done under `llm-auth-audit-v1`; the Foundation job ledger has fresh model route/auth probes, guarded fallback status, and dry-run route-selection proof without provider account changes.
-6. `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` — active ordered build after the LLM auth audit closeout; turn connector/routing matrix gaps into a ranked triage queue only.
+6. `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` — done under `source-extraction-gap-followup-v1`; `docs/handoffs/2026-05-13-source-extraction-gap-triage.md` ranks 23 source rows needing attention without starting ingestion.
+
+The approved control-plane sprint is complete. Stop at sprint review before opening the next sprint or product work.
 
 Recently closed sprint truth that this sprint depends on:
 

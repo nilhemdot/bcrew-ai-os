@@ -8,7 +8,7 @@ This handoff exists before implementation so the sprint context survives compact
 
 Live sprint ID: `control-plane-connector-readiness-2026-05-12`.
 
-Update: `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is closed under `current-sprint-dynamic-truth-v1`, `SPRINT-STAGE-GATE-001` is closed under `sprint-stage-gate-v1`, `FOUNDATION-PLAN-RECONCILE-001` is closed under `foundation-plan-reconcile-control-plane-v1`, `CONNECTOR-CREDENTIAL-001` is closed under `connector-credential-v1`, and `LLM-AUTH-AUDIT-001` is closed under `llm-auth-audit-v1`. Continue in order from `SOURCE-EXTRACTION-GAP-FOLLOWUP-001`; stop at sprint review when the six approved cards close.
+Update: all six approved cards are closed: `CURRENT-SPRINT-DYNAMIC-TRUTH-001` / `current-sprint-dynamic-truth-v1`, `SPRINT-STAGE-GATE-001` / `sprint-stage-gate-v1`, `FOUNDATION-PLAN-RECONCILE-001` / `foundation-plan-reconcile-control-plane-v1`, `CONNECTOR-CREDENTIAL-001` / `connector-credential-v1`, `LLM-AUTH-AUDIT-001` / `llm-auth-audit-v1`, and `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` / `source-extraction-gap-followup-v1`. The sprint is ready for review; do not silently roll into another sprint.
 
 ## Sprint Goal
 

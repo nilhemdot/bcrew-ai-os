@@ -516,6 +516,17 @@ import {
   buildLlmAuthAuditStatus,
 } from '../lib/llm-auth-audit-proof.js'
 import {
+  SOURCE_EXTRACTION_GAP_FOLLOWUP_APPROVAL_PATH,
+  SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID,
+  SOURCE_EXTRACTION_GAP_FOLLOWUP_CLOSEOUT_KEY,
+  SOURCE_EXTRACTION_GAP_FOLLOWUP_PLAN_PATH,
+  SOURCE_EXTRACTION_GAP_FOLLOWUP_REPORT_PATH,
+  SOURCE_EXTRACTION_GAP_FOLLOWUP_SCRIPT_PATH,
+  buildSourceExtractionGapFollowupSnapshot,
+  buildSyntheticMissingGapProof,
+  findMissingTriageSourceIds,
+} from '../lib/source-extraction-gap-followup.js'
+import {
   SOURCE_COVERAGE_CLOSEOUT_APPROVAL_PATH,
   SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
   SOURCE_COVERAGE_CLOSEOUT_DECISIONS,
@@ -1379,6 +1390,10 @@ async function main() {
   const llmAuthAuditProofSource = await readRepoFile('lib/llm-auth-audit-proof.js')
   const llmAuthAuditCheckSource = await readRepoFile(LLM_AUTH_AUDIT_SCRIPT_PATH)
   const llmAuthAuditPlanSource = await readRepoFile(LLM_AUTH_AUDIT_PLAN_PATH)
+  const sourceExtractionGapFollowupSource = await readRepoFile('lib/source-extraction-gap-followup.js')
+  const sourceExtractionGapFollowupCheckSource = await readRepoFile(SOURCE_EXTRACTION_GAP_FOLLOWUP_SCRIPT_PATH)
+  const sourceExtractionGapFollowupPlanSource = await readRepoFile(SOURCE_EXTRACTION_GAP_FOLLOWUP_PLAN_PATH)
+  const sourceExtractionGapFollowupReportSource = await readRepoFile(SOURCE_EXTRACTION_GAP_FOLLOWUP_REPORT_PATH)
   const verifierSprintProofModuleSource = await readRepoFile('lib/foundation-verifier-sprint-proof.js')
   const verifierModularSplitCheckSource = await readRepoFile('scripts/process-verifier-modular-split-check.mjs')
   const processRootVsPatchCheckSource = await readRepoFile('scripts/process-root-vs-patch-check.mjs')
@@ -1851,6 +1866,11 @@ async function main() {
     repoRoot,
     approvalRef: LLM_AUTH_AUDIT_APPROVAL_PATH,
     cardId: LLM_AUTH_AUDIT_CARD_ID,
+  })
+  const sourceExtractionGapFollowupApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: SOURCE_EXTRACTION_GAP_FOLLOWUP_APPROVAL_PATH,
+    cardId: SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID,
   })
   const rebuildPlanReconcileApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3312,8 +3332,15 @@ async function main() {
   const foundationPlanReconcileCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY) || null
   const connectorCredentialCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CONNECTOR_CREDENTIAL_CLOSEOUT_KEY) || null
   const llmAuthAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === LLM_AUTH_AUDIT_CLOSEOUT_KEY) || null
+  const sourceExtractionGapFollowupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_EXTRACTION_GAP_FOLLOWUP_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
+  const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
+    connectorMatrix: sourceConnectorMatrix,
+    routingMatrix: sourceHubRoutingMatrix,
+  })
+  const sourceExtractionGapMissingIds = findMissingTriageSourceIds(sourceExtractionGapFollowupSnapshot, sourceConnectorMatrix)
+  const sourceExtractionGapSyntheticMissingProof = buildSyntheticMissingGapProof(sourceExtractionGapFollowupSnapshot, sourceConnectorMatrix)
   const currentSprintItemsById = new Map(
     (foundationHub.currentSprint?.stages || [])
       .flatMap(stage => stage.items || [])
@@ -3324,6 +3351,7 @@ async function main() {
     null
   const connectorCredentialCurrentItem = currentSprintItemsById.get(CONNECTOR_CREDENTIAL_CARD_ID) || null
   const llmAuthAuditCurrentItem = currentSprintItemsById.get(LLM_AUTH_AUDIT_CARD_ID) || null
+  const sourceExtractionGapFollowupCurrentItem = currentSprintItemsById.get(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID) || null
   const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
@@ -5911,6 +5939,7 @@ async function main() {
   const foundationPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_PLAN_RECONCILE_CARD_ID) || null
   const connectorCredential = (foundationHub.backlogItems || []).find(item => item.id === CONNECTOR_CREDENTIAL_CARD_ID) || null
   const llmAuthAudit = (foundationHub.backlogItems || []).find(item => item.id === LLM_AUTH_AUDIT_CARD_ID) || null
+  const sourceExtractionGapFollowupCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID) || null
   const approvalFileIntegrity = (foundationHub.backlogItems || []).find(item => item.id === 'APPROVAL-FILE-INTEGRITY-001') || null
   const buildLogBacklogIdFix = (foundationHub.backlogItems || []).find(item => item.id === 'BUILD-LOG-BACKLOG-ID-FIX-001') || null
   const closeoutBackfill = (foundationHub.backlogItems || []).find(item => item.id === 'CLOSEOUT-BACKFILL-001') || null
@@ -10377,6 +10406,16 @@ async function main() {
     llmAuthAuditCloseout?.operatorCloseout === true &&
     (llmAuthAuditCloseout.backlogIds || []).includes(LLM_AUTH_AUDIT_CARD_ID) &&
     historicalCardHasVerifiedCloseout(LLM_AUTH_AUDIT_CARD_ID)
+  const sourceExtractionGapFollowupIsBuilding =
+    sourceExtractionGapFollowupCurrentItem?.stage === 'building_now' &&
+    sourceExtractionGapFollowupCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID
+  const sourceExtractionGapFollowupIsClosed =
+    sourceExtractionGapFollowupCard?.lane === 'done' &&
+    String(sourceExtractionGapFollowupCard?.statusNote || '').includes(SOURCE_EXTRACTION_GAP_FOLLOWUP_CLOSEOUT_KEY) &&
+    sourceExtractionGapFollowupCloseout?.operatorCloseout === true &&
+    (sourceExtractionGapFollowupCloseout.backlogIds || []).includes(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID) &&
+    historicalCardHasVerifiedCloseout(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID)
   const verifierSprintIndependenceIsBuilding =
     verifierSprintIndependence?.lane === 'executing' &&
     verifierSprintIndependenceCurrentItem?.stage === 'building_now' &&
@@ -10752,6 +10791,59 @@ async function main() {
           (llmAuthAuditCloseout.backlogIds || []).includes(LLM_AUTH_AUDIT_CARD_ID))),
     'LLM-AUTH-AUDIT-001 records fresh model route/auth truth without opening new spending paths',
     `lane=${llmAuthAudit?.lane || 'missing'} stage=${llmAuthAuditCurrentItem?.stage || 'closed'} status=${llmAuthAuditRuntimeStatus.status} routes=${llmAuthAuditRuntimeStatus.summary?.routeCount || 0} latestJob=${llmAuthAuditRuntimeStatus.summary?.latestJob?.status || 'missing'}`,
+  )
+  ensure(
+    checks,
+    (sourceExtractionGapFollowupIsBuilding || sourceExtractionGapFollowupIsClosed) &&
+      packageJson.scripts?.['process:source-extraction-gap-followup-check'] === `node --env-file-if-exists=.env ${SOURCE_EXTRACTION_GAP_FOLLOWUP_SCRIPT_PATH}` &&
+      sourceExtractionGapFollowupApprovalValidation.ok &&
+      sourceExtractionGapFollowupApprovalValidation.mode === 'v2' &&
+      sourceExtractionGapFollowupApprovalValidation.approval?.approvedPlanRef === SOURCE_EXTRACTION_GAP_FOLLOWUP_PLAN_PATH &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      sourceExtractionGapFollowupSnapshot.summary?.triageItemCount >= 20 &&
+      sourceExtractionGapFollowupSnapshot.summary?.triageItemCount === sourceExtractionGapFollowupSnapshot.summary?.rowsNeedingTriage &&
+      sourceExtractionGapMissingIds.length === 0 &&
+      sourceExtractionGapSyntheticMissingProof.ok &&
+      ['ATOM-FLOW-AUTO-DEMOTION-001', 'EXTRACT-RUN-HARDENING-EXECUTION-001', 'RESEARCH-LANE-PURGE-001'].every(cardId =>
+        sourceExtractionGapFollowupSnapshot.queuedNextSprintCandidates.some(item => item.cardId === cardId)
+      ) &&
+      ['SRC-MISSIVE-001', 'SRC-SLACK-001', 'SRC-GDRIVE-001', 'SRC-FUB-001', 'SRC-CLICKUP-001', 'SRC-GADS-001', 'SRC-PUBLISH-001', 'SRC-SKOOL-001', 'SRC-LOOM-001', 'SRC-MYICRO-001', 'SRC-REAL-001'].every(sourceId =>
+        sourceExtractionGapFollowupSnapshot.triageItems.some(item => item.sourceId === sourceId)
+      ) &&
+      sourceExtractionGapFollowupSnapshot.triageItems.every(item =>
+        item.sourceId &&
+          item.connectorKey &&
+          item.currentMatrixState &&
+          item.proposedNextCard &&
+          item.notNextBoundary &&
+          typeof item.blockedReason === 'string'
+      ) &&
+      sourceExtractionGapFollowupReportSource.includes('Rows needing triage: 23') &&
+      sourceExtractionGapFollowupReportSource.includes('ATOM-FLOW-AUTO-DEMOTION-001') &&
+      sourceExtractionGapFollowupReportSource.includes('It does not start extraction jobs') &&
+      includesAll(sourceExtractionGapFollowupSource, [
+        'buildSourceExtractionGapFollowupSnapshot',
+        'buildSyntheticMissingGapProof',
+        'SOURCE_EXTRACTION_GAP_NEXT_SPRINT_CANDIDATES',
+        'renderSourceExtractionGapTriageReport',
+      ]) &&
+      includesAll(sourceExtractionGapFollowupCheckSource, [
+        'buildLiveTriageSnapshot',
+        'synthetic missing-gap variant is rejected',
+        'triage card does not import extraction job runners',
+        'active_blocker_card_id = NULL',
+      ]) &&
+      includesAll(sourceExtractionGapFollowupPlanSource, [
+        'triage only',
+        'No source extraction job is started',
+        'rejects missing high-priority gap rows',
+      ]) &&
+      (!sourceExtractionGapFollowupIsClosed ||
+        ((sourceExtractionGapFollowupCloseout.proofCommands || []).includes('npm run process:source-extraction-gap-followup-check -- --json') &&
+          (sourceExtractionGapFollowupCloseout.backlogIds || []).includes(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID))),
+    'SOURCE-EXTRACTION-GAP-FOLLOWUP-001 ranks source gaps without starting ingestion',
+    `lane=${sourceExtractionGapFollowupCard?.lane || 'missing'} stage=${sourceExtractionGapFollowupCurrentItem?.stage || 'closed'} triage=${sourceExtractionGapFollowupSnapshot.summary?.triageItemCount || 0} missing=${sourceExtractionGapMissingIds.join(',') || 'none'}`,
   )
   ensure(
     checks,
