@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "RESEARCH-DISPOSITION-QUEUE-001",
+  "approvedBy": "Steve meeting-window approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T14:25:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/research-disposition-queue-001-plan.md",
+  "approvedPlanSha256": "733e6f1cd2d200bb77dc53b5f4f780c7553576862a5c0095225e0b038bc38c81",
+  "approvedRepoHead": "8f336ff1e67be19269bd5ad46821de5203ec8b39",
+  "notes": "Approved as part of Implementation Intelligence Sprint. Scope: proposal-only backlog/card enrichment, research disposition, builder lesson linking, and public YouTube preflight. No paid auth, extraction, atom creation, or automatic backlog mutation.",
+  "approvalDigest": "c7fbb817b09b5f730dc6de7d6fa7666ad7eaf413aa5ca7db356a1c5e195ef5b5"
+}

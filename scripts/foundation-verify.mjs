@@ -63,6 +63,11 @@ import {
   buildIncrementalVerifierCoveragePlan,
 } from '../lib/foundation-control-compression.js'
 import {
+  IMPLEMENTATION_INTELLIGENCE_CARD_IDS,
+  IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY,
+  buildImplementationIntelligenceSnapshot,
+} from '../lib/implementation-intelligence.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -3393,6 +3398,10 @@ async function main() {
   const currentStateMentionsActiveBlockerOrLater = (...expectedSnippets) =>
     expectedSnippets.some(snippet =>
       typeof snippet === 'boolean' ? snippet : currentState.includes(snippet)
+    ) ||
+    (
+      currentState.includes('Historical closeout notes below preserve at-the-time "current sprint active blocker" wording') &&
+      currentState.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY)
     )
   const connectorRoutingTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-truth-v1') || null
   const connectorRoutingProcessRepairCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-process-repair-v1') || null
@@ -3410,6 +3419,7 @@ async function main() {
   const researchLanePurgeCloseout = foundationBuildCloseouts.find(closeout => closeout.key === RESEARCH_LANE_PURGE_CLOSEOUT_KEY) || null
   const buildIntelIntakeCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_INTAKE_CLOSEOUT_KEY) || null
   const foundationControlCompressionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY) || null
+  const implementationIntelligenceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -12837,6 +12847,54 @@ async function main() {
       currentState.includes(FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY),
     'Foundation control compression closes feedback, backlog, sprint advisor, flow, velocity, ack, and incremental proof primitives',
     `cards=${foundationControlCompressionCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_CONTROL_COMPRESSION_CARD_IDS.length} backlog=${foundationControlCompression.backlogMonitor?.counts?.total || 0} proposals=${foundationControlCompression.sprintAdvisor?.options?.length || 0}`,
+  )
+  const implementationIntelligenceCards = IMPLEMENTATION_INTELLIGENCE_CARD_IDS
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const implementationIntelligence = foundationHub.implementationIntelligence ||
+    buildImplementationIntelligenceSnapshot({
+      backlogItems: foundationHub.backlogItems || [],
+      currentSprint: activeFoundationSprint,
+    })
+  const implementationIntelligenceVerifierCoverageIds = [
+    'INTERNAL-SCOPER-001',
+    'THIN-CARD-DETECTOR-001',
+    'RESEARCH-DISPOSITION-QUEUE-001',
+    'BUILDER-LESSON-LINKER-001',
+    'PUBLIC-YOUTUBE-PREFLIGHT-001',
+  ]
+  ensure(
+    checks,
+      implementationIntelligenceCards.every(card => card?.lane === 'done' && String(card?.statusNote || '').includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY)) &&
+      implementationIntelligenceCloseout?.operatorCloseout === true &&
+      IMPLEMENTATION_INTELLIGENCE_CARD_IDS.every(id => (implementationIntelligenceCloseout.backlogIds || []).includes(id)) &&
+      implementationIntelligenceVerifierCoverageIds.every(id => IMPLEMENTATION_INTELLIGENCE_CARD_IDS.includes(id)) &&
+      IMPLEMENTATION_INTELLIGENCE_CARD_IDS.every(id => implementationIntelligenceVerifierCoverageIds.includes(id)) &&
+      implementationIntelligence.proposalOnly === true &&
+      implementationIntelligence.writesBacklog === false &&
+      implementationIntelligence.opensSprint === false &&
+      implementationIntelligence.extractionStarted === false &&
+      implementationIntelligence.atomsCreated === 0 &&
+      implementationIntelligence.thinCardDetector?.totalCards >= 300 &&
+      implementationIntelligence.thinCardDetector?.thinCards > 0 &&
+      implementationIntelligence.internalScoper?.thinProposal?.proposedDoctrine?.acceptanceCriteria?.length >= 3 &&
+      implementationIntelligence.internalScoper?.thinProposal?.writesBacklog === false &&
+      implementationIntelligence.internalScoper?.buildReadyNoop?.action === 'no_enrichment_needed' &&
+      implementationIntelligence.researchDispositionQueue?.totalResearchCards >= 100 &&
+      implementationIntelligence.researchDispositionQueue?.writesBacklog === false &&
+      implementationIntelligence.researchDispositionQueue?.movesCards === false &&
+      implementationIntelligence.builderLessonLinker?.enrichExistingCount >= 1 &&
+      implementationIntelligence.builderLessonLinker?.writesBacklog === false &&
+      implementationIntelligence.publicYoutubePreflight?.publicCandidateCount >= 20 &&
+      implementationIntelligence.publicYoutubePreflight?.paidOrAuthBlockedCount >= 1 &&
+      implementationIntelligence.publicYoutubePreflight?.envelopeValidation?.ok === true &&
+      implementationIntelligence.publicYoutubePreflight?.extractionStarted === false &&
+      implementationIntelligence.publicYoutubePreflight?.paidAuthUsed === false &&
+      packageJson.scripts?.['process:implementation-intelligence-check'] === 'node --env-file-if-exists=.env scripts/process-implementation-intelligence-check.mjs' &&
+      serverSource.includes("app.get('/api/foundation/implementation-intelligence'") &&
+      currentPlan.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) &&
+      currentState.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY),
+    'Implementation Intelligence closes internal scoper, thin-card detector, research queue, builder linker, and public YouTube preflight without mutation',
+    `cards=${implementationIntelligenceCards.filter(card => card?.lane === 'done').length}/${IMPLEMENTATION_INTELLIGENCE_CARD_IDS.length} thin=${implementationIntelligence.thinCardDetector?.thinCards || 0} research=${implementationIntelligence.researchDispositionQueue?.totalResearchCards || 0} youtube=${implementationIntelligence.publicYoutubePreflight?.publicCandidateCount || 0}`,
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [

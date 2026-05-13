@@ -127,6 +127,9 @@ import {
 import {
   buildFoundationControlCompressionSnapshot,
 } from './lib/foundation-control-compression.js'
+import {
+  buildImplementationIntelligenceSnapshot,
+} from './lib/implementation-intelligence.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -4401,6 +4404,24 @@ app.get('/api/foundation/control-compression', requireAdminToken, async (_req, r
   }
 })
 
+app.get('/api/foundation/implementation-intelligence', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const activeFoundationSprint = await getActiveFoundationCurrentSprint()
+    res.json(buildImplementationIntelligenceSnapshot({
+      backlogItems: snapshot.backlogItems || [],
+      currentSprint: activeFoundationSprint,
+    }))
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'implementation_intelligence_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Implementation Intelligence snapshot.'
+    )
+  }
+})
+
 app.get('/api/fub/health', requireAdminToken, async (req, res) => {
   try {
     const requestedContext = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
@@ -5226,6 +5247,10 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       intelligenceSynthesis: snapshot.intelligenceSynthesis,
       intelligenceActionRouter: snapshot.intelligenceActionRouter,
     })
+    const implementationIntelligence = buildImplementationIntelligenceSnapshot({
+      backlogItems: snapshot.backlogItems || [],
+      currentSprint: activeFoundationSprint,
+    })
     sourceLifecycle.marketingSourceMap = marketingSourceMap
     sourceLifecycle.brandStack = brandStack
     sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
@@ -5278,6 +5303,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       multimodalExtractorContract,
       researchInboxContract,
       foundationControlCompression,
+      implementationIntelligence,
       foundationUiComplete,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),

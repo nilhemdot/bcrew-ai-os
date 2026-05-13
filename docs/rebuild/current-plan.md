@@ -113,6 +113,16 @@ Foundation Control + Backlog Compression is complete under `foundation-control-b
 
 Stop at sprint review. Good next sprint options are Internal Implementation Scoper for thin-card enrichment (`INTERNAL-SCOPER-001`), Runtime + Extraction Hardening Foundation, Build Intel Extraction Implementation with Steve-present auth decisions, or research-lane promotion review from the backlog monitor.
 
+Implementation Intelligence is complete under `implementation-intelligence-v1`:
+
+1. `INTERNAL-SCOPER-001` — proposal-only Internal Scoper now returns 7-section build-ready enrichment for thin cards and no-ops on cards that are already build-ready.
+2. `THIN-CARD-DETECTOR-001` — deterministic backlog readiness scoring identifies thin scoped/research cards with missing-field reasons and no backlog mutation.
+3. `RESEARCH-DISPOSITION-QUEUE-001` — research cards become proposed-only promote/keep/future/kill-review rows without lane moves, deletes, or closes.
+4. `BUILDER-LESSON-LINKER-001` — builder implementation lessons map to existing cards through Research Inbox enrichment proposals before any new-card suggestion.
+5. `PUBLIC-YOUTUBE-PREFLIGHT-001` — public YouTube Build Intel candidates are separated from paid/auth blockers and validated against the multimodal contract without crawling, transcripts, screenshots, atoms, or paid auth.
+
+Stop at sprint review. Good next options are applying selected Internal Scoper enrichments, starting Build Intel Extraction Implementation with public YouTube first, or Runtime + Extraction Hardening before paid-source auth.
+
 Recently closed sprint truth that this sprint depends on:
 
 - Foundation Source Once-Over is closed for v1 through `foundation-ui-complete-v1`. Closed sequence: `SOURCE-MATURITY-GRID-001` / `source-maturity-grid-v1`, `SOURCE-EXTRACTION-COVERAGE-001` / `source-extraction-coverage-v1`, `SOURCE-COVERAGE-CLOSEOUT-001` / `source-coverage-closeout-v1`, `MARKETING-SOURCE-MAP-001` / `marketing-source-map-v1`, `BRAND-STACK-001` / `brand-stack-v1`, `TIER-BEHAVIORAL-COMPLETION-001` / `tier-behavioral-completion-v1`, `VERIFICATION-RUNS-001` / `verification-runs-v1`, `PER-USER-CHANGELOG-001` / `per-user-changelog-v1`, `DECISION-RESTRICTED-QUEUE-001` / `decision-restricted-queue-v1`, and `FOUNDATION-UI-COMPLETE-001` / `foundation-ui-complete-v1`.

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILDER-LESSON-LINKER-001",
+  "approvedBy": "Steve meeting-window approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T14:25:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/builder-lesson-linker-001-plan.md",
+  "approvedPlanSha256": "bacbb8f9d124d437c269698ae67fc179b8f15593bfed719a9618f47b821f9d1e",
+  "approvedRepoHead": "8f336ff1e67be19269bd5ad46821de5203ec8b39",
+  "notes": "Approved as part of Implementation Intelligence Sprint. Scope: proposal-only backlog/card enrichment, research disposition, builder lesson linking, and public YouTube preflight. No paid auth, extraction, atom creation, or automatic backlog mutation.",
+  "approvalDigest": "b6f191cdd4fe5aaae58705f1e79b098eda2e720164b139ffe6274c01541a3d7f"
+}

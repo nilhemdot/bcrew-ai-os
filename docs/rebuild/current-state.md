@@ -25,7 +25,9 @@ The Foundation is real. The system is not yet fully alive.
 
 Current sprint call:
 
-- The latest completed sprint is `foundation-control-backlog-compression-2026-05-13`, closed under `foundation-control-backlog-compression-v1`. Current Sprint API owns the live stage truth; this doc records closeout context and command doctrine.
+- The latest completed sprint is `implementation-intelligence-2026-05-13`, closed under `implementation-intelligence-v1`. It added proposal-only implementation intelligence: Internal Scoper enrichment, thin-card detection, research disposition queue, builder lesson linking, and public YouTube preflight. It did not connect paid sources, crawl YouTube, create atoms, or mutate backlog from proposals.
+- `INTERNAL-SCOPER-001`, `THIN-CARD-DETECTOR-001`, `RESEARCH-DISPOSITION-QUEUE-001`, `BUILDER-LESSON-LINKER-001`, and `PUBLIC-YOUTUBE-PREFLIGHT-001` are done under `implementation-intelligence-v1`. Stop at sprint review before opening another sprint.
+- The previous completed sprint was `foundation-control-backlog-compression-2026-05-13`, closed under `foundation-control-backlog-compression-v1`. Current Sprint API owns the live stage truth; this doc records closeout context and command doctrine.
 - `FEEDBACK-CAPTURE-001`, `FEEDBACK-TRIAGE-001`, `BACKLOG-MONITOR-001`, `SPRINT-MASTER-ADVISOR-001`, `SYSTEM-FLOW-MAP-001`, `FOUNDATION-DONE-VELOCITY-001`, `PROCESS-ACK-STATES-001`, and `VERIFIER-INCREMENTAL-COVERAGE-001` are done under `foundation-control-backlog-compression-v1`. The outputs are proposal-only/control-plane primitives: durable feedback queue, deterministic triage, backlog monitor, sprint advisor, live flow map, done velocity, acknowledged states, and incremental verifier planning.
 - The sprint does not open extraction, Skool/myICOR/Loom auth, hubs, autonomous dev, Drive permission mutation, or request-access emails. Stop at sprint review before opening the next sprint.
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is done under `current-sprint-dynamic-truth-v1`. Hardcoded Current Sprint defaults are bootstrap-only, and incomplete live sprint metadata fails closed.

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PUBLIC-YOUTUBE-PREFLIGHT-001",
+  "approvedBy": "Steve meeting-window approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T14:25:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/public-youtube-preflight-001-plan.md",
+  "approvedPlanSha256": "d8a1c5646ea271aab35f1352acd8e4caf61d0054a9a36256ff3f9a423dc3342e",
+  "approvedRepoHead": "8f336ff1e67be19269bd5ad46821de5203ec8b39",
+  "notes": "Approved as part of Implementation Intelligence Sprint. Scope: proposal-only backlog/card enrichment, research disposition, builder lesson linking, and public YouTube preflight. No paid auth, extraction, atom creation, or automatic backlog mutation.",
+  "approvalDigest": "198a1a0e07354aa8c44283cfd11023df331d3e5de14caee68e1364d08e0c9a8e"
+}

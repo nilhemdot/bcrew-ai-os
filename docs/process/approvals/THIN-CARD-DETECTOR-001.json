@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "THIN-CARD-DETECTOR-001",
+  "approvedBy": "Steve meeting-window approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T14:25:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/thin-card-detector-001-plan.md",
+  "approvedPlanSha256": "52b2f7499f5b5e0be36149075f6a0896ff214f200e14bb530e3de9a4ffa951b7",
+  "approvedRepoHead": "8f336ff1e67be19269bd5ad46821de5203ec8b39",
+  "notes": "Approved as part of Implementation Intelligence Sprint. Scope: proposal-only backlog/card enrichment, research disposition, builder lesson linking, and public YouTube preflight. No paid auth, extraction, atom creation, or automatic backlog mutation.",
+  "approvalDigest": "656c3f74cffcec603442121c158bad4c4581f23d156eeae09d99310e7f2924dd"
+}
