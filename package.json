@@ -96,6 +96,7 @@
     "process:code-quality-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-code-quality-nightly-audit-check.mjs",
     "process:runtime-safety-hardening-check": "node --env-file-if-exists=.env scripts/process-runtime-safety-hardening-check.mjs",
     "process:plan-critic-architectural-rules-check": "node --env-file-if-exists=.env scripts/process-plan-critic-architectural-rules-check.mjs",
+    "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",
     "process:gate-reliability-check": "node --env-file-if-exists=.env scripts/process-gate-reliability-check.mjs",
     "process:foundation-review-sprint-check": "node --env-file-if-exists=.env scripts/process-foundation-review-sprint-check.mjs",
     "process:plain-english-sweep-check": "node --env-file-if-exists=.env scripts/process-plain-english-sweep-check.mjs",

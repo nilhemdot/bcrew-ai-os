@@ -512,6 +512,13 @@ import {
   PLAN_CRITIC_SUMMARY_MARKER,
 } from '../lib/process-plan-critic.js'
 import {
+  FOUNDATION_HUB_SUMMARY_BUDGET,
+  FOUNDATION_PERFORMANCE_CARD_ID,
+  FOUNDATION_PERFORMANCE_CLOSEOUT_KEY,
+  FOUNDATION_PERFORMANCE_SCRIPT_PATH,
+  buildSyntheticFoundationHubBudgetProof,
+} from '../lib/foundation-hub-performance.js'
+import {
   buildSyntheticSecurityBehaviorProof,
   SECURITY_BEHAVIOR_PROOF_APPROVAL_PATH,
   SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
@@ -889,6 +896,10 @@ const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const PLAN_CRITIC_ARCHITECTURAL_RULES_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'PLAN-CRITIC-ARCHITECTURAL-RULES-001',
+]
+
+const FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-PERFORMANCE-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -1607,6 +1618,8 @@ async function main() {
   const planCriticSource = await readRepoFile('lib/process-plan-critic.js')
   const planCriticScriptSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH)
   const planCriticArchitecturalRulesScriptSource = await readRepoFile(PLAN_CRITIC_ARCHITECTURAL_RULES_SCRIPT_PATH)
+  const foundationHubPerformanceSource = await readRepoFile('lib/foundation-hub-performance.js')
+  const foundationPerformanceScriptSource = await readRepoFile(FOUNDATION_PERFORMANCE_SCRIPT_PATH)
   const planCriticPlanSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_PLAN_PATH)
   const planCriticDecisionTreeSource = await readRepoFile(PLAN_CRITIC_DECISION_TREE_PATH)
   const planCriticApprovalSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH)
@@ -3326,7 +3339,14 @@ async function main() {
 
   const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
   const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
-  const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
+  const foundationHubSummary = await fetchJson(baseUrl, '/api/foundation-hub')
+  const foundationHubFull = await fetchJson(baseUrl, '/api/foundation-hub?view=full')
+  const foundationHub = {
+    ...foundationHubFull,
+    ...foundationHubSummary,
+    foundation1100Review: foundationHubFull.foundation1100Review || foundationHubSummary.foundation1100Review,
+    fullDiagnostics: foundationHubFull,
+  }
   const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=240')
   const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
@@ -3518,6 +3538,7 @@ async function main() {
   const gstackBuildIntelCloseout = foundationBuildCloseouts.find(closeout => closeout.key === GSTACK_BUILD_INTEL_CLOSEOUT_KEY) || null
   const codeQualityNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
+  const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -13191,6 +13212,42 @@ async function main() {
     planCriticArchitecturalRulesCard
       ? `lane=${planCriticArchitecturalRulesCard.lane} dogfood=${planCriticArchitecturalRulesProof.ok ? 'pass' : 'blocked'} closeout=${planCriticArchitecturalRulesCloseout?.key || 'missing'}`
       : `missing ${PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID}`,
+  )
+  const foundationPerformanceCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_PERFORMANCE_CARD_ID) || null
+  const foundationPerformanceProof = buildSyntheticFoundationHubBudgetProof()
+  ensure(
+    checks,
+      foundationPerformanceCard &&
+      ['scoped', 'done'].includes(foundationPerformanceCard.lane) &&
+      foundationPerformanceCloseout?.operatorCloseout === true &&
+      (foundationPerformanceCloseout.backlogIds || []).includes(FOUNDATION_PERFORMANCE_CARD_ID) &&
+      foundationPerformanceProof.ok === true &&
+      foundationPerformanceProof.oversized?.ok === false &&
+      foundationPerformanceProof.tooSlow?.ok === false &&
+      foundationHubSummary.foundationHubPerformance?.mode === 'summary' &&
+      Number(foundationHubSummary.foundationHubPerformance?.budget?.maxDurationMs || 0) === FOUNDATION_HUB_SUMMARY_BUDGET.maxDurationMs &&
+      Number(foundationHubSummary.foundationHubPerformance?.payloadBytes || 0) <= FOUNDATION_HUB_SUMMARY_BUDGET.maxPayloadBytes &&
+      foundationHubFull.foundationHubPerformance?.mode === 'full' &&
+      foundationHubFull.sharedCommunicationSynthesis &&
+      foundationHubFull.extractionControl &&
+      foundationHubFull.llmRuntime &&
+      foundationHubFull.driveCorpusInventory &&
+      packageJson.scripts?.['process:foundation-performance-check'] === `node --env-file-if-exists=.env ${FOUNDATION_PERFORMANCE_SCRIPT_PATH}` &&
+      serverSource.includes('getFoundationCoreSnapshot') &&
+      serverSource.includes("app.get('/api/foundation-hub'") &&
+      serverSource.includes('normalizeFoundationHubMode') &&
+      foundationUiSource.includes('fetchFoundationHubFull') &&
+      foundationUiSource.includes('/api/foundation-hub?view=full') &&
+      foundationDbSource.includes('getFoundationCoreSnapshot') &&
+      foundationHubPerformanceSource.includes('/api/foundation-hub?view=full') &&
+      foundationHubPerformanceSource.includes('buildSyntheticFoundationHubBudgetProof') &&
+      foundationPerformanceScriptSource.includes('default Foundation Hub route stays under latency and payload budget') &&
+      foundationBuildLogSource.includes(FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) &&
+      includesAll(foundationVerifySource, FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'FOUNDATION-PERFORMANCE-001 makes default Foundation Hub fast while preserving full diagnostics',
+    foundationPerformanceCard
+      ? `lane=${foundationPerformanceCard.lane} dogfood=${foundationPerformanceProof.ok ? 'pass' : 'blocked'} summary=${foundationHubSummary.foundationHubPerformance?.payloadBytes || 'missing'}B closeout=${foundationPerformanceCloseout?.key || 'missing'}`
+      : `missing ${FOUNDATION_PERFORMANCE_CARD_ID}`,
   )
   const verifyReadOnlyGateCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_READONLY_GATE_CARD_ID) || null
   const verifyReadOnlyDogfoodProof = await buildVerifyReadOnlyGateDogfoodProof()

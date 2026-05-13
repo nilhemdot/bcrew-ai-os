@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-PERFORMANCE-001",
+  "approvedBy": "Steve approved Codex judgment-led Foundation performance hardening sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T22:46:12.131Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-performance-001-plan.md",
+  "approvedPlanSha256": "6e5ed10102021b466b114e5beb44ff701014a24074207df6fa5209d15f5aa42e",
+  "approvedRepoHead": "8de48d543063b6bc74619e8a855f86f8d762f1a9",
+  "notes": "Approved as the one-card Foundation Performance Hardening Sprint. Scope: reduce default /api/foundation-hub latency and payload through summary/detail split, preserve full diagnostics behind explicit full view, prove with real route measurements and dogfood budget failure. Not approved: Build Intel, product work, broad UI redesign, broad monolith refactor, Drive/Meeting Vault mutations, autonomous dev.",
+  "approvalDigest": "cc5eaa1dc4ec0655a405637e31fc5736cd7599bfe344770d0a18e0d4bf773c3d"
+}

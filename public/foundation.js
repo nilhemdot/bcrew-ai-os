@@ -4479,6 +4479,13 @@ function fetchFoundationHub() {
   })
 }
 
+function fetchFoundationHubFull() {
+  return foundationRead('/api/foundation-hub?view=full').then(function(res) {
+    if (!res.ok) throw new Error('Foundation hub full diagnostic API failed.')
+    return res.json()
+  })
+}
+
 function fetchActionReview() {
   if (cache.actionReview) return Promise.resolve(cache.actionReview)
 
@@ -14768,7 +14775,7 @@ function renderDataHealth() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading runtime health.</p>'
 
-  fetchFoundationHub().then(function(hub) {
+  fetchFoundationHubFull().then(function(hub) {
     container.innerHTML = ''
 
     /* hero */

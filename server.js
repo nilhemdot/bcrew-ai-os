@@ -38,6 +38,7 @@ import {
   getFoundationBacklogIdPrefixes,
   getFoundationJobRunById,
   getFoundationJobRunSnapshot,
+  getFoundationCoreSnapshot,
   getFoundationRuntimeStatus,
   getFoundationSnapshot,
   getFubLeadSourceSnapshot,
@@ -136,6 +137,11 @@ import {
 import {
   buildGStackBuildIntelSnapshot,
 } from './lib/gstack-build-intel.js'
+import {
+  attachFoundationHubPerformanceMetadata,
+  buildFoundationHubSummaryInfo,
+  normalizeFoundationHubMode,
+} from './lib/foundation-hub-performance.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -5109,8 +5115,83 @@ app.get('/api/sheets/structure-status', requireAdminToken, async (_req, res) => 
   }
 })
 
-app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
+function sendFoundationHubPayload(res, payload, { mode, startedAtMs }) {
+  const prepared = attachFoundationHubPerformanceMetadata(payload, { mode, startedAtMs })
+  cacheHeadersNoStore(res)
+  res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  res.setHeader('X-Foundation-Hub-Mode', prepared.payload.foundationHubPerformance.mode)
+  res.setHeader('X-Foundation-Hub-Payload-Bytes', String(prepared.bytes))
+  res.send(prepared.json)
+}
+
+async function buildFoundationHubSummaryPayload() {
+  const snapshot = await getFoundationCoreSnapshot()
+  const backlogHygiene = buildBacklogHygieneSnapshot({
+    backlogItems: snapshot.backlogItems || [],
+    closeouts: getFoundationBuildCloseouts(),
+  })
+  const foundation1100Review = buildFoundationReviewSprintStatus({
+    artifact: await loadFoundationReviewSprintArtifact({ repoRoot: __dirname }),
+    backlogItems: snapshot.backlogItems || [],
+    actionRouter: {},
+    hygiene: backlogHygiene,
+  })
+  const researchCuration = buildResearchCurationStatus({
+    backlogItems: snapshot.backlogItems || [],
+    foundationReviewSprint: foundation1100Review,
+  })
+  const [foundationJobs, workerCode, activeFoundationSprint, decisionAutoEmitScan] = await Promise.all([
+    getFoundationJobRunSnapshot({ limit: 20 }),
+    getFoundationRuntimeStatus('foundation-worker').catch(() => null),
+    getActiveFoundationCurrentSprint(),
+    scanDecisionAutoEmitCandidates({ synthetic: true, cwd: __dirname }).catch(() => ({
+      candidateCount: 0,
+      candidates: [],
+      summary: { status: 'risk', riskFindings: ['Decision Auto-Emit summary unavailable in fast Foundation Hub mode.'] },
+    })),
+  ])
+  const currentSprint = buildFoundationCurrentSprintStatus({
+    sprint: activeFoundationSprint.sprint,
+    items: activeFoundationSprint.items,
+    backlogItems: snapshot.backlogItems || [],
+    closeouts: getFoundationBuildCloseouts(),
+    planCriticRuns: activeFoundationSprint.planCriticRuns || [],
+  })
+  const decisionAutoEmit = {
+    status: decisionAutoEmitScan.candidateCount > 0 ? 'healthy' : 'risk',
+    summary: buildDecisionAutoEmitSummary(decisionAutoEmitScan),
+    candidates: decisionAutoEmitScan.candidates || [],
+    dryRunDefault: true,
+    applyRequired: true,
+    plainEnglish: 'Decision Auto-Emit finds obvious decision language and creates proposed decisions only when apply mode is explicitly used.',
+  }
+
+  return {
+    ...snapshot,
+    foundationHubView: buildFoundationHubSummaryInfo(),
+    backlogHygiene,
+    foundation1100Review,
+    researchCuration,
+    foundationJobs,
+    decisionAutoEmit,
+    currentSprint,
+    runtimeSupervisor: {
+      servedCode: getDashboardRuntimeMetadata(),
+      workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
+    },
+  }
+}
+
+app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
+  const startedAtMs = Date.now()
   try {
+    const mode = normalizeFoundationHubMode(req.query?.view || req.query?.mode || req.query?.detail)
+    if (mode === 'summary') {
+      const summaryPayload = await buildFoundationHubSummaryPayload()
+      sendFoundationHubPayload(res, summaryPayload, { mode, startedAtMs })
+      return
+    }
+
     const snapshot = await getFoundationSnapshot()
     const kpiHealth = await getSafeKpiHealthSnapshot()
     const backlogHygiene = buildBacklogHygieneSnapshot({
@@ -5321,7 +5402,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
     })
     sourceLifecycle.foundationUiComplete = foundationUiComplete
     sourceLifecycle.currentSprint = currentSprint
-    res.json({
+    const fullPayload = {
       ...snapshot,
       kpiHealth,
       backlogHygiene,
@@ -5369,7 +5450,13 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
         servedCode: getDashboardRuntimeMetadata(),
         workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
       },
-    })
+    }
+    fullPayload.foundationHubView = {
+      mode: 'full',
+      purpose: 'Full diagnostic payload for Runtime Health and deep debugging.',
+      summaryPath: '/api/foundation-hub',
+    }
+    sendFoundationHubPayload(res, fullPayload, { mode: 'full', startedAtMs })
   } catch (error) {
     sendApiError(
       res,
