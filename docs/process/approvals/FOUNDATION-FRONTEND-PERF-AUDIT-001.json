@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+  "approvedBy": "Steve approved sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T17:48:37.644Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-frontend-perf-audit-001-plan.md",
+  "approvedPlanSha256": "5eba97224329d30cca5712c42e0fc5aadf0c749d6e614cde8c2c2186c73ba573",
+  "approvedRepoHead": "3a9557d6b663f0404070b0414b277a6f9b6d304a",
+  "notes": "Approved for the Foundation Code Quality + Nightly Audit Sprint. Scope is read-only/report-first audit detection, morning report output, and proposed backlog fixes only. No auto-fixes, no auto backlog mutation, no autonomous dev, no feature work, and no broad refactor are approved.",
+  "approvalDigest": "8ffb0fc85056f278b3830ffb66287e83b990be9cb85e2cb81d35a9de44bad3dd"
+}

@@ -83,6 +83,16 @@ import {
   buildGStackBuildIntelSnapshot,
 } from '../lib/gstack-build-intel.js'
 import {
+  CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS,
+  CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY,
+  CODE_QUALITY_NIGHTLY_AUDIT_JOB_KEY,
+  CODE_QUALITY_NIGHTLY_AUDIT_REPORT_PATH,
+  CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS,
+  CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH,
+  buildCodeQualityNightlyAudit,
+  buildSyntheticCodeQualityNightlyAuditProof,
+} from '../lib/code-quality-nightly-audit.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -829,6 +839,16 @@ const GSTACK_BUILD_INTEL_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'SKILL-IMPROVER-GSTACK-ENRICHMENT-001',
   'REVIEW-GATE-UPGRADE-001',
   'BROWSER-QA-PROOF-001',
+]
+
+const CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'CODEBASE-HARDCODE-AUDIT-001',
+  'FOUNDATION-API-PERF-AUDIT-001',
+  'FOUNDATION-FRONTEND-PERF-AUDIT-001',
+  'FOUNDATION-MONOLITH-RISK-AUDIT-001',
+  'VERIFIER-ASSUMPTION-REGISTRY-001',
+  'SPRINT-STATE-MUTATION-AUDIT-001',
+  'NIGHTLY-AUDIT-REPORT-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -3427,7 +3447,8 @@ async function main() {
       currentState.includes('Historical closeout notes below preserve at-the-time "current sprint active blocker" wording') &&
       (
         currentState.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) ||
-        currentState.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY)
+        currentState.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) ||
+        currentState.includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY)
       )
     )
   const connectorRoutingTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-truth-v1') || null
@@ -3449,6 +3470,7 @@ async function main() {
   const implementationIntelligenceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) || null
   const buildIntelExtractionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) || null
   const gstackBuildIntelCloseout = foundationBuildCloseouts.find(closeout => closeout.key === GSTACK_BUILD_INTEL_CLOSEOUT_KEY) || null
+  const codeQualityNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -10840,12 +10862,18 @@ async function main() {
         'rejects stale markers',
         'not source substring alone',
       ]) &&
-      includesAll(currentPlan, [
+      (includesAll(currentPlan, [
         'Current Sprint: Foundation Control Plane + Connector Readiness',
         'control-plane-connector-readiness-2026-05-12',
         'Current Sprint API owns the active blocker',
         'Queued, not pulled into this sprint',
-      ]) &&
+      ]) ||
+        includesAll(currentPlan, [
+          CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY,
+          'foundation-code-quality-nightly-audit-2026-05-13',
+          'Previous completed control-plane sprint ID: `control-plane-connector-readiness-2026-05-12`',
+          'Findings are proposed backlog fixes only',
+        ])) &&
       (includesAll(currentState, [
         'control-plane-connector-readiness-2026-05-12',
         'Current Sprint API owns the active blocker',
@@ -13046,6 +13074,53 @@ async function main() {
       includesAll(foundationVerifySource, GSTACK_BUILD_INTEL_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'GStack Build Intel extraction closes public GitHub source mapping, scorecard, proposals, review gates, skill enrichment, and browser QA proof without mutation',
     `cards=${gstackBuildIntelCards.filter(card => card?.lane === 'done').length}/${GSTACK_BUILD_INTEL_CARD_IDS.length} patterns=${gstackPatternIds.length} proposals=${gstackBuildIntel.researchInboxProposals?.proposalCount || 0}`,
+  )
+  const codeQualityNightlyAuditCards = CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const codeQualityNightlyAudit = await buildCodeQualityNightlyAudit({
+    repoRoot,
+    skipEndpointFetch: true,
+  })
+  const codeQualityNightlySyntheticProof = buildSyntheticCodeQualityNightlyAuditProof()
+  let codeQualityNightlyReportExists = false
+  let codeQualityNightlyReport = ''
+  try {
+    codeQualityNightlyReport = await fs.readFile(path.join(repoRoot, CODE_QUALITY_NIGHTLY_AUDIT_REPORT_PATH), 'utf8')
+    codeQualityNightlyReportExists = codeQualityNightlyReport.length > 500
+  } catch {
+    codeQualityNightlyReportExists = false
+  }
+  const codeQualityEndpointIds = Array.isArray(codeQualityNightlyAudit.endpointMetrics)
+    ? codeQualityNightlyAudit.endpointMetrics.map(metric => metric.endpoint)
+    : []
+  ensure(
+    checks,
+      codeQualityNightlyAuditCards.every(card => card?.lane === 'done' && String(card?.statusNote || '').includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY)) &&
+      codeQualityNightlyAuditCloseout?.operatorCloseout === true &&
+      CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.every(id => (codeQualityNightlyAuditCloseout.backlogIds || []).includes(id)) &&
+      codeQualityNightlyAudit.reportOnly === true &&
+      codeQualityNightlyAudit.writesBacklog === false &&
+      codeQualityNightlyAudit.mutatesDb === false &&
+      codeQualityNightlyAudit.autoFixes === false &&
+      codeQualityNightlyAudit.autonomousDev === false &&
+      codeQualityNightlyAudit.llmDetectionUsed === false &&
+      codeQualityNightlySyntheticProof.ok === true &&
+      CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS.every(endpoint => codeQualityEndpointIds.includes(endpoint)) &&
+      codeQualityNightlyAudit.summary?.findingCount >= 12 &&
+      codeQualityNightlyAudit.proposedCards?.length >= 5 &&
+      codeQualityNightlyReportExists &&
+      codeQualityNightlyReport.includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) &&
+      /no auto-fixes/i.test(codeQualityNightlyReport) &&
+      /no auto backlog mutation/i.test(codeQualityNightlyReport) &&
+      packageJson.scripts?.['process:code-quality-nightly-audit-check'] === `node --env-file-if-exists=.env ${CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH}` &&
+      foundationJobsSource.includes(CODE_QUALITY_NIGHTLY_AUDIT_JOB_KEY) &&
+      foundationJobsSource.includes('runtimeMode: \'manual\'') &&
+      foundationJobsSource.includes('scheduleEveryMinutes: null') &&
+      currentPlan.includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) &&
+      currentState.includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) &&
+      includesAll(foundationVerifySource, CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'Code Quality Nightly Audit closes the deterministic read-only report loop without fixes, backlog writes, scheduling, or LLM detection',
+    `cards=${codeQualityNightlyAuditCards.filter(card => card?.lane === 'done').length}/${CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.length} findings=${codeQualityNightlyAudit.summary?.findingCount || 0} proposed=${codeQualityNightlyAudit.proposedCards?.length || 0}`,
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [

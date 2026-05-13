@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+  "approvedBy": "Steve approved sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T17:48:37.648Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/sprint-state-mutation-audit-001-plan.md",
+  "approvedPlanSha256": "88ce21eb95725a60c27175a1e4dc781363df8b3a25b89b94f35b89b3da9ef45f",
+  "approvedRepoHead": "3a9557d6b663f0404070b0414b277a6f9b6d304a",
+  "notes": "Approved for the Foundation Code Quality + Nightly Audit Sprint. Scope is read-only/report-first audit detection, morning report output, and proposed backlog fixes only. No auto-fixes, no auto backlog mutation, no autonomous dev, no feature work, and no broad refactor are approved.",
+  "approvalDigest": "7cf0853f9730944b34e151d5f82545cf2bac7cdf3ce1bd103346cd784d4c1d08"
+}

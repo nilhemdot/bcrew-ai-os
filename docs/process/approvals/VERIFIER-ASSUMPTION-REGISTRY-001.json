@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+  "approvedBy": "Steve approved sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T17:48:37.646Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-assumption-registry-001-plan.md",
+  "approvedPlanSha256": "f97886c561e75d2649de4ff94f80837d2992cce77ad1115689e5588d4d47029b",
+  "approvedRepoHead": "3a9557d6b663f0404070b0414b277a6f9b6d304a",
+  "notes": "Approved for the Foundation Code Quality + Nightly Audit Sprint. Scope is read-only/report-first audit detection, morning report output, and proposed backlog fixes only. No auto-fixes, no auto backlog mutation, no autonomous dev, no feature work, and no broad refactor are approved.",
+  "approvalDigest": "3c413e1cbfc9a0419eba7f78ebfb8ea3bb62e1f242924c02f982773e5baed852"
+}

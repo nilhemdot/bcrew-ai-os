@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-13
-Version: v6.34 — Control Plane + Connector Readiness active
+Version: v6.35 — Code Quality Nightly Audit closed
 Status: Active
 
 Use this doc for one question:
@@ -73,13 +73,27 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Control Plane + Connector Readiness
+## Current Sprint: Foundation Code Quality Nightly Audit
 
-Live sprint ID: `control-plane-connector-readiness-2026-05-12`.
+Live sprint ID: `foundation-code-quality-nightly-audit-2026-05-13`.
 
-This is a backend control-plane sprint. It exists because Source Once-Over, Connector/Routing Truth, and Process Repair all shipped useful work, but the system also proved that docs, sprint state, stage progression, and connector readiness can drift. Current Sprint API owns the active blocker; this doc records the doctrine and sequence, not a second live queue.
+This is read-only/report-first Foundation work. It exists because getting code tight and system tight needs to become a recurring operating loop, but the loop must not fix code, mutate backlog, open sprints, schedule itself, or turn into autonomous dev. Current Sprint API owns the live stage truth; this doc records the closeout doctrine and sequence.
 
-The control-plane sprint order:
+The audit sprint order:
+
+1. `CODEBASE-HARDCODE-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; deterministic detectors now report hardcoded live-truth and dated-baseline risk without applying fixes.
+2. `FOUNDATION-API-PERF-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; the report captures Foundation API chokepoints, endpoint budget coverage, and request-path risk without changing endpoints.
+3. `FOUNDATION-FRONTEND-PERF-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; the report captures asset, route, DOM, and Browser QA proof risks without frontend rebuild work.
+4. `FOUNDATION-MONOLITH-RISK-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; the report ranks monolith split candidates as future cards only.
+5. `VERIFIER-ASSUMPTION-REGISTRY-001` — done under `foundation-code-quality-nightly-audit-v1`; the report inventories verifier constants, active-vs-historical assumptions, and source-count/year baselines.
+6. `SPRINT-STATE-MUTATION-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; the report detects mutation-capable process paths and scheduled-job mutation risk without running apply paths.
+7. `NIGHTLY-AUDIT-REPORT-001` — done under `foundation-code-quality-nightly-audit-v1`; `npm run process:code-quality-nightly-audit-check -- --json` writes the morning report and validates report-only/no-auto boundaries.
+
+The approved audit sprint is complete. Stop at sprint review before opening another sprint. The `code-quality-nightly-audit` Foundation job is registered as manual/unscheduled until Steve accepts report quality. Findings are proposed backlog fixes only; no auto-fixes, no auto backlog mutation, no feature work, and no LLM detection are approved.
+
+Previous completed control-plane sprint ID: `control-plane-connector-readiness-2026-05-12`.
+
+The control-plane sprint order was:
 
 1. `CURRENT-SPRINT-DYNAMIC-TRUTH-001` — done under `current-sprint-dynamic-truth-v1`; active Current Sprint command truth now fails closed when live sprint metadata is incomplete, and hardcoded defaults are bootstrap-only.
 2. `SPRINT-STAGE-GATE-001` — done under `sprint-stage-gate-v1`; stage prerequisites are enforced, and the dogfood proof rejects the original skipped Connector/Routing state while accepting the repaired after-action state.

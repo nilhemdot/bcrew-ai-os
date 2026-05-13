@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+  "approvedBy": "Steve approved sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T17:48:37.645Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-monolith-risk-audit-001-plan.md",
+  "approvedPlanSha256": "7085c8a7e71b3a01369c46e0e8b385321355e8a492a09325ec4b5aa6b1f370bf",
+  "approvedRepoHead": "3a9557d6b663f0404070b0414b277a6f9b6d304a",
+  "notes": "Approved for the Foundation Code Quality + Nightly Audit Sprint. Scope is read-only/report-first audit detection, morning report output, and proposed backlog fixes only. No auto-fixes, no auto backlog mutation, no autonomous dev, no feature work, and no broad refactor are approved.",
+  "approvalDigest": "de9b6bf8ac714dbb9d26542ec31264a884e2d40f3b806610c5701db90d8635e4"
+}

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+  "approvedBy": "Steve approved sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T17:48:37.640Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/codebase-hardcode-audit-001-plan.md",
+  "approvedPlanSha256": "3309876f958e514fe3264405a92e12ea2da50c79db02c525a0e1b863b4744156",
+  "approvedRepoHead": "3a9557d6b663f0404070b0414b277a6f9b6d304a",
+  "notes": "Approved for the Foundation Code Quality + Nightly Audit Sprint. Scope is read-only/report-first audit detection, morning report output, and proposed backlog fixes only. No auto-fixes, no auto backlog mutation, no autonomous dev, no feature work, and no broad refactor are approved.",
+  "approvalDigest": "a0569bc471c17dc15b9ee3ed6bf9f3b68990823950fe75dbcc7d82396fc21d63"
+}
