@@ -508,6 +508,14 @@ import {
   buildConnectorCredentialRegistrySnapshot,
 } from '../lib/connector-credential-registry.js'
 import {
+  LLM_AUTH_AUDIT_APPROVAL_PATH,
+  LLM_AUTH_AUDIT_CARD_ID,
+  LLM_AUTH_AUDIT_CLOSEOUT_KEY,
+  LLM_AUTH_AUDIT_PLAN_PATH,
+  LLM_AUTH_AUDIT_SCRIPT_PATH,
+  buildLlmAuthAuditStatus,
+} from '../lib/llm-auth-audit-proof.js'
+import {
   SOURCE_COVERAGE_CLOSEOUT_APPROVAL_PATH,
   SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
   SOURCE_COVERAGE_CLOSEOUT_DECISIONS,
@@ -1368,6 +1376,9 @@ async function main() {
   const connectorCredentialRegistrySource = await readRepoFile('lib/connector-credential-registry.js')
   const connectorCredentialCheckSource = await readRepoFile(CONNECTOR_CREDENTIAL_SCRIPT_PATH)
   const connectorCredentialPlanSource = await readRepoFile(CONNECTOR_CREDENTIAL_PLAN_PATH)
+  const llmAuthAuditProofSource = await readRepoFile('lib/llm-auth-audit-proof.js')
+  const llmAuthAuditCheckSource = await readRepoFile(LLM_AUTH_AUDIT_SCRIPT_PATH)
+  const llmAuthAuditPlanSource = await readRepoFile(LLM_AUTH_AUDIT_PLAN_PATH)
   const verifierSprintProofModuleSource = await readRepoFile('lib/foundation-verifier-sprint-proof.js')
   const verifierModularSplitCheckSource = await readRepoFile('scripts/process-verifier-modular-split-check.mjs')
   const processRootVsPatchCheckSource = await readRepoFile('scripts/process-root-vs-patch-check.mjs')
@@ -1835,6 +1846,11 @@ async function main() {
     repoRoot,
     approvalRef: CONNECTOR_CREDENTIAL_APPROVAL_PATH,
     cardId: CONNECTOR_CREDENTIAL_CARD_ID,
+  })
+  const llmAuthAuditApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: LLM_AUTH_AUDIT_APPROVAL_PATH,
+    cardId: LLM_AUTH_AUDIT_CARD_ID,
   })
   const rebuildPlanReconcileApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3295,6 +3311,7 @@ async function main() {
   const sprintStageGateCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SPRINT_STAGE_GATE_CLOSEOUT_KEY) || null
   const foundationPlanReconcileCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY) || null
   const connectorCredentialCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CONNECTOR_CREDENTIAL_CLOSEOUT_KEY) || null
+  const llmAuthAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === LLM_AUTH_AUDIT_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const currentSprintItemsById = new Map(
@@ -3306,6 +3323,7 @@ async function main() {
     currentSprintItemsById.get('FOUNDATION-PLAN-RECONCILE-001') ||
     null
   const connectorCredentialCurrentItem = currentSprintItemsById.get(CONNECTOR_CREDENTIAL_CARD_ID) || null
+  const llmAuthAuditCurrentItem = currentSprintItemsById.get(LLM_AUTH_AUDIT_CARD_ID) || null
   const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
@@ -5892,6 +5910,7 @@ async function main() {
   const gatePerformance = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-PERFORMANCE-001') || null
   const foundationPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_PLAN_RECONCILE_CARD_ID) || null
   const connectorCredential = (foundationHub.backlogItems || []).find(item => item.id === CONNECTOR_CREDENTIAL_CARD_ID) || null
+  const llmAuthAudit = (foundationHub.backlogItems || []).find(item => item.id === LLM_AUTH_AUDIT_CARD_ID) || null
   const approvalFileIntegrity = (foundationHub.backlogItems || []).find(item => item.id === 'APPROVAL-FILE-INTEGRITY-001') || null
   const buildLogBacklogIdFix = (foundationHub.backlogItems || []).find(item => item.id === 'BUILD-LOG-BACKLOG-ID-FIX-001') || null
   const closeoutBackfill = (foundationHub.backlogItems || []).find(item => item.id === 'CLOSEOUT-BACKFILL-001') || null
@@ -9618,7 +9637,7 @@ async function main() {
     checks,
     sourceCoverageCloseout?.lane === 'done' &&
       String(sourceCoverageCloseout?.statusNote || '').includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY) &&
-      sourceExtractionGapFollowup?.lane === 'scoped' &&
+      ['scoped', 'executing', 'done'].includes(sourceExtractionGapFollowup?.lane) &&
       sourceMaturityGapFollowup?.lane === 'scoped' &&
       ['scoped', 'done'].includes(marketingSourceMap?.lane) &&
       packageJson.scripts?.['process:source-coverage-closeout-check'] === `node --env-file-if-exists=.env ${SOURCE_COVERAGE_CLOSEOUT_SCRIPT_PATH}` &&
@@ -10343,6 +10362,21 @@ async function main() {
     connectorCredentialCloseout?.operatorCloseout === true &&
     (connectorCredentialCloseout.backlogIds || []).includes(CONNECTOR_CREDENTIAL_CARD_ID) &&
     historicalCardHasVerifiedCloseout(CONNECTOR_CREDENTIAL_CARD_ID)
+  const llmAuthAuditRuntimeStatus = buildLlmAuthAuditStatus({
+    llmRuntime: foundationHub.llmRuntime,
+    foundationJobs: foundationHub.foundationJobs,
+    maxAgeHours: 0,
+  })
+  const llmAuthAuditIsBuilding =
+    llmAuthAuditCurrentItem?.stage === 'building_now' &&
+    llmAuthAuditCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === LLM_AUTH_AUDIT_CARD_ID
+  const llmAuthAuditIsClosed =
+    llmAuthAudit?.lane === 'done' &&
+    String(llmAuthAudit?.statusNote || '').includes(LLM_AUTH_AUDIT_CLOSEOUT_KEY) &&
+    llmAuthAuditCloseout?.operatorCloseout === true &&
+    (llmAuthAuditCloseout.backlogIds || []).includes(LLM_AUTH_AUDIT_CARD_ID) &&
+    historicalCardHasVerifiedCloseout(LLM_AUTH_AUDIT_CARD_ID)
   const verifierSprintIndependenceIsBuilding =
     verifierSprintIndependence?.lane === 'executing' &&
     verifierSprintIndependenceCurrentItem?.stage === 'building_now' &&
@@ -10675,6 +10709,49 @@ async function main() {
           (connectorCredentialCloseout.backlogIds || []).includes(CONNECTOR_CREDENTIAL_CARD_ID))),
     'CONNECTOR-CREDENTIAL-001 adds no-secret connector credential/preflight truth',
     `lane=${connectorCredential?.lane || 'missing'} stage=${connectorCredentialCurrentItem?.stage || 'closed'} registryRows=${connectorCredentialRegistry.summary?.rowCount || 0} credentialRows=${sourceConnectorMatrix.summary?.credentialCoveredCount ?? 'missing'}`,
+  )
+  ensure(
+    checks,
+    (llmAuthAuditIsBuilding || llmAuthAuditIsClosed) &&
+      packageJson.scripts?.['process:llm-auth-audit-check'] === `node --env-file-if-exists=.env ${LLM_AUTH_AUDIT_SCRIPT_PATH}` &&
+      llmAuthAuditApprovalValidation.ok &&
+      llmAuthAuditApprovalValidation.mode === 'v2' &&
+      llmAuthAuditApprovalValidation.approval?.approvedPlanRef === LLM_AUTH_AUDIT_PLAN_PATH &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      llmAuthAuditRuntimeStatus.status === 'healthy' &&
+      llmAuthAuditRuntimeStatus.summary?.credentialCount >= 6 &&
+      llmAuthAuditRuntimeStatus.summary?.routeCount >= 10 &&
+      llmAuthAuditRuntimeStatus.summary?.latestJob?.status === 'succeeded' &&
+      llmAuthAuditRuntimeStatus.summary?.dryRunCall?.status === 'skipped' &&
+      includesAll(llmAuthAuditProofSource, [
+        'LLM_AUTH_AUDIT_REQUIRED_PROBES',
+        'direct API fallback routes are explicitly available or blocked',
+        'route-selection proof is dry-run only',
+        'LLM audit runtime readback contains no raw credential-shaped values',
+      ]) &&
+      includesAll(llmAuthAuditCheckSource, [
+        'getLlmRuntimeSnapshot',
+        'getFoundationJobRunSnapshot',
+        'maxAgeHours',
+        'closeSprintCard',
+        'SOURCE-EXTRACTION-GAP-FOLLOWUP-001',
+      ]) &&
+      includesAll(llmAuthAuditPlanSource, [
+        'llm-auth-audit',
+        'Direct API fallback remains guarded',
+        'No new model spending path',
+      ]) &&
+      includesAll(serverSource, [
+        '/api/foundation/llm-runtime',
+        'getLlmRuntimeSnapshot',
+      ]) &&
+      (!llmAuthAuditIsClosed ||
+        ((llmAuthAuditCloseout.proofCommands || []).includes('npm run process:llm-auth-audit-check -- --json') &&
+          (llmAuthAuditCloseout.proofCommands || []).includes('npm run foundation:job -- --job=llm-auth-audit --actor=codex-llm-auth-audit-proof') &&
+          (llmAuthAuditCloseout.backlogIds || []).includes(LLM_AUTH_AUDIT_CARD_ID))),
+    'LLM-AUTH-AUDIT-001 records fresh model route/auth truth without opening new spending paths',
+    `lane=${llmAuthAudit?.lane || 'missing'} stage=${llmAuthAuditCurrentItem?.stage || 'closed'} status=${llmAuthAuditRuntimeStatus.status} routes=${llmAuthAuditRuntimeStatus.summary?.routeCount || 0} latestJob=${llmAuthAuditRuntimeStatus.summary?.latestJob?.status || 'missing'}`,
   )
   ensure(
     checks,

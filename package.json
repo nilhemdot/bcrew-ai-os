@@ -110,6 +110,7 @@
     "process:sprint-stage-gate-check": "node --env-file-if-exists=.env scripts/process-sprint-stage-gate-check.mjs",
     "process:foundation-plan-reconcile-check": "node --env-file-if-exists=.env scripts/process-foundation-plan-reconcile-check.mjs",
     "process:connector-credential-check": "node --env-file-if-exists=.env scripts/process-connector-credential-check.mjs",
+    "process:llm-auth-audit-check": "node --env-file-if-exists=.env scripts/process-llm-auth-audit-check.mjs",
     "process:atom-promotion-diagnose-check": "node --env-file-if-exists=.env scripts/process-atom-promotion-diagnose-check.mjs",
     "process:sprint-db-reconcile-check": "node --env-file-if-exists=.env scripts/process-sprint-db-reconcile-check.mjs",
     "process:verify-gate-tiering-check": "node --env-file-if-exists=.env scripts/process-verify-gate-tiering-check.mjs",
