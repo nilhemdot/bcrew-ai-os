@@ -68,6 +68,13 @@ import {
   buildImplementationIntelligenceSnapshot,
 } from '../lib/implementation-intelligence.js'
 import {
+  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS,
+  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY,
+  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH,
+  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_SCRIPT_PATH,
+  buildBuildIntelExtractionImplementationSnapshot,
+} from '../lib/build-intel-extraction-implementation.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -3401,7 +3408,10 @@ async function main() {
     ) ||
     (
       currentState.includes('Historical closeout notes below preserve at-the-time "current sprint active blocker" wording') &&
-      currentState.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY)
+      (
+        currentState.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) ||
+        currentState.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY)
+      )
     )
   const connectorRoutingTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-truth-v1') || null
   const connectorRoutingProcessRepairCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-process-repair-v1') || null
@@ -3420,6 +3430,7 @@ async function main() {
   const buildIntelIntakeCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_INTAKE_CLOSEOUT_KEY) || null
   const foundationControlCompressionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY) || null
   const implementationIntelligenceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) || null
+  const buildIntelExtractionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -12895,6 +12906,63 @@ async function main() {
       currentState.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY),
     'Implementation Intelligence closes internal scoper, thin-card detector, research queue, builder linker, and public YouTube preflight without mutation',
     `cards=${implementationIntelligenceCards.filter(card => card?.lane === 'done').length}/${IMPLEMENTATION_INTELLIGENCE_CARD_IDS.length} thin=${implementationIntelligence.thinCardDetector?.thinCards || 0} research=${implementationIntelligence.researchDispositionQueue?.totalResearchCards || 0} youtube=${implementationIntelligence.publicYoutubePreflight?.publicCandidateCount || 0}`,
+  )
+  const buildIntelExtractionCards = BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const buildIntelExtraction = foundationHub.buildIntelExtraction ||
+    buildBuildIntelExtractionImplementationSnapshot({
+      transcriptContexts: [],
+      backlogItems: foundationHub.backlogItems || [],
+      currentSprint: activeFoundationSprint,
+    })
+  const buildIntelExtractionVerifierCoverageIds = [
+    'YOUTUBE-SCOUT-001',
+    'PUBLIC-YOUTUBE-BUILD-INTEL-001',
+    'BUILD-INTEL-OBSERVATION-EXTRACTOR-001',
+    'BUILD-INTEL-RESEARCH-INBOX-PROPOSALS-001',
+    'BUILD-INTEL-BRIEF-001',
+  ]
+  let buildIntelExtractionReportExists = false
+  try {
+    const reportStat = await fs.stat(path.join(repoRoot, BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH))
+    buildIntelExtractionReportExists = reportStat.isFile() && reportStat.size > 500
+  } catch {
+    buildIntelExtractionReportExists = false
+  }
+  ensure(
+    checks,
+      buildIntelExtractionCards.every(card => card?.lane === 'done' && String(card?.statusNote || '').includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY)) &&
+      buildIntelExtractionCloseout?.operatorCloseout === true &&
+      BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS.every(id => (buildIntelExtractionCloseout.backlogIds || []).includes(id)) &&
+      buildIntelExtractionVerifierCoverageIds.every(id => BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS.includes(id)) &&
+      BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS.every(id => buildIntelExtractionVerifierCoverageIds.includes(id)) &&
+      buildIntelExtraction.status === 'ready' &&
+      buildIntelExtraction.proposalOnly === true &&
+      buildIntelExtraction.writesBacklog === false &&
+      buildIntelExtraction.opensSprint === false &&
+      buildIntelExtraction.paidAuthUsed === false &&
+      buildIntelExtraction.newExternalCrawlStarted === false &&
+      buildIntelExtraction.publicWebSearchStarted === false &&
+      buildIntelExtraction.atomsCreated === 0 &&
+      buildIntelExtraction.screenshotsCaptured === 0 &&
+      buildIntelExtraction.keyFramesCaptured === 0 &&
+      buildIntelExtraction.selectedTranscriptArtifacts >= 1 &&
+      buildIntelExtraction.selectedInputs?.some(input => input.artifactId === 'SRC-YOUTUBE-INTEL-001:video_transcript:McPot5-N0ys') &&
+      buildIntelExtraction.observationExtractor?.observationsCount >= 3 &&
+      buildIntelExtraction.observationExtractor?.allEnvelopesValid === true &&
+      buildIntelExtraction.observationExtractor?.visualEvidenceStatus === 'not_captured_v1' &&
+      buildIntelExtraction.researchInboxProposals?.proposalCount >= 3 &&
+      buildIntelExtraction.researchInboxProposals?.enrichExistingCount >= 1 &&
+      buildIntelExtraction.researchInboxProposals?.writesBacklog === false &&
+      buildIntelExtraction.researchInboxProposals?.autoCreatesBacklog === false &&
+      buildIntelExtraction.brief?.nextRecommendedSprint === 'Build Intel Extraction Expansion Sprint' &&
+      buildIntelExtractionReportExists &&
+      packageJson.scripts?.['process:build-intel-extraction-check'] === `node --env-file-if-exists=.env ${BUILD_INTEL_EXTRACTION_IMPLEMENTATION_SCRIPT_PATH}` &&
+      serverSource.includes("app.get('/api/foundation/build-intel-extraction'") &&
+      currentPlan.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) &&
+      currentState.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY),
+    'Build Intel Extraction Implementation consumes public transcripts into proposal-only observations, Research Inbox proposals, and a brief',
+    `cards=${buildIntelExtractionCards.filter(card => card?.lane === 'done').length}/${BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS.length} selected=${buildIntelExtraction.selectedTranscriptArtifacts || 0} observations=${buildIntelExtraction.observationExtractor?.observationsCount || 0} proposals=${buildIntelExtraction.researchInboxProposals?.proposalCount || 0}`,
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [

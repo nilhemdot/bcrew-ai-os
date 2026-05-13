@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-SCOUT-001",
+  "approvedBy": "Steve authorized no-auth sprint; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T15:45:55.493Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/youtube-scout-001-plan.md",
+  "approvedPlanSha256": "cd09fd3fb0290d1c02976865482d66b072bd46c67f60bc352fb8850ecd8068a3",
+  "approvedRepoHead": "d73385218e46c1f78872c70a4ab145d658759758",
+  "notes": "Approved as part of Build Intel Extraction Implementation Sprint. Scope: build-intel-extraction-implementation-v1. No paid auth, no broad crawling, no screenshots/keyframes, no atom creation, and no automatic backlog mutation.",
+  "approvalDigest": "9648aebfecd9055f58c4925fe8e30141ba51e30616a90d5223afd8328b8b600f"
+}

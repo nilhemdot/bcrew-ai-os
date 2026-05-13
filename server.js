@@ -130,6 +130,9 @@ import {
 import {
   buildImplementationIntelligenceSnapshot,
 } from './lib/implementation-intelligence.js'
+import {
+  buildBuildIntelExtractionImplementationSnapshot,
+} from './lib/build-intel-extraction-implementation.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -4422,6 +4425,32 @@ app.get('/api/foundation/implementation-intelligence', requireAdminToken, async 
   }
 })
 
+app.get('/api/foundation/build-intel-extraction', requireAdminToken, async (_req, res) => {
+  try {
+    const snapshot = await getFoundationSnapshot()
+    const activeFoundationSprint = await getActiveFoundationCurrentSprint()
+    const transcriptContexts = await searchSharedCommunicationArtifactsForContext({
+      query: 'AI team setup folder structure agents workflows prompts dashboard build implementation',
+      sourceIds: ['SRC-YOUTUBE-INTEL-001'],
+      artifactTypes: ['video_transcript'],
+      limit: 10,
+      excerptChars: 1800,
+    })
+    res.json(buildBuildIntelExtractionImplementationSnapshot({
+      transcriptContexts,
+      backlogItems: snapshot.backlogItems || [],
+      currentSprint: activeFoundationSprint,
+    }))
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'build_intel_extraction_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Build Intel extraction snapshot.'
+    )
+  }
+})
+
 app.get('/api/fub/health', requireAdminToken, async (req, res) => {
   try {
     const requestedContext = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
@@ -5251,6 +5280,18 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       backlogItems: snapshot.backlogItems || [],
       currentSprint: activeFoundationSprint,
     })
+    const buildIntelExtractionContexts = await searchSharedCommunicationArtifactsForContext({
+      query: 'AI team setup folder structure agents workflows prompts dashboard build implementation',
+      sourceIds: ['SRC-YOUTUBE-INTEL-001'],
+      artifactTypes: ['video_transcript'],
+      limit: 10,
+      excerptChars: 1800,
+    })
+    const buildIntelExtraction = buildBuildIntelExtractionImplementationSnapshot({
+      transcriptContexts: buildIntelExtractionContexts,
+      backlogItems: snapshot.backlogItems || [],
+      currentSprint: activeFoundationSprint,
+    })
     sourceLifecycle.marketingSourceMap = marketingSourceMap
     sourceLifecycle.brandStack = brandStack
     sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
@@ -5304,6 +5345,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       researchInboxContract,
       foundationControlCompression,
       implementationIntelligence,
+      buildIntelExtraction,
       foundationUiComplete,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),

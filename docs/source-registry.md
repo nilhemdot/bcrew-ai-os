@@ -1,7 +1,7 @@
 # Data Sources Operator Note
 
 Status: Active
-Last updated: 2026-05-02
+Last updated: 2026-05-13
 
 This note backs the `Data Sources` page.
 
@@ -29,6 +29,7 @@ Some business questions span multiple source contracts. Those grouped systems ar
 | Sales Data / KPI-FUB-Deal System | `SRC-FUB-001`, `SRC-SUPABASE-001`, `SRC-OWNERS-001`, `SRC-OWNERS-LISTS-001`, `SRC-CLICKUP-001`, `SRC-MEETINGS-001`, plus Lee `FUBZahnd` code evidence | Person -> opportunity -> appointment -> Shopping List -> executed deal -> Ops follow-through | [FUB / KPI / Deal Data connection map](source-notes/fub-kpi-deal-connection-map.md) |
 | GLS System / Get Listings Sold | Source truth: `SRC-CLICKUP-001`; supporting evidence only: `SRC-SUPABASE-001` KPI Shopping List | Active listings crossing the stale threshold -> GLS case -> owner lane -> movement/sold/failure visibility | Live under `SYS-SALES-GLS-001`; proof is `SALES-GLS-SCOREBOARD-V1` closeout; routes are `/sales#gls-dashboard` and `/sales#gls-system` |
 | Strategy Corpus / Shared Intelligence System | `SRC-GMAIL-001`, `SRC-MISSIVE-001`, `SRC-MEETINGS-001`, `SRC-SLACK-001`, `SRC-GDRIVE-001`, `SRC-VIDEO-001`, `SRC-LOOM-001`, `SRC-SKOOL-001`, `SRC-YOUTUBE-INTEL-001` | Meetings, email, Slack, Drive, and media into decisions, contradictions, tasks, atoms, and strategy evidence. Drive Docs/Sheets/PDF/text/markdown v1, Drive agenda link inventory, rough scanned-PDF OCR, Gmail PDF/text attachment v1, and YouTube subtitle transcript v1 are live; Missive attachments, rich video vision, Slides, Office files, vision-grade handwriting/OCR, media, and shortcut resolution are still separate lanes. | [Shared communications](source-notes/shared-communications.md), [Google Drive corpus](source-notes/google-drive-corpus.md), [Video link inventory](source-notes/video-link-inventory.md) |
+| Build Intel / AIOS Improvement Sources | `SRC-CREATOR-WATCHLIST-001`, `SRC-YOUTUBE-INTEL-001`, `SRC-GITHUB-BUILD-INTEL-001` | Public builders, creator content, public codebases, and implementation-pattern sources into proposal-only AIOS improvements | [GitHub build intel](source-notes/github-build-intel.md) and Build Intel direction handoffs |
 
 Rule:
 
@@ -203,6 +204,7 @@ Verified but not counted as source-owned sign-off for this unit:
 | `SRC-VIDEO-001` | Video Link Inventory | Loom, Drive, YouTube, Vimeo, Wistia, Zoom, and Skool media links discovered across existing archives and future authorized crawlers | Steve | Pending Revalidation. This is the system-owned URL manifest lane; YouTube subtitle extraction v1 now reads from it, while Loom/Drive/Zoom/Skool/rich-vision extractors remain separate proofs. |
 | `SRC-CREATOR-WATCHLIST-001` | Creator / source watchlist | Steve-approved creators, channels, sites, communities, newsletters, and source priority rules | Steve | Pending Revalidation for extraction. V1 watchlist truth is now normalized in `lib/build-intel-watchlist.js` and exposed through `/api/foundation/build-intel-watchlist`; actual YouTube/Skool/myICOR/Loom extraction remains the next implementation sprint. |
 | `SRC-YOUTUBE-INTEL-001` | YouTube creator intelligence | Public creator/channel/video metadata, transcripts where allowed, Gemini video observations, and derived source-backed atoms | Steve | Pending Revalidation. YouTube subtitle transcript v1 is live from the video-link manifest through DataForSEO; official discovery, channel watchlists, Gemini video understanding, and derived atoms remain next layers. |
+| `SRC-GITHUB-BUILD-INTEL-001` | Public GitHub build intelligence | Public GitHub repositories, release/activity metadata, and codebase pattern evidence for AI coding/build-system projects, starting with `garrytan/gstack` | Steve | Pending Revalidation. Allowed use is read-only pattern extraction and proposal-only Research Inbox items. No code import, install, auth scraping, or automatic backlog mutation until an approved scoped card says otherwise. |
 | `SRC-GADS-001` | Google Ads | MCC + sub-account performance | Steve | Pending Revalidation because the configured OAuth refresh currently returns `invalid_grant` in the rebuild. |
 
 ## Gaps

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-INTEL-RESEARCH-INBOX-PROPOSALS-001",
+  "approvedBy": "Steve authorized no-auth sprint; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T15:45:55.493Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/build-intel-research-inbox-proposals-001-plan.md",
+  "approvedPlanSha256": "37e9e15f42658bfb17e3d1612a0b831ac99f86cd33b43605d4da47c66b6294e1",
+  "approvedRepoHead": "d73385218e46c1f78872c70a4ab145d658759758",
+  "notes": "Approved as part of Build Intel Extraction Implementation Sprint. Scope: build-intel-extraction-implementation-v1. No paid auth, no broad crawling, no screenshots/keyframes, no atom creation, and no automatic backlog mutation.",
+  "approvalDigest": "1be557c8a1f696b39e2740025a5feec23dc63c81a36f4975bed92a735d1d4575"
+}

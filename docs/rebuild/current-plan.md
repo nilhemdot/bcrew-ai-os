@@ -123,6 +123,16 @@ Implementation Intelligence is complete under `implementation-intelligence-v1`:
 
 Stop at sprint review. Good next options are applying selected Internal Scoper enrichments, starting Build Intel Extraction Implementation with public YouTube first, or Runtime + Extraction Hardening before paid-source auth.
 
+Build Intel Extraction Implementation is complete under `build-intel-extraction-implementation-v1`:
+
+1. `YOUTUBE-SCOUT-001` — no-auth V1 now consumes existing public YouTube transcript artifacts from the shared archive as Build Intel input; it does not discover latest uploads or connect paid sources.
+2. `PUBLIC-YOUTUBE-BUILD-INTEL-001` — transcript artifact selection now filters for AIOS/build-intel signal and keeps unrelated public video transcripts skipped with reasons.
+3. `BUILD-INTEL-OBSERVATION-EXTRACTOR-001` — transcript-derived implementation observations now validate through the multimodal contract while honestly marking screenshots/OCR/keyframes as not captured in this V1.
+4. `BUILD-INTEL-RESEARCH-INBOX-PROPOSALS-001` — extracted lessons now route to proposal-only Research Inbox rows with `writesBacklog=false` and `autoCreateBacklogCard=false`.
+5. `BUILD-INTEL-BRIEF-001` — the first Build Intel extraction brief is generated at `docs/handoffs/2026-05-13-build-intel-extraction-implementation.md` and exposed through `/api/foundation/build-intel-extraction`.
+
+Stop at sprint review. Good next options are current public-video discovery after creator channel URLs are confirmed, Steve-present paid-source auth preflight for Skool/myICOR, or screenshot/OCR/keyframe upgrade under the multimodal contract.
+
 Recently closed sprint truth that this sprint depends on:
 
 - Foundation Source Once-Over is closed for v1 through `foundation-ui-complete-v1`. Closed sequence: `SOURCE-MATURITY-GRID-001` / `source-maturity-grid-v1`, `SOURCE-EXTRACTION-COVERAGE-001` / `source-extraction-coverage-v1`, `SOURCE-COVERAGE-CLOSEOUT-001` / `source-coverage-closeout-v1`, `MARKETING-SOURCE-MAP-001` / `marketing-source-map-v1`, `BRAND-STACK-001` / `brand-stack-v1`, `TIER-BEHAVIORAL-COMPLETION-001` / `tier-behavioral-completion-v1`, `VERIFICATION-RUNS-001` / `verification-runs-v1`, `PER-USER-CHANGELOG-001` / `per-user-changelog-v1`, `DECISION-RESTRICTED-QUEUE-001` / `decision-restricted-queue-v1`, and `FOUNDATION-UI-COMPLETE-001` / `foundation-ui-complete-v1`.
