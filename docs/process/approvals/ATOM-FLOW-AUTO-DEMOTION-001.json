@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ATOM-FLOW-AUTO-DEMOTION-001",
+  "approvedBy": "Steve overnight approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T02:20:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/atom-flow-auto-demotion-001-plan.md",
+  "approvedPlanSha256": "67fc24a930f5b5ec9c32aadfcc383a798868c335b81b177d3c272bb559a004a6",
+  "approvedRepoHead": "fce7e08aaa5403baee1845b12aa974e8ff68e3eb",
+  "notes": "Approved as part of Source Truth Guardrails Sprint. Scope: atom-flow-auto-demotion-v1. Backend-only guardrail proof; no product work, external extraction, credential repair, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "15e49d9ed490508623b87168b5cbcfe218a40962a11084f7e46ffe11128d2c16"
+}

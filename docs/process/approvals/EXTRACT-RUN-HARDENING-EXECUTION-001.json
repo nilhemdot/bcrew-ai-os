@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACT-RUN-HARDENING-EXECUTION-001",
+  "approvedBy": "Steve overnight approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T02:20:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/extract-run-hardening-execution-001-plan.md",
+  "approvedPlanSha256": "bbe68a8ac6e069752f6bfce8a3ea795cd5b534adb65f4035228bac26a56ca66a",
+  "approvedRepoHead": "fce7e08aaa5403baee1845b12aa974e8ff68e3eb",
+  "notes": "Approved as part of Source Truth Guardrails Sprint. Scope: extract-run-hardening-execution-v1. Backend-only guardrail proof; no product work, external extraction, credential repair, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "d6ca4591f65b84467a003ddbc377fe78e06b57eb4b5cc8ce0ae860aa58587d48"
+}

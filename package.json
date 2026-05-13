@@ -112,6 +112,7 @@
     "process:connector-credential-check": "node --env-file-if-exists=.env scripts/process-connector-credential-check.mjs",
     "process:llm-auth-audit-check": "node --env-file-if-exists=.env scripts/process-llm-auth-audit-check.mjs",
     "process:source-extraction-gap-followup-check": "node --env-file-if-exists=.env scripts/process-source-extraction-gap-followup-check.mjs",
+    "process:atom-flow-auto-demotion-check": "node --env-file-if-exists=.env scripts/process-atom-flow-auto-demotion-check.mjs",
     "process:atom-promotion-diagnose-check": "node --env-file-if-exists=.env scripts/process-atom-promotion-diagnose-check.mjs",
     "process:sprint-db-reconcile-check": "node --env-file-if-exists=.env scripts/process-sprint-db-reconcile-check.mjs",
     "process:verify-gate-tiering-check": "node --env-file-if-exists=.env scripts/process-verify-gate-tiering-check.mjs",

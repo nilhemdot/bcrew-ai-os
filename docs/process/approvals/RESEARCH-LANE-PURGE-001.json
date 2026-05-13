@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "RESEARCH-LANE-PURGE-001",
+  "approvedBy": "Steve overnight approval in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T02:20:00Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/research-lane-purge-001-plan.md",
+  "approvedPlanSha256": "e746a3e6df1a11efc8531742c9f1acb457dab423c700fef944bcc235e690fac1",
+  "approvedRepoHead": "fce7e08aaa5403baee1845b12aa974e8ff68e3eb",
+  "notes": "Approved as part of Source Truth Guardrails Sprint. Scope: research-lane-purge-v1. Backend-only guardrail proof; no product work, external extraction, credential repair, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "3b90bbb5698488aa1ed15c4c9c28d50f3400325bc1b29cb38676b822cc15884d"
+}

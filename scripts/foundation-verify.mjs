@@ -489,6 +489,14 @@ import {
   buildSyntheticSourceMaturityGridProof,
 } from '../lib/source-maturity-grid.js'
 import {
+  ATOM_FLOW_AUTO_DEMOTION_APPROVAL_PATH,
+  ATOM_FLOW_AUTO_DEMOTION_CARD_ID,
+  ATOM_FLOW_AUTO_DEMOTION_CLOSEOUT_KEY,
+  ATOM_FLOW_AUTO_DEMOTION_PLAN_PATH,
+  ATOM_FLOW_AUTO_DEMOTION_SCRIPT_PATH,
+  buildSyntheticAtomFlowAutoDemotionProof,
+} from '../lib/atom-flow-auto-demotion.js'
+import {
   SOURCE_EXTRACTION_COVERAGE_APPROVAL_PATH,
   SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY,
   SOURCE_EXTRACTION_COVERAGE_PLAN_PATH,
@@ -1511,6 +1519,9 @@ async function main() {
   const sourceMaturityGridPlanSource = await readRepoFile(SOURCE_MATURITY_GRID_PLAN_PATH)
   const sourceMaturityGridApprovalSource = await readRepoFile(SOURCE_MATURITY_GRID_APPROVAL_PATH)
   const sourceMaturityGridApproval = JSON.parse(sourceMaturityGridApprovalSource)
+  const atomFlowAutoDemotionSource = await readRepoFile('lib/atom-flow-auto-demotion.js')
+  const atomFlowAutoDemotionScriptSource = await readRepoFile(ATOM_FLOW_AUTO_DEMOTION_SCRIPT_PATH)
+  const atomFlowAutoDemotionPlanSource = await readRepoFile(ATOM_FLOW_AUTO_DEMOTION_PLAN_PATH)
   const sourceExtractionCoverageSource = await readRepoFile('lib/source-extraction-coverage.js')
   const sourceExtractionCoverageScriptSource = await readRepoFile(SOURCE_EXTRACTION_COVERAGE_SCRIPT_PATH)
   const sourceExtractionCoveragePlanSource = await readRepoFile(SOURCE_EXTRACTION_COVERAGE_PLAN_PATH)
@@ -1911,6 +1922,11 @@ async function main() {
     repoRoot,
     approvalRef: SOURCE_MATURITY_GRID_APPROVAL_PATH,
     cardId: SOURCE_MATURITY_GRID_CARD_ID,
+  })
+  const atomFlowAutoDemotionApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: ATOM_FLOW_AUTO_DEMOTION_APPROVAL_PATH,
+    cardId: ATOM_FLOW_AUTO_DEMOTION_CARD_ID,
   })
   const sourceExtractionCoverageApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3333,6 +3349,7 @@ async function main() {
   const connectorCredentialCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CONNECTOR_CREDENTIAL_CLOSEOUT_KEY) || null
   const llmAuthAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === LLM_AUTH_AUDIT_CLOSEOUT_KEY) || null
   const sourceExtractionGapFollowupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_EXTRACTION_GAP_FOLLOWUP_CLOSEOUT_KEY) || null
+  const atomFlowAutoDemotionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === ATOM_FLOW_AUTO_DEMOTION_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -3352,6 +3369,7 @@ async function main() {
   const connectorCredentialCurrentItem = currentSprintItemsById.get(CONNECTOR_CREDENTIAL_CARD_ID) || null
   const llmAuthAuditCurrentItem = currentSprintItemsById.get(LLM_AUTH_AUDIT_CARD_ID) || null
   const sourceExtractionGapFollowupCurrentItem = currentSprintItemsById.get(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID) || null
+  const atomFlowAutoDemotionCurrentItem = currentSprintItemsById.get(ATOM_FLOW_AUTO_DEMOTION_CARD_ID) || null
   const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
@@ -3481,6 +3499,7 @@ async function main() {
   const avatarImportSynthetic = buildSyntheticAvatarImportProof()
   const autoDeployRollbackSynthetic = buildSyntheticAutoDeployRollbackProof()
   const sourceMaturityGridSynthetic = buildSyntheticSourceMaturityGridProof()
+  const atomFlowAutoDemotionSynthetic = buildSyntheticAtomFlowAutoDemotionProof()
   const sourceExtractionCoverageSynthetic = buildSyntheticSourceExtractionCoverageProof()
   const sourceCoverageCloseoutSynthetic = buildSyntheticSourceCoverageCloseoutProof()
   const marketingSourceMapSynthetic = buildSyntheticMarketingSourceMapProof()
@@ -5982,6 +6001,7 @@ async function main() {
   const avatarImport = (foundationHub.backlogItems || []).find(item => item.id === AVATAR_IMPORT_CARD_ID) || null
   const autoDeployRollback = (foundationHub.backlogItems || []).find(item => item.id === AUTO_DEPLOY_ROLLBACK_CARD_ID) || null
   const sourceMaturityGrid = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_MATURITY_GRID_CARD_ID) || null
+  const atomFlowAutoDemotion = (foundationHub.backlogItems || []).find(item => item.id === ATOM_FLOW_AUTO_DEMOTION_CARD_ID) || null
   const sourceExtractionCoverage = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_EXTRACTION_COVERAGE_CARD_ID) || null
   const sourceCoverageCloseout = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_COVERAGE_CLOSEOUT_CARD_ID) || null
   const sourceExtractionGapFollowup = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID) || null
@@ -7195,8 +7215,8 @@ async function main() {
   const foundationPlanReconcileClosedInControlPlaneSprint =
     foundationPlanReconcile?.lane === 'done' &&
     String(foundationPlanReconcile?.statusNote || '').includes(FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY) &&
-    foundationPlanReconcileCurrentItem?.stage === 'done_this_sprint' &&
-    foundationPlanReconcileCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationPlanReconcileCloseout?.operatorCloseout === true &&
+    (foundationPlanReconcileCloseout.backlogIds || []).includes(FOUNDATION_PLAN_RECONCILE_CARD_ID) &&
     historicalCardHasVerifiedCloseout(FOUNDATION_PLAN_RECONCILE_CARD_ID)
   const hardCheckpointCardLaneIsAcceptable = card => {
     if (!card) return false
@@ -7219,14 +7239,11 @@ async function main() {
           (card.nextAction || '').length > 80 &&
           (card.statusNote || '').length > 40
       ) &&
-      currentPlan.includes('Hard-checkpoint backlog reconciliation') &&
-      currentPlan.includes('PERSONAL-WORKSPACE-BOUNDARY-001') &&
-      currentPlan.includes('CLOSEOUT-BACKFILL-001') &&
-      (
-        currentState.includes('The current next slice is hard-checkpoint backlog reconciliation') ||
-        currentState.includes('Phase 1 enforcement is done for v1')
+      buildLogPlanReconcileBuild?.operatorCloseout === true &&
+      ['FOUNDATION-PLAN-RECONCILE-001', ...hardCheckpointTier0Ids].every(id =>
+        (buildLogPlanReconcileBuild.backlogIds || []).includes(id)
       ) &&
-      currentState.includes('PRE-COMMIT-HOOK-INSTALL-001'),
+      /foundation-plan-reconcile-backlog-depth-v1/.test(buildLogPlanReconcileBuild?.closeoutKey || ''),
     'Hard-checkpoint Tier 0 cards are promoted into backlog and plan truth',
     foundationPlanReconcile
       ? `${foundationPlanReconcile.lane} / missing=${hardCheckpointTier0Cards.filter(card => !card).length}`
@@ -10416,6 +10433,19 @@ async function main() {
     sourceExtractionGapFollowupCloseout?.operatorCloseout === true &&
     (sourceExtractionGapFollowupCloseout.backlogIds || []).includes(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID) &&
     historicalCardHasVerifiedCloseout(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID)
+  const atomFlowAutoDemotionIsBuilding =
+    atomFlowAutoDemotionCurrentItem?.stage === 'building_now' &&
+    atomFlowAutoDemotionCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === ATOM_FLOW_AUTO_DEMOTION_CARD_ID
+  const atomFlowAutoDemotionIsClosed =
+    atomFlowAutoDemotion?.lane === 'done' &&
+    String(atomFlowAutoDemotion?.statusNote || '').includes(ATOM_FLOW_AUTO_DEMOTION_CLOSEOUT_KEY) &&
+    atomFlowAutoDemotionCloseout?.operatorCloseout === true &&
+    (atomFlowAutoDemotionCloseout.backlogIds || []).includes(ATOM_FLOW_AUTO_DEMOTION_CARD_ID) &&
+    historicalCardHasVerifiedCloseout(ATOM_FLOW_AUTO_DEMOTION_CARD_ID)
+  const atomFlowRows = foundationSourceLifecycle.sourceMaturityGrid?.rows || foundationHub.sourceMaturityGrid?.rows || []
+  const atomFlowRowsMissingStatus = atomFlowRows.filter(row => !row.atomFlow || !row.atomFlow.status)
+  const staleAtomFlowRows = atomFlowRows.filter(row => row.atomFlow?.status === 'stale')
   const verifierSprintIndependenceIsBuilding =
     verifierSprintIndependence?.lane === 'executing' &&
     verifierSprintIndependenceCurrentItem?.stage === 'building_now' &&
@@ -10844,6 +10874,47 @@ async function main() {
           (sourceExtractionGapFollowupCloseout.backlogIds || []).includes(SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID))),
     'SOURCE-EXTRACTION-GAP-FOLLOWUP-001 ranks source gaps without starting ingestion',
     `lane=${sourceExtractionGapFollowupCard?.lane || 'missing'} stage=${sourceExtractionGapFollowupCurrentItem?.stage || 'closed'} triage=${sourceExtractionGapFollowupSnapshot.summary?.triageItemCount || 0} missing=${sourceExtractionGapMissingIds.join(',') || 'none'}`,
+  )
+  ensure(
+    checks,
+    (atomFlowAutoDemotionIsBuilding || atomFlowAutoDemotionIsClosed) &&
+      packageJson.scripts?.['process:atom-flow-auto-demotion-check'] === `node --env-file-if-exists=.env ${ATOM_FLOW_AUTO_DEMOTION_SCRIPT_PATH}` &&
+      atomFlowAutoDemotionApprovalValidation.ok &&
+      atomFlowAutoDemotionApprovalValidation.mode === 'v2' &&
+      atomFlowAutoDemotionApprovalValidation.approval?.approvedPlanRef === ATOM_FLOW_AUTO_DEMOTION_PLAN_PATH &&
+      atomFlowAutoDemotionSynthetic.ok &&
+      atomFlowRows.length >= 35 &&
+      atomFlowRowsMissingStatus.length === 0 &&
+      Number(foundationSourceLifecycle.sourceMaturityGrid?.summary?.atomFlowWindowHours || foundationHub.sourceMaturityGrid?.summary?.atomFlowWindowHours || 0) > 0 &&
+      staleAtomFlowRows.every(row => row.stages?.atomized?.ok === false) &&
+      includesAll(atomFlowAutoDemotionSource, [
+        'buildAtomFlowStatus',
+        'buildSyntheticAtomFlowAutoDemotionProof',
+        'demoteAtomized',
+        'no promoted intelligence_atoms',
+      ]) &&
+      includesAll(sourceMaturityGridSource, [
+        'atomFlowWindowHours',
+        'staleAtomFlowSources',
+        'demoteAtomized',
+        'atomFlow',
+      ]) &&
+      includesAll(atomFlowAutoDemotionScriptSource, [
+        'buildSyntheticGridProof',
+        'sourceRowsMissingAtomFlow',
+        'live stale atom-flow rows are demoted from atomized green state',
+        'EXTRACT-RUN-HARDENING-EXECUTION-001',
+      ]) &&
+      includesAll(atomFlowAutoDemotionPlanSource, [
+        'no recent promoted `intelligence_atoms`',
+        'No substring-only proof',
+        'focused gate',
+      ]) &&
+      (!atomFlowAutoDemotionIsClosed ||
+        ((atomFlowAutoDemotionCloseout.proofCommands || []).includes('npm run process:atom-flow-auto-demotion-check -- --json') &&
+          (atomFlowAutoDemotionCloseout.backlogIds || []).includes(ATOM_FLOW_AUTO_DEMOTION_CARD_ID))),
+    'ATOM-FLOW-AUTO-DEMOTION-001 demotes stale source atom-flow claims',
+    `lane=${atomFlowAutoDemotion?.lane || 'missing'} stage=${atomFlowAutoDemotionCurrentItem?.stage || 'closed'} stale=${staleAtomFlowRows.length} missing=${atomFlowRowsMissingStatus.length}`,
   )
   ensure(
     checks,
