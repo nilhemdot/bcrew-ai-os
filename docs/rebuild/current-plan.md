@@ -133,6 +133,17 @@ Build Intel Extraction Implementation is complete under `build-intel-extraction-
 
 Stop at sprint review. Good next options are current public-video discovery after creator channel URLs are confirmed, Steve-present paid-source auth preflight for Skool/myICOR, or screenshot/OCR/keyframe upgrade under the multimodal contract.
 
+GStack Build Intel Extraction is complete under `gstack-build-intel-extraction-v1`:
+
+1. `PUBLIC-DEV-COMMUNITY-WATCHLIST-001` — public GitHub, Codex Community, Claude Code Community, OpenClaw, and adjacent public AI coding sources are defined as Build Intel sources with proposal-only output.
+2. `GSTACK-EXTRACTION-001` — the public `garrytan/gstack` local mirror is extracted into a path-cited source map and pattern scorecard from commit `dc6252d1df7f1f650ea6e9b2bba7d08fab5de902`.
+3. `BUILD-INTEL-GITHUB-MONITOR-001` — public GitHub/community monitoring is defined as manual-first and proposal-only through `SRC-GITHUB-BUILD-INTEL-001`.
+4. `SKILL-IMPROVER-GSTACK-ENRICHMENT-001` — skill discipline lessons route to proposal-only Skill Improver enrichment while preserving the default-to-code boundary.
+5. `REVIEW-GATE-UPGRADE-001` — review-gate lessons route to deterministic checklist/proof-path proposals before any reviewer-agent idea.
+6. `BROWSER-QA-PROOF-001` — browser QA proof expectations are defined for future UI/dashboard work and explicitly not required for backend-only cards.
+
+Stop at sprint review. Good next options are public GitHub monitor implementation, frontend design pipeline, context save/restore, or eval harness. Do not install GStack, copy runtime code, scrape private communities, use paid auth, create autonomous dev, or mutate backlog from extracted findings.
+
 Recently closed sprint truth that this sprint depends on:
 
 - Foundation Source Once-Over is closed for v1 through `foundation-ui-complete-v1`. Closed sequence: `SOURCE-MATURITY-GRID-001` / `source-maturity-grid-v1`, `SOURCE-EXTRACTION-COVERAGE-001` / `source-extraction-coverage-v1`, `SOURCE-COVERAGE-CLOSEOUT-001` / `source-coverage-closeout-v1`, `MARKETING-SOURCE-MAP-001` / `marketing-source-map-v1`, `BRAND-STACK-001` / `brand-stack-v1`, `TIER-BEHAVIORAL-COMPLETION-001` / `tier-behavioral-completion-v1`, `VERIFICATION-RUNS-001` / `verification-runs-v1`, `PER-USER-CHANGELOG-001` / `per-user-changelog-v1`, `DECISION-RESTRICTED-QUEUE-001` / `decision-restricted-queue-v1`, and `FOUNDATION-UI-COMPLETE-001` / `foundation-ui-complete-v1`.
@@ -260,7 +271,7 @@ After the SECURITY-002 closeout, Steve asked for a full sweep of specs, audits, 
 - `FOUNDATION-SPRINT-SYSTEM-001` — done under `foundation-sprint-system-v1`; Current Sprint is now an overlay on live Backlog, not a second backlog. `FOUNDATION-SURFACE-UPDATES-001` stays broader UI polish, `FOUNDATION-DONE-VELOCITY-001` stays the honest velocity follow-up, and `MEETING-VAULT-ACL-001` remains scoped/blocking. Latest sensitivity-aware Phase A addendum: `docs/process/meeting-vault-acl-001-sensitivity-aware-phase-a.md`; dry-run hash `31c5bb2cab981f1bb19cb49ff3bdf6b0ea19b0fe1ed871b5d7385f025f34ee4d`; no Phase B mutation approval exists.
 - `FOUNDATION-DONE-TEST-001` — explicit Foundation readiness exit gate. Done for the gate implementation under `foundation-done-test-v1`; the current gate may still report `not_ready` while blocker cards remain open, and it does not make the blocker cards pass.
 - `SYSTEM-010-GHOST-CLOSEOUT-001` — done for the runtime/process-control readiness blocker under `system-010-ghost-closeout-v1`; active-process, liveness, stop/decommission, restart-status, and cost/process risk are visible and fail closed.
-- `SOURCE-LIFECYCLE-COMPLETION-001` — done for the source lifecycle completion/revalidation blocker under `source-lifecycle-completion-v1`; all 35 source contracts now have terminal states, load-bearing sources are complete/read-only/current-reality for current scope, and future/gap sources are accepted-blocked with owner, reason, next action, and blocker card.
+- `SOURCE-LIFECYCLE-COMPLETION-001` — done for the source lifecycle completion/revalidation blocker under `source-lifecycle-completion-v1`; all 36 current source contracts now have terminal states, load-bearing sources are complete/read-only/current-reality for current scope, the public GitHub Build Intel source is read-only/non-readiness-bearing, and future/gap sources are accepted-blocked with owner, reason, next action, and blocker card.
 - `EXTRACT-RUN-HARDENING-001` — done under `extract-run-hardening-v1`; existing extraction lanes now have central retry/backoff policy, queryable item retry state, crawlRunId attempt ledgering, stale item-lease reaping, partial/failed next-safe-command visibility, and bounded-backfill proof.
 - `SYNTHESIS-VERIFY-001` — done under `synthesis-verify-v1`; synthesized claims now require source-evidence verification before Strategy/scout/researcher/advisor consumption.
 - `MEETING-FORWARD-TRANSCRIPT-ENFORCEMENT-001` — future meeting transcript capture and gap handling.

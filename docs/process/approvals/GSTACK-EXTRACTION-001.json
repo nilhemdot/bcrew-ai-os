@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "GSTACK-EXTRACTION-001",
+  "approvedBy": "Steve approved sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T16:46:48.850Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/gstack-extraction-001-plan.md",
+  "approvedPlanSha256": "81f745cf8a09985f7113be945cd7b0ad8554f86c553b026c14eedbf2fe204091",
+  "approvedRepoHead": "e2dc1743f48c8fb63a92d595d1cf1db8dc04ca4d",
+  "notes": "Approved as part of GStack Build Intel Extraction Sprint. Scope is proposal-only public Build Intel extraction; no GStack install, no runtime code import, no private scraping, no paid auth, and no autonomous backlog mutation.",
+  "approvalDigest": "487af144062a1793507568e0ac99b5d11625d3a57c95298de420f97921f5b1c4"
+}

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "REVIEW-GATE-UPGRADE-001",
+  "approvedBy": "Steve approved sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-13T16:46:48.850Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/review-gate-upgrade-001-plan.md",
+  "approvedPlanSha256": "5da214ace09e9434697245c2afeba4869d3485d157b4cd2aa5196f2ec7bb3a82",
+  "approvedRepoHead": "e2dc1743f48c8fb63a92d595d1cf1db8dc04ca4d",
+  "notes": "Approved as part of GStack Build Intel Extraction Sprint. Scope is proposal-only public Build Intel extraction; no GStack install, no runtime code import, no private scraping, no paid auth, and no autonomous backlog mutation.",
+  "approvalDigest": "940d3fd9d2a34334f70d807de472b4ab64f80ac60921651bbeb900d6eac90490"
+}

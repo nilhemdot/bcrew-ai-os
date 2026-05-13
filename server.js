@@ -133,6 +133,9 @@ import {
 import {
   buildBuildIntelExtractionImplementationSnapshot,
 } from './lib/build-intel-extraction-implementation.js'
+import {
+  buildGStackBuildIntelSnapshot,
+} from './lib/gstack-build-intel.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -4451,6 +4454,19 @@ app.get('/api/foundation/build-intel-extraction', requireAdminToken, async (_req
   }
 })
 
+app.get('/api/foundation/gstack-build-intel', requireAdminToken, async (_req, res) => {
+  try {
+    res.json(await buildGStackBuildIntelSnapshot({ allowMissingRepo: true }))
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'gstack_build_intel_load_failed',
+      error instanceof Error ? error.message : 'Failed to load GStack Build Intel snapshot.'
+    )
+  }
+})
+
 app.get('/api/fub/health', requireAdminToken, async (req, res) => {
   try {
     const requestedContext = typeof req.query.context === 'string' ? req.query.context.trim().toLowerCase() : ''
@@ -5292,6 +5308,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       backlogItems: snapshot.backlogItems || [],
       currentSprint: activeFoundationSprint,
     })
+    const gstackBuildIntel = await buildGStackBuildIntelSnapshot({ allowMissingRepo: true })
     sourceLifecycle.marketingSourceMap = marketingSourceMap
     sourceLifecycle.brandStack = brandStack
     sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
@@ -5346,6 +5363,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       foundationControlCompression,
       implementationIntelligence,
       buildIntelExtraction,
+      gstackBuildIntel,
       foundationUiComplete,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),

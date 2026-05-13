@@ -6,8 +6,9 @@ This closeout covers the source lifecycle completion/revalidation blocker in the
 
 ## What Is Now Covered
 
-- All 35 source contracts have a terminal completion state.
+- All 36 current source contracts have a terminal completion state.
 - 22 load-bearing/current Foundation sources are classified as `complete`, `read_only_complete`, or `current_reality_complete` for their declared current role.
+- 1 active public Build Intel source is classified as read-only/non-readiness-bearing.
 - 13 future/gap sources are classified as `accepted_blocked` with owner, reason, next action, and blocker/follow-up card.
 - All 12 governed extraction targets remain represented with unchanged target/runtime/budget baselines.
 - Source proof output is metadata-only: source IDs, target keys, connector IDs, counts, blocker cards, and proof command names.

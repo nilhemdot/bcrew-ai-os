@@ -1,7 +1,7 @@
 # GitHub Build Intel Source Note
 
 Source ID: `SRC-GITHUB-BUILD-INTEL-001`  
-Status: Pending Revalidation  
+Status: Active Read-Only V1
 Owner: Steve  
 Created: 2026-05-13
 
@@ -39,6 +39,14 @@ It belongs in Build Intel, not marketing content production.
 ## First Extraction Packet
 
 See `docs/handoffs/2026-05-13-gstack-codebase-extraction-packet.md`.
+
+## First Verified Extraction
+
+Closeout key: `gstack-build-intel-extraction-v1`
+Report: `docs/handoffs/2026-05-13-gstack-build-intel-extraction.md`
+API: `/api/foundation/gstack-build-intel`
+
+The verified V1 extracts a source map, path-cited pattern scorecard, public developer-community watchlist, proposal-only Research Inbox rows, Skill Improver enrichment, review-gate recommendations, and browser QA proof expectations.
 
 ## First Backlog Candidates
 

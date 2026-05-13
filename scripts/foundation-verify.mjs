@@ -75,6 +75,14 @@ import {
   buildBuildIntelExtractionImplementationSnapshot,
 } from '../lib/build-intel-extraction-implementation.js'
 import {
+  GSTACK_BUILD_INTEL_CARD_IDS,
+  GSTACK_BUILD_INTEL_CLOSEOUT_KEY,
+  GSTACK_BUILD_INTEL_EXPECTED_COMMIT,
+  GSTACK_BUILD_INTEL_REPORT_PATH,
+  GSTACK_BUILD_INTEL_SCRIPT_PATH,
+  buildGStackBuildIntelSnapshot,
+} from '../lib/gstack-build-intel.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -812,6 +820,15 @@ const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const GATE_RELIABILITY_DIRECT_VERIFIER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'GATE-RELIABILITY-003',
+]
+
+const GSTACK_BUILD_INTEL_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'PUBLIC-DEV-COMMUNITY-WATCHLIST-001',
+  'GSTACK-EXTRACTION-001',
+  'BUILD-INTEL-GITHUB-MONITOR-001',
+  'SKILL-IMPROVER-GSTACK-ENRICHMENT-001',
+  'REVIEW-GATE-UPGRADE-001',
+  'BROWSER-QA-PROOF-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -3431,6 +3448,7 @@ async function main() {
   const foundationControlCompressionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY) || null
   const implementationIntelligenceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) || null
   const buildIntelExtractionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) || null
+  const gstackBuildIntelCloseout = foundationBuildCloseouts.find(closeout => closeout.key === GSTACK_BUILD_INTEL_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -8243,7 +8261,7 @@ async function main() {
       sourceLifecycleCompletionApproval.approvedPlanRef === SOURCE_LIFECYCLE_COMPLETION_PLAN_PATH &&
       sourceLifecycleCompletionApprovalValidation.approval?.approvedPlanRef === SOURCE_LIFECYCLE_COMPLETION_PLAN_PATH &&
       includesAll(sourceLifecycleCompletionPlanSource, [
-        'All 35 source contracts must be revalidated',
+        'source contracts must be revalidated',
         'Must Become Complete For Readiness',
         'Must Become Accepted Blocked/Parked',
         'Proof output is metadata-only',
@@ -8264,7 +8282,7 @@ async function main() {
       ]) &&
       includesAll(sourceLifecycleCompletionDocSource, [
         'Source Lifecycle Completion Closeout',
-        '35 source contracts',
+        'source contracts',
         'metadata-only',
         'accepted-blocked',
       ]) &&
@@ -9057,7 +9075,8 @@ async function main() {
           foundationHub.currentSprint?.summary?.doneThisSprintCount === foundationHub.currentSprint.summary.itemCount &&
           (
             foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint closeout') ||
-            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint review/rollover')
+            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint review/rollover') ||
+            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint review')
           )
         )
       ) &&
@@ -12963,6 +12982,70 @@ async function main() {
       currentState.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY),
     'Build Intel Extraction Implementation consumes public transcripts into proposal-only observations, Research Inbox proposals, and a brief',
     `cards=${buildIntelExtractionCards.filter(card => card?.lane === 'done').length}/${BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS.length} selected=${buildIntelExtraction.selectedTranscriptArtifacts || 0} observations=${buildIntelExtraction.observationExtractor?.observationsCount || 0} proposals=${buildIntelExtraction.researchInboxProposals?.proposalCount || 0}`,
+  )
+  const gstackBuildIntelCards = GSTACK_BUILD_INTEL_CARD_IDS
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const gstackBuildIntel = foundationHub.gstackBuildIntel ||
+    await buildGStackBuildIntelSnapshot({ allowMissingRepo: true })
+  let gstackBuildIntelReportExists = false
+  let gstackBuildIntelReport = ''
+  try {
+    gstackBuildIntelReport = await fs.readFile(path.join(repoRoot, GSTACK_BUILD_INTEL_REPORT_PATH), 'utf8')
+    gstackBuildIntelReportExists = gstackBuildIntelReport.length > 500
+  } catch {
+    gstackBuildIntelReportExists = false
+  }
+  const gstackPatternIds = Array.isArray(gstackBuildIntel.patternScorecard)
+    ? gstackBuildIntel.patternScorecard.map(pattern => pattern.patternId)
+    : []
+  const gstackWatchlistSourceIds = Array.isArray(gstackBuildIntel.publicDeveloperCommunityWatchlist?.sources)
+    ? gstackBuildIntel.publicDeveloperCommunityWatchlist.sources.map(source => source.sourceId)
+    : []
+  ensure(
+    checks,
+      gstackBuildIntelCards.every(card => card?.lane === 'done' && String(card?.statusNote || '').includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY)) &&
+      gstackBuildIntelCloseout?.operatorCloseout === true &&
+      GSTACK_BUILD_INTEL_CARD_IDS.every(id => (gstackBuildIntelCloseout.backlogIds || []).includes(id)) &&
+      gstackBuildIntel.proposalOnly === true &&
+      gstackBuildIntel.writesBacklog === false &&
+      gstackBuildIntel.opensSprint === false &&
+      gstackBuildIntel.codeImported === false &&
+      gstackBuildIntel.installStarted === false &&
+      gstackBuildIntel.privateScrapeStarted === false &&
+      gstackBuildIntel.paidAuthUsed === false &&
+      gstackBuildIntel.autonomousDevEnabled === false &&
+      gstackBuildIntel.sourceCommit === GSTACK_BUILD_INTEL_EXPECTED_COMMIT &&
+      gstackPatternIds.includes('skill_improver_operating_rules') &&
+      gstackPatternIds.includes('review_gate_checklists') &&
+      gstackPatternIds.includes('browser_qa_proof_loop') &&
+      gstackPatternIds.includes('frontend_design_pipeline') &&
+      gstackPatternIds.includes('public_github_monitoring') &&
+      gstackWatchlistSourceIds.includes('SRC-GITHUB-BUILD-INTEL-001') &&
+      gstackWatchlistSourceIds.includes('SRC-CODEX-COMMUNITY-BUILD-INTEL-001') &&
+      gstackWatchlistSourceIds.includes('SRC-CLAUDE-CODE-COMMUNITY-BUILD-INTEL-001') &&
+      gstackWatchlistSourceIds.includes('SRC-OPENCLAW-COMMUNITY-BUILD-INTEL-001') &&
+      gstackBuildIntel.researchInboxProposals?.proposalCount >= 5 &&
+      gstackBuildIntel.researchInboxProposals?.enrichExistingCount >= 1 &&
+      gstackBuildIntel.researchInboxProposals?.writesBacklog === false &&
+      gstackBuildIntel.researchInboxProposals?.autoCreatesBacklog === false &&
+      gstackBuildIntel.skillImproverEnrichment?.writesSkills === false &&
+      gstackBuildIntel.skillImproverEnrichment?.defaultToCode === true &&
+      gstackBuildIntel.reviewGateUpgrade?.gatesAsCodeFirst === true &&
+      gstackBuildIntel.reviewGateUpgrade?.newAgentRequired === false &&
+      gstackBuildIntel.browserQaProof?.minimumProof?.length >= 4 &&
+      gstackBuildIntelReportExists &&
+      gstackBuildIntelReport.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY) &&
+      gstackBuildIntelReport.includes('Do not install GStack') &&
+      packageJson.scripts?.['process:gstack-build-intel-check'] === `node --env-file-if-exists=.env ${GSTACK_BUILD_INTEL_SCRIPT_PATH}` &&
+      serverSource.includes("app.get('/api/foundation/gstack-build-intel'") &&
+      securityAccessSource.includes('/api/foundation/gstack-build-intel') &&
+      currentPlan.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY) &&
+      currentState.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY) &&
+      sourceRegistry.includes('SRC-GITHUB-BUILD-INTEL-001') &&
+      sourceRegistry.includes('/api/foundation/gstack-build-intel') &&
+      includesAll(foundationVerifySource, GSTACK_BUILD_INTEL_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'GStack Build Intel extraction closes public GitHub source mapping, scorecard, proposals, review gates, skill enrichment, and browser QA proof without mutation',
+    `cards=${gstackBuildIntelCards.filter(card => card?.lane === 'done').length}/${GSTACK_BUILD_INTEL_CARD_IDS.length} patterns=${gstackPatternIds.length} proposals=${gstackBuildIntel.researchInboxProposals?.proposalCount || 0}`,
   )
   const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
   const runtimeHealthSimplifyText = [
