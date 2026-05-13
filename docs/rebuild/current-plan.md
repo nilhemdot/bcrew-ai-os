@@ -84,8 +84,8 @@ The control-plane sprint order:
 1. `CURRENT-SPRINT-DYNAMIC-TRUTH-001` — done under `current-sprint-dynamic-truth-v1`; active Current Sprint command truth now fails closed when live sprint metadata is incomplete, and hardcoded defaults are bootstrap-only.
 2. `SPRINT-STAGE-GATE-001` — done under `sprint-stage-gate-v1`; stage prerequisites are enforced, and the dogfood proof rejects the original skipped Connector/Routing state while accepting the repaired after-action state.
 3. `FOUNDATION-PLAN-RECONCILE-001` — done under `foundation-plan-reconcile-control-plane-v1`; rebuild plan/state/handoff truth now matches live sprint and closeout reality without product expansion.
-4. `CONNECTOR-CREDENTIAL-001` — next ordered build after the reconcile closeout; build a no-secret connector credential/preflight registry with owner, credential class, source unlocked, last probe, and blocker reason.
-5. `LLM-AUTH-AUDIT-001` — Sprint Ready; probe and classify model route/auth paths after Codex/OpenClaw runtime changes.
+4. `CONNECTOR-CREDENTIAL-001` — done under `connector-credential-v1`; the no-secret connector credential/preflight registry now records owner, credential class, source-unlocked state, last probe status, and blocker reason without exposing credential values.
+5. `LLM-AUTH-AUDIT-001` — next ordered build after the connector credential closeout; probe and classify model route/auth paths after Codex/OpenClaw runtime changes.
 6. `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` — Sprint Ready; turn connector/routing matrix gaps into a ranked triage queue only.
 
 Recently closed sprint truth that this sprint depends on:

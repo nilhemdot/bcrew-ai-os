@@ -29,7 +29,7 @@ Current sprint call:
 - `CURRENT-SPRINT-DYNAMIC-TRUTH-001` is done under `current-sprint-dynamic-truth-v1`. Hardcoded Current Sprint defaults are bootstrap-only, and incomplete live sprint metadata fails closed.
 - `SPRINT-STAGE-GATE-001` is done under `sprint-stage-gate-v1`. Sprint Ready and Building Now require complete doctrine and Plan Critic pass rows; Done This Sprint requires done backlog truth and closeout proof. The dogfood proof rejected the original skipped Connector/Routing state and accepted the repaired after-action state.
 - `FOUNDATION-PLAN-RECONCILE-001` is done under `foundation-plan-reconcile-control-plane-v1`: rebuild plan/state/handoff truth now points to the active control-plane sprint, records Source Once-Over/Connector-Routing/Process Repair closeouts, and queues next source-truth cards without pulling them.
-- `CONNECTOR-CREDENTIAL-001` is the next ordered build after the reconcile closeout. `LLM-AUTH-AUDIT-001` and `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` remain Sprint Ready and must wait their ordered turn.
+- `CONNECTOR-CREDENTIAL-001` is done under `connector-credential-v1`: a no-secret connector credential/preflight registry now exposes connector/source IDs, provider, credential class, credential reference names, owner, last probe status, source-unlocked state, unlocked workload, and blocker reason. `LLM-AUTH-AUDIT-001` is the next ordered build; `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` remains Sprint Ready and must wait its ordered turn.
 - Source Once-Over is closed for v1 through `foundation-ui-complete-v1`. Connector/Routing Truth is closed under `connector-routing-truth-v1`. Process Repair is closed under `connector-routing-process-repair-v1`, `verifier-sprint-independence-v1`, `verifier-modular-split-v1`, and `process-root-vs-patch-v1`.
 - Queued, not pulled into this sprint: `ATOM-FLOW-AUTO-DEMOTION-001`, `EXTRACT-RUN-HARDENING-EXECUTION-001`, and `RESEARCH-LANE-PURGE-001`.
 - Foundation READY still means owner-only Strategy re-entry is allowed. It does not mean old-system parity, broad team access, public exposure, Reply/Watching Loop readiness, or source extraction completion.
@@ -63,6 +63,7 @@ Built:
 - Verification runs v1: Foundation now shows proposed-only stale research, synthesized finding, action route, and backlog hygiene review candidates, with zero auto-expiry.
 - Per-user changelog v1: Foundation now groups existing `change_events` by known users, agents, system actors, and unknown actors, with write/approval/apply/system counts and metadata-key-only privacy. Viewed/ignored/received history is still explicit missing coverage.
 - Foundation UI complete v1: Source Lifecycle now starts with a Foundation 30-second read that aggregates source maturity, extraction coverage, source closeout, marketing source map, brand stack, tier behavior, stale verification, per-user changelog, restricted decision queue, and Current Sprint state from live/API-backed payloads.
+- Connector credential registry v1: Foundation now has `/api/foundation/connector-credential-preflight` and connector-matrix credential status linkage, with 27 metadata-only registry rows and no raw credential values in proof output.
 
 Open:
 

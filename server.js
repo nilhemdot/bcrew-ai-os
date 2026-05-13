@@ -108,6 +108,9 @@ import {
   buildSourceConnectorMatrixSnapshot,
 } from './lib/source-connector-matrix.js'
 import {
+  buildConnectorCredentialRegistrySnapshot,
+} from './lib/connector-credential-registry.js'
+import {
   buildSourceHubRoutingMatrixSnapshot,
 } from './lib/source-hub-routing-matrix.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
@@ -3871,6 +3874,10 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       intelligenceActionRouter: foundationSnapshot.intelligenceActionRouter,
       sourceMaturityOperational: foundationSnapshot.sourceMaturityOperational,
     })
+    sourceLifecycle.connectorCredentialPreflight = buildConnectorCredentialRegistrySnapshot({
+      sourceContracts: getSourceContracts(),
+      sourceConnectors: getSourceConnectors(),
+    })
     sourceLifecycle.sourceHubRoutingMatrix = buildSourceHubRoutingMatrixSnapshot({
       connectorMatrix: sourceLifecycle.sourceConnectorMatrix,
     })
@@ -4253,6 +4260,28 @@ app.get('/api/foundation/source-connector-matrix', requireAdminToken, async (_re
       500,
       'foundation_source_connector_matrix_load_failed',
       error instanceof Error ? error.message : 'Failed to load Foundation source connector matrix.'
+    )
+  }
+})
+
+app.get('/api/foundation/connector-credential-preflight', requireAdminToken, async (_req, res) => {
+  try {
+    const connectorCredentialPreflight = buildConnectorCredentialRegistrySnapshot({
+      sourceContracts: getSourceContracts(),
+      sourceConnectors: getSourceConnectors(),
+    })
+    cacheHeadersNoStore(res)
+    res.json(connectorCredentialPreflight)
+  } catch (error) {
+    if (error instanceof AccessDeniedError) {
+      sendAccessDenied(res, error)
+      return
+    }
+    sendApiError(
+      res,
+      500,
+      'foundation_connector_credential_preflight_load_failed',
+      error instanceof Error ? error.message : 'Failed to load Foundation connector credential preflight.'
     )
   }
 })

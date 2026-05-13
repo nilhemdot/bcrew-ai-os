@@ -498,6 +498,16 @@ import {
   buildSyntheticSourceExtractionCoverageProof,
 } from '../lib/source-extraction-coverage.js'
 import {
+  CONNECTOR_CREDENTIAL_APPROVAL_PATH,
+  CONNECTOR_CREDENTIAL_CARD_ID,
+  CONNECTOR_CREDENTIAL_CLOSEOUT_KEY,
+  CONNECTOR_CREDENTIAL_PLAN_PATH,
+  CONNECTOR_CREDENTIAL_REQUIRED_KEYS,
+  CONNECTOR_CREDENTIAL_SCRIPT_PATH,
+  assertNoConnectorCredentialSecrets,
+  buildConnectorCredentialRegistrySnapshot,
+} from '../lib/connector-credential-registry.js'
+import {
   SOURCE_COVERAGE_CLOSEOUT_APPROVAL_PATH,
   SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
   SOURCE_COVERAGE_CLOSEOUT_DECISIONS,
@@ -1255,6 +1265,24 @@ async function main() {
   const workerLaunchAgent = await getLaunchAgentStatus('ai.bcrew.foundation-worker')
   const sourceContracts = getSourceContracts()
   const sourceConnectors = getSourceConnectors()
+  const connectorCredentialRegistry = buildConnectorCredentialRegistrySnapshot({
+    sourceContracts,
+    sourceConnectors,
+  })
+  const connectorCredentialSyntheticSafety = assertNoConnectorCredentialSecrets(
+    buildConnectorCredentialRegistrySnapshot({
+      env: {
+        ...process.env,
+        OPENAI_API_KEY: 'FOUNDATION_VERIFY_CONNECTOR_CREDENTIAL_SENTINEL_VALUE',
+        CLICKUP_PERSONAL_TOKEN: 'FOUNDATION_VERIFY_CONNECTOR_CREDENTIAL_SENTINEL_VALUE',
+        SLACK_BOT_TOKEN: 'FOUNDATION_VERIFY_CONNECTOR_CREDENTIAL_SENTINEL_VALUE',
+      },
+      now: new Date('2026-05-13T00:00:00.000Z'),
+      sourceContracts,
+      sourceConnectors,
+    }),
+    ['FOUNDATION_VERIFY_CONNECTOR_CREDENTIAL_SENTINEL_VALUE'],
+  )
   const groupedSourceSystems = getGroupedSourceSystems()
   const ownersContract = findSourceById(sourceContracts, 'SRC-OWNERS-001')
   const financeContract = findSourceById(sourceContracts, 'SRC-FINANCE-001')
@@ -1337,6 +1365,9 @@ async function main() {
   const sprintStageGatePlanSource = await readRepoFile(SPRINT_STAGE_GATE_PLAN_PATH)
   const foundationPlanReconcileCheckSource = await readRepoFile(FOUNDATION_PLAN_RECONCILE_SCRIPT_PATH)
   const foundationPlanReconcilePlanSource = await readRepoFile(FOUNDATION_PLAN_RECONCILE_PLAN_PATH)
+  const connectorCredentialRegistrySource = await readRepoFile('lib/connector-credential-registry.js')
+  const connectorCredentialCheckSource = await readRepoFile(CONNECTOR_CREDENTIAL_SCRIPT_PATH)
+  const connectorCredentialPlanSource = await readRepoFile(CONNECTOR_CREDENTIAL_PLAN_PATH)
   const verifierSprintProofModuleSource = await readRepoFile('lib/foundation-verifier-sprint-proof.js')
   const verifierModularSplitCheckSource = await readRepoFile('scripts/process-verifier-modular-split-check.mjs')
   const processRootVsPatchCheckSource = await readRepoFile('scripts/process-root-vs-patch-check.mjs')
@@ -1464,6 +1495,7 @@ async function main() {
   const sourceCoverageCloseoutPlanSource = await readRepoFile(SOURCE_COVERAGE_CLOSEOUT_PLAN_PATH)
   const sourceCoverageCloseoutApprovalSource = await readRepoFile(SOURCE_COVERAGE_CLOSEOUT_APPROVAL_PATH)
   const sourceCoverageCloseoutApproval = JSON.parse(sourceCoverageCloseoutApprovalSource)
+  const sourceConnectorMatrixSource = await readRepoFile('lib/source-connector-matrix.js')
   const marketingSourceMapSource = await readRepoFile('lib/marketing-source-map.js')
   const marketingSourceMapScriptSource = await readRepoFile(MARKETING_SOURCE_MAP_SCRIPT_PATH)
   const marketingSourceMapPlanSource = await readRepoFile(MARKETING_SOURCE_MAP_PLAN_PATH)
@@ -1798,6 +1830,11 @@ async function main() {
     repoRoot,
     approvalRef: FOUNDATION_PLAN_RECONCILE_APPROVAL_PATH,
     cardId: FOUNDATION_PLAN_RECONCILE_CARD_ID,
+  })
+  const connectorCredentialApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: CONNECTOR_CREDENTIAL_APPROVAL_PATH,
+    cardId: CONNECTOR_CREDENTIAL_CARD_ID,
   })
   const rebuildPlanReconcileApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3257,6 +3294,7 @@ async function main() {
   const currentSprintDynamicTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CURRENT_SPRINT_DYNAMIC_TRUTH_CLOSEOUT_KEY) || null
   const sprintStageGateCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SPRINT_STAGE_GATE_CLOSEOUT_KEY) || null
   const foundationPlanReconcileCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY) || null
+  const connectorCredentialCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CONNECTOR_CREDENTIAL_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const currentSprintItemsById = new Map(
@@ -3267,6 +3305,7 @@ async function main() {
   const foundationPlanReconcileCurrentItem = currentSprintItemsById.get(REBUILD_PLAN_RECONCILE_CARD_ID) ||
     currentSprintItemsById.get('FOUNDATION-PLAN-RECONCILE-001') ||
     null
+  const connectorCredentialCurrentItem = currentSprintItemsById.get(CONNECTOR_CREDENTIAL_CARD_ID) || null
   const syntheticFoundationSprintProof = buildSyntheticFoundationCurrentSprintProof()
   const foundationDoneTestReadinessStatus = buildFoundationReadinessStatus({
     foundationHub,
@@ -5852,6 +5891,7 @@ async function main() {
   const processHooksV2 = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-002') || null
   const gatePerformance = (foundationHub.backlogItems || []).find(item => item.id === 'GATE-PERFORMANCE-001') || null
   const foundationPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_PLAN_RECONCILE_CARD_ID) || null
+  const connectorCredential = (foundationHub.backlogItems || []).find(item => item.id === CONNECTOR_CREDENTIAL_CARD_ID) || null
   const approvalFileIntegrity = (foundationHub.backlogItems || []).find(item => item.id === 'APPROVAL-FILE-INTEGRITY-001') || null
   const buildLogBacklogIdFix = (foundationHub.backlogItems || []).find(item => item.id === 'BUILD-LOG-BACKLOG-ID-FIX-001') || null
   const closeoutBackfill = (foundationHub.backlogItems || []).find(item => item.id === 'CLOSEOUT-BACKFILL-001') || null
@@ -10293,6 +10333,16 @@ async function main() {
     foundationPlanReconcileCloseout?.operatorCloseout === true &&
     (foundationPlanReconcileCloseout.backlogIds || []).includes(FOUNDATION_PLAN_RECONCILE_CARD_ID) &&
     historicalCardHasVerifiedCloseout(FOUNDATION_PLAN_RECONCILE_CARD_ID)
+  const connectorCredentialIsBuilding =
+    connectorCredentialCurrentItem?.stage === 'building_now' &&
+    connectorCredentialCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === CONNECTOR_CREDENTIAL_CARD_ID
+  const connectorCredentialIsClosed =
+    connectorCredential?.lane === 'done' &&
+    String(connectorCredential?.statusNote || '').includes(CONNECTOR_CREDENTIAL_CLOSEOUT_KEY) &&
+    connectorCredentialCloseout?.operatorCloseout === true &&
+    (connectorCredentialCloseout.backlogIds || []).includes(CONNECTOR_CREDENTIAL_CARD_ID) &&
+    historicalCardHasVerifiedCloseout(CONNECTOR_CREDENTIAL_CARD_ID)
   const verifierSprintIndependenceIsBuilding =
     verifierSprintIndependence?.lane === 'executing' &&
     verifierSprintIndependenceCurrentItem?.stage === 'building_now' &&
@@ -10575,6 +10625,56 @@ async function main() {
       !currentState.includes('The active sprint is now the Foundation Source Once-Over sprint.'),
     'FOUNDATION-PLAN-RECONCILE-001 reconciles rebuild docs to live control-plane sprint truth',
     `lane=${foundationPlanReconcile?.lane || 'missing'} stage=${foundationPlanReconcileCurrentItem?.stage || 'closed'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'none'}`,
+  )
+  ensure(
+    checks,
+    (connectorCredentialIsBuilding || connectorCredentialIsClosed) &&
+      packageJson.scripts?.['process:connector-credential-check'] === `node --env-file-if-exists=.env ${CONNECTOR_CREDENTIAL_SCRIPT_PATH}` &&
+      connectorCredentialApprovalValidation.ok &&
+      connectorCredentialApprovalValidation.mode === 'v2' &&
+      connectorCredentialApprovalValidation.approval?.approvedPlanRef === CONNECTOR_CREDENTIAL_PLAN_PATH &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      connectorCredentialRegistry.summary?.rowCount >= 21 &&
+      connectorCredentialRegistry.summary?.metadataOnly === true &&
+      CONNECTOR_CREDENTIAL_REQUIRED_KEYS.every(key => (connectorCredentialRegistry.rows || []).some(row => row.key === key)) &&
+      connectorCredentialSyntheticSafety.ok &&
+      sourceConnectorMatrix.summary?.credentialCoveredCount >= 25 &&
+      ['has_credential', 'credential_status'].every(column => (sourceConnectorMatrix.columns || []).includes(column)) &&
+      (sourceConnectorMatrix.rows || []).every(row => Array.isArray(row.credentialRegistryKeys) && row.credentialRegistryKeys.length > 0) &&
+      includesAll(connectorCredentialRegistrySource, [
+        'buildConnectorCredentialRegistrySnapshot',
+        'credentialRefNames',
+        'sourceUnlocked',
+        'assertNoConnectorCredentialSecrets',
+      ]) &&
+      includesAll(connectorCredentialCheckSource, [
+        'synthetic credential sentinel values are not output',
+        'matrixRowsWithoutCredential',
+        'CONNECTOR_CREDENTIAL_REQUIRED_KEYS',
+        'closeSprintCard',
+      ]) &&
+      includesAll(connectorCredentialPlanSource, [
+        'no-secret connector credential',
+        'No raw secret values',
+        'Connector matrix can consume registry status',
+      ]) &&
+      includesAll(sourceConnectorMatrixSource, [
+        'buildConnectorCredentialRegistrySnapshot',
+        'credentialRegistryKeys',
+        'has_credential',
+        'credential_status',
+      ]) &&
+      includesAll(serverSource, [
+        '/api/foundation/connector-credential-preflight',
+        'buildConnectorCredentialRegistrySnapshot',
+        'connectorCredentialPreflight',
+      ]) &&
+      (!connectorCredentialIsClosed ||
+        ((connectorCredentialCloseout.proofCommands || []).includes('npm run process:connector-credential-check -- --json') &&
+          (connectorCredentialCloseout.backlogIds || []).includes(CONNECTOR_CREDENTIAL_CARD_ID))),
+    'CONNECTOR-CREDENTIAL-001 adds no-secret connector credential/preflight truth',
+    `lane=${connectorCredential?.lane || 'missing'} stage=${connectorCredentialCurrentItem?.stage || 'closed'} registryRows=${connectorCredentialRegistry.summary?.rowCount || 0} credentialRows=${sourceConnectorMatrix.summary?.credentialCoveredCount ?? 'missing'}`,
   )
   ensure(
     checks,
