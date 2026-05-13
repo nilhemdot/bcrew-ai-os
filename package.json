@@ -107,6 +107,7 @@
     "process:foundation-sprint-system-check": "node --env-file-if-exists=.env scripts/process-foundation-sprint-system-check.mjs",
     "process:foundation-sprint-cadence-check": "node --env-file-if-exists=.env scripts/process-foundation-sprint-cadence-check.mjs",
     "process:current-sprint-dynamic-truth-check": "node --env-file-if-exists=.env scripts/process-current-sprint-dynamic-truth-check.mjs",
+    "process:sprint-stage-gate-check": "node --env-file-if-exists=.env scripts/process-sprint-stage-gate-check.mjs",
     "process:atom-promotion-diagnose-check": "node --env-file-if-exists=.env scripts/process-atom-promotion-diagnose-check.mjs",
     "process:sprint-db-reconcile-check": "node --env-file-if-exists=.env scripts/process-sprint-db-reconcile-check.mjs",
     "process:verify-gate-tiering-check": "node --env-file-if-exists=.env scripts/process-verify-gate-tiering-check.mjs",

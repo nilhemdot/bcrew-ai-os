@@ -3918,6 +3918,7 @@ app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res)
       items: activeFoundationSprint.items,
       backlogItems: foundationSnapshot.backlogItems || [],
       closeouts: getFoundationBuildCloseouts(),
+      planCriticRuns: activeFoundationSprint.planCriticRuns || [],
     })
     sourceLifecycle.foundationUiComplete = buildFoundationUiCompleteSnapshot({
       sourceLifecycle,
@@ -5064,6 +5065,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (_req, res) => {
       items: activeFoundationSprint.items,
       backlogItems: snapshot.backlogItems || [],
       closeouts: getFoundationBuildCloseouts(),
+      planCriticRuns: activeFoundationSprint.planCriticRuns || [],
     })
     const marketingAvatarRegistry = buildMarketingAvatarImportSnapshot({
       referenceBriefText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_REFERENCE_BRIEF_PATH)) || '',
@@ -5166,6 +5168,7 @@ app.get('/api/foundation/current-sprint', requireAdminToken, async (_req, res) =
       items: activeFoundationSprint.items,
       backlogItems: snapshot.backlogItems || [],
       closeouts: getFoundationBuildCloseouts(),
+      planCriticRuns: activeFoundationSprint.planCriticRuns || [],
     })
     res.json({
       generatedAt: new Date().toISOString(),

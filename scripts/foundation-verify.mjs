@@ -357,6 +357,11 @@ import {
   CURRENT_SPRINT_DYNAMIC_TRUTH_CLOSEOUT_KEY,
   CURRENT_SPRINT_DYNAMIC_TRUTH_PLAN_PATH,
   CURRENT_SPRINT_DYNAMIC_TRUTH_SCRIPT_PATH,
+  SPRINT_STAGE_GATE_APPROVAL_PATH,
+  SPRINT_STAGE_GATE_CARD_ID,
+  SPRINT_STAGE_GATE_CLOSEOUT_KEY,
+  SPRINT_STAGE_GATE_PLAN_PATH,
+  SPRINT_STAGE_GATE_SCRIPT_PATH,
   FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
   FOUNDATION_SPRINT_EXIT_CRITERIA,
   FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
@@ -1323,6 +1328,8 @@ async function main() {
   const processRepairVerifierSprintScriptSource = await readRepoFile('scripts/process-repair-verifier-sprint-check.mjs')
   const currentSprintDynamicTruthCheckSource = await readRepoFile(CURRENT_SPRINT_DYNAMIC_TRUTH_SCRIPT_PATH)
   const currentSprintDynamicTruthPlanSource = await readRepoFile(CURRENT_SPRINT_DYNAMIC_TRUTH_PLAN_PATH)
+  const sprintStageGateCheckSource = await readRepoFile(SPRINT_STAGE_GATE_SCRIPT_PATH)
+  const sprintStageGatePlanSource = await readRepoFile(SPRINT_STAGE_GATE_PLAN_PATH)
   const verifierSprintProofModuleSource = await readRepoFile('lib/foundation-verifier-sprint-proof.js')
   const verifierModularSplitCheckSource = await readRepoFile('scripts/process-verifier-modular-split-check.mjs')
   const processRootVsPatchCheckSource = await readRepoFile('scripts/process-root-vs-patch-check.mjs')
@@ -1774,6 +1781,11 @@ async function main() {
     repoRoot,
     approvalRef: CURRENT_SPRINT_DYNAMIC_TRUTH_APPROVAL_PATH,
     cardId: CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID,
+  })
+  const sprintStageGateApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: SPRINT_STAGE_GATE_APPROVAL_PATH,
+    cardId: SPRINT_STAGE_GATE_CARD_ID,
   })
   const rebuildPlanReconcileApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3187,6 +3199,7 @@ async function main() {
     items: activeFoundationSprint.items,
     backlogItems: foundationHub.backlogItems || [],
     closeouts: foundationBuildCloseouts,
+    planCriticRuns: activeFoundationSprint.planCriticRuns || [],
   })
   const CONNECTOR_ROUTING_TRUTH_CARD_IDS = [
     'ATOM-PROMOTION-DIAGNOSE-001',
@@ -3230,6 +3243,7 @@ async function main() {
   const verifierModularSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'verifier-modular-split-v1') || null
   const processRootVsPatchCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'process-root-vs-patch-v1') || null
   const currentSprintDynamicTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CURRENT_SPRINT_DYNAMIC_TRUTH_CLOSEOUT_KEY) || null
+  const sprintStageGateCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SPRINT_STAGE_GATE_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const currentSprintItemsById = new Map(
@@ -5856,6 +5870,7 @@ async function main() {
   const foundationSprintSystem = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_SYSTEM_CARD_ID) || null
   const foundationSprintCadence = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_CADENCE_CARD_ID) || null
   const currentSprintDynamicTruth = (foundationHub.backlogItems || []).find(item => item.id === CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID) || null
+  const sprintStageGate = (foundationHub.backlogItems || []).find(item => item.id === SPRINT_STAGE_GATE_CARD_ID) || null
   const foundationSprintReview = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SPRINT_REVIEW_CARD_ID) || null
   const verifyGateTiering = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_GATE_TIERING_CARD_ID) || null
   const rebuildPlanReconcile = (foundationHub.backlogItems || []).find(item => item.id === REBUILD_PLAN_RECONCILE_CARD_ID) || null
@@ -7071,15 +7086,25 @@ async function main() {
       ? `${buildLogGatePerformanceBuild.shortSha} / ${buildLogGatePerformanceBuild.closeoutKey}`
       : 'missing GATE-PERFORMANCE-001 closeout',
   )
+  const foundationPlanReconcileInControlPlaneSprint =
+    foundationPlanReconcile?.lane === 'executing' &&
+    foundationPlanReconcileCurrentItem?.stage === 'building_now' &&
+    foundationPlanReconcileCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === 'FOUNDATION-PLAN-RECONCILE-001'
+  const hardCheckpointCardLaneIsAcceptable = card => {
+    if (!card) return false
+    if (card.id === 'FOUNDATION-PLAN-RECONCILE-001' && foundationPlanReconcileInControlPlaneSprint) return true
+    return ['scoped', 'done'].includes(card.lane)
+  }
   ensure(
     checks,
-    foundationPlanReconcile?.lane === 'scoped' &&
+    (foundationPlanReconcile?.lane === 'scoped' || foundationPlanReconcileInControlPlaneSprint) &&
       foundationPlanReconcile?.priority === 'P0' &&
       /hard-checkpoint sprint plan/.test(foundationPlanReconcile?.summary || '') &&
       (/before Phase G Track 2/.test(foundationPlanReconcile?.nextAction || '') ||
         foundationPlanReconcileCurrentItem?.existingWorkCheckStatus === 'complete') &&
       hardCheckpointTier0Cards.every(card =>
-        ['scoped', 'done'].includes(card?.lane) &&
+        hardCheckpointCardLaneIsAcceptable(card) &&
           ['P0', 'P1'].includes(card.priority) &&
           (card.summary || '').length > 80 &&
           (card.whyItMatters || '').length > 80 &&
@@ -7102,9 +7127,16 @@ async function main() {
   ensure(
     checks,
     buildLogPlanReconcileBuild?.operatorCloseout === true &&
-      buildLogPlanReconcileBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-PLAN-RECONCILE-001' && item.lane === 'scoped') &&
+      buildLogPlanReconcileBuild.relatedBacklog?.some(item =>
+        item.id === 'FOUNDATION-PLAN-RECONCILE-001' &&
+          (item.lane === 'scoped' || (foundationPlanReconcileInControlPlaneSprint && item.lane === 'executing'))
+      ) &&
       hardCheckpointTier0Ids.every(id =>
-        buildLogPlanReconcileBuild.relatedBacklog?.some(item => item.id === id && ['scoped', 'done'].includes(item.lane))
+        buildLogPlanReconcileBuild.relatedBacklog?.some(item =>
+          item.id === id &&
+            (['scoped', 'done'].includes(item.lane) ||
+              (id === 'FOUNDATION-PLAN-RECONCILE-001' && foundationPlanReconcileInControlPlaneSprint && item.lane === 'executing'))
+        )
       ) &&
       /foundation-plan-reconcile-backlog-depth-v1/.test(buildLogPlanReconcileBuild?.closeoutKey || ''),
     'Recent Work carries hard-checkpoint backlog reconcile closeout',
@@ -10256,6 +10288,17 @@ async function main() {
     currentSprintDynamicTruthCloseout?.operatorCloseout === true &&
     (currentSprintDynamicTruthCloseout.backlogIds || []).includes(CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID) &&
     historicalCardHasVerifiedCloseout(CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID)
+  const sprintStageGateCurrentItem = currentSprintItemsById.get(SPRINT_STAGE_GATE_CARD_ID)
+  const sprintStageGateIsBuilding =
+    sprintStageGateCurrentItem?.stage === 'building_now' &&
+    sprintStageGateCurrentItem?.existingWorkCheckStatus === 'complete' &&
+    foundationHub.currentSprint?.activeBlocker?.cardId === SPRINT_STAGE_GATE_CARD_ID
+  const sprintStageGateIsClosed =
+    sprintStageGate?.lane === 'done' &&
+    String(sprintStageGate?.statusNote || '').includes(SPRINT_STAGE_GATE_CLOSEOUT_KEY) &&
+    sprintStageGateCloseout?.operatorCloseout === true &&
+    (sprintStageGateCloseout.backlogIds || []).includes(SPRINT_STAGE_GATE_CARD_ID) &&
+    historicalCardHasVerifiedCloseout(SPRINT_STAGE_GATE_CARD_ID)
   const verifierSprintIndependenceIsBuilding =
     verifierSprintIndependence?.lane === 'executing' &&
     verifierSprintIndependenceCurrentItem?.stage === 'building_now' &&
@@ -10466,6 +10509,38 @@ async function main() {
       ]),
     'CURRENT-SPRINT-DYNAMIC-TRUTH-001 makes active sprint command truth live-DB-backed',
     `lane=${currentSprintDynamicTruth?.lane || 'missing'} stage=${currentSprintDynamicTruthCurrentItem?.stage || 'closed'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'none'}`,
+  )
+  ensure(
+    checks,
+    (sprintStageGateIsBuilding || sprintStageGateIsClosed) &&
+      packageJson.scripts?.['process:sprint-stage-gate-check'] === `node --env-file-if-exists=.env ${SPRINT_STAGE_GATE_SCRIPT_PATH}` &&
+      sprintStageGateApprovalValidation.ok &&
+      sprintStageGateApprovalValidation.mode === 'v2' &&
+      sprintStageGateApprovalValidation.approval?.approvedPlanRef === SPRINT_STAGE_GATE_PLAN_PATH &&
+      foundationHub.currentSprint?.status === 'healthy' &&
+      foundationCurrentSprintStatus.status === 'healthy' &&
+      includesAll(sprintStageGateCheckSource, [
+        'validateFoundationSprintStageGate',
+        'dogfood rejects original skipped Connector/Routing state',
+        'stage_gate_plan_critic_pass_required',
+        '/api/foundation/current-sprint',
+      ]) &&
+      includesAll(sprintStageGatePlanSource, [
+        'rejects the original six-card Connector/Routing skipped state',
+        'accepts the repaired after-action Connector/Routing state',
+        'Future transition helpers fail closed',
+      ]) &&
+      includesAll(foundationCurrentSprintSource, [
+        'validateFoundationSprintStageGate',
+        'stage_gate_plan_critic_pass_required',
+        'active_blocker_not_done_this_sprint',
+      ]) &&
+      includesAll(foundationDbSource, [
+        'planCriticRuns',
+        'getPlanCriticRunsByCardIds',
+      ]),
+    'SPRINT-STAGE-GATE-001 enforces visible sprint stage prerequisites',
+    `lane=${sprintStageGate?.lane || 'missing'} stage=${sprintStageGateCurrentItem?.stage || 'closed'} blocker=${foundationHub.currentSprint?.activeBlocker?.cardId || 'none'}`,
   )
   ensure(
     checks,
