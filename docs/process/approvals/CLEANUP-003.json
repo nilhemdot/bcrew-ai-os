@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CLEANUP-003",
+  "approvedBy": "Steve approved Codex judgment-led next Foundation cleanup sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T00:11:33.728Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/cleanup-003-foundation-build-log-monolith-slice-plan.md",
+  "approvedPlanSha256": "fc1546fcaa627b3400828126afe7b13ad9720b25249020b2ae858d750e1fdb8a",
+  "approvedRepoHead": "af78f4aaa99d94696639c780cbeb761ca993dc8e",
+  "notes": "Approved as the one-card Foundation Build Log Monolith Slice Sprint. Scope: split static closeout records out of lib/foundation-build-log.js, preserve public exports, prove behavior through actual function paths, and dogfood the oversized unsplit failure. Not approved: broad foundation-db/public-foundation/server/verifier rewrite, Build Intel, product hub work, autonomous dev, or auto-opening the next sprint.",
+  "approvalDigest": "2709c4654d9c5f0790b383a242d3ada49058ce46fb94b01618ee165d54c5afa0"
+}

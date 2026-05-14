@@ -74,7 +74,7 @@ async function main() {
   await assertFoundationDbReadyForReadOnlyGate('process:agent-feedback-live-reminders-check')
   const syntheticProof = buildAgentFeedbackReminderSyntheticProof()
   const [foundationHub, foundationBuildLog, opsHub, initialProof] = await Promise.all([
-    fetchJson(baseUrl, '/api/foundation-hub'),
+    fetchJson(baseUrl, '/api/foundation-hub?view=full'),
     fetchJson(baseUrl, '/api/foundation/build-log?limit=80'),
     fetchJson(baseUrl, '/api/ops-hub'),
     initialSendProof(),

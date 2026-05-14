@@ -519,6 +519,16 @@ import {
   buildSyntheticFoundationHubBudgetProof,
 } from '../lib/foundation-hub-performance.js'
 import {
+  FOUNDATION_BUILD_CLOSEOUT_RECORDS_PATH,
+  FOUNDATION_BUILD_LOG_BEHAVIOR_PATH,
+  FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID,
+  FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY,
+  FOUNDATION_BUILD_LOG_MONOLITH_SLICE_SCRIPT_PATH,
+  buildSyntheticFoundationBuildLogRegistrySplitProof,
+  countTextLines,
+  evaluateFoundationBuildLogRegistrySplit,
+} from '../lib/foundation-build-log-monolith-slice.js'
+import {
   buildSyntheticSecurityBehaviorProof,
   SECURITY_BEHAVIOR_PROOF_APPROVAL_PATH,
   SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
@@ -900,6 +910,10 @@ const PLAN_CRITIC_ARCHITECTURAL_RULES_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-PERFORMANCE-001',
+]
+
+const FOUNDATION_BUILD_LOG_MONOLITH_SLICE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'CLEANUP-003',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -1620,6 +1634,10 @@ async function main() {
   const planCriticArchitecturalRulesScriptSource = await readRepoFile(PLAN_CRITIC_ARCHITECTURAL_RULES_SCRIPT_PATH)
   const foundationHubPerformanceSource = await readRepoFile('lib/foundation-hub-performance.js')
   const foundationPerformanceScriptSource = await readRepoFile(FOUNDATION_PERFORMANCE_SCRIPT_PATH)
+  const foundationBuildLogBehaviorSource = await readRepoFile(FOUNDATION_BUILD_LOG_BEHAVIOR_PATH)
+  const foundationBuildCloseoutRecordsSource = await readRepoFile(FOUNDATION_BUILD_CLOSEOUT_RECORDS_PATH)
+  const foundationBuildLogMonolithSliceSource = await readRepoFile('lib/foundation-build-log-monolith-slice.js')
+  const foundationBuildLogMonolithSliceScriptSource = await readRepoFile(FOUNDATION_BUILD_LOG_MONOLITH_SLICE_SCRIPT_PATH)
   const planCriticPlanSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_PLAN_PATH)
   const planCriticDecisionTreeSource = await readRepoFile(PLAN_CRITIC_DECISION_TREE_PATH)
   const planCriticApprovalSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH)
@@ -2288,6 +2306,7 @@ async function main() {
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const foundationBuildLogSource = await readRepoFile('lib/foundation-build-log.js')
+  const foundationBuildLogRegistrySource = `${foundationBuildLogSource}\n${foundationBuildCloseoutRecordsSource}`
   const sourceContractsSource = await readRepoFile('lib/source-contracts.js')
   const sourceContractCleanupDoc = await readRepoFile('docs/process/source-contract-cleanup.md')
   const verifierConsolidationDoc = await readRepoFile('docs/process/verifier-consolidation.md')
@@ -3394,6 +3413,22 @@ async function main() {
   const backlogHygieneApi = foundationHub.backlogHygiene || {}
   const foundationBuildCloseouts = getFoundationBuildCloseouts()
   const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
+  const closeoutRecordAsBuildLogEntry = closeout => closeout
+    ? {
+        ...closeout,
+        closeoutKey: closeout.key,
+        backlogIds: Array.isArray(closeout.backlogIds) ? closeout.backlogIds : [],
+        mentionedBacklogIds: Array.isArray(closeout.mentionedBacklogIds) ? closeout.mentionedBacklogIds : [],
+      }
+    : null
+  const findBuildLogCloseoutEntry = (cardId, closeoutKey) =>
+    (foundationBuildLog.builds || []).find(build =>
+      (build.backlogIds || []).includes(cardId) &&
+        build.closeoutKey === closeoutKey
+    ) || closeoutRecordAsBuildLogEntry(foundationBuildCloseouts.find(closeout =>
+      closeout.key === closeoutKey &&
+        (closeout.backlogIds || []).includes(cardId)
+    ) || null)
   const doneBacklogCards = (foundationHub.backlogItems || []).filter(item => item.lane === 'done')
   const doneBacklogCardIds = new Set(doneBacklogCards.map(item => item.id))
   const liveBacklogCardIds = new Set((foundationHub.backlogItems || []).map(item => item.id))
@@ -3539,6 +3574,7 @@ async function main() {
   const codeQualityNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
+  const foundationBuildLogMonolithSliceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -4498,7 +4534,7 @@ async function main() {
   const buildLogSourceLifecycleCompletionBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
       build.closeoutKey === SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY)
     ? {
         closeoutKey: SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY,
         backlogIds: [SOURCE_LIFECYCLE_COMPLETION_CARD_ID],
@@ -4514,7 +4550,7 @@ async function main() {
   const buildLogSynthesisVerifyBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SYNTHESIS_VERIFY_CARD_ID) &&
       build.closeoutKey === SYNTHESIS_VERIFY_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY)
     ? {
         closeoutKey: SYNTHESIS_VERIFY_CLOSEOUT_KEY,
         backlogIds: [SYNTHESIS_VERIFY_CARD_ID],
@@ -4533,7 +4569,7 @@ async function main() {
   const buildLogExtractRunHardeningBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(EXTRACT_RUN_HARDENING_CARD_ID) &&
       build.closeoutKey === EXTRACT_RUN_HARDENING_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY)
     ? {
         closeoutKey: EXTRACT_RUN_HARDENING_CLOSEOUT_KEY,
         backlogIds: [EXTRACT_RUN_HARDENING_CARD_ID],
@@ -4549,7 +4585,7 @@ async function main() {
   const buildLogDriveAccessRequestBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID) &&
       build.closeoutKey === DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY)
     ? {
         closeoutKey: DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY,
         backlogIds: [DRIVE_ACCESS_REQUEST_CARD_ID],
@@ -4563,7 +4599,7 @@ async function main() {
   const buildLogMeetingVaultAutoEnforcementBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID) &&
       build.closeoutKey === MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY)
     ? {
         closeoutKey: MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
         backlogIds: [MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID, MEETING_VAULT_ACL_CARD_ID],
@@ -4577,7 +4613,7 @@ async function main() {
   const buildLogFoundationSprintSystemBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
       build.closeoutKey === FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY)
     ? {
         closeoutKey: FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY,
         backlogIds: [FOUNDATION_SPRINT_SYSTEM_CARD_ID],
@@ -4592,7 +4628,7 @@ async function main() {
   const buildLogFoundationSprintCadenceBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
       build.closeoutKey === FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY)
     ? {
         closeoutKey: FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
         backlogIds: [FOUNDATION_SPRINT_CADENCE_CARD_ID],
@@ -4608,7 +4644,7 @@ async function main() {
   const buildLogVerifyGateTieringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(VERIFY_GATE_TIERING_CARD_ID) &&
       build.closeoutKey === VERIFY_GATE_TIERING_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(VERIFY_GATE_TIERING_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(VERIFY_GATE_TIERING_CLOSEOUT_KEY)
     ? {
         closeoutKey: VERIFY_GATE_TIERING_CLOSEOUT_KEY,
         backlogIds: [VERIFY_GATE_TIERING_CARD_ID],
@@ -4622,7 +4658,7 @@ async function main() {
   const buildLogRebuildPlanReconcileBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(REBUILD_PLAN_RECONCILE_CARD_ID) &&
       build.closeoutKey === REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY)
     ? {
         closeoutKey: REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY,
         backlogIds: [REBUILD_PLAN_RECONCILE_CARD_ID],
@@ -4639,7 +4675,7 @@ async function main() {
   const buildLogPlanCriticReplacementBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(PLAN_CRITIC_REPLACEMENT_CARD_ID) &&
       build.closeoutKey === PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY)
     ? {
         closeoutKey: PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
         backlogIds: [PLAN_CRITIC_REPLACEMENT_CARD_ID],
@@ -4655,7 +4691,7 @@ async function main() {
   const buildLogSecurityBehaviorProofBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SECURITY_BEHAVIOR_PROOF_CARD_ID) &&
       build.closeoutKey === SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY)
     ? {
         closeoutKey: SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
         backlogIds: [SECURITY_BEHAVIOR_PROOF_CARD_ID],
@@ -4670,7 +4706,7 @@ async function main() {
   const buildLogVerifierBehaviorSweepBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
       build.closeoutKey === VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY)
     ? {
         closeoutKey: VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
         backlogIds: [VERIFIER_BEHAVIOR_SWEEP_CARD_ID],
@@ -4685,7 +4721,7 @@ async function main() {
   const buildLogStrategyHubMeetingReadyBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
       build.closeoutKey === STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY)
     ? {
         closeoutKey: STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
         backlogIds: [STRATEGY_HUB_MEETING_READY_CARD_ID],
@@ -4700,7 +4736,7 @@ async function main() {
   const buildLogAvatarImportBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AVATAR_IMPORT_CARD_ID) &&
       build.closeoutKey === AVATAR_IMPORT_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(AVATAR_IMPORT_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(AVATAR_IMPORT_CLOSEOUT_KEY)
     ? {
         closeoutKey: AVATAR_IMPORT_CLOSEOUT_KEY,
         backlogIds: [AVATAR_IMPORT_CARD_ID],
@@ -4716,7 +4752,7 @@ async function main() {
   const buildLogAutoDeployRollbackBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AUTO_DEPLOY_ROLLBACK_CARD_ID) &&
       build.closeoutKey === AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY)
     ? {
         closeoutKey: AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY,
         backlogIds: [AUTO_DEPLOY_ROLLBACK_CARD_ID],
@@ -4731,7 +4767,7 @@ async function main() {
   const buildLogSourceMaturityGridBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SOURCE_MATURITY_GRID_CARD_ID) &&
       build.closeoutKey === SOURCE_MATURITY_GRID_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY)
     ? {
         closeoutKey: SOURCE_MATURITY_GRID_CLOSEOUT_KEY,
         backlogIds: [SOURCE_MATURITY_GRID_CARD_ID],
@@ -4747,7 +4783,7 @@ async function main() {
   const buildLogSourceExtractionCoverageBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SOURCE_EXTRACTION_COVERAGE_CARD_ID) &&
       build.closeoutKey === SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY)
     ? {
         closeoutKey: SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY,
         backlogIds: [SOURCE_EXTRACTION_COVERAGE_CARD_ID],
@@ -4763,7 +4799,7 @@ async function main() {
   const buildLogSourceCoverageCloseoutBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) &&
       build.closeoutKey === SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY)
     ? {
         closeoutKey: SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
         backlogIds: [SOURCE_COVERAGE_CLOSEOUT_CARD_ID],
@@ -4781,7 +4817,7 @@ async function main() {
   const buildLogMarketingSourceMapBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(MARKETING_SOURCE_MAP_CARD_ID) &&
       build.closeoutKey === MARKETING_SOURCE_MAP_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY)
     ? {
         closeoutKey: MARKETING_SOURCE_MAP_CLOSEOUT_KEY,
         backlogIds: [MARKETING_SOURCE_MAP_CARD_ID],
@@ -4798,7 +4834,7 @@ async function main() {
   const buildLogBrandStackBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(BRAND_STACK_CARD_ID) &&
       build.closeoutKey === BRAND_STACK_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(BRAND_STACK_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(BRAND_STACK_CLOSEOUT_KEY)
     ? {
         closeoutKey: BRAND_STACK_CLOSEOUT_KEY,
         backlogIds: [BRAND_STACK_CARD_ID],
@@ -4815,7 +4851,7 @@ async function main() {
   const buildLogTierBehavioralCompletionBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(TIER_BEHAVIORAL_COMPLETION_CARD_ID) &&
       build.closeoutKey === TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY)
     ? {
         closeoutKey: TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY,
         backlogIds: [TIER_BEHAVIORAL_COMPLETION_CARD_ID],
@@ -4832,7 +4868,7 @@ async function main() {
   const buildLogVerificationRunsBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(VERIFICATION_RUNS_CARD_ID) &&
       build.closeoutKey === VERIFICATION_RUNS_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(VERIFICATION_RUNS_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(VERIFICATION_RUNS_CLOSEOUT_KEY)
     ? {
         closeoutKey: VERIFICATION_RUNS_CLOSEOUT_KEY,
         backlogIds: [VERIFICATION_RUNS_CARD_ID],
@@ -4848,7 +4884,7 @@ async function main() {
   const buildLogPerUserChangelogBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(PER_USER_CHANGELOG_CARD_ID) &&
       build.closeoutKey === PER_USER_CHANGELOG_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(PER_USER_CHANGELOG_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(PER_USER_CHANGELOG_CLOSEOUT_KEY)
     ? {
         closeoutKey: PER_USER_CHANGELOG_CLOSEOUT_KEY,
         backlogIds: [PER_USER_CHANGELOG_CARD_ID],
@@ -4864,7 +4900,7 @@ async function main() {
   const buildLogDecisionRestrictedQueueBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(DECISION_RESTRICTED_QUEUE_CARD_ID) &&
       build.closeoutKey === DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY)
     ? {
         closeoutKey: DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY,
         backlogIds: [DECISION_RESTRICTED_QUEUE_CARD_ID],
@@ -4881,7 +4917,7 @@ async function main() {
   const buildLogFoundationUiCompleteBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_UI_COMPLETE_CARD_ID) &&
       build.closeoutKey === FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY)
     ? {
         closeoutKey: FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY,
         backlogIds: [FOUNDATION_UI_COMPLETE_CARD_ID],
@@ -4903,7 +4939,7 @@ async function main() {
   const buildLogFoundationDoneTestBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(FOUNDATION_DONE_TEST_CARD_ID) &&
       build.closeoutKey === FOUNDATION_DONE_TEST_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(FOUNDATION_DONE_TEST_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(FOUNDATION_DONE_TEST_CLOSEOUT_KEY)
     ? {
         closeoutKey: FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
         backlogIds: [FOUNDATION_DONE_TEST_CARD_ID],
@@ -4921,7 +4957,7 @@ async function main() {
   const buildLogSystem010GhostCloseoutBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SYSTEM_010_CARD_ID) &&
       build.closeoutKey === SYSTEM_010_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(SYSTEM_010_CLOSEOUT_KEY)
+  ) || (foundationBuildLogRegistrySource.includes(SYSTEM_010_CLOSEOUT_KEY)
     ? {
         closeoutKey: SYSTEM_010_CLOSEOUT_KEY,
         backlogIds: [SYSTEM_010_CARD_ID],
@@ -4937,58 +4973,38 @@ async function main() {
         operatorCloseout: true,
       }
     : null)
-  const buildLogFoundationFollowupCardCaptureBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) &&
-      build.closeoutKey === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CLOSEOUT_KEY
+  const buildLogFoundationFollowupCardCaptureBuild = findBuildLogCloseoutEntry(
+    FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
+    FOUNDATION_FOLLOWUP_CARD_CAPTURE_CLOSEOUT_KEY,
   )
-  const buildLogFoundationSystemsServiceGroupingBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) &&
-      build.closeoutKey === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY,
-        backlogIds: [FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID],
-        mentionedBacklogIds: [
-          'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001',
-          'AGENT-FEEDBACK-SEND-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
+  const buildLogFoundationSystemsServiceGroupingBuild = findBuildLogCloseoutEntry(
+    FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
+    FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY,
+  )
   const buildLogAgentOnboardingFeedbackSystemBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) &&
       build.closeoutKey === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CLOSEOUT_KEY
   )
-  const buildLogAgentFeedbackSendBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_SEND_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_SEND_CLOSEOUT_KEY
+  const buildLogAgentFeedbackSendBuild = findBuildLogCloseoutEntry(
+    AGENT_FEEDBACK_SEND_CARD_ID,
+    AGENT_FEEDBACK_SEND_CLOSEOUT_KEY,
   )
   const buildLogAgentFeedbackAutoSendBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_AUTO_SEND_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY
   )
-  const buildLogAgentFeedbackResponseNotifyBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY
+  const buildLogAgentFeedbackResponseNotifyBuild = findBuildLogCloseoutEntry(
+    AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
+    AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY,
   )
-  const buildLogAgentFeedbackReminderBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_REMINDER_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY
+  const buildLogAgentFeedbackReminderBuild = findBuildLogCloseoutEntry(
+    AGENT_FEEDBACK_REMINDER_CARD_ID,
+    AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY,
   )
-  const buildLogAgentFeedbackLiveRemindersBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
-        backlogIds: [AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID],
-        mentionedBacklogIds: [
-          AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
-          AGENT_FEEDBACK_REMINDER_CARD_ID,
-        ],
-        operatorCloseout: true,
-      }
-    : null)
+  const buildLogAgentFeedbackLiveRemindersBuild = findBuildLogCloseoutEntry(
+    AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
+    AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
+  )
   const buildLogAgentFeedbackCompanyEmailPolicyBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID) &&
       build.closeoutKey === AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CLOSEOUT_KEY
@@ -5017,21 +5033,10 @@ async function main() {
     (build.backlogIds || []).includes('SALES-GLS-SCOREBOARD-V1') &&
       build.closeoutKey === 'sales-gls-scoreboard-v1'
   )
-  const buildLogSystemRegistrationSweepBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(SYSTEM_REGISTRATION_SWEEP_CARD_ID) &&
-      build.closeoutKey === SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY
-  ) || (foundationBuildLogSource.includes(SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
-        backlogIds: [SYSTEM_REGISTRATION_SWEEP_CARD_ID],
-        mentionedBacklogIds: [
-          'SALES-GLS-SCOREBOARD-V1',
-          AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
-          AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
-        ],
-        operatorCloseout: true,
-      }
-    : null)
+  const buildLogSystemRegistrationSweepBuild = findBuildLogCloseoutEntry(
+    SYSTEM_REGISTRATION_SWEEP_CARD_ID,
+    SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
+  )
   const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
       build.closeoutKey === 'gate-reliability-recurring-transient-v1'
@@ -12543,7 +12548,7 @@ async function main() {
       security002Approval.cardId === 'SECURITY-002' &&
       security002Approval.score >= 9.8 &&
       security002Approval.approvedPlanRef === 'docs/process/security-002-auth-tier-redaction-plan.md' &&
-      foundationBuildLogSource.includes('security-002-auth-tier-redaction-v1') &&
+      foundationBuildLogRegistrySource.includes('security-002-auth-tier-redaction-v1') &&
       security002PlanSource.includes('route posture') &&
       security002PlanSource.includes('subject_people') &&
       security002PlanSource.includes('owner-preserving') &&
@@ -13242,12 +13247,51 @@ async function main() {
       foundationHubPerformanceSource.includes('/api/foundation-hub?view=full') &&
       foundationHubPerformanceSource.includes('buildSyntheticFoundationHubBudgetProof') &&
       foundationPerformanceScriptSource.includes('default Foundation Hub route stays under latency and payload budget') &&
-      foundationBuildLogSource.includes(FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) &&
+      foundationBuildLogRegistrySource.includes(FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) &&
       includesAll(foundationVerifySource, FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'FOUNDATION-PERFORMANCE-001 makes default Foundation Hub fast while preserving full diagnostics',
     foundationPerformanceCard
       ? `lane=${foundationPerformanceCard.lane} dogfood=${foundationPerformanceProof.ok ? 'pass' : 'blocked'} summary=${foundationHubSummary.foundationHubPerformance?.payloadBytes || 'missing'}B closeout=${foundationPerformanceCloseout?.key || 'missing'}`
       : `missing ${FOUNDATION_PERFORMANCE_CARD_ID}`,
+  )
+  const foundationBuildLogMonolithSliceCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) || null
+  const foundationBuildLogValidation = getFoundationBuildCloseoutValidation()
+  const foundationBuildLogOwnershipProof = buildSyntheticBuildLogOwnershipProof()
+  const foundationBuildLogSplitProof = buildSyntheticFoundationBuildLogRegistrySplitProof()
+  const foundationBuildLogSplitEvaluation = evaluateFoundationBuildLogRegistrySplit({
+    behaviorLineCount: countTextLines(foundationBuildLogBehaviorSource),
+    recordLineCount: countTextLines(foundationBuildCloseoutRecordsSource),
+    closeoutCount: foundationBuildLogValidation.closeoutCount,
+    invalidCloseoutCount: (foundationBuildLogValidation.invalidCloseoutKeys || []).length,
+    behaviorImportsRecords: foundationBuildLogBehaviorSource.includes('./foundation-build-closeout-records.js'),
+    behaviorEmbedsRecords: foundationBuildLogBehaviorSource.includes('const closeoutRecords = [') || foundationBuildLogBehaviorSource.includes('export const closeoutRecords = ['),
+    recordsExportCloseouts: foundationBuildCloseoutRecordsSource.includes('export const closeoutRecords = ['),
+    recordsEmbedBehavior: foundationBuildCloseoutRecordsSource.includes('function normalizeList') || foundationBuildCloseoutRecordsSource.includes('export function'),
+    ownershipProofOk: foundationBuildLogOwnershipProof.ok === true,
+  })
+  ensure(
+    checks,
+      foundationBuildLogMonolithSliceCard &&
+      ['scoped', 'done'].includes(foundationBuildLogMonolithSliceCard.lane) &&
+      foundationBuildLogMonolithSliceCloseout?.operatorCloseout === true &&
+      (foundationBuildLogMonolithSliceCloseout.backlogIds || []).includes(FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) &&
+      foundationBuildLogSplitEvaluation.ok === true &&
+      foundationBuildLogSplitProof.ok === true &&
+      foundationBuildLogSplitProof.unsplit?.ok === false &&
+      foundationBuildLogSplitProof.split?.ok === true &&
+      foundationBuildLogOwnershipProof.ok === true &&
+      (foundationBuildLogValidation.invalidCloseoutKeys || []).length === 0 &&
+      packageJson.scripts?.['process:foundation-build-log-monolith-slice-check'] === `node --env-file-if-exists=.env ${FOUNDATION_BUILD_LOG_MONOLITH_SLICE_SCRIPT_PATH}` &&
+      foundationBuildLogBehaviorSource.includes('./foundation-build-closeout-records.js') &&
+      foundationBuildLogBehaviorSource.includes('export { FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION }') &&
+      foundationBuildCloseoutRecordsSource.includes('export const closeoutRecords = [') &&
+      foundationBuildLogMonolithSliceSource.includes('buildSyntheticFoundationBuildLogRegistrySplitProof') &&
+      foundationBuildLogMonolithSliceScriptSource.includes('dogfood proof rejects unsplit oversized build-log') &&
+      includesAll(foundationVerifySource, FOUNDATION_BUILD_LOG_MONOLITH_SLICE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'CLEANUP-003 splits Foundation build-log closeout registry from behavior module',
+    foundationBuildLogMonolithSliceCard
+      ? `lane=${foundationBuildLogMonolithSliceCard.lane} behaviorLines=${foundationBuildLogSplitEvaluation.summary.behaviorLineCount} recordLines=${foundationBuildLogSplitEvaluation.summary.recordLineCount} closeout=${foundationBuildLogMonolithSliceCloseout?.key || 'missing'}`
+      : `missing ${FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID}`,
   )
   const verifyReadOnlyGateCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_READONLY_GATE_CARD_ID) || null
   const verifyReadOnlyDogfoodProof = await buildVerifyReadOnlyGateDogfoodProof()
