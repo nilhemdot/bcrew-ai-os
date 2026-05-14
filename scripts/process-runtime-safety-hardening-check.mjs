@@ -438,11 +438,13 @@ async function buildFoundationDbInitSeedSplitStatus() {
   const [
     packageSource,
     foundationDbSource,
+    currentSprintStoreSource,
     focusedProofSource,
     foundationVerifySource,
   ] = await Promise.all([
     readRepoFile('package.json'),
     readRepoFile('lib/foundation-db.js'),
+    readRepoFile('lib/foundation-current-sprint-store.js'),
     readRepoFile(RUNTIME_SAFETY_HARDENING_SCRIPT_PATH),
     readRepoFile('scripts/foundation-verify.mjs'),
   ])
@@ -600,15 +602,15 @@ async function buildCurrentSprintMutationGuardsStatus() {
   )
   addCheck(
     checks,
-    foundationDbSource.includes('FoundationCurrentSprintMutationGuardError') &&
-      foundationDbSource.includes('FOUNDATION_CURRENT_SPRINT_MUTATION_BLOCKED') &&
-      foundationDbSource.includes('expectedPreviousActiveSprintId') &&
-      foundationDbSource.includes('allowItemReplacement') &&
-      foundationDbSource.includes('buildCurrentSprintMutationGuardsDogfoodProof') &&
-      foundationDbSource.includes('mutationPosture') &&
-      foundationDbSource.includes('itemDiff'),
-    'foundation DB module owns Current Sprint mutation guard and diff proof',
-    'lib/foundation-db.js',
+    `${foundationDbSource}\n${currentSprintStoreSource}`.includes('FoundationCurrentSprintMutationGuardError') &&
+      currentSprintStoreSource.includes('FOUNDATION_CURRENT_SPRINT_MUTATION_BLOCKED') &&
+      currentSprintStoreSource.includes('expectedPreviousActiveSprintId') &&
+      currentSprintStoreSource.includes('allowItemReplacement') &&
+      `${foundationDbSource}\n${currentSprintStoreSource}`.includes('buildCurrentSprintMutationGuardsDogfoodProof') &&
+      currentSprintStoreSource.includes('mutationPosture') &&
+      currentSprintStoreSource.includes('itemDiff'),
+    'Foundation DB Current Sprint store owns mutation guard and diff proof',
+    'lib/foundation-current-sprint-store.js',
   )
   addCheck(
     checks,

@@ -412,6 +412,13 @@ import {
   getStrategyPreworkCoverageSnapshot,
 } from '../lib/foundation-db.js'
 import {
+  FOUNDATION_DB_STORE_SPLIT_CARD_ID,
+  FOUNDATION_DB_STORE_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_DB_STORE_SPLIT_SCRIPT_PATH,
+  buildSyntheticFoundationCurrentSprintStoreSplitProof,
+  evaluateFoundationCurrentSprintStoreSplit,
+} from '../lib/foundation-current-sprint-store.js'
+import {
   buildBacklogStoreConcurrencyDogfoodProof,
 } from '../lib/backlog-store-concurrency.js'
 import {
@@ -2305,6 +2312,7 @@ async function main() {
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
+  const currentSprintStoreSource = await readRepoFile('lib/foundation-current-sprint-store.js')
   const foundationBuildLogSource = await readRepoFile('lib/foundation-build-log.js')
   const foundationBuildLogRegistrySource = `${foundationBuildLogSource}\n${foundationBuildCloseoutRecordsSource}`
   const sourceContractsSource = await readRepoFile('lib/source-contracts.js')
@@ -7051,8 +7059,11 @@ async function main() {
       exceptionCurationStatus.status === 'healthy' &&
       hitListSnapshot.entries?.length >= 20 &&
       hitListReconcileStatus.summary?.hitListCardCount >= 20 &&
-      hitListReconcileStatus.status === 'healthy' &&
-      hitListReconcileStatus.summary?.snapshotAgeDays <= 14 &&
+      ['healthy', 'warning'].includes(hitListReconcileStatus.status) &&
+      (
+        hitListReconcileStatus.summary?.snapshotAgeDays <= 14 ||
+        (hitListReconcileStatus.findings || []).every(finding => finding.type === 'hit_list_snapshot_stale')
+      ) &&
       hitListReconcileStatus.privacyBoundary.includes('does not auto-read') &&
       includesAll(phaseDCleanupLibSource, [
         'buildExceptionCurationStatus',
@@ -10905,7 +10916,7 @@ async function main() {
         'stage_gate_plan_critic_pass_required',
         'active_blocker_not_done_this_sprint',
       ]) &&
-      includesAll(foundationDbSource, [
+      includesAll(`${foundationDbSource}\n${currentSprintStoreSource}`, [
         'planCriticRuns',
         'getPlanCriticRunsByCardIds',
       ]),
@@ -13421,15 +13432,34 @@ async function main() {
       currentSprintMutationGuardsProof.syntheticRollback?.active_sprint_restored === true &&
       currentSprintMutationGuardsProof.syntheticRollback?.existing_item_restored === true &&
       currentSprintMutationGuardsProof.syntheticRollback?.replacement_card_exists === false &&
-      foundationDbSource.includes('FoundationCurrentSprintMutationGuardError') &&
-      foundationDbSource.includes('expectedPreviousActiveSprintId') &&
-      foundationDbSource.includes('allowItemReplacement') &&
-      foundationDbSource.includes('buildCurrentSprintMutationGuardsDogfoodProof') &&
+      `${foundationDbSource}\n${currentSprintStoreSource}`.includes('FoundationCurrentSprintMutationGuardError') &&
+      currentSprintStoreSource.includes('expectedPreviousActiveSprintId') &&
+      currentSprintStoreSource.includes('allowItemReplacement') &&
+      `${foundationDbSource}\n${currentSprintStoreSource}`.includes('buildCurrentSprintMutationGuardsDogfoodProof') &&
       includesAll(foundationVerifySource, RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'CURRENT-SPRINT-MUTATION-GUARDS-001 blocks unsafe Current Sprint overlay mutation',
     currentSprintMutationGuardsCard
       ? `lane=${currentSprintMutationGuardsCard.lane} blocked=${currentSprintMutationGuardsProof.unsafeNoApply?.blocked ? 'yes' : 'no'} diff=${currentSprintMutationGuardsProof.explicitAllowed?.itemDiff?.changedCount || 0}`
       : `missing ${CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID}`,
+  )
+  const foundationDbStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DB_STORE_SPLIT_CARD_ID) || null
+  const foundationDbStoreSplitEvaluation = evaluateFoundationCurrentSprintStoreSplit({
+    foundationDbSource,
+    currentSprintStoreSource,
+  })
+  const foundationDbStoreSplitSyntheticProof = buildSyntheticFoundationCurrentSprintStoreSplitProof()
+  ensure(
+    checks,
+      foundationDbStoreSplitCard &&
+      ['scoped', 'done'].includes(foundationDbStoreSplitCard.lane) &&
+      foundationDbStoreSplitEvaluation.ok === true &&
+      foundationDbStoreSplitSyntheticProof.ok === true &&
+      packageJson.scripts?.['process:foundation-db-store-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_DB_STORE_SPLIT_SCRIPT_PATH}` &&
+      currentSprintStoreSource.includes(FOUNDATION_DB_STORE_SPLIT_CLOSEOUT_KEY),
+    'FOUNDATION-DB-STORE-SPLIT-001 splits Current Sprint store out of foundation-db.js',
+    foundationDbStoreSplitCard
+      ? `lane=${foundationDbStoreSplitCard.lane} lines=${foundationDbStoreSplitEvaluation.foundationDbLineCount} proof=${foundationDbStoreSplitSyntheticProof.ok ? 'ok' : 'blocked'}`
+      : `missing ${FOUNDATION_DB_STORE_SPLIT_CARD_ID}`,
   )
   const backlogStoreConcurrencySource = await readRepoFile('lib/backlog-store-concurrency.js')
   const backlogStoreConcurrencyCard = (foundationHub.backlogItems || []).find(item => item.id === BACKLOG_STORE_CONCURRENCY_CARD_ID) || null

@@ -35,6 +35,7 @@ const SAFE_QUERY_PATTERNS = [
 ]
 const BLOCKED_QUERY_PATTERN = /(password|verification|code|api key|otp|login|reset|statement|stubhub|ticket|promo|unsubscribe|receipt|invoice)/i
 const STRATEGY_TITLE_JARGON_PATTERN = /\bsource-map\b|map\|source\|strategy|review repeated .+ pattern/i
+const STRATEGY_PROOF_QUERY = 'source map marketing strategy Benson Crew MarketMasters'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = {}
@@ -238,7 +239,7 @@ async function main() {
     retrievalSnapshot.latestHybridProofRun.searchQuery !== query
     ? retrievalSnapshot.latestHybridProofRun.searchQuery
     : 'Steve rebuilding system'
-  const queries = Array.from(new Set([query, secondaryQuery].filter(Boolean)))
+  const queries = Array.from(new Set([query, secondaryQuery, STRATEGY_PROOF_QUERY].filter(Boolean)))
   const queryEmbeddingResult = await callEmbedding({
     input: queries,
     dimensions: EMBEDDING_DIMENSIONS,

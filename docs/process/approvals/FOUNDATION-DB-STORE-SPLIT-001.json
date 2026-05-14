@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-STORE-SPLIT-001",
+  "approvedBy": "Steve approved Codex judgment-led next Foundation sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T17:47:33.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-db-store-split-001-plan.md",
+  "approvedPlanSha256": "153bd2a18c48271f8d9907a871051f8595dc17c8ed0592ecf2602165d66a6140",
+  "approvedRepoHead": "39f10ffd22b24f9a04057ebe20cf7e50ba010c48",
+  "notes": "Approved as the one-card Foundation DB Store Split Sprint. Scope: split the Current Sprint store/mutation guard seam out of lib/foundation-db.js, preserve public exports, and dogfood unsafe Current Sprint mutation failures. Not approved: hubs, Build Intel, paid auth, broad foundation-db rewrite, schema seed split, public/foundation.js, server.js, verifier split, or autonomous dev.",
+  "approvalDigest": "6ee4aff6853915bf1035c7b9e86d25b1747733258c8ffd240246597d87003d3e"
+}
