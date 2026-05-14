@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-HUB-FULL-ROUTE-SPLIT-001",
+  "approvedBy": "Steve said go for the Foundation full diagnostics performance sprint; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T23:10:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-hub-full-route-split-001-plan.md",
+  "approvedPlanSha256": "f60778ae4e6e991dd6c6597475a80b025d3de60577db814e5931d4868bb37ef9",
+  "approvedRepoHead": "878e59e5330c27922a6863f7b13221dd9fea4ec2",
+  "notes": "Split the full diagnostics Agent Feedback/source-outage route responsibility out of server.js. Dogfood proof required. Not approved: hub feature work, Build Intel extraction, paid-source auth, autonomous dev, broad monolith rewrite, MEETING-VAULT-ACL-001 Phase B, or Drive permission mutation.",
+  "approvalDigest": "15c91f4423a8a3cccb170f5aeef4fe91f84575a9938c6f35535237bc81ebf40b"
+}

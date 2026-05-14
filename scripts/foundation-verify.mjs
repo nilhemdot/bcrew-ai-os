@@ -131,6 +131,14 @@ import {
   buildSourceOutageBoundaryDogfoodProof,
 } from '../lib/source-outage-boundary.js'
 import {
+  FOUNDATION_FULL_DIAGNOSTICS_BUDGET,
+  FOUNDATION_FULL_DIAGNOSTICS_CLOSEOUT_KEY,
+  FOUNDATION_FULL_DIAGNOSTICS_PERF_CARD_ID,
+  FOUNDATION_FULL_DIAGNOSTICS_SCRIPT_PATH,
+  FOUNDATION_HUB_FULL_ROUTE_SPLIT_CARD_ID,
+  buildSyntheticFoundationFullDiagnosticsDogfoodProof,
+} from '../lib/foundation-hub-full-diagnostics.js'
+import {
   CONNECTOR_UPTIME_MONITOR_JOB_KEY,
   FOUNDATION_OPERATING_RELIABILITY_CARD_IDS,
   FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY,
@@ -960,6 +968,11 @@ const FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-PERFORMANCE-001',
 ]
 
+const FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  FOUNDATION_FULL_DIAGNOSTICS_PERF_CARD_ID,
+  FOUNDATION_HUB_FULL_ROUTE_SPLIT_CARD_ID,
+]
+
 const FOUNDATION_BUILD_LOG_MONOLITH_SLICE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'CLEANUP-003',
 ]
@@ -1719,6 +1732,8 @@ async function main() {
   const planCriticScriptSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH)
   const planCriticArchitecturalRulesScriptSource = await readRepoFile(PLAN_CRITIC_ARCHITECTURAL_RULES_SCRIPT_PATH)
   const foundationHubPerformanceSource = await readRepoFile('lib/foundation-hub-performance.js')
+  const foundationHubFullDiagnosticsSource = await readRepoFile('lib/foundation-hub-full-diagnostics.js')
+  const foundationHubFullDiagnosticsScriptSource = await readRepoFile(FOUNDATION_FULL_DIAGNOSTICS_SCRIPT_PATH)
   const foundationHubPerformanceVerificationSource = await readRepoFile('lib/foundation-hub-performance-verification.js')
   const recurringDeepAuditSource = await readRepoFile('lib/recurring-deep-audit.js')
   const foundationPerformanceScriptSource = await readRepoFile(FOUNDATION_PERFORMANCE_SCRIPT_PATH)
@@ -3958,6 +3973,23 @@ async function main() {
   const nonStaleExtractionStatuses = new Set(['succeeded', 'partial', 'leased', 'running'])
   const scheduledExtractionTargets = extractionTargets.filter(target => target.scheduler?.source === 'foundation_job')
   const slackCurrentDayTarget = extractionTargets.find(target => target.targetKey === 'slack-current-day')
+  const slackCurrentDayHasHealthyItemProof = Boolean(
+    slackCurrentDayTarget?.itemSummary &&
+      Number(slackCurrentDayTarget.itemSummary.totalItems || 0) > 0 &&
+      Number(slackCurrentDayTarget.itemSummary.failedItems || 0) === 0 &&
+      Number(slackCurrentDayTarget.itemSummary.staleLeasedItems || 0) === 0 &&
+      Number(slackCurrentDayTarget.itemSummary.retryExhaustedItems || 0) === 0,
+  )
+  const slackCurrentDayLatestRunStillActive = ['running', 'leased'].includes(
+    slackCurrentDayTarget?.scheduler?.latestRunStatus,
+  )
+  const slackCurrentDayStatusAcceptable =
+    nonStaleExtractionStatuses.has(slackCurrentDayTarget?.lastStatus) ||
+    (
+      slackCurrentDayLatestRunStillActive &&
+      slackCurrentDayHasHealthyItemProof &&
+      String(slackCurrentDayTarget?.lastError || '').includes('stale source-crawl run reaper')
+    )
   const missiveCurrentDayTarget = extractionTargets.find(target => target.targetKey === 'missive-current-day')
   const driveCorpusTarget = extractionTargets.find(target => target.targetKey === 'drive-corpus-backfill')
   const driveContentTarget = extractionTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
@@ -5991,11 +6023,9 @@ async function main() {
   )
   ensure(
     checks,
-    slackCurrentDayTarget?.itemSummary &&
-      Number(slackCurrentDayTarget.itemSummary.totalItems || 0) > 0 &&
+    slackCurrentDayHasHealthyItemProof &&
       Array.isArray(slackCurrentDayTarget.healthFindings) &&
-      nonStaleExtractionStatuses.has(slackCurrentDayTarget.lastStatus) &&
-      !String(slackCurrentDayTarget.lastError || '').includes('stale source-crawl run reaper'),
+      slackCurrentDayStatusAcceptable,
     'Slack current-day crawl has channel-level item proof after stale-run recovery',
     slackCurrentDayTarget?.itemSummary
       ? `${slackCurrentDayTarget.lastStatus || 'unknown'} / ${slackCurrentDayTarget.itemSummary.totalItems || 0} items / ${slackCurrentDayTarget.itemSummary.succeededItems || 0} succeeded / ${slackCurrentDayTarget.itemSummary.skippedItems || 0} skipped / ${slackCurrentDayTarget.itemSummary.failedItems || 0} failed`
@@ -13450,6 +13480,51 @@ async function main() {
     foundationPerformanceCard
       ? `lane=${foundationPerformanceCard.lane} dogfood=${foundationPerformanceProof.ok ? 'pass' : 'blocked'} summary=${foundationHubSummary.foundationHubPerformance?.payloadBytes || 'missing'}B closeout=${foundationPerformanceCloseout?.key || 'missing'}`
       : `missing ${FOUNDATION_PERFORMANCE_CARD_ID}`,
+  )
+  const foundationFullDiagnosticsPerfCards = FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const foundationFullDiagnosticsPerfCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_FULL_DIAGNOSTICS_CLOSEOUT_KEY) || null
+  const foundationFullDiagnosticsDogfood = await buildSyntheticFoundationFullDiagnosticsDogfoodProof()
+  ensure(
+    checks,
+      foundationFullDiagnosticsPerfCards.every(card =>
+        card &&
+        card.lane === 'done' &&
+        String(card.statusNote || '').includes(FOUNDATION_FULL_DIAGNOSTICS_CLOSEOUT_KEY)
+      ) &&
+      foundationFullDiagnosticsPerfCloseout?.operatorCloseout === true &&
+      FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.every(id =>
+        (foundationFullDiagnosticsPerfCloseout.backlogIds || []).includes(id)
+      ) &&
+      foundationFullDiagnosticsDogfood.ok === true &&
+      foundationFullDiagnosticsDogfood.boundary?.status === 'degraded' &&
+      packageJson.scripts?.['process:foundation-full-diagnostics-perf-check'] === `node --env-file-if-exists=.env ${FOUNDATION_FULL_DIAGNOSTICS_SCRIPT_PATH}` &&
+      await repoFileExists('docs/process/foundation-full-diagnostics-perf-001-plan.md') &&
+      await repoFileExists('docs/process/foundation-hub-full-route-split-001-plan.md') &&
+      await repoFileExists('docs/process/approvals/FOUNDATION-FULL-DIAGNOSTICS-PERF-001.json') &&
+      await repoFileExists('docs/process/approvals/FOUNDATION-HUB-FULL-ROUTE-SPLIT-001.json') &&
+      await repoFileExists('docs/handoffs/2026-05-14-foundation-full-diagnostics-perf-closeout.md') &&
+      foundationHubFullDiagnosticsSource.includes('withDiagnosticDeadline') &&
+      foundationHubFullDiagnosticsSource.includes('Promise.race') &&
+      foundationHubFullDiagnosticsSource.includes('runtime_diagnostic_timeout') &&
+      foundationHubFullDiagnosticsSource.includes('buildSyntheticFoundationFullDiagnosticsDogfoodProof') &&
+      foundationHubFullDiagnosticsScriptSource.includes('dogfood proof converts slow optional Agent Feedback panels into degraded source health') &&
+      clickupSource.includes('AbortController') &&
+      clickupSource.includes('CLICKUP_REQUEST_TIMEOUT_MS') &&
+      clickupSource.includes('maxPages') &&
+      agentFeedbackAutoSendSource.includes('mapWithConcurrency') &&
+      agentFeedbackAutoSendSource.includes('getRosterSnapshot = getClickUpListSnapshotSafe') &&
+      agentFeedbackReminderSource.includes('getRosterSnapshot = getClickUpListSnapshotSafe') &&
+      serverSource.includes('buildFoundationHubAgentFeedbackDiagnostics') &&
+      serverSource.includes('foundationHubFullDiagnostics') &&
+      foundationHubFull.foundationHubFullDiagnostics?.boundedSourceHealth === true &&
+      foundationHubFull.sourceOutageBoundary?.summary?.fullDiagnosticsBounded === true &&
+      Number(foundationHubFull.foundationHubPerformance?.durationMs || 0) <= FOUNDATION_FULL_DIAGNOSTICS_BUDGET.maxSeconds * 1000 &&
+      Number(foundationHubFull.foundationHubPerformance?.payloadBytes || 0) <= FOUNDATION_FULL_DIAGNOSTICS_BUDGET.maxBytes &&
+      foundationBuildCloseoutCleanupRecordsSource.includes(FOUNDATION_FULL_DIAGNOSTICS_CLOSEOUT_KEY) &&
+      includesAll(foundationVerifySource, FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'Foundation full diagnostics route bounds slow Agent Feedback panels and keeps the route modular',
+    `cards=${foundationFullDiagnosticsPerfCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} route=${foundationHubFull.foundationHubPerformance?.durationMs || 'missing'}ms/${foundationHubFull.foundationHubPerformance?.payloadBytes || 'missing'}B dogfood=${foundationFullDiagnosticsDogfood.ok ? 'pass' : 'blocked'}`,
   )
   const foundationBuildLogMonolithSliceCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) || null
   const foundationBuildLogValidation = getFoundationBuildCloseoutValidation()

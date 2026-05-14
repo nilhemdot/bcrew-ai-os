@@ -145,6 +145,10 @@ import {
   buildFoundationHubSummaryInfo,
   normalizeFoundationHubMode,
 } from './lib/foundation-hub-performance.js'
+import {
+  buildFoundationHubAgentFeedbackDiagnostics,
+  buildFoundationHubSourceOutageBoundary,
+} from './lib/foundation-hub-full-diagnostics.js'
 import { buildBacklogHygieneSnapshot } from './lib/backlog-hygiene.js'
 import {
   classifyDocInventoryPath,
@@ -5292,44 +5296,20 @@ app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
     sourceLifecycle.sourceExtractionCoverage = sourceExtractionCoverage
     sourceLifecycle.sourceConnectorMatrix = sourceConnectorMatrix
     sourceLifecycle.sourceHubRoutingMatrix = sourceHubRoutingMatrix
-    const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
+    const {
+      agentFeedbackAutoSend,
+      agentFeedbackProductionAutoSendDryRun,
+      agentFeedbackReminders,
+      diagnostics: foundationHubFullDiagnostics,
+    } = await buildFoundationHubAgentFeedbackDiagnostics({
       repoRoot: __dirname,
-      includeCandidates: false,
       foundationJobs: snapshot.foundationJobs,
     })
-    const agentFeedbackProductionAutoSendDryRun = await buildAgentFeedbackProductionAutoSendDryRunReport({
-      includeCandidates: false,
+    const sourceOutageBoundary = buildFoundationHubSourceOutageBoundary({
+      agentFeedbackAutoSend,
+      agentFeedbackProductionAutoSendDryRun,
+      agentFeedbackReminders,
     })
-    const agentFeedbackReminders = await buildAgentFeedbackReminderReadiness({
-      repoRoot: __dirname,
-      includeCandidates: false,
-      foundationJobs: snapshot.foundationJobs,
-    })
-    const degradedClickUpSurfaces = [
-      agentFeedbackAutoSend?.sourceHealth,
-      agentFeedbackAutoSend?.report?.sourceHealth,
-      agentFeedbackProductionAutoSendDryRun?.sourceHealth,
-      agentFeedbackReminders?.sourceHealth,
-      agentFeedbackReminders?.report?.sourceHealth,
-    ].filter(item => item?.status === 'degraded')
-    const sourceOutageBoundary = {
-      status: degradedClickUpSurfaces.length ? 'degraded' : 'healthy',
-      generatedAt: new Date().toISOString(),
-      providers: {
-        clickup: degradedClickUpSurfaces[0] || {
-          provider: 'clickup',
-          sourceId: 'SRC-CLICKUP-001',
-          connectorId: 'CONN-CLICKUP-001',
-          status: 'healthy',
-          reason: 'ok',
-        },
-      },
-      summary: {
-        degradedProviderCount: degradedClickUpSurfaces.length ? 1 : 0,
-        foundationApisFailSoft: true,
-        externalOutageBlocksCoreApi: false,
-      },
-    }
     const [
       latestMeetingVaultAutoEnforcementRun,
       meetingVaultLegacyExceptions,
@@ -5484,6 +5464,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
       buildIntelExtraction,
       gstackBuildIntel,
       foundationOperatingReliability,
+      foundationHubFullDiagnostics,
       foundationUiComplete,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),
@@ -5619,26 +5600,23 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
   try {
     const snapshot = await getFoundationSnapshot()
     const foundationJobs = snapshot.foundationJobs || {}
-    const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({
+    const {
+      agentFeedbackAutoSend,
+      agentFeedbackProductionAutoSendDryRun,
+      agentFeedbackReminders,
+    } = await buildFoundationHubAgentFeedbackDiagnostics({
       repoRoot: __dirname,
-      includeCandidates: false,
       foundationJobs,
     })
-    const agentFeedbackProductionAutoSendDryRun = await buildAgentFeedbackProductionAutoSendDryRunReport({
-      includeCandidates: false,
+    const sourceOutageBoundary = buildFoundationHubSourceOutageBoundary({
+      agentFeedbackAutoSend,
+      agentFeedbackProductionAutoSendDryRun,
+      agentFeedbackReminders,
     })
-    const agentFeedbackReminders = await buildAgentFeedbackReminderReadiness({
-      repoRoot: __dirname,
-      includeCandidates: false,
-      foundationJobs,
-    })
-    const degradedClickUpSurfaces = [
-      agentFeedbackAutoSend?.sourceHealth,
-      agentFeedbackAutoSend?.report?.sourceHealth,
-      agentFeedbackProductionAutoSendDryRun?.sourceHealth,
-      agentFeedbackReminders?.sourceHealth,
-      agentFeedbackReminders?.report?.sourceHealth,
-    ].filter(item => item?.status === 'degraded')
+    sourceOutageBoundary.summary = {
+      ...(sourceOutageBoundary.summary || {}),
+      opsApiFailSoft: true,
+    }
     const jobs = Array.isArray(foundationJobs.jobs)
       ? foundationJobs.jobs.filter(job => Array.isArray(job.servesHubs) && job.servesHubs.includes('ops'))
       : []
@@ -5661,23 +5639,7 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
       agentFeedbackAutoSend,
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,
-      sourceOutageBoundary: {
-        status: degradedClickUpSurfaces.length ? 'degraded' : 'healthy',
-        providers: {
-          clickup: degradedClickUpSurfaces[0] || {
-            provider: 'clickup',
-            sourceId: 'SRC-CLICKUP-001',
-            connectorId: 'CONN-CLICKUP-001',
-            status: 'healthy',
-            reason: 'ok',
-          },
-        },
-        summary: {
-          degradedProviderCount: degradedClickUpSurfaces.length ? 1 : 0,
-          opsApiFailSoft: true,
-          externalOutageBlocksCoreApi: false,
-        },
-      },
+      sourceOutageBoundary,
       meta: {
         generatedAt: snapshot.meta?.generatedAt || new Date().toISOString(),
         surface: 'ops',

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-FULL-DIAGNOSTICS-PERF-001",
+  "approvedBy": "Steve said go for the Foundation full diagnostics performance sprint; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T23:10:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-full-diagnostics-perf-001-plan.md",
+  "approvedPlanSha256": "1dfb15fdd6d2c8758e32fea47ae5a031987f4bb58dae05beae94ae7585e0acef",
+  "approvedRepoHead": "878e59e5330c27922a6863f7b13221dd9fea4ec2",
+  "notes": "Optimize full Foundation Hub diagnostics by bounding optional Agent Feedback / ClickUp panels. Dogfood proof required. Not approved: hub feature work, Build Intel extraction, paid-source auth, autonomous dev, broad monolith rewrite, MEETING-VAULT-ACL-001 Phase B, or Drive permission mutation.",
+  "approvalDigest": "18ce62307575df5d06a4ffcfe94b1536a0088d3de7d72ba494b68de5fdfbb284"
+}
