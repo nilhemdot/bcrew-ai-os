@@ -642,30 +642,58 @@ function getActionPlanCopy(listing) {
   return 'No safe KPI Shopping List match. Confirm whether the agent has a Shopping List row for this listing, then create or collect the plan.'
 }
 
-function saveLeaderAssignment(taskId, leaderKey, select) {
+function getSalesLeaderName(leaderKey) {
+  var report = currentSalesHubPayload && currentSalesHubPayload.listingInventory
+  var match = (report?.salesLeaders || []).find(function(leader) {
+    return leader.key === leaderKey
+  })
+  return match ? match.name : ''
+}
+
+function finishSalesSave(control, message) {
+  if (control) control.disabled = false
+  setSalesStatus(message + ' Cards stayed open. Use Refresh from ClickUp when you need source changes.', 'success')
+}
+
+function applyCaseUpdates(target, updates) {
+  if (!target || !updates) return
+  var assignment = target.salesLeaderAssignment || target
+  if (Object.prototype.hasOwnProperty.call(updates, 'assignedLeaderKey')) {
+    assignment.assignedLeaderKey = updates.assignedLeaderKey || ''
+    assignment.assignedLeaderName = getSalesLeaderName(updates.assignedLeaderKey) || ''
+  }
+  ;['caseStatus', 'outcomeStatus', 'actionPlanState', 'actionPlanNoReason', 'actionPlanText'].forEach(function(key) {
+    if (Object.prototype.hasOwnProperty.call(updates, key)) assignment[key] = updates[key] || ''
+  })
+}
+
+function saveLeaderAssignment(listing, leaderKey, select) {
+  var taskId = listing && listing.taskId
   if (select) select.disabled = true
   setSalesStatus('Saving assignment...', 'info')
   postJson('/api/sales-hub/listing-assignment', {
     taskId: taskId,
     assignedLeaderKey: leaderKey,
   }).then(function() {
-    setSalesStatus('Saved. Refreshing GLS data...', 'success')
-    load()
+    applyCaseUpdates(listing, { assignedLeaderKey: leaderKey })
+    finishSalesSave(select, 'Saved assignment.')
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'Sales leader assignment could not be saved.', 'error')
     if (select) select.disabled = false
   })
 }
 
-function saveGroupAssignment(agentName, leaderKey, select) {
+function saveGroupAssignment(group, leaderKey, select) {
   if (select) select.disabled = true
   setSalesStatus('Saving group assignment...', 'info')
   postJson('/api/sales-hub/group-assignment', {
-    agentName: agentName,
+    agentName: group.agent,
     assignedLeaderKey: leaderKey,
   }).then(function(response) {
-    setSalesStatus('Saved ' + formatNumber(response.updatedCount || 0) + ' listings. Refreshing GLS data...', 'success')
-    load()
+    ;(group.listings || []).forEach(function(listing) {
+      applyCaseUpdates(listing, { assignedLeaderKey: leaderKey })
+    })
+    finishSalesSave(select, 'Saved ' + formatNumber(response.updatedCount || 0) + ' listings.')
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'Sales leader group assignment could not be saved.', 'error')
     if (select) select.disabled = false
@@ -684,8 +712,11 @@ function saveProjectUpdate(project, updates, control) {
     actionPlanNoReason: project.actionPlanNoReason || '',
     actionPlanText: project.actionPlanText || '',
   }, updates || {})).then(function(response) {
-    setSalesStatus('Saved project case to ' + formatNumber(response.updatedCount || 0) + ' listings. Refreshing GLS data...', 'success')
-    load()
+    applyCaseUpdates(project, updates || {})
+    ;(project.listings || []).forEach(function(listing) {
+      applyCaseUpdates(listing, updates || {})
+    })
+    finishSalesSave(control, 'Saved project case to ' + formatNumber(response.updatedCount || 0) + ' listings.')
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'GLS project update could not be saved.', 'error')
     if (control) control.disabled = false
@@ -704,8 +735,8 @@ function saveCaseUpdate(listing, updates, control) {
     actionPlanNoReason: listing.salesLeaderAssignment?.actionPlanNoReason || listing.actionPlanNoReason || '',
     actionPlanText: listing.salesLeaderAssignment?.actionPlanText || listing.actionPlanText || '',
   }, updates || {})).then(function() {
-    setSalesStatus('Saved listing case. Refreshing GLS data...', 'success')
-    load()
+    applyCaseUpdates(listing, updates || {})
+    finishSalesSave(control, 'Saved listing case.')
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'Sales listing case could not be updated.', 'error')
     if (control) control.disabled = false
@@ -801,7 +832,7 @@ function renderLeaderAssignment(listing, leaders) {
   var wrap = el('div', 'sales-leader-assignment')
   var label = el('label', null, 'Sales leader')
   var select = renderLeaderSelect(listing.salesLeaderAssignment?.assignedLeaderKey || '', leaders, function(_value, select) {
-    saveLeaderAssignment(listing.taskId, select.value, select)
+    saveLeaderAssignment(listing, select.value, select)
   }, 'Assign sales leader for ' + listing.title)
   label.appendChild(select)
   wrap.appendChild(label)
@@ -940,7 +971,7 @@ function renderAgentGroup(group, report) {
   summary.appendChild(left)
   var right = el('div', 'sales-agent-actions')
   right.appendChild(renderLeaderSelect('', report.salesLeaders || [], function(value, select) {
-    saveGroupAssignment(group.agent, value, select)
+    saveGroupAssignment(group, value, select)
   }, 'Assign all stale listings for ' + group.agent))
   summary.appendChild(right)
   details.appendChild(summary)
