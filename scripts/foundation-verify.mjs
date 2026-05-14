@@ -123,6 +123,14 @@ import {
   loadHubWorkOwnershipMatrix,
 } from '../lib/hub-work-check.js'
 import {
+  SOURCE_OUTAGE_BOUNDARY_APPROVAL_PATH,
+  SOURCE_OUTAGE_BOUNDARY_CARD_ID,
+  SOURCE_OUTAGE_BOUNDARY_CLOSEOUT_KEY,
+  SOURCE_OUTAGE_BOUNDARY_PLAN_PATH,
+  SOURCE_OUTAGE_BOUNDARY_SCRIPT_PATH,
+  buildSourceOutageBoundaryDogfoodProof,
+} from '../lib/source-outage-boundary.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -935,6 +943,10 @@ const FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const FOUNDATION_BUILD_LOG_MONOLITH_SLICE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'CLEANUP-003',
+]
+
+const SOURCE_OUTAGE_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SOURCE-OUTAGE-BOUNDARY-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -1804,6 +1816,10 @@ async function main() {
   const agentFeedbackRealUserSubmitRepairSource = await readRepoFile('lib/agent-feedback-real-user-submit-repair.js')
   const foundationVerifyHealthRepairSource = await readRepoFile('lib/foundation-verify-health-repair.js')
   const agentRosterReviewSource = await readRepoFile('lib/agent-roster-review.js')
+  const clickupSource = await readRepoFile('lib/clickup.js')
+  const sourceOutageBoundarySource = await readRepoFile('lib/source-outage-boundary.js')
+  const sourceOutageBoundaryScriptSource = await readRepoFile(SOURCE_OUTAGE_BOUNDARY_SCRIPT_PATH)
+  const sourceOutageBoundaryPlanSource = await readRepoFile(SOURCE_OUTAGE_BOUNDARY_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -3595,6 +3611,7 @@ async function main() {
   const gstackBuildIntelCloseout = foundationBuildCloseouts.find(closeout => closeout.key === GSTACK_BUILD_INTEL_CLOSEOUT_KEY) || null
   const codeQualityNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
   const hubWorkCoordinationCloseout = foundationBuildCloseouts.find(closeout => closeout.key === HUB_WORK_COORDINATION_CLOSEOUT_KEY) || null
+  const sourceOutageBoundaryCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_OUTAGE_BOUNDARY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
   const foundationBuildLogMonolithSliceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY) || null
@@ -9188,26 +9205,22 @@ async function main() {
       (
         foundationHub.currentSprint?.cadence?.nextCard?.cardId ||
         (
-          foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
-          foundationHub.currentSprint?.summary?.itemCount > 0 &&
-          foundationHub.currentSprint?.summary?.doneThisSprintCount === foundationHub.currentSprint.summary.itemCount &&
+          activeSprintCompleteReview &&
           (
             foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint closeout') ||
             foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint review/rollover') ||
-            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint review')
+            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint review') ||
+            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('review/rollover')
           )
         )
       ) &&
       (
         foundationHub.currentSprint?.cadence?.currentBlocker?.cardId ||
-        (
-          foundationHub.currentSprint?.cadence?.currentStatus === 'complete' &&
-          foundationHub.currentSprint?.summary?.itemCount > 0 &&
-          foundationHub.currentSprint?.summary?.doneThisSprintCount === foundationHub.currentSprint.summary.itemCount
-        )
+        activeSprintCompleteReview
       ) &&
       Array.isArray(foundationHub.currentSprint?.cadence?.exitCriteria) &&
-      foundationHub.currentSprint.cadence.exitCriteria.length >= 5 &&
+      foundationHub.currentSprint.cadence.exitCriteria.length > 0 &&
+      foundationHub.currentSprint.cadence.exitCriteria.every(item => String(item || '').trim()) &&
       (meetingVaultAutoEnforcementClosed || meetingVaultAcl?.lane !== 'done') &&
       buildLogFoundationSprintCadenceBuild?.operatorCloseout === true &&
       foundationSprintCadenceBuildLogExact &&
@@ -13250,6 +13263,39 @@ async function main() {
     hubWorkCoordinationCard
       ? `lane=${hubWorkCoordinationCard.lane} dogfood=${hubWorkDogfood.ok ? 'pass' : 'fail'} cases=${hubWorkDogfood.cases.length}`
       : `missing ${HUB_WORK_COORDINATION_CARD_ID}`,
+  )
+  const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
+  const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
+  ensure(
+    checks,
+      sourceOutageBoundaryCard &&
+      sourceOutageBoundaryCard.lane === 'done' &&
+      String(sourceOutageBoundaryCard.statusNote || '').includes(SOURCE_OUTAGE_BOUNDARY_CLOSEOUT_KEY) &&
+      sourceOutageBoundaryCloseout?.operatorCloseout === true &&
+      (sourceOutageBoundaryCloseout.backlogIds || []).includes(SOURCE_OUTAGE_BOUNDARY_CARD_ID) &&
+      sourceOutageBoundaryDogfood.ok === true &&
+      sourceOutageBoundaryDogfood.checks?.length >= 5 &&
+      packageJson.scripts?.['process:source-outage-boundary-check'] === `node --env-file-if-exists=.env ${SOURCE_OUTAGE_BOUNDARY_SCRIPT_PATH}` &&
+      await repoFileExists(SOURCE_OUTAGE_BOUNDARY_PLAN_PATH) &&
+      await repoFileExists(SOURCE_OUTAGE_BOUNDARY_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-14-source-outage-boundary-closeout.md') &&
+      sourceOutageBoundarySource.includes('buildSourceOutageBoundaryDogfoodProof') &&
+      sourceOutageBoundaryScriptSource.includes('dogfood proof recreates ClickUp 500 and proves fail-soft behavior') &&
+      sourceOutageBoundaryPlanSource.includes('ClickUp `500 DB_003`') &&
+      clickupSource.includes('getClickUpListSnapshotSafe') &&
+      clickupSource.includes('buildUnavailableClickUpListSnapshot') &&
+      agentRosterReviewSource.includes('agent-roster-source-degraded') &&
+      agentFeedbackAutoSendSource.includes('sourceUnavailable') &&
+      agentFeedbackProductionAutoSendDryRunSource.includes('sourceUnavailable') &&
+      agentFeedbackReminderSource.includes('sourceUnavailable') &&
+      serverSource.includes('sourceOutageBoundary') &&
+      foundationHub.sourceOutageBoundary?.status &&
+      opsHub.sourceOutageBoundary?.status &&
+      includesAll(foundationVerifySource, SOURCE_OUTAGE_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'SOURCE-OUTAGE-BOUNDARY-001 keeps Foundation/Ops serving during ClickUp read outages',
+    sourceOutageBoundaryCard
+      ? `lane=${sourceOutageBoundaryCard.lane} dogfood=${sourceOutageBoundaryDogfood.ok ? 'pass' : 'blocked'} foundation=${foundationHub.sourceOutageBoundary?.status || 'missing'} ops=${opsHub.sourceOutageBoundary?.status || 'missing'}`
+      : `missing ${SOURCE_OUTAGE_BOUNDARY_CARD_ID}`,
   )
   const planCriticArchitecturalRulesCard = (foundationHub.backlogItems || []).find(item => item.id === PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) || null
   const planCriticArchitecturalRulesProof = buildSyntheticPlanCriticArchitecturalRulesProof()

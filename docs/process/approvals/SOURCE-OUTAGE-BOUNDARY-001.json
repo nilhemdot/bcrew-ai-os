@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-OUTAGE-BOUNDARY-001",
+  "approvedBy": "Steve approved recovery work in chat; Codex Plan Critic scored pass",
+  "approvedAt": "2026-05-14T20:36:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-outage-boundary-001-plan.md",
+  "approvedPlanSha256": "b4d7ca256d2f578d951db34b7da6de702ff1567c5789160026a040a7453c0500",
+  "approvedRepoHead": "94e511719f0601c761488de7ea227d3febad1e80",
+  "notes": "Approved as a one-card recovery sprint. Scope: ClickUp read outage fail-soft handling for Foundation/Ops APIs, source-health metadata, dogfood proof for ClickUp 500 DB_003, and no write-path weakening. Not approved: ClickUp mutation, hub features, paid auth, autonomous repair, or broad refactor.",
+  "approvalDigest": "2f9a95a7b765386d608f62767f06303cc9b07d02bb4f5cf43bf68b38c18ffbbc"
+}

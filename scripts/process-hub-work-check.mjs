@@ -97,6 +97,8 @@ async function main() {
 
   const knownCardIds = (snapshot.backlogItems || []).map(item => item.id)
   addCheck(checks, knownCardIds.includes(HUB_WORK_COORDINATION_CARD_ID), 'HUB-001 exists in live backlog', String(knownCardIds.includes(HUB_WORK_COORDINATION_CARD_ID)))
+  const hubCard = (snapshot.backlogItems || []).find(item => item.id === HUB_WORK_COORDINATION_CARD_ID) || null
+  const hubCloseout = getFoundationBuildCloseouts().find(record => record.key === HUB_WORK_COORDINATION_CLOSEOUT_KEY) || null
 
   const activeItem = (activeSprint.items || []).find(item => item.cardId === HUB_WORK_COORDINATION_CARD_ID)
   const currentSprintStatus = buildFoundationCurrentSprintStatus({
@@ -109,10 +111,10 @@ async function main() {
   const activeExitCriteria = Array.isArray(activeSprint.sprint?.metadata?.exitCriteria)
     ? activeSprint.sprint.metadata.exitCriteria
     : []
-  addCheck(checks, activeSprint.sprint?.sprintId === HUB_WORK_COORDINATION_SPRINT_ID || activeItem?.stage === 'done_this_sprint', 'Current Sprint is the hub coordination sprint or closed with HUB-001', activeSprint.sprint?.sprintId || 'missing sprint')
+  addCheck(checks, activeSprint.sprint?.sprintId === HUB_WORK_COORDINATION_SPRINT_ID || activeItem?.stage === 'done_this_sprint' || (hubCard?.lane === 'done' && Boolean(hubCloseout)), 'Current Sprint is the hub coordination sprint or HUB-001 is closed in backlog/build log', activeSprint.sprint?.sprintId || hubCard?.lane || 'missing sprint')
   addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint status is healthy', currentSprintStatus.findings?.map(item => item.check).join(', ') || currentSprintStatus.status)
   addCheck(checks, activeExitCriteria.length >= 3, 'HUB-001 sprint exit criteria are explicit', String(activeExitCriteria.length))
-  addCheck(checks, Boolean(activeItem?.planRef && activeItem?.definitionOfDone && (activeItem?.proofCommands || []).length), 'HUB-001 sprint doctrine is populated', activeItem?.planRef || 'missing active item doctrine')
+  addCheck(checks, Boolean(activeItem?.planRef && activeItem?.definitionOfDone && (activeItem?.proofCommands || []).length) || (hubCard?.lane === 'done' && Boolean(hubCloseout)), 'HUB-001 sprint doctrine is populated or closed with build-log proof', activeItem?.planRef || hubCloseout?.key || 'missing active item doctrine')
   addCheck(checks, approval.ok === true, 'HUB-001 approval file is valid', approval.failures?.map(item => item.check).join(', ') || HUB_WORK_COORDINATION_APPROVAL_PATH)
   addCheck(checks, planCriticRuns.some(run => run.cardId === HUB_WORK_COORDINATION_CARD_ID && run.status === 'pass' && Number(run.score) >= 9.8), 'HUB-001 has durable Plan Critic pass row', String(planCriticRuns.length))
 

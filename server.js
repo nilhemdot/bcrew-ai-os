@@ -239,7 +239,7 @@ import {
 } from './lib/sales-listing-assignments.js'
 import { syncSalesListingCasesFromInventory } from './lib/sales-listing-cases.js'
 import { buildSalesHubCaseMetadata } from './lib/sales-hub-case-metadata.js'
-import { getClickUpListSnapshot } from './lib/clickup.js'
+import { getClickUpListSnapshotSafe } from './lib/clickup.js'
 import {
   authenticateAuthUser,
   clearAuthCookie,
@@ -4860,7 +4860,7 @@ app.get('/api/owners/review-queue', requireAdminToken, async (_req, res) => {
       getFubLeadSourceSnapshot('owner'),
       listFubLeadSourceRules(),
       getSheetValues(FOUNDATION_GOOGLE_USER, OWNERS_SHEET_ID, OWNERS_LEAD_SOURCE_LIST_RANGE),
-      getClickUpListSnapshot(CLICKUP_AGENT_ROSTER_LIST_ID),
+      getClickUpListSnapshotSafe(CLICKUP_AGENT_ROSTER_LIST_ID, { listName: 'Agent Roster' }),
     ])
 
     const admin = buildAdminReviewQueue(adminResponse.values || [])
@@ -5302,6 +5302,31 @@ app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
       includeCandidates: false,
       foundationJobs: snapshot.foundationJobs,
     })
+    const degradedClickUpSurfaces = [
+      agentFeedbackAutoSend?.sourceHealth,
+      agentFeedbackAutoSend?.report?.sourceHealth,
+      agentFeedbackProductionAutoSendDryRun?.sourceHealth,
+      agentFeedbackReminders?.sourceHealth,
+      agentFeedbackReminders?.report?.sourceHealth,
+    ].filter(item => item?.status === 'degraded')
+    const sourceOutageBoundary = {
+      status: degradedClickUpSurfaces.length ? 'degraded' : 'healthy',
+      generatedAt: new Date().toISOString(),
+      providers: {
+        clickup: degradedClickUpSurfaces[0] || {
+          provider: 'clickup',
+          sourceId: 'SRC-CLICKUP-001',
+          connectorId: 'CONN-CLICKUP-001',
+          status: 'healthy',
+          reason: 'ok',
+        },
+      },
+      summary: {
+        degradedProviderCount: degradedClickUpSurfaces.length ? 1 : 0,
+        foundationApisFailSoft: true,
+        externalOutageBlocksCoreApi: false,
+      },
+    }
     const [
       latestMeetingVaultAutoEnforcementRun,
       meetingVaultLegacyExceptions,
@@ -5429,6 +5454,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
       agentFeedbackAutoSend,
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,
+      sourceOutageBoundary,
       meetingVaultAutoEnforcement,
       runtimeProcessControl,
       currentSprint,
@@ -5594,6 +5620,13 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
       includeCandidates: false,
       foundationJobs,
     })
+    const degradedClickUpSurfaces = [
+      agentFeedbackAutoSend?.sourceHealth,
+      agentFeedbackAutoSend?.report?.sourceHealth,
+      agentFeedbackProductionAutoSendDryRun?.sourceHealth,
+      agentFeedbackReminders?.sourceHealth,
+      agentFeedbackReminders?.report?.sourceHealth,
+    ].filter(item => item?.status === 'degraded')
     const jobs = Array.isArray(foundationJobs.jobs)
       ? foundationJobs.jobs.filter(job => Array.isArray(job.servesHubs) && job.servesHubs.includes('ops'))
       : []
@@ -5616,6 +5649,23 @@ app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
       agentFeedbackAutoSend,
       agentFeedbackProductionAutoSendDryRun,
       agentFeedbackReminders,
+      sourceOutageBoundary: {
+        status: degradedClickUpSurfaces.length ? 'degraded' : 'healthy',
+        providers: {
+          clickup: degradedClickUpSurfaces[0] || {
+            provider: 'clickup',
+            sourceId: 'SRC-CLICKUP-001',
+            connectorId: 'CONN-CLICKUP-001',
+            status: 'healthy',
+            reason: 'ok',
+          },
+        },
+        summary: {
+          degradedProviderCount: degradedClickUpSurfaces.length ? 1 : 0,
+          opsApiFailSoft: true,
+          externalOutageBlocksCoreApi: false,
+        },
+      },
       meta: {
         generatedAt: snapshot.meta?.generatedAt || new Date().toISOString(),
         surface: 'ops',
