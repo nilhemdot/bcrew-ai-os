@@ -155,6 +155,7 @@ async function main() {
     currentStateText,
     sprintText,
     buildLogText,
+    buildCloseoutRecordsText,
     hookText,
     packageText,
   ] = await Promise.all([
@@ -163,6 +164,7 @@ async function main() {
     readRepoFile(repoRoot, 'docs/rebuild/current-state.md'),
     readRepoFile(repoRoot, 'lib/foundation-current-sprint.js'),
     readRepoFile(repoRoot, 'lib/foundation-build-log.js'),
+    readRepoFile(repoRoot, 'lib/foundation-build-closeout-records.js'),
     readRepoFile(repoRoot, 'lib/process-git-hooks.js'),
     readRepoFile(repoRoot, 'package.json'),
   ])
@@ -200,8 +202,8 @@ async function main() {
     ],
   })
   assertIncludes({
-    filePath: 'lib/foundation-build-log.js',
-    text: buildLogText,
+    filePath: 'lib/foundation-build-closeout-records.js',
+    text: buildCloseoutRecordsText,
     needles: [
       'verify-gate-tiering-v1',
       VERIFY_GATE_TIERING_CARD_ID,
@@ -249,6 +251,7 @@ async function main() {
     runNodeCheck(repoRoot, VERIFY_GATE_TIERING_SCRIPT_PATH),
     runNodeCheck(repoRoot, 'lib/foundation-current-sprint.js'),
     runNodeCheck(repoRoot, 'lib/foundation-build-log.js'),
+    runNodeCheck(repoRoot, 'lib/foundation-build-closeout-records.js'),
   ])
   await runBacklogHygiene(repoRoot)
 
