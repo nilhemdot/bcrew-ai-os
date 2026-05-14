@@ -138,6 +138,9 @@ import {
   buildGStackBuildIntelSnapshot,
 } from './lib/gstack-build-intel.js'
 import {
+  buildFoundationOperatingReliabilitySnapshot,
+} from './lib/connector-uptime-monitor.js'
+import {
   attachFoundationHubPerformanceMetadata,
   buildFoundationHubSummaryInfo,
   normalizeFoundationHubMode,
@@ -5416,6 +5419,14 @@ app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
       currentSprint: activeFoundationSprint,
     })
     const gstackBuildIntel = await buildGStackBuildIntelSnapshot({ allowMissingRepo: true })
+    const foundationOperatingReliability = buildFoundationOperatingReliabilitySnapshot({
+      sourceContracts: getSourceContracts(),
+      sourceConnectors: getSourceConnectors(),
+      foundationJobs: snapshot.foundationJobs,
+      currentSprintStatus: currentSprint,
+      backlogItems: snapshot.backlogItems || [],
+      closeouts: getFoundationBuildCloseouts(),
+    })
     sourceLifecycle.marketingSourceMap = marketingSourceMap
     sourceLifecycle.brandStack = brandStack
     sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
@@ -5472,6 +5483,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
       implementationIntelligence,
       buildIntelExtraction,
       gstackBuildIntel,
+      foundationOperatingReliability,
       foundationUiComplete,
       runtimeSupervisor: {
         servedCode: getDashboardRuntimeMetadata(),

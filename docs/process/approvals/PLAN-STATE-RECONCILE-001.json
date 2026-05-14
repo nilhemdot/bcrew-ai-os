@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PLAN-STATE-RECONCILE-001",
+  "approvedBy": "Steve approved the Foundation Operating Reliability Sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T21:00:45.130Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/plan-state-reconcile-001-plan.md",
+  "approvedPlanSha256": "75297b7252ccc589424ac39dfb4fd370280c327a66d4924d055702d9f38ff1db",
+  "approvedRepoHead": "deffbf044fa55e7ff9b75f865c7d819ef09e64dd",
+  "notes": "Approved as part of the Foundation Operating Reliability Sprint. Scope: source health, connector uptime, runtime activation, morning health surface, and plan/state reconcile. Not approved: hub feature work, Build Intel extraction, paid-source auth, autonomous dev, or broad monolith refactor.",
+  "approvalDigest": "26e2e7e2ec1b2da17521e67dd8e836fc577db6ef46f4648d007e321ac6d4730a"
+}

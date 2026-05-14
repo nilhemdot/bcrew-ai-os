@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-13
-Version: v6.35 — Code Quality Nightly Audit closed
+Last updated: 2026-05-14
+Version: v6.36 — Foundation Operating Reliability closed
 Status: Active
 
 Use this doc for one question:
@@ -73,23 +73,25 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Code Quality Nightly Audit
+## Current Sprint: Foundation Operating Reliability
 
-Live sprint ID: `foundation-code-quality-nightly-audit-2026-05-13`.
+Live sprint ID: `foundation-operating-reliability-2026-05-14`.
 
-This is read-only/report-first Foundation work. It exists because getting code tight and system tight needs to become a recurring operating loop, but the loop must not fix code, mutate backlog, open sprints, schedule itself, or turn into autonomous dev. Current Sprint API owns the live stage truth; this doc records the closeout doctrine and sequence.
+This sprint is closed under `foundation-operating-reliability-v1`. It added the missing operating reliability layer Steve expected: connector uptime, connector failure redaction/classification, runtime activation, and a report-only morning health surface. Current Sprint API owns the live stage truth; this doc records the closeout doctrine and sequence.
 
-The audit sprint order:
+The sprint order:
 
-1. `CODEBASE-HARDCODE-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; deterministic detectors now report hardcoded live-truth and dated-baseline risk without applying fixes.
-2. `FOUNDATION-API-PERF-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; the report captures Foundation API chokepoints, endpoint budget coverage, and request-path risk without changing endpoints.
-3. `FOUNDATION-FRONTEND-PERF-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; the report captures asset, route, DOM, and Browser QA proof risks without frontend rebuild work.
-4. `FOUNDATION-MONOLITH-RISK-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; the report ranks monolith split candidates as future cards only.
-5. `VERIFIER-ASSUMPTION-REGISTRY-001` — done under `foundation-code-quality-nightly-audit-v1`; the report inventories verifier constants, active-vs-historical assumptions, and source-count/year baselines.
-6. `SPRINT-STATE-MUTATION-AUDIT-001` — done under `foundation-code-quality-nightly-audit-v1`; the report detects mutation-capable process paths and scheduled-job mutation risk without running apply paths.
-7. `NIGHTLY-AUDIT-REPORT-001` — done under `foundation-code-quality-nightly-audit-v1`; `npm run process:code-quality-nightly-audit-check -- --json` writes the morning report and validates report-only/no-auto boundaries.
+1. `CONNECTOR-UPTIME-MONITOR-001` — done under `foundation-operating-reliability-v1`; Foundation now reports ClickUp, FUB, Google Workspace, Slack, Missive, and KPI/Supabase health as normalized read-only source status.
+2. `SOURCE-023` — done under `foundation-operating-reliability-v1`; connector failures now classify auth, rate limit, server/network, not-found, and unknown errors with redacted operator output and bounded retry/backoff guidance.
+3. `RUNTIME-ACTIVATION-001` — done under `foundation-operating-reliability-v1`; Foundation runtime now distinguishes scheduled, manual, paused, blocked, due, stale, and failed states for jobs and connectors.
+4. `SYSTEM-HEALTH-AUDITOR-001` — done under `foundation-operating-reliability-v1`; morning health stays report-only and says plainly that the deterministic scanner is not the recurring senior-engineer deep audit.
+5. `PLAN-STATE-RECONCILE-001` — done under `foundation-operating-reliability-v1`; live sprint DB, docs, approval files, Plan Critic rows, closeout, and board doctrine agree.
 
-The approved audit sprint is complete. Stop at sprint review before opening another sprint. The `code-quality-nightly-audit` Foundation job is registered as manual/unscheduled until Steve accepts report quality. Findings are proposed backlog fixes only; no auto-fixes, no auto backlog mutation, no feature work, and no LLM detection are approved.
+The approved Operating Reliability sprint is complete. Stop at sprint review before opening another sprint. The `connector-uptime-monitor` Foundation job is scheduled read-only. The `code-quality-nightly-audit` job remains manual/report-first until recurring report quality is explicitly accepted. `RECURRING-DEEP-AUDIT-001` is the missing reviewer cadence and belongs in the follow-up cleanup sprint.
+
+Recommended next sprint, not silently opened: **Foundation Verification + Continued Cleanup Sprint**. Scope: `PLAN-CRITIC-ARCH-RULES-DOGFOOD-001`, `HUB-PERF-VERIFICATION-001`, `MONOLITH-SPLIT-CONTINUE-001`, and `RECURRING-DEEP-AUDIT-001`.
+
+Previous completed audit sprint: `foundation-code-quality-nightly-audit-2026-05-13`, closed under `foundation-code-quality-nightly-audit-v1`. It added deterministic report-first codebase/frontend audit detectors and a manual unscheduled Foundation job. Findings are proposed backlog fixes only. It did not schedule a recurring senior-engineer deep audit.
 
 Previous completed control-plane sprint ID: `control-plane-connector-readiness-2026-05-12`.
 

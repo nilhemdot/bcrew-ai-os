@@ -131,6 +131,13 @@ import {
   buildSourceOutageBoundaryDogfoodProof,
 } from '../lib/source-outage-boundary.js'
 import {
+  CONNECTOR_UPTIME_MONITOR_JOB_KEY,
+  FOUNDATION_OPERATING_RELIABILITY_CARD_IDS,
+  FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY,
+  FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH,
+  buildFoundationOperatingReliabilityDogfoodProof,
+} from '../lib/connector-uptime-monitor.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -947,6 +954,14 @@ const FOUNDATION_BUILD_LOG_MONOLITH_SLICE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = 
 
 const SOURCE_OUTAGE_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'SOURCE-OUTAGE-BOUNDARY-001',
+]
+
+const FOUNDATION_OPERATING_RELIABILITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'CONNECTOR-UPTIME-MONITOR-001',
+  'SOURCE-023',
+  'RUNTIME-ACTIVATION-001',
+  'SYSTEM-HEALTH-AUDITOR-001',
+  'PLAN-STATE-RECONCILE-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -1820,6 +1835,8 @@ async function main() {
   const sourceOutageBoundarySource = await readRepoFile('lib/source-outage-boundary.js')
   const sourceOutageBoundaryScriptSource = await readRepoFile(SOURCE_OUTAGE_BOUNDARY_SCRIPT_PATH)
   const sourceOutageBoundaryPlanSource = await readRepoFile(SOURCE_OUTAGE_BOUNDARY_PLAN_PATH)
+  const connectorUptimeMonitorSource = await readRepoFile('lib/connector-uptime-monitor.js')
+  const foundationOperatingReliabilityScriptSource = await readRepoFile(FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -3612,6 +3629,7 @@ async function main() {
   const codeQualityNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
   const hubWorkCoordinationCloseout = foundationBuildCloseouts.find(closeout => closeout.key === HUB_WORK_COORDINATION_CLOSEOUT_KEY) || null
   const sourceOutageBoundaryCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_OUTAGE_BOUNDARY_CLOSEOUT_KEY) || null
+  const foundationOperatingReliabilityCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
   const foundationBuildLogMonolithSliceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY) || null
@@ -13296,6 +13314,36 @@ async function main() {
     sourceOutageBoundaryCard
       ? `lane=${sourceOutageBoundaryCard.lane} dogfood=${sourceOutageBoundaryDogfood.ok ? 'pass' : 'blocked'} foundation=${foundationHub.sourceOutageBoundary?.status || 'missing'} ops=${opsHub.sourceOutageBoundary?.status || 'missing'}`
       : `missing ${SOURCE_OUTAGE_BOUNDARY_CARD_ID}`,
+  )
+  const foundationOperatingReliabilityCards = FOUNDATION_OPERATING_RELIABILITY_CARD_IDS
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const foundationOperatingReliabilityDogfood = buildFoundationOperatingReliabilityDogfoodProof()
+  ensure(
+    checks,
+      foundationOperatingReliabilityCards.every(card =>
+        card &&
+        card.lane === 'done' &&
+        String(card.statusNote || '').includes(FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY)
+      ) &&
+      foundationOperatingReliabilityCloseout?.operatorCloseout === true &&
+      FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.every(id => (foundationOperatingReliabilityCloseout.backlogIds || []).includes(id)) &&
+      foundationOperatingReliabilityDogfood.ok === true &&
+      foundationOperatingReliabilityDogfood.checks?.length >= 8 &&
+      packageJson.scripts?.['process:foundation-operating-reliability-check'] === `node --env-file-if-exists=.env ${FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH}` &&
+      foundationJobsSource.includes(CONNECTOR_UPTIME_MONITOR_JOB_KEY) &&
+      foundationJobsSource.includes("mutationPosture: 'read_only'") &&
+      connectorUptimeMonitorSource.includes('buildConnectorUptimeSnapshot') &&
+      connectorUptimeMonitorSource.includes('buildRuntimeActivationSnapshot') &&
+      connectorUptimeMonitorSource.includes('buildMorningHealthSnapshot') &&
+      connectorUptimeMonitorSource.includes('assertNoConnectorUptimeSecretLeak') &&
+      foundationOperatingReliabilityScriptSource.includes('dogfood recreates connector failures, runtime states, and audit confusion') &&
+      serverSource.includes('foundationOperatingReliability') &&
+      foundationHubFull.foundationOperatingReliability?.connectorUptime?.rows?.length >= 6 &&
+      foundationHubFull.foundationOperatingReliability?.runtimeActivation?.jobs?.length >= 1 &&
+      foundationHubFull.foundationOperatingReliability?.morningHealth?.reportOnly === true &&
+      includesAll(foundationVerifySource, FOUNDATION_OPERATING_RELIABILITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'Foundation Operating Reliability exposes connector uptime, runtime activation, and report-only morning health',
+    `cards=${foundationOperatingReliabilityCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.length} dogfood=${foundationOperatingReliabilityDogfood.ok ? 'pass' : 'blocked'} connectors=${foundationHubFull.foundationOperatingReliability?.connectorUptime?.rows?.length || 0}`,
   )
   const planCriticArchitecturalRulesCard = (foundationHub.backlogItems || []).find(item => item.id === PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) || null
   const planCriticArchitecturalRulesProof = buildSyntheticPlanCriticArchitecturalRulesProof()

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-023",
+  "approvedBy": "Steve approved the Foundation Operating Reliability Sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T21:00:45.130Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-023-connector-hardening-plan.md",
+  "approvedPlanSha256": "02b47297f5f34bc4eef5723808da355bfab765abdb6128004ddeb5a1a14dd965",
+  "approvedRepoHead": "deffbf044fa55e7ff9b75f865c7d819ef09e64dd",
+  "notes": "Approved as part of the Foundation Operating Reliability Sprint. Scope: source health, connector uptime, runtime activation, morning health surface, and plan/state reconcile. Not approved: hub feature work, Build Intel extraction, paid-source auth, autonomous dev, or broad monolith refactor.",
+  "approvalDigest": "58c8c23b7de090d26bde292f21df1f81b74362852b6f50ca5cbbb4f6e1ea3bdd"
+}

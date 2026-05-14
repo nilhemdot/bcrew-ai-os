@@ -1,6 +1,6 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 Status: Active
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
@@ -25,8 +25,9 @@ The Foundation is real. The system is not yet fully alive.
 
 Current sprint call:
 
-- The latest completed sprint is `foundation-code-quality-nightly-audit-2026-05-13`, closed under `foundation-code-quality-nightly-audit-v1`. It added a deterministic, report-first codebase and frontend audit loop with hardcoded live-truth detection, Foundation API/frontend performance risk reporting, monolith-risk ranking, verifier-assumption inventory, sprint-state mutation detection, a manual unscheduled Foundation job, and a morning report at `docs/handoffs/2026-05-13-code-quality-nightly-audit-report.md`.
-- `CODEBASE-HARDCODE-AUDIT-001`, `FOUNDATION-API-PERF-AUDIT-001`, `FOUNDATION-FRONTEND-PERF-AUDIT-001`, `FOUNDATION-MONOLITH-RISK-AUDIT-001`, `VERIFIER-ASSUMPTION-REGISTRY-001`, `SPRINT-STATE-MUTATION-AUDIT-001`, and `NIGHTLY-AUDIT-REPORT-001` are done under `foundation-code-quality-nightly-audit-v1`. The loop writes reports and proposes backlog fixes only: no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work, no LLM detection, and no recurring schedule until Steve accepts report quality.
+- The latest completed sprint is `foundation-operating-reliability-2026-05-14`, closed under `foundation-operating-reliability-v1`. It added connector uptime, connector failure redaction/classification, runtime activation, and a report-only morning health surface.
+- `CONNECTOR-UPTIME-MONITOR-001`, `SOURCE-023`, `RUNTIME-ACTIVATION-001`, `SYSTEM-HEALTH-AUDITOR-001`, and `PLAN-STATE-RECONCILE-001` are done under `foundation-operating-reliability-v1`. The layer reports ClickUp, FUB, Google Workspace, Slack, Missive, and KPI/Supabase health; schedules the read-only `connector-uptime-monitor` job; distinguishes scheduled/manual/paused/blocked/due/stale/failed runtime states; and makes clear that the deterministic scanner is not the recurring senior-engineer deep audit.
+- The previous completed audit sprint was `foundation-code-quality-nightly-audit-2026-05-13`, closed under `foundation-code-quality-nightly-audit-v1`. It added deterministic, report-first codebase/frontend audit detectors and a manual unscheduled Foundation job. `RECURRING-DEEP-AUDIT-001` remains the missing reviewer cadence and belongs in the follow-up cleanup sprint.
 - The previous completed sprint was `gstack-build-intel-extraction-2026-05-13`, closed under `gstack-build-intel-extraction-v1`. It added read-only public GStack/GitHub Build Intel: source-map extraction from the inspected GStack commit, path-cited pattern scorecards, a public developer-community watchlist, proposal-only Research Inbox rows, Skill Improver enrichment, review-gate recommendations, and browser QA proof expectations. It did not install GStack, copy runtime code, scrape private communities, use paid auth, create agents, or mutate backlog from findings.
 - `PUBLIC-DEV-COMMUNITY-WATCHLIST-001`, `GSTACK-EXTRACTION-001`, `BUILD-INTEL-GITHUB-MONITOR-001`, `SKILL-IMPROVER-GSTACK-ENRICHMENT-001`, `REVIEW-GATE-UPGRADE-001`, and `BROWSER-QA-PROOF-001` are done under `gstack-build-intel-extraction-v1`. Stop at sprint review before opening another sprint.
 - The latest completed sprint is `build-intel-extraction-implementation-2026-05-13`, closed under `build-intel-extraction-implementation-v1`. It added the first no-auth Build Intel extraction implementation: existing public YouTube transcript artifacts are selected, transcript-derived implementation observations are validated through the multimodal contract, proposal-only Research Inbox rows are generated, and the first Build Intel extraction brief is saved. It did not discover latest uploads, connect paid sources, capture screenshots/OCR/keyframes, create atoms, or mutate backlog from proposals.

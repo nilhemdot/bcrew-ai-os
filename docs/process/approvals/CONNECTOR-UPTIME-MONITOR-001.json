@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CONNECTOR-UPTIME-MONITOR-001",
+  "approvedBy": "Steve approved the Foundation Operating Reliability Sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T21:00:45.130Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/connector-uptime-monitor-001-plan.md",
+  "approvedPlanSha256": "6d4927d7a506e851978d2b22ede220c3c7262f2ed8e76fc558ee4186fc0eaec6",
+  "approvedRepoHead": "deffbf044fa55e7ff9b75f865c7d819ef09e64dd",
+  "notes": "Approved as part of the Foundation Operating Reliability Sprint. Scope: source health, connector uptime, runtime activation, morning health surface, and plan/state reconcile. Not approved: hub feature work, Build Intel extraction, paid-source auth, autonomous dev, or broad monolith refactor.",
+  "approvalDigest": "489c09a2886ada4dd15b2705a54be2814a2a40201d5ee4c965eb76cd90deacc5"
+}

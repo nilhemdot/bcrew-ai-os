@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYSTEM-HEALTH-AUDITOR-001",
+  "approvedBy": "Steve approved the Foundation Operating Reliability Sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T21:00:45.130Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/system-health-auditor-001-operating-reliability-plan.md",
+  "approvedPlanSha256": "c6655c231e0b6a7a67316124592d937ec27d820347deb5ddb0dded0ec160fc0f",
+  "approvedRepoHead": "deffbf044fa55e7ff9b75f865c7d819ef09e64dd",
+  "notes": "Approved as part of the Foundation Operating Reliability Sprint. Scope: source health, connector uptime, runtime activation, morning health surface, and plan/state reconcile. Not approved: hub feature work, Build Intel extraction, paid-source auth, autonomous dev, or broad monolith refactor.",
+  "approvalDigest": "952212b71c24f0ee00883838511af97303314b9d92beb92baf13d6271a2aaf30"
+}

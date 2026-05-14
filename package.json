@@ -101,6 +101,7 @@
     "process:foundation-db-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-db-store-split-check.mjs",
     "process:hub-work-check": "node --env-file-if-exists=.env scripts/process-hub-work-check.mjs",
     "process:source-outage-boundary-check": "node --env-file-if-exists=.env scripts/process-source-outage-boundary-check.mjs",
+    "process:foundation-operating-reliability-check": "node --env-file-if-exists=.env scripts/process-foundation-operating-reliability-check.mjs",
     "process:gate-reliability-check": "node --env-file-if-exists=.env scripts/process-gate-reliability-check.mjs",
     "process:foundation-review-sprint-check": "node --env-file-if-exists=.env scripts/process-foundation-review-sprint-check.mjs",
     "process:plain-english-sweep-check": "node --env-file-if-exists=.env scripts/process-plain-english-sweep-check.mjs",

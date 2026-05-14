@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "RUNTIME-ACTIVATION-001",
+  "approvedBy": "Steve approved the Foundation Operating Reliability Sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T21:00:45.130Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/runtime-activation-001-operating-reliability-plan.md",
+  "approvedPlanSha256": "a26844238f7cd2cae095425210f22cbf9d2b7628c7ac93b24bf52f2062c7317a",
+  "approvedRepoHead": "deffbf044fa55e7ff9b75f865c7d819ef09e64dd",
+  "notes": "Approved as part of the Foundation Operating Reliability Sprint. Scope: source health, connector uptime, runtime activation, morning health surface, and plan/state reconcile. Not approved: hub feature work, Build Intel extraction, paid-source auth, autonomous dev, or broad monolith refactor.",
+  "approvalDigest": "d5983606e3dbb34ebf7194c51b780fa1ad25af5e7a29f8aff68bbb98cccfae70"
+}
