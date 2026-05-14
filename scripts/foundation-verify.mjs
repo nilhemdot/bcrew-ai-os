@@ -109,6 +109,20 @@ import {
   buildSyntheticCodeQualityNightlyAuditProof,
 } from '../lib/code-quality-nightly-audit.js'
 import {
+  HUB_WORK_CHECK_SCRIPT_PATH,
+  HUB_WORK_COORDINATION_APPROVAL_PATH,
+  HUB_WORK_COORDINATION_CARD_ID,
+  HUB_WORK_COORDINATION_CLOSEOUT_KEY,
+  HUB_WORK_COORDINATION_PLAN_PATH,
+  HUB_WORK_COORDINATION_SPRINT_ID,
+  HUB_WORK_HANDOFF_TEMPLATE_PATH,
+  HUB_WORK_OWNERSHIP_MATRIX_PATH,
+  HUB_WORK_PROMPT_TEMPLATE_PATH,
+  HUB_WORK_PROTOCOL_PATH,
+  buildHubWorkDogfoodProof,
+  loadHubWorkOwnershipMatrix,
+} from '../lib/hub-work-check.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -3580,6 +3594,7 @@ async function main() {
   const buildIntelExtractionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) || null
   const gstackBuildIntelCloseout = foundationBuildCloseouts.find(closeout => closeout.key === GSTACK_BUILD_INTEL_CLOSEOUT_KEY) || null
   const codeQualityNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
+  const hubWorkCoordinationCloseout = foundationBuildCloseouts.find(closeout => closeout.key === HUB_WORK_COORDINATION_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
   const foundationBuildLogMonolithSliceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY) || null
@@ -13202,6 +13217,39 @@ async function main() {
       includesAll(foundationVerifySource, CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'Code Quality Nightly Audit closes the deterministic read-only report loop without fixes, backlog writes, scheduling, or LLM detection',
     `cards=${codeQualityNightlyAuditCards.filter(card => card?.lane === 'done').length}/${CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.length} findings=${codeQualityNightlyAudit.summary?.findingCount || 0} proposed=${codeQualityNightlyAudit.proposedCards?.length || 0}`,
+  )
+  const hubWorkCoordinationCard = (foundationHub.backlogItems || []).find(item => item.id === HUB_WORK_COORDINATION_CARD_ID) || null
+  const hubWorkOwnershipMatrix = await loadHubWorkOwnershipMatrix({ repoRoot })
+  const hubWorkDogfood = buildHubWorkDogfoodProof({
+    matrix: hubWorkOwnershipMatrix,
+    knownCardIds: (foundationHub.backlogItems || []).map(item => item.id),
+  })
+  ensure(
+    checks,
+      hubWorkCoordinationCard &&
+      ['scoped', 'done'].includes(hubWorkCoordinationCard.lane) &&
+      String(hubWorkCoordinationCard.statusNote || '').includes(HUB_WORK_COORDINATION_CLOSEOUT_KEY) &&
+      hubWorkCoordinationCloseout?.operatorCloseout === true &&
+      (hubWorkCoordinationCloseout.backlogIds || []).includes(HUB_WORK_COORDINATION_CARD_ID) &&
+      hubWorkOwnershipMatrix?.schemaVersion === 1 &&
+      hubWorkOwnershipMatrix?.hubs?.sales &&
+      hubWorkOwnershipMatrix?.hubs?.ops &&
+      hubWorkOwnershipMatrix?.hubs?.strategy &&
+      hubWorkDogfood.ok === true &&
+      packageJson.scripts?.['process:hub-work-check'] === `node --env-file-if-exists=.env ${HUB_WORK_CHECK_SCRIPT_PATH}` &&
+      await repoFileExists(HUB_WORK_COORDINATION_PLAN_PATH) &&
+      await repoFileExists(HUB_WORK_COORDINATION_APPROVAL_PATH) &&
+      await repoFileExists(HUB_WORK_PROTOCOL_PATH) &&
+      await repoFileExists(HUB_WORK_OWNERSHIP_MATRIX_PATH) &&
+      await repoFileExists(HUB_WORK_PROMPT_TEMPLATE_PATH) &&
+      await repoFileExists(HUB_WORK_HANDOFF_TEMPLATE_PATH) &&
+      foundationVerifySource.includes(HUB_WORK_COORDINATION_CARD_ID) &&
+      foundationVerifySource.includes('HUB_WORK_COORDINATION_SPRINT_ID') &&
+      foundationVerifySource.includes('buildHubWorkDogfoodProof'),
+    'HUB-001 coordinates hub chats without weakening Foundation/process ownership',
+    hubWorkCoordinationCard
+      ? `lane=${hubWorkCoordinationCard.lane} dogfood=${hubWorkDogfood.ok ? 'pass' : 'fail'} cases=${hubWorkDogfood.cases.length}`
+      : `missing ${HUB_WORK_COORDINATION_CARD_ID}`,
   )
   const planCriticArchitecturalRulesCard = (foundationHub.backlogItems || []).find(item => item.id === PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) || null
   const planCriticArchitecturalRulesProof = buildSyntheticPlanCriticArchitecturalRulesProof()

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "foundationOwned": [
+    "lib/foundation-*.js",
+    "lib/process-*.js",
+    "scripts/foundation-verify.mjs",
+    "scripts/process-*.mjs",
+    "docs/process/*",
+    "docs/handoffs/*",
+    "public/foundation*",
+    "package.json"
+  ],
+  "sharedStopAndCoordinate": [
+    "server.js",
+    "lib/source-contracts.js",
+    "lib/foundation-db.js",
+    "lib/app-auth.js",
+    "lib/security-access.js",
+    "scripts/*",
+    "package-lock.json"
+  ],
+  "hubs": {
+    "sales": {
+      "owned": [
+        "public/sales.html",
+        "public/sales.js",
+        "lib/sales-*.js",
+        "scripts/*sales*.mjs"
+      ],
+      "proofCommands": [
+        "npm run process:sales-listings-hub-check -- --json"
+      ]
+    },
+    "ops": {
+      "owned": [
+        "public/ops.html",
+        "public/ops.js",
+        "lib/ops-*.js",
+        "lib/agent-*.js",
+        "scripts/*ops*.mjs",
+        "scripts/*agent*.mjs"
+      ],
+      "proofCommands": [
+        "npm run clickup:verify",
+        "npm run foundation:verify"
+      ]
+    },
+    "strategy": {
+      "owned": [
+        "public/strategy*.html",
+        "public/strategy*.js",
+        "lib/strategy-*.js",
+        "docs/strategy/*",
+        "scripts/*strategy*.mjs"
+      ],
+      "proofCommands": [
+        "npm run foundation:verify"
+      ]
+    },
+    "marketing": {
+      "owned": [
+        "public/marketing*.html",
+        "public/marketing*.js",
+        "lib/marketing-*.js",
+        "docs/marketing/*",
+        "scripts/*marketing*.mjs"
+      ],
+      "proofCommands": [
+        "npm run foundation:verify"
+      ]
+    }
+  }
+}

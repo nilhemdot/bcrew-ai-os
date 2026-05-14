@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "HUB-001",
+  "approvedBy": "Steve approved Codex judgment-led hub coordination sprint in chat; Codex Plan Critic scored pass",
+  "approvedAt": "2026-05-14T19:10:15.660Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/hub-work-coordination-001-plan.md",
+  "approvedPlanSha256": "12453f063f5175b5491c08839d728f9915c7de29c9055cbe74e8dfea4c9f85e5",
+  "approvedRepoHead": "1c6497a759afe932f7d3286b541946c1031d9f50",
+  "notes": "Approved as the one-card Hub Work Coordination Sprint. Scope: protocol, ownership matrix, prompt/handoff templates, deterministic hub-work check, and dogfood proof for missing card/proof/handoff or uncoordinated shared/Foundation/process files. Not approved: Sales/Ops/Strategy feature work, Build Intel, paid auth, broad monolith cleanup, or autonomous dev.",
+  "approvalDigest": "5a1dd49c980da5a3eb22260b9bb6dab3dc9cf9bbc64a57dcad7700b782cc5b30"
+}
