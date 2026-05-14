@@ -9128,6 +9128,54 @@ code {
   margin: 0 0 8px;
 }
 
+.sales-manager-toolbar {
+  display: grid;
+  gap: 12px;
+}
+
+.sales-manager-toolbar-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: end;
+}
+
+.sales-manager-toolbar-top .sales-panel-copy {
+  margin: 0;
+  text-align: right;
+}
+
+.sales-manager-toolbar-actions {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.sales-manager-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sales-manager-filter {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.sales-manager-filter-active {
+  border-color: rgba(37, 99, 235, 0.4);
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+}
+
 .sales-agent-group {
   margin-top: 12px;
   border: 1px solid var(--border);
@@ -9231,7 +9279,7 @@ code {
 
 .sales-listing-next {
   display: grid;
-  grid-template-columns: minmax(150px, 0.7fr) minmax(260px, 1fr) minmax(300px, 1.25fr);
+  grid-template-columns: minmax(150px, 0.7fr) minmax(260px, 1fr) minmax(300px, 1.25fr) minmax(220px, 0.9fr);
   gap: 10px;
   align-items: start;
   justify-items: start;
@@ -9298,7 +9346,8 @@ code {
   align-items: end;
 }
 
-.sales-project-controls .sales-action-plan-note {
+.sales-project-controls .sales-action-plan-note,
+.sales-project-controls .sales-snooze-box {
   grid-column: 1 / -1;
 }
 
@@ -9312,6 +9361,54 @@ code {
   color: var(--text-primary);
   font: inherit;
   font-size: 0.9rem;
+}
+
+.sales-snooze-box {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  align-self: stretch;
+}
+
+.sales-snooze-current {
+  min-height: 28px;
+  padding: 6px 8px;
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  border-radius: var(--radius-sm);
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.sales-snooze-expired {
+  border-color: rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+}
+
+.sales-snooze-reason,
+.sales-snooze-date {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.sales-snooze-custom {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto;
+  gap: 6px;
+}
+
+.sales-snooze-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .sales-case-history {
@@ -9620,6 +9717,19 @@ code {
   .sales-agent-summary {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .sales-manager-toolbar-top {
+    display: grid;
+    align-items: start;
+  }
+
+  .sales-manager-toolbar-top .sales-panel-copy {
+    text-align: left;
+  }
+
+  .sales-manager-toolbar-actions {
+    justify-items: start;
   }
 
   .sales-agent-actions {

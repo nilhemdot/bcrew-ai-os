@@ -238,6 +238,7 @@ import {
   sanitizeSalesListingAssignment,
 } from './lib/sales-listing-assignments.js'
 import { syncSalesListingCasesFromInventory } from './lib/sales-listing-cases.js'
+import { buildSalesHubCaseMetadata } from './lib/sales-hub-case-metadata.js'
 import { getClickUpListSnapshot } from './lib/clickup.js'
 import {
   authenticateAuthUser,
@@ -5819,12 +5820,12 @@ app.post('/api/sales-hub/project-case', requireAdminToken, async (req, res) => {
         actionPlanState: actionPlanState.key,
         actionPlanNoReason: String(req.body?.actionPlanNoReason ?? project.actionPlanNoReason ?? '').trim(),
         actionPlanText: String(req.body?.actionPlanText ?? project.actionPlanText ?? '').trim(),
-        metadata: {
+        metadata: buildSalesHubCaseMetadata({
           source: 'sales-hub-project-case',
           assignmentSurface: '/sales#gls-system',
           projectKey,
           baseAddress: project.baseAddress,
-        },
+        }, req.body, actor),
       }, actor.email || actor.name || 'sales-hub'))
     }
 
@@ -5893,10 +5894,10 @@ app.post('/api/sales-hub/listing-case', requireAdminToken, async (req, res) => {
       actionPlanState: actionPlanState.key,
       actionPlanNoReason: String(req.body?.actionPlanNoReason ?? source.actionPlanNoReason ?? '').trim(),
       actionPlanText: String(req.body?.actionPlanText ?? source.actionPlanText ?? '').trim(),
-      metadata: {
+      metadata: buildSalesHubCaseMetadata({
         source: 'sales-hub-case-update',
         assignmentSurface: '/sales#stale-listings',
-      },
+      }, req.body, actor),
     }, actor.email || actor.name || 'sales-hub')
 
     clearSalesHubCache()

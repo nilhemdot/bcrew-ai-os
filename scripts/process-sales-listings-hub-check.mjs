@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFile } from 'node:fs/promises'
+import vm from 'node:vm'
 import {
   SALES_LISTING_SOURCE,
   buildGlsScoreboard,
@@ -9,6 +10,33 @@ import { syncSalesListingCasesFromInventory } from '../lib/sales-listing-cases.j
 
 function assert(condition, message) {
   if (!condition) throw new Error(message)
+}
+
+function buildSalesUiFunctionContext(salesJs) {
+  const source = salesJs.split('\nvar toggle = document.getElementById')[0]
+  const context = {
+    window: {
+      localStorage: {
+        getItem: () => null,
+        setItem: () => {},
+      },
+      print: () => {},
+    },
+    document: {},
+    Intl,
+    Date,
+    Object,
+    Number,
+    String,
+    Boolean,
+    Array,
+    Math,
+    RegExp,
+    console,
+  }
+  vm.createContext(context)
+  vm.runInContext(source, context)
+  return context
 }
 
 let report = await buildSalesListingInventory()
@@ -24,6 +52,7 @@ const stylesCss = await readFile(new URL('../public/styles.css', import.meta.url
 const homeJs = await readFile(new URL('../public/home.js', import.meta.url), 'utf8')
 const appAuthJs = await readFile(new URL('../lib/app-auth.js', import.meta.url), 'utf8')
 const foundationDbJs = await readFile(new URL('../lib/foundation-db.js', import.meta.url), 'utf8')
+const salesHubCaseMetadataJs = await readFile(new URL('../lib/sales-hub-case-metadata.js', import.meta.url), 'utf8')
 const serverJs = await readFile(new URL('../server.js', import.meta.url), 'utf8')
 
 assert(report.source.sourceId === 'SRC-CLICKUP-001', 'Sales listing inventory must be source-backed by SRC-CLICKUP-001.')
@@ -63,6 +92,10 @@ assert(!salesJs.includes('Active GLS work'), 'GLS dashboard should not repeat th
 assert(!salesJs.includes('GLS outcomes'), 'GLS dashboard should not repeat outcome cards below the top scoreboard.')
 assert(salesJs.includes('Manager queue'), 'GLS Manager must open as an action queue, not another repeated dashboard.')
 assert(!/function renderGlsSystem[\\s\\S]*?renderMetrics\\(report\\)/.test(salesJs), 'GLS Manager should not repeat the full dashboard metric block.')
+assert(salesJs.includes('SALES_MANAGER_VIEWS') && salesJs.includes('setSalesManagerView'), 'GLS Manager must expose durable manager view filters.')
+assert(salesJs.includes('renderSnoozeControls') && salesJs.includes('glsSnooze'), 'GLS Manager must expose snooze controls backed by GLS snooze metadata.')
+assert(stylesCss.includes('sales-manager-filter') && stylesCss.includes('sales-snooze-box'), 'GLS Manager filters and snooze controls must be styled.')
+assert(serverJs.includes("from './lib/sales-hub-case-metadata.js'") && salesHubCaseMetadataJs.includes('metadata.glsSnooze'), 'Sales Hub case saves must preserve GLS snooze metadata through a Sales-owned helper module.')
 assert(salesJs.includes('Case history') && salesJs.includes('renderCaseHistory'), 'GLS Manager must expose a visible per-case history ledger.')
 assert(salesJs.includes('visibleCaseHistory') && salesJs.includes('isNoisyCaseHistoryEvent'), 'GLS case history must hide noisy system baseline entries when meaningful events exist.')
 assert(salesJs.includes('pendingActionPlanState'), 'GLS game-plan state must save together with its plan/reason text.')
@@ -231,6 +264,8 @@ const syntheticScoreboard = buildGlsScoreboard({
 assert(syntheticScoreboard.currentActive.listingCount === 7, 'Synthetic Nick proof must start with seven listing opportunities.')
 assert(syntheticScoreboard.currentActive.caseCount === 1, 'Synthetic Nick proof must collapse seven units into one grouped GLS case.')
 assert(syntheticScoreboard.activePipeline.total.caseCount === 2, 'Synthetic active pipeline must keep adjusted-but-unsold cases active.')
+assert(syntheticScoreboard.activePipeline.assigned.caseCount === 2, 'Synthetic active pipeline must expose assigned cases separately from broader taken-on progress.')
+assert(syntheticScoreboard.activePipeline.gamePlanCreated.caseCount === 0, 'Synthetic adjusted/closed outcomes must not masquerade as game-plan-created proof.')
 assert(syntheticScoreboard.activePipeline.implemented.caseCount === 1, 'Synthetic adjusted case must show as adjusted/implemented inside active work.')
 assert(syntheticScoreboard.resolvedResults.total.caseCount === 1, 'Synthetic resolved results must include only sold/closed or failed cases.')
 assert(syntheticScoreboard.resolvedResults.adjustedRelisted.caseCount === 0, 'Synthetic adjusted-but-unsold case must not move into resolved results.')
@@ -240,6 +275,95 @@ assert(syntheticScoreboard.allTimeFunnel.soldClosed.listingCount === 1, 'Synthet
 assert(syntheticScoreboard.allTimeFunnel.soldClosed.caseCount === 1, 'Synthetic sold proof must count the sold case.')
 assert(syntheticScoreboard.movedSoldCases.some(item => item.key.includes('closed agent') && item.currentOutcome === 'closed'), 'Synthetic sold/closed case must remain visible from persisted history.')
 assert(syntheticScoreboard.leaderPerformance.some(item => item.key === 'blake' && item.adjustedOrImplementedCases === 1 && item.adjustedCases === 1), 'Sales leader scoreboard must credit adjusted/implemented cases to the leader.')
+
+const salesUi = buildSalesUiFunctionContext(salesJs)
+const managerProofReport = {
+  today: '2026-05-14',
+  staleListings: [
+    {
+      taskId: 'manager-active-needs-owner',
+      title: '11 Active Needs Owner St',
+      agent: 'No Owner Agent',
+      daysSinceReset: 44,
+      salesLeaderAssignment: {
+        assignedLeaderKey: '',
+        caseStatus: 'identified',
+        outcomeStatus: 'open',
+        actionPlanState: 'unknown',
+      },
+    },
+    {
+      taskId: 'manager-adjusted-active',
+      title: '22 Adjusted Active Ave',
+      agent: 'Adjusted Agent',
+      daysSinceReset: 52,
+      salesLeaderAssignment: {
+        assignedLeaderKey: 'blake',
+        caseStatus: 'adjusted',
+        outcomeStatus: 'adjusted',
+        actionPlanState: 'yes',
+        adjustedAt: '2026-05-10',
+      },
+    },
+    {
+      taskId: 'manager-snoozed',
+      title: '33 Snoozed Rd',
+      agent: 'Snoozed Agent',
+      daysSinceReset: 63,
+      salesLeaderAssignment: {
+        assignedLeaderKey: 'nick',
+        caseStatus: 'assigned',
+        outcomeStatus: 'open',
+        actionPlanState: 'unknown',
+        glsSnooze: {
+          until: '2026-05-28',
+          reason: 'Agent follow-up set',
+        },
+      },
+    },
+    {
+      taskId: 'manager-blocked',
+      title: '44 Blocked Cres',
+      agent: 'Blocked Agent',
+      daysSinceReset: 70,
+      salesLeaderAssignment: {
+        assignedLeaderKey: 'ryan',
+        caseStatus: 'blocked',
+        outcomeStatus: 'open',
+        actionPlanState: 'no',
+      },
+    },
+    {
+      taskId: 'manager-sold',
+      title: '55 Sold Lane',
+      agent: 'Sold Agent',
+      daysSinceReset: 80,
+      salesLeaderAssignment: {
+        assignedLeaderKey: 'steve',
+        caseStatus: 'closed',
+        outcomeStatus: 'closed',
+        actionPlanState: 'yes',
+      },
+    },
+  ],
+  groups: [],
+  projectSuggestions: [],
+}
+
+const [managerActive, managerAdjusted, managerSnoozed, managerBlocked, managerSold] = managerProofReport.staleListings
+assert(salesUi.caseMatchesManagerView(managerActive, 'active', managerProofReport), 'Manager active view must include normal active GLS work.')
+assert(salesUi.caseMatchesManagerView(managerActive, 'needs_owner', managerProofReport), 'Manager needs-owner view must include unassigned active GLS work.')
+assert(salesUi.caseMatchesManagerView(managerAdjusted, 'active', managerProofReport), 'Manager active view must keep adjusted-but-unsold GLS work visible.')
+assert(salesUi.caseMatchesManagerView(managerAdjusted, 'adjusted', managerProofReport), 'Manager adjusted view must isolate adjusted-but-unsold GLS work.')
+assert(!salesUi.caseMatchesManagerView(managerSnoozed, 'active', managerProofReport), 'Manager active view must hide active snoozes.')
+assert(salesUi.caseMatchesManagerView(managerSnoozed, 'snoozed', managerProofReport), 'Manager snoozed view must show active snoozes.')
+assert(!salesUi.caseMatchesManagerView(managerBlocked, 'active', managerProofReport), 'Manager active view must hide blocked GLS work.')
+assert(salesUi.caseMatchesManagerView(managerBlocked, 'blocked_failed', managerProofReport), 'Manager blocked/failed view must show blocked GLS work.')
+assert(!salesUi.caseMatchesManagerView(managerSold, 'active', managerProofReport), 'Manager active view must hide sold/closed GLS work.')
+assert(salesUi.caseMatchesManagerView(managerSold, 'sold_closed', managerProofReport), 'Manager sold/closed view must show sold/closed GLS work.')
+assert(salesUi.countManagerView(managerProofReport, 'active') === 2, 'Manager active count must exclude snoozed, blocked, and sold cases.')
+salesUi.salesManagerView = 'snoozed'
+assert(salesUi.getFilteredSalesManagerReport(managerProofReport).staleListings.length === 1, 'Filtered manager report must honor the selected manager view.')
 
 const duplicatePrimaryRows = new Set()
 for (const group of report.groups) {

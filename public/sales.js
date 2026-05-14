@@ -12,9 +12,40 @@ var SALES_SECTION_ALIASES = {
 }
 
 var currentSalesHubPayload = null
+var SALES_MANAGER_VIEW_STORAGE_KEY = 'bcrew.sales.glsManagerView'
+var SALES_MANAGER_VIEWS = [
+  { key: 'active', label: 'Active' },
+  { key: 'needs_owner', label: 'Needs owner' },
+  { key: 'needs_plan', label: 'Needs plan' },
+  { key: 'adjusted', label: 'Adjusted' },
+  { key: 'snoozed', label: 'Snoozed' },
+  { key: 'blocked_failed', label: 'Blocked / failed' },
+  { key: 'sold_closed', label: 'Sold / closed' },
+  { key: 'all', label: 'All' },
+]
+
+function loadSalesManagerView() {
+  try {
+    var saved = window.localStorage && window.localStorage.getItem(SALES_MANAGER_VIEW_STORAGE_KEY)
+    return SALES_MANAGER_VIEWS.some(function(view) { return view.key === saved }) ? saved : 'active'
+  } catch (error) {
+    return 'active'
+  }
+}
+
+var salesManagerView = loadSalesManagerView()
+
+function parseSalesHash(raw) {
+  var clean = String(raw || '').replace(/^#/, '')
+  var parts = clean.split('?')
+  return {
+    section: parts[0] || '',
+    params: new URLSearchParams(parts.slice(1).join('?')),
+  }
+}
 
 function normalizeSection(raw) {
-  var key = String(raw || '').replace('#', '')
+  var key = parseSalesHash(raw).section
   return SALES_SECTION_ALIASES[key] || key || 'gls-dashboard'
 }
 
@@ -110,6 +141,28 @@ function formatDateTime(value) {
     hour: 'numeric',
     minute: '2-digit',
   }).format(date)
+}
+
+function getTorontoDateKey(value) {
+  var date = value ? new Date(value) : new Date()
+  if (Number.isNaN(date.getTime())) date = new Date()
+  var parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+  var values = Object.fromEntries(parts.map(function(part) {
+    return [part.type, part.value]
+  }))
+  return [values.year, values.month, values.day].join('-')
+}
+
+function addDaysToDateKey(dateKey, days) {
+  var base = dateKey ? new Date(dateKey + 'T12:00:00') : new Date()
+  if (Number.isNaN(base.getTime())) base = new Date()
+  base.setDate(base.getDate() + Number(days || 0))
+  return getTorontoDateKey(base)
 }
 
 function formatRefreshAge(ageMs) {
@@ -298,6 +351,41 @@ function renderManagerSummary(report) {
   grid.appendChild(renderMetric('Individual rows', individualRows, 'Current stale listings not inside a project group.'))
   grid.appendChild(renderMetric('No game plan yet', Math.max(0, totalCases - planCases), formatNumber(planCases) + ' active cases have a game plan.'))
   section.appendChild(grid)
+  return section
+}
+
+function renderManagerFilters(report) {
+  var counts = Object.fromEntries(SALES_MANAGER_VIEWS.map(function(view) {
+    return [view.key, countManagerView(report, view.key)]
+  }))
+  var section = el('section', 'sales-panel sales-manager-toolbar')
+  var top = el('div', 'sales-manager-toolbar-top')
+  top.appendChild(el('h2', null, 'Manager view'))
+  var actions = el('div', 'sales-manager-toolbar-actions')
+  actions.appendChild(el('p', 'sales-panel-copy', 'Default hides snoozed, blocked, failed, sold, cancelled, and expired cases.'))
+  var printButton = document.createElement('button')
+  printButton.type = 'button'
+  printButton.className = 'secondary-button sales-save-button'
+  printButton.textContent = 'Print / PDF'
+  printButton.addEventListener('click', function() {
+    window.print()
+  })
+  actions.appendChild(printButton)
+  top.appendChild(actions)
+  section.appendChild(top)
+
+  var row = el('div', 'sales-manager-filter-row')
+  SALES_MANAGER_VIEWS.forEach(function(view) {
+    var button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'sales-manager-filter' + (salesManagerView === view.key ? ' sales-manager-filter-active' : '')
+    button.textContent = view.label + ' · ' + formatNumber(counts[view.key] || 0)
+    button.addEventListener('click', function() {
+      setSalesManagerView(view.key)
+    })
+    row.appendChild(button)
+  })
+  section.appendChild(row)
   return section
 }
 
@@ -504,6 +592,9 @@ function renderProjectSuggestions(report, options) {
     statusRow.appendChild(renderStatusPill('Case: ' + labelFromOptions(report.caseStatusOptions || [], project.caseStatus || 'identified', project.caseStatus || 'identified'), 'status-pill status-pill-neutral'))
     statusRow.appendChild(renderStatusPill('Outcome: ' + labelFromOptions(report.outcomeStatusOptions || [], project.outcomeStatus || 'open', project.outcomeStatus || 'open'), getOutcomeClass(project.outcomeStatus || 'open')))
     statusRow.appendChild(renderStatusPill('Game plan: ' + labelFromOptions(report.actionPlanStateOptions || [], project.actionPlanState || 'unknown', project.actionPlanState || 'unknown'), project.actionPlanState === 'yes' ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
+    var snooze = getSnoozeState(project, report)
+    if (snooze.active) statusRow.appendChild(renderStatusPill('Snoozed until ' + formatDate(snooze.until), 'status-pill status-pill-warning'))
+    if (snooze.expired) statusRow.appendChild(renderStatusPill('Snooze expired ' + formatDate(snooze.until), 'status-pill status-pill-risk'))
     header.appendChild(statusRow)
     card.appendChild(header)
     card.appendChild(el('p', 'sales-project-suggestion', project.suggestion))
@@ -528,14 +619,16 @@ function renderProjectSuggestions(report, options) {
 
 function renderGlsSystem(report) {
   var wrap = el('div')
+  var managerReport = getFilteredSalesManagerReport(report)
   wrap.appendChild(renderHero(report, {
     kicker: 'GLS System work queue',
     title: 'GLS Manager',
     subtitle: 'Manage active stale-listing cases: assign ownership, create the game plan, and update movement.',
   }))
   wrap.appendChild(renderManagerSummary(report))
-  wrap.appendChild(renderProjectSuggestions(report))
-  wrap.appendChild(renderOpportunitiesSection(report))
+  wrap.appendChild(renderManagerFilters(report))
+  wrap.appendChild(renderProjectSuggestions(managerReport))
+  wrap.appendChild(renderOpportunitiesSection(managerReport))
   return wrap
 }
 
@@ -565,6 +658,125 @@ function getOutcomeClass(outcomeStatus) {
   if (['conditional', 'adjusted'].includes(outcomeStatus)) return 'status-pill status-pill-warning'
   if (outcomeStatus === 'lost') return 'status-pill status-pill-risk'
   return 'status-pill status-pill-neutral'
+}
+
+function getCaseAssignment(item) {
+  return item?.salesLeaderAssignment || item || {}
+}
+
+function getCaseSnooze(item) {
+  var assignment = getCaseAssignment(item)
+  return assignment.glsSnooze || item?.glsSnooze || null
+}
+
+function getSnoozeState(item, report) {
+  var snooze = getCaseSnooze(item)
+  var until = snooze && String(snooze.until || '').trim()
+  var today = report?.today || getTorontoDateKey()
+  var active = Boolean(until && until >= today)
+  return {
+    active: active,
+    until: until || '',
+    reason: snooze?.reason || '',
+    expired: Boolean(until && until < today),
+  }
+}
+
+function caseIsSoldClosed(item) {
+  var assignment = getCaseAssignment(item)
+  var text = [
+    assignment.outcomeStatus,
+    assignment.caseStatus,
+    item?.clickUpStatus,
+  ].filter(Boolean).join(' ').toLowerCase()
+  return ['firm', 'closed'].includes(assignment.outcomeStatus || '') || /\b(firm|closed|sold)\b/.test(text)
+}
+
+function caseIsBlockedFailed(item) {
+  var assignment = getCaseAssignment(item)
+  return assignment.caseStatus === 'blocked' ||
+    ['no_action', 'cancelled', 'expired'].includes(assignment.outcomeStatus || '')
+}
+
+function caseHasGamePlan(item) {
+  var assignment = getCaseAssignment(item)
+  return assignment.actionPlanState === 'yes' ||
+    ['action_plan_created', 'action_plan_implemented', 'adjusted', 'closed'].includes(assignment.caseStatus || '')
+}
+
+function caseIsAdjusted(item) {
+  var assignment = getCaseAssignment(item)
+  return assignment.outcomeStatus === 'adjusted' ||
+    assignment.caseStatus === 'adjusted' ||
+    assignment.caseStatus === 'action_plan_implemented' ||
+    Boolean(assignment.adjustedAt || item?.adjustedAt)
+}
+
+function caseMatchesManagerView(item, viewKey, report) {
+  var assignment = getCaseAssignment(item)
+  var snooze = getSnoozeState(item, report)
+  var failed = caseIsBlockedFailed(item)
+  var soldClosed = caseIsSoldClosed(item)
+  var active = !failed && !soldClosed && !snooze.active
+
+  if (viewKey === 'all') return true
+  if (viewKey === 'snoozed') return snooze.active
+  if (viewKey === 'blocked_failed') return failed
+  if (viewKey === 'sold_closed') return soldClosed
+  if (viewKey === 'needs_owner') return active && !assignment.assignedLeaderKey
+  if (viewKey === 'needs_plan') return active && !caseHasGamePlan(item)
+  if (viewKey === 'adjusted') return active && caseIsAdjusted(item)
+  return active
+}
+
+function countManagerView(report, viewKey) {
+  return (report.staleListings || []).filter(function(listing) {
+    return caseMatchesManagerView(listing, viewKey, report)
+  }).length
+}
+
+function setSalesManagerView(viewKey) {
+  salesManagerView = SALES_MANAGER_VIEWS.some(function(view) { return view.key === viewKey }) ? viewKey : 'active'
+  try {
+    if (window.localStorage) window.localStorage.setItem(SALES_MANAGER_VIEW_STORAGE_KEY, salesManagerView)
+  } catch (error) {}
+  if (currentSalesHubPayload) render(currentSalesHubPayload)
+}
+
+function getFilteredSalesManagerReport(report) {
+  var viewKey = salesManagerView || 'active'
+  var filteredProjectSuggestions = (report.projectSuggestions || []).filter(function(project) {
+    return caseMatchesManagerView(project, viewKey, report) ||
+      (project.listings || []).some(function(listing) {
+        return caseMatchesManagerView(listing, viewKey, report)
+      })
+  })
+  var filteredGroups = (report.groups || []).map(function(group) {
+    var listings = (group.listings || []).filter(function(listing) {
+      return caseMatchesManagerView(listing, viewKey, report)
+    })
+    return Object.assign({}, group, {
+      listings: listings,
+      staleCount: listings.length,
+      oldestDays: listings.reduce(function(max, listing) {
+        return Math.max(max, listing.daysSinceReset || 0)
+      }, 0),
+    })
+  }).filter(function(group) {
+    return group.listings.length > 0
+  })
+
+  return Object.assign({}, report, {
+    projectSuggestions: filteredProjectSuggestions,
+    groups: filteredGroups,
+    staleListings: (report.staleListings || []).filter(function(listing) {
+      return caseMatchesManagerView(listing, viewKey, report)
+    }),
+    managerView: viewKey,
+    managerViewCounts: Object.fromEntries(SALES_MANAGER_VIEWS.map(function(view) {
+      return [view.key, countManagerView(report, view.key)]
+    })),
+  })
 }
 
 function renderStatusPill(label, className) {
@@ -665,6 +877,15 @@ function applyCaseUpdates(target, updates) {
   ;['caseStatus', 'outcomeStatus', 'actionPlanState', 'actionPlanNoReason', 'actionPlanText'].forEach(function(key) {
     if (Object.prototype.hasOwnProperty.call(updates, key)) assignment[key] = updates[key] || ''
   })
+  if (Object.prototype.hasOwnProperty.call(updates, 'snoozeUntil') || Object.prototype.hasOwnProperty.call(updates, 'clearSnooze')) {
+    assignment.glsSnooze = updates.clearSnooze ? null : {
+      until: updates.snoozeUntil || '',
+      reason: updates.snoozeReason || '',
+      snoozedAt: new Date().toISOString(),
+      snoozedBy: 'Sales Hub user',
+    }
+    if (target !== assignment) target.glsSnooze = assignment.glsSnooze
+  }
 }
 
 function saveLeaderAssignment(listing, leaderKey, select) {
@@ -700,7 +921,7 @@ function saveGroupAssignment(group, leaderKey, select) {
   })
 }
 
-function saveProjectUpdate(project, updates, control) {
+function saveProjectUpdate(project, updates, control, message) {
   if (control) control.disabled = true
   setSalesStatus('Saving project case...', 'info')
   postJson('/api/sales-hub/project-case', Object.assign({
@@ -716,14 +937,14 @@ function saveProjectUpdate(project, updates, control) {
     ;(project.listings || []).forEach(function(listing) {
       applyCaseUpdates(listing, updates || {})
     })
-    finishSalesSave(control, 'Saved project case to ' + formatNumber(response.updatedCount || 0) + ' listings.')
+    finishSalesSave(control, message || ('Saved project case to ' + formatNumber(response.updatedCount || 0) + ' listings.'))
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'GLS project update could not be saved.', 'error')
     if (control) control.disabled = false
   })
 }
 
-function saveCaseUpdate(listing, updates, control) {
+function saveCaseUpdate(listing, updates, control, message) {
   if (control) control.disabled = true
   setSalesStatus('Saving listing case...', 'info')
   postJson('/api/sales-hub/listing-case', Object.assign({
@@ -736,7 +957,7 @@ function saveCaseUpdate(listing, updates, control) {
     actionPlanText: listing.salesLeaderAssignment?.actionPlanText || listing.actionPlanText || '',
   }, updates || {})).then(function() {
     applyCaseUpdates(listing, updates || {})
-    finishSalesSave(control, 'Saved listing case.')
+    finishSalesSave(control, message || 'Saved listing case.')
   }).catch(function(error) {
     setSalesStatus(error && error.message ? error.message : 'Sales listing case could not be updated.', 'error')
     if (control) control.disabled = false
@@ -800,6 +1021,9 @@ function renderProjectControls(project, report) {
     }, clearButton)
   })
   wrap.appendChild(clearButton)
+  wrap.appendChild(renderSnoozeControls(project, report, function(updates, control, message) {
+    saveProjectUpdate(project, updates, control, message)
+  }))
   return wrap
 }
 
@@ -867,6 +1091,81 @@ function renderCaseControls(listing, report) {
   wrap.appendChild(renderCaseSelect('Outcome', assignment.outcomeStatus || 'open', report.outcomeStatusOptions || [], function(value, select) {
     saveCaseUpdate(listing, { outcomeStatus: value }, select)
   }))
+  return wrap
+}
+
+function renderSnoozeControls(target, report, onSave) {
+  var wrap = el('div', 'sales-snooze-box')
+  var snooze = getSnoozeState(target, report)
+  if (snooze.active) {
+    wrap.appendChild(el('div', 'sales-snooze-current', 'Snoozed until ' + formatDate(snooze.until)))
+  } else if (snooze.expired) {
+    wrap.appendChild(el('div', 'sales-snooze-current sales-snooze-expired', 'Snooze expired ' + formatDate(snooze.until)))
+  }
+
+  var reason = document.createElement('input')
+  reason.type = 'text'
+  reason.className = 'sales-snooze-reason'
+  reason.placeholder = 'Snooze note'
+  reason.value = snooze.reason || ''
+  stopControlToggle(reason)
+  wrap.appendChild(reason)
+
+  var customRow = el('div', 'sales-snooze-custom')
+  var dateInput = document.createElement('input')
+  dateInput.type = 'date'
+  dateInput.className = 'sales-snooze-date'
+  dateInput.min = report.today || getTorontoDateKey()
+  dateInput.value = snooze.until || addDaysToDateKey(report.today, 14)
+  stopControlToggle(dateInput)
+  customRow.appendChild(dateInput)
+  var untilButton = document.createElement('button')
+  untilButton.type = 'button'
+  untilButton.className = 'secondary-button sales-save-button'
+  untilButton.textContent = 'Until'
+  untilButton.addEventListener('click', function() {
+    var until = dateInput.value || addDaysToDateKey(report.today, 14)
+    onSave({
+      snoozeUntil: until,
+      snoozeReason: reason.value,
+    }, untilButton, 'Snoozed until ' + formatDate(until) + '.')
+  })
+  customRow.appendChild(untilButton)
+  wrap.appendChild(customRow)
+
+  var quickRow = el('div', 'sales-snooze-actions')
+  ;[
+    { label: '2w', days: 14 },
+    { label: '30d', days: 30 },
+  ].forEach(function(option) {
+    var button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'secondary-button sales-save-button'
+    button.textContent = option.label
+    button.addEventListener('click', function() {
+      var until = addDaysToDateKey(report.today, option.days)
+      onSave({
+        snoozeUntil: until,
+        snoozeReason: reason.value,
+      }, button, 'Snoozed until ' + formatDate(until) + '.')
+    })
+    quickRow.appendChild(button)
+  })
+
+  var clear = document.createElement('button')
+  clear.type = 'button'
+  clear.className = 'secondary-button sales-save-button'
+  clear.textContent = 'Clear'
+  clear.disabled = !snooze.until
+  clear.addEventListener('click', function() {
+    onSave({
+      clearSnooze: true,
+      snoozeUntil: '',
+      snoozeReason: '',
+    }, clear, 'Snooze cleared.')
+  })
+  quickRow.appendChild(clear)
+  wrap.appendChild(quickRow)
   return wrap
 }
 
@@ -946,6 +1245,9 @@ function renderListing(listing, report) {
   pills.appendChild(renderStatusPill('Case: ' + labelFromOptions(report.caseStatusOptions || [], caseStatus, caseStatus), 'status-pill status-pill-neutral'))
   pills.appendChild(renderStatusPill('Outcome: ' + labelFromOptions(report.outcomeStatusOptions || [], outcomeStatus, outcomeStatus), getOutcomeClass(outcomeStatus)))
   pills.appendChild(renderStatusPill('Game plan: ' + labelFromOptions(report.actionPlanStateOptions || [], assignment.actionPlanState || 'unknown', assignment.actionPlanState || 'unknown'), (assignment.actionPlanState === 'yes') ? 'status-pill status-pill-success' : 'status-pill status-pill-neutral'))
+  var snooze = getSnoozeState(listing, report)
+  if (snooze.active) pills.appendChild(renderStatusPill('Snoozed until ' + formatDate(snooze.until), 'status-pill status-pill-warning'))
+  if (snooze.expired) pills.appendChild(renderStatusPill('Snooze expired ' + formatDate(snooze.until), 'status-pill status-pill-risk'))
   main.appendChild(pills)
   item.appendChild(main)
 
@@ -953,6 +1255,9 @@ function renderListing(listing, report) {
   next.appendChild(renderLeaderAssignment(listing, report.salesLeaders || []))
   next.appendChild(renderCaseControls(listing, report))
   next.appendChild(renderActionPlanControls(listing, report))
+  next.appendChild(renderSnoozeControls(listing, report, function(updates, control, message) {
+    saveCaseUpdate(listing, updates, control, message)
+  }))
   next.appendChild(el('span', getActionPlanClass(listing.shoppingListMatch), getActionPlanLabel(listing.shoppingListMatch)))
   next.appendChild(el('span', 'sales-listing-next-copy', getActionPlanCopy(listing)))
   next.appendChild(renderCaseHistory(assignment.caseHistory || [], 'No listing case history yet. The next save will appear here.'))

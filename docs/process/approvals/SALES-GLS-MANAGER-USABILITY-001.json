@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SALES-GLS-MANAGER-USABILITY-001",
+  "approvedBy": "Steve asked main Codex to review Sales Hub work and make sure it is safe to push; Codex approved after code review and focused proof hardening",
+  "approvedAt": "2026-05-14T18:48:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/sales-gls-manager-usability-001-plan.md",
+  "approvedPlanSha256": "825ae7e88d638fdbc7ae68fafd85e1748027bdc526732da79890c4f8339bec3a",
+  "approvedRepoHead": "b0d3bda10d3b67ad57bdf4c8cfd5e5a08257513f",
+  "notes": "Approved as a Sales Hub GLS Manager usability review-and-ship slice using the existing scoped card. Scope: manager filters, snooze controls, proof upgrade, closeout. Not approved: ClickUp writes, group split/merge overrides, Sales KPI/FUB coach work, broad Foundation changes, or pretending this had pre-build sprint stage progression.",
+  "approvalDigest": "39efef18e06092a047e8a6f9da4f51db83ec53c9c54f5e76b1afc8dbcc577877"
+}
