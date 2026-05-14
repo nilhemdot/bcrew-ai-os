@@ -5190,6 +5190,98 @@ async function buildFoundationHubSummaryPayload() {
   }
 }
 
+function compactFoundationRun(run = {}) {
+  if (!run || typeof run !== 'object') return null
+  return {
+    runId: run.runId || run.run_id || null,
+    status: run.status || null,
+    generatedAt: run.generatedAt || run.createdAt || run.finishedAt || run.updatedAt || null,
+    startedAt: run.startedAt || run.started_at || null,
+    finishedAt: run.finishedAt || run.finished_at || null,
+    durationMs: run.durationMs || run.duration_ms || null,
+    candidatesRead: run.candidatesRead || run.candidates_read || run.summary?.candidatesRead || null,
+    itemsProduced: run.itemsProduced || run.items_produced || run.summary?.itemsProduced || null,
+  }
+}
+
+function compactSynthesisItem(item = {}) {
+  return {
+    synthesisItemId: item.synthesisItemId,
+    runId: item.runId,
+    rank: item.rank,
+    itemType: item.itemType,
+    status: item.status,
+    title: item.title,
+    oneLine: item.oneLine,
+    whyItMatters: item.whyItMatters,
+    recommendedNextAction: item.recommendedNextAction,
+    suggestedOwner: item.suggestedOwner,
+    sourceCount: item.sourceCount,
+    sourceIds: Array.isArray(item.sourceIds) ? item.sourceIds : [],
+    confidence: item.confidence,
+    sensitivity: item.sensitivity,
+    createdAt: item.createdAt,
+  }
+}
+
+function compactSharedCommunicationSynthesis(synthesis = {}) {
+  if (!synthesis || typeof synthesis !== 'object') return synthesis
+  return {
+    latestRun: compactFoundationRun(synthesis.latestRun),
+    runs: Array.isArray(synthesis.runs) ? synthesis.runs.slice(0, 5).map(compactFoundationRun) : [],
+    latestItems: Array.isArray(synthesis.latestItems) ? synthesis.latestItems.map(compactSynthesisItem) : [],
+    latestTrustedItems: Array.isArray(synthesis.latestTrustedItems) ? synthesis.latestTrustedItems.map(compactSynthesisItem) : [],
+    latestAdvisoryItems: Array.isArray(synthesis.latestAdvisoryItems) ? synthesis.latestAdvisoryItems.map(compactSynthesisItem) : [],
+    verificationSummary: synthesis.verificationSummary || null,
+    fullPayloadCompacted: true,
+  }
+}
+
+function compactLifecycleChild(child = {}) {
+  if (!child || typeof child !== 'object') return child
+  return {
+    status: child.status,
+    cardId: child.cardId,
+    closeoutKey: child.closeoutKey,
+    generatedAt: child.generatedAt,
+    summary: child.summary || null,
+  }
+}
+
+function compactFoundationSourceLifecycle(lifecycle = {}) {
+  if (!lifecycle || typeof lifecycle !== 'object') return lifecycle
+  return {
+    schemaVersion: lifecycle.schemaVersion,
+    generatedAt: lifecycle.generatedAt,
+    cardId: lifecycle.cardId,
+    closeoutKey: lifecycle.closeoutKey,
+    route: lifecycle.route,
+    apiPath: lifecycle.apiPath,
+    definitions: lifecycle.definitions,
+    scope: lifecycle.scope,
+    summary: lifecycle.summary,
+    findings: lifecycle.findings,
+    lanes: lifecycle.lanes,
+    sources: lifecycle.sources,
+    targets: lifecycle.targets,
+    systems: lifecycle.systems,
+    sourceMaturityGrid: compactLifecycleChild(lifecycle.sourceMaturityGrid),
+    sourceCoverageCloseout: compactLifecycleChild(lifecycle.sourceCoverageCloseout),
+    sourceExtractionCoverage: compactLifecycleChild(lifecycle.sourceExtractionCoverage),
+    sourceConnectorMatrix: compactLifecycleChild(lifecycle.sourceConnectorMatrix),
+    sourceHubRoutingMatrix: compactLifecycleChild(lifecycle.sourceHubRoutingMatrix),
+    marketingSourceMap: compactLifecycleChild(lifecycle.marketingSourceMap),
+    brandStack: compactLifecycleChild(lifecycle.brandStack),
+    tierBehavioralCompletion: compactLifecycleChild(lifecycle.tierBehavioralCompletion),
+    verificationRuns: compactLifecycleChild(lifecycle.verificationRuns),
+    perUserChangelog: compactLifecycleChild(lifecycle.perUserChangelog),
+    restrictedDecisionQueue: compactLifecycleChild(lifecycle.restrictedDecisionQueue),
+    foundationUiComplete: compactLifecycleChild(lifecycle.foundationUiComplete),
+    currentSprint: compactLifecycleChild(lifecycle.currentSprint),
+    fullPayloadCompacted: true,
+  }
+}
+
 app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
   const startedAtMs = Date.now()
   try {
@@ -5421,6 +5513,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
     sourceLifecycle.currentSprint = currentSprint
     const fullPayload = {
       ...snapshot,
+      sharedCommunicationSynthesis: compactSharedCommunicationSynthesis(snapshot.sharedCommunicationSynthesis),
       kpiHealth,
       backlogHygiene,
       foundation1100Review,
@@ -5436,7 +5529,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
       doctrinePropagation,
       decisionAutoEmit,
       sheetsApiTrust,
-      sourceLifecycle,
+      sourceLifecycle: compactFoundationSourceLifecycle(sourceLifecycle),
       sourceMaturityGrid,
       sourceExtractionCoverage,
       sourceCoverageCloseout,

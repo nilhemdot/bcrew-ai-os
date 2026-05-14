@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SHIP-GATE-FRESHNESS-OWNERSHIP-001",
+  "approvedBy": "Steve said go for the Foundation Ship-Gate Speed + Payload Cleanup Sprint; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T23:25:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/ship-gate-freshness-ownership-001-plan.md",
+  "approvedPlanSha256": "6d4e18431012e4a539ea26bdf9260d24228f22de73efeff86787844d4852d42d",
+  "approvedRepoHead": "7d287210d640e91d2fbd2e405e90ff039da5dee7",
+  "notes": "Expose manual/scheduled/degraded freshness ownership in preflight output. Not approved: autonomous repair or scheduling manual LLM auth audit.",
+  "approvalDigest": "bc224c70316a54a55b675c0c6c97e6543eeddc3bf069f7825c9d10131ca672d9"
+}

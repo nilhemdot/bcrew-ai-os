@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-VERIFY-MODULE-SPLIT-002",
+  "approvedBy": "Steve said go for the Foundation Ship-Gate Speed + Payload Cleanup Sprint; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T23:25:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-verify-module-split-002-plan.md",
+  "approvedPlanSha256": "e7343d818bc90543ca7726b739fe6fd2eec1bf171b53235fc21c7a4ae7e2acff",
+  "approvedRepoHead": "7d287210d640e91d2fbd2e405e90ff039da5dee7",
+  "notes": "Split one LLM auth audit verifier area into a module with dogfood proof. Not approved: broad verifier rewrite or model route changes.",
+  "approvalDigest": "adbac48282b9d6037ec0a7e82fc8fa7836d170e6cb00c9b9e9f9076f286a05f4"
+}

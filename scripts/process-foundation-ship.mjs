@@ -37,11 +37,12 @@ function printUsage() {
   console.log('  npm run process:foundation-ship -- --card=<CARD> --planApprovalRef=<APPROVAL_JSON> --closeoutKey=<CLOSEOUT_KEY> [--commitRef=HEAD]')
   console.log('')
   console.log('Runs, in order:')
-  console.log('  1. Restart supervised dashboard/worker runtime when available')
-  console.log('  2. npm run process:ship-check')
-  console.log('  3. npm run process:fanout-check')
-  console.log('  4. npm run process:post-ship-fanout')
-  console.log('  5. npm run foundation:verify')
+  console.log('  1. npm run process:foundation-ship-preflight')
+  console.log('  2. Restart supervised dashboard/worker runtime when available')
+  console.log('  3. npm run process:ship-check')
+  console.log('  4. npm run process:fanout-check')
+  console.log('  5. npm run process:post-ship-fanout')
+  console.log('  6. npm run foundation:verify')
 }
 
 function formatDuration(ms) {
@@ -209,6 +210,8 @@ async function main() {
   const strictShipCheckVerify = args.strictShipCheckVerify === true || args.strictShipCheckVerify === 'true'
   const parallelFanout = args.parallelFanout === true || args.parallelFanout === 'true'
   const skipRuntimeRestart = args.skipRuntimeRestart === true || args.skipRuntimeRestart === 'true'
+  const skipPreflight = args.skipPreflight === true || args.skipPreflight === 'true'
+  const skipPreflightReason = normalize(args.skipPreflightReason)
   const targetMs = Number(args.targetMs || 300000)
 
   console.log('Foundation ship gate')
@@ -217,12 +220,19 @@ async function main() {
   console.log(`  Approval: ${normalize(args.planApprovalRef) || 'missing'}`)
   console.log(`  Commit ref: ${commitRef}`)
   console.log(`  Fanout mode: ${parallelFanout ? 'parallel' : 'sequential'}`)
+  console.log(`  Preflight: ${skipPreflight ? 'skipped' : 'enabled'}`)
   console.log(`  Runtime restart: ${skipRuntimeRestart ? 'skipped' : 'enabled'}`)
 
   if (missing.length) {
     console.error('')
     console.error(`Refusing to run ship gates. Missing required argument(s): ${missing.map(key => `--${key}`).join(', ')}`)
     printUsage()
+    process.exitCode = 1
+    return
+  }
+  if (skipPreflight && !skipPreflightReason) {
+    console.error('')
+    console.error('Refusing to skip Foundation ship preflight without --skipPreflightReason=<reason>.')
     process.exitCode = 1
     return
   }
@@ -250,6 +260,27 @@ async function main() {
   }
 
   const timing = []
+  if (skipPreflight) {
+    const skipped = {
+      label: 'process:foundation-ship-preflight',
+      stdout: `Preflight skipped by explicit reason: ${skipPreflightReason}\n`,
+      stderr: '',
+      durationMs: 0,
+      attempts: 1,
+    }
+    printStepResult(skipped)
+    timing.push(skipped)
+  } else {
+    const preflight = await runStep('process:foundation-ship-preflight', [
+      'run',
+      'process:foundation-ship-preflight',
+      '--',
+      '--json',
+    ])
+    printStepResult(preflight)
+    timing.push(preflight)
+  }
+
   const runtimeRestart = await runRuntimeRestartStep({ skipRuntimeRestart })
   printStepResult(runtimeRestart)
   timing.push(runtimeRestart)

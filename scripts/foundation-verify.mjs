@@ -692,6 +692,15 @@ import {
   buildLlmAuthAuditStatus,
 } from '../lib/llm-auth-audit-proof.js'
 import {
+  FOUNDATION_VERIFY_LLM_AUTH_AUDIT_SCRIPT_PATH,
+  buildLlmAuthAuditVerifierDogfoodProof,
+  evaluateLlmAuthAuditVerifierCheck,
+} from '../lib/foundation-verify-llm-auth-audit.js'
+import {
+  FOUNDATION_SHIP_PREFLIGHT_SCRIPT_PATH,
+  buildFoundationShipPreflightDogfoodProof,
+} from '../lib/foundation-ship-preflight.js'
+import {
   SOURCE_EXTRACTION_GAP_FOLLOWUP_APPROVAL_PATH,
   SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID,
   SOURCE_EXTRACTION_GAP_FOLLOWUP_CLOSEOUT_KEY,
@@ -999,10 +1008,24 @@ const FOUNDATION_VERIFICATION_CLEANUP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'RECURRING-DEEP-AUDIT-001',
 ]
 
+const FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY = 'foundation-ship-gate-speed-payload-cleanup-v1'
+const FOUNDATION_VERIFY_TIMING_CARD_ID = 'FOUNDATION-VERIFY-TIMING-001'
+const FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_CARD_ID = 'FOUNDATION-HUB-FULL-PAYLOAD-REDUCE-001'
+const FOUNDATION_VERIFY_PROFILE_SCRIPT_PATH = 'scripts/process-foundation-verify-profile-check.mjs'
+const FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_SCRIPT_PATH = 'scripts/process-foundation-hub-full-payload-reduce-check.mjs'
+const FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'SHIP-GATE-FAST-PREFLIGHT-001',
+  FOUNDATION_VERIFY_TIMING_CARD_ID,
+  'FOUNDATION-VERIFY-MODULE-SPLIT-002',
+  FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_CARD_ID,
+  'SHIP-GATE-FRESHNESS-OWNERSHIP-001',
+]
+
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..')
+const foundationVerifyTimings = []
 
 function parseArgs(argv) {
   const result = {}
@@ -1026,16 +1049,46 @@ function fail(check, detail = '') {
   console.error(`FAIL ${check}${detail ? ` -> ${detail}` : ''}`)
 }
 
+function recordFoundationVerifyTiming(label, startedAt, metadata = {}) {
+  foundationVerifyTimings.push({
+    label,
+    durationMs: Date.now() - startedAt,
+    ...metadata,
+  })
+}
+
+function printFoundationVerifyTimingProfile(totalStartedAt) {
+  const totalMs = Date.now() - totalStartedAt
+  const sections = [...foundationVerifyTimings]
+    .sort((a, b) => b.durationMs - a.durationMs)
+    .slice(0, 15)
+  console.log('')
+  line('Foundation verify timing profile', `${Math.round(totalMs)}ms total / ${foundationVerifyTimings.length} sections`)
+  for (const section of sections) {
+    line(`  ${section.label}`, `${Math.round(section.durationMs)}ms`)
+  }
+  console.log(`FOUNDATION_VERIFY_PROFILE ${JSON.stringify({
+    totalMs,
+    sectionCount: foundationVerifyTimings.length,
+    slowestSections: sections,
+  })}`)
+}
+
 async function readRepoFile(relativePath) {
   return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
 }
 
 async function fetchJson(baseUrl, pathname) {
-  const response = await fetch(new URL(pathname, baseUrl))
-  if (!response.ok) {
-    throw new Error(`${pathname} returned ${response.status} ${response.statusText}`)
+  const startedAt = Date.now()
+  try {
+    const response = await fetch(new URL(pathname, baseUrl))
+    if (!response.ok) {
+      throw new Error(`${pathname} returned ${response.status} ${response.statusText}`)
+    }
+    return response.json()
+  } finally {
+    recordFoundationVerifyTiming(`fetch:${pathname}`, startedAt)
   }
-  return response.json()
 }
 
 async function fetchTextResponse(baseUrl, pathname, options = {}) {
@@ -1130,12 +1183,17 @@ async function fetchTextResponseWithHostHeader(baseUrl, pathname, hostHeader) {
 }
 
 async function runHealthScript(scriptName) {
-  const { stdout, stderr } = await execFile('npm', ['run', '-s', scriptName], {
-    cwd: repoRoot,
-    env: process.env,
-    maxBuffer: 1024 * 1024,
-  })
-  return (stdout || stderr).trim()
+  const startedAt = Date.now()
+  try {
+    const { stdout, stderr } = await execFile('npm', ['run', '-s', scriptName], {
+      cwd: repoRoot,
+      env: process.env,
+      maxBuffer: 1024 * 1024,
+    })
+    return (stdout || stderr).trim()
+  } finally {
+    recordFoundationVerifyTiming(`health:${scriptName}`, startedAt)
+  }
 }
 
 async function runHealthScriptSafe(scriptName) {
@@ -1155,12 +1213,17 @@ async function runHealthScriptSafe(scriptName) {
 }
 
 async function runHealthScriptWithArgs(scriptName, args = []) {
-  const { stdout, stderr } = await execFile('npm', ['run', '-s', scriptName, '--', ...args], {
-    cwd: repoRoot,
-    env: process.env,
-    maxBuffer: 1024 * 1024,
-  })
-  return (stdout || stderr).trim()
+  const startedAt = Date.now()
+  try {
+    const { stdout, stderr } = await execFile('npm', ['run', '-s', scriptName, '--', ...args], {
+      cwd: repoRoot,
+      env: process.env,
+      maxBuffer: 1024 * 1024,
+    })
+    return (stdout || stderr).trim()
+  } finally {
+    recordFoundationVerifyTiming(`health:${scriptName} ${args.join(' ')}`.trim(), startedAt)
+  }
 }
 
 async function getCurrentRepoHead() {
@@ -1531,8 +1594,10 @@ async function auditDirectModelHostUsage() {
 }
 
 async function main() {
+  const verifyStartedAt = Date.now()
   const args = parseArgs(process.argv.slice(2))
   const baseUrl = typeof args.baseUrl === 'string' ? args.baseUrl : 'http://localhost:3000'
+  const profileEnabled = args.profile === true || args.profile === 'true' || process.env.FOUNDATION_VERIFY_PROFILE === '1'
   const checks = []
 
   line('Foundation verification')
@@ -1649,6 +1714,12 @@ async function main() {
   const llmAuthAuditProofSource = await readRepoFile('lib/llm-auth-audit-proof.js')
   const llmAuthAuditCheckSource = await readRepoFile(LLM_AUTH_AUDIT_SCRIPT_PATH)
   const llmAuthAuditPlanSource = await readRepoFile(LLM_AUTH_AUDIT_PLAN_PATH)
+  const llmAuthAuditVerifierModuleSource = await readRepoFile('lib/foundation-verify-llm-auth-audit.js')
+  const llmAuthAuditVerifierCheckSource = await readRepoFile(FOUNDATION_VERIFY_LLM_AUTH_AUDIT_SCRIPT_PATH)
+  const foundationShipPreflightSource = await readRepoFile('lib/foundation-ship-preflight.js')
+  const foundationShipPreflightScriptSource = await readRepoFile(FOUNDATION_SHIP_PREFLIGHT_SCRIPT_PATH)
+  const foundationVerifyProfileScriptSource = await readRepoFile(FOUNDATION_VERIFY_PROFILE_SCRIPT_PATH)
+  const foundationHubFullPayloadReduceScriptSource = await readRepoFile(FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_SCRIPT_PATH)
   const sourceExtractionGapFollowupSource = await readRepoFile('lib/source-extraction-gap-followup.js')
   const sourceExtractionGapFollowupCheckSource = await readRepoFile(SOURCE_EXTRACTION_GAP_FOLLOWUP_SCRIPT_PATH)
   const sourceExtractionGapFollowupPlanSource = await readRepoFile(SOURCE_EXTRACTION_GAP_FOLLOWUP_PLAN_PATH)
@@ -3476,6 +3547,7 @@ async function main() {
   const foundationHub = {
     ...foundationHubFull,
     ...foundationHubSummary,
+    backlogItems: foundationHubFull.backlogItems || foundationHubSummary.backlogItems,
     foundation1100Review: foundationHubFull.foundation1100Review || foundationHubSummary.foundation1100Review,
     fullDiagnostics: foundationHubFull,
   }
@@ -3692,6 +3764,7 @@ async function main() {
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
   const foundationBuildLogMonolithSliceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY) || null
   const foundationVerificationCleanupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY) || null
+  const foundationShipGateSpeedPayloadCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -11142,48 +11215,37 @@ async function main() {
     'CONNECTOR-CREDENTIAL-001 adds no-secret connector credential/preflight truth',
     `lane=${connectorCredential?.lane || 'missing'} stage=${connectorCredentialCurrentItem?.stage || 'closed'} registryRows=${connectorCredentialRegistry.summary?.rowCount || 0} credentialRows=${sourceConnectorMatrix.summary?.credentialCoveredCount ?? 'missing'}`,
   )
+  const llmAuthAuditVerifierCheck = evaluateLlmAuthAuditVerifierCheck({
+    llmAuthAuditIsBuilding,
+    llmAuthAuditIsClosed,
+    packageJson,
+    llmAuthAuditApprovalValidation,
+    foundationHub,
+    foundationCurrentSprintStatus,
+    llmAuthAuditRuntimeStatus,
+    llmAuthAuditProofSource,
+    llmAuthAuditCheckSource,
+    llmAuthAuditPlanSource,
+    serverSource,
+    llmAuthAuditCloseout,
+  })
+  const llmAuthAuditVerifierDogfoodProof = buildLlmAuthAuditVerifierDogfoodProof()
   ensure(
     checks,
-    (llmAuthAuditIsBuilding || llmAuthAuditIsClosed) &&
-      packageJson.scripts?.['process:llm-auth-audit-check'] === `node --env-file-if-exists=.env ${LLM_AUTH_AUDIT_SCRIPT_PATH}` &&
-      llmAuthAuditApprovalValidation.ok &&
-      llmAuthAuditApprovalValidation.mode === 'v2' &&
-      llmAuthAuditApprovalValidation.approval?.approvedPlanRef === LLM_AUTH_AUDIT_PLAN_PATH &&
-      foundationHub.currentSprint?.status === 'healthy' &&
-      foundationCurrentSprintStatus.status === 'healthy' &&
-      llmAuthAuditRuntimeStatus.status === 'healthy' &&
-      llmAuthAuditRuntimeStatus.summary?.credentialCount >= 6 &&
-      llmAuthAuditRuntimeStatus.summary?.routeCount >= 10 &&
-      llmAuthAuditRuntimeStatus.summary?.latestJob?.status === 'succeeded' &&
-      llmAuthAuditRuntimeStatus.summary?.dryRunCall?.status === 'skipped' &&
-      includesAll(llmAuthAuditProofSource, [
-        'LLM_AUTH_AUDIT_REQUIRED_PROBES',
-        'direct API fallback routes are explicitly available or blocked',
-        'route-selection proof is dry-run only',
-        'LLM audit runtime readback contains no raw credential-shaped values',
+    llmAuthAuditVerifierCheck.ok &&
+      llmAuthAuditVerifierDogfoodProof.ok &&
+      packageJson.scripts?.['process:foundation-verify-llm-auth-audit-check'] === `node --env-file-if-exists=.env ${FOUNDATION_VERIFY_LLM_AUTH_AUDIT_SCRIPT_PATH}` &&
+      includesAll(llmAuthAuditVerifierModuleSource, [
+        'evaluateLlmAuthAuditVerifierCheck',
+        'buildLlmAuthAuditVerifierDogfoodProof',
+        'missingCloseoutProof',
       ]) &&
-      includesAll(llmAuthAuditCheckSource, [
-        'getLlmRuntimeSnapshot',
-        'getFoundationJobRunSnapshot',
-        'maxAgeHours',
-        'closeSprintCard',
-        'SOURCE-EXTRACTION-GAP-FOLLOWUP-001',
-      ]) &&
-      includesAll(llmAuthAuditPlanSource, [
-        'llm-auth-audit',
-        'Direct API fallback remains guarded',
-        'No new model spending path',
-      ]) &&
-      includesAll(serverSource, [
-        '/api/foundation/llm-runtime',
-        'getLlmRuntimeSnapshot',
-      ]) &&
-      (!llmAuthAuditIsClosed ||
-        ((llmAuthAuditCloseout.proofCommands || []).includes('npm run process:llm-auth-audit-check -- --json') &&
-          (llmAuthAuditCloseout.proofCommands || []).includes('npm run foundation:job -- --job=llm-auth-audit --actor=codex-llm-auth-audit-proof') &&
-          (llmAuthAuditCloseout.backlogIds || []).includes(LLM_AUTH_AUDIT_CARD_ID))),
+      includesAll(llmAuthAuditVerifierCheckSource, [
+        'buildLlmAuthAuditVerifierDogfoodProof',
+        'FOUNDATION_VERIFY_LLM_AUTH_AUDIT_CARD_ID',
+      ]),
     'LLM-AUTH-AUDIT-001 records fresh model route/auth truth without opening new spending paths',
-    `lane=${llmAuthAudit?.lane || 'missing'} stage=${llmAuthAuditCurrentItem?.stage || 'closed'} status=${llmAuthAuditRuntimeStatus.status} routes=${llmAuthAuditRuntimeStatus.summary?.routeCount || 0} latestJob=${llmAuthAuditRuntimeStatus.summary?.latestJob?.status || 'missing'}`,
+    `lane=${llmAuthAudit?.lane || 'missing'} stage=${llmAuthAuditCurrentItem?.stage || 'closed'} status=${llmAuthAuditRuntimeStatus.status} routes=${llmAuthAuditRuntimeStatus.summary?.routeCount || 0} latestJob=${llmAuthAuditRuntimeStatus.summary?.latestJob?.status || 'missing'} module=${llmAuthAuditVerifierCheck.detail}`,
   )
   ensure(
     checks,
@@ -13526,6 +13588,53 @@ async function main() {
     'Foundation full diagnostics route bounds slow Agent Feedback panels and keeps the route modular',
     `cards=${foundationFullDiagnosticsPerfCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} route=${foundationHubFull.foundationHubPerformance?.durationMs || 'missing'}ms/${foundationHubFull.foundationHubPerformance?.payloadBytes || 'missing'}B dogfood=${foundationFullDiagnosticsDogfood.ok ? 'pass' : 'blocked'}`,
   )
+  const foundationShipGateSpeedPayloadCards = FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const foundationShipPreflightDogfood = buildFoundationShipPreflightDogfoodProof()
+  ensure(
+    checks,
+      foundationShipGateSpeedPayloadCards.every(card =>
+        card &&
+        card.lane === 'done' &&
+        String(card.statusNote || '').includes(FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY)
+      ) &&
+      foundationShipGateSpeedPayloadCloseout?.operatorCloseout === true &&
+      FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.every(id =>
+        (foundationShipGateSpeedPayloadCloseout.backlogIds || []).includes(id)
+      ) &&
+      foundationShipPreflightDogfood.ok === true &&
+      foundationShipPreflightDogfood.blockedCases?.length >= 3 &&
+      packageJson.scripts?.['process:foundation-ship-preflight'] === `node --env-file-if-exists=.env ${FOUNDATION_SHIP_PREFLIGHT_SCRIPT_PATH}` &&
+      packageJson.scripts?.['process:foundation-verify-profile-check'] === `node --env-file-if-exists=.env ${FOUNDATION_VERIFY_PROFILE_SCRIPT_PATH}` &&
+      packageJson.scripts?.['process:foundation-verify-llm-auth-audit-check'] === `node --env-file-if-exists=.env ${FOUNDATION_VERIFY_LLM_AUTH_AUDIT_SCRIPT_PATH}` &&
+      packageJson.scripts?.['process:foundation-hub-full-payload-reduce-check'] === `node --env-file-if-exists=.env ${FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_SCRIPT_PATH}` &&
+      processFoundationShipSource.includes('process:foundation-ship-preflight') &&
+      processFoundationShipSource.includes('skipPreflightReason') &&
+      foundationShipPreflightSource.includes('buildFoundationShipPreflightDogfoodProof') &&
+      foundationShipPreflightSource.includes('LLM_AUTH_AUDIT_REPAIR_COMMAND') &&
+      foundationShipPreflightScriptSource.includes('getLlmRuntimeSnapshot') &&
+      foundationShipPreflightScriptSource.includes('getFoundationJobRunSnapshot') &&
+      foundationVerifySource.includes('recordFoundationVerifyTiming') &&
+      foundationVerifySource.includes('FOUNDATION_VERIFY_PROFILE') &&
+      foundationVerifyProfileScriptSource.includes('profile command runs the real verifier and does not skip checks') &&
+      llmAuthAuditVerifierModuleSource.includes('evaluateLlmAuthAuditVerifierCheck') &&
+      llmAuthAuditVerifierModuleSource.includes('buildLlmAuthAuditVerifierDogfoodProof') &&
+      llmAuthAuditVerifierCheckSource.includes('buildLlmAuthAuditVerifierDogfoodProof') &&
+      foundationHubFullPayloadReduceScriptSource.includes('live full payload is materially smaller than measured baseline') &&
+      serverSource.includes('compactSharedCommunicationSynthesis') &&
+      serverSource.includes('compactFoundationSourceLifecycle') &&
+      foundationHubFullDiagnosticsSource.includes('maxBytes: 4200000') &&
+      foundationHubPerformanceSource.includes('maxPayloadBytes: 4500000') &&
+      foundationHubFull.sourceLifecycle?.fullPayloadCompacted === true &&
+      foundationHubFull.sharedCommunicationSynthesis?.fullPayloadCompacted === true &&
+      foundationHubFull.foundationHubPerformance?.budgetStatus === 'healthy' &&
+      Number(foundationHubFull.foundationHubPerformance?.payloadBytes || 0) <= FOUNDATION_FULL_DIAGNOSTICS_BUDGET.maxBytes &&
+      foundationBuildCloseoutCleanupRecordsSource.includes(FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY) &&
+      await repoFileExists('docs/handoffs/2026-05-14-foundation-ship-gate-speed-payload-cleanup-closeout.md') &&
+      includesAll(foundationVerifySource, FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'Foundation ship gate speed sprint adds early freshness preflight, verifier profile, verifier module split, and smaller full payload',
+    `cards=${foundationShipGateSpeedPayloadCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} preflight=${foundationShipPreflightDogfood.ok ? 'pass' : 'blocked'} payload=${foundationHubFull.foundationHubPerformance?.payloadBytes || 'missing'}B`,
+  )
   const foundationBuildLogMonolithSliceCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) || null
   const foundationBuildLogValidation = getFoundationBuildCloseoutValidation()
   const foundationBuildLogOwnershipProof = buildSyntheticBuildLogOwnershipProof()
@@ -14164,6 +14273,7 @@ async function main() {
   const failed = checks.filter(check => !check.ok)
   console.log('')
   line('Summary', `${checks.length - failed.length}/${checks.length} checks passed`)
+  if (profileEnabled) printFoundationVerifyTimingProfile(verifyStartedAt)
 
   if (failed.length) {
     process.exitCode = 1

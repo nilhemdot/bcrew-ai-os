@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-HUB-FULL-PAYLOAD-REDUCE-001",
+  "approvedBy": "Steve said go for the Foundation Ship-Gate Speed + Payload Cleanup Sprint; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T23:25:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-hub-full-payload-reduce-001-plan.md",
+  "approvedPlanSha256": "14424c77da083bbbc478369392fb3d72983f2bbb5c7291cea9dafcd5ead7ca3c",
+  "approvedRepoHead": "7d287210d640e91d2fbd2e405e90ff039da5dee7",
+  "notes": "Reduce full Foundation Hub payload with measured before/after proof. Not approved: removing operator truth or UI redesign.",
+  "approvalDigest": "c5d66aa7b9c2ac9c77b38e1de08f85d53a09552f79c2ecb1f15c2237be875154"
+}

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-14
-Version: v6.36 — Foundation Operating Reliability closed
+Version: v6.37 - Foundation Ship Gate Speed + Payload Cleanup closed
 Status: Active
 
 Use this doc for one question:
@@ -73,23 +73,25 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Operating Reliability
+## Current Sprint: Foundation Ship Gate Speed + Payload Cleanup
 
-Live sprint ID: `foundation-operating-reliability-2026-05-14`.
+Live sprint ID: `foundation-ship-gate-speed-payload-cleanup-2026-05-14`.
 
-This sprint is closed under `foundation-operating-reliability-v1`. It added the missing operating reliability layer Steve expected: connector uptime, connector failure redaction/classification, runtime activation, and a report-only morning health surface. Current Sprint API owns the live stage truth; this doc records the closeout doctrine and sequence.
+This sprint is closed under `foundation-ship-gate-speed-payload-cleanup-v1`. It made Foundation shipping faster to diagnose by failing stale manual freshness before the expensive gate path, showing verifier timing by named section, splitting one verifier proof module, and shrinking full diagnostics payload without hiding required truth. Current Sprint API owns the live stage truth; this doc records the closeout doctrine and sequence.
 
 The sprint order:
 
-1. `CONNECTOR-UPTIME-MONITOR-001` — done under `foundation-operating-reliability-v1`; Foundation now reports ClickUp, FUB, Google Workspace, Slack, Missive, and KPI/Supabase health as normalized read-only source status.
-2. `SOURCE-023` — done under `foundation-operating-reliability-v1`; connector failures now classify auth, rate limit, server/network, not-found, and unknown errors with redacted operator output and bounded retry/backoff guidance.
-3. `RUNTIME-ACTIVATION-001` — done under `foundation-operating-reliability-v1`; Foundation runtime now distinguishes scheduled, manual, paused, blocked, due, stale, and failed states for jobs and connectors.
-4. `SYSTEM-HEALTH-AUDITOR-001` — done under `foundation-operating-reliability-v1`; morning health stays report-only and says plainly that the deterministic scanner is not the recurring senior-engineer deep audit.
-5. `PLAN-STATE-RECONCILE-001` — done under `foundation-operating-reliability-v1`; live sprint DB, docs, approval files, Plan Critic rows, closeout, and board doctrine agree.
+1. `SHIP-GATE-FAST-PREFLIGHT-001` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; `process:foundation-ship` now runs read-only LLM auth freshness preflight before runtime restart, ship-check, fanout, post-ship fanout, and final verifier.
+2. `FOUNDATION-VERIFY-TIMING-001` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; `foundation:verify --profile=true` emits named section timings and a machine-readable `FOUNDATION_VERIFY_PROFILE` line without skipping checks.
+3. `FOUNDATION-VERIFY-MODULE-SPLIT-002` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; the LLM auth audit verifier proof now lives in `lib/foundation-verify-llm-auth-audit.js` with its own dogfood gate.
+4. `FOUNDATION-HUB-FULL-PAYLOAD-REDUCE-001` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; full diagnostics compacts heavy `sourceLifecycle` and `sharedCommunicationSynthesis` rows and is now measured at about 3.54 MB versus the earlier 4.82 MB baseline.
+5. `SHIP-GATE-FRESHNESS-OWNERSHIP-001` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; freshness blockers show owner, manual posture, latest run, age, and repair command before late gate failures.
 
-The approved Operating Reliability sprint is complete. Stop at sprint review before opening another sprint. The `connector-uptime-monitor` Foundation job is scheduled read-only. The `code-quality-nightly-audit` job remains manual/report-first until recurring report quality is explicitly accepted. `RECURRING-DEEP-AUDIT-001` is the missing reviewer cadence and belongs in the follow-up cleanup sprint.
+The approved speed/payload cleanup sprint is complete. Stop at sprint review before opening another sprint. Latest profile proof shows `health:clickup:verify` is the largest ship-gate drag at roughly 45 seconds, followed by full Foundation Hub, Sheets, Ops Hub, KPI, and source-of-truth reads.
 
-Recommended next sprint, not silently opened: **Foundation Verification + Continued Cleanup Sprint**. Scope: `PLAN-CRITIC-ARCH-RULES-DOGFOOD-001`, `HUB-PERF-VERIFICATION-001`, `MONOLITH-SPLIT-CONTINUE-001`, and `RECURRING-DEEP-AUDIT-001`.
+Recommended next sprint, not silently opened: **Foundation Verifier Drag + ClickUp Health Boundary Sprint**. Scope should start with ClickUp verifier latency and source-health fail-soft behavior, then continue the cleanup pattern if time remains.
+
+Previous completed sprint: `foundation-operating-reliability-2026-05-14`, closed under `foundation-operating-reliability-v1`. It added connector uptime, connector failure redaction/classification, runtime activation, and a report-only morning health surface. The `connector-uptime-monitor` Foundation job is scheduled read-only. The `code-quality-nightly-audit` job remains manual/report-first until recurring report quality is explicitly accepted. `RECURRING-DEEP-AUDIT-001` is the missing reviewer cadence and belongs in a follow-up cleanup sprint.
 
 Previous completed audit sprint: `foundation-code-quality-nightly-audit-2026-05-13`, closed under `foundation-code-quality-nightly-audit-v1`. It added deterministic report-first codebase/frontend audit detectors and a manual unscheduled Foundation job. Findings are proposed backlog fixes only. It did not schedule a recurring senior-engineer deep audit.
 
