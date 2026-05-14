@@ -555,6 +555,12 @@ import {
   buildSyntheticFoundationHubBudgetProof,
 } from '../lib/foundation-hub-performance.js'
 import {
+  FOUNDATION_HUB_COMMITTED_BASELINE,
+  HUB_PERF_VERIFICATION_REPORT_PATH,
+  buildSyntheticFoundationHubPerformanceDogfoodProof,
+  evaluateFoundationHubPerformanceMeasurement,
+} from '../lib/foundation-hub-performance-verification.js'
+import {
   FOUNDATION_BUILD_CLOSEOUT_RECORDS_PATH,
   FOUNDATION_BUILD_LOG_BEHAVIOR_PATH,
   FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID,
@@ -564,6 +570,12 @@ import {
   countTextLines,
   evaluateFoundationBuildLogRegistrySplit,
 } from '../lib/foundation-build-log-monolith-slice.js'
+import {
+  RECURRING_DEEP_AUDIT_JOB_KEY,
+  buildRecurringDeepAuditContract,
+  buildRecurringDeepAuditDogfoodProof,
+  evaluateRecurringDeepAuditJob,
+} from '../lib/recurring-deep-audit.js'
 import {
   buildSyntheticSecurityBehaviorProof,
   SECURITY_BEHAVIOR_PROOF_APPROVAL_PATH,
@@ -964,6 +976,16 @@ const FOUNDATION_OPERATING_RELIABILITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'PLAN-STATE-RECONCILE-001',
 ]
 
+const FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY = 'foundation-verification-cleanup-v1'
+const FOUNDATION_VERIFICATION_CLEANUP_SCRIPT_PATH = 'scripts/process-foundation-verification-cleanup-check.mjs'
+const RECURRING_DEEP_AUDIT_SCRIPT_PATH = 'scripts/process-recurring-deep-audit-check.mjs'
+const FOUNDATION_VERIFICATION_CLEANUP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'PLAN-CRITIC-ARCH-RULES-DOGFOOD-001',
+  'HUB-PERF-VERIFICATION-001',
+  'MONOLITH-SPLIT-CONTINUE-001',
+  'RECURRING-DEEP-AUDIT-001',
+]
+
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -1101,6 +1123,22 @@ async function runHealthScript(scriptName) {
     maxBuffer: 1024 * 1024,
   })
   return (stdout || stderr).trim()
+}
+
+async function runHealthScriptSafe(scriptName) {
+  try {
+    const output = await runHealthScript(scriptName)
+    return { ok: true, output }
+  } catch (error) {
+    return {
+      ok: false,
+      output: [
+        error?.stdout,
+        error?.stderr,
+        error instanceof Error ? error.message : String(error),
+      ].filter(Boolean).join('\n').trim(),
+    }
+  }
 }
 
 async function runHealthScriptWithArgs(scriptName, args = []) {
@@ -1681,9 +1719,14 @@ async function main() {
   const planCriticScriptSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH)
   const planCriticArchitecturalRulesScriptSource = await readRepoFile(PLAN_CRITIC_ARCHITECTURAL_RULES_SCRIPT_PATH)
   const foundationHubPerformanceSource = await readRepoFile('lib/foundation-hub-performance.js')
+  const foundationHubPerformanceVerificationSource = await readRepoFile('lib/foundation-hub-performance-verification.js')
+  const recurringDeepAuditSource = await readRepoFile('lib/recurring-deep-audit.js')
   const foundationPerformanceScriptSource = await readRepoFile(FOUNDATION_PERFORMANCE_SCRIPT_PATH)
+  const recurringDeepAuditScriptSource = await readRepoFile(RECURRING_DEEP_AUDIT_SCRIPT_PATH)
+  const foundationVerificationCleanupScriptSource = await readRepoFile(FOUNDATION_VERIFICATION_CLEANUP_SCRIPT_PATH)
   const foundationBuildLogBehaviorSource = await readRepoFile(FOUNDATION_BUILD_LOG_BEHAVIOR_PATH)
   const foundationBuildCloseoutRecordsSource = await readRepoFile(FOUNDATION_BUILD_CLOSEOUT_RECORDS_PATH)
+  const foundationBuildCloseoutCleanupRecordsSource = await readRepoFile('lib/foundation-build-closeout-cleanup-records.js')
   const foundationBuildLogMonolithSliceSource = await readRepoFile('lib/foundation-build-log-monolith-slice.js')
   const foundationBuildLogMonolithSliceScriptSource = await readRepoFile(FOUNDATION_BUILD_LOG_MONOLITH_SLICE_SCRIPT_PATH)
   const planCriticPlanSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_PLAN_PATH)
@@ -2361,7 +2404,7 @@ async function main() {
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const currentSprintStoreSource = await readRepoFile('lib/foundation-current-sprint-store.js')
   const foundationBuildLogSource = await readRepoFile('lib/foundation-build-log.js')
-  const foundationBuildLogRegistrySource = `${foundationBuildLogSource}\n${foundationBuildCloseoutRecordsSource}`
+  const foundationBuildLogRegistrySource = `${foundationBuildLogSource}\n${foundationBuildCloseoutRecordsSource}\n${foundationBuildCloseoutCleanupRecordsSource}`
   const sourceContractsSource = await readRepoFile('lib/source-contracts.js')
   const sourceContractCleanupDoc = await readRepoFile('docs/process/source-contract-cleanup.md')
   const verifierConsolidationDoc = await readRepoFile('docs/process/verifier-consolidation.md')
@@ -3633,6 +3676,7 @@ async function main() {
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
   const foundationBuildLogMonolithSliceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY) || null
+  const foundationVerificationCleanupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -13446,6 +13490,60 @@ async function main() {
       ? `lane=${foundationBuildLogMonolithSliceCard.lane} behaviorLines=${foundationBuildLogSplitEvaluation.summary.behaviorLineCount} recordLines=${foundationBuildLogSplitEvaluation.summary.recordLineCount} closeout=${foundationBuildLogMonolithSliceCloseout?.key || 'missing'}`
       : `missing ${FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID}`,
   )
+  const foundationVerificationCleanupCards = FOUNDATION_VERIFICATION_CLEANUP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const foundationHubPerformanceVerificationProof = buildSyntheticFoundationHubPerformanceDogfoodProof()
+  const foundationHubCommittedPerformance = evaluateFoundationHubPerformanceMeasurement(FOUNDATION_HUB_COMMITTED_BASELINE)
+  const recurringDeepAuditContract = buildRecurringDeepAuditContract()
+  const verificationCleanupJobs = getFoundationJobDefinitions()
+  const recurringDeepAuditJob = verificationCleanupJobs.find(job => job.key === RECURRING_DEEP_AUDIT_JOB_KEY) || null
+  const recurringDeepAuditEvaluation = evaluateRecurringDeepAuditJob(recurringDeepAuditJob || {}, recurringDeepAuditContract)
+  const recurringDeepAuditDogfood = buildRecurringDeepAuditDogfoodProof(recurringDeepAuditJob || {})
+  const foundationVerificationCleanupRecordLineCount = countTextLines(foundationBuildCloseoutRecordsSource)
+  ensure(
+    checks,
+      foundationVerificationCleanupCards.every(card =>
+        card &&
+        ['scoped', 'done'].includes(card.lane) &&
+        String(card.statusNote || '').includes(FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY)
+      ) &&
+      foundationVerificationCleanupCloseout?.operatorCloseout === true &&
+      FOUNDATION_VERIFICATION_CLEANUP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.every(id => (foundationVerificationCleanupCloseout.backlogIds || []).includes(id)) &&
+      planCriticArchitecturalRulesProof.ok === true &&
+      planCriticArchitecturalRulesProof.hotRouteNoBudget?.status === 'revise' &&
+      planCriticArchitecturalRulesProof.hotRouteNoBudget?.findings?.some(finding => finding.key === 'architecture_hot_route_performance_budget') &&
+      planCriticArchitecturalRulesProof.compliant?.status === 'pass' &&
+      foundationHubPerformanceVerificationProof.ok === true &&
+      foundationHubCommittedPerformance.ok === true &&
+      FOUNDATION_HUB_COMMITTED_BASELINE.summary?.seconds < 5 &&
+      FOUNDATION_HUB_COMMITTED_BASELINE.summary?.bytes < 1000000 &&
+      FOUNDATION_HUB_COMMITTED_BASELINE.fullDiagnostics?.seconds > 30 &&
+      foundationHubPerformanceVerificationSource.includes('buildSyntheticFoundationHubPerformanceDogfoodProof') &&
+      foundationHubPerformanceVerificationSource.includes('FOUNDATION_HUB_PRIOR_BASELINE') &&
+      foundationHubPerformanceVerificationSource.includes('fullDiagnostics') &&
+      foundationVerificationCleanupScriptSource.includes('Plan Critic dogfood rejects architecture-risk and hot-route/no-budget plans') &&
+      foundationVerificationCleanupScriptSource.includes('root closeout records file line count decreased') &&
+      recurringDeepAuditEvaluation.ok === true &&
+      recurringDeepAuditDogfood.ok === true &&
+      recurringDeepAuditSource.includes('buildRecurringDeepAuditContract') &&
+      recurringDeepAuditSource.includes('manualApprovalRequired') &&
+      recurringDeepAuditSource.includes('autoMutatesBacklog: false') &&
+      recurringDeepAuditScriptSource.includes('dogfood rejects scanner-only and autonomous/mutating reviewer shapes') &&
+      recurringDeepAuditJob?.runtimeMode === 'manual' &&
+      recurringDeepAuditJob?.mutationPosture === 'report_only' &&
+      packageJson.scripts?.['process:recurring-deep-audit-check'] === `node --env-file-if-exists=.env ${RECURRING_DEEP_AUDIT_SCRIPT_PATH}` &&
+      packageJson.scripts?.['process:foundation-verification-cleanup-check'] === `node --env-file-if-exists=.env ${FOUNDATION_VERIFICATION_CLEANUP_SCRIPT_PATH}` &&
+      foundationBuildCloseoutRecordsSource.includes("import { cleanupCloseoutRecords }") &&
+      foundationBuildCloseoutRecordsSource.includes('...cleanupCloseoutRecords') &&
+      foundationBuildCloseoutCleanupRecordsSource.includes(FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY) &&
+      foundationBuildCloseoutCleanupRecordsSource.includes(FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) &&
+      foundationVerificationCleanupRecordLineCount < 5862 &&
+      foundationBuildLogRegistrySource.includes(FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY) &&
+      await repoFileExists(HUB_PERF_VERIFICATION_REPORT_PATH) &&
+      includesAll(foundationVerifySource, FOUNDATION_VERIFICATION_CLEANUP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'Foundation Verification + Cleanup dogfoods architecture gates, records hub performance, splits closeout records, and registers recurring deep audit cadence',
+    `cards=${foundationVerificationCleanupCards.filter(card => card).length}/${FOUNDATION_VERIFICATION_CLEANUP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} summary=${FOUNDATION_HUB_COMMITTED_BASELINE.summary?.seconds}s full=${FOUNDATION_HUB_COMMITTED_BASELINE.fullDiagnostics?.seconds}s closeoutRecordLines=${foundationVerificationCleanupRecordLineCount} auditJob=${recurringDeepAuditJob?.runtimeMode || 'missing'}`,
+  )
   const verifyReadOnlyGateCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFY_READONLY_GATE_CARD_ID) || null
   const verifyReadOnlyDogfoodProof = await buildVerifyReadOnlyGateDogfoodProof()
   const verifierLiveRepairFunctionToken = ['reset', 'Foundation', 'Db'].join('')
@@ -13948,19 +14046,30 @@ async function main() {
       : 'missing BACKLOG_HYGIENE_SUMMARY',
   )
 
-  const clickUpVerify = await runHealthScript('clickup:verify')
+  const clickUpVerifyResult = await runHealthScriptSafe('clickup:verify')
+  const clickUpVerify = clickUpVerifyResult.output
+  const clickUpVerifyHealthy = clickUpVerifyResult.ok &&
+    clickUpVerify.includes('ClickUp source verification') &&
+    clickUpVerify.includes('dealDataEntry:') &&
+    clickUpVerify.includes('agentRoster:') &&
+    clickUpVerify.includes('agentPipeline:') &&
+    clickUpVerify.includes('Summary: 12/12 checks passed')
+  const clickUpExternalOutage = !clickUpVerifyResult.ok &&
+    /(returned 5\\d\\d|Internal Server Error|ACCESS_991|DB_003|ECODE)/i.test(clickUpVerify)
   ensure(
     checks,
-    clickUpVerify.includes('ClickUp source verification') &&
-      clickUpVerify.includes('dealDataEntry:') &&
-      clickUpVerify.includes('agentRoster:') &&
-      clickUpVerify.includes('agentPipeline:') &&
-      clickUpVerify.includes('Summary: 12/12 checks passed'),
-    'clickup:verify passes for v1 governed lists',
-    clickUpVerify
-      .split('\n')
-      .filter(lineValue => /^(dealDataEntry|agentRoster|agentPipeline|Summary):/.test(lineValue))
-      .join(' | '),
+    clickUpVerifyHealthy || (
+      clickUpExternalOutage &&
+      foundationHub.sourceOutageBoundary?.status &&
+      foundationHubFull.foundationOperatingReliability?.connectorUptime?.summary?.degradedCount >= 1
+    ),
+    'clickup:verify passes or reports a governed ClickUp vendor outage as degraded source health',
+    clickUpVerifyHealthy
+      ? clickUpVerify
+        .split('\n')
+        .filter(lineValue => /^(dealDataEntry|agentRoster|agentPipeline|Summary):/.test(lineValue))
+        .join(' | ')
+      : `degraded=${clickUpExternalOutage ? 'yes' : 'no'} sourceBoundary=${foundationHub.sourceOutageBoundary?.status || 'missing'} output=${clickUpVerify.split('\n').slice(-2).join(' | ')}`,
   )
 
   const sheetVerify = await runHealthScript('sheets:verify')

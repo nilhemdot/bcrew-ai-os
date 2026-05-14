@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MONOLITH-SPLIT-CONTINUE-001",
+  "approvedBy": "Steve said go for the Foundation Verification + Continued Cleanup Sprint; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T22:02:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/monolith-split-continue-001-plan.md",
+  "approvedPlanSha256": "d4c2015d5b67d232e8b3fc96c28976a60b39be5a5a335ca76875868cf6e2115c",
+  "approvedRepoHead": "24452ab74deb4657352491f6c973d255ab85566e",
+  "notes": "Continue measured monolith cleanup by splitting new closeout records into a dedicated module. Scope is the four-card Verification + Cleanup sprint. Dogfood proof required. Not approved: hub feature work, Build Intel extraction, paid-source auth, autonomous dev, broad monolith rewrite, MEETING-VAULT-ACL-001 Phase B, or Drive permission mutation.",
+  "approvalDigest": "bf72839e77cd34bd8d883ce51de8a93a8e4eed944ef71e7d64f326735439326c"
+}

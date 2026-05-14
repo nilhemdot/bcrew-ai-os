@@ -262,6 +262,8 @@ For Foundation, this means Overview should become the high-level command dashboa
 
 ## Foundation Operations Surfaces
 
+Latest hardening note: `foundation-verification-cleanup-v1` is now repo truth. The default Foundation Hub route is fast enough for normal use, but full diagnostics remains a heavy operator/debug route and should be split or paged in a later cleanup sprint. Recurring senior-engineer deep audit exists as a manual, report-only Foundation job contract; it is separate from the deterministic code-quality scanner.
+
 These pages are operator surfaces, not strategy pages.
 
 | Page | Why it exists | Current truth |

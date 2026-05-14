@@ -53,7 +53,8 @@ async function main() {
     architectureRulesSource,
     scriptSource,
     foundationVerifySource,
-    buildLogSource,
+    buildCloseoutRecordsSource,
+    cleanupCloseoutRecordsSource,
   ] = await Promise.all([
     readRepoFile(PLAN_CRITIC_ARCHITECTURAL_RULES_PLAN_PATH),
     readRepoFile('package.json'),
@@ -61,7 +62,8 @@ async function main() {
     readRepoFile('lib/plan-critic-architectural-rules.js'),
     readRepoFile(PLAN_CRITIC_ARCHITECTURAL_RULES_SCRIPT_PATH),
     readRepoFile('scripts/foundation-verify.mjs'),
-    readRepoFile('lib/foundation-build-log.js'),
+    readRepoFile('lib/foundation-build-closeout-records.js'),
+    readRepoFile('lib/foundation-build-closeout-cleanup-records.js').catch(() => ''),
   ])
   const packageJson = JSON.parse(packageSource)
   const approval = await validatePlanApprovalFile({
@@ -112,10 +114,15 @@ async function main() {
   )
   addCheck(
     checks,
-    sprint.sprint?.sprintId === PLAN_CRITIC_ARCHITECTURAL_RULES_SPRINT_ID &&
-      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
-    'card is active in the architecture guardrail sprint',
-    sprint.sprint ? `${sprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing sprint',
+    card?.lane === 'done' ||
+      (
+        sprint.sprint?.sprintId === PLAN_CRITIC_ARCHITECTURAL_RULES_SPRINT_ID &&
+        ['building_now', 'done_this_sprint'].includes(sprintItem?.stage)
+      ),
+    'card is either closed in backlog or active in the architecture guardrail sprint',
+    card?.lane === 'done'
+      ? `closed backlog lane ${card.lane}`
+      : sprint.sprint ? `${sprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing sprint',
   )
   addCheck(
     checks,
@@ -176,10 +183,12 @@ async function main() {
   )
   addCheck(
     checks,
-    buildLogSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) &&
-      buildLogSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID),
+    (buildCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) ||
+      cleanupCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY)) &&
+      (buildCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) ||
+        cleanupCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID)),
     'Recent Work closeout record exists',
-    'lib/foundation-build-log.js',
+    'lib/foundation-build-closeout-records.js',
   )
 
   const findings = checks.filter(check => !check.ok)
@@ -223,4 +232,3 @@ main().catch(async error => {
   process.exitCode = 1
   await closeFoundationDb().catch(() => {})
 })
-

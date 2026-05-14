@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "RECURRING-DEEP-AUDIT-001",
+  "approvedBy": "Steve said go for the Foundation Verification + Continued Cleanup Sprint; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-14T22:02:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/recurring-deep-audit-001-plan.md",
+  "approvedPlanSha256": "9381ea1bf11a35373925222480b9e7c6a05eb4e35ee1fb34171f73160249104a",
+  "approvedRepoHead": "24452ab74deb4657352491f6c973d255ab85566e",
+  "notes": "Register recurring manual senior-engineer deep audit cadence as report-only/proposal-only. Scope is the four-card Verification + Cleanup sprint. Dogfood proof required. Not approved: hub feature work, Build Intel extraction, paid-source auth, autonomous dev, broad monolith rewrite, MEETING-VAULT-ACL-001 Phase B, or Drive permission mutation.",
+  "approvalDigest": "9d69e40594d827166adf732d5da96741c290bd79a52931409539022b93fd729f"
+}
