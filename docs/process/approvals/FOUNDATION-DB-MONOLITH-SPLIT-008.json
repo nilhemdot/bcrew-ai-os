@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-008",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T15:20:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-db-shared-comms-coverage-split-008-plan.md",
+  "approvedPlanSha256": "e63b4ebf60fd8b739473e349cb2882584575d2b564511d7935cf25fa184e841e",
+  "approvedRepoHead": "f30a4bc4a48758bb186ccb6a5e4c1b27a9aa1fac",
+  "notes": "Approved as a bounded no-auth Foundation DB monolith split. Scope: extract only shared-comms coverage snapshot aggregation from lib/foundation-db.js into lib/foundation-shared-comms-coverage.js, preserve SQL intent, output shape, public export, existing callers, and read-only behavior. Not approved: broad DB rewrite, schema changes, shared-comms extraction/candidate/synthesis behavior, Strategy UI changes, Meeting Vault ACL Phase B, Drive permission mutation, live Missive/Gmail/Slack APIs, Sales/Marketing/Ops hub work, Canva client work, paid-source auth, source crawl/job/intelligence/action-router/agent-feedback movement, or request-access emails.",
+  "approvalDigest": "dad7ef354e58f3cd304a2f2539447066f818547351f604e419979767d5f5a769"
+}

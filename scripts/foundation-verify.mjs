@@ -730,6 +730,16 @@ import {
   evaluateFoundationFubLeadSourceStoreSplit,
 } from '../lib/foundation-fub-lead-source-store.js'
 import {
+  FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_APPROVAL_PATH,
+  FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID,
+  FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_PLAN_PATH,
+  FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SCRIPT_PATH,
+  FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SPRINT_ID,
+  buildFoundationSharedCommsCoverageSplitDogfoodProof,
+  evaluateFoundationSharedCommsCoverageSplit,
+} from '../lib/foundation-shared-comms-coverage.js'
+import {
   FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
   FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
   FRONTEND_MONOLITH_SPLIT_CARD_ID,
@@ -2483,6 +2493,9 @@ async function main() {
   const foundationFubLeadSourceStoreSource = await readRepoFile('lib/foundation-fub-lead-source-store.js')
   const foundationFubLeadSourceStoreScriptSource = await readRepoFile(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SCRIPT_PATH)
   const foundationFubLeadSourceStorePlanSource = await readRepoFile(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_PLAN_PATH)
+  const foundationSharedCommsCoverageSource = await readRepoFile('lib/foundation-shared-comms-coverage.js')
+  const foundationSharedCommsCoverageScriptSource = await readRepoFile(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SCRIPT_PATH)
+  const foundationSharedCommsCoveragePlanSource = await readRepoFile(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -14785,6 +14798,58 @@ async function main() {
     foundationFubLeadSourceStoreSplitCard
       ? `lane=${foundationFubLeadSourceStoreSplitCard.lane} dogfood=${foundationFubLeadSourceStoreDogfood.ok ? 'pass' : 'blocked'} lines=${foundationFubLeadSourceStoreEvaluation.beforeLines}->${foundationFubLeadSourceStoreEvaluation.afterLines}`
       : `missing ${FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID}`,
+  )
+  const foundationSharedCommsCoverageSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID) || null
+  const foundationSharedCommsCoverageSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CLOSEOUT_KEY) || null
+  const foundationSharedCommsCoverageEvaluation = evaluateFoundationSharedCommsCoverageSplit({
+    foundationDbSource,
+    moduleSource: foundationSharedCommsCoverageSource,
+    scriptSource: foundationSharedCommsCoverageScriptSource,
+    planSource: foundationSharedCommsCoveragePlanSource,
+  })
+  const foundationSharedCommsCoverageDogfood = await buildFoundationSharedCommsCoverageSplitDogfoodProof({
+    foundationDbSource,
+    moduleSource: foundationSharedCommsCoverageSource,
+    scriptSource: foundationSharedCommsCoverageScriptSource,
+    planSource: foundationSharedCommsCoveragePlanSource,
+    afterLines: foundationSharedCommsCoverageEvaluation.afterLines,
+  })
+  const foundationSharedCommsCoverageSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SPRINT_ID &&
+    (activeFoundationSprint.items || []).some(item =>
+      item.cardId === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID &&
+        ['building_now', 'done_this_sprint'].includes(item.stage)
+    )
+  const foundationSharedCommsCoverageClosed = foundationSharedCommsCoverageSplitCard?.lane === 'done' &&
+    String(foundationSharedCommsCoverageSplitCard.statusNote || '').includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CLOSEOUT_KEY) &&
+    foundationSharedCommsCoverageSplitCloseout?.operatorCloseout === true &&
+    (foundationSharedCommsCoverageSplitCloseout.backlogIds || []).includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID)
+  ensure(
+    checks,
+      foundationSharedCommsCoverageSplitCard &&
+      (foundationSharedCommsCoverageSprintActive || foundationSharedCommsCoverageClosed) &&
+      foundationSharedCommsCoverageDogfood.ok === true &&
+      foundationSharedCommsCoverageEvaluation.ok === true &&
+      packageJson.scripts?.['process:foundation-shared-comms-coverage-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_APPROVAL_PATH) &&
+      foundationSharedCommsCoverageSource.includes('getSharedCommunicationCoverageSnapshotFromDb') &&
+      foundationSharedCommsCoverageSource.includes('buildSharedCommunicationCoverageSnapshotFromRows') &&
+      foundationSharedCommsCoverageSource.includes('shared_communication_artifacts') &&
+      foundationSharedCommsCoverageSource.includes('shared_communication_candidates') &&
+      foundationSharedCommsCoverageScriptSource.includes('dogfood rejects old inline shared-comms coverage ownership') &&
+      foundationSharedCommsCoveragePlanSource.includes('split/extraction plan') &&
+      foundationDbSource.includes('./foundation-shared-comms-coverage.js') &&
+      foundationDbSource.includes('return getSharedCommunicationCoverageSnapshotFromDb({ pool })') &&
+      !foundationDbSource.includes('FROM shared_communication_artifacts\n        GROUP BY source_id, artifact_type') &&
+      currentPlan.includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID),
+    'FOUNDATION-DB-MONOLITH-SPLIT-008 splits shared-comms coverage out of foundation-db.js',
+    foundationSharedCommsCoverageSplitCard
+      ? `lane=${foundationSharedCommsCoverageSplitCard.lane} dogfood=${foundationSharedCommsCoverageDogfood.ok ? 'pass' : 'blocked'} lines=${foundationSharedCommsCoverageEvaluation.beforeLines}->${foundationSharedCommsCoverageEvaluation.afterLines}`
+      : `missing ${FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID}`,
   )
   const frontendSplitVerifierCoveredCardIds = [
     'FRONTEND-MONOLITH-SPLIT-001',

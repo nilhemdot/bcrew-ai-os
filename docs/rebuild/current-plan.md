@@ -73,19 +73,23 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation DB FUB Lead-Source Store Split
+## Current Sprint: Foundation DB Shared-Comms Coverage Split
 
-Live sprint ID: `foundation-db-fub-lead-source-store-split-2026-05-15`.
+Live sprint ID: `foundation-db-shared-comms-coverage-split-2026-05-15`.
 
-This sprint is active under `foundation-fub-lead-source-store-split-v1`. It extracts FUB lead-source rules and snapshot storage from `lib/foundation-db.js` into `lib/foundation-fub-lead-source-store.js` without changing table schema, SQL behavior, return shapes, public exports, or existing callers.
+This sprint is closed under `foundation-shared-comms-coverage-split-v1`. It extracted shared-communications coverage snapshot aggregation from `lib/foundation-db.js` into `lib/foundation-shared-comms-coverage.js` without changing schema, SQL intent, output shape, public export, or existing callers.
 
-The previous cleanup sprint `foundation-db-strategy-goal-truth-split-2026-05-15` is done under `foundation-strategy-goal-truth-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-006` moved Strategy Prework Coverage and Strategy Goal Truth builder behavior into `lib/foundation-strategy-goal-truth.js` while preserving source IDs, doc paths, participant detection, goal group keys, rules, caveats, and public callers.
+The previous cleanup sprint `foundation-db-fub-lead-source-store-split-2026-05-15` is done under `foundation-fub-lead-source-store-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-007` moved FUB lead-source rules and snapshot storage into `lib/foundation-fub-lead-source-store.js` while preserving table schema, SQL behavior, return shapes, public exports, and existing callers.
 
-Active card:
+Closed card:
 
-1. `FOUNDATION-DB-MONOLITH-SPLIT-007` - building under `foundation-fub-lead-source-store-split-v1`. V1 moves FUB lead-source rules/snapshot storage into `lib/foundation-fub-lead-source-store.js`, keeps the public DB exports stable for existing callers, and dogfoods that old inline FUB lead-source store ownership fails while split module ownership passes.
+1. `FOUNDATION-DB-MONOLITH-SPLIT-008` - done under `foundation-shared-comms-coverage-split-v1`. V1 moved shared-comms coverage aggregation into `lib/foundation-shared-comms-coverage.js`, keeps the public DB export stable for existing callers, and dogfoods that old inline shared-comms coverage ownership fails while split module ownership passes.
 
-Not next: broad DB rewrite, FUB lead-source schema/index/constraint changes, FUB route behavior changes, FUB API refreshes, ClickUp integration changes, Sales listing assignment storage, Strategy Operating Truth behavior changes, source crawl/job/intelligence/shared-comms/agent-feedback/hub movement, hub feature work, Marketing Video Lab live route wiring, Canva client work, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+Next action: pause for sprint review/account swap before opening the next sprint.
+
+Not next: broad DB rewrite, shared-comms schema/index/constraint changes, shared-comms extraction/candidate/synthesis/routing behavior, Strategy UI behavior changes, source crawl/job/intelligence/action-router/agent-feedback/hub movement, hub feature work, Marketing Video Lab live route wiring, Canva client work, paid-source auth, broad source extraction, Drive permission mutation, request-access emails, or Meeting Vault Phase B.
+
+Previous completed sprint: `foundation-db-fub-lead-source-store-split-2026-05-15`, closed under `foundation-fub-lead-source-store-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-007` moved FUB lead-source rules/snapshot storage into `lib/foundation-fub-lead-source-store.js` while preserving table schema, SQL behavior, return shapes, public exports, and existing callers.
 
 Previous completed sprint: `foundation-db-strategy-goal-truth-split-2026-05-15`, closed under `foundation-strategy-goal-truth-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-006` moved Strategy Prework Coverage and Strategy Goal Truth builder behavior into `lib/foundation-strategy-goal-truth.js` while preserving source IDs, doc paths, participant detection, goal group keys, rules, caveats, and public callers.
 
