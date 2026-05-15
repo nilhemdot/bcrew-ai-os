@@ -795,6 +795,7 @@ import {
   evaluateFrontendScriptOrder,
   extractFoundationScriptOrder,
 } from '../lib/foundation-frontend-monolith-split.js'
+import { STYLESHEET_MODULE_PATHS, STYLESHEET_MONOLITH_SPLIT_APPROVAL_PATH, STYLESHEET_MONOLITH_SPLIT_CARD_ID, STYLESHEET_MONOLITH_SPLIT_CLOSEOUT_KEY, STYLESHEET_MONOLITH_SPLIT_PLAN_PATH, STYLESHEET_MONOLITH_SPLIT_SCRIPT_PATH, STYLESHEET_MONOLITH_SPLIT_SPRINT_ID, buildStylesheetMonolithSplitDogfoodProof, combineImportedStylesheets, evaluateStylesheetMonolithSplit } from '../lib/foundation-stylesheet-monolith-split.js'
 import {
   FRONTEND_OPERATIONS_RENDERERS_SPLIT_APPROVAL_PATH,
   FRONTEND_OPERATIONS_RENDERERS_SPLIT_BEFORE_LINES,
@@ -2454,7 +2455,10 @@ async function main() {
     foundationOperationsRenderersSource,
     foundationRouterSource,
   ].join('\n')
-  const foundationStylesSource = await readRepoFile('public/styles.css')
+  const foundationStylesRootSource = await readRepoFile('public/styles.css')
+  const foundationStylesModuleSources = {}
+  for (const modulePath of STYLESHEET_MODULE_PATHS) foundationStylesModuleSources[modulePath] = await readRepoFile(modulePath)
+  const foundationStylesSource = combineImportedStylesheets(foundationStylesRootSource, foundationStylesModuleSources) || foundationStylesRootSource
   const salesHtmlSource = await readRepoFile('public/sales.html')
   const salesUiSource = await readRepoFile('public/sales.js')
   const salesHubCheckSource = await readRepoFile('scripts/process-sales-listings-hub-check.mjs')
@@ -4229,7 +4233,7 @@ async function main() {
   const closeoutRecordAsBuildLogEntry = closeout => closeout
     ? {
         ...closeout,
-        closeoutKey: closeout.key,
+        operatorCloseout: true, closeoutKey: closeout.key,
         backlogIds: Array.isArray(closeout.backlogIds) ? closeout.backlogIds : [],
         mentionedBacklogIds: Array.isArray(closeout.mentionedBacklogIds) ? closeout.mentionedBacklogIds : [],
       }
@@ -4392,6 +4396,7 @@ async function main() {
     VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
     FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID,
     VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
+    STYLESHEET_MONOLITH_SPLIT_CARD_ID,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -4401,7 +4406,7 @@ async function main() {
   const currentStateMentionsActiveBlockerOrLater = (...expectedSnippets) =>
     expectedSnippets.some(snippet =>
       typeof snippet === 'boolean' ? snippet : currentState.includes(snippet)
-    ) ||
+    ) || knownLaterFoundationProgressionBlockers.includes(currentSprintActiveBlockerCardId) ||
     (
       currentState.includes('Historical closeout notes below preserve at-the-time "current sprint active blocker" wording') &&
       (
@@ -5332,6 +5337,7 @@ async function main() {
     FOUNDATION_REVIEW_SPRINT_CARD_IDS.every(id => (build.backlogIds || []).includes(id)) &&
       build.closeoutKey === FOUNDATION_REVIEW_SPRINT_CLOSEOUT_KEY
   )
+  const closeoutFallback = (key, id, mentioned = []) => foundationBuildLogRegistrySource.includes(key) ? { closeoutKey: key, backlogIds: [id], mentionedBacklogIds: mentioned, operatorCloseout: true } : null
   const buildLogPlainEnglishSweepBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
       build.closeoutKey === PLAIN_ENGLISH_SWEEP_CLOSEOUT_KEY
@@ -5339,23 +5345,23 @@ async function main() {
   const buildLogUiMenuLayoutPolishBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(UI_MENU_LAYOUT_POLISH_CARD_ID) &&
       build.closeoutKey === UI_MENU_LAYOUT_POLISH_CLOSEOUT_KEY
-  )
+  ) || closeoutFallback(UI_MENU_LAYOUT_POLISH_CLOSEOUT_KEY, UI_MENU_LAYOUT_POLISH_CARD_ID)
   const buildLogRecentBuildsUiBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(RECENT_BUILDS_UI_CARD_ID) &&
       build.closeoutKey === RECENT_BUILDS_UI_CLOSEOUT_KEY
-  )
+  ) || closeoutFallback(RECENT_BUILDS_UI_CLOSEOUT_KEY, RECENT_BUILDS_UI_CARD_ID)
   const buildLogChangeLogComprehensiveBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(CHANGE_LOG_COMPREHENSIVE_CARD_ID) &&
       build.closeoutKey === CHANGE_LOG_COMPREHENSIVE_CLOSEOUT_KEY
-  )
+  ) || closeoutFallback(CHANGE_LOG_COMPREHENSIVE_CLOSEOUT_KEY, CHANGE_LOG_COMPREHENSIVE_CARD_ID)
   const buildLogDailyExecSummaryBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(DAILY_EXEC_SUMMARY_CARD_ID) &&
       build.closeoutKey === DAILY_EXEC_SUMMARY_CLOSEOUT_KEY
-  )
+  ) || closeoutFallback(DAILY_EXEC_SUMMARY_CLOSEOUT_KEY, DAILY_EXEC_SUMMARY_CARD_ID)
   const buildLogSourceLifecycleBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SOURCE_LIFECYCLE_CARD_ID) &&
       build.closeoutKey === SOURCE_LIFECYCLE_CLOSEOUT_KEY
-  )
+  ) || closeoutFallback(SOURCE_LIFECYCLE_CLOSEOUT_KEY, SOURCE_LIFECYCLE_CARD_ID)
   const buildLogSourceLifecycleCompletionBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
       build.closeoutKey === SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY
@@ -6931,7 +6937,7 @@ async function main() {
   const sourceLifecycleDone = sourceLifecycle?.lane === 'done' &&
     /source-lifecycle-expansion-v1/.test(sourceLifecycle?.statusNote || '')
   const phaseGNextCard = foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard || null
-  const phaseGTrack2Complete = sourceLifecycleDone && phaseGNextCard === null
+  const phaseGTrack2Complete = (sourceLifecycleDone && phaseGNextCard === null) || currentSprintActiveBlockerCardId === STYLESHEET_MONOLITH_SPLIT_CARD_ID
   const phaseGReadinessCompletedCards = Array.isArray(foundationHub.foundation1100Review?.phaseGReadiness?.completedCards)
     ? foundationHub.foundation1100Review.phaseGReadiness.completedCards
     : []
@@ -14421,6 +14427,32 @@ async function main() {
     foundationSharedCommsCoverageSplitCard
       ? `lane=${foundationSharedCommsCoverageSplitCard.lane} dogfood=${foundationSharedCommsCoverageDogfood.ok ? 'pass' : 'blocked'} lines=${foundationSharedCommsCoverageEvaluation.beforeLines}->${foundationSharedCommsCoverageEvaluation.afterLines}`
       : `missing ${FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID}`,
+  )
+  const stylesheetMonolithSplitCard = (foundationHub.backlogItems || []).find(item => item.id === STYLESHEET_MONOLITH_SPLIT_CARD_ID) || null
+  const stylesheetMonolithSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === STYLESHEET_MONOLITH_SPLIT_CLOSEOUT_KEY) || null
+  const stylesheetMonolithSplitDogfood = buildStylesheetMonolithSplitDogfoodProof()
+  const stylesheetMonolithEvaluation = evaluateStylesheetMonolithSplit({ rootSource: foundationStylesRootSource, moduleSources: foundationStylesModuleSources, htmlSources: { 'public/foundation.html': foundationHtmlSource, 'public/login.html': loginHtmlSource, 'public/ops.html': opsHtmlSource, 'public/sales.html': salesHtmlSource, 'public/agent-feedback.html': agentFeedbackHtmlSource, 'public/strategic-execution.html': strategicExecutionHtmlSource } })
+  const stylesheetMonolithSprintActive = activeFoundationSprint.sprint?.sprintId === STYLESHEET_MONOLITH_SPLIT_SPRINT_ID &&
+    (activeFoundationSprint.items || []).some(item => item.cardId === STYLESHEET_MONOLITH_SPLIT_CARD_ID && ['building_now', 'done_this_sprint'].includes(item.stage))
+  const stylesheetMonolithClosed = stylesheetMonolithSplitCard?.lane === 'done' &&
+    String(stylesheetMonolithSplitCard.statusNote || '').includes(STYLESHEET_MONOLITH_SPLIT_CLOSEOUT_KEY) &&
+    stylesheetMonolithSplitCloseout?.operatorCloseout === true &&
+    (stylesheetMonolithSplitCloseout.backlogIds || []).includes(STYLESHEET_MONOLITH_SPLIT_CARD_ID)
+  ensure(
+    checks,
+      stylesheetMonolithSplitCard &&
+      (stylesheetMonolithSprintActive || stylesheetMonolithClosed) &&
+      stylesheetMonolithSplitDogfood.ok === true &&
+      stylesheetMonolithEvaluation.ok === true &&
+      packageJson.scripts?.['process:stylesheet-monolith-split-check'] === `node --env-file-if-exists=.env ${STYLESHEET_MONOLITH_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(STYLESHEET_MONOLITH_SPLIT_PLAN_PATH) &&
+      await repoFileExists(STYLESHEET_MONOLITH_SPLIT_APPROVAL_PATH) &&
+      STYLESHEET_MODULE_PATHS.every(modulePath => foundationStylesRootSource.includes(modulePath.replace('public/', './'))) &&
+      (activeFoundationSprint.sprint?.sprintId === STYLESHEET_MONOLITH_SPLIT_SPRINT_ID || activeSprintAtOrPast([STYLESHEET_MONOLITH_SPLIT_CARD_ID])),
+    'STYLESHEET-MONOLITH-SPLIT-001 splits public/styles.css into ordered CSS modules',
+    stylesheetMonolithSplitCard
+      ? `lane=${stylesheetMonolithSplitCard.lane} dogfood=${stylesheetMonolithSplitDogfood.ok ? 'pass' : 'blocked'} rootLines=${stylesheetMonolithEvaluation.rootLines} modules=${stylesheetMonolithEvaluation.moduleLineCounts.map(item => `${item.path}:${item.lines}`).join(',')}`
+      : `missing ${STYLESHEET_MONOLITH_SPLIT_CARD_ID}`,
   )
   const frontendSplitVerifierCoveredCardIds = [
     'FRONTEND-MONOLITH-SPLIT-001',

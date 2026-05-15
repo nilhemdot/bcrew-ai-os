@@ -29,7 +29,7 @@ async function main() {
   const [systemInventory, foundationHub, foundationBuildLog] = await Promise.all([
     fetchJson(baseUrl, '/api/system-inventory'),
     fetchJson(baseUrl, '/api/foundation-hub'),
-    fetchJson(baseUrl, '/api/foundation/build-log?limit=60'),
+    fetchJson(baseUrl, '/api/foundation/build-log?limit=500'),
   ])
   const status = await buildUiMenuLayoutPolishStatus({
     repoRoot: process.cwd(),

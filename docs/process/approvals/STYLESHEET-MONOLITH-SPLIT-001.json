@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "STYLESHEET-MONOLITH-SPLIT-001",
+  "approvedBy": "Steve go-hard instruction + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-15T18:30:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/stylesheet-monolith-split-001-plan.md",
+  "approvedPlanSha256": "eca64f166430b446958ec98400a9d0a626af6a48b8bc348b187012fd01f33a09",
+  "approvedRepoHead": "ebcec200fa793e5b5ab37afa0f6c4ef1b04be9a2",
+  "notes": "Approved as a no-feature Foundation stylesheet monolith split. Scope: keep public/styles.css as the root stylesheet entry point, split existing CSS into ordered modules, preserve cascade order, add focused dogfood proof and verifier coverage, then full Foundation ship. Not approved: visual redesign, hub feature work, Marketing Video Lab live wiring, Canva asset mutation, paid-source auth, source extraction, Drive permissions, Meeting Vault Phase B, or autonomous dev.",
+  "approvalDigest": "a70c6ddd85f7e529e6f225f9b600c2d5c8624c06bb13472bc1f3b7ae445893a6"
+}

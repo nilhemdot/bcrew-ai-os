@@ -29,7 +29,7 @@ async function main() {
   const [changeLog, changesApi, buildLog] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation/change-log?limit=100'),
     fetchJson(baseUrl, '/api/foundation/changes?limit=20'),
-    fetchJson(baseUrl, '/api/foundation/build-log?limit=5'),
+    fetchJson(baseUrl, '/api/foundation/build-log?limit=500'),
   ])
 
   const status = await buildChangeLogComprehensiveStatus({

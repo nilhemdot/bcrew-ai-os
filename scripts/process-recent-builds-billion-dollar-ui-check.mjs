@@ -26,7 +26,7 @@ async function fetchJson(baseUrl, pathname) {
 async function main() {
   const args = parseArgs()
   const baseUrl = String(args.baseUrl || process.env.FOUNDATION_BASE_URL || 'http://localhost:3000')
-  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=60')
+  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=500')
   const status = await buildRecentBuildsBillionDollarUiStatus({
     repoRoot: process.cwd(),
     foundationBuildLog,
