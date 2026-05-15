@@ -1,0 +1,13 @@
+{
+  "cardId": "HUB-CONSUMER-CONTRACT-001",
+  "score": 10,
+  "approvedBy": "Steve + Codex main Foundation session",
+  "approvedAt": "2026-05-15T00:35:00.000Z",
+  "approvalSource": "Steve approved a mega Foundation Ready safe hub lane sprint in main chat; Codex scoped the bounded hub boundary cards before build.",
+  "notes": "Approval is for read-only hub consumer contract, hub sandbox workflow, shared-file integration gate, and source-to-hub proof only. No Marketing live spend, no paid auth, no autonomous hub commit/push.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/hub-consumer-contract-001-plan.md",
+  "approvedPlanSha256": "dd118a3a3afaa814d5b0ba71da1d5bcd95e2709175c17c44bc3617ced31edc0b",
+  "approvedRepoHead": "a8eee50f5270bfd17f5b0ad404aaebb324b697e2",
+  "approvalDigest": "13bc4cc29d2bef1cd49b635bf25959bdae807df39d4df74ace24fd0d28368bfe"
+}

@@ -1,6 +1,6 @@
 # BCrew AI OS Current State
 
-Last updated: 2026-05-14
+Last updated: 2026-05-15
 Status: Active
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
@@ -25,6 +25,7 @@ The Foundation is real. The system is not yet fully alive.
 
 Current sprint call:
 
+- The latest completed sprint is `foundation-ready-safe-hub-lane-2026-05-15`, closed under `foundation-ready-safe-hub-lane-v1`. It added a read-only hub consumer contract for Sales/Ops/Marketing/Strategy, a fixture-backed hub sandbox workflow, a shared-file request gate that fails with `integrationRequired` until main-session approval, and a real source-to-hub proof from connector uptime/source health into hub contracts.
 - The latest completed sprint is `foundation-ship-gate-verifier-tightening-2026-05-15`, closed under `foundation-ship-gate-tightening-v1`. It added additive `foundation:verify -- --failures-only` and `--json-summary` modes, blocked `backlogIds` / `mentionedBacklogIds` overlap in closeout validation, and split route-budget verifier behavior into `lib/foundation-route-budget-verifier.js`. Dogfood proof rejected noisy failure output, synthetic closeout ownership/context overlap, the old 2,489ms source route, and the old 872,726 byte Foundation Hub payload.
 - The previous completed sprint is `nightly-deep-audit-upgrade-2026-05-14`, closed under `nightly-deep-audit-upgrade-v1`. It schedules the report-only `nightly-deep-audit` reviewer at 03:00 America/Toronto, writes date-based morning reports, selects changed/high-risk backend/frontend/verifier/hot-route/DB surfaces, records approved-route readiness without live spend by default, and dogfoods the May 13 rot patterns. First report signal: 76 findings, 18 high-risk review targets, Foundation Hub payload warning at 873237B, and `/api/source-of-truth` latency risk at 2501ms.
 - The previous completed sprint is `foundation-route-budget-cleanup-2026-05-14`, closed under `foundation-route-budget-cleanup-v1`. It fixed the first nightly route-budget findings: `/api/source-of-truth` now uses an extracted payload builder plus bounded KPI health route cache and measured 10ms / 134,031 bytes after warmup; default `/api/foundation-hub` now compacts Foundation Jobs runtime rows, Foundation 1100 review, and Research Curation cards and measured 79ms / 774,641 bytes under the 800KB warning budget. Dogfood proof rejected the old 2,489ms source-route failure and old 872,726 byte hub payload failure.

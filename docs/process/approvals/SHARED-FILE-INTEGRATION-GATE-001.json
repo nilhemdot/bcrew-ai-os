@@ -1,0 +1,13 @@
+{
+  "cardId": "SHARED-FILE-INTEGRATION-GATE-001",
+  "score": 10,
+  "approvedBy": "Steve + Codex main Foundation session",
+  "approvedAt": "2026-05-15T00:35:00.000Z",
+  "approvalSource": "Steve approved a mega Foundation Ready safe hub lane sprint in main chat; Codex scoped the bounded hub boundary cards before build.",
+  "notes": "Approval is for read-only hub consumer contract, hub sandbox workflow, shared-file integration gate, and source-to-hub proof only. No Marketing live spend, no paid auth, no autonomous hub commit/push.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/shared-file-integration-gate-001-plan.md",
+  "approvedPlanSha256": "beae4fd4d56f7baf06a97eb3310c24f5f8472bc1e77ef9a168565e1700fe0da2",
+  "approvedRepoHead": "a8eee50f5270bfd17f5b0ad404aaebb324b697e2",
+  "approvalDigest": "5500ddc383bd877a408713e3b67cb897c8ea5e45c846a8dc04cf633a50d4db5e"
+}

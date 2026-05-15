@@ -1,0 +1,13 @@
+{
+  "cardId": "SOURCE-TO-HUB-PROOF-001",
+  "score": 10,
+  "approvedBy": "Steve + Codex main Foundation session",
+  "approvedAt": "2026-05-15T00:40:00.000Z",
+  "approvalSource": "Steve approved a mega Foundation Ready safe hub lane sprint in main chat; Codex scoped the bounded hub boundary cards before build.",
+  "notes": "Approval is for read-only source-to-hub proof only. No Marketing live spend, no paid auth, no autonomous hub commit/push.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/source-to-hub-proof-001-plan.md",
+  "approvedPlanSha256": "5d6aa8d222e8cc26faa8038e93cd505b21107535d431a0bbf423aa40345251a6",
+  "approvedRepoHead": "a8eee50f5270bfd17f5b0ad404aaebb324b697e2",
+  "approvalDigest": "7836b23a3bf4d21fe6cf23d15fc75ae6127f098c2fe6792b5f2d15e988e23643"
+}

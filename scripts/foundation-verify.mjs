@@ -163,12 +163,20 @@ import {
   buildSyntheticFoundationFullDiagnosticsDogfoodProof,
 } from '../lib/foundation-hub-full-diagnostics.js'
 import {
+  buildConnectorUptimeSnapshot,
   CONNECTOR_UPTIME_MONITOR_JOB_KEY,
   FOUNDATION_OPERATING_RELIABILITY_CARD_IDS,
   FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY,
   FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH,
   buildFoundationOperatingReliabilityDogfoodProof,
 } from '../lib/connector-uptime-monitor.js'
+import {
+  FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY,
+  FOUNDATION_READY_SAFE_HUB_LANE_SPRINT_ID,
+  buildHubConsumerContract,
+  buildHubConsumerFixture,
+  validateHubConsumerContractPayload,
+} from '../lib/hub-consumer-contract.js'
 import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
@@ -1061,6 +1069,13 @@ const FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVER
   'CLICKUP-VERIFY-PAYLOAD-CACHE-001',
   'CLICKUP-DEGRADED-HEALTH-DOGFOOD-001',
   'FOUNDATION-VERIFY-SLOW-BUDGET-001',
+]
+
+const FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'HUB-CONSUMER-CONTRACT-001',
+  'HUB-SANDBOX-WORKFLOW-001',
+  'SHARED-FILE-INTEGRATION-GATE-001',
+  'SOURCE-TO-HUB-PROOF-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -3825,6 +3840,7 @@ async function main() {
   const codeQualityNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
   const hubWorkCoordinationCloseout = foundationBuildCloseouts.find(closeout => closeout.key === HUB_WORK_COORDINATION_CLOSEOUT_KEY) || null
   const sourceOutageBoundaryCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_OUTAGE_BOUNDARY_CLOSEOUT_KEY) || null
+  const foundationReadySafeHubLaneCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) || null
   const foundationOperatingReliabilityCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
@@ -13617,6 +13633,49 @@ async function main() {
     hubWorkCoordinationCard
       ? `lane=${hubWorkCoordinationCard.lane} dogfood=${hubWorkDogfood.ok ? 'pass' : 'fail'} cases=${hubWorkDogfood.cases.length}`
       : `missing ${HUB_WORK_COORDINATION_CARD_ID}`,
+  )
+  const foundationReadySafeHubLaneCards = FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const foundationReadySafeHubLaneFixtureValidations = ['sales', 'ops', 'marketing', 'strategy'].map(hubKey =>
+    validateHubConsumerContractPayload(buildHubConsumerFixture({ hubKey }))
+  )
+  const foundationReadySafeHubLaneConnectorUptime = buildConnectorUptimeSnapshot()
+  const foundationReadySafeHubLaneLiveValidations = ['sales', 'ops', 'marketing', 'strategy'].map(hubKey =>
+    validateHubConsumerContractPayload(buildHubConsumerContract({
+      hubKey,
+      connectorUptime: foundationReadySafeHubLaneConnectorUptime,
+    }))
+  )
+  ensure(
+    checks,
+      foundationReadySafeHubLaneCards.every(card =>
+        card &&
+        card.lane === 'done' &&
+        String(card.statusNote || '').includes(FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY)
+      ) &&
+      foundationReadySafeHubLaneCloseout?.operatorCloseout === true &&
+      includesAll(foundationReadySafeHubLaneCloseout.backlogIds || [], FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      foundationReadySafeHubLaneFixtureValidations.every(validation => validation.ok) &&
+      foundationReadySafeHubLaneLiveValidations.every(validation => validation.ok) &&
+      hubWorkDogfood.cases.some(testCase =>
+        testCase.name === 'hub shared-file request stops for main-session integration' &&
+        testCase.ok === true &&
+        testCase.actualIntegrationRequired === true
+      ) &&
+      packageJson.scripts?.['process:foundation-ready-safe-hub-lane-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-ready-safe-hub-lane-check.mjs' &&
+      await repoFileExists('lib/hub-consumer-contract.js') &&
+      await repoFileExists('docs/process/hub-consumer-contract.md') &&
+      await repoFileExists('docs/process/hub-sandbox-workflow.md') &&
+      await repoFileExists('fixtures/hubs/marketing/foundation-source-health.json') &&
+      await repoFileExists('scripts/process-foundation-ready-safe-hub-lane-check.mjs') &&
+      currentPlan.includes(FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) &&
+      activeFoundationSprint.sprint?.sprintId === FOUNDATION_READY_SAFE_HUB_LANE_SPRINT_ID &&
+      includesAll(foundationVerifySource, FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'Foundation Ready Safe Hub Lane lets hubs consume read-only source health without shared-file drift',
+    foundationReadySafeHubLaneCards.every(Boolean)
+      ? `cards=${foundationReadySafeHubLaneCards.map(card => `${card.id}:${card.lane}`).join(', ')} fixtures=${foundationReadySafeHubLaneFixtureValidations.every(validation => validation.ok)} live=${foundationReadySafeHubLaneLiveValidations.every(validation => validation.ok)}`
+      : `missing ${FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.filter((id, index) => !foundationReadySafeHubLaneCards[index]).join(', ')}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()

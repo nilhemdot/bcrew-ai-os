@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "contractVersion": "foundation-hub-consumer-contract.v1",
+  "hubKey": "marketing",
+  "generatedAt": "2026-05-15T00:00:00.000Z",
+  "source": "connector-uptime-monitor",
+  "readOnly": true,
+  "mutationPosture": "read_only_contract",
+  "rows": [
+    {
+      "key": "google-workspace",
+      "label": "Google Workspace",
+      "status": "healthy",
+      "sourceIds": ["SRC-GMAIL-001", "SRC-DRIVE-001", "SRC-GOOGLE-MEET-001"],
+      "connectorIds": [],
+      "safeToUse": true,
+      "readOnly": true,
+      "credentialStatus": "available",
+      "sanitizedError": null,
+      "lastCheckedAt": "2026-05-15T00:00:00.000Z"
+    },
+    {
+      "key": "slack",
+      "label": "Slack",
+      "status": "degraded",
+      "sourceIds": ["SRC-SLACK-001"],
+      "connectorIds": [],
+      "safeToUse": false,
+      "readOnly": true,
+      "credentialStatus": "manual_or_unknown",
+      "sanitizedError": "Fixture degraded row for Marketing Hub sandbox error-state handling.",
+      "lastCheckedAt": "2026-05-15T00:00:00.000Z"
+    },
+    {
+      "key": "missive",
+      "label": "Missive",
+      "status": "degraded",
+      "sourceIds": ["SRC-MISSIVE-001"],
+      "connectorIds": [],
+      "safeToUse": false,
+      "readOnly": true,
+      "credentialStatus": "manual_or_unknown",
+      "sanitizedError": "Fixture degraded row for Marketing Hub sandbox error-state handling.",
+      "lastCheckedAt": "2026-05-15T00:00:00.000Z"
+    },
+    {
+      "key": "kpi-supabase",
+      "label": "KPI / Supabase",
+      "status": "degraded",
+      "sourceIds": ["SRC-KPI-SUPABASE-001"],
+      "connectorIds": [],
+      "safeToUse": false,
+      "readOnly": true,
+      "credentialStatus": "manual_or_unknown",
+      "sanitizedError": "Fixture degraded row for Marketing Hub sandbox error-state handling.",
+      "lastCheckedAt": "2026-05-15T00:00:00.000Z"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "healthy": 1,
+    "degraded": 3,
+    "failed": 0,
+    "paused": 0,
+    "manual": 0,
+    "unknown": 0
+  }
+}

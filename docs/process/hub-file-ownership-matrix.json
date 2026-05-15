@@ -25,6 +25,7 @@
         "public/sales.html",
         "public/sales.js",
         "lib/sales-*.js",
+        "fixtures/hubs/sales/*",
         "scripts/*sales*.mjs"
       ],
       "proofCommands": [
@@ -37,6 +38,7 @@
         "public/ops.js",
         "lib/ops-*.js",
         "lib/agent-*.js",
+        "fixtures/hubs/ops/*",
         "scripts/*ops*.mjs",
         "scripts/*agent*.mjs"
       ],
@@ -51,6 +53,7 @@
         "public/strategy*.js",
         "lib/strategy-*.js",
         "docs/strategy/*",
+        "fixtures/hubs/strategy/*",
         "scripts/*strategy*.mjs"
       ],
       "proofCommands": [
@@ -63,6 +66,8 @@
         "public/marketing*.js",
         "lib/marketing-*.js",
         "docs/marketing/*",
+        "docs/marketing/*/*",
+        "fixtures/hubs/marketing/*",
         "scripts/*marketing*.mjs"
       ],
       "proofCommands": [

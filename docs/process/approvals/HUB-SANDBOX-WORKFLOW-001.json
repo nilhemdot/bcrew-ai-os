@@ -1,0 +1,13 @@
+{
+  "cardId": "HUB-SANDBOX-WORKFLOW-001",
+  "score": 10,
+  "approvedBy": "Steve + Codex main Foundation session",
+  "approvedAt": "2026-05-15T00:35:00.000Z",
+  "approvalSource": "Steve approved a mega Foundation Ready safe hub lane sprint in main chat; Codex scoped the bounded hub boundary cards before build.",
+  "notes": "Approval is for read-only hub consumer contract, hub sandbox workflow, shared-file integration gate, and source-to-hub proof only. No Marketing live spend, no paid auth, no autonomous hub commit/push.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/hub-sandbox-workflow-001-plan.md",
+  "approvedPlanSha256": "b3058f68ad45bcaad39aa43537019ad8300741c4597a04ee93bfa6c058d6dd93",
+  "approvedRepoHead": "a8eee50f5270bfd17f5b0ad404aaebb324b697e2",
+  "approvalDigest": "18a4d706830e776061ce5c72bc9fb4560dd10848dfcfe580e43fad5bb3a08e91"
+}
