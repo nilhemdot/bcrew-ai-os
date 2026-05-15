@@ -168,6 +168,16 @@ import {
   buildAppPageRoutesSplitDogfoodProof,
 } from '../lib/app-page-routes.js'
 import {
+  AUTH_ROUTES_SPLIT_APPROVAL_PATH,
+  AUTH_ROUTES_SPLIT_BEFORE_SERVER_LINES,
+  AUTH_ROUTES_SPLIT_CARD_ID,
+  AUTH_ROUTES_SPLIT_CLOSEOUT_KEY,
+  AUTH_ROUTES_SPLIT_PLAN_PATH,
+  AUTH_ROUTES_SPLIT_SCRIPT_PATH,
+  AUTH_ROUTES_SPLIT_SPRINT_ID,
+  buildAuthRoutesSplitDogfoodProof,
+} from '../lib/auth-routes.js'
+import {
   buildFoundationVerifyCheckOutput,
   buildFoundationVerifyJsonSummary,
   buildFoundationVerifyReporterDogfoodProof,
@@ -2296,6 +2306,9 @@ async function main() {
   const appPageRoutesSource = await readRepoFile('lib/app-page-routes.js')
   const appPageRoutesSplitScriptSource = await readRepoFile(APP_PAGE_ROUTES_SPLIT_SCRIPT_PATH)
   const appPageRoutesSplitPlanSource = await readRepoFile(APP_PAGE_ROUTES_SPLIT_PLAN_PATH)
+  const authRoutesSource = await readRepoFile('lib/auth-routes.js')
+  const authRoutesSplitScriptSource = await readRepoFile(AUTH_ROUTES_SPLIT_SCRIPT_PATH)
+  const authRoutesSplitPlanSource = await readRepoFile(AUTH_ROUTES_SPLIT_PLAN_PATH)
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
@@ -3063,12 +3076,14 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(serverSource, [
+    includesAll(`${serverSource}\n${authRoutesSource}`, [
       "app.post('/api/auth/login'",
       "app.post('/api/auth/google'",
       "app.get('/api/auth/session'",
       "app.post('/api/auth/logout'",
       "app.get('/login'",
+    ]) &&
+      includesAll(serverSource, [
       'findRoutePosture(req.method, req.path)',
       'authorizeRouteAccess(req, posture)',
     ]) &&
@@ -14299,6 +14314,72 @@ async function main() {
     appPageRoutesSplitCard
       ? `lane=${appPageRoutesSplitCard.lane} dogfood=${appPageRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${APP_PAGE_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterAppPageRouteSplit}`
       : `missing ${APP_PAGE_ROUTES_SPLIT_CARD_ID}`,
+  )
+  const authRoutesSplitCard = (foundationHub.backlogItems || []).find(item => item.id === AUTH_ROUTES_SPLIT_CARD_ID) || null
+  const authRoutesSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === AUTH_ROUTES_SPLIT_CLOSEOUT_KEY) || null
+  const authRoutesDogfood = buildAuthRoutesSplitDogfoodProof({
+    serverSource,
+    moduleSource: authRoutesSource,
+    proofScriptSource: authRoutesSplitScriptSource,
+  })
+  const serverLineCountAfterAuthRouteSplit = String(serverSource || '').split('\n').length
+  ensure(
+    checks,
+      authRoutesSplitCard &&
+      ['executing', 'done'].includes(authRoutesSplitCard.lane) &&
+      String(authRoutesSplitCard.statusNote || '').includes(AUTH_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      authRoutesSplitCloseout?.operatorCloseout === true &&
+      (authRoutesSplitCloseout.backlogIds || []).includes(AUTH_ROUTES_SPLIT_CARD_ID) &&
+      authRoutesDogfood.ok === true &&
+      packageJson.scripts?.['process:auth-routes-split-check'] === `node --env-file-if-exists=.env ${AUTH_ROUTES_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(AUTH_ROUTES_SPLIT_PLAN_PATH) &&
+      await repoFileExists(AUTH_ROUTES_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-auth-routes-split-closeout.md') &&
+      authRoutesSource.includes('registerAuthRoutes') &&
+      authRoutesSource.includes("app.get('/login'") &&
+      authRoutesSource.includes("app.post('/api/auth/login'") &&
+      authRoutesSource.includes("app.post('/api/auth/google'") &&
+      authRoutesSource.includes("app.get('/api/auth/session'") &&
+      authRoutesSource.includes("app.post('/api/auth/logout'") &&
+      authRoutesSource.includes('express.static') &&
+      authRoutesSplitScriptSource.includes('moved auth/session/static routes return expected behavior') &&
+      authRoutesSplitPlanSource.includes('Do not rewrite auth providers.') &&
+      serverSource.includes('registerAuthRoutes(app') &&
+      !serverSource.includes("app.get('/login'") &&
+      !serverSource.includes("app.post('/api/auth/login'") &&
+      !serverSource.includes("app.post('/api/auth/google'") &&
+      !serverSource.includes("app.get('/api/auth/session'") &&
+      !serverSource.includes("app.post('/api/auth/logout'") &&
+      !serverSource.includes('app.use(setSecurityHeaders)') &&
+      !serverSource.includes('app.use(logApiRequest)') &&
+      serverLineCountAfterAuthRouteSplit < AUTH_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
+      currentPlan.includes(AUTH_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(AUTH_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === AUTH_ROUTES_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([AUTH_ROUTES_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(AUTH_ROUTES_SPLIT_CARD_ID),
+    'AUTH-ROUTES-SPLIT-001 extracts auth/session/static routes into a focused module',
+    authRoutesSplitCard
+      ? `lane=${authRoutesSplitCard.lane} dogfood=${authRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${AUTH_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterAuthRouteSplit}`
+      : `missing ${AUTH_ROUTES_SPLIT_CARD_ID}`,
+  )
+  const nightlyDeepAuditP0TriageCard = (foundationHub.backlogItems || []).find(item => item.id === 'NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') || null
+  const nightlyDeepAuditP0TriageCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'nightly-deep-audit-p0-triage-v1') || null
+  ensure(
+    checks,
+      nightlyDeepAuditP0TriageCard?.lane === 'done' &&
+      String(nightlyDeepAuditP0TriageCard.statusNote || '').includes('nightly-deep-audit-p0-triage-v1') &&
+      nightlyDeepAuditP0TriageCloseout?.operatorCloseout === true &&
+      (nightlyDeepAuditP0TriageCloseout.backlogIds || []).includes('NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') &&
+      await repoFileExists('docs/handoffs/2026-05-15-nightly-deep-audit-p0-triage.md') &&
+      await repoFileExists('docs/process/nightly-deep-audit-p0-triage-001-plan.md') &&
+      await repoFileExists('docs/process/approvals/NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001.json') &&
+      currentPlan.includes('NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') &&
+      currentState.includes('NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001'),
+    'NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001 routes first nightly audit P0 baseline into backlog truth',
+    nightlyDeepAuditP0TriageCard
+      ? `lane=${nightlyDeepAuditP0TriageCard.lane} closeout=${nightlyDeepAuditP0TriageCloseout?.key || 'missing'}`
+      : 'missing NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001',
   )
   const foundationBacklogStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID) || null
   const foundationBacklogStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) || null

@@ -247,6 +247,7 @@ import { registerFoundationBuildIntelRoutes } from './lib/foundation-build-intel
 import { registerFubSourceRoutes } from './lib/fub-source-routes.js'
 import { registerFoundationRuntimeReadRoutes } from './lib/foundation-runtime-read-routes.js'
 import { registerAppPageRoutes } from './lib/app-page-routes.js'
+import { registerAuthRoutes } from './lib/auth-routes.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -267,16 +268,10 @@ import { syncSalesListingCasesFromInventory } from './lib/sales-listing-cases.js
 import { buildSalesHubCaseMetadata } from './lib/sales-hub-case-metadata.js'
 import { getClickUpListSnapshotSafe } from './lib/clickup.js'
 import {
-  authenticateAuthUser,
-  clearAuthCookie,
-  getAllowedAuthUser,
   getAuthUserFromRequest,
   getDefaultRouteForUser,
-  getGoogleClientId,
-  getSafeRedirectPath,
   isAuthConfigured,
   assertSessionSecretConfigured,
-  setAuthCookie,
 } from './lib/app-auth.js'
 import {
   AccessDeniedError,
@@ -288,7 +283,6 @@ import {
   findRoutePosture,
 } from './lib/security-access.js'
 import { callLlm } from './lib/llm-router.js'
-import { OAuth2Client } from 'google-auth-library'
 import { runSheetsStructureVerification } from './scripts/sheets-structure-verify.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -300,7 +294,6 @@ const port = process.env.PORT || 3000
 const host = process.env.HOST || '127.0.0.1'
 const execFileAsync = promisify(execFile)
 const adminToken = process.env.ADMIN_TOKEN || process.env.DASHBOARD_API_KEY || ''
-const googleOauthClient = new OAuth2Client()
 app.disable('x-powered-by')
 
 const docsDir = path.join(__dirname, 'docs')
@@ -551,28 +544,6 @@ const DEFAULT_FUB_LEAD_SOURCE_GROUP_MAP = Object.entries(DEFAULT_FUB_LEAD_SOURCE
   return acc
 }, {})
 
-function setSecurityHeaders(_req, res, next) {
-  res.setHeader('X-Content-Type-Options', 'nosniff')
-  res.setHeader('X-Frame-Options', 'DENY')
-  res.setHeader('Referrer-Policy', 'same-origin')
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin')
-  next()
-}
-
-function logApiRequest(req, res, next) {
-  if (!req.path.startsWith('/api/')) {
-    next()
-    return
-  }
-
-  const startedAt = Date.now()
-  res.on('finish', () => {
-    const durationMs = Date.now() - startedAt
-    console.info(`${req.method} ${req.originalUrl} -> ${res.statusCode} (${durationMs}ms)`)
-  })
-  next()
-}
-
 function sendApiError(res, statusCode, code, message, details) {
   res.status(statusCode).json({
     error: {
@@ -711,125 +682,13 @@ async function closeServer(server) {
   })
 }
 
-app.use(setSecurityHeaders)
-app.use(logApiRequest)
-app.use(express.json({ limit: '1mb' }))
-app.use(async (req, _res, next) => {
-  try {
-    await attachRequestAccessContext(req)
-    next()
-  } catch (error) {
-    next(error)
-  }
+registerAuthRoutes(app, {
+  publicDir: path.join(__dirname, 'public'),
+  sendApiError,
+  attachRequestAccessContext,
+  getRequestAuthUser,
+  getLocalDevUser,
 })
-app.get('/login', (_req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'login.html'))
-})
-app.post('/api/auth/login', (req, res) => {
-  if (!isAuthConfigured()) {
-    sendApiError(res, 503, 'auth_unconfigured', 'AIOS login is not configured yet.')
-    return
-  }
-
-  const user = authenticateAuthUser(req.body?.email, req.body?.password)
-  if (!user) {
-    sendApiError(res, 401, 'invalid_login', 'Email or password is incorrect.')
-    return
-  }
-
-  setAuthCookie(req, res, user)
-  res.json({
-    user,
-    redirectTo: getSafeRedirectPath(req.body?.next, user),
-  })
-})
-app.post('/api/auth/google', async (req, res) => {
-  try {
-    if (!isAuthConfigured()) {
-      sendApiError(res, 503, 'auth_unconfigured', 'AIOS login is not configured yet.')
-      return
-    }
-
-    const clientId = getGoogleClientId()
-    if (!clientId) {
-      sendApiError(res, 503, 'google_login_unconfigured', 'Google login is not configured yet.')
-      return
-    }
-
-    const idToken = String(req.body?.credential || '').trim()
-    if (!idToken) {
-      sendApiError(res, 400, 'missing_google_credential', 'Google sign-in credential is missing.')
-      return
-    }
-
-    const ticket = await googleOauthClient.verifyIdToken({
-      idToken,
-      audience: clientId,
-    })
-    const payload = ticket.getPayload()
-    const email = String(payload?.email || '').trim().toLowerCase()
-
-    if (!payload?.email_verified) {
-      sendApiError(res, 403, 'google_account_not_verified', 'Use a verified Google account.')
-      return
-    }
-
-    const user = getAllowedAuthUser(email)
-    if (!user) {
-      sendApiError(res, 403, 'user_not_allowed', 'This Google account is not enabled for AIOS yet.')
-      return
-    }
-
-    setAuthCookie(req, res, user)
-    res.json({
-      user,
-      redirectTo: getSafeRedirectPath(req.body?.next, user),
-    })
-  } catch (error) {
-    console.error('Google login failed:', error)
-    sendApiError(res, 401, 'google_login_failed', 'Google login failed. Try again or ask Steve to confirm access.')
-  }
-})
-app.get('/api/auth/session', (req, res) => {
-  const user = getRequestAuthUser(req) || getLocalDevUser(req)
-  res.json({
-    authenticated: Boolean(user),
-    configured: isAuthConfigured(),
-    googleConfigured: Boolean(getGoogleClientId()),
-    googleClientId: getGoogleClientId(),
-    user,
-    defaultRoute: user ? getDefaultRouteForUser(user) : '/login',
-  })
-})
-app.post('/api/auth/logout', (_req, res) => {
-  clearAuthCookie(res)
-  res.json({ ok: true })
-})
-app.use((req, res, next) => {
-  const directHtmlRoutes = {
-    '/index.html': '/',
-    '/foundation.html': '/foundation',
-    '/ops.html': '/ops',
-    '/sales.html': '/sales',
-    '/strategic-execution.html': '/strategic-execution',
-    '/doc.html': '/doc',
-    '/strategy-export.html': '/foundation/export/strategy',
-  }
-  if (directHtmlRoutes[req.path]) {
-    res.redirect(directHtmlRoutes[req.path])
-    return
-  }
-  next()
-})
-app.use(express.static(path.join(__dirname, 'public'), {
-  index: false,
-  setHeaders(res, filePath) {
-    if (/\.(js|css|html)$/i.test(filePath)) {
-      res.setHeader('Cache-Control', 'no-store')
-    }
-  },
-}))
 
 function tokensMatch(provided, expected) {
   if (!provided || !expected) return false

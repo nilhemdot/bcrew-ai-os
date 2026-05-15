@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T12:30:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/nightly-deep-audit-p0-triage-001-plan.md",
+  "approvedPlanSha256": "fb597171274c8e9b4204d1d57743bd81484117d7beb2468bf62950ae0ffc9b2e",
+  "approvedRepoHead": "476c6c6578ba06bae0e9c8f2b66b9d0360b0abf7",
+  "notes": "Approved as the evidence gate before Server Monolith Closeout. Scope: classify the first scheduled nightly deep audit P0 baseline, add/enrich only actionable backlog gaps, and confirm next sprint order. Not approved: implementing audit findings, hub feature work, Build Intel extraction, paid-source auth, provider spend, or auto-mutating future audits.",
+  "approvalDigest": "0cf02c76c42babd8f8e47e51f636e1f7abcdacecefa8f8e1539a8e348d7bd563"
+}

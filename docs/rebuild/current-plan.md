@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.59 - App page route split closing
+Version: v6.60 - Server monolith closeout active
 Status: Active
 
 Use this doc for one question:
@@ -73,11 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: App Page Route Split
+## Current Sprint: Server Monolith Closeout
 
-Live sprint ID: `app-page-routes-split-2026-05-15`.
+Live sprint ID: `foundation-server-monolith-closeout-2026-05-15`.
 
-This sprint is closing under `app-page-routes-split-v1`. It extracts the app page and API fallback route cluster out of `server.js` into `lib/app-page-routes.js` without changing page access, Strategy PDF export behavior, API fallback behavior, auth/session behavior, or hub feature work.
+This sprint closes the next server monolith slices after the first overnight route splits. It triaged the first nightly deep-audit P0 baseline, then splits `server.js` by route domain without changing behavior, auth semantics, hub UI, source extraction, or Marketing Video Lab wiring.
+
+Current card:
+
+1. `AUTH-ROUTES-SPLIT-001` - closing under `auth-routes-split-v1`; `/login`, auth login/logout/session endpoints, Google login error handling, security headers, API request logging, access-context attachment, direct `.html` redirects, and static public file serving now register through `lib/auth-routes.js` while `server.js` delegates through `registerAuthRoutes()`. Focused proof probes moved auth/session/static routes, rejects missing module / old inline route / missing registrar / weak proof failures, keeps each moved route under a 2 second / 1 MB budget, and reduces `server.js` from `6,733` to `6,593` lines for this slice.
+
+Completed in this sprint:
+
+1. `NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001` - closed by triaging the first nightly deep-audit P0 baseline into explicit follow-up cards and enrichments without auto-mutating code.
 
 The sprint order:
 

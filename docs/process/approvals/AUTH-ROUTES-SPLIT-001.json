@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AUTH-ROUTES-SPLIT-001",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T12:36:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/auth-routes-split-001-plan.md",
+  "approvedPlanSha256": "09db0a97a5f2b7da7effd87e23177c4275eb7326050e9c428b509e382771fd63",
+  "approvedRepoHead": "476c6c6578ba06bae0e9c8f2b66b9d0360b0abf7",
+  "notes": "Approved as first Server Monolith Closeout build card after nightly audit P0 triage. Scope: extract only auth/session/static setup route registration from server.js into lib/auth-routes.js with behavior unchanged. Not approved: auth provider rewrite, cookie/session semantic changes, Marketing Video Lab wiring, hub features, Foundation write route changes, paid-source auth, or broad server rewrite.",
+  "approvalDigest": "12dcd447497c1a26c620690eca24127c6b274f2ea7eee10ca0410400c92c3382"
+}
