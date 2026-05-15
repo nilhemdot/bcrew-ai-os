@@ -11,6 +11,8 @@ import os from 'node:os'
 import process from 'node:process'
 import { getGroupedSourceSystems, getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
 import {
+  CLOSEOUT_OWNERSHIP_GUARD_CARD_ID,
+  buildSyntheticBuildLogCloseoutValidationProof,
   buildSyntheticBuildLogOwnershipProof,
   getFoundationBuildCloseouts,
   getFoundationBuildCloseoutValidation,
@@ -119,15 +121,17 @@ import {
   buildNightlyDeepAuditUpgradeDogfoodProof,
 } from '../lib/nightly-deep-audit-upgrade.js'
 import {
-  SOURCE_OF_TRUTH_PERF_BUDGET_CARD_ID,
-  buildSourceOfTruthRouteDogfoodProof,
-  evaluateSourceOfTruthRouteBudget,
-} from '../lib/source-of-truth-payload.js'
+  FOUNDATION_ROUTE_BUDGET_CLEANUP_CARD_IDS,
+  FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY,
+  VERIFIER_ROUTE_BUDGET_MODULE_SPLIT_CARD_ID,
+  buildFoundationRouteBudgetVerifierDogfoodProof,
+  evaluateFoundationRouteBudgetVerifier,
+} from '../lib/foundation-route-budget-verifier.js'
 import {
-  FOUNDATION_HUB_PAYLOAD_EXTRACT_CARD_ID,
-  buildFoundationHubPayloadDogfoodProof,
-  evaluateFoundationHubPayloadBudget,
-} from '../lib/foundation-hub-summary-payload.js'
+  buildFoundationVerifyCheckOutput,
+  buildFoundationVerifyJsonSummary,
+  buildFoundationVerifyReporterDogfoodProof,
+} from '../lib/foundation-verify-reporter.js'
 import {
   HUB_WORK_CHECK_SCRIPT_PATH,
   HUB_WORK_COORDINATION_APPROVAL_PATH,
@@ -1095,7 +1099,7 @@ function recordFoundationVerifyTiming(label, startedAt, metadata = {}) {
   })
 }
 
-function printFoundationVerifyTimingProfile(totalStartedAt) {
+function buildFoundationVerifyTimingProfile(totalStartedAt) {
   const totalMs = Date.now() - totalStartedAt
   const sections = [...foundationVerifyTimings]
     .sort((a, b) => b.durationMs - a.durationMs)
@@ -1104,21 +1108,27 @@ function printFoundationVerifyTimingProfile(totalStartedAt) {
   const overBudgetSections = buildFoundationVerifySlowSectionRows(foundationVerifyTimings, {
     budgetMs: slowSectionBudgetMs,
   })
+  return {
+    totalMs,
+    sectionCount: foundationVerifyTimings.length,
+    slowSectionBudgetMs,
+    slowestSections: sections,
+    overBudgetSections,
+  }
+}
+
+function printFoundationVerifyTimingProfile(profile) {
+  const sections = profile?.slowestSections || []
+  const overBudgetSections = profile?.overBudgetSections || []
   console.log('')
-  line('Foundation verify timing profile', `${Math.round(totalMs)}ms total / ${foundationVerifyTimings.length} sections`)
+  line('Foundation verify timing profile', `${Math.round(profile.totalMs)}ms total / ${profile.sectionCount} sections`)
   for (const section of sections) {
     line(`  ${section.label}`, `${Math.round(section.durationMs)}ms`)
   }
   if (overBudgetSections.length) {
     line('  Over budget sections', overBudgetSections.map(section => `${section.label} ${Math.round(section.durationMs)}ms owner=${section.owner}`).join(' | '))
   }
-  console.log(`FOUNDATION_VERIFY_PROFILE ${JSON.stringify({
-    totalMs,
-    sectionCount: foundationVerifyTimings.length,
-    slowSectionBudgetMs,
-    slowestSections: sections,
-    overBudgetSections,
-  })}`)
+  console.log(`FOUNDATION_VERIFY_PROFILE ${JSON.stringify(profile)}`)
 }
 
 async function readRepoFile(relativePath) {
@@ -1645,6 +1655,8 @@ async function main() {
   const args = parseArgs(process.argv.slice(2))
   const baseUrl = typeof args.baseUrl === 'string' ? args.baseUrl : 'http://localhost:3000'
   const profileEnabled = args.profile === true || args.profile === 'true' || process.env.FOUNDATION_VERIFY_PROFILE === '1'
+  const failuresOnly = args['failures-only'] === true || args['failures-only'] === 'true' || args.failuresOnly === true || args.failuresOnly === 'true'
+  const jsonSummary = args['json-summary'] === true || args['json-summary'] === 'true' || args.jsonSummary === true || args.jsonSummary === 'true'
   const checks = []
 
   line('Foundation verification')
@@ -13494,92 +13506,84 @@ async function main() {
       ? `lane=${nightlyDeepAuditCard.lane} findings=${nightlyDeepAudit.deterministicAudit?.summary?.findingCount || 0} targets=${nightlyDeepAudit.reviewTargets?.length || 0} job=${nightlyDeepAuditJob?.runtimeMode || 'missing'}`
       : `missing ${NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID}`,
   )
-  const foundationRouteBudgetCleanupCloseoutKey = 'foundation-route-budget-cleanup-v1'
-  const foundationRouteBudgetCleanupCardIds = [
-    'SOURCE-OF-TRUTH-PERF-BUDGET-001',
-    'FOUNDATION-HUB-PAYLOAD-EXTRACT-001',
-  ]
-  const foundationRouteBudgetCleanupCards = [
-    (foundationHub.backlogItems || []).find(item => item.id === foundationRouteBudgetCleanupCardIds[0]) || null,
-    (foundationHub.backlogItems || []).find(item => item.id === foundationRouteBudgetCleanupCardIds[1]) || null,
-  ]
+  const foundationRouteBudgetCleanupCards = FOUNDATION_ROUTE_BUDGET_CLEANUP_CARD_IDS
+    .map(cardId => (foundationHub.backlogItems || []).find(item => item.id === cardId) || null)
   const foundationRouteBudgetCleanupCloseout = foundationBuildLog.builds.find(build =>
-    build.key === foundationRouteBudgetCleanupCloseoutKey ||
-    build.closeoutKey === foundationRouteBudgetCleanupCloseoutKey
+    build.key === FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY ||
+    build.closeoutKey === FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY
   ) || closeoutRecordAsBuildLogEntry(foundationBuildCloseouts.find(closeout =>
-    closeout.key === foundationRouteBudgetCleanupCloseoutKey
+    closeout.key === FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY
   ) || null)
-  const sourceOfTruthDogfood = buildSourceOfTruthRouteDogfoodProof()
-  const foundationHubPayloadDogfood = buildFoundationHubPayloadDogfoodProof()
-  const sourceOfTruthPayloadBudget = evaluateSourceOfTruthRouteBudget({
-    durationMs: 100,
-    bytes: Buffer.byteLength(JSON.stringify(sourceOfTruth)),
+  const foundationRouteBudgetVerifierResult = evaluateFoundationRouteBudgetVerifier({
+    cards: foundationRouteBudgetCleanupCards,
+    closeout: foundationRouteBudgetCleanupCloseout,
+    sourceOfTruth,
+    foundationHubSummary,
+    packageScripts: packageJson.scripts,
+    serverSource,
+    kpiHealthSource,
+    sourceOfTruthPayloadSource,
+    foundationHubSummaryPayloadSource,
+    foundationRouteBudgetCleanupScriptSource,
+    sourceDurationMs: 100,
+    sourcePayloadBytes: Buffer.byteLength(JSON.stringify(sourceOfTruth)),
+    foundationHubPayloadBytes: Number(foundationHubSummary.foundationHubPerformance?.payloadBytes || 0),
   })
-  const foundationHubPayloadBudget = evaluateFoundationHubPayloadBudget({
-    bytes: Number(foundationHubSummary.foundationHubPerformance?.payloadBytes || 0),
-  })
-  const foundationRouteBudgetCleanupSourceOk = Boolean(
-    foundationRouteBudgetCleanupCards[0] &&
-      foundationRouteBudgetCleanupCards[0].lane === 'done' &&
-      String(foundationRouteBudgetCleanupCards[0].statusNote || '').includes(foundationRouteBudgetCleanupCloseoutKey) &&
-      sourceOfTruthDogfood.ok === true &&
-      sourceOfTruthPayloadBudget.ok === true &&
-      sourceOfTruth.kpiHealth?.summary?.probeSilent === false &&
-      ['memory', 'persisted', 'refreshed'].includes(sourceOfTruth.kpiHealth?.routeCache?.cacheStatus) &&
-      packageJson.scripts?.['process:foundation-route-budget-cleanup-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-route-budget-cleanup-check.mjs' &&
-      serverSource.includes('buildSourceOfTruthPayload') &&
-      kpiHealthSource.includes('getCachedSafeKpiHealthSnapshot') &&
-      kpiHealthSource.includes('KPI_HEALTH_ROUTE_CACHE_MAX_AGE_MS') &&
-      sourceOfTruthPayloadSource.includes('buildSourceOfTruthRouteDogfoodProof') &&
-      foundationRouteBudgetCleanupScriptSource.includes('source-of-truth dogfood rejects old over-latency measurement')
-  )
-  const foundationRouteBudgetCleanupHubOk = Boolean(
-    foundationRouteBudgetCleanupCards[1] &&
-      foundationRouteBudgetCleanupCards[1].lane === 'done' &&
-      String(foundationRouteBudgetCleanupCards[1].statusNote || '').includes(foundationRouteBudgetCleanupCloseoutKey) &&
-      foundationHubPayloadDogfood.ok === true &&
-      foundationHubPayloadBudget.ok === true &&
-      foundationHubSummary.foundationJobs?.fullPayloadCompacted === true &&
-      foundationHubSummary.foundation1100Review?.fullPayloadCompacted === true &&
-      foundationHubSummary.researchCuration?.fullPayloadCompacted === true &&
-      foundationHubSummary.researchCuration?.cards?.length <= 12 &&
-      serverSource.includes('compactFoundationJobRunSnapshot') &&
-      serverSource.includes('compactFoundationReviewSprintSnapshot') &&
-      serverSource.includes('compactResearchCurationSnapshot') &&
-      foundationHubSummaryPayloadSource.includes('buildFoundationHubPayloadDogfoodProof') &&
-      foundationRouteBudgetCleanupScriptSource.includes('Foundation Hub dogfood rejects old over-budget payload')
-  )
-  const foundationRouteBudgetCleanupCloseoutOk = Boolean(
-    foundationRouteBudgetCleanupCloseout?.operatorCloseout === true &&
-      foundationRouteBudgetCleanupCardIds.every(id => (foundationRouteBudgetCleanupCloseout.backlogIds || []).includes(id))
-  )
+  const foundationRouteBudgetVerifierDogfood = buildFoundationRouteBudgetVerifierDogfoodProof()
   ensure(
     checks,
-    foundationRouteBudgetCleanupSourceOk,
+    foundationRouteBudgetVerifierResult.sourceOk,
     'SOURCE-OF-TRUTH-PERF-BUDGET-001 keeps source truth route under budget',
-    `sourceBytes=${sourceOfTruthPayloadBudget.bytes} cache=${sourceOfTruth.kpiHealth?.routeCache?.cacheStatus || 'missing'} sourceDogfood=${sourceOfTruthDogfood.ok}`,
+    `sourceBytes=${foundationRouteBudgetVerifierResult.sourceOfTruthPayloadBudget.bytes} cache=${foundationRouteBudgetVerifierResult.summary.sourceCacheStatus} sourceDogfood=${foundationRouteBudgetVerifierResult.sourceOfTruthDogfood.ok}`,
   )
   ensure(
     checks,
-    foundationRouteBudgetCleanupHubOk,
+    foundationRouteBudgetVerifierResult.hubOk,
     'FOUNDATION-HUB-PAYLOAD-EXTRACT-001 keeps Foundation Hub default payload compact',
-    `hubBytes=${foundationHubPayloadBudget.bytes} hubDogfood=${foundationHubPayloadDogfood.ok} jobs=${foundationHubSummary.foundationJobs?.latestRuns?.length || 0} researchCards=${foundationHubSummary.researchCuration?.cards?.length || 0}`,
+    `hubBytes=${foundationRouteBudgetVerifierResult.foundationHubPayloadBudget.bytes} hubDogfood=${foundationRouteBudgetVerifierResult.foundationHubPayloadDogfood.ok} jobs=${foundationHubSummary.foundationJobs?.latestRuns?.length || 0} researchCards=${foundationHubSummary.researchCuration?.cards?.length || 0}`,
   )
   ensure(
     checks,
-    foundationRouteBudgetCleanupCloseoutOk,
+    foundationRouteBudgetVerifierResult.closeoutOk,
     'Foundation route budget cleanup has operator closeout coverage',
     foundationRouteBudgetCleanupCloseout
       ? `operatorCloseout=${foundationRouteBudgetCleanupCloseout.operatorCloseout} backlogIds=${(foundationRouteBudgetCleanupCloseout.backlogIds || []).join(',')}`
-      : `missing ${foundationRouteBudgetCleanupCloseoutKey}`,
+      : `missing ${FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY}`,
   )
   ensure(
     checks,
-      foundationRouteBudgetCleanupSourceOk &&
-      foundationRouteBudgetCleanupHubOk &&
-      foundationRouteBudgetCleanupCloseoutOk,
+      foundationRouteBudgetVerifierResult.ok &&
+      foundationRouteBudgetVerifierDogfood.ok === true,
     'Foundation route budget cleanup keeps source truth fast and Foundation Hub default payload compact',
-    `cards=${foundationRouteBudgetCleanupCards.filter(card => card?.lane === 'done').length}/2 sourceBytes=${sourceOfTruthPayloadBudget.bytes} hubBytes=${foundationHubPayloadBudget.bytes} cache=${sourceOfTruth.kpiHealth?.routeCache?.cacheStatus || 'missing'}`,
+    `cards=${foundationRouteBudgetCleanupCards.filter(card => card?.lane === 'done').length}/2 sourceBytes=${foundationRouteBudgetVerifierResult.sourceOfTruthPayloadBudget.bytes} hubBytes=${foundationRouteBudgetVerifierResult.foundationHubPayloadBudget.bytes} cache=${foundationRouteBudgetVerifierResult.summary.sourceCacheStatus} moduleDogfood=${foundationRouteBudgetVerifierDogfood.ok}`,
+  )
+  const verifierRouteBudgetModuleSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_ROUTE_BUDGET_MODULE_SPLIT_CARD_ID) || null
+  ensure(
+    checks,
+    verifierRouteBudgetModuleSplitCard &&
+      ['executing', 'done'].includes(verifierRouteBudgetModuleSplitCard.lane) &&
+      foundationRouteBudgetVerifierDogfood.ok === true &&
+      foundationVerifySource.includes('evaluateFoundationRouteBudgetVerifier') &&
+      foundationVerifySource.includes('buildFoundationRouteBudgetVerifierDogfoodProof'),
+    'VERIFIER-ROUTE-BUDGET-MODULE-SPLIT-001 delegates route-budget verifier behavior to focused module',
+    verifierRouteBudgetModuleSplitCard
+      ? `lane=${verifierRouteBudgetModuleSplitCard.lane} dogfood=${foundationRouteBudgetVerifierDogfood.ok ? 'pass' : 'blocked'} sourceOldFailure=${foundationRouteBudgetVerifierDogfood.overLatencySource.sourceOfTruthPayloadBudget.ok ? 'missed' : 'rejected'} hubOldFailure=${foundationRouteBudgetVerifierDogfood.overBudgetHub.foundationHubPayloadBudget.ok ? 'missed' : 'rejected'}`
+      : `missing ${VERIFIER_ROUTE_BUDGET_MODULE_SPLIT_CARD_ID}`,
+  )
+  const verifyFailureReporterCard = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFY-FAILURE-REPORTER-001') || null
+  const verifyFailureReporterDogfood = buildFoundationVerifyReporterDogfoodProof()
+  ensure(
+    checks,
+    verifyFailureReporterCard &&
+      verifyFailureReporterCard.lane === 'done' &&
+      verifyFailureReporterDogfood.ok === true &&
+      foundationVerifySource.includes('buildFoundationVerifyCheckOutput') &&
+      foundationVerifySource.includes("args['failures-only']") &&
+      foundationVerifySource.includes("args['json-summary']"),
+    'VERIFY-FAILURE-REPORTER-001 adds failure-only and JSON verifier summaries',
+    verifyFailureReporterCard
+      ? `lane=${verifyFailureReporterCard.lane} dogfood=${verifyFailureReporterDogfood.ok ? 'pass' : 'blocked'} failuresOnly=${verifyFailureReporterDogfood.failuresOnlyOutput.length}`
+      : 'missing VERIFY-FAILURE-REPORTER-001',
   )
   const hubWorkCoordinationCard = (foundationHub.backlogItems || []).find(item => item.id === HUB_WORK_COORDINATION_CARD_ID) || null
   const hubWorkOwnershipMatrix = await loadHubWorkOwnershipMatrix({ repoRoot })
@@ -13888,8 +13892,10 @@ async function main() {
     `cards=${foundationClickUpVerifyHealthBoundaryCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} dogfood=${clickUpSourceVerifierDogfood.ok ? 'pass' : 'blocked'} slowBudget=${foundationVerifySlowBudgetDogfood.ok ? 'pass' : 'blocked'}`,
   )
   const foundationBuildLogMonolithSliceCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) || null
+  const closeoutOwnershipGuardCard = (foundationHub.backlogItems || []).find(item => item.id === CLOSEOUT_OWNERSHIP_GUARD_CARD_ID) || null
   const foundationBuildLogValidation = getFoundationBuildCloseoutValidation()
   const foundationBuildLogOwnershipProof = buildSyntheticBuildLogOwnershipProof()
+  const foundationBuildLogCloseoutValidationProof = buildSyntheticBuildLogCloseoutValidationProof()
   const foundationBuildLogSplitProof = buildSyntheticFoundationBuildLogRegistrySplitProof()
   const foundationBuildLogSplitEvaluation = evaluateFoundationBuildLogRegistrySplit({
     behaviorLineCount: countTextLines(foundationBuildLogBehaviorSource),
@@ -13913,7 +13919,9 @@ async function main() {
       foundationBuildLogSplitProof.unsplit?.ok === false &&
       foundationBuildLogSplitProof.split?.ok === true &&
       foundationBuildLogOwnershipProof.ok === true &&
+      foundationBuildLogCloseoutValidationProof.ok === true &&
       (foundationBuildLogValidation.invalidCloseoutKeys || []).length === 0 &&
+      (foundationBuildLogValidation.ownershipOverlapViolations || []).length === 0 &&
       packageJson.scripts?.['process:foundation-build-log-monolith-slice-check'] === `node --env-file-if-exists=.env ${FOUNDATION_BUILD_LOG_MONOLITH_SLICE_SCRIPT_PATH}` &&
       foundationBuildLogBehaviorSource.includes('./foundation-build-closeout-records.js') &&
       foundationBuildLogBehaviorSource.includes('export { FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION }') &&
@@ -13925,6 +13933,19 @@ async function main() {
     foundationBuildLogMonolithSliceCard
       ? `lane=${foundationBuildLogMonolithSliceCard.lane} behaviorLines=${foundationBuildLogSplitEvaluation.summary.behaviorLineCount} recordLines=${foundationBuildLogSplitEvaluation.summary.recordLineCount} closeout=${foundationBuildLogMonolithSliceCloseout?.key || 'missing'}`
       : `missing ${FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID}`,
+  )
+  ensure(
+    checks,
+    closeoutOwnershipGuardCard &&
+      ['executing', 'done'].includes(closeoutOwnershipGuardCard.lane) &&
+      foundationBuildLogCloseoutValidationProof.ok === true &&
+      (foundationBuildLogCloseoutValidationProof.overlapping.ownershipOverlapViolations || [])
+        .some(violation => (violation.overlappingBacklogIds || []).includes('SYNTHETIC-A')) &&
+      (foundationBuildLogValidation.ownershipOverlapViolations || []).length === 0,
+    'CLOSEOUT-OWNERSHIP-GUARD-001 blocks closeout ownership/context overlap',
+    closeoutOwnershipGuardCard
+      ? `lane=${closeoutOwnershipGuardCard.lane} dogfood=${foundationBuildLogCloseoutValidationProof.ok ? 'pass' : 'blocked'} realOverlaps=${(foundationBuildLogValidation.ownershipOverlapViolations || []).length}`
+      : `missing ${CLOSEOUT_OWNERSHIP_GUARD_CARD_ID}`,
   )
   const foundationVerificationCleanupCards = FOUNDATION_VERIFICATION_CLEANUP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
     .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
@@ -14516,23 +14537,29 @@ async function main() {
     sheetVerify.split('\n').filter(Boolean).slice(-2).join(' | '),
   )
 
-  console.log('')
-  for (const check of checks) {
-    if (check.ok) pass(check.check, check.detail)
-    else fail(check.check, check.detail)
-  }
-
   const failed = checks.filter(check => !check.ok)
-  console.log('')
-  line('Summary', `${checks.length - failed.length}/${checks.length} checks passed`)
-  if (profileEnabled) printFoundationVerifyTimingProfile(verifyStartedAt)
+  const timingProfile = profileEnabled ? buildFoundationVerifyTimingProfile(verifyStartedAt) : null
+
+  if (jsonSummary) {
+    console.log(JSON.stringify(buildFoundationVerifyJsonSummary(checks, { timingProfile }), null, 2))
+  } else {
+    console.log('')
+    for (const outputLine of buildFoundationVerifyCheckOutput(checks, { failuresOnly })) {
+      if (outputLine.stream === 'stderr') console.error(outputLine.text)
+      else console.log(outputLine.text)
+    }
+
+    console.log('')
+    line('Summary', `${checks.length - failed.length}/${checks.length} checks passed`)
+    if (profileEnabled) printFoundationVerifyTimingProfile(timingProfile)
+  }
 
   if (failed.length) {
     process.exitCode = 1
     return
   }
 
-  console.log('Foundation verification passed.')
+  if (!jsonSummary) console.log('Foundation verification passed.')
 }
 
 runWithFoundationGateRetry(

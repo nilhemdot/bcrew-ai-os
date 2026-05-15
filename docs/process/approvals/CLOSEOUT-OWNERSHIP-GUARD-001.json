@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CLOSEOUT-OWNERSHIP-GUARD-001",
+  "approvedBy": "Steve opened the fresh Foundation builder chat from the 2026-05-15 handoff; Codex scoped this Foundation Ship Gate + Verifier Tightening Sprint and logged Plan Critic pass.",
+  "approvedAt": "2026-05-15T09:00:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/closeout-ownership-guard-001-plan.md",
+  "approvedPlanSha256": "4a0eb1be58004cde07e704fbfa3c6500f91a53c8348372add7dd1ea40146a03f",
+  "approvedRepoHead": "faecc6ef6a0eaf05ee2fb21cd410987d92c4063c",
+  "notes": "Foundation Ship Gate + Verifier Tightening Sprint. Dogfood proof required for exact failure modes. Not approved: hub feature work, Marketing Video Lab work, broad verifier rewrite, live source mutation, or autonomous repair behavior.",
+  "approvalDigest": "e9eef8b04f008590fff22910ede2084d4d60dab7f1570d60d6bc4e4feec750cd"
+}

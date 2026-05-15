@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-ROUTE-BUDGET-MODULE-SPLIT-001",
+  "approvedBy": "Steve opened the fresh Foundation builder chat from the 2026-05-15 handoff; Codex scoped this Foundation Ship Gate + Verifier Tightening Sprint and logged Plan Critic pass.",
+  "approvedAt": "2026-05-15T09:00:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-route-budget-module-split-001-plan.md",
+  "approvedPlanSha256": "651ae538a06aa2ffacf6617d321acbf13b5a41e89420e13fb73eee9e1d583d87",
+  "approvedRepoHead": "faecc6ef6a0eaf05ee2fb21cd410987d92c4063c",
+  "notes": "Foundation Ship Gate + Verifier Tightening Sprint. Dogfood proof required for exact failure modes. Not approved: hub feature work, Marketing Video Lab work, broad verifier rewrite, live source mutation, or autonomous repair behavior.",
+  "approvalDigest": "2446305ec134d3fb1b16c05d3812ead923a236721f0fbba43c919782b71695d7"
+}

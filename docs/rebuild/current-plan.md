@@ -73,20 +73,23 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Route Budget Cleanup
+## Current Sprint: Foundation Ship Gate + Verifier Tightening
 
-Live sprint ID: `foundation-route-budget-cleanup-2026-05-14`.
+Live sprint ID: `foundation-ship-gate-verifier-tightening-2026-05-15`.
 
-This sprint is closed under `foundation-route-budget-cleanup-v1`. It turns the first nightly deep audit route-budget findings into measured fixes without hub feature work: `/api/source-of-truth` delegates payload construction to `lib/source-of-truth-payload.js`, uses a bounded KPI health route cache, and measured 10ms / 134,031 bytes after cache warmup. Default `/api/foundation-hub` compacts Foundation Jobs runtime rows, Foundation 1100 review, and Research Curation cards through `lib/foundation-hub-summary-payload.js`, measuring 79ms / 774,641 bytes under the 800KB warning budget.
+This sprint is closed under `foundation-ship-gate-tightening-v1`. It reduces Foundation ship-gate friction without hiding risk: `foundation:verify` now has additive failure-only and JSON summary modes, closeout validation rejects owned/context card overlap, and route-budget verifier behavior is split into `lib/foundation-route-budget-verifier.js`.
 
 The sprint order:
 
-1. `SOURCE-OF-TRUTH-PERF-BUDGET-001` - done under `foundation-route-budget-cleanup-v1`; route hot path now uses cached KPI health and preserves the full response contract.
-2. `FOUNDATION-HUB-PAYLOAD-EXTRACT-001` - done under `foundation-route-budget-cleanup-v1`; default Foundation Hub payload is compacted under the current 800KB warning budget while full/detail paths remain available.
+1. `VERIFY-FAILURE-REPORTER-001` - done under `foundation-ship-gate-tightening-v1`; verifier failure output can now be compact or machine-readable while default output remains unchanged.
+2. `CLOSEOUT-OWNERSHIP-GUARD-001` - done under `foundation-ship-gate-tightening-v1`; closeouts cannot claim the same backlog card as both owned and context.
+3. `VERIFIER-ROUTE-BUDGET-MODULE-SPLIT-001` - done under `foundation-ship-gate-tightening-v1`; route-budget proof delegates to a focused module that rejects the old `2,489ms` source route and `872,726` byte Foundation Hub payload failures.
 
-The approved route budget cleanup sprint is complete. Stop at sprint review before opening another sprint. The biggest remaining default Foundation Hub payload section is still `backlogItems`, so a later frontend contract split should make the default command view thinner without removing full detail.
+The approved verifier tightening sprint is complete. Stop at sprint review before opening another sprint. Good next candidates are a thin default `backlogItems` contract for Foundation Hub, another verifier module split, or server route ownership extraction if the next audit/profile points there.
 
-Latest completed sprint: `nightly-deep-audit-upgrade-2026-05-14`, closed under `nightly-deep-audit-upgrade-v1`. It schedules the report-only `nightly-deep-audit` reviewer at 03:00 America/Toronto, writes date-based morning reports, selects changed/high-risk backend/frontend/verifier/hot-route/DB surfaces, records approved-route readiness without live spend by default, and dogfoods the May 13 rot patterns. The first report found 76 findings, 18 high-risk review targets, Foundation Hub payload warning at 873237B, and `/api/source-of-truth` latency risk at 2501ms.
+Previous completed sprint: `foundation-route-budget-cleanup-2026-05-14`, closed under `foundation-route-budget-cleanup-v1`. It turns the first nightly deep audit route-budget findings into measured fixes without hub feature work: `/api/source-of-truth` delegates payload construction to `lib/source-of-truth-payload.js`, uses a bounded KPI health route cache, and measured 10ms / 134,031 bytes after cache warmup. Default `/api/foundation-hub` compacts Foundation Jobs runtime rows, Foundation 1100 review, and Research Curation cards through `lib/foundation-hub-summary-payload.js`, measuring 79ms / 774,641 bytes under the 800KB warning budget.
+
+Previous completed sprint: `nightly-deep-audit-upgrade-2026-05-14`, closed under `nightly-deep-audit-upgrade-v1`. It schedules the report-only `nightly-deep-audit` reviewer at 03:00 America/Toronto, writes date-based morning reports, selects changed/high-risk backend/frontend/verifier/hot-route/DB surfaces, records approved-route readiness without live spend by default, and dogfoods the May 13 rot patterns. The first report found 76 findings, 18 high-risk review targets, Foundation Hub payload warning at 873237B, and `/api/source-of-truth` latency risk at 2501ms.
 
 Recommended next sprint, not silently opened: choose from the next nightly audit and profiler. Good candidates are verifier/module splits, server route ownership split, and a thin default `backlogItems` payload contract for Foundation Hub.
 
