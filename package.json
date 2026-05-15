@@ -112,6 +112,7 @@
     "process:frontend-operations-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-operations-renderers-split-check.mjs",
     "process:frontend-runtime-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-runtime-renderers-split-check.mjs",
     "process:frontend-source-lifecycle-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-source-lifecycle-renderers-split-check.mjs",
+    "process:frontend-source-registry-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-source-registry-renderers-split-check.mjs",
     "process:hub-work-check": "node --env-file-if-exists=.env scripts/process-hub-work-check.mjs",
     "process:foundation-ready-safe-hub-lane-check": "node --env-file-if-exists=.env scripts/process-foundation-ready-safe-hub-lane-check.mjs",
     "process:foundation-hub-backlog-contract-check": "node --env-file-if-exists=.env scripts/process-foundation-hub-backlog-contract-check.mjs",

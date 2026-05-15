@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.50 - Foundation source lifecycle renderer split closed
+Version: v6.51 - Foundation source registry renderer split closed
 Status: Active
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Source Lifecycle Renderer Split
+## Current Sprint: Foundation Source Registry Renderer Split
+
+Live sprint ID: `frontend-source-registry-renderers-split-2026-05-15`.
+
+This sprint is closed under `frontend-source-registry-renderers-split-v1`. It extracts the Foundation Data Sources / Source Registry renderer cluster out of `public/foundation.js` into a focused classic browser script without changing renderer behavior, route semantics, CSS, or Foundation API contracts.
+
+The sprint order:
+
+1. `FRONTEND-SOURCE-REGISTRY-RENDERERS-SPLIT-001` - done under `frontend-source-registry-renderers-split-v1`; Data Sources / Source Registry renderers now live in `public/foundation-source-registry-renderers.js` while `public/foundation.js` keeps the route-level `renderSourceRegistry()` owner. Focused proof executes the split scripts in a VM-backed fake browser, proves Data Sources dispatch reaches moved renderer globals, proves Source Lifecycle can still call shared source helpers, rejects missing/wrong source-registry-module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from about `11,223` to about `9,775` lines for this slice.
+
+Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, FUB lead-source manager or System Inventory split in this slice, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `frontend-source-lifecycle-renderers-split-2026-05-15`, closed under `frontend-source-lifecycle-renderers-split-v1`. It extracted Source Lifecycle/source-health panel renderers out of `public/foundation.js` into `public/foundation-source-lifecycle-renderers.js` without changing renderer behavior.
+
+## Previous Sprint: Foundation Source Lifecycle Renderer Split
 
 Live sprint ID: `frontend-source-lifecycle-renderers-split-2026-05-15`.
 
@@ -83,10 +97,7 @@ The sprint order:
 
 1. `FRONTEND-SOURCE-LIFECYCLE-RENDERERS-SPLIT-001` - done under `frontend-source-lifecycle-renderers-split-v1`; Source Lifecycle/source-health panel renderers now live in `public/foundation-source-lifecycle-renderers.js` while `public/foundation.js` keeps the route-level `renderSourceLifecycle()` owner. Focused proof executes the split scripts in a VM-backed fake browser, proves Source Lifecycle dispatch reaches moved renderer globals, proves extracted helper behavior, rejects missing/wrong source-lifecycle-module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from `12,717` to about `11,223` lines for this slice.
 
-Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
-
 Previous completed sprint: `frontend-runtime-renderers-split-2026-05-15`, closed under `frontend-runtime-renderers-split-v1`. It extracted Runtime Health diagnostic panel renderers out of `public/foundation.js` into `public/foundation-runtime-renderers.js` without changing renderer behavior.
-
 ## Previous Sprint: Foundation Runtime Renderer Split
 
 Live sprint ID: `frontend-runtime-renderers-split-2026-05-15`.

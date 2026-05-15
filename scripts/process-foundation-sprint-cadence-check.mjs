@@ -163,6 +163,7 @@ async function main() {
       readText(FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH),
       readText('lib/foundation-current-sprint.js'),
       readText('public/foundation.js'),
+      readText('public/foundation-source-registry-renderers.js'),
       readText('public/foundation-source-lifecycle-renderers.js'),
       readText('public/foundation-runtime-renderers.js'),
       readText('public/foundation-operations-renderers.js'),

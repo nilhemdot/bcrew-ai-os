@@ -575,6 +575,17 @@ import {
   evaluateFrontendSourceLifecycleScriptOrder,
 } from '../lib/foundation-frontend-source-lifecycle-renderers-split.js'
 import {
+  FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_APPROVAL_PATH,
+  FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_BEFORE_LINES,
+  FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CARD_ID,
+  FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CLOSEOUT_KEY,
+  FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_PLAN_PATH,
+  FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_SCRIPT_PATH,
+  FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_SPRINT_ID,
+  evaluateFrontendSourceRegistryRendererSplit,
+  evaluateFrontendSourceRegistryScriptOrder,
+} from '../lib/foundation-frontend-source-registry-renderers-split.js'
+import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -2106,6 +2117,7 @@ async function main() {
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const foundationNavConfigSource = await readRepoFile('public/foundation-nav-config.js')
   const foundationDataSource = await readRepoFile('public/foundation-data.js')
+  const foundationSourceRegistryRenderersSource = await readRepoFile('public/foundation-source-registry-renderers.js')
   const foundationSourceLifecycleRenderersSource = await readRepoFile('public/foundation-source-lifecycle-renderers.js')
   const foundationRuntimeRenderersSource = await readRepoFile('public/foundation-runtime-renderers.js')
   const foundationOperationsRenderersSource = await readRepoFile('public/foundation-operations-renderers.js')
@@ -2118,10 +2130,13 @@ async function main() {
   const frontendRuntimeRenderersSplitPlanSource = await readRepoFile(FRONTEND_RUNTIME_RENDERERS_SPLIT_PLAN_PATH)
   const frontendSourceLifecycleRenderersSplitScriptSource = await readRepoFile(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_SCRIPT_PATH)
   const frontendSourceLifecycleRenderersSplitPlanSource = await readRepoFile(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_PLAN_PATH)
+  const frontendSourceRegistryRenderersSplitScriptSource = await readRepoFile(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_SCRIPT_PATH)
+  const frontendSourceRegistryRenderersSplitPlanSource = await readRepoFile(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_PLAN_PATH)
   const foundationFrontendSource = [
     foundationNavConfigSource,
     foundationDataSource,
     foundationUiSource,
+    foundationSourceRegistryRenderersSource,
     foundationSourceLifecycleRenderersSource,
     foundationRuntimeRenderersSource,
     foundationOperationsRenderersSource,
@@ -14271,6 +14286,74 @@ async function main() {
     frontendSourceLifecycleRenderersSplitCard
       ? `lane=${frontendSourceLifecycleRenderersSplitCard.lane} dogfood=${frontendSourceLifecycleDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
       : `missing ${FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CARD_ID}`,
+  )
+  const frontendSourceRegistryRenderersSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CARD_ID) || null
+  const frontendSourceRegistryRenderersSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CLOSEOUT_KEY) || null
+  const frontendSourceRegistryScriptOrder = evaluateFrontendSourceRegistryScriptOrder(extractFoundationScriptOrder(foundationHtmlSource))
+  const frontendSourceRegistryDogfood = evaluateFrontendSourceRegistryRendererSplit({
+    foundationSource: foundationUiSource,
+    sourceRegistrySource: foundationSourceRegistryRenderersSource,
+    sourceLifecycleSource: foundationSourceLifecycleRenderersSource,
+    runtimeSource: foundationRuntimeRenderersSource,
+    operationsSource: foundationOperationsRenderersSource,
+    htmlSource: foundationHtmlSource,
+    lineCounts: {
+      before: FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_BEFORE_LINES,
+      after: frontendUiLineCount,
+    },
+    routeDispatch: {
+      sourceRegistry: true,
+      hero: true,
+      systems: true,
+      connectors: true,
+      kpi: true,
+    },
+    helperBehavior: {
+      tag: true,
+      meta: true,
+      bullet: true,
+      connector: true,
+      sourceLifecycleUsesSharedHelpers: true,
+    },
+  })
+  ensure(
+    checks,
+      frontendSourceRegistryRenderersSplitCard &&
+      frontendSourceRegistryRenderersSplitCard.lane === 'done' &&
+      String(frontendSourceRegistryRenderersSplitCard.statusNote || '').includes(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      frontendSourceRegistryRenderersSplitCloseout?.operatorCloseout === true &&
+      (frontendSourceRegistryRenderersSplitCloseout.backlogIds || []).includes(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CARD_ID) &&
+      frontendSourceRegistryScriptOrder.ok === true &&
+      frontendSourceRegistryDogfood.ok === true &&
+      packageJson.scripts?.['process:frontend-source-registry-renderers-split-check'] === `node --env-file-if-exists=.env ${FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-frontend-source-registry-renderers-split-closeout.md') &&
+      foundationSourceRegistryRenderersSource.includes('function renderSourceHero(') &&
+      foundationSourceRegistryRenderersSource.includes('function renderSourceSystemsPanel(') &&
+      foundationSourceRegistryRenderersSource.includes('function renderSourceConnectorsPanel(') &&
+      foundationSourceRegistryRenderersSource.includes('function renderKpiSupabaseHealthPanel(') &&
+      foundationSourceRegistryRenderersSource.includes('function renderSourceTag(') &&
+      !foundationUiSource.includes('function renderSourceHero(') &&
+      !foundationUiSource.includes('function renderSourceSystemsPanel(') &&
+      !foundationUiSource.includes('function renderSourceConnectorsPanel(') &&
+      !foundationUiSource.includes('function renderKpiSupabaseHealthPanel(') &&
+      foundationUiSource.includes('function renderSourceRegistry(section)') &&
+      foundationUiSource.includes('renderSourceHero(') &&
+      foundationUiSource.includes('renderSourceConnectorsPanel(') &&
+      foundationSourceLifecycleRenderersSource.includes('renderSourceTag(') &&
+      frontendSourceRegistryRenderersSplitScriptSource.includes('runSourceRegistryBrowserDogfood') &&
+      frontendSourceRegistryRenderersSplitScriptSource.includes('VM Source Registry dispatch reaches extracted renderers') &&
+      frontendSourceRegistryRenderersSplitPlanSource.includes('read-only by default') &&
+      currentPlan.includes(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CARD_ID),
+    'FRONTEND-SOURCE-REGISTRY-RENDERERS-SPLIT-001 splits Foundation source registry renderers out of public/foundation.js',
+    frontendSourceRegistryRenderersSplitCard
+      ? `lane=${frontendSourceRegistryRenderersSplitCard.lane} dogfood=${frontendSourceRegistryDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
+      : `missing ${FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
