@@ -73,17 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Hub Backlog Contract
+## Current Sprint: Foundation Backlog Detail Endpoint
 
-Live sprint ID: `foundation-hub-backlog-contract-2026-05-15`.
+Live sprint ID: `foundation-backlog-detail-endpoint-2026-05-15`.
 
-This sprint is closed under `foundation-hub-backlog-contract-v1`. It keeps the default Foundation Hub route fast as the backlog grows by making `backlogItems` an explicit thin contract instead of a full long-note dump.
+This sprint is closed under `foundation-backlog-detail-endpoint-v1`. It adds a read-only single-card backlog detail endpoint so hubs and Foundation UI can fetch full text for one card without pulling full diagnostics.
 
 The sprint order:
 
-1. `FOUNDATION-HUB-BACKLOG-CONTRACT-001` - done under `foundation-hub-backlog-contract-v1`; default `/api/foundation-hub` now exposes `foundation-hub-backlog.contract.v1`, preserves all 455 card identities/counts, shrinks live default backlog rows from 635,887B to 344,296B, and measures the route at 470,134B / 72ms in focused proof.
+1. `FOUNDATION-BACKLOG-DETAIL-ENDPOINT-001` - done under `foundation-backlog-detail-endpoint-v1`; `GET /api/foundation/backlog/:cardId` returns full detail for one valid card, returns `404` for a missing valid card, returns `400` for malformed IDs, and measured `48ms` / `2,089B` for a real card in focused proof while the default `/api/foundation-hub` stayed compact at `461,702B`.
 
-The approved sprint is complete. If Steve is unavailable, continue no-auth Foundation cleanup. Good candidates are another verifier module split, server route ownership split, or a dedicated backlog-detail endpoint if the UI needs rich card expansion without loading full diagnostics.
+The approved sprint is complete. If Steve is unavailable, continue no-auth Foundation cleanup. Good candidates are another verifier module split, server route ownership split, or a small UI consumer switch to use `/api/foundation/backlog/:cardId` if the Foundation page currently pulls full diagnostics for card expansion.
+
+Previous completed sprint: `foundation-hub-backlog-contract-2026-05-15`, closed under `foundation-hub-backlog-contract-v1`. It keeps the default Foundation Hub route fast as the backlog grows by making `backlogItems` an explicit thin contract instead of a full long-note dump. `FOUNDATION-HUB-BACKLOG-CONTRACT-001` is done under `foundation-hub-backlog-contract-v1`; default `/api/foundation-hub` now exposes `foundation-hub-backlog.contract.v1`, preserves all 455 card identities/counts, shrinks live default backlog rows from 635,887B to 344,296B, and measures the route at 470,134B / 72ms in focused proof.
 
 Previous completed sprint: `foundation-ready-safe-hub-lane-2026-05-15`, closed under `foundation-ready-safe-hub-lane-v1`. It creates the safe lane Steve needs for hub work while Foundation sprints continue: hubs can consume read-only Foundation source health, use hub-owned fixtures, and request shared route/server changes without editing shared files directly. `HUB-CONSUMER-CONTRACT-001`, `HUB-SANDBOX-WORKFLOW-001`, `SHARED-FILE-INTEGRATION-GATE-001`, and `SOURCE-TO-HUB-PROOF-001` are done under this closeout.
 

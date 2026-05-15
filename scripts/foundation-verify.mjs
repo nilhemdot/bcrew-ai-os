@@ -188,6 +188,15 @@ import {
   validateFoundationHubBacklogContract,
 } from '../lib/foundation-hub-backlog-contract.js'
 import {
+  FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CARD_ID,
+  FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY,
+  FOUNDATION_BACKLOG_DETAIL_ENDPOINT_SCRIPT_PATH,
+  FOUNDATION_BACKLOG_DETAIL_ENDPOINT_SPRINT_ID,
+  FOUNDATION_BACKLOG_DETAIL_ENDPOINT_VERSION,
+  buildFoundationBacklogDetailEndpointDogfoodProof,
+  validateFoundationBacklogDetailPayload,
+} from '../lib/foundation-backlog-detail.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -1090,6 +1099,10 @@ const FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 
 const FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-HUB-BACKLOG-CONTRACT-001',
+]
+
+const FOUNDATION_BACKLOG_DETAIL_ENDPOINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-BACKLOG-DETAIL-ENDPOINT-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -3646,6 +3659,7 @@ async function main() {
     foundation1100Review: foundationHubFull.foundation1100Review || foundationHubSummary.foundation1100Review,
     fullDiagnostics: foundationHubFull,
   }
+  const foundationBacklogDetailEndpointApi = await fetchJson(baseUrl, '/api/foundation/backlog/FOUNDATION-HUB-BACKLOG-CONTRACT-001')
   const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=240')
   const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
@@ -3856,6 +3870,7 @@ async function main() {
   const sourceOutageBoundaryCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_OUTAGE_BOUNDARY_CLOSEOUT_KEY) || null
   const foundationReadySafeHubLaneCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) || null
   const foundationHubBacklogContractCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) || null
+  const foundationBacklogDetailEndpointCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) || null
   const foundationOperatingReliabilityCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
@@ -13714,12 +13729,40 @@ async function main() {
       packageJson.scripts?.['process:foundation-hub-backlog-contract-check'] === `node --env-file-if-exists=.env ${FOUNDATION_HUB_BACKLOG_CONTRACT_SCRIPT_PATH}` &&
       currentPlan.includes(FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) &&
       currentState.includes(FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) &&
-      activeFoundationSprint.sprint?.sprintId === FOUNDATION_HUB_BACKLOG_CONTRACT_SPRINT_ID &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_HUB_BACKLOG_CONTRACT_SPRINT_ID ||
+        activeSprintAtOrPast(FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
       includesAll(foundationVerifySource, FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'Foundation Hub default backlog payload uses a thin contract while full diagnostics keep detail',
     foundationHubBacklogContractCard
       ? `lane=${foundationHubBacklogContractCard.lane} dogfood=${foundationHubBacklogContractDogfood.ok ? 'pass' : 'blocked'} routeRows=${foundationHubSummary.backlogItems?.length || 0} bytes=${foundationHubSummary.foundationHubPerformance?.payloadBytes || 'missing'}`
       : `missing ${FOUNDATION_HUB_BACKLOG_CONTRACT_CARD_ID}`,
+  )
+  const foundationBacklogDetailEndpointCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CARD_ID) || null
+  const foundationBacklogDetailEndpointDogfood = buildFoundationBacklogDetailEndpointDogfoodProof()
+  const foundationBacklogDetailEndpointRouteValidation = validateFoundationBacklogDetailPayload(foundationBacklogDetailEndpointApi)
+  ensure(
+    checks,
+      foundationBacklogDetailEndpointCard &&
+      foundationBacklogDetailEndpointCard.lane === 'done' &&
+      String(foundationBacklogDetailEndpointCard.statusNote || '').includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) &&
+      foundationBacklogDetailEndpointCloseout?.operatorCloseout === true &&
+      (foundationBacklogDetailEndpointCloseout.backlogIds || []).includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CARD_ID) &&
+      foundationBacklogDetailEndpointDogfood.ok === true &&
+      foundationBacklogDetailEndpointRouteValidation.ok === true &&
+      foundationBacklogDetailEndpointApi.contractVersion === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_VERSION &&
+      foundationBacklogDetailEndpointApi.cardId === FOUNDATION_HUB_BACKLOG_CONTRACT_CARD_ID &&
+      packageJson.scripts?.['process:foundation-backlog-detail-endpoint-check'] === `node --env-file-if-exists=.env ${FOUNDATION_BACKLOG_DETAIL_ENDPOINT_SCRIPT_PATH}` &&
+      serverSource.includes("app.get('/api/foundation/backlog/:cardId'") &&
+      serverSource.includes('getBacklogItemsByIds([validation.cardId])') &&
+      currentPlan.includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_SPRINT_ID ||
+        activeSprintAtOrPast(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
+      includesAll(foundationVerifySource, FOUNDATION_BACKLOG_DETAIL_ENDPOINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'Foundation backlog detail endpoint returns one full card without reloading full diagnostics',
+    foundationBacklogDetailEndpointCard
+      ? `lane=${foundationBacklogDetailEndpointCard.lane} dogfood=${foundationBacklogDetailEndpointDogfood.ok ? 'pass' : 'blocked'} route=${foundationBacklogDetailEndpointApi.cardId || 'missing'}`
+      : `missing ${FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()

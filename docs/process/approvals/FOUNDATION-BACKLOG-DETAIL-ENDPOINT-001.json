@@ -1,0 +1,13 @@
+{
+  "cardId": "FOUNDATION-BACKLOG-DETAIL-ENDPOINT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T03:31:00.000Z",
+  "approvalSource": "Steve instructed Codex to keep going overnight on Foundation work that does not need him; Codex selected the next no-auth cleanup sprint from the current Foundation Hub payload contract closeout.",
+  "notes": "Approval is for a read-only single-card Foundation backlog detail endpoint. No hub feature work, no Marketing live routes, no paid auth, no full diagnostics redesign.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/foundation-backlog-detail-endpoint-001-plan.md",
+  "approvedPlanSha256": "04a967e6881a828c9086be36ef7cb4315876852f22c9c1d9a2a4a8275b1a01a0",
+  "approvedRepoHead": "cce46a2d65645eb0d129f56cccf61c579a727099",
+  "approvalDigest": "9fb8fbf534d263fd23ec046aa82eb6076649f3cb22ec51a13c6307df42387271"
+}

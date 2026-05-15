@@ -237,6 +237,10 @@ import {
 import {
   buildFoundationHubBacklogContract,
 } from './lib/foundation-hub-backlog-contract.js'
+import {
+  buildFoundationBacklogDetailPayload,
+  validateFoundationBacklogCardId,
+} from './lib/foundation-backlog-detail.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -7018,6 +7022,34 @@ app.get('/api/foundation/build-log', requireAdminToken, async (req, res) => {
       500,
       'foundation_build_log_load_failed',
       error instanceof Error ? error.message : 'Failed to load recent build log.'
+    )
+  }
+})
+
+app.get('/api/foundation/backlog/:cardId', requireAdminToken, async (req, res) => {
+  try {
+    const validation = validateFoundationBacklogCardId(req.params.cardId)
+    if (!validation.ok) {
+      sendApiError(res, 400, 'foundation_backlog_card_id_invalid', 'Backlog card ID is malformed.')
+      return
+    }
+    const backlogItems = await getBacklogItemsByIds([validation.cardId])
+    const payload = buildFoundationBacklogDetailPayload({
+      cardId: validation.cardId,
+      backlogItems,
+    })
+    if (payload.httpStatus === 404) {
+      sendApiError(res, 404, 'foundation_backlog_card_not_found', `Backlog card ${validation.cardId} was not found.`)
+      return
+    }
+    cacheHeadersNoStore(res)
+    res.json(payload)
+  } catch (error) {
+    sendApiError(
+      res,
+      500,
+      'foundation_backlog_detail_failed',
+      error instanceof Error ? error.message : 'Failed to load backlog card detail.'
     )
   }
 })

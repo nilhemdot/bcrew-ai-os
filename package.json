@@ -201,7 +201,8 @@
     "backlog:hygiene": "node --env-file-if-exists=.env scripts/backlog-hygiene.mjs",
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",
     "kpi:health": "node --env-file-if-exists=.env scripts/kpi-supabase-health.mjs",
-    "bhag:update": "node scripts/update-bhag-builder-paths.mjs"
+    "bhag:update": "node scripts/update-bhag-builder-paths.mjs",
+    "process:foundation-backlog-detail-endpoint-check": "node --env-file-if-exists=.env scripts/process-foundation-backlog-detail-endpoint-check.mjs"
   },
   "engines": {
     "node": ">=20"
