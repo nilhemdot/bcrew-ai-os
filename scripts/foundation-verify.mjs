@@ -128,6 +128,16 @@ import {
   evaluateFoundationRouteBudgetVerifier,
 } from '../lib/foundation-route-budget-verifier.js'
 import {
+  VERIFIER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID,
+  VERIFIER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_ROUTE_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationRouteSplitVerifierDogfoodProof,
+  evaluateFoundationRouteSplitVerifier,
+} from '../lib/foundation-route-split-verifier.js'
+import {
   buildFoundationVerifyCheckOutput,
   buildFoundationVerifyJsonSummary,
   buildFoundationVerifyReporterDogfoodProof,
@@ -872,30 +882,6 @@ import {
   buildHitListReconcileStatusFromFile,
   buildResearchCurationStatus,
 } from '../lib/phase-d-cleanup.js'
-
-const SERVER_ROUTE_SPLIT_CARD_ID = 'SERVER-ROUTE-SPLIT-001'
-const SERVER_ROUTE_SPLIT_CLOSEOUT_KEY = 'server-route-split-v1'
-const SERVER_ROUTE_SPLIT_SCRIPT_PATH = 'scripts/process-server-route-split-check.mjs'
-const SERVER_ROUTE_SPLIT_PLAN_PATH = 'docs/process/server-route-split-001-plan.md'
-const SERVER_ROUTE_SPLIT_APPROVAL_PATH = 'docs/process/approvals/SERVER-ROUTE-SPLIT-001.json'
-const SERVER_ROUTE_SPLIT_SPRINT_ID = 'server-route-split-2026-05-15'
-const SERVER_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [SERVER_ROUTE_SPLIT_CARD_ID]
-
-const SOURCE_ROUTE_SPLIT_CARD_ID = 'SOURCE-ROUTE-SPLIT-001'
-const SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY = 'source-route-split-v1'
-const SOURCE_ROUTE_SPLIT_SCRIPT_PATH = 'scripts/process-source-route-split-check.mjs'
-const SOURCE_ROUTE_SPLIT_PLAN_PATH = 'docs/process/source-route-split-001-plan.md'
-const SOURCE_ROUTE_SPLIT_APPROVAL_PATH = 'docs/process/approvals/SOURCE-ROUTE-SPLIT-001.json'
-const SOURCE_ROUTE_SPLIT_SPRINT_ID = 'source-route-split-2026-05-15'
-const SOURCE_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [SOURCE_ROUTE_SPLIT_CARD_ID]
-
-const BUILD_INTEL_ROUTE_SPLIT_CARD_ID = 'BUILD-INTEL-ROUTE-SPLIT-001'
-const BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY = 'build-intel-route-split-v1'
-const BUILD_INTEL_ROUTE_SPLIT_SCRIPT_PATH = 'scripts/process-build-intel-route-split-check.mjs'
-const BUILD_INTEL_ROUTE_SPLIT_PLAN_PATH = 'docs/process/build-intel-route-split-001-plan.md'
-const BUILD_INTEL_ROUTE_SPLIT_APPROVAL_PATH = 'docs/process/approvals/BUILD-INTEL-ROUTE-SPLIT-001.json'
-const BUILD_INTEL_ROUTE_SPLIT_SPRINT_ID = 'build-intel-route-split-2026-05-15'
-const BUILD_INTEL_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [BUILD_INTEL_ROUTE_SPLIT_CARD_ID]
 
 const FOUNDATION_1100_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'BACKLOG-HYGIENE-PASS-002',
@@ -2100,14 +2086,17 @@ async function main() {
   const connectorUptimeMonitorSource = await readRepoFile('lib/connector-uptime-monitor.js')
   const foundationOperatingReliabilityScriptSource = await readRepoFile(FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH)
   const foundationOperatorRoutesSource = await readRepoFile('lib/foundation-operator-routes.js')
-  const serverRouteSplitScriptSource = await readRepoFile(SERVER_ROUTE_SPLIT_SCRIPT_PATH)
-  const serverRouteSplitPlanSource = await readRepoFile(SERVER_ROUTE_SPLIT_PLAN_PATH)
+  const serverRouteSplitScriptSource = await readRepoFile('scripts/process-server-route-split-check.mjs')
+  const serverRouteSplitPlanSource = await readRepoFile('docs/process/server-route-split-001-plan.md')
   const foundationSourceRoutesSource = await readRepoFile('lib/foundation-source-routes.js')
-  const sourceRouteSplitScriptSource = await readRepoFile(SOURCE_ROUTE_SPLIT_SCRIPT_PATH)
-  const sourceRouteSplitPlanSource = await readRepoFile(SOURCE_ROUTE_SPLIT_PLAN_PATH)
+  const sourceRouteSplitScriptSource = await readRepoFile('scripts/process-source-route-split-check.mjs')
+  const sourceRouteSplitPlanSource = await readRepoFile('docs/process/source-route-split-001-plan.md')
   const foundationBuildIntelRoutesSource = await readRepoFile('lib/foundation-build-intel-routes.js')
-  const buildIntelRouteSplitScriptSource = await readRepoFile(BUILD_INTEL_ROUTE_SPLIT_SCRIPT_PATH)
-  const buildIntelRouteSplitPlanSource = await readRepoFile(BUILD_INTEL_ROUTE_SPLIT_PLAN_PATH)
+  const buildIntelRouteSplitScriptSource = await readRepoFile('scripts/process-build-intel-route-split-check.mjs')
+  const buildIntelRouteSplitPlanSource = await readRepoFile('docs/process/build-intel-route-split-001-plan.md')
+  const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
+  const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -3932,8 +3921,6 @@ async function main() {
   const foundationReadySafeHubLaneCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) || null
   const foundationHubBacklogContractCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) || null
   const foundationBacklogDetailEndpointCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) || null
-  const serverRouteSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SERVER_ROUTE_SPLIT_CLOSEOUT_KEY) || null
-  const sourceRouteSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) || null
   const foundationOperatingReliabilityCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
@@ -13832,186 +13819,101 @@ async function main() {
       ? `lane=${foundationBacklogDetailEndpointCard.lane} dogfood=${foundationBacklogDetailEndpointDogfood.ok ? 'pass' : 'blocked'} route=${foundationBacklogDetailEndpointApi.cardId || 'missing'}`
       : `missing ${FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CARD_ID}`,
   )
-  const serverRouteSplitCard = (foundationHub.backlogItems || []).find(item => item.id === SERVER_ROUTE_SPLIT_CARD_ID) || null
-  const serverRouteSplitRouteMarkers = [
-    "/api/foundation/changes",
-    "/api/foundation/change-log",
-    "/api/foundation/daily-summary",
-    "/api/foundation/build-log",
-    "/api/foundation/backlog/:cardId",
-    "/api/foundation/doc-updates",
-  ]
-  const serverRouteSplitOldInlineMarkers = [
-    "app.get('/api/foundation/changes'",
-    "app.get('/api/foundation/change-log'",
-    "app.get('/api/foundation/daily-summary'",
-    "app.get('/api/foundation/build-log'",
-    "app.get('/api/foundation/backlog/:cardId'",
-    "app.get('/api/foundation/doc-updates'",
-  ]
+  const routeSplitVerifierResult = evaluateFoundationRouteSplitVerifier({
+    cards: foundationHub.backlogItems || [],
+    closeouts: foundationBuildCloseouts,
+    packageScripts: packageJson.scripts || {},
+    repoFiles: {
+      'docs/process/server-route-split-001-plan.md': await repoFileExists('docs/process/server-route-split-001-plan.md'),
+      'docs/process/approvals/SERVER-ROUTE-SPLIT-001.json': await repoFileExists('docs/process/approvals/SERVER-ROUTE-SPLIT-001.json'),
+      'docs/handoffs/2026-05-15-server-route-split-closeout.md': await repoFileExists('docs/handoffs/2026-05-15-server-route-split-closeout.md'),
+      'docs/process/source-route-split-001-plan.md': await repoFileExists('docs/process/source-route-split-001-plan.md'),
+      'docs/process/approvals/SOURCE-ROUTE-SPLIT-001.json': await repoFileExists('docs/process/approvals/SOURCE-ROUTE-SPLIT-001.json'),
+      'docs/handoffs/2026-05-15-source-route-split-closeout.md': await repoFileExists('docs/handoffs/2026-05-15-source-route-split-closeout.md'),
+      'docs/process/build-intel-route-split-001-plan.md': await repoFileExists('docs/process/build-intel-route-split-001-plan.md'),
+      'docs/process/approvals/BUILD-INTEL-ROUTE-SPLIT-001.json': await repoFileExists('docs/process/approvals/BUILD-INTEL-ROUTE-SPLIT-001.json'),
+      'docs/handoffs/2026-05-15-build-intel-route-split-closeout.md': await repoFileExists('docs/handoffs/2026-05-15-build-intel-route-split-closeout.md'),
+    },
+    sources: {
+      serverSource,
+      foundationOperatorRoutesSource,
+      foundationSourceRoutesSource,
+      foundationBuildIntelRoutesSource,
+      scriptSources: {
+        'SERVER-ROUTE-SPLIT-001': serverRouteSplitScriptSource,
+        'SOURCE-ROUTE-SPLIT-001': sourceRouteSplitScriptSource,
+        'BUILD-INTEL-ROUTE-SPLIT-001': buildIntelRouteSplitScriptSource,
+      },
+      planSources: {
+        'SERVER-ROUTE-SPLIT-001': serverRouteSplitPlanSource,
+        'SOURCE-ROUTE-SPLIT-001': sourceRouteSplitPlanSource,
+        'BUILD-INTEL-ROUTE-SPLIT-001': buildIntelRouteSplitPlanSource,
+      },
+    },
+    apis: {
+      foundationChangesApi,
+      foundationBuildLog,
+      foundationChangeLog,
+      foundationDailySummary,
+      foundationDocUpdatesApi,
+      foundationBacklogDetailEndpointRouteValidation,
+      sourceOfTruth,
+      foundationSourceLifecycle,
+      foundationSourceMaturityGrid,
+      foundationSourceExtractionCoverage,
+      foundationSourceCoverageCloseout,
+      foundationMarketingSourceMap,
+      foundationBrandStack,
+      foundationTierBehavioralCompletion,
+      foundationVerificationRuns,
+      foundationPerUserChangelog,
+      foundationRestrictedDecisionQueue,
+      foundationSourceConnectorMatrixApi,
+      foundationConnectorCredentialPreflightApi,
+      foundationSourceHubRoutingMatrixApi,
+      foundationBuildIntelWatchlist,
+      foundationMultimodalExtractorContract,
+      foundationResearchInboxContract,
+      foundationControlCompressionApi,
+      foundationImplementationIntelligenceApi,
+      foundationBuildIntelExtractionApi,
+      foundationGStackBuildIntelApi,
+    },
+    currentPlan,
+    currentState,
+    activeSprintId: activeFoundationSprint.sprint?.sprintId,
+    activeSprintAtOrPast,
+    foundationVerifySource,
+  })
+  checks.push(...routeSplitVerifierResult.checks)
+  const verifierRouteSplitModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID) || null
+  const verifierRouteSplitModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierRouteSplitModuleDogfood = buildFoundationRouteSplitVerifierDogfoodProof()
   ensure(
     checks,
-      serverRouteSplitCard &&
-      serverRouteSplitCard.lane === 'done' &&
-      String(serverRouteSplitCard.statusNote || '').includes(SERVER_ROUTE_SPLIT_CLOSEOUT_KEY) &&
-      serverRouteSplitCloseout?.operatorCloseout === true &&
-      (serverRouteSplitCloseout.backlogIds || []).includes(SERVER_ROUTE_SPLIT_CARD_ID) &&
-      packageJson.scripts?.['process:server-route-split-check'] === `node --env-file-if-exists=.env ${SERVER_ROUTE_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(SERVER_ROUTE_SPLIT_PLAN_PATH) &&
-      await repoFileExists(SERVER_ROUTE_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/2026-05-15-server-route-split-closeout.md') &&
-      foundationOperatorRoutesSource.includes('registerFoundationOperatorRoutes') &&
-      includesAll(foundationOperatorRoutesSource, serverRouteSplitRouteMarkers) &&
-      serverSource.includes('registerFoundationOperatorRoutes(app') &&
-      serverRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker)) &&
-      serverRouteSplitScriptSource.includes('fetchJsonMeasured') &&
-      serverRouteSplitScriptSource.includes('scriptIsReadOnly') &&
-      serverRouteSplitPlanSource.includes('focused proof script is read-only by default') &&
-      Array.isArray(foundationChangesApi.changes) &&
-      Array.isArray(foundationBuildLog.builds) &&
-      (Array.isArray(foundationChangeLog.entries) || foundationChangeLog.generatedAt) &&
-      (foundationDailySummary.generatedAt || foundationDailySummary.selectedDate || foundationDailySummary.summary) &&
-      Array.isArray(foundationDocUpdatesApi.docUpdates) &&
-      foundationBacklogDetailEndpointRouteValidation.ok === true &&
-      currentPlan.includes(SERVER_ROUTE_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(SERVER_ROUTE_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === SERVER_ROUTE_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast(SERVER_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
-      includesAll(foundationVerifySource, SERVER_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'SERVER-ROUTE-SPLIT-001 extracts Foundation operator routes from server.js without behavior drift',
-    serverRouteSplitCard
-      ? `lane=${serverRouteSplitCard.lane} module=${foundationOperatorRoutesSource.includes('registerFoundationOperatorRoutes')} inlineGone=${serverRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker))}`
-      : `missing ${SERVER_ROUTE_SPLIT_CARD_ID}`,
-  )
-  const sourceRouteSplitCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_ROUTE_SPLIT_CARD_ID) || null
-  const sourceRouteSplitRouteMarkers = [
-    '/api/source-of-truth',
-    '/api/foundation/source-lifecycle',
-    '/api/foundation/marketing-source-map',
-    '/api/foundation/brand-stack',
-    '/api/foundation/tier-behavioral-completion',
-    '/api/foundation/verification-runs',
-    '/api/foundation/per-user-changelog',
-    '/api/foundation/restricted-decision-queue',
-    '/api/foundation/source-coverage-closeout',
-    '/api/foundation/source-extraction-coverage',
-    '/api/foundation/source-maturity-grid',
-    '/api/foundation/source-connector-matrix',
-    '/api/foundation/connector-credential-preflight',
-    '/api/foundation/source-hub-routing-matrix',
-  ]
-  const sourceRouteSplitOldInlineMarkers = [
-    "app.get('/api/source-of-truth'",
-    "app.get('/api/foundation/source-lifecycle'",
-    "app.get('/api/foundation/marketing-source-map'",
-    "app.get('/api/foundation/brand-stack'",
-    "app.get('/api/foundation/tier-behavioral-completion'",
-    "app.get('/api/foundation/verification-runs'",
-    "app.get('/api/foundation/per-user-changelog'",
-    "app.get('/api/foundation/restricted-decision-queue'",
-    "app.get('/api/foundation/source-coverage-closeout'",
-    "app.get('/api/foundation/source-extraction-coverage'",
-    "app.get('/api/foundation/source-maturity-grid'",
-    "app.get('/api/foundation/source-connector-matrix'",
-    "app.get('/api/foundation/connector-credential-preflight'",
-    "app.get('/api/foundation/source-hub-routing-matrix'",
-  ]
-  ensure(
-    checks,
-      sourceRouteSplitCard &&
-      sourceRouteSplitCard.lane === 'done' &&
-      String(sourceRouteSplitCard.statusNote || '').includes(SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) &&
-      sourceRouteSplitCloseout?.operatorCloseout === true &&
-      (sourceRouteSplitCloseout.backlogIds || []).includes(SOURCE_ROUTE_SPLIT_CARD_ID) &&
-      packageJson.scripts?.['process:source-route-split-check'] === `node --env-file-if-exists=.env ${SOURCE_ROUTE_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(SOURCE_ROUTE_SPLIT_PLAN_PATH) &&
-      await repoFileExists(SOURCE_ROUTE_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/2026-05-15-source-route-split-closeout.md') &&
-      foundationSourceRoutesSource.includes('registerFoundationSourceRoutes') &&
-      includesAll(foundationSourceRoutesSource, sourceRouteSplitRouteMarkers) &&
-      serverSource.includes('registerFoundationSourceRoutes(app') &&
-      sourceRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker)) &&
-      sourceRouteSplitScriptSource.includes('fetchJsonMeasured') &&
-      sourceRouteSplitScriptSource.includes('scriptIsReadOnly') &&
-      sourceRouteSplitPlanSource.includes('focused proof script is read-only') &&
-      Array.isArray(sourceOfTruth.sources) &&
-      Array.isArray(foundationSourceLifecycle.sources) &&
-      Array.isArray(foundationSourceMaturityGrid.rows) &&
-      Array.isArray(foundationSourceExtractionCoverage.rows) &&
-      Array.isArray(foundationSourceCoverageCloseout.rows) &&
-      foundationMarketingSourceMap.cardId === 'MARKETING-SOURCE-MAP-001' &&
-      foundationBrandStack.status &&
-      foundationTierBehavioralCompletion.status &&
-      foundationVerificationRuns.summary &&
-      foundationPerUserChangelog.summary &&
-      foundationRestrictedDecisionQueue.summary &&
-      Array.isArray(foundationSourceConnectorMatrixApi.rows) &&
-      foundationConnectorCredentialPreflightApi.summary?.metadataOnly === true &&
-      Array.isArray(foundationSourceHubRoutingMatrixApi.rows) &&
-      currentPlan.includes(SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === SOURCE_ROUTE_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast(SOURCE_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
-      includesAll(foundationVerifySource, SOURCE_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'SOURCE-ROUTE-SPLIT-001 extracts Foundation source/control routes from server.js without behavior drift',
-    sourceRouteSplitCard
-      ? `lane=${sourceRouteSplitCard.lane} module=${foundationSourceRoutesSource.includes('registerFoundationSourceRoutes')} inlineGone=${sourceRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker))}`
-      : `missing ${SOURCE_ROUTE_SPLIT_CARD_ID}`,
-  )
-  const buildIntelRouteSplitCard = (foundationHub.backlogItems || []).find(item => item.id === BUILD_INTEL_ROUTE_SPLIT_CARD_ID) || null
-  const buildIntelRouteSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY) || null
-  const buildIntelRouteSplitRouteMarkers = [
-    '/api/foundation/build-intel-watchlist',
-    '/api/foundation/multimodal-extractor-contract',
-    '/api/foundation/research-inbox-contract',
-    '/api/foundation/control-compression',
-    '/api/foundation/implementation-intelligence',
-    '/api/foundation/build-intel-extraction',
-    '/api/foundation/gstack-build-intel',
-  ]
-  const buildIntelRouteSplitOldInlineMarkers = [
-    "app.get('/api/foundation/build-intel-watchlist'",
-    "app.get('/api/foundation/multimodal-extractor-contract'",
-    "app.get('/api/foundation/research-inbox-contract'",
-    "app.get('/api/foundation/control-compression'",
-    "app.get('/api/foundation/implementation-intelligence'",
-    "app.get('/api/foundation/build-intel-extraction'",
-    "app.get('/api/foundation/gstack-build-intel'",
-  ]
-  ensure(
-    checks,
-      buildIntelRouteSplitCard &&
-      buildIntelRouteSplitCard.lane === 'done' &&
-      String(buildIntelRouteSplitCard.statusNote || '').includes(BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY) &&
-      buildIntelRouteSplitCloseout?.operatorCloseout === true &&
-      (buildIntelRouteSplitCloseout.backlogIds || []).includes(BUILD_INTEL_ROUTE_SPLIT_CARD_ID) &&
-      packageJson.scripts?.['process:build-intel-route-split-check'] === `node --env-file-if-exists=.env ${BUILD_INTEL_ROUTE_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(BUILD_INTEL_ROUTE_SPLIT_PLAN_PATH) &&
-      await repoFileExists(BUILD_INTEL_ROUTE_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/2026-05-15-build-intel-route-split-closeout.md') &&
-      foundationBuildIntelRoutesSource.includes('registerFoundationBuildIntelRoutes') &&
-      includesAll(foundationBuildIntelRoutesSource, buildIntelRouteSplitRouteMarkers) &&
-      serverSource.includes('registerFoundationBuildIntelRoutes(app') &&
-      buildIntelRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker)) &&
-      buildIntelRouteSplitScriptSource.includes('fetchJsonMeasured') &&
-      buildIntelRouteSplitScriptSource.includes('scriptIsReadOnly') &&
-      buildIntelRouteSplitPlanSource.includes('focused proof script is read-only') &&
-      foundationBuildIntelWatchlist.cardId === 'CREATOR-WATCHLIST-001' &&
-      foundationMultimodalExtractorContract.cardId === 'MULTIMODAL-EXTRACTOR-001' &&
-      foundationResearchInboxContract.cardId === 'RESEARCH-INBOX-001' &&
-      foundationControlCompressionApi.closeoutKey === 'foundation-control-backlog-compression-v1' &&
-      foundationImplementationIntelligenceApi.closeoutKey === 'implementation-intelligence-v1' &&
-      foundationBuildIntelExtractionApi.closeoutKey === 'build-intel-extraction-implementation-v1' &&
-      foundationGStackBuildIntelApi.closeoutKey === 'gstack-build-intel-extraction-v1' &&
-      currentPlan.includes(BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === BUILD_INTEL_ROUTE_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast(BUILD_INTEL_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
-      includesAll(foundationVerifySource, BUILD_INTEL_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'BUILD-INTEL-ROUTE-SPLIT-001 extracts Foundation Build Intel read routes from server.js without behavior drift',
-    buildIntelRouteSplitCard
-      ? `lane=${buildIntelRouteSplitCard.lane} module=${foundationBuildIntelRoutesSource.includes('registerFoundationBuildIntelRoutes')} inlineGone=${buildIntelRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker))}`
-      : `missing ${BUILD_INTEL_ROUTE_SPLIT_CARD_ID}`,
+      verifierRouteSplitModuleCard &&
+      verifierRouteSplitModuleCard.lane === 'done' &&
+      String(verifierRouteSplitModuleCard.statusNote || '').includes(VERIFIER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      verifierRouteSplitModuleCloseout?.operatorCloseout === true &&
+      (verifierRouteSplitModuleCloseout.backlogIds || []).includes(VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID) &&
+      verifierRouteSplitModuleDogfood.ok === true &&
+      packageJson.scripts?.['process:verifier-route-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_ROUTE_SPLIT_MODULE_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-verifier-route-split-module-closeout.md') &&
+      foundationRouteSplitVerifierSource.includes('evaluateFoundationRouteSplitVerifier') &&
+      foundationRouteSplitVerifierSource.includes('FOUNDATION_ROUTE_SPLIT_DEFINITIONS') &&
+      verifierRouteSplitModuleScriptSource.includes('dogfood rejects old route-split verifier failures') &&
+      verifierRouteSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
+      currentPlan.includes(VERIFIER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === VERIFIER_ROUTE_SPLIT_MODULE_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID])) &&
+      foundationVerifySource.includes(VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID),
+    'VERIFIER-MONOLITH-SPLIT-CONTINUE-001 extracts route-split verifier checks into a focused module',
+    verifierRouteSplitModuleCard
+      ? `lane=${verifierRouteSplitModuleCard.lane} dogfood=${verifierRouteSplitModuleDogfood.ok ? 'pass' : 'blocked'} routeSplitChecks=${routeSplitVerifierResult.summary.passed}/${routeSplitVerifierResult.summary.total}`
+      : `missing ${VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()

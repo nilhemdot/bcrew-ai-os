@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.44 - Foundation Build Intel Route Split closed
+Version: v6.45 - Verifier route-split module active
 Status: Active
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Build Intel Route Split
+## Current Sprint: Verifier Route Split Module
+
+Live sprint ID: `verifier-route-split-module-2026-05-15`.
+
+This sprint is active under `verifier-route-split-module-v1`. It extracts the route-split verifier checks for the operator/source/Build Intel route splits out of `scripts/foundation-verify.mjs` into `lib/foundation-route-split-verifier.js` without changing the canonical verifier rows.
+
+The sprint order:
+
+1. `VERIFIER-MONOLITH-SPLIT-CONTINUE-001` - Building Now. Plan Critic passed 10/10. Acceptance requires `lib/foundation-route-split-verifier.js`, `scripts/process-verifier-route-split-module-check.mjs`, canonical `foundation:verify` delegation, focused dogfood that rejects old route-split verifier failures, and a full Foundation ship gate.
+
+Not next: broad verifier rewrite, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `build-intel-route-split-2026-05-15`, closed under `build-intel-route-split-v1`. It extracted the Foundation Build Intel read-route cluster into `lib/foundation-build-intel-routes.js`: Build Intel watchlist, multimodal extractor contract, Research Inbox contract, control compression, implementation intelligence, Build Intel extraction, and GStack Build Intel.
+
+## Previous Sprint: Foundation Build Intel Route Split
 
 Live sprint ID: `build-intel-route-split-2026-05-15`.
 
@@ -81,9 +95,9 @@ This sprint is closed under `build-intel-route-split-v1`. It extracts the Founda
 
 The sprint order:
 
-1. `SOURCE-ROUTE-SPLIT-001` - done under `source-route-split-v1`; `/api/source-of-truth`, `/api/foundation/source-lifecycle`, marketing source map, brand stack, tier behavior, verification runs, per-user changelog, restricted decision queue, source coverage, extraction coverage, source maturity, connector preflight, connector matrix, and source-hub routing now register through `registerFoundationSourceRoutes(app, deps)`. Focused proof hit all 14 moved live routes under budget, with worst route `/api/foundation/source-lifecycle` at `371ms` / `622,389B`, proved the old inline route markers are absent from `server.js`, and proved the focused script is read-only.
+1. `BUILD-INTEL-ROUTE-SPLIT-001` - done under `build-intel-route-split-v1`; Build Intel watchlist, multimodal extractor contract, Research Inbox contract, control compression, implementation intelligence, Build Intel extraction, and GStack Build Intel now register through `registerFoundationBuildIntelRoutes(app, deps)`. Focused proof hit all 7 moved live routes under budget, with worst route `/api/foundation/control-compression` under 500ms, proved the old inline route markers are absent from `server.js`, and proved the focused script is read-only.
 
-The approved sprint is complete. If Steve is unavailable, continue no-auth Foundation cleanup. Good candidates are another measured server route cluster split, a verifier module split, or the next clean `lib/foundation-db.js` boundary split.
+Previous completed sprint: `source-route-split-2026-05-15`, closed under `source-route-split-v1`. It extracted the Foundation source/control route cluster into `lib/foundation-source-routes.js`: source-of-truth, source lifecycle, marketing source map, brand stack, tier behavior, verification runs, per-user changelog, restricted decision queue, source coverage, extraction coverage, source maturity, connector preflight, connector matrix, and source-to-hub routing.
 
 Previous completed sprint: `server-route-split-2026-05-15`, closed under `server-route-split-v1`. It extracted a bounded Foundation operator read-route cluster into `lib/foundation-operator-routes.js`: changes, change-log, daily-summary, build-log, single-card backlog detail, and doc-updates.
 

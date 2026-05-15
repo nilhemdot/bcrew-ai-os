@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-MONOLITH-SPLIT-CONTINUE-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T04:45:24.945Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-monolith-split-continue-001-plan.md",
+  "approvedPlanSha256": "c6e7b9e896cf51fc8cfcc9ed519594a1b70aa672f087a6257d7e05c82ec6384a",
+  "approvedRepoHead": "36bcf9f52f7fcd84ef6d257f0991030d07e99dc5",
+  "notes": "Approved as the Verifier Route Split Module Sprint. Scope: extract only the three route-split verifier checks from scripts/foundation-verify.mjs into lib/foundation-route-split-verifier.js with read-only focused dogfood and full ship. Not approved: broad verifier rewrite, hub UI, auth/session routes, Marketing live wiring, source extraction, paid-source auth, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "ac2b06e7b41a7a86dd4a5ebbc85588403b55d719b742d11b8a85316d5242ec8f"
+}
