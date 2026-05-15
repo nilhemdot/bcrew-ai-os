@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.65 - Active vs historical verifier split review-ready
+Version: v6.67 - KPI health API cache sprint
 Status: Active
 
 Use this doc for one question:
@@ -73,17 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Active vs Historical Verifier Split
+## Current Sprint: KPI Health API Cache
 
-Live sprint ID: `active-vs-historical-verifier-split-2026-05-15`.
+Live sprint ID: `kpi-health-api-cache-2026-05-15`.
 
-This sprint is review-ready under `active-vs-historical-verifier-split-v1`. It separates active live-truth verifier assertions from historical closeout proof so the verifier stops mixing current operational state with old sprint evidence.
+This sprint is active under `kpi-health-api-cache-v1`. It finishes the KPI health request-path boundary so source/hub routes use cached/degraded KPI health and individual Supabase probes have explicit timeout behavior.
 
-Done card:
+Active card:
 
-1. `ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001` - done under `active-vs-historical-verifier-split-v1`. V1 adds `lib/foundation-active-historical-verifier.js`, focused read-only proof, and thin verifier coverage. Dogfood proves stale active live truth fails even when verified historical closeout evidence exists, while historical proof passes only for a done card plus matching verified closeout.
+1. `KPI-HEALTH-API-CACHE-001` - building under `kpi-health-api-cache-v1`. V1 adds a bounded KPI Supabase fetch timeout, keeps source/hub request paths on `getCachedSafeKpiHealthSnapshot()`, and dogfoods that a slow KPI provider aborts quickly instead of hanging Foundation or hub routes.
 
-Not next: broad verifier rewrite, adding or expanding `activeSprintAtOrPast` bypasses, migrating every historical check, DB seed split, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: KPI writes, Sales/Marketing/Ops hub feature work, Supabase schema redesign, Marketing Video Lab live route wiring, broad source extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `db-seed-2026-05-15`, closed under `db-seed-v1`. `DB-SEED-001` split backlog seed truth out of `lib/foundation-db.js` into `lib/foundation-backlog-seed.js`, added report-only seed-governance proof, and reduced `lib/foundation-db.js` from about `17,852` to `13,200` lines without treating seed files as live truth.
+
+Previous completed sprint: `active-vs-historical-verifier-split-2026-05-15`, closed under `active-vs-historical-verifier-split-v1`. `ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001` separates active live-truth verifier assertions from historical closeout proof. Dogfood proves stale active live truth fails even when verified historical closeout evidence exists, while historical proof passes only for a done card plus matching verified closeout.
 
 Previous completed sprint: `foundation-job-mutation-allowlist-2026-05-15`, closed under `foundation-job-mutation-allowlist-v1`. It makes enabled scheduled Foundation jobs prove their mutation posture through an explicit keyed allowlist before the worker can trust them. Missing rows, posture mismatches, and explicitly blocked scheduled jobs fail closed. Runtime/job rows expose the allowlist status so the morning health view can say why a job is allowed or blocked.
 

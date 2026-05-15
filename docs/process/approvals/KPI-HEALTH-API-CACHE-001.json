@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "KPI-HEALTH-API-CACHE-001",
+  "approvedBy": "Steve full-steam instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T16:57:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/kpi-health-api-cache-001-plan.md",
+  "approvedPlanSha256": "edf7b2a241dc817f8159105cf2e161affb62181b907164bd5d9fbd8e9b5807f6",
+  "approvedRepoHead": "a36bb9ece74f36bc1da16c2576b32378b9e26c9a",
+  "notes": "Approved as the KPI Health API Cache Sprint. Scope: finish the request-path boundary by keeping KPI health cached/degraded on source/hub routes, adding per-probe timeout behavior, and proving slow KPI fetches cannot hang Foundation or hub routes. Not approved: KPI writes, Sales/Marketing/Ops hub feature work, schema redesign, broad source extraction, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "0d902d942cef4215169caab5127a3f7f4342f30e4c0030c1dde963e0ddea1e3d"
+}

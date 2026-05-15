@@ -848,7 +848,12 @@ import { getFoundationSurfaceMap } from '../lib/foundation-surface-map.js'
 import {
   EXPECTED_KPI_RPCS,
   EXPECTED_KPI_TABLES,
+  KPI_HEALTH_API_CACHE_CARD_ID,
+  KPI_HEALTH_API_CACHE_CLOSEOUT_KEY,
+  KPI_HEALTH_API_CACHE_SCRIPT_PATH,
+  KPI_HEALTH_FETCH_TIMEOUT_MS,
   KPI_HEALTH_PRIMARY_SURFACE,
+  buildKpiHealthApiCacheDogfoodProof,
 } from '../lib/kpi-health.js'
 import {
   evaluatePostShipFanout,
@@ -15473,6 +15478,39 @@ async function main() {
     dbSeedCard
       ? `lane=${dbSeedCard.lane} splitLines=${dbSeedSplitEvaluation.foundationDbLineCount} mutable=${dbSeedDogfood.mutableDrift?.status || 'missing'} closeout=${DB_SEED_CLOSEOUT_KEY}`
       : `missing ${DB_SEED_CARD_ID}`,
+  )
+  const kpiHealthApiCacheCard = (foundationHub.backlogItems || []).find(item => item.id === KPI_HEALTH_API_CACHE_CARD_ID) || null
+  const kpiHealthApiCacheCloseout = findBuildLogCloseoutEntry(KPI_HEALTH_API_CACHE_CARD_ID, KPI_HEALTH_API_CACHE_CLOSEOUT_KEY)
+  const kpiHealthApiCacheDogfood = await buildKpiHealthApiCacheDogfoodProof()
+  const sourceTruthKpiCacheStatus = sourceTruthKpiHealth.routeCache?.cacheStatus || null
+  const foundationHubKpiCacheStatus = foundationHubKpiHealth.routeCache?.cacheStatus || null
+  const acceptedKpiRouteCacheStatuses = ['memory', 'persisted', 'refreshed']
+  ensure(
+    checks,
+      kpiHealthApiCacheCard &&
+      ['executing', 'done'].includes(kpiHealthApiCacheCard.lane) &&
+      (kpiHealthApiCacheCard.lane !== 'done' || Boolean(kpiHealthApiCacheCloseout)) &&
+      kpiHealthApiCacheDogfood.ok === true &&
+      kpiHealthApiCacheDogfood.timeout?.abortObserved === true &&
+      Number.isFinite(Number(KPI_HEALTH_FETCH_TIMEOUT_MS)) &&
+      KPI_HEALTH_FETCH_TIMEOUT_MS >= 1000 &&
+      acceptedKpiRouteCacheStatuses.includes(sourceTruthKpiCacheStatus) &&
+      acceptedKpiRouteCacheStatuses.includes(foundationHubKpiCacheStatus) &&
+      packageJson.scripts?.['process:kpi-health-api-cache-check'] === `node --env-file-if-exists=.env ${KPI_HEALTH_API_CACHE_SCRIPT_PATH}` &&
+      includesAll(kpiHealthSource, [
+        'AbortController',
+        'KPI_HEALTH_FETCH_TIMEOUT_MS',
+        'buildKpiHealthApiCacheDogfoodProof',
+        'getCachedSafeKpiHealthSnapshot',
+      ]) &&
+      sourceOfTruthPayloadSource.includes('getCachedSafeKpiHealthSnapshot') &&
+      hubReadRoutesSource.includes('getCachedSafeKpiHealthSnapshot') &&
+      foundationVerifySource.includes('buildKpiHealthApiCacheDogfoodProof') &&
+      foundationVerifySource.includes('KPI_HEALTH_API_CACHE_CLOSEOUT_KEY'),
+    'KPI-HEALTH-API-CACHE-001 bounds KPI health probes and keeps request paths cached/degraded',
+    kpiHealthApiCacheCard
+      ? `lane=${kpiHealthApiCacheCard.lane} timeout=${KPI_HEALTH_FETCH_TIMEOUT_MS}ms sourceCache=${sourceTruthKpiCacheStatus || 'missing'} hubCache=${foundationHubKpiCacheStatus || 'missing'} closeout=${kpiHealthApiCacheCloseout?.key || kpiHealthApiCacheCloseout?.closeoutKey || 'pending'}`
+      : `missing ${KPI_HEALTH_API_CACHE_CARD_ID}`,
   )
   const currentSprintMutationGuardsCard = (foundationHub.backlogItems || []).find(item => item.id === CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID) || null
   const currentSprintMutationGuardsProof = await buildCurrentSprintMutationGuardsDogfoodProof()
