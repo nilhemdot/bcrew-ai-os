@@ -19,6 +19,16 @@ import {
   FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
 } from '../lib/foundation-build-log.js'
 import {
+  CANVA_CLIENT_CARD_ID,
+  CANVA_CLIENT_CLOSEOUT_KEY,
+  CANVA_CLIENT_PLAN_PATH,
+  CANVA_CLIENT_SCRIPT_PATH,
+  CANVA_CLIENT_SPRINT_ID,
+  buildCanvaEnvStatus,
+  buildSyntheticCanvaClientProof,
+  evaluateCanvaClientSource,
+} from '../lib/canva-client.js'
+import {
   buildSprintProofHelpers,
 } from '../lib/foundation-verifier-sprint-proof.js'
 import {
@@ -2111,6 +2121,10 @@ async function main() {
   const packageSource = await readRepoFile('package.json')
   const packageJson = JSON.parse(packageSource)
   const foundationVerifySource = await readRepoFile('scripts/foundation-verify.mjs')
+  const canvaClientSource = await readRepoFile('lib/canva-client.js')
+  const canvaClientScriptSource = await readRepoFile(CANVA_CLIENT_SCRIPT_PATH)
+  const canvaOauthBootstrapSource = await readRepoFile('scripts/canva-oauth-bootstrap.mjs')
+  const canvaClientPlanSource = await readRepoFile(CANVA_CLIENT_PLAN_PATH)
   const processRepairVerifierSprintScriptSource = await readRepoFile('scripts/process-repair-verifier-sprint-check.mjs')
   const currentSprintDynamicTruthCheckSource = await readRepoFile(CURRENT_SPRINT_DYNAMIC_TRUTH_SCRIPT_PATH)
   const currentSprintDynamicTruthPlanSource = await readRepoFile(CURRENT_SPRINT_DYNAMIC_TRUTH_PLAN_PATH)
@@ -4234,6 +4248,44 @@ async function main() {
     closeouts: foundationBuildCloseouts,
     planCriticRuns: activeFoundationSprint.planCriticRuns || [],
   })
+  const canvaClientCard = (foundationHub.backlogItems || []).find(item => item.id === CANVA_CLIENT_CARD_ID) || null
+  const canvaClientActiveItem = (activeFoundationSprint.items || []).find(item => item.cardId === CANVA_CLIENT_CARD_ID) || null
+  const canvaClientActive = activeFoundationSprint.sprint?.sprintId === CANVA_CLIENT_SPRINT_ID &&
+    canvaClientActiveItem &&
+    ['scoping', 'sprint_ready', 'building_now', 'done_this_sprint'].includes(canvaClientActiveItem.stage)
+  const canvaClientCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CANVA_CLIENT_CLOSEOUT_KEY) || null
+  const canvaClientClosed = canvaClientCard?.lane === 'done' &&
+    canvaClientCloseout?.operatorCloseout === true &&
+    (canvaClientCloseout.backlogIds || []).includes(CANVA_CLIENT_CARD_ID)
+  const canvaClientEnvStatus = buildCanvaEnvStatus(process.env)
+  const canvaClientSourceEvaluation = evaluateCanvaClientSource({
+    clientSource: canvaClientSource,
+    scriptSource: canvaClientScriptSource,
+    planSource: canvaClientPlanSource,
+    packageJson,
+  })
+  const canvaClientSyntheticProof = await buildSyntheticCanvaClientProof()
+  ensure(
+    checks,
+    canvaClientCard &&
+      (canvaClientActive || canvaClientClosed) &&
+      canvaClientEnvStatus.CANVA_CLIENT_ID &&
+      canvaClientEnvStatus.CANVA_CLIENT_SECRET &&
+      canvaClientEnvStatus.CANVA_REFRESH_TOKEN &&
+      canvaClientSourceEvaluation.ok &&
+      canvaClientSyntheticProof.ok &&
+      packageJson.scripts?.['process:canva-client-check'] === 'node --env-file-if-exists=.env scripts/process-canva-client-check.mjs' &&
+      packageJson.scripts?.['canva:oauth-bootstrap'] === 'node --env-file-if-exists=.env scripts/canva-oauth-bootstrap.mjs' &&
+      canvaOauthBootstrapSource.includes('replaceEnvValueLine') &&
+      canvaOauthBootstrapSource.includes('refusing_to_write_env_without_apply') &&
+      canvaOauthBootstrapSource.includes('code_challenge_method') &&
+      canvaClientPlanSource.includes('/folders/{folderId}/items') &&
+      canvaClientPlanSource.includes('/brand-templates'),
+    'CANVA-CLIENT-001 has governed read-only Canva access and rotation-safe setup',
+    canvaClientCard
+      ? `${CANVA_CLIENT_CARD_ID}:${canvaClientCard.lane}; sprint=${activeFoundationSprint.sprint?.sprintId || 'none'}; active=${Boolean(canvaClientActive)}; closed=${Boolean(canvaClientClosed)}; env=${JSON.stringify(canvaClientEnvStatus)}`
+      : 'missing live backlog card',
+  )
   const CONNECTOR_ROUTING_TRUTH_CARD_IDS = [
     'ATOM-PROMOTION-DIAGNOSE-001',
     'SPRINT-DB-RECONCILE-001',

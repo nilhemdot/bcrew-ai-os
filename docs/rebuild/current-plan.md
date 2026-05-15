@@ -73,21 +73,23 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation DB Shared-Comms Coverage Split
+## Current Sprint: Canva Client Foundation
 
-Live sprint ID: `foundation-db-shared-comms-coverage-split-2026-05-15`.
+Live sprint ID: `canva-client-foundation-2026-05-15`.
 
-This sprint is closed under `foundation-shared-comms-coverage-split-v1`. It extracted shared-communications coverage snapshot aggregation from `lib/foundation-db.js` into `lib/foundation-shared-comms-coverage.js` without changing schema, SQL intent, output shape, public export, or existing callers.
+This sprint is complete under `canva-client-v1`. It built a governed read-only Canva Connect API client so AIOS can mint access tokens from the existing Canva OAuth credentials, handle refresh-token rotation safely, and read Canva folders/designs/assets/brand-template metadata without leaking secrets.
 
-The previous cleanup sprint `foundation-db-fub-lead-source-store-split-2026-05-15` is done under `foundation-fub-lead-source-store-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-007` moved FUB lead-source rules and snapshot storage into `lib/foundation-fub-lead-source-store.js` while preserving table schema, SQL behavior, return shapes, public exports, and existing callers.
+This is the access primitive only. It does not organize Tanner's Canva library, create designs, upload assets, export files, wire Marketing Video Lab routes, or build the future Brand Ingredient Asset Library.
 
-Closed card:
+Active card:
 
-1. `FOUNDATION-DB-MONOLITH-SPLIT-008` - done under `foundation-shared-comms-coverage-split-v1`. V1 moved shared-comms coverage aggregation into `lib/foundation-shared-comms-coverage.js`, keeps the public DB export stable for existing callers, and dogfoods that old inline shared-comms coverage ownership fails while split module ownership passes.
+1. `CANVA-CLIENT-001` - done under `canva-client-v1`. V1 owns `lib/canva-client.js`, `scripts/process-canva-client-check.mjs`, `scripts/canva-oauth-bootstrap.mjs`, package scripts, focused synthetic proof, live read-only Canva smoke, and verifier coverage. Steve completed the admin OAuth bootstrap; the script replaced the existing `CANVA_REFRESH_TOKEN=` line instead of appending a duplicate stale token.
 
-Next action: pause for sprint review/account swap before opening the next sprint.
+Future queued context: Tanner's messy intake folder `https://www.canva.com/folder/FAHJp1pSJv0` is an upstream source to inspect later, not clean brand truth. Later Marketing/Foundation work should create a clean Brand Ingredient Asset Library: approved mascots, avatars, sold signs, fonts, guidelines, templates, and staple assets with Canva provenance, plus a separate editable-output loop that can push AI-generated posts/designs into Canva for team manual editing.
 
-Not next: broad DB rewrite, shared-comms schema/index/constraint changes, shared-comms extraction/candidate/synthesis/routing behavior, Strategy UI behavior changes, source crawl/job/intelligence/action-router/agent-feedback/hub movement, hub feature work, Marketing Video Lab live route wiring, Canva client work, paid-source auth, broad source extraction, Drive permission mutation, request-access emails, or Meeting Vault Phase B.
+Not next: Canva writes/uploads/exports/design creation, Marketing Video Lab live route wiring, `server.js`/security route changes, DB schema changes, hub UI, full Canva source crawler/backfill, Tanner asset cleanup, Google Flow work, paid-source auth, broad source extraction, Drive permission mutation, request-access emails, or `MEETING-VAULT-ACL-001` Phase B.
+
+Previous completed sprint: `foundation-db-shared-comms-coverage-split-2026-05-15`, closed under `foundation-shared-comms-coverage-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-008` moved shared-comms coverage aggregation into `lib/foundation-shared-comms-coverage.js`, keeps the public DB export stable for existing callers, and dogfoods that old inline shared-comms coverage ownership fails while split module ownership passes.
 
 Previous completed sprint: `foundation-db-fub-lead-source-store-split-2026-05-15`, closed under `foundation-fub-lead-source-store-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-007` moved FUB lead-source rules/snapshot storage into `lib/foundation-fub-lead-source-store.js` while preserving table schema, SQL behavior, return shapes, public exports, and existing callers.
 

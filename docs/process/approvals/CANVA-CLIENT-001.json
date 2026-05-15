@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CANVA-CLIENT-001",
+  "approvedBy": "Steve requested Canva API setup for brand asset access + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T15:36:20-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/canva-client-001-plan.md",
+  "approvedPlanSha256": "e7c3ae2b02dca3d4e132c8f50c7b5f18794842663ee0ac63c784e721d3b32357",
+  "approvedRepoHead": "f783a2506706099e4644cfc7ab5e1df70363fa49",
+  "notes": "Approved as a bounded Canva client foundation sprint. Scope: wrap existing Canva Connect API credentials into lib/canva-client.js, prove refresh-token auth, refresh-token rotation detection, one-line .env replacement under explicit --update-refresh-token --apply posture, folders/designs/assets/brand-template metadata reads, redaction, optional live read-only smoke, and no provider spend. Not approved: Canva writes/uploads/exports/design creation, Marketing Video Lab wiring, server routes, DB schema, hub UI, broad Canva ingestion, Drive permission mutation, Meeting Vault ACL Phase B, paid-source auth, or broad source extraction.",
+  "approvalDigest": "ccbc89d73b5025cb92efc5c5472b4a0a05898110b941d1913b65bdcaa739850b"
+}
