@@ -209,6 +209,10 @@ async function main() {
           if (error && error.code === 'ENOENT') return ''
           throw error
         }),
+        readText('public/foundation-system-inventory-renderers.js').catch(error => {
+          if (error?.code === 'ENOENT') return ''
+          throw error
+        }),
         readText('public/foundation-source-lifecycle-renderers.js').catch(error => {
           if (error?.code === 'ENOENT') return ''
           throw error

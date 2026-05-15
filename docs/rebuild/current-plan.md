@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.51 - Foundation source registry renderer split closed
+Version: v6.52 - Foundation system inventory renderer split closed
 Status: Active
 
 Use this doc for one question:
@@ -73,19 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Source Registry Renderer Split
+## Current Sprint: Foundation System Inventory Renderer Split
 
-Live sprint ID: `frontend-source-registry-renderers-split-2026-05-15`.
+Live sprint ID: `frontend-system-inventory-renderers-split-2026-05-15`.
 
-This sprint is closed under `frontend-source-registry-renderers-split-v1`. It extracts the Foundation Data Sources / Source Registry renderer cluster out of `public/foundation.js` into a focused classic browser script without changing renderer behavior, route semantics, CSS, or Foundation API contracts.
+This sprint is closed under `frontend-system-inventory-renderers-split-v1`. It extracts the Foundation Systems and System Inventory renderer cluster out of `public/foundation.js` into a focused classic browser script without changing renderer behavior, route semantics, CSS, or Foundation API contracts.
 
 The sprint order:
 
-1. `FRONTEND-SOURCE-REGISTRY-RENDERERS-SPLIT-001` - done under `frontend-source-registry-renderers-split-v1`; Data Sources / Source Registry renderers now live in `public/foundation-source-registry-renderers.js` while `public/foundation.js` keeps the route-level `renderSourceRegistry()` owner. Focused proof executes the split scripts in a VM-backed fake browser, proves Data Sources dispatch reaches moved renderer globals, proves Source Lifecycle can still call shared source helpers, rejects missing/wrong source-registry-module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from about `11,223` to about `9,775` lines for this slice.
+1. `FRONTEND-SYSTEM-INVENTORY-RENDERERS-SPLIT-001` - done under `frontend-system-inventory-renderers-split-v1`; Foundation Systems and System Inventory renderers now live in `public/foundation-system-inventory-renderers.js`. Focused proof executes the split scripts in a VM-backed fake browser, proves Systems helper behavior, System Inventory doc splitting, capability catalog rendering, route globals for `foundation-router.js`, rejects missing/wrong system-inventory-module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from about `9,774` to about `8,388` lines for this slice.
 
-Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, FUB lead-source manager or System Inventory split in this slice, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, FUB lead-source manager, Backlog, Decision, Open Questions, Daily Summary, Build Log, Current State split, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
 
-Previous completed sprint: `frontend-source-lifecycle-renderers-split-2026-05-15`, closed under `frontend-source-lifecycle-renderers-split-v1`. It extracted Source Lifecycle/source-health panel renderers out of `public/foundation.js` into `public/foundation-source-lifecycle-renderers.js` without changing renderer behavior.
+Previous completed sprint: `frontend-source-registry-renderers-split-2026-05-15`, closed under `frontend-source-registry-renderers-split-v1`. It extracted Data Sources / Source Registry renderers out of `public/foundation.js` into `public/foundation-source-registry-renderers.js` and reduced `public/foundation.js` from about `11,223` to about `9,775` lines.
 
 ## Previous Sprint: Foundation Source Lifecycle Renderer Split
 

@@ -586,6 +586,17 @@ import {
   evaluateFrontendSourceRegistryScriptOrder,
 } from '../lib/foundation-frontend-source-registry-renderers-split.js'
 import {
+  FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_APPROVAL_PATH,
+  FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_BEFORE_LINES,
+  FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CARD_ID,
+  FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CLOSEOUT_KEY,
+  FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_PLAN_PATH,
+  FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_SCRIPT_PATH,
+  FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_SPRINT_ID,
+  evaluateFrontendSystemInventoryRendererSplit,
+  evaluateFrontendSystemInventoryScriptOrder,
+} from '../lib/foundation-frontend-system-inventory-renderers-split.js'
+import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -2118,6 +2129,7 @@ async function main() {
   const foundationNavConfigSource = await readRepoFile('public/foundation-nav-config.js')
   const foundationDataSource = await readRepoFile('public/foundation-data.js')
   const foundationSourceRegistryRenderersSource = await readRepoFile('public/foundation-source-registry-renderers.js')
+  const foundationSystemInventoryRenderersSource = await readRepoFile('public/foundation-system-inventory-renderers.js')
   const foundationSourceLifecycleRenderersSource = await readRepoFile('public/foundation-source-lifecycle-renderers.js')
   const foundationRuntimeRenderersSource = await readRepoFile('public/foundation-runtime-renderers.js')
   const foundationOperationsRenderersSource = await readRepoFile('public/foundation-operations-renderers.js')
@@ -2132,11 +2144,14 @@ async function main() {
   const frontendSourceLifecycleRenderersSplitPlanSource = await readRepoFile(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_PLAN_PATH)
   const frontendSourceRegistryRenderersSplitScriptSource = await readRepoFile(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_SCRIPT_PATH)
   const frontendSourceRegistryRenderersSplitPlanSource = await readRepoFile(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_PLAN_PATH)
+  const frontendSystemInventoryRenderersSplitScriptSource = await readRepoFile(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_SCRIPT_PATH)
+  const frontendSystemInventoryRenderersSplitPlanSource = await readRepoFile(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_PLAN_PATH)
   const foundationFrontendSource = [
     foundationNavConfigSource,
     foundationDataSource,
     foundationUiSource,
     foundationSourceRegistryRenderersSource,
+    foundationSystemInventoryRenderersSource,
     foundationSourceLifecycleRenderersSource,
     foundationRuntimeRenderersSource,
     foundationOperationsRenderersSource,
@@ -14354,6 +14369,73 @@ async function main() {
     frontendSourceRegistryRenderersSplitCard
       ? `lane=${frontendSourceRegistryRenderersSplitCard.lane} dogfood=${frontendSourceRegistryDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
       : `missing ${FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CARD_ID}`,
+  )
+  const frontendSystemInventoryRenderersSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CARD_ID) || null
+  const frontendSystemInventoryRenderersSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CLOSEOUT_KEY) || null
+  const frontendSystemInventoryScriptOrder = evaluateFrontendSystemInventoryScriptOrder(extractFoundationScriptOrder(foundationHtmlSource))
+  const frontendSystemInventoryDogfood = evaluateFrontendSystemInventoryRendererSplit({
+    foundationSource: foundationUiSource,
+    systemInventorySource: foundationSystemInventoryRenderersSource,
+    sourceRegistrySource: foundationSourceRegistryRenderersSource,
+    routerSource: foundationRouterSource,
+    htmlSource: foundationHtmlSource,
+    lineCounts: {
+      before: FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_BEFORE_LINES,
+      after: frontendUiLineCount,
+    },
+    routeGlobals: {
+      foundationSystems: true,
+      inventoryDocs: true,
+      inventoryArchive: true,
+      capabilitySection: true,
+      capabilityCatalog: true,
+    },
+    helperBehavior: {
+      systemGrouping: true,
+      systemCard: true,
+      inventorySplit: true,
+      capabilityCard: true,
+    },
+  })
+  ensure(
+    checks,
+      frontendSystemInventoryRenderersSplitCard &&
+      frontendSystemInventoryRenderersSplitCard.lane === 'done' &&
+      String(frontendSystemInventoryRenderersSplitCard.statusNote || '').includes(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      frontendSystemInventoryRenderersSplitCloseout?.operatorCloseout === true &&
+      (frontendSystemInventoryRenderersSplitCloseout.backlogIds || []).includes(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CARD_ID) &&
+      frontendSystemInventoryScriptOrder.ok === true &&
+      frontendSystemInventoryDogfood.ok === true &&
+      packageJson.scripts?.['process:frontend-system-inventory-renderers-split-check'] === `node --env-file-if-exists=.env ${FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-frontend-system-inventory-renderers-split-closeout.md') &&
+      foundationSystemInventoryRenderersSource.includes('function renderFoundationSystems()') &&
+      foundationSystemInventoryRenderersSource.includes('function renderInventoryDocs()') &&
+      foundationSystemInventoryRenderersSource.includes('function renderInventoryArchiveHistory()') &&
+      foundationSystemInventoryRenderersSource.includes('function renderCapabilitySection(section)') &&
+      foundationSystemInventoryRenderersSource.includes('var capabilityCatalog =') &&
+      !foundationUiSource.includes('function renderFoundationSystems()') &&
+      !foundationUiSource.includes('function renderInventoryDocs()') &&
+      !foundationUiSource.includes('function renderInventoryArchiveHistory()') &&
+      !foundationUiSource.includes('function renderCapabilitySection(section)') &&
+      !foundationUiSource.includes('var capabilityCatalog =') &&
+      foundationRouterSource.includes('renderFoundationSystems()') &&
+      foundationRouterSource.includes('renderInventoryDocs()') &&
+      foundationRouterSource.includes('renderInventoryArchiveHistory()') &&
+      foundationRouterSource.includes('renderCapabilitySection(section)') &&
+      frontendSystemInventoryRenderersSplitScriptSource.includes('runSystemInventoryBrowserDogfood') &&
+      frontendSystemInventoryRenderersSplitScriptSource.includes('VM System Inventory dispatch reaches extracted renderers') &&
+      frontendSystemInventoryRenderersSplitPlanSource.includes('read-only by default') &&
+      currentPlan.includes(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CARD_ID),
+    'FRONTEND-SYSTEM-INVENTORY-RENDERERS-SPLIT-001 splits Foundation system inventory renderers out of public/foundation.js',
+    frontendSystemInventoryRenderersSplitCard
+      ? `lane=${frontendSystemInventoryRenderersSplitCard.lane} dogfood=${frontendSystemInventoryDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
+      : `missing ${FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
