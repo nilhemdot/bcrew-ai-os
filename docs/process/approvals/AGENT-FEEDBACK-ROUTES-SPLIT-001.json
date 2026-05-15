@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AGENT-FEEDBACK-ROUTES-SPLIT-001",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T14:20:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/agent-feedback-routes-split-001-plan.md",
+  "approvedPlanSha256": "a6ea4a03bc222301a8e4186a07b74e09e2e95f74bf010ebb9085df7d1ab06960",
+  "approvedRepoHead": "b7b288ea03cc4c4f084bf170627eef139f726c8c",
+  "notes": "Approved as final Server Monolith Closeout route split after FOUNDATION-WRITE-ROUTES-SPLIT-001 shipped. Scope: extract only public Agent Feedback session/submit routes into lib/agent-feedback-routes.js with behavior unchanged, metadata-only privacy proof, safe invalid route probes, and explicit 2000ms/256KB route budgets. Not approved: real feedback submit, ClickUp/Gmail/notification mutation from proof, production dry-run route movement, Marketing Video Lab wiring, Sales/Strategy/Foundation write route work, verifier split, or Foundation DB split.",
+  "approvalDigest": "40981347b20bf8f2f11129f4445b04b6a8b8b373ce5cfafc2f03f3251619d5b9"
+}

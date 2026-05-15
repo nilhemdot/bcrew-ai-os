@@ -73,9 +73,9 @@ import {
   updateDecision,
   updateFoundationJobControl,
   updateOpenQuestion,
+  upsertSalesListingAssignment,
   getAgentOnboardingFeedbackResponseByTokenHash,
   getAgentOnboardingFeedbackResponseForMilestone,
-  upsertSalesListingAssignment,
   upsertAgentOnboardingFeedbackResponse,
 } from './lib/foundation-db.js'
 import {
@@ -251,6 +251,7 @@ import { registerAuthRoutes } from './lib/auth-routes.js'
 import { registerHubReadRoutes } from './lib/hub-read-routes.js'
 import { registerStrategySharedCommsRoutes } from './lib/strategy-shared-comms-routes.js'
 import { registerFoundationWriteRoutes } from './lib/foundation-write-routes.js'
+import { registerAgentFeedbackRoutes } from './lib/agent-feedback-routes.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -4678,144 +4679,15 @@ registerFoundationOperatorRoutes(app, {
   repoRoot: __dirname,
 })
 
-app.get('/api/agent-feedback/session', async (req, res) => {
-  try {
-    const session = verifyAgentFeedbackToken(req.query.token)
-    const [existingResponse, existingMilestoneResponse] = await Promise.all([
-      getAgentOnboardingFeedbackResponseByTokenHash(session.tokenHash),
-      getAgentOnboardingFeedbackResponseForMilestone({
-        taskId: session.taskId,
-        milestoneDay: session.milestoneDay,
-      }),
-    ])
-    if (existingResponse || existingMilestoneResponse) {
-      sendApiError(
-        res,
-        409,
-        'agent_feedback_link_already_submitted',
-        'This feedback link has already been submitted.'
-      )
-      return
-    }
-    cacheHeadersNoStore(res)
-    res.json({
-      agentName: session.agentName,
-      milestoneDay: session.milestoneDay,
-      scoreQuestion: 'On a scale of 1-10, how likely would you recommend the Benson Crew to another agent based on your first ' + session.milestoneDay + ' days?',
-      improvementQuestion: 'If not a 10, what would make it a 10? Any positive or negative feedback is helpful.',
-      privacyNote: 'This will only be read by Steve so you can be open and honest about what would make the experience better.',
-    })
-  } catch (error) {
-    if (error instanceof Error && /already been used/i.test(error.message)) {
-      sendApiError(
-        res,
-        409,
-        'agent_feedback_link_already_submitted',
-        'This feedback link has already been submitted.'
-      )
-      return
-    }
-    sendApiError(
-      res,
-      400,
-      'invalid_agent_feedback_token',
-      error instanceof Error ? error.message : 'Invalid feedback link.'
-    )
-  }
-})
-
-app.post('/api/agent-feedback/submit', async (req, res) => {
-  try {
-    const session = verifyAgentFeedbackToken(req.body?.token)
-    const [existingResponse, existingMilestoneResponse] = await Promise.all([
-      getAgentOnboardingFeedbackResponseByTokenHash(session.tokenHash),
-      getAgentOnboardingFeedbackResponseForMilestone({
-        taskId: session.taskId,
-        milestoneDay: session.milestoneDay,
-      }),
-    ])
-    if (existingResponse || existingMilestoneResponse) {
-      sendApiError(
-        res,
-        409,
-        'agent_feedback_link_already_submitted',
-        'This feedback link has already been submitted.'
-      )
-      return
-    }
-
-    const score = Number(req.body?.score)
-    const improvementFeedback = String(req.body?.improvementFeedback || '').trim().slice(0, 5000)
-
-    if (!Number.isInteger(score) || score < 1 || score > 10) {
-      sendApiError(res, 400, 'invalid_agent_feedback_score', 'Choose a score from 1 to 10.')
-      return
-    }
-
-    const response = await upsertAgentOnboardingFeedbackResponse({
-      tokenHash: session.tokenHash,
-      clickUpTaskId: session.taskId,
-      agentName: session.agentName,
-      milestoneDay: session.milestoneDay,
-      score,
-      improvementFeedback,
-      userAgent: req.get('user-agent') || '',
-    })
-    let clickUpWriteback = null
-    try {
-      const writebackResult = await writeAgentFeedbackToClickUp({
-        taskId: session.taskId,
-        milestoneDay: session.milestoneDay,
-        score,
-        improvementFeedback,
-      })
-      clickUpWriteback = {
-        status: 'succeeded',
-        repairStatus: 'none',
-        ...writebackResult,
-      }
-    } catch (error) {
-      clickUpWriteback = {
-        status: 'failed',
-        repairStatus: 'clickup_completed_writeback_failed',
-        errorClass: error instanceof Error ? error.name : 'Error',
-      }
-    }
-
-    const responseNotification = await sendAgentFeedbackResponseNotification({
-      response,
-      clickUpWriteback,
-    })
-
-    cacheHeadersNoStore(res)
-    res.json({
-      ok: true,
-      submittedAt: response.submittedAt,
-      clickUpWriteback,
-      responseNotification: {
-        status: responseNotification.status,
-        recipientRoles: responseNotification.recipientRoles,
-        duplicateBlocked: Boolean(responseNotification.duplicateBlocked),
-        repairStatus: responseNotification.repairStatus || 'none',
-      },
-    })
-  } catch (error) {
-    if (error instanceof Error && /already been used/i.test(error.message)) {
-      sendApiError(
-        res,
-        409,
-        'agent_feedback_link_already_submitted',
-        'This feedback link has already been submitted.'
-      )
-      return
-    }
-    sendApiError(
-      res,
-      400,
-      'agent_feedback_submit_failed',
-      error instanceof Error ? error.message : 'Failed to submit feedback.'
-    )
-  }
+registerAgentFeedbackRoutes(app, {
+  cacheHeadersNoStore,
+  sendApiError,
+  verifyAgentFeedbackToken,
+  getAgentOnboardingFeedbackResponseByTokenHash,
+  getAgentOnboardingFeedbackResponseForMilestone,
+  upsertAgentOnboardingFeedbackResponse,
+  writeAgentFeedbackToClickUp,
+  sendAgentFeedbackResponseNotification,
 })
 
 app.get('/api/doc', requireAdminToken, async (req, res) => {

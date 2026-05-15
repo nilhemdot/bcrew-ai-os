@@ -125,6 +125,7 @@
     "process:hub-read-routes-split-check": "node --env-file-if-exists=.env scripts/process-hub-read-routes-split-check.mjs",
     "process:strategy-shared-comms-routes-split-check": "node --env-file-if-exists=.env scripts/process-strategy-shared-comms-routes-split-check.mjs",
     "process:foundation-write-routes-split-check": "node --env-file-if-exists=.env scripts/process-foundation-write-routes-split-check.mjs",
+    "process:agent-feedback-routes-split-check": "node --env-file-if-exists=.env scripts/process-agent-feedback-routes-split-check.mjs",
     "process:hub-work-check": "node --env-file-if-exists=.env scripts/process-hub-work-check.mjs",
     "process:foundation-ready-safe-hub-lane-check": "node --env-file-if-exists=.env scripts/process-foundation-ready-safe-hub-lane-check.mjs",
     "process:foundation-hub-backlog-contract-check": "node --env-file-if-exists=.env scripts/process-foundation-hub-backlog-contract-check.mjs",

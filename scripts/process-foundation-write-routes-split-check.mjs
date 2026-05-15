@@ -29,11 +29,15 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..')
 
-const OUT_OF_SCOPE_ROUTE_MARKERS = [
+const OUT_OF_SCOPE_SERVER_ROUTE_MARKERS = [
   "app.post('/api/sales-hub/listing-assignment'",
+  "app.post('/api/intelligence/evidence'",
+]
+
+const OUT_OF_SCOPE_MODULE_ROUTE_MARKERS = [
+  ...OUT_OF_SCOPE_SERVER_ROUTE_MARKERS,
   "app.get('/api/agent-feedback/session'",
   "app.post('/api/agent-feedback/submit'",
-  "app.post('/api/intelligence/evidence'",
 ]
 
 const SAFE_INVALID_WRITE_PROBES = [
@@ -311,7 +315,7 @@ async function main() {
   ensure(checks, includesAll(moduleSource, FOUNDATION_WRITE_ROUTE_MARKERS), 'new module owns Foundation write route strings', 'lib/foundation-write-routes.js')
   ensure(checks, serverSource.includes('registerFoundationWriteRoutes(app'), 'server.js delegates through Foundation write registrar', 'registerFoundationWriteRoutes(app)')
   ensure(checks, excludesAll(serverSource, FOUNDATION_WRITE_ROUTE_MARKERS), 'server.js no longer owns moved Foundation write handlers', 'old inline write route markers absent')
-  ensure(checks, includesAll(serverSource, OUT_OF_SCOPE_ROUTE_MARKERS) && excludesAll(moduleSource, OUT_OF_SCOPE_ROUTE_MARKERS), 'out-of-scope Sales/Agent Feedback/Intelligence routes remain in server.js', 'no opportunistic route movement')
+  ensure(checks, includesAll(serverSource, OUT_OF_SCOPE_SERVER_ROUTE_MARKERS) && excludesAll(moduleSource, OUT_OF_SCOPE_MODULE_ROUTE_MARKERS), 'Foundation write module does not absorb Sales/Agent Feedback/Intelligence routes', 'no opportunistic route movement')
   ensure(checks, scriptIsReadOnly(scriptSource), 'focused proof script has no live-state mutation helpers', 'safe invalid HTTP probes only')
   ensure(checks, dogfood.ok, 'dogfood rejects old Foundation write route split failures', dogfood.summary)
   ensure(checks, planSource.includes('No Sales route movement.') && planSource.includes('No Agent Feedback route movement.'), 'plan blocks hub/product route movement', FOUNDATION_WRITE_ROUTES_SPLIT_PLAN_PATH)

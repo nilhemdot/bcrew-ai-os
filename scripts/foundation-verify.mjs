@@ -209,6 +209,17 @@ import {
   buildFoundationWriteRoutesSplitDogfoodProof,
 } from '../lib/foundation-write-routes.js'
 import {
+  AGENT_FEEDBACK_PUBLIC_ROUTE_MARKERS,
+  AGENT_FEEDBACK_ROUTES_SPLIT_APPROVAL_PATH,
+  AGENT_FEEDBACK_ROUTES_SPLIT_BEFORE_SERVER_LINES,
+  AGENT_FEEDBACK_ROUTES_SPLIT_CARD_ID,
+  AGENT_FEEDBACK_ROUTES_SPLIT_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_ROUTES_SPLIT_PLAN_PATH,
+  AGENT_FEEDBACK_ROUTES_SPLIT_SCRIPT_PATH,
+  AGENT_FEEDBACK_ROUTES_SPLIT_SPRINT_ID,
+  buildAgentFeedbackRoutesSplitDogfoodProof,
+} from '../lib/agent-feedback-routes.js'
+import {
   buildFoundationVerifyCheckOutput,
   buildFoundationVerifyJsonSummary,
   buildFoundationVerifyReporterDogfoodProof,
@@ -2349,9 +2360,13 @@ async function main() {
   const foundationWriteRoutesSource = await readRepoFile('lib/foundation-write-routes.js')
   const foundationWriteRoutesSplitScriptSource = await readRepoFile(FOUNDATION_WRITE_ROUTES_SPLIT_SCRIPT_PATH)
   const foundationWriteRoutesSplitPlanSource = await readRepoFile(FOUNDATION_WRITE_ROUTES_SPLIT_PLAN_PATH)
-  const serverRouteSource = [serverSource, hubReadRoutesSource, strategySharedCommsRoutesSource, foundationWriteRoutesSource].join('\n')
+  const agentFeedbackRoutesSource = await readRepoFile('lib/agent-feedback-routes.js')
+  const agentFeedbackRoutesSplitScriptSource = await readRepoFile(AGENT_FEEDBACK_ROUTES_SPLIT_SCRIPT_PATH)
+  const agentFeedbackRoutesSplitPlanSource = await readRepoFile(AGENT_FEEDBACK_ROUTES_SPLIT_PLAN_PATH)
+  const serverRouteSource = [serverSource, hubReadRoutesSource, strategySharedCommsRoutesSource, foundationWriteRoutesSource, agentFeedbackRoutesSource].join('\n')
   const strategySharedCommsRouteSource = [serverSource, strategySharedCommsRoutesSource].join('\n')
   const foundationWriteRouteSource = [serverSource, foundationWriteRoutesSource].join('\n')
+  const agentFeedbackRouteSource = [serverSource, agentFeedbackRoutesSource].join('\n')
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
@@ -4411,6 +4426,7 @@ async function main() {
       hubReadRoutesSource,
       strategySharedCommsRoutesSource,
       foundationWriteRoutesSource,
+      agentFeedbackRoutesSource,
     ],
   )
   const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
@@ -6246,7 +6262,7 @@ async function main() {
       includesAll(googleDelegatedSource, ['sendGmailMessage', 'multipart/alternative', 'gmail.send']) &&
       includesAll(agentFeedbackClickUpSource, ['writeAgentFeedbackToClickUp', 'Onboarding NPS 30 Score', 'Onboarding NPS 90 Feedback']) &&
       includesAll(agentRosterReviewSource, ['buildAgentFeedbackUrl', 'feedbackUrl']) &&
-      includesAll(serverSource, ['/api/agent-feedback/session', '/api/agent-feedback/submit', 'upsertAgentOnboardingFeedbackResponse', 'writeAgentFeedbackToClickUp']) &&
+      includesAll(agentFeedbackRouteSource, ['/api/agent-feedback/session', '/api/agent-feedback/submit', 'upsertAgentOnboardingFeedbackResponse', 'writeAgentFeedbackToClickUp']) &&
       includesAll(foundationDbSource, ['agent_onboarding_feedback_responses', 'token_hash', 'milestone_day']) &&
       includesAll(agentFeedbackHtmlSource, ['agent-feedback-form', 'score-grid', 'Submit feedback']) &&
       includesAll(agentFeedbackUiSource, ['/api/agent-feedback/session', '/api/agent-feedback/submit']) &&
@@ -12388,7 +12404,7 @@ async function main() {
         'createAgentFeedbackResponseNotification',
         'updateAgentFeedbackResponseNotificationStatus',
       ]) &&
-      includesAll(serverSource, ['sendAgentFeedbackResponseNotification', 'responseNotification', 'clickup_completed_writeback_failed']) &&
+      includesAll(agentFeedbackRouteSource, ['sendAgentFeedbackResponseNotification', 'responseNotification', 'clickup_completed_writeback_failed']) &&
       agentFeedbackResponseNotifyStatus.status === 'healthy' &&
       agentFeedbackResponseNotifyStatus.summary?.successDryRun === true &&
       agentFeedbackResponseNotifyStatus.summary?.repairDryRun === true &&
@@ -12549,7 +12565,7 @@ async function main() {
         "scheduleLocalTime: '08:30'",
         "scheduleTimezone: 'America/Toronto'",
       ]) &&
-      includesAll(serverSource, ['getAgentOnboardingFeedbackResponseForMilestone', 'agent_feedback_link_already_submitted']) &&
+      includesAll(agentFeedbackRouteSource, ['getAgentOnboardingFeedbackResponseForMilestone', 'agent_feedback_link_already_submitted']) &&
       includesAll(foundationFrontendSource, ['Live reminder sends', 'duplicate reminder slots are blocked']) &&
       includesAll(opsUiSource, ['Feedback live reminders']) &&
       agentFeedbackReminderStatus.status === 'healthy' &&
@@ -12750,8 +12766,8 @@ async function main() {
         'supersedeAgentOnboardingFeedbackResponseForRepair',
         'includeDuplicateProbe',
       ]) &&
-      serverSource.includes('agent_feedback_link_already_submitted') &&
-      serverSource.includes('This feedback link has already been submitted.') &&
+      agentFeedbackRouteSource.includes('agent_feedback_link_already_submitted') &&
+      agentFeedbackRouteSource.includes('This feedback link has already been submitted.') &&
       (agentFeedbackRealUserSubmitRepairStatus.status === 'healthy' ||
         agentFeedbackProductionVerifierAccepted) &&
       agentFeedbackRealUserSubmitRepairStatus.phase === 'real_user_submitted' &&
@@ -14497,7 +14513,7 @@ async function main() {
       !serverSource.includes("app.get('/api/foundation/action-review'") &&
       foundationWriteRouteSource.includes("app.post('/api/foundation/backlog'") &&
       serverSource.includes("app.post('/api/sales-hub/listing-assignment'") &&
-      serverSource.includes("app.get('/api/agent-feedback/session'") &&
+      agentFeedbackRouteSource.includes("app.get('/api/agent-feedback/session'") &&
       serverLineCountAfterStrategySharedCommsRouteSplit < STRATEGY_SHARED_COMMS_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
       currentPlan.includes(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CLOSEOUT_KEY) &&
       currentState.includes(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CLOSEOUT_KEY) &&
@@ -14542,7 +14558,7 @@ async function main() {
       serverSource.includes('registerFoundationWriteRoutes(app') &&
       FOUNDATION_WRITE_ROUTE_MARKERS.every(marker => !serverSource.includes(marker)) &&
       serverSource.includes("app.post('/api/sales-hub/listing-assignment'") &&
-      serverSource.includes("app.get('/api/agent-feedback/session'") &&
+      agentFeedbackRouteSource.includes("app.get('/api/agent-feedback/session'") &&
       serverSource.includes("app.post('/api/intelligence/evidence'") &&
       serverLineCountAfterFoundationWriteRouteSplit < FOUNDATION_WRITE_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
       serverLineCountAfterFoundationWriteRouteSplit < 5000 &&
@@ -14555,6 +14571,57 @@ async function main() {
     foundationWriteRoutesSplitCard
       ? `lane=${foundationWriteRoutesSplitCard.lane} dogfood=${foundationWriteRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${FOUNDATION_WRITE_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterFoundationWriteRouteSplit}`
       : `missing ${FOUNDATION_WRITE_ROUTES_SPLIT_CARD_ID}`,
+  )
+  const agentFeedbackRoutesSplitCard = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_ROUTES_SPLIT_CARD_ID) || null
+  const agentFeedbackRoutesSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === AGENT_FEEDBACK_ROUTES_SPLIT_CLOSEOUT_KEY) || null
+  const agentFeedbackRoutesDogfood = buildAgentFeedbackRoutesSplitDogfoodProof({
+    serverSource,
+    moduleSource: agentFeedbackRoutesSource,
+    proofScriptSource: agentFeedbackRoutesSplitScriptSource,
+  })
+  const serverLineCountAfterAgentFeedbackRouteSplit = String(serverSource || '').split('\n').length
+  ensure(
+    checks,
+      agentFeedbackRoutesSplitCard &&
+      ['executing', 'done'].includes(agentFeedbackRoutesSplitCard.lane) &&
+      String(agentFeedbackRoutesSplitCard.statusNote || '').includes(AGENT_FEEDBACK_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      agentFeedbackRoutesSplitCloseout?.operatorCloseout === true &&
+      (agentFeedbackRoutesSplitCloseout.backlogIds || []).includes(AGENT_FEEDBACK_ROUTES_SPLIT_CARD_ID) &&
+      agentFeedbackRoutesDogfood.ok === true &&
+      packageJson.scripts?.['process:agent-feedback-routes-split-check'] === `node --env-file-if-exists=.env ${AGENT_FEEDBACK_ROUTES_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(AGENT_FEEDBACK_ROUTES_SPLIT_PLAN_PATH) &&
+      await repoFileExists(AGENT_FEEDBACK_ROUTES_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-agent-feedback-routes-split-closeout.md') &&
+      agentFeedbackRoutesSource.includes('registerAgentFeedbackRoutes') &&
+      AGENT_FEEDBACK_PUBLIC_ROUTE_MARKERS.every(marker => agentFeedbackRoutesSource.includes(marker)) &&
+      agentFeedbackRoutesSource.includes('verifyAgentFeedbackToken') &&
+      agentFeedbackRoutesSource.includes('writeAgentFeedbackToClickUp') &&
+      agentFeedbackRoutesSource.includes('sendAgentFeedbackResponseNotification') &&
+      agentFeedbackRoutesSplitScriptSource.includes('row-count fingerprints stay unchanged') &&
+      agentFeedbackRoutesSplitScriptSource.includes('metadata-only privacy proof') &&
+      agentFeedbackRoutesSplitScriptSource.includes('synthetic valid token invalid score') &&
+      agentFeedbackRoutesSplitPlanSource.includes('Do not submit real feedback.') &&
+      (
+        agentFeedbackRoutesSplitPlanSource.includes('No ClickUp/Gmail/notification mutation from proof.') ||
+        agentFeedbackRoutesSplitPlanSource.includes('Do not write ClickUp, Gmail, reminders, or response notifications from the focused proof.')
+      ) &&
+      serverSource.includes('registerAgentFeedbackRoutes(app') &&
+      AGENT_FEEDBACK_PUBLIC_ROUTE_MARKERS.every(marker => !serverSource.includes(marker)) &&
+      serverSource.includes("app.get('/api/foundation/agent-feedback-production-dry-run'") &&
+      serverSource.includes("app.get('/api/ops/agent-feedback-production-dry-run'") &&
+      foundationWriteRouteSource.includes("app.post('/api/foundation/backlog'") &&
+      serverSource.includes("app.post('/api/sales-hub/listing-assignment'") &&
+      serverLineCountAfterAgentFeedbackRouteSplit < AGENT_FEEDBACK_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
+      serverLineCountAfterAgentFeedbackRouteSplit < 5000 &&
+      currentPlan.includes(AGENT_FEEDBACK_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(AGENT_FEEDBACK_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === AGENT_FEEDBACK_ROUTES_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([AGENT_FEEDBACK_ROUTES_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(AGENT_FEEDBACK_ROUTES_SPLIT_CARD_ID),
+    'AGENT-FEEDBACK-ROUTES-SPLIT-001 extracts public Agent Feedback session/submit routes into a focused module',
+    agentFeedbackRoutesSplitCard
+      ? `lane=${agentFeedbackRoutesSplitCard.lane} dogfood=${agentFeedbackRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${AGENT_FEEDBACK_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterAgentFeedbackRouteSplit}`
+      : `missing ${AGENT_FEEDBACK_ROUTES_SPLIT_CARD_ID}`,
   )
   const nightlyDeepAuditP0TriageCard = (foundationHub.backlogItems || []).find(item => item.id === 'NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') || null
   const nightlyDeepAuditP0TriageCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'nightly-deep-audit-p0-triage-v1') || null
