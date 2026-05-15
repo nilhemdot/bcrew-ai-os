@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.60 - Server monolith closeout active
+Version: v6.61 - Verifier source-contract module active
 Status: Active
 
 Use this doc for one question:
@@ -73,30 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Server Monolith Closeout
+## Current Sprint: Verifier Source Contracts Module
 
-Live sprint ID: `foundation-server-monolith-closeout-2026-05-15`.
+Live sprint ID: `verifier-source-contracts-module-2026-05-15`.
 
-This sprint closes the next server monolith slices after the first overnight route splits. It triaged the first nightly deep-audit P0 baseline, then splits `server.js` by route domain without changing behavior, auth semantics, hub UI, source extraction, or Marketing Video Lab wiring.
+This sprint is closed under `verifier-source-contracts-module-v1`. It extracted only the source-contract/signoff verifier domain from `scripts/foundation-verify.mjs` into `lib/foundation-source-contract-verifier.js`, while preserving the same canonical PASS/FAIL rows for signed-off Owners, Finance current reality, Freedom range coverage, source-registry truth, and current-state helper/mirror boundaries.
 
-Next card:
+Completed card:
 
-1. `AGENT-FEEDBACK-ROUTES-SPLIT-001` - next no-auth server monolith slice if Steve remains unavailable. Keep scope to Agent Feedback route ownership only; do not move Sales routes, Marketing Video Lab wiring, source extraction, or hub feature behavior.
+1. `VERIFIER-MONOLITH-SPLIT-CONTINUE-002` - source-contract verifier module split. Dogfood proof accepts healthy source contracts and rejects missing Owners signoff, missing required tab coverage, stale source-registry rows, and stale current-state mirror-boundary text. The focused proof script is read-only, and full `foundation:verify` passed before closeout.
 
-Completed in this sprint:
+Not next: broad verifier rewrite, `lib/foundation-db.js` split, frontend split, server route split, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
 
-1. `NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001` - closed by triaging the first nightly deep-audit P0 baseline into explicit follow-up cards and enrichments without auto-mutating code.
-2. `AUTH-ROUTES-SPLIT-001` - closed under `auth-routes-split-v1`; `/login`, auth login/logout/session endpoints, Google login error handling, security headers, API request logging, access-context attachment, direct `.html` redirects, and static public file serving now register through `lib/auth-routes.js` while `server.js` delegates through `registerAuthRoutes()`. Focused proof probes moved auth/session/static routes, rejects missing module / old inline route / missing registrar / weak proof failures, keeps each moved route under a 2 second / 1 MB budget, and reduced `server.js` from `6,733` to `6,593` lines for that slice.
-3. `HUB-READ-ROUTES-SPLIT-001` - closed under `hub-read-routes-split-v1`; `GET /api/foundation-hub`, `GET /api/foundation/current-sprint`, `GET /api/ops-hub`, and `GET /api/sales-hub` now register through `lib/hub-read-routes.js` while `server.js` delegates through `registerHubReadRoutes()`. Focused proof probes moved hub read routes, rejects missing module / old inline route / missing registrar / moved Sales write route / weak proof failures, keeps route payloads under budget, leaves Sales write routes in `server.js`, and reduces `server.js` from `6,592` to `6,116` lines for this slice.
-4. `STRATEGY-SHARED-COMMS-ROUTES-SPLIT-001` - closed under `strategy-shared-comms-routes-split-v1`; Strategy Hub v2, Strategy action-route review, Foundation Action Review, and shared-communications archive/candidate/synthesis routes now register through `lib/strategy-shared-comms-routes.js` while `server.js` delegates through `registerStrategySharedCommsRoutes()`. Focused proof probes moved read routes, uses safe invalid POST probes that fail before mutation, keeps direct Foundation/Sales/Agent Feedback routes in their owners, and reduces `server.js` from `6,115` to about `5,447` lines for this slice.
-5. `FOUNDATION-WRITE-ROUTES-SPLIT-001` - closed under `foundation-write-routes-split-v1`; Foundation job control, job-run stop, job decommission, backlog, decisions, open questions, and pending doc-update write routes now register through `lib/foundation-write-routes.js` while `server.js` delegates through `registerFoundationWriteRoutes()`. Focused proof uses safe invalid writes that fail before mutation, proves live row counts stay unchanged, rejects missing module / old inline route / missing registrar / moved out-of-scope route / weak proof failures, leaves Sales/Agent Feedback/Intelligence routes in `server.js`, and reduces `server.js` from `5,447` to about `4,928` lines for this slice.
-6. `AGENT-FEEDBACK-ROUTES-SPLIT-001` - closed under `agent-feedback-routes-split-v1`; public Agent Feedback session/submit routes now register through `lib/agent-feedback-routes.js` while `server.js` delegates through `registerAgentFeedbackRoutes()`. Focused proof uses invalid-token and synthetic-valid-token invalid-score probes that fail before DB/ClickUp/Gmail/notification mutation, proves Agent Feedback response/notification row counts stay unchanged, rejects missing module / old inline route / missing registrar / moved admin dry-run route / weak proof / token-log proof failures, keeps Foundation/Ops Agent Feedback production dry-run routes in `server.js`, and reduces `server.js` from `4,928` to about `4,800` lines.
-
-The sprint order:
-
-1. `APP-PAGE-ROUTES-SPLIT-001` - closing under `app-page-routes-split-v1`; `/doc`, `/foundation`, `/foundation/export/strategy`, `/strategic-execution`, `/sales`, `/ops`, `/agent-feedback`, `/`, wildcard fallback, and the `/api` JSON 404 fallback now register through `lib/app-page-routes.js` while `server.js` delegates through `registerAppPageRoutes()`. Focused proof probes the moved page/fallback routes, rejects missing module / old inline server page route / missing registrar / missing API fallback / moved Strategy PDF export, keeps each moved route under a 5 second / 1 MB budget, and reduces `server.js` from `6,779` to `6,734` lines for this slice.
-
-Not next: Strategy PDF export route changes, auth/session changes, Sales/Ops/Marketing hub changes, page redesigns, broad `server.js` refactor, broad API redesign, package/dependency changes beyond the focused proof script, Build Intel extraction, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Previous completed sprint: `foundation-server-monolith-closeout-2026-05-15`, closed by splitting server route domains without feature changes. `NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001` closed under `nightly-deep-audit-p0-triage-v1`, `APP-PAGE-ROUTES-SPLIT-001` closed under `app-page-routes-split-v1`, `AUTH-ROUTES-SPLIT-001` closed under `auth-routes-split-v1`, `HUB-READ-ROUTES-SPLIT-001` closed under `hub-read-routes-split-v1`, `STRATEGY-SHARED-COMMS-ROUTES-SPLIT-001` closed under `strategy-shared-comms-routes-split-v1`, `FOUNDATION-WRITE-ROUTES-SPLIT-001` closed under `foundation-write-routes-split-v1`, and `AGENT-FEEDBACK-ROUTES-SPLIT-001` closed under `agent-feedback-routes-split-v1`. `server.js` is now under the danger line at about `4,800` lines.
 
 Previous completed sprint: `foundation-runtime-read-routes-split-2026-05-15`, closed under `foundation-runtime-read-routes-split-v1`. It extracted the read-only Foundation runtime status route cluster out of `server.js` into `lib/foundation-runtime-read-routes.js` without changing runtime-control mutation behavior, POSTing job-control mutations in proof, or touching hub feature work.
 

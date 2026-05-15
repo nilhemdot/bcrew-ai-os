@@ -138,6 +138,16 @@ import {
   evaluateFoundationRouteSplitVerifier,
 } from '../lib/foundation-route-split-verifier.js'
 import {
+  VERIFIER_SOURCE_CONTRACT_MODULE_APPROVAL_PATH,
+  VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID,
+  VERIFIER_SOURCE_CONTRACT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH,
+  VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH,
+  VERIFIER_SOURCE_CONTRACT_MODULE_SPRINT_ID,
+  buildFoundationSourceContractVerifierDogfoodProof,
+  evaluateFoundationSourceContractVerifier,
+} from '../lib/foundation-source-contract-verifier.js'
+import {
   FUB_SOURCE_ROUTE_SPLIT_APPROVAL_PATH,
   FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES,
   FUB_SOURCE_ROUTE_SPLIT_CARD_ID,
@@ -1944,9 +1954,6 @@ async function main() {
     ['FOUNDATION_VERIFY_CONNECTOR_CREDENTIAL_SENTINEL_VALUE'],
   )
   const groupedSourceSystems = getGroupedSourceSystems()
-  const ownersContract = findSourceById(sourceContracts, 'SRC-OWNERS-001')
-  const financeContract = findSourceById(sourceContracts, 'SRC-FINANCE-001')
-  const freedomCommunityContract = findSourceById(sourceContracts, 'SRC-FREEDOM-COMMUNITY-001')
   await assertFoundationDbReadyForReadOnlyGate('foundation:verify')
   const backlogSeedDrift = await getBacklogSeedDriftSnapshot({ limit: 10 })
   const strategyPreworkCoverageSnapshot = await getStrategyPreworkCoverageSnapshot()
@@ -1962,43 +1969,6 @@ async function main() {
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
   })
-
-  ensure(
-    checks,
-    ownersContract?.status === 'Signed Off' && ownersContract?.validation === 'Signed Off',
-    'source contracts: SRC-OWNERS-001 is signed off',
-    ownersContract ? `${ownersContract.status} / ${ownersContract.validation}` : 'missing',
-  )
-  ensure(
-    checks,
-    financeContract?.status === 'Current reality captured' && financeContract?.validation === 'Signed Off For Current Reality',
-    'source contracts: SRC-FINANCE-001 is signed off for current reality',
-    financeContract ? `${financeContract.status} / ${financeContract.validation}` : 'missing',
-  )
-  ensure(
-    checks,
-    ['Split Cal', 'Agent Splits', 'Listings and Conditional Deals', 'Sales & Deposit', 'Goal & KPI Calculator', 'CI Report'].every(tab => ownersContract?.signedOffTabs?.includes(tab)),
-    'source contracts: SRC-OWNERS-001 exposes signed-off tab coverage',
-    ownersContract?.signedOffTabs?.join(', ') || 'missing',
-  )
-  ensure(
-    checks,
-    ['Monthly Budget', 'Budget Original', 'Monthly Actuals (Roll Up)', 'Annual Actuals (Roll Up)', 'Annual Budget (Roll Up)', 'Unspent -L3M + Actual Helper'].every(tab => financeContract?.signedOffTabs?.includes(tab)),
-    'source contracts: SRC-FINANCE-001 exposes signed-off finance tab coverage',
-    financeContract?.signedOffTabs?.join(', ') || 'missing',
-  )
-  ensure(
-    checks,
-    ownersContract?.verifiedNonSourceTabs?.some(item => item.name === 'Lists' && /IMPORTRANGE/.test(item.reason || '') && /SRC-OWNERS-LISTS-001/.test(item.reason || '')),
-    'source contracts: Owners Lists mirror explains non-source sign-off boundary',
-    JSON.stringify(ownersContract?.verifiedNonSourceTabs || []),
-  )
-  ensure(
-    checks,
-    freedomCommunityContract?.signedOffTabs?.includes('Data Entry - BCrew Team/Community · G:O Community tracker'),
-    'source contracts: Freedom units expose signed-off range coverage',
-    freedomCommunityContract?.signedOffTabs?.join(', ') || 'missing',
-  )
 
   const sourceRegistry = await readRepoFile('docs/source-registry.md')
   const docsIndexSource = await readRepoFile('docs/INDEX.md')
@@ -2370,6 +2340,9 @@ async function main() {
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
+  const foundationSourceContractVerifierSource = await readRepoFile('lib/foundation-source-contract-verifier.js')
+  const verifierSourceContractModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH)
+  const verifierSourceContractModulePlanSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH)
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -2929,36 +2902,12 @@ async function main() {
   const retrievalEvalSources = new Set(retrievalEvalCases.map(item => item.sourceId).filter(Boolean))
   const latestRetrievalEvalMetadata = intelligenceRetrievalSnapshot.latestEvalRun?.metadata || {}
 
-  ensure(
-    checks,
-    includesAll(sourceRegistry, ['### Signed Off Validation Units', '`SRC-OWNERS-001`', 'Signed Off | 2026-04-16']),
-    'docs/source-registry.md reflects Owners sign-off',
-    'signed-off unit and dated table row present',
-  )
-  ensure(
-    checks,
-    includesAll(sourceRegistry, ['`SRC-FINANCE-001`', 'Signed Off For Current Reality | 2026-04-20']),
-    'docs/source-registry.md reflects finance current-reality sign-off',
-    'finance row present with current-reality signoff status',
-  )
-  ensure(
-    checks,
-    includesAll(sourceRegistry, ['### Freedom Sheet Signed-Off Range Coverage', 'Data Entry - BCrew Team/Community · G:O Community tracker', 'Benson Crew Bhag Builder']),
-    'docs/source-registry.md reflects Freedom signed-off range coverage',
-    'Freedom range coverage section present',
-  )
-  ensure(
-    checks,
-    includesAll(sourceRegistry, ['### Owners Dashboard Signed-Off Tab Coverage', 'Split Cal', 'Annual Budget (Roll Up)', 'Unspent -L3M + Actual Helper', 'SRC-OWNERS-LISTS-001']),
-    'docs/source-registry.md reflects Owners signed-off tab coverage',
-    'Owners tab coverage section present',
-  )
-  ensure(
-    checks,
-    includesAll(currentState, ['Unspent -L3M + Actual Helper', 'IMPORTRANGE', 'SRC-OWNERS-LISTS-001']),
-    'docs/rebuild/current-state.md reflects helper and mirror source boundaries',
-    'current state explains finance helper coverage and Owners Lists mirror boundary',
-  )
+  const sourceContractVerifierResult = evaluateFoundationSourceContractVerifier({
+    sourceContracts,
+    sourceRegistry,
+    currentState,
+  })
+  checks.push(...sourceContractVerifierResult.checks)
   ensure(
     checks,
     includesAll(systemStrategy, ['Systems Layer', 'operating bundles', 'source contracts', 'runtime jobs', 'Doctrine and the rebuild plan are governed, not frozen']) &&
@@ -14235,6 +14184,38 @@ async function main() {
     verifierRouteSplitModuleCard
       ? `lane=${verifierRouteSplitModuleCard.lane} dogfood=${verifierRouteSplitModuleDogfood.ok ? 'pass' : 'blocked'} routeSplitChecks=${routeSplitVerifierResult.summary.passed}/${routeSplitVerifierResult.summary.total}`
       : `missing ${VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID}`,
+  )
+  const verifierSourceContractModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID) || null
+  const verifierSourceContractModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_SOURCE_CONTRACT_MODULE_CLOSEOUT_KEY) || null
+  const verifierSourceContractModuleDogfood = buildFoundationSourceContractVerifierDogfoodProof()
+  const verifierSourceContractModuleClosed = verifierSourceContractModuleCard?.lane === 'done'
+  ensure(
+    checks,
+      verifierSourceContractModuleCard &&
+      ['executing', 'done'].includes(verifierSourceContractModuleCard.lane) &&
+      (!verifierSourceContractModuleClosed || (
+        String(verifierSourceContractModuleCard.statusNote || '').includes(VERIFIER_SOURCE_CONTRACT_MODULE_CLOSEOUT_KEY) &&
+        verifierSourceContractModuleCloseout?.operatorCloseout === true &&
+        (verifierSourceContractModuleCloseout.backlogIds || []).includes(VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-15-verifier-source-contracts-module-closeout.md')
+      )) &&
+      verifierSourceContractModuleDogfood.ok === true &&
+      packageJson.scripts?.['process:verifier-source-contracts-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_SOURCE_CONTRACT_MODULE_APPROVAL_PATH) &&
+      foundationSourceContractVerifierSource.includes('evaluateFoundationSourceContractVerifier') &&
+      foundationSourceContractVerifierSource.includes('buildFoundationSourceContractVerifierDogfoodProof') &&
+      verifierSourceContractModuleScriptSource.includes('dogfood rejects source-contract verifier failures') &&
+      verifierSourceContractModulePlanSource.includes('Dogfood proof recreates the failure class') &&
+      currentPlan.includes(VERIFIER_SOURCE_CONTRACT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_SOURCE_CONTRACT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === VERIFIER_SOURCE_CONTRACT_MODULE_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID])) &&
+      foundationVerifySource.includes(VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID),
+    'VERIFIER-MONOLITH-SPLIT-CONTINUE-002 extracts source-contract verifier checks into a focused module',
+    verifierSourceContractModuleCard
+      ? `lane=${verifierSourceContractModuleCard.lane} dogfood=${verifierSourceContractModuleDogfood.ok ? 'pass' : 'blocked'} sourceChecks=${sourceContractVerifierResult.summary.passed}/${sourceContractVerifierResult.summary.total}`
+      : `missing ${VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID}`,
   )
   const fubSourceRouteSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FUB_SOURCE_ROUTE_SPLIT_CARD_ID) || null
   const fubSourceRouteSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FUB_SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) || null

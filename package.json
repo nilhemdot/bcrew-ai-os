@@ -225,7 +225,8 @@
     "process:server-route-split-check": "node --env-file-if-exists=.env scripts/process-server-route-split-check.mjs",
     "process:source-route-split-check": "node --env-file-if-exists=.env scripts/process-source-route-split-check.mjs",
     "process:build-intel-route-split-check": "node --env-file-if-exists=.env scripts/process-build-intel-route-split-check.mjs",
-    "process:verifier-route-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-route-split-module-check.mjs"
+    "process:verifier-route-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-route-split-module-check.mjs",
+    "process:verifier-source-contracts-module-check": "node --env-file-if-exists=.env scripts/process-verifier-source-contracts-module-check.mjs"
   },
   "engines": {
     "node": ">=20"
