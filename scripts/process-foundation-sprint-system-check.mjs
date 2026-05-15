@@ -203,7 +203,13 @@ async function main() {
       readText('lib/foundation-current-sprint.js'),
       readText('lib/foundation-db.js'),
       readText('server.js'),
-      readText('public/foundation.js'),
+      Promise.all([
+        readText('public/foundation.js'),
+        readText('public/foundation-operations-renderers.js').catch(error => {
+          if (error?.code === 'ENOENT') return ''
+          throw error
+        }),
+      ]).then(parts => parts.join('\n')),
       readText('public/styles.css'),
       readText(FOUNDATION_SPRINT_SYSTEM_SCRIPT_PATH),
       readText('lib/foundation-build-log.js'),

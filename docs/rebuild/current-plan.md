@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.47 - Foundation frontend monolith split closed
+Version: v6.48 - Foundation operations renderer split closed
 Status: Active
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Frontend Monolith Split
+## Current Sprint: Foundation Operations Renderer Split
+
+Live sprint ID: `frontend-operations-renderers-split-2026-05-15`.
+
+This sprint is closed under `frontend-operations-renderers-split-v1`. It extracts the Foundation operations renderer cluster out of `public/foundation.js` into a focused classic browser script without changing renderer behavior, route semantics, CSS, or Foundation API contracts.
+
+The sprint order:
+
+1. `FRONTEND-OPERATIONS-RENDERERS-SPLIT-001` - done under `frontend-operations-renderers-split-v1`; Runtime Health, System Activity, Daily Summary, Recent Work, and Current Sprint build-log renderers now live in `public/foundation-operations-renderers.js`. Focused proof executes the split scripts in a VM-backed fake browser, proves extracted helper behavior and route dispatch to moved renderer globals, rejects missing/wrong operations-module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from `15,305` to about `14,207` lines for this slice.
+
+Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `frontend-monolith-split-2026-05-15`, closed under `frontend-monolith-split-v1`. It extracted nav/doc config, cache/read/mutation helpers, and hash route/nav/init behavior out of `public/foundation.js` without changing renderer behavior.
+
+## Previous Sprint: Foundation Frontend Monolith Split
 
 Live sprint ID: `frontend-monolith-split-2026-05-15`.
 
@@ -82,8 +96,6 @@ This sprint is closed under `frontend-monolith-split-v1`. It extracts the first 
 The sprint order:
 
 1. `FRONTEND-MONOLITH-SPLIT-001` - done under `frontend-monolith-split-v1`; nav/doc config now lives in `public/foundation-nav-config.js`, cache/read/mutation helpers live in `public/foundation-data.js`, and hash route/nav/init behavior lives in `public/foundation-router.js`. Focused proof executes the split scripts in a VM-backed fake browser, proves route dispatch and cache invalidation behavior, rejects missing/wrong script-order failures, measures `/foundation` and split scripts under budget, and reduces `public/foundation.js` from `16,061` to `15,306` lines for this slice.
-
-Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
 
 Previous completed sprint: `foundation-backlog-store-split-2026-05-15`, closed under `foundation-backlog-store-split-v1`. It extracted backlog create/update write behavior out of `lib/foundation-db.js` into `lib/foundation-backlog-store.js` without changing public `createBacklogItem` / `updateBacklogItem` imports or task-truth safeguards.
 

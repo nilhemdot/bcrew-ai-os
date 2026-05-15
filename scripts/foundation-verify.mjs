@@ -542,6 +542,17 @@ import {
   extractFoundationScriptOrder,
 } from '../lib/foundation-frontend-monolith-split.js'
 import {
+  FRONTEND_OPERATIONS_RENDERERS_SPLIT_APPROVAL_PATH,
+  FRONTEND_OPERATIONS_RENDERERS_SPLIT_BEFORE_LINES,
+  FRONTEND_OPERATIONS_RENDERERS_SPLIT_CARD_ID,
+  FRONTEND_OPERATIONS_RENDERERS_SPLIT_CLOSEOUT_KEY,
+  FRONTEND_OPERATIONS_RENDERERS_SPLIT_PLAN_PATH,
+  FRONTEND_OPERATIONS_RENDERERS_SPLIT_SCRIPT_PATH,
+  FRONTEND_OPERATIONS_RENDERERS_SPLIT_SPRINT_ID,
+  evaluateFrontendOperationsRendererSplit,
+  evaluateFrontendOperationsScriptOrder,
+} from '../lib/foundation-frontend-operations-renderers-split.js'
+import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -2073,13 +2084,17 @@ async function main() {
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const foundationNavConfigSource = await readRepoFile('public/foundation-nav-config.js')
   const foundationDataSource = await readRepoFile('public/foundation-data.js')
+  const foundationOperationsRenderersSource = await readRepoFile('public/foundation-operations-renderers.js')
   const foundationRouterSource = await readRepoFile('public/foundation-router.js')
   const frontendMonolithSplitScriptSource = await readRepoFile(FRONTEND_MONOLITH_SPLIT_SCRIPT_PATH)
   const frontendMonolithSplitPlanSource = await readRepoFile(FRONTEND_MONOLITH_SPLIT_PLAN_PATH)
+  const frontendOperationsRenderersSplitScriptSource = await readRepoFile(FRONTEND_OPERATIONS_RENDERERS_SPLIT_SCRIPT_PATH)
+  const frontendOperationsRenderersSplitPlanSource = await readRepoFile(FRONTEND_OPERATIONS_RENDERERS_SPLIT_PLAN_PATH)
   const foundationFrontendSource = [
     foundationNavConfigSource,
     foundationDataSource,
     foundationUiSource,
+    foundationOperationsRenderersSource,
     foundationRouterSource,
   ].join('\n')
   const foundationStylesSource = await readRepoFile('public/styles.css')
@@ -5521,7 +5536,7 @@ async function main() {
       foundationBuildLog.summary?.proofLinkedBuilds >= 2 &&
       Array.isArray(foundationBuildLog.groups) &&
       foundationBuildLog.groups.some(day => Array.isArray(day.systemGroups) && day.systemGroups.length) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderBuildGroups',
         'renderBuildBacklogLinks',
         'Grouped by day and system',
@@ -7499,7 +7514,7 @@ async function main() {
       recentBuildsMultiCloseoutApproval.cardId === 'RECENT-BUILDS-MULTI-CLOSEOUT-001' &&
       Number(recentBuildsMultiCloseoutApproval.score) >= 9.8 &&
       Object.values(multiCloseoutCommitGroups).some(count => count >= 3) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'groupBuildsByCommit',
         'renderBuildCommitGroup',
         'Multiple closeouts',
@@ -7659,10 +7674,10 @@ async function main() {
   ensure(
     checks,
     foundationHtmlSource.includes('data-section="build-log">Recent Work</a>') &&
-      foundationUiSource.includes("heroTitle.textContent = 'Recent Work'") &&
-      foundationUiSource.includes("container.innerHTML = '<p>Loading recent work.</p>'") &&
-      foundationUiSource.includes("title: 'KPI source health system'") &&
-      foundationUiSource.includes('14/14 tables plus 5/5 RPCs'),
+      foundationFrontendSource.includes("heroTitle.textContent = 'Recent Work'") &&
+      foundationFrontendSource.includes("container.innerHTML = '<p>Loading recent work.</p>'") &&
+      foundationFrontendSource.includes("title: 'KPI source health system'") &&
+      foundationFrontendSource.includes('14/14 tables plus 5/5 RPCs'),
     'Foundation copy cleanup reflects Recent Work and current KPI health status',
     'Recent Work label and KPI Level 3 health copy present',
   )
@@ -8328,7 +8343,7 @@ async function main() {
         'desktop',
         'mobile',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'No cards are in this stage right now.',
         'Needs human decision',
         'Live diagnostic view for the dashboard',
@@ -8556,7 +8571,7 @@ async function main() {
       Array.isArray(foundationChangeLog.groups?.byType) &&
       Array.isArray(foundationChangeLog.groups?.rawEvidence) &&
       Array.isArray(foundationChangesApi.changes) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'fetchFoundationChangeLog',
         'renderChangeLogHighlights',
         'renderChangeLogSurfaceGroups',
@@ -8649,7 +8664,7 @@ async function main() {
         'data-section="daily-summary"',
         'Daily Summary',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'fetchFoundationDailySummary',
         'renderDailySummary',
         'data-daily-summary-section',
@@ -9109,7 +9124,7 @@ async function main() {
         'getLatestMeetingVaultAutoEnforcementRun',
         'getMeetingVaultLegacyExceptions',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderMeetingVaultAutoEnforcementPanel',
         'Meeting Vault Auto-Enforcement',
         'hub.meetingVaultAutoEnforcement',
@@ -9185,7 +9200,7 @@ async function main() {
         'currentSprint',
         'buildFoundationCurrentSprintStatus',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderCurrentSprintPanel',
         'Current Sprint',
         'done_this_sprint',
@@ -9195,7 +9210,7 @@ async function main() {
         'active Current Sprint move',
         'Sprint Ready requires existing code, docs, scripts, doctrine',
       ]) &&
-      !foundationUiSource.includes('this panel shows the next Phase G command move') &&
+      !foundationFrontendSource.includes('this panel shows the next Phase G command move') &&
       includesAll(foundationStylesSource, [
         '.current-sprint-panel',
         '.current-sprint-board',
@@ -9546,7 +9561,7 @@ async function main() {
       FOUNDATION_CURRENT_SPRINT_STAGES.map(stage => stage.key).join(',') === 'scoping,sprint_ready,building_now,returned,done_this_sprint' &&
       FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('executive summary')) &&
       FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('No Drive permission mutation')) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'Sprint command view',
         'current-sprint-command-grid',
         'current-sprint-board',
@@ -14045,6 +14060,63 @@ async function main() {
     frontendMonolithSplitCard
       ? `lane=${frontendMonolithSplitCard.lane} dogfood=${frontendMonolithDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_MONOLITH_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
       : `missing ${FRONTEND_MONOLITH_SPLIT_CARD_ID}`,
+  )
+  const frontendOperationsRenderersSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_OPERATIONS_RENDERERS_SPLIT_CARD_ID) || null
+  const frontendOperationsRenderersSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_OPERATIONS_RENDERERS_SPLIT_CLOSEOUT_KEY) || null
+  const frontendOperationsScriptOrder = evaluateFrontendOperationsScriptOrder(extractFoundationScriptOrder(foundationHtmlSource))
+  const frontendOperationsDogfood = evaluateFrontendOperationsRendererSplit({
+    foundationSource: foundationUiSource,
+    operationsSource: foundationOperationsRenderersSource,
+    htmlSource: foundationHtmlSource,
+    lineCounts: {
+      before: FRONTEND_OPERATIONS_RENDERERS_SPLIT_BEFORE_LINES,
+      after: frontendUiLineCount,
+    },
+    routeDispatch: {
+      buildLog: true,
+      systemHealth: true,
+      systemActivity: true,
+      dailySummary: true,
+    },
+    helperBehavior: {
+      anchor: true,
+      commitGrouping: true,
+      textList: true,
+      daySelector: true,
+    },
+  })
+  ensure(
+    checks,
+      frontendOperationsRenderersSplitCard &&
+      frontendOperationsRenderersSplitCard.lane === 'done' &&
+      String(frontendOperationsRenderersSplitCard.statusNote || '').includes(FRONTEND_OPERATIONS_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      frontendOperationsRenderersSplitCloseout?.operatorCloseout === true &&
+      (frontendOperationsRenderersSplitCloseout.backlogIds || []).includes(FRONTEND_OPERATIONS_RENDERERS_SPLIT_CARD_ID) &&
+      frontendOperationsScriptOrder.ok === true &&
+      frontendOperationsDogfood.ok === true &&
+      packageJson.scripts?.['process:frontend-operations-renderers-split-check'] === `node --env-file-if-exists=.env ${FRONTEND_OPERATIONS_RENDERERS_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FRONTEND_OPERATIONS_RENDERERS_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FRONTEND_OPERATIONS_RENDERERS_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-frontend-operations-renderers-split-closeout.md') &&
+      foundationOperationsRenderersSource.includes('function renderDataHealth()') &&
+      foundationOperationsRenderersSource.includes('function renderSystemActivity()') &&
+      foundationOperationsRenderersSource.includes('function renderDailySummary()') &&
+      foundationOperationsRenderersSource.includes('function renderBuildLog()') &&
+      !foundationUiSource.includes('function renderDataHealth()') &&
+      !foundationUiSource.includes('function renderDailySummary()') &&
+      !foundationUiSource.includes('function renderBuildLog()') &&
+      frontendOperationsRenderersSplitScriptSource.includes('runOperationsBrowserDogfood') &&
+      frontendOperationsRenderersSplitScriptSource.includes('VM router dispatch reaches extracted operations renderers') &&
+      frontendOperationsRenderersSplitPlanSource.includes('read-only by default') &&
+      currentPlan.includes(FRONTEND_OPERATIONS_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FRONTEND_OPERATIONS_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FRONTEND_OPERATIONS_RENDERERS_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FRONTEND_OPERATIONS_RENDERERS_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FRONTEND_OPERATIONS_RENDERERS_SPLIT_CARD_ID),
+    'FRONTEND-OPERATIONS-RENDERERS-SPLIT-001 splits Foundation operations renderers out of public/foundation.js',
+    frontendOperationsRenderersSplitCard
+      ? `lane=${frontendOperationsRenderersSplitCard.lane} dogfood=${frontendOperationsDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_OPERATIONS_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
+      : `missing ${FRONTEND_OPERATIONS_RENDERERS_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
