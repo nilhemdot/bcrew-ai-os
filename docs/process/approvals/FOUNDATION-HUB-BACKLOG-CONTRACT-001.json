@@ -1,0 +1,13 @@
+{
+  "cardId": "FOUNDATION-HUB-BACKLOG-CONTRACT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T03:10:00.000Z",
+  "approvalSource": "Steve instructed Codex to keep going overnight on Foundation work that does not need him; Codex selected a bounded Foundation Hub backlog payload contract sprint from the current cleanup queue.",
+  "notes": "Approval is for a read-only default Foundation Hub backlog payload contract. No hub feature work, no Marketing live routes, no paid auth, no broad frontend redesign.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/foundation-hub-backlog-contract-001-plan.md",
+  "approvedPlanSha256": "9b641de346746877e1388a8f2d63f62530b3c04913314424a19054a92960b1b9",
+  "approvedRepoHead": "9ff4a7c12b3139d8af5edf0b763aac5c32c886b7",
+  "approvalDigest": "5369ef6ababd15c5f2b5dc0e1bf3ca693f94dc1366851d08e707cb0b9ef103ad"
+}

@@ -234,6 +234,9 @@ import {
   compactFoundationReviewSprintSnapshot,
   compactResearchCurationSnapshot,
 } from './lib/foundation-hub-summary-payload.js'
+import {
+  buildFoundationHubBacklogContract,
+} from './lib/foundation-hub-backlog-contract.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -5068,6 +5071,9 @@ function sendFoundationHubPayload(res, payload, { mode, startedAtMs }) {
 
 async function buildFoundationHubSummaryPayload() {
   const snapshot = await getFoundationCoreSnapshot()
+  const backlogContract = buildFoundationHubBacklogContract({
+    backlogItems: snapshot.backlogItems || [],
+  })
   const backlogHygiene = buildBacklogHygieneSnapshot({
     backlogItems: snapshot.backlogItems || [],
     closeouts: getFoundationBuildCloseouts(),
@@ -5110,6 +5116,8 @@ async function buildFoundationHubSummaryPayload() {
 
   return {
     ...snapshot,
+    backlogItems: backlogContract.backlogItems,
+    backlogContract: backlogContract.backlogContract,
     foundationHubView: buildFoundationHubSummaryInfo(),
     backlogHygiene,
     foundation1100Review,

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.40 - Foundation Ready Safe Hub Lane closed
+Version: v6.41 - Foundation Hub Backlog Contract closed
 Status: Active
 
 Use this doc for one question:
@@ -73,20 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Ready Safe Hub Lane
+## Current Sprint: Foundation Hub Backlog Contract
 
-Live sprint ID: `foundation-ready-safe-hub-lane-2026-05-15`.
+Live sprint ID: `foundation-hub-backlog-contract-2026-05-15`.
 
-This sprint is closed under `foundation-ready-safe-hub-lane-v1`. It creates the safe lane Steve needs for hub work while Foundation sprints continue: hubs can consume read-only Foundation source health, use hub-owned fixtures, and request shared route/server changes without editing shared files directly.
+This sprint is closed under `foundation-hub-backlog-contract-v1`. It keeps the default Foundation Hub route fast as the backlog grows by making `backlogItems` an explicit thin contract instead of a full long-note dump.
 
 The sprint order:
 
-1. `HUB-CONSUMER-CONTRACT-001` - done under `foundation-ready-safe-hub-lane-v1`; `foundation-hub-consumer-contract.v1` exposes read-only source-health payloads to Sales, Ops, Marketing, and Strategy.
-2. `HUB-SANDBOX-WORKFLOW-001` - done under `foundation-ready-safe-hub-lane-v1`; hub chats can work against hub-owned fixtures while Foundation remains protected.
-3. `SHARED-FILE-INTEGRATION-GATE-001` - done under `foundation-ready-safe-hub-lane-v1`; `requestedSharedFiles` fail with `integrationRequired` until main-session coordination approves them.
-4. `SOURCE-TO-HUB-PROOF-001` - done under `foundation-ready-safe-hub-lane-v1`; real connector uptime/source health builds valid read-only hub contracts with source IDs for every hub.
+1. `FOUNDATION-HUB-BACKLOG-CONTRACT-001` - done under `foundation-hub-backlog-contract-v1`; default `/api/foundation-hub` now exposes `foundation-hub-backlog.contract.v1`, preserves all 455 card identities/counts, shrinks live default backlog rows from 635,887B to 344,296B, and measures the route at 470,134B / 72ms in focused proof.
 
-The approved safe hub lane sprint is complete. If Steve wants Marketing Video Lab live, main Foundation should review the preserved WIP route request and integrate only the minimal shared route/security patch through this gate. If Steve is unavailable, continue Foundation cleanup that does not need auth or product decisions.
+The approved sprint is complete. If Steve is unavailable, continue no-auth Foundation cleanup. Good candidates are another verifier module split, server route ownership split, or a dedicated backlog-detail endpoint if the UI needs rich card expansion without loading full diagnostics.
+
+Previous completed sprint: `foundation-ready-safe-hub-lane-2026-05-15`, closed under `foundation-ready-safe-hub-lane-v1`. It creates the safe lane Steve needs for hub work while Foundation sprints continue: hubs can consume read-only Foundation source health, use hub-owned fixtures, and request shared route/server changes without editing shared files directly. `HUB-CONSUMER-CONTRACT-001`, `HUB-SANDBOX-WORKFLOW-001`, `SHARED-FILE-INTEGRATION-GATE-001`, and `SOURCE-TO-HUB-PROOF-001` are done under this closeout.
 
 Previous completed sprint: `foundation-ship-gate-verifier-tightening-2026-05-15`, closed under `foundation-ship-gate-tightening-v1`. It reduces Foundation ship-gate friction without hiding risk: `foundation:verify` now has additive failure-only and JSON summary modes, closeout validation rejects owned/context card overlap, and route-budget verifier behavior is split into `lib/foundation-route-budget-verifier.js`.
 

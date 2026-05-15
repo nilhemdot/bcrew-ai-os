@@ -178,6 +178,16 @@ import {
   validateHubConsumerContractPayload,
 } from '../lib/hub-consumer-contract.js'
 import {
+  FOUNDATION_HUB_BACKLOG_CONTRACT_CARD_ID,
+  FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY,
+  FOUNDATION_HUB_BACKLOG_CONTRACT_DEFAULT_ROUTE_BUDGET_BYTES,
+  FOUNDATION_HUB_BACKLOG_CONTRACT_SCRIPT_PATH,
+  FOUNDATION_HUB_BACKLOG_CONTRACT_SPRINT_ID,
+  FOUNDATION_HUB_BACKLOG_CONTRACT_VERSION,
+  buildFoundationHubBacklogContractDogfoodProof,
+  validateFoundationHubBacklogContract,
+} from '../lib/foundation-hub-backlog-contract.js'
+import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
   PLAIN_ENGLISH_SWEEP_CARD_ID,
@@ -1076,6 +1086,10 @@ const FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'HUB-SANDBOX-WORKFLOW-001',
   'SHARED-FILE-INTEGRATION-GATE-001',
   'SOURCE-TO-HUB-PROOF-001',
+]
+
+const FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'FOUNDATION-HUB-BACKLOG-CONTRACT-001',
 ]
 
 const execFile = promisify(execFileCallback)
@@ -3841,6 +3855,7 @@ async function main() {
   const hubWorkCoordinationCloseout = foundationBuildCloseouts.find(closeout => closeout.key === HUB_WORK_COORDINATION_CLOSEOUT_KEY) || null
   const sourceOutageBoundaryCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_OUTAGE_BOUNDARY_CLOSEOUT_KEY) || null
   const foundationReadySafeHubLaneCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) || null
+  const foundationHubBacklogContractCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) || null
   const foundationOperatingReliabilityCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
@@ -13670,12 +13685,41 @@ async function main() {
       await repoFileExists('scripts/process-foundation-ready-safe-hub-lane-check.mjs') &&
       currentPlan.includes(FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) &&
       currentState.includes(FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) &&
-      activeFoundationSprint.sprint?.sprintId === FOUNDATION_READY_SAFE_HUB_LANE_SPRINT_ID &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_READY_SAFE_HUB_LANE_SPRINT_ID ||
+        activeSprintAtOrPast(FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
       includesAll(foundationVerifySource, FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'Foundation Ready Safe Hub Lane lets hubs consume read-only source health without shared-file drift',
     foundationReadySafeHubLaneCards.every(Boolean)
       ? `cards=${foundationReadySafeHubLaneCards.map(card => `${card.id}:${card.lane}`).join(', ')} fixtures=${foundationReadySafeHubLaneFixtureValidations.every(validation => validation.ok)} live=${foundationReadySafeHubLaneLiveValidations.every(validation => validation.ok)}`
       : `missing ${FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.filter((id, index) => !foundationReadySafeHubLaneCards[index]).join(', ')}`,
+  )
+  const foundationHubBacklogContractCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_HUB_BACKLOG_CONTRACT_CARD_ID) || null
+  const foundationHubBacklogContractDogfood = buildFoundationHubBacklogContractDogfoodProof()
+  const foundationHubBacklogRouteValidation = validateFoundationHubBacklogContract({
+    backlogItems: foundationHubSummary.backlogItems || [],
+    backlogContract: foundationHubSummary.backlogContract || {},
+  })
+  ensure(
+    checks,
+      foundationHubBacklogContractCard &&
+      foundationHubBacklogContractCard.lane === 'done' &&
+      String(foundationHubBacklogContractCard.statusNote || '').includes(FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) &&
+      foundationHubBacklogContractCloseout?.operatorCloseout === true &&
+      includesAll(foundationHubBacklogContractCloseout.backlogIds || [], FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
+      foundationHubBacklogContractDogfood.ok === true &&
+      foundationHubBacklogRouteValidation.ok === true &&
+      foundationHubSummary.backlogContract?.contractVersion === FOUNDATION_HUB_BACKLOG_CONTRACT_VERSION &&
+      foundationHubSummary.backlogContract?.fullPayloadCompacted === true &&
+      foundationHubSummary.foundationHubPerformance?.payloadBytes < FOUNDATION_HUB_BACKLOG_CONTRACT_DEFAULT_ROUTE_BUDGET_BYTES &&
+      packageJson.scripts?.['process:foundation-hub-backlog-contract-check'] === `node --env-file-if-exists=.env ${FOUNDATION_HUB_BACKLOG_CONTRACT_SCRIPT_PATH}` &&
+      currentPlan.includes(FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) &&
+      activeFoundationSprint.sprint?.sprintId === FOUNDATION_HUB_BACKLOG_CONTRACT_SPRINT_ID &&
+      includesAll(foundationVerifySource, FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'Foundation Hub default backlog payload uses a thin contract while full diagnostics keep detail',
+    foundationHubBacklogContractCard
+      ? `lane=${foundationHubBacklogContractCard.lane} dogfood=${foundationHubBacklogContractDogfood.ok ? 'pass' : 'blocked'} routeRows=${foundationHubSummary.backlogItems?.length || 0} bytes=${foundationHubSummary.foundationHubPerformance?.payloadBytes || 'missing'}`
+      : `missing ${FOUNDATION_HUB_BACKLOG_CONTRACT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
