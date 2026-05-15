@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-SERVER-ROUTE-SPLIT-MODULE-001",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T13:17:28.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-server-route-split-module-001-plan.md",
+  "approvedPlanSha256": "8904188f36b904baf03534d7457e8efd3318f1a3bc44fb0946ea4d894aea8dec",
+  "approvedRepoHead": "a19621b23dc6f5a63dc72e4a6af4dca2a2dd3fd7",
+  "notes": "Approved as the Verifier Server Route Split Module Sprint. Scope: extract only server-route split verifier checks from scripts/foundation-verify.mjs into lib/foundation-server-route-split-verifier.js with read-only focused dogfood and full ship. Not approved: route behavior changes, broad verifier rewrite, Foundation DB split, hub UI, Marketing live wiring, Build Intel extraction, paid-source auth, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "a297e44b80b56af8570b5981bff010b678a06d2ace81e57e8f5908477a0f7231"
+}

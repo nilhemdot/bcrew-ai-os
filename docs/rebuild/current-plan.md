@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.67 - KPI health API cache sprint
+Version: v6.68 - Verifier server-route split module sprint
 Status: Active
 
 Use this doc for one question:
@@ -73,17 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: KPI Health API Cache
+## Current Sprint: Verifier Server-Route Split Module
 
-Live sprint ID: `kpi-health-api-cache-2026-05-15`.
+Live sprint ID: `verifier-server-route-split-module-2026-05-15`.
 
-This sprint is active under `kpi-health-api-cache-v1`. It finishes the KPI health request-path boundary so source/hub routes use cached/degraded KPI health and individual Supabase probes have explicit timeout behavior.
+This sprint is active under `verifier-server-route-split-module-v1`. It extracts the already-shipped server route split verifier proof domain from `scripts/foundation-verify.mjs` into a focused verifier module without changing route behavior.
 
 Active card:
 
-1. `KPI-HEALTH-API-CACHE-001` - building under `kpi-health-api-cache-v1`. V1 adds a bounded KPI Supabase fetch timeout, keeps source/hub request paths on `getCachedSafeKpiHealthSnapshot()`, and dogfoods that a slow KPI provider aborts quickly instead of hanging Foundation or hub routes.
+1. `VERIFIER-SERVER-ROUTE-SPLIT-MODULE-001` - building under `verifier-server-route-split-module-v1`. V1 moves the server-route split proof predicates into `lib/foundation-server-route-split-verifier.js`, keeps `scripts/foundation-verify.mjs` as the thin caller, and dogfoods that missing modules, old inline server routes, missing registrars, moved out-of-scope routes, and weak substring-only proof scripts fail closed.
 
-Not next: KPI writes, Sales/Marketing/Ops hub feature work, Supabase schema redesign, Marketing Video Lab live route wiring, broad source extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: route behavior changes, auth/session changes, hub feature work, Marketing Video Lab live route wiring, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `kpi-health-api-cache-2026-05-15`, closed under `kpi-health-api-cache-v1`. `KPI-HEALTH-API-CACHE-001` bounded KPI/Supabase health probes with an explicit timeout, kept source/hub request paths on cached safe KPI health, and dogfooded that a slow KPI provider aborts quickly instead of hanging Foundation or hub routes.
 
 Previous completed sprint: `db-seed-2026-05-15`, closed under `db-seed-v1`. `DB-SEED-001` split backlog seed truth out of `lib/foundation-db.js` into `lib/foundation-backlog-seed.js`, added report-only seed-governance proof, and reduced `lib/foundation-db.js` from about `17,852` to `13,200` lines without treating seed files as live truth.
 
