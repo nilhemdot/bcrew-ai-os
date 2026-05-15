@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.56 - Verifier frontend split checks module closed
+Version: v6.57 - FUB source route split closing
 Status: Active
 
 Use this doc for one question:
@@ -73,17 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Verifier Frontend Split Checks Module
+## Current Sprint: FUB Source Route Split
 
-Live sprint ID: `verifier-frontend-split-checks-module-2026-05-15`.
+Live sprint ID: `fub-source-route-split-2026-05-15`.
 
-This sprint is closed under `verifier-frontend-split-checks-module-v1`. It extracts the already-shipped frontend split verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-frontend-split-verifier.js` without changing the canonical frontend split PASS/FAIL rows or product behavior.
+This sprint is closing under `fub-source-route-split-v1`. It extracts the no-auth FUB source-control route cluster out of `server.js` into `lib/fub-source-routes.js` without changing validation behavior, calling live FUB success-path refreshes in proof, or touching hub feature work.
 
 The sprint order:
 
-1. `FRONTEND-DECISION-QUESTION-RENDERERS-SPLIT-001` - done under `frontend-decision-question-renderers-split-v1`; decision memory cards, parking-lot capture cards, open-question cards, decision review grouping, decision/open-question create and editor controls, pending doc-update cards, and supporting decision/question helpers now live in `public/foundation-decision-question-renderers.js`. Focused proof executes the split scripts in a VM-backed fake browser, proves decision card rendering, decision review rendering, pending doc-update rendering, open-question group/card rendering, create/editor controls, synthetic route render, rejects missing/wrong Decisions / Open Questions module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from about `6,348` to `4,910` lines for this slice.
+1. `FUB-SOURCE-ROUTE-SPLIT-001` - closing under `fub-source-route-split-v1`; `GET /api/fub/health`, `GET /api/fub/person`, `GET /api/fub/lead-sources`, `POST /api/fub/lead-sources/refresh`, `PATCH /api/fub/lead-sources`, and `POST /api/fub/request` now register through `lib/fub-source-routes.js` while `server.js` delegates through `registerFubSourceRoutes()`. Focused proof validates invalid route behavior only, rejects missing module / old inline route / missing registrar / mutating-proof failures, keeps route validation under budget, and reduces `server.js` from `7,136` to about `6,832` lines for this slice.
 
-Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, Foundation Hub/source-of-truth contract changes, Backlog, Action Review, Data Sources, strategy-doc split, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: FUB feature work, Sales/Ops/Marketing hub changes, live FUB refresh success-path proof, broad `server.js` refactor, broad API redesign, package/dependency changes beyond the focused proof script, Build Intel extraction, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `verifier-frontend-split-checks-module-2026-05-15`, closed under `verifier-frontend-split-checks-module-v1`. It extracted the already-shipped frontend split verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-frontend-split-verifier.js` without changing the canonical frontend split PASS/FAIL rows or product behavior.
+
+Previous completed sprint: `frontend-decision-question-renderers-split-2026-05-15`, closed under `frontend-decision-question-renderers-split-v1`. It extracted the Foundation Decisions / Open Questions renderer cluster out of `public/foundation.js` into `public/foundation-decision-question-renderers.js` and reduced `public/foundation.js` from about `6,348` to `4,910` lines for that slice.
 
 Previous completed sprint: `frontend-current-state-renderers-split-2026-05-15`, closed under `frontend-current-state-renderers-split-v1`. It extracted the Foundation Overview / Current State renderer cluster out of `public/foundation.js` into `public/foundation-current-state-renderers.js` and reduced `public/foundation.js` from about `7,710` to `6,348` lines.
 

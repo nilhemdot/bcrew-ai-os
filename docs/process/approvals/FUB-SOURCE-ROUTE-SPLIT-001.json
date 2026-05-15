@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FUB-SOURCE-ROUTE-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T08:22:08.193Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/fub-source-route-split-001-plan.md",
+  "approvedPlanSha256": "e994c5d1e501a8c9b16ec731cd49b17f2856f6137046d89d7d9e5c7cc3b07971",
+  "approvedRepoHead": "7700560508761ebf4d5a0bc49dc9b128c501c345",
+  "notes": "Approved as a no-auth Foundation cleanup continuation. Scope: extract FUB source-control routes from server.js into lib/fub-source-routes.js with read-only dogfood proof, no behavior changes, no live refresh, and full Foundation ship. Not approved: FUB business logic changes, Marketing Video Lab wiring, hub UI work, paid-source auth, source extraction, auth/session route changes, Drive permissions, Meeting Vault Phase B, or autonomous dev.",
+  "approvalDigest": "0e2f8e14bd8e26b5f82abb03fa6525773b46aa0dbef00cac01adcea437507ea8"
+}

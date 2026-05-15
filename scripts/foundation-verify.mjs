@@ -138,6 +138,16 @@ import {
   evaluateFoundationRouteSplitVerifier,
 } from '../lib/foundation-route-split-verifier.js'
 import {
+  FUB_SOURCE_ROUTE_SPLIT_APPROVAL_PATH,
+  FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES,
+  FUB_SOURCE_ROUTE_SPLIT_CARD_ID,
+  FUB_SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY,
+  FUB_SOURCE_ROUTE_SPLIT_PLAN_PATH,
+  FUB_SOURCE_ROUTE_SPLIT_SCRIPT_PATH,
+  FUB_SOURCE_ROUTE_SPLIT_SPRINT_ID,
+  buildFubSourceRouteSplitDogfoodProof,
+} from '../lib/fub-source-routes.js'
+import {
   buildFoundationVerifyCheckOutput,
   buildFoundationVerifyJsonSummary,
   buildFoundationVerifyReporterDogfoodProof,
@@ -2257,6 +2267,9 @@ async function main() {
   const foundationBuildIntelRoutesSource = await readRepoFile('lib/foundation-build-intel-routes.js')
   const buildIntelRouteSplitScriptSource = await readRepoFile('scripts/process-build-intel-route-split-check.mjs')
   const buildIntelRouteSplitPlanSource = await readRepoFile('docs/process/build-intel-route-split-001-plan.md')
+  const fubSourceRoutesSource = await readRepoFile('lib/fub-source-routes.js')
+  const fubSourceRouteSplitScriptSource = await readRepoFile(FUB_SOURCE_ROUTE_SPLIT_SCRIPT_PATH)
+  const fubSourceRouteSplitPlanSource = await readRepoFile(FUB_SOURCE_ROUTE_SPLIT_PLAN_PATH)
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
@@ -2988,15 +3001,17 @@ async function main() {
       "app.post('/api/intelligence/evidence', requireAdminToken",
       "app.get('/api/ops-hub', requireAdminToken",
       "app.get('/api/doc', requireAdminToken",
-      "app.get('/api/fub/health', requireAdminToken",
-      "app.get('/api/fub/person', requireAdminToken",
-      "app.get('/api/fub/lead-sources', requireAdminToken",
       "app.get('/api/owners/lead-source-governance', requireAdminToken",
       "app.get('/api/owners/review-queue', requireAdminToken",
       "app.get('/api/sheets/structure-status', requireAdminToken",
       "app.get('/api/system-inventory', requireAdminToken",
       "app.get('/foundation/export/strategy.pdf', requireAdminToken",
     ].every(pattern => serverSource.includes(pattern)) &&
+      [
+        "app.get('/api/fub/health', requireAdminToken",
+        "app.get('/api/fub/person', requireAdminToken",
+        "app.get('/api/fub/lead-sources', requireAdminToken",
+      ].every(pattern => fubSourceRoutesSource.includes(pattern)) &&
       [
         "app.get('/api/foundation/changes', requireAdminToken",
         "app.get('/api/foundation/change-log', requireAdminToken",
@@ -3072,8 +3087,8 @@ async function main() {
   )
   ensure(
     checks,
-    serverSource.includes('FUB_PROXY_ALLOW_MUTATION') &&
-      serverSource.includes("normalizedMethod !== 'GET'"),
+    fubSourceRoutesSource.includes('FUB_PROXY_ALLOW_MUTATION') &&
+      fubSourceRoutesSource.includes("normalizedMethod !== 'GET'"),
     'generic FUB proxy mutations are off by default',
     'broad FUB proxy allows reads but requires explicit supervised env flag for POST/PUT/PATCH/DELETE',
   )
@@ -14092,6 +14107,46 @@ async function main() {
     verifierRouteSplitModuleCard
       ? `lane=${verifierRouteSplitModuleCard.lane} dogfood=${verifierRouteSplitModuleDogfood.ok ? 'pass' : 'blocked'} routeSplitChecks=${routeSplitVerifierResult.summary.passed}/${routeSplitVerifierResult.summary.total}`
       : `missing ${VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID}`,
+  )
+  const fubSourceRouteSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FUB_SOURCE_ROUTE_SPLIT_CARD_ID) || null
+  const fubSourceRouteSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FUB_SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) || null
+  const fubSourceRouteSplitDogfood = buildFubSourceRouteSplitDogfoodProof({
+    serverSource,
+    moduleSource: fubSourceRoutesSource,
+    proofScriptSource: fubSourceRouteSplitScriptSource,
+  })
+  const serverLineCountAfterFubRouteSplit = String(serverSource || '').split('\n').length
+  ensure(
+    checks,
+      fubSourceRouteSplitCard &&
+      ['executing', 'done'].includes(fubSourceRouteSplitCard.lane) &&
+      String(fubSourceRouteSplitCard.statusNote || '').includes(FUB_SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      fubSourceRouteSplitCloseout?.operatorCloseout === true &&
+      (fubSourceRouteSplitCloseout.backlogIds || []).includes(FUB_SOURCE_ROUTE_SPLIT_CARD_ID) &&
+      fubSourceRouteSplitDogfood.ok === true &&
+      packageJson.scripts?.['process:fub-source-route-split-check'] === `node --env-file-if-exists=.env ${FUB_SOURCE_ROUTE_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FUB_SOURCE_ROUTE_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FUB_SOURCE_ROUTE_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-fub-source-route-split-closeout.md') &&
+      fubSourceRoutesSource.includes('registerFubSourceRoutes') &&
+      fubSourceRoutesSource.includes("app.get('/api/fub/health'") &&
+      fubSourceRoutesSource.includes("app.post('/api/fub/request'") &&
+      fubSourceRouteSplitScriptSource.includes('moved validation routes still reject invalid requests') &&
+      fubSourceRouteSplitPlanSource.includes('no success-path FUB refresh/lead-source sync is called by the proof') &&
+      serverSource.includes('registerFubSourceRoutes(app') &&
+      !serverSource.includes("app.get('/api/fub/health'") &&
+      !serverSource.includes("app.get('/api/fub/person'") &&
+      !serverSource.includes("app.post('/api/fub/request'") &&
+      serverLineCountAfterFubRouteSplit < FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES &&
+      currentPlan.includes(FUB_SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FUB_SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FUB_SOURCE_ROUTE_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FUB_SOURCE_ROUTE_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FUB_SOURCE_ROUTE_SPLIT_CARD_ID),
+    'FUB-SOURCE-ROUTE-SPLIT-001 extracts FUB source routes into a focused module',
+    fubSourceRouteSplitCard
+      ? `lane=${fubSourceRouteSplitCard.lane} dogfood=${fubSourceRouteSplitDogfood.ok ? 'pass' : 'blocked'} lines=${FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterFubRouteSplit}`
+      : `missing ${FUB_SOURCE_ROUTE_SPLIT_CARD_ID}`,
   )
   const foundationBacklogStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID) || null
   const foundationBacklogStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) || null
