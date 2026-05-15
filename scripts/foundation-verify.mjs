@@ -586,6 +586,17 @@ import {
   evaluateFrontendSourceRegistryScriptOrder,
 } from '../lib/foundation-frontend-source-registry-renderers-split.js'
 import {
+  FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_APPROVAL_PATH,
+  FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_BEFORE_LINES,
+  FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CARD_ID,
+  FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CLOSEOUT_KEY,
+  FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_PLAN_PATH,
+  FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_SCRIPT_PATH,
+  FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_SPRINT_ID,
+  evaluateFrontendFubLeadSourceRendererSplit,
+  evaluateFrontendFubLeadSourceScriptOrder,
+} from '../lib/foundation-frontend-fub-lead-source-renderers-split.js'
+import {
   FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_APPROVAL_PATH,
   FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_BEFORE_LINES,
   FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CARD_ID,
@@ -2129,6 +2140,7 @@ async function main() {
   const foundationNavConfigSource = await readRepoFile('public/foundation-nav-config.js')
   const foundationDataSource = await readRepoFile('public/foundation-data.js')
   const foundationSourceRegistryRenderersSource = await readRepoFile('public/foundation-source-registry-renderers.js')
+  const foundationFubLeadSourceRenderersSource = await readRepoFile('public/foundation-fub-lead-source-renderers.js')
   const foundationSystemInventoryRenderersSource = await readRepoFile('public/foundation-system-inventory-renderers.js')
   const foundationSourceLifecycleRenderersSource = await readRepoFile('public/foundation-source-lifecycle-renderers.js')
   const foundationRuntimeRenderersSource = await readRepoFile('public/foundation-runtime-renderers.js')
@@ -2144,6 +2156,8 @@ async function main() {
   const frontendSourceLifecycleRenderersSplitPlanSource = await readRepoFile(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_PLAN_PATH)
   const frontendSourceRegistryRenderersSplitScriptSource = await readRepoFile(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_SCRIPT_PATH)
   const frontendSourceRegistryRenderersSplitPlanSource = await readRepoFile(FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_PLAN_PATH)
+  const frontendFubLeadSourceRenderersSplitScriptSource = await readRepoFile(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_SCRIPT_PATH)
+  const frontendFubLeadSourceRenderersSplitPlanSource = await readRepoFile(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_PLAN_PATH)
   const frontendSystemInventoryRenderersSplitScriptSource = await readRepoFile(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_SCRIPT_PATH)
   const frontendSystemInventoryRenderersSplitPlanSource = await readRepoFile(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_PLAN_PATH)
   const foundationFrontendSource = [
@@ -2151,6 +2165,7 @@ async function main() {
     foundationDataSource,
     foundationUiSource,
     foundationSourceRegistryRenderersSource,
+    foundationFubLeadSourceRenderersSource,
     foundationSystemInventoryRenderersSource,
     foundationSourceLifecycleRenderersSource,
     foundationRuntimeRenderersSource,
@@ -14369,6 +14384,71 @@ async function main() {
     frontendSourceRegistryRenderersSplitCard
       ? `lane=${frontendSourceRegistryRenderersSplitCard.lane} dogfood=${frontendSourceRegistryDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
       : `missing ${FRONTEND_SOURCE_REGISTRY_RENDERERS_SPLIT_CARD_ID}`,
+  )
+  const frontendFubLeadSourceRenderersSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CARD_ID) || null
+  const frontendFubLeadSourceRenderersSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CLOSEOUT_KEY) || null
+  const frontendFubLeadSourceScriptOrder = evaluateFrontendFubLeadSourceScriptOrder(extractFoundationScriptOrder(foundationHtmlSource))
+  const frontendFubLeadSourceDogfood = evaluateFrontendFubLeadSourceRendererSplit({
+    foundationSource: foundationUiSource,
+    fubLeadSourceSource: foundationFubLeadSourceRenderersSource,
+    sourceRegistrySource: foundationSourceRegistryRenderersSource,
+    dataSource: foundationDataSource,
+    htmlSource: foundationHtmlSource,
+    lineCounts: {
+      before: FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_BEFORE_LINES,
+      after: frontendUiLineCount,
+    },
+    routeGlobals: {
+      manager: true,
+      ownersGovernance: true,
+      state: true,
+      groupOptions: true,
+    },
+    helperBehavior: {
+      tagHelpers: true,
+      groupOrder: true,
+      driftPanel: true,
+      managerRender: true,
+      noLiveMutationOnInitialRender: true,
+    },
+  })
+  ensure(
+    checks,
+      frontendFubLeadSourceRenderersSplitCard &&
+      frontendFubLeadSourceRenderersSplitCard.lane === 'done' &&
+      String(frontendFubLeadSourceRenderersSplitCard.statusNote || '').includes(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      frontendFubLeadSourceRenderersSplitCloseout?.operatorCloseout === true &&
+      (frontendFubLeadSourceRenderersSplitCloseout.backlogIds || []).includes(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CARD_ID) &&
+      frontendFubLeadSourceScriptOrder.ok === true &&
+      frontendFubLeadSourceDogfood.ok === true &&
+      packageJson.scripts?.['process:frontend-fub-lead-source-renderers-split-check'] === `node --env-file-if-exists=.env ${FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-frontend-fub-lead-source-renderers-split-closeout.md') &&
+      foundationFubLeadSourceRenderersSource.includes('function renderFubLeadSourceManagerPanel()') &&
+      foundationFubLeadSourceRenderersSource.includes('function renderOwnersLeadSourceGovernancePanel(loaded)') &&
+      foundationFubLeadSourceRenderersSource.includes('function renderFubLeadSourceDriftPanel(loaded)') &&
+      foundationFubLeadSourceRenderersSource.includes('var fubLeadSourceViewState =') &&
+      foundationFubLeadSourceRenderersSource.includes('var FUB_SOURCE_GROUP_OPTIONS =') &&
+      !foundationUiSource.includes('function renderFubLeadSourceManagerPanel()') &&
+      !foundationUiSource.includes('function renderOwnersLeadSourceGovernancePanel(loaded)') &&
+      !foundationUiSource.includes('function renderFubLeadSourceDriftPanel(loaded)') &&
+      !foundationUiSource.includes('var fubLeadSourceViewState =') &&
+      !foundationUiSource.includes('var FUB_SOURCE_GROUP_OPTIONS =') &&
+      foundationUiSource.includes('renderOwnersLeadSourceGovernancePanel(governance)') &&
+      foundationUiSource.includes('renderFubLeadSourceManagerPanel()') &&
+      frontendFubLeadSourceRenderersSplitScriptSource.includes('runFubLeadSourceBrowserDogfood') &&
+      frontendFubLeadSourceRenderersSplitScriptSource.includes('VM FUB lead-source dispatch reaches extracted renderers') &&
+      frontendFubLeadSourceRenderersSplitPlanSource.includes('read-only by default') &&
+      currentPlan.includes(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CARD_ID),
+    'FRONTEND-FUB-LEAD-SOURCE-RENDERERS-SPLIT-001 splits Foundation FUB lead-source renderers out of public/foundation.js',
+    frontendFubLeadSourceRenderersSplitCard
+      ? `lane=${frontendFubLeadSourceRenderersSplitCard.lane} dogfood=${frontendFubLeadSourceDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
+      : `missing ${FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_CARD_ID}`,
   )
   const frontendSystemInventoryRenderersSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CARD_ID) || null
   const frontendSystemInventoryRenderersSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CLOSEOUT_KEY) || null

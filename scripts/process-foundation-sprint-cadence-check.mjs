@@ -164,6 +164,7 @@ async function main() {
       readText('lib/foundation-current-sprint.js'),
       readText('public/foundation.js'),
       readText('public/foundation-source-registry-renderers.js'),
+      readText('public/foundation-fub-lead-source-renderers.js'),
       readText('public/foundation-system-inventory-renderers.js'),
       readText('public/foundation-source-lifecycle-renderers.js'),
       readText('public/foundation-runtime-renderers.js'),

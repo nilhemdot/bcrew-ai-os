@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FRONTEND-FUB-LEAD-SOURCE-RENDERERS-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T07:19:57.508Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/frontend-fub-lead-source-renderers-split-001-plan.md",
+  "approvedPlanSha256": "cb1242ce6f3b3ac390d64011a79f4f39fecca89e26abf2d470ee7ffb06e34a6a",
+  "approvedRepoHead": "86530cd64050a78fc2a022cd0c3096d8c5f13b32",
+  "notes": "Approved as a no-auth Foundation cleanup continuation. Scope: mechanically extract FUB lead-source taxonomy renderers into public/foundation-fub-lead-source-renderers.js with VM dogfood proof, split-source reviewer updates, route/script budgets, and full Foundation ship. Not approved: FUB API changes, live FUB refresh proof, taxonomy writes, hub feature work, Marketing live wiring, paid-source auth, source extraction, Drive permissions, Meeting Vault Phase B, or autonomous dev.",
+  "approvalDigest": "2d3952dc549cd4ce41cb0e037d9165ce14a21f9bd9a6e9a614cc29a00100a665"
+}

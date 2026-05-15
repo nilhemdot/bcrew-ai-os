@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.52 - Foundation system inventory renderer split closed
+Version: v6.53 - Foundation FUB lead-source renderer split closed
 Status: Active
 
 Use this doc for one question:
@@ -73,19 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation System Inventory Renderer Split
+## Current Sprint: Foundation FUB Lead-Source Renderer Split
 
-Live sprint ID: `frontend-system-inventory-renderers-split-2026-05-15`.
+Live sprint ID: `frontend-fub-lead-source-renderers-split-2026-05-15`.
 
-This sprint is closed under `frontend-system-inventory-renderers-split-v1`. It extracts the Foundation Systems and System Inventory renderer cluster out of `public/foundation.js` into a focused classic browser script without changing renderer behavior, route semantics, CSS, or Foundation API contracts.
+This sprint is closed under `frontend-fub-lead-source-renderers-split-v1`. It extracts the Foundation FUB lead-source taxonomy renderer cluster out of `public/foundation.js` into a focused classic browser script without changing renderer behavior, route semantics, CSS, API contracts, FUB API routes, live refresh behavior, or source taxonomy writes.
 
 The sprint order:
 
-1. `FRONTEND-SYSTEM-INVENTORY-RENDERERS-SPLIT-001` - done under `frontend-system-inventory-renderers-split-v1`; Foundation Systems and System Inventory renderers now live in `public/foundation-system-inventory-renderers.js`. Focused proof executes the split scripts in a VM-backed fake browser, proves Systems helper behavior, System Inventory doc splitting, capability catalog rendering, route globals for `foundation-router.js`, rejects missing/wrong system-inventory-module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from about `9,774` to about `8,388` lines for this slice.
+1. `FRONTEND-FUB-LEAD-SOURCE-RENDERERS-SPLIT-001` - done under `frontend-fub-lead-source-renderers-split-v1`; FUB source group view state, taxonomy order, source tag helpers, drift bucket renderers, Owners lead-source governance panel, FUB source rule editor, and `renderFubLeadSourceManagerPanel()` now live in `public/foundation-fub-lead-source-renderers.js`. Focused proof executes the split scripts in a VM-backed fake browser, proves FUB helper behavior, group ordering, drift panel rendering, manager rendering from synthetic data, no live mutation on initial render, route globals for `foundation-router.js`, rejects missing/wrong FUB module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from about `8,388` to `7,710` lines for this slice.
 
-Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, FUB lead-source manager, Backlog, Decision, Open Questions, Daily Summary, Build Log, Current State split, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, live FUB refresh proof, source taxonomy writes, Source APIs route ownership split, Backlog, Decision, Open Questions, Daily Summary, Build Log, Current State split, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
 
-Previous completed sprint: `frontend-source-registry-renderers-split-2026-05-15`, closed under `frontend-source-registry-renderers-split-v1`. It extracted Data Sources / Source Registry renderers out of `public/foundation.js` into `public/foundation-source-registry-renderers.js` and reduced `public/foundation.js` from about `11,223` to about `9,775` lines.
+Previous completed sprint: `frontend-system-inventory-renderers-split-2026-05-15`, closed under `frontend-system-inventory-renderers-split-v1`. It extracted Foundation Systems and System Inventory renderers out of `public/foundation.js` into `public/foundation-system-inventory-renderers.js` and reduced `public/foundation.js` from about `9,774` to about `8,388` lines.
+
+Previous completed sprint before that: `frontend-source-registry-renderers-split-2026-05-15`, closed under `frontend-source-registry-renderers-split-v1`. It extracted Data Sources / Source Registry renderers out of `public/foundation.js` into `public/foundation-source-registry-renderers.js` and reduced `public/foundation.js` from about `11,223` to about `9,775` lines for that slice.
 
 ## Previous Sprint: Foundation Source Lifecycle Renderer Split
 
