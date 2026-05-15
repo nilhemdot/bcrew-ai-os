@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.61 - Verifier source-contract module active
+Version: v6.62 - Sprint-check historical mode active
 Status: Active
 
 Use this doc for one question:
@@ -73,17 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Process Check Readonly Mode
+## Current Sprint: Sprint Check Historical Mode
 
-Live sprint ID: `process-check-readonly-mode-2026-05-15`.
+Live sprint ID: `sprint-check-historical-mode-2026-05-15`.
 
-This sprint is closed under `process-check-readonly-mode-v1`. It makes process-check scripts safer by default: shared backlog create/update calls now reject process-check writes unless the invocation has explicit write posture, and a focused scanner classifies every `process-*-check.mjs` script as read-only, guarded live mutation, report-only, or historical closeout-only.
+This sprint is closed under `sprint-check-historical-mode-v1`. It makes focused sprint proof scripts historical-aware after closeout: active cards still prove against the active Current Sprint, while closed cards can prove from live done-lane backlog truth plus a matching verified closeout after the active sprint rolls forward.
 
 Completed card:
 
-1. `PROCESS-CHECK-READONLY-MODE-001` - process-check read-only/default mutation posture sweep. Focused proof scans `128` process-check scripts, classifies `93` read-only, `24` guarded live mutation, `4` report-only, and `7` historical closeout-only, and finds `0` unclassified unguarded live mutators. Dogfood rejects a synthetic unguarded raw-sprint-SQL check, accepts a guarded fixture, blocks no-flag backlog writes with `PROCESS_CHECK_WRITE_BLOCKED`, and allows explicit write posture.
+1. `SPRINT-CHECK-HISTORICAL-MODE-001` - historical-aware focused sprint checks. Adds `lib/sprint-check-historical-mode.js`, migrates `scripts/process-check-readonly-mode-check.mjs` from exact active-sprint ID assertion to active-or-verified-closeout proof, adds focused proof and verifier coverage, and keeps the checker read-only by default. Dogfood proves the previous readonly proof now passes after rollover from verified closeout evidence while weak historical fixtures fail closed.
 
-Not next: rewriting every historical process script, running old closeout scripts, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: rewriting every historical process script, adding an `activeSprintAtOrPast` bypass, weakening active Current Sprint checks for current cards, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `process-check-readonly-mode-2026-05-15`, closed under `process-check-readonly-mode-v1`. It makes process-check scripts safer by default: shared backlog create/update calls now reject process-check writes unless the invocation has explicit write posture, and a focused scanner classifies every `process-*-check.mjs` script as read-only, guarded live mutation, report-only, or historical closeout-only.
 
 Previous completed sprint: `foundation-decision-store-split-2026-05-15`, closed under `foundation-decision-store-split-v1`. It extracted only the decision, open-question, and pending-doc-update store domain from `lib/foundation-db.js` into `lib/foundation-decision-store.js`, while preserving the existing public exports from `lib/foundation-db.js`.
 

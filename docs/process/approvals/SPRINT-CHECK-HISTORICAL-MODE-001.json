@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SPRINT-CHECK-HISTORICAL-MODE-001",
+  "approvedBy": "Steve full-steam instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T15:36:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/sprint-check-historical-mode-001-plan.md",
+  "approvedPlanSha256": "1ee37723d36f2526437809de51b499ba4feaa9afcb6688b9e5086b8e56526398",
+  "approvedRepoHead": "76f011c271c87818596b1ca137454f4e8ae3ccfc",
+  "notes": "Approved as the Sprint Check Historical Mode Sprint. Scope: add a reusable active-or-historical sprint proof helper, migrate one real closed proof script to it, dogfood rollover behavior, and add verifier coverage. Not approved: broad historical script rewrite, activeSprintAtOrPast bypass, hub feature work, Marketing live wiring, Build Intel extraction, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "6cd58236d4b2d3d8b718147deb3211b14be691a96593af944a06955770ac6bfa"
+}

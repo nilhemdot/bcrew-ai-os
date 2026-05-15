@@ -16,6 +16,12 @@ import {
   buildProcessCheckReadonlyModeProof,
 } from '../lib/process-check-readonly-mode.js'
 import {
+  overnightCloseoutRecords,
+} from '../lib/foundation-build-closeout-overnight-records.js'
+import {
+  evaluateSprintCheckHistoricalMode,
+} from '../lib/sprint-check-historical-mode.js'
+import {
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
@@ -86,14 +92,22 @@ async function main() {
   const sprintItem = (sprint.items || []).find(item => item.cardId === PROCESS_CHECK_READONLY_MODE_CARD_ID) || null
   const planCriticRuns = await getPlanCriticRunsByCardIds([PROCESS_CHECK_READONLY_MODE_CARD_ID])
   const proof = await buildProcessCheckReadonlyModeProof({ repoRoot })
+  const sprintProofMode = evaluateSprintCheckHistoricalMode({
+    activeSprint: sprint,
+    card,
+    closeouts: overnightCloseoutRecords,
+    cardId: PROCESS_CHECK_READONLY_MODE_CARD_ID,
+    expectedSprintId: PROCESS_CHECK_READONLY_MODE_SPRINT_ID,
+    closeoutKey: PROCESS_CHECK_READONLY_MODE_CLOSEOUT_KEY,
+  })
   await closeFoundationDb()
 
   const planCritic = planCriticRuns.find(run => run.status === 'pass' && Number(run.score) >= 9.8) || null
 
   ensure(checks, approval.ok && Number(approval.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || PROCESS_CHECK_READONLY_MODE_APPROVAL_PATH)
   ensure(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  ensure(checks, sprint.sprint?.sprintId === PROCESS_CHECK_READONLY_MODE_SPRINT_ID, 'Current Sprint is the process-check readonly mode sprint', sprint.sprint?.sprintId || 'missing')
-  ensure(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  ensure(checks, sprintProofMode.ok === true, 'Current or historical sprint proof validates the readonly-mode card', `${sprintProofMode.mode}: ${sprintProofMode.reason}`)
+  ensure(checks, sprintProofMode.mode === 'active_current' || sprintProofMode.mode === 'historical_closeout', 'sprint proof mode is active-current or verified historical closeout', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : sprintProofMode.mode)
   ensure(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
   ensure(checks, proof.ok === true, 'dogfood proof blocks unguarded process-check live mutation', JSON.stringify(proof))
   ensure(checks, proof.unguardedFixture?.protected === false && proof.unguardedFixture?.classification === 'unclassified_live_mutation', 'synthetic unguarded live mutator is rejected', proof.unguardedFixture?.reason || 'missing')
@@ -114,6 +128,7 @@ async function main() {
     closeoutKey: PROCESS_CHECK_READONLY_MODE_CLOSEOUT_KEY,
     checks,
     proof,
+    sprintProofMode,
   }
 
   if (args.json) {

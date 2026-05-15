@@ -50,6 +50,13 @@ import {
   buildProcessCheckReadonlyModeProof,
 } from '../lib/process-check-readonly-mode.js'
 import {
+  SPRINT_CHECK_HISTORICAL_MODE_CARD_ID,
+  SPRINT_CHECK_HISTORICAL_MODE_CLOSEOUT_KEY,
+  SPRINT_CHECK_HISTORICAL_MODE_SCRIPT_PATH,
+  buildSyntheticSprintCheckHistoricalModeProof,
+  processCheckReadonlyProofIsHistoricalAware,
+} from '../lib/sprint-check-historical-mode.js'
+import {
   PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
   buildScheduledMutationGuardDogfoodProof,
   getFoundationJobDefinitions,
@@ -15264,6 +15271,31 @@ async function main() {
     processCheckReadonlyModeCard
       ? `lane=${processCheckReadonlyModeCard.lane} scan=${processCheckReadonlyModeProof.scan?.ok ? 'clean' : 'dirty'} scripts=${processCheckReadonlyModeProof.scan?.scriptCount || 0}`
       : 'missing PROCESS-CHECK-READONLY-MODE-001',
+  )
+  const sprintCheckHistoricalModeCard = (foundationHub.backlogItems || []).find(item => item.id === SPRINT_CHECK_HISTORICAL_MODE_CARD_ID) || null
+  const sprintCheckHistoricalModeProof = buildSyntheticSprintCheckHistoricalModeProof()
+  const sprintCheckHistoricalModeModuleSource = await readRepoFile('lib/sprint-check-historical-mode.js')
+  const sprintCheckHistoricalModeScriptSource = await readRepoFile(SPRINT_CHECK_HISTORICAL_MODE_SCRIPT_PATH)
+  ensure(
+    checks,
+      sprintCheckHistoricalModeCard &&
+      ['executing', 'done'].includes(sprintCheckHistoricalModeCard.lane) &&
+      sprintCheckHistoricalModeProof.ok === true &&
+      sprintCheckHistoricalModeProof.activeCurrent?.mode === 'active_current' &&
+      sprintCheckHistoricalModeProof.historicalPass?.mode === 'historical_closeout' &&
+      sprintCheckHistoricalModeProof.historicalNoCloseout?.ok === false &&
+      sprintCheckHistoricalModeProof.scopedWithCloseout?.ok === false &&
+      processCheckReadonlyProofIsHistoricalAware(processCheckReadonlyModeScriptSource) &&
+      sprintCheckHistoricalModeModuleSource.includes('evaluateSprintCheckHistoricalMode') &&
+      sprintCheckHistoricalModeModuleSource.includes('findVerifiedHistoricalCloseout') &&
+      packageJson.scripts?.['process:sprint-check-historical-mode-check'] === `node --env-file-if-exists=.env ${SPRINT_CHECK_HISTORICAL_MODE_SCRIPT_PATH}` &&
+      sprintCheckHistoricalModeScriptSource.includes('previousSprintMode') &&
+      sprintCheckHistoricalModeScriptSource.includes('historical_closeout') &&
+      foundationVerifySource.includes('SPRINT_CHECK_HISTORICAL_MODE_CLOSEOUT_KEY'),
+    'SPRINT-CHECK-HISTORICAL-MODE-001 keeps focused sprint checks valid after verified closeout rollover',
+    sprintCheckHistoricalModeCard
+      ? `lane=${sprintCheckHistoricalModeCard.lane} active=${sprintCheckHistoricalModeProof.activeCurrent?.mode || 'missing'} historical=${sprintCheckHistoricalModeProof.historicalPass?.mode || 'missing'} readonlyAware=${processCheckReadonlyProofIsHistoricalAware(processCheckReadonlyModeScriptSource) ? 'yes' : 'no'}`
+      : 'missing SPRINT-CHECK-HISTORICAL-MODE-001',
   )
   const processCheckScheduledMutationGuardCard = (foundationHub.backlogItems || []).find(item => item.id === PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID) || null
   const scheduledMutationGuardProof = buildScheduledMutationGuardDogfoodProof()
