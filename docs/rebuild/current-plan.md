@@ -73,17 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Decision Store Split
+## Current Sprint: Process Check Readonly Mode
 
-Live sprint ID: `foundation-decision-store-split-2026-05-15`.
+Live sprint ID: `process-check-readonly-mode-2026-05-15`.
 
-This sprint is closed under `foundation-decision-store-split-v1`. It extracted only the decision, open-question, and pending-doc-update store domain from `lib/foundation-db.js` into `lib/foundation-decision-store.js`, while preserving the existing public exports from `lib/foundation-db.js`.
+This sprint is closed under `process-check-readonly-mode-v1`. It makes process-check scripts safer by default: shared backlog create/update calls now reject process-check writes unless the invocation has explicit write posture, and a focused scanner classifies every `process-*-check.mjs` script as read-only, guarded live mutation, report-only, or historical closeout-only.
 
 Completed card:
 
-1. `FOUNDATION-DB-MONOLITH-SPLIT-002` - decision/doc-update store split. Dogfood proof rejects unsupported decision categories, duplicate/self supersedes IDs, invalid pending doc-update transitions, missing store delegation, and missing change-event metadata terms. The focused proof script is read-only, and `lib/foundation-db.js` dropped from about `18,800` to about `17,852` lines in focused proof.
+1. `PROCESS-CHECK-READONLY-MODE-001` - process-check read-only/default mutation posture sweep. Focused proof scans `128` process-check scripts, classifies `93` read-only, `24` guarded live mutation, `4` report-only, and `7` historical closeout-only, and finds `0` unclassified unguarded live mutators. Dogfood rejects a synthetic unguarded raw-sprint-SQL check, accepts a guarded fixture, blocks no-flag backlog writes with `PROCESS_CHECK_WRITE_BLOCKED`, and allows explicit write posture.
 
-Not next: broad `lib/foundation-db.js` rewrite, schema changes, source crawl/job/intelligence/shared-comms/sales/FUB movement, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: rewriting every historical process script, running old closeout scripts, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `foundation-decision-store-split-2026-05-15`, closed under `foundation-decision-store-split-v1`. It extracted only the decision, open-question, and pending-doc-update store domain from `lib/foundation-db.js` into `lib/foundation-decision-store.js`, while preserving the existing public exports from `lib/foundation-db.js`.
 
 Previous completed sprint: `verifier-source-contracts-module-2026-05-15`, closed under `verifier-source-contracts-module-v1`. It extracted only the source-contract/signoff verifier domain from `scripts/foundation-verify.mjs` into `lib/foundation-source-contract-verifier.js`, while preserving the same canonical PASS/FAIL rows for signed-off Owners, Finance current reality, Freedom range coverage, source-registry truth, and current-state helper/mirror boundaries.
 

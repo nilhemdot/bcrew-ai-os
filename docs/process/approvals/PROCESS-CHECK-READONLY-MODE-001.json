@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PROCESS-CHECK-READONLY-MODE-001",
+  "approvedBy": "Steve full-steam instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T15:15:24.509Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/process-check-readonly-mode-001-plan.md",
+  "approvedPlanSha256": "97641a8fd9aaab998dc957929567383454c393ba417ec7e52f02b041b93d6a17",
+  "approvedRepoHead": "c286a6be97e92f11fa55524154463bc8137a3a6e",
+  "notes": "Approved as the Process Check Readonly Mode Sprint. Scope: classify process-check mutation posture, guard backlog create/update from process-check scripts without explicit write posture, prove synthetic unguarded check writes are blocked, and add verifier coverage. Not approved: broad historical script rewrite, external writes, hub feature work, Marketing live wiring, Build Intel extraction, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "fba74cc6d9cb75545bd517fb91474d3754c27af448d789df6afe9ee69a335ab0"
+}

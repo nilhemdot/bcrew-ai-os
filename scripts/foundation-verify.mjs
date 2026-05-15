@@ -44,6 +44,12 @@ import {
   buildProcessCheckApplyBoundaryDogfoodProof,
 } from '../lib/process-write-guard.js'
 import {
+  PROCESS_CHECK_READONLY_MODE_CARD_ID,
+  PROCESS_CHECK_READONLY_MODE_CLOSEOUT_KEY,
+  PROCESS_CHECK_READONLY_MODE_SCRIPT_PATH,
+  buildProcessCheckReadonlyModeProof,
+} from '../lib/process-check-readonly-mode.js'
+import {
   PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
   buildScheduledMutationGuardDogfoodProof,
   getFoundationJobDefinitions,
@@ -15233,6 +15239,31 @@ async function main() {
     processCheckApplyBoundaryCard
       ? `lane=${processCheckApplyBoundaryCard.lane} noFlag=${processCheckApplyBoundaryProof.blockedNoFlag?.ok ? 'blocked' : 'missing'} apply=${processCheckApplyBoundaryProof.allowedApply?.ok ? 'allowed' : 'blocked'} highRisk=${processCheckApplyBoundaryHighRiskScripts.length}`
       : 'missing PROCESS-CHECK-APPLY-BOUNDARY-001',
+  )
+  const processCheckReadonlyModeCard = (foundationHub.backlogItems || []).find(item => item.id === PROCESS_CHECK_READONLY_MODE_CARD_ID) || null
+  const processCheckReadonlyModeProof = await buildProcessCheckReadonlyModeProof({ repoRoot })
+  const processCheckReadonlyModeModuleSource = await readRepoFile('lib/process-check-readonly-mode.js')
+  const processCheckReadonlyModeScriptSource = await readRepoFile(PROCESS_CHECK_READONLY_MODE_SCRIPT_PATH)
+  ensure(
+    checks,
+      processCheckReadonlyModeCard &&
+      ['executing', 'done'].includes(processCheckReadonlyModeCard.lane) &&
+      processCheckReadonlyModeProof.ok === true &&
+      processCheckReadonlyModeProof.unguardedFixture?.protected === false &&
+      processCheckReadonlyModeProof.guardedFixture?.protected === true &&
+      processCheckReadonlyModeProof.noFlagBlocked?.code === 'PROCESS_CHECK_WRITE_BLOCKED' &&
+      processCheckReadonlyModeProof.explicitAllowed?.ok === true &&
+      processCheckReadonlyModeProof.scan?.ok === true &&
+      processCheckReadonlyModeModuleSource.includes('PROCESS_CHECK_READONLY_LEGACY_CLASSIFICATIONS') &&
+      processCheckReadonlyModeModuleSource.includes('buildProcessCheckReadonlyModeProof') &&
+      foundationBacklogStoreSource.includes('assertCurrentProcessCheckWriteAllowed') &&
+      packageJson.scripts?.['process:process-check-readonly-mode-check'] === `node --env-file-if-exists=.env ${PROCESS_CHECK_READONLY_MODE_SCRIPT_PATH}` &&
+      processCheckReadonlyModeScriptSource.includes('scriptIsReadOnly') &&
+      foundationVerifySource.includes('PROCESS_CHECK_READONLY_MODE_CLOSEOUT_KEY'),
+    'PROCESS-CHECK-READONLY-MODE-001 sweeps legacy process checks and blocks unguarded live mutators',
+    processCheckReadonlyModeCard
+      ? `lane=${processCheckReadonlyModeCard.lane} scan=${processCheckReadonlyModeProof.scan?.ok ? 'clean' : 'dirty'} scripts=${processCheckReadonlyModeProof.scan?.scriptCount || 0}`
+      : 'missing PROCESS-CHECK-READONLY-MODE-001',
   )
   const processCheckScheduledMutationGuardCard = (foundationHub.backlogItems || []).find(item => item.id === PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID) || null
   const scheduledMutationGuardProof = buildScheduledMutationGuardDogfoodProof()
