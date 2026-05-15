@@ -248,6 +248,7 @@ import { registerFubSourceRoutes } from './lib/fub-source-routes.js'
 import { registerFoundationRuntimeReadRoutes } from './lib/foundation-runtime-read-routes.js'
 import { registerAppPageRoutes } from './lib/app-page-routes.js'
 import { registerAuthRoutes } from './lib/auth-routes.js'
+import { registerHubReadRoutes } from './lib/hub-read-routes.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -4070,491 +4071,87 @@ app.get('/api/sheets/structure-status', requireAdminToken, async (_req, res) => 
   }
 })
 
-function sendFoundationHubPayload(res, payload, { mode, startedAtMs }) {
-  const prepared = attachFoundationHubPerformanceMetadata(payload, { mode, startedAtMs })
-  cacheHeadersNoStore(res)
-  res.setHeader('Content-Type', 'application/json; charset=utf-8')
-  res.setHeader('X-Foundation-Hub-Mode', prepared.payload.foundationHubPerformance.mode)
-  res.setHeader('X-Foundation-Hub-Payload-Bytes', String(prepared.bytes))
-  res.send(prepared.json)
-}
-
-async function buildFoundationHubSummaryPayload() {
-  const snapshot = await getFoundationCoreSnapshot()
-  const backlogContract = buildFoundationHubBacklogContract({
-    backlogItems: snapshot.backlogItems || [],
-  })
-  const backlogHygiene = buildBacklogHygieneSnapshot({
-    backlogItems: snapshot.backlogItems || [],
-    closeouts: getFoundationBuildCloseouts(),
-  })
-  const foundation1100Review = compactFoundationReviewSprintSnapshot(buildFoundationReviewSprintStatus({
-    artifact: await loadFoundationReviewSprintArtifact({ repoRoot: __dirname }),
-    backlogItems: snapshot.backlogItems || [],
-    actionRouter: {},
-    hygiene: backlogHygiene,
-  }))
-  const researchCuration = compactResearchCurationSnapshot(buildResearchCurationStatus({
-    backlogItems: snapshot.backlogItems || [],
-    foundationReviewSprint: foundation1100Review,
-  }))
-  const [foundationJobs, workerCode, activeFoundationSprint, decisionAutoEmitScan] = await Promise.all([
-    getFoundationJobRunSnapshot({ limit: 20 }).then(compactFoundationJobRunSnapshot),
-    getFoundationRuntimeStatus('foundation-worker').catch(() => null),
-    getActiveFoundationCurrentSprint(),
-    scanDecisionAutoEmitCandidates({ synthetic: true, cwd: __dirname }).catch(() => ({
-      candidateCount: 0,
-      candidates: [],
-      summary: { status: 'risk', riskFindings: ['Decision Auto-Emit summary unavailable in fast Foundation Hub mode.'] },
-    })),
-  ])
-  const currentSprint = buildFoundationCurrentSprintStatus({
-    sprint: activeFoundationSprint.sprint,
-    items: activeFoundationSprint.items,
-    backlogItems: snapshot.backlogItems || [],
-    closeouts: getFoundationBuildCloseouts(),
-    planCriticRuns: activeFoundationSprint.planCriticRuns || [],
-  })
-  const decisionAutoEmit = {
-    status: decisionAutoEmitScan.candidateCount > 0 ? 'healthy' : 'risk',
-    summary: buildDecisionAutoEmitSummary(decisionAutoEmitScan),
-    candidates: decisionAutoEmitScan.candidates || [],
-    dryRunDefault: true,
-    applyRequired: true,
-    plainEnglish: 'Decision Auto-Emit finds obvious decision language and creates proposed decisions only when apply mode is explicitly used.',
-  }
-
-  return {
-    ...snapshot,
-    backlogItems: backlogContract.backlogItems,
-    backlogContract: backlogContract.backlogContract,
-    foundationHubView: buildFoundationHubSummaryInfo(),
-    backlogHygiene,
-    foundation1100Review,
-    researchCuration,
-    foundationJobs,
-    decisionAutoEmit,
-    currentSprint,
-    runtimeSupervisor: {
-      servedCode: getDashboardRuntimeMetadata(),
-      workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
-    },
-  }
-}
-
-function compactFoundationRun(run = {}) {
-  if (!run || typeof run !== 'object') return null
-  return {
-    runId: run.runId || run.run_id || null,
-    status: run.status || null,
-    generatedAt: run.generatedAt || run.createdAt || run.finishedAt || run.updatedAt || null,
-    startedAt: run.startedAt || run.started_at || null,
-    finishedAt: run.finishedAt || run.finished_at || null,
-    durationMs: run.durationMs || run.duration_ms || null,
-    candidatesRead: run.candidatesRead || run.candidates_read || run.summary?.candidatesRead || null,
-    itemsProduced: run.itemsProduced || run.items_produced || run.summary?.itemsProduced || null,
-  }
-}
-
-function compactSynthesisItem(item = {}) {
-  return {
-    synthesisItemId: item.synthesisItemId,
-    runId: item.runId,
-    rank: item.rank,
-    itemType: item.itemType,
-    status: item.status,
-    title: item.title,
-    oneLine: item.oneLine,
-    whyItMatters: item.whyItMatters,
-    recommendedNextAction: item.recommendedNextAction,
-    suggestedOwner: item.suggestedOwner,
-    sourceCount: item.sourceCount,
-    sourceIds: Array.isArray(item.sourceIds) ? item.sourceIds : [],
-    confidence: item.confidence,
-    sensitivity: item.sensitivity,
-    createdAt: item.createdAt,
-  }
-}
-
-function compactSharedCommunicationSynthesis(synthesis = {}) {
-  if (!synthesis || typeof synthesis !== 'object') return synthesis
-  return {
-    latestRun: compactFoundationRun(synthesis.latestRun),
-    runs: Array.isArray(synthesis.runs) ? synthesis.runs.slice(0, 5).map(compactFoundationRun) : [],
-    latestItems: Array.isArray(synthesis.latestItems) ? synthesis.latestItems.map(compactSynthesisItem) : [],
-    latestTrustedItems: Array.isArray(synthesis.latestTrustedItems) ? synthesis.latestTrustedItems.map(compactSynthesisItem) : [],
-    latestAdvisoryItems: Array.isArray(synthesis.latestAdvisoryItems) ? synthesis.latestAdvisoryItems.map(compactSynthesisItem) : [],
-    verificationSummary: synthesis.verificationSummary || null,
-    fullPayloadCompacted: true,
-  }
-}
-
-function compactLifecycleChild(child = {}) {
-  if (!child || typeof child !== 'object') return child
-  return {
-    status: child.status,
-    cardId: child.cardId,
-    closeoutKey: child.closeoutKey,
-    generatedAt: child.generatedAt,
-    summary: child.summary || null,
-  }
-}
-
-function compactFoundationSourceLifecycle(lifecycle = {}) {
-  if (!lifecycle || typeof lifecycle !== 'object') return lifecycle
-  return {
-    schemaVersion: lifecycle.schemaVersion,
-    generatedAt: lifecycle.generatedAt,
-    cardId: lifecycle.cardId,
-    closeoutKey: lifecycle.closeoutKey,
-    route: lifecycle.route,
-    apiPath: lifecycle.apiPath,
-    definitions: lifecycle.definitions,
-    scope: lifecycle.scope,
-    summary: lifecycle.summary,
-    findings: lifecycle.findings,
-    lanes: lifecycle.lanes,
-    sources: lifecycle.sources,
-    targets: lifecycle.targets,
-    systems: lifecycle.systems,
-    sourceMaturityGrid: compactLifecycleChild(lifecycle.sourceMaturityGrid),
-    sourceCoverageCloseout: compactLifecycleChild(lifecycle.sourceCoverageCloseout),
-    sourceExtractionCoverage: compactLifecycleChild(lifecycle.sourceExtractionCoverage),
-    sourceConnectorMatrix: compactLifecycleChild(lifecycle.sourceConnectorMatrix),
-    sourceHubRoutingMatrix: compactLifecycleChild(lifecycle.sourceHubRoutingMatrix),
-    marketingSourceMap: compactLifecycleChild(lifecycle.marketingSourceMap),
-    brandStack: compactLifecycleChild(lifecycle.brandStack),
-    tierBehavioralCompletion: compactLifecycleChild(lifecycle.tierBehavioralCompletion),
-    verificationRuns: compactLifecycleChild(lifecycle.verificationRuns),
-    perUserChangelog: compactLifecycleChild(lifecycle.perUserChangelog),
-    restrictedDecisionQueue: compactLifecycleChild(lifecycle.restrictedDecisionQueue),
-    foundationUiComplete: compactLifecycleChild(lifecycle.foundationUiComplete),
-    currentSprint: compactLifecycleChild(lifecycle.currentSprint),
-    fullPayloadCompacted: true,
-  }
-}
-
-app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
-  const startedAtMs = Date.now()
-  try {
-    const mode = normalizeFoundationHubMode(req.query?.view || req.query?.mode || req.query?.detail)
-    if (mode === 'summary') {
-      const summaryPayload = await buildFoundationHubSummaryPayload()
-      sendFoundationHubPayload(res, summaryPayload, { mode, startedAtMs })
-      return
-    }
-
-    const snapshot = await getFoundationSnapshot()
-    const kpiHealth = await getCachedSafeKpiHealthSnapshot()
-    const backlogHygiene = buildBacklogHygieneSnapshot({
-      backlogItems: snapshot.backlogItems || [],
-      closeouts: getFoundationBuildCloseouts(),
-    })
-    const foundation1100Review = buildFoundationReviewSprintStatus({
-      artifact: await loadFoundationReviewSprintArtifact({ repoRoot: __dirname }),
-      backlogItems: snapshot.backlogItems || [],
-      actionRouter: snapshot.intelligenceActionRouter || {},
-      hygiene: backlogHygiene,
-    })
-    const docArchiveCleanup = await buildDocArchiveCleanupStatus({ repoRoot: __dirname })
-    const researchCuration = buildResearchCurationStatus({
-      backlogItems: snapshot.backlogItems || [],
-      foundationReviewSprint: foundation1100Review,
-    })
-    const exceptionCuration = await buildExceptionCurationStatus({ repoRoot: __dirname })
-    const hitListReconcile = await buildHitListReconcileStatusFromFile({
-      repoRoot: __dirname,
-      backlogItems: snapshot.backlogItems || [],
-    })
-    const archiveRetire = await buildArchiveRetireStatus({ repoRoot: __dirname })
-    const postShipFanout = await buildPostShipFanoutStatus({
-      closeouts: getFoundationBuildCloseouts(),
-      backlogItems: snapshot.backlogItems || [],
-    })
-    const doctrinePropagation = await buildDoctrinePropagationStatus({
-      repoRoot: __dirname,
-      apply: false,
-    })
-    const gateReliability = await buildSyntheticGateReliabilityProof()
-    const personalWorkspaceBoundary = await buildPersonalWorkspaceBoundaryStatus({
-      repoRoot: __dirname,
-      includeSynthetic: true,
-    })
-    const ceoDashboardPattern = await buildCeoDashboardPatternStatus({
-      repoRoot: __dirname,
-    })
-    const decisionAutoEmitScan = await scanDecisionAutoEmitCandidates({ synthetic: true, cwd: __dirname })
-    const decisionAutoEmit = {
-      status: decisionAutoEmitScan.candidateCount > 0 ? 'healthy' : 'risk',
-      summary: buildDecisionAutoEmitSummary(decisionAutoEmitScan),
-      candidates: decisionAutoEmitScan.candidates,
-      dryRunDefault: true,
-      applyRequired: true,
-      plainEnglish: 'Decision Auto-Emit finds obvious decision language and creates proposed decisions only when apply mode is explicitly used.',
-    }
-    const sheetsApiTrust = await getGoogleSheetsCacheStats()
-    const workerCode = await getFoundationRuntimeStatus('foundation-worker')
-    const sourceLifecycle = buildSourceLifecycleStatus({
-      sources: getSourceContracts(),
-      connectors: getSourceConnectors(),
-      groupedSystems: getGroupedSourceSystems(),
-      extractionControl: snapshot.extractionControl,
-      foundationJobs: getFoundationJobDefinitions(),
-    })
-    const sourceMaturityGrid = buildSourceMaturityGridSnapshot({
-      sources: getSourceContracts(),
-      extractionControl: snapshot.extractionControl,
-      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
-      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis,
-      intelligenceActionRouter: snapshot.intelligenceActionRouter,
-      sourceMaturityOperational: snapshot.sourceMaturityOperational,
-      lifecycle: sourceLifecycle,
-    })
-    sourceLifecycle.sourceMaturityGrid = sourceMaturityGrid
-    const sourceExtractionCoverage = buildSourceExtractionCoverageSnapshot({
-      sources: getSourceContracts(),
-      extractionControl: snapshot.extractionControl,
-      sourceMaturityGrid,
-      lifecycle: sourceLifecycle,
-    })
-    const sourceCoverageCloseout = buildSourceCoverageCloseoutSnapshot({
-      sources: getSourceContracts(),
-      sourceMaturityGrid,
-      sourceExtractionCoverage,
-    })
-    const sourceConnectorMatrix = buildSourceConnectorMatrixSnapshot({
-      sources: getSourceContracts(),
-      connectors: getSourceConnectors(),
-      extractionControl: snapshot.extractionControl,
-      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
-      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis,
-      intelligenceActionRouter: snapshot.intelligenceActionRouter,
-      sourceMaturityOperational: snapshot.sourceMaturityOperational,
-    })
-    const sourceHubRoutingMatrix = buildSourceHubRoutingMatrixSnapshot({
-      connectorMatrix: sourceConnectorMatrix,
-    })
-    sourceLifecycle.sourceCoverageCloseout = sourceCoverageCloseout
-    sourceLifecycle.sourceExtractionCoverage = sourceExtractionCoverage
-    sourceLifecycle.sourceConnectorMatrix = sourceConnectorMatrix
-    sourceLifecycle.sourceHubRoutingMatrix = sourceHubRoutingMatrix
-    const {
-      agentFeedbackAutoSend,
-      agentFeedbackProductionAutoSendDryRun,
-      agentFeedbackReminders,
-      diagnostics: foundationHubFullDiagnostics,
-    } = await buildFoundationHubAgentFeedbackDiagnostics({
-      repoRoot: __dirname,
-      foundationJobs: snapshot.foundationJobs,
-    })
-    const sourceOutageBoundary = buildFoundationHubSourceOutageBoundary({
-      agentFeedbackAutoSend,
-      agentFeedbackProductionAutoSendDryRun,
-      agentFeedbackReminders,
-    })
-    const [
-      latestMeetingVaultAutoEnforcementRun,
-      meetingVaultLegacyExceptions,
-    ] = await Promise.all([
-      getLatestMeetingVaultAutoEnforcementRun().catch(() => null),
-      getMeetingVaultLegacyExceptions({ limit: 50, status: 'open' }).catch(() => []),
-    ])
-    const meetingVaultAutoEnforcement = {
-      status: latestMeetingVaultAutoEnforcementRun?.status || 'missing',
-      latestRun: latestMeetingVaultAutoEnforcementRun,
-      legacyExceptions: meetingVaultLegacyExceptions,
-      summary: latestMeetingVaultAutoEnforcementRun?.summary?.summary || latestMeetingVaultAutoEnforcementRun?.summary || {},
-      plainEnglish: latestMeetingVaultAutoEnforcementRun?.canCloseMeetingVaultAcl
-        ? 'Automatic Meeting Vault forward-flow proof is green; historical messy files are bounded in the legacy exception queue.'
-        : 'Automatic Meeting Vault forward-flow proof is missing or blocked; keep MEETING-VAULT-ACL-001 blocking.',
-    }
-    const runtimeProcessControl = await buildRuntimeProcessControlApiSnapshot(snapshot)
-    const activeFoundationSprint = await getActiveFoundationCurrentSprint()
-    const currentSprint = buildFoundationCurrentSprintStatus({
-      sprint: activeFoundationSprint.sprint,
-      items: activeFoundationSprint.items,
-      backlogItems: snapshot.backlogItems || [],
-      closeouts: getFoundationBuildCloseouts(),
-      planCriticRuns: activeFoundationSprint.planCriticRuns || [],
-    })
-    const marketingAvatarRegistry = buildMarketingAvatarImportSnapshot({
-      referenceBriefText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_REFERENCE_BRIEF_PATH)) || '',
-      retainProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_RETAIN_SOURCE_PATH)) || '',
-      attractProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_ATTRACT_SOURCE_PATH)) || '',
-      oldReadmeText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_OLD_README_PATH)) || '',
-    })
-    const marketingSourceMap = buildMarketingSourceMapSnapshot({
-      sourceContracts: getSourceContracts(),
-      avatarRegistry: marketingAvatarRegistry,
-      sourceNoteText: readFileSafe(path.join(__dirname, MARKETING_SOURCE_MAP_NOTE_PATH)) || '',
-    })
-    const brandStack = buildBrandStackSnapshot({ marketingSourceMap })
-    const tierBehavioralCompletion = buildTierBehavioralCompletionSnapshot()
-    const verificationRuns = buildVerificationRunsSnapshot({
-      backlogItems: snapshot.backlogItems || [],
-      researchCuration,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis || {},
-      intelligenceActionRouter: snapshot.intelligenceActionRouter || {},
-      backlogHygiene,
-    })
-    const perUserChangelog = buildPerUserChangelogSnapshot({
-      users: snapshot.users || [],
-      changeEvents: await getRecentChangeEvents(100),
-      limit: 100,
-    })
-    const restrictedDecisionQueue = buildDecisionRestrictedQueueSnapshot({
-      decisions: snapshot.decisions || [],
-    })
-    const buildIntelWatchlist = buildCreatorWatchlistSnapshot()
-    const multimodalExtractorContract = buildMultimodalExtractorContractSnapshot()
-    const researchInboxContract = buildResearchInboxContractSnapshot()
-    const [foundationFeedbackItems, foundationAckStates] = await Promise.all([
-      listFoundationFeedbackItems({ limit: 50 }).catch(() => []),
-      listFoundationAcknowledgedStates({ limit: 50 }).catch(() => []),
-    ])
-    const foundationControlCompression = buildFoundationControlCompressionSnapshot({
-      backlogItems: snapshot.backlogItems || [],
-      closeouts: getFoundationBuildCloseouts(),
-      currentSprint: activeFoundationSprint,
-      feedbackItems: foundationFeedbackItems,
-      ackStates: foundationAckStates,
-      sources: getSourceContracts(),
-      extractionControl: snapshot.extractionControl,
-      intelligenceAtomSpine: snapshot.intelligenceAtomSpine,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis,
-      intelligenceActionRouter: snapshot.intelligenceActionRouter,
-    })
-    const implementationIntelligence = buildImplementationIntelligenceSnapshot({
-      backlogItems: snapshot.backlogItems || [],
-      currentSprint: activeFoundationSprint,
-    })
-    const buildIntelExtractionContexts = await searchSharedCommunicationArtifactsForContext({
-      query: 'AI team setup folder structure agents workflows prompts dashboard build implementation',
-      sourceIds: ['SRC-YOUTUBE-INTEL-001'],
-      artifactTypes: ['video_transcript'],
-      limit: 10,
-      excerptChars: 1800,
-    })
-    const buildIntelExtraction = buildBuildIntelExtractionImplementationSnapshot({
-      transcriptContexts: buildIntelExtractionContexts,
-      backlogItems: snapshot.backlogItems || [],
-      currentSprint: activeFoundationSprint,
-    })
-    const gstackBuildIntel = await buildGStackBuildIntelSnapshot({ allowMissingRepo: true })
-    const foundationOperatingReliability = buildFoundationOperatingReliabilitySnapshot({
-      sourceContracts: getSourceContracts(),
-      sourceConnectors: getSourceConnectors(),
-      foundationJobs: snapshot.foundationJobs,
-      currentSprintStatus: currentSprint,
-      backlogItems: snapshot.backlogItems || [],
-      closeouts: getFoundationBuildCloseouts(),
-    })
-    sourceLifecycle.marketingSourceMap = marketingSourceMap
-    sourceLifecycle.brandStack = brandStack
-    sourceLifecycle.tierBehavioralCompletion = tierBehavioralCompletion
-    sourceLifecycle.verificationRuns = verificationRuns
-    sourceLifecycle.perUserChangelog = perUserChangelog
-    sourceLifecycle.restrictedDecisionQueue = restrictedDecisionQueue
-    const foundationUiComplete = buildFoundationUiCompleteSnapshot({
-      sourceLifecycle,
-      currentSprint,
-    })
-    sourceLifecycle.foundationUiComplete = foundationUiComplete
-    sourceLifecycle.currentSprint = currentSprint
-    const fullPayload = {
-      ...snapshot,
-      sharedCommunicationSynthesis: compactSharedCommunicationSynthesis(snapshot.sharedCommunicationSynthesis),
-      kpiHealth,
-      backlogHygiene,
-      foundation1100Review,
-      docArchiveCleanup,
-      researchCuration,
-      exceptionCuration,
-      hitListReconcile,
-      archiveRetire,
-      postShipFanout,
-      gateReliability,
-      personalWorkspaceBoundary,
-      ceoDashboardPattern,
-      doctrinePropagation,
-      decisionAutoEmit,
-      sheetsApiTrust,
-      sourceLifecycle: compactFoundationSourceLifecycle(sourceLifecycle),
-      sourceMaturityGrid,
-      sourceExtractionCoverage,
-      sourceCoverageCloseout,
-      sourceConnectorMatrix,
-      sourceHubRoutingMatrix,
-      agentFeedbackAutoSend,
-      agentFeedbackProductionAutoSendDryRun,
-      agentFeedbackReminders,
-      sourceOutageBoundary,
-      meetingVaultAutoEnforcement,
-      runtimeProcessControl,
-      currentSprint,
-      marketingAvatarRegistry,
-      marketingSourceMap,
-      brandStack,
-      tierBehavioralCompletion,
-      verificationRuns,
-      perUserChangelog,
-      restrictedDecisionQueue,
-      buildIntelWatchlist,
-      multimodalExtractorContract,
-      researchInboxContract,
-      foundationControlCompression,
-      implementationIntelligence,
-      buildIntelExtraction,
-      gstackBuildIntel,
-      foundationOperatingReliability,
-      foundationHubFullDiagnostics,
-      foundationUiComplete,
-      runtimeSupervisor: {
-        servedCode: getDashboardRuntimeMetadata(),
-        workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
-      },
-    }
-    fullPayload.foundationHubView = {
-      mode: 'full',
-      purpose: 'Full diagnostic payload for Runtime Health and deep debugging.',
-      summaryPath: '/api/foundation-hub',
-    }
-    sendFoundationHubPayload(res, fullPayload, { mode: 'full', startedAtMs })
-  } catch (error) {
-    sendApiError(
-      res,
-      500,
-      'foundation_hub_load_failed',
-      error instanceof Error ? error.message : 'Failed to load foundation hub data.'
-    )
-  }
-})
-
-app.get('/api/foundation/current-sprint', requireAdminToken, async (_req, res) => {
-  try {
-    const snapshot = await getFoundationSnapshot()
-    const activeFoundationSprint = await getActiveFoundationCurrentSprint()
-    const currentSprint = buildFoundationCurrentSprintStatus({
-      sprint: activeFoundationSprint.sprint,
-      items: activeFoundationSprint.items,
-      backlogItems: snapshot.backlogItems || [],
-      closeouts: getFoundationBuildCloseouts(),
-      planCriticRuns: activeFoundationSprint.planCriticRuns || [],
-    })
-    res.json({
-      generatedAt: new Date().toISOString(),
-      currentSprint,
-    })
-  } catch (error) {
-    sendApiError(
-      res,
-      500,
-      'foundation_current_sprint_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Current Sprint.'
-    )
-  }
+registerHubReadRoutes(app, {
+  requireAdminToken,
+  repoRoot: __dirname,
+  path,
+  sendApiError,
+  cacheHeadersNoStore,
+  attachFoundationHubPerformanceMetadata,
+  buildFoundationHubSummaryInfo,
+  normalizeFoundationHubMode,
+  getFoundationCoreSnapshot,
+  buildFoundationHubBacklogContract,
+  buildBacklogHygieneSnapshot,
+  getFoundationBuildCloseouts,
+  compactFoundationReviewSprintSnapshot,
+  buildFoundationReviewSprintStatus,
+  loadFoundationReviewSprintArtifact,
+  compactResearchCurationSnapshot,
+  buildResearchCurationStatus,
+  getFoundationJobRunSnapshot,
+  compactFoundationJobRunSnapshot,
+  getFoundationRuntimeStatus,
+  getActiveFoundationCurrentSprint,
+  buildFoundationCurrentSprintStatus,
+  scanDecisionAutoEmitCandidates,
+  buildDecisionAutoEmitSummary,
+  getDashboardRuntimeMetadata,
+  getMissingWorkerRuntimeMetadata,
+  getFoundationSnapshot,
+  getCachedSafeKpiHealthSnapshot,
+  buildDocArchiveCleanupStatus,
+  buildExceptionCurationStatus,
+  buildHitListReconcileStatusFromFile,
+  buildArchiveRetireStatus,
+  buildPostShipFanoutStatus,
+  buildDoctrinePropagationStatus,
+  buildSyntheticGateReliabilityProof,
+  buildPersonalWorkspaceBoundaryStatus,
+  buildCeoDashboardPatternStatus,
+  getGoogleSheetsCacheStats,
+  buildSourceLifecycleStatus,
+  getSourceContracts,
+  getSourceConnectors,
+  getGroupedSourceSystems,
+  getFoundationJobDefinitions,
+  buildSourceMaturityGridSnapshot,
+  buildSourceExtractionCoverageSnapshot,
+  buildSourceCoverageCloseoutSnapshot,
+  buildSourceConnectorMatrixSnapshot,
+  buildSourceHubRoutingMatrixSnapshot,
+  buildFoundationHubAgentFeedbackDiagnostics,
+  buildFoundationHubSourceOutageBoundary,
+  getLatestMeetingVaultAutoEnforcementRun,
+  getMeetingVaultLegacyExceptions,
+  buildRuntimeProcessControlApiSnapshot,
+  MARKETING_AVATAR_REFERENCE_BRIEF_PATH,
+  MARKETING_AVATAR_RETAIN_SOURCE_PATH,
+  MARKETING_AVATAR_ATTRACT_SOURCE_PATH,
+  MARKETING_AVATAR_OLD_README_PATH,
+  MARKETING_SOURCE_MAP_NOTE_PATH,
+  readFileSafe,
+  buildMarketingAvatarImportSnapshot,
+  buildMarketingSourceMapSnapshot,
+  buildBrandStackSnapshot,
+  buildTierBehavioralCompletionSnapshot,
+  buildVerificationRunsSnapshot,
+  buildPerUserChangelogSnapshot,
+  getRecentChangeEvents,
+  buildDecisionRestrictedQueueSnapshot,
+  buildCreatorWatchlistSnapshot,
+  buildMultimodalExtractorContractSnapshot,
+  buildResearchInboxContractSnapshot,
+  listFoundationFeedbackItems,
+  listFoundationAcknowledgedStates,
+  buildFoundationControlCompressionSnapshot,
+  buildImplementationIntelligenceSnapshot,
+  searchSharedCommunicationArtifactsForContext,
+  buildBuildIntelExtractionImplementationSnapshot,
+  buildGStackBuildIntelSnapshot,
+  buildFoundationOperatingReliabilitySnapshot,
+  buildFoundationUiCompleteSnapshot,
+  getSalesHubPayload,
 })
 
 app.get('/api/foundation/agent-feedback-production-dry-run', requireAdminToken, async (req, res) => {
@@ -4637,80 +4234,6 @@ app.post('/api/intelligence/evidence', requireAdminToken, async (req, res) => {
       500,
       'intelligence_evidence_failed',
       error instanceof Error ? error.message : 'Failed to retrieve intelligence evidence.'
-    )
-  }
-})
-
-app.get('/api/ops-hub', requireAdminToken, async (_req, res) => {
-  try {
-    const snapshot = await getFoundationSnapshot()
-    const foundationJobs = snapshot.foundationJobs || {}
-    const {
-      agentFeedbackAutoSend,
-      agentFeedbackProductionAutoSendDryRun,
-      agentFeedbackReminders,
-    } = await buildFoundationHubAgentFeedbackDiagnostics({
-      repoRoot: __dirname,
-      foundationJobs,
-    })
-    const sourceOutageBoundary = buildFoundationHubSourceOutageBoundary({
-      agentFeedbackAutoSend,
-      agentFeedbackProductionAutoSendDryRun,
-      agentFeedbackReminders,
-    })
-    sourceOutageBoundary.summary = {
-      ...(sourceOutageBoundary.summary || {}),
-      opsApiFailSoft: true,
-    }
-    const jobs = Array.isArray(foundationJobs.jobs)
-      ? foundationJobs.jobs.filter(job => Array.isArray(job.servesHubs) && job.servesHubs.includes('ops'))
-      : []
-    const jobKeys = new Set(jobs.map(job => job.key))
-    const latestRuns = Array.isArray(foundationJobs.latestRuns)
-      ? foundationJobs.latestRuns.filter(run => jobKeys.has(run.jobKey))
-      : []
-
-    res.json({
-      foundationJobs: {
-        generatedAt: foundationJobs.generatedAt || snapshot.meta?.generatedAt || new Date().toISOString(),
-        totalJobs: jobs.length,
-        enabledJobs: jobs.filter(job => job.enabled !== false).length,
-        scheduledJobs: jobs.filter(job => job.runtimeMode === 'scheduled').length,
-        dueJobs: jobs.filter(job => job.isDue).length,
-        manualJobs: jobs.filter(job => job.runtimeMode === 'manual').length,
-        jobs,
-        latestRuns,
-      },
-      agentFeedbackAutoSend,
-      agentFeedbackProductionAutoSendDryRun,
-      agentFeedbackReminders,
-      sourceOutageBoundary,
-      meta: {
-        generatedAt: snapshot.meta?.generatedAt || new Date().toISOString(),
-        surface: 'ops',
-      },
-    })
-  } catch (error) {
-    sendApiError(
-      res,
-      500,
-      'ops_hub_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Ops hub data.'
-    )
-  }
-})
-
-app.get('/api/sales-hub', requireAdminToken, async (req, res) => {
-  try {
-    const payload = await getSalesHubPayload({ forceRefresh: req.query?.refresh === '1' || req.query?.refresh === 'true' })
-    cacheHeadersNoStore(res)
-    res.json(payload)
-  } catch (error) {
-    sendApiError(
-      res,
-      500,
-      'sales_hub_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Sales hub data.'
     )
   }
 })

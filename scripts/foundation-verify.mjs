@@ -178,6 +178,16 @@ import {
   buildAuthRoutesSplitDogfoodProof,
 } from '../lib/auth-routes.js'
 import {
+  HUB_READ_ROUTES_SPLIT_APPROVAL_PATH,
+  HUB_READ_ROUTES_SPLIT_BEFORE_SERVER_LINES,
+  HUB_READ_ROUTES_SPLIT_CARD_ID,
+  HUB_READ_ROUTES_SPLIT_CLOSEOUT_KEY,
+  HUB_READ_ROUTES_SPLIT_PLAN_PATH,
+  HUB_READ_ROUTES_SPLIT_SCRIPT_PATH,
+  HUB_READ_ROUTES_SPLIT_SPRINT_ID,
+  buildHubReadRoutesSplitDogfoodProof,
+} from '../lib/hub-read-routes.js'
+import {
   buildFoundationVerifyCheckOutput,
   buildFoundationVerifyJsonSummary,
   buildFoundationVerifyReporterDogfoodProof,
@@ -2309,6 +2319,10 @@ async function main() {
   const authRoutesSource = await readRepoFile('lib/auth-routes.js')
   const authRoutesSplitScriptSource = await readRepoFile(AUTH_ROUTES_SPLIT_SCRIPT_PATH)
   const authRoutesSplitPlanSource = await readRepoFile(AUTH_ROUTES_SPLIT_PLAN_PATH)
+  const hubReadRoutesSource = await readRepoFile('lib/hub-read-routes.js')
+  const hubReadRoutesSplitScriptSource = await readRepoFile(HUB_READ_ROUTES_SPLIT_SCRIPT_PATH)
+  const hubReadRoutesSplitPlanSource = await readRepoFile(HUB_READ_ROUTES_SPLIT_PLAN_PATH)
+  const serverRouteSource = [serverSource, hubReadRoutesSource].join('\n')
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
@@ -3036,9 +3050,7 @@ async function main() {
   ensure(
     checks,
     [
-      "app.get('/api/foundation-hub', requireAdminToken",
       "app.post('/api/intelligence/evidence', requireAdminToken",
-      "app.get('/api/ops-hub', requireAdminToken",
       "app.get('/api/doc', requireAdminToken",
       "app.get('/api/owners/lead-source-governance', requireAdminToken",
       "app.get('/api/owners/review-queue', requireAdminToken",
@@ -3046,6 +3058,10 @@ async function main() {
       "app.get('/api/system-inventory', requireAdminToken",
       "app.get('/foundation/export/strategy.pdf', requireAdminToken",
     ].every(pattern => serverSource.includes(pattern)) &&
+      [
+        "app.get('/api/foundation-hub', deps.requireAdminToken",
+        "app.get('/api/ops-hub', deps.requireAdminToken",
+      ].every(pattern => hubReadRoutesSource.includes(pattern)) &&
       [
         "app.get('/api/fub/health', requireAdminToken",
         "app.get('/api/fub/person', requireAdminToken",
@@ -4363,6 +4379,7 @@ async function main() {
       fubSourceRoutesSource,
       foundationRuntimeReadRoutesSource,
       appPageRoutesSource,
+      hubReadRoutesSource,
     ],
   )
   const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
@@ -4379,6 +4396,7 @@ async function main() {
       fubSourceRoutesSource,
       foundationRuntimeReadRoutesSource,
       appPageRoutesSource,
+      hubReadRoutesSource,
     ],
   )
   const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
@@ -4618,7 +4636,7 @@ async function main() {
       Array.isArray(backlogHygieneApi.visibleFindings) &&
       backlogHygieneApi.visibleFindings.every(finding => finding.severity !== 'info') &&
       includesAll(packageSource, ['"backlog:hygiene"', 'scripts/backlog-hygiene.mjs']) &&
-      includesAll(serverSource, ['buildBacklogHygieneSnapshot', 'backlogHygiene']) &&
+      includesAll(serverRouteSource, ['buildBacklogHygieneSnapshot', 'backlogHygiene']) &&
       includesAll(foundationFrontendSource, [
         'renderBacklogHygienePanel',
         'Backlog Hygiene',
@@ -7584,7 +7602,7 @@ async function main() {
         'Commit touches `docs/rebuild/*`',
         'V1 checks and reports',
       ]) &&
-      includesAll(serverSource, ['buildPostShipFanoutStatus', 'postShipFanout']) &&
+      includesAll(serverRouteSource, ['buildPostShipFanoutStatus', 'postShipFanout']) &&
       includesAll(foundationFrontendSource, ['renderPostShipFanoutPanel', 'Post-Ship Fanout']) &&
       foundationHub.postShipFanout?.summary?.ruleCount >= POST_SHIP_FANOUT_RULES.length &&
       syntheticPostShipFanoutFindings.some(finding => finding.type === 'missing_fanout_proof') &&
@@ -7626,7 +7644,7 @@ async function main() {
         'renderResearchCurationPanel',
         'Research Curation',
       ]) &&
-      includesAll(serverSource, ['docArchiveCleanup', 'researchCuration']) &&
+      includesAll(serverRouteSource, ['docArchiveCleanup', 'researchCuration']) &&
       archiveIndexSource.includes('Archived Evidence Index') &&
       docArchiveAutoText.includes('113 files') &&
       researchCurationText.includes('zero auto-closed research cards'),
@@ -7655,7 +7673,7 @@ async function main() {
         'Explicit no-touch path for ARCHIVE-RETIRE-001',
       ]) &&
       includesAll(foundationFrontendSource, ['renderArchiveRetirePanel', 'Archive Retire']) &&
-      includesAll(serverSource, ['archiveRetire']) &&
+      includesAll(serverRouteSource, ['archiveRetire']) &&
       rebuildDocsRetireText.includes('plan-history') &&
       archiveRetireText.includes('0 files were deleted'),
     'Phase D Cards 15+16 retire stale rebuild docs and keep delete lane allowlisted',
@@ -7692,7 +7710,7 @@ async function main() {
         'renderHitListReconcilePanel',
         'Hit-List Reconcile',
       ]) &&
-      includesAll(serverSource, ['exceptionCuration', 'hitListReconcile']) &&
+      includesAll(serverRouteSource, ['exceptionCuration', 'hitListReconcile']) &&
       exceptionCurationText.includes('2026-07-27') &&
       hitListReconcileText.includes('does not auto-read'),
     'Phase D Exception Curation and Hit-List Reconcile close loopholes without private-doc auto-import',
@@ -9317,7 +9335,7 @@ async function main() {
         MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
         'npm run process:meeting-vault-auto-enforcement-check',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(serverRouteSource, [
         'meetingVaultAutoEnforcement',
         'getLatestMeetingVaultAutoEnforcementRun',
         'getMeetingVaultLegacyExceptions',
@@ -9393,7 +9411,7 @@ async function main() {
         'getActiveFoundationCurrentSprint',
         'upsertFoundationCurrentSprintOverlay',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(serverRouteSource, [
         '/api/foundation/current-sprint',
         'currentSprint',
         'buildFoundationCurrentSprintStatus',
@@ -10258,7 +10276,7 @@ async function main() {
         'source/old-bcrew-buddy/attract-avatars.md',
         'optional overlays',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(serverRouteSource, [
         'buildMarketingAvatarImportSnapshot',
         'marketingAvatarRegistry',
         'MARKETING_AVATAR_REFERENCE_BRIEF_PATH',
@@ -12255,7 +12273,7 @@ async function main() {
         '--mode=live',
         "servesHubs: ['ops']",
       ]) &&
-      includesAll(serverSource, ['buildAgentFeedbackAutoSendReadiness', 'agentFeedbackAutoSend']) &&
+      includesAll(serverRouteSource, ['buildAgentFeedbackAutoSendReadiness', 'agentFeedbackAutoSend']) &&
       includesAll(foundationFrontendSource, ['renderAgentFeedbackAutoSendPanel', 'Agent Feedback Auto-Send']) &&
       includesAll(opsUiSource, ['agent-feedback-auto-send-readiness', 'Feedback production auto-send']) &&
       (agentFeedbackAutoSendStatus.status === 'healthy' || agentFeedbackProductionVerifierAccepted) &&
@@ -12416,7 +12434,7 @@ async function main() {
         'getAgentOnboardingFeedbackResponseForMilestone',
       ]) &&
       includesAll(foundationJobsSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'agent-feedback:reminders']) &&
-      includesAll(serverSource, ['buildAgentFeedbackReminderReadiness', 'agentFeedbackReminders']) &&
+      includesAll(serverRouteSource, ['buildAgentFeedbackReminderReadiness', 'agentFeedbackReminders']) &&
       includesAll(foundationFrontendSource, ['renderAgentFeedbackReminderPanel', 'agentFeedbackReminders']) &&
       includesAll(opsUiSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'live reminders']) &&
       agentFeedbackReminderStatus.status === 'healthy' &&
@@ -12821,7 +12839,7 @@ async function main() {
         '"agent-feedback:production-dry-run"',
         '"process:agent-feedback-production-autosend-enable-check"',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(serverRouteSource, [
         'agentFeedbackAutoSend',
         'foundationJobs',
       ]) &&
@@ -13010,7 +13028,7 @@ async function main() {
         'getSheetValuesBatch',
         'batchResponse',
       ]) &&
-      includesAll(serverSource, ['getGoogleSheetsCacheStats', 'sheetsApiTrust']) &&
+      includesAll(serverRouteSource, ['getGoogleSheetsCacheStats', 'sheetsApiTrust']) &&
       includesAll(foundationFrontendSource, ['renderSheetsApiTrustPanel', 'Sheets API Trust']) &&
       includesAll(sheetsQuotaHardeningDoc, [
         'Writes are never cached',
@@ -13061,7 +13079,7 @@ async function main() {
         'hardcoded doctrine source list',
         'HIT-LIST-RECONCILE-001',
       ]) &&
-      includesAll(serverSource, ['buildDoctrinePropagationStatus', 'doctrinePropagation']) &&
+      includesAll(serverRouteSource, ['buildDoctrinePropagationStatus', 'doctrinePropagation']) &&
       includesAll(foundationFrontendSource, ['renderDoctrinePropagationPanel', 'Doctrine Propagation']) &&
       foundationHub.doctrinePropagation?.summary?.doctrineCount >= DOCTRINE_PROPAGATION_SOURCES.length &&
       doctrinePropagationStatus.summary?.criticalFindings === 0 &&
@@ -13107,7 +13125,7 @@ async function main() {
         'execution',
         'people',
       ]) &&
-      includesAll(serverSource, ['scanDecisionAutoEmitCandidates', 'decisionAutoEmit']) &&
+      includesAll(serverRouteSource, ['scanDecisionAutoEmitCandidates', 'decisionAutoEmit']) &&
       includesAll(foundationFrontendSource, ['renderDecisionAutoEmitPanel', 'Auto-Emitted Decisions']) &&
       CANONICAL_DECISION_CATEGORIES.length === 4 &&
       ['strategy', 'system', 'execution', 'people'].every(category => CANONICAL_DECISION_CATEGORIES.includes(category)) &&
@@ -13340,7 +13358,7 @@ async function main() {
       includesAll(foundationRuntimeReadRoutesSource, [
         "app.get('/api/foundation/active-processes'",
       ]) &&
-      includesAll(serverSource, [
+      includesAll(serverRouteSource, [
         "app.post('/api/foundation/job-runs/:runId/stop'",
         "app.post('/api/foundation/jobs/:jobKey/decommission'",
         'use_decommission_route',
@@ -14363,6 +14381,53 @@ async function main() {
       ? `lane=${authRoutesSplitCard.lane} dogfood=${authRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${AUTH_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterAuthRouteSplit}`
       : `missing ${AUTH_ROUTES_SPLIT_CARD_ID}`,
   )
+  const hubReadRoutesSplitCard = (foundationHub.backlogItems || []).find(item => item.id === HUB_READ_ROUTES_SPLIT_CARD_ID) || null
+  const hubReadRoutesSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === HUB_READ_ROUTES_SPLIT_CLOSEOUT_KEY) || null
+  const hubReadRoutesDogfood = buildHubReadRoutesSplitDogfoodProof({
+    serverSource,
+    moduleSource: hubReadRoutesSource,
+    proofScriptSource: hubReadRoutesSplitScriptSource,
+  })
+  const serverLineCountAfterHubReadRouteSplit = String(serverSource || '').split('\n').length
+  ensure(
+    checks,
+      hubReadRoutesSplitCard &&
+      ['executing', 'done'].includes(hubReadRoutesSplitCard.lane) &&
+      String(hubReadRoutesSplitCard.statusNote || '').includes(HUB_READ_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      hubReadRoutesSplitCloseout?.operatorCloseout === true &&
+      (hubReadRoutesSplitCloseout.backlogIds || []).includes(HUB_READ_ROUTES_SPLIT_CARD_ID) &&
+      hubReadRoutesDogfood.ok === true &&
+      packageJson.scripts?.['process:hub-read-routes-split-check'] === `node --env-file-if-exists=.env ${HUB_READ_ROUTES_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(HUB_READ_ROUTES_SPLIT_PLAN_PATH) &&
+      await repoFileExists(HUB_READ_ROUTES_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-hub-read-routes-split-closeout.md') &&
+      hubReadRoutesSource.includes('registerHubReadRoutes') &&
+      hubReadRoutesSource.includes("app.get('/api/foundation-hub'") &&
+      hubReadRoutesSource.includes("app.get('/api/foundation/current-sprint'") &&
+      hubReadRoutesSource.includes("app.get('/api/ops-hub'") &&
+      hubReadRoutesSource.includes("app.get('/api/sales-hub'") &&
+      !hubReadRoutesSource.includes("app.post('/api/sales-hub/listing-assignment'") &&
+      hubReadRoutesSplitScriptSource.includes('moved hub read routes return expected behavior') &&
+      hubReadRoutesSplitScriptSource.includes('Sales write routes remain in server.js') &&
+      hubReadRoutesSplitPlanSource.includes('No Sales write route moves.') &&
+      hubReadRoutesSplitPlanSource.includes('No payload expansion.') &&
+      serverSource.includes('registerHubReadRoutes(app') &&
+      !serverSource.includes("app.get('/api/foundation-hub'") &&
+      !serverSource.includes("app.get('/api/foundation/current-sprint'") &&
+      !serverSource.includes("app.get('/api/ops-hub'") &&
+      !serverSource.includes("app.get('/api/sales-hub'") &&
+      serverSource.includes("app.post('/api/sales-hub/listing-assignment'") &&
+      serverLineCountAfterHubReadRouteSplit < HUB_READ_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
+      currentPlan.includes(HUB_READ_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(HUB_READ_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === HUB_READ_ROUTES_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([HUB_READ_ROUTES_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(HUB_READ_ROUTES_SPLIT_CARD_ID),
+    'HUB-READ-ROUTES-SPLIT-001 extracts hub read routes into a focused module',
+    hubReadRoutesSplitCard
+      ? `lane=${hubReadRoutesSplitCard.lane} dogfood=${hubReadRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${HUB_READ_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterHubReadRouteSplit}`
+      : `missing ${HUB_READ_ROUTES_SPLIT_CARD_ID}`,
+  )
   const nightlyDeepAuditP0TriageCard = (foundationHub.backlogItems || []).find(item => item.id === 'NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') || null
   const nightlyDeepAuditP0TriageCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'nightly-deep-audit-p0-triage-v1') || null
   ensure(
@@ -14532,7 +14597,7 @@ async function main() {
       agentFeedbackAutoSendSource.includes('sourceUnavailable') &&
       agentFeedbackProductionAutoSendDryRunSource.includes('sourceUnavailable') &&
       agentFeedbackReminderSource.includes('sourceUnavailable') &&
-      serverSource.includes('sourceOutageBoundary') &&
+      serverRouteSource.includes('sourceOutageBoundary') &&
       foundationHub.sourceOutageBoundary?.status &&
       opsHub.sourceOutageBoundary?.status &&
       includesAll(foundationVerifySource, SOURCE_OUTAGE_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
@@ -14563,7 +14628,7 @@ async function main() {
       connectorUptimeMonitorSource.includes('buildMorningHealthSnapshot') &&
       connectorUptimeMonitorSource.includes('assertNoConnectorUptimeSecretLeak') &&
       foundationOperatingReliabilityScriptSource.includes('dogfood recreates connector failures, runtime states, and audit confusion') &&
-      serverSource.includes('foundationOperatingReliability') &&
+      serverRouteSource.includes('foundationOperatingReliability') &&
       foundationHubFull.foundationOperatingReliability?.connectorUptime?.rows?.length >= 6 &&
       foundationHubFull.foundationOperatingReliability?.runtimeActivation?.jobs?.length >= 1 &&
       foundationHubFull.foundationOperatingReliability?.morningHealth?.reportOnly === true &&
@@ -14617,9 +14682,9 @@ async function main() {
       foundationHubFull.llmRuntime &&
       foundationHubFull.driveCorpusInventory &&
       packageJson.scripts?.['process:foundation-performance-check'] === `node --env-file-if-exists=.env ${FOUNDATION_PERFORMANCE_SCRIPT_PATH}` &&
-      serverSource.includes('getFoundationCoreSnapshot') &&
-      serverSource.includes("app.get('/api/foundation-hub'") &&
-      serverSource.includes('normalizeFoundationHubMode') &&
+      hubReadRoutesSource.includes('getFoundationCoreSnapshot') &&
+      hubReadRoutesSource.includes("app.get('/api/foundation-hub'") &&
+      hubReadRoutesSource.includes('normalizeFoundationHubMode') &&
       foundationFrontendSource.includes('fetchFoundationHubFull') &&
       foundationFrontendSource.includes('/api/foundation-hub?view=full') &&
       foundationDbSource.includes('getFoundationCoreSnapshot') &&
@@ -14667,8 +14732,8 @@ async function main() {
       agentFeedbackAutoSendSource.includes('mapWithConcurrency') &&
       agentFeedbackAutoSendSource.includes('getRosterSnapshot = getClickUpListSnapshotSafe') &&
       agentFeedbackReminderSource.includes('getRosterSnapshot = getClickUpListSnapshotSafe') &&
-      serverSource.includes('buildFoundationHubAgentFeedbackDiagnostics') &&
-      serverSource.includes('foundationHubFullDiagnostics') &&
+      serverRouteSource.includes('buildFoundationHubAgentFeedbackDiagnostics') &&
+      serverRouteSource.includes('foundationHubFullDiagnostics') &&
       foundationHubFull.foundationHubFullDiagnostics?.boundedSourceHealth === true &&
       foundationHubFull.sourceOutageBoundary?.summary?.fullDiagnosticsBounded === true &&
       Number(foundationHubFull.foundationHubPerformance?.durationMs || 0) <= FOUNDATION_FULL_DIAGNOSTICS_BUDGET.maxSeconds * 1000 &&
@@ -14711,8 +14776,8 @@ async function main() {
       llmAuthAuditVerifierModuleSource.includes('buildLlmAuthAuditVerifierDogfoodProof') &&
       llmAuthAuditVerifierCheckSource.includes('buildLlmAuthAuditVerifierDogfoodProof') &&
       foundationHubFullPayloadReduceScriptSource.includes('live full payload is materially smaller than measured baseline') &&
-      serverSource.includes('compactSharedCommunicationSynthesis') &&
-      serverSource.includes('compactFoundationSourceLifecycle') &&
+      serverRouteSource.includes('compactSharedCommunicationSynthesis') &&
+      serverRouteSource.includes('compactFoundationSourceLifecycle') &&
       foundationHubFullDiagnosticsSource.includes('maxBytes: 4200000') &&
       foundationHubPerformanceSource.includes('maxPayloadBytes: 4500000') &&
       foundationHubFull.sourceLifecycle?.fullPayloadCompacted === true &&

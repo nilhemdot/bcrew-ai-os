@@ -95,6 +95,7 @@ async function main() {
   const checks = []
   const [
     serverSource,
+    hubReadRoutesSource,
     moduleSource,
     clickupSource,
     autoSendSource,
@@ -106,6 +107,7 @@ async function main() {
     planCriticRuns,
   ] = await Promise.all([
     readRepoFile('server.js'),
+    readRepoFile('lib/hub-read-routes.js'),
     readRepoFile('lib/foundation-hub-full-diagnostics.js'),
     readRepoFile('lib/clickup.js'),
     readRepoFile('lib/agent-feedback-auto-send.js'),
@@ -123,6 +125,7 @@ async function main() {
   await closeFoundationDb()
 
   const packageJson = JSON.parse(packageSource)
+  const routeSource = `${serverSource}\n${hubReadRoutesSource}`
   const dogfood = await buildSyntheticFoundationFullDiagnosticsDogfoodProof()
 
   addCheck(
@@ -160,12 +163,12 @@ async function main() {
   )
   addCheck(
     checks,
-    serverSource.includes('buildFoundationHubAgentFeedbackDiagnostics') &&
-      serverSource.includes('buildFoundationHubSourceOutageBoundary') &&
-      serverSource.includes('foundationHubFullDiagnostics') &&
+    routeSource.includes('buildFoundationHubAgentFeedbackDiagnostics') &&
+      routeSource.includes('buildFoundationHubSourceOutageBoundary') &&
+      routeSource.includes('foundationHubFullDiagnostics') &&
       !serverSource.includes('const agentFeedbackAutoSend = await buildAgentFeedbackAutoSendReadiness({\n      repoRoot: __dirname'),
-    'server full diagnostics route delegates bounded Agent Feedback diagnostics out of server.js',
-    'server.js',
+    'Foundation Hub full diagnostics route delegates bounded Agent Feedback diagnostics out of the monolith',
+    'server.js + lib/hub-read-routes.js',
   )
   addCheck(
     checks,

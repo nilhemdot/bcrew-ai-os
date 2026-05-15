@@ -79,7 +79,7 @@ const WORKBOOKS = [
           B1: 'Team Agent Engine - (Attraction - Production - Split) ',
           C3: 'Required Attracted\n(Monthly Required )',
           F3: 'Active Agents',
-          I3: ' Avg Production\n(Last 6 Months)',
+          I3: ' Avg Production\n(Last 9 Months)',
           L3: ' Avg Split\n(Last 6m Avg)',
           O3: 'Projected Net To Company',
         },

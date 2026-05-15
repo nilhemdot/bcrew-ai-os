@@ -79,11 +79,13 @@ function buildPayloadDogfoodProof() {
 async function main() {
   const args = parseArgs()
   const checks = []
-  const [serverSource, diagnosticsSource, performanceSource] = await Promise.all([
+  const [serverSource, hubReadRoutesSource, diagnosticsSource, performanceSource] = await Promise.all([
     readRepoFile('server.js'),
+    readRepoFile('lib/hub-read-routes.js'),
     readRepoFile('lib/foundation-hub-full-diagnostics.js'),
     readRepoFile('lib/foundation-hub-performance.js'),
   ])
+  const routeSource = `${serverSource}\n${hubReadRoutesSource}`
   const dogfood = buildPayloadDogfoodProof()
   const measurement = await measureJsonRoute({
     baseUrl: args.baseUrl,
@@ -102,12 +104,12 @@ async function main() {
   addCheck(checks, measurement.json?.sharedCommunicationSynthesis?.fullPayloadCompacted === true, 'sharedCommunicationSynthesis heavy run rows are compacted in the full payload', 'sharedCommunicationSynthesis.fullPayloadCompacted')
   addCheck(
     checks,
-    serverSource.includes('compactSharedCommunicationSynthesis') &&
-      serverSource.includes('compactFoundationSourceLifecycle') &&
+    routeSource.includes('compactSharedCommunicationSynthesis') &&
+      routeSource.includes('compactFoundationSourceLifecycle') &&
       diagnosticsSource.includes('maxBytes: 4200000') &&
       performanceSource.includes('maxPayloadBytes: 4500000'),
     'repo source owns compactors and tighter budgets',
-    'server.js + budget modules',
+    'server.js + lib/hub-read-routes.js + budget modules',
   )
 
   const findings = checks.filter(check => !check.ok)

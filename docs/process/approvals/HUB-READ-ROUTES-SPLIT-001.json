@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "HUB-READ-ROUTES-SPLIT-001",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T12:50:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/hub-read-routes-split-001-plan.md",
+  "approvedPlanSha256": "43c90d92b2376c7e86b80c05e535f992825862f831bbc5839a9dffdc345390a2",
+  "approvedRepoHead": "b7a9a26919de6afbfc8f00cc801c8580fc7ded60",
+  "notes": "Approved as second Server Monolith Closeout build card after AUTH-ROUTES-SPLIT-001 passed. Scope: extract only read-only Foundation Hub, Current Sprint, Ops Hub, and Sales Hub GET routes from server.js into lib/hub-read-routes.js with behavior unchanged. Not approved: Sales write routes, hub UI features, Marketing Video Lab wiring, payload expansion, source extraction, paid-source auth, or broad server rewrite.",
+  "approvalDigest": "ce6855fc4f2bd6808b1649f7fe443cf702a4e2b3127f746c064221b5f13d6d94"
+}

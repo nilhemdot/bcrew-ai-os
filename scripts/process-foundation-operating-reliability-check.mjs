@@ -115,6 +115,7 @@ async function main() {
     packageSource,
     serverSource,
     foundationJobsSource,
+    hubReadRoutesSource,
   ] = await Promise.all([
     getFoundationSnapshot(),
     getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [], planCriticRuns: [] })),
@@ -123,7 +124,9 @@ async function main() {
     readText('package.json'),
     readText('server.js'),
     readText('lib/foundation-jobs.js'),
+    readText('lib/hub-read-routes.js'),
   ])
+  const routeSource = `${serverSource}\n${hubReadRoutesSource}`
 
   for (const file of requiredFiles) {
     addCheck(checks, await exists(file), 'required Operating Reliability artifact exists', file)
@@ -290,8 +293,8 @@ async function main() {
     packageSource.includes('"process:foundation-operating-reliability-check"') &&
       foundationJobsSource.includes(CONNECTOR_UPTIME_MONITOR_JOB_KEY) &&
       foundationJobsSource.includes("mutationPosture: 'read_only'") &&
-      serverSource.includes('foundationOperatingReliability') &&
-      serverSource.includes('buildFoundationOperatingReliabilitySnapshot'),
+      routeSource.includes('foundationOperatingReliability') &&
+      routeSource.includes('buildFoundationOperatingReliabilitySnapshot'),
     'package, job registry, and Foundation Hub expose Operating Reliability',
     FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH,
   )
