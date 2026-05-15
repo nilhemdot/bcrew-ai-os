@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FRONTEND-RUNTIME-RENDERERS-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T06:01:54.784Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/frontend-runtime-renderers-split-001-plan.md",
+  "approvedPlanSha256": "f7531745a2d32232b508724a2a81f26a9de4a8a5ca3beeb7efaf2cb419347dc2",
+  "approvedRepoHead": "70a3f8adb0d2d24de5c0e0e56a1544a43d71e6ad",
+  "notes": "Approved as a no-auth Foundation cleanup continuation. Scope: mechanically extract Runtime Health diagnostics renderers into public/foundation-runtime-renderers.js with VM dogfood proof, split-source reviewer updates, route/script budgets, and full Foundation ship. Not approved: UI redesign, API changes, broad renderer rewrite, hub feature work, Marketing live wiring, paid-source auth, source extraction, Drive permissions, Meeting Vault Phase B, or autonomous dev.",
+  "approvalDigest": "c468fc182d0b3dc57542016215d0c7887535aa49d2dc94e99fc8b51c1403c375"
+}

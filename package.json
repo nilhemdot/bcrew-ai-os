@@ -110,6 +110,7 @@
     "process:foundation-backlog-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-backlog-store-split-check.mjs",
     "process:frontend-monolith-split-check": "node --env-file-if-exists=.env scripts/process-frontend-monolith-split-check.mjs",
     "process:frontend-operations-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-operations-renderers-split-check.mjs",
+    "process:frontend-runtime-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-runtime-renderers-split-check.mjs",
     "process:hub-work-check": "node --env-file-if-exists=.env scripts/process-hub-work-check.mjs",
     "process:foundation-ready-safe-hub-lane-check": "node --env-file-if-exists=.env scripts/process-foundation-ready-safe-hub-lane-check.mjs",
     "process:foundation-hub-backlog-contract-check": "node --env-file-if-exists=.env scripts/process-foundation-hub-backlog-contract-check.mjs",

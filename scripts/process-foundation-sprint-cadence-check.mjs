@@ -145,6 +145,7 @@ async function main() {
       approvalSource,
       moduleSource,
       foundationUiSource,
+      runtimeRenderersSource,
       operationsRenderersSource,
       stylesSource,
       scriptSource,
@@ -161,6 +162,7 @@ async function main() {
       readText(FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH),
       readText('lib/foundation-current-sprint.js'),
       readText('public/foundation.js'),
+      readText('public/foundation-runtime-renderers.js'),
       readText('public/foundation-operations-renderers.js'),
       readText('public/styles.css'),
       readText(FOUNDATION_SPRINT_CADENCE_SCRIPT_PATH),
@@ -184,7 +186,7 @@ async function main() {
     const systemCard = liveCardMap.get(FOUNDATION_SPRINT_SYSTEM_CARD_ID)
     const meetingCard = liveCardMap.get('MEETING-VAULT-ACL-001')
     const cadencePayload = buildingStatus.cadence || {}
-    const frontendSource = `${foundationUiSource}\n${operationsRenderersSource}`
+    const frontendSource = `${foundationUiSource}\n${runtimeRenderersSource}\n${operationsRenderersSource}`
     const buildLogRegistrySource = [
       buildLogSource,
       buildCloseoutRecordsSource,

@@ -553,6 +553,17 @@ import {
   evaluateFrontendOperationsScriptOrder,
 } from '../lib/foundation-frontend-operations-renderers-split.js'
 import {
+  FRONTEND_RUNTIME_RENDERERS_SPLIT_APPROVAL_PATH,
+  FRONTEND_RUNTIME_RENDERERS_SPLIT_BEFORE_LINES,
+  FRONTEND_RUNTIME_RENDERERS_SPLIT_CARD_ID,
+  FRONTEND_RUNTIME_RENDERERS_SPLIT_CLOSEOUT_KEY,
+  FRONTEND_RUNTIME_RENDERERS_SPLIT_PLAN_PATH,
+  FRONTEND_RUNTIME_RENDERERS_SPLIT_SCRIPT_PATH,
+  FRONTEND_RUNTIME_RENDERERS_SPLIT_SPRINT_ID,
+  evaluateFrontendRuntimeRendererSplit,
+  evaluateFrontendRuntimeScriptOrder,
+} from '../lib/foundation-frontend-runtime-renderers-split.js'
+import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -2084,16 +2095,20 @@ async function main() {
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const foundationNavConfigSource = await readRepoFile('public/foundation-nav-config.js')
   const foundationDataSource = await readRepoFile('public/foundation-data.js')
+  const foundationRuntimeRenderersSource = await readRepoFile('public/foundation-runtime-renderers.js')
   const foundationOperationsRenderersSource = await readRepoFile('public/foundation-operations-renderers.js')
   const foundationRouterSource = await readRepoFile('public/foundation-router.js')
   const frontendMonolithSplitScriptSource = await readRepoFile(FRONTEND_MONOLITH_SPLIT_SCRIPT_PATH)
   const frontendMonolithSplitPlanSource = await readRepoFile(FRONTEND_MONOLITH_SPLIT_PLAN_PATH)
   const frontendOperationsRenderersSplitScriptSource = await readRepoFile(FRONTEND_OPERATIONS_RENDERERS_SPLIT_SCRIPT_PATH)
   const frontendOperationsRenderersSplitPlanSource = await readRepoFile(FRONTEND_OPERATIONS_RENDERERS_SPLIT_PLAN_PATH)
+  const frontendRuntimeRenderersSplitScriptSource = await readRepoFile(FRONTEND_RUNTIME_RENDERERS_SPLIT_SCRIPT_PATH)
+  const frontendRuntimeRenderersSplitPlanSource = await readRepoFile(FRONTEND_RUNTIME_RENDERERS_SPLIT_PLAN_PATH)
   const foundationFrontendSource = [
     foundationNavConfigSource,
     foundationDataSource,
     foundationUiSource,
+    foundationRuntimeRenderersSource,
     foundationOperationsRenderersSource,
     foundationRouterSource,
   ].join('\n')
@@ -4367,8 +4382,8 @@ async function main() {
       sourceOfTruth.groupedSystems.length === groupedSourceSystems.length &&
       missingGroupedSystemIds.length === 0 &&
       foundationHtmlSource.includes('data-section="systems"') &&
-      foundationUiSource.includes('renderFoundationSystems') &&
-      foundationUiSource.includes('renderGroupedSourceSystemsPanel'),
+     foundationFrontendSource.includes('renderFoundationSystems') &&
+     foundationFrontendSource.includes('renderGroupedSourceSystemsPanel'),
     'api/source-of-truth exposes grouped source systems for Foundation visibility',
     missingGroupedSystemIds.length
       ? `missing ${missingGroupedSystemIds.join(', ')}`
@@ -4376,7 +4391,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationUiSource, [
+    includesAll(foundationFrontendSource, [
       'renderDataSourcePurposePanel',
       'Show the whole source layer',
       'doc-backed source contracts only',
@@ -4424,7 +4439,7 @@ async function main() {
       backlogHygieneApi.visibleFindings.every(finding => finding.severity !== 'info') &&
       includesAll(packageSource, ['"backlog:hygiene"', 'scripts/backlog-hygiene.mjs']) &&
       includesAll(serverSource, ['buildBacklogHygieneSnapshot', 'backlogHygiene']) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderBacklogHygienePanel',
         'Backlog Hygiene',
         'Stale executing threshold',
@@ -4438,7 +4453,7 @@ async function main() {
     foundationHub.cardReferenceTrust?.summary &&
       foundationHub.cardReferenceTrust.summary.missingCardReferenceCount === 0 &&
       cardReferenceTrust.summary.missingCardReferenceCount === 0 &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderCardReferenceTrustPanel',
         'Card Reference Trust',
         'No missing active backlog card references',
@@ -4461,7 +4476,7 @@ async function main() {
       foundationHub.sourceReferenceTrust.summary.undeclaredActiveReferenceCount === 0 &&
       sourceReferenceTrust.summary.undeclaredActiveReferenceCount === 0 &&
       sourceReferenceTrust.summary.historicalClassifiedCount >= 5 &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderSourceReferenceTrustPanel',
         'Source Contract Trust',
         'No missing active source IDs',
@@ -4556,7 +4571,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationUiSource, [
+    includesAll(foundationFrontendSource, [
       'renderKpiSupabaseHealthPanel',
       'KPI / Supabase Health',
       'Load-bearing KPI freshness and schema drift',
@@ -4576,7 +4591,7 @@ async function main() {
       Array.isArray(systemInventory.plugins) &&
       systemInventory.plugins.length === 9 &&
       requiredPluginNames.every(pluginName => inventoryPluginNames.includes(pluginName)) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderSystemInventoryPurposePanel',
         'Current Docs inventory job',
         'Skills inventory job',
@@ -4677,7 +4692,7 @@ async function main() {
       String(runtimeServedCode.plainEnglish || '').includes('server-start commit') &&
       String(runtimeServedCode.restartCommand || '').includes('launchctl kickstart') &&
       serverSource.includes('await captureDashboardRuntimeMetadata()') &&
-      foundationUiSource.includes('renderServedCodeTrustPanel'),
+     foundationFrontendSource.includes('renderServedCodeTrustPanel'),
     'dashboard served code matches current repo HEAD',
     servedCodeTrustDetail,
   )
@@ -4693,7 +4708,7 @@ async function main() {
       foundationWorkerSource.includes('recordFoundationRuntimeStatus') &&
       serverSource.includes('runtimeSupervisor') &&
       serverSource.includes('workerCode') &&
-      foundationUiSource.includes('renderWorkerCodeTrustPanel'),
+     foundationFrontendSource.includes('renderWorkerCodeTrustPanel'),
     'Foundation worker startup code matches current repo HEAD',
     workerLaunchAgent.ok ? workerCodeTrustDetail : `${workerCodeTrustDetail} LaunchAgent check: ${workerLaunchAgent.error}`,
   )
@@ -4777,7 +4792,7 @@ async function main() {
       typeof foundationHub.surfaceFreshnessSweep.summary.riskSurfaces === 'number' &&
       typeof foundationHub.surfaceFreshnessSweep.summary.staleActiveRunCount === 'number' &&
       Array.isArray(foundationHub.surfaceFreshnessSweep.findings) &&
-      foundationUiSource.includes('renderSurfaceFreshnessSweepPanel'),
+     foundationFrontendSource.includes('renderSurfaceFreshnessSweepPanel'),
     'api/foundation-hub exposes the Foundation surface freshness sweep',
     foundationHub.surfaceFreshnessSweep?.summary
       ? `${foundationHub.surfaceFreshnessSweep.summary.mappedSurfaceCount} surfaces / risk=${foundationHub.surfaceFreshnessSweep.summary.riskSurfaces} / stale active runs=${foundationHub.surfaceFreshnessSweep.summary.staleActiveRunCount}`
@@ -5940,7 +5955,7 @@ async function main() {
     checks,
     legacyQuestions.length === 5 &&
       legacyQuestions.every(item => item.status === 'resolved') &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'function renderFoundationOperationsPurposePanel',
         'Backlog Page Job',
         'Decision Page Job',
@@ -6243,7 +6258,7 @@ async function main() {
       'buildSourceCrawlTargetHealthFindings',
       'missing_slack_channel_item_proof',
     ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'itemSummary',
         'healthFindings',
         'targetRiskFindings',
@@ -6290,7 +6305,7 @@ async function main() {
         'coverageByTarget',
         'remainingBacklogIndicators',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderExtractionCoverageCard',
         'Extraction Control: Coverage By Target',
         'Last success',
@@ -6384,7 +6399,7 @@ async function main() {
       ) &&
       includesAll(foundationDbSource, ['scheduleTruth', 'crawlCheckpointNextRunAt']) &&
       !foundationDbSource.includes('targetNextRunAt') &&
-      includesAll(foundationUiSource, ['crawlCheckpointNextRunAt', 'Runner checkpoint']),
+      includesAll(foundationFrontendSource, ['crawlCheckpointNextRunAt', 'Runner checkpoint']),
     'api/foundation-hub derives extraction schedules from Foundation jobs',
     scheduledExtractionTargets.length
       ? `${scheduledExtractionTargets.length} targets derive visible schedule from job runtime`
@@ -7286,7 +7301,7 @@ async function main() {
         'getMissingWorkerRuntimeMetadata',
         'workerCode',
       ]) &&
-      foundationUiSource.includes('renderWorkerCodeTrustPanel') &&
+     foundationFrontendSource.includes('renderWorkerCodeTrustPanel') &&
       currentPlan.includes('WORKER-CODE-TRUST-001') &&
       currentState.includes('WORKER-CODE-TRUST-001'),
     'WORKER-CODE-TRUST-001 closes worker served-code trust with proof',
@@ -7390,7 +7405,7 @@ async function main() {
         'V1 checks and reports',
       ]) &&
       includesAll(serverSource, ['buildPostShipFanoutStatus', 'postShipFanout']) &&
-      includesAll(foundationUiSource, ['renderPostShipFanoutPanel', 'Post-Ship Fanout']) &&
+      includesAll(foundationFrontendSource, ['renderPostShipFanoutPanel', 'Post-Ship Fanout']) &&
       foundationHub.postShipFanout?.summary?.ruleCount >= POST_SHIP_FANOUT_RULES.length &&
       syntheticPostShipFanoutFindings.some(finding => finding.type === 'missing_fanout_proof') &&
       includesAll(postShipFanoutText, [
@@ -7425,7 +7440,7 @@ async function main() {
         'docs/_archive/research',
         'doc-archive-manifest.json',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderDocArchiveCleanupPanel',
         'Doc Archive Cleanup',
         'renderResearchCurationPanel',
@@ -7459,7 +7474,7 @@ async function main() {
         'No explicit safe-delete archive was present',
         'Explicit no-touch path for ARCHIVE-RETIRE-001',
       ]) &&
-      includesAll(foundationUiSource, ['renderArchiveRetirePanel', 'Archive Retire']) &&
+      includesAll(foundationFrontendSource, ['renderArchiveRetirePanel', 'Archive Retire']) &&
       includesAll(serverSource, ['archiveRetire']) &&
       rebuildDocsRetireText.includes('plan-history') &&
       archiveRetireText.includes('0 files were deleted'),
@@ -7491,7 +7506,7 @@ async function main() {
         'buildHitListReconcileStatusFromFile',
         'Snapshot can drift when Steve updates the Google Doc',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderExceptionCurationPanel',
         'Exception Curation',
         'renderHitListReconcilePanel',
@@ -7736,7 +7751,7 @@ async function main() {
       trackedOtherDocs.length === 0 &&
       privateLocalDocs.every(doc => doc.category === 'Local-private') &&
       includesAll(serverSource, ['parseDocOtherTriageReport', 'classifyDocInventoryPath', 'summarizeDocInventoryCategories', 'legacyCategory']) &&
-      includesAll(foundationUiSource, ['Doc categories', 'tracked docs remain in Other']) &&
+      includesAll(foundationFrontendSource, ['Doc categories', 'tracked docs remain in Other']) &&
       docOtherTriageRows === 127,
     'DOC-CATEGORIZATION-001 replaces vague Other with the 12 approved doc categories',
     `${Object.keys(categorySummary).length} categories / Other=${trackedOtherDocs.length}`,
@@ -8748,7 +8763,7 @@ async function main() {
         'data-section="source-lifecycle"',
         'Lifecycle',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'fetchSourceLifecycle',
         'renderSourceLifecycle',
         'data-source-lifecycle-section',
@@ -10196,7 +10211,7 @@ async function main() {
         'buildSourceMaturityGridSnapshot',
         'sourceMaturityGrid',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderSourceMaturityGridPanel',
         'sourceMaturityGrid',
         'source-maturity-grid',
@@ -10279,7 +10294,7 @@ async function main() {
         'runsLast24h',
         'last24h',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderSourceExtractionCoveragePanel',
         'sourceExtractionCoverage',
         'source-extraction-coverage',
@@ -10366,7 +10381,7 @@ async function main() {
         SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID,
         SOURCE_MATURITY_GAP_FOLLOWUP_CARD_ID,
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderSourceCoverageCloseoutPanel',
         'sourceCoverageCloseout',
         'source-coverage-closeout',
@@ -10450,7 +10465,7 @@ async function main() {
         'buildMarketingSourceMapSnapshot',
         'marketingSourceMap',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderMarketingSourceMapPanel',
         'marketingSourceMap',
         'marketing-source-map',
@@ -10531,7 +10546,7 @@ async function main() {
         'buildBrandStackSnapshot',
         'brandStack',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderBrandStackPanel',
         'brandStack',
         'brand-stack',
@@ -10615,7 +10630,7 @@ async function main() {
         'buildTierBehavioralCompletionSnapshot',
         'tierBehavioralCompletion',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderTierBehavioralCompletionPanel',
         'tierBehavioralCompletion',
         'tier-behavioral-completion',
@@ -10688,7 +10703,7 @@ async function main() {
         'buildVerificationRunsSnapshot',
         'verificationRuns',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderVerificationRunsPanel',
         'verificationRuns',
         'verification-runs',
@@ -10770,7 +10785,7 @@ async function main() {
         'perUserChangelog',
       ]) &&
       securityAccessSource.includes('/api/foundation/per-user-changelog') &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderPerUserChangelogPanel',
         'perUserChangelog',
         'per-user-changelog',
@@ -10846,7 +10861,7 @@ async function main() {
       ]) &&
       sharedCandidateExtractionSource.includes('filterGeneralDecisionRecords') &&
       securityAccessSource.includes('/api/foundation/restricted-decision-queue') &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderRestrictedDecisionQueuePanel',
         'restrictedDecisionQueue',
         'restricted-decision-queue',
@@ -10926,7 +10941,7 @@ async function main() {
         'sourceLifecycle.foundationUiComplete',
         'foundationUiComplete',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderFoundationUiCompletePanel',
         'Foundation 30-Second Read',
         'data-foundation-ui-complete-section',
@@ -10979,7 +10994,7 @@ async function main() {
         'sourceConnectorMatrix',
         'sourceHubRoutingMatrix',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderSourceConnectorMatrixPanel',
         'renderSourceHubRoutingMatrixPanel',
         'sourceConnectorMatrix',
@@ -11800,7 +11815,7 @@ async function main() {
       foundationSystemsServiceGroupingStatus.summary?.salesRecruitingSeparated === true &&
       foundationSystemsServiceGroupingStatus.summary?.closeoutOwnsOnlyGrouping === true &&
       includesAll(sourceContractsSource, ['FOUNDATION_SYSTEM_SERVICE_AREAS', 'serviceArea', 'secondaryServiceAreas']) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderFoundationSystemsServiceAreaSummary',
         'renderFoundationSystemsServiceAreaGroup',
         'No mapped systems yet.',
@@ -12058,7 +12073,7 @@ async function main() {
         "servesHubs: ['ops']",
       ]) &&
       includesAll(serverSource, ['buildAgentFeedbackAutoSendReadiness', 'agentFeedbackAutoSend']) &&
-      includesAll(foundationUiSource, ['renderAgentFeedbackAutoSendPanel', 'Agent Feedback Auto-Send']) &&
+      includesAll(foundationFrontendSource, ['renderAgentFeedbackAutoSendPanel', 'Agent Feedback Auto-Send']) &&
       includesAll(opsUiSource, ['agent-feedback-auto-send-readiness', 'Feedback production auto-send']) &&
       (agentFeedbackAutoSendStatus.status === 'healthy' || agentFeedbackProductionVerifierAccepted) &&
       agentFeedbackAutoSendHasGovernedAction &&
@@ -12219,7 +12234,7 @@ async function main() {
       ]) &&
       includesAll(foundationJobsSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'agent-feedback:reminders']) &&
       includesAll(serverSource, ['buildAgentFeedbackReminderReadiness', 'agentFeedbackReminders']) &&
-      includesAll(foundationUiSource, ['renderAgentFeedbackReminderPanel', 'agentFeedbackReminders']) &&
+      includesAll(foundationFrontendSource, ['renderAgentFeedbackReminderPanel', 'agentFeedbackReminders']) &&
       includesAll(opsUiSource, [AGENT_FEEDBACK_REMINDER_JOB_KEY, 'live reminders']) &&
       agentFeedbackReminderStatus.status === 'healthy' &&
       agentFeedbackReminderStatus.summary?.noReminderBeforeInitialRequest === true &&
@@ -12303,7 +12318,7 @@ async function main() {
         "scheduleTimezone: 'America/Toronto'",
       ]) &&
       includesAll(serverSource, ['getAgentOnboardingFeedbackResponseForMilestone', 'agent_feedback_link_already_submitted']) &&
-      includesAll(foundationUiSource, ['Live reminder sends', 'duplicate reminder slots are blocked']) &&
+      includesAll(foundationFrontendSource, ['Live reminder sends', 'duplicate reminder slots are blocked']) &&
       includesAll(opsUiSource, ['Feedback live reminders']) &&
       agentFeedbackReminderStatus.status === 'healthy' &&
       agentFeedbackReminderStatus.summary?.liveRemindersEnabled === true &&
@@ -12752,7 +12767,7 @@ async function main() {
         '/sales#gls-dashboard',
         '/sales#gls-system',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'supportingSourceIds',
         'Supporting evidence sources',
         'renderFoundationSystemFullCard',
@@ -12813,7 +12828,7 @@ async function main() {
         'batchResponse',
       ]) &&
       includesAll(serverSource, ['getGoogleSheetsCacheStats', 'sheetsApiTrust']) &&
-      includesAll(foundationUiSource, ['renderSheetsApiTrustPanel', 'Sheets API Trust']) &&
+      includesAll(foundationFrontendSource, ['renderSheetsApiTrustPanel', 'Sheets API Trust']) &&
       includesAll(sheetsQuotaHardeningDoc, [
         'Writes are never cached',
         'Failed Google API reads are never cached as healthy data',
@@ -12864,7 +12879,7 @@ async function main() {
         'HIT-LIST-RECONCILE-001',
       ]) &&
       includesAll(serverSource, ['buildDoctrinePropagationStatus', 'doctrinePropagation']) &&
-      includesAll(foundationUiSource, ['renderDoctrinePropagationPanel', 'Doctrine Propagation']) &&
+      includesAll(foundationFrontendSource, ['renderDoctrinePropagationPanel', 'Doctrine Propagation']) &&
       foundationHub.doctrinePropagation?.summary?.doctrineCount >= DOCTRINE_PROPAGATION_SOURCES.length &&
       doctrinePropagationStatus.summary?.criticalFindings === 0 &&
       syntheticDoctrineFindings.some(finding => finding.type === 'missing_doctrine' && finding.doctrineId === 'plan-gate-98') &&
@@ -12910,7 +12925,7 @@ async function main() {
         'people',
       ]) &&
       includesAll(serverSource, ['scanDecisionAutoEmitCandidates', 'decisionAutoEmit']) &&
-      includesAll(foundationUiSource, ['renderDecisionAutoEmitPanel', 'Auto-Emitted Decisions']) &&
+      includesAll(foundationFrontendSource, ['renderDecisionAutoEmitPanel', 'Auto-Emitted Decisions']) &&
       CANONICAL_DECISION_CATEGORIES.length === 4 &&
       ['strategy', 'system', 'execution', 'people'].every(category => CANONICAL_DECISION_CATEGORIES.includes(category)) &&
       syntheticDecisionScan.candidateCount >= 2 &&
@@ -13237,14 +13252,14 @@ async function main() {
       serverSource.includes("action === 'apply'") &&
       serverSource.includes("action === 'reject'") &&
       serverSource.includes('Reject needs a reason so the finding is not silently lost.') &&
-      foundationUiSource.includes('function renderActionReviewPanel') &&
-      foundationUiSource.includes('/api/foundation/action-review') &&
-      foundationUiSource.includes('Review system findings before they become decisions') &&
-      foundationUiSource.includes('Reject needs a reason so the finding is not silently lost.') &&
-      foundationUiSource.includes('Applied proof:') &&
-      foundationUiSource.includes("renderActionReviewButton(route, 'approve'") &&
-      foundationUiSource.includes("renderActionReviewButton(route, 'apply'") &&
-      foundationUiSource.includes("renderActionReviewButton(route, 'reject'"),
+     foundationFrontendSource.includes('function renderActionReviewPanel') &&
+     foundationFrontendSource.includes('/api/foundation/action-review') &&
+     foundationFrontendSource.includes('Review system findings before they become decisions') &&
+     foundationFrontendSource.includes('Reject needs a reason so the finding is not silently lost.') &&
+     foundationFrontendSource.includes('Applied proof:') &&
+     foundationFrontendSource.includes("renderActionReviewButton(route, 'approve'") &&
+     foundationFrontendSource.includes("renderActionReviewButton(route, 'apply'") &&
+     foundationFrontendSource.includes("renderActionReviewButton(route, 'reject'"),
     'Foundation Backlog renders Action Review approve/reject/apply controls',
     'API wrapper, plain-English panel, reject reason, and destination proof are present',
   )
@@ -14118,6 +14133,65 @@ async function main() {
       ? `lane=${frontendOperationsRenderersSplitCard.lane} dogfood=${frontendOperationsDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_OPERATIONS_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
       : `missing ${FRONTEND_OPERATIONS_RENDERERS_SPLIT_CARD_ID}`,
   )
+  const frontendRuntimeRenderersSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_RUNTIME_RENDERERS_SPLIT_CARD_ID) || null
+  const frontendRuntimeRenderersSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_RUNTIME_RENDERERS_SPLIT_CLOSEOUT_KEY) || null
+  const frontendRuntimeScriptOrder = evaluateFrontendRuntimeScriptOrder(extractFoundationScriptOrder(foundationHtmlSource))
+  const frontendRuntimeDogfood = evaluateFrontendRuntimeRendererSplit({
+    foundationSource: foundationUiSource,
+    runtimeSource: foundationRuntimeRenderersSource,
+    operationsSource: foundationOperationsRenderersSource,
+    htmlSource: foundationHtmlSource,
+    lineCounts: {
+      before: FRONTEND_RUNTIME_RENDERERS_SPLIT_BEFORE_LINES,
+      after: frontendUiLineCount,
+    },
+    routeDispatch: {
+      systemHealth: true,
+      jobs: true,
+      llmRuntime: true,
+      runtimeProcess: true,
+    },
+    helperBehavior: {
+      purposePanel: true,
+      statusGroup: true,
+      llmPanel: true,
+    },
+  })
+  ensure(
+    checks,
+      frontendRuntimeRenderersSplitCard &&
+      frontendRuntimeRenderersSplitCard.lane === 'done' &&
+      String(frontendRuntimeRenderersSplitCard.statusNote || '').includes(FRONTEND_RUNTIME_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      frontendRuntimeRenderersSplitCloseout?.operatorCloseout === true &&
+      (frontendRuntimeRenderersSplitCloseout.backlogIds || []).includes(FRONTEND_RUNTIME_RENDERERS_SPLIT_CARD_ID) &&
+      frontendRuntimeScriptOrder.ok === true &&
+      frontendRuntimeDogfood.ok === true &&
+      packageJson.scripts?.['process:frontend-runtime-renderers-split-check'] === `node --env-file-if-exists=.env ${FRONTEND_RUNTIME_RENDERERS_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FRONTEND_RUNTIME_RENDERERS_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FRONTEND_RUNTIME_RENDERERS_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-frontend-runtime-renderers-split-closeout.md') &&
+      foundationRuntimeRenderersSource.includes('function renderFoundationOperationsPurposePanel(') &&
+      foundationRuntimeRenderersSource.includes('function renderFoundationJobsPanel(') &&
+      foundationRuntimeRenderersSource.includes('function renderRuntimeProcessControlPanel(') &&
+      foundationRuntimeRenderersSource.includes('function renderLlmRuntimePanel(') &&
+      !foundationUiSource.includes('function renderFoundationOperationsPurposePanel(') &&
+      !foundationUiSource.includes('function renderFoundationJobsPanel(') &&
+      !foundationUiSource.includes('function renderLlmRuntimePanel(') &&
+      foundationOperationsRenderersSource.includes('renderFoundationOperationsPurposePanel(') &&
+      foundationOperationsRenderersSource.includes('renderFoundationJobsPanel(') &&
+      frontendRuntimeRenderersSplitScriptSource.includes('runRuntimeBrowserDogfood') &&
+      frontendRuntimeRenderersSplitScriptSource.includes('VM Runtime Health dispatch reaches extracted runtime renderers') &&
+      frontendRuntimeRenderersSplitPlanSource.includes('read-only by default') &&
+      currentPlan.includes(FRONTEND_RUNTIME_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FRONTEND_RUNTIME_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FRONTEND_RUNTIME_RENDERERS_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FRONTEND_RUNTIME_RENDERERS_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FRONTEND_RUNTIME_RENDERERS_SPLIT_CARD_ID),
+    'FRONTEND-RUNTIME-RENDERERS-SPLIT-001 splits Foundation runtime diagnostics renderers out of public/foundation.js',
+    frontendRuntimeRenderersSplitCard
+      ? `lane=${frontendRuntimeRenderersSplitCard.lane} dogfood=${frontendRuntimeDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_RUNTIME_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
+      : `missing ${FRONTEND_RUNTIME_RENDERERS_SPLIT_CARD_ID}`,
+  )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
   ensure(
@@ -14924,7 +14998,7 @@ async function main() {
   ensure(
     checks,
     doneGuardrails.every(item => item?.lane === 'done') &&
-      !includesAll(foundationUiSource, ['DATA-018, DATA-019']) &&
+      !includesAll(foundationFrontendSource, ['DATA-018, DATA-019']) &&
       includesAll(currentState, ['DATA-018', 'DATA-019', 'DATA-020']),
     'current-state source closeout rows match done Owners/FUB guardrails',
     doneGuardrails.map(item => `${item?.id || 'missing'}=${item?.lane || 'missing'}`).join(' / '),

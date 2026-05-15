@@ -205,6 +205,10 @@ async function main() {
       readText('server.js'),
       Promise.all([
         readText('public/foundation.js'),
+        readText('public/foundation-runtime-renderers.js').catch(error => {
+          if (error?.code === 'ENOENT') return ''
+          throw error
+        }),
         readText('public/foundation-operations-renderers.js').catch(error => {
           if (error?.code === 'ENOENT') return ''
           throw error
