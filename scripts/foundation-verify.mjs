@@ -68,6 +68,12 @@ import {
   buildFoundationJobMutationAllowlistReport,
 } from '../lib/foundation-job-mutation-allowlist.js'
 import {
+  ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_CARD_ID,
+  ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_CLOSEOUT_KEY,
+  ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_SCRIPT_PATH,
+  buildActiveVsHistoricalVerifierSplitDogfoodProof,
+} from '../lib/foundation-active-historical-verifier.js'
+import {
   PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
   buildScheduledMutationGuardDogfoodProof,
   getFoundationJobDefinitions,
@@ -15326,6 +15332,28 @@ async function main() {
     liveTruthVerifyDecoupleCard
       ? `lane=${liveTruthVerifyDecoupleCard.lane} currentSprintFindings=${liveTruthVerifyDecoupleStatus.currentSprintFindingCount} baseline=${liveTruthVerifyDecoupleStatus.baseline?.filter(item => item.ok).length || 0}/8`
       : 'missing LIVE-TRUTH-VERIFY-DECOUPLE-001',
+  )
+  const activeVsHistoricalVerifierSplitCard = (foundationHub.backlogItems || []).find(item => item.id === ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_CARD_ID) || null
+  const activeVsHistoricalVerifierSplitProof = buildActiveVsHistoricalVerifierSplitDogfoodProof()
+  ensure(
+    checks,
+      activeVsHistoricalVerifierSplitCard &&
+      ['executing', 'done'].includes(activeVsHistoricalVerifierSplitCard.lane) &&
+      activeVsHistoricalVerifierSplitProof.ok === true &&
+      activeVsHistoricalVerifierSplitProof.activePass?.mode === 'active_live_truth' &&
+      activeVsHistoricalVerifierSplitProof.activeStaleWithCloseout?.ok === false &&
+      activeVsHistoricalVerifierSplitProof.activeStaleWithCloseout?.mode === 'active_live_truth_mismatch' &&
+      activeVsHistoricalVerifierSplitProof.activeStaleWithCloseout?.hasHistoricalCloseout === true &&
+      activeVsHistoricalVerifierSplitProof.historicalPass?.mode === 'historical_closeout' &&
+      activeVsHistoricalVerifierSplitProof.historicalMissingCloseout?.ok === false &&
+      activeVsHistoricalVerifierSplitProof.historicalCardNotDone?.ok === false &&
+      packageJson.scripts?.['process:active-vs-historical-verifier-split-check'] === `node --env-file-if-exists=.env ${ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_SCRIPT_PATH}` &&
+      foundationVerifySource.includes('buildActiveVsHistoricalVerifierSplitDogfoodProof') &&
+      foundationVerifySource.includes('ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_CLOSEOUT_KEY'),
+    'ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001 separates active live-truth proof from historical closeout proof',
+    activeVsHistoricalVerifierSplitCard
+      ? `lane=${activeVsHistoricalVerifierSplitCard.lane} active=${activeVsHistoricalVerifierSplitProof.activeStaleWithCloseout?.mode || 'missing'} historical=${activeVsHistoricalVerifierSplitProof.historicalPass?.mode || 'missing'} closeout=${ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_CLOSEOUT_KEY}`
+      : 'missing ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001',
   )
   const processCheckScheduledMutationGuardCard = (foundationHub.backlogItems || []).find(item => item.id === PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID) || null
   const scheduledMutationGuardProof = buildScheduledMutationGuardDogfoodProof()

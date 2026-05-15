@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+  "approvedBy": "Steve full-steam instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T16:45:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/active-vs-historical-verifier-split-001-plan.md",
+  "approvedPlanSha256": "4fa51dcf0db50270b5a0a5c8c0cdec46860cbc56ca0ab5bbe8ba12aa171be22c",
+  "approvedRepoHead": "9f91241de0fdfaa4b0d534fe85d39e12ba168651",
+  "notes": "Approved as the Active vs Historical Verifier Split Sprint. Scope: separate active live-truth assertions from historical closeout proof, dogfood stale active truth failing even with closeout evidence, and add focused read-only proof plus thin verifier coverage. Not approved: broad verifier rewrite, activeSprintAtOrPast bypass expansion, migrating every historical check, DB seed split, hub UI, Marketing live wiring, Build Intel extraction, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "61378457c0cf943651535891a7162dd98864f81bee9468b2bbe2031006ad1f89"
+}

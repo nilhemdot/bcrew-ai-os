@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.63 - Foundation job mutation allowlist active
+Version: v6.65 - Active vs historical verifier split review-ready
 Status: Active
 
 Use this doc for one question:
@@ -73,17 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Job Mutation Allowlist
+## Current Sprint: Active vs Historical Verifier Split
 
-Live sprint ID: `foundation-job-mutation-allowlist-2026-05-15`.
+Live sprint ID: `active-vs-historical-verifier-split-2026-05-15`.
 
-This sprint is active under `foundation-job-mutation-allowlist-v1`. It makes enabled scheduled Foundation jobs prove their mutation posture through an explicit keyed allowlist before the worker can trust them. Missing rows, posture mismatches, and explicitly blocked scheduled jobs fail closed. Runtime/job rows expose the allowlist status so the morning health view can say why a job is allowed or blocked.
+This sprint is review-ready under `active-vs-historical-verifier-split-v1`. It separates active live-truth verifier assertions from historical closeout proof so the verifier stops mixing current operational state with old sprint evidence.
 
-Active card:
+Done card:
 
-1. `FOUNDATION-JOB-MUTATION-ALLOWLIST-001` - add explicit scheduled job mutation allowlist. V1 adds `lib/foundation-job-mutation-allowlist.js`, layers allowlist validation into `lib/foundation-jobs.js`, exposes `mutationAllowlist` in runtime and compact hub job rows, adds focused read-only proof, and adds thin verifier coverage. Dogfood proves a scheduled job with no allowlist fails closed and a report-only scheduled job that becomes mutating fails closed as a posture mismatch.
+1. `ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001` - done under `active-vs-historical-verifier-split-v1`. V1 adds `lib/foundation-active-historical-verifier.js`, focused read-only proof, and thin verifier coverage. Dogfood proves stale active live truth fails even when verified historical closeout evidence exists, while historical proof passes only for a done card plus matching verified closeout.
 
-Not next: scheduler rewrite, new scheduled jobs, source extraction expansion, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, Meeting Vault Phase B, or DB seed split.
+Not next: broad verifier rewrite, adding or expanding `activeSprintAtOrPast` bypasses, migrating every historical check, DB seed split, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `foundation-job-mutation-allowlist-2026-05-15`, closed under `foundation-job-mutation-allowlist-v1`. It makes enabled scheduled Foundation jobs prove their mutation posture through an explicit keyed allowlist before the worker can trust them. Missing rows, posture mismatches, and explicitly blocked scheduled jobs fail closed. Runtime/job rows expose the allowlist status so the morning health view can say why a job is allowed or blocked.
 
 Previous completed sprint: `live-truth-verify-decouple-2026-05-15`, closed under `live-truth-verify-decouple-v1`. It separates active Current Sprint command truth from explicitly labeled historical closeout proof and bootstrap/default sprint literals. The nightly code-quality audit no longer reports the eight 2026-05-14 baseline references as active hardcoded Current Sprint truth, while unlabeled active current-sprint literals still fail as P0 findings.
 
