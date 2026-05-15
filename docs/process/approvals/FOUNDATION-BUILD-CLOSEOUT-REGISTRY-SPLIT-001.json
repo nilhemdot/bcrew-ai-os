@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001",
+  "approvedBy": "Steve go hard instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T17:20:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-build-closeout-registry-split-001-plan.md",
+  "approvedPlanSha256": "b05be1ebe03755334b7d6d219c5a81bd6fec8148de529b6f78a5676e83abb5a4",
+  "approvedRepoHead": "b5c45d8fb996ef0f452e9b1312c69216a7f6ab33",
+  "notes": "Approved as a no-auth Foundation cleanup sprint. Scope: split the build closeout registry below 5,000 lines while preserving closeout lookup behavior, Recent Builds truth, dogfood proof, and full ship gate. Not approved: route behavior changes, hub feature work, Marketing live route wiring, Canva writes, Build Intel extraction, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "ef5ecae28a1070b38c0dacd35cb54d9f595ac4ff11f3dfc9e1c54575a7bac667"
+}

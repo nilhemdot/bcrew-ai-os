@@ -114,6 +114,7 @@
     "process:plan-critic-architectural-rules-check": "node --env-file-if-exists=.env scripts/process-plan-critic-architectural-rules-check.mjs",
     "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",
     "process:foundation-build-log-monolith-slice-check": "node --env-file-if-exists=.env scripts/process-foundation-build-log-monolith-slice-check.mjs",
+    "process:foundation-build-closeout-registry-split-check": "node --env-file-if-exists=.env scripts/process-foundation-build-closeout-registry-split-check.mjs",
     "process:foundation-db-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-db-store-split-check.mjs",
     "process:foundation-backlog-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-backlog-store-split-check.mjs",
     "process:foundation-decision-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-decision-store-split-check.mjs",
