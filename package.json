@@ -202,7 +202,8 @@
     "fub:health": "node --env-file-if-exists=.env scripts/fub-health.mjs",
     "kpi:health": "node --env-file-if-exists=.env scripts/kpi-supabase-health.mjs",
     "bhag:update": "node scripts/update-bhag-builder-paths.mjs",
-    "process:foundation-backlog-detail-endpoint-check": "node --env-file-if-exists=.env scripts/process-foundation-backlog-detail-endpoint-check.mjs"
+    "process:foundation-backlog-detail-endpoint-check": "node --env-file-if-exists=.env scripts/process-foundation-backlog-detail-endpoint-check.mjs",
+    "process:server-route-split-check": "node --env-file-if-exists=.env scripts/process-server-route-split-check.mjs"
   },
   "engines": {
     "node": ">=20"

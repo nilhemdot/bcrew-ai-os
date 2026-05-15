@@ -196,6 +196,7 @@ import {
   buildFoundationBacklogDetailEndpointDogfoodProof,
   validateFoundationBacklogDetailPayload,
 } from '../lib/foundation-backlog-detail.js'
+
 import {
   buildPlainEnglishSweepStatus,
   PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH,
@@ -872,6 +873,14 @@ import {
   buildResearchCurationStatus,
 } from '../lib/phase-d-cleanup.js'
 
+const SERVER_ROUTE_SPLIT_CARD_ID = 'SERVER-ROUTE-SPLIT-001'
+const SERVER_ROUTE_SPLIT_CLOSEOUT_KEY = 'server-route-split-v1'
+const SERVER_ROUTE_SPLIT_SCRIPT_PATH = 'scripts/process-server-route-split-check.mjs'
+const SERVER_ROUTE_SPLIT_PLAN_PATH = 'docs/process/server-route-split-001-plan.md'
+const SERVER_ROUTE_SPLIT_APPROVAL_PATH = 'docs/process/approvals/SERVER-ROUTE-SPLIT-001.json'
+const SERVER_ROUTE_SPLIT_SPRINT_ID = 'server-route-split-2026-05-15'
+const SERVER_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [SERVER_ROUTE_SPLIT_CARD_ID]
+
 const FOUNDATION_1100_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'BACKLOG-HYGIENE-PASS-002',
   'ACTION-REVIEW-CLEANUP-001',
@@ -1499,7 +1508,10 @@ function findDoneCardsWithoutVerifierCoverage(doneCards, verifierSource, validEx
   })
 }
 
-async function findMissingArtifactClaims(records, packageScripts, serverSource) {
+async function findMissingArtifactClaims(records, packageScripts, routeSources) {
+  const combinedRouteSource = Array.isArray(routeSources)
+    ? routeSources.filter(Boolean).join('\n')
+    : String(routeSources || '')
   const missing = []
   for (const record of records) {
     const text = record.text || ''
@@ -1510,7 +1522,7 @@ async function findMissingArtifactClaims(records, packageScripts, serverSource) 
       if (!packageScripts[scriptName]) missing.push(`${record.label}: missing npm script ${scriptName}`)
     }
     for (const apiRoute of extractClaimedApiRoutesFromText(text)) {
-      if (!apiRouteExists(serverSource, apiRoute)) missing.push(`${record.label}: missing API route ${apiRoute}`)
+      if (!apiRouteExists(combinedRouteSource, apiRoute)) missing.push(`${record.label}: missing API route ${apiRoute}`)
     }
   }
   return missing
@@ -2071,6 +2083,9 @@ async function main() {
   const sourceOutageBoundaryPlanSource = await readRepoFile(SOURCE_OUTAGE_BOUNDARY_PLAN_PATH)
   const connectorUptimeMonitorSource = await readRepoFile('lib/connector-uptime-monitor.js')
   const foundationOperatingReliabilityScriptSource = await readRepoFile(FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH)
+  const foundationOperatorRoutesSource = await readRepoFile('lib/foundation-operator-routes.js')
+  const serverRouteSplitScriptSource = await readRepoFile(SERVER_ROUTE_SPLIT_SCRIPT_PATH)
+  const serverRouteSplitPlanSource = await readRepoFile(SERVER_ROUTE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -2801,14 +2816,16 @@ async function main() {
       "app.get('/api/owners/review-queue', requireAdminToken",
       "app.get('/api/sheets/structure-status', requireAdminToken",
       "app.get('/api/system-inventory', requireAdminToken",
-      "app.get('/api/foundation/changes', requireAdminToken",
-      "app.get('/api/foundation/change-log', requireAdminToken",
       "app.get('/api/foundation/per-user-changelog', requireAdminToken",
-      "app.get('/api/foundation/daily-summary', requireAdminToken",
-      "app.get('/api/foundation/build-log', requireAdminToken",
-      "app.get('/api/foundation/doc-updates', requireAdminToken",
       "app.get('/foundation/export/strategy.pdf', requireAdminToken",
-    ].every(pattern => serverSource.includes(pattern)),
+    ].every(pattern => serverSource.includes(pattern)) &&
+      [
+        "app.get('/api/foundation/changes', requireAdminToken",
+        "app.get('/api/foundation/change-log', requireAdminToken",
+        "app.get('/api/foundation/daily-summary', requireAdminToken",
+        "app.get('/api/foundation/build-log', requireAdminToken",
+        "app.get('/api/foundation/doc-updates', requireAdminToken",
+      ].every(pattern => foundationOperatorRoutesSource.includes(pattern)),
     'broad Foundation/Ops/doc read APIs are admin-gated',
     'source-of-truth, doc reads, foundation hub, intelligence evidence, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, changelog, per-user changelog, daily summary, build log, doc updates, and PDF export require admin token outside localhost',
   )
@@ -3664,6 +3681,7 @@ async function main() {
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=240')
   const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
   const foundationDailySummary = await fetchJson(baseUrl, '/api/foundation/daily-summary?date=2026-04-30&days=7')
+  const foundationDocUpdatesApi = await fetchJson(baseUrl, '/api/foundation/doc-updates')
   const foundationSourceLifecycle = await fetchJson(baseUrl, SOURCE_LIFECYCLE_API_PATH)
   const foundationSourceMaturityGrid = await fetchJson(baseUrl, '/api/foundation/source-maturity-grid')
   const foundationSourceExtractionCoverage = await fetchJson(baseUrl, '/api/foundation/source-extraction-coverage')
@@ -3871,6 +3889,7 @@ async function main() {
   const foundationReadySafeHubLaneCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) || null
   const foundationHubBacklogContractCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) || null
   const foundationBacklogDetailEndpointCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) || null
+  const serverRouteSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SERVER_ROUTE_SPLIT_CLOSEOUT_KEY) || null
   const foundationOperatingReliabilityCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
@@ -4076,7 +4095,7 @@ async function main() {
   const missingArtifactClaims = await findMissingArtifactClaims(
     artifactClaimRecords,
     packageJson.scripts || {},
-    serverSource,
+    [serverSource, foundationOperatorRoutesSource],
   )
   const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
     [{
@@ -4084,7 +4103,7 @@ async function main() {
       text: 'docs/process/synthetic-missing-artifact.md npm run synthetic:missing /api/synthetic-missing-artifact',
     }],
     packageJson.scripts || {},
-    serverSource,
+    [serverSource, foundationOperatorRoutesSource],
   )
   const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
@@ -13752,8 +13771,14 @@ async function main() {
       foundationBacklogDetailEndpointApi.contractVersion === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_VERSION &&
       foundationBacklogDetailEndpointApi.cardId === FOUNDATION_HUB_BACKLOG_CONTRACT_CARD_ID &&
       packageJson.scripts?.['process:foundation-backlog-detail-endpoint-check'] === `node --env-file-if-exists=.env ${FOUNDATION_BACKLOG_DETAIL_ENDPOINT_SCRIPT_PATH}` &&
-      serverSource.includes("app.get('/api/foundation/backlog/:cardId'") &&
-      serverSource.includes('getBacklogItemsByIds([validation.cardId])') &&
+      (
+        serverSource.includes("app.get('/api/foundation/backlog/:cardId'") ||
+        (
+          serverSource.includes('registerFoundationOperatorRoutes(app') &&
+          foundationOperatorRoutesSource.includes("app.get('/api/foundation/backlog/:cardId'") &&
+          foundationOperatorRoutesSource.includes('getBacklogItemsByIds([validation.cardId])')
+        )
+      ) &&
       currentPlan.includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) &&
       currentState.includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) &&
       (activeFoundationSprint.sprint?.sprintId === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_SPRINT_ID ||
@@ -13763,6 +13788,57 @@ async function main() {
     foundationBacklogDetailEndpointCard
       ? `lane=${foundationBacklogDetailEndpointCard.lane} dogfood=${foundationBacklogDetailEndpointDogfood.ok ? 'pass' : 'blocked'} route=${foundationBacklogDetailEndpointApi.cardId || 'missing'}`
       : `missing ${FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CARD_ID}`,
+  )
+  const serverRouteSplitCard = (foundationHub.backlogItems || []).find(item => item.id === SERVER_ROUTE_SPLIT_CARD_ID) || null
+  const serverRouteSplitRouteMarkers = [
+    "/api/foundation/changes",
+    "/api/foundation/change-log",
+    "/api/foundation/daily-summary",
+    "/api/foundation/build-log",
+    "/api/foundation/backlog/:cardId",
+    "/api/foundation/doc-updates",
+  ]
+  const serverRouteSplitOldInlineMarkers = [
+    "app.get('/api/foundation/changes'",
+    "app.get('/api/foundation/change-log'",
+    "app.get('/api/foundation/daily-summary'",
+    "app.get('/api/foundation/build-log'",
+    "app.get('/api/foundation/backlog/:cardId'",
+    "app.get('/api/foundation/doc-updates'",
+  ]
+  ensure(
+    checks,
+      serverRouteSplitCard &&
+      serverRouteSplitCard.lane === 'done' &&
+      String(serverRouteSplitCard.statusNote || '').includes(SERVER_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      serverRouteSplitCloseout?.operatorCloseout === true &&
+      (serverRouteSplitCloseout.backlogIds || []).includes(SERVER_ROUTE_SPLIT_CARD_ID) &&
+      packageJson.scripts?.['process:server-route-split-check'] === `node --env-file-if-exists=.env ${SERVER_ROUTE_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(SERVER_ROUTE_SPLIT_PLAN_PATH) &&
+      await repoFileExists(SERVER_ROUTE_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-server-route-split-closeout.md') &&
+      foundationOperatorRoutesSource.includes('registerFoundationOperatorRoutes') &&
+      includesAll(foundationOperatorRoutesSource, serverRouteSplitRouteMarkers) &&
+      serverSource.includes('registerFoundationOperatorRoutes(app') &&
+      serverRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker)) &&
+      serverRouteSplitScriptSource.includes('fetchJsonMeasured') &&
+      serverRouteSplitScriptSource.includes('scriptIsReadOnly') &&
+      serverRouteSplitPlanSource.includes('focused proof script is read-only by default') &&
+      Array.isArray(foundationChangesApi.changes) &&
+      Array.isArray(foundationBuildLog.builds) &&
+      (Array.isArray(foundationChangeLog.entries) || foundationChangeLog.generatedAt) &&
+      (foundationDailySummary.generatedAt || foundationDailySummary.selectedDate || foundationDailySummary.summary) &&
+      Array.isArray(foundationDocUpdatesApi.docUpdates) &&
+      foundationBacklogDetailEndpointRouteValidation.ok === true &&
+      currentPlan.includes(SERVER_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(SERVER_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === SERVER_ROUTE_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast(SERVER_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
+      includesAll(foundationVerifySource, SERVER_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'SERVER-ROUTE-SPLIT-001 extracts Foundation operator routes from server.js without behavior drift',
+    serverRouteSplitCard
+      ? `lane=${serverRouteSplitCard.lane} module=${foundationOperatorRoutesSource.includes('registerFoundationOperatorRoutes')} inlineGone=${serverRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker))}`
+      : `missing ${SERVER_ROUTE_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
