@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.70 - Foundation DB Strategy source snapshot split sprint
+Version: v6.71 - Foundation DB Strategy operating truth split sprint
 Status: Active
 
 Use this doc for one question:
@@ -73,19 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation DB Strategy Source Snapshot Split
+## Current Sprint: Foundation DB Strategy Operating Truth Split
 
-Live sprint ID: `foundation-db-strategy-source-snapshot-split-2026-05-15`.
+Live sprint ID: `foundation-db-strategy-operating-truth-split-2026-05-15`.
 
-This sprint is active under `foundation-strategy-source-snapshot-split-v1`. It extracts source-backed BHAG and Agent Engine doc snapshot builders from `lib/foundation-db.js` into `lib/foundation-strategy-source-snapshots.js` without changing Google source IDs, ranges, doc paths, source IDs, labels, sort orders, or `doc_source_snapshots` persistence.
+This sprint is active under `foundation-strategy-operating-truth-split-v1`. It extracts the Strategy Operating Truth finance/Owners/FUB/KPI source-card builder from `lib/foundation-db.js` into `lib/foundation-strategy-operating-truth.js` without changing source IDs, Google ranges, KPI card reads, FUB snapshot reads, or public callers.
 
-The previous cleanup sprint `foundation-db-core-seed-split-2026-05-15` is done under `foundation-core-seed-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-003` moved static Foundation bootstrap seed arrays into `lib/foundation-core-seed.js` while preserving live Postgres/API as operational truth after bootstrap.
+The previous cleanup sprint `foundation-db-strategy-source-snapshot-split-2026-05-15` is done under `foundation-strategy-source-snapshot-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-004` moved source-backed BHAG and Agent Engine doc snapshot builders into `lib/foundation-strategy-source-snapshots.js` while preserving Google source IDs/ranges/doc paths/source IDs/labels/sort orders and `doc_source_snapshots` persistence.
 
 Active card:
 
-1. `FOUNDATION-DB-MONOLITH-SPLIT-003` - building under `foundation-core-seed-split-v1`. V1 moves Foundation users, locked decision defaults, parking-lot defaults, open-question defaults, memory-status defaults, and default doc source snapshot rows into `lib/foundation-core-seed.js`, keeps bootstrap seed calls in `lib/foundation-db.js`, and dogfoods that old inline seed ownership fails while imported seed ownership passes.
+1. `FOUNDATION-DB-MONOLITH-SPLIT-005` - building under `foundation-strategy-operating-truth-split-v1`. V1 moves Strategy Operating Truth finance/Owners/FUB/KPI source-card builder behavior into `lib/foundation-strategy-operating-truth.js`, keeps the public DB export as a dependency-injected wrapper, and dogfoods that old inline source-card ownership fails while split module ownership passes.
 
-Not next: broad DB rewrite, source-backed live BHAG / Agent Engine snapshot builder movement, schema changes, source crawl/job/intelligence/shared-comms/hub movement, hub feature work, Marketing Video Lab live route wiring, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad DB rewrite, schema changes, Google source ID/range/label changes, BHAG / Agent Engine snapshot behavior changes, FUB storage movement, source crawl/job/intelligence/shared-comms/hub movement, hub feature work, Marketing Video Lab live route wiring, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `foundation-db-core-seed-split-2026-05-15`, closed under `foundation-core-seed-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-003` moved static Foundation bootstrap seed arrays into `lib/foundation-core-seed.js` while preserving live Postgres/API as operational truth after bootstrap.
 
 Previous completed sprint: `verifier-server-route-split-module-2026-05-15`, closed under `verifier-server-route-split-module-v1`. `VERIFIER-SERVER-ROUTE-SPLIT-MODULE-001` extracted the already-shipped server route split verifier proof domain from `scripts/foundation-verify.mjs` into `lib/foundation-server-route-split-verifier.js` without changing route behavior.
 

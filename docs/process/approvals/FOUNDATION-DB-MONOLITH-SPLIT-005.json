@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-005",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T14:18:40.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-db-strategy-operating-truth-split-005-plan.md",
+  "approvedPlanSha256": "3be7f08c97f758532cd288f51a48de25522968a9549d5255923a7fd4116118b6",
+  "approvedRepoHead": "9fa29dc7d717a0e0ae5c3787868c661ecd9b86c4",
+  "notes": "Approved as a bounded no-auth Foundation DB monolith split. Scope: extract only the Strategy Operating Truth finance/Owners/FUB/KPI source-card builder from lib/foundation-db.js into lib/foundation-strategy-operating-truth.js, preserve Google source IDs/ranges/labels/source-card shape and public getStrategyOperatingTruthSnapshot callers, pass live dependencies to avoid circular imports, and dogfood that old inline builder ownership fails. Not approved: broad DB rewrite, schema changes, seed changes, BHAG/Agent Engine snapshot changes, source crawl/job/intelligence/shared-comms/hub changes, Marketing Video Lab wiring, paid-source auth, Meeting Vault Phase B, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "9b568dcbe964ceada02b147598a28d7797d7e85f27afafb8acc1025c0ab468b0"
+}

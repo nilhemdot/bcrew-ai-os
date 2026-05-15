@@ -700,6 +700,16 @@ import {
   evaluateFoundationStrategySourceSnapshotSplit,
 } from '../lib/foundation-strategy-source-snapshots.js'
 import {
+  FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_APPROVAL_PATH,
+  FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID,
+  FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_PLAN_PATH,
+  FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SCRIPT_PATH,
+  FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SPRINT_ID,
+  buildFoundationStrategyOperatingTruthSplitDogfoodProof,
+  evaluateFoundationStrategyOperatingTruthSplit,
+} from '../lib/foundation-strategy-operating-truth.js'
+import {
   FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
   FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
   FRONTEND_MONOLITH_SPLIT_CARD_ID,
@@ -2444,6 +2454,9 @@ async function main() {
   const foundationStrategySourceSnapshotSource = await readRepoFile('lib/foundation-strategy-source-snapshots.js')
   const foundationStrategySourceSnapshotScriptSource = await readRepoFile(FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_SCRIPT_PATH)
   const foundationStrategySourceSnapshotPlanSource = await readRepoFile(FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_PLAN_PATH)
+  const foundationStrategyOperatingTruthSource = await readRepoFile('lib/foundation-strategy-operating-truth.js')
+  const foundationStrategyOperatingTruthScriptSource = await readRepoFile(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SCRIPT_PATH)
+  const foundationStrategyOperatingTruthPlanSource = await readRepoFile(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -6410,7 +6423,8 @@ async function main() {
       strategySharedCommsRouteSource.includes("app.get('/api/strategic-execution/operating-truth'") &&
       serverSource.includes('currentOperatingTruth') &&
       foundationDbSource.includes('getStrategyOperatingTruthSnapshot') &&
-      foundationDbSource.includes('Do not recommend "install weekly finance truth" as if the source does not exist'),
+      foundationDbSource.includes('getStrategyOperatingTruthSnapshotFromSources') &&
+      foundationStrategyOperatingTruthSource.includes('Do not recommend "install weekly finance truth" as if the source does not exist'),
     'Strategy operating truth guardrails force live Owners/Finance/FUB/KPI checks before recommendations',
     `sources=${Array.from(strategyOperatingSourceIds).join(', ')}`,
   )
@@ -14590,6 +14604,57 @@ async function main() {
     foundationStrategySourceSnapshotSplitCard
       ? `lane=${foundationStrategySourceSnapshotSplitCard.lane} dogfood=${foundationStrategySourceSnapshotDogfood.ok ? 'pass' : 'blocked'} lines=${foundationStrategySourceSnapshotEvaluation.beforeLines}->${foundationStrategySourceSnapshotEvaluation.afterLines}`
       : `missing ${FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CARD_ID}`,
+  )
+  const foundationStrategyOperatingTruthSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID) || null
+  const foundationStrategyOperatingTruthSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CLOSEOUT_KEY) || null
+  const foundationStrategyOperatingTruthDogfood = buildFoundationStrategyOperatingTruthSplitDogfoodProof({
+    afterLines: foundationDbSource.split('\n').length,
+  })
+  const foundationStrategyOperatingTruthEvaluation = evaluateFoundationStrategyOperatingTruthSplit({
+    foundationDbSource,
+    moduleSource: foundationStrategyOperatingTruthSource,
+    scriptSource: foundationStrategyOperatingTruthScriptSource,
+    planSource: foundationStrategyOperatingTruthPlanSource,
+    afterLines: foundationDbSource.split('\n').length,
+  })
+  const foundationStrategyOperatingTruthSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SPRINT_ID &&
+    (activeFoundationSprint.items || []).some(item =>
+      item.cardId === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID &&
+        ['building_now', 'done_this_sprint'].includes(item.stage)
+    )
+  const foundationStrategyOperatingTruthClosed = foundationStrategyOperatingTruthSplitCard?.lane === 'done' &&
+    String(foundationStrategyOperatingTruthSplitCard.statusNote || '').includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CLOSEOUT_KEY) &&
+    foundationStrategyOperatingTruthSplitCloseout?.operatorCloseout === true &&
+    (foundationStrategyOperatingTruthSplitCloseout.backlogIds || []).includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID)
+  ensure(
+    checks,
+      foundationStrategyOperatingTruthSplitCard &&
+      (foundationStrategyOperatingTruthSprintActive || foundationStrategyOperatingTruthClosed) &&
+      foundationStrategyOperatingTruthDogfood.ok === true &&
+      foundationStrategyOperatingTruthEvaluation.ok === true &&
+      packageJson.scripts?.['process:foundation-strategy-operating-truth-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_APPROVAL_PATH) &&
+      foundationStrategyOperatingTruthSource.includes('export async function getStrategyOperatingTruthSnapshot') &&
+      foundationStrategyOperatingTruthSource.includes('export function buildStrategyOperatingTruthSnapshot') &&
+      foundationStrategyOperatingTruthSource.includes("'Cashflow Dash'!A1:J25") &&
+      foundationStrategyOperatingTruthSource.includes("'(Input) Weekly Actuals'!A1:BR8") &&
+      foundationStrategyOperatingTruthSource.includes("'Listings and Conditional Deals'!A1:B12") &&
+      foundationStrategyOperatingTruthScriptSource.includes('dogfood rejects old inline Strategy Operating Truth ownership') &&
+      foundationStrategyOperatingTruthPlanSource.includes('Strategy Operating Truth source-card builder') &&
+      foundationDbSource.includes('./foundation-strategy-operating-truth.js') &&
+      foundationDbSource.includes('return getStrategyOperatingTruthSnapshotFromSources({') &&
+      !foundationDbSource.includes('function findSheetMetric') &&
+      !foundationDbSource.includes('function conditionalCollectionFacts') &&
+      currentPlan.includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID),
+    'FOUNDATION-DB-MONOLITH-SPLIT-005 splits Strategy Operating Truth source cards out of foundation-db.js',
+    foundationStrategyOperatingTruthSplitCard
+      ? `lane=${foundationStrategyOperatingTruthSplitCard.lane} dogfood=${foundationStrategyOperatingTruthDogfood.ok ? 'pass' : 'blocked'} lines=${foundationStrategyOperatingTruthEvaluation.beforeLines}->${foundationStrategyOperatingTruthEvaluation.afterLines}`
+      : `missing ${FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID}`,
   )
   const frontendSplitVerifierCoveredCardIds = [
     'FRONTEND-MONOLITH-SPLIT-001',

@@ -118,6 +118,7 @@
     "process:foundation-decision-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-decision-store-split-check.mjs",
     "process:foundation-core-seed-split-check": "node --env-file-if-exists=.env scripts/process-foundation-core-seed-split-check.mjs",
     "process:foundation-strategy-source-snapshot-split-check": "node --env-file-if-exists=.env scripts/process-foundation-strategy-source-snapshot-split-check.mjs",
+    "process:foundation-strategy-operating-truth-split-check": "node --env-file-if-exists=.env scripts/process-foundation-strategy-operating-truth-split-check.mjs",
     "process:frontend-monolith-split-check": "node --env-file-if-exists=.env scripts/process-frontend-monolith-split-check.mjs",
     "process:frontend-operations-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-operations-renderers-split-check.mjs",
     "process:frontend-runtime-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-runtime-renderers-split-check.mjs",
