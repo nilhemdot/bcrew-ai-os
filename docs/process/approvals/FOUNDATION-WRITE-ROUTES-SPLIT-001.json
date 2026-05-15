@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-WRITE-ROUTES-SPLIT-001",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T15:00:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-write-routes-split-001-plan.md",
+  "approvedPlanSha256": "cb97928c5d6865c7bbd74b8f21434a38aefc90b7e0c7d1cf29c6fe2cfb5da244",
+  "approvedRepoHead": "f2c1d129bed4f35e377c313af3a3c592659fcff2",
+  "notes": "Approved as fourth Server Monolith Closeout build card after STRATEGY-SHARED-COMMS-ROUTES-SPLIT-001 passed. Scope: extract only bounded Foundation write routes into lib/foundation-write-routes.js with behavior unchanged and safe invalid write dogfood proof. Not approved: Sales routes, Agent Feedback routes, Marketing Video Lab wiring, doc-update redesign, source extraction, paid-source auth, or broad server rewrite.",
+  "approvalDigest": "721a6e9de882c8e31dc2dff3833576d88909802c7446ba3cfc510204f7ac94d0"
+}

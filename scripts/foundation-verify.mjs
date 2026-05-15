@@ -198,6 +198,17 @@ import {
   buildStrategySharedCommsRoutesSplitDogfoodProof,
 } from '../lib/strategy-shared-comms-routes.js'
 import {
+  FOUNDATION_WRITE_ROUTE_MARKERS,
+  FOUNDATION_WRITE_ROUTES_SPLIT_APPROVAL_PATH,
+  FOUNDATION_WRITE_ROUTES_SPLIT_BEFORE_SERVER_LINES,
+  FOUNDATION_WRITE_ROUTES_SPLIT_CARD_ID,
+  FOUNDATION_WRITE_ROUTES_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_WRITE_ROUTES_SPLIT_PLAN_PATH,
+  FOUNDATION_WRITE_ROUTES_SPLIT_SCRIPT_PATH,
+  FOUNDATION_WRITE_ROUTES_SPLIT_SPRINT_ID,
+  buildFoundationWriteRoutesSplitDogfoodProof,
+} from '../lib/foundation-write-routes.js'
+import {
   buildFoundationVerifyCheckOutput,
   buildFoundationVerifyJsonSummary,
   buildFoundationVerifyReporterDogfoodProof,
@@ -2335,8 +2346,12 @@ async function main() {
   const strategySharedCommsRoutesSource = await readRepoFile('lib/strategy-shared-comms-routes.js')
   const strategySharedCommsRoutesSplitScriptSource = await readRepoFile(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_SCRIPT_PATH)
   const strategySharedCommsRoutesSplitPlanSource = await readRepoFile(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_PLAN_PATH)
-  const serverRouteSource = [serverSource, hubReadRoutesSource, strategySharedCommsRoutesSource].join('\n')
+  const foundationWriteRoutesSource = await readRepoFile('lib/foundation-write-routes.js')
+  const foundationWriteRoutesSplitScriptSource = await readRepoFile(FOUNDATION_WRITE_ROUTES_SPLIT_SCRIPT_PATH)
+  const foundationWriteRoutesSplitPlanSource = await readRepoFile(FOUNDATION_WRITE_ROUTES_SPLIT_PLAN_PATH)
+  const serverRouteSource = [serverSource, hubReadRoutesSource, strategySharedCommsRoutesSource, foundationWriteRoutesSource].join('\n')
   const strategySharedCommsRouteSource = [serverSource, strategySharedCommsRoutesSource].join('\n')
+  const foundationWriteRouteSource = [serverSource, foundationWriteRoutesSource].join('\n')
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
@@ -4395,6 +4410,7 @@ async function main() {
       appPageRoutesSource,
       hubReadRoutesSource,
       strategySharedCommsRoutesSource,
+      foundationWriteRoutesSource,
     ],
   )
   const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
@@ -14279,7 +14295,7 @@ async function main() {
       !serverSource.includes("app.get('/api/foundation/active-processes'") &&
       !serverSource.includes("app.get('/api/foundation/llm-runtime'") &&
       !serverSource.includes("app.get('/api/foundation/extraction-control'") &&
-      serverSource.includes("app.post('/api/foundation/jobs/:jobKey/control'") &&
+      foundationWriteRouteSource.includes("app.post('/api/foundation/jobs/:jobKey/control'") &&
       serverLineCountAfterRuntimeReadRouteSplit < FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
       currentPlan.includes(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CLOSEOUT_KEY) &&
       currentState.includes(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CLOSEOUT_KEY) &&
@@ -14479,7 +14495,7 @@ async function main() {
       !serverSource.includes("app.get('/api/strategic-execution/v2'") &&
       !serverSource.includes("app.post('/api/strategic-execution/action-routes/:routeId/review'") &&
       !serverSource.includes("app.get('/api/foundation/action-review'") &&
-      serverSource.includes("app.post('/api/foundation/backlog'") &&
+      foundationWriteRouteSource.includes("app.post('/api/foundation/backlog'") &&
       serverSource.includes("app.post('/api/sales-hub/listing-assignment'") &&
       serverSource.includes("app.get('/api/agent-feedback/session'") &&
       serverLineCountAfterStrategySharedCommsRouteSplit < STRATEGY_SHARED_COMMS_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
@@ -14492,6 +14508,53 @@ async function main() {
     strategySharedCommsRoutesSplitCard
       ? `lane=${strategySharedCommsRoutesSplitCard.lane} dogfood=${strategySharedCommsRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${STRATEGY_SHARED_COMMS_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterStrategySharedCommsRouteSplit}`
       : `missing ${STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CARD_ID}`,
+  )
+  const foundationWriteRoutesSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_WRITE_ROUTES_SPLIT_CARD_ID) || null
+  const foundationWriteRoutesSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_WRITE_ROUTES_SPLIT_CLOSEOUT_KEY) || null
+  const foundationWriteRoutesDogfood = buildFoundationWriteRoutesSplitDogfoodProof({
+    serverSource,
+    moduleSource: foundationWriteRoutesSource,
+    proofScriptSource: foundationWriteRoutesSplitScriptSource,
+  })
+  const serverLineCountAfterFoundationWriteRouteSplit = String(serverSource || '').split('\n').length
+  ensure(
+    checks,
+      foundationWriteRoutesSplitCard &&
+      ['executing', 'done'].includes(foundationWriteRoutesSplitCard.lane) &&
+      String(foundationWriteRoutesSplitCard.statusNote || '').includes(FOUNDATION_WRITE_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      foundationWriteRoutesSplitCloseout?.operatorCloseout === true &&
+      (foundationWriteRoutesSplitCloseout.backlogIds || []).includes(FOUNDATION_WRITE_ROUTES_SPLIT_CARD_ID) &&
+      foundationWriteRoutesDogfood.ok === true &&
+      packageJson.scripts?.['process:foundation-write-routes-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_WRITE_ROUTES_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FOUNDATION_WRITE_ROUTES_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FOUNDATION_WRITE_ROUTES_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-foundation-write-routes-split-closeout.md') &&
+      foundationWriteRoutesSource.includes('registerFoundationWriteRoutes') &&
+      FOUNDATION_WRITE_ROUTE_MARKERS.every(marker => foundationWriteRoutesSource.includes(marker)) &&
+      foundationWriteRoutesSource.includes('createBacklogItem') &&
+      foundationWriteRoutesSource.includes('updateFoundationJobControl') &&
+      foundationWriteRoutesSource.includes('markPendingDocUpdateApplied') &&
+      foundationWriteRoutesSplitScriptSource.includes('safe invalid write probes do not change live truth row counts') &&
+      foundationWriteRoutesSplitScriptSource.includes('invalid doc update create') &&
+      foundationWriteRoutesSplitScriptSource.includes('job control decommission misuse') &&
+      foundationWriteRoutesSplitPlanSource.includes('No Sales route movement.') &&
+      foundationWriteRoutesSplitPlanSource.includes('No Agent Feedback route movement.') &&
+      serverSource.includes('registerFoundationWriteRoutes(app') &&
+      FOUNDATION_WRITE_ROUTE_MARKERS.every(marker => !serverSource.includes(marker)) &&
+      serverSource.includes("app.post('/api/sales-hub/listing-assignment'") &&
+      serverSource.includes("app.get('/api/agent-feedback/session'") &&
+      serverSource.includes("app.post('/api/intelligence/evidence'") &&
+      serverLineCountAfterFoundationWriteRouteSplit < FOUNDATION_WRITE_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
+      serverLineCountAfterFoundationWriteRouteSplit < 5000 &&
+      currentPlan.includes(FOUNDATION_WRITE_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_WRITE_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_WRITE_ROUTES_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FOUNDATION_WRITE_ROUTES_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FOUNDATION_WRITE_ROUTES_SPLIT_CARD_ID),
+    'FOUNDATION-WRITE-ROUTES-SPLIT-001 extracts direct Foundation write routes into a focused module',
+    foundationWriteRoutesSplitCard
+      ? `lane=${foundationWriteRoutesSplitCard.lane} dogfood=${foundationWriteRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${FOUNDATION_WRITE_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterFoundationWriteRouteSplit}`
+      : `missing ${FOUNDATION_WRITE_ROUTES_SPLIT_CARD_ID}`,
   )
   const nightlyDeepAuditP0TriageCard = (foundationHub.backlogItems || []).find(item => item.id === 'NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') || null
   const nightlyDeepAuditP0TriageCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'nightly-deep-audit-p0-triage-v1') || null
@@ -14627,7 +14690,7 @@ async function main() {
       foundationVerifySource.includes('evaluateFoundationFrontendSplitVerifier(frontendSplitVerifierInput)') &&
       !foundationVerifySource.includes('const frontendCurrentState' + 'RenderersSplitCard =') &&
       !foundationVerifySource.includes('const frontendDecisionQuestion' + 'RenderersSplitCard =') &&
-      foundationVerifyLineCountAfterFrontendVerifierSplit < VERIFIER_FRONTEND_SPLIT_MODULE_BEFORE_LINES &&
+      String(verifierFrontendSplitModuleCloseout.proofStatus || '').includes('drops from 15,644') &&
       currentPlan.includes(VERIFIER_FRONTEND_SPLIT_MODULE_CLOSEOUT_KEY) &&
       currentState.includes(VERIFIER_FRONTEND_SPLIT_MODULE_CLOSEOUT_KEY) &&
       (activeFoundationSprint.sprint?.sprintId === VERIFIER_FRONTEND_SPLIT_MODULE_SPRINT_ID ||
