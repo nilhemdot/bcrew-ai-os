@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.43 - Foundation Source Route Split closed
+Version: v6.44 - Foundation Build Intel Route Split closed
 Status: Active
 
 Use this doc for one question:
@@ -73,11 +73,11 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Source Route Split
+## Current Sprint: Foundation Build Intel Route Split
 
-Live sprint ID: `source-route-split-2026-05-15`.
+Live sprint ID: `build-intel-route-split-2026-05-15`.
 
-This sprint is closed under `source-route-split-v1`. It extracts the Foundation source/control read-route cluster out of `server.js` into `lib/foundation-source-routes.js` without changing route behavior.
+This sprint is closed under `build-intel-route-split-v1`. It extracts the Foundation Build Intel read-route cluster out of `server.js` into `lib/foundation-build-intel-routes.js` without changing route behavior.
 
 The sprint order:
 

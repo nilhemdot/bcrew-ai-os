@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-INTEL-ROUTE-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T04:35:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/build-intel-route-split-001-plan.md",
+  "approvedPlanSha256": "8ee650fc25f876b11891e001bd51d45d63f61c2ef5a975575c5e9d98b4888d33",
+  "approvedRepoHead": "6ebb3e5e3badf85a815f95058088acd6c2773de5",
+  "notes": "Approved as the Foundation Build Intel Route Split Sprint. Scope: extract one Foundation Build Intel read-route cluster out of server.js into lib/foundation-build-intel-routes.js with read-only focused proof and full ship. Not approved: broad server refactor, auth/session routes, write routes, Marketing live wiring, hub feature work, new Build Intel extraction, paid-source auth, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "1af38af560381d48d986d90dc561d770fba8461e0e497d62943cf1ffcf402077"
+}

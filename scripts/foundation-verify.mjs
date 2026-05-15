@@ -889,6 +889,14 @@ const SOURCE_ROUTE_SPLIT_APPROVAL_PATH = 'docs/process/approvals/SOURCE-ROUTE-SP
 const SOURCE_ROUTE_SPLIT_SPRINT_ID = 'source-route-split-2026-05-15'
 const SOURCE_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [SOURCE_ROUTE_SPLIT_CARD_ID]
 
+const BUILD_INTEL_ROUTE_SPLIT_CARD_ID = 'BUILD-INTEL-ROUTE-SPLIT-001'
+const BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY = 'build-intel-route-split-v1'
+const BUILD_INTEL_ROUTE_SPLIT_SCRIPT_PATH = 'scripts/process-build-intel-route-split-check.mjs'
+const BUILD_INTEL_ROUTE_SPLIT_PLAN_PATH = 'docs/process/build-intel-route-split-001-plan.md'
+const BUILD_INTEL_ROUTE_SPLIT_APPROVAL_PATH = 'docs/process/approvals/BUILD-INTEL-ROUTE-SPLIT-001.json'
+const BUILD_INTEL_ROUTE_SPLIT_SPRINT_ID = 'build-intel-route-split-2026-05-15'
+const BUILD_INTEL_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [BUILD_INTEL_ROUTE_SPLIT_CARD_ID]
+
 const FOUNDATION_1100_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'BACKLOG-HYGIENE-PASS-002',
   'ACTION-REVIEW-CLEANUP-001',
@@ -2097,6 +2105,9 @@ async function main() {
   const foundationSourceRoutesSource = await readRepoFile('lib/foundation-source-routes.js')
   const sourceRouteSplitScriptSource = await readRepoFile(SOURCE_ROUTE_SPLIT_SCRIPT_PATH)
   const sourceRouteSplitPlanSource = await readRepoFile(SOURCE_ROUTE_SPLIT_PLAN_PATH)
+  const foundationBuildIntelRoutesSource = await readRepoFile('lib/foundation-build-intel-routes.js')
+  const buildIntelRouteSplitScriptSource = await readRepoFile(BUILD_INTEL_ROUTE_SPLIT_SCRIPT_PATH)
+  const buildIntelRouteSplitPlanSource = await readRepoFile(BUILD_INTEL_ROUTE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -2841,7 +2852,13 @@ async function main() {
         "app.get('/api/foundation/per-user-changelog', requireAdminToken",
         "app.get('/api/foundation/source-connector-matrix', requireAdminToken",
         "app.get('/api/foundation/source-hub-routing-matrix', requireAdminToken",
-      ].every(pattern => foundationSourceRoutesSource.includes(pattern)),
+      ].every(pattern => foundationSourceRoutesSource.includes(pattern)) &&
+      [
+        "app.get('/api/foundation/build-intel-watchlist', requireAdminToken",
+        "app.get('/api/foundation/research-inbox-contract', requireAdminToken",
+        "app.get('/api/foundation/build-intel-extraction', requireAdminToken",
+        "app.get('/api/foundation/gstack-build-intel', requireAdminToken",
+      ].every(pattern => foundationBuildIntelRoutesSource.includes(pattern)),
     'broad Foundation/Ops/doc read APIs are admin-gated',
     'source-of-truth, doc reads, foundation hub, intelligence evidence, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, changelog, per-user changelog, daily summary, build log, doc updates, and PDF export require admin token outside localhost',
   )
@@ -3711,6 +3728,13 @@ async function main() {
   const foundationVerificationRuns = await fetchJson(baseUrl, '/api/foundation/verification-runs')
   const foundationPerUserChangelog = await fetchJson(baseUrl, '/api/foundation/per-user-changelog?limit=100')
   const foundationRestrictedDecisionQueue = await fetchJson(baseUrl, '/api/foundation/restricted-decision-queue?limit=100')
+  const foundationBuildIntelWatchlist = await fetchJson(baseUrl, '/api/foundation/build-intel-watchlist')
+  const foundationMultimodalExtractorContract = await fetchJson(baseUrl, '/api/foundation/multimodal-extractor-contract')
+  const foundationResearchInboxContract = await fetchJson(baseUrl, '/api/foundation/research-inbox-contract')
+  const foundationControlCompressionApi = await fetchJson(baseUrl, '/api/foundation/control-compression')
+  const foundationImplementationIntelligenceApi = await fetchJson(baseUrl, '/api/foundation/implementation-intelligence')
+  const foundationBuildIntelExtractionApi = await fetchJson(baseUrl, '/api/foundation/build-intel-extraction')
+  const foundationGStackBuildIntelApi = await fetchJson(baseUrl, '/api/foundation/gstack-build-intel')
   const foundationChangesApi = await fetchJson(baseUrl, '/api/foundation/changes?limit=20')
   const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
   const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
@@ -4115,7 +4139,7 @@ async function main() {
   const missingArtifactClaims = await findMissingArtifactClaims(
     artifactClaimRecords,
     packageJson.scripts || {},
-    [serverSource, foundationOperatorRoutesSource, foundationSourceRoutesSource],
+    [serverSource, foundationOperatorRoutesSource, foundationSourceRoutesSource, foundationBuildIntelRoutesSource],
   )
   const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
     [{
@@ -4123,7 +4147,7 @@ async function main() {
       text: 'docs/process/synthetic-missing-artifact.md npm run synthetic:missing /api/synthetic-missing-artifact',
     }],
     packageJson.scripts || {},
-    [serverSource, foundationOperatorRoutesSource, foundationSourceRoutesSource],
+    [serverSource, foundationOperatorRoutesSource, foundationSourceRoutesSource, foundationBuildIntelRoutesSource],
   )
   const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
@@ -13261,9 +13285,9 @@ async function main() {
       inboxProposal.proposalOnly === true &&
       inboxProposal.writesBacklog === false &&
       packageJson.scripts?.['process:build-intel-intake-check'] === 'node --env-file-if-exists=.env scripts/process-build-intel-intake-check.mjs' &&
-      serverSource.includes("app.get('/api/foundation/build-intel-watchlist'") &&
-      serverSource.includes("app.get('/api/foundation/multimodal-extractor-contract'") &&
-      serverSource.includes("app.get('/api/foundation/research-inbox-contract'") &&
+      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/build-intel-watchlist'") &&
+      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/multimodal-extractor-contract'") &&
+      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/research-inbox-contract'") &&
       currentPlan.includes(BUILD_INTEL_INTAKE_CLOSEOUT_KEY) &&
       currentPlan.includes('Build Intel Extraction Implementation Sprint') &&
       currentState.includes(BUILD_INTEL_INTAKE_CLOSEOUT_KEY) &&
@@ -13319,7 +13343,7 @@ async function main() {
       incrementalStaticPlan.focusedProofAllowed === true &&
       incrementalFullPlan.fullVerifyRequired === true &&
       packageJson.scripts?.['process:foundation-control-compression-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-control-compression-check.mjs' &&
-      serverSource.includes("app.get('/api/foundation/control-compression'") &&
+      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/control-compression'") &&
       currentPlan.includes(FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY) &&
       currentState.includes(FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY),
     'Foundation control compression closes feedback, backlog, sprint advisor, flow, velocity, ack, and incremental proof primitives',
@@ -13367,7 +13391,7 @@ async function main() {
       implementationIntelligence.publicYoutubePreflight?.extractionStarted === false &&
       implementationIntelligence.publicYoutubePreflight?.paidAuthUsed === false &&
       packageJson.scripts?.['process:implementation-intelligence-check'] === 'node --env-file-if-exists=.env scripts/process-implementation-intelligence-check.mjs' &&
-      serverSource.includes("app.get('/api/foundation/implementation-intelligence'") &&
+      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/implementation-intelligence'") &&
       currentPlan.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) &&
       currentState.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY),
     'Implementation Intelligence closes internal scoper, thin-card detector, research queue, builder linker, and public YouTube preflight without mutation',
@@ -13424,7 +13448,7 @@ async function main() {
       buildIntelExtraction.brief?.nextRecommendedSprint === 'Build Intel Extraction Expansion Sprint' &&
       buildIntelExtractionReportExists &&
       packageJson.scripts?.['process:build-intel-extraction-check'] === `node --env-file-if-exists=.env ${BUILD_INTEL_EXTRACTION_IMPLEMENTATION_SCRIPT_PATH}` &&
-      serverSource.includes("app.get('/api/foundation/build-intel-extraction'") &&
+      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/build-intel-extraction'") &&
       currentPlan.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) &&
       currentState.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY),
     'Build Intel Extraction Implementation consumes public transcripts into proposal-only observations, Research Inbox proposals, and a brief',
@@ -13484,7 +13508,7 @@ async function main() {
       gstackBuildIntelReport.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY) &&
       gstackBuildIntelReport.includes('Do not install GStack') &&
       packageJson.scripts?.['process:gstack-build-intel-check'] === `node --env-file-if-exists=.env ${GSTACK_BUILD_INTEL_SCRIPT_PATH}` &&
-      serverSource.includes("app.get('/api/foundation/gstack-build-intel'") &&
+      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/gstack-build-intel'") &&
       securityAccessSource.includes('/api/foundation/gstack-build-intel') &&
       currentPlan.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY) &&
       currentState.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY) &&
@@ -13933,6 +13957,61 @@ async function main() {
     sourceRouteSplitCard
       ? `lane=${sourceRouteSplitCard.lane} module=${foundationSourceRoutesSource.includes('registerFoundationSourceRoutes')} inlineGone=${sourceRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker))}`
       : `missing ${SOURCE_ROUTE_SPLIT_CARD_ID}`,
+  )
+  const buildIntelRouteSplitCard = (foundationHub.backlogItems || []).find(item => item.id === BUILD_INTEL_ROUTE_SPLIT_CARD_ID) || null
+  const buildIntelRouteSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY) || null
+  const buildIntelRouteSplitRouteMarkers = [
+    '/api/foundation/build-intel-watchlist',
+    '/api/foundation/multimodal-extractor-contract',
+    '/api/foundation/research-inbox-contract',
+    '/api/foundation/control-compression',
+    '/api/foundation/implementation-intelligence',
+    '/api/foundation/build-intel-extraction',
+    '/api/foundation/gstack-build-intel',
+  ]
+  const buildIntelRouteSplitOldInlineMarkers = [
+    "app.get('/api/foundation/build-intel-watchlist'",
+    "app.get('/api/foundation/multimodal-extractor-contract'",
+    "app.get('/api/foundation/research-inbox-contract'",
+    "app.get('/api/foundation/control-compression'",
+    "app.get('/api/foundation/implementation-intelligence'",
+    "app.get('/api/foundation/build-intel-extraction'",
+    "app.get('/api/foundation/gstack-build-intel'",
+  ]
+  ensure(
+    checks,
+      buildIntelRouteSplitCard &&
+      buildIntelRouteSplitCard.lane === 'done' &&
+      String(buildIntelRouteSplitCard.statusNote || '').includes(BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      buildIntelRouteSplitCloseout?.operatorCloseout === true &&
+      (buildIntelRouteSplitCloseout.backlogIds || []).includes(BUILD_INTEL_ROUTE_SPLIT_CARD_ID) &&
+      packageJson.scripts?.['process:build-intel-route-split-check'] === `node --env-file-if-exists=.env ${BUILD_INTEL_ROUTE_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(BUILD_INTEL_ROUTE_SPLIT_PLAN_PATH) &&
+      await repoFileExists(BUILD_INTEL_ROUTE_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-build-intel-route-split-closeout.md') &&
+      foundationBuildIntelRoutesSource.includes('registerFoundationBuildIntelRoutes') &&
+      includesAll(foundationBuildIntelRoutesSource, buildIntelRouteSplitRouteMarkers) &&
+      serverSource.includes('registerFoundationBuildIntelRoutes(app') &&
+      buildIntelRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker)) &&
+      buildIntelRouteSplitScriptSource.includes('fetchJsonMeasured') &&
+      buildIntelRouteSplitScriptSource.includes('scriptIsReadOnly') &&
+      buildIntelRouteSplitPlanSource.includes('focused proof script is read-only') &&
+      foundationBuildIntelWatchlist.cardId === 'CREATOR-WATCHLIST-001' &&
+      foundationMultimodalExtractorContract.cardId === 'MULTIMODAL-EXTRACTOR-001' &&
+      foundationResearchInboxContract.cardId === 'RESEARCH-INBOX-001' &&
+      foundationControlCompressionApi.closeoutKey === 'foundation-control-backlog-compression-v1' &&
+      foundationImplementationIntelligenceApi.closeoutKey === 'implementation-intelligence-v1' &&
+      foundationBuildIntelExtractionApi.closeoutKey === 'build-intel-extraction-implementation-v1' &&
+      foundationGStackBuildIntelApi.closeoutKey === 'gstack-build-intel-extraction-v1' &&
+      currentPlan.includes(BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(BUILD_INTEL_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === BUILD_INTEL_ROUTE_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast(BUILD_INTEL_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
+      includesAll(foundationVerifySource, BUILD_INTEL_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'BUILD-INTEL-ROUTE-SPLIT-001 extracts Foundation Build Intel read routes from server.js without behavior drift',
+    buildIntelRouteSplitCard
+      ? `lane=${buildIntelRouteSplitCard.lane} module=${foundationBuildIntelRoutesSource.includes('registerFoundationBuildIntelRoutes')} inlineGone=${buildIntelRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker))}`
+      : `missing ${BUILD_INTEL_ROUTE_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
