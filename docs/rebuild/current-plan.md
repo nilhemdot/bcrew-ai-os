@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.62 - Sprint-check historical mode active
+Version: v6.63 - Foundation job mutation allowlist active
 Status: Active
 
 Use this doc for one question:
@@ -73,19 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Live Truth Verify Decouple
+## Current Sprint: Foundation Job Mutation Allowlist
 
-Live sprint ID: `live-truth-verify-decouple-2026-05-15`.
+Live sprint ID: `foundation-job-mutation-allowlist-2026-05-15`.
 
-This sprint is closed under `live-truth-verify-decouple-v1`. It separates active Current Sprint command truth from explicitly labeled historical closeout proof and bootstrap/default sprint literals. The nightly code-quality audit no longer reports the eight 2026-05-14 baseline references as active hardcoded Current Sprint truth, while unlabeled active current-sprint literals still fail as P0 findings.
+This sprint is active under `foundation-job-mutation-allowlist-v1`. It makes enabled scheduled Foundation jobs prove their mutation posture through an explicit keyed allowlist before the worker can trust them. Missing rows, posture mismatches, and explicitly blocked scheduled jobs fail closed. Runtime/job rows expose the allowlist status so the morning health view can say why a job is allowed or blocked.
 
-Completed card:
+Active card:
 
-1. `LIVE-TRUTH-VERIFY-DECOUPLE-001` - decouple live-looking verifier truth from historical/bootstrap sprint constants. Adds `lib/live-truth-verify-decouple.js`, updates `lib/code-quality-nightly-audit.js`, labels the baseline refs, adds focused read-only proof, and adds thin verifier coverage. Dogfood proves active unlabeled literals still fail and labeled historical/bootstrap references do not create P0 current-sprint findings.
+1. `FOUNDATION-JOB-MUTATION-ALLOWLIST-001` - add explicit scheduled job mutation allowlist. V1 adds `lib/foundation-job-mutation-allowlist.js`, layers allowlist validation into `lib/foundation-jobs.js`, exposes `mutationAllowlist` in runtime and compact hub job rows, adds focused read-only proof, and adds thin verifier coverage. Dogfood proves a scheduled job with no allowlist fails closed and a report-only scheduled job that becomes mutating fails closed as a posture mismatch.
 
-Not next: broad historical script rewrite, adding an `activeSprintAtOrPast` bypass, weakening active Current Sprint checks, source-count dynamic cleanup, KPI year cleanup, Foundation UI live-summary cleanup, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: scheduler rewrite, new scheduled jobs, source extraction expansion, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, Meeting Vault Phase B, or DB seed split.
 
-Previous completed sprint: `sprint-check-historical-mode-2026-05-15`, closed under `sprint-check-historical-mode-v1`. It makes focused sprint proof scripts historical-aware after closeout: active cards still prove against the active Current Sprint, while closed cards can prove from live done-lane backlog truth plus a matching verified closeout after the active sprint rolls forward.
+Previous completed sprint: `live-truth-verify-decouple-2026-05-15`, closed under `live-truth-verify-decouple-v1`. It separates active Current Sprint command truth from explicitly labeled historical closeout proof and bootstrap/default sprint literals. The nightly code-quality audit no longer reports the eight 2026-05-14 baseline references as active hardcoded Current Sprint truth, while unlabeled active current-sprint literals still fail as P0 findings.
 
 ## Previous Sprint: Sprint Check Historical Mode
 

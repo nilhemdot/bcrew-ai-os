@@ -62,6 +62,12 @@ import {
   buildLiveTruthVerifyDecoupleStatus,
 } from '../lib/live-truth-verify-decouple.js'
 import {
+  FOUNDATION_JOB_MUTATION_ALLOWLIST_CARD_ID,
+  FOUNDATION_JOB_MUTATION_ALLOWLIST_SCRIPT_PATH,
+  buildFoundationJobMutationAllowlistDogfoodProof,
+  buildFoundationJobMutationAllowlistReport,
+} from '../lib/foundation-job-mutation-allowlist.js'
+import {
   PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
   buildScheduledMutationGuardDogfoodProof,
   getFoundationJobDefinitions,
@@ -15355,6 +15361,29 @@ async function main() {
     processCheckScheduledMutationGuardCard
       ? `lane=${processCheckScheduledMutationGuardCard.lane} verification-runs=${verificationRunsRuntime?.scheduleStatus || 'missing'} scheduledChecks=${scheduledProcessCheckRuntimes.length}`
       : 'missing PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001',
+  )
+  const foundationJobMutationAllowlistCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_JOB_MUTATION_ALLOWLIST_CARD_ID) || null
+  const foundationJobMutationAllowlistReport = buildFoundationJobMutationAllowlistReport({ jobs: foundationJobs })
+  const foundationJobMutationAllowlistDogfood = buildFoundationJobMutationAllowlistDogfoodProof()
+  ensure(
+    checks,
+      foundationJobMutationAllowlistCard &&
+      ['executing', 'done'].includes(foundationJobMutationAllowlistCard.lane) &&
+      foundationJobMutationAllowlistReport.ok === true &&
+      foundationJobMutationAllowlistReport.scheduledCount >= 20 &&
+      foundationJobMutationAllowlistReport.missingCount === 0 &&
+      foundationJobMutationAllowlistReport.mismatchCount === 0 &&
+      foundationJobMutationAllowlistReport.blockedRows.some(row => row.key === 'verification-runs') &&
+      foundationJobMutationAllowlistDogfood.ok === true &&
+      foundationJobMutationAllowlistDogfood.scheduledMissing?.status === 'missing_allowlist' &&
+      foundationJobMutationAllowlistDogfood.scheduledMismatch?.status === 'posture_mismatch' &&
+      packageJson.scripts?.['process:foundation-job-mutation-allowlist-check'] === `node --env-file-if-exists=.env ${FOUNDATION_JOB_MUTATION_ALLOWLIST_SCRIPT_PATH}` &&
+      foundationJobsSource.includes('evaluateFoundationJobMutationAllowlist') &&
+      foundationVerifySource.includes('buildFoundationJobMutationAllowlistReport'),
+    'FOUNDATION-JOB-MUTATION-ALLOWLIST-001 requires explicit scheduled job mutation posture',
+    foundationJobMutationAllowlistCard
+      ? `lane=${foundationJobMutationAllowlistCard.lane} scheduled=${foundationJobMutationAllowlistReport.scheduledCount} allowed=${foundationJobMutationAllowlistReport.allowedCount} blocked=${foundationJobMutationAllowlistReport.blockedCount}`
+      : `missing ${FOUNDATION_JOB_MUTATION_ALLOWLIST_CARD_ID}`,
   )
   const foundationDbInitSeedSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID) || null
   const foundationDbInitSeedSplitProof = await buildFoundationDbInitSeedSplitDogfoodProof()
