@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FRONTEND-SOURCE-LIFECYCLE-RENDERERS-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T06:25:55.740Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/frontend-source-lifecycle-renderers-split-001-plan.md",
+  "approvedPlanSha256": "e7be45dba270dda30815b863f082d9b7895d01497331148040ae71344d381036",
+  "approvedRepoHead": "49fef0fceadc430ed83504b7be97118351ab7bd6",
+  "notes": "Approved as a no-auth Foundation cleanup continuation. Scope: mechanically extract Source Lifecycle/source-health renderers into public/foundation-source-lifecycle-renderers.js with VM dogfood proof, split-source reviewer updates, route/script budgets, and full Foundation ship. Not approved: UI redesign, API changes, broad renderer rewrite, hub feature work, Marketing live wiring, paid-source auth, source extraction, Drive permissions, Meeting Vault Phase B, or autonomous dev.",
+  "approvalDigest": "6221268fa77e88a62205de0cee0954d3f4a642da22706b57701cefaab3852734"
+}

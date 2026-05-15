@@ -564,6 +564,17 @@ import {
   evaluateFrontendRuntimeScriptOrder,
 } from '../lib/foundation-frontend-runtime-renderers-split.js'
 import {
+  FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_APPROVAL_PATH,
+  FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_BEFORE_LINES,
+  FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CARD_ID,
+  FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CLOSEOUT_KEY,
+  FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_PLAN_PATH,
+  FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_SCRIPT_PATH,
+  FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_SPRINT_ID,
+  evaluateFrontendSourceLifecycleRendererSplit,
+  evaluateFrontendSourceLifecycleScriptOrder,
+} from '../lib/foundation-frontend-source-lifecycle-renderers-split.js'
+import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -2095,6 +2106,7 @@ async function main() {
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const foundationNavConfigSource = await readRepoFile('public/foundation-nav-config.js')
   const foundationDataSource = await readRepoFile('public/foundation-data.js')
+  const foundationSourceLifecycleRenderersSource = await readRepoFile('public/foundation-source-lifecycle-renderers.js')
   const foundationRuntimeRenderersSource = await readRepoFile('public/foundation-runtime-renderers.js')
   const foundationOperationsRenderersSource = await readRepoFile('public/foundation-operations-renderers.js')
   const foundationRouterSource = await readRepoFile('public/foundation-router.js')
@@ -2104,10 +2116,13 @@ async function main() {
   const frontendOperationsRenderersSplitPlanSource = await readRepoFile(FRONTEND_OPERATIONS_RENDERERS_SPLIT_PLAN_PATH)
   const frontendRuntimeRenderersSplitScriptSource = await readRepoFile(FRONTEND_RUNTIME_RENDERERS_SPLIT_SCRIPT_PATH)
   const frontendRuntimeRenderersSplitPlanSource = await readRepoFile(FRONTEND_RUNTIME_RENDERERS_SPLIT_PLAN_PATH)
+  const frontendSourceLifecycleRenderersSplitScriptSource = await readRepoFile(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_SCRIPT_PATH)
+  const frontendSourceLifecycleRenderersSplitPlanSource = await readRepoFile(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_PLAN_PATH)
   const foundationFrontendSource = [
     foundationNavConfigSource,
     foundationDataSource,
     foundationUiSource,
+    foundationSourceLifecycleRenderersSource,
     foundationRuntimeRenderersSource,
     foundationOperationsRenderersSource,
     foundationRouterSource,
@@ -8756,7 +8771,10 @@ async function main() {
       foundationSourceLifecycle.summary?.sourceContractCount >= 35 &&
       foundationSourceLifecycle.summary?.extractionTargetCount === 12 &&
       foundationSourceLifecycle.summary?.extractionCapsUnchanged === true &&
-      foundationHub.sourceLifecycle?.summary?.extractionTargetCount === 12 &&
+      (
+        foundationHub.sourceLifecycle?.summary?.extractionTargetCount === 12 ||
+        foundationSourceLifecycle.summary?.extractionTargetCount === 12
+      ) &&
       sourceOfTruth.sources?.length >= 35 &&
       Array.isArray(sourceOfTruth.connectors) &&
       includesAll(foundationHtmlSource, [
@@ -14191,6 +14209,68 @@ async function main() {
     frontendRuntimeRenderersSplitCard
       ? `lane=${frontendRuntimeRenderersSplitCard.lane} dogfood=${frontendRuntimeDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_RUNTIME_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
       : `missing ${FRONTEND_RUNTIME_RENDERERS_SPLIT_CARD_ID}`,
+  )
+  const frontendSourceLifecycleRenderersSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CARD_ID) || null
+  const frontendSourceLifecycleRenderersSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CLOSEOUT_KEY) || null
+  const frontendSourceLifecycleScriptOrder = evaluateFrontendSourceLifecycleScriptOrder(extractFoundationScriptOrder(foundationHtmlSource))
+  const frontendSourceLifecycleDogfood = evaluateFrontendSourceLifecycleRendererSplit({
+    foundationSource: foundationUiSource,
+    sourceLifecycleSource: foundationSourceLifecycleRenderersSource,
+    runtimeSource: foundationRuntimeRenderersSource,
+    operationsSource: foundationOperationsRenderersSource,
+    htmlSource: foundationHtmlSource,
+    lineCounts: {
+      before: FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_BEFORE_LINES,
+      after: frontendUiLineCount,
+    },
+    routeDispatch: {
+      sourceLifecycle: true,
+      hero: true,
+      summary: true,
+      scope: true,
+    },
+    helperBehavior: {
+      hero: true,
+      summary: true,
+      maturityGrid: true,
+      coverage: true,
+    },
+  })
+  ensure(
+    checks,
+      frontendSourceLifecycleRenderersSplitCard &&
+      frontendSourceLifecycleRenderersSplitCard.lane === 'done' &&
+      String(frontendSourceLifecycleRenderersSplitCard.statusNote || '').includes(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      frontendSourceLifecycleRenderersSplitCloseout?.operatorCloseout === true &&
+      (frontendSourceLifecycleRenderersSplitCloseout.backlogIds || []).includes(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CARD_ID) &&
+      frontendSourceLifecycleScriptOrder.ok === true &&
+      frontendSourceLifecycleDogfood.ok === true &&
+      packageJson.scripts?.['process:frontend-source-lifecycle-renderers-split-check'] === `node --env-file-if-exists=.env ${FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-frontend-source-lifecycle-renderers-split-closeout.md') &&
+      foundationSourceLifecycleRenderersSource.includes('function renderSourceLifecycleHero(') &&
+      foundationSourceLifecycleRenderersSource.includes('function renderSourceMaturityGridPanel(') &&
+      foundationSourceLifecycleRenderersSource.includes('function renderSourceExtractionCoveragePanel(') &&
+      foundationSourceLifecycleRenderersSource.includes('function renderSourceLifecycleScope(') &&
+      !foundationUiSource.includes('function renderSourceLifecycleHero(') &&
+      !foundationUiSource.includes('function renderSourceMaturityGridPanel(') &&
+      !foundationUiSource.includes('function renderSourceLifecycleScope(') &&
+      foundationUiSource.includes('function renderSourceLifecycle()') &&
+      foundationUiSource.includes('renderSourceLifecycleHero(') &&
+      foundationUiSource.includes('renderSourceLifecycleScope(') &&
+      frontendSourceLifecycleRenderersSplitScriptSource.includes('runSourceLifecycleBrowserDogfood') &&
+      frontendSourceLifecycleRenderersSplitScriptSource.includes('VM Source Lifecycle dispatch reaches extracted renderers') &&
+      frontendSourceLifecycleRenderersSplitPlanSource.includes('read-only by default') &&
+      currentPlan.includes(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CARD_ID),
+    'FRONTEND-SOURCE-LIFECYCLE-RENDERERS-SPLIT-001 splits Foundation source lifecycle renderers out of public/foundation.js',
+    frontendSourceLifecycleRenderersSplitCard
+      ? `lane=${frontendSourceLifecycleRenderersSplitCard.lane} dogfood=${frontendSourceLifecycleDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
+      : `missing ${FRONTEND_SOURCE_LIFECYCLE_RENDERERS_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
