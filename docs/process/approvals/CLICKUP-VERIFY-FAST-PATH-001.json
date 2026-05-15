@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CLICKUP-VERIFY-FAST-PATH-001",
+  "approvedBy": "Steve approved the Foundation Verifier Drag + ClickUp Health Boundary sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-15T00:09:41.491Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/clickup-verify-fast-path-001-plan.md",
+  "approvedPlanSha256": "d7fdbd2e03df12e8619993e5f274f03350a421e4eef021ea8fc6ce009ba9234c",
+  "approvedRepoHead": "fbae47f1e542cfe14a65fb54ace3af62b6569bee",
+  "notes": "Approved as part of the Foundation Verifier Drag + ClickUp Health Boundary sprint. Scope: make ClickUp health verification fast, bounded, cached per run, degraded honestly, and profiled by budget. Not approved: ClickUp writes, verifier weakening, hub features, paid-source auth, Build Intel, or broad refactor.",
+  "approvalDigest": "a79dec6e386e1c92275bdaa174538b5437df0004f65a7d7a783877e5c828a5b9"
+}

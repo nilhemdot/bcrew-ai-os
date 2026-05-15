@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-14
-Version: v6.37 - Foundation Ship Gate Speed + Payload Cleanup closed
+Version: v6.38 - Foundation ClickUp Verify Health Boundary closed
 Status: Active
 
 Use this doc for one question:
@@ -73,25 +73,28 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Ship Gate Speed + Payload Cleanup
+## Current Sprint: Foundation ClickUp Verify Health Boundary
 
-Live sprint ID: `foundation-ship-gate-speed-payload-cleanup-2026-05-14`.
+Live sprint ID: `foundation-clickup-verify-health-boundary-2026-05-14`.
 
-This sprint is closed under `foundation-ship-gate-speed-payload-cleanup-v1`. It made Foundation shipping faster to diagnose by failing stale manual freshness before the expensive gate path, showing verifier timing by named section, splitting one verifier proof module, and shrinking full diagnostics payload without hiding required truth. Current Sprint API owns the live stage truth; this doc records the closeout doctrine and sequence.
+This sprint is closed under `foundation-clickup-verify-health-boundary-v1`. It cut the measured ClickUp verifier drag without weakening verifier trust: `health:clickup:verify` dropped from roughly 45 seconds to 2.733 seconds in the final profile proof, and the full profiled verifier dropped from roughly 92 seconds to 49.427 seconds.
 
 The sprint order:
 
-1. `SHIP-GATE-FAST-PREFLIGHT-001` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; `process:foundation-ship` now runs read-only LLM auth freshness preflight before runtime restart, ship-check, fanout, post-ship fanout, and final verifier.
-2. `FOUNDATION-VERIFY-TIMING-001` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; `foundation:verify --profile=true` emits named section timings and a machine-readable `FOUNDATION_VERIFY_PROFILE` line without skipping checks.
-3. `FOUNDATION-VERIFY-MODULE-SPLIT-002` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; the LLM auth audit verifier proof now lives in `lib/foundation-verify-llm-auth-audit.js` with its own dogfood gate.
-4. `FOUNDATION-HUB-FULL-PAYLOAD-REDUCE-001` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; full diagnostics compacts heavy `sourceLifecycle` and `sharedCommunicationSynthesis` rows and is now measured at about 3.54 MB versus the earlier 4.82 MB baseline.
-5. `SHIP-GATE-FRESHNESS-OWNERSHIP-001` - done under `foundation-ship-gate-speed-payload-cleanup-v1`; freshness blockers show owner, manual posture, latest run, age, and repair command before late gate failures.
+1. `CLICKUP-VERIFY-FAST-PATH-001` - done under `foundation-clickup-verify-health-boundary-v1`; `clickup:verify` now uses bounded shared-client reads, one task page per list by default, 8 second request timeout, and concurrent list checks.
+2. `CLICKUP-VERIFY-PAYLOAD-CACHE-001` - done under `foundation-clickup-verify-health-boundary-v1`; one verifier invocation reuses a per-run list snapshot instead of repeating the same ClickUp reads.
+3. `CLICKUP-DEGRADED-HEALTH-DOGFOOD-001` - done under `foundation-clickup-verify-health-boundary-v1`; timeout, 500, and 429 dogfood cases report degraded ClickUp source health with redacted output.
+4. `FOUNDATION-VERIFY-SLOW-BUDGET-001` - done under `foundation-clickup-verify-health-boundary-v1`; `FOUNDATION_VERIFY_PROFILE` now carries a 20 second slow-section budget and over-budget rows with owner/next action.
 
-The approved speed/payload cleanup sprint is complete. Stop at sprint review before opening another sprint. Latest profile proof shows `health:clickup:verify` is the largest ship-gate drag at roughly 45 seconds, followed by full Foundation Hub, Sheets, Ops Hub, KPI, and source-of-truth reads.
+The approved ClickUp verifier drag sprint is complete. Stop at sprint review before opening another sprint. Latest profile proof shows no sections over the 20 second budget. The slowest remaining sections are full Foundation Hub diagnostics at about 7.7 seconds and Ops Hub at about 6.9 seconds.
 
-Recommended next sprint, not silently opened: **Foundation Verifier Drag + ClickUp Health Boundary Sprint**. Scope should start with ClickUp verifier latency and source-health fail-soft behavior, then continue the cleanup pattern if time remains.
+Recommended next sprint, not silently opened: **Foundation Full Diagnostics + Ops Hub Speed Cleanup Sprint**. Scope should measure and reduce the new slowest sections without broad refactors, then continue the cleanup/monolith split cadence.
 
-Previous completed sprint: `foundation-operating-reliability-2026-05-14`, closed under `foundation-operating-reliability-v1`. It added connector uptime, connector failure redaction/classification, runtime activation, and a report-only morning health surface. The `connector-uptime-monitor` Foundation job is scheduled read-only. The `code-quality-nightly-audit` job remains manual/report-first until recurring report quality is explicitly accepted. `RECURRING-DEEP-AUDIT-001` is the missing reviewer cadence and belongs in a follow-up cleanup sprint.
+Reviewer-system follow-up now queued in live backlog: `NIGHTLY-DEEP-AUDIT-UPGRADE-001`. This is the successor to the weaker manual-only `RECURRING-DEEP-AUDIT-001` posture. It should build a scheduled report-only nightly hybrid audit: deterministic backend/frontend scan every night, incremental LLM senior-engineer review on changed or high-risk code, frontend/backend smoke or replay gap checks, performance/debt trend deltas, and diff-only morning output. It must dogfood against the 2026-05-13 deep-audit failures and must not auto-fix code or auto-create backlog rows.
+
+Previous completed sprint: `foundation-ship-gate-speed-payload-cleanup-2026-05-14`, closed under `foundation-ship-gate-speed-payload-cleanup-v1`. It added a read-only fast ship preflight, live freshness ownership rows, verifier timing profile output, one LLM auth verifier module split, and a smaller full diagnostics payload. That sprint exposed ClickUp verifier latency as the next measured bottleneck, which is now closed under `foundation-clickup-verify-health-boundary-v1`.
+
+Previous completed sprint: `foundation-operating-reliability-2026-05-14`, closed under `foundation-operating-reliability-v1`. It added connector uptime, connector failure redaction/classification, runtime activation, and a report-only morning health surface. The `connector-uptime-monitor` Foundation job is scheduled read-only. The `code-quality-nightly-audit` job remains manual/report-first until recurring report quality is explicitly accepted. `RECURRING-DEEP-AUDIT-001` later closed as a manual/report-only deep-audit cadence; `NIGHTLY-DEEP-AUDIT-UPGRADE-001` is the stronger queued reviewer-system upgrade.
 
 Previous completed audit sprint: `foundation-code-quality-nightly-audit-2026-05-13`, closed under `foundation-code-quality-nightly-audit-v1`. It added deterministic report-first codebase/frontend audit detectors and a manual unscheduled Foundation job. Findings are proposed backlog fixes only. It did not schedule a recurring senior-engineer deep audit.
 

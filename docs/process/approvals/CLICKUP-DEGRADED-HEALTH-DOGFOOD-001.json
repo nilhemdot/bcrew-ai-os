@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CLICKUP-DEGRADED-HEALTH-DOGFOOD-001",
+  "approvedBy": "Steve approved the Foundation Verifier Drag + ClickUp Health Boundary sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-15T00:09:41.491Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/clickup-degraded-health-dogfood-001-plan.md",
+  "approvedPlanSha256": "99080741ccd26b0eb15863cdf9006e8bcf762b59b367a94b00307d6ab6dd85eb",
+  "approvedRepoHead": "fbae47f1e542cfe14a65fb54ace3af62b6569bee",
+  "notes": "Approved as part of the Foundation Verifier Drag + ClickUp Health Boundary sprint. Scope: make ClickUp health verification fast, bounded, cached per run, degraded honestly, and profiled by budget. Not approved: ClickUp writes, verifier weakening, hub features, paid-source auth, Build Intel, or broad refactor.",
+  "approvalDigest": "5e44d06f7ac125810f35415ae7b768656bb339c73ee8cbe283fbc254dc49f1d3"
+}

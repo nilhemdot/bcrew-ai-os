@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CLICKUP-VERIFY-PAYLOAD-CACHE-001",
+  "approvedBy": "Steve approved the Foundation Verifier Drag + ClickUp Health Boundary sprint in chat; Codex Plan Critic logged pass",
+  "approvedAt": "2026-05-15T00:09:41.491Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/clickup-verify-payload-cache-001-plan.md",
+  "approvedPlanSha256": "24e603f20445674c8d6e80b337aabeee9749f549d1aa4e9205b1b0bf5059c026",
+  "approvedRepoHead": "fbae47f1e542cfe14a65fb54ace3af62b6569bee",
+  "notes": "Approved as part of the Foundation Verifier Drag + ClickUp Health Boundary sprint. Scope: make ClickUp health verification fast, bounded, cached per run, degraded honestly, and profiled by budget. Not approved: ClickUp writes, verifier weakening, hub features, paid-source auth, Build Intel, or broad refactor.",
+  "approvalDigest": "027a066d82fe976cba60d8fe1809c6767a19200f6c99be9119ee6607cf7d126d"
+}

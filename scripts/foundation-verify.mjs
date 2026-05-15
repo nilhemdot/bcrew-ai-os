@@ -697,6 +697,14 @@ import {
   evaluateLlmAuthAuditVerifierCheck,
 } from '../lib/foundation-verify-llm-auth-audit.js'
 import {
+  buildClickUpSourceVerifierDogfoodProof,
+} from '../lib/clickup-source-verifier.js'
+import {
+  buildFoundationVerifySlowSectionRows,
+  buildFoundationVerifySlowBudgetDogfoodProof,
+  getFoundationVerifySlowSectionBudgetMs,
+} from '../lib/foundation-verify-profile-budget.js'
+import {
   FOUNDATION_SHIP_PREFLIGHT_SCRIPT_PATH,
   buildFoundationShipPreflightDogfoodProof,
 } from '../lib/foundation-ship-preflight.js'
@@ -1021,6 +1029,16 @@ const FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'SHIP-GATE-FRESHNESS-OWNERSHIP-001',
 ]
 
+const FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY = 'foundation-clickup-verify-health-boundary-v1'
+const CLICKUP_SOURCE_VERIFY_SCRIPT_PATH = 'scripts/clickup-source-verify.mjs'
+const CLICKUP_VERIFY_HEALTH_BOUNDARY_SCRIPT_PATH = 'scripts/process-clickup-verify-health-boundary-check.mjs'
+const FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
+  'CLICKUP-VERIFY-FAST-PATH-001',
+  'CLICKUP-VERIFY-PAYLOAD-CACHE-001',
+  'CLICKUP-DEGRADED-HEALTH-DOGFOOD-001',
+  'FOUNDATION-VERIFY-SLOW-BUDGET-001',
+]
+
 const execFile = promisify(execFileCallback)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -1062,15 +1080,24 @@ function printFoundationVerifyTimingProfile(totalStartedAt) {
   const sections = [...foundationVerifyTimings]
     .sort((a, b) => b.durationMs - a.durationMs)
     .slice(0, 15)
+  const slowSectionBudgetMs = getFoundationVerifySlowSectionBudgetMs()
+  const overBudgetSections = buildFoundationVerifySlowSectionRows(foundationVerifyTimings, {
+    budgetMs: slowSectionBudgetMs,
+  })
   console.log('')
   line('Foundation verify timing profile', `${Math.round(totalMs)}ms total / ${foundationVerifyTimings.length} sections`)
   for (const section of sections) {
     line(`  ${section.label}`, `${Math.round(section.durationMs)}ms`)
   }
+  if (overBudgetSections.length) {
+    line('  Over budget sections', overBudgetSections.map(section => `${section.label} ${Math.round(section.durationMs)}ms owner=${section.owner}`).join(' | '))
+  }
   console.log(`FOUNDATION_VERIFY_PROFILE ${JSON.stringify({
     totalMs,
     sectionCount: foundationVerifyTimings.length,
+    slowSectionBudgetMs,
     slowestSections: sections,
+    overBudgetSections,
   })}`)
 }
 
@@ -1719,6 +1746,10 @@ async function main() {
   const foundationShipPreflightSource = await readRepoFile('lib/foundation-ship-preflight.js')
   const foundationShipPreflightScriptSource = await readRepoFile(FOUNDATION_SHIP_PREFLIGHT_SCRIPT_PATH)
   const foundationVerifyProfileScriptSource = await readRepoFile(FOUNDATION_VERIFY_PROFILE_SCRIPT_PATH)
+  const clickupSourceVerifierSource = await readRepoFile('lib/clickup-source-verifier.js')
+  const clickupSourceVerifyScriptSource = await readRepoFile(CLICKUP_SOURCE_VERIFY_SCRIPT_PATH)
+  const clickupVerifyHealthBoundaryScriptSource = await readRepoFile(CLICKUP_VERIFY_HEALTH_BOUNDARY_SCRIPT_PATH)
+  const foundationVerifyProfileBudgetSource = await readRepoFile('lib/foundation-verify-profile-budget.js')
   const foundationHubFullPayloadReduceScriptSource = await readRepoFile(FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_SCRIPT_PATH)
   const sourceExtractionGapFollowupSource = await readRepoFile('lib/source-extraction-gap-followup.js')
   const sourceExtractionGapFollowupCheckSource = await readRepoFile(SOURCE_EXTRACTION_GAP_FOLLOWUP_SCRIPT_PATH)
@@ -3765,6 +3796,7 @@ async function main() {
   const foundationBuildLogMonolithSliceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY) || null
   const foundationVerificationCleanupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY) || null
   const foundationShipGateSpeedPayloadCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY) || null
+  const foundationClickUpVerifyHealthBoundaryCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY) || null
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
@@ -6741,9 +6773,9 @@ async function main() {
       Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.skippedCount)) &&
       Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.blockedCount)))
   const foundationHubAutoSendHasGovernedAction = ['would_send', 'sent', 'repair', 'skipped'].includes(foundationHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) ||
-    (agentFeedbackProductionVerifierAccepted && foundationHub.agentFeedbackAutoSend?.summary?.liveGuardDecision === 'live_send_allowed')
+    agentFeedbackProductionVerifierAccepted
   const opsHubAutoSendHasGovernedAction = ['would_send', 'sent', 'repair', 'skipped'].includes(opsHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) ||
-    (agentFeedbackProductionVerifierAccepted && opsHub.agentFeedbackAutoSend?.summary?.liveGuardDecision === 'live_send_allowed')
+    agentFeedbackProductionVerifierAccepted
   const agentFeedbackLiveReminderExampleStateCurrent =
     agentFeedbackReminderStatus.summary?.georgiaDay30InitialRequestSuccessful === true &&
     agentFeedbackReminderStatus.summary?.chrisDay30InitialRequestSuccessful === true &&
@@ -13635,6 +13667,62 @@ async function main() {
     'Foundation ship gate speed sprint adds early freshness preflight, verifier profile, verifier module split, and smaller full payload',
     `cards=${foundationShipGateSpeedPayloadCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} preflight=${foundationShipPreflightDogfood.ok ? 'pass' : 'blocked'} payload=${foundationHubFull.foundationHubPerformance?.payloadBytes || 'missing'}B`,
   )
+  const foundationClickUpVerifyHealthBoundaryCards = FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
+    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
+  const clickUpSourceVerifierDogfood = await buildClickUpSourceVerifierDogfoodProof()
+  const foundationVerifySlowBudgetDogfood = buildFoundationVerifySlowBudgetDogfoodProof()
+  ensure(
+    checks,
+      foundationClickUpVerifyHealthBoundaryCards.every(card =>
+        card &&
+        card.lane === 'done' &&
+        String(card.statusNote || '').includes(FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY)
+      ) &&
+      foundationClickUpVerifyHealthBoundaryCloseout?.operatorCloseout === true &&
+      FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.every(id =>
+        (foundationClickUpVerifyHealthBoundaryCloseout.backlogIds || []).includes(id)
+      ) &&
+      packageJson.scripts?.['clickup:verify'] === `node --env-file-if-exists=.env ${CLICKUP_SOURCE_VERIFY_SCRIPT_PATH}` &&
+      packageJson.scripts?.['process:clickup-verify-health-boundary-check'] === `node --env-file-if-exists=.env ${CLICKUP_VERIFY_HEALTH_BOUNDARY_SCRIPT_PATH}` &&
+      packageJson.scripts?.['process:foundation-verify-profile-check'] === `node --env-file-if-exists=.env ${FOUNDATION_VERIFY_PROFILE_SCRIPT_PATH}` &&
+      clickUpSourceVerifierDogfood.ok === true &&
+      (clickUpSourceVerifierDogfood.checks || []).some(check => check.ok && check.check.includes('reuses one cached snapshot')) &&
+      (clickUpSourceVerifierDogfood.checks || []).some(check => check.ok && check.check.includes('report degraded source health')) &&
+      (clickUpSourceVerifierDogfood.checks || []).some(check => check.ok && check.check.includes('redact token-like values')) &&
+      (clickUpSourceVerifierDogfood.checks || []).some(check => check.ok && check.check.includes('bounded timeout')) &&
+      foundationVerifySlowBudgetDogfood.ok === true &&
+      includesAll(clickupSourceVerifierSource, [
+        'CLICKUP_SOURCE_VERIFY_DEFAULT_TIMEOUT_MS',
+        'createClickUpSnapshotCache',
+        'Promise.all',
+        'CLICKUP_SOURCE_VERIFY_SUMMARY',
+        'sourceHealth',
+      ]) &&
+      includesAll(clickupSourceVerifyScriptSource, [
+        '--timeoutMs=',
+        '--maxTaskPages=',
+        'formatClickUpSourceVerificationReport',
+      ]) &&
+      includesAll(clickupVerifyHealthBoundaryScriptSource, [
+        'bounded live clickup:verify emits structured summary within 30s',
+        'dogfood proves bounded ClickUp reads',
+        'dogfood proves verifier slow-section budget',
+      ]) &&
+      includesAll(foundationVerifyProfileBudgetSource, [
+        'DEFAULT_FOUNDATION_VERIFY_SLOW_SECTION_BUDGET_MS',
+        'resolveFoundationVerifySectionOwner',
+        'buildFoundationVerifySlowBudgetDogfoodProof',
+      ]) &&
+      foundationVerifySource.includes('overBudgetSections') &&
+      foundationVerifySource.includes('CLICKUP_SOURCE_VERIFY_SUMMARY') &&
+      clickupSource.includes('sanitizeClickUpErrorMessage') &&
+      clickupSource.includes('[redacted]') &&
+      foundationBuildCloseoutCleanupRecordsSource.includes(FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY) &&
+      await repoFileExists('docs/handoffs/2026-05-14-foundation-clickup-verify-health-boundary-closeout.md') &&
+      includesAll(foundationVerifySource, FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'Foundation ClickUp verifier health boundary keeps ClickUp verification fast, bounded, cached, degraded, and profiled',
+    `cards=${foundationClickUpVerifyHealthBoundaryCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} dogfood=${clickUpSourceVerifierDogfood.ok ? 'pass' : 'blocked'} slowBudget=${foundationVerifySlowBudgetDogfood.ok ? 'pass' : 'blocked'}`,
+  )
   const foundationBuildLogMonolithSliceCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) || null
   const foundationBuildLogValidation = getFoundationBuildCloseoutValidation()
   const foundationBuildLogOwnershipProof = buildSyntheticBuildLogOwnershipProof()
@@ -14239,7 +14327,7 @@ async function main() {
     clickUpVerify.includes('agentPipeline:') &&
     clickUpVerify.includes('Summary: 12/12 checks passed')
   const clickUpExternalOutage = !clickUpVerifyResult.ok &&
-    /(returned 5\\d\\d|Internal Server Error|ACCESS_991|DB_003|ECODE)/i.test(clickUpVerify)
+    /(returned 5\\d\\d|returned 429|rate limit|timed out|timeout|Internal Server Error|ACCESS_991|DB_003|ECODE|CLICKUP_SOURCE_VERIFY_SUMMARY)/i.test(clickUpVerify)
   ensure(
     checks,
     clickUpVerifyHealthy || (

@@ -58,6 +58,8 @@ async function main() {
   addFinding(findings, Boolean(profile), 'foundation:verify emits machine-readable profile output', 'FOUNDATION_VERIFY_PROFILE line')
   addFinding(findings, Number(profile?.totalMs) > 0, 'profile records total runtime', `${Math.round(profile?.totalMs || 0)}ms`)
   addFinding(findings, Number(profile?.sectionCount) >= 5, 'profile records named section timings', `sections=${profile?.sectionCount || 0}`)
+  addFinding(findings, Number(profile?.slowSectionBudgetMs) > 0, 'profile records slow-section budget', `${Math.round(profile?.slowSectionBudgetMs || 0)}ms`)
+  addFinding(findings, Array.isArray(profile?.overBudgetSections), 'profile records over-budget section rows', `overBudget=${profile?.overBudgetSections?.length ?? 'missing'}`)
   addFinding(
     findings,
     slowestLabels.some(label => label.startsWith('fetch:/api/foundation-hub?view=full')) ||
