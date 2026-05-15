@@ -622,6 +622,15 @@ import {
   buildFoundationBacklogStoreSplitDogfoodProof,
 } from '../lib/foundation-backlog-store.js'
 import {
+  FOUNDATION_DECISION_STORE_SPLIT_APPROVAL_PATH,
+  FOUNDATION_DECISION_STORE_SPLIT_CARD_ID,
+  FOUNDATION_DECISION_STORE_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_DECISION_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_DECISION_STORE_SPLIT_SCRIPT_PATH,
+  FOUNDATION_DECISION_STORE_SPLIT_SPRINT_ID,
+  buildFoundationDecisionStoreSplitDogfoodProof,
+} from '../lib/foundation-decision-store.js'
+import {
   FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
   FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
   FRONTEND_MONOLITH_SPLIT_CARD_ID,
@@ -2349,6 +2358,9 @@ async function main() {
   const foundationBacklogStoreSource = await readRepoFile('lib/foundation-backlog-store.js')
   const foundationBacklogStoreScriptSource = await readRepoFile(FOUNDATION_BACKLOG_STORE_SPLIT_SCRIPT_PATH)
   const foundationBacklogStorePlanSource = await readRepoFile(FOUNDATION_BACKLOG_STORE_SPLIT_PLAN_PATH)
+  const foundationDecisionStoreSource = await readRepoFile('lib/foundation-decision-store.js')
+  const foundationDecisionStoreScriptSource = await readRepoFile(FOUNDATION_DECISION_STORE_SPLIT_SCRIPT_PATH)
+  const foundationDecisionStorePlanSource = await readRepoFile(FOUNDATION_DECISION_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -14655,6 +14667,41 @@ async function main() {
     foundationBacklogStoreSplitCard
       ? `lane=${foundationBacklogStoreSplitCard.lane} dogfood=${foundationBacklogStoreDogfood.ok ? 'pass' : 'blocked'}`
       : `missing ${FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID}`,
+  )
+  const foundationDecisionStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DECISION_STORE_SPLIT_CARD_ID) || null
+  const foundationDecisionStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_DECISION_STORE_SPLIT_CLOSEOUT_KEY) || null
+  const foundationDecisionStoreDogfood = buildFoundationDecisionStoreSplitDogfoodProof()
+  ensure(
+    checks,
+      foundationDecisionStoreSplitCard &&
+      foundationDecisionStoreSplitCard.lane === 'done' &&
+      String(foundationDecisionStoreSplitCard.statusNote || '').includes(FOUNDATION_DECISION_STORE_SPLIT_CLOSEOUT_KEY) &&
+      foundationDecisionStoreSplitCloseout?.operatorCloseout === true &&
+      (foundationDecisionStoreSplitCloseout.backlogIds || []).includes(FOUNDATION_DECISION_STORE_SPLIT_CARD_ID) &&
+      foundationDecisionStoreDogfood.ok === true &&
+      packageJson.scripts?.['process:foundation-decision-store-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_DECISION_STORE_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FOUNDATION_DECISION_STORE_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FOUNDATION_DECISION_STORE_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-foundation-decision-store-split-closeout.md') &&
+      foundationDecisionStoreSource.includes('createFoundationDecisionStore') &&
+      foundationDecisionStoreSource.includes('assertPendingDocUpdateCanApprove') &&
+      foundationDecisionStoreSource.includes('buildFoundationDecisionStoreSplitDogfoodProof') &&
+      foundationDecisionStoreScriptSource.includes('dogfood rejects old decision store failures') &&
+      foundationDecisionStorePlanSource.includes('invalid pending doc-update status transitions') &&
+      foundationDbSource.includes('createFoundationDecisionStore') &&
+      foundationDbSource.includes('export const createDecision') &&
+      foundationDbSource.includes('export const markPendingDocUpdateApplied') &&
+      !foundationDbSource.includes('export async function createDecision') &&
+      !foundationDbSource.includes('async function markSupersededDecisions') &&
+      currentPlan.includes(FOUNDATION_DECISION_STORE_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_DECISION_STORE_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_DECISION_STORE_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FOUNDATION_DECISION_STORE_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FOUNDATION_DECISION_STORE_SPLIT_CARD_ID),
+    'FOUNDATION-DB-MONOLITH-SPLIT-002 splits decision/doc-update store out of foundation-db.js',
+    foundationDecisionStoreSplitCard
+      ? `lane=${foundationDecisionStoreSplitCard.lane} dogfood=${foundationDecisionStoreDogfood.ok ? 'pass' : 'blocked'}`
+      : `missing ${FOUNDATION_DECISION_STORE_SPLIT_CARD_ID}`,
   )
   const frontendSplitVerifierCoveredCardIds = [
     'FRONTEND-MONOLITH-SPLIT-001',

@@ -73,17 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Verifier Source Contracts Module
+## Current Sprint: Foundation Decision Store Split
 
-Live sprint ID: `verifier-source-contracts-module-2026-05-15`.
+Live sprint ID: `foundation-decision-store-split-2026-05-15`.
 
-This sprint is closed under `verifier-source-contracts-module-v1`. It extracted only the source-contract/signoff verifier domain from `scripts/foundation-verify.mjs` into `lib/foundation-source-contract-verifier.js`, while preserving the same canonical PASS/FAIL rows for signed-off Owners, Finance current reality, Freedom range coverage, source-registry truth, and current-state helper/mirror boundaries.
+This sprint is closed under `foundation-decision-store-split-v1`. It extracted only the decision, open-question, and pending-doc-update store domain from `lib/foundation-db.js` into `lib/foundation-decision-store.js`, while preserving the existing public exports from `lib/foundation-db.js`.
 
 Completed card:
 
-1. `VERIFIER-MONOLITH-SPLIT-CONTINUE-002` - source-contract verifier module split. Dogfood proof accepts healthy source contracts and rejects missing Owners signoff, missing required tab coverage, stale source-registry rows, and stale current-state mirror-boundary text. The focused proof script is read-only, and full `foundation:verify` passed before closeout.
+1. `FOUNDATION-DB-MONOLITH-SPLIT-002` - decision/doc-update store split. Dogfood proof rejects unsupported decision categories, duplicate/self supersedes IDs, invalid pending doc-update transitions, missing store delegation, and missing change-event metadata terms. The focused proof script is read-only, and `lib/foundation-db.js` dropped from about `18,800` to about `17,852` lines in focused proof.
 
-Not next: broad verifier rewrite, `lib/foundation-db.js` split, frontend split, server route split, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad `lib/foundation-db.js` rewrite, schema changes, source crawl/job/intelligence/shared-comms/sales/FUB movement, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `verifier-source-contracts-module-2026-05-15`, closed under `verifier-source-contracts-module-v1`. It extracted only the source-contract/signoff verifier domain from `scripts/foundation-verify.mjs` into `lib/foundation-source-contract-verifier.js`, while preserving the same canonical PASS/FAIL rows for signed-off Owners, Finance current reality, Freedom range coverage, source-registry truth, and current-state helper/mirror boundaries.
 
 Previous completed sprint: `foundation-server-monolith-closeout-2026-05-15`, closed by splitting server route domains without feature changes. `NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001` closed under `nightly-deep-audit-p0-triage-v1`, `APP-PAGE-ROUTES-SPLIT-001` closed under `app-page-routes-split-v1`, `AUTH-ROUTES-SPLIT-001` closed under `auth-routes-split-v1`, `HUB-READ-ROUTES-SPLIT-001` closed under `hub-read-routes-split-v1`, `STRATEGY-SHARED-COMMS-ROUTES-SPLIT-001` closed under `strategy-shared-comms-routes-split-v1`, `FOUNDATION-WRITE-ROUTES-SPLIT-001` closed under `foundation-write-routes-split-v1`, and `AGENT-FEEDBACK-ROUTES-SPLIT-001` closed under `agent-feedback-routes-split-v1`. `server.js` is now under the danger line at about `4,800` lines.
 

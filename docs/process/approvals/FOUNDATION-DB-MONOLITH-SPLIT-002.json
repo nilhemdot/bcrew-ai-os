@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-002",
+  "approvedBy": "Steve full-steam instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T14:56:46.465Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-decision-store-split-001-plan.md",
+  "approvedPlanSha256": "6c4415821cf69266c063733c1127790ffb7d9010357e51cd26abda9704a35094",
+  "approvedRepoHead": "017b7475f6a4bbafa699f1c1ad1820c1b65c1694",
+  "notes": "Approved as the Foundation Decision Store Split Sprint. Scope: extract only decision, open-question, and pending-doc-update store behavior from lib/foundation-db.js into lib/foundation-decision-store.js with wrapper-preserved exports, lifecycle/supersedes dogfood, read-only focused proof, verifier coverage, and full ship. Not approved: broad DB refactor, schema changes, hub UI, Marketing live wiring, source extraction, paid-source auth, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "143c8b8429d2830f9601af577b550ea01303bf64a685fcf264c5f267b3a92251"
+}
