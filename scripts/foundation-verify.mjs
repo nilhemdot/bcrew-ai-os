@@ -158,6 +158,16 @@ import {
   buildFoundationRuntimeReadRoutesSplitDogfoodProof,
 } from '../lib/foundation-runtime-read-routes.js'
 import {
+  APP_PAGE_ROUTES_SPLIT_APPROVAL_PATH,
+  APP_PAGE_ROUTES_SPLIT_BEFORE_SERVER_LINES,
+  APP_PAGE_ROUTES_SPLIT_CARD_ID,
+  APP_PAGE_ROUTES_SPLIT_CLOSEOUT_KEY,
+  APP_PAGE_ROUTES_SPLIT_PLAN_PATH,
+  APP_PAGE_ROUTES_SPLIT_SCRIPT_PATH,
+  APP_PAGE_ROUTES_SPLIT_SPRINT_ID,
+  buildAppPageRoutesSplitDogfoodProof,
+} from '../lib/app-page-routes.js'
+import {
   buildFoundationVerifyCheckOutput,
   buildFoundationVerifyJsonSummary,
   buildFoundationVerifyReporterDogfoodProof,
@@ -2283,6 +2293,9 @@ async function main() {
   const foundationRuntimeReadRoutesSource = await readRepoFile('lib/foundation-runtime-read-routes.js')
   const foundationRuntimeReadRoutesSplitScriptSource = await readRepoFile(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_SCRIPT_PATH)
   const foundationRuntimeReadRoutesSplitPlanSource = await readRepoFile(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_PLAN_PATH)
+  const appPageRoutesSource = await readRepoFile('lib/app-page-routes.js')
+  const appPageRoutesSplitScriptSource = await readRepoFile(APP_PAGE_ROUTES_SPLIT_SCRIPT_PATH)
+  const appPageRoutesSplitPlanSource = await readRepoFile(APP_PAGE_ROUTES_SPLIT_PLAN_PATH)
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
@@ -3056,11 +3069,15 @@ async function main() {
       "app.get('/api/auth/session'",
       "app.post('/api/auth/logout'",
       "app.get('/login'",
-      "requirePageAccess('owner')",
-      "requirePageAccess('ops')",
       'findRoutePosture(req.method, req.path)',
       'authorizeRouteAccess(req, posture)',
     ]) &&
+      includesAll(appPageRoutesSource, [
+        "requirePageAccess('owner')",
+        "requirePageAccess('ops')",
+        "requirePageAccess('sales')",
+        "requirePageAccess('home')",
+      ]) &&
       includesAll(securityAccessSource, [
         "route('GET', '/api/ops-hub'",
         "route('GET', '/api/sales-hub'",
@@ -4330,6 +4347,7 @@ async function main() {
       foundationBuildIntelRoutesSource,
       fubSourceRoutesSource,
       foundationRuntimeReadRoutesSource,
+      appPageRoutesSource,
     ],
   )
   const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
@@ -4345,6 +4363,7 @@ async function main() {
       foundationBuildIntelRoutesSource,
       fubSourceRoutesSource,
       foundationRuntimeReadRoutesSource,
+      appPageRoutesSource,
     ],
   )
   const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
@@ -14223,6 +14242,63 @@ async function main() {
     foundationRuntimeReadRoutesSplitCard
       ? `lane=${foundationRuntimeReadRoutesSplitCard.lane} dogfood=${foundationRuntimeReadRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterRuntimeReadRouteSplit}`
       : `missing ${FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CARD_ID}`,
+  )
+  const appPageRoutesSplitCard = (foundationHub.backlogItems || []).find(item => item.id === APP_PAGE_ROUTES_SPLIT_CARD_ID) || null
+  const appPageRoutesSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === APP_PAGE_ROUTES_SPLIT_CLOSEOUT_KEY) || null
+  const appPageRoutesDogfood = buildAppPageRoutesSplitDogfoodProof({
+    serverSource,
+    moduleSource: appPageRoutesSource,
+    proofScriptSource: appPageRoutesSplitScriptSource,
+  })
+  const serverLineCountAfterAppPageRouteSplit = String(serverSource || '').split('\n').length
+  ensure(
+    checks,
+      appPageRoutesSplitCard &&
+      ['executing', 'done'].includes(appPageRoutesSplitCard.lane) &&
+      String(appPageRoutesSplitCard.statusNote || '').includes(APP_PAGE_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      appPageRoutesSplitCloseout?.operatorCloseout === true &&
+      (appPageRoutesSplitCloseout.backlogIds || []).includes(APP_PAGE_ROUTES_SPLIT_CARD_ID) &&
+      appPageRoutesDogfood.ok === true &&
+      packageJson.scripts?.['process:app-page-routes-split-check'] === `node --env-file-if-exists=.env ${APP_PAGE_ROUTES_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(APP_PAGE_ROUTES_SPLIT_PLAN_PATH) &&
+      await repoFileExists(APP_PAGE_ROUTES_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-app-page-routes-split-closeout.md') &&
+      appPageRoutesSource.includes('registerAppPageRoutes') &&
+      appPageRoutesSource.includes("app.get('/doc'") &&
+      appPageRoutesSource.includes("app.get('/foundation'") &&
+      appPageRoutesSource.includes("app.get('/foundation/export/strategy'") &&
+      appPageRoutesSource.includes("app.get('/strategic-execution'") &&
+      appPageRoutesSource.includes("app.get('/sales'") &&
+      appPageRoutesSource.includes("app.get('/ops'") &&
+      appPageRoutesSource.includes("app.get('/agent-feedback'") &&
+      appPageRoutesSource.includes("app.use('/api'") &&
+      appPageRoutesSource.includes("app.get('/'") &&
+      appPageRoutesSource.includes("app.get('*'") &&
+      !appPageRoutesSource.includes("app.get('/foundation/export/strategy.pdf'") &&
+      appPageRoutesSplitScriptSource.includes('moved page and fallback routes return expected HTML/API fallback payloads') &&
+      appPageRoutesSplitPlanSource.includes('Strategy PDF export route stays in `server.js`') &&
+      serverSource.includes('registerAppPageRoutes(app') &&
+      serverSource.includes("app.get('/foundation/export/strategy.pdf'") &&
+      !serverSource.includes("app.get('/doc'") &&
+      !serverSource.includes("app.get('/foundation', requirePageAccess('owner')") &&
+      !serverSource.includes("app.get('/foundation/export/strategy', requirePageAccess('owner')") &&
+      !serverSource.includes("app.get('/strategic-execution'") &&
+      !serverSource.includes("app.get('/sales'") &&
+      !serverSource.includes("app.get('/ops'") &&
+      !serverSource.includes("app.get('/agent-feedback'") &&
+      !serverSource.includes("app.use('/api'") &&
+      !serverSource.includes("app.get('/', requirePageAccess('home')") &&
+      !serverSource.includes("app.get('*', requirePageAccess('owner')") &&
+      serverLineCountAfterAppPageRouteSplit < APP_PAGE_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
+      currentPlan.includes(APP_PAGE_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(APP_PAGE_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === APP_PAGE_ROUTES_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([APP_PAGE_ROUTES_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(APP_PAGE_ROUTES_SPLIT_CARD_ID),
+    'APP-PAGE-ROUTES-SPLIT-001 extracts app page and fallback routes into a focused module',
+    appPageRoutesSplitCard
+      ? `lane=${appPageRoutesSplitCard.lane} dogfood=${appPageRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${APP_PAGE_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterAppPageRouteSplit}`
+      : `missing ${APP_PAGE_ROUTES_SPLIT_CARD_ID}`,
   )
   const foundationBacklogStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID) || null
   const foundationBacklogStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) || null

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.58 - Foundation runtime read route split closing
+Version: v6.59 - App page route split closing
 Status: Active
 
 Use this doc for one question:
@@ -73,17 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Runtime Read Route Split
+## Current Sprint: App Page Route Split
 
-Live sprint ID: `foundation-runtime-read-routes-split-2026-05-15`.
+Live sprint ID: `app-page-routes-split-2026-05-15`.
 
-This sprint is closing under `foundation-runtime-read-routes-split-v1`. It extracts the read-only Foundation runtime status route cluster out of `server.js` into `lib/foundation-runtime-read-routes.js` without changing runtime-control mutation behavior, POSTing job-control mutations in proof, or touching hub feature work.
+This sprint is closing under `app-page-routes-split-v1`. It extracts the app page and API fallback route cluster out of `server.js` into `lib/app-page-routes.js` without changing page access, Strategy PDF export behavior, API fallback behavior, auth/session behavior, or hub feature work.
 
 The sprint order:
 
-1. `FOUNDATION-RUNTIME-READ-ROUTES-SPLIT-001` - closing under `foundation-runtime-read-routes-split-v1`; `GET /api/foundation/jobs`, `GET /api/foundation/active-processes`, `GET /api/foundation/llm-runtime`, and `GET /api/foundation/extraction-control` now register through `lib/foundation-runtime-read-routes.js` while `server.js` delegates through `registerFoundationRuntimeReadRoutes()`. Focused proof probes the moved read routes, rejects missing module / old inline server route / missing registrar / mutating runtime-control route leakage, keeps each moved route under a 5 second / 1 MB budget, and reduces `server.js` from `6,831` to about `6,779` lines for this slice.
+1. `APP-PAGE-ROUTES-SPLIT-001` - closing under `app-page-routes-split-v1`; `/doc`, `/foundation`, `/foundation/export/strategy`, `/strategic-execution`, `/sales`, `/ops`, `/agent-feedback`, `/`, wildcard fallback, and the `/api` JSON 404 fallback now register through `lib/app-page-routes.js` while `server.js` delegates through `registerAppPageRoutes()`. Focused proof probes the moved page/fallback routes, rejects missing module / old inline server page route / missing registrar / missing API fallback / moved Strategy PDF export, keeps each moved route under a 5 second / 1 MB budget, and reduces `server.js` from `6,779` to `6,734` lines for this slice.
 
-Not next: runtime job-control mutation changes, Sales/Ops/Marketing hub changes, Runtime Health UI, broad `server.js` refactor, broad API redesign, package/dependency changes beyond the focused proof script, Build Intel extraction, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: Strategy PDF export route changes, auth/session changes, Sales/Ops/Marketing hub changes, page redesigns, broad `server.js` refactor, broad API redesign, package/dependency changes beyond the focused proof script, Build Intel extraction, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `foundation-runtime-read-routes-split-2026-05-15`, closed under `foundation-runtime-read-routes-split-v1`. It extracted the read-only Foundation runtime status route cluster out of `server.js` into `lib/foundation-runtime-read-routes.js` without changing runtime-control mutation behavior, POSTing job-control mutations in proof, or touching hub feature work.
 
 Previous completed sprint: `fub-source-route-split-2026-05-15`, closed under `fub-source-route-split-v1`. It extracted the no-auth FUB source-control route cluster out of `server.js` into `lib/fub-source-routes.js` without changing validation behavior, calling live FUB success-path refreshes in proof, or touching hub feature work.
 

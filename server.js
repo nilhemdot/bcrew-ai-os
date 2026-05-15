@@ -246,6 +246,7 @@ import { registerFoundationSourceRoutes } from './lib/foundation-source-routes.j
 import { registerFoundationBuildIntelRoutes } from './lib/foundation-build-intel-routes.js'
 import { registerFubSourceRoutes } from './lib/fub-source-routes.js'
 import { registerFoundationRuntimeReadRoutes } from './lib/foundation-runtime-read-routes.js'
+import { registerAppPageRoutes } from './lib/app-page-routes.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -6664,16 +6665,6 @@ app.get('/api/doc', requireAdminToken, async (req, res) => {
   }
 })
 
-app.get('/doc', requirePageAccess('owner'), (_req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'doc.html'))
-})
-
-app.get('/foundation', requirePageAccess('owner'), (_req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'foundation.html'))
-})
-
 app.get('/foundation/export/strategy.pdf', requireAdminToken, async (_req, res) => {
   try {
     const businessStrategy = readFileSafe(businessStrategyPath)
@@ -6698,48 +6689,12 @@ app.get('/foundation/export/strategy.pdf', requireAdminToken, async (_req, res) 
   }
 })
 
-app.get('/foundation/export/strategy', requirePageAccess('owner'), (_req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'strategy-export.html'))
-})
-
-app.get('/strategic-execution', requirePageAccess('owner'), (_req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'strategic-execution.html'))
-})
-
-app.get('/sales', requirePageAccess('sales'), (_req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'sales.html'))
-})
-
-app.get('/ops', requirePageAccess('ops'), (_req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'ops.html'))
-})
-
-app.get('/agent-feedback', (_req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'agent-feedback.html'))
-})
-
-app.use('/api', (_req, res) => {
-  sendApiError(res, 404, 'api_not_found', 'API endpoint not found.')
-})
-
-app.get('/', requirePageAccess('home'), (req, res) => {
-  const user = getRequestAuthUser(req) || getLocalDevUser(req)
-  if (user?.role === 'ops') {
-    res.redirect('/ops')
-    return
-  }
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'index.html'))
-})
-
-app.get('*', requirePageAccess('owner'), (_req, res) => {
-  res.setHeader('Cache-Control', 'no-store')
-  res.sendFile(path.join(__dirname, 'public', 'index.html'))
+registerAppPageRoutes(app, {
+  requirePageAccess,
+  sendApiError,
+  getRequestAuthUser,
+  getLocalDevUser,
+  publicDir: path.join(__dirname, 'public'),
 })
 
 async function start() {

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "APP-PAGE-ROUTES-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T09:08:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/app-page-routes-split-001-plan.md",
+  "approvedPlanSha256": "cb3bb3795afbf942f02a69411e802988e855dde6c24a66c976f4008e026b8c67",
+  "approvedRepoHead": "7909717d4546890d93f0932594880d794324ac8d",
+  "notes": "Approved as a no-auth Foundation cleanup continuation. Scope: extract only app page and fallback routes from server.js into lib/app-page-routes.js while keeping Strategy PDF export in server.js. Not approved: auth changes, hub UI changes, Marketing Video Lab wiring, source extraction, paid-source auth, Drive permission mutation, Meeting Vault Phase B, or broad server rewrite.",
+  "approvalDigest": "c21915560cb098f343a6035c9a8c00f19df52af5aa4259a7cd0a1c7b3b9d05e9"
+}
