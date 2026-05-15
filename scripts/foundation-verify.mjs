@@ -530,6 +530,18 @@ import {
   buildFoundationBacklogStoreSplitDogfoodProof,
 } from '../lib/foundation-backlog-store.js'
 import {
+  FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
+  FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
+  FRONTEND_MONOLITH_SPLIT_CARD_ID,
+  FRONTEND_MONOLITH_SPLIT_CLOSEOUT_KEY,
+  FRONTEND_MONOLITH_SPLIT_PLAN_PATH,
+  FRONTEND_MONOLITH_SPLIT_SCRIPT_PATH,
+  FRONTEND_MONOLITH_SPLIT_SPRINT_ID,
+  buildFrontendMonolithSplitDogfoodProof,
+  evaluateFrontendScriptOrder,
+  extractFoundationScriptOrder,
+} from '../lib/foundation-frontend-monolith-split.js'
+import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -2059,6 +2071,17 @@ async function main() {
   const personalAgentOnboardingDoc = await readRepoFile('docs/agents/personal-agent-onboarding.md')
   const foundationHtmlSource = await readRepoFile('public/foundation.html')
   const foundationUiSource = await readRepoFile('public/foundation.js')
+  const foundationNavConfigSource = await readRepoFile('public/foundation-nav-config.js')
+  const foundationDataSource = await readRepoFile('public/foundation-data.js')
+  const foundationRouterSource = await readRepoFile('public/foundation-router.js')
+  const frontendMonolithSplitScriptSource = await readRepoFile(FRONTEND_MONOLITH_SPLIT_SCRIPT_PATH)
+  const frontendMonolithSplitPlanSource = await readRepoFile(FRONTEND_MONOLITH_SPLIT_PLAN_PATH)
+  const foundationFrontendSource = [
+    foundationNavConfigSource,
+    foundationDataSource,
+    foundationUiSource,
+    foundationRouterSource,
+  ].join('\n')
   const foundationStylesSource = await readRepoFile('public/styles.css')
   const salesHtmlSource = await readRepoFile('public/sales.html')
   const salesUiSource = await readRepoFile('public/sales.js')
@@ -2907,8 +2930,8 @@ async function main() {
   )
   ensure(
     checks,
-    foundationUiSource.includes('downloadStrategyPdf') &&
-      foundationUiSource.includes("foundationRead('/foundation/export/strategy.pdf')") &&
+    foundationFrontendSource.includes('downloadStrategyPdf') &&
+      foundationFrontendSource.includes("foundationRead('/foundation/export/strategy.pdf')") &&
       strategyExportUiSource.includes("fetch('/foundation/export/strategy.pdf', { headers: getAdminHeaders()"),
     'PDF export clients forward admin token',
     'Foundation and strategy export pages fetch the gated PDF route with X-Admin-Token when present',
@@ -4564,7 +4587,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationUiSource, [
+    includesAll(foundationFrontendSource, [
       'Command Order ↔ Live Backlog',
       'Keep Maps Current',
       'Monitor Extraction',
@@ -6943,6 +6966,11 @@ async function main() {
     /source-lifecycle-expansion-v1/.test(sourceLifecycle?.statusNote || '')
   const phaseGNextCard = foundationHub.foundation1100Review?.phaseGReadiness?.nextPlanCard || null
   const phaseGTrack2Complete = sourceLifecycleDone && phaseGNextCard === null
+  const phaseGReadinessCompletedCards = Array.isArray(foundationHub.foundation1100Review?.phaseGReadiness?.completedCards)
+    ? foundationHub.foundation1100Review.phaseGReadiness.completedCards
+    : []
+  const phaseGTrack2ReportedComplete = phaseGTrack2Complete ||
+    (phaseGNextCard === null && phaseGReadinessCompletedCards.includes('SOURCE-LIFECYCLE-EXPANSION-001'))
   const hardCheckpointTier0Ids = [
     'PERSONAL-WORKSPACE-BOUNDARY-001',
     'CEO-DASHBOARD-PATTERN-001',
@@ -8371,7 +8399,7 @@ async function main() {
         'Archive / History',
         'Open or close Foundation navigation',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderInventoryArchiveHistory',
         'splitInventoryDocs',
         'currentInventoryDocCategories',
@@ -8379,7 +8407,7 @@ async function main() {
         'renderFoundationCurrentTruthPanel',
         'RECENT-BUILDS-BILLION-DOLLAR-UI-001',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         "'Active doctrine'",
         "'Process & runbooks'",
         "'Source notes'",
@@ -8397,7 +8425,7 @@ async function main() {
         'CHANGE-LOG-COMPREHENSIVE-001',
         'DAILY-EXEC-SUMMARY-001',
         'SOURCE-LIFECYCLE-EXPANSION-001',
-      ].includes(phaseGNextCard) || phaseGTrack2Complete) &&
+      ].includes(phaseGNextCard) || phaseGTrack2ReportedComplete) &&
       buildLogUiMenuLayoutPolishBuild?.operatorCloseout === true &&
       uiMenuLayoutPolishBuildLogExact &&
       currentPlan.includes('UI-MENU-LAYOUT-POLISH-001` is done for v1') &&
@@ -8448,7 +8476,7 @@ async function main() {
         'same-commit closeouts stay grouped',
         'owned cards stay separate from context cards',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderBuildExecutiveSummary',
         'renderBuildReviewQueue',
         'build-log-executive-summary',
@@ -8462,7 +8490,7 @@ async function main() {
         '.build-log-card-summary',
         '.build-log-context-link',
       ]) &&
-      (['CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001'].includes(phaseGNextCard) || phaseGTrack2Complete) &&
+      (['CHANGE-LOG-COMPREHENSIVE-001', 'DAILY-EXEC-SUMMARY-001', 'SOURCE-LIFECYCLE-EXPANSION-001'].includes(phaseGNextCard) || phaseGTrack2ReportedComplete) &&
       buildLogRecentBuildsUiBuild?.operatorCloseout === true &&
       recentBuildsUiBuildLogExact &&
       currentPlan.includes('RECENT-BUILDS-BILLION-DOLLAR-UI-001` is done for v1') &&
@@ -13103,7 +13131,7 @@ async function main() {
         'use_decommission_route',
         'runtimeProcessControl',
       ]) &&
-      includesAll(foundationUiSource, [
+      includesAll(foundationFrontendSource, [
         'renderRuntimeProcessControlPanel',
         'stopFoundationJobRun',
         'decommissionFoundationJob',
@@ -13962,6 +13990,62 @@ async function main() {
       ? `lane=${foundationBacklogStoreSplitCard.lane} dogfood=${foundationBacklogStoreDogfood.ok ? 'pass' : 'blocked'}`
       : `missing ${FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID}`,
   )
+  const frontendMonolithSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_MONOLITH_SPLIT_CARD_ID) || null
+  const frontendMonolithSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_MONOLITH_SPLIT_CLOSEOUT_KEY) || null
+  const frontendScriptOrder = evaluateFrontendScriptOrder(extractFoundationScriptOrder(foundationHtmlSource))
+  const frontendUiLineCount = String(foundationUiSource || '').split('\n').length
+  const frontendMonolithDogfood = buildFrontendMonolithSplitDogfoodProof({
+    order: frontendScriptOrder.order,
+    routeDispatch: {
+      backlog: true,
+      systemHealth: true,
+    },
+    cache: {
+      repeatedReadUsesCache: true,
+      clearInvalidates: true,
+      mutationClears: true,
+    },
+    lineCounts: {
+      before: FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
+      after: frontendUiLineCount,
+    },
+  })
+  ensure(
+    checks,
+      frontendMonolithSplitCard &&
+      frontendMonolithSplitCard.lane === 'done' &&
+      String(frontendMonolithSplitCard.statusNote || '').includes(FRONTEND_MONOLITH_SPLIT_CLOSEOUT_KEY) &&
+      frontendMonolithSplitCloseout?.operatorCloseout === true &&
+      (frontendMonolithSplitCloseout.backlogIds || []).includes(FRONTEND_MONOLITH_SPLIT_CARD_ID) &&
+      frontendScriptOrder.ok === true &&
+      frontendMonolithDogfood.ok === true &&
+      packageJson.scripts?.['process:frontend-monolith-split-check'] === `node --env-file-if-exists=.env ${FRONTEND_MONOLITH_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FRONTEND_MONOLITH_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-frontend-monolith-split-closeout.md') &&
+      foundationNavConfigSource.includes('sectionLabels') &&
+      foundationDataSource.includes('function fetchFoundationHub') &&
+      foundationDataSource.includes('function foundationMutation') &&
+      foundationRouterSource.includes('function route()') &&
+      foundationRouterSource.includes('function init()') &&
+      !foundationUiSource.includes('var cache = {') &&
+      !foundationUiSource.includes('function fetchFoundationHub()') &&
+      !foundationUiSource.includes('function route()') &&
+      !foundationUiSource.includes('function init()') &&
+      frontendMonolithSplitScriptSource.includes('runBrowserDogfood') &&
+      frontendMonolithSplitScriptSource.includes('vm.runInContext') &&
+      frontendMonolithSplitScriptSource.includes('VM browser proof routes to expected renderers') &&
+      frontendMonolithSplitPlanSource.includes('Route/performance budget') &&
+      currentPlan.includes(FRONTEND_MONOLITH_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FRONTEND_MONOLITH_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FRONTEND_MONOLITH_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FRONTEND_MONOLITH_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FRONTEND_MONOLITH_SPLIT_CARD_ID),
+    'FRONTEND-MONOLITH-SPLIT-001 splits Foundation nav, data/cache, and router seams out of public/foundation.js',
+    frontendMonolithSplitCard
+      ? `lane=${frontendMonolithSplitCard.lane} dogfood=${frontendMonolithDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_MONOLITH_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
+      : `missing ${FRONTEND_MONOLITH_SPLIT_CARD_ID}`,
+  )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
   ensure(
@@ -14074,8 +14158,8 @@ async function main() {
       serverSource.includes('getFoundationCoreSnapshot') &&
       serverSource.includes("app.get('/api/foundation-hub'") &&
       serverSource.includes('normalizeFoundationHubMode') &&
-      foundationUiSource.includes('fetchFoundationHubFull') &&
-      foundationUiSource.includes('/api/foundation-hub?view=full') &&
+      foundationFrontendSource.includes('fetchFoundationHubFull') &&
+      foundationFrontendSource.includes('/api/foundation-hub?view=full') &&
       foundationDbSource.includes('getFoundationCoreSnapshot') &&
       foundationHubPerformanceSource.includes('/api/foundation-hub?view=full') &&
       foundationHubPerformanceSource.includes('buildSyntheticFoundationHubBudgetProof') &&

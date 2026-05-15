@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FRONTEND-MONOLITH-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T05:20:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/frontend-monolith-split-001-plan.md",
+  "approvedPlanSha256": "0beb708f39fd14f6617bd888ab7a7a1564300b962be3abf7f3ee4c4681d1776c",
+  "approvedRepoHead": "7e6b2c2523c2dd023a82d8b0459f5cc62058e406",
+  "notes": "Approved as the Foundation Frontend Monolith Split Sprint. Scope: extract nav config, data/cache helpers, and router/init helpers from public/foundation.js into classic browser modules with script-order, route-dispatch, cache-invalidation, route-budget, read-only focused proof, and full Foundation ship. Not approved: broad renderer rewrite, CSS redesign, ES module conversion, API contract changes, hub UI, Marketing live wiring, paid-source auth, source extraction, Drive permissions, Meeting Vault Phase B, or autonomous dev.",
+  "approvalDigest": "275e67319e7fea468d28ee220fcd8436ae38acee94806fc03c6ad23652c9f7c7"
+}

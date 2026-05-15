@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.46 - Foundation backlog store split active
+Version: v6.47 - Foundation frontend monolith split closed
 Status: Active
 
 Use this doc for one question:
@@ -73,17 +73,29 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Backlog Store Split
+## Current Sprint: Foundation Frontend Monolith Split
 
-Live sprint ID: `foundation-backlog-store-split-2026-05-15`.
+Live sprint ID: `frontend-monolith-split-2026-05-15`.
 
-This sprint is active under `foundation-backlog-store-split-v1`. It extracts backlog create/update write behavior out of `lib/foundation-db.js` into `lib/foundation-backlog-store.js` without changing public `createBacklogItem` / `updateBacklogItem` imports or task-truth safeguards.
+This sprint is closed under `frontend-monolith-split-v1`. It extracts the first safe Foundation browser seams out of `public/foundation.js` into focused classic browser scripts without changing renderer behavior, route semantics, CSS, or Foundation API contracts.
 
 The sprint order:
 
-1. `FOUNDATION-DB-MONOLITH-SPLIT-001` - Building Now. Plan Critic passed 10/10 after rejecting the first plan at 8.8/10 for missing operator-value and speed-bound signals. Acceptance requires `lib/foundation-backlog-store.js`, wrapper-preserved exports in `lib/foundation-db.js`, `scripts/process-foundation-backlog-store-split-check.mjs`, focused dogfood that rejects weak done-lane closeouts and missing row-lock/change metadata failures, and a full Foundation ship gate.
+1. `FRONTEND-MONOLITH-SPLIT-001` - done under `frontend-monolith-split-v1`; nav/doc config now lives in `public/foundation-nav-config.js`, cache/read/mutation helpers live in `public/foundation-data.js`, and hash route/nav/init behavior lives in `public/foundation-router.js`. Focused proof executes the split scripts in a VM-backed fake browser, proves route dispatch and cache invalidation behavior, rejects missing/wrong script-order failures, measures `/foundation` and split scripts under budget, and reduces `public/foundation.js` from `16,061` to `15,306` lines for this slice.
 
-Not next: broad DB rewrite, backlog schema changes, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `foundation-backlog-store-split-2026-05-15`, closed under `foundation-backlog-store-split-v1`. It extracted backlog create/update write behavior out of `lib/foundation-db.js` into `lib/foundation-backlog-store.js` without changing public `createBacklogItem` / `updateBacklogItem` imports or task-truth safeguards.
+
+## Previous Sprint: Foundation Backlog Store Split
+
+Live sprint ID: `foundation-backlog-store-split-2026-05-15`.
+
+This sprint is closed under `foundation-backlog-store-split-v1`. It extracts backlog create/update write behavior out of `lib/foundation-db.js` into `lib/foundation-backlog-store.js` without changing public `createBacklogItem` / `updateBacklogItem` imports or task-truth safeguards.
+
+The sprint order:
+
+1. `FOUNDATION-DB-MONOLITH-SPLIT-001` - done under `foundation-backlog-store-split-v1`; backlog write behavior now lives in `lib/foundation-backlog-store.js`, public exports remain stable in `lib/foundation-db.js`, and focused dogfood rejects weak done-lane closeouts plus missing row-lock/change metadata failures.
 
 Previous completed sprint: `verifier-route-split-module-2026-05-15`, closed under `verifier-route-split-module-v1`. It extracted the route-split verifier checks for the operator/source/Build Intel route splits out of `scripts/foundation-verify.mjs` into `lib/foundation-route-split-verifier.js` without changing the canonical verifier rows.
 
