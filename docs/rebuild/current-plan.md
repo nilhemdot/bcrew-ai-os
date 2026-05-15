@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-14
-Version: v6.38 - Foundation ClickUp Verify Health Boundary closed
+Version: v6.39 - Foundation Route Budget Cleanup closed
 Status: Active
 
 Use this doc for one question:
@@ -73,24 +73,24 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation ClickUp Verify Health Boundary
+## Current Sprint: Foundation Route Budget Cleanup
 
-Live sprint ID: `foundation-clickup-verify-health-boundary-2026-05-14`.
+Live sprint ID: `foundation-route-budget-cleanup-2026-05-14`.
 
-This sprint is closed under `foundation-clickup-verify-health-boundary-v1`. It cut the measured ClickUp verifier drag without weakening verifier trust: `health:clickup:verify` dropped from roughly 45 seconds to 2.733 seconds in the final profile proof, and the full profiled verifier dropped from roughly 92 seconds to 49.427 seconds.
+This sprint is closed under `foundation-route-budget-cleanup-v1`. It turns the first nightly deep audit route-budget findings into measured fixes without hub feature work: `/api/source-of-truth` delegates payload construction to `lib/source-of-truth-payload.js`, uses a bounded KPI health route cache, and measured 10ms / 134,031 bytes after cache warmup. Default `/api/foundation-hub` compacts Foundation Jobs runtime rows, Foundation 1100 review, and Research Curation cards through `lib/foundation-hub-summary-payload.js`, measuring 79ms / 774,641 bytes under the 800KB warning budget.
 
 The sprint order:
 
-1. `CLICKUP-VERIFY-FAST-PATH-001` - done under `foundation-clickup-verify-health-boundary-v1`; `clickup:verify` now uses bounded shared-client reads, one task page per list by default, 8 second request timeout, and concurrent list checks.
-2. `CLICKUP-VERIFY-PAYLOAD-CACHE-001` - done under `foundation-clickup-verify-health-boundary-v1`; one verifier invocation reuses a per-run list snapshot instead of repeating the same ClickUp reads.
-3. `CLICKUP-DEGRADED-HEALTH-DOGFOOD-001` - done under `foundation-clickup-verify-health-boundary-v1`; timeout, 500, and 429 dogfood cases report degraded ClickUp source health with redacted output.
-4. `FOUNDATION-VERIFY-SLOW-BUDGET-001` - done under `foundation-clickup-verify-health-boundary-v1`; `FOUNDATION_VERIFY_PROFILE` now carries a 20 second slow-section budget and over-budget rows with owner/next action.
+1. `SOURCE-OF-TRUTH-PERF-BUDGET-001` - done under `foundation-route-budget-cleanup-v1`; route hot path now uses cached KPI health and preserves the full response contract.
+2. `FOUNDATION-HUB-PAYLOAD-EXTRACT-001` - done under `foundation-route-budget-cleanup-v1`; default Foundation Hub payload is compacted under the current 800KB warning budget while full/detail paths remain available.
 
-The approved ClickUp verifier drag sprint is complete. Stop at sprint review before opening another sprint. Latest profile proof shows no sections over the 20 second budget. The slowest remaining sections are full Foundation Hub diagnostics at about 7.7 seconds and Ops Hub at about 6.9 seconds.
+The approved route budget cleanup sprint is complete. Stop at sprint review before opening another sprint. The biggest remaining default Foundation Hub payload section is still `backlogItems`, so a later frontend contract split should make the default command view thinner without removing full detail.
 
 Latest completed sprint: `nightly-deep-audit-upgrade-2026-05-14`, closed under `nightly-deep-audit-upgrade-v1`. It schedules the report-only `nightly-deep-audit` reviewer at 03:00 America/Toronto, writes date-based morning reports, selects changed/high-risk backend/frontend/verifier/hot-route/DB surfaces, records approved-route readiness without live spend by default, and dogfoods the May 13 rot patterns. The first report found 76 findings, 18 high-risk review targets, Foundation Hub payload warning at 873237B, and `/api/source-of-truth` latency risk at 2501ms.
 
-Recommended next sprint, not silently opened: **Foundation Full Diagnostics + Ops Hub Speed Cleanup Sprint**. Scope should measure and reduce the new slowest sections without broad refactors, then continue the cleanup/monolith split cadence.
+Recommended next sprint, not silently opened: choose from the next nightly audit and profiler. Good candidates are verifier/module splits, server route ownership split, and a thin default `backlogItems` payload contract for Foundation Hub.
+
+Previous completed sprint: `foundation-clickup-verify-health-boundary-2026-05-14`, closed under `foundation-clickup-verify-health-boundary-v1`. It cut the measured ClickUp verifier drag without weakening verifier trust: `health:clickup:verify` dropped from roughly 45 seconds to 2.733 seconds in the final profile proof, and the full profiled verifier dropped from roughly 92 seconds to 49.427 seconds.
 
 Previous completed sprint: `foundation-ship-gate-speed-payload-cleanup-2026-05-14`, closed under `foundation-ship-gate-speed-payload-cleanup-v1`. It added a read-only fast ship preflight, live freshness ownership rows, verifier timing profile output, one LLM auth verifier module split, and a smaller full diagnostics payload. That sprint exposed ClickUp verifier latency as the next measured bottleneck, which is now closed under `foundation-clickup-verify-health-boundary-v1`.
 

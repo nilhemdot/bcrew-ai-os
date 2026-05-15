@@ -119,6 +119,16 @@ import {
   buildNightlyDeepAuditUpgradeDogfoodProof,
 } from '../lib/nightly-deep-audit-upgrade.js'
 import {
+  SOURCE_OF_TRUTH_PERF_BUDGET_CARD_ID,
+  buildSourceOfTruthRouteDogfoodProof,
+  evaluateSourceOfTruthRouteBudget,
+} from '../lib/source-of-truth-payload.js'
+import {
+  FOUNDATION_HUB_PAYLOAD_EXTRACT_CARD_ID,
+  buildFoundationHubPayloadDogfoodProof,
+  evaluateFoundationHubPayloadBudget,
+} from '../lib/foundation-hub-summary-payload.js'
+import {
   HUB_WORK_CHECK_SCRIPT_PATH,
   HUB_WORK_COORDINATION_APPROVAL_PATH,
   HUB_WORK_COORDINATION_CARD_ID,
@@ -2022,6 +2032,9 @@ async function main() {
   const devProcessAuditSource = await readRepoFile('docs/audits/2026-04-28-dev-process-audit.md')
   const kpiHealthSource = await readRepoFile('lib/kpi-health.js')
   const kpiHealthScriptSource = await readRepoFile('scripts/kpi-supabase-health.mjs')
+  const sourceOfTruthPayloadSource = await readRepoFile('lib/source-of-truth-payload.js')
+  const foundationHubSummaryPayloadSource = await readRepoFile('lib/foundation-hub-summary-payload.js')
+  const foundationRouteBudgetCleanupScriptSource = await readRepoFile('scripts/process-foundation-route-budget-cleanup-check.mjs')
   const kpiSourceNote = await readRepoFile('docs/source-notes/kpi-dashboard.md')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
@@ -13480,6 +13493,93 @@ async function main() {
     nightlyDeepAuditCard
       ? `lane=${nightlyDeepAuditCard.lane} findings=${nightlyDeepAudit.deterministicAudit?.summary?.findingCount || 0} targets=${nightlyDeepAudit.reviewTargets?.length || 0} job=${nightlyDeepAuditJob?.runtimeMode || 'missing'}`
       : `missing ${NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID}`,
+  )
+  const foundationRouteBudgetCleanupCloseoutKey = 'foundation-route-budget-cleanup-v1'
+  const foundationRouteBudgetCleanupCardIds = [
+    'SOURCE-OF-TRUTH-PERF-BUDGET-001',
+    'FOUNDATION-HUB-PAYLOAD-EXTRACT-001',
+  ]
+  const foundationRouteBudgetCleanupCards = [
+    (foundationHub.backlogItems || []).find(item => item.id === foundationRouteBudgetCleanupCardIds[0]) || null,
+    (foundationHub.backlogItems || []).find(item => item.id === foundationRouteBudgetCleanupCardIds[1]) || null,
+  ]
+  const foundationRouteBudgetCleanupCloseout = foundationBuildLog.builds.find(build =>
+    build.key === foundationRouteBudgetCleanupCloseoutKey ||
+    build.closeoutKey === foundationRouteBudgetCleanupCloseoutKey
+  ) || closeoutRecordAsBuildLogEntry(foundationBuildCloseouts.find(closeout =>
+    closeout.key === foundationRouteBudgetCleanupCloseoutKey
+  ) || null)
+  const sourceOfTruthDogfood = buildSourceOfTruthRouteDogfoodProof()
+  const foundationHubPayloadDogfood = buildFoundationHubPayloadDogfoodProof()
+  const sourceOfTruthPayloadBudget = evaluateSourceOfTruthRouteBudget({
+    durationMs: 100,
+    bytes: Buffer.byteLength(JSON.stringify(sourceOfTruth)),
+  })
+  const foundationHubPayloadBudget = evaluateFoundationHubPayloadBudget({
+    bytes: Number(foundationHubSummary.foundationHubPerformance?.payloadBytes || 0),
+  })
+  const foundationRouteBudgetCleanupSourceOk = Boolean(
+    foundationRouteBudgetCleanupCards[0] &&
+      foundationRouteBudgetCleanupCards[0].lane === 'done' &&
+      String(foundationRouteBudgetCleanupCards[0].statusNote || '').includes(foundationRouteBudgetCleanupCloseoutKey) &&
+      sourceOfTruthDogfood.ok === true &&
+      sourceOfTruthPayloadBudget.ok === true &&
+      sourceOfTruth.kpiHealth?.summary?.probeSilent === false &&
+      ['memory', 'persisted', 'refreshed'].includes(sourceOfTruth.kpiHealth?.routeCache?.cacheStatus) &&
+      packageJson.scripts?.['process:foundation-route-budget-cleanup-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-route-budget-cleanup-check.mjs' &&
+      serverSource.includes('buildSourceOfTruthPayload') &&
+      kpiHealthSource.includes('getCachedSafeKpiHealthSnapshot') &&
+      kpiHealthSource.includes('KPI_HEALTH_ROUTE_CACHE_MAX_AGE_MS') &&
+      sourceOfTruthPayloadSource.includes('buildSourceOfTruthRouteDogfoodProof') &&
+      foundationRouteBudgetCleanupScriptSource.includes('source-of-truth dogfood rejects old over-latency measurement')
+  )
+  const foundationRouteBudgetCleanupHubOk = Boolean(
+    foundationRouteBudgetCleanupCards[1] &&
+      foundationRouteBudgetCleanupCards[1].lane === 'done' &&
+      String(foundationRouteBudgetCleanupCards[1].statusNote || '').includes(foundationRouteBudgetCleanupCloseoutKey) &&
+      foundationHubPayloadDogfood.ok === true &&
+      foundationHubPayloadBudget.ok === true &&
+      foundationHubSummary.foundationJobs?.fullPayloadCompacted === true &&
+      foundationHubSummary.foundation1100Review?.fullPayloadCompacted === true &&
+      foundationHubSummary.researchCuration?.fullPayloadCompacted === true &&
+      foundationHubSummary.researchCuration?.cards?.length <= 12 &&
+      serverSource.includes('compactFoundationJobRunSnapshot') &&
+      serverSource.includes('compactFoundationReviewSprintSnapshot') &&
+      serverSource.includes('compactResearchCurationSnapshot') &&
+      foundationHubSummaryPayloadSource.includes('buildFoundationHubPayloadDogfoodProof') &&
+      foundationRouteBudgetCleanupScriptSource.includes('Foundation Hub dogfood rejects old over-budget payload')
+  )
+  const foundationRouteBudgetCleanupCloseoutOk = Boolean(
+    foundationRouteBudgetCleanupCloseout?.operatorCloseout === true &&
+      foundationRouteBudgetCleanupCardIds.every(id => (foundationRouteBudgetCleanupCloseout.backlogIds || []).includes(id))
+  )
+  ensure(
+    checks,
+    foundationRouteBudgetCleanupSourceOk,
+    'SOURCE-OF-TRUTH-PERF-BUDGET-001 keeps source truth route under budget',
+    `sourceBytes=${sourceOfTruthPayloadBudget.bytes} cache=${sourceOfTruth.kpiHealth?.routeCache?.cacheStatus || 'missing'} sourceDogfood=${sourceOfTruthDogfood.ok}`,
+  )
+  ensure(
+    checks,
+    foundationRouteBudgetCleanupHubOk,
+    'FOUNDATION-HUB-PAYLOAD-EXTRACT-001 keeps Foundation Hub default payload compact',
+    `hubBytes=${foundationHubPayloadBudget.bytes} hubDogfood=${foundationHubPayloadDogfood.ok} jobs=${foundationHubSummary.foundationJobs?.latestRuns?.length || 0} researchCards=${foundationHubSummary.researchCuration?.cards?.length || 0}`,
+  )
+  ensure(
+    checks,
+    foundationRouteBudgetCleanupCloseoutOk,
+    'Foundation route budget cleanup has operator closeout coverage',
+    foundationRouteBudgetCleanupCloseout
+      ? `operatorCloseout=${foundationRouteBudgetCleanupCloseout.operatorCloseout} backlogIds=${(foundationRouteBudgetCleanupCloseout.backlogIds || []).join(',')}`
+      : `missing ${foundationRouteBudgetCleanupCloseoutKey}`,
+  )
+  ensure(
+    checks,
+      foundationRouteBudgetCleanupSourceOk &&
+      foundationRouteBudgetCleanupHubOk &&
+      foundationRouteBudgetCleanupCloseoutOk,
+    'Foundation route budget cleanup keeps source truth fast and Foundation Hub default payload compact',
+    `cards=${foundationRouteBudgetCleanupCards.filter(card => card?.lane === 'done').length}/2 sourceBytes=${sourceOfTruthPayloadBudget.bytes} hubBytes=${foundationHubPayloadBudget.bytes} cache=${sourceOfTruth.kpiHealth?.routeCache?.cacheStatus || 'missing'}`,
   )
   const hubWorkCoordinationCard = (foundationHub.backlogItems || []).find(item => item.id === HUB_WORK_COORDINATION_CARD_ID) || null
   const hubWorkOwnershipMatrix = await loadHubWorkOwnershipMatrix({ repoRoot })

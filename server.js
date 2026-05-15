@@ -227,7 +227,13 @@ import {
 import {
   buildFoundationUiCompleteSnapshot,
 } from './lib/foundation-ui-complete.js'
-import { getSafeKpiHealthSnapshot } from './lib/kpi-health.js'
+import { getCachedSafeKpiHealthSnapshot } from './lib/kpi-health.js'
+import { buildSourceOfTruthPayload } from './lib/source-of-truth-payload.js'
+import {
+  compactFoundationJobRunSnapshot,
+  compactFoundationReviewSprintSnapshot,
+  compactResearchCurationSnapshot,
+} from './lib/foundation-hub-summary-payload.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -3794,79 +3800,7 @@ async function getRecentBuildLog(limit = 30) {
 }
 
 app.get('/api/source-of-truth', requireAdminToken, async (_req, res) => {
-  const businessStrategy = readFileSafe(businessStrategyPath)
-  const sourceRegistry = readFileSafe(sourceRegistryPath)
-  const sourceContracts = getSourceContracts()
-  const sourceConnectors = getSourceConnectors()
-  const groupedSourceSystems = getGroupedSourceSystems()
-  const systemServiceAreas = getSystemServiceAreas()
-  const signedOffSourceCount = sourceContracts.filter(source => source.validation === 'Signed Off').length
-  const readableSourceCount = sourceContracts.filter(source =>
-    source.validation === 'Readable Only' || source.status === 'Verified Readable'
-  ).length
-  const kpiHealth = await getSafeKpiHealthSnapshot()
-
-  res.json({
-    title: 'BCrew AI OS',
-    foundation: {
-      businessStrategy: {
-        meta: getDocMeta(businessStrategyPath),
-        sections: parseSections(businessStrategy),
-      },
-      sourceRegistry: {
-        meta: getDocMeta(sourceRegistryPath),
-        sections: parseSections(sourceRegistry),
-      },
-      supportingStrategy: getSupportingStrategyDocs(),
-    },
-    sources: sourceContracts,
-    connectors: sourceConnectors,
-    groupedSystems: groupedSourceSystems,
-    systemServiceAreas,
-    kpiHealth,
-    systemStatus: [
-      {
-        key: 'strategy-doc',
-        label: 'Business Strategy',
-        status: businessStrategy ? 'connected' : 'missing',
-        detail: businessStrategy
-          ? 'Primary strategy source is in the repo and rendered in the dashboard.'
-          : 'Missing docs/business-strategy.md.',
-      },
-      {
-        key: 'supporting-strategy',
-        label: 'Supporting Strategy',
-        status: getSupportingStrategyDocs().every(doc => doc.meta.exists) ? 'connected' : 'pending',
-        detail: 'BHAG model, Agent Engine, mandates, governance, and the other supporting docs exist as a maintainable layer around the core strategy.',
-      },
-      {
-        key: 'source-trust',
-        label: 'Source Trust',
-        status: sourceRegistry ? 'pending' : 'missing',
-        detail: sourceRegistry
-          ? `${signedOffSourceCount} source contract${signedOffSourceCount === 1 ? '' : 's'} signed off and ${readableSourceCount} connected source${readableSourceCount === 1 ? '' : 's'} readable in the rebuild; finance and CRM trust review are still in progress.`
-          : 'Create the registry next so every business input has an owner, validation state, and trust boundary.',
-      },
-      {
-        key: 'foundation-memory',
-        label: 'Foundation Memory',
-        status: 'live',
-        detail: 'Backlog, decisions, open questions, pending doc updates, and recent changes are running through the Foundation trust layer.',
-      },
-      {
-        key: 'verification',
-        label: 'Verification',
-        status: 'connected',
-        detail: 'Baseline verification is now live through `npm run foundation:verify`, covering the trust layer APIs, Google delegated health, FUB health, Owners sign-off consistency, and backlog truth drift on key source-closeout cards.',
-      },
-      {
-        key: 'assistant-loop',
-        label: 'Trusted Assistant Loop',
-        status: 'pending',
-        detail: 'The first narrow assistant loop is not proven end to end yet. The rebuild still needs source sign-off, verification, and memory-baseline proof.',
-      },
-    ],
-  })
+  res.json(await buildSourceOfTruthPayload({ repoRoot: __dirname }))
 })
 
 app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res) => {
@@ -5138,18 +5072,18 @@ async function buildFoundationHubSummaryPayload() {
     backlogItems: snapshot.backlogItems || [],
     closeouts: getFoundationBuildCloseouts(),
   })
-  const foundation1100Review = buildFoundationReviewSprintStatus({
+  const foundation1100Review = compactFoundationReviewSprintSnapshot(buildFoundationReviewSprintStatus({
     artifact: await loadFoundationReviewSprintArtifact({ repoRoot: __dirname }),
     backlogItems: snapshot.backlogItems || [],
     actionRouter: {},
     hygiene: backlogHygiene,
-  })
-  const researchCuration = buildResearchCurationStatus({
+  }))
+  const researchCuration = compactResearchCurationSnapshot(buildResearchCurationStatus({
     backlogItems: snapshot.backlogItems || [],
     foundationReviewSprint: foundation1100Review,
-  })
+  }))
   const [foundationJobs, workerCode, activeFoundationSprint, decisionAutoEmitScan] = await Promise.all([
-    getFoundationJobRunSnapshot({ limit: 20 }),
+    getFoundationJobRunSnapshot({ limit: 20 }).then(compactFoundationJobRunSnapshot),
     getFoundationRuntimeStatus('foundation-worker').catch(() => null),
     getActiveFoundationCurrentSprint(),
     scanDecisionAutoEmitCandidates({ synthetic: true, cwd: __dirname }).catch(() => ({
@@ -5293,7 +5227,7 @@ app.get('/api/foundation-hub', requireAdminToken, async (req, res) => {
     }
 
     const snapshot = await getFoundationSnapshot()
-    const kpiHealth = await getSafeKpiHealthSnapshot()
+    const kpiHealth = await getCachedSafeKpiHealthSnapshot()
     const backlogHygiene = buildBacklogHygieneSnapshot({
       backlogItems: snapshot.backlogItems || [],
       closeouts: getFoundationBuildCloseouts(),

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+  "approvedBy": "Steve said go for the next Foundation sprint; Codex selected audit-driven Foundation Hub default payload cleanup and logged Plan Critic pass.",
+  "approvedAt": "2026-05-15T01:25:42.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-hub-payload-extract-001-plan.md",
+  "approvedPlanSha256": "a4a0d1578eda1ffc0476c5128d50f2a05878a910347078fdd7aff63179888761",
+  "approvedRepoHead": "023d442bfae92ad5295808ffed1d4c730c015c71",
+  "notes": "Foundation Route Budget Cleanup Sprint. Dogfood proof required: measure live route budgets and prove synthetic over-budget failures are rejected. Not approved: hub feature work, Marketing Video Lab UI, paid-source auth, autonomous dev, broad monolith rewrite, or live business-source mutation.",
+  "approvalDigest": "0754b891f94f6ab66ca29d47c358ba3135db214fcb06e40435d69aa2a900ae82"
+}

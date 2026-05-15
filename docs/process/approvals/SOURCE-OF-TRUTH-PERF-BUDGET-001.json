@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-OF-TRUTH-PERF-BUDGET-001",
+  "approvedBy": "Steve said go for the next Foundation sprint; Codex selected audit-driven source-of-truth route budget cleanup and logged Plan Critic pass.",
+  "approvedAt": "2026-05-15T01:25:42.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-of-truth-perf-budget-001-plan.md",
+  "approvedPlanSha256": "ae2dd3e290e85ca2941ec68af1c51f2cdceed200b7a1f530d1bfe75725c833fa",
+  "approvedRepoHead": "023d442bfae92ad5295808ffed1d4c730c015c71",
+  "notes": "Foundation Route Budget Cleanup Sprint. Dogfood proof required: measure live route budgets and prove synthetic over-budget failures are rejected. Not approved: hub feature work, Marketing Video Lab UI, paid-source auth, autonomous dev, broad monolith rewrite, or live business-source mutation.",
+  "approvalDigest": "6f86421f527972f124d5072ecbe79e7417fb018c87699d7669c5d9820f7b69be"
+}

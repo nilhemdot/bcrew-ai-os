@@ -100,6 +100,7 @@
     "process:gstack-build-intel-check": "node --env-file-if-exists=.env scripts/process-gstack-build-intel-check.mjs",
     "process:code-quality-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-code-quality-nightly-audit-check.mjs",
     "process:nightly-deep-audit-upgrade-check": "node --env-file-if-exists=.env scripts/process-nightly-deep-audit-upgrade-check.mjs",
+    "process:foundation-route-budget-cleanup-check": "node --env-file-if-exists=.env scripts/process-foundation-route-budget-cleanup-check.mjs",
     "process:runtime-safety-hardening-check": "node --env-file-if-exists=.env scripts/process-runtime-safety-hardening-check.mjs",
     "process:plan-critic-architectural-rules-check": "node --env-file-if-exists=.env scripts/process-plan-critic-architectural-rules-check.mjs",
     "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",
