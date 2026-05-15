@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-RUNTIME-READ-ROUTES-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T08:39:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-runtime-read-routes-split-001-plan.md",
+  "approvedPlanSha256": "873f198b873fcbdf22a83da6ea99e1118885f0a0e2450a010b1f7eda7fb2b7f1",
+  "approvedRepoHead": "555962673564f5831936946c5e2b731fa50f7912",
+  "notes": "Approved as a no-auth Foundation cleanup continuation. Scope: extract only the read-only Foundation runtime status routes from server.js into lib/foundation-runtime-read-routes.js with dependency injection and focused route/dogfood proof. Not approved: runtime job-control mutations, stop/decommission routes, hub UI work, Marketing Video Lab wiring, paid-source auth, source extraction, Drive permissions, Meeting Vault Phase B, or broad server rewrite.",
+  "approvalDigest": "4711e9b7d7a6a9bff5b661135590b90d538e4cecbf68a81d0e867e9fab2687a5"
+}

@@ -245,6 +245,7 @@ import { registerFoundationOperatorRoutes } from './lib/foundation-operator-rout
 import { registerFoundationSourceRoutes } from './lib/foundation-source-routes.js'
 import { registerFoundationBuildIntelRoutes } from './lib/foundation-build-intel-routes.js'
 import { registerFubSourceRoutes } from './lib/fub-source-routes.js'
+import { registerFoundationRuntimeReadRoutes } from './lib/foundation-runtime-read-routes.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -5173,68 +5174,14 @@ app.get('/api/ops/agent-feedback-production-dry-run', requireAdminToken, async (
   }
 })
 
-app.get('/api/foundation/jobs', requireAdminToken, async (req, res) => {
-  try {
-    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 30))
-    const includeOutput = req.query.includeOutput === 'true'
-    const snapshot = await getFoundationJobRunSnapshot({ limit, includeOutput })
-    cacheHeadersNoStore(res)
-    res.json(snapshot)
-  } catch (error) {
-    sendApiError(
-      res,
-      500,
-      'foundation_jobs_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation job runs.'
-    )
-  }
-})
-
-app.get('/api/foundation/active-processes', requireAdminToken, async (_req, res) => {
-  try {
-    const snapshot = await buildRuntimeProcessControlApiSnapshot()
-    cacheHeadersNoStore(res)
-    res.json(snapshot)
-  } catch (error) {
-    sendApiError(
-      res,
-      500,
-      'foundation_active_processes_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation active-process status.'
-    )
-  }
-})
-
-app.get('/api/foundation/llm-runtime', requireAdminToken, async (req, res) => {
-  try {
-    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 30))
-    const snapshot = await getLlmRuntimeSnapshot({ limit })
-    cacheHeadersNoStore(res)
-    res.json(snapshot)
-  } catch (error) {
-    sendApiError(
-      res,
-      500,
-      'foundation_llm_runtime_load_failed',
-      error instanceof Error ? error.message : 'Failed to load LLM runtime status.'
-    )
-  }
-})
-
-app.get('/api/foundation/extraction-control', requireAdminToken, async (req, res) => {
-  try {
-    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 50))
-    const snapshot = await getExtractionControlSnapshot({ limit })
-    cacheHeadersNoStore(res)
-    res.json(snapshot)
-  } catch (error) {
-    sendApiError(
-      res,
-      500,
-      'foundation_extraction_control_load_failed',
-      error instanceof Error ? error.message : 'Failed to load extraction control status.'
-    )
-  }
+registerFoundationRuntimeReadRoutes(app, {
+  requireAdminToken,
+  sendApiError,
+  cacheHeadersNoStore,
+  getFoundationJobRunSnapshot,
+  buildRuntimeProcessControlApiSnapshot,
+  getLlmRuntimeSnapshot,
+  getExtractionControlSnapshot,
 })
 
 app.post('/api/foundation/jobs/:jobKey/control', requireAdminToken, async (req, res) => {

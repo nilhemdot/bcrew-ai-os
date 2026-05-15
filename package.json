@@ -119,6 +119,7 @@
     "process:frontend-decision-question-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-decision-question-renderers-split-check.mjs",
     "process:verifier-frontend-split-checks-module-check": "node --env-file-if-exists=.env scripts/process-verifier-frontend-split-checks-module-check.mjs",
     "process:fub-source-route-split-check": "node --env-file-if-exists=.env scripts/process-fub-source-route-split-check.mjs",
+    "process:foundation-runtime-read-routes-split-check": "node --env-file-if-exists=.env scripts/process-foundation-runtime-read-routes-split-check.mjs",
     "process:hub-work-check": "node --env-file-if-exists=.env scripts/process-hub-work-check.mjs",
     "process:foundation-ready-safe-hub-lane-check": "node --env-file-if-exists=.env scripts/process-foundation-ready-safe-hub-lane-check.mjs",
     "process:foundation-hub-backlog-contract-check": "node --env-file-if-exists=.env scripts/process-foundation-hub-backlog-contract-check.mjs",

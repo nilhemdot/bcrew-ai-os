@@ -148,6 +148,16 @@ import {
   buildFubSourceRouteSplitDogfoodProof,
 } from '../lib/fub-source-routes.js'
 import {
+  FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_APPROVAL_PATH,
+  FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_BEFORE_SERVER_LINES,
+  FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CARD_ID,
+  FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_PLAN_PATH,
+  FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_SCRIPT_PATH,
+  FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_SPRINT_ID,
+  buildFoundationRuntimeReadRoutesSplitDogfoodProof,
+} from '../lib/foundation-runtime-read-routes.js'
+import {
   buildFoundationVerifyCheckOutput,
   buildFoundationVerifyJsonSummary,
   buildFoundationVerifyReporterDogfoodProof,
@@ -2270,6 +2280,9 @@ async function main() {
   const fubSourceRoutesSource = await readRepoFile('lib/fub-source-routes.js')
   const fubSourceRouteSplitScriptSource = await readRepoFile(FUB_SOURCE_ROUTE_SPLIT_SCRIPT_PATH)
   const fubSourceRouteSplitPlanSource = await readRepoFile(FUB_SOURCE_ROUTE_SPLIT_PLAN_PATH)
+  const foundationRuntimeReadRoutesSource = await readRepoFile('lib/foundation-runtime-read-routes.js')
+  const foundationRuntimeReadRoutesSplitScriptSource = await readRepoFile(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_SCRIPT_PATH)
+  const foundationRuntimeReadRoutesSplitPlanSource = await readRepoFile(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_PLAN_PATH)
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
@@ -4310,7 +4323,14 @@ async function main() {
   const missingArtifactClaims = await findMissingArtifactClaims(
     artifactClaimRecords,
     packageJson.scripts || {},
-    [serverSource, foundationOperatorRoutesSource, foundationSourceRoutesSource, foundationBuildIntelRoutesSource],
+    [
+      serverSource,
+      foundationOperatorRoutesSource,
+      foundationSourceRoutesSource,
+      foundationBuildIntelRoutesSource,
+      fubSourceRoutesSource,
+      foundationRuntimeReadRoutesSource,
+    ],
   )
   const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
     [{
@@ -4318,7 +4338,14 @@ async function main() {
       text: 'docs/process/synthetic-missing-artifact.md npm run synthetic:missing /api/synthetic-missing-artifact',
     }],
     packageJson.scripts || {},
-    [serverSource, foundationOperatorRoutesSource, foundationSourceRoutesSource, foundationBuildIntelRoutesSource],
+    [
+      serverSource,
+      foundationOperatorRoutesSource,
+      foundationSourceRoutesSource,
+      foundationBuildIntelRoutesSource,
+      fubSourceRoutesSource,
+      foundationRuntimeReadRoutesSource,
+    ],
   )
   const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
@@ -11586,7 +11613,7 @@ async function main() {
     llmAuthAuditProofSource,
     llmAuthAuditCheckSource,
     llmAuthAuditPlanSource,
-    serverSource,
+    serverSource: `${serverSource}\n${foundationRuntimeReadRoutesSource}`,
     llmAuthAuditCloseout,
   })
   const llmAuthAuditVerifierDogfoodProof = buildLlmAuthAuditVerifierDogfoodProof()
@@ -13276,8 +13303,10 @@ async function main() {
         'markFoundationJobRunStopped',
       ]) &&
       foundationJobsSource.includes("runtimeMode === 'decommissioned'") &&
-      includesAll(serverSource, [
+      includesAll(foundationRuntimeReadRoutesSource, [
         "app.get('/api/foundation/active-processes'",
+      ]) &&
+      includesAll(serverSource, [
         "app.post('/api/foundation/job-runs/:runId/stop'",
         "app.post('/api/foundation/jobs/:jobKey/decommission'",
         'use_decommission_route',
@@ -14147,6 +14176,53 @@ async function main() {
     fubSourceRouteSplitCard
       ? `lane=${fubSourceRouteSplitCard.lane} dogfood=${fubSourceRouteSplitDogfood.ok ? 'pass' : 'blocked'} lines=${FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterFubRouteSplit}`
       : `missing ${FUB_SOURCE_ROUTE_SPLIT_CARD_ID}`,
+  )
+  const foundationRuntimeReadRoutesSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CARD_ID) || null
+  const foundationRuntimeReadRoutesSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CLOSEOUT_KEY) || null
+  const foundationRuntimeReadRoutesDogfood = buildFoundationRuntimeReadRoutesSplitDogfoodProof({
+    serverSource,
+    moduleSource: foundationRuntimeReadRoutesSource,
+    proofScriptSource: foundationRuntimeReadRoutesSplitScriptSource,
+  })
+  const serverLineCountAfterRuntimeReadRouteSplit = String(serverSource || '').split('\n').length
+  ensure(
+    checks,
+      foundationRuntimeReadRoutesSplitCard &&
+      ['executing', 'done'].includes(foundationRuntimeReadRoutesSplitCard.lane) &&
+      String(foundationRuntimeReadRoutesSplitCard.statusNote || '').includes(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      foundationRuntimeReadRoutesSplitCloseout?.operatorCloseout === true &&
+      (foundationRuntimeReadRoutesSplitCloseout.backlogIds || []).includes(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CARD_ID) &&
+      foundationRuntimeReadRoutesDogfood.ok === true &&
+      packageJson.scripts?.['process:foundation-runtime-read-routes-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-foundation-runtime-read-routes-split-closeout.md') &&
+      foundationRuntimeReadRoutesSource.includes('registerFoundationRuntimeReadRoutes') &&
+      foundationRuntimeReadRoutesSource.includes("app.get('/api/foundation/jobs'") &&
+      foundationRuntimeReadRoutesSource.includes("app.get('/api/foundation/active-processes'") &&
+      foundationRuntimeReadRoutesSource.includes("app.get('/api/foundation/llm-runtime'") &&
+      foundationRuntimeReadRoutesSource.includes("app.get('/api/foundation/extraction-control'") &&
+      !foundationRuntimeReadRoutesSource.includes("app.post('/api/foundation/jobs/:jobKey/control'") &&
+      !foundationRuntimeReadRoutesSource.includes("app.post('/api/foundation/job-runs/:runId/stop'") &&
+      !foundationRuntimeReadRoutesSource.includes("app.post('/api/foundation/jobs/:jobKey/decommission'") &&
+      foundationRuntimeReadRoutesSplitScriptSource.includes('moved read routes return expected runtime status payloads without POSTing job-control mutations') &&
+      foundationRuntimeReadRoutesSplitPlanSource.includes('For server.js route or API work, the plan includes a performance budget') &&
+      serverSource.includes('registerFoundationRuntimeReadRoutes(app') &&
+      !serverSource.includes("app.get('/api/foundation/jobs'") &&
+      !serverSource.includes("app.get('/api/foundation/active-processes'") &&
+      !serverSource.includes("app.get('/api/foundation/llm-runtime'") &&
+      !serverSource.includes("app.get('/api/foundation/extraction-control'") &&
+      serverSource.includes("app.post('/api/foundation/jobs/:jobKey/control'") &&
+      serverLineCountAfterRuntimeReadRouteSplit < FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
+      currentPlan.includes(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CARD_ID),
+    'FOUNDATION-RUNTIME-READ-ROUTES-SPLIT-001 extracts Foundation runtime read routes into a focused module',
+    foundationRuntimeReadRoutesSplitCard
+      ? `lane=${foundationRuntimeReadRoutesSplitCard.lane} dogfood=${foundationRuntimeReadRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterRuntimeReadRouteSplit}`
+      : `missing ${FOUNDATION_RUNTIME_READ_ROUTES_SPLIT_CARD_ID}`,
   )
   const foundationBacklogStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID) || null
   const foundationBacklogStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) || null
