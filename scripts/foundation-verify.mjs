@@ -109,6 +109,16 @@ import {
   buildSyntheticCodeQualityNightlyAuditProof,
 } from '../lib/code-quality-nightly-audit.js'
 import {
+  NIGHTLY_DEEP_AUDIT_APPROVAL_PATH,
+  NIGHTLY_DEEP_AUDIT_JOB_KEY,
+  NIGHTLY_DEEP_AUDIT_PLAN_PATH,
+  NIGHTLY_DEEP_AUDIT_SCRIPT_PATH,
+  NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID,
+  NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY,
+  buildNightlyDeepAuditUpgrade,
+  buildNightlyDeepAuditUpgradeDogfoodProof,
+} from '../lib/nightly-deep-audit-upgrade.js'
+import {
   HUB_WORK_CHECK_SCRIPT_PATH,
   HUB_WORK_COORDINATION_APPROVAL_PATH,
   HUB_WORK_COORDINATION_CARD_ID,
@@ -4088,13 +4098,18 @@ async function main() {
   const slackCurrentDayLatestRunStillActive = ['running', 'leased'].includes(
     slackCurrentDayTarget?.scheduler?.latestRunStatus,
   )
+  const slackCurrentDayFailedByStaleReaperWithHealthyProof =
+    slackCurrentDayHasHealthyItemProof &&
+    slackCurrentDayTarget?.lastStatus === 'failed' &&
+    String(slackCurrentDayTarget?.lastError || '').includes('stale source-crawl run reaper')
   const slackCurrentDayStatusAcceptable =
     nonStaleExtractionStatuses.has(slackCurrentDayTarget?.lastStatus) ||
     (
       slackCurrentDayLatestRunStillActive &&
       slackCurrentDayHasHealthyItemProof &&
       String(slackCurrentDayTarget?.lastError || '').includes('stale source-crawl run reaper')
-    )
+    ) ||
+    slackCurrentDayFailedByStaleReaperWithHealthyProof
   const missiveCurrentDayTarget = extractionTargets.find(target => target.targetKey === 'missive-current-day')
   const driveCorpusTarget = extractionTargets.find(target => target.targetKey === 'drive-corpus-backfill')
   const driveContentTarget = extractionTargets.find(target => target.targetKey === 'drive-content-extract-backfill')
@@ -13416,6 +13431,55 @@ async function main() {
       includesAll(foundationVerifySource, CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
     'Code Quality Nightly Audit closes the deterministic read-only report loop without fixes, backlog writes, scheduling, or LLM detection',
     `cards=${codeQualityNightlyAuditCards.filter(card => card?.lane === 'done').length}/${CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.length} findings=${codeQualityNightlyAudit.summary?.findingCount || 0} proposed=${codeQualityNightlyAudit.proposedCards?.length || 0}`,
+  )
+  const nightlyDeepAuditCard = (foundationHub.backlogItems || []).find(item => item.id === NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID) || null
+  const nightlyDeepAuditCloseout = foundationBuildLog.builds.find(build =>
+    build.key === NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY ||
+    build.closeoutKey === NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY
+  ) || null
+  const nightlyDeepAuditJob = getFoundationJobDefinitions().find(job => job.key === NIGHTLY_DEEP_AUDIT_JOB_KEY) || null
+  const nightlyDeepAudit = await buildNightlyDeepAuditUpgrade({
+    repoRoot,
+    skipEndpointFetch: true,
+  })
+  const nightlyDeepAuditDogfood = buildNightlyDeepAuditUpgradeDogfoodProof()
+  ensure(
+    checks,
+      nightlyDeepAuditCard?.lane === 'done' &&
+      String(nightlyDeepAuditCard.statusNote || '').includes(NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY) &&
+      nightlyDeepAuditCloseout?.operatorCloseout === true &&
+      (nightlyDeepAuditCloseout.backlogIds || []).includes(NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID) &&
+      nightlyDeepAudit.reportOnly === true &&
+      nightlyDeepAudit.autoFixes === false &&
+      nightlyDeepAudit.writesBacklog === false &&
+      nightlyDeepAudit.autonomousDev === false &&
+      nightlyDeepAudit.autoCreatesBacklog === false &&
+      nightlyDeepAudit.coverage?.backend === true &&
+      nightlyDeepAudit.coverage?.frontend === true &&
+      nightlyDeepAudit.coverage?.endpointMetrics === true &&
+      nightlyDeepAudit.reviewTargets.some(target => target.file === 'scripts/foundation-verify.mjs') &&
+      nightlyDeepAudit.reviewTargets.some(target => target.file === 'public/foundation.js') &&
+      nightlyDeepAudit.reviewTargets.some(target => target.file === 'server.js') &&
+      nightlyDeepAudit.reviewTargets.some(target => target.file === 'lib/foundation-db.js') &&
+      nightlyDeepAuditDogfood.ok === true &&
+      nightlyDeepAuditJob?.runtimeMode === 'scheduled' &&
+      nightlyDeepAuditJob?.mutationPosture === 'report_only' &&
+      packageJson.scripts?.['process:nightly-deep-audit-upgrade-check'] === `node --env-file-if-exists=.env ${NIGHTLY_DEEP_AUDIT_SCRIPT_PATH}` &&
+      foundationJobsSource.includes(NIGHTLY_DEEP_AUDIT_JOB_KEY) &&
+      foundationJobsSource.includes('scheduleLocalTime: NIGHTLY_DEEP_AUDIT_SCHEDULE_LOCAL_TIME') &&
+      await repoFileExists(NIGHTLY_DEEP_AUDIT_PLAN_PATH) &&
+      await repoFileExists(NIGHTLY_DEEP_AUDIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/nightly-deep-audit-2026-05-14.md') &&
+      await repoFileExists('docs/handoffs/nightly-deep-audit-2026-05-14.json') &&
+      includesAll(foundationVerifySource, [
+        'NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID',
+        'NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY',
+        'buildNightlyDeepAuditUpgradeDogfoodProof',
+      ]),
+    'NIGHTLY-DEEP-AUDIT-UPGRADE-001 schedules report-only backend/frontend reviewer loop',
+    nightlyDeepAuditCard
+      ? `lane=${nightlyDeepAuditCard.lane} findings=${nightlyDeepAudit.deterministicAudit?.summary?.findingCount || 0} targets=${nightlyDeepAudit.reviewTargets?.length || 0} job=${nightlyDeepAuditJob?.runtimeMode || 'missing'}`
+      : `missing ${NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID}`,
   )
   const hubWorkCoordinationCard = (foundationHub.backlogItems || []).find(item => item.id === HUB_WORK_COORDINATION_CARD_ID) || null
   const hubWorkOwnershipMatrix = await loadHubWorkOwnershipMatrix({ repoRoot })

@@ -150,6 +150,10 @@ async function main() {
   }
 
   const cardMap = new Map(cards.map(card => [card.id, card]))
+  const operatingReliabilityCloseoutRecorded = getFoundationBuildCloseouts()
+    .some(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY)
+  const operatingReliabilityCardsDone = FOUNDATION_OPERATING_RELIABILITY_CARD_IDS
+    .every(cardId => cardMap.get(cardId)?.lane === 'done')
   const currentSprintStatus = buildFoundationCurrentSprintStatus({
     sprint: activeSprint.sprint,
     items: activeSprint.items || [],
@@ -160,21 +164,30 @@ async function main() {
   const sprintItems = activeSprint.items || []
   addCheck(
     checks,
-    activeSprint.sprint?.sprintId === FOUNDATION_OPERATING_RELIABILITY_SPRINT_ID,
-    'Operating Reliability sprint is active',
+    activeSprint.sprint?.sprintId === FOUNDATION_OPERATING_RELIABILITY_SPRINT_ID ||
+      (operatingReliabilityCloseoutRecorded && operatingReliabilityCardsDone),
+    'Operating Reliability sprint is active or closed with done cards',
     activeSprint.sprint?.sprintId || 'missing',
   )
   addCheck(
     checks,
-    FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.every(cardId => sprintItems.some(item => item.cardId === cardId && stageOk(item.stage))),
-    'all Operating Reliability cards are at Sprint Ready or later',
-    sprintItems.map(item => `${item.cardId}:${item.stage}`).join(', '),
+    activeSprint.sprint?.sprintId === FOUNDATION_OPERATING_RELIABILITY_SPRINT_ID
+      ? FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.every(cardId => sprintItems.some(item => item.cardId === cardId && stageOk(item.stage)))
+      : operatingReliabilityCardsDone,
+    'all Operating Reliability cards are at Sprint Ready or later, or closed done',
+    activeSprint.sprint?.sprintId === FOUNDATION_OPERATING_RELIABILITY_SPRINT_ID
+      ? sprintItems.map(item => `${item.cardId}:${item.stage}`).join(', ')
+      : FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.map(cardId => `${cardId}:${cardMap.get(cardId)?.lane || 'missing'}`).join(', '),
   )
   addCheck(
     checks,
-    FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.every(cardId => doctrineOk(sprintItems.find(item => item.cardId === cardId))),
-    'all Operating Reliability sprint items have populated doctrine',
-    sprintItems.filter(item => !doctrineOk(item)).map(item => item.cardId).join(', ') || 'ok',
+    activeSprint.sprint?.sprintId === FOUNDATION_OPERATING_RELIABILITY_SPRINT_ID
+      ? FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.every(cardId => doctrineOk(sprintItems.find(item => item.cardId === cardId)))
+      : operatingReliabilityCloseoutRecorded,
+    'all Operating Reliability sprint items have populated doctrine or committed closeout',
+    activeSprint.sprint?.sprintId === FOUNDATION_OPERATING_RELIABILITY_SPRINT_ID
+      ? sprintItems.filter(item => !doctrineOk(item)).map(item => item.cardId).join(', ') || 'ok'
+      : `closeout=${operatingReliabilityCloseoutRecorded}`,
   )
   addCheck(
     checks,
@@ -239,8 +252,8 @@ async function main() {
     checks,
     runtimeActivation.jobs.length >= getFoundationJobDefinitions().length &&
       runtimeActivation.jobs.some(job => job.key === 'verification-runs' && job.state === 'blocked') &&
-      runtimeActivation.jobs.some(job => job.key === 'code-quality-nightly-audit' && job.state === 'manual'),
-    'runtime activation distinguishes blocked scheduled checks from manual audit jobs',
+      runtimeActivation.jobs.some(job => job.key === 'nightly-deep-audit' && ['scheduled', 'due', 'running'].includes(job.state)),
+    'runtime activation distinguishes blocked scheduled checks from the scheduled nightly deep audit job',
     runtimeActivation.jobs.slice(0, 12).map(job => `${job.key}:${job.state}`).join(', '),
   )
   addCheck(
@@ -249,10 +262,10 @@ async function main() {
       morningHealth.autoFixes === false &&
       morningHealth.writesBacklog === false &&
       morningHealth.autonomousDev === false &&
-      morningHealth.findings.some(item => item.id === 'deterministic_scanner_manual') &&
-      morningHealth.findings.some(item => item.id === 'recurring_deep_audit_not_running'),
-    'morning health is report-only and distinguishes scanner from recurring deep audit',
-    morningHealth.findings.map(item => item.id).join(', '),
+      morningHealth.nightlyDeepAudit?.scheduled === true &&
+      !morningHealth.findings.some(item => item.id === 'nightly_deep_audit_not_scheduled'),
+    'morning health is report-only and recognizes the scheduled nightly deep audit',
+    `scheduled=${morningHealth.nightlyDeepAudit?.scheduled} findings=${morningHealth.findings.map(item => item.id).join(', ')}`,
   )
   addCheck(
     checks,

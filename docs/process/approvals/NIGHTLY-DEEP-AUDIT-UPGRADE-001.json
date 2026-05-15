@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
+  "approvedBy": "Steve said go for the next Foundation sprint; Codex senior-engineer judgment selected the P0 nightly deep audit upgrade",
+  "approvedAt": "2026-05-14T21:05:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/nightly-deep-audit-upgrade-001-plan.md",
+  "approvedPlanSha256": "dcbba1954acb7e359393ae70f117e8dbcc0f99ea319ac25d9baf5e4983756558",
+  "approvedRepoHead": "a8c967eee25d3a1062923fb5041d349fd959157d",
+  "notes": "Approved as the Nightly Deep Audit Upgrade Sprint. Scope: scheduled report-only nightly hybrid reviewer, deterministic backend/frontend scan, changed/high-risk LLM review packet/approved-route lane, diff-only morning report, dogfood against 2026-05-13 failures. Not approved: auto-fixes, auto-backlog mutation, hub features, Build Intel extraction, paid-source auth, broad monolith refactor, or unapproved provider spend.",
+  "approvalDigest": "09171ae97dae03959596ba4a76620d4d5f55b0b21779bf23bae5b49cb5b4d0e9"
+}
