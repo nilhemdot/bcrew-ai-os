@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-FRONTEND-SPLIT-CHECKS-MODULE-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T08:05:26.393Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-frontend-split-checks-module-001-plan.md",
+  "approvedPlanSha256": "d535f20c864c70ff821e0f1737fe6b47e507989aafccc0ed97b7bd48b023718e",
+  "approvedRepoHead": "798734ec5854ecc1a0329119e8446539e7f290fe",
+  "notes": "Approved as a no-auth Foundation cleanup continuation. Scope: extract frontend split verifier checks from scripts/foundation-verify.mjs into lib/foundation-frontend-split-verifier.js with dogfood proof, no behavior changes, no live mutation, and full Foundation ship. Not approved: broad verifier rewrite, DB/server split, hub feature work, Marketing live wiring, paid-source auth, source extraction, Drive permissions, Meeting Vault Phase B, or autonomous dev.",
+  "approvalDigest": "629fe3dca4d113fd1068802d6b52a45d7167b460b9ee3921d484a147adfc71e1"
+}

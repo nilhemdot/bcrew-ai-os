@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.55 - Foundation Decisions and Open Questions renderer split closed
+Version: v6.56 - Verifier frontend split checks module closed
 Status: Active
 
 Use this doc for one question:
@@ -73,11 +73,11 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Decisions and Open Questions Renderer Split
+## Current Sprint: Verifier Frontend Split Checks Module
 
-Live sprint ID: `frontend-decision-question-renderers-split-2026-05-15`.
+Live sprint ID: `verifier-frontend-split-checks-module-2026-05-15`.
 
-This sprint is closed under `frontend-decision-question-renderers-split-v1`. It extracts the Foundation Decisions / Open Questions renderer cluster out of `public/foundation.js` into a focused classic browser script without changing renderer behavior, route semantics, CSS, API contracts, Foundation Hub contracts, Backlog, Action Review, Decisions, or Open Questions data semantics.
+This sprint is closed under `verifier-frontend-split-checks-module-v1`. It extracts the already-shipped frontend split verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-frontend-split-verifier.js` without changing the canonical frontend split PASS/FAIL rows or product behavior.
 
 The sprint order:
 
