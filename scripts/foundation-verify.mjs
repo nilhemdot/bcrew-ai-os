@@ -188,6 +188,16 @@ import {
   buildHubReadRoutesSplitDogfoodProof,
 } from '../lib/hub-read-routes.js'
 import {
+  STRATEGY_SHARED_COMMS_ROUTES_SPLIT_APPROVAL_PATH,
+  STRATEGY_SHARED_COMMS_ROUTES_SPLIT_BEFORE_SERVER_LINES,
+  STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CARD_ID,
+  STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CLOSEOUT_KEY,
+  STRATEGY_SHARED_COMMS_ROUTES_SPLIT_PLAN_PATH,
+  STRATEGY_SHARED_COMMS_ROUTES_SPLIT_SCRIPT_PATH,
+  STRATEGY_SHARED_COMMS_ROUTES_SPLIT_SPRINT_ID,
+  buildStrategySharedCommsRoutesSplitDogfoodProof,
+} from '../lib/strategy-shared-comms-routes.js'
+import {
   buildFoundationVerifyCheckOutput,
   buildFoundationVerifyJsonSummary,
   buildFoundationVerifyReporterDogfoodProof,
@@ -2322,7 +2332,11 @@ async function main() {
   const hubReadRoutesSource = await readRepoFile('lib/hub-read-routes.js')
   const hubReadRoutesSplitScriptSource = await readRepoFile(HUB_READ_ROUTES_SPLIT_SCRIPT_PATH)
   const hubReadRoutesSplitPlanSource = await readRepoFile(HUB_READ_ROUTES_SPLIT_PLAN_PATH)
-  const serverRouteSource = [serverSource, hubReadRoutesSource].join('\n')
+  const strategySharedCommsRoutesSource = await readRepoFile('lib/strategy-shared-comms-routes.js')
+  const strategySharedCommsRoutesSplitScriptSource = await readRepoFile(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_SCRIPT_PATH)
+  const strategySharedCommsRoutesSplitPlanSource = await readRepoFile(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_PLAN_PATH)
+  const serverRouteSource = [serverSource, hubReadRoutesSource, strategySharedCommsRoutesSource].join('\n')
+  const strategySharedCommsRouteSource = [serverSource, strategySharedCommsRoutesSource].join('\n')
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
@@ -4380,6 +4394,7 @@ async function main() {
       foundationRuntimeReadRoutesSource,
       appPageRoutesSource,
       hubReadRoutesSource,
+      strategySharedCommsRoutesSource,
     ],
   )
   const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
@@ -6253,7 +6268,7 @@ async function main() {
         "servesHubs: ['strategy']",
         'Strategy Evidence Packet V1',
       ]) &&
-      serverSource.includes('packetType = req.query.packetType') &&
+      strategySharedCommsRouteSource.includes('packetType = req.query.packetType') &&
       strategyEvidencePacketSource.includes('priorityRecommendationFeedDisabled: true') &&
       !strategyEvidencePacketSource.includes('recommended_90_day_priorities: {') &&
       !strategyEvidencePacketSource.includes("packetSection: 'recommended_90_day_priorities'") &&
@@ -6276,7 +6291,7 @@ async function main() {
       strategyGoalGroups.get('agent_engine_capacity')?.status === 'behind' &&
       /Behind/.test(strategyGoalGroups.get('agent_engine_capacity')?.statusLabel || '') &&
       strategyGoalApiGroups.get('community_agents')?.status === 'ahead' &&
-      serverSource.includes("app.get('/api/strategic-execution/goal-truth'") &&
+      strategySharedCommsRouteSource.includes("app.get('/api/strategic-execution/goal-truth'") &&
       serverSource.includes('currentGoalTruth') &&
       foundationDbSource.includes('getStrategyGoalTruthSnapshot') &&
       foundationDbSource.includes('Team Goal: $2B') &&
@@ -6295,7 +6310,7 @@ async function main() {
       strategyOperatingSourceIds.has(sourceId) && strategyOperatingApiSourceIds.has(sourceId)
     ) &&
       strategyOperatingTruthSnapshot.rule?.includes('Shared-comms candidates are leads/evidence, not final operating truth') &&
-      serverSource.includes("app.get('/api/strategic-execution/operating-truth'") &&
+      strategySharedCommsRouteSource.includes("app.get('/api/strategic-execution/operating-truth'") &&
       serverSource.includes('currentOperatingTruth') &&
       foundationDbSource.includes('getStrategyOperatingTruthSnapshot') &&
       foundationDbSource.includes('Do not recommend "install weekly finance truth" as if the source does not exist'),
@@ -6304,19 +6319,19 @@ async function main() {
   )
   ensure(
     checks,
-      serverSource.includes("app.post('/api/strategic-execution/advisor'") &&
-      serverSource.includes("app.get('/api/strategic-execution/v2'") &&
-      serverSource.includes("app.post('/api/strategic-execution/action-routes/:routeId/review'") &&
-      serverSource.includes('approveActionRoute') &&
-      serverSource.includes('applyApprovedActionRoute') &&
-      serverSource.includes('rejectActionRoute') &&
-      serverSource.includes('rerouteActionRoute') &&
-      serverSource.includes('saveStrategyHubSnapshot') &&
-      serverSource.includes('getStrategyHubSnapshot') &&
-      serverSource.includes('isStrategyHubReviewRoute') &&
+      strategySharedCommsRouteSource.includes("app.post('/api/strategic-execution/advisor'") &&
+      strategySharedCommsRouteSource.includes("app.get('/api/strategic-execution/v2'") &&
+      strategySharedCommsRouteSource.includes("app.post('/api/strategic-execution/action-routes/:routeId/review'") &&
+      strategySharedCommsRouteSource.includes('approveActionRoute') &&
+      strategySharedCommsRouteSource.includes('applyApprovedActionRoute') &&
+      strategySharedCommsRouteSource.includes('rejectActionRoute') &&
+      strategySharedCommsRouteSource.includes('rerouteActionRoute') &&
+      strategySharedCommsRouteSource.includes('saveStrategyHubSnapshot') &&
+      strategySharedCommsRouteSource.includes('getStrategyHubSnapshot') &&
+      strategySharedCommsRouteSource.includes('isStrategyHubReviewRoute') &&
       foundationDbSource.includes('CREATE TABLE IF NOT EXISTS strategy_hub_snapshots') &&
-      serverSource.includes('strategy_hub_v2_in_progress') &&
-      serverSource.includes('Strategy Advisor is offline while Strategy Hub v2 rebuilds deterministic source snapshots') &&
+      strategySharedCommsRouteSource.includes('strategy_hub_v2_in_progress') &&
+      strategySharedCommsRouteSource.includes('Strategy Advisor is offline while Strategy Hub v2 rebuilds deterministic source snapshots') &&
       strategicExecutionUiSource.includes('/api/strategic-execution/v2') &&
       strategicExecutionUiSource.includes('/api/strategic-execution/action-routes/') &&
       strategicExecutionUiSource.includes('function renderSourceToGap') &&
@@ -6341,9 +6356,9 @@ async function main() {
       strategicExecutionUiSource.includes("provenance.open = route.approvalStatus === 'pending'") &&
       intelligenceActionRouterSource.includes('buildSourceProofForRoute') &&
       intelligenceActionRouterSource.includes('enrichRoutesWithSourceProof') &&
-      serverSource.includes('resolveSnoozeUntil') &&
-      serverSource.includes('snoozeDuration') &&
-      serverSource.includes('normalizeRouteOwnerInput') &&
+      strategySharedCommsRouteSource.includes('resolveSnoozeUntil') &&
+      strategySharedCommsRouteSource.includes('snoozeDuration') &&
+      strategySharedCommsRouteSource.includes('normalizeRouteOwnerInput') &&
       strategicExecutionUiSource.includes('window.confirm') &&
       strategicExecutionUiSource.includes('Optional review note') &&
       strategicExecutionUiSource.includes('Source fallback active') &&
@@ -6382,7 +6397,7 @@ async function main() {
       strategyPreworkApiParticipants.length === strategyPreworkParticipants.length &&
       ['Steve Zahnd', 'Scott Benson', 'Ryan Campbell', 'Carson', 'Georgia Huntley', 'Nick Bergmann', 'Clare', 'Ahsan', 'Blake Berfelz'].every(name => strategyPreworkNames.includes(name)) &&
       ['Steve Zahnd', 'Scott Benson', 'Ryan Campbell', 'Carson', 'Georgia Huntley', 'Nick Bergmann', 'Clare', 'Ahsan'].every(name => strategyPreworkReadNames.includes(name)) &&
-      serverSource.includes("app.get('/api/strategic-execution/prework-coverage'") &&
+      strategySharedCommsRouteSource.includes("app.get('/api/strategic-execution/prework-coverage'") &&
       serverSource.includes('preworkReadCoverage') &&
       foundationDbSource.includes('getStrategyPreworkCoverageSnapshot') &&
       foundationDbSource.includes('strategyPreworkExpectedParticipants') &&
@@ -10189,7 +10204,7 @@ async function main() {
         'changed-value',
         'Substring-only proof is rejected',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(strategySharedCommsRouteSource, [
         'buildStrategyMeetingReadySnapshot',
         'meetingReady',
         'buildStrategyHubV2Payload',
@@ -13449,12 +13464,12 @@ async function main() {
   )
   ensure(
     checks,
-    serverSource.includes("app.get('/api/foundation/action-review'") &&
-      serverSource.includes("app.post('/api/foundation/action-review/:routeId/review'") &&
-      serverSource.includes("action === 'approve'") &&
-      serverSource.includes("action === 'apply'") &&
-      serverSource.includes("action === 'reject'") &&
-      serverSource.includes('Reject needs a reason so the finding is not silently lost.') &&
+    strategySharedCommsRouteSource.includes("app.get('/api/foundation/action-review'") &&
+      strategySharedCommsRouteSource.includes("app.post('/api/foundation/action-review/:routeId/review'") &&
+      strategySharedCommsRouteSource.includes("action === 'approve'") &&
+      strategySharedCommsRouteSource.includes("action === 'apply'") &&
+      strategySharedCommsRouteSource.includes("action === 'reject'") &&
+      strategySharedCommsRouteSource.includes('Reject needs a reason so the finding is not silently lost.') &&
      foundationFrontendSource.includes('function renderActionReviewPanel') &&
      foundationFrontendSource.includes('/api/foundation/action-review') &&
      foundationFrontendSource.includes('Review system findings before they become decisions') &&
@@ -14427,6 +14442,56 @@ async function main() {
     hubReadRoutesSplitCard
       ? `lane=${hubReadRoutesSplitCard.lane} dogfood=${hubReadRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${HUB_READ_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterHubReadRouteSplit}`
       : `missing ${HUB_READ_ROUTES_SPLIT_CARD_ID}`,
+  )
+  const strategySharedCommsRoutesSplitCard = (foundationHub.backlogItems || []).find(item => item.id === STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CARD_ID) || null
+  const strategySharedCommsRoutesSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CLOSEOUT_KEY) || null
+  const strategySharedCommsRoutesDogfood = buildStrategySharedCommsRoutesSplitDogfoodProof({
+    serverSource,
+    moduleSource: strategySharedCommsRoutesSource,
+    proofScriptSource: strategySharedCommsRoutesSplitScriptSource,
+  })
+  const serverLineCountAfterStrategySharedCommsRouteSplit = String(serverSource || '').split('\n').length
+  ensure(
+    checks,
+      strategySharedCommsRoutesSplitCard &&
+      ['executing', 'done'].includes(strategySharedCommsRoutesSplitCard.lane) &&
+      String(strategySharedCommsRoutesSplitCard.statusNote || '').includes(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      strategySharedCommsRoutesSplitCloseout?.operatorCloseout === true &&
+      (strategySharedCommsRoutesSplitCloseout.backlogIds || []).includes(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CARD_ID) &&
+      strategySharedCommsRoutesDogfood.ok === true &&
+      packageJson.scripts?.['process:strategy-shared-comms-routes-split-check'] === `node --env-file-if-exists=.env ${STRATEGY_SHARED_COMMS_ROUTES_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_PLAN_PATH) &&
+      await repoFileExists(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-strategy-shared-comms-routes-split-closeout.md') &&
+      strategySharedCommsRoutesSource.includes('registerStrategySharedCommsRoutes') &&
+      strategySharedCommsRoutesSource.includes("app.get('/api/shared-communications/archive'") &&
+      strategySharedCommsRoutesSource.includes("app.post('/api/shared-communications/candidates/:candidateKey/apply-to-decision'") &&
+      strategySharedCommsRoutesSource.includes("app.get('/api/strategic-execution/v2'") &&
+      strategySharedCommsRoutesSource.includes("app.post('/api/strategic-execution/action-routes/:routeId/review'") &&
+      strategySharedCommsRoutesSource.includes("app.get('/api/foundation/action-review'") &&
+      strategySharedCommsRoutesSource.includes('buildStrategyHubV2Payload') &&
+      strategySharedCommsRoutesSource.includes('buildFoundationActionReviewSnapshot') &&
+      strategySharedCommsRoutesSplitScriptSource.includes('safe invalid POST probes fail before mutation') &&
+      strategySharedCommsRoutesSplitPlanSource.includes('No direct Foundation write route extraction.') &&
+      strategySharedCommsRoutesSplitPlanSource.includes('No Sales route movement.') &&
+      serverSource.includes('registerStrategySharedCommsRoutes(app') &&
+      !serverSource.includes("app.get('/api/shared-communications/archive'") &&
+      !serverSource.includes("app.get('/api/strategic-execution/v2'") &&
+      !serverSource.includes("app.post('/api/strategic-execution/action-routes/:routeId/review'") &&
+      !serverSource.includes("app.get('/api/foundation/action-review'") &&
+      serverSource.includes("app.post('/api/foundation/backlog'") &&
+      serverSource.includes("app.post('/api/sales-hub/listing-assignment'") &&
+      serverSource.includes("app.get('/api/agent-feedback/session'") &&
+      serverLineCountAfterStrategySharedCommsRouteSplit < STRATEGY_SHARED_COMMS_ROUTES_SPLIT_BEFORE_SERVER_LINES &&
+      currentPlan.includes(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === STRATEGY_SHARED_COMMS_ROUTES_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CARD_ID),
+    'STRATEGY-SHARED-COMMS-ROUTES-SPLIT-001 extracts Strategy/shared communications routes into a focused module',
+    strategySharedCommsRoutesSplitCard
+      ? `lane=${strategySharedCommsRoutesSplitCard.lane} dogfood=${strategySharedCommsRoutesDogfood.ok ? 'pass' : 'blocked'} lines=${STRATEGY_SHARED_COMMS_ROUTES_SPLIT_BEFORE_SERVER_LINES}->${serverLineCountAfterStrategySharedCommsRouteSplit}`
+      : `missing ${STRATEGY_SHARED_COMMS_ROUTES_SPLIT_CARD_ID}`,
   )
   const nightlyDeepAuditP0TriageCard = (foundationHub.backlogItems || []).find(item => item.id === 'NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') || null
   const nightlyDeepAuditP0TriageCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'nightly-deep-audit-p0-triage-v1') || null

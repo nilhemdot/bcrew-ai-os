@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "STRATEGY-SHARED-COMMS-ROUTES-SPLIT-001",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T14:15:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/strategy-shared-comms-routes-split-001-plan.md",
+  "approvedPlanSha256": "78a8c1cce6aae29ea5db41d94a605bad087624aeb689e02101d36730f4544895",
+  "approvedRepoHead": "253bc5ae3703ba094c8074569c646b16722b6b87",
+  "notes": "Approved as third Server Monolith Closeout build card after HUB-READ-ROUTES-SPLIT-001 passed. Scope: extract the Strategy/shared-communications route cluster into lib/strategy-shared-comms-routes.js with behavior unchanged. Not approved: direct Foundation write routes, Sales routes, Agent Feedback routes, /api/intelligence/evidence movement, Marketing Video Lab wiring, source extraction, paid-source auth, or broad server rewrite.",
+  "approvalDigest": "f8dacd048543730ff4a8243bea7075cc8b255ce1d5dcc96147c84f8f46b91813"
+}

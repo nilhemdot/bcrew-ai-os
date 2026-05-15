@@ -81,12 +81,13 @@ This sprint closes the next server monolith slices after the first overnight rou
 
 Current card:
 
-1. `HUB-READ-ROUTES-SPLIT-001` - closing under `hub-read-routes-split-v1`; `GET /api/foundation-hub`, `GET /api/foundation/current-sprint`, `GET /api/ops-hub`, and `GET /api/sales-hub` now register through `lib/hub-read-routes.js` while `server.js` delegates through `registerHubReadRoutes()`. Focused proof probes moved hub read routes, rejects missing module / old inline route / missing registrar / moved Sales write route / weak proof failures, keeps route payloads under budget, leaves Sales write routes in `server.js`, and reduces `server.js` from `6,592` to `6,116` lines for this slice.
+1. `STRATEGY-SHARED-COMMS-ROUTES-SPLIT-001` - closing under `strategy-shared-comms-routes-split-v1`; Strategy Hub v2, Strategy action-route review, Foundation Action Review, and shared-communications archive/candidate/synthesis routes now register through `lib/strategy-shared-comms-routes.js` while `server.js` delegates through `registerStrategySharedCommsRoutes()`. Focused proof probes moved read routes, uses safe invalid POST probes that fail before mutation, rejects missing module / old inline route / missing registrar / moved direct Foundation write route / weak proof failures, keeps direct Foundation/Sales/Agent Feedback routes in `server.js`, and reduces `server.js` from `6,115` to about `5,447` lines for this slice.
 
 Completed in this sprint:
 
 1. `NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001` - closed by triaging the first nightly deep-audit P0 baseline into explicit follow-up cards and enrichments without auto-mutating code.
 2. `AUTH-ROUTES-SPLIT-001` - closed under `auth-routes-split-v1`; `/login`, auth login/logout/session endpoints, Google login error handling, security headers, API request logging, access-context attachment, direct `.html` redirects, and static public file serving now register through `lib/auth-routes.js` while `server.js` delegates through `registerAuthRoutes()`. Focused proof probes moved auth/session/static routes, rejects missing module / old inline route / missing registrar / weak proof failures, keeps each moved route under a 2 second / 1 MB budget, and reduced `server.js` from `6,733` to `6,593` lines for that slice.
+3. `HUB-READ-ROUTES-SPLIT-001` - closed under `hub-read-routes-split-v1`; `GET /api/foundation-hub`, `GET /api/foundation/current-sprint`, `GET /api/ops-hub`, and `GET /api/sales-hub` now register through `lib/hub-read-routes.js` while `server.js` delegates through `registerHubReadRoutes()`. Focused proof probes moved hub read routes, rejects missing module / old inline route / missing registrar / moved Sales write route / weak proof failures, keeps route payloads under budget, leaves Sales write routes in `server.js`, and reduces `server.js` from `6,592` to `6,116` lines for this slice.
 
 The sprint order:
 
