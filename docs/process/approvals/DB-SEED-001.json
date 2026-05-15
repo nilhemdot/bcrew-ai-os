@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DB-SEED-001",
+  "approvedBy": "Steve full-steam instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T16:34:27.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/db-seed-001-plan.md",
+  "approvedPlanSha256": "5c9f0ff7793425421c5f75c96caf2375154b72c10accb6aa5e78c75c2f088b60",
+  "approvedRepoHead": "5b57b7cf32af328114bda0d1708e2c92ffedf2a7",
+  "notes": "Approved as the DB Seed Split Sprint. Scope: extract static backlogSeed from the DB monolith, add report-only seed governance, prove seed/live drift is classified instead of silently repaired, and keep initFoundationDb schema-only by default. Not approved: broad DB rewrite, rewriting every seed table, auto-syncing seed to live backlog, live-state mutation from verifier/check paths, Marketing live routes, hub UI, Build Intel extraction, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "1967cb170b779d5f51f0ca318cc442ec5b56e34e9fd73954f4295e59c16b6a67"
+}

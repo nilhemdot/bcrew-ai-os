@@ -299,6 +299,8 @@ For Foundation, this means Overview should become the high-level command dashboa
 
 Latest hardening note: `foundation-verification-cleanup-v1` is now repo truth. The default Foundation Hub route is fast enough for normal use, but full diagnostics remains a heavy operator/debug route and should be split or paged in a later cleanup sprint. Recurring senior-engineer deep audit exists as a manual, report-only Foundation job contract; it is separate from the deterministic code-quality scanner.
 
+Latest DB seed note: `DB-SEED-001` is done under `db-seed-v1`. Static backlog seed truth now lives in `lib/foundation-backlog-seed.js` instead of inside the live DB/migration monolith. `foundation-db.js` is down to about 13,200 lines for this slice, and seed/live drift is classified as report-only governance instead of a startup/verifier repair path.
+
 These pages are operator surfaces, not strategy pages.
 
 | Page | Why it exists | Current truth |

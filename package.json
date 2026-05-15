@@ -107,6 +107,7 @@
     "process:sprint-check-historical-mode-check": "node --env-file-if-exists=.env scripts/process-sprint-check-historical-mode-check.mjs",
     "process:live-truth-verify-decouple-check": "node --env-file-if-exists=.env scripts/process-live-truth-verify-decouple-check.mjs",
     "process:active-vs-historical-verifier-split-check": "node --env-file-if-exists=.env scripts/process-active-vs-historical-verifier-split-check.mjs",
+    "process:db-seed-check": "node --env-file-if-exists=.env scripts/process-db-seed-check.mjs",
     "process:foundation-job-mutation-allowlist-check": "node --env-file-if-exists=.env scripts/process-foundation-job-mutation-allowlist-check.mjs",
     "process:plan-critic-architectural-rules-check": "node --env-file-if-exists=.env scripts/process-plan-critic-architectural-rules-check.mjs",
     "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",

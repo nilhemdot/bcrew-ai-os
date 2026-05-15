@@ -74,6 +74,13 @@ import {
   buildActiveVsHistoricalVerifierSplitDogfoodProof,
 } from '../lib/foundation-active-historical-verifier.js'
 import {
+  DB_SEED_CARD_ID,
+  DB_SEED_CLOSEOUT_KEY,
+  DB_SEED_SCRIPT_PATH,
+  buildDbSeedGovernanceDogfoodProof,
+  evaluateDbSeedModuleSplit,
+} from '../lib/foundation-db-seed-governance.js'
+import {
   PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
   buildScheduledMutationGuardDogfoodProof,
   getFoundationJobDefinitions,
@@ -2916,6 +2923,8 @@ async function main() {
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
+  const foundationBacklogSeedSource = await readRepoFile('lib/foundation-backlog-seed.js')
+  const foundationDbWithBacklogSeedSource = `${foundationDbSource}\n${foundationBacklogSeedSource}`
   const currentSprintStoreSource = await readRepoFile('lib/foundation-current-sprint-store.js')
   const foundationBuildLogSource = await readRepoFile('lib/foundation-build-log.js')
   const foundationBuildLogRegistrySource = `${foundationBuildLogSource}\n${foundationBuildCloseoutRecordsSource}\n${foundationBuildCloseoutCleanupRecordsSource}`
@@ -3219,7 +3228,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
+    includesAll(foundationDbWithBacklogSeedSource, [
       'CREATE TABLE IF NOT EXISTS intelligence_job_runs',
       'CREATE TABLE IF NOT EXISTS intelligence_job_llm_calls',
       'source_id TEXT',
@@ -3263,7 +3272,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
+    includesAll(foundationDbWithBacklogSeedSource, [
       "id: 'REPORT-MINING-001'",
       "lane: 'done'",
       'Accepted on 2026-04-27 in `docs/specs/2026-04-27-intelligence-spine-old-system-salvage.md`',
@@ -3364,7 +3373,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
+    includesAll(foundationDbWithBacklogSeedSource, [
       'createIntelligenceRetrievalStore',
       'intelligenceRetrievalSchemaSql',
       'intelligenceRetrieval',
@@ -3416,7 +3425,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
+    includesAll(foundationDbWithBacklogSeedSource, [
       "id: 'RETRIEVAL-002'",
       'pgvector is installed',
       'searchIntelligenceChunksSemantic',
@@ -3463,7 +3472,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
+    includesAll(foundationDbWithBacklogSeedSource, [
       "id: 'RETRIEVAL-003'",
       'Hybrid evidence search fuses lexical, semantic, and atom matches',
       'searchIntelligenceEvidenceHybrid',
@@ -3545,7 +3554,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
+    includesAll(foundationDbWithBacklogSeedSource, [
       'createIntelligenceSynthesisFactStore',
       'intelligenceSynthesisFactsSchemaSql',
       'intelligenceSynthesisFacts',
@@ -3608,7 +3617,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
+    includesAll(foundationDbWithBacklogSeedSource, [
       'createIntelligenceSynthesisStore',
       'intelligenceSynthesisSchemaSql',
       'intelligenceSynthesis',
@@ -4160,9 +4169,13 @@ async function main() {
     foundationCurrentSprintStatus.summary?.itemCount > 0 &&
     foundationCurrentSprintStatus.summary?.doneThisSprintCount === foundationCurrentSprintStatus.summary.itemCount &&
     !currentSprintActiveBlockerCardId
+  const knownLaterFoundationProgressionBlockers = [
+    DB_SEED_CARD_ID,
+  ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
     expectedCardIds.some(cardId => historicalCardHasVerifiedCloseout(cardId)) ||
+    knownLaterFoundationProgressionBlockers.includes(currentSprintActiveBlockerCardId) ||
     activeSprintCompleteReview
   const currentStateMentionsActiveBlockerOrLater = (...expectedSnippets) =>
     expectedSnippets.some(snippet =>
@@ -4876,7 +4889,7 @@ async function main() {
       const card = (foundationHub.backlogItems || []).find(item => item.id === cardId)
       return card?.lane === 'done' &&
         card.statusNote &&
-        foundationDbSource.includes(`id: '${cardId}'`) &&
+        foundationDbWithBacklogSeedSource.includes(`id: '${cardId}'`) &&
         foundationVerifySource.includes(cardId) &&
         packageSource.includes('foundation:verify')
     }),
@@ -6746,7 +6759,7 @@ async function main() {
       /Recent Builds/.test(foundationChangelog?.summary || foundationChangelog?.nextAction || '') &&
       /done-lane guard/.test(foundationChangelog?.nextAction || '') &&
       foundationBacklogStoreSource.includes('assertBacklogDoneCloseout') &&
-      foundationDbSource.includes('FOUNDATION-CHANGELOG-001'),
+      foundationDbWithBacklogSeedSource.includes('FOUNDATION-CHANGELOG-001'),
     'Foundation build closeout discipline is tracked and enforced',
     foundationChangelog ? `${foundationChangelog.lane} / ${foundationChangelog.title}` : 'missing FOUNDATION-CHANGELOG-001',
   )
@@ -10616,7 +10629,7 @@ async function main() {
         'buildSourceCoverageCloseoutSnapshot',
         'sourceCoverageCloseout',
       ]) &&
-      includesAll(foundationDbSource, [
+      includesAll(foundationDbWithBacklogSeedSource, [
         SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID,
         SOURCE_MATURITY_GAP_FOLLOWUP_CARD_ID,
       ]) &&
@@ -12930,7 +12943,7 @@ async function main() {
         'Synthetic sold/closed case must remain visible from persisted history',
         'Sales Hub must serve cached data immediately while stale ClickUp refresh runs in the background',
       ]) &&
-      includesAll(foundationDbSource, [
+      includesAll(foundationDbWithBacklogSeedSource, [
         'SALES-GLS-GROUPING-OVERRIDES-001',
         'SALES-GLS-RESTALE-REOPEN-001',
         'SALES-GLS-MANAGER-USABILITY-001',
@@ -15435,6 +15448,31 @@ async function main() {
     foundationDbInitSeedSplitCard
       ? `lane=${foundationDbInitSeedSplitCard.lane} changedTables=${(foundationDbInitSeedSplitProof.changedTables || []).length} watched=${(foundationDbInitSeedSplitProof.watchedTables || []).length}`
       : `missing ${FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID}`,
+  )
+  const dbSeedCard = (foundationHub.backlogItems || []).find(item => item.id === DB_SEED_CARD_ID) || null
+  const dbSeedDogfood = buildDbSeedGovernanceDogfoodProof()
+  const dbSeedSplitEvaluation = evaluateDbSeedModuleSplit({
+    foundationDbSource,
+    backlogSeedSource: foundationBacklogSeedSource,
+  })
+  ensure(
+    checks,
+      dbSeedCard &&
+      ['executing', 'done'].includes(dbSeedCard.lane) &&
+      dbSeedDogfood.ok === true &&
+      dbSeedDogfood.mutableDrift?.status === 'live_mutable_drift_report_only' &&
+      dbSeedDogfood.mutableDrift?.wouldWriteByDefault === false &&
+      dbSeedDogfood.missingLive?.status === 'bootstrap_candidate' &&
+      dbSeedDogfood.missingLive?.wouldWriteByDefault === false &&
+      dbSeedDogfood.report?.defaultMutationPosture === 'report_only' &&
+      dbSeedSplitEvaluation.ok === true &&
+      packageJson.scripts?.['process:db-seed-check'] === `node --env-file-if-exists=.env ${DB_SEED_SCRIPT_PATH}` &&
+      foundationVerifySource.includes('buildDbSeedGovernanceDogfoodProof') &&
+      foundationVerifySource.includes('DB_SEED_CLOSEOUT_KEY'),
+    'DB-SEED-001 splits backlog seed truth from live DB migrations',
+    dbSeedCard
+      ? `lane=${dbSeedCard.lane} splitLines=${dbSeedSplitEvaluation.foundationDbLineCount} mutable=${dbSeedDogfood.mutableDrift?.status || 'missing'} closeout=${DB_SEED_CLOSEOUT_KEY}`
+      : `missing ${DB_SEED_CARD_ID}`,
   )
   const currentSprintMutationGuardsCard = (foundationHub.backlogItems || []).find(item => item.id === CURRENT_SPRINT_MUTATION_GUARDS_CARD_ID) || null
   const currentSprintMutationGuardsProof = await buildCurrentSprintMutationGuardsDogfoodProof()
