@@ -135,6 +135,7 @@
     "process:frontend-decision-question-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-decision-question-renderers-split-check.mjs",
     "process:verifier-frontend-split-checks-module-check": "node --env-file-if-exists=.env scripts/process-verifier-frontend-split-checks-module-check.mjs",
     "process:verifier-server-route-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-server-route-split-module-check.mjs",
+    "process:verifier-recent-builds-closeout-split-check": "node --env-file-if-exists=.env scripts/process-verifier-recent-builds-closeout-split-check.mjs",
     "process:fub-source-route-split-check": "node --env-file-if-exists=.env scripts/process-fub-source-route-split-check.mjs",
     "process:foundation-runtime-read-routes-split-check": "node --env-file-if-exists=.env scripts/process-foundation-runtime-read-routes-split-check.mjs",
     "process:app-page-routes-split-check": "node --env-file-if-exists=.env scripts/process-app-page-routes-split-check.mjs",

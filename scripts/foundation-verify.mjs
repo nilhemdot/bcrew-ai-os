@@ -185,6 +185,17 @@ import {
   evaluateFoundationRouteSplitVerifier,
 } from '../lib/foundation-route-split-verifier.js'
 import {
+  VERIFIER_RECENT_BUILDS_SPLIT_APPROVAL_PATH,
+  VERIFIER_RECENT_BUILDS_SPLIT_BEFORE_LINES,
+  VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID,
+  VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY,
+  VERIFIER_RECENT_BUILDS_SPLIT_PLAN_PATH,
+  VERIFIER_RECENT_BUILDS_SPLIT_SCRIPT_PATH,
+  VERIFIER_RECENT_BUILDS_SPLIT_SPRINT_ID,
+  buildFoundationRecentBuildsVerifierDogfoodProof,
+  evaluateFoundationRecentBuildsVerifier,
+} from '../lib/foundation-recent-builds-verifier.js'
+import {
   VERIFIER_SOURCE_CONTRACT_MODULE_APPROVAL_PATH,
   VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID,
   VERIFIER_SOURCE_CONTRACT_MODULE_CLOSEOUT_KEY,
@@ -2480,6 +2491,9 @@ async function main() {
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
+  const foundationRecentBuildsVerifierSource = await readRepoFile('lib/foundation-recent-builds-verifier.js')
+  const verifierRecentBuildsSplitScriptSource = await readRepoFile(VERIFIER_RECENT_BUILDS_SPLIT_SCRIPT_PATH)
+  const verifierRecentBuildsSplitPlanSource = await readRepoFile(VERIFIER_RECENT_BUILDS_SPLIT_PLAN_PATH)
   const foundationSourceContractVerifierSource = await readRepoFile('lib/foundation-source-contract-verifier.js')
   const verifierSourceContractModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH)
   const verifierSourceContractModulePlanSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH)
@@ -5212,108 +5226,6 @@ async function main() {
       ? `${foundationHub.surfaceFreshnessSweep.summary.mappedSurfaceCount} surfaces / risk=${foundationHub.surfaceFreshnessSweep.summary.riskSurfaces} / stale active runs=${foundationHub.surfaceFreshnessSweep.summary.staleActiveRunCount}`
       : 'missing surface freshness sweep payload',
   )
-  const buildLogSweepBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('FOUNDATION-SWEEP-001')
-  )
-  const buildLogChangelogBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('FOUNDATION-CHANGELOG-002')
-  )
-  const buildLogSlackProofBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('EXTRACTION-TEAM-001') &&
-      build.closeoutKey === 'slack-current-day-channel-proof'
-  )
-  const buildLogScheduleTruthBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('EXTRACT-CONTROL-001') &&
-      build.closeoutKey === 'extract-control-schedule-truth'
-  )
-  const buildLogMissiveItemLedgerBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('EXTRACT-METRICS-001') &&
-      build.closeoutKey === 'extract-metrics-missive-item-ledger'
-  )
-  const buildLogCoverageByTargetBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('EXTRACT-METRICS-001') &&
-      build.closeoutKey === 'extract-metrics-coverage-by-target'
-  )
-  const buildLogDriveSheetsBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('DRIVE-CONTENT-001') &&
-      build.closeoutKey === 'drive-content-sheets-text-extraction'
-  )
-  const buildLogKpiHealthBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('KPI-HEALTH-001') &&
-      build.closeoutKey === 'kpi-health-supabase-probe'
-  )
-  const buildLogOperatorUxCaptureBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('FOUNDATION-SURFACE-UPDATES-001') &&
-      build.closeoutKey === 'foundation-operator-ux-capture'
-  )
-  const buildLogServedCodeTrustBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('RUNTIME-SUPERVISOR-001') &&
-      build.closeoutKey === 'runtime-supervisor-served-code-trust'
-  )
-  const buildLogBacklogHygieneBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('BACKLOG-HYGIENE-PASS-001') &&
-      build.closeoutKey === 'backlog-hygiene-pass'
-  )
-  const buildLogBacklogHygieneProbeBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('BACKLOG-HYGIENE-001') &&
-      build.closeoutKey === 'backlog-hygiene-probe'
-  )
-  const buildLogDevProcessAuditBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('DEV-PROCESS-AUDIT-001') &&
-      build.closeoutKey === 'dev-process-audit-hook-map'
-  )
-  const buildLogProcessHooksBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('PROCESS-HOOKS-001') &&
-      build.closeoutKey === 'process-hooks-v1'
-  )
-  const buildLogActionReviewApplyBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('ACTION-REVIEW-APPLY-001') &&
-      build.closeoutKey === 'action-review-apply-v1'
-  )
-  const buildLogProcessFanoutBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('PROCESS-FANOUT-001') &&
-      build.closeoutKey === 'process-fanout-v1-repair'
-  )
-  const buildLogWorkerCodeTrustBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('WORKER-CODE-TRUST-001') &&
-      build.closeoutKey === 'worker-code-trust-v1'
-  )
-  const buildLogVerifierDoneArtifactBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('VERIFIER-DONE-COVERAGE-001') &&
-      (build.backlogIds || []).includes('VERIFIER-ARTIFACT-EXISTS-001') &&
-      build.closeoutKey === 'verifier-done-artifact-gates'
-  )
-  const buildLogPostShipFanoutBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('POST-SHIP-FAN-OUT-001') &&
-      build.closeoutKey === 'post-ship-fanout-v1'
-  )
-  const buildLogSheetsQuotaBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('SHEETS-QUOTA-HARDENING-001') &&
-      build.closeoutKey === 'sheets-quota-hardening-v1'
-  )
-  const buildLogDoctrinePropagationBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('DOCTRINE-PROPAGATION-001') &&
-      build.closeoutKey === 'doctrine-propagation-v1'
-  )
-  const buildLogDecisionAutoEmitBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('DECISION-AUTO-EMIT-001') &&
-      build.closeoutKey === 'decision-auto-emit-v1'
-  )
-  const buildLogDocArchiveResearchBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('DOC-ARCHIVE-AUTO-001') &&
-      (build.backlogIds || []).includes('RESEARCH-CURATION-001') &&
-      build.closeoutKey === 'doc-archive-research-curation-v1'
-  )
-  const buildLogRebuildArchiveRetireBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('REBUILD-DOCS-RETIRE-001') &&
-      (build.backlogIds || []).includes('ARCHIVE-RETIRE-001') &&
-      build.closeoutKey === 'rebuild-docs-archive-retire-v1'
-  )
-  const buildLogExceptionHitListBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('EXCEPTION-CURATION-001') &&
-      (build.backlogIds || []).includes('HIT-LIST-RECONCILE-001') &&
-      build.closeoutKey === 'exception-hit-list-curation-v1'
-  )
   const buildLogRecentMultiCloseoutBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('RECENT-BUILDS-MULTI-CLOSEOUT-001') &&
       build.closeoutKey === 'recent-builds-multi-closeout-ux-v1'
@@ -5899,469 +5811,17 @@ async function main() {
     (build.backlogIds || []).includes('GATE-RELIABILITY-003') &&
       build.closeoutKey === 'gate-reliability-direct-verifier-deadlock-v1'
   )
-  ensure(
-    checks,
-    foundationBuildCloseoutValidation.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
-      foundationBuildCloseoutValidation.invalidCloseoutKeys.length === 0 &&
-      foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-SWEEP-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-CHANGELOG-002') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('EXTRACTION-TEAM-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-SCHEDULE-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('EXTRACT-METRICS-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('FOUNDATION-SURFACE-UPDATES-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('DRIVE-CONTENT-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('KPI-HEALTH-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('ACTION-REVIEW-APPLY-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('RESEARCH-INBOX-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('RUNTIME-HEALTH-SIMPLIFY-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('RUNTIME-SUPERVISOR-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('SYSTEM-010') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('BACKLOG-HYGIENE-PASS-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('BACKLOG-HYGIENE-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('DEV-PROCESS-AUDIT-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-HOOKS-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-FANOUT-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('WORKER-CODE-TRUST-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('VERIFIER-DONE-COVERAGE-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('VERIFIER-ARTIFACT-EXISTS-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('SHEETS-QUOTA-HARDENING-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('POST-SHIP-FAN-OUT-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('EXCEPTION-CURATION-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('DOCTRINE-PROPAGATION-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('DECISION-AUTO-EMIT-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('HIT-LIST-RECONCILE-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('DOC-ARCHIVE-AUTO-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('RESEARCH-CURATION-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('REBUILD-DOCS-RETIRE-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('ARCHIVE-RETIRE-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('RECENT-BUILDS-MULTI-CLOSEOUT-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('FULL-SYSTEM-RE-AUDIT-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('LOCAL-DOC-LINK-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('DOC-AUTHORITY-INDEX-REPAIR-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('DOC-OTHER-TRIAGE-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('DOC-CATEGORIZATION-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('DOCTRINE-PROPAGATION-002') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('PROCESS-HOOKS-002') &&
-      foundationBuildCloseoutValidation.backlogIds.includes('SOURCE-021-PROOF-001') &&
-      foundationBuildCloseoutValidation.backlogIds.includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
-      foundationBuildCloseoutValidation.backlogIds.includes(RECENT_BUILDS_UI_CARD_ID) &&
-      foundationBuildCloseoutValidation.backlogIds.includes(SYSTEM_REGISTRATION_SWEEP_CARD_ID) &&
-      foundationBuildCloseouts.every(record =>
-        record.whereItLives.length &&
-        record.proofCommands.length &&
-        record.reviewNext &&
-        record.whatChanged &&
-        record.whatItDoes &&
-        record.whyItMatters
-      ),
-    'Foundation build closeout records satisfy the Recent Builds v2 schema',
-    `${foundationBuildCloseoutValidation.closeoutCount} closeouts / invalid=${foundationBuildCloseoutValidation.invalidCloseoutKeys.length}`,
-  )
-  ensure(
-    checks,
-    foundationBuildLog.schemaVersion === FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION &&
-      foundationBuildLog.summary?.closeoutBuilds >= 2 &&
-      foundationBuildLog.summary?.backlogLinkedBuilds >= 2 &&
-      foundationBuildLog.summary?.proofLinkedBuilds >= 2 &&
-      Array.isArray(foundationBuildLog.groups) &&
-      foundationBuildLog.groups.some(day => Array.isArray(day.systemGroups) && day.systemGroups.length) &&
-      includesAll(foundationFrontendSource, [
-        'renderBuildGroups',
-        'renderBuildBacklogLinks',
-        'Grouped by day and system',
-        'v2 closeouts',
-      ]),
-    'api/foundation/build-log exposes operator-readable grouped closeouts',
-    foundationBuildLog.summary
-      ? `${foundationBuildLog.summary.closeoutBuilds} closeouts / ${foundationBuildLog.summary.backlogLinkedBuilds} backlog-linked / ${foundationBuildLog.summary.proofLinkedBuilds} proof-linked`
-      : 'missing build log summary',
-  )
-  ensure(
-    checks,
-    buildLogSweepBuild?.operatorCloseout === true &&
-      buildLogSweepBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SWEEP-001' && item.lane === 'done') &&
-      buildLogSweepBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /31|Foundation nav|stale/i.test(buildLogSweepBuild.whatChanged || '') &&
-      buildLogSweepBuild.reviewNext &&
-      buildLogSweepBuild.knownLimits?.length,
-    'Recent Builds v2 carries closeout proof for FOUNDATION-SWEEP-001',
-    buildLogSweepBuild
-      ? `${buildLogSweepBuild.shortSha} / ${buildLogSweepBuild.acceptanceState} / ${buildLogSweepBuild.proofStatus}`
-      : 'missing FOUNDATION-SWEEP-001 build closeout',
-  )
-  ensure(
-    checks,
-    buildLogChangelogBuild?.operatorCloseout === true &&
-      buildLogChangelogBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-CHANGELOG-002' && item.lane === 'done') &&
-      buildLogChangelogBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /operator changelog|Recent Builds/i.test(buildLogChangelogBuild.whatChanged || '') &&
-      /backlog/i.test([
-        buildLogChangelogBuild.whatChanged,
-        buildLogChangelogBuild.whatItDoes,
-        buildLogChangelogBuild.reviewNext,
-      ].filter(Boolean).join(' ')) &&
-      buildLogChangelogBuild.knownLimits?.length,
-    'Recent Builds v2 carries closeout proof for FOUNDATION-CHANGELOG-002',
-    buildLogChangelogBuild
-      ? `${buildLogChangelogBuild.shortSha} / ${buildLogChangelogBuild.acceptanceState} / ${buildLogChangelogBuild.proofStatus}`
-      : 'missing FOUNDATION-CHANGELOG-002 build closeout',
-  )
-  ensure(
-    checks,
-    buildLogSlackProofBuild?.operatorCloseout === true &&
-      buildLogSlackProofBuild.relatedBacklog?.some(item => item.id === 'EXTRACTION-TEAM-001' && item.lane === 'scoped') &&
-      buildLogSlackProofBuild.proofCommands?.some(command => command.includes('--target=slack-current-day')) &&
-      buildLogSlackProofBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /Slack current-day|channel/i.test(buildLogSlackProofBuild.whatChanged || '') &&
-      /61 channel items|foundation:verify/i.test(buildLogSlackProofBuild.proofStatus || '') &&
-      buildLogSlackProofBuild.knownLimits?.some(limit => /broad Slack history|broad backfill/i.test(limit)),
-    'Recent Builds v2 carries closeout proof for Slack current-day item proof',
-    buildLogSlackProofBuild
-      ? `${buildLogSlackProofBuild.shortSha} / ${buildLogSlackProofBuild.acceptanceState} / ${buildLogSlackProofBuild.proofStatus}`
-      : 'missing Slack current-day build closeout',
-  )
-  ensure(
-    checks,
-    buildLogScheduleTruthBuild?.operatorCloseout === true &&
-      buildLogScheduleTruthBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogScheduleTruthBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-SCHEDULE-001' && item.lane === 'done') &&
-      buildLogScheduleTruthBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /Foundation job runtime as visible next-run truth/i.test(buildLogScheduleTruthBuild.whatChanged || '') &&
-      /coverage-by-target/i.test(buildLogScheduleTruthBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for extraction schedule truth',
-    buildLogScheduleTruthBuild
-      ? `${buildLogScheduleTruthBuild.shortSha} / ${buildLogScheduleTruthBuild.acceptanceState} / ${buildLogScheduleTruthBuild.proofStatus}`
-      : 'missing extraction schedule truth closeout',
-  )
-  ensure(
-    checks,
-    buildLogMissiveItemLedgerBuild?.operatorCloseout === true &&
-      buildLogMissiveItemLedgerBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-METRICS-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogMissiveItemLedgerBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogMissiveItemLedgerBuild.proofCommands?.some(command => command.includes('--target=missive-current-day')) &&
-      buildLogMissiveItemLedgerBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /Missive current-day|conversation/i.test(buildLogMissiveItemLedgerBuild.whatChanged || '') &&
-      /100 conversation items|foundation:verify/i.test(buildLogMissiveItemLedgerBuild.proofStatus || '') &&
-      /coverage-by-target/i.test(buildLogMissiveItemLedgerBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for Missive current-day item ledger',
-    buildLogMissiveItemLedgerBuild
-      ? `${buildLogMissiveItemLedgerBuild.shortSha} / ${buildLogMissiveItemLedgerBuild.acceptanceState} / ${buildLogMissiveItemLedgerBuild.proofStatus}`
-      : 'missing Missive item-ledger build closeout',
-  )
-  ensure(
-    checks,
-    buildLogCoverageByTargetBuild?.operatorCloseout === true &&
-      buildLogCoverageByTargetBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-METRICS-001' && item.lane === 'done') &&
-      buildLogCoverageByTargetBuild.relatedBacklog?.some(item => item.id === 'EXTRACT-CONTROL-001' && item.lane === 'done') &&
-      buildLogCoverageByTargetBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SURFACE-UPDATES-001' && item.lane === 'scoped') &&
-      buildLogCoverageByTargetBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /coverage-by-target|Coverage By Target/i.test(buildLogCoverageByTargetBuild.whatChanged || '') &&
-      /Runtime Health/i.test(buildLogCoverageByTargetBuild.whereItLives?.join(' ') || '') &&
-      /EXTRACT-RETRY-001/i.test(buildLogCoverageByTargetBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for extraction coverage-by-target',
-    buildLogCoverageByTargetBuild
-      ? `${buildLogCoverageByTargetBuild.shortSha} / ${buildLogCoverageByTargetBuild.acceptanceState} / ${buildLogCoverageByTargetBuild.proofStatus}`
-      : 'missing extraction coverage-by-target closeout',
-  )
-  ensure(
-    checks,
-    buildLogDriveSheetsBuild?.operatorCloseout === true &&
-      buildLogDriveSheetsBuild.relatedBacklog?.some(item => item.id === 'DRIVE-CONTENT-001' && item.lane === 'scoped') &&
-      buildLogDriveSheetsBuild.relatedBacklog?.some(item => item.id === 'RUNTIME-SUPERVISOR-001' && item.lane === 'scoped') &&
-      buildLogDriveSheetsBuild.proofCommands?.some(command => command.includes('--target=drive-content-extract-backfill')) &&
-      buildLogDriveSheetsBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /Google Sheets|drive_spreadsheet/i.test(buildLogDriveSheetsBuild.whatChanged || '') &&
-      /308,697 chars|foundation:verify/i.test(buildLogDriveSheetsBuild.proofStatus || '') &&
-      /EXTRACT-RETRY-001/i.test(buildLogDriveSheetsBuild.knownLimits?.join(' ') || ''),
-    'Recent Builds v2 carries closeout proof for Drive Sheets text extraction',
-    buildLogDriveSheetsBuild
-      ? `${buildLogDriveSheetsBuild.shortSha} / ${buildLogDriveSheetsBuild.acceptanceState} / ${buildLogDriveSheetsBuild.proofStatus}`
-      : 'missing Drive Sheets text extraction closeout',
-  )
-  ensure(
-    checks,
-    buildLogKpiHealthBuild?.operatorCloseout === true &&
-      buildLogKpiHealthBuild.relatedBacklog?.some(item => item.id === 'KPI-HEALTH-001' && item.lane === 'done') &&
-      buildLogKpiHealthBuild.relatedBacklog?.some(item => item.id === 'SOURCE-010' && item.lane === 'done') &&
-      buildLogKpiHealthBuild.proofCommands?.includes('npm run kpi:health') &&
-      buildLogKpiHealthBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /KPI \/ Supabase health probe/i.test(buildLogKpiHealthBuild.whatChanged || '') &&
-      /14\/14 tables|5\/5 RPCs|foundation:verify/i.test(buildLogKpiHealthBuild.proofStatus || '') &&
-      /Action Router/i.test(buildLogKpiHealthBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for KPI health',
-    buildLogKpiHealthBuild
-      ? `${buildLogKpiHealthBuild.shortSha} / ${buildLogKpiHealthBuild.acceptanceState} / ${buildLogKpiHealthBuild.proofStatus}`
-      : 'missing KPI health closeout',
-  )
-  ensure(
-    checks,
-    buildLogOperatorUxCaptureBuild?.operatorCloseout === true &&
-      buildLogOperatorUxCaptureBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SURFACE-UPDATES-001' && item.lane === 'scoped') &&
-      buildLogOperatorUxCaptureBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogOperatorUxCaptureBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /plain-English Foundation UX standard/i.test(buildLogOperatorUxCaptureBuild.whatChanged || '') &&
-      /Overview -> Systems -> Backlog -> Recent Work/i.test(buildLogOperatorUxCaptureBuild.whatItDoes || '') &&
-      /ACTION-REVIEW-APPLY-001/i.test(buildLogOperatorUxCaptureBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for Foundation operator UX capture',
-    buildLogOperatorUxCaptureBuild
-      ? `${buildLogOperatorUxCaptureBuild.shortSha} / ${buildLogOperatorUxCaptureBuild.acceptanceState} / ${buildLogOperatorUxCaptureBuild.proofStatus}`
-      : 'missing Foundation operator UX capture closeout',
-  )
-  ensure(
-    checks,
-    buildLogServedCodeTrustBuild?.operatorCloseout === true &&
-      buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'RUNTIME-SUPERVISOR-001' && item.lane === 'scoped') &&
-      buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'SYSTEM-010' && item.lane === 'scoped') &&
-      buildLogServedCodeTrustBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogServedCodeTrustBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /server-start commit|repo HEAD|restart command/i.test(buildLogServedCodeTrustBuild.whatItDoes || '') &&
-      /ACTION-REVIEW-APPLY-001/i.test(buildLogServedCodeTrustBuild.reviewNext || '') &&
-      /auto-restart-on-push/i.test(buildLogServedCodeTrustBuild.knownLimits?.join(' ') || ''),
-    'Recent Builds v2 carries closeout proof for served-code trust',
-    buildLogServedCodeTrustBuild
-      ? `${buildLogServedCodeTrustBuild.shortSha} / ${buildLogServedCodeTrustBuild.acceptanceState} / ${buildLogServedCodeTrustBuild.proofStatus}`
-      : 'missing served-code trust closeout',
-  )
-  ensure(
-    checks,
-    buildLogBacklogHygieneBuild?.operatorCloseout === true &&
-      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-PASS-001' && item.lane === 'done') &&
-      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-001' && item.lane === 'done') &&
-      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogBacklogHygieneBuild.relatedBacklog?.some(item => item.id === 'FOUNDATION-SURFACE-UPDATES-001' && item.lane === 'scoped') &&
-      buildLogBacklogHygieneBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /stale|unclear|split completed proof/i.test(buildLogBacklogHygieneBuild.whatChanged || '') &&
-      /BACKLOG-HYGIENE-001/i.test(buildLogBacklogHygieneBuild.reviewNext || '') &&
-      /FOUNDATION-SURFACE-UPDATES-001/i.test(buildLogBacklogHygieneBuild.knownLimits?.join(' ') || ''),
-    'Recent Builds v2 carries closeout proof for backlog hygiene pass',
-    buildLogBacklogHygieneBuild
-      ? `${buildLogBacklogHygieneBuild.shortSha} / ${buildLogBacklogHygieneBuild.acceptanceState} / ${buildLogBacklogHygieneBuild.proofStatus}`
-      : 'missing backlog hygiene pass closeout',
-  )
-  ensure(
-    checks,
-    buildLogBacklogHygieneProbeBuild?.operatorCloseout === true &&
-      buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'BACKLOG-HYGIENE-001' && item.lane === 'done') &&
-      buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'DEV-PROCESS-AUDIT-001' && item.lane === 'done') &&
-      buildLogBacklogHygieneProbeBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogBacklogHygieneProbeBuild.proofCommands?.some(command => command.includes('backlog:hygiene')) &&
-      buildLogBacklogHygieneProbeBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /stale executing|done cards without proof|scoped cards/i.test(buildLogBacklogHygieneProbeBuild.whatItDoes || '') &&
-      /DEV-PROCESS-AUDIT-001/i.test(buildLogBacklogHygieneProbeBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for backlog hygiene probe',
-    buildLogBacklogHygieneProbeBuild
-      ? `${buildLogBacklogHygieneProbeBuild.shortSha} / ${buildLogBacklogHygieneProbeBuild.acceptanceState} / ${buildLogBacklogHygieneProbeBuild.proofStatus}`
-      : 'missing backlog hygiene probe closeout',
-  )
-  ensure(
-    checks,
-    buildLogDevProcessAuditBuild?.operatorCloseout === true &&
-      buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'DEV-PROCESS-AUDIT-001' && item.lane === 'done') &&
-      buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogDevProcessAuditBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogDevProcessAuditBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /exactly one owner/i.test(buildLogDevProcessAuditBuild.whatItDoes || '') &&
-      /PROCESS-HOOKS-001/i.test(buildLogDevProcessAuditBuild.reviewNext || '') &&
-      /creates no new process cards/i.test(buildLogDevProcessAuditBuild.knownLimits?.join(' ') || ''),
-    'Recent Builds v2 carries closeout proof for dev-process audit',
-    buildLogDevProcessAuditBuild
-      ? `${buildLogDevProcessAuditBuild.shortSha} / ${buildLogDevProcessAuditBuild.acceptanceState} / ${buildLogDevProcessAuditBuild.proofStatus}`
-      : 'missing dev-process audit closeout',
-  )
-  ensure(
-    checks,
-    buildLogProcessHooksBuild?.operatorCloseout === true &&
-      buildLogProcessHooksBuild.relatedBacklog?.some(item => item.id === 'PROCESS-HOOKS-001' && item.lane === 'done') &&
-      buildLogProcessHooksBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogProcessHooksBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogProcessHooksBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /approval-file evidence|served-code proof/i.test(buildLogProcessHooksBuild.proofStatus || '') &&
-      /ACTION-REVIEW-APPLY-001/i.test(buildLogProcessHooksBuild.reviewNext || '') &&
-      /manual\/scripted gate/i.test(buildLogProcessHooksBuild.knownLimits?.join(' ') || ''),
-    'Recent Builds v2 carries closeout proof for process ship check',
-    buildLogProcessHooksBuild
-      ? `${buildLogProcessHooksBuild.shortSha} / ${buildLogProcessHooksBuild.acceptanceState} / ${buildLogProcessHooksBuild.proofStatus}`
-      : 'missing process hooks closeout',
-  )
-  ensure(
-    checks,
-    buildLogActionReviewApplyBuild?.operatorCloseout === true &&
-      buildLogActionReviewApplyBuild.relatedBacklog?.some(item => item.id === 'ACTION-REVIEW-APPLY-001' && item.lane === 'done') &&
-      buildLogActionReviewApplyBuild.proofCommands?.includes('npm run foundation:verify') &&
-      buildLogActionReviewApplyBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      /Foundation > Backlog > Action Review/i.test(buildLogActionReviewApplyBuild.whereItLives?.join(' ') || '') &&
-      /destination-record proof|process gate/i.test(buildLogActionReviewApplyBuild.proofStatus || '') &&
-      /Stop and re-plan with Steve/i.test(buildLogActionReviewApplyBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for Action Review apply loop',
-    buildLogActionReviewApplyBuild
-      ? `${buildLogActionReviewApplyBuild.shortSha} / ${buildLogActionReviewApplyBuild.acceptanceState} / ${buildLogActionReviewApplyBuild.proofStatus}`
-      : 'missing Action Review closeout',
-  )
-  ensure(
-    checks,
-    buildLogProcessFanoutBuild?.operatorCloseout === true &&
-      buildLogProcessFanoutBuild.relatedBacklog?.some(item => item.id === 'PROCESS-FANOUT-001' && item.lane === 'done') &&
-      buildLogProcessFanoutBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
-      buildLogProcessFanoutBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogProcessFanoutBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /claimed artifact existence|actual script|npm command/i.test(buildLogProcessFanoutBuild.proofStatus || '') &&
-      /Wave 2/i.test(buildLogProcessFanoutBuild.reviewNext || '') &&
-      /script gate/i.test(buildLogProcessFanoutBuild.knownLimits?.join(' ') || ''),
-    'Recent Builds v2 carries closeout proof for process fanout repair',
-    buildLogProcessFanoutBuild
-      ? `${buildLogProcessFanoutBuild.shortSha} / ${buildLogProcessFanoutBuild.acceptanceState} / ${buildLogProcessFanoutBuild.proofStatus}`
-      : 'missing process fanout repair closeout',
-  )
-  ensure(
-    checks,
-    buildLogWorkerCodeTrustBuild?.operatorCloseout === true &&
-      buildLogWorkerCodeTrustBuild.relatedBacklog?.some(item => item.id === 'WORKER-CODE-TRUST-001' && item.lane === 'done') &&
-      buildLogWorkerCodeTrustBuild.proofCommands?.some(command => command.includes('launchctl kickstart')) &&
-      buildLogWorkerCodeTrustBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogWorkerCodeTrustBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
-      buildLogWorkerCodeTrustBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /startup commit|LaunchAgent pid|repo HEAD/i.test(buildLogWorkerCodeTrustBuild.proofStatus || '') &&
-      /Worker Code Trust/i.test(buildLogWorkerCodeTrustBuild.whereItLives?.join(' ') || '') &&
-      /continuous liveness/i.test(buildLogWorkerCodeTrustBuild.knownLimits?.join(' ') || ''),
-    'Recent Builds v2 carries closeout proof for worker code trust',
-    buildLogWorkerCodeTrustBuild
-      ? `${buildLogWorkerCodeTrustBuild.shortSha} / ${buildLogWorkerCodeTrustBuild.acceptanceState} / ${buildLogWorkerCodeTrustBuild.proofStatus}`
-      : 'missing worker code trust closeout',
-  )
-  ensure(
-    checks,
-    buildLogVerifierDoneArtifactBuild?.operatorCloseout === true &&
-      buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item => item.id === 'VERIFIER-DONE-COVERAGE-001' && item.lane === 'done') &&
-      buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item => item.id === 'VERIFIER-ARTIFACT-EXISTS-001' && item.lane === 'done') &&
-      buildLogVerifierDoneArtifactBuild.relatedBacklog?.some(item =>
-        item.id === 'SHEETS-QUOTA-HARDENING-001' && ['scoped', 'done'].includes(item.lane)
-      ) &&
-      buildLogVerifierDoneArtifactBuild.proofCommands?.filter(command => command.includes('process:ship-check')).length >= 2 &&
-      buildLogVerifierDoneArtifactBuild.proofCommands?.filter(command => command.includes('process:fanout-check')).length >= 2 &&
-      buildLogVerifierDoneArtifactBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /24 explicit legacy exceptions/i.test(buildLogVerifierDoneArtifactBuild.proofStatus || '') &&
-      /90 days/i.test(buildLogVerifierDoneArtifactBuild.knownLimits?.join(' ') || '') &&
-      /POST-SHIP-FAN-OUT-001/i.test(buildLogVerifierDoneArtifactBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for done coverage and artifact gates',
-    buildLogVerifierDoneArtifactBuild
-      ? `${buildLogVerifierDoneArtifactBuild.shortSha} / ${buildLogVerifierDoneArtifactBuild.acceptanceState} / ${buildLogVerifierDoneArtifactBuild.proofStatus}`
-      : 'missing verifier done/artifact closeout',
-  )
-  ensure(
-    checks,
-    buildLogPostShipFanoutBuild?.operatorCloseout === true &&
-      buildLogPostShipFanoutBuild.relatedBacklog?.some(item => item.id === 'POST-SHIP-FAN-OUT-001' && item.lane === 'done') &&
-      buildLogPostShipFanoutBuild.relatedBacklog?.some(item => item.id === 'EXCEPTION-CURATION-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogPostShipFanoutBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
-      buildLogPostShipFanoutBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogPostShipFanoutBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
-      buildLogPostShipFanoutBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /synthetic missing-fanout/i.test(buildLogPostShipFanoutBuild.proofStatus || '') &&
-      /2026-07-27/i.test(buildLogPostShipFanoutBuild.knownLimits?.join(' ') || '') &&
-      /Phase C/i.test(buildLogPostShipFanoutBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for post-ship fanout',
-    buildLogPostShipFanoutBuild
-      ? `${buildLogPostShipFanoutBuild.shortSha} / ${buildLogPostShipFanoutBuild.acceptanceState} / ${buildLogPostShipFanoutBuild.proofStatus}`
-      : 'missing post-ship fanout closeout',
-  )
-  ensure(
-    checks,
-    buildLogSheetsQuotaBuild?.operatorCloseout === true &&
-      buildLogSheetsQuotaBuild.relatedBacklog?.some(item => item.id === 'SHEETS-QUOTA-HARDENING-001' && item.lane === 'done') &&
-      buildLogSheetsQuotaBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogSheetsQuotaBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
-      buildLogSheetsQuotaBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /batchGet/i.test(buildLogSheetsQuotaBuild.whatItDoes || '') &&
-      /Writes remain uncached|errors are not cached/i.test(buildLogSheetsQuotaBuild.proofStatus || '') &&
-      /Google Cloud quota increase/i.test(buildLogSheetsQuotaBuild.knownLimits?.join(' ') || '') &&
-      /Phase C/i.test(buildLogSheetsQuotaBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for Sheets quota hardening',
-    buildLogSheetsQuotaBuild
-      ? `${buildLogSheetsQuotaBuild.shortSha} / ${buildLogSheetsQuotaBuild.acceptanceState} / ${buildLogSheetsQuotaBuild.proofStatus}`
-      : 'missing Sheets quota hardening closeout',
-  )
-  ensure(
-    checks,
-    buildLogDoctrinePropagationBuild?.operatorCloseout === true &&
-      buildLogDoctrinePropagationBuild.relatedBacklog?.some(item => item.id === 'DOCTRINE-PROPAGATION-001' && item.lane === 'done') &&
-      buildLogDoctrinePropagationBuild.relatedBacklog?.some(item => item.id === 'HIT-LIST-RECONCILE-001' && ['scoped', 'done'].includes(item.lane)) &&
-      buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('doctrine:propagation-check')) &&
-      buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
-      buildLogDoctrinePropagationBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
-      buildLogDoctrinePropagationBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /private memory content is not copied/i.test(buildLogDoctrinePropagationBuild.proofStatus || '') &&
-      /hardcoded.*doctrine source list/i.test(buildLogDoctrinePropagationBuild.knownLimits?.join(' ') || '') &&
-      /DECISION-AUTO-EMIT-001|Phase C/i.test(buildLogDoctrinePropagationBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for doctrine propagation',
-    buildLogDoctrinePropagationBuild
-      ? `${buildLogDoctrinePropagationBuild.shortSha} / ${buildLogDoctrinePropagationBuild.acceptanceState} / ${buildLogDoctrinePropagationBuild.proofStatus}`
-      : 'missing doctrine propagation closeout',
-  )
-  ensure(
-    checks,
-    buildLogDecisionAutoEmitBuild?.operatorCloseout === true &&
-      buildLogDecisionAutoEmitBuild.relatedBacklog?.some(item => item.id === 'DECISION-AUTO-EMIT-001' && item.lane === 'done') &&
-      buildLogDecisionAutoEmitBuild.proofCommands?.some(command => command.includes('decision:auto-emit')) &&
-      buildLogDecisionAutoEmitBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogDecisionAutoEmitBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
-      buildLogDecisionAutoEmitBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
-      buildLogDecisionAutoEmitBuild.proofCommands?.includes('npm run foundation:verify') &&
-      /proposed candidates/i.test(buildLogDecisionAutoEmitBuild.proofStatus || '') &&
-      /does not lock decisions/i.test(buildLogDecisionAutoEmitBuild.knownLimits?.join(' ') || '') &&
-      /Phase B is complete|Phase C/i.test(buildLogDecisionAutoEmitBuild.reviewNext || ''),
-    'Recent Builds v2 carries closeout proof for decision auto-emit',
-    buildLogDecisionAutoEmitBuild
-      ? `${buildLogDecisionAutoEmitBuild.shortSha} / ${buildLogDecisionAutoEmitBuild.acceptanceState} / ${buildLogDecisionAutoEmitBuild.proofStatus}`
-      : 'missing decision auto-emit closeout',
-  )
-  ensure(
-    checks,
-    buildLogDocArchiveResearchBuild?.operatorCloseout === true &&
-      buildLogDocArchiveResearchBuild.relatedBacklog?.some(item => item.id === 'DOC-ARCHIVE-AUTO-001' && item.lane === 'done') &&
-      buildLogDocArchiveResearchBuild.relatedBacklog?.some(item => item.id === 'RESEARCH-CURATION-001' && item.lane === 'done') &&
-      buildLogDocArchiveResearchBuild.proofCommands?.some(command => command.includes('phase-d:cleanup')) &&
-      buildLogDocArchiveResearchBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogDocArchiveResearchBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
-      buildLogDocArchiveResearchBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
-      /113 preserved files/i.test(buildLogDocArchiveResearchBuild.proofStatus || '') &&
-      /zero auto-closures/i.test(buildLogDocArchiveResearchBuild.proofStatus || ''),
-    'Recent Builds v2 carries closeout proof for doc archive and research curation',
-    buildLogDocArchiveResearchBuild
-      ? `${buildLogDocArchiveResearchBuild.shortSha} / ${buildLogDocArchiveResearchBuild.acceptanceState} / ${buildLogDocArchiveResearchBuild.proofStatus}`
-      : 'missing doc archive/research curation closeout',
-  )
-  ensure(
-    checks,
-    buildLogRebuildArchiveRetireBuild?.operatorCloseout === true &&
-      buildLogRebuildArchiveRetireBuild.relatedBacklog?.some(item => item.id === 'REBUILD-DOCS-RETIRE-001' && item.lane === 'done') &&
-      buildLogRebuildArchiveRetireBuild.relatedBacklog?.some(item => item.id === 'ARCHIVE-RETIRE-001' && item.lane === 'done') &&
-      buildLogRebuildArchiveRetireBuild.proofCommands?.some(command => command.includes('phase-d:cleanup')) &&
-      buildLogRebuildArchiveRetireBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogRebuildArchiveRetireBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
-      buildLogRebuildArchiveRetireBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
-      /0 files were deleted|deleted 0 files/i.test(buildLogRebuildArchiveRetireBuild.proofStatus || '') &&
-      /only delete card/i.test(buildLogRebuildArchiveRetireBuild.knownLimits?.join(' ') || ''),
-    'Recent Builds v2 carries closeout proof for rebuild-doc retire and archive retire',
-    buildLogRebuildArchiveRetireBuild
-      ? `${buildLogRebuildArchiveRetireBuild.shortSha} / ${buildLogRebuildArchiveRetireBuild.acceptanceState} / ${buildLogRebuildArchiveRetireBuild.proofStatus}`
-      : 'missing rebuild-doc/archive retire closeout',
-  )
-  ensure(
-    checks,
-    buildLogExceptionHitListBuild?.operatorCloseout === true &&
-      buildLogExceptionHitListBuild.relatedBacklog?.some(item => item.id === 'EXCEPTION-CURATION-001' && item.lane === 'done') &&
-      buildLogExceptionHitListBuild.relatedBacklog?.some(item => item.id === 'HIT-LIST-RECONCILE-001' && item.lane === 'done') &&
-      buildLogExceptionHitListBuild.proofCommands?.some(command => command.includes('process:ship-check')) &&
-      buildLogExceptionHitListBuild.proofCommands?.some(command => command.includes('process:fanout-check')) &&
-      buildLogExceptionHitListBuild.proofCommands?.some(command => command.includes('process:post-ship-fanout')) &&
-      /24 verifier exceptions/i.test(buildLogExceptionHitListBuild.proofStatus || '') &&
-      /does not auto-import private Google Docs/i.test(buildLogExceptionHitListBuild.knownLimits?.join(' ') || ''),
-    'Recent Builds v2 carries closeout proof for exception curation and hit-list reconcile',
-    buildLogExceptionHitListBuild
-      ? `${buildLogExceptionHitListBuild.shortSha} / ${buildLogExceptionHitListBuild.acceptanceState} / ${buildLogExceptionHitListBuild.proofStatus}`
-      : 'missing exception/hit-list closeout',
-  )
+  const recentBuildsCloseoutVerifier = evaluateFoundationRecentBuildsVerifier({
+    foundationBuildCloseoutValidation,
+    foundationBuildCloseouts,
+    foundationBuildLog,
+    foundationFrontendSource,
+    schemaVersion: FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
+    plainEnglishSweepCardId: PLAIN_ENGLISH_SWEEP_CARD_ID,
+    recentBuildsUiCardId: RECENT_BUILDS_UI_CARD_ID,
+    systemRegistrationSweepCardId: SYSTEM_REGISTRATION_SWEEP_CARD_ID,
+  })
+  checks.push(...recentBuildsCloseoutVerifier.checks)
   const legacyQuestions = (foundationHub.openQuestions || []).filter(item =>
     ['Q-001', 'Q-002', 'Q-003', 'Q-004', 'Q-005'].includes(item.id)
   )
@@ -14995,6 +14455,38 @@ async function main() {
     verifierFrontendSplitModuleCard
       ? `lane=${verifierFrontendSplitModuleCard.lane} dogfood=${verifierFrontendSplitModuleDogfood.ok ? 'pass' : 'blocked'} frontendSplitChecks=${frontendSplitVerifier.summary.passed}/${frontendSplitVerifier.summary.total} lines=${VERIFIER_FRONTEND_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterFrontendVerifierSplit}`
       : `missing ${VERIFIER_FRONTEND_SPLIT_MODULE_CARD_ID}`,
+  )
+  const verifierRecentBuildsSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID) || null
+  const verifierRecentBuildsSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY) || null
+  const verifierRecentBuildsSplitDogfood = buildFoundationRecentBuildsVerifierDogfoodProof()
+  const foundationVerifyLineCountAfterRecentBuildsSplit = String(foundationVerifySource || '').split('\n').length
+  ensure(
+    checks,
+      verifierRecentBuildsSplitCard &&
+      ['executing', 'done'].includes(verifierRecentBuildsSplitCard.lane) &&
+      String(verifierRecentBuildsSplitCard.statusNote || '').includes(VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY) &&
+      verifierRecentBuildsSplitCloseout?.operatorCloseout === true &&
+      (verifierRecentBuildsSplitCloseout.backlogIds || []).includes(VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID) &&
+      verifierRecentBuildsSplitDogfood.ok === true &&
+      packageJson.scripts?.['process:verifier-recent-builds-closeout-split-check'] === `node --env-file-if-exists=.env ${VERIFIER_RECENT_BUILDS_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_RECENT_BUILDS_SPLIT_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_RECENT_BUILDS_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-verifier-recent-builds-closeout-split-closeout.md') &&
+      foundationRecentBuildsVerifierSource.includes('evaluateFoundationRecentBuildsVerifier') &&
+      foundationRecentBuildsVerifierSource.includes('RECENT_BUILD_CLOSEOUT_EXPECTATIONS') &&
+      verifierRecentBuildsSplitScriptSource.includes('dogfood rejects old Recent Builds closeout verifier failures') &&
+      verifierRecentBuildsSplitPlanSource.includes('Substring-only proof is rejected') &&
+      foundationVerifySource.includes('evaluateFoundationRecentBuildsVerifier({') &&
+      foundationVerifySource.includes('recentBuildsCloseoutVerifier.checks') &&
+      !foundationVerifySource.includes('Recent Builds v2 carries closeout proof for ' + 'FOUNDATION-SWEEP-001') &&
+      foundationVerifyLineCountAfterRecentBuildsSplit < VERIFIER_RECENT_BUILDS_SPLIT_BEFORE_LINES &&
+      (activeFoundationSprint.sprint?.sprintId === VERIFIER_RECENT_BUILDS_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID),
+    'VERIFIER-RECENT-BUILDS-CLOSEOUT-SPLIT-001 extracts Recent Builds closeout verifier checks into a focused module',
+    verifierRecentBuildsSplitCard
+      ? `lane=${verifierRecentBuildsSplitCard.lane} dogfood=${verifierRecentBuildsSplitDogfood.ok ? 'pass' : 'blocked'} lines=${VERIFIER_RECENT_BUILDS_SPLIT_BEFORE_LINES}->${foundationVerifyLineCountAfterRecentBuildsSplit}`
+      : `missing ${VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()

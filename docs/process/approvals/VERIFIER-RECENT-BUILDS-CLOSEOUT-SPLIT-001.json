@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-RECENT-BUILDS-CLOSEOUT-SPLIT-001",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T18:20:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-recent-builds-closeout-split-001-plan.md",
+  "approvedPlanSha256": "3ba484fc3a86c81f85d1921c66658cdb0e9fdeb5ac0f8b766482f87d46248822",
+  "approvedRepoHead": "fb66e524920218167177c4f1b6cc63831d040f04",
+  "notes": "Approved as the Verifier Recent Builds Closeout Split Sprint. Scope: extract only the Recent Builds v2 closeout proof checks from scripts/foundation-verify.mjs into lib/foundation-recent-builds-verifier.js with read-only dogfood and full ship. Not approved: broad verifier rewrite, build-log API changes, hub feature work, Canva writes, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "52d3343de846be01a7ac8e3c95aa7b287ead064159be4592db13ec5307ab53a4"
+}
