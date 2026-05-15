@@ -14,6 +14,7 @@ import {
   SPRINT_STAGE_GATE_CLOSEOUT_KEY,
 } from '../lib/foundation-current-sprint.js'
 
+// liveTruthPosture: historical_closeout_only - this proof reconciles the closed control-plane sprint against current docs/API truth.
 const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12'
 const SOURCE_ONCE_OVER_SPRINT_ID = 'foundation-source-once-over-2026-05-12'
 const PROCESS_REPAIR_SPRINT_ID = 'process-repair-verifier-independence-2026-05-12'

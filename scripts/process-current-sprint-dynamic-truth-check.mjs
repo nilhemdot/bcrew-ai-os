@@ -16,6 +16,7 @@ import {
 } from '../lib/foundation-db.js'
 
 const CARD_ID = 'CURRENT-SPRINT-DYNAMIC-TRUTH-001'
+// liveTruthPosture: historical_closeout_only - this proof replays the closed control-plane sprint to prove dynamic truth behavior.
 const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12'
 const PLAN_REF = 'docs/process/current-sprint-dynamic-truth-001-plan.md'
 const APPROVAL_REF = 'docs/process/approvals/CURRENT-SPRINT-DYNAMIC-TRUTH-001.json'

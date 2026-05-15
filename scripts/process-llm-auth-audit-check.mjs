@@ -24,6 +24,7 @@ import {
   isProcessCheckWriteRequested,
 } from '../lib/process-write-guard.js'
 
+// liveTruthPosture: historical_closeout_only - this proof closes/replays the closed control-plane sprint.
 const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12'
 const NEXT_CARD_ID = 'SOURCE-EXTRACTION-GAP-FOLLOWUP-001'
 

@@ -32,6 +32,7 @@ import {
   getSourceContracts,
 } from '../lib/source-contracts.js'
 
+// liveTruthPosture: historical_closeout_only - this proof closes/replays the closed control-plane sprint.
 const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12'
 const NEXT_CARD_ID = 'LLM-AUTH-AUDIT-001'
 const SYNTHETIC_SECRET_SENTINEL = 'SYNTHETIC_CONNECTOR_CREDENTIAL_SECRET_VALUE_DO_NOT_OUTPUT_001'

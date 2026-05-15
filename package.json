@@ -105,6 +105,7 @@
     "process:runtime-safety-hardening-check": "node --env-file-if-exists=.env scripts/process-runtime-safety-hardening-check.mjs",
     "process:process-check-readonly-mode-check": "node --env-file-if-exists=.env scripts/process-check-readonly-mode-check.mjs",
     "process:sprint-check-historical-mode-check": "node --env-file-if-exists=.env scripts/process-sprint-check-historical-mode-check.mjs",
+    "process:live-truth-verify-decouple-check": "node --env-file-if-exists=.env scripts/process-live-truth-verify-decouple-check.mjs",
     "process:plan-critic-architectural-rules-check": "node --env-file-if-exists=.env scripts/process-plan-critic-architectural-rules-check.mjs",
     "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",
     "process:foundation-build-log-monolith-slice-check": "node --env-file-if-exists=.env scripts/process-foundation-build-log-monolith-slice-check.mjs",

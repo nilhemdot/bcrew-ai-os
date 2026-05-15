@@ -21,6 +21,7 @@ import {
   initFoundationDb,
 } from '../lib/foundation-db.js'
 
+// liveTruthPosture: historical_closeout_only - this proof replays the closed control-plane sprint to validate stage gates.
 const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12'
 const CONNECTOR_ROUTING_SPRINT_ID = 'connector-routing-truth-2026-05-12'
 const CONNECTOR_ROUTING_CARD_IDS = [

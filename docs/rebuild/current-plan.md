@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Sprint Check Historical Mode
+## Current Sprint: Live Truth Verify Decouple
+
+Live sprint ID: `live-truth-verify-decouple-2026-05-15`.
+
+This sprint is closed under `live-truth-verify-decouple-v1`. It separates active Current Sprint command truth from explicitly labeled historical closeout proof and bootstrap/default sprint literals. The nightly code-quality audit no longer reports the eight 2026-05-14 baseline references as active hardcoded Current Sprint truth, while unlabeled active current-sprint literals still fail as P0 findings.
+
+Completed card:
+
+1. `LIVE-TRUTH-VERIFY-DECOUPLE-001` - decouple live-looking verifier truth from historical/bootstrap sprint constants. Adds `lib/live-truth-verify-decouple.js`, updates `lib/code-quality-nightly-audit.js`, labels the baseline refs, adds focused read-only proof, and adds thin verifier coverage. Dogfood proves active unlabeled literals still fail and labeled historical/bootstrap references do not create P0 current-sprint findings.
+
+Not next: broad historical script rewrite, adding an `activeSprintAtOrPast` bypass, weakening active Current Sprint checks, source-count dynamic cleanup, KPI year cleanup, Foundation UI live-summary cleanup, hub UI, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `sprint-check-historical-mode-2026-05-15`, closed under `sprint-check-historical-mode-v1`. It makes focused sprint proof scripts historical-aware after closeout: active cards still prove against the active Current Sprint, while closed cards can prove from live done-lane backlog truth plus a matching verified closeout after the active sprint rolls forward.
+
+## Previous Sprint: Sprint Check Historical Mode
 
 Live sprint ID: `sprint-check-historical-mode-2026-05-15`.
 

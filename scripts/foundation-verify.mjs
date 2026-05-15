@@ -57,6 +57,11 @@ import {
   processCheckReadonlyProofIsHistoricalAware,
 } from '../lib/sprint-check-historical-mode.js'
 import {
+  LIVE_TRUTH_VERIFY_DECOUPLE_CARD_ID,
+  LIVE_TRUTH_VERIFY_DECOUPLE_SCRIPT_PATH,
+  buildLiveTruthVerifyDecoupleStatus,
+} from '../lib/live-truth-verify-decouple.js'
+import {
   PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID,
   buildScheduledMutationGuardDogfoodProof,
   getFoundationJobDefinitions,
@@ -11596,6 +11601,7 @@ async function main() {
         'rejects stale markers',
         'not source substring alone',
       ]) &&
+      // liveTruthPosture: historical_closeout_only - this block accepts the closed control-plane sprint only as documented history.
       (includesAll(currentPlan, [
         'Current Sprint: Foundation Control Plane + Connector Readiness',
         'control-plane-connector-readiness-2026-05-12',
@@ -15296,6 +15302,24 @@ async function main() {
     sprintCheckHistoricalModeCard
       ? `lane=${sprintCheckHistoricalModeCard.lane} active=${sprintCheckHistoricalModeProof.activeCurrent?.mode || 'missing'} historical=${sprintCheckHistoricalModeProof.historicalPass?.mode || 'missing'} readonlyAware=${processCheckReadonlyProofIsHistoricalAware(processCheckReadonlyModeScriptSource) ? 'yes' : 'no'}`
       : 'missing SPRINT-CHECK-HISTORICAL-MODE-001',
+  )
+  const liveTruthVerifyDecoupleCard = (foundationHub.backlogItems || []).find(item => item.id === LIVE_TRUTH_VERIFY_DECOUPLE_CARD_ID) || null
+  const liveTruthVerifyDecoupleStatus = await buildLiveTruthVerifyDecoupleStatus({ repoRoot, baseUrl, skipEndpointFetch: true })
+  ensure(
+    checks,
+      liveTruthVerifyDecoupleCard &&
+      ['executing', 'done'].includes(liveTruthVerifyDecoupleCard.lane) &&
+      liveTruthVerifyDecoupleStatus.status === 'healthy' &&
+      liveTruthVerifyDecoupleStatus.currentSprintFindingCount === 0 &&
+      liveTruthVerifyDecoupleStatus.baseline?.length >= 8 &&
+      liveTruthVerifyDecoupleStatus.baseline.every(item => item.ok) &&
+      liveTruthVerifyDecoupleStatus.synthetic?.ok === true &&
+      packageJson.scripts?.['process:live-truth-verify-decouple-check'] === `node --env-file-if-exists=.env ${LIVE_TRUTH_VERIFY_DECOUPLE_SCRIPT_PATH}` &&
+      foundationVerifySource.includes('buildLiveTruthVerifyDecoupleStatus'),
+    'LIVE-TRUTH-VERIFY-DECOUPLE-001 decouples active live sprint truth from historical/bootstrap literals',
+    liveTruthVerifyDecoupleCard
+      ? `lane=${liveTruthVerifyDecoupleCard.lane} currentSprintFindings=${liveTruthVerifyDecoupleStatus.currentSprintFindingCount} baseline=${liveTruthVerifyDecoupleStatus.baseline?.filter(item => item.ok).length || 0}/8`
+      : 'missing LIVE-TRUTH-VERIFY-DECOUPLE-001',
   )
   const processCheckScheduledMutationGuardCard = (foundationHub.backlogItems || []).find(item => item.id === PROCESS_CHECK_SCHEDULED_MUTATION_GUARD_CARD_ID) || null
   const scheduledMutationGuardProof = buildScheduledMutationGuardDogfoodProof()
