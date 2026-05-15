@@ -521,6 +521,15 @@ import {
   buildBacklogStoreConcurrencyDogfoodProof,
 } from '../lib/backlog-store-concurrency.js'
 import {
+  FOUNDATION_BACKLOG_STORE_SPLIT_APPROVAL_PATH,
+  FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID,
+  FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_BACKLOG_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_BACKLOG_STORE_SPLIT_SCRIPT_PATH,
+  FOUNDATION_BACKLOG_STORE_SPLIT_SPRINT_ID,
+  buildFoundationBacklogStoreSplitDogfoodProof,
+} from '../lib/foundation-backlog-store.js'
+import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -2097,6 +2106,9 @@ async function main() {
   const foundationRouteSplitVerifierSource = await readRepoFile('lib/foundation-route-split-verifier.js')
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
+  const foundationBacklogStoreSource = await readRepoFile('lib/foundation-backlog-store.js')
+  const foundationBacklogStoreScriptSource = await readRepoFile(FOUNDATION_BACKLOG_STORE_SPLIT_SCRIPT_PATH)
+  const foundationBacklogStorePlanSource = await readRepoFile(FOUNDATION_BACKLOG_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -2795,7 +2807,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
+    includesAll([foundationDbSource, foundationBacklogStoreSource].join('\n'), [
       'assertBacklogDoneCloseout',
       'moving to done requires a closeout statusNote with build/change proof',
       'createBacklogItem',
@@ -6444,7 +6456,8 @@ async function main() {
       foundationChangelog?.priority === 'P0' &&
       /Recent Builds/.test(foundationChangelog?.summary || foundationChangelog?.nextAction || '') &&
       /done-lane guard/.test(foundationChangelog?.nextAction || '') &&
-      includesAll(foundationDbSource, ['assertBacklogDoneCloseout', 'FOUNDATION-CHANGELOG-001']),
+      foundationBacklogStoreSource.includes('assertBacklogDoneCloseout') &&
+      foundationDbSource.includes('FOUNDATION-CHANGELOG-001'),
     'Foundation build closeout discipline is tracked and enforced',
     foundationChangelog ? `${foundationChangelog.lane} / ${foundationChangelog.title}` : 'missing FOUNDATION-CHANGELOG-001',
   )
@@ -13915,6 +13928,40 @@ async function main() {
       ? `lane=${verifierRouteSplitModuleCard.lane} dogfood=${verifierRouteSplitModuleDogfood.ok ? 'pass' : 'blocked'} routeSplitChecks=${routeSplitVerifierResult.summary.passed}/${routeSplitVerifierResult.summary.total}`
       : `missing ${VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID}`,
   )
+  const foundationBacklogStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID) || null
+  const foundationBacklogStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) || null
+  const foundationBacklogStoreDogfood = buildFoundationBacklogStoreSplitDogfoodProof()
+  ensure(
+    checks,
+      foundationBacklogStoreSplitCard &&
+      foundationBacklogStoreSplitCard.lane === 'done' &&
+      String(foundationBacklogStoreSplitCard.statusNote || '').includes(FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) &&
+      foundationBacklogStoreSplitCloseout?.operatorCloseout === true &&
+      (foundationBacklogStoreSplitCloseout.backlogIds || []).includes(FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID) &&
+      foundationBacklogStoreDogfood.ok === true &&
+      packageJson.scripts?.['process:foundation-backlog-store-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_BACKLOG_STORE_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FOUNDATION_BACKLOG_STORE_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FOUNDATION_BACKLOG_STORE_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-foundation-backlog-store-split-closeout.md') &&
+      foundationBacklogStoreSource.includes('createFoundationBacklogStore') &&
+      foundationBacklogStoreSource.includes('FOR UPDATE') &&
+      foundationBacklogStoreSource.includes('changedFields') &&
+      foundationBacklogStoreScriptSource.includes('dogfood rejects old backlog store failures') &&
+      foundationBacklogStorePlanSource.includes('weak done-lane closeout') &&
+      foundationDbSource.includes('createFoundationBacklogStore') &&
+      foundationDbSource.includes('export const createBacklogItem') &&
+      foundationDbSource.includes('export const updateBacklogItem') &&
+      !foundationDbSource.includes('async function updateBacklogItemWithClient') &&
+      currentPlan.includes(FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_BACKLOG_STORE_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID),
+    'FOUNDATION-DB-MONOLITH-SPLIT-001 splits backlog write store out of foundation-db.js',
+    foundationBacklogStoreSplitCard
+      ? `lane=${foundationBacklogStoreSplitCard.lane} dogfood=${foundationBacklogStoreDogfood.ok ? 'pass' : 'blocked'}`
+      : `missing ${FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID}`,
+  )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
   ensure(
@@ -14468,8 +14515,8 @@ async function main() {
       backlogStoreConcurrencyProof.safeConcurrentWriters?.preservedWriterBUpdate === true &&
       backlogStoreConcurrencyProof.safeConcurrentWriters?.writerBReadSawWriterACommit === true &&
       backlogStoreConcurrencyProof.changeEventProof?.hasFullBeforeAfter === true &&
-      foundationDbSource.includes('SELECT * FROM backlog_items WHERE id = $1 FOR UPDATE') &&
-      foundationDbSource.includes('changedFields') &&
+      foundationBacklogStoreSource.includes('SELECT * FROM backlog_items WHERE id = $1 FOR UPDATE') &&
+      foundationBacklogStoreSource.includes('changedFields') &&
       backlogStoreConcurrencySource.includes('buildBacklogStoreConcurrencyDogfoodProof') &&
       backlogStoreConcurrencySource.includes('legacyUnsafeBacklogMergeWrite') &&
       backlogStoreConcurrencySource.includes('bcrew_ai_os_dogfood_') &&

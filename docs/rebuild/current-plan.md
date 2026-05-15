@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.45 - Verifier route-split module active
+Version: v6.46 - Foundation backlog store split active
 Status: Active
 
 Use this doc for one question:
@@ -73,17 +73,29 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Verifier Route Split Module
+## Current Sprint: Foundation Backlog Store Split
 
-Live sprint ID: `verifier-route-split-module-2026-05-15`.
+Live sprint ID: `foundation-backlog-store-split-2026-05-15`.
 
-This sprint is active under `verifier-route-split-module-v1`. It extracts the route-split verifier checks for the operator/source/Build Intel route splits out of `scripts/foundation-verify.mjs` into `lib/foundation-route-split-verifier.js` without changing the canonical verifier rows.
+This sprint is active under `foundation-backlog-store-split-v1`. It extracts backlog create/update write behavior out of `lib/foundation-db.js` into `lib/foundation-backlog-store.js` without changing public `createBacklogItem` / `updateBacklogItem` imports or task-truth safeguards.
 
 The sprint order:
 
-1. `VERIFIER-MONOLITH-SPLIT-CONTINUE-001` - Building Now. Plan Critic passed 10/10. Acceptance requires `lib/foundation-route-split-verifier.js`, `scripts/process-verifier-route-split-module-check.mjs`, canonical `foundation:verify` delegation, focused dogfood that rejects old route-split verifier failures, and a full Foundation ship gate.
+1. `FOUNDATION-DB-MONOLITH-SPLIT-001` - Building Now. Plan Critic passed 10/10 after rejecting the first plan at 8.8/10 for missing operator-value and speed-bound signals. Acceptance requires `lib/foundation-backlog-store.js`, wrapper-preserved exports in `lib/foundation-db.js`, `scripts/process-foundation-backlog-store-split-check.mjs`, focused dogfood that rejects weak done-lane closeouts and missing row-lock/change metadata failures, and a full Foundation ship gate.
 
-Not next: broad verifier rewrite, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad DB rewrite, backlog schema changes, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `verifier-route-split-module-2026-05-15`, closed under `verifier-route-split-module-v1`. It extracted the route-split verifier checks for the operator/source/Build Intel route splits out of `scripts/foundation-verify.mjs` into `lib/foundation-route-split-verifier.js` without changing the canonical verifier rows.
+
+## Previous Sprint: Verifier Route Split Module
+
+Live sprint ID: `verifier-route-split-module-2026-05-15`.
+
+This sprint is closed under `verifier-route-split-module-v1`. It extracts the route-split verifier checks for the operator/source/Build Intel route splits out of `scripts/foundation-verify.mjs` into `lib/foundation-route-split-verifier.js` without changing the canonical verifier rows.
+
+The sprint order:
+
+1. `VERIFIER-MONOLITH-SPLIT-CONTINUE-001` - done under `verifier-route-split-module-v1`; route-split verifier definitions now live in `lib/foundation-route-split-verifier.js`, `foundation:verify` delegates through `evaluateFoundationRouteSplitVerifier`, and focused dogfood rejects old inline route, missing module marker, wrong Build Intel payload, and missing closeout failures.
 
 Previous completed sprint: `build-intel-route-split-2026-05-15`, closed under `build-intel-route-split-v1`. It extracted the Foundation Build Intel read-route cluster into `lib/foundation-build-intel-routes.js`: Build Intel watchlist, multimodal extractor contract, Research Inbox contract, control compression, implementation intelligence, Build Intel extraction, and GStack Build Intel.
 

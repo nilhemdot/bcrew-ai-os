@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T05:02:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-db-monolith-split-001-plan.md",
+  "approvedPlanSha256": "d8b36f0c168797818c7bee28b6b4f5d11c3cffc89ac9f99caed5d16630637245",
+  "approvedRepoHead": "402cf51b3543f76758dd86730dda975f1924c879",
+  "notes": "Approved as the Foundation Backlog Store Split Sprint. Scope: extract only backlog create/update write behavior from lib/foundation-db.js into lib/foundation-backlog-store.js with wrapper-preserved exports, row-lock/closeout-guard dogfood, read-only focused proof, and full ship. Not approved: broad DB refactor, schema changes, hub UI, auth/session routes, Marketing live wiring, source extraction, paid-source auth, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "148a817296d7354e7da5e818918688b74af095c081c95db65ee968a3375b643c"
+}
