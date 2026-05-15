@@ -137,6 +137,7 @@
     "process:stylesheet-monolith-split-check": "node --env-file-if-exists=.env scripts/process-stylesheet-monolith-split-check.mjs",
     "process:verifier-frontend-split-checks-module-check": "node --env-file-if-exists=.env scripts/process-verifier-frontend-split-checks-module-check.mjs",
     "process:verifier-server-route-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-server-route-split-module-check.mjs",
+    "process:verifier-foundation-db-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-foundation-db-split-module-check.mjs",
     "process:verifier-recent-builds-closeout-split-check": "node --env-file-if-exists=.env scripts/process-verifier-recent-builds-closeout-split-check.mjs",
     "process:verifier-runtime-reliability-split-check": "node --env-file-if-exists=.env scripts/process-verifier-runtime-reliability-split-check.mjs",
     "process:verifier-health-script-module-check": "node --env-file-if-exists=.env scripts/process-verifier-health-script-module-check.mjs",

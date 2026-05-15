@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-FOUNDATION-DB-SPLIT-MODULE-001",
+  "approvedBy": "Steve go-hard instruction + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-15T22:45:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-foundation-db-split-module-001-plan.md",
+  "approvedPlanSha256": "680ebd22870a276ba60e8dfd9880d23c32b2fb1339404b76e4c9dd9a3b491332",
+  "approvedRepoHead": "0b4d52490d747e708aa7746a71feaaf89096d4e2",
+  "notes": "Extract only the Foundation-DB split verifier assertions into a focused module with dogfood proof. Not approved: broad verifier rewrite, Foundation-DB behavior changes, hub feature work, Canva asset mutation, paid-source auth, Build Intel extraction, or Drive permission mutation. Dogfood explicitly rejects substring-only proof.",
+  "approvalDigest": "4262781a50e1a40ea3b6c06a0612d0eb10be7394536da29520901a6b414e8ed7"
+}

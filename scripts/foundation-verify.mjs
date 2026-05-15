@@ -240,6 +240,17 @@ import {
   evaluateFoundationServerRouteSplitVerifier,
 } from '../lib/foundation-server-route-split-verifier.js'
 import {
+  VERIFIER_FOUNDATION_DB_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_FOUNDATION_DB_SPLIT_MODULE_BEFORE_LINES,
+  VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID,
+  VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_FOUNDATION_DB_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationDbSplitVerifierDogfoodProof,
+  evaluateFoundationDbSplitVerifier,
+} from '../lib/foundation-db-split-verifier.js'
+import {
   FUB_SOURCE_ROUTE_SPLIT_APPROVAL_PATH,
   FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES,
   FUB_SOURCE_ROUTE_SPLIT_CARD_ID,
@@ -2529,6 +2540,9 @@ async function main() {
   const foundationServerRouteSplitVerifierSource = await readRepoFile('lib/foundation-server-route-split-verifier.js')
   const verifierServerRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_SERVER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierServerRouteSplitModulePlanSource = await readRepoFile(VERIFIER_SERVER_ROUTE_SPLIT_MODULE_PLAN_PATH)
+  const foundationDbSplitVerifierSource = await readRepoFile('lib/foundation-db-split-verifier.js')
+  const verifierFoundationDbSplitModuleScriptSource = await readRepoFile(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierFoundationDbSplitModulePlanSource = await readRepoFile(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_PLAN_PATH)
   const serverRouteSource = [serverSource, hubReadRoutesSource, strategySharedCommsRoutesSource, foundationWriteRoutesSource, agentFeedbackRoutesSource].join('\n')
   const strategySharedCommsRouteSource = [serverSource, strategySharedCommsRoutesSource].join('\n')
   const foundationWriteRouteSource = [serverSource, foundationWriteRoutesSource].join('\n')
@@ -4634,6 +4648,7 @@ async function main() {
     foundationRouteSplitVerifierSource,
     foundationSourceContractVerifierSource,
     foundationServerRouteSplitVerifierSource,
+    foundationDbSplitVerifierSource,
     foundationFrontendSplitVerifierSource,
     fubSourceRoutesSource,
     foundationRuntimeReadRoutesSource,
@@ -14060,373 +14075,79 @@ async function main() {
       ? `lane=${nightlyDeepAuditP0TriageCard.lane} closeout=${nightlyDeepAuditP0TriageCloseout?.key || 'missing'}`
       : 'missing NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001',
   )
-  const foundationBacklogStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID) || null
-  const foundationBacklogStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) || null
-  const foundationBacklogStoreDogfood = buildFoundationBacklogStoreSplitDogfoodProof()
-  ensure(
-    checks,
-      foundationBacklogStoreSplitCard &&
-      foundationBacklogStoreSplitCard.lane === 'done' &&
-      String(foundationBacklogStoreSplitCard.statusNote || '').includes(FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) &&
-      foundationBacklogStoreSplitCloseout?.operatorCloseout === true &&
-      (foundationBacklogStoreSplitCloseout.backlogIds || []).includes(FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID) &&
-      foundationBacklogStoreDogfood.ok === true &&
-      packageJson.scripts?.['process:foundation-backlog-store-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_BACKLOG_STORE_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(FOUNDATION_BACKLOG_STORE_SPLIT_PLAN_PATH) &&
-      await repoFileExists(FOUNDATION_BACKLOG_STORE_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/2026-05-15-foundation-backlog-store-split-closeout.md') &&
-      foundationBacklogStoreSource.includes('createFoundationBacklogStore') &&
-      foundationBacklogStoreSource.includes('FOR UPDATE') &&
-      foundationBacklogStoreSource.includes('changedFields') &&
-      foundationBacklogStoreScriptSource.includes('dogfood rejects old backlog store failures') &&
-      foundationBacklogStorePlanSource.includes('weak done-lane closeout') &&
-      foundationDbSource.includes('createFoundationBacklogStore') &&
-      foundationDbSource.includes('export const createBacklogItem') &&
-      foundationDbSource.includes('export const updateBacklogItem') &&
-      !foundationDbSource.includes('async function updateBacklogItemWithClient') &&
-      currentPlan.includes(FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_BACKLOG_STORE_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_BACKLOG_STORE_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID),
-    'FOUNDATION-DB-MONOLITH-SPLIT-001 splits backlog write store out of foundation-db.js',
-    foundationBacklogStoreSplitCard
-      ? `lane=${foundationBacklogStoreSplitCard.lane} dogfood=${foundationBacklogStoreDogfood.ok ? 'pass' : 'blocked'}`
-      : `missing ${FOUNDATION_BACKLOG_STORE_SPLIT_CARD_ID}`,
-  )
-  const foundationDecisionStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_DECISION_STORE_SPLIT_CARD_ID) || null
-  const foundationDecisionStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_DECISION_STORE_SPLIT_CLOSEOUT_KEY) || null
-  const foundationDecisionStoreDogfood = buildFoundationDecisionStoreSplitDogfoodProof()
-  ensure(
-    checks,
-      foundationDecisionStoreSplitCard &&
-      foundationDecisionStoreSplitCard.lane === 'done' &&
-      String(foundationDecisionStoreSplitCard.statusNote || '').includes(FOUNDATION_DECISION_STORE_SPLIT_CLOSEOUT_KEY) &&
-      foundationDecisionStoreSplitCloseout?.operatorCloseout === true &&
-      (foundationDecisionStoreSplitCloseout.backlogIds || []).includes(FOUNDATION_DECISION_STORE_SPLIT_CARD_ID) &&
-      foundationDecisionStoreDogfood.ok === true &&
-      packageJson.scripts?.['process:foundation-decision-store-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_DECISION_STORE_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(FOUNDATION_DECISION_STORE_SPLIT_PLAN_PATH) &&
-      await repoFileExists(FOUNDATION_DECISION_STORE_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/2026-05-15-foundation-decision-store-split-closeout.md') &&
-      foundationDecisionStoreSource.includes('createFoundationDecisionStore') &&
-      foundationDecisionStoreSource.includes('assertPendingDocUpdateCanApprove') &&
-      foundationDecisionStoreSource.includes('buildFoundationDecisionStoreSplitDogfoodProof') &&
-      foundationDecisionStoreScriptSource.includes('dogfood rejects old decision store failures') &&
-      foundationDecisionStorePlanSource.includes('invalid pending doc-update status transitions') &&
-      foundationDbSource.includes('createFoundationDecisionStore') &&
-      foundationDbSource.includes('export const createDecision') &&
-      foundationDbSource.includes('export const markPendingDocUpdateApplied') &&
-      !foundationDbSource.includes('export async function createDecision') &&
-      !foundationDbSource.includes('async function markSupersededDecisions') &&
-      currentPlan.includes(FOUNDATION_DECISION_STORE_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_DECISION_STORE_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_DECISION_STORE_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([FOUNDATION_DECISION_STORE_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(FOUNDATION_DECISION_STORE_SPLIT_CARD_ID),
-    'FOUNDATION-DB-MONOLITH-SPLIT-002 splits decision/doc-update store out of foundation-db.js',
-    foundationDecisionStoreSplitCard
-      ? `lane=${foundationDecisionStoreSplitCard.lane} dogfood=${foundationDecisionStoreDogfood.ok ? 'pass' : 'blocked'}`
-      : `missing ${FOUNDATION_DECISION_STORE_SPLIT_CARD_ID}`,
-  )
-  const foundationCoreSeedSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_CORE_SEED_SPLIT_CARD_ID) || null
-  const foundationCoreSeedSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) || null
-  const foundationCoreSeedDogfood = buildFoundationCoreSeedSplitDogfoodProof()
-  const foundationCoreSeedEvaluation = evaluateFoundationCoreSeedSplit({
+  const foundationDbSplitVerifierInput = {
+    foundationHub,
+    foundationBuildCloseouts,
+    packageJson,
+    currentPlan,
+    currentState,
+    activeFoundationSprint,
+    activeSprintAtOrPast,
+    foundationVerifySource,
     foundationDbSource,
-    coreSeedSource: foundationCoreSeedSource,
-    seedSummary: getFoundationCoreSeedSummary(),
-  })
-  const foundationCoreSeedSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_CORE_SEED_SPLIT_SPRINT_ID &&
-    (activeFoundationSprint.items || []).some(item =>
-      item.cardId === FOUNDATION_CORE_SEED_SPLIT_CARD_ID &&
-        ['building_now', 'done_this_sprint'].includes(item.stage)
-    )
-  const foundationCoreSeedClosed = foundationCoreSeedSplitCard?.lane === 'done' &&
-    String(foundationCoreSeedSplitCard.statusNote || '').includes(FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) &&
-    foundationCoreSeedSplitCloseout?.operatorCloseout === true &&
-    (foundationCoreSeedSplitCloseout.backlogIds || []).includes(FOUNDATION_CORE_SEED_SPLIT_CARD_ID)
+    foundationBacklogStoreSource,
+    foundationBacklogStoreScriptSource,
+    foundationBacklogStorePlanSource,
+    foundationDecisionStoreSource,
+    foundationDecisionStoreScriptSource,
+    foundationDecisionStorePlanSource,
+    foundationCoreSeedSource,
+    foundationCoreSeedScriptSource,
+    foundationCoreSeedPlanSource,
+    foundationStrategySourceSnapshotSource,
+    foundationStrategySourceSnapshotScriptSource,
+    foundationStrategySourceSnapshotPlanSource,
+    foundationStrategyOperatingTruthSource,
+    foundationStrategyOperatingTruthScriptSource,
+    foundationStrategyOperatingTruthPlanSource,
+    foundationStrategyGoalTruthSource,
+    foundationStrategyGoalTruthScriptSource,
+    foundationStrategyGoalTruthPlanSource,
+    foundationFubLeadSourceStoreSource,
+    foundationFubLeadSourceStoreScriptSource,
+    foundationFubLeadSourceStorePlanSource,
+    foundationSharedCommsCoverageSource,
+    foundationSharedCommsCoverageScriptSource,
+    foundationSharedCommsCoveragePlanSource,
+    moduleSource: foundationDbSplitVerifierSource,
+    repoFileExists,
+  }
+  const foundationDbSplitVerifier = await evaluateFoundationDbSplitVerifier(foundationDbSplitVerifierInput)
+  for (const check of foundationDbSplitVerifier.checks) {
+    ensure(checks, check.ok, check.check, check.detail)
+  }
+  const verifierFoundationDbSplitModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID) || null
+  const verifierFoundationDbSplitModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierFoundationDbSplitModuleDogfood = await buildFoundationDbSplitVerifierDogfoodProof(foundationDbSplitVerifierInput)
+  const foundationVerifyLineCountAfterDbSplitVerifierSplit = String(foundationVerifySource || '').split('\n').length
+  const oldInlineFoundationDbSplitPredicate = 'const foundationBacklog' + 'StoreSplitCard ='
   ensure(
     checks,
-      foundationCoreSeedSplitCard &&
-      (foundationCoreSeedSprintActive || foundationCoreSeedClosed) &&
-      foundationCoreSeedDogfood.ok === true &&
-      foundationCoreSeedEvaluation.ok === true &&
-      packageJson.scripts?.['process:foundation-core-seed-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_CORE_SEED_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(FOUNDATION_CORE_SEED_SPLIT_PLAN_PATH) &&
-      await repoFileExists(FOUNDATION_CORE_SEED_SPLIT_APPROVAL_PATH) &&
-      foundationCoreSeedSource.includes('Live Postgres/API remains operational truth after bootstrap') &&
-      foundationCoreSeedSource.includes('export const foundationUserSeed') &&
-      foundationCoreSeedSource.includes('export const docSourceSnapshotsSeed') &&
-      foundationCoreSeedScriptSource.includes('dogfood rejects old inline core seed ownership') &&
-      foundationCoreSeedPlanSource.includes('inline seed ownership') &&
-      foundationDbSource.includes('./foundation-core-seed.js') &&
-      !foundationDbSource.includes('const foundationUserSeed = [') &&
-      !foundationDbSource.includes('const decisionsSeed = [') &&
-      !foundationDbSource.includes('const docSourceSnapshotsSeed = [') &&
-      currentPlan.includes(FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_CORE_SEED_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([FOUNDATION_CORE_SEED_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(FOUNDATION_CORE_SEED_SPLIT_CARD_ID),
-    'FOUNDATION-DB-MONOLITH-SPLIT-003 splits static core seed arrays out of foundation-db.js',
-    foundationCoreSeedSplitCard
-      ? `lane=${foundationCoreSeedSplitCard.lane} dogfood=${foundationCoreSeedDogfood.ok ? 'pass' : 'blocked'} lines=${foundationCoreSeedEvaluation.preSplitFoundationDbLineCount}->${foundationCoreSeedEvaluation.foundationDbLineCount}`
-      : `missing ${FOUNDATION_CORE_SEED_SPLIT_CARD_ID}`,
-  )
-  const foundationStrategySourceSnapshotSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CARD_ID) || null
-  const foundationStrategySourceSnapshotSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CLOSEOUT_KEY) || null
-  const foundationStrategySourceSnapshotDogfood = buildFoundationStrategySourceSnapshotSplitDogfoodProof({
-    afterLines: foundationDbSource.split('\n').length,
-  })
-  const foundationStrategySourceSnapshotEvaluation = evaluateFoundationStrategySourceSnapshotSplit({
-    foundationDbSource,
-    moduleSource: foundationStrategySourceSnapshotSource,
-    scriptSource: foundationStrategySourceSnapshotScriptSource,
-    planSource: foundationStrategySourceSnapshotPlanSource,
-    afterLines: foundationDbSource.split('\n').length,
-  })
-  const foundationStrategySourceSnapshotSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_SPRINT_ID &&
-    (activeFoundationSprint.items || []).some(item =>
-      item.cardId === FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CARD_ID &&
-        ['building_now', 'done_this_sprint'].includes(item.stage)
-    )
-  const foundationStrategySourceSnapshotClosed = foundationStrategySourceSnapshotSplitCard?.lane === 'done' &&
-    String(foundationStrategySourceSnapshotSplitCard.statusNote || '').includes(FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CLOSEOUT_KEY) &&
-    foundationStrategySourceSnapshotSplitCloseout?.operatorCloseout === true &&
-    (foundationStrategySourceSnapshotSplitCloseout.backlogIds || []).includes(FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CARD_ID)
-  ensure(
-    checks,
-      foundationStrategySourceSnapshotSplitCard &&
-      (foundationStrategySourceSnapshotSprintActive || foundationStrategySourceSnapshotClosed) &&
-      foundationStrategySourceSnapshotDogfood.ok === true &&
-      foundationStrategySourceSnapshotEvaluation.ok === true &&
-      packageJson.scripts?.['process:foundation-strategy-source-snapshot-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_PLAN_PATH) &&
-      await repoFileExists(FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_APPROVAL_PATH) &&
-      foundationStrategySourceSnapshotSource.includes('export async function getLiveBhagSourceSnapshot()') &&
-      foundationStrategySourceSnapshotSource.includes('export async function getLiveAgentEngineSourceSnapshot()') &&
-      foundationStrategySourceSnapshotSource.includes("'Benson Crew Bhag Builder'!K4:L13") &&
-      foundationStrategySourceSnapshotSource.includes("'Agent Engine'!A1:K10") &&
-      foundationStrategySourceSnapshotScriptSource.includes('dogfood rejects old inline builder ownership') &&
-      foundationStrategySourceSnapshotPlanSource.includes('source-backed BHAG and Agent Engine doc snapshot builders') &&
-      foundationDbSource.includes('./foundation-strategy-source-snapshots.js') &&
-      !foundationDbSource.includes('async function getLiveBhagSourceSnapshot()') &&
-      !foundationDbSource.includes('async function getLiveAgentEngineSourceSnapshot()') &&
-      currentPlan.includes(FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CARD_ID),
-    'FOUNDATION-DB-MONOLITH-SPLIT-004 splits Strategy source snapshot builders out of foundation-db.js',
-    foundationStrategySourceSnapshotSplitCard
-      ? `lane=${foundationStrategySourceSnapshotSplitCard.lane} dogfood=${foundationStrategySourceSnapshotDogfood.ok ? 'pass' : 'blocked'} lines=${foundationStrategySourceSnapshotEvaluation.beforeLines}->${foundationStrategySourceSnapshotEvaluation.afterLines}`
-      : `missing ${FOUNDATION_STRATEGY_SOURCE_SNAPSHOT_SPLIT_CARD_ID}`,
-  )
-  const foundationStrategyOperatingTruthSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID) || null
-  const foundationStrategyOperatingTruthSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CLOSEOUT_KEY) || null
-  const foundationStrategyOperatingTruthDogfood = buildFoundationStrategyOperatingTruthSplitDogfoodProof({
-    afterLines: foundationDbSource.split('\n').length,
-  })
-  const foundationStrategyOperatingTruthEvaluation = evaluateFoundationStrategyOperatingTruthSplit({
-    foundationDbSource,
-    moduleSource: foundationStrategyOperatingTruthSource,
-    scriptSource: foundationStrategyOperatingTruthScriptSource,
-    planSource: foundationStrategyOperatingTruthPlanSource,
-    afterLines: foundationDbSource.split('\n').length,
-  })
-  const foundationStrategyOperatingTruthSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SPRINT_ID &&
-    (activeFoundationSprint.items || []).some(item =>
-      item.cardId === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID &&
-        ['building_now', 'done_this_sprint'].includes(item.stage)
-    )
-  const foundationStrategyOperatingTruthClosed = foundationStrategyOperatingTruthSplitCard?.lane === 'done' &&
-    String(foundationStrategyOperatingTruthSplitCard.statusNote || '').includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CLOSEOUT_KEY) &&
-    foundationStrategyOperatingTruthSplitCloseout?.operatorCloseout === true &&
-    (foundationStrategyOperatingTruthSplitCloseout.backlogIds || []).includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID)
-  ensure(
-    checks,
-      foundationStrategyOperatingTruthSplitCard &&
-      (foundationStrategyOperatingTruthSprintActive || foundationStrategyOperatingTruthClosed) &&
-      foundationStrategyOperatingTruthDogfood.ok === true &&
-      foundationStrategyOperatingTruthEvaluation.ok === true &&
-      packageJson.scripts?.['process:foundation-strategy-operating-truth-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_PLAN_PATH) &&
-      await repoFileExists(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_APPROVAL_PATH) &&
-      foundationStrategyOperatingTruthSource.includes('export async function getStrategyOperatingTruthSnapshot') &&
-      foundationStrategyOperatingTruthSource.includes('export function buildStrategyOperatingTruthSnapshot') &&
-      foundationStrategyOperatingTruthSource.includes("'Cashflow Dash'!A1:J25") &&
-      foundationStrategyOperatingTruthSource.includes("'(Input) Weekly Actuals'!A1:BR8") &&
-      foundationStrategyOperatingTruthSource.includes("'Listings and Conditional Deals'!A1:B12") &&
-      foundationStrategyOperatingTruthScriptSource.includes('dogfood rejects old inline Strategy Operating Truth ownership') &&
-      foundationStrategyOperatingTruthPlanSource.includes('Strategy Operating Truth source-card builder') &&
-      foundationDbSource.includes('./foundation-strategy-operating-truth.js') &&
-      foundationDbSource.includes('return getStrategyOperatingTruthSnapshotFromSources({') &&
-      !foundationDbSource.includes('function findSheetMetric') &&
-      !foundationDbSource.includes('function conditionalCollectionFacts') &&
-      currentPlan.includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID),
-    'FOUNDATION-DB-MONOLITH-SPLIT-005 splits Strategy Operating Truth source cards out of foundation-db.js',
-    foundationStrategyOperatingTruthSplitCard
-      ? `lane=${foundationStrategyOperatingTruthSplitCard.lane} dogfood=${foundationStrategyOperatingTruthDogfood.ok ? 'pass' : 'blocked'} lines=${foundationStrategyOperatingTruthEvaluation.beforeLines}->${foundationStrategyOperatingTruthEvaluation.afterLines}`
-      : `missing ${FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID}`,
-  )
-  const foundationStrategyGoalTruthSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID) || null
-  const foundationStrategyGoalTruthSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CLOSEOUT_KEY) || null
-  const foundationStrategyGoalTruthDogfood = buildFoundationStrategyGoalTruthSplitDogfoodProof({
-    afterLines: foundationDbSource.split('\n').length,
-  })
-  const foundationStrategyGoalTruthEvaluation = evaluateFoundationStrategyGoalTruthSplit({
-    foundationDbSource,
-    moduleSource: foundationStrategyGoalTruthSource,
-    scriptSource: foundationStrategyGoalTruthScriptSource,
-    planSource: foundationStrategyGoalTruthPlanSource,
-    afterLines: foundationDbSource.split('\n').length,
-  })
-  const foundationStrategyGoalTruthSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SPRINT_ID &&
-    (activeFoundationSprint.items || []).some(item =>
-      item.cardId === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID &&
-        ['building_now', 'done_this_sprint'].includes(item.stage)
-    )
-  const foundationStrategyGoalTruthClosed = foundationStrategyGoalTruthSplitCard?.lane === 'done' &&
-    String(foundationStrategyGoalTruthSplitCard.statusNote || '').includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CLOSEOUT_KEY) &&
-    foundationStrategyGoalTruthSplitCloseout?.operatorCloseout === true &&
-    (foundationStrategyGoalTruthSplitCloseout.backlogIds || []).includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID)
-  ensure(
-    checks,
-      foundationStrategyGoalTruthSplitCard &&
-      (foundationStrategyGoalTruthSprintActive || foundationStrategyGoalTruthClosed) &&
-      foundationStrategyGoalTruthDogfood.ok === true &&
-      foundationStrategyGoalTruthEvaluation.ok === true &&
-      packageJson.scripts?.['process:foundation-strategy-goal-truth-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_PLAN_PATH) &&
-      await repoFileExists(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_APPROVAL_PATH) &&
-      foundationStrategyGoalTruthSource.includes('export async function getStrategyPreworkCoverageSnapshot') &&
-      foundationStrategyGoalTruthSource.includes('export async function getStrategyGoalTruthSnapshot') &&
-      foundationStrategyGoalTruthSource.includes('strategyPreworkExpectedParticipants') &&
-      foundationStrategyGoalTruthSource.includes('team_volume') &&
-      foundationStrategyGoalTruthSource.includes('community_agents') &&
-      foundationStrategyGoalTruthSource.includes('agent_engine_capacity') &&
-      foundationStrategyGoalTruthScriptSource.includes('dogfood rejects old inline Strategy prework and goal truth ownership') &&
-      foundationStrategyGoalTruthPlanSource.includes('Strategy Prework Coverage and Strategy Goal Truth') &&
-      foundationDbSource.includes('./foundation-strategy-goal-truth.js') &&
-      foundationDbSource.includes('return getStrategyPreworkCoverageSnapshotFromSources({') &&
-      foundationDbSource.includes('return getStrategyGoalTruthSnapshotFromSources({') &&
-      !foundationDbSource.includes('function inferStrategyPreworkParticipant') &&
-      !foundationDbSource.includes('function buildStrategyGoalGroup') &&
-      currentPlan.includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID),
-    'FOUNDATION-DB-MONOLITH-SPLIT-006 splits Strategy prework and goal truth builders out of foundation-db.js',
-    foundationStrategyGoalTruthSplitCard
-      ? `lane=${foundationStrategyGoalTruthSplitCard.lane} dogfood=${foundationStrategyGoalTruthDogfood.ok ? 'pass' : 'blocked'} lines=${foundationStrategyGoalTruthEvaluation.beforeLines}->${foundationStrategyGoalTruthEvaluation.afterLines}`
-      : `missing ${FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID}`,
-  )
-  const foundationFubLeadSourceStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID) || null
-  const foundationFubLeadSourceStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CLOSEOUT_KEY) || null
-  const foundationFubLeadSourceStoreDogfood = buildFoundationFubLeadSourceStoreSplitDogfoodProof({
-    afterLines: foundationDbSource.split('\n').length,
-  })
-  const foundationFubLeadSourceStoreEvaluation = evaluateFoundationFubLeadSourceStoreSplit({
-    foundationDbSource,
-    moduleSource: foundationFubLeadSourceStoreSource,
-    scriptSource: foundationFubLeadSourceStoreScriptSource,
-    afterLines: foundationDbSource.split('\n').length,
-  })
-  const foundationFubLeadSourceStoreSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SPRINT_ID &&
-    (activeFoundationSprint.items || []).some(item =>
-      item.cardId === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID &&
-        ['building_now', 'done_this_sprint'].includes(item.stage)
-    )
-  const foundationFubLeadSourceStoreClosed = foundationFubLeadSourceStoreSplitCard?.lane === 'done' &&
-    String(foundationFubLeadSourceStoreSplitCard.statusNote || '').includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CLOSEOUT_KEY) &&
-    foundationFubLeadSourceStoreSplitCloseout?.operatorCloseout === true &&
-    (foundationFubLeadSourceStoreSplitCloseout.backlogIds || []).includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID)
-  ensure(
-    checks,
-      foundationFubLeadSourceStoreSplitCard &&
-      (foundationFubLeadSourceStoreSprintActive || foundationFubLeadSourceStoreClosed) &&
-      foundationFubLeadSourceStoreDogfood.ok === true &&
-      foundationFubLeadSourceStoreEvaluation.ok === true &&
-      packageJson.scripts?.['process:foundation-fub-lead-source-store-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_PLAN_PATH) &&
-      await repoFileExists(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_APPROVAL_PATH) &&
-      foundationFubLeadSourceStoreSource.includes('export function createFubLeadSourceStore') &&
-      foundationFubLeadSourceStoreSource.includes('function listFubLeadSourceRules') &&
-      foundationFubLeadSourceStoreSource.includes('function saveFubLeadSourceSnapshot') &&
-      foundationFubLeadSourceStoreScriptSource.includes('dogfood rejects old inline FUB lead-source store ownership') &&
-      foundationFubLeadSourceStorePlanSource.includes('split/extraction plan') &&
-      foundationDbSource.includes('./foundation-fub-lead-source-store.js') &&
-      foundationDbSource.includes('export const listFubLeadSourceRules = fubLeadSourceStore.listFubLeadSourceRules') &&
-      foundationDbSource.includes('export const saveFubLeadSourceSnapshot = fubLeadSourceStore.saveFubLeadSourceSnapshot') &&
-      !foundationDbSource.includes('function mapFubLeadSourceRuleRow') &&
-      !foundationDbSource.includes('export async function listFubLeadSourceRules') &&
-      currentPlan.includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID),
-    'FOUNDATION-DB-MONOLITH-SPLIT-007 splits FUB lead-source store out of foundation-db.js',
-    foundationFubLeadSourceStoreSplitCard
-      ? `lane=${foundationFubLeadSourceStoreSplitCard.lane} dogfood=${foundationFubLeadSourceStoreDogfood.ok ? 'pass' : 'blocked'} lines=${foundationFubLeadSourceStoreEvaluation.beforeLines}->${foundationFubLeadSourceStoreEvaluation.afterLines}`
-      : `missing ${FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID}`,
-  )
-  const foundationSharedCommsCoverageSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID) || null
-  const foundationSharedCommsCoverageSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CLOSEOUT_KEY) || null
-  const foundationSharedCommsCoverageEvaluation = evaluateFoundationSharedCommsCoverageSplit({
-    foundationDbSource,
-    moduleSource: foundationSharedCommsCoverageSource,
-    scriptSource: foundationSharedCommsCoverageScriptSource,
-    planSource: foundationSharedCommsCoveragePlanSource,
-  })
-  const foundationSharedCommsCoverageDogfood = await buildFoundationSharedCommsCoverageSplitDogfoodProof({
-    foundationDbSource,
-    moduleSource: foundationSharedCommsCoverageSource,
-    scriptSource: foundationSharedCommsCoverageScriptSource,
-    planSource: foundationSharedCommsCoveragePlanSource,
-    afterLines: foundationSharedCommsCoverageEvaluation.afterLines,
-  })
-  const foundationSharedCommsCoverageSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SPRINT_ID &&
-    (activeFoundationSprint.items || []).some(item =>
-      item.cardId === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID &&
-        ['building_now', 'done_this_sprint'].includes(item.stage)
-    )
-  const foundationSharedCommsCoverageClosed = foundationSharedCommsCoverageSplitCard?.lane === 'done' &&
-    String(foundationSharedCommsCoverageSplitCard.statusNote || '').includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CLOSEOUT_KEY) &&
-    foundationSharedCommsCoverageSplitCloseout?.operatorCloseout === true &&
-    (foundationSharedCommsCoverageSplitCloseout.backlogIds || []).includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID)
-  ensure(
-    checks,
-      foundationSharedCommsCoverageSplitCard &&
-      (foundationSharedCommsCoverageSprintActive || foundationSharedCommsCoverageClosed) &&
-      foundationSharedCommsCoverageDogfood.ok === true &&
-      foundationSharedCommsCoverageEvaluation.ok === true &&
-      packageJson.scripts?.['process:foundation-shared-comms-coverage-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_PLAN_PATH) &&
-      await repoFileExists(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_APPROVAL_PATH) &&
-      foundationSharedCommsCoverageSource.includes('getSharedCommunicationCoverageSnapshotFromDb') &&
-      foundationSharedCommsCoverageSource.includes('buildSharedCommunicationCoverageSnapshotFromRows') &&
-      foundationSharedCommsCoverageSource.includes('shared_communication_artifacts') &&
-      foundationSharedCommsCoverageSource.includes('shared_communication_candidates') &&
-      foundationSharedCommsCoverageScriptSource.includes('dogfood rejects old inline shared-comms coverage ownership') &&
-      foundationSharedCommsCoveragePlanSource.includes('split/extraction plan') &&
-      foundationDbSource.includes('./foundation-shared-comms-coverage.js') &&
-      foundationDbSource.includes('return getSharedCommunicationCoverageSnapshotFromDb({ pool })') &&
-      !foundationDbSource.includes('FROM shared_communication_artifacts\n        GROUP BY source_id, artifact_type') &&
-      currentPlan.includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID),
-    'FOUNDATION-DB-MONOLITH-SPLIT-008 splits shared-comms coverage out of foundation-db.js',
-    foundationSharedCommsCoverageSplitCard
-      ? `lane=${foundationSharedCommsCoverageSplitCard.lane} dogfood=${foundationSharedCommsCoverageDogfood.ok ? 'pass' : 'blocked'} lines=${foundationSharedCommsCoverageEvaluation.beforeLines}->${foundationSharedCommsCoverageEvaluation.afterLines}`
-      : `missing ${FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_CARD_ID}`,
+      verifierFoundationDbSplitModuleCard &&
+      ['executing', 'done'].includes(verifierFoundationDbSplitModuleCard.lane) &&
+      (!verifierFoundationDbSplitModuleCloseout || String(verifierFoundationDbSplitModuleCard.statusNote || '').includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CLOSEOUT_KEY)) &&
+      (!verifierFoundationDbSplitModuleCloseout || verifierFoundationDbSplitModuleCloseout.operatorCloseout === true) &&
+      (!verifierFoundationDbSplitModuleCloseout || (verifierFoundationDbSplitModuleCloseout.backlogIds || []).includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID)) &&
+      verifierFoundationDbSplitModuleDogfood.ok === true &&
+      foundationDbSplitVerifier.summary.passed === foundationDbSplitVerifier.summary.total &&
+      packageJson.scripts?.['process:verifier-foundation-db-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_APPROVAL_PATH) &&
+      foundationDbSplitVerifierSource.includes('evaluateFoundationDbSplitVerifier') &&
+      foundationDbSplitVerifierSource.includes('buildFoundationDbSplitVerifierDogfoodProof') &&
+      verifierFoundationDbSplitModuleScriptSource.includes('dogfood rejects old Foundation-DB split verifier failures') &&
+      verifierFoundationDbSplitModulePlanSource.includes('Substring-only proof is rejected') &&
+      foundationVerifySource.includes('evaluateFoundationDbSplitVerifier(foundationDbSplitVerifierInput)') &&
+      !foundationVerifySource.includes(oldInlineFoundationDbSplitPredicate) &&
+      currentPlan.includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID])) &&
+      foundationVerifySource.includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID),
+    'VERIFIER-FOUNDATION-DB-SPLIT-MODULE-001 extracts Foundation-DB split verifier checks into a focused module',
+    verifierFoundationDbSplitModuleCard
+      ? `lane=${verifierFoundationDbSplitModuleCard.lane} dogfood=${verifierFoundationDbSplitModuleDogfood.ok ? 'pass' : 'blocked'} dbSplitChecks=${foundationDbSplitVerifier.summary.passed}/${foundationDbSplitVerifier.summary.total} lines=${VERIFIER_FOUNDATION_DB_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterDbSplitVerifierSplit}`
+      : `missing ${VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID}`,
   )
   const stylesheetMonolithSplitCard = (foundationHub.backlogItems || []).find(item => item.id === STYLESHEET_MONOLITH_SPLIT_CARD_ID) || null
   const stylesheetMonolithSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === STYLESHEET_MONOLITH_SPLIT_CLOSEOUT_KEY) || null
