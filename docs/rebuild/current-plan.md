@@ -73,19 +73,23 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation DB Strategy Goal Truth Split
+## Current Sprint: Foundation DB FUB Lead-Source Store Split
 
-Live sprint ID: `foundation-db-strategy-goal-truth-split-2026-05-15`.
+Live sprint ID: `foundation-db-fub-lead-source-store-split-2026-05-15`.
 
-This sprint is active under `foundation-strategy-goal-truth-split-v1`. It extracts the Strategy Prework Coverage and Strategy Goal Truth snapshot builders from `lib/foundation-db.js` into `lib/foundation-strategy-goal-truth.js` without changing source IDs, doc paths, participant detection, goal group keys, rules, caveats, or public callers.
+This sprint is active under `foundation-fub-lead-source-store-split-v1`. It extracts FUB lead-source rules and snapshot storage from `lib/foundation-db.js` into `lib/foundation-fub-lead-source-store.js` without changing table schema, SQL behavior, return shapes, public exports, or existing callers.
 
-The previous cleanup sprint `foundation-db-strategy-operating-truth-split-2026-05-15` is done under `foundation-strategy-operating-truth-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-005` moved Strategy Operating Truth finance/Owners/FUB/KPI source-card builder behavior into `lib/foundation-strategy-operating-truth.js` while preserving source IDs, Google ranges, KPI card reads, FUB snapshot reads, public callers, and source-card shape.
+The previous cleanup sprint `foundation-db-strategy-goal-truth-split-2026-05-15` is done under `foundation-strategy-goal-truth-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-006` moved Strategy Prework Coverage and Strategy Goal Truth builder behavior into `lib/foundation-strategy-goal-truth.js` while preserving source IDs, doc paths, participant detection, goal group keys, rules, caveats, and public callers.
 
 Active card:
 
-1. `FOUNDATION-DB-MONOLITH-SPLIT-006` - building under `foundation-strategy-goal-truth-split-v1`. V1 moves Strategy Prework Coverage and Strategy Goal Truth builder behavior into `lib/foundation-strategy-goal-truth.js`, keeps the public DB exports as dependency-injected wrappers, and dogfoods that old inline prework/goal-truth ownership fails while split module ownership passes.
+1. `FOUNDATION-DB-MONOLITH-SPLIT-007` - building under `foundation-fub-lead-source-store-split-v1`. V1 moves FUB lead-source rules/snapshot storage into `lib/foundation-fub-lead-source-store.js`, keeps the public DB exports stable for existing callers, and dogfoods that old inline FUB lead-source store ownership fails while split module ownership passes.
 
-Not next: broad DB rewrite, schema changes, Google source ID/doc-path/label changes, participant or goal semantics changes, `doc_source_snapshots` writes, BHAG / Agent Engine source snapshot behavior changes, Strategy Operating Truth changes, FUB storage movement, source crawl/job/intelligence/shared-comms/hub movement, hub feature work, Marketing Video Lab live route wiring, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad DB rewrite, FUB lead-source schema/index/constraint changes, FUB route behavior changes, FUB API refreshes, ClickUp integration changes, Sales listing assignment storage, Strategy Operating Truth behavior changes, source crawl/job/intelligence/shared-comms/agent-feedback/hub movement, hub feature work, Marketing Video Lab live route wiring, Canva client work, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `foundation-db-strategy-goal-truth-split-2026-05-15`, closed under `foundation-strategy-goal-truth-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-006` moved Strategy Prework Coverage and Strategy Goal Truth builder behavior into `lib/foundation-strategy-goal-truth.js` while preserving source IDs, doc paths, participant detection, goal group keys, rules, caveats, and public callers.
+
+Previous completed sprint: `foundation-db-strategy-operating-truth-split-2026-05-15`, closed under `foundation-strategy-operating-truth-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-005` moved Strategy Operating Truth finance/Owners/FUB/KPI source-card builder behavior into `lib/foundation-strategy-operating-truth.js` while preserving source IDs, Google ranges, KPI card reads, FUB snapshot reads, public callers, and source-card shape.
 
 Previous completed sprint: `foundation-db-strategy-source-snapshot-split-2026-05-15`, closed under `foundation-strategy-source-snapshot-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-004` moved source-backed BHAG and Agent Engine doc snapshot builders into `lib/foundation-strategy-source-snapshots.js` while preserving Google source IDs/ranges/doc paths/source IDs/labels/sort orders and `doc_source_snapshots` persistence.
 

@@ -720,6 +720,16 @@ import {
   evaluateFoundationStrategyGoalTruthSplit,
 } from '../lib/foundation-strategy-goal-truth.js'
 import {
+  FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_APPROVAL_PATH,
+  FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID,
+  FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SCRIPT_PATH,
+  FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SPRINT_ID,
+  buildFoundationFubLeadSourceStoreSplitDogfoodProof,
+  evaluateFoundationFubLeadSourceStoreSplit,
+} from '../lib/foundation-fub-lead-source-store.js'
+import {
   FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
   FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
   FRONTEND_MONOLITH_SPLIT_CARD_ID,
@@ -2470,6 +2480,9 @@ async function main() {
   const foundationStrategyGoalTruthSource = await readRepoFile('lib/foundation-strategy-goal-truth.js')
   const foundationStrategyGoalTruthScriptSource = await readRepoFile(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SCRIPT_PATH)
   const foundationStrategyGoalTruthPlanSource = await readRepoFile(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_PLAN_PATH)
+  const foundationFubLeadSourceStoreSource = await readRepoFile('lib/foundation-fub-lead-source-store.js')
+  const foundationFubLeadSourceStoreScriptSource = await readRepoFile(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SCRIPT_PATH)
+  const foundationFubLeadSourceStorePlanSource = await readRepoFile(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -14723,6 +14736,55 @@ async function main() {
     foundationStrategyGoalTruthSplitCard
       ? `lane=${foundationStrategyGoalTruthSplitCard.lane} dogfood=${foundationStrategyGoalTruthDogfood.ok ? 'pass' : 'blocked'} lines=${foundationStrategyGoalTruthEvaluation.beforeLines}->${foundationStrategyGoalTruthEvaluation.afterLines}`
       : `missing ${FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID}`,
+  )
+  const foundationFubLeadSourceStoreSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID) || null
+  const foundationFubLeadSourceStoreSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CLOSEOUT_KEY) || null
+  const foundationFubLeadSourceStoreDogfood = buildFoundationFubLeadSourceStoreSplitDogfoodProof({
+    afterLines: foundationDbSource.split('\n').length,
+  })
+  const foundationFubLeadSourceStoreEvaluation = evaluateFoundationFubLeadSourceStoreSplit({
+    foundationDbSource,
+    moduleSource: foundationFubLeadSourceStoreSource,
+    scriptSource: foundationFubLeadSourceStoreScriptSource,
+    afterLines: foundationDbSource.split('\n').length,
+  })
+  const foundationFubLeadSourceStoreSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SPRINT_ID &&
+    (activeFoundationSprint.items || []).some(item =>
+      item.cardId === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID &&
+        ['building_now', 'done_this_sprint'].includes(item.stage)
+    )
+  const foundationFubLeadSourceStoreClosed = foundationFubLeadSourceStoreSplitCard?.lane === 'done' &&
+    String(foundationFubLeadSourceStoreSplitCard.statusNote || '').includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CLOSEOUT_KEY) &&
+    foundationFubLeadSourceStoreSplitCloseout?.operatorCloseout === true &&
+    (foundationFubLeadSourceStoreSplitCloseout.backlogIds || []).includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID)
+  ensure(
+    checks,
+      foundationFubLeadSourceStoreSplitCard &&
+      (foundationFubLeadSourceStoreSprintActive || foundationFubLeadSourceStoreClosed) &&
+      foundationFubLeadSourceStoreDogfood.ok === true &&
+      foundationFubLeadSourceStoreEvaluation.ok === true &&
+      packageJson.scripts?.['process:foundation-fub-lead-source-store-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_APPROVAL_PATH) &&
+      foundationFubLeadSourceStoreSource.includes('export function createFubLeadSourceStore') &&
+      foundationFubLeadSourceStoreSource.includes('function listFubLeadSourceRules') &&
+      foundationFubLeadSourceStoreSource.includes('function saveFubLeadSourceSnapshot') &&
+      foundationFubLeadSourceStoreScriptSource.includes('dogfood rejects old inline FUB lead-source store ownership') &&
+      foundationFubLeadSourceStorePlanSource.includes('split/extraction plan') &&
+      foundationDbSource.includes('./foundation-fub-lead-source-store.js') &&
+      foundationDbSource.includes('export const listFubLeadSourceRules = fubLeadSourceStore.listFubLeadSourceRules') &&
+      foundationDbSource.includes('export const saveFubLeadSourceSnapshot = fubLeadSourceStore.saveFubLeadSourceSnapshot') &&
+      !foundationDbSource.includes('function mapFubLeadSourceRuleRow') &&
+      !foundationDbSource.includes('export async function listFubLeadSourceRules') &&
+      currentPlan.includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID),
+    'FOUNDATION-DB-MONOLITH-SPLIT-007 splits FUB lead-source store out of foundation-db.js',
+    foundationFubLeadSourceStoreSplitCard
+      ? `lane=${foundationFubLeadSourceStoreSplitCard.lane} dogfood=${foundationFubLeadSourceStoreDogfood.ok ? 'pass' : 'blocked'} lines=${foundationFubLeadSourceStoreEvaluation.beforeLines}->${foundationFubLeadSourceStoreEvaluation.afterLines}`
+      : `missing ${FOUNDATION_FUB_LEAD_SOURCE_STORE_SPLIT_CARD_ID}`,
   )
   const frontendSplitVerifierCoveredCardIds = [
     'FRONTEND-MONOLITH-SPLIT-001',

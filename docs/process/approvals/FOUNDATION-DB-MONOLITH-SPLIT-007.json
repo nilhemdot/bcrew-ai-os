@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-007",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T15:05:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-db-fub-lead-source-store-split-007-plan.md",
+  "approvedPlanSha256": "b9b2d316efaadfe78260e5a3acce2d0649de10c4c0258e6003f0dc97936436e3",
+  "approvedRepoHead": "8f1f5158d5395cc8fcb1cee7e0bdabe20664e467",
+  "notes": "Approved as a bounded no-auth Foundation DB monolith split. Scope: extract only FUB lead-source rules/snapshots storage and row mapping from lib/foundation-db.js into lib/foundation-fub-lead-source-store.js, preserve SQL tables, return shapes, actor defaults, normalization, existing public exports, and existing callers. Not approved: broad DB rewrite, schema changes, FUB route behavior, FUB API refreshes, ClickUp integration, Sales listing assignments, hub UI, Strategy Operating Truth behavior changes, source crawl/job/intelligence/shared-comms/agent-feedback movement, Marketing Video Lab wiring, Canva client work, paid-source auth, Meeting Vault Phase B, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "d7d91690b699f9d4d08a725fc012daee9f729bda8d9fa7ba39581595d57554b8"
+}
