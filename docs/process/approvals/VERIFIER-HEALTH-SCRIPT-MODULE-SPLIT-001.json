@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-HEALTH-SCRIPT-MODULE-SPLIT-001",
+  "approvedBy": "Steve go hard instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T18:45:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-health-script-module-split-001-plan.md",
+  "approvedPlanSha256": "b7477650ca159c59b69244c3e6c9fefe76d32aa5fec793731b983ba0d7b06ba7",
+  "approvedRepoHead": "b6300591839d3bb7b86ff293baf9822f34c030db",
+  "notes": "Approved as a no-auth Foundation verifier cleanup sprint. Scope: extract only health-script verifier interpretation from scripts/foundation-verify.mjs into lib/foundation-health-script-verifier.js with dogfood proof and full ship gate. Not approved: changing source health behavior, broad verifier rewrite, Foundation DB split, hub UI, Marketing live route wiring, Canva writes/assets, Build Intel extraction, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "3e034e67d6148e91c949abad59a534ba8d7c20be8715bf48a638b4ea2483e35a"
+}

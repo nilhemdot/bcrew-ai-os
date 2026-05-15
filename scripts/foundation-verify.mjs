@@ -207,6 +207,18 @@ import {
   evaluateFoundationRuntimeReliabilityVerifier,
 } from '../lib/foundation-runtime-reliability-verifier.js'
 import {
+  VERIFIER_HEALTH_SCRIPT_MODULE_APPROVAL_PATH,
+  VERIFIER_HEALTH_SCRIPT_MODULE_BEFORE_LINES,
+  VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
+  VERIFIER_HEALTH_SCRIPT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_HEALTH_SCRIPT_MODULE_HANDOFF_PATH,
+  VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH,
+  VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH,
+  VERIFIER_HEALTH_SCRIPT_MODULE_SPRINT_ID,
+  buildFoundationHealthScriptVerifierDogfoodProof,
+  evaluateFoundationHealthScriptVerifier,
+} from '../lib/foundation-health-script-verifier.js'
+import {
   VERIFIER_SOURCE_CONTRACT_MODULE_APPROVAL_PATH,
   VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID,
   VERIFIER_SOURCE_CONTRACT_MODULE_CLOSEOUT_KEY,
@@ -2526,6 +2538,9 @@ async function main() {
   const foundationRuntimeReliabilityVerifierSource = await readRepoFile('lib/foundation-runtime-reliability-verifier.js')
   const verifierRuntimeReliabilitySplitScriptSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_SCRIPT_PATH)
   const verifierRuntimeReliabilitySplitPlanSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH)
+  const foundationHealthScriptVerifierSource = await readRepoFile('lib/foundation-health-script-verifier.js')
+  const verifierHealthScriptModuleScriptSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH)
+  const verifierHealthScriptModulePlanSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH)
   const foundationSourceContractVerifierSource = await readRepoFile('lib/foundation-source-contract-verifier.js')
   const verifierSourceContractModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH)
   const verifierSourceContractModulePlanSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH)
@@ -4376,6 +4391,7 @@ async function main() {
     DB_SEED_CARD_ID,
     VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
     FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID,
+    VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -14575,6 +14591,7 @@ async function main() {
       clickupVerifyHealthBoundaryScriptSource,
       foundationVerifyProfileBudgetSource,
       foundationVerifySource,
+      foundationHealthScriptVerifierSource,
     },
   })
   checks.push(...runtimeReliabilityVerifier.checks)
@@ -15366,110 +15383,59 @@ async function main() {
   )
 
   const googleHealth = await runHealthScript('google:health')
-  ensure(
-    checks,
-    googleHealth.includes('Spreadsheet access: OK') && googleHealth.includes('Delegated access is ready'),
-    'google:health passes',
-    googleHealth.split('\n').filter(Boolean).slice(-2).join(' | '),
-  )
-
   const fubHealth = await runHealthScript('fub:health')
-  ensure(
-    checks,
-    fubHealth.includes('Context: Support / Owner account (owner)') &&
-      fubHealth.includes('Context: Steve account (steve)') &&
-      fubHealth.includes('Status: ok'),
-    'fub:health passes for both configured contexts',
-    fubHealth
-      .split('\n')
-      .filter(lineValue => lineValue.includes('Context:') || lineValue.includes('Status:'))
-      .join(' | '),
-  )
-
   const kpiHealth = await runHealthScript('kpi:health')
-  const kpiHealthSummaryLine = kpiHealth.split('\n').find(lineValue => lineValue.startsWith('KPI_HEALTH_SUMMARY '))
-  let kpiHealthSummary = null
-  if (kpiHealthSummaryLine) {
-    try {
-      kpiHealthSummary = JSON.parse(kpiHealthSummaryLine.replace('KPI_HEALTH_SUMMARY ', ''))
-    } catch {
-      kpiHealthSummary = null
-    }
-  }
-  ensure(
-    checks,
-    kpiHealth.includes('KPI Supabase health') &&
-      kpiHealth.includes('Status:') &&
-      kpiHealth.includes('KPI_HEALTH_SUMMARY') &&
-      kpiHealthSummary?.tableCount === EXPECTED_KPI_TABLES.length &&
-      kpiHealthSummary?.rpcCount === EXPECTED_KPI_RPCS.length &&
-      kpiHealthSummary?.probeSilent === false &&
-      kpiHealthSummary?.schemaDriftStatus === 'healthy' &&
-      kpiHealthSummary?.status !== 'risk',
-    'kpi:health passes for load-bearing KPI tables/RPCs',
-    kpiHealth
-      .split('\n')
-      .filter(lineValue => /^(  Status|  Tables|  RPCs|KPI_HEALTH_SUMMARY)/.test(lineValue))
-      .join(' | '),
-  )
-
   const backlogHygieneOutput = await runHealthScriptWithArgs('backlog:hygiene', ['--includeSynthetic=true'])
-  const backlogHygieneSummaryLine = backlogHygieneOutput.split('\n').find(lineValue => lineValue.startsWith('BACKLOG_HYGIENE_SUMMARY '))
-  let backlogHygieneSummary = null
-  if (backlogHygieneSummaryLine) {
-    try {
-      backlogHygieneSummary = JSON.parse(backlogHygieneSummaryLine.replace('BACKLOG_HYGIENE_SUMMARY ', ''))
-    } catch {
-      backlogHygieneSummary = null
-    }
-  }
-  ensure(
-    checks,
-    backlogHygieneOutput.includes('Backlog hygiene') &&
-      backlogHygieneOutput.includes('SYNTHETIC-STALE-EXECUTING-001') &&
-      backlogHygieneOutput.includes('stale_executing_card') &&
-      backlogHygieneOutput.includes('BACKLOG_HYGIENE_SUMMARY') &&
-      backlogHygieneSummary?.syntheticFindings >= 1 &&
-      backlogHygieneSummary?.criticalFindings === 0 &&
-      backlogHygieneSummary?.staleExecutingDays === 3,
-    'backlog:hygiene proves the synthetic stale-card detector',
-    backlogHygieneSummary
-      ? `status=${backlogHygieneSummary.status} / synthetic=${backlogHygieneSummary.syntheticFindings} / critical=${backlogHygieneSummary.criticalFindings} / threshold=${backlogHygieneSummary.staleExecutingDays}`
-      : 'missing BACKLOG_HYGIENE_SUMMARY',
-  )
-
   const clickUpVerifyResult = await runHealthScriptSafe('clickup:verify')
-  const clickUpVerify = clickUpVerifyResult.output
-  const clickUpVerifyHealthy = clickUpVerifyResult.ok &&
-    clickUpVerify.includes('ClickUp source verification') &&
-    clickUpVerify.includes('dealDataEntry:') &&
-    clickUpVerify.includes('agentRoster:') &&
-    clickUpVerify.includes('agentPipeline:') &&
-    clickUpVerify.includes('Summary: 12/12 checks passed')
-  const clickUpExternalOutage = !clickUpVerifyResult.ok &&
-    /(returned 5\\d\\d|returned 429|rate limit|timed out|timeout|Internal Server Error|ACCESS_991|DB_003|ECODE|CLICKUP_SOURCE_VERIFY_SUMMARY)/i.test(clickUpVerify)
-  ensure(
-    checks,
-    clickUpVerifyHealthy || (
-      clickUpExternalOutage &&
-      foundationHub.sourceOutageBoundary?.status &&
-      foundationHubFull.foundationOperatingReliability?.connectorUptime?.summary?.degradedCount >= 1
-    ),
-    'clickup:verify passes or reports a governed ClickUp vendor outage as degraded source health',
-    clickUpVerifyHealthy
-      ? clickUpVerify
-        .split('\n')
-        .filter(lineValue => /^(dealDataEntry|agentRoster|agentPipeline|Summary):/.test(lineValue))
-        .join(' | ')
-      : `degraded=${clickUpExternalOutage ? 'yes' : 'no'} sourceBoundary=${foundationHub.sourceOutageBoundary?.status || 'missing'} output=${clickUpVerify.split('\n').slice(-2).join(' | ')}`,
-  )
-
   const sheetVerify = await runHealthScript('sheets:verify')
+  const healthScriptVerifier = evaluateFoundationHealthScriptVerifier({
+    outputs: {
+      googleHealth,
+      fubHealth,
+      kpiHealth,
+      backlogHygieneOutput,
+      clickUpVerifyResult,
+      sheetVerify,
+    },
+    foundationHub,
+    foundationHubFull,
+    expectedKpiTables: EXPECTED_KPI_TABLES,
+    expectedKpiRpcs: EXPECTED_KPI_RPCS,
+  })
+  checks.push(...healthScriptVerifier.checks)
+  const verifierHealthScriptModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID) || null
+  const verifierHealthScriptModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_HEALTH_SCRIPT_MODULE_CLOSEOUT_KEY) || null
+  const verifierHealthScriptModuleDogfood = buildFoundationHealthScriptVerifierDogfoodProof()
+  const foundationVerifyLineCountAfterHealthScriptSplit = String(foundationVerifySource || '').split('\n').length
   ensure(
     checks,
-    sheetVerify.includes('Sheet structure verification passed.'),
-    'sheets:verify passes',
-    sheetVerify.split('\n').filter(Boolean).slice(-2).join(' | '),
+      verifierHealthScriptModuleCard &&
+      ['executing', 'done'].includes(verifierHealthScriptModuleCard.lane) &&
+      String(verifierHealthScriptModuleCard.statusNote || '').includes(VERIFIER_HEALTH_SCRIPT_MODULE_CLOSEOUT_KEY) &&
+      verifierHealthScriptModuleCloseout?.operatorCloseout === true &&
+      (verifierHealthScriptModuleCloseout.backlogIds || []).includes(VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID) &&
+      verifierHealthScriptModuleDogfood.ok === true &&
+      healthScriptVerifier.summary.passed === healthScriptVerifier.summary.total &&
+      packageJson.scripts?.['process:verifier-health-script-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_HEALTH_SCRIPT_MODULE_APPROVAL_PATH) &&
+      await repoFileExists(VERIFIER_HEALTH_SCRIPT_MODULE_HANDOFF_PATH) &&
+      foundationHealthScriptVerifierSource.includes('evaluateFoundationHealthScriptVerifier') &&
+      foundationHealthScriptVerifierSource.includes('buildFoundationHealthScriptVerifierDogfoodProof') &&
+      verifierHealthScriptModuleScriptSource.includes('dogfood rejects health-script verifier failures') &&
+      (verifierHealthScriptModulePlanSource.includes('Substring-only proof') ||
+        verifierHealthScriptModulePlanSource.includes('substring theatre')) &&
+      foundationVerifySource.includes('evaluateFoundationHealthScriptVerifier({') &&
+      foundationVerifySource.includes('healthScriptVerifier.checks') &&
+      !foundationVerifySource.includes('googleHealth.' + "includes('Spreadsheet access: OK')") &&
+      !foundationVerifySource.includes('sheetVerify.' + "includes('Sheet structure verification passed.')") &&
+      foundationVerifyLineCountAfterHealthScriptSplit < VERIFIER_HEALTH_SCRIPT_MODULE_BEFORE_LINES &&
+      (activeFoundationSprint.sprint?.sprintId === VERIFIER_HEALTH_SCRIPT_MODULE_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID])),
+    'VERIFIER-HEALTH-SCRIPT-MODULE-SPLIT-001 extracts health-script verifier checks into a focused module',
+    verifierHealthScriptModuleCard
+      ? `lane=${verifierHealthScriptModuleCard.lane} dogfood=${verifierHealthScriptModuleDogfood.ok ? 'pass' : 'blocked'} healthChecks=${healthScriptVerifier.summary.passed}/${healthScriptVerifier.summary.total} lines=${VERIFIER_HEALTH_SCRIPT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterHealthScriptSplit}`
+      : `missing ${VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID}`,
   )
 
   const failed = checks.filter(check => !check.ok)
