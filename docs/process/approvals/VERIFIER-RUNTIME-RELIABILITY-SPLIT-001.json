@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-RUNTIME-RELIABILITY-SPLIT-001",
+  "approvedBy": "Steve go hard instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T17:09:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-runtime-reliability-split-001-plan.md",
+  "approvedPlanSha256": "516a052e77d70baf380ed28106dd95e4f933e4e36b45ace27c48b379694fa7cf",
+  "approvedRepoHead": "4bd00c75d91cb7245e98ac420d2c9d50fd395bd0",
+  "notes": "Approved as a no-auth Foundation verifier cleanup sprint. Scope: extract runtime reliability verifier checks from scripts/foundation-verify.mjs into lib/foundation-runtime-reliability-verifier.js with dogfood proof and full ship gate. Not approved: runtime behavior changes, hub feature work, Marketing live route wiring, Canva writes, Build Intel extraction, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "9cc955b58fa1a3fb5712aaf08a2b7d7513bf9956bcdd2ee965bacf90c020d61f"
+}

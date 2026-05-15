@@ -3629,7 +3629,7 @@ function buildChangedFileGroups(files = []) {
 }
 
 async function getRecentBuildLog(limit = 30) {
-  const boundedLimit = Math.min(240, Math.max(1, Number(limit) || 30))
+  const boundedLimit = Math.min(500, Math.max(1, Number(limit) || 30))
   const { stdout } = await execFileAsync('git', [
     'log',
     `--max-count=${boundedLimit}`,

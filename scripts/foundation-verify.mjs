@@ -196,6 +196,17 @@ import {
   evaluateFoundationRecentBuildsVerifier,
 } from '../lib/foundation-recent-builds-verifier.js'
 import {
+  VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
+  VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
+  VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
+  VERIFIER_RUNTIME_RELIABILITY_SPLIT_CLOSEOUT_KEY,
+  VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH,
+  VERIFIER_RUNTIME_RELIABILITY_SPLIT_SCRIPT_PATH,
+  VERIFIER_RUNTIME_RELIABILITY_SPLIT_SPRINT_ID,
+  buildFoundationRuntimeReliabilityVerifierDogfoodProof,
+  evaluateFoundationRuntimeReliabilityVerifier,
+} from '../lib/foundation-runtime-reliability-verifier.js'
+import {
   VERIFIER_SOURCE_CONTRACT_MODULE_APPROVAL_PATH,
   VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID,
   VERIFIER_SOURCE_CONTRACT_MODULE_CLOSEOUT_KEY,
@@ -1404,8 +1415,8 @@ const FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 ]
 
 const FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  FOUNDATION_FULL_DIAGNOSTICS_PERF_CARD_ID,
-  FOUNDATION_HUB_FULL_ROUTE_SPLIT_CARD_ID,
+  'FOUNDATION-FULL-DIAGNOSTICS-PERF-001',
+  'FOUNDATION-HUB-FULL-ROUTE-SPLIT-001',
 ]
 
 const FOUNDATION_BUILD_LOG_MONOLITH_SLICE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -2494,6 +2505,9 @@ async function main() {
   const foundationRecentBuildsVerifierSource = await readRepoFile('lib/foundation-recent-builds-verifier.js')
   const verifierRecentBuildsSplitScriptSource = await readRepoFile(VERIFIER_RECENT_BUILDS_SPLIT_SCRIPT_PATH)
   const verifierRecentBuildsSplitPlanSource = await readRepoFile(VERIFIER_RECENT_BUILDS_SPLIT_PLAN_PATH)
+  const foundationRuntimeReliabilityVerifierSource = await readRepoFile('lib/foundation-runtime-reliability-verifier.js')
+  const verifierRuntimeReliabilitySplitScriptSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_SCRIPT_PATH)
+  const verifierRuntimeReliabilitySplitPlanSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH)
   const foundationSourceContractVerifierSource = await readRepoFile('lib/foundation-source-contract-verifier.js')
   const verifierSourceContractModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH)
   const verifierSourceContractModulePlanSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH)
@@ -4115,7 +4129,7 @@ async function main() {
   }
   const foundationBacklogDetailEndpointApi = await fetchJson(baseUrl, '/api/foundation/backlog/FOUNDATION-HUB-BACKLOG-CONTRACT-001')
   const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
-  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=240')
+  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=500')
   const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
   const foundationDailySummary = await fetchJson(baseUrl, '/api/foundation/daily-summary?date=2026-04-30&days=7')
   const foundationDocUpdatesApi = await fetchJson(baseUrl, '/api/foundation/doc-updates')
@@ -4335,6 +4349,7 @@ async function main() {
     !currentSprintActiveBlockerCardId
   const knownLaterFoundationProgressionBlockers = [
     DB_SEED_CARD_ID,
+    VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -4381,6 +4396,7 @@ async function main() {
   const foundationOperatingReliabilityCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
+  const verifierRuntimeReliabilitySplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_RUNTIME_RELIABILITY_SPLIT_CLOSEOUT_KEY) || null
   const foundationBuildLogMonolithSliceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY) || null
   const foundationVerificationCleanupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY) || null
   const foundationShipGateSpeedPayloadCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY) || null
@@ -14488,278 +14504,84 @@ async function main() {
       ? `lane=${verifierRecentBuildsSplitCard.lane} dogfood=${verifierRecentBuildsSplitDogfood.ok ? 'pass' : 'blocked'} lines=${VERIFIER_RECENT_BUILDS_SPLIT_BEFORE_LINES}->${foundationVerifyLineCountAfterRecentBuildsSplit}`
       : `missing ${VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID}`,
   )
-  const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
-  const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
+  const runtimeReliabilityVerifier = await evaluateFoundationRuntimeReliabilityVerifier({
+    foundationHub,
+    foundationHubFull,
+    foundationHubSummary,
+    opsHub,
+    foundationBuildCloseouts,
+    packageJson,
+    repoFileExists,
+    foundationVerifySource,
+    sources: {
+      sourceOutageBoundarySource,
+      sourceOutageBoundaryScriptSource,
+      sourceOutageBoundaryPlanSource,
+      clickupSource,
+      agentRosterReviewSource,
+      agentFeedbackAutoSendSource,
+      agentFeedbackProductionAutoSendDryRunSource,
+      agentFeedbackReminderSource,
+      serverRouteSource,
+      foundationJobsSource,
+      connectorUptimeMonitorSource,
+      foundationOperatingReliabilityScriptSource,
+      planCriticSource,
+      hubReadRoutesSource,
+      foundationFrontendSource,
+      foundationDbSource,
+      foundationHubPerformanceSource,
+      foundationPerformanceScriptSource,
+      foundationBuildLogRegistrySource,
+      foundationHubFullDiagnosticsSource,
+      foundationHubFullDiagnosticsScriptSource,
+      foundationBuildCloseoutCleanupRecordsSource,
+      processFoundationShipSource,
+      foundationShipPreflightSource,
+      foundationShipPreflightScriptSource,
+      foundationVerifyProfileScriptSource,
+      llmAuthAuditVerifierModuleSource,
+      llmAuthAuditVerifierCheckSource,
+      foundationHubFullPayloadReduceScriptSource,
+      clickupSourceVerifierSource,
+      clickupSourceVerifyScriptSource,
+      clickupVerifyHealthBoundaryScriptSource,
+      foundationVerifyProfileBudgetSource,
+      foundationVerifySource,
+    },
+  })
+  checks.push(...runtimeReliabilityVerifier.checks)
+  const planCriticArchitecturalRulesProof = runtimeReliabilityVerifier.artifacts.planCriticArchitecturalRulesProof
+  const verifierRuntimeReliabilitySplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID) || null
+  const verifierRuntimeReliabilitySplitDogfood = await buildFoundationRuntimeReliabilityVerifierDogfoodProof()
+  const foundationVerifyLineCountAfterRuntimeReliabilitySplit = String(foundationVerifySource || '').split('\n').length
   ensure(
     checks,
-      sourceOutageBoundaryCard &&
-      sourceOutageBoundaryCard.lane === 'done' &&
-      String(sourceOutageBoundaryCard.statusNote || '').includes(SOURCE_OUTAGE_BOUNDARY_CLOSEOUT_KEY) &&
-      sourceOutageBoundaryCloseout?.operatorCloseout === true &&
-      (sourceOutageBoundaryCloseout.backlogIds || []).includes(SOURCE_OUTAGE_BOUNDARY_CARD_ID) &&
-      sourceOutageBoundaryDogfood.ok === true &&
-      sourceOutageBoundaryDogfood.checks?.length >= 5 &&
-      packageJson.scripts?.['process:source-outage-boundary-check'] === `node --env-file-if-exists=.env ${SOURCE_OUTAGE_BOUNDARY_SCRIPT_PATH}` &&
-      await repoFileExists(SOURCE_OUTAGE_BOUNDARY_PLAN_PATH) &&
-      await repoFileExists(SOURCE_OUTAGE_BOUNDARY_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/2026-05-14-source-outage-boundary-closeout.md') &&
-      sourceOutageBoundarySource.includes('buildSourceOutageBoundaryDogfoodProof') &&
-      sourceOutageBoundaryScriptSource.includes('dogfood proof recreates ClickUp 500 and proves fail-soft behavior') &&
-      sourceOutageBoundaryPlanSource.includes('ClickUp `500 DB_003`') &&
-      clickupSource.includes('getClickUpListSnapshotSafe') &&
-      clickupSource.includes('buildUnavailableClickUpListSnapshot') &&
-      agentRosterReviewSource.includes('agent-roster-source-degraded') &&
-      agentFeedbackAutoSendSource.includes('sourceUnavailable') &&
-      agentFeedbackProductionAutoSendDryRunSource.includes('sourceUnavailable') &&
-      agentFeedbackReminderSource.includes('sourceUnavailable') &&
-      serverRouteSource.includes('sourceOutageBoundary') &&
-      foundationHub.sourceOutageBoundary?.status &&
-      opsHub.sourceOutageBoundary?.status &&
-      includesAll(foundationVerifySource, SOURCE_OUTAGE_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'SOURCE-OUTAGE-BOUNDARY-001 keeps Foundation/Ops serving during ClickUp read outages',
-    sourceOutageBoundaryCard
-      ? `lane=${sourceOutageBoundaryCard.lane} dogfood=${sourceOutageBoundaryDogfood.ok ? 'pass' : 'blocked'} foundation=${foundationHub.sourceOutageBoundary?.status || 'missing'} ops=${opsHub.sourceOutageBoundary?.status || 'missing'}`
-      : `missing ${SOURCE_OUTAGE_BOUNDARY_CARD_ID}`,
-  )
-  const foundationOperatingReliabilityCards = FOUNDATION_OPERATING_RELIABILITY_CARD_IDS
-    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
-  const foundationOperatingReliabilityDogfood = buildFoundationOperatingReliabilityDogfoodProof()
-  ensure(
-    checks,
-      foundationOperatingReliabilityCards.every(card =>
-        card &&
-        card.lane === 'done' &&
-        String(card.statusNote || '').includes(FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY)
-      ) &&
-      foundationOperatingReliabilityCloseout?.operatorCloseout === true &&
-      FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.every(id => (foundationOperatingReliabilityCloseout.backlogIds || []).includes(id)) &&
-      foundationOperatingReliabilityDogfood.ok === true &&
-      foundationOperatingReliabilityDogfood.checks?.length >= 8 &&
-      packageJson.scripts?.['process:foundation-operating-reliability-check'] === `node --env-file-if-exists=.env ${FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH}` &&
-      foundationJobsSource.includes(CONNECTOR_UPTIME_MONITOR_JOB_KEY) &&
-      foundationJobsSource.includes("mutationPosture: 'read_only'") &&
-      connectorUptimeMonitorSource.includes('buildConnectorUptimeSnapshot') &&
-      connectorUptimeMonitorSource.includes('buildRuntimeActivationSnapshot') &&
-      connectorUptimeMonitorSource.includes('buildMorningHealthSnapshot') &&
-      connectorUptimeMonitorSource.includes('assertNoConnectorUptimeSecretLeak') &&
-      foundationOperatingReliabilityScriptSource.includes('dogfood recreates connector failures, runtime states, and audit confusion') &&
-      serverRouteSource.includes('foundationOperatingReliability') &&
-      foundationHubFull.foundationOperatingReliability?.connectorUptime?.rows?.length >= 6 &&
-      foundationHubFull.foundationOperatingReliability?.runtimeActivation?.jobs?.length >= 1 &&
-      foundationHubFull.foundationOperatingReliability?.morningHealth?.reportOnly === true &&
-      includesAll(foundationVerifySource, FOUNDATION_OPERATING_RELIABILITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'Foundation Operating Reliability exposes connector uptime, runtime activation, and report-only morning health',
-    `cards=${foundationOperatingReliabilityCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.length} dogfood=${foundationOperatingReliabilityDogfood.ok ? 'pass' : 'blocked'} connectors=${foundationHubFull.foundationOperatingReliability?.connectorUptime?.rows?.length || 0}`,
-  )
-  const planCriticArchitecturalRulesCard = (foundationHub.backlogItems || []).find(item => item.id === PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) || null
-  const planCriticArchitecturalRulesProof = buildSyntheticPlanCriticArchitecturalRulesProof()
-  ensure(
-    checks,
-      planCriticArchitecturalRulesCard &&
-      ['scoped', 'done'].includes(planCriticArchitecturalRulesCard.lane) &&
-      planCriticArchitecturalRulesCloseout?.operatorCloseout === true &&
-      (planCriticArchitecturalRulesCloseout.backlogIds || []).includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) &&
-      planCriticArchitecturalRulesProof.ok === true &&
-      planCriticArchitecturalRulesProof.largeFileNoSplit?.status === 'revise' &&
-      planCriticArchitecturalRulesProof.checkWriteNoApply?.status === 'revise' &&
-      planCriticArchitecturalRulesProof.verifierLiveState?.status === 'revise' &&
-      planCriticArchitecturalRulesProof.auditFixNoDogfood?.status === 'revise' &&
-      planCriticArchitecturalRulesProof.noFocusedProof?.status === 'revise' &&
-      planCriticArchitecturalRulesProof.compliant?.status === 'pass' &&
-      packageJson.scripts?.['process:plan-critic-architectural-rules-check'] === `node --env-file-if-exists=.env ${PLAN_CRITIC_ARCHITECTURAL_RULES_SCRIPT_PATH}` &&
-      planCriticSource.includes('architectural_rot_rules') &&
-      planCriticSource.includes('buildSyntheticPlanCriticArchitecturalRulesProof') &&
-      planCriticArchitecturalRulesScriptSource.includes('dogfood rejects architecture-risk plans and passes compliant plan') &&
-      foundationVerifySource.includes('buildSyntheticPlanCriticArchitecturalRulesProof') &&
-      includesAll(foundationVerifySource, PLAN_CRITIC_ARCHITECTURAL_RULES_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'PLAN-CRITIC-ARCHITECTURAL-RULES-001 rejects architecture rot plans before build',
-    planCriticArchitecturalRulesCard
-      ? `lane=${planCriticArchitecturalRulesCard.lane} dogfood=${planCriticArchitecturalRulesProof.ok ? 'pass' : 'blocked'} closeout=${planCriticArchitecturalRulesCloseout?.key || 'missing'}`
-      : `missing ${PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID}`,
-  )
-  const foundationPerformanceCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_PERFORMANCE_CARD_ID) || null
-  const foundationPerformanceProof = buildSyntheticFoundationHubBudgetProof()
-  ensure(
-    checks,
-      foundationPerformanceCard &&
-      ['scoped', 'done'].includes(foundationPerformanceCard.lane) &&
-      foundationPerformanceCloseout?.operatorCloseout === true &&
-      (foundationPerformanceCloseout.backlogIds || []).includes(FOUNDATION_PERFORMANCE_CARD_ID) &&
-      foundationPerformanceProof.ok === true &&
-      foundationPerformanceProof.oversized?.ok === false &&
-      foundationPerformanceProof.tooSlow?.ok === false &&
-      foundationHubSummary.foundationHubPerformance?.mode === 'summary' &&
-      Number(foundationHubSummary.foundationHubPerformance?.budget?.maxDurationMs || 0) === FOUNDATION_HUB_SUMMARY_BUDGET.maxDurationMs &&
-      Number(foundationHubSummary.foundationHubPerformance?.payloadBytes || 0) <= FOUNDATION_HUB_SUMMARY_BUDGET.maxPayloadBytes &&
-      foundationHubFull.foundationHubPerformance?.mode === 'full' &&
-      foundationHubFull.sharedCommunicationSynthesis &&
-      foundationHubFull.extractionControl &&
-      foundationHubFull.llmRuntime &&
-      foundationHubFull.driveCorpusInventory &&
-      packageJson.scripts?.['process:foundation-performance-check'] === `node --env-file-if-exists=.env ${FOUNDATION_PERFORMANCE_SCRIPT_PATH}` &&
-      hubReadRoutesSource.includes('getFoundationCoreSnapshot') &&
-      hubReadRoutesSource.includes("app.get('/api/foundation-hub'") &&
-      hubReadRoutesSource.includes('normalizeFoundationHubMode') &&
-      foundationFrontendSource.includes('fetchFoundationHubFull') &&
-      foundationFrontendSource.includes('/api/foundation-hub?view=full') &&
-      foundationDbSource.includes('getFoundationCoreSnapshot') &&
-      foundationHubPerformanceSource.includes('/api/foundation-hub?view=full') &&
-      foundationHubPerformanceSource.includes('buildSyntheticFoundationHubBudgetProof') &&
-      foundationPerformanceScriptSource.includes('default Foundation Hub route stays under latency and payload budget') &&
-      foundationBuildLogRegistrySource.includes(FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) &&
-      includesAll(foundationVerifySource, FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'FOUNDATION-PERFORMANCE-001 makes default Foundation Hub fast while preserving full diagnostics',
-    foundationPerformanceCard
-      ? `lane=${foundationPerformanceCard.lane} dogfood=${foundationPerformanceProof.ok ? 'pass' : 'blocked'} summary=${foundationHubSummary.foundationHubPerformance?.payloadBytes || 'missing'}B closeout=${foundationPerformanceCloseout?.key || 'missing'}`
-      : `missing ${FOUNDATION_PERFORMANCE_CARD_ID}`,
-  )
-  const foundationFullDiagnosticsPerfCards = FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
-    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
-  const foundationFullDiagnosticsPerfCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_FULL_DIAGNOSTICS_CLOSEOUT_KEY) || null
-  const foundationFullDiagnosticsDogfood = await buildSyntheticFoundationFullDiagnosticsDogfoodProof()
-  ensure(
-    checks,
-      foundationFullDiagnosticsPerfCards.every(card =>
-        card &&
-        card.lane === 'done' &&
-        String(card.statusNote || '').includes(FOUNDATION_FULL_DIAGNOSTICS_CLOSEOUT_KEY)
-      ) &&
-      foundationFullDiagnosticsPerfCloseout?.operatorCloseout === true &&
-      FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.every(id =>
-        (foundationFullDiagnosticsPerfCloseout.backlogIds || []).includes(id)
-      ) &&
-      foundationFullDiagnosticsDogfood.ok === true &&
-      foundationFullDiagnosticsDogfood.boundary?.status === 'degraded' &&
-      packageJson.scripts?.['process:foundation-full-diagnostics-perf-check'] === `node --env-file-if-exists=.env ${FOUNDATION_FULL_DIAGNOSTICS_SCRIPT_PATH}` &&
-      await repoFileExists('docs/process/foundation-full-diagnostics-perf-001-plan.md') &&
-      await repoFileExists('docs/process/foundation-hub-full-route-split-001-plan.md') &&
-      await repoFileExists('docs/process/approvals/FOUNDATION-FULL-DIAGNOSTICS-PERF-001.json') &&
-      await repoFileExists('docs/process/approvals/FOUNDATION-HUB-FULL-ROUTE-SPLIT-001.json') &&
-      await repoFileExists('docs/handoffs/2026-05-14-foundation-full-diagnostics-perf-closeout.md') &&
-      foundationHubFullDiagnosticsSource.includes('withDiagnosticDeadline') &&
-      foundationHubFullDiagnosticsSource.includes('Promise.race') &&
-      foundationHubFullDiagnosticsSource.includes('runtime_diagnostic_timeout') &&
-      foundationHubFullDiagnosticsSource.includes('buildSyntheticFoundationFullDiagnosticsDogfoodProof') &&
-      foundationHubFullDiagnosticsScriptSource.includes('dogfood proof converts slow optional Agent Feedback panels into degraded source health') &&
-      clickupSource.includes('AbortController') &&
-      clickupSource.includes('CLICKUP_REQUEST_TIMEOUT_MS') &&
-      clickupSource.includes('maxPages') &&
-      agentFeedbackAutoSendSource.includes('mapWithConcurrency') &&
-      agentFeedbackAutoSendSource.includes('getRosterSnapshot = getClickUpListSnapshotSafe') &&
-      agentFeedbackReminderSource.includes('getRosterSnapshot = getClickUpListSnapshotSafe') &&
-      serverRouteSource.includes('buildFoundationHubAgentFeedbackDiagnostics') &&
-      serverRouteSource.includes('foundationHubFullDiagnostics') &&
-      foundationHubFull.foundationHubFullDiagnostics?.boundedSourceHealth === true &&
-      foundationHubFull.sourceOutageBoundary?.summary?.fullDiagnosticsBounded === true &&
-      Number(foundationHubFull.foundationHubPerformance?.durationMs || 0) <= FOUNDATION_FULL_DIAGNOSTICS_BUDGET.maxSeconds * 1000 &&
-      Number(foundationHubFull.foundationHubPerformance?.payloadBytes || 0) <= FOUNDATION_FULL_DIAGNOSTICS_BUDGET.maxBytes &&
-      foundationBuildCloseoutCleanupRecordsSource.includes(FOUNDATION_FULL_DIAGNOSTICS_CLOSEOUT_KEY) &&
-      includesAll(foundationVerifySource, FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'Foundation full diagnostics route bounds slow Agent Feedback panels and keeps the route modular',
-    `cards=${foundationFullDiagnosticsPerfCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} route=${foundationHubFull.foundationHubPerformance?.durationMs || 'missing'}ms/${foundationHubFull.foundationHubPerformance?.payloadBytes || 'missing'}B dogfood=${foundationFullDiagnosticsDogfood.ok ? 'pass' : 'blocked'}`,
-  )
-  const foundationShipGateSpeedPayloadCards = FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
-    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
-  const foundationShipPreflightDogfood = buildFoundationShipPreflightDogfoodProof()
-  ensure(
-    checks,
-      foundationShipGateSpeedPayloadCards.every(card =>
-        card &&
-        card.lane === 'done' &&
-        String(card.statusNote || '').includes(FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY)
-      ) &&
-      foundationShipGateSpeedPayloadCloseout?.operatorCloseout === true &&
-      FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.every(id =>
-        (foundationShipGateSpeedPayloadCloseout.backlogIds || []).includes(id)
-      ) &&
-      foundationShipPreflightDogfood.ok === true &&
-      foundationShipPreflightDogfood.blockedCases?.length >= 3 &&
-      packageJson.scripts?.['process:foundation-ship-preflight'] === `node --env-file-if-exists=.env ${FOUNDATION_SHIP_PREFLIGHT_SCRIPT_PATH}` &&
-      packageJson.scripts?.['process:foundation-verify-profile-check'] === `node --env-file-if-exists=.env ${FOUNDATION_VERIFY_PROFILE_SCRIPT_PATH}` &&
-      packageJson.scripts?.['process:foundation-verify-llm-auth-audit-check'] === `node --env-file-if-exists=.env ${FOUNDATION_VERIFY_LLM_AUTH_AUDIT_SCRIPT_PATH}` &&
-      packageJson.scripts?.['process:foundation-hub-full-payload-reduce-check'] === `node --env-file-if-exists=.env ${FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_SCRIPT_PATH}` &&
-      processFoundationShipSource.includes('process:foundation-ship-preflight') &&
-      processFoundationShipSource.includes('skipPreflightReason') &&
-      foundationShipPreflightSource.includes('buildFoundationShipPreflightDogfoodProof') &&
-      foundationShipPreflightSource.includes('LLM_AUTH_AUDIT_REPAIR_COMMAND') &&
-      foundationShipPreflightScriptSource.includes('getLlmRuntimeSnapshot') &&
-      foundationShipPreflightScriptSource.includes('getFoundationJobRunSnapshot') &&
-      foundationVerifySource.includes('recordFoundationVerifyTiming') &&
-      foundationVerifySource.includes('FOUNDATION_VERIFY_PROFILE') &&
-      foundationVerifyProfileScriptSource.includes('profile command runs the real verifier and does not skip checks') &&
-      llmAuthAuditVerifierModuleSource.includes('evaluateLlmAuthAuditVerifierCheck') &&
-      llmAuthAuditVerifierModuleSource.includes('buildLlmAuthAuditVerifierDogfoodProof') &&
-      llmAuthAuditVerifierCheckSource.includes('buildLlmAuthAuditVerifierDogfoodProof') &&
-      foundationHubFullPayloadReduceScriptSource.includes('live full payload is materially smaller than measured baseline') &&
-      serverRouteSource.includes('compactSharedCommunicationSynthesis') &&
-      serverRouteSource.includes('compactFoundationSourceLifecycle') &&
-      foundationHubFullDiagnosticsSource.includes('maxBytes: 4200000') &&
-      foundationHubPerformanceSource.includes('maxPayloadBytes: 4500000') &&
-      foundationHubFull.sourceLifecycle?.fullPayloadCompacted === true &&
-      foundationHubFull.sharedCommunicationSynthesis?.fullPayloadCompacted === true &&
-      foundationHubFull.foundationHubPerformance?.budgetStatus === 'healthy' &&
-      Number(foundationHubFull.foundationHubPerformance?.payloadBytes || 0) <= FOUNDATION_FULL_DIAGNOSTICS_BUDGET.maxBytes &&
-      foundationBuildCloseoutCleanupRecordsSource.includes(FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY) &&
-      await repoFileExists('docs/handoffs/2026-05-14-foundation-ship-gate-speed-payload-cleanup-closeout.md') &&
-      includesAll(foundationVerifySource, FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'Foundation ship gate speed sprint adds early freshness preflight, verifier profile, verifier module split, and smaller full payload',
-    `cards=${foundationShipGateSpeedPayloadCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} preflight=${foundationShipPreflightDogfood.ok ? 'pass' : 'blocked'} payload=${foundationHubFull.foundationHubPerformance?.payloadBytes || 'missing'}B`,
-  )
-  const foundationClickUpVerifyHealthBoundaryCards = FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
-    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
-  const clickUpSourceVerifierDogfood = await buildClickUpSourceVerifierDogfoodProof()
-  const foundationVerifySlowBudgetDogfood = buildFoundationVerifySlowBudgetDogfoodProof()
-  ensure(
-    checks,
-      foundationClickUpVerifyHealthBoundaryCards.every(card =>
-        card &&
-        card.lane === 'done' &&
-        String(card.statusNote || '').includes(FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY)
-      ) &&
-      foundationClickUpVerifyHealthBoundaryCloseout?.operatorCloseout === true &&
-      FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.every(id =>
-        (foundationClickUpVerifyHealthBoundaryCloseout.backlogIds || []).includes(id)
-      ) &&
-      packageJson.scripts?.['clickup:verify'] === `node --env-file-if-exists=.env ${CLICKUP_SOURCE_VERIFY_SCRIPT_PATH}` &&
-      packageJson.scripts?.['process:clickup-verify-health-boundary-check'] === `node --env-file-if-exists=.env ${CLICKUP_VERIFY_HEALTH_BOUNDARY_SCRIPT_PATH}` &&
-      packageJson.scripts?.['process:foundation-verify-profile-check'] === `node --env-file-if-exists=.env ${FOUNDATION_VERIFY_PROFILE_SCRIPT_PATH}` &&
-      clickUpSourceVerifierDogfood.ok === true &&
-      (clickUpSourceVerifierDogfood.checks || []).some(check => check.ok && check.check.includes('reuses one cached snapshot')) &&
-      (clickUpSourceVerifierDogfood.checks || []).some(check => check.ok && check.check.includes('report degraded source health')) &&
-      (clickUpSourceVerifierDogfood.checks || []).some(check => check.ok && check.check.includes('redact token-like values')) &&
-      (clickUpSourceVerifierDogfood.checks || []).some(check => check.ok && check.check.includes('bounded timeout')) &&
-      foundationVerifySlowBudgetDogfood.ok === true &&
-      includesAll(clickupSourceVerifierSource, [
-        'CLICKUP_SOURCE_VERIFY_DEFAULT_TIMEOUT_MS',
-        'createClickUpSnapshotCache',
-        'Promise.all',
-        'CLICKUP_SOURCE_VERIFY_SUMMARY',
-        'sourceHealth',
-      ]) &&
-      includesAll(clickupSourceVerifyScriptSource, [
-        '--timeoutMs=',
-        '--maxTaskPages=',
-        'formatClickUpSourceVerificationReport',
-      ]) &&
-      includesAll(clickupVerifyHealthBoundaryScriptSource, [
-        'bounded live clickup:verify emits structured summary within 30s',
-        'dogfood proves bounded ClickUp reads',
-        'dogfood proves verifier slow-section budget',
-      ]) &&
-      includesAll(foundationVerifyProfileBudgetSource, [
-        'DEFAULT_FOUNDATION_VERIFY_SLOW_SECTION_BUDGET_MS',
-        'resolveFoundationVerifySectionOwner',
-        'buildFoundationVerifySlowBudgetDogfoodProof',
-      ]) &&
-      foundationVerifySource.includes('overBudgetSections') &&
-      foundationVerifySource.includes('CLICKUP_SOURCE_VERIFY_SUMMARY') &&
-      clickupSource.includes('sanitizeClickUpErrorMessage') &&
-      clickupSource.includes('[redacted]') &&
-      foundationBuildCloseoutCleanupRecordsSource.includes(FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY) &&
-      await repoFileExists('docs/handoffs/2026-05-14-foundation-clickup-verify-health-boundary-closeout.md') &&
-      includesAll(foundationVerifySource, FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'Foundation ClickUp verifier health boundary keeps ClickUp verification fast, bounded, cached, degraded, and profiled',
-    `cards=${foundationClickUpVerifyHealthBoundaryCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.length} dogfood=${clickUpSourceVerifierDogfood.ok ? 'pass' : 'blocked'} slowBudget=${foundationVerifySlowBudgetDogfood.ok ? 'pass' : 'blocked'}`,
+      verifierRuntimeReliabilitySplitCard &&
+      ['executing', 'done'].includes(verifierRuntimeReliabilitySplitCard.lane) &&
+      String(verifierRuntimeReliabilitySplitCard.statusNote || '').includes(VERIFIER_RUNTIME_RELIABILITY_SPLIT_CLOSEOUT_KEY) &&
+      verifierRuntimeReliabilitySplitCloseout?.operatorCloseout === true &&
+      (verifierRuntimeReliabilitySplitCloseout.backlogIds || []).includes(VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID) &&
+      verifierRuntimeReliabilitySplitDogfood.ok === true &&
+      runtimeReliabilityVerifier.summary.passed === runtimeReliabilityVerifier.summary.total &&
+      packageJson.scripts?.['process:verifier-runtime-reliability-split-check'] === `node --env-file-if-exists=.env ${VERIFIER_RUNTIME_RELIABILITY_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-verifier-runtime-reliability-split-closeout.md') &&
+      foundationRuntimeReliabilityVerifierSource.includes('evaluateFoundationRuntimeReliabilityVerifier') &&
+      foundationRuntimeReliabilityVerifierSource.includes('RUNTIME_RELIABILITY_VERIFIER_CHECK_DEFINITIONS') &&
+      verifierRuntimeReliabilitySplitScriptSource.includes('dogfood rejects old runtime reliability verifier failures') &&
+      verifierRuntimeReliabilitySplitPlanSource.includes('Substring-only proof is rejected') &&
+      foundationVerifySource.includes('evaluateFoundationRuntimeReliabilityVerifier({') &&
+      !foundationVerifySource.includes('SOURCE-OUTAGE-BOUNDARY-001 keeps Foundation/Ops ' + 'serving during ClickUp read outages') &&
+      foundationVerifyLineCountAfterRuntimeReliabilitySplit < VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES &&
+      (activeFoundationSprint.sprint?.sprintId === VERIFIER_RUNTIME_RELIABILITY_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID),
+    'VERIFIER-RUNTIME-RELIABILITY-SPLIT-001 extracts runtime reliability verifier checks into a focused module',
+    verifierRuntimeReliabilitySplitCard
+      ? `lane=${verifierRuntimeReliabilitySplitCard.lane} dogfood=${verifierRuntimeReliabilitySplitDogfood.ok ? 'pass' : 'blocked'} reliabilityChecks=${runtimeReliabilityVerifier.summary.passed}/${runtimeReliabilityVerifier.summary.total} lines=${VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES}->${foundationVerifyLineCountAfterRuntimeReliabilitySplit}`
+      : `missing ${VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID}`,
   )
   const foundationBuildLogMonolithSliceCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) || null
   const closeoutOwnershipGuardCard = (foundationHub.backlogItems || []).find(item => item.id === CLOSEOUT_OWNERSHIP_GUARD_CARD_ID) || null
