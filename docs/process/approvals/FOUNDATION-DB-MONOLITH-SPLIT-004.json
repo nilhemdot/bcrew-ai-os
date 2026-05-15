@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-004",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T14:02:10.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-db-strategy-source-snapshot-split-004-plan.md",
+  "approvedPlanSha256": "dc01b6ebd6d08c231e82330d9a22d832f2ef1228f1fc39cc5fae0d2b80478c4f",
+  "approvedRepoHead": "5a06aaefd93c6a18ab9f0a84591552a0d4e4ee47",
+  "notes": "Approved as a bounded no-auth Foundation DB monolith split. Scope: extract only source-backed BHAG and Agent Engine snapshot builders from lib/foundation-db.js into lib/foundation-strategy-source-snapshots.js, preserve Google source IDs/ranges/doc paths/source IDs/labels/sort orders, keep doc_source_snapshots persistence unchanged, and dogfood that old inline builder ownership fails. Not approved: broad DB rewrite, schema changes, seed changes, finance snapshot movement, source crawl/job/intelligence/shared-comms/hub changes, Marketing Video Lab wiring, paid-source auth, Meeting Vault Phase B, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "3bbc24881674b80d6aca3496834623f4aa9286c82c7f24c15148282bcd1da95a"
+}

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.69 - Foundation DB core seed split sprint
+Version: v6.70 - Foundation DB Strategy source snapshot split sprint
 Status: Active
 
 Use this doc for one question:
@@ -73,11 +73,13 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation DB Core Seed Split
+## Current Sprint: Foundation DB Strategy Source Snapshot Split
 
-Live sprint ID: `foundation-db-core-seed-split-2026-05-15`.
+Live sprint ID: `foundation-db-strategy-source-snapshot-split-2026-05-15`.
 
-This sprint is active under `foundation-core-seed-split-v1`. It extracts static Foundation bootstrap seed arrays from `lib/foundation-db.js` into a focused seed module without changing live DB behavior.
+This sprint is active under `foundation-strategy-source-snapshot-split-v1`. It extracts source-backed BHAG and Agent Engine doc snapshot builders from `lib/foundation-db.js` into `lib/foundation-strategy-source-snapshots.js` without changing Google source IDs, ranges, doc paths, source IDs, labels, sort orders, or `doc_source_snapshots` persistence.
+
+The previous cleanup sprint `foundation-db-core-seed-split-2026-05-15` is done under `foundation-core-seed-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-003` moved static Foundation bootstrap seed arrays into `lib/foundation-core-seed.js` while preserving live Postgres/API as operational truth after bootstrap.
 
 Active card:
 
