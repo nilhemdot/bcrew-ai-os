@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-ROUTE-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T04:10:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-route-split-001-plan.md",
+  "approvedPlanSha256": "aacc3db6d6183bb3377ce20e03d071056839efe12bc495a992e67d1dac5cda46",
+  "approvedRepoHead": "03dd49b822f02ec97eea7d6975a9685cf4debb58",
+  "notes": "Approved as the Foundation Source Route Split Sprint. Scope: extract one Foundation source/control read-route cluster out of server.js into lib/foundation-source-routes.js with read-only focused proof and full ship. Not approved: broad server refactor, auth/session routes, write routes, Marketing live wiring, hub feature work, Build Intel extraction, paid-source auth, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "b0dd1b1db87b20f240be3e5c339f9a39d6dd0e77631cff1f41d1b0f0b0cf1a61"
+}

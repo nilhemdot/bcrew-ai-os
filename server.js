@@ -242,6 +242,7 @@ import {
   validateFoundationBacklogCardId,
 } from './lib/foundation-backlog-detail.js'
 import { registerFoundationOperatorRoutes } from './lib/foundation-operator-routes.js'
+import { registerFoundationSourceRoutes } from './lib/foundation-source-routes.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -3807,494 +3808,48 @@ async function getRecentBuildLog(limit = 30) {
   return attachBacklogCardsToBuilds(enrichedBuilds, backlogItems)
 }
 
-app.get('/api/source-of-truth', requireAdminToken, async (_req, res) => {
-  res.json(await buildSourceOfTruthPayload({ repoRoot: __dirname }))
-})
-
-app.get('/api/foundation/source-lifecycle', requireAdminToken, async (_req, res) => {
-  try {
-    const foundationSnapshot = await getFoundationSnapshot()
-    const extractionControl = foundationSnapshot.extractionControl || await getExtractionControlSnapshot({ limit: 200 })
-    const sourceLifecycle = buildSourceLifecycleStatus({
-      sources: getSourceContracts(),
-      connectors: getSourceConnectors(),
-      groupedSystems: getGroupedSourceSystems(),
-      extractionControl,
-      foundationJobs: getFoundationJobDefinitions(),
-    })
-    sourceLifecycle.sourceMaturityGrid = buildSourceMaturityGridSnapshot({
-      sources: getSourceContracts(),
-      extractionControl,
-      sharedCommunicationsCoverage: foundationSnapshot.sharedCommunicationsCoverage,
-      intelligenceSynthesisFacts: foundationSnapshot.intelligenceSynthesisFacts,
-      intelligenceSynthesis: foundationSnapshot.intelligenceSynthesis,
-      intelligenceActionRouter: foundationSnapshot.intelligenceActionRouter,
-      sourceMaturityOperational: foundationSnapshot.sourceMaturityOperational,
-      lifecycle: sourceLifecycle,
-    })
-    sourceLifecycle.sourceExtractionCoverage = buildSourceExtractionCoverageSnapshot({
-      sources: getSourceContracts(),
-      extractionControl,
-      sourceMaturityGrid: sourceLifecycle.sourceMaturityGrid,
-      lifecycle: sourceLifecycle,
-    })
-    sourceLifecycle.sourceCoverageCloseout = buildSourceCoverageCloseoutSnapshot({
-      sources: getSourceContracts(),
-      sourceMaturityGrid: sourceLifecycle.sourceMaturityGrid,
-      sourceExtractionCoverage: sourceLifecycle.sourceExtractionCoverage,
-    })
-    sourceLifecycle.sourceConnectorMatrix = buildSourceConnectorMatrixSnapshot({
-      sources: getSourceContracts(),
-      connectors: getSourceConnectors(),
-      extractionControl,
-      sharedCommunicationsCoverage: foundationSnapshot.sharedCommunicationsCoverage,
-      intelligenceSynthesisFacts: foundationSnapshot.intelligenceSynthesisFacts,
-      intelligenceSynthesis: foundationSnapshot.intelligenceSynthesis,
-      intelligenceActionRouter: foundationSnapshot.intelligenceActionRouter,
-      sourceMaturityOperational: foundationSnapshot.sourceMaturityOperational,
-    })
-    sourceLifecycle.connectorCredentialPreflight = buildConnectorCredentialRegistrySnapshot({
-      sourceContracts: getSourceContracts(),
-      sourceConnectors: getSourceConnectors(),
-    })
-    sourceLifecycle.sourceHubRoutingMatrix = buildSourceHubRoutingMatrixSnapshot({
-      connectorMatrix: sourceLifecycle.sourceConnectorMatrix,
-    })
-    const marketingAvatarRegistry = buildMarketingAvatarImportSnapshot({
-      referenceBriefText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_REFERENCE_BRIEF_PATH)) || '',
-      retainProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_RETAIN_SOURCE_PATH)) || '',
-      attractProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_ATTRACT_SOURCE_PATH)) || '',
-      oldReadmeText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_OLD_README_PATH)) || '',
-    })
-    sourceLifecycle.marketingSourceMap = buildMarketingSourceMapSnapshot({
-      sourceContracts: getSourceContracts(),
-      avatarRegistry: marketingAvatarRegistry,
-      sourceNoteText: readFileSafe(path.join(__dirname, MARKETING_SOURCE_MAP_NOTE_PATH)) || '',
-    })
-    sourceLifecycle.brandStack = buildBrandStackSnapshot({
-      marketingSourceMap: sourceLifecycle.marketingSourceMap,
-    })
-    sourceLifecycle.tierBehavioralCompletion = buildTierBehavioralCompletionSnapshot()
-    const backlogHygiene = buildBacklogHygieneSnapshot({
-      backlogItems: foundationSnapshot.backlogItems || [],
-      closeouts: getFoundationBuildCloseouts(),
-    })
-    const researchCuration = buildResearchCurationStatus({
-      backlogItems: foundationSnapshot.backlogItems || [],
-    })
-    const perUserChangeEvents = await getRecentChangeEvents(100)
-    sourceLifecycle.verificationRuns = buildVerificationRunsSnapshot({
-      backlogItems: foundationSnapshot.backlogItems || [],
-      researchCuration,
-      intelligenceSynthesis: foundationSnapshot.intelligenceSynthesis || {},
-      intelligenceActionRouter: foundationSnapshot.intelligenceActionRouter || {},
-      backlogHygiene,
-    })
-    sourceLifecycle.perUserChangelog = buildPerUserChangelogSnapshot({
-      users: foundationSnapshot.users || [],
-      changeEvents: perUserChangeEvents,
-      limit: 100,
-    })
-    sourceLifecycle.restrictedDecisionQueue = buildDecisionRestrictedQueueSnapshot({
-      decisions: foundationSnapshot.decisions || [],
-    })
-    const activeFoundationSprint = await getActiveFoundationCurrentSprint()
-    const currentSprint = buildFoundationCurrentSprintStatus({
-      sprint: activeFoundationSprint.sprint,
-      items: activeFoundationSprint.items,
-      backlogItems: foundationSnapshot.backlogItems || [],
-      closeouts: getFoundationBuildCloseouts(),
-      planCriticRuns: activeFoundationSprint.planCriticRuns || [],
-    })
-    sourceLifecycle.foundationUiComplete = buildFoundationUiCompleteSnapshot({
-      sourceLifecycle,
-      currentSprint,
-    })
-    sourceLifecycle.currentSprint = currentSprint
-    cacheHeadersNoStore(res)
-    res.json(sourceLifecycle)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_source_lifecycle_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation source lifecycle.'
-    )
-  }
-})
-
-app.get('/api/foundation/marketing-source-map', requireAdminToken, async (_req, res) => {
-  try {
-    const marketingAvatarRegistry = buildMarketingAvatarImportSnapshot({
-      referenceBriefText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_REFERENCE_BRIEF_PATH)) || '',
-      retainProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_RETAIN_SOURCE_PATH)) || '',
-      attractProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_ATTRACT_SOURCE_PATH)) || '',
-      oldReadmeText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_OLD_README_PATH)) || '',
-    })
-    const marketingSourceMap = buildMarketingSourceMapSnapshot({
-      sourceContracts: getSourceContracts(),
-      avatarRegistry: marketingAvatarRegistry,
-      sourceNoteText: readFileSafe(path.join(__dirname, MARKETING_SOURCE_MAP_NOTE_PATH)) || '',
-    })
-    cacheHeadersNoStore(res)
-    res.json(marketingSourceMap)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_marketing_source_map_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation marketing source map.'
-    )
-  }
-})
-
-app.get('/api/foundation/brand-stack', requireAdminToken, async (_req, res) => {
-  try {
-    const marketingAvatarRegistry = buildMarketingAvatarImportSnapshot({
-      referenceBriefText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_REFERENCE_BRIEF_PATH)) || '',
-      retainProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_RETAIN_SOURCE_PATH)) || '',
-      attractProfilesText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_ATTRACT_SOURCE_PATH)) || '',
-      oldReadmeText: readFileSafe(path.join(__dirname, MARKETING_AVATAR_OLD_README_PATH)) || '',
-    })
-    const marketingSourceMap = buildMarketingSourceMapSnapshot({
-      sourceContracts: getSourceContracts(),
-      avatarRegistry: marketingAvatarRegistry,
-      sourceNoteText: readFileSafe(path.join(__dirname, MARKETING_SOURCE_MAP_NOTE_PATH)) || '',
-    })
-    const brandStack = buildBrandStackSnapshot({ marketingSourceMap })
-    cacheHeadersNoStore(res)
-    res.json(brandStack)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_brand_stack_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation brand stack.'
-    )
-  }
-})
-
-app.get('/api/foundation/tier-behavioral-completion', requireAdminToken, async (_req, res) => {
-  try {
-    cacheHeadersNoStore(res)
-    res.json(buildTierBehavioralCompletionSnapshot())
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_tier_behavioral_completion_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation tier behavior proof.'
-    )
-  }
-})
-
-app.get('/api/foundation/verification-runs', requireAdminToken, async (_req, res) => {
-  try {
-    const snapshot = await getFoundationSnapshot()
-    const backlogHygiene = buildBacklogHygieneSnapshot({
-      backlogItems: snapshot.backlogItems || [],
-      closeouts: getFoundationBuildCloseouts(),
-    })
-    const researchCuration = buildResearchCurationStatus({
-      backlogItems: snapshot.backlogItems || [],
-    })
-    const verificationRuns = buildVerificationRunsSnapshot({
-      backlogItems: snapshot.backlogItems || [],
-      researchCuration,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis || {},
-      intelligenceActionRouter: snapshot.intelligenceActionRouter || {},
-      backlogHygiene,
-    })
-    cacheHeadersNoStore(res)
-    res.json(verificationRuns)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_verification_runs_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation verification runs.'
-    )
-  }
-})
-
-app.get('/api/foundation/per-user-changelog', requireAdminToken, async (req, res) => {
-  try {
-    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 100))
-    const [users, changeEvents] = await Promise.all([
-      listFoundationUsers({ activeOnly: true }),
-      getRecentChangeEvents(limit),
-    ])
-    const perUserChangelog = buildPerUserChangelogSnapshot({
-      users,
-      changeEvents,
-      limit,
-    })
-    cacheHeadersNoStore(res)
-    res.json(perUserChangelog)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_per_user_changelog_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation per-user changelog.'
-    )
-  }
-})
-
-app.get('/api/foundation/restricted-decision-queue', requireAdminToken, async (req, res) => {
-  try {
-    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 100))
-    const snapshot = await getFoundationSnapshot()
-    const restrictedDecisionQueue = buildDecisionRestrictedQueueSnapshot({
-      decisions: snapshot.decisions || [],
-      limit,
-    })
-    cacheHeadersNoStore(res)
-    res.json(restrictedDecisionQueue)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_restricted_decision_queue_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation restricted decision queue.'
-    )
-  }
-})
-
-app.get('/api/foundation/source-coverage-closeout', requireAdminToken, async (_req, res) => {
-  try {
-    const snapshot = await getFoundationSnapshot()
-    const sourceLifecycle = buildSourceLifecycleStatus({
-      sources: getSourceContracts(),
-      connectors: getSourceConnectors(),
-      groupedSystems: getGroupedSourceSystems(),
-      extractionControl: snapshot.extractionControl,
-      foundationJobs: getFoundationJobDefinitions(),
-    })
-    const sourceMaturityGrid = buildSourceMaturityGridSnapshot({
-      sources: getSourceContracts(),
-      extractionControl: snapshot.extractionControl,
-      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
-      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis,
-      intelligenceActionRouter: snapshot.intelligenceActionRouter,
-      sourceMaturityOperational: snapshot.sourceMaturityOperational,
-      lifecycle: sourceLifecycle,
-    })
-    const sourceExtractionCoverage = buildSourceExtractionCoverageSnapshot({
-      sources: getSourceContracts(),
-      extractionControl: snapshot.extractionControl,
-      sourceMaturityGrid,
-      lifecycle: sourceLifecycle,
-    })
-    const sourceCoverageCloseout = buildSourceCoverageCloseoutSnapshot({
-      sources: getSourceContracts(),
-      sourceMaturityGrid,
-      sourceExtractionCoverage,
-    })
-    cacheHeadersNoStore(res)
-    res.json(sourceCoverageCloseout)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_source_coverage_closeout_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation source coverage closeout.'
-    )
-  }
-})
-
-app.get('/api/foundation/source-extraction-coverage', requireAdminToken, async (_req, res) => {
-  try {
-    const snapshot = await getFoundationSnapshot()
-    const sourceLifecycle = buildSourceLifecycleStatus({
-      sources: getSourceContracts(),
-      connectors: getSourceConnectors(),
-      groupedSystems: getGroupedSourceSystems(),
-      extractionControl: snapshot.extractionControl,
-      foundationJobs: getFoundationJobDefinitions(),
-    })
-    const sourceMaturityGrid = buildSourceMaturityGridSnapshot({
-      sources: getSourceContracts(),
-      extractionControl: snapshot.extractionControl,
-      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
-      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis,
-      intelligenceActionRouter: snapshot.intelligenceActionRouter,
-      sourceMaturityOperational: snapshot.sourceMaturityOperational,
-      lifecycle: sourceLifecycle,
-    })
-    const sourceExtractionCoverage = buildSourceExtractionCoverageSnapshot({
-      sources: getSourceContracts(),
-      extractionControl: snapshot.extractionControl,
-      sourceMaturityGrid,
-      lifecycle: sourceLifecycle,
-    })
-    cacheHeadersNoStore(res)
-    res.json(sourceExtractionCoverage)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_source_extraction_coverage_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation source extraction coverage.'
-    )
-  }
-})
-
-app.get('/api/foundation/source-maturity-grid', requireAdminToken, async (_req, res) => {
-  try {
-    const snapshot = await getFoundationSnapshot()
-    const sourceLifecycle = buildSourceLifecycleStatus({
-      sources: getSourceContracts(),
-      connectors: getSourceConnectors(),
-      groupedSystems: getGroupedSourceSystems(),
-      extractionControl: snapshot.extractionControl,
-      foundationJobs: getFoundationJobDefinitions(),
-    })
-    const sourceMaturityGrid = buildSourceMaturityGridSnapshot({
-      sources: getSourceContracts(),
-      extractionControl: snapshot.extractionControl,
-      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
-      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis,
-      intelligenceActionRouter: snapshot.intelligenceActionRouter,
-      sourceMaturityOperational: snapshot.sourceMaturityOperational,
-      lifecycle: sourceLifecycle,
-    })
-    cacheHeadersNoStore(res)
-    res.json(sourceMaturityGrid)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_source_maturity_grid_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation source maturity grid.'
-    )
-  }
-})
-
-app.get('/api/foundation/source-connector-matrix', requireAdminToken, async (_req, res) => {
-  try {
-    const snapshot = await getFoundationSnapshot()
-    const sourceConnectorMatrix = buildSourceConnectorMatrixSnapshot({
-      sources: getSourceContracts(),
-      connectors: getSourceConnectors(),
-      extractionControl: snapshot.extractionControl,
-      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
-      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis,
-      intelligenceActionRouter: snapshot.intelligenceActionRouter,
-      sourceMaturityOperational: snapshot.sourceMaturityOperational,
-    })
-    cacheHeadersNoStore(res)
-    res.json(sourceConnectorMatrix)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_source_connector_matrix_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation source connector matrix.'
-    )
-  }
-})
-
-app.get('/api/foundation/connector-credential-preflight', requireAdminToken, async (_req, res) => {
-  try {
-    const connectorCredentialPreflight = buildConnectorCredentialRegistrySnapshot({
-      sourceContracts: getSourceContracts(),
-      sourceConnectors: getSourceConnectors(),
-    })
-    cacheHeadersNoStore(res)
-    res.json(connectorCredentialPreflight)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_connector_credential_preflight_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation connector credential preflight.'
-    )
-  }
-})
-
-app.get('/api/foundation/source-hub-routing-matrix', requireAdminToken, async (_req, res) => {
-  try {
-    const snapshot = await getFoundationSnapshot()
-    const sourceConnectorMatrix = buildSourceConnectorMatrixSnapshot({
-      sources: getSourceContracts(),
-      connectors: getSourceConnectors(),
-      extractionControl: snapshot.extractionControl,
-      sharedCommunicationsCoverage: snapshot.sharedCommunicationsCoverage,
-      intelligenceSynthesisFacts: snapshot.intelligenceSynthesisFacts,
-      intelligenceSynthesis: snapshot.intelligenceSynthesis,
-      intelligenceActionRouter: snapshot.intelligenceActionRouter,
-      sourceMaturityOperational: snapshot.sourceMaturityOperational,
-    })
-    const sourceHubRoutingMatrix = buildSourceHubRoutingMatrixSnapshot({
-      connectorMatrix: sourceConnectorMatrix,
-    })
-    cacheHeadersNoStore(res)
-    res.json(sourceHubRoutingMatrix)
-  } catch (error) {
-    if (error instanceof AccessDeniedError) {
-      sendAccessDenied(res, error)
-      return
-    }
-    sendApiError(
-      res,
-      500,
-      'foundation_source_hub_routing_matrix_load_failed',
-      error instanceof Error ? error.message : 'Failed to load Foundation source hub routing matrix.'
-    )
-  }
+registerFoundationSourceRoutes(app, {
+  requireAdminToken,
+  sendApiError,
+  sendAccessDenied,
+  cacheHeadersNoStore,
+  AccessDeniedError,
+  buildSourceOfTruthPayload,
+  getFoundationSnapshot,
+  getExtractionControlSnapshot,
+  getSourceContracts,
+  getSourceConnectors,
+  getGroupedSourceSystems,
+  getFoundationJobDefinitions,
+  buildSourceLifecycleStatus,
+  buildSourceMaturityGridSnapshot,
+  buildSourceExtractionCoverageSnapshot,
+  buildSourceCoverageCloseoutSnapshot,
+  buildSourceConnectorMatrixSnapshot,
+  buildConnectorCredentialRegistrySnapshot,
+  buildSourceHubRoutingMatrixSnapshot,
+  buildMarketingAvatarImportSnapshot,
+  buildMarketingSourceMapSnapshot,
+  buildBrandStackSnapshot,
+  buildTierBehavioralCompletionSnapshot,
+  buildBacklogHygieneSnapshot,
+  getFoundationBuildCloseouts,
+  buildResearchCurationStatus,
+  getRecentChangeEvents,
+  buildVerificationRunsSnapshot,
+  buildPerUserChangelogSnapshot,
+  buildDecisionRestrictedQueueSnapshot,
+  getActiveFoundationCurrentSprint,
+  buildFoundationCurrentSprintStatus,
+  buildFoundationUiCompleteSnapshot,
+  listFoundationUsers,
+  readFileSafe,
+  MARKETING_AVATAR_REFERENCE_BRIEF_PATH,
+  MARKETING_AVATAR_RETAIN_SOURCE_PATH,
+  MARKETING_AVATAR_ATTRACT_SOURCE_PATH,
+  MARKETING_AVATAR_OLD_README_PATH,
+  MARKETING_SOURCE_MAP_NOTE_PATH,
+  repoRoot: __dirname,
 })
 
 app.get('/api/foundation/build-intel-watchlist', requireAdminToken, async (_req, res) => {

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.42 - Foundation Server Route Split closed
+Version: v6.43 - Foundation Source Route Split closed
 Status: Active
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Server Route Split
+## Current Sprint: Foundation Source Route Split
+
+Live sprint ID: `source-route-split-2026-05-15`.
+
+This sprint is closed under `source-route-split-v1`. It extracts the Foundation source/control read-route cluster out of `server.js` into `lib/foundation-source-routes.js` without changing route behavior.
+
+The sprint order:
+
+1. `SOURCE-ROUTE-SPLIT-001` - done under `source-route-split-v1`; `/api/source-of-truth`, `/api/foundation/source-lifecycle`, marketing source map, brand stack, tier behavior, verification runs, per-user changelog, restricted decision queue, source coverage, extraction coverage, source maturity, connector preflight, connector matrix, and source-hub routing now register through `registerFoundationSourceRoutes(app, deps)`. Focused proof hit all 14 moved live routes under budget, with worst route `/api/foundation/source-lifecycle` at `371ms` / `622,389B`, proved the old inline route markers are absent from `server.js`, and proved the focused script is read-only.
+
+The approved sprint is complete. If Steve is unavailable, continue no-auth Foundation cleanup. Good candidates are another measured server route cluster split, a verifier module split, or the next clean `lib/foundation-db.js` boundary split.
+
+Previous completed sprint: `server-route-split-2026-05-15`, closed under `server-route-split-v1`. It extracted a bounded Foundation operator read-route cluster into `lib/foundation-operator-routes.js`: changes, change-log, daily-summary, build-log, single-card backlog detail, and doc-updates.
+
+## Previous Sprint: Foundation Server Route Split
 
 Live sprint ID: `server-route-split-2026-05-15`.
 
@@ -82,8 +96,6 @@ This sprint is closed under `server-route-split-v1`. It extracts a bounded Found
 The sprint order:
 
 1. `SERVER-ROUTE-SPLIT-001` - done under `server-route-split-v1`; `GET /api/foundation/changes`, `/api/foundation/change-log`, `/api/foundation/daily-summary`, `/api/foundation/build-log`, `/api/foundation/backlog/:cardId`, and `/api/foundation/doc-updates` now register through `registerFoundationOperatorRoutes(app, deps)`. Focused proof hit every moved live route, confirmed missing backlog still returns `404`, malformed backlog IDs still return `400`, proved the old inline route markers are absent from `server.js`, and kept the single-card backlog detail route at `2ms` / `2,089B`.
-
-The approved sprint is complete. If Steve is unavailable, continue no-auth Foundation cleanup. Good candidates are another measured server route cluster split, a verifier module split, or the next clean `lib/foundation-db.js` boundary split.
 
 Previous completed sprint: `foundation-backlog-detail-endpoint-2026-05-15`, closed under `foundation-backlog-detail-endpoint-v1`. It adds a read-only single-card backlog detail endpoint so hubs and Foundation UI can fetch full text for one card without pulling full diagnostics.
 

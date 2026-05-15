@@ -881,6 +881,14 @@ const SERVER_ROUTE_SPLIT_APPROVAL_PATH = 'docs/process/approvals/SERVER-ROUTE-SP
 const SERVER_ROUTE_SPLIT_SPRINT_ID = 'server-route-split-2026-05-15'
 const SERVER_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [SERVER_ROUTE_SPLIT_CARD_ID]
 
+const SOURCE_ROUTE_SPLIT_CARD_ID = 'SOURCE-ROUTE-SPLIT-001'
+const SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY = 'source-route-split-v1'
+const SOURCE_ROUTE_SPLIT_SCRIPT_PATH = 'scripts/process-source-route-split-check.mjs'
+const SOURCE_ROUTE_SPLIT_PLAN_PATH = 'docs/process/source-route-split-001-plan.md'
+const SOURCE_ROUTE_SPLIT_APPROVAL_PATH = 'docs/process/approvals/SOURCE-ROUTE-SPLIT-001.json'
+const SOURCE_ROUTE_SPLIT_SPRINT_ID = 'source-route-split-2026-05-15'
+const SOURCE_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [SOURCE_ROUTE_SPLIT_CARD_ID]
+
 const FOUNDATION_1100_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'BACKLOG-HYGIENE-PASS-002',
   'ACTION-REVIEW-CLEANUP-001',
@@ -2086,6 +2094,9 @@ async function main() {
   const foundationOperatorRoutesSource = await readRepoFile('lib/foundation-operator-routes.js')
   const serverRouteSplitScriptSource = await readRepoFile(SERVER_ROUTE_SPLIT_SCRIPT_PATH)
   const serverRouteSplitPlanSource = await readRepoFile(SERVER_ROUTE_SPLIT_PLAN_PATH)
+  const foundationSourceRoutesSource = await readRepoFile('lib/foundation-source-routes.js')
+  const sourceRouteSplitScriptSource = await readRepoFile(SOURCE_ROUTE_SPLIT_SCRIPT_PATH)
+  const sourceRouteSplitPlanSource = await readRepoFile(SOURCE_ROUTE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -2807,7 +2818,6 @@ async function main() {
       "app.get('/api/foundation-hub', requireAdminToken",
       "app.post('/api/intelligence/evidence', requireAdminToken",
       "app.get('/api/ops-hub', requireAdminToken",
-      "app.get('/api/source-of-truth', requireAdminToken",
       "app.get('/api/doc', requireAdminToken",
       "app.get('/api/fub/health', requireAdminToken",
       "app.get('/api/fub/person', requireAdminToken",
@@ -2816,7 +2826,6 @@ async function main() {
       "app.get('/api/owners/review-queue', requireAdminToken",
       "app.get('/api/sheets/structure-status', requireAdminToken",
       "app.get('/api/system-inventory', requireAdminToken",
-      "app.get('/api/foundation/per-user-changelog', requireAdminToken",
       "app.get('/foundation/export/strategy.pdf', requireAdminToken",
     ].every(pattern => serverSource.includes(pattern)) &&
       [
@@ -2825,7 +2834,14 @@ async function main() {
         "app.get('/api/foundation/daily-summary', requireAdminToken",
         "app.get('/api/foundation/build-log', requireAdminToken",
         "app.get('/api/foundation/doc-updates', requireAdminToken",
-      ].every(pattern => foundationOperatorRoutesSource.includes(pattern)),
+      ].every(pattern => foundationOperatorRoutesSource.includes(pattern)) &&
+      [
+        "app.get('/api/source-of-truth', requireAdminToken",
+        "app.get('/api/foundation/source-lifecycle', requireAdminToken",
+        "app.get('/api/foundation/per-user-changelog', requireAdminToken",
+        "app.get('/api/foundation/source-connector-matrix', requireAdminToken",
+        "app.get('/api/foundation/source-hub-routing-matrix', requireAdminToken",
+      ].every(pattern => foundationSourceRoutesSource.includes(pattern)),
     'broad Foundation/Ops/doc read APIs are admin-gated',
     'source-of-truth, doc reads, foundation hub, intelligence evidence, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, changelog, per-user changelog, daily summary, build log, doc updates, and PDF export require admin token outside localhost',
   )
@@ -3686,6 +3702,9 @@ async function main() {
   const foundationSourceMaturityGrid = await fetchJson(baseUrl, '/api/foundation/source-maturity-grid')
   const foundationSourceExtractionCoverage = await fetchJson(baseUrl, '/api/foundation/source-extraction-coverage')
   const foundationSourceCoverageCloseout = await fetchJson(baseUrl, '/api/foundation/source-coverage-closeout')
+  const foundationSourceConnectorMatrixApi = await fetchJson(baseUrl, '/api/foundation/source-connector-matrix')
+  const foundationConnectorCredentialPreflightApi = await fetchJson(baseUrl, '/api/foundation/connector-credential-preflight')
+  const foundationSourceHubRoutingMatrixApi = await fetchJson(baseUrl, '/api/foundation/source-hub-routing-matrix')
   const foundationMarketingSourceMap = await fetchJson(baseUrl, '/api/foundation/marketing-source-map')
   const foundationBrandStack = await fetchJson(baseUrl, '/api/foundation/brand-stack')
   const foundationTierBehavioralCompletion = await fetchJson(baseUrl, '/api/foundation/tier-behavioral-completion')
@@ -3890,6 +3909,7 @@ async function main() {
   const foundationHubBacklogContractCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) || null
   const foundationBacklogDetailEndpointCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) || null
   const serverRouteSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SERVER_ROUTE_SPLIT_CLOSEOUT_KEY) || null
+  const sourceRouteSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) || null
   const foundationOperatingReliabilityCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
@@ -4095,7 +4115,7 @@ async function main() {
   const missingArtifactClaims = await findMissingArtifactClaims(
     artifactClaimRecords,
     packageJson.scripts || {},
-    [serverSource, foundationOperatorRoutesSource],
+    [serverSource, foundationOperatorRoutesSource, foundationSourceRoutesSource],
   )
   const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
     [{
@@ -4103,7 +4123,7 @@ async function main() {
       text: 'docs/process/synthetic-missing-artifact.md npm run synthetic:missing /api/synthetic-missing-artifact',
     }],
     packageJson.scripts || {},
-    [serverSource, foundationOperatorRoutesSource],
+    [serverSource, foundationOperatorRoutesSource, foundationSourceRoutesSource],
   )
   const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
@@ -10104,7 +10124,7 @@ async function main() {
         'reject substring-only',
         SOURCE_EXTRACTION_COVERAGE_CARD_ID,
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/source-maturity-grid',
         'buildSourceMaturityGridSnapshot',
         'sourceMaturityGrid',
@@ -10182,7 +10202,7 @@ async function main() {
         'EXTRACT-RUN-HARDENING-001',
         SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/source-extraction-coverage',
         'buildSourceExtractionCoverageSnapshot',
         'sourceExtractionCoverage',
@@ -10270,7 +10290,7 @@ async function main() {
         SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID,
         MARKETING_SOURCE_MAP_CARD_ID,
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/source-coverage-closeout',
         'buildSourceCoverageCloseoutSnapshot',
         'sourceCoverageCloseout',
@@ -10358,7 +10378,7 @@ async function main() {
         'Steve Zahnd',
         'MarketMasters',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/marketing-source-map',
         'buildMarketingSourceMapSnapshot',
         'marketingSourceMap',
@@ -10439,7 +10459,7 @@ async function main() {
         'Trust = MarketMasters',
         'Execution = Benson Crew',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/brand-stack',
         'buildBrandStackSnapshot',
         'brandStack',
@@ -10523,7 +10543,7 @@ async function main() {
         '/api/foundation/tier-behavioral-completion',
         '/api/foundation/current-sprint',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/tier-behavioral-completion',
         'buildTierBehavioralCompletionSnapshot',
         'tierBehavioralCompletion',
@@ -10596,7 +10616,7 @@ async function main() {
         'proposed-only',
         VERIFICATION_RUNS_NEXT_CARD_ID,
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/verification-runs',
         'buildVerificationRunsSnapshot',
         'verificationRuns',
@@ -10677,7 +10697,7 @@ async function main() {
         'viewed/ignored/received',
         PER_USER_CHANGELOG_NEXT_CARD_ID,
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/per-user-changelog',
         'buildPerUserChangelogSnapshot',
         'perUserChangelog',
@@ -10752,10 +10772,9 @@ async function main() {
         'termination, compensation, performance concern',
         DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/restricted-decision-queue',
         'buildDecisionRestrictedQueueSnapshot',
-        'filterGeneralDecisionRecords',
         'restrictedDecisionQueue',
       ]) &&
       sharedCandidateExtractionSource.includes('filterGeneralDecisionRecords') &&
@@ -10835,7 +10854,7 @@ async function main() {
         '30-Second Read',
         'all ten Source Once-Over surfaces',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         'buildFoundationUiCompleteSnapshot',
         'sourceLifecycle.foundationUiComplete',
         'foundationUiComplete',
@@ -10887,7 +10906,7 @@ async function main() {
       sourceHubRoutingMatrix.summary?.rowCount >= 25 &&
       sourceHubRoutingMatrix.summary?.hubCount >= 16 &&
       ['route', 'candidate', 'blocked', 'n/a', 'unknown'].every(state => (sourceHubRoutingMatrix.states || []).includes(state)) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/source-connector-matrix',
         '/api/foundation/source-hub-routing-matrix',
         'sourceConnectorMatrix',
@@ -11341,7 +11360,7 @@ async function main() {
         'has_credential',
         'credential_status',
       ]) &&
-      includesAll(serverSource, [
+      includesAll(foundationSourceRoutesSource, [
         '/api/foundation/connector-credential-preflight',
         'buildConnectorCredentialRegistrySnapshot',
         'connectorCredentialPreflight',
@@ -13839,6 +13858,81 @@ async function main() {
     serverRouteSplitCard
       ? `lane=${serverRouteSplitCard.lane} module=${foundationOperatorRoutesSource.includes('registerFoundationOperatorRoutes')} inlineGone=${serverRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker))}`
       : `missing ${SERVER_ROUTE_SPLIT_CARD_ID}`,
+  )
+  const sourceRouteSplitCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_ROUTE_SPLIT_CARD_ID) || null
+  const sourceRouteSplitRouteMarkers = [
+    '/api/source-of-truth',
+    '/api/foundation/source-lifecycle',
+    '/api/foundation/marketing-source-map',
+    '/api/foundation/brand-stack',
+    '/api/foundation/tier-behavioral-completion',
+    '/api/foundation/verification-runs',
+    '/api/foundation/per-user-changelog',
+    '/api/foundation/restricted-decision-queue',
+    '/api/foundation/source-coverage-closeout',
+    '/api/foundation/source-extraction-coverage',
+    '/api/foundation/source-maturity-grid',
+    '/api/foundation/source-connector-matrix',
+    '/api/foundation/connector-credential-preflight',
+    '/api/foundation/source-hub-routing-matrix',
+  ]
+  const sourceRouteSplitOldInlineMarkers = [
+    "app.get('/api/source-of-truth'",
+    "app.get('/api/foundation/source-lifecycle'",
+    "app.get('/api/foundation/marketing-source-map'",
+    "app.get('/api/foundation/brand-stack'",
+    "app.get('/api/foundation/tier-behavioral-completion'",
+    "app.get('/api/foundation/verification-runs'",
+    "app.get('/api/foundation/per-user-changelog'",
+    "app.get('/api/foundation/restricted-decision-queue'",
+    "app.get('/api/foundation/source-coverage-closeout'",
+    "app.get('/api/foundation/source-extraction-coverage'",
+    "app.get('/api/foundation/source-maturity-grid'",
+    "app.get('/api/foundation/source-connector-matrix'",
+    "app.get('/api/foundation/connector-credential-preflight'",
+    "app.get('/api/foundation/source-hub-routing-matrix'",
+  ]
+  ensure(
+    checks,
+      sourceRouteSplitCard &&
+      sourceRouteSplitCard.lane === 'done' &&
+      String(sourceRouteSplitCard.statusNote || '').includes(SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      sourceRouteSplitCloseout?.operatorCloseout === true &&
+      (sourceRouteSplitCloseout.backlogIds || []).includes(SOURCE_ROUTE_SPLIT_CARD_ID) &&
+      packageJson.scripts?.['process:source-route-split-check'] === `node --env-file-if-exists=.env ${SOURCE_ROUTE_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(SOURCE_ROUTE_SPLIT_PLAN_PATH) &&
+      await repoFileExists(SOURCE_ROUTE_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-source-route-split-closeout.md') &&
+      foundationSourceRoutesSource.includes('registerFoundationSourceRoutes') &&
+      includesAll(foundationSourceRoutesSource, sourceRouteSplitRouteMarkers) &&
+      serverSource.includes('registerFoundationSourceRoutes(app') &&
+      sourceRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker)) &&
+      sourceRouteSplitScriptSource.includes('fetchJsonMeasured') &&
+      sourceRouteSplitScriptSource.includes('scriptIsReadOnly') &&
+      sourceRouteSplitPlanSource.includes('focused proof script is read-only') &&
+      Array.isArray(sourceOfTruth.sources) &&
+      Array.isArray(foundationSourceLifecycle.sources) &&
+      Array.isArray(foundationSourceMaturityGrid.rows) &&
+      Array.isArray(foundationSourceExtractionCoverage.rows) &&
+      Array.isArray(foundationSourceCoverageCloseout.rows) &&
+      foundationMarketingSourceMap.cardId === 'MARKETING-SOURCE-MAP-001' &&
+      foundationBrandStack.status &&
+      foundationTierBehavioralCompletion.status &&
+      foundationVerificationRuns.summary &&
+      foundationPerUserChangelog.summary &&
+      foundationRestrictedDecisionQueue.summary &&
+      Array.isArray(foundationSourceConnectorMatrixApi.rows) &&
+      foundationConnectorCredentialPreflightApi.summary?.metadataOnly === true &&
+      Array.isArray(foundationSourceHubRoutingMatrixApi.rows) &&
+      currentPlan.includes(SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(SOURCE_ROUTE_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === SOURCE_ROUTE_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast(SOURCE_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
+      includesAll(foundationVerifySource, SOURCE_ROUTE_SPLIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
+    'SOURCE-ROUTE-SPLIT-001 extracts Foundation source/control routes from server.js without behavior drift',
+    sourceRouteSplitCard
+      ? `lane=${sourceRouteSplitCard.lane} module=${foundationSourceRoutesSource.includes('registerFoundationSourceRoutes')} inlineGone=${sourceRouteSplitOldInlineMarkers.every(marker => !serverSource.includes(marker))}`
+      : `missing ${SOURCE_ROUTE_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
