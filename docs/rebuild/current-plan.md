@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.68 - Verifier server-route split module sprint
+Version: v6.69 - Foundation DB core seed split sprint
 Status: Active
 
 Use this doc for one question:
@@ -73,17 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Verifier Server-Route Split Module
+## Current Sprint: Foundation DB Core Seed Split
 
-Live sprint ID: `verifier-server-route-split-module-2026-05-15`.
+Live sprint ID: `foundation-db-core-seed-split-2026-05-15`.
 
-This sprint is active under `verifier-server-route-split-module-v1`. It extracts the already-shipped server route split verifier proof domain from `scripts/foundation-verify.mjs` into a focused verifier module without changing route behavior.
+This sprint is active under `foundation-core-seed-split-v1`. It extracts static Foundation bootstrap seed arrays from `lib/foundation-db.js` into a focused seed module without changing live DB behavior.
 
 Active card:
 
-1. `VERIFIER-SERVER-ROUTE-SPLIT-MODULE-001` - building under `verifier-server-route-split-module-v1`. V1 moves the server-route split proof predicates into `lib/foundation-server-route-split-verifier.js`, keeps `scripts/foundation-verify.mjs` as the thin caller, and dogfoods that missing modules, old inline server routes, missing registrars, moved out-of-scope routes, and weak substring-only proof scripts fail closed.
+1. `FOUNDATION-DB-MONOLITH-SPLIT-003` - building under `foundation-core-seed-split-v1`. V1 moves Foundation users, locked decision defaults, parking-lot defaults, open-question defaults, memory-status defaults, and default doc source snapshot rows into `lib/foundation-core-seed.js`, keeps bootstrap seed calls in `lib/foundation-db.js`, and dogfoods that old inline seed ownership fails while imported seed ownership passes.
 
-Not next: route behavior changes, auth/session changes, hub feature work, Marketing Video Lab live route wiring, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad DB rewrite, source-backed live BHAG / Agent Engine snapshot builder movement, schema changes, source crawl/job/intelligence/shared-comms/hub movement, hub feature work, Marketing Video Lab live route wiring, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `verifier-server-route-split-module-2026-05-15`, closed under `verifier-server-route-split-module-v1`. `VERIFIER-SERVER-ROUTE-SPLIT-MODULE-001` extracted the already-shipped server route split verifier proof domain from `scripts/foundation-verify.mjs` into `lib/foundation-server-route-split-verifier.js` without changing route behavior.
 
 Previous completed sprint: `kpi-health-api-cache-2026-05-15`, closed under `kpi-health-api-cache-v1`. `KPI-HEALTH-API-CACHE-001` bounded KPI/Supabase health probes with an explicit timeout, kept source/hub request paths on cached safe KPI health, and dogfooded that a slow KPI provider aborts quickly instead of hanging Foundation or hub routes.
 

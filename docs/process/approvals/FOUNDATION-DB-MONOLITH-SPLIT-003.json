@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-003",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T13:43:49.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-db-core-seed-split-003-plan.md",
+  "approvedPlanSha256": "38c38ae842ebf4b01bd83eb9e172a9e3b3ea0e5acb75d2000ffcdd544d236ce0",
+  "approvedRepoHead": "50bc204a951ce98aa612b36ab1741b7b93f0859b",
+  "notes": "Approved as the Foundation DB Core Seed Split Sprint. Scope: extract only static bootstrap seed arrays from lib/foundation-db.js into lib/foundation-core-seed.js, keep live Postgres/API as operational truth, keep initFoundationDb schema-only by default, and prove the old inline seed shape fails. Not approved: broad DB rewrite, live snapshot builder movement, schema changes, source crawl/job/intelligence/shared-comms/hub changes, Marketing Video Lab wiring, Build Intel extraction, paid-source auth, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "31616059a65d03bad78c5d0ab0eb487121a306c7cec5955505579db875908675"
+}

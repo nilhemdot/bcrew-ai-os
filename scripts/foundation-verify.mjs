@@ -679,6 +679,17 @@ import {
   buildFoundationDecisionStoreSplitDogfoodProof,
 } from '../lib/foundation-decision-store.js'
 import {
+  FOUNDATION_CORE_SEED_SPLIT_APPROVAL_PATH,
+  FOUNDATION_CORE_SEED_SPLIT_CARD_ID,
+  FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_CORE_SEED_SPLIT_PLAN_PATH,
+  FOUNDATION_CORE_SEED_SPLIT_SCRIPT_PATH,
+  FOUNDATION_CORE_SEED_SPLIT_SPRINT_ID,
+  buildFoundationCoreSeedSplitDogfoodProof,
+  evaluateFoundationCoreSeedSplit,
+  getFoundationCoreSeedSummary,
+} from '../lib/foundation-core-seed.js'
+import {
   FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
   FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
   FRONTEND_MONOLITH_SPLIT_CARD_ID,
@@ -2417,6 +2428,9 @@ async function main() {
   const foundationDecisionStoreSource = await readRepoFile('lib/foundation-decision-store.js')
   const foundationDecisionStoreScriptSource = await readRepoFile(FOUNDATION_DECISION_STORE_SPLIT_SCRIPT_PATH)
   const foundationDecisionStorePlanSource = await readRepoFile(FOUNDATION_DECISION_STORE_SPLIT_PLAN_PATH)
+  const foundationCoreSeedSource = await readRepoFile('lib/foundation-core-seed.js')
+  const foundationCoreSeedScriptSource = await readRepoFile(FOUNDATION_CORE_SEED_SPLIT_SCRIPT_PATH)
+  const foundationCoreSeedPlanSource = await readRepoFile(FOUNDATION_CORE_SEED_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -14469,6 +14483,51 @@ async function main() {
     foundationDecisionStoreSplitCard
       ? `lane=${foundationDecisionStoreSplitCard.lane} dogfood=${foundationDecisionStoreDogfood.ok ? 'pass' : 'blocked'}`
       : `missing ${FOUNDATION_DECISION_STORE_SPLIT_CARD_ID}`,
+  )
+  const foundationCoreSeedSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_CORE_SEED_SPLIT_CARD_ID) || null
+  const foundationCoreSeedSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) || null
+  const foundationCoreSeedDogfood = buildFoundationCoreSeedSplitDogfoodProof()
+  const foundationCoreSeedEvaluation = evaluateFoundationCoreSeedSplit({
+    foundationDbSource,
+    coreSeedSource: foundationCoreSeedSource,
+    seedSummary: getFoundationCoreSeedSummary(),
+  })
+  const foundationCoreSeedSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_CORE_SEED_SPLIT_SPRINT_ID &&
+    (activeFoundationSprint.items || []).some(item =>
+      item.cardId === FOUNDATION_CORE_SEED_SPLIT_CARD_ID &&
+        ['building_now', 'done_this_sprint'].includes(item.stage)
+    )
+  const foundationCoreSeedClosed = foundationCoreSeedSplitCard?.lane === 'done' &&
+    String(foundationCoreSeedSplitCard.statusNote || '').includes(FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) &&
+    foundationCoreSeedSplitCloseout?.operatorCloseout === true &&
+    (foundationCoreSeedSplitCloseout.backlogIds || []).includes(FOUNDATION_CORE_SEED_SPLIT_CARD_ID)
+  ensure(
+    checks,
+      foundationCoreSeedSplitCard &&
+      (foundationCoreSeedSprintActive || foundationCoreSeedClosed) &&
+      foundationCoreSeedDogfood.ok === true &&
+      foundationCoreSeedEvaluation.ok === true &&
+      packageJson.scripts?.['process:foundation-core-seed-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_CORE_SEED_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FOUNDATION_CORE_SEED_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FOUNDATION_CORE_SEED_SPLIT_APPROVAL_PATH) &&
+      foundationCoreSeedSource.includes('Live Postgres/API remains operational truth after bootstrap') &&
+      foundationCoreSeedSource.includes('export const foundationUserSeed') &&
+      foundationCoreSeedSource.includes('export const docSourceSnapshotsSeed') &&
+      foundationCoreSeedScriptSource.includes('dogfood rejects old inline core seed ownership') &&
+      foundationCoreSeedPlanSource.includes('inline seed ownership') &&
+      foundationDbSource.includes('./foundation-core-seed.js') &&
+      !foundationDbSource.includes('const foundationUserSeed = [') &&
+      !foundationDbSource.includes('const decisionsSeed = [') &&
+      !foundationDbSource.includes('const docSourceSnapshotsSeed = [') &&
+      currentPlan.includes(FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_CORE_SEED_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FOUNDATION_CORE_SEED_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FOUNDATION_CORE_SEED_SPLIT_CARD_ID),
+    'FOUNDATION-DB-MONOLITH-SPLIT-003 splits static core seed arrays out of foundation-db.js',
+    foundationCoreSeedSplitCard
+      ? `lane=${foundationCoreSeedSplitCard.lane} dogfood=${foundationCoreSeedDogfood.ok ? 'pass' : 'blocked'} lines=${foundationCoreSeedEvaluation.preSplitFoundationDbLineCount}->${foundationCoreSeedEvaluation.foundationDbLineCount}`
+      : `missing ${FOUNDATION_CORE_SEED_SPLIT_CARD_ID}`,
   )
   const frontendSplitVerifierCoveredCardIds = [
     'FRONTEND-MONOLITH-SPLIT-001',
