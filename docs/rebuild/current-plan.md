@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.54 - Foundation Current State renderer split closed
+Version: v6.55 - Foundation Decisions and Open Questions renderer split closed
 Status: Active
 
 Use this doc for one question:
@@ -73,19 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation Current State Renderer Split
+## Current Sprint: Foundation Decisions and Open Questions Renderer Split
 
-Live sprint ID: `frontend-current-state-renderers-split-2026-05-15`.
+Live sprint ID: `frontend-decision-question-renderers-split-2026-05-15`.
 
-This sprint is closed under `frontend-current-state-renderers-split-v1`. It extracts the Foundation Overview / Current State renderer cluster out of `public/foundation.js` into a focused classic browser script without changing renderer behavior, route semantics, CSS, API contracts, Foundation Hub/source-of-truth contracts, or current-state data semantics.
+This sprint is closed under `frontend-decision-question-renderers-split-v1`. It extracts the Foundation Decisions / Open Questions renderer cluster out of `public/foundation.js` into a focused classic browser script without changing renderer behavior, route semantics, CSS, API contracts, Foundation Hub contracts, Backlog, Action Review, Decisions, or Open Questions data semantics.
 
 The sprint order:
 
-1. `FRONTEND-CURRENT-STATE-RENDERERS-SPLIT-001` - done under `frontend-current-state-renderers-split-v1`; Current State source links/stamps, backlog cells, closeout boards, maturity level guide, package detail tables, surface tables, Foundation truth/execution panels, Owners review queue panel, and `renderCurrentState()` now live in `public/foundation-current-state-renderers.js`. Focused proof executes the split scripts in a VM-backed fake browser, proves Current State route globals, source links, backlog cell rendering, surface table rendering, synthetic route render, rejects missing/wrong Current State module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from about `7,710` to `6,348` lines for this slice.
+1. `FRONTEND-DECISION-QUESTION-RENDERERS-SPLIT-001` - done under `frontend-decision-question-renderers-split-v1`; decision memory cards, parking-lot capture cards, open-question cards, decision review grouping, decision/open-question create and editor controls, pending doc-update cards, and supporting decision/question helpers now live in `public/foundation-decision-question-renderers.js`. Focused proof executes the split scripts in a VM-backed fake browser, proves decision card rendering, decision review rendering, pending doc-update rendering, open-question group/card rendering, create/editor controls, synthetic route render, rejects missing/wrong Decisions / Open Questions module script order, measures `/foundation` and split scripts under budget, updates split-source reviewer readers, and reduces `public/foundation.js` from about `6,348` to `4,910` lines for this slice.
 
-Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, Foundation Hub/source-of-truth contract changes, Backlog, Decision, Open Questions, Data Sources, strategy-doc split, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad renderer rewrite, frontend build-system conversion, Foundation UI redesign, Foundation API contract changes, Foundation Hub/source-of-truth contract changes, Backlog, Action Review, Data Sources, strategy-doc split, hub feature work, Marketing Video Lab live wiring, paid-source auth, Drive permission mutation, or Meeting Vault Phase B.
 
-Previous completed sprint: `frontend-fub-lead-source-renderers-split-2026-05-15`, closed under `frontend-fub-lead-source-renderers-split-v1`. It extracted the Foundation FUB lead-source taxonomy renderer cluster out of `public/foundation.js` into `public/foundation-fub-lead-source-renderers.js` and reduced `public/foundation.js` from about `8,388` to `7,710` lines.
+Previous completed sprint: `frontend-current-state-renderers-split-2026-05-15`, closed under `frontend-current-state-renderers-split-v1`. It extracted the Foundation Overview / Current State renderer cluster out of `public/foundation.js` into `public/foundation-current-state-renderers.js` and reduced `public/foundation.js` from about `7,710` to `6,348` lines.
+
+Previous completed sprint before that: `frontend-fub-lead-source-renderers-split-2026-05-15`, closed under `frontend-fub-lead-source-renderers-split-v1`. It extracted the Foundation FUB lead-source taxonomy renderer cluster out of `public/foundation.js` into `public/foundation-fub-lead-source-renderers.js` and reduced `public/foundation.js` from about `8,388` to `7,710` lines.
 
 Previous completed sprint before that: `frontend-system-inventory-renderers-split-2026-05-15`, closed under `frontend-system-inventory-renderers-split-v1`. It extracted Foundation Systems and System Inventory renderers out of `public/foundation.js` into `public/foundation-system-inventory-renderers.js` and reduced `public/foundation.js` from about `9,774` to about `8,388` lines.
 

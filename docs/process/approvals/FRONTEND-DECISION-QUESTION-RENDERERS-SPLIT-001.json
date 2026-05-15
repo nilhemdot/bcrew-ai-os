@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FRONTEND-DECISION-QUESTION-RENDERERS-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T07:50:06.877Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/frontend-decision-question-renderers-split-001-plan.md",
+  "approvedPlanSha256": "44730ac99abb904359d61ba256b81bd815ba8ac66c67e3dfd78639f271e39364",
+  "approvedRepoHead": "52e627f7496ae0d59063b5fd88c021e9f3c3b1c4",
+  "notes": "Approved as a no-auth Foundation cleanup continuation. Scope: mechanically extract Decisions / Open Questions renderers into public/foundation-decision-question-renderers.js with VM dogfood proof, split-source reviewer updates, route/script budgets, and full Foundation ship. Not approved: UX redesign, API contract changes, Backlog/Action Review split, hub feature work, Marketing live wiring, paid-source auth, source extraction, Drive permissions, Meeting Vault Phase B, or autonomous dev.",
+  "approvalDigest": "e8c179d64ea7cc1e80a0e3bd3b40c6d4d73ccaee83d33de69b9edd9987ec2ad8"
+}

@@ -619,6 +619,17 @@ import {
   evaluateFrontendCurrentStateScriptOrder,
 } from '../lib/foundation-frontend-current-state-renderers-split.js'
 import {
+  FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_APPROVAL_PATH,
+  FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_BEFORE_LINES,
+  FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CARD_ID,
+  FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CLOSEOUT_KEY,
+  FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_PLAN_PATH,
+  FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_SCRIPT_PATH,
+  FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_SPRINT_ID,
+  evaluateFrontendDecisionQuestionRendererSplit,
+  evaluateFrontendDecisionQuestionScriptOrder,
+} from '../lib/foundation-frontend-decision-question-renderers-split.js'
+import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -2154,6 +2165,7 @@ async function main() {
   const foundationFubLeadSourceRenderersSource = await readRepoFile('public/foundation-fub-lead-source-renderers.js')
   const foundationSystemInventoryRenderersSource = await readRepoFile('public/foundation-system-inventory-renderers.js')
   const foundationCurrentStateRenderersSource = await readRepoFile('public/foundation-current-state-renderers.js')
+  const foundationDecisionQuestionRenderersSource = await readRepoFile('public/foundation-decision-question-renderers.js')
   const foundationSourceLifecycleRenderersSource = await readRepoFile('public/foundation-source-lifecycle-renderers.js')
   const foundationRuntimeRenderersSource = await readRepoFile('public/foundation-runtime-renderers.js')
   const foundationOperationsRenderersSource = await readRepoFile('public/foundation-operations-renderers.js')
@@ -2174,6 +2186,8 @@ async function main() {
   const frontendSystemInventoryRenderersSplitPlanSource = await readRepoFile(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_PLAN_PATH)
   const frontendCurrentStateRenderersSplitScriptSource = await readRepoFile(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_SCRIPT_PATH)
   const frontendCurrentStateRenderersSplitPlanSource = await readRepoFile(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_PLAN_PATH)
+  const frontendDecisionQuestionRenderersSplitScriptSource = await readRepoFile(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_SCRIPT_PATH)
+  const frontendDecisionQuestionRenderersSplitPlanSource = await readRepoFile(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_PLAN_PATH)
   const foundationFrontendSource = [
     foundationNavConfigSource,
     foundationDataSource,
@@ -2182,6 +2196,7 @@ async function main() {
     foundationFubLeadSourceRenderersSource,
     foundationSystemInventoryRenderersSource,
     foundationCurrentStateRenderersSource,
+    foundationDecisionQuestionRenderersSource,
     foundationSourceLifecycleRenderersSource,
     foundationRuntimeRenderersSource,
     foundationOperationsRenderersSource,
@@ -14594,6 +14609,76 @@ async function main() {
     frontendCurrentStateRenderersSplitCard
       ? `lane=${frontendCurrentStateRenderersSplitCard.lane} dogfood=${frontendCurrentStateDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
       : `missing ${FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CARD_ID}`,
+  )
+  const frontendDecisionQuestionRenderersSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CARD_ID) || null
+  const frontendDecisionQuestionRenderersSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CLOSEOUT_KEY) || null
+  const frontendDecisionQuestionScriptOrder = evaluateFrontendDecisionQuestionScriptOrder(extractFoundationScriptOrder(foundationHtmlSource))
+  const frontendDecisionQuestionDogfood = evaluateFrontendDecisionQuestionRendererSplit({
+    foundationSource: foundationUiSource,
+    decisionQuestionSource: foundationDecisionQuestionRenderersSource,
+    dataSource: foundationDataSource,
+    sourceRegistrySource: foundationSourceRegistryRenderersSource,
+    runtimeSource: foundationRuntimeRenderersSource,
+    routerSource: foundationRouterSource,
+    htmlSource: foundationHtmlSource,
+    lineCounts: {
+      before: FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_BEFORE_LINES,
+      after: frontendUiLineCount,
+    },
+    routeGlobals: {
+      decisionCard: true,
+      decisionReview: true,
+      docUpdate: true,
+      questionCard: true,
+      questionEditor: true,
+    },
+    helperBehavior: {
+      decisionCard: true,
+      decisionReview: true,
+      docUpdate: true,
+      questionGroups: true,
+      questionCard: true,
+      createEditors: true,
+      routeRender: true,
+    },
+  })
+  ensure(
+    checks,
+      frontendDecisionQuestionRenderersSplitCard &&
+      frontendDecisionQuestionRenderersSplitCard.lane === 'done' &&
+      String(frontendDecisionQuestionRenderersSplitCard.statusNote || '').includes(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      frontendDecisionQuestionRenderersSplitCloseout?.operatorCloseout === true &&
+      (frontendDecisionQuestionRenderersSplitCloseout.backlogIds || []).includes(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CARD_ID) &&
+      frontendDecisionQuestionScriptOrder.ok === true &&
+      frontendDecisionQuestionDogfood.ok === true &&
+      packageJson.scripts?.['process:frontend-decision-question-renderers-split-check'] === `node --env-file-if-exists=.env ${FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-frontend-decision-question-renderers-split-closeout.md') &&
+      foundationDecisionQuestionRenderersSource.includes('function renderDecisionMemoryCard(item, hub, pendingUpdates, replacedBy)') &&
+      foundationDecisionQuestionRenderersSource.includes('function renderOpenQuestionCard(item)') &&
+      foundationDecisionQuestionRenderersSource.includes('function renderDecisionReviewPanel(hub)') &&
+      foundationDecisionQuestionRenderersSource.includes('function renderQuestionEditor(item)') &&
+      !foundationUiSource.includes('function renderDecisionMemoryCard(item, hub, pendingUpdates, replacedBy)') &&
+      !foundationUiSource.includes('function renderOpenQuestionCard(item)') &&
+      !foundationUiSource.includes('function renderDecisionReviewPanel(hub)') &&
+      !foundationUiSource.includes('function renderQuestionEditor(item)') &&
+      foundationUiSource.includes('function renderDecisions()') &&
+      foundationUiSource.includes('function renderOpenQuestions()') &&
+      foundationRouterSource.includes('renderDecisions()') &&
+      foundationRouterSource.includes('renderOpenQuestions()') &&
+      frontendDecisionQuestionRenderersSplitScriptSource.includes('runDecisionQuestionBrowserDogfood') &&
+      frontendDecisionQuestionRenderersSplitScriptSource.includes('VM Decisions / Open Questions dispatch reaches extracted renderers') &&
+      frontendDecisionQuestionRenderersSplitPlanSource.includes('read-only by default') &&
+      currentPlan.includes(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CARD_ID),
+    'FRONTEND-DECISION-QUESTION-RENDERERS-SPLIT-001 splits Foundation Decisions / Open Questions renderers out of public/foundation.js',
+    frontendDecisionQuestionRenderersSplitCard
+      ? `lane=${frontendDecisionQuestionRenderersSplitCard.lane} dogfood=${frontendDecisionQuestionDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
+      : `missing ${FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()
