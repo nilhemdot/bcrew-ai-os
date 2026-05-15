@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FRONTEND-CURRENT-STATE-RENDERERS-SPLIT-001",
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T07:35:10.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/frontend-current-state-renderers-split-001-plan.md",
+  "approvedPlanSha256": "7fe56ea5e23d816a538f9098f749c15f7a880a86ac16ad04deaaa98c1acd6b97",
+  "approvedRepoHead": "9776695b25c58112aed6fc8cdda420d5de3b359a",
+  "notes": "Approved as a no-auth Foundation cleanup continuation. Scope: mechanically extract Current State / Overview renderers into public/foundation-current-state-renderers.js with VM dogfood proof, split-source reviewer updates, route/script budgets, and full Foundation ship. Not approved: UI redesign, API contract changes, Backlog/Decision/Open Questions split, hub feature work, Marketing live wiring, paid-source auth, source extraction, Drive permissions, Meeting Vault Phase B, or autonomous dev.",
+  "approvalDigest": "7c2cacb0dad1f237adc35e269119d30cf2bff631010008bf8b23c8d8b91f64f1"
+}

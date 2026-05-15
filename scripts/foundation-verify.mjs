@@ -608,6 +608,17 @@ import {
   evaluateFrontendSystemInventoryScriptOrder,
 } from '../lib/foundation-frontend-system-inventory-renderers-split.js'
 import {
+  FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_APPROVAL_PATH,
+  FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_BEFORE_LINES,
+  FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CARD_ID,
+  FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CLOSEOUT_KEY,
+  FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_PLAN_PATH,
+  FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_SCRIPT_PATH,
+  FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_SPRINT_ID,
+  evaluateFrontendCurrentStateRendererSplit,
+  evaluateFrontendCurrentStateScriptOrder,
+} from '../lib/foundation-frontend-current-state-renderers-split.js'
+import {
   FOUNDATION_CURRENT_SPRINT_STAGES,
   FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH,
   FOUNDATION_SPRINT_CADENCE_CARD_ID,
@@ -2142,6 +2153,7 @@ async function main() {
   const foundationSourceRegistryRenderersSource = await readRepoFile('public/foundation-source-registry-renderers.js')
   const foundationFubLeadSourceRenderersSource = await readRepoFile('public/foundation-fub-lead-source-renderers.js')
   const foundationSystemInventoryRenderersSource = await readRepoFile('public/foundation-system-inventory-renderers.js')
+  const foundationCurrentStateRenderersSource = await readRepoFile('public/foundation-current-state-renderers.js')
   const foundationSourceLifecycleRenderersSource = await readRepoFile('public/foundation-source-lifecycle-renderers.js')
   const foundationRuntimeRenderersSource = await readRepoFile('public/foundation-runtime-renderers.js')
   const foundationOperationsRenderersSource = await readRepoFile('public/foundation-operations-renderers.js')
@@ -2160,6 +2172,8 @@ async function main() {
   const frontendFubLeadSourceRenderersSplitPlanSource = await readRepoFile(FRONTEND_FUB_LEAD_SOURCE_RENDERERS_SPLIT_PLAN_PATH)
   const frontendSystemInventoryRenderersSplitScriptSource = await readRepoFile(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_SCRIPT_PATH)
   const frontendSystemInventoryRenderersSplitPlanSource = await readRepoFile(FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_PLAN_PATH)
+  const frontendCurrentStateRenderersSplitScriptSource = await readRepoFile(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_SCRIPT_PATH)
+  const frontendCurrentStateRenderersSplitPlanSource = await readRepoFile(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_PLAN_PATH)
   const foundationFrontendSource = [
     foundationNavConfigSource,
     foundationDataSource,
@@ -2167,6 +2181,7 @@ async function main() {
     foundationSourceRegistryRenderersSource,
     foundationFubLeadSourceRenderersSource,
     foundationSystemInventoryRenderersSource,
+    foundationCurrentStateRenderersSource,
     foundationSourceLifecycleRenderersSource,
     foundationRuntimeRenderersSource,
     foundationOperationsRenderersSource,
@@ -14516,6 +14531,69 @@ async function main() {
     frontendSystemInventoryRenderersSplitCard
       ? `lane=${frontendSystemInventoryRenderersSplitCard.lane} dogfood=${frontendSystemInventoryDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
       : `missing ${FRONTEND_SYSTEM_INVENTORY_RENDERERS_SPLIT_CARD_ID}`,
+  )
+  const frontendCurrentStateRenderersSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CARD_ID) || null
+  const frontendCurrentStateRenderersSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CLOSEOUT_KEY) || null
+  const frontendCurrentStateScriptOrder = evaluateFrontendCurrentStateScriptOrder(extractFoundationScriptOrder(foundationHtmlSource))
+  const frontendCurrentStateDogfood = evaluateFrontendCurrentStateRendererSplit({
+    foundationSource: foundationUiSource,
+    currentStateSource: foundationCurrentStateRenderersSource,
+    dataSource: foundationDataSource,
+    runtimeSource: foundationRuntimeRenderersSource,
+    routerSource: foundationRouterSource,
+    htmlSource: foundationHtmlSource,
+    lineCounts: {
+      before: FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_BEFORE_LINES,
+      after: frontendUiLineCount,
+    },
+    routeGlobals: {
+      currentState: true,
+      truthPanel: true,
+      executionOrder: true,
+      surfaceTable: true,
+      sourceHref: true,
+    },
+    helperBehavior: {
+      sourceLinks: true,
+      backlogCell: true,
+      surfaceTable: true,
+      routeRender: true,
+    },
+  })
+  ensure(
+    checks,
+      frontendCurrentStateRenderersSplitCard &&
+      frontendCurrentStateRenderersSplitCard.lane === 'done' &&
+      String(frontendCurrentStateRenderersSplitCard.statusNote || '').includes(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      frontendCurrentStateRenderersSplitCloseout?.operatorCloseout === true &&
+      (frontendCurrentStateRenderersSplitCloseout.backlogIds || []).includes(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CARD_ID) &&
+      frontendCurrentStateScriptOrder.ok === true &&
+      frontendCurrentStateDogfood.ok === true &&
+      packageJson.scripts?.['process:frontend-current-state-renderers-split-check'] === `node --env-file-if-exists=.env ${FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/2026-05-15-frontend-current-state-renderers-split-closeout.md') &&
+      foundationCurrentStateRenderersSource.includes('function renderCurrentState()') &&
+      foundationCurrentStateRenderersSource.includes('function renderFoundationCurrentTruthPanel(hub)') &&
+      foundationCurrentStateRenderersSource.includes('function renderCurrentStateSurfaceTable(rows)') &&
+      foundationCurrentStateRenderersSource.includes('function renderOwnersReviewQueuePanel(payload)') &&
+      !foundationUiSource.includes('function renderCurrentState()') &&
+      !foundationUiSource.includes('function renderFoundationCurrentTruthPanel(hub)') &&
+      !foundationUiSource.includes('function renderCurrentStateSurfaceTable(rows)') &&
+      !foundationUiSource.includes('function renderOwnersReviewQueuePanel(payload)') &&
+      foundationRouterSource.includes('renderCurrentState()') &&
+      frontendCurrentStateRenderersSplitScriptSource.includes('runCurrentStateBrowserDogfood') &&
+      frontendCurrentStateRenderersSplitScriptSource.includes('VM Current State dispatch reaches extracted renderers') &&
+      frontendCurrentStateRenderersSplitPlanSource.includes('read-only by default') &&
+      currentPlan.includes(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CARD_ID),
+    'FRONTEND-CURRENT-STATE-RENDERERS-SPLIT-001 splits Foundation Current State renderers out of public/foundation.js',
+    frontendCurrentStateRenderersSplitCard
+      ? `lane=${frontendCurrentStateRenderersSplitCard.lane} dogfood=${frontendCurrentStateDogfood.ok ? 'pass' : 'blocked'} lines=${FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_BEFORE_LINES}->${frontendUiLineCount}`
+      : `missing ${FRONTEND_CURRENT_STATE_RENDERERS_SPLIT_CARD_ID}`,
   )
   const sourceOutageBoundaryCard = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_OUTAGE_BOUNDARY_CARD_ID) || null
   const sourceOutageBoundaryDogfood = await buildSourceOutageBoundaryDogfoodProof()

@@ -217,6 +217,10 @@ async function main() {
           if (error?.code === 'ENOENT') return ''
           throw error
         }),
+        readText('public/foundation-current-state-renderers.js').catch(error => {
+          if (error?.code === 'ENOENT') return ''
+          throw error
+        }),
         readText('public/foundation-source-lifecycle-renderers.js').catch(error => {
           if (error?.code === 'ENOENT') return ''
           throw error

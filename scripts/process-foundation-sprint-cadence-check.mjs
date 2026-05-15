@@ -145,6 +145,10 @@ async function main() {
       approvalSource,
       moduleSource,
       foundationUiSource,
+      foundationSourceRegistrySource,
+      foundationFubLeadSourceSource,
+      foundationSystemInventorySource,
+      foundationCurrentStateRenderersSource,
       sourceLifecycleRenderersSource,
       runtimeRenderersSource,
       operationsRenderersSource,
@@ -166,6 +170,7 @@ async function main() {
       readText('public/foundation-source-registry-renderers.js'),
       readText('public/foundation-fub-lead-source-renderers.js'),
       readText('public/foundation-system-inventory-renderers.js'),
+      readText('public/foundation-current-state-renderers.js'),
       readText('public/foundation-source-lifecycle-renderers.js'),
       readText('public/foundation-runtime-renderers.js'),
       readText('public/foundation-operations-renderers.js'),
@@ -191,7 +196,7 @@ async function main() {
     const systemCard = liveCardMap.get(FOUNDATION_SPRINT_SYSTEM_CARD_ID)
     const meetingCard = liveCardMap.get('MEETING-VAULT-ACL-001')
     const cadencePayload = buildingStatus.cadence || {}
-    const frontendSource = `${foundationUiSource}\n${sourceLifecycleRenderersSource}\n${runtimeRenderersSource}\n${operationsRenderersSource}`
+    const frontendSource = `${foundationUiSource}\n${foundationSourceRegistrySource}\n${foundationFubLeadSourceSource}\n${foundationSystemInventorySource}\n${foundationCurrentStateRenderersSource}\n${sourceLifecycleRenderersSource}\n${runtimeRenderersSource}\n${operationsRenderersSource}`
     const buildLogRegistrySource = [
       buildLogSource,
       buildCloseoutRecordsSource,
