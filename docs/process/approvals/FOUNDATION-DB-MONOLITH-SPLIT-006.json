@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-006",
+  "approvedBy": "Steve full steam ahead instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-15T14:35:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-db-strategy-goal-truth-split-006-plan.md",
+  "approvedPlanSha256": "52e203c768de251c9d32e6cbcfe8a5385481348baa01b163bbe2912b4fe8563a",
+  "approvedRepoHead": "82eeb5e6b2edf8248c9792249551d98515ef3673",
+  "notes": "Approved as a bounded no-auth Foundation DB monolith split. Scope: extract only Strategy Prework Coverage and Strategy Goal Truth snapshot builders from lib/foundation-db.js into lib/foundation-strategy-goal-truth.js, preserve doc paths, source IDs, participant detection, goal group keys, rules, caveats, and public callers, pass live dependencies to avoid circular imports, and dogfood that old inline builder ownership fails. Not approved: broad DB rewrite, schema changes, seed changes, doc_source_snapshots writes, BHAG/Agent Engine source snapshot changes, Strategy Operating Truth changes, source crawl/job/intelligence/shared-comms/FUB/sales/hub changes, Marketing Video Lab wiring, paid-source auth, Meeting Vault Phase B, Drive permission mutation, or request-access emails.",
+  "approvalDigest": "1aba6faf42555cf3657d85d8c1cfde0d67bf9a4aaf9683532cc50494dba50560"
+}

@@ -710,6 +710,16 @@ import {
   evaluateFoundationStrategyOperatingTruthSplit,
 } from '../lib/foundation-strategy-operating-truth.js'
 import {
+  FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_APPROVAL_PATH,
+  FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID,
+  FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_PLAN_PATH,
+  FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SCRIPT_PATH,
+  FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SPRINT_ID,
+  buildFoundationStrategyGoalTruthSplitDogfoodProof,
+  evaluateFoundationStrategyGoalTruthSplit,
+} from '../lib/foundation-strategy-goal-truth.js'
+import {
   FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
   FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
   FRONTEND_MONOLITH_SPLIT_CARD_ID,
@@ -2457,6 +2467,9 @@ async function main() {
   const foundationStrategyOperatingTruthSource = await readRepoFile('lib/foundation-strategy-operating-truth.js')
   const foundationStrategyOperatingTruthScriptSource = await readRepoFile(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_SCRIPT_PATH)
   const foundationStrategyOperatingTruthPlanSource = await readRepoFile(FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_PLAN_PATH)
+  const foundationStrategyGoalTruthSource = await readRepoFile('lib/foundation-strategy-goal-truth.js')
+  const foundationStrategyGoalTruthScriptSource = await readRepoFile(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SCRIPT_PATH)
+  const foundationStrategyGoalTruthPlanSource = await readRepoFile(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -6404,9 +6417,10 @@ async function main() {
       strategySharedCommsRouteSource.includes("app.get('/api/strategic-execution/goal-truth'") &&
       serverSource.includes('currentGoalTruth') &&
       foundationDbSource.includes('getStrategyGoalTruthSnapshot') &&
-      foundationDbSource.includes('Team Goal: $2B') &&
-      foundationDbSource.includes('Community Goal: 10,000 Agents') &&
-      foundationDbSource.includes('Agent Engine Capacity'),
+      foundationDbSource.includes('getStrategyGoalTruthSnapshotFromSources') &&
+      foundationStrategyGoalTruthSource.includes('Team Goal: $2B') &&
+      foundationStrategyGoalTruthSource.includes('Community Goal: 10,000 Agents') &&
+      foundationStrategyGoalTruthSource.includes('Agent Engine Capacity'),
     'Strategy goal truth guardrails distinguish live BHAG and Agent Engine pace',
     [
       `team=${strategyGoalGroups.get('team_volume')?.statusLabel || 'missing'}`,
@@ -6511,8 +6525,9 @@ async function main() {
       strategySharedCommsRouteSource.includes("app.get('/api/strategic-execution/prework-coverage'") &&
       serverSource.includes('preworkReadCoverage') &&
       foundationDbSource.includes('getStrategyPreworkCoverageSnapshot') &&
-      foundationDbSource.includes('strategyPreworkExpectedParticipants') &&
-      foundationDbSource.includes('pdfFormFieldsUsed'),
+      foundationDbSource.includes('getStrategyPreworkCoverageSnapshotFromSources') &&
+      foundationStrategyGoalTruthSource.includes('strategyPreworkExpectedParticipants') &&
+      foundationStrategyGoalTruthSource.includes('pdfFormFieldsUsed'),
     'Strategy pre-work read coverage API remains source-backed while advisor stays offline',
     `${strategyPreworkCoverageSnapshot.summary?.readCount || 0}/${strategyPreworkCoverageSnapshot.summary?.expectedCount || 0} expected notes read; API keeps missing rows explicit while source-to-gap view is active`,
   )
@@ -14655,6 +14670,59 @@ async function main() {
     foundationStrategyOperatingTruthSplitCard
       ? `lane=${foundationStrategyOperatingTruthSplitCard.lane} dogfood=${foundationStrategyOperatingTruthDogfood.ok ? 'pass' : 'blocked'} lines=${foundationStrategyOperatingTruthEvaluation.beforeLines}->${foundationStrategyOperatingTruthEvaluation.afterLines}`
       : `missing ${FOUNDATION_STRATEGY_OPERATING_TRUTH_SPLIT_CARD_ID}`,
+  )
+  const foundationStrategyGoalTruthSplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID) || null
+  const foundationStrategyGoalTruthSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CLOSEOUT_KEY) || null
+  const foundationStrategyGoalTruthDogfood = buildFoundationStrategyGoalTruthSplitDogfoodProof({
+    afterLines: foundationDbSource.split('\n').length,
+  })
+  const foundationStrategyGoalTruthEvaluation = evaluateFoundationStrategyGoalTruthSplit({
+    foundationDbSource,
+    moduleSource: foundationStrategyGoalTruthSource,
+    scriptSource: foundationStrategyGoalTruthScriptSource,
+    planSource: foundationStrategyGoalTruthPlanSource,
+    afterLines: foundationDbSource.split('\n').length,
+  })
+  const foundationStrategyGoalTruthSprintActive = activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SPRINT_ID &&
+    (activeFoundationSprint.items || []).some(item =>
+      item.cardId === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID &&
+        ['building_now', 'done_this_sprint'].includes(item.stage)
+    )
+  const foundationStrategyGoalTruthClosed = foundationStrategyGoalTruthSplitCard?.lane === 'done' &&
+    String(foundationStrategyGoalTruthSplitCard.statusNote || '').includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CLOSEOUT_KEY) &&
+    foundationStrategyGoalTruthSplitCloseout?.operatorCloseout === true &&
+    (foundationStrategyGoalTruthSplitCloseout.backlogIds || []).includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID)
+  ensure(
+    checks,
+      foundationStrategyGoalTruthSplitCard &&
+      (foundationStrategyGoalTruthSprintActive || foundationStrategyGoalTruthClosed) &&
+      foundationStrategyGoalTruthDogfood.ok === true &&
+      foundationStrategyGoalTruthEvaluation.ok === true &&
+      packageJson.scripts?.['process:foundation-strategy-goal-truth-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SCRIPT_PATH}` &&
+      await repoFileExists(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_PLAN_PATH) &&
+      await repoFileExists(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_APPROVAL_PATH) &&
+      foundationStrategyGoalTruthSource.includes('export async function getStrategyPreworkCoverageSnapshot') &&
+      foundationStrategyGoalTruthSource.includes('export async function getStrategyGoalTruthSnapshot') &&
+      foundationStrategyGoalTruthSource.includes('strategyPreworkExpectedParticipants') &&
+      foundationStrategyGoalTruthSource.includes('team_volume') &&
+      foundationStrategyGoalTruthSource.includes('community_agents') &&
+      foundationStrategyGoalTruthSource.includes('agent_engine_capacity') &&
+      foundationStrategyGoalTruthScriptSource.includes('dogfood rejects old inline Strategy prework and goal truth ownership') &&
+      foundationStrategyGoalTruthPlanSource.includes('Strategy Prework Coverage and Strategy Goal Truth') &&
+      foundationDbSource.includes('./foundation-strategy-goal-truth.js') &&
+      foundationDbSource.includes('return getStrategyPreworkCoverageSnapshotFromSources({') &&
+      foundationDbSource.includes('return getStrategyGoalTruthSnapshotFromSources({') &&
+      !foundationDbSource.includes('function inferStrategyPreworkParticipant') &&
+      !foundationDbSource.includes('function buildStrategyGoalGroup') &&
+      currentPlan.includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CLOSEOUT_KEY) &&
+      currentState.includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_SPRINT_ID ||
+        activeSprintAtOrPast([FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID])) &&
+      foundationVerifySource.includes(FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID),
+    'FOUNDATION-DB-MONOLITH-SPLIT-006 splits Strategy prework and goal truth builders out of foundation-db.js',
+    foundationStrategyGoalTruthSplitCard
+      ? `lane=${foundationStrategyGoalTruthSplitCard.lane} dogfood=${foundationStrategyGoalTruthDogfood.ok ? 'pass' : 'blocked'} lines=${foundationStrategyGoalTruthEvaluation.beforeLines}->${foundationStrategyGoalTruthEvaluation.afterLines}`
+      : `missing ${FOUNDATION_STRATEGY_GOAL_TRUTH_SPLIT_CARD_ID}`,
   )
   const frontendSplitVerifierCoveredCardIds = [
     'FRONTEND-MONOLITH-SPLIT-001',

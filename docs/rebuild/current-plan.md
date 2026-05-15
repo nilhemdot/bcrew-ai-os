@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.71 - Foundation DB Strategy operating truth split sprint
+Version: v6.72 - Foundation DB Strategy goal truth split sprint
 Status: Active
 
 Use this doc for one question:
@@ -73,19 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Foundation DB Strategy Operating Truth Split
+## Current Sprint: Foundation DB Strategy Goal Truth Split
 
-Live sprint ID: `foundation-db-strategy-operating-truth-split-2026-05-15`.
+Live sprint ID: `foundation-db-strategy-goal-truth-split-2026-05-15`.
 
-This sprint is active under `foundation-strategy-operating-truth-split-v1`. It extracts the Strategy Operating Truth finance/Owners/FUB/KPI source-card builder from `lib/foundation-db.js` into `lib/foundation-strategy-operating-truth.js` without changing source IDs, Google ranges, KPI card reads, FUB snapshot reads, or public callers.
+This sprint is active under `foundation-strategy-goal-truth-split-v1`. It extracts the Strategy Prework Coverage and Strategy Goal Truth snapshot builders from `lib/foundation-db.js` into `lib/foundation-strategy-goal-truth.js` without changing source IDs, doc paths, participant detection, goal group keys, rules, caveats, or public callers.
 
-The previous cleanup sprint `foundation-db-strategy-source-snapshot-split-2026-05-15` is done under `foundation-strategy-source-snapshot-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-004` moved source-backed BHAG and Agent Engine doc snapshot builders into `lib/foundation-strategy-source-snapshots.js` while preserving Google source IDs/ranges/doc paths/source IDs/labels/sort orders and `doc_source_snapshots` persistence.
+The previous cleanup sprint `foundation-db-strategy-operating-truth-split-2026-05-15` is done under `foundation-strategy-operating-truth-split-v1`: `FOUNDATION-DB-MONOLITH-SPLIT-005` moved Strategy Operating Truth finance/Owners/FUB/KPI source-card builder behavior into `lib/foundation-strategy-operating-truth.js` while preserving source IDs, Google ranges, KPI card reads, FUB snapshot reads, public callers, and source-card shape.
 
 Active card:
 
-1. `FOUNDATION-DB-MONOLITH-SPLIT-005` - building under `foundation-strategy-operating-truth-split-v1`. V1 moves Strategy Operating Truth finance/Owners/FUB/KPI source-card builder behavior into `lib/foundation-strategy-operating-truth.js`, keeps the public DB export as a dependency-injected wrapper, and dogfoods that old inline source-card ownership fails while split module ownership passes.
+1. `FOUNDATION-DB-MONOLITH-SPLIT-006` - building under `foundation-strategy-goal-truth-split-v1`. V1 moves Strategy Prework Coverage and Strategy Goal Truth builder behavior into `lib/foundation-strategy-goal-truth.js`, keeps the public DB exports as dependency-injected wrappers, and dogfoods that old inline prework/goal-truth ownership fails while split module ownership passes.
 
-Not next: broad DB rewrite, schema changes, Google source ID/range/label changes, BHAG / Agent Engine snapshot behavior changes, FUB storage movement, source crawl/job/intelligence/shared-comms/hub movement, hub feature work, Marketing Video Lab live route wiring, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+Not next: broad DB rewrite, schema changes, Google source ID/doc-path/label changes, participant or goal semantics changes, `doc_source_snapshots` writes, BHAG / Agent Engine source snapshot behavior changes, Strategy Operating Truth changes, FUB storage movement, source crawl/job/intelligence/shared-comms/hub movement, hub feature work, Marketing Video Lab live route wiring, paid-source auth, broad source extraction, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `foundation-db-strategy-source-snapshot-split-2026-05-15`, closed under `foundation-strategy-source-snapshot-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-004` moved source-backed BHAG and Agent Engine doc snapshot builders into `lib/foundation-strategy-source-snapshots.js` while preserving Google source IDs/ranges/doc paths/source IDs/labels/sort orders and `doc_source_snapshots` persistence.
 
 Previous completed sprint: `foundation-db-core-seed-split-2026-05-15`, closed under `foundation-core-seed-split-v1`. `FOUNDATION-DB-MONOLITH-SPLIT-003` moved static Foundation bootstrap seed arrays into `lib/foundation-core-seed.js` while preserving live Postgres/API as operational truth after bootstrap.
 
