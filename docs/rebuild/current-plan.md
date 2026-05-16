@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-16
-Version: v6.81 - Surface/trust verifier split complete
+Version: v6.82 - Process-hardening verifier split complete
 Status: Sprint review
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Surface/Trust Verifier Split
+## Current Sprint: Process-Hardening Verifier Split
+
+Live sprint ID: `verifier-process-hardening-split-module-2026-05-16`.
+
+This sprint is complete under `verifier-process-hardening-split-module-v1`. It extracted the existing process-hardening verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-process-hardening-verifier.js` while preserving the same PASS/FAIL rows for read-only verifier fail-closed behavior, process-check write posture, scheduled mutation guards, Foundation DB init/seed separation, Current Sprint mutation guards, DB seed governance, KPI cache posture, Current Sprint store split proof, and backlog lost-update protection.
+
+Completed card:
+
+1. `VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001` - done under `verifier-process-hardening-split-module-v1`. V1 owns `lib/foundation-process-hardening-verifier.js`, `scripts/process-verifier-process-hardening-split-module-check.mjs`, package script `process:verifier-process-hardening-split-module-check`, plan/approval docs, dogfood fixtures that reject repair-then-pass verifier behavior, scheduled mutating process checks, seed/bootstrap writeback by default, and silent backlog lost updates, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-process-hardening-split-module-closeout.md`.
+
+Not next: process guard behavior changes, route/auth behavior changes, UI redesign, Foundation Hub payload behavior changes, DB schema changes, backlog mutation behavior changes, source contract behavior changes, connector auth, extraction runs, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
+
+Previous completed sprint: `verifier-surface-trust-split-module-2026-05-16`, closed under `verifier-surface-trust-split-module-v1`.
+
+## Previous Sprint: Surface/Trust Verifier Split
 
 Live sprint ID: `verifier-surface-trust-split-module-2026-05-16`.
 

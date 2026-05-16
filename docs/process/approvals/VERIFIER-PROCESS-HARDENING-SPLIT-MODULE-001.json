@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001",
+  "approvedPlanRef": "docs/process/verifier-process-hardening-split-module-001-plan.md",
+  "approvedPlanSha256": "6c8bdcaa99faf1d6bd07dd934a3933de3b62acf264a88147b95a69fd9dbe44c2",
+  "approvedRepoHead": "448a1b476a75d7d035821017ff05294957ef8753",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T03:24:03.622Z",
+  "score": 10,
+  "notes": "Approved as next no-auth Foundation cleanup slice after VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001 shipped. Extract existing process-hardening verifier predicates only; no behavior changes, route changes, source auth, paid calls, or hub feature work.",
+  "approvalDigest": "208cedab9f295798e19c8c5dd133c9294e881a09ffee12ac71aa4b34b421b40f"
+}
