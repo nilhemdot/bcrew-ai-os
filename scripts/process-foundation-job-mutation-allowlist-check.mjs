@@ -121,7 +121,13 @@ async function main() {
     `${activeSprint.sprint?.sprintId || 'missing'} / ${sprintItem?.stage || 'missing'}`,
   )
   addCheck(checks, report.ok, 'real scheduled jobs have explicit allowlist posture', `scheduled=${report.scheduledCount} allowed=${report.allowedCount} blocked=${report.blockedCount} missing=${report.missingCount} mismatch=${report.mismatchCount}`)
-  addCheck(checks, report.blockedRows.some(row => row.key === 'verification-runs'), 'verification-runs remains intentionally blocked', verificationRunsRuntime?.scheduleStatus || 'missing runtime')
+  addCheck(
+    checks,
+    report.rows.some(row => row.key === 'verification-runs' && row.allowlistStatus === 'allowed_scheduled_read_only') &&
+      verificationRunsRuntime?.scheduleStatus !== 'blocked',
+    'verification-runs is allowlisted only after becoming scheduled read-only',
+    verificationRunsRuntime?.scheduleStatus || 'missing runtime',
+  )
   addCheck(checks, runtimeRows.every(({ job, runtime }) => job.mutationAllowlist && runtime.scheduleMutationGuard?.mutationAllowlist), 'runtime rows carry mutation allowlist status', `${runtimeRows.filter(({ job }) => job.mutationAllowlist).length}/${runtimeRows.length}`)
   addCheck(checks, dogfood.ok, 'dogfood blocks missing and mismatched scheduled jobs', `missing=${dogfood.scheduledMissing.status} mismatch=${dogfood.scheduledMismatch.status}`)
   addCheck(checks, scheduledMutationGuardDogfood.ok, 'existing process-check scheduled mutation guard still passes', scheduledMutationGuardDogfood.realVerificationRuns?.scheduleStatus || 'missing')

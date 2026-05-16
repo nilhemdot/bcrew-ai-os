@@ -10,7 +10,7 @@ Foundation is usable but has yellow system-health findings to review.
 - Watch findings: 1
 - Scheduled job red: 0
 - Scheduled job yellow: 0
-- Connector down/degraded: 0/0
+- Connector down/degraded/blocked: 0/0/1
 - Endpoint risk/review: 0/0
 - Source contracts: 36
 
@@ -20,7 +20,7 @@ _None._
 
 ## Findings
 
-- P1 Scheduled jobs are blocked by runtime posture: verification-runs Next: Split mutating checks into read-only proof plus explicit apply lane before scheduling.
+- P1 Connector groups have blocked health posture: 1 connector group(s) are blocked by manual/auth/source posture. Next: Review the blocked connector row before treating dependent source surfaces as fully green.
 
 ## Posture
 

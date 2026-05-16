@@ -357,15 +357,16 @@ async function buildScheduledMutationGuardStatus() {
       proof.scheduledReadOnlyCheck?.scheduleStatus !== 'blocked' &&
       proof.scheduledReportOnlyCheck?.scheduleStatus !== 'blocked' &&
       proof.manualMutatingCheck?.scheduleStatus === 'manual' &&
-      proof.realVerificationRuns?.scheduleStatus === 'blocked',
+      proof.realVerificationRuns?.mutationPosture === 'read_only' &&
+      proof.realVerificationRuns?.scheduleStatus !== 'blocked',
     'dogfood proof blocks scheduled mutating/unknown process checks while allowing declared read-only/report-only checks',
     JSON.stringify(proof),
   )
   addCheck(
     checks,
-    verificationRunsJob?.mutationPosture === 'mutating' &&
-      verificationRunsJob?.scheduleMutationGuard?.ok === false,
-    'existing scheduled verification-runs process check is classified mutating and blocked',
+    verificationRunsJob?.mutationPosture === 'read_only' &&
+      verificationRunsJob?.scheduleMutationGuard?.ok === true,
+    'existing scheduled verification-runs process check is classified read-only and allowed',
     verificationRunsJob
       ? `${verificationRunsJob.runtimeMode}/${verificationRunsJob.mutationPosture}/${verificationRunsJob.scheduleMutationGuard?.reason || 'missing reason'}`
       : 'missing verification-runs job',
@@ -382,7 +383,7 @@ async function buildScheduledMutationGuardStatus() {
       foundationJobsSource.includes('buildScheduledMutationGuardDogfoodProof') &&
       foundationJobsSource.includes('mutationPosture') &&
       foundationJobsSource.includes('process:verification-runs-check') &&
-      foundationJobsSource.includes('scheduler must block it'),
+      foundationJobsSource.includes('historical closeout writeback now requires explicit --apply'),
     'foundation job registry owns mutation posture and scheduler-block dogfood helper',
     'lib/foundation-jobs.js',
   )

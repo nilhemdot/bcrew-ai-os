@@ -24,6 +24,10 @@ import {
   upsertFoundationCurrentSprintOverlay,
 } from '../lib/foundation-db.js'
 import {
+  PROCESS_CHECK_WRITE_FLAGS,
+  parseProcessWriteFlags,
+} from '../lib/process-write-guard.js'
+import {
   buildBacklogHygieneSnapshot,
 } from '../lib/backlog-hygiene.js'
 import {
@@ -75,6 +79,8 @@ function addFinding(findings, ok, check, detail = '') {
 async function main() {
   const args = parseArgs()
   const jsonMode = String(args.json || '').toLowerCase() === 'true'
+  const writeFlags = parseProcessWriteFlags(process.argv.slice(2))
+  const applyMode = writeFlags.has(PROCESS_CHECK_WRITE_FLAGS.apply)
   const findings = []
 
   const [
@@ -82,12 +88,12 @@ async function main() {
     planText,
     verificationRunsSource,
     scriptSource,
-    serverSource,
-    publicFoundationSource,
-    publicStylesSource,
+    sourceRoutesSource,
+    sourceLifecycleRenderersSource,
+    workflowStylesSource,
     foundationCurrentSprintSource,
-    foundationDbSource,
-    foundationBuildLogSource,
+    backlogSeedSource,
+    closeoutRecordsSource,
     foundationVerifySource,
     foundationJobsSource,
     securityAccessSource,
@@ -100,12 +106,12 @@ async function main() {
     readRepoFile(VERIFICATION_RUNS_PLAN_PATH),
     readRepoFile('lib/verification-runs.js'),
     readRepoFile(VERIFICATION_RUNS_SCRIPT_PATH),
-    readRepoFile('server.js'),
-    readRepoFile('public/foundation.js'),
-    readRepoFile('public/styles.css'),
+    readRepoFile('lib/foundation-source-routes.js'),
+    readRepoFile('public/foundation-source-lifecycle-renderers.js'),
+    readRepoFile('public/styles-foundation-workflows.css'),
     readRepoFile('lib/foundation-current-sprint.js'),
-    readRepoFile('lib/foundation-db.js'),
-    readRepoFile('lib/foundation-build-log.js'),
+    readRepoFile('lib/foundation-backlog-seed.js'),
+    readRepoFile('lib/foundation-build-closeout-records.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('lib/foundation-jobs.js'),
     readRepoFile('lib/security-access.js'),
@@ -163,24 +169,26 @@ async function main() {
   const syntheticProof = buildSyntheticVerificationRunsProof()
 
   const closeoutNote = 'Closed on 2026-05-12 under `verification-runs-v1`. V1 adds `lib/verification-runs.js`, the scheduled `verification-runs` Foundation job definition, `/api/foundation/verification-runs`, Source Lifecycle/Foundation Hub payload wiring, Foundation Source Lifecycle UI rendering, `scripts/process-verification-runs-check.mjs`, package/verifier/current-sprint coverage, and Recent Work closeout. The behavior proof calls the real verification runs snapshot path, proves stale research/synthesized finding/action route fixtures are detected while fresh/applied/archived fixtures are not, includes backlog hygiene findings as candidates, keeps `proposedOnly: true`, keeps `autoExpiredCount: 0`, and advances Current Sprint to `PER-USER-CHANGELOG-001`. This does not auto-close research cards, archive synthesized items, reject/apply action routes, build Reply Parser, Watching Items, per-user changelog, restricted decisions, Strategy Hub expansion, Marketing Pipeline, Telegram bots, Directors, or Drive ACL mutation.'
-  await updateBacklogItem(VERIFICATION_RUNS_CARD_ID, {
-    lane: 'done',
-    nextAction: 'Closed for v1. Pull `PER-USER-CHANGELOG-001` next to define the write_audit_log equivalent before broader team access resumes.',
-    statusNote: closeoutNote,
-  }, 'codex')
+  if (applyMode) {
+    await updateBacklogItem(VERIFICATION_RUNS_CARD_ID, {
+      lane: 'done',
+      nextAction: 'Closed for v1. Pull `PER-USER-CHANGELOG-001` next to define the write_audit_log equivalent before broader team access resumes.',
+      statusNote: closeoutNote,
+    }, 'codex')
 
-  await upsertFoundationCurrentSprintOverlay(
-    buildFoundationSourceOnceOverSprintSeed({
-      sourceMaturityStage: 'done_this_sprint',
-      sourceExtractionCoverageStage: 'done_this_sprint',
-      sourceCoverageCloseoutStage: 'done_this_sprint',
-      marketingSourceMapStage: 'done_this_sprint',
-      brandStackStage: 'done_this_sprint',
-      tierBehavioralCompletionStage: 'done_this_sprint',
-      verificationRunsStage: 'done_this_sprint',
-    }),
-    'codex'
-  )
+    await upsertFoundationCurrentSprintOverlay(
+      buildFoundationSourceOnceOverSprintSeed({
+        sourceMaturityStage: 'done_this_sprint',
+        sourceExtractionCoverageStage: 'done_this_sprint',
+        sourceCoverageCloseoutStage: 'done_this_sprint',
+        marketingSourceMapStage: 'done_this_sprint',
+        brandStackStage: 'done_this_sprint',
+        tierBehavioralCompletionStage: 'done_this_sprint',
+        verificationRunsStage: 'done_this_sprint',
+      }),
+      'codex'
+    )
+  }
 
   const sprint = await getActiveFoundationCurrentSprint()
   const cards = await getBacklogItemsByIds([
@@ -205,9 +213,9 @@ async function main() {
   addFinding(findings, packageJson.scripts?.['process:verification-runs-check'] === `node --env-file-if-exists=.env ${VERIFICATION_RUNS_SCRIPT_PATH}`, 'package exposes focused proof script')
   addFinding(findings, verificationRunsCard?.lane === 'done' && String(verificationRunsCard?.statusNote || '').includes(VERIFICATION_RUNS_CLOSEOUT_KEY), 'VERIFICATION-RUNS-001 is done with closeout proof', verificationRunsCard?.lane || 'missing')
   addFinding(findings, ['scoped', 'done'].includes(nextCard?.lane), 'PER-USER-CHANGELOG-001 is available next', nextCard?.lane || 'missing')
-  addFinding(findings, activeBlockerCardId === VERIFICATION_RUNS_NEXT_CARD_ID, 'Current Sprint active blocker advanced to per-user changelog', activeBlockerCardId || 'missing')
-  addFinding(findings, sprintStageMap.get(VERIFICATION_RUNS_CARD_ID) === 'done_this_sprint', 'Verification Runs moved to Done This Sprint', sprintStageMap.get(VERIFICATION_RUNS_CARD_ID) || 'missing')
-  addFinding(findings, sprintStageMap.get(VERIFICATION_RUNS_NEXT_CARD_ID) === 'building_now', 'Per-user changelog is next in Building Now', sprintStageMap.get(VERIFICATION_RUNS_NEXT_CARD_ID) || 'missing')
+  addFinding(findings, activeBlockerCardId === VERIFICATION_RUNS_NEXT_CARD_ID || verificationRunsCard?.lane === 'done', 'Verification Runs is historically closed or active blocker advanced', activeBlockerCardId || verificationRunsCard?.lane || 'missing')
+  addFinding(findings, sprintStageMap.get(VERIFICATION_RUNS_CARD_ID) === 'done_this_sprint' || verificationRunsCard?.lane === 'done', 'Verification Runs moved to Done This Sprint or is historically done', sprintStageMap.get(VERIFICATION_RUNS_CARD_ID) || verificationRunsCard?.lane || 'missing')
+  addFinding(findings, ['building_now', 'scoped', 'done'].includes(nextCard?.lane) || activeBlockerCardId === VERIFICATION_RUNS_NEXT_CARD_ID, 'Per-user changelog is available after Verification Runs', nextCard?.lane || activeBlockerCardId || 'missing')
   addFinding(findings, includesAll(verificationRunsSource, [
     'buildVerificationRunsSnapshot',
     'buildSyntheticVerificationRunsProof',
@@ -220,17 +228,17 @@ async function main() {
     'synthetic verification runs proof detects stale-only candidates',
     'Current Sprint active blocker advanced to per-user changelog',
   ]), 'focused proof checks behavior and sprint advancement')
-  addFinding(findings, includesAll(serverSource, [
+  addFinding(findings, includesAll(sourceRoutesSource, [
     '/api/foundation/verification-runs',
     'buildVerificationRunsSnapshot',
     'verificationRuns',
   ]), 'Foundation APIs expose verification runs')
-  addFinding(findings, includesAll(publicFoundationSource, [
+  addFinding(findings, includesAll(sourceLifecycleRenderersSource, [
     'renderVerificationRunsPanel',
-    'verificationRuns',
+    'data-source-lifecycle-section',
     'verification-runs',
   ]), 'Foundation UI renders verification runs')
-  addFinding(findings, includesAll(publicStylesSource, [
+  addFinding(findings, includesAll(workflowStylesSource, [
     '.verification-runs-panel',
     '.verification-runs-grid',
   ]), 'Foundation styles cover verification runs panel')
@@ -247,11 +255,11 @@ async function main() {
     'VERIFICATION_RUNS_CLOSEOUT_KEY',
     VERIFICATION_RUNS_NEXT_CARD_ID,
   ]), 'Current Sprint seed advances after Verification Runs')
-  addFinding(findings, includesAll(foundationDbSource, [
+  addFinding(findings, includesAll(backlogSeedSource, [
     VERIFICATION_RUNS_CARD_ID,
     VERIFICATION_RUNS_NEXT_CARD_ID,
   ]), 'Foundation backlog has Verification Runs and Per-User Changelog cards')
-  addFinding(findings, includesAll(foundationBuildLogSource, [
+  addFinding(findings, includesAll(closeoutRecordsSource, [
     VERIFICATION_RUNS_CLOSEOUT_KEY,
     VERIFICATION_RUNS_CARD_ID,
     VERIFICATION_RUNS_NEXT_CARD_ID,
@@ -268,14 +276,15 @@ async function main() {
   ]), 'current plan records Verification Runs closeout and next card')
   addFinding(findings, includesAll(currentStateText, [
     VERIFICATION_RUNS_CLOSEOUT_KEY,
-    'Current sprint active blocker is now `PER-USER-CHANGELOG-001`',
     'proposed-only',
-  ]), 'current state records Verification Runs closeout and active blocker')
+  ]), 'current state records Verification Runs closeout and proposed-only boundary')
 
   const result = {
     status: findings.length ? 'risk' : 'healthy',
     cardId: VERIFICATION_RUNS_CARD_ID,
     closeoutKey: VERIFICATION_RUNS_CLOSEOUT_KEY,
+    mode: applyMode ? 'apply' : 'read_only',
+    writesSkipped: !applyMode,
     planCritic: {
       status: planCritic.status,
       score: planCritic.score,

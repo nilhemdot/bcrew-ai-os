@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFICATION-RUNS-READONLY-SPLIT-001",
+  "approvedBy": "Steve keep-going instruction + Codex senior-engineer no-hidden-failures review",
+  "approvedAt": "2026-05-16T17:45:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verification-runs-readonly-split-001-plan.md",
+  "approvedRepoHead": "13a1f9d4c5c0151f1003c4dfb2a8b0ea18d8b866",
+  "notes": "Approved as the direct follow-up to SYSTEM-HEALTH-RED-ROW-REPAIR-001. Scope: make verification-runs scheduled read-only by default, keep historical writeback behind explicit --apply, prove default run does not mutate watched live state, and clear the remaining system-health watch row without weakening mutation guards.",
+  "approvedPlanSha256": "20638e72110adc2867bca739337295270a735a8f86f79f3e877a6a414c09980c",
+  "approvalDigest": "57aa50abce59e53c5772e66af005af5bdbe5cf058979ed5c399cf44759c58412"
+}

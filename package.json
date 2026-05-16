@@ -257,6 +257,7 @@
     "process:brand-stack-check": "node --env-file-if-exists=.env scripts/process-brand-stack-check.mjs",
     "process:tier-behavioral-completion-check": "node --env-file-if-exists=.env scripts/process-tier-behavioral-completion-check.mjs",
     "process:verification-runs-check": "node --env-file-if-exists=.env scripts/process-verification-runs-check.mjs",
+    "process:verification-runs-readonly-split-check": "node --env-file-if-exists=.env scripts/process-verification-runs-readonly-split-check.mjs",
     "process:per-user-changelog-check": "node --env-file-if-exists=.env scripts/process-per-user-changelog-check.mjs",
     "process:decision-restricted-queue-check": "node --env-file-if-exists=.env scripts/process-decision-restricted-queue-check.mjs",
     "process:foundation-ui-complete-check": "node --env-file-if-exists=.env scripts/process-foundation-ui-complete-check.mjs",

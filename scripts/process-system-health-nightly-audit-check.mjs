@@ -121,12 +121,15 @@ async function main() {
 
   const packageJson = JSON.parse(packageJsonSource)
   const closeouts = getFoundationBuildCloseouts()
+  const activeSprintPlanCriticRuns = (activeSprint.items || []).length
+    ? await getPlanCriticRunsByCardIds((activeSprint.items || []).map(item => item.cardId).filter(Boolean))
+    : []
   const currentSprintStatus = buildFoundationCurrentSprintStatus({
     sprint: activeSprint.sprint,
     items: activeSprint.items || [],
     backlogItems: foundationSnapshot.backlogItems || [],
     closeouts,
-    planCriticRuns,
+    planCriticRuns: [...planCriticRuns, ...activeSprintPlanCriticRuns],
   })
   const operatingReliability = buildFoundationOperatingReliabilitySnapshot({
     sourceContracts: getSourceContracts(),
