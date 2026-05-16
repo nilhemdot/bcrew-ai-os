@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-ID-ARRAY-PROVENANCE-DESIGN-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T14:24:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-id-array-provenance-design-001-plan.md",
+  "approvedPlanSha256": "6f2a6d9173b216615aaad1f8e4e3260f7f2f2d5cfb67dd9afd6f888f671a98a9",
+  "approvedRepoHead": "b1d6d9c93f0a43ffa3ce5489d0cfc42f0fa12a3e",
+  "notes": "Approved as the next no-auth Foundation data-integrity design card. Scope: report-only normalized provenance design for the 3 array-backed source_ids relations classified needs_schema_design, with no DB schema mutation, no trigger install, no join-table creation, no backfill, no source extraction, no hub work, and no provider/auth work.",
+  "approvalDigest": "5169cb2fc79215327e20d9217fb9d979dd2cee248ec9b902d54fd9ce60a91059"
+}

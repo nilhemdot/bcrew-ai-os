@@ -297,6 +297,10 @@ import {
   getSourceIdScalarFkMigrationSnapshot,
 } from '../lib/source-id-scalar-fk-migration.js'
 import {
+  buildSourceIdArrayProvenanceDesignDogfoodProof,
+  evaluateSourceIdArrayProvenanceDesign,
+} from '../lib/source-id-array-provenance-design.js'
+import {
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
@@ -2226,6 +2230,7 @@ async function main() {
   await assertFoundationDbReadyForReadOnlyGate('foundation:verify')
   const sourceContractRegistrySnapshot = await getSourceContractRegistrySnapshot()
   const sourceIdScalarFkMigrationSnapshot = await getSourceIdScalarFkMigrationSnapshot()
+  const sourceIdArrayProvenanceDesign = evaluateSourceIdArrayProvenanceDesign()
   const backlogSeedDrift = await getBacklogSeedDriftSnapshot({ limit: 10 })
   const strategyPreworkCoverageSnapshot = await getStrategyPreworkCoverageSnapshot()
   const strategyGoalTruthSnapshot = await getStrategyGoalTruthSnapshot()
@@ -2673,6 +2678,7 @@ async function main() {
   const verifierSourceContractModulePlanSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH)
   const sourceContractRegistryTableSource = await readRepoFile('lib/source-contract-registry-table.js')
   const sourceIdScalarFkMigrationSource = await readRepoFile('lib/source-id-scalar-fk-migration.js')
+  const sourceIdArrayProvenanceDesignSource = await readRepoFile('lib/source-id-array-provenance-design.js')
   const foundationSourceTrustVerifierSource = await readRepoFile('lib/foundation-source-trust-verifier.js')
   const verifierSourceTrustSplitModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SCRIPT_PATH)
   const verifierSourceTrustSplitModulePlanSource = await readRepoFile(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_PLAN_PATH)
@@ -3362,6 +3368,8 @@ async function main() {
     sourceContractRegistryDogfood: buildSourceContractRegistryTableDogfoodProof(),
     sourceIdScalarFkMigrationSnapshot,
     sourceIdScalarFkDogfood: buildSourceIdScalarFkDogfoodProof(),
+    sourceIdArrayProvenanceDesign,
+    sourceIdArrayProvenanceDogfood: buildSourceIdArrayProvenanceDesignDogfoodProof(),
   })
   checks.push(...sourceContractVerifierResult.checks)
   const dbConstraintDogfood = await buildDbConstraintDogfoodProof()
@@ -4150,6 +4158,7 @@ async function main() {
     foundationSourceContractVerifierSource,
     sourceContractRegistryTableSource,
     sourceIdScalarFkMigrationSource,
+    sourceIdArrayProvenanceDesignSource,
     foundationSourceTrustVerifierSource,
     foundationCurrentSprintVerifierSource,
     foundationIntelligenceAuditVerifierSource,

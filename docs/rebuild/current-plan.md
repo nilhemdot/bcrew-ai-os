@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-16
-Version: v6.92 - Source ID array provenance design scoping
-Status: Scoping
+Version: v6.93 - Source ID array provenance design closed
+Status: Sprint Review
 
 Use this doc for one question:
 
@@ -73,19 +73,19 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Active Sprint: Source ID Array-Backed Provenance Design
+## Latest Sprint: Source ID Array-Backed Provenance Design
 
 Live sprint ID: `source-id-array-provenance-design-2026-05-16`.
 
-Goal: design the governed provenance model for the 3 array-backed `source_ids` relations that were deliberately excluded from simple scalar FK enforcement.
+This sprint is complete under `source-id-array-provenance-design-v1`. It designs the governed provenance model for the 3 array-backed `source_ids` relations that were deliberately excluded from simple scalar FK enforcement.
 
-Active card:
+Completed card:
 
-1. `SOURCE-ID-ARRAY-PROVENANCE-DESIGN-001` - Scoping. Scope is no-auth, report-only Foundation data-integrity design: inspect the 3 array-backed source-reference relations from the source-ID constraint contract, decide whether each needs a join table, trigger-backed validation, generated scalar projection, or schema redesign, and produce an implementation plan with dogfood proof requirements before any schema mutation. This card must not apply DB migrations or force array columns into simple foreign keys.
+1. `SOURCE-ID-ARRAY-PROVENANCE-DESIGN-001` - done under `source-id-array-provenance-design-v1`. Scope was no-auth, report-only Foundation data-integrity design: inspect the 3 array-backed source-reference relations from the source-ID constraint contract and choose a canonical normalized child-table provenance model before any schema mutation. The design recommends later child tables `intelligence_report_artifact_sources`, `intelligence_retrieval_run_sources`, and `shared_communication_synthesized_item_sources`, each with `source_id` FK targets to `source_contract_registry(source_id)`. It rejects simple array FKs, generated scalar canonical projection, trigger-only canonical truth, scalar relation leakage, missing apply-gated backfill, and non-report-only posture.
 
-Not next: DB schema mutation, trigger installation, join-table creation, source-contract authoring UI, startup/init FK creation, source extraction, connector auth, paid-source auth, Build Intel extraction, hub feature work, Marketing Video Lab wiring, Canva asset mutation, Drive permissions mutation, Drive permissions request-access emails, or MEETING-VAULT-ACL-001 Phase B.
+Not next: DB schema mutation, trigger installation, join-table creation, backfill apply, source-contract authoring UI, startup/init FK creation, source extraction, connector auth, paid-source auth, Build Intel extraction, hub feature work, Marketing Video Lab wiring, Canva asset mutation, Drive permissions mutation, Drive permissions request-access emails, or MEETING-VAULT-ACL-001 Phase B.
 
-Next active blocker: scope the array-backed provenance design, reuse `SOURCE-ID-CONSTRAINT-CONTRACT-001` relation classifications, write Plan Critic doctrine, and do not build until the plan passes.
+Next active blocker: `SOURCE-ID-ARRAY-PROVENANCE-IMPLEMENTATION-001` is scoped as the explicit follow-up, but paused for Steve review. Do not build it until Steve approves an apply-gated migration plan. After review, choose this implementation card, another no-auth Foundation cleanup card, or a return to Build Intel/source extraction.
 
 ## Previous Sprint: Source ID Scalar FK Migration
 

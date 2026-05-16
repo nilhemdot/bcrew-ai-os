@@ -115,6 +115,7 @@
     "process:source-id-constraint-contract-check": "node --env-file-if-exists=.env scripts/process-source-id-constraint-contract-check.mjs",
     "process:source-contract-registry-table-check": "node --env-file-if-exists=.env scripts/process-source-contract-registry-table-check.mjs",
     "process:source-id-scalar-fk-migration-check": "node --env-file-if-exists=.env scripts/process-source-id-scalar-fk-migration-check.mjs",
+    "process:source-id-array-provenance-design-check": "node --env-file-if-exists=.env scripts/process-source-id-array-provenance-design-check.mjs",
     "process:kpi-health-api-cache-check": "node --env-file-if-exists=.env scripts/process-kpi-health-api-cache-check.mjs",
     "process:kpi-health-dynamic-year-contract-check": "node --env-file-if-exists=.env scripts/process-kpi-health-dynamic-year-contract-check.mjs",
     "process:foundation-ui-live-summary-sources-check": "node --env-file-if-exists=.env scripts/process-foundation-ui-live-summary-sources-check.mjs",
