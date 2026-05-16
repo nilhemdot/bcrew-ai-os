@@ -179,6 +179,7 @@
     "process:runtime-worker-check": "node --env-file-if-exists=.env scripts/process-runtime-worker-check.mjs",
     "process:runtime-first-jobs-check": "node --env-file-if-exists=.env scripts/process-runtime-first-jobs-check.mjs",
     "process:runtime-health-simplify-check": "node --env-file-if-exists=.env scripts/process-runtime-health-simplify-check.mjs",
+    "process:crawl-run-ledger-check": "node --env-file-if-exists=.env scripts/process-crawl-run-ledger-check.mjs",
     "process:source-outage-boundary-check": "node --env-file-if-exists=.env scripts/process-source-outage-boundary-check.mjs",
     "process:foundation-operating-reliability-check": "node --env-file-if-exists=.env scripts/process-foundation-operating-reliability-check.mjs",
     "process:foundation-endpoint-budgets-check": "node --env-file-if-exists=.env scripts/process-foundation-endpoint-budgets-check.mjs",

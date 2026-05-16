@@ -354,6 +354,7 @@ import {
   buildFoundationExtractionRuntimeVerifierDogfoodProof,
   evaluateFoundationExtractionRuntimeVerifier,
 } from '../lib/foundation-extraction-runtime-verifier.js'
+import { CRAWL_RUN_LEDGER_SCRIPT_PATH } from '../lib/crawl-run-ledger.js'
 import {
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_BEFORE_LINES,
@@ -2664,6 +2665,8 @@ async function main() {
   const foundationExtractionRuntimeVerifierSource = await readRepoFile('lib/foundation-extraction-runtime-verifier.js')
   const verifierExtractionRuntimeSplitModuleScriptSource = await readRepoFile(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SCRIPT_PATH)
   const verifierExtractionRuntimeSplitModulePlanSource = await readRepoFile(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_PLAN_PATH)
+  const crawlRunLedgerSource = await readRepoFile('lib/crawl-run-ledger.js')
+  const crawlRunLedgerScriptSource = await readRepoFile(CRAWL_RUN_LEDGER_SCRIPT_PATH)
   const foundationSurfaceTrustVerifierSource = await readRepoFile('lib/foundation-surface-trust-verifier.js')
   const verifierSurfaceTrustSplitModuleScriptSource = await readRepoFile(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SCRIPT_PATH)
   const verifierSurfaceTrustSplitModulePlanSource = await readRepoFile(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_PLAN_PATH)
@@ -3529,7 +3532,32 @@ async function main() {
     limit: 10,
   })
   const staleLlmCalls = await getStaleLlmCalls({ olderThanSeconds: 240, graceSeconds: 60, limit: 10 })
+  ensure(
+    checks,
+    [foundationUiSource, docUiSource].every(source =>
+      source.includes('isSafeDirectHref') &&
+      source.includes("return isSafeDirectHref(href) ? href.trim() : '#'") &&
+      source.includes("rel = 'noopener noreferrer'")
+    ),
+    'markdown-rendered links sanitize unsafe schemes',
+    'Foundation and doc views disable unsafe href schemes and isolate external links; Strategy Hub v2 source-to-gap view does not render markdown',
+  )
+  const staleSourceCrawlRuns = await getStaleSourceCrawlTargetRuns({ olderThanMinutes: 30, limit: 10 })
+
+  const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
+  const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
+  const foundationHubSummary = await fetchJson(baseUrl, '/api/foundation-hub')
+  const foundationHubFull = await fetchJson(baseUrl, '/api/foundation-hub?view=full')
+  const foundationHub = {
+    ...foundationHubFull,
+    ...foundationHubSummary,
+    backlogItems: foundationHubFull.backlogItems || foundationHubSummary.backlogItems,
+    foundation1100Review: foundationHubFull.foundation1100Review || foundationHubSummary.foundation1100Review,
+    fullDiagnostics: foundationHubFull,
+  }
   const extractionRuntimeVerifier = evaluateFoundationExtractionRuntimeVerifier({
+    foundationHub,
+    foundationBuildCloseouts: getFoundationBuildCloseouts(),
     foundationDbSource,
     sourceCrawlStoreSource: foundationSourceCrawlStoreSource,
     llmRuntimeStoreSource: foundationLlmRuntimeStoreSource,
@@ -3544,6 +3572,7 @@ async function main() {
     googleDelegatedSource,
     driveContentExtractionSource,
     packageSource,
+    crawlRunLedgerScriptSource,
     driveLinkInventorySource,
     sharedCandidateExtractionSource,
     processingProvenanceGaps,
@@ -3596,29 +3625,6 @@ async function main() {
       ? `lane=${verifierExtractionRuntimeSplitModuleCard.lane} dogfood=${verifierExtractionRuntimeSplitModuleDogfood.ok ? 'pass' : 'blocked'} extractionChecks=${extractionRuntimeVerifier.summary.passed}/${extractionRuntimeVerifier.summary.total} lines=${VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterExtractionRuntimeSplit}`
       : `missing ${VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID}`,
   )
-  ensure(
-    checks,
-    [foundationUiSource, docUiSource].every(source =>
-      source.includes('isSafeDirectHref') &&
-      source.includes("return isSafeDirectHref(href) ? href.trim() : '#'") &&
-      source.includes("rel = 'noopener noreferrer'")
-    ),
-    'markdown-rendered links sanitize unsafe schemes',
-    'Foundation and doc views disable unsafe href schemes and isolate external links; Strategy Hub v2 source-to-gap view does not render markdown',
-  )
-  const staleSourceCrawlRuns = await getStaleSourceCrawlTargetRuns({ olderThanMinutes: 30, limit: 10 })
-
-  const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
-  const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
-  const foundationHubSummary = await fetchJson(baseUrl, '/api/foundation-hub')
-  const foundationHubFull = await fetchJson(baseUrl, '/api/foundation-hub?view=full')
-  const foundationHub = {
-    ...foundationHubFull,
-    ...foundationHubSummary,
-    backlogItems: foundationHubFull.backlogItems || foundationHubSummary.backlogItems,
-    foundation1100Review: foundationHubFull.foundation1100Review || foundationHubSummary.foundation1100Review,
-    fullDiagnostics: foundationHubFull,
-  }
   const foundationBacklogDetailEndpointApi = await fetchJson(baseUrl, '/api/foundation/backlog/FOUNDATION-HUB-BACKLOG-CONTRACT-001')
   const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=500')
@@ -4088,6 +4094,8 @@ async function main() {
     foundationSourceTrustVerifierSource,
     foundationCurrentSprintVerifierSource,
     foundationIntelligenceAuditVerifierSource,
+    foundationExtractionRuntimeVerifierSource,
+    crawlRunLedgerSource,
     foundationCoreGovernanceVerifierSource,
     foundationIntelligenceSpineVerifierSource,
     foundationServerRouteSplitVerifierSource,

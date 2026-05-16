@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CRAWL-RUN-LEDGER-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T12:30:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/crawl-run-ledger-001-plan.md",
+  "approvedPlanSha256": "235a9443dd0a52ee787188f34f76ab5c0e3f542898f44adde1a638e73bb586d7",
+  "approvedRepoHead": "66ed895b067aedc926935dd4011e526c996bf34d",
+  "notes": "Approved as a no-auth Foundation reconciliation card. Scope: prove already-shipped source crawl target run ledger behavior, add focused dogfood proof, add thin verifier coverage, and close stale backlog truth. Not approved: live extraction, retry/backoff execution, source connector auth, Skool/myICOR/YouTube/Loom work, Build Intel extraction, hub feature work, Marketing Video Lab route wiring, Canva asset mutation, Drive permission mutation, or Meeting Vault Phase B.",
+  "approvalDigest": "d27344c2412b0d3bbff9b68213b9bccde58170e1e799c4f97d966cb3296e3b62"
+}

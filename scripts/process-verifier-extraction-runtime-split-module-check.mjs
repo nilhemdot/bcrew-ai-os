@@ -25,6 +25,10 @@ import {
   buildFoundationExtractionRuntimeVerifierDogfoodProof,
   evaluateFoundationExtractionRuntimeVerifier,
 } from '../lib/foundation-extraction-runtime-verifier.js'
+import {
+  CRAWL_RUN_LEDGER_CARD_ID,
+  CRAWL_RUN_LEDGER_SCRIPT_PATH,
+} from '../lib/crawl-run-ledger.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -89,6 +93,7 @@ async function loadEvaluationInput() {
     packageSource,
     driveLinkInventorySource,
     sharedCandidateExtractionSource,
+    crawlRunLedgerScriptSource,
     processingProvenanceGaps,
     staleLlmCalls,
   ] = await Promise.all([
@@ -108,6 +113,7 @@ async function loadEvaluationInput() {
     readText('package.json'),
     readText('scripts/inventory-drive-linked-files.mjs'),
     readText('lib/shared-candidate-extraction.js'),
+    readText(CRAWL_RUN_LEDGER_SCRIPT_PATH),
     getSharedCommunicationProcessingProvenanceGaps({
       since: '2026-04-24T17:14:00-04:00',
       limit: 10,
@@ -132,6 +138,7 @@ async function loadEvaluationInput() {
     packageSource,
     driveLinkInventorySource,
     sharedCandidateExtractionSource,
+    crawlRunLedgerScriptSource,
     processingProvenanceGaps,
     staleLlmCalls,
   }
@@ -157,7 +164,7 @@ async function main() {
       approvalRef: VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_APPROVAL_PATH,
       cardId: VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
     }),
-    getBacklogItemsByIds([VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID]),
+    getBacklogItemsByIds([VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID, CRAWL_RUN_LEDGER_CARD_ID]),
     getActiveFoundationCurrentSprint(),
     getPlanCriticRunsByCardIds([VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID]),
     loadEvaluationInput(),
@@ -170,7 +177,11 @@ async function main() {
   ])
   const packageJson = JSON.parse(packageSource)
   const card = cards.find(item => item.id === VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID) || null
-  const liveEvaluation = evaluateFoundationExtractionRuntimeVerifier(input)
+  const liveEvaluation = evaluateFoundationExtractionRuntimeVerifier({
+    ...input,
+    foundationHub: { backlogItems: cards },
+    foundationBuildCloseouts: getFoundationBuildCloseouts(),
+  })
   const dogfood = buildFoundationExtractionRuntimeVerifierDogfoodProof()
   const closeout = getFoundationBuildCloseouts().find(item => item.key === VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY) || null
   const foundationVerifyLines = lineCount(foundationVerifySource)
