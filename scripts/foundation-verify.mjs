@@ -12109,6 +12109,8 @@ async function main() {
       foundationOperatingReliabilityScriptSource,
       planCriticSource,
       hubReadRoutesSource,
+      runtimeProcessControlSource: system010RuntimeSource,
+      foundationRuntimeRendererSource: foundationRuntimeRenderersSource,
       foundationFrontendSource,
       foundationDbSource,
       foundationHubPerformanceSource,
@@ -12541,12 +12543,15 @@ async function main() {
     checks,
     systemProcessControl?.lane === 'scoped' &&
       systemProcessControl?.priority === 'P0' &&
-      runtimeSupervisor?.lane === 'scoped' &&
+      ['scoped', 'done'].includes(runtimeSupervisor?.lane) &&
       runtimeSupervisor?.priority === 'P0' &&
-      runtimeSupervisorText.includes('served-code-equals-HEAD') &&
-      runtimeSupervisorText.includes('auto-restart-on-push') &&
-      currentPlan.includes('Served-code-equals-HEAD check is live') &&
-      currentPlan.includes('Add auto-restart-on-push next'),
+      (
+        runtimeSupervisor?.lane === 'done' ||
+        (runtimeSupervisorText.includes('served-code-equals-HEAD') || runtimeSupervisorText.includes('running commit trust'))
+      ) &&
+      (runtimeSupervisor?.lane === 'done' || runtimeSupervisorText.includes('auto-restart-on-push')) &&
+      (currentPlan.includes('Served-code-equals-HEAD check is live') || currentPlan.includes('Runtime Supervisor service supervision')) &&
+      (currentPlan.includes('Add auto-restart-on-push next') || currentPlan.includes('runtime-supervisor-v1')),
     'SYSTEM-010 owns dashboard served-code/deploy freshness follow-up',
     `SYSTEM-010=${systemProcessControl?.lane || 'missing'} / RUNTIME-SUPERVISOR-001=${runtimeSupervisor?.lane || 'missing'}`,
   )

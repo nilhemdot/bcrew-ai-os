@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "RUNTIME-SUPERVISOR-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T08:25:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/runtime-supervisor-001-plan.md",
+  "approvedPlanSha256": "97bbf4b584fc261be8d7aa36138cd44da306e8e52a59dcfbf6a27f38b7649040",
+  "approvedRepoHead": "7bfe59eda45aefad58f456c100c44fe6dd881d19",
+  "notes": "Approved as a no-auth Foundation runtime-supervisor visibility card. Scope: expose dashboard and Foundation worker service-supervision snapshot with LaunchAgent status, pid match, code trust, heartbeat age, log paths, restart command, and honest manual restart-on-push posture. Not approved: new scheduler framework, auto-restart-on-push install, hub feature work, source extraction, Build Intel extraction, paid-source auth, Canva asset library, Marketing Video Lab, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "23359b6f36d4e43c54f5432ef5b7ba5b4221cebcc683a2c1d4cc525b9419e724"
+}

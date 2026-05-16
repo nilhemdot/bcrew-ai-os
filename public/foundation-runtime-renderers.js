@@ -708,6 +708,7 @@ function renderRuntimeProcessControlPanel(runtimeProcessControl) {
   var active = runtimeProcessControl.activeProcessView || {}
   var controls = runtimeProcessControl.controls || {}
   var restart = runtimeProcessControl.restartOnPush || {}
+  var serviceSupervisor = runtimeProcessControl.serviceSupervisor || {}
   var costRisk = runtimeProcessControl.costRisk || {}
   var items = [
     {
@@ -718,6 +719,11 @@ function renderRuntimeProcessControlPanel(runtimeProcessControl) {
         + (summary.leasedSourceCrawlItems || 0) + ' leased source items, '
         + (summary.activeLlmCalls || 0) + ' active LLM calls. Stale risks: '
         + (summary.staleRiskCount || 0) + '.',
+    },
+    {
+      label: 'Supervised services',
+      status: serviceSupervisor.status === 'healthy' ? 'live' : 'risk',
+      detail: serviceSupervisor.plainEnglish || 'Dashboard and Foundation worker LaunchAgent status, pid match, code trust, log paths, and restart commands are reported here.',
     },
     {
       label: 'Dead-man and stop guard',
@@ -755,6 +761,26 @@ function renderRuntimeProcessControlPanel(runtimeProcessControl) {
           stopFoundationJobRun(run, button)
         },
       }] : [],
+    })
+  })
+
+  ;(Array.isArray(serviceSupervisor.services) ? serviceSupervisor.services : []).forEach(function(service) {
+    var runtime = service.runtime || {}
+    var launchAgent = service.launchAgent || {}
+    var logLine = Array.isArray(service.logPaths) && service.logPaths.length
+      ? ' Logs: ' + service.logPaths.join(' · ') + '.'
+      : ''
+    items.push({
+      label: service.label || service.key || 'Supervised service',
+      status: service.status === 'healthy' ? 'live' : 'risk',
+      detail: 'LaunchAgent ' + (launchAgent.label || 'missing')
+        + ' pid ' + (launchAgent.pid || 'missing')
+        + '; recorded pid ' + (runtime.processId || 'missing')
+        + '; code ' + (runtime.codeMatchesHead ? 'matches HEAD' : 'does not match HEAD')
+        + '; metadata age ' + (runtime.capturedAgeSeconds == null ? 'unknown' : runtime.capturedAgeSeconds + 's')
+        + '; restart-on-push ' + (service.restartOnPushStatus || 'unknown')
+        + '. Restart: ' + (service.restartCommand || 'missing') + '.'
+        + logLine,
     })
   })
 

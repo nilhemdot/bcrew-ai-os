@@ -175,6 +175,7 @@
     "process:foundation-ready-safe-hub-lane-check": "node --env-file-if-exists=.env scripts/process-foundation-ready-safe-hub-lane-check.mjs",
     "process:foundation-hub-backlog-contract-check": "node --env-file-if-exists=.env scripts/process-foundation-hub-backlog-contract-check.mjs",
     "process:foundation-identity-check": "node --env-file-if-exists=.env scripts/process-foundation-identity-check.mjs",
+    "process:runtime-supervisor-check": "node --env-file-if-exists=.env scripts/process-runtime-supervisor-check.mjs",
     "process:source-outage-boundary-check": "node --env-file-if-exists=.env scripts/process-source-outage-boundary-check.mjs",
     "process:foundation-operating-reliability-check": "node --env-file-if-exists=.env scripts/process-foundation-operating-reliability-check.mjs",
     "process:foundation-endpoint-budgets-check": "node --env-file-if-exists=.env scripts/process-foundation-endpoint-budgets-check.mjs",

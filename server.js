@@ -192,6 +192,7 @@ import {
   buildDecommissionDecision,
   buildRuntimeProcessControlSnapshot,
   buildStopDecision,
+  getLaunchAgentStatus,
   terminateProcessTree,
 } from './lib/runtime-process-control.js'
 import {
@@ -3367,12 +3368,20 @@ async function buildRuntimeProcessControlApiSnapshot(snapshot = null) {
     servedCode: getDashboardRuntimeMetadata(),
     workerCode: workerCode || getMissingWorkerRuntimeMetadata(),
   }
+  const [dashboardLaunchAgent, workerLaunchAgent] = await Promise.all([
+    getLaunchAgentStatus('ai.bcrew.dashboard'),
+    getLaunchAgentStatus('ai.bcrew.foundation-worker'),
+  ])
 
   return buildRuntimeProcessControlSnapshot({
     foundationJobs: foundationSnapshot.foundationJobs,
     llmRuntime: foundationSnapshot.llmRuntime,
     extractionControl: foundationSnapshot.extractionControl,
     runtimeSupervisor,
+    launchAgents: {
+      dashboard: dashboardLaunchAgent,
+      'foundation-worker': workerLaunchAgent,
+    },
     currentRepoHead,
   })
 }
