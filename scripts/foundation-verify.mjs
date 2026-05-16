@@ -3920,6 +3920,11 @@ async function main() {
     runtimeWorkerVerifierCoverageCardId,
     runtimeFirstJobsVerifierCoverageCardId,
     runtimeHealthSimplifyVerifierCoverageCardId,
+    'NIGHTLY-AUDIT-SCHEDULER-DUE-FIX-001',
+    'NIGHTLY-DEEP-AUDIT-BACKFILL-001',
+    'NIGHTLY-AUDIT-RUN-PROOF-001',
+    'SYSTEM-HEALTH-NIGHTLY-AUDIT-001',
+    'SCHEDULED-JOB-STALENESS-DASHBOARD-001',
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||

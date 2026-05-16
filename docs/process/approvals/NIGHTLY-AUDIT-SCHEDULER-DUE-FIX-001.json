@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "NIGHTLY-AUDIT-SCHEDULER-DUE-FIX-001",
+  "approvedBy": "Steve 18-hour Foundation run instruction + Codex senior-engineer review",
+  "approvedAt": "2026-05-16T14:20:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/nightly-audit-scheduler-due-fix-001-plan.md",
+  "approvedPlanSha256": "4a7f88403c9dbe89d6a0250e6e27bd0fc2751f7d3a09b29947e7d9b14173d6f4",
+  "approvedRepoHead": "8fcbf3f09d05e9cbb75dbd550fb1549379133f9f",
+  "notes": "Approved as part of the Foundation Audit Reliability Sprint. Scope: make scheduled audit execution real, backfill evidence, add missed-run proof, write cleanup arc closeout, and capture proposal-only backlog stabs. Not approved: hub feature work, Canva asset mutation, paid-source auth, Build Intel extraction, or autonomous backlog mutation.",
+  "approvalDigest": "088924e3f2d5ccac9020df0a475b2084d3cf39722be4780b6869be75fcc353be"
+}

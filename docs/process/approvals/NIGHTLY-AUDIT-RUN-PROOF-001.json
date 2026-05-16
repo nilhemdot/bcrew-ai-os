@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "NIGHTLY-AUDIT-RUN-PROOF-001",
+  "approvedBy": "Steve 18-hour Foundation run instruction + Codex senior-engineer review",
+  "approvedAt": "2026-05-16T14:20:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/nightly-audit-run-proof-001-plan.md",
+  "approvedPlanSha256": "4b7a8bc91c4c1e4cb6408137fed0befbb862447fd9cf9f4d44f2cd7c58acc3fd",
+  "approvedRepoHead": "8fcbf3f09d05e9cbb75dbd550fb1549379133f9f",
+  "notes": "Approved as part of the Foundation Audit Reliability Sprint. Scope: make scheduled audit execution real, backfill evidence, add missed-run proof, write cleanup arc closeout, and capture proposal-only backlog stabs. Not approved: hub feature work, Canva asset mutation, paid-source auth, Build Intel extraction, or autonomous backlog mutation.",
+  "approvalDigest": "e37fccea97d892fa932367bf1ff0eb8e9b6c0e39976563527c1c6ef316b0a023"
+}
