@@ -19,18 +19,19 @@ import {
   FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
 } from '../lib/foundation-build-log.js'
 import {
-  CANVA_CLIENT_CARD_ID,
-  CANVA_CLIENT_CLOSEOUT_KEY,
   CANVA_CLIENT_PLAN_PATH,
   CANVA_CLIENT_SCRIPT_PATH,
-  CANVA_CLIENT_SPRINT_ID,
-  buildCanvaEnvStatus,
-  buildSyntheticCanvaClientProof,
-  evaluateCanvaClientSource,
-} from '../lib/canva-client.js'
-import {
-  buildSprintProofHelpers,
-} from '../lib/foundation-verifier-sprint-proof.js'
+  VERIFIER_CANVA_CLIENT_SPLIT_MODULE_BEFORE_LINES,
+  VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID,
+  VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_CANVA_CLIENT_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_CANVA_CLIENT_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_CANVA_CLIENT_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationCanvaClientVerifierDogfoodProof,
+  evaluateFoundationCanvaClientVerifier,
+  evaluateFoundationCanvaClientVerifierSplitSource,
+} from '../lib/foundation-canva-client-verifier.js'
+import { buildSprintProofHelpers } from '../lib/foundation-verifier-sprint-proof.js'
 import {
   buildSyntheticApprovalIntegrityStatus,
   PHASE_1_ENFORCEMENT_CARD_IDS,
@@ -2143,6 +2144,7 @@ async function main() {
     VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
     VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID,
+    VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID,
   ])
   const verifierSplitBacklogItemById = new Map(verifierSplitBacklogItems.map(item => [item.id, item]))
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
@@ -2172,6 +2174,9 @@ async function main() {
   const canvaClientScriptSource = await readRepoFile(CANVA_CLIENT_SCRIPT_PATH)
   const canvaOauthBootstrapSource = await readRepoFile('scripts/canva-oauth-bootstrap.mjs')
   const canvaClientPlanSource = await readRepoFile(CANVA_CLIENT_PLAN_PATH)
+  const foundationCanvaClientVerifierSource = await readRepoFile('lib/foundation-canva-client-verifier.js')
+  const verifierCanvaClientSplitScriptSource = await readRepoFile(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierCanvaClientSplitPlanSource = await readRepoFile(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_PLAN_PATH)
   const processRepairVerifierSprintScriptSource = await readRepoFile('scripts/process-repair-verifier-sprint-check.mjs')
   const currentSprintDynamicTruthCheckSource = await readRepoFile(CURRENT_SPRINT_DYNAMIC_TRUTH_SCRIPT_PATH)
   const currentSprintDynamicTruthPlanSource = await readRepoFile(CURRENT_SPRINT_DYNAMIC_TRUTH_PLAN_PATH)
@@ -3646,44 +3651,33 @@ async function main() {
     closeouts: foundationBuildCloseouts,
     planCriticRuns: activeFoundationSprint.planCriticRuns || [],
   })
-  const canvaClientCard = (foundationHub.backlogItems || []).find(item => item.id === CANVA_CLIENT_CARD_ID) || null
-  const canvaClientActiveItem = (activeFoundationSprint.items || []).find(item => item.cardId === CANVA_CLIENT_CARD_ID) || null
-  const canvaClientActive = activeFoundationSprint.sprint?.sprintId === CANVA_CLIENT_SPRINT_ID &&
-    canvaClientActiveItem &&
-    ['scoping', 'sprint_ready', 'building_now', 'done_this_sprint'].includes(canvaClientActiveItem.stage)
-  const canvaClientCloseout = foundationBuildCloseouts.find(closeout => closeout.key === CANVA_CLIENT_CLOSEOUT_KEY) || null
-  const canvaClientClosed = canvaClientCard?.lane === 'done' &&
-    canvaClientCloseout?.operatorCloseout === true &&
-    (canvaClientCloseout.backlogIds || []).includes(CANVA_CLIENT_CARD_ID)
-  const canvaClientEnvStatus = buildCanvaEnvStatus(process.env)
-  const canvaClientSourceEvaluation = evaluateCanvaClientSource({
-    clientSource: canvaClientSource,
-    scriptSource: canvaClientScriptSource,
-    planSource: canvaClientPlanSource,
+  const canvaClientVerifier = await evaluateFoundationCanvaClientVerifier({
+    activeSprint: activeFoundationSprint,
+    backlogItems: foundationHub.backlogItems || [],
+    closeouts: foundationBuildCloseouts,
+    env: process.env,
+    canvaClientSource,
+    canvaClientScriptSource,
+    canvaClientPlanSource,
+    canvaOauthBootstrapSource,
     packageJson,
   })
-  const canvaClientSyntheticProof = await buildSyntheticCanvaClientProof()
-  ensure(
-    checks,
-    canvaClientCard &&
-      (canvaClientActive || canvaClientClosed) &&
-      canvaClientEnvStatus.CANVA_CLIENT_ID &&
-      canvaClientEnvStatus.CANVA_CLIENT_SECRET &&
-      canvaClientEnvStatus.CANVA_REFRESH_TOKEN &&
-      canvaClientSourceEvaluation.ok &&
-      canvaClientSyntheticProof.ok &&
-      packageJson.scripts?.['process:canva-client-check'] === 'node --env-file-if-exists=.env scripts/process-canva-client-check.mjs' &&
-      packageJson.scripts?.['canva:oauth-bootstrap'] === 'node --env-file-if-exists=.env scripts/canva-oauth-bootstrap.mjs' &&
-      canvaOauthBootstrapSource.includes('replaceEnvValueLine') &&
-      canvaOauthBootstrapSource.includes('refusing_to_write_env_without_apply') &&
-      canvaOauthBootstrapSource.includes('code_challenge_method') &&
-      canvaClientPlanSource.includes('/folders/{folderId}/items') &&
-      canvaClientPlanSource.includes('/brand-templates'),
-    'CANVA-CLIENT-001 has governed read-only Canva access and rotation-safe setup',
-    canvaClientCard
-      ? `${CANVA_CLIENT_CARD_ID}:${canvaClientCard.lane}; sprint=${activeFoundationSprint.sprint?.sprintId || 'none'}; active=${Boolean(canvaClientActive)}; closed=${Boolean(canvaClientClosed)}; env=${JSON.stringify(canvaClientEnvStatus)}`
-      : 'missing live backlog card',
-  )
+  checks.push(...canvaClientVerifier.checks)
+  const canvaClientVerifierDogfood = await buildFoundationCanvaClientVerifierDogfoodProof()
+  const canvaClientVerifierSplitSource = evaluateFoundationCanvaClientVerifierSplitSource({
+    foundationVerifySource,
+    moduleSource: foundationCanvaClientVerifierSource,
+    proofScriptSource: verifierCanvaClientSplitScriptSource,
+    planSource: verifierCanvaClientSplitPlanSource,
+    packageJson,
+  })
+  const verifierCanvaClientSplitModuleCard = verifierSplitBacklogItemById.get(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID) || (activeFoundationSprint.items || []).map(item => item.backlog).find(item => item?.id === VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID) || null
+  const verifierCanvaClientSplitModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierCanvaClientSplitModuleClosed = verifierCanvaClientSplitModuleCard?.lane === 'done'
+  const foundationVerifyLineCountAfterCanvaClientSplit = String(foundationVerifySource || '').split('\n').length
+  const canvaClientSplitCloseoutOk = !verifierCanvaClientSplitModuleClosed || (String(verifierCanvaClientSplitModuleCard.statusNote || '').includes(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CLOSEOUT_KEY) && verifierCanvaClientSplitModuleCloseout?.operatorCloseout === true && (verifierCanvaClientSplitModuleCloseout.backlogIds || []).includes(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID) && await repoFileExists('docs/handoffs/2026-05-16-verifier-canva-client-split-module-closeout.md'))
+  const canvaClientSplitOk = verifierCanvaClientSplitModuleCard && ['executing', 'done'].includes(verifierCanvaClientSplitModuleCard.lane) && canvaClientSplitCloseoutOk && canvaClientVerifierDogfood.ok === true && canvaClientVerifier.checks.every(check => check.ok) && canvaClientVerifierSplitSource.checks.every(check => check.ok) && currentPlan.includes(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CLOSEOUT_KEY) && currentState.includes(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CLOSEOUT_KEY) && (activeFoundationSprint.sprint?.sprintId === VERIFIER_CANVA_CLIENT_SPLIT_MODULE_SPRINT_ID || verifierCanvaClientSplitModuleClosed) && foundationCanvaClientVerifierSource.includes(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID)
+  ensure(checks, canvaClientSplitOk, 'VERIFIER-CANVA-CLIENT-SPLIT-MODULE-001 extracts Canva client verifier checks into a focused module', verifierCanvaClientSplitModuleCard ? `lane=${verifierCanvaClientSplitModuleCard.lane} dogfood=${canvaClientVerifierDogfood.ok ? 'pass' : 'blocked'} canvaChecks=${canvaClientVerifier.checks.filter(check => check.ok).length}/${canvaClientVerifier.checks.length} lines=${VERIFIER_CANVA_CLIENT_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterCanvaClientSplit}` : `missing ${VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID}`)
   const CONNECTOR_ROUTING_TRUTH_CARD_IDS = [
     'ATOM-PROMOTION-DIAGNOSE-001',
     'SPRINT-DB-RECONCILE-001',
@@ -3979,6 +3973,7 @@ async function main() {
     foundationProcessHardeningVerifierSource,
     foundationProcessTrustVerifierSource,
     foundationAgentFeedbackVerifierSource,
+    foundationCanvaClientVerifierSource,
     fubSourceRoutesSource,
     foundationRuntimeReadRoutesSource,
     appPageRoutesSource,

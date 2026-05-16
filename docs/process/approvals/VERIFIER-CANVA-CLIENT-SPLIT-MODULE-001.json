@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-CANVA-CLIENT-SPLIT-MODULE-001",
+  "approvedPlanRef": "docs/process/verifier-canva-client-split-module-001-plan.md",
+  "approvedPlanSha256": "735659ae0c2730b0b3b473593bca096c465c7ec13a234020df94d07bf8ab7710",
+  "approvedRepoHead": "aa84b998df36c0c824fdf62d28474fd95a4353e0",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T08:05:00.000Z",
+  "score": 10,
+  "notes": "Approved as the next no-auth Foundation cleanup slice after VERIFIER-PROCESS-TRUST-SPLIT-MODULE-001 shipped. Extract existing Canva client verifier predicate only; no Canva writes, uploads, exports, design creation, route changes, source auth, paid calls, sends, or hub feature work.",
+  "approvalDigest": "67df022002821c760ce925e23d3a82d3419679eadf188fa14df5788f99d2ae43"
+}
