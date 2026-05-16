@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-ID-CONSTRAINT-CONTRACT-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T11:58:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-id-constraint-contract-001-plan.md",
+  "approvedPlanSha256": "e8645e7711835e6cfd9599ee71ace6ef80ffcb90b9ac3463c11d6890352737e9",
+  "approvedRepoHead": "e826dc893c642c6fdb8192347333c3713b93f5cf",
+  "notes": "Approved as a no-auth Foundation data-integrity planning card. Scope: classify DB-backed source_id/source_ids references as FK-safe now, verifier-backed, or needs schema design before any broad source-ID foreign-key migration. Report-only; no schema migration, live data mutation, route redesign, source extraction, connector auth, paid-source auth, hub feature work, Marketing Video Lab route wiring, Canva asset mutation, Drive permissions mutation, or Meeting Vault Phase B.",
+  "approvalDigest": "579cb2fdb36517d03b89ff7855363a28d5af883e70b13e581b26fee9996e9c93"
+}

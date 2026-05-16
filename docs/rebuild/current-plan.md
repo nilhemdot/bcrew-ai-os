@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-16
-Version: v6.86 - Crawl run ledger reconcile complete
+Version: v6.87 - Source-ID constraint contract complete
 Status: Sprint review
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: DB Constraint Doc-Update Supersedes
+## Current Sprint: Source-ID Constraint Contract
+
+Live sprint ID: `source-id-constraint-contract-2026-05-16`.
+
+This sprint is complete under `source-id-constraint-contract-v1`. It creates a report-only contract for DB-backed source-ID references before any broad source-ID foreign-key migration.
+
+Completed card:
+
+1. `SOURCE-ID-CONSTRAINT-CONTRACT-001` - done under `source-id-constraint-contract-v1`. Scope was report-only data-integrity contract work: classify all 13 DB source-reference relations currently checked by `getFoundationDbConstraintAudit()` as `fk_safe_now` or `needs_schema_design`, dogfood unsafe FK claims, and wire thin core-governance verifier coverage.
+
+Not next: DB schema migration, source-contract table redesign, live data mutation, route redesign, seed/live overwrite, hub feature work, Marketing Video Lab wiring, Canva asset mutation, paid-source auth, Build Intel extraction, source extraction, Drive permissions mutation, Drive permissions request-access emails, or MEETING-VAULT-ACL-001 Phase B.
+
+Next active blocker: decide whether the next DB source-ID hardening slice should materialize a source-contract registry table, add scalar FKs for the 10 shape-safe relations, or redesign the 3 array-backed provenance relations first.
+
+## Previous Sprint: DB Constraint Doc-Update Supersedes
 
 Live sprint ID: `db-constraint-doc-update-supersedes-2026-05-16`.
 
@@ -84,8 +98,6 @@ Completed card:
 1. `DB-CONSTRAINT-001` - done under `db-constraint-doc-update-supersedes-v1`. Scope was decision-store apply semantics only: applying an approved pending doc update linked to a decision locks that decision, applies its `supersedesIds` through `markSupersededDecisions()`, records applied supersession metadata, and is covered by focused dogfood plus core-governance verifier proof.
 
 Not next: live doc apply runs, route redesign, DB schema migration, broad source-ID foreign key migration, seed/live overwrite, hub feature work, Marketing Video Lab wiring, Canva asset mutation, paid-source auth, Build Intel extraction, Drive permissions mutation, Drive permissions request-access emails, or `MEETING-VAULT-ACL-001` Phase B.
-
-Next active blocker: choose the next no-auth Foundation cleanup card through Current Sprint review.
 
 ## Previous Sprint: Extract Retry
 

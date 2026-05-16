@@ -26,6 +26,9 @@ import {
 import {
   buildDbConstraintDogfoodProof,
 } from '../lib/db-constraint-hardening.js'
+import {
+  buildSourceIdConstraintContractDogfoodProof,
+} from '../lib/source-id-constraint-contract.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -117,6 +120,7 @@ async function loadEvaluationInput({ baseUrl }) {
     foundationDecisionStoreSource,
     foundationBacklogStoreSource,
     dbConstraintSource,
+    sourceIdConstraintContractSource,
     serverSource,
     hubReadRoutesSource,
     fubSourceRoutesSource,
@@ -160,6 +164,7 @@ async function loadEvaluationInput({ baseUrl }) {
     readText('lib/foundation-decision-store.js'),
     readText('lib/foundation-backlog-store.js'),
     readText('lib/db-constraint-hardening.js'),
+    readText('lib/source-id-constraint-contract.js'),
     readText('server.js'),
     readTextIfExists('lib/hub-read-routes.js'),
     readTextIfExists('lib/fub-source-routes.js'),
@@ -205,6 +210,8 @@ async function loadEvaluationInput({ baseUrl }) {
     dbConstraintSource,
     dbConstraintDogfood: await buildDbConstraintDogfoodProof(),
     dbConstraintAudit: foundationHub.dbConstraintAudit || {},
+    sourceIdConstraintContractSource,
+    sourceIdConstraintContractDogfood: buildSourceIdConstraintContractDogfoodProof(),
     serverSource,
     hubReadRoutesSource,
     fubSourceRoutesSource,

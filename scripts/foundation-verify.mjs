@@ -336,6 +336,9 @@ import {
   buildDbConstraintDogfoodProof,
 } from '../lib/db-constraint-hardening.js'
 import {
+  buildSourceIdConstraintContractDogfoodProof,
+} from '../lib/source-id-constraint-contract.js'
+import {
   VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
@@ -2669,6 +2672,7 @@ async function main() {
   const verifierIntelligenceAuditSplitModulePlanSource = await readRepoFile(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_PLAN_PATH)
   const foundationCoreGovernanceVerifierSource = await readRepoFile('lib/foundation-core-governance-verifier.js')
   const dbConstraintSource = await readRepoFile('lib/db-constraint-hardening.js')
+  const sourceIdConstraintContractSource = await readRepoFile('lib/source-id-constraint-contract.js')
   const verifierCoreGovernanceSplitModuleScriptSource = await readRepoFile(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierCoreGovernanceSplitModulePlanSource = await readRepoFile(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_PLAN_PATH)
   const foundationIntelligenceSpineVerifierSource = await readRepoFile('lib/foundation-intelligence-spine-verifier.js')
@@ -3345,6 +3349,7 @@ async function main() {
   })
   checks.push(...sourceContractVerifierResult.checks)
   const dbConstraintDogfood = await buildDbConstraintDogfoodProof()
+  const sourceIdConstraintContractDogfood = buildSourceIdConstraintContractDogfoodProof()
   const coreGovernanceVerifier = evaluateFoundationCoreGovernanceVerifier({
     systemStrategy,
     currentPlan,
@@ -3371,6 +3376,8 @@ async function main() {
     dbConstraintSource,
     dbConstraintDogfood,
     dbConstraintAudit,
+    sourceIdConstraintContractSource,
+    sourceIdConstraintContractDogfood,
     serverSource,
     hubReadRoutesSource,
     fubSourceRoutesSource,
@@ -4132,6 +4139,7 @@ async function main() {
     crawlRunLedgerSource,
     foundationCoreGovernanceVerifierSource,
     dbConstraintSource,
+    sourceIdConstraintContractSource,
     foundationIntelligenceSpineVerifierSource,
     foundationServerRouteSplitVerifierSource,
     foundationDbSplitVerifierSource,
