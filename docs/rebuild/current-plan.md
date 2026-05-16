@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-16
-Version: v6.79 - Extraction runtime verifier split complete
+Version: v6.81 - Surface/trust verifier split complete
 Status: Sprint review
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Extraction Runtime Verifier Split
+## Current Sprint: Surface/Trust Verifier Split
+
+Live sprint ID: `verifier-surface-trust-split-module-2026-05-16`.
+
+This sprint is complete under `verifier-surface-trust-split-module-v1`. It extracted the existing surface/trust verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-surface-trust-verifier.js` while preserving the same PASS/FAIL rows for Foundation Hub core arrays, dashboard/worker served-code trust, verifier exception ledger validity, done-card verifier coverage, claimed artifact existence, backlog seed/live drift, DB constraint audit exposure, Foundation surface mapping, and surface freshness sweep exposure.
+
+Completed card:
+
+1. `VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001` - done under `verifier-surface-trust-split-module-v1`. V1 owns `lib/foundation-surface-trust-verifier.js`, `scripts/process-verifier-surface-trust-split-module-check.mjs`, package script `process:verifier-surface-trust-split-module-check`, plan/approval docs, dogfood fixtures that reject stale verifier exceptions, missing done-card verifier proof, missing claimed artifacts/routes/scripts, stale served code, and incomplete surface maps, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-surface-trust-split-module-closeout.md`.
+
+Not next: route/auth behavior changes, UI redesign, Foundation Hub payload behavior changes, DB schema changes, backlog mutation behavior changes, source contract behavior changes, connector auth, extraction runs, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
+
+Previous completed sprint: `verifier-extraction-runtime-split-module-2026-05-16`, closed under `verifier-extraction-runtime-split-module-v1`.
+
+## Previous Sprint: Extraction Runtime Verifier Split
 
 Live sprint ID: `verifier-extraction-runtime-split-module-2026-05-16`.
 

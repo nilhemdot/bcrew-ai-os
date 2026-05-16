@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001",
+  "approvedPlanRef": "docs/process/verifier-surface-trust-split-module-001-plan.md",
+  "approvedPlanSha256": "454c9ac71f98cf425f10a56f9bc7bbc2a5a87c9e54daf0425ba972fe98431260",
+  "approvedRepoHead": "4cf0f67b8c995d6ec652f704fab16c26b5e73831",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T03:05:00.000-04:00",
+  "score": 10,
+  "notes": "Approved as next no-auth Foundation cleanup slice after VERIFIER-EXTRACTION-RUNTIME-SPLIT-MODULE-001 shipped. Extract existing surface/trust verifier predicates only; no behavior changes, route changes, source auth, paid calls, or hub feature work.",
+  "approvalDigest": "537f75bd1425dfd9734e2ce388e55544e73e8911071c7cc95b4fa01edc67f25f"
+}

@@ -294,6 +294,27 @@ import {
   evaluateFoundationExtractionRuntimeVerifier,
 } from '../lib/foundation-extraction-runtime-verifier.js'
 import {
+  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_BEFORE_LINES,
+  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
+  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SPRINT_ID,
+  apiRouteExists,
+  backlogCardText,
+  buildCloseoutText,
+  buildFoundationSurfaceTrustVerifierDogfoodProof,
+  evaluateFoundationSurfaceTrustVerifier,
+  extractClaimedApiRoutesFromText,
+  extractClaimedFilesFromText,
+  extractClaimedNpmScriptsFromText,
+  findDoneCardsWithoutVerifierCoverage,
+  findMissingArtifactClaims,
+  normalizeClaim,
+  validateVerifierExceptionLedger,
+} from '../lib/foundation-surface-trust-verifier.js'
+import {
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID,
@@ -1829,157 +1850,6 @@ async function repoFileExists(relativePath) {
   }
 }
 
-function normalizeClaim(value) {
-  return String(value || '')
-    .trim()
-    .replace(/[),.;:'"`]+$/g, '')
-}
-
-function extractClaimedFilesFromText(text) {
-  const claims = new Set()
-  const pattern = /\b(?:scripts|docs|lib|public)\/[A-Za-z0-9._/-]+\.(?:mjs|js|md|html|css|json)\b/g
-  for (const match of String(text || '').matchAll(pattern)) {
-    claims.add(normalizeClaim(match[0]))
-  }
-  return Array.from(claims)
-}
-
-function extractClaimedNpmScriptsFromText(text) {
-  const claims = new Set()
-  const pattern = /\bnpm\s+run\s+([a-z][a-z0-9:-]*)\b/g
-  for (const match of String(text || '').matchAll(pattern)) {
-    const scriptName = normalizeClaim(match[1])
-    if (!scriptName.includes(':')) continue
-    claims.add(scriptName)
-  }
-  return Array.from(claims)
-}
-
-function extractClaimedApiRoutesFromText(text) {
-  const claims = new Set()
-  const pattern = /\/api\/[A-Za-z0-9._~:/?=&-]+/g
-  for (const match of String(text || '').matchAll(pattern)) {
-    const route = normalizeClaim(match[0]).replace(/\?.*$/, '')
-    claims.add(route)
-  }
-  return Array.from(claims)
-}
-
-function apiRouteExists(serverSource, route) {
-  const normalized = normalizeClaim(route)
-  if (!normalized) return false
-  return serverSource.includes(`'${normalized}'`) ||
-    serverSource.includes(`"${normalized}"`) ||
-    serverSource.includes(`\`${normalized}\``)
-}
-
-function backlogCardText(card) {
-  return [
-    card?.id,
-    card?.title,
-    card?.summary,
-    card?.whyItMatters,
-    card?.nextAction,
-    card?.statusNote,
-    card?.source,
-  ].filter(Boolean).join('\n')
-}
-
-function buildCloseoutText(closeout) {
-  return [
-    closeout?.key,
-    ...(closeout?.backlogIds || []),
-    closeout?.whatChanged,
-    closeout?.whatItDoes,
-    closeout?.whyItMatters,
-    ...(closeout?.whereItLives || []),
-    ...(closeout?.proofCommands || []),
-    closeout?.proofStatus,
-    closeout?.reviewNext,
-    ...(closeout?.knownLimits || []),
-  ].filter(Boolean).join('\n')
-}
-
-function validateVerifierExceptionLedger(ledger, doneCardIds, now = new Date()) {
-  const exceptions = Array.isArray(ledger?.exceptions) ? ledger.exceptions : []
-  const maxOpenEndedDays = Math.max(1, Number(ledger?.maxOpenEndedDays || 90))
-  const invalid = []
-  const expired = []
-  const staleOpenEnded = []
-  const duplicates = []
-  const seen = new Set()
-  const validExceptionIds = new Set()
-
-  for (const exception of exceptions) {
-    const cardId = String(exception?.cardId || '').trim()
-    const missingFields = []
-    for (const field of ['cardId', 'reason', 'approver', 'approvedAt', 'expiresAt']) {
-      if (!Object.prototype.hasOwnProperty.call(exception || {}, field)) missingFields.push(field)
-    }
-    if (!String(exception?.reason || '').trim()) missingFields.push('reason')
-    if (!String(exception?.approver || '').trim()) missingFields.push('approver')
-    const approvedAtMs = Date.parse(exception?.approvedAt)
-    if (!Number.isFinite(approvedAtMs)) missingFields.push('approvedAt')
-    if (!doneCardIds.has(cardId)) missingFields.push('done-card')
-    if (seen.has(cardId)) duplicates.push(cardId)
-    seen.add(cardId)
-
-    let expiresAtMs = null
-    if (exception?.expiresAt !== null) {
-      expiresAtMs = Date.parse(exception?.expiresAt)
-      if (!Number.isFinite(expiresAtMs)) missingFields.push('expiresAt')
-      else if (expiresAtMs < now.getTime()) expired.push(cardId)
-    } else if (Number.isFinite(approvedAtMs)) {
-      const ageDays = (now.getTime() - approvedAtMs) / (24 * 60 * 60 * 1000)
-      if (ageDays > maxOpenEndedDays) staleOpenEnded.push(`${cardId}:${Math.floor(ageDays)}d`)
-    }
-
-    if (missingFields.length) {
-      invalid.push(`${cardId || 'missing-card'}:${Array.from(new Set(missingFields)).join(',')}`)
-      continue
-    }
-    validExceptionIds.add(cardId)
-  }
-
-  return {
-    total: exceptions.length,
-    openEnded: exceptions.filter(exception => exception?.expiresAt === null).length,
-    validExceptionIds,
-    invalid,
-    expired,
-    staleOpenEnded,
-    duplicates,
-    maxOpenEndedDays,
-  }
-}
-
-function findDoneCardsWithoutVerifierCoverage(doneCards, verifierSource, validExceptionIds) {
-  return doneCards.filter(card => {
-    if (String(verifierSource || '').includes(card.id)) return false
-    return !validExceptionIds.has(card.id)
-  })
-}
-
-async function findMissingArtifactClaims(records, packageScripts, routeSources) {
-  const combinedRouteSource = Array.isArray(routeSources)
-    ? routeSources.filter(Boolean).join('\n')
-    : String(routeSources || '')
-  const missing = []
-  for (const record of records) {
-    const text = record.text || ''
-    for (const filePath of extractClaimedFilesFromText(text)) {
-      if (!await repoFileExists(filePath)) missing.push(`${record.label}: missing file ${filePath}`)
-    }
-    for (const scriptName of extractClaimedNpmScriptsFromText(text)) {
-      if (!packageScripts[scriptName]) missing.push(`${record.label}: missing npm script ${scriptName}`)
-    }
-    for (const apiRoute of extractClaimedApiRoutesFromText(text)) {
-      if (!apiRouteExists(combinedRouteSource, apiRoute)) missing.push(`${record.label}: missing API route ${apiRoute}`)
-    }
-  }
-  return missing
-}
-
 function ensure(checks, condition, check, detail) {
   if (!condition) {
     checks.push({ ok: false, check, detail })
@@ -2207,6 +2077,7 @@ async function main() {
     VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
     VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
     VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
+    VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
   ])
   const verifierSplitBacklogItemById = new Map(verifierSplitBacklogItems.map(item => [item.id, item]))
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
@@ -2633,6 +2504,9 @@ async function main() {
   const foundationExtractionRuntimeVerifierSource = await readRepoFile('lib/foundation-extraction-runtime-verifier.js')
   const verifierExtractionRuntimeSplitModuleScriptSource = await readRepoFile(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SCRIPT_PATH)
   const verifierExtractionRuntimeSplitModulePlanSource = await readRepoFile(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_PLAN_PATH)
+  const foundationSurfaceTrustVerifierSource = await readRepoFile('lib/foundation-surface-trust-verifier.js')
+  const verifierSurfaceTrustSplitModuleScriptSource = await readRepoFile(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierSurfaceTrustSplitModulePlanSource = await readRepoFile(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_PLAN_PATH)
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -3749,6 +3623,7 @@ async function main() {
     VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
     VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
     VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
+    VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -3980,7 +3855,6 @@ async function main() {
     backlogItems: foundationHub.backlogItems || [],
   })
   const archiveRetireStatus = await buildArchiveRetireStatus({ repoRoot })
-  const verifierExceptionValidation = validateVerifierExceptionLedger(verifierExceptionLedger, doneBacklogCardIds)
   const verifierCoverageSource = [
     foundationVerifySource,
     foundationRouteSplitVerifierSource,
@@ -4002,25 +3876,26 @@ async function main() {
     foundationWriteRoutesSource,
     agentFeedbackRoutesSource,
   ].filter(Boolean).join('\n')
-  const doneCardsWithoutVerifierCoverage = findDoneCardsWithoutVerifierCoverage(
+  const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
+  const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
+  const workerRunningShortCommit = String(runtimeWorkerCode.runningShortCommit || workerRunningCommit.slice(0, 7) || 'missing')
+  const foundationSurfaceMap = getFoundationSurfaceMap()
+  const surfaceTrustVerifier = await evaluateFoundationSurfaceTrustVerifier({
+    repoRoot,
+    foundationHub,
+    currentRepoHead,
+    workerLaunchAgent,
+    serverSource,
+    foundationWorkerSource,
+    foundationFrontendSource,
+    verifierExceptionLedger,
+    verifierExceptionSource,
     doneBacklogCards,
+    doneBacklogCardIds,
     verifierCoverageSource,
-    verifierExceptionValidation.validExceptionIds,
-  )
-  const syntheticMissingProofCardId = ['SYNTHETIC', 'DONE', 'NO', 'PROOF', '999'].join('-')
-  const syntheticDoneCoverageMisses = findDoneCardsWithoutVerifierCoverage(
-    [{ id: syntheticMissingProofCardId, lane: 'done' }],
-    '',
-    verifierExceptionValidation.validExceptionIds,
-  )
-  const artifactClaimRecords = [
-    ...doneBacklogCards.map(card => ({ label: `card ${card.id}`, text: backlogCardText(card) })),
-    ...foundationBuildCloseouts.map(closeout => ({ label: `closeout ${closeout.key}`, text: buildCloseoutText(closeout) })),
-  ]
-  const missingArtifactClaims = await findMissingArtifactClaims(
-    artifactClaimRecords,
-    packageJson.scripts || {},
-    [
+    foundationBuildCloseouts,
+    packageScripts: packageJson.scripts || {},
+    routeSources: [
       serverSource,
       foundationOperatorRoutesSource,
       foundationSourceRoutesSource,
@@ -4033,14 +3908,7 @@ async function main() {
       foundationWriteRoutesSource,
       agentFeedbackRoutesSource,
     ],
-  )
-  const syntheticMissingArtifactClaims = await findMissingArtifactClaims(
-    [{
-      label: 'synthetic missing artifact',
-      text: 'docs/process/synthetic-missing-artifact.md npm run synthetic:missing /api/synthetic-missing-artifact',
-    }],
-    packageJson.scripts || {},
-    [
+    syntheticRouteSources: [
       serverSource,
       foundationOperatorRoutesSource,
       foundationSourceRoutesSource,
@@ -4050,56 +3918,69 @@ async function main() {
       appPageRoutesSource,
       hubReadRoutesSource,
     ],
+    foundationSurfaceMap,
+    foundationHtmlSource,
+    sourceContractsLength: sourceContracts.length,
+  })
+  checks.push(...surfaceTrustVerifier.checks)
+  const surfaceTrustDogfood = await buildFoundationSurfaceTrustVerifierDogfoodProof()
+  ensure(
+    checks,
+    surfaceTrustDogfood.ok === true &&
+      surfaceTrustDogfood.rejected.staleException.ok === false &&
+      surfaceTrustDogfood.rejected.missingDoneCoverage.ok === false &&
+      surfaceTrustDogfood.rejected.missingArtifact.ok === false &&
+      surfaceTrustDogfood.rejected.staleServedCode.ok === false &&
+      surfaceTrustDogfood.rejected.missingSurfaceMap.ok === false,
+    'surface/trust verifier dogfood rejects stale trust and missing proof failures',
+    surfaceTrustDogfood.dogfoodInvariant,
   )
-  const runtimeServedCode = foundationHub.runtimeSupervisor?.servedCode || {}
-  const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
-  const dashboardRunningCommit = String(runtimeServedCode.runningCommit || '').trim().toLowerCase()
-  const dashboardRunningShortCommit = String(runtimeServedCode.runningShortCommit || dashboardRunningCommit.slice(0, 7) || 'missing')
-  const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
-  const workerRunningShortCommit = String(runtimeWorkerCode.runningShortCommit || workerRunningCommit.slice(0, 7) || 'missing')
-  const currentRepoShortHead = currentRepoHead.slice(0, 7)
-  const dashboardRestartCommand = runtimeServedCode.restartCommand || 'launchctl kickstart -k gui/$(id -u)/ai.bcrew.dashboard'
-  const workerRestartCommand = runtimeWorkerCode.restartCommand || 'launchctl kickstart -k gui/$(id -u)/ai.bcrew.foundation-worker'
-  const servedCodeTrustDetail = dashboardRunningCommit
-    ? dashboardRunningCommit === currentRepoHead
-      ? `Dashboard is serving current commit ${dashboardRunningShortCommit}; HEAD is ${currentRepoShortHead}.`
-      : `Dashboard is serving commit ${dashboardRunningShortCommit}; HEAD is ${currentRepoShortHead}. Run: ${dashboardRestartCommand} to restart.`
-    : `Dashboard did not expose its server-start commit. Run: ${dashboardRestartCommand} to restart, then rerun foundation:verify.`
-  const workerCodeTrustDetail = workerRunningCommit
-    ? workerRunningCommit === currentRepoHead && workerLaunchAgent.pid === Number(runtimeWorkerCode.processId)
-      ? `Foundation worker is running current commit ${workerRunningShortCommit}; HEAD is ${currentRepoShortHead}; LaunchAgent pid is ${workerLaunchAgent.pid}.`
-      : `Foundation worker is serving commit ${workerRunningShortCommit}; HEAD is ${currentRepoShortHead}; recorded pid is ${runtimeWorkerCode.processId || 'missing'} and LaunchAgent pid is ${workerLaunchAgent.pid || 'missing'}. Run: ${workerRestartCommand} to restart.`
-    : `Foundation worker did not expose its startup commit. Run: ${workerRestartCommand} to restart, then rerun foundation:verify.`
-  const foundationSurfaceMap = getFoundationSurfaceMap()
-  const foundationNavSections = Array.from(new Set(
-    Array.from(foundationHtmlSource.matchAll(/data-section="([^"]+)"/g)).map(match => match[1])
-  ))
-  const foundationMappedSections = new Set(foundationSurfaceMap.map(surface => surface.section))
-  const foundationSweepSections = new Set((foundationHub.surfaceFreshnessSweep?.surfaces || []).map(surface => surface.section))
-  const foundationMappedApis = new Set(foundationSurfaceMap.flatMap(surface => surface.backingApis || []))
-  const requiredSubSurfaces = [
-    'dashboard-code-trust',
-    'worker-code-trust',
-    'post-ship-fanout',
-    'doctrine-propagation',
-    'decision-auto-emit',
-    'sheets-api-trust',
-    'backlog-hygiene',
-    'card-reference-trust',
-    'source-contract-trust',
-    'extraction-coverage-by-target',
+  const verifierExceptionValidation = surfaceTrustVerifier.details.verifierExceptionValidation
+  const missingArtifactClaims = surfaceTrustVerifier.details.missingArtifactClaims
+  const verifierSurfaceTrustSplitModuleCard =
+    verifierSplitBacklogItemById.get(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID) ||
+    (activeFoundationSprintForExtractionRuntime.items || [])
+      .map(item => item.backlog)
+      .find(item => item?.id === VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID) ||
+    null
+  const verifierSurfaceTrustSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierSurfaceTrustSplitModuleClosed = verifierSurfaceTrustSplitModuleCard?.lane === 'done'
+  const foundationVerifyLineCountAfterSurfaceTrustSplit = String(foundationVerifySource || '').split('\n').length
+  const surfaceTrustOldInlinePatterns = [
+    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1400}'api/foundation-hub returns the expected core arrays'"),
+    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1400}'api/foundation-hub exposes the Foundation surface freshness sweep'"),
   ]
-  const requiredFoundationApiRoutes = [
-    '/api/foundation-hub',
-    '/api/source-of-truth',
-    '/api/system-inventory',
-    '/api/foundation/build-log',
-    '/api/foundation/jobs',
-    '/api/foundation/extraction-control',
-    '/api/foundation/action-review',
-    '/api/strategic-execution/v2',
-    '/api/ops-hub',
-  ]
+  ensure(
+    checks,
+    verifierSurfaceTrustSplitModuleCard &&
+      ['executing', 'done'].includes(verifierSurfaceTrustSplitModuleCard.lane) &&
+      (!verifierSurfaceTrustSplitModuleClosed || (
+        String(verifierSurfaceTrustSplitModuleCard.statusNote || '').includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
+        verifierSurfaceTrustSplitModuleCloseout?.operatorCloseout === true &&
+        (verifierSurfaceTrustSplitModuleCloseout.backlogIds || []).includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-16-verifier-surface-trust-split-module-closeout.md')
+      )) &&
+      surfaceTrustDogfood.ok === true &&
+      surfaceTrustVerifier.summary.passed === surfaceTrustVerifier.summary.total &&
+      packageJson.scripts?.['process:verifier-surface-trust-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_APPROVAL_PATH) &&
+      foundationSurfaceTrustVerifierSource.includes('evaluateFoundationSurfaceTrustVerifier') &&
+      foundationSurfaceTrustVerifierSource.includes('buildFoundationSurfaceTrustVerifierDogfoodProof') &&
+      verifierSurfaceTrustSplitModuleScriptSource.includes('dogfood rejects stale surface/trust verifier failures') &&
+      verifierSurfaceTrustSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
+      foundationVerifySource.includes('evaluateFoundationSurfaceTrustVerifier({') &&
+      foundationVerifySource.includes('surfaceTrustVerifier.checks') &&
+      surfaceTrustOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
+      currentPlan.includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprintForExtractionRuntime.sprint?.sprintId === VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SPRINT_ID || verifierSurfaceTrustSplitModuleClosed) &&
+      foundationSurfaceTrustVerifierSource.includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID),
+    'VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001 extracts surface/trust verifier checks into a focused module',
+    verifierSurfaceTrustSplitModuleCard
+      ? `lane=${verifierSurfaceTrustSplitModuleCard.lane} dogfood=${surfaceTrustDogfood.ok ? 'pass' : 'blocked'} surfaceChecks=${surfaceTrustVerifier.summary.passed}/${surfaceTrustVerifier.summary.total} lines=${VERIFIER_SURFACE_TRUST_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterSurfaceTrustSplit}`
+      : `missing ${VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID}`,
+  )
   const inventoryPluginNames = (systemInventory.plugins || []).map(plugin => plugin.title)
   const requiredPluginNames = ['Browser Use', 'Canva', 'Documents', 'GitHub', 'Gmail', 'Google Calendar', 'Google Drive', 'Presentations', 'Spreadsheets']
   const phaseCVisibilityCardIds = [
@@ -4218,135 +4099,6 @@ async function main() {
     driveCorpusNote: await readRepoFile('docs/source-notes/google-drive-corpus.md'),
   })
   checks.push(...sourceTrustVerifier.checks)
-  ensure(
-    checks,
-    Array.isArray(foundationHub.backlogItems) &&
-      Array.isArray(foundationHub.decisions) &&
-      Array.isArray(foundationHub.openQuestions) &&
-      foundationHub.decisionTraceability &&
-      foundationHub.decisionTraceability.summary &&
-      foundationHub.decisionTraceability.byDecision &&
-      foundationHub.decisionReview &&
-      typeof foundationHub.decisionReview.total === 'number' &&
-      foundationHub.decisionReview.counts &&
-      Array.isArray(foundationHub.decisionReview.items),
-    'api/foundation-hub returns the expected core arrays',
-    `${foundationHub.backlogItems?.length ?? 'invalid'} backlog / ${foundationHub.decisions?.length ?? 'invalid'} decisions / ${foundationHub.openQuestions?.length ?? 'invalid'} questions`,
-  )
-  ensure(
-    checks,
-    /^[0-9a-f]{40}$/.test(dashboardRunningCommit) &&
-      dashboardRunningCommit === currentRepoHead &&
-      runtimeServedCode.status === 'live' &&
-      String(runtimeServedCode.plainEnglish || '').includes('server-start commit') &&
-      String(runtimeServedCode.restartCommand || '').includes('launchctl kickstart') &&
-      serverSource.includes('await captureDashboardRuntimeMetadata()') &&
-     foundationFrontendSource.includes('renderServedCodeTrustPanel'),
-    'dashboard served code matches current repo HEAD',
-    servedCodeTrustDetail,
-  )
-  ensure(
-    checks,
-    /^[0-9a-f]{40}$/.test(workerRunningCommit) &&
-      workerRunningCommit === currentRepoHead &&
-      runtimeWorkerCode.status === 'live' &&
-      Number(runtimeWorkerCode.processId) === workerLaunchAgent.pid &&
-      workerLaunchAgent.ok === true &&
-      String(runtimeWorkerCode.plainEnglish || '').includes('worker-start commit') &&
-      String(runtimeWorkerCode.restartCommand || '').includes('launchctl kickstart') &&
-      foundationWorkerSource.includes('recordFoundationRuntimeStatus') &&
-      serverSource.includes('runtimeSupervisor') &&
-      serverSource.includes('workerCode') &&
-     foundationFrontendSource.includes('renderWorkerCodeTrustPanel'),
-    'Foundation worker startup code matches current repo HEAD',
-    workerLaunchAgent.ok ? workerCodeTrustDetail : `${workerCodeTrustDetail} LaunchAgent check: ${workerLaunchAgent.error}`,
-  )
-  ensure(
-    checks,
-    verifierExceptionLedger.schemaVersion === 1 &&
-      verifierExceptionValidation.invalid.length === 0 &&
-      verifierExceptionValidation.expired.length === 0 &&
-      verifierExceptionValidation.staleOpenEnded.length === 0 &&
-      verifierExceptionValidation.duplicates.length === 0 &&
-      verifierExceptionSource.includes('"maxOpenEndedDays": 90') &&
-      verifierExceptionSource.includes('"cardId"') &&
-      verifierExceptionSource.includes('"approvedAt"'),
-    'verifier exceptions are explicit, approved, and not stale',
-    `${verifierExceptionValidation.total} exceptions / ${verifierExceptionValidation.openEnded} open-ended / max ${verifierExceptionValidation.maxOpenEndedDays} days`,
-  )
-  ensure(
-    checks,
-    doneCardsWithoutVerifierCoverage.length === 0 &&
-      syntheticDoneCoverageMisses.some(item => item.id === syntheticMissingProofCardId),
-    'done backlog cards have verifier coverage or explicit exception',
-    doneCardsWithoutVerifierCoverage.length
-      ? doneCardsWithoutVerifierCoverage.map(item => item.id).join(', ')
-      : `${doneBacklogCards.length} done cards checked; synthetic missing-proof card was caught`,
-  )
-  ensure(
-    checks,
-    missingArtifactClaims.length === 0 &&
-      syntheticMissingArtifactClaims.some(item => item.includes('missing file docs/process/synthetic-missing-artifact.md')) &&
-      syntheticMissingArtifactClaims.some(item => item.includes('missing npm script synthetic:missing')) &&
-      syntheticMissingArtifactClaims.some(item => item.includes('missing API route /api/synthetic-missing-artifact')),
-    'done cards and closeouts do not claim missing artifacts',
-    missingArtifactClaims.length
-      ? missingArtifactClaims.slice(0, 12).join(' | ')
-      : `${artifactClaimRecords.length} records scanned; synthetic missing file/script/API route was caught`,
-  )
-  ensure(
-    checks,
-    foundationHub.backlogSeedDrift?.policy &&
-      Array.isArray(foundationHub.backlogSeedDrift.items) &&
-      Array.isArray(foundationHub.backlogSeedDrift.stableFields) &&
-      Array.isArray(foundationHub.backlogSeedDrift.mutableFields) &&
-      typeof foundationHub.backlogSeedDrift.totalMismatchCount === 'number',
-    'api/foundation-hub exposes backlog seed/live drift',
-    foundationHub.backlogSeedDrift
-      ? `${foundationHub.backlogSeedDrift.driftItemCount} drift rows / ${foundationHub.backlogSeedDrift.totalMismatchCount} mismatches`
-      : 'missing seed/live drift payload',
-  )
-  ensure(
-    checks,
-    foundationHub.dbConstraintAudit?.registeredSourceIds === sourceContracts.length &&
-      foundationHub.dbConstraintAudit.invalidDecisionCategoryCount === 0 &&
-      foundationHub.dbConstraintAudit.invalidSourceReferenceCount === 0 &&
-      foundationHub.dbConstraintAudit.pendingDocUpdateStateIssueCount === 0,
-    'api/foundation-hub exposes clean DB constraint audit',
-    foundationHub.dbConstraintAudit
-      ? `${foundationHub.dbConstraintAudit.registeredSourceIds} source IDs / ${foundationHub.dbConstraintAudit.invalidSourceReferenceCount} invalid source refs`
-      : 'missing DB constraint audit payload',
-  )
-  ensure(
-    checks,
-    foundationSurfaceMap.length >= 75 &&
-      foundationNavSections.every(section => foundationMappedSections.has(section)) &&
-      foundationNavSections.every(section => foundationSweepSections.has(section)) &&
-      requiredSubSurfaces.every(section => foundationMappedSections.has(section)) &&
-      requiredFoundationApiRoutes.every(route => foundationMappedApis.has(route)) &&
-      foundationSurfaceMap.every(surface =>
-        surface.owner &&
-        surface.href &&
-        (surface.backingApis.length || surface.backingDocs.length || surface.backingTables.length) &&
-        Array.isArray(surface.sourceIds) &&
-        Array.isArray(surface.backlogIds)
-      ) &&
-      foundationHub.surfaceFreshnessSweep?.summary?.mappedSurfaceCount === foundationSurfaceMap.length,
-    'Foundation pages, sub-surfaces, and critical API routes are mapped',
-    `${foundationSurfaceMap.length} mapped surfaces / ${foundationNavSections.length} nav sections / ${requiredSubSurfaces.length} required sub-surfaces`,
-  )
-  ensure(
-    checks,
-    foundationHub.surfaceFreshnessSweep?.summary &&
-      typeof foundationHub.surfaceFreshnessSweep.summary.riskSurfaces === 'number' &&
-      typeof foundationHub.surfaceFreshnessSweep.summary.staleActiveRunCount === 'number' &&
-      Array.isArray(foundationHub.surfaceFreshnessSweep.findings) &&
-     foundationFrontendSource.includes('renderSurfaceFreshnessSweepPanel'),
-    'api/foundation-hub exposes the Foundation surface freshness sweep',
-    foundationHub.surfaceFreshnessSweep?.summary
-      ? `${foundationHub.surfaceFreshnessSweep.summary.mappedSurfaceCount} surfaces / risk=${foundationHub.surfaceFreshnessSweep.summary.riskSurfaces} / stale active runs=${foundationHub.surfaceFreshnessSweep.summary.staleActiveRunCount}`
-      : 'missing surface freshness sweep payload',
-  )
   const buildLogRecentMultiCloseoutBuild = (foundationBuildLog.builds || []).find(build =>
     (build.backlogIds || []).includes('RECENT-BUILDS-MULTI-CLOSEOUT-001') &&
       build.closeoutKey === 'recent-builds-multi-closeout-ux-v1'
