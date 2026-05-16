@@ -55,6 +55,7 @@ async function main() {
     foundationVerifySource,
     buildCloseoutRecordsSource,
     cleanupCloseoutRecordsSource,
+    controlPlaneCloseoutRecordsSource,
   ] = await Promise.all([
     readRepoFile(PLAN_CRITIC_ARCHITECTURAL_RULES_PLAN_PATH),
     readRepoFile('package.json'),
@@ -64,6 +65,7 @@ async function main() {
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('lib/foundation-build-closeout-records.js'),
     readRepoFile('lib/foundation-build-closeout-cleanup-records.js').catch(() => ''),
+    readRepoFile('lib/foundation-build-closeout-control-plane-records.js').catch(() => ''),
   ])
   const packageJson = JSON.parse(packageSource)
   const approval = await validatePlanApprovalFile({
@@ -140,6 +142,8 @@ async function main() {
       verifierLiveState: dogfood.verifierLiveState?.status,
       auditFixNoDogfood: dogfood.auditFixNoDogfood?.status,
       noFocusedProof: dogfood.noFocusedProof?.status,
+      offScopeSideWorkNoCoordination: dogfood.offScopeSideWorkNoCoordination?.status,
+      coordinatedSideWork: dogfood.coordinatedSideWork?.status,
       compliant: dogfood.compliant?.status,
     }),
   )
@@ -155,7 +159,9 @@ async function main() {
       architectureRulesSource.includes('evaluatePlanCriticArchitecturalRules') &&
       architectureRulesSource.includes('architecture_check_script_apply_posture') &&
       architectureRulesSource.includes('architecture_verifier_read_only') &&
-      architectureRulesSource.includes('architecture_audit_fix_dogfood'),
+      architectureRulesSource.includes('architecture_audit_fix_dogfood') &&
+      architectureRulesSource.includes('evaluateProcessWipProtocolPlan') &&
+      architectureRulesSource.includes('PROCESS_WIP_PROTOCOL_FINDING_KEY'),
     'architecture rules module owns deterministic finding keys',
     'lib/plan-critic-architectural-rules.js',
   )
@@ -184,9 +190,11 @@ async function main() {
   addCheck(
     checks,
     (buildCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) ||
-      cleanupCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY)) &&
+      cleanupCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) ||
+      controlPlaneCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY)) &&
       (buildCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) ||
-        cleanupCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID)),
+        cleanupCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID) ||
+        controlPlaneCloseoutRecordsSource.includes(PLAN_CRITIC_ARCHITECTURAL_RULES_CARD_ID)),
     'Recent Work closeout record exists',
     'lib/foundation-build-closeout-records.js',
   )
@@ -209,6 +217,8 @@ async function main() {
       verifierLiveState: dogfood.verifierLiveState?.status,
       auditFixNoDogfood: dogfood.auditFixNoDogfood?.status,
       noFocusedProof: dogfood.noFocusedProof?.status,
+      offScopeSideWorkNoCoordination: dogfood.offScopeSideWorkNoCoordination?.status,
+      coordinatedSideWork: dogfood.coordinatedSideWork?.status,
       compliant: dogfood.compliant?.status,
     },
     checks,

@@ -1,0 +1,13 @@
+{
+  "cardId": "PROCESS-WIP-PROTOCOL-001",
+  "score": 10,
+  "approvedBy": "Steve via Codex senior-engineering approval",
+  "approvedAt": "2026-05-16T23:41:23.020Z",
+  "approvalSource": "Steve approved continued no-auth Foundation work while away; Codex selected PROCESS-WIP-PROTOCOL-001 from scoped backlog to prevent off-scope shared-file work.",
+  "notes": "Plan Critic self-review passed 10/10 with architecture rules enabled. Card blocks side/hub plans that touch shared Foundation files without main-session coordination.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/process-wip-protocol-001-plan.md",
+  "approvedPlanSha256": "d1b83dc31875577e3b5d628822a6863b18e8563b9351d58531184f32d1a2f076",
+  "approvedRepoHead": "e820b0d83af21a03211b9c820ef13b0a14ce0f74",
+  "approvalDigest": "4ec79bb090dc4354b9dc09ffc866c790cc25866734ecca058a0d2c30f83f9b0a"
+}
