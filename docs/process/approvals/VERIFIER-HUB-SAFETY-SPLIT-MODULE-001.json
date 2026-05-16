@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-HUB-SAFETY-SPLIT-MODULE-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T11:22:24.674Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-hub-safety-split-module-001-plan.md",
+  "approvedPlanSha256": "d23fc31e881ff9baaf97fc46c2d67beda7a1348d5802c792aa4828aeca4ba0f6",
+  "approvedRepoHead": "4fdd439ec9cae6a466833eda395b4468b51c50f1",
+  "notes": "Approved as a no-auth Foundation cleanup card. Scope: extract hub-safety verifier checks into a focused module with dogfood proof. Not approved: hub UI work, route behavior changes, DB schema changes, source extraction, Build Intel extraction, Marketing Video Lab wiring, Canva asset-library behavior, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "9bbd9b0dcc761f925c36e1cd33365814641ab8d3a715d15038d5e0e093008b80"
+}

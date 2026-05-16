@@ -217,6 +217,14 @@ import {
   evaluateFoundationOperatorBudgetVerifier,
 } from '../lib/foundation-operator-budget-verifier.js'
 import {
+  VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
+  VERIFIER_HUB_SAFETY_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_HUB_SAFETY_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_HUB_SAFETY_SPLIT_MODULE_SCRIPT_PATH,
+  buildFoundationHubSafetyVerifierDogfoodProof,
+  evaluateFoundationHubSafetyVerifier,
+} from '../lib/foundation-hub-safety-verifier.js'
+import {
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_APPROVAL_PATH,
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID,
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY,
@@ -2209,6 +2217,7 @@ async function main() {
     VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
     VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_CARD_ID,
+    VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
     VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
     VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID,
@@ -2742,6 +2751,9 @@ async function main() {
   const foundationOperatorBudgetVerifierSource = await readRepoFile('lib/foundation-operator-budget-verifier.js')
   const foundationOperatorBudgetVerifierScriptSource = await readRepoFile(VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_SCRIPT_PATH)
   const foundationOperatorBudgetVerifierPlanSource = await readRepoFile(VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_PLAN_PATH)
+  const foundationHubSafetyVerifierSource = await readRepoFile('lib/foundation-hub-safety-verifier.js')
+  const foundationHubSafetyVerifierScriptSource = await readRepoFile(VERIFIER_HUB_SAFETY_SPLIT_MODULE_SCRIPT_PATH)
+  const foundationHubSafetyVerifierPlanSource = await readRepoFile(VERIFIER_HUB_SAFETY_SPLIT_MODULE_PLAN_PATH)
   const foundationCurrentStateSummarySource = await readRepoFile('lib/foundation-current-state-summary.js')
   const foundationCurrentStateRendererSource = await readRepoFile('public/foundation-current-state-renderers.js')
   const foundationUiLiveSummarySourcesScriptSource = await readRepoFile(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SCRIPT_PATH)
@@ -3824,6 +3836,8 @@ async function main() {
     VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
     VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_CARD_ID,
+    VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
+    'FOUNDATION-IDENTITY-001',
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -4073,6 +4087,7 @@ async function main() {
     foundationAgentFeedbackVerifierSource,
     foundationCanvaClientVerifierSource,
     foundationOperatorBudgetVerifierSource,
+    foundationHubSafetyVerifierSource,
     foundationCurrentStateSummarySource,
     kpiHealthSource,
     fubSourceRoutesSource,
@@ -11468,144 +11483,37 @@ async function main() {
     'Foundation operator budget verifier keeps route, endpoint, frontend, DOM, and failure-reporting budgets honest',
     `checks=${operatorBudgetVerifier.summary.passed}/${operatorBudgetVerifier.summary.total} dogfood=${operatorBudgetVerifierDogfood.ok ? 'pass' : 'blocked'} route=${operatorBudgetVerifier.details.routeBudget?.hubBytes || 0}B endpointMissing=${operatorBudgetVerifier.details.endpointBudget?.missingCount || 0} domRisk=${operatorBudgetVerifier.details.frontendDom?.riskCount || 0}`,
   )
-  const hubWorkCoordinationCard = (foundationHub.backlogItems || []).find(item => item.id === HUB_WORK_COORDINATION_CARD_ID) || null
-  const hubWorkOwnershipMatrix = await loadHubWorkOwnershipMatrix({ repoRoot })
-  const hubWorkDogfood = buildHubWorkDogfoodProof({
-    matrix: hubWorkOwnershipMatrix,
-    knownCardIds: (foundationHub.backlogItems || []).map(item => item.id),
+  const hubSafetyVerifier = await evaluateFoundationHubSafetyVerifier({
+    repoRoot,
+    foundationHub,
+    foundationHubSummary,
+    foundationBuildCloseouts,
+    packageScripts: packageJson.scripts,
+    packageJson,
+    activeFoundationSprint,
+    sourceOfTruth,
+    serverSource,
+    foundationOperatorRoutesSource,
+    foundationBacklogDetailEndpointApi,
+    foundationVerifySource,
+    moduleSource: foundationHubSafetyVerifierSource,
+    proofScriptSource: foundationHubSafetyVerifierScriptSource,
+    planSource: foundationHubSafetyVerifierPlanSource,
+    currentPlan,
+    currentState,
+    activeSprintAtOrPast,
+    repoFileExists,
+    foundationVerifyLineCount: String(foundationVerifySource || '').split('\n').length,
+  })
+  checks.push(...hubSafetyVerifier.checks)
+  const hubSafetyVerifierDogfood = buildFoundationHubSafetyVerifierDogfoodProof({
+    matrix: hubSafetyVerifier.details.hubWorkOwnershipMatrix,
   })
   ensure(
     checks,
-      hubWorkCoordinationCard &&
-      ['scoped', 'done'].includes(hubWorkCoordinationCard.lane) &&
-      String(hubWorkCoordinationCard.statusNote || '').includes(HUB_WORK_COORDINATION_CLOSEOUT_KEY) &&
-      hubWorkCoordinationCloseout?.operatorCloseout === true &&
-      (hubWorkCoordinationCloseout.backlogIds || []).includes(HUB_WORK_COORDINATION_CARD_ID) &&
-      hubWorkOwnershipMatrix?.schemaVersion === 1 &&
-      hubWorkOwnershipMatrix?.hubs?.sales &&
-      hubWorkOwnershipMatrix?.hubs?.ops &&
-      hubWorkOwnershipMatrix?.hubs?.strategy &&
-      hubWorkDogfood.ok === true &&
-      packageJson.scripts?.['process:hub-work-check'] === `node --env-file-if-exists=.env ${HUB_WORK_CHECK_SCRIPT_PATH}` &&
-      await repoFileExists(HUB_WORK_COORDINATION_PLAN_PATH) &&
-      await repoFileExists(HUB_WORK_COORDINATION_APPROVAL_PATH) &&
-      await repoFileExists(HUB_WORK_PROTOCOL_PATH) &&
-      await repoFileExists(HUB_WORK_OWNERSHIP_MATRIX_PATH) &&
-      await repoFileExists(HUB_WORK_PROMPT_TEMPLATE_PATH) &&
-      await repoFileExists(HUB_WORK_HANDOFF_TEMPLATE_PATH) &&
-      foundationVerifySource.includes(HUB_WORK_COORDINATION_CARD_ID) &&
-      foundationVerifySource.includes('HUB_WORK_COORDINATION_SPRINT_ID') &&
-      foundationVerifySource.includes('buildHubWorkDogfoodProof'),
-    'HUB-001 coordinates hub chats without weakening Foundation/process ownership',
-    hubWorkCoordinationCard
-      ? `lane=${hubWorkCoordinationCard.lane} dogfood=${hubWorkDogfood.ok ? 'pass' : 'fail'} cases=${hubWorkDogfood.cases.length}`
-      : `missing ${HUB_WORK_COORDINATION_CARD_ID}`,
-  )
-  const foundationReadySafeHubLaneCards = FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE
-    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
-  const foundationReadySafeHubLaneFixtureValidations = ['sales', 'ops', 'marketing', 'strategy'].map(hubKey =>
-    validateHubConsumerContractPayload(buildHubConsumerFixture({ hubKey }))
-  )
-  const foundationReadySafeHubLaneConnectorUptime = buildConnectorUptimeSnapshot()
-  const foundationReadySafeHubLaneLiveValidations = ['sales', 'ops', 'marketing', 'strategy'].map(hubKey =>
-    validateHubConsumerContractPayload(buildHubConsumerContract({
-      hubKey,
-      connectorUptime: foundationReadySafeHubLaneConnectorUptime,
-    }))
-  )
-  ensure(
-    checks,
-      foundationReadySafeHubLaneCards.every(card =>
-        card &&
-        card.lane === 'done' &&
-        String(card.statusNote || '').includes(FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY)
-      ) &&
-      foundationReadySafeHubLaneCloseout?.operatorCloseout === true &&
-      includesAll(foundationReadySafeHubLaneCloseout.backlogIds || [], FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
-      foundationReadySafeHubLaneFixtureValidations.every(validation => validation.ok) &&
-      foundationReadySafeHubLaneLiveValidations.every(validation => validation.ok) &&
-      hubWorkDogfood.cases.some(testCase =>
-        testCase.name === 'hub shared-file request stops for main-session integration' &&
-        testCase.ok === true &&
-        testCase.actualIntegrationRequired === true
-      ) &&
-      packageJson.scripts?.['process:foundation-ready-safe-hub-lane-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-ready-safe-hub-lane-check.mjs' &&
-      await repoFileExists('lib/hub-consumer-contract.js') &&
-      await repoFileExists('docs/process/hub-consumer-contract.md') &&
-      await repoFileExists('docs/process/hub-sandbox-workflow.md') &&
-      await repoFileExists('fixtures/hubs/marketing/foundation-source-health.json') &&
-      await repoFileExists('scripts/process-foundation-ready-safe-hub-lane-check.mjs') &&
-      currentPlan.includes(FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_READY_SAFE_HUB_LANE_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_READY_SAFE_HUB_LANE_SPRINT_ID ||
-        activeSprintAtOrPast(FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
-      includesAll(foundationVerifySource, FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'Foundation Ready Safe Hub Lane lets hubs consume read-only source health without shared-file drift',
-    foundationReadySafeHubLaneCards.every(Boolean)
-      ? `cards=${foundationReadySafeHubLaneCards.map(card => `${card.id}:${card.lane}`).join(', ')} fixtures=${foundationReadySafeHubLaneFixtureValidations.every(validation => validation.ok)} live=${foundationReadySafeHubLaneLiveValidations.every(validation => validation.ok)}`
-      : `missing ${FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE.filter((id, index) => !foundationReadySafeHubLaneCards[index]).join(', ')}`,
-  )
-  const foundationHubBacklogContractCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_HUB_BACKLOG_CONTRACT_CARD_ID) || null
-  const foundationHubBacklogContractDogfood = buildFoundationHubBacklogContractDogfoodProof()
-  const foundationHubBacklogRouteValidation = validateFoundationHubBacklogContract({
-    backlogItems: foundationHubSummary.backlogItems || [],
-    backlogContract: foundationHubSummary.backlogContract || {},
-  })
-  ensure(
-    checks,
-      foundationHubBacklogContractCard &&
-      foundationHubBacklogContractCard.lane === 'done' &&
-      String(foundationHubBacklogContractCard.statusNote || '').includes(FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) &&
-      foundationHubBacklogContractCloseout?.operatorCloseout === true &&
-      includesAll(foundationHubBacklogContractCloseout.backlogIds || [], FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
-      foundationHubBacklogContractDogfood.ok === true &&
-      foundationHubBacklogRouteValidation.ok === true &&
-      foundationHubSummary.backlogContract?.contractVersion === FOUNDATION_HUB_BACKLOG_CONTRACT_VERSION &&
-      foundationHubSummary.backlogContract?.fullPayloadCompacted === true &&
-      foundationHubSummary.foundationHubPerformance?.payloadBytes < FOUNDATION_HUB_BACKLOG_CONTRACT_DEFAULT_ROUTE_BUDGET_BYTES &&
-      packageJson.scripts?.['process:foundation-hub-backlog-contract-check'] === `node --env-file-if-exists=.env ${FOUNDATION_HUB_BACKLOG_CONTRACT_SCRIPT_PATH}` &&
-      currentPlan.includes(FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_HUB_BACKLOG_CONTRACT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_HUB_BACKLOG_CONTRACT_SPRINT_ID ||
-        activeSprintAtOrPast(FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
-      includesAll(foundationVerifySource, FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'Foundation Hub default backlog payload uses a thin contract while full diagnostics keep detail',
-    foundationHubBacklogContractCard
-      ? `lane=${foundationHubBacklogContractCard.lane} dogfood=${foundationHubBacklogContractDogfood.ok ? 'pass' : 'blocked'} routeRows=${foundationHubSummary.backlogItems?.length || 0} bytes=${foundationHubSummary.foundationHubPerformance?.payloadBytes || 'missing'}`
-      : `missing ${FOUNDATION_HUB_BACKLOG_CONTRACT_CARD_ID}`,
-  )
-  const foundationBacklogDetailEndpointCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CARD_ID) || null
-  const foundationBacklogDetailEndpointDogfood = buildFoundationBacklogDetailEndpointDogfoodProof()
-  const foundationBacklogDetailEndpointRouteValidation = validateFoundationBacklogDetailPayload(foundationBacklogDetailEndpointApi)
-  ensure(
-    checks,
-      foundationBacklogDetailEndpointCard &&
-      foundationBacklogDetailEndpointCard.lane === 'done' &&
-      String(foundationBacklogDetailEndpointCard.statusNote || '').includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) &&
-      foundationBacklogDetailEndpointCloseout?.operatorCloseout === true &&
-      (foundationBacklogDetailEndpointCloseout.backlogIds || []).includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CARD_ID) &&
-      foundationBacklogDetailEndpointDogfood.ok === true &&
-      foundationBacklogDetailEndpointRouteValidation.ok === true &&
-      foundationBacklogDetailEndpointApi.contractVersion === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_VERSION &&
-      foundationBacklogDetailEndpointApi.cardId === FOUNDATION_HUB_BACKLOG_CONTRACT_CARD_ID &&
-      packageJson.scripts?.['process:foundation-backlog-detail-endpoint-check'] === `node --env-file-if-exists=.env ${FOUNDATION_BACKLOG_DETAIL_ENDPOINT_SCRIPT_PATH}` &&
-      (
-        serverSource.includes("app.get('/api/foundation/backlog/:cardId'") ||
-        (
-          serverSource.includes('registerFoundationOperatorRoutes(app') &&
-          foundationOperatorRoutesSource.includes("app.get('/api/foundation/backlog/:cardId'") &&
-          foundationOperatorRoutesSource.includes('getBacklogItemsByIds([validation.cardId])')
-        )
-      ) &&
-      currentPlan.includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) &&
-      currentState.includes(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_BACKLOG_DETAIL_ENDPOINT_SPRINT_ID ||
-        activeSprintAtOrPast(FOUNDATION_BACKLOG_DETAIL_ENDPOINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE)) &&
-      includesAll(foundationVerifySource, FOUNDATION_BACKLOG_DETAIL_ENDPOINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'Foundation backlog detail endpoint returns one full card without reloading full diagnostics',
-    foundationBacklogDetailEndpointCard
-      ? `lane=${foundationBacklogDetailEndpointCard.lane} dogfood=${foundationBacklogDetailEndpointDogfood.ok ? 'pass' : 'blocked'} route=${foundationBacklogDetailEndpointApi.cardId || 'missing'}`
-      : `missing ${FOUNDATION_BACKLOG_DETAIL_ENDPOINT_CARD_ID}`,
+    hubSafetyVerifier.ok === true && hubSafetyVerifierDogfood.ok === true,
+    'Foundation hub-safety verifier keeps hub coordination and backlog contracts honest',
+    `checks=${hubSafetyVerifier.summary.passed}/${hubSafetyVerifier.summary.total} dogfood=${hubSafetyVerifierDogfood.ok ? 'pass' : 'blocked'} route=${foundationHubSummary.foundationHubPerformance?.payloadBytes || 0}B`,
   )
   const routeSplitVerifierResult = evaluateFoundationRouteSplitVerifier({
     cards: foundationHub.backlogItems || [],
@@ -11644,7 +11552,7 @@ async function main() {
       foundationChangeLog,
       foundationDailySummary,
       foundationDocUpdatesApi,
-      foundationBacklogDetailEndpointRouteValidation,
+      foundationBacklogDetailEndpointRouteValidation: hubSafetyVerifier.details.foundationBacklogDetailEndpointRouteValidation,
       sourceOfTruth,
       foundationSourceLifecycle,
       foundationSourceMaturityGrid,

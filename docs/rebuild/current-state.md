@@ -418,6 +418,10 @@ Rule:
 
 ## Latest Foundation Cleanup
 
+- `VERIFIER-HUB-SAFETY-SPLIT-MODULE-001` is done under `verifier-hub-safety-split-module-v1`.
+- Hub work coordination, safe hub lane, Foundation Hub backlog contract, and backlog detail endpoint checks now live in `lib/foundation-hub-safety-verifier.js`, and the root verifier delegates this proof domain.
+- Focused dogfood rejects missing hub ownership matrix, invalid writable hub consumer payload, bloated or broken backlog contract, missing backlog detail payload, and missing root delegation.
+- Scope stayed verifier monolith cleanup only: no hub UI, route behavior, auth behavior, DB schema, Marketing Video Lab wiring, Canva asset-library behavior, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.
 - `VERIFIER-OPERATOR-BUDGET-SPLIT-MODULE-001` is done under `verifier-operator-budget-split-module-v1`.
 - Route, endpoint, frontend asset, DOM, and verify-reporter budget checks now live in `lib/foundation-operator-budget-verifier.js`, and the root verifier delegates this proof domain.
 - Focused dogfood rejects old route latency, payload bloat, missing endpoint metrics, oversized/missing frontend assets, heavy DOM churn, and weak failure-reporting behavior.
