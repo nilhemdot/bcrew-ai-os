@@ -356,6 +356,10 @@ import {
   FOUNDATION_DRIVE_MEETING_VAULT_STORE_SPLIT_SCRIPT_PATH,
 } from '../lib/foundation-drive-meeting-vault-store.js'
 import {
+  FOUNDATION_AGENT_FEEDBACK_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_AGENT_FEEDBACK_STORE_SPLIT_SCRIPT_PATH,
+} from '../lib/foundation-agent-feedback-store.js'
+import {
   FUB_SOURCE_ROUTE_SPLIT_APPROVAL_PATH,
   FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES,
   FUB_SOURCE_ROUTE_SPLIT_CARD_ID,
@@ -2591,6 +2595,9 @@ async function main() {
   const foundationDriveMeetingVaultStoreSource = await readRepoFile('lib/foundation-drive-meeting-vault-store.js')
   const foundationDriveMeetingVaultStoreScriptSource = await readRepoFile(FOUNDATION_DRIVE_MEETING_VAULT_STORE_SPLIT_SCRIPT_PATH)
   const foundationDriveMeetingVaultStorePlanSource = await readRepoFile(FOUNDATION_DRIVE_MEETING_VAULT_STORE_SPLIT_PLAN_PATH)
+  const foundationAgentFeedbackStoreSource = await readRepoFile('lib/foundation-agent-feedback-store.js')
+  const foundationAgentFeedbackStoreScriptSource = await readRepoFile(FOUNDATION_AGENT_FEEDBACK_STORE_SPLIT_SCRIPT_PATH)
+  const foundationAgentFeedbackStorePlanSource = await readRepoFile(FOUNDATION_AGENT_FEEDBACK_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -3118,6 +3125,7 @@ async function main() {
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const sourceCrawlStoreOwnershipSource = `${foundationDbSource}\n${foundationSourceCrawlStoreSource}`
   const driveMeetingVaultStoreOwnershipSource = `${foundationDbSource}\n${foundationDriveMeetingVaultStoreSource}`
+  const agentFeedbackStoreOwnershipSource = `${foundationDbSource}\n${foundationAgentFeedbackStoreSource}`
   const foundationBacklogSeedSource = await readRepoFile('lib/foundation-backlog-seed.js')
   const foundationDbWithBacklogSeedSource = `${foundationDbSource}\n${foundationBacklogSeedSource}`
   const currentSprintStoreSource = await readRepoFile('lib/foundation-current-sprint-store.js')
@@ -4829,7 +4837,7 @@ async function main() {
       includesAll(agentFeedbackSource, ['createAgentFeedbackToken', 'verifyAgentFeedbackToken', 'hashAgentFeedbackToken', 'AGENT_FEEDBACK_SECRET', 'assertAgentFeedbackSecretConfigured', 'iat', 'exp']) &&
       !agentFeedbackSource.includes('local-agent-feedback-dev-secret') &&
       !agentFeedbackSource.includes('process.env.ADMIN_TOKEN') &&
-      includesAll(foundationDbSource, ['ON CONFLICT (token_hash) DO NOTHING', 'Feedback link has already been used.']) &&
+      includesAll(agentFeedbackStoreOwnershipSource, ['ON CONFLICT (token_hash) DO NOTHING', 'Feedback link has already been used.']) &&
       includesAll(agentFeedbackEmailSource, ['buildAgentFeedbackEmail', 'Start check-in', 'How have your first', 'Benson Crew']) &&
       includesAll(googleDelegatedSource, ['sendGmailMessage', 'multipart/alternative', 'gmail.send']) &&
       includesAll(agentFeedbackClickUpSource, ['writeAgentFeedbackToClickUp', 'Onboarding NPS 30 Score', 'Onboarding NPS 90 Feedback']) &&
@@ -12700,6 +12708,9 @@ async function main() {
     foundationDriveMeetingVaultStoreSource,
     foundationDriveMeetingVaultStoreScriptSource,
     foundationDriveMeetingVaultStorePlanSource,
+    foundationAgentFeedbackStoreSource,
+    foundationAgentFeedbackStoreScriptSource,
+    foundationAgentFeedbackStorePlanSource,
     moduleSource: foundationDbSplitVerifierSource,
     repoFileExists,
   }

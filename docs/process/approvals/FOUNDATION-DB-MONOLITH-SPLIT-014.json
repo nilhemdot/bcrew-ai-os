@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-014",
+  "approvedPlanRef": "docs/process/foundation-db-agent-feedback-store-split-014-plan.md",
+  "approvedPlanSha256": "f9d2a9978d0a56de8447e89595a5a533c861e69cd84ee364d92784147c409b9f",
+  "approvedRepoHead": "e928b452cee7d3b40860bdf09a66cbc5c05df61e",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T06:27:23.429Z",
+  "score": 10,
+  "notes": "Approved bounded Foundation DB Agent Feedback store split. No Gmail send, ClickUp writeback, schema change, route behavior change, reminder cadence change, notification recipient change, source extraction, Canva work, hub feature work, paid-source auth, or live connector calls.",
+  "approvalDigest": "c8df8f362f490b636fbe32214c0e101f6ca9aa02579dceb40c4eed1ada87dff4"
+}
