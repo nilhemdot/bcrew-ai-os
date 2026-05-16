@@ -106,6 +106,7 @@
     "process:nightly-audit-scheduler-due-fix-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-scheduler-due-fix-check.mjs",
     "process:nightly-audit-run-proof-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-run-proof-check.mjs",
     "process:foundation-stab-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-stab-capture-check.mjs",
+    "process:foundation-cleanup-arc-closeout-check": "node --env-file-if-exists=.env scripts/process-foundation-cleanup-arc-closeout-check.mjs",
     "process:foundation-route-budget-cleanup-check": "node --env-file-if-exists=.env scripts/process-foundation-route-budget-cleanup-check.mjs",
     "process:foundation-ship-gate-tightening-check": "node --env-file-if-exists=.env scripts/process-foundation-ship-gate-tightening-check.mjs",
     "process:runtime-safety-hardening-check": "node --env-file-if-exists=.env scripts/process-runtime-safety-hardening-check.mjs",

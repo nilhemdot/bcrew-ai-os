@@ -2830,6 +2830,7 @@ async function main() {
   const processFanoutCheckSource = await readRepoFile('scripts/process-fanout-check.mjs')
   const processFanoutCheckDoc = await readRepoFile('docs/process/ship-fanout.md')
   const foundationStabCaptureCheckSource = await readRepoFile('scripts/process-foundation-stab-capture-check.mjs')
+  const foundationCleanupArcCloseoutCheckSource = await readRepoFile('scripts/process-foundation-cleanup-arc-closeout-check.mjs')
   const backlogHygieneScriptSource = await readRepoFile('scripts/backlog-hygiene.mjs')
   const postShipFanoutSource = await readRepoFile('lib/post-ship-fanout.js')
   const postShipFanoutScriptSource = await readRepoFile('scripts/process-post-ship-fanout.mjs')
@@ -4194,6 +4195,7 @@ async function main() {
     foundationWriteRoutesSource,
     agentFeedbackRoutesSource,
     foundationStabCaptureCheckSource,
+    foundationCleanupArcCloseoutCheckSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
