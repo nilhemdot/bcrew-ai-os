@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DB-CONSTRAINT-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T11:35:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/db-constraint-001-plan.md",
+  "approvedPlanSha256": "4df115e4b530ffe610c3470e7db59fb3a8b5fcd1dc508130fb4b40b9c2cb8769",
+  "approvedRepoHead": "fd3a172f2b208b9665b1fca23067017b225faf8d",
+  "notes": "Approved as a no-auth Foundation DB constraint hardening card. Scope: make doc-update-applied decisions apply the same supersedes semantics as normal locked decision updates, prove with a fake-client dogfood, keep source-ID FK migration as a later decision. Not approved: live doc update apply, route/file-write redesign, broad schema FK migration, source extraction, hub feature work, Marketing Video Lab route wiring, Canva asset mutation, paid-source auth, Drive permission mutation, request-access emails, or Meeting Vault Phase B.",
+  "approvalDigest": "f9c4812173ac7fa198e3d6d5828a5f7614c0b39db6a443b6a3daee17f24c4ba6"
+}

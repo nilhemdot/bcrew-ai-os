@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Extract Retry
+## Current Sprint: DB Constraint Doc-Update Supersedes
+
+Live sprint ID: `db-constraint-doc-update-supersedes-2026-05-16`.
+
+This sprint is complete under `db-constraint-doc-update-supersedes-v1`. It makes approved pending-doc-update apply semantics match normal linked-decision supersession semantics: applying a doc update linked to a decision now locks that decision and applies its `supersedesIds` through the existing decision supersession path.
+
+Completed card:
+
+1. `DB-CONSTRAINT-001` - done under `db-constraint-doc-update-supersedes-v1`. Scope was decision-store apply semantics only: applying an approved pending doc update linked to a decision locks that decision, applies its `supersedesIds` through `markSupersededDecisions()`, records applied supersession metadata, and is covered by focused dogfood plus core-governance verifier proof.
+
+Not next: live doc apply runs, route redesign, DB schema migration, broad source-ID foreign key migration, seed/live overwrite, hub feature work, Marketing Video Lab wiring, Canva asset mutation, paid-source auth, Build Intel extraction, Drive permissions mutation, Drive permissions request-access emails, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next active blocker: choose the next no-auth Foundation cleanup card through Current Sprint review.
+
+## Previous Sprint: Extract Retry
 
 Live sprint ID: `extract-retry-2026-05-16`.
 

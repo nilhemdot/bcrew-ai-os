@@ -109,6 +109,7 @@
     "process:live-truth-verify-decouple-check": "node --env-file-if-exists=.env scripts/process-live-truth-verify-decouple-check.mjs",
     "process:active-vs-historical-verifier-split-check": "node --env-file-if-exists=.env scripts/process-active-vs-historical-verifier-split-check.mjs",
     "process:db-seed-check": "node --env-file-if-exists=.env scripts/process-db-seed-check.mjs",
+    "process:db-constraint-check": "node --env-file-if-exists=.env scripts/process-db-constraint-check.mjs",
     "process:kpi-health-api-cache-check": "node --env-file-if-exists=.env scripts/process-kpi-health-api-cache-check.mjs",
     "process:kpi-health-dynamic-year-contract-check": "node --env-file-if-exists=.env scripts/process-kpi-health-dynamic-year-contract-check.mjs",
     "process:foundation-ui-live-summary-sources-check": "node --env-file-if-exists=.env scripts/process-foundation-ui-live-summary-sources-check.mjs",

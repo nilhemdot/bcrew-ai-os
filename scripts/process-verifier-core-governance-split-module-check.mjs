@@ -23,6 +23,9 @@ import {
   buildFoundationCoreGovernanceVerifierDogfoodProof,
   evaluateFoundationCoreGovernanceVerifier,
 } from '../lib/foundation-core-governance-verifier.js'
+import {
+  buildDbConstraintDogfoodProof,
+} from '../lib/db-constraint-hardening.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -111,7 +114,9 @@ async function loadEvaluationInput({ baseUrl }) {
     archiveIndexSource,
     docsReadmeSource,
     foundationDbSource,
+    foundationDecisionStoreSource,
     foundationBacklogStoreSource,
+    dbConstraintSource,
     serverSource,
     hubReadRoutesSource,
     fubSourceRoutesSource,
@@ -152,7 +157,9 @@ async function loadEvaluationInput({ baseUrl }) {
     readTextIfExists('docs/_archive/INDEX.md'),
     readTextIfExists('docs/README.md'),
     readText('lib/foundation-db.js'),
+    readText('lib/foundation-decision-store.js'),
     readText('lib/foundation-backlog-store.js'),
+    readText('lib/db-constraint-hardening.js'),
     readText('server.js'),
     readTextIfExists('lib/hub-read-routes.js'),
     readTextIfExists('lib/fub-source-routes.js'),
@@ -193,7 +200,10 @@ async function loadEvaluationInput({ baseUrl }) {
     directModelHostOffenders: foundationHub.directModelHostOffenders || [],
     backlogSeedDrift: foundationHub.backlogSeedDrift || {},
     foundationDbSource,
+    foundationDecisionStoreSource,
     foundationBacklogStoreSource,
+    dbConstraintSource,
+    dbConstraintDogfood: await buildDbConstraintDogfoodProof(),
     dbConstraintAudit: foundationHub.dbConstraintAudit || {},
     serverSource,
     hubReadRoutesSource,
