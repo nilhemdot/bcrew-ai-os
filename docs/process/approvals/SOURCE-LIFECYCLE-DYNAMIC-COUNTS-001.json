@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+  "approvedPlanRef": "docs/process/source-lifecycle-dynamic-counts-001-plan.md",
+  "approvedPlanSha256": "73410c4919d30d39b57447beae5847caa362f56846e423298ee45638b7c161e4",
+  "approvedRepoHead": "fcd15b8dad2de3ef98cd6d90e4243cd40fee47af",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T08:45:00.000Z",
+  "score": 10,
+  "notes": "Approved as the next no-auth Foundation cleanup blocker after FOUNDATION-ENDPOINT-BUDGETS-001 closeout. Scope: replace brittle exact source lifecycle count baselines with dynamic source-contract-derived required/optional coverage checks. Not approved: new sources, connector auth changes, source extraction, Source Lifecycle UI redesign, hub features, Marketing Video Lab, Canva asset library features, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "fd00aab3e8ca51c8a5992b17a185a8f4273ddd52c7048868e7925258f6761720"
+}

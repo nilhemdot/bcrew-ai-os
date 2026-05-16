@@ -176,6 +176,16 @@ import {
   evaluateFoundationRouteBudgetVerifier,
 } from '../lib/foundation-route-budget-verifier.js'
 import {
+  FOUNDATION_ENDPOINT_BUDGETS_CARD_ID,
+  FOUNDATION_ENDPOINT_BUDGETS_CLOSEOUT_KEY,
+  FOUNDATION_ENDPOINT_BUDGETS_PLAN_PATH,
+  FOUNDATION_ENDPOINT_BUDGETS_SCRIPT_PATH,
+  FOUNDATION_ENDPOINT_BUDGETS_SPRINT_ID,
+  FOUNDATION_ENDPOINT_BUDGET_ROUTES,
+  buildFoundationEndpointBudgetsDogfoodProof,
+  loadLatestFoundationEndpointBudgetSnapshot,
+} from '../lib/foundation-endpoint-budgets.js'
+import {
   VERIFIER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID,
   VERIFIER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY,
@@ -2287,6 +2297,8 @@ async function main() {
   const foundationHubFullDiagnosticsScriptSource = await readRepoFile(FOUNDATION_FULL_DIAGNOSTICS_SCRIPT_PATH)
   const foundationHubPerformanceVerificationSource = await readRepoFile('lib/foundation-hub-performance-verification.js')
   const recurringDeepAuditSource = await readRepoFile('lib/recurring-deep-audit.js')
+  const nightlyDeepAuditUpgradeSource = await readRepoFile('lib/nightly-deep-audit-upgrade.js')
+  const nightlyDeepAuditScriptSource = await readRepoFile(NIGHTLY_DEEP_AUDIT_SCRIPT_PATH)
   const foundationPerformanceScriptSource = await readRepoFile(FOUNDATION_PERFORMANCE_SCRIPT_PATH)
   const recurringDeepAuditScriptSource = await readRepoFile(RECURRING_DEEP_AUDIT_SCRIPT_PATH)
   const foundationVerificationCleanupScriptSource = await readRepoFile(FOUNDATION_VERIFICATION_CLEANUP_SCRIPT_PATH)
@@ -2653,6 +2665,9 @@ async function main() {
   const sourceOfTruthPayloadSource = await readRepoFile('lib/source-of-truth-payload.js')
   const foundationHubSummaryPayloadSource = await readRepoFile('lib/foundation-hub-summary-payload.js')
   const foundationRouteBudgetCleanupScriptSource = await readRepoFile('scripts/process-foundation-route-budget-cleanup-check.mjs')
+  const foundationEndpointBudgetsSource = await readRepoFile('lib/foundation-endpoint-budgets.js')
+  const foundationEndpointBudgetsScriptSource = await readRepoFile(FOUNDATION_ENDPOINT_BUDGETS_SCRIPT_PATH)
+  const foundationEndpointBudgetsPlanSource = await readRepoFile(FOUNDATION_ENDPOINT_BUDGETS_PLAN_PATH)
   const kpiSourceNote = await readRepoFile('docs/source-notes/kpi-dashboard.md')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
@@ -11341,6 +11356,51 @@ async function main() {
     verifierRouteBudgetModuleSplitCard
       ? `lane=${verifierRouteBudgetModuleSplitCard.lane} dogfood=${foundationRouteBudgetVerifierDogfood.ok ? 'pass' : 'blocked'} sourceOldFailure=${foundationRouteBudgetVerifierDogfood.overLatencySource.sourceOfTruthPayloadBudget.ok ? 'missed' : 'rejected'} hubOldFailure=${foundationRouteBudgetVerifierDogfood.overBudgetHub.foundationHubPayloadBudget.ok ? 'missed' : 'rejected'}`
       : `missing ${VERIFIER_ROUTE_BUDGET_MODULE_SPLIT_CARD_ID}`,
+  )
+  const foundationEndpointBudgetsCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_ENDPOINT_BUDGETS_CARD_ID) || null
+  const foundationEndpointBudgetsDogfood = buildFoundationEndpointBudgetsDogfoodProof()
+  const foundationEndpointBudgetLatestSnapshot = await loadLatestFoundationEndpointBudgetSnapshot({ repoRoot })
+  const foundationEndpointBudgetsCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_ENDPOINT_BUDGETS_CLOSEOUT_KEY) || null
+  const foundationEndpointBudgetsClosed = foundationEndpointBudgetsCard?.lane === 'done'
+  const foundationEndpointBudgetsCloseoutOk = !foundationEndpointBudgetsClosed ||
+    (String(foundationEndpointBudgetsCard.statusNote || '').includes(FOUNDATION_ENDPOINT_BUDGETS_CLOSEOUT_KEY) &&
+      foundationEndpointBudgetsCloseout?.operatorCloseout === true &&
+      (foundationEndpointBudgetsCloseout.backlogIds || []).includes(FOUNDATION_ENDPOINT_BUDGETS_CARD_ID) &&
+      await repoFileExists('docs/handoffs/2026-05-16-foundation-endpoint-budgets-closeout.md'))
+  ensure(
+    checks,
+    foundationEndpointBudgetsCard &&
+      ['executing', 'done'].includes(foundationEndpointBudgetsCard.lane) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_ENDPOINT_BUDGETS_SPRINT_ID || foundationEndpointBudgetsClosed) &&
+      foundationEndpointBudgetsCloseoutOk &&
+      foundationEndpointBudgetsDogfood.ok === true,
+    'FOUNDATION-ENDPOINT-BUDGETS-001 surfaces operator endpoint latency and payload budgets',
+    foundationEndpointBudgetsCard
+      ? `lane=${foundationEndpointBudgetsCard.lane} dogfood=${foundationEndpointBudgetsDogfood.ok ? 'pass' : 'blocked'} latest=${foundationEndpointBudgetLatestSnapshot.status} missing=${foundationEndpointBudgetLatestSnapshot.summary?.missingCount || 0}`
+      : `missing ${FOUNDATION_ENDPOINT_BUDGETS_CARD_ID}`,
+  )
+  ensure(
+    checks,
+    foundationEndpointBudgetsSource.includes('loadLatestFoundationEndpointBudgetSnapshot') &&
+      foundationEndpointBudgetsSource.includes('measureFoundationEndpointBudgetSnapshot') &&
+      foundationEndpointBudgetsSource.includes('buildFoundationEndpointBudgetsDogfoodProof') &&
+      foundationEndpointBudgetsSource.includes('CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS') &&
+      foundationEndpointBudgetsScriptSource.includes('scriptIsReadOnly') &&
+      packageJson.scripts?.['process:foundation-endpoint-budgets-check'] === `node --env-file-if-exists=.env ${FOUNDATION_ENDPOINT_BUDGETS_SCRIPT_PATH}`,
+    'FOUNDATION-ENDPOINT-BUDGETS-001 has focused module, read-only proof script, and package command',
+    `routes=${FOUNDATION_ENDPOINT_BUDGET_ROUTES.length} plan=${foundationEndpointBudgetsPlanSource.includes(FOUNDATION_ENDPOINT_BUDGETS_CARD_ID) ? 'present' : 'missing'}`,
+  )
+  ensure(
+    checks,
+    nightlyDeepAuditUpgradeSource.includes('serializeNightlyDeepAuditUpgradeJson') &&
+      nightlyDeepAuditUpgradeSource.includes('endpointMetrics: audit.deterministicAudit?.endpointMetrics || []') &&
+      nightlyDeepAuditScriptSource.includes('serializeNightlyDeepAuditUpgradeJson(audit)') &&
+      connectorUptimeMonitorSource.includes('endpoint_budget_risk') &&
+      connectorUptimeMonitorSource.includes('endpointBudgetMissingCount') &&
+      hubReadRoutesSource.includes('loadLatestFoundationEndpointBudgetSnapshot') &&
+      serverSource.includes("from './lib/foundation-endpoint-budgets.js'"),
+    'FOUNDATION-ENDPOINT-BUDGETS-001 persists endpoint metrics into nightly JSON and full Foundation Operating Reliability',
+    `latestSource=${foundationEndpointBudgetLatestSnapshot.sourcePath || foundationEndpointBudgetLatestSnapshot.source}`,
   )
   const verifyFailureReporterCard = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFY-FAILURE-REPORTER-001') || null
   const verifyFailureReporterDogfood = buildFoundationVerifyReporterDogfoodProof()

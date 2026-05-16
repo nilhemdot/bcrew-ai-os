@@ -19,6 +19,7 @@ import {
   buildNightlyDeepAuditUpgrade,
   buildNightlyDeepAuditUpgradeDogfoodProof,
   renderNightlyDeepAuditUpgradeReport,
+  serializeNightlyDeepAuditUpgradeJson,
 } from '../lib/nightly-deep-audit-upgrade.js'
 import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
 import {
@@ -79,25 +80,7 @@ async function writeReportArtifacts(audit) {
   const jsonPath = path.join(repoRoot, audit.jsonPath)
   await fs.mkdir(path.dirname(reportPath), { recursive: true })
   await fs.writeFile(reportPath, markdown, 'utf8')
-  await fs.writeFile(jsonPath, JSON.stringify({
-    generatedAt: audit.generatedAt,
-    reportPath: audit.reportPath,
-    jsonPath: audit.jsonPath,
-    cardId: audit.cardId,
-    closeoutKey: audit.closeoutKey,
-    summary: audit.deterministicAudit?.summary || {},
-    findings: audit.deterministicAudit?.findings || [],
-    reviewTargets: audit.reviewTargets?.map(target => ({
-      file: target.file,
-      severity: target.severity,
-      reasons: target.reasons,
-      lines: target.lines,
-      bytes: target.bytes,
-    })) || [],
-    diff: audit.diff,
-    llmReview: audit.llmReview,
-    knownFailureDogfood: audit.knownFailureDogfood,
-  }, null, 2), 'utf8')
+  await fs.writeFile(jsonPath, JSON.stringify(serializeNightlyDeepAuditUpgradeJson(audit), null, 2), 'utf8')
   return { markdown, reportPath: audit.reportPath, jsonPath: audit.jsonPath }
 }
 

@@ -172,6 +172,7 @@
     "process:foundation-hub-backlog-contract-check": "node --env-file-if-exists=.env scripts/process-foundation-hub-backlog-contract-check.mjs",
     "process:source-outage-boundary-check": "node --env-file-if-exists=.env scripts/process-source-outage-boundary-check.mjs",
     "process:foundation-operating-reliability-check": "node --env-file-if-exists=.env scripts/process-foundation-operating-reliability-check.mjs",
+    "process:foundation-endpoint-budgets-check": "node --env-file-if-exists=.env scripts/process-foundation-endpoint-budgets-check.mjs",
     "process:recurring-deep-audit-check": "node --env-file-if-exists=.env scripts/process-recurring-deep-audit-check.mjs",
     "process:foundation-verification-cleanup-check": "node --env-file-if-exists=.env scripts/process-foundation-verification-cleanup-check.mjs",
     "process:foundation-full-diagnostics-perf-check": "node --env-file-if-exists=.env scripts/process-foundation-full-diagnostics-perf-check.mjs",

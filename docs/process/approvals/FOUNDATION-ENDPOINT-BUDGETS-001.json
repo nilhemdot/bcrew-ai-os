@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-ENDPOINT-BUDGETS-001",
+  "approvedPlanRef": "docs/process/foundation-endpoint-budgets-001-plan.md",
+  "approvedPlanSha256": "7b310b28086c774f572017cc3662a946403bb00c7b0b15b9d8e156f5073137b8",
+  "approvedRepoHead": "fcd15b8dad2de3ef98cd6d90e4243cd40fee47af",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T08:27:00.000Z",
+  "score": 10,
+  "notes": "Approved as the next no-auth Foundation cleanup slice after VERIFIER-CANVA-CLIENT-SPLIT-MODULE-001 shipped. Scope: promote existing nightly endpoint latency/payload measurements into recurring report-only Foundation Operating Reliability health. Not approved: route rewrites, hub feature UI, Marketing Video Lab wiring, Canva asset-library features, paid-source auth, source extraction, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "9c1c6609d8baff5693e1f233854d1dd781ccc4561454a1c1415511d702f988c1"
+}

@@ -141,6 +141,9 @@ import {
   buildFoundationOperatingReliabilitySnapshot,
 } from './lib/connector-uptime-monitor.js'
 import {
+  loadLatestFoundationEndpointBudgetSnapshot,
+} from './lib/foundation-endpoint-budgets.js'
+import {
   attachFoundationHubPerformanceMetadata,
   buildFoundationHubSummaryInfo,
   normalizeFoundationHubMode,
@@ -4153,6 +4156,7 @@ registerHubReadRoutes(app, {
   buildBuildIntelExtractionImplementationSnapshot,
   buildGStackBuildIntelSnapshot,
   buildFoundationOperatingReliabilitySnapshot,
+  loadLatestFoundationEndpointBudgetSnapshot,
   buildFoundationUiCompleteSnapshot,
   getSalesHubPayload,
 })
