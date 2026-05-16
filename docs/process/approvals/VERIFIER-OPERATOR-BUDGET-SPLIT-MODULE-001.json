@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-OPERATOR-BUDGET-SPLIT-MODULE-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T10:57:21.512Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-operator-budget-split-module-001-plan.md",
+  "approvedPlanSha256": "9e67fa412e219dcf38282fe3e7c08fdb7ade97f8856f3aadcf731d47bcc741fc",
+  "approvedRepoHead": "07857c89d74b088328db7efbd5f11e656c5fbb89",
+  "notes": "Approved as a no-auth Foundation cleanup card. Scope: extract operator budget verifier checks into a focused module with dogfood proof. Not approved: route behavior changes, auth behavior changes, DB schema changes, source extraction, hub features, Canva asset-library behavior, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "e29d27464652221e5b833adcd5e36dd3fa85acfb4153cde6897b970fd039d728"
+}

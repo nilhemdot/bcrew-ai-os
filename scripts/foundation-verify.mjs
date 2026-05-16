@@ -206,6 +206,17 @@ import {
   measureFoundationFrontendDomBudgetFromRepo,
 } from '../lib/foundation-frontend-dom-budgets.js'
 import {
+  VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_BEFORE_LINES,
+  VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_CARD_ID,
+  VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationOperatorBudgetVerifierDogfoodProof,
+  evaluateFoundationOperatorBudgetVerifier,
+} from '../lib/foundation-operator-budget-verifier.js'
+import {
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_APPROVAL_PATH,
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID,
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY,
@@ -2197,6 +2208,7 @@ async function main() {
     VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
     VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
     VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
+    VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_CARD_ID,
     VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
     VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID,
@@ -2727,6 +2739,9 @@ async function main() {
   const foundationFrontendDomBudgetsSource = await readRepoFile('lib/foundation-frontend-dom-budgets.js')
   const foundationFrontendDomBudgetsScriptSource = await readRepoFile(FOUNDATION_FRONTEND_DOM_BUDGET_SCRIPT_PATH)
   const foundationFrontendDomBudgetsPlanSource = await readRepoFile(FOUNDATION_FRONTEND_DOM_BUDGET_PLAN_PATH)
+  const foundationOperatorBudgetVerifierSource = await readRepoFile('lib/foundation-operator-budget-verifier.js')
+  const foundationOperatorBudgetVerifierScriptSource = await readRepoFile(VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_SCRIPT_PATH)
+  const foundationOperatorBudgetVerifierPlanSource = await readRepoFile(VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_PLAN_PATH)
   const foundationCurrentStateSummarySource = await readRepoFile('lib/foundation-current-state-summary.js')
   const foundationCurrentStateRendererSource = await readRepoFile('public/foundation-current-state-renderers.js')
   const foundationUiLiveSummarySourcesScriptSource = await readRepoFile(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SCRIPT_PATH)
@@ -4057,6 +4072,7 @@ async function main() {
     foundationProcessTrustVerifierSource,
     foundationAgentFeedbackVerifierSource,
     foundationCanvaClientVerifierSource,
+    foundationOperatorBudgetVerifierSource,
     foundationCurrentStateSummarySource,
     kpiHealthSource,
     fubSourceRoutesSource,
@@ -11402,216 +11418,55 @@ async function main() {
     moduleSource: foundationIntelligenceAuditVerifierSource,
   })
   checks.push(...intelligenceAuditVerifier.checks)
-  const foundationRouteBudgetCleanupCards = FOUNDATION_ROUTE_BUDGET_CLEANUP_CARD_IDS
-    .map(cardId => (foundationHub.backlogItems || []).find(item => item.id === cardId) || null)
-  const foundationRouteBudgetCleanupCloseout = foundationBuildLog.builds.find(build =>
-    build.key === FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY ||
-    build.closeoutKey === FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY
-  ) || closeoutRecordAsBuildLogEntry(foundationBuildCloseouts.find(closeout =>
-    closeout.key === FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY
-  ) || null)
-  const foundationRouteBudgetVerifierResult = evaluateFoundationRouteBudgetVerifier({
-    cards: foundationRouteBudgetCleanupCards,
-    closeout: foundationRouteBudgetCleanupCloseout,
-    sourceOfTruth,
+  const operatorBudgetVerifier = await evaluateFoundationOperatorBudgetVerifier({
+    repoRoot,
+    foundationHub,
     foundationHubSummary,
+    sourceOfTruth,
+    activeFoundationSprint,
+    foundationBuildCloseouts,
+    foundationBuildLog,
+    packageJson,
     packageScripts: packageJson.scripts,
     serverSource,
     kpiHealthSource,
     sourceOfTruthPayloadSource,
     foundationHubSummaryPayloadSource,
     foundationRouteBudgetCleanupScriptSource,
+    foundationEndpointBudgetsSource,
+    foundationEndpointBudgetsScriptSource,
+    foundationEndpointBudgetsPlanSource,
+    nightlyDeepAuditUpgradeSource,
+    nightlyDeepAuditScriptSource,
+    connectorUptimeMonitorSource,
+    hubReadRoutesSource,
+    foundationFrontendAssetBudgetsSource,
+    foundationFrontendAssetBudgetsScriptSource,
+    foundationFrontendAssetBudgetsPlanSource,
+    codeQualityNightlyAuditSource,
+    foundationFrontendDomBudgetsSource,
+    foundationFrontendDomBudgetsScriptSource,
+    foundationFrontendDomBudgetsPlanSource,
+    foundationVerifySource,
+    moduleSource: foundationOperatorBudgetVerifierSource,
+    proofScriptSource: foundationOperatorBudgetVerifierScriptSource,
+    planSource: foundationOperatorBudgetVerifierPlanSource,
+    currentPlan,
+    currentState,
+    closeoutRecordAsBuildLogEntry,
+    repoFileExists,
     sourceDurationMs: 100,
     sourcePayloadBytes: Buffer.byteLength(JSON.stringify(sourceOfTruth)),
     foundationHubPayloadBytes: Number(foundationHubSummary.foundationHubPerformance?.payloadBytes || 0),
+    foundationVerifyLineCount: String(foundationVerifySource || '').split('\n').length,
   })
-  const foundationRouteBudgetVerifierDogfood = buildFoundationRouteBudgetVerifierDogfoodProof()
+  checks.push(...operatorBudgetVerifier.checks)
+  const operatorBudgetVerifierDogfood = buildFoundationOperatorBudgetVerifierDogfoodProof()
   ensure(
     checks,
-    foundationRouteBudgetVerifierResult.sourceOk,
-    'SOURCE-OF-TRUTH-PERF-BUDGET-001 keeps source truth route under budget',
-    `sourceBytes=${foundationRouteBudgetVerifierResult.sourceOfTruthPayloadBudget.bytes} cache=${foundationRouteBudgetVerifierResult.summary.sourceCacheStatus} sourceDogfood=${foundationRouteBudgetVerifierResult.sourceOfTruthDogfood.ok}`,
-  )
-  ensure(
-    checks,
-    foundationRouteBudgetVerifierResult.hubOk,
-    'FOUNDATION-HUB-PAYLOAD-EXTRACT-001 keeps Foundation Hub default payload compact',
-    `hubBytes=${foundationRouteBudgetVerifierResult.foundationHubPayloadBudget.bytes} hubDogfood=${foundationRouteBudgetVerifierResult.foundationHubPayloadDogfood.ok} jobs=${foundationHubSummary.foundationJobs?.latestRuns?.length || 0} researchCards=${foundationHubSummary.researchCuration?.cards?.length || 0}`,
-  )
-  ensure(
-    checks,
-    foundationRouteBudgetVerifierResult.closeoutOk,
-    'Foundation route budget cleanup has operator closeout coverage',
-    foundationRouteBudgetCleanupCloseout
-      ? `operatorCloseout=${foundationRouteBudgetCleanupCloseout.operatorCloseout} backlogIds=${(foundationRouteBudgetCleanupCloseout.backlogIds || []).join(',')}`
-      : `missing ${FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY}`,
-  )
-  ensure(
-    checks,
-      foundationRouteBudgetVerifierResult.ok &&
-      foundationRouteBudgetVerifierDogfood.ok === true,
-    'Foundation route budget cleanup keeps source truth fast and Foundation Hub default payload compact',
-    `cards=${foundationRouteBudgetCleanupCards.filter(card => card?.lane === 'done').length}/2 sourceBytes=${foundationRouteBudgetVerifierResult.sourceOfTruthPayloadBudget.bytes} hubBytes=${foundationRouteBudgetVerifierResult.foundationHubPayloadBudget.bytes} cache=${foundationRouteBudgetVerifierResult.summary.sourceCacheStatus} moduleDogfood=${foundationRouteBudgetVerifierDogfood.ok}`,
-  )
-  const verifierRouteBudgetModuleSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_ROUTE_BUDGET_MODULE_SPLIT_CARD_ID) || null
-  ensure(
-    checks,
-    verifierRouteBudgetModuleSplitCard &&
-      ['executing', 'done'].includes(verifierRouteBudgetModuleSplitCard.lane) &&
-      foundationRouteBudgetVerifierDogfood.ok === true &&
-      foundationVerifySource.includes('evaluateFoundationRouteBudgetVerifier') &&
-      foundationVerifySource.includes('buildFoundationRouteBudgetVerifierDogfoodProof'),
-    'VERIFIER-ROUTE-BUDGET-MODULE-SPLIT-001 delegates route-budget verifier behavior to focused module',
-    verifierRouteBudgetModuleSplitCard
-      ? `lane=${verifierRouteBudgetModuleSplitCard.lane} dogfood=${foundationRouteBudgetVerifierDogfood.ok ? 'pass' : 'blocked'} sourceOldFailure=${foundationRouteBudgetVerifierDogfood.overLatencySource.sourceOfTruthPayloadBudget.ok ? 'missed' : 'rejected'} hubOldFailure=${foundationRouteBudgetVerifierDogfood.overBudgetHub.foundationHubPayloadBudget.ok ? 'missed' : 'rejected'}`
-      : `missing ${VERIFIER_ROUTE_BUDGET_MODULE_SPLIT_CARD_ID}`,
-  )
-  const foundationEndpointBudgetsCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_ENDPOINT_BUDGETS_CARD_ID) || null
-  const foundationEndpointBudgetsDogfood = buildFoundationEndpointBudgetsDogfoodProof()
-  const foundationEndpointBudgetLatestSnapshot = await loadLatestFoundationEndpointBudgetSnapshot({ repoRoot })
-  const foundationEndpointBudgetsCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_ENDPOINT_BUDGETS_CLOSEOUT_KEY) || null
-  const foundationEndpointBudgetsClosed = foundationEndpointBudgetsCard?.lane === 'done'
-  const foundationEndpointBudgetsCloseoutOk = !foundationEndpointBudgetsClosed ||
-    (String(foundationEndpointBudgetsCard.statusNote || '').includes(FOUNDATION_ENDPOINT_BUDGETS_CLOSEOUT_KEY) &&
-      foundationEndpointBudgetsCloseout?.operatorCloseout === true &&
-      (foundationEndpointBudgetsCloseout.backlogIds || []).includes(FOUNDATION_ENDPOINT_BUDGETS_CARD_ID) &&
-      await repoFileExists('docs/handoffs/2026-05-16-foundation-endpoint-budgets-closeout.md'))
-  ensure(
-    checks,
-    foundationEndpointBudgetsCard &&
-      ['executing', 'done'].includes(foundationEndpointBudgetsCard.lane) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_ENDPOINT_BUDGETS_SPRINT_ID || foundationEndpointBudgetsClosed) &&
-      foundationEndpointBudgetsCloseoutOk &&
-      foundationEndpointBudgetsDogfood.ok === true,
-    'FOUNDATION-ENDPOINT-BUDGETS-001 surfaces operator endpoint latency and payload budgets',
-    foundationEndpointBudgetsCard
-      ? `lane=${foundationEndpointBudgetsCard.lane} dogfood=${foundationEndpointBudgetsDogfood.ok ? 'pass' : 'blocked'} latest=${foundationEndpointBudgetLatestSnapshot.status} missing=${foundationEndpointBudgetLatestSnapshot.summary?.missingCount || 0}`
-      : `missing ${FOUNDATION_ENDPOINT_BUDGETS_CARD_ID}`,
-  )
-  ensure(
-    checks,
-    foundationEndpointBudgetsSource.includes('loadLatestFoundationEndpointBudgetSnapshot') &&
-      foundationEndpointBudgetsSource.includes('measureFoundationEndpointBudgetSnapshot') &&
-      foundationEndpointBudgetsSource.includes('buildFoundationEndpointBudgetsDogfoodProof') &&
-      foundationEndpointBudgetsSource.includes('CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS') &&
-      foundationEndpointBudgetsScriptSource.includes('scriptIsReadOnly') &&
-      packageJson.scripts?.['process:foundation-endpoint-budgets-check'] === `node --env-file-if-exists=.env ${FOUNDATION_ENDPOINT_BUDGETS_SCRIPT_PATH}`,
-    'FOUNDATION-ENDPOINT-BUDGETS-001 has focused module, read-only proof script, and package command',
-    `routes=${FOUNDATION_ENDPOINT_BUDGET_ROUTES.length} plan=${foundationEndpointBudgetsPlanSource.includes(FOUNDATION_ENDPOINT_BUDGETS_CARD_ID) ? 'present' : 'missing'}`,
-  )
-  ensure(
-    checks,
-    nightlyDeepAuditUpgradeSource.includes('serializeNightlyDeepAuditUpgradeJson') &&
-      nightlyDeepAuditUpgradeSource.includes('endpointMetrics: audit.deterministicAudit?.endpointMetrics || []') &&
-      nightlyDeepAuditScriptSource.includes('serializeNightlyDeepAuditUpgradeJson(audit)') &&
-      connectorUptimeMonitorSource.includes('endpoint_budget_risk') &&
-      connectorUptimeMonitorSource.includes('endpointBudgetMissingCount') &&
-      hubReadRoutesSource.includes('loadLatestFoundationEndpointBudgetSnapshot') &&
-      serverSource.includes("from './lib/foundation-endpoint-budgets.js'"),
-    'FOUNDATION-ENDPOINT-BUDGETS-001 persists endpoint metrics into nightly JSON and full Foundation Operating Reliability',
-    `latestSource=${foundationEndpointBudgetLatestSnapshot.sourcePath || foundationEndpointBudgetLatestSnapshot.source}`,
-  )
-  const foundationFrontendAssetBudgetCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID) || null
-  const foundationFrontendAssetBudgetDogfood = buildFoundationFrontendAssetBudgetDogfoodProof()
-  const foundationFrontendAssetBudgetSnapshot = await measureFoundationFrontendAssetsFromRepo({ repoRoot })
-  const foundationFrontendAssetBudgetCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_FRONTEND_ASSET_BUDGET_CLOSEOUT_KEY) || null
-  const foundationFrontendAssetBudgetClosed = foundationFrontendAssetBudgetCard?.lane === 'done'
-  const foundationFrontendAssetBudgetCloseoutOk = !foundationFrontendAssetBudgetClosed ||
-    (String(foundationFrontendAssetBudgetCard.statusNote || '').includes(FOUNDATION_FRONTEND_ASSET_BUDGET_CLOSEOUT_KEY) &&
-      foundationFrontendAssetBudgetCloseout?.operatorCloseout === true &&
-      (foundationFrontendAssetBudgetCloseout.backlogIds || []).includes(FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID) &&
-      await repoFileExists('docs/handoffs/2026-05-16-foundation-frontend-asset-budget-closeout.md'))
-  ensure(
-    checks,
-    foundationFrontendAssetBudgetCard &&
-      ['executing', 'done'].includes(foundationFrontendAssetBudgetCard.lane) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_FRONTEND_ASSET_BUDGET_SPRINT_ID || foundationFrontendAssetBudgetClosed) &&
-      foundationFrontendAssetBudgetCloseoutOk &&
-      foundationFrontendAssetBudgetDogfood.ok === true &&
-      foundationFrontendAssetBudgetSnapshot.summary?.assetCount >= 4 &&
-      foundationFrontendAssetBudgetSnapshot.summary?.riskCount === 0,
-    'FOUNDATION-FRONTEND-ASSET-BUDGET-001 tracks served Foundation JS/CSS asset budgets',
-    foundationFrontendAssetBudgetCard
-      ? `lane=${foundationFrontendAssetBudgetCard.lane} dogfood=${foundationFrontendAssetBudgetDogfood.ok ? 'pass' : 'blocked'} repo=${foundationFrontendAssetBudgetSnapshot.status} assets=${foundationFrontendAssetBudgetSnapshot.summary?.assetCount || 0} total=${foundationFrontendAssetBudgetSnapshot.summary?.totalBytes || 0}B`
-      : `missing ${FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID}`,
-  )
-  ensure(
-    checks,
-    foundationFrontendAssetBudgetsSource.includes('discoverFoundationFrontendAssetRefs') &&
-      foundationFrontendAssetBudgetsSource.includes('measureFoundationFrontendAssetsFromRepo') &&
-      foundationFrontendAssetBudgetsSource.includes('measureFoundationFrontendAssetsFromServer') &&
-      foundationFrontendAssetBudgetsSource.includes('buildFoundationFrontendAssetBudgetDogfoodProof') &&
-      foundationFrontendAssetBudgetsScriptSource.includes('scriptIsReadOnly') &&
-      packageJson.scripts?.['process:foundation-frontend-asset-budget-check'] === `node --env-file-if-exists=.env ${FOUNDATION_FRONTEND_ASSET_BUDGET_SCRIPT_PATH}`,
-    'FOUNDATION-FRONTEND-ASSET-BUDGET-001 has focused module, read-only proof script, and package command',
-    `assets=${foundationFrontendAssetBudgetSnapshot.summary?.assetCount || 0} plan=${foundationFrontendAssetBudgetsPlanSource.includes(FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID) ? 'present' : 'missing'}`,
-  )
-  ensure(
-    checks,
-    codeQualityNightlyAuditSource.includes('measureFoundationFrontendAssetsFromRepo') &&
-      codeQualityNightlyAuditSource.includes('assetBudgetSnapshot') &&
-      codeQualityNightlyAuditSource.includes('FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID'),
-    'FOUNDATION-FRONTEND-ASSET-BUDGET-001 feeds nightly code-quality asset budget findings',
-    `repoStatus=${foundationFrontendAssetBudgetSnapshot.status} noStore=${foundationFrontendAssetBudgetSnapshot.summary?.noStoreCount || 0}`,
-  )
-  const foundationFrontendDomBudgetCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID) || null
-  const foundationFrontendDomBudgetDogfood = buildFoundationFrontendDomBudgetDogfoodProof()
-  const foundationFrontendDomBudgetSnapshot = await measureFoundationFrontendDomBudgetFromRepo({ repoRoot })
-  const foundationFrontendDomBudgetCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_FRONTEND_DOM_BUDGET_CLOSEOUT_KEY) || null
-  const foundationFrontendDomBudgetClosed = foundationFrontendDomBudgetCard?.lane === 'done'
-  const foundationFrontendDomBudgetCloseoutOk = !foundationFrontendDomBudgetClosed ||
-    (String(foundationFrontendDomBudgetCard.statusNote || '').includes(FOUNDATION_FRONTEND_DOM_BUDGET_CLOSEOUT_KEY) &&
-      foundationFrontendDomBudgetCloseout?.operatorCloseout === true &&
-      (foundationFrontendDomBudgetCloseout.backlogIds || []).includes(FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID) &&
-      await repoFileExists('docs/handoffs/2026-05-16-foundation-frontend-dom-budget-closeout.md'))
-  ensure(
-    checks,
-    foundationFrontendDomBudgetCard &&
-      ['executing', 'done'].includes(foundationFrontendDomBudgetCard.lane) &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_FRONTEND_DOM_BUDGET_SPRINT_ID || foundationFrontendDomBudgetClosed) &&
-      foundationFrontendDomBudgetCloseoutOk &&
-      foundationFrontendDomBudgetDogfood.ok === true &&
-      foundationFrontendDomBudgetSnapshot.summary?.scriptCount >= 10 &&
-      foundationFrontendDomBudgetSnapshot.summary?.riskCount === 0 &&
-      await repoFileExists(FOUNDATION_FRONTEND_DOM_BUDGET_APPROVAL_PATH),
-    'FOUNDATION-FRONTEND-DOM-BUDGET-001 measures frontend DOM rebuild budget',
-    foundationFrontendDomBudgetCard
-      ? `lane=${foundationFrontendDomBudgetCard.lane} dogfood=${foundationFrontendDomBudgetDogfood.ok ? 'pass' : 'blocked'} repo=${foundationFrontendDomBudgetSnapshot.status} scripts=${foundationFrontendDomBudgetSnapshot.summary?.scriptCount || 0} createElement=${foundationFrontendDomBudgetSnapshot.summary?.totalCreateElementCount || 0} closeout=${foundationFrontendDomBudgetCloseout?.key || 'pending'}`
-      : `missing ${FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID}`,
-  )
-  ensure(
-    checks,
-    foundationFrontendDomBudgetsSource.includes('measureFoundationFrontendDomBudgetFromRepo') &&
-      foundationFrontendDomBudgetsSource.includes('countDomRebuildSignalsInText') &&
-      foundationFrontendDomBudgetsSource.includes('buildFoundationFrontendDomBudgetDogfoodProof') &&
-      foundationFrontendDomBudgetsScriptSource.includes('VM route proof counts real Current State renderer DOM work') &&
-      foundationFrontendDomBudgetsScriptSource.includes('synthetic heavy render fixture triggers DOM budget risk') &&
-      packageJson.scripts?.['process:foundation-frontend-dom-budget-check'] === `node --env-file-if-exists=.env ${FOUNDATION_FRONTEND_DOM_BUDGET_SCRIPT_PATH}`,
-    'FOUNDATION-FRONTEND-DOM-BUDGET-001 has focused module, VM proof script, and package command',
-    `domStatus=${foundationFrontendDomBudgetSnapshot.status} plan=${foundationFrontendDomBudgetsPlanSource.includes(FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID) ? 'present' : 'missing'}`,
-  )
-  ensure(
-    checks,
-    codeQualityNightlyAuditSource.includes('measureFoundationFrontendDomBudgetFromRepo') &&
-      codeQualityNightlyAuditSource.includes('domBudgetSnapshot') &&
-      codeQualityNightlyAuditSource.includes('FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID'),
-    'FOUNDATION-FRONTEND-DOM-BUDGET-001 feeds nightly code-quality DOM budget findings',
-    `createElement=${foundationFrontendDomBudgetSnapshot.summary?.totalCreateElementCount || 0} appendChild=${foundationFrontendDomBudgetSnapshot.summary?.totalAppendChildCount || 0}`,
-  )
-  const verifyFailureReporterCard = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFY-FAILURE-REPORTER-001') || null
-  const verifyFailureReporterDogfood = buildFoundationVerifyReporterDogfoodProof()
-  ensure(
-    checks,
-    verifyFailureReporterCard &&
-      verifyFailureReporterCard.lane === 'done' &&
-      verifyFailureReporterDogfood.ok === true &&
-      foundationVerifySource.includes('buildFoundationVerifyCheckOutput') &&
-      foundationVerifySource.includes("args['failures-only']") &&
-      foundationVerifySource.includes("args['json-summary']"),
-    'VERIFY-FAILURE-REPORTER-001 adds failure-only and JSON verifier summaries',
-    verifyFailureReporterCard
-      ? `lane=${verifyFailureReporterCard.lane} dogfood=${verifyFailureReporterDogfood.ok ? 'pass' : 'blocked'} failuresOnly=${verifyFailureReporterDogfood.failuresOnlyOutput.length}`
-      : 'missing VERIFY-FAILURE-REPORTER-001',
+    operatorBudgetVerifier.ok === true && operatorBudgetVerifierDogfood.ok === true,
+    'Foundation operator budget verifier keeps route, endpoint, frontend, DOM, and failure-reporting budgets honest',
+    `checks=${operatorBudgetVerifier.summary.passed}/${operatorBudgetVerifier.summary.total} dogfood=${operatorBudgetVerifierDogfood.ok ? 'pass' : 'blocked'} route=${operatorBudgetVerifier.details.routeBudget?.hubBytes || 0}B endpointMissing=${operatorBudgetVerifier.details.endpointBudget?.missingCount || 0} domRisk=${operatorBudgetVerifier.details.frontendDom?.riskCount || 0}`,
   )
   const hubWorkCoordinationCard = (foundationHub.backlogItems || []).find(item => item.id === HUB_WORK_COORDINATION_CARD_ID) || null
   const hubWorkOwnershipMatrix = await loadHubWorkOwnershipMatrix({ repoRoot })

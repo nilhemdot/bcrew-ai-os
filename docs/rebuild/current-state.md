@@ -418,6 +418,11 @@ Rule:
 
 ## Latest Foundation Cleanup
 
+- `VERIFIER-OPERATOR-BUDGET-SPLIT-MODULE-001` is done under `verifier-operator-budget-split-module-v1`.
+- Route, endpoint, frontend asset, DOM, and verify-reporter budget checks now live in `lib/foundation-operator-budget-verifier.js`, and the root verifier delegates this proof domain.
+- Focused dogfood rejects old route latency, payload bloat, missing endpoint metrics, oversized/missing frontend assets, heavy DOM churn, and weak failure-reporting behavior.
+- The first full verifier run caught and repaired two integration gaps before closeout: moved budget card IDs needed verifier coverage aggregation, and Current Sprint needed exact no-Drive/Meeting Vault doctrine wording.
+- Scope stayed verifier monolith cleanup only: no route behavior, auth, DB schema, hub feature, Marketing Video Lab wiring, Canva asset-library behavior, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.
 - `FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001` is done under `foundation-ui-live-summary-sources-v1`.
 - Foundation Overview current-state system maturity rows now render from `/api/foundation-hub` `currentStateSummary` payload truth instead of frontend-owned live-looking copy.
 - Focused dogfood mutates KPI/current-sprint inputs and proves row copy follows payload data without frontend edits; the nightly audit now scans the renderer that used to own the stale static rows.
