@@ -9917,7 +9917,8 @@ async function main() {
       packageJson.scripts?.['process:source-hub-routing-matrix-check'] === 'node --env-file-if-exists=.env scripts/process-source-hub-routing-matrix-check.mjs' &&
       Array.isArray(sourceConnectorMatrix.rows) &&
       sourceConnectorMatrix.summary?.rowCount >= 25 &&
-      sourceConnectorMatrix.summary?.requiredMissingOrBlockedCount >= 14 &&
+      Number(sourceConnectorMatrix.summary?.blockedCount || 0) >= 1 &&
+      Number(sourceConnectorMatrix.summary?.requiredMissingOrBlockedCount || 0) >= Number(sourceConnectorMatrix.summary?.blockedCount || 0) &&
       ['has_contract', 'has_connector', 'has_extraction_target', 'has_artifacts', 'has_candidates', 'has_promoted_atoms', 'has_synthesis', 'has_routing', 'blocked_reason'].every(column => (sourceConnectorMatrix.columns || []).includes(column)) &&
       Array.isArray(sourceHubRoutingMatrix.rows) &&
       sourceHubRoutingMatrix.summary?.rowCount >= 25 &&

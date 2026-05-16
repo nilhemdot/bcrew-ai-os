@@ -109,6 +109,7 @@
     "process:system-health-red-row-repair-check": "node --env-file-if-exists=.env scripts/process-system-health-red-row-repair-check.mjs",
     "process:connector-blocked-row-diagnosis-check": "node --env-file-if-exists=.env scripts/process-connector-blocked-row-diagnosis-check.mjs",
     "process:connector-completion-prep-check": "node --env-file-if-exists=.env scripts/process-connector-completion-prep-check.mjs",
+    "process:source-contract-id-reconcile-check": "node --env-file-if-exists=.env scripts/process-source-contract-id-reconcile-check.mjs",
     "process:foundation-stab-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-stab-capture-check.mjs",
     "process:foundation-cleanup-arc-closeout-check": "node --env-file-if-exists=.env scripts/process-foundation-cleanup-arc-closeout-check.mjs",
     "process:foundation-route-budget-cleanup-check": "node --env-file-if-exists=.env scripts/process-foundation-route-budget-cleanup-check.mjs",
