@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-009",
+  "approvedPlanRef": "docs/process/foundation-db-shared-comms-store-split-009-plan.md",
+  "approvedPlanSha256": "1264b4c9bd7365cd082f28b34e75bf5eb6c33040232c9ca8ffa9dd77d81ad78e",
+  "approvedRepoHead": "96650a9b842477a9e420564121740da37a2da5c7",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T03:58:50.827Z",
+  "score": 10,
+  "notes": "Approved bounded Foundation DB shared-communications store split. No source extraction, hub feature work, schema changes, or live connector calls.",
+  "approvalDigest": "0f4f2bc0fc07c2ed59a818186677d498fedbd2ec84858bd4bdd8f1b15fa9332f"
+}

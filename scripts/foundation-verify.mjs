@@ -893,6 +893,16 @@ import {
   evaluateFoundationSharedCommsCoverageSplit,
 } from '../lib/foundation-shared-comms-coverage.js'
 import {
+  FOUNDATION_SHARED_COMMS_STORE_SPLIT_APPROVAL_PATH,
+  FOUNDATION_SHARED_COMMS_STORE_SPLIT_CARD_ID,
+  FOUNDATION_SHARED_COMMS_STORE_SPLIT_CLOSEOUT_KEY,
+  FOUNDATION_SHARED_COMMS_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_SHARED_COMMS_STORE_SPLIT_SCRIPT_PATH,
+  FOUNDATION_SHARED_COMMS_STORE_SPLIT_SPRINT_ID,
+  buildFoundationSharedCommsStoreSplitDogfoodProof,
+  evaluateFoundationSharedCommsStoreSplit,
+} from '../lib/foundation-shared-comms-store.js'
+import {
   FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
   FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
   FRONTEND_MONOLITH_SPLIT_CARD_ID,
@@ -2550,6 +2560,9 @@ async function main() {
   const foundationSharedCommsCoverageSource = await readRepoFile('lib/foundation-shared-comms-coverage.js')
   const foundationSharedCommsCoverageScriptSource = await readRepoFile(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_SCRIPT_PATH)
   const foundationSharedCommsCoveragePlanSource = await readRepoFile(FOUNDATION_SHARED_COMMS_COVERAGE_SPLIT_PLAN_PATH)
+  const foundationSharedCommsStoreSource = await readRepoFile('lib/foundation-shared-comms-store.js')
+  const foundationSharedCommsStoreScriptSource = await readRepoFile(FOUNDATION_SHARED_COMMS_STORE_SPLIT_SCRIPT_PATH)
+  const foundationSharedCommsStorePlanSource = await readRepoFile(FOUNDATION_SHARED_COMMS_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -3207,10 +3220,14 @@ async function main() {
   )
   ensure(
     checks,
-    foundationDbSource.includes('function ensureSharedCommunicationCandidateCanApply') &&
-      foundationDbSource.includes("['pending', 'approved'].includes(candidate.status)") &&
-      foundationDbSource.includes('candidate.metadata.appliedTargetId') &&
-      foundationDbSource.includes('FOR UPDATE') &&
+    (foundationDbSource.includes('function ensureSharedCommunicationCandidateCanApply') ||
+      foundationSharedCommsStoreSource.includes('function ensureSharedCommunicationCandidateCanApply')) &&
+      (foundationDbSource.includes("['pending', 'approved'].includes(candidate.status)") ||
+        foundationSharedCommsStoreSource.includes("['pending', 'approved'].includes(candidate.status)")) &&
+      (foundationDbSource.includes('candidate.metadata.appliedTargetId') ||
+        foundationSharedCommsStoreSource.includes('candidate.metadata.appliedTargetId')) &&
+      (foundationDbSource.includes('FOR UPDATE') ||
+        foundationSharedCommsStoreSource.includes('FOR UPDATE')) &&
       !serverSource.includes("apply: 'applied'"),
     'shared-comms candidates apply idempotently',
     'candidate apply lanes block already-applied/non-review states and generic status apply cannot create targetless truth',
@@ -12635,6 +12652,9 @@ async function main() {
     foundationSharedCommsCoverageSource,
     foundationSharedCommsCoverageScriptSource,
     foundationSharedCommsCoveragePlanSource,
+    foundationSharedCommsStoreSource,
+    foundationSharedCommsStoreScriptSource,
+    foundationSharedCommsStorePlanSource,
     moduleSource: foundationDbSplitVerifierSource,
     repoFileExists,
   }

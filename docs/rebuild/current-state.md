@@ -321,6 +321,8 @@ Latest hardening note: `foundation-verification-cleanup-v1` is now repo truth. T
 
 Latest DB seed note: `DB-SEED-001` is done under `db-seed-v1`. Static backlog seed truth now lives in `lib/foundation-backlog-seed.js` instead of inside the live DB/migration monolith. `foundation-db.js` is down to about 13,200 lines for this slice, and seed/live drift is classified as report-only governance instead of a startup/verifier repair path.
 
+Latest DB store split note: `FOUNDATION-DB-MONOLITH-SPLIT-009` is done under `foundation-shared-comms-store-split-v1`. Shared-communications archive/candidate/synthesis store behavior now lives in `lib/foundation-shared-comms-store.js` while `lib/foundation-db.js` preserves public exports as delegates. It was Foundation monolith cleanup only: no extraction run, schema change, hub feature, Canva asset work, paid-source auth, Build Intel implementation, or Drive permission mutation.
+
 These pages are operator surfaces, not strategy pages.
 
 | Page | Why it exists | Current truth |
