@@ -610,13 +610,21 @@ import {
   SOURCE_LIFECYCLE_COMPLETION_CARD_ID,
   SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY,
   SOURCE_LIFECYCLE_COMPLETION_DOC_PATH,
-  SOURCE_LIFECYCLE_COMPLETION_EXPECTED_SOURCE_COUNT,
   SOURCE_LIFECYCLE_COMPLETION_PLAN_PATH,
   SOURCE_LIFECYCLE_COMPLETION_SCRIPT_PATH,
   SOURCE_LIFECYCLE_COMPLETION_SUMMARY_MARKER,
   SOURCE_LIFECYCLE_LOAD_BEARING_SOURCE_IDS,
   buildSourceLifecycleCompletionStatus,
 } from '../lib/source-lifecycle-completion.js'
+import {
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_APPROVAL_PATH,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CLOSEOUT_KEY,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_PLAN_PATH,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SCRIPT_PATH,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SPRINT_ID,
+  buildSourceLifecycleDynamicCountsDogfoodProof,
+} from '../lib/source-lifecycle-dynamic-counts.js'
 import {
   SYNTHESIS_VERIFY_APPROVAL_PATH,
   SYNTHESIS_VERIFY_CARD_ID,
@@ -2244,6 +2252,11 @@ async function main() {
   const sourceLifecycleCompletionDocSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_DOC_PATH)
   const sourceLifecycleCompletionApprovalSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_APPROVAL_PATH)
   const sourceLifecycleCompletionApproval = JSON.parse(sourceLifecycleCompletionApprovalSource)
+  const sourceLifecycleDynamicCountsSource = await readRepoFile('lib/source-lifecycle-dynamic-counts.js')
+  const sourceLifecycleDynamicCountsScriptSource = await readRepoFile(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SCRIPT_PATH)
+  const sourceLifecycleDynamicCountsPlanSource = await readRepoFile(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_PLAN_PATH)
+  const sourceLifecycleDynamicCountsApprovalSource = await readRepoFile(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_APPROVAL_PATH)
+  const sourceLifecycleDynamicCountsApproval = JSON.parse(sourceLifecycleDynamicCountsApprovalSource)
   const synthesisVerifyRegistrySource = await readRepoFile('lib/synthesis-claim-verification.js')
   const synthesisVerifyScriptSource = await readRepoFile(SYNTHESIS_VERIFY_SCRIPT_PATH)
   const synthesisVerifyPlanSource = await readRepoFile(SYNTHESIS_VERIFY_PLAN_PATH)
@@ -2859,6 +2872,11 @@ async function main() {
     repoRoot,
     approvalRef: sourceLifecycleCompletionApprovalRef,
     cardId: SOURCE_LIFECYCLE_COMPLETION_CARD_ID,
+  })
+  const sourceLifecycleDynamicCountsApprovalValidation = await validatePlanApprovalFile({
+    repoRoot,
+    approvalRef: SOURCE_LIFECYCLE_DYNAMIC_COUNTS_APPROVAL_PATH,
+    cardId: SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID,
   })
   const synthesisVerifyApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -5472,6 +5490,7 @@ async function main() {
   const dailyExecSummary = (foundationHub.backlogItems || []).find(item => item.id === DAILY_EXEC_SUMMARY_CARD_ID) || null
   const sourceLifecycle = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_CARD_ID) || null
   const sourceLifecycleCompletion = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_COMPLETION_CARD_ID) || null
+  const sourceLifecycleDynamicCounts = (foundationHub.backlogItems || []).find(item => item.id === SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID) || null
   const synthesisVerify = (foundationHub.backlogItems || []).find(item => item.id === SYNTHESIS_VERIFY_CARD_ID) || null
   const extractRunHardening = (foundationHub.backlogItems || []).find(item => item.id === EXTRACT_RUN_HARDENING_CARD_ID) || null
   const driveAccessRequest = (foundationHub.backlogItems || []).find(item => item.id === DRIVE_ACCESS_REQUEST_CARD_ID) || null
@@ -7541,7 +7560,7 @@ async function main() {
       includesAll(foundationVerifySource, SOURCE_LIFECYCLE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
       includesAll(packageSource, ['"process:source-lifecycle-expansion-check"', 'scripts/process-source-lifecycle-expansion-check.mjs']) &&
       sourceLifecycleStatus.status === 'healthy' &&
-      sourceLifecycleStatus.summary?.sourceContractCount >= 35 &&
+      sourceLifecycleStatus.summary?.allSourceContractsCovered === true &&
       sourceLifecycleStatus.summary?.extractionTargetCount === 12 &&
       sourceLifecycleStatus.summary?.includedSourceMissingCount === 0 &&
       sourceLifecycleStatus.summary?.laneCompletenessFailures === 0 &&
@@ -7570,14 +7589,14 @@ async function main() {
       ]) &&
       foundationSourceLifecycle.schemaVersion === 1 &&
       foundationSourceLifecycle.route === SOURCE_LIFECYCLE_ROUTE &&
-      foundationSourceLifecycle.summary?.sourceContractCount >= 35 &&
+      foundationSourceLifecycle.summary?.allSourceContractsCovered === true &&
       foundationSourceLifecycle.summary?.extractionTargetCount === 12 &&
       foundationSourceLifecycle.summary?.extractionCapsUnchanged === true &&
       (
         foundationHub.sourceLifecycle?.summary?.extractionTargetCount === 12 ||
         foundationSourceLifecycle.summary?.extractionTargetCount === 12
       ) &&
-      sourceOfTruth.sources?.length >= 35 &&
+      sourceOfTruth.sources?.length === foundationSourceLifecycle.summary?.sourceContractCount &&
       Array.isArray(sourceOfTruth.connectors) &&
       includesAll(foundationHtmlSource, [
         'data-section="source-lifecycle"',
@@ -7648,7 +7667,9 @@ async function main() {
       includesAll(foundationVerifySource, SOURCE_LIFECYCLE_COMPLETION_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
       packageJson.scripts?.['process:source-lifecycle-completion-check'] === 'node --env-file-if-exists=.env scripts/process-source-lifecycle-completion-check.mjs' &&
       sourceLifecycleCompletionStatus.status === 'healthy' &&
-      sourceLifecycleCompletionStatus.summary?.terminalSourceCount === SOURCE_LIFECYCLE_COMPLETION_EXPECTED_SOURCE_COUNT &&
+      sourceLifecycleCompletionStatus.summary?.requiredMissingTerminalRuleCount === 0 &&
+      sourceLifecycleCompletionStatus.summary?.terminalRuleMissingContractCount === 0 &&
+      sourceLifecycleCompletionStatus.summary?.requiredMissingLifecycleRowCount === 0 &&
       sourceLifecycleCompletionStatus.summary?.loadBearingSourceCount === SOURCE_LIFECYCLE_LOAD_BEARING_SOURCE_IDS.length &&
       sourceLifecycleCompletionStatus.summary?.acceptedBlockedSourceCount === SOURCE_LIFECYCLE_ACCEPTED_BLOCKED_SOURCE_IDS.length &&
       sourceLifecycleCompletionStatus.summary?.privateOrRawLeakFindings === 0 &&
@@ -7661,6 +7682,41 @@ async function main() {
       currentState.includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY),
     'SOURCE-LIFECYCLE-COMPLETION-001 closes source completion/revalidation readiness blocker honestly',
     `sources=${sourceLifecycleCompletionStatus.summary?.terminalSourceCount} loadBearing=${sourceLifecycleCompletionStatus.summary?.loadBearingSourceCount} acceptedBlocked=${sourceLifecycleCompletionStatus.summary?.acceptedBlockedSourceCount} readinessNamesSource=${sourceLifecycleCompletionStatus.summary?.readinessStillNamesSourceLifecycleCompletion}`,
+  )
+  const sourceLifecycleDynamicCountsCurrentItem = currentSprintItemsById.get(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID) || null
+  const sourceLifecycleDynamicCountsDogfood = buildSourceLifecycleDynamicCountsDogfoodProof()
+  const sourceLifecycleDynamicCountsCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CLOSEOUT_KEY) || null
+  const sourceLifecycleDynamicCountsClosed = sourceLifecycleDynamicCounts?.lane === 'done'
+  const sourceLifecycleDynamicCountsCloseoutOk = !sourceLifecycleDynamicCountsClosed ||
+    (String(sourceLifecycleDynamicCounts?.statusNote || '').includes(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CLOSEOUT_KEY) &&
+      sourceLifecycleDynamicCountsCloseout?.operatorCloseout === true &&
+      (sourceLifecycleDynamicCountsCloseout.backlogIds || []).includes(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID) &&
+      await repoFileExists('docs/handoffs/2026-05-16-source-lifecycle-dynamic-counts-closeout.md'))
+  ensure(
+    checks,
+    sourceLifecycleDynamicCounts &&
+      ['executing', 'done'].includes(sourceLifecycleDynamicCounts.lane) &&
+      (sourceLifecycleDynamicCountsCurrentItem || sourceLifecycleDynamicCountsClosed) &&
+      (activeFoundationSprint.sprint?.sprintId === SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SPRINT_ID || sourceLifecycleDynamicCountsClosed) &&
+      sourceLifecycleDynamicCountsApprovalValidation.ok &&
+      sourceLifecycleDynamicCountsApprovalValidation.mode === 'v2' &&
+      sourceLifecycleDynamicCountsApproval.cardId === SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID &&
+      Number(sourceLifecycleDynamicCountsApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
+      sourceLifecycleDynamicCountsApproval.approvedPlanRef === SOURCE_LIFECYCLE_DYNAMIC_COUNTS_PLAN_PATH &&
+      sourceLifecycleDynamicCountsDogfood.ok === true &&
+      sourceLifecycleDynamicCountsSource.includes('buildSourceLifecycleDynamicCoverage') &&
+      sourceLifecycleDynamicCountsSource.includes('buildSourceLifecycleDynamicCountsDogfoodProof') &&
+      sourceLifecycleCompletionRegistrySource.includes('buildSourceLifecycleDynamicCoverage') &&
+      !sourceLifecycleCompletionRegistrySource.includes('SOURCE_LIFECYCLE_COMPLETION_EXPECTED_SOURCE_COUNT') &&
+      !sourceLifecycleCompletionRegistrySource.includes('sourceContracts.length ===') &&
+      packageJson.scripts?.['process:source-lifecycle-dynamic-counts-check'] === `node --env-file-if-exists=.env ${SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SCRIPT_PATH}` &&
+      sourceLifecycleDynamicCountsScriptSource.includes('scriptIsReadOnly') &&
+      sourceLifecycleDynamicCountsPlanSource.includes(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID) &&
+      sourceLifecycleDynamicCountsCloseoutOk,
+    'SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001 replaces exact source-count baselines with required/optional coverage',
+    sourceLifecycleDynamicCounts
+      ? `lane=${sourceLifecycleDynamicCounts.lane} dogfood=${sourceLifecycleDynamicCountsDogfood.ok ? 'pass' : 'blocked'} requiredMissing=${sourceLifecycleCompletionStatus.summary?.requiredMissingTerminalRuleCount ?? 'missing'} optional=${sourceLifecycleCompletionStatus.summary?.optionalUnruledSourceCount ?? 0}`
+      : `missing ${SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID}`,
   )
   const synthesisVerifyBuildLogExact = buildLogSynthesisVerifyBuild?.backlogIds?.length === 1 &&
     buildLogSynthesisVerifyBuild.backlogIds.includes(SYNTHESIS_VERIFY_CARD_ID) &&

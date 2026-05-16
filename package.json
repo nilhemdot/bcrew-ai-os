@@ -185,6 +185,7 @@
     "process:daily-exec-summary-check": "node --env-file-if-exists=.env scripts/process-daily-exec-summary-check.mjs",
     "process:source-lifecycle-expansion-check": "node --env-file-if-exists=.env scripts/process-source-lifecycle-expansion-check.mjs",
     "process:source-lifecycle-completion-check": "node --env-file-if-exists=.env scripts/process-source-lifecycle-completion-check.mjs",
+    "process:source-lifecycle-dynamic-counts-check": "node --env-file-if-exists=.env scripts/process-source-lifecycle-dynamic-counts-check.mjs",
     "process:synthesis-verify-check": "node --env-file-if-exists=.env scripts/process-synthesis-verify-check.mjs",
     "process:extract-run-hardening-check": "node --env-file-if-exists=.env scripts/process-extract-run-hardening-check.mjs",
     "process:drive-access-request-check": "node --env-file-if-exists=.env scripts/process-drive-access-request-check.mjs",
