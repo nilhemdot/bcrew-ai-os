@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-SOURCE-TRUST-SPLIT-MODULE-001",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-15T23:20:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-source-trust-split-module-001-plan.md",
+  "approvedPlanSha256": "eb36a7b923e8a3a6efe90e8da2a772db5442cb7e47baddcb5fe2a7e9ca1dd0c6",
+  "approvedRepoHead": "db9cda32e6cb929209998aa6217a928c10ce8993",
+  "notes": "Approved as the first card in the overnight Foundation cleanup queue. Scope: extract only source-trust verifier checks from scripts/foundation-verify.mjs into lib/foundation-source-trust-verifier.js with read-only focused dogfood and full ship. Not approved: source behavior changes, route behavior changes, broad verifier rewrite, Foundation DB split, hub UI, Marketing live wiring, Canva asset library, Build Intel extraction, paid-source auth, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "e6815d27e085e6a3a3317a99302c188d6e33a5137b3c27cc49cd097764e8df6d"
+}

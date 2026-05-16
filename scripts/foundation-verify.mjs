@@ -229,6 +229,17 @@ import {
   evaluateFoundationSourceContractVerifier,
 } from '../lib/foundation-source-contract-verifier.js'
 import {
+  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_BEFORE_LINES,
+  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
+  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationSourceTrustVerifierDogfoodProof,
+  evaluateFoundationSourceTrustVerifier,
+} from '../lib/foundation-source-trust-verifier.js'
+import {
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID,
@@ -2562,6 +2573,9 @@ async function main() {
   const foundationSourceContractVerifierSource = await readRepoFile('lib/foundation-source-contract-verifier.js')
   const verifierSourceContractModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH)
   const verifierSourceContractModulePlanSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH)
+  const foundationSourceTrustVerifierSource = await readRepoFile('lib/foundation-source-trust-verifier.js')
+  const verifierSourceTrustSplitModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierSourceTrustSplitModulePlanSource = await readRepoFile(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_PLAN_PATH)
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -4411,6 +4425,7 @@ async function main() {
     FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID,
     VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
     STYLESHEET_MONOLITH_SPLIT_CARD_ID,
+    VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -4647,6 +4662,7 @@ async function main() {
     foundationVerifySource,
     foundationRouteSplitVerifierSource,
     foundationSourceContractVerifierSource,
+    foundationSourceTrustVerifierSource,
     foundationServerRouteSplitVerifierSource,
     foundationDbSplitVerifierSource,
     foundationFrontendSplitVerifierSource,
@@ -4842,340 +4858,39 @@ async function main() {
       item?.quote
     )
 
-  ensure(
-    checks,
-    Array.isArray(sourceOfTruth.sources) && sourceOfTruth.sources.length === sourceContracts.length,
-    'api/source-of-truth exposes the full source-contract set',
-    `${Array.isArray(sourceOfTruth.sources) ? sourceOfTruth.sources.length : 'invalid'} live / ${sourceContracts.length} code`,
-  )
-  ensure(
-    checks,
-    Array.isArray(sourceOfTruth.connectors) && sourceOfTruth.connectors.length === sourceConnectors.length,
-    'api/source-of-truth exposes the full connector set',
-    `${Array.isArray(sourceOfTruth.connectors) ? sourceOfTruth.connectors.length : 'invalid'} live / ${sourceConnectors.length} code`,
-  )
-  const workingConnectorIds = Array.isArray(sourceOfTruth.connectors)
-    ? sourceOfTruth.connectors.filter(connector => connector.group === 'working').map(connector => connector.connectorId)
-    : []
-  const requiredWorkingConnectorIds = [
-    'CONN-GSHEETS-001',
-    'CONN-GDRIVE-001',
-    'CONN-GMAIL-001',
-    'CONN-GCAL-001',
-    'CONN-FUB-001',
-    'CONN-CLICKUP-001',
-    'CONN-SLACK-001',
-    'CONN-MISSIVE-001',
-    'CONN-DATAFORSEO-001',
-    'CONN-META-001',
-  ]
-  const missingWorkingConnectorIds = requiredWorkingConnectorIds.filter(connectorId => !workingConnectorIds.includes(connectorId))
-  ensure(
-    checks,
-    missingWorkingConnectorIds.length === 0,
-    'source connector status reflects proven working rebuild paths',
-    missingWorkingConnectorIds.length
-      ? `missing working status for ${missingWorkingConnectorIds.join(', ')}`
-      : `${workingConnectorIds.length} connectors marked working`,
-  )
-  const expectedGroupedSystemIds = groupedSourceSystems.map(system => system.systemId)
-  const liveGroupedSystemIds = Array.isArray(sourceOfTruth.groupedSystems)
-    ? sourceOfTruth.groupedSystems.map(system => system.systemId)
-    : []
-  const missingGroupedSystemIds = expectedGroupedSystemIds.filter(systemId => !liveGroupedSystemIds.includes(systemId))
-  ensure(
-    checks,
-    Array.isArray(sourceOfTruth.groupedSystems) &&
-      sourceOfTruth.groupedSystems.length === groupedSourceSystems.length &&
-      missingGroupedSystemIds.length === 0 &&
-      foundationHtmlSource.includes('data-section="systems"') &&
-     foundationFrontendSource.includes('renderFoundationSystems') &&
-     foundationFrontendSource.includes('renderGroupedSourceSystemsPanel'),
-    'api/source-of-truth exposes grouped source systems for Foundation visibility',
-    missingGroupedSystemIds.length
-      ? `missing ${missingGroupedSystemIds.join(', ')}`
-      : `${liveGroupedSystemIds.length} live / ${groupedSourceSystems.length} code`,
-  )
-  ensure(
-    checks,
-    includesAll(foundationFrontendSource, [
-      'renderDataSourcePurposePanel',
-      'Show the whole source layer',
-      'doc-backed source contracts only',
-      'spreadsheet-backed source contracts',
-      'Show app, API, and database-backed business sources',
-      'Show the connector layer only',
-      'Connector does not equal trusted source',
-    ]),
-    'Data Sources pages explain purpose and connector boundary',
-    'Overview, Docs, Spreadsheets, APIs and apps, and Connectors have explicit page-purpose copy',
-  )
-  const expectedKpiTableNames = EXPECTED_KPI_TABLES.map(item => item.table)
-  const expectedKpiRpcNames = EXPECTED_KPI_RPCS.map(item => item.rpc)
-  const sourceTruthKpiTables = Array.isArray(sourceTruthKpiHealth.tables) ? sourceTruthKpiHealth.tables : []
-  const sourceTruthKpiRpcs = Array.isArray(sourceTruthKpiHealth.rpcs) ? sourceTruthKpiHealth.rpcs : []
-  const sourceTruthKpiTableNames = sourceTruthKpiTables.map(item => item.table)
-  const sourceTruthKpiRpcNames = sourceTruthKpiRpcs.map(item => item.rpc)
-  const missingKpiTables = expectedKpiTableNames.filter(table => !sourceTruthKpiTableNames.includes(table))
-  const missingKpiRpcs = expectedKpiRpcNames.filter(rpc => !sourceTruthKpiRpcNames.includes(rpc))
-  ensure(
-    checks,
-    sourceTruthKpiHealth.contractVersion === 1 &&
-      sourceTruthKpiHealth.primarySurface === KPI_HEALTH_PRIMARY_SURFACE &&
-      sourceTruthKpiHealth.summary?.probeSilent === false &&
-      sourceTruthKpiTables.length === expectedKpiTableNames.length &&
-      sourceTruthKpiRpcs.length === expectedKpiRpcNames.length &&
-      missingKpiTables.length === 0 &&
-      missingKpiRpcs.length === 0 &&
-      sourceTruthKpiHealth.schemaDrift?.status &&
-      foundationHubKpiHealth.summary?.probeSilent === false,
-    'Data Sources exposes KPI / Supabase health contract',
-    missingKpiTables.length || missingKpiRpcs.length
-      ? `missing tables=${missingKpiTables.join(',') || 'none'} rpcs=${missingKpiRpcs.join(',') || 'none'}`
-      : `${sourceTruthKpiTables.length} tables / ${sourceTruthKpiRpcs.length} RPCs / status=${sourceTruthKpiHealth.summary?.status || 'unknown'}`,
-  )
-  ensure(
-    checks,
-    backlogHygieneApi.contractVersion === 1 &&
-      backlogHygieneApi.surface === 'Foundation > Runtime Health > Backlog Hygiene' &&
-      backlogHygieneApi.thresholds?.staleExecutingDays === 3 &&
-      Number.isFinite(Number(backlogHygieneApi.summary?.cardCount)) &&
-      Number.isFinite(Number(backlogHygieneApi.summary?.criticalFindings)) &&
-      Array.isArray(backlogHygieneApi.findings) &&
-      Array.isArray(backlogHygieneApi.visibleFindings) &&
-      backlogHygieneApi.visibleFindings.every(finding => finding.severity !== 'info') &&
-      includesAll(packageSource, ['"backlog:hygiene"', 'scripts/backlog-hygiene.mjs']) &&
-      includesAll(serverRouteSource, ['buildBacklogHygieneSnapshot', 'backlogHygiene']) &&
-      includesAll(foundationFrontendSource, [
-        'renderBacklogHygienePanel',
-        'Backlog Hygiene',
-        'Stale executing threshold',
-        'No visible backlog hygiene findings',
-      ]),
-    'Runtime Health exposes automatic Backlog Hygiene findings',
-    `${backlogHygieneApi.summary?.criticalFindings ?? 'unknown'} critical / ${backlogHygieneApi.summary?.warningFindings ?? 'unknown'} warnings / threshold=${backlogHygieneApi.thresholds?.staleExecutingDays ?? 'missing'} days`,
-  )
-  ensure(
-    checks,
-    foundationHub.cardReferenceTrust?.summary &&
-      foundationHub.cardReferenceTrust.summary.missingCardReferenceCount === 0 &&
-      cardReferenceTrust.summary.missingCardReferenceCount === 0 &&
-      includesAll(foundationFrontendSource, [
-        'renderCardReferenceTrustPanel',
-        'Card Reference Trust',
-        'No missing active backlog card references',
-      ]),
-    'Card Reference Trust has no missing active backlog cards',
-    foundationHub.cardReferenceTrust?.summary
-      ? `${foundationHub.cardReferenceTrust.summary.missingCardReferenceCount} missing references across ${foundationHub.cardReferenceTrust.summary.scannedFileCount} active files`
-      : 'missing Runtime Health card-reference payload',
-  )
-  ensure(
-    checks,
-    syntheticCardReferenceTrust.summary.missingCardReferenceCount === 1 &&
-      syntheticCardReferenceTrust.findings.some(finding => finding.cardId === 'PHANTOM-CARD-CHECK-999'),
-    'Card Reference Trust catches a synthetic phantom card',
-    syntheticCardReferenceTrust.findings.map(finding => `${finding.cardId} in ${finding.path}`).join(', ') || 'synthetic phantom was not caught',
-  )
-  ensure(
-    checks,
-    foundationHub.sourceReferenceTrust?.summary &&
-      foundationHub.sourceReferenceTrust.summary.undeclaredActiveReferenceCount === 0 &&
-      sourceReferenceTrust.summary.undeclaredActiveReferenceCount === 0 &&
-      sourceReferenceTrust.summary.historicalClassifiedCount >= 5 &&
-      includesAll(foundationFrontendSource, [
-        'renderSourceReferenceTrustPanel',
-        'Source Contract Trust',
-        'No missing active source IDs',
-      ]),
-    'Source Contract Trust has no undeclared active source IDs',
-    foundationHub.sourceReferenceTrust?.summary
-      ? `${foundationHub.sourceReferenceTrust.summary.undeclaredActiveReferenceCount} undeclared active refs / ${foundationHub.sourceReferenceTrust.summary.historicalClassifiedCount} historical classified`
-      : 'missing Runtime Health source-reference payload',
-  )
-  ensure(
-    checks,
-    includesAll(sourceContractsSource, [
-      "sourceId: 'SRC-STRATEGY-QUARTER-001'",
-      "sourceId: 'SRC-MYICRO-001'",
-      'Scoped, not connected',
-    ]) &&
-      includesAll(sourceContractCleanupDoc, [
-        'SRC-STRATEGY-QUARTER-001',
-        'SRC-MYICRO-001',
-        'SRC-AGENT-SATISFACTION-001',
-        'historical-alias',
-      ]),
-    'Source cleanup declares active refs and classifies historical aliases',
-    'Strategy Quarter and Mycro are proposed contracts; historical source aliases are documented instead of promoted into fake truth',
-  )
-  ensure(
-    checks,
-    includesAll(foundationVerifySource, [
-      'function ensureIncludesAll',
-      'buildSourceReferenceTrustStatus',
-      'buildCardReferenceTrustStatus',
-    ]) &&
-      includesAll(verifierConsolidationDoc, [
-        'Consolidated Check Patterns',
-        'Message Rewrites',
-        'Source Contract Trust has no undeclared active source IDs',
-        'System Inventory shows all nine configured plugin surfaces',
-        'Foundation pages, sub-surfaces, and critical API routes are mapped',
-        'Dashboard is serving the same code as the repo',
-      ]),
-    'Verifier uses shared trust helpers and documents plain-English rewrites',
-    'six consolidation patterns and 11 operator-facing message rewrites are documented',
-  )
-  ensure(
-    checks,
-    expectedKpiTableNames.every(table => kpiHealthSource.includes(`table: '${table}'`)) &&
-      expectedKpiRpcNames.every(rpc => kpiHealthSource.includes(`rpc: '${rpc}'`)) &&
-      includesAll(kpiHealthSource, [
-        'KPI_HEALTH_CONTRACT_VERSION',
-        'KPI_HEALTH_PRIMARY_SURFACE',
-        'freshnessWindowDays',
-        'KPI_HEALTH_LEE_REPO_PATH',
-        'schemaDrift',
-        'probeSilent',
-      ]) &&
-      includesAll(kpiHealthScriptSource, [
-        'getKpiHealthSnapshot',
-        'KPI_HEALTH_SUMMARY',
-        'process.exitCode = 1',
-      ]) &&
-      includesAll(kpiSourceNote, [
-        'Load-bearing tables',
-        'Load-bearing RPCs',
-        'Freshness windows are per source',
-        'Lee repo/Supabase schema drift',
-        'Foundation > Data Sources > APIs / Apps > KPI / Supabase Health',
-      ]),
-    'KPI health probe codifies read rules, freshness, schema drift, and proof output',
-    `${expectedKpiTableNames.length} tables / ${expectedKpiRpcNames.length} RPCs guarded in lib/kpi-health.js`,
-  )
-  const kpiHealthBacklog = (foundationHub.backlogItems || []).find(item => item.id === 'KPI-HEALTH-001') || null
-  const kpiHealthBacklogText = [
-    kpiHealthBacklog?.summary,
-    kpiHealthBacklog?.whyItMatters,
-    kpiHealthBacklog?.nextAction,
-    kpiHealthBacklog?.statusNote,
-  ].filter(Boolean).join('\n')
-  ensure(
-    checks,
-    kpiHealthBacklog?.lane === 'done' &&
-      kpiHealthBacklog?.priority === 'P1' &&
-      expectedKpiTableNames.every(table => kpiHealthBacklogText.includes(table)) &&
-      expectedKpiRpcNames.every(rpc => kpiHealthBacklogText.includes(rpc)) &&
-      kpiHealthBacklogText.includes('Foundation > Data Sources > APIs / Apps > KPI / Supabase Health') &&
-      kpiHealthBacklogText.includes('Runtime Health should only warn when the probe is unhealthy') &&
-      currentPlan.includes('KPI-HEALTH-001` v1 now probes') &&
-      currentState.includes('KPI-HEALTH-001` is done for v1'),
-    'KPI-HEALTH-001 backlog and docs capture exact v1 acceptance',
-    kpiHealthBacklog
-      ? `${kpiHealthBacklog.lane} / ${kpiHealthBacklog.priority} / ${expectedKpiTableNames.length} tables / ${expectedKpiRpcNames.length} RPCs`
-      : 'missing KPI-HEALTH-001',
-  )
-  ensure(
-    checks,
-    includesAll(foundationFrontendSource, [
-      'renderKpiSupabaseHealthPanel',
-      'KPI / Supabase Health',
-      'Load-bearing KPI freshness and schema drift',
-      'renderKpiHealthRuntimeWarning',
-      'Runtime Health only surfaces KPI here when freshness, schema drift, or the health probe itself is unhealthy',
-      '/foundation#source-apis:kpi-supabase-health',
-    ]),
-    'Foundation UI shows KPI health in Data Sources and warnings in Runtime Health',
-    'primary KPI health panel is Data Sources; Runtime Health is warning-only',
-  )
-  ensure(
-    checks,
-    systemInventory?.docs &&
-      Array.isArray(systemInventory.docs.tracked) &&
-      Array.isArray(systemInventory.docs.privateLocal) &&
-      Array.isArray(systemInventory.skills) &&
-      Array.isArray(systemInventory.plugins) &&
-      systemInventory.plugins.length === 9 &&
-      requiredPluginNames.every(pluginName => inventoryPluginNames.includes(pluginName)) &&
-      includesAll(foundationFrontendSource, [
-        'renderSystemInventoryPurposePanel',
-        'Current Docs inventory job',
-        'Skills inventory job',
-        'Plugins and MCPs inventory job',
-        'Agents inventory job',
-        'not a live Agent Registry yet',
-      ]),
-    'System Inventory shows all nine configured plugin surfaces',
-    `${systemInventory?.docs?.tracked?.length ?? 'invalid'} docs / ${systemInventory?.skills?.length ?? 'invalid'} skills / ${systemInventory?.plugins?.length ?? 'invalid'} plugins: ${inventoryPluginNames.join(', ')}`,
-  )
-  ensure(
-    checks,
-    includesAll(currentState, [
-      'Data Sources And System Inventory Surfaces',
-      'Connector does not equal trusted source',
-      'not a live Agent Registry yet',
-      'AGENT-006',
-      'AGENT-007',
-      'AGENT-010',
-    ]),
-    'current-state documents Data Sources and System Inventory purpose boundaries',
-    'source, connector, docs, skills, plugins, and agent inventory boundaries are captured',
-  )
-  ensure(
-    checks,
-    includesAll(foundationFrontendSource, [
-      'Command Order ↔ Live Backlog',
-      'Keep Maps Current',
-      'Monitor Extraction',
-      'Harden Corpus Lanes',
-      'Freshness And Health',
-      'Enforce The Process',
-      'Clean Visibility Drift',
-      'Close The Action Loop',
-      'Re-Audit Before Features',
-    ]) &&
-      !foundationUiSource.includes('Phase Gates ↔ Live Backlog') &&
-      !foundationUiSource.includes('Phase 1 · Truth Cleanup'),
-    'Rebuild Plan UI shows command order instead of conflicting phase labels',
-    'docs keep rebuild phase doctrine; UI shows Steve-facing command order',
-  )
-  ensure(
-    checks,
-    phaseCApprovalFilesPresent.every(Boolean) &&
-      phaseCVisibilityCardIds.every(cardId => {
-      const card = (foundationHub.backlogItems || []).find(item => item.id === cardId)
-      return card?.lane === 'done' &&
-        card.statusNote &&
-        foundationDbWithBacklogSeedSource.includes(`id: '${cardId}'`) &&
-        foundationVerifySource.includes(cardId) &&
-        packageSource.includes('foundation:verify')
-    }),
-    'Phase C visibility cards are done with ID-named verifier coverage',
-    phaseCVisibilityCardIds.join(', '),
-  )
-  const driveCorpusNote = await readRepoFile('docs/source-notes/google-drive-corpus.md')
-  ensure(
-    checks,
-    includesAll(driveCorpusNote, [
-      'Strategy Folder Operating Model',
-      'quarterly evidence intake',
-      'not the canonical strategy',
-      'Strategy Hub / Strategic Execution',
-      'Action Router',
-    ]),
-    'Drive strategy folder is captured as quarterly evidence intake',
-    'Drive source note distinguishes raw evidence folder from canonical strategy and Strategy Hub outputs',
-  )
-
-  const liveOwnersContract = findSourceById(sourceOfTruth.sources, 'SRC-OWNERS-001')
-  ensure(
-    checks,
-    liveOwnersContract?.status === 'Signed Off' && liveOwnersContract?.validation === 'Signed Off',
-    'api/source-of-truth keeps Owners sign-off visible',
-    liveOwnersContract ? `${liveOwnersContract.status} / ${liveOwnersContract.validation}` : 'missing',
-  )
-
+  const sourceTrustVerifier = evaluateFoundationSourceTrustVerifier({
+    sourceOfTruth,
+    foundationHub,
+    sourceContracts,
+    sourceConnectors,
+    groupedSourceSystems,
+    sourceTruthKpiHealth,
+    foundationHubKpiHealth,
+    backlogHygieneApi,
+    cardReferenceTrust,
+    syntheticCardReferenceTrust,
+    sourceReferenceTrust,
+    systemInventory,
+    sourceContractsSource,
+    sourceContractCleanupDoc,
+    verifierConsolidationDoc,
+    kpiHealthSource,
+    kpiHealthScriptSource,
+    kpiSourceNote,
+    packageSource,
+    serverRouteSource,
+    foundationFrontendSource,
+    foundationHtmlSource,
+    foundationUiSource,
+    foundationDbWithBacklogSeedSource,
+    foundationVerifySource,
+    moduleSource: foundationSourceTrustVerifierSource,
+    phaseCApprovalFilesPresent,
+    currentPlan,
+    currentState,
+    driveCorpusNote: await readRepoFile('docs/source-notes/google-drive-corpus.md'),
+  })
+  checks.push(...sourceTrustVerifier.checks)
   ensure(
     checks,
     Array.isArray(foundationHub.backlogItems) &&
@@ -13980,6 +13695,38 @@ async function main() {
     verifierSourceContractModuleCard
       ? `lane=${verifierSourceContractModuleCard.lane} dogfood=${verifierSourceContractModuleDogfood.ok ? 'pass' : 'blocked'} sourceChecks=${sourceContractVerifierResult.summary.passed}/${sourceContractVerifierResult.summary.total}`
       : `missing ${VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID}`,
+  )
+  const verifierSourceTrustSplitModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID) || null
+  const verifierSourceTrustSplitModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierSourceTrustSplitModuleDogfood = buildFoundationSourceTrustVerifierDogfoodProof()
+  const verifierSourceTrustSplitModuleClosed = verifierSourceTrustSplitModuleCard?.lane === 'done'
+  ensure(
+    checks,
+      verifierSourceTrustSplitModuleCard &&
+      ['executing', 'done'].includes(verifierSourceTrustSplitModuleCard.lane) &&
+      (!verifierSourceTrustSplitModuleClosed || (
+        String(verifierSourceTrustSplitModuleCard.statusNote || '').includes(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
+        verifierSourceTrustSplitModuleCloseout?.operatorCloseout === true &&
+        (verifierSourceTrustSplitModuleCloseout.backlogIds || []).includes(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-15-verifier-source-trust-split-module-closeout.md')
+      )) &&
+      verifierSourceTrustSplitModuleDogfood.ok === true &&
+      packageJson.scripts?.['process:verifier-source-trust-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_APPROVAL_PATH) &&
+      foundationSourceTrustVerifierSource.includes('evaluateFoundationSourceTrustVerifier') &&
+      foundationSourceTrustVerifierSource.includes('buildFoundationSourceTrustVerifierDogfoodProof') &&
+      verifierSourceTrustSplitModuleScriptSource.includes('dogfood rejects source-trust verifier failures') &&
+      verifierSourceTrustSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
+      currentPlan.includes(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID])) &&
+      foundationSourceTrustVerifierSource.includes(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID),
+    'VERIFIER-SOURCE-TRUST-SPLIT-MODULE-001 extracts source-trust verifier checks into a focused module',
+    verifierSourceTrustSplitModuleCard
+      ? `lane=${verifierSourceTrustSplitModuleCard.lane} dogfood=${verifierSourceTrustSplitModuleDogfood.ok ? 'pass' : 'blocked'} sourceTrustChecks=${sourceTrustVerifier.summary.passed}/${sourceTrustVerifier.summary.total}`
+      : `missing ${VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID}`,
   )
   const serverRouteSplitVerifierInput = {
     foundationHub,

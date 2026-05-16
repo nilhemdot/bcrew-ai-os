@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.72 - Foundation DB Strategy goal truth split sprint
+Version: v6.73 - Source-trust verifier split sprint
 Status: Active
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Canva Client Foundation
+## Current Sprint: Source-Trust Verifier Split
+
+Live sprint ID: `verifier-source-trust-split-module-2026-05-15`.
+
+This sprint is complete under `verifier-source-trust-split-module-v1`. It extracts source-trust verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-source-trust-verifier.js` while preserving the canonical PASS/FAIL rows for source-of-truth shape, connector working status, grouped source systems, KPI/Supabase health, Backlog Hygiene, Card Reference Trust, Source Contract Trust, Phase C visibility, Drive corpus notes, and Owners signoff visibility.
+
+Active card:
+
+1. `VERIFIER-SOURCE-TRUST-SPLIT-MODULE-001` - done under `verifier-source-trust-split-module-v1`. V1 owns `lib/foundation-source-trust-verifier.js`, `scripts/process-verifier-source-trust-split-module-check.mjs`, package script `process:verifier-source-trust-split-module-check`, plan/approval docs, dogfood fixtures that reject missing connector/KPI/reference-trust/Phase C coverage, root verifier delegation, and closeout record `docs/handoffs/2026-05-15-verifier-source-trust-split-module-closeout.md`.
+
+Not next: source contract behavior changes, connector behavior changes, KPI probe changes, source-of-truth route changes, Foundation DB splits, Marketing Video Lab, Canva asset library work, hub feature UI, paid-source auth, Build Intel extraction, Drive permission mutation, or Meeting Vault Phase B.
+
+Previous completed sprint: `canva-client-foundation-2026-05-15`, closed under `canva-client-v1`.
+
+## Previous Sprint: Canva Client Foundation
 
 Live sprint ID: `canva-client-foundation-2026-05-15`.
 
