@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Process-Hardening Verifier Split
+## Current Sprint: Agent Feedback Verifier Split
+
+Live sprint ID: `verifier-agent-feedback-split-module-2026-05-16`.
+
+This sprint is complete under `verifier-agent-feedback-split-module-v1`. It extracted the existing Agent Feedback verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-agent-feedback-verifier.js` while preserving the same PASS/FAIL rows for replay-hardened feedback links, Agent Onboarding Feedback visibility, Stage 1 send infrastructure, governed auto-send, response notifications, reminder cadence, live reminders, Company Email policy, Steve full-loop gating, real-user submit repair, verifier health repair, and production auto-send visibility.
+
+Completed card:
+
+1. `VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001` - done under `verifier-agent-feedback-split-module-v1`. V1 owns `lib/foundation-agent-feedback-verifier.js`, `scripts/process-verifier-agent-feedback-split-module-check.mjs`, package script `process:verifier-agent-feedback-split-module-check`, plan/approval docs, dogfood fixtures that reject replay gaps, dry-run side effects, ungated production auto-send, personal-email routing, and private proof leakage, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-agent-feedback-split-module-closeout.md`.
+
+Not next: Gmail sends, ClickUp writes, route/auth behavior changes, UI redesign, Foundation Hub payload behavior changes, DB schema changes, backlog mutation behavior changes, source contract behavior changes, connector auth, extraction runs, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
+
+Previous completed sprint: `foundation-db-sales-listing-store-split-2026-05-16`, closed under `foundation-sales-listing-store-split-v1`.
+
+## Previous Sprint: Process-Hardening Verifier Split
 
 Live sprint ID: `verifier-process-hardening-split-module-2026-05-16`.
 

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001",
+  "approvedPlanRef": "docs/process/verifier-agent-feedback-split-module-001-plan.md",
+  "approvedPlanSha256": "48c77d633d2a942eddada84d8be77e3e92fcdb1fdfaf8a45a182642e72dcb16a",
+  "approvedRepoHead": "c1f42980b0565916faaf1363a70be8b7178ab01f",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T07:19:18.271Z",
+  "score": 10,
+  "notes": "Approved as next no-auth Foundation cleanup slice after FOUNDATION-DB-MONOLITH-SPLIT-015 shipped. Extract existing Agent Feedback verifier predicates only; no behavior changes, route changes, source auth, paid calls, sends, or hub feature work.",
+  "approvalDigest": "c94de9ce0848d59f76873b4c8025813040cb5904915a29856520a1fb55573e47"
+}
