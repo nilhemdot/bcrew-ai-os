@@ -112,6 +112,7 @@
     "process:connector-completion-prep-check": "node --env-file-if-exists=.env scripts/process-connector-completion-prep-check.mjs",
     "process:source-contract-id-reconcile-check": "node --env-file-if-exists=.env scripts/process-source-contract-id-reconcile-check.mjs",
     "process:gcal-atom-schedule-check": "node --env-file-if-exists=.env scripts/process-gcal-atom-schedule-check.mjs",
+    "process:doc-artifact-bloat-guard-check": "node --env-file-if-exists=.env scripts/process-doc-artifact-bloat-guard-check.mjs",
     "process:foundation-stab-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-stab-capture-check.mjs",
     "process:foundation-cleanup-arc-closeout-check": "node --env-file-if-exists=.env scripts/process-foundation-cleanup-arc-closeout-check.mjs",
     "process:foundation-route-budget-cleanup-check": "node --env-file-if-exists=.env scripts/process-foundation-route-budget-cleanup-check.mjs",

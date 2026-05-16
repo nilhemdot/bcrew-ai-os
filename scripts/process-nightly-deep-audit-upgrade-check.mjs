@@ -205,10 +205,20 @@ async function main() {
     checks,
     artifacts.markdown.includes('No auto-fixes') &&
       artifacts.markdown.includes('High-Risk Review Packets') &&
+      artifacts.markdown.includes('Doc / Report Artifact Bloat') &&
       artifacts.markdown.includes('Dogfood Proof') &&
       artifacts.markdown.includes(NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY),
-    'rendered report contains boundaries, review packets, dogfood, and closeout key',
+    'rendered report contains boundaries, review packets, doc bloat, dogfood, and closeout key',
     artifacts.reportPath,
+  )
+  addCheck(
+    checks,
+    audit.docArtifactBloat?.summary?.artifactCount > 0 &&
+      Array.isArray(audit.docArtifactBloat?.topFindings) &&
+      audit.docArtifactBloat?.reportOnly === true &&
+      audit.docArtifactBloat?.autoFixes === false,
+    'nightly deep audit includes report-only doc/report bloat rollup',
+    `status=${audit.docArtifactBloat?.status || 'missing'} artifacts=${audit.docArtifactBloat?.summary?.artifactCount || 0}`,
   )
   addCheck(checks, sameCounts(beforeCounts, afterCounts), 'backlog lane counts unchanged by audit command', `before=${JSON.stringify(beforeCounts)} after=${JSON.stringify(afterCounts)}`)
   addCheck(checks, process.env.NIGHTLY_DEEP_AUDIT_RUN_LLM !== 'true', 'no live provider spend is triggered by default', 'LLM route is packet/approved-route planning only unless an explicit env override is added later')
@@ -226,6 +236,10 @@ async function main() {
     summary: audit.deterministicAudit?.summary || {},
     reviewTargetCount: audit.reviewTargets?.length || 0,
     llmReview: audit.llmReview,
+    docArtifactBloat: audit.docArtifactBloat ? {
+      status: audit.docArtifactBloat.status,
+      summary: audit.docArtifactBloat.summary,
+    } : null,
     checks,
     findings: failures,
   }

@@ -1,18 +1,19 @@
 # Nightly Deep Audit Report - 2026-05-16
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
-Generated at: `2026-05-16T18:54:35.779Z`
+Generated at: `2026-05-16T23:24:36.876Z`
 Report path: `docs/handoffs/nightly-deep-audit-2026-05-16.md`
 
 ## Morning Read
 
 - Status: `report_ready`
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev.
-- Deterministic findings: 55 total (40 P0, 8 P1, 7 P2, 0 P3)
-- Changed files selected: 5
+- Deterministic findings: 57 total (42 P0, 8 P1, 7 P2, 0 P3)
+- Changed files selected: 13
 - High-risk review targets: 18
 - LLM review mode: `approved_route_available_for_bounded_review`
 - Dogfood against May 13 failures: passed
+- Doc/report artifact bloat: `watch` (0 red, 1 yellow)
 
 ## Diff Summary
 
@@ -32,19 +33,19 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-16.md`
 
 ## Endpoint And Payload Trend
 
-- /api/foundation-hub: 81ms, 583796B, risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: 18ms, 134286B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: 370ms, 650307B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: 72ms, 322407B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: 82ms, 33955B, risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: 92ms, 576894B, risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: 15ms, 138931B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: 376ms, 622830B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: 82ms, 339259B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: 81ms, 33955B, risk=healthy (Within V1 audit budget.)
 
 ## Largest Files
 
-- scripts/foundation-verify.mjs: 12963 LOC, 733310B
+- scripts/foundation-verify.mjs: 13043 LOC, 739886B
+- lib/foundation-build-closeout-overnight-records.js: 4934 LOC, 398462B
 - public/foundation.js: 4910 LOC, 174221B
-- server.js: 4830 LOC, 160358B
+- server.js: 4832 LOC, 160473B
 - lib/foundation-db.js: 4735 LOC, 215243B
-- lib/foundation-build-closeout-overnight-records.js: 4676 LOC, 380707B
 - lib/foundation-backlog-seed.js: 4652 LOC, 477958B
 - lib/foundation-build-closeout-records.js: 4328 LOC, 297517B
 - public/styles-foundation-workflows.css: 2591 LOC, 50351B
@@ -55,8 +56,8 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-16.md`
 
 ### P0 scripts/foundation-verify.mjs
 
-- Lines: 12963
-- Bytes: 733310
+- Lines: 13043
+- Bytes: 739886
 - Reasons: changed_since_baseline, actively_dangerous_10k_plus_file, verifier_trust_surface
 
 ```
@@ -85,8 +86,41 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-16.md`
       ? `lane=${foundationUiLiveSummarySourcesCard.lane} rows=${foundationUiLiveSummaryPayload.summary?.surfaceRowCount || 0} auditFinding=${foundationUiLiveSummaryAuditFindingIds.includes('hardcoded-foundation-ui-current-summary') ? 'present' : 'clean'} closeout=${foundationUiLiveSummarySourcesCloseout?.key || 'pending'}`
       : `missing ${FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID}`,
   )
-  const processHardeningDogfood = buildFoundationProcessHardeningVerifierDogfoodProof()
-  const verifierProcessHardeningSplitModuleCar
+  const systemHealthNightlyAuditCard = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID
+```
+
+### P1 lib/foundation-build-closeout-overnight-records.js
+
+- Lines: 4934
+- Bytes: 398462
+- Reasons: over_3k_warn
+
+```
+      'FRONTEND-FUB-LEAD-SOURCE-RENDERERS-SPLIT-001',
+      'FRONTEND-SYSTEM-INVENTORY-RENDERERS-SPLIT-001',
+      'FRONTEND-MONOLITH-SPLIT-001',
+    ],
+    systemArea: 'Foundation frontend monolith cleanup / Current State renderer module',
+    status: 'accepted',
+    acceptanceState: 'Verified',
+    whatChanged: 'Extracted the Foundation Overview / Current State renderer cluster from `public/foundation.js` into `public/foundation-current-state-renderers.js`.',
+    whatItDoes: '`public/foundation-current-state-renderers.js` now owns Current State source links/stamps, backlog cells, closeout boards, maturity level guide, package detail tables, surface tables, Foundation truth/execution panels, Owners review queue panel, and `renderCurrentState()` while `foundation-router.js` keeps the same route call.',
+    whyItMatters: 'Steve keeps the Overview page that answers what is closed, partial, open, and next while the frontend monolith keeps shrinking through bounded, behavior-proven seams.',
+    whereItLives: [
+      'public/foundation-current-state-renderers.js Current State renderer module',
+      'public/foundation.js remaining Foundation route/renderers monolith',
+      'public/foundation.html ordered script loading',
+      'lib/foundation-frontend-current-state-renderers-split.js split constants and dogfood helpers',
+      'scripts/process-frontend-current-state-renderers-split-check.mjs VM-backed focused proof',
+      'package.json process:frontend-current-state-renderers-split-check',
+      'scripts/foundation-verify.mjs verifier coverage',
+      'split frontend source readers in lib/ and scripts/process-foundation-sprint-*.mjs',
+      'docs/process/frontend-current-state-renderers-split-001-plan.md',
+      'docs/process/approvals/FRONTEND-CURRENT-STATE-RENDERERS-SPLIT-001.json',
+      'docs/handoffs/2026-05-15-frontend-current-state-renderers-split-closeout.md',
+    ],
+    proofCommands: [
+      'node --check public/foundation-nav-config.js public/foundation-data.js public/foundation.js public/foundation-source-registry-renderers.js public/foundation-fub-lead-source-renderers.js public/foundation-system-inventory-renderers.js public/foundation-current-state-renderers.js public/foundation-source-lifecycle-renderers.js public/foundation-runtime-renderers.js public/foundation-operations-renderers.js public/foundation-router.js scripts/process-frontend-curren
 ```
 
 ### P1 public/foundation.js
@@ -148,8 +182,8 @@ function renderFoundationHome() {
 
 ### P1 server.js
 
-- Lines: 4830
-- Bytes: 160358
+- Lines: 4832
+- Bytes: 160473
 - Reasons: over_3k_warn, hot_route_surface
 
 ```
@@ -224,40 +258,6 @@ export async function resetFoundationDb() {
   poolEndPromise = null
 }
 
-```
-
-### P1 lib/foundation-build-closeout-overnight-records.js
-
-- Lines: 4676
-- Bytes: 380707
-- Reasons: changed_since_baseline, over_3k_warn
-
-```
-      'FRONTEND-FUB-LEAD-SOURCE-RENDERERS-SPLIT-001',
-      'FRONTEND-SYSTEM-INVENTORY-RENDERERS-SPLIT-001',
-      'FRONTEND-MONOLITH-SPLIT-001',
-    ],
-    systemArea: 'Foundation frontend monolith cleanup / Current State renderer module',
-    status: 'accepted',
-    acceptanceState: 'Verified',
-    whatChanged: 'Extracted the Foundation Overview / Current State renderer cluster from `public/foundation.js` into `public/foundation-current-state-renderers.js`.',
-    whatItDoes: '`public/foundation-current-state-renderers.js` now owns Current State source links/stamps, backlog cells, closeout boards, maturity level guide, package detail tables, surface tables, Foundation truth/execution panels, Owners review queue panel, and `renderCurrentState()` while `foundation-router.js` keeps the same route call.',
-    whyItMatters: 'Steve keeps the Overview page that answers what is closed, partial, open, and next while the frontend monolith keeps shrinking through bounded, behavior-proven seams.',
-    whereItLives: [
-      'public/foundation-current-state-renderers.js Current State renderer module',
-      'public/foundation.js remaining Foundation route/renderers monolith',
-      'public/foundation.html ordered script loading',
-      'lib/foundation-frontend-current-state-renderers-split.js split constants and dogfood helpers',
-      'scripts/process-frontend-current-state-renderers-split-check.mjs VM-backed focused proof',
-      'package.json process:frontend-current-state-renderers-split-check',
-      'scripts/foundation-verify.mjs verifier coverage',
-      'split frontend source readers in lib/ and scripts/process-foundation-sprint-*.mjs',
-      'docs/process/frontend-current-state-renderers-split-001-plan.md',
-      'docs/process/approvals/FRONTEND-CURRENT-STATE-RENDERERS-SPLIT-001.json',
-      'docs/handoffs/2026-05-15-frontend-current-state-renderers-split-closeout.md',
-    ],
-    proofCommands: [
-      'node --check public/foundation-nav-config.js public/foundation-data.js public/foundation.js public/foundation-source-registry-renderers.js public/foundation-fub-lead-source-renderers.js public/foundation-system-inventory-renderers.js public/foundation-current-state-renderers.js public/foundation-source-lifecycle-renderers.js public/foundation-runtime-renderers.js public/foundation-operations-renderers.js public/foundation-router.js scripts/process-frontend-curren
 ```
 
 ### P1 lib/foundation-backlog-seed.js
@@ -361,8 +361,8 @@ export const closeoutRecords = [
 
 ### P1 lib/foundation-jobs.js
 
-- Lines: 1338
-- Bytes: 57574
+- Lines: 1378
+- Bytes: 59480
 - Reasons: changed_since_baseline
 
 ```
@@ -416,6 +416,63 @@ function localPartsForDate(date, timeZone) {
   const parts = new Intl.DateTimeFormat('en-CA', {
 ```
 
+### P1 lib/google-delegated.js
+
+- Lines: 1050
+- Bytes: 35190
+- Reasons: changed_since_baseline
+
+```
+import { JWT } from 'google-auth-library';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  buildGoogleSheetsCacheKey,
+  getGoogleSheetsCacheStats,
+  readGoogleSheetsCachedJson,
+} from './google-sheets-cache.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = path.resolve(__dirname, '..');
+
+export const GOOGLE_SA_KEY_FILE =
+  process.env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE ||
+  path.join(PROJECT_ROOT, 'store', 'crewbert-delegation-sa.json');
+
+export const GOOGLE_SCOPES = {
+  drive: 'https://www.googleapis.com/auth/drive',
+  // Domain-wide delegation is currently authorized for these broader scopes.
+  gmail: 'https://www.googleapis.com/auth/gmail.modify',
+  gmailSend: 'https://www.googleapis.com/auth/gmail.send',
+  calendar: 'https://www.googleapis.com/auth/calendar',
+  sheets: 'https://www.googleapis.com/auth/spreadsheets',
+};
+
+export { getGoogleSheetsCacheStats };
+
+let cachedServiceAccount = null;
+const jwtClients = new Map();
+const GOOGLE_RETRYABLE_STATUS_CODES = new Set([429, 500, 502, 503, 504]);
+
+const OWNERS_DASHBOARD_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk';
+const OWNERS_DASHBOARD_LISTS_GID = 1609537489;
+
+const IMPORTED_SHEET_RANGE_GUARDS = [
+  {
+    label: 'Owners Dashboard Lists IMPORTRANGE mirror',
+    spreadsheetId: OWNERS_DASHBOARD_SHEET_ID,
+    sheetTitle: 'Lists',
+    sheetId: OWNERS_DASHBOARD_LISTS_GID,
+    startColumnIndex: 0,
+    endColumnIndex: 35, // A:AI is imported from the upstream KPI/BHAG sheet.
+    source: '1A0FeVXwwpgSmkqEfZlKRC9tU6YlEqQSTSfmWdVCdrRE!Lists!A1:AI',
+  },
+];
+
+function sleep(ms) {
+```
+
 ### P1 lib/kpi-health.js
 
 - Lines: 1045
@@ -466,8 +523,8 @@ const LEE_REPO_SCAN_PATHS = [
 
 ### P1 lib/connector-uptime-monitor.js
 
-- Lines: 901
-- Bytes: 35040
+- Lines: 967
+- Bytes: 37796
 - Reasons: source_health_surface
 
 ```
@@ -521,11 +578,182 @@ export const RUNTIME_ACTIVATION_STATES = Object.freeze({
   scheduled: 'scheduled',
 ```
 
+### P1 lib/source-lifecycle.js
+
+- Lines: 889
+- Bytes: 37578
+- Reasons: changed_since_baseline, source_health_surface
+
+```
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { readCombinedFoundationStylesheet } from './foundation-stylesheet-monolith-split.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const defaultRepoRoot = path.resolve(__dirname, '..')
+
+export const SOURCE_LIFECYCLE_SCHEMA_VERSION = 1
+export const SOURCE_LIFECYCLE_CARD_ID = 'SOURCE-LIFECYCLE-EXPANSION-001'
+export const SOURCE_LIFECYCLE_CLOSEOUT_KEY = 'source-lifecycle-expansion-v1'
+export const SOURCE_LIFECYCLE_ROUTE = '/foundation#source-lifecycle'
+export const SOURCE_LIFECYCLE_API_PATH = '/api/foundation/source-lifecycle'
+export const SOURCE_LIFECYCLE_APPROVED_PLAN_PATH = 'docs/process/approved-plans/source-lifecycle-expansion-v1.md'
+export const SOURCE_LIFECYCLE_APPROVAL_PATH = 'docs/process/approvals/SOURCE-LIFECYCLE-EXPANSION-001.json'
+export const SOURCE_LIFECYCLE_BASELINE_PATH = 'docs/audits/2026-04-30-source-lifecycle-expansion-baseline.md'
+export const SOURCE_LIFECYCLE_MANUAL_REVIEW_PATH = 'docs/audits/2026-04-30-source-lifecycle-expansion-manual-review.md'
+
+export const SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT = 13
+
+export const SOURCE_LIFECYCLE_INCLUDED_SOURCE_IDS = [
+  'SRC-GMAIL-001',
+  'SRC-GCAL-001',
+  'SRC-MISSIVE-001',
+  'SRC-MEETINGS-001',
+  'SRC-SLACK-001',
+  'SRC-GDRIVE-001',
+  'SRC-VIDEO-001',
+  'SRC-YOUTUBE-INTEL-001',
+  'SRC-SKOOL-001',
+  'SRC-LOOM-001',
+  'SRC-MYICRO-001',
+  'SRC-CREATOR-WATCHLIST-001',
+]
+
+export const SOURCE_LIFECYCLE_EXCLUDED_LANES = [
+  'Strategy Hub activation',
+  'Scoper',
+  'Agent Factory',
+  'broad corpus expansion',
+  'Action Review applying',
+  'research cleanup',
+  'Missive attachment implementation',
+  'Drive Slides/Office/shortcut/media/OCR expansion',
+  'Loom/Skool/Mycro crawler or browser extraction',
+  'YouTube scout/discovery/Gemini video analysis',
+  'Google Ads/publishing/reviews/training/content connector buildout',
+```
+
+### P1 scripts/run-extraction-target.mjs
+
+- Lines: 781
+- Bytes: 26106
+- Reasons: changed_since_baseline
+
+```
+#!/usr/bin/env node
+
+import { spawn } from 'node:child_process'
+import process from 'node:process'
+import {
+  closeFoundationDb,
+  finishSourceCrawlTargetRun,
+  getExtractionControlSnapshot,
+  getSharedCommunicationSourceStats,
+  initFoundationDb,
+  classifySourceCrawlItemRetries,
+  leaseSourceCrawlTarget,
+  listSourceCrawlItems,
+  upsertIntelligenceJobRun,
+} from '../lib/foundation-db.js'
+import { buildExtractionNextSafeCommand } from '../lib/extraction-run-hardening.js'
+
+const OUTPUT_TAIL_LIMIT = 20000
+
+function parseArgs(argv) {
+  const result = {}
+  for (const arg of argv) {
+    if (!arg.startsWith('--')) continue
+    const [key, value] = arg.slice(2).split('=')
+    const normalizedKey = String(key || '').replace(/-([a-z0-9])/g, (_match, char) => char.toUpperCase())
+    result[normalizedKey] = value ?? true
+  }
+  return result
+}
+
+function appendTail(current, chunk) {
+  const next = current + chunk
+  return next.length > OUTPUT_TAIL_LIMIT ? next.slice(next.length - OUTPUT_TAIL_LIMIT) : next
+}
+
+function killProcessGroup(child, signal) {
+  if (!child?.pid) return
+  try {
+    process.kill(-child.pid, signal)
+  } catch {
+    try {
+      child.kill(signal)
+    } catch {
+      // The process may have already exited.
+    }
+  }
+}
+
+```
+
+### P1 lib/connector-credential-registry.js
+
+- Lines: 739
+- Bytes: 28731
+- Reasons: changed_since_baseline, source_health_surface
+
+```
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const PROJECT_ROOT = path.resolve(__dirname, '..')
+
+export const CONNECTOR_CREDENTIAL_CARD_ID = 'CONNECTOR-CREDENTIAL-001'
+export const CONNECTOR_CREDENTIAL_CLOSEOUT_KEY = 'connector-credential-v1'
+export const CONNECTOR_CREDENTIAL_PLAN_PATH = 'docs/process/connector-credential-001-plan.md'
+export const CONNECTOR_CREDENTIAL_APPROVAL_PATH = 'docs/process/approvals/CONNECTOR-CREDENTIAL-001.json'
+export const CONNECTOR_CREDENTIAL_SCRIPT_PATH = 'scripts/process-connector-credential-check.mjs'
+
+const DEFAULT_GOOGLE_SERVICE_ACCOUNT_REF = 'store/crewbert-delegation-sa.json'
+const DEFAULT_OPENCLAW_CONFIG_REF = '~/.openclaw/openclaw.json'
+const DEFAULT_CLAUDE_AUTH_REF = '~/.claude local auth'
+
+function localPath(relativePath) {
+  return path.join(PROJECT_ROOT, relativePath)
+}
+
+function homePath(relativePath) {
+  return path.join(os.homedir(), relativePath)
+}
+
+export const CONNECTOR_CREDENTIAL_REQUIRED_KEYS = [
+  'fub-api',
+  'kpi-supabase',
+  'google-delegated-drive',
+  'google-delegated-gmail',
+  'google-delegated-sheets',
+  'clickup-api',
+  'slack-api',
+  'missive-api',
+  'llm-openai-api',
+  'llm-openclaw',
+  'llm-claude-code',
+  'apify-loom-youtube',
+  'dataforseo-youtube',
+  'myicro-access',
+  'skool-access',
+  'real-broker',
+  'socialpilot',
+  'ga4',
+  'gsc',
+  'gbp',
+  'telegram-inbound',
+```
+
 ### P1 lib/source-lifecycle-completion.js
 
-- Lines: 687
-- Bytes: 34792
-- Reasons: source_health_surface
+- Lines: 692
+- Bytes: 35107
+- Reasons: changed_since_baseline, source_health_surface
 
 ```
 import fs from 'node:fs/promises'
@@ -576,63 +804,6 @@ const CURRENT_REALITY_SOURCE_IDS = [
   'SRC-FREEDOM-COMMUNITY-001',
   'SRC-FREEDOM-COMMUNITY-REV-001',
   'SRC-FREEDOM-ENGINE-001',
-```
-
-### P1 lib/foundation-intelligence-audit-verifier.js
-
-- Lines: 677
-- Bytes: 36803
-- Reasons: changed_since_baseline
-
-```
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import {
-  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS,
-  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY,
-  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH,
-  BUILD_INTEL_EXTRACTION_IMPLEMENTATION_SCRIPT_PATH,
-  buildBuildIntelExtractionImplementationSnapshot,
-} from './build-intel-extraction-implementation.js'
-import {
-  CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS,
-  CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY,
-  CODE_QUALITY_NIGHTLY_AUDIT_JOB_KEY,
-  CODE_QUALITY_NIGHTLY_AUDIT_REPORT_PATH,
-  CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS,
-  CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH,
-  buildCodeQualityNightlyAudit,
-  buildSyntheticCodeQualityNightlyAuditProof,
-} from './code-quality-nightly-audit.js'
-import {
-  GSTACK_BUILD_INTEL_CARD_IDS,
-  GSTACK_BUILD_INTEL_CLOSEOUT_KEY,
-  GSTACK_BUILD_INTEL_EXPECTED_COMMIT,
-  GSTACK_BUILD_INTEL_REPORT_PATH,
-  GSTACK_BUILD_INTEL_SCRIPT_PATH,
-  buildGStackBuildIntelSnapshot,
-} from './gstack-build-intel.js'
-import {
-  IMPLEMENTATION_INTELLIGENCE_CARD_IDS,
-  IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY,
-  buildImplementationIntelligenceSnapshot,
-} from './implementation-intelligence.js'
-import {
-  buildFoundationJobRuntimeScheduleDogfoodProof,
-  getFoundationJobDefinitions,
-} from './foundation-jobs.js'
-import {
-  NIGHTLY_DEEP_AUDIT_APPROVAL_PATH,
-  NIGHTLY_DEEP_AUDIT_JOB_KEY,
-  NIGHTLY_DEEP_AUDIT_PLAN_PATH,
-  NIGHTLY_DEEP_AUDIT_SCRIPT_PATH,
-  NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID,
-  NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY,
-  buildNightlyDeepAuditUpgrade,
-  buildNightlyDeepAuditUpgradeDogfoodProof,
-} from './nightly-deep-audit-upgrade.js'
-
-export const VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID = 'VERIFIER-INTELLIGENCE-AUDIT-SPLIT-MODULE-001'
 ```
 
 ### P1 scripts/process-repair-verifier-sprint-check.mjs
@@ -692,6 +863,63 @@ async function openFormalSprint() {
     nextAction: 'Repair Connector/Routing doctrine records next; do not pull product work.',
 ```
 
+### P1 lib/verifier-behavior-sweep.js
+
+- Lines: 609
+- Bytes: 24545
+- Reasons: changed_since_baseline
+
+```
+import {
+  DRIVE_ACCESS_REQUEST_CARD_ID,
+  DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY,
+  DRIVE_ACCESS_REQUEST_SCRIPT_PATH,
+  buildSyntheticDriveAccessPreflightProof,
+} from './drive-access-preflight.js'
+import {
+  EXTRACT_RUN_HARDENING_CARD_ID,
+  EXTRACT_RUN_HARDENING_CLOSEOUT_KEY,
+  EXTRACT_RUN_HARDENING_SCRIPT_PATH,
+  buildSyntheticExtractionRunHardeningProof,
+} from './extraction-run-hardening.js'
+import {
+  FOUNDATION_DONE_TEST_CARD_ID,
+  FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
+  FOUNDATION_DONE_TEST_SCRIPT_PATH,
+  FOUNDATION_READINESS_GATE_CARDS,
+  buildFoundationReadinessStatus,
+} from './foundation-readiness-gates.js'
+import {
+  FOUNDATION_CURRENT_SPRINT_ID,
+  FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+  FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY,
+  FOUNDATION_SPRINT_SYSTEM_SCRIPT_PATH,
+  PLAN_CRITIC_REPLACEMENT_CARD_ID,
+  PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
+  PLAN_CRITIC_REPLACEMENT_SCRIPT_PATH,
+  SECURITY_BEHAVIOR_PROOF_CARD_ID,
+  SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
+  SECURITY_BEHAVIOR_PROOF_SCRIPT_PATH,
+  VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+  buildSyntheticFoundationCurrentSprintProof,
+} from './foundation-current-sprint.js'
+import {
+  MEETING_VAULT_ACL_CARD_ID,
+  MEETING_VAULT_ACL_CLOSEOUT_KEY,
+  MEETING_VAULT_ACL_SCRIPT_PATH,
+  buildSyntheticMeetingVaultAclProof,
+} from './meeting-vault-acl.js'
+import {
+  MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID,
+  MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
+  MEETING_VAULT_AUTO_ENFORCEMENT_SCRIPT_PATH,
+  buildSyntheticMeetingVaultAutoEnforcementProof,
+} from './meeting-vault-auto-enforcement.js'
+import {
+  PLAN_CRITIC_SUMMARY_MARKER,
+  buildSyntheticPlanCriticProof,
+```
+
 ### P1 scripts/process-foundation-sprint-system-check.mjs
 
 - Lines: 428
@@ -718,189 +946,6 @@ async function closeCardIfHealthy(summary) {
   if (summ
 ```
 
-### P1 scripts/process-meeting-vault-acl-check.mjs
-
-- Lines: 420
-- Bytes: 19207
-- Reasons: process_check_surface
-
-```
-
-async function updateMeetingBacklog(status, summary) {
-  const latestAutoEnforcement = await getLatestMeetingVaultAutoEnforcementRun({
-    cardId: MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID,
-  }).catch(() => null)
-  if (!status.cardCanClose &&
-    latestAutoEnforcement?.status === 'ready' &&
-    latestAutoEnforcement?.canCloseMeetingVaultAcl === true) {
-    await updateBacklogItem(MEETING_VAULT_ACL_CARD_ID, {
-      lane: 'done',
-      nextAction: 'Keep MEETING-VAULT-ACL-001 closed through the automatic forward-flow proof. Treat this legacy Phase A dry-run as evidence only; do not restart manual historical permission batches without a separate approved legacy-exception cleanup card.',
-      statusNote: `Closed on 2026-05-11 through \`${MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY}\`. Latest legacy Phase A dry-run remains evidence-only with dry-run hash ${summary.dryRunHash}; auto-enforcement report hash ${latestAutoEnforcement.reportHash}; no Google Drive emails or permission mutations were sent/applied by this proof.`,
-    }, 'meeting-vault-acl-check')
-    return
-  }
-
-  if (status.cardCanClose) {
-    await updateBacklogItem(MEETING_VAULT_ACL_CARD_ID, {
-      lane: 'done',
-      nextAction: 'Keep MEETING-VAULT-ACL-001 closed only while Phase A proves every protected in-scope original Gemini meeting note is already safe and every unknown file is classified. Any new unsafe protected share, missing Crewbert permission on an original, missing access, owner ambiguity, unknown classification, missing original, or unscanned file reopens the raw Drive ACL/vault readiness blocker.',
-      statusNote: `Closed on 2026-05-10 under \`${MEETING_VAULT_ACL_CLOSEOUT_KEY}\`. Source-truth Phase A dry-run proved every protected in-scope original Gemini meeting note already safe with dry-run hash ${summary.dryRunHash}; no Google Drive emails or permission mutations were sent/applied. Proof commands: \`npm run process:meeting-vault-acl-check\`, \`npm run process:foundation-done-test -- --report-only\`, \`npm run backlog:hygiene -- --json\`, and \`npm run foundation:verify\`.`,
-    }, 'meeting-vault-acl-check')
-    return
-  }
-
-  await updateBacklogItem(MEETING_VAULT_ACL_CARD_ID, {
-    lane: 'scoped',
-    nextAction: `Source-truth Phase A dry-run remains blocking. Dry-run hash ${summary.dryRunHash}; source roles=${JSON.stringify(summary.sourceFileRoleCounts || {})}; sensitivity classes=
-```
-
-### P1 scripts/process-meeting-vault-auto-enforcement-check.mjs
-
-- Lines: 402
-- Bytes: 17550
-- Reasons: process_check_surface
-
-```
-      proofOutputIsMetadataOnly: findings.every(finding => finding.check !== 'proof output is metadata-only'),
-      legacyExceptionsBounded: status.summary.legacyExceptionCount >= 0,
-    },
-  }
-}
-
-async function updateMeetingVaultBacklog(status) {
-  if (status.canCloseMeetingVaultAcl) {
-    await updateBacklogItem(MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID, {
-      lane: 'done',
-      nextAction: 'Keep automatic Meeting Vault enforcement in report-only proof mode until a separate live-enforcement approval exists. Review daily audit exceptions before any future Drive mutation.',
-      statusNote: `Closed on 2026-05-11 under \`${MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY}\`. V1 records the automatic forward-flow proof, no-duplicate Google Docs rule, source-truth original handling, Crewbert/access action queue, daily audit/legacy exception queue, and readiness close rule with report hash ${status.reportHash}. No historical cleanup batch, Drive permission mutation, request-access email, delete, move, ownership transfer, Strategy, Sales, Agent Feedback, Scoper, Agent Factory, broad corpus, researcher, public access, or UI polish shipped.`,
-    }, 'meeting-vault-auto-enforcement-check')
-    await updateBacklogItem(MEETING_VAULT_ACL_CARD_ID, {
-      lane: 'done',
-      nextAction: 'Keep MEETING-VAULT-ACL-001 closed only while the automatic Meeting Vault forward-flow proof stays green. New raw public/domain exposure, missing Crewbert on a forward original, unknown classification, owner ambiguity, missing access, duplicate Google Doc creation, or unbounded legacy exception queue reopens the blocker.',
-      statusNote: `Closed on 2026-05-11 through \`${MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY}\` readiness rule. Manual historical Drive batching is stopped; old messy files are bounded in the legacy exception queue and new original Gemini meeting notes are governed by automatic report-only enforcement proof. Report hash ${status.reportHash}; no Google Drive permission mutations or request-access emails were sent by this closeout.`,
-    }, 'meeting-vault-auto-enforcement-check')
-    return
-  }
-
-  await updateBacklogItem(MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID, {
-    lane: 'scoped',
-    nextAction: `Automatic Meeting Vault proof is still blocked: ${status.blockerReason || 'unknown'}. Report hash ${status.reportHash}; fix the named forward-flow or high-risk blocker, then r
-```
-
-### P1 scripts/process-sprint-stage-gate-check.mjs
-
-- Lines: 374
-- Bytes: 14790
-- Reasons: process_check_surface
-
-```
-#!/usr/bin/env node
-
-import fs from 'node:fs/promises'
-import process from 'node:process'
-import { Pool } from 'pg'
-
-import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
-import {
-  SPRINT_STAGE_GATE_CARD_ID,
-  SPRINT_STAGE_GATE_PLAN_PATH,
-  SPRINT_STAGE_GATE_APPROVAL_PATH,
-  SPRINT_STAGE_GATE_SCRIPT_PATH,
-  validateFoundationSprintStageGate,
-} from '../lib/foundation-current-sprint.js'
-import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
-import {
-  closeFoundationDb,
-  getActiveFoundationCurrentSprint,
-  getBacklogItemsByIds,
-  getPlanCriticRunsByCardIds,
-  initFoundationDb,
-} from '../lib/foundation-db.js'
-
-// liveTruthPosture: historical_closeout_only - this proof replays the closed control-plane sprint to validate stage gates.
-const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12'
-const CONNECTOR_ROUTING_SPRINT_ID = 'connector-routing-truth-2026-05-12'
-const CONNECTOR_ROUTING_CARD_IDS = [
-  'ATOM-PROMOTION-DIAGNOSE-001',
-  'SPRINT-DB-RECONCILE-001',
-  'VERIFY-GATE-TIERING-FIX-001',
-  'PLAN-CRITIC-LOG-001',
-  'SOURCE-CONNECTOR-MATRIX-001',
-  'SOURCE-HUB-ROUTING-MATRIX-001',
-]
-
-function parseArgs(argv = process.argv.slice(2)) {
-  const args = {}
-  for (const arg of argv) {
-    if (!arg.startsWith('--')) continue
-    const [key, ...rawValue] = arg.slice(2).split('=')
-    args[key] = rawValue.length ? rawValue.join('=') : 'true'
-  }
-  return args
-}
-
-function boolArg(value) {
-  return value === true || String(value || '').toLowerCase() === 'true'
-}
-```
-
-### P1 scripts/process-foundation-sprint-cadence-check.mjs
-
-- Lines: 358
-- Bytes: 19310
-- Reasons: process_check_surface
-
-```
-    /https:\/\/docs\.google\.com/i,
-    /emailAddress/i,
-  ]
-  return forbidden.filter(pattern => pattern.test(proofText)).map(pattern => String(pattern))
-}
-
-async function closeCardIfHealthy(summary) {
-  if (summary.status !== 'healthy') return
-  await updateBacklogItem(FOUNDATION_SPRINT_CADENCE_CARD_ID, {
-    lane: 'done',
-    nextAction: 'Use Current Sprint as the command view. The active sprint reset now pulls REBUILD-PLAN-RECONCILE-001 after VERIFY-GATE-TIERING-001; do not run Meeting Vault Phase B, mutate Drive permissions, or send request-access emails without separate approval.',
-    statusNote: 'Closed on 2026-05-10 under `foundation-sprint-cadence-v1`. V1 adds a Current Sprint command view at the top of Recent Work with executive summary, sprint goal, current status, next card, current blocker, exit criteria, Scoping/Sprint Ready/Building Now/Returned/Done This Sprint stage rows, card definition of done, proof commands, returned reason, and next action. It updates the central sprint cadence payload, focused proof, package/verifier coverage, process doc, and rebuild state. This does not build Meeting Vault Phase B, mutate Drive permissions, send request-access emails, build broad sprint analytics, or perform broad UI polish.',
-  }, 'foundation-sprint-cadence-check')
-}
-
-async function main() {
-  const args = parseArgs()
-  const jsonOnly = boolArg(args.json)
-  const apply = boolArg(args.apply)
-  const baseUrl = String(args.baseUrl || process.env.FOUNDATION_BASE_URL || 'http://localhost:3000')
-  const repoHead = await currentHead()
-
-  await initFoundationDb()
-  try {
-    const buildingSprint = await getActiveFoundationCurrentSprint()
-    const cardIds = [
-      ...FOUNDATION_CURRENT_SPRINT_ACTIVE_CARD_IDS,
-      FOUNDATION_SPRINT_SYSTEM_CARD_ID,
-      FOUNDATION_SPRINT_CADENCE_CARD_ID,
-      'MEETING-VAULT-ACL-001',
-      FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
-      FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
-    ]
-    const buildingCards = await getBacklogItemsByIds(cardIds)
-    const buildingStatus = buildFoundationCurrentSprintStatus({
-      sprint: buildingSprint.sprint,
-      items: buildingSprint.items,
-      backlogItems: buildingCards,
-      closeouts: getFoundationBuildCloseouts(),
-    })
-
-    const packageJson = await readJson('package.json')
-    const [
-      planSource,
-      docSource,
-      approvalSource,
-      moduleSource,
-```
-
 ## Top Deterministic Findings
 
 - P0 focused-check-active-sprint-id-assumption: Focused checks assert exact dated active sprint IDs -> SPRINT-CHECK-HISTORICAL-MODE-001
@@ -921,6 +966,16 @@ async function main() {
 - P0 process-check-side-effect-risk: Process/check path contains write side effects -> PROCESS-CHECK-READONLY-MODE-001
 - P0 process-check-side-effect-risk: Process/check path contains write side effects -> PROCESS-CHECK-READONLY-MODE-001
 - P0 process-check-side-effect-risk: Process/check path contains write side effects -> PROCESS-CHECK-READONLY-MODE-001
+
+## Doc / Report Artifact Bloat
+
+- Status: `watch`
+- Handoff files: 165
+- Handoff hot lines: 20855
+- Nightly artifacts: 6
+- Red/yellow findings: 0/1
+
+- P1 docs/handoffs is growing past the hot-doc budget: docs/handoffs contains 20855 line(s); budget is 20000/35000 warn/risk.
 
 ## Dogfood Proof
 
@@ -945,12 +1000,12 @@ async function main() {
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-16T18:54:36.308Z`
+Generated at: `2026-05-16T23:24:37.410Z`
 
 ## Morning Read
 
 - Status: `report_ready`
-- Findings: 55 total (40 P0, 8 P1, 7 P2, 0 P3)
+- Findings: 57 total (42 P0, 8 P1, 7 P2, 0 P3)
 - Proposed backlog fixes: 17
 - Detection mode: deterministic code first; no LLM detection used.
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work.
@@ -958,11 +1013,11 @@ Generated at: `2026-05-16T18:54:36.308Z`
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=81ms payload=583796B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=18ms payload=134286B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=370ms payload=650307B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=72ms payload=322407B risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: status=200 latency=82ms payload=33955B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=92ms payload=576894B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=15ms payload=138931B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=376ms payload=622830B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=82ms payload=339259B risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: status=200 latency=81ms payload=33955B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
 
@@ -978,19 +1033,19 @@ Assets:
 - public/foundation-current-state-renderers.js: 44753B raw, 9670B gzip, 1162 lines
 - public/foundation-decision-question-renderers.js: 52409B raw, 9280B gzip, 1443 lines
 - public/foundation-source-lifecycle-renderers.js: 65313B raw, 9812B gzip, 1498 lines
-- public/foundation-runtime-renderers.js: 73335B raw, 16053B gzip, 1782 lines
-- public/foundation-operations-renderers.js: 51026B raw, 10833B gzip, 1210 lines
+- public/foundation-runtime-renderers.js: 77535B raw, 16762B gzip, 1862 lines
+- public/foundation-operations-renderers.js: 51556B raw, 10950B gzip, 1218 lines
 - public/foundation-router.js: 5221B raw, 1498B gzip, 192 lines
 
 DOM budget:
 - status=review, scripts=12, createElement=1600, appendChild=2050, innerHTML=63
 
 Largest files:
-- scripts/foundation-verify.mjs: 12963 LOC, 733310B
+- scripts/foundation-verify.mjs: 13043 LOC, 739886B
+- lib/foundation-build-closeout-overnight-records.js: 4934 LOC, 398462B
 - public/foundation.js: 4910 LOC, 174221B
-- server.js: 4830 LOC, 160358B
+- server.js: 4832 LOC, 160473B
 - lib/foundation-db.js: 4735 LOC, 215243B
-- lib/foundation-build-closeout-overnight-records.js: 4676 LOC, 380707B
 - lib/foundation-backlog-seed.js: 4652 LOC, 477958B
 - lib/foundation-build-closeout-records.js: 4328 LOC, 297517B
 - public/styles-foundation-workflows.css: 2591 LOC, 50351B
@@ -1018,7 +1073,7 @@ Largest files:
 ### P0 Foundation verifier is one large execution surface
 - Card lane: `FOUNDATION-MONOLITH-RISK-AUDIT-001`
 - Type: `refactor_candidate`
-- Evidence: `scripts/foundation-verify.mjs:2194`
+- Evidence: `scripts/foundation-verify.mjs:2208`
 - Why it matters: Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.
 - Proposed owner/card: Foundation Engineering / `FOUNDATION-VERIFY-REGISTRY-SPLIT-001`
 - Detector: largest file/function ownership detector
@@ -1099,6 +1154,15 @@ Largest files:
 ### P0 Process/check path contains write side effects
 - Card lane: `SPRINT-STATE-MUTATION-AUDIT-001`
 - Type: `drift_risk`
+- Evidence: `scripts/process-doc-artifact-bloat-guard-check.mjs:42`
+- Why it matters: Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.
+- Proposed owner/card: Foundation Process / `PROCESS-CHECK-READONLY-MODE-001`
+- Detector: process script mutator pattern detector
+- False-positive note: Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.
+
+### P0 Process/check path contains write side effects
+- Card lane: `SPRINT-STATE-MUTATION-AUDIT-001`
+- Type: `drift_risk`
 - Evidence: `scripts/process-drive-access-request-check.mjs:166`
 - Why it matters: Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.
 - Proposed owner/card: Foundation Process / `PROCESS-CHECK-READONLY-MODE-001`
@@ -1150,15 +1214,6 @@ Largest files:
 - Detector: process script mutator pattern detector
 - False-positive note: Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.
 
-### P0 Process/check path contains write side effects
-- Card lane: `SPRINT-STATE-MUTATION-AUDIT-001`
-- Type: `drift_risk`
-- Evidence: `scripts/process-gstack-build-intel-check.mjs:90`
-- Why it matters: Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.
-- Proposed owner/card: Foundation Process / `PROCESS-CHECK-READONLY-MODE-001`
-- Detector: process script mutator pattern detector
-- False-positive note: Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.
-
 ## Findings By Sprint Card
 
 - `CODEBASE-HARDCODE-AUDIT-001`: 6 findings
@@ -1166,7 +1221,7 @@ Largest files:
 - `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 1 finding
 - `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 5 findings
 - `VERIFIER-ASSUMPTION-REGISTRY-001`: 3 findings
-- `SPRINT-STATE-MUTATION-AUDIT-001`: 38 findings
+- `SPRINT-STATE-MUTATION-AUDIT-001`: 40 findings
 - `NIGHTLY-AUDIT-REPORT-001`: 0 findings
 
 ## Proposed Backlog Fixes

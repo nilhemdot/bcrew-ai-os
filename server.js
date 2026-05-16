@@ -260,6 +260,7 @@ import { registerHubReadRoutes } from './lib/hub-read-routes.js'
 import { registerStrategySharedCommsRoutes } from './lib/strategy-shared-comms-routes.js'
 import { registerFoundationWriteRoutes } from './lib/foundation-write-routes.js'
 import { registerAgentFeedbackRoutes } from './lib/agent-feedback-routes.js'
+import { buildDocArtifactBloatSnapshot } from './lib/doc-artifact-bloat-guard.js'
 import { callEmbedding } from './lib/llm-router.js'
 import { buildAgentRosterReviewQueue, CLICKUP_AGENT_ROSTER_LIST_ID } from './lib/agent-roster-review.js'
 import { assertAgentFeedbackSecretConfigured, verifyAgentFeedbackToken } from './lib/agent-feedback.js'
@@ -4183,6 +4184,7 @@ registerHubReadRoutes(app, {
   buildGStackBuildIntelSnapshot,
   buildFoundationOperatingReliabilitySnapshot,
   loadLatestFoundationEndpointBudgetSnapshot,
+  buildDocArtifactBloatSnapshot,
   buildFoundationUiCompleteSnapshot,
   getSalesHubPayload,
 })

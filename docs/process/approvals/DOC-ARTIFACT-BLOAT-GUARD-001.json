@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DOC-ARTIFACT-BLOAT-GUARD-001",
+  "approvedBy": "Steve keep-going instruction + Codex no-auth Foundation cleanup review",
+  "approvedAt": "2026-05-16T23:21:34.767Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/doc-artifact-bloat-guard-001-plan.md",
+  "approvedRepoHead": "03b067c3f7bfb9f159522232b48b2e894f4f5a29",
+  "notes": "Approved as a no-auth Foundation cleanup card to prevent handoff, process-doc, approval, and audit artifacts from becoming the next monolith class. Scope is report-only with dogfood proof; no auto-archive, delete, rewrite, or backlog mutation.",
+  "approvedPlanSha256": "045981be50df4f505839e1c2d946e96efa0b9756a0412b87aad27cee9b5851ab",
+  "approvalDigest": "6e84f96a520d3cfb1359d813184a6e9fff424d2aa70c7024cd371bb418004343"
+}

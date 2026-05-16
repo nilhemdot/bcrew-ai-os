@@ -42,6 +42,7 @@ import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertCurrentProcessCheckWriteAllowed,
 } from '../lib/process-write-guard.js'
+import { buildDocArtifactBloatSnapshot } from '../lib/doc-artifact-bloat-guard.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -102,6 +103,7 @@ async function main() {
     runtimeRendererSource,
     operationsRendererSource,
     planCriticRuns,
+    docArtifactBloat,
   ] = await Promise.all([
     validatePlanApprovalFile({ repoRoot, approvalRef: SYSTEM_HEALTH_NIGHTLY_AUDIT_APPROVAL_PATH, cardId: SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID }),
     validatePlanApprovalFile({ repoRoot, approvalRef: SCHEDULED_JOB_STALENESS_DASHBOARD_APPROVAL_PATH, cardId: SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID }),
@@ -117,6 +119,7 @@ async function main() {
     readText('public/foundation-runtime-renderers.js'),
     readText('public/foundation-operations-renderers.js'),
     getPlanCriticRunsByCardIds([SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID, SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID]),
+    buildDocArtifactBloatSnapshot({ repoRoot }),
   ])
 
   const packageJson = JSON.parse(packageJsonSource)
@@ -146,6 +149,7 @@ async function main() {
     endpointBudgets,
     currentSprintStatus,
     sourceContracts: getSourceContracts(),
+    docArtifactBloat,
   })
   const dogfood = buildFoundationSystemHealthDogfoodProof()
   const scheduledJobs = buildScheduledJobStalenessSnapshot({ foundationJobs })
@@ -179,6 +183,7 @@ async function main() {
   addCheck(checks, jobDefinition?.key === SYSTEM_HEALTH_NIGHTLY_AUDIT_JOB_KEY && jobDefinition.runtimeMode === 'scheduled' && jobDefinition.mutationPosture === 'report_only' && jobDefinition.scheduleLocalTime === '05:15', 'system-health nightly job is scheduled report-only after nightly audit window', jobDefinition ? `${jobDefinition.runtimeMode}/${jobDefinition.scheduleLocalTime}/${jobDefinition.mutationPosture}` : 'missing job')
   addCheck(checks, dogfood.ok === true, 'dogfood makes missed scheduled jobs red and fresh jobs green', dogfood.checks.filter(check => !check.ok).map(check => check.check).join(', ') || 'all dogfood checks passed')
   addCheck(checks, systemHealth.reportOnly === true && systemHealth.autoFixes === false && systemHealth.writesBacklog === false && systemHealth.writesSourceSystems === false, 'system-health snapshot is report-only and non-mutating', `status=${systemHealth.status}`)
+  addCheck(checks, systemHealth.docArtifactBloat?.summary?.artifactCount > 0 && Number.isFinite(systemHealth.summary?.docArtifactRiskCount), 'system-health snapshot includes doc/report bloat rollup', `artifacts=${systemHealth.docArtifactBloat?.summary?.artifactCount || 0} risk=${systemHealth.summary?.docArtifactRiskCount || 0}`)
   addCheck(checks, scheduledJobs.rows.some(row => row.key === 'foundation-verify') && scheduledJobs.rows.some(row => row.key === 'nightly-deep-audit'), 'scheduled-job snapshot includes verifier and nightly auditor rows', scheduledJobs.rows.slice(0, 8).map(row => row.key).join(', '))
   addCheck(checks, moduleSource.includes('buildFoundationSystemHealthSnapshot') && moduleSource.includes('buildScheduledJobStalenessSnapshot') && moduleSource.includes('buildFoundationSystemHealthReportMarkdown'), 'system-health module owns snapshot, staleness, and report behavior', 'lib/foundation-system-health.js')
   addCheck(checks, hubReadRoutesSource.includes('foundationSystemHealth'), 'Foundation full hub payload includes foundationSystemHealth', 'lib/hub-read-routes.js')

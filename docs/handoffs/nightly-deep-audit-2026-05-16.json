@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-05-16T18:54:35.779Z",
+  "generatedAt": "2026-05-16T23:24:36.876Z",
   "reportPath": "docs/handoffs/nightly-deep-audit-2026-05-16.md",
   "jsonPath": "docs/handoffs/nightly-deep-audit-2026-05-16.json",
   "cardId": "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
   "closeoutKey": "nightly-deep-audit-upgrade-v1",
   "summary": {
-    "findingCount": 55,
-    "p0": 40,
+    "findingCount": 57,
+    "p0": 42,
     "p1": 8,
     "p2": 7,
     "p3": 0,
@@ -19,8 +19,8 @@
       "endpoint": "/api/foundation-hub",
       "ok": true,
       "status": 200,
-      "durationMs": 81.11287499999997,
-      "payloadBytes": 583796,
+      "durationMs": 91.62212499999998,
+      "payloadBytes": 576894,
       "timeout": false,
       "timeoutMs": 8000,
       "cacheControl": "no-store",
@@ -34,8 +34,8 @@
       "endpoint": "/api/source-of-truth",
       "ok": true,
       "status": 200,
-      "durationMs": 18.118916000000013,
-      "payloadBytes": 134286,
+      "durationMs": 15.278083999999978,
+      "payloadBytes": 138931,
       "timeout": false,
       "timeoutMs": 8000,
       "cacheControl": "",
@@ -49,8 +49,8 @@
       "endpoint": "/api/foundation/source-lifecycle",
       "ok": true,
       "status": 200,
-      "durationMs": 370.24933300000004,
-      "payloadBytes": 650307,
+      "durationMs": 375.82441700000004,
+      "payloadBytes": 622830,
       "timeout": false,
       "timeoutMs": 8000,
       "cacheControl": "no-store",
@@ -64,8 +64,8 @@
       "endpoint": "/api/foundation/build-log",
       "ok": true,
       "status": 200,
-      "durationMs": 72.33516699999996,
-      "payloadBytes": 322407,
+      "durationMs": 81.64979199999993,
+      "payloadBytes": 339259,
       "timeout": false,
       "timeoutMs": 8000,
       "cacheControl": "",
@@ -79,7 +79,7 @@
       "endpoint": "/api/foundation/gstack-build-intel",
       "ok": true,
       "status": 200,
-      "durationMs": 81.66812499999997,
+      "durationMs": 80.64645900000005,
       "payloadBytes": 33955,
       "timeout": false,
       "timeoutMs": 8000,
@@ -179,7 +179,7 @@
       "refs": [
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 2194,
+          "line": 2208,
           "detail": ""
         }
       ],
@@ -348,6 +348,27 @@
         {
           "path": "scripts/process-decision-restricted-queue-check.mjs",
           "line": 142,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-doc-artifact-bloat-guard-check.mjs",
+          "line": 42,
           "detail": ""
         }
       ],
@@ -892,6 +913,27 @@
       "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
       "refs": [
         {
+          "path": "scripts/process-system-health-nightly-audit-check.mjs",
+          "line": 73,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
           "path": "scripts/process-tier-behavioral-completion-check.mjs",
           "line": 141,
           "detail": ""
@@ -914,7 +956,7 @@
       "refs": [
         {
           "path": "scripts/process-verification-runs-check.mjs",
-          "line": 166,
+          "line": 173,
           "detail": ""
         }
       ],
@@ -970,6 +1012,11 @@
           "detail": "nightly-deep-audit"
         },
         {
+          "path": "scripts/process-system-health-nightly-audit-check.mjs",
+          "line": 0,
+          "detail": "system-health-nightly-audit"
+        },
+        {
           "path": "scripts/review-admin-deals.mjs",
           "line": 0,
           "detail": "admin-deal-review-readonly"
@@ -997,42 +1044,42 @@
       "refs": [
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 3879,
+          "line": 3900,
           "detail": "historicalCardHasVerifiedCloseout"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 3929,
+          "line": 3950,
           "detail": "activeSprintAtOrPast"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 3931,
+          "line": 3952,
           "detail": "historicalCardHasVerifiedCloseout"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 6881,
+          "line": 6905,
           "detail": "historicalCardHasVerifiedCloseout"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 8588,
+          "line": 8612,
           "detail": "activeSprintAtOrPast"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 8632,
+          "line": 8656,
           "detail": "Current Sprint active blocker advanced"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 8644,
+          "line": 8668,
           "detail": "activeSprintAtOrPast"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 8699,
+          "line": 8723,
           "detail": "Current Sprint active blocker advanced"
         }
       ],
@@ -1137,7 +1184,7 @@
       "refs": [
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 7888,
+          "line": 7912,
           "detail": ""
         }
       ],
@@ -1200,27 +1247,27 @@
       "refs": [
         {
           "path": "lib/foundation-jobs.js",
-          "line": 910,
+          "line": 950,
           "detail": "--backlog-since="
         },
         {
           "path": "lib/foundation-jobs.js",
-          "line": 910,
+          "line": 950,
           "detail": "2025-06-01"
         },
         {
           "path": "lib/foundation-jobs.js",
-          "line": 913,
+          "line": 953,
           "detail": "June 2025"
         },
         {
           "path": "lib/foundation-jobs.js",
-          "line": 913,
+          "line": 953,
           "detail": "2026-04-01"
         },
         {
           "path": "lib/foundation-jobs.js",
-          "line": 914,
+          "line": 954,
           "detail": "June 2025"
         },
         {
@@ -1276,22 +1323,22 @@
         },
         {
           "path": "lib/source-lifecycle-completion.js",
-          "line": 662,
+          "line": 667,
           "detail": "9.8"
         },
         {
           "path": "lib/source-lifecycle-completion.js",
-          "line": 662,
+          "line": 667,
           "detail": "9.8"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 6440,
+          "line": 6464,
           "detail": "9.8"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 6441,
+          "line": 6465,
           "detail": "9.8"
         }
       ],
@@ -1359,7 +1406,7 @@
       "refs": [
         {
           "path": "server.js",
-          "line": 334,
+          "line": 335,
           "detail": ""
         },
         {
@@ -1462,8 +1509,17 @@
         "actively_dangerous_10k_plus_file",
         "verifier_trust_surface"
       ],
-      "lines": 12963,
-      "bytes": 733310
+      "lines": 13043,
+      "bytes": 739886
+    },
+    {
+      "file": "lib/foundation-build-closeout-overnight-records.js",
+      "severity": "P1",
+      "reasons": [
+        "over_3k_warn"
+      ],
+      "lines": 4934,
+      "bytes": 398462
     },
     {
       "file": "public/foundation.js",
@@ -1482,8 +1538,8 @@
         "over_3k_warn",
         "hot_route_surface"
       ],
-      "lines": 4830,
-      "bytes": 160358
+      "lines": 4832,
+      "bytes": 160473
     },
     {
       "file": "lib/foundation-db.js",
@@ -1494,16 +1550,6 @@
       ],
       "lines": 4735,
       "bytes": 215243
-    },
-    {
-      "file": "lib/foundation-build-closeout-overnight-records.js",
-      "severity": "P1",
-      "reasons": [
-        "changed_since_baseline",
-        "over_3k_warn"
-      ],
-      "lines": 4676,
-      "bytes": 380707
     },
     {
       "file": "lib/foundation-backlog-seed.js",
@@ -1529,8 +1575,17 @@
       "reasons": [
         "changed_since_baseline"
       ],
-      "lines": 1338,
-      "bytes": 57574
+      "lines": 1378,
+      "bytes": 59480
+    },
+    {
+      "file": "lib/google-delegated.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 1050,
+      "bytes": 35190
     },
     {
       "file": "lib/kpi-health.js",
@@ -1547,26 +1602,47 @@
       "reasons": [
         "source_health_surface"
       ],
-      "lines": 901,
-      "bytes": 35040
+      "lines": 967,
+      "bytes": 37796
+    },
+    {
+      "file": "lib/source-lifecycle.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "source_health_surface"
+      ],
+      "lines": 889,
+      "bytes": 37578
+    },
+    {
+      "file": "scripts/run-extraction-target.mjs",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 781,
+      "bytes": 26106
+    },
+    {
+      "file": "lib/connector-credential-registry.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "source_health_surface"
+      ],
+      "lines": 739,
+      "bytes": 28731
     },
     {
       "file": "lib/source-lifecycle-completion.js",
       "severity": "P1",
       "reasons": [
+        "changed_since_baseline",
         "source_health_surface"
       ],
-      "lines": 687,
-      "bytes": 34792
-    },
-    {
-      "file": "lib/foundation-intelligence-audit-verifier.js",
-      "severity": "P1",
-      "reasons": [
-        "changed_since_baseline"
-      ],
-      "lines": 677,
-      "bytes": 36803
+      "lines": 692,
+      "bytes": 35107
     },
     {
       "file": "scripts/process-repair-verifier-sprint-check.mjs",
@@ -1578,6 +1654,15 @@
       "bytes": 33008
     },
     {
+      "file": "lib/verifier-behavior-sweep.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 609,
+      "bytes": 24545
+    },
+    {
       "file": "scripts/process-foundation-sprint-system-check.mjs",
       "severity": "P1",
       "reasons": [
@@ -1585,42 +1670,6 @@
       ],
       "lines": 428,
       "bytes": 22842
-    },
-    {
-      "file": "scripts/process-meeting-vault-acl-check.mjs",
-      "severity": "P1",
-      "reasons": [
-        "process_check_surface"
-      ],
-      "lines": 420,
-      "bytes": 19207
-    },
-    {
-      "file": "scripts/process-meeting-vault-auto-enforcement-check.mjs",
-      "severity": "P1",
-      "reasons": [
-        "process_check_surface"
-      ],
-      "lines": 402,
-      "bytes": 17550
-    },
-    {
-      "file": "scripts/process-sprint-stage-gate-check.mjs",
-      "severity": "P1",
-      "reasons": [
-        "process_check_surface"
-      ],
-      "lines": 374,
-      "bytes": 14790
-    },
-    {
-      "file": "scripts/process-foundation-sprint-cadence-check.mjs",
-      "severity": "P1",
-      "reasons": [
-        "process_check_surface"
-      ],
-      "lines": 358,
-      "bytes": 19310
     }
   ],
   "diff": {
@@ -1736,5 +1785,37 @@
       ],
       "severity": "P0"
     }
+  },
+  "docArtifactBloat": {
+    "status": "watch",
+    "summary": {
+      "artifactCount": 812,
+      "handoffFileCount": 165,
+      "handoffLineTotal": 20855,
+      "recentHandoffFileCount": 164,
+      "nightlyArtifactCount": 6,
+      "riskCount": 0,
+      "reviewCount": 1
+    },
+    "topFindings": [
+      {
+        "id": "doc_artifact_handoff_directory_line_budget",
+        "severity": "P1",
+        "status": "watch",
+        "title": "docs/handoffs is growing past the hot-doc budget",
+        "detail": "docs/handoffs contains 20855 line(s); budget is 20000/35000 warn/risk.",
+        "nextAction": "Archive cold detail or replace repeated large reports with monthly summaries.",
+        "path": "docs/handoffs",
+        "className": "handoff_directory",
+        "budgetKey": "totalLines",
+        "value": 20855,
+        "budget": {
+          "warn": 20000,
+          "risk": 35000
+        },
+        "autoFix": false,
+        "autoBacklogMutation": false
+      }
+    ]
   }
 }

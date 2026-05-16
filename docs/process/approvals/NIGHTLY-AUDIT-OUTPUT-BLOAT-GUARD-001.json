@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "NIGHTLY-AUDIT-OUTPUT-BLOAT-GUARD-001",
+  "approvedBy": "Steve keep-going instruction + Codex no-auth Foundation cleanup review",
+  "approvedAt": "2026-05-16T23:21:34.767Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/doc-artifact-bloat-guard-001-plan.md",
+  "approvedRepoHead": "03b067c3f7bfb9f159522232b48b2e894f4f5a29",
+  "notes": "Approved as a no-auth Foundation cleanup card to budget nightly audit markdown/json output and keep the morning review loop diff-oriented. Scope is report-only with dogfood proof; no auto-archive, delete, rewrite, or backlog mutation.",
+  "approvedPlanSha256": "045981be50df4f505839e1c2d946e96efa0b9756a0412b87aad27cee9b5851ab",
+  "approvalDigest": "7425004aed6c119775f27f4c76fd26b74ec38a0647252f37b6b60ca79fb312a5"
+}
