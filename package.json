@@ -130,6 +130,7 @@
     "process:foundation-source-crawl-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-source-crawl-store-split-check.mjs",
     "process:foundation-drive-meeting-vault-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-drive-meeting-vault-store-split-check.mjs",
     "process:foundation-agent-feedback-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-agent-feedback-store-split-check.mjs",
+    "process:foundation-sales-listing-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-sales-listing-store-split-check.mjs",
     "process:canva-client-check": "node --env-file-if-exists=.env scripts/process-canva-client-check.mjs",
     "process:frontend-monolith-split-check": "node --env-file-if-exists=.env scripts/process-frontend-monolith-split-check.mjs",
     "process:frontend-operations-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-operations-renderers-split-check.mjs",

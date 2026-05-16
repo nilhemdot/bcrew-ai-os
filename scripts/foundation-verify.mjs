@@ -360,6 +360,10 @@ import {
   FOUNDATION_AGENT_FEEDBACK_STORE_SPLIT_SCRIPT_PATH,
 } from '../lib/foundation-agent-feedback-store.js'
 import {
+  FOUNDATION_SALES_LISTING_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_SALES_LISTING_STORE_SPLIT_SCRIPT_PATH,
+} from '../lib/foundation-sales-listing-store.js'
+import {
   FUB_SOURCE_ROUTE_SPLIT_APPROVAL_PATH,
   FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES,
   FUB_SOURCE_ROUTE_SPLIT_CARD_ID,
@@ -2598,6 +2602,9 @@ async function main() {
   const foundationAgentFeedbackStoreSource = await readRepoFile('lib/foundation-agent-feedback-store.js')
   const foundationAgentFeedbackStoreScriptSource = await readRepoFile(FOUNDATION_AGENT_FEEDBACK_STORE_SPLIT_SCRIPT_PATH)
   const foundationAgentFeedbackStorePlanSource = await readRepoFile(FOUNDATION_AGENT_FEEDBACK_STORE_SPLIT_PLAN_PATH)
+  const foundationSalesListingStoreSource = await readRepoFile('lib/foundation-sales-listing-store.js')
+  const foundationSalesListingStoreScriptSource = await readRepoFile(FOUNDATION_SALES_LISTING_STORE_SPLIT_SCRIPT_PATH)
+  const foundationSalesListingStorePlanSource = await readRepoFile(FOUNDATION_SALES_LISTING_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -12711,6 +12718,9 @@ async function main() {
     foundationAgentFeedbackStoreSource,
     foundationAgentFeedbackStoreScriptSource,
     foundationAgentFeedbackStorePlanSource,
+    foundationSalesListingStoreSource,
+    foundationSalesListingStoreScriptSource,
+    foundationSalesListingStorePlanSource,
     moduleSource: foundationDbSplitVerifierSource,
     repoFileExists,
   }

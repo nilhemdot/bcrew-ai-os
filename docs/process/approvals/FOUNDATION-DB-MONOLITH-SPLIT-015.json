@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-015",
+  "approvedPlanRef": "docs/process/foundation-db-sales-listing-store-split-015-plan.md",
+  "approvedPlanSha256": "08e5caf261b4f9804f55bedcf221e9428dc130624e0fe664c4e94500b96c4212",
+  "approvedRepoHead": "735a191efac907a905e7aa25e2c436e7ea0f1447",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T06:54:31.714Z",
+  "score": 10,
+  "notes": "Approved bounded Foundation DB Sales Listing store split. No ClickUp read, ClickUp writeback, schema change, route behavior change, Sales Hub UI change, listing sync cadence change, source extraction, Canva work, hub feature work, paid-source auth, or live connector calls.",
+  "approvalDigest": "4ddc7e3fc988f0a0021b0642346cefe08a3a8ea8a1f84d80475a8b5c6025c263"
+}
