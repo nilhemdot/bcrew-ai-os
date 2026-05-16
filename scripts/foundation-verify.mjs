@@ -186,6 +186,15 @@ import {
   loadLatestFoundationEndpointBudgetSnapshot,
 } from '../lib/foundation-endpoint-budgets.js'
 import {
+  FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID,
+  FOUNDATION_FRONTEND_ASSET_BUDGET_CLOSEOUT_KEY,
+  FOUNDATION_FRONTEND_ASSET_BUDGET_PLAN_PATH,
+  FOUNDATION_FRONTEND_ASSET_BUDGET_SCRIPT_PATH,
+  FOUNDATION_FRONTEND_ASSET_BUDGET_SPRINT_ID,
+  buildFoundationFrontendAssetBudgetDogfoodProof,
+  measureFoundationFrontendAssetsFromRepo,
+} from '../lib/foundation-frontend-asset-budgets.js'
+import {
   VERIFIER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID,
   VERIFIER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY,
@@ -2678,9 +2687,13 @@ async function main() {
   const sourceOfTruthPayloadSource = await readRepoFile('lib/source-of-truth-payload.js')
   const foundationHubSummaryPayloadSource = await readRepoFile('lib/foundation-hub-summary-payload.js')
   const foundationRouteBudgetCleanupScriptSource = await readRepoFile('scripts/process-foundation-route-budget-cleanup-check.mjs')
+  const codeQualityNightlyAuditSource = await readRepoFile('lib/code-quality-nightly-audit.js')
   const foundationEndpointBudgetsSource = await readRepoFile('lib/foundation-endpoint-budgets.js')
   const foundationEndpointBudgetsScriptSource = await readRepoFile(FOUNDATION_ENDPOINT_BUDGETS_SCRIPT_PATH)
   const foundationEndpointBudgetsPlanSource = await readRepoFile(FOUNDATION_ENDPOINT_BUDGETS_PLAN_PATH)
+  const foundationFrontendAssetBudgetsSource = await readRepoFile('lib/foundation-frontend-asset-budgets.js')
+  const foundationFrontendAssetBudgetsScriptSource = await readRepoFile(FOUNDATION_FRONTEND_ASSET_BUDGET_SCRIPT_PATH)
+  const foundationFrontendAssetBudgetsPlanSource = await readRepoFile(FOUNDATION_FRONTEND_ASSET_BUDGET_PLAN_PATH)
   const kpiSourceNote = await readRepoFile('docs/source-notes/kpi-dashboard.md')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
@@ -11457,6 +11470,49 @@ async function main() {
       serverSource.includes("from './lib/foundation-endpoint-budgets.js'"),
     'FOUNDATION-ENDPOINT-BUDGETS-001 persists endpoint metrics into nightly JSON and full Foundation Operating Reliability',
     `latestSource=${foundationEndpointBudgetLatestSnapshot.sourcePath || foundationEndpointBudgetLatestSnapshot.source}`,
+  )
+  const foundationFrontendAssetBudgetCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID) || null
+  const foundationFrontendAssetBudgetDogfood = buildFoundationFrontendAssetBudgetDogfoodProof()
+  const foundationFrontendAssetBudgetSnapshot = await measureFoundationFrontendAssetsFromRepo({ repoRoot })
+  const foundationFrontendAssetBudgetCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_FRONTEND_ASSET_BUDGET_CLOSEOUT_KEY) || null
+  const foundationFrontendAssetBudgetClosed = foundationFrontendAssetBudgetCard?.lane === 'done'
+  const foundationFrontendAssetBudgetCloseoutOk = !foundationFrontendAssetBudgetClosed ||
+    (String(foundationFrontendAssetBudgetCard.statusNote || '').includes(FOUNDATION_FRONTEND_ASSET_BUDGET_CLOSEOUT_KEY) &&
+      foundationFrontendAssetBudgetCloseout?.operatorCloseout === true &&
+      (foundationFrontendAssetBudgetCloseout.backlogIds || []).includes(FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID) &&
+      await repoFileExists('docs/handoffs/2026-05-16-foundation-frontend-asset-budget-closeout.md'))
+  ensure(
+    checks,
+    foundationFrontendAssetBudgetCard &&
+      ['executing', 'done'].includes(foundationFrontendAssetBudgetCard.lane) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_FRONTEND_ASSET_BUDGET_SPRINT_ID || foundationFrontendAssetBudgetClosed) &&
+      foundationFrontendAssetBudgetCloseoutOk &&
+      foundationFrontendAssetBudgetDogfood.ok === true &&
+      foundationFrontendAssetBudgetSnapshot.summary?.assetCount >= 4 &&
+      foundationFrontendAssetBudgetSnapshot.summary?.riskCount === 0,
+    'FOUNDATION-FRONTEND-ASSET-BUDGET-001 tracks served Foundation JS/CSS asset budgets',
+    foundationFrontendAssetBudgetCard
+      ? `lane=${foundationFrontendAssetBudgetCard.lane} dogfood=${foundationFrontendAssetBudgetDogfood.ok ? 'pass' : 'blocked'} repo=${foundationFrontendAssetBudgetSnapshot.status} assets=${foundationFrontendAssetBudgetSnapshot.summary?.assetCount || 0} total=${foundationFrontendAssetBudgetSnapshot.summary?.totalBytes || 0}B`
+      : `missing ${FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID}`,
+  )
+  ensure(
+    checks,
+    foundationFrontendAssetBudgetsSource.includes('discoverFoundationFrontendAssetRefs') &&
+      foundationFrontendAssetBudgetsSource.includes('measureFoundationFrontendAssetsFromRepo') &&
+      foundationFrontendAssetBudgetsSource.includes('measureFoundationFrontendAssetsFromServer') &&
+      foundationFrontendAssetBudgetsSource.includes('buildFoundationFrontendAssetBudgetDogfoodProof') &&
+      foundationFrontendAssetBudgetsScriptSource.includes('scriptIsReadOnly') &&
+      packageJson.scripts?.['process:foundation-frontend-asset-budget-check'] === `node --env-file-if-exists=.env ${FOUNDATION_FRONTEND_ASSET_BUDGET_SCRIPT_PATH}`,
+    'FOUNDATION-FRONTEND-ASSET-BUDGET-001 has focused module, read-only proof script, and package command',
+    `assets=${foundationFrontendAssetBudgetSnapshot.summary?.assetCount || 0} plan=${foundationFrontendAssetBudgetsPlanSource.includes(FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID) ? 'present' : 'missing'}`,
+  )
+  ensure(
+    checks,
+    codeQualityNightlyAuditSource.includes('measureFoundationFrontendAssetsFromRepo') &&
+      codeQualityNightlyAuditSource.includes('assetBudgetSnapshot') &&
+      codeQualityNightlyAuditSource.includes('FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID'),
+    'FOUNDATION-FRONTEND-ASSET-BUDGET-001 feeds nightly code-quality asset budget findings',
+    `repoStatus=${foundationFrontendAssetBudgetSnapshot.status} noStore=${foundationFrontendAssetBudgetSnapshot.summary?.noStoreCount || 0}`,
   )
   const verifyFailureReporterCard = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFY-FAILURE-REPORTER-001') || null
   const verifyFailureReporterDogfood = buildFoundationVerifyReporterDogfoodProof()

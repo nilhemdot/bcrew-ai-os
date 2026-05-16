@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-FRONTEND-ASSET-BUDGET-001",
+  "approvedPlanRef": "docs/process/foundation-frontend-asset-budget-001-plan.md",
+  "approvedPlanSha256": "504886460fd384604c88e0ece44a71664a9a73b931f68c4a3df16dd0aad9d428",
+  "approvedRepoHead": "16f77a6d6407c2cdf8c9956b6cfca81c728ce155",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T10:10:00.000Z",
+  "score": 10,
+  "notes": "Approved after Plan Critic revise: explicit existing-work reuse, operator value, read-only check posture, and verifier-monolith split boundary are now captured. Scope remains bounded Foundation-only asset budget guardrail.",
+  "approvalDigest": "841884f55a1a8e0efd47ad54a8848e3243280db69393589437fc0aeefee6e85b"
+}
