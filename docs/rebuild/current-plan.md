@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-16
-Version: v6.87 - Source-ID constraint contract complete
+Version: v6.89 - Source Contract Registry Table complete
 Status: Sprint review
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Source-ID Constraint Contract
+## Previous Sprint: Source Contract Registry Table
+
+Live sprint ID: `source-contract-registry-table-2026-05-16`.
+
+This sprint is complete under `source-contract-registry-table-v1`. It materializes the first DB-backed `source_contract_registry` table before any source-ID foreign-key migration.
+
+Completed card:
+
+1. `SOURCE-CONTRACT-REGISTRY-TABLE-001` - done under `source-contract-registry-table-v1`. Scope was data-integrity substrate: create schema, explicit apply-gated sync from `getSourceContracts()`, stable contract hashes, read-only focused proof, and source-contract verifier coverage.
+
+Not next: source-ID FK constraints, array-backed provenance redesign, source-contract authoring UI, route redesign, seed/live overwrite, source extraction, connector auth, paid-source auth, Build Intel extraction, hub feature work, Marketing Video Lab wiring, Canva asset mutation, Drive permissions mutation, Drive permissions request-access emails, or MEETING-VAULT-ACL-001 Phase B.
+
+Next active blocker: choose the next source-ID data-integrity slice from registry-backed scalar FK planning, scalar FK constraints for shape-safe relations, or array-backed provenance redesign.
+
+## Previous Sprint: Source-ID Constraint Contract
 
 Live sprint ID: `source-id-constraint-contract-2026-05-16`.
 

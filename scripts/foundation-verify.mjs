@@ -290,6 +290,9 @@ import {
   evaluateFoundationSourceContractVerifier,
 } from '../lib/foundation-source-contract-verifier.js'
 import {
+  buildSourceContractRegistryTableDogfoodProof,
+} from '../lib/source-contract-registry-table.js'
+import {
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
@@ -910,6 +913,7 @@ import {
   getBacklogItemsByIds,
   getBacklogSeedDriftSnapshot,
   getFoundationDbConstraintAudit,
+  getSourceContractRegistrySnapshot,
   getIntelligenceAtomSpineSnapshot,
   getIntelligenceJobLedgerSnapshot,
   getIntelligenceRetrievalSnapshot,
@@ -2216,6 +2220,7 @@ async function main() {
   )
   const groupedSourceSystems = getGroupedSourceSystems()
   await assertFoundationDbReadyForReadOnlyGate('foundation:verify')
+  const sourceContractRegistrySnapshot = await getSourceContractRegistrySnapshot()
   const backlogSeedDrift = await getBacklogSeedDriftSnapshot({ limit: 10 })
   const strategyPreworkCoverageSnapshot = await getStrategyPreworkCoverageSnapshot()
   const strategyGoalTruthSnapshot = await getStrategyGoalTruthSnapshot()
@@ -2661,6 +2666,7 @@ async function main() {
   const foundationSourceContractVerifierSource = await readRepoFile('lib/foundation-source-contract-verifier.js')
   const verifierSourceContractModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH)
   const verifierSourceContractModulePlanSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH)
+  const sourceContractRegistryTableSource = await readRepoFile('lib/source-contract-registry-table.js')
   const foundationSourceTrustVerifierSource = await readRepoFile('lib/foundation-source-trust-verifier.js')
   const verifierSourceTrustSplitModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SCRIPT_PATH)
   const verifierSourceTrustSplitModulePlanSource = await readRepoFile(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_PLAN_PATH)
@@ -3346,6 +3352,8 @@ async function main() {
     sourceContracts,
     sourceRegistry,
     currentState,
+    sourceContractRegistrySnapshot,
+    sourceContractRegistryDogfood: buildSourceContractRegistryTableDogfoodProof(),
   })
   checks.push(...sourceContractVerifierResult.checks)
   const dbConstraintDogfood = await buildDbConstraintDogfoodProof()
@@ -4132,6 +4140,7 @@ async function main() {
     foundationVerifySource,
     foundationRouteSplitVerifierSource,
     foundationSourceContractVerifierSource,
+    sourceContractRegistryTableSource,
     foundationSourceTrustVerifierSource,
     foundationCurrentSprintVerifierSource,
     foundationIntelligenceAuditVerifierSource,

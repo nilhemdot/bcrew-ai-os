@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-CONTRACT-REGISTRY-TABLE-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T12:28:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-contract-registry-table-001-plan.md",
+  "approvedPlanSha256": "afefc19fb6fb0fe9c098d253418cb3731cb397b615aa49d3faa67e968b5b3491",
+  "approvedRepoHead": "2cad45766c96f379b859ad9bae076584474f6097",
+  "notes": "Approved as the next no-auth Foundation data-integrity slice after SOURCE-ID-CONSTRAINT-CONTRACT-001. Scope: create DB-backed source_contract_registry schema, explicit apply sync from getSourceContracts(), read-only proof, and source-contract verifier coverage. No source-ID foreign keys, array-backed provenance redesign, source-contract authoring UI, route redesign, seed/live overwrite, source extraction, connector auth, paid-source auth, Build Intel extraction, hub feature work, Marketing Video Lab route wiring, Canva asset mutation, Drive permissions mutation, Drive permissions request-access emails, or MEETING-VAULT-ACL-001 Phase B.",
+  "approvalDigest": "83f3aec6fe9cebabad3f3ab4a547c1b6b2c3708cc1de2b2d6ab390b753862705"
+}

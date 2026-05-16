@@ -16,10 +16,14 @@ import {
   buildFoundationSourceContractVerifierDogfoodProof,
 } from '../lib/foundation-source-contract-verifier.js'
 import {
+  buildSourceContractRegistryTableDogfoodProof,
+} from '../lib/source-contract-registry-table.js'
+import {
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
   getPlanCriticRunsByCardIds,
+  getSourceContractRegistrySnapshot,
 } from '../lib/foundation-db.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -92,6 +96,8 @@ async function main() {
   const planCriticRuns = await getPlanCriticRunsByCardIds([VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID])
   const planCritic = planCriticRuns.find(run => run.status === 'pass' && Number(run.score) >= 9.8) || null
   const dogfood = buildFoundationSourceContractVerifierDogfoodProof()
+  const sourceContractRegistrySnapshot = await getSourceContractRegistrySnapshot()
+  const sourceContractRegistryDogfood = buildSourceContractRegistryTableDogfoodProof()
   const verifierLines = lineCount(verifierSource)
   const removedOldInlinePredicates = [
     "ownersContract?.status === 'Signed Off'",
@@ -106,8 +112,8 @@ async function main() {
 
   ensure(checks, approvalValidation.ok && Number(approvalValidation.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || VERIFIER_SOURCE_CONTRACT_MODULE_APPROVAL_PATH)
   ensure(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  ensure(checks, activeSprint.sprint?.sprintId === VERIFIER_SOURCE_CONTRACT_MODULE_SPRINT_ID, 'Current Sprint is the verifier source-contract module sprint', activeSprint.sprint?.sprintId || 'missing')
-  ensure(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  ensure(checks, activeSprint.sprint?.sprintId === VERIFIER_SOURCE_CONTRACT_MODULE_SPRINT_ID || card?.lane === 'done', 'Current Sprint is source-contract verifier sprint or card is historically done', activeSprint.sprint?.sprintId || 'missing')
+  ensure(checks, card?.lane === 'done' || (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)), 'Current Sprint contains the card in Building Now/Done or backlog is done', card?.lane === 'done' ? 'backlog done' : sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
   ensure(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
   ensure(checks, moduleSource.includes('evaluateFoundationSourceContractVerifier') && moduleSource.includes('buildFoundationSourceContractVerifierDogfoodProof'), 'new module owns source-contract verifier logic', 'lib/foundation-source-contract-verifier.js')
   ensure(checks, dogfood.ok === true, 'dogfood rejects source-contract verifier failures', dogfood.invariant)
@@ -116,6 +122,9 @@ async function main() {
   ensure(checks, dogfood.missingOwnersTab.ok === false, 'dogfood rejects missing Owners tab coverage', dogfood.missingOwnersTab.failed.map(item => item.check).join('; '))
   ensure(checks, dogfood.missingRegistryRow.ok === false, 'dogfood rejects stale registry row', dogfood.missingRegistryRow.failed.map(item => item.check).join('; '))
   ensure(checks, dogfood.staleCurrentState.ok === false, 'dogfood rejects stale current-state mirror boundary', dogfood.staleCurrentState.failed.map(item => item.check).join('; '))
+  ensure(checks, dogfood.missingSourceContractRegistry.ok === false, 'dogfood rejects missing DB source-contract registry proof', dogfood.missingSourceContractRegistry.failed.map(item => item.check).join('; '))
+  ensure(checks, sourceContractRegistrySnapshot.evaluation.ok === true, 'live DB source-contract registry snapshot is healthy', JSON.stringify(sourceContractRegistrySnapshot.evaluation.summary))
+  ensure(checks, sourceContractRegistryDogfood.ok === true, 'source-contract registry dogfood rejects stale/unsafe states', sourceContractRegistryDogfood.invariant)
   ensure(checks, delegates, 'foundation verifier delegates source-contract checks to focused module', 'evaluateFoundationSourceContractVerifier')
   ensure(checks, removedOldInlinePredicates, 'foundation verifier no longer owns old inline source-contract predicates', removedOldInlinePredicates ? 'old predicates absent' : 'old predicates still inline')
   ensure(checks, verifierLines < VERIFIER_SOURCE_CONTRACT_MODULE_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_SOURCE_CONTRACT_MODULE_BEFORE_LINES} -> ${verifierLines}`)
@@ -140,6 +149,8 @@ async function main() {
       missingOwnersTabRejected: dogfood.missingOwnersTab.ok === false,
       missingRegistryRowRejected: dogfood.missingRegistryRow.ok === false,
       staleCurrentStateRejected: dogfood.staleCurrentState.ok === false,
+      missingSourceContractRegistryRejected: dogfood.missingSourceContractRegistry.ok === false,
+      sourceContractRegistryDogfood: sourceContractRegistryDogfood.ok === true,
     },
   }
 
