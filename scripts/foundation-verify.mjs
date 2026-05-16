@@ -907,6 +907,10 @@ import {
   FOUNDATION_LLM_RUNTIME_STORE_SPLIT_SCRIPT_PATH,
 } from '../lib/foundation-llm-runtime-store.js'
 import {
+  FOUNDATION_RUNTIME_JOB_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_RUNTIME_JOB_STORE_SPLIT_SCRIPT_PATH,
+} from '../lib/foundation-runtime-job-store.js'
+import {
   FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
   FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
   FRONTEND_MONOLITH_SPLIT_CARD_ID,
@@ -2570,6 +2574,9 @@ async function main() {
   const foundationLlmRuntimeStoreSource = await readRepoFile('lib/foundation-llm-runtime-store.js')
   const foundationLlmRuntimeStoreScriptSource = await readRepoFile(FOUNDATION_LLM_RUNTIME_STORE_SPLIT_SCRIPT_PATH)
   const foundationLlmRuntimeStorePlanSource = await readRepoFile(FOUNDATION_LLM_RUNTIME_STORE_SPLIT_PLAN_PATH)
+  const foundationRuntimeJobStoreSource = await readRepoFile('lib/foundation-runtime-job-store.js')
+  const foundationRuntimeJobStoreScriptSource = await readRepoFile(FOUNDATION_RUNTIME_JOB_STORE_SPLIT_SCRIPT_PATH)
+  const foundationRuntimeJobStorePlanSource = await readRepoFile(FOUNDATION_RUNTIME_JOB_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -3347,6 +3354,7 @@ async function main() {
   const extractionRuntimeVerifier = evaluateFoundationExtractionRuntimeVerifier({
     foundationDbSource,
     llmRuntimeStoreSource: foundationLlmRuntimeStoreSource,
+    runtimeJobStoreSource: foundationRuntimeJobStoreSource,
     foundationWorkerSource,
     foundationJobsSource,
     extractionTargetSource,
@@ -12666,6 +12674,9 @@ async function main() {
     foundationLlmRuntimeStoreSource,
     foundationLlmRuntimeStoreScriptSource,
     foundationLlmRuntimeStorePlanSource,
+    foundationRuntimeJobStoreSource,
+    foundationRuntimeJobStoreScriptSource,
+    foundationRuntimeJobStorePlanSource,
     moduleSource: foundationDbSplitVerifierSource,
     repoFileExists,
   }

@@ -75,6 +75,7 @@ async function loadEvaluationInput() {
   const [
     foundationDbSource,
     llmRuntimeStoreSource,
+    runtimeJobStoreSource,
     foundationWorkerSource,
     foundationJobsSource,
     extractionTargetSource,
@@ -92,6 +93,7 @@ async function loadEvaluationInput() {
   ] = await Promise.all([
     readText('lib/foundation-db.js'),
     readText('lib/foundation-llm-runtime-store.js'),
+    readText('lib/foundation-runtime-job-store.js'),
     readText('scripts/foundation-worker.mjs'),
     readText('lib/foundation-jobs.js'),
     readText('scripts/run-extraction-target.mjs'),
@@ -114,6 +116,7 @@ async function loadEvaluationInput() {
   return {
     foundationDbSource,
     llmRuntimeStoreSource,
+    runtimeJobStoreSource,
     foundationWorkerSource,
     foundationJobsSource,
     extractionTargetSource,

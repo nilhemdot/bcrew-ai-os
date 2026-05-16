@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-011",
+  "approvedPlanRef": "docs/process/foundation-db-runtime-job-store-split-011-plan.md",
+  "approvedPlanSha256": "f63ec5b3685b1adf138bb03756c258f803882f5d1eea7855069fed99c9569c17",
+  "approvedRepoHead": "3cc14a98393a64ec5bba319fb87d7a85f50ddb8f",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T04:45:22.175Z",
+  "score": 10,
+  "notes": "Approved bounded Foundation DB runtime/job store split. No job definition changes, source schedule changes, live connector calls, source extraction, hub feature work, schema changes, Canva work, or paid-source auth.",
+  "approvalDigest": "02af6cbe721685ca387e3002fbeb64f6616994c2a13157f5ed058bf1c383528c"
+}
