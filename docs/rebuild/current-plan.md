@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-15
-Version: v6.76 - Intelligence/audit verifier split complete
+Last updated: 2026-05-16
+Version: v6.77 - Core governance verifier split complete
 Status: Sprint review
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Intelligence/Audit Verifier Split
+## Current Sprint: Core Governance Verifier Split
+
+Live sprint ID: `verifier-core-governance-split-module-2026-05-16`.
+
+This sprint is complete under `verifier-core-governance-split-module-v1`. It extracted the existing core governance/security verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-core-governance-verifier.js` while preserving the same PASS/FAIL rows for doctrine promotion, People/Agents clarity, docs authority, direct model-call blocking, backlog closeout guardrails, DB constraint health, admin-gated routes, role-based app auth, localhost trust, Strategy PDF token forwarding, and FUB proxy mutation posture.
+
+Active card:
+
+1. `VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-001` - done under `verifier-core-governance-split-module-v1`. V1 owns `lib/foundation-core-governance-verifier.js`, `scripts/process-verifier-core-governance-split-module-check.mjs`, package script `process:verifier-core-governance-split-module-check`, plan/approval docs, dogfood fixtures that reject direct host leaks, ungated admin routes, Host-header localhost bypass, open FUB proxy mutations, invalid DB source references, and weak backlog done-closeout guards, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-core-governance-split-module-closeout.md`.
+
+Not next: route behavior changes, auth behavior changes, source contract behavior changes, DB schema changes, backlog mutation behavior changes, hub feature work, Canva asset work, paid-source auth, extraction runs, screenshots, atoms, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
+
+Previous completed sprint: `verifier-intelligence-audit-split-module-2026-05-15`, closed under `verifier-intelligence-audit-split-module-v1`.
+
+## Previous Sprint: Intelligence/Audit Verifier Split
 
 Live sprint ID: `verifier-intelligence-audit-split-module-2026-05-15`.
 
@@ -82,8 +96,6 @@ This sprint is complete under `verifier-intelligence-audit-split-module-v1`. It 
 Active card:
 
 1. `VERIFIER-INTELLIGENCE-AUDIT-SPLIT-MODULE-001` - done under `verifier-intelligence-audit-split-module-v1`. V1 owns `lib/foundation-intelligence-audit-verifier.js`, `scripts/process-verifier-intelligence-audit-split-module-check.mjs`, package script `process:verifier-intelligence-audit-split-module-check`, plan/approval docs, dogfood fixtures that reject backlog writes, paid auth, code imports, auto-fixes, and audit writeback, root verifier delegation, and closeout record `docs/handoffs/2026-05-15-verifier-intelligence-audit-split-module-closeout.md`.
-
-Not next: Build Intel feature work, extraction runs, paid-source auth, screenshots, atoms, source monitoring, broad verifier rewrite, Foundation DB splits, Marketing Video Lab, Canva asset library work, hub feature UI, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 
 Previous completed sprint: `verifier-current-sprint-split-module-2026-05-15`, closed under `verifier-current-sprint-split-module-v1`.
 

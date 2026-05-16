@@ -261,6 +261,17 @@ import {
   evaluateFoundationIntelligenceAuditVerifier,
 } from '../lib/foundation-intelligence-audit-verifier.js'
 import {
+  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_BEFORE_LINES,
+  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
+  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationCoreGovernanceVerifierDogfoodProof,
+  evaluateFoundationCoreGovernanceVerifier,
+} from '../lib/foundation-core-governance-verifier.js'
+import {
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID,
@@ -2584,6 +2595,9 @@ async function main() {
   const foundationIntelligenceAuditVerifierSource = await readRepoFile('lib/foundation-intelligence-audit-verifier.js')
   const verifierIntelligenceAuditSplitModuleScriptSource = await readRepoFile(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_SCRIPT_PATH)
   const verifierIntelligenceAuditSplitModulePlanSource = await readRepoFile(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_PLAN_PATH)
+  const foundationCoreGovernanceVerifierSource = await readRepoFile('lib/foundation-core-governance-verifier.js')
+  const verifierCoreGovernanceSplitModuleScriptSource = await readRepoFile(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierCoreGovernanceSplitModulePlanSource = await readRepoFile(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_PLAN_PATH)
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -3179,243 +3193,89 @@ async function main() {
     currentState,
   })
   checks.push(...sourceContractVerifierResult.checks)
+  const coreGovernanceVerifier = evaluateFoundationCoreGovernanceVerifier({
+    systemStrategy,
+    currentPlan,
+    currentState,
+    agentsSource,
+    foundationHtmlSource,
+    strategicIntelSpecSource,
+    foundationHardCheckpointSource,
+    usersDoc,
+    steveDoc,
+    agentModelDoc,
+    harlanDoc,
+    crewbertDoc,
+    personalAgentOnboardingDoc,
+    ownersSourceNote,
+    docsIndexSource,
+    archiveIndexSource,
+    docsReadmeSource,
+    directModelHostOffenders,
+    backlogSeedDrift,
+    foundationDbSource,
+    foundationBacklogStoreSource,
+    dbConstraintAudit,
+    serverSource,
+    hubReadRoutesSource,
+    fubSourceRoutesSource,
+    foundationOperatorRoutesSource,
+    foundationSourceRoutesSource,
+    foundationBuildIntelRoutesSource,
+    authRoutesSource,
+    appPageRoutesSource,
+    securityAccessSource,
+    appAuthSource,
+    loginHtmlSource,
+    loginUiSource,
+    foundationFrontendSource,
+    strategyExportUiSource,
+  })
+  checks.push(...coreGovernanceVerifier.checks)
+  const activeFoundationSprintForCoreGovernance = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const verifierCoreGovernanceSplitModuleCard = (activeFoundationSprintForCoreGovernance.items || [])
+    .map(item => item.backlog)
+    .find(item => item?.id === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID) || null
+  const verifierCoreGovernanceSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierCoreGovernanceSplitModuleDogfood = buildFoundationCoreGovernanceVerifierDogfoodProof()
+  const verifierCoreGovernanceSplitModuleClosed = verifierCoreGovernanceSplitModuleCard?.lane === 'done'
+  const foundationVerifyLineCountAfterCoreGovernanceSplit = String(foundationVerifySource || '').split('\n').length
+  const coreGovernanceOldInlinePatterns = [
+    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'system strategy and rebuild plan reflect current Foundation " + "architecture'"),
+    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'broad Foundation/Ops/doc read APIs are admin-" + "gated'"),
+    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'generic FUB proxy mutations are off by " + "default'"),
+  ]
   ensure(
     checks,
-    includesAll(systemStrategy, ['Systems Layer', 'operating bundles', 'source contracts', 'runtime jobs', 'Doctrine and the rebuild plan are governed, not frozen']) &&
-      includesAll(currentPlan, [
-        'Locked doctrine means current operating default, not permanent dogma',
-        'Foundation Systems page: 14 major operating systems',
-        'KPI/Supabase read rules are closed for `SOURCE-010`',
-        'Ops Hub v1',
-        'daily Gmail attachment extraction',
-        'daily YouTube subtitle transcript extraction',
-        'FOUNDATION-SWEEP-001',
-      ]) &&
-      includesAll(currentPlan, ['Overview gives the command order', 'live Backlog owns task status', 'Rebuild Plan explains doctrine']) &&
-      includesAll(currentState, ['Overview gives the command order', 'live Backlog owns task status', 'Current command order']) &&
-      includesAll(agentsSource, ['Foundation priority as an operating guardrail', 'Overview is the command order', 'live Backlog is task truth']) &&
-      foundationHtmlSource.includes('data-section="system-strategy">Doctrine</a>') &&
-      foundationHtmlSource.includes('data-section="rebuild-plan">Rebuild Plan</a>') &&
-      !foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#rebuild-plan"'),
-    'system strategy and rebuild plan reflect current Foundation architecture',
-    'System Strategy names the Systems Layer, Rebuild Plan names Systems page / SOURCE-010 closeout / Ops Hub v1 / extraction slices, priority hierarchy is documented, and nav treats Doctrine + Rebuild Plan as peer pages',
-  )
-  ensure(
-    checks,
-    includesAll(systemStrategy, [
-      'memory is not backlog',
-      'Strategic Intelligence Doctrine',
-      'gap-resolving Scoper',
-      'Strategy route-review UI proof plumbing is not the same thing as meeting-ready UX',
-    ]) &&
-      includesAll(currentPlan, [
-        'Hard Checkpoint — 2026-04-28 Foundation Return',
-        'Parked Next Leg — Strategic Intelligence Operating Loop',
-        'FOUNDATION-CHANGELOG-002',
-        'INTEL-THREAD-CONTEXT-001',
-      ]) &&
-      includesAll(currentState, [
-        'Hard checkpoint call from 2026-04-28',
-        'Strategy Hub route-review proof plumbing remains available',
-        'FOUNDATION-SWEEP-001',
-        'FOUNDATION-CHANGELOG-002',
-      ]) &&
-      includesAll(strategicIntelSpecSource, [
-        'intelligence_strategic_issues',
-        'already_answered',
-        'partially_answered',
-        'real_gap',
-        'Thread-Context Requirement',
-        'Resolution Feedback',
-      ]) &&
-      includesAll(foundationHardCheckpointSource, [
-        'Nothing from Apr 27-28 should remain only in chat memory',
-        'FOUNDATION-SWEEP-001',
-        'FOUNDATION-CHANGELOG-002',
-        'crawl-slack-current-day-20260427145904292-3f93bebd',
-        'Not Next',
-      ]),
-    '2026-04-28 hard checkpoint artifacts are promoted into repo truth',
-    'system strategy, current plan/state, Strategic Intel spec, and handoff all carry the Foundation-return decision and parked Strategy/Scoper work',
-  )
-  ensure(
-    checks,
-    foundationHtmlSource.includes('<div class="found-nav-label">People and agents</div>') &&
-      foundationHtmlSource.includes('data-section="users">People Overview</a>') &&
-      foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#user-steve"') &&
-      foundationHtmlSource.includes('data-section="agents">Agent Model</a>') &&
-      foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#agent-harlan"') &&
-      foundationHtmlSource.includes('found-nav-item found-nav-item-sub" href="#agent-crewbert"') &&
-      !foundationHtmlSource.includes('<div class="found-nav-subgroup">Users</div>') &&
-      !foundationHtmlSource.includes('<div class="found-nav-subgroup">Agents</div>') &&
-      [usersDoc, steveDoc, agentModelDoc, harlanDoc, crewbertDoc, personalAgentOnboardingDoc].every(source => source.includes('Last reviewed: 2026-04-26') && source.includes('Update Trigger')) &&
-      includesAll(agentModelDoc, ['Personal Agent Onboarding', 'personal profile', 'daily nugget']) &&
-      includesAll(harlanDoc, ['personal profile', 'daily nugget', 'AGENT-010']) &&
-      includesAll(personalAgentOnboardingDoc, ['AGENT-010', 'personal profile', '`ME.md` is only a working label', 'daily nugget', 'old BCrew-Buddy', 'Harlan Pilot']),
-    'People / Agents nav and docs stay clear and review-marked',
-    'People / Agents nav uses one clean child indent, docs have review/update triggers, and personal-agent onboarding doctrine is captured',
-  )
-  ensure(
-    checks,
-    includesAll(ownersSourceNote, ['owner sign-off completed on `2026-04-16`', 'validated through Column `CB`']),
-    'owners source note records sign-off and scope boundary',
-    'owner sign-off note and CB boundary present',
-  )
-  ensure(
-    checks,
-      docsIndexSource.includes('Generated at:') &&
-      docsIndexSource.includes('| File | Date | Category | Status | Promoted To | Words | Value |') &&
-      !docsIndexSource.includes('active-reference') &&
-      docsIndexSource.includes('rebuild/plan-history/rebuild-decisions-2026-04-29-retired.md') &&
-      archiveIndexSource.includes('Archived Evidence Index') &&
-      !docsReadmeSource.includes('10. [`rebuild-decisions.md`'),
-    'docs authority index separates active truth from evidence',
-    'generated index has promoted-to column, no active-reference status, archive index, and retired rebuild decisions are not read-first active truth',
-  )
-  ensure(
-    checks,
-    directModelHostOffenders.length === 0,
-    'direct model/transcription host calls stay behind approved adapters',
-    directModelHostOffenders.length
-      ? directModelHostOffenders.join(', ')
-      : 'no direct OpenAI/Anthropic/Gemini host calls outside approved adapters',
-  )
-  ensure(
-    checks,
-    backlogSeedDrift.seedRows >= 180 &&
-      Array.isArray(backlogSeedDrift.items) &&
-      backlogSeedDrift.stableFields.includes('summary') &&
-      backlogSeedDrift.stableFields.includes('whyItMatters') &&
-      backlogSeedDrift.mutableFields.includes('lane') &&
-      backlogSeedDrift.mutableFields.includes('statusNote') &&
-      typeof backlogSeedDrift.totalMismatchCount === 'number',
-    'backlog seed/live drift is explicitly reported',
-    `${backlogSeedDrift.driftItemCount} drift rows / ${backlogSeedDrift.stableMismatchCount} stable mismatches / ${backlogSeedDrift.mutableMismatchCount} mutable mismatches`,
-  )
-  ensure(
-    checks,
-    includesAll([foundationDbSource, foundationBacklogStoreSource].join('\n'), [
-      'assertBacklogDoneCloseout',
-      'moving to done requires a closeout statusNote with build/change proof',
-      'createBacklogItem',
-      'updateBacklogItem',
-    ]),
-    'backlog cards moving to done require build/change closeout proof',
-    'create/update paths guard done-lane transitions with source/status closeout proof instead of relying on memory',
-  )
-  ensure(
-    checks,
-    dbConstraintAudit.invalidDecisionCategoryCount === 0 &&
-      dbConstraintAudit.invalidSourceReferenceCount === 0 &&
-      dbConstraintAudit.pendingDocUpdateStateIssueCount === 0,
-    'Foundation DB constraint audit has no invalid categories, source IDs, or doc-update states',
-    `${dbConstraintAudit.registeredSourceIds} registered source IDs / ${dbConstraintAudit.invalidDecisionCategoryCount} invalid categories / ${dbConstraintAudit.invalidSourceReferenceCount} invalid source refs / ${dbConstraintAudit.pendingDocUpdateStateIssueCount} doc-update state issues`,
-  )
-  ensure(
-    checks,
-    [
-      "app.post('/api/intelligence/evidence', requireAdminToken",
-      "app.get('/api/doc', requireAdminToken",
-      "app.get('/api/owners/lead-source-governance', requireAdminToken",
-      "app.get('/api/owners/review-queue', requireAdminToken",
-      "app.get('/api/sheets/structure-status', requireAdminToken",
-      "app.get('/api/system-inventory', requireAdminToken",
-      "app.get('/foundation/export/strategy.pdf', requireAdminToken",
-    ].every(pattern => serverSource.includes(pattern)) &&
-      [
-        "app.get('/api/foundation-hub', deps.requireAdminToken",
-        "app.get('/api/ops-hub', deps.requireAdminToken",
-      ].every(pattern => hubReadRoutesSource.includes(pattern)) &&
-      [
-        "app.get('/api/fub/health', requireAdminToken",
-        "app.get('/api/fub/person', requireAdminToken",
-        "app.get('/api/fub/lead-sources', requireAdminToken",
-      ].every(pattern => fubSourceRoutesSource.includes(pattern)) &&
-      [
-        "app.get('/api/foundation/changes', requireAdminToken",
-        "app.get('/api/foundation/change-log', requireAdminToken",
-        "app.get('/api/foundation/daily-summary', requireAdminToken",
-        "app.get('/api/foundation/build-log', requireAdminToken",
-        "app.get('/api/foundation/doc-updates', requireAdminToken",
-      ].every(pattern => foundationOperatorRoutesSource.includes(pattern)) &&
-      [
-        "app.get('/api/source-of-truth', requireAdminToken",
-        "app.get('/api/foundation/source-lifecycle', requireAdminToken",
-        "app.get('/api/foundation/per-user-changelog', requireAdminToken",
-        "app.get('/api/foundation/source-connector-matrix', requireAdminToken",
-        "app.get('/api/foundation/source-hub-routing-matrix', requireAdminToken",
-      ].every(pattern => foundationSourceRoutesSource.includes(pattern)) &&
-      [
-        "app.get('/api/foundation/build-intel-watchlist', requireAdminToken",
-        "app.get('/api/foundation/research-inbox-contract', requireAdminToken",
-        "app.get('/api/foundation/build-intel-extraction', requireAdminToken",
-        "app.get('/api/foundation/gstack-build-intel', requireAdminToken",
-      ].every(pattern => foundationBuildIntelRoutesSource.includes(pattern)),
-    'broad Foundation/Ops/doc read APIs are admin-gated',
-    'source-of-truth, doc reads, foundation hub, intelligence evidence, ops hub, FUB reads, owners queue/governance, sheet structure, system inventory, changes, changelog, per-user changelog, daily summary, build log, doc updates, and PDF export require admin token outside localhost',
-  )
-  ensure(
-    checks,
-    includesAll(`${serverSource}\n${authRoutesSource}`, [
-      "app.post('/api/auth/login'",
-      "app.post('/api/auth/google'",
-      "app.get('/api/auth/session'",
-      "app.post('/api/auth/logout'",
-      "app.get('/login'",
-    ]) &&
-      includesAll(serverSource, [
-      'findRoutePosture(req.method, req.path)',
-      'authorizeRouteAccess(req, posture)',
-    ]) &&
-      includesAll(appPageRoutesSource, [
-        "requirePageAccess('owner')",
-        "requirePageAccess('ops')",
-        "requirePageAccess('sales')",
-        "requirePageAccess('home')",
-      ]) &&
-      includesAll(securityAccessSource, [
-        "route('GET', '/api/ops-hub'",
-        "route('GET', '/api/sales-hub'",
-        'const roleOps',
-        'const roleSales',
-    ]) &&
-      includesAll(appAuthSource, [
-        'AIOS_AUTH_USERS_JSON',
-        'AIOS_GOOGLE_CLIENT_ID',
-        'AIOS_SESSION_SECRET',
-        'assertSessionSecretConfigured',
-        'pbkdf2-sha256',
-        'aios_session',
-        'getAllowedAuthUser',
-        'getSafeRedirectPath',
-      ]) &&
-      includesAll(loginHtmlSource, ['BCrew AI OS', 'accounts.google.com/gsi/client', 'google-login-button', '/login.js']) &&
-      includesAll(loginUiSource, ['/api/auth/google', '/api/auth/session', 'google.accounts.id.renderButton']),
-    'app auth gates live surfaces by role',
-    'Google login route, signed cookie sessions, owner/ops page gates, and Ops-only API allowlist are wired',
-  )
-  ensure(
-    checks,
-    !serverSource.includes('req.hostname') &&
-      serverSource.includes("const host = process.env.HOST || '127.0.0.1'") &&
-      serverSource.includes('app.listen(port, host'),
-    'local admin bypass uses socket locality, not spoofable Host header',
-    'server binds to localhost by default and local trust does not inspect req.hostname',
-  )
-  ensure(
-    checks,
-    foundationFrontendSource.includes('downloadStrategyPdf') &&
-      foundationFrontendSource.includes("foundationRead('/foundation/export/strategy.pdf')") &&
-      strategyExportUiSource.includes("fetch('/foundation/export/strategy.pdf', { headers: getAdminHeaders()"),
-    'PDF export clients forward admin token',
-    'Foundation and strategy export pages fetch the gated PDF route with X-Admin-Token when present',
-  )
-  ensure(
-    checks,
-    fubSourceRoutesSource.includes('FUB_PROXY_ALLOW_MUTATION') &&
-      fubSourceRoutesSource.includes("normalizedMethod !== 'GET'"),
-    'generic FUB proxy mutations are off by default',
-    'broad FUB proxy allows reads but requires explicit supervised env flag for POST/PUT/PATCH/DELETE',
+    verifierCoreGovernanceSplitModuleCard &&
+      ['executing', 'done'].includes(verifierCoreGovernanceSplitModuleCard.lane) &&
+      (!verifierCoreGovernanceSplitModuleClosed || (
+        String(verifierCoreGovernanceSplitModuleCard.statusNote || '').includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) &&
+        verifierCoreGovernanceSplitModuleCloseout?.operatorCloseout === true &&
+        (verifierCoreGovernanceSplitModuleCloseout.backlogIds || []).includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-16-verifier-core-governance-split-module-closeout.md')
+      )) &&
+      verifierCoreGovernanceSplitModuleDogfood.ok === true &&
+      coreGovernanceVerifier.summary.passed === coreGovernanceVerifier.summary.total &&
+      packageJson.scripts?.['process:verifier-core-governance-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_APPROVAL_PATH) &&
+      foundationCoreGovernanceVerifierSource.includes('evaluateFoundationCoreGovernanceVerifier') &&
+      foundationCoreGovernanceVerifierSource.includes('buildFoundationCoreGovernanceVerifierDogfoodProof') &&
+      verifierCoreGovernanceSplitModuleScriptSource.includes('dogfood rejects core governance/security verifier failures') &&
+      verifierCoreGovernanceSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
+      foundationVerifySource.includes('evaluateFoundationCoreGovernanceVerifier({') &&
+      foundationVerifySource.includes('coreGovernanceVerifier.checks') &&
+      coreGovernanceOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
+      currentPlan.includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprintForCoreGovernance.sprint?.sprintId === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID])) &&
+      foundationCoreGovernanceVerifierSource.includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID),
+    'VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-001 extracts core governance/security verifier checks into a focused module',
+    verifierCoreGovernanceSplitModuleCard
+      ? `lane=${verifierCoreGovernanceSplitModuleCard.lane} dogfood=${verifierCoreGovernanceSplitModuleDogfood.ok ? 'pass' : 'blocked'} coreChecks=${coreGovernanceVerifier.summary.passed}/${coreGovernanceVerifier.summary.total} lines=${VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterCoreGovernanceSplit}`
+      : `missing ${VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID}`,
   )
   ensure(
     checks,
@@ -4435,6 +4295,8 @@ async function main() {
     STYLESHEET_MONOLITH_SPLIT_CARD_ID,
     VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID,
+    VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID,
+    VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -4674,6 +4536,7 @@ async function main() {
     foundationSourceTrustVerifierSource,
     foundationCurrentSprintVerifierSource,
     foundationIntelligenceAuditVerifierSource,
+    foundationCoreGovernanceVerifierSource,
     foundationServerRouteSplitVerifierSource,
     foundationDbSplitVerifierSource,
     foundationFrontendSplitVerifierSource,

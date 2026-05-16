@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-001",
+  "approvedPlanRef": "docs/process/verifier-core-governance-split-module-001-plan.md",
+  "approvedPlanSha256": "5adbcce0f4c6d4172c1cb70deb7fda4e501532f6a90f924343246e032145660e",
+  "approvedRepoHead": "b71015e283f6d2064c2945328d408f0100ec137a",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T01:15:00.000-04:00",
+  "score": 10,
+  "notes": "Approved as next no-auth Foundation cleanup slice after VERIFIER-INTELLIGENCE-AUDIT-SPLIT-MODULE-001 shipped. Extract existing core governance/security verifier predicates only; no behavior changes or feature work.",
+  "approvalDigest": "e27db34075e84934d9c2cc3d5d1f925c9abafc62701fd0686fb88e6b1226db3a"
+}
