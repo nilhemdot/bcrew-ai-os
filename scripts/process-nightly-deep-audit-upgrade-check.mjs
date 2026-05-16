@@ -117,14 +117,24 @@ async function main() {
   await closeFoundationDb()
 
   const card = cards.find(item => item.id === NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID) || null
+  const activeSprintHasAuditCard = activeSprint.sprint?.sprintId === NIGHTLY_DEEP_AUDIT_UPGRADE_SPRINT_ID &&
+    activeSprint.items?.some(item =>
+      item.cardId === NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID &&
+      ['sprint_ready', 'building_now', 'done_this_sprint'].includes(item.stage),
+    )
+  const auditCardAlreadyClosed = card?.lane === 'done' &&
+    String(card.statusNote || '').includes(NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY)
   addCheck(checks, approval.ok && Number(approval.approval?.score) >= 9.8, 'approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || NIGHTLY_DEEP_AUDIT_APPROVAL_PATH)
   addCheck(checks, card && ['scoped', 'done'].includes(card.lane), 'live backlog card exists in scoped/done lane', card ? `${card.id}:${card.lane}` : 'missing')
   addCheck(
     checks,
-    activeSprint.sprint?.sprintId === NIGHTLY_DEEP_AUDIT_UPGRADE_SPRINT_ID &&
-      activeSprint.items?.some(item => item.cardId === NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID && ['sprint_ready', 'building_now', 'done_this_sprint'].includes(item.stage)),
-    'Current Sprint contains the audit card with doctrine and active stage',
-    activeSprint.sprint ? `${activeSprint.sprint.sprintId} ${activeSprint.items.map(item => `${item.cardId}:${item.stage}`).join(', ')}` : 'missing sprint',
+    activeSprintHasAuditCard || auditCardAlreadyClosed,
+    'audit card is active during build or already closed for recurring runs',
+    activeSprintHasAuditCard
+      ? `${activeSprint.sprint?.sprintId} ${activeSprint.items.map(item => `${item.cardId}:${item.stage}`).join(', ')}`
+      : auditCardAlreadyClosed
+        ? `${card.id}:${card.lane}:${NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY}`
+        : (activeSprint.sprint ? `${activeSprint.sprint.sprintId} ${activeSprint.items.map(item => `${item.cardId}:${item.stage}`).join(', ')}` : 'missing sprint'),
   )
   addCheck(
     checks,
