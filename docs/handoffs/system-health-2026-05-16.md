@@ -1,16 +1,16 @@
 # System Health - 2026-05-16
 
-Status: watch
+Status: healthy
 
-Foundation is usable but has yellow system-health findings to review.
+Foundation system health has no red or yellow rollup findings.
 
 ## Summary
 
 - Risk findings: 0
-- Watch findings: 1
+- Watch findings: 0
 - Scheduled job red: 0
 - Scheduled job yellow: 0
-- Connector down/degraded/blocked: 0/0/1
+- Connector down/degraded/blocked: 0/0/0
 - Endpoint risk/review: 0/0
 - Source contracts: 36
 
@@ -20,7 +20,7 @@ _None._
 
 ## Findings
 
-- P1 Connector groups have blocked health posture: 1 connector group(s) are blocked by manual/auth/source posture. Next: Review the blocked connector row before treating dependent source surfaces as fully green.
+_None._
 
 ## Posture
 

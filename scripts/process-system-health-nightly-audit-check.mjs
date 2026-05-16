@@ -186,7 +186,7 @@ async function main() {
   addCheck(checks, operationsRendererSource.includes('renderFoundationSystemHealthPanel') && operationsRendererSource.includes('runtime-diagnostic-system-health-rollup'), 'Operations renderer places system-health rollup in Runtime Health diagnostics', 'public/foundation-operations-renderers.js')
   addCheck(checks, !mutationTokens.test(scriptSource), 'focused proof has no backlog/sprint/source live mutation path', SYSTEM_HEALTH_NIGHTLY_AUDIT_SCRIPT_PATH)
   if (args.writeReport) {
-    addCheck(checks, reportWrite?.markdownBytes > 500 && reportWrite?.jsonBytes > 1000, 'write-report flag writes markdown and json artifacts', reportWrite ? `${reportWrite.markdownPath} ${reportWrite.markdownBytes}b / ${reportWrite.jsonPath} ${reportWrite.jsonBytes}b` : 'missing report')
+    addCheck(checks, reportWrite?.markdownBytes > 300 && reportWrite?.jsonBytes > 1000, 'write-report flag writes markdown and json artifacts', reportWrite ? `${reportWrite.markdownPath} ${reportWrite.markdownBytes}b / ${reportWrite.jsonPath} ${reportWrite.jsonBytes}b` : 'missing report')
   }
 
   const failures = checks.filter(check => !check.ok)

@@ -254,9 +254,9 @@ async function main() {
   addCheck(
     checks,
     runtimeActivation.jobs.length >= getFoundationJobDefinitions().length &&
-      runtimeActivation.jobs.some(job => job.key === 'verification-runs' && job.state === 'blocked') &&
+      runtimeActivation.jobs.some(job => job.key === 'verification-runs' && ['scheduled', 'due', 'running'].includes(job.state)) &&
       runtimeActivation.jobs.some(job => job.key === 'nightly-deep-audit' && ['scheduled', 'due', 'running'].includes(job.state)),
-    'runtime activation distinguishes blocked scheduled checks from the scheduled nightly deep audit job',
+    'runtime activation accepts read-only scheduled checks and the scheduled nightly deep audit job',
     runtimeActivation.jobs.slice(0, 12).map(job => `${job.key}:${job.state}`).join(', '),
   )
   addCheck(

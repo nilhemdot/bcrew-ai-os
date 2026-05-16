@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CONNECTOR-COMPLETION-SPRINT",
+  "approvedBy": "Steve keep-going instruction + Codex senior-engineer no-auth Foundation source readiness review",
+  "approvedAt": "2026-05-16T18:25:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/connector-completion-sprint-plan.md",
+  "approvedRepoHead": "450fd4781162b1c4004c18d93233ba6f73adda51",
+  "notes": "Approved as the next active sprint after connector-blocked-row-diagnosis-v1. Scope is inventory/proposal-only connector/source completion prep: no paid-source auth, no credential mutation, no external provider writes, and no broad extraction starts.",
+  "approvedPlanSha256": "4663dc303092cce4ed232c8f9028411425eecc24e37a72e801bb30497e4f852e",
+  "approvalDigest": "ff66598897926ddd93bccc1ea1347b35359b053001108392ce9c8cfaf8878e28"
+}
