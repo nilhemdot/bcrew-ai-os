@@ -16,6 +16,7 @@ import {
   markStaleSourceCrawlTargetRuns,
   recordFoundationRuntimeStatus,
 } from '../lib/foundation-db.js';
+import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js';
 import { parseFoundationWorkerArgs } from '../lib/foundation-worker-reliability.js';
 import { runFoundationJob } from './run-foundation-job.mjs';
 
@@ -93,9 +94,19 @@ function selectDueJobs(snapshot, { jobKey, maxJobs }) {
     .slice(0, maxJobs);
 }
 
+function buildMaxRuntimeSecondsByJob() {
+  return Object.fromEntries(getFoundationJobDefinitions()
+    .map(job => [job.key, Math.floor(Number(job.maxRuntimeSeconds) || 0)])
+    .filter(([jobKey, seconds]) => jobKey && seconds > 0));
+}
+
 async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes, staleSourceCrawlRunMinutes, staleLlmCallSeconds, staleLlmCallGraceSeconds }) {
   if (!dryRun) {
-    const reapedRuns = await markStaleFoundationJobRuns({ olderThanMinutes: staleRunMinutes }, actor);
+    const reapedRuns = await markStaleFoundationJobRuns({
+      olderThanMinutes: staleRunMinutes,
+      maxRuntimeSecondsByJob: buildMaxRuntimeSecondsByJob(),
+      graceSeconds: 300,
+    }, actor);
     if (reapedRuns.length) {
       console.warn(`Foundation worker: marked ${reapedRuns.length} stale active run(s) failed before selecting jobs.`);
     }

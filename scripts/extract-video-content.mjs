@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto'
+import path from 'node:path'
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 import {
   closeFoundationDb,
   initFoundationDb,
@@ -14,6 +16,7 @@ import { getYouTubeSubtitles } from '../lib/dataforseo.js'
 const DEFAULT_TARGET = 'video-content-extract-backfill'
 const DEFAULT_INVENTORY_TARGET = 'video-link-inventory'
 const EXTRACTOR_VERSION = 'video_content_youtube_subtitles_v1'
+const __filename = fileURLToPath(import.meta.url)
 
 function parseArgs(argv) {
   const result = {}
@@ -114,8 +117,52 @@ function classifyVideoItem(item) {
   }
 }
 
+export function buildVideoContentExtractionItemKey(item = {}) {
+  const platform = safeKeyPart(getPlatform(item)) || 'unknown'
+  const externalId = String(item?.externalId || '').trim()
+  const externalHash = sha256(externalId).slice(0, 24)
+  return `video-content:${platform}:${externalHash}`
+}
+
+export function buildVideoContentExtractionKeyDogfoodProof() {
+  const sharedPrefix = 'https://link.skool.com/ls/click?upn=u001.long.redirect.prefix.'.padEnd(230, 'x')
+  const left = {
+    metadata: { platform: 'skool' },
+    externalId: `${sharedPrefix}-left`,
+  }
+  const right = {
+    metadata: { platform: 'skool' },
+    externalId: `${sharedPrefix}-right`,
+  }
+  const leftKey = buildVideoContentExtractionItemKey(left)
+  const rightKey = buildVideoContentExtractionItemKey(right)
+  const checks = [
+    {
+      ok: leftKey !== rightKey,
+      check: 'long video URLs with identical prefixes generate distinct crawl item keys',
+      detail: `${leftKey} / ${rightKey}`,
+    },
+    {
+      ok: leftKey.length <= 80 && rightKey.length <= 80,
+      check: 'video extraction item keys stay compact and stable',
+      detail: `${leftKey.length}/${rightKey.length}`,
+    },
+    {
+      ok: /^video-content:skool:[0-9a-f]{24}$/.test(leftKey) && /^video-content:skool:[0-9a-f]{24}$/.test(rightKey),
+      check: 'video extraction item keys are deterministic hash-backed keys',
+      detail: `${leftKey} / ${rightKey}`,
+    },
+  ]
+  return {
+    ok: checks.every(check => check.ok),
+    checks,
+    leftKey,
+    rightKey,
+  }
+}
+
 function getExtractionItemKey(item) {
-  return `video-content:${safeKeyPart(getPlatform(item))}:${safeKeyPart(item.externalId)}`
+  return buildVideoContentExtractionItemKey(item)
 }
 
 function buildArtifactId(item, classification) {
@@ -427,8 +474,10 @@ async function main() {
   }
 }
 
-main().catch(error => {
-  console.error('Video content extraction failed.')
-  console.error(error instanceof Error ? error.message : String(error))
-  process.exitCode = 1
-})
+if (path.resolve(process.argv[1] || '') === __filename) {
+  main().catch(error => {
+    console.error('Video content extraction failed.')
+    console.error(error instanceof Error ? error.message : String(error))
+    process.exitCode = 1
+  })
+}

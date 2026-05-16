@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYSTEM-HEALTH-RED-ROW-REPAIR-001",
+  "approvedBy": "Steve no-hidden-failures instruction + Codex senior-engineer review",
+  "approvedAt": "2026-05-16T17:25:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/system-health-red-row-repair-001-plan.md",
+  "approvedRepoHead": "e0fd69e7166d13cf72af710164222d45694ab7c6",
+  "notes": "Approved as the immediate follow-up to the system-health visibility sprint. Scope: repair the first red rows by fixing per-job stale-run thresholds, video extraction item-key collisions, and old manual connector failure classification. Not approved: feature work, broad verifier rewrite, hub work, paid-source auth, or auto backlog mutation from health findings.",
+  "approvedPlanSha256": "4f16249ae02c6ca078aba6af72433f1d1bbf837e85640fecfffedded25ad4d9a",
+  "approvalDigest": "851235e5d6894dfe91954394fa31367be0f156ed9509aff256a66e1515031907"
+}
