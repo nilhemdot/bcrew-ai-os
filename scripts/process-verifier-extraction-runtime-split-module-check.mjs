@@ -34,6 +34,11 @@ import {
   EXTRACT_RETIRE_PLAN_PATH,
   EXTRACT_RETIRE_SCRIPT_PATH,
 } from '../lib/extract-retire.js'
+import {
+  EXTRACT_RETRY_CARD_ID,
+  EXTRACT_RETRY_PLAN_PATH,
+  EXTRACT_RETRY_SCRIPT_PATH,
+} from '../lib/extract-retry.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -102,6 +107,13 @@ async function loadEvaluationInput() {
     extractRetireModuleSource,
     extractRetireScriptSource,
     extractRetirePlanSource,
+    extractRetryModuleSource,
+    extractRetryScriptSource,
+    extractRetryPlanSource,
+    extractRunHardeningSource,
+    extractRunHardeningExecutionSource,
+    meetingNotesSyncSource,
+    extractionRetryFailedScriptSource,
     extractionRuntimeVerifierSource,
     processingProvenanceGaps,
     staleLlmCalls,
@@ -126,6 +138,13 @@ async function loadEvaluationInput() {
     readText('lib/extract-retire.js'),
     readText(EXTRACT_RETIRE_SCRIPT_PATH),
     readText(EXTRACT_RETIRE_PLAN_PATH),
+    readText('lib/extract-retry.js'),
+    readText(EXTRACT_RETRY_SCRIPT_PATH),
+    readText(EXTRACT_RETRY_PLAN_PATH),
+    readText('lib/extraction-run-hardening.js'),
+    readText('lib/extraction-run-hardening-execution.js'),
+    readText('scripts/sync-meeting-notes-archive.mjs'),
+    readText('scripts/retry-extraction-failed-items.mjs'),
     readText('lib/foundation-extraction-runtime-verifier.js'),
     getSharedCommunicationProcessingProvenanceGaps({
       since: '2026-04-24T17:14:00-04:00',
@@ -155,6 +174,13 @@ async function loadEvaluationInput() {
     extractRetireModuleSource,
     extractRetireScriptSource,
     extractRetirePlanSource,
+    extractRetryModuleSource,
+    extractRetryScriptSource,
+    extractRetryPlanSource,
+    extractRunHardeningSource,
+    extractRunHardeningExecutionSource,
+    meetingNotesSyncSource,
+    extractionRetryFailedScriptSource,
     extractionRuntimeVerifierSource,
     processingProvenanceGaps,
     staleLlmCalls,
@@ -181,7 +207,7 @@ async function main() {
       approvalRef: VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_APPROVAL_PATH,
       cardId: VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
     }),
-    getBacklogItemsByIds([VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID, CRAWL_RUN_LEDGER_CARD_ID, EXTRACT_RETIRE_CARD_ID]),
+    getBacklogItemsByIds([VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID, CRAWL_RUN_LEDGER_CARD_ID, EXTRACT_RETIRE_CARD_ID, EXTRACT_RETRY_CARD_ID]),
     getActiveFoundationCurrentSprint(),
     getPlanCriticRunsByCardIds([VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID]),
     loadEvaluationInput(),
@@ -225,7 +251,8 @@ async function main() {
       dogfood.rejected.missingWorkerReaper.ok === false &&
       dogfood.rejected.missingCorpusQuota.ok === false &&
       dogfood.rejected.missingDriveExtractionSupport.ok === false &&
-      dogfood.rejected.missingLlmProvenance.ok === false,
+      dogfood.rejected.missingLlmProvenance.ok === false &&
+      dogfood.rejected.missingExtractRetry.ok === false,
     'dogfood rejects extraction-runtime verifier failures',
     dogfood.dogfoodInvariant,
   )

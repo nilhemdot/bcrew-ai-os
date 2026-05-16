@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACT-RETRY-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T16:05:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/extract-retry-001-plan.md",
+  "approvedPlanSha256": "296f5dc96cd5b1b0e9ecf3258b88c6aef4e45b2782f66147a24166da4f1dd7b4",
+  "approvedRepoHead": "8cbc4bc89f68f6eb51c9bee659596253c93558e3",
+  "notes": "Approved as a no-auth Foundation extraction automation card. Scope: make failed-item retry support honest, keep meetings-current-day as the only proven V1 retry target, block unsupported Drive/video/email target retry commands, and make meeting retry mode load only eligible retry rows. Not approved: live extraction, new retry targets, scheduled retry loops, connector auth, paid-source auth, Skool/myICOR/YouTube/Loom work, Build Intel extraction, hub feature work, Marketing Video Lab route wiring, Canva asset mutation, Drive permission mutation, request-access emails, or Meeting Vault Phase B.",
+  "approvalDigest": "c0a3794e98f7ca8f28a045953e8af32d644c15813ffc82f94b0dc25f9a9c7b78"
+}

@@ -360,6 +360,10 @@ import {
   EXTRACT_RETIRE_SCRIPT_PATH,
 } from '../lib/extract-retire.js'
 import {
+  EXTRACT_RETRY_PLAN_PATH,
+  EXTRACT_RETRY_SCRIPT_PATH,
+} from '../lib/extract-retry.js'
+import {
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
@@ -2674,6 +2678,9 @@ async function main() {
   const extractRetireSource = await readRepoFile('lib/extract-retire.js')
   const extractRetireScriptSource = await readRepoFile(EXTRACT_RETIRE_SCRIPT_PATH)
   const extractRetirePlanSource = await readRepoFile(EXTRACT_RETIRE_PLAN_PATH)
+  const extractRetrySource = await readRepoFile('lib/extract-retry.js')
+  const extractRetryScriptSource = await readRepoFile(EXTRACT_RETRY_SCRIPT_PATH)
+  const extractRetryPlanSource = await readRepoFile(EXTRACT_RETRY_PLAN_PATH)
   const foundationSurfaceTrustVerifierSource = await readRepoFile('lib/foundation-surface-trust-verifier.js')
   const verifierSurfaceTrustSplitModuleScriptSource = await readRepoFile(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SCRIPT_PATH)
   const verifierSurfaceTrustSplitModulePlanSource = await readRepoFile(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_PLAN_PATH)
@@ -3584,6 +3591,13 @@ async function main() {
     extractRetireModuleSource: extractRetireSource,
     extractRetireScriptSource,
     extractRetirePlanSource,
+    extractRetryModuleSource: extractRetrySource,
+    extractRetryScriptSource,
+    extractRetryPlanSource,
+    extractRunHardeningSource,
+    extractRunHardeningExecutionSource,
+    meetingNotesSyncSource: syncMeetingNotesArchiveSource,
+    extractionRetryFailedScriptSource,
     extractionRuntimeVerifierSource: foundationExtractionRuntimeVerifierSource,
     driveLinkInventorySource,
     sharedCandidateExtractionSource,
@@ -12613,15 +12627,26 @@ async function main() {
     extractRetry?.nextAction,
     extractRetry?.statusNote,
   ].filter(Boolean).join('\n')
+  const extractRetryParked =
+    extractRetry?.lane === 'scoped' &&
+    extractRetry?.priority === 'P1' &&
+    extractRetryText.includes('retry/backoff') &&
+    extractRetryText.includes('failed `source_crawl_items`') &&
+    extractRetryText.includes('Partial target runs now exit nonzero') &&
+    extractRetryText.includes('Runtime Health shows failed/skipped item summaries')
+  const extractRetryActiveOrClosed =
+    ['executing', 'done'].includes(extractRetry?.lane) &&
+    extractRetry?.priority === 'P1' &&
+    extractRetryText.includes('extract-retry-v1') &&
+    (
+      extractRetryText.includes('retry support honest') ||
+      extractRetryText.includes('retry support is now honest') ||
+      extractRetryText.includes('failed-item retry support honest')
+    )
   ensure(
     checks,
-    extractRetry?.lane === 'scoped' &&
-      extractRetry?.priority === 'P1' &&
-      extractRetryText.includes('retry/backoff') &&
-      extractRetryText.includes('failed `source_crawl_items`') &&
-      extractRetryText.includes('Partial target runs now exit nonzero') &&
-      extractRetryText.includes('Runtime Health shows failed/skipped item summaries'),
-    'failed-item retry/backoff remains parked in live backlog truth',
+    extractRetryParked || extractRetryActiveOrClosed,
+    'failed-item retry/backoff is parked or actively closed through live backlog truth',
     extractRetry
       ? `${extractRetry.lane} / ${extractRetry.priority} / ${extractRetry.title}`
       : 'missing EXTRACT-RETRY-001',

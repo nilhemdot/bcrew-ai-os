@@ -4,8 +4,8 @@ import process from 'node:process';
 import { driveExportDoc, driveListFolder, driveSearch, getDriveFileMetadata } from '../lib/google-delegated.js';
 import {
   closeFoundationDb,
+  getRetryableSourceCrawlItems,
   getSharedCommunicationArchiveSnapshot,
-  listSourceCrawlItems,
   initFoundationDb,
   listFoundationUsers,
   upsertSourceCrawlItem,
@@ -257,13 +257,12 @@ async function getFileMetadataFromAnyAccount(fileId, accounts) {
 async function loadFailedMeetingGroups(groups, { crawlTargetKey, limit }) {
   if (!crawlTargetKey) throw new Error('--retryFailed=true requires --crawlTarget=<target-key>.');
 
-  const failedItems = await listSourceCrawlItems({
+  const failedItems = await getRetryableSourceCrawlItems({
     targetKey: crawlTargetKey,
-    status: 'failed',
     limit,
   });
 
-  console.log(`  Retry failed crawl items: ${failedItems.length}`);
+  console.log(`  Retry eligible crawl items: ${failedItems.length}`);
 
   for (const item of failedItems) {
     const metadata = item.metadata || {};
