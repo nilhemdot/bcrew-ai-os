@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-CONTRACT-ID-RECONCILE-001",
+  "approvedBy": "Steve keep-going instruction + Codex no-auth source readiness review",
+  "approvedAt": "2026-05-16T18:45:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-contract-id-reconcile-001-plan.md",
+  "approvedRepoHead": "7c0686f7974db5cfc8a9e8b9edd1c562abc13a78",
+  "notes": "Approved as next no-auth Foundation source-readiness sprint after connector-completion-prep-v1. Scope: reconcile Google Docs/Slides/Sheets source IDs only; no credentials, OAuth, providers, extraction jobs, paid auth, or broad source activation.",
+  "approvedPlanSha256": "2c8e22d60f19ddc82692ce5dca9ed6fcde7d6bdbb1530cdcc85ffc4ef2b5db72",
+  "approvalDigest": "5c65092996dd0d2182b22a21715fd0cfd9fd112c9b4b5d74b4a99a1f9d289647"
+}
