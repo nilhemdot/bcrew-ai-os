@@ -675,6 +675,17 @@ function buildRuntimeHealthAttentionItems(hub) {
   var sourceOutageBoundary = hub.sourceOutageBoundary || {}
   var endpointBudgets = hub.endpointBudgets || hub.foundationEndpointBudgets || {}
   var assetBudget = hub.foundationFrontendAssetBudget || hub.frontendAssetBudget || {}
+  var foundationSystemHealth = hub.foundationSystemHealth || {}
+  var systemSummary = foundationSystemHealth.summary || {}
+
+  if (foundationSystemHealth.status && foundationSystemHealth.status !== 'healthy') {
+    items.push({
+      label: 'System health rollup',
+      status: normalizeRuntimeHealthPanelStatus(foundationSystemHealth.status),
+      detail: foundationSystemHealth.plainEnglish || ((systemSummary.riskCount || 0) + ' red and ' + (systemSummary.watchCount || 0) + ' yellow system-health findings.'),
+      actions: [buildRuntimeHealthJumpAction('Open Health', 'runtime-diagnostic-system-health-rollup')],
+    })
+  }
 
   if (serviceSupervisor.status && serviceSupervisor.status !== 'healthy') {
     items.push({
@@ -776,6 +787,8 @@ function buildRuntimeHealthCommandItems(hub) {
   var runtimeProcessControl = hub.runtimeProcessControl || {}
   var serviceSupervisor = runtimeProcessControl.serviceSupervisor || {}
   var foundationJobs = hub.foundationJobs || {}
+  var foundationSystemHealth = hub.foundationSystemHealth || {}
+  var systemSummary = foundationSystemHealth.summary || {}
   var workerReliability = foundationJobs.workerReliability || {}
   var workerSummary = workerReliability.summary || {}
   var attentionItems = buildRuntimeHealthAttentionItems(hub)
@@ -800,6 +813,14 @@ function buildRuntimeHealthCommandItems(hub) {
       status: serviceSupervisor.status === 'healthy' ? 'live' : 'risk',
       detail: serviceCount + ' supervised service' + (serviceCount === 1 ? '' : 's') + '. ' + (serviceSupervisor.plainEnglish || 'Dashboard and worker service metadata are available.'),
       actions: [buildRuntimeHealthJumpAction('Open Services', 'runtime-diagnostic-process-control')],
+    },
+    {
+      label: foundationSystemHealth.status === 'healthy' ? 'System health green' : 'System health check',
+      status: foundationSystemHealth.status === 'healthy' ? 'live' : normalizeRuntimeHealthPanelStatus(foundationSystemHealth.status || 'pending'),
+      detail: foundationSystemHealth.status
+        ? (systemSummary.riskCount || 0) + ' red, ' + (systemSummary.watchCount || 0) + ' yellow. ' + (foundationSystemHealth.plainEnglish || '')
+        : 'System health rollup is not present in this payload yet.',
+      actions: [buildRuntimeHealthJumpAction('Open Health', 'runtime-diagnostic-system-health-rollup')],
     },
     {
       label: 'Worker job signal',
@@ -885,6 +906,65 @@ function appendRuntimeDiagnosticPanel(container, panel, options) {
   wrapper.appendChild(summary)
   wrapper.appendChild(panel)
   container.appendChild(wrapper)
+}
+
+function renderFoundationSystemHealthPanel(foundationSystemHealth) {
+  if (!foundationSystemHealth) return null
+  var summary = foundationSystemHealth.summary || {}
+  var scheduled = foundationSystemHealth.scheduledJobs || {}
+  var scheduledSummary = scheduled.summary || {}
+  var rows = Array.isArray(scheduled.rows) ? scheduled.rows : []
+  var priorityRows = rows.filter(function(row) {
+    return row.status === 'risk' || row.status === 'watch'
+  }).slice(0, 12)
+  var items = [
+    {
+      label: 'Overall',
+      status: normalizeRuntimeHealthPanelStatus(foundationSystemHealth.status || 'pending'),
+      detail: (foundationSystemHealth.plainEnglish || 'System health rollup is available.')
+        + ' Red ' + (summary.riskCount || 0)
+        + ', yellow ' + (summary.watchCount || 0) + '.',
+    },
+    {
+      label: 'Scheduled jobs',
+      status: scheduled.status === 'risk' ? 'risk' : (scheduled.status === 'watch' ? 'pending' : 'live'),
+      detail: (scheduledSummary.riskCount || 0) + ' red, '
+        + (scheduledSummary.watchCount || 0) + ' yellow, '
+        + (scheduledSummary.healthyCount || 0) + ' green, '
+        + (scheduledSummary.manualCount || 0) + ' manual.',
+    },
+    {
+      label: 'Nightly auditor',
+      status: foundationSystemHealth.nightlyAuditFreshness && foundationSystemHealth.nightlyAuditFreshness.ok ? 'live' : 'risk',
+      detail: foundationSystemHealth.nightlyAuditFreshness
+        ? foundationSystemHealth.nightlyAuditFreshness.reason
+        : 'Nightly audit freshness is missing from the rollup.',
+    },
+    {
+      label: 'Endpoints',
+      status: (summary.endpointRiskCount || 0) ? 'risk' : ((summary.endpointReviewCount || 0) ? 'pending' : 'live'),
+      detail: (summary.endpointRiskCount || 0) + ' risk and ' + (summary.endpointReviewCount || 0) + ' review endpoint-budget findings.',
+    },
+    {
+      label: 'Connectors',
+      status: (summary.connectorDownCount || 0) ? 'risk' : ((summary.connectorDegradedCount || 0) ? 'pending' : 'live'),
+      detail: (summary.connectorDownCount || 0) + ' down and ' + (summary.connectorDegradedCount || 0) + ' degraded connector groups.',
+    },
+  ]
+  priorityRows.forEach(function(row) {
+    items.push({
+      label: row.title || row.key,
+      status: row.status === 'risk' ? 'risk' : 'pending',
+      detail: (row.plainEnglish || 'Scheduled job needs review.')
+        + ' Last success: ' + (row.latestSuccessAt ? formatDate(row.latestSuccessAt) : 'none')
+        + '. Next: ' + (row.nextAction || 'Review job run.'),
+    })
+  })
+  return renderStatusGroupPanel(
+    'System Health Rollup',
+    'Report-only rollup of jobs, auditor freshness, connectors, endpoints, source coverage, and Current Sprint state. Red and yellow rows appear first so hidden failures do not stay buried in ledgers.',
+    items
+  )
 }
 
 function renderFoundationJobsPanel(foundationJobs) {

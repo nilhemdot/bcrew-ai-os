@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SCHEDULED-JOB-STALENESS-DASHBOARD-001",
+  "approvedBy": "Steve no-hidden-failures instruction + Codex senior-engineer review",
+  "approvedAt": "2026-05-16T16:05:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/scheduled-job-staleness-dashboard-001-plan.md",
+  "approvedRepoHead": "51d0813dd7dda044787ed12513e7fe13194f9799",
+  "notes": "Approved as the visible surface for the system-health sprint. Scope: expose scheduled job staleness and rollup status on the Foundation runtime health UI. Not approved: new dashboard framework, server.js route growth, hub features, OpenClaw voice wiring, or paid-source extraction.",
+  "approvedPlanSha256": "c9c09f2c84151d708d724e500fb5d19e545d205d5e3fcfe1cb71211e61f300ed",
+  "approvalDigest": "dc6852f0f6abeaba351b986af71f8c2cac6bd068b88217a342d03567f1aefc6f"
+}

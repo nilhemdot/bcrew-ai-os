@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYSTEM-HEALTH-NIGHTLY-AUDIT-001",
+  "approvedBy": "Steve no-hidden-failures instruction + Codex senior-engineer review",
+  "approvedAt": "2026-05-16T16:05:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/system-health-nightly-audit-001-plan.md",
+  "approvedRepoHead": "51d0813dd7dda044787ed12513e7fe13194f9799",
+  "notes": "Approved as the next Foundation sprint after the audit reliability closeout. Scope: report-only system health rollup across jobs, auditor freshness, connectors, endpoints, sources, verifier, and sprint state. Not approved: auto-fixes, backlog auto-mutation, hub features, OpenClaw voice wiring, paid-source auth, or Build Intel extraction.",
+  "approvedPlanSha256": "80330ad1384f422de11a1405c19df6fba22547535973136555d9f7012170f8f1",
+  "approvalDigest": "1eceec5a3f9c4a4b5ea4b09267d59df6137995720daf95fb5c2d22780d8986c0"
+}

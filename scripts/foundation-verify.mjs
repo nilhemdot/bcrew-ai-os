@@ -170,6 +170,20 @@ import {
   buildNightlyDeepAuditUpgradeDogfoodProof,
 } from '../lib/nightly-deep-audit-upgrade.js'
 import {
+  SCHEDULED_JOB_STALENESS_DASHBOARD_APPROVAL_PATH,
+  SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID,
+  SCHEDULED_JOB_STALENESS_DASHBOARD_CLOSEOUT_KEY,
+  SCHEDULED_JOB_STALENESS_DASHBOARD_PLAN_PATH,
+  SYSTEM_HEALTH_NIGHTLY_AUDIT_APPROVAL_PATH,
+  SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID,
+  SYSTEM_HEALTH_NIGHTLY_AUDIT_CLOSEOUT_KEY,
+  SYSTEM_HEALTH_NIGHTLY_AUDIT_JOB_KEY,
+  SYSTEM_HEALTH_NIGHTLY_AUDIT_PLAN_PATH,
+  SYSTEM_HEALTH_NIGHTLY_AUDIT_SCHEDULE_LOCAL_TIME,
+  SYSTEM_HEALTH_NIGHTLY_AUDIT_SCRIPT_PATH,
+  buildFoundationSystemHealthDogfoodProof,
+} from '../lib/foundation-system-health.js'
+import {
   FOUNDATION_ROUTE_BUDGET_CLEANUP_CARD_IDS,
   FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY,
   VERIFIER_ROUTE_BUDGET_MODULE_SPLIT_CARD_ID,
@@ -2400,6 +2414,10 @@ async function main() {
   const recurringDeepAuditSource = await readRepoFile('lib/recurring-deep-audit.js')
   const nightlyDeepAuditUpgradeSource = await readRepoFile('lib/nightly-deep-audit-upgrade.js')
   const nightlyDeepAuditScriptSource = await readRepoFile(NIGHTLY_DEEP_AUDIT_SCRIPT_PATH)
+  const foundationSystemHealthSource = await readRepoFile('lib/foundation-system-health.js')
+  const systemHealthNightlyAuditScriptSource = await readRepoFile(SYSTEM_HEALTH_NIGHTLY_AUDIT_SCRIPT_PATH)
+  const systemHealthNightlyAuditPlanSource = await readRepoFile(SYSTEM_HEALTH_NIGHTLY_AUDIT_PLAN_PATH)
+  const scheduledJobStalenessDashboardPlanSource = await readRepoFile(SCHEDULED_JOB_STALENESS_DASHBOARD_PLAN_PATH)
   const foundationPerformanceScriptSource = await readRepoFile(FOUNDATION_PERFORMANCE_SCRIPT_PATH)
   const recurringDeepAuditScriptSource = await readRepoFile(RECURRING_DEEP_AUDIT_SCRIPT_PATH)
   const foundationVerificationCleanupScriptSource = await readRepoFile(FOUNDATION_VERIFICATION_CLEANUP_SCRIPT_PATH)
@@ -12545,6 +12563,61 @@ async function main() {
     foundationUiLiveSummarySourcesCard
       ? `lane=${foundationUiLiveSummarySourcesCard.lane} rows=${foundationUiLiveSummaryPayload.summary?.surfaceRowCount || 0} auditFinding=${foundationUiLiveSummaryAuditFindingIds.includes('hardcoded-foundation-ui-current-summary') ? 'present' : 'clean'} closeout=${foundationUiLiveSummarySourcesCloseout?.key || 'pending'}`
       : `missing ${FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID}`,
+  )
+  const systemHealthNightlyAuditCard = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID) || null
+  const scheduledJobStalenessDashboardCard = (foundationHub.backlogItems || []).find(item => item.id === SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID) || null
+  const systemHealthNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SYSTEM_HEALTH_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
+  const scheduledJobStalenessDashboardCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SCHEDULED_JOB_STALENESS_DASHBOARD_CLOSEOUT_KEY) || null
+  const systemHealthNightlyAuditClosed = systemHealthNightlyAuditCard?.lane === 'done'
+  const scheduledJobStalenessDashboardClosed = scheduledJobStalenessDashboardCard?.lane === 'done'
+  const systemHealthNightlyAuditDogfood = buildFoundationSystemHealthDogfoodProof()
+  const systemHealthNightlyJob = getFoundationJobDefinitions().find(job => job.key === SYSTEM_HEALTH_NIGHTLY_AUDIT_JOB_KEY) || null
+  const systemHealthNightlyRuntime = getFoundationJobRuntime(systemHealthNightlyJob || {}, {
+    status: 'succeeded',
+    finishedAt: new Date().toISOString(),
+  })
+  ensure(
+    checks,
+    systemHealthNightlyAuditCard &&
+      scheduledJobStalenessDashboardCard &&
+      ['executing', 'done'].includes(systemHealthNightlyAuditCard.lane) &&
+      ['scoped', 'executing', 'done'].includes(scheduledJobStalenessDashboardCard.lane) &&
+      packageJson.scripts?.['process:system-health-nightly-audit-check'] === `node --env-file-if-exists=.env ${SYSTEM_HEALTH_NIGHTLY_AUDIT_SCRIPT_PATH}` &&
+      systemHealthNightlyJob?.runtimeMode === 'scheduled' &&
+      systemHealthNightlyJob?.mutationPosture === 'report_only' &&
+      systemHealthNightlyJob?.scheduleLocalTime === SYSTEM_HEALTH_NIGHTLY_AUDIT_SCHEDULE_LOCAL_TIME &&
+      systemHealthNightlyRuntime.scheduleStatus !== 'blocked' &&
+      systemHealthNightlyAuditDogfood.ok === true &&
+      foundationSystemHealthSource.includes('buildFoundationSystemHealthSnapshot') &&
+      foundationSystemHealthSource.includes('buildScheduledJobStalenessSnapshot') &&
+      foundationSystemHealthSource.includes('buildFoundationSystemHealthReportMarkdown') &&
+      systemHealthNightlyAuditScriptSource.includes('--write-report') &&
+      systemHealthNightlyAuditScriptSource.includes('assertCurrentProcessCheckWriteAllowed') &&
+      hubReadRoutesSource.includes('foundationSystemHealth') &&
+      foundationRuntimeRenderersSource.includes('renderFoundationSystemHealthPanel') &&
+      foundationOperationsRenderersSource.includes('runtime-diagnostic-system-health-rollup') &&
+      systemHealthNightlyAuditPlanSource.includes('A configured job is not truth') &&
+      scheduledJobStalenessDashboardPlanSource.includes('Steve opens the Foundation page and immediately sees red/yellow/green system health') &&
+      await repoFileExists(SYSTEM_HEALTH_NIGHTLY_AUDIT_APPROVAL_PATH) &&
+      await repoFileExists(SCHEDULED_JOB_STALENESS_DASHBOARD_APPROVAL_PATH) &&
+      await repoFileExists('docs/handoffs/system-health-2026-05-16.md') &&
+      await repoFileExists('docs/handoffs/system-health-2026-05-16.json') &&
+      (!systemHealthNightlyAuditClosed || (
+        String(systemHealthNightlyAuditCard.statusNote || '').includes(SYSTEM_HEALTH_NIGHTLY_AUDIT_CLOSEOUT_KEY) &&
+        systemHealthNightlyAuditCloseout?.operatorCloseout === true &&
+        (systemHealthNightlyAuditCloseout.backlogIds || []).includes(SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-16-system-health-nightly-audit-closeout.md')
+      )) &&
+      (!scheduledJobStalenessDashboardClosed || (
+        String(scheduledJobStalenessDashboardCard.statusNote || '').includes(SCHEDULED_JOB_STALENESS_DASHBOARD_CLOSEOUT_KEY) &&
+        scheduledJobStalenessDashboardCloseout?.operatorCloseout === true &&
+        (scheduledJobStalenessDashboardCloseout.backlogIds || []).includes(SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-16-scheduled-job-staleness-dashboard-closeout.md')
+      )),
+    'SYSTEM-HEALTH-NIGHTLY-AUDIT-001 and SCHEDULED-JOB-STALENESS-DASHBOARD-001 surface hidden job/source/system staleness',
+    systemHealthNightlyAuditCard && scheduledJobStalenessDashboardCard
+      ? `lanes=${systemHealthNightlyAuditCard.lane}/${scheduledJobStalenessDashboardCard.lane} job=${systemHealthNightlyJob?.runtimeMode || 'missing'}/${systemHealthNightlyRuntime.scheduleStatus || 'missing'} dogfood=${systemHealthNightlyAuditDogfood.ok ? 'pass' : 'blocked'}`
+      : 'missing system-health visibility cards',
   )
   const processHardeningDogfood = buildFoundationProcessHardeningVerifierDogfoodProof()
   const verifierProcessHardeningSplitModuleCard =

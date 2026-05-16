@@ -36,6 +36,14 @@ function renderDataHealth() {
     var commandPanel = renderRuntimeHealthCommandPanel(hub)
     if (commandPanel) container.appendChild(commandPanel)
 
+    var systemHealthPanel = renderFoundationSystemHealthPanel(hub.foundationSystemHealth)
+    appendRuntimeDiagnosticPanel(container, systemHealthPanel, {
+      id: 'runtime-diagnostic-system-health-rollup',
+      title: 'System Health Rollup',
+      intro: 'Report-only red/yellow/green rollup for scheduled jobs, auditor freshness, connectors, endpoints, sources, and Current Sprint state.',
+      open: hub.foundationSystemHealth && hub.foundationSystemHealth.status && hub.foundationSystemHealth.status !== 'healthy',
+    })
+
     var kpiWarningPanel = renderKpiHealthRuntimeWarning(hub.kpiHealth)
     appendRuntimeDiagnosticPanel(container, kpiWarningPanel, {
       id: 'runtime-diagnostic-kpi-warning',
