@@ -283,6 +283,17 @@ import {
   evaluateFoundationIntelligenceSpineVerifier,
 } from '../lib/foundation-intelligence-spine-verifier.js'
 import {
+  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_BEFORE_LINES,
+  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
+  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationExtractionRuntimeVerifierDogfoodProof,
+  evaluateFoundationExtractionRuntimeVerifier,
+} from '../lib/foundation-extraction-runtime-verifier.js'
+import {
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID,
@@ -2195,6 +2206,7 @@ async function main() {
   const verifierSplitBacklogItems = await getBacklogItemsByIds([
     VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
     VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
+    VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
   ])
   const verifierSplitBacklogItemById = new Map(verifierSplitBacklogItems.map(item => [item.id, item]))
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
@@ -2618,6 +2630,9 @@ async function main() {
   const foundationIntelligenceSpineVerifierSource = await readRepoFile('lib/foundation-intelligence-spine-verifier.js')
   const verifierIntelligenceSpineSplitModuleScriptSource = await readRepoFile(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierIntelligenceSpineSplitModulePlanSource = await readRepoFile(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_PLAN_PATH)
+  const foundationExtractionRuntimeVerifierSource = await readRepoFile('lib/foundation-extraction-runtime-verifier.js')
+  const verifierExtractionRuntimeSplitModuleScriptSource = await readRepoFile(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierExtractionRuntimeSplitModulePlanSource = await readRepoFile(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_PLAN_PATH)
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -3410,12 +3425,74 @@ async function main() {
       ? `lane=${verifierIntelligenceSpineSplitModuleCard.lane} dogfood=${verifierIntelligenceSpineSplitModuleDogfood.ok ? 'pass' : 'blocked'} spineChecks=${intelligenceSpineVerifier.summary.passed}/${intelligenceSpineVerifier.summary.total} lines=${VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterIntelligenceSpineSplit}`
       : `missing ${VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID}`,
   )
+  const processingProvenanceGaps = await getSharedCommunicationProcessingProvenanceGaps({
+    since: '2026-04-24T17:14:00-04:00',
+    limit: 10,
+  })
+  const staleLlmCalls = await getStaleLlmCalls({ olderThanSeconds: 240, graceSeconds: 60, limit: 10 })
+  const extractionRuntimeVerifier = evaluateFoundationExtractionRuntimeVerifier({
+    foundationDbSource,
+    foundationWorkerSource,
+    foundationJobsSource,
+    extractionTargetSource,
+    videoInventorySource,
+    currentPlan,
+    currentState,
+    extractionControlSeedSource,
+    googleDelegatedSource,
+    driveContentExtractionSource,
+    packageSource,
+    driveLinkInventorySource,
+    sharedCandidateExtractionSource,
+    processingProvenanceGaps,
+    staleLlmCalls,
+  })
+  checks.push(...extractionRuntimeVerifier.checks)
+  const activeFoundationSprintForExtractionRuntime = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const verifierExtractionRuntimeSplitModuleCard =
+    verifierSplitBacklogItemById.get(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID) ||
+    (activeFoundationSprintForExtractionRuntime.items || [])
+      .map(item => item.backlog)
+      .find(item => item?.id === VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID) ||
+    null
+  const verifierExtractionRuntimeSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierExtractionRuntimeSplitModuleDogfood = buildFoundationExtractionRuntimeVerifierDogfoodProof()
+  const verifierExtractionRuntimeSplitModuleClosed = verifierExtractionRuntimeSplitModuleCard?.lane === 'done'
+  const foundationVerifyLineCountAfterExtractionRuntimeSplit = String(foundationVerifySource || '').split('\n').length
+  const extractionRuntimeOldInlinePatterns = [
+    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1200}'Foundation worker catches job failures and reaps stale active runs/calls'"),
+    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1200}'llm_calls has no timeout-expired planned/started calls'"),
+  ]
   ensure(
     checks,
-    includesAll(foundationDbSource, ['markStaleFoundationJobRuns', 'Marked failed by stale active-run reaper', 'markStaleLlmCalls', 'Marked failed by stale LLM call reaper', 'markStaleSourceCrawlTargetRuns', 'Marked failed by stale source-crawl run reaper']) &&
-      includesAll(foundationWorkerSource, ['markStaleFoundationJobRuns', 'markStaleLlmCalls', 'markStaleSourceCrawlTargetRuns', 'job ' + '${job.key}' + ' failed before completion', 'Foundation worker pass failed']),
-    'Foundation worker catches job failures and reaps stale active runs/calls',
-    'worker pass catches per-job failures, continues looping, and marks stale queued/running job runs, stale source-crawl target runs, and planned/started LLM calls failed before selecting due jobs',
+    verifierExtractionRuntimeSplitModuleCard &&
+      ['executing', 'done'].includes(verifierExtractionRuntimeSplitModuleCard.lane) &&
+      (!verifierExtractionRuntimeSplitModuleClosed || (
+        String(verifierExtractionRuntimeSplitModuleCard.statusNote || '').includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY) &&
+        verifierExtractionRuntimeSplitModuleCloseout?.operatorCloseout === true &&
+        (verifierExtractionRuntimeSplitModuleCloseout.backlogIds || []).includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-16-verifier-extraction-runtime-split-module-closeout.md')
+      )) &&
+      verifierExtractionRuntimeSplitModuleDogfood.ok === true &&
+      extractionRuntimeVerifier.summary.passed === extractionRuntimeVerifier.summary.total &&
+      packageJson.scripts?.['process:verifier-extraction-runtime-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_APPROVAL_PATH) &&
+      foundationExtractionRuntimeVerifierSource.includes('evaluateFoundationExtractionRuntimeVerifier') &&
+      foundationExtractionRuntimeVerifierSource.includes('buildFoundationExtractionRuntimeVerifierDogfoodProof') &&
+      verifierExtractionRuntimeSplitModuleScriptSource.includes('dogfood rejects extraction-runtime verifier failures') &&
+      verifierExtractionRuntimeSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
+      foundationVerifySource.includes('evaluateFoundationExtractionRuntimeVerifier({') &&
+      foundationVerifySource.includes('extractionRuntimeVerifier.checks') &&
+      extractionRuntimeOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
+      currentPlan.includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprintForExtractionRuntime.sprint?.sprintId === VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SPRINT_ID || verifierExtractionRuntimeSplitModuleClosed) &&
+      foundationExtractionRuntimeVerifierSource.includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID),
+    'VERIFIER-EXTRACTION-RUNTIME-SPLIT-MODULE-001 extracts extraction runtime verifier checks into a focused module',
+    verifierExtractionRuntimeSplitModuleCard
+      ? `lane=${verifierExtractionRuntimeSplitModuleCard.lane} dogfood=${verifierExtractionRuntimeSplitModuleDogfood.ok ? 'pass' : 'blocked'} extractionChecks=${extractionRuntimeVerifier.summary.passed}/${extractionRuntimeVerifier.summary.total} lines=${VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterExtractionRuntimeSplit}`
+      : `missing ${VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID}`,
   )
   ensure(
     checks,
@@ -3426,174 +3503,6 @@ async function main() {
     ),
     'markdown-rendered links sanitize unsafe schemes',
     'Foundation and doc views disable unsafe href schemes and isolate external links; Strategy Hub v2 source-to-gap view does not render markdown',
-  )
-  ensure(
-    checks,
-    foundationJobsSource.includes("args: ['run', 'extraction:target', '--', '--target=video-link-inventory']") &&
-      extractionTargetSource.includes("target.targetKey === 'video-link-inventory'") &&
-      extractionTargetSource.includes('--controlledByTargetRunner=true') &&
-      videoInventorySource.includes('Refusing non-dry-run video link inventory outside extraction:target'),
-    'video-link inventory runs through extraction target control',
-    'job uses extraction:target, target runner passes controlled flag, raw script refuses direct non-dry-run writes',
-  )
-  ensure(
-    checks,
-    includesAll(currentPlan, ['Corpus mission lane', 'daily quota missions', 'files the outputs with provenance']) &&
-      includesAll(currentState, ['daily quota missions', 'file outputs with provenance']) &&
-      includesAll(extractionControlSeedSource, ['missionMode', 'daily_quota', 'dailyMissionQuota', 'requiresFiledOutput']),
-    'corpus extraction uses daily mission quotas instead of blind timers',
-    'Drive/video/Skool/Zoom/report corpus lanes are seeded and documented as quota missions with filed-output expectations',
-  )
-  ensure(
-    checks,
-    includesAll(foundationJobsSource, [
-      "key: 'meeting-notes-sync-current'",
-      "key: 'slack-sync-current'",
-      "key: 'drive-corpus-inventory-bite'",
-      "key: 'gmail-extract-latest'",
-      "key: 'missive-extract-latest'",
-      "key: 'meeting-transcripts-extract-backlog'",
-      "key: 'slack-extract-latest'",
-      "key: 'drive-content-extract-bite'",
-      "key: 'email-attachment-extract-bite'",
-      "key: 'video-content-extract-bite'",
-      "runtimeMode: 'scheduled'",
-      'scheduleEveryMinutes: 1440',
-      "'--onlyWithoutCandidates=true'",
-    ]) &&
-      includesAll(extractionControlSeedSource, [
-        "targetKey: 'meetings-current-day'",
-        "targetKey: 'slack-current-day'",
-        "targetKey: 'drive-corpus-backfill'",
-        "targetKey: 'drive-content-extract-backfill'",
-        "targetKey: 'email-attachments-backfill'",
-        "targetKey: 'video-content-extract-backfill'",
-        "runtimeMode: 'scheduled'",
-        'scheduleEveryMinutes: 1440',
-      ]),
-    'core sources have scheduled current-day and daily history/mission lanes',
-    'meetings/slack current sync, Gmail/Missive/meeting/Slack extraction, Drive inventory/content, Gmail attachments, and video content extraction are scheduled with daily quotas',
-  )
-  ensure(
-    checks,
-    includesAll(extractionTargetSource, [
-      "target.targetKey === 'drive-content-extract-backfill'",
-      '--maxPdfBytes=',
-      '--maxSheets=',
-      '--maxSheetRows=',
-      '--retrySkippedReasonPrefixes=',
-    ]) &&
-      includesAll(extractionControlSeedSource, [
-        "maxPdfBytes: 80000000",
-        "retrySkippedReasonPrefixes: ['pdf_too_large_for_v1', 'sheet_text_extraction_not_in_v1']",
-        "maxSheetRows: 200",
-      ]) &&
-      includesAll(foundationDbSource, [
-        'listDriveContentExtractionQueue',
-        'retrySkippedReasonPrefixes',
-        "drive_document",
-        "drive_spreadsheet",
-        "drive_pdf",
-        "drive_text",
-        "application/vnd.google-apps.spreadsheet",
-        "text/markdown",
-        'parentPathIncludes',
-        'fileIds',
-      ]) &&
-      includesAll(googleDelegatedSource, [
-        'getSpreadsheetMetadata',
-        'getSheetValues',
-      ]) &&
-      includesAll(driveContentExtractionSource, [
-        'GOOGLE_SHEET_MIME',
-        'extractGoogleSheetText',
-        'drive_google_sheet_values_v1',
-        'extractPdfTextWithOcr',
-        'empty_text_after_ocr_needs_vision_handwriting_extraction',
-        'drive_pdf_tesseract_ocr_v1',
-      ]) &&
-      includesAll(packageSource, ['"drive:inventory-links"']) &&
-      includesAll(driveLinkInventorySource, [
-        'extractLinks',
-        'createDrivePermission',
-        'sendGmailMessage',
-        'drive_link_access_request',
-      ]),
-    'Drive content extraction target supports governed Docs/Sheets/PDF/text/markdown/OCR/link inventory',
-    'target runner passes sheet/PDF caps, retry prefixes, and DB queue/script support Drive document/spreadsheet/PDF/text/markdown artifacts, OCR fallback, and linked-doc access requests',
-  )
-  ensure(
-    checks,
-    includesAll(extractionTargetSource, [
-      "target.targetKey === 'email-attachments-backfill'",
-      '--maxAttachmentBytes=',
-      '--maxTextChars=',
-    ]) &&
-      includesAll(extractionControlSeedSource, [
-        "targetKey: 'email-attachments-backfill'",
-        "maxAttachmentBytes: 80000000",
-        "missionUnit: 'email_attachment_text_outputs'",
-      ]) &&
-      includesAll(foundationDbSource, [
-        'getSourceCrawlItemsByExternalId',
-        "gmail_attachment",
-      ]),
-    'Gmail attachment extraction target is governed and source-ledgered',
-    'target runner passes attachment/text caps and DB artifacts/crawl items include gmail_attachment support',
-  )
-  ensure(
-    checks,
-    includesAll(extractionTargetSource, [
-      "target.targetKey === 'video-content-extract-backfill'",
-      'video:extract-content',
-      '--maxTextChars=',
-    ]) &&
-      includesAll(extractionControlSeedSource, [
-        "targetKey: 'video-content-extract-backfill'",
-        "missionUnit: 'video_transcript_outputs'",
-        'DataForSEO YouTube Video Subtitles live advanced',
-      ]) &&
-      includesAll(foundationDbSource, [
-        'listVideoContentExtractionQueue',
-        "video_transcript",
-      ]),
-    'video content extraction target is governed and source-ledgered',
-    'target runner passes text caps and DB queue/artifact constraints include the video transcript lane',
-  )
-  ensure(
-    checks,
-    foundationDbSource.includes('artifact_content_hash') &&
-      foundationDbSource.includes('COALESCE(processing.artifact_content_hash') &&
-      !foundationDbSource.includes('active_candidate.artifact_id IS NULL'),
-    'shared-comms processing selector is content-hash scoped',
-    'current-content processing runs, not candidate existence, control extraction eligibility',
-  )
-  ensure(
-    checks,
-    includesAll(sharedCandidateExtractionSource, ['requestedModel', 'provider', 'authPath', 'routeKey', 'llmCallId']),
-    'shared-comms extraction records actual LLM route provenance',
-    'candidate metadata carries requested model plus actual provider/auth path/route/model',
-  )
-  const processingProvenanceGaps = await getSharedCommunicationProcessingProvenanceGaps({
-    since: '2026-04-24T17:14:00-04:00',
-    limit: 10,
-  })
-  ensure(
-    checks,
-    processingProvenanceGaps.length === 0,
-    'shared-comms processing runs have routed LLM provenance',
-    processingProvenanceGaps.length
-      ? processingProvenanceGaps.map(item => `${item.runId}:${item.artifactId}`).join(', ')
-      : 'no post-hardening candidate extraction rows missing hash/provider/auth/route/model',
-  )
-  const staleLlmCalls = await getStaleLlmCalls({ olderThanSeconds: 240, graceSeconds: 60, limit: 10 })
-  ensure(
-    checks,
-    staleLlmCalls.length === 0,
-    'llm_calls has no timeout-expired planned/started calls',
-    staleLlmCalls.length
-      ? staleLlmCalls.map(item => `${item.callId}:${item.status}:${item.ageSeconds}s>${item.timeoutSeconds + item.graceSeconds}s`).join(', ')
-      : 'no planned/started LLM calls older than their timeout plus grace',
   )
   const staleSourceCrawlRuns = await getStaleSourceCrawlTargetRuns({ olderThanMinutes: 30, limit: 10 })
 
@@ -3839,6 +3748,7 @@ async function main() {
     VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID,
     VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
     VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
+    VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-16
-Version: v6.77 - Core governance verifier split complete
+Version: v6.79 - Extraction runtime verifier split complete
 Status: Sprint review
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Intelligence Spine Verifier Split
+## Current Sprint: Extraction Runtime Verifier Split
+
+Live sprint ID: `verifier-extraction-runtime-split-module-2026-05-16`.
+
+This sprint is complete under `verifier-extraction-runtime-split-module-v1`. It extracted the existing extraction/runtime verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-extraction-runtime-verifier.js` while preserving the same PASS/FAIL rows for Foundation worker reapers, video-link inventory control, corpus quota missions, scheduled source lanes, Drive/Gmail/video extraction targets, shared-comms content-hash processing, LLM route provenance, and stale LLM call detection.
+
+Completed card:
+
+1. `VERIFIER-EXTRACTION-RUNTIME-SPLIT-MODULE-001` - done under `verifier-extraction-runtime-split-module-v1`. V1 owns `lib/foundation-extraction-runtime-verifier.js`, `scripts/process-verifier-extraction-runtime-split-module-check.mjs`, package script `process:verifier-extraction-runtime-split-module-check`, plan/approval docs, dogfood fixtures that reject missing worker reaper wiring, missing corpus quota controls, missing Drive extraction support, and missing LLM provenance, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-extraction-runtime-split-module-closeout.md`.
+
+Not next: extraction runs, extraction schedule changes, connector auth, source contract behavior changes, DB schema changes, backlog mutation behavior changes, route/auth behavior changes, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
+
+Previous completed sprint: `verifier-intelligence-spine-split-module-2026-05-16`, closed under `verifier-intelligence-spine-split-module-v1`.
+
+## Previous Sprint: Intelligence Spine Verifier Split
 
 Live sprint ID: `verifier-intelligence-spine-split-module-2026-05-16`.
 

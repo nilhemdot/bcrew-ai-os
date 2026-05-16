@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-EXTRACTION-RUNTIME-SPLIT-MODULE-001",
+  "approvedPlanRef": "docs/process/verifier-extraction-runtime-split-module-001-plan.md",
+  "approvedPlanSha256": "5520958714b50f90be765886c6a2fa6c2c7fc3f9338959c1332284e34422ef6a",
+  "approvedRepoHead": "bf0aa3d650817b4f7bb4b6493b6cd86a1ff4026d",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T02:20:00.000-04:00",
+  "score": 10,
+  "notes": "Approved as next no-auth Foundation cleanup slice after VERIFIER-INTELLIGENCE-SPINE-SPLIT-MODULE-001 shipped. Extract existing extraction/runtime verifier predicates only; no behavior changes, connector auth, source ingestion, paid calls, or hub feature work.",
+  "approvalDigest": "8c73c3c0d21d77a2354ade12aacda354f8a26177bff99876e65510184ff5595d"
+}
