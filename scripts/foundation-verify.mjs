@@ -903,6 +903,10 @@ import {
   evaluateFoundationSharedCommsStoreSplit,
 } from '../lib/foundation-shared-comms-store.js'
 import {
+  FOUNDATION_LLM_RUNTIME_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_LLM_RUNTIME_STORE_SPLIT_SCRIPT_PATH,
+} from '../lib/foundation-llm-runtime-store.js'
+import {
   FRONTEND_MONOLITH_SPLIT_APPROVAL_PATH,
   FRONTEND_MONOLITH_SPLIT_BEFORE_LINES,
   FRONTEND_MONOLITH_SPLIT_CARD_ID,
@@ -2563,6 +2567,9 @@ async function main() {
   const foundationSharedCommsStoreSource = await readRepoFile('lib/foundation-shared-comms-store.js')
   const foundationSharedCommsStoreScriptSource = await readRepoFile(FOUNDATION_SHARED_COMMS_STORE_SPLIT_SCRIPT_PATH)
   const foundationSharedCommsStorePlanSource = await readRepoFile(FOUNDATION_SHARED_COMMS_STORE_SPLIT_PLAN_PATH)
+  const foundationLlmRuntimeStoreSource = await readRepoFile('lib/foundation-llm-runtime-store.js')
+  const foundationLlmRuntimeStoreScriptSource = await readRepoFile(FOUNDATION_LLM_RUNTIME_STORE_SPLIT_SCRIPT_PATH)
+  const foundationLlmRuntimeStorePlanSource = await readRepoFile(FOUNDATION_LLM_RUNTIME_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -3339,6 +3346,7 @@ async function main() {
   const staleLlmCalls = await getStaleLlmCalls({ olderThanSeconds: 240, graceSeconds: 60, limit: 10 })
   const extractionRuntimeVerifier = evaluateFoundationExtractionRuntimeVerifier({
     foundationDbSource,
+    llmRuntimeStoreSource: foundationLlmRuntimeStoreSource,
     foundationWorkerSource,
     foundationJobsSource,
     extractionTargetSource,
@@ -12655,6 +12663,9 @@ async function main() {
     foundationSharedCommsStoreSource,
     foundationSharedCommsStoreScriptSource,
     foundationSharedCommsStorePlanSource,
+    foundationLlmRuntimeStoreSource,
+    foundationLlmRuntimeStoreScriptSource,
+    foundationLlmRuntimeStorePlanSource,
     moduleSource: foundationDbSplitVerifierSource,
     repoFileExists,
   }

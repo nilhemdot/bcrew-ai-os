@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-010",
+  "approvedPlanRef": "docs/process/foundation-db-llm-runtime-store-split-010-plan.md",
+  "approvedPlanSha256": "df50ab77f2f66b79cc13179d9248b6bd0e95a5f4fdd960981624bc947b382ca0",
+  "approvedRepoHead": "8aa5fe63bfa21a5d820d3c9a43527bc1992a7b3f",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T04:14:42Z",
+  "score": 10,
+  "notes": "Approved bounded Foundation DB LLM runtime store split. No LLM routing policy changes, provider auth changes, live model calls, source extraction, hub feature work, schema changes, or live connector calls.",
+  "approvalDigest": "38ebb583440debeafd4bd5e038aba36b5854c11fddf333a40d6d0cd854f1f88b"
+}

@@ -74,6 +74,7 @@ function scriptIsReadOnly(source = '') {
 async function loadEvaluationInput() {
   const [
     foundationDbSource,
+    llmRuntimeStoreSource,
     foundationWorkerSource,
     foundationJobsSource,
     extractionTargetSource,
@@ -90,6 +91,7 @@ async function loadEvaluationInput() {
     staleLlmCalls,
   ] = await Promise.all([
     readText('lib/foundation-db.js'),
+    readText('lib/foundation-llm-runtime-store.js'),
     readText('scripts/foundation-worker.mjs'),
     readText('lib/foundation-jobs.js'),
     readText('scripts/run-extraction-target.mjs'),
@@ -111,6 +113,7 @@ async function loadEvaluationInput() {
 
   return {
     foundationDbSource,
+    llmRuntimeStoreSource,
     foundationWorkerSource,
     foundationJobsSource,
     extractionTargetSource,
