@@ -352,6 +352,10 @@ import {
   FOUNDATION_SOURCE_CRAWL_STORE_SPLIT_SCRIPT_PATH,
 } from '../lib/foundation-source-crawl-store.js'
 import {
+  FOUNDATION_DRIVE_MEETING_VAULT_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_DRIVE_MEETING_VAULT_STORE_SPLIT_SCRIPT_PATH,
+} from '../lib/foundation-drive-meeting-vault-store.js'
+import {
   FUB_SOURCE_ROUTE_SPLIT_APPROVAL_PATH,
   FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES,
   FUB_SOURCE_ROUTE_SPLIT_CARD_ID,
@@ -2584,6 +2588,9 @@ async function main() {
   const foundationSourceCrawlStoreSource = await readRepoFile('lib/foundation-source-crawl-store.js')
   const foundationSourceCrawlStoreScriptSource = await readRepoFile(FOUNDATION_SOURCE_CRAWL_STORE_SPLIT_SCRIPT_PATH)
   const foundationSourceCrawlStorePlanSource = await readRepoFile(FOUNDATION_SOURCE_CRAWL_STORE_SPLIT_PLAN_PATH)
+  const foundationDriveMeetingVaultStoreSource = await readRepoFile('lib/foundation-drive-meeting-vault-store.js')
+  const foundationDriveMeetingVaultStoreScriptSource = await readRepoFile(FOUNDATION_DRIVE_MEETING_VAULT_STORE_SPLIT_SCRIPT_PATH)
+  const foundationDriveMeetingVaultStorePlanSource = await readRepoFile(FOUNDATION_DRIVE_MEETING_VAULT_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -3110,6 +3117,7 @@ async function main() {
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const sourceCrawlStoreOwnershipSource = `${foundationDbSource}\n${foundationSourceCrawlStoreSource}`
+  const driveMeetingVaultStoreOwnershipSource = `${foundationDbSource}\n${foundationDriveMeetingVaultStoreSource}`
   const foundationBacklogSeedSource = await readRepoFile('lib/foundation-backlog-seed.js')
   const foundationDbWithBacklogSeedSource = `${foundationDbSource}\n${foundationBacklogSeedSource}`
   const currentSprintStoreSource = await readRepoFile('lib/foundation-current-sprint-store.js')
@@ -7822,7 +7830,7 @@ async function main() {
       ]) &&
       !driveAccessPreflightSource.includes('createDrivePermission') &&
       !driveAccessPreflightSource.includes('deleteDrivePermission') &&
-      includesAll(foundationDbSource, [
+      includesAll(driveMeetingVaultStoreOwnershipSource, [
         'drive_access_preflight_runs',
         'drive_access_preflight_items',
         'recordDriveAccessPreflightRun',
@@ -7937,7 +7945,7 @@ async function main() {
         'proof output is metadata-only',
         'noDriveMutations',
       ]) &&
-      includesAll(foundationDbSource, [
+      includesAll(driveMeetingVaultStoreOwnershipSource, [
         'meeting_vault_enforcement_runs',
         'meeting_vault_enforcement_items',
         'meeting_vault_legacy_exceptions',
@@ -12689,6 +12697,9 @@ async function main() {
     foundationSourceCrawlStoreSource,
     foundationSourceCrawlStoreScriptSource,
     foundationSourceCrawlStorePlanSource,
+    foundationDriveMeetingVaultStoreSource,
+    foundationDriveMeetingVaultStoreScriptSource,
+    foundationDriveMeetingVaultStorePlanSource,
     moduleSource: foundationDbSplitVerifierSource,
     repoFileExists,
   }

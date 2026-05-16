@@ -408,3 +408,10 @@ Rule:
 - if the work helps AI OS understand or operate shared truth, it is Foundation
 - if the work tells a department/person what to do or acts in a workflow, it is Hub work
 - the Action Router is Foundation because it closes the evidence-to-operating-ledger loop; the hub is the consumer that reads and acts on that routed truth
+
+## Latest Foundation Cleanup
+
+- `FOUNDATION-DB-MONOLITH-SPLIT-013` is done under `foundation-drive-meeting-vault-store-split-v1`.
+- Drive Access preflight proof storage and Meeting Vault proof storage now live in `lib/foundation-drive-meeting-vault-store.js`.
+- `lib/foundation-db.js` keeps stable public delegates for Meeting raw Drive candidates, Drive Access preflight runs, Meeting Vault ACL audits, Meeting Vault auto-enforcement runs, and legacy exceptions.
+- Scope stayed proof-store only: no Drive permission mutation, request-access email, Meeting Vault Phase B, source extraction, schema change, Canva, paid-source auth, Build Intel, or hub feature work.

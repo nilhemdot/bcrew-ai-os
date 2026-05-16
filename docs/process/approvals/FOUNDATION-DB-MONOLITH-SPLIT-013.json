@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-013",
+  "approvedPlanRef": "docs/process/foundation-db-drive-meeting-vault-store-split-013-plan.md",
+  "approvedPlanSha256": "37e34f98aa6cd980c5f304e3ef8507d0ddc18ba0d0709a62e894fc52ce0dac5b",
+  "approvedRepoHead": "c385a22072dfd42553186ae2536cf1f5b12958cf",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T06:05:00.000Z",
+  "score": 10,
+  "notes": "Approved bounded Foundation DB Drive Access / Meeting Vault proof-store split. No Drive permission mutation, request-access email, Meeting Vault Phase B, schema change, source extraction, Canva work, hub feature work, paid-source auth, or live connector calls.",
+  "approvalDigest": "f87943f45dce49f87b571951a3eb7cf424b68c7674d75b3bc49fdbf968349447"
+}

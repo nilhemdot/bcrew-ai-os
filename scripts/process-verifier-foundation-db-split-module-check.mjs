@@ -113,6 +113,9 @@ async function loadVerifierInput() {
     foundationSourceCrawlStoreSource,
     foundationSourceCrawlStoreScriptSource,
     foundationSourceCrawlStorePlanSource,
+    foundationDriveMeetingVaultStoreSource,
+    foundationDriveMeetingVaultStoreScriptSource,
+    foundationDriveMeetingVaultStorePlanSource,
     moduleSource,
     proofScriptSource,
     planSource,
@@ -158,6 +161,9 @@ async function loadVerifierInput() {
     readText('lib/foundation-source-crawl-store.js'),
     readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.sourceCrawlStoreScript),
     readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.sourceCrawlStorePlan),
+    readText('lib/foundation-drive-meeting-vault-store.js'),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.driveMeetingVaultStoreScript),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.driveMeetingVaultStorePlan),
     readText('lib/foundation-db-split-verifier.js'),
     readText(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SCRIPT_PATH),
     readText(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_PLAN_PATH),
@@ -220,6 +226,9 @@ async function loadVerifierInput() {
     foundationSourceCrawlStoreSource,
     foundationSourceCrawlStoreScriptSource,
     foundationSourceCrawlStorePlanSource,
+    foundationDriveMeetingVaultStoreSource,
+    foundationDriveMeetingVaultStoreScriptSource,
+    foundationDriveMeetingVaultStorePlanSource,
     moduleSource,
     proofScriptSource,
     planSource,
@@ -274,6 +283,7 @@ async function main() {
   addCheck(checks, dogfood.rejected?.missingGoalTruth, 'dogfood rejects missing goal truth module evidence', JSON.stringify(dogfood.rejected || {}))
   addCheck(checks, dogfood.rejected?.missingFubLeadSource, 'dogfood rejects missing FUB lead-source module evidence', JSON.stringify(dogfood.rejected || {}))
   addCheck(checks, dogfood.rejected?.missingSharedComms, 'dogfood rejects missing shared-comms module evidence', JSON.stringify(dogfood.rejected || {}))
+  addCheck(checks, dogfood.rejected?.missingDriveMeetingVaultStore, 'dogfood rejects missing Drive/Meeting Vault store module evidence', JSON.stringify(dogfood.rejected || {}))
   addCheck(checks, dogfood.rejected?.oldInlineVerifier, 'dogfood rejects old inline verifier predicates', JSON.stringify(dogfood.rejected || {}))
   addCheck(checks, input.foundationVerifySource.includes('evaluateFoundationDbSplitVerifier') && input.foundationVerifySource.includes('buildFoundationDbSplitVerifierDogfoodProof'), 'foundation verifier delegates Foundation-DB split checks to focused module', 'evaluateFoundationDbSplitVerifier')
   const oldInlineFoundationDbPredicate = 'const foundationBacklog' + 'StoreSplitCard ='
