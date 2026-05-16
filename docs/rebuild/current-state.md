@@ -418,6 +418,10 @@ Rule:
 
 ## Latest Foundation Cleanup
 
+- `FOUNDATION-IDENTITY-001` is done under `foundation-identity-surface-v1`.
+- `/api/system-inventory` now exposes a metadata-only `identity` section covering repo-visible user/runtime docs, local-private memory posture, active skills, and plugin counts.
+- Foundation System Inventory now renders a Workspace Identity panel from that payload, and source-trust verification proves private memory remains metadata-only and plugins are not treated as source-truth signoff.
+- Scope stayed owner-only identity visibility only: no private local memory content, no `USER.md` content, no auth broadening, no Agent Registry, no hub feature work, no source extraction, no Build Intel extraction, no Canva asset-library behavior, no Marketing Video Lab wiring, no Meeting Vault Phase B, and no Drive permission mutation.
 - `VERIFIER-HUB-SAFETY-SPLIT-MODULE-001` is done under `verifier-hub-safety-split-module-v1`.
 - Hub work coordination, safe hub lane, Foundation Hub backlog contract, and backlog detail endpoint checks now live in `lib/foundation-hub-safety-verifier.js`, and the root verifier delegates this proof domain.
 - Focused dogfood rejects missing hub ownership matrix, invalid writable hub consumer payload, bloated or broken backlog contract, missing backlog detail payload, and missing root delegation.

@@ -162,6 +162,7 @@ import { buildDoctrinePropagationStatus } from './lib/doctrine-propagation.js'
 import { buildDecisionAutoEmitSummary, scanDecisionAutoEmitCandidates } from './lib/decision-auto-emit.js'
 import { buildSyntheticGateReliabilityProof } from './lib/foundation-gate-reliability.js'
 import { buildPersonalWorkspaceBoundaryStatus } from './lib/foundation-personal-workspace-boundary.js'
+import { buildFoundationIdentitySurface } from './lib/foundation-identity-surface.js'
 import { buildCeoDashboardPatternStatus } from './lib/foundation-ceo-dashboard-pattern.js'
 import {
   buildFoundationReviewSprintStatus,
@@ -4044,6 +4045,17 @@ app.get('/api/system-inventory', requireAdminToken, async (req, res) => {
     const privateLocalDocs = await getPrivateLocalMarkdownDocs(req)
     const skills = getSkillInventory()
     const plugins = getPluginInventory()
+    const personalWorkspaceBoundary = await buildPersonalWorkspaceBoundaryStatus({
+      repoRoot: __dirname,
+      includeSynthetic: false,
+    })
+    const identity = buildFoundationIdentitySurface({
+      trackedDocs,
+      privateLocalDocs,
+      personalWorkspaceBoundary,
+      skills,
+      plugins,
+    })
 
     cacheHeadersNoStore(res)
     res.json({
@@ -4054,6 +4066,7 @@ app.get('/api/system-inventory', requireAdminToken, async (req, res) => {
       },
       skills,
       plugins,
+      identity,
     })
   } catch (error) {
     sendApiError(

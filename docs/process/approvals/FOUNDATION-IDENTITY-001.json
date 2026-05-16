@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-IDENTITY-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T07:55:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-identity-001-plan.md",
+  "approvedPlanSha256": "c62b78ab3b5e4ae0243cd0439b0c3f6fb7221744154cbbca28edd10ff6555ed4",
+  "approvedRepoHead": "1edad757f0844c870e83527763ab9de4fa061028",
+  "notes": "Approved as a no-auth Foundation identity visibility card. Scope: add metadata-only workspace identity and memory posture to /api/system-inventory, render one Workspace Identity panel, and prove private memory remains metadata-only. Not approved: shared-context MEMORY.md exposure, USER.md content exposure, auth broadening, hub feature work, source extraction, Build Intel extraction, Canva asset-library behavior, Marketing Video Lab wiring, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "5d63f278528a1f1eb866ba3b11d51ea1213f15266d11c149b9b97faed435b153"
+}

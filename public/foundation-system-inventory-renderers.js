@@ -738,6 +738,132 @@ function renderInventoryGroupStack(groupTitle, introText, items) {
   return details
 }
 
+function renderFoundationIdentityPanel(identity) {
+  if (!identity) return null
+
+  var runtimeDocs = identity.workspaceRuntimeDocs || []
+  var localMemory = identity.localPrivateMemory || {}
+  var dailyMemory = localMemory.dailyMemory || {}
+  var capabilities = identity.runtimeCapabilities || {}
+  var skills = capabilities.skills || {}
+  var plugins = capabilities.plugins || {}
+  var bcrewSkill = skills.bcrewFoundationSkill || {}
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Workspace Identity'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'What guides the system'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = identity.plainEnglish || 'Foundation shows the active guidance stack without copying private local memory content into shared system truth.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var statusItems = [
+    {
+      label: 'Identity status',
+      status: identity.status === 'healthy' ? 'connected' : 'pending',
+      detail: identity.status || 'unknown',
+    },
+    {
+      label: 'Repo-visible docs',
+      status: runtimeDocs.length ? 'connected' : 'pending',
+      detail: runtimeDocs.length + ' identity and doctrine docs are tracked as repo-visible truth.',
+    },
+    {
+      label: 'Private memory',
+      status: localMemory.contentCopied === false ? 'connected' : 'risk',
+      detail: 'Root docs plus ' + (dailyMemory.fileCount || 0) + ' daily memory files are metadata-only.',
+    },
+    {
+      label: 'bcrew-foundation',
+      status: bcrewSkill.detected ? 'connected' : 'risk',
+      detail: bcrewSkill.detected ? 'Runtime skill detected: ' + (bcrewSkill.path || bcrewSkill.id) : 'Runtime skill not detected.',
+    },
+    {
+      label: 'Plugins',
+      status: plugins.sourceTruthApproved === false ? 'connected' : 'risk',
+      detail: (plugins.total || 0) + ' plugin surfaces / ' + (plugins.skillCount || 0) + ' plugin skills. Runtime capability only, not source-truth signoff.',
+    },
+  ]
+  var statusGrid = document.createElement('div')
+  statusGrid.className = 'status-grid'
+  statusItems.forEach(function(item) {
+    statusGrid.appendChild(renderStatusCard(item))
+  })
+  panel.appendChild(statusGrid)
+
+  var identityGrid = document.createElement('div')
+  identityGrid.className = 'source-card-grid'
+
+  var repoCard = document.createElement('article')
+  repoCard.className = 'section-card source-card'
+  var repoTitle = document.createElement('h4')
+  repoTitle.textContent = 'Repo-visible guidance'
+  repoCard.appendChild(repoTitle)
+  var repoCopy = document.createElement('p')
+  repoCopy.className = 'source-card-copy'
+  repoCopy.textContent = 'Safe shared doctrine includes docs/users/steve.md, AGENTS.md, SOUL.md, and privacy/doctrine process docs when tracked.'
+  repoCard.appendChild(repoCopy)
+  var repoMeta = document.createElement('div')
+  repoMeta.className = 'source-card-meta-grid'
+  repoMeta.appendChild(renderSourceMetaItem('Visible profile', identity.repoVisibleProfile && identity.repoVisibleProfile.path ? identity.repoVisibleProfile.path : 'missing'))
+  repoMeta.appendChild(renderSourceMetaItem('Docs detected', String(runtimeDocs.filter(function(doc) { return doc.exists }).length)))
+  repoCard.appendChild(repoMeta)
+  identityGrid.appendChild(repoCard)
+
+  var privateCard = document.createElement('article')
+  privateCard.className = 'section-card source-card'
+  var privateTitle = document.createElement('h4')
+  privateTitle.textContent = 'Local-private memory'
+  privateCard.appendChild(privateTitle)
+  var privateCopy = document.createElement('p')
+  privateCopy.className = 'source-card-copy'
+  privateCopy.textContent = 'USER.md, MEMORY.md, and memory/*.md are listed as metadata-only signals. Their content is not copied into shared Foundation truth.'
+  privateCard.appendChild(privateCopy)
+  var privateMeta = document.createElement('div')
+  privateMeta.className = 'source-card-meta-grid'
+  privateMeta.appendChild(renderSourceMetaItem('Root docs', String((localMemory.rootDocs || []).length)))
+  privateMeta.appendChild(renderSourceMetaItem('Daily memory', String(dailyMemory.fileCount || 0)))
+  privateMeta.appendChild(renderSourceMetaItem('Content mode', localMemory.contentMode || 'metadata-only'))
+  privateCard.appendChild(privateMeta)
+  identityGrid.appendChild(privateCard)
+
+  var runtimeCard = document.createElement('article')
+  runtimeCard.className = 'section-card source-card'
+  var runtimeTitle = document.createElement('h4')
+  runtimeTitle.textContent = 'Runtime instructions'
+  runtimeCard.appendChild(runtimeTitle)
+  var runtimeCopy = document.createElement('p')
+  runtimeCopy.className = 'source-card-copy'
+  runtimeCopy.textContent = 'Skills guide assistants and plugins expose local tool surfaces. They are not business agents and they are not data-source approval.'
+  runtimeCard.appendChild(runtimeCopy)
+  var runtimeMeta = document.createElement('div')
+  runtimeMeta.className = 'source-card-meta-grid'
+  runtimeMeta.appendChild(renderSourceMetaItem('Skills', String(skills.total || 0)))
+  runtimeMeta.appendChild(renderSourceMetaItem('Workspace skills', String(skills.workspace || 0)))
+  runtimeMeta.appendChild(renderSourceMetaItem('Plugins', String(plugins.total || 0)))
+  runtimeCard.appendChild(runtimeMeta)
+  identityGrid.appendChild(runtimeCard)
+
+  panel.appendChild(identityGrid)
+  return panel
+}
+
 function isArchiveHistoryDoc(doc) {
   var category = String(doc && doc.category || '')
   var docPath = String(doc && doc.path || '')
@@ -824,6 +950,9 @@ function renderInventoryDocs() {
       archiveHistoryDocs: archiveHistoryDocs,
     })
     if (purposePanel) container.appendChild(purposePanel)
+
+    var identityPanel = renderFoundationIdentityPanel(inventory.identity)
+    if (identityPanel) container.appendChild(identityPanel)
 
     var statusPanel = renderOverviewStatusPanel([
       {
