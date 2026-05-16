@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "RUNTIME-FIRST-JOBS-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T09:20:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/runtime-first-jobs-001-plan.md",
+  "approvedPlanSha256": "e37d9d478a0f538234f9d4c10451745f91362e470993ecd3d980ca1df3f2d9f7",
+  "approvedRepoHead": "80d275a0dc2728a772fb75db5190eb451b379e44",
+  "notes": "Approved as a no-auth Foundation runtime first-jobs repair card. Scope: restore the source-crawl public delegate exports required by the governed extraction target runner, normalize --dry-run/--dryRun before any lease can happen, prove Gmail/Missive current-day dry-runs load without leasing or live connector calls, add focused proof and runtime reliability verifier coverage, and keep current scheduled job definitions governed. Not approved: new jobs, live extraction, source credential/auth changes, Build Intel extraction, hub feature work, Marketing Video Lab wiring, Canva asset-library behavior, Meeting Vault Phase B, Drive permission mutation, or scheduler rewrite.",
+  "approvalDigest": "56ce848484eacb4ceee3272749876a6ac54c74bfad2b47eae4e69e07d1bdbe52"
+}

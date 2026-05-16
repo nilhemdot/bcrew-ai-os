@@ -22,7 +22,8 @@ function parseArgs(argv) {
   for (const arg of argv) {
     if (!arg.startsWith('--')) continue
     const [key, value] = arg.slice(2).split('=')
-    result[key] = value ?? true
+    const normalizedKey = String(key || '').replace(/-([a-z0-9])/g, (_match, char) => char.toUpperCase())
+    result[normalizedKey] = value ?? true
   }
   return result
 }

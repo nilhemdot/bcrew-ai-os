@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-16
-Version: v6.82 - Process-hardening verifier split complete
+Version: v6.84 - Runtime first jobs repair complete
 Status: Sprint review
 
 Use this doc for one question:
@@ -73,13 +73,17 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Runtime Worker Reliability
+## Current Sprint: Runtime First Jobs
 
-Live sprint ID: `foundation-identity-visibility-2026-05-16`.
+Live sprint ID: `runtime-first-jobs-2026-05-16`.
 
-This sprint added owner-only Foundation identity visibility, runtime service-supervision visibility, and worker reliability visibility. The latest completed card is `RUNTIME-WORKER-001` under `runtime-worker-reliability-v1`: scheduled/due jobs, failed latest runs, retry candidates, blocked scheduled jobs, stale active runs, and dry-run flag safety now surface through Foundation Jobs / Runtime Health. Restart-on-push remains reported honestly as manual until a separate push-hook/WatchPaths proof exists.
+This sprint repaired the first scheduled Foundation job lane exposed by `RUNTIME-WORKER-001`. The worker showed `gmail-sync-current` and `missive-sync-current` failing before they could run because the source-crawl store split dropped the public delegate exports used by `scripts/run-extraction-target.mjs`. `RUNTIME-FIRST-JOBS-001` restores the export seam, normalizes `--dry-run` before any lease can happen, and proves Gmail/Missive current-day targets can load through dry-run without live connector calls.
 
-Completed cards:
+Completed card:
+
+1. `RUNTIME-FIRST-JOBS-001` - done under `runtime-first-jobs-v1`. Scope was no-auth runtime repair only: restore `leaseSourceCrawlTarget` / `finishSourceCrawlTargetRun` delegates, prove `gmail-current-day` and `missive-current-day` dry-runs do not lease targets or spawn child sync commands, add focused runtime reliability verifier coverage, and close with full Foundation verification at 400/400.
+
+Previously completed in this runtime lane:
 
 1. `FOUNDATION-IDENTITY-001` - done under `foundation-identity-surface-v1`. V1 exposes metadata-only workspace identity in System Inventory without copying private memory into repo truth.
 2. `RUNTIME-SUPERVISOR-001` - done under `runtime-supervisor-v1`. V1 owns `lib/runtime-process-control.js` service-supervisor builders, `server.js` LaunchAgent wiring, `public/foundation-runtime-renderers.js` Runtime Health supervised-service rendering, `lib/foundation-runtime-reliability-verifier.js` coverage, focused proof `scripts/process-runtime-supervisor-check.mjs`, and closeout `docs/handoffs/2026-05-16-runtime-supervisor-closeout.md`.
@@ -87,7 +91,7 @@ Completed cards:
 
 Not next: auto-restart-on-push install, new scheduler framework, job execution semantic changes, route/auth behavior changes, DB schema changes, source contract behavior changes, connector auth, extraction runs, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 
-Next active blocker: choose the next no-auth Foundation cleanup card through Current Sprint after sprint review.
+Next active blocker: choose the next no-auth Foundation cleanup card through Current Sprint review.
 
 ## Previous Sprint: Process-Hardening Verifier Split
 

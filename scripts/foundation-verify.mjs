@@ -2634,7 +2634,9 @@ async function main() {
   const verifierRuntimeReliabilitySplitScriptSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_SCRIPT_PATH)
   const verifierRuntimeReliabilitySplitPlanSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH)
   const foundationWorkerReliabilitySource = await readRepoFile('lib/foundation-worker-reliability.js')
+  const runtimeFirstJobsSource = await readRepoFile('lib/runtime-first-jobs.js')
   const runtimeWorkerVerifierCoverageCardId = 'RUNTIME-WORKER-001'
+  const runtimeFirstJobsVerifierCoverageCardId = 'RUNTIME-FIRST-JOBS-001'
   const foundationHealthScriptVerifierSource = await readRepoFile('lib/foundation-health-script-verifier.js')
   const verifierHealthScriptModuleScriptSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH)
   const verifierHealthScriptModulePlanSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH)
@@ -3840,6 +3842,9 @@ async function main() {
     VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_CARD_ID,
     VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
     'FOUNDATION-IDENTITY-001',
+    'RUNTIME-SUPERVISOR-001',
+    runtimeWorkerVerifierCoverageCardId,
+    runtimeFirstJobsVerifierCoverageCardId,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -12138,6 +12143,9 @@ async function main() {
       foundationWorkerSource,
       foundationRuntimeJobStoreSource,
       foundationHubSummaryPayloadSource,
+      runtimeFirstJobsSource,
+      foundationSourceCrawlStoreSource,
+      runExtractionTargetSource: extractionTargetSource,
     },
   })
   checks.push(...runtimeReliabilityVerifier.checks)
