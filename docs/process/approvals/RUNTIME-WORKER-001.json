@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "RUNTIME-WORKER-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T10:15:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/runtime-worker-001-plan.md",
+  "approvedPlanSha256": "3b564b096b1c6d8ba8f83e1c16f29646cd466c8fc956a93ea82d61b46a2bae23",
+  "approvedRepoHead": "a0efb812a7d8905143423dc835ea079e479bd83c",
+  "notes": "Approved as a no-auth Foundation worker reliability card. Scope: dry-run flag safety, retry/failure visibility, blocked scheduled job visibility, stale active-run alerting, Runtime Health worker reliability summary, focused read-only proof. Not approved: scheduler rewrite, new jobs, source extraction, Build Intel extraction, hub features, paid-source auth, Canva asset library, Marketing Video Lab, Meeting Vault Phase B, Drive permission mutation, or auto-restart-on-push install. Plan revised after Plan Critic asked for clearer operator value and speed budget. Plan updated during build after dogfood revealed one-shot dry-run worker status poisoning; dry-run must not overwrite LaunchAgent runtime truth.",
+  "approvalDigest": "6c6222af63c5e90ebd37e90847c76e85ba23f697bfd2f95ec2635b9b37f126fd"
+}

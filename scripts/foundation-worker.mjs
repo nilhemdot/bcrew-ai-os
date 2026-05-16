@@ -16,6 +16,7 @@ import {
   markStaleSourceCrawlTargetRuns,
   recordFoundationRuntimeStatus,
 } from '../lib/foundation-db.js';
+import { parseFoundationWorkerArgs } from '../lib/foundation-worker-reliability.js';
 import { runFoundationJob } from './run-foundation-job.mjs';
 
 const execFile = promisify(execFileCallback);
@@ -24,16 +25,6 @@ const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
 const workerStartedAt = new Date().toISOString();
 const workerRestartCommand = 'launchctl kickstart -k gui/$(id -u)/ai.bcrew.foundation-worker';
-
-function parseArgs(argv) {
-  const result = {};
-  for (const arg of argv) {
-    if (!arg.startsWith('--')) continue;
-    const [key, value] = arg.slice(2).split('=');
-    result[key] = value ?? true;
-  }
-  return result;
-}
 
 function isTrue(value) {
   return value === true || value === 'true' || value === '1';
@@ -151,7 +142,7 @@ async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes, 
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const args = parseFoundationWorkerArgs(process.argv.slice(2));
   const once = isTrue(args.once);
   const dryRun = isTrue(args.dryRun);
   const actor = String(args.actor || process.env.FOUNDATION_JOB_ACTOR || 'foundation-worker').trim();
@@ -164,7 +155,12 @@ async function main() {
   const staleLlmCallGraceSeconds = Math.max(0, Number(args.staleLlmCallGraceSeconds || process.env.FOUNDATION_WORKER_STALE_LLM_CALL_GRACE_SECONDS || 60));
 
   await initFoundationDb();
-  await captureWorkerRuntimeMetadata({ actor, once, dryRun, intervalMs, maxJobs });
+  const shouldRecordRuntimeStatus = !(once && dryRun);
+  if (shouldRecordRuntimeStatus) {
+    await captureWorkerRuntimeMetadata({ actor, once, dryRun, intervalMs, maxJobs });
+  } else {
+    console.log('Foundation worker dry-run: runtime service status not updated.');
+  }
 
   console.log(`Foundation worker started. once=${once} dryRun=${dryRun} intervalMs=${intervalMs} maxJobs=${maxJobs}`);
 

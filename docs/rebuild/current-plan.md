@@ -73,20 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Runtime Supervisor Service Supervision
+## Current Sprint: Runtime Worker Reliability
 
 Live sprint ID: `foundation-identity-visibility-2026-05-16`.
 
-This sprint added owner-only Foundation identity visibility and runtime service-supervision visibility. The latest completed card is `RUNTIME-SUPERVISOR-001` under `runtime-supervisor-v1`: dashboard and Foundation worker LaunchAgent status, pid match, code trust, runtime metadata freshness, restart commands, and log paths now surface through runtime process-control and Runtime Health. Restart-on-push remains reported honestly as manual until a separate push-hook/WatchPaths proof exists.
+This sprint added owner-only Foundation identity visibility, runtime service-supervision visibility, and worker reliability visibility. The latest completed card is `RUNTIME-WORKER-001` under `runtime-worker-reliability-v1`: scheduled/due jobs, failed latest runs, retry candidates, blocked scheduled jobs, stale active runs, and dry-run flag safety now surface through Foundation Jobs / Runtime Health. Restart-on-push remains reported honestly as manual until a separate push-hook/WatchPaths proof exists.
 
-Completed card:
+Completed cards:
 
 1. `FOUNDATION-IDENTITY-001` - done under `foundation-identity-surface-v1`. V1 exposes metadata-only workspace identity in System Inventory without copying private memory into repo truth.
 2. `RUNTIME-SUPERVISOR-001` - done under `runtime-supervisor-v1`. V1 owns `lib/runtime-process-control.js` service-supervisor builders, `server.js` LaunchAgent wiring, `public/foundation-runtime-renderers.js` Runtime Health supervised-service rendering, `lib/foundation-runtime-reliability-verifier.js` coverage, focused proof `scripts/process-runtime-supervisor-check.mjs`, and closeout `docs/handoffs/2026-05-16-runtime-supervisor-closeout.md`.
+3. `RUNTIME-WORKER-001` - done under `runtime-worker-reliability-v1`. V1 owns `lib/foundation-worker-reliability.js`, shared worker dry-run parsing, one-shot dry-run runtime-status guard, `workerReliability` job snapshots, Runtime Health worker reliability rendering, runtime reliability verifier coverage, focused proof `scripts/process-runtime-worker-check.mjs`, and closeout `docs/handoffs/2026-05-16-runtime-worker-reliability-closeout.md`.
 
 Not next: auto-restart-on-push install, new scheduler framework, job execution semantic changes, route/auth behavior changes, DB schema changes, source contract behavior changes, connector auth, extraction runs, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 
-Next active blocker: `RUNTIME-WORKER-001` if continuing runtime reliability, or the next no-auth cleanup card selected through Current Sprint.
+Next active blocker: choose the next no-auth Foundation cleanup card through Current Sprint after sprint review.
 
 ## Previous Sprint: Process-Hardening Verifier Split
 
@@ -1419,6 +1420,8 @@ Current order:
 66. Foundation identity surface: `FOUNDATION-IDENTITY-001` is done under `foundation-identity-surface-v1`. `/api/system-inventory` now exposes a metadata-only `identity` section tying repo-visible profile/runtime docs, local-private memory posture, active skills, and plugin counts together without copying private memory, `USER.md`, or raw local-only content into repo truth. Foundation System Inventory shows the same Workspace Identity panel, and source-trust verification now proves the identity surface stays metadata-only and does not treat plugins as source-truth signoff. This was owner-only identity visibility and privacy-boundary cleanup only: no auth broadening, Agent Registry, hub feature work, source extraction, Build Intel extraction, Canva asset-library behavior, Marketing Video Lab wiring, Meeting Vault Phase B, or Drive permission mutation.
 
 67. Runtime Supervisor service supervision: `RUNTIME-SUPERVISOR-001` is done under `runtime-supervisor-v1`. Runtime process-control now exposes a two-service supervisor snapshot for the dashboard and Foundation worker with LaunchAgent status, pid matching, running commit trust, metadata freshness, restart commands, and log paths. Runtime Health renders the same supervised-service panel, and runtime reliability verification proves missing LaunchAgent, pid mismatch, stale commit, and stale heartbeat cases fail closed. This was visibility/proof work only: no auto-restart-on-push install, new scheduler framework, job execution semantic changes, route/auth changes, DB schema changes, hub feature work, source extraction, Build Intel extraction, Canva asset-library behavior, Marketing Video Lab wiring, Meeting Vault Phase B, or Drive permission mutation.
+
+68. Runtime Worker reliability: `RUNTIME-WORKER-001` is done under `runtime-worker-reliability-v1`. Foundation job snapshots now include `workerReliability` with scheduled/due counts, failed latest runs, retry candidates, blocked scheduled jobs, stale active runs, fail-closed dry-run posture, and plain-English operator status. Runtime Health renders the worker reliability summary in Foundation Jobs, default `/api/foundation-hub` preserves a compact worker summary, and the focused proof caught/fixed the one-shot dry-run status-poisoning bug so `npm run foundation:worker -- --once --dry-run` cannot overwrite the long-running LaunchAgent worker pid truth. This was reliability/proof work only: no scheduler framework, new jobs, auto-retry behavior, auto-restart-on-push install, hub features, source extraction, Build Intel extraction, Canva asset-library behavior, Marketing Video Lab wiring, Meeting Vault Phase B, or Drive permission mutation.
 
 Guardrail: Agent Feedback production enablement, live reminders, the system registration sweep, `SECURITY-002` auth/tier/redaction v1, `FOUNDATION-SPRINT-CADENCE-001` under `foundation-sprint-cadence-v1`, and `MEETING-VAULT-AUTO-ENFORCEMENT-001` under `meeting-vault-auto-enforcement-v1` are in place. Meeting Vault now closes Foundation readiness through automatic report-only forward-flow proof and a bounded legacy exception queue, not through more historical permission batches. `FOUNDATION-SPRINT-REVIEW-001` is complete in `docs/process/foundation-sprint-review-001.md`; Foundation reports READY only for owner-only Strategy re-entry. Next work is:
 

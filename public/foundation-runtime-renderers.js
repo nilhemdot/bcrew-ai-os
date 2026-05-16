@@ -639,15 +639,31 @@ function renderStatusGroupPanel(titleText, introText, items) {
 function renderFoundationJobsPanel(foundationJobs) {
   var jobs = foundationJobs && Array.isArray(foundationJobs.jobs) ? foundationJobs.jobs : []
   if (!jobs.length) return null
+  var workerReliability = foundationJobs && foundationJobs.workerReliability ? foundationJobs.workerReliability : null
+  var workerSummary = workerReliability && workerReliability.summary ? workerReliability.summary : {}
   var summary = 'Registered routines the system can run and track. '
     + (foundationJobs.scheduledJobs || 0) + ' scheduled, '
     + (foundationJobs.dueJobs || 0) + ' due, '
     + (foundationJobs.manualJobs || 0) + ' manual.'
+  var workerItems = []
+  if (workerReliability) {
+    workerItems.push({
+      label: 'Worker reliability',
+      status: workerReliability.status === 'healthy' ? 'live' : (workerReliability.status === 'risk' ? 'risk' : 'pending'),
+      detail: (workerReliability.plainEnglish || 'Worker reliability status is unavailable.')
+        + ' Scheduled ' + (workerSummary.scheduledJobs || 0)
+        + ', due ' + (workerSummary.dueJobs || 0)
+        + ', failed latest ' + (workerSummary.failedLatestRuns || 0)
+        + ', retry candidates ' + (workerSummary.retryCandidateJobs || 0)
+        + ', blocked ' + (workerSummary.blockedScheduledJobs || 0)
+        + ', stale active ' + (workerSummary.staleActiveRuns || 0) + '.',
+    })
+  }
 
   return renderStatusGroupPanel(
     'Foundation Jobs',
     summary,
-    jobs.map(function(job) {
+    workerItems.concat(jobs.map(function(job) {
       var latest = job.latestRun || null
       var runLine = latest
         ? 'Last ' + latest.status + ' · ' + formatDate(latest.finishedAt || latest.startedAt || latest.createdAt)
@@ -698,7 +714,7 @@ function renderFoundationJobsPanel(foundationJobs) {
         detail: runLine + '.' + nextLine + scheduleLine + controlLine + ' ' + (job.nextAction || job.statusDetail || ''),
         actions: actions,
       }
-    })
+    }))
   )
 }
 

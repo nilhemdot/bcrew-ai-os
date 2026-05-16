@@ -2633,6 +2633,8 @@ async function main() {
   const foundationRuntimeReliabilityVerifierSource = await readRepoFile('lib/foundation-runtime-reliability-verifier.js')
   const verifierRuntimeReliabilitySplitScriptSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_SCRIPT_PATH)
   const verifierRuntimeReliabilitySplitPlanSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH)
+  const foundationWorkerReliabilitySource = await readRepoFile('lib/foundation-worker-reliability.js')
+  const runtimeWorkerVerifierCoverageCardId = 'RUNTIME-WORKER-001'
   const foundationHealthScriptVerifierSource = await readRepoFile('lib/foundation-health-script-verifier.js')
   const verifierHealthScriptModuleScriptSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH)
   const verifierHealthScriptModulePlanSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH)
@@ -12132,6 +12134,10 @@ async function main() {
       foundationVerifyProfileBudgetSource,
       foundationVerifySource,
       foundationHealthScriptVerifierSource,
+      foundationWorkerReliabilitySource,
+      foundationWorkerSource,
+      foundationRuntimeJobStoreSource,
+      foundationHubSummaryPayloadSource,
     },
   })
   checks.push(...runtimeReliabilityVerifier.checks)
