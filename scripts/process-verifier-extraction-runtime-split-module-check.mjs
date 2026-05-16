@@ -29,6 +29,11 @@ import {
   CRAWL_RUN_LEDGER_CARD_ID,
   CRAWL_RUN_LEDGER_SCRIPT_PATH,
 } from '../lib/crawl-run-ledger.js'
+import {
+  EXTRACT_RETIRE_CARD_ID,
+  EXTRACT_RETIRE_PLAN_PATH,
+  EXTRACT_RETIRE_SCRIPT_PATH,
+} from '../lib/extract-retire.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -94,6 +99,10 @@ async function loadEvaluationInput() {
     driveLinkInventorySource,
     sharedCandidateExtractionSource,
     crawlRunLedgerScriptSource,
+    extractRetireModuleSource,
+    extractRetireScriptSource,
+    extractRetirePlanSource,
+    extractionRuntimeVerifierSource,
     processingProvenanceGaps,
     staleLlmCalls,
   ] = await Promise.all([
@@ -114,6 +123,10 @@ async function loadEvaluationInput() {
     readText('scripts/inventory-drive-linked-files.mjs'),
     readText('lib/shared-candidate-extraction.js'),
     readText(CRAWL_RUN_LEDGER_SCRIPT_PATH),
+    readText('lib/extract-retire.js'),
+    readText(EXTRACT_RETIRE_SCRIPT_PATH),
+    readText(EXTRACT_RETIRE_PLAN_PATH),
+    readText('lib/foundation-extraction-runtime-verifier.js'),
     getSharedCommunicationProcessingProvenanceGaps({
       since: '2026-04-24T17:14:00-04:00',
       limit: 10,
@@ -139,6 +152,10 @@ async function loadEvaluationInput() {
     driveLinkInventorySource,
     sharedCandidateExtractionSource,
     crawlRunLedgerScriptSource,
+    extractRetireModuleSource,
+    extractRetireScriptSource,
+    extractRetirePlanSource,
+    extractionRuntimeVerifierSource,
     processingProvenanceGaps,
     staleLlmCalls,
   }
@@ -164,7 +181,7 @@ async function main() {
       approvalRef: VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_APPROVAL_PATH,
       cardId: VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
     }),
-    getBacklogItemsByIds([VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID, CRAWL_RUN_LEDGER_CARD_ID]),
+    getBacklogItemsByIds([VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID, CRAWL_RUN_LEDGER_CARD_ID, EXTRACT_RETIRE_CARD_ID]),
     getActiveFoundationCurrentSprint(),
     getPlanCriticRunsByCardIds([VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID]),
     loadEvaluationInput(),

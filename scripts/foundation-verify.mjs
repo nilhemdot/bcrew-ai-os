@@ -356,6 +356,10 @@ import {
 } from '../lib/foundation-extraction-runtime-verifier.js'
 import { CRAWL_RUN_LEDGER_SCRIPT_PATH } from '../lib/crawl-run-ledger.js'
 import {
+  EXTRACT_RETIRE_PLAN_PATH,
+  EXTRACT_RETIRE_SCRIPT_PATH,
+} from '../lib/extract-retire.js'
+import {
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
@@ -2667,6 +2671,9 @@ async function main() {
   const verifierExtractionRuntimeSplitModulePlanSource = await readRepoFile(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_PLAN_PATH)
   const crawlRunLedgerSource = await readRepoFile('lib/crawl-run-ledger.js')
   const crawlRunLedgerScriptSource = await readRepoFile(CRAWL_RUN_LEDGER_SCRIPT_PATH)
+  const extractRetireSource = await readRepoFile('lib/extract-retire.js')
+  const extractRetireScriptSource = await readRepoFile(EXTRACT_RETIRE_SCRIPT_PATH)
+  const extractRetirePlanSource = await readRepoFile(EXTRACT_RETIRE_PLAN_PATH)
   const foundationSurfaceTrustVerifierSource = await readRepoFile('lib/foundation-surface-trust-verifier.js')
   const verifierSurfaceTrustSplitModuleScriptSource = await readRepoFile(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SCRIPT_PATH)
   const verifierSurfaceTrustSplitModulePlanSource = await readRepoFile(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_PLAN_PATH)
@@ -3436,7 +3443,8 @@ async function main() {
   )
   ensure(
     checks,
-    sourceCrawlStoreOwnershipSource.includes('AND lease_owner = $12') &&
+    (sourceCrawlStoreOwnershipSource.includes('AND lease_owner = $12') ||
+      sourceCrawlStoreOwnershipSource.includes('AND lease_owner = $14')) &&
       foundationDbSource.includes('CREATE TABLE IF NOT EXISTS source_crawl_target_runs') &&
       sourceCrawlStoreOwnershipSource.includes('crawlRunId') &&
       extractionTargetSource.includes('runId: leasedTarget.crawlRunId') &&
@@ -3573,6 +3581,10 @@ async function main() {
     driveContentExtractionSource,
     packageSource,
     crawlRunLedgerScriptSource,
+    extractRetireModuleSource: extractRetireSource,
+    extractRetireScriptSource,
+    extractRetirePlanSource,
+    extractionRuntimeVerifierSource: foundationExtractionRuntimeVerifierSource,
     driveLinkInventorySource,
     sharedCandidateExtractionSource,
     processingProvenanceGaps,

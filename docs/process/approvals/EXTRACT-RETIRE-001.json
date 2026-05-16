@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACT-RETIRE-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T15:15:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/extract-retire-001-plan.md",
+  "approvedPlanSha256": "c70f833033bc46861e84106dc544e2a5a614378e5c8a54aa5b595b753d560e07",
+  "approvedRepoHead": "555cb945b00cbc7d0b5602fe0786966dd1002b79",
+  "notes": "Approved as a no-auth Foundation extraction automation card. Scope: retire or pause empty historical/corpus missions after configured clean zero-work runs while proving current-day lanes remain scheduled. Not approved: live extraction, retry/backoff execution, paid-source auth, Skool/myICOR/YouTube/Loom work, Build Intel extraction, hub feature work, Marketing Video Lab route wiring, Canva asset mutation, Drive permission mutation, or Meeting Vault Phase B.",
+  "approvalDigest": "35a0983f39898ee32790fac4e1f43df1f2c5e94de5138f542cd240e262ccd57a"
+}
