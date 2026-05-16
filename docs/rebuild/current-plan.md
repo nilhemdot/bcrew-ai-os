@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-16
-Version: v6.89 - Source Contract Registry Table complete
-Status: Sprint review
+Version: v6.92 - Source ID array provenance design scoping
+Status: Scoping
 
 Use this doc for one question:
 
@@ -72,6 +72,34 @@ Foundation source work follows this order:
 7. close the loop when the item is resolved, stale, rejected, deferred, or superseded
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
+
+## Active Sprint: Source ID Array-Backed Provenance Design
+
+Live sprint ID: `source-id-array-provenance-design-2026-05-16`.
+
+Goal: design the governed provenance model for the 3 array-backed `source_ids` relations that were deliberately excluded from simple scalar FK enforcement.
+
+Active card:
+
+1. `SOURCE-ID-ARRAY-PROVENANCE-DESIGN-001` - Scoping. Scope is no-auth, report-only Foundation data-integrity design: inspect the 3 array-backed source-reference relations from the source-ID constraint contract, decide whether each needs a join table, trigger-backed validation, generated scalar projection, or schema redesign, and produce an implementation plan with dogfood proof requirements before any schema mutation. This card must not apply DB migrations or force array columns into simple foreign keys.
+
+Not next: DB schema mutation, trigger installation, join-table creation, source-contract authoring UI, startup/init FK creation, source extraction, connector auth, paid-source auth, Build Intel extraction, hub feature work, Marketing Video Lab wiring, Canva asset mutation, Drive permissions mutation, Drive permissions request-access emails, or MEETING-VAULT-ACL-001 Phase B.
+
+Next active blocker: scope the array-backed provenance design, reuse `SOURCE-ID-CONSTRAINT-CONTRACT-001` relation classifications, write Plan Critic doctrine, and do not build until the plan passes.
+
+## Previous Sprint: Source ID Scalar FK Migration
+
+Live sprint ID: `source-id-scalar-fk-migration-2026-05-16`.
+
+This sprint is complete under `source-id-scalar-fk-migration-v1`. It enforces scalar source-ID integrity now that source contracts are materialized into `source_contract_registry`.
+
+Completed card:
+
+1. `SOURCE-ID-SCALAR-FK-MIGRATION-001` - done under `source-id-scalar-fk-migration-v1`. Scope was apply-gated DB enforcement only: derive the 10 scalar `fk_safe_now` `source_id` relations from the source-ID constraint contract, dry-run first, abort on stale registry or invalid live references, add/validate foreign keys to `source_contract_registry(source_id)`, keep the 3 array-backed `source_ids` relations out of this migration, and wire source-contract/root verifier coverage. Closeout proof validated 10/10 scalar FKs, 0 invalid scalar references, healthy registry state, and 0 array-backed constraints.
+
+Not next: array-backed provenance redesign, trigger/join-table design, source-contract authoring UI, startup/init FK creation, source extraction, connector auth, paid-source auth, Build Intel extraction, hub feature work, Marketing Video Lab wiring, Canva asset mutation, Drive permissions mutation, Drive permissions request-access emails, or MEETING-VAULT-ACL-001 Phase B.
+
+Next active blocker: choose the next no-auth Foundation cleanup slice from array-backed source provenance design, verifier split/line-count cleanup, or the next source/runtime integrity card that does not require Steve auth.
 
 ## Previous Sprint: Source Contract Registry Table
 

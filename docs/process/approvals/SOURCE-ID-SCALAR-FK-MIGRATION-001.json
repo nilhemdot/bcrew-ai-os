@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-ID-SCALAR-FK-MIGRATION-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T13:04:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-id-scalar-fk-migration-001-plan.md",
+  "approvedPlanSha256": "64327727129e0336e932a7a88e76e171f2b6d8e4b395ea0b8f56e35a9567b782",
+  "approvedRepoHead": "db3702035672901c10409aa38b2c087ab94eff5b",
+  "notes": "Approved as the next no-auth Foundation data-integrity card. Scope: add apply-gated scalar foreign keys for the 10 fk_safe_now source_id relations to source_contract_registry(source_id), with dry-run default, registry health preflight, invalid-reference preflight, array-backed source_ids excluded, and source-contract/root verifier coverage. Not in scope: array provenance redesign, startup/init repair, source extraction, connector auth, paid-source auth, hub feature work, Marketing Video Lab wiring, Canva asset mutation, Drive permissions mutation, request-access emails, or Meeting Vault Phase B.",
+  "approvalDigest": "9b11b91ff497e9e3f847dcb443eeea449922212edee54a13f88e28e5bb898694"
+}

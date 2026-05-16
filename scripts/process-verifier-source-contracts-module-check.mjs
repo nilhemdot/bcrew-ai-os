@@ -19,6 +19,10 @@ import {
   buildSourceContractRegistryTableDogfoodProof,
 } from '../lib/source-contract-registry-table.js'
 import {
+  buildSourceIdScalarFkDogfoodProof,
+  getSourceIdScalarFkMigrationSnapshot,
+} from '../lib/source-id-scalar-fk-migration.js'
+import {
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
@@ -98,6 +102,8 @@ async function main() {
   const dogfood = buildFoundationSourceContractVerifierDogfoodProof()
   const sourceContractRegistrySnapshot = await getSourceContractRegistrySnapshot()
   const sourceContractRegistryDogfood = buildSourceContractRegistryTableDogfoodProof()
+  const sourceIdScalarFkMigrationSnapshot = await getSourceIdScalarFkMigrationSnapshot()
+  const sourceIdScalarFkDogfood = buildSourceIdScalarFkDogfoodProof()
   const verifierLines = lineCount(verifierSource)
   const removedOldInlinePredicates = [
     "ownersContract?.status === 'Signed Off'",
@@ -125,6 +131,8 @@ async function main() {
   ensure(checks, dogfood.missingSourceContractRegistry.ok === false, 'dogfood rejects missing DB source-contract registry proof', dogfood.missingSourceContractRegistry.failed.map(item => item.check).join('; '))
   ensure(checks, sourceContractRegistrySnapshot.evaluation.ok === true, 'live DB source-contract registry snapshot is healthy', JSON.stringify(sourceContractRegistrySnapshot.evaluation.summary))
   ensure(checks, sourceContractRegistryDogfood.ok === true, 'source-contract registry dogfood rejects stale/unsafe states', sourceContractRegistryDogfood.invariant)
+  ensure(checks, sourceIdScalarFkMigrationSnapshot.ok === true, 'scalar source-ID FK migration snapshot is healthy', `validated=${sourceIdScalarFkMigrationSnapshot.constraints.validatedCount}/${sourceIdScalarFkMigrationSnapshot.constraints.expectedCount} invalidRefs=${sourceIdScalarFkMigrationSnapshot.invalidReferenceCount}`)
+  ensure(checks, sourceIdScalarFkDogfood.ok === true, 'scalar source-ID FK dogfood rejects array migration and unsafe identifiers', sourceIdScalarFkDogfood.invariant)
   ensure(checks, delegates, 'foundation verifier delegates source-contract checks to focused module', 'evaluateFoundationSourceContractVerifier')
   ensure(checks, removedOldInlinePredicates, 'foundation verifier no longer owns old inline source-contract predicates', removedOldInlinePredicates ? 'old predicates absent' : 'old predicates still inline')
   ensure(checks, verifierLines < VERIFIER_SOURCE_CONTRACT_MODULE_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_SOURCE_CONTRACT_MODULE_BEFORE_LINES} -> ${verifierLines}`)
@@ -150,7 +158,9 @@ async function main() {
       missingRegistryRowRejected: dogfood.missingRegistryRow.ok === false,
       staleCurrentStateRejected: dogfood.staleCurrentState.ok === false,
       missingSourceContractRegistryRejected: dogfood.missingSourceContractRegistry.ok === false,
+      missingScalarFkMigrationRejected: dogfood.missingScalarFkMigration.ok === false,
       sourceContractRegistryDogfood: sourceContractRegistryDogfood.ok === true,
+      sourceIdScalarFkDogfood: sourceIdScalarFkDogfood.ok === true,
     },
   }
 
