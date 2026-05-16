@@ -2547,6 +2547,7 @@ async function main() {
   const foundationStylesModuleSources = {}
   for (const modulePath of STYLESHEET_MODULE_PATHS) foundationStylesModuleSources[modulePath] = await readRepoFile(modulePath)
   const foundationStylesSource = combineImportedStylesheets(foundationStylesRootSource, foundationStylesModuleSources) || foundationStylesRootSource
+  const foundationWorkflowStylesSource = foundationStylesModuleSources['public/styles-foundation-workflows.css'] || ''
   const salesHtmlSource = await readRepoFile('public/sales.html')
   const salesUiSource = await readRepoFile('public/sales.js')
   const salesHubCheckSource = await readRepoFile('scripts/process-sales-listings-hub-check.mjs')
@@ -2635,8 +2636,10 @@ async function main() {
   const verifierRuntimeReliabilitySplitPlanSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH)
   const foundationWorkerReliabilitySource = await readRepoFile('lib/foundation-worker-reliability.js')
   const runtimeFirstJobsSource = await readRepoFile('lib/runtime-first-jobs.js')
+  const runtimeHealthSimplifySource = await readRepoFile('lib/runtime-health-simplify.js')
   const runtimeWorkerVerifierCoverageCardId = 'RUNTIME-WORKER-001'
   const runtimeFirstJobsVerifierCoverageCardId = 'RUNTIME-FIRST-JOBS-001'
+  const runtimeHealthSimplifyVerifierCoverageCardId = 'RUNTIME-HEALTH-SIMPLIFY-001'
   const foundationHealthScriptVerifierSource = await readRepoFile('lib/foundation-health-script-verifier.js')
   const verifierHealthScriptModuleScriptSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH)
   const verifierHealthScriptModulePlanSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH)
@@ -3845,6 +3848,7 @@ async function main() {
     'RUNTIME-SUPERVISOR-001',
     runtimeWorkerVerifierCoverageCardId,
     runtimeFirstJobsVerifierCoverageCardId,
+    runtimeHealthSimplifyVerifierCoverageCardId,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -12118,6 +12122,8 @@ async function main() {
       hubReadRoutesSource,
       runtimeProcessControlSource: system010RuntimeSource,
       foundationRuntimeRendererSource: foundationRuntimeRenderersSource,
+      foundationOperationsRendererSource: foundationOperationsRenderersSource,
+      foundationWorkflowStylesSource,
       foundationFrontendSource,
       foundationDbSource,
       foundationHubPerformanceSource,
@@ -12144,6 +12150,8 @@ async function main() {
       foundationRuntimeJobStoreSource,
       foundationHubSummaryPayloadSource,
       runtimeFirstJobsSource,
+      runtimeHealthSimplifySource,
+      foundationRuntimeReliabilityVerifierSource,
       foundationSourceCrawlStoreSource,
       runExtractionTargetSource: extractionTargetSource,
     },
@@ -12506,17 +12514,27 @@ async function main() {
     runtimeHealthSimplify?.nextAction,
     runtimeHealthSimplify?.statusNote,
   ].filter(Boolean).join('\n')
+  const runtimeHealthSimplifyParked =
+    runtimeHealthSimplify?.lane === 'scoped' &&
+    runtimeHealthSimplify?.priority === 'P1' &&
+    runtimeHealthSimplifyText.includes('too dense') &&
+    runtimeHealthSimplifyText.includes('plain-English top layer') &&
+    runtimeHealthSimplifyText.includes('collapsed-by-default diagnostic groups') &&
+    runtimeHealthSimplifyText.includes('Parked follow-up, not next') &&
+    currentPlan.includes('`RUNTIME-HEALTH-SIMPLIFY-001`') &&
+    currentState.includes('`RUNTIME-HEALTH-SIMPLIFY-001` is parked')
+  const runtimeHealthSimplifyActiveOrClosed =
+    runtimeHealthSimplify &&
+    ['executing', 'done'].includes(runtimeHealthSimplify.lane) &&
+    runtimeHealthSimplifyText.includes('Runtime Health') &&
+    runtimeHealthSimplifyText.includes('plain-English') &&
+    runtimeHealthSimplifyText.includes('diagnostic') &&
+    currentPlan.includes('`RUNTIME-HEALTH-SIMPLIFY-001`') &&
+    currentState.includes('`RUNTIME-HEALTH-SIMPLIFY-001`')
   ensure(
     checks,
-    runtimeHealthSimplify?.lane === 'scoped' &&
-      runtimeHealthSimplify?.priority === 'P1' &&
-      runtimeHealthSimplifyText.includes('too dense') &&
-      runtimeHealthSimplifyText.includes('plain-English top layer') &&
-      runtimeHealthSimplifyText.includes('collapsed-by-default diagnostic groups') &&
-      runtimeHealthSimplifyText.includes('Parked follow-up, not next') &&
-      currentPlan.includes('`RUNTIME-HEALTH-SIMPLIFY-001`') &&
-      currentState.includes('`RUNTIME-HEALTH-SIMPLIFY-001` is parked'),
-    'Runtime Health simplification card is parked',
+    runtimeHealthSimplifyParked || runtimeHealthSimplifyActiveOrClosed,
+    'Runtime Health simplification card is tracked',
     runtimeHealthSimplify
       ? `${runtimeHealthSimplify.lane} / ${runtimeHealthSimplify.priority} / ${runtimeHealthSimplify.title}`
       : 'missing RUNTIME-HEALTH-SIMPLIFY-001',

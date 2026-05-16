@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "RUNTIME-HEALTH-SIMPLIFY-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T09:45:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/runtime-health-simplify-001-plan.md",
+  "approvedPlanSha256": "a6cfa8cbd0975c9808eaee5bd3c8eb7dc294bf1e1a53e1647ea0742e478f741d",
+  "approvedRepoHead": "7bfaeb222defb53e48440762fe95e4f2a739de92",
+  "notes": "Approved as a no-auth Foundation Runtime Health simplification card. Scope: add a plain-English command panel, attention-only summary, direct jump actions, and collapsed diagnostic groups while preserving existing Runtime Health details and route behavior. Not approved: backend route changes, auth changes, job/runtime semantic changes, source extraction, connector auth, hub feature work, Canva asset-library behavior, Marketing Video Lab wiring, Build Intel extraction, Meeting Vault Phase B, Drive permission mutation, or auto-restart-on-push install. Plan was clarified before build with explicit no-new-runtime-controls, no-diagnostic-deletion, and performance-proof acceptance wording; scope did not expand.",
+  "approvalDigest": "469cbd2c645dcc4d6f69e0811a32630099941392303df7659a2858f8666f3cb2"
+}

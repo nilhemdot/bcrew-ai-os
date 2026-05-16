@@ -636,6 +636,257 @@ function renderStatusGroupPanel(titleText, introText, items) {
   return panel
 }
 
+function normalizeRuntimeHealthPanelStatus(status) {
+  var normalized = String(status || '').toLowerCase()
+  if (normalized === 'healthy' || normalized === 'live' || normalized === 'ok' || normalized === 'quiet' || normalized === 'connected') return 'live'
+  if (normalized === 'risk' || normalized === 'critical' || normalized === 'failed' || normalized === 'blocked') return 'risk'
+  return 'pending'
+}
+
+function scrollToRuntimeDiagnosticSection(targetId) {
+  var target = document.getElementById(targetId)
+  if (!target) return
+  if (target.tagName && target.tagName.toLowerCase() === 'details') target.open = true
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function buildRuntimeHealthJumpAction(label, targetId) {
+  return {
+    label: label,
+    secondary: true,
+    onClick: function() {
+      scrollToRuntimeDiagnosticSection(targetId)
+    },
+  }
+}
+
+function buildRuntimeHealthAttentionItems(hub) {
+  var items = []
+  var runtimeProcessControl = hub.runtimeProcessControl || {}
+  var serviceSupervisor = runtimeProcessControl.serviceSupervisor || {}
+  var serviceSummary = serviceSupervisor.summary || {}
+  var processSummary = runtimeProcessControl.summary || {}
+  var foundationJobs = hub.foundationJobs || {}
+  var workerReliability = foundationJobs.workerReliability || {}
+  var workerSummary = workerReliability.summary || {}
+  var backlogHygiene = hub.backlogHygiene || {}
+  var postShipFanout = hub.postShipFanout || {}
+  var kpiHealth = hub.kpiHealth || {}
+  var sourceOutageBoundary = hub.sourceOutageBoundary || {}
+  var endpointBudgets = hub.endpointBudgets || hub.foundationEndpointBudgets || {}
+  var assetBudget = hub.foundationFrontendAssetBudget || hub.frontendAssetBudget || {}
+
+  if (serviceSupervisor.status && serviceSupervisor.status !== 'healthy') {
+    items.push({
+      label: 'Service supervision',
+      status: 'risk',
+      detail: serviceSupervisor.plainEnglish || 'Dashboard or worker service supervision needs attention.',
+      actions: [buildRuntimeHealthJumpAction('Open Services', 'runtime-diagnostic-process-control')],
+    })
+  }
+
+  if ((processSummary.staleRiskCount || 0) > 0) {
+    items.push({
+      label: 'Stale active work',
+      status: 'risk',
+      detail: (processSummary.staleRiskCount || 0) + ' stale active process risk' + ((processSummary.staleRiskCount || 0) === 1 ? '' : 's') + ' need review.',
+      actions: [buildRuntimeHealthJumpAction('Open Processes', 'runtime-diagnostic-process-control')],
+    })
+  }
+
+  if (workerReliability.status === 'risk' || (workerSummary.failedLatestRuns || 0) > 0 || (workerSummary.staleActiveRuns || 0) > 0) {
+    items.push({
+      label: 'Worker jobs',
+      status: workerReliability.status === 'risk' ? 'risk' : 'pending',
+      detail: 'Failed latest runs ' + (workerSummary.failedLatestRuns || 0)
+        + ', retry candidates ' + (workerSummary.retryCandidateJobs || 0)
+        + ', blocked scheduled ' + (workerSummary.blockedScheduledJobs || 0)
+        + ', stale active ' + (workerSummary.staleActiveRuns || 0) + '.',
+      actions: [buildRuntimeHealthJumpAction('Open Jobs', 'runtime-diagnostic-foundation-jobs')],
+    })
+  }
+
+  if ((backlogHygiene.criticalFindings || backlogHygiene.critical || 0) > 0 || backlogHygiene.status === 'critical') {
+    items.push({
+      label: 'Backlog hygiene',
+      status: 'risk',
+      detail: (backlogHygiene.criticalFindings || backlogHygiene.critical || 0) + ' critical backlog hygiene finding' + ((backlogHygiene.criticalFindings || backlogHygiene.critical || 0) === 1 ? '' : 's') + '.',
+      actions: [buildRuntimeHealthJumpAction('Open Hygiene', 'runtime-diagnostic-backlog-hygiene')],
+    })
+  }
+
+  if (postShipFanout.status && !['healthy', 'passed', 'ok'].includes(String(postShipFanout.status).toLowerCase())) {
+    items.push({
+      label: 'Post-ship fanout',
+      status: normalizeRuntimeHealthPanelStatus(postShipFanout.status),
+      detail: postShipFanout.plainEnglish || 'Post-ship fanout needs review.',
+      actions: [buildRuntimeHealthJumpAction('Open Fanout', 'runtime-diagnostic-post-ship-fanout')],
+    })
+  }
+
+  if (kpiHealth.status && kpiHealth.status !== 'healthy') {
+    items.push({
+      label: 'KPI / Supabase health',
+      status: normalizeRuntimeHealthPanelStatus(kpiHealth.status),
+      detail: kpiHealth.plainEnglish || 'KPI source health is not fully healthy.',
+      actions: [buildRuntimeHealthJumpAction('Open KPI', 'runtime-diagnostic-kpi-warning')],
+    })
+  }
+
+  if (sourceOutageBoundary.status && sourceOutageBoundary.status !== 'healthy') {
+    items.push({
+      label: 'Source outage boundary',
+      status: normalizeRuntimeHealthPanelStatus(sourceOutageBoundary.status),
+      detail: sourceOutageBoundary.plainEnglish || 'One or more source providers are degraded.',
+      actions: [buildRuntimeHealthJumpAction('Open Source Trust', 'runtime-diagnostic-source-reference-trust')],
+    })
+  }
+
+  if (endpointBudgets.status && endpointBudgets.status !== 'healthy') {
+    items.push({
+      label: 'Endpoint budgets',
+      status: normalizeRuntimeHealthPanelStatus(endpointBudgets.status),
+      detail: endpointBudgets.plainEnglish || 'Endpoint latency or payload budget needs review.',
+      actions: [buildRuntimeHealthJumpAction('Open Budgets', 'runtime-diagnostic-runtime-process-control')],
+    })
+  }
+
+  if (assetBudget.status && !['healthy', 'ok'].includes(String(assetBudget.status).toLowerCase())) {
+    items.push({
+      label: 'Frontend asset budget',
+      status: normalizeRuntimeHealthPanelStatus(assetBudget.status),
+      detail: assetBudget.plainEnglish || 'Foundation frontend asset budget needs review.',
+      actions: [buildRuntimeHealthJumpAction('Open Assets', 'runtime-diagnostic-runtime-process-control')],
+    })
+  }
+
+  if (!items.length) {
+    items.push({
+      label: 'No immediate runtime attention',
+      status: 'live',
+      detail: 'Service supervision, stale process risk, worker reliability, backlog hygiene, fanout, KPI health, and source outage signals do not show critical attention items in this payload.',
+      actions: [buildRuntimeHealthJumpAction('Open Deep Diagnostics', 'runtime-diagnostic-process-control')],
+    })
+  }
+
+  return items.slice(0, 8)
+}
+
+function buildRuntimeHealthCommandItems(hub) {
+  var runtimeProcessControl = hub.runtimeProcessControl || {}
+  var serviceSupervisor = runtimeProcessControl.serviceSupervisor || {}
+  var foundationJobs = hub.foundationJobs || {}
+  var workerReliability = foundationJobs.workerReliability || {}
+  var workerSummary = workerReliability.summary || {}
+  var attentionItems = buildRuntimeHealthAttentionItems(hub)
+  var riskItems = attentionItems.filter(function(item) { return item.status === 'risk' })
+  var pendingItems = attentionItems.filter(function(item) { return item.status === 'pending' })
+  var systemOk = !riskItems.length
+  var serviceCount = serviceSupervisor.summary && serviceSupervisor.summary.serviceCount
+    ? serviceSupervisor.summary.serviceCount
+    : ((serviceSupervisor.services || []).length || 0)
+
+  return [
+    {
+      label: systemOk ? 'Runtime is usable' : 'Runtime needs attention',
+      status: systemOk ? 'live' : 'risk',
+      detail: systemOk
+        ? 'No critical runtime attention items are visible in the current payload. Use the deep diagnostics only when you need proof.'
+        : riskItems.length + ' runtime attention item' + (riskItems.length === 1 ? '' : 's') + ' should be reviewed before trusting unattended work.',
+      actions: [buildRuntimeHealthJumpAction('Open Attention', 'runtime-health-attention')],
+    },
+    {
+      label: 'Services supervised',
+      status: serviceSupervisor.status === 'healthy' ? 'live' : 'risk',
+      detail: serviceCount + ' supervised service' + (serviceCount === 1 ? '' : 's') + '. ' + (serviceSupervisor.plainEnglish || 'Dashboard and worker service metadata are available.'),
+      actions: [buildRuntimeHealthJumpAction('Open Services', 'runtime-diagnostic-process-control')],
+    },
+    {
+      label: 'Worker job signal',
+      status: workerReliability.status === 'risk' ? 'risk' : (workerReliability.status === 'healthy' ? 'live' : 'pending'),
+      detail: 'Scheduled ' + (workerSummary.scheduledJobs || foundationJobs.scheduledJobs || 0)
+        + ', due ' + (workerSummary.dueJobs || foundationJobs.dueJobs || 0)
+        + ', failed latest ' + (workerSummary.failedLatestRuns || 0)
+        + ', retry candidates ' + (workerSummary.retryCandidateJobs || 0) + '.',
+      actions: [buildRuntimeHealthJumpAction('Open Jobs', 'runtime-diagnostic-foundation-jobs')],
+    },
+    {
+      label: 'Attention queue',
+      status: riskItems.length ? 'risk' : (pendingItems.length ? 'pending' : 'live'),
+      detail: riskItems.length + ' risk and ' + pendingItems.length + ' watch item' + (pendingItems.length === 1 ? '' : 's') + ' in the attention-only summary.',
+      actions: [buildRuntimeHealthJumpAction('Open Attention', 'runtime-health-attention')],
+    },
+  ]
+}
+
+function renderRuntimeHealthCommandPanel(hub) {
+  var panel = document.createElement('section')
+  panel.className = 'panel runtime-health-command-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Runtime Command'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'What Needs Attention Now'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Fast operator read first. Detailed diagnostics are still available below, grouped by proof area.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var commandGrid = document.createElement('div')
+  commandGrid.className = 'status-grid runtime-health-command-grid'
+  buildRuntimeHealthCommandItems(hub || {}).forEach(function(item) {
+    commandGrid.appendChild(renderStatusCard(item))
+  })
+  panel.appendChild(commandGrid)
+
+  var attentionTitle = document.createElement('div')
+  attentionTitle.id = 'runtime-health-attention'
+  attentionTitle.className = 'runtime-health-attention-title'
+  attentionTitle.textContent = 'Attention-only summary'
+  panel.appendChild(attentionTitle)
+
+  var attentionGrid = document.createElement('div')
+  attentionGrid.className = 'status-grid runtime-health-attention-grid'
+  buildRuntimeHealthAttentionItems(hub || {}).forEach(function(item) {
+    attentionGrid.appendChild(renderStatusCard(item))
+  })
+  panel.appendChild(attentionGrid)
+
+  return panel
+}
+
+function appendRuntimeDiagnosticPanel(container, panel, options) {
+  if (!panel) return
+  var config = options || {}
+  var wrapper = document.createElement('details')
+  wrapper.className = 'runtime-health-diagnostic-section'
+  if (config.id) wrapper.id = config.id
+  if (config.open === true) wrapper.open = true
+
+  var summary = document.createElement('summary')
+  summary.className = 'runtime-health-diagnostic-summary'
+  var title = document.createElement('span')
+  title.className = 'runtime-health-diagnostic-title'
+  title.textContent = config.title || 'Runtime diagnostic'
+  summary.appendChild(title)
+  var intro = document.createElement('span')
+  intro.className = 'runtime-health-diagnostic-intro'
+  intro.textContent = config.intro || 'Open for full source-backed detail.'
+  summary.appendChild(intro)
+
+  wrapper.appendChild(summary)
+  wrapper.appendChild(panel)
+  container.appendChild(wrapper)
+}
+
 function renderFoundationJobsPanel(foundationJobs) {
   var jobs = foundationJobs && Array.isArray(foundationJobs.jobs) ? foundationJobs.jobs : []
   if (!jobs.length) return null

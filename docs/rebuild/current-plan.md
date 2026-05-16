@@ -73,21 +73,22 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Runtime First Jobs
+## Current Sprint: Runtime Health Simplify
 
-Live sprint ID: `runtime-first-jobs-2026-05-16`.
+Live sprint ID: `runtime-health-simplify-2026-05-16`.
 
-This sprint repaired the first scheduled Foundation job lane exposed by `RUNTIME-WORKER-001`. The worker showed `gmail-sync-current` and `missive-sync-current` failing before they could run because the source-crawl store split dropped the public delegate exports used by `scripts/run-extraction-target.mjs`. `RUNTIME-FIRST-JOBS-001` restores the export seam, normalizes `--dry-run` before any lease can happen, and proves Gmail/Missive current-day targets can load through dry-run without live connector calls.
+This sprint is complete under `runtime-health-simplify-v1`. `RUNTIME-HEALTH-SIMPLIFY-001` adds a plain-English command layer, attention-only summary, direct jump actions, and collapsed diagnostic groups on top of the existing Runtime Health page. It does not change backend routes, runtime semantics, job controls, connector auth, source extraction, hub features, Canva asset-library behavior, Marketing Video Lab wiring, Meeting Vault Phase B, or Drive permissions.
 
 Completed card:
 
-1. `RUNTIME-FIRST-JOBS-001` - done under `runtime-first-jobs-v1`. Scope was no-auth runtime repair only: restore `leaseSourceCrawlTarget` / `finishSourceCrawlTargetRun` delegates, prove `gmail-current-day` and `missive-current-day` dry-runs do not lease targets or spawn child sync commands, add focused runtime reliability verifier coverage, and close with full Foundation verification at 400/400.
+1. `RUNTIME-HEALTH-SIMPLIFY-001` - done under `runtime-health-simplify-v1`. Scope was Runtime Health readability only: top command panel, attention-only runtime items, direct jumps to proof sections, collapsed diagnostics by proof area, focused dogfood that rejects the old wall-of-diagnostics shape, runtime reliability verifier coverage, focused proof 16/16, and full Foundation verification 401/401 before closeout.
 
 Previously completed in this runtime lane:
 
-1. `FOUNDATION-IDENTITY-001` - done under `foundation-identity-surface-v1`. V1 exposes metadata-only workspace identity in System Inventory without copying private memory into repo truth.
-2. `RUNTIME-SUPERVISOR-001` - done under `runtime-supervisor-v1`. V1 owns `lib/runtime-process-control.js` service-supervisor builders, `server.js` LaunchAgent wiring, `public/foundation-runtime-renderers.js` Runtime Health supervised-service rendering, `lib/foundation-runtime-reliability-verifier.js` coverage, focused proof `scripts/process-runtime-supervisor-check.mjs`, and closeout `docs/handoffs/2026-05-16-runtime-supervisor-closeout.md`.
-3. `RUNTIME-WORKER-001` - done under `runtime-worker-reliability-v1`. V1 owns `lib/foundation-worker-reliability.js`, shared worker dry-run parsing, one-shot dry-run runtime-status guard, `workerReliability` job snapshots, Runtime Health worker reliability rendering, runtime reliability verifier coverage, focused proof `scripts/process-runtime-worker-check.mjs`, and closeout `docs/handoffs/2026-05-16-runtime-worker-reliability-closeout.md`.
+1. `RUNTIME-FIRST-JOBS-001` - done under `runtime-first-jobs-v1`. Scope was no-auth runtime repair only: restore `leaseSourceCrawlTarget` / `finishSourceCrawlTargetRun` delegates, prove `gmail-current-day` and `missive-current-day` dry-runs do not lease targets or spawn child sync commands, add focused runtime reliability verifier coverage, and close with full Foundation verification at 400/400.
+2. `FOUNDATION-IDENTITY-001` - done under `foundation-identity-surface-v1`. V1 exposes metadata-only workspace identity in System Inventory without copying private memory into repo truth.
+3. `RUNTIME-SUPERVISOR-001` - done under `runtime-supervisor-v1`. V1 owns `lib/runtime-process-control.js` service-supervisor builders, `server.js` LaunchAgent wiring, `public/foundation-runtime-renderers.js` Runtime Health supervised-service rendering, `lib/foundation-runtime-reliability-verifier.js` coverage, focused proof `scripts/process-runtime-supervisor-check.mjs`, and closeout `docs/handoffs/2026-05-16-runtime-supervisor-closeout.md`.
+4. `RUNTIME-WORKER-001` - done under `runtime-worker-reliability-v1`. V1 owns `lib/foundation-worker-reliability.js`, shared worker dry-run parsing, one-shot dry-run runtime-status guard, `workerReliability` job snapshots, Runtime Health worker reliability rendering, runtime reliability verifier coverage, focused proof `scripts/process-runtime-worker-check.mjs`, and closeout `docs/handoffs/2026-05-16-runtime-worker-reliability-closeout.md`.
 
 Not next: auto-restart-on-push install, new scheduler framework, job execution semantic changes, route/auth behavior changes, DB schema changes, source contract behavior changes, connector auth, extraction runs, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 

@@ -2523,3 +2523,68 @@ a.build-log-backlog-link:hover {
   font-size: 0.84rem;
   line-height: 1.3;
 }
+
+.runtime-health-command-panel {
+  border-color: rgba(0, 132, 201, 0.24);
+}
+
+.runtime-health-command-grid,
+.runtime-health-attention-grid {
+  margin-top: 12px;
+}
+
+.runtime-health-attention-title {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.runtime-health-diagnostic-section {
+  margin: 12px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.runtime-health-diagnostic-section[open] {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.runtime-health-diagnostic-summary {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.4fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.runtime-health-diagnostic-title {
+  color: var(--text-primary);
+  font-family: 'stratum-1-web', 'Arial Black', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.runtime-health-diagnostic-intro {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.runtime-health-diagnostic-section > .panel {
+  margin: 0;
+  border-width: 1px 0 0;
+  border-radius: 0 0 8px 8px;
+}
+
+@media (max-width: 720px) {
+  .runtime-health-diagnostic-summary {
+    grid-template-columns: 1fr;
+  }
+}

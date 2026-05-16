@@ -33,79 +33,185 @@ function renderDataHealth() {
     var purposePanel = renderFoundationOperationsPurposePanel('system-health', hub)
     if (purposePanel) container.appendChild(purposePanel)
 
+    var commandPanel = renderRuntimeHealthCommandPanel(hub)
+    if (commandPanel) container.appendChild(commandPanel)
+
     var kpiWarningPanel = renderKpiHealthRuntimeWarning(hub.kpiHealth)
-    if (kpiWarningPanel) container.appendChild(kpiWarningPanel)
+    appendRuntimeDiagnosticPanel(container, kpiWarningPanel, {
+      id: 'runtime-diagnostic-kpi-warning',
+      title: 'KPI / Supabase Warning',
+      intro: 'Source health warning panel for KPI-backed surfaces.',
+      open: hub.kpiHealth && hub.kpiHealth.status && hub.kpiHealth.status !== 'healthy',
+    })
 
     var servedCodePanel = renderServedCodeTrustPanel(hub.runtimeSupervisor)
-    if (servedCodePanel) container.appendChild(servedCodePanel)
+    appendRuntimeDiagnosticPanel(container, servedCodePanel, {
+      id: 'runtime-diagnostic-served-code',
+      title: 'Dashboard Code Trust',
+      intro: 'Confirms the dashboard is serving the current repo commit.',
+    })
 
     var workerCodePanel = renderWorkerCodeTrustPanel(hub.runtimeSupervisor)
-    if (workerCodePanel) container.appendChild(workerCodePanel)
+    appendRuntimeDiagnosticPanel(container, workerCodePanel, {
+      id: 'runtime-diagnostic-worker-code',
+      title: 'Worker Code Trust',
+      intro: 'Confirms the Foundation worker pid and startup commit match LaunchAgent truth.',
+    })
 
     var backlogHygienePanel = renderBacklogHygienePanel(hub.backlogHygiene)
-    if (backlogHygienePanel) container.appendChild(backlogHygienePanel)
+    appendRuntimeDiagnosticPanel(container, backlogHygienePanel, {
+      id: 'runtime-diagnostic-backlog-hygiene',
+      title: 'Backlog Hygiene',
+      intro: 'Automatic backlog hygiene findings and stale-card checks.',
+      open: hub.backlogHygiene && (hub.backlogHygiene.status === 'critical' || hub.backlogHygiene.criticalFindings > 0),
+    })
 
     var cardReferenceTrustPanel = renderCardReferenceTrustPanel(hub.cardReferenceTrust)
-    if (cardReferenceTrustPanel) container.appendChild(cardReferenceTrustPanel)
+    appendRuntimeDiagnosticPanel(container, cardReferenceTrustPanel, {
+      id: 'runtime-diagnostic-card-reference-trust',
+      title: 'Card Reference Trust',
+      intro: 'Checks active docs for missing backlog card references.',
+    })
 
     var sourceReferenceTrustPanel = renderSourceReferenceTrustPanel(hub.sourceReferenceTrust)
-    if (sourceReferenceTrustPanel) container.appendChild(sourceReferenceTrustPanel)
+    appendRuntimeDiagnosticPanel(container, sourceReferenceTrustPanel, {
+      id: 'runtime-diagnostic-source-reference-trust',
+      title: 'Source Reference Trust',
+      intro: 'Checks active docs for undeclared source IDs and source-reference drift.',
+    })
 
     var postShipFanoutPanel = renderPostShipFanoutPanel(hub.postShipFanout)
-    if (postShipFanoutPanel) container.appendChild(postShipFanoutPanel)
+    appendRuntimeDiagnosticPanel(container, postShipFanoutPanel, {
+      id: 'runtime-diagnostic-post-ship-fanout',
+      title: 'Post-Ship Fanout',
+      intro: 'Confirms recent ships updated their claimed surfaces and proof locations.',
+      open: hub.postShipFanout && hub.postShipFanout.status && !['healthy', 'passed', 'ok'].includes(String(hub.postShipFanout.status).toLowerCase()),
+    })
 
     var docArchiveCleanupPanel = renderDocArchiveCleanupPanel(hub.docArchiveCleanup)
-    if (docArchiveCleanupPanel) container.appendChild(docArchiveCleanupPanel)
+    appendRuntimeDiagnosticPanel(container, docArchiveCleanupPanel, {
+      id: 'runtime-diagnostic-doc-archive-cleanup',
+      title: 'Doc Archive Cleanup',
+      intro: 'Tracks doc archive and cleanup guardrails.',
+    })
 
     var exceptionCurationPanel = renderExceptionCurationPanel(hub.exceptionCuration)
-    if (exceptionCurationPanel) container.appendChild(exceptionCurationPanel)
+    appendRuntimeDiagnosticPanel(container, exceptionCurationPanel, {
+      id: 'runtime-diagnostic-exception-curation',
+      title: 'Verifier Exception Curation',
+      intro: 'Keeps verifier exceptions explicit, approved, and not stale.',
+    })
 
     var hitListReconcilePanel = renderHitListReconcilePanel(hub.hitListReconcile)
-    if (hitListReconcilePanel) container.appendChild(hitListReconcilePanel)
+    appendRuntimeDiagnosticPanel(container, hitListReconcilePanel, {
+      id: 'runtime-diagnostic-hit-list-reconcile',
+      title: 'Hit List Reconcile',
+      intro: 'Tracks cleanup-hit-list state against active Foundation proof.',
+    })
 
     var archiveRetirePanel = renderArchiveRetirePanel(hub.archiveRetire)
-    if (archiveRetirePanel) container.appendChild(archiveRetirePanel)
+    appendRuntimeDiagnosticPanel(container, archiveRetirePanel, {
+      id: 'runtime-diagnostic-archive-retire',
+      title: 'Archive Retire',
+      intro: 'Shows archive-retire safe-delete and preservation guardrails.',
+    })
 
     var sheetsApiTrustPanel = renderSheetsApiTrustPanel(hub.sheetsApiTrust)
-    if (sheetsApiTrustPanel) container.appendChild(sheetsApiTrustPanel)
+    appendRuntimeDiagnosticPanel(container, sheetsApiTrustPanel, {
+      id: 'runtime-diagnostic-sheets-api-trust',
+      title: 'Sheets API Trust',
+      intro: 'Shows whether repeated Google Sheets reads are cached and quota-safe.',
+      open: hub.sheetsApiTrust && hub.sheetsApiTrust.quotaRisk === 'high',
+    })
 
     var doctrinePropagationPanel = renderDoctrinePropagationPanel(hub.doctrinePropagation)
-    if (doctrinePropagationPanel) container.appendChild(doctrinePropagationPanel)
+    appendRuntimeDiagnosticPanel(container, doctrinePropagationPanel, {
+      id: 'runtime-diagnostic-doctrine-propagation',
+      title: 'Doctrine Propagation',
+      intro: 'Keeps Foundation operating rules synchronized into active skill doctrine.',
+    })
 
     var surfaceSweepPanel = renderSurfaceFreshnessSweepPanel(hub.surfaceFreshnessSweep)
-    if (surfaceSweepPanel) container.appendChild(surfaceSweepPanel)
+    appendRuntimeDiagnosticPanel(container, surfaceSweepPanel, {
+      id: 'runtime-diagnostic-surface-freshness',
+      title: 'Surface Freshness Sweep',
+      intro: 'Checks Foundation surfaces for stale or missing runtime proof.',
+      open: hub.surfaceFreshnessSweep && hub.surfaceFreshnessSweep.status === 'risk',
+    })
 
     var agentFeedbackAutoSendPanel = renderAgentFeedbackAutoSendPanel(hub.agentFeedbackAutoSend)
-    if (agentFeedbackAutoSendPanel) container.appendChild(agentFeedbackAutoSendPanel)
+    appendRuntimeDiagnosticPanel(container, agentFeedbackAutoSendPanel, {
+      id: 'runtime-diagnostic-agent-feedback-auto-send',
+      title: 'Agent Feedback Auto-Send',
+      intro: 'Shows production-send guard state for onboarding feedback.',
+    })
 
     var agentFeedbackProductionDryRunPanel = renderAgentFeedbackProductionDryRunPanel(hub.agentFeedbackProductionAutoSendDryRun)
-    if (agentFeedbackProductionDryRunPanel) container.appendChild(agentFeedbackProductionDryRunPanel)
+    appendRuntimeDiagnosticPanel(container, agentFeedbackProductionDryRunPanel, {
+      id: 'runtime-diagnostic-agent-feedback-dry-run',
+      title: 'Agent Feedback Production Dry-Run',
+      intro: 'Shows who would be emailed before production send is enabled.',
+    })
 
     var agentFeedbackReminderPanel = renderAgentFeedbackReminderPanel(hub.agentFeedbackReminders)
-    if (agentFeedbackReminderPanel) container.appendChild(agentFeedbackReminderPanel)
+    appendRuntimeDiagnosticPanel(container, agentFeedbackReminderPanel, {
+      id: 'runtime-diagnostic-agent-feedback-reminders',
+      title: 'Agent Feedback Reminders',
+      intro: 'Shows reminder cadence and response-notification health.',
+    })
 
     var runtimeProcessControlPanel = renderRuntimeProcessControlPanel(hub.runtimeProcessControl)
-    if (runtimeProcessControlPanel) container.appendChild(runtimeProcessControlPanel)
+    appendRuntimeDiagnosticPanel(container, runtimeProcessControlPanel, {
+      id: 'runtime-diagnostic-process-control',
+      title: 'Runtime Process Control',
+      intro: 'SYSTEM-010 process, liveness, stop/decommission, restart, and spend-risk guardrails.',
+      open: hub.runtimeProcessControl && hub.runtimeProcessControl.status === 'risk',
+    })
 
     var meetingVaultAutoEnforcementPanel = renderMeetingVaultAutoEnforcementPanel(hub.meetingVaultAutoEnforcement)
-    if (meetingVaultAutoEnforcementPanel) container.appendChild(meetingVaultAutoEnforcementPanel)
+    appendRuntimeDiagnosticPanel(container, meetingVaultAutoEnforcementPanel, {
+      id: 'runtime-diagnostic-meeting-vault-auto-enforcement',
+      title: 'Meeting Vault Auto-Enforcement',
+      intro: 'Report-only forward-flow guard for meeting-note Drive safety.',
+    })
 
     var jobsPanel = renderFoundationJobsPanel(hub.foundationJobs)
-    if (jobsPanel) container.appendChild(jobsPanel)
+    appendRuntimeDiagnosticPanel(container, jobsPanel, {
+      id: 'runtime-diagnostic-foundation-jobs',
+      title: 'Foundation Jobs',
+      intro: 'Registered routines, schedule status, worker reliability, and job controls.',
+      open: hub.foundationJobs && hub.foundationJobs.workerReliability && hub.foundationJobs.workerReliability.status === 'risk',
+    })
 
     var intelligencePanel = renderIntelligencePipelinePanel(hub.sharedCommunicationsCoverage, hub.sharedCommunicationSynthesis)
-    if (intelligencePanel) container.appendChild(intelligencePanel)
+    appendRuntimeDiagnosticPanel(container, intelligencePanel, {
+      id: 'runtime-diagnostic-intelligence-pipeline',
+      title: 'Intelligence Pipeline',
+      intro: 'Archive, extraction, synthesis, and candidate coverage health.',
+    })
 
     var llmPanel = renderLlmRuntimePanel(hub.llmRuntime)
-    if (llmPanel) container.appendChild(llmPanel)
+    appendRuntimeDiagnosticPanel(container, llmPanel, {
+      id: 'runtime-diagnostic-llm-runtime',
+      title: 'LLM Runtime',
+      intro: 'Policy-aware model route and credential status.',
+    })
 
     var extractionPanel = renderExtractionControlPanel(hub.extractionControl)
-    if (extractionPanel) container.appendChild(extractionPanel)
+    appendRuntimeDiagnosticPanel(container, extractionPanel, {
+      id: 'runtime-diagnostic-extraction-control',
+      title: 'Extraction Control',
+      intro: 'Source-crawl targets, item queues, leases, and extraction schedule state.',
+    })
 
     var driveCorpusPanel = renderDriveCorpusInventoryPanel(hub.driveCorpusInventory)
-    if (driveCorpusPanel) container.appendChild(driveCorpusPanel)
+    appendRuntimeDiagnosticPanel(container, driveCorpusPanel, {
+      id: 'runtime-diagnostic-drive-corpus',
+      title: 'Drive Corpus Inventory',
+      intro: 'Drive corpus inventory and governed content extraction status.',
+    })
 
-    getSystemHealthGroups(hub.memoryStatus || []).forEach(function(group) {
+    getSystemHealthGroups(hub.memoryStatus || []).forEach(function(group, index) {
       var panel = renderStatusGroupPanel(
         group.title,
         group.intro,
@@ -117,7 +223,11 @@ function renderDataHealth() {
           }
         })
       )
-      if (panel) container.appendChild(panel)
+      appendRuntimeDiagnosticPanel(container, panel, {
+        id: 'runtime-diagnostic-memory-status-' + index,
+        title: group.title,
+        intro: group.intro || 'Trust-layer component status.',
+      })
     })
 
   }).catch(function(error) {
