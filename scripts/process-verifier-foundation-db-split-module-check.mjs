@@ -101,6 +101,18 @@ async function loadVerifierInput() {
     foundationSharedCommsCoverageSource,
     foundationSharedCommsCoverageScriptSource,
     foundationSharedCommsCoveragePlanSource,
+    foundationSharedCommsStoreSource,
+    foundationSharedCommsStoreScriptSource,
+    foundationSharedCommsStorePlanSource,
+    foundationLlmRuntimeStoreSource,
+    foundationLlmRuntimeStoreScriptSource,
+    foundationLlmRuntimeStorePlanSource,
+    foundationRuntimeJobStoreSource,
+    foundationRuntimeJobStoreScriptSource,
+    foundationRuntimeJobStorePlanSource,
+    foundationSourceCrawlStoreSource,
+    foundationSourceCrawlStoreScriptSource,
+    foundationSourceCrawlStorePlanSource,
     moduleSource,
     proofScriptSource,
     planSource,
@@ -134,6 +146,18 @@ async function loadVerifierInput() {
     readText('lib/foundation-shared-comms-coverage.js'),
     readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.sharedCommsScript),
     readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.sharedCommsPlan),
+    readText('lib/foundation-shared-comms-store.js'),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.sharedCommsStoreScript),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.sharedCommsStorePlan),
+    readText('lib/foundation-llm-runtime-store.js'),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.llmRuntimeStoreScript),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.llmRuntimeStorePlan),
+    readText('lib/foundation-runtime-job-store.js'),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.runtimeJobStoreScript),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.runtimeJobStorePlan),
+    readText('lib/foundation-source-crawl-store.js'),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.sourceCrawlStoreScript),
+    readText(FOUNDATION_DB_SPLIT_VERIFIER_SOURCE_PATHS.sourceCrawlStorePlan),
     readText('lib/foundation-db-split-verifier.js'),
     readText(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SCRIPT_PATH),
     readText(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_PLAN_PATH),
@@ -184,6 +208,18 @@ async function loadVerifierInput() {
     foundationSharedCommsCoverageSource,
     foundationSharedCommsCoverageScriptSource,
     foundationSharedCommsCoveragePlanSource,
+    foundationSharedCommsStoreSource,
+    foundationSharedCommsStoreScriptSource,
+    foundationSharedCommsStorePlanSource,
+    foundationLlmRuntimeStoreSource,
+    foundationLlmRuntimeStoreScriptSource,
+    foundationLlmRuntimeStorePlanSource,
+    foundationRuntimeJobStoreSource,
+    foundationRuntimeJobStoreScriptSource,
+    foundationRuntimeJobStorePlanSource,
+    foundationSourceCrawlStoreSource,
+    foundationSourceCrawlStoreScriptSource,
+    foundationSourceCrawlStorePlanSource,
     moduleSource,
     proofScriptSource,
     planSource,
@@ -215,6 +251,7 @@ async function main() {
 
   const card = cards[0] || null
   const sprintItem = (activeSprint.items || []).find(item => item.cardId === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID) || null
+  const cardClosed = card?.lane === 'done'
   const planCritic = planCriticRuns.find(run => run.cardId === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID && run.status === 'pass' && Number(run.score) >= 9.8) || null
   const evaluation = await evaluateFoundationDbSplitVerifier(input)
   const dogfood = await buildFoundationDbSplitVerifierDogfoodProof(input)
@@ -222,8 +259,8 @@ async function main() {
 
   addCheck(checks, approval.ok, 'Plan approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || VERIFIER_FOUNDATION_DB_SPLIT_MODULE_APPROVAL_PATH)
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  addCheck(checks, activeSprint.sprint?.sprintId === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SPRINT_ID, 'Current Sprint is the verifier Foundation-DB split module sprint', activeSprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  addCheck(checks, activeSprint.sprint?.sprintId === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SPRINT_ID || cardClosed, 'Current Sprint is the verifier Foundation-DB split module sprint or the card is historically done', cardClosed ? 'card done' : (activeSprint.sprint?.sprintId || 'missing'))
+  addCheck(checks, (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)) || cardClosed, 'Current Sprint contains the card in Building Now/Done or the card is historically done', cardClosed ? 'card done' : (sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing'))
   addCheck(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
   addCheck(checks, input.moduleSource.includes('evaluateFoundationDbSplitVerifier') && input.moduleSource.includes('buildFoundationDbSplitVerifierDogfoodProof'), 'new module owns Foundation-DB split verifier logic', 'lib/foundation-db-split-verifier.js')
   addCheck(checks, evaluation.ok, 'Foundation-DB split verifier module passes current split state', `${evaluation.summary.passed}/${evaluation.summary.total}`)

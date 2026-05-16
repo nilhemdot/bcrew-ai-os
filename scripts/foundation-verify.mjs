@@ -348,6 +348,10 @@ import {
   evaluateFoundationDbSplitVerifier,
 } from '../lib/foundation-db-split-verifier.js'
 import {
+  FOUNDATION_SOURCE_CRAWL_STORE_SPLIT_PLAN_PATH,
+  FOUNDATION_SOURCE_CRAWL_STORE_SPLIT_SCRIPT_PATH,
+} from '../lib/foundation-source-crawl-store.js'
+import {
   FUB_SOURCE_ROUTE_SPLIT_APPROVAL_PATH,
   FUB_SOURCE_ROUTE_SPLIT_BEFORE_SERVER_LINES,
   FUB_SOURCE_ROUTE_SPLIT_CARD_ID,
@@ -2577,6 +2581,9 @@ async function main() {
   const foundationRuntimeJobStoreSource = await readRepoFile('lib/foundation-runtime-job-store.js')
   const foundationRuntimeJobStoreScriptSource = await readRepoFile(FOUNDATION_RUNTIME_JOB_STORE_SPLIT_SCRIPT_PATH)
   const foundationRuntimeJobStorePlanSource = await readRepoFile(FOUNDATION_RUNTIME_JOB_STORE_SPLIT_PLAN_PATH)
+  const foundationSourceCrawlStoreSource = await readRepoFile('lib/foundation-source-crawl-store.js')
+  const foundationSourceCrawlStoreScriptSource = await readRepoFile(FOUNDATION_SOURCE_CRAWL_STORE_SPLIT_SCRIPT_PATH)
+  const foundationSourceCrawlStorePlanSource = await readRepoFile(FOUNDATION_SOURCE_CRAWL_STORE_SPLIT_PLAN_PATH)
   const googleDelegatedSource = await readRepoFile('lib/google-delegated.js')
   const googleSheetsCacheSource = await readRepoFile('lib/google-sheets-cache.js')
   const llmRouterSource = await readRepoFile('lib/llm-router.js')
@@ -3102,6 +3109,7 @@ async function main() {
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
+  const sourceCrawlStoreOwnershipSource = `${foundationDbSource}\n${foundationSourceCrawlStoreSource}`
   const foundationBacklogSeedSource = await readRepoFile('lib/foundation-backlog-seed.js')
   const foundationDbWithBacklogSeedSource = `${foundationDbSource}\n${foundationBacklogSeedSource}`
   const currentSprintStoreSource = await readRepoFile('lib/foundation-current-sprint-store.js')
@@ -3255,13 +3263,13 @@ async function main() {
   )
   ensure(
     checks,
-    foundationDbSource.includes('AND lease_owner = $12') &&
+    sourceCrawlStoreOwnershipSource.includes('AND lease_owner = $12') &&
       foundationDbSource.includes('CREATE TABLE IF NOT EXISTS source_crawl_target_runs') &&
-      foundationDbSource.includes('crawlRunId') &&
+      sourceCrawlStoreOwnershipSource.includes('crawlRunId') &&
       extractionTargetSource.includes('runId: leasedTarget.crawlRunId') &&
-      foundationDbSource.includes('Source crawl target finish blocked') &&
-      foundationDbSource.includes("`source_crawl_item:${targetKey}:${externalId}`") &&
-      foundationDbSource.includes('entityId: item.itemKey'),
+      sourceCrawlStoreOwnershipSource.includes('Source crawl target finish blocked') &&
+      sourceCrawlStoreOwnershipSource.includes("`source_crawl_item:${targetKey}:${externalId}`") &&
+      sourceCrawlStoreOwnershipSource.includes('entityId: item.itemKey'),
     'source crawl ledger is run-id, lease-owner, and item-key safe',
     'target leases create run rows, finishes carry crawlRunId and require matching lease owner, and item events use the actual returned row key',
   )
@@ -3353,6 +3361,7 @@ async function main() {
   const staleLlmCalls = await getStaleLlmCalls({ olderThanSeconds: 240, graceSeconds: 60, limit: 10 })
   const extractionRuntimeVerifier = evaluateFoundationExtractionRuntimeVerifier({
     foundationDbSource,
+    sourceCrawlStoreSource: foundationSourceCrawlStoreSource,
     llmRuntimeStoreSource: foundationLlmRuntimeStoreSource,
     runtimeJobStoreSource: foundationRuntimeJobStoreSource,
     foundationWorkerSource,
@@ -5056,7 +5065,7 @@ async function main() {
   )
   ensure(
     checks,
-    includesAll(foundationDbSource, [
+    includesAll(sourceCrawlStoreOwnershipSource, [
       'getSourceCrawlTargetItemSummaries',
       'buildSourceCrawlTargetHealthFindings',
       'missing_slack_channel_item_proof',
@@ -5102,7 +5111,7 @@ async function main() {
       extractionCoverageTargets.some(target => Number(target.counts.skippedItems || 0) > 0 && target.topReasons.length > 0) &&
       driveCorpusCoverage?.remainingBacklogIndicators?.some(indicator => /Queued Drive folders/i.test(indicator.label || '')) &&
       driveContentCoverage?.topReasons?.some(reason => reason.status === 'skipped') &&
-      includesAll(foundationDbSource, [
+      includesAll(sourceCrawlStoreOwnershipSource, [
         'getSourceCrawlTargetRunCoverage',
         'buildSourceCrawlTargetCoverage',
         'coverageByTarget',
@@ -5200,7 +5209,7 @@ async function main() {
       !scheduledExtractionTargets.some(target =>
         (target.healthFindings || []).some(finding => finding.type === 'job_target_schedule_mismatch')
       ) &&
-      includesAll(foundationDbSource, ['scheduleTruth', 'crawlCheckpointNextRunAt']) &&
+      includesAll(sourceCrawlStoreOwnershipSource, ['scheduleTruth', 'crawlCheckpointNextRunAt']) &&
       !foundationDbSource.includes('targetNextRunAt') &&
       includesAll(foundationFrontendSource, ['crawlCheckpointNextRunAt', 'Runner checkpoint']),
     'api/foundation-hub derives extraction schedules from Foundation jobs',
@@ -7737,7 +7746,7 @@ async function main() {
         'buildExtractionNextSafeCommand',
         'buildSyntheticExtractionRunHardeningProof',
       ]) &&
-      includesAll(foundationDbSource, [
+      includesAll(sourceCrawlStoreOwnershipSource, [
         'source_crawl_item_attempts',
         'retry_state',
         'last_source_crawl_run_id',
@@ -8954,7 +8963,7 @@ async function main() {
         'buildSourceExtractionCoverageSnapshot',
         'sourceExtractionCoverage',
       ]) &&
-      includesAll(foundationDbSource, [
+      includesAll(sourceCrawlStoreOwnershipSource, [
         'last24hItems',
         'runsLast24h',
         'last24h',
@@ -12677,6 +12686,9 @@ async function main() {
     foundationRuntimeJobStoreSource,
     foundationRuntimeJobStoreScriptSource,
     foundationRuntimeJobStorePlanSource,
+    foundationSourceCrawlStoreSource,
+    foundationSourceCrawlStoreScriptSource,
+    foundationSourceCrawlStorePlanSource,
     moduleSource: foundationDbSplitVerifierSource,
     repoFileExists,
   }

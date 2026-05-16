@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-MONOLITH-SPLIT-012",
+  "approvedPlanRef": "docs/process/foundation-db-source-crawl-store-split-012-plan.md",
+  "approvedPlanSha256": "e56d848f26ea519a10815b3b31c72e2c0f519217c1ed370dd656b5de95c84b06",
+  "approvedRepoHead": "fb1a97b5ed78fb9ab1d47df43b657dc87bb9b562",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T05:14:44.994Z",
+  "score": 10,
+  "notes": "Approved bounded Foundation DB source-crawl store split. No source extraction, schedule policy changes, live connector calls, schema changes, Canva work, hub feature work, paid-source auth, or Build Intel extraction.",
+  "approvalDigest": "7000d13149fdd5ab6cf38b3e5126f8bdb7a71807530ea5fc72d996e5a921f567"
+}

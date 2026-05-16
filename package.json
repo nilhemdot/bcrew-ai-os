@@ -127,6 +127,7 @@
     "process:foundation-shared-comms-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-shared-comms-store-split-check.mjs",
     "process:foundation-llm-runtime-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-llm-runtime-store-split-check.mjs",
     "process:foundation-runtime-job-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-runtime-job-store-split-check.mjs",
+    "process:foundation-source-crawl-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-source-crawl-store-split-check.mjs",
     "process:canva-client-check": "node --env-file-if-exists=.env scripts/process-canva-client-check.mjs",
     "process:frontend-monolith-split-check": "node --env-file-if-exists=.env scripts/process-frontend-monolith-split-check.mjs",
     "process:frontend-operations-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-operations-renderers-split-check.mjs",
