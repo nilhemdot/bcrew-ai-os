@@ -69,6 +69,31 @@ function getTargetRunner(target, options = {}) {
   const maxFoldersPerRun = numberFromBudget(target, 'maxFoldersPerRun', 1)
   const retryFailed = boolValue(options.retryFailed)
 
+  if (target.targetKey === 'calendar-current-day') {
+    const windowHours = numberFromBudget(target, 'windowHours', Number(target.cursorState?.windowHours) || 72)
+    const lookbackHours = numberFromBudget(target, 'lookbackHours', Number(target.cursorState?.lookbackHours) || 24)
+    const calendarId = String(target.cursorState?.calendarId || 'primary')
+    return {
+      command: 'npm',
+      args: [
+        'run',
+        'calendar:sync-events',
+        '--',
+        `--limit=${maxItemsPerRun}`,
+        `--windowHours=${windowHours}`,
+        `--lookbackHours=${lookbackHours}`,
+        `--calendarId=${calendarId}`,
+        `--target=${target.targetKey}`,
+        '--controlledByTargetRunner=true',
+      ],
+      inspectedPattern: /Calendar events selected:\s*(\d+)/i,
+      archivedPattern: /Calendar events archived:\s*(\d+)/i,
+      extractedPattern: /Calendar events archived:\s*(\d+)/i,
+      itemFailuresPattern: /Crawl items failed:\s*(\d+)/i,
+      summaryPattern: /^EXTRACTION_TARGET_SUMMARY\s+(\{.+\})$/m,
+    }
+  }
+
   if (target.targetKey === 'gmail-current-day') {
     const query = String(target.cursorState?.query || 'newer_than:2d')
     return {

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "GCAL-ATOM-SCHEDULE-001",
+  "approvedBy": "Steve keep-going instruction + Codex no-auth source readiness review",
+  "approvedAt": "2026-05-16T22:49:02.924Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/gcal-atom-schedule-001-plan.md",
+  "approvedRepoHead": "22642557a23bf9c007e7faf4c2b4e586fcd5f0af",
+  "notes": "Approved as next no-auth Foundation source-readiness sprint after SOURCE-CONTRACT-ID-RECONCILE-001. Scope: schedule bounded read-only Google Calendar event archive target and job; no Calendar mutation, invite, event update/delete, auth churn, paid source extraction, or hub feature work.",
+  "approvedPlanSha256": "41011a62e007565809bb4c3f13f1f7c12ce6f277411f37fef3c4daa0b48a611e",
+  "approvalDigest": "b31ab4b8f37be057e3e2f2cdf89c41334fad47ffa5c7d224ea52d02cd5a0d642"
+}

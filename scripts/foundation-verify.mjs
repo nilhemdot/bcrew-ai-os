@@ -2354,6 +2354,7 @@ async function main() {
   const sourceLifecycleCompletionDocSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_DOC_PATH)
   const sourceLifecycleCompletionApprovalSource = await readRepoFile(SOURCE_LIFECYCLE_COMPLETION_APPROVAL_PATH)
   const sourceLifecycleCompletionApproval = JSON.parse(sourceLifecycleCompletionApprovalSource)
+  const gcalAtomScheduleProofSource = await readRepoFile('scripts/process-gcal-atom-schedule-check.mjs')
   const sourceLifecycleDynamicCountsSource = await readRepoFile('lib/source-lifecycle-dynamic-counts.js')
   const sourceLifecycleDynamicCountsScriptSource = await readRepoFile(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SCRIPT_PATH)
   const sourceLifecycleDynamicCountsPlanSource = await readRepoFile(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_PLAN_PATH)
@@ -4214,6 +4215,7 @@ async function main() {
     agentFeedbackRoutesSource,
     foundationStabCaptureCheckSource,
     foundationCleanupArcCloseoutCheckSource,
+    gcalAtomScheduleProofSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -7761,7 +7763,7 @@ async function main() {
       includesAll(packageSource, ['"process:source-lifecycle-expansion-check"', 'scripts/process-source-lifecycle-expansion-check.mjs']) &&
       sourceLifecycleStatus.status === 'healthy' &&
       sourceLifecycleStatus.summary?.allSourceContractsCovered === true &&
-      sourceLifecycleStatus.summary?.extractionTargetCount === 12 &&
+      sourceLifecycleStatus.summary?.extractionTargetCount === SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT &&
       sourceLifecycleStatus.summary?.includedSourceMissingCount === 0 &&
       sourceLifecycleStatus.summary?.laneCompletenessFailures === 0 &&
       sourceLifecycleStatus.summary?.extractionCapsUnchanged === true &&
@@ -7790,11 +7792,11 @@ async function main() {
       foundationSourceLifecycle.schemaVersion === 1 &&
       foundationSourceLifecycle.route === SOURCE_LIFECYCLE_ROUTE &&
       foundationSourceLifecycle.summary?.allSourceContractsCovered === true &&
-      foundationSourceLifecycle.summary?.extractionTargetCount === 12 &&
+      foundationSourceLifecycle.summary?.extractionTargetCount === SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT &&
       foundationSourceLifecycle.summary?.extractionCapsUnchanged === true &&
       (
-        foundationHub.sourceLifecycle?.summary?.extractionTargetCount === 12 ||
-        foundationSourceLifecycle.summary?.extractionTargetCount === 12
+        foundationHub.sourceLifecycle?.summary?.extractionTargetCount === SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT ||
+        foundationSourceLifecycle.summary?.extractionTargetCount === SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT
       ) &&
       sourceOfTruth.sources?.length === foundationSourceLifecycle.summary?.sourceContractCount &&
       Array.isArray(sourceOfTruth.connectors) &&
