@@ -2,24 +2,24 @@
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-16T09:25:48.271Z`
+Generated at: `2026-05-16T09:48:06.693Z`
 
 ## Morning Read
 
 - Status: `report_ready`
-- Findings: 57 total (40 P0, 11 P1, 6 P2, 0 P3)
-- Proposed backlog fixes: 18
+- Findings: 56 total (40 P0, 10 P1, 6 P2, 0 P3)
+- Proposed backlog fixes: 17
 - Detection mode: deterministic code first; no LLM detection used.
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work.
 - Synthetic proof: passed (hardcoded=2, mutator=1, slowEndpoint=risk)
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=77ms payload=526051B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=14ms payload=134032B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=350ms payload=628121B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=84ms payload=366927B risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: status=200 latency=72ms payload=33955B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=82ms payload=526768B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=17ms payload=134032B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=363ms payload=621447B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=75ms payload=365449B risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: status=200 latency=74ms payload=33955B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
 
@@ -40,13 +40,13 @@ Assets:
 - public/foundation-router.js: 5221B raw, 1498B gzip, 192 lines
 
 Largest files:
-- scripts/foundation-verify.mjs: 12902 LOC, 735252B
+- scripts/foundation-verify.mjs: 12947 LOC, 738277B
 - public/foundation.js: 4910 LOC, 174221B
 - server.js: 4804 LOC, 159475B
 - lib/foundation-db.js: 4713 LOC, 214423B
 - lib/foundation-backlog-seed.js: 4652 LOC, 477958B
 - lib/foundation-build-closeout-records.js: 4328 LOC, 297517B
-- lib/foundation-build-closeout-overnight-records.js: 3585 LOC, 289872B
+- lib/foundation-build-closeout-overnight-records.js: 3634 LOC, 293893B
 - public/styles-foundation-workflows.css: 2526 LOC, 48968B
 
 ## Top Findings
@@ -54,7 +54,7 @@ Largest files:
 ### P0 Focused checks assert exact dated active sprint IDs
 - Card lane: `CODEBASE-HARDCODE-AUDIT-001`
 - Type: `drift_risk`
-- Evidence: `lib/foundation-current-sprint.js:103` (const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12), `lib/foundation-current-sprint.js:145` (const FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID = 'foundation-source-once-over-2026-05-12), `lib/kpi-health.js:8` (const KPI_HEALTH_API_CACHE_SPRINT_ID = 'kpi-health-api-cache-2026-05-15), `lib/gstack-build-intel.js:13` (const GSTACK_BUILD_INTEL_SPRINT_ID = 'gstack-build-intel-extraction-2026-05-13), `scripts/process-agent-feedback-routes-split-check.mjs:219` (activeSprint.sprint?.sprintId ===), `scripts/process-app-page-routes-split-check.mjs:159` (activeSprint.sprint?.sprintId ===)
+- Evidence: `lib/foundation-current-sprint.js:103` (const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12), `lib/foundation-current-sprint.js:145` (const FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID = 'foundation-source-once-over-2026-05-12), `lib/kpi-health.js:8` (const KPI_HEALTH_API_CACHE_SPRINT_ID = 'kpi-health-api-cache-2026-05-15), `lib/kpi-health.js:14` (const KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SPRINT_ID = 'kpi-health-dynamic-year-contract-2026-05-16), `lib/gstack-build-intel.js:13` (const GSTACK_BUILD_INTEL_SPRINT_ID = 'gstack-build-intel-extraction-2026-05-13), `scripts/process-agent-feedback-routes-split-check.mjs:219` (activeSprint.sprint?.sprintId ===)
 - Why it matters: One-time closeout checks are unsafe as nightly checks after rollover if they hard-fail on the current active sprint.
 - Proposed owner/card: Foundation Process / `SPRINT-CHECK-HISTORICAL-MODE-001`
 - Detector: dated active-sprint assertion detector
@@ -72,7 +72,7 @@ Largest files:
 ### P0 Foundation verifier is one large execution surface
 - Card lane: `FOUNDATION-MONOLITH-RISK-AUDIT-001`
 - Type: `refactor_candidate`
-- Evidence: `scripts/foundation-verify.mjs:2120`
+- Evidence: `scripts/foundation-verify.mjs:2126`
 - Why it matters: Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.
 - Proposed owner/card: Foundation Engineering / `FOUNDATION-VERIFY-REGISTRY-SPLIT-001`
 - Detector: largest file/function ownership detector
@@ -215,7 +215,7 @@ Largest files:
 
 ## Findings By Sprint Card
 
-- `CODEBASE-HARDCODE-AUDIT-001`: 9 findings
+- `CODEBASE-HARDCODE-AUDIT-001`: 8 findings
 - `FOUNDATION-API-PERF-AUDIT-001`: 2 findings
 - `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 0 findings
 - `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 5 findings
@@ -234,7 +234,6 @@ Largest files:
 - `FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001`
 - `FOUNDATION-HUB-PAYLOAD-EXTRACT-001`
 - `FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001`
-- `KPI-HEALTH-DYNAMIC-YEAR-CONTRACT-001`
 - `SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001`
 - `DB-SEED-001`
 - `ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001`

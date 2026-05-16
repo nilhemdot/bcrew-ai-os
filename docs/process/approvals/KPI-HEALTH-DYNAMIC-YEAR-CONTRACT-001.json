@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "KPI-HEALTH-DYNAMIC-YEAR-CONTRACT-001",
+  "approvedBy": "Steve full-steam overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T09:41:48.578Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/kpi-health-dynamic-year-contract-001-plan.md",
+  "approvedPlanSha256": "3d4bdb8e9c9e416552ffe5093c79b48c9ec9e8c3c9b36f705f8b4a9a4472186b",
+  "approvedRepoHead": "8f444d2182ef0a670500f6981be12ab6c5525018",
+  "notes": "Approved as a no-auth Foundation cleanup card. Scope: replace live KPI health hardcoded year windows with runtime period contract and dogfood a 2027 rollover. Not approved: KPI writes, hub features, source auth, Marketing Video Lab, Canva asset-library features, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "d660367dae1cd38e1525ee0c64a9e2cc3e9475143ad8b7dbc823a8f36866bfdd"
+}

@@ -1158,11 +1158,17 @@ import { getFoundationSurfaceMap } from '../lib/foundation-surface-map.js'
 import {
   EXPECTED_KPI_RPCS,
   EXPECTED_KPI_TABLES,
+  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_APPROVAL_PATH,
+  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID,
+  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CLOSEOUT_KEY,
+  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_PLAN_PATH,
+  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SCRIPT_PATH,
   KPI_HEALTH_API_CACHE_CARD_ID,
   KPI_HEALTH_API_CACHE_CLOSEOUT_KEY,
   KPI_HEALTH_API_CACHE_SCRIPT_PATH,
   KPI_HEALTH_FETCH_TIMEOUT_MS,
   KPI_HEALTH_PRIMARY_SURFACE,
+  buildKpiHealthDynamicYearContractDogfoodProof,
   buildKpiHealthApiCacheDogfoodProof,
 } from '../lib/kpi-health.js'
 import {
@@ -2684,6 +2690,8 @@ async function main() {
   const devProcessAuditSource = await readRepoFile('docs/audits/2026-04-28-dev-process-audit.md')
   const kpiHealthSource = await readRepoFile('lib/kpi-health.js')
   const kpiHealthScriptSource = await readRepoFile('scripts/kpi-supabase-health.mjs')
+  const kpiHealthDynamicYearContractScriptSource = await readRepoFile(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SCRIPT_PATH)
+  const kpiHealthDynamicYearContractPlanSource = await readRepoFile(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_PLAN_PATH)
   const sourceOfTruthPayloadSource = await readRepoFile('lib/source-of-truth-payload.js')
   const foundationHubSummaryPayloadSource = await readRepoFile('lib/foundation-hub-summary-payload.js')
   const foundationRouteBudgetCleanupScriptSource = await readRepoFile('scripts/process-foundation-route-budget-cleanup-check.mjs')
@@ -4020,6 +4028,7 @@ async function main() {
     foundationProcessTrustVerifierSource,
     foundationAgentFeedbackVerifierSource,
     foundationCanvaClientVerifierSource,
+    kpiHealthSource,
     fubSourceRoutesSource,
     foundationRuntimeReadRoutesSource,
     appPageRoutesSource,
@@ -12505,6 +12514,43 @@ async function main() {
   for (const processHardeningCheck of processHardeningVerifierChecks) {
     ensure(checks, processHardeningCheck.ok, processHardeningCheck.check, processHardeningCheck.detail)
   }
+  const kpiHealthDynamicYearContractCard = (foundationHub.backlogItems || []).find(item => item.id === KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID) || null
+  const kpiHealthDynamicYearContractCloseout = foundationBuildCloseouts.find(closeout => closeout.key === KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CLOSEOUT_KEY) || null
+  const kpiHealthDynamicYearContractDogfood = buildKpiHealthDynamicYearContractDogfoodProof()
+  const kpiHealthDynamicYearContractClosed = kpiHealthDynamicYearContractCard?.lane === 'done'
+  const hardcodedKpiHealthYearPattern = new RegExp([
+    'target_year:\\s*',
+    '2026',
+    '|',
+    '2026',
+    '-01-01|',
+    '2026',
+    '-12-31',
+  ].join(''))
+  ensure(
+    checks,
+    kpiHealthDynamicYearContractCard &&
+      ['executing', 'done'].includes(kpiHealthDynamicYearContractCard.lane) &&
+      packageJson.scripts?.['process:kpi-health-dynamic-year-contract-check'] === `node --env-file-if-exists=.env ${KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SCRIPT_PATH}` &&
+      kpiHealthDynamicYearContractDogfood.ok === true &&
+      kpiHealthSource.includes('buildKpiHealthPeriodContract') &&
+      kpiHealthSource.includes('getExpectedKpiRpcs') &&
+      !hardcodedKpiHealthYearPattern.test(kpiHealthSource) &&
+      kpiHealthScriptSource.includes('periodContract') &&
+      kpiHealthDynamicYearContractScriptSource.includes('dogfood rejects frozen prior-year params') &&
+      kpiHealthDynamicYearContractPlanSource.includes('no new responsibility added') &&
+      await repoFileExists(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_APPROVAL_PATH) &&
+      (!kpiHealthDynamicYearContractClosed || (
+        String(kpiHealthDynamicYearContractCard.statusNote || '').includes(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CLOSEOUT_KEY) &&
+        kpiHealthDynamicYearContractCloseout?.operatorCloseout === true &&
+        (kpiHealthDynamicYearContractCloseout.backlogIds || []).includes(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-16-kpi-health-dynamic-year-contract-closeout.md')
+      )),
+    'KPI health dynamic-year contract rejects frozen params and exposes runtime period metadata',
+    kpiHealthDynamicYearContractCard
+      ? `lane=${kpiHealthDynamicYearContractCard.lane} year=${kpiHealthDynamicYearContractDogfood.runtime2027?.year || 'missing'} frozenRejected=${kpiHealthDynamicYearContractDogfood.frozen2026?.rejected ? 'yes' : 'no'} closeout=${kpiHealthDynamicYearContractCloseout?.key || 'pending'}`
+      : `missing ${KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID}`,
+  )
   const processHardeningDogfood = buildFoundationProcessHardeningVerifierDogfoodProof()
   const verifierProcessHardeningSplitModuleCard =
     verifierSplitBacklogItemById.get(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID) ||

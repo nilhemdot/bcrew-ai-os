@@ -18,6 +18,7 @@ function printSnapshot(snapshot) {
   console.log(`  Project: ${snapshot.projectHost || 'unknown'}`)
   console.log(`  Contract: v${snapshot.contractVersion}`)
   console.log(`  Surface: ${KPI_HEALTH_PRIMARY_SURFACE}`)
+  console.log(`  Period: ${snapshot.periodContract?.periodStart || 'unknown'} to ${snapshot.periodContract?.periodEnd || 'unknown'} (${snapshot.periodContract?.mode || 'unknown'})`)
   console.log(`  Status: ${summary.status || 'unknown'}`)
   console.log(`  Tables: ${summary.healthyTables || 0}/${summary.tableCount || 0} healthy`)
   console.log(`  RPCs: ${summary.healthyRpcs || 0}/${summary.rpcCount || 0} healthy`)
@@ -64,8 +65,9 @@ function printSnapshot(snapshot) {
     staleTables: summary.staleTables,
     probeSilent: summary.probeSilent,
     schemaDriftStatus: snapshot.schemaDrift?.status,
+    periodContract: snapshot.periodContract || null,
     expectedTables: EXPECTED_KPI_TABLES.map(item => item.table),
-    expectedRpcs: EXPECTED_KPI_RPCS.map(item => item.rpc),
+    expectedRpcs: (snapshot.rpcs?.length ? snapshot.rpcs : EXPECTED_KPI_RPCS).map(item => item.rpc),
   })}`)
 }
 
