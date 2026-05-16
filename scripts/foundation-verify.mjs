@@ -272,6 +272,17 @@ import {
   evaluateFoundationCoreGovernanceVerifier,
 } from '../lib/foundation-core-governance-verifier.js'
 import {
+  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_BEFORE_LINES,
+  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
+  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationIntelligenceSpineVerifierDogfoodProof,
+  evaluateFoundationIntelligenceSpineVerifier,
+} from '../lib/foundation-intelligence-spine-verifier.js'
+import {
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID,
@@ -731,6 +742,7 @@ import {
   closeFoundationDb,
   getActionRouterSnapshot,
   getActiveFoundationCurrentSprint,
+  getBacklogItemsByIds,
   getBacklogSeedDriftSnapshot,
   getFoundationDbConstraintAudit,
   getIntelligenceAtomSpineSnapshot,
@@ -2180,6 +2192,11 @@ async function main() {
   const synthesisFactsSnapshot = await getSynthesisFactsSnapshot({ limit: 20 })
   const synthesisEngineSnapshot = await getSynthesisEngineSnapshot({ limit: 20 })
   const actionRouterSnapshot = await getActionRouterSnapshot({ limit: 40 })
+  const verifierSplitBacklogItems = await getBacklogItemsByIds([
+    VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
+    VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
+  ])
+  const verifierSplitBacklogItemById = new Map(verifierSplitBacklogItems.map(item => [item.id, item]))
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
     sourceIds: sourceContracts.map(source => source.sourceId || source.id).filter(Boolean),
     limit: 10,
@@ -2598,6 +2615,9 @@ async function main() {
   const foundationCoreGovernanceVerifierSource = await readRepoFile('lib/foundation-core-governance-verifier.js')
   const verifierCoreGovernanceSplitModuleScriptSource = await readRepoFile(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierCoreGovernanceSplitModulePlanSource = await readRepoFile(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_PLAN_PATH)
+  const foundationIntelligenceSpineVerifierSource = await readRepoFile('lib/foundation-intelligence-spine-verifier.js')
+  const verifierIntelligenceSpineSplitModuleScriptSource = await readRepoFile(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierIntelligenceSpineSplitModulePlanSource = await readRepoFile(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_PLAN_PATH)
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -3233,9 +3253,12 @@ async function main() {
   })
   checks.push(...coreGovernanceVerifier.checks)
   const activeFoundationSprintForCoreGovernance = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
-  const verifierCoreGovernanceSplitModuleCard = (activeFoundationSprintForCoreGovernance.items || [])
-    .map(item => item.backlog)
-    .find(item => item?.id === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID) || null
+  const verifierCoreGovernanceSplitModuleCard =
+    verifierSplitBacklogItemById.get(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID) ||
+    (activeFoundationSprintForCoreGovernance.items || [])
+      .map(item => item.backlog)
+      .find(item => item?.id === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID) ||
+    null
   const verifierCoreGovernanceSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) || null
   const verifierCoreGovernanceSplitModuleDogfood = buildFoundationCoreGovernanceVerifierDogfoodProof()
   const verifierCoreGovernanceSplitModuleClosed = verifierCoreGovernanceSplitModuleCard?.lane === 'done'
@@ -3270,7 +3293,7 @@ async function main() {
       currentPlan.includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) &&
       currentState.includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) &&
       (activeFoundationSprintForCoreGovernance.sprint?.sprintId === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SPRINT_ID ||
-        activeSprintAtOrPast([VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID])) &&
+        verifierCoreGovernanceSplitModuleClosed) &&
       foundationCoreGovernanceVerifierSource.includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID),
     'VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-001 extracts core governance/security verifier checks into a focused module',
     verifierCoreGovernanceSplitModuleCard
@@ -3306,568 +3329,86 @@ async function main() {
     'source crawl ledger is run-id, lease-owner, and item-key safe',
     'target leases create run rows, finishes carry crawlRunId and require matching lease owner, and item events use the actual returned row key',
   )
+  const intelligenceSpineVerifier = evaluateFoundationIntelligenceSpineVerifier({
+    foundationDbSource,
+    foundationDbWithBacklogSeedSource,
+    extractionTargetSource,
+    intelligenceJobProofSource,
+    intelligenceJobLedgerSnapshot,
+    intelligenceSalvageSpecSource,
+    strategyHubManifestSource,
+    currentPlan,
+    intelligencePipelineSource,
+    intelligenceAtomsSource,
+    packageSource,
+    intelligenceAtomProofSource,
+    intelligenceAtomSpineSnapshot,
+    intelligenceRetrievalSource,
+    intelligenceRetrievalProofSource,
+    intelligenceRetrievalSnapshot,
+    llmRouterSource,
+    intelligenceSemanticRetrievalProofSource,
+    intelligenceHybridRetrievalProofSource,
+    serverSource,
+    intelligenceRetrievalEvalSource,
+    intelligenceRetrievalEvalFixture,
+    intelligenceSynthesisFactsSource,
+    intelligenceSynthesisFactsProofSource,
+    synthesisFactsSnapshot,
+    intelligenceSynthesisSource,
+    intelligenceSynthesisProofSource,
+    synthesisEngineSnapshot,
+    intelligenceActionRouterSource,
+    foundationJobsSource,
+    intelligenceActionRouterProofSource,
+    actionRouterSnapshot,
+  })
+  checks.push(...intelligenceSpineVerifier.checks)
+  const activeFoundationSprintForIntelligenceSpine = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const verifierIntelligenceSpineSplitModuleCard =
+    verifierSplitBacklogItemById.get(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID) ||
+    (activeFoundationSprintForIntelligenceSpine.items || [])
+      .map(item => item.backlog)
+      .find(item => item?.id === VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID) ||
+    null
+  const verifierIntelligenceSpineSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierIntelligenceSpineSplitModuleDogfood = buildFoundationIntelligenceSpineVerifierDogfoodProof()
+  const verifierIntelligenceSpineSplitModuleClosed = verifierIntelligenceSpineSplitModuleCard?.lane === 'done'
+  const foundationVerifyLineCountAfterIntelligenceSpineSplit = String(foundationVerifySource || '').split('\n').length
+  const intelligenceSpineOldInlinePatterns = [
+    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'INTEL-JOBS-001 intelligence job ledger is schema-backed and wired into governed " + "extraction'"),
+    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'ACTION-ROUTER-001 creates approval-gated routes with owner and provenance before Strategy Hub " + "resumes'"),
+  ]
   ensure(
     checks,
-    includesAll(foundationDbWithBacklogSeedSource, [
-      'CREATE TABLE IF NOT EXISTS intelligence_job_runs',
-      'CREATE TABLE IF NOT EXISTS intelligence_job_llm_calls',
-      'source_id TEXT',
-      'cursor_state JSONB',
-      'budget JSONB',
-      'model TEXT',
-      'provider TEXT',
-      'auth_path TEXT',
-      'cost_usd NUMERIC',
-      'item_counts JSONB',
-      'failure_count INTEGER',
-      'output_artifact_ids TEXT[]',
-      'next_run_state JSONB',
-      'upsertIntelligenceJobRun',
-      'getIntelligenceJobLedgerSnapshot',
-      ]) &&
-      includesAll(extractionTargetSource, [
-        'upsertIntelligenceJobRun',
-        'recordExtractionIntelligenceJob',
-        'scripts/run-extraction-target.mjs',
-        'intel-extraction:',
-        'source_crawl_target_runs',
-      ]) &&
-      packageSource.includes('"intelligence:jobs-proof"') &&
-      includesAll(intelligenceJobProofSource, [
-        'INTEL-JOBS-001',
-        'source_crawl_target_runs',
-        'upsertIntelligenceJobRun',
-        'getIntelligenceJobLedgerSnapshot',
-      ]) &&
-      intelligenceJobLedgerSnapshot.totalRuns >= 1 &&
-      governedExtractionLedgerRuns.length >= 1 &&
-      intelligenceJobLedgerSnapshot.recentRuns.some(run =>
-        run.provenance?.backlogCardId === 'INTEL-JOBS-001' &&
-        run.sourceCrawlRunId &&
-        run.itemCounts &&
-        Object.prototype.hasOwnProperty.call(run.itemCounts, 'inspected')
-      ),
-    'INTEL-JOBS-001 intelligence job ledger is schema-backed and wired into governed extraction',
-    `${intelligenceJobLedgerSnapshot.totalRuns} ledger rows / governed extraction writers=${governedExtractionLedgerRuns.length} / latest=${intelligenceJobLedgerSnapshot.recentRuns[0]?.jobId || 'missing'}`,
-  )
-  ensure(
-    checks,
-    includesAll(foundationDbWithBacklogSeedSource, [
-      "id: 'REPORT-MINING-001'",
-      "lane: 'done'",
-      'Accepted on 2026-04-27 in `docs/specs/2026-04-27-intelligence-spine-old-system-salvage.md`',
-      "id: 'INTEL-ATOM-001'",
-      'Done v1 on 2026-04-27',
-      'direct Scoper query fields',
-    ]) &&
-      includesAll(intelligenceSalvageSpecSource, [
-        'Status: Accepted build gate',
-        'Report Shapes To Preserve',
-        'Old Atom Fields To Preserve',
-        'Governed Report Artifact Contract',
-        'Required Changes To INTEL-ATOM-001',
-        'A Scoper must query atoms/retrieval directly before producing scoped work',
-        '`candidate_key` when promoted from extracted candidates',
-        '`input_candidate_keys`',
-      ]) &&
-      !intelligenceSalvageSpecSource.includes('candidate_id') &&
-      !intelligenceSalvageSpecSource.includes('input_candidate_ids') &&
-      includesAll(strategyHubManifestSource, [
-        '`REPORT-MINING-001` - accepted old-system Director/Scoper/Gold Library/report-shape salvage gate',
-        '`INTEL-ATOM-001` - done v1: durable source-backed memory atoms plus governed report artifacts and direct Scoper query contract',
-      ]) &&
-      (!atomImplementationPresent || intelligenceSalvageSpecSource.includes('Status: Accepted build gate')) &&
-      includesAll(currentPlan, [
-        '`INTEL-JOBS-001` -> `REPORT-MINING-001` -> `INTEL-ATOM-001` -> `RETRIEVAL-001`',
-        'intelligence_report_artifacts',
-        'intelligence_atoms',
-        'intelligence_atom_hits',
-        '`INTEL-ATOM-001` done as the v1 report/atom substrate',
-        'old-system report-shape salvage',
-      ]) &&
-      includesAll(intelligencePipelineSource, [
-        'department intelligence briefs as governed report artifacts',
-        'hub Scopers that query atoms/retrieval directly',
-        'The anti-pattern is: Director summarizes research',
-        'old-system report-shape salvage gate',
-      ]),
-    'REPORT-MINING-001 salvage spec gates INTEL-ATOM-001 before atom implementation',
-    `old Director/Scoper/Gold Library salvage accepted; atom implementation present=${atomImplementationPresent}`,
-  )
-  ensure(
-    checks,
-    includesAll(foundationDbSource, [
-      'createIntelligenceAtomStore',
-      'intelligenceAtomSchemaSql',
-      'getRegisteredSourceContractIds',
-      'intelligenceAtomSpine',
-    ]) &&
-      includesAll(intelligenceAtomsSource, [
-        'CREATE TABLE IF NOT EXISTS intelligence_report_artifacts',
-        'CREATE TABLE IF NOT EXISTS intelligence_atoms',
-        'CREATE TABLE IF NOT EXISTS intelligence_atom_hits',
-        'source_id TEXT NOT NULL',
-        'report_artifact_id TEXT',
-        'dedup_hash TEXT NOT NULL',
-        'min_tier INTEGER NOT NULL DEFAULT 1',
-        'assertRegisteredSourceIds',
-        'SELECT pg_advisory_xact_lock(hashtext($1))',
-        'WHERE dedup_hash = $1',
-        'requestedAtomId',
-        'queryIntelligenceAtomsForScoper requires maxTier >= 1',
-        'ON intelligence_atoms(dedup_hash)',
-      ]) &&
-      includesAll([foundationDbSource, intelligenceAtomsSource].join('\n'), [
-      'upsertIntelligenceReportArtifact',
-      'upsertIntelligenceAtom',
-      'recordIntelligenceAtomHit',
-      'queryIntelligenceAtomsForScoper',
-      'getIntelligenceAtomSpineSnapshot',
-      ]) &&
-      packageSource.includes('"intelligence:atoms-proof"') &&
-      includesAll(intelligenceAtomProofSource, [
-        'INTEL-ATOM-001',
-        'REPORT-MINING-001',
-        'upsertIntelligenceReportArtifact',
-        'upsertIntelligenceAtom',
-        'recordIntelligenceAtomHit',
-        'queryIntelligenceAtomsForScoper',
-        'getIntelligenceAtomSpineSnapshot',
-        'duplicateAtomProof',
-        'Duplicate atom proof did not merge on dedup_hash',
-        'tierGuardProof',
-        'explicit maxTier',
-      ]) &&
-      intelligenceAtomSpineSnapshot.totalReports >= 1 &&
-      intelligenceAtomSpineSnapshot.totalAtoms >= 1 &&
-      intelligenceAtomSpineSnapshot.totalHits >= 1 &&
-      intelligenceAtomSpineSnapshot.atomsWithReportArtifact >= 1 &&
-      intelligenceAtomSpineSnapshot.atomsWithScoperQueryFields >= 1 &&
-      intelligenceAtomSpineSnapshot.latestScoperQueryProof.some(atom =>
-        atom.reportArtifactId &&
-        atom.metricRefs?.includes('INTEL-ATOM-001') &&
-        atom.minTier <= 1
-      ),
-    'INTEL-ATOM-001 stores governed report artifacts, atoms, hits, and Scoper-queryable proof',
-    `${intelligenceAtomSpineSnapshot.totalReports} reports / ${intelligenceAtomSpineSnapshot.totalAtoms} atoms / ${intelligenceAtomSpineSnapshot.totalHits} hits`,
-  )
-  ensure(
-    checks,
-    includesAll(foundationDbWithBacklogSeedSource, [
-      'createIntelligenceRetrievalStore',
-      'intelligenceRetrievalSchemaSql',
-      'intelligenceRetrieval',
-      "id: 'RETRIEVAL-001'",
-      'Done v1 on 2026-04-27',
-      "id: 'RETRIEVAL-002'",
-      'SYNTHESIS-ENGINE-001',
-    ]) &&
-      includesAll(intelligenceRetrievalSource, [
-        'CREATE TABLE IF NOT EXISTS intelligence_retrieval_runs',
-        'CREATE TABLE IF NOT EXISTS intelligence_retrieval_chunks',
-        'search_vector TSVECTOR NOT NULL',
-        'USING GIN(search_vector)',
-        'promoteSharedCommunicationCandidatesToAtoms',
-        'searchIntelligenceChunks',
-        'intelligence retrieval queries require maxTier >= 1',
-        'FROM shared_communication_candidates c',
-        'JOIN shared_communication_artifacts artifact',
-        'NOT EXISTS (',
-        'FROM intelligence_retrieval_chunks chunk',
-        'chunk.candidate_key = c.candidate_key',
-        'chunk.atom_id IS NOT NULL',
-        'upsertIntelligenceAtom',
-        'recordIntelligenceAtomHit',
-      ]) &&
-      packageSource.includes('"intelligence:retrieval-proof"') &&
-      includesAll(intelligenceRetrievalProofSource, [
-        'promoteSharedCommunicationCandidatesToAtoms',
-        'searchIntelligenceChunks',
-        'maxTier: 1',
-        'tierGuardProof',
-        'RETRIEVAL-001',
-        'RETRIEVAL-002',
-      ]) &&
-      intelligenceRetrievalSnapshot.totalChunks >= 1 &&
-      intelligenceRetrievalSnapshot.activeChunks >= 1 &&
-      intelligenceRetrievalSnapshot.chunksWithAtoms >= 1 &&
-      intelligenceRetrievalSnapshot.chunksFromCandidates >= 1 &&
-      intelligenceRetrievalSnapshot.chunksWithReportArtifact >= 1 &&
-      intelligenceRetrievalSnapshot.tierOneChunks >= 1 &&
-      intelligenceRetrievalSnapshot.activeCandidateAtomsMissingRetrievalChunks === 0 &&
-      intelligenceRetrievalSnapshot.latestLexicalProof.some(chunk =>
-        chunk.candidateKey &&
-        chunk.atomId &&
-        chunk.minTier <= 1
-      ),
-    'RETRIEVAL-001 promotes real candidates into atom-backed lexical chunks with tier guard',
-    `${intelligenceRetrievalSnapshot.totalChunks} chunks / candidate-backed=${intelligenceRetrievalSnapshot.chunksFromCandidates} / missing chunks=${intelligenceRetrievalSnapshot.activeCandidateAtomsMissingRetrievalChunks} / latest query=${intelligenceRetrievalSnapshot.latestLexicalProofQuery || 'missing'}`,
-  )
-  ensure(
-    checks,
-    includesAll(foundationDbWithBacklogSeedSource, [
-      "id: 'RETRIEVAL-002'",
-      'pgvector is installed',
-      'searchIntelligenceChunksSemantic',
-      'selectRetrievalChunksForEmbedding',
-      'upsertRetrievalChunkEmbedding',
-      'buildRetrievalEmbeddingInput',
-      'RETRIEVAL-003',
-    ]) &&
-      includesAll(intelligenceRetrievalSource, [
-        'CREATE EXTENSION IF NOT EXISTS vector',
-        'embedding vector(1536)',
-        'USING hnsw (embedding vector_cosine_ops)',
-        'semantic_proof',
-        'selectRetrievalChunksForEmbedding',
-        'upsertRetrievalChunkEmbedding',
-        'searchIntelligenceChunksSemantic',
-        'queryEmbedding is required',
-        'chunk.embedding <=> $1::vector(1536)',
-        'intelligence retrieval queries require maxTier >= 1',
-      ]) &&
-      includesAll(llmRouterSource, [
-        'callEmbedding',
-        'https://api.openai.com/v1/embeddings',
-        "workload: 'embedding'",
-        "encoding_format: 'float'",
-        'dimensions',
-      ]) &&
-      packageSource.includes('"intelligence:semantic-proof"') &&
-      includesAll(intelligenceSemanticRetrievalProofSource, [
-        'callEmbedding',
-        'selectRetrievalChunksForEmbedding',
-        'upsertRetrievalChunkEmbedding',
-        'searchIntelligenceChunksSemantic',
-        'maxTier: 1',
-        'tierGuardProof',
-        'RETRIEVAL-002',
-        'RETRIEVAL-003',
-      ]) &&
-      intelligenceRetrievalSnapshot.chunksWithEmbeddings >= 1 &&
-      intelligenceRetrievalSnapshot.candidateAtomChunksWithEmbeddings >= 1 &&
-      intelligenceRetrievalSnapshot.tierOneChunksWithEmbeddings >= 1,
-    'RETRIEVAL-002 stores pgvector embeddings and semantic search over real atom chunks',
-    `${intelligenceRetrievalSnapshot.chunksWithEmbeddings} embedded chunks / candidate-backed=${intelligenceRetrievalSnapshot.candidateAtomChunksWithEmbeddings}`,
-  )
-  ensure(
-    checks,
-    includesAll(foundationDbWithBacklogSeedSource, [
-      "id: 'RETRIEVAL-003'",
-      'Hybrid evidence search fuses lexical, semantic, and atom matches',
-      'searchIntelligenceEvidenceHybrid',
-      'SYNTHESIS-FACTS-001',
-    ]) &&
-      includesAll(intelligenceRetrievalSource, [
-        'hybrid_proof',
-        'searchIntelligenceEvidenceHybrid',
-        'query is required for hybrid evidence retrieval',
-        'queryEmbedding is required for hybrid evidence retrieval',
-        'rrfScore',
-        'lexicalResults.forEach',
-        'semanticResults.forEach',
-        'atomResults.forEach',
-      ]) &&
-      includesAll(serverSource, [
-        "app.post('/api/intelligence/evidence', requireAdminToken",
-        'searchIntelligenceEvidenceHybrid',
-        'callEmbedding',
-      ]) &&
-      (serverSource.includes("backlogCardId: 'RETRIEVAL-003'") || serverSource.includes("backlogCardId: 'SECURITY-002'")) &&
-      packageSource.includes('"intelligence:hybrid-proof"') &&
-      includesAll(intelligenceHybridRetrievalProofSource, [
-        'callEmbedding',
-        'searchIntelligenceEvidenceHybrid',
-        'hybrid_proof',
-        'maxTier: 1',
-        'tierGuardProof',
-        'RETRIEVAL-003',
-        'SYNTHESIS-FACTS-001',
-      ]) &&
-      intelligenceRetrievalSnapshot.latestHybridProofRun?.runType === 'hybrid_proof' &&
-      intelligenceRetrievalSnapshot.latestHybridProofRun?.searchResultCount >= 1 &&
-      intelligenceRetrievalSnapshot.latestHybridProofRun?.maxTier <= 1,
-    'RETRIEVAL-003 exposes governed hybrid evidence retrieval with tier guard',
-    `${intelligenceRetrievalSnapshot.latestHybridProofRun?.searchResultCount || 0} hybrid proof results / query=${intelligenceRetrievalSnapshot.latestHybridProofRun?.searchQuery || 'missing'}`,
-  )
-  ensure(
-    checks,
-    packageSource.includes('"intelligence:retrieval-eval"') &&
-      includesAll(intelligenceRetrievalSource, [
-        'retrieval_eval',
-        'latestEvalRun',
-        'latestSuccessfulEvalRun',
-      ]) &&
-      includesAll(intelligenceRetrievalEvalSource, [
-        'searchIntelligenceChunks',
-        'searchIntelligenceEvidenceHybrid',
-        'requiredMatchedBy',
-        'expectedAtomId',
-        'retrieval_eval',
-        'recordRetrievalRun',
-        'callEmbedding',
-      ]) &&
-      retrievalEvalCases.length >= 20 &&
-      retrievalEvalSources.size >= Number(intelligenceRetrievalEvalFixture.requiredDistinctSources || 3) &&
-      retrievalEvalCases.every(item =>
-        item.id &&
-        item.query &&
-        item.sourceId &&
-        item.expectedAtomId &&
-        Array.isArray(item.requiredMatchedBy) &&
-        item.requiredMatchedBy.includes('lexical') &&
-        item.requiredMatchedBy.includes('semantic') &&
-        item.requiredMatchedBy.includes('atom')
-      ) &&
-      intelligenceRetrievalSnapshot.latestEvalRun?.runType === 'retrieval_eval' &&
-      intelligenceRetrievalSnapshot.latestEvalRun?.status === 'succeeded' &&
-      intelligenceRetrievalSnapshot.latestSuccessfulEvalRun?.runId === intelligenceRetrievalSnapshot.latestEvalRun?.runId &&
-      intelligenceRetrievalSnapshot.latestEvalRun?.maxTier <= 1 &&
-      latestRetrievalEvalMetadata.fixtureId === intelligenceRetrievalEvalFixture.id &&
-      Number(latestRetrievalEvalMetadata.totalCases || 0) >= retrievalEvalCases.length &&
-      Number(latestRetrievalEvalMetadata.passedCases || 0) >= retrievalEvalCases.length &&
-      Number(latestRetrievalEvalMetadata.distinctSources || 0) >= retrievalEvalSources.size &&
-      Array.isArray(latestRetrievalEvalMetadata.failedCases) &&
-      latestRetrievalEvalMetadata.failedCases.length === 0,
-    'retrieval eval baseline guards hybrid recall before Strategy Hub consumes evidence',
-    `${latestRetrievalEvalMetadata.passedCases || 0}/${retrievalEvalCases.length} cases / sources=${latestRetrievalEvalMetadata.distinctSources || 0}`,
-  )
-  ensure(
-    checks,
-    includesAll(foundationDbWithBacklogSeedSource, [
-      'createIntelligenceSynthesisFactStore',
-      'intelligenceSynthesisFactsSchemaSql',
-      'intelligenceSynthesisFacts',
-      "id: 'SYNTHESIS-FACTS-001'",
-      'Source-backed synthesis fact ledger persists',
-      "id: 'SYNTHESIS-ENGINE-001'",
-    ]) &&
-      includesAll(intelligenceSynthesisFactsSource, [
-        'CREATE TABLE IF NOT EXISTS intelligence_synthesis_fact_runs',
-        'CREATE TABLE IF NOT EXISTS intelligence_synthesis_facts',
-        'natural_key TEXT',
-        'idx_intelligence_synthesis_facts_active_natural_key',
-        'source_contract',
-        'goal_truth',
-        'operating_truth',
-        'kpi_truth',
-        'source_snapshot',
-        'source_health',
-        'retrieved_evidence',
-        'collectSourceBackedSynthesisFacts',
-        'buildSourceContractFacts',
-        'buildGoalTruthFacts',
-        'buildOperatingTruthFacts',
-        'buildHybridEvidenceFacts',
-        'synthesis fact queries require maxTier >= 1',
-        'assertRegisteredSourceIds',
-        'stale_after_synthesis_fact_refresh',
-        'stale_fact_refs_after_synthesis_fact_refresh',
-        'source_ids &&',
-      ]) &&
-      packageSource.includes('"intelligence:synthesis-facts-proof"') &&
-      includesAll(intelligenceSynthesisFactsProofSource, [
-        'callEmbedding',
-        'collectSourceBackedSynthesisFacts',
-        'upsertSynthesisFactsBundle',
-        'source_fact_proof',
-        'maxTier: 1',
-        'SRC-STRATEGY-001',
-        'SRC-FINANCE-001',
-        'SRC-OWNERS-001',
-        'SRC-FUB-001',
-        'SRC-SUPABASE-001',
-        'SRC-FREEDOM-BHAG-001',
-        'SRC-MEETINGS-001',
-        'SYNTHESIS-ENGINE-001',
-        'querySynthesisFacts',
-        'sourceOverlapProof',
-      ]) &&
-      synthesisFactsSnapshot.latestSourceFactProofRun?.runType === 'source_fact_proof' &&
-      synthesisFactsSnapshot.totalActiveFacts >= 20 &&
-      synthesisFactsSnapshot.factsWithEvidence >= 1 &&
-      synthesisFactsSnapshot.distinctSources >= 7 &&
-      synthesisFactsSnapshot.activeFactsWithoutNaturalKey === 0 &&
-      synthesisFactsSnapshot.duplicateActiveNaturalKeys === 0 &&
-      synthesisFactsSnapshot.secondarySourceFacts >= 1 &&
-      ['source_contract', 'goal_truth', 'operating_truth', 'kpi_truth', 'source_snapshot', 'source_health', 'retrieved_evidence'].every(type => synthesisFactTypes.has(type)) &&
-      ['SRC-STRATEGY-001', 'SRC-FINANCE-001', 'SRC-OWNERS-001', 'SRC-FUB-001', 'SRC-SUPABASE-001', 'SRC-FREEDOM-BHAG-001', 'SRC-MEETINGS-001'].every(sourceId => synthesisFactSources.has(sourceId)),
-    'SYNTHESIS-FACTS-001 persists source-backed facts and hybrid evidence for governed synthesis',
-    `${synthesisFactsSnapshot.totalActiveFacts} facts / ${synthesisFactsSnapshot.distinctSources} sources / evidence-backed=${synthesisFactsSnapshot.factsWithEvidence} / duplicate-natural-keys=${synthesisFactsSnapshot.duplicateActiveNaturalKeys}`,
-  )
-  ensure(
-    checks,
-    includesAll(foundationDbWithBacklogSeedSource, [
-      'createIntelligenceSynthesisStore',
-      'intelligenceSynthesisSchemaSql',
-      'intelligenceSynthesis',
-      "id: 'SYNTHESIS-ENGINE-001'",
-      'Closed on 2026-04-27 after Steve accepted the repaired sample grain',
-      "id: 'ACTION-ROUTER-001'",
-    ]) &&
-      includesAll(intelligenceSynthesisSource, [
-        'CREATE TABLE IF NOT EXISTS intelligence_synthesis_runs',
-        'CREATE TABLE IF NOT EXISTS intelligence_synthesized_items',
-        'natural_key TEXT',
-        'synthesis_scope_key TEXT',
-        'idx_intelligence_synthesized_items_active_natural_key',
-        'fact_refs TEXT[]',
-        'evidence_refs TEXT[]',
-        'evidence_chunk_refs TEXT[]',
-        'owner_confidence TEXT',
-        'ownerDecisionForFact',
-        'no_clear_owner_signal',
-        'synthesized items require evidenceChunkRefs.',
-        'intelligence synthesis queries require maxTier >= 1',
-        'themeKeyForFact',
-        'classifyCluster',
-        'strategyHubEligible',
-        'legacy_unclustered_replaced_by_clustered_synthesis',
-        'Clarify where leads come from',
-        'activeUnclusteredUnprotectedItems',
-        'routeableUnclusteredItems',
-        'humanSampleRowsForItems',
-        'latestProofQuality',
-        'rankingPolicy',
-        'ordered-for-review-without-weighted-score',
-        'stale_after_governed_synthesis_refresh',
-        'runGovernedSynthesis',
-        'getSynthesisEngineSnapshot',
-      ]) &&
-      packageSource.includes('"intelligence:synthesis-proof"') &&
-      includesAll(intelligenceSynthesisProofSource, [
-        'promoteSharedCommunicationCandidatesToAtoms',
-        'DIVERSITY_SOURCE_ID',
-        'SRC-GMAIL-001',
-        'synthesisScopeKey',
-        'collectSourceBackedSynthesisFacts',
-        'upsertSynthesisFactsBundle',
-        'runGovernedSynthesis',
-        'factRefs',
-        'evidenceRefs',
-        'evidenceChunkRefs',
-        'strategyEligibleItems',
-        'strategySingleEvidenceItems',
-        'SYNTHESIS HUMAN SAMPLE',
-        'humanSampleRows',
-        'activeSurfaceQuality',
-        'routeableUnclusteredItems',
-        'maxTier: 1',
-        'STRATEGY_TITLE_JARGON_PATTERN',
-      ]) &&
-      synthesisEngineSnapshot.latestProofRun?.runType === 'governed_synthesis_proof' &&
-      synthesisEngineSnapshot.latestProofRun?.runId &&
-      synthesisEngineSnapshot.activeItems >= 1 &&
-      synthesisEngineSnapshot.itemsWithFactRefs >= synthesisEngineSnapshot.activeItems &&
-      synthesisEngineSnapshot.itemsWithEvidenceRefs >= synthesisEngineSnapshot.activeItems &&
-      synthesisEngineSnapshot.itemsWithEvidenceChunkRefs >= synthesisEngineSnapshot.activeItems &&
-      synthesisEngineSnapshot.itemsWithOwnerConfidence >= synthesisEngineSnapshot.activeItems &&
-      synthesisEngineSnapshot.itemsWithActiveFactRefs >= synthesisEngineSnapshot.activeItems &&
-      synthesisEngineSnapshot.itemsWithActiveEvidenceRefs >= synthesisEngineSnapshot.activeItems &&
-      synthesisEngineSnapshot.itemsWithActiveEvidenceChunkRefs >= synthesisEngineSnapshot.activeItems &&
-      synthesisEngineSnapshot.tierOneItems >= synthesisEngineSnapshot.activeItems &&
-      synthesisEngineSnapshot.distinctItemSources >= 2 &&
-      synthesisEngineSnapshot.latestProofQuality?.activeItems >= 1 &&
-      synthesisEngineSnapshot.latestProofQuality?.clusteredItems >= synthesisEngineSnapshot.latestProofQuality?.activeItems &&
-      synthesisEngineSnapshot.latestProofQuality?.itemsWithThemeMetadata >= synthesisEngineSnapshot.latestProofQuality?.activeItems &&
-      synthesisEngineSnapshot.latestProofQuality?.strategyEligibleItems >= 1 &&
-      synthesisEngineSnapshot.latestProofQuality?.strategyItemsWithMultiEvidence >= synthesisEngineSnapshot.latestProofQuality?.strategyEligibleItems &&
-      synthesisEngineSnapshot.latestProofQuality?.strategySingleEvidenceItems === 0 &&
-      synthesisEngineSnapshot.latestProofQuality?.duplicateThemeKeys === 0 &&
-      synthesisEngineSnapshot.latestProofQuality?.humanSampleRows >= 5 &&
-      synthesisEngineSnapshot.activeClusteredItems >= synthesisEngineSnapshot.latestProofQuality?.activeItems &&
-      synthesisEngineSnapshot.activeUnclusteredUnprotectedItems === 0 &&
-      synthesisEngineSnapshot.routeableUnclusteredItems === 0 &&
-      intelligenceRetrievalSnapshot.bySource.filter(source => source.count > 0).length >= 2,
-    'SYNTHESIS-ENGINE-001 clusters and classifies synthesized items instead of atom-thread spam',
-    `${synthesisEngineSnapshot.activeItems} active items / latestProofQuality=${JSON.stringify(synthesisEngineSnapshot.latestProofQuality || {})} / latestProof=${synthesisEngineSnapshot.latestProofRun?.runId || 'missing'}`,
-  )
-  ensure(
-    checks,
-      includesAll(foundationDbSource, [
-        'createIntelligenceActionRouterStore',
-        'intelligenceActionRouterSchemaSql',
-        'intelligenceActionRouter',
-        'proposeActionRoutes',
-        'getActionRoute',
-        'getActionRouterSnapshot',
-      ]) &&
-      includesAll(intelligenceActionRouterSource, [
-        'CREATE TABLE IF NOT EXISTS intelligence_action_router_runs',
-        'CREATE TABLE IF NOT EXISTS intelligence_action_routes',
-        'approval_required BOOLEAN NOT NULL DEFAULT TRUE',
-        'approval_status TEXT NOT NULL DEFAULT',
-        'human_required_before_destination_write',
-        'needs-owner-decision',
-        'applyApprovedActionRoute',
-        'Action route approval requires an explicit human approver.',
-        'destination_table TEXT NOT NULL',
-        'fact_refs TEXT[]',
-        'evidence_refs TEXT[]',
-        'evidence_chunk_refs TEXT[]',
-        'intelligence action router requires maxTier >= 1',
-        'routes_with_active_synthesized_items',
-        'applied_routes_with_destination_record',
-        "approval_status = 'rejected'",
-        "routing_status = 'ignored'",
-        'rejected_by_human_review',
-        'strategyHubEligible',
-        'reviewSurface',
-        'synthesizedItemAttributes',
-        'routeScopeFilter',
-        "attributes->>'synthesisQuality'",
-        "metadata->>'legacySynthesisProtected'",
-        "COALESCE(item.attributes->>'legacySynthesisProtected', item.metadata->>'legacySynthesisProtected', 'false') != 'true'",
-        'itemsVisibleToRouter',
-        'strategyItemsVisibleToRouter',
-        'strategyRoutes',
-      ]) &&
-      includesAll(packageSource, [
-        '"intelligence:synthesis-refresh"',
-        '"intelligence:action-router-proof"',
-        '"intelligence:action-router-proposals"',
-        '"intelligence:action-router-apply"',
-      ]) &&
-      includesAll(foundationJobsSource, [
-        'intelligence-synthesis-spine-refresh',
-        "args: ['run', 'intelligence:synthesis-refresh']",
-        'intelligence-action-router-proposals',
-        "args: ['run', 'intelligence:action-router-proposals']",
-        'human-approval-required routes',
-      ]) &&
-      includesAll(intelligenceActionRouterProofSource, [
-        'proposeActionRoutes',
-        'getActionRouterSnapshot',
-        'backlog_items',
-        'decisions',
-        'open_questions',
-        'intelligence_synthesized_items',
-        'routesWithSourceProvenance',
-        'routesRequiringApproval',
-        'ACTION-ROUTER-001',
-        'STRATEGY-004',
-      ]) &&
-      actionRouterSnapshot.latestProofRun?.runType === 'router_proof' &&
-      actionRouterSnapshot.totalRoutes >= 1 &&
-      actionRouterSnapshot.routesWithSourceProvenance >= actionRouterSnapshot.totalRoutes &&
-      actionRouterSnapshot.routesWithOwner >= actionRouterSnapshot.totalRoutes &&
-      actionRouterSnapshot.routesRequiringApproval >= actionRouterSnapshot.totalRoutes &&
-      actionRouterSnapshot.tierOneRoutes >= actionRouterSnapshot.totalRoutes &&
-      actionRouterSnapshot.routesWithActiveSynthesizedItems >= actionRouterSnapshot.guardedRoutes &&
-      actionRouterSnapshot.routesWithActiveFactRefs >= actionRouterSnapshot.guardedRoutes &&
-      actionRouterSnapshot.routesWithActiveEvidenceRefs >= actionRouterSnapshot.guardedRoutes &&
-      actionRouterSnapshot.routesWithActiveEvidenceChunkRefs >= actionRouterSnapshot.guardedRoutes &&
-      actionRouterSnapshot.appliedRoutes >= 1 &&
-      actionRouterSnapshot.appliedRoutesWithDestinationRecord >= actionRouterSnapshot.appliedRoutesChecked &&
-      actionRouterSnapshot.itemsVisibleToRouter === actionRouterSnapshot.activeClusteredItems &&
-      (actionRouterSnapshot.strategyItemsVisibleToRouter >= 1 || actionRouterSnapshot.strategyRoutes >= 1) &&
-      actionRouterSnapshot.unclusteredItemsVisibleToRouter === 0 &&
-      actionRouterSnapshot.legacyProtectedItemsVisibleToRouter === 0 &&
-      ['backlog_items', 'decisions', 'open_questions', 'intelligence_synthesized_items'].every(destinationTable =>
-        (actionRouterSnapshot.routesByDestination || []).some(row => row.destinationTable === destinationTable && row.count >= 1)
-      ),
-    'ACTION-ROUTER-001 creates approval-gated routes with owner and provenance before Strategy Hub resumes',
-    `${actionRouterSnapshot.totalRoutes} routes / pending=${actionRouterSnapshot.pendingRoutes} / applied=${actionRouterSnapshot.appliedRoutes} / strategyRoutes=${actionRouterSnapshot.strategyRoutes} / routerVisible=${actionRouterSnapshot.itemsVisibleToRouter}/${actionRouterSnapshot.activeClusteredItems} / strategyVisible=${actionRouterSnapshot.strategyItemsVisibleToRouter} / latestProof=${actionRouterSnapshot.latestProofRun?.runId || 'missing'}`,
+    verifierIntelligenceSpineSplitModuleCard &&
+      ['executing', 'done'].includes(verifierIntelligenceSpineSplitModuleCard.lane) &&
+      (!verifierIntelligenceSpineSplitModuleClosed || (
+        String(verifierIntelligenceSpineSplitModuleCard.statusNote || '').includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY) &&
+        verifierIntelligenceSpineSplitModuleCloseout?.operatorCloseout === true &&
+        (verifierIntelligenceSpineSplitModuleCloseout.backlogIds || []).includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-16-verifier-intelligence-spine-split-module-closeout.md')
+      )) &&
+      verifierIntelligenceSpineSplitModuleDogfood.ok === true &&
+      intelligenceSpineVerifier.summary.passed === intelligenceSpineVerifier.summary.total &&
+      packageJson.scripts?.['process:verifier-intelligence-spine-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_APPROVAL_PATH) &&
+      foundationIntelligenceSpineVerifierSource.includes('evaluateFoundationIntelligenceSpineVerifier') &&
+      foundationIntelligenceSpineVerifierSource.includes('buildFoundationIntelligenceSpineVerifierDogfoodProof') &&
+      verifierIntelligenceSpineSplitModuleScriptSource.includes('dogfood rejects intelligence-spine verifier failures') &&
+      verifierIntelligenceSpineSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
+      foundationVerifySource.includes('evaluateFoundationIntelligenceSpineVerifier({') &&
+      foundationVerifySource.includes('intelligenceSpineVerifier.checks') &&
+      intelligenceSpineOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
+      currentPlan.includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprintForIntelligenceSpine.sprint?.sprintId === VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SPRINT_ID || verifierIntelligenceSpineSplitModuleClosed) &&
+      foundationIntelligenceSpineVerifierSource.includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID),
+    'VERIFIER-INTELLIGENCE-SPINE-SPLIT-MODULE-001 extracts intelligence spine verifier checks into a focused module',
+    verifierIntelligenceSpineSplitModuleCard
+      ? `lane=${verifierIntelligenceSpineSplitModuleCard.lane} dogfood=${verifierIntelligenceSpineSplitModuleDogfood.ok ? 'pass' : 'blocked'} spineChecks=${intelligenceSpineVerifier.summary.passed}/${intelligenceSpineVerifier.summary.total} lines=${VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterIntelligenceSpineSplit}`
+      : `missing ${VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID}`,
   )
   ensure(
     checks,
@@ -4297,6 +3838,7 @@ async function main() {
     VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID,
     VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID,
     VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
+    VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -4537,6 +4079,7 @@ async function main() {
     foundationCurrentSprintVerifierSource,
     foundationIntelligenceAuditVerifierSource,
     foundationCoreGovernanceVerifierSource,
+    foundationIntelligenceSpineVerifierSource,
     foundationServerRouteSplitVerifierSource,
     foundationDbSplitVerifierSource,
     foundationFrontendSplitVerifierSource,

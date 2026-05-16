@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-INTELLIGENCE-SPINE-SPLIT-MODULE-001",
+  "approvedPlanRef": "docs/process/verifier-intelligence-spine-split-module-001-plan.md",
+  "approvedPlanSha256": "432a16bd517e85fea031375a122f8195e2f115d248224afdd78ef2000ed4d36a",
+  "approvedRepoHead": "32a2ac7f6c8ef732552adc1a403137d16618d85b",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T02:05:00.000-04:00",
+  "score": 10,
+  "notes": "Approved as next no-auth Foundation cleanup slice after VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-001 shipped. Extract existing intelligence-spine verifier predicates only; no behavior changes or feature work.",
+  "approvalDigest": "540e8cc3f3dee88f98d55f42342d62bd6e9c2b27c1275c415f83d3d18af6763e"
+}
