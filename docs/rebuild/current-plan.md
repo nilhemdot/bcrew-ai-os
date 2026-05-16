@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-15
-Version: v6.74 - Current Sprint verifier split sprint
-Status: Active
+Version: v6.76 - Intelligence/audit verifier split complete
+Status: Sprint review
 
 Use this doc for one question:
 
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Current Sprint: Current Sprint Verifier Split
+## Current Sprint: Intelligence/Audit Verifier Split
+
+Live sprint ID: `verifier-intelligence-audit-split-module-2026-05-15`.
+
+This sprint is complete under `verifier-intelligence-audit-split-module-v1`. It extracted the existing intelligence/audit verifier checks out of `scripts/foundation-verify.mjs` into `lib/foundation-intelligence-audit-verifier.js` while preserving proposal-only and report-only guardrails for Implementation Intelligence, Build Intel Extraction Implementation, GStack Build Intel, Code Quality Nightly Audit, and Nightly Deep Audit.
+
+Active card:
+
+1. `VERIFIER-INTELLIGENCE-AUDIT-SPLIT-MODULE-001` - done under `verifier-intelligence-audit-split-module-v1`. V1 owns `lib/foundation-intelligence-audit-verifier.js`, `scripts/process-verifier-intelligence-audit-split-module-check.mjs`, package script `process:verifier-intelligence-audit-split-module-check`, plan/approval docs, dogfood fixtures that reject backlog writes, paid auth, code imports, auto-fixes, and audit writeback, root verifier delegation, and closeout record `docs/handoffs/2026-05-15-verifier-intelligence-audit-split-module-closeout.md`.
+
+Not next: Build Intel feature work, extraction runs, paid-source auth, screenshots, atoms, source monitoring, broad verifier rewrite, Foundation DB splits, Marketing Video Lab, Canva asset library work, hub feature UI, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
+
+Previous completed sprint: `verifier-current-sprint-split-module-2026-05-15`, closed under `verifier-current-sprint-split-module-v1`.
+
+## Previous Sprint: Current Sprint Verifier Split
 
 Live sprint ID: `verifier-current-sprint-split-module-2026-05-15`.
 

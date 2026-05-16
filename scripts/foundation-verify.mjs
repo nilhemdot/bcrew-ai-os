@@ -250,6 +250,17 @@ import {
   evaluateFoundationCurrentSprintVerifier,
 } from '../lib/foundation-current-sprint-verifier.js'
 import {
+  VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_BEFORE_LINES,
+  VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID,
+  VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationIntelligenceAuditVerifierDogfoodProof,
+  evaluateFoundationIntelligenceAuditVerifier,
+} from '../lib/foundation-intelligence-audit-verifier.js'
+import {
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID,
@@ -1435,25 +1446,6 @@ const GATE_RELIABILITY_DIRECT_VERIFIER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'GATE-RELIABILITY-003',
 ]
 
-const GSTACK_BUILD_INTEL_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'PUBLIC-DEV-COMMUNITY-WATCHLIST-001',
-  'GSTACK-EXTRACTION-001',
-  'BUILD-INTEL-GITHUB-MONITOR-001',
-  'SKILL-IMPROVER-GSTACK-ENRICHMENT-001',
-  'REVIEW-GATE-UPGRADE-001',
-  'BROWSER-QA-PROOF-001',
-]
-
-const CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'CODEBASE-HARDCODE-AUDIT-001',
-  'FOUNDATION-API-PERF-AUDIT-001',
-  'FOUNDATION-FRONTEND-PERF-AUDIT-001',
-  'FOUNDATION-MONOLITH-RISK-AUDIT-001',
-  'VERIFIER-ASSUMPTION-REGISTRY-001',
-  'SPRINT-STATE-MUTATION-AUDIT-001',
-  'NIGHTLY-AUDIT-REPORT-001',
-]
-
 const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'VERIFY-READONLY-GATE-001',
   'PROCESS-CHECK-APPLY-BOUNDARY-001',
@@ -2589,6 +2581,9 @@ async function main() {
   const foundationCurrentSprintVerifierSource = await readRepoFile('lib/foundation-current-sprint-verifier.js')
   const verifierCurrentSprintSplitModuleScriptSource = await readRepoFile(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_SCRIPT_PATH)
   const verifierCurrentSprintSplitModulePlanSource = await readRepoFile(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_PLAN_PATH)
+  const foundationIntelligenceAuditVerifierSource = await readRepoFile('lib/foundation-intelligence-audit-verifier.js')
+  const verifierIntelligenceAuditSplitModuleScriptSource = await readRepoFile(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierIntelligenceAuditSplitModulePlanSource = await readRepoFile(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_PLAN_PATH)
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -4678,6 +4673,7 @@ async function main() {
     foundationSourceContractVerifierSource,
     foundationSourceTrustVerifierSource,
     foundationCurrentSprintVerifierSource,
+    foundationIntelligenceAuditVerifierSource,
     foundationServerRouteSplitVerifierSource,
     foundationDbSplitVerifierSource,
     foundationFrontendSplitVerifierSource,
@@ -12959,271 +12955,23 @@ async function main() {
     'Foundation control compression closes feedback, backlog, sprint advisor, flow, velocity, ack, and incremental proof primitives',
     `cards=${foundationControlCompressionCards.filter(card => card?.lane === 'done').length}/${FOUNDATION_CONTROL_COMPRESSION_CARD_IDS.length} backlog=${foundationControlCompression.backlogMonitor?.counts?.total || 0} proposals=${foundationControlCompression.sprintAdvisor?.options?.length || 0}`,
   )
-  const implementationIntelligenceCards = IMPLEMENTATION_INTELLIGENCE_CARD_IDS
-    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
-  const implementationIntelligence = foundationHub.implementationIntelligence ||
-    buildImplementationIntelligenceSnapshot({
-      backlogItems: foundationHub.backlogItems || [],
-      currentSprint: activeFoundationSprint,
-    })
-  const implementationIntelligenceVerifierCoverageIds = [
-    'INTERNAL-SCOPER-001',
-    'THIN-CARD-DETECTOR-001',
-    'RESEARCH-DISPOSITION-QUEUE-001',
-    'BUILDER-LESSON-LINKER-001',
-    'PUBLIC-YOUTUBE-PREFLIGHT-001',
-  ]
-  ensure(
-    checks,
-      implementationIntelligenceCards.every(card => card?.lane === 'done' && String(card?.statusNote || '').includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY)) &&
-      implementationIntelligenceCloseout?.operatorCloseout === true &&
-      IMPLEMENTATION_INTELLIGENCE_CARD_IDS.every(id => (implementationIntelligenceCloseout.backlogIds || []).includes(id)) &&
-      implementationIntelligenceVerifierCoverageIds.every(id => IMPLEMENTATION_INTELLIGENCE_CARD_IDS.includes(id)) &&
-      IMPLEMENTATION_INTELLIGENCE_CARD_IDS.every(id => implementationIntelligenceVerifierCoverageIds.includes(id)) &&
-      implementationIntelligence.proposalOnly === true &&
-      implementationIntelligence.writesBacklog === false &&
-      implementationIntelligence.opensSprint === false &&
-      implementationIntelligence.extractionStarted === false &&
-      implementationIntelligence.atomsCreated === 0 &&
-      implementationIntelligence.thinCardDetector?.totalCards >= 300 &&
-      implementationIntelligence.thinCardDetector?.thinCards > 0 &&
-      implementationIntelligence.internalScoper?.thinProposal?.proposedDoctrine?.acceptanceCriteria?.length >= 3 &&
-      implementationIntelligence.internalScoper?.thinProposal?.writesBacklog === false &&
-      implementationIntelligence.internalScoper?.buildReadyNoop?.action === 'no_enrichment_needed' &&
-      implementationIntelligence.researchDispositionQueue?.totalResearchCards >= 100 &&
-      implementationIntelligence.researchDispositionQueue?.writesBacklog === false &&
-      implementationIntelligence.researchDispositionQueue?.movesCards === false &&
-      implementationIntelligence.builderLessonLinker?.enrichExistingCount >= 1 &&
-      implementationIntelligence.builderLessonLinker?.writesBacklog === false &&
-      implementationIntelligence.publicYoutubePreflight?.publicCandidateCount >= 20 &&
-      implementationIntelligence.publicYoutubePreflight?.paidOrAuthBlockedCount >= 1 &&
-      implementationIntelligence.publicYoutubePreflight?.envelopeValidation?.ok === true &&
-      implementationIntelligence.publicYoutubePreflight?.extractionStarted === false &&
-      implementationIntelligence.publicYoutubePreflight?.paidAuthUsed === false &&
-      packageJson.scripts?.['process:implementation-intelligence-check'] === 'node --env-file-if-exists=.env scripts/process-implementation-intelligence-check.mjs' &&
-      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/implementation-intelligence'") &&
-      currentPlan.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) &&
-      currentState.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY),
-    'Implementation Intelligence closes internal scoper, thin-card detector, research queue, builder linker, and public YouTube preflight without mutation',
-    `cards=${implementationIntelligenceCards.filter(card => card?.lane === 'done').length}/${IMPLEMENTATION_INTELLIGENCE_CARD_IDS.length} thin=${implementationIntelligence.thinCardDetector?.thinCards || 0} research=${implementationIntelligence.researchDispositionQueue?.totalResearchCards || 0} youtube=${implementationIntelligence.publicYoutubePreflight?.publicCandidateCount || 0}`,
-  )
-  const buildIntelExtractionCards = BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS
-    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
-  const buildIntelExtraction = foundationHub.buildIntelExtraction ||
-    buildBuildIntelExtractionImplementationSnapshot({
-      transcriptContexts: [],
-      backlogItems: foundationHub.backlogItems || [],
-      currentSprint: activeFoundationSprint,
-    })
-  const buildIntelExtractionVerifierCoverageIds = [
-    'YOUTUBE-SCOUT-001',
-    'PUBLIC-YOUTUBE-BUILD-INTEL-001',
-    'BUILD-INTEL-OBSERVATION-EXTRACTOR-001',
-    'BUILD-INTEL-RESEARCH-INBOX-PROPOSALS-001',
-    'BUILD-INTEL-BRIEF-001',
-  ]
-  let buildIntelExtractionReportExists = false
-  try {
-    const reportStat = await fs.stat(path.join(repoRoot, BUILD_INTEL_EXTRACTION_IMPLEMENTATION_REPORT_PATH))
-    buildIntelExtractionReportExists = reportStat.isFile() && reportStat.size > 500
-  } catch {
-    buildIntelExtractionReportExists = false
-  }
-  ensure(
-    checks,
-      buildIntelExtractionCards.every(card => card?.lane === 'done' && String(card?.statusNote || '').includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY)) &&
-      buildIntelExtractionCloseout?.operatorCloseout === true &&
-      BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS.every(id => (buildIntelExtractionCloseout.backlogIds || []).includes(id)) &&
-      buildIntelExtractionVerifierCoverageIds.every(id => BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS.includes(id)) &&
-      BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS.every(id => buildIntelExtractionVerifierCoverageIds.includes(id)) &&
-      buildIntelExtraction.status === 'ready' &&
-      buildIntelExtraction.proposalOnly === true &&
-      buildIntelExtraction.writesBacklog === false &&
-      buildIntelExtraction.opensSprint === false &&
-      buildIntelExtraction.paidAuthUsed === false &&
-      buildIntelExtraction.newExternalCrawlStarted === false &&
-      buildIntelExtraction.publicWebSearchStarted === false &&
-      buildIntelExtraction.atomsCreated === 0 &&
-      buildIntelExtraction.screenshotsCaptured === 0 &&
-      buildIntelExtraction.keyFramesCaptured === 0 &&
-      buildIntelExtraction.selectedTranscriptArtifacts >= 1 &&
-      buildIntelExtraction.selectedInputs?.some(input => input.artifactId === 'SRC-YOUTUBE-INTEL-001:video_transcript:McPot5-N0ys') &&
-      buildIntelExtraction.observationExtractor?.observationsCount >= 3 &&
-      buildIntelExtraction.observationExtractor?.allEnvelopesValid === true &&
-      buildIntelExtraction.observationExtractor?.visualEvidenceStatus === 'not_captured_v1' &&
-      buildIntelExtraction.researchInboxProposals?.proposalCount >= 3 &&
-      buildIntelExtraction.researchInboxProposals?.enrichExistingCount >= 1 &&
-      buildIntelExtraction.researchInboxProposals?.writesBacklog === false &&
-      buildIntelExtraction.researchInboxProposals?.autoCreatesBacklog === false &&
-      buildIntelExtraction.brief?.nextRecommendedSprint === 'Build Intel Extraction Expansion Sprint' &&
-      buildIntelExtractionReportExists &&
-      packageJson.scripts?.['process:build-intel-extraction-check'] === `node --env-file-if-exists=.env ${BUILD_INTEL_EXTRACTION_IMPLEMENTATION_SCRIPT_PATH}` &&
-      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/build-intel-extraction'") &&
-      currentPlan.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) &&
-      currentState.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY),
-    'Build Intel Extraction Implementation consumes public transcripts into proposal-only observations, Research Inbox proposals, and a brief',
-    `cards=${buildIntelExtractionCards.filter(card => card?.lane === 'done').length}/${BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CARD_IDS.length} selected=${buildIntelExtraction.selectedTranscriptArtifacts || 0} observations=${buildIntelExtraction.observationExtractor?.observationsCount || 0} proposals=${buildIntelExtraction.researchInboxProposals?.proposalCount || 0}`,
-  )
-  const gstackBuildIntelCards = GSTACK_BUILD_INTEL_CARD_IDS
-    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
-  const gstackBuildIntel = foundationHub.gstackBuildIntel ||
-    await buildGStackBuildIntelSnapshot({ allowMissingRepo: true })
-  let gstackBuildIntelReportExists = false
-  let gstackBuildIntelReport = ''
-  try {
-    gstackBuildIntelReport = await fs.readFile(path.join(repoRoot, GSTACK_BUILD_INTEL_REPORT_PATH), 'utf8')
-    gstackBuildIntelReportExists = gstackBuildIntelReport.length > 500
-  } catch {
-    gstackBuildIntelReportExists = false
-  }
-  const gstackPatternIds = Array.isArray(gstackBuildIntel.patternScorecard)
-    ? gstackBuildIntel.patternScorecard.map(pattern => pattern.patternId)
-    : []
-  const gstackWatchlistSourceIds = Array.isArray(gstackBuildIntel.publicDeveloperCommunityWatchlist?.sources)
-    ? gstackBuildIntel.publicDeveloperCommunityWatchlist.sources.map(source => source.sourceId)
-    : []
-  ensure(
-    checks,
-      gstackBuildIntelCards.every(card => card?.lane === 'done' && String(card?.statusNote || '').includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY)) &&
-      gstackBuildIntelCloseout?.operatorCloseout === true &&
-      GSTACK_BUILD_INTEL_CARD_IDS.every(id => (gstackBuildIntelCloseout.backlogIds || []).includes(id)) &&
-      gstackBuildIntel.proposalOnly === true &&
-      gstackBuildIntel.writesBacklog === false &&
-      gstackBuildIntel.opensSprint === false &&
-      gstackBuildIntel.codeImported === false &&
-      gstackBuildIntel.installStarted === false &&
-      gstackBuildIntel.privateScrapeStarted === false &&
-      gstackBuildIntel.paidAuthUsed === false &&
-      gstackBuildIntel.autonomousDevEnabled === false &&
-      gstackBuildIntel.sourceCommit === GSTACK_BUILD_INTEL_EXPECTED_COMMIT &&
-      gstackPatternIds.includes('skill_improver_operating_rules') &&
-      gstackPatternIds.includes('review_gate_checklists') &&
-      gstackPatternIds.includes('browser_qa_proof_loop') &&
-      gstackPatternIds.includes('frontend_design_pipeline') &&
-      gstackPatternIds.includes('public_github_monitoring') &&
-      gstackWatchlistSourceIds.includes('SRC-GITHUB-BUILD-INTEL-001') &&
-      gstackWatchlistSourceIds.includes('SRC-CODEX-COMMUNITY-BUILD-INTEL-001') &&
-      gstackWatchlistSourceIds.includes('SRC-CLAUDE-CODE-COMMUNITY-BUILD-INTEL-001') &&
-      gstackWatchlistSourceIds.includes('SRC-OPENCLAW-COMMUNITY-BUILD-INTEL-001') &&
-      gstackBuildIntel.researchInboxProposals?.proposalCount >= 5 &&
-      gstackBuildIntel.researchInboxProposals?.enrichExistingCount >= 1 &&
-      gstackBuildIntel.researchInboxProposals?.writesBacklog === false &&
-      gstackBuildIntel.researchInboxProposals?.autoCreatesBacklog === false &&
-      gstackBuildIntel.skillImproverEnrichment?.writesSkills === false &&
-      gstackBuildIntel.skillImproverEnrichment?.defaultToCode === true &&
-      gstackBuildIntel.reviewGateUpgrade?.gatesAsCodeFirst === true &&
-      gstackBuildIntel.reviewGateUpgrade?.newAgentRequired === false &&
-      gstackBuildIntel.browserQaProof?.minimumProof?.length >= 4 &&
-      gstackBuildIntelReportExists &&
-      gstackBuildIntelReport.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY) &&
-      gstackBuildIntelReport.includes('Do not install GStack') &&
-      packageJson.scripts?.['process:gstack-build-intel-check'] === `node --env-file-if-exists=.env ${GSTACK_BUILD_INTEL_SCRIPT_PATH}` &&
-      foundationBuildIntelRoutesSource.includes("app.get('/api/foundation/gstack-build-intel'") &&
-      securityAccessSource.includes('/api/foundation/gstack-build-intel') &&
-      currentPlan.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY) &&
-      currentState.includes(GSTACK_BUILD_INTEL_CLOSEOUT_KEY) &&
-      sourceRegistry.includes('SRC-GITHUB-BUILD-INTEL-001') &&
-      sourceRegistry.includes('/api/foundation/gstack-build-intel') &&
-      includesAll(foundationVerifySource, GSTACK_BUILD_INTEL_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'GStack Build Intel extraction closes public GitHub source mapping, scorecard, proposals, review gates, skill enrichment, and browser QA proof without mutation',
-    `cards=${gstackBuildIntelCards.filter(card => card?.lane === 'done').length}/${GSTACK_BUILD_INTEL_CARD_IDS.length} patterns=${gstackPatternIds.length} proposals=${gstackBuildIntel.researchInboxProposals?.proposalCount || 0}`,
-  )
-  const codeQualityNightlyAuditCards = CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS
-    .map(id => (foundationHub.backlogItems || []).find(item => item.id === id) || null)
-  const codeQualityNightlyAudit = await buildCodeQualityNightlyAudit({
+  const intelligenceAuditVerifier = await evaluateFoundationIntelligenceAuditVerifier({
     repoRoot,
-    skipEndpointFetch: true,
+    foundationHub,
+    activeFoundationSprint,
+    foundationBuildCloseouts,
+    foundationBuildLog,
+    packageJson,
+    currentPlan,
+    currentState,
+    sourceRegistry,
+    foundationBuildIntelRoutesSource,
+    securityAccessSource,
+    foundationJobsSource,
+    foundationVerifySource,
+    moduleSource: foundationIntelligenceAuditVerifierSource,
   })
-  const codeQualityNightlySyntheticProof = buildSyntheticCodeQualityNightlyAuditProof()
-  let codeQualityNightlyReportExists = false
-  let codeQualityNightlyReport = ''
-  try {
-    codeQualityNightlyReport = await fs.readFile(path.join(repoRoot, CODE_QUALITY_NIGHTLY_AUDIT_REPORT_PATH), 'utf8')
-    codeQualityNightlyReportExists = codeQualityNightlyReport.length > 500
-  } catch {
-    codeQualityNightlyReportExists = false
-  }
-  const codeQualityEndpointIds = Array.isArray(codeQualityNightlyAudit.endpointMetrics)
-    ? codeQualityNightlyAudit.endpointMetrics.map(metric => metric.endpoint)
-    : []
-  ensure(
-    checks,
-      codeQualityNightlyAuditCards.every(card => card?.lane === 'done' && String(card?.statusNote || '').includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY)) &&
-      codeQualityNightlyAuditCloseout?.operatorCloseout === true &&
-      CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.every(id => (codeQualityNightlyAuditCloseout.backlogIds || []).includes(id)) &&
-      codeQualityNightlyAudit.reportOnly === true &&
-      codeQualityNightlyAudit.writesBacklog === false &&
-      codeQualityNightlyAudit.mutatesDb === false &&
-      codeQualityNightlyAudit.autoFixes === false &&
-      codeQualityNightlyAudit.autonomousDev === false &&
-      codeQualityNightlyAudit.llmDetectionUsed === false &&
-      codeQualityNightlySyntheticProof.ok === true &&
-      CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS.every(endpoint => codeQualityEndpointIds.includes(endpoint)) &&
-      codeQualityNightlyAudit.summary?.findingCount >= 12 &&
-      codeQualityNightlyAudit.proposedCards?.length >= 5 &&
-      codeQualityNightlyReportExists &&
-      codeQualityNightlyReport.includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) &&
-      /no auto-fixes/i.test(codeQualityNightlyReport) &&
-      /no auto backlog mutation/i.test(codeQualityNightlyReport) &&
-      packageJson.scripts?.['process:code-quality-nightly-audit-check'] === `node --env-file-if-exists=.env ${CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH}` &&
-      foundationJobsSource.includes(CODE_QUALITY_NIGHTLY_AUDIT_JOB_KEY) &&
-      foundationJobsSource.includes('runtimeMode: \'manual\'') &&
-      foundationJobsSource.includes('scheduleEveryMinutes: null') &&
-      currentPlan.includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) &&
-      currentState.includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY) &&
-      includesAll(foundationVerifySource, CODE_QUALITY_NIGHTLY_AUDIT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'Code Quality Nightly Audit closes the deterministic read-only report loop without fixes, backlog writes, scheduling, or LLM detection',
-    `cards=${codeQualityNightlyAuditCards.filter(card => card?.lane === 'done').length}/${CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.length} findings=${codeQualityNightlyAudit.summary?.findingCount || 0} proposed=${codeQualityNightlyAudit.proposedCards?.length || 0}`,
-  )
-  const nightlyDeepAuditCard = (foundationHub.backlogItems || []).find(item => item.id === NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID) || null
-  const nightlyDeepAuditCloseout = foundationBuildLog.builds.find(build =>
-    build.key === NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY ||
-    build.closeoutKey === NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY
-  ) || null
-  const nightlyDeepAuditJob = getFoundationJobDefinitions().find(job => job.key === NIGHTLY_DEEP_AUDIT_JOB_KEY) || null
-  const nightlyDeepAudit = await buildNightlyDeepAuditUpgrade({
-    repoRoot,
-    skipEndpointFetch: true,
-  })
-  const nightlyDeepAuditDogfood = buildNightlyDeepAuditUpgradeDogfoodProof()
-  ensure(
-    checks,
-      nightlyDeepAuditCard?.lane === 'done' &&
-      String(nightlyDeepAuditCard.statusNote || '').includes(NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY) &&
-      nightlyDeepAuditCloseout?.operatorCloseout === true &&
-      (nightlyDeepAuditCloseout.backlogIds || []).includes(NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID) &&
-      nightlyDeepAudit.reportOnly === true &&
-      nightlyDeepAudit.autoFixes === false &&
-      nightlyDeepAudit.writesBacklog === false &&
-      nightlyDeepAudit.autonomousDev === false &&
-      nightlyDeepAudit.autoCreatesBacklog === false &&
-      nightlyDeepAudit.coverage?.backend === true &&
-      nightlyDeepAudit.coverage?.frontend === true &&
-      nightlyDeepAudit.coverage?.endpointMetrics === true &&
-      nightlyDeepAudit.reviewTargets.some(target => target.file === 'scripts/foundation-verify.mjs') &&
-      nightlyDeepAudit.reviewTargets.some(target => target.file === 'public/foundation.js') &&
-      nightlyDeepAudit.reviewTargets.some(target => target.file === 'server.js') &&
-      nightlyDeepAudit.reviewTargets.some(target => target.file === 'lib/foundation-db.js') &&
-      nightlyDeepAuditDogfood.ok === true &&
-      nightlyDeepAuditJob?.runtimeMode === 'scheduled' &&
-      nightlyDeepAuditJob?.mutationPosture === 'report_only' &&
-      packageJson.scripts?.['process:nightly-deep-audit-upgrade-check'] === `node --env-file-if-exists=.env ${NIGHTLY_DEEP_AUDIT_SCRIPT_PATH}` &&
-      foundationJobsSource.includes(NIGHTLY_DEEP_AUDIT_JOB_KEY) &&
-      foundationJobsSource.includes('scheduleLocalTime: NIGHTLY_DEEP_AUDIT_SCHEDULE_LOCAL_TIME') &&
-      await repoFileExists(NIGHTLY_DEEP_AUDIT_PLAN_PATH) &&
-      await repoFileExists(NIGHTLY_DEEP_AUDIT_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/nightly-deep-audit-2026-05-14.md') &&
-      await repoFileExists('docs/handoffs/nightly-deep-audit-2026-05-14.json') &&
-      includesAll(foundationVerifySource, [
-        'NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID',
-        'NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY',
-        'buildNightlyDeepAuditUpgradeDogfoodProof',
-      ]),
-    'NIGHTLY-DEEP-AUDIT-UPGRADE-001 schedules report-only backend/frontend reviewer loop',
-    nightlyDeepAuditCard
-      ? `lane=${nightlyDeepAuditCard.lane} findings=${nightlyDeepAudit.deterministicAudit?.summary?.findingCount || 0} targets=${nightlyDeepAudit.reviewTargets?.length || 0} job=${nightlyDeepAuditJob?.runtimeMode || 'missing'}`
-      : `missing ${NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID}`,
-  )
+  checks.push(...intelligenceAuditVerifier.checks)
   const foundationRouteBudgetCleanupCards = FOUNDATION_ROUTE_BUDGET_CLEANUP_CARD_IDS
     .map(cardId => (foundationHub.backlogItems || []).find(item => item.id === cardId) || null)
   const foundationRouteBudgetCleanupCloseout = foundationBuildLog.builds.find(build =>
@@ -13633,6 +13381,44 @@ async function main() {
     verifierCurrentSprintSplitModuleCard
       ? `lane=${verifierCurrentSprintSplitModuleCard.lane} dogfood=${verifierCurrentSprintSplitModuleDogfood.ok ? 'pass' : 'blocked'} currentSprintChecks=${currentSprintVerifier.summary.passed}/${currentSprintVerifier.summary.total}`
       : `missing ${VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID}`,
+  )
+  const verifierIntelligenceAuditSplitModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID) || null
+  const verifierIntelligenceAuditSplitModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierIntelligenceAuditSplitModuleDogfood = await buildFoundationIntelligenceAuditVerifierDogfoodProof()
+  const verifierIntelligenceAuditSplitModuleClosed = verifierIntelligenceAuditSplitModuleCard?.lane === 'done'
+  const foundationVerifyLineCountAfterIntelligenceAuditSplit = String(foundationVerifySource || '').split('\n').length
+  ensure(
+    checks,
+      verifierIntelligenceAuditSplitModuleCard &&
+      ['executing', 'done'].includes(verifierIntelligenceAuditSplitModuleCard.lane) &&
+      (!verifierIntelligenceAuditSplitModuleClosed || (
+        String(verifierIntelligenceAuditSplitModuleCard.statusNote || '').includes(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CLOSEOUT_KEY) &&
+        verifierIntelligenceAuditSplitModuleCloseout?.operatorCloseout === true &&
+        (verifierIntelligenceAuditSplitModuleCloseout.backlogIds || []).includes(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-15-verifier-intelligence-audit-split-module-closeout.md')
+      )) &&
+      verifierIntelligenceAuditSplitModuleDogfood.ok === true &&
+      intelligenceAuditVerifier.summary.passed === intelligenceAuditVerifier.summary.total &&
+      packageJson.scripts?.['process:verifier-intelligence-audit-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_APPROVAL_PATH) &&
+      foundationIntelligenceAuditVerifierSource.includes('evaluateFoundationIntelligenceAuditVerifier') &&
+      foundationIntelligenceAuditVerifierSource.includes('buildFoundationIntelligenceAuditVerifierDogfoodProof') &&
+      verifierIntelligenceAuditSplitModuleScriptSource.includes('dogfood rejects intelligence/audit verifier failures') &&
+      verifierIntelligenceAuditSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
+      foundationVerifySource.includes('evaluateFoundationIntelligenceAuditVerifier({') &&
+      foundationVerifySource.includes('intelligenceAuditVerifier.checks') &&
+      !foundationVerifySource.includes('const implementationIntelligence' + 'Cards =') &&
+      !foundationVerifySource.includes('const codeQualityNightly' + 'AuditCards =') &&
+      currentPlan.includes(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID])) &&
+      foundationIntelligenceAuditVerifierSource.includes(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID),
+    'VERIFIER-INTELLIGENCE-AUDIT-SPLIT-MODULE-001 extracts intelligence/audit verifier checks into a focused module',
+    verifierIntelligenceAuditSplitModuleCard
+      ? `lane=${verifierIntelligenceAuditSplitModuleCard.lane} dogfood=${verifierIntelligenceAuditSplitModuleDogfood.ok ? 'pass' : 'blocked'} intelligenceChecks=${intelligenceAuditVerifier.summary.passed}/${intelligenceAuditVerifier.summary.total} lines=${VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterIntelligenceAuditSplit}`
+      : `missing ${VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID}`,
   )
   const serverRouteSplitVerifierInput = {
     foundationHub,

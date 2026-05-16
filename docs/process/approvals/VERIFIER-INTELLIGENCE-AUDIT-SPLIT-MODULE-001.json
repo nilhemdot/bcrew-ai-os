@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-INTELLIGENCE-AUDIT-SPLIT-MODULE-001",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-15T21:15:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-intelligence-audit-split-module-001-plan.md",
+  "approvedPlanSha256": "3201b3fc9376c3b2318ccf03c5bc2bd0e4f75dfedba38b7121b0da27918e5293",
+  "approvedRepoHead": "c8a129cf1b236b694d5b3fc0ab225fd559ed716f",
+  "notes": "Approved as a standard-mode overnight Foundation cleanup card. Scope: extract only existing intelligence/audit verifier checks from scripts/foundation-verify.mjs into lib/foundation-intelligence-audit-verifier.js with read-only focused dogfood and full ship. Not approved: Build Intel feature work, extraction runs, paid-source auth, hub UI, Marketing live wiring, Canva asset library, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "ba2d6e450bdce65b1fc52942b65b6987a238c4b3035e8b22e53f13eaf0c9cbfd"
+}
