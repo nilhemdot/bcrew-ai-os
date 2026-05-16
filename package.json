@@ -153,6 +153,7 @@
     "process:verifier-extraction-runtime-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-extraction-runtime-split-module-check.mjs",
     "process:verifier-surface-trust-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-surface-trust-split-module-check.mjs",
     "process:verifier-process-hardening-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-process-hardening-split-module-check.mjs",
+    "process:verifier-process-trust-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-process-trust-split-module-check.mjs",
     "process:verifier-agent-feedback-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-agent-feedback-split-module-check.mjs",
     "process:verifier-recent-builds-closeout-split-check": "node --env-file-if-exists=.env scripts/process-verifier-recent-builds-closeout-split-check.mjs",
     "process:verifier-runtime-reliability-split-check": "node --env-file-if-exists=.env scripts/process-verifier-runtime-reliability-split-check.mjs",

@@ -414,6 +414,10 @@ Rule:
 
 ## Latest Foundation Cleanup
 
+- `VERIFIER-PROCESS-TRUST-SPLIT-MODULE-001` is done under `verifier-process-trust-split-module-v1`.
+- Process-trust verifier proof for backlog hygiene, process hooks, fanout, worker served-code trust, done-card coverage, claimed artifacts, and post-ship fanout now lives in `lib/foundation-process-trust-verifier.js`.
+- Focused dogfood rejects missing ship-check, fanout, worker served-code, done-card coverage, claimed-artifact, and post-ship fanout proof; `foundation:verify` passed 379/379 before closeout.
+- Scope stayed verifier monolith cleanup only: no process policy change, route behavior change, source extraction, Canva, paid-source auth, Build Intel, Drive permission mutation, or hub feature work.
 - `FOUNDATION-DB-MONOLITH-SPLIT-015` is done under `foundation-sales-listing-store-split-v1`.
 - Sales Listing assignment reads, tracked case reads, assignment upsert behavior, and GLS case-history mapping now live in `lib/foundation-sales-listing-store.js`.
 - `lib/foundation-db.js` keeps stable public delegates for Sales Listing assignment reads, tracked case reads, and assignment upserts.

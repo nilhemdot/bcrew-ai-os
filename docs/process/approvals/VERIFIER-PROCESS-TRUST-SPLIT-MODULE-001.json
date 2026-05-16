@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-PROCESS-TRUST-SPLIT-MODULE-001",
+  "approvedPlanRef": "docs/process/verifier-process-trust-split-module-001-plan.md",
+  "approvedPlanSha256": "91e98b7cfdbe4b219ce03ccee7c2915199f6d71570fe2c6d030e9b4b175dcb50",
+  "approvedRepoHead": "5c3ef8f75c8bedfa9564190bf3a47f9ebe2e9959",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-16T07:55:00.000Z",
+  "score": 10,
+  "notes": "Approved as the next no-auth Foundation cleanup slice after VERIFIER-AGENT-FEEDBACK-SPLIT-MODULE-001 shipped. Extract existing process-trust verifier predicates only; no behavior changes, route changes, source auth, paid calls, sends, or hub feature work.",
+  "approvalDigest": "9bc21cd225d31f1ba4bffd5f48db7bb50c8f31481304519d7772b56c621c1f7e"
+}
