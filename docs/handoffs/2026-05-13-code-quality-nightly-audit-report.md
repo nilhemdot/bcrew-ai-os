@@ -2,23 +2,23 @@
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-16T09:48:06.693Z`
+Generated at: `2026-05-16T10:17:26.542Z`
 
 ## Morning Read
 
 - Status: `report_ready`
-- Findings: 56 total (40 P0, 10 P1, 6 P2, 0 P3)
-- Proposed backlog fixes: 17
+- Findings: 54 total (40 P0, 8 P1, 6 P2, 0 P3)
+- Proposed backlog fixes: 16
 - Detection mode: deterministic code first; no LLM detection used.
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work.
 - Synthetic proof: passed (hardcoded=2, mutator=1, slowEndpoint=risk)
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=82ms payload=526768B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=17ms payload=134032B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=363ms payload=621447B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=75ms payload=365449B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=77ms payload=537294B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=18ms payload=134295B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=397ms payload=622995B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=76ms payload=364779B risk=healthy (Within V1 audit budget.)
 - /api/foundation/gstack-build-intel: status=200 latency=74ms payload=33955B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
@@ -32,7 +32,7 @@ Assets:
 - public/foundation-source-registry-renderers.js: 55416B raw, 10722B gzip, 1450 lines
 - public/foundation-fub-lead-source-renderers.js: 27456B raw, 5884B gzip, 678 lines
 - public/foundation-system-inventory-renderers.js: 51986B raw, 10161B gzip, 1390 lines
-- public/foundation-current-state-renderers.js: 56586B raw, 12629B gzip, 1362 lines
+- public/foundation-current-state-renderers.js: 44753B raw, 9670B gzip, 1162 lines
 - public/foundation-decision-question-renderers.js: 52409B raw, 9280B gzip, 1443 lines
 - public/foundation-source-lifecycle-renderers.js: 65313B raw, 9812B gzip, 1498 lines
 - public/foundation-runtime-renderers.js: 59394B raw, 13604B gzip, 1489 lines
@@ -40,13 +40,13 @@ Assets:
 - public/foundation-router.js: 5221B raw, 1498B gzip, 192 lines
 
 Largest files:
-- scripts/foundation-verify.mjs: 12947 LOC, 738277B
+- scripts/foundation-verify.mjs: 13012 LOC, 743041B
 - public/foundation.js: 4910 LOC, 174221B
-- server.js: 4804 LOC, 159475B
+- server.js: 4808 LOC, 159625B
 - lib/foundation-db.js: 4713 LOC, 214423B
 - lib/foundation-backlog-seed.js: 4652 LOC, 477958B
 - lib/foundation-build-closeout-records.js: 4328 LOC, 297517B
-- lib/foundation-build-closeout-overnight-records.js: 3634 LOC, 293893B
+- lib/foundation-build-closeout-overnight-records.js: 3734 LOC, 301713B
 - public/styles-foundation-workflows.css: 2526 LOC, 48968B
 
 ## Top Findings
@@ -72,7 +72,7 @@ Largest files:
 ### P0 Foundation verifier is one large execution surface
 - Card lane: `FOUNDATION-MONOLITH-RISK-AUDIT-001`
 - Type: `refactor_candidate`
-- Evidence: `scripts/foundation-verify.mjs:2126`
+- Evidence: `scripts/foundation-verify.mjs:2138`
 - Why it matters: Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.
 - Proposed owner/card: Foundation Engineering / `FOUNDATION-VERIFY-REGISTRY-SPLIT-001`
 - Detector: largest file/function ownership detector
@@ -215,7 +215,7 @@ Largest files:
 
 ## Findings By Sprint Card
 
-- `CODEBASE-HARDCODE-AUDIT-001`: 8 findings
+- `CODEBASE-HARDCODE-AUDIT-001`: 6 findings
 - `FOUNDATION-API-PERF-AUDIT-001`: 2 findings
 - `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 0 findings
 - `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 5 findings
@@ -233,7 +233,6 @@ Largest files:
 - `ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001`
 - `FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001`
 - `FOUNDATION-HUB-PAYLOAD-EXTRACT-001`
-- `FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001`
 - `SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001`
 - `DB-SEED-001`
 - `ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001`

@@ -157,6 +157,7 @@ import {
   CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH,
   buildCodeQualityNightlyAudit,
   buildSyntheticCodeQualityNightlyAuditProof,
+  detectHardcodedLiveTruthInText,
 } from '../lib/code-quality-nightly-audit.js'
 import {
   NIGHTLY_DEEP_AUDIT_APPROVAL_PATH,
@@ -194,6 +195,17 @@ import {
   buildFoundationFrontendAssetBudgetDogfoodProof,
   measureFoundationFrontendAssetsFromRepo,
 } from '../lib/foundation-frontend-asset-budgets.js'
+import {
+  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_APPROVAL_PATH,
+  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID,
+  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY,
+  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_PLAN_PATH,
+  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SCRIPT_PATH,
+  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SPRINT_ID,
+  buildFoundationCurrentStateSummaryDogfoodProof,
+  buildFoundationCurrentStateSummaryPayload,
+  evaluateFoundationCurrentStateSummarySourceContract,
+} from '../lib/foundation-current-state-summary.js'
 import {
   VERIFIER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID,
@@ -2702,6 +2714,10 @@ async function main() {
   const foundationFrontendAssetBudgetsSource = await readRepoFile('lib/foundation-frontend-asset-budgets.js')
   const foundationFrontendAssetBudgetsScriptSource = await readRepoFile(FOUNDATION_FRONTEND_ASSET_BUDGET_SCRIPT_PATH)
   const foundationFrontendAssetBudgetsPlanSource = await readRepoFile(FOUNDATION_FRONTEND_ASSET_BUDGET_PLAN_PATH)
+  const foundationCurrentStateSummarySource = await readRepoFile('lib/foundation-current-state-summary.js')
+  const foundationCurrentStateRendererSource = await readRepoFile('public/foundation-current-state-renderers.js')
+  const foundationUiLiveSummarySourcesScriptSource = await readRepoFile(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SCRIPT_PATH)
+  const foundationUiLiveSummarySourcesPlanSource = await readRepoFile(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_PLAN_PATH)
   const kpiSourceNote = await readRepoFile('docs/source-notes/kpi-dashboard.md')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
@@ -4028,6 +4044,7 @@ async function main() {
     foundationProcessTrustVerifierSource,
     foundationAgentFeedbackVerifierSource,
     foundationCanvaClientVerifierSource,
+    foundationCurrentStateSummarySource,
     kpiHealthSource,
     fubSourceRoutesSource,
     foundationRuntimeReadRoutesSource,
@@ -6549,10 +6566,11 @@ async function main() {
     foundationHtmlSource.includes('data-section="build-log">Recent Work</a>') &&
       foundationFrontendSource.includes("heroTitle.textContent = 'Recent Work'") &&
       foundationFrontendSource.includes("container.innerHTML = '<p>Loading recent work.</p>'") &&
-      foundationFrontendSource.includes("title: 'KPI source health system'") &&
-      foundationFrontendSource.includes('14/14 tables plus 5/5 RPCs'),
+      foundationCurrentStateSummarySource.includes("title: 'KPI source health system'") &&
+      foundationCurrentStateSummarySource.includes('KPI source health reports') &&
+      foundationCurrentStateRendererSource.includes('currentStateSummary'),
     'Foundation copy cleanup reflects Recent Work and current KPI health status',
-    'Recent Work label and KPI Level 3 health copy present',
+    'Recent Work label remains and KPI Level 3 copy moved behind the source-backed summary payload',
   )
   ensure(
     checks,
@@ -12550,6 +12568,52 @@ async function main() {
     kpiHealthDynamicYearContractCard
       ? `lane=${kpiHealthDynamicYearContractCard.lane} year=${kpiHealthDynamicYearContractDogfood.runtime2027?.year || 'missing'} frozenRejected=${kpiHealthDynamicYearContractDogfood.frozen2026?.rejected ? 'yes' : 'no'} closeout=${kpiHealthDynamicYearContractCloseout?.key || 'pending'}`
       : `missing ${KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID}`,
+  )
+  const foundationUiLiveSummarySourcesCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID) || null
+  const foundationUiLiveSummarySourcesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY) || null
+  const foundationUiLiveSummarySourcesDogfood = buildFoundationCurrentStateSummaryDogfoodProof()
+  const foundationUiLiveSummaryPayload = buildFoundationCurrentStateSummaryPayload({
+    sourceContracts: getSourceContracts(),
+    backlogItems: foundationHub.backlogItems || [],
+    kpiHealth: foundationHubKpiHealth,
+    currentSprint: activeFoundationSprint || {},
+  })
+  const foundationUiLiveSummaryAuditFindingIds = detectHardcodedLiveTruthInText({
+    relativePath: 'public/foundation-current-state-renderers.js',
+    text: foundationCurrentStateRendererSource,
+  }).map(finding => finding.id)
+  const foundationUiLiveSummaryContract = evaluateFoundationCurrentStateSummarySourceContract({
+    payload: foundationUiLiveSummaryPayload,
+    frontendSource: foundationCurrentStateRendererSource,
+    auditFindingIds: foundationUiLiveSummaryAuditFindingIds,
+  })
+  const foundationUiLiveSummaryClosed = foundationUiLiveSummarySourcesCard?.lane === 'done'
+  ensure(
+    checks,
+    foundationUiLiveSummarySourcesCard &&
+      ['executing', 'done'].includes(foundationUiLiveSummarySourcesCard.lane) &&
+      packageJson.scripts?.['process:foundation-ui-live-summary-sources-check'] === `node --env-file-if-exists=.env ${FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SCRIPT_PATH}` &&
+      foundationUiLiveSummarySourcesDogfood.ok === true &&
+      foundationUiLiveSummaryContract.ok === true &&
+      foundationCurrentStateSummarySource.includes('buildFoundationCurrentStateSummaryPayload') &&
+      foundationCurrentStateSummarySource.includes('buildFoundationCurrentStateSummaryDogfoodProof') &&
+      foundationCurrentStateRendererSource.includes('currentStateSummary') &&
+      foundationCurrentStateRendererSource.includes('renderCurrentStateMissingSummaryPanel') &&
+      !/var\s+surfaceRows\s*=\s*\[/.test(foundationCurrentStateRendererSource) &&
+      codeQualityNightlyAuditSource.includes('public/foundation-current-state-renderers.js') &&
+      foundationUiLiveSummarySourcesScriptSource.includes('source input changes alter UI row copy') &&
+      foundationUiLiveSummarySourcesPlanSource.includes('public/foundation-current-state-renderers.js') &&
+      await repoFileExists(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_APPROVAL_PATH) &&
+      (!foundationUiLiveSummaryClosed || (
+        String(foundationUiLiveSummarySourcesCard.statusNote || '').includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY) &&
+        foundationUiLiveSummarySourcesCloseout?.operatorCloseout === true &&
+        (foundationUiLiveSummarySourcesCloseout.backlogIds || []).includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-16-foundation-ui-live-summary-sources-closeout.md')
+      )),
+    'FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001 renders source-backed Current State summary payload',
+    foundationUiLiveSummarySourcesCard
+      ? `lane=${foundationUiLiveSummarySourcesCard.lane} rows=${foundationUiLiveSummaryPayload.summary?.surfaceRowCount || 0} auditFinding=${foundationUiLiveSummaryAuditFindingIds.includes('hardcoded-foundation-ui-current-summary') ? 'present' : 'clean'} closeout=${foundationUiLiveSummarySourcesCloseout?.key || 'pending'}`
+      : `missing ${FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID}`,
   )
   const processHardeningDogfood = buildFoundationProcessHardeningVerifierDogfoodProof()
   const verifierProcessHardeningSplitModuleCard =

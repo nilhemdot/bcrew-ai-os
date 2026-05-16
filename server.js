@@ -230,6 +230,9 @@ import {
 import {
   buildFoundationUiCompleteSnapshot,
 } from './lib/foundation-ui-complete.js'
+import {
+  buildFoundationCurrentStateSummaryPayload,
+} from './lib/foundation-current-state-summary.js'
 import { getCachedSafeKpiHealthSnapshot } from './lib/kpi-health.js'
 import { buildSourceOfTruthPayload } from './lib/source-of-truth-payload.js'
 import {
@@ -4145,6 +4148,7 @@ registerHubReadRoutes(app, {
   buildPerUserChangelogSnapshot,
   getRecentChangeEvents,
   buildDecisionRestrictedQueueSnapshot,
+  buildFoundationCurrentStateSummaryPayload,
   buildCreatorWatchlistSnapshot,
   buildMultimodalExtractorContractSnapshot,
   buildResearchInboxContractSnapshot,

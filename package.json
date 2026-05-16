@@ -111,6 +111,7 @@
     "process:db-seed-check": "node --env-file-if-exists=.env scripts/process-db-seed-check.mjs",
     "process:kpi-health-api-cache-check": "node --env-file-if-exists=.env scripts/process-kpi-health-api-cache-check.mjs",
     "process:kpi-health-dynamic-year-contract-check": "node --env-file-if-exists=.env scripts/process-kpi-health-dynamic-year-contract-check.mjs",
+    "process:foundation-ui-live-summary-sources-check": "node --env-file-if-exists=.env scripts/process-foundation-ui-live-summary-sources-check.mjs",
     "process:foundation-job-mutation-allowlist-check": "node --env-file-if-exists=.env scripts/process-foundation-job-mutation-allowlist-check.mjs",
     "process:plan-critic-architectural-rules-check": "node --env-file-if-exists=.env scripts/process-plan-critic-architectural-rules-check.mjs",
     "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",

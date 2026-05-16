@@ -418,6 +418,10 @@ Rule:
 
 ## Latest Foundation Cleanup
 
+- `FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001` is done under `foundation-ui-live-summary-sources-v1`.
+- Foundation Overview current-state system maturity rows now render from `/api/foundation-hub` `currentStateSummary` payload truth instead of frontend-owned live-looking copy.
+- Focused dogfood mutates KPI/current-sprint inputs and proves row copy follows payload data without frontend edits; the nightly audit now scans the renderer that used to own the stale static rows.
+- Scope stayed source-backed UI cleanup only: no KPI data change, source contract change, DB schema change, auth change, Marketing Video Lab wiring, Canva asset-library behavior, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.
 - `FOUNDATION-FRONTEND-ASSET-BUDGET-001` is done under `foundation-frontend-asset-budget-v1`.
 - Foundation frontend asset-budget state now lives in `lib/foundation-frontend-asset-budgets.js`, is discovered from `public/foundation.html`, and feeds the nightly code-quality audit.
 - Focused dogfood rejects oversized/missing assets, warns on large no-store assets, rejects aggregate bloat, and accepts healthy split assets; the live baseline is 14 assets, about 622 KB raw / 124 KB gzip, with no risk-level failures.

@@ -533,7 +533,7 @@ function renderCurrentStateSurfaceTable(rows) {
 
     var currentCell = document.createElement('td')
     currentCell.className = 'current-state-table-copy'
-    currentCell.textContent = row.currentSummary || ''
+    currentCell.textContent = row.current || row.currentSummary || ''
     summaryRow.appendChild(currentCell)
 
     var nextCell = document.createElement('td')
@@ -1005,6 +1005,27 @@ function renderOwnersReviewQueuePanel(payload) {
   return panel
 }
 
+function getCurrentStateSurfaceRowsFromPayload(hub) {
+  var summary = hub && hub.currentStateSummary
+  if (!summary || !Array.isArray(summary.surfaceRows)) return []
+  return summary.surfaceRows
+}
+
+function renderCurrentStateMissingSummaryPanel() {
+  var wrap = document.createElement('div')
+  wrap.className = 'notice notice-warning'
+
+  var title = document.createElement('strong')
+  title.textContent = 'Current State summary payload unavailable.'
+  wrap.appendChild(title)
+
+  var body = document.createElement('p')
+  body.textContent = 'Foundation Overview is not showing stale static readiness claims. Check /api/foundation-hub currentStateSummary before trusting this section.'
+  wrap.appendChild(body)
+
+  return wrap
+}
+
 function renderCurrentState() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading current state.</p>'
@@ -1095,233 +1116,12 @@ function renderCurrentState() {
     })
     surfacesPanel.appendChild(legend)
 
-    var surfaceRows = [
-      {
-        title: 'Strategy packet',
-        surfaceType: 'Package',
-        sourceId: ['SRC-STRATEGY-001', 'SRC-FREEDOM-COMMUNITY-001', 'SRC-FREEDOM-BHAG-001', 'SRC-FREEDOM-ENGINE-001', 'SRC-OWNERS-001'],
-        statusKey: 'connected',
-        statusLabel: 'Ready source package',
-        levelLabel: 'Mixed Level 2/3 - docs monitored, inputs trusted',
-        currentSummary: 'The current strategy input package is connected, verified, and understood. Strategy docs have first-pass change/watch/provenance visibility; supporting inputs are signed off for current-reality meaning. Extraction, synthesis, and action routing are later Foundation layers, not blockers to this source package closeout.',
-        packageParts: [
-          {
-            sourceId: 'SRC-STRATEGY-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 3',
-            body: 'Canonical strategy doc and supporting docs are signed off, with first-pass change watch, decision traceability, and visible proposal/history flow.',
-            role: 'Strategy docs',
-            next: 'Deeper temporal truth and provenance remain later Foundation work.',
-          },
-          {
-            sourceId: 'SRC-FREEDOM-COMMUNITY-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 2',
-            body: 'Mapped and understood for strategy use.',
-            role: 'Freedom input',
-            next: 'Nothing else here now.',
-          },
-          {
-            sourceId: 'SRC-FREEDOM-BHAG-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 2',
-            body: 'Mapped and understood for strategy use.',
-            role: 'Freedom input',
-            next: 'Nothing else here now.',
-          },
-          {
-            sourceId: 'SRC-FREEDOM-ENGINE-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 2',
-            body: 'Mapped and understood for strategy use.',
-            role: 'Freedom input',
-            next: 'Nothing else here now.',
-          },
-          {
-            sourceId: 'SRC-OWNERS-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 3',
-            body: 'Strategy-used Owners slice is signed off through the Owners Admin package and current-reality finance/list boundaries.',
-            role: 'Owners slice used in strategy',
-            next: 'Nothing else blocks the current strategy-input package.',
-          },
-        ],
-        next: 'No source sign-off closeout work remains for this package.',
-        later: 'Extract and synthesize business insights through the Foundation pipeline, then deepen Freedom drift monitoring, source-backed value hardening, decision provenance, and temporal history.',
-        backlogIds: ['FOUNDATION-001', 'SOURCE-014'],
-      },
-      {
-        title: 'System strategy',
-        surfaceType: 'Docs',
-        statusKey: 'connected',
-        statusLabel: 'Ready',
-        levelLabel: 'Level 2 - doctrine signed off',
-        currentSummary: 'Doctrine, boundaries, and rebuild direction are visible and signed off for this phase.',
-        next: 'No closeout work right now.',
-        later: 'Update only when the doctrine changes.',
-        backlogIds: [],
-      },
-      {
-        title: 'Rebuild visibility',
-        surfaceType: 'System',
-        statusKey: 'connected',
-        statusLabel: 'Ready',
-        levelLabel: 'Level 3 - visibility live',
-        currentSummary: 'Foundation Overview and Rebuild Plan are live in the repo and visible in the site.',
-        next: 'Keep this aligned with backlog truth.',
-        later: 'Do not let side docs drift away from this page.',
-        backlogIds: [],
-      },
-      {
-        title: 'Verification baseline',
-        surfaceType: 'System',
-        statusKey: 'connected',
-        statusLabel: 'Ready',
-        levelLabel: 'Level 3 - verifier visible',
-        currentSummary: 'foundation:verify exists, is visible, and is passing.',
-        next: 'No baseline closeout work left.',
-        later: 'Add checks only when new source surfaces close.',
-        backlogIds: [],
-      },
-      {
-        title: 'Owners Admin package',
-        surfaceType: 'Package',
-        sourceId: ['SRC-OWNERS-001', 'SRC-FUB-001'],
-        statusKey: 'connected',
-        statusLabel: 'Ready for v1',
-        levelLabel: 'Level 6 - findings routed to Ops',
-        currentSummary: 'Admin-tab meaning is signed off. FUB joins through Column BZ, v1 lead-source lineage, and Admin review rules are locked for v1. The review runner checks split math, governed source rules, company/agent expectation, FUB source/stage/ISA evidence, pre-2026-04-01 Freedom follow-through, and post-2026-04-01 ClickUp Deal Data Entry follow-through. Foundation deal-review jobs re-check marked Admin/Conditional rows first, then pace first-pass Admin backlog inspection at 5 newest eligible June 2025+ deals per day using Date Firm (Executed) and a 10-day maturity gate. Ops Hub owns the resulting cleanup queue.',
-        packageParts: [
-          {
-            sourceId: 'SRC-OWNERS-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 3',
-            body: 'Admin-tab meaning is signed off and review/freshness guardrails are visible for the v1 deal-review lane.',
-            role: 'Owners base source',
-          },
-          {
-            sourceId: 'SRC-FUB-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 6',
-            body: 'FUB joins, lead-source lineage rules, and Admin review enforcement are locked for v1. Missing FUB links, invalid lead sources, and duplicate-credit edge cases now surface as routed Ops cleanup findings instead of blocking the source package.',
-            role: 'Dependency source',
-            next: 'Work the Ops queue as findings appear.',
-          },
-        ],
-        next: 'No Foundation source-package closeout remains.',
-        later: 'Keep source-field fixes human-owned until Ops approves assignment and approval-gated apply/writeback.',
-        backlogIds: [],
-      },
-      {
-        title: 'FUB lead-source taxonomy',
-        surfaceType: 'Data source',
-        sourceId: 'SRC-FUB-001',
-        statusKey: 'connected',
-        statusLabel: 'Ready for v1',
-        levelLabel: 'Level 6 - source issues routed to Ops',
-        currentSummary: 'The review tool is live, FUB source drift is clear, and v1 source-lineage/company-agent rules are locked. Lee FUBZahnd evidence plus live Supabase proof now lock LeadDate / LeadClaimedDate read semantics; exact production writer proof remains paused.',
-        packageParts: [
-          {
-            sourceId: 'SRC-FUB-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 6',
-            body: 'FUB is readable, v1 source-lineage rules are locked, drift is visible, and invalid-source cleanup routes through Ops instead of blocking source sign-off.',
-            role: 'FUB source contract',
-            next: 'Keep deeper opportunity semantics and stage-table proof in Sales Hub follow-on work.',
-          },
-        ],
-        next: 'No v1 taxonomy closeout remains. Ops Hub owns invalid-source and missing-link cleanup findings.',
-        later: 'Deepen Sales Hub opportunity semantics, live stage-table proof, broader issue routing, and agent coaching support.',
-        backlogIds: [],
-      },
-      {
-        title: 'Finance sign-off',
-        surfaceType: 'Data source',
-        sourceId: 'SRC-FINANCE-001',
-        statusKey: 'connected',
-        statusLabel: 'Ready for current reality',
-        levelLabel: 'Level 2 - meaning signed off',
-        currentSummary: 'Weekly Actuals, Cashflow Dash, finance roll-ups, budgets, and the Unspent helper are signed off for current-reality meaning. QuickBooks is optional compliance verification, not a current rebuild dependency.',
-        packageParts: [
-          {
-            sourceId: 'SRC-FINANCE-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 2',
-            body: 'Finance current-reality meaning is signed off across Weekly Actuals, Cashflow Dash, roll-ups, budgets, and the Unspent helper.',
-            role: 'Finance source contract',
-            next: 'Add freshness/payment reconciliation only when finance becomes a continuous automation reader.',
-          },
-        ],
-        next: 'No source-signoff rediscovery work remains here.',
-        later: 'Define Level 3 freshness, payment reconciliation, and automation rules only when finance automation starts reading this continuously.',
-        backlogIds: ['FOUNDATION-003'],
-      },
-      {
-        title: 'KPI source health system',
-        surfaceType: 'Data source',
-        sourceId: 'SRC-SUPABASE-001',
-        statusKey: 'connected',
-        statusLabel: 'Health probe active',
-        levelLabel: 'Level 3 - read rules plus health checks',
-        currentSummary: 'SRC-SUPABASE-001 is readable, first-pass KPI read rules are locked, and KPI Health now checks 14/14 tables plus 5/5 RPCs so Foundation can see source availability and drift risk.',
-        packageParts: [
-          {
-            sourceId: 'SRC-SUPABASE-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 3',
-            body: 'KPI Supabase is readable, first-pass read rules are locked, and KPI Health verifies table/RPC availability for the current source layer.',
-            role: 'KPI source contract',
-            next: 'Add freshness cadence and deeper schema/code drift review before continuous Sales Hub dependency.',
-          },
-        ],
-        next: 'No current-state source-signoff work remains.',
-        later: 'Add visible freshness, deeper schema/code drift review, and future Sales Hub surfaces.',
-        backlogIds: [],
-      },
-      {
-        title: 'Meeting notes / transcript intelligence',
-        surfaceType: 'Source + extraction system',
-        sourceId: 'SRC-MEETINGS-001',
-        statusKey: 'pending',
-        statusLabel: 'Owner-usable; open hardening',
-        levelLabel: 'Level 5 - archived, extracted, synthesized',
-        currentSummary: 'SRC-MEETINGS-001 is readable through delegated Google Workspace. Meeting notes and standalone/embedded transcripts are archived into PostgreSQL as shared communication artifacts, tagged as broadcast/discussion/sensitive candidates, and processed by scheduled daily current-sync plus daily transcript-extraction quota missions. Latest live checkpoint showed 866 meeting notes and 649 meeting transcripts archived, with the 2026-04-26 current sync and transcript extraction runs succeeding.',
-        packageParts: [
-          {
-            sourceId: 'SRC-MEETINGS-001',
-            statusKey: 'connected',
-            statusLabel: 'Level 4',
-            body: 'Meeting notes and transcripts are captured from Google Drive and filed as source-backed artifacts with content hashes, metadata, transcript source, meeting class, privacy profile, and provenance.',
-            role: 'Meeting source contract',
-            next: 'Keep daily current sync healthy and use gap reports when transcripts are missing.',
-          },
-          {
-            sourceId: 'SRC-MEETINGS-001',
-            statusKey: 'pending',
-            statusLabel: 'Level 5',
-            body: 'Transcript candidate extraction runs with Foundation context and asks for subject_people, sensitivity, and min_tier metadata before synthesis/routing.',
-            role: 'Meeting intelligence layer',
-            next: 'Use this for Steve-owner strategy work now; do not expose raw meeting intelligence to agent/team query surfaces until SECURITY-002 lands.',
-          },
-        ],
-        next: 'Monitor scheduled meeting current-sync and transcript-extraction runs, tune backlog quotas, and use Runtime Health for live counts/status.',
-        later: 'Add rich meeting video/recording vision, Zoom/Drive video transcription, filtered summary access requests, subject-person redaction, and Action Router handoff.',
-        backlogIds: ['SECURITY-002', 'MEETING-VIDEO-001', 'SYNTHESIS-ENGINE-001', 'ACTION-ROUTER-001'],
-      },
-      {
-        title: 'Shared freshness rules',
-        surfaceType: 'Rule set',
-        statusKey: 'connected',
-        statusLabel: 'Ready for Owners/FUB first layer',
-        levelLabel: 'Level 3 - first guardrails live',
-        currentSummary: 'The maturity model defines Level 3, and the first Owners/FUB freshness guardrails are live through DATA-020. Wider stale-data rollout is still later.',
-        next: 'No active freshness-rule closeout remains for the current Owners/FUB layer.',
-        later: 'Reuse this pattern for finance, KPI, connectors, Drive/video corpus, and future source surfaces when those readers become continuous.',
-        backlogIds: ['DATA-020'],
-      },
-    ]
-
-    surfacesPanel.appendChild(renderCurrentStateSurfaceTable(surfaceRows))
+    var surfaceRows = getCurrentStateSurfaceRowsFromPayload(hub)
+    if (surfaceRows.length) {
+      surfacesPanel.appendChild(renderCurrentStateSurfaceTable(surfaceRows))
+    } else {
+      surfacesPanel.appendChild(renderCurrentStateMissingSummaryPanel())
+    }
     container.appendChild(surfacesPanel)
 
     var workPanel = document.createElement('section')

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+  "approvedBy": "Steve full-steam overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T10:02:32.845Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-ui-live-summary-sources-001-plan.md",
+  "approvedPlanSha256": "d78ca6f10b0c705c876e090224abf1daef3f18fe331e7ad9a355b1d751b3b855",
+  "approvedRepoHead": "da31ff4c84ba0dbb838768a132232ecc57100635",
+  "notes": "Approved as a no-auth Foundation cleanup card. Scope: move Foundation Overview live-looking system-status rows from frontend-owned copy into a source-backed Foundation Hub currentStateSummary payload, with dogfood proof that payload changes update UI output. Not approved: source contract changes, KPI data changes, DB schema changes, auth changes, hub feature work, Marketing Video Lab live route wiring, Canva asset library work, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "1bf716893148b5bf0c7a63d46de830b8f5a81484a9c664eeb8d9a94b56b832be"
+}

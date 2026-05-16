@@ -331,7 +331,7 @@ async function runCurrentStateBrowserDogfood({
       title: 'Synthetic surface',
       statusKey: 'connected',
       statusLabel: 'Ready',
-      currentSummary: 'Current proof.',
+      current: 'Current proof.',
       next: 'Next proof.',
       later: 'Later proof.',
       packageParts: [{
