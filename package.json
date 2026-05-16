@@ -139,6 +139,7 @@
     "process:verifier-server-route-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-server-route-split-module-check.mjs",
     "process:verifier-foundation-db-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-foundation-db-split-module-check.mjs",
     "process:verifier-source-trust-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-source-trust-split-module-check.mjs",
+    "process:verifier-current-sprint-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-current-sprint-split-module-check.mjs",
     "process:verifier-recent-builds-closeout-split-check": "node --env-file-if-exists=.env scripts/process-verifier-recent-builds-closeout-split-check.mjs",
     "process:verifier-runtime-reliability-split-check": "node --env-file-if-exists=.env scripts/process-verifier-runtime-reliability-split-check.mjs",
     "process:verifier-health-script-module-check": "node --env-file-if-exists=.env scripts/process-verifier-health-script-module-check.mjs",

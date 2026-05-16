@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "VERIFIER-CURRENT-SPRINT-SPLIT-MODULE-001",
+  "approvedBy": "Steve 12-hour standard-mode overnight queue approval + Codex senior-engineer Foundation cleanup session",
+  "approvedAt": "2026-05-15T23:55:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/verifier-current-sprint-split-module-001-plan.md",
+  "approvedPlanSha256": "41f6a5505849bda5519190ea9cc67b59049cab4880fcb56697a5c1ad251d8d8e",
+  "approvedRepoHead": "c8ac3c3afb2fe53b8a6a97b42391cc6a0e9b55d3",
+  "notes": "Approved as the second card in the standard-mode overnight Foundation cleanup queue. Scope: extract only Current Sprint system/cadence verifier checks from scripts/foundation-verify.mjs into lib/foundation-current-sprint-verifier.js with read-only focused dogfood and full ship. Not approved: Current Sprint behavior changes, broad verifier rewrite, Foundation DB split, hub UI, Marketing live wiring, Canva asset library, Build Intel extraction, paid-source auth, autonomous dev, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "2596ae7dec608f79de681b24ca0a3ff3ceeabc6bb5d4c1502ab4340294b96e06"
+}

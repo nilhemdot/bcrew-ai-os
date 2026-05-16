@@ -240,6 +240,16 @@ import {
   evaluateFoundationSourceTrustVerifier,
 } from '../lib/foundation-source-trust-verifier.js'
 import {
+  VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_APPROVAL_PATH,
+  VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID,
+  VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_PLAN_PATH,
+  VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_SCRIPT_PATH,
+  VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_SPRINT_ID,
+  buildFoundationCurrentSprintVerifierDogfoodProof,
+  evaluateFoundationCurrentSprintVerifier,
+} from '../lib/foundation-current-sprint-verifier.js'
+import {
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID,
@@ -2576,6 +2586,9 @@ async function main() {
   const foundationSourceTrustVerifierSource = await readRepoFile('lib/foundation-source-trust-verifier.js')
   const verifierSourceTrustSplitModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SCRIPT_PATH)
   const verifierSourceTrustSplitModulePlanSource = await readRepoFile(VERIFIER_SOURCE_TRUST_SPLIT_MODULE_PLAN_PATH)
+  const foundationCurrentSprintVerifierSource = await readRepoFile('lib/foundation-current-sprint-verifier.js')
+  const verifierCurrentSprintSplitModuleScriptSource = await readRepoFile(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_SCRIPT_PATH)
+  const verifierCurrentSprintSplitModulePlanSource = await readRepoFile(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_PLAN_PATH)
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -4426,6 +4439,7 @@ async function main() {
     VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
     STYLESHEET_MONOLITH_SPLIT_CARD_ID,
     VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
+    VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID,
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
@@ -4663,6 +4677,7 @@ async function main() {
     foundationRouteSplitVerifierSource,
     foundationSourceContractVerifierSource,
     foundationSourceTrustVerifierSource,
+    foundationCurrentSprintVerifierSource,
     foundationServerRouteSplitVerifierSource,
     foundationDbSplitVerifierSource,
     foundationFrontendSplitVerifierSource,
@@ -8855,94 +8870,6 @@ async function main() {
       FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
       FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
     ].every(id => !(buildLogFoundationSprintSystemBuild.backlogIds || []).includes(id))
-  ensure(
-    checks,
-    foundationSprintSystem?.lane === 'done' &&
-      String(foundationSprintSystem?.statusNote || '').includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) &&
-      foundationSprintSystemApprovalValidation.ok &&
-      foundationSprintSystemApprovalValidation.mode === 'v2' &&
-      foundationSprintSystemApproval.cardId === FOUNDATION_SPRINT_SYSTEM_CARD_ID &&
-      Number(foundationSprintSystemApproval.score) >= 9.8 &&
-      foundationSprintSystemApproval.approvedPlanRef === FOUNDATION_SPRINT_SYSTEM_PLAN_PATH &&
-      includesAll(foundationSprintSystemPlanSource, [
-        'Current Sprint is an overlay on live backlog truth, not a second backlog',
-        '`sprint_ready`: Sprint Ready',
-        '`returned`: Returned',
-        'returnedReason',
-        'FOUNDATION-DONE-VELOCITY-001',
-      ]) &&
-      includesAll(foundationCurrentSprintSource, [
-        'FOUNDATION_CURRENT_SPRINT_STAGES',
-        'FOUNDATION_EXISTING_WORK_CHECK_FIELDS',
-        'validateExistingWorkCheck',
-        'buildFoundationCurrentSprintStatus',
-        'buildSyntheticFoundationCurrentSprintProof',
-      ]) &&
-      FOUNDATION_CURRENT_SPRINT_STAGES.map(stage => stage.key).join(',') === 'scoping,sprint_ready,building_now,returned,done_this_sprint' &&
-      includesAll(foundationDbSource, [
-        'foundation_sprints',
-        'foundation_sprint_items',
-        'getActiveFoundationCurrentSprint',
-        'upsertFoundationCurrentSprintOverlay',
-      ]) &&
-      includesAll(serverRouteSource, [
-        '/api/foundation/current-sprint',
-        'currentSprint',
-        'buildFoundationCurrentSprintStatus',
-      ]) &&
-      includesAll(foundationFrontendSource, [
-        'renderCurrentSprintPanel',
-        'Current Sprint',
-        'done_this_sprint',
-        'Sprint command view',
-        'current-sprint-board',
-        'hub.currentSprint',
-        'active Current Sprint move',
-        'Sprint Ready requires existing code, docs, scripts, doctrine',
-      ]) &&
-      !foundationFrontendSource.includes('this panel shows the next Phase G command move') &&
-      includesAll(foundationStylesSource, [
-        '.current-sprint-panel',
-        '.current-sprint-board',
-      ]) &&
-      packageJson.scripts?.['process:foundation-sprint-system-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-sprint-system-check.mjs' &&
-      includesAll(foundationSprintSystemScriptSource, [
-        FOUNDATION_SPRINT_SYSTEM_SUMMARY_MARKER,
-        'FOUNDATION_SPRINT_NOT_NEXT_BOUNDARIES',
-        'FOUNDATION-DONE-VELOCITY-001',
-        'MEETING-VAULT-ACL-001',
-      ]) &&
-      includesAll(foundationSprintSystemDocSource, [
-        'overlay on live backlog',
-        'Sprint Ready',
-        'Returned requires',
-        FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY,
-      ]) &&
-      syntheticFoundationSprintProof.ok &&
-      foundationCurrentSprintStatus.status === 'healthy' &&
-      foundationHub.currentSprint?.status === 'healthy' &&
-      foundationSprintSurfaceFollowUp?.lane === 'scoped' &&
-      [foundationSprintSurfaceFollowUp?.summary, foundationSprintSurfaceFollowUp?.nextAction, foundationSprintSurfaceFollowUp?.statusNote].join(' ').includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
-      (foundationSprintDoneVelocity?.lane === 'scoped' ||
-        (foundationSprintDoneVelocity?.lane === 'done' &&
-          String(foundationSprintDoneVelocity?.statusNote || '').includes(FOUNDATION_CONTROL_COMPRESSION_CLOSEOUT_KEY))) &&
-      [foundationSprintDoneVelocity?.summary, foundationSprintDoneVelocity?.nextAction, foundationSprintDoneVelocity?.statusNote].join(' ').includes('velocity') &&
-      (meetingVaultAutoEnforcementClosed || meetingVaultAcl?.lane !== 'done') &&
-      foundationSprintCaptureSource.includes('Phase B paused') &&
-      buildLogFoundationSprintSystemBuild?.operatorCloseout === true &&
-      foundationSprintSystemBuildLogExact &&
-      currentPlan.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) &&
-      currentPlan.includes(FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID) &&
-      currentPlan.includes(FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID) &&
-      currentState.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY) &&
-      currentState.includes('Current Sprint') &&
-      (meetingVaultAutoEnforcementClosed
-        ? currentState.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY)
-        : currentState.includes('MEETING-VAULT-ACL-001 remains scoped')) &&
-      includesAll(foundationVerifySource, FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'FOUNDATION-SPRINT-SYSTEM-001 adds Current Sprint control without a second backlog',
-    `lane=${foundationSprintSystem?.lane || 'missing'} sprint=${foundationCurrentSprintStatus.status} api=${foundationHub.currentSprint?.status || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'}`,
-  )
   const foundationSprintCadenceBuildLogExact = buildLogFoundationSprintCadenceBuild?.backlogIds?.length === 1 &&
     buildLogFoundationSprintCadenceBuild.backlogIds.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
     [
@@ -9223,99 +9150,46 @@ async function main() {
       DECISION_RESTRICTED_QUEUE_CARD_ID,
       'REPLY-WATCHING-LOOP-001',
     ].every(id => !(buildLogFoundationUiCompleteBuild.backlogIds || []).includes(id))
-  ensure(
-    checks,
-    foundationSprintCadence?.lane === 'done' &&
-      String(foundationSprintCadence?.statusNote || '').includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) &&
-      foundationSprintCadenceApprovalValidation.ok &&
-      foundationSprintCadenceApprovalValidation.mode === 'v2' &&
-      foundationSprintCadenceApproval.cardId === FOUNDATION_SPRINT_CADENCE_CARD_ID &&
-      Number(foundationSprintCadenceApproval.score) >= 9.8 &&
-      foundationSprintCadenceApproval.approvedPlanRef === FOUNDATION_SPRINT_CADENCE_PLAN_PATH &&
-      includesAll(foundationSprintCadencePlanSource, [
-        'executive sprint summary',
-        'current status',
-        'next card',
-        'current blocker',
-        'exit criteria',
-        'No Google Drive permission mutation is approved',
-      ]) &&
-      includesAll(foundationCurrentSprintSource, [
-        'FOUNDATION_SPRINT_CADENCE_CARD_ID',
-        'FOUNDATION_SPRINT_EXIT_CRITERIA',
-        'executiveSummary',
-        'nextCard',
-        'currentBlocker',
-        'stageCounts',
-      ]) &&
-      FOUNDATION_CURRENT_SPRINT_STAGES.map(stage => stage.key).join(',') === 'scoping,sprint_ready,building_now,returned,done_this_sprint' &&
-      FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('executive summary')) &&
-      FOUNDATION_SPRINT_EXIT_CRITERIA.some(item => item.includes('No Drive permission mutation')) &&
-      includesAll(foundationFrontendSource, [
-        'Sprint command view',
-        'current-sprint-command-grid',
-        'current-sprint-board',
-        'Exit criteria',
-        'Next action',
-      ]) &&
-      includesAll(foundationStylesSource, [
-        '.current-sprint-command-grid',
-        '.current-sprint-command-strip',
-        '.current-sprint-exit',
-        '.current-sprint-board',
-        '.current-sprint-stage-row',
-      ]) &&
-      !foundationStylesSource.includes('.current-sprint-stage-grid') &&
-      packageJson.scripts?.['process:foundation-sprint-cadence-check'] === 'node --env-file-if-exists=.env scripts/process-foundation-sprint-cadence-check.mjs' &&
-      includesAll(foundationSprintCadenceScriptSource, [
-        FOUNDATION_SPRINT_CADENCE_SUMMARY_MARKER,
-        'Current Sprint layout is readable board/rows',
-        'REBUILD-PLAN-RECONCILE-001',
-      ]) &&
-      includesAll(foundationSprintCadenceDocSource, [
-        FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
-        'sprint command view',
-        'No Google Drive permission mutations',
-        'No request-access emails',
-      ]) &&
-      foundationCurrentSprintStatus.status === 'healthy' &&
-      foundationHub.currentSprint?.status === 'healthy' &&
-      foundationHub.currentSprint?.cadence?.executiveSummary &&
-      (
-        foundationHub.currentSprint?.cadence?.nextCard?.cardId ||
-        (
-          activeSprintCompleteReview &&
-          (
-            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint closeout') ||
-            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint review/rollover') ||
-            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('sprint review') ||
-            foundationHub.currentSprint?.cadence?.nextAction?.toLowerCase().includes('review/rollover')
-          )
-        )
-      ) &&
-      (
-        foundationHub.currentSprint?.cadence?.currentBlocker?.cardId ||
-        activeSprintCompleteReview
-      ) &&
-      Array.isArray(foundationHub.currentSprint?.cadence?.exitCriteria) &&
-      foundationHub.currentSprint.cadence.exitCriteria.length > 0 &&
-      foundationHub.currentSprint.cadence.exitCriteria.every(item => String(item || '').trim()) &&
-      (meetingVaultAutoEnforcementClosed || meetingVaultAcl?.lane !== 'done') &&
-      buildLogFoundationSprintCadenceBuild?.operatorCloseout === true &&
-      foundationSprintCadenceBuildLogExact &&
-      currentPlan.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) &&
-      currentPlan.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
-      currentState.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY) &&
-      currentState.includes('sprint command view') &&
-      currentState.includes('MEETING-VAULT-ACL-001') &&
-      (meetingVaultAutoEnforcementClosed
-        ? currentState.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY)
-        : currentState.includes('moves into Scoping')) &&
-      foundationSprintCaptureSource.includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
-      foundationSprintCaptureSource.includes('No Drive permission mutation is approved'),
-    'FOUNDATION-SPRINT-CADENCE-001 adds readable sprint command view without Drive mutation',
-    `lane=${foundationSprintCadence?.lane || 'missing'} sprint=${foundationCurrentSprintStatus.status} api=${foundationHub.currentSprint?.status || 'missing'} next=${foundationHub.currentSprint?.cadence?.nextCard?.cardId || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'}`,
-  )
+  const currentSprintVerifier = evaluateFoundationCurrentSprintVerifier({
+    foundationHub,
+    currentPlan,
+    currentState,
+    foundationFrontendSource,
+    foundationStylesSource,
+    foundationCurrentSprintSource,
+    foundationDbSource,
+    serverRouteSource,
+    foundationVerifySource,
+    moduleSource: foundationCurrentSprintVerifierSource,
+    foundationSprintSystem,
+    foundationSprintCadence,
+    meetingVaultAcl,
+    meetingVaultAutoEnforcementClosed,
+    foundationCurrentSprintStatus,
+    packageJson,
+    buildLogFoundationSprintSystemBuild,
+    buildLogFoundationSprintCadenceBuild,
+    foundationSprintSurfaceFollowUp,
+    foundationSprintDoneVelocity,
+    foundationSprintSystemApprovalValidation,
+    foundationSprintCadenceApprovalValidation,
+    foundationSprintSystemApproval,
+    foundationSprintCadenceApproval,
+    foundationSprintSystemPlanSource,
+    foundationSprintCadencePlanSource,
+    foundationSprintSystemScriptSource,
+    foundationSprintCadenceScriptSource,
+    foundationSprintSystemDocSource,
+    foundationSprintCadenceDocSource,
+    foundationSprintCaptureSource,
+    foundationSprintSystemBuildLogExact,
+    foundationSprintCadenceBuildLogExact,
+    syntheticFoundationSprintProof,
+    activeSprintCompleteReview,
+    foundationSprintSystemSummaryMarker: FOUNDATION_SPRINT_SYSTEM_SUMMARY_MARKER,
+    foundationSprintCadenceSummaryMarker: FOUNDATION_SPRINT_CADENCE_SUMMARY_MARKER,
+  })
+  checks.push(...currentSprintVerifier.checks)
   ensure(
     checks,
     verifyGateTiering?.lane === 'done' &&
@@ -13727,6 +13601,38 @@ async function main() {
     verifierSourceTrustSplitModuleCard
       ? `lane=${verifierSourceTrustSplitModuleCard.lane} dogfood=${verifierSourceTrustSplitModuleDogfood.ok ? 'pass' : 'blocked'} sourceTrustChecks=${sourceTrustVerifier.summary.passed}/${sourceTrustVerifier.summary.total}`
       : `missing ${VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID}`,
+  )
+  const verifierCurrentSprintSplitModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID) || null
+  const verifierCurrentSprintSplitModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const verifierCurrentSprintSplitModuleDogfood = buildFoundationCurrentSprintVerifierDogfoodProof()
+  const verifierCurrentSprintSplitModuleClosed = verifierCurrentSprintSplitModuleCard?.lane === 'done'
+  ensure(
+    checks,
+      verifierCurrentSprintSplitModuleCard &&
+      ['executing', 'done'].includes(verifierCurrentSprintSplitModuleCard.lane) &&
+      (!verifierCurrentSprintSplitModuleClosed || (
+        String(verifierCurrentSprintSplitModuleCard.statusNote || '').includes(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CLOSEOUT_KEY) &&
+        verifierCurrentSprintSplitModuleCloseout?.operatorCloseout === true &&
+        (verifierCurrentSprintSplitModuleCloseout.backlogIds || []).includes(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID) &&
+        await repoFileExists('docs/handoffs/2026-05-15-verifier-current-sprint-split-module-closeout.md')
+      )) &&
+      verifierCurrentSprintSplitModuleDogfood.ok === true &&
+      packageJson.scripts?.['process:verifier-current-sprint-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_SCRIPT_PATH}` &&
+      await repoFileExists(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_APPROVAL_PATH) &&
+      foundationCurrentSprintVerifierSource.includes('evaluateFoundationCurrentSprintVerifier') &&
+      foundationCurrentSprintVerifierSource.includes('buildFoundationCurrentSprintVerifierDogfoodProof') &&
+      verifierCurrentSprintSplitModuleScriptSource.includes('dogfood rejects Current Sprint verifier failures') &&
+      verifierCurrentSprintSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
+      currentPlan.includes(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      currentState.includes(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      (activeFoundationSprint.sprint?.sprintId === VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_SPRINT_ID ||
+        activeSprintAtOrPast([VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID])) &&
+      foundationCurrentSprintVerifierSource.includes(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID),
+    'VERIFIER-CURRENT-SPRINT-SPLIT-MODULE-001 extracts Current Sprint verifier checks into a focused module',
+    verifierCurrentSprintSplitModuleCard
+      ? `lane=${verifierCurrentSprintSplitModuleCard.lane} dogfood=${verifierCurrentSprintSplitModuleDogfood.ok ? 'pass' : 'blocked'} currentSprintChecks=${currentSprintVerifier.summary.passed}/${currentSprintVerifier.summary.total}`
+      : `missing ${VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID}`,
   )
   const serverRouteSplitVerifierInput = {
     foundationHub,
