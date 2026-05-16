@@ -2,24 +2,24 @@
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-16T10:17:26.542Z`
+Generated at: `2026-05-16T10:41:16.453Z`
 
 ## Morning Read
 
 - Status: `report_ready`
-- Findings: 54 total (40 P0, 8 P1, 6 P2, 0 P3)
-- Proposed backlog fixes: 16
+- Findings: 55 total (40 P0, 8 P1, 7 P2, 0 P3)
+- Proposed backlog fixes: 17
 - Detection mode: deterministic code first; no LLM detection used.
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work.
 - Synthetic proof: passed (hardcoded=2, mutator=1, slowEndpoint=risk)
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=77ms payload=537294B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=18ms payload=134295B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=397ms payload=622995B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=76ms payload=364779B risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: status=200 latency=74ms payload=33955B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=82ms payload=544726B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=21ms payload=134295B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=371ms payload=632595B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=72ms payload=365181B risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: status=200 latency=81ms payload=33955B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
 
@@ -39,14 +39,17 @@ Assets:
 - public/foundation-operations-renderers.js: 45944B raw, 9575B gzip, 1100 lines
 - public/foundation-router.js: 5221B raw, 1498B gzip, 192 lines
 
+DOM budget:
+- status=review, scripts=12, createElement=1567, appendChild=2030, innerHTML=63
+
 Largest files:
-- scripts/foundation-verify.mjs: 13012 LOC, 743041B
+- scripts/foundation-verify.mjs: 13069 LOC, 747603B
 - public/foundation.js: 4910 LOC, 174221B
 - server.js: 4808 LOC, 159625B
 - lib/foundation-db.js: 4713 LOC, 214423B
 - lib/foundation-backlog-seed.js: 4652 LOC, 477958B
 - lib/foundation-build-closeout-records.js: 4328 LOC, 297517B
-- lib/foundation-build-closeout-overnight-records.js: 3734 LOC, 301713B
+- lib/foundation-build-closeout-overnight-records.js: 3785 LOC, 306320B
 - public/styles-foundation-workflows.css: 2526 LOC, 48968B
 
 ## Top Findings
@@ -72,7 +75,7 @@ Largest files:
 ### P0 Foundation verifier is one large execution surface
 - Card lane: `FOUNDATION-MONOLITH-RISK-AUDIT-001`
 - Type: `refactor_candidate`
-- Evidence: `scripts/foundation-verify.mjs:2138`
+- Evidence: `scripts/foundation-verify.mjs:2148`
 - Why it matters: Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.
 - Proposed owner/card: Foundation Engineering / `FOUNDATION-VERIFY-REGISTRY-SPLIT-001`
 - Detector: largest file/function ownership detector
@@ -217,7 +220,7 @@ Largest files:
 
 - `CODEBASE-HARDCODE-AUDIT-001`: 6 findings
 - `FOUNDATION-API-PERF-AUDIT-001`: 2 findings
-- `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 0 findings
+- `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 1 finding
 - `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 5 findings
 - `VERIFIER-ASSUMPTION-REGISTRY-001`: 3 findings
 - `SPRINT-STATE-MUTATION-AUDIT-001`: 38 findings
@@ -241,6 +244,7 @@ Largest files:
 - `BUILD-INTEL-CONTEXT-SEARCH-INDEX-001`
 - `BUILD-LOG-API-CACHE-AND-SLIM-001`
 - `BUILD-INTEL-SNAPSHOT-BASELINE-001`
+- `FOUNDATION-FRONTEND-DOM-BUDGET-001`
 
 ## Browser QA Route Matrix Proposal
 

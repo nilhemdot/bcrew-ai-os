@@ -422,6 +422,11 @@ Rule:
 - Foundation Overview current-state system maturity rows now render from `/api/foundation-hub` `currentStateSummary` payload truth instead of frontend-owned live-looking copy.
 - Focused dogfood mutates KPI/current-sprint inputs and proves row copy follows payload data without frontend edits; the nightly audit now scans the renderer that used to own the stale static rows.
 - Scope stayed source-backed UI cleanup only: no KPI data change, source contract change, DB schema change, auth change, Marketing Video Lab wiring, Canva asset-library behavior, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.
+- `FOUNDATION-FRONTEND-DOM-BUDGET-001` is done under `foundation-frontend-dom-budget-v1`.
+- Foundation frontend DOM budget state now lives in `lib/foundation-frontend-dom-budgets.js`, discovers scripts from `public/foundation.html`, and feeds the nightly code-quality audit through `domBudgetSnapshot`.
+- Focused dogfood accepts small split renderers, warns on aggregate churn, rejects heavy source/route fixtures, and runs a real Current State renderer path in a VM fake DOM.
+- Current repo baseline is review-level, not risk-level: 12 scripts, 1,567 createElement signals, 2,030 appendChild signals, 63 innerHTML signals; VM Current State route proof is healthy at 73 createElement and 72 appendChild operations.
+- Scope stayed measurement-only: no renderer optimization, UI redesign, route change, Marketing Video Lab wiring, Canva asset-library behavior, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.
 - `FOUNDATION-FRONTEND-ASSET-BUDGET-001` is done under `foundation-frontend-asset-budget-v1`.
 - Foundation frontend asset-budget state now lives in `lib/foundation-frontend-asset-budgets.js`, is discovered from `public/foundation.html`, and feeds the nightly code-quality audit.
 - Focused dogfood rejects oversized/missing assets, warns on large no-store assets, rejects aggregate bloat, and accepts healthy split assets; the live baseline is 14 assets, about 622 KB raw / 124 KB gzip, with no risk-level failures.

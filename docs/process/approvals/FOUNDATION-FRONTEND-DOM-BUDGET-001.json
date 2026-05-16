@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-FRONTEND-DOM-BUDGET-001",
+  "approvedBy": "Steve full-steam Standard-mode overnight Foundation instruction + Codex senior-engineer guardrail",
+  "approvedAt": "2026-05-16T10:35:22.318Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-frontend-dom-budget-001-plan.md",
+  "approvedPlanSha256": "f569f155f99ce5f5e34b886383ddabd780f9a976cf4eddf0dab9abe55d10637d",
+  "approvedRepoHead": "8509ca270267dbc7ae57cc31af458b8135805c43",
+  "notes": "Approved as a no-auth Foundation cleanup card. Scope: add a report-only DOM rebuild budget, VM route proof, nightly-audit integration, and thin verifier coverage. Not approved: renderer optimization, UI feature changes, hub work, Marketing Video Lab wiring, Canva asset-library behavior, auth, DB schema changes, external integrations, paid-source auth, Build Intel extraction, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "b70cedb1a4ee4e9724c2bcfb84d42bbcfddf02d19f50bb06dfb46dd8af4542a8"
+}

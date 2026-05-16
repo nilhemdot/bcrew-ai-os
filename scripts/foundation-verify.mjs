@@ -196,6 +196,16 @@ import {
   measureFoundationFrontendAssetsFromRepo,
 } from '../lib/foundation-frontend-asset-budgets.js'
 import {
+  FOUNDATION_FRONTEND_DOM_BUDGET_APPROVAL_PATH,
+  FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID,
+  FOUNDATION_FRONTEND_DOM_BUDGET_CLOSEOUT_KEY,
+  FOUNDATION_FRONTEND_DOM_BUDGET_PLAN_PATH,
+  FOUNDATION_FRONTEND_DOM_BUDGET_SCRIPT_PATH,
+  FOUNDATION_FRONTEND_DOM_BUDGET_SPRINT_ID,
+  buildFoundationFrontendDomBudgetDogfoodProof,
+  measureFoundationFrontendDomBudgetFromRepo,
+} from '../lib/foundation-frontend-dom-budgets.js'
+import {
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_APPROVAL_PATH,
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID,
   FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY,
@@ -2714,6 +2724,9 @@ async function main() {
   const foundationFrontendAssetBudgetsSource = await readRepoFile('lib/foundation-frontend-asset-budgets.js')
   const foundationFrontendAssetBudgetsScriptSource = await readRepoFile(FOUNDATION_FRONTEND_ASSET_BUDGET_SCRIPT_PATH)
   const foundationFrontendAssetBudgetsPlanSource = await readRepoFile(FOUNDATION_FRONTEND_ASSET_BUDGET_PLAN_PATH)
+  const foundationFrontendDomBudgetsSource = await readRepoFile('lib/foundation-frontend-dom-budgets.js')
+  const foundationFrontendDomBudgetsScriptSource = await readRepoFile(FOUNDATION_FRONTEND_DOM_BUDGET_SCRIPT_PATH)
+  const foundationFrontendDomBudgetsPlanSource = await readRepoFile(FOUNDATION_FRONTEND_DOM_BUDGET_PLAN_PATH)
   const foundationCurrentStateSummarySource = await readRepoFile('lib/foundation-current-state-summary.js')
   const foundationCurrentStateRendererSource = await readRepoFile('public/foundation-current-state-renderers.js')
   const foundationUiLiveSummarySourcesScriptSource = await readRepoFile(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SCRIPT_PATH)
@@ -11540,6 +11553,50 @@ async function main() {
       codeQualityNightlyAuditSource.includes('FOUNDATION_FRONTEND_ASSET_BUDGET_CARD_ID'),
     'FOUNDATION-FRONTEND-ASSET-BUDGET-001 feeds nightly code-quality asset budget findings',
     `repoStatus=${foundationFrontendAssetBudgetSnapshot.status} noStore=${foundationFrontendAssetBudgetSnapshot.summary?.noStoreCount || 0}`,
+  )
+  const foundationFrontendDomBudgetCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID) || null
+  const foundationFrontendDomBudgetDogfood = buildFoundationFrontendDomBudgetDogfoodProof()
+  const foundationFrontendDomBudgetSnapshot = await measureFoundationFrontendDomBudgetFromRepo({ repoRoot })
+  const foundationFrontendDomBudgetCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_FRONTEND_DOM_BUDGET_CLOSEOUT_KEY) || null
+  const foundationFrontendDomBudgetClosed = foundationFrontendDomBudgetCard?.lane === 'done'
+  const foundationFrontendDomBudgetCloseoutOk = !foundationFrontendDomBudgetClosed ||
+    (String(foundationFrontendDomBudgetCard.statusNote || '').includes(FOUNDATION_FRONTEND_DOM_BUDGET_CLOSEOUT_KEY) &&
+      foundationFrontendDomBudgetCloseout?.operatorCloseout === true &&
+      (foundationFrontendDomBudgetCloseout.backlogIds || []).includes(FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID) &&
+      await repoFileExists('docs/handoffs/2026-05-16-foundation-frontend-dom-budget-closeout.md'))
+  ensure(
+    checks,
+    foundationFrontendDomBudgetCard &&
+      ['executing', 'done'].includes(foundationFrontendDomBudgetCard.lane) &&
+      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_FRONTEND_DOM_BUDGET_SPRINT_ID || foundationFrontendDomBudgetClosed) &&
+      foundationFrontendDomBudgetCloseoutOk &&
+      foundationFrontendDomBudgetDogfood.ok === true &&
+      foundationFrontendDomBudgetSnapshot.summary?.scriptCount >= 10 &&
+      foundationFrontendDomBudgetSnapshot.summary?.riskCount === 0 &&
+      await repoFileExists(FOUNDATION_FRONTEND_DOM_BUDGET_APPROVAL_PATH),
+    'FOUNDATION-FRONTEND-DOM-BUDGET-001 measures frontend DOM rebuild budget',
+    foundationFrontendDomBudgetCard
+      ? `lane=${foundationFrontendDomBudgetCard.lane} dogfood=${foundationFrontendDomBudgetDogfood.ok ? 'pass' : 'blocked'} repo=${foundationFrontendDomBudgetSnapshot.status} scripts=${foundationFrontendDomBudgetSnapshot.summary?.scriptCount || 0} createElement=${foundationFrontendDomBudgetSnapshot.summary?.totalCreateElementCount || 0} closeout=${foundationFrontendDomBudgetCloseout?.key || 'pending'}`
+      : `missing ${FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID}`,
+  )
+  ensure(
+    checks,
+    foundationFrontendDomBudgetsSource.includes('measureFoundationFrontendDomBudgetFromRepo') &&
+      foundationFrontendDomBudgetsSource.includes('countDomRebuildSignalsInText') &&
+      foundationFrontendDomBudgetsSource.includes('buildFoundationFrontendDomBudgetDogfoodProof') &&
+      foundationFrontendDomBudgetsScriptSource.includes('VM route proof counts real Current State renderer DOM work') &&
+      foundationFrontendDomBudgetsScriptSource.includes('synthetic heavy render fixture triggers DOM budget risk') &&
+      packageJson.scripts?.['process:foundation-frontend-dom-budget-check'] === `node --env-file-if-exists=.env ${FOUNDATION_FRONTEND_DOM_BUDGET_SCRIPT_PATH}`,
+    'FOUNDATION-FRONTEND-DOM-BUDGET-001 has focused module, VM proof script, and package command',
+    `domStatus=${foundationFrontendDomBudgetSnapshot.status} plan=${foundationFrontendDomBudgetsPlanSource.includes(FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID) ? 'present' : 'missing'}`,
+  )
+  ensure(
+    checks,
+    codeQualityNightlyAuditSource.includes('measureFoundationFrontendDomBudgetFromRepo') &&
+      codeQualityNightlyAuditSource.includes('domBudgetSnapshot') &&
+      codeQualityNightlyAuditSource.includes('FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID'),
+    'FOUNDATION-FRONTEND-DOM-BUDGET-001 feeds nightly code-quality DOM budget findings',
+    `createElement=${foundationFrontendDomBudgetSnapshot.summary?.totalCreateElementCount || 0} appendChild=${foundationFrontendDomBudgetSnapshot.summary?.totalAppendChildCount || 0}`,
   )
   const verifyFailureReporterCard = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFY-FAILURE-REPORTER-001') || null
   const verifyFailureReporterDogfood = buildFoundationVerifyReporterDogfoodProof()
