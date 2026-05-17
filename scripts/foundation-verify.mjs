@@ -345,6 +345,9 @@ import {
   evaluateFoundationVerifierHealthLiveSummary,
 } from '../lib/foundation-verifier-health-live-summary.js'
 import {
+  evaluateFoundationVerifierFollowupBacklogAssurance,
+} from '../lib/foundation-verifier-followup-backlog-assurance.js'
+import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
@@ -2727,6 +2730,7 @@ async function main() {
   const foundationVerifierHistoricalSplitCloseoutsSource = await readRepoFile('lib/foundation-verifier-historical-split-closeouts.js')
   const foundationVerifierBuildLogRegistryAssuranceSource = await readRepoFile('lib/foundation-verifier-build-log-registry-assurance.js')
   const foundationVerifierHealthLiveSummarySource = await readRepoFile('lib/foundation-verifier-health-live-summary.js')
+  const foundationVerifierFollowupBacklogAssuranceSource = await readRepoFile('lib/foundation-verifier-followup-backlog-assurance.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
@@ -4219,6 +4223,7 @@ async function main() {
     foundationVerifierHistoricalSplitCloseoutsSource,
     foundationVerifierBuildLogRegistryAssuranceSource,
     foundationVerifierHealthLiveSummarySource,
+    foundationVerifierFollowupBacklogAssuranceSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -8021,277 +8026,19 @@ async function main() {
       ? `lane=${verifierProcessHardeningSplitModuleCard.lane} dogfood=${processHardeningDogfood.ok ? 'pass' : 'blocked'} processChecks=${processHardeningVerifierChecks.filter(check => check.ok).length}/${processHardeningVerifierChecks.length} lines=${VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterProcessHardeningSplit}`
       : `missing ${VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID}`,
   )
-  const runtimeHealthSimplify = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-HEALTH-SIMPLIFY-001') || null
-  const runtimeHealthSimplifyText = [
-    runtimeHealthSimplify?.title,
-    runtimeHealthSimplify?.summary,
-    runtimeHealthSimplify?.whyItMatters,
-    runtimeHealthSimplify?.nextAction,
-    runtimeHealthSimplify?.statusNote,
-  ].filter(Boolean).join('\n')
-  const runtimeHealthSimplifyParked =
-    runtimeHealthSimplify?.lane === 'scoped' &&
-    runtimeHealthSimplify?.priority === 'P1' &&
-    runtimeHealthSimplifyText.includes('too dense') &&
-    runtimeHealthSimplifyText.includes('plain-English top layer') &&
-    runtimeHealthSimplifyText.includes('collapsed-by-default diagnostic groups') &&
-    runtimeHealthSimplifyText.includes('Parked follow-up, not next') &&
-    currentPlan.includes('`RUNTIME-HEALTH-SIMPLIFY-001`') &&
-    currentState.includes('`RUNTIME-HEALTH-SIMPLIFY-001` is parked')
-  const runtimeHealthSimplifyActiveOrClosed =
-    runtimeHealthSimplify &&
-    ['executing', 'done'].includes(runtimeHealthSimplify.lane) &&
-    runtimeHealthSimplifyText.includes('Runtime Health') &&
-    runtimeHealthSimplifyText.includes('plain-English') &&
-    runtimeHealthSimplifyText.includes('diagnostic') &&
-    currentPlan.includes('`RUNTIME-HEALTH-SIMPLIFY-001`') &&
-    currentState.includes('`RUNTIME-HEALTH-SIMPLIFY-001`')
-  ensure(
-    checks,
-    runtimeHealthSimplifyParked || runtimeHealthSimplifyActiveOrClosed,
-    'Runtime Health simplification card is tracked',
-    runtimeHealthSimplify
-      ? `${runtimeHealthSimplify.lane} / ${runtimeHealthSimplify.priority} / ${runtimeHealthSimplify.title}`
-      : 'missing RUNTIME-HEALTH-SIMPLIFY-001',
-  )
-  const foundationUsersAdmin = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-USERS-001') || null
-  const foundationUsersAdminText = [
-    foundationUsersAdmin?.title,
-    foundationUsersAdmin?.summary,
-    foundationUsersAdmin?.whyItMatters,
-    foundationUsersAdmin?.nextAction,
-    foundationUsersAdmin?.statusNote,
-  ].filter(Boolean).join('\n')
-  ensure(
-    checks,
-    foundationUsersAdmin?.lane === 'scoped' &&
-      foundationUsersAdmin?.priority === 'P1' &&
-      foundationUsersAdminText.includes('owner-only') &&
-      foundationUsersAdminText.includes('without editing `.env`') &&
-      foundationUsersAdminText.includes('disable') &&
-      foundationUsersAdminText.includes('audit') &&
-      foundationUsersAdminText.includes('non-owners cannot manage access') &&
-      foundationUsersAdminText.includes('SECURITY-002') &&
-      currentPlan.includes('FOUNDATION-USERS-001'),
-    'Foundation user/access control panel is parked as scoped P1 follow-up',
-    foundationUsersAdmin
-      ? `${foundationUsersAdmin.lane} / ${foundationUsersAdmin.priority} / ${foundationUsersAdmin.title}`
-      : 'missing FOUNDATION-USERS-001',
-  )
-  const systemProcessControl = (foundationHub.backlogItems || []).find(item => item.id === 'SYSTEM-010') || null
-  const runtimeSupervisor = (foundationHub.backlogItems || []).find(item => item.id === 'RUNTIME-SUPERVISOR-001') || null
-  const runtimeSupervisorText = [
-    systemProcessControl?.nextAction,
-    systemProcessControl?.statusNote,
-    runtimeSupervisor?.nextAction,
-    runtimeSupervisor?.statusNote,
-  ].filter(Boolean).join('\n')
-  ensure(
-    checks,
-    systemProcessControl?.lane === 'scoped' &&
-      systemProcessControl?.priority === 'P0' &&
-      ['scoped', 'done'].includes(runtimeSupervisor?.lane) &&
-      runtimeSupervisor?.priority === 'P0' &&
-      (
-        runtimeSupervisor?.lane === 'done' ||
-        (runtimeSupervisorText.includes('served-code-equals-HEAD') || runtimeSupervisorText.includes('running commit trust'))
-      ) &&
-      (runtimeSupervisor?.lane === 'done' || runtimeSupervisorText.includes('auto-restart-on-push')) &&
-      (currentPlan.includes('Served-code-equals-HEAD check is live') || currentPlan.includes('Runtime Supervisor service supervision')) &&
-      (currentPlan.includes('Add auto-restart-on-push next') || currentPlan.includes('runtime-supervisor-v1')),
-    'SYSTEM-010 owns dashboard served-code/deploy freshness follow-up',
-    `SYSTEM-010=${systemProcessControl?.lane || 'missing'} / RUNTIME-SUPERVISOR-001=${runtimeSupervisor?.lane || 'missing'}`,
-  )
-  const extractRetry = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-RETRY-001') || null
-  const extractRetryText = [
-    extractRetry?.summary,
-    extractRetry?.nextAction,
-    extractRetry?.statusNote,
-  ].filter(Boolean).join('\n')
-  const extractRetryParked =
-    extractRetry?.lane === 'scoped' &&
-    extractRetry?.priority === 'P1' &&
-    extractRetryText.includes('retry/backoff') &&
-    extractRetryText.includes('failed `source_crawl_items`') &&
-    extractRetryText.includes('Partial target runs now exit nonzero') &&
-    extractRetryText.includes('Runtime Health shows failed/skipped item summaries')
-  const extractRetryActiveOrClosed =
-    ['executing', 'done'].includes(extractRetry?.lane) &&
-    extractRetry?.priority === 'P1' &&
-    extractRetryText.includes('extract-retry-v1') &&
-    (
-      extractRetryText.includes('retry support honest') ||
-      extractRetryText.includes('retry support is now honest') ||
-      extractRetryText.includes('failed-item retry support honest')
-    )
-  ensure(
-    checks,
-    extractRetryParked || extractRetryActiveOrClosed,
-    'failed-item retry/backoff is parked or actively closed through live backlog truth',
-    extractRetry
-      ? `${extractRetry.lane} / ${extractRetry.priority} / ${extractRetry.title}`
-      : 'missing EXTRACT-RETRY-001',
-  )
-  const extractControl = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-CONTROL-001') || null
-  const extractSchedule = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-SCHEDULE-001') || null
-  const extractMetrics = (foundationHub.backlogItems || []).find(item => item.id === 'EXTRACT-METRICS-001') || null
-  const extractControlText = [
-    extractControl?.nextAction,
-    extractControl?.statusNote,
-  ].filter(Boolean).join('\n')
-  const extractScheduleText = [
-    extractSchedule?.nextAction,
-    extractSchedule?.statusNote,
-  ].filter(Boolean).join('\n')
-  const extractMetricsText = [
-    extractMetrics?.title,
-    extractMetrics?.summary,
-    extractMetrics?.nextAction,
-    extractMetrics?.statusNote,
-  ].filter(Boolean).join('\n')
-  ensure(
-    checks,
-      extractControl?.lane === 'done' &&
-      extractControl?.priority === 'P0' &&
-      extractControlText.includes('coverage-by-target') &&
-      extractControlText.includes('Foundation-job schedule truth') &&
-      extractControlText.includes('EXTRACT-RETRY-001') &&
-      extractControlText.includes('foundation:verify') &&
-      extractSchedule?.lane === 'done' &&
-      extractSchedule?.priority === 'P1' &&
-      extractScheduleText.includes('crawlCheckpointNextRunAt') &&
-      extractScheduleText.includes('job_target_schedule_mismatch') &&
-      currentPlan.includes('crawlCheckpointNextRunAt') &&
-      currentState.includes('EXTRACT-CONTROL-001 v1 is closed'),
-    'extraction schedule truth and control-plane v1 are closed',
-    `EXTRACT-CONTROL-001=${extractControl?.lane || 'missing'} / EXTRACT-SCHEDULE-001=${extractSchedule?.lane || 'missing'}`,
-  )
-  ensure(
-    checks,
-    extractMetrics?.lane === 'done' &&
-      extractMetrics?.priority === 'P1' &&
-      extractMetricsText.includes('coverage-by-target') &&
-      extractMetricsText.includes('Runtime Health') &&
-      extractMetricsText.includes('Missive current-day') &&
-      extractMetricsText.includes('missive_conversation') &&
-      extractMetricsText.includes('foundation:verify') &&
-      extractControlText.includes('Closed on 2026-04-28') &&
-      currentState.includes('`EXTRACT-METRICS-001` is done for v1') &&
-      currentPlan.includes('docs/audits/2026-04-28-extraction-lane-item-shape.md'),
-    'EXTRACT-METRICS-001 closes the coverage-by-target slice with Missive ledger proof',
-    extractMetrics
-      ? `${extractMetrics.lane} / ${extractMetrics.priority} / ${extractMetrics.title}`
-      : 'missing EXTRACT-METRICS-001',
-  )
-  const strategyLayerCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'FOUNDATION-001') || null
-  const strategyInputCloseout = (foundationHub.backlogItems || []).find(item => item.id === 'SOURCE-014') || null
-  ensure(
-    checks,
-    strategyLayerCloseout?.lane === 'done' && strategyInputCloseout?.lane === 'done',
-    'strategy input package closeout cards match signed-off source reality',
-    `FOUNDATION-001=${strategyLayerCloseout?.lane || 'missing'} / SOURCE-014=${strategyInputCloseout?.lane || 'missing'}`,
-  )
-  const sourceLifecycleContent = (foundationHub.backlogItems || []).find(item => item.id === 'MKT-004') || null
-  const systemStrategyReview = (foundationHub.backlogItems || []).find(item => item.id === 'SYSTEM-STRATEGY-REVIEW-001') || null
-  const strategyMeetingReady = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGY-HUB-MEETING-READY-001') || null
-  const strategicIntel = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGIC-INTEL-001') || null
-  const intelScoper = (foundationHub.backlogItems || []).find(item => item.id === 'INTEL-SCOPER-001') || null
-  const intelThreadContext = (foundationHub.backlogItems || []).find(item => item.id === 'INTEL-THREAD-CONTEXT-001') || null
-  const strategyQuarter = (foundationHub.backlogItems || []).find(item => item.id === 'STRATEGY-QUARTER-001') || null
-  const modelRouting = (foundationHub.backlogItems || []).find(item => item.id === 'MODEL-ROUTING-001') || null
-  const agentFactory = (foundationHub.backlogItems || []).find(item => item.id === 'AGENT-005') || null
-  const backlogItemText = item => [
-    item?.title,
-    item?.summary,
-    item?.whyItMatters,
-    item?.nextAction,
-    item?.statusNote,
-  ].filter(Boolean).join('\n')
-  const systemStrategyReviewText = backlogItemText(systemStrategyReview)
-  const strategyMeetingReadyText = backlogItemText(strategyMeetingReady)
-  const strategicIntelText = backlogItemText(strategicIntel)
-  const intelScoperText = backlogItemText(intelScoper)
-  const intelThreadContextText = backlogItemText(intelThreadContext)
-  const strategyQuarterText = backlogItemText(strategyQuarter)
-  const modelRoutingText = backlogItemText(modelRouting)
-  const agentFactoryText = backlogItemText(agentFactory)
-  ensure(
-    checks,
-      systemStrategyReview?.lane === 'done' &&
-      systemStrategyReviewText.includes('function-vs-form testing') &&
-      systemStrategyReviewText.includes('memory-versus-repo-truth discipline') &&
-      systemStrategyReviewText.includes('docs/handoffs/2026-04-28-foundation-hard-checkpoint.md') &&
-      strategyMeetingReady?.lane === 'done' &&
-      strategyMeetingReady?.priority === 'P1' &&
-      strategyMeetingReadyText.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY) &&
-      strategyMeetingReadyText.includes('meeting packet') &&
-      strategyMeetingReadyText.includes('source-backed') &&
-      strategyMeetingReadyText.includes('AVATAR-IMPORT-001') &&
-      strategicIntel?.lane === 'scoped' &&
-      strategicIntel?.priority === 'P0' &&
-      strategicIntelText.includes('intelligence_strategic_issues') &&
-      strategicIntelText.includes('docs/specs/2026-04-28-strategic-intelligence-loop.md') &&
-      strategicIntelText.includes('urgency, impact, confidence, and staleness') &&
-      strategicIntelText.includes('resolution feedback') &&
-      strategicIntelText.includes('blocks `INTEL-SCOPER-001`') &&
-      strategicIntelText.includes('>= 5 strategic issues surfaced/week') &&
-      strategicIntelText.includes('>= 2 resolved-to-applied/week') &&
-      intelScoper?.lane === 'scoped' &&
-      intelScoper?.priority === 'P0' &&
-      intelScoperText.includes('gap analysis') &&
-      intelScoperText.includes('Depends on STRATEGIC-INTEL-001') &&
-      intelScoperText.includes('"Scope this"') &&
-      intelScoperText.includes('already_answered') &&
-      intelScoperText.includes('verified / partial / remaining-gaps sections') &&
-      intelScoperText.includes('Every verified claim must cite') &&
-      intelScoperText.includes('minimal Agent Spec') &&
-      intelThreadContext?.lane === 'scoped' &&
-      intelThreadContext?.priority === 'P1' &&
-      intelThreadContextText.includes('reply count') &&
-      intelThreadContextText.includes('one-message thread') &&
-      intelThreadContextText.includes('cross-source corroboration') &&
-      strategyQuarter?.lane === 'scoped' &&
-      strategyQuarter?.priority === 'P1' &&
-      strategyQuarterText.includes('PostgreSQL-backed canonical records') &&
-      strategyQuarterText.includes('Strategy Hub owner/admin forms') &&
-      strategyQuarterText.includes('strategy-quarter fact types') &&
-      strategyQuarterText.includes('quarter context/input layer') &&
-      modelRouting?.lane === 'scoped' &&
-      modelRouting?.priority === 'P1' &&
-      modelRoutingText.includes('docs/rebuild/current-runtime-map.md') &&
-      !modelRoutingText.includes('likely in') &&
-      modelRoutingText.includes('subscriptions are for humans') &&
-      modelRoutingText.includes('official APIs and governed adapters') &&
-      agentFactoryText.includes('STRATEGY-QUARTER-001 has been used in production for at least two weekly ownership cycles'),
-    'AIOS Strategic Intelligence next-leg cards are pinned with UX, schema, Scoper, quarter-context, model-routing, and agent deferral gates',
-    [
-      `review=${systemStrategyReview?.lane || 'missing'}`,
-      `meeting=${strategyMeetingReady?.lane || 'missing'}`,
-      `intel=${strategicIntel?.lane || 'missing'}`,
-      `scoper=${intelScoper?.lane || 'missing'}`,
-      `thread=${intelThreadContext?.lane || 'missing'}`,
-      `quarter=${strategyQuarter?.lane || 'missing'}`,
-      `model=${modelRouting?.lane || 'missing'}`,
-      `agent=${agentFactory?.lane || 'missing'}`,
-    ].join(' / '),
-  )
-  ensure(
-    checks,
-    sourceLifecycleContent?.team === 'marketing' &&
-      sourceLifecycleContent?.lane === 'research' &&
-      /connect, verify, understand, extract, synthesize, route\/action/.test(sourceLifecycleContent?.summary || ''),
-    'marketing backlog captures Source Intelligence Lifecycle content idea',
-    sourceLifecycleContent ? `${sourceLifecycleContent.lane} / ${sourceLifecycleContent.title}` : 'missing',
-  )
-  const doneGuardrails = ['DATA-018', 'DATA-019', 'DATA-020'].map(id => (foundationHub.backlogItems || []).find(item => item.id === id))
-  ensure(
-    checks,
-    doneGuardrails.every(item => item?.lane === 'done') &&
-      !includesAll(foundationFrontendSource, ['DATA-018, DATA-019']) &&
-      includesAll(currentState, ['DATA-018', 'DATA-019', 'DATA-020']),
-    'current-state source closeout rows match done Owners/FUB guardrails',
-    doneGuardrails.map(item => `${item?.id || 'missing'}=${item?.lane || 'missing'}`).join(' / '),
-  )
+  const followupBacklogAssuranceVerifier = await evaluateFoundationVerifierFollowupBacklogAssurance({
+    currentPlan,
+    currentState,
+    foundationBuildCloseouts,
+    foundationFrontendSource,
+    foundationHub,
+    foundationVerifierFollowupBacklogAssuranceSource,
+    foundationVerifySource,
+    packageJson,
+    repoFileExists,
+    strategyHubMeetingReadyCloseoutKey: STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
+  })
+  checks.push(...followupBacklogAssuranceVerifier.checks)
 
   const failed = checks.filter(check => !check.ok)
   const timingProfile = profileEnabled ? buildFoundationVerifyTimingProfile(verifyStartedAt) : null

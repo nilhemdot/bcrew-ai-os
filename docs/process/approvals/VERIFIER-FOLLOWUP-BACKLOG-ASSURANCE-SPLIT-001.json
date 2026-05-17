@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-FOLLOWUP-BACKLOG-ASSURANCE-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T07:50:20Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for follow-up backlog assurance verifier extraction covering runtime-health simplification, access-control admin work, dashboard deploy freshness, extraction retry/control/schedule/metrics closeouts, strategy input closeouts, strategic-intelligence next-leg cards, marketing source lifecycle capture, and Owners/FUB source closeout guardrails into lib/foundation-verifier-followup-backlog-assurance.js. Not approved: arbitrary tail extraction, behavior rewrites, runtime reliability, process hardening, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-followup-backlog-assurance-split-001-plan.md",
+  "approvedPlanSha256": "ad292233566024879cbaca3dccfcc3ffe863dc370261d81fbe2fd7053bf2c6fa",
+  "approvedRepoHead": "5a7206e165909047a489e8be1401d6f803a703d4",
+  "approvalDigest": "a4051ce72f45db4c77a51a8c0eb377595fcedf7e6b62c443c2a0fab3379eb7e7"
+}
