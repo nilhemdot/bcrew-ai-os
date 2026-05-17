@@ -156,6 +156,7 @@ async function main() {
   addCheck(
     checks,
     moduleSource.includes('evaluateFoundationSurfaceTrustVerifier') &&
+      moduleSource.includes('evaluateFoundationSurfaceTrustVerifierOrchestration') &&
       moduleSource.includes('buildFoundationSurfaceTrustVerifierDogfoodProof') &&
       moduleSource.includes('validateVerifierExceptionLedger') &&
       moduleSource.includes('findMissingArtifactClaims') &&
@@ -165,9 +166,10 @@ async function main() {
   )
   addCheck(
     checks,
-    foundationVerifySource.includes('evaluateFoundationSurfaceTrustVerifier({') &&
-      foundationVerifySource.includes('surfaceTrustVerifier.checks') &&
-      foundationVerifySource.includes('buildFoundationSurfaceTrustVerifierDogfoodProof') &&
+    (foundationVerifySource.includes('evaluateFoundationSurfaceTrustVerifier({') ||
+      foundationVerifySource.includes('evaluateFoundationSurfaceTrustVerifierOrchestration({')) &&
+      (foundationVerifySource.includes('surfaceTrustVerifier.checks') ||
+        foundationVerifySource.includes('surfaceTrustOrchestrationVerifier.checks')) &&
       oldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)),
     'root verifier delegates surface/trust checks',
     'root imports the module, pushes module checks, and no longer owns the old inline ensure blocks',

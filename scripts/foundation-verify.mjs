@@ -457,18 +457,14 @@ import {
   EXTRACT_RETRY_SCRIPT_PATH,
 } from '../lib/extract-retry.js'
 import {
-  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_APPROVAL_PATH,
-  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
-  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY,
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_PLAN_PATH,
   VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SCRIPT_PATH,
-  VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SPRINT_ID,
+  VERIFIER_SURFACE_TRUST_ORCHESTRATION_SPLIT_CARD_ID,
   apiRouteExists,
   backlogCardText,
   buildCloseoutText,
-  buildFoundationSurfaceTrustVerifierDogfoodProof,
-  evaluateFoundationSurfaceTrustVerifier,
+  evaluateFoundationSurfaceTrustVerifierOrchestration,
   extractClaimedApiRoutesFromText,
   extractClaimedFilesFromText,
   extractClaimedNpmScriptsFromText,
@@ -2236,6 +2232,7 @@ async function main() {
     VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
     VERIFIER_EXTRACTION_RUNTIME_ORCHESTRATION_SPLIT_CARD_ID,
     VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
+    VERIFIER_SURFACE_TRUST_ORCHESTRATION_SPLIT_CARD_ID,
     VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_CARD_ID,
     VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
     VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
@@ -4017,6 +4014,7 @@ async function main() {
     foundationExtractionRuntimeVerifierSource,
     crawlRunLedgerSource,
     foundationCoreGovernanceVerifierSource,
+    foundationSurfaceTrustVerifierSource,
     dbConstraintSource,
     sourceIdConstraintContractSource,
     foundationIntelligenceSpineVerifierSource,
@@ -4071,7 +4069,8 @@ async function main() {
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
   const workerRunningShortCommit = String(runtimeWorkerCode.runningShortCommit || workerRunningCommit.slice(0, 7) || 'missing')
   const foundationSurfaceMap = getFoundationSurfaceMap()
-  const surfaceTrustVerifier = await evaluateFoundationSurfaceTrustVerifier({
+  const surfaceTrustOrchestrationVerifier = await evaluateFoundationSurfaceTrustVerifierOrchestration({
+    activeFoundationSprint: activeFoundationSprintForExtractionRuntime,
     repoRoot,
     foundationHub,
     currentRepoHead,
@@ -4112,66 +4111,18 @@ async function main() {
     foundationSurfaceMap,
     foundationHtmlSource,
     sourceContractsLength: sourceContracts.length,
+    currentPlan,
+    currentState,
+    foundationSurfaceTrustVerifierSource,
+    foundationVerifyRootSource: foundationVerifySource,
+    verifierSurfaceTrustSplitModuleScriptSource,
+    verifierSurfaceTrustSplitModulePlanSource,
+    packageJson,
+    repoFileExists,
   })
-  checks.push(...surfaceTrustVerifier.checks)
-  const surfaceTrustDogfood = await buildFoundationSurfaceTrustVerifierDogfoodProof()
-  ensure(
-    checks,
-    surfaceTrustDogfood.ok === true &&
-      surfaceTrustDogfood.rejected.staleException.ok === false &&
-      surfaceTrustDogfood.rejected.missingDoneCoverage.ok === false &&
-      surfaceTrustDogfood.rejected.missingArtifact.ok === false &&
-      surfaceTrustDogfood.rejected.staleServedCode.ok === false &&
-      surfaceTrustDogfood.rejected.missingSurfaceMap.ok === false,
-    'surface/trust verifier dogfood rejects stale trust and missing proof failures',
-    surfaceTrustDogfood.dogfoodInvariant,
-  )
-  const verifierExceptionValidation = surfaceTrustVerifier.details.verifierExceptionValidation
-  const missingArtifactClaims = surfaceTrustVerifier.details.missingArtifactClaims
-  const verifierSurfaceTrustSplitModuleCard =
-    verifierSplitBacklogItemById.get(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID) ||
-    (activeFoundationSprintForExtractionRuntime.items || [])
-      .map(item => item.backlog)
-      .find(item => item?.id === VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID) ||
-    null
-  const verifierSurfaceTrustSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const verifierSurfaceTrustSplitModuleClosed = verifierSurfaceTrustSplitModuleCard?.lane === 'done'
-  const foundationVerifyLineCountAfterSurfaceTrustSplit = String(foundationVerifySource || '').split('\n').length
-  const surfaceTrustOldInlinePatterns = [
-    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1400}'api/foundation-hub returns the expected core arrays'"),
-    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1400}'api/foundation-hub exposes the Foundation surface freshness sweep'"),
-  ]
-  ensure(
-    checks,
-    verifierSurfaceTrustSplitModuleCard &&
-      ['executing', 'done'].includes(verifierSurfaceTrustSplitModuleCard.lane) &&
-      (!verifierSurfaceTrustSplitModuleClosed || (
-        String(verifierSurfaceTrustSplitModuleCard.statusNote || '').includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
-        verifierSurfaceTrustSplitModuleCloseout?.operatorCloseout === true &&
-        (verifierSurfaceTrustSplitModuleCloseout.backlogIds || []).includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-verifier-surface-trust-split-module-closeout.md')
-      )) &&
-      surfaceTrustDogfood.ok === true &&
-      surfaceTrustVerifier.summary.passed === surfaceTrustVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-surface-trust-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_APPROVAL_PATH) &&
-      foundationSurfaceTrustVerifierSource.includes('evaluateFoundationSurfaceTrustVerifier') &&
-      foundationSurfaceTrustVerifierSource.includes('buildFoundationSurfaceTrustVerifierDogfoodProof') &&
-      verifierSurfaceTrustSplitModuleScriptSource.includes('dogfood rejects stale surface/trust verifier failures') &&
-      verifierSurfaceTrustSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
-      foundationVerifySource.includes('evaluateFoundationSurfaceTrustVerifier({') &&
-      foundationVerifySource.includes('surfaceTrustVerifier.checks') &&
-      surfaceTrustOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
-      currentPlan.includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      currentState.includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      (activeFoundationSprintForExtractionRuntime.sprint?.sprintId === VERIFIER_SURFACE_TRUST_SPLIT_MODULE_SPRINT_ID || verifierSurfaceTrustSplitModuleClosed) &&
-      foundationSurfaceTrustVerifierSource.includes(VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID),
-    'VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001 extracts surface/trust verifier checks into a focused module',
-    verifierSurfaceTrustSplitModuleCard
-      ? `lane=${verifierSurfaceTrustSplitModuleCard.lane} dogfood=${surfaceTrustDogfood.ok ? 'pass' : 'blocked'} surfaceChecks=${surfaceTrustVerifier.summary.passed}/${surfaceTrustVerifier.summary.total} lines=${VERIFIER_SURFACE_TRUST_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterSurfaceTrustSplit}`
-      : `missing ${VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID}`,
-  )
+  checks.push(...surfaceTrustOrchestrationVerifier.checks)
+  const verifierExceptionValidation = surfaceTrustOrchestrationVerifier.surfaceTrustVerifier.details.verifierExceptionValidation
+  const missingArtifactClaims = surfaceTrustOrchestrationVerifier.surfaceTrustVerifier.details.missingArtifactClaims
   const inventoryPluginNames = (systemInventory.plugins || []).map(plugin => plugin.title)
   const requiredPluginNames = ['Browser Use', 'Canva', 'Documents', 'GitHub', 'Gmail', 'Google Calendar', 'Google Drive', 'Presentations', 'Spreadsheets']
   const phaseCVisibilityCardIds = [
