@@ -185,6 +185,7 @@
     "process:verifier-agent-feedback-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-agent-feedback-split-module-check.mjs",
     "process:verifier-recent-builds-closeout-split-check": "node --env-file-if-exists=.env scripts/process-verifier-recent-builds-closeout-split-check.mjs",
     "process:verifier-plan-reviews-split-check": "node --env-file-if-exists=.env scripts/process-verifier-plan-reviews-split-check.mjs",
+    "process:verifier-process-governance-split-check": "node --env-file-if-exists=.env scripts/process-verifier-process-governance-split-check.mjs",
     "process:verifier-runtime-reliability-split-check": "node --env-file-if-exists=.env scripts/process-verifier-runtime-reliability-split-check.mjs",
     "process:verifier-health-script-module-check": "node --env-file-if-exists=.env scripts/process-verifier-health-script-module-check.mjs",
     "process:fub-source-route-split-check": "node --env-file-if-exists=.env scripts/process-fub-source-route-split-check.mjs",
