@@ -138,6 +138,8 @@ async function main() {
     'dogfood rejects architecture-risk plans and passes compliant plan',
     JSON.stringify({
       largeFileNoSplit: dogfood.largeFileNoSplit?.status,
+      verifierLargeFileNoSplit: dogfood.verifierLargeFileNoSplit?.status,
+      verifierThinWrapper: dogfood.verifierThinWrapper?.status,
       checkWriteNoApply: dogfood.checkWriteNoApply?.status,
       verifierLiveState: dogfood.verifierLiveState?.status,
       auditFixNoDogfood: dogfood.auditFixNoDogfood?.status,
@@ -213,6 +215,8 @@ async function main() {
     dogfood: {
       ok: dogfood.ok,
       largeFileNoSplit: dogfood.largeFileNoSplit?.status,
+      verifierLargeFileNoSplit: dogfood.verifierLargeFileNoSplit?.status,
+      verifierThinWrapper: dogfood.verifierThinWrapper?.status,
       checkWriteNoApply: dogfood.checkWriteNoApply?.status,
       verifierLiveState: dogfood.verifierLiveState?.status,
       auditFixNoDogfood: dogfood.auditFixNoDogfood?.status,

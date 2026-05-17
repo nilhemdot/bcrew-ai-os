@@ -155,7 +155,7 @@ async function main() {
   const scripts = packageJson.scripts || {}
   const repoHead = await getRepoHead()
   const foundationHub = await fetchJson(baseUrl, '/api/foundation-hub')
-  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=60')
+  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=500')
 
   ensure(checks, Boolean(card), 'backlog card exists', card ? `${card.id} / ${card.lane}` : 'missing card')
   ensure(checks, card?.lane === 'done', 'target card is done', card ? card.lane : 'missing card')
