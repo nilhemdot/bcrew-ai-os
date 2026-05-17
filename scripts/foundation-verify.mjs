@@ -325,6 +325,17 @@ import {
   evaluateFoundationVerifierBackendSplitAssurance,
 } from '../lib/foundation-verifier-backend-split-assurance.js'
 import {
+  VERIFIER_FRONTEND_SPLIT_ASSURANCE_APPROVAL_PATH,
+  VERIFIER_FRONTEND_SPLIT_ASSURANCE_BEFORE_LINES,
+  VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID,
+  VERIFIER_FRONTEND_SPLIT_ASSURANCE_CLOSEOUT_KEY,
+  VERIFIER_FRONTEND_SPLIT_ASSURANCE_HANDOFF_PATH,
+  VERIFIER_FRONTEND_SPLIT_ASSURANCE_PLAN_PATH,
+  VERIFIER_FRONTEND_SPLIT_ASSURANCE_SCRIPT_PATH,
+  buildFoundationVerifierFrontendSplitAssuranceDogfoodProof,
+  evaluateFoundationVerifierFrontendSplitAssurance,
+} from '../lib/foundation-verifier-frontend-split-assurance.js'
+import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
@@ -2792,6 +2803,7 @@ async function main() {
   const foundationVerifierControlLoopSource = await readRepoFile('lib/foundation-verifier-control-loop.js')
   const foundationVerifierModuleAssuranceSource = await readRepoFile('lib/foundation-verifier-module-assurance.js')
   const foundationVerifierBackendSplitAssuranceSource = await readRepoFile('lib/foundation-verifier-backend-split-assurance.js')
+  const foundationVerifierFrontendSplitAssuranceSource = await readRepoFile('lib/foundation-verifier-frontend-split-assurance.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
@@ -2801,7 +2813,7 @@ async function main() {
   const foundationAgentFeedbackVerifierSource = await readRepoFile('lib/foundation-agent-feedback-verifier.js')
   const verifierAgentFeedbackSplitModuleScriptSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_SCRIPT_PATH)
   const verifierAgentFeedbackSplitModulePlanSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_PLAN_PATH)
-  const foundationVerifySourceWithProcessHardeningModule = `${foundationVerifySource}\n${foundationVerifierProcessGovernanceSource}\n${foundationVerifierReadinessFollowupSource}\n${foundationVerifierGuardrailCloseoutsSource}\n${foundationVerifierControlLoopSource}\n${foundationVerifierModuleAssuranceSource}\n${foundationVerifierBackendSplitAssuranceSource}\n${foundationProcessHardeningVerifierSource}`
+  const foundationVerifySourceWithProcessHardeningModule = `${foundationVerifySource}\n${foundationVerifierProcessGovernanceSource}\n${foundationVerifierReadinessFollowupSource}\n${foundationVerifierGuardrailCloseoutsSource}\n${foundationVerifierControlLoopSource}\n${foundationVerifierModuleAssuranceSource}\n${foundationVerifierBackendSplitAssuranceSource}\n${foundationVerifierFrontendSplitAssuranceSource}\n${foundationProcessHardeningVerifierSource}`
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -4276,6 +4288,7 @@ async function main() {
     foundationVerifierControlLoopSource,
     foundationVerifierModuleAssuranceSource,
     foundationVerifierBackendSplitAssuranceSource,
+    foundationVerifierFrontendSplitAssuranceSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -10075,124 +10088,87 @@ async function main() {
       ? `lane=${nightlyDeepAuditP0TriageCard.lane} closeout=${nightlyDeepAuditP0TriageCloseout?.key || 'missing'}`
       : 'missing NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001',
   )
-  const stylesheetMonolithSplitCard = (foundationHub.backlogItems || []).find(item => item.id === STYLESHEET_MONOLITH_SPLIT_CARD_ID) || null
-  const stylesheetMonolithSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === STYLESHEET_MONOLITH_SPLIT_CLOSEOUT_KEY) || null
-  const stylesheetMonolithSplitDogfood = buildStylesheetMonolithSplitDogfoodProof()
-  const stylesheetMonolithEvaluation = evaluateStylesheetMonolithSplit({ rootSource: foundationStylesRootSource, moduleSources: foundationStylesModuleSources, htmlSources: { 'public/foundation.html': foundationHtmlSource, 'public/login.html': loginHtmlSource, 'public/ops.html': opsHtmlSource, 'public/sales.html': salesHtmlSource, 'public/agent-feedback.html': agentFeedbackHtmlSource, 'public/strategic-execution.html': strategicExecutionHtmlSource } })
-  const stylesheetMonolithSprintActive = activeFoundationSprint.sprint?.sprintId === STYLESHEET_MONOLITH_SPLIT_SPRINT_ID &&
-    (activeFoundationSprint.items || []).some(item => item.cardId === STYLESHEET_MONOLITH_SPLIT_CARD_ID && ['building_now', 'done_this_sprint'].includes(item.stage))
-  const stylesheetMonolithClosed = stylesheetMonolithSplitCard?.lane === 'done' &&
-    String(stylesheetMonolithSplitCard.statusNote || '').includes(STYLESHEET_MONOLITH_SPLIT_CLOSEOUT_KEY) &&
-    stylesheetMonolithSplitCloseout?.operatorCloseout === true &&
-    (stylesheetMonolithSplitCloseout.backlogIds || []).includes(STYLESHEET_MONOLITH_SPLIT_CARD_ID)
-  ensure(
-    checks,
-      stylesheetMonolithSplitCard &&
-      (stylesheetMonolithSprintActive || stylesheetMonolithClosed) &&
-      stylesheetMonolithSplitDogfood.ok === true &&
-      stylesheetMonolithEvaluation.ok === true &&
-      packageJson.scripts?.['process:stylesheet-monolith-split-check'] === `node --env-file-if-exists=.env ${STYLESHEET_MONOLITH_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(STYLESHEET_MONOLITH_SPLIT_PLAN_PATH) &&
-      await repoFileExists(STYLESHEET_MONOLITH_SPLIT_APPROVAL_PATH) &&
-      STYLESHEET_MODULE_PATHS.every(modulePath => foundationStylesRootSource.includes(modulePath.replace('public/', './'))) &&
-      (activeFoundationSprint.sprint?.sprintId === STYLESHEET_MONOLITH_SPLIT_SPRINT_ID || activeSprintAtOrPast([STYLESHEET_MONOLITH_SPLIT_CARD_ID])),
-    'STYLESHEET-MONOLITH-SPLIT-001 splits public/styles.css into ordered CSS modules',
-    stylesheetMonolithSplitCard
-      ? `lane=${stylesheetMonolithSplitCard.lane} dogfood=${stylesheetMonolithSplitDogfood.ok ? 'pass' : 'blocked'} rootLines=${stylesheetMonolithEvaluation.rootLines} modules=${stylesheetMonolithEvaluation.moduleLineCounts.map(item => `${item.path}:${item.lines}`).join(',')}`
-      : `missing ${STYLESHEET_MONOLITH_SPLIT_CARD_ID}`,
-  )
-  const frontendSplitVerifierCoveredCardIds = [
-    'FRONTEND-MONOLITH-SPLIT-001',
-    'FRONTEND-OPERATIONS-RENDERERS-SPLIT-001',
-    'FRONTEND-RUNTIME-RENDERERS-SPLIT-001',
-    'FRONTEND-SOURCE-LIFECYCLE-RENDERERS-SPLIT-001',
-    'FRONTEND-SOURCE-REGISTRY-RENDERERS-SPLIT-001',
-    'FRONTEND-FUB-LEAD-SOURCE-RENDERERS-SPLIT-001',
-    'FRONTEND-SYSTEM-INVENTORY-RENDERERS-SPLIT-001',
-    'FRONTEND-CURRENT-STATE-RENDERERS-SPLIT-001',
-    'FRONTEND-DECISION-QUESTION-RENDERERS-SPLIT-001',
-  ]
-  const frontendSplitVerifierInput = {
-    foundationHub,
-    foundationBuildCloseouts,
-    packageJson,
-    currentPlan,
-    currentState,
+  const verifierFrontendSplitAssurance = await evaluateFoundationVerifierFrontendSplitAssurance({
     activeFoundationSprint,
     activeSprintAtOrPast,
-    foundationVerifySource,
-    foundationHtmlSource,
-    foundationUiSource,
-    foundationNavConfigSource,
+    agentFeedbackHtmlSource,
+    currentPlan,
+    currentState,
+    foundationBuildCloseouts,
+    foundationCurrentStateRenderersSource,
     foundationDataSource,
-    foundationRouterSource,
+    foundationDecisionQuestionRenderersSource,
+    foundationFubLeadSourceRenderersSource,
+    foundationHtmlSource,
+    foundationHub,
+    foundationNavConfigSource,
     foundationOperationsRenderersSource,
+    foundationRouterSource,
     foundationRuntimeRenderersSource,
     foundationSourceLifecycleRenderersSource,
     foundationSourceRegistryRenderersSource,
-    foundationFubLeadSourceRenderersSource,
+    foundationStylesModuleSources,
+    foundationStylesRootSource,
     foundationSystemInventoryRenderersSource,
-    foundationCurrentStateRenderersSource,
-    foundationDecisionQuestionRenderersSource,
-    frontendMonolithSplitScriptSource,
-    frontendMonolithSplitPlanSource,
-    frontendOperationsRenderersSplitScriptSource,
-    frontendOperationsRenderersSplitPlanSource,
-    frontendRuntimeRenderersSplitScriptSource,
-    frontendRuntimeRenderersSplitPlanSource,
-    frontendSourceLifecycleRenderersSplitScriptSource,
-    frontendSourceLifecycleRenderersSplitPlanSource,
-    frontendSourceRegistryRenderersSplitScriptSource,
-    frontendSourceRegistryRenderersSplitPlanSource,
-    frontendFubLeadSourceRenderersSplitScriptSource,
-    frontendFubLeadSourceRenderersSplitPlanSource,
-    frontendSystemInventoryRenderersSplitScriptSource,
-    frontendSystemInventoryRenderersSplitPlanSource,
-    frontendCurrentStateRenderersSplitScriptSource,
+    foundationUiSource,
+    foundationVerifySource,
     frontendCurrentStateRenderersSplitPlanSource,
-    frontendDecisionQuestionRenderersSplitScriptSource,
+    frontendCurrentStateRenderersSplitScriptSource,
     frontendDecisionQuestionRenderersSplitPlanSource,
+    frontendDecisionQuestionRenderersSplitScriptSource,
+    frontendFubLeadSourceRenderersSplitPlanSource,
+    frontendFubLeadSourceRenderersSplitScriptSource,
+    frontendMonolithSplitPlanSource,
+    frontendMonolithSplitScriptSource,
+    frontendOperationsRenderersSplitPlanSource,
+    frontendOperationsRenderersSplitScriptSource,
+    frontendRuntimeRenderersSplitPlanSource,
+    frontendRuntimeRenderersSplitScriptSource,
+    frontendSourceLifecycleRenderersSplitPlanSource,
+    frontendSourceLifecycleRenderersSplitScriptSource,
+    frontendSourceRegistryRenderersSplitPlanSource,
+    frontendSourceRegistryRenderersSplitScriptSource,
+    frontendSystemInventoryRenderersSplitPlanSource,
+    frontendSystemInventoryRenderersSplitScriptSource,
+    foundationFrontendSplitVerifierSource,
+    loginHtmlSource,
+    moduleSource: foundationVerifierFrontendSplitAssuranceSource,
+    opsHtmlSource,
+    packageJson,
     repoFileExists,
-  }
-  const frontendSplitVerifier = await evaluateFoundationFrontendSplitVerifier(frontendSplitVerifierInput)
-  for (const check of frontendSplitVerifier.checks) {
-    ensure(checks, check.ok, check.check, check.detail)
-  }
-  const verifierFrontendSplitModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_FRONTEND_SPLIT_MODULE_CARD_ID) || null
-  const verifierFrontendSplitModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_FRONTEND_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const verifierFrontendSplitModuleDogfood = await buildFoundationFrontendSplitVerifierDogfoodProof(frontendSplitVerifierInput)
-  const foundationVerifyLineCountAfterFrontendVerifierSplit = String(foundationVerifySource || '').split('\n').length
+    salesHtmlSource,
+    strategicExecutionHtmlSource,
+    verifierFrontendSplitModulePlanSource,
+    verifierFrontendSplitModuleScriptSource,
+  })
+  checks.push(...verifierFrontendSplitAssurance.checks)
+  const verifierFrontendSplitAssuranceCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID) || null
+  const verifierFrontendSplitAssuranceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_FRONTEND_SPLIT_ASSURANCE_CLOSEOUT_KEY) || null
+  const verifierFrontendSplitAssuranceDogfood = buildFoundationVerifierFrontendSplitAssuranceDogfoodProof()
+  const foundationVerifyLineCountAfterFrontendSplitAssurance = String(foundationVerifySource || '').split('\n').length
+  const oldFrontendSplitAssuranceInlineMarker = 'const stylesheet' + 'MonolithSplitCard ='
   ensure(
     checks,
-      verifierFrontendSplitModuleCard &&
-      ['executing', 'done'].includes(verifierFrontendSplitModuleCard.lane) &&
-      String(verifierFrontendSplitModuleCard.statusNote || '').includes(VERIFIER_FRONTEND_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      verifierFrontendSplitModuleCloseout?.operatorCloseout === true &&
-      (verifierFrontendSplitModuleCloseout.backlogIds || []).includes(VERIFIER_FRONTEND_SPLIT_MODULE_CARD_ID) &&
-      verifierFrontendSplitModuleDogfood.ok === true &&
-      frontendSplitVerifier.summary.passed === frontendSplitVerifier.summary.total &&
-      frontendSplitVerifierCoveredCardIds.length === 9 &&
-      packageJson.scripts?.['process:verifier-frontend-split-checks-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_FRONTEND_SPLIT_MODULE_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/2026-05-15-verifier-frontend-split-checks-module-closeout.md') &&
-      foundationFrontendSplitVerifierSource.includes('evaluateFoundationFrontendSplitVerifier') &&
-      foundationFrontendSplitVerifierSource.includes('buildFoundationFrontendSplitVerifierDogfoodProof') &&
-      verifierFrontendSplitModuleScriptSource.includes('dogfood rejects old frontend split verifier failures') &&
-      verifierFrontendSplitModulePlanSource.includes('Substring-only proof is rejected') &&
-      foundationVerifySource.includes('evaluateFoundationFrontendSplitVerifier(frontendSplitVerifierInput)') &&
-      !foundationVerifySource.includes('const frontendCurrentState' + 'RenderersSplitCard =') &&
-      !foundationVerifySource.includes('const frontendDecisionQuestion' + 'RenderersSplitCard =') &&
-      String(verifierFrontendSplitModuleCloseout.proofStatus || '').includes('drops from 15,644') &&
-      currentPlan.includes(VERIFIER_FRONTEND_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      currentState.includes(VERIFIER_FRONTEND_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === VERIFIER_FRONTEND_SPLIT_MODULE_SPRINT_ID ||
-        activeSprintAtOrPast([VERIFIER_FRONTEND_SPLIT_MODULE_CARD_ID])) &&
-      foundationVerifySource.includes(VERIFIER_FRONTEND_SPLIT_MODULE_CARD_ID),
-    'VERIFIER-FRONTEND-SPLIT-CHECKS-MODULE-001 extracts frontend split verifier checks into a focused module',
-    verifierFrontendSplitModuleCard
-      ? `lane=${verifierFrontendSplitModuleCard.lane} dogfood=${verifierFrontendSplitModuleDogfood.ok ? 'pass' : 'blocked'} frontendSplitChecks=${frontendSplitVerifier.summary.passed}/${frontendSplitVerifier.summary.total} lines=${VERIFIER_FRONTEND_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterFrontendVerifierSplit}`
-      : `missing ${VERIFIER_FRONTEND_SPLIT_MODULE_CARD_ID}`,
+    verifierFrontendSplitAssuranceCard &&
+      ['executing', 'done'].includes(verifierFrontendSplitAssuranceCard.lane) &&
+      String(verifierFrontendSplitAssuranceCard.statusNote || '').includes(VERIFIER_FRONTEND_SPLIT_ASSURANCE_CLOSEOUT_KEY) &&
+      verifierFrontendSplitAssuranceCloseout?.operatorCloseout === true &&
+      (verifierFrontendSplitAssuranceCloseout.backlogIds || []).includes(VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID) &&
+      verifierFrontendSplitAssuranceDogfood.ok === true &&
+      verifierFrontendSplitAssurance.summary.passed === verifierFrontendSplitAssurance.summary.total &&
+      packageJson.scripts?.['process:verifier-frontend-split-assurance-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_FRONTEND_SPLIT_ASSURANCE_SCRIPT_PATH &&
+      await repoFileExists(VERIFIER_FRONTEND_SPLIT_ASSURANCE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_FRONTEND_SPLIT_ASSURANCE_APPROVAL_PATH) &&
+      await repoFileExists(VERIFIER_FRONTEND_SPLIT_ASSURANCE_HANDOFF_PATH) &&
+      foundationVerifySource.includes('evaluateFoundationVerifierFrontendSplitAssurance({') &&
+      foundationVerifySource.includes('verifierFrontendSplitAssurance.checks') &&
+      !foundationVerifySource.includes(oldFrontendSplitAssuranceInlineMarker) &&
+      foundationVerifyLineCountAfterFrontendSplitAssurance < VERIFIER_FRONTEND_SPLIT_ASSURANCE_BEFORE_LINES &&
+      foundationVerifierFrontendSplitAssuranceSource.includes(VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID),
+    'VERIFIER-FRONTEND-SPLIT-ASSURANCE-001 extracts frontend structural split assurance into a focused module',
+    verifierFrontendSplitAssuranceCard
+      ? 'lane=' + verifierFrontendSplitAssuranceCard.lane + ' dogfood=' + (verifierFrontendSplitAssuranceDogfood.ok ? 'pass' : 'blocked') + ' frontendSplitChecks=' + verifierFrontendSplitAssurance.summary.passed + '/' + verifierFrontendSplitAssurance.summary.total + ' lines=' + VERIFIER_FRONTEND_SPLIT_ASSURANCE_BEFORE_LINES + '->' + foundationVerifyLineCountAfterFrontendSplitAssurance
+      : 'missing ' + VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID,
   )
   const verifierRecentBuildsSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID) || null
   const verifierRecentBuildsSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY) || null
