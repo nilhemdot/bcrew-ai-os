@@ -117,6 +117,7 @@
     "process:foundation-lazy-surface-loading-check": "node --env-file-if-exists=.env scripts/process-foundation-lazy-surface-loading-check.mjs",
     "process:foundation-backlog-done-archive-lazy-load-check": "node --env-file-if-exists=.env scripts/process-foundation-backlog-done-archive-lazy-load-check.mjs",
     "process:extraction-runtime-readiness-check": "node --env-file-if-exists=.env scripts/process-extraction-runtime-readiness-check.mjs",
+    "process:extractor-queue-karpathy-kb-video-pack-check": "node --env-file-if-exists=.env scripts/process-extractor-queue-karpathy-kb-video-pack-check.mjs",
     "process:gcal-atom-schedule-check": "node --env-file-if-exists=.env scripts/process-gcal-atom-schedule-check.mjs",
     "process:doc-artifact-bloat-guard-check": "node --env-file-if-exists=.env scripts/process-doc-artifact-bloat-guard-check.mjs",
     "process:process-wip-protocol-check": "node --env-file-if-exists=.env scripts/process-wip-protocol-check.mjs",

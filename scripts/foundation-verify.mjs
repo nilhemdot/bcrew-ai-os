@@ -419,6 +419,11 @@ import {
   EXTRACTION_RUNTIME_READINESS_PLAN_PATH,
   EXTRACTION_RUNTIME_READINESS_SCRIPT_PATH,
 } from '../lib/extraction-runtime-readiness.js'
+import {
+  EXTRACTOR_QUEUE_KARPATHY_KB_VIDEO_PACK_CLOSEOUT_PATH,
+  EXTRACTOR_QUEUE_KARPATHY_KB_VIDEO_PACK_PLAN_PATH,
+  EXTRACTOR_QUEUE_KARPATHY_KB_VIDEO_PACK_SCRIPT_PATH,
+} from '../lib/extractor-queue-karpathy-kb-video-pack.js'
 import { CRAWL_RUN_LEDGER_SCRIPT_PATH } from '../lib/crawl-run-ledger.js'
 import {
   EXTRACT_RETIRE_PLAN_PATH,
@@ -2075,9 +2080,14 @@ async function main() {
   const verifierIntelligenceSpineSplitModulePlanSource = await readRepoFile(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_PLAN_PATH)
   const foundationExtractionRuntimeVerifierSource = await readRepoFile('lib/foundation-extraction-runtime-verifier.js')
   const extractionRuntimeReadinessSource = await readRepoFile('lib/extraction-runtime-readiness.js')
+  const buildIntelWatchlistSource = await readRepoFile('lib/build-intel-watchlist.js')
   const extractionRuntimeReadinessCheckSource = await readRepoFile(EXTRACTION_RUNTIME_READINESS_SCRIPT_PATH, { optional: true })
   const extractionRuntimeReadinessPlanSource = await readRepoFile(EXTRACTION_RUNTIME_READINESS_PLAN_PATH, { optional: true })
   const extractionRuntimeReadinessCloseoutSource = await readRepoFile(EXTRACTION_RUNTIME_READINESS_CLOSEOUT_PATH, { optional: true })
+  const karpathyKbVideoPackSource = await readRepoFile('lib/extractor-queue-karpathy-kb-video-pack.js', { optional: true })
+  const karpathyKbVideoPackCheckSource = await readRepoFile(EXTRACTOR_QUEUE_KARPATHY_KB_VIDEO_PACK_SCRIPT_PATH, { optional: true })
+  const karpathyKbVideoPackPlanSource = await readRepoFile(EXTRACTOR_QUEUE_KARPATHY_KB_VIDEO_PACK_PLAN_PATH, { optional: true })
+  const karpathyKbVideoPackCloseoutSource = await readRepoFile(EXTRACTOR_QUEUE_KARPATHY_KB_VIDEO_PACK_CLOSEOUT_PATH, { optional: true })
   const verifierExtractionRuntimeSplitModuleScriptSource = await readRepoFile(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SCRIPT_PATH)
   const verifierExtractionRuntimeSplitModulePlanSource = await readRepoFile(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_PLAN_PATH)
   const crawlRunLedgerSource = await readRepoFile('lib/crawl-run-ledger.js')
@@ -2866,6 +2876,12 @@ async function main() {
     extractionRuntimeReadinessCheckSource,
     extractionRuntimeReadinessPlanSource,
     extractionRuntimeReadinessCloseoutSource,
+    karpathyKbVideoPackSource,
+    karpathyKbVideoPackCheckSource,
+    karpathyKbVideoPackPlanSource,
+    karpathyKbVideoPackCloseoutSource,
+    buildIntelWatchlistSource,
+    verifierCoverageSource: foundationVerifySource,
     extractionRuntimeReadinessApi: foundationExtractionRuntimeReadinessApi,
     extractionControlSnapshot: foundationHub.extractionControl || {},
     extractionTargets,
@@ -3047,6 +3063,7 @@ async function main() {
     'SOURCE-CONTRACT-VALIDATION-LAYER-001',
     'FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001',
     'EXTRACTION-RUNTIME-READINESS-001',
+    'EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001',
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||

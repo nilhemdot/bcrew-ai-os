@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001",
+  "approvedBy": "Steve explicit queue approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T21:40:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the four-card Foundation queue and clarified extractor-related cards are queue/spec/preflight only unless separately approved for a no-auth/no-paid run.",
+  "approvedPlanRef": "docs/process/extractor-queue-karpathy-kb-video-pack-001-plan.md",
+  "approvedPlanSha256": "965c1159d1c29d86046c8b58cb79b851c0a403af50376c72dce5a877a8d79430",
+  "approvedRepoHead": "e7393017c2d4dd244fb7195a7c5a2cba58ae478b",
+  "notes": "Approved only to seed the Karpathy KB video pack as pending-approval queue truth. Not approved: live extraction, transcript fetch, screenshot capture, crawl, summarization, paid/auth extraction, OAuth, connector auth, Harlan, Fal, voice, Canva, OpenHuman, broad UI redesign, Drive permission mutation, Agent Feedback auto-send, atom promotion, Research Inbox write, or backlog mutation from extracted content.",
+  "approvalDigest": "f3ac6b652e7fa6c781f105c368f0205419ca7180208103fef072fda4eec1154f"
+}

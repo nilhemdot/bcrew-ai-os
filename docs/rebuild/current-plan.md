@@ -495,7 +495,7 @@ Source Truth Guardrails is also complete under `atom-flow-auto-demotion-v1`, `ex
 
 Build Intel Intake Foundation is complete under `build-intel-intake-foundation-v1`:
 
-1. `CREATOR-WATCHLIST-001` — normalized 23 Build Intel sources and 4 later marketing-content sources into `lib/build-intel-watchlist.js` and `/api/foundation/build-intel-watchlist` without starting extraction.
+1. `CREATOR-WATCHLIST-001` — normalized 24 Build Intel sources and 4 later marketing-content sources into `lib/build-intel-watchlist.js` and `/api/foundation/build-intel-watchlist` without starting extraction.
 2. `MULTIMODAL-EXTRACTOR-001` — defined the governed extractor contract for public YouTube, authorized paid/private sources, evidence levels, route/cost provenance, screenshot/keyframe policy, and auto-backlog-mutation rejection.
 3. `RESEARCH-INBOX-001` — defined the proposal-only Research Inbox gate so Build Scoper/extraction findings return proposals for Steve+Codex approval before backlog mutation.
 

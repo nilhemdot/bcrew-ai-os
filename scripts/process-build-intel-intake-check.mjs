@@ -140,7 +140,7 @@ async function main() {
     const byName = new Set(watchlist.entries.map(entry => entry.displayName))
     const allValid = watchlist.entries.every(entry => validateCreatorWatchlistEntry(entry).ok)
     addFinding(findings, watchlist.status === 'ready', 'creator watchlist status is ready', watchlist.status)
-    addFinding(findings, watchlist.summary.buildIntelCount === 23, 'creator watchlist has 23 Build Intel entries', String(watchlist.summary.buildIntelCount))
+    addFinding(findings, watchlist.summary.buildIntelCount === 24, 'creator watchlist has 24 Build Intel entries', String(watchlist.summary.buildIntelCount))
     addFinding(findings, watchlist.summary.marketingContentLaterCount === 4, 'creator watchlist has 4 marketing-content-later entries', String(watchlist.summary.marketingContentLaterCount))
     addFinding(findings, allValid, 'creator watchlist entries validate')
     addFinding(findings, byName.has('Mark Kashef') && byName.has('ICOR with Tom | AI Productivity') && byName.has('Nick Saraev') && byName.has('Alex Finn'), 'priority Build Intel names are present')
