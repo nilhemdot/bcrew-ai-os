@@ -354,15 +354,11 @@ import {
   evaluateFoundationVerifierOperatorLiveSurfaceAssurance,
 } from '../lib/foundation-verifier-operator-live-surface-assurance.js'
 import {
-  VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
-  VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
-  VERIFIER_RUNTIME_RELIABILITY_SPLIT_CLOSEOUT_KEY,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_SCRIPT_PATH,
-  VERIFIER_RUNTIME_RELIABILITY_SPLIT_SPRINT_ID,
-  buildFoundationRuntimeReliabilityVerifierDogfoodProof,
-  evaluateFoundationRuntimeReliabilityVerifier,
+  VERIFIER_RUNTIME_RELIABILITY_ORCHESTRATION_SPLIT_CARD_ID,
+  evaluateFoundationRuntimeReliabilityVerifierOrchestration,
 } from '../lib/foundation-runtime-reliability-verifier.js'
 import {
   VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
@@ -3746,6 +3742,7 @@ async function main() {
   const knownLaterFoundationProgressionBlockers = [
     DB_SEED_CARD_ID,
     VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
+    VERIFIER_RUNTIME_RELIABILITY_ORCHESTRATION_SPLIT_CARD_ID,
     FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID,
     VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
     STYLESHEET_MONOLITH_SPLIT_CARD_ID,
@@ -3814,7 +3811,6 @@ async function main() {
   const foundationOperatingReliabilityCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_OPERATING_RELIABILITY_CLOSEOUT_KEY) || null
   const planCriticArchitecturalRulesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === PLAN_CRITIC_ARCHITECTURAL_RULES_CLOSEOUT_KEY) || null
   const foundationPerformanceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_PERFORMANCE_CLOSEOUT_KEY) || null
-  const verifierRuntimeReliabilitySplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_RUNTIME_RELIABILITY_SPLIT_CLOSEOUT_KEY) || null
   const foundationBuildCloseoutRegistrySplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CLOSEOUT_KEY) || null
   const foundationBuildLogMonolithSliceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY) || null
   const foundationVerificationCleanupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY) || null
@@ -4013,6 +4009,7 @@ async function main() {
     crawlRunLedgerSource,
     foundationCoreGovernanceVerifierSource,
     foundationSurfaceTrustVerifierSource,
+    foundationRuntimeReliabilityVerifierSource,
     dbConstraintSource,
     sourceIdConstraintContractSource,
     foundationIntelligenceSpineVerifierSource,
@@ -6080,7 +6077,9 @@ async function main() {
     sprintGateProgressionVerifier,
   })
   checks.push(...historicalSplitCloseoutsVerifier.checks)
-  const runtimeReliabilityVerifier = await evaluateFoundationRuntimeReliabilityVerifier({
+  const runtimeReliabilityOrchestrationVerifier = await evaluateFoundationRuntimeReliabilityVerifierOrchestration({
+    activeFoundationSprint,
+    activeSprintAtOrPast,
     foundationHub,
     foundationHubFull,
     foundationHubSummary,
@@ -6089,6 +6088,10 @@ async function main() {
     packageJson,
     repoFileExists,
     foundationVerifySource,
+    foundationVerifyRootSource: foundationVerifySource,
+    foundationRuntimeReliabilityVerifierSource,
+    verifierRuntimeReliabilitySplitScriptSource,
+    verifierRuntimeReliabilitySplitPlanSource,
     sources: {
       sourceOutageBoundarySource,
       sourceOutageBoundaryScriptSource,
@@ -6140,39 +6143,9 @@ async function main() {
       runExtractionTargetSource: extractionTargetSource,
     },
   })
-  checks.push(...runtimeReliabilityVerifier.checks)
-  const planCriticArchitecturalRulesProof = runtimeReliabilityVerifier.artifacts.planCriticArchitecturalRulesProof
-  const verifierRuntimeReliabilitySplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID) || null
-  const verifierRuntimeReliabilitySplitDogfood = await buildFoundationRuntimeReliabilityVerifierDogfoodProof()
-  const foundationVerifyLineCountAfterRuntimeReliabilitySplit = String(foundationVerifySource || '').split('\n').length
-  ensure(
-    checks,
-      verifierRuntimeReliabilitySplitCard &&
-      ['executing', 'done'].includes(verifierRuntimeReliabilitySplitCard.lane) &&
-      String(verifierRuntimeReliabilitySplitCard.statusNote || '').includes(VERIFIER_RUNTIME_RELIABILITY_SPLIT_CLOSEOUT_KEY) &&
-      verifierRuntimeReliabilitySplitCloseout?.operatorCloseout === true &&
-      (verifierRuntimeReliabilitySplitCloseout.backlogIds || []).includes(VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID) &&
-      verifierRuntimeReliabilitySplitDogfood.ok === true &&
-      runtimeReliabilityVerifier.summary.passed === runtimeReliabilityVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-runtime-reliability-split-check'] === `node --env-file-if-exists=.env ${VERIFIER_RUNTIME_RELIABILITY_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/2026-05-15-verifier-runtime-reliability-split-closeout.md') &&
-      foundationRuntimeReliabilityVerifierSource.includes('evaluateFoundationRuntimeReliabilityVerifier') &&
-      foundationRuntimeReliabilityVerifierSource.includes('RUNTIME_RELIABILITY_VERIFIER_CHECK_DEFINITIONS') &&
-      verifierRuntimeReliabilitySplitScriptSource.includes('dogfood rejects old runtime reliability verifier failures') &&
-      verifierRuntimeReliabilitySplitPlanSource.includes('Substring-only proof is rejected') &&
-      foundationVerifySource.includes('evaluateFoundationRuntimeReliabilityVerifier({') &&
-      !foundationVerifySource.includes('SOURCE-OUTAGE-BOUNDARY-001 keeps Foundation/Ops ' + 'serving during ClickUp read outages') &&
-      foundationVerifyLineCountAfterRuntimeReliabilitySplit < VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES &&
-      (activeFoundationSprint.sprint?.sprintId === VERIFIER_RUNTIME_RELIABILITY_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID),
-    'VERIFIER-RUNTIME-RELIABILITY-SPLIT-001 extracts runtime reliability verifier checks into a focused module',
-    verifierRuntimeReliabilitySplitCard
-      ? `lane=${verifierRuntimeReliabilitySplitCard.lane} dogfood=${verifierRuntimeReliabilitySplitDogfood.ok ? 'pass' : 'blocked'} reliabilityChecks=${runtimeReliabilityVerifier.summary.passed}/${runtimeReliabilityVerifier.summary.total} lines=${VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES}->${foundationVerifyLineCountAfterRuntimeReliabilitySplit}`
-      : `missing ${VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID}`,
-  )
+  checks.push(...runtimeReliabilityOrchestrationVerifier.checks)
+  const runtimeReliabilityVerifier = runtimeReliabilityOrchestrationVerifier.runtimeReliabilityVerifier
+  const planCriticArchitecturalRulesProof = runtimeReliabilityOrchestrationVerifier.planCriticArchitecturalRulesProof
   const buildLogRegistryAssuranceVerifier = await evaluateFoundationVerifierBuildLogRegistryAssurance({
     activeFoundationSprint,
     activeSprintAtOrPast,

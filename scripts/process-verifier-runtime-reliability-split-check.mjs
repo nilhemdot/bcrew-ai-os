@@ -106,9 +106,9 @@ async function main() {
   addCheck(checks, approvalValidation.ok && Number(approvalValidation.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH)
   addCheck(checks, planCriticRuns.some(run => run.cardId === VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID && run.status === 'pass' && Number(run.score) >= 9.8), 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  addCheck(checks, activeSprint.sprint?.sprintId === VERIFIER_RUNTIME_RELIABILITY_SPLIT_SPRINT_ID, 'Current Sprint is the verifier runtime reliability split sprint', activeSprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
-  addCheck(checks, moduleSource.includes('evaluateFoundationRuntimeReliabilityVerifier') && moduleSource.includes('RUNTIME_RELIABILITY_VERIFIER_CHECK_DEFINITIONS'), 'new module owns runtime reliability verifier definitions', 'lib/foundation-runtime-reliability-verifier.js')
+  addCheck(checks, activeSprint.sprint?.sprintId === VERIFIER_RUNTIME_RELIABILITY_SPLIT_SPRINT_ID || card?.lane === 'done', 'Current Sprint is the verifier runtime reliability split sprint or card is historically done', activeSprint.sprint?.sprintId || 'missing')
+  addCheck(checks, (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)) || card?.lane === 'done', 'Current Sprint contains the card in Building Now or card is historically done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : card?.lane || 'missing')
+  addCheck(checks, moduleSource.includes('evaluateFoundationRuntimeReliabilityVerifier') && moduleSource.includes('evaluateFoundationRuntimeReliabilityVerifierOrchestration') && moduleSource.includes('RUNTIME_RELIABILITY_VERIFIER_CHECK_DEFINITIONS'), 'new module owns runtime reliability verifier definitions', 'lib/foundation-runtime-reliability-verifier.js')
   addCheck(checks, dogfood.ok === true, 'dogfood rejects old runtime reliability verifier failures', JSON.stringify({
     healthy: dogfood.healthy?.ok,
     missingSourceOutageRejected: dogfood.missingSourceOutageRejected,
@@ -118,7 +118,15 @@ async function main() {
     missingShipPreflightRejected: dogfood.missingShipPreflightRejected,
     missingClickUpSlowBudgetRejected: dogfood.missingClickUpSlowBudgetRejected,
   }))
-  addCheck(checks, verifierSource.includes('evaluateFoundationRuntimeReliabilityVerifier({') && verifierSource.includes('runtimeReliabilityVerifier.checks'), 'foundation verifier delegates runtime reliability checks to focused module', 'evaluateFoundationRuntimeReliabilityVerifier')
+  addCheck(
+    checks,
+    (verifierSource.includes('evaluateFoundationRuntimeReliabilityVerifier({') ||
+      verifierSource.includes('evaluateFoundationRuntimeReliabilityVerifierOrchestration({')) &&
+      (verifierSource.includes('runtimeReliabilityVerifier.checks') ||
+        verifierSource.includes('runtimeReliabilityOrchestrationVerifier.checks')),
+    'foundation verifier delegates runtime reliability checks to focused module',
+    'evaluateFoundationRuntimeReliabilityVerifier or evaluateFoundationRuntimeReliabilityVerifierOrchestration',
+  )
   addCheck(checks, !verifierSource.includes('SOURCE-OUTAGE-BOUNDARY-001 keeps Foundation/Ops ' + 'serving during ClickUp read outages'), 'foundation verifier no longer owns old inline runtime reliability labels', 'old source outage label absent from root verifier')
   addCheck(checks, verifierLines < VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES} -> ${verifierLines}`)
   addCheck(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only', 'no write/mutation tokens in proof script')

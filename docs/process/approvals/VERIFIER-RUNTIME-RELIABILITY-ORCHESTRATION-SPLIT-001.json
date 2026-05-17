@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-RUNTIME-RELIABILITY-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T10:02:04Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for runtime-reliability orchestration extraction covering the existing runtime-reliability evaluator call, check aggregation, historical split self-check, dogfood proof, returned Plan Critic architectural proof artifact, and wrapper-compatible focused proof inside lib/foundation-runtime-reliability-verifier.js. Not approved: arbitrary tail extraction, behavior rewrites, connector auth, source extraction job implementation, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-runtime-reliability-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "0e83ef903cf3801ab5ba648232e0420f3c23b3664a07db7c3ecbbde0405cd6c8",
+  "approvedRepoHead": "f591df2352dc4976ba867fdaedfe370a7ec57402",
+  "approvalDigest": "c42c4d3e3da1657cc9efe440a8639d312bd82309b60e93748078142cd5754dd1"
+}
