@@ -1,3 +1,13 @@
+function formatCurrentStateDate(value) {
+  return typeof formatDate === 'function' ? formatDate(value) : new Date(value).toLocaleString()
+}
+
+function slugifyCurrentState(value) {
+  return typeof slugify === 'function'
+    ? slugify(value)
+    : String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+}
+
 function renderFoundationSequenceCard(step, index) {
   var article = document.createElement('article')
   article.className = 'foundation-sequence-card'
@@ -401,14 +411,14 @@ function renderCurrentStateSurfaceTable(rows) {
   var wrap = document.createElement('div')
   wrap.className = 'md-table-wrap'
   var focusId = getSectionFocus()
-  var focusSlug = focusId ? slugify(focusId) : ''
+  var focusSlug = focusId ? slugifyCurrentState(focusId) : ''
   var claimedFocusIds = new Set()
 
   function rowMatchesFocus(row) {
     if (!focusId) return false
     var identifiers = [
       row.title,
-      'current-state-surface-' + slugify(row.title || ''),
+      'current-state-surface-' + slugifyCurrentState(row.title || ''),
     ]
     if (Array.isArray(row.sourceId)) {
       identifiers = identifiers.concat(row.sourceId)
@@ -421,7 +431,7 @@ function renderCurrentStateSurfaceTable(rows) {
     })
     return identifiers.some(function(identifier) {
       var value = String(identifier || '')
-      return value === focusId || slugify(value) === focusSlug
+      return value === focusId || slugifyCurrentState(value) === focusSlug
     })
   }
 
@@ -458,7 +468,7 @@ function renderCurrentStateSurfaceTable(rows) {
     var shouldOpen = hasParts && rowMatchesFocus(row)
     var summaryRow = document.createElement('tr')
     summaryRow.className = 'current-state-master-row' + (hasParts ? ' current-state-master-row-expandable' : '')
-    summaryRow.id = 'current-state-surface-' + slugify(row.title || '')
+    summaryRow.id = 'current-state-surface-' + slugifyCurrentState(row.title || '')
 
     var detailRow = null
 
@@ -1057,7 +1067,7 @@ function renderCurrentState() {
 
     var heroMeta = document.createElement('p')
     heroMeta.className = 'hero-copy'
-    heroMeta.textContent = 'Updated ' + formatDate(doc.meta.updatedAt)
+    heroMeta.textContent = 'Updated ' + formatCurrentStateDate(doc.meta.updatedAt)
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)

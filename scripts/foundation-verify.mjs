@@ -1929,7 +1929,7 @@ async function main() {
   const frontendDecisionQuestionRenderersSplitPlanSource = await readRepoFile(FRONTEND_DECISION_QUESTION_RENDERERS_SPLIT_PLAN_PATH)
   const foundationFrontendSource = [
     foundationNavConfigSource,
-    foundationDataSource,
+    foundationDataSource, await readRepoFile('public/foundation-doc-markdown-renderers.js'),
     foundationUiSource,
     foundationSourceRegistryRenderersSource,
     foundationFubLeadSourceRenderersSource,
@@ -1938,7 +1938,7 @@ async function main() {
     foundationDecisionQuestionRenderersSource,
     foundationSourceLifecycleRenderersSource,
     foundationRuntimeRenderersSource,
-    foundationOperationsRenderersSource,
+    foundationOperationsRenderersSource, await readRepoFile('public/foundation-home-renderers.js'), await readRepoFile('public/foundation-strategy-renderers.js'),
     foundationRouterSource,
   ].join('\n')
   const foundationStylesRootSource = await readRepoFile('public/styles.css')
@@ -2785,7 +2785,7 @@ async function main() {
   const staleLlmCalls = await getStaleLlmCalls({ olderThanSeconds: 240, graceSeconds: 60, limit: 10 })
   ensure(
     checks,
-    [foundationUiSource, docUiSource].every(source =>
+    [foundationFrontendSource, docUiSource].every(source =>
       source.includes('isSafeDirectHref') &&
       source.includes("return isSafeDirectHref(href) ? href.trim() : '#'") &&
       source.includes("rel = 'noopener noreferrer'")

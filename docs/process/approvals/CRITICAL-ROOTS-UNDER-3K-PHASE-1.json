@@ -1,0 +1,13 @@
+{
+  "cardId": "CRITICAL-ROOTS-UNDER-3K-PHASE-1",
+  "score": 10,
+  "approvedBy": "Steve explicit CRITICAL-ROOTS completion approval + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T16:10:00.000-04:00",
+  "approvalSource": "Steve instructed Codex to finish the current CRITICAL-ROOTS under-3K sprint, run focused proof, full foundation ship gate, closeout, commit, and push, then pause before the next sprint.",
+  "notes": "Approved only for the Foundation critical-root under-3K phase-1 split and its process proof/closeout artifacts. Not approved: Harlan, Fal, voice, Canva feature work, hub feature work, connector auth, Agent Feedback live auto-send, DB schema changes, route behavior changes, or Steve local mockup assets.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/critical-roots-under-3k-phase-1-plan.md",
+  "approvedPlanSha256": "480b0669f259800333678252d09845541a18f7e51b676a3c8396596c57bd6782",
+  "approvedRepoHead": "958309cf13549f07faea8322eaa0b16187651060",
+  "approvalDigest": "b9f8c88419faa754a6cb743a908fd3d2841c09ef1670514d488d44fca3d3461c"
+}
