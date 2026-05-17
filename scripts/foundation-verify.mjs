@@ -393,6 +393,9 @@ import {
   evaluateFoundationVerifierStructuralAssuranceCore,
 } from '../lib/foundation-verifier-structural-assurance-core.js'
 import {
+  evaluateFoundationVerifierFrontendStructuralAssurance,
+} from '../lib/foundation-verifier-frontend-structural-assurance.js'
+import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
@@ -2817,6 +2820,7 @@ async function main() {
   const foundationVerifierSourceOnceOverProgressionSource = await readRepoFile('lib/foundation-verifier-source-once-over-progression.js')
   const foundationVerifierProcessControlGovernanceSource = await readRepoFile('lib/foundation-verifier-process-control-governance.js')
   const foundationVerifierStructuralAssuranceCoreSource = await readRepoFile('lib/foundation-verifier-structural-assurance-core.js')
+  const foundationVerifierFrontendStructuralAssuranceSource = await readRepoFile('lib/foundation-verifier-frontend-structural-assurance.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
@@ -4308,6 +4312,7 @@ async function main() {
     foundationVerifierSourceOnceOverProgressionSource,
     foundationVerifierProcessControlGovernanceSource,
     foundationVerifierStructuralAssuranceCoreSource,
+    foundationVerifierFrontendStructuralAssuranceSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -7736,16 +7741,26 @@ async function main() {
       ? `lane=${nightlyDeepAuditP0TriageCard.lane} closeout=${nightlyDeepAuditP0TriageCloseout?.key || 'missing'}`
       : 'missing NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001',
   )
-  const verifierFrontendSplitAssurance = await evaluateFoundationVerifierFrontendSplitAssurance({
+  const frontendStructuralAssuranceVerifier = await evaluateFoundationVerifierFrontendStructuralAssurance({
+    VERIFIER_FRONTEND_SPLIT_ASSURANCE_APPROVAL_PATH,
+    VERIFIER_FRONTEND_SPLIT_ASSURANCE_BEFORE_LINES,
+    VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID,
+    VERIFIER_FRONTEND_SPLIT_ASSURANCE_CLOSEOUT_KEY,
+    VERIFIER_FRONTEND_SPLIT_ASSURANCE_HANDOFF_PATH,
+    VERIFIER_FRONTEND_SPLIT_ASSURANCE_PLAN_PATH,
+    VERIFIER_FRONTEND_SPLIT_ASSURANCE_SCRIPT_PATH,
     activeFoundationSprint,
     activeSprintAtOrPast,
     agentFeedbackHtmlSource,
+    buildFoundationVerifierFrontendSplitAssuranceDogfoodProof,
     currentPlan,
     currentState,
+    evaluateFoundationVerifierFrontendSplitAssurance,
     foundationBuildCloseouts,
     foundationCurrentStateRenderersSource,
     foundationDataSource,
     foundationDecisionQuestionRenderersSource,
+    foundationFrontendSplitVerifierSource,
     foundationFubLeadSourceRenderersSource,
     foundationHtmlSource,
     foundationHub,
@@ -7759,6 +7774,8 @@ async function main() {
     foundationStylesRootSource,
     foundationSystemInventoryRenderersSource,
     foundationUiSource,
+    foundationVerifierFrontendSplitAssuranceSource,
+    foundationVerifierFrontendStructuralAssuranceSource,
     foundationVerifySource,
     frontendCurrentStateRenderersSplitPlanSource,
     frontendCurrentStateRenderersSplitScriptSource,
@@ -7778,9 +7795,7 @@ async function main() {
     frontendSourceRegistryRenderersSplitScriptSource,
     frontendSystemInventoryRenderersSplitPlanSource,
     frontendSystemInventoryRenderersSplitScriptSource,
-    foundationFrontendSplitVerifierSource,
     loginHtmlSource,
-    moduleSource: foundationVerifierFrontendSplitAssuranceSource,
     opsHtmlSource,
     packageJson,
     repoFileExists,
@@ -7789,35 +7804,7 @@ async function main() {
     verifierFrontendSplitModulePlanSource,
     verifierFrontendSplitModuleScriptSource,
   })
-  checks.push(...verifierFrontendSplitAssurance.checks)
-  const verifierFrontendSplitAssuranceCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID) || null
-  const verifierFrontendSplitAssuranceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_FRONTEND_SPLIT_ASSURANCE_CLOSEOUT_KEY) || null
-  const verifierFrontendSplitAssuranceDogfood = buildFoundationVerifierFrontendSplitAssuranceDogfoodProof()
-  const foundationVerifyLineCountAfterFrontendSplitAssurance = String(foundationVerifySource || '').split('\n').length
-  const oldFrontendSplitAssuranceInlineMarker = 'const stylesheet' + 'MonolithSplitCard ='
-  ensure(
-    checks,
-    verifierFrontendSplitAssuranceCard &&
-      ['executing', 'done'].includes(verifierFrontendSplitAssuranceCard.lane) &&
-      String(verifierFrontendSplitAssuranceCard.statusNote || '').includes(VERIFIER_FRONTEND_SPLIT_ASSURANCE_CLOSEOUT_KEY) &&
-      verifierFrontendSplitAssuranceCloseout?.operatorCloseout === true &&
-      (verifierFrontendSplitAssuranceCloseout.backlogIds || []).includes(VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID) &&
-      verifierFrontendSplitAssuranceDogfood.ok === true &&
-      verifierFrontendSplitAssurance.summary.passed === verifierFrontendSplitAssurance.summary.total &&
-      packageJson.scripts?.['process:verifier-frontend-split-assurance-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_FRONTEND_SPLIT_ASSURANCE_SCRIPT_PATH &&
-      await repoFileExists(VERIFIER_FRONTEND_SPLIT_ASSURANCE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_FRONTEND_SPLIT_ASSURANCE_APPROVAL_PATH) &&
-      await repoFileExists(VERIFIER_FRONTEND_SPLIT_ASSURANCE_HANDOFF_PATH) &&
-      foundationVerifySource.includes('evaluateFoundationVerifierFrontendSplitAssurance({') &&
-      foundationVerifySource.includes('verifierFrontendSplitAssurance.checks') &&
-      !foundationVerifySource.includes(oldFrontendSplitAssuranceInlineMarker) &&
-      foundationVerifyLineCountAfterFrontendSplitAssurance < VERIFIER_FRONTEND_SPLIT_ASSURANCE_BEFORE_LINES &&
-      foundationVerifierFrontendSplitAssuranceSource.includes(VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID),
-    'VERIFIER-FRONTEND-SPLIT-ASSURANCE-001 extracts frontend structural split assurance into a focused module',
-    verifierFrontendSplitAssuranceCard
-      ? 'lane=' + verifierFrontendSplitAssuranceCard.lane + ' dogfood=' + (verifierFrontendSplitAssuranceDogfood.ok ? 'pass' : 'blocked') + ' frontendSplitChecks=' + verifierFrontendSplitAssurance.summary.passed + '/' + verifierFrontendSplitAssurance.summary.total + ' lines=' + VERIFIER_FRONTEND_SPLIT_ASSURANCE_BEFORE_LINES + '->' + foundationVerifyLineCountAfterFrontendSplitAssurance
-      : 'missing ' + VERIFIER_FRONTEND_SPLIT_ASSURANCE_CARD_ID,
-  )
+  checks.push(...frontendStructuralAssuranceVerifier.checks)
   const verifierPhaseGOperatorCloseoutCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CARD_ID) || null
   const verifierPhaseGOperatorCloseoutCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CLOSEOUT_KEY) || null
   const verifierPhaseGOperatorCloseoutDogfood = buildFoundationVerifierPhaseGOperatorCloseoutDogfoodProof()
