@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-CONTROL-LOOP-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T04:16:55Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for the Foundation control-loop verifier split: Foundation done-test, SYSTEM-010 runtime/process-control, known-cleaned backlog hygiene cards, Action Review apply/review, Build Intel intake, and control-compression checks move to lib/foundation-verifier-control-loop.js. Not approved: arbitrary tail extraction, behavior changes, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, or Harlan runtime work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-control-loop-split-001-plan.md",
+  "approvedPlanSha256": "a59c450502944344666a6ccff119ec2226e84ea88a7d01351c8e8922da4a71a7",
+  "approvedRepoHead": "983a42c872d571e7b9ccfcfb05ecf0cd7f84b582",
+  "approvalDigest": "84d370a17371bb113d1927b04dbe5d0473afe3ebec0ff9c9c54ede19ba75e56d"
+}
