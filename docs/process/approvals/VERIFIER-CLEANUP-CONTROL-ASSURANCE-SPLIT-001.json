@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-CLEANUP-CONTROL-ASSURANCE-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T08:01:41Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for cleanup/control assurance verifier extraction covering cleanup wave closeouts, Phase E re-audit closeout, local-private doc boundary proof, document categorization cleanup, hard-checkpoint backlog promotion, phase-one enforcement proof, gate reliability proof, and Foundation control-layer closeout checks into lib/foundation-verifier-cleanup-control-assurance.js. Not approved: arbitrary tail extraction, behavior rewrites, Phase G feature work, readiness blocker behavior, runtime reliability, process hardening, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-cleanup-control-assurance-split-001-plan.md",
+  "approvedPlanSha256": "9a48a5ab626318860d6b304ccd10081db1e8b218d417bc4db508781a098a0235",
+  "approvedRepoHead": "fbc299bc945907fe5fae5d6c3f09c7e5b40de19d",
+  "approvalDigest": "7498ce1631f93ed74c5050af4988c4e4c6642d4b006f72bf7d8089e18868f7d5"
+}
