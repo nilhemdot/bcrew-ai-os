@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-CONTRACT-VALIDATION-LAYER-001",
+  "approvedBy": "Steve explicit next sprint instruction plus Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T15:00:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve instructed Codex to start SOURCE-CONTRACT-VALIDATION-LAYER-001 from repo truth, using the existing scoped P0 live card, with dogfood proof, full foundation ship gate, closeout, commit, and push.",
+  "approvedPlanRef": "docs/process/source-contract-validation-layer-001-plan.md",
+  "approvedPlanSha256": "205aac02eb759dea433102c573f984d8c5b122642d3b5c7a74a8fd620a755bbc",
+  "approvedRepoHead": "f6aacb17705b0637a2bc9f8245d6b3da46f2a375",
+  "notes": "Approved only for a fail-closed Foundation source-contract validation layer, focused proof, source-contract verifier coverage, source registry/current-state alignment, closeout, and ship gates. Not approved: auth-required extraction, OAuth work, OpenHuman/Fal/voice/Harlan, Canva, Foundation UI polish, connector live calls beyond already safe read-only proof, external-write jobs, schema migration, or root line-count splitting.",
+  "approvalDigest": "9a283063f4808196f9f000928192ea2525f4897b4afa973a86aefefbb5940e31"
+}

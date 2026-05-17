@@ -111,6 +111,7 @@
     "process:connector-blocked-row-diagnosis-check": "node --env-file-if-exists=.env scripts/process-connector-blocked-row-diagnosis-check.mjs",
     "process:connector-completion-prep-check": "node --env-file-if-exists=.env scripts/process-connector-completion-prep-check.mjs",
     "process:source-contract-id-reconcile-check": "node --env-file-if-exists=.env scripts/process-source-contract-id-reconcile-check.mjs",
+    "process:source-contract-validation-layer-check": "node --env-file-if-exists=.env scripts/process-source-contract-validation-layer-check.mjs",
     "process:gcal-atom-schedule-check": "node --env-file-if-exists=.env scripts/process-gcal-atom-schedule-check.mjs",
     "process:doc-artifact-bloat-guard-check": "node --env-file-if-exists=.env scripts/process-doc-artifact-bloat-guard-check.mjs",
     "process:process-wip-protocol-check": "node --env-file-if-exists=.env scripts/process-wip-protocol-check.mjs",

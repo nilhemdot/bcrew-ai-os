@@ -20,6 +20,14 @@ Every source needs three things:
 
 Connectors matter too, but connector access does **not** mean trusted business meaning.
 
+## Source Contract Validation Layer
+
+`SOURCE-CONTRACT-VALIDATION-LAYER-001` is the current fail-closed contract guard for source work.
+
+Before connector or extractor work can rely on a source contract, the validation layer checks source ID shape, owner, lane/brand where applicable, auth posture, extraction posture, freshness expectation, connector status, atom-flow expectation, and blocked-state handling. Rule: blocked source contracts must carry blocker, reason, and next action. Auth-required sources stay blocked from extraction until an approved source/access card changes that posture.
+
+This layer does not run OAuth, start auth-required extraction, call live connectors, or mark a readable connector as trusted business meaning.
+
 ## Grouped Source Systems
 
 Some business questions span multiple source contracts. Those grouped systems are maps over the source layer, not replacement source IDs.
