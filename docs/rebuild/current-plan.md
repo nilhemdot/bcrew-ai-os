@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-17
-Version: v6.95 - Foundation knowledge-base compiler design closed
+Version: v6.96 - Knowledge-base quality gate closed
 Status: Bounded Foundation queue active
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Foundation Knowledge-Base Compiler Design
+## Latest Sprint: Knowledge-Base Quality Gate
+
+Live sprint ID: `knowledge-base-quality-gate-2026-05-17`.
+
+This sprint is complete under `knowledge-base-quality-gate-v1`. It makes the Karpathy LLM Knowledge Base / LLM Wiki quality gate executable before any agent, extractor, or Harlan memory feature consumes compiled knowledge.
+
+Completed card:
+
+1. `KNOWLEDGE-BASE-QUALITY-GATE-001` - done under `knowledge-base-quality-gate-v1`. Scope was synthetic fail-closed quality-gate proof only: citations/source IDs, freshness, contradiction checks, page-size budgets, orphan-page blocking, frontmatter requirements, privacy/tier enforcement, and unsourced-doctrine blocking.
+
+Not next from this closeout: live extraction, transcript fetch, screenshot capture, crawl, summarization, model calls, compiled KB page writes, query index/vector table writes, Research Inbox writes, atom creation, backlog mutation from extracted content, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
+
+Recommended next: `AIOS-RUNTIME-PORTABILITY-GATE-001`.
+
+## Previous Sprint: Foundation Knowledge-Base Compiler Design
 
 Live sprint ID: `foundation-knowledge-base-compiler-design-2026-05-17`.
 

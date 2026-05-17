@@ -22,20 +22,24 @@ import {
   validateBuildLaneSprintItemMetadata,
 } from '../lib/build-lane-reliability.js'
 import {
-  FOUNDATION_KB_NOT_NEXT_BOUNDARIES,
-  FOUNDATION_KB_REQUIRED_STAGE_IDS,
-  FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_APPROVAL_PATH,
+  KNOWLEDGE_BASE_QUALITY_GATE_APPROVAL_PATH,
+  KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID,
+  KNOWLEDGE_BASE_QUALITY_GATE_CHANGED_FILES,
+  KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY,
+  KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_PATH,
+  KNOWLEDGE_BASE_QUALITY_GATE_NOT_NEXT_BOUNDARIES,
+  KNOWLEDGE_BASE_QUALITY_GATE_PLAN_PATH,
+  KNOWLEDGE_BASE_QUALITY_GATE_PROOF_COMMANDS,
+  KNOWLEDGE_BASE_QUALITY_GATE_RULE_IDS,
+  KNOWLEDGE_BASE_QUALITY_GATE_SCRIPT_PATH,
+  KNOWLEDGE_BASE_QUALITY_GATE_SPRINT_ID,
+  buildKnowledgeBaseQualityGate,
+  buildKnowledgeBaseQualityGateDogfoodProof,
+  evaluateKnowledgeBaseQualityGate,
+} from '../lib/foundation-knowledge-base-quality-gate.js'
+import {
   FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID,
-  FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CHANGED_FILES,
   FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY,
-  FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_PATH,
-  FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_PLAN_PATH,
-  FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_PROOF_COMMANDS,
-  FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_SCRIPT_PATH,
-  FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_SPRINT_ID,
-  buildFoundationKnowledgeBaseCompilerDesign,
-  buildFoundationKnowledgeBaseCompilerDesignDogfoodProof,
-  validateFoundationKnowledgeBaseCompilerDesign,
 } from '../lib/foundation-knowledge-base-compiler-design.js'
 import {
   PLAN_CRITIC_MIN_PASS_SCORE,
@@ -50,9 +54,6 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
-const QUALITY_GATE_CARD_ID = 'KNOWLEDGE-BASE-QUALITY-GATE-001'
-const PACKET_CARD_ID = 'EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001'
-const PREFLIGHT_CARD_ID = 'BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001'
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = { json: false, apply: false, closeCard: false, stage: 'building_now' }
@@ -107,84 +108,83 @@ function normalizeStage(stage = 'building_now') {
 function buildCardRow({ closeCard = false, stage = 'building_now' } = {}) {
   const normalizedStage = normalizeStage(stage)
   return {
-    id: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID,
-    title: 'Foundation knowledge-base compiler design',
+    id: KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID,
+    title: 'Knowledge-base quality gate',
     scope: 'foundation',
     lane: closeCard ? 'done' : normalizedStage === 'building_now' ? 'executing' : 'scoped',
     priority: 'P0',
-    rank: 27,
+    rank: 28,
     source: 'Steve 2026-05-17 bounded Foundation queue.',
-    summary: 'Design the Foundation-owned compiler contract for raw sources to compiled wiki to query/Q&A to quality feedback loop.',
-    whyItMatters: 'Foundation must own source contracts, ingestion permission, compiler rules, quality gates, and query contracts before agents consume compiled knowledge.',
+    summary: 'Define the fail-closed quality gate for compiled knowledge before agents can query or cite it.',
+    whyItMatters: 'Compiled KB output must prove citations, freshness, contradictions, size, frontmatter, privacy, and sourced doctrine before becoming agent-consumable truth.',
     nextAction: closeCard
-      ? 'Done for v1. Next: KNOWLEDGE-BASE-QUALITY-GATE-001.'
-      : 'Ship design/proof only; no extraction, compiled pages, query index, model call, or agent feature work.',
+      ? 'Done for v1. Next: AIOS-RUNTIME-PORTABILITY-GATE-001.'
+      : 'Ship quality-gate contract and dogfood only; no live extraction, compiled page writes, query index, model call, or external write.',
     statusNote: closeCard
-      ? `Closed under \`${FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY}\`; design/proof only.`
-      : `Scope/proof: \`${FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY}\`; design-only compiler contract.`,
-    owner: 'Steve/Codex',
+      ? `Closed under \`${KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY}\`; fail-closed quality gate only.`
+      : `Scope/proof: \`${KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY}\`; no live compiled KB implementation.`,
+    owner: 'Foundation Process',
   }
 }
 
 function buildExistingWorkCheck() {
   return {
     existingCode: [
+      'lib/foundation-knowledge-base-compiler-design.js',
       'lib/build-intel-karpathy-llm-kb-preflight.js',
-      'lib/extractor-queue-karpathy-kb-video-pack.js',
-      'lib/foundation-extraction-runtime-verifier.js',
       'lib/foundation-intelligence-audit-verifier.js',
       'lib/build-lane-reliability.js',
     ],
     existingDocs: [
+      'docs/process/foundation-knowledge-base-compiler-design-001-plan.md',
+      'docs/handoffs/2026-05-17-foundation-knowledge-base-compiler-design-closeout.md',
       'docs/handoffs/2026-05-17-build-intel-karpathy-llm-kb-preflight-closeout.md',
-      'docs/handoffs/2026-05-17-extractor-queue-karpathy-kb-video-pack-closeout.md',
-      'docs/process/build-intel-karpathy-llm-kb-preflight-001-plan.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],
     existingScripts: [
+      'scripts/process-foundation-knowledge-base-compiler-design-check.mjs',
       'scripts/process-build-intel-karpathy-llm-kb-preflight-check.mjs',
-      'scripts/process-extractor-queue-karpathy-kb-video-pack-check.mjs',
       'scripts/foundation-verify.mjs',
     ],
     existingPolicy: [
       'Foundation owns source contracts, ingestion permission, compiler rules, quality gates, and query interface.',
-      'Harlan/Codex/other agents consume compiled knowledge only after Foundation owns it.',
+      'Agents consume compiled knowledge only after Foundation quality gates and query contracts pass.',
       'No live extraction, paid/auth run, model call, or external write without Steve approval.',
     ],
     reused: [
-      'Karpathy packet pending-approval source truth.',
+      'Foundation KB compiler design pipeline.',
       'Karpathy preflight have/missing/not-to-copy comparison.',
       'Build-lane scaffold and Current Sprint metadata guards.',
     ],
     notRebuilt: [
       'No extraction runtime implementation.',
-      'No compiled KB pages or query index.',
+      'No compiled KB page writer.',
+      'No query index or vector table.',
       'No Harlan memory feature.',
-      'No Research Inbox or atom writes.',
     ],
-    exactGap: 'The Karpathy KB idea needs a Foundation-owned compiler design before quality gates or agent consumption can ship.',
-    overBroadRisk: 'This can drift into live extraction, transcript dumps, Harlan-only memory, or direct agent query access. V1 is design/proof only.',
+    exactGap: 'The compiler design names a quality gate, but the gate needs executable fail-closed rules before agents can consume compiled pages.',
+    overBroadRisk: 'This can drift into live extraction, compiled output writes, Harlan memory, or model evaluation. V1 is synthetic contract proof only.',
     readyBy: 'Steve/Codex',
-    readyAt: '2026-05-17T23:05:00.000-04:00',
+    readyAt: '2026-05-17T23:20:00.000-04:00',
   }
 }
 
 function buildSprintItem({ closeCard = false, stage = 'building_now' } = {}) {
   const normalizedStage = normalizeStage(stage)
   return {
-    cardId: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID,
+    cardId: KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID,
     order: 1,
     stage: closeCard ? 'done_this_sprint' : normalizedStage,
-    planRef: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_PLAN_PATH,
-    definitionOfDone: 'Foundation KB compiler design is explicit, dogfood rejects unsafe variants, verifier coverage and full ship gate pass, closeout is registered, and no extraction or implementation runs.',
-    proofCommands: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_PROOF_COMMANDS,
-    readinessBlockerCleared: 'Steve approved the bounded Foundation queue and clarified this card is design/proof only unless an existing approval says otherwise.',
-    notNextBoundaries: FOUNDATION_KB_NOT_NEXT_BOUNDARIES,
+    planRef: KNOWLEDGE_BASE_QUALITY_GATE_PLAN_PATH,
+    definitionOfDone: 'Knowledge-base quality gate rejects unsafe synthetic compiled pages, verifier coverage and full ship gate pass, closeout is registered, and no extraction or compiled output write runs.',
+    proofCommands: KNOWLEDGE_BASE_QUALITY_GATE_PROOF_COMMANDS,
+    readinessBlockerCleared: 'Foundation KB compiler design shipped; Steve approved continuing the bounded Foundation queue.',
+    notNextBoundaries: KNOWLEDGE_BASE_QUALITY_GATE_NOT_NEXT_BOUNDARIES,
     existingWorkCheck: buildExistingWorkCheck(),
     metadata: {
-      approvalRef: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_APPROVAL_PATH,
-      closeoutKey: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY,
+      approvalRef: KNOWLEDGE_BASE_QUALITY_GATE_APPROVAL_PATH,
+      closeoutKey: KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY,
     },
   }
 }
@@ -196,8 +196,8 @@ async function upsertLiveCardAndPlanCritic({ closeCard = false, stage = 'buildin
   const planCriticResult = {
     status: 'pass',
     score: 10,
-    cardId: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID,
-    closeoutKey: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY,
+    cardId: KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID,
+    closeoutKey: KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY,
   }
   try {
     await client.query('BEGIN')
@@ -230,7 +230,7 @@ async function upsertLiveCardAndPlanCritic({ closeCard = false, stage = 'buildin
           run_id, card_id, plan_ref, status, score, max_score, pass_threshold,
           priority, gate_level, full_verify_required, changed_files, findings, result, requested_by
         )
-        VALUES ($1,$2,$3,'pass',10,10,9.8,'P0','full',true,$4::text[],'[]'::jsonb,$5::jsonb,'codex-kb-compiler-design')
+        VALUES ($1,$2,$3,'pass',10,10,9.8,'P0','full',true,$4::text[],'[]'::jsonb,$5::jsonb,'codex-kb-quality-gate')
         ON CONFLICT (run_id) DO UPDATE
         SET status = EXCLUDED.status,
             score = EXCLUDED.score,
@@ -238,23 +238,23 @@ async function upsertLiveCardAndPlanCritic({ closeCard = false, stage = 'buildin
             result = EXCLUDED.result
       `,
       [
-        `kb-compiler-design-${stableRunId(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_PLAN_PATH)}`,
-        FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID,
-        FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_PLAN_PATH,
-        FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CHANGED_FILES,
+        `kb-quality-gate-${stableRunId(KNOWLEDGE_BASE_QUALITY_GATE_PLAN_PATH)}`,
+        KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID,
+        KNOWLEDGE_BASE_QUALITY_GATE_PLAN_PATH,
+        KNOWLEDGE_BASE_QUALITY_GATE_CHANGED_FILES,
         JSON.stringify(planCriticResult),
       ],
     )
     await client.query(
       `
         INSERT INTO change_events (event_type, entity_table, entity_id, actor, summary, metadata)
-        VALUES ($1,'backlog_items',$2,'codex-kb-compiler-design',$3,$4::jsonb)
+        VALUES ($1,'backlog_items',$2,'codex-kb-quality-gate',$3,$4::jsonb)
       `,
       [
         closeCard ? 'backlog_status_changed' : 'backlog_updated',
         row.id,
-        `${closeCard ? 'Closed' : 'Updated'} ${FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID}.`,
-        JSON.stringify({ closeoutKey: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY, stage }),
+        `${closeCard ? 'Closed' : 'Updated'} ${KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID}.`,
+        JSON.stringify({ closeoutKey: KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY, stage }),
       ],
     )
     await client.query('COMMIT')
@@ -271,8 +271,8 @@ async function ensureLiveState({ closeCard = false, stage = 'building_now' } = {
   const normalizedStage = normalizeStage(stage)
   assertProcessCheckWriteAllowed({
     argv: process.argv.slice(2),
-    scriptPath: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_SCRIPT_PATH,
-    operation: 'create/update KB compiler design backlog card, Plan Critic row, and Current Sprint overlay',
+    scriptPath: KNOWLEDGE_BASE_QUALITY_GATE_SCRIPT_PATH,
+    operation: 'create/update KB quality gate backlog card, Plan Critic row, and Current Sprint overlay',
     allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
   })
   const previous = await getActiveFoundationCurrentSprint()
@@ -280,35 +280,35 @@ async function ensureLiveState({ closeCard = false, stage = 'building_now' } = {
   await upsertFoundationCurrentSprintOverlay(
     {
       sprint: {
-        sprintId: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_SPRINT_ID,
+        sprintId: KNOWLEDGE_BASE_QUALITY_GATE_SPRINT_ID,
         status: 'active',
-        goal: 'Define the Foundation-owned knowledge compiler design before quality gates or agent consumption.',
-        activeBlockerCardId: closeCard ? null : FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID,
+        goal: 'Define the fail-closed quality gate for compiled knowledge before agent consumption.',
+        activeBlockerCardId: closeCard ? null : KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID,
         metadata: {
           stage: closeCard ? 'done_this_sprint' : normalizedStage,
-          startedBy: 'codex-kb-compiler-design',
+          startedBy: 'codex-kb-quality-gate',
           currentStatus: closeCard ? 'complete' : normalizedStage,
-          closeoutKey: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY,
+          closeoutKey: KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY,
           nextAction: closeCard
-            ? 'Commit/push, then continue to KNOWLEDGE-BASE-QUALITY-GATE-001.'
-            : 'Finish design/proof only; no extraction, compiled output, query index, model call, or external write.',
-          priorityOrder: [FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID],
-          notNext: FOUNDATION_KB_NOT_NEXT_BOUNDARIES,
+            ? 'Commit/push, then continue to AIOS-RUNTIME-PORTABILITY-GATE-001.'
+            : 'Finish synthetic fail-closed quality-gate proof only; no extraction, compiled output, model call, or external write.',
+          priorityOrder: [KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID],
+          notNext: KNOWLEDGE_BASE_QUALITY_GATE_NOT_NEXT_BOUNDARIES,
           exitCriteria: [
-            'Foundation-owned compiler pipeline is explicit.',
-            'Unsafe Harlan-only, transcript-dump, missing quality gate, direct-agent, and live-extraction variants fail.',
+            'Quality gate rules cover citations/source IDs, freshness, contradictions, page size, orphan pages, frontmatter, privacy tier, and unsourced doctrine.',
+            'Bad synthetic compiled pages fail closed.',
             'Focused proof, backlog hygiene, foundation:verify, and process:foundation-ship pass.',
           ],
         },
       },
       items: [buildSprintItem({ closeCard, stage: normalizedStage })],
     },
-    'codex-kb-compiler-design',
+    'codex-kb-quality-gate',
     {
       apply: true,
       allowItemReplacement: true,
-      expectedPreviousActiveSprintId: previous.sprint?.sprintId || FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_SPRINT_ID,
-      reason: 'Steve approved rolling the bounded Foundation queue into FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001 after LLM auth budget-label clarity shipped.',
+      expectedPreviousActiveSprintId: previous.sprint?.sprintId || KNOWLEDGE_BASE_QUALITY_GATE_SPRINT_ID,
+      reason: 'Steve approved rolling the bounded Foundation queue into KNOWLEDGE-BASE-QUALITY-GATE-001 after the compiler design shipped.',
     },
   )
 }
@@ -330,6 +330,7 @@ async function main() {
     planSource,
     scriptSource,
     moduleSource,
+    compilerModuleSource,
     verifierSource,
     foundationVerifySource,
     coverageSource,
@@ -340,45 +341,45 @@ async function main() {
   ] = await Promise.all([
     validatePlanApprovalFile({
       repoRoot,
-      approvalRef: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_APPROVAL_PATH,
-      cardId: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID,
+      approvalRef: KNOWLEDGE_BASE_QUALITY_GATE_APPROVAL_PATH,
+      cardId: KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID,
     }),
     getBacklogItemsByIds([
+      KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID,
       FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID,
-      QUALITY_GATE_CARD_ID,
-      PACKET_CARD_ID,
-      PREFLIGHT_CARD_ID,
+      'AIOS-RUNTIME-PORTABILITY-GATE-001',
     ]),
     getActiveFoundationCurrentSprint(),
-    getPlanCriticRunsByCardIds([FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID]),
+    getPlanCriticRunsByCardIds([KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID]),
     getFoundationBuildCloseouts(),
     readRepoFile('package.json'),
-    readRepoFile(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_PLAN_PATH),
-    readRepoFile(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_SCRIPT_PATH),
+    readRepoFile(KNOWLEDGE_BASE_QUALITY_GATE_PLAN_PATH),
+    readRepoFile(KNOWLEDGE_BASE_QUALITY_GATE_SCRIPT_PATH),
+    readRepoFile('lib/foundation-knowledge-base-quality-gate.js'),
     readRepoFile('lib/foundation-knowledge-base-compiler-design.js'),
     readRepoFile('lib/foundation-intelligence-audit-verifier.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('lib/foundation-verify-coverage-card-ids.js'),
     readRepoFile('lib/foundation-build-closeout-cleanup-records.js'),
-    readRepoFile(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_PATH, { optional: true }),
+    readRepoFile(KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_PATH, { optional: true }),
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/rebuild/current-state.md'),
   ])
   await closeFoundationDb()
 
   const packageJson = JSON.parse(packageSource)
-  const design = buildFoundationKnowledgeBaseCompilerDesign()
-  const designStatus = validateFoundationKnowledgeBaseCompilerDesign(design)
-  const dogfood = buildFoundationKnowledgeBaseCompilerDesignDogfoodProof()
+  const gate = buildKnowledgeBaseQualityGate()
+  const gateStatus = evaluateKnowledgeBaseQualityGate(gate)
+  const dogfood = buildKnowledgeBaseQualityGateDogfoodProof()
   const selfReview = evaluatePlanCriticPlan({
     planText: planSource,
-    card: { id: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID, priority: 'P0' },
-    changedFiles: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CHANGED_FILES,
+    card: { id: KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID, priority: 'P0' },
+    changedFiles: KNOWLEDGE_BASE_QUALITY_GATE_CHANGED_FILES,
     declaredRisk: planSource,
     architecturalRules: true,
   })
   const planCriticPass = planCriticRuns.some(run =>
-    run.cardId === FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID &&
+    run.cardId === KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID &&
       run.status === 'pass' &&
       Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE
   )
@@ -389,39 +390,38 @@ async function main() {
     closeouts,
     planCriticRuns,
   })
-  const card = cards.find(item => item.id === FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID) || null
-  const qualityCard = cards.find(item => item.id === QUALITY_GATE_CARD_ID) || null
-  const packetCard = cards.find(item => item.id === PACKET_CARD_ID) || null
-  const preflightCard = cards.find(item => item.id === PREFLIGHT_CARD_ID) || null
-  const sprintItem = (sprint.items || []).find(item => item.cardId === FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID) || null
-  const closeout = closeouts.find(record => record.key === FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY) || null
+  const card = cards.find(item => item.id === KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID) || null
+  const compilerCard = cards.find(item => item.id === FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID) || null
+  const portabilityCard = cards.find(item => item.id === 'AIOS-RUNTIME-PORTABILITY-GATE-001') || null
+  const sprintItem = (sprint.items || []).find(item => item.cardId === KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID) || null
+  const closeout = closeouts.find(record => record.key === KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY) || null
   const scaffold = validateBuildLaneCardScaffold(card || {})
   const sprintMetadata = validateBuildLaneSprintItemMetadata(sprintItem || {})
 
-  addCheck(checks, approval.ok && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'approval validates at 9.8+', approval.failures?.map(failure => failure.check).join(', ') || FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_APPROVAL_PATH)
+  addCheck(checks, approval.ok && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'approval validates at 9.8+', approval.failures?.map(failure => failure.check).join(', ') || KNOWLEDGE_BASE_QUALITY_GATE_APPROVAL_PATH)
   addCheck(checks, selfReview.status === 'pass' && Number(selfReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'plan passes Plan Critic', buildPlanCriticResultSummary(selfReview))
   addCheck(checks, planCriticPass, 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, card?.priority === 'P0' && ['scoped', 'executing', 'done'].includes(card?.lane), 'live backlog card exists and is staged', card ? `${card.lane}/${card.priority}` : 'missing')
   addCheck(checks, scaffold.ok, 'live backlog card passes scaffold guard', scaffold.missing.join(', ') || 'complete')
-  addCheck(checks, sprint.sprint?.sprintId === FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_SPRINT_ID, 'Current Sprint overlay is the active card sprint', sprint.sprint?.sprintId || 'missing')
+  addCheck(checks, sprint.sprint?.sprintId === KNOWLEDGE_BASE_QUALITY_GATE_SPRINT_ID, 'Current Sprint overlay is the active card sprint', sprint.sprint?.sprintId || 'missing')
   addCheck(checks, sprintMetadata.ok, 'Current Sprint item metadata is complete before build/done', sprintMetadata.missing.join(', ') || 'complete')
-  addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint status is healthy', currentSprintStatus.findings?.map(item => item.message).join('; ') || 'healthy')
-  addCheck(checks, packetCard?.lane === 'done', 'Karpathy packet prerequisite is done', packetCard ? `${packetCard.id}:${packetCard.lane}` : 'missing')
-  addCheck(checks, preflightCard?.lane === 'done', 'Karpathy preflight prerequisite is done', preflightCard ? `${preflightCard.id}:${preflightCard.lane}` : 'missing')
-  addCheck(checks, qualityCard && ['research', 'scoped', 'done'].includes(qualityCard.lane), 'quality gate follow-up exists or has shipped after this card', qualityCard ? `${qualityCard.id}:${qualityCard.lane}` : 'missing')
-  addCheck(checks, designStatus.ok, 'compiler design contract is complete', designStatus.findings.map(item => item.check).join(', ') || `${designStatus.summary.stageCount} stages`)
-  addCheck(checks, FOUNDATION_KB_REQUIRED_STAGE_IDS.every(id => design.stages.some(stage => stage.id === id)), 'design includes every required pipeline stage', FOUNDATION_KB_REQUIRED_STAGE_IDS.join(', '))
-  addCheck(checks, dogfood.ok, 'dogfood rejects unsafe KB compiler variants', dogfood.invariant)
-  addCheck(checks, packageJson.scripts?.['process:foundation-knowledge-base-compiler-design-check'] === `node --env-file-if-exists=.env ${FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_SCRIPT_PATH}`, 'package exposes focused proof', packageJson.scripts?.['process:foundation-knowledge-base-compiler-design-check'] || 'missing')
-  addCheck(checks, moduleSource.includes('buildFoundationKnowledgeBaseCompilerDesign') && moduleSource.includes('validateFoundationKnowledgeBaseCompilerDesign'), 'module owns compiler design contract and validator', 'lib/foundation-knowledge-base-compiler-design.js')
-  addCheck(checks, verifierSource.includes(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID) && verifierSource.includes('buildFoundationKnowledgeBaseCompilerDesignDogfoodProof'), 'intelligence/audit verifier covers compiler design', 'lib/foundation-intelligence-audit-verifier.js')
-  addCheck(checks, coverageSource.includes('FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE'), 'verifier coverage card IDs include compiler design card', 'lib/foundation-verify-coverage-card-ids.js')
-  addCheck(checks, foundationVerifySource.includes('foundationKnowledgeBaseCompilerDesignSource') || verifierSource.includes(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID), 'foundation:verify receives compiler design coverage', 'foundation verifier module assurance')
-  addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID), 'closeout registry record is registered', closeout?.key || 'missing')
-  addCheck(checks, closeoutRecordsSource.includes(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY), 'closeout registry source contains closeout key', FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY)
-  addCheck(checks, await repoFileExists(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_PATH), 'closeout handoff exists', FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_PATH)
-  addCheck(checks, closeoutDoc.includes('KNOWLEDGE-BASE-QUALITY-GATE-001') && closeoutDoc.includes('This does not run live extraction'), 'closeout documents next card and no-live-extraction limit', FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_PATH)
-  addCheck(checks, currentPlan.includes(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY) && currentState.includes(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY), 'current plan/state name compiler design closeout', FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY)
+  addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint status is healthy', currentSprintStatus.findings?.map(item => item.detail || item.check).join('; ') || 'healthy')
+  addCheck(checks, compilerCard?.lane === 'done' && String(compilerCard?.statusNote || '').includes(FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CLOSEOUT_KEY), 'compiler design prerequisite is done', compilerCard ? `${compilerCard.id}:${compilerCard.lane}` : 'missing')
+  addCheck(checks, portabilityCard && ['scoped', 'research'].includes(portabilityCard.lane), 'runtime portability follow-up exists but is not built by this card', portabilityCard ? `${portabilityCard.id}:${portabilityCard.lane}` : 'missing')
+  addCheck(checks, gateStatus.ok && gateStatus.summary.ruleCount === KNOWLEDGE_BASE_QUALITY_GATE_RULE_IDS.length, 'quality gate healthy fixture passes every rule', gateStatus.status)
+  addCheck(checks, KNOWLEDGE_BASE_QUALITY_GATE_RULE_IDS.every(id => moduleSource.includes(id)), 'quality gate defines every required rule ID', KNOWLEDGE_BASE_QUALITY_GATE_RULE_IDS.join(', '))
+  addCheck(checks, dogfood.ok, 'dogfood rejects bad compiled knowledge pages', dogfood.invariant)
+  addCheck(checks, packageJson.scripts?.['process:knowledge-base-quality-gate-check'] === `node --env-file-if-exists=.env ${KNOWLEDGE_BASE_QUALITY_GATE_SCRIPT_PATH}`, 'package exposes focused proof', packageJson.scripts?.['process:knowledge-base-quality-gate-check'] || 'missing')
+  addCheck(checks, moduleSource.includes('evaluateKnowledgeBaseQualityGate') && moduleSource.includes('buildKnowledgeBaseQualityGateDogfoodProof'), 'module owns quality gate contract and dogfood', 'lib/foundation-knowledge-base-quality-gate.js')
+  addCheck(checks, compilerModuleSource.includes('quality_gate'), 'quality gate follows compiler design stage', 'lib/foundation-knowledge-base-compiler-design.js')
+  addCheck(checks, verifierSource.includes(KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID) && verifierSource.includes('buildKnowledgeBaseQualityGateDogfoodProof'), 'intelligence/audit verifier covers quality gate', 'lib/foundation-intelligence-audit-verifier.js')
+  addCheck(checks, coverageSource.includes('KNOWLEDGE_BASE_QUALITY_GATE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE'), 'verifier coverage card IDs include quality gate card', 'lib/foundation-verify-coverage-card-ids.js')
+  addCheck(checks, foundationVerifySource.includes('KNOWLEDGE_BASE_QUALITY_GATE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE') || verifierSource.includes(KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID), 'foundation:verify receives quality gate coverage', 'foundation verifier module assurance')
+  addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID), 'closeout registry record is registered', closeout?.key || 'missing')
+  addCheck(checks, closeoutRecordsSource.includes(KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY), 'closeout registry source contains closeout key', KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY)
+  addCheck(checks, await repoFileExists(KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_PATH), 'closeout handoff exists', KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_PATH)
+  addCheck(checks, closeoutDoc.includes('AIOS-RUNTIME-PORTABILITY-GATE-001') && closeoutDoc.includes('This does not run live extraction'), 'closeout documents next card and no-live-extraction limit', KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_PATH)
+  addCheck(checks, currentPlan.includes(KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY) && currentState.includes(KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY), 'current plan/state name quality gate closeout', KNOWLEDGE_BASE_QUALITY_GATE_CLOSEOUT_KEY)
   addCheck(checks, moduleSource.split('\n').length < 1500, 'new module is under preferred module budget', `${moduleSource.split('\n').length} lines`)
   addCheck(checks, scriptSource.split('\n').length < 1500, 'focused proof script is under preferred module budget', `${scriptSource.split('\n').length} lines`)
 
@@ -429,21 +429,21 @@ async function main() {
   const summary = {
     status: failed.length ? 'fail' : 'pass',
     generatedAt: new Date().toISOString(),
-    cardId: FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_CARD_ID,
+    cardId: KNOWLEDGE_BASE_QUALITY_GATE_CARD_ID,
     sprintId: sprint.sprint?.sprintId || null,
     checkCount: checks.length,
     failedCount: failed.length,
-    designStatus: designStatus.status,
+    gateStatus: gateStatus.status,
     dogfoodOk: dogfood.ok,
-    liveExtractionStarted: false,
-    modelCallsStarted: false,
-    externalWritesStarted: false,
+    liveExtractionStarted: gate.liveExtractionStarted,
+    modelCallsStarted: gate.modelCallsStarted,
+    externalWritesStarted: gate.externalWritesStarted,
   }
 
   if (args.json) {
     console.log(JSON.stringify({ ...summary, checks, failed }, null, 2))
   } else {
-    console.log('Foundation KB compiler design check')
+    console.log('Knowledge-base quality gate check')
     for (const check of checks) {
       console.log(`${check.ok ? 'PASS' : 'FAIL'} ${check.check}${check.detail ? ` -> ${check.detail}` : ''}`)
     }

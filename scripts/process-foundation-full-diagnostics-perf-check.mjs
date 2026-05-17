@@ -148,17 +148,23 @@ async function main() {
   )
   addCheck(
     checks,
-    sprint.sprint?.sprintId === FOUNDATION_FULL_DIAGNOSTICS_SPRINT_ID &&
-      CARDS.every(card => sprint.items.some(item => item.cardId === card.cardId && ['sprint_ready', 'building_now', 'done_this_sprint'].includes(item.stage))),
-    'Current Sprint contains both cards with doctrine and active stages',
+    (
+      sprint.sprint?.sprintId === FOUNDATION_FULL_DIAGNOSTICS_SPRINT_ID &&
+      CARDS.every(card => sprint.items.some(item => item.cardId === card.cardId && ['sprint_ready', 'building_now', 'done_this_sprint'].includes(item.stage)))
+    ) || (
+      backlogCards.length === CARDS.length &&
+      backlogCards.every(card => card.lane === 'done' && String(card.statusNote || '').includes(FOUNDATION_FULL_DIAGNOSTICS_CLOSEOUT_KEY))
+    ),
+    'Foundation full diagnostics cards are active in Current Sprint or already shipped with closeout truth',
     sprint.sprint ? `${sprint.sprint.sprintId} ${sprint.items.map(item => `${item.cardId}:${item.stage}`).join(', ')}` : 'missing sprint',
   )
   addCheck(
     checks,
     dogfood.ok === true &&
       dogfood.boundary?.status === 'degraded' &&
+      dogfood.rateLimitBoundary?.status === 'degraded' &&
       dogfood.elapsedMs < 100,
-    'dogfood proof converts slow optional Agent Feedback panels into degraded source health',
+    'dogfood proof converts slow or rate-limited Agent Feedback panels into degraded source health',
     dogfood.invariant,
   )
   addCheck(
@@ -175,8 +181,9 @@ async function main() {
     moduleSource.includes('withDiagnosticDeadline') &&
       moduleSource.includes('Promise.race') &&
       moduleSource.includes('runtime_diagnostic_timeout') &&
+      moduleSource.includes('external_api_error') &&
       moduleSource.includes('fullDiagnosticsBounded'),
-    'full diagnostics module owns fail-soft timeout behavior',
+    'full diagnostics module owns fail-soft timeout and external API error behavior',
     'lib/foundation-hub-full-diagnostics.js',
   )
   addCheck(

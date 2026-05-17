@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "KNOWLEDGE-BASE-QUALITY-GATE-001",
+  "approvedBy": "Steve explicit bounded Foundation queue approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T23:20:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the bounded Foundation queue and identified KNOWLEDGE-BASE-QUALITY-GATE-001 as the next Foundation quality-gate card after compiler design.",
+  "approvedPlanRef": "docs/process/knowledge-base-quality-gate-001-plan.md",
+  "approvedPlanSha256": "c7fdc07dc502454ca2e00f48d94f098ac2ede234c6225e6c3e0ab25cc141595d",
+  "approvedRepoHead": "dc3dc9f8688da312ce038f001d323366a180fc07",
+  "notes": "Approved only for Foundation-owned synthetic quality-gate contract/proof over compiled knowledge fixtures. Not approved: live extraction, transcript fetch, screenshot capture, crawl, summarization, model call, paid/auth extraction, OAuth, connector auth, Harlan, Fal, voice, Canva, OpenHuman, broad UI redesign, Drive permission mutation, Agent Feedback auto-send, atom creation, Research Inbox write, query index write, compiled page write, or backlog mutation from extracted content.",
+  "approvalDigest": "8f90bcfc40e6d890728a4e4596991e352d181c95076922ee1c687a9d149b5287"
+}
