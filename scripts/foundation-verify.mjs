@@ -314,6 +314,17 @@ import {
   evaluateFoundationVerifierModuleAssurance,
 } from '../lib/foundation-verifier-module-assurance.js'
 import {
+  VERIFIER_BACKEND_SPLIT_ASSURANCE_APPROVAL_PATH,
+  VERIFIER_BACKEND_SPLIT_ASSURANCE_BEFORE_LINES,
+  VERIFIER_BACKEND_SPLIT_ASSURANCE_CARD_ID,
+  VERIFIER_BACKEND_SPLIT_ASSURANCE_CLOSEOUT_KEY,
+  VERIFIER_BACKEND_SPLIT_ASSURANCE_HANDOFF_PATH,
+  VERIFIER_BACKEND_SPLIT_ASSURANCE_PLAN_PATH,
+  VERIFIER_BACKEND_SPLIT_ASSURANCE_SCRIPT_PATH,
+  buildFoundationVerifierBackendSplitAssuranceDogfoodProof,
+  evaluateFoundationVerifierBackendSplitAssurance,
+} from '../lib/foundation-verifier-backend-split-assurance.js'
+import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
@@ -2780,6 +2791,7 @@ async function main() {
   const foundationVerifierGuardrailCloseoutsSource = await readRepoFile('lib/foundation-verifier-guardrail-closeouts.js')
   const foundationVerifierControlLoopSource = await readRepoFile('lib/foundation-verifier-control-loop.js')
   const foundationVerifierModuleAssuranceSource = await readRepoFile('lib/foundation-verifier-module-assurance.js')
+  const foundationVerifierBackendSplitAssuranceSource = await readRepoFile('lib/foundation-verifier-backend-split-assurance.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
@@ -2789,7 +2801,7 @@ async function main() {
   const foundationAgentFeedbackVerifierSource = await readRepoFile('lib/foundation-agent-feedback-verifier.js')
   const verifierAgentFeedbackSplitModuleScriptSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_SCRIPT_PATH)
   const verifierAgentFeedbackSplitModulePlanSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_PLAN_PATH)
-  const foundationVerifySourceWithProcessHardeningModule = `${foundationVerifySource}\n${foundationVerifierProcessGovernanceSource}\n${foundationVerifierReadinessFollowupSource}\n${foundationVerifierGuardrailCloseoutsSource}\n${foundationVerifierControlLoopSource}\n${foundationVerifierModuleAssuranceSource}\n${foundationProcessHardeningVerifierSource}`
+  const foundationVerifySourceWithProcessHardeningModule = `${foundationVerifySource}\n${foundationVerifierProcessGovernanceSource}\n${foundationVerifierReadinessFollowupSource}\n${foundationVerifierGuardrailCloseoutsSource}\n${foundationVerifierControlLoopSource}\n${foundationVerifierModuleAssuranceSource}\n${foundationVerifierBackendSplitAssuranceSource}\n${foundationProcessHardeningVerifierSource}`
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -4263,6 +4275,7 @@ async function main() {
     foundationVerifierGuardrailCloseoutsSource,
     foundationVerifierControlLoopSource,
     foundationVerifierModuleAssuranceSource,
+    foundationVerifierBackendSplitAssuranceSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -9924,81 +9937,125 @@ async function main() {
       ? 'lane=' + verifierModuleAssuranceSplitCard.lane + ' dogfood=' + (verifierModuleAssuranceSplitDogfood.ok ? 'pass' : 'blocked') + ' moduleAssuranceChecks=' + verifierModuleAssurance.summary.passed + '/' + verifierModuleAssurance.summary.total + ' lines=' + VERIFIER_MODULE_ASSURANCE_SPLIT_BEFORE_LINES + '->' + foundationVerifyLineCountAfterModuleAssuranceSplit
       : 'missing ' + VERIFIER_MODULE_ASSURANCE_SPLIT_CARD_ID,
   )
-  const serverRouteSplitVerifierInput = {
-    foundationHub,
-    foundationBuildCloseouts,
-    packageJson,
-    currentPlan,
-    currentState,
+  const verifierBackendSplitAssurance = await evaluateFoundationVerifierBackendSplitAssurance({
     activeFoundationSprint,
     activeSprintAtOrPast,
-    foundationVerifySource,
-    moduleSource: foundationServerRouteSplitVerifierSource,
-    serverSource,
-    fubSourceRoutesSource,
-    fubSourceRouteSplitScriptSource,
-    fubSourceRouteSplitPlanSource,
-    foundationRuntimeReadRoutesSource,
-    foundationRuntimeReadRoutesSplitScriptSource,
-    foundationRuntimeReadRoutesSplitPlanSource,
-    appPageRoutesSource,
-    appPageRoutesSplitScriptSource,
-    appPageRoutesSplitPlanSource,
-    authRoutesSource,
-    authRoutesSplitScriptSource,
-    authRoutesSplitPlanSource,
-    hubReadRoutesSource,
-    hubReadRoutesSplitScriptSource,
-    hubReadRoutesSplitPlanSource,
-    strategySharedCommsRoutesSource,
-    strategySharedCommsRoutesSplitScriptSource,
-    strategySharedCommsRoutesSplitPlanSource,
-    foundationWriteRoutesSource,
-    foundationWriteRoutesSplitScriptSource,
-    foundationWriteRoutesSplitPlanSource,
-    agentFeedbackRoutesSource,
-    agentFeedbackRoutesSplitScriptSource,
-    agentFeedbackRoutesSplitPlanSource,
-    foundationWriteRouteSource,
     agentFeedbackRouteSource,
+    agentFeedbackRoutesSource,
+    agentFeedbackRoutesSplitPlanSource,
+    agentFeedbackRoutesSplitScriptSource,
+    appPageRoutesSource,
+    appPageRoutesSplitPlanSource,
+    appPageRoutesSplitScriptSource,
+    authRoutesSource,
+    authRoutesSplitPlanSource,
+    authRoutesSplitScriptSource,
+    currentPlan,
+    currentState,
+    foundationAgentFeedbackStorePlanSource,
+    foundationAgentFeedbackStoreScriptSource,
+    foundationAgentFeedbackStoreSource,
+    foundationBacklogStorePlanSource,
+    foundationBacklogStoreScriptSource,
+    foundationBacklogStoreSource,
+    foundationBuildCloseouts,
+    foundationCoreSeedPlanSource,
+    foundationCoreSeedScriptSource,
+    foundationCoreSeedSource,
+    foundationDbSource,
+    foundationDbSplitVerifierSource,
+    foundationDecisionStorePlanSource,
+    foundationDecisionStoreScriptSource,
+    foundationDecisionStoreSource,
+    foundationDriveMeetingVaultStorePlanSource,
+    foundationDriveMeetingVaultStoreScriptSource,
+    foundationDriveMeetingVaultStoreSource,
+    foundationFubLeadSourceStorePlanSource,
+    foundationFubLeadSourceStoreScriptSource,
+    foundationFubLeadSourceStoreSource,
+    foundationHub,
+    foundationLlmRuntimeStorePlanSource,
+    foundationLlmRuntimeStoreScriptSource,
+    foundationLlmRuntimeStoreSource,
+    foundationRuntimeJobStorePlanSource,
+    foundationRuntimeJobStoreScriptSource,
+    foundationRuntimeJobStoreSource,
+    foundationRuntimeReadRoutesSource,
+    foundationRuntimeReadRoutesSplitPlanSource,
+    foundationRuntimeReadRoutesSplitScriptSource,
+    foundationSalesListingStorePlanSource,
+    foundationSalesListingStoreScriptSource,
+    foundationSalesListingStoreSource,
+    foundationServerRouteSplitVerifierSource,
+    foundationSharedCommsCoveragePlanSource,
+    foundationSharedCommsCoverageScriptSource,
+    foundationSharedCommsCoverageSource,
+    foundationSharedCommsStorePlanSource,
+    foundationSharedCommsStoreScriptSource,
+    foundationSharedCommsStoreSource,
+    foundationSourceCrawlStorePlanSource,
+    foundationSourceCrawlStoreScriptSource,
+    foundationSourceCrawlStoreSource,
+    foundationStrategyGoalTruthPlanSource,
+    foundationStrategyGoalTruthScriptSource,
+    foundationStrategyGoalTruthSource,
+    foundationStrategyOperatingTruthPlanSource,
+    foundationStrategyOperatingTruthScriptSource,
+    foundationStrategyOperatingTruthSource,
+    foundationStrategySourceSnapshotPlanSource,
+    foundationStrategySourceSnapshotScriptSource,
+    foundationStrategySourceSnapshotSource,
+    foundationVerifySource,
+    foundationWriteRouteSource,
+    foundationWriteRoutesSource,
+    foundationWriteRoutesSplitPlanSource,
+    foundationWriteRoutesSplitScriptSource,
+    fubSourceRouteSplitPlanSource,
+    fubSourceRouteSplitScriptSource,
+    fubSourceRoutesSource,
+    hubReadRoutesSource,
+    hubReadRoutesSplitPlanSource,
+    hubReadRoutesSplitScriptSource,
+    moduleSource: foundationVerifierBackendSplitAssuranceSource,
+    packageJson,
     repoFileExists,
-  }
-  const serverRouteSplitVerifier = await evaluateFoundationServerRouteSplitVerifier(serverRouteSplitVerifierInput)
-  for (const check of serverRouteSplitVerifier.checks) {
-    ensure(checks, check.ok, check.check, check.detail)
-  }
-  const verifierServerRouteSplitModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID) || null
-  const verifierServerRouteSplitModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const verifierServerRouteSplitModuleDogfood = await buildFoundationServerRouteSplitVerifierDogfoodProof(serverRouteSplitVerifierInput)
-  const foundationVerifyLineCountAfterServerRouteVerifierSplit = String(foundationVerifySource || '').split('\n').length
-  const oldInlineServerRouteSplitPredicate = 'const fub' + 'SourceRouteSplitCard ='
+    serverSource,
+    strategySharedCommsRoutesSource,
+    strategySharedCommsRoutesSplitPlanSource,
+    strategySharedCommsRoutesSplitScriptSource,
+    verifierFoundationDbSplitModulePlanSource,
+    verifierFoundationDbSplitModuleScriptSource,
+    verifierServerRouteSplitModulePlanSource,
+    verifierServerRouteSplitModuleScriptSource,
+  })
+  checks.push(...verifierBackendSplitAssurance.checks)
+  const verifierBackendSplitAssuranceCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_BACKEND_SPLIT_ASSURANCE_CARD_ID) || null
+  const verifierBackendSplitAssuranceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_BACKEND_SPLIT_ASSURANCE_CLOSEOUT_KEY) || null
+  const verifierBackendSplitAssuranceDogfood = buildFoundationVerifierBackendSplitAssuranceDogfoodProof()
+  const foundationVerifyLineCountAfterBackendSplitAssurance = String(foundationVerifySource || '').split('\n').length
+  const oldBackendSplitInlineMarker = 'const server' + 'RouteSplitVerifierInput ='
   ensure(
     checks,
-      verifierServerRouteSplitModuleCard &&
-      ['executing', 'done'].includes(verifierServerRouteSplitModuleCard.lane) &&
-      (!verifierServerRouteSplitModuleCloseout || String(verifierServerRouteSplitModuleCard.statusNote || '').includes(VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY)) &&
-      (!verifierServerRouteSplitModuleCloseout || verifierServerRouteSplitModuleCloseout.operatorCloseout === true) &&
-      (!verifierServerRouteSplitModuleCloseout || (verifierServerRouteSplitModuleCloseout.backlogIds || []).includes(VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID)) &&
-      verifierServerRouteSplitModuleDogfood.ok === true &&
-      serverRouteSplitVerifier.summary.passed === serverRouteSplitVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-server-route-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_SERVER_ROUTE_SPLIT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_SERVER_ROUTE_SPLIT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH) &&
-      foundationServerRouteSplitVerifierSource.includes('evaluateFoundationServerRouteSplitVerifier') &&
-      foundationServerRouteSplitVerifierSource.includes('buildFoundationServerRouteSplitVerifierDogfoodProof') &&
-      verifierServerRouteSplitModuleScriptSource.includes('dogfood rejects old server-route split verifier failures') &&
-      verifierServerRouteSplitModulePlanSource.includes('Substring-only proof is rejected') &&
-      foundationVerifySource.includes('evaluateFoundationServerRouteSplitVerifier(serverRouteSplitVerifierInput)') &&
-      !foundationVerifySource.includes(oldInlineServerRouteSplitPredicate) &&
-      currentPlan.includes(VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      currentState.includes(VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === VERIFIER_SERVER_ROUTE_SPLIT_MODULE_SPRINT_ID ||
-        activeSprintAtOrPast([VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID])) &&
-      foundationVerifySource.includes(VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID),
-    'VERIFIER-SERVER-ROUTE-SPLIT-MODULE-001 extracts server-route split verifier checks into a focused module',
-    verifierServerRouteSplitModuleCard
-      ? `lane=${verifierServerRouteSplitModuleCard.lane} dogfood=${verifierServerRouteSplitModuleDogfood.ok ? 'pass' : 'blocked'} routeSplitChecks=${serverRouteSplitVerifier.summary.passed}/${serverRouteSplitVerifier.summary.total} lines=${VERIFIER_SERVER_ROUTE_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterServerRouteVerifierSplit}`
-      : `missing ${VERIFIER_SERVER_ROUTE_SPLIT_MODULE_CARD_ID}`,
+    verifierBackendSplitAssuranceCard &&
+      ['executing', 'done'].includes(verifierBackendSplitAssuranceCard.lane) &&
+      String(verifierBackendSplitAssuranceCard.statusNote || '').includes(VERIFIER_BACKEND_SPLIT_ASSURANCE_CLOSEOUT_KEY) &&
+      verifierBackendSplitAssuranceCloseout?.operatorCloseout === true &&
+      (verifierBackendSplitAssuranceCloseout.backlogIds || []).includes(VERIFIER_BACKEND_SPLIT_ASSURANCE_CARD_ID) &&
+      verifierBackendSplitAssuranceDogfood.ok === true &&
+      verifierBackendSplitAssurance.summary.passed === verifierBackendSplitAssurance.summary.total &&
+      packageJson.scripts?.['process:verifier-backend-split-assurance-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_BACKEND_SPLIT_ASSURANCE_SCRIPT_PATH &&
+      await repoFileExists(VERIFIER_BACKEND_SPLIT_ASSURANCE_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_BACKEND_SPLIT_ASSURANCE_APPROVAL_PATH) &&
+      await repoFileExists(VERIFIER_BACKEND_SPLIT_ASSURANCE_HANDOFF_PATH) &&
+      foundationVerifySource.includes('evaluateFoundationVerifierBackendSplitAssurance({') &&
+      foundationVerifySource.includes('verifierBackendSplitAssurance.checks') &&
+      !foundationVerifySource.includes(oldBackendSplitInlineMarker) &&
+      foundationVerifyLineCountAfterBackendSplitAssurance < VERIFIER_BACKEND_SPLIT_ASSURANCE_BEFORE_LINES &&
+      foundationVerifierBackendSplitAssuranceSource.includes(VERIFIER_BACKEND_SPLIT_ASSURANCE_CARD_ID),
+    'VERIFIER-BACKEND-SPLIT-ASSURANCE-001 extracts backend structural split assurance into a focused module',
+    verifierBackendSplitAssuranceCard
+      ? 'lane=' + verifierBackendSplitAssuranceCard.lane + ' dogfood=' + (verifierBackendSplitAssuranceDogfood.ok ? 'pass' : 'blocked') + ' backendSplitChecks=' + verifierBackendSplitAssurance.summary.passed + '/' + verifierBackendSplitAssurance.summary.total + ' lines=' + VERIFIER_BACKEND_SPLIT_ASSURANCE_BEFORE_LINES + '->' + foundationVerifyLineCountAfterBackendSplitAssurance
+      : 'missing ' + VERIFIER_BACKEND_SPLIT_ASSURANCE_CARD_ID,
   )
   const nightlyDeepAuditP0TriageCard = (foundationHub.backlogItems || []).find(item => item.id === 'NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') || null
   const nightlyDeepAuditP0TriageCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'nightly-deep-audit-p0-triage-v1') || null
@@ -10017,101 +10074,6 @@ async function main() {
     nightlyDeepAuditP0TriageCard
       ? `lane=${nightlyDeepAuditP0TriageCard.lane} closeout=${nightlyDeepAuditP0TriageCloseout?.key || 'missing'}`
       : 'missing NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001',
-  )
-  const foundationDbSplitVerifierInput = {
-    foundationHub,
-    foundationBuildCloseouts,
-    packageJson,
-    currentPlan,
-    currentState,
-    activeFoundationSprint,
-    activeSprintAtOrPast,
-    foundationVerifySource,
-    foundationDbSource,
-    foundationBacklogStoreSource,
-    foundationBacklogStoreScriptSource,
-    foundationBacklogStorePlanSource,
-    foundationDecisionStoreSource,
-    foundationDecisionStoreScriptSource,
-    foundationDecisionStorePlanSource,
-    foundationCoreSeedSource,
-    foundationCoreSeedScriptSource,
-    foundationCoreSeedPlanSource,
-    foundationStrategySourceSnapshotSource,
-    foundationStrategySourceSnapshotScriptSource,
-    foundationStrategySourceSnapshotPlanSource,
-    foundationStrategyOperatingTruthSource,
-    foundationStrategyOperatingTruthScriptSource,
-    foundationStrategyOperatingTruthPlanSource,
-    foundationStrategyGoalTruthSource,
-    foundationStrategyGoalTruthScriptSource,
-    foundationStrategyGoalTruthPlanSource,
-    foundationFubLeadSourceStoreSource,
-    foundationFubLeadSourceStoreScriptSource,
-    foundationFubLeadSourceStorePlanSource,
-    foundationSharedCommsCoverageSource,
-    foundationSharedCommsCoverageScriptSource,
-    foundationSharedCommsCoveragePlanSource,
-    foundationSharedCommsStoreSource,
-    foundationSharedCommsStoreScriptSource,
-    foundationSharedCommsStorePlanSource,
-    foundationLlmRuntimeStoreSource,
-    foundationLlmRuntimeStoreScriptSource,
-    foundationLlmRuntimeStorePlanSource,
-    foundationRuntimeJobStoreSource,
-    foundationRuntimeJobStoreScriptSource,
-    foundationRuntimeJobStorePlanSource,
-    foundationSourceCrawlStoreSource,
-    foundationSourceCrawlStoreScriptSource,
-    foundationSourceCrawlStorePlanSource,
-    foundationDriveMeetingVaultStoreSource,
-    foundationDriveMeetingVaultStoreScriptSource,
-    foundationDriveMeetingVaultStorePlanSource,
-    foundationAgentFeedbackStoreSource,
-    foundationAgentFeedbackStoreScriptSource,
-    foundationAgentFeedbackStorePlanSource,
-    foundationSalesListingStoreSource,
-    foundationSalesListingStoreScriptSource,
-    foundationSalesListingStorePlanSource,
-    moduleSource: foundationDbSplitVerifierSource,
-    repoFileExists,
-  }
-  const foundationDbSplitVerifier = await evaluateFoundationDbSplitVerifier(foundationDbSplitVerifierInput)
-  for (const check of foundationDbSplitVerifier.checks) {
-    ensure(checks, check.ok, check.check, check.detail)
-  }
-  const verifierFoundationDbSplitModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID) || null
-  const verifierFoundationDbSplitModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const verifierFoundationDbSplitModuleDogfood = await buildFoundationDbSplitVerifierDogfoodProof(foundationDbSplitVerifierInput)
-  const foundationVerifyLineCountAfterDbSplitVerifierSplit = String(foundationVerifySource || '').split('\n').length
-  const oldInlineFoundationDbSplitPredicate = 'const foundationBacklog' + 'StoreSplitCard ='
-  ensure(
-    checks,
-      verifierFoundationDbSplitModuleCard &&
-      ['executing', 'done'].includes(verifierFoundationDbSplitModuleCard.lane) &&
-      (!verifierFoundationDbSplitModuleCloseout || String(verifierFoundationDbSplitModuleCard.statusNote || '').includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CLOSEOUT_KEY)) &&
-      (!verifierFoundationDbSplitModuleCloseout || verifierFoundationDbSplitModuleCloseout.operatorCloseout === true) &&
-      (!verifierFoundationDbSplitModuleCloseout || (verifierFoundationDbSplitModuleCloseout.backlogIds || []).includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID)) &&
-      verifierFoundationDbSplitModuleDogfood.ok === true &&
-      foundationDbSplitVerifier.summary.passed === foundationDbSplitVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-foundation-db-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_APPROVAL_PATH) &&
-      foundationDbSplitVerifierSource.includes('evaluateFoundationDbSplitVerifier') &&
-      foundationDbSplitVerifierSource.includes('buildFoundationDbSplitVerifierDogfoodProof') &&
-      verifierFoundationDbSplitModuleScriptSource.includes('dogfood rejects old Foundation-DB split verifier failures') &&
-      verifierFoundationDbSplitModulePlanSource.includes('Substring-only proof is rejected') &&
-      foundationVerifySource.includes('evaluateFoundationDbSplitVerifier(foundationDbSplitVerifierInput)') &&
-      !foundationVerifySource.includes(oldInlineFoundationDbSplitPredicate) &&
-      currentPlan.includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      currentState.includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      (activeFoundationSprint.sprint?.sprintId === VERIFIER_FOUNDATION_DB_SPLIT_MODULE_SPRINT_ID ||
-        activeSprintAtOrPast([VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID])) &&
-      foundationVerifySource.includes(VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID),
-    'VERIFIER-FOUNDATION-DB-SPLIT-MODULE-001 extracts Foundation-DB split verifier checks into a focused module',
-    verifierFoundationDbSplitModuleCard
-      ? `lane=${verifierFoundationDbSplitModuleCard.lane} dogfood=${verifierFoundationDbSplitModuleDogfood.ok ? 'pass' : 'blocked'} dbSplitChecks=${foundationDbSplitVerifier.summary.passed}/${foundationDbSplitVerifier.summary.total} lines=${VERIFIER_FOUNDATION_DB_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterDbSplitVerifierSplit}`
-      : `missing ${VERIFIER_FOUNDATION_DB_SPLIT_MODULE_CARD_ID}`,
   )
   const stylesheetMonolithSplitCard = (foundationHub.backlogItems || []).find(item => item.id === STYLESHEET_MONOLITH_SPLIT_CARD_ID) || null
   const stylesheetMonolithSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === STYLESHEET_MONOLITH_SPLIT_CLOSEOUT_KEY) || null

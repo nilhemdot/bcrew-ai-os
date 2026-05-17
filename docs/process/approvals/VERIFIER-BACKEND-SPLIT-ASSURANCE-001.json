@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-BACKEND-SPLIT-ASSURANCE-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T04:41:49Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for the backend structural split assurance: server-route split verifier and Foundation-DB split verifier checks move to lib/foundation-verifier-backend-split-assurance.js. Not approved: arbitrary tail extraction, behavior changes, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, or Harlan runtime work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-backend-split-assurance-001-plan.md",
+  "approvedPlanSha256": "f0f7f464304f802235a1d9c427060821468a412147528157618ec26b0715557f",
+  "approvedRepoHead": "95074de13a3f229815818a0cb3bcddfa0086a054",
+  "approvalDigest": "3944eb129fbe3b16dd733313856522863e09b8f7ac58932a909f826fb35716ef"
+}
