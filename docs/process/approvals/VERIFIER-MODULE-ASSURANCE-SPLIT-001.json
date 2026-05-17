@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-MODULE-ASSURANCE-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T04:29:22Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for the verifier-module assurance split: intelligence/audit, operator budget, hub safety, route-split, source-contract, source-trust, current-sprint, and intelligence-audit module-assurance checks move to lib/foundation-verifier-module-assurance.js. Not approved: arbitrary tail extraction, behavior changes, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, or Harlan runtime work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-module-assurance-split-001-plan.md",
+  "approvedPlanSha256": "c20f823b4e07f35ffbff4f8cdf5ea778e5648743d94e9f4ac2b15b637edc117c",
+  "approvedRepoHead": "a84726b77eec4a9e4ca5895e6304cd6cfce48f50",
+  "approvalDigest": "24eecb8345fc1dd25a0ae0a1c8a048b2e7dba45ede13d9e8b92075186661d4c5"
+}
