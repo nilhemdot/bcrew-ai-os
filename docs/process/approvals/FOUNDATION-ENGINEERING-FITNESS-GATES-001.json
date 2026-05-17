@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-ENGINEERING-FITNESS-GATES-001",
+  "approvedBy": "Steve explicit P0 engineering fitness gate approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T16:10:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved FOUNDATION-ENGINEERING-FITNESS-GATES-001 before EXTRACTION-RUNTIME-READINESS-001 to make Foundation standards executable across files, APIs, pages, agent routes, verification loops, build artifacts, and runtime truth.",
+  "approvedPlanRef": "docs/process/foundation-engineering-fitness-gates-001-plan.md",
+  "approvedPlanSha256": "3d6e0e20ebaf516753490a10f4705ed2cd0dad07bd64b29daa5fba4325fe377d",
+  "approvedRepoHead": "a1f4eb9d1762966d1dc391b0518f33aacd127fba",
+  "notes": "Approved only for Foundation engineering fitness gates: file standards, surface/API budgets, Hub decomposition guard, lazy loading architecture scoping, agent route usage contracts, build-lane failure dogfood, focused proof, closeout, and ship gates. Not approved: extractor implementation, connector/auth work, OAuth, Harlan, Fal, voice, Canva, OpenHuman, broad visual UI redesign, Drive permission mutation, or Agent Feedback auto-send.",
+  "approvalDigest": "244b9e581bbeded68b68a41bb2f48c903fda8b48b93129cf1a5a7c43c82acfd6"
+}

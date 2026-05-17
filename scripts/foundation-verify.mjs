@@ -348,6 +348,9 @@ import {
   evaluateFoundationRuntimeReliabilityVerifierOrchestration,
 } from '../lib/foundation-runtime-reliability-verifier.js'
 import {
+  evaluateFoundationEngineeringFitnessVerifierCoverage,
+} from '../lib/foundation-engineering-fitness-gates.js'
+import {
   VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
 } from '../lib/foundation-health-script-verifier.js'
 import {
@@ -1473,6 +1476,7 @@ import {
   CLICKUP_SOURCE_VERIFY_SCRIPT_PATH,
   CLICKUP_VERIFY_HEALTH_BOUNDARY_SCRIPT_PATH,
   BUILD_LANE_RELIABILITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_ENGINEERING_FITNESS_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_BACKLOG_DETAIL_ENDPOINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY,
   FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
@@ -1781,6 +1785,8 @@ async function main() {
   const foundationBuildCloseoutCleanupRecordsSource = await readRepoFile('lib/foundation-build-closeout-cleanup-records.js')
   const foundationBuildCloseoutOvernightRecordsSource = await readRepoFile('lib/foundation-build-closeout-overnight-records.js')
   const foundationBuildCloseoutTighteningRecordsSource = await readRepoFile('lib/foundation-build-closeout-tightening-records.js')
+  const foundationEngineeringFitnessGatesSource = await readRepoFile('lib/foundation-engineering-fitness-gates.js')
+  const foundationEngineeringFitnessGatesScriptSource = await readRepoFile('scripts/process-foundation-engineering-fitness-gates-check.mjs')
   const planCriticPlanSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_PLAN_PATH)
   const planCriticDecisionTreeSource = await readRepoFile(PLAN_CRITIC_DECISION_TREE_PATH)
   const planCriticApprovalSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH)
@@ -3066,6 +3072,21 @@ async function main() {
   const foundationVerificationCleanupCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY) || null
   const foundationShipGateSpeedPayloadCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY) || null
   const foundationClickUpVerifyHealthBoundaryCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY) || null
+  const foundationEngineeringFitnessVerifier = await evaluateFoundationEngineeringFitnessVerifierCoverage({
+    cards: foundationHub.backlogItems || [],
+    closeouts: foundationBuildCloseouts,
+    packageJson,
+    foundationHubSummary,
+    foundationHubFull,
+    sources: {
+      foundationVerifySource,
+      verifierCoverageSource: foundationVerifySource,
+      moduleSource: foundationEngineeringFitnessGatesSource,
+      scriptSource: foundationEngineeringFitnessGatesScriptSource,
+    },
+    repoFileExists,
+  })
+  checks.push(...foundationEngineeringFitnessVerifier.checks)
   const sourceConnectorMatrix = foundationSourceLifecycle.sourceConnectorMatrix || foundationHub.sourceConnectorMatrix || foundationHub.sourceLifecycle?.sourceConnectorMatrix || {}
   const sourceHubRoutingMatrix = foundationSourceLifecycle.sourceHubRoutingMatrix || foundationHub.sourceHubRoutingMatrix || foundationHub.sourceLifecycle?.sourceHubRoutingMatrix || {}
   const sourceExtractionGapFollowupSnapshot = buildSourceExtractionGapFollowupSnapshot({
