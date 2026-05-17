@@ -1,0 +1,13 @@
+{
+  "cardId": "E2E-STAGING-HARNESS-001",
+  "score": 9.8,
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-16T23:55:21.749Z",
+  "approvalSource": "Steve instructed Codex to keep working unattended on safe Foundation sprints; Codex selected this no-auth Foundation safety card.",
+  "notes": "Approved for narrow V1 Playwright local staging harness only: read-only browser/API smoke proof, temp screenshots, no provider spend, no paid-source auth, no hub feature work, no Drive permission mutation.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/e2e-staging-harness-001-plan.md",
+  "approvedPlanSha256": "4137e04cd406c3ba97c547b6de9b3b3b85e20fc8d4db09d5c9c47f8beecc3152",
+  "approvedRepoHead": "f3475a352680c2dbcfcd51dc72079a0343d8a4a9",
+  "approvalDigest": "bfcb9d57d2d4eff2ec030219c61140088e0a84fa03c4729c77f7e3ecd13add97"
+}

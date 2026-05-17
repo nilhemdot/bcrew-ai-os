@@ -114,6 +114,7 @@
     "process:gcal-atom-schedule-check": "node --env-file-if-exists=.env scripts/process-gcal-atom-schedule-check.mjs",
     "process:doc-artifact-bloat-guard-check": "node --env-file-if-exists=.env scripts/process-doc-artifact-bloat-guard-check.mjs",
     "process:process-wip-protocol-check": "node --env-file-if-exists=.env scripts/process-wip-protocol-check.mjs",
+    "process:e2e-staging-harness-check": "node --env-file-if-exists=.env scripts/process-e2e-staging-harness-check.mjs",
     "process:foundation-stab-capture-check": "node --env-file-if-exists=.env scripts/process-foundation-stab-capture-check.mjs",
     "process:foundation-cleanup-arc-closeout-check": "node --env-file-if-exists=.env scripts/process-foundation-cleanup-arc-closeout-check.mjs",
     "process:foundation-route-budget-cleanup-check": "node --env-file-if-exists=.env scripts/process-foundation-route-budget-cleanup-check.mjs",
@@ -315,5 +316,8 @@
     "google-auth-library": "^10.6.2",
     "pdf-lib": "^1.17.1",
     "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
   }
 }
