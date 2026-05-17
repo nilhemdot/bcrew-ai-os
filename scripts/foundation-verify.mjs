@@ -210,7 +210,7 @@ import {
   buildFoundationRouteSplitVerifierDogfoodProof,
   evaluateFoundationRouteSplitVerifier,
 } from '../lib/foundation-route-split-verifier.js'
-import { evaluateFoundationRecentBuildsVerifier } from '../lib/foundation-recent-builds-verifier.js'
+import { evaluateFoundationRecentBuildsVerifierOrchestration } from '../lib/foundation-recent-builds-verifier.js'
 import {
   buildFoundationVerifierBuildLogCloseoutEntries,
   buildFoundationVerifierBuildLogCloseoutEntry,
@@ -4324,17 +4324,11 @@ async function main() {
       VERIFY_GATE_TIERING_CLOSEOUT_KEY,
     },
   })
-  const recentBuildsCloseoutVerifier = evaluateFoundationRecentBuildsVerifier({
-    foundationBuildCloseoutValidation,
-    foundationBuildCloseouts,
-    foundationBuildLog,
-    foundationFrontendSource,
-    schemaVersion: FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
-    plainEnglishSweepCardId: PLAIN_ENGLISH_SWEEP_CARD_ID,
-    recentBuildsUiCardId: RECENT_BUILDS_UI_CARD_ID,
-    systemRegistrationSweepCardId: SYSTEM_REGISTRATION_SWEEP_CARD_ID,
+  const recentBuildsCloseoutOrchestrationVerifier = await evaluateFoundationRecentBuildsVerifierOrchestration({
+    foundationBuildCloseoutValidation, foundationBuildCloseouts, foundationBuildLog, foundationFrontendSource, foundationHub,
+    foundationRecentBuildsVerifierSource, foundationVerifyRootSource: foundationVerifySource, packageJson, repoFileExists,
   })
-  checks.push(...recentBuildsCloseoutVerifier.checks)
+  checks.push(...recentBuildsCloseoutOrchestrationVerifier.checks)
   const operatorLiveSurfaceAssuranceVerifier = await evaluateFoundationVerifierOperatorLiveSurfaceAssurance({
     currentPlan,
     currentState,

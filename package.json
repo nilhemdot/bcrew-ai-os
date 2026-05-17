@@ -192,6 +192,7 @@
     "process:verifier-canva-client-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-canva-client-orchestration-split-check.mjs",
     "process:verifier-agent-feedback-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-agent-feedback-split-module-check.mjs",
     "process:verifier-recent-builds-closeout-split-check": "node --env-file-if-exists=.env scripts/process-verifier-recent-builds-closeout-split-check.mjs",
+    "process:verifier-recent-builds-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-recent-builds-orchestration-split-check.mjs",
     "process:verifier-plan-reviews-split-check": "node --env-file-if-exists=.env scripts/process-verifier-plan-reviews-split-check.mjs",
     "process:verifier-process-governance-split-check": "node --env-file-if-exists=.env scripts/process-verifier-process-governance-split-check.mjs",
     "process:verifier-readiness-followup-split-check": "node --env-file-if-exists=.env scripts/process-verifier-readiness-followup-split-check.mjs",

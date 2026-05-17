@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-RECENT-BUILDS-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T10:25:44Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for Recent Builds closeout verifier orchestration extraction covering the existing Recent Builds evaluator call, check aggregation, historical split proof compatibility, dogfood proof, and new orchestration self-check inside lib/foundation-recent-builds-verifier.js. Not approved: arbitrary tail extraction, Recent Builds UI changes, build-log route behavior changes, closeout schema changes, connector auth, source extraction job implementation, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-recent-builds-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "abe69d7eedf2b138134dec06a29ea86b0824e0b308ea9498ef8304cd1f53c6e4",
+  "approvedRepoHead": "adbfb43bc6ba71a8afb0e9bd5fc6ae7df2f77a2a",
+  "approvalDigest": "a5ae1a25d20b24ebb99cdadd407c43216e3d45a74454b156e1c88609ef20ad12"
+}

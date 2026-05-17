@@ -123,7 +123,22 @@ async function main() {
     invalidSchemaRejected: dogfood.invalidSchemaRejected,
     missingWhereItLivesRejected: dogfood.missingWhereItLivesRejected,
   }))
-  addCheck(checks, verifierSource.includes('evaluateFoundationRecentBuildsVerifier({') && verifierSource.includes('recentBuildsCloseoutVerifier.checks'), 'foundation verifier delegates Recent Builds closeout checks to focused module', 'evaluateFoundationRecentBuildsVerifier')
+  addCheck(
+    checks,
+    (verifierSource.includes('evaluateFoundationRecentBuildsVerifier({') ||
+      verifierSource.includes('evaluateFoundationRecentBuildsVerifierOrchestration({')) &&
+      (verifierSource.includes('recentBuildsCloseoutVerifier.checks') ||
+        verifierSource.includes('recentBuildsCloseoutOrchestrationVerifier.checks')),
+    'foundation verifier delegates Recent Builds closeout checks to focused module',
+    'evaluateFoundationRecentBuildsVerifier',
+  )
+  addCheck(
+    checks,
+    moduleSource.includes('evaluateFoundationRecentBuildsVerifierOrchestration') &&
+      verifierSource.includes('evaluateFoundationRecentBuildsVerifierOrchestration({'),
+    'historical Recent Builds split proof accepts wrapper delegation',
+    'root may delegate through evaluateFoundationRecentBuildsVerifierOrchestration',
+  )
   addCheck(checks, !verifierSource.includes('Recent Builds v2 carries closeout proof for ' + 'FOUNDATION-SWEEP-001'), 'foundation verifier no longer owns old inline Recent Builds closeout labels', 'old labels absent from root verifier')
   addCheck(checks, verifierLines < VERIFIER_RECENT_BUILDS_SPLIT_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_RECENT_BUILDS_SPLIT_BEFORE_LINES} -> ${verifierLines}`)
   addCheck(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only', 'no write/mutation tokens in proof script')
