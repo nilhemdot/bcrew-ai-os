@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-READINESS-FOLLOWUP-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T03:58:20Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for the READY/follow-up shipped-system verifier split: sprint review, follow-up capture, Systems grouping, Sales GLS closeout coverage, and shipped-system registration checks move to lib/foundation-verifier-readiness-followup.js. Not approved: arbitrary tail extraction, behavior changes, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, or Harlan runtime work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-readiness-followup-split-001-plan.md",
+  "approvedPlanSha256": "1b8e9d436cfd8105bcbc386148ef8dc6a49f5a3ee17aa7632b77751d5b7e9cd5",
+  "approvedRepoHead": "8b41d7bbaa39e525b141f62010ae23c6022cf366",
+  "approvalDigest": "6c988a7b93242fd0f1f160f9019c1c4978aaa0d6e8ee9d3b2956d3a1b5c34784"
+}
