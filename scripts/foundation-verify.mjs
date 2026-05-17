@@ -346,6 +346,17 @@ import {
   evaluateFoundationVerifierPhaseGOperatorCloseout,
 } from '../lib/foundation-verifier-phase-g-operator-closeout.js'
 import {
+  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_APPROVAL_PATH,
+  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_BEFORE_LINES,
+  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID,
+  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CLOSEOUT_KEY,
+  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_HANDOFF_PATH,
+  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_PLAN_PATH,
+  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_SCRIPT_PATH,
+  buildFoundationVerifierReadinessBlockerCloseoutDogfoodProof,
+  evaluateFoundationVerifierReadinessBlockerCloseout,
+} from '../lib/foundation-verifier-readiness-blocker-closeout.js'
+import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
@@ -1625,23 +1636,6 @@ import {
   buildResearchCurationStatus,
 } from '../lib/phase-d-cleanup.js'
 
-const SOURCE_LIFECYCLE_COMPLETION_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SOURCE-LIFECYCLE-COMPLETION-001',
-]
-
-const SYNTHESIS_VERIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SYNTHESIS-VERIFY-001',
-]
-
-const DRIVE_ACCESS_REQUEST_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'DRIVE-ACCESS-REQUEST-001',
-]
-
-const MEETING_VAULT_AUTO_ENFORCEMENT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'MEETING-VAULT-AUTO-ENFORCEMENT-001',
-  'MEETING-VAULT-ACL-001',
-]
-
 const PROCESS_REPAIR_VERIFIER_SPRINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'SPRINT-PROCESS-REPAIR-001',
   'VERIFIER-SPRINT-INDEPENDENCE-001',
@@ -2782,6 +2776,7 @@ async function main() {
   const foundationVerifierBackendSplitAssuranceSource = await readRepoFile('lib/foundation-verifier-backend-split-assurance.js')
   const foundationVerifierFrontendSplitAssuranceSource = await readRepoFile('lib/foundation-verifier-frontend-split-assurance.js')
   const foundationVerifierPhaseGOperatorCloseoutSource = await readRepoFile('lib/foundation-verifier-phase-g-operator-closeout.js')
+  const foundationVerifierReadinessBlockerCloseoutSource = await readRepoFile('lib/foundation-verifier-readiness-blocker-closeout.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
@@ -2791,7 +2786,7 @@ async function main() {
   const foundationAgentFeedbackVerifierSource = await readRepoFile('lib/foundation-agent-feedback-verifier.js')
   const verifierAgentFeedbackSplitModuleScriptSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_SCRIPT_PATH)
   const verifierAgentFeedbackSplitModulePlanSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_PLAN_PATH)
-  const foundationVerifySourceWithProcessHardeningModule = `${foundationVerifySource}\n${foundationVerifierProcessGovernanceSource}\n${foundationVerifierReadinessFollowupSource}\n${foundationVerifierGuardrailCloseoutsSource}\n${foundationVerifierControlLoopSource}\n${foundationVerifierModuleAssuranceSource}\n${foundationVerifierBackendSplitAssuranceSource}\n${foundationVerifierFrontendSplitAssuranceSource}\n${foundationVerifierPhaseGOperatorCloseoutSource}\n${foundationProcessHardeningVerifierSource}`
+  const foundationVerifySourceWithProcessHardeningModule = `${foundationVerifySource}\n${foundationVerifierProcessGovernanceSource}\n${foundationVerifierReadinessFollowupSource}\n${foundationVerifierGuardrailCloseoutsSource}\n${foundationVerifierControlLoopSource}\n${foundationVerifierModuleAssuranceSource}\n${foundationVerifierBackendSplitAssuranceSource}\n${foundationVerifierFrontendSplitAssuranceSource}\n${foundationVerifierPhaseGOperatorCloseoutSource}\n${foundationVerifierReadinessBlockerCloseoutSource}\n${foundationProcessHardeningVerifierSource}`
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
   const verifierFrontendSplitModulePlanSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_PLAN_PATH)
@@ -4268,6 +4263,7 @@ async function main() {
     foundationVerifierBackendSplitAssuranceSource,
     foundationVerifierFrontendSplitAssuranceSource,
     foundationVerifierPhaseGOperatorCloseoutSource,
+    foundationVerifierReadinessBlockerCloseoutSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -6810,428 +6806,89 @@ async function main() {
     uiMenuLayoutPolishStatus,
   })
   checks.push(...phaseGOperatorCloseoutVerifier.checks)
-  const sourceLifecycleCompletionBuildLogExact = buildLogSourceLifecycleCompletionBuild?.backlogIds?.length === 1 &&
-    buildLogSourceLifecycleCompletionBuild.backlogIds.includes(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
-    ['SYNTHESIS-VERIFY-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
-      .every(id => (buildLogSourceLifecycleCompletionBuild.mentionedBacklogIds || []).includes(id)) &&
-    !['SYNTHESIS-VERIFY-001', 'EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
-      .some(id => (buildLogSourceLifecycleCompletionBuild.backlogIds || []).includes(id))
-  ensure(
-    checks,
-    sourceLifecycleCompletion?.lane === 'done' &&
-      String(sourceLifecycleCompletion?.statusNote || '').includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY) &&
-      sourceLifecycleCompletionApprovalValidation.ok &&
-      sourceLifecycleCompletionApprovalValidation.mode === 'v2' &&
-      sourceLifecycleCompletionApproval.cardId === SOURCE_LIFECYCLE_COMPLETION_CARD_ID &&
-      Number(sourceLifecycleCompletionApproval.score) >= 9.8 &&
-      sourceLifecycleCompletionApproval.approvedPlanRef === SOURCE_LIFECYCLE_COMPLETION_PLAN_PATH &&
-      sourceLifecycleCompletionApprovalValidation.approval?.approvedPlanRef === SOURCE_LIFECYCLE_COMPLETION_PLAN_PATH &&
-      includesAll(sourceLifecycleCompletionPlanSource, [
-        'source contracts must be revalidated',
-        'Must Become Complete For Readiness',
-        'Must Become Accepted Blocked/Parked',
-        'Proof output is metadata-only',
-      ]) &&
-      includesAll(sourceLifecycleCompletionRegistrySource, [
-        SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY,
-        'SOURCE_LIFECYCLE_COMPLETION_RULES',
-        'SOURCE_LIFECYCLE_ACCEPTED_BLOCKED_SOURCE_IDS',
-        'buildSourceLifecycleCompletionStatus',
-        'accepted_blocked',
-        'metadata-only',
-      ]) &&
-      includesAll(sourceLifecycleCompletionScriptSource, [
-        SOURCE_LIFECYCLE_COMPLETION_SUMMARY_MARKER,
-        '/api/foundation/source-lifecycle',
-        '/api/source-of-truth',
-        '/api/foundation-hub',
-      ]) &&
-      includesAll(sourceLifecycleCompletionDocSource, [
-        'Source Lifecycle Completion Closeout',
-        'source contracts',
-        'metadata-only',
-        'accepted-blocked',
-      ]) &&
-      includesAll(foundationVerifySource, SOURCE_LIFECYCLE_COMPLETION_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
-      packageJson.scripts?.['process:source-lifecycle-completion-check'] === 'node --env-file-if-exists=.env scripts/process-source-lifecycle-completion-check.mjs' &&
-      sourceLifecycleCompletionStatus.status === 'healthy' &&
-      sourceLifecycleCompletionStatus.summary?.requiredMissingTerminalRuleCount === 0 &&
-      sourceLifecycleCompletionStatus.summary?.terminalRuleMissingContractCount === 0 &&
-      sourceLifecycleCompletionStatus.summary?.requiredMissingLifecycleRowCount === 0 &&
-      sourceLifecycleCompletionStatus.summary?.loadBearingSourceCount === SOURCE_LIFECYCLE_LOAD_BEARING_SOURCE_IDS.length &&
-      sourceLifecycleCompletionStatus.summary?.acceptedBlockedSourceCount === SOURCE_LIFECYCLE_ACCEPTED_BLOCKED_SOURCE_IDS.length &&
-      sourceLifecycleCompletionStatus.summary?.privateOrRawLeakFindings === 0 &&
-      sourceLifecycleCompletionStatus.summary?.extractionTargetCount === SOURCE_LIFECYCLE_REQUIRED_TARGET_COUNT &&
-      sourceLifecycleCompletionStatus.summary?.readinessStillNamesSourceLifecycleCompletion === false &&
-      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
-      buildLogSourceLifecycleCompletionBuild?.operatorCloseout === true &&
-      sourceLifecycleCompletionBuildLogExact &&
-      currentPlan.includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY) &&
-      currentState.includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY),
-    'SOURCE-LIFECYCLE-COMPLETION-001 closes source completion/revalidation readiness blocker honestly',
-    `sources=${sourceLifecycleCompletionStatus.summary?.terminalSourceCount} loadBearing=${sourceLifecycleCompletionStatus.summary?.loadBearingSourceCount} acceptedBlocked=${sourceLifecycleCompletionStatus.summary?.acceptedBlockedSourceCount} readinessNamesSource=${sourceLifecycleCompletionStatus.summary?.readinessStillNamesSourceLifecycleCompletion}`,
-  )
-  const sourceLifecycleDynamicCountsCurrentItem = currentSprintItemsById.get(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID) || null
-  const sourceLifecycleDynamicCountsDogfood = buildSourceLifecycleDynamicCountsDogfoodProof()
-  const sourceLifecycleDynamicCountsCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CLOSEOUT_KEY) || null
-  const sourceLifecycleDynamicCountsClosed = sourceLifecycleDynamicCounts?.lane === 'done'
-  const sourceLifecycleDynamicCountsCloseoutOk = !sourceLifecycleDynamicCountsClosed ||
-    (String(sourceLifecycleDynamicCounts?.statusNote || '').includes(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CLOSEOUT_KEY) &&
-      sourceLifecycleDynamicCountsCloseout?.operatorCloseout === true &&
-      (sourceLifecycleDynamicCountsCloseout.backlogIds || []).includes(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID) &&
-      await repoFileExists('docs/handoffs/2026-05-16-source-lifecycle-dynamic-counts-closeout.md'))
-  ensure(
-    checks,
-    sourceLifecycleDynamicCounts &&
-      ['executing', 'done'].includes(sourceLifecycleDynamicCounts.lane) &&
-      (sourceLifecycleDynamicCountsCurrentItem || sourceLifecycleDynamicCountsClosed) &&
-      (activeFoundationSprint.sprint?.sprintId === SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SPRINT_ID || sourceLifecycleDynamicCountsClosed) &&
-      sourceLifecycleDynamicCountsApprovalValidation.ok &&
-      sourceLifecycleDynamicCountsApprovalValidation.mode === 'v2' &&
-      sourceLifecycleDynamicCountsApproval.cardId === SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID &&
-      Number(sourceLifecycleDynamicCountsApproval.score) >= PLAN_CRITIC_MIN_PASS_SCORE &&
-      sourceLifecycleDynamicCountsApproval.approvedPlanRef === SOURCE_LIFECYCLE_DYNAMIC_COUNTS_PLAN_PATH &&
-      sourceLifecycleDynamicCountsDogfood.ok === true &&
-      sourceLifecycleDynamicCountsSource.includes('buildSourceLifecycleDynamicCoverage') &&
-      sourceLifecycleDynamicCountsSource.includes('buildSourceLifecycleDynamicCountsDogfoodProof') &&
-      sourceLifecycleCompletionRegistrySource.includes('buildSourceLifecycleDynamicCoverage') &&
-      !sourceLifecycleCompletionRegistrySource.includes('SOURCE_LIFECYCLE_COMPLETION_EXPECTED_SOURCE_COUNT') &&
-      !sourceLifecycleCompletionRegistrySource.includes('sourceContracts.length ===') &&
-      packageJson.scripts?.['process:source-lifecycle-dynamic-counts-check'] === `node --env-file-if-exists=.env ${SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SCRIPT_PATH}` &&
-      sourceLifecycleDynamicCountsScriptSource.includes('scriptIsReadOnly') &&
-      sourceLifecycleDynamicCountsPlanSource.includes(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID) &&
-      sourceLifecycleDynamicCountsCloseoutOk,
-    'SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001 replaces exact source-count baselines with required/optional coverage',
-    sourceLifecycleDynamicCounts
-      ? `lane=${sourceLifecycleDynamicCounts.lane} dogfood=${sourceLifecycleDynamicCountsDogfood.ok ? 'pass' : 'blocked'} requiredMissing=${sourceLifecycleCompletionStatus.summary?.requiredMissingTerminalRuleCount ?? 'missing'} optional=${sourceLifecycleCompletionStatus.summary?.optionalUnruledSourceCount ?? 0}`
-      : `missing ${SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID}`,
-  )
-  const synthesisVerifyBuildLogExact = buildLogSynthesisVerifyBuild?.backlogIds?.length === 1 &&
-    buildLogSynthesisVerifyBuild.backlogIds.includes(SYNTHESIS_VERIFY_CARD_ID) &&
-    ['EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
-      .every(id => (buildLogSynthesisVerifyBuild.mentionedBacklogIds || []).includes(id)) &&
-    !['EXTRACT-RUN-HARDENING-001', 'MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
-      .some(id => (buildLogSynthesisVerifyBuild.backlogIds || []).includes(id))
-  ensure(
-    checks,
-    synthesisVerify?.lane === 'done' &&
-      String(synthesisVerify?.statusNote || '').includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY) &&
-      synthesisVerifyApprovalValidation.ok &&
-      synthesisVerifyApprovalValidation.mode === 'v2' &&
-      synthesisVerifyApproval.cardId === SYNTHESIS_VERIFY_CARD_ID &&
-      Number(synthesisVerifyApproval.score) >= 9.8 &&
-      synthesisVerifyApproval.approvedPlanRef === SYNTHESIS_VERIFY_PLAN_PATH &&
-      synthesisVerifyApprovalValidation.approval?.approvedPlanRef === SYNTHESIS_VERIFY_PLAN_PATH &&
-      includesAll(synthesisVerifyPlanSource, [
-        'central verification layer',
-        'single-evidence Strategy claims fail closed',
-        'Strategy Hub v2 only includes verified Strategy routes',
-        'Advisor remains fail-closed',
-      ]) &&
-      includesAll(synthesisVerifyRegistrySource, [
-        SYNTHESIS_VERIFY_CLOSEOUT_KEY,
-        'SYNTHESIS_CLAIM_SURFACES',
-        'verifySynthesizedRecord',
-        'requireVerifiedSynthesisRecord',
-        'filterVerifiedSynthesisRecords',
-      ]) &&
-      includesAll(synthesisVerifyScriptSource, [
-        SYNTHESIS_VERIFY_SUMMARY_MARKER,
-        'unsupported',
-        'single_evidence_strategy_claim',
-        'buildSynthesisVerificationDbReport',
-      ]) &&
-      includesAll(intelligenceSynthesisSource, [
-        'verifySynthesizedRecord',
-        'SYNTHESIS-VERIFY-001 blocked governed synthesis item',
-      ]) &&
-      includesAll(intelligenceActionRouterSource, [
-        'requireVerifiedSynthesisRecord',
-        "item.metadata->'synthesisVerification'->>'status' = 'verified'",
-        'unverified_decision_grade_routes',
-      ]) &&
-      includesAll(synthesisVerifyDocSource, [
-        'Synthesis Claim Verification Closeout',
-        'Unsupported, stale, contradicted, missing-tier',
-        'Strategy Advisor remains fail-closed',
-      ]) &&
-      includesAll(foundationVerifySource, SYNTHESIS_VERIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE) &&
-      packageJson.scripts?.['process:synthesis-verify-check'] === 'node --env-file-if-exists=.env scripts/process-synthesis-verify-check.mjs' &&
-      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(SYNTHESIS_VERIFY_CARD_ID) &&
-      buildLogSynthesisVerifyBuild?.operatorCloseout === true &&
-      synthesisVerifyBuildLogExact &&
-      currentPlan.includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY) &&
-      currentState.includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY),
-    'SYNTHESIS-VERIFY-001 closes synthesized-claim verification readiness blocker honestly',
-    `lane=${synthesisVerify?.lane || 'missing'} closeout=${SYNTHESIS_VERIFY_CLOSEOUT_KEY} readinessNamesSynthesis=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(SYNTHESIS_VERIFY_CARD_ID)}`,
-  )
-  const extractRunHardeningBuildLogExact = buildLogExtractRunHardeningBuild?.backlogIds?.length === 1 &&
-    buildLogExtractRunHardeningBuild.backlogIds.includes(EXTRACT_RUN_HARDENING_CARD_ID) &&
-    ['MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
-      .every(id => (buildLogExtractRunHardeningBuild.mentionedBacklogIds || []).includes(id)) &&
-    !['MEETING-VAULT-ACL-001', 'DRIVE-ACCESS-REQUEST-001']
-      .some(id => (buildLogExtractRunHardeningBuild.backlogIds || []).includes(id))
-  ensure(
-    checks,
-    extractRunHardening?.lane === 'done' &&
-      String(extractRunHardening?.statusNote || '').includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY) &&
-      extractRunHardeningApprovalValidation.ok &&
-      extractRunHardeningApprovalValidation.mode === 'v2' &&
-      extractRunHardeningApproval.cardId === EXTRACT_RUN_HARDENING_CARD_ID &&
-      Number(extractRunHardeningApproval.score) >= 9.8 &&
-      extractRunHardeningApproval.approvedPlanRef === EXTRACT_RUN_HARDENING_PLAN_PATH &&
-      extractRunHardeningApprovalValidation.approval?.approvedPlanRef === EXTRACT_RUN_HARDENING_PLAN_PATH &&
-      includesAll(extractRunHardeningPlanSource, [
-        'retry/backoff',
-        'Run IDs And Idempotency',
-        'stale item lease',
-        'bounded backfill',
-      ]) &&
-      includesAll(extractRunHardeningSource, [
-        EXTRACT_RUN_HARDENING_CLOSEOUT_KEY,
-        'EXTRACTION_RETRY_STATES',
-        'normalizeExtractionRetryPolicy',
-        'classifyExtractionItemRetry',
-        'buildExtractionNextSafeCommand',
-        'buildSyntheticExtractionRunHardeningProof',
-      ]) &&
-      includesAll(sourceCrawlStoreOwnershipSource, [
-        'source_crawl_item_attempts',
-        'retry_state',
-        'last_source_crawl_run_id',
-        'getRetryableSourceCrawlItems',
-        'leaseRetryableSourceCrawlItems',
-        'markStaleSourceCrawlItems',
-        'getExtractionRunHardeningSnapshot',
-      ]) &&
-      includesAll(extractionTargetSource, [
-        '--crawlRunId=',
-        'EXTRACTION_CRAWL_RUN_ID',
-        'classifySourceCrawlItemRetries',
-        'buildExtractionNextSafeCommand',
-      ]) &&
-      includesAll(foundationWorkerSource, [
-        'markStaleSourceCrawlItems',
-        'stale source-crawl item lease',
-      ]) &&
-      includesAll(extractRunHardeningScriptSource, [
-        EXTRACT_RUN_HARDENING_SUMMARY_MARKER,
-        'buildSyntheticExtractionRunHardeningProof',
-        'failed items have queryable retry state',
-        'partial/failed targets expose next safe command or blocker',
-      ]) &&
-      includesAll(extractRunHardeningDocSource, [
-        'Extraction Run Hardening',
-        'queryable retry fields',
-        'source_crawl_item_attempts',
-        'Foundation may still report `not_ready`',
-      ]) &&
-      packageJson.scripts?.['process:extract-run-hardening-check'] === 'node --env-file-if-exists=.env scripts/process-extract-run-hardening-check.mjs' &&
-      foundationHub.extractionControl?.hardeningStatus?.status === 'healthy' &&
-      Number(foundationHub.extractionControl?.summary?.targetCount || 0) >= 12 &&
-      Number(foundationHub.extractionControl?.summary?.failedItemsWithoutRetryState || 0) === 0 &&
-      Number(foundationHub.extractionControl?.summary?.staleLeasedItems || 0) === 0 &&
-      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(EXTRACT_RUN_HARDENING_CARD_ID) &&
-      buildLogExtractRunHardeningBuild?.operatorCloseout === true &&
-      extractRunHardeningBuildLogExact &&
-      currentPlan.includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY) &&
-      currentState.includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY),
-    'EXTRACT-RUN-HARDENING-001 closes extraction retry/ledger/backfill readiness blocker honestly',
-    `lane=${extractRunHardening?.lane || 'missing'} hardening=${foundationHub.extractionControl?.hardeningStatus?.status || 'missing'} readinessNamesExtract=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(EXTRACT_RUN_HARDENING_CARD_ID)}`,
-  )
-  const driveAccessRequestBuildLogExact = buildLogDriveAccessRequestBuild?.backlogIds?.length === 1 &&
-    buildLogDriveAccessRequestBuild.backlogIds.includes(DRIVE_ACCESS_REQUEST_CARD_ID) &&
-    [MEETING_VAULT_ACL_CARD_ID, FOUNDATION_DONE_TEST_CARD_ID]
-      .every(id => (buildLogDriveAccessRequestBuild.mentionedBacklogIds || []).includes(id)) &&
-    ![MEETING_VAULT_ACL_CARD_ID, FOUNDATION_DONE_TEST_CARD_ID]
-      .some(id => (buildLogDriveAccessRequestBuild.backlogIds || []).includes(id))
-  ensure(
-    checks,
-    driveAccessRequest?.lane === 'done' &&
-      String(driveAccessRequest?.statusNote || '').includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY) &&
-      driveAccessRequestApprovalValidation.ok &&
-      driveAccessRequestApprovalValidation.mode === 'v2' &&
-      driveAccessRequestApproval.cardId === DRIVE_ACCESS_REQUEST_CARD_ID &&
-      Number(driveAccessRequestApproval.score) >= 9.8 &&
-      driveAccessRequestApproval.approvedPlanRef === DRIVE_ACCESS_REQUEST_PLAN_PATH &&
-      driveAccessRequestApprovalValidation.approval?.approvedPlanRef === DRIVE_ACCESS_REQUEST_PLAN_PATH &&
-      includesAll(driveAccessRequestPlanSource, [
-        'DRIVE-ACCESS-REQUEST-001: dry-run/preflight only',
-        'no emails',
-        'no Drive permission mutation',
-        'request-access-needed',
-      ]) &&
-      includesAll(driveAccessPreflightSource, [
-        DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY,
-        'buildDriveFilePreflight',
-        'classifyDrivePermission',
-        'classifyDriveRepairAuthority',
-        'buildSyntheticDriveAccessPreflightProof',
-        'REQUEST_ACCESS_REQUIRED',
-      ]) &&
-      !driveAccessPreflightSource.includes('createDrivePermission') &&
-      !driveAccessPreflightSource.includes('deleteDrivePermission') &&
-      includesAll(driveMeetingVaultStoreOwnershipSource, [
-        'drive_access_preflight_runs',
-        'drive_access_preflight_items',
-        'recordDriveAccessPreflightRun',
-        'listMeetingRawDriveFileCandidates',
-      ]) &&
-      includesAll(driveAccessRequestScriptSource, [
-        DRIVE_ACCESS_REQUEST_SUMMARY_MARKER,
-        'proof output is metadata-only',
-        'requestAccessNeededCount',
-        'recordDriveAccessPreflightRun',
-      ]) &&
-      includesAll(meetingVaultAclSource, [
-        MEETING_VAULT_POLICY_VERSION,
-        'MEETING_VAULT_SENSITIVITY_CLASSES',
-        'classifyMeetingVaultSensitivity',
-        'allowInternalUsers',
-        'assertMeetingAclMutationApproved',
-        'buildMeetingAclDryRunPlan',
-        'buildMeetingVaultNoDuplicateGoogleDocProof',
-        'buildSyntheticMeetingVaultAclProof',
-        'MEETING_VAULT_SOURCE_FILE_ROLES',
-      ]) &&
-      includesAll(meetingVaultAclScriptSource, [
-        MEETING_VAULT_ACL_SUMMARY_MARKER,
-        'Apply path fails closed without Phase B approval',
-        'No duplicate Google Docs rule',
-        'annotateMeetingSourceRoles',
-        'sensitivityClassCounts',
-        'recordMeetingVaultAclAudit',
-      ]) &&
-      includesAll(syncMeetingNotesArchiveSource, [
-        'ownerEmailsForFile',
-        'crewbertOwned',
-        'return candidateIsCopy ? current : candidate',
-        'upsertSharedCommunicationArtifact',
-        'originalFileId',
-        'legacyCrewbertDuplicateFileIds',
-      ]) &&
-      includesAll(mirrorMeetingArchiveToDriveSource, [
-        'Drive mirror writes are disabled',
-        'Meeting archive/search lives in the database',
-        'Drive files created: 0',
-      ]) &&
-      includesAll(driveAccessRequestDocSource, [
-        'dry-run delegated Drive preflight only',
-        'does not send request-access emails',
-        'does not add, remove, or transfer Google Drive permissions',
-      ]) &&
-      includesAll(meetingVaultAclDocSource, [
-        'Phase A dry-run implementation only',
-        'Training, all-hands, huddles, workshops, sales sessions, and broad team meetings are not sensitive by default',
-        'Unknown/unclassified files stay blocked until classified',
-        'No Duplicate Google Docs Rule',
-        'Not Approved',
-        'further unapproved Google Drive permission mutations',
-      ]) &&
-      packageJson.scripts?.['process:drive-access-request-check'] === 'node --env-file-if-exists=.env scripts/process-drive-access-request-check.mjs' &&
-      packageJson.scripts?.['process:meeting-vault-acl-check'] === 'node --env-file-if-exists=.env scripts/process-meeting-vault-acl-check.mjs' &&
-      syntheticDriveAccessPreflight.ok &&
-      syntheticMeetingVaultAcl.ok &&
-      latestDriveAccessPreflightRun?.status === 'healthy' &&
-      Number(latestDriveAccessPreflightRun?.inspectedFileCount || 0) > 0 &&
-      latestMeetingVaultAclAudit?.status &&
-      meetingVaultNoDuplicateGoogleDocProof.ok &&
-      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID) &&
-      (meetingVaultAutoEnforcementClosed
-        ? !(foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_ACL_CARD_ID)
-        : (foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_ACL_CARD_ID)) &&
-      buildLogDriveAccessRequestBuild?.operatorCloseout === true &&
-      driveAccessRequestBuildLogExact &&
-      currentPlan.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY) &&
-      currentState.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY),
-    'DRIVE-ACCESS-REQUEST-001 closes delegated Drive dry-run/preflight while Meeting Vault Phase B mutations stay separately approved',
-    `lane=${driveAccessRequest?.lane || 'missing'} latest=${latestDriveAccessPreflightRun?.status || 'missing'} noDuplicateDocs=${meetingVaultNoDuplicateGoogleDocProof.ok ? 'yes' : meetingVaultNoDuplicateGoogleDocProof.findings.join(',')} readinessNamesDrive=${(foundationDoneTestReadinessStatus.blockingCards || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID)} meeting=${meetingVaultAcl?.lane || 'missing'}`,
-  )
-  const meetingVaultAutoEnforcementBuildLogExact = (buildLogMeetingVaultAutoEnforcementBuild?.backlogIds || []).length === 2 &&
-    [MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID, MEETING_VAULT_ACL_CARD_ID]
-      .every(id => (buildLogMeetingVaultAutoEnforcementBuild.backlogIds || []).includes(id)) &&
-    [DRIVE_ACCESS_REQUEST_CARD_ID, FOUNDATION_DONE_TEST_CARD_ID]
-      .every(id => (buildLogMeetingVaultAutoEnforcementBuild.mentionedBacklogIds || []).includes(id)) &&
-    ![DRIVE_ACCESS_REQUEST_CARD_ID, FOUNDATION_DONE_TEST_CARD_ID]
-      .some(id => (buildLogMeetingVaultAutoEnforcementBuild.backlogIds || []).includes(id))
-  ensure(
-    checks,
-    meetingVaultAutoEnforcementClosed &&
-      meetingVaultAutoEnforcementApprovalValidation.ok &&
-      meetingVaultAutoEnforcementApprovalValidation.mode === 'v2' &&
-      meetingVaultAutoEnforcementApproval.cardId === MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID &&
-      Number(meetingVaultAutoEnforcementApproval.score) >= 9.8 &&
-      meetingVaultAutoEnforcementApproval.approvedPlanRef === MEETING_VAULT_AUTO_ENFORCEMENT_PLAN_PATH &&
-      meetingVaultAutoEnforcementApprovalValidation.approval?.approvedPlanRef === MEETING_VAULT_AUTO_ENFORCEMENT_PLAN_PATH &&
-      includesAll(meetingVaultAutoEnforcementPlanSource, [
-        'Original Gemini note is source truth',
-        'Legacy Exception Queue',
-        'When MEETING-VAULT-ACL-001 Can Stop Blocking Foundation',
-        'no Drive mutation',
-      ]) &&
-      includesAll(meetingVaultAutoEnforcementSource, [
-        MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
-        'classifyMeetingVaultAutoEnforcementItem',
-        'buildMeetingVaultAutoEnforcementStatus',
-        'assertMeetingVaultAutoEnforcementMutationApproved',
-        'buildSyntheticMeetingVaultAutoEnforcementProof',
-        'legacy_exception',
-        'remove_high_risk_public_or_domain',
-      ]) &&
-      includesAll(meetingVaultAutoEnforcementScriptSource, [
-        MEETING_VAULT_AUTO_ENFORCEMENT_SUMMARY_MARKER,
-        'recordMeetingVaultAutoEnforcementRun',
-        'updateBacklogItem',
-        'noDuplicateGoogleDocProof',
-        'proof output is metadata-only',
-        'noDriveMutations',
-      ]) &&
-      includesAll(driveMeetingVaultStoreOwnershipSource, [
-        'meeting_vault_enforcement_runs',
-        'meeting_vault_enforcement_items',
-        'meeting_vault_legacy_exceptions',
-        'recordMeetingVaultAutoEnforcementRun',
-        'getLatestMeetingVaultAutoEnforcementRun',
-      ]) &&
-      includesAll(foundationDoneTestRegistrySource, [
-        MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID,
-        MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
-        'npm run process:meeting-vault-auto-enforcement-check',
-      ]) &&
-      includesAll(serverRouteSource, [
-        'meetingVaultAutoEnforcement',
-        'getLatestMeetingVaultAutoEnforcementRun',
-        'getMeetingVaultLegacyExceptions',
-      ]) &&
-      includesAll(foundationFrontendSource, [
-        'renderMeetingVaultAutoEnforcementPanel',
-        'Meeting Vault Auto-Enforcement',
-        'hub.meetingVaultAutoEnforcement',
-      ]) &&
-      includesAll(meetingVaultAutoEnforcementDocSource, [
-        'Meeting Vault Auto-Enforcement',
-        MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
-        'report_only',
-        'Legacy exceptions remain visible work',
-      ]) &&
-      packageJson.scripts?.['process:meeting-vault-auto-enforcement-check'] === 'node --env-file-if-exists=.env scripts/process-meeting-vault-auto-enforcement-check.mjs' &&
-      syntheticMeetingVaultAutoEnforcement.ok &&
-      meetingVaultNoDuplicateGoogleDocProof.ok &&
-      latestMeetingVaultAutoEnforcementRun?.reportHash &&
-      foundationHub.meetingVaultAutoEnforcement?.latestRun?.reportHash === latestMeetingVaultAutoEnforcementRun?.reportHash &&
-      foundationDoneTestReadinessStatus.status === 'ready' &&
-      foundationDoneTestReadinessStatus.readyForStrategy === true &&
-      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_ACL_CARD_ID) &&
-      !(foundationDoneTestReadinessStatus.blockingCards || []).includes(MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID) &&
-      buildLogMeetingVaultAutoEnforcementBuild?.operatorCloseout === true &&
-      meetingVaultAutoEnforcementBuildLogExact &&
-      currentPlan.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY) &&
-      currentState.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY) &&
-      currentState.includes('automatic report-only forward-flow proof') &&
-      includesAll(foundationVerifySource, MEETING_VAULT_AUTO_ENFORCEMENT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'MEETING-VAULT-AUTO-ENFORCEMENT-001 closes the meeting raw Drive ACL/vault readiness blocker through automatic forward-flow proof',
-    `auto=${meetingVaultAutoEnforcement?.lane || 'missing'} meeting=${meetingVaultAcl?.lane || 'missing'} run=${latestMeetingVaultAutoEnforcementRun?.status || 'missing'} hash=${latestMeetingVaultAutoEnforcementRun?.reportHash || 'missing'} readiness=${foundationDoneTestReadinessStatus.status}`,
-  )
+  const readinessBlockerCloseoutVerifier = await evaluateFoundationVerifierReadinessBlockerCloseout({
+    activeFoundationSprint,
+    buildLogDriveAccessRequestBuild,
+    buildLogExtractRunHardeningBuild,
+    buildLogMeetingVaultAutoEnforcementBuild,
+    buildLogSourceLifecycleCompletionBuild,
+    buildLogSynthesisVerifyBuild,
+    currentPlan,
+    currentSprintItemsById,
+    currentState,
+    driveAccessPreflightSource,
+    driveAccessRequest,
+    driveAccessRequestApproval,
+    driveAccessRequestApprovalValidation,
+    driveAccessRequestDocSource,
+    driveAccessRequestPlanSource,
+    driveAccessRequestScriptSource,
+    driveMeetingVaultStoreOwnershipSource,
+    extractRunHardening,
+    extractRunHardeningApproval,
+    extractRunHardeningApprovalValidation,
+    extractRunHardeningDocSource,
+    extractRunHardeningPlanSource,
+    extractRunHardeningScriptSource,
+    extractRunHardeningSource,
+    extractionTargetSource,
+    foundationBuildCloseouts,
+    foundationDoneTestReadinessStatus,
+    foundationDoneTestRegistrySource,
+    foundationFrontendSource,
+    foundationHub,
+    foundationVerifySource: verifierCoverageSource,
+    foundationWorkerSource,
+    intelligenceActionRouterSource,
+    intelligenceSynthesisSource,
+    latestDriveAccessPreflightRun,
+    latestMeetingVaultAclAudit,
+    latestMeetingVaultAutoEnforcementRun,
+    meetingVaultAcl,
+    meetingVaultAclDocSource,
+    meetingVaultAclScriptSource,
+    meetingVaultAclSource,
+    meetingVaultAutoEnforcement,
+    meetingVaultAutoEnforcementApproval,
+    meetingVaultAutoEnforcementApprovalValidation,
+    meetingVaultAutoEnforcementClosed,
+    meetingVaultAutoEnforcementDocSource,
+    meetingVaultAutoEnforcementPlanSource,
+    meetingVaultAutoEnforcementScriptSource,
+    meetingVaultAutoEnforcementSource,
+    meetingVaultNoDuplicateGoogleDocProof,
+    mirrorMeetingArchiveToDriveSource,
+    packageJson,
+    repoFileExists,
+    serverRouteSource,
+    sourceCrawlStoreOwnershipSource,
+    sourceLifecycleCompletion,
+    sourceLifecycleCompletionApproval,
+    sourceLifecycleCompletionApprovalValidation,
+    sourceLifecycleCompletionDocSource,
+    sourceLifecycleCompletionPlanSource,
+    sourceLifecycleCompletionRegistrySource,
+    sourceLifecycleCompletionScriptSource,
+    sourceLifecycleCompletionStatus,
+    sourceLifecycleDynamicCounts,
+    sourceLifecycleDynamicCountsApproval,
+    sourceLifecycleDynamicCountsApprovalValidation,
+    sourceLifecycleDynamicCountsPlanSource,
+    sourceLifecycleDynamicCountsScriptSource,
+    sourceLifecycleDynamicCountsSource,
+    syncMeetingNotesArchiveSource,
+    synthesisVerify,
+    synthesisVerifyApproval,
+    synthesisVerifyApprovalValidation,
+    synthesisVerifyDocSource,
+    synthesisVerifyPlanSource,
+    synthesisVerifyRegistrySource,
+    synthesisVerifyScriptSource,
+    syntheticDriveAccessPreflight,
+    syntheticMeetingVaultAcl,
+    syntheticMeetingVaultAutoEnforcement,
+  })
+  checks.push(...readinessBlockerCloseoutVerifier.checks)
   const foundationSprintSystemBuildLogExact = buildLogFoundationSprintSystemBuild?.backlogIds?.length === 1 &&
     buildLogFoundationSprintSystemBuild.backlogIds.includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
     [
@@ -9746,6 +9403,34 @@ async function main() {
     verifierPhaseGOperatorCloseoutCard
       ? 'lane=' + verifierPhaseGOperatorCloseoutCard.lane + ' dogfood=' + (verifierPhaseGOperatorCloseoutDogfood.ok ? 'pass' : 'blocked') + ' phaseGChecks=' + phaseGOperatorCloseoutVerifier.summary.passed + '/' + phaseGOperatorCloseoutVerifier.summary.total + ' lines=' + VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_BEFORE_LINES + '->' + foundationVerifyLineCountAfterPhaseGOperatorCloseout
       : 'missing ' + VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CARD_ID,
+  )
+  const verifierReadinessBlockerCloseoutCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID) || null
+  const verifierReadinessBlockerCloseoutCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CLOSEOUT_KEY) || null
+  const verifierReadinessBlockerCloseoutDogfood = buildFoundationVerifierReadinessBlockerCloseoutDogfoodProof()
+  const foundationVerifyLineCountAfterReadinessBlockerCloseout = String(foundationVerifySource || '').split('\n').length
+  const oldReadinessBlockerInlineMarker = 'const source' + 'LifecycleCompletionBuildLogExact ='
+  ensure(
+    checks,
+    verifierReadinessBlockerCloseoutCard &&
+      ['executing', 'done'].includes(verifierReadinessBlockerCloseoutCard.lane) &&
+      String(verifierReadinessBlockerCloseoutCard.statusNote || '').includes(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CLOSEOUT_KEY) &&
+      verifierReadinessBlockerCloseoutCloseout?.operatorCloseout === true &&
+      (verifierReadinessBlockerCloseoutCloseout.backlogIds || []).includes(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID) &&
+      verifierReadinessBlockerCloseoutDogfood.ok === true &&
+      readinessBlockerCloseoutVerifier.summary.passed === readinessBlockerCloseoutVerifier.summary.total &&
+      packageJson.scripts?.['process:verifier-readiness-blocker-closeout-split-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_SCRIPT_PATH &&
+      await repoFileExists(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_PLAN_PATH) &&
+      await repoFileExists(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_APPROVAL_PATH) &&
+      await repoFileExists(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_HANDOFF_PATH) &&
+      foundationVerifySource.includes('evaluateFoundationVerifierReadinessBlockerCloseout({') &&
+      foundationVerifySource.includes('readinessBlockerCloseoutVerifier.checks') &&
+      !foundationVerifySource.includes(oldReadinessBlockerInlineMarker) &&
+      foundationVerifyLineCountAfterReadinessBlockerCloseout < VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_BEFORE_LINES &&
+      foundationVerifierReadinessBlockerCloseoutSource.includes(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID),
+    'VERIFIER-READINESS-BLOCKER-CLOSEOUT-SPLIT-001 extracts readiness blocker closeout verifier checks into a focused module',
+    verifierReadinessBlockerCloseoutCard
+      ? 'lane=' + verifierReadinessBlockerCloseoutCard.lane + ' dogfood=' + (verifierReadinessBlockerCloseoutDogfood.ok ? 'pass' : 'blocked') + ' readinessChecks=' + readinessBlockerCloseoutVerifier.summary.passed + '/' + readinessBlockerCloseoutVerifier.summary.total + ' lines=' + VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_BEFORE_LINES + '->' + foundationVerifyLineCountAfterReadinessBlockerCloseout
+      : 'missing ' + VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID,
   )
   const verifierRecentBuildsSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID) || null
   const verifierRecentBuildsSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY) || null

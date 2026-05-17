@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-READINESS-BLOCKER-CLOSEOUT-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T06:18:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for readiness blocker closeout verifier extraction: source lifecycle completion, source lifecycle dynamic counts, synthesis verification, extraction run hardening, Drive access request, Meeting Vault ACL readiness, and Meeting Vault auto-enforcement checks move to lib/foundation-verifier-readiness-blocker-closeout.js. Not approved: arbitrary tail extraction, behavior rewrites, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, or Harlan runtime work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-readiness-blocker-closeout-split-001-plan.md",
+  "approvedPlanSha256": "e3cf239854b02b5b0aa11c739cb3519a353bcfba1e5cb135229ae21111dd0759",
+  "approvedRepoHead": "a9750b2644d03f2757a8e2b5df0a139ded6dc8f3",
+  "approvalDigest": "c08658eb9010801eaff346295e9ddb6cc059d07a7b255ab5d8fc0529edf83ca4"
+}
