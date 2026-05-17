@@ -1,0 +1,13 @@
+{
+  "cardId": "CRITICAL-ROOTS-UNDER-3K-PHASE-2",
+  "score": 10,
+  "approvedBy": "Steve explicit CRITICAL-ROOTS-UNDER-3K-PHASE-2 sprint approval + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T19:15:00.000-04:00",
+  "approvalSource": "Steve instructed Codex to start CRITICAL-ROOTS-UNDER-3K-PHASE-2, continue reducing critical root files toward the engineering standard without behavior changes, pick the next clean domain-based split from the highest-risk root, add focused proof, run backlog hygiene/foundation:verify/full process:foundation-ship, close out, commit, push, then pause.",
+  "notes": "Approved only for Foundation critical-root size reduction, verifier live API snapshot split, focused proof, closeout, and ship gates. Not approved: UI polish, hub feature work, Canva/Fal/voice/Harlan runtime, connector auth requiring Steve, broad feature work, Agent Feedback live auto-send, DB schema changes, route behavior changes, or Steve local mockup assets.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/critical-roots-under-3k-phase-2-plan.md",
+  "approvedPlanSha256": "2f7ecf7e3187011060258edd90c131f9c0e21a9c83293556aa7f3f0d87802914",
+  "approvedRepoHead": "a4857d3fd4ae5d19f20ce9b28feac733b83c9b88",
+  "approvalDigest": "af835d8e3c15a104a3dc9c423603c723f6cb0d1b2232d28216d96bb8c65facaa"
+}

@@ -684,7 +684,6 @@ import {
 } from '../lib/foundation-daily-exec-summary.js'
 import {
   buildSourceLifecycleExpansionCheck,
-  SOURCE_LIFECYCLE_API_PATH,
   SOURCE_LIFECYCLE_APPROVAL_PATH,
   SOURCE_LIFECYCLE_APPROVED_PLAN_PATH,
   SOURCE_LIFECYCLE_BASELINE_PATH,
@@ -1510,9 +1509,6 @@ import {
   auditDirectModelHostUsage,
   buildFoundationVerifyRuntimeSupportDogfoodProof,
   buildFoundationVerifyTimingProfile,
-  fetchJson,
-  fetchTextResponse,
-  fetchTextResponseWithHostHeader,
   getCurrentRepoHead,
   getLaunchAgentStatus,
   line,
@@ -1527,6 +1523,7 @@ import {
   verifyPrivateMemorySyntheticProbe,
   verifyProcessFoundationShipRefusesMissingArgs,
 } from '../lib/foundation-verify-runtime-support.js'
+import { loadFoundationVerifyLiveApiSnapshot } from '../lib/foundation-verify-live-api-snapshot.js'
 
 function ensure(checks, condition, check, detail) {
   if (!condition) {
@@ -2795,17 +2792,19 @@ async function main() {
   )
   const staleSourceCrawlRuns = await getStaleSourceCrawlTargetRuns({ olderThanMinutes: 30, limit: 10 })
 
-  const sourceOfTruth = await fetchJson(baseUrl, '/api/source-of-truth')
-  const systemInventory = await fetchJson(baseUrl, '/api/system-inventory')
-  const foundationHubSummary = await fetchJson(baseUrl, '/api/foundation-hub')
-  const foundationHubFull = await fetchJson(baseUrl, '/api/foundation-hub?view=full')
-  const foundationHub = {
-    ...foundationHubFull,
-    ...foundationHubSummary,
-    backlogItems: foundationHubFull.backlogItems || foundationHubSummary.backlogItems,
-    foundation1100Review: foundationHubFull.foundation1100Review || foundationHubSummary.foundation1100Review,
-    fullDiagnostics: foundationHubFull,
-  }
+  const {
+    sourceOfTruth, systemInventory, foundationHubSummary, foundationHubFull, foundationHub,
+    foundationBacklogDetailEndpointApi, actionReviewApi, foundationBuildLog, foundationChangeLog, foundationDailySummary, foundationDocUpdatesApi,
+    foundationSourceLifecycle, foundationSourceMaturityGrid, foundationSourceExtractionCoverage, foundationSourceCoverageCloseout,
+    foundationSourceConnectorMatrixApi, foundationConnectorCredentialPreflightApi, foundationSourceHubRoutingMatrixApi,
+    foundationMarketingSourceMap, foundationBrandStack, foundationTierBehavioralCompletion, foundationVerificationRuns,
+    foundationPerUserChangelog, foundationRestrictedDecisionQueue, foundationBuildIntelWatchlist, foundationMultimodalExtractorContract,
+    foundationResearchInboxContract, foundationControlCompressionApi, foundationImplementationIntelligenceApi, foundationBuildIntelExtractionApi,
+    foundationGStackBuildIntelApi, foundationChangesApi, strategyPreworkCoverageApi, strategyGoalTruthApi, strategyOperatingTruthApi, strategyHubV2Api,
+    opsHub, ownersLeadSourceGovernance, ownersReviewQueue, localDocSuccessResponse, localDocNonLocalResponse, localDocTraversalResponse,
+    localDocNonAllowlistedResponse, extractionTargets, extractionCoverageTargets, extractionStaleActiveRuns, extractionRecentStaleReapedRuns,
+    sourceTruthKpiHealth, foundationHubKpiHealth, backlogHygieneApi,
+  } = await loadFoundationVerifyLiveApiSnapshot({ baseUrl })
   const activeFoundationSprintForExtractionRuntime = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
   const extractionRuntimeOrchestrationVerifier = await evaluateFoundationExtractionRuntimeVerifierOrchestration({
     activeFoundationSprint: activeFoundationSprintForExtractionRuntime,
@@ -2849,63 +2848,6 @@ async function main() {
     staleLlmCalls,
   })
   checks.push(...extractionRuntimeOrchestrationVerifier.checks)
-  const foundationBacklogDetailEndpointApi = await fetchJson(baseUrl, '/api/foundation/backlog/FOUNDATION-HUB-BACKLOG-CONTRACT-001')
-  const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
-  const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=500')
-  const foundationChangeLog = await fetchJson(baseUrl, '/api/foundation/change-log?limit=100')
-  const foundationDailySummary = await fetchJson(baseUrl, '/api/foundation/daily-summary?date=2026-04-30&days=7')
-  const foundationDocUpdatesApi = await fetchJson(baseUrl, '/api/foundation/doc-updates')
-  const foundationSourceLifecycle = await fetchJson(baseUrl, SOURCE_LIFECYCLE_API_PATH)
-  const foundationSourceMaturityGrid = await fetchJson(baseUrl, '/api/foundation/source-maturity-grid')
-  const foundationSourceExtractionCoverage = await fetchJson(baseUrl, '/api/foundation/source-extraction-coverage')
-  const foundationSourceCoverageCloseout = await fetchJson(baseUrl, '/api/foundation/source-coverage-closeout')
-  const foundationSourceConnectorMatrixApi = await fetchJson(baseUrl, '/api/foundation/source-connector-matrix')
-  const foundationConnectorCredentialPreflightApi = await fetchJson(baseUrl, '/api/foundation/connector-credential-preflight')
-  const foundationSourceHubRoutingMatrixApi = await fetchJson(baseUrl, '/api/foundation/source-hub-routing-matrix')
-  const foundationMarketingSourceMap = await fetchJson(baseUrl, '/api/foundation/marketing-source-map')
-  const foundationBrandStack = await fetchJson(baseUrl, '/api/foundation/brand-stack')
-  const foundationTierBehavioralCompletion = await fetchJson(baseUrl, '/api/foundation/tier-behavioral-completion')
-  const foundationVerificationRuns = await fetchJson(baseUrl, '/api/foundation/verification-runs')
-  const foundationPerUserChangelog = await fetchJson(baseUrl, '/api/foundation/per-user-changelog?limit=100')
-  const foundationRestrictedDecisionQueue = await fetchJson(baseUrl, '/api/foundation/restricted-decision-queue?limit=100')
-  const foundationBuildIntelWatchlist = await fetchJson(baseUrl, '/api/foundation/build-intel-watchlist')
-  const foundationMultimodalExtractorContract = await fetchJson(baseUrl, '/api/foundation/multimodal-extractor-contract')
-  const foundationResearchInboxContract = await fetchJson(baseUrl, '/api/foundation/research-inbox-contract')
-  const foundationControlCompressionApi = await fetchJson(baseUrl, '/api/foundation/control-compression')
-  const foundationImplementationIntelligenceApi = await fetchJson(baseUrl, '/api/foundation/implementation-intelligence')
-  const foundationBuildIntelExtractionApi = await fetchJson(baseUrl, '/api/foundation/build-intel-extraction')
-  const foundationGStackBuildIntelApi = await fetchJson(baseUrl, '/api/foundation/gstack-build-intel')
-  const foundationChangesApi = await fetchJson(baseUrl, '/api/foundation/changes?limit=20')
-  const strategyPreworkCoverageApi = await fetchJson(baseUrl, '/api/strategic-execution/prework-coverage')
-  const strategyGoalTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/goal-truth')
-  const strategyOperatingTruthApi = await fetchJson(baseUrl, '/api/strategic-execution/operating-truth')
-  const strategyHubV2Api = await fetchJson(baseUrl, '/api/strategic-execution/v2')
-  const opsHub = await fetchJson(baseUrl, '/api/ops-hub')
-  const ownersLeadSourceGovernance = await fetchJson(baseUrl, '/api/owners/lead-source-governance')
-  const ownersReviewQueue = await fetchJson(baseUrl, '/api/owners/review-queue')
-  const localDocSuccessResponse = await fetchTextResponse(baseUrl, '/api/foundation/local-doc/USER.md')
-    .catch(error => ({ ok: false, status: 0, text: error instanceof Error ? error.message : String(error) }))
-  const localDocNonLocalResponse = await fetchTextResponseWithHostHeader(baseUrl, '/api/foundation/local-doc/USER.md', 'example.com')
-    .catch(error => ({ ok: false, status: 0, text: error instanceof Error ? error.message : String(error) }))
-  const localDocTraversalResponse = await fetchTextResponse(baseUrl, '/api/foundation/local-doc/..%2F..%2F..%2Fetc%2Fpasswd')
-    .catch(error => ({ ok: false, status: 0, text: error instanceof Error ? error.message : String(error) }))
-  const localDocNonAllowlistedResponse = await fetchTextResponse(baseUrl, '/api/foundation/local-doc/AGENTS.md')
-    .catch(error => ({ ok: false, status: 0, text: error instanceof Error ? error.message : String(error) }))
-  const extractionTargets = Array.isArray(foundationHub.extractionControl?.targets)
-    ? foundationHub.extractionControl.targets
-    : []
-  const extractionCoverageTargets = Array.isArray(foundationHub.extractionControl?.coverageByTarget)
-    ? foundationHub.extractionControl.coverageByTarget
-    : []
-  const extractionStaleActiveRuns = Array.isArray(foundationHub.extractionControl?.staleActiveRuns)
-    ? foundationHub.extractionControl.staleActiveRuns
-    : []
-  const extractionRecentStaleReapedRuns = Array.isArray(foundationHub.extractionControl?.recentStaleReapedRuns)
-    ? foundationHub.extractionControl.recentStaleReapedRuns
-    : []
-  const sourceTruthKpiHealth = sourceOfTruth.kpiHealth || {}
-  const foundationHubKpiHealth = foundationHub.kpiHealth || {}
-  const backlogHygieneApi = foundationHub.backlogHygiene || {}
   const foundationBuildCloseouts = getFoundationBuildCloseouts()
   const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
   const findBuildLogCloseoutEntry = (cardId, closeoutKey) => buildFoundationVerifierBuildLogCloseoutEntry({
@@ -3068,6 +3010,7 @@ async function main() {
     'NIGHTLY-AUDIT-RUN-PROOF-001',
     'SYSTEM-HEALTH-NIGHTLY-AUDIT-001',
     'SCHEDULED-JOB-STALENESS-DASHBOARD-001', 'SYSTEM-HEALTH-RED-ROW-REPAIR-001', 'VERIFICATION-RUNS-READONLY-SPLIT-001', 'CONNECTOR-BLOCKED-ROW-DIAGNOSIS-001', 'CONNECTOR-COMPLETION-SPRINT', 'SOURCE-CONTRACT-ID-RECONCILE-001',
+    'CRITICAL-ROOTS-UNDER-3K-PHASE-2',
   ]
   const activeSprintAtOrPast = expectedCardIds =>
     expectedCardIds.includes(currentSprintActiveBlockerCardId) ||

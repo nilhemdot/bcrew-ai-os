@@ -137,6 +137,7 @@
     "process:plan-critic-architectural-rules-check": "node --env-file-if-exists=.env scripts/process-plan-critic-architectural-rules-check.mjs",
     "process:file-size-engineering-standard-check": "node --env-file-if-exists=.env scripts/process-file-size-engineering-standard-check.mjs",
     "process:critical-roots-under-3k-check": "node --env-file-if-exists=.env scripts/process-critical-roots-under-3k-check.mjs",
+    "process:critical-roots-under-3k-phase-2-check": "node --env-file-if-exists=.env scripts/process-critical-roots-under-3k-phase-2-check.mjs",
     "process:backlog-queue-reconcile-check": "node --env-file-if-exists=.env scripts/process-backlog-queue-reconcile-check.mjs",
     "process:backlog-scrum-master-grooming-check": "node --env-file-if-exists=.env scripts/process-backlog-scrum-master-grooming-check.mjs",
     "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",
