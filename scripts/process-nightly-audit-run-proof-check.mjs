@@ -13,6 +13,7 @@ import {
   getFoundationJobRunSnapshot,
   getPlanCriticRunsByCardIds,
 } from '../lib/foundation-db.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { getFoundationJobDefinition } from '../lib/foundation-jobs.js'
 import {
   NIGHTLY_DEEP_AUDIT_JOB_KEY,
@@ -83,6 +84,19 @@ async function main() {
   const packageJson = JSON.parse(packageJsonSource)
   const card = cards.find(item => item.id === NIGHTLY_AUDIT_RUN_PROOF_CARD_ID) || null
   const sprintItem = activeSprint.items?.find(item => item.cardId === NIGHTLY_AUDIT_RUN_PROOF_CARD_ID) || null
+  const closeout = getFoundationBuildCloseouts().find(item =>
+    item.key === NIGHTLY_AUDIT_RUN_PROOF_CLOSEOUT_KEY &&
+    (item.backlogIds || []).includes(NIGHTLY_AUDIT_RUN_PROOF_CARD_ID)
+  ) || null
+  const activeSprintOwnsCard = activeSprint.sprint?.sprintId === SPRINT_ID &&
+    sprintItem &&
+    ['building_now', 'done_this_sprint'].includes(sprintItem.stage)
+  const activeSprintDoctrineOk = Boolean(sprintItem?.planRef) &&
+    sprintItem.planRef === NIGHTLY_AUDIT_RUN_PROOF_PLAN_PATH &&
+    Boolean(sprintItem?.definitionOfDone)
+  const closedWithCloseout = card?.lane === 'done' &&
+    closeout?.operatorCloseout === true &&
+    closeout?.status === 'accepted'
   const job = getFoundationJobDefinition(NIGHTLY_DEEP_AUDIT_JOB_KEY)
   const latestRun = latestRunForJob(jobSnapshot, NIGHTLY_DEEP_AUDIT_JOB_KEY)
   const dogfood = buildNightlyAuditRunProofDogfood()
@@ -94,8 +108,8 @@ async function main() {
 
   addCheck(checks, approval.ok && Number(approval.approval?.score) >= 9.8, 'approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || NIGHTLY_AUDIT_RUN_PROOF_APPROVAL_PATH)
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  addCheck(checks, activeSprint.sprint?.sprintId === SPRINT_ID && sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains run-proof card in active/done stage', activeSprint.sprint ? `${activeSprint.sprint.sprintId}:${sprintItem?.stage || 'missing'}` : 'missing sprint')
-  addCheck(checks, Boolean(sprintItem?.planRef) && sprintItem.planRef === NIGHTLY_AUDIT_RUN_PROOF_PLAN_PATH && Boolean(sprintItem?.definitionOfDone), 'Current Sprint doctrine is populated for run-proof card', sprintItem?.planRef || 'missing doctrine')
+  addCheck(checks, activeSprintOwnsCard || closedWithCloseout, 'run-proof card is active with sprint ownership or closed with Recent Work closeout', activeSprintOwnsCard ? `${activeSprint.sprint.sprintId}:${sprintItem.stage}` : closeout ? `${card?.lane}:${closeout.key}` : activeSprint.sprint ? `${activeSprint.sprint.sprintId}:missing closeout` : 'missing sprint/closeout')
+  addCheck(checks, activeSprintDoctrineOk || closedWithCloseout, 'run-proof doctrine is active-sprint populated or preserved by closeout', activeSprintDoctrineOk ? sprintItem.planRef : closeout ? closeout.key : 'missing doctrine/closeout')
   addCheck(checks, planCriticRuns.some(run => run.cardId === NIGHTLY_AUDIT_RUN_PROOF_CARD_ID && run.status === 'pass' && Number(run.score) >= 9.8), 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, packageJson.scripts?.['process:nightly-audit-run-proof-check'] === `node --env-file-if-exists=.env ${NIGHTLY_AUDIT_RUN_PROOF_SCRIPT_PATH}`, 'package script points to focused proof', packageJson.scripts?.['process:nightly-audit-run-proof-check'] || 'missing')
   addCheck(checks, job?.key === NIGHTLY_DEEP_AUDIT_JOB_KEY && job.runtimeMode === 'scheduled' && job.mutationPosture === 'report_only' && job.scheduleMutationGuard?.ok === true, 'nightly audit job stays scheduled report-only and guard-approved', job ? `${job.runtimeMode}/${job.scheduleEveryMinutes}/${job.mutationPosture}/${job.scheduleMutationGuard?.ok}` : 'missing job')
@@ -104,6 +118,7 @@ async function main() {
   addCheck(checks, latestRun?.jobKey === NIGHTLY_DEEP_AUDIT_JOB_KEY && latestRun?.status === 'succeeded', 'latest job-run ledger has a successful nightly audit run', latestRun ? `${latestRun.runId}/${latestRun.status}/${latestRun.finishedAt || latestRun.startedAt}` : 'missing latest run')
   addCheck(checks, moduleSource.includes('NIGHTLY_AUDIT_RUN_PROOF_GRACE_MINUTES') && moduleSource.includes('buildNightlyAuditRunFreshnessStatus') && moduleSource.includes('stale prior-day success after audit window deadline fails'), 'run-proof module owns freshness semantics and dogfood fixtures', 'lib/nightly-audit-run-proof.js')
   addCheck(checks, verifierSource.includes('buildNightlyAuditRunFreshnessStatus') && verifierSource.includes('NIGHTLY-AUDIT-RUN-PROOF-001 fails closed'), 'foundation verifier consumes run freshness proof', 'lib/foundation-intelligence-audit-verifier.js')
+  addCheck(checks, closeout?.operatorCloseout === true && (closeout.proofCommands || []).some(command => command.includes('process:nightly-audit-run-proof-check')), 'Recent Work closeout preserves reusable proof command', closeout ? closeout.key : 'missing closeout')
   addCheck(checks, planSource.includes('green auditor must prove actual successful execution') && planSource.includes('Dogfood proof recreates the exact miss'), 'plan names the false-green root invariant', NIGHTLY_AUDIT_RUN_PROOF_PLAN_PATH)
   addCheck(checks, !mutationTokens.test(scriptSource), 'focused proof is read-only and has no live mutation/write path', NIGHTLY_AUDIT_RUN_PROOF_SCRIPT_PATH)
 
