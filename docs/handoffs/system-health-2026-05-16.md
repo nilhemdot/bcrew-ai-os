@@ -1,30 +1,5 @@
-# System Health - 2026-05-16
+# Archived Handoff Pointer
 
-Status: healthy
+The full generated system-health artifact was moved to `docs/_archive/handoffs/system-health-2026-05-16.md`.
 
-Foundation system health has no red or yellow rollup findings.
-
-## Summary
-
-- Risk findings: 0
-- Watch findings: 0
-- Scheduled job red: 0
-- Scheduled job yellow: 0
-- Connector down/degraded/blocked: 0/0/0
-- Endpoint risk/review: 0/0
-- Source contracts: 36
-
-## Red / Yellow Scheduled Jobs
-
-_None._
-
-## Findings
-
-_None._
-
-## Posture
-
-- Report only: true
-- Auto-fixes: false
-- Backlog mutation: false
-- Source-system mutation: false
+This hot-path stub preserves historical closeout proof links while keeping `docs/handoffs` under the active handoff budget.

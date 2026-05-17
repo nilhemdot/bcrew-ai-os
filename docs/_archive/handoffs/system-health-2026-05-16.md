@@ -1,4 +1,4 @@
-# System Health - 2026-05-17
+# System Health - 2026-05-16
 
 Status: healthy
 
@@ -12,8 +12,7 @@ Foundation system health has no red or yellow rollup findings.
 - Scheduled job yellow: 0
 - Connector down/degraded/blocked: 0/0/0
 - Endpoint risk/review: 0/0
-- Doc/report bloat risk/review: 0/0
-- Source contracts: 39
+- Source contracts: 36
 
 ## Red / Yellow Scheduled Jobs
 
