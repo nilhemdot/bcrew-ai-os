@@ -284,6 +284,7 @@ async function main() {
   addCheck(
     checks,
     moduleSource.includes('evaluateFoundationExtractionRuntimeVerifier') &&
+      moduleSource.includes('evaluateFoundationExtractionRuntimeVerifierOrchestration') &&
       moduleSource.includes('buildFoundationExtractionRuntimeVerifierDogfoodProof') &&
       proofScriptSource.includes('dogfood rejects extraction-runtime verifier failures'),
     'module and proof script own the extracted behavior',
@@ -291,8 +292,10 @@ async function main() {
   )
   addCheck(
     checks,
-    foundationVerifySource.includes('evaluateFoundationExtractionRuntimeVerifier({') &&
-      foundationVerifySource.includes('extractionRuntimeVerifier.checks') &&
+    (foundationVerifySource.includes('evaluateFoundationExtractionRuntimeVerifier({') ||
+      foundationVerifySource.includes('evaluateFoundationExtractionRuntimeVerifierOrchestration({')) &&
+      (foundationVerifySource.includes('extractionRuntimeVerifier.checks') ||
+        foundationVerifySource.includes('extractionRuntimeOrchestrationVerifier.checks')) &&
       oldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)),
     'root verifier delegates extraction-runtime rows instead of keeping old inline predicates',
     'delegation present and old inline bookend labels absent',

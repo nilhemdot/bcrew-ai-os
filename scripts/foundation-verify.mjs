@@ -441,15 +441,11 @@ import {
   evaluateFoundationIntelligenceSpineVerifierOrchestration,
 } from '../lib/foundation-intelligence-spine-verifier.js'
 import {
-  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_APPROVAL_PATH,
-  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
-  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY,
   VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_PLAN_PATH,
   VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SCRIPT_PATH,
-  VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SPRINT_ID,
-  buildFoundationExtractionRuntimeVerifierDogfoodProof,
-  evaluateFoundationExtractionRuntimeVerifier,
+  VERIFIER_EXTRACTION_RUNTIME_ORCHESTRATION_SPLIT_CARD_ID,
+  evaluateFoundationExtractionRuntimeVerifierOrchestration,
 } from '../lib/foundation-extraction-runtime-verifier.js'
 import { CRAWL_RUN_LEDGER_SCRIPT_PATH } from '../lib/crawl-run-ledger.js'
 import {
@@ -2238,6 +2234,7 @@ async function main() {
     VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
     VERIFIER_INTELLIGENCE_SPINE_ORCHESTRATION_SPLIT_CARD_ID,
     VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
+    VERIFIER_EXTRACTION_RUNTIME_ORCHESTRATION_SPLIT_CARD_ID,
     VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_CARD_ID,
     VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
@@ -3509,9 +3506,17 @@ async function main() {
     foundation1100Review: foundationHubFull.foundation1100Review || foundationHubSummary.foundation1100Review,
     fullDiagnostics: foundationHubFull,
   }
-  const extractionRuntimeVerifier = evaluateFoundationExtractionRuntimeVerifier({
+  const activeFoundationSprintForExtractionRuntime = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const extractionRuntimeOrchestrationVerifier = await evaluateFoundationExtractionRuntimeVerifierOrchestration({
+    activeFoundationSprint: activeFoundationSprintForExtractionRuntime,
     foundationHub,
     foundationBuildCloseouts: getFoundationBuildCloseouts(),
+    foundationExtractionRuntimeVerifierSource,
+    foundationVerifyRootSource: foundationVerifySource,
+    verifierExtractionRuntimeSplitModuleScriptSource,
+    verifierExtractionRuntimeSplitModulePlanSource,
+    packageJson,
+    repoFileExists,
     foundationDbSource,
     sourceCrawlStoreSource: foundationSourceCrawlStoreSource,
     llmRuntimeStoreSource: foundationLlmRuntimeStoreSource,
@@ -3543,53 +3548,7 @@ async function main() {
     processingProvenanceGaps,
     staleLlmCalls,
   })
-  checks.push(...extractionRuntimeVerifier.checks)
-  const activeFoundationSprintForExtractionRuntime = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
-  const verifierExtractionRuntimeSplitModuleCard =
-    verifierSplitBacklogItemById.get(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID) ||
-    (activeFoundationSprintForExtractionRuntime.items || [])
-      .map(item => item.backlog)
-      .find(item => item?.id === VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID) ||
-    null
-  const verifierExtractionRuntimeSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const verifierExtractionRuntimeSplitModuleDogfood = buildFoundationExtractionRuntimeVerifierDogfoodProof()
-  const verifierExtractionRuntimeSplitModuleClosed = verifierExtractionRuntimeSplitModuleCard?.lane === 'done'
-  const foundationVerifyLineCountAfterExtractionRuntimeSplit = String(foundationVerifySource || '').split('\n').length
-  const extractionRuntimeOldInlinePatterns = [
-    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1200}'Foundation worker catches job failures and reaps stale active runs/calls'"),
-    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1200}'llm_calls has no timeout-expired planned/started calls'"),
-  ]
-  ensure(
-    checks,
-    verifierExtractionRuntimeSplitModuleCard &&
-      ['executing', 'done'].includes(verifierExtractionRuntimeSplitModuleCard.lane) &&
-      (!verifierExtractionRuntimeSplitModuleClosed || (
-        String(verifierExtractionRuntimeSplitModuleCard.statusNote || '').includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY) &&
-        verifierExtractionRuntimeSplitModuleCloseout?.operatorCloseout === true &&
-        (verifierExtractionRuntimeSplitModuleCloseout.backlogIds || []).includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-verifier-extraction-runtime-split-module-closeout.md')
-      )) &&
-      verifierExtractionRuntimeSplitModuleDogfood.ok === true &&
-      extractionRuntimeVerifier.summary.passed === extractionRuntimeVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-extraction-runtime-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_APPROVAL_PATH) &&
-      foundationExtractionRuntimeVerifierSource.includes('evaluateFoundationExtractionRuntimeVerifier') &&
-      foundationExtractionRuntimeVerifierSource.includes('buildFoundationExtractionRuntimeVerifierDogfoodProof') &&
-      verifierExtractionRuntimeSplitModuleScriptSource.includes('dogfood rejects extraction-runtime verifier failures') &&
-      verifierExtractionRuntimeSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
-      foundationVerifySource.includes('evaluateFoundationExtractionRuntimeVerifier({') &&
-      foundationVerifySource.includes('extractionRuntimeVerifier.checks') &&
-      extractionRuntimeOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
-      currentPlan.includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      currentState.includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      (activeFoundationSprintForExtractionRuntime.sprint?.sprintId === VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_SPRINT_ID || verifierExtractionRuntimeSplitModuleClosed) &&
-      foundationExtractionRuntimeVerifierSource.includes(VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID),
-    'VERIFIER-EXTRACTION-RUNTIME-SPLIT-MODULE-001 extracts extraction runtime verifier checks into a focused module',
-    verifierExtractionRuntimeSplitModuleCard
-      ? `lane=${verifierExtractionRuntimeSplitModuleCard.lane} dogfood=${verifierExtractionRuntimeSplitModuleDogfood.ok ? 'pass' : 'blocked'} extractionChecks=${extractionRuntimeVerifier.summary.passed}/${extractionRuntimeVerifier.summary.total} lines=${VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterExtractionRuntimeSplit}`
-      : `missing ${VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID}`,
-  )
+  checks.push(...extractionRuntimeOrchestrationVerifier.checks)
   const foundationBacklogDetailEndpointApi = await fetchJson(baseUrl, '/api/foundation/backlog/FOUNDATION-HUB-BACKLOG-CONTRACT-001')
   const actionReviewApi = await fetchJson(baseUrl, '/api/foundation/action-review')
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=500')

@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-EXTRACTION-RUNTIME-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T09:30:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for extraction-runtime orchestration extraction covering the existing extraction-runtime evaluator call, check aggregation, historical split self-check, dogfood proof, and wrapper-compatible focused proof inside lib/foundation-extraction-runtime-verifier.js. Not approved: arbitrary tail extraction, behavior rewrites, connector auth, source extraction job implementation, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-extraction-runtime-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "bd6885efa1ca93699fedd4105da1ced0dd898b46bcec6aeb9740b2b1414da259",
+  "approvedRepoHead": "b8715ce1a6fc10d13032d9e0f6e9519ebc3c9e73",
+  "approvalDigest": "a1e6e8de4db08168059aff5c78d12ca26b7acc1db7f9ee692bee112b680651d2"
+}
