@@ -21,6 +21,7 @@ import {
   getActiveFoundationCurrentSprint,
   getBacklogItemsByIds,
 } from '../lib/foundation-db.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -98,13 +99,23 @@ async function main() {
   const [card] = await getBacklogItemsByIds([VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID])
   const activeSprint = await getActiveFoundationCurrentSprint()
   const sprintItem = activeSprint.items.find(item => item.cardId === VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID) || null
+  const closeout = getFoundationBuildCloseouts().find(record => record.key === VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY) || null
+  const activeSprintOwnsCard =
+    activeSprint.sprint?.sprintId === VERIFIER_RECENT_BUILDS_SPLIT_SPRINT_ID &&
+    sprintItem &&
+    ['building_now', 'done_this_sprint'].includes(sprintItem.stage)
+  const historicalCloseoutOwnsCard =
+    card?.lane === 'done' &&
+    String(card?.statusNote || '').includes(VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY) &&
+    closeout?.operatorCloseout === true &&
+    (closeout.backlogIds || []).includes(VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID)
   const dogfood = buildFoundationRecentBuildsVerifierDogfoodProof()
   const verifierLines = lineCount(verifierSource)
 
   addCheck(checks, approvalValidation.ok && Number(approvalValidation.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || VERIFIER_RECENT_BUILDS_SPLIT_APPROVAL_PATH)
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  addCheck(checks, activeSprint.sprint?.sprintId === VERIFIER_RECENT_BUILDS_SPLIT_SPRINT_ID, 'Current Sprint is the verifier Recent Builds closeout split sprint', activeSprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  addCheck(checks, activeSprintOwnsCard || historicalCloseoutOwnsCard, 'verifier Recent Builds split has active or historical ownership', activeSprintOwnsCard ? `${activeSprint.sprint?.sprintId}:${sprintItem?.stage}` : closeout?.key || activeSprint.sprint?.sprintId || 'missing')
+  addCheck(checks, activeSprintOwnsCard || historicalCloseoutOwnsCard, 'closed verifier Recent Builds split carries durable closeout proof', historicalCloseoutOwnsCard ? `${card?.lane}:${closeout?.key}` : sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
   addCheck(checks, moduleSource.includes('evaluateFoundationRecentBuildsVerifier') && moduleSource.includes('RECENT_BUILD_CLOSEOUT_EXPECTATIONS'), 'new module owns Recent Builds closeout verifier definitions', 'lib/foundation-recent-builds-verifier.js')
   addCheck(checks, dogfood.ok === true, 'dogfood rejects old Recent Builds closeout verifier failures', JSON.stringify({
     healthy: dogfood.healthy?.ok,

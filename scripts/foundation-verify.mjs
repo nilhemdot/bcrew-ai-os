@@ -271,6 +271,11 @@ import {
   evaluateFoundationRecentBuildsVerifier,
 } from '../lib/foundation-recent-builds-verifier.js'
 import {
+  buildFoundationVerifierBuildLogCloseoutEntries,
+  buildFoundationVerifierBuildLogCloseoutEntry,
+  closeoutRecordAsBuildLogEntry,
+} from '../lib/foundation-verifier-build-log-closeouts.js'
+import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
@@ -3772,22 +3777,12 @@ async function main() {
   const backlogHygieneApi = foundationHub.backlogHygiene || {}
   const foundationBuildCloseouts = getFoundationBuildCloseouts()
   const foundationBuildCloseoutValidation = getFoundationBuildCloseoutValidation()
-  const closeoutRecordAsBuildLogEntry = closeout => closeout
-    ? {
-        ...closeout,
-        operatorCloseout: true, closeoutKey: closeout.key,
-        backlogIds: Array.isArray(closeout.backlogIds) ? closeout.backlogIds : [],
-        mentionedBacklogIds: Array.isArray(closeout.mentionedBacklogIds) ? closeout.mentionedBacklogIds : [],
-      }
-    : null
-  const findBuildLogCloseoutEntry = (cardId, closeoutKey) =>
-    (foundationBuildLog.builds || []).find(build =>
-      (build.backlogIds || []).includes(cardId) &&
-        build.closeoutKey === closeoutKey
-    ) || closeoutRecordAsBuildLogEntry(foundationBuildCloseouts.find(closeout =>
-      closeout.key === closeoutKey &&
-        (closeout.backlogIds || []).includes(cardId)
-    ) || null)
+  const findBuildLogCloseoutEntry = (cardId, closeoutKey) => buildFoundationVerifierBuildLogCloseoutEntry({
+    foundationBuildLog,
+    foundationBuildCloseouts,
+    cardId,
+    closeoutKey,
+  })
   const doneBacklogCards = (foundationHub.backlogItems || []).filter(item => item.lane === 'done')
   const doneBacklogCardIds = new Set(doneBacklogCards.map(item => item.id))
   const liveBacklogCardIds = new Set((foundationHub.backlogItems || []).map(item => item.id))
@@ -4444,592 +4439,179 @@ async function main() {
     driveCorpusNote: await readRepoFile('docs/source-notes/google-drive-corpus.md'),
   })
   checks.push(...sourceTrustVerifier.checks)
-  const buildLogRecentMultiCloseoutBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('RECENT-BUILDS-MULTI-CLOSEOUT-001') &&
-      build.closeoutKey === 'recent-builds-multi-closeout-ux-v1'
-  )
-  const buildLogFullSystemReAuditBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('FULL-SYSTEM-RE-AUDIT-001') &&
-      build.closeoutKey === 'full-system-re-audit-v1'
-  )
-  const buildLogWaveCleanupABuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('LOCAL-DOC-LINK-001') &&
-      (build.backlogIds || []).includes('DOC-AUTHORITY-INDEX-REPAIR-001') &&
-      (build.backlogIds || []).includes('DOC-OTHER-TRIAGE-001') &&
-      build.closeoutKey === 'wave-cleanup-a-local-docs-triage-v1'
-  )
-  const buildLogWaveCleanupBBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('DOC-CATEGORIZATION-001') &&
-      (build.backlogIds || []).includes('DOCTRINE-PROPAGATION-002') &&
-      (build.backlogIds || []).includes('PROCESS-HOOKS-002') &&
-      build.closeoutKey === 'wave-cleanup-b-doc-categories-doctrine-hooks-v1'
-  )
-  const buildLogGatePerformanceBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('GATE-PERFORMANCE-001') &&
-      build.closeoutKey === 'gate-performance-v1'
-  )
-  const buildLogPlanReconcileBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('FOUNDATION-PLAN-RECONCILE-001') &&
-      build.closeoutKey === 'foundation-plan-reconcile-backlog-depth-v1'
-  )
-  const buildLogPhase1EnforcementBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('APPROVAL-FILE-INTEGRITY-001') &&
-      (build.backlogIds || []).includes('BUILD-LOG-BACKLOG-ID-FIX-001') &&
-      (build.backlogIds || []).includes('CLOSEOUT-BACKFILL-001') &&
-      (build.backlogIds || []).includes('PRE-COMMIT-HOOK-INSTALL-001') &&
-      build.closeoutKey === 'phase-1-enforcement-v1'
-  )
-  const buildLogFoundationControlBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('GATE-RELIABILITY-001') &&
-      (build.backlogIds || []).includes('PERSONAL-WORKSPACE-BOUNDARY-001') &&
-      (build.backlogIds || []).includes('DOCTRINE-PROPAGATION-003') &&
-      (build.backlogIds || []).includes('DECISION-AUTO-EMIT-002') &&
-      (build.backlogIds || []).includes('CEO-DASHBOARD-PATTERN-001') &&
-      build.closeoutKey === 'foundation-control-layer-v1'
-  )
-  const buildLogFoundation1100ReviewBuild = (foundationBuildLog.builds || []).find(build =>
-    FOUNDATION_REVIEW_SPRINT_CARD_IDS.every(id => (build.backlogIds || []).includes(id)) &&
-      build.closeoutKey === FOUNDATION_REVIEW_SPRINT_CLOSEOUT_KEY
-  )
-  const closeoutFallback = (key, id, mentioned = []) => foundationBuildLogRegistrySource.includes(key) ? { closeoutKey: key, backlogIds: [id], mentionedBacklogIds: mentioned, operatorCloseout: true } : null
-  const buildLogPlainEnglishSweepBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(PLAIN_ENGLISH_SWEEP_CARD_ID) &&
-      build.closeoutKey === PLAIN_ENGLISH_SWEEP_CLOSEOUT_KEY
-  )
-  const buildLogUiMenuLayoutPolishBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(UI_MENU_LAYOUT_POLISH_CARD_ID) &&
-      build.closeoutKey === UI_MENU_LAYOUT_POLISH_CLOSEOUT_KEY
-  ) || closeoutFallback(UI_MENU_LAYOUT_POLISH_CLOSEOUT_KEY, UI_MENU_LAYOUT_POLISH_CARD_ID)
-  const buildLogRecentBuildsUiBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(RECENT_BUILDS_UI_CARD_ID) &&
-      build.closeoutKey === RECENT_BUILDS_UI_CLOSEOUT_KEY
-  ) || closeoutFallback(RECENT_BUILDS_UI_CLOSEOUT_KEY, RECENT_BUILDS_UI_CARD_ID)
-  const buildLogChangeLogComprehensiveBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(CHANGE_LOG_COMPREHENSIVE_CARD_ID) &&
-      build.closeoutKey === CHANGE_LOG_COMPREHENSIVE_CLOSEOUT_KEY
-  ) || closeoutFallback(CHANGE_LOG_COMPREHENSIVE_CLOSEOUT_KEY, CHANGE_LOG_COMPREHENSIVE_CARD_ID)
-  const buildLogDailyExecSummaryBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(DAILY_EXEC_SUMMARY_CARD_ID) &&
-      build.closeoutKey === DAILY_EXEC_SUMMARY_CLOSEOUT_KEY
-  ) || closeoutFallback(DAILY_EXEC_SUMMARY_CLOSEOUT_KEY, DAILY_EXEC_SUMMARY_CARD_ID)
-  const buildLogSourceLifecycleBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(SOURCE_LIFECYCLE_CARD_ID) &&
-      build.closeoutKey === SOURCE_LIFECYCLE_CLOSEOUT_KEY
-  ) || closeoutFallback(SOURCE_LIFECYCLE_CLOSEOUT_KEY, SOURCE_LIFECYCLE_CARD_ID)
-  const buildLogSourceLifecycleCompletionBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(SOURCE_LIFECYCLE_COMPLETION_CARD_ID) &&
-      build.closeoutKey === SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY,
-        backlogIds: [SOURCE_LIFECYCLE_COMPLETION_CARD_ID],
-        mentionedBacklogIds: [
-          'SYNTHESIS-VERIFY-001',
-          'EXTRACT-RUN-HARDENING-001',
-          'MEETING-VAULT-ACL-001',
-          'DRIVE-ACCESS-REQUEST-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogSynthesisVerifyBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(SYNTHESIS_VERIFY_CARD_ID) &&
-      build.closeoutKey === SYNTHESIS_VERIFY_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(SYNTHESIS_VERIFY_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: SYNTHESIS_VERIFY_CLOSEOUT_KEY,
-        backlogIds: [SYNTHESIS_VERIFY_CARD_ID],
-        mentionedBacklogIds: [
-          'SYNTHESIS-FACTS-001',
-          'SYNTHESIS-ENGINE-001',
-          'ACTION-ROUTER-001',
-          FOUNDATION_DONE_TEST_CARD_ID,
-          'EXTRACT-RUN-HARDENING-001',
-          'MEETING-VAULT-ACL-001',
-          'DRIVE-ACCESS-REQUEST-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogExtractRunHardeningBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(EXTRACT_RUN_HARDENING_CARD_ID) &&
-      build.closeoutKey === EXTRACT_RUN_HARDENING_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(EXTRACT_RUN_HARDENING_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: EXTRACT_RUN_HARDENING_CLOSEOUT_KEY,
-        backlogIds: [EXTRACT_RUN_HARDENING_CARD_ID],
-        mentionedBacklogIds: [
-          FOUNDATION_DONE_TEST_CARD_ID,
-          'MEETING-VAULT-ACL-001',
-          'DRIVE-ACCESS-REQUEST-001',
-          'MULTIMODAL-EXTRACTOR-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogDriveAccessRequestBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(DRIVE_ACCESS_REQUEST_CARD_ID) &&
-      build.closeoutKey === DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY,
-        backlogIds: [DRIVE_ACCESS_REQUEST_CARD_ID],
-        mentionedBacklogIds: [
-          MEETING_VAULT_ACL_CARD_ID,
-          FOUNDATION_DONE_TEST_CARD_ID,
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogMeetingVaultAutoEnforcementBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID) &&
-      build.closeoutKey === MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
-        backlogIds: [MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID, MEETING_VAULT_ACL_CARD_ID],
-        mentionedBacklogIds: [
-          DRIVE_ACCESS_REQUEST_CARD_ID,
-          FOUNDATION_DONE_TEST_CARD_ID,
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogFoundationSprintSystemBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(FOUNDATION_SPRINT_SYSTEM_CARD_ID) &&
-      build.closeoutKey === FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY,
-        backlogIds: [FOUNDATION_SPRINT_SYSTEM_CARD_ID],
-        mentionedBacklogIds: [
-          MEETING_VAULT_ACL_CARD_ID,
-          FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
-          FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogFoundationSprintCadenceBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(FOUNDATION_SPRINT_CADENCE_CARD_ID) &&
-      build.closeoutKey === FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
-        backlogIds: [FOUNDATION_SPRINT_CADENCE_CARD_ID],
-        mentionedBacklogIds: [
-          FOUNDATION_SPRINT_SYSTEM_CARD_ID,
-          MEETING_VAULT_ACL_CARD_ID,
-          FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
-          FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogVerifyGateTieringBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(VERIFY_GATE_TIERING_CARD_ID) &&
-      build.closeoutKey === VERIFY_GATE_TIERING_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(VERIFY_GATE_TIERING_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: VERIFY_GATE_TIERING_CLOSEOUT_KEY,
-        backlogIds: [VERIFY_GATE_TIERING_CARD_ID],
-        mentionedBacklogIds: [
-          REBUILD_PLAN_RECONCILE_CARD_ID,
-          VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogRebuildPlanReconcileBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(REBUILD_PLAN_RECONCILE_CARD_ID) &&
-      build.closeoutKey === REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY,
-        backlogIds: [REBUILD_PLAN_RECONCILE_CARD_ID],
-        mentionedBacklogIds: [
-          PLAN_CRITIC_REPLACEMENT_CARD_ID,
-          SECURITY_BEHAVIOR_PROOF_CARD_ID,
-          VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
-          'TELEGRAM-BOTS-REBUILD-001',
-          'INTEL-DIRECTORS-REBUILD-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogPlanCriticReplacementBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(PLAN_CRITIC_REPLACEMENT_CARD_ID) &&
-      build.closeoutKey === PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
-        backlogIds: [PLAN_CRITIC_REPLACEMENT_CARD_ID],
-        mentionedBacklogIds: [
-          SECURITY_BEHAVIOR_PROOF_CARD_ID,
-          VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
-          'STRATEGY-HUB-MEETING-READY-001',
-          AVATAR_IMPORT_CARD_ID,
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogSecurityBehaviorProofBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(SECURITY_BEHAVIOR_PROOF_CARD_ID) &&
-      build.closeoutKey === SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
-        backlogIds: [SECURITY_BEHAVIOR_PROOF_CARD_ID],
-        mentionedBacklogIds: [
-          'SECURITY-002',
-          VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
-          'SECURITY-FILTERED-COMMS-ACCESS-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogVerifierBehaviorSweepBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(VERIFIER_BEHAVIOR_SWEEP_CARD_ID) &&
-      build.closeoutKey === VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
-        backlogIds: [VERIFIER_BEHAVIOR_SWEEP_CARD_ID],
-        mentionedBacklogIds: [
-          STRATEGY_HUB_MEETING_READY_CARD_ID,
-          AVATAR_IMPORT_CARD_ID,
-          'SECURITY-FILTERED-COMMS-ACCESS-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogStrategyHubMeetingReadyBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(STRATEGY_HUB_MEETING_READY_CARD_ID) &&
-      build.closeoutKey === STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
-        backlogIds: [STRATEGY_HUB_MEETING_READY_CARD_ID],
-        mentionedBacklogIds: [
-          AVATAR_IMPORT_CARD_ID,
-          'INTEL-SCOPER-001',
-          'STRATEGIC-INTEL-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogAvatarImportBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AVATAR_IMPORT_CARD_ID) &&
-      build.closeoutKey === AVATAR_IMPORT_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(AVATAR_IMPORT_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: AVATAR_IMPORT_CLOSEOUT_KEY,
-        backlogIds: [AVATAR_IMPORT_CARD_ID],
-        mentionedBacklogIds: [
-          AUTO_DEPLOY_ROLLBACK_CARD_ID,
-          'AVATAR-001',
-          'MARKETING-PIPELINE-REBUILD-001',
-          'BRAND-STACK-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogAutoDeployRollbackBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AUTO_DEPLOY_ROLLBACK_CARD_ID) &&
-      build.closeoutKey === AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY,
-        backlogIds: [AUTO_DEPLOY_ROLLBACK_CARD_ID],
-        mentionedBacklogIds: [
-          'REPLY-WATCHING-LOOP-001',
-          'SYSTEM-010-GHOST-CLOSEOUT-001',
-          'PROCESS-HOOKS-002',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogSourceMaturityGridBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(SOURCE_MATURITY_GRID_CARD_ID) &&
-      build.closeoutKey === SOURCE_MATURITY_GRID_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(SOURCE_MATURITY_GRID_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: SOURCE_MATURITY_GRID_CLOSEOUT_KEY,
-        backlogIds: [SOURCE_MATURITY_GRID_CARD_ID],
-        mentionedBacklogIds: [
-          SOURCE_EXTRACTION_COVERAGE_CARD_ID,
-          'SOURCE-COVERAGE-CLOSEOUT-001',
-          'MARKETING-SOURCE-MAP-001',
-          'FOUNDATION-UI-COMPLETE-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogSourceExtractionCoverageBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(SOURCE_EXTRACTION_COVERAGE_CARD_ID) &&
-      build.closeoutKey === SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY,
-        backlogIds: [SOURCE_EXTRACTION_COVERAGE_CARD_ID],
-        mentionedBacklogIds: [
-          SOURCE_MATURITY_GRID_CARD_ID,
-          SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
-          EXTRACT_RUN_HARDENING_CARD_ID,
-          'FOUNDATION-UI-COMPLETE-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogSourceCoverageCloseoutBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(SOURCE_COVERAGE_CLOSEOUT_CARD_ID) &&
-      build.closeoutKey === SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
-        backlogIds: [SOURCE_COVERAGE_CLOSEOUT_CARD_ID],
-        mentionedBacklogIds: [
-          SOURCE_MATURITY_GRID_CARD_ID,
-          SOURCE_EXTRACTION_COVERAGE_CARD_ID,
-          SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID,
-          SOURCE_MATURITY_GAP_FOLLOWUP_CARD_ID,
-          MARKETING_SOURCE_MAP_CARD_ID,
-          'FOUNDATION-UI-COMPLETE-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogMarketingSourceMapBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(MARKETING_SOURCE_MAP_CARD_ID) &&
-      build.closeoutKey === MARKETING_SOURCE_MAP_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(MARKETING_SOURCE_MAP_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: MARKETING_SOURCE_MAP_CLOSEOUT_KEY,
-        backlogIds: [MARKETING_SOURCE_MAP_CARD_ID],
-        mentionedBacklogIds: [
-          AVATAR_IMPORT_CARD_ID,
-          'SOURCE-016',
-          BRAND_STACK_CARD_ID,
-          'MARKETING-PIPELINE-REBUILD-001',
-          'FOUNDATION-UI-COMPLETE-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogBrandStackBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(BRAND_STACK_CARD_ID) &&
-      build.closeoutKey === BRAND_STACK_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(BRAND_STACK_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: BRAND_STACK_CLOSEOUT_KEY,
-        backlogIds: [BRAND_STACK_CARD_ID],
-        mentionedBacklogIds: [
-          MARKETING_SOURCE_MAP_CARD_ID,
-          TIER_BEHAVIORAL_COMPLETION_CARD_ID,
-          'MARKETING-PIPELINE-REBUILD-001',
-          'DECISION-RESTRICTED-QUEUE-001',
-          'FOUNDATION-UI-COMPLETE-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogTierBehavioralCompletionBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(TIER_BEHAVIORAL_COMPLETION_CARD_ID) &&
-      build.closeoutKey === TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY,
-        backlogIds: [TIER_BEHAVIORAL_COMPLETION_CARD_ID],
-        mentionedBacklogIds: [
-          'SECURITY-BEHAVIOR-PROOF-001',
-          'VERIFICATION-RUNS-001',
-          'PER-USER-CHANGELOG-001',
-          'DECISION-RESTRICTED-QUEUE-001',
-          'FOUNDATION-UI-COMPLETE-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogVerificationRunsBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(VERIFICATION_RUNS_CARD_ID) &&
-      build.closeoutKey === VERIFICATION_RUNS_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(VERIFICATION_RUNS_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: VERIFICATION_RUNS_CLOSEOUT_KEY,
-        backlogIds: [VERIFICATION_RUNS_CARD_ID],
-        mentionedBacklogIds: [
-          VERIFICATION_RUNS_NEXT_CARD_ID,
-          'DECISION-RESTRICTED-QUEUE-001',
-          'FOUNDATION-UI-COMPLETE-001',
-          'REPLY-WATCHING-LOOP-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogPerUserChangelogBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(PER_USER_CHANGELOG_CARD_ID) &&
-      build.closeoutKey === PER_USER_CHANGELOG_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(PER_USER_CHANGELOG_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: PER_USER_CHANGELOG_CLOSEOUT_KEY,
-        backlogIds: [PER_USER_CHANGELOG_CARD_ID],
-        mentionedBacklogIds: [
-          PER_USER_CHANGELOG_NEXT_CARD_ID,
-          'FOUNDATION-UI-COMPLETE-001',
-          'REPLY-WATCHING-LOOP-001',
-          'FOUNDATION-USERS-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogDecisionRestrictedQueueBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(DECISION_RESTRICTED_QUEUE_CARD_ID) &&
-      build.closeoutKey === DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY,
-        backlogIds: [DECISION_RESTRICTED_QUEUE_CARD_ID],
-        mentionedBacklogIds: [
-          DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
-          'REPLY-WATCHING-LOOP-001',
-          'MARKETING-PIPELINE-REBUILD-001',
-          'TELEGRAM-BOTS-REBUILD-001',
-          'INTEL-DIRECTORS-REBUILD-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogFoundationUiCompleteBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(FOUNDATION_UI_COMPLETE_CARD_ID) &&
-      build.closeoutKey === FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY,
-        backlogIds: [FOUNDATION_UI_COMPLETE_CARD_ID],
-        mentionedBacklogIds: [
-          'SOURCE-MATURITY-GRID-001',
-          'SOURCE-EXTRACTION-COVERAGE-001',
-          'SOURCE-COVERAGE-CLOSEOUT-001',
-          'MARKETING-SOURCE-MAP-001',
-          'BRAND-STACK-001',
-          'TIER-BEHAVIORAL-COMPLETION-001',
-          'VERIFICATION-RUNS-001',
-          'PER-USER-CHANGELOG-001',
-          'DECISION-RESTRICTED-QUEUE-001',
-          'REPLY-WATCHING-LOOP-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogFoundationDoneTestBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(FOUNDATION_DONE_TEST_CARD_ID) &&
-      build.closeoutKey === FOUNDATION_DONE_TEST_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(FOUNDATION_DONE_TEST_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
-        backlogIds: [FOUNDATION_DONE_TEST_CARD_ID],
-        mentionedBacklogIds: [
-          'SOURCE-LIFECYCLE-COMPLETION-001',
-          'SYNTHESIS-VERIFY-001',
-          'SYSTEM-010-GHOST-CLOSEOUT-001',
-          'EXTRACT-RUN-HARDENING-001',
-          'MEETING-VAULT-ACL-001',
-          'DRIVE-ACCESS-REQUEST-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogSystem010GhostCloseoutBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(SYSTEM_010_CARD_ID) &&
-      build.closeoutKey === SYSTEM_010_CLOSEOUT_KEY
-  ) || (foundationBuildLogRegistrySource.includes(SYSTEM_010_CLOSEOUT_KEY)
-    ? {
-        closeoutKey: SYSTEM_010_CLOSEOUT_KEY,
-        backlogIds: [SYSTEM_010_CARD_ID],
-        mentionedBacklogIds: [
-          'SYSTEM-010',
-          FOUNDATION_DONE_TEST_CARD_ID,
-          'SOURCE-LIFECYCLE-COMPLETION-001',
-          'SYNTHESIS-VERIFY-001',
-          'EXTRACT-RUN-HARDENING-001',
-          'MEETING-VAULT-ACL-001',
-          'DRIVE-ACCESS-REQUEST-001',
-        ],
-        operatorCloseout: true,
-      }
-    : null)
-  const buildLogFoundationFollowupCardCaptureBuild = findBuildLogCloseoutEntry(
-    FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
-    FOUNDATION_FOLLOWUP_CARD_CAPTURE_CLOSEOUT_KEY,
-  )
-  const buildLogFoundationSystemsServiceGroupingBuild = findBuildLogCloseoutEntry(
-    FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
-    FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY,
-  )
-  const buildLogAgentOnboardingFeedbackSystemBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) &&
-      build.closeoutKey === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CLOSEOUT_KEY
-  )
-  const buildLogAgentFeedbackSendBuild = findBuildLogCloseoutEntry(
-    AGENT_FEEDBACK_SEND_CARD_ID,
-    AGENT_FEEDBACK_SEND_CLOSEOUT_KEY,
-  )
-  const buildLogAgentFeedbackAutoSendBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_AUTO_SEND_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY
-  )
-  const buildLogAgentFeedbackResponseNotifyBuild = findBuildLogCloseoutEntry(
-    AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
-    AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY,
-  )
-  const buildLogAgentFeedbackReminderBuild = findBuildLogCloseoutEntry(
-    AGENT_FEEDBACK_REMINDER_CARD_ID,
-    AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY,
-  )
-  const buildLogAgentFeedbackLiveRemindersBuild = findBuildLogCloseoutEntry(
-    AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
-    AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
-  )
-  const buildLogAgentFeedbackCompanyEmailPolicyBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CLOSEOUT_KEY
-  )
-  const buildLogAgentFeedbackSteveFullLoopTestBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CLOSEOUT_KEY
-  )
-  const buildLogAgentFeedbackRealUserSubmitRepairBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CLOSEOUT_KEY
-  )
-  const buildLogFoundationVerifyHealthRepairBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID) &&
-      build.closeoutKey === FOUNDATION_VERIFY_HEALTH_REPAIR_CLOSEOUT_KEY
-  )
-  const buildLogAgentFeedbackProductionAutoSendDryRunBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_CLOSEOUT_KEY
-  )
-  const buildLogAgentFeedbackProductionAutoSendEnableBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) &&
-      build.closeoutKey === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CLOSEOUT_KEY
-  )
-  const buildLogSalesGlsScoreboardBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('SALES-GLS-SCOREBOARD-V1') &&
-      build.closeoutKey === 'sales-gls-scoreboard-v1'
-  )
-  const buildLogSystemRegistrationSweepBuild = findBuildLogCloseoutEntry(
-    SYSTEM_REGISTRATION_SWEEP_CARD_ID,
-    SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
-  )
-  const buildLogGateReliabilityRecurringBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('GATE-RELIABILITY-002') &&
-      build.closeoutKey === 'gate-reliability-recurring-transient-v1'
-  )
-  const buildLogGateReliabilityDirectVerifierBuild = (foundationBuildLog.builds || []).find(build =>
-    (build.backlogIds || []).includes('GATE-RELIABILITY-003') &&
-      build.closeoutKey === 'gate-reliability-direct-verifier-deadlock-v1'
-  )
+  const {
+    buildLogRecentMultiCloseoutBuild,
+    buildLogFullSystemReAuditBuild,
+    buildLogWaveCleanupABuild,
+    buildLogWaveCleanupBBuild,
+    buildLogGatePerformanceBuild,
+    buildLogPlanReconcileBuild,
+    buildLogPhase1EnforcementBuild,
+    buildLogFoundationControlBuild,
+    buildLogFoundation1100ReviewBuild,
+    buildLogPlainEnglishSweepBuild,
+    buildLogUiMenuLayoutPolishBuild,
+    buildLogRecentBuildsUiBuild,
+    buildLogChangeLogComprehensiveBuild,
+    buildLogDailyExecSummaryBuild,
+    buildLogSourceLifecycleBuild,
+    buildLogSourceLifecycleCompletionBuild,
+    buildLogSynthesisVerifyBuild,
+    buildLogExtractRunHardeningBuild,
+    buildLogDriveAccessRequestBuild,
+    buildLogMeetingVaultAutoEnforcementBuild,
+    buildLogFoundationSprintSystemBuild,
+    buildLogFoundationSprintCadenceBuild,
+    buildLogVerifyGateTieringBuild,
+    buildLogRebuildPlanReconcileBuild,
+    buildLogPlanCriticReplacementBuild,
+    buildLogSecurityBehaviorProofBuild,
+    buildLogVerifierBehaviorSweepBuild,
+    buildLogStrategyHubMeetingReadyBuild,
+    buildLogAvatarImportBuild,
+    buildLogAutoDeployRollbackBuild,
+    buildLogSourceMaturityGridBuild,
+    buildLogSourceExtractionCoverageBuild,
+    buildLogSourceCoverageCloseoutBuild,
+    buildLogMarketingSourceMapBuild,
+    buildLogBrandStackBuild,
+    buildLogTierBehavioralCompletionBuild,
+    buildLogVerificationRunsBuild,
+    buildLogPerUserChangelogBuild,
+    buildLogDecisionRestrictedQueueBuild,
+    buildLogFoundationUiCompleteBuild,
+    buildLogFoundationDoneTestBuild,
+    buildLogSystem010GhostCloseoutBuild,
+    buildLogFoundationFollowupCardCaptureBuild,
+    buildLogFoundationSystemsServiceGroupingBuild,
+    buildLogAgentOnboardingFeedbackSystemBuild,
+    buildLogAgentFeedbackSendBuild,
+    buildLogAgentFeedbackAutoSendBuild,
+    buildLogAgentFeedbackResponseNotifyBuild,
+    buildLogAgentFeedbackReminderBuild,
+    buildLogAgentFeedbackLiveRemindersBuild,
+    buildLogAgentFeedbackCompanyEmailPolicyBuild,
+    buildLogAgentFeedbackSteveFullLoopTestBuild,
+    buildLogAgentFeedbackRealUserSubmitRepairBuild,
+    buildLogFoundationVerifyHealthRepairBuild,
+    buildLogAgentFeedbackProductionAutoSendDryRunBuild,
+    buildLogAgentFeedbackProductionAutoSendEnableBuild,
+    buildLogSalesGlsScoreboardBuild,
+    buildLogSystemRegistrationSweepBuild,
+    buildLogGateReliabilityRecurringBuild,
+    buildLogGateReliabilityDirectVerifierBuild,
+  } = buildFoundationVerifierBuildLogCloseoutEntries({
+    foundationBuildLog,
+    foundationBuildCloseouts,
+    foundationBuildLogRegistrySource,
+    ids: {
+      AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
+      AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY,
+      AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID,
+      AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CLOSEOUT_KEY,
+      AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
+      AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
+      AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
+      AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_CLOSEOUT_KEY,
+      AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CLOSEOUT_KEY,
+      AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
+      AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CLOSEOUT_KEY,
+      AGENT_FEEDBACK_REMINDER_CARD_ID,
+      AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY,
+      AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
+      AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY,
+      AGENT_FEEDBACK_SEND_CARD_ID,
+      AGENT_FEEDBACK_SEND_CLOSEOUT_KEY,
+      AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
+      AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CLOSEOUT_KEY,
+      AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
+      AGENT_ONBOARDING_FEEDBACK_SYSTEM_CLOSEOUT_KEY,
+      AUTO_DEPLOY_ROLLBACK_CARD_ID,
+      AUTO_DEPLOY_ROLLBACK_CLOSEOUT_KEY,
+      AVATAR_IMPORT_CARD_ID,
+      AVATAR_IMPORT_CLOSEOUT_KEY,
+      BRAND_STACK_CARD_ID,
+      BRAND_STACK_CLOSEOUT_KEY,
+      CHANGE_LOG_COMPREHENSIVE_CARD_ID,
+      CHANGE_LOG_COMPREHENSIVE_CLOSEOUT_KEY,
+      DAILY_EXEC_SUMMARY_CARD_ID,
+      DAILY_EXEC_SUMMARY_CLOSEOUT_KEY,
+      DECISION_RESTRICTED_QUEUE_CARD_ID,
+      DECISION_RESTRICTED_QUEUE_CLOSEOUT_KEY,
+      DECISION_RESTRICTED_QUEUE_NEXT_CARD_ID,
+      DRIVE_ACCESS_REQUEST_CARD_ID,
+      DRIVE_ACCESS_REQUEST_CLOSEOUT_KEY,
+      EXTRACT_RUN_HARDENING_CARD_ID,
+      EXTRACT_RUN_HARDENING_CLOSEOUT_KEY,
+      FOUNDATION_DONE_TEST_CARD_ID,
+      FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
+      FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
+      FOUNDATION_FOLLOWUP_CARD_CAPTURE_CLOSEOUT_KEY,
+      FOUNDATION_REVIEW_SPRINT_CARD_IDS,
+      FOUNDATION_REVIEW_SPRINT_CLOSEOUT_KEY,
+      FOUNDATION_SPRINT_CADENCE_CARD_ID,
+      FOUNDATION_SPRINT_CADENCE_CLOSEOUT_KEY,
+      FOUNDATION_SPRINT_DONE_VELOCITY_FOLLOW_UP_CARD_ID,
+      FOUNDATION_SPRINT_SURFACE_FOLLOW_UP_CARD_ID,
+      FOUNDATION_SPRINT_SYSTEM_CARD_ID,
+      FOUNDATION_SPRINT_SYSTEM_CLOSEOUT_KEY,
+      FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
+      FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY,
+      FOUNDATION_UI_COMPLETE_CARD_ID,
+      FOUNDATION_UI_COMPLETE_CLOSEOUT_KEY,
+      FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID,
+      FOUNDATION_VERIFY_HEALTH_REPAIR_CLOSEOUT_KEY,
+      MARKETING_SOURCE_MAP_CARD_ID,
+      MARKETING_SOURCE_MAP_CLOSEOUT_KEY,
+      MEETING_VAULT_ACL_CARD_ID,
+      MEETING_VAULT_AUTO_ENFORCEMENT_CARD_ID,
+      MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
+      PER_USER_CHANGELOG_CARD_ID,
+      PER_USER_CHANGELOG_CLOSEOUT_KEY,
+      PER_USER_CHANGELOG_NEXT_CARD_ID,
+      PLAIN_ENGLISH_SWEEP_CARD_ID,
+      PLAIN_ENGLISH_SWEEP_CLOSEOUT_KEY,
+      PLAN_CRITIC_REPLACEMENT_CARD_ID,
+      PLAN_CRITIC_REPLACEMENT_CLOSEOUT_KEY,
+      REBUILD_PLAN_RECONCILE_CARD_ID,
+      REBUILD_PLAN_RECONCILE_CLOSEOUT_KEY,
+      RECENT_BUILDS_UI_CARD_ID,
+      RECENT_BUILDS_UI_CLOSEOUT_KEY,
+      SECURITY_BEHAVIOR_PROOF_CARD_ID,
+      SECURITY_BEHAVIOR_PROOF_CLOSEOUT_KEY,
+      SOURCE_COVERAGE_CLOSEOUT_CARD_ID,
+      SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
+      SOURCE_EXTRACT_GAP_FOLLOWUP_CARD_ID,
+      SOURCE_EXTRACTION_COVERAGE_CARD_ID,
+      SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY,
+      SOURCE_LIFECYCLE_CARD_ID,
+      SOURCE_LIFECYCLE_CLOSEOUT_KEY,
+      SOURCE_LIFECYCLE_COMPLETION_CARD_ID,
+      SOURCE_LIFECYCLE_COMPLETION_CLOSEOUT_KEY,
+      SOURCE_MATURITY_GAP_FOLLOWUP_CARD_ID,
+      SOURCE_MATURITY_GRID_CARD_ID,
+      SOURCE_MATURITY_GRID_CLOSEOUT_KEY,
+      STRATEGY_HUB_MEETING_READY_CARD_ID,
+      STRATEGY_HUB_MEETING_READY_CLOSEOUT_KEY,
+      SYNTHESIS_VERIFY_CARD_ID,
+      SYNTHESIS_VERIFY_CLOSEOUT_KEY,
+      SYSTEM_010_CARD_ID,
+      SYSTEM_010_CLOSEOUT_KEY,
+      SYSTEM_REGISTRATION_SWEEP_CARD_ID,
+      SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
+      TIER_BEHAVIORAL_COMPLETION_CARD_ID,
+      TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY,
+      UI_MENU_LAYOUT_POLISH_CARD_ID,
+      UI_MENU_LAYOUT_POLISH_CLOSEOUT_KEY,
+      VERIFICATION_RUNS_CARD_ID,
+      VERIFICATION_RUNS_CLOSEOUT_KEY,
+      VERIFICATION_RUNS_NEXT_CARD_ID,
+      VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+      VERIFIER_BEHAVIOR_SWEEP_CLOSEOUT_KEY,
+      VERIFY_GATE_TIERING_CARD_ID,
+      VERIFY_GATE_TIERING_CLOSEOUT_KEY,
+    },
+  })
   const recentBuildsCloseoutVerifier = evaluateFoundationRecentBuildsVerifier({
     foundationBuildCloseoutValidation,
     foundationBuildCloseouts,
