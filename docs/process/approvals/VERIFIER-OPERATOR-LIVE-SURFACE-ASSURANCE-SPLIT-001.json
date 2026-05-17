@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-OPERATOR-LIVE-SURFACE-ASSURANCE-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T08:17:47Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for operator/live-surface assurance verifier extraction covering Foundation/Ops surface contracts, Strategy Hub v2 source-to-gap route review, Runtime Health extraction-control proof, Owners governance visibility, and Recent Builds/Recent Work discipline into lib/foundation-verifier-operator-live-surface-assurance.js. Not approved: arbitrary tail extraction, behavior rewrites, connector auth, source extraction jobs, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-operator-live-surface-assurance-split-001-plan.md",
+  "approvedPlanSha256": "7354dfd1c78344a476a2792c1a49016c3d2776cd2129d25350840a9befca037b",
+  "approvedRepoHead": "fed53f1127a3f6e66592de51c6c14c90dcdcf6af",
+  "approvalDigest": "ded3efd1ae29dbc9c1c19d04ebcbfe1f08581e76ab9b79a715e51e41e13dcfb4"
+}
