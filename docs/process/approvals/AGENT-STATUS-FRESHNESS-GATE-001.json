@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AGENT-STATUS-FRESHNESS-GATE-001",
+  "approvedBy": "Steve explicit bounded Foundation queue approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T23:55:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the bounded Foundation queue and identified AGENT-STATUS-FRESHNESS-GATE-001 as the next Foundation status-truth card after runtime portability.",
+  "approvedPlanRef": "docs/process/agent-status-freshness-gate-001-plan.md",
+  "approvedPlanSha256": "4726ffd90b8a1331e22b05e7aa87e8dc17bc5dfe8223c90957e50ba64aa5602e",
+  "approvedRepoHead": "b00c8bb6d8255516c8d62880eb11741a7ba588c9",
+  "notes": "Approved only for Foundation-owned synthetic agent status freshness contract/proof. Not approved: live extraction, auth-required or paid run, provider/model probe, connector/OAuth repair, runtime adapter install, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, Drive permission mutation, Agent Feedback auto-send, external write, or model call.",
+  "approvalDigest": "460b17935a08876357a569a36c77ca0d95c1b42a7d691be17d12cb9e070ce5ae"
+}

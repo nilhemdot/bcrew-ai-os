@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: AIOS Runtime Portability Gate
+## Latest Sprint: Agent Status Freshness Gate
+
+Live sprint ID: `agent-status-freshness-gate-2026-05-17`.
+
+This sprint is complete under `agent-status-freshness-gate-v1`. It makes current operational status claims depend on fresh live Foundation/API truth instead of memory, notes, screenshots, handoffs, or chat claims.
+
+Completed card:
+
+1. `AGENT-STATUS-FRESHNESS-GATE-001` - done under `agent-status-freshness-gate-v1`. Scope was synthetic status-truth contract proof only: current-status claim type, as-of timestamp, fresh live API source, route/source ID, queried-at timestamp, max-age budget, current vs last-known labeling, and conflict detection against live truth.
+
+Not next from this closeout: live extraction, auth-required or paid runs, provider/model probes, connector/OAuth repair, runtime adapter installs, model calls, external writes, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
+
+Recommended next: choose the next Foundation sprint from fresh repo truth.
+
+## Previous Sprint: AIOS Runtime Portability Gate
 
 Live sprint ID: `aios-runtime-portability-gate-2026-05-17`.
 
@@ -85,7 +99,7 @@ Completed card:
 
 Not next from this closeout: live extraction, auth-required or paid runs, provider/model probes, connector/OAuth repair, runtime adapter installs, model calls, external writes, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
 
-Recommended next: `AGENT-STATUS-FRESHNESS-GATE-001`.
+Followed by: `AGENT-STATUS-FRESHNESS-GATE-001`.
 
 ## Previous Sprint: Knowledge-Base Quality Gate
 
