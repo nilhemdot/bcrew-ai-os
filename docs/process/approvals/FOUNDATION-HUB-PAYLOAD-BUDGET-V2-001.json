@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001",
+  "approvedBy": "Steve explicit next sprint priority plus Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T14:25:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve instructed Codex to start the next sprint from repo truth with priority 1 FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001, focused proof per card, full ship gate before push, closeout, commit, and push.",
+  "approvedPlanRef": "docs/process/foundation-hub-payload-budget-v2-001-plan.md",
+  "approvedPlanSha256": "2c57159a78f348790ae04c1fee67709d095ecfdbc28f7cc586d11b683154a5b7",
+  "approvedRepoHead": "ebc35e40759b8f6cbe62827a940da4a16a299dc5",
+  "notes": "Approved only for Foundation Hub payload-budget V2 guardrails, route metadata, focused proof, verifier coverage, closeout, and ship gates. Not approved: UI polish, Harlan/Fal/voice, Canva, connector auth, external-write jobs, DB schema changes, hub feature work, extraction runtime jobs, another root split, or Steve local mockup assets.",
+  "approvalDigest": "73467666093f50fce7246991d17865a0f512657e11c5799b7d7a8e9712e4b92d"
+}

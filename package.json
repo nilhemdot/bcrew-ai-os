@@ -142,6 +142,7 @@
     "process:backlog-queue-reconcile-check": "node --env-file-if-exists=.env scripts/process-backlog-queue-reconcile-check.mjs",
     "process:backlog-scrum-master-grooming-check": "node --env-file-if-exists=.env scripts/process-backlog-scrum-master-grooming-check.mjs",
     "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",
+    "process:foundation-hub-payload-budget-v2-check": "node --env-file-if-exists=.env scripts/process-foundation-hub-payload-budget-v2-check.mjs",
     "process:foundation-build-log-monolith-slice-check": "node --env-file-if-exists=.env scripts/process-foundation-build-log-monolith-slice-check.mjs",
     "process:foundation-build-closeout-registry-split-check": "node --env-file-if-exists=.env scripts/process-foundation-build-closeout-registry-split-check.mjs",
     "process:foundation-db-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-db-store-split-check.mjs",
