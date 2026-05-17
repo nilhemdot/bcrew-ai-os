@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-LAZY-SURFACE-LOADING-001",
+  "approvedBy": "Steve explicit next-sprint approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T16:45:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved FOUNDATION-LAZY-SURFACE-LOADING-001 before EXTRACTION-RUNTIME-READINESS-001 because Foundation still had loading slowness/fatness after engineering fitness gates.",
+  "approvedPlanRef": "docs/process/foundation-lazy-surface-loading-001-plan.md",
+  "approvedPlanSha256": "6c51ffc3d31563d673bc2d05bf37c9f236d8cb5dcc0a3fd1e5b07d0aec5ff074",
+  "approvedRepoHead": "89f8f618bdd7b244dda935d524f9d7ec4da19f81",
+  "notes": "Approved only for loading architecture: add/own the read-only backlog list route, wire Backlog and Recent Work to narrow routes, keep default Hub under budget, prove dogfood, and ship through Foundation gates. Not approved: extractor runtime, connector/auth/OAuth work, Harlan, Fal, voice, Canva, OpenHuman, visual UI redesign, Drive mutation, or Agent Feedback auto-send.",
+  "approvalDigest": "52e8b6812bb57c71cfef33f19a2e1d04df9f7f8afeb81de7c953f4622a108759"
+}

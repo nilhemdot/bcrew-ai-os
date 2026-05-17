@@ -1986,6 +1986,7 @@ async function main() {
   const connectorUptimeMonitorSource = await readRepoFile('lib/connector-uptime-monitor.js')
   const foundationOperatingReliabilityScriptSource = await readRepoFile(FOUNDATION_OPERATING_RELIABILITY_SCRIPT_PATH)
   const foundationOperatorRoutesSource = await readRepoFile('lib/foundation-operator-routes.js')
+  const foundationBacklogDetailSource = await readRepoFile('lib/foundation-backlog-detail.js')
   const serverRouteSplitScriptSource = await readRepoFile('scripts/process-server-route-split-check.mjs')
   const serverRouteSplitPlanSource = await readRepoFile('docs/process/server-route-split-001-plan.md')
   const foundationSourceRoutesSource = await readRepoFile('lib/foundation-source-routes.js')
@@ -2802,7 +2803,7 @@ async function main() {
 
   const {
     sourceOfTruth, systemInventory, foundationHubSummary, foundationHubFull, foundationHub,
-    foundationBacklogDetailEndpointApi, actionReviewApi, foundationBuildLog, foundationChangeLog, foundationDailySummary, foundationDocUpdatesApi,
+    foundationBacklogListApi, foundationBacklogDetailEndpointApi, foundationCurrentSprintApi, actionReviewApi, foundationBuildLog, foundationChangeLog, foundationDailySummary, foundationDocUpdatesApi,
     foundationSourceLifecycle, foundationSourceMaturityGrid, foundationSourceExtractionCoverage, foundationSourceCoverageCloseout,
     foundationSourceConnectorMatrixApi, foundationConnectorCredentialPreflightApi, foundationSourceHubRoutingMatrixApi,
     foundationMarketingSourceMap, foundationBrandStack, foundationTierBehavioralCompletion, foundationVerificationRuns,
@@ -3083,6 +3084,17 @@ async function main() {
       verifierCoverageSource: foundationVerifySource,
       moduleSource: foundationEngineeringFitnessGatesSource,
       scriptSource: foundationEngineeringFitnessGatesScriptSource,
+      publicDataSource: foundationDataSource,
+      foundationSource: foundationUiSource,
+      operationsRendererSource: foundationOperationsRenderersSource,
+      operatorRoutesSource: foundationOperatorRoutesSource,
+      backlogModuleSource: foundationBacklogDetailSource,
+      routePayloads: {
+        backlog: foundationBacklogListApi,
+        buildLog: foundationBuildLog,
+        currentSprint: foundationCurrentSprintApi,
+        sourceOfTruth,
+      },
     },
     repoFileExists,
   })

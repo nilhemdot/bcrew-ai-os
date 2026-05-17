@@ -2156,7 +2156,7 @@ function renderBacklog() {
   container.innerHTML = '<p>Loading live backlog.</p>'
 
   Promise.all([
-    fetchFoundationHub(),
+    fetchFoundationBacklog(),
     fetchActionReview().catch(function(error) {
       return { error: error.message || 'Action Review could not load.' }
     }),

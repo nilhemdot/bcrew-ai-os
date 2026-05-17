@@ -5,6 +5,8 @@
 var cache = {
   sourceOfTruth: null,
   foundationHub: null,
+  foundationBacklog: null,
+  currentSprint: null,
   actionReview: null,
   systemInventory: null,
   buildLog: null,
@@ -71,6 +73,30 @@ function fetchFoundationHubFull() {
   return foundationRead('/api/foundation-hub?view=full').then(function(res) {
     if (!res.ok) throw new Error('Foundation hub full diagnostic API failed.')
     return res.json()
+  })
+}
+
+function fetchFoundationBacklog() {
+  if (cache.foundationBacklog) return Promise.resolve(cache.foundationBacklog)
+
+  return foundationRead('/api/foundation/backlog').then(function(res) {
+    if (!res.ok) throw new Error('Foundation backlog API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.foundationBacklog = data
+    return data
+  })
+}
+
+function fetchFoundationCurrentSprint() {
+  if (cache.currentSprint) return Promise.resolve(cache.currentSprint)
+
+  return foundationRead('/api/foundation/current-sprint').then(function(res) {
+    if (!res.ok) throw new Error('Foundation current sprint API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.currentSprint = data
+    return data
   })
 }
 

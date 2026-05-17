@@ -1121,9 +1121,9 @@ function renderBuildLog() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading recent work.</p>'
 
-  Promise.all([fetchFoundationBuildLog(), fetchFoundationHub()]).then(function(results) {
+  Promise.all([fetchFoundationBuildLog(), fetchFoundationCurrentSprint()]).then(function(results) {
     var buildLog = results[0]
-    var hub = results[1]
+    var currentSprintPayload = results[1]
     var builds = buildLog.builds || []
     container.innerHTML = ''
 
@@ -1145,7 +1145,7 @@ function renderBuildLog() {
     hero.appendChild(heroInner)
     container.appendChild(hero)
 
-    container.appendChild(renderCurrentSprintPanel(hub.currentSprint))
+    container.appendChild(renderCurrentSprintPanel(currentSprintPayload.currentSprint))
 
     container.appendChild(renderBuildExecutiveSummary(buildLog, builds))
 
@@ -1202,7 +1202,7 @@ function renderBuildLog() {
     panel.appendChild(renderBuildGroups(buildLog, builds))
     container.appendChild(panel)
 
-    var changesPanel = renderRecentChangesPanel((hub.recentChanges || []).slice(0, 5), {
+    var changesPanel = renderRecentChangesPanel((buildLog.recentChanges || []).slice(0, 5), {
       eyebrow: 'Related Trust Events',
       title: 'Latest DB changes',
       intro: 'Recent build commits explain code/doc changes; these records show the latest DB trust-layer events.',
