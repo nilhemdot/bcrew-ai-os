@@ -29,6 +29,7 @@ import {
   getFoundationCoreSnapshot,
   getPlanCriticRunsByCardIds,
 } from '../lib/foundation-db.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -120,6 +121,16 @@ async function main() {
   const packageJson = JSON.parse(packageSource)
   const card = cards.find(item => item.id === FOUNDATION_HUB_PAYLOAD_BUDGET_V2_CARD_ID) || null
   const sprintItem = (sprint.items || []).find(item => item.cardId === FOUNDATION_HUB_PAYLOAD_BUDGET_V2_CARD_ID) || null
+  const closeout = getFoundationBuildCloseouts().find(record =>
+    record.key === FOUNDATION_HUB_PAYLOAD_BUDGET_V2_CLOSEOUT_KEY &&
+      (record.backlogIds || []).includes(FOUNDATION_HUB_PAYLOAD_BUDGET_V2_CARD_ID)
+  ) || null
+  const activeSprintOwnsCard =
+    sprint.sprint?.sprintId === FOUNDATION_HUB_PAYLOAD_BUDGET_V2_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage)
+  const historicalCloseoutOwnsCard =
+    card?.lane === 'done' &&
+      closeout?.operatorCloseout === true
 	  const liveEvaluation = evaluateFoundationHubPayloadBudgetV2({
 	    payload: route.json || {},
 	    mode: route.json?.foundationHubPerformance?.mode || 'summary',
@@ -155,10 +166,13 @@ async function main() {
   )
   addCheck(
     checks,
-    sprint.sprint?.sprintId === FOUNDATION_HUB_PAYLOAD_BUDGET_V2_SPRINT_ID &&
-      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
-    'card is in the active V2 payload budget sprint',
-    sprint.sprint ? `${sprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing sprint',
+    activeSprintOwnsCard || historicalCloseoutOwnsCard,
+    'card is in the active V2 payload budget sprint or historical closeout',
+    activeSprintOwnsCard
+      ? `${sprint.sprint?.sprintId} / ${sprintItem?.stage || 'missing stage'}`
+      : historicalCloseoutOwnsCard
+        ? FOUNDATION_HUB_PAYLOAD_BUDGET_V2_CLOSEOUT_KEY
+        : sprint.sprint ? `${sprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing sprint',
   )
   addCheck(
     checks,

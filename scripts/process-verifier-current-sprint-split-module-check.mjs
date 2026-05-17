@@ -350,11 +350,18 @@ async function main() {
   const verifierLines = lineCount(input.foundationVerifySource)
   const closed = card?.lane === 'done'
   const closeout = input.foundationBuildCloseouts.find(record => record.key === VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CLOSEOUT_KEY) || null
+  const activeSprintOwnsCard = activeSprint.sprint?.sprintId === VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_SPRINT_ID
+  const activeSprintContainsCard = sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)
+  const historicalCloseoutOwnsCard =
+    closed &&
+      String(card.statusNote || '').includes(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CLOSEOUT_KEY) &&
+      closeout?.operatorCloseout === true &&
+      (closeout.backlogIds || []).includes(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID)
 
   addCheck(checks, approval.ok, 'Plan approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_APPROVAL_PATH)
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  addCheck(checks, activeSprint.sprint?.sprintId === VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_SPRINT_ID, 'Current Sprint is the verifier Current Sprint split module sprint', activeSprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  addCheck(checks, activeSprintOwnsCard || historicalCloseoutOwnsCard, 'Current Sprint is the verifier Current Sprint split module sprint or historical closeout owns it', activeSprintOwnsCard ? activeSprint.sprint?.sprintId : closeout?.key || 'missing')
+  addCheck(checks, activeSprintContainsCard || historicalCloseoutOwnsCard, 'Current Sprint contains the card in Building Now/Done or historical closeout owns it', activeSprintContainsCard ? `${sprintItem.cardId}:${sprintItem.stage}` : closeout?.key || 'missing')
   addCheck(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
   addCheck(checks, input.moduleSource.includes('evaluateFoundationCurrentSprintVerifier') && input.moduleSource.includes('buildFoundationCurrentSprintVerifierDogfoodProof'), 'new module owns Current Sprint verifier logic', 'lib/foundation-current-sprint-verifier.js')
   addCheck(checks, evaluation.ok, 'Current Sprint verifier module passes current sprint state', `${evaluation.summary.passed}/${evaluation.summary.total}`)

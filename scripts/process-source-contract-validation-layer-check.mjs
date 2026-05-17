@@ -157,6 +157,14 @@ async function main() {
     closeoutRecordsSource.includes(SOURCE_CONTRACT_VALIDATION_LAYER_CLOSEOUT_KEY) &&
     closeoutRecordsSource.includes(SOURCE_CONTRACT_VALIDATION_LAYER_CARD_ID) &&
     closeoutRecordsSource.includes(SOURCE_CONTRACT_VALIDATION_LAYER_CLOSEOUT_PATH)
+  const activeSprintOwnsCard =
+    sprint.sprint?.sprintId === SOURCE_CONTRACT_VALIDATION_LAYER_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage)
+  const historicalCloseoutOwnsCard =
+    card?.lane === 'done' &&
+      closeoutRegistered &&
+      closeoutDoc.includes(SOURCE_CONTRACT_VALIDATION_LAYER_CARD_ID) &&
+      closeoutDoc.includes(SOURCE_CONTRACT_VALIDATION_LAYER_CLOSEOUT_KEY)
 
   addCheck(
     checks,
@@ -184,18 +192,25 @@ async function main() {
   )
   addCheck(
     checks,
-    sprint.sprint?.sprintId === SOURCE_CONTRACT_VALIDATION_LAYER_SPRINT_ID &&
-      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
-    'Current Sprint truth owns the validation-layer card',
-    sprint.sprint ? `${sprint.sprint.sprintId}/${sprintItem?.stage || 'missing'}` : 'missing sprint',
+    activeSprintOwnsCard || historicalCloseoutOwnsCard,
+    'Current Sprint truth or historical closeout owns the validation-layer card',
+    activeSprintOwnsCard
+      ? `${sprint.sprint?.sprintId}/${sprintItem?.stage || 'missing'}`
+      : historicalCloseoutOwnsCard
+        ? SOURCE_CONTRACT_VALIDATION_LAYER_CLOSEOUT_KEY
+        : sprint.sprint ? `${sprint.sprint.sprintId}/${sprintItem?.stage || 'missing'}` : 'missing sprint',
   )
   addCheck(
     checks,
-    sprintItemReadiness.ok &&
-      /MEETING-VAULT-ACL-001 Phase B/.test(sprintNotNextText) &&
-      /Drive permissions/.test(sprintNotNextText),
+    historicalCloseoutOwnsCard || (
+      sprintItemReadiness.ok &&
+        /MEETING-VAULT-ACL-001 Phase B/.test(sprintNotNextText) &&
+        /Drive permissions/.test(sprintNotNextText)
+    ),
     'Current Sprint metadata has complete existing-work and Drive guardrails',
-    sprintItemReadiness.ok ? 'complete' : `missing ${sprintItemReadiness.missingFields.join(', ')}`,
+    historicalCloseoutOwnsCard
+      ? SOURCE_CONTRACT_VALIDATION_LAYER_CLOSEOUT_KEY
+      : sprintItemReadiness.ok ? 'complete' : `missing ${sprintItemReadiness.missingFields.join(', ')}`,
   )
   addCheck(
     checks,

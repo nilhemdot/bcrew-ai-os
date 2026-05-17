@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-LANE-RELIABILITY-SPRINT-001",
+  "approvedBy": "Steve explicit P0 build-lane reliability approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T15:20:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved BUILD-LANE-RELIABILITY-SPRINT-001 to fix build-lane drag before EXTRACTION-RUNTIME-READINESS-001, using the six-card reliability scope and one efficient reliability train.",
+  "approvedPlanRef": "docs/process/build-lane-reliability-sprint-001-plan.md",
+  "approvedPlanSha256": "e3314822106870b074a9f293ed8de38aa2e93b86b2e57976a226519abcbc3e39",
+  "approvedRepoHead": "1cbcc14573f2c278f460ec31d7c21cf8f3b2d058",
+  "notes": "Approved only for Foundation build-lane reliability: card/sprint scaffold, Current Sprint metadata standard guard, proof brittleness guard, verify-loop efficiency guard, Current Sprint surface/API drift fix, served-code fanout sync classification, focused proof, closeout, and ship gates. Not approved: extractor work, connectors, OAuth, auth-required extraction, Harlan, Fal, voice, Canva, OpenHuman, Foundation UI polish, root splitting, Drive permission mutation, or Agent Feedback auto-send.",
+  "approvalDigest": "fc2fc13df34a246e3d510042e34ff7a1b56db03b638f55ff5f5de3b3f0168cb7"
+}
