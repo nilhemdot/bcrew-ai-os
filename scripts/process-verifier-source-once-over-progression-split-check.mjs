@@ -122,7 +122,9 @@ async function main() {
     'dogfood rejects Source Once-Over progression failures',
     dogfood.dogfoodInvariant,
   )
-  addCheck(checks, verifierSource.includes('evaluateFoundationVerifierSourceOnceOverProgression({') && verifierSource.includes('sourceOnceOverProgressionVerifier.checks'), 'foundation verifier delegates Source Once-Over progression checks to focused module', 'evaluateFoundationVerifierSourceOnceOverProgression')
+  const directOrWrapperDelegation = verifierSource.includes('evaluateFoundationVerifierSourceOnceOverProgression({') ||
+    verifierSource.includes('evaluateFoundationVerifierSourceOnceOverProgressionOrchestration({')
+  addCheck(checks, directOrWrapperDelegation && verifierSource.includes('sourceOnceOverProgressionVerifier.checks'), 'foundation verifier delegates Source Once-Over progression checks to focused module', directOrWrapperDelegation ? 'historical Source Once-Over split proof accepts wrapper delegation' : 'missing Source Once-Over evaluator delegation')
   addCheck(
     checks,
     !verifierSource.includes(oldStrategyInlineMarker) &&

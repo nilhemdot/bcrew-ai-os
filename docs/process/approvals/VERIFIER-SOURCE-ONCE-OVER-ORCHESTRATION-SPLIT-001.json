@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-SOURCE-ONCE-OVER-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T11:34:15Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for Source Once-Over verifier orchestration extraction covering bundled per-card evidence inputs, wrapper delegation, historical Source Once-Over proof compatibility, dogfood proof, closeout self-check, and root line-count reduction inside lib/foundation-verifier-source-once-over-progression.js. Not approved: arbitrary tail extraction, source coverage behavior changes, source extraction behavior changes, source maturity behavior changes, verification run behavior changes, connector auth, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-source-once-over-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "963f068562038645d845fe4860507f915ed3b67a2299f98a6e011afd1baa8bb8",
+  "approvedRepoHead": "8b3040ab3bfd89d90c7792391d318065a691d825",
+  "approvalDigest": "b71856c7bcfec3d5bd6e370de1f4061f5d7c0b557a9fd0f070a6d4e7391f4c1e"
+}
