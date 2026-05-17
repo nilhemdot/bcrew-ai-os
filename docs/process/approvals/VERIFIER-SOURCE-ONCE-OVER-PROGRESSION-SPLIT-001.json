@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-SOURCE-ONCE-OVER-PROGRESSION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T07:11:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for Source Once-Over / strategy-feature progression verifier extraction from STRATEGY-HUB-MEETING-READY-001 through FOUNDATION-UI-COMPLETE-001 into lib/foundation-verifier-source-once-over-progression.js. Not approved: arbitrary tail extraction, behavior rewrites, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-source-once-over-progression-split-001-plan.md",
+  "approvedPlanSha256": "fc3e766b0bbb529aa1e8f3a967392388a90979ab6bb36bc9f6b56ec15ee4e9a4",
+  "approvedRepoHead": "af3024e2c310996930f21ba3e7f4e36c2c4c221f",
+  "approvalDigest": "ad6da89418fbf8685cfddcba5284af5158068e35a83c7f880e6f21695a24d566"
+}

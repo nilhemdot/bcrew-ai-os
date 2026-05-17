@@ -195,6 +195,7 @@
     "process:verifier-phase-g-operator-closeout-split-check": "node --env-file-if-exists=.env scripts/process-verifier-phase-g-operator-closeout-split-check.mjs",
     "process:verifier-readiness-blocker-closeout-split-check": "node --env-file-if-exists=.env scripts/process-verifier-readiness-blocker-closeout-split-check.mjs",
     "process:verifier-sprint-gate-progression-split-check": "node --env-file-if-exists=.env scripts/process-verifier-sprint-gate-progression-split-check.mjs",
+    "process:verifier-source-once-over-progression-split-check": "node --env-file-if-exists=.env scripts/process-verifier-source-once-over-progression-split-check.mjs",
     "process:verifier-runtime-reliability-split-check": "node --env-file-if-exists=.env scripts/process-verifier-runtime-reliability-split-check.mjs",
     "process:verifier-health-script-module-check": "node --env-file-if-exists=.env scripts/process-verifier-health-script-module-check.mjs",
     "process:fub-source-route-split-check": "node --env-file-if-exists=.env scripts/process-fub-source-route-split-check.mjs",
