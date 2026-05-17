@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-PLAN-REVIEWS-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T02:22:24Z",
+  "approvalSource": "Steve approved the overnight Foundation-only cleanup queue and instructed Codex to keep going without off-scope feature work.",
+  "notes": "Approved for a focused verifier monolith cleanup slice only: extract repeated Plan Critic review construction into lib/foundation-verifier-plan-reviews.js with read-only dogfood. Not approved: behavior changes, connector auth, source extraction, paid calls, hub feature work, Canva, Fal, ElevenLabs, or Harlan terminal/runtime work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-plan-reviews-split-001-plan.md",
+  "approvedPlanSha256": "5137a44c0936d52ee9960c556db27eef08babc8b35c31e4ed0feb0ce605c732f",
+  "approvedRepoHead": "0dc6078f013693cb2081bacec113b51ea4a80858",
+  "approvalDigest": "d6fa7b7f427040f55e84f71b8ef5c065e8936453b4f32e84fcffab276277ec29"
+}
