@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-GUARDRAIL-CLOSEOUT-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T04:09:40Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for the guardrail closeout verifier split: Sheets quota hardening, doctrine propagation, proposed-only decision auto-emit, stale-card cleanup, SOURCE-021 writer-proof pause, and SECURITY-002 auth/tier/redaction checks move to lib/foundation-verifier-guardrail-closeouts.js. Not approved: arbitrary tail extraction, behavior changes, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, or Harlan runtime work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-guardrail-closeout-split-001-plan.md",
+  "approvedPlanSha256": "ab0124201b2a3645f0b4d6f6feb0f9955065bb130f697f4c800cb6c154a9be01",
+  "approvedRepoHead": "4c830c67eee9c1ecdcc989ab3fb8be0906853f7d",
+  "approvalDigest": "66a58ca82ad3156fe6f6bb303f2cde6c178216032e8b8a5bb489dda47c4bd067"
+}
