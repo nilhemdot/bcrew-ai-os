@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-SPRINT-GATE-PROGRESSION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T06:41:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for Current Sprint gate-progression verifier extraction: Foundation sprint system/cadence, verify-gate tiering, rebuild-plan reconcile, Plan Critic replacement, security behavior proof, and verifier behavior sweep checks move to lib/foundation-verifier-sprint-gate-progression.js. Not approved: arbitrary tail extraction, Strategy Hub Meeting Ready or later feature-card extraction, behavior rewrites, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, or Harlan runtime work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-sprint-gate-progression-split-001-plan.md",
+  "approvedPlanSha256": "2689cb9d65a327e00e6c611eb95b4a85040a5fcecdc23405f7b06fcd150ae247",
+  "approvedRepoHead": "b8ba7e63fe7dfca74f7b36756a50ea79b1c9dfd5",
+  "approvalDigest": "71108e7dabdf337af808d5c7beaf7238e4cba39cc523627de8c05515d1759986"
+}
