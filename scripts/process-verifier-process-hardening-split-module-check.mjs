@@ -164,12 +164,14 @@ async function main() {
   )
   addCheck(
     checks,
-    foundationVerifySource.includes('evaluateFoundationProcessHardeningVerifierChecks({') &&
-      foundationVerifySource.includes('processHardeningVerifierChecks') &&
-      foundationVerifySource.includes('buildFoundationProcessHardeningVerifierDogfoodProof') &&
+    (foundationVerifySource.includes('evaluateFoundationProcessHardeningVerifierChecks({') ||
+      foundationVerifySource.includes('evaluateFoundationProcessHardeningVerifierOrchestration({')) &&
+      (foundationVerifySource.includes('processHardeningVerifierChecks') ||
+        foundationVerifySource.includes('processHardeningOrchestrationVerifier.checks')) &&
+      moduleSource.includes('buildFoundationProcessHardeningVerifierDogfoodProof') &&
       oldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)),
     'root verifier delegates process-hardening checks',
-    'root imports the module, pushes module checks, and no longer owns the old inline ensure blocks',
+    'root imports the module or orchestration wrapper, pushes module checks, and no longer owns the old inline ensure blocks',
   )
   addCheck(
     checks,

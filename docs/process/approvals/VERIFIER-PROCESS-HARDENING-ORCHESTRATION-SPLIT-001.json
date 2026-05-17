@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-PROCESS-HARDENING-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T09:42:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for process-hardening orchestration extraction covering the existing process-hardening evaluator call, check aggregation, dogfood proof, and split self-checks inside lib/foundation-process-hardening-verifier.js. Not approved: arbitrary tail extraction, behavior rewrites, connector auth, source extraction jobs, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-process-hardening-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "7db5b987876551003a24cce4b7a37464dc8e88cad6c3b8896f5a3e38c0105cf6",
+  "approvedRepoHead": "17298e4ea8a5f1799ec9062c92069dd339c88926",
+  "approvalDigest": "43debbfc23e897d71f9cac62c1d159d1b559a547a29f34e50412bfb5a9b470a1"
+}

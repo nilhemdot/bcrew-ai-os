@@ -180,6 +180,7 @@
     "process:verifier-operator-budget-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-operator-budget-split-module-check.mjs",
     "process:verifier-hub-safety-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-hub-safety-split-module-check.mjs",
     "process:verifier-process-hardening-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-process-hardening-split-module-check.mjs",
+    "process:verifier-process-hardening-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-process-hardening-orchestration-split-check.mjs",
     "process:verifier-process-trust-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-process-trust-split-module-check.mjs",
     "process:verifier-process-trust-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-process-trust-orchestration-split-check.mjs",
     "process:verifier-canva-client-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-canva-client-split-module-check.mjs",

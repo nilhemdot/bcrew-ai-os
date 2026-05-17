@@ -490,15 +490,8 @@ import {
   validateVerifierExceptionLedger,
 } from '../lib/foundation-surface-trust-verifier.js'
 import {
-  VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_APPROVAL_PATH,
-  VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
-  VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CLOSEOUT_KEY,
-  VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH,
-  VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH,
-  VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SPRINT_ID,
-  buildFoundationProcessHardeningVerifierDogfoodProof,
-  evaluateFoundationProcessHardeningVerifierChecks,
+  evaluateFoundationProcessHardeningVerifierOrchestration,
 } from '../lib/foundation-process-hardening-verifier.js'
 import {
   VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID,
@@ -2733,8 +2726,6 @@ async function main() {
   const foundationVerifierCleanupControlAssuranceSource = await readRepoFile('lib/foundation-verifier-cleanup-control-assurance.js')
   const foundationVerifierOperatorLiveSurfaceAssuranceSource = await readRepoFile('lib/foundation-verifier-operator-live-surface-assurance.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
-  const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
-  const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
   const foundationProcessTrustVerifierSource = await readRepoFile('lib/foundation-process-trust-verifier.js')
   const foundationAgentFeedbackVerifierSource = await readRepoFile('lib/foundation-agent-feedback-verifier.js')
   const verifierAgentFeedbackSplitModuleScriptSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_SCRIPT_PATH)
@@ -6417,7 +6408,7 @@ async function main() {
     foundationBuildLogCloseoutValidationProof,
     foundationBuildLogValidation,
   } = buildLogRegistryAssuranceVerifier.artifacts
-  const processHardeningVerifierChecks = await evaluateFoundationProcessHardeningVerifierChecks({
+  const processHardeningOrchestrationVerifier = await evaluateFoundationProcessHardeningVerifierOrchestration({
     ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_CARD_ID,
     ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_CLOSEOUT_KEY,
     ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_SCRIPT_PATH,
@@ -6512,10 +6503,14 @@ async function main() {
     repoRoot,
     sourceOfTruthPayloadSource,
     sourceTruthKpiHealth,
+    activeFoundationSprint: activeFoundationSprintForExtractionRuntime,
+    currentPlan,
+    currentState,
+    foundationBuildCloseouts,
+    foundationProcessHardeningVerifierSource,
+    foundationVerifyRootSource: foundationVerifySource,
   })
-  for (const processHardeningCheck of processHardeningVerifierChecks) {
-    ensure(checks, processHardeningCheck.ok, processHardeningCheck.check, processHardeningCheck.detail)
-  }
+  checks.push(...processHardeningOrchestrationVerifier.checks)
   const healthLiveSummaryVerifier = await evaluateFoundationVerifierHealthLiveSummary({
     activeFoundationSprint,
     activeSprintAtOrPast,
@@ -6544,53 +6539,6 @@ async function main() {
     runHealthScriptWithArgs,
   })
   checks.push(...healthLiveSummaryVerifier.checks)
-  const processHardeningDogfood = buildFoundationProcessHardeningVerifierDogfoodProof()
-  const verifierProcessHardeningSplitModuleCard =
-    verifierSplitBacklogItemById.get(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID) ||
-    (activeFoundationSprintForExtractionRuntime.items || [])
-      .map(item => item.backlog)
-      .find(item => item?.id === VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID) ||
-    null
-  const verifierProcessHardeningSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const verifierProcessHardeningSplitModuleClosed = verifierProcessHardeningSplitModuleCard?.lane === 'done'
-  const foundationVerifyLineCountAfterProcessHardeningSplit = String(foundationVerifySource || '').split('\n').length
-  const verifyReadonlyGateOldInlineMessage = 'VERIFY-READONLY-GATE-001 keeps foundation:verify ' + 'read-only'
-  const backlogConcurrencyOldInlineMessage = 'BACKLOG-STORE-CONCURRENCY-001 prevents silent backlog lost ' + 'updates'
-  const processHardeningOldInlinePatterns = [
-    new RegExp(`ensure\\(\\s*checks,[\\s\\S]{0,1400}'${verifyReadonlyGateOldInlineMessage}`),
-    new RegExp(`ensure\\(\\s*checks,[\\s\\S]{0,1400}'${backlogConcurrencyOldInlineMessage}'`),
-  ]
-  ensure(
-    checks,
-    verifierProcessHardeningSplitModuleCard &&
-      ['executing', 'done'].includes(verifierProcessHardeningSplitModuleCard.lane) &&
-      (!verifierProcessHardeningSplitModuleClosed || (
-        String(verifierProcessHardeningSplitModuleCard.statusNote || '').includes(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CLOSEOUT_KEY) &&
-        verifierProcessHardeningSplitModuleCloseout?.operatorCloseout === true &&
-        (verifierProcessHardeningSplitModuleCloseout.backlogIds || []).includes(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-verifier-process-hardening-split-module-closeout.md')
-      )) &&
-      processHardeningDogfood.ok === true &&
-      processHardeningVerifierChecks.every(check => check.ok) &&
-      packageJson.scripts?.['process:verifier-process-hardening-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_APPROVAL_PATH) &&
-      foundationProcessHardeningVerifierSource.includes('evaluateFoundationProcessHardeningVerifierChecks') &&
-      foundationProcessHardeningVerifierSource.includes('buildFoundationProcessHardeningVerifierDogfoodProof') &&
-      verifierProcessHardeningSplitModuleScriptSource.includes('dogfood rejects process-hardening verifier failures') &&
-      verifierProcessHardeningSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
-      foundationVerifySource.includes('evaluateFoundationProcessHardeningVerifierChecks({') &&
-      foundationVerifySource.includes('processHardeningVerifierChecks') &&
-      processHardeningOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
-      currentPlan.includes(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      currentState.includes(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      (activeFoundationSprintForExtractionRuntime.sprint?.sprintId === VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SPRINT_ID || verifierProcessHardeningSplitModuleClosed) &&
-      foundationProcessHardeningVerifierSource.includes(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID),
-    'VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001 extracts process-hardening verifier checks into a focused module',
-    verifierProcessHardeningSplitModuleCard
-      ? `lane=${verifierProcessHardeningSplitModuleCard.lane} dogfood=${processHardeningDogfood.ok ? 'pass' : 'blocked'} processChecks=${processHardeningVerifierChecks.filter(check => check.ok).length}/${processHardeningVerifierChecks.length} lines=${VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterProcessHardeningSplit}`
-      : `missing ${VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID}`,
-  )
   const followupBacklogAssuranceVerifier = await evaluateFoundationVerifierFollowupBacklogAssurance({
     currentPlan,
     currentState,
