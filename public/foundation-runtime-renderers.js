@@ -1835,6 +1835,7 @@ function renderLlmRuntimePanel(llmRuntime) {
   var routes = Array.isArray(llmRuntime.routes) ? llmRuntime.routes : []
   var credentials = Array.isArray(llmRuntime.credentials) ? llmRuntime.credentials : []
   var capacity = llmRuntime.capacity || {}
+  var credentialRegistry = llmRuntime.credentialRegistry || {}
   var lanes = Array.isArray(capacity.lanes) ? capacity.lanes : []
   if (!routes.length && !credentials.length && !lanes.length) return null
 
@@ -1849,16 +1850,27 @@ function renderLlmRuntimePanel(llmRuntime) {
       + (capacity.summary.yellowLanes || 0) + ' review, '
       + (capacity.summary.redLanes || 0) + ' blocked.'
   }
+  if (credentialRegistry.summary) {
+    summary += ' Registry policy: '
+      + (credentialRegistry.summary.credentialPoliciesComplete || 0) + '/'
+      + (credentialRegistry.summary.credentialPolicyRows || 0) + ' credential policies, '
+      + (credentialRegistry.summary.routePoliciesComplete || 0) + '/'
+      + (credentialRegistry.summary.routePolicyRows || 0) + ' route policies.'
+  }
 
   var laneItems = lanes.slice(0, 8).map(function(lane) {
     var budget = lane.manualOnly ? 'Manual-only cap.' : 'Budget: $' + (lane.monthlyBudgetUsd == null ? 'n/a' : lane.monthlyBudgetUsd) + '/mo.'
     var fallback = lane.fallbackRouteKey ? ' Fallback: ' + lane.fallbackRouteKey + '.' : ''
     var stop = lane.stopControl && lane.stopControl.action ? ' Stop: ' + lane.stopControl.action + '.' : ''
+    var owner = lane.owner ? ' Owner: ' + lane.owner + '.' : ''
+    var latestProbe = lane.latestProbeAt
+      ? ' Latest probe: ' + (lane.latestProbeStatus || 'unknown') + ' at ' + lane.latestProbeAt + '.'
+      : (lane.manualOnly ? ' Latest probe: manual lane.' : ' Latest probe: missing.')
     var provider = lane.provider + ' / ' + lane.authPath
     return {
       label: lane.label || lane.laneKey,
       status: lane.status === 'green' ? 'live' : lane.status === 'red' ? 'risk' : 'planned',
-      detail: provider + '. ' + budget + fallback + stop + ' ' + (lane.notes || ''),
+      detail: provider + '.' + owner + ' ' + budget + fallback + stop + latestProbe + ' ' + (lane.notes || ''),
     }
   })
 

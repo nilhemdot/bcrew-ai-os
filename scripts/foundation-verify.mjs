@@ -2296,6 +2296,7 @@ async function main() {
   const canvaClientPlanSource = await readRepoFile(CANVA_CLIENT_PLAN_PATH)
   const foundationCanvaClientVerifierSource = await readRepoFile('lib/foundation-canva-client-verifier.js')
   const llmHubCapacitySource = await readRepoFile('lib/llm-hub-capacity.js')
+  const llmCredentialRegistrySource = await readRepoFile('lib/llm-credential-registry.js')
   const verifierCanvaClientSplitScriptSource = await readRepoFile(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_SCRIPT_PATH)
   const verifierCanvaClientSplitPlanSource = await readRepoFile(VERIFIER_CANVA_CLIENT_SPLIT_MODULE_PLAN_PATH)
   const processRepairVerifierSprintScriptSource = await readRepoFile('scripts/process-repair-verifier-sprint-check.mjs')
@@ -4203,6 +4204,7 @@ async function main() {
     foundationAgentFeedbackVerifierSource,
     foundationCanvaClientVerifierSource,
     llmHubCapacitySource,
+    llmCredentialRegistrySource,
     foundationOperatorBudgetVerifierSource,
     foundationHubSafetyVerifierSource,
     foundationCurrentStateSummarySource,
