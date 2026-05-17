@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AIOS-RUNTIME-PORTABILITY-GATE-001",
+  "approvedBy": "Steve explicit bounded Foundation queue approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T23:45:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the bounded Foundation queue and identified AIOS-RUNTIME-PORTABILITY-GATE-001 as the next Foundation runtime portability card after the KB quality gate.",
+  "approvedPlanRef": "docs/process/aios-runtime-portability-gate-001-plan.md",
+  "approvedPlanSha256": "d9bc71cf9788002d800cbbf0aceb54154b7bca86c8722f411f2178a666611b7f",
+  "approvedRepoHead": "28e8df7c8b5da8c40dd219d846ce0ed702158034",
+  "notes": "Approved only for Foundation-owned synthetic runtime portability contract/proof. Not approved: live extraction, auth-required or paid run, provider/model probe, connector/OAuth repair, runtime adapter install, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, Drive permission mutation, Agent Feedback auto-send, external write, or model call.",
+  "approvalDigest": "e22f0472a8352e99ccf9d7b7f2edc5fdb70a420f3b95bc2293d36c059d5a5673"
+}

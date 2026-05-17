@@ -1507,6 +1507,7 @@ import {
   LLM_AUTH_AUDIT_BUDGET_LABEL_CLARITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   KNOWLEDGE_BASE_QUALITY_GATE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  AIOS_RUNTIME_PORTABILITY_GATE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_OPERATING_RELIABILITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
@@ -2065,9 +2066,11 @@ async function main() {
   const foundationWorkerReliabilitySource = await readRepoFile('lib/foundation-worker-reliability.js')
   const runtimeFirstJobsSource = await readRepoFile('lib/runtime-first-jobs.js')
   const runtimeHealthSimplifySource = await readRepoFile('lib/runtime-health-simplify.js')
+  const aiosRuntimePortabilityGateSource = await readRepoFile('lib/aios-runtime-portability-gate.js')
   const runtimeWorkerVerifierCoverageCardId = 'RUNTIME-WORKER-001'
   const runtimeFirstJobsVerifierCoverageCardId = 'RUNTIME-FIRST-JOBS-001'
   const runtimeHealthSimplifyVerifierCoverageCardId = 'RUNTIME-HEALTH-SIMPLIFY-001'
+  const aiosRuntimePortabilityVerifierCoverageCardId = 'AIOS-RUNTIME-PORTABILITY-GATE-001'
   const foundationHealthScriptVerifierSource = await readRepoFile('lib/foundation-health-script-verifier.js')
   const foundationSourceContractVerifierSource = await readRepoFile('lib/foundation-source-contract-verifier.js')
   const verifierSourceContractModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH)
@@ -4825,6 +4828,7 @@ async function main() {
       foundationHubSummaryPayloadSource,
       runtimeFirstJobsSource,
       runtimeHealthSimplifySource,
+      aiosRuntimePortabilityGateSource,
       foundationRuntimeReliabilityVerifierSource,
       foundationSourceCrawlStoreSource,
       runExtractionTargetSource: extractionTargetSource,

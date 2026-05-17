@@ -115,6 +115,7 @@
     "process:llm-auth-audit-budget-label-clarity-check": "node --env-file-if-exists=.env scripts/process-llm-auth-audit-budget-label-clarity-check.mjs",
     "process:foundation-knowledge-base-compiler-design-check": "node --env-file-if-exists=.env scripts/process-foundation-knowledge-base-compiler-design-check.mjs",
     "process:knowledge-base-quality-gate-check": "node --env-file-if-exists=.env scripts/process-knowledge-base-quality-gate-check.mjs",
+    "process:aios-runtime-portability-gate-check": "node --env-file-if-exists=.env scripts/process-aios-runtime-portability-gate-check.mjs",
     "process:build-lane-reliability-sprint-check": "node --env-file-if-exists=.env scripts/process-build-lane-reliability-sprint-check.mjs",
     "process:foundation-engineering-fitness-gates-check": "node --env-file-if-exists=.env scripts/process-foundation-engineering-fitness-gates-check.mjs",
     "process:foundation-lazy-surface-loading-check": "node --env-file-if-exists=.env scripts/process-foundation-lazy-surface-loading-check.mjs",

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-17
-Version: v6.96 - Knowledge-base quality gate closed
+Version: v6.97 - AIOS runtime portability gate closed
 Status: Bounded Foundation queue active
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Knowledge-Base Quality Gate
+## Latest Sprint: AIOS Runtime Portability Gate
+
+Live sprint ID: `aios-runtime-portability-gate-2026-05-17`.
+
+This sprint is complete under `aios-runtime-portability-gate-v1`. It makes runtime brains portable adapters under Foundation-owned contracts before agent/runtime work expands.
+
+Completed card:
+
+1. `AIOS-RUNTIME-PORTABILITY-GATE-001` - done under `aios-runtime-portability-gate-v1`. Scope was synthetic runtime contract proof only: identity, tools, permissions, model/provider route, auth posture, cost policy, logs/transcripts export, source/compiled-KB truth boundary, fallback brain, and adapter-only ownership for Claude, Codex, OpenClaw, OpenHuman, Higgsfield-style, and future runtimes.
+
+Not next from this closeout: live extraction, auth-required or paid runs, provider/model probes, connector/OAuth repair, runtime adapter installs, model calls, external writes, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
+
+Recommended next: `AGENT-STATUS-FRESHNESS-GATE-001`.
+
+## Previous Sprint: Knowledge-Base Quality Gate
 
 Live sprint ID: `knowledge-base-quality-gate-2026-05-17`.
 
