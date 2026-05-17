@@ -240,17 +240,25 @@ async function main() {
 
   addCheck(checks, approval.ok, 'Plan approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || VERIFIER_SOURCE_TRUST_SPLIT_MODULE_APPROVAL_PATH)
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  addCheck(checks, activeSprint.sprint?.sprintId === VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SPRINT_ID, 'Current Sprint is the verifier source-trust split module sprint', activeSprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  addCheck(checks, activeSprint.sprint?.sprintId === VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SPRINT_ID || card?.lane === 'done', 'Current Sprint is the verifier source-trust split module sprint or card is historically done', activeSprint.sprint?.sprintId || 'missing')
+  addCheck(checks, (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)) || card?.lane === 'done', 'Current Sprint contains the card in Building Now or card is historically done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : card?.lane || 'missing')
   addCheck(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
-  addCheck(checks, input.moduleSource.includes('evaluateFoundationSourceTrustVerifier') && input.moduleSource.includes('buildFoundationSourceTrustVerifierDogfoodProof'), 'new module owns source-trust verifier logic', 'lib/foundation-source-trust-verifier.js')
+  addCheck(checks, input.moduleSource.includes('evaluateFoundationSourceTrustVerifier') && input.moduleSource.includes('evaluateFoundationSourceTrustVerifierOrchestration') && input.moduleSource.includes('buildFoundationSourceTrustVerifierDogfoodProof'), 'new module owns source-trust verifier logic', 'lib/foundation-source-trust-verifier.js')
   addCheck(checks, evaluation.ok, 'source-trust verifier module passes current source state', `${evaluation.summary.passed}/${evaluation.summary.total}`)
   addCheck(checks, dogfood.ok, 'dogfood rejects source-trust verifier failures', dogfood.invariant)
   addCheck(checks, dogfood.missingConnector.ok === false, 'dogfood rejects missing working connector health', dogfood.missingConnector.failed.map(item => item.check).join('; '))
   addCheck(checks, dogfood.staleKpi.ok === false, 'dogfood rejects stale KPI health contract', dogfood.staleKpi.failed.map(item => item.check).join('; '))
   addCheck(checks, dogfood.missingReferenceTrust.ok === false, 'dogfood rejects missing reference trust', dogfood.missingReferenceTrust.failed.map(item => item.check).join('; '))
   addCheck(checks, dogfood.stalePhaseCoverage.ok === false, 'dogfood rejects substring-only Phase C coverage', dogfood.stalePhaseCoverage.failed.map(item => item.check).join('; '))
-  addCheck(checks, input.foundationVerifySource.includes('evaluateFoundationSourceTrustVerifier') && input.foundationVerifySource.includes('buildFoundationSourceTrustVerifierDogfoodProof'), 'foundation verifier delegates source-trust checks to focused module', 'evaluateFoundationSourceTrustVerifier')
+  addCheck(
+    checks,
+    (input.foundationVerifySource.includes('evaluateFoundationSourceTrustVerifier({') ||
+      input.foundationVerifySource.includes('evaluateFoundationSourceTrustVerifierOrchestration({')) &&
+      (input.foundationVerifySource.includes('sourceTrustVerifier.checks') ||
+        input.foundationVerifySource.includes('sourceTrustOrchestrationVerifier.checks')),
+    'foundation verifier delegates source-trust checks to focused module',
+    'evaluateFoundationSourceTrustVerifier or evaluateFoundationSourceTrustVerifierOrchestration',
+  )
   addCheck(checks, !input.foundationVerifySource.includes(oldInlineSourceTrustPredicate), 'foundation verifier no longer owns old inline source-trust predicates', 'old requiredWorkingConnectorIds block absent')
   addCheck(checks, verifierLines < VERIFIER_SOURCE_TRUST_SPLIT_MODULE_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_SOURCE_TRUST_SPLIT_MODULE_BEFORE_LINES} -> ${verifierLines}`)
   addCheck(checks, scriptIsReadOnly(input.proofScriptSource), 'focused proof script is read-only', 'no write/mutation tokens in proof script')

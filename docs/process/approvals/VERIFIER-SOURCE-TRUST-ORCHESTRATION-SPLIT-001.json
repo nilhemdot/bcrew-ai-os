@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-SOURCE-TRUST-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T09:52:19Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for source-trust orchestration extraction covering the existing source-trust evaluator call, Phase C approval lookup, check aggregation, historical split self-check, dogfood proof, and wrapper-compatible focused proof inside lib/foundation-source-trust-verifier.js. Not approved: arbitrary tail extraction, behavior rewrites, connector auth, source extraction job implementation, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-source-trust-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "5a1b38bf28bde3fbf1333d6408ad2cc84c896994e35216e6eeb16d2cb917106a",
+  "approvedRepoHead": "88fae0eb48e4187a031d7217e27d4d0c0e2548be",
+  "approvalDigest": "6ebeca3d22ab8fcea983b85b1404b98b45a25d27cd5a8dd96d9bb1c82fc2a8bb"
+}

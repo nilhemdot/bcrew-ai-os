@@ -389,15 +389,11 @@ import {
   evaluateSourceIdArrayProvenanceDesign,
 } from '../lib/source-id-array-provenance-design.js'
 import {
-  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_APPROVAL_PATH,
-  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
-  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CLOSEOUT_KEY,
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_PLAN_PATH,
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SCRIPT_PATH,
-  VERIFIER_SOURCE_TRUST_SPLIT_MODULE_SPRINT_ID,
-  buildFoundationSourceTrustVerifierDogfoodProof,
-  evaluateFoundationSourceTrustVerifier,
+  VERIFIER_SOURCE_TRUST_ORCHESTRATION_SPLIT_CARD_ID,
+  evaluateFoundationSourceTrustVerifierOrchestration,
 } from '../lib/foundation-source-trust-verifier.js'
 import {
   VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_APPROVAL_PATH,
@@ -2233,6 +2229,8 @@ async function main() {
     VERIFIER_EXTRACTION_RUNTIME_ORCHESTRATION_SPLIT_CARD_ID,
     VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_SURFACE_TRUST_ORCHESTRATION_SPLIT_CARD_ID,
+    VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
+    VERIFIER_SOURCE_TRUST_ORCHESTRATION_SPLIT_CARD_ID,
     VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_CARD_ID,
     VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
     VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
@@ -4125,25 +4123,8 @@ async function main() {
   const missingArtifactClaims = surfaceTrustOrchestrationVerifier.surfaceTrustVerifier.details.missingArtifactClaims
   const inventoryPluginNames = (systemInventory.plugins || []).map(plugin => plugin.title)
   const requiredPluginNames = ['Browser Use', 'Canva', 'Documents', 'GitHub', 'Gmail', 'Google Calendar', 'Google Drive', 'Presentations', 'Spreadsheets']
-  const phaseCVisibilityCardIds = [
-    'PHANTOM-CARD-CHECK-001',
-    'PHASE-NUMBERING-RECONCILE-001',
-    'SUB-SURFACE-MAPPING-001',
-    'SYSTEM-INVENTORY-TRUE-UP-001',
-    'SOURCE-CONTRACT-CLEANUP-001',
-    'VERIFIER-CONSOLIDATION-001',
-  ]
-  const phaseCApprovalFilesPresent = await Promise.all(
-    phaseCVisibilityCardIds.map(async cardId => {
-      try {
-        await fs.stat(path.join(repoRoot, `docs/process/approvals/${cardId}.json`))
-        return true
-      } catch {
-        return false
-      }
-    })
-  )
-  const sourceTrustVerifier = evaluateFoundationSourceTrustVerifier({
+  const sourceTrustOrchestrationVerifier = await evaluateFoundationSourceTrustVerifierOrchestration({
+    activeFoundationSprint,
     sourceOfTruth,
     foundationHub,
     sourceContracts,
@@ -4169,13 +4150,20 @@ async function main() {
     foundationUiSource,
     foundationDbWithBacklogSeedSource,
     foundationVerifySource,
+    foundationVerifyRootSource: foundationVerifySource,
     moduleSource: foundationSourceTrustVerifierSource,
-    phaseCApprovalFilesPresent,
+    foundationSourceTrustVerifierSource,
+    foundationBuildCloseouts,
+    packageJson,
+    repoFileExists,
+    verifierSourceTrustSplitModuleScriptSource,
+    verifierSourceTrustSplitModulePlanSource,
     currentPlan,
     currentState,
     driveCorpusNote: await readRepoFile('docs/source-notes/google-drive-corpus.md'),
   })
-  checks.push(...sourceTrustVerifier.checks)
+  checks.push(...sourceTrustOrchestrationVerifier.checks)
+  const sourceTrustVerifier = sourceTrustOrchestrationVerifier.sourceTrustVerifier
   const {
     buildLogRecentMultiCloseoutBuild,
     buildLogFullSystemReAuditBuild,
