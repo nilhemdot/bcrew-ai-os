@@ -1,0 +1,13 @@
+{
+  "cardId": "BACKLOG-QUEUE-RECONCILE-001",
+  "score": 10,
+  "approvedBy": "Steve explicit BACKLOG-QUEUE-RECONCILE sprint approval + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T17:20:00.000-04:00",
+  "approvalSource": "Steve instructed Codex to start BACKLOG-QUEUE-RECONCILE-001, reconcile handoff queue labels against live backlog truth, add the missing active card/process artifacts/focused proof, run backlog hygiene/focused proof/foundation:verify/full process:foundation-ship, close out, commit, push, then pause.",
+  "notes": "Approved only for Foundation truth reconciliation and guardrail proof. Not approved: FOUNDATION-SURFACE-UPDATES-001, another under-3K root split, Harlan, Fal, voice, Canva, hub feature work, connector auth, Agent Feedback live auto-send, DB schema changes, route behavior changes, or Steve local mockup assets.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/backlog-queue-reconcile-001-plan.md",
+  "approvedPlanSha256": "c12eaa103ac680560a7d88cc7990c274a20bda8a2f3e79d7e57491cfade0e691",
+  "approvedRepoHead": "98670d33d565330be65ea49a8d5e28585bdd3dbf",
+  "approvalDigest": "de01595c6aecf0584f47ceb72760b30fdc15b2cae92a1148c794d038bb882546"
+}
