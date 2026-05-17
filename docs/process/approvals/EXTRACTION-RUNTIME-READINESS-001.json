@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACTION-RUNTIME-READINESS-001",
+  "approvedBy": "Steve explicit queue approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T17:35:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the four-card Foundation queue and clarified extractor-related cards are queue/spec/preflight only unless separately approved for a no-auth/no-paid run.",
+  "approvedPlanRef": "docs/process/extraction-runtime-readiness-001-plan.md",
+  "approvedPlanSha256": "a06e925d476b309d3c774a592b5ffbccbe1649ceec6a83cc8c0dbd09b3d5c238",
+  "approvedRepoHead": "6797dcc982e20446bee11c080e75cbce7e5cf4df",
+  "notes": "Approved only for Foundation-owned extraction runtime readiness: queue contract, source/auth posture, evidence envelope, cost/spend caps, run health, proposal-only Research Inbox/proposed-atom output, and fail-closed proof. Not approved: live extraction, auth-required extraction, paid extraction without Steve approval, OAuth, connector auth, Harlan, Fal, voice, Canva, OpenHuman, broad UI redesign, Drive permission mutation, Agent Feedback auto-send, atom promotion, or backlog mutation from extracted content.",
+  "approvalDigest": "f4ccbccad4ccd98966268795293d365f75f51e9e4d9442e1be3a20346b82c718"
+}

@@ -121,6 +121,9 @@ import {
   buildMultimodalExtractorContractSnapshot,
 } from './lib/multimodal-extractor-contract.js'
 import {
+  buildExtractionRuntimeReadinessPayload,
+} from './lib/extraction-runtime-readiness.js'
+import {
   buildResearchInboxContractSnapshot,
 } from './lib/research-inbox.js'
 import {
@@ -3643,6 +3646,7 @@ registerFoundationRuntimeReadRoutes(app, {
   buildRuntimeProcessControlApiSnapshot,
   getLlmRuntimeSnapshot,
   getExtractionControlSnapshot,
+  buildExtractionRuntimeReadinessPayload,
 })
 
 registerFoundationWriteRoutes(app, {
