@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-PHASE-G-OPERATOR-CLOSEOUT-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T05:32:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for Phase G operator closeout verifier extraction: Foundation 1100 review, plain-English sweep, UI menu layout, Recent Builds UI, comprehensive changelog, daily executive summary, and source lifecycle expansion checks move to lib/foundation-verifier-phase-g-operator-closeout.js. Not approved: arbitrary tail extraction, behavior changes, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, or Harlan runtime work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-phase-g-operator-closeout-split-001-plan.md",
+  "approvedPlanSha256": "61f54fb953281adf9f7de67b9f1d13e5a94d8505a5ab9b42eeb58a132e27658d",
+  "approvedRepoHead": "114ca8a176f8c877a1bd904fbc45a9b75ca12562",
+  "approvalDigest": "1a361bea8fecad7bca56b84fb81effeadb56804fdff52e5acedc33e9e65ab313"
+}

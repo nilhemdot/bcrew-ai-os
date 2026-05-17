@@ -192,6 +192,7 @@
     "process:verifier-module-assurance-split-check": "node --env-file-if-exists=.env scripts/process-verifier-module-assurance-split-check.mjs",
     "process:verifier-backend-split-assurance-check": "node --env-file-if-exists=.env scripts/process-verifier-backend-split-assurance-check.mjs",
     "process:verifier-frontend-split-assurance-check": "node --env-file-if-exists=.env scripts/process-verifier-frontend-split-assurance-check.mjs",
+    "process:verifier-phase-g-operator-closeout-split-check": "node --env-file-if-exists=.env scripts/process-verifier-phase-g-operator-closeout-split-check.mjs",
     "process:verifier-runtime-reliability-split-check": "node --env-file-if-exists=.env scripts/process-verifier-runtime-reliability-split-check.mjs",
     "process:verifier-health-script-module-check": "node --env-file-if-exists=.env scripts/process-verifier-health-script-module-check.mjs",
     "process:fub-source-route-split-check": "node --env-file-if-exists=.env scripts/process-fub-source-route-split-check.mjs",
