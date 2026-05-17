@@ -172,12 +172,14 @@ async function main() {
   )
   addCheck(
     checks,
-    foundationVerifySource.includes('evaluateFoundationProcessTrustVerifier({') &&
-      foundationVerifySource.includes('processTrustVerifier.checks') &&
-      foundationVerifySource.includes('buildFoundationProcessTrustVerifierDogfoodProof') &&
+    (foundationVerifySource.includes('evaluateFoundationProcessTrustVerifier({') ||
+      foundationVerifySource.includes('evaluateFoundationProcessTrustVerifierOrchestration({')) &&
+      (foundationVerifySource.includes('processTrustVerifier.checks') ||
+        foundationVerifySource.includes('processTrustOrchestrationVerifier.checks')) &&
+      moduleSource.includes('buildFoundationProcessTrustVerifierDogfoodProof') &&
       oldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)),
     'root verifier delegates process trust checks',
-    'root imports the module, pushes module checks, and no longer owns the old inline process-trust ensure blocks',
+    'root imports the module or orchestration wrapper, pushes module checks, and no longer owns the old inline process-trust ensure blocks',
   )
   addCheck(
     checks,

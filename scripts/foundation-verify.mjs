@@ -501,15 +501,8 @@ import {
   evaluateFoundationProcessHardeningVerifierChecks,
 } from '../lib/foundation-process-hardening-verifier.js'
 import {
-  VERIFIER_PROCESS_TRUST_SPLIT_MODULE_APPROVAL_PATH,
-  VERIFIER_PROCESS_TRUST_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID,
-  VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CLOSEOUT_KEY,
-  VERIFIER_PROCESS_TRUST_SPLIT_MODULE_PLAN_PATH,
-  VERIFIER_PROCESS_TRUST_SPLIT_MODULE_SCRIPT_PATH,
-  VERIFIER_PROCESS_TRUST_SPLIT_MODULE_SPRINT_ID,
-  buildFoundationProcessTrustVerifierDogfoodProof,
-  evaluateFoundationProcessTrustVerifier,
+  evaluateFoundationProcessTrustVerifierOrchestration,
 } from '../lib/foundation-process-trust-verifier.js'
 import {
   VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_APPROVAL_PATH,
@@ -2743,8 +2736,6 @@ async function main() {
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
   const foundationProcessTrustVerifierSource = await readRepoFile('lib/foundation-process-trust-verifier.js')
-  const verifierProcessTrustSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_SCRIPT_PATH)
-  const verifierProcessTrustSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_PLAN_PATH)
   const foundationAgentFeedbackVerifierSource = await readRepoFile('lib/foundation-agent-feedback-verifier.js')
   const verifierAgentFeedbackSplitModuleScriptSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_SCRIPT_PATH)
   const verifierAgentFeedbackSplitModulePlanSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_PLAN_PATH)
@@ -4626,15 +4617,6 @@ async function main() {
     syncSlackSource,
   })
   checks.push(...operatorLiveSurfaceAssuranceVerifier.checks)
-  const backlogHygienePass = (foundationHub.backlogItems || []).find(item => item.id === 'BACKLOG-HYGIENE-PASS-001') || null
-  const backlogHygiene = (foundationHub.backlogItems || []).find(item => item.id === 'BACKLOG-HYGIENE-001') || null
-  const devProcessAudit = (foundationHub.backlogItems || []).find(item => item.id === 'DEV-PROCESS-AUDIT-001') || null
-  const processHooks = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-HOOKS-001') || null
-  const processFanout = (foundationHub.backlogItems || []).find(item => item.id === 'PROCESS-FANOUT-001') || null
-  const workerCodeTrust = (foundationHub.backlogItems || []).find(item => item.id === 'WORKER-CODE-TRUST-001') || null
-  const verifierDoneCoverage = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-DONE-COVERAGE-001') || null
-  const verifierArtifactExists = (foundationHub.backlogItems || []).find(item => item.id === 'VERIFIER-ARTIFACT-EXISTS-001') || null
-  const postShipFanout = (foundationHub.backlogItems || []).find(item => item.id === 'POST-SHIP-FAN-OUT-001') || null
   const sheetsQuotaHardening = (foundationHub.backlogItems || []).find(item => item.id === 'SHEETS-QUOTA-HARDENING-001') || null
   const docArchiveAuto = (foundationHub.backlogItems || []).find(item => item.id === 'DOC-ARCHIVE-AUTO-001') || null
   const researchCuration = (foundationHub.backlogItems || []).find(item => item.id === 'RESEARCH-CURATION-001') || null
@@ -5018,48 +5000,6 @@ async function main() {
   const security001 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-001') || null
   const security002 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-002') || null
   const security006 = (foundationHub.backlogItems || []).find(item => item.id === 'SECURITY-006') || null
-  const devProcessAuditText = [
-    devProcessAudit?.summary,
-    devProcessAudit?.whyItMatters,
-    devProcessAudit?.nextAction,
-    devProcessAudit?.statusNote,
-  ].filter(Boolean).join('\n')
-  const processHooksText = [
-    processHooks?.summary,
-    processHooks?.whyItMatters,
-    processHooks?.nextAction,
-    processHooks?.statusNote,
-  ].filter(Boolean).join('\n')
-  const processFanoutText = [
-    processFanout?.summary,
-    processFanout?.whyItMatters,
-    processFanout?.nextAction,
-    processFanout?.statusNote,
-  ].filter(Boolean).join('\n')
-  const workerCodeTrustText = [
-    workerCodeTrust?.summary,
-    workerCodeTrust?.whyItMatters,
-    workerCodeTrust?.nextAction,
-    workerCodeTrust?.statusNote,
-  ].filter(Boolean).join('\n')
-  const verifierDoneCoverageText = [
-    verifierDoneCoverage?.summary,
-    verifierDoneCoverage?.whyItMatters,
-    verifierDoneCoverage?.nextAction,
-    verifierDoneCoverage?.statusNote,
-  ].filter(Boolean).join('\n')
-  const verifierArtifactExistsText = [
-    verifierArtifactExists?.summary,
-    verifierArtifactExists?.whyItMatters,
-    verifierArtifactExists?.nextAction,
-    verifierArtifactExists?.statusNote,
-  ].filter(Boolean).join('\n')
-  const postShipFanoutText = [
-    postShipFanout?.summary,
-    postShipFanout?.whyItMatters,
-    postShipFanout?.nextAction,
-    postShipFanout?.statusNote,
-  ].filter(Boolean).join('\n')
   const doctrinePropagationText = [
     doctrinePropagation?.summary,
     doctrinePropagation?.whyItMatters,
@@ -5120,105 +5060,40 @@ async function main() {
     fullSystemReAudit?.nextAction,
     fullSystemReAudit?.statusNote,
   ].filter(Boolean).join('\n')
-  const backlogHygieneText = [
-    backlogHygiene?.summary,
-    backlogHygiene?.whyItMatters,
-    backlogHygiene?.nextAction,
-    backlogHygiene?.statusNote,
-    devProcessAuditText,
-    processHooksText,
-    processFanoutText,
-  ].filter(Boolean).join('\n')
-  const processTrustVerifier = evaluateFoundationProcessTrustVerifier({
-    backlogHygiene,
-    backlogHygienePass,
-    backlogHygieneText,
+  const processTrustOrchestrationVerifier = await evaluateFoundationProcessTrustVerifierOrchestration({
+    activeFoundationSprint: activeFoundationSprintForExtractionRuntime,
     currentPlan,
     currentState,
-    devProcessAudit,
     devProcessAuditSource,
+    foundationBuildCloseouts,
     foundationFrontendSource,
     foundationHub,
-    foundationVerifySource: `${foundationVerifySource}\n${foundationProcessTrustVerifierSource}`,
+    foundationProcessTrustVerifierSource,
+    foundationVerifySource,
     foundationWorkerSource,
     missingArtifactClaims,
+    packageJson,
     packageSource,
-    postShipFanout,
     postShipFanoutApproval,
     postShipFanoutDoc,
     postShipFanoutScriptSource,
     postShipFanoutSource,
-    postShipFanoutText,
-    processFanout,
     processFanoutApproval,
     processFanoutCheckDoc,
     processFanoutCheckSource,
-    processFanoutText,
-    processHooks,
     processHooksApproval,
-    processHooksText,
     processShipCheckDoc,
     processShipCheckSource,
+    repoFileExists,
     serverRouteSource,
     serverSource,
-    verifierArtifactExists,
     verifierArtifactExistsApproval,
-    verifierArtifactExistsText,
-    verifierDoneCoverage,
     verifierDoneCoverageApproval,
-    verifierDoneCoverageText,
     verifierExceptionValidation,
-    workerCodeTrust,
     workerCodeTrustApproval,
-    workerCodeTrustText,
     workerRunningShortCommit,
   })
-  checks.push(...processTrustVerifier.checks)
-  const processTrustDogfood = buildFoundationProcessTrustVerifierDogfoodProof()
-  const verifierProcessTrustSplitModuleCard =
-    verifierSplitBacklogItemById.get(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID) ||
-    (activeFoundationSprintForExtractionRuntime.items || [])
-      .map(item => item.backlog)
-      .find(item => item?.id === VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID) ||
-    null
-  const verifierProcessTrustSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const verifierProcessTrustSplitModuleClosed = verifierProcessTrustSplitModuleCard?.lane === 'done'
-  const foundationVerifyLineCountAfterProcessTrustSplit = String(foundationVerifySource || '').split('\n').length
-  const processTrustOldInlinePatterns = [
-    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1400}'Backlog hygiene and process-gate cards are captured'"),
-    new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1600}'POST-SHIP-FAN-OUT-001 closes post-ship fanout gate with proof'"),
-  ]
-  ensure(
-    checks,
-    verifierProcessTrustSplitModuleCard &&
-      ['executing', 'done'].includes(verifierProcessTrustSplitModuleCard.lane) &&
-      (!verifierProcessTrustSplitModuleClosed || (
-        String(verifierProcessTrustSplitModuleCard.statusNote || '').includes(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
-        verifierProcessTrustSplitModuleCloseout?.operatorCloseout === true &&
-        (verifierProcessTrustSplitModuleCloseout.backlogIds || []).includes(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-verifier-process-trust-split-module-closeout.md')
-      )) &&
-      processTrustDogfood.ok === true &&
-      processTrustVerifier.checks.every(check => check.ok) &&
-      packageJson.scripts?.['process:verifier-process-trust-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_PROCESS_TRUST_SPLIT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_APPROVAL_PATH) &&
-      foundationProcessTrustVerifierSource.includes('evaluateFoundationProcessTrustVerifier') &&
-      foundationProcessTrustVerifierSource.includes('buildFoundationProcessTrustVerifierDogfoodProof') &&
-      verifierProcessTrustSplitModuleScriptSource.includes('old inline process trust verifier failures are rejected') &&
-      verifierProcessTrustSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
-      foundationVerifySource.includes('evaluateFoundationProcessTrustVerifier({') &&
-      foundationVerifySource.includes('processTrustVerifier.checks') &&
-      processTrustOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
-      currentPlan.includes(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      currentState.includes(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      (activeFoundationSprintForExtractionRuntime.sprint?.sprintId === VERIFIER_PROCESS_TRUST_SPLIT_MODULE_SPRINT_ID || verifierProcessTrustSplitModuleClosed) &&
-      foundationProcessTrustVerifierSource.includes(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID),
-    'VERIFIER-PROCESS-TRUST-SPLIT-MODULE-001 extracts process trust verifier checks into a focused module',
-    verifierProcessTrustSplitModuleCard
-      ? `lane=${verifierProcessTrustSplitModuleCard.lane} dogfood=${processTrustDogfood.ok ? 'pass' : 'blocked'} processChecks=${processTrustVerifier.checks.filter(check => check.ok).length}/${processTrustVerifier.checks.length} lines=${VERIFIER_PROCESS_TRUST_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterProcessTrustSplit}`
-      : `missing ${VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID}`,
-  )
+  checks.push(...processTrustOrchestrationVerifier.checks)
   const cleanupControlAssuranceVerifier = await evaluateFoundationVerifierCleanupControlAssurance({
     DOC_INVENTORY_CATEGORIES,
     DOCTRINE_PROPAGATION_SOURCES,
