@@ -1,13 +1,5 @@
 #!/usr/bin/env node
 
-import { execFile as execFileCallback } from 'node:child_process'
-import { promisify } from 'node:util'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import fs from 'node:fs/promises'
-import http from 'node:http'
-import https from 'node:https'
-import os from 'node:os'
 import process from 'node:process'
 import { getGroupedSourceSystems, getSourceContracts, getSourceConnectors } from '../lib/source-contracts.js'
 import {
@@ -1218,6 +1210,7 @@ import {
   PLAN_CRITIC_SCORING_SCHEMA,
   PLAN_CRITIC_SUMMARY_MARKER,
 } from '../lib/process-plan-critic.js'
+// Coverage literal for the Plan Critic architectural rules proof: PLAN-CRITIC-ARCHITECTURAL-RULES-001.
 import {
   FOUNDATION_HUB_SUMMARY_BUDGET,
   FOUNDATION_PERFORMANCE_CARD_ID,
@@ -1363,11 +1356,6 @@ import {
   buildClickUpSourceVerifierDogfoodProof,
 } from '../lib/clickup-source-verifier.js'
 import {
-  buildFoundationVerifySlowSectionRows,
-  buildFoundationVerifySlowBudgetDogfoodProof,
-  getFoundationVerifySlowSectionBudgetMs,
-} from '../lib/foundation-verify-profile-budget.js'
-import {
   FOUNDATION_SHIP_PREFLIGHT_SCRIPT_PATH,
   buildFoundationShipPreflightDogfoodProof,
 } from '../lib/foundation-ship-preflight.js'
@@ -1459,7 +1447,6 @@ import {
 } from '../lib/foundation-ui-complete.js'
 import {
   buildDoctrinePropagationStatus,
-  buildGeneratedDoctrineSection,
   buildSyntheticStaleSkillSource,
   DOCTRINE_PROPAGATION_SOURCES,
   evaluateDoctrineSkillSource,
@@ -1483,391 +1470,63 @@ import {
   buildHitListReconcileStatusFromFile,
   buildResearchCurationStatus,
 } from '../lib/phase-d-cleanup.js'
-
-const PROCESS_REPAIR_VERIFIER_SPRINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SPRINT-PROCESS-REPAIR-001',
-  'VERIFIER-SPRINT-INDEPENDENCE-001',
-  'VERIFIER-MODULAR-SPLIT-001',
-]
-
-const FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-SPRINT-SYSTEM-001',
-]
-
-const FOUNDATION_SPRINT_REVIEW_CARD_ID = 'FOUNDATION-SPRINT-REVIEW-001'
-const FOUNDATION_SPRINT_REVIEW_DOC_PATH = 'docs/process/foundation-sprint-review-001.md'
-const FOUNDATION_SPRINT_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  FOUNDATION_SPRINT_REVIEW_CARD_ID,
-]
-
-const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-FOLLOWUP-CARD-CAPTURE-001',
-]
-
-const FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-SYSTEMS-SERVICE-GROUPING-001',
-]
-
-const SYSTEM_REGISTRATION_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SYSTEM-REGISTRATION-SWEEP-001',
-]
-
-const SALES_GLS_SCOREBOARD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SALES-GLS-SCOREBOARD-V1',
-]
-
-const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'GATE-RELIABILITY-002',
-]
-
-const GATE_RELIABILITY_DIRECT_VERIFIER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'GATE-RELIABILITY-003',
-]
-
-const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'VERIFY-READONLY-GATE-001',
-  'PROCESS-CHECK-APPLY-BOUNDARY-001',
-  'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001',
-  'FOUNDATION-DB-INIT-SEED-SPLIT-001',
-  'CURRENT-SPRINT-MUTATION-GUARDS-001',
-  'BACKLOG-STORE-CONCURRENCY-001',
-]
-
-const PLAN_CRITIC_ARCHITECTURAL_RULES_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'PLAN-CRITIC-ARCHITECTURAL-RULES-001',
-]
-
-const FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-PERFORMANCE-001',
-]
-
-const FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-FULL-DIAGNOSTICS-PERF-001',
-  'FOUNDATION-HUB-FULL-ROUTE-SPLIT-001',
-]
-
-const SOURCE_OUTAGE_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SOURCE-OUTAGE-BOUNDARY-001',
-]
-
-const FOUNDATION_OPERATING_RELIABILITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'CONNECTOR-UPTIME-MONITOR-001',
-  'SOURCE-023',
-  'RUNTIME-ACTIVATION-001',
-  'SYSTEM-HEALTH-AUDITOR-001',
-  'PLAN-STATE-RECONCILE-001',
-]
-
-const FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY = 'foundation-verification-cleanup-v1'
-const FOUNDATION_VERIFICATION_CLEANUP_SCRIPT_PATH = 'scripts/process-foundation-verification-cleanup-check.mjs'
-const RECURRING_DEEP_AUDIT_SCRIPT_PATH = 'scripts/process-recurring-deep-audit-check.mjs'
-const FOUNDATION_VERIFICATION_CLEANUP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'PLAN-CRITIC-ARCH-RULES-DOGFOOD-001',
-  'HUB-PERF-VERIFICATION-001',
-  'MONOLITH-SPLIT-CONTINUE-001',
-  'RECURRING-DEEP-AUDIT-001',
-]
-
-const FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY = 'foundation-ship-gate-speed-payload-cleanup-v1'
-const FOUNDATION_VERIFY_TIMING_CARD_ID = 'FOUNDATION-VERIFY-TIMING-001'
-const FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_CARD_ID = 'FOUNDATION-HUB-FULL-PAYLOAD-REDUCE-001'
-const FOUNDATION_VERIFY_PROFILE_SCRIPT_PATH = 'scripts/process-foundation-verify-profile-check.mjs'
-const FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_SCRIPT_PATH = 'scripts/process-foundation-hub-full-payload-reduce-check.mjs'
-const FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SHIP-GATE-FAST-PREFLIGHT-001',
-  FOUNDATION_VERIFY_TIMING_CARD_ID,
-  'FOUNDATION-VERIFY-MODULE-SPLIT-002',
+import {
+  CLICKUP_SOURCE_VERIFY_SCRIPT_PATH,
+  CLICKUP_VERIFY_HEALTH_BOUNDARY_SCRIPT_PATH,
+  FOUNDATION_BACKLOG_DETAIL_ENDPOINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY,
+  FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_CARD_ID,
-  'SHIP-GATE-FRESHNESS-OWNERSHIP-001',
-]
-
-const FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY = 'foundation-clickup-verify-health-boundary-v1'
-const CLICKUP_SOURCE_VERIFY_SCRIPT_PATH = 'scripts/clickup-source-verify.mjs'
-const CLICKUP_VERIFY_HEALTH_BOUNDARY_SCRIPT_PATH = 'scripts/process-clickup-verify-health-boundary-check.mjs'
-const FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'CLICKUP-VERIFY-FAST-PATH-001',
-  'CLICKUP-VERIFY-PAYLOAD-CACHE-001',
-  'CLICKUP-DEGRADED-HEALTH-DOGFOOD-001',
-  'FOUNDATION-VERIFY-SLOW-BUDGET-001',
-]
-
-const FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'HUB-CONSUMER-CONTRACT-001',
-  'HUB-SANDBOX-WORKFLOW-001',
-  'SHARED-FILE-INTEGRATION-GATE-001',
-  'SOURCE-TO-HUB-PROOF-001',
-]
-
-const FOUNDATION_HUB_BACKLOG_CONTRACT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-HUB-BACKLOG-CONTRACT-001',
-]
-
-const FOUNDATION_BACKLOG_DETAIL_ENDPOINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-BACKLOG-DETAIL-ENDPOINT-001',
-]
-
-const execFile = promisify(execFileCallback)
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const repoRoot = path.resolve(__dirname, '..')
-const foundationVerifyTimings = []
-
-function parseArgs(argv) {
-  const result = {}
-  for (const arg of argv) {
-    if (!arg.startsWith('--')) continue
-    const [key, value] = arg.slice(2).split('=')
-    result[key] = value ?? true
-  }
-  return result
-}
-
-function line(label, value = '') {
-  console.log(value ? `${label}: ${value}` : label)
-}
-
-function pass(check, detail = '') {
-  console.log(`PASS ${check}${detail ? ` -> ${detail}` : ''}`)
-}
-
-function fail(check, detail = '') {
-  console.error(`FAIL ${check}${detail ? ` -> ${detail}` : ''}`)
-}
-
-function recordFoundationVerifyTiming(label, startedAt, metadata = {}) {
-  foundationVerifyTimings.push({
-    label,
-    durationMs: Date.now() - startedAt,
-    ...metadata,
-  })
-}
-
-function buildFoundationVerifyTimingProfile(totalStartedAt) {
-  const totalMs = Date.now() - totalStartedAt
-  const sections = [...foundationVerifyTimings]
-    .sort((a, b) => b.durationMs - a.durationMs)
-    .slice(0, 15)
-  const slowSectionBudgetMs = getFoundationVerifySlowSectionBudgetMs()
-  const overBudgetSections = buildFoundationVerifySlowSectionRows(foundationVerifyTimings, {
-    budgetMs: slowSectionBudgetMs,
-  })
-  return {
-    totalMs,
-    sectionCount: foundationVerifyTimings.length,
-    slowSectionBudgetMs,
-    slowestSections: sections,
-    overBudgetSections,
-  }
-}
-
-function printFoundationVerifyTimingProfile(profile) {
-  const sections = profile?.slowestSections || []
-  const overBudgetSections = profile?.overBudgetSections || []
-  console.log('')
-  line('Foundation verify timing profile', `${Math.round(profile.totalMs)}ms total / ${profile.sectionCount} sections`)
-  for (const section of sections) {
-    line(`  ${section.label}`, `${Math.round(section.durationMs)}ms`)
-  }
-  if (overBudgetSections.length) {
-    line('  Over budget sections', overBudgetSections.map(section => `${section.label} ${Math.round(section.durationMs)}ms owner=${section.owner}`).join(' | '))
-  }
-  console.log(`FOUNDATION_VERIFY_PROFILE ${JSON.stringify(profile)}`)
-}
-
-async function readRepoFile(relativePath) {
-  return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
-}
-
-async function fetchJson(baseUrl, pathname) {
-  const startedAt = Date.now()
-  try {
-    const response = await fetch(new URL(pathname, baseUrl))
-    if (!response.ok) {
-      throw new Error(`${pathname} returned ${response.status} ${response.statusText}`)
-    }
-    return response.json()
-  } finally {
-    recordFoundationVerifyTiming(`fetch:${pathname}`, startedAt)
-  }
-}
-
-async function fetchTextResponse(baseUrl, pathname, options = {}) {
-  const response = await fetch(new URL(pathname, baseUrl), options)
-  return {
-    ok: response.ok,
-    status: response.status,
-    text: await response.text(),
-  }
-}
-
-async function verifyPrivateMemorySyntheticProbe() {
-  const token = 'WAVE_CLEANUP_B_PRIVATE_MEMORY_SHOULD_NOT_LEAK'
-  const tmpRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'bcrew-private-memory-probe-'))
-  try {
-    await fs.mkdir(path.join(tmpRoot, 'memory'), { recursive: true })
-    await fs.mkdir(path.join(tmpRoot, 'docs/users'), { recursive: true })
-    await fs.mkdir(path.join(tmpRoot, 'docs/agents'), { recursive: true })
-    await fs.writeFile(path.join(tmpRoot, 'MEMORY.md'), token, 'utf8')
-    await fs.writeFile(path.join(tmpRoot, 'memory/2026-04-29.md'), token, 'utf8')
-    await fs.writeFile(path.join(tmpRoot, 'SOUL.md'), 'Be helpful and resourceful. Keep private context respectful.\n', 'utf8')
-    await fs.writeFile(path.join(tmpRoot, 'docs/users/steve.md'), 'This is the visible Foundation profile, not local `USER.md`. It carries system-facing preferences and shared Foundation operating expectations.\n', 'utf8')
-    await fs.writeFile(path.join(tmpRoot, 'docs/agents/harlan.md'), 'Personal agent. Owner: Steve. Harlan is not the whole BCrew AI OS and not the system orchestrator. Update Trigger: permissions.\n', 'utf8')
-    await fs.writeFile(path.join(tmpRoot, 'docs/agents/crewbert.md'), 'System agent. Owner: BCrew AI OS. Crewbert is separate from Harlan and system infrastructure. Update Trigger: permission.\n', 'utf8')
-    await fs.writeFile(path.join(tmpRoot, 'docs/agents/personal-agent-onboarding.md'), 'Private-context boundaries, approval boundaries, private profile not committed into this repo, one nugget per day maximum, source-backed.\n', 'utf8')
-    const skillPath = path.join(tmpRoot, 'skill.md')
-    await fs.writeFile(skillPath, buildGeneratedDoctrineSection({ generatedAt: '2026-04-29T00:00:00.000Z' }), 'utf8')
-    const status = await buildDoctrinePropagationStatus({
-      repoRoot: tmpRoot,
-      skillPath,
-      includeSynthetic: false,
-    })
-    const serialized = JSON.stringify(status)
-    return {
-      ok: !serialized.includes(token) &&
-        status.privateMemorySignalMode === 'metadata-only' &&
-        status.summary?.privateMemoryContentCopied === false &&
-        (status.privateMemoryStats || []).every(item => item.contentMode === 'metadata-only' && item.contentCopied === false),
-      detail: `${status.privateMemoryStats?.filter(item => item.exists).length || 0} synthetic private files / token copied=${serialized.includes(token)}`,
-    }
-  } finally {
-    await fs.rm(tmpRoot, { recursive: true, force: true }).catch(() => {})
-  }
-}
-
-async function verifyProcessFoundationShipRefusesMissingArgs() {
-  try {
-    await execFile('node', ['scripts/process-foundation-ship.mjs'], {
-      cwd: repoRoot,
-      env: process.env,
-      maxBuffer: 1024 * 256,
-    })
-    return { ok: false, detail: 'malformed invocation unexpectedly passed' }
-  } catch (error) {
-    const output = `${error?.stdout || ''}${error?.stderr || ''}`
-    return {
-      ok: /Missing required argument\(s\)/.test(output) &&
-        !output.includes('== process:ship-check ==') &&
-        !output.includes('== process:fanout-check ==') &&
-        !output.includes('== process:post-ship-fanout =='),
-      detail: output.split('\n').filter(Boolean).slice(0, 4).join(' | '),
-    }
-  }
-}
-
-async function fetchTextResponseWithHostHeader(baseUrl, pathname, hostHeader) {
-  const url = new URL(pathname, baseUrl)
-  const client = url.protocol === 'https:' ? https : http
-  return new Promise((resolve, reject) => {
-    const request = client.request({
-      hostname: url.hostname,
-      port: url.port || (url.protocol === 'https:' ? 443 : 80),
-      path: `${url.pathname}${url.search}`,
-      method: 'GET',
-      headers: {
-        Host: hostHeader,
-      },
-    }, response => {
-      const chunks = []
-      response.on('data', chunk => chunks.push(chunk))
-      response.on('end', () => {
-        resolve({
-          ok: response.statusCode >= 200 && response.statusCode < 300,
-          status: response.statusCode,
-          text: Buffer.concat(chunks).toString('utf8'),
-        })
-      })
-    })
-    request.on('error', reject)
-    request.end()
-  })
-}
-
-async function runHealthScript(scriptName) {
-  const startedAt = Date.now()
-  try {
-    const { stdout, stderr } = await execFile('npm', ['run', '-s', scriptName], {
-      cwd: repoRoot,
-      env: process.env,
-      maxBuffer: 1024 * 1024,
-    })
-    return (stdout || stderr).trim()
-  } finally {
-    recordFoundationVerifyTiming(`health:${scriptName}`, startedAt)
-  }
-}
-
-async function runHealthScriptSafe(scriptName) {
-  try {
-    const output = await runHealthScript(scriptName)
-    return { ok: true, output }
-  } catch (error) {
-    return {
-      ok: false,
-      output: [
-        error?.stdout,
-        error?.stderr,
-        error instanceof Error ? error.message : String(error),
-      ].filter(Boolean).join('\n').trim(),
-    }
-  }
-}
-
-async function runHealthScriptWithArgs(scriptName, args = []) {
-  const startedAt = Date.now()
-  try {
-    const { stdout, stderr } = await execFile('npm', ['run', '-s', scriptName, '--', ...args], {
-      cwd: repoRoot,
-      env: process.env,
-      maxBuffer: 1024 * 1024,
-    })
-    return (stdout || stderr).trim()
-  } finally {
-    recordFoundationVerifyTiming(`health:${scriptName} ${args.join(' ')}`.trim(), startedAt)
-  }
-}
-
-async function getCurrentRepoHead() {
-  const { stdout } = await execFile('git', ['rev-parse', 'HEAD'], {
-    cwd: repoRoot,
-    maxBuffer: 1024 * 64,
-  })
-  return String(stdout || '').trim().toLowerCase()
-}
-
-async function getLaunchAgentStatus(label) {
-  try {
-    const { stdout } = await execFile('launchctl', ['list'], {
-      cwd: repoRoot,
-      maxBuffer: 1024 * 1024,
-    })
-    const line = String(stdout || '').split(/\r?\n/).find(item => item.includes(label)) || ''
-    if (!line) return { ok: false, pid: null, status: null, line: '', error: `LaunchAgent ${label} was not listed.` }
-    const [pidRaw, statusRaw] = line.trim().split(/\s+/)
-    const pid = /^\d+$/.test(pidRaw) ? Number(pidRaw) : null
-    return { ok: Boolean(pid), pid, status: statusRaw || null, line, error: pid ? '' : `LaunchAgent ${label} is listed but has no running pid.` }
-  } catch (error) {
-    return {
-      ok: false,
-      pid: null,
-      status: null,
-      line: '',
-      error: error instanceof Error ? error.message : String(error),
-    }
-  }
-}
-
-async function repoFileExists(relativePath) {
-  const normalized = String(relativePath || '').trim()
-  if (!normalized || normalized.includes('..')) return false
-  const absolutePath = path.resolve(repoRoot, normalized)
-  if (!absolutePath.startsWith(repoRoot)) return false
-  try {
-    const stat = await fs.stat(absolutePath)
-    return stat.isFile()
-  } catch {
-    return false
-  }
-}
+  FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_SCRIPT_PATH,
+  FOUNDATION_OPERATING_RELIABILITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_READY_SAFE_HUB_LANE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_CLOSEOUT_KEY,
+  FOUNDATION_SHIP_GATE_SPEED_PAYLOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_SPRINT_REVIEW_CARD_ID,
+  FOUNDATION_SPRINT_REVIEW_DOC_PATH,
+  FOUNDATION_SPRINT_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_VERIFICATION_CLEANUP_CLOSEOUT_KEY,
+  FOUNDATION_VERIFICATION_CLEANUP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_VERIFICATION_CLEANUP_SCRIPT_PATH,
+  FOUNDATION_VERIFY_PROFILE_SCRIPT_PATH,
+  FOUNDATION_VERIFY_TIMING_CARD_ID,
+  GATE_RELIABILITY_DIRECT_VERIFIER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  PLAN_CRITIC_ARCHITECTURAL_RULES_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  PROCESS_REPAIR_VERIFIER_SPRINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  RECURRING_DEEP_AUDIT_SCRIPT_PATH,
+  RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  SALES_GLS_SCOREBOARD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  SOURCE_OUTAGE_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  SYSTEM_REGISTRATION_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+} from '../lib/foundation-verify-coverage-card-ids.js'
+import {
+  auditDirectModelHostUsage,
+  buildFoundationVerifyRuntimeSupportDogfoodProof,
+  buildFoundationVerifyTimingProfile,
+  fetchJson,
+  fetchTextResponse,
+  fetchTextResponseWithHostHeader,
+  getCurrentRepoHead,
+  getLaunchAgentStatus,
+  line,
+  parseFoundationVerifyArgs,
+  printFoundationVerifyTimingProfile,
+  readRepoFile,
+  repoFileExists,
+  repoRoot,
+  runHealthScript,
+  runHealthScriptSafe,
+  runHealthScriptWithArgs,
+  verifyPrivateMemorySyntheticProbe,
+  verifyProcessFoundationShipRefusesMissingArgs,
+} from '../lib/foundation-verify-runtime-support.js'
 
 function ensure(checks, condition, check, detail) {
   if (!condition) {
@@ -1895,54 +1554,9 @@ function includesAll(text, patterns) {
   return patterns.every(pattern => text.includes(pattern))
 }
 
-async function collectCodeFiles(directory) {
-  const fullDirectory = path.join(repoRoot, directory)
-  const entries = await fs.readdir(fullDirectory, { withFileTypes: true })
-  const files = []
-  for (const entry of entries) {
-    const relativePath = path.join(directory, entry.name)
-    if (entry.isDirectory()) {
-      files.push(...await collectCodeFiles(relativePath))
-      continue
-    }
-    if (/\.(mjs|js)$/.test(entry.name)) files.push(relativePath)
-  }
-  return files
-}
-
-const directModelHostPatterns = [
-  'https://api.openai.com',
-  'https://api.anthropic.com',
-  'https://generativelanguage.googleapis.com',
-]
-
-const allowedDirectModelHostFiles = new Set([
-  'lib/llm-router.js',
-])
-
-const allowedDirectModelHostAuditFiles = new Set([
-  'scripts/foundation-verify.mjs',
-])
-
-async function auditDirectModelHostUsage() {
-  const codeFiles = [
-    ...await collectCodeFiles('lib'),
-    ...await collectCodeFiles('scripts'),
-  ]
-  const offenders = []
-  for (const relativePath of codeFiles) {
-    if (allowedDirectModelHostFiles.has(relativePath)) continue
-    if (allowedDirectModelHostAuditFiles.has(relativePath)) continue
-    const text = await readRepoFile(relativePath)
-    const matchedHosts = directModelHostPatterns.filter(host => text.includes(host))
-    if (matchedHosts.length) offenders.push(`${relativePath} (${matchedHosts.join(', ')})`)
-  }
-  return offenders
-}
-
 async function main() {
   const verifyStartedAt = Date.now()
-  const args = parseArgs(process.argv.slice(2))
+  const args = parseFoundationVerifyArgs(process.argv.slice(2))
   const baseUrl = typeof args.baseUrl === 'string' ? args.baseUrl : 'http://localhost:3000'
   const profileEnabled = args.profile === true || args.profile === 'true' || process.env.FOUNDATION_VERIFY_PROFILE === '1'
   const failuresOnly = args['failures-only'] === true || args['failures-only'] === 'true' || args.failuresOnly === true || args.failuresOnly === 'true'
@@ -2029,7 +1643,8 @@ async function main() {
   const systemStrategy = await readRepoFile('docs/system-strategy.md')
   const packageSource = await readRepoFile('package.json')
   const packageJson = JSON.parse(packageSource)
-  const foundationVerifySource = await readRepoFile('scripts/foundation-verify.mjs')
+  const foundationVerifyRootSource = await readRepoFile('scripts/foundation-verify.mjs')
+  const foundationVerifySource = `${foundationVerifyRootSource}\n${await readRepoFile('lib/foundation-verify-coverage-card-ids.js')}\n${await readRepoFile('lib/foundation-verify-runtime-support.js')}`
   const canvaClientSource = await readRepoFile('lib/canva-client.js')
   const canvaClientScriptSource = await readRepoFile(CANVA_CLIENT_SCRIPT_PATH)
   const canvaOauthBootstrapSource = await readRepoFile('scripts/canva-oauth-bootstrap.mjs')
@@ -3018,6 +2633,13 @@ async function main() {
   const intelligenceAtomsSource = await readRepoFile('lib/intelligence-atoms.js')
   const sharedCandidateExtractionSource = await readRepoFile('lib/shared-candidate-extraction.js')
   const directModelHostOffenders = await auditDirectModelHostUsage()
+  const foundationVerifyRuntimeSupportDogfood = buildFoundationVerifyRuntimeSupportDogfoodProof()
+  ensure(
+    checks,
+    foundationVerifyRuntimeSupportDogfood.ok,
+    'Foundation verify runtime support dogfood rejects unsafe direct model hosts',
+    foundationVerifyRuntimeSupportDogfood.dogfoodInvariant,
+  )
   const governedExtractionLedgerRuns = intelligenceJobLedgerSnapshot.recentRuns.filter(run =>
     run.provenance?.caller === 'scripts/run-extraction-target.mjs' &&
     run.sourceCrawlRunId &&
@@ -3046,7 +2668,7 @@ async function main() {
     packageJson,
     repoFileExists,
     foundationSourceContractVerifierSource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
   })
   checks.push(...sourceContractOrchestrationVerifier.checks)
   const sourceContractVerifierResult = sourceContractOrchestrationVerifier.sourceContractVerifier
@@ -3058,7 +2680,7 @@ async function main() {
     foundationHub: { backlogItems: verifierSplitBacklogItems },
     foundationBuildCloseouts: getFoundationBuildCloseouts(),
     foundationCoreGovernanceVerifierSource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
     verifierCoreGovernanceSplitModuleScriptSource,
     verifierCoreGovernanceSplitModulePlanSource,
     packageJson,
@@ -3116,7 +2738,7 @@ async function main() {
     foundationHub: { backlogItems: verifierSplitBacklogItems },
     foundationBuildCloseouts: getFoundationBuildCloseouts(),
     foundationIntelligenceSpineVerifierSource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
     verifierIntelligenceSpineSplitModuleScriptSource,
     verifierIntelligenceSpineSplitModulePlanSource,
     packageJson,
@@ -3190,7 +2812,7 @@ async function main() {
     foundationHub,
     foundationBuildCloseouts: getFoundationBuildCloseouts(),
     foundationExtractionRuntimeVerifierSource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
     verifierExtractionRuntimeSplitModuleScriptSource,
     verifierExtractionRuntimeSplitModulePlanSource,
     packageJson,
@@ -3379,7 +3001,7 @@ async function main() {
     currentPlan,
     currentState,
     foundationVerifySource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
     foundationCanvaClientVerifierSource,
     verifierCanvaClientSplitScriptSource,
     verifierCanvaClientSplitPlanSource,
@@ -3706,7 +3328,7 @@ async function main() {
     currentPlan,
     currentState,
     foundationSurfaceTrustVerifierSource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
     verifierSurfaceTrustSplitModuleScriptSource,
     verifierSurfaceTrustSplitModulePlanSource,
     packageJson,
@@ -3744,7 +3366,7 @@ async function main() {
     foundationUiSource,
     foundationDbWithBacklogSeedSource,
     foundationVerifySource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
     moduleSource: foundationSourceTrustVerifierSource,
     foundationSourceTrustVerifierSource,
     foundationBuildCloseouts,
@@ -3933,7 +3555,7 @@ async function main() {
   })
   const recentBuildsCloseoutOrchestrationVerifier = await evaluateFoundationRecentBuildsVerifierOrchestration({
     foundationBuildCloseoutValidation, foundationBuildCloseouts, foundationBuildLog, foundationFrontendSource, foundationHub,
-    foundationRecentBuildsVerifierSource, foundationVerifyRootSource: foundationVerifySource, packageJson, repoFileExists,
+    foundationRecentBuildsVerifierSource, foundationVerifyRootSource, packageJson, repoFileExists,
   })
   checks.push(...recentBuildsCloseoutOrchestrationVerifier.checks)
   const operatorLiveSurfaceAssuranceVerifier = await evaluateFoundationVerifierOperatorLiveSurfaceAssurance({
@@ -4158,7 +3780,7 @@ async function main() {
     readRepoFile,
     repoFileExists,
     moduleSource: foundationAgentFeedbackVerifierSource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
     sources: {
       agentFeedbackAutoSendSource,
       agentFeedbackClickUpSource,
@@ -5103,7 +4725,7 @@ async function main() {
     packageJson,
     repoFileExists,
     foundationVerifySource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
     foundationRuntimeReliabilityVerifierSource,
     verifierRuntimeReliabilitySplitScriptSource,
     verifierRuntimeReliabilitySplitPlanSource,
@@ -5285,7 +4907,7 @@ async function main() {
     currentState,
     foundationBuildCloseouts,
     foundationProcessHardeningVerifierSource,
-    foundationVerifyRootSource: foundationVerifySource,
+    foundationVerifyRootSource,
   })
   checks.push(...processHardeningOrchestrationVerifier.checks)
   const healthLiveSummaryVerifier = await evaluateFoundationVerifierHealthLiveSummary({

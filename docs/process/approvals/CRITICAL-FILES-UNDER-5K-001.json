@@ -1,0 +1,13 @@
+{
+  "cardId": "CRITICAL-FILES-UNDER-5K-001",
+  "score": 10,
+  "approvedBy": "Steve explicit canonicalization approval + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T14:40:00.000-04:00",
+  "approvalSource": "Steve approved canonicalizing CRITICAL-FILES-UNDER-5K-001 as Foundation process work and instructed Codex to create the missing live process artifacts, run full process:foundation-ship, commit, and push on the Foundation branch.",
+  "notes": "Approved only for the critical-file under-5K verifier split and the process artifacts needed to ship it truthfully. Not approved: Harlan, Fal, voice, Canva feature work, hub feature work, connector auth, Agent Feedback send jobs, DB schema changes, route behavior changes, or value work beyond the Foundation queue.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/critical-files-under-5k-001-plan.md",
+  "approvedPlanSha256": "bae5177aa2411022e0bfa3f082c75d9e67b1f74b0dc458de1d6cf20ad05d2176",
+  "approvedRepoHead": "a210380887c39505c74b6894570fb8af1c37f731",
+  "approvalDigest": "306e75b778b208135b8f603061765922a503dfe246473951f0c954c46fd639f7"
+}
