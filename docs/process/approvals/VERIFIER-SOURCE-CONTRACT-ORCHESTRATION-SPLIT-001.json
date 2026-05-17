@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-SOURCE-CONTRACT-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T11:11:51Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for Source Contract verifier orchestration extraction covering source-contract registry snapshot setup, scalar source-ID FK snapshot setup, array provenance setup, registry/source-ID dogfood setup, direct evaluator call, check aggregation, historical split proof compatibility, dogfood proof, and new orchestration self-check inside lib/foundation-source-contract-verifier.js. Not approved: arbitrary tail extraction, source contract status changes, live source registry schema changes, source-ID schema mutation, source extraction job implementation, connector auth, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-source-contract-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "acaf1d1a05ed3f55bca8c2066cfe7273d989232f59c888903436d63760ab119b",
+  "approvedRepoHead": "9e832cd86bb7d32f45faf4ea7496dd4b1431ce2c",
+  "approvalDigest": "0611d2c287ee73f9f5ae5bea74a342efa4968f9a5e2bddf4ed19f40b6d562dfd"
+}

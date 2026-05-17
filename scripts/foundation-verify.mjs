@@ -360,26 +360,11 @@ import {
   VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
 } from '../lib/foundation-health-script-verifier.js'
 import {
-  VERIFIER_SOURCE_CONTRACT_MODULE_APPROVAL_PATH,
-  VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID,
-  VERIFIER_SOURCE_CONTRACT_MODULE_CLOSEOUT_KEY,
+  VERIFIER_SOURCE_CONTRACT_ORCHESTRATION_SPLIT_CARD_ID,
   VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH,
   VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH,
-  VERIFIER_SOURCE_CONTRACT_MODULE_SPRINT_ID,
-  buildFoundationSourceContractVerifierDogfoodProof,
-  evaluateFoundationSourceContractVerifier,
+  evaluateFoundationSourceContractVerifierOrchestration,
 } from '../lib/foundation-source-contract-verifier.js'
-import {
-  buildSourceContractRegistryTableDogfoodProof,
-} from '../lib/source-contract-registry-table.js'
-import {
-  buildSourceIdScalarFkDogfoodProof,
-  getSourceIdScalarFkMigrationSnapshot,
-} from '../lib/source-id-scalar-fk-migration.js'
-import {
-  buildSourceIdArrayProvenanceDesignDogfoodProof,
-  evaluateSourceIdArrayProvenanceDesign,
-} from '../lib/source-id-array-provenance-design.js'
 import {
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
   VERIFIER_SOURCE_TRUST_SPLIT_MODULE_PLAN_PATH,
@@ -905,7 +890,6 @@ import {
   getBacklogItemsByIds,
   getBacklogSeedDriftSnapshot,
   getFoundationDbConstraintAudit,
-  getSourceContractRegistrySnapshot,
   getIntelligenceAtomSpineSnapshot,
   getIntelligenceJobLedgerSnapshot,
   getIntelligenceRetrievalSnapshot,
@@ -1994,9 +1978,6 @@ async function main() {
   )
   const groupedSourceSystems = getGroupedSourceSystems()
   await assertFoundationDbReadyForReadOnlyGate('foundation:verify')
-  const sourceContractRegistrySnapshot = await getSourceContractRegistrySnapshot()
-  const sourceIdScalarFkMigrationSnapshot = await getSourceIdScalarFkMigrationSnapshot()
-  const sourceIdArrayProvenanceDesign = evaluateSourceIdArrayProvenanceDesign()
   const backlogSeedDrift = await getBacklogSeedDriftSnapshot({ limit: 10 })
   const strategyPreworkCoverageSnapshot = await getStrategyPreworkCoverageSnapshot()
   const strategyGoalTruthSnapshot = await getStrategyGoalTruthSnapshot()
@@ -2024,6 +2005,7 @@ async function main() {
     VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_CANVA_CLIENT_SPLIT_MODULE_CARD_ID,
     VERIFIER_CANVA_CLIENT_ORCHESTRATION_SPLIT_CARD_ID,
+    VERIFIER_SOURCE_CONTRACT_ORCHESTRATION_SPLIT_CARD_ID,
   ])
   const verifierSplitBacklogItemById = new Map(verifierSplitBacklogItems.map(item => [item.id, item]))
   const dbConstraintAudit = await getFoundationDbConstraintAudit({
@@ -3056,18 +3038,19 @@ async function main() {
   const retrievalEvalSources = new Set(retrievalEvalCases.map(item => item.sourceId).filter(Boolean))
   const latestRetrievalEvalMetadata = intelligenceRetrievalSnapshot.latestEvalRun?.metadata || {}
 
-  const sourceContractVerifierResult = evaluateFoundationSourceContractVerifier({
+  const sourceContractOrchestrationVerifier = await evaluateFoundationSourceContractVerifierOrchestration({
     sourceContracts,
     sourceRegistry,
     currentState,
-    sourceContractRegistrySnapshot,
-    sourceContractRegistryDogfood: buildSourceContractRegistryTableDogfoodProof(),
-    sourceIdScalarFkMigrationSnapshot,
-    sourceIdScalarFkDogfood: buildSourceIdScalarFkDogfoodProof(),
-    sourceIdArrayProvenanceDesign,
-    sourceIdArrayProvenanceDogfood: buildSourceIdArrayProvenanceDesignDogfoodProof(),
+    foundationHub: { backlogItems: verifierSplitBacklogItems },
+    foundationBuildCloseouts: getFoundationBuildCloseouts(),
+    packageJson,
+    repoFileExists,
+    foundationSourceContractVerifierSource,
+    foundationVerifyRootSource: foundationVerifySource,
   })
-  checks.push(...sourceContractVerifierResult.checks)
+  checks.push(...sourceContractOrchestrationVerifier.checks)
+  const sourceContractVerifierResult = sourceContractOrchestrationVerifier.sourceContractVerifier
   const dbConstraintDogfood = await buildDbConstraintDogfoodProof()
   const sourceIdConstraintContractDogfood = buildSourceIdConstraintContractDogfoodProof()
   const activeFoundationSprintForCoreGovernance = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))

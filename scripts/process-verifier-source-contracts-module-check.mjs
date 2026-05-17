@@ -118,9 +118,11 @@ async function main() {
     "['Split Cal', 'Agent Splits', 'Listings and Conditional Deals'",
     "['Monthly Budget', 'Budget Original', 'Monthly Actuals (Roll Up)'",
   ].every(token => !verifierSource.includes(token))
-  const delegates = verifierSource.includes('evaluateFoundationSourceContractVerifier') &&
-    verifierSource.includes('buildFoundationSourceContractVerifierDogfoodProof') &&
-    verifierSource.includes('VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID')
+  const directOrWrapperDelegation = verifierSource.includes('evaluateFoundationSourceContractVerifier({') ||
+    verifierSource.includes('evaluateFoundationSourceContractVerifierOrchestration({')
+  const delegates = directOrWrapperDelegation &&
+    moduleSource.includes('buildFoundationSourceContractVerifierDogfoodProof') &&
+    moduleSource.includes('VERIFIER_SOURCE_CONTRACT_MODULE_CARD_ID')
 
   ensure(checks, approvalValidation.ok && Number(approvalValidation.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || VERIFIER_SOURCE_CONTRACT_MODULE_APPROVAL_PATH)
   ensure(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
@@ -141,7 +143,7 @@ async function main() {
   ensure(checks, sourceIdScalarFkDogfood.ok === true, 'scalar source-ID FK dogfood rejects array migration and unsafe identifiers', sourceIdScalarFkDogfood.invariant)
   ensure(checks, sourceIdArrayProvenanceDesign.ok === true, 'array source-ID provenance design is healthy and report-only', `relations=${sourceIdArrayProvenanceDesign.designRelationCount}/${sourceIdArrayProvenanceDesign.expectedRelationCount}`)
   ensure(checks, sourceIdArrayProvenanceDogfood.ok === true, 'array source-ID provenance dogfood rejects unsafe designs', sourceIdArrayProvenanceDogfood.invariant)
-  ensure(checks, delegates, 'foundation verifier delegates source-contract checks to focused module', 'evaluateFoundationSourceContractVerifier')
+  ensure(checks, delegates, 'foundation verifier delegates source-contract checks to focused module', directOrWrapperDelegation ? 'historical source-contract split proof accepts wrapper delegation' : 'missing source-contract evaluator delegation')
   ensure(checks, removedOldInlinePredicates, 'foundation verifier no longer owns old inline source-contract predicates', removedOldInlinePredicates ? 'old predicates absent' : 'old predicates still inline')
   ensure(checks, verifierLines < VERIFIER_SOURCE_CONTRACT_MODULE_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_SOURCE_CONTRACT_MODULE_BEFORE_LINES} -> ${verifierLines}`)
   ensure(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only', 'no write/mutation tokens in proof script')

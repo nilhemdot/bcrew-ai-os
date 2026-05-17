@@ -172,6 +172,7 @@
     "process:verifier-foundation-db-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-foundation-db-split-module-check.mjs",
     "process:verifier-source-trust-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-source-trust-split-module-check.mjs",
     "process:verifier-source-trust-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-source-trust-orchestration-split-check.mjs",
+    "process:verifier-source-contract-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-source-contract-orchestration-split-check.mjs",
     "process:verifier-current-sprint-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-current-sprint-split-module-check.mjs",
     "process:verifier-intelligence-audit-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-intelligence-audit-split-module-check.mjs",
     "process:verifier-core-governance-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-core-governance-split-module-check.mjs",
