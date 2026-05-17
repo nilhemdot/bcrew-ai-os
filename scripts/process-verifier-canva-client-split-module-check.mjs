@@ -157,6 +157,13 @@ async function main() {
     `${VERIFIER_CANVA_CLIENT_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLines}`,
   )
   checks.push(...sourceSplit.checks)
+  addCheck(
+    checks,
+    moduleSource.includes('evaluateFoundationCanvaClientVerifierOrchestration') &&
+      foundationVerifySource.includes('evaluateFoundationCanvaClientVerifierOrchestration({'),
+    'historical Canva client split proof accepts wrapper delegation',
+    'root may delegate through evaluateFoundationCanvaClientVerifierOrchestration',
+  )
   if (closeout || card?.lane === 'done') {
     addCheck(
       checks,

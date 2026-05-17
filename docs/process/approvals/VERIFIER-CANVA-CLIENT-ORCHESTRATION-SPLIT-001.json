@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-CANVA-CLIENT-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T10:15:59Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for Canva client orchestration extraction covering the existing Canva client evaluator call, check aggregation, historical split self-check, dogfood proof, and wrapper-compatible focused proof inside lib/foundation-canva-client-verifier.js. Not approved: arbitrary tail extraction, Canva writes, live Canva API calls, token rotation, connector auth, source extraction job implementation, paid calls, hub feature work, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-canva-client-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "b6572b108e88e73fbca9c0ca7e2ff826af5ad1e9555d682369b5a8b9e9cfd781",
+  "approvedRepoHead": "3f60738749e2d694168cea22dd5c4f771436be58",
+  "approvalDigest": "0b30ab29da8f1605d9c2097de607b59c96b26163aba7673f626938e146bf507d"
+}
