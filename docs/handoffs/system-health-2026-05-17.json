@@ -1,0 +1,2042 @@
+{
+  "generatedAt": "2026-05-17T09:15:41.323Z",
+  "cardId": "SYSTEM-HEALTH-NIGHTLY-AUDIT-001",
+  "closeoutKey": "system-health-nightly-audit-v1",
+  "reportOnly": true,
+  "readOnly": true,
+  "autoFixes": false,
+  "writesBacklog": false,
+  "writesSourceSystems": false,
+  "status": "risk",
+  "plainEnglish": "Foundation has red system-health findings. Do not treat every surface as green.",
+  "summary": {
+    "status": "risk",
+    "riskCount": 2,
+    "watchCount": 3,
+    "scheduledJobRiskCount": 2,
+    "scheduledJobWatchCount": 1,
+    "connectorDownCount": 0,
+    "connectorDegradedCount": 1,
+    "connectorBlockedCount": 0,
+    "endpointRiskCount": 0,
+    "endpointReviewCount": 0,
+    "docArtifactRiskCount": 0,
+    "docArtifactReviewCount": 1,
+    "currentSprintFindingCount": 0,
+    "sourceCount": 39
+  },
+  "scheduledJobs": {
+    "generatedAt": "2026-05-17T09:15:41.323Z",
+    "cardId": "SCHEDULED-JOB-STALENESS-DASHBOARD-001",
+    "reportOnly": true,
+    "readOnly": true,
+    "status": "risk",
+    "summary": {
+      "jobCount": 39,
+      "riskCount": 2,
+      "watchCount": 1,
+      "healthyCount": 24,
+      "manualCount": 12,
+      "dueCount": 1
+    },
+    "rows": [
+      {
+        "key": "system-health-nightly-audit",
+        "title": "System Health Nightly Audit",
+        "priority": "P0",
+        "lane": "health",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "running",
+        "scheduleDetail": "Running now.",
+        "due": false,
+        "nextRunAt": "2026-05-18T09:15:00.000Z",
+        "latestRunStatus": "running",
+        "latestRunAt": "2026-05-17T09:15:40.671Z",
+        "latestSuccessAt": null,
+        "ageMinutes": null,
+        "ageHours": null,
+        "overdueMinutes": 0,
+        "sourceIds": [],
+        "mutationPosture": "report_only",
+        "status": "risk",
+        "color": "red",
+        "plainEnglish": "System Health Nightly Audit latest run is running.",
+        "nextAction": "Open the job run and fix the failure before trusting this surface."
+      },
+      {
+        "key": "meeting-transcripts-extract-backlog",
+        "title": "Meeting Transcript Extraction Backlog",
+        "priority": "P1",
+        "lane": "extract",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 868 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T23:43:35.390Z",
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-05-16T23:43:35.390Z",
+        "latestSuccessAt": null,
+        "ageMinutes": null,
+        "ageHours": null,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-MEETINGS-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "risk",
+        "color": "red",
+        "plainEnglish": "Meeting Transcript Extraction Backlog latest run is failed.",
+        "nextAction": "Marked failed by stale active-run reaper."
+      },
+      {
+        "key": "agent-roster-review",
+        "title": "Agent Onboarding / Roster Inspection",
+        "priority": "P1",
+        "lane": "people",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "due",
+        "scheduleDetail": "Due now. Scheduled every 480 minutes.",
+        "due": true,
+        "nextRunAt": "2026-05-17T09:14:20.501Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T01:14:20.501Z",
+        "latestSuccessAt": "2026-05-17T01:14:20.501Z",
+        "ageMinutes": 481,
+        "ageHours": 8,
+        "overdueMinutes": 1,
+        "sourceIds": [
+          "SRC-CLICKUP-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "watch",
+        "color": "yellow",
+        "plainEnglish": "Agent Onboarding / Roster Inspection is due now and still inside the grace window.",
+        "nextAction": "Let the worker pick it up or run it manually if the worker is stopped."
+      },
+      {
+        "key": "connector-uptime-monitor",
+        "title": "Connector Uptime Monitor",
+        "priority": "P0",
+        "lane": "health",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 18 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T09:33:39.934Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T09:03:39.934Z",
+        "latestSuccessAt": "2026-05-17T09:03:39.934Z",
+        "ageMinutes": 12,
+        "ageHours": 0.2,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-CLICKUP-001",
+          "SRC-FUB-001",
+          "SRC-GMAIL-001",
+          "SRC-MISSIVE-001",
+          "SRC-SLACK-001",
+          "SRC-SUPABASE-001"
+        ],
+        "mutationPosture": "read_only",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Connector Uptime Monitor has a fresh successful run and is not due.",
+        "nextAction": "Review degraded/down connector rows; do not auto-fix credentials or source data from this job."
+      },
+      {
+        "key": "drive-content-extract-bite",
+        "title": "Drive Content Extraction Bite",
+        "priority": "P0",
+        "lane": "extract",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 514 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T17:49:14.165Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T17:49:14.165Z",
+        "latestSuccessAt": "2026-05-16T17:49:14.165Z",
+        "ageMinutes": 926,
+        "ageHours": 15.4,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GDRIVE-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Drive Content Extraction Bite has a fresh successful run and is not due.",
+        "nextAction": "Run as a small daily quota mission. Add Slides, Office, images, and video through explicit follow-on extractors with skip reasons."
+      },
+      {
+        "key": "email-attachment-extract-bite",
+        "title": "Email Attachment Extraction Bite",
+        "priority": "P0",
+        "lane": "extract",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 533 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T18:08:05.230Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T18:08:05.230Z",
+        "latestSuccessAt": "2026-05-16T18:08:05.230Z",
+        "ageMinutes": 908,
+        "ageHours": 15.1,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GMAIL-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Email Attachment Extraction Bite has a fresh successful run and is not due.",
+        "nextAction": "Run as a small daily quota mission. Add Missive attachment proof and Office/OCR/media attachment extractors as explicit follow-on lanes."
+      },
+      {
+        "key": "foundation-verify",
+        "title": "Foundation Verifier",
+        "priority": "P0",
+        "lane": "health",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 12 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T09:27:38.729Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T08:27:38.729Z",
+        "latestSuccessAt": "2026-05-17T08:27:38.729Z",
+        "ageMinutes": 48,
+        "ageHours": 0.8,
+        "overdueMinutes": 0,
+        "sourceIds": [],
+        "mutationPosture": "read_only",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Foundation Verifier has a fresh successful run and is not due.",
+        "nextAction": "Run after meaningful builds and before checkpoints."
+      },
+      {
+        "key": "gmail-sync-current",
+        "title": "Gmail Current Sync",
+        "priority": "P0",
+        "lane": "archive",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 14 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T09:29:23.280Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T07:29:23.280Z",
+        "latestSuccessAt": "2026-05-17T07:29:23.280Z",
+        "ageMinutes": 106,
+        "ageHours": 1.8,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GMAIL-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Gmail Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Watch first scheduled runs; keep historical Gmail backfill manual until current-day stays clean."
+      },
+      {
+        "key": "intelligence-action-router-proposals",
+        "title": "Intelligence Action Router Proposals",
+        "priority": "P0",
+        "lane": "action",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 348 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T15:02:43.917Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T15:02:43.917Z",
+        "latestSuccessAt": "2026-05-16T15:02:43.917Z",
+        "ageMinutes": 1093,
+        "ageHours": 18.2,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GMAIL-001",
+          "SRC-MISSIVE-001",
+          "SRC-MEETINGS-001",
+          "SRC-SLACK-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Intelligence Action Router Proposals has a fresh successful run and is not due.",
+        "nextAction": "Review pending routes before applying destination writes. No route lands in an operating ledger without explicit human approval."
+      },
+      {
+        "key": "intelligence-synthesis-spine-refresh",
+        "title": "Intelligence Spine Synthesis Refresh",
+        "priority": "P0",
+        "lane": "synthesis",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 344 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T14:58:43.172Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T14:58:43.172Z",
+        "latestSuccessAt": "2026-05-16T14:58:43.172Z",
+        "ageMinutes": 1097,
+        "ageHours": 18.3,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GMAIL-001",
+          "SRC-MISSIVE-001",
+          "SRC-MEETINGS-001",
+          "SRC-SLACK-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Intelligence Spine Synthesis Refresh has a fresh successful run and is not due.",
+        "nextAction": "Use as the v1 scheduled refresh lane; proofs remain manual and backlog-mutating acceptance checks stay out of the worker schedule."
+      },
+      {
+        "key": "meeting-notes-sync-current",
+        "title": "Meeting Notes Current Sync",
+        "priority": "P0",
+        "lane": "archive",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 718 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T21:13:18.396Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T21:13:18.396Z",
+        "latestSuccessAt": "2026-05-16T21:13:18.396Z",
+        "ageMinutes": 722,
+        "ageHours": 12,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-MEETINGS-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Meeting Notes Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Run daily for new meeting notes/transcripts; use the retry job only for item-level partial failures."
+      },
+      {
+        "key": "missive-sync-current",
+        "title": "Missive Current Sync",
+        "priority": "P0",
+        "lane": "archive",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 107 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T11:02:39.128Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T09:02:39.128Z",
+        "latestSuccessAt": "2026-05-17T09:02:39.128Z",
+        "ageMinutes": 13,
+        "ageHours": 0.2,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-MISSIVE-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Missive Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Watch first scheduled runs; keep Gmail/manual backfill off until this lane stays clean."
+      },
+      {
+        "key": "nightly-deep-audit",
+        "title": "Nightly Hybrid Deep Audit",
+        "priority": "P0",
+        "lane": "health",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 1305 minutes. Scheduled daily at 03:00 America/Toronto.",
+        "due": false,
+        "nextRunAt": "2026-05-18T07:00:00.000Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T07:00:15.196Z",
+        "latestSuccessAt": "2026-05-17T07:00:15.196Z",
+        "ageMinutes": 135,
+        "ageHours": 2.3,
+        "overdueMinutes": 0,
+        "sourceIds": [],
+        "mutationPosture": "report_only",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Nightly Hybrid Deep Audit has a fresh successful run and is not due.",
+        "nextAction": "Review the diff-only morning report; promote findings to backlog manually with Steve/Codex approval."
+      },
+      {
+        "key": "shared-comms-coverage",
+        "title": "Shared Comms Coverage",
+        "priority": "P0",
+        "lane": "coverage",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 238 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T13:13:25.442Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T09:13:25.442Z",
+        "latestSuccessAt": "2026-05-17T09:13:25.442Z",
+        "ageMinutes": 2,
+        "ageHours": 0,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GMAIL-001",
+          "SRC-MISSIVE-001",
+          "SRC-MEETINGS-001",
+          "SRC-SLACK-001"
+        ],
+        "mutationPosture": "read_only",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Shared Comms Coverage has a fresh successful run and is not due.",
+        "nextAction": "Run before deciding whether to backfill more or build synthesis."
+      },
+      {
+        "key": "video-content-extract-bite",
+        "title": "Video Content Extraction Bite",
+        "priority": "P0",
+        "lane": "extract",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 717 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T21:11:43.535Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T21:11:43.535Z",
+        "latestSuccessAt": "2026-05-16T21:11:43.535Z",
+        "ageMinutes": 724,
+        "ageHours": 12.1,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-VIDEO-001",
+          "SRC-YOUTUBE-INTEL-001",
+          "SRC-LOOM-001",
+          "SRC-GDRIVE-001",
+          "SRC-SKOOL-001",
+          "SRC-MEETINGS-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Video Content Extraction Bite has a fresh successful run and is not due.",
+        "nextAction": "Run a small daily quota. Add Drive video, Loom, Skool, Zoom, and Gemini/GPT visual review extractors one at a time behind the same queue."
+      },
+      {
+        "key": "admin-deal-backlog-review",
+        "title": "Admin Deal Backlog Inspection",
+        "priority": "P1",
+        "lane": "transactions",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 1098 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-18T03:33:17.927Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T03:33:17.927Z",
+        "latestSuccessAt": "2026-05-17T03:33:17.927Z",
+        "ageMinutes": 342,
+        "ageHours": 5.7,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-OWNERS-001",
+          "SRC-FUB-001",
+          "SRC-CLICKUP-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Admin Deal Backlog Inspection has a fresh successful run and is not due.",
+        "nextAction": "Keep source-field corrections human-owned until Ops approves an apply/fix lane."
+      },
+      {
+        "key": "admin-deal-review-readonly",
+        "title": "Admin Deal Review Inspection",
+        "priority": "P1",
+        "lane": "transactions",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 479 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T17:14:40.517Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T09:14:40.517Z",
+        "latestSuccessAt": "2026-05-17T09:14:40.517Z",
+        "ageMinutes": 1,
+        "ageHours": 0,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-OWNERS-001",
+          "SRC-FUB-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Admin Deal Review Inspection has a fresh successful run and is not due.",
+        "nextAction": "Keep source-field corrections human-owned until Ops approves an apply/fix lane."
+      },
+      {
+        "key": "agent-feedback-auto-send-readiness",
+        "title": "Agent Feedback Production Auto-Send",
+        "priority": "P1",
+        "lane": "people",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 195 minutes. Scheduled daily at 08:30 America/Toronto.",
+        "due": false,
+        "nextRunAt": "2026-05-17T12:30:00.000Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T12:32:04.682Z",
+        "latestSuccessAt": "2026-05-16T12:32:04.682Z",
+        "ageMinutes": 1244,
+        "ageHours": 20.7,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-CLICKUP-001"
+        ],
+        "mutationPosture": "external_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Agent Feedback Production Auto-Send has a fresh successful run and is not due.",
+        "nextAction": "Monitor the daily run and repair any Gmail-success/ClickUp-Requested writeback failures without resending."
+      },
+      {
+        "key": "agent-feedback-reminder-readiness",
+        "title": "Agent Feedback Live Reminders",
+        "priority": "P1",
+        "lane": "people",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 195 minutes. Scheduled daily at 08:30 America/Toronto.",
+        "due": false,
+        "nextRunAt": "2026-05-17T12:30:00.000Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T12:33:17.178Z",
+        "latestSuccessAt": "2026-05-16T12:33:17.178Z",
+        "ageMinutes": 1242,
+        "ageHours": 20.7,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-CLICKUP-001"
+        ],
+        "mutationPosture": "external_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Agent Feedback Live Reminders has a fresh successful run and is not due.",
+        "nextAction": "Monitor daily reminder runs and repair any reminder ledger repair states without resending duplicate slots."
+      },
+      {
+        "key": "calendar-sync-current",
+        "title": "Google Calendar Current Sync",
+        "priority": "P1",
+        "lane": "archive",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 828 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T23:03:32.070Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T23:03:32.070Z",
+        "latestSuccessAt": "2026-05-16T23:03:32.070Z",
+        "ageMinutes": 612,
+        "ageHours": 10.2,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GCAL-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Google Calendar Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Watch first scheduled runs; keep Calendar candidate extraction and any invite/update automation out of scope until explicitly approved."
+      },
+      {
+        "key": "conditional-deal-review-readonly",
+        "title": "Conditional Deal Forecast Sync",
+        "priority": "P1",
+        "lane": "transactions",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 196 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T12:31:17.656Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T04:31:17.656Z",
+        "latestSuccessAt": "2026-05-17T04:31:17.656Z",
+        "ageMinutes": 284,
+        "ageHours": 4.7,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-CLICKUP-001",
+          "SRC-OWNERS-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Conditional Deal Forecast Sync has a fresh successful run and is not due.",
+        "nextAction": "Use the preserved Review This Conditional action for missing-data re-checks; keep closing dates maintained so the collection-month buckets remain true cash-date forecasting instead of conditional-deadline forecasting."
+      },
+      {
+        "key": "drive-corpus-inventory-bite",
+        "title": "Drive Corpus Inventory Bite",
+        "priority": "P1",
+        "lane": "archive",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 387 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T15:42:08.188Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T15:42:08.188Z",
+        "latestSuccessAt": "2026-05-16T15:42:08.188Z",
+        "ageMinutes": 1054,
+        "ageHours": 17.6,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GDRIVE-001"
+        ],
+        "mutationPosture": "read_only",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Drive Corpus Inventory Bite has a fresh successful run and is not due.",
+        "nextAction": "Run one Drive inventory bite per day until the folder queue is mapped; then add the separate filed-output extraction worker."
+      },
+      {
+        "key": "gmail-extract-latest",
+        "title": "Gmail Candidate Extraction",
+        "priority": "P1",
+        "lane": "extract",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 614 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T19:29:09.399Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T19:29:09.399Z",
+        "latestSuccessAt": "2026-05-16T19:29:09.399Z",
+        "ageMinutes": 827,
+        "ageHours": 13.8,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GMAIL-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Gmail Candidate Extraction has a fresh successful run and is not due.",
+        "nextAction": "Run as a daily quota mission until unmined Gmail backlog catches up; raise limits after route latency and spacing are stable."
+      },
+      {
+        "key": "missive-extract-latest",
+        "title": "Missive Candidate Extraction",
+        "priority": "P1",
+        "lane": "extract",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 445 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T16:40:05.884Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T16:40:05.884Z",
+        "latestSuccessAt": "2026-05-16T16:40:05.884Z",
+        "ageMinutes": 996,
+        "ageHours": 16.6,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-MISSIVE-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Missive Candidate Extraction has a fresh successful run and is not due.",
+        "nextAction": "Run as a daily quota mission until unmined Missive backlog catches up; raise limits after route latency and spacing are stable."
+      },
+      {
+        "key": "slack-extract-latest",
+        "title": "Slack Candidate Extraction",
+        "priority": "P1",
+        "lane": "extract",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 719 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T21:13:48.118Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T21:13:48.118Z",
+        "latestSuccessAt": "2026-05-16T21:13:48.118Z",
+        "ageMinutes": 722,
+        "ageHours": 12,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-SLACK-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Slack Candidate Extraction has a fresh successful run and is not due.",
+        "nextAction": "Run as a daily quota mission. Start at one Slack thread per day until route latency is measured cleanly, then raise the quota."
+      },
+      {
+        "key": "slack-sync-current",
+        "title": "Slack Current Sync",
+        "priority": "P1",
+        "lane": "archive",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 953 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-18T01:08:01.325Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T01:08:01.325Z",
+        "latestSuccessAt": "2026-05-17T01:08:01.325Z",
+        "ageMinutes": 488,
+        "ageHours": 8.1,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-SLACK-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Slack Current Sync has a fresh successful run and is not due.",
+        "nextAction": "Run daily for current Slack signal; keep historical Slack as a separate extraction mission."
+      },
+      {
+        "key": "verification-runs",
+        "title": "Verification Runs",
+        "priority": "P1",
+        "lane": "health",
+        "runtimeMode": "scheduled",
+        "scheduleStatus": "scheduled",
+        "scheduleDetail": "Next run in 739 minutes.",
+        "due": false,
+        "nextRunAt": "2026-05-17T21:33:51.188Z",
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-16T21:33:51.188Z",
+        "latestSuccessAt": "2026-05-16T21:33:51.188Z",
+        "ageMinutes": 702,
+        "ageHours": 11.7,
+        "overdueMinutes": 0,
+        "sourceIds": [],
+        "mutationPosture": "read_only",
+        "status": "healthy",
+        "color": "green",
+        "plainEnglish": "Verification Runs has a fresh successful run and is not due.",
+        "nextAction": "Review surfaced stale candidates; keep V1 proposed-only until a separate write/closure card exists."
+      },
+      {
+        "key": "code-quality-nightly-audit",
+        "title": "Code Quality Nightly Audit",
+        "priority": "P0",
+        "lane": "health",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": null,
+        "latestRunAt": null,
+        "latestSuccessAt": null,
+        "ageMinutes": null,
+        "ageHours": null,
+        "overdueMinutes": 0,
+        "sourceIds": [],
+        "mutationPosture": "report_only",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Code Quality Nightly Audit is manual; it is not expected to run unattended.",
+        "nextAction": "Review the morning report; schedule only after the recurring report quality is accepted."
+      },
+      {
+        "key": "extraction-control-seed",
+        "title": "Extraction Control Seed",
+        "priority": "P0",
+        "lane": "extract",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-04-24T15:48:25.477Z",
+        "latestSuccessAt": "2026-04-24T15:48:25.477Z",
+        "ageMinutes": 32727,
+        "ageHours": 545.5,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GMAIL-001",
+          "SRC-GCAL-001",
+          "SRC-MISSIVE-001",
+          "SRC-MEETINGS-001",
+          "SRC-SLACK-001",
+          "SRC-GDRIVE-001",
+          "SRC-SKOOL-001",
+          "SRC-VIDEO-001",
+          "SRC-LOOM-001"
+        ],
+        "mutationPosture": "read_only",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Extraction Control Seed is manual; it is not expected to run unattended.",
+        "nextAction": "Use this as the control-plane map before scheduling current-day sync or historical backfill workers."
+      },
+      {
+        "key": "llm-auth-audit",
+        "title": "LLM Auth Path Audit",
+        "priority": "P0",
+        "lane": "model",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-05-17T01:57:36.737Z",
+        "latestSuccessAt": "2026-05-17T01:57:36.737Z",
+        "ageMinutes": 438,
+        "ageHours": 7.3,
+        "overdueMinutes": 0,
+        "sourceIds": [],
+        "mutationPosture": "read_only",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "LLM Auth Path Audit is manual; it is not expected to run unattended.",
+        "nextAction": "Run manually before any extraction/synthesis script is moved behind the router."
+      },
+      {
+        "key": "shared-comms-intelligence-bite",
+        "title": "Strategy Intelligence Synthesis Bite",
+        "priority": "P0",
+        "lane": "synthesis",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-04-24T23:15:16.850Z",
+        "latestSuccessAt": null,
+        "ageMinutes": null,
+        "ageHours": null,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GMAIL-001",
+          "SRC-MISSIVE-001",
+          "SRC-MEETINGS-001",
+          "SRC-SLACK-001"
+        ],
+        "mutationPosture": "read_only",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Strategy Intelligence Synthesis Bite is manual; it is not expected to run unattended.",
+        "nextAction": "Run monitored synthesis-only proofs, then route synthesized items into decisions, contradictions, and owner-bound actions."
+      },
+      {
+        "key": "shared-comms-synthesis-v1",
+        "title": "Shared Comms Strategy Synthesis V1",
+        "priority": "P0",
+        "lane": "synthesis",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": "failed",
+        "latestRunAt": "2026-04-24T23:15:16.827Z",
+        "latestSuccessAt": null,
+        "ageMinutes": null,
+        "ageHours": null,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-GMAIL-001",
+          "SRC-MISSIVE-001",
+          "SRC-MEETINGS-001",
+          "SRC-SLACK-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Shared Comms Strategy Synthesis V1 is manual; it is not expected to run unattended.",
+        "nextAction": "Run monitored subscription-route proofs with the long synthesis timeout, then connect outputs to the action router."
+      },
+      {
+        "key": "strategy-evidence-packet-v1",
+        "title": "Strategy Evidence Packet V1",
+        "priority": "P0",
+        "lane": "strategy",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-04-26T20:59:04.763Z",
+        "latestSuccessAt": "2026-04-26T20:59:04.763Z",
+        "ageMinutes": 29537,
+        "ageHours": 492.3,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-STRATEGY-001",
+          "SRC-GDRIVE-001",
+          "SRC-MEETINGS-001",
+          "SRC-GMAIL-001",
+          "SRC-MISSIVE-001",
+          "SRC-SLACK-001",
+          "SRC-YOUTUBE-INTEL-001",
+          "SRC-FUB-001",
+          "SRC-SUPABASE-001",
+          "SRC-FINANCE-001",
+          "SRC-OWNERS-001",
+          "SRC-CLICKUP-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Strategy Evidence Packet V1 is manual; it is not expected to run unattended.",
+        "nextAction": "Use the generated packet for Steve strategy review, then route accepted issues into Strategic Execution, Decisions, Backlog, and Action Router."
+      },
+      {
+        "key": "extraction-retry-failed",
+        "title": "Extraction Failed-Item Retry",
+        "priority": "P1",
+        "lane": "archive",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": null,
+        "latestRunAt": null,
+        "latestSuccessAt": null,
+        "ageMinutes": null,
+        "ageHours": null,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-MEETINGS-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Extraction Failed-Item Retry is manual; it is not expected to run unattended.",
+        "nextAction": "Use dry-run first, then run manually only for eligible failed meeting crawl items. Add more targets only after their item-ID-only retry paths are proven."
+      },
+      {
+        "key": "meeting-notes-retry-failed",
+        "title": "Meeting Notes Failed-Item Retry",
+        "priority": "P1",
+        "lane": "archive",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-04-24T18:33:52.375Z",
+        "latestSuccessAt": "2026-04-24T18:33:52.375Z",
+        "ageMinutes": 32562,
+        "ageHours": 542.7,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-MEETINGS-001"
+        ],
+        "mutationPosture": "operational_write",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Meeting Notes Failed-Item Retry is manual; it is not expected to run unattended.",
+        "nextAction": "Run manually after a partial meeting sync; schedule only after retry semantics are proven."
+      },
+      {
+        "key": "meeting-transcript-gaps",
+        "title": "Meeting Transcript Gap Report",
+        "priority": "P1",
+        "lane": "coverage",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-04-24T19:19:44.851Z",
+        "latestSuccessAt": "2026-04-24T19:19:44.851Z",
+        "ageMinutes": 32516,
+        "ageHours": 541.9,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-MEETINGS-001"
+        ],
+        "mutationPosture": "read_only",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Meeting Transcript Gap Report is manual; it is not expected to run unattended.",
+        "nextAction": "Run after the next few meetings to confirm the Gemini default change worked."
+      },
+      {
+        "key": "meeting-transcript-recent-gap-verify",
+        "title": "Meeting Recent Gap Verifier",
+        "priority": "P1",
+        "lane": "coverage",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": "succeeded",
+        "latestRunAt": "2026-04-24T19:35:35.467Z",
+        "latestSuccessAt": "2026-04-24T19:35:35.467Z",
+        "ageMinutes": 32500,
+        "ageHours": 541.7,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-MEETINGS-001"
+        ],
+        "mutationPosture": "read_only",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Meeting Recent Gap Verifier is manual; it is not expected to run unattended.",
+        "nextAction": "Run manually; use the repair command only for parser/account misses after the report is reviewed."
+      },
+      {
+        "key": "recurring-deep-audit",
+        "title": "Recurring Senior-Engineer Deep Audit",
+        "priority": "P1",
+        "lane": "health",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": null,
+        "latestRunAt": null,
+        "latestSuccessAt": null,
+        "ageMinutes": null,
+        "ageHours": null,
+        "overdueMinutes": 0,
+        "sourceIds": [],
+        "mutationPosture": "report_only",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Recurring Senior-Engineer Deep Audit is manual; it is not expected to run unattended.",
+        "nextAction": "Request Steve manual approval before each run; write docs/handoffs/deep-audit-{date}.md and route any proposed cards to review only."
+      },
+      {
+        "key": "video-link-inventory-bite",
+        "title": "Video Link Inventory Bite",
+        "priority": "P1",
+        "lane": "archive",
+        "runtimeMode": "manual",
+        "scheduleStatus": "manual",
+        "scheduleDetail": "Manual-only until explicitly scheduled.",
+        "due": false,
+        "nextRunAt": null,
+        "latestRunStatus": null,
+        "latestRunAt": null,
+        "latestSuccessAt": null,
+        "ageMinutes": null,
+        "ageHours": null,
+        "overdueMinutes": 0,
+        "sourceIds": [
+          "SRC-VIDEO-001",
+          "SRC-LOOM-001",
+          "SRC-GDRIVE-001",
+          "SRC-SKOOL-001",
+          "SRC-GMAIL-001",
+          "SRC-MISSIVE-001",
+          "SRC-MEETINGS-001",
+          "SRC-SLACK-001"
+        ],
+        "mutationPosture": "read_only",
+        "status": "manual",
+        "color": "gray",
+        "plainEnglish": "Video Link Inventory Bite is manual; it is not expected to run unattended.",
+        "nextAction": "Keep as a quota mission, not a timer; validate Apify/Loom/Skool extractors on a small authorized batch before any five-video-style daily extraction mission."
+      }
+    ],
+    "topFindings": [
+      {
+        "id": "scheduled_job_system-health-nightly-audit",
+        "severity": "P0",
+        "status": "risk",
+        "title": "System Health Nightly Audit is risk",
+        "detail": "System Health Nightly Audit latest run is running.",
+        "nextAction": "Open the job run and fix the failure before trusting this surface.",
+        "jobKey": "system-health-nightly-audit"
+      },
+      {
+        "id": "scheduled_job_meeting-transcripts-extract-backlog",
+        "severity": "P1",
+        "status": "risk",
+        "title": "Meeting Transcript Extraction Backlog is risk",
+        "detail": "Meeting Transcript Extraction Backlog latest run is failed.",
+        "nextAction": "Marked failed by stale active-run reaper.",
+        "jobKey": "meeting-transcripts-extract-backlog"
+      },
+      {
+        "id": "scheduled_job_agent-roster-review",
+        "severity": "P1",
+        "status": "watch",
+        "title": "Agent Onboarding / Roster Inspection is watch",
+        "detail": "Agent Onboarding / Roster Inspection is due now and still inside the grace window.",
+        "nextAction": "Let the worker pick it up or run it manually if the worker is stopped.",
+        "jobKey": "agent-roster-review"
+      }
+    ],
+    "plainEnglish": "2 scheduled/runtime jobs are red. Do not trust Foundation as fully green until they are acknowledged or repaired."
+  },
+  "nightlyAuditFreshness": {
+    "ok": true,
+    "status": "healthy",
+    "reason": "Nightly audit latest success covers today's scheduled run 2026-05-17T07:00:00.000Z.",
+    "jobKey": "nightly-deep-audit",
+    "scheduleLocalTime": "03:00",
+    "scheduleTimezone": "America/Toronto",
+    "scheduledRunAt": "2026-05-17T07:00:00.000Z",
+    "deadlineAt": "2026-05-17T09:00:00.000Z",
+    "now": "2026-05-17T09:15:41.323Z",
+    "latestRun": {
+      "runId": "job-nightly-deep-audit-20260517070013-7jg84a",
+      "jobKey": "nightly-deep-audit",
+      "title": "Nightly Hybrid Deep Audit",
+      "jobType": "review",
+      "status": "succeeded",
+      "command": {
+        "cwd": "/Users/bensoncrew/bcrew-ai-os",
+        "args": [
+          "run",
+          "process:nightly-deep-audit-upgrade-check",
+          "--",
+          "--json",
+          "--endpointTimeoutMs=8000"
+        ],
+        "command": "npm"
+      },
+      "requestedBy": "foundation-worker",
+      "startedAt": "2026-05-17T07:00:13.577Z",
+      "finishedAt": "2026-05-17T07:00:15.196Z",
+      "durationMs": 1619,
+      "exitCode": 0,
+      "signal": null,
+      "errorMessage": null,
+      "metadata": {
+        "lane": "health",
+        "budget": "llm_limited_report_only",
+        "cadence": "daily 03:00 America/Toronto",
+        "childPid": 32703,
+        "priority": "P0",
+        "sourceIds": [],
+        "stopSignals": [
+          "SIGTERM",
+          "SIGKILL"
+        ],
+        "processOwner": "foundation-job-runner",
+        "processGroupId": 32703,
+        "processStartedAt": "2026-05-17T07:00:13.582Z",
+        "maxRuntimeSeconds": 900,
+        "processStartedByRunId": "job-nightly-deep-audit-20260517070013-7jg84a"
+      },
+      "createdAt": "2026-05-17T07:00:13.577Z",
+      "updatedAt": "2026-05-17T07:00:15.197Z"
+    }
+  },
+  "connectors": {
+    "summary": {
+      "connectorGroupCount": 6,
+      "healthyCount": 4,
+      "degradedCount": 1,
+      "downCount": 0,
+      "staleCount": 1,
+      "manualCount": 0,
+      "blockedCount": 0,
+      "unknownCount": 0
+    },
+    "rows": [
+      {
+        "key": "clickup",
+        "label": "ClickUp",
+        "provider": "clickup",
+        "owner": "Foundation / Ops",
+        "status": "stale",
+        "reason": "Credential metadata is available. At least one connector job is due.",
+        "connectorIds": [
+          "CONN-CLICKUP-001"
+        ],
+        "sourceIds": [
+          "SRC-CLICKUP-001"
+        ],
+        "credentialRegistryKeys": [
+          "clickup-api"
+        ],
+        "credentialStatus": "healthy",
+        "credentialAvailableCount": 1,
+        "credentialMissingCount": 0,
+        "credentialBlockedCount": 0,
+        "credentialReadinessNoteCount": 0,
+        "credentialReadinessNotes": [],
+        "jobKeys": [
+          "connector-uptime-monitor",
+          "admin-deal-backlog-review",
+          "conditional-deal-review-readonly",
+          "agent-roster-review",
+          "agent-feedback-auto-send-readiness",
+          "agent-feedback-reminder-readiness",
+          "strategy-evidence-packet-v1"
+        ],
+        "jobStatuses": [
+          {
+            "key": "connector-uptime-monitor",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "admin-deal-backlog-review",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "conditional-deal-review-readonly",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "agent-roster-review",
+            "status": "pending",
+            "scheduleStatus": "due",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "agent-feedback-auto-send-readiness",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "agent-feedback-reminder-readiness",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "strategy-evidence-packet-v1",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          }
+        ],
+        "lastProbeAt": "2026-05-17T09:15:41.321Z",
+        "lastProbeKind": "credential_and_job_metadata",
+        "sanitizedError": "",
+        "retry": {
+          "retryable": false,
+          "backoffSeconds": null,
+          "category": "metadata"
+        },
+        "safeToUse": true,
+        "readOnly": true
+      },
+      {
+        "key": "fub",
+        "label": "Follow Up Boss",
+        "provider": "follow_up_boss",
+        "owner": "Sales / Recruiting",
+        "status": "healthy",
+        "reason": "Credential metadata is available. Referenced connector jobs are not reporting risk.",
+        "connectorIds": [
+          "CONN-FUB-001"
+        ],
+        "sourceIds": [
+          "SRC-FUB-001"
+        ],
+        "credentialRegistryKeys": [
+          "fub-api"
+        ],
+        "credentialStatus": "healthy",
+        "credentialAvailableCount": 1,
+        "credentialMissingCount": 0,
+        "credentialBlockedCount": 0,
+        "credentialReadinessNoteCount": 0,
+        "credentialReadinessNotes": [],
+        "jobKeys": [
+          "connector-uptime-monitor",
+          "admin-deal-review-readonly",
+          "admin-deal-backlog-review",
+          "strategy-evidence-packet-v1"
+        ],
+        "jobStatuses": [
+          {
+            "key": "connector-uptime-monitor",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "admin-deal-review-readonly",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "admin-deal-backlog-review",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "strategy-evidence-packet-v1",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          }
+        ],
+        "lastProbeAt": "2026-05-17T09:15:41.321Z",
+        "lastProbeKind": "credential_and_job_metadata",
+        "sanitizedError": "",
+        "retry": {
+          "retryable": false,
+          "backoffSeconds": null,
+          "category": "metadata"
+        },
+        "safeToUse": true,
+        "readOnly": true
+      },
+      {
+        "key": "google-workspace",
+        "label": "Google Workspace",
+        "provider": "google_workspace",
+        "owner": "Foundation / Google Workspace",
+        "status": "degraded",
+        "reason": "Credential metadata is available. At least one connector job reports a failed or risk status.",
+        "connectorIds": [
+          "CONN-GDRIVE-001",
+          "CONN-GMAIL-001",
+          "CONN-GSHEETS-001",
+          "CONN-GCAL-001"
+        ],
+        "sourceIds": [
+          "SRC-GDRIVE-001",
+          "SRC-GDOCS-001",
+          "SRC-GSLIDES-001",
+          "SRC-MEETINGS-001",
+          "SRC-GMAIL-001",
+          "SRC-GSHEETS-001",
+          "SRC-OWNERS-001",
+          "SRC-FINANCE-001",
+          "SRC-GCAL-001",
+          "SRC-OWNERS-LISTS-001"
+        ],
+        "credentialRegistryKeys": [
+          "google-delegated-drive",
+          "google-delegated-gmail",
+          "google-delegated-sheets",
+          "google-delegated-calendar"
+        ],
+        "credentialStatus": "healthy",
+        "credentialAvailableCount": 4,
+        "credentialMissingCount": 0,
+        "credentialBlockedCount": 0,
+        "credentialReadinessNoteCount": 0,
+        "credentialReadinessNotes": [],
+        "jobKeys": [
+          "connector-uptime-monitor",
+          "shared-comms-coverage",
+          "extraction-control-seed",
+          "gmail-sync-current",
+          "calendar-sync-current",
+          "email-attachment-extract-bite",
+          "meeting-notes-sync-current",
+          "meeting-notes-retry-failed",
+          "extraction-retry-failed",
+          "drive-corpus-inventory-bite",
+          "drive-content-extract-bite",
+          "video-link-inventory-bite",
+          "video-content-extract-bite",
+          "gmail-extract-latest",
+          "meeting-transcript-gaps",
+          "meeting-transcript-recent-gap-verify",
+          "meeting-transcripts-extract-backlog",
+          "admin-deal-review-readonly",
+          "admin-deal-backlog-review",
+          "conditional-deal-review-readonly",
+          "shared-comms-intelligence-bite",
+          "shared-comms-synthesis-v1",
+          "intelligence-synthesis-spine-refresh",
+          "intelligence-action-router-proposals",
+          "strategy-evidence-packet-v1"
+        ],
+        "jobStatuses": [
+          {
+            "key": "connector-uptime-monitor",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "shared-comms-coverage",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "extraction-control-seed",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          },
+          {
+            "key": "gmail-sync-current",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "calendar-sync-current",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "email-attachment-extract-bite",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "meeting-notes-sync-current",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "meeting-notes-retry-failed",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          },
+          {
+            "key": "extraction-retry-failed",
+            "status": "planned",
+            "scheduleStatus": "manual",
+            "latestRunStatus": null,
+            "healthIncluded": false
+          },
+          {
+            "key": "drive-corpus-inventory-bite",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "drive-content-extract-bite",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "video-link-inventory-bite",
+            "status": "planned",
+            "scheduleStatus": "manual",
+            "latestRunStatus": null,
+            "healthIncluded": false
+          },
+          {
+            "key": "video-content-extract-bite",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "gmail-extract-latest",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "meeting-transcript-gaps",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          },
+          {
+            "key": "meeting-transcript-recent-gap-verify",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          },
+          {
+            "key": "meeting-transcripts-extract-backlog",
+            "status": "risk",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "failed",
+            "healthIncluded": true
+          },
+          {
+            "key": "admin-deal-review-readonly",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "admin-deal-backlog-review",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "conditional-deal-review-readonly",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "shared-comms-intelligence-bite",
+            "status": "risk",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "failed",
+            "healthIncluded": false
+          },
+          {
+            "key": "shared-comms-synthesis-v1",
+            "status": "risk",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "failed",
+            "healthIncluded": false
+          },
+          {
+            "key": "intelligence-synthesis-spine-refresh",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "intelligence-action-router-proposals",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "strategy-evidence-packet-v1",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          }
+        ],
+        "lastProbeAt": "2026-05-17T09:15:41.321Z",
+        "lastProbeKind": "credential_and_job_metadata",
+        "sanitizedError": "",
+        "retry": {
+          "retryable": false,
+          "backoffSeconds": null,
+          "category": "metadata"
+        },
+        "safeToUse": false,
+        "readOnly": true
+      },
+      {
+        "key": "slack",
+        "label": "Slack",
+        "provider": "slack",
+        "owner": "Foundation / Comms",
+        "status": "healthy",
+        "reason": "Credential metadata is available. Referenced connector jobs are not reporting risk.",
+        "connectorIds": [
+          "CONN-SLACK-001"
+        ],
+        "sourceIds": [
+          "SRC-SLACK-001"
+        ],
+        "credentialRegistryKeys": [
+          "slack-api"
+        ],
+        "credentialStatus": "healthy",
+        "credentialAvailableCount": 1,
+        "credentialMissingCount": 0,
+        "credentialBlockedCount": 0,
+        "credentialReadinessNoteCount": 0,
+        "credentialReadinessNotes": [],
+        "jobKeys": [
+          "connector-uptime-monitor",
+          "shared-comms-coverage",
+          "extraction-control-seed",
+          "slack-sync-current",
+          "slack-extract-latest",
+          "video-link-inventory-bite",
+          "shared-comms-intelligence-bite",
+          "shared-comms-synthesis-v1",
+          "intelligence-synthesis-spine-refresh",
+          "intelligence-action-router-proposals",
+          "strategy-evidence-packet-v1"
+        ],
+        "jobStatuses": [
+          {
+            "key": "connector-uptime-monitor",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "shared-comms-coverage",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "extraction-control-seed",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          },
+          {
+            "key": "slack-sync-current",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "slack-extract-latest",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "video-link-inventory-bite",
+            "status": "planned",
+            "scheduleStatus": "manual",
+            "latestRunStatus": null,
+            "healthIncluded": false
+          },
+          {
+            "key": "shared-comms-intelligence-bite",
+            "status": "risk",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "failed",
+            "healthIncluded": false
+          },
+          {
+            "key": "shared-comms-synthesis-v1",
+            "status": "risk",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "failed",
+            "healthIncluded": false
+          },
+          {
+            "key": "intelligence-synthesis-spine-refresh",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "intelligence-action-router-proposals",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "strategy-evidence-packet-v1",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          }
+        ],
+        "lastProbeAt": "2026-05-17T09:15:41.321Z",
+        "lastProbeKind": "credential_and_job_metadata",
+        "sanitizedError": "",
+        "retry": {
+          "retryable": false,
+          "backoffSeconds": null,
+          "category": "metadata"
+        },
+        "safeToUse": true,
+        "readOnly": true
+      },
+      {
+        "key": "missive",
+        "label": "Missive",
+        "provider": "missive",
+        "owner": "Foundation / Comms",
+        "status": "healthy",
+        "reason": "Credential metadata is available. Referenced connector jobs are not reporting risk.",
+        "connectorIds": [
+          "CONN-MISSIVE-001"
+        ],
+        "sourceIds": [
+          "SRC-MISSIVE-001"
+        ],
+        "credentialRegistryKeys": [
+          "missive-api"
+        ],
+        "credentialStatus": "healthy",
+        "credentialAvailableCount": 1,
+        "credentialMissingCount": 0,
+        "credentialBlockedCount": 0,
+        "credentialReadinessNoteCount": 0,
+        "credentialReadinessNotes": [],
+        "jobKeys": [
+          "connector-uptime-monitor",
+          "shared-comms-coverage",
+          "extraction-control-seed",
+          "missive-sync-current",
+          "video-link-inventory-bite",
+          "missive-extract-latest",
+          "shared-comms-intelligence-bite",
+          "shared-comms-synthesis-v1",
+          "intelligence-synthesis-spine-refresh",
+          "intelligence-action-router-proposals",
+          "strategy-evidence-packet-v1"
+        ],
+        "jobStatuses": [
+          {
+            "key": "connector-uptime-monitor",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "shared-comms-coverage",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "extraction-control-seed",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          },
+          {
+            "key": "missive-sync-current",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "video-link-inventory-bite",
+            "status": "planned",
+            "scheduleStatus": "manual",
+            "latestRunStatus": null,
+            "healthIncluded": false
+          },
+          {
+            "key": "missive-extract-latest",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "shared-comms-intelligence-bite",
+            "status": "risk",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "failed",
+            "healthIncluded": false
+          },
+          {
+            "key": "shared-comms-synthesis-v1",
+            "status": "risk",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "failed",
+            "healthIncluded": false
+          },
+          {
+            "key": "intelligence-synthesis-spine-refresh",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "intelligence-action-router-proposals",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "strategy-evidence-packet-v1",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          }
+        ],
+        "lastProbeAt": "2026-05-17T09:15:41.321Z",
+        "lastProbeKind": "credential_and_job_metadata",
+        "sanitizedError": "",
+        "retry": {
+          "retryable": false,
+          "backoffSeconds": null,
+          "category": "metadata"
+        },
+        "safeToUse": true,
+        "readOnly": true
+      },
+      {
+        "key": "kpi-supabase",
+        "label": "KPI / Supabase",
+        "provider": "supabase",
+        "owner": "Foundation / Sales Metrics",
+        "status": "healthy",
+        "reason": "Credential metadata is available. Referenced connector jobs are not reporting risk.",
+        "connectorIds": [
+          "CONN-SUPABASE-001"
+        ],
+        "sourceIds": [
+          "SRC-SUPABASE-001"
+        ],
+        "credentialRegistryKeys": [
+          "kpi-supabase"
+        ],
+        "credentialStatus": "healthy",
+        "credentialAvailableCount": 1,
+        "credentialMissingCount": 0,
+        "credentialBlockedCount": 0,
+        "credentialReadinessNoteCount": 0,
+        "credentialReadinessNotes": [],
+        "jobKeys": [
+          "connector-uptime-monitor",
+          "strategy-evidence-packet-v1"
+        ],
+        "jobStatuses": [
+          {
+            "key": "connector-uptime-monitor",
+            "status": "live",
+            "scheduleStatus": "scheduled",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": true
+          },
+          {
+            "key": "strategy-evidence-packet-v1",
+            "status": "live",
+            "scheduleStatus": "manual",
+            "latestRunStatus": "succeeded",
+            "healthIncluded": false
+          }
+        ],
+        "lastProbeAt": "2026-05-17T09:15:41.321Z",
+        "lastProbeKind": "credential_and_job_metadata",
+        "sanitizedError": "",
+        "retry": {
+          "retryable": false,
+          "backoffSeconds": null,
+          "category": "metadata"
+        },
+        "safeToUse": true,
+        "readOnly": true
+      }
+    ]
+  },
+  "runtimeActivation": {
+    "summary": {
+      "jobCount": 39,
+      "connectorCount": 6,
+      "scheduledCount": 25,
+      "manualCount": 12,
+      "pausedCount": 0,
+      "blockedCount": 0,
+      "dueCount": 1,
+      "staleCount": 0,
+      "failedCount": 1
+    }
+  },
+  "endpointBudgets": {
+    "summary": {
+      "routeCount": 5,
+      "measuredCount": 5,
+      "healthyCount": 5,
+      "reviewCount": 0,
+      "riskCount": 0,
+      "missingCount": 0,
+      "maxDurationMs": 382.277292,
+      "maxPayloadBytes": 624834
+    },
+    "findings": []
+  },
+  "docArtifactBloat": {
+    "status": "watch",
+    "summary": {
+      "artifactCount": 903,
+      "handoffFileCount": 200,
+      "handoffLineTotal": 26339,
+      "recentHandoffFileCount": 199,
+      "nightlyArtifactCount": 8,
+      "riskCount": 0,
+      "reviewCount": 1
+    },
+    "topFindings": [
+      {
+        "id": "doc_artifact_handoff_directory_line_budget",
+        "severity": "P1",
+        "status": "watch",
+        "title": "docs/handoffs is growing past the hot-doc budget",
+        "detail": "docs/handoffs contains 26339 line(s); budget is 20000/35000 warn/risk.",
+        "nextAction": "Archive cold detail or replace repeated large reports with monthly summaries.",
+        "path": "docs/handoffs",
+        "className": "handoff_directory",
+        "budgetKey": "totalLines",
+        "value": 26339,
+        "budget": {
+          "warn": 20000,
+          "risk": 35000
+        },
+        "autoFix": false,
+        "autoBacklogMutation": false
+      }
+    ]
+  },
+  "currentSprint": {
+    "findings": [],
+    "summary": {
+      "overlayOnly": true,
+      "stageCount": 5,
+      "itemCount": 1,
+      "buildingNowCount": 0,
+      "returnedCount": 0,
+      "doneThisSprintCount": 1,
+      "stageCounts": {
+        "scoping": 0,
+        "sprint_ready": 0,
+        "building_now": 0,
+        "returned": 0,
+        "done_this_sprint": 1
+      },
+      "currentStatus": "complete",
+      "nextCardId": null,
+      "activeBlockerCardId": "",
+      "readyCheckRequiredFields": 10,
+      "findingsCount": 0,
+      "truthSource": {
+        "sprintRecord": "live-db",
+        "goal": "live-db",
+        "executiveSummary": "derived-from-live-state",
+        "exitCriteria": "live-db-metadata",
+        "nextCard": "none",
+        "currentBlocker": "none",
+        "nextAction": "derived-complete-review"
+      }
+    }
+  },
+  "sourceHealth": {
+    "totalSources": 39,
+    "sourcesWithScheduledJobs": 0,
+    "sourcesWithoutScheduledJobs": 0,
+    "missingScheduledSourceIds": []
+  },
+  "findings": [
+    {
+      "id": "scheduled_job_system-health-nightly-audit",
+      "severity": "P0",
+      "status": "risk",
+      "title": "System Health Nightly Audit is risk",
+      "detail": "System Health Nightly Audit latest run is running.",
+      "nextAction": "Open the job run and fix the failure before trusting this surface.",
+      "jobKey": "system-health-nightly-audit"
+    },
+    {
+      "id": "scheduled_job_meeting-transcripts-extract-backlog",
+      "severity": "P1",
+      "status": "risk",
+      "title": "Meeting Transcript Extraction Backlog is risk",
+      "detail": "Meeting Transcript Extraction Backlog latest run is failed.",
+      "nextAction": "Marked failed by stale active-run reaper.",
+      "jobKey": "meeting-transcripts-extract-backlog"
+    },
+    {
+      "id": "scheduled_job_agent-roster-review",
+      "severity": "P1",
+      "status": "watch",
+      "title": "Agent Onboarding / Roster Inspection is watch",
+      "detail": "Agent Onboarding / Roster Inspection is due now and still inside the grace window.",
+      "nextAction": "Let the worker pick it up or run it manually if the worker is stopped.",
+      "jobKey": "agent-roster-review"
+    },
+    {
+      "id": "connector_degraded",
+      "severity": "P1",
+      "status": "review",
+      "title": "One or more connectors are degraded",
+      "detail": "Google Workspace",
+      "nextAction": "Use source-health details before changing hub behavior.",
+      "source": "foundation_operating_reliability",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "runtime_jobs_failed",
+      "severity": "P1",
+      "status": "review",
+      "title": "Foundation jobs have recent failures",
+      "detail": "meeting-transcripts-extract-backlog",
+      "nextAction": "Review latest run error before treating the system as green.",
+      "source": "foundation_operating_reliability",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "doc_artifact_handoff_directory_line_budget",
+      "severity": "P1",
+      "status": "watch",
+      "title": "docs/handoffs is growing past the hot-doc budget",
+      "detail": "docs/handoffs contains 26339 line(s); budget is 20000/35000 warn/risk.",
+      "nextAction": "Archive cold detail or replace repeated large reports with monthly summaries.",
+      "path": "docs/handoffs",
+      "className": "handoff_directory",
+      "budgetKey": "totalLines",
+      "value": 26339,
+      "budget": {
+        "warn": 20000,
+        "risk": 35000
+      },
+      "autoFix": false,
+      "autoBacklogMutation": false
+    }
+  ]
+}

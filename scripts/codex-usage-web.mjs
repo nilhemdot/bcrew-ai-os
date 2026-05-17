@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 import http from 'node:http'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import process from 'node:process'
 import { spawn } from 'node:child_process'
 import { getUsageSummary, positiveInt } from './codex-usage.mjs'
@@ -9,6 +12,44 @@ const DEFAULT_PORT = 8787
 const DEFAULT_HOST = '127.0.0.1'
 const DEFAULT_DAYS = 7
 const DEFAULT_SESSIONS = 10
+const DEFAULT_ACCOUNT_SPECS = [
+  'crewbert@bensoncrew.ca=~/.codex-accounts/crewbert',
+  'ai@bensoncrew.ca=~/.codex-accounts/ai',
+  'steve.zahnd@bensoncrew.ca=~/.codex-accounts/steve',
+]
+const OPENAI_PROFILE_EMAIL_CLAIM = 'https://api.openai.' + 'com/profile'
+
+function expandHome(input) {
+  const value = String(input || '').trim()
+  if (value === '~') return os.homedir()
+  if (value.startsWith('~/')) return path.join(os.homedir(), value.slice(2))
+  return value
+}
+
+function parseAccountSpec(spec, index) {
+  const raw = String(spec || '').trim()
+  if (!raw) return null
+  const splitAt = raw.indexOf('=')
+  const label = splitAt >= 0 ? raw.slice(0, splitAt).trim() : `Account ${index + 1}`
+  const codexHome = expandHome(splitAt >= 0 ? raw.slice(splitAt + 1).trim() : raw)
+  if (!codexHome) return null
+  return {
+    key: label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || `account-${index + 1}`,
+    label,
+    codexHome,
+  }
+}
+
+function parseAccountSpecs(value) {
+  return String(value || '')
+    .split(',')
+    .map((entry, index) => parseAccountSpec(entry, index))
+    .filter(Boolean)
+}
+
+function defaultAccounts() {
+  return parseAccountSpecs(process.env.CODEX_USAGE_ACCOUNTS || DEFAULT_ACCOUNT_SPECS.join(','))
+}
 
 function parseArgs(argv) {
   const args = {
@@ -17,6 +58,7 @@ function parseArgs(argv) {
     days: DEFAULT_DAYS,
     sessions: DEFAULT_SESSIONS,
     open: false,
+    accounts: defaultAccounts(),
   }
 
   for (const arg of argv) {
@@ -25,12 +67,93 @@ function parseArgs(argv) {
     if (arg.startsWith('--port=')) args.port = positiveInt(arg.split('=')[1], DEFAULT_PORT)
     if (arg.startsWith('--days=')) args.days = positiveInt(arg.split('=')[1], DEFAULT_DAYS)
     if (arg.startsWith('--sessions=')) args.sessions = positiveInt(arg.split('=')[1], DEFAULT_SESSIONS)
+    if (arg.startsWith('--accounts=')) args.accounts = parseAccountSpecs(arg.split('=').slice(1).join('='))
+    if (arg.startsWith('--account=')) {
+      const account = parseAccountSpec(arg.split('=').slice(1).join('='), args.accounts.length)
+      if (account) args.accounts.push(account)
+    }
   }
 
   return args
 }
 
-function compactSummary(summary) {
+function authFileExists(codexHome) {
+  try {
+    return fs.existsSync(path.join(codexHome, 'auth.json'))
+  } catch {
+    return false
+  }
+}
+
+function decodeJwtPayload(token) {
+  if (typeof token !== 'string' || token.split('.').length < 2) return null
+  try {
+    const payload = token.split('.')[1]
+    const padded = payload + '='.repeat((4 - payload.length % 4) % 4)
+    return JSON.parse(Buffer.from(padded.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'))
+  } catch {
+    return null
+  }
+}
+
+function collectJwtClaims(value, claims = []) {
+  if (typeof value === 'string') {
+    const payload = decodeJwtPayload(value)
+    if (payload) claims.push(payload)
+    return claims
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectJwtClaims(item, claims)
+    return claims
+  }
+  if (value && typeof value === 'object') {
+    for (const child of Object.values(value)) collectJwtClaims(child, claims)
+  }
+  return claims
+}
+
+function getAuthEmail(codexHome) {
+  try {
+    const raw = fs.readFileSync(path.join(codexHome, 'auth.json'), 'utf8')
+    const auth = JSON.parse(raw)
+    const claims = collectJwtClaims(auth)
+    for (const claim of claims) {
+      const email = claim?.email || claim?.[OPENAI_PROFILE_EMAIL_CLAIM]?.email
+      if (email) return String(email).trim().toLowerCase()
+    }
+  } catch {
+    return ''
+  }
+  return ''
+}
+
+function uniqueValues(values) {
+  return Array.from(new Set(values.filter(Boolean)))
+}
+
+function listAccountHomeCandidates(accounts) {
+  const configuredHomes = accounts.map(account => account.codexHome)
+  const accountRoot = path.join(os.homedir(), '.codex-accounts')
+  let discoveredHomes = []
+  try {
+    discoveredHomes = fs.readdirSync(accountRoot, { withFileTypes: true })
+      .filter(entry => entry.isDirectory())
+      .map(entry => path.join(accountRoot, entry.name))
+  } catch {
+    discoveredHomes = []
+  }
+  return uniqueValues([path.join(os.homedir(), '.codex'), ...configuredHomes, ...discoveredHomes])
+}
+
+function buildHomeInventory(accounts) {
+  return listAccountHomeCandidates(accounts).map(codexHome => ({
+    codexHome,
+    connected: authFileExists(codexHome),
+    authEmail: getAuthEmail(codexHome),
+  }))
+}
+
+function compactSummary(summary, account = null) {
   const focus = summary.focusedSession || null
   const latestUsage = focus?.latestUsage || null
   const lastTurn = latestUsage?.last_token_usage || null
@@ -41,7 +164,9 @@ function compactSummary(summary) {
   return {
     generatedAt: summary.generatedAt,
     generatedAtLocal: summary.generatedAtLocal,
+    account,
     timezone: summary.timezone,
+    codexHome: summary.codexHome,
     sessionsScanned: summary.sessionsScanned,
     rollingDays: summary.rollingDays,
     rollingTokens: summary.rollingTokens,
@@ -87,6 +212,69 @@ function compactSummary(summary) {
   }
 }
 
+async function buildAccountStatus(account, defaults, requestOptions = {}, home = null) {
+  const codexHome = home?.codexHome || account.codexHome
+  const authEmail = home?.authEmail || getAuthEmail(codexHome)
+  const connected = Boolean(home?.connected || authFileExists(codexHome))
+  const accountMeta = {
+    ...account,
+    desiredHome: account.codexHome,
+    codexHome,
+    authEmail,
+  }
+  try {
+    const summary = await getUsageSummary({
+      days: requestOptions.days || defaults.days,
+      sessions: requestOptions.sessions || defaults.sessions,
+      threadId: requestOptions.threadId || '',
+      codexHome,
+    })
+    const compact = compactSummary(summary, accountMeta)
+    return {
+      ...compact,
+      connected,
+      authEmail,
+      hasUsage: Boolean(compact.latestRateLimits || compact.focus),
+      status: connected ? (compact.latestRateLimits ? 'ready' : 'no_usage_events') : 'not_connected',
+    }
+  } catch (error) {
+    return {
+      account: accountMeta,
+      codexHome,
+      connected,
+      authEmail,
+      hasUsage: false,
+      status: connected ? 'error' : 'not_connected',
+      error: error.message,
+      latestRateLimits: null,
+      focus: null,
+      recentSessions: [],
+      dailyRows: [],
+      rollingTokens: 0,
+      sessionsScanned: 0,
+    }
+  }
+}
+
+async function buildAccountsStatus(defaults, requestOptions = {}) {
+  const accounts = defaults.accounts.length ? defaults.accounts : defaultAccounts()
+  const homes = buildHomeInventory(accounts)
+  const usedHomes = new Set()
+  const rows = await Promise.all(accounts.map(account => {
+    const desiredEmail = String(account.label || '').trim().toLowerCase()
+    const matchingHome = homes.find(home => home.authEmail === desiredEmail && !usedHomes.has(home.codexHome))
+    if (matchingHome) usedHomes.add(matchingHome.codexHome)
+    return buildAccountStatus(account, defaults, requestOptions, matchingHome || null)
+  }))
+  return {
+    generatedAt: new Date().toISOString(),
+    accounts: rows,
+    homes,
+    connectedCount: rows.filter(row => row.connected).length,
+    readyCount: rows.filter(row => row.latestRateLimits).length,
+  }
+}
+
 function sendJson(res, status, body) {
   const payload = JSON.stringify(body)
   res.writeHead(status, {
@@ -116,18 +304,18 @@ function renderHtml() {
   <title>Codex Usage</title>
   <style>
     :root {
-      --ink: #17211c;
-      --muted: #617168;
-      --paper: #f7f1e4;
-      --card: rgba(255, 252, 244, 0.86);
-      --line: rgba(34, 48, 41, 0.14);
+      --ink: #000;
+      --muted: #4f4f4f;
+      --paper: #fff;
+      --card: #fff;
+      --line: #d8d8d8;
       --good: #16805f;
       --watch: #c67b18;
       --hot: #b83b2d;
-      --coal: #101714;
-      --teal: #0f6d66;
-      --gold: #d39a2d;
-      --shadow: 0 22px 80px rgba(16, 23, 20, 0.18);
+      --coal: #000;
+      --teal: #0084C9;
+      --gold: #0084C9;
+      --shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
     }
 
     * { box-sizing: border-box; }
@@ -137,9 +325,8 @@ function renderHtml() {
       min-height: 100vh;
       color: var(--ink);
       background:
-        radial-gradient(circle at 15% 10%, rgba(211, 154, 45, 0.30), transparent 30%),
-        radial-gradient(circle at 80% 0%, rgba(15, 109, 102, 0.26), transparent 34%),
-        linear-gradient(145deg, #f7f1e4 0%, #eadfc8 48%, #d7e1d4 100%);
+        linear-gradient(180deg, #EBEBEB 0, #fff 280px),
+        var(--paper);
       font-family: "Avenir Next", "Gill Sans", "Trebuchet MS", sans-serif;
     }
 
@@ -148,7 +335,7 @@ function renderHtml() {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      opacity: 0.32;
+      opacity: 0;
       background-image:
         linear-gradient(rgba(16, 23, 20, 0.06) 1px, transparent 1px),
         linear-gradient(90deg, rgba(16, 23, 20, 0.06) 1px, transparent 1px);
@@ -174,9 +361,8 @@ function renderHtml() {
     .panel {
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 28px;
+      border-radius: 8px;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
     }
 
     .headline {
@@ -190,29 +376,22 @@ function renderHtml() {
     }
 
     .headline::after {
-      content: "";
-      position: absolute;
-      width: 250px;
-      height: 250px;
-      right: -74px;
-      bottom: -110px;
-      border-radius: 50%;
-      background: conic-gradient(from 130deg, rgba(15, 109, 102, 0.12), rgba(211, 154, 45, 0.32), rgba(16, 23, 20, 0.08));
+      content: none;
     }
 
     .eyebrow {
       color: var(--teal);
       font-size: 12px;
       font-weight: 800;
-      letter-spacing: 0.18em;
+      letter-spacing: 0;
       text-transform: uppercase;
     }
 
     h1 {
       margin: 12px 0 8px;
-      font-size: clamp(42px, 7vw, 82px);
-      line-height: 0.88;
-      letter-spacing: -0.07em;
+      font-size: clamp(36px, 4.6vw, 62px);
+      line-height: 0.98;
+      letter-spacing: 0;
       max-width: 780px;
     }
 
@@ -226,7 +405,7 @@ function renderHtml() {
     .updated {
       align-self: flex-start;
       padding: 10px 14px;
-      border-radius: 999px;
+      border-radius: 8px;
       color: #f7f1e4;
       background: var(--coal);
       font-size: 13px;
@@ -254,7 +433,7 @@ function renderHtml() {
       color: var(--muted);
       font-size: 13px;
       font-weight: 800;
-      letter-spacing: 0.1em;
+      letter-spacing: 0;
       text-transform: uppercase;
     }
 
@@ -269,7 +448,7 @@ function renderHtml() {
       width: 100%;
       height: 12px;
       margin: 14px 0 8px;
-      border-radius: 999px;
+      border-radius: 8px;
       overflow: hidden;
       background: rgba(16, 23, 20, 0.10);
     }
@@ -278,7 +457,7 @@ function renderHtml() {
       width: 0%;
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, var(--good), var(--gold), var(--hot));
+      background: linear-gradient(90deg, var(--good), var(--watch), var(--hot));
       transition: width 360ms ease;
     }
 
@@ -293,6 +472,91 @@ function renderHtml() {
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
       margin-bottom: 22px;
+    }
+
+    .account-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .account-card {
+      min-height: 226px;
+      padding: 22px;
+    }
+
+    .account-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .account-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .account-state {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border-radius: 8px;
+      background: rgba(0, 132, 201, 0.10);
+      color: var(--teal);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .account-state[data-state="not_connected"],
+    .account-state[data-state="error"] {
+      color: var(--hot);
+      background: rgba(184, 59, 45, 0.10);
+    }
+
+    .account-left {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .left-box {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8f8f8;
+    }
+
+    .left-box strong {
+      display: block;
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .left-box span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .account-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
     }
 
     .metric {
@@ -383,8 +647,8 @@ function renderHtml() {
     .token-pill {
       align-self: start;
       padding: 7px 10px;
-      border-radius: 999px;
-      background: rgba(15, 109, 102, 0.10);
+      border-radius: 8px;
+      background: rgba(0, 132, 201, 0.10);
       color: var(--teal);
       font-size: 12px;
       font-weight: 900;
@@ -402,7 +666,7 @@ function renderHtml() {
       display: none;
       margin-bottom: 18px;
       padding: 14px 16px;
-      border-radius: 18px;
+      border-radius: 8px;
       color: #fff6ed;
       background: #9b2c22;
       font-weight: 800;
@@ -417,6 +681,10 @@ function renderHtml() {
       .grid {
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .account-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 560px) {
@@ -430,7 +698,7 @@ function renderHtml() {
       .metric,
       .chart-card,
       .session-card {
-        border-radius: 22px;
+        border-radius: 8px;
         padding: 18px;
       }
 
@@ -455,8 +723,8 @@ function renderHtml() {
       <div class="panel headline">
         <div>
           <div class="eyebrow">Local Codex Usage</div>
-          <h1>Burn rate without the web UI.</h1>
-          <p class="sub">Reads local Codex session metadata from this machine. Nothing is sent anywhere. Refreshes every 10 seconds.</p>
+          <h1>How much is left.</h1>
+          <p class="sub">Shows the Codex usage windows for the local account homes on this machine. Nothing is sent anywhere. Refreshes every 10 seconds.</p>
         </div>
         <div id="updated" class="updated">Loading...</div>
       </div>
@@ -464,7 +732,7 @@ function renderHtml() {
       <div class="rate-stack">
         <div class="panel rate-card">
           <div class="rate-top">
-            <div class="label">5 hour window</div>
+            <div class="label">5 hour left</div>
             <div id="primaryPct" class="big-number">--</div>
           </div>
           <div class="bar"><div id="primaryFill" class="fill"></div></div>
@@ -472,7 +740,7 @@ function renderHtml() {
         </div>
         <div class="panel rate-card">
           <div class="rate-top">
-            <div class="label">7 day window</div>
+            <div class="label">7 day left</div>
             <div id="secondaryPct" class="big-number">--</div>
           </div>
           <div class="bar"><div id="secondaryFill" class="fill"></div></div>
@@ -480,6 +748,8 @@ function renderHtml() {
         </div>
       </div>
     </section>
+
+    <section id="accountGrid" class="account-grid"></section>
 
     <section class="grid">
       <div class="panel metric">
@@ -514,7 +784,7 @@ function renderHtml() {
       <div class="panel session-card">
         <div class="label">Recent sessions</div>
         <div id="sessions" class="sessions"></div>
-        <div class="foot">If multiple chats are open, the “latest” session is whichever terminal wrote a token event most recently.</div>
+        <div class="foot">If multiple chats are open, the latest session is whichever terminal wrote a token event most recently.</div>
       </div>
     </section>
   </main>
@@ -543,6 +813,15 @@ function renderHtml() {
       return new Date(value).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     }
 
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    }
+
     function resetText(limit) {
       if (!limit?.resets_at) return 'reset unknown'
       const reset = new Date(limit.resets_at * 1000)
@@ -552,6 +831,18 @@ function renderHtml() {
       const mins = minutes % 60
       const relative = hours ? hours + 'h ' + mins + 'm' : mins + 'm'
       return 'resets ' + localTime(reset.toISOString()) + ' (' + relative + ')'
+    }
+
+    function leftPercent(limit) {
+      if (!limit || !Number.isFinite(Number(limit.used_percent))) return Number.NaN
+      return Math.max(0, 100 - Number(limit.used_percent))
+    }
+
+    function preferredAccount(accounts) {
+      return (accounts || []).find(account => account?.latestRateLimits) ||
+        (accounts || []).find(account => account?.connected) ||
+        (accounts || [])[0] ||
+        {}
     }
 
     function setText(id, value) {
@@ -564,9 +855,39 @@ function renderHtml() {
 
     function renderRate(id, limit) {
       const used = Number(limit?.used_percent || 0)
-      setText(id + 'Pct', pct(used))
+      const left = leftPercent(limit)
+      setText(id + 'Pct', pct(left))
       setWidth(id + 'Fill', used)
-      setText(id + 'Meta', pct(Math.max(0, 100 - used)) + ' left, ' + resetText(limit))
+      setText(id + 'Meta', pct(used) + ' used, ' + resetText(limit))
+    }
+
+    function renderAccounts(accounts) {
+      const grid = document.getElementById('accountGrid')
+      grid.innerHTML = (accounts || []).map(account => {
+        const primary = account.latestRateLimits?.primary
+        const secondary = account.latestRateLimits?.secondary
+        const focus = account.focus || {}
+        const status = account.status || 'unknown'
+        const state = status === 'ready' ? 'ready' : status
+        const meta = status === 'ready'
+          ? 'Plan ' + (account.latestRateLimits?.plan_type || 'unknown') + ' - context ' + pct(focus.contextUsedPercent || 0) + ' - updated ' + (account.generatedAtLocal || localTime(account.generatedAt))
+          : status === 'not_connected'
+            ? 'Not logged in locally. Use CODEX_HOME=' + account.codexHome + ' codex login for this slot.'
+            : status === 'no_usage_events'
+              ? 'Logged in, but no token_count events have been recorded for this account yet.'
+              : account.error || 'No usage data loaded.'
+        return '<div class="panel account-card">' +
+          '<div class="account-head">' +
+            '<div class="account-name">' + escapeHtml(account.account?.label || account.account?.key || 'Account') + '</div>' +
+            '<div class="account-state" data-state="' + escapeHtml(state) + '">' + escapeHtml(status.replace(/_/g, ' ')) + '</div>' +
+          '</div>' +
+          '<div class="account-left">' +
+            '<div class="left-box"><strong>' + pct(leftPercent(primary)) + '</strong><span>5h left</span></div>' +
+            '<div class="left-box"><strong>' + pct(leftPercent(secondary)) + '</strong><span>7d left</span></div>' +
+          '</div>' +
+          '<div class="account-meta">' + escapeHtml(meta) + '</div>' +
+        '</div>'
+      }).join('')
     }
 
     function renderChart(rows) {
@@ -588,7 +909,7 @@ function renderHtml() {
         const model = [row.model, row.effort].filter(Boolean).join(' / ') || 'unknown'
         return '<div class="session-row">' +
           '<div>' +
-            '<div class="session-title">' + model + ' · ' + localTime(row.updatedAt) + '</div>' +
+            '<div class="session-title">' + model + ' - ' + localTime(row.updatedAt) + '</div>' +
             '<div class="session-id">' + row.id + '</div>' +
           '</div>' +
           '<div class="token-pill">' + number(row.totalTokens) + '</div>' +
@@ -599,15 +920,17 @@ function renderHtml() {
     async function refresh() {
       const error = document.getElementById('error')
       try {
-        const response = await fetch('/api/usage?days=7&sessions=8', { cache: 'no-store' })
+        const response = await fetch('/api/accounts?days=7&sessions=8', { cache: 'no-store' })
         if (!response.ok) throw new Error('HTTP ' + response.status)
         const data = await response.json()
-        const focus = data.focus
-        const primary = data.latestRateLimits?.primary
-        const secondary = data.latestRateLimits?.secondary
+        const account = preferredAccount(data.accounts)
+        const focus = account.focus
+        const primary = account.latestRateLimits?.primary
+        const secondary = account.latestRateLimits?.secondary
 
         error.style.display = 'none'
-        setText('updated', 'Updated ' + data.generatedAtLocal + ' · plan ' + (data.latestRateLimits?.plan_type || 'unknown'))
+        renderAccounts(data.accounts || [])
+        setText('updated', 'Updated ' + (account.generatedAtLocal || localTime(data.generatedAt)) + ' - ' + (account.account?.label || 'no account ready'))
         renderRate('primary', primary)
         renderRate('secondary', secondary)
 
@@ -615,14 +938,14 @@ function renderHtml() {
         setWidth('contextFill', focus?.contextUsedPercent || 0)
         setText('contextMeta', exact(focus?.contextTokens || 0) + ' / ' + exact(focus?.contextWindow || 0) + ' input tokens')
         setText('lastTurnValue', number(focus?.lastTurn?.totalTokens || 0))
-        setText('lastTurnMeta', exact(focus?.lastTurn?.inputTokens || 0) + ' input · ' + exact(focus?.lastTurn?.outputTokens || 0) + ' output')
+        setText('lastTurnMeta', exact(focus?.lastTurn?.inputTokens || 0) + ' input - ' + exact(focus?.lastTurn?.outputTokens || 0) + ' output')
         setText('sessionValue', number(focus?.totalTokens || 0))
         setText('sessionMeta', exact(focus?.cachedInputTokens || 0) + ' cached input tokens')
-        setText('rollingValue', number(data.rollingTokens || 0))
-        setText('rollingMeta', 'Last ' + data.rollingDays + ' days · ' + data.sessionsScanned + ' sessions scanned')
+        setText('rollingValue', number(account.rollingTokens || 0))
+        setText('rollingMeta', 'Last ' + (account.rollingDays || 0) + ' days - ' + (account.sessionsScanned || 0) + ' sessions scanned')
 
-        renderChart(data.dailyRows || [])
-        renderSessions(data.recentSessions || [])
+        renderChart(account.dailyRows || [])
+        renderSessions(account.recentSessions || [])
       } catch (err) {
         error.style.display = 'block'
         error.textContent = 'Could not load Codex usage: ' + err.message
@@ -652,6 +975,20 @@ async function handleRequest(req, res, defaults) {
         threadId: url.searchParams.get('threadId') || '',
       })
       sendJson(res, 200, compactSummary(summary))
+    } catch (error) {
+      sendJson(res, 500, { error: error.message })
+    }
+    return
+  }
+
+  if (url.pathname === '/api/accounts') {
+    try {
+      const summary = await buildAccountsStatus(defaults, {
+        days: positiveInt(url.searchParams.get('days'), defaults.days),
+        sessions: positiveInt(url.searchParams.get('sessions'), defaults.sessions),
+        threadId: url.searchParams.get('threadId') || '',
+      })
+      sendJson(res, 200, summary)
     } catch (error) {
       sendJson(res, 500, { error: error.message })
     }
