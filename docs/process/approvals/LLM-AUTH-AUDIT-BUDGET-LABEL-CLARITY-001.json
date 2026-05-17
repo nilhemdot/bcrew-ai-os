@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001",
+  "approvedBy": "Steve explicit bounded Foundation queue approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T23:00:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the bounded Foundation queue starting with LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001 to make the llm-auth-audit budget/provider labels honest before knowledge compiler and portability work.",
+  "approvedPlanRef": "docs/process/llm-auth-audit-budget-label-clarity-001-plan.md",
+  "approvedPlanSha256": "b7174623663cf7d573163006c2801e801688e86ee4fe1d49cd537033a37ba36d",
+  "approvedRepoHead": "addf48c892a2a569793f6864fb7d381ea0920f5b",
+  "notes": "Approved only for Foundation budget-label/process truth: no_llm must not hide OpenClaw subscription actual_model_run probing, model_probe_no_extraction must be explicit, focused proof and verifier coverage must pass. Not approved: live extraction, live LLM auth audit rerun, provider account repair, OAuth, Agent Feedback auto-send, external write, Harlan, Fal, voice, Canva, OpenHuman, connector features, or Drive permission mutation.",
+  "approvalDigest": "cf2815b08e042bb9610a776257153de40e8f5b4a5a10ea05d94bebc829a18f1f"
+}

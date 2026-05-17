@@ -17,6 +17,7 @@ import { DEFAULT_LLM_ROUTES, callLlm, seedDefaultLlmRouterConfig } from '../lib/
 
 const execFile = promisify(execFileCallback)
 const DEFAULT_OPENCLAW_MODEL = process.env.LLM_OPENCLAW_MODEL || 'openai-codex/gpt-5.4'
+const LLM_AUTH_AUDIT_MODEL_PROBE_BUDGET = 'model_probe_no_extraction'
 
 function parseArgs(argv) {
   const result = {}
@@ -250,8 +251,14 @@ async function auditOpenClaw(actor) {
     capability: {
       model: process.env.LLM_OPENCLAW_PROBE_MODEL || DEFAULT_OPENCLAW_MODEL,
       outputMatched: modelProbeOk,
+      providerModelProbe: true,
+      budgetClass: LLM_AUTH_AUDIT_MODEL_PROBE_BUDGET,
+      extraction: false,
+      externalWrite: false,
     },
     metadata: {
+      budgetClass: LLM_AUTH_AUDIT_MODEL_PROBE_BUDGET,
+      providerModelProbe: true,
       stdout: modelProbe.ok ? '[json-output-redacted]' : modelProbe.stdout,
       stderr: modelProbe.stderr,
       message: modelProbe.message || '',

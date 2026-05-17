@@ -1,7 +1,7 @@
 # BCrew AI OS Current State
 
 Last updated: 2026-05-17
-Status: Karpathy KB preflight complete
+Status: LLM auth budget-label clarity complete
 Purpose: one short answer to "what is actually closed, what is still partial, and what closes next?"
 
 Rule: if a package depends on open live inputs, open runtime activation, or open parity work, the package is still open even if part of it is signed off.
@@ -25,6 +25,7 @@ The Foundation is real. The system is not yet fully alive.
 
 Current sprint call:
 
+- `LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001` is closed under `llm-auth-audit-budget-label-clarity-v1`. V1 makes the `llm-auth-audit` budget/provider label honest: `no_llm` no longer hides the OpenClaw subscription `actual_model_run` provider probe, the job is now labeled `model_probe_no_extraction`, budget details explicitly say no extraction/no external write/no Agent Feedback auto-send, and verifier dogfood rejects hidden model-probe labels. It did not rerun the live LLM auth audit job, run extraction, repair provider accounts, run OAuth, send Agent Feedback, write ClickUp/Gmail, mutate Drive permissions, or build Harlan/Fal/voice/Canva/OpenHuman work. Next in the bounded Foundation queue is `FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001`.
 - `BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001` is closed under `build-intel-karpathy-llm-kb-preflight-v1`. V1 compares current AIOS Foundation primitives against the Karpathy-style raw data -> compiled markdown/wiki -> query/Q&A -> quality/lint loop, confirms the Karpathy source packet remains pending approval/non-runnable, routes gaps to `FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001` and `KNOWLEDGE-BASE-QUALITY-GATE-001`, and keeps output proposal/research only. It does not run live extraction, fetch transcripts, capture screenshots, call models, write Research Inbox, create atoms, mutate backlog from extracted content, or build Harlan/Fal/voice/Canva/OpenHuman work.
 - Immediately before that, `EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001` closed under `extractor-queue-karpathy-kb-video-pack-v1`. It seeds the Dream Labs AI video, Nate Herk video, and original Karpathy source as a blocked/pending-approval manual extraction control target. The next recommended Foundation sprint is `FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001` unless Steve separately approves a no-auth/no-paid extraction run from the pending packet.
 - The build-lane reliability reset is closed. It added card scaffold, Current Sprint metadata standard, proof brittleness, verify-loop efficiency, Current Sprint surface/API drift, and served-code fanout sync guardrails before extraction readiness resumed.

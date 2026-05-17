@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-16
-Version: v6.93 - Source ID array provenance design closed
-Status: Sprint Review
+Last updated: 2026-05-17
+Version: v6.94 - LLM auth audit budget label clarity closed
+Status: Bounded Foundation queue active
 
 Use this doc for one question:
 
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Build Intel Karpathy LLM KB Preflight
+## Latest Sprint: LLM Auth Audit Budget Label Clarity
+
+Live sprint ID: `llm-auth-audit-budget-label-clarity-2026-05-17`.
+
+This sprint is complete under `llm-auth-audit-budget-label-clarity-v1`. It fixes the LLM auth audit budget truth before knowledge compiler and runtime portability work.
+
+Completed card:
+
+1. `LLM-AUTH-AUDIT-BUDGET-LABEL-CLARITY-001` - done under `llm-auth-audit-budget-label-clarity-v1`. Scope was Foundation process truth only: change `llm-auth-audit` from `no_llm` to `model_probe_no_extraction`, record explicit model-provider-probe/no-extraction/no-external-write budget details, label the OpenClaw `actual_model_run` probe, and dogfood that `no_llm` cannot hide provider/model probing.
+
+Not next from this closeout: live extraction, live LLM auth audit rerun, provider account repair, OAuth, Agent Feedback auto-send, Gmail send, ClickUp write, Harlan/Fal/voice/Canva/OpenHuman feature work, connector auth, broad UI redesign, Drive permission mutation, or Meeting Vault Phase B.
+
+Recommended next: `FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001`.
+
+## Previous Sprint: Build Intel Karpathy LLM KB Preflight
 
 Live sprint ID: `build-intel-karpathy-llm-kb-preflight-2026-05-17`.
 
