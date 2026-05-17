@@ -245,6 +245,7 @@ import {
 } from './lib/foundation-hub-backlog-contract.js'
 import {
   buildFoundationBacklogDetailPayload,
+  buildFoundationBacklogDoneArchivePayload,
   buildFoundationBacklogListPayload,
   validateFoundationBacklogCardId,
 } from './lib/foundation-backlog-detail.js'
@@ -3749,6 +3750,7 @@ registerFoundationOperatorRoutes(app, {
   FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION,
   validateFoundationBacklogCardId,
   buildFoundationBacklogDetailPayload,
+  buildFoundationBacklogDoneArchivePayload,
   buildFoundationBacklogListPayload,
   readFileSafe,
   repoRoot: __dirname,

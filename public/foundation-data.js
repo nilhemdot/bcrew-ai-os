@@ -6,6 +6,7 @@ var cache = {
   sourceOfTruth: null,
   foundationHub: null,
   foundationBacklog: null,
+  foundationBacklogDoneArchive: null,
   currentSprint: null,
   actionReview: null,
   systemInventory: null,
@@ -76,14 +77,31 @@ function fetchFoundationHubFull() {
   })
 }
 
-function fetchFoundationBacklog() {
-  if (cache.foundationBacklog) return Promise.resolve(cache.foundationBacklog)
+function fetchFoundationBacklog(options) {
+  var ids = options && Array.isArray(options.ids) ? options.ids.filter(Boolean) : []
+  if (!ids.length && cache.foundationBacklog) return Promise.resolve(cache.foundationBacklog)
 
-  return foundationRead('/api/foundation/backlog').then(function(res) {
+  var path = '/api/foundation/backlog'
+  if (ids.length) {
+    path += '?ids=' + encodeURIComponent(ids.join(','))
+  }
+  return foundationRead(path).then(function(res) {
     if (!res.ok) throw new Error('Foundation backlog API failed.')
     return res.json()
   }).then(function(data) {
-    cache.foundationBacklog = data
+    if (!ids.length) cache.foundationBacklog = data
+    return data
+  })
+}
+
+function fetchFoundationBacklogDoneArchive() {
+  if (cache.foundationBacklogDoneArchive) return Promise.resolve(cache.foundationBacklogDoneArchive)
+
+  return foundationRead('/api/foundation/backlog/done-archive').then(function(res) {
+    if (!res.ok) throw new Error('Foundation done archive API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.foundationBacklogDoneArchive = data
     return data
   })
 }

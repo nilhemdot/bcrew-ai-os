@@ -135,6 +135,8 @@ function route() {
     renderStrategyDoc(section)
   } else if (section === 'backlog') {
     renderBacklog()
+  } else if (section === 'backlog-done-archive') {
+    renderBacklogDoneArchive()
   } else if (section === 'daily-summary') {
     renderDailySummary()
   } else if (section === 'decisions') {

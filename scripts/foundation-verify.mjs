@@ -1477,6 +1477,7 @@ import {
   CLICKUP_VERIFY_HEALTH_BOUNDARY_SCRIPT_PATH,
   BUILD_LANE_RELIABILITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_ENGINEERING_FITNESS_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  FOUNDATION_BACKLOG_DONE_ARCHIVE_LAZY_LOAD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_BACKLOG_DETAIL_ENDPOINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_CLOSEOUT_KEY,
   FOUNDATION_CLICKUP_VERIFY_HEALTH_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
@@ -1905,6 +1906,7 @@ async function main() {
   const foundationUiSource = await readRepoFile('public/foundation.js')
   const foundationNavConfigSource = await readRepoFile('public/foundation-nav-config.js')
   const foundationDataSource = await readRepoFile('public/foundation-data.js')
+  const foundationBacklogRenderersSource = await readRepoFile('public/foundation-backlog-renderers.js')
   const foundationSourceRegistryRenderersSource = await readRepoFile('public/foundation-source-registry-renderers.js')
   const foundationFubLeadSourceRenderersSource = await readRepoFile('public/foundation-fub-lead-source-renderers.js')
   const foundationSystemInventoryRenderersSource = await readRepoFile('public/foundation-system-inventory-renderers.js')
@@ -2803,7 +2805,7 @@ async function main() {
 
   const {
     sourceOfTruth, systemInventory, foundationHubSummary, foundationHubFull, foundationHub,
-    foundationBacklogListApi, foundationBacklogDetailEndpointApi, foundationCurrentSprintApi, actionReviewApi, foundationBuildLog, foundationChangeLog, foundationDailySummary, foundationDocUpdatesApi,
+    foundationBacklogListApi, foundationBacklogDoneArchiveApi, foundationBacklogDetailEndpointApi, foundationCurrentSprintApi, actionReviewApi, foundationBuildLog, foundationChangeLog, foundationDailySummary, foundationDocUpdatesApi,
     foundationSourceLifecycle, foundationSourceMaturityGrid, foundationSourceExtractionCoverage, foundationSourceCoverageCloseout,
     foundationSourceConnectorMatrixApi, foundationConnectorCredentialPreflightApi, foundationSourceHubRoutingMatrixApi,
     foundationMarketingSourceMap, foundationBrandStack, foundationTierBehavioralCompletion, foundationVerificationRuns,
@@ -3091,10 +3093,14 @@ async function main() {
       backlogModuleSource: foundationBacklogDetailSource,
       routePayloads: {
         backlog: foundationBacklogListApi,
+        doneArchive: foundationBacklogDoneArchiveApi,
         buildLog: foundationBuildLog,
         currentSprint: foundationCurrentSprintApi,
         sourceOfTruth,
       },
+      backlogRendererSource: foundationBacklogRenderersSource,
+      routerSource: foundationRouterSource,
+      securityAccessSource,
     },
     repoFileExists,
   })

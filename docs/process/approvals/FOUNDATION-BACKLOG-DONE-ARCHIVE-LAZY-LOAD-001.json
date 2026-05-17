@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001",
+  "approvedBy": "Steve explicit queue approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T16:55:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the four-card Foundation queue and clarified FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001 as loading architecture only before extractor readiness.",
+  "approvedPlanRef": "docs/process/foundation-backlog-done-archive-lazy-load-001-plan.md",
+  "approvedPlanSha256": "9a478034298ccef47cbb4180ac7b6e457eedde1a8688757ba0c1fead4eb729f1",
+  "approvedRepoHead": "298297b80c522687a05c020747dce1c722ea17fd",
+  "notes": "Approved only for backlog loading architecture: default backlog route loads active work plus recent done, older done cards move behind explicit done archive route/page, counts/history are preserved, and Recent Work remains shipped-build history. Not approved: backlog semantic rewrite, deletion/data loss, extractor runtime, connector/auth/OAuth, Harlan, Fal, voice, Canva, OpenHuman, broad UI redesign, Drive permission mutation, or Agent Feedback auto-send.",
+  "approvalDigest": "bcd39707642f0922e489ce8605cab893e942ea1ae3242dac1a64221269c7eb45"
+}
