@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001",
+  "approvedBy": "Steve explicit queue approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-17T22:05:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the four-card Foundation queue and clarified extractor-related cards are queue/spec/preflight only unless separately approved for a no-auth/no-paid run.",
+  "approvedPlanRef": "docs/process/build-intel-karpathy-llm-kb-preflight-001-plan.md",
+  "approvedPlanSha256": "2096a8b79f077bf990c8ac76b587b90dd80c211f4f348b0b6758abf23dc01733",
+  "approvedRepoHead": "1b4879fab8517957472c6bd7b0bb9e8a5a926039",
+  "notes": "Approved only for proposal/research preflight comparing current AIOS to the Karpathy LLM Knowledge Base pattern. Not approved: live extraction, transcript fetch, screenshot capture, crawl, summarization, model calls, paid/auth extraction, OAuth, connector auth, Harlan, Fal, voice, Canva, OpenHuman, broad UI redesign, Drive permission mutation, Agent Feedback auto-send, atom promotion, Research Inbox write, or backlog mutation from extracted content.",
+  "approvalDigest": "f93f626d6bb201b88eec73c4599643c4a027f0a49972bd1030e17d1731a860c3"
+}

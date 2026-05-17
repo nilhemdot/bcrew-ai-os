@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Source ID Array-Backed Provenance Design
+## Latest Sprint: Build Intel Karpathy LLM KB Preflight
+
+Live sprint ID: `build-intel-karpathy-llm-kb-preflight-2026-05-17`.
+
+This sprint is complete under `build-intel-karpathy-llm-kb-preflight-v1`. It prepares the Karpathy LLM Knowledge Base / LLM Wiki direction as Foundation-owned proposal truth before any extraction or compiler build.
+
+Completed card:
+
+1. `BUILD-INTEL-KARPATHY-LLM-KB-PREFLIGHT-001` - done under `build-intel-karpathy-llm-kb-preflight-v1`. Scope was proposal/research only: compare current AIOS atoms, retrieval, synthesis, docs, source contracts, and Build Intel primitives against the raw data -> compiled markdown/wiki -> query/Q&A -> quality/lint loop; confirm the pending Karpathy packet remains non-runnable; identify have/missing/not-to-copy truth; and route gaps to `FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001` plus `KNOWLEDGE-BASE-QUALITY-GATE-001`.
+
+Not next from this closeout: live extraction, transcript fetch, screenshot capture, crawl, summarization, model calls, auth-required extraction, paid extraction without Steve approval, Research Inbox writes, atom creation, backlog mutation from extracted content, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, Drive permission mutation, or Agent Feedback auto-send.
+
+Recommended next: `FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001`, unless Steve separately approves a no-auth/no-paid extraction run from the pending Karpathy packet.
+
+## Previous Sprint: Source ID Array-Backed Provenance Design
 
 Live sprint ID: `source-id-array-provenance-design-2026-05-16`.
 
