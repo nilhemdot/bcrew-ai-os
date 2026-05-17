@@ -434,15 +434,11 @@ import {
   buildSourceIdConstraintContractDogfoodProof,
 } from '../lib/source-id-constraint-contract.js'
 import {
-  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_APPROVAL_PATH,
-  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
-  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY,
   VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_PLAN_PATH,
   VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SCRIPT_PATH,
-  VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SPRINT_ID,
-  buildFoundationIntelligenceSpineVerifierDogfoodProof,
-  evaluateFoundationIntelligenceSpineVerifier,
+  VERIFIER_INTELLIGENCE_SPINE_ORCHESTRATION_SPLIT_CARD_ID,
+  evaluateFoundationIntelligenceSpineVerifierOrchestration,
 } from '../lib/foundation-intelligence-spine-verifier.js'
 import {
   VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_APPROVAL_PATH,
@@ -2240,6 +2236,7 @@ async function main() {
     VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
     VERIFIER_CORE_GOVERNANCE_ORCHESTRATION_SPLIT_CARD_ID,
     VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
+    VERIFIER_INTELLIGENCE_SPINE_ORCHESTRATION_SPLIT_CARD_ID,
     VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
     VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
     VERIFIER_OPERATOR_BUDGET_SPLIT_MODULE_CARD_ID,
@@ -3438,7 +3435,17 @@ async function main() {
     extractionTargetSource,
   })
   checks.push(...coreGovernanceOrchestrationVerifier.checks)
-  const intelligenceSpineVerifier = evaluateFoundationIntelligenceSpineVerifier({
+  const activeFoundationSprintForIntelligenceSpine = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const intelligenceSpineOrchestrationVerifier = await evaluateFoundationIntelligenceSpineVerifierOrchestration({
+    activeFoundationSprint: activeFoundationSprintForIntelligenceSpine,
+    foundationHub: { backlogItems: verifierSplitBacklogItems },
+    foundationBuildCloseouts: getFoundationBuildCloseouts(),
+    foundationIntelligenceSpineVerifierSource,
+    foundationVerifyRootSource: foundationVerifySource,
+    verifierIntelligenceSpineSplitModuleScriptSource,
+    verifierIntelligenceSpineSplitModulePlanSource,
+    packageJson,
+    repoFileExists,
     foundationDbSource,
     foundationDbWithBacklogSeedSource,
     extractionTargetSource,
@@ -3447,6 +3454,7 @@ async function main() {
     intelligenceSalvageSpecSource,
     strategyHubManifestSource,
     currentPlan,
+    currentState,
     intelligencePipelineSource,
     intelligenceAtomsSource,
     packageSource,
@@ -3472,53 +3480,7 @@ async function main() {
     intelligenceActionRouterProofSource,
     actionRouterSnapshot,
   })
-  checks.push(...intelligenceSpineVerifier.checks)
-  const activeFoundationSprintForIntelligenceSpine = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
-  const verifierIntelligenceSpineSplitModuleCard =
-    verifierSplitBacklogItemById.get(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID) ||
-    (activeFoundationSprintForIntelligenceSpine.items || [])
-      .map(item => item.backlog)
-      .find(item => item?.id === VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID) ||
-    null
-  const verifierIntelligenceSpineSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const verifierIntelligenceSpineSplitModuleDogfood = buildFoundationIntelligenceSpineVerifierDogfoodProof()
-  const verifierIntelligenceSpineSplitModuleClosed = verifierIntelligenceSpineSplitModuleCard?.lane === 'done'
-  const foundationVerifyLineCountAfterIntelligenceSpineSplit = String(foundationVerifySource || '').split('\n').length
-  const intelligenceSpineOldInlinePatterns = [
-    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'INTEL-JOBS-001 intelligence job ledger is schema-backed and wired into governed " + "extraction'"),
-    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'ACTION-ROUTER-001 creates approval-gated routes with owner and provenance before Strategy Hub " + "resumes'"),
-  ]
-  ensure(
-    checks,
-    verifierIntelligenceSpineSplitModuleCard &&
-      ['executing', 'done'].includes(verifierIntelligenceSpineSplitModuleCard.lane) &&
-      (!verifierIntelligenceSpineSplitModuleClosed || (
-        String(verifierIntelligenceSpineSplitModuleCard.statusNote || '').includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY) &&
-        verifierIntelligenceSpineSplitModuleCloseout?.operatorCloseout === true &&
-        (verifierIntelligenceSpineSplitModuleCloseout.backlogIds || []).includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-verifier-intelligence-spine-split-module-closeout.md')
-      )) &&
-      verifierIntelligenceSpineSplitModuleDogfood.ok === true &&
-      intelligenceSpineVerifier.summary.passed === intelligenceSpineVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-intelligence-spine-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_APPROVAL_PATH) &&
-      foundationIntelligenceSpineVerifierSource.includes('evaluateFoundationIntelligenceSpineVerifier') &&
-      foundationIntelligenceSpineVerifierSource.includes('buildFoundationIntelligenceSpineVerifierDogfoodProof') &&
-      verifierIntelligenceSpineSplitModuleScriptSource.includes('dogfood rejects intelligence-spine verifier failures') &&
-      verifierIntelligenceSpineSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
-      foundationVerifySource.includes('evaluateFoundationIntelligenceSpineVerifier({') &&
-      foundationVerifySource.includes('intelligenceSpineVerifier.checks') &&
-      intelligenceSpineOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
-      currentPlan.includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      currentState.includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      (activeFoundationSprintForIntelligenceSpine.sprint?.sprintId === VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SPRINT_ID || verifierIntelligenceSpineSplitModuleClosed) &&
-      foundationIntelligenceSpineVerifierSource.includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID),
-    'VERIFIER-INTELLIGENCE-SPINE-SPLIT-MODULE-001 extracts intelligence spine verifier checks into a focused module',
-    verifierIntelligenceSpineSplitModuleCard
-      ? `lane=${verifierIntelligenceSpineSplitModuleCard.lane} dogfood=${verifierIntelligenceSpineSplitModuleDogfood.ok ? 'pass' : 'blocked'} spineChecks=${intelligenceSpineVerifier.summary.passed}/${intelligenceSpineVerifier.summary.total} lines=${VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterIntelligenceSpineSplit}`
-      : `missing ${VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID}`,
-  )
+  checks.push(...intelligenceSpineOrchestrationVerifier.checks)
   const processingProvenanceGaps = await getSharedCommunicationProcessingProvenanceGaps({
     since: '2026-04-24T17:14:00-04:00',
     limit: 10,

@@ -176,6 +176,7 @@
     "process:verifier-core-governance-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-core-governance-split-module-check.mjs",
     "process:verifier-core-governance-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-core-governance-orchestration-split-check.mjs",
     "process:verifier-intelligence-spine-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-intelligence-spine-split-module-check.mjs",
+    "process:verifier-intelligence-spine-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-intelligence-spine-orchestration-split-check.mjs",
     "process:verifier-extraction-runtime-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-extraction-runtime-split-module-check.mjs",
     "process:verifier-surface-trust-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-surface-trust-split-module-check.mjs",
     "process:verifier-operator-budget-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-operator-budget-split-module-check.mjs",

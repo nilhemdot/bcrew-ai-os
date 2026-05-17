@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-INTELLIGENCE-SPINE-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T10:35:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for intelligence-spine orchestration extraction covering the existing intelligence-spine evaluator call, check aggregation, historical split self-check, dogfood proof, and wrapper-compatible focused proof inside lib/foundation-intelligence-spine-verifier.js. Not approved: arbitrary tail extraction, behavior rewrites, connector auth, source extraction jobs, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-intelligence-spine-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "8891f90f9c8b837e8bc7586d57cc21cf62ce0855a278415608b4b4dd320f52da",
+  "approvedRepoHead": "c9cdf3683304296e29bca110ae1c670353d25f2b",
+  "approvalDigest": "1a37f86b55f114714379e6f3c421dbada654456b7e446cf8974758e2dab5fa29"
+}

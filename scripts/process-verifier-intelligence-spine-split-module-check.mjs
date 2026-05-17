@@ -280,6 +280,7 @@ async function main() {
   addCheck(
     checks,
     moduleSource.includes('evaluateFoundationIntelligenceSpineVerifier') &&
+      moduleSource.includes('evaluateFoundationIntelligenceSpineVerifierOrchestration') &&
       moduleSource.includes('buildFoundationIntelligenceSpineVerifierDogfoodProof') &&
       proofScriptSource.includes('dogfood rejects intelligence-spine verifier failures'),
     'module and proof script own the extracted behavior',
@@ -287,8 +288,10 @@ async function main() {
   )
   addCheck(
     checks,
-    foundationVerifySource.includes('evaluateFoundationIntelligenceSpineVerifier({') &&
-      foundationVerifySource.includes('intelligenceSpineVerifier.checks') &&
+    (foundationVerifySource.includes('evaluateFoundationIntelligenceSpineVerifier({') ||
+      foundationVerifySource.includes('evaluateFoundationIntelligenceSpineVerifierOrchestration({')) &&
+      (foundationVerifySource.includes('intelligenceSpineVerifier.checks') ||
+        foundationVerifySource.includes('intelligenceSpineOrchestrationVerifier.checks')) &&
       !/addCheck\(\s*checks,[\s\S]{0,1200}'INTEL-JOBS-001 intelligence job ledger is schema-backed and wired into governed extraction'/.test(foundationVerifySource) &&
       !/addCheck\(\s*checks,[\s\S]{0,1200}'ACTION-ROUTER-001 creates approval-gated routes with owner and provenance before Strategy Hub resumes'/.test(foundationVerifySource),
     'root verifier delegates intelligence-spine rows instead of keeping old inline predicates',
