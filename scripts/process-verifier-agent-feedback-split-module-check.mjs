@@ -108,6 +108,10 @@ async function main() {
     new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1600}'" + AGENT_FEEDBACK_FORM_REPLAY_CHECK.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')),
     new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1600}'" + AGENT_FEEDBACK_PRODUCTION_ENABLE_CHECK.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')),
   ]
+  const directRootDelegation = foundationVerifySource.includes('evaluateFoundationAgentFeedbackVerifier({') &&
+    foundationVerifySource.includes('agentFeedbackVerifier.checks')
+  const wrapperRootDelegation = foundationVerifySource.includes('evaluateFoundationAgentFeedbackVerifierOrchestration({') &&
+    foundationVerifySource.includes('agentFeedbackOrchestrationVerifier.checks')
 
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog has Agent Feedback verifier split card in executing or done', card ? `${card.lane} / ${card.priority}` : 'missing card')
   addCheck(checks, approval.ok === true && approval.mode === 'v2' && Number(approval.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approval.ok ? `${approval.mode} / ${approval.approval?.score}` : approval.failures?.map(item => item.detail).join('; '))
@@ -167,12 +171,16 @@ async function main() {
   )
   addCheck(
     checks,
-    foundationVerifySource.includes('evaluateFoundationAgentFeedbackVerifier({') &&
-      foundationVerifySource.includes('agentFeedbackVerifier.checks') &&
-      foundationVerifySource.includes('buildFoundationAgentFeedbackVerifierDogfoodProof') &&
+    (directRootDelegation || wrapperRootDelegation) &&
       oldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)),
     'root verifier delegates Agent Feedback checks',
     'root imports the module, pushes module checks, and no longer owns the old inline Agent Feedback ensure blocks',
+  )
+  addCheck(
+    checks,
+    wrapperRootDelegation || directRootDelegation,
+    'historical Agent Feedback split proof accepts wrapper delegation',
+    wrapperRootDelegation ? 'wrapper delegation present' : 'direct module delegation present',
   )
   addCheck(
     checks,

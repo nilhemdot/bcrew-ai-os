@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-AGENT-FEEDBACK-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T10:46:46Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for Agent Feedback verifier orchestration extraction covering Agent Feedback proof fixtures, done-card coverage arrays, approval/doc reads, status construction, direct evaluator call, check aggregation, historical split proof compatibility, dogfood proof, and new orchestration self-check inside lib/foundation-agent-feedback-verifier.js. Not approved: arbitrary tail extraction, Agent Feedback product behavior changes, Gmail or ClickUp behavior changes, production auto-send policy changes, connector auth, source extraction job implementation, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-agent-feedback-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "7da0626b8a0216e67a86bba03a5d1a09bafd27d6cd24d82d69608a84dda2be7d",
+  "approvedRepoHead": "95703570ef40f8942cdaef930036bf78b18a89f4",
+  "approvalDigest": "e9631f947f6bac225715380235fd5da42ce7707baac02121098bd21777d24f35"
+}

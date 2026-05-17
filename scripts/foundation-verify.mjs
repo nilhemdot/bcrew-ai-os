@@ -470,15 +470,8 @@ import {
   evaluateFoundationProcessTrustVerifierOrchestration,
 } from '../lib/foundation-process-trust-verifier.js'
 import {
-  VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_APPROVAL_PATH,
-  VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_CARD_ID,
-  VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_CLOSEOUT_KEY,
-  VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_PLAN_PATH,
-  VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_SCRIPT_PATH,
-  VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_SPRINT_ID,
-  buildFoundationAgentFeedbackVerifierDogfoodProof,
-  evaluateFoundationAgentFeedbackVerifier,
+  evaluateFoundationAgentFeedbackVerifierOrchestration,
 } from '../lib/foundation-agent-feedback-verifier.js'
 import {
   VERIFIER_SERVER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
@@ -841,16 +834,8 @@ import {
   FOUNDATION_SYSTEMS_SERVICE_GROUPING_NON_SCOPE_PHRASES,
 } from '../lib/foundation-systems-service-grouping.js'
 import {
-  AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVAL_PATH,
-  AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVED_PLAN_PATH,
-  AGENT_ONBOARDING_FEEDBACK_SYSTEM_BASELINE_PATH,
   AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
   AGENT_ONBOARDING_FEEDBACK_SYSTEM_CLOSEOUT_KEY,
-  AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID,
-  AGENT_ONBOARDING_FEEDBACK_SYSTEM_HARD_BOUNDARIES,
-  AGENT_ONBOARDING_FEEDBACK_SYSTEM_MANUAL_REVIEW_PATH,
-  AGENT_ONBOARDING_FEEDBACK_SYSTEM_REQUIRED_CONTEXT,
-  buildAgentOnboardingFeedbackSystemStatus,
 } from '../lib/agent-onboarding-feedback-system.js'
 import {
   buildSystemRegistrationSweepStatus,
@@ -864,88 +849,43 @@ import {
   SYSTEM_REGISTRATION_SWEEP_PROOF_PATH,
 } from '../lib/system-registration-sweep.js'
 import {
-  AGENT_FEEDBACK_SEND_APPROVAL_PATH,
-  AGENT_FEEDBACK_SEND_APPROVED_PLAN_PATH,
-  AGENT_FEEDBACK_SEND_BASELINE_PATH,
   AGENT_FEEDBACK_SEND_CARD_ID,
   AGENT_FEEDBACK_SEND_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_SEND_DRY_RUN_PROOF_PATH,
-  AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID,
-  buildAgentFeedbackSendStatus,
 } from '../lib/agent-feedback-send.js'
 import {
-  AGENT_FEEDBACK_AUTO_SEND_APPROVAL_PATH,
-  AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH,
   AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
   AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_AUTO_SEND_JOB_KEY,
-  AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH,
   AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_PROOF_PATH,
-  buildAgentFeedbackAutoSendStatus,
 } from '../lib/agent-feedback-auto-send.js'
 import {
   AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_PROOF_PATH,
-  AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_STAGE,
-  buildAgentFeedbackProductionAutoSendEnableStatus,
-  buildAgentFeedbackProductionAutoSendDryRunStatus,
 } from '../lib/agent-feedback-production-autosend-dry-run.js'
 import {
-  AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVAL_PATH,
-  AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH,
   AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
   AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_RESPONSE_NOTIFY_PROOF_PATH,
-  buildAgentFeedbackResponseNotifyStatus,
 } from '../lib/agent-feedback-response-notify.js'
 import {
-  AGENT_FEEDBACK_LIVE_REMINDERS_APPROVAL_PATH,
-  AGENT_FEEDBACK_LIVE_REMINDERS_APPROVED_PLAN_PATH,
   AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
   AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_LIVE_REMINDERS_LIVE_APPROVAL_PATH,
-  AGENT_FEEDBACK_LIVE_REMINDERS_PROOF_PATH,
-  AGENT_FEEDBACK_REMINDER_APPROVAL_PATH,
-  AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH,
   AGENT_FEEDBACK_REMINDER_CARD_ID,
   AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_REMINDER_JOB_KEY,
-  AGENT_FEEDBACK_REMINDER_PROOF_PATH,
-  buildAgentFeedbackReminderStatus,
 } from '../lib/agent-feedback-reminders.js'
 import {
-  AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVAL_PATH,
-  AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVED_PLAN_PATH,
   AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID,
   AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_PROOF_PATH,
   AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
   AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
-  buildAgentFeedbackCompanyEmailPolicyStatus,
 } from '../lib/agent-feedback-company-email-policy.js'
 import {
-  AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVAL_PATH,
-  AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVED_PLAN_PATH,
   AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_PROOF_PATH,
-  buildAgentFeedbackSteveFullLoopTestStatus,
 } from '../lib/agent-feedback-steve-full-loop-test.js'
 import {
-  AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVAL_PATH,
-  AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVED_PLAN_PATH,
   AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
   AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CLOSEOUT_KEY,
-  AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_PROOF_PATH,
-  buildAgentFeedbackRealUserSubmitRepairStatus,
 } from '../lib/agent-feedback-real-user-submit-repair.js'
 import {
-  buildFoundationVerifyHealthRepairStatus,
-  FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVAL_PATH,
-  FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVED_PLAN_PATH,
   FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID,
   FOUNDATION_VERIFY_HEALTH_REPAIR_CLOSEOUT_KEY,
-  FOUNDATION_VERIFY_HEALTH_REPAIR_PROOF_PATH,
 } from '../lib/foundation-verify-health-repair.js'
 import {
   buildGitHookInstallStatus,
@@ -1585,48 +1525,8 @@ const FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = 
   'FOUNDATION-SYSTEMS-SERVICE-GROUPING-001',
 ]
 
-const AGENT_ONBOARDING_FEEDBACK_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'AGENT-ONBOARDING-FEEDBACK-SYSTEM-001',
-]
-
 const SYSTEM_REGISTRATION_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'SYSTEM-REGISTRATION-SWEEP-001',
-]
-
-const AGENT_FEEDBACK_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'AGENT-FEEDBACK-SEND-001',
-]
-
-const AGENT_FEEDBACK_AUTO_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'AGENT-FEEDBACK-AUTO-SEND-001',
-]
-
-const AGENT_FEEDBACK_RESPONSE_NOTIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'AGENT-FEEDBACK-RESPONSE-NOTIFY-001',
-]
-
-const AGENT_FEEDBACK_REMINDER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'AGENT-FEEDBACK-REMINDER-CADENCE-001',
-]
-
-const AGENT_FEEDBACK_LIVE_REMINDERS_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'AGENT-FEEDBACK-LIVE-REMINDERS-001',
-]
-
-const AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'AGENT-FEEDBACK-COMPANY-EMAIL-POLICY-001',
-]
-
-const AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'AGENT-FEEDBACK-STEVE-FULL-LOOP-TEST-001',
-]
-
-const AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'AGENT-FEEDBACK-REAL-USER-SUBMIT-REPAIR-001',
-]
-
-const FOUNDATION_VERIFY_HEALTH_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-VERIFY-HEALTH-REPAIR-001',
 ]
 
 const SALES_GLS_SCOREBOARD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -2010,111 +1910,6 @@ function findSourceById(sources, sourceId) {
 
 function includesAll(text, patterns) {
   return patterns.every(pattern => text.includes(pattern))
-}
-
-function buildVerifierAgentFeedbackProof({ targetName, milestoneDay = 30, dedupedRole = targetName, blockers = [] } = {}) {
-  const bccRolesApplied = ['Steve', 'Carson', 'Ryan', 'Georgia']
-  return {
-    mode: 'dry-run',
-    stage: 'stage-1-dry-run-send-infrastructure',
-    target: {
-      label: targetName,
-      taskName: targetName,
-    },
-    milestone: {
-      day: milestoneDay,
-      dueStatus: 'due',
-    },
-    eligibility: {
-      eligible: blockers.length === 0,
-      dueStatus: 'due',
-      blockers,
-      dataQualityWarnings: ['missing_contract_link'],
-      contractLinkStatus: 'missing_warning',
-    },
-    recipientPlan: {
-      recipientRule: 'clickup-company-email',
-      recipientSource: 'company_email',
-      recipientSourceField: {
-        name: 'Company Email',
-        nameHash: `verifier-${String(targetName || 'target').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-        present: true,
-        valid: true,
-      },
-      internalOversightMode: 'bcc',
-      bccRolesApplied,
-      bccActualSendRoles: bccRolesApplied.filter(role => role !== dedupedRole),
-      bccRecipientDedupedRoles: [dedupedRole],
-      bccMissingConfiguredRoles: [],
-    },
-    contractLinkStatus: 'missing_warning',
-    token: {
-      tokenHash: `verifier-token-${String(targetName || 'target').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-      tokenUrlLogged: false,
-    },
-    clickUpWritebackPlan: {
-      dryRunWritesRequested: false,
-      sequence: 'Requested is written only after Gmail send succeeds.',
-    },
-    duplicateProtection: {
-      activeSendAttemptExists: false,
-    },
-    sideEffects: {
-      gmailSent: false,
-      clickUpRequestedWritten: false,
-      clickUpCompletedWritten: false,
-      notificationSent: false,
-    },
-    email: {
-      senderRole: 'delegated-google-user',
-      fromName: 'Benson Crew',
-      replyToRole: 'internal-oversight',
-    },
-    assertions: {
-      steveOnly: targetName === 'Steve Zahnd',
-      companyEmailTo: true,
-      steveDedupedFromBcc: dedupedRole === 'Steve',
-      bccOversightConfigured: true,
-      oneSendLimitReady: true,
-      productionAutoSendDisabled: true,
-      georgiaNotTargeted: targetName !== 'Georgia',
-      metadataOnly: true,
-    },
-  }
-}
-
-function buildVerifierAgentFeedbackReadiness({ kind = 'auto' } = {}) {
-  const steveCandidate = {
-    targetLabel: 'Steve',
-    taskName: 'Steve Zahnd',
-    milestoneDay: 30,
-    recipientPlan: buildVerifierAgentFeedbackProof({ targetName: 'Steve Zahnd', dedupedRole: 'Steve' }).recipientPlan,
-    eligibility: {
-      eligible: true,
-      blockers: [],
-    },
-  }
-  const georgiaCandidate = {
-    targetLabel: 'Georgia',
-    taskName: 'Georgia',
-    milestoneDay: 30,
-    recipientPlan: buildVerifierAgentFeedbackProof({ targetName: 'Georgia', dedupedRole: 'Georgia' }).recipientPlan,
-    eligibility: {
-      eligible: true,
-      blockers: [],
-    },
-  }
-  const candidates = [steveCandidate, georgiaCandidate]
-  return {
-    status: 'healthy',
-    report: {
-      mode: kind === 'reminder' ? 'reminder-dry-run-report' : 'auto-send-dry-run-report',
-      candidates,
-    },
-    summary: {
-      productionAllRequiresSeparateApproval: true,
-    },
-  }
 }
 
 async function collectCodeFiles(directory) {
@@ -2707,8 +2502,6 @@ async function main() {
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const foundationProcessTrustVerifierSource = await readRepoFile('lib/foundation-process-trust-verifier.js')
   const foundationAgentFeedbackVerifierSource = await readRepoFile('lib/foundation-agent-feedback-verifier.js')
-  const verifierAgentFeedbackSplitModuleScriptSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_SCRIPT_PATH)
-  const verifierAgentFeedbackSplitModulePlanSource = await readRepoFile(VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_PLAN_PATH)
   const foundationVerifySourceWithProcessHardeningModule = `${foundationVerifySource}\n${foundationVerifierProcessGovernanceSource}\n${foundationVerifierReadinessFollowupSource}\n${foundationVerifierGuardrailCloseoutsSource}\n${foundationVerifierControlLoopSource}\n${foundationVerifierModuleAssuranceSource}\n${foundationVerifierBackendSplitAssuranceSource}\n${foundationVerifierFrontendSplitAssuranceSource}\n${foundationVerifierPhaseGOperatorCloseoutSource}\n${foundationVerifierReadinessBlockerCloseoutSource}\n${foundationVerifierSprintGateProgressionSource}\n${foundationProcessHardeningVerifierSource}`
   const foundationFrontendSplitVerifierSource = await readRepoFile('lib/foundation-frontend-split-verifier.js')
   const verifierFrontendSplitModuleScriptSource = await readRepoFile(VERIFIER_FRONTEND_SPLIT_MODULE_SCRIPT_PATH)
@@ -2931,17 +2724,7 @@ async function main() {
   const system010ApprovalRef = SYSTEM_010_APPROVAL_PATH
   const foundationFollowupCardCaptureApprovalRef = FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVAL_PATH
   const foundationSystemsServiceGroupingApprovalRef = FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVAL_PATH
-  const agentOnboardingFeedbackSystemApprovalRef = AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVAL_PATH
   const systemRegistrationSweepApprovalRef = SYSTEM_REGISTRATION_SWEEP_APPROVAL_PATH
-  const agentFeedbackSendApprovalRef = AGENT_FEEDBACK_SEND_APPROVAL_PATH
-  const agentFeedbackAutoSendApprovalRef = AGENT_FEEDBACK_AUTO_SEND_APPROVAL_PATH
-  const agentFeedbackResponseNotifyApprovalRef = AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVAL_PATH
-  const agentFeedbackReminderApprovalRef = AGENT_FEEDBACK_REMINDER_APPROVAL_PATH
-  const agentFeedbackLiveRemindersApprovalRef = AGENT_FEEDBACK_LIVE_REMINDERS_APPROVAL_PATH
-  const agentFeedbackCompanyEmailPolicyApprovalRef = AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVAL_PATH
-  const agentFeedbackSteveFullLoopTestApprovalRef = AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVAL_PATH
-  const agentFeedbackRealUserSubmitRepairApprovalRef = AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVAL_PATH
-  const foundationVerifyHealthRepairApprovalRef = FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVAL_PATH
   const gateReliabilityRecurringApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-002.json'
   const gateReliabilityDirectVerifierApprovalRef = 'docs/process/approvals/GATE-RELIABILITY-003.json'
   const phase1ApprovalValidations = await Promise.all(Object.entries(phase1ApprovalRefs).map(async ([cardId, approvalRef]) =>
@@ -3173,60 +2956,10 @@ async function main() {
     approvalRef: foundationSystemsServiceGroupingApprovalRef,
     cardId: FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
   })
-  const agentOnboardingFeedbackSystemApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: agentOnboardingFeedbackSystemApprovalRef,
-    cardId: AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
-  })
   const systemRegistrationSweepApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
     approvalRef: systemRegistrationSweepApprovalRef,
     cardId: SYSTEM_REGISTRATION_SWEEP_CARD_ID,
-  })
-  const agentFeedbackSendApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: agentFeedbackSendApprovalRef,
-    cardId: AGENT_FEEDBACK_SEND_CARD_ID,
-  })
-  const agentFeedbackAutoSendApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: agentFeedbackAutoSendApprovalRef,
-    cardId: AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
-  })
-  const agentFeedbackResponseNotifyApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: agentFeedbackResponseNotifyApprovalRef,
-    cardId: AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
-  })
-  const agentFeedbackReminderApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: agentFeedbackReminderApprovalRef,
-    cardId: AGENT_FEEDBACK_REMINDER_CARD_ID,
-  })
-  const agentFeedbackLiveRemindersApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: agentFeedbackLiveRemindersApprovalRef,
-    cardId: AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
-  })
-  const agentFeedbackCompanyEmailPolicyApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: agentFeedbackCompanyEmailPolicyApprovalRef,
-    cardId: AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID,
-  })
-  const agentFeedbackSteveFullLoopTestApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: agentFeedbackSteveFullLoopTestApprovalRef,
-    cardId: AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
-  })
-  const agentFeedbackRealUserSubmitRepairApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: agentFeedbackRealUserSubmitRepairApprovalRef,
-    cardId: AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
-  })
-  const foundationVerifyHealthRepairApprovalValidation = await validatePlanApprovalFile({
-    repoRoot,
-    approvalRef: foundationVerifyHealthRepairApprovalRef,
-    cardId: FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID,
   })
   const gateReliabilityRecurringApprovalValidation = await validatePlanApprovalFile({
     repoRoot,
@@ -3253,17 +2986,7 @@ async function main() {
   const sourceLifecycleApprovedPlan = await readRepoFile(SOURCE_LIFECYCLE_APPROVED_PLAN_PATH)
   const foundationFollowupCardCaptureApprovedPlan = await readRepoFile(FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH)
   const foundationSystemsServiceGroupingApprovedPlan = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH)
-  const agentOnboardingFeedbackSystemApprovedPlan = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVED_PLAN_PATH)
   const systemRegistrationSweepApprovedPlan = await readRepoFile(SYSTEM_REGISTRATION_SWEEP_APPROVED_PLAN_PATH)
-  const agentFeedbackSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_SEND_APPROVED_PLAN_PATH)
-  const agentFeedbackAutoSendApprovedPlan = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH)
-  const agentFeedbackResponseNotifyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH)
-  const agentFeedbackReminderApprovedPlan = await readRepoFile(AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH)
-  const agentFeedbackLiveRemindersApprovedPlan = await readRepoFile(AGENT_FEEDBACK_LIVE_REMINDERS_APPROVED_PLAN_PATH)
-  const agentFeedbackCompanyEmailPolicyApprovedPlan = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVED_PLAN_PATH)
-  const agentFeedbackSteveFullLoopTestApprovedPlan = await readRepoFile(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVED_PLAN_PATH)
-  const agentFeedbackRealUserSubmitRepairApprovedPlan = await readRepoFile(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVED_PLAN_PATH)
-  const foundationVerifyHealthRepairApprovedPlan = await readRepoFile(FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVED_PLAN_PATH)
   const gateReliabilityRecurringApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-recurring-transient-v1.md')
   const gateReliabilityDirectVerifierApprovedPlan = await readRepoFile('docs/process/approved-plans/gate-reliability-direct-verifier-deadlock-v1.md')
   const plainEnglishSweepArtifactSource = await readRepoFile(PLAIN_ENGLISH_SWEEP_ARTIFACT_PATH)
@@ -3281,21 +3004,6 @@ async function main() {
   const foundationFollowupCardCaptureAudit = await readRepoFile(FOUNDATION_FOLLOWUP_CARD_CAPTURE_AUDIT_PATH)
   const foundationSystemsServiceGroupingBaseline = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_BASELINE_PATH)
   const foundationSystemsServiceGroupingManualReview = await readRepoFile(FOUNDATION_SYSTEMS_SERVICE_GROUPING_MANUAL_REVIEW_PATH)
-  const agentOnboardingFeedbackSystemBaseline = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_BASELINE_PATH)
-  const agentOnboardingFeedbackSystemManualReview = await readRepoFile(AGENT_ONBOARDING_FEEDBACK_SYSTEM_MANUAL_REVIEW_PATH)
-  const agentFeedbackSendBaseline = await readRepoFile(AGENT_FEEDBACK_SEND_BASELINE_PATH)
-  const agentFeedbackSendDryRunProof = await readRepoFile(AGENT_FEEDBACK_SEND_DRY_RUN_PROOF_PATH)
-  const agentFeedbackAutoSendReadinessProof = await readRepoFile(AGENT_FEEDBACK_AUTO_SEND_READINESS_PROOF_PATH)
-  const agentFeedbackProductionAutoSendDryRunProof = await readRepoFile(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_DRY_RUN_PROOF_PATH)
-  const agentFeedbackProductionAutoSendEnableProof = await readRepoFile(AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_PROOF_PATH)
-  const agentFeedbackResponseNotifyProof = await readRepoFile(AGENT_FEEDBACK_RESPONSE_NOTIFY_PROOF_PATH)
-  const agentFeedbackReminderProof = await readRepoFile(AGENT_FEEDBACK_REMINDER_PROOF_PATH)
-  const agentFeedbackLiveRemindersProof = await readRepoFile(AGENT_FEEDBACK_LIVE_REMINDERS_PROOF_PATH)
-  const agentFeedbackLiveRemindersApprovalSource = await readRepoFile(AGENT_FEEDBACK_LIVE_REMINDERS_LIVE_APPROVAL_PATH)
-  const agentFeedbackCompanyEmailPolicyProof = await readRepoFile(AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_PROOF_PATH)
-  const agentFeedbackSteveFullLoopTestProof = await readRepoFile(AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_PROOF_PATH)
-  const agentFeedbackRealUserSubmitRepairProof = await readRepoFile(AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_PROOF_PATH)
-  const foundationVerifyHealthRepairProof = await readRepoFile(FOUNDATION_VERIFY_HEALTH_REPAIR_PROOF_PATH)
   const systemRegistrationSweepProof = await readRepoFile(SYSTEM_REGISTRATION_SWEEP_PROOF_PATH)
   const approvalIntegritySource = await readRepoFile('lib/approval-integrity.js')
   const processGitHooksSource = await readRepoFile('lib/process-git-hooks.js')
@@ -3860,94 +3568,11 @@ async function main() {
     foundationHub,
     foundationBuildLog,
   })
-  const agentOnboardingFeedbackSystemStatus = await buildAgentOnboardingFeedbackSystemStatus({
-    repoRoot,
-    sourceOfTruth,
-    foundationHub,
-    foundationBuildLog,
-    ownersReviewQueue,
-    opsHub,
-  })
   const systemRegistrationSweepStatus = await buildSystemRegistrationSweepStatus({
     repoRoot,
     sourceOfTruth,
     foundationHub,
     foundationBuildLog,
-  })
-  const verifierGeorgiaFeedbackProof = buildVerifierAgentFeedbackProof({
-    targetName: 'Georgia',
-    dedupedRole: 'Georgia',
-  })
-  const verifierSteveFeedbackProof = buildVerifierAgentFeedbackProof({
-    targetName: 'Steve Zahnd',
-    dedupedRole: 'Steve',
-  })
-  const verifierAutoSendReadiness = buildVerifierAgentFeedbackReadiness({ kind: 'auto' })
-  const verifierReminderReadiness = buildVerifierAgentFeedbackReadiness({ kind: 'reminder' })
-  const agentFeedbackSendStatus = await buildAgentFeedbackSendStatus({
-    repoRoot,
-    sourceOfTruth,
-    foundationHub,
-    foundationBuildLog,
-    dryRunProof: verifierGeorgiaFeedbackProof,
-  })
-  const agentFeedbackAutoSendStatus = await buildAgentFeedbackAutoSendStatus({
-    repoRoot,
-    foundationHub,
-    foundationBuildLog,
-    opsHub,
-  })
-  const agentFeedbackProductionAutoSendDryRunStatus = await buildAgentFeedbackProductionAutoSendDryRunStatus({
-    repoRoot,
-    foundationHub,
-    foundationBuildLog,
-    opsDryRun: opsHub.agentFeedbackProductionAutoSendDryRun,
-  })
-  const agentFeedbackProductionAutoSendEnableStatus = await buildAgentFeedbackProductionAutoSendEnableStatus({
-    repoRoot,
-    foundationHub,
-    foundationBuildLog,
-    opsHub,
-  })
-  const agentFeedbackResponseNotifyStatus = await buildAgentFeedbackResponseNotifyStatus({
-    repoRoot,
-    foundationHub,
-    foundationBuildLog,
-  })
-  const agentFeedbackReminderStatus = await buildAgentFeedbackReminderStatus({
-    repoRoot,
-    foundationHub,
-    foundationBuildLog,
-    opsHub,
-  })
-  const agentFeedbackCompanyEmailPolicyStatus = await buildAgentFeedbackCompanyEmailPolicyStatus({
-    repoRoot,
-    foundationHub,
-    foundationBuildLog,
-    steveDryRun: verifierSteveFeedbackProof,
-    georgiaDryRun: verifierGeorgiaFeedbackProof,
-    autoSendReadiness: verifierAutoSendReadiness,
-    reminderReadiness: verifierReminderReadiness,
-  })
-  const agentFeedbackSteveFullLoopTestStatus = await buildAgentFeedbackSteveFullLoopTestStatus({
-    repoRoot,
-    foundationHub,
-    foundationBuildLog,
-    dryRunProof: verifierSteveFeedbackProof,
-  })
-  const agentFeedbackRealUserSubmitRepairStatus = await buildAgentFeedbackRealUserSubmitRepairStatus({
-    repoRoot,
-    foundationHub,
-    foundationBuildLog,
-    includeDuplicateProbe: true,
-  })
-  const foundationVerifyHealthRepairStatus = await buildFoundationVerifyHealthRepairStatus({
-    repoRoot,
-    foundationHub,
-    foundationBuildLog,
-    dailyExecSummaryStatus,
-    agentOnboardingFeedbackSystemStatus,
-    agentFeedbackRealUserSubmitRepairStatus,
   })
   const verifyGateTieringSynthetic = buildSyntheticVerifyGateTieringProof()
   const planCriticSynthetic = buildSyntheticPlanCriticProof()
@@ -4533,202 +4158,64 @@ async function main() {
   const system010GhostCloseout = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_010_CARD_ID) || null
   const foundationFollowupCardCapture = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID) || null
   const foundationSystemsServiceGrouping = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID) || null
-  const agentOnboardingFeedbackSystem = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID) || null
-  const agentFeedbackSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_CARD_ID) || null
-  const agentFeedbackAutoSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_AUTO_SEND_CARD_ID) || null
-  const agentFeedbackResponseNotify = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID) || null
-  const agentFeedbackReminder = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REMINDER_CARD_ID) || null
-  const agentFeedbackLiveReminders = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID) || null
-  const agentFeedbackCompanyEmailPolicy = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID) || null
-  const agentFeedbackSteveFullLoopTest = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID) || null
-  const agentFeedbackRealUserSubmitRepair = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID) || null
-  const agentFeedbackProductionAutoSendEnable = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID) || null
   const salesGlsScoreboard = (foundationHub.backlogItems || []).find(item => item.id === 'SALES-GLS-SCOREBOARD-V1') || null
   const systemRegistrationSweep = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_REGISTRATION_SWEEP_CARD_ID) || null
-  const agentFeedbackGeorgiaSend = (foundationHub.backlogItems || []).find(item => item.id === AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID) || null
-  const foundationSystemsEmptyGroupAudit = (foundationHub.backlogItems || []).find(item => item.id === AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID) || null
-  const agentFeedbackProductionVerifierAccepted = agentFeedbackProductionAutoSendEnable?.lane === 'done' &&
-    agentFeedbackProductionAutoSendEnableStatus.status === 'healthy' &&
-    agentFeedbackProductionAutoSendEnableStatus.summary?.productionAutoSendEnabled === true &&
-    agentFeedbackProductionAutoSendEnableStatus.summary?.liveGuardDecision === 'live_send_allowed'
-  const agentFeedbackAutoSendHasGovernedAction = ['would_send', 'sent', 'repair', 'skipped'].includes(agentFeedbackAutoSendStatus.summary?.georgiaDay30Action) ||
-    (agentFeedbackProductionVerifierAccepted &&
-      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.sentCount)) &&
-      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.skippedCount)) &&
-      Number.isFinite(Number(agentFeedbackAutoSendStatus.summary?.blockedCount)))
-  const foundationHubAutoSendHasGovernedAction = ['would_send', 'sent', 'repair', 'skipped'].includes(foundationHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) ||
-    agentFeedbackProductionVerifierAccepted
-  const opsHubAutoSendHasGovernedAction = ['would_send', 'sent', 'repair', 'skipped'].includes(opsHub.agentFeedbackAutoSend?.summary?.georgiaDay30Action) ||
-    agentFeedbackProductionVerifierAccepted
-  const agentFeedbackLiveReminderExampleStateCurrent =
-    agentFeedbackReminderStatus.summary?.georgiaDay30InitialRequestSuccessful === true &&
-    agentFeedbackReminderStatus.summary?.chrisDay30InitialRequestSuccessful === true &&
-    agentFeedbackReminderStatus.summary?.georgiaDay30NextReminderDueAt === '2026-05-03T00:00:00.000Z' &&
-    agentFeedbackReminderStatus.summary?.chrisDay30NextReminderDueAt === '2026-05-03T00:00:00.000Z'
-  const agentFeedbackLiveReminderPostProductionStateCurrent = agentFeedbackProductionVerifierAccepted &&
-    agentFeedbackReminderStatus.summary?.liveRemindersEnabled === true &&
-    Array.isArray(agentFeedbackReminderStatus.summary?.nextReminderDueDates) &&
-    Number.isFinite(Number(agentFeedbackReminderStatus.summary?.sentReminderCount)) &&
-    Number.isFinite(Number(agentFeedbackReminderStatus.summary?.skippedReminderCount)) &&
-    Number.isFinite(Number(agentFeedbackReminderStatus.summary?.blockedReminderCount))
-  const agentFeedbackVerifierCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_CARD_ID) || null
-  const agentFeedbackVerifierCloseout = foundationBuildCloseouts.find(item => item.key === VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const agentFeedbackVerifier = evaluateFoundationAgentFeedbackVerifier({
-    AGENT_FEEDBACK_AUTO_SEND_APPROVED_PLAN_PATH,
-    AGENT_FEEDBACK_AUTO_SEND_CARD_ID,
-    AGENT_FEEDBACK_AUTO_SEND_CLOSEOUT_KEY,
-    AGENT_FEEDBACK_AUTO_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    AGENT_FEEDBACK_AUTO_SEND_JOB_KEY,
-    AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_APPROVED_PLAN_PATH,
-    AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CARD_ID,
-    AGENT_FEEDBACK_COMPANY_EMAIL_POLICY_CLOSEOUT_KEY,
-    AGENT_FEEDBACK_LIVE_REMINDERS_APPROVED_PLAN_PATH,
-    AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
-    AGENT_FEEDBACK_LIVE_REMINDERS_CLOSEOUT_KEY,
-    AGENT_FEEDBACK_LIVE_REMINDERS_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    AGENT_FEEDBACK_PRODUCTION_AUTOSEND_ENABLE_CARD_ID,
-    AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_APPROVED_PLAN_PATH,
-    AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CARD_ID,
-    AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_CLOSEOUT_KEY,
-    AGENT_FEEDBACK_REAL_USER_SUBMIT_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    AGENT_FEEDBACK_REMINDER_APPROVED_PLAN_PATH,
-    AGENT_FEEDBACK_REMINDER_CARD_ID,
-    AGENT_FEEDBACK_REMINDER_CLOSEOUT_KEY,
-    AGENT_FEEDBACK_REMINDER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    AGENT_FEEDBACK_REMINDER_JOB_KEY,
-    AGENT_FEEDBACK_RESPONSE_NOTIFY_APPROVED_PLAN_PATH,
-    AGENT_FEEDBACK_RESPONSE_NOTIFY_CARD_ID,
-    AGENT_FEEDBACK_RESPONSE_NOTIFY_CLOSEOUT_KEY,
-    AGENT_FEEDBACK_RESPONSE_NOTIFY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    AGENT_FEEDBACK_SEND_APPROVED_PLAN_PATH,
-    AGENT_FEEDBACK_SEND_CARD_ID,
-    AGENT_FEEDBACK_SEND_CLOSEOUT_KEY,
-    AGENT_FEEDBACK_SEND_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    AGENT_FEEDBACK_SEND_STAGE_TWO_CARD_ID,
-    AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_APPROVED_PLAN_PATH,
-    AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CARD_ID,
-    AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_CLOSEOUT_KEY,
-    AGENT_FEEDBACK_STEVE_FULL_LOOP_TEST_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    AGENT_ONBOARDING_FEEDBACK_SYSTEM_APPROVED_PLAN_PATH,
-    AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
-    AGENT_ONBOARDING_FEEDBACK_SYSTEM_CLOSEOUT_KEY,
-    AGENT_ONBOARDING_FEEDBACK_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    AGENT_ONBOARDING_FEEDBACK_SYSTEM_EMPTY_AUDIT_CARD_ID,
-    AGENT_ONBOARDING_FEEDBACK_SYSTEM_HARD_BOUNDARIES,
-    DAILY_EXEC_SUMMARY_CARD_ID,
-    FOUNDATION_SYSTEMS_AGENT_ONBOARDING_GROUPED_SYSTEM_COUNT,
-    FOUNDATION_SYSTEMS_BASELINE_GROUPED_SYSTEM_COUNT,
-    FOUNDATION_VERIFY_HEALTH_REPAIR_APPROVED_PLAN_PATH,
-    FOUNDATION_VERIFY_HEALTH_REPAIR_CARD_ID,
-    FOUNDATION_VERIFY_HEALTH_REPAIR_CLOSEOUT_KEY,
-    FOUNDATION_VERIFY_HEALTH_REPAIR_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    agentFeedbackAutoSend,
-    agentFeedbackAutoSendApprovedPlan,
-    agentFeedbackAutoSendApprovalValidation,
-    agentFeedbackAutoSendHasGovernedAction,
-    agentFeedbackAutoSendReadinessProof,
-    agentFeedbackAutoSendSource,
-    agentFeedbackAutoSendStatus,
-    agentFeedbackClickUpSource,
-    agentFeedbackCompanyEmailPolicy,
-    agentFeedbackCompanyEmailPolicyApprovalValidation,
-    agentFeedbackCompanyEmailPolicyStatus,
-    agentFeedbackEmailSource,
-    agentFeedbackGeorgiaSend,
-    agentFeedbackHtmlSource,
-    agentFeedbackLiveReminderExampleStateCurrent,
-    agentFeedbackLiveReminderPostProductionStateCurrent,
-    agentFeedbackLiveReminders,
-    agentFeedbackLiveRemindersApprovalSource,
-    agentFeedbackLiveRemindersApprovalValidation,
-    agentFeedbackLiveRemindersApprovedPlan,
-    agentFeedbackLiveRemindersProof,
-    agentFeedbackProductionAutoSendDryRunSource,
-    agentFeedbackProductionAutoSendEnable,
-    agentFeedbackProductionAutoSendEnableProof,
-    agentFeedbackProductionAutoSendEnableStatus,
-    agentFeedbackProductionVerifierAccepted,
-    agentFeedbackRealUserSubmitRepair,
-    agentFeedbackRealUserSubmitRepairApprovalValidation,
-    agentFeedbackRealUserSubmitRepairApprovedPlan,
-    agentFeedbackRealUserSubmitRepairProof,
-    agentFeedbackRealUserSubmitRepairSource,
-    agentFeedbackRealUserSubmitRepairStatus,
-    agentFeedbackReminder,
-    agentFeedbackReminderApprovalValidation,
-    agentFeedbackReminderApprovedPlan,
-    agentFeedbackReminderProof,
-    agentFeedbackReminderSource,
-    agentFeedbackReminderStatus,
-    agentFeedbackResponseNotify,
-    agentFeedbackResponseNotifyApprovalValidation,
-    agentFeedbackResponseNotifyApprovedPlan,
-    agentFeedbackResponseNotifyProof,
-    agentFeedbackResponseNotifySource,
-    agentFeedbackResponseNotifyStatus,
-    agentFeedbackRouteSource,
-    agentFeedbackSend,
-    agentFeedbackSendApprovalValidation,
-    agentFeedbackSendApprovedPlan,
-    agentFeedbackSendBaseline,
-    agentFeedbackSendDryRunProof,
-    agentFeedbackSendSource,
-    agentFeedbackSendStatus,
-    agentFeedbackSource,
-    agentFeedbackSteveFullLoopTest,
-    agentFeedbackSteveFullLoopTestApprovalValidation,
-    agentFeedbackSteveFullLoopTestApprovedPlan,
-    agentFeedbackSteveFullLoopTestProof,
-    agentFeedbackSteveFullLoopTestSource,
-    agentFeedbackSteveFullLoopTestStatus,
-    agentFeedbackStoreOwnershipSource,
-    agentFeedbackUiSource,
-    agentOnboardingFeedbackSystem,
-    agentOnboardingFeedbackSystemApprovalValidation,
-    agentOnboardingFeedbackSystemApprovedPlan,
-    agentOnboardingFeedbackSystemBaseline,
-    agentOnboardingFeedbackSystemManualReview,
-    agentOnboardingFeedbackSystemStatus,
-    agentRosterReviewSource,
-    buildLogAgentFeedbackAutoSendBuild,
-    buildLogAgentFeedbackCompanyEmailPolicyBuild,
-    buildLogAgentFeedbackLiveRemindersBuild,
-    buildLogAgentFeedbackProductionAutoSendEnableBuild,
-    buildLogAgentFeedbackRealUserSubmitRepairBuild,
-    buildLogAgentFeedbackReminderBuild,
-    buildLogAgentFeedbackResponseNotifyBuild,
-    buildLogAgentFeedbackSendBuild,
-    buildLogAgentFeedbackSteveFullLoopTestBuild,
-    buildLogAgentOnboardingFeedbackSystemBuild,
-    buildLogFoundationVerifyHealthRepairBuild,
+  const agentFeedbackOrchestrationVerifier = await evaluateFoundationAgentFeedbackVerifierOrchestration({
+    repoRoot,
+    sourceOfTruth,
+    foundationHub,
+    foundationBuildLog,
+    foundationBuildCloseouts,
+    ownersReviewQueue,
+    opsHub,
     currentPlan,
     currentState,
-    foundationDbSource,
-    foundationFrontendSource,
-    foundationHub,
-    foundationHubAutoSendHasGovernedAction,
-    foundationJobsSource,
-    foundationSystemsEmptyGroupAudit,
-    foundationVerifyHealthRepairApprovalValidation,
-    foundationVerifyHealthRepairApprovedPlan,
-    foundationVerifyHealthRepairProof,
-    foundationVerifyHealthRepairSource,
-    foundationVerifyHealthRepairStatus,
-    foundationVerifySource,
-    googleDelegatedSource,
-    moduleSource: foundationAgentFeedbackVerifierSource,
-    opsHub,
-    opsHubAutoSendHasGovernedAction,
-    opsUiSource,
+    dailyExecSummaryStatus,
     packageJson,
     packageSource,
-    serverRouteSource,
-    verifierCard: agentFeedbackVerifierCard,
-    verifierCloseout: agentFeedbackVerifierCloseout,
-    verifierPlanSource: verifierAgentFeedbackSplitModulePlanSource,
-    verifierScriptSource: verifierAgentFeedbackSplitModuleScriptSource,
+    readRepoFile,
+    repoFileExists,
+    moduleSource: foundationAgentFeedbackVerifierSource,
+    foundationVerifyRootSource: foundationVerifySource,
+    sources: {
+      agentFeedbackAutoSendSource,
+      agentFeedbackClickUpSource,
+      agentFeedbackEmailSource,
+      agentFeedbackHtmlSource,
+      agentFeedbackProductionAutoSendDryRunSource,
+      agentFeedbackRealUserSubmitRepairSource,
+      agentFeedbackReminderSource,
+      agentFeedbackResponseNotifySource,
+      agentFeedbackRouteSource,
+      agentFeedbackSendSource,
+      agentFeedbackSource,
+      agentFeedbackSteveFullLoopTestSource,
+      agentFeedbackStoreOwnershipSource,
+      agentFeedbackUiSource,
+      agentRosterReviewSource,
+      foundationDbSource,
+      foundationFrontendSource,
+      foundationJobsSource,
+      foundationVerifyHealthRepairSource,
+      googleDelegatedSource,
+      opsUiSource,
+      serverRouteSource,
+    },
+    buildLog: {
+      buildLogAgentFeedbackAutoSendBuild,
+      buildLogAgentFeedbackCompanyEmailPolicyBuild,
+      buildLogAgentFeedbackLiveRemindersBuild,
+      buildLogAgentFeedbackProductionAutoSendEnableBuild,
+      buildLogAgentFeedbackRealUserSubmitRepairBuild,
+      buildLogAgentFeedbackReminderBuild,
+      buildLogAgentFeedbackResponseNotifyBuild,
+      buildLogAgentFeedbackSendBuild,
+      buildLogAgentFeedbackSteveFullLoopTestBuild,
+      buildLogAgentOnboardingFeedbackSystemBuild,
+      buildLogFoundationVerifyHealthRepairBuild,
+    },
   })
-  checks.push(...agentFeedbackVerifier.checks)
+  checks.push(...agentFeedbackOrchestrationVerifier.checks)
   const foundationFollowupCards = FOUNDATION_FOLLOWUP_BUILD_ORDER.map(id =>
     (foundationHub.backlogItems || []).find(item => item.id === id) || null
   )
