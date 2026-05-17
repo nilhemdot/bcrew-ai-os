@@ -4759,6 +4759,7 @@ async function main() {
       processFoundationShipSource,
       foundationShipPreflightSource,
       foundationShipPreflightScriptSource,
+      foundationSystemHealthSource,
       foundationVerifyProfileScriptSource,
       llmAuthAuditVerifierModuleSource,
       llmAuthAuditVerifierCheckSource,

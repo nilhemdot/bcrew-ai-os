@@ -144,6 +144,7 @@ async function main() {
       verifierLiveState: dogfood.verifierLiveState?.status,
       auditFixNoDogfood: dogfood.auditFixNoDogfood?.status,
       noFocusedProof: dogfood.noFocusedProof?.status,
+      overBudgetWatchNoSplit: dogfood.overBudgetWatchNoSplit?.status,
       offScopeSideWorkNoCoordination: dogfood.offScopeSideWorkNoCoordination?.status,
       coordinatedSideWork: dogfood.coordinatedSideWork?.status,
       compliant: dogfood.compliant?.status,
@@ -162,6 +163,8 @@ async function main() {
       architectureRulesSource.includes('architecture_check_script_apply_posture') &&
       architectureRulesSource.includes('architecture_verifier_read_only') &&
       architectureRulesSource.includes('architecture_audit_fix_dogfood') &&
+      architectureRulesSource.includes('evaluatePlanFileSizeStandard') &&
+      architectureRulesSource.includes('FILE_SIZE_FINDING_KEYS') &&
       architectureRulesSource.includes('evaluateProcessWipProtocolPlan') &&
       architectureRulesSource.includes('PROCESS_WIP_PROTOCOL_FINDING_KEY'),
     'architecture rules module owns deterministic finding keys',
@@ -221,6 +224,7 @@ async function main() {
       verifierLiveState: dogfood.verifierLiveState?.status,
       auditFixNoDogfood: dogfood.auditFixNoDogfood?.status,
       noFocusedProof: dogfood.noFocusedProof?.status,
+      overBudgetWatchNoSplit: dogfood.overBudgetWatchNoSplit?.status,
       offScopeSideWorkNoCoordination: dogfood.offScopeSideWorkNoCoordination?.status,
       coordinatedSideWork: dogfood.coordinatedSideWork?.status,
       compliant: dogfood.compliant?.status,

@@ -135,6 +135,7 @@
     "process:foundation-ui-live-summary-sources-check": "node --env-file-if-exists=.env scripts/process-foundation-ui-live-summary-sources-check.mjs",
     "process:foundation-job-mutation-allowlist-check": "node --env-file-if-exists=.env scripts/process-foundation-job-mutation-allowlist-check.mjs",
     "process:plan-critic-architectural-rules-check": "node --env-file-if-exists=.env scripts/process-plan-critic-architectural-rules-check.mjs",
+    "process:file-size-engineering-standard-check": "node --env-file-if-exists=.env scripts/process-file-size-engineering-standard-check.mjs",
     "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",
     "process:foundation-build-log-monolith-slice-check": "node --env-file-if-exists=.env scripts/process-foundation-build-log-monolith-slice-check.mjs",
     "process:foundation-build-closeout-registry-split-check": "node --env-file-if-exists=.env scripts/process-foundation-build-closeout-registry-split-check.mjs",

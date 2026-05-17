@@ -36,6 +36,10 @@ function printHuman(summary) {
     if (row.ageHours !== null && row.ageHours !== undefined) console.log(`    age: ${row.ageHours}h`)
     if (row.status !== 'healthy') console.log(`    repair: ${row.repairCommand}`)
   }
+  if (summary.fileSizeStandard) {
+    const counts = summary.fileSizeStandard.summary || {}
+    console.log(`  file-size-standard: ${summary.fileSizeStandard.status} / risk=${counts.riskCount || 0} / watch=${counts.watchCount || 0}`)
+  }
   for (const finding of summary.findings || []) {
     console.log(`  BLOCKED ${finding.check}: ${finding.detail}`)
     if (finding.repairCommand) console.log(`    repair: ${finding.repairCommand}`)

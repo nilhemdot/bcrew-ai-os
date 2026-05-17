@@ -1,0 +1,13 @@
+{
+  "cardId": "FILE-SIZE-ENGINEERING-STANDARD-001",
+  "score": 10,
+  "approvedBy": "Steve explicit canonicalization approval + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T15:20:00.000-04:00",
+  "approvalSource": "Steve instructed Codex to canonicalize FILE-SIZE-ENGINEERING-STANDARD-001 fully with a live backlog card, plan, approval, focused proof, Plan Critic coverage, System Health file-size surface, ship-gate/verifier coverage, closeout registry record, focused proof, full process:foundation-ship, commit, and push.",
+  "notes": "Approved only for Foundation file-size process and gate work. Standards: preferred hand-written module <=1500 lines, watch above 1500, red/danger above 10000, and generated files/data records/report artifacts need separate explicit budgets. Not approved: Harlan, Fal, voice, Canva feature work, hub feature work, connector auth, Agent Feedback live auto-send, DB schema changes, route behavior changes, or Steve local mockup assets.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/file-size-engineering-standard-001-plan.md",
+  "approvedPlanSha256": "f0a29b6a9b29e98fff6839f5fc8991d3a4ce5e74ba8ea591cd0393b746aeca4f",
+  "approvedRepoHead": "427f6a3cc841f5631b2be54f786f18e730ab54a9",
+  "approvalDigest": "256bb085ce913553787ebf5acbdb03a0294f23882ce7bd5314d0f95baf8f4d34"
+}
