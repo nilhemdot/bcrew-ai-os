@@ -1834,20 +1834,40 @@ function renderLlmRuntimePanel(llmRuntime) {
   if (!llmRuntime) return null
   var routes = Array.isArray(llmRuntime.routes) ? llmRuntime.routes : []
   var credentials = Array.isArray(llmRuntime.credentials) ? llmRuntime.credentials : []
-  if (!routes.length && !credentials.length) return null
+  var capacity = llmRuntime.capacity || {}
+  var lanes = Array.isArray(capacity.lanes) ? capacity.lanes : []
+  if (!routes.length && !credentials.length && !lanes.length) return null
 
   var summary = 'Policy-aware model access. '
     + ((llmRuntime.summary && llmRuntime.summary.availableCredentials) || 0) + '/'
     + ((llmRuntime.summary && llmRuntime.summary.credentialCount) || credentials.length) + ' credentials available, '
     + ((llmRuntime.summary && llmRuntime.summary.availableRoutes) || 0) + '/'
     + ((llmRuntime.summary && llmRuntime.summary.routeCount) || routes.length) + ' routes available.'
+  if (capacity.summary) {
+    summary += ' Capacity lanes: '
+      + (capacity.summary.greenLanes || 0) + ' ready, '
+      + (capacity.summary.yellowLanes || 0) + ' review, '
+      + (capacity.summary.redLanes || 0) + ' blocked.'
+  }
 
-  var routeItems = routes.slice(0, 8).map(function(route) {
+  var laneItems = lanes.slice(0, 8).map(function(lane) {
+    var budget = lane.manualOnly ? 'Manual-only cap.' : 'Budget: $' + (lane.monthlyBudgetUsd == null ? 'n/a' : lane.monthlyBudgetUsd) + '/mo.'
+    var fallback = lane.fallbackRouteKey ? ' Fallback: ' + lane.fallbackRouteKey + '.' : ''
+    var stop = lane.stopControl && lane.stopControl.action ? ' Stop: ' + lane.stopControl.action + '.' : ''
+    var provider = lane.provider + ' / ' + lane.authPath
+    return {
+      label: lane.label || lane.laneKey,
+      status: lane.status === 'green' ? 'live' : lane.status === 'red' ? 'risk' : 'planned',
+      detail: provider + '. ' + budget + fallback + stop + ' ' + (lane.notes || ''),
+    }
+  })
+
+  var routeItems = routes.slice(0, 4).map(function(route) {
     var policy = route.policyClassification ? ' Policy: ' + route.policyClassification + '.' : ''
     var auth = route.provider + ' / ' + route.authPath + ' / ' + route.model
     var fallback = route.fallbackRouteKey ? ' Fallback: ' + route.fallbackRouteKey + '.' : ''
     return {
-      label: route.routeKey,
+      label: 'Route: ' + route.routeKey,
       status: route.status === 'available' ? 'live' : route.status === 'blocked' ? 'risk' : 'planned',
       detail: auth + '.' + policy + fallback + ' ' + (route.notes || ''),
     }
@@ -1856,6 +1876,6 @@ function renderLlmRuntimePanel(llmRuntime) {
   return renderStatusGroupPanel(
     'LLM Runtime',
     summary,
-    routeItems
+    laneItems.concat(routeItems)
   )
 }

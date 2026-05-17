@@ -1,0 +1,13 @@
+{
+  "cardId": "LLM-HUB-CAPACITY-001",
+  "score": 9.8,
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-17T00:16:33.837Z",
+  "approvalSource": "Steve instructed Codex to keep working unattended on safe Foundation sprints; Codex selected this no-auth Foundation capacity card.",
+  "notes": "Approved for deterministic V1 model-capacity policy and runtime visibility only. No live model calls, no provider spend, no auth changes, no secrets, no Harlan terminal/Fal/voice/Canva/hub feature work.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/llm-hub-capacity-001-plan.md",
+  "approvedPlanSha256": "17d6eacb118ddd756ce018dacc19d123dc9d3fb03b6de90f42ce03d9ad1a6c46",
+  "approvedRepoHead": "74f8678cac6c149d5532097c0a224095f28053cf",
+  "approvalDigest": "eaf80f3b270963843ac584bc73fb2f12316f16538c5f49f84805adc97c9feace"
+}

@@ -149,6 +149,7 @@
     "process:foundation-shared-comms-coverage-split-check": "node --env-file-if-exists=.env scripts/process-foundation-shared-comms-coverage-split-check.mjs",
     "process:foundation-shared-comms-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-shared-comms-store-split-check.mjs",
     "process:foundation-llm-runtime-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-llm-runtime-store-split-check.mjs",
+    "process:llm-hub-capacity-check": "node --env-file-if-exists=.env scripts/process-llm-hub-capacity-check.mjs",
     "process:foundation-runtime-job-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-runtime-job-store-split-check.mjs",
     "process:foundation-source-crawl-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-source-crawl-store-split-check.mjs",
     "process:foundation-drive-meeting-vault-store-split-check": "node --env-file-if-exists=.env scripts/process-foundation-drive-meeting-vault-store-split-check.mjs",
