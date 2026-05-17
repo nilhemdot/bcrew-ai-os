@@ -379,6 +379,17 @@ import {
   evaluateFoundationVerifierSourceOnceOverProgression,
 } from '../lib/foundation-verifier-source-once-over-progression.js'
 import {
+  VERIFIER_PROCESS_CONTROL_GOVERNANCE_SPLIT_APPROVAL_PATH,
+  VERIFIER_PROCESS_CONTROL_GOVERNANCE_SPLIT_BEFORE_LINES,
+  VERIFIER_PROCESS_CONTROL_GOVERNANCE_SPLIT_CARD_ID,
+  VERIFIER_PROCESS_CONTROL_GOVERNANCE_SPLIT_CLOSEOUT_KEY,
+  VERIFIER_PROCESS_CONTROL_GOVERNANCE_SPLIT_HANDOFF_PATH,
+  VERIFIER_PROCESS_CONTROL_GOVERNANCE_SPLIT_PLAN_PATH,
+  VERIFIER_PROCESS_CONTROL_GOVERNANCE_SPLIT_SCRIPT_PATH,
+  buildFoundationVerifierProcessControlGovernanceDogfoodProof,
+  evaluateFoundationVerifierProcessControlGovernance,
+} from '../lib/foundation-verifier-process-control-governance.js'
+import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
@@ -2801,6 +2812,7 @@ async function main() {
   const foundationVerifierReadinessBlockerCloseoutSource = await readRepoFile('lib/foundation-verifier-readiness-blocker-closeout.js')
   const foundationVerifierSprintGateProgressionSource = await readRepoFile('lib/foundation-verifier-sprint-gate-progression.js')
   const foundationVerifierSourceOnceOverProgressionSource = await readRepoFile('lib/foundation-verifier-source-once-over-progression.js')
+  const foundationVerifierProcessControlGovernanceSource = await readRepoFile('lib/foundation-verifier-process-control-governance.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
@@ -4290,6 +4302,7 @@ async function main() {
     foundationVerifierReadinessBlockerCloseoutSource,
     foundationVerifierSprintGateProgressionSource,
     foundationVerifierSourceOnceOverProgressionSource,
+    foundationVerifierProcessControlGovernanceSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -7156,86 +7169,127 @@ async function main() {
     verificationRunsSynthetic,
   })
   checks.push(...sourceOnceOverProgressionVerifier.checks)
-  ensure(
-    checks,
-    CONNECTOR_ROUTING_TRUTH_CARD_IDS.every(cardId =>
-      (foundationHub.backlogItems || []).some(item => item.id === cardId && item.lane === 'done')
-    ) &&
-      connectorRoutingTruthCloseout &&
-      CONNECTOR_ROUTING_TRUTH_CARD_IDS.every(cardId => (connectorRoutingTruthCloseout.backlogIds || []).includes(cardId)) &&
-      connectorRoutingTruthSprintDone &&
-      packageJson.scripts?.['process:atom-promotion-diagnose-check'] === 'node --env-file-if-exists=.env scripts/process-atom-promotion-diagnose-check.mjs' &&
-      packageJson.scripts?.['process:sprint-db-reconcile-check'] === 'node --env-file-if-exists=.env scripts/process-sprint-db-reconcile-check.mjs' &&
-      packageJson.scripts?.['process:plan-critic-log-check'] === 'node --env-file-if-exists=.env scripts/process-plan-critic-log-check.mjs' &&
-      packageJson.scripts?.['process:source-connector-matrix-check'] === 'node --env-file-if-exists=.env scripts/process-source-connector-matrix-check.mjs' &&
-      packageJson.scripts?.['process:source-hub-routing-matrix-check'] === 'node --env-file-if-exists=.env scripts/process-source-hub-routing-matrix-check.mjs' &&
-      Array.isArray(sourceConnectorMatrix.rows) &&
-      sourceConnectorMatrix.summary?.rowCount >= 25 &&
-      Number(sourceConnectorMatrix.summary?.blockedCount || 0) >= 1 &&
-      Number(sourceConnectorMatrix.summary?.requiredMissingOrBlockedCount || 0) >= Number(sourceConnectorMatrix.summary?.blockedCount || 0) &&
-      ['has_contract', 'has_connector', 'has_extraction_target', 'has_artifacts', 'has_candidates', 'has_promoted_atoms', 'has_synthesis', 'has_routing', 'blocked_reason'].every(column => (sourceConnectorMatrix.columns || []).includes(column)) &&
-      Array.isArray(sourceHubRoutingMatrix.rows) &&
-      sourceHubRoutingMatrix.summary?.rowCount >= 25 &&
-      sourceHubRoutingMatrix.summary?.hubCount >= 16 &&
-      ['route', 'candidate', 'blocked', 'n/a', 'unknown'].every(state => (sourceHubRoutingMatrix.states || []).includes(state)) &&
-      includesAll(foundationSourceRoutesSource, [
-        '/api/foundation/source-connector-matrix',
-        '/api/foundation/source-hub-routing-matrix',
-        'sourceConnectorMatrix',
-        'sourceHubRoutingMatrix',
-      ]) &&
-      includesAll(foundationFrontendSource, [
-        'renderSourceConnectorMatrixPanel',
-        'renderSourceHubRoutingMatrixPanel',
-        'sourceConnectorMatrix',
-        'sourceHubRoutingMatrix',
-      ]) &&
-      includesAll(foundationVerifySource, CONNECTOR_ROUTING_TRUTH_CARD_IDS),
-    'Connector Routing Truth Sprint closes atom flow, gate drift, Plan Critic logging, connector matrix, and hub routing matrix',
-    `cards=${CONNECTOR_ROUTING_TRUTH_CARD_IDS.length}/6 connectorRows=${sourceConnectorMatrix.summary?.rowCount ?? 'missing'} routingRows=${sourceHubRoutingMatrix.summary?.rowCount ?? 'missing'} hubs=${sourceHubRoutingMatrix.summary?.hubCount ?? 'missing'}`,
-  )
-  const processGovernanceVerifier = await evaluateFoundationVerifierProcessGovernance({
+  const processControlGovernanceVerifier = await evaluateFoundationVerifierProcessControlGovernance({
+    AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
+    AGENT_FEEDBACK_SEND_CARD_ID,
+    AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
     ATOM_FLOW_AUTO_DEMOTION_CARD_ID,
     ATOM_FLOW_AUTO_DEMOTION_CLOSEOUT_KEY,
     ATOM_FLOW_AUTO_DEMOTION_PLAN_PATH,
     ATOM_FLOW_AUTO_DEMOTION_SCRIPT_PATH,
+    CANONICAL_DECISION_CATEGORIES,
     CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY,
     CONNECTOR_CREDENTIAL_CARD_ID,
     CONNECTOR_CREDENTIAL_CLOSEOUT_KEY,
     CONNECTOR_CREDENTIAL_PLAN_PATH,
     CONNECTOR_CREDENTIAL_REQUIRED_KEYS,
     CONNECTOR_CREDENTIAL_SCRIPT_PATH,
+    CONNECTOR_ROUTING_TRUTH_CARD_IDS,
     CURRENT_SPRINT_DYNAMIC_TRUTH_CARD_ID,
     CURRENT_SPRINT_DYNAMIC_TRUTH_CLOSEOUT_KEY,
     CURRENT_SPRINT_DYNAMIC_TRUTH_PLAN_PATH,
     CURRENT_SPRINT_DYNAMIC_TRUTH_SCRIPT_PATH,
+    DOCTRINE_PROPAGATION_SOURCES,
+    DRIVE_ACCESS_REQUEST_CARD_ID,
     EXTRACTION_RETRY_FAILED_JOB_KEY,
     EXTRACTION_RETRY_FAILED_SCRIPT_PATH,
+    EXTRACT_RUN_HARDENING_CARD_ID,
     EXTRACT_RUN_HARDENING_EXECUTION_CARD_ID,
     EXTRACT_RUN_HARDENING_EXECUTION_CLOSEOUT_KEY,
     EXTRACT_RUN_HARDENING_EXECUTION_PLAN_PATH,
     EXTRACT_RUN_HARDENING_EXECUTION_SCRIPT_PATH,
+    FOUNDATION_DONE_TEST_CARD_ID,
+    FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
+    FOUNDATION_DONE_TEST_PLAN_PATH,
+    FOUNDATION_DONE_TEST_SUMMARY_MARKER,
+    FOUNDATION_FOLLOWUP_BUILD_ORDER,
+    FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH,
+    FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
+    FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+    FOUNDATION_FOLLOWUP_NON_SCOPE_PHRASES,
     FOUNDATION_PLAN_RECONCILE_CARD_ID,
     FOUNDATION_PLAN_RECONCILE_CLOSEOUT_KEY,
     FOUNDATION_PLAN_RECONCILE_PLAN_PATH,
     FOUNDATION_PLAN_RECONCILE_SCRIPT_PATH,
+    FOUNDATION_READINESS_GATE_CARD_IDS,
+    FOUNDATION_READINESS_REQUIRED_LEG_KEYS,
+    FOUNDATION_SPRINT_REVIEW_CARD_ID,
+    FOUNDATION_SPRINT_REVIEW_DOC_PATH,
+    FOUNDATION_SPRINT_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+    FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT,
+    FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH,
+    FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
+    FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY,
+    FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+    FOUNDATION_SYSTEMS_SERVICE_GROUPING_NON_SCOPE_PHRASES,
+    FOUNDATION_SYSTEMS_SERVICE_GROUPS,
     FOUNDATION_VERIFY_LLM_AUTH_AUDIT_SCRIPT_PATH,
     LLM_AUTH_AUDIT_CARD_ID,
     LLM_AUTH_AUDIT_CLOSEOUT_KEY,
+    MEETING_VAULT_ACL_CARD_ID,
+    MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
+    PLAN_CRITIC_REPLACEMENT_CARD_ID,
     PLAN_CRITIC_ROOT_VS_PATCH_FINDING_KEY,
     PROCESS_REPAIR_VERIFIER_SPRINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+    REBUILD_PLAN_RECONCILE_CARD_ID,
     RESEARCH_LANE_PURGE_CARD_ID,
     RESEARCH_LANE_PURGE_CLOSEOUT_KEY,
     RESEARCH_LANE_PURGE_PLAN_PATH,
     RESEARCH_LANE_PURGE_SCRIPT_PATH,
+    SALES_GLS_SCOREBOARD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+    SECURITY_BEHAVIOR_PROOF_CARD_ID,
     SOURCE_EXTRACTION_GAP_FOLLOWUP_CARD_ID,
     SOURCE_EXTRACTION_GAP_FOLLOWUP_CLOSEOUT_KEY,
     SOURCE_EXTRACTION_GAP_FOLLOWUP_PLAN_PATH,
     SOURCE_EXTRACTION_GAP_FOLLOWUP_SCRIPT_PATH,
+    SOURCE_LIFECYCLE_COMPLETION_CARD_ID,
     SPRINT_STAGE_GATE_CARD_ID,
     SPRINT_STAGE_GATE_CLOSEOUT_KEY,
     SPRINT_STAGE_GATE_PLAN_PATH,
     SPRINT_STAGE_GATE_SCRIPT_PATH,
+    SYNTHESIS_VERIFY_CARD_ID,
+    SYSTEM_010_CARD_ID,
+    SYSTEM_010_CLOSEOUT_KEY,
+    SYSTEM_010_PLAN_PATH,
+    SYSTEM_REGISTRATION_AGENT_FEEDBACK_SYSTEM_ID,
+    SYSTEM_REGISTRATION_GLS_SYSTEM_ID,
+    SYSTEM_REGISTRATION_SHIPPED_SYSTEM_REQUIREMENTS,
+    SYSTEM_REGISTRATION_SWEEP_APPROVED_PLAN_PATH,
+    SYSTEM_REGISTRATION_SWEEP_CARD_ID,
+    SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
+    SYSTEM_REGISTRATION_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+    VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
+    VERIFIER_CONTROL_LOOP_SPLIT_APPROVAL_PATH,
+    VERIFIER_CONTROL_LOOP_SPLIT_BEFORE_LINES,
+    VERIFIER_CONTROL_LOOP_SPLIT_CARD_ID,
+    VERIFIER_CONTROL_LOOP_SPLIT_CLOSEOUT_KEY,
+    VERIFIER_CONTROL_LOOP_SPLIT_HANDOFF_PATH,
+    VERIFIER_CONTROL_LOOP_SPLIT_PLAN_PATH,
+    VERIFIER_CONTROL_LOOP_SPLIT_SCRIPT_PATH,
+    VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_APPROVAL_PATH,
+    VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_BEFORE_LINES,
+    VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_CARD_ID,
+    VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_CLOSEOUT_KEY,
+    VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_HANDOFF_PATH,
+    VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_PLAN_PATH,
+    VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_SCRIPT_PATH,
+    VERIFIER_PROCESS_GOVERNANCE_SPLIT_APPROVAL_PATH,
+    VERIFIER_PROCESS_GOVERNANCE_SPLIT_BEFORE_LINES,
+    VERIFIER_PROCESS_GOVERNANCE_SPLIT_CARD_ID,
+    VERIFIER_PROCESS_GOVERNANCE_SPLIT_CLOSEOUT_KEY,
+    VERIFIER_PROCESS_GOVERNANCE_SPLIT_HANDOFF_PATH,
+    VERIFIER_PROCESS_GOVERNANCE_SPLIT_PLAN_PATH,
+    VERIFIER_PROCESS_GOVERNANCE_SPLIT_SCRIPT_PATH,
+    VERIFIER_READINESS_FOLLOWUP_SPLIT_APPROVAL_PATH,
+    VERIFIER_READINESS_FOLLOWUP_SPLIT_BEFORE_LINES,
+    VERIFIER_READINESS_FOLLOWUP_SPLIT_CARD_ID,
+    VERIFIER_READINESS_FOLLOWUP_SPLIT_CLOSEOUT_KEY,
+    VERIFIER_READINESS_FOLLOWUP_SPLIT_HANDOFF_PATH,
+    VERIFIER_READINESS_FOLLOWUP_SPLIT_PLAN_PATH,
+    VERIFIER_READINESS_FOLLOWUP_SPLIT_SCRIPT_PATH,
+    actionReviewApi,
+    actionReviewApproval,
+    actionRouterSnapshot,
     atomFlowAutoDemotion,
     atomFlowAutoDemotionApprovalValidation,
     atomFlowAutoDemotionCloseout,
@@ -7244,9 +7298,22 @@ async function main() {
     atomFlowAutoDemotionScriptSource,
     atomFlowAutoDemotionSource,
     atomFlowAutoDemotionSynthetic,
+    backlogHygieneApi,
+    buildDoctrinePropagationStatus,
+    buildFoundationVerifierControlLoopDogfoodProof,
+    buildFoundationVerifierGuardrailCloseoutsDogfoodProof,
+    buildFoundationVerifierProcessGovernanceDogfoodProof,
+    buildFoundationVerifierReadinessFollowupDogfoodProof,
     buildLlmAuthAuditStatus,
     buildLlmAuthAuditVerifierDogfoodProof,
+    buildLogFoundationDoneTestBuild,
+    buildLogFoundationFollowupCardCaptureBuild,
+    buildLogFoundationSystemsServiceGroupingBuild,
+    buildLogSalesGlsScoreboardBuild,
+    buildLogSystem010GhostCloseoutBuild,
+    buildLogSystemRegistrationSweepBuild,
     buildResearchLanePurgeSnapshot,
+    buildSyntheticStaleSkillSource,
     connectorCredential,
     connectorCredentialApprovalValidation,
     connectorCredentialCheckSource,
@@ -7258,6 +7325,8 @@ async function main() {
     connectorCredentialSyntheticSafety,
     connectorRoutingProcessRepairCloseout,
     connectorRoutingProcessRepairSource,
+    connectorRoutingTruthCloseout,
+    connectorRoutingTruthSprintDone,
     currentPlan,
     currentSprintDynamicTruth,
     currentSprintDynamicTruthApprovalValidation,
@@ -7266,223 +7335,6 @@ async function main() {
     currentSprintDynamicTruthPlanSource,
     currentSprintItemsById,
     currentSprintStoreSource,
-    currentState,
-    evaluateLlmAuthAuditVerifierCheck,
-    extractRunHardeningExecution,
-    extractRunHardeningExecutionApprovalValidation,
-    extractRunHardeningExecutionCloseout,
-    extractRunHardeningExecutionCurrentItem,
-    extractRunHardeningExecutionPlanSource,
-    extractRunHardeningExecutionScriptSource,
-    extractRunHardeningExecutionSource,
-    extractRunHardeningExecutionSynthetic,
-    extractionRetryFailedScriptSource,
-    foundationCurrentSprintSource,
-    foundationCurrentSprintStatus,
-    foundationDbSource,
-    foundationHub,
-    foundationJobsSource,
-    foundationPlanReconcile,
-    foundationPlanReconcileApprovalValidation,
-    foundationPlanReconcileCheckSource,
-    foundationPlanReconcileCloseout,
-    foundationPlanReconcileCurrentItem,
-    foundationPlanReconcilePlanSource,
-    foundationRuntimeReadRoutesSource,
-    foundationSourceLifecycle,
-    foundationSourceRoutesSource,
-    foundationVerifySource,
-    historicalCardHasVerifiedCloseout,
-    llmAuthAudit,
-    llmAuthAuditApprovalValidation,
-    llmAuthAuditCheckSource,
-    llmAuthAuditCloseout,
-    llmAuthAuditCurrentItem,
-    llmAuthAuditPlanSource,
-    llmAuthAuditProofSource,
-    llmAuthAuditVerifierCheckSource,
-    llmAuthAuditVerifierModuleSource,
-    packageJson,
-    planCriticSource,
-    planCriticSynthetic,
-    processRepairVerifierSprintPlanSource,
-    processRepairVerifierSprintScriptSource,
-    processRootVsPatch,
-    processRootVsPatchCheckSource,
-    processRootVsPatchCloseout,
-    researchLanePurge,
-    researchLanePurgeApprovalValidation,
-    researchLanePurgeCloseout,
-    researchLanePurgeCurrentItem,
-    researchLanePurgePlanSource,
-    researchLanePurgeReportSource,
-    researchLanePurgeScriptSource,
-    researchLanePurgeSource,
-    researchLanePurgeSynthetic,
-    serverSource,
-    sourceConnectorMatrix,
-    sourceConnectorMatrixSource,
-    sourceExtractionGapFollowupApprovalValidation,
-    sourceExtractionGapFollowupCard,
-    sourceExtractionGapFollowupCheckSource,
-    sourceExtractionGapFollowupCloseout,
-    sourceExtractionGapFollowupCurrentItem,
-    sourceExtractionGapFollowupPlanSource,
-    sourceExtractionGapFollowupReportSource,
-    sourceExtractionGapFollowupSnapshot,
-    sourceExtractionGapFollowupSource,
-    sourceExtractionGapMissingIds,
-    sourceExtractionGapSyntheticMissingProof,
-    sourceMaturityGridSource,
-    sprintProcessRepair,
-    sprintProcessRepairPlanSource,
-    sprintStageGate,
-    sprintStageGateApprovalValidation,
-    sprintStageGateCheckSource,
-    sprintStageGateCloseout,
-    sprintStageGatePlanSource,
-    verifierModularSplit,
-    verifierModularSplitCheckSource,
-    verifierModularSplitCloseout,
-    verifierSprintIndependence,
-    verifierSprintIndependenceCloseout,
-    verifierSprintProofModuleSource,
-  })
-  checks.push(...processGovernanceVerifier.checks)
-  const verifierProcessGovernanceSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_PROCESS_GOVERNANCE_SPLIT_CARD_ID) || null
-  const verifierProcessGovernanceSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_PROCESS_GOVERNANCE_SPLIT_CLOSEOUT_KEY) || null
-  const verifierProcessGovernanceSplitDogfood = buildFoundationVerifierProcessGovernanceDogfoodProof()
-  const foundationVerifyLineCountAfterProcessGovernanceSplit = String(foundationVerifySource || '').split('\n').length
-  const oldProcessGovernanceInlineMarker = 'const sprintProcess' + "RepairCurrentItem = currentSprintItemsById.get('SPRINT-PROCESS-REPAIR-001')"
-  ensure(
-    checks,
-    verifierProcessGovernanceSplitCard &&
-      ['executing', 'done'].includes(verifierProcessGovernanceSplitCard.lane) &&
-      String(verifierProcessGovernanceSplitCard.statusNote || '').includes(VERIFIER_PROCESS_GOVERNANCE_SPLIT_CLOSEOUT_KEY) &&
-      verifierProcessGovernanceSplitCloseout?.operatorCloseout === true &&
-      (verifierProcessGovernanceSplitCloseout.backlogIds || []).includes(VERIFIER_PROCESS_GOVERNANCE_SPLIT_CARD_ID) &&
-      verifierProcessGovernanceSplitDogfood.ok === true &&
-      processGovernanceVerifier.summary.passed === processGovernanceVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-process-governance-split-check'] === `node --env-file-if-exists=.env ${VERIFIER_PROCESS_GOVERNANCE_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_PROCESS_GOVERNANCE_SPLIT_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_PROCESS_GOVERNANCE_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists(VERIFIER_PROCESS_GOVERNANCE_SPLIT_HANDOFF_PATH) &&
-      foundationVerifySource.includes('evaluateFoundationVerifierProcessGovernance({') &&
-      foundationVerifySource.includes('processGovernanceVerifier.checks') &&
-      !foundationVerifySource.includes(oldProcessGovernanceInlineMarker) &&
-      foundationVerifyLineCountAfterProcessGovernanceSplit < VERIFIER_PROCESS_GOVERNANCE_SPLIT_BEFORE_LINES &&
-      foundationVerifierProcessGovernanceSource.includes(VERIFIER_PROCESS_GOVERNANCE_SPLIT_CARD_ID),
-    'VERIFIER-PROCESS-GOVERNANCE-SPLIT-001 extracts process-governance verifier checks into a focused module',
-    verifierProcessGovernanceSplitCard
-      ? `lane=${verifierProcessGovernanceSplitCard.lane} dogfood=${verifierProcessGovernanceSplitDogfood.ok ? 'pass' : 'blocked'} processChecks=${processGovernanceVerifier.summary.passed}/${processGovernanceVerifier.summary.total} lines=${VERIFIER_PROCESS_GOVERNANCE_SPLIT_BEFORE_LINES}->${foundationVerifyLineCountAfterProcessGovernanceSplit}`
-      : `missing ${VERIFIER_PROCESS_GOVERNANCE_SPLIT_CARD_ID}`,
-  )
-  const readinessFollowupVerifier = await evaluateFoundationVerifierReadinessFollowup({
-    AGENT_FEEDBACK_LIVE_REMINDERS_CARD_ID,
-    AGENT_FEEDBACK_SEND_CARD_ID,
-    AGENT_ONBOARDING_FEEDBACK_SYSTEM_CARD_ID,
-    FOUNDATION_FOLLOWUP_BUILD_ORDER,
-    FOUNDATION_FOLLOWUP_CARD_CAPTURE_APPROVED_PLAN_PATH,
-    FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
-    FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    FOUNDATION_FOLLOWUP_NON_SCOPE_PHRASES,
-    FOUNDATION_SPRINT_REVIEW_CARD_ID,
-    FOUNDATION_SPRINT_REVIEW_DOC_PATH,
-    FOUNDATION_SPRINT_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    FOUNDATION_SYSTEMS_APPROVED_GROUPED_SYSTEM_COUNT,
-    FOUNDATION_SYSTEMS_SERVICE_GROUPING_APPROVED_PLAN_PATH,
-    FOUNDATION_SYSTEMS_SERVICE_GROUPING_CARD_ID,
-    FOUNDATION_SYSTEMS_SERVICE_GROUPING_CLOSEOUT_KEY,
-    FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    FOUNDATION_SYSTEMS_SERVICE_GROUPING_NON_SCOPE_PHRASES,
-    FOUNDATION_SYSTEMS_SERVICE_GROUPS,
-    MEETING_VAULT_AUTO_ENFORCEMENT_CLOSEOUT_KEY,
-    PLAN_CRITIC_REPLACEMENT_CARD_ID,
-    REBUILD_PLAN_RECONCILE_CARD_ID,
-    SALES_GLS_SCOREBOARD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    SECURITY_BEHAVIOR_PROOF_CARD_ID,
-    SYSTEM_REGISTRATION_AGENT_FEEDBACK_SYSTEM_ID,
-    SYSTEM_REGISTRATION_GLS_SYSTEM_ID,
-    SYSTEM_REGISTRATION_SHIPPED_SYSTEM_REQUIREMENTS,
-    SYSTEM_REGISTRATION_SWEEP_APPROVED_PLAN_PATH,
-    SYSTEM_REGISTRATION_SWEEP_CARD_ID,
-    SYSTEM_REGISTRATION_SWEEP_CLOSEOUT_KEY,
-    SYSTEM_REGISTRATION_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
-    VERIFIER_BEHAVIOR_SWEEP_CARD_ID,
-    buildLogFoundationFollowupCardCaptureBuild,
-    buildLogFoundationSystemsServiceGroupingBuild,
-    buildLogSalesGlsScoreboardBuild,
-    buildLogSystemRegistrationSweepBuild,
-    currentPlan,
-    currentState,
-    foundationDbWithBacklogSeedSource,
-    foundationDoneTestReadinessStatus,
-    foundationFollowupCardCapture,
-    foundationFollowupCardCaptureApprovalValidation,
-    foundationFollowupCardCaptureApprovedPlan,
-    foundationFollowupCardCaptureAudit,
-    foundationFollowupCardCaptureStatus,
-    foundationFollowupCards,
-    foundationFrontendSource,
-    foundationSprintReview,
-    foundationSprintReviewSource,
-    foundationStylesSource,
-    foundationSystemsServiceGrouping,
-    foundationSystemsServiceGroupingApprovalValidation,
-    foundationSystemsServiceGroupingApprovedPlan,
-    foundationSystemsServiceGroupingBaseline,
-    foundationSystemsServiceGroupingManualReview,
-    foundationSystemsServiceGroupingStatus,
-    foundationVerifySource: [foundationVerifySource, foundationVerifierReadinessFollowupSource].filter(Boolean).join('\n'),
-    packageSource,
-    salesGlsScoreboard,
-    salesHtmlSource,
-    salesHubCheckSource,
-    salesUiSource,
-    serverSource,
-    sourceContractsSource,
-    sourceOfTruth,
-    sourceRegistry,
-    systemRegistrationSweep,
-    systemRegistrationSweepApprovalValidation,
-    systemRegistrationSweepApprovedPlan,
-    systemRegistrationSweepProof,
-    systemRegistrationSweepStatus,
-  })
-  checks.push(...readinessFollowupVerifier.checks)
-  const verifierReadinessFollowupSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_READINESS_FOLLOWUP_SPLIT_CARD_ID) || null
-  const verifierReadinessFollowupSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_READINESS_FOLLOWUP_SPLIT_CLOSEOUT_KEY) || null
-  const verifierReadinessFollowupSplitDogfood = buildFoundationVerifierReadinessFollowupDogfoodProof()
-  const foundationVerifyLineCountAfterReadinessFollowupSplit = String(foundationVerifySource || '').split('\n').length
-  const oldReadinessFollowupInlineMarker = 'const foundationFollowup' + 'CardsHaveAllowedState = foundationFollowupCards.length === 3'
-  ensure(
-    checks,
-    verifierReadinessFollowupSplitCard &&
-      ['executing', 'done'].includes(verifierReadinessFollowupSplitCard.lane) &&
-      String(verifierReadinessFollowupSplitCard.statusNote || '').includes(VERIFIER_READINESS_FOLLOWUP_SPLIT_CLOSEOUT_KEY) &&
-      verifierReadinessFollowupSplitCloseout?.operatorCloseout === true &&
-      (verifierReadinessFollowupSplitCloseout.backlogIds || []).includes(VERIFIER_READINESS_FOLLOWUP_SPLIT_CARD_ID) &&
-      verifierReadinessFollowupSplitDogfood.ok === true &&
-      readinessFollowupVerifier.summary.passed === readinessFollowupVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-readiness-followup-split-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_READINESS_FOLLOWUP_SPLIT_SCRIPT_PATH &&
-      await repoFileExists(VERIFIER_READINESS_FOLLOWUP_SPLIT_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_READINESS_FOLLOWUP_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists(VERIFIER_READINESS_FOLLOWUP_SPLIT_HANDOFF_PATH) &&
-      foundationVerifySource.includes('evaluateFoundationVerifierReadinessFollowup({') &&
-      foundationVerifySource.includes('readinessFollowupVerifier.checks') &&
-      !foundationVerifySource.includes(oldReadinessFollowupInlineMarker) &&
-      foundationVerifyLineCountAfterReadinessFollowupSplit < VERIFIER_READINESS_FOLLOWUP_SPLIT_BEFORE_LINES &&
-      foundationVerifierReadinessFollowupSource.includes(VERIFIER_READINESS_FOLLOWUP_SPLIT_CARD_ID),
-    'VERIFIER-READINESS-FOLLOWUP-SPLIT-001 extracts READY/follow-up shipped-system checks into a focused module',
-    verifierReadinessFollowupSplitCard
-      ? 'lane=' + verifierReadinessFollowupSplitCard.lane + ' dogfood=' + (verifierReadinessFollowupSplitDogfood.ok ? 'pass' : 'blocked') + ' readinessChecks=' + readinessFollowupVerifier.summary.passed + '/' + readinessFollowupVerifier.summary.total + ' lines=' + VERIFIER_READINESS_FOLLOWUP_SPLIT_BEFORE_LINES + '->' + foundationVerifyLineCountAfterReadinessFollowupSplit
-      : 'missing ' + VERIFIER_READINESS_FOLLOWUP_SPLIT_CARD_ID,
-  )
-  const guardrailCloseoutsVerifier = await evaluateFoundationVerifierGuardrailCloseouts({
-    CANONICAL_DECISION_CATEGORIES,
-    DOCTRINE_PROPAGATION_SOURCES,
-    buildDoctrinePropagationStatus,
-    buildSyntheticStaleSkillSource,
     currentState,
     dataStructuredContracts,
     decisionAutoEmit,
@@ -7500,19 +7352,110 @@ async function main() {
     doctrinePropagationText,
     driveContentExtractionSource,
     evaluateDoctrineSkillSource,
+    evaluateFoundationVerifierControlLoop,
+    evaluateFoundationVerifierGuardrailCloseouts,
+    evaluateFoundationVerifierProcessGovernance,
+    evaluateFoundationVerifierReadinessFollowup,
+    evaluateLlmAuthAuditVerifierCheck,
     extractDecisionCandidatesFromText,
+    extractRunHardeningExecution,
+    extractRunHardeningExecutionApprovalValidation,
+    extractRunHardeningExecutionCloseout,
+    extractRunHardeningExecutionCurrentItem,
+    extractRunHardeningExecutionPlanSource,
+    extractRunHardeningExecutionScriptSource,
+    extractRunHardeningExecutionSource,
+    extractRunHardeningExecutionSynthetic,
+    extractionRetryFailedScriptSource,
+    foundationBuildCloseouts,
+    foundationBuildIntelRoutesSource,
     foundationBuildLogRegistrySource,
+    foundationCurrentSprintSource,
+    foundationCurrentSprintStatus,
+    foundationDbSource,
+    foundationDbWithBacklogSeedSource,
+    foundationDoneTest,
+    foundationDoneTestApproval,
+    foundationDoneTestApprovalValidation,
+    foundationDoneTestDocSource,
+    foundationDoneTestPlanSource,
+    foundationDoneTestReadinessStatus,
+    foundationDoneTestRegistrySource,
+    foundationDoneTestScriptSource,
+    foundationFollowupCardCapture,
+    foundationFollowupCardCaptureApprovalValidation,
+    foundationFollowupCardCaptureApprovedPlan,
+    foundationFollowupCardCaptureAudit,
+    foundationFollowupCardCaptureStatus,
+    foundationFollowupCards,
     foundationFrontendSource,
     foundationHub,
+    foundationJobsSource,
+    foundationPlanReconcile,
+    foundationPlanReconcileApprovalValidation,
+    foundationPlanReconcileCheckSource,
+    foundationPlanReconcileCloseout,
+    foundationPlanReconcileCurrentItem,
+    foundationPlanReconcilePlanSource,
+    foundationRuntimeReadRoutesSource,
+    foundationSourceLifecycle,
+    foundationSourceRoutesSource,
+    foundationSprintReview,
+    foundationSprintReviewSource,
+    foundationStylesSource,
+    foundationSystemsServiceGrouping,
+    foundationSystemsServiceGroupingApprovalValidation,
+    foundationSystemsServiceGroupingApprovedPlan,
+    foundationSystemsServiceGroupingBaseline,
+    foundationSystemsServiceGroupingManualReview,
+    foundationSystemsServiceGroupingStatus,
+    foundationVerifierControlLoopSource,
+    foundationVerifierGuardrailCloseoutsSource,
+    foundationVerifierProcessControlGovernanceSource,
+    foundationVerifierProcessGovernanceSource,
+    foundationVerifierReadinessFollowupSource,
+    foundationVerifySource,
     fubKpiConnectionMapSource,
     fubZahndMiddlewareSource,
     googleDelegatedSource,
     googleSheetsCacheSource,
+    historicalCardHasVerifiedCloseout,
     hitListReconcile,
     kpiDashboardSource,
+    llmAuthAudit,
+    llmAuthAuditApprovalValidation,
+    llmAuthAuditCheckSource,
+    llmAuthAuditCloseout,
+    llmAuthAuditCurrentItem,
+    llmAuthAuditPlanSource,
+    llmAuthAuditProofSource,
+    llmAuthAuditVerifierCheckSource,
+    llmAuthAuditVerifierModuleSource,
+    meetingVaultAutoEnforcementClosed,
     packageJson,
     packageSource,
+    planCriticSource,
+    planCriticSynthetic,
+    processRepairVerifierSprintPlanSource,
+    processRepairVerifierSprintScriptSource,
+    processRootVsPatch,
+    processRootVsPatchCheckSource,
+    processRootVsPatchCloseout,
+    repoFileExists,
     repoRoot,
+    researchLanePurge,
+    researchLanePurgeApprovalValidation,
+    researchLanePurgeCloseout,
+    researchLanePurgeCurrentItem,
+    researchLanePurgePlanSource,
+    researchLanePurgeReportSource,
+    researchLanePurgeScriptSource,
+    researchLanePurgeSource,
+    researchLanePurgeSynthetic,
+    salesGlsScoreboard,
+    salesHtmlSource,
+    salesHubCheckSource,
+    salesUiSource,
     scanDecisionAutoEmitCandidates,
     security001,
     security002,
@@ -7529,78 +7472,31 @@ async function main() {
     source021,
     source021Proof,
     source021WriterProofCheckSource,
-  })
-  checks.push(...guardrailCloseoutsVerifier.checks)
-  const verifierGuardrailCloseoutSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_CARD_ID) || null
-  const verifierGuardrailCloseoutSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_CLOSEOUT_KEY) || null
-  const verifierGuardrailCloseoutSplitDogfood = buildFoundationVerifierGuardrailCloseoutsDogfoodProof()
-  const foundationVerifyLineCountAfterGuardrailCloseoutSplit = String(foundationVerifySource || '').split('\n').length
-  const oldGuardrailCloseoutInlineMarker = 'const doctrinePropagationStatus = await buildDoctrine' + 'PropagationStatus({'
-  ensure(
-    checks,
-    verifierGuardrailCloseoutSplitCard &&
-      ['executing', 'done'].includes(verifierGuardrailCloseoutSplitCard.lane) &&
-      String(verifierGuardrailCloseoutSplitCard.statusNote || '').includes(VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_CLOSEOUT_KEY) &&
-      verifierGuardrailCloseoutSplitCloseout?.operatorCloseout === true &&
-      (verifierGuardrailCloseoutSplitCloseout.backlogIds || []).includes(VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_CARD_ID) &&
-      verifierGuardrailCloseoutSplitDogfood.ok === true &&
-      guardrailCloseoutsVerifier.summary.passed === guardrailCloseoutsVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-guardrail-closeout-split-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_SCRIPT_PATH &&
-      await repoFileExists(VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists(VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_HANDOFF_PATH) &&
-      foundationVerifySource.includes('evaluateFoundationVerifierGuardrailCloseouts({') &&
-      foundationVerifySource.includes('guardrailCloseoutsVerifier.checks') &&
-      !foundationVerifySource.includes(oldGuardrailCloseoutInlineMarker) &&
-      foundationVerifyLineCountAfterGuardrailCloseoutSplit < VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_BEFORE_LINES &&
-      foundationVerifierGuardrailCloseoutsSource.includes(VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_CARD_ID),
-    'VERIFIER-GUARDRAIL-CLOSEOUT-SPLIT-001 extracts guardrail closeout checks into a focused module',
-    verifierGuardrailCloseoutSplitCard
-      ? 'lane=' + verifierGuardrailCloseoutSplitCard.lane + ' dogfood=' + (verifierGuardrailCloseoutSplitDogfood.ok ? 'pass' : 'blocked') + ' guardrailChecks=' + guardrailCloseoutsVerifier.summary.passed + '/' + guardrailCloseoutsVerifier.summary.total + ' lines=' + VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_BEFORE_LINES + '->' + foundationVerifyLineCountAfterGuardrailCloseoutSplit
-      : 'missing ' + VERIFIER_GUARDRAIL_CLOSEOUT_SPLIT_CARD_ID,
-  )
-  const controlLoopVerifier = evaluateFoundationVerifierControlLoop({
-    DRIVE_ACCESS_REQUEST_CARD_ID,
-    EXTRACT_RUN_HARDENING_CARD_ID,
-    FOUNDATION_DONE_TEST_CARD_ID,
-    FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
-    FOUNDATION_DONE_TEST_PLAN_PATH,
-    FOUNDATION_DONE_TEST_SUMMARY_MARKER,
-    FOUNDATION_READINESS_GATE_CARD_IDS,
-    FOUNDATION_READINESS_REQUIRED_LEG_KEYS,
-    MEETING_VAULT_ACL_CARD_ID,
-    SOURCE_LIFECYCLE_COMPLETION_CARD_ID,
-    SYNTHESIS_VERIFY_CARD_ID,
-    SYSTEM_010_CARD_ID,
-    SYSTEM_010_CLOSEOUT_KEY,
-    SYSTEM_010_PLAN_PATH,
-    actionReviewApi,
-    actionReviewApproval,
-    actionRouterSnapshot,
-    backlogHygieneApi,
-    buildLogFoundationDoneTestBuild,
-    buildLogSystem010GhostCloseoutBuild,
-    currentPlan,
-    currentState,
-    foundationBuildCloseouts,
-    foundationBuildIntelRoutesSource,
-    foundationDbSource,
-    foundationDoneTest,
-    foundationDoneTestApproval,
-    foundationDoneTestApprovalValidation,
-    foundationDoneTestDocSource,
-    foundationDoneTestPlanSource,
-    foundationDoneTestReadinessStatus,
-    foundationDoneTestRegistrySource,
-    foundationDoneTestScriptSource,
-    foundationFrontendSource,
-    foundationHub,
-    foundationJobsSource,
-    foundationRuntimeReadRoutesSource,
-    meetingVaultAutoEnforcementClosed,
-    packageJson,
-    serverRouteSource,
+    sourceConnectorMatrix,
+    sourceConnectorMatrixSource,
+    sourceContractsSource,
+    sourceExtractionGapFollowupApprovalValidation,
+    sourceExtractionGapFollowupCard,
+    sourceExtractionGapFollowupCheckSource,
+    sourceExtractionGapFollowupCloseout,
+    sourceExtractionGapFollowupCurrentItem,
+    sourceExtractionGapFollowupPlanSource,
+    sourceExtractionGapFollowupReportSource,
+    sourceExtractionGapFollowupSnapshot,
+    sourceExtractionGapFollowupSource,
+    sourceExtractionGapMissingIds,
+    sourceExtractionGapSyntheticMissingProof,
+    sourceHubRoutingMatrix,
+    sourceMaturityGridSource,
+    sourceOfTruth,
     sourceRegistry,
+    sprintProcessRepair,
+    sprintProcessRepairPlanSource,
+    sprintStageGate,
+    sprintStageGateApprovalValidation,
+    sprintStageGateCheckSource,
+    sprintStageGateCloseout,
+    sprintStageGatePlanSource,
     strategySharedCommsRouteSource,
     system010Approval,
     system010ApprovalValidation,
@@ -7609,36 +7505,19 @@ async function main() {
     system010PlanSource,
     system010ProcessScriptSource,
     system010RuntimeSource,
+    systemRegistrationSweep,
+    systemRegistrationSweepApprovalValidation,
+    systemRegistrationSweepApprovedPlan,
+    systemRegistrationSweepProof,
+    systemRegistrationSweepStatus,
+    verifierModularSplit,
+    verifierModularSplitCheckSource,
+    verifierModularSplitCloseout,
+    verifierSprintIndependence,
+    verifierSprintIndependenceCloseout,
+    verifierSprintProofModuleSource,
   })
-  checks.push(...controlLoopVerifier.checks)
-  const verifierControlLoopSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_CONTROL_LOOP_SPLIT_CARD_ID) || null
-  const verifierControlLoopSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_CONTROL_LOOP_SPLIT_CLOSEOUT_KEY) || null
-  const verifierControlLoopSplitDogfood = buildFoundationVerifierControlLoopDogfoodProof()
-  const foundationVerifyLineCountAfterControlLoopSplit = String(foundationVerifySource || '').split('\n').length
-  const oldControlLoopInlineMarker = 'const foundationDone' + 'FailedKeys = new Set'
-  ensure(
-    checks,
-    verifierControlLoopSplitCard &&
-      ['executing', 'done'].includes(verifierControlLoopSplitCard.lane) &&
-      String(verifierControlLoopSplitCard.statusNote || '').includes(VERIFIER_CONTROL_LOOP_SPLIT_CLOSEOUT_KEY) &&
-      verifierControlLoopSplitCloseout?.operatorCloseout === true &&
-      (verifierControlLoopSplitCloseout.backlogIds || []).includes(VERIFIER_CONTROL_LOOP_SPLIT_CARD_ID) &&
-      verifierControlLoopSplitDogfood.ok === true &&
-      controlLoopVerifier.summary.passed === controlLoopVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-control-loop-split-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_CONTROL_LOOP_SPLIT_SCRIPT_PATH &&
-      await repoFileExists(VERIFIER_CONTROL_LOOP_SPLIT_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_CONTROL_LOOP_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists(VERIFIER_CONTROL_LOOP_SPLIT_HANDOFF_PATH) &&
-      foundationVerifySource.includes('evaluateFoundationVerifierControlLoop({') &&
-      foundationVerifySource.includes('controlLoopVerifier.checks') &&
-      !foundationVerifySource.includes(oldControlLoopInlineMarker) &&
-      foundationVerifyLineCountAfterControlLoopSplit < VERIFIER_CONTROL_LOOP_SPLIT_BEFORE_LINES &&
-      foundationVerifierControlLoopSource.includes(VERIFIER_CONTROL_LOOP_SPLIT_CARD_ID),
-    'VERIFIER-CONTROL-LOOP-SPLIT-001 extracts Foundation control-loop checks into a focused module',
-    verifierControlLoopSplitCard
-      ? 'lane=' + verifierControlLoopSplitCard.lane + ' dogfood=' + (verifierControlLoopSplitDogfood.ok ? 'pass' : 'blocked') + ' controlLoopChecks=' + controlLoopVerifier.summary.passed + '/' + controlLoopVerifier.summary.total + ' lines=' + VERIFIER_CONTROL_LOOP_SPLIT_BEFORE_LINES + '->' + foundationVerifyLineCountAfterControlLoopSplit
-      : 'missing ' + VERIFIER_CONTROL_LOOP_SPLIT_CARD_ID,
-  )
+  checks.push(...processControlGovernanceVerifier.checks)
   const verifierModuleAssurance = await evaluateFoundationVerifierModuleAssurance({
     activeFoundationSprint,
     activeSprintAtOrPast,
