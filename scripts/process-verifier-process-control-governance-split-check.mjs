@@ -123,7 +123,9 @@ async function main() {
     'dogfood rejects process/control governance failures',
     dogfood.dogfoodInvariant,
   )
-  addCheck(checks, verifierSource.includes('evaluateFoundationVerifierProcessControlGovernance({') && verifierSource.includes('processControlGovernanceVerifier.checks'), 'foundation verifier delegates process/control governance checks to focused module', 'evaluateFoundationVerifierProcessControlGovernance')
+  const directOrWrapperDelegation = verifierSource.includes('evaluateFoundationVerifierProcessControlGovernance({') ||
+    verifierSource.includes('evaluateFoundationVerifierProcessControlGovernanceOrchestration({')
+  addCheck(checks, directOrWrapperDelegation && verifierSource.includes('processControlGovernanceVerifier.checks'), 'foundation verifier delegates process/control governance checks to focused module', directOrWrapperDelegation ? 'historical process/control split proof accepts wrapper delegation' : 'missing process/control evaluator delegation')
   addCheck(
     checks,
     !verifierSource.includes(oldConnectorRoutingMarker) &&

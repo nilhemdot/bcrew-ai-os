@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-PROCESS-CONTROL-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T11:54:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement; Steve then instructed Codex to pause and regroup after this sprint.",
+  "notes": "Approved only for Process Control verifier orchestration extraction covering bundled process governance, readiness follow-up, guardrail closeout, control-loop, and shared connector routing evidence inputs, wrapper delegation, historical Process Control proof compatibility, dogfood proof, closeout self-check, and root line-count reduction inside lib/foundation-verifier-process-control-governance.js. Not approved: arbitrary tail extraction, Process Control behavior changes, connector routing behavior changes, process governance behavior changes, readiness behavior changes, guardrail closeout behavior changes, control-loop behavior changes, connector auth, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-process-control-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "20192bc3d4b3ae38fd37bb9ece765397dab024cab898c6f1cead7771fb558519",
+  "approvedRepoHead": "2f64a0fddc0cb2fb12af4b831cd5e5c162dc898a",
+  "approvalDigest": "1b784b91c576ae25d85e9643d82d7c57ac9b49c3fe71c2f137c103b2e40cc4bd"
+}

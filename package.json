@@ -209,6 +209,7 @@
     "process:verifier-source-once-over-progression-split-check": "node --env-file-if-exists=.env scripts/process-verifier-source-once-over-progression-split-check.mjs",
     "process:verifier-source-once-over-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-source-once-over-orchestration-split-check.mjs",
     "process:verifier-process-control-governance-split-check": "node --env-file-if-exists=.env scripts/process-verifier-process-control-governance-split-check.mjs",
+    "process:verifier-process-control-orchestration-split-check": "node --env-file-if-exists=.env scripts/process-verifier-process-control-orchestration-split-check.mjs",
     "process:verifier-structural-assurance-core-split-check": "node --env-file-if-exists=.env scripts/process-verifier-structural-assurance-core-split-check.mjs",
     "process:verifier-frontend-structural-assurance-split-check": "node --env-file-if-exists=.env scripts/process-verifier-frontend-structural-assurance-split-check.mjs",
     "process:verifier-historical-split-closeouts-split-check": "node --env-file-if-exists=.env scripts/process-verifier-historical-split-closeouts-split-check.mjs",
