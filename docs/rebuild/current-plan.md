@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-17
-Version: v6.94 - LLM auth audit budget label clarity closed
+Version: v6.95 - Foundation knowledge-base compiler design closed
 Status: Bounded Foundation queue active
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: LLM Auth Audit Budget Label Clarity
+## Latest Sprint: Foundation Knowledge-Base Compiler Design
+
+Live sprint ID: `foundation-knowledge-base-compiler-design-2026-05-17`.
+
+This sprint is complete under `foundation-knowledge-base-compiler-design-v1`. It keeps the Karpathy LLM Knowledge Base / LLM Wiki direction Foundation-owned before any agent, extractor, or Harlan memory feature consumes it.
+
+Completed card:
+
+1. `FOUNDATION-KNOWLEDGE-BASE-COMPILER-DESIGN-001` - done under `foundation-knowledge-base-compiler-design-v1`. Scope was design/proof only: raw sources and source contracts -> ingestion permission -> raw evidence envelope -> compiler rules -> compiled markdown/wiki page contract -> query/Q&A contract -> operator feedback loop -> quality gate.
+
+Not next from this closeout: live extraction, transcript fetch, screenshot capture, crawl, summarization, model calls, compiled KB pages, query index/vector table, Research Inbox writes, atom creation, backlog mutation from extracted content, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
+
+Recommended next: `KNOWLEDGE-BASE-QUALITY-GATE-001`.
+
+## Previous Sprint: LLM Auth Audit Budget Label Clarity
 
 Live sprint ID: `llm-auth-audit-budget-label-clarity-2026-05-17`.
 
