@@ -1,0 +1,13 @@
+{
+  "cardId": "BACKLOG-SCRUM-MASTER-GROOMING-001",
+  "score": 10,
+  "approvedBy": "Steve explicit BACKLOG-SCRUM-MASTER-GROOMING sprint approval + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T18:25:00.000-04:00",
+  "approvalSource": "Steve instructed Codex to start BACKLOG-SCRUM-MASTER-GROOMING-001, groom all non-done live backlog cards, lightly scan done cards, merge/alias/supersede duplicates, enrich thin high-priority cards, produce next sprint bundles, add focused proof, run backlog hygiene/focused proof/foundation:verify/full process:foundation-ship, close out, commit, push, then pause.",
+  "notes": "Approved only for Foundation backlog truth, sprint-planning hygiene, focused proof, and closeout. Not approved: FOUNDATION-SURFACE-UPDATES-001 implementation, another root split, Harlan, Fal, voice, Canva, hub feature work, connector feature work, Agent Feedback live auto-send, DB schema changes, route behavior changes, or Steve local mockup assets.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/backlog-scrum-master-grooming-001-plan.md",
+  "approvedPlanSha256": "231e5b253192a76db4f699b45b175551c1a901c87c75f9e56b52ac84d8c050c5",
+  "approvedRepoHead": "23f02b9f0351ef50d19de9fdb8f81ea8fffd8a21",
+  "approvalDigest": "e0731ad77cb1669c9eedf6c7f3bad1207c2ddb277d2c00d1b8a9ad383b11d636"
+}
