@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-HEALTH-LIVE-SUMMARY-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T07:27:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for health/live-summary verifier extraction covering KPI dynamic-year contract assurance, Foundation Current State live-summary source assurance, system-health/nightly-staleness assurance, and health-script verifier split assurance into lib/foundation-verifier-health-live-summary.js. Not approved: arbitrary tail extraction, behavior rewrites, runtime reliability, process hardening, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-health-live-summary-split-001-plan.md",
+  "approvedPlanSha256": "60b73a24a404692a069065cce215b0e610c6e0e68274de45ab30eee81f4adc9d",
+  "approvedRepoHead": "f695956c115d4dd3af868c1c524d9b4d902b5036",
+  "approvalDigest": "7ed8e9aa2472effd88de063a6deaa9e72ed77b32673f79b944d4e994abebb718"
+}

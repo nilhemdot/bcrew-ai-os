@@ -138,7 +138,6 @@ import {
   CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH,
   buildCodeQualityNightlyAudit,
   buildSyntheticCodeQualityNightlyAuditProof,
-  detectHardcodedLiveTruthInText,
 } from '../lib/code-quality-nightly-audit.js'
 import {
   NIGHTLY_DEEP_AUDIT_APPROVAL_PATH,
@@ -150,20 +149,6 @@ import {
   buildNightlyDeepAuditUpgrade,
   buildNightlyDeepAuditUpgradeDogfoodProof,
 } from '../lib/nightly-deep-audit-upgrade.js'
-import {
-  SCHEDULED_JOB_STALENESS_DASHBOARD_APPROVAL_PATH,
-  SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID,
-  SCHEDULED_JOB_STALENESS_DASHBOARD_CLOSEOUT_KEY,
-  SCHEDULED_JOB_STALENESS_DASHBOARD_PLAN_PATH,
-  SYSTEM_HEALTH_NIGHTLY_AUDIT_APPROVAL_PATH,
-  SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID,
-  SYSTEM_HEALTH_NIGHTLY_AUDIT_CLOSEOUT_KEY,
-  SYSTEM_HEALTH_NIGHTLY_AUDIT_JOB_KEY,
-  SYSTEM_HEALTH_NIGHTLY_AUDIT_PLAN_PATH,
-  SYSTEM_HEALTH_NIGHTLY_AUDIT_SCHEDULE_LOCAL_TIME,
-  SYSTEM_HEALTH_NIGHTLY_AUDIT_SCRIPT_PATH,
-  buildFoundationSystemHealthDogfoodProof,
-} from '../lib/foundation-system-health.js'
 import {
   FOUNDATION_ROUTE_BUDGET_CLEANUP_CARD_IDS,
   FOUNDATION_ROUTE_BUDGET_CLEANUP_CLOSEOUT_KEY,
@@ -219,17 +204,6 @@ import {
   buildFoundationHubSafetyVerifierDogfoodProof,
   evaluateFoundationHubSafetyVerifier,
 } from '../lib/foundation-hub-safety-verifier.js'
-import {
-  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_APPROVAL_PATH,
-  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID,
-  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY,
-  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_PLAN_PATH,
-  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SCRIPT_PATH,
-  FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SPRINT_ID,
-  buildFoundationCurrentStateSummaryDogfoodProof,
-  buildFoundationCurrentStateSummaryPayload,
-  evaluateFoundationCurrentStateSummarySourceContract,
-} from '../lib/foundation-current-state-summary.js'
 import {
   VERIFIER_ROUTE_SPLIT_MODULE_APPROVAL_PATH,
   VERIFIER_ROUTE_SPLIT_MODULE_CARD_ID,
@@ -368,6 +342,9 @@ import {
   evaluateFoundationVerifierBuildLogRegistryAssurance,
 } from '../lib/foundation-verifier-build-log-registry-assurance.js'
 import {
+  evaluateFoundationVerifierHealthLiveSummary,
+} from '../lib/foundation-verifier-health-live-summary.js'
+import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
@@ -379,16 +356,7 @@ import {
   evaluateFoundationRuntimeReliabilityVerifier,
 } from '../lib/foundation-runtime-reliability-verifier.js'
 import {
-  VERIFIER_HEALTH_SCRIPT_MODULE_APPROVAL_PATH,
-  VERIFIER_HEALTH_SCRIPT_MODULE_BEFORE_LINES,
   VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
-  VERIFIER_HEALTH_SCRIPT_MODULE_CLOSEOUT_KEY,
-  VERIFIER_HEALTH_SCRIPT_MODULE_HANDOFF_PATH,
-  VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH,
-  VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH,
-  VERIFIER_HEALTH_SCRIPT_MODULE_SPRINT_ID,
-  buildFoundationHealthScriptVerifierDogfoodProof,
-  evaluateFoundationHealthScriptVerifier,
 } from '../lib/foundation-health-script-verifier.js'
 import {
   VERIFIER_SOURCE_CONTRACT_MODULE_APPROVAL_PATH,
@@ -1333,19 +1301,10 @@ import {
 } from '../lib/foundation-current-sprint.js'
 import { getFoundationSurfaceMap } from '../lib/foundation-surface-map.js'
 import {
-  EXPECTED_KPI_RPCS,
-  EXPECTED_KPI_TABLES,
-  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_APPROVAL_PATH,
-  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID,
-  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CLOSEOUT_KEY,
-  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_PLAN_PATH,
-  KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SCRIPT_PATH,
   KPI_HEALTH_API_CACHE_CARD_ID,
   KPI_HEALTH_API_CACHE_CLOSEOUT_KEY,
   KPI_HEALTH_API_CACHE_SCRIPT_PATH,
   KPI_HEALTH_FETCH_TIMEOUT_MS,
-  KPI_HEALTH_PRIMARY_SURFACE,
-  buildKpiHealthDynamicYearContractDogfoodProof,
   buildKpiHealthApiCacheDogfoodProof,
 } from '../lib/kpi-health.js'
 import {
@@ -2449,9 +2408,6 @@ async function main() {
   const nightlyDeepAuditUpgradeSource = await readRepoFile('lib/nightly-deep-audit-upgrade.js')
   const nightlyDeepAuditScriptSource = await readRepoFile(NIGHTLY_DEEP_AUDIT_SCRIPT_PATH)
   const foundationSystemHealthSource = await readRepoFile('lib/foundation-system-health.js')
-  const systemHealthNightlyAuditScriptSource = await readRepoFile(SYSTEM_HEALTH_NIGHTLY_AUDIT_SCRIPT_PATH)
-  const systemHealthNightlyAuditPlanSource = await readRepoFile(SYSTEM_HEALTH_NIGHTLY_AUDIT_PLAN_PATH)
-  const scheduledJobStalenessDashboardPlanSource = await readRepoFile(SCHEDULED_JOB_STALENESS_DASHBOARD_PLAN_PATH)
   const foundationPerformanceScriptSource = await readRepoFile(FOUNDATION_PERFORMANCE_SCRIPT_PATH)
   const recurringDeepAuditScriptSource = await readRepoFile(RECURRING_DEEP_AUDIT_SCRIPT_PATH)
   const foundationVerificationCleanupScriptSource = await readRepoFile(FOUNDATION_VERIFICATION_CLEANUP_SCRIPT_PATH)
@@ -2716,8 +2672,6 @@ async function main() {
   const runtimeFirstJobsVerifierCoverageCardId = 'RUNTIME-FIRST-JOBS-001'
   const runtimeHealthSimplifyVerifierCoverageCardId = 'RUNTIME-HEALTH-SIMPLIFY-001'
   const foundationHealthScriptVerifierSource = await readRepoFile('lib/foundation-health-script-verifier.js')
-  const verifierHealthScriptModuleScriptSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH)
-  const verifierHealthScriptModulePlanSource = await readRepoFile(VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH)
   const foundationSourceContractVerifierSource = await readRepoFile('lib/foundation-source-contract-verifier.js')
   const verifierSourceContractModuleScriptSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_SCRIPT_PATH)
   const verifierSourceContractModulePlanSource = await readRepoFile(VERIFIER_SOURCE_CONTRACT_MODULE_PLAN_PATH)
@@ -2772,6 +2726,7 @@ async function main() {
   const foundationVerifierFrontendStructuralAssuranceSource = await readRepoFile('lib/foundation-verifier-frontend-structural-assurance.js')
   const foundationVerifierHistoricalSplitCloseoutsSource = await readRepoFile('lib/foundation-verifier-historical-split-closeouts.js')
   const foundationVerifierBuildLogRegistryAssuranceSource = await readRepoFile('lib/foundation-verifier-build-log-registry-assurance.js')
+  const foundationVerifierHealthLiveSummarySource = await readRepoFile('lib/foundation-verifier-health-live-summary.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
@@ -2845,8 +2800,6 @@ async function main() {
   const devProcessAuditSource = await readRepoFile('docs/audits/2026-04-28-dev-process-audit.md')
   const kpiHealthSource = await readRepoFile('lib/kpi-health.js')
   const kpiHealthScriptSource = await readRepoFile('scripts/kpi-supabase-health.mjs')
-  const kpiHealthDynamicYearContractScriptSource = await readRepoFile(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SCRIPT_PATH)
-  const kpiHealthDynamicYearContractPlanSource = await readRepoFile(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_PLAN_PATH)
   const sourceOfTruthPayloadSource = await readRepoFile('lib/source-of-truth-payload.js')
   const foundationHubSummaryPayloadSource = await readRepoFile('lib/foundation-hub-summary-payload.js')
   const foundationRouteBudgetCleanupScriptSource = await readRepoFile('scripts/process-foundation-route-budget-cleanup-check.mjs')
@@ -2868,8 +2821,6 @@ async function main() {
   const foundationHubSafetyVerifierPlanSource = await readRepoFile(VERIFIER_HUB_SAFETY_SPLIT_MODULE_PLAN_PATH)
   const foundationCurrentStateSummarySource = await readRepoFile('lib/foundation-current-state-summary.js')
   const foundationCurrentStateRendererSource = await readRepoFile('public/foundation-current-state-renderers.js')
-  const foundationUiLiveSummarySourcesScriptSource = await readRepoFile(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SCRIPT_PATH)
-  const foundationUiLiveSummarySourcesPlanSource = await readRepoFile(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_PLAN_PATH)
   const kpiSourceNote = await readRepoFile('docs/source-notes/kpi-dashboard.md')
   const strategyEvidencePacketSource = await readRepoFile('scripts/generate-strategy-evidence-packet.mjs')
   const intelligenceJobProofSource = await readRepoFile('scripts/intelligence-job-ledger-proof.mjs')
@@ -4267,6 +4218,7 @@ async function main() {
     foundationVerifierFrontendStructuralAssuranceSource,
     foundationVerifierHistoricalSplitCloseoutsSource,
     foundationVerifierBuildLogRegistryAssuranceSource,
+    foundationVerifierHealthLiveSummarySource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -7994,144 +7946,34 @@ async function main() {
   for (const processHardeningCheck of processHardeningVerifierChecks) {
     ensure(checks, processHardeningCheck.ok, processHardeningCheck.check, processHardeningCheck.detail)
   }
-  const kpiHealthDynamicYearContractCard = (foundationHub.backlogItems || []).find(item => item.id === KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID) || null
-  const kpiHealthDynamicYearContractCloseout = foundationBuildCloseouts.find(closeout => closeout.key === KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CLOSEOUT_KEY) || null
-  const kpiHealthDynamicYearContractDogfood = buildKpiHealthDynamicYearContractDogfoodProof()
-  const kpiHealthDynamicYearContractClosed = kpiHealthDynamicYearContractCard?.lane === 'done'
-  const hardcodedKpiHealthYearPattern = new RegExp([
-    'target_year:\\s*',
-    '2026',
-    '|',
-    '2026',
-    '-01-01|',
-    '2026',
-    '-12-31',
-  ].join(''))
-  ensure(
-    checks,
-    kpiHealthDynamicYearContractCard &&
-      ['executing', 'done'].includes(kpiHealthDynamicYearContractCard.lane) &&
-      packageJson.scripts?.['process:kpi-health-dynamic-year-contract-check'] === `node --env-file-if-exists=.env ${KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SCRIPT_PATH}` &&
-      kpiHealthDynamicYearContractDogfood.ok === true &&
-      kpiHealthSource.includes('buildKpiHealthPeriodContract') &&
-      kpiHealthSource.includes('getExpectedKpiRpcs') &&
-      !hardcodedKpiHealthYearPattern.test(kpiHealthSource) &&
-      kpiHealthScriptSource.includes('periodContract') &&
-      kpiHealthDynamicYearContractScriptSource.includes('dogfood rejects frozen prior-year params') &&
-      kpiHealthDynamicYearContractPlanSource.includes('no new responsibility added') &&
-      await repoFileExists(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_APPROVAL_PATH) &&
-      (!kpiHealthDynamicYearContractClosed || (
-        String(kpiHealthDynamicYearContractCard.statusNote || '').includes(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CLOSEOUT_KEY) &&
-        kpiHealthDynamicYearContractCloseout?.operatorCloseout === true &&
-        (kpiHealthDynamicYearContractCloseout.backlogIds || []).includes(KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-kpi-health-dynamic-year-contract-closeout.md')
-      )),
-    'KPI health dynamic-year contract rejects frozen params and exposes runtime period metadata',
-    kpiHealthDynamicYearContractCard
-      ? `lane=${kpiHealthDynamicYearContractCard.lane} year=${kpiHealthDynamicYearContractDogfood.runtime2027?.year || 'missing'} frozenRejected=${kpiHealthDynamicYearContractDogfood.frozen2026?.rejected ? 'yes' : 'no'} closeout=${kpiHealthDynamicYearContractCloseout?.key || 'pending'}`
-      : `missing ${KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_CARD_ID}`,
-  )
-  const foundationUiLiveSummarySourcesCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID) || null
-  const foundationUiLiveSummarySourcesCloseout = foundationBuildCloseouts.find(closeout => closeout.key === FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY) || null
-  const foundationUiLiveSummarySourcesDogfood = buildFoundationCurrentStateSummaryDogfoodProof()
-  const foundationUiLiveSummaryPayload = buildFoundationCurrentStateSummaryPayload({
-    sourceContracts: getSourceContracts(),
-    backlogItems: foundationHub.backlogItems || [],
-    kpiHealth: foundationHubKpiHealth,
-    currentSprint: activeFoundationSprint || {},
+  const healthLiveSummaryVerifier = await evaluateFoundationVerifierHealthLiveSummary({
+    activeFoundationSprint,
+    activeSprintAtOrPast,
+    codeQualityNightlyAuditSource,
+    currentState,
+    foundationBuildCloseouts,
+    foundationCurrentStateRendererSource,
+    foundationCurrentStateSummarySource,
+    foundationHealthScriptVerifierSource,
+    foundationHub,
+    foundationHubFull,
+    foundationHubKpiHealth,
+    foundationOperationsRenderersSource,
+    foundationRuntimeRenderersSource,
+    foundationSystemHealthSource,
+    foundationVerifierHealthLiveSummarySource,
+    foundationVerifySource,
+    hubReadRoutesSource,
+    kpiHealthScriptSource,
+    kpiHealthSource,
+    packageJson,
+    readRepoFile,
+    repoFileExists,
+    runHealthScript,
+    runHealthScriptSafe,
+    runHealthScriptWithArgs,
   })
-  const foundationUiLiveSummaryAuditFindingIds = detectHardcodedLiveTruthInText({
-    relativePath: 'public/foundation-current-state-renderers.js',
-    text: foundationCurrentStateRendererSource,
-  }).map(finding => finding.id)
-  const foundationUiLiveSummaryContract = evaluateFoundationCurrentStateSummarySourceContract({
-    payload: foundationUiLiveSummaryPayload,
-    frontendSource: foundationCurrentStateRendererSource,
-    auditFindingIds: foundationUiLiveSummaryAuditFindingIds,
-  })
-  const foundationUiLiveSummaryClosed = foundationUiLiveSummarySourcesCard?.lane === 'done'
-  ensure(
-    checks,
-    foundationUiLiveSummarySourcesCard &&
-      ['executing', 'done'].includes(foundationUiLiveSummarySourcesCard.lane) &&
-      packageJson.scripts?.['process:foundation-ui-live-summary-sources-check'] === `node --env-file-if-exists=.env ${FOUNDATION_UI_LIVE_SUMMARY_SOURCES_SCRIPT_PATH}` &&
-      foundationUiLiveSummarySourcesDogfood.ok === true &&
-      foundationUiLiveSummaryContract.ok === true &&
-      foundationCurrentStateSummarySource.includes('buildFoundationCurrentStateSummaryPayload') &&
-      foundationCurrentStateSummarySource.includes('buildFoundationCurrentStateSummaryDogfoodProof') &&
-      foundationCurrentStateRendererSource.includes('currentStateSummary') &&
-      foundationCurrentStateRendererSource.includes('renderCurrentStateMissingSummaryPanel') &&
-      !/var\s+surfaceRows\s*=\s*\[/.test(foundationCurrentStateRendererSource) &&
-      codeQualityNightlyAuditSource.includes('public/foundation-current-state-renderers.js') &&
-      foundationUiLiveSummarySourcesScriptSource.includes('source input changes alter UI row copy') &&
-      foundationUiLiveSummarySourcesPlanSource.includes('public/foundation-current-state-renderers.js') &&
-      await repoFileExists(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_APPROVAL_PATH) &&
-      (!foundationUiLiveSummaryClosed || (
-        String(foundationUiLiveSummarySourcesCard.statusNote || '').includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY) &&
-        foundationUiLiveSummarySourcesCloseout?.operatorCloseout === true &&
-        (foundationUiLiveSummarySourcesCloseout.backlogIds || []).includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-foundation-ui-live-summary-sources-closeout.md')
-      )),
-    'FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001 renders source-backed Current State summary payload',
-    foundationUiLiveSummarySourcesCard
-      ? `lane=${foundationUiLiveSummarySourcesCard.lane} rows=${foundationUiLiveSummaryPayload.summary?.surfaceRowCount || 0} auditFinding=${foundationUiLiveSummaryAuditFindingIds.includes('hardcoded-foundation-ui-current-summary') ? 'present' : 'clean'} closeout=${foundationUiLiveSummarySourcesCloseout?.key || 'pending'}`
-      : `missing ${FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID}`,
-  )
-  const systemHealthNightlyAuditCard = (foundationHub.backlogItems || []).find(item => item.id === SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID) || null
-  const scheduledJobStalenessDashboardCard = (foundationHub.backlogItems || []).find(item => item.id === SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID) || null
-  const systemHealthNightlyAuditCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SYSTEM_HEALTH_NIGHTLY_AUDIT_CLOSEOUT_KEY) || null
-  const scheduledJobStalenessDashboardCloseout = foundationBuildCloseouts.find(closeout => closeout.key === SCHEDULED_JOB_STALENESS_DASHBOARD_CLOSEOUT_KEY) || null
-  const systemHealthNightlyAuditClosed = systemHealthNightlyAuditCard?.lane === 'done'
-  const scheduledJobStalenessDashboardClosed = scheduledJobStalenessDashboardCard?.lane === 'done'
-  const systemHealthNightlyAuditDogfood = buildFoundationSystemHealthDogfoodProof()
-  const systemHealthNightlyJob = getFoundationJobDefinitions().find(job => job.key === SYSTEM_HEALTH_NIGHTLY_AUDIT_JOB_KEY) || null
-  const systemHealthNightlyRuntime = getFoundationJobRuntime(systemHealthNightlyJob || {}, {
-    status: 'succeeded',
-    finishedAt: new Date().toISOString(),
-  })
-  ensure(
-    checks,
-    systemHealthNightlyAuditCard &&
-      scheduledJobStalenessDashboardCard &&
-      ['executing', 'done'].includes(systemHealthNightlyAuditCard.lane) &&
-      ['scoped', 'executing', 'done'].includes(scheduledJobStalenessDashboardCard.lane) &&
-      packageJson.scripts?.['process:system-health-nightly-audit-check'] === `node --env-file-if-exists=.env ${SYSTEM_HEALTH_NIGHTLY_AUDIT_SCRIPT_PATH}` &&
-      systemHealthNightlyJob?.runtimeMode === 'scheduled' &&
-      systemHealthNightlyJob?.mutationPosture === 'report_only' &&
-      systemHealthNightlyJob?.scheduleLocalTime === SYSTEM_HEALTH_NIGHTLY_AUDIT_SCHEDULE_LOCAL_TIME &&
-      systemHealthNightlyRuntime.scheduleStatus !== 'blocked' &&
-      systemHealthNightlyAuditDogfood.ok === true &&
-      foundationSystemHealthSource.includes('buildFoundationSystemHealthSnapshot') &&
-      foundationSystemHealthSource.includes('buildScheduledJobStalenessSnapshot') &&
-      foundationSystemHealthSource.includes('buildFoundationSystemHealthReportMarkdown') &&
-      systemHealthNightlyAuditScriptSource.includes('--write-report') &&
-      systemHealthNightlyAuditScriptSource.includes('assertCurrentProcessCheckWriteAllowed') &&
-      hubReadRoutesSource.includes('foundationSystemHealth') &&
-      foundationRuntimeRenderersSource.includes('renderFoundationSystemHealthPanel') &&
-      foundationOperationsRenderersSource.includes('runtime-diagnostic-system-health-rollup') &&
-      systemHealthNightlyAuditPlanSource.includes('A configured job is not truth') &&
-      scheduledJobStalenessDashboardPlanSource.includes('Steve opens the Foundation page and immediately sees red/yellow/green system health') &&
-      await repoFileExists(SYSTEM_HEALTH_NIGHTLY_AUDIT_APPROVAL_PATH) &&
-      await repoFileExists(SCHEDULED_JOB_STALENESS_DASHBOARD_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/system-health-2026-05-16.md') &&
-      await repoFileExists('docs/handoffs/system-health-2026-05-16.json') &&
-      (!systemHealthNightlyAuditClosed || (
-        String(systemHealthNightlyAuditCard.statusNote || '').includes(SYSTEM_HEALTH_NIGHTLY_AUDIT_CLOSEOUT_KEY) &&
-        systemHealthNightlyAuditCloseout?.operatorCloseout === true &&
-        (systemHealthNightlyAuditCloseout.backlogIds || []).includes(SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-system-health-nightly-audit-closeout.md')
-      )) &&
-      (!scheduledJobStalenessDashboardClosed || (
-        String(scheduledJobStalenessDashboardCard.statusNote || '').includes(SCHEDULED_JOB_STALENESS_DASHBOARD_CLOSEOUT_KEY) &&
-        scheduledJobStalenessDashboardCloseout?.operatorCloseout === true &&
-        (scheduledJobStalenessDashboardCloseout.backlogIds || []).includes(SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-scheduled-job-staleness-dashboard-closeout.md')
-      )),
-    'SYSTEM-HEALTH-NIGHTLY-AUDIT-001 and SCHEDULED-JOB-STALENESS-DASHBOARD-001 surface hidden job/source/system staleness',
-    systemHealthNightlyAuditCard && scheduledJobStalenessDashboardCard
-      ? `lanes=${systemHealthNightlyAuditCard.lane}/${scheduledJobStalenessDashboardCard.lane} job=${systemHealthNightlyJob?.runtimeMode || 'missing'}/${systemHealthNightlyRuntime.scheduleStatus || 'missing'} dogfood=${systemHealthNightlyAuditDogfood.ok ? 'pass' : 'blocked'}`
-      : 'missing system-health visibility cards',
-  )
+  checks.push(...healthLiveSummaryVerifier.checks)
   const processHardeningDogfood = buildFoundationProcessHardeningVerifierDogfoodProof()
   const verifierProcessHardeningSplitModuleCard =
     verifierSplitBacklogItemById.get(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID) ||
@@ -8449,62 +8291,6 @@ async function main() {
       includesAll(currentState, ['DATA-018', 'DATA-019', 'DATA-020']),
     'current-state source closeout rows match done Owners/FUB guardrails',
     doneGuardrails.map(item => `${item?.id || 'missing'}=${item?.lane || 'missing'}`).join(' / '),
-  )
-
-  const googleHealth = await runHealthScript('google:health')
-  const fubHealth = await runHealthScript('fub:health')
-  const kpiHealth = await runHealthScript('kpi:health')
-  const backlogHygieneOutput = await runHealthScriptWithArgs('backlog:hygiene', ['--includeSynthetic=true'])
-  const clickUpVerifyResult = await runHealthScriptSafe('clickup:verify')
-  const sheetVerify = await runHealthScript('sheets:verify')
-  const healthScriptVerifier = evaluateFoundationHealthScriptVerifier({
-    outputs: {
-      googleHealth,
-      fubHealth,
-      kpiHealth,
-      backlogHygieneOutput,
-      clickUpVerifyResult,
-      sheetVerify,
-    },
-    foundationHub,
-    foundationHubFull,
-    expectedKpiTables: EXPECTED_KPI_TABLES,
-    expectedKpiRpcs: EXPECTED_KPI_RPCS,
-  })
-  checks.push(...healthScriptVerifier.checks)
-  const verifierHealthScriptModuleCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID) || null
-  const verifierHealthScriptModuleCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_HEALTH_SCRIPT_MODULE_CLOSEOUT_KEY) || null
-  const verifierHealthScriptModuleDogfood = buildFoundationHealthScriptVerifierDogfoodProof()
-  const foundationVerifyLineCountAfterHealthScriptSplit = String(foundationVerifySource || '').split('\n').length
-  ensure(
-    checks,
-      verifierHealthScriptModuleCard &&
-      ['executing', 'done'].includes(verifierHealthScriptModuleCard.lane) &&
-      String(verifierHealthScriptModuleCard.statusNote || '').includes(VERIFIER_HEALTH_SCRIPT_MODULE_CLOSEOUT_KEY) &&
-      verifierHealthScriptModuleCloseout?.operatorCloseout === true &&
-      (verifierHealthScriptModuleCloseout.backlogIds || []).includes(VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID) &&
-      verifierHealthScriptModuleDogfood.ok === true &&
-      healthScriptVerifier.summary.passed === healthScriptVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-health-script-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_HEALTH_SCRIPT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_HEALTH_SCRIPT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_HEALTH_SCRIPT_MODULE_APPROVAL_PATH) &&
-      await repoFileExists(VERIFIER_HEALTH_SCRIPT_MODULE_HANDOFF_PATH) &&
-      foundationHealthScriptVerifierSource.includes('evaluateFoundationHealthScriptVerifier') &&
-      foundationHealthScriptVerifierSource.includes('buildFoundationHealthScriptVerifierDogfoodProof') &&
-      verifierHealthScriptModuleScriptSource.includes('dogfood rejects health-script verifier failures') &&
-      (verifierHealthScriptModulePlanSource.includes('Substring-only proof') ||
-        verifierHealthScriptModulePlanSource.includes('substring theatre')) &&
-      foundationVerifySource.includes('evaluateFoundationHealthScriptVerifier({') &&
-      foundationVerifySource.includes('healthScriptVerifier.checks') &&
-      !foundationVerifySource.includes('googleHealth.' + "includes('Spreadsheet access: OK')") &&
-      !foundationVerifySource.includes('sheetVerify.' + "includes('Sheet structure verification passed.')") &&
-      foundationVerifyLineCountAfterHealthScriptSplit < VERIFIER_HEALTH_SCRIPT_MODULE_BEFORE_LINES &&
-      (activeFoundationSprint.sprint?.sprintId === VERIFIER_HEALTH_SCRIPT_MODULE_SPRINT_ID ||
-        activeSprintAtOrPast([VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID])),
-    'VERIFIER-HEALTH-SCRIPT-MODULE-SPLIT-001 extracts health-script verifier checks into a focused module',
-    verifierHealthScriptModuleCard
-      ? `lane=${verifierHealthScriptModuleCard.lane} dogfood=${verifierHealthScriptModuleDogfood.ok ? 'pass' : 'blocked'} healthChecks=${healthScriptVerifier.summary.passed}/${healthScriptVerifier.summary.total} lines=${VERIFIER_HEALTH_SCRIPT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterHealthScriptSplit}`
-      : `missing ${VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID}`,
   )
 
   const failed = checks.filter(check => !check.ok)

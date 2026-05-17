@@ -201,6 +201,7 @@
     "process:verifier-frontend-structural-assurance-split-check": "node --env-file-if-exists=.env scripts/process-verifier-frontend-structural-assurance-split-check.mjs",
     "process:verifier-historical-split-closeouts-split-check": "node --env-file-if-exists=.env scripts/process-verifier-historical-split-closeouts-split-check.mjs",
     "process:verifier-build-log-registry-assurance-split-check": "node --env-file-if-exists=.env scripts/process-verifier-build-log-registry-assurance-split-check.mjs",
+    "process:verifier-health-live-summary-split-check": "node --env-file-if-exists=.env scripts/process-verifier-health-live-summary-split-check.mjs",
     "process:verifier-runtime-reliability-split-check": "node --env-file-if-exists=.env scripts/process-verifier-runtime-reliability-split-check.mjs",
     "process:verifier-health-script-module-check": "node --env-file-if-exists=.env scripts/process-verifier-health-script-module-check.mjs",
     "process:fub-source-route-split-check": "node --env-file-if-exists=.env scripts/process-fub-source-route-split-check.mjs",
