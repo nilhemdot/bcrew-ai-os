@@ -240,17 +240,7 @@ import {
   buildFoundationRouteSplitVerifierDogfoodProof,
   evaluateFoundationRouteSplitVerifier,
 } from '../lib/foundation-route-split-verifier.js'
-import {
-  VERIFIER_RECENT_BUILDS_SPLIT_APPROVAL_PATH,
-  VERIFIER_RECENT_BUILDS_SPLIT_BEFORE_LINES,
-  VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID,
-  VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY,
-  VERIFIER_RECENT_BUILDS_SPLIT_PLAN_PATH,
-  VERIFIER_RECENT_BUILDS_SPLIT_SCRIPT_PATH,
-  VERIFIER_RECENT_BUILDS_SPLIT_SPRINT_ID,
-  buildFoundationRecentBuildsVerifierDogfoodProof,
-  evaluateFoundationRecentBuildsVerifier,
-} from '../lib/foundation-recent-builds-verifier.js'
+import { evaluateFoundationRecentBuildsVerifier } from '../lib/foundation-recent-builds-verifier.js'
 import {
   buildFoundationVerifierBuildLogCloseoutEntries,
   buildFoundationVerifierBuildLogCloseoutEntry,
@@ -335,36 +325,12 @@ import {
   evaluateFoundationVerifierFrontendSplitAssurance,
 } from '../lib/foundation-verifier-frontend-split-assurance.js'
 import {
-  VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_APPROVAL_PATH,
-  VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_BEFORE_LINES,
-  VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CARD_ID,
-  VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CLOSEOUT_KEY,
-  VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_HANDOFF_PATH,
-  VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_PLAN_PATH,
-  VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_SCRIPT_PATH,
-  buildFoundationVerifierPhaseGOperatorCloseoutDogfoodProof,
   evaluateFoundationVerifierPhaseGOperatorCloseout,
 } from '../lib/foundation-verifier-phase-g-operator-closeout.js'
 import {
-  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_APPROVAL_PATH,
-  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_BEFORE_LINES,
-  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID,
-  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CLOSEOUT_KEY,
-  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_HANDOFF_PATH,
-  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_PLAN_PATH,
-  VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_SCRIPT_PATH,
-  buildFoundationVerifierReadinessBlockerCloseoutDogfoodProof,
   evaluateFoundationVerifierReadinessBlockerCloseout,
 } from '../lib/foundation-verifier-readiness-blocker-closeout.js'
 import {
-  VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_APPROVAL_PATH,
-  VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_BEFORE_LINES,
-  VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_CARD_ID,
-  VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_CLOSEOUT_KEY,
-  VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_HANDOFF_PATH,
-  VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_PLAN_PATH,
-  VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_SCRIPT_PATH,
-  buildFoundationVerifierSprintGateProgressionDogfoodProof,
   evaluateFoundationVerifierSprintGateProgression,
 } from '../lib/foundation-verifier-sprint-gate-progression.js'
 import {
@@ -395,6 +361,9 @@ import {
 import {
   evaluateFoundationVerifierFrontendStructuralAssurance,
 } from '../lib/foundation-verifier-frontend-structural-assurance.js'
+import {
+  evaluateFoundationVerifierHistoricalSplitCloseouts,
+} from '../lib/foundation-verifier-historical-split-closeouts.js'
 import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
@@ -2755,8 +2724,6 @@ async function main() {
   const verifierRouteSplitModuleScriptSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierRouteSplitModulePlanSource = await readRepoFile(VERIFIER_ROUTE_SPLIT_MODULE_PLAN_PATH)
   const foundationRecentBuildsVerifierSource = await readRepoFile('lib/foundation-recent-builds-verifier.js')
-  const verifierRecentBuildsSplitScriptSource = await readRepoFile(VERIFIER_RECENT_BUILDS_SPLIT_SCRIPT_PATH)
-  const verifierRecentBuildsSplitPlanSource = await readRepoFile(VERIFIER_RECENT_BUILDS_SPLIT_PLAN_PATH)
   const foundationRuntimeReliabilityVerifierSource = await readRepoFile('lib/foundation-runtime-reliability-verifier.js')
   const verifierRuntimeReliabilitySplitScriptSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_SCRIPT_PATH)
   const verifierRuntimeReliabilitySplitPlanSource = await readRepoFile(VERIFIER_RUNTIME_RELIABILITY_SPLIT_PLAN_PATH)
@@ -2821,6 +2788,7 @@ async function main() {
   const foundationVerifierProcessControlGovernanceSource = await readRepoFile('lib/foundation-verifier-process-control-governance.js')
   const foundationVerifierStructuralAssuranceCoreSource = await readRepoFile('lib/foundation-verifier-structural-assurance-core.js')
   const foundationVerifierFrontendStructuralAssuranceSource = await readRepoFile('lib/foundation-verifier-frontend-structural-assurance.js')
+  const foundationVerifierHistoricalSplitCloseoutsSource = await readRepoFile('lib/foundation-verifier-historical-split-closeouts.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
@@ -4281,6 +4249,7 @@ async function main() {
     foundationProcessTrustVerifierSource,
     foundationAgentFeedbackVerifierSource,
     foundationCanvaClientVerifierSource,
+    foundationRecentBuildsVerifierSource,
     llmHubCapacitySource,
     llmCredentialRegistrySource,
     foundationOperatorBudgetVerifierSource,
@@ -4313,6 +4282,7 @@ async function main() {
     foundationVerifierProcessControlGovernanceSource,
     foundationVerifierStructuralAssuranceCoreSource,
     foundationVerifierFrontendStructuralAssuranceSource,
+    foundationVerifierHistoricalSplitCloseoutsSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -7805,122 +7775,25 @@ async function main() {
     verifierFrontendSplitModuleScriptSource,
   })
   checks.push(...frontendStructuralAssuranceVerifier.checks)
-  const verifierPhaseGOperatorCloseoutCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CARD_ID) || null
-  const verifierPhaseGOperatorCloseoutCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CLOSEOUT_KEY) || null
-  const verifierPhaseGOperatorCloseoutDogfood = buildFoundationVerifierPhaseGOperatorCloseoutDogfoodProof()
-  const foundationVerifyLineCountAfterPhaseGOperatorCloseout = String(foundationVerifySource || '').split('\n').length
-  const oldPhaseGOperatorInlineMarker = 'const foundation' + '1100BuildLogExact ='
-  ensure(
-    checks,
-    verifierPhaseGOperatorCloseoutCard &&
-      ['executing', 'done'].includes(verifierPhaseGOperatorCloseoutCard.lane) &&
-      String(verifierPhaseGOperatorCloseoutCard.statusNote || '').includes(VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CLOSEOUT_KEY) &&
-      verifierPhaseGOperatorCloseoutCloseout?.operatorCloseout === true &&
-      (verifierPhaseGOperatorCloseoutCloseout.backlogIds || []).includes(VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CARD_ID) &&
-      verifierPhaseGOperatorCloseoutDogfood.ok === true &&
-      phaseGOperatorCloseoutVerifier.summary.passed === phaseGOperatorCloseoutVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-phase-g-operator-closeout-split-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_SCRIPT_PATH &&
-      await repoFileExists(VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists(VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_HANDOFF_PATH) &&
-      foundationVerifySource.includes('evaluateFoundationVerifierPhaseGOperatorCloseout({') &&
-      foundationVerifySource.includes('phaseGOperatorCloseoutVerifier.checks') &&
-      !foundationVerifySource.includes(oldPhaseGOperatorInlineMarker) &&
-      foundationVerifyLineCountAfterPhaseGOperatorCloseout < VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_BEFORE_LINES &&
-      foundationVerifierPhaseGOperatorCloseoutSource.includes(VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CARD_ID),
-    'VERIFIER-PHASE-G-OPERATOR-CLOSEOUT-SPLIT-001 extracts Phase G operator closeout verifier checks into a focused module',
-    verifierPhaseGOperatorCloseoutCard
-      ? 'lane=' + verifierPhaseGOperatorCloseoutCard.lane + ' dogfood=' + (verifierPhaseGOperatorCloseoutDogfood.ok ? 'pass' : 'blocked') + ' phaseGChecks=' + phaseGOperatorCloseoutVerifier.summary.passed + '/' + phaseGOperatorCloseoutVerifier.summary.total + ' lines=' + VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_BEFORE_LINES + '->' + foundationVerifyLineCountAfterPhaseGOperatorCloseout
-      : 'missing ' + VERIFIER_PHASE_G_OPERATOR_CLOSEOUT_SPLIT_CARD_ID,
-  )
-  const verifierReadinessBlockerCloseoutCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID) || null
-  const verifierReadinessBlockerCloseoutCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CLOSEOUT_KEY) || null
-  const verifierReadinessBlockerCloseoutDogfood = buildFoundationVerifierReadinessBlockerCloseoutDogfoodProof()
-  const foundationVerifyLineCountAfterReadinessBlockerCloseout = String(foundationVerifySource || '').split('\n').length
-  const oldReadinessBlockerInlineMarker = 'const source' + 'LifecycleCompletionBuildLogExact ='
-  ensure(
-    checks,
-    verifierReadinessBlockerCloseoutCard &&
-      ['executing', 'done'].includes(verifierReadinessBlockerCloseoutCard.lane) &&
-      String(verifierReadinessBlockerCloseoutCard.statusNote || '').includes(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CLOSEOUT_KEY) &&
-      verifierReadinessBlockerCloseoutCloseout?.operatorCloseout === true &&
-      (verifierReadinessBlockerCloseoutCloseout.backlogIds || []).includes(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID) &&
-      verifierReadinessBlockerCloseoutDogfood.ok === true &&
-      readinessBlockerCloseoutVerifier.summary.passed === readinessBlockerCloseoutVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-readiness-blocker-closeout-split-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_SCRIPT_PATH &&
-      await repoFileExists(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_HANDOFF_PATH) &&
-      foundationVerifySource.includes('evaluateFoundationVerifierReadinessBlockerCloseout({') &&
-      foundationVerifySource.includes('readinessBlockerCloseoutVerifier.checks') &&
-      !foundationVerifySource.includes(oldReadinessBlockerInlineMarker) &&
-      foundationVerifyLineCountAfterReadinessBlockerCloseout < VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_BEFORE_LINES &&
-      foundationVerifierReadinessBlockerCloseoutSource.includes(VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID),
-    'VERIFIER-READINESS-BLOCKER-CLOSEOUT-SPLIT-001 extracts readiness blocker closeout verifier checks into a focused module',
-    verifierReadinessBlockerCloseoutCard
-      ? 'lane=' + verifierReadinessBlockerCloseoutCard.lane + ' dogfood=' + (verifierReadinessBlockerCloseoutDogfood.ok ? 'pass' : 'blocked') + ' readinessChecks=' + readinessBlockerCloseoutVerifier.summary.passed + '/' + readinessBlockerCloseoutVerifier.summary.total + ' lines=' + VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_BEFORE_LINES + '->' + foundationVerifyLineCountAfterReadinessBlockerCloseout
-      : 'missing ' + VERIFIER_READINESS_BLOCKER_CLOSEOUT_SPLIT_CARD_ID,
-  )
-  const verifierSprintGateProgressionCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_CARD_ID) || null
-  const verifierSprintGateProgressionCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_CLOSEOUT_KEY) || null
-  const verifierSprintGateProgressionDogfood = buildFoundationVerifierSprintGateProgressionDogfoodProof()
-  const foundationVerifyLineCountAfterSprintGateProgression = String(foundationVerifySource || '').split('\n').length
-  const oldSprintGateInlineMarker = 'const verify' + 'GateTieringBuildLogExact ='
-  ensure(
-    checks,
-    verifierSprintGateProgressionCard &&
-      ['executing', 'done'].includes(verifierSprintGateProgressionCard.lane) &&
-      String(verifierSprintGateProgressionCard.statusNote || '').includes(VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_CLOSEOUT_KEY) &&
-      verifierSprintGateProgressionCloseout?.operatorCloseout === true &&
-      (verifierSprintGateProgressionCloseout.backlogIds || []).includes(VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_CARD_ID) &&
-      verifierSprintGateProgressionDogfood.ok === true &&
-      sprintGateProgressionVerifier.summary.passed === sprintGateProgressionVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-sprint-gate-progression-split-check'] === 'node --env-file-if-exists=.env ' + VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_SCRIPT_PATH &&
-      await repoFileExists(VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists(VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_HANDOFF_PATH) &&
-      foundationVerifySource.includes('evaluateFoundationVerifierSprintGateProgression({') &&
-      foundationVerifySource.includes('sprintGateProgressionVerifier.checks') &&
-      !foundationVerifySource.includes(oldSprintGateInlineMarker) &&
-      foundationVerifyLineCountAfterSprintGateProgression < VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_BEFORE_LINES &&
-      foundationVerifierSprintGateProgressionSource.includes(VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_CARD_ID),
-    'VERIFIER-SPRINT-GATE-PROGRESSION-SPLIT-001 extracts Current Sprint gate progression checks into a focused module',
-    verifierSprintGateProgressionCard
-      ? 'lane=' + verifierSprintGateProgressionCard.lane + ' dogfood=' + (verifierSprintGateProgressionDogfood.ok ? 'pass' : 'blocked') + ' sprintGateChecks=' + sprintGateProgressionVerifier.summary.passed + '/' + sprintGateProgressionVerifier.summary.total + ' lines=' + VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_BEFORE_LINES + '->' + foundationVerifyLineCountAfterSprintGateProgression
-      : 'missing ' + VERIFIER_SPRINT_GATE_PROGRESSION_SPLIT_CARD_ID,
-  )
-  const verifierRecentBuildsSplitCard = (foundationHub.backlogItems || []).find(item => item.id === VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID) || null
-  const verifierRecentBuildsSplitCloseout = foundationBuildCloseouts.find(closeout => closeout.key === VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY) || null
-  const verifierRecentBuildsSplitDogfood = buildFoundationRecentBuildsVerifierDogfoodProof()
-  const foundationVerifyLineCountAfterRecentBuildsSplit = String(foundationVerifySource || '').split('\n').length
-  ensure(
-    checks,
-      verifierRecentBuildsSplitCard &&
-      ['executing', 'done'].includes(verifierRecentBuildsSplitCard.lane) &&
-      String(verifierRecentBuildsSplitCard.statusNote || '').includes(VERIFIER_RECENT_BUILDS_SPLIT_CLOSEOUT_KEY) &&
-      verifierRecentBuildsSplitCloseout?.operatorCloseout === true &&
-      (verifierRecentBuildsSplitCloseout.backlogIds || []).includes(VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID) &&
-      verifierRecentBuildsSplitDogfood.ok === true &&
-      packageJson.scripts?.['process:verifier-recent-builds-closeout-split-check'] === `node --env-file-if-exists=.env ${VERIFIER_RECENT_BUILDS_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_RECENT_BUILDS_SPLIT_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_RECENT_BUILDS_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists('docs/handoffs/2026-05-15-verifier-recent-builds-closeout-split-closeout.md') &&
-      foundationRecentBuildsVerifierSource.includes('evaluateFoundationRecentBuildsVerifier') &&
-      foundationRecentBuildsVerifierSource.includes('RECENT_BUILD_CLOSEOUT_EXPECTATIONS') &&
-      verifierRecentBuildsSplitScriptSource.includes('dogfood rejects old Recent Builds closeout verifier failures') &&
-      verifierRecentBuildsSplitPlanSource.includes('Substring-only proof is rejected') &&
-      foundationVerifySource.includes('evaluateFoundationRecentBuildsVerifier({') &&
-      foundationVerifySource.includes('recentBuildsCloseoutVerifier.checks') &&
-      !foundationVerifySource.includes('Recent Builds v2 carries closeout proof for ' + 'FOUNDATION-SWEEP-001') &&
-      foundationVerifyLineCountAfterRecentBuildsSplit < VERIFIER_RECENT_BUILDS_SPLIT_BEFORE_LINES &&
-      (activeFoundationSprint.sprint?.sprintId === VERIFIER_RECENT_BUILDS_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID])) &&
-      foundationVerifySource.includes(VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID),
-    'VERIFIER-RECENT-BUILDS-CLOSEOUT-SPLIT-001 extracts Recent Builds closeout verifier checks into a focused module',
-    verifierRecentBuildsSplitCard
-      ? `lane=${verifierRecentBuildsSplitCard.lane} dogfood=${verifierRecentBuildsSplitDogfood.ok ? 'pass' : 'blocked'} lines=${VERIFIER_RECENT_BUILDS_SPLIT_BEFORE_LINES}->${foundationVerifyLineCountAfterRecentBuildsSplit}`
-      : `missing ${VERIFIER_RECENT_BUILDS_SPLIT_CARD_ID}`,
-  )
+  const historicalSplitCloseoutsVerifier = await evaluateFoundationVerifierHistoricalSplitCloseouts({
+    activeFoundationSprint,
+    activeSprintAtOrPast,
+    foundationBuildCloseouts,
+    foundationHub,
+    foundationRecentBuildsVerifierSource,
+    foundationVerifierHistoricalSplitCloseoutsSource,
+    foundationVerifierPhaseGOperatorCloseoutSource,
+    foundationVerifierReadinessBlockerCloseoutSource,
+    foundationVerifierSprintGateProgressionSource,
+    foundationVerifySource,
+    packageJson,
+    phaseGOperatorCloseoutVerifier,
+    readinessBlockerCloseoutVerifier,
+    readRepoFile,
+    repoFileExists,
+    sprintGateProgressionVerifier,
+  })
+  checks.push(...historicalSplitCloseoutsVerifier.checks)
   const runtimeReliabilityVerifier = await evaluateFoundationRuntimeReliabilityVerifier({
     foundationHub,
     foundationHubFull,

@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-HISTORICAL-SPLIT-CLOSEOUTS-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T07:21:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for historical verifier split closeout assertion extraction covering Phase G operator closeout, readiness blocker closeout, sprint gate progression, and Recent Builds split closeout checks into lib/foundation-verifier-historical-split-closeouts.js. Not approved: arbitrary tail extraction, behavior rewrites, audit triage, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-historical-split-closeouts-split-001-plan.md",
+  "approvedPlanSha256": "8e357169957184db0371ed9bae829fd8595dbe511e2057315bdf997748cffef3",
+  "approvedRepoHead": "381bc23bd676dbf84140b50d7c40df5554bf7da4",
+  "approvalDigest": "a9fdae662e4c65b23485f54d06df0e41579325f832624a25100ca883cc45f372"
+}
