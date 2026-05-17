@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-BUILD-LOG-REGISTRY-ASSURANCE-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T07:31:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for build-log registry assurance verifier extraction covering CLEANUP-003 build-log monolith slice, FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001 closeout registry split, closeout ownership proof, and closeout validation proof into lib/foundation-verifier-build-log-registry-assurance.js. Not approved: arbitrary tail extraction, behavior rewrites, runtime reliability, process hardening, connector auth, source extraction jobs, paid calls, hub features, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-build-log-registry-assurance-split-001-plan.md",
+  "approvedPlanSha256": "6581d552764b1babd04759bb734f47a99cd6dbfcbdfb0754ad6fe4298a1ada38",
+  "approvedRepoHead": "e326f53e9ba88341834ed4de09a7f94892ca7176",
+  "approvalDigest": "dcb7664780c1b172a9890b775d37459ef587a0cd9ae34f02069f45bca041d838"
+}

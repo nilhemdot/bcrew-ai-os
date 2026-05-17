@@ -365,6 +365,9 @@ import {
   evaluateFoundationVerifierHistoricalSplitCloseouts,
 } from '../lib/foundation-verifier-historical-split-closeouts.js'
 import {
+  evaluateFoundationVerifierBuildLogRegistryAssurance,
+} from '../lib/foundation-verifier-build-log-registry-assurance.js'
+import {
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_APPROVAL_PATH,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES,
   VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
@@ -1382,24 +1385,12 @@ import {
 import {
   FOUNDATION_BUILD_CLOSEOUT_RECORDS_PATH,
   FOUNDATION_BUILD_LOG_BEHAVIOR_PATH,
-  FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID,
   FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CLOSEOUT_KEY,
-  FOUNDATION_BUILD_LOG_MONOLITH_SLICE_SCRIPT_PATH,
-  buildSyntheticFoundationBuildLogRegistrySplitProof,
-  countTextLines,
-  evaluateFoundationBuildLogRegistrySplit,
 } from '../lib/foundation-build-log-monolith-slice.js'
 import {
   FOUNDATION_BUILD_CLOSEOUT_CONTROL_PLANE_PATH,
-  FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_APPROVAL_PATH,
   FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID,
   FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CLOSEOUT_KEY,
-  FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_HANDOFF_PATH,
-  FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_PLAN_PATH,
-  FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_SCRIPT_PATH,
-  FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_SPRINT_ID,
-  buildFoundationBuildCloseoutRegistrySplitDogfoodProof,
-  evaluateFoundationBuildCloseoutRegistrySplit,
 } from '../lib/foundation-build-closeout-registry-split.js'
 import {
   RECURRING_DEEP_AUDIT_JOB_KEY,
@@ -1744,10 +1735,6 @@ const FOUNDATION_PERFORMANCE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
 const FOUNDATION_FULL_DIAGNOSTICS_PERF_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
   'FOUNDATION-FULL-DIAGNOSTICS-PERF-001',
   'FOUNDATION-HUB-FULL-ROUTE-SPLIT-001',
-]
-
-const FOUNDATION_BUILD_LOG_MONOLITH_SLICE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'CLEANUP-003',
 ]
 
 const SOURCE_OUTAGE_BOUNDARY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
@@ -2474,11 +2461,6 @@ async function main() {
   const foundationBuildCloseoutCleanupRecordsSource = await readRepoFile('lib/foundation-build-closeout-cleanup-records.js')
   const foundationBuildCloseoutOvernightRecordsSource = await readRepoFile('lib/foundation-build-closeout-overnight-records.js')
   const foundationBuildCloseoutTighteningRecordsSource = await readRepoFile('lib/foundation-build-closeout-tightening-records.js')
-  const foundationBuildCloseoutRegistrySplitSource = await readRepoFile('lib/foundation-build-closeout-registry-split.js')
-  const foundationBuildCloseoutRegistrySplitScriptSource = await readRepoFile(FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_SCRIPT_PATH)
-  const foundationBuildCloseoutRegistrySplitPlanSource = await readRepoFile(FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_PLAN_PATH)
-  const foundationBuildLogMonolithSliceSource = await readRepoFile('lib/foundation-build-log-monolith-slice.js')
-  const foundationBuildLogMonolithSliceScriptSource = await readRepoFile(FOUNDATION_BUILD_LOG_MONOLITH_SLICE_SCRIPT_PATH)
   const planCriticPlanSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_PLAN_PATH)
   const planCriticDecisionTreeSource = await readRepoFile(PLAN_CRITIC_DECISION_TREE_PATH)
   const planCriticApprovalSource = await readRepoFile(PLAN_CRITIC_REPLACEMENT_APPROVAL_PATH)
@@ -2789,6 +2771,7 @@ async function main() {
   const foundationVerifierStructuralAssuranceCoreSource = await readRepoFile('lib/foundation-verifier-structural-assurance-core.js')
   const foundationVerifierFrontendStructuralAssuranceSource = await readRepoFile('lib/foundation-verifier-frontend-structural-assurance.js')
   const foundationVerifierHistoricalSplitCloseoutsSource = await readRepoFile('lib/foundation-verifier-historical-split-closeouts.js')
+  const foundationVerifierBuildLogRegistryAssuranceSource = await readRepoFile('lib/foundation-verifier-build-log-registry-assurance.js')
   const foundationProcessHardeningVerifierSource = await readRepoFile('lib/foundation-process-hardening-verifier.js')
   const verifierProcessHardeningSplitModuleScriptSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH)
   const verifierProcessHardeningSplitModulePlanSource = await readRepoFile(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH)
@@ -4283,6 +4266,7 @@ async function main() {
     foundationVerifierStructuralAssuranceCoreSource,
     foundationVerifierFrontendStructuralAssuranceSource,
     foundationVerifierHistoricalSplitCloseoutsSource,
+    foundationVerifierBuildLogRegistryAssuranceSource,
   ].filter(Boolean).join('\n')
   const runtimeWorkerCode = foundationHub.runtimeSupervisor?.workerCode || {}
   const workerRunningCommit = String(runtimeWorkerCode.runningCommit || '').trim().toLowerCase()
@@ -7887,94 +7871,30 @@ async function main() {
       ? `lane=${verifierRuntimeReliabilitySplitCard.lane} dogfood=${verifierRuntimeReliabilitySplitDogfood.ok ? 'pass' : 'blocked'} reliabilityChecks=${runtimeReliabilityVerifier.summary.passed}/${runtimeReliabilityVerifier.summary.total} lines=${VERIFIER_RUNTIME_RELIABILITY_SPLIT_BEFORE_LINES}->${foundationVerifyLineCountAfterRuntimeReliabilitySplit}`
       : `missing ${VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID}`,
   )
-  const foundationBuildLogMonolithSliceCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) || null
-  const closeoutOwnershipGuardCard = (foundationHub.backlogItems || []).find(item => item.id === CLOSEOUT_OWNERSHIP_GUARD_CARD_ID) || null
-  const foundationBuildLogValidation = getFoundationBuildCloseoutValidation()
-  const foundationBuildLogOwnershipProof = buildSyntheticBuildLogOwnershipProof()
-  const foundationBuildLogCloseoutValidationProof = buildSyntheticBuildLogCloseoutValidationProof()
-  const foundationBuildLogSplitProof = buildSyntheticFoundationBuildLogRegistrySplitProof()
-  const foundationBuildLogSplitEvaluation = evaluateFoundationBuildLogRegistrySplit({
-    behaviorLineCount: countTextLines(foundationBuildLogBehaviorSource),
-    recordLineCount: countTextLines(foundationBuildCloseoutRecordsSource),
-    closeoutCount: foundationBuildLogValidation.closeoutCount,
-    invalidCloseoutCount: (foundationBuildLogValidation.invalidCloseoutKeys || []).length,
-    behaviorImportsRecords: foundationBuildLogBehaviorSource.includes('./foundation-build-closeout-records.js'),
-    behaviorEmbedsRecords: foundationBuildLogBehaviorSource.includes('const closeoutRecords = [') || foundationBuildLogBehaviorSource.includes('export const closeoutRecords = ['),
-    recordsExportCloseouts: foundationBuildCloseoutRecordsSource.includes('export const closeoutRecords = ['),
-    recordsEmbedBehavior: foundationBuildCloseoutRecordsSource.includes('function normalizeList') || foundationBuildCloseoutRecordsSource.includes('export function'),
-    ownershipProofOk: foundationBuildLogOwnershipProof.ok === true,
+  const buildLogRegistryAssuranceVerifier = await evaluateFoundationVerifierBuildLogRegistryAssurance({
+    activeFoundationSprint,
+    activeSprintAtOrPast,
+    foundationBuildCloseoutControlPlaneRecordsSource,
+    foundationBuildCloseoutRecordsSource,
+    foundationBuildCloseoutRegistrySplitCloseout,
+    foundationBuildCloseouts,
+    foundationBuildLog,
+    foundationBuildLogBehaviorSource,
+    foundationBuildLogMonolithSliceCloseout,
+    foundationBuildLogRegistrySource,
+    foundationHub,
+    foundationVerifierBuildLogRegistryAssuranceSource,
+    foundationVerifySource,
+    packageJson,
+    readRepoFile,
+    repoFileExists,
   })
-  ensure(
-    checks,
-      foundationBuildLogMonolithSliceCard &&
-      ['scoped', 'done'].includes(foundationBuildLogMonolithSliceCard.lane) &&
-      foundationBuildLogMonolithSliceCloseout?.operatorCloseout === true &&
-      (foundationBuildLogMonolithSliceCloseout.backlogIds || []).includes(FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID) &&
-      foundationBuildLogSplitEvaluation.ok === true &&
-      foundationBuildLogSplitProof.ok === true &&
-      foundationBuildLogSplitProof.unsplit?.ok === false &&
-      foundationBuildLogSplitProof.split?.ok === true &&
-      foundationBuildLogOwnershipProof.ok === true &&
-      foundationBuildLogCloseoutValidationProof.ok === true &&
-      (foundationBuildLogValidation.invalidCloseoutKeys || []).length === 0 &&
-      (foundationBuildLogValidation.ownershipOverlapViolations || []).length === 0 &&
-      packageJson.scripts?.['process:foundation-build-log-monolith-slice-check'] === `node --env-file-if-exists=.env ${FOUNDATION_BUILD_LOG_MONOLITH_SLICE_SCRIPT_PATH}` &&
-      foundationBuildLogBehaviorSource.includes('./foundation-build-closeout-records.js') &&
-      foundationBuildLogBehaviorSource.includes('export { FOUNDATION_BUILD_CLOSEOUT_SCHEMA_VERSION }') &&
-      foundationBuildCloseoutRecordsSource.includes('export const closeoutRecords = [') &&
-      foundationBuildLogMonolithSliceSource.includes('buildSyntheticFoundationBuildLogRegistrySplitProof') &&
-      foundationBuildLogMonolithSliceScriptSource.includes('dogfood proof rejects unsplit oversized build-log') &&
-      includesAll(foundationVerifySource, FOUNDATION_BUILD_LOG_MONOLITH_SLICE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE),
-    'CLEANUP-003 splits Foundation build-log closeout registry from behavior module',
-    foundationBuildLogMonolithSliceCard
-      ? `lane=${foundationBuildLogMonolithSliceCard.lane} behaviorLines=${foundationBuildLogSplitEvaluation.summary.behaviorLineCount} recordLines=${foundationBuildLogSplitEvaluation.summary.recordLineCount} closeout=${foundationBuildLogMonolithSliceCloseout?.key || 'missing'}`
-      : `missing ${FOUNDATION_BUILD_LOG_MONOLITH_SLICE_CARD_ID}`,
-  )
-  const foundationBuildCloseoutRegistrySplitCard = (foundationHub.backlogItems || []).find(item => item.id === FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID) || null
-  const foundationBuildCloseoutRegistrySplitDogfood = buildFoundationBuildCloseoutRegistrySplitDogfoodProof()
-  const foundationBuildCloseoutRegistrySplitBuildLogVisible = [
-    ...(foundationBuildLog.builds || []),
-    ...(foundationBuildLog.closeouts || []),
-  ].some(entry =>
-    (entry.closeoutKey || entry.key) === 'foundation-surface-sweep-v1' &&
-      (entry.backlogIds || []).includes('FOUNDATION-SWEEP-001')
-  )
-  const foundationBuildCloseoutRegistrySplitEvaluation = evaluateFoundationBuildCloseoutRegistrySplit({
-    afterRecords: foundationBuildCloseouts,
-    mainSource: foundationBuildCloseoutRecordsSource,
-    controlPlaneSource: foundationBuildCloseoutControlPlaneRecordsSource,
-    registrySource: foundationBuildLogRegistrySource,
-    validation: foundationBuildLogValidation,
-    buildLogSweepVisible: foundationBuildCloseoutRegistrySplitBuildLogVisible,
-    packageScript: packageJson.scripts?.['process:foundation-build-closeout-registry-split-check'] || '',
-  })
-  ensure(
-    checks,
-      foundationBuildCloseoutRegistrySplitCard &&
-      ['executing', 'done'].includes(foundationBuildCloseoutRegistrySplitCard.lane) &&
-      foundationBuildCloseoutRegistrySplitCloseout?.operatorCloseout === true &&
-      (foundationBuildCloseoutRegistrySplitCloseout.backlogIds || []).includes(FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID) &&
-      foundationBuildCloseoutRegistrySplitDogfood.ok === true &&
-      foundationBuildCloseoutRegistrySplitEvaluation.ok === true &&
-      foundationBuildCloseoutRecordsSource.includes('...controlPlaneCloseoutRecords') &&
-      foundationBuildCloseoutControlPlaneRecordsSource.includes('source-outage-boundary-v1') &&
-      foundationBuildLogRegistrySource.includes(FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CLOSEOUT_KEY) &&
-      foundationBuildCloseoutRegistrySplitBuildLogVisible === true &&
-      countTextLines(foundationBuildCloseoutRecordsSource) < 5000 &&
-      packageJson.scripts?.['process:foundation-build-closeout-registry-split-check'] === `node --env-file-if-exists=.env ${FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_SCRIPT_PATH}` &&
-      await repoFileExists(FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_PLAN_PATH) &&
-      await repoFileExists(FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_APPROVAL_PATH) &&
-      await repoFileExists(FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_HANDOFF_PATH) &&
-      foundationBuildCloseoutRegistrySplitSource.includes('buildFoundationBuildCloseoutRegistrySplitDogfoodProof') &&
-      foundationBuildCloseoutRegistrySplitScriptSource.includes('dogfood rejects missing-record') &&
-      foundationBuildCloseoutRegistrySplitPlanSource.includes('Repair path') &&
-      (activeFoundationSprint.sprint?.sprintId === FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_SPRINT_ID ||
-        activeSprintAtOrPast([FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID])),
-    'FOUNDATION-BUILD-CLOSEOUT-REGISTRY-SPLIT-001 splits closeout registry below the architecture-risk line without dropping records',
-    foundationBuildCloseoutRegistrySplitCard
-      ? `lane=${foundationBuildCloseoutRegistrySplitCard.lane} lines=${countTextLines(foundationBuildCloseoutRecordsSource)} dogfood=${foundationBuildCloseoutRegistrySplitDogfood.ok ? 'pass' : 'blocked'} sweepVisible=${foundationBuildCloseoutRegistrySplitBuildLogVisible ? 'yes' : 'no'}`
-      : `missing ${FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID}`,
-  )
+  checks.push(...buildLogRegistryAssuranceVerifier.checks)
+  const {
+    closeoutOwnershipGuardCard,
+    foundationBuildLogCloseoutValidationProof,
+    foundationBuildLogValidation,
+  } = buildLogRegistryAssuranceVerifier.artifacts
   const processHardeningVerifierChecks = await evaluateFoundationProcessHardeningVerifierChecks({
     ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_CARD_ID,
     ACTIVE_VS_HISTORICAL_VERIFIER_SPLIT_CLOSEOUT_KEY,
