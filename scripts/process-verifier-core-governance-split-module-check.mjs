@@ -117,6 +117,7 @@ async function loadEvaluationInput({ baseUrl }) {
     archiveIndexSource,
     docsReadmeSource,
     foundationDbSource,
+    foundationSharedCommsStoreSource,
     foundationDecisionStoreSource,
     foundationBacklogStoreSource,
     dbConstraintSource,
@@ -136,6 +137,9 @@ async function loadEvaluationInput({ baseUrl }) {
     foundationDataSource,
     foundationFrontendSource,
     strategyExportUiSource,
+    llmRouterSource,
+    foundationSourceCrawlStoreSource,
+    extractionTargetSource,
   ] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation-hub?detail=full'),
     readText('scripts/foundation-verify.mjs'),
@@ -161,6 +165,7 @@ async function loadEvaluationInput({ baseUrl }) {
     readTextIfExists('docs/_archive/INDEX.md'),
     readTextIfExists('docs/README.md'),
     readText('lib/foundation-db.js'),
+    readText('lib/foundation-shared-comms-store.js'),
     readText('lib/foundation-decision-store.js'),
     readText('lib/foundation-backlog-store.js'),
     readText('lib/db-constraint-hardening.js'),
@@ -180,6 +185,9 @@ async function loadEvaluationInput({ baseUrl }) {
     readTextIfExists('public/foundation-data.js'),
     readTextIfExists('public/foundation.js'),
     readTextIfExists('public/strategy-export.js'),
+    readText('lib/llm-router.js'),
+    readText('lib/foundation-source-crawl-store.js'),
+    readText('scripts/run-extraction-target.mjs'),
   ])
   const packageJson = JSON.parse(packageSource)
   return {
@@ -205,6 +213,7 @@ async function loadEvaluationInput({ baseUrl }) {
     directModelHostOffenders: foundationHub.directModelHostOffenders || [],
     backlogSeedDrift: foundationHub.backlogSeedDrift || {},
     foundationDbSource,
+    foundationSharedCommsStoreSource,
     foundationDecisionStoreSource,
     foundationBacklogStoreSource,
     dbConstraintSource,
@@ -226,6 +235,9 @@ async function loadEvaluationInput({ baseUrl }) {
     loginUiSource,
     foundationFrontendSource: `${foundationDataSource}\n${foundationFrontendSource}`,
     strategyExportUiSource,
+    llmRouterSource,
+    sourceCrawlStoreOwnershipSource: `${foundationDbSource}\n${foundationSourceCrawlStoreSource}`,
+    extractionTargetSource,
     foundationVerifySource,
     moduleSource,
     proofScriptSource,
@@ -280,7 +292,11 @@ async function main() {
       dogfood.rejectedCases.hostHeaderBypass &&
       dogfood.rejectedCases.fubMutationOpen &&
       dogfood.rejectedCases.invalidDbReference &&
-      dogfood.rejectedCases.weakBacklogCloseout,
+      dogfood.rejectedCases.weakBacklogCloseout &&
+      dogfood.rejectedCases.unsafeSourceIdContract &&
+      dogfood.rejectedCases.unsafeSharedCommsApply &&
+      dogfood.rejectedCases.runnableRouteBypass &&
+      dogfood.rejectedCases.unsafeSourceCrawlLedger,
     'dogfood rejects core governance/security verifier failures',
     JSON.stringify(dogfood.rejectedCases),
   )
@@ -289,9 +305,12 @@ async function main() {
     checks,
     moduleLines > 100 &&
       input.moduleSource.includes('evaluateFoundationCoreGovernanceVerifier') &&
+      input.moduleSource.includes('evaluateFoundationCoreGovernanceVerifierOrchestration') &&
       input.moduleSource.includes('buildFoundationCoreGovernanceVerifierDogfoodProof') &&
-      input.foundationVerifySource.includes('evaluateFoundationCoreGovernanceVerifier({') &&
-      input.foundationVerifySource.includes('coreGovernanceVerifier.checks'),
+      (input.foundationVerifySource.includes('evaluateFoundationCoreGovernanceVerifier({') ||
+        input.foundationVerifySource.includes('evaluateFoundationCoreGovernanceVerifierOrchestration({')) &&
+      (input.foundationVerifySource.includes('coreGovernanceVerifier.checks') ||
+        input.foundationVerifySource.includes('coreGovernanceOrchestrationVerifier.checks')),
     'root verifier delegates core governance checks to focused module',
     `moduleLines=${moduleLines}`,
   )

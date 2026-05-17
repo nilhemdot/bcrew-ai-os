@@ -1,0 +1,13 @@
+{
+  "cardId": "VERIFIER-CORE-GOVERNANCE-ORCHESTRATION-SPLIT-001",
+  "score": 10,
+  "approvedBy": "Steve overnight keep-going instruction + Codex senior-engineer Foundation session",
+  "approvedAt": "2026-05-17T10:03:00Z",
+  "approvalSource": "Steve approved continuous Foundation-only verifier monolith reduction, explicitly requiring domain-based splits with dogfood proof, full ship gate, closeout, commit, push, and no active sprint overlay replacement.",
+  "notes": "Approved only for core-governance orchestration extraction covering the existing core-governance evaluator call, check aggregation, historical split self-check, dogfood proof, and the promoted shared-comms apply, LLM route runnable, and source-crawl ledger safety predicates inside lib/foundation-core-governance-verifier.js. Not approved: arbitrary tail extraction, behavior rewrites, connector auth, source extraction jobs, paid calls, hub feature work, Canva, Fal, ElevenLabs, voice, Harlan runtime work, or active sprint overlay replacement.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/verifier-core-governance-orchestration-split-001-plan.md",
+  "approvedPlanSha256": "911e08848e9a2e31859807408842a71b1957c849b0e092813d6f78a62fc6728f",
+  "approvedRepoHead": "48879277fb36192728029b836e1e587ef52824fe",
+  "approvalDigest": "ffb507fbe712a094368a092f068c4e6c1c4ed8be017e9ea123fe0126c4f15823"
+}

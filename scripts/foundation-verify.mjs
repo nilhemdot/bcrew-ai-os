@@ -421,15 +421,11 @@ import {
   evaluateFoundationIntelligenceAuditVerifier,
 } from '../lib/foundation-intelligence-audit-verifier.js'
 import {
-  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_APPROVAL_PATH,
-  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_BEFORE_LINES,
   VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
-  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY,
   VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_PLAN_PATH,
   VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SCRIPT_PATH,
-  VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SPRINT_ID,
-  buildFoundationCoreGovernanceVerifierDogfoodProof,
-  evaluateFoundationCoreGovernanceVerifier,
+  VERIFIER_CORE_GOVERNANCE_ORCHESTRATION_SPLIT_CARD_ID,
+  evaluateFoundationCoreGovernanceVerifierOrchestration,
 } from '../lib/foundation-core-governance-verifier.js'
 import {
   buildDbConstraintDogfoodProof,
@@ -2242,6 +2238,7 @@ async function main() {
   const actionRouterSnapshot = await getActionRouterSnapshot({ limit: 40 })
   const verifierSplitBacklogItems = await getBacklogItemsByIds([
     VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
+    VERIFIER_CORE_GOVERNANCE_ORCHESTRATION_SPLIT_CARD_ID,
     VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
     VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
     VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
@@ -2683,10 +2680,10 @@ async function main() {
   const verifierIntelligenceAuditSplitModuleScriptSource = await readRepoFile(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_SCRIPT_PATH)
   const verifierIntelligenceAuditSplitModulePlanSource = await readRepoFile(VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_PLAN_PATH)
   const foundationCoreGovernanceVerifierSource = await readRepoFile('lib/foundation-core-governance-verifier.js')
-  const dbConstraintSource = await readRepoFile('lib/db-constraint-hardening.js')
-  const sourceIdConstraintContractSource = await readRepoFile('lib/source-id-constraint-contract.js')
   const verifierCoreGovernanceSplitModuleScriptSource = await readRepoFile(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierCoreGovernanceSplitModulePlanSource = await readRepoFile(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_PLAN_PATH)
+  const dbConstraintSource = await readRepoFile('lib/db-constraint-hardening.js')
+  const sourceIdConstraintContractSource = await readRepoFile('lib/source-id-constraint-contract.js')
   const foundationIntelligenceSpineVerifierSource = await readRepoFile('lib/foundation-intelligence-spine-verifier.js')
   const verifierIntelligenceSpineSplitModuleScriptSource = await readRepoFile(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_SCRIPT_PATH)
   const verifierIntelligenceSpineSplitModulePlanSource = await readRepoFile(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_PLAN_PATH)
@@ -3383,7 +3380,17 @@ async function main() {
   checks.push(...sourceContractVerifierResult.checks)
   const dbConstraintDogfood = await buildDbConstraintDogfoodProof()
   const sourceIdConstraintContractDogfood = buildSourceIdConstraintContractDogfoodProof()
-  const coreGovernanceVerifier = evaluateFoundationCoreGovernanceVerifier({
+  const activeFoundationSprintForCoreGovernance = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
+  const coreGovernanceOrchestrationVerifier = await evaluateFoundationCoreGovernanceVerifierOrchestration({
+    activeFoundationSprint: activeFoundationSprintForCoreGovernance,
+    foundationHub: { backlogItems: verifierSplitBacklogItems },
+    foundationBuildCloseouts: getFoundationBuildCloseouts(),
+    foundationCoreGovernanceVerifierSource,
+    foundationVerifyRootSource: foundationVerifySource,
+    verifierCoreGovernanceSplitModuleScriptSource,
+    verifierCoreGovernanceSplitModulePlanSource,
+    packageJson,
+    repoFileExists,
     systemStrategy,
     currentPlan,
     currentState,
@@ -3404,6 +3411,7 @@ async function main() {
     directModelHostOffenders,
     backlogSeedDrift,
     foundationDbSource,
+    foundationSharedCommsStoreSource,
     foundationDecisionStoreSource,
     foundationBacklogStoreSource,
     dbConstraintSource,
@@ -3425,90 +3433,11 @@ async function main() {
     loginUiSource,
     foundationFrontendSource,
     strategyExportUiSource,
+    llmRouterSource,
+    sourceCrawlStoreOwnershipSource,
+    extractionTargetSource,
   })
-  checks.push(...coreGovernanceVerifier.checks)
-  const activeFoundationSprintForCoreGovernance = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
-  const verifierCoreGovernanceSplitModuleCard =
-    verifierSplitBacklogItemById.get(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID) ||
-    (activeFoundationSprintForCoreGovernance.items || [])
-      .map(item => item.backlog)
-      .find(item => item?.id === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID) ||
-    null
-  const verifierCoreGovernanceSplitModuleCloseout = getFoundationBuildCloseouts().find(closeout => closeout.key === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) || null
-  const verifierCoreGovernanceSplitModuleDogfood = buildFoundationCoreGovernanceVerifierDogfoodProof()
-  const verifierCoreGovernanceSplitModuleClosed = verifierCoreGovernanceSplitModuleCard?.lane === 'done'
-  const foundationVerifyLineCountAfterCoreGovernanceSplit = String(foundationVerifySource || '').split('\n').length
-  const coreGovernanceOldInlinePatterns = [
-    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'system strategy and rebuild plan reflect current Foundation " + "architecture'"),
-    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'broad Foundation/Ops/doc read APIs are admin-" + "gated'"),
-    new RegExp("addCheck\\(\\s*checks,[\\s\\S]{0,1200}'generic FUB proxy mutations are off by " + "default'"),
-  ]
-  ensure(
-    checks,
-    verifierCoreGovernanceSplitModuleCard &&
-      ['executing', 'done'].includes(verifierCoreGovernanceSplitModuleCard.lane) &&
-      (!verifierCoreGovernanceSplitModuleClosed || (
-        String(verifierCoreGovernanceSplitModuleCard.statusNote || '').includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) &&
-        verifierCoreGovernanceSplitModuleCloseout?.operatorCloseout === true &&
-        (verifierCoreGovernanceSplitModuleCloseout.backlogIds || []).includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-verifier-core-governance-split-module-closeout.md')
-      )) &&
-      verifierCoreGovernanceSplitModuleDogfood.ok === true &&
-      coreGovernanceVerifier.summary.passed === coreGovernanceVerifier.summary.total &&
-      packageJson.scripts?.['process:verifier-core-governance-split-module-check'] === `node --env-file-if-exists=.env ${VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SCRIPT_PATH}` &&
-      await repoFileExists(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_PLAN_PATH) &&
-      await repoFileExists(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_APPROVAL_PATH) &&
-      foundationCoreGovernanceVerifierSource.includes('evaluateFoundationCoreGovernanceVerifier') &&
-      foundationCoreGovernanceVerifierSource.includes('buildFoundationCoreGovernanceVerifierDogfoodProof') &&
-      verifierCoreGovernanceSplitModuleScriptSource.includes('dogfood rejects core governance/security verifier failures') &&
-      verifierCoreGovernanceSplitModulePlanSource.includes('Dogfood proof recreates the failure class') &&
-      foundationVerifySource.includes('evaluateFoundationCoreGovernanceVerifier({') &&
-      foundationVerifySource.includes('coreGovernanceVerifier.checks') &&
-      coreGovernanceOldInlinePatterns.every(pattern => !pattern.test(foundationVerifySource)) &&
-      currentPlan.includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      currentState.includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CLOSEOUT_KEY) &&
-      (activeFoundationSprintForCoreGovernance.sprint?.sprintId === VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_SPRINT_ID ||
-        verifierCoreGovernanceSplitModuleClosed) &&
-      foundationCoreGovernanceVerifierSource.includes(VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID),
-    'VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-001 extracts core governance/security verifier checks into a focused module',
-    verifierCoreGovernanceSplitModuleCard
-      ? `lane=${verifierCoreGovernanceSplitModuleCard.lane} dogfood=${verifierCoreGovernanceSplitModuleDogfood.ok ? 'pass' : 'blocked'} coreChecks=${coreGovernanceVerifier.summary.passed}/${coreGovernanceVerifier.summary.total} lines=${VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_BEFORE_LINES}->${foundationVerifyLineCountAfterCoreGovernanceSplit}`
-      : `missing ${VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID}`,
-  )
-  ensure(
-    checks,
-    (foundationDbSource.includes('function ensureSharedCommunicationCandidateCanApply') ||
-      foundationSharedCommsStoreSource.includes('function ensureSharedCommunicationCandidateCanApply')) &&
-      (foundationDbSource.includes("['pending', 'approved'].includes(candidate.status)") ||
-        foundationSharedCommsStoreSource.includes("['pending', 'approved'].includes(candidate.status)")) &&
-      (foundationDbSource.includes('candidate.metadata.appliedTargetId') ||
-        foundationSharedCommsStoreSource.includes('candidate.metadata.appliedTargetId')) &&
-      (foundationDbSource.includes('FOR UPDATE') ||
-        foundationSharedCommsStoreSource.includes('FOR UPDATE')) &&
-      !serverSource.includes("apply: 'applied'"),
-    'shared-comms candidates apply idempotently',
-    'candidate apply lanes block already-applied/non-review states and generic status apply cannot create targetless truth',
-  )
-  ensure(
-    checks,
-    llmRouterSource.includes('!dryRun && !plan.runnable') &&
-      llmRouterSource.includes('No runnable LLM route available'),
-    'LLM router refuses non-runnable routes',
-    'probe-required or policy-blocked routes cannot execute live calls just because they sort first',
-  )
-  ensure(
-    checks,
-    (sourceCrawlStoreOwnershipSource.includes('AND lease_owner = $12') ||
-      sourceCrawlStoreOwnershipSource.includes('AND lease_owner = $14')) &&
-      foundationDbSource.includes('CREATE TABLE IF NOT EXISTS source_crawl_target_runs') &&
-      sourceCrawlStoreOwnershipSource.includes('crawlRunId') &&
-      extractionTargetSource.includes('runId: leasedTarget.crawlRunId') &&
-      sourceCrawlStoreOwnershipSource.includes('Source crawl target finish blocked') &&
-      sourceCrawlStoreOwnershipSource.includes("`source_crawl_item:${targetKey}:${externalId}`") &&
-      sourceCrawlStoreOwnershipSource.includes('entityId: item.itemKey'),
-    'source crawl ledger is run-id, lease-owner, and item-key safe',
-    'target leases create run rows, finishes carry crawlRunId and require matching lease owner, and item events use the actual returned row key',
-  )
+  checks.push(...coreGovernanceOrchestrationVerifier.checks)
   const intelligenceSpineVerifier = evaluateFoundationIntelligenceSpineVerifier({
     foundationDbSource,
     foundationDbWithBacklogSeedSource,
