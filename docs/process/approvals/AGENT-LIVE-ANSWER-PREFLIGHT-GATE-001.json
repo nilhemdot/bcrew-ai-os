@@ -1,0 +1,24 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T19:15:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized live-answer preflight after FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001 shipped.",
+  "scopeSummary": "Build a synthetic runtime/check contract requiring fresh evidence stamps before operational agent answers can sound current. No Harlan UI, runtime launch, live extraction, model/provider calls, or external writes.",
+  "approvedPlanRef": "docs/process/agent-live-answer-preflight-gate-001-plan.md",
+  "approvedPlanSha256": "3d93819d231cbb4c86d0c4c058a47a30a0d445565837e669b0d8f65084bc4332",
+  "approvedRepoHead": "58e35517b0be3ec03e73064e07c17bcfd2f56692",
+  "notApproved": [
+    "Do not build Harlan UI or feature work.",
+    "Do not launch live agent runtime work.",
+    "Do not implement the capability registry in this card.",
+    "Do not run live extraction.",
+    "Do not call providers or models.",
+    "Do not send Gmail, ClickUp, Drive, Slack, or Agent Feedback mutations.",
+    "Do not mutate Google Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "15e340955a28a26119fa8b936b3519ac62a25e053bec6657b133e7f72ffef7e8"
+}

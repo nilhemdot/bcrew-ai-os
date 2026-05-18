@@ -411,6 +411,20 @@ Not next from this closeout: live extraction, transcript fetches, screenshots, c
 
 Next: continue safe Foundation-up work from repo truth. Prefer no-auth source/connector completion, source-contract/extraction-readiness gaps, or safe Foundation cleanup if connector/source work needs Steve approval.
 
+## Previous Sprint: Agent Live Answer Preflight Gate
+
+Live sprint ID: `agent-live-answer-preflight-gate-2026-05-18`.
+
+This sprint is complete under `agent-live-answer-preflight-gate-v1`. It defines the focused preflight contract that blocks or labels operational agent answers unless they have a fresh evidence stamp for the relevant live/local source.
+
+Completed card:
+
+1. `AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001` - done under `agent-live-answer-preflight-gate-v1`. Scope was synthetic runtime contract/proof only: operational claim classes, required source lookups, source kind, route/local command, source ID, lookup ref, queried-at timestamp, as-of timestamp, and evidence stamp. Dogfood rejects memory-only current answers, missing preflight, stale current answers, missing-tool current answers, unavailable sources without wording, missing evidence stamps, and live side effects.
+
+Not next from this closeout: Harlan UI or feature work, live agent runtime launch, capability registry implementation, live extraction, provider/model calls, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, or parallel builders.
+
+Recommended next: `AGENT-CAPABILITY-REGISTRY-001`.
+
 ## Previous Sprint: Agent Usefulness Runtime Gates
 
 Live sprint ID: `foundation-agent-usefulness-runtime-gates-2026-05-18`.
