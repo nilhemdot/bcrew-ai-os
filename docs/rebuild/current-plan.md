@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.122 - Freedom Sheet atom-flow repair closed
+Version: v6.124 - Freedom Sheet routing repair closed
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -16,15 +16,15 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SOURCE-MATURITY-FREEDOM-SHEET-ATOM-FLOW-REPAIR-001` is closed.
+`SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001` is closed.
 
-Closeout: `source-maturity-freedom-sheet-atom-flow-repair-v1`.
+Closeout: `source-maturity-freedom-sheet-routing-gap-repair-v1`.
 
-Scope shipped: promotes the existing governed Freedom Sheet source facts for `SRC-FREEDOM-TEAM-001` and `SRC-FREEDOM-COMMUNITY-REV-001` into accepted intelligence atoms and supporting atom hits. Both signed-off Freedom Sheet sources move off the atomized-stage maturity gap without live extraction, Sheets reads/writes, Drive mutation, external writes, route creation, route apply, or provider calls.
+Scope shipped: created bounded retrieval chunks from the existing accepted Freedom Sheet atoms for `SRC-FREEDOM-TEAM-001` and `SRC-FREEDOM-COMMUNITY-REV-001`, then created approval-required pending internal owner-decision action routes. Both signed-off Freedom Sheet sources moved off the routed-stage maturity gap without live extraction, Sheets reads/writes, Drive mutation, external writes, route apply, destination record creation, or provider calls.
 
-Not next: live extraction, auth-required or paid runs, Google Sheets read/write, external writes, Drive permission mutation, Agent Feedback auto-send, connector/OAuth work, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+Not next: live extraction, auth-required or paid runs, Google Sheets read/write, external writes, route apply, destination record creation, Drive permission mutation, Agent Feedback auto-send, connector/OAuth work, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
 
-Next: continue the safe source maturity/source-contract queue from live truth. Prefer routing repair only where accepted atoms and source-backed review evidence already exist; otherwise mark blocked/pending instead of inventing routes.
+Next: continue the safe source maturity/source-contract queue from live truth. Prefer repairs only where existing source-backed evidence is sufficient; otherwise mark blocked/pending instead of inventing facts, atoms, or routes.
 
 ## Plan History
 

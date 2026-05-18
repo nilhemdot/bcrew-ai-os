@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T10:10:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-freedom-sheet-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "2ef826d92813d6d8395044c1f5b8fd6cec63bb4ecdce489afb8ca5bc4868e0b9",
+  "approvedRepoHead": "53c0c0658d9b19d8788383a2a5d3229eb739963e",
+  "notes": "Approved for bounded Freedom Sheet source maturity routing-gap repair using existing source facts fact:a76eb15fe718d1eb8dda2a93 and fact:280b56f9991a417bc91ef4be plus accepted atoms atom:9efb209f15d6d2d1c544d9af and atom:3049bc25ab9ce4fec6fcb273 only; create internal retrieval chunks and approval-required pending internal routes. Includes bounded red-gate repair to keep the explicit full diagnostics route under budget by preserving backlog proof fields and compacting Action Route internals behind existing dedicated routes. Not approved: live extraction, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Freedom Sheet mining.",
+  "approvalDigest": "512a8d4cf7a29de40cfe6b282a700bc6efbd21515e8869c8612a204898d9d522"
+}
