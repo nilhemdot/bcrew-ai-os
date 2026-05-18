@@ -163,6 +163,7 @@
     "process:agent-status-freshness-gate-check": "node --env-file-if-exists=.env scripts/process-agent-status-freshness-gate-check.mjs",
     "process:foundation-agent-usefulness-runtime-gates-check": "node --env-file-if-exists=.env scripts/process-foundation-agent-usefulness-runtime-gates-check.mjs",
     "process:agent-live-answer-preflight-gate-check": "node --env-file-if-exists=.env scripts/process-agent-live-answer-preflight-gate-check.mjs",
+    "process:agent-capability-registry-check": "node --env-file-if-exists=.env scripts/process-agent-capability-registry-check.mjs",
     "process:parallel-builder-worktree-protocol-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-worktree-protocol-check.mjs",
     "process:parallel-builder-operating-system-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-operating-system-check.mjs",
     "process:build-lane-reliability-sprint-check": "node --env-file-if-exists=.env scripts/process-build-lane-reliability-sprint-check.mjs",

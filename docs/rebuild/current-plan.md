@@ -411,6 +411,20 @@ Not next from this closeout: live extraction, transcript fetches, screenshots, c
 
 Next: continue safe Foundation-up work from repo truth. Prefer no-auth source/connector completion, source-contract/extraction-readiness gaps, or safe Foundation cleanup if connector/source work needs Steve approval.
 
+## Previous Sprint: Agent Capability Registry
+
+Live sprint ID: `agent-capability-registry-2026-05-18`.
+
+This sprint is complete under `agent-capability-registry-v1`. It defines the read-only Foundation registry contract that blocks capability claims unless the agent, tool, source refs, action, model route, logging, approval boundary, and fallback behavior are declared.
+
+Completed card:
+
+1. `AGENT-CAPABILITY-REGISTRY-001` - done under `agent-capability-registry-v1`. Scope was registry contract/proof only: agent identity, tools, source refs, read/write posture, model route policy, logging, approval boundaries, fallback behavior, and fail-closed capability claims. Dogfood rejects missing tools, missing source refs, missing model route, missing logging, claim-only capability rows, unknown capability claims, unapproved side-effect claims, runtime launch, live extraction, provider/model calls, external writes, and hidden subagents.
+
+Not next from this closeout: Harlan UI or feature work, live agent runtime launch, reusable runtime template implementation, live extraction, provider/model calls, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, or parallel builders.
+
+Recommended next: `AGENT-TEMPLATE-RUNTIME-CONTRACT-001`.
+
 ## Previous Sprint: Agent Live Answer Preflight Gate
 
 Live sprint ID: `agent-live-answer-preflight-gate-2026-05-18`.

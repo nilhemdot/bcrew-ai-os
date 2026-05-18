@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AGENT-CAPABILITY-REGISTRY-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T19:45:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized the capability registry after AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001 shipped.",
+  "scopeSummary": "Build a read-only Foundation capability registry contract/proof for agent identity, tools, source refs, read/write posture, model route, logging, approval boundaries, and fail-closed claims. No Harlan UI, runtime launch, live extraction, model/provider calls, or external writes.",
+  "approvedPlanRef": "docs/process/agent-capability-registry-001-plan.md",
+  "approvedPlanSha256": "5868efe0f83ab87fb39cc3e9427106f96d14572b45d8e0b3c77625a06d4303de",
+  "approvedRepoHead": "81ba9d87882def000a6c41636c24338dd42c6289",
+  "notApproved": [
+    "Do not build Harlan UI or feature work.",
+    "Do not launch live agent runtime work.",
+    "Do not run live extraction.",
+    "Do not call providers or models.",
+    "Do not send Gmail, ClickUp, Drive, Slack, or Agent Feedback mutations.",
+    "Do not mutate Google Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup.",
+    "Do not send request-access emails.",
+    "Do not implement the reusable runtime template in this card.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "f61b39ec479efdda81b0782b2e6194bcab9513c8601e6db2bc382d3a6a1727de"
+}
