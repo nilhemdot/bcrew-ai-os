@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FREEDOM-BHAG-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T06:05:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-freedom-bhag-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "fd0a404779bddbc7dc1eeaee80f0f125a454b00ce77e45ab9c6403e84d4b4caf",
+  "approvedRepoHead": "6b697eef55499af7fe57c5ff69da72a4eedaa0ab",
+  "notes": "Approved for bounded Freedom BHAG source maturity routing-gap repair using existing source fact and accepted atom only; create one internal retrieval chunk and one approval-required pending internal route. Not approved: live extraction, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad BHAG mining.",
+  "approvalDigest": "32d417fd3d5873bec0ffd5df86d3a4fecab9692cacb26a360d9492d3d37d257d"
+}
