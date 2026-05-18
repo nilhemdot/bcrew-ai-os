@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ROLE-ASSISTANT-CONTRACTS-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T20:30:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve priority queue continued into ROLE-ASSISTANT-CONTRACTS-001 after AGENT-010 shipped.",
+  "scopeSummary": "Build the Foundation role assistant contract catalog/proof for Steve/Harlan, Sales Leadership, Ops, Marketing, Agent KPI coach, and Extraction worker. No Harlan implementation, live runtime launch, live extraction, model/provider calls, external writes, sends, Drive mutation, project reach grant, private profile storage runtime, or hidden subagents.",
+  "approvedPlanRef": "docs/process/role-assistant-contracts-001-plan.md",
+  "approvedPlanSha256": "91a08c01c03730e14156bcb263c81a5f4f358ee9e1f28763922a8dadcebaec76",
+  "approvedRepoHead": "8a64693e67bdbeceb2cd2f51dba21d282d196745",
+  "notApproved": [
+    "Do not build Harlan UI or feature work.",
+    "Do not launch live agent runtime work.",
+    "Do not run live extraction.",
+    "Do not call providers or models.",
+    "Do not send Gmail, ClickUp, Drive, Slack, Telegram, or Agent Feedback mutations.",
+    "Do not mutate Google Drive permissions.",
+    "Do not grant new project reach or external-write authority.",
+    "Do not build private profile storage runtime.",
+    "Do not send daily nuggets or roll out team assistants.",
+    "Do not copy raw private profile values into repo truth.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "cdf4db42af0c95aa41af3cc07b09ae0928397325d21207914a85bf5cd4586c92"
+}

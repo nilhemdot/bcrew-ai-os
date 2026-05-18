@@ -122,6 +122,8 @@ These assistants should not:
 
 Personal assistants also need a real onboarding loop. The target is not a generic welcome message; it is a governed profile-building process that helps create a private personal profile, learns goals/preferences/context, captures feedback, and eventually sends one useful daily nugget. `ME.md` is only a working label for that profile. See [Personal Agent Onboarding](../agents/personal-agent-onboarding.md).
 
+Role-specific assistants also need explicit contracts before runtime expansion. The first contract catalog defines Steve/Harlan, Sales Leadership, Ops, Marketing, Agent KPI Coach, and Extraction Worker examples with visibility, trusted sources, work scope, escalation, approval boundaries, status reports, and failure modes. See [Role Assistant Contracts](../agents/role-assistant-contracts.md).
+
 ### Orchestrator Layer
 
 **Crewbert** is the system orchestrator.

@@ -411,6 +411,20 @@ Not next from this closeout: live extraction, transcript fetches, screenshots, c
 
 Next: continue safe Foundation-up work from repo truth. Prefer no-auth source/connector completion, source-contract/extraction-readiness gaps, or safe Foundation cleanup if connector/source work needs Steve approval.
 
+## Previous Sprint: Role Assistant Contracts
+
+Live sprint ID: `role-assistant-contracts-2026-05-18`.
+
+This sprint is complete under `role-assistant-contracts-v1`. It defines the Foundation role assistant contract catalog before Harlan, team assistants, specialist workers, or extraction workers expand.
+
+Completed card:
+
+1. `ROLE-ASSISTANT-CONTRACTS-001` - done under `role-assistant-contracts-v1`. Scope was contract/proof only: six role examples for Steve/Harlan, Sales Leadership, Ops, Marketing, Agent KPI Coach, and Extraction Worker, each with visibility, work scope, trusted sources, escalation, approval boundaries, status report requirements, failure modes, and first useful output. Dogfood rejects missing roles, missing sources, missing refs, missing escalation, memory-only current claims, unapproved writes, raw private values, runtime launch, live extraction, provider/model calls, external writes, new authority grants, and hidden subagents.
+
+Not next from this closeout: Harlan UI or feature work, live agent runtime launch, project registry implementation, private profile storage runtime, live extraction, provider/model calls, external sends, external writes, Drive permission mutation, Agent Feedback auto-send, daily nuggets, team rollout, hidden subagents, or parallel builders.
+
+Recommended next: `HARLAN-PROJECT-REGISTRY-001`.
+
 ## Previous Sprint: Personal Agent Onboarding Contract
 
 Live sprint ID: `agent-010-personal-agent-onboarding-2026-05-18`.
