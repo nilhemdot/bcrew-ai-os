@@ -41,6 +41,9 @@ import {
   evaluatePlanCriticPlan,
 } from '../lib/process-plan-critic.js'
 import {
+  evaluateSprintCheckHistoricalMode,
+} from '../lib/sprint-check-historical-mode.js'
+import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,
   isProcessCheckWriteRequested,
@@ -292,6 +295,14 @@ async function main() {
   const closeout = getFoundationBuildCloseouts().find(record => record.key === CODE_QUALITY_AUDIT_GUARDED_MUTATOR_CLASSIFIER_CLOSEOUT_KEY) || null
   const card = cards[0] || null
   const sprintItem = (sprint.items || []).find(item => item.cardId === CODE_QUALITY_AUDIT_GUARDED_MUTATOR_CLASSIFIER_CARD_ID) || null
+  const sprintProofMode = evaluateSprintCheckHistoricalMode({
+    activeSprint: sprint,
+    card,
+    closeouts: getFoundationBuildCloseouts(),
+    cardId: CODE_QUALITY_AUDIT_GUARDED_MUTATOR_CLASSIFIER_CARD_ID,
+    expectedSprintId: CODE_QUALITY_AUDIT_GUARDED_MUTATOR_CLASSIFIER_SPRINT_ID,
+    closeoutKey: CODE_QUALITY_AUDIT_GUARDED_MUTATOR_CLASSIFIER_CLOSEOUT_KEY,
+  })
   const planCriticPass = planCriticRuns.some(run =>
     run.cardId === CODE_QUALITY_AUDIT_GUARDED_MUTATOR_CLASSIFIER_CARD_ID &&
       run.status === 'pass' &&
@@ -303,7 +314,8 @@ async function main() {
   addCheck(checks, approval.ok && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'approval validates at 9.8+', approval.failures?.map(failure => failure.check).join(', ') || CODE_QUALITY_AUDIT_GUARDED_MUTATOR_CLASSIFIER_APPROVAL_PATH)
   addCheck(checks, planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'plan passes Plan Critic', buildPlanCriticResultSummary(planReview))
   addCheck(checks, cardScaffold.ok, 'live backlog card scaffold is complete', cardScaffold.missing.join(', ') || `${card?.id}:${card?.lane}`)
-  addCheck(checks, sprintMetadata.ok, 'Current Sprint item has required metadata', sprintMetadata.missing.join(', ') || sprintItem?.stage || 'missing')
+  addCheck(checks, sprintProofMode.ok === true, 'current or historical sprint proof validates classifier card', `${sprintProofMode.mode}: ${sprintProofMode.reason}`)
+  addCheck(checks, sprintProofMode.mode === 'historical_closeout' || sprintMetadata.ok, 'Current Sprint item has required metadata while active', sprintProofMode.mode === 'historical_closeout' ? 'historical closeout' : sprintMetadata.missing.join(', ') || sprintItem?.stage || 'missing')
   addCheck(checks, planCriticPass, 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, proof.ok === true, 'dogfood proves guarded mutators are skipped and unguarded mutators stay red', JSON.stringify({
     guarded: proof.guardedProcessCheckCount,
