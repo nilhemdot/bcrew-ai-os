@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "COURSE-SOURCE-AUTH-BOUNDARY-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T21:05:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized COURSE-SOURCE-AUTH-BOUNDARY-001 after Build Intel creator watchlist expansion, with explicit instruction to avoid live extraction, private auth, paid access, external writes, Drive mutation, Gmail/ClickUp sends, and Agent Feedback auto-send unless separately approved.",
+  "scopeSummary": "Define the private/course source-auth approval boundary, metadata-only preflight rules, required approval packet fields, focused dogfood, verifier coverage, and no auth/extraction/model/output side effects.",
+  "approvedPlanRef": "docs/process/course-source-auth-boundary-001-plan.md",
+  "approvedPlanSha256": "02a5abd8ab8734f5cb1359b374f258c8ccec72d0c3ddd171b0eae210597d0554",
+  "approvedRepoHead": "29b0db36d967ec4edd131c9bf58510de97b321fc",
+  "notApproved": [
+    "Do not run live extraction.",
+    "Do not log into or use private, paid, community, course, Skool, MyICOR, Loom, or authorized-browser sessions.",
+    "Do not crawl sources, fetch transcripts, capture screenshots/keyframes, download source content, summarize content, or call a model.",
+    "Do not write Research Inbox items, create KB drafts, create atoms, create action routes, or mutate backlog from extracted content.",
+    "Do not install, run, or integrate OpenHuman or Harlan runtime work.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, or external systems.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "1fbf70fda847374573122071501ecf689e4de7a78d28d6646c203380beda10cb"
+}

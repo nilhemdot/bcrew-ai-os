@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.129 - Build Intel creator watchlist expansion closed
-Status: Continue safe Foundation Build Intel/source-auth queue
+Version: v6.130 - Course source-auth boundary closed
+Status: Continue safe Foundation extractor/runtime queue
 
 Use this doc for one question:
 
@@ -16,15 +16,17 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001` is closed.
+`COURSE-SOURCE-AUTH-BOUNDARY-001` is closed.
 
-Closeout: `build-intel-creator-watchlist-expansion-v1`.
+Closeout: `course-source-auth-boundary-v1`.
 
-Scope shipped: expanded the canonical Build Intel creator watchlist under `SRC-CREATOR-WATCHLIST-001` with lookup-backed source refs for Dream Labs AI, Nate Herk, Chase AI, Everyday AI / Jordan Wilson, Mark Kashef, Matt Pocock / Total TypeScript, Andrej Karpathy, Aaron Bitwise, and OpenHuman / tinyhumansai. The expansion records source URLs, source type, public/private/auth posture, priority, cadence, and no-extraction proof.
+Scope shipped: defined the source-auth approval matrix for private, paid, community, course, Loom/private training, and public no-auth Build Intel sources. V1 separates metadata-only preflight from approved extraction for `SRC-MYICRO-001`, `SRC-SKOOL-001`, `SRC-LOOM-001`, and `SRC-YOUTUBE-INTEL-001`, and requires a source-specific approval packet before private/paid/course content can be read, copied, screenshotted, transcribed, summarized, stored, or routed.
 
-Not next: live extraction, source crawling, transcript fetches, screenshots/keyframes, summarization, model calls, paid/private/community/course auth, Research Inbox writes, atom creation, backlog mutation from extracted content, OpenHuman install/runtime integration, Harlan UI/runtime work, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, or parallel builders.
+Not next: live extraction, private/paid/community/course login, Skool/MyICOR/Loom authorized-browser use, source crawling, transcript fetches, screenshots/keyframes, downloads, summarization, vision/model calls, Research Inbox writes, KB drafts, atoms, action routes, backlog mutation from extracted content, OpenHuman install/runtime integration, Harlan UI/runtime work, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, or parallel builders.
 
-Next: continue `COURSE-SOURCE-AUTH-BOUNDARY-001` before any private, paid, Skool, MyICOR, Loom, or course extraction. If repo truth surfaces a higher P0 safety blocker, handle that first and leave private/source-auth extraction blocked.
+Next: continue `EXTRACTION-TEAM-001` for supervised extractor runtime work. MyICOR, Skool, Loom/private training, and course extraction remain blocked until source-specific approval packets exist.
+
+Previous Build Intel source-truth slice: `BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001` is closed under `build-intel-creator-watchlist-expansion-v1`.
 
 ## Plan History
 
