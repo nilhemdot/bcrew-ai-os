@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-OWNERS-ATOM-FLOW-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T06:45:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-owners-atom-flow-repair-001-plan.md",
+  "approvedPlanSha256": "f7815b372d159e35d3a9ba1318d63db3203d91f6a37235cc79b5c76e967e4502",
+  "approvedRepoHead": "4e0a6f94ce2c3316edcc28d2aa1d8a1197ba37de",
+  "notes": "Approved for bounded Owners Dashboard source maturity atom-flow repair using existing source fact fact:566d0615ac1fcb345e2c6a93 only; create one internal atom and supporting atom hit. Not approved: live extraction, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, action routes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Owners Dashboard mining.",
+  "approvalDigest": "67bb266dc80e7c96b8950f1d2148af851e25efb8af0e4f2b062ceab0061c7881"
+}

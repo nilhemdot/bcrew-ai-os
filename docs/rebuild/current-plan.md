@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.110 - Source maturity Freedom Community atom-flow repair complete
+Version: v6.111 - Source maturity Owners Dashboard atom-flow repair complete
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Source Maturity Freedom Engine Routing Gap Repair
+## Latest Sprint: Source Maturity Owners Dashboard Atom Flow Repair
+
+Live sprint ID: `source-maturity-owners-atom-flow-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-owners-atom-flow-repair-v1`. It repairs the `SRC-OWNERS-001` atomized-stage source maturity gap by promoting one existing active Owners Dashboard source fact into a governed atom and atom hit.
+
+Completed card:
+
+1. `SOURCE-MATURITY-OWNERS-ATOM-FLOW-REPAIR-001` - done under `source-maturity-owners-atom-flow-repair-v1`. Scope was internal atom-flow repair only: `SRC-OWNERS-001` now has one accepted atom and supporting hit backed by source fact `fact:566d0615ac1fcb345e2c6a93`. This did not run live extraction, create extraction targets, read/write Google Sheets, mutate Drive permissions, call models/providers, repair auth, run paid work, write external systems, create routes, apply action routes, or mark synthesis/routing/apply complete.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, Google Sheets read/write, action-route apply, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad Owners Dashboard mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Prefer atom-flow repair only where source-backed facts already exist; otherwise leave the gap visible or mark blocked/pending instead of inventing atoms.
+
+## Previous Sprint: Source Maturity Freedom Engine Routing Gap Repair
 
 Live sprint ID: `source-maturity-freedom-engine-routing-gap-repair-2026-05-18`.
 
