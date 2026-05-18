@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-VERIFIED-ATOM-FLOW-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T11:05:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-verified-atom-flow-repair-001-plan.md",
+  "approvedPlanSha256": "ef5cc7ad0ea6455d14b76c9680e676fab4ecbfa0b3c9815d288f67461ee6677f",
+  "approvedRepoHead": "19e6d4c7af6cd3b7f148504fbb4e0d120ddacd3f",
+  "notes": "Approved for bounded verified/readable source maturity atom-flow repair using existing source facts for SRC-CLICKUP-001, SRC-GDOCS-001, SRC-GSHEETS-001, SRC-DATAFORSEO-001, SRC-GHL-001, and SRC-META-001 only; create internal accepted atoms and supporting atom hits. Not approved: live extraction, source/provider read-write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad source mining.",
+  "approvalDigest": "4b27dfb90462a9b240cf549de6944ece1aa6fd53b61a6b02e8462a1955e85ae4"
+}
