@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-OWNERS-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T07:00:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-owners-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "7af0548410734ec2944dfe6d6fd3953a32bc2211ae36d5011fc6cc55680f4636",
+  "approvedRepoHead": "a3529b52159ee5ed98afa4993567882dbaf7bc2c",
+  "notes": "Approved for bounded Owners Dashboard source maturity routing-gap repair using existing source fact fact:566d0615ac1fcb345e2c6a93 and accepted atom atom:4e4a5b44a75b5bbca64b55f5 only; create one internal retrieval chunk and one approval-required pending internal route. Not approved: live extraction, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Owners Dashboard mining.",
+  "approvalDigest": "1f679bef77531269e9983b6268fb45d44febb7833de658da83a2894949b60090"
+}
