@@ -116,6 +116,7 @@
     "process:source-maturity-contract-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-contract-gap-repair-check.mjs",
     "process:source-maturity-evidence-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-evidence-gap-repair-check.mjs",
     "process:source-maturity-freedom-sheet-evidence-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-sheet-evidence-gap-repair-check.mjs",
+    "process:source-maturity-freedom-sheet-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs",
     "process:source-maturity-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-atom-flow-repair-check.mjs",
     "process:source-maturity-freedom-bhag-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-bhag-atom-flow-repair-check.mjs",
     "process:source-maturity-freedom-community-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-community-atom-flow-repair-check.mjs",
