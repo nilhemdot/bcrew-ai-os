@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.102 - Source maturity contract gap repair closed
+Version: v6.103 - Source maturity routing gap repair closed
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Source Maturity Contract Gap Repair
+## Latest Sprint: Source Maturity Routing Gap Repair
+
+Live sprint ID: `source-maturity-routing-gap-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-routing-gap-repair-v1`. It repairs the `SRC-SLACK-001` routed-stage source maturity gap by creating an approval-required pending internal action route from existing source-backed evidence.
+
+Completed card:
+
+1. `SOURCE-MATURITY-ROUTING-GAP-REPAIR-001` - done under `source-maturity-routing-gap-repair-v1`. Scope was internal routing repair only: `SRC-SLACK-001` now has a pending owner-decision action route backed by an active source-health fact, intelligence atom, and retrieval chunk. The route remains proposal-only with no destination record applied and no external write.
+
+Not next from this closeout: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, action-route apply, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next: continue the safe source-maturity child repair queue from live source coverage truth. Prefer `SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001` only if existing evidence is sufficient; use atom-flow repair only where source-backed atom evidence is clear and never fabricate atoms.
+
+## Previous Sprint: Source Maturity Contract Gap Repair
 
 Live sprint ID: `source-maturity-contract-gap-repair-2026-05-18`.
 

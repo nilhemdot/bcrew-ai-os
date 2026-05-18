@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T05:47:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "d93cec0c3167b01d9e24a6fcd91111265456fe27441b7ff6d9452863761a481a",
+  "approvedRepoHead": "4e633479d09eba7c3685d62a93832c7745a7709c",
+  "notes": "Approved for bounded source maturity routing-gap repair on SRC-SLACK-001 using existing active source-health fact, intelligence atom, and retrieval chunk evidence only, including quality-exempt synthesis repair metadata so targeted repair runs do not hijack global synthesis proof quality. Not approved: live extraction, transcript fetch, screenshots, crawl, model/provider calls, auth repair, paid runs, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.",
+  "approvalDigest": "1875f519663b1bbc0786b4eb620b4e75ae2b3d433ede1006c154f6470e94c3fa"
+}

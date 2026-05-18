@@ -115,6 +115,13 @@ function containsAll(list, values) {
   return values.every(value => set.has(value))
 }
 
+function representedSourceIds(snapshot = {}) {
+  return new Set([
+    ...(snapshot.triageItems || []).map(item => item.sourceId),
+    ...(snapshot.connectedOrNoActionRows || []).map(item => item.sourceId),
+  ].filter(Boolean))
+}
+
 async function writeReport(snapshot) {
   await fs.writeFile(SOURCE_EXTRACTION_GAP_FOLLOWUP_REPORT_PATH, renderSourceExtractionGapTriageReport(snapshot))
 }
@@ -206,6 +213,7 @@ async function main() {
     const missingTriageSourceIds = findMissingTriageSourceIds(triage, connectorMatrix)
     const syntheticMissingGap = buildSyntheticMissingGapProof(triage, connectorMatrix)
     const triageSourceIds = triage.triageItems.map(item => item.sourceId)
+    const representedSources = representedSourceIds(triage)
     const nextSprintCandidateIds = triage.queuedNextSprintCandidates.map(item => item.cardId)
     const backlogCandidateIds = backlogCandidates.map(item => item.id)
 
@@ -234,7 +242,7 @@ async function main() {
     addFinding(findings, missingTriageSourceIds.length === 0, 'no high-priority matrix gap rows are missing from triage', missingTriageSourceIds.join(', '))
     addFinding(findings, triage.triageItems.every(itemHasRequiredFields), 'every triage item has required operator fields')
     addFinding(findings, ['safe_next', 'sprint_2_candidate', 'needs_steve_access'].every(bucket => Number(triage.summary.bucketCounts?.[bucket] || 0) > 0), 'triage has safe, queued, and needs-Steve buckets', JSON.stringify(triage.summary.bucketCounts || {}))
-    addFinding(findings, containsAll(triageSourceIds, ['SRC-MISSIVE-001', 'SRC-SLACK-001', 'SRC-GDRIVE-001', 'SRC-FUB-001', 'SRC-CLICKUP-001', 'SRC-GADS-001', 'SRC-PUBLISH-001', 'SRC-SKOOL-001', 'SRC-LOOM-001', 'SRC-MYICRO-001', 'SRC-REAL-001']), 'known high-value source gaps are represented', triageSourceIds.join(', '))
+    addFinding(findings, containsAll([...representedSources], ['SRC-MISSIVE-001', 'SRC-SLACK-001', 'SRC-GDRIVE-001', 'SRC-FUB-001', 'SRC-CLICKUP-001', 'SRC-GADS-001', 'SRC-PUBLISH-001', 'SRC-SKOOL-001', 'SRC-LOOM-001', 'SRC-MYICRO-001', 'SRC-REAL-001']), 'known high-value source gaps are represented', [...representedSources].join(', '))
     addFinding(findings, containsAll(nextSprintCandidateIds, ['ATOM-FLOW-AUTO-DEMOTION-001', 'EXTRACT-RUN-HARDENING-EXECUTION-001', 'RESEARCH-LANE-PURGE-001']), 'queued next-sprint candidates are preserved in triage output', nextSprintCandidateIds.join(', '))
     addFinding(findings, containsAll(backlogCandidateIds, ['ATOM-FLOW-AUTO-DEMOTION-001', 'EXTRACT-RUN-HARDENING-EXECUTION-001', 'RESEARCH-LANE-PURGE-001']), 'queued next-sprint candidates exist in live backlog', backlogCandidateIds.join(', '))
     addFinding(findings, syntheticMissingGap.ok, 'synthetic missing-gap variant is rejected', JSON.stringify(syntheticMissingGap))
