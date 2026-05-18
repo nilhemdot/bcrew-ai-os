@@ -1400,7 +1400,7 @@ Already closed for current reality:
 
 Marketing source map:
 
-- `SOURCE-016`
+- `SOURCE-016` - done for no-auth marketing measurement source-contract prep under `marketing-measurement-source-contracts-v1`: `SRC-GA4-001`, `SRC-GSC-001`, and `SRC-GBP-001` now exist as first-class source contracts and available-pending connector rows, but remain blocked from extraction until property/account/location auth, brand-lane boundaries, allowed reads, and cost rules are approved.
 - Benson Crew lane
 - Zahnd Team Ag lane
 - Steve Zahnd lane

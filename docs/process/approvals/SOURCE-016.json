@@ -1,0 +1,35 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-016",
+  "approvedPlanRef": "docs/process/source-016-marketing-measurement-source-contracts-plan.md",
+  "approvedPlanSha256": "982fb46162208119e8a5bdffcd3221974019c48e03afc847747fff38b7c9d0bc",
+  "approvedRepoHead": "d3283bb58bea1051379367dc8257c992e50e98e8",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T06:30:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved continuous safe Foundation source/connector work overnight after the Action Route reliability sprint, with explicit boundaries against live extraction, auth-required or paid runs, external writes, Drive permission mutation, Agent Feedback auto-send, and Harlan/Fal/voice/Canva/OpenHuman work.",
+  "scopeSummary": "Close the no-auth SOURCE-016 marketing measurement source-contract prep by registering GA4, Search Console, and Google Business Profile as first-class fail-closed source contracts and available-pending connector rows without provider calls or extraction.",
+  "constraints": [
+    "No live extraction or extraction target creation.",
+    "No GA4, Search Console, Google Business Profile, Google Ads, Meta, or SocialPilot provider calls.",
+    "No OAuth or provider auth repair.",
+    "No auth-required or paid run.",
+    "No external write.",
+    "No model calls, screenshots, transcript fetches, or crawl.",
+    "No Google Drive permission mutation.",
+    "No live Agent Feedback auto-send.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work.",
+    "No Marketing Hub production or broad visual UI redesign."
+  ],
+  "requiredProof": [
+    "GA4/GSC/GBP source contracts exist with owner, scope, validation, boundary notes, and source-registry documentation",
+    "validation profiles block all three from extraction until authorized",
+    "Source Connector Matrix rows move from missing_contract to blocked authorization",
+    "source_contract_registry sync is healthy with the new active source-contract count",
+    "dogfood rejects missing contracts, missing connector rows, and active extraction targets",
+    "Google Ads, Meta, and SocialPilot are not silently marked complete",
+    "backlog hygiene, foundation:verify, and process:foundation-ship pass"
+  ],
+  "notes": "Foundation source-contract metadata and internal process writes only. Provider access and extraction remain future approval-gated work.",
+  "approvalDigest": "1e6cec40d4d0359cdbf26d485c752fe9c28afbb507b510c150a585b38c314257"
+}

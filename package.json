@@ -112,6 +112,7 @@
     "process:connector-completion-prep-check": "node --env-file-if-exists=.env scripts/process-connector-completion-prep-check.mjs",
     "process:source-contract-id-reconcile-check": "node --env-file-if-exists=.env scripts/process-source-contract-id-reconcile-check.mjs",
     "process:source-contract-validation-layer-check": "node --env-file-if-exists=.env scripts/process-source-contract-validation-layer-check.mjs",
+    "process:source-016-marketing-measurement-source-contracts-check": "node --env-file-if-exists=.env scripts/process-source-016-marketing-measurement-source-contracts-check.mjs",
     "process:llm-auth-audit-budget-label-clarity-check": "node --env-file-if-exists=.env scripts/process-llm-auth-audit-budget-label-clarity-check.mjs",
     "process:foundation-knowledge-base-compiler-design-check": "node --env-file-if-exists=.env scripts/process-foundation-knowledge-base-compiler-design-check.mjs",
     "process:knowledge-base-quality-gate-check": "node --env-file-if-exists=.env scripts/process-knowledge-base-quality-gate-check.mjs",

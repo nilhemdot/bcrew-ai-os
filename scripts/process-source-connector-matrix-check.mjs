@@ -122,7 +122,12 @@ async function main() {
   assert(matrix.summary.requiredMissingOrBlockedCount >= 8, 'Connector matrix should expose missing/blocked connector truth, not hide it.')
   assert(matrix.rows.some(row => row.sourceId === 'SRC-MEETINGS-001' && row.hasPromotedAtoms), 'Connector matrix should show restored atom flow for Meetings.')
   assert(matrix.rows.some(row => row.sourceId === 'SRC-MISSIVE-001' && row.hasPromotedAtoms), 'Connector matrix should show restored atom flow for Missive.')
-  assert(matrix.rows.some(row => row.sourceId === 'SRC-GA4-001' && row.decision === 'missing_contract'), 'GA4 should be visible as missing contract.')
+  for (const sourceId of ['SRC-GA4-001', 'SRC-GSC-001', 'SRC-GBP-001']) {
+    const row = matrix.rows.find(item => item.sourceId === sourceId)
+    assert(row?.hasContract === true, `${sourceId} should have a first-class source contract.`)
+    assert(row?.hasConnector === true, `${sourceId} should have an available-pending connector registry row.`)
+    assert(row?.decision === 'blocked', `${sourceId} should remain blocked until source-owner auth/extraction approval.`)
+  }
   assert(matrix.rows.some(row => row.sourceId === 'SRC-SKOOL-001' && row.decision === 'blocked'), 'Skool/earlyaidopters should be visible as blocked.')
 
   await closeSprintCard()
