@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FREEDOM-BHAG-ATOM-FLOW-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T05:50:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-freedom-bhag-atom-flow-repair-001-plan.md",
+  "approvedPlanSha256": "4883db3b61b580cb3f110b7e7aa108409b8b8d77633e08e1682042ab6596620a",
+  "approvedRepoHead": "361f51bdaefb93d3f3c45c75fe161090569808ca",
+  "notes": "Approved for bounded Freedom BHAG source maturity atom-flow repair using existing source fact fact:39533f268562a6b6c6533952 only. Not approved: live extraction, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, route creation/apply, synthesized item creation, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad BHAG mining.",
+  "approvalDigest": "171c57042167439c385ed9509e420e42a36081f17d4bd6161ae89c46d30b6142"
+}
