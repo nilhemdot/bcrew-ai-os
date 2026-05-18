@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.135 - Mark M Skool preflight gated
+Version: v6.136 - Mark Kashef goal packet gated
 Status: Continue safe Foundation extractor/runtime queue
 
 Use this doc for one question:
@@ -16,15 +16,17 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`MARK-M-SKOOL-EXTRACTION-PREFLIGHT-001` is closed.
+`MARK-KASHEF-GOAL-BUILD-INTEL-PACKET-001` is closed.
 
-Closeout: `mark-m-skool-extraction-preflight-v1`.
+Closeout: `mark-kashef-goal-build-intel-packet-v1`.
 
-Scope shipped: created the metadata-only Mark M Skool private-community source/auth preflight from repo truth. V1 proves `SRC-SKOOL-001` remains a `Gap` source, `skool-access` is blocked, source-contract validation blocks extraction until owner authorization, the course source-auth row allows metadata-only preflight only, and the approval packet draft names every required field without granting runtime approval.
+Scope shipped: created the public metadata Mark Kashef `/goal` Build Intel packet from repo truth and public lookup. V1 proves exact video metadata for `https://www.youtube.com/watch?v=5xrjO38WUYY`, links official Claude Code `/goal` docs for mechanics, keeps Mark-specific transcript/visual workflow claims unextracted, keeps Skool/private content blocked, and routes transfer candidates to `AIOS-GOAL-DRIVEN-RUNNER-EVAL-001` instead of direct implementation.
 
-Not next: live Skool extraction, logged-in community access, authorized browser session, community crawl, course/classroom navigation, post/comment extraction, member-data read, embedded-video extraction, transcript fetch, screenshot/keyframe capture, download, summarization, vision/model call, copied community/course content, Research Inbox writes, KB page writes, atom writes, synthesis fact writes, action-route writes, vector/query-index writes, backlog mutation from extracted content, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, invisible workers, or real extraction worker launch.
+Not next: transcript fetch, video download, screenshot/keyframe capture, vision analysis, video summarization, model call, private Skool access, paid content, comments/member data, authorized browser session, community/course crawl, Research Inbox writes, KB page writes, atom writes, synthesis fact writes, action-route writes, vector/query-index writes, backlog mutation from extracted content, `/goal` implementation, Foundation goal runner, Harlan runtime, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, invisible workers, or real extraction worker launch.
 
-Next: continue `MARK-KASHEF-GOAL-BUILD-INTEL-PACKET-001` from repo truth. Treat public source URL/claims as lookup-required, and do not run private Skool access or unapproved extraction.
+Next: continue `MATT-POCOCK-CLAUDE-FOLDER-EVAL-001` from repo truth. Treat public repo/source/license details as lookup-required, and do not install, copy blindly, or mutate downstream outputs.
+
+Previous Skool preflight slice: `MARK-M-SKOOL-EXTRACTION-PREFLIGHT-001` is closed under `mark-m-skool-extraction-preflight-v1`; Skool extraction remains blocked until source-specific approval exists.
 
 Previous paid-course preflight slice: `MYICOR-EXTRACTION-PREFLIGHT-001` is closed under `myicor-extraction-preflight-v1`; MyICOR extraction remains blocked until source-specific approval exists.
 

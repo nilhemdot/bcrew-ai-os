@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MARK-KASHEF-GOAL-BUILD-INTEL-PACKET-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T18:45:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve instructed the builder to continue the reliability/source queue and treat live extraction, private auth, external writes, and hidden workers as approval-bound. This card uses public metadata lookup only.",
+  "scopeSummary": "Create a public metadata Build Intel packet for Mark Kashef /goal source truth. Verify exact public video metadata and official /goal docs, route transferable patterns to AIOS goal-runner evaluation, and keep transcript/visual extraction plus implementation blocked.",
+  "approvedPlanRef": "docs/process/mark-kashef-goal-build-intel-packet-001-plan.md",
+  "approvedPlanSha256": "063dc4e98039c7be49adf16d230f64e39f0504f6fb8495f4a97f326debc9544b",
+  "approvedRepoHead": "37b8b6364bb03d86e41bc7cd9d1ff40ec52e79af",
+  "notApproved": [
+    "Do not fetch transcripts, download video, capture screenshots/keyframes, run vision, summarize video content, or call models.",
+    "Do not open Skool, use private auth, use paid auth, crawl communities/courses, read comments/member data, or use an authorized browser session.",
+    "Do not write Research Inbox rows, KB pages, atoms, synthesis facts, action routes, vector/query indexes, backlog content from extracted material, or external systems.",
+    "Do not implement Claude Code /goal, Codex goal mode, a Foundation goal runner, Harlan runtime, hidden autonomous builders, or extraction workers in this card.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, or external systems."
+  ],
+  "approvalDigest": "88f74405e3944afcfd458c68cffc6aa30fa553329834f4d4cda7cc68858046a2"
+}
