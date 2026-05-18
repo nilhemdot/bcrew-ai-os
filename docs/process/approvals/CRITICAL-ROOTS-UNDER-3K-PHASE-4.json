@@ -1,0 +1,24 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CRITICAL-ROOTS-UNDER-3K-PHASE-4",
+  "approvedPlanRef": "docs/process/critical-roots-under-3k-phase-4-plan.md",
+  "approvedPlanSha256": "786db6e3833e76bffcebeaff7b9420d5dedede478982c4b535e9c6705dc474f0",
+  "approvedRepoHead": "0caf195821b208bddf38925fcf465d388366d579",
+  "approvedBy": "Steve May 18 Foundation continuous-builder priority approval + Codex senior-engineer main-session plan review",
+  "approvedAt": "2026-05-18T17:05:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve explicitly prioritized root file cleanup over 3K/5K before agent runtime gates, with commit/push required per completed card.",
+  "scopeSummary": "Move Sales Hub and Owners governance route ownership plus shared FUB lead-source freshness helpers out of server.js so the server root drops below 3,000 lines without behavior redesign.",
+  "constraints": [
+    "No hidden subagents.",
+    "Do not launch parallel builders.",
+    "Do not redesign Sales Hub, Owners governance, FUB source routing, or Foundation Hub.",
+    "Do not call Owners success-path live reads from the focused proof.",
+    "Do not call Sales Hub success-path writes from the focused proof.",
+    "Do not run live extraction.",
+    "Do not run auth-required or paid jobs.",
+    "No external sends, Drive permission mutation, Gmail/ClickUp sends, or Agent Feedback auto-send.",
+    "Do not build Harlan/Fal/voice/Canva/OpenHuman features."
+  ],
+  "approvalDigest": "07103dccec7b3e57bb5ef24377b00c26000d7ee4adcb94379d1becb533333d93"
+}
