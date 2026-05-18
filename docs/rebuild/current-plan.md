@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.125 - Verified source monitoring repair closed
+Version: v6.126 - Verified source evidence repair closed
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -16,15 +16,15 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SOURCE-MATURITY-VERIFIED-MONITORING-GAP-REPAIR-001` is closed.
+`SOURCE-MATURITY-VERIFIED-EVIDENCE-GAP-REPAIR-001` is closed.
 
-Closeout: `source-maturity-verified-monitoring-gap-repair-v1`.
+Closeout: `source-maturity-verified-evidence-gap-repair-v1`.
 
-Scope shipped: added explicit manual/on-demand monitoring boundaries for `SRC-CLICKUP-001`, `SRC-GDOCS-001`, `SRC-GSHEETS-001`, `SRC-DATAFORSEO-001`, `SRC-GHL-001`, `SRC-META-001`, and `SRC-SUPABASE-001`. These verified/readable sources move off the monitored-stage maturity gap while leaving extraction, atom-flow, routing, connector runtime, and governed apply as separate proof lanes.
+Scope shipped: added governed source facts for `SRC-CLICKUP-001`, `SRC-GDOCS-001`, `SRC-GSHEETS-001`, `SRC-DATAFORSEO-001`, `SRC-GHL-001`, and `SRC-META-001` from existing source-contract/source-registry/current-state/monitoring-closeout evidence. These verified/readable sources move off the extracted-stage maturity gap while leaving atom-flow, routing, connector runtime, and governed apply as separate proof lanes.
 
 Not next: live extraction, auth-required or paid runs, connector live calls, provider/model calls, Google Docs/Sheets reads or writes, Supabase queries, Meta/GHL/DataForSEO/ClickUp calls, external writes, route apply, destination record creation, Drive permission mutation, Agent Feedback auto-send, OAuth work, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
 
-Next: continue the safe source maturity/source-contract queue from live truth. Prefer repairs only where existing source-backed evidence is sufficient; otherwise mark blocked/pending instead of inventing facts, atoms, or routes.
+Next: continue the safe source maturity/source-contract queue from live truth. Prefer atom-flow only where existing source-backed facts are sufficient; otherwise mark blocked/pending instead of inventing atoms, routes, or extraction.
 
 ## Plan History
 
