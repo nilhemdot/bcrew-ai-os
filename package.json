@@ -194,6 +194,7 @@
     "process:myicor-extraction-preflight-check": "node --env-file-if-exists=.env scripts/process-myicor-extraction-preflight-check.mjs",
     "process:mark-m-skool-extraction-preflight-check": "node --env-file-if-exists=.env scripts/process-mark-m-skool-extraction-preflight-check.mjs",
     "process:mark-kashef-goal-build-intel-packet-check": "node --env-file-if-exists=.env scripts/process-mark-kashef-goal-build-intel-packet-check.mjs",
+    "process:matt-pocock-claude-folder-eval-check": "node --env-file-if-exists=.env scripts/process-matt-pocock-claude-folder-eval-check.mjs",
     "process:gcal-atom-schedule-check": "node --env-file-if-exists=.env scripts/process-gcal-atom-schedule-check.mjs",
     "process:doc-artifact-bloat-guard-check": "node --env-file-if-exists=.env scripts/process-doc-artifact-bloat-guard-check.mjs",
     "process:process-wip-protocol-check": "node --env-file-if-exists=.env scripts/process-wip-protocol-check.mjs",

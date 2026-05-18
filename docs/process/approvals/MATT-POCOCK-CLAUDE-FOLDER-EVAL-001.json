@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MATT-POCOCK-CLAUDE-FOLDER-EVAL-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T19:15:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve instructed the builder to continue the source/evaluator queue and keep live extraction, private auth, external writes, and hidden workers approval-bound. This card uses public GitHub/source lookup only.",
+  "scopeSummary": "Create a public source eval packet for mattpocock/skills. Verify repo/license/catalog metadata, classify transferable agent-engineering patterns, record unverified 90-day context claims as blocked, and keep install/import/extraction/downstream writes blocked.",
+  "approvedPlanRef": "docs/process/matt-pocock-claude-folder-eval-001-plan.md",
+  "approvedPlanSha256": "14ad83524fe8cada214817b4ee350f9c9babab1643034925ac37f975e7c8c179",
+  "approvedRepoHead": "1d398b90710f65d0c2c4747bef2518c395bc87c7",
+  "notApproved": [
+    "Do not install the repo, run npx skills, install a plugin, create skill symlinks, mutate Claude/Codex config, import code, or copy raw skills/prompts.",
+    "Do not fetch YouTube transcripts, download videos, capture screenshots/keyframes, summarize video/course content, run vision, or call models.",
+    "Do not use paid course access, private auth, authorized browser sessions, comments, community data, or member data.",
+    "Do not write Research Inbox rows, KB pages, atoms, synthesis facts, action routes, vector/query indexes, backlog content from source material, or external systems.",
+    "Do not launch hidden subagents, parallel builders, live agent runtime work, or extraction workers in this card."
+  ],
+  "approvalDigest": "edbe59d3581736540b4662f37c3999f088c84eb447b7c1f67a0bb3781b0f9049"
+}

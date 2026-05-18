@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.136 - Mark Kashef goal packet gated
+Version: v6.137 - Matt Pocock public skills eval gated
 Status: Continue safe Foundation extractor/runtime queue
 
 Use this doc for one question:
@@ -16,15 +16,17 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`MARK-KASHEF-GOAL-BUILD-INTEL-PACKET-001` is closed.
+`MATT-POCOCK-CLAUDE-FOLDER-EVAL-001` is closed.
 
-Closeout: `mark-kashef-goal-build-intel-packet-v1`.
+Closeout: `matt-pocock-claude-folder-eval-v1`.
 
-Scope shipped: created the public metadata Mark Kashef `/goal` Build Intel packet from repo truth and public lookup. V1 proves exact video metadata for `https://www.youtube.com/watch?v=5xrjO38WUYY`, links official Claude Code `/goal` docs for mechanics, keeps Mark-specific transcript/visual workflow claims unextracted, keeps Skool/private content blocked, and routes transfer candidates to `AIOS-GOAL-DRIVEN-RUNNER-EVAL-001` instead of direct implementation.
+Scope shipped: created the public GitHub/source eval packet for Matt Pocock / Total TypeScript `mattpocock/skills` from repo truth and public lookup. V1 records repo metadata, inspected commit `67bce91c80cd1020a4f068ced32d0281656842ad`, MIT license, lookup-time stars/forks/open issues, skill catalog shape, plugin-exposed skills, inspected public files, transfer candidates, and the blocked/unverified 90-day context-retention claim.
 
-Not next: transcript fetch, video download, screenshot/keyframe capture, vision analysis, video summarization, model call, private Skool access, paid content, comments/member data, authorized browser session, community/course crawl, Research Inbox writes, KB page writes, atom writes, synthesis fact writes, action-route writes, vector/query-index writes, backlog mutation from extracted content, `/goal` implementation, Foundation goal runner, Harlan runtime, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, invisible workers, or real extraction worker launch.
+Do not install the repo, run `npx skills`, install a plugin, create skill symlinks, mutate Claude/Codex config, import code, copy raw skill/prompt content, run public YouTube extraction, use paid-course/private auth, call models, write downstream outputs, mutate external systems, launch hidden subagents, or launch parallel builders from this card.
 
-Next: continue `MATT-POCOCK-CLAUDE-FOLDER-EVAL-001` from repo truth. Treat public repo/source/license details as lookup-required, and do not install, copy blindly, or mutate downstream outputs.
+Next: continue `FOUNDATION-KB-ACTION-REVIEW-SPRINT-001` from live repo truth. Treat Matt Pocock skill adaptation as a separate adapter/approval card, not an implicit follow-on.
+
+Previous public `/goal` packet: `MARK-KASHEF-GOAL-BUILD-INTEL-PACKET-001` is closed under `mark-kashef-goal-build-intel-packet-v1`; Mark-specific transcript/visual extraction remains unrun.
 
 Previous Skool preflight slice: `MARK-M-SKOOL-EXTRACTION-PREFLIGHT-001` is closed under `mark-m-skool-extraction-preflight-v1`; Skool extraction remains blocked until source-specific approval exists.
 
