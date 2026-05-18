@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.99 - Foundation KB compiler V1 closed
+Version: v6.100 - Action Route promotion workflow closed
 Status: Continue KB/action review sprint
 
 Use this doc for one question:
@@ -75,7 +75,7 @@ The Strategy packet has completed steps 1-3 for its current source package: stra
 
 ## Latest Sprint: Foundation KB/action Review
 
-Live sprint ID: `build-lane-failure-telemetry-2026-05-18`.
+Live sprint ID: `action-route-promotion-workflow-2026-05-18`.
 
 This sprint was interrupted by a P0 build-lane reliability injection: `BUILD-LANE-FAILURE-TELEMETRY-001`, closed under `build-lane-failure-telemetry-v1`. It fingerprints failed proof/verifier/ship/fanout/hygiene checks, counts repeats over 24 hours and 7 days, and surfaces repeated failures in System Health so recurring build mistakes become repair work instead of repeated manual debugging.
 
@@ -86,10 +86,11 @@ Completed cards:
 1. `BUILD-LANE-FAILURE-TELEMETRY-001` - done under `build-lane-failure-telemetry-v1`. Scope was local build-lane observability: failed focused proofs, verifier checks, ship checks, fanout checks, post-ship fanout checks, and backlog hygiene failures -> normalized failure fingerprints with yellow/red repeat thresholds and System Health surfacing.
 2. `FOUNDATION-KB-COMPILER-V1-001` - done under `foundation-kb-compiler-v1`. Scope was read-only/proposal-only compiler plumbing: existing source-backed synthesis facts, locked decisions, and intelligence atoms -> compiled KB/wiki draft with source IDs, citations, freshness metadata, privacy tier, compiler frontmatter, contradiction status, and quality-gate pass/fail.
 3. `ACTION-ROUTE-REVIEW-INBOX-001` - done under `action-route-review-inbox-v1`. Scope was read-only review-inbox plumbing: Action Router records and route-derived backlog rows -> proposed review items with type, owner, age, source refs, destination, and review state. Default Backlog separates action-route-derived rows from normal work while focused-card reads still load them.
+4. `ACTION-ROUTE-PROMOTION-WORKFLOW-001` - done under `action-route-promotion-workflow-v1`. Scope is governed internal Review Inbox workflow: confirm decisions, answer questions, assign owners, promote to backlog, mark duplicates, reject, snooze, and link existing cards while preserving source evidence and blocking duplicate backlog promotion.
 
-Not next from this closeout: live extraction, transcript fetches, screenshots, crawl, summarization, model calls, provider probes, auth-required or paid runs, external writes, action-route promotion/apply/reject/snooze mutation, duplicate/staleness workflow, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
+Not next from this closeout: live extraction, transcript fetches, screenshots, crawl, summarization, model calls, provider probes, auth-required or paid runs, external writes, duplicate/staleness workflow, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
 
-Next: `ACTION-ROUTE-PROMOTION-WORKFLOW-001`, then `ACTION-ROUTE-DEDUP-STALENESS-GUARD-001`.
+Next: `ACTION-ROUTE-DEDUP-STALENESS-GUARD-001`.
 
 ## Previous Sprint: Parallel Builder Worktree Protocol
 

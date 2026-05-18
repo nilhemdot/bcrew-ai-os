@@ -151,6 +151,14 @@ function fetchActionRouteReviewInbox() {
   })
 }
 
+function applyActionRoutePromotionWorkflow(routeId, body) {
+  return foundationMutation('/api/foundation/action-route-review-inbox/' + encodeURIComponent(routeId) + '/workflow', 'POST', body)
+    .then(function(payload) {
+      cache.actionRouteReviewInbox = payload.actionRouteReviewInbox || null
+      return payload
+    })
+}
+
 function fetchSystemInventory() {
   if (cache.systemInventory) return Promise.resolve(cache.systemInventory)
 

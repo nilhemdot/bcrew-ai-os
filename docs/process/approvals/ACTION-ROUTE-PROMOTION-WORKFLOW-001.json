@@ -1,0 +1,23 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ACTION-ROUTE-PROMOTION-WORKFLOW-001",
+  "approvedPlanRef": "docs/process/action-route-promotion-workflow-001-plan.md",
+  "approvedPlanSha256": "1ab2efed3378d903df2a6e6614ff51acfb720de31a95ce650a08b313f576b1c7",
+  "approvedRepoHead": "539fca67fd5d765e928c302a8970fc6d3529b356",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T04:20:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the overnight Foundation queue and instructed the builder to continue with ACTION-ROUTE-PROMOTION-WORKFLOW-001 after Action Route Review Inbox shipped, with no live extraction, auth-required or paid runs, external writes, Drive permission mutation, Agent Feedback auto-send, or Harlan/Fal/voice/Canva/OpenHuman feature work.",
+  "scopeSummary": "Add the governed internal workflow for Action Route Review Inbox items: confirm decisions, answer questions, assign owners, promote to backlog, mark duplicates, reject, snooze, and link existing cards while preserving source evidence and blocking duplicate backlog creation.",
+  "constraints": [
+    "No live extraction.",
+    "No transcript fetch, screenshot capture, crawl, summarization, or model call.",
+    "No auth-required or paid run.",
+    "No external write.",
+    "No Google Drive permission mutation.",
+    "No live Agent Feedback auto-send.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work.",
+    "No broad visual UI redesign."
+  ],
+  "approvalDigest": "cd31c4cc3b5328d35ca312f1498cdb255864a6930cabf51a78008ebc66e153a6"
+}

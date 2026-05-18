@@ -24,6 +24,60 @@ function renderInboxPill(text, tone) {
   return pill
 }
 
+function inboxWorkflowActionLabel(action) {
+  return {
+    confirm_decision: 'Confirm decision',
+    answer_question: 'Answer question',
+    assign_owner: 'Assign owner',
+    promote_to_backlog: 'Promote to backlog',
+    duplicate: 'Duplicate',
+    reject: 'Reject',
+    snooze: 'Snooze',
+    link_existing_card: 'Link card',
+  }[action] || action
+}
+
+function inboxWorkflowActionBody(item, action) {
+  var body = { action: action }
+  if (action === 'assign_owner') {
+    body.owner = window.prompt('Owner for this action route?', item.owner || '')
+    if (!body.owner) return null
+    body.note = 'Owner assigned from Foundation Review Inbox.'
+  } else if (action === 'answer_question') {
+    body.answer = window.prompt('Answer to preserve with this review item?', '')
+    if (!body.answer) return null
+  } else if (action === 'duplicate' || action === 'link_existing_card') {
+    body.targetCardId = window.prompt('Existing card ID to link?', item.backlogCardId || '')
+    if (!body.targetCardId) return null
+    body.note = window.prompt('Short reason or context?', action === 'duplicate' ? 'Already covered by existing card.' : 'Linked to existing card.') || ''
+  } else if (action === 'reject') {
+    body.note = window.prompt('Reason for rejecting this route?', '')
+    if (!body.note) return null
+  } else if (action === 'snooze') {
+    body.snoozeDuration = window.prompt('Snooze duration?', '1w')
+    if (!body.snoozeDuration) return null
+    body.note = 'Snoozed from Foundation Review Inbox.'
+  } else {
+    var confirmed = window.confirm('Apply workflow action: ' + inboxWorkflowActionLabel(action) + '?')
+    if (!confirmed) return null
+    body.note = 'Reviewed from Foundation Review Inbox.'
+  }
+  return body
+}
+
+function submitInboxWorkflowAction(item, action, button) {
+  if (!item.routeId) return
+  var body = inboxWorkflowActionBody(item, action)
+  if (!body) return
+  if (button) button.disabled = true
+  applyActionRoutePromotionWorkflow(item.routeId, body).then(function() {
+    renderActionRouteReviewInbox()
+  }).catch(function(error) {
+    window.alert(error.message || 'Action Route workflow failed.')
+    if (button) button.disabled = false
+  })
+}
+
 function renderInboxItem(item) {
   var details = document.createElement('details')
   details.className = 'action-review-card'
@@ -74,6 +128,24 @@ function renderInboxItem(item) {
     facts.appendChild(line)
   })
   body.appendChild(facts)
+
+  if (item.routeId && Array.isArray(item.availableActions) && item.availableActions.length) {
+    var workflow = document.createElement('div')
+    workflow.className = 'foundation-inline-actions action-route-workflow-actions'
+    item.availableActions.forEach(function(action) {
+      var button = document.createElement('button')
+      button.type = 'button'
+      button.className = action === 'reject' || action === 'duplicate' ? 'danger-button' : 'print-button'
+      button.textContent = inboxWorkflowActionLabel(action)
+      button.addEventListener('click', function(event) {
+        event.preventDefault()
+        submitInboxWorkflowAction(item, action, button)
+      })
+      workflow.appendChild(button)
+    })
+    body.appendChild(workflow)
+  }
+
   details.appendChild(body)
   return details
 }

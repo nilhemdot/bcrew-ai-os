@@ -57,6 +57,7 @@ import {
   applySharedCommunicationCandidateToDecision,
   applySharedCommunicationCandidateToQuestion,
   rejectPendingDocUpdate,
+  recordActionRouteCuration,
   recordReviewQueueChange,
   recordSourceDriftChange,
   rejectActionRoute,
@@ -3732,6 +3733,7 @@ registerStrategySharedCommsRoutes(app, {
   applyApprovedActionRoute,
   rejectActionRoute,
   rerouteActionRoute,
+  recordActionRouteCuration,
 })
 
 registerFoundationOperatorRoutes(app, {

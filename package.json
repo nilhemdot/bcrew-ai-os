@@ -117,6 +117,7 @@
     "process:knowledge-base-quality-gate-check": "node --env-file-if-exists=.env scripts/process-knowledge-base-quality-gate-check.mjs",
     "process:foundation-kb-compiler-v1-check": "node --env-file-if-exists=.env scripts/process-foundation-kb-compiler-v1-check.mjs",
     "process:action-route-review-inbox-check": "node --env-file-if-exists=.env scripts/process-action-route-review-inbox-check.mjs",
+    "process:action-route-promotion-workflow-check": "node --env-file-if-exists=.env scripts/process-action-route-promotion-workflow-check.mjs",
     "process:aios-runtime-portability-gate-check": "node --env-file-if-exists=.env scripts/process-aios-runtime-portability-gate-check.mjs",
     "process:agent-status-freshness-gate-check": "node --env-file-if-exists=.env scripts/process-agent-status-freshness-gate-check.mjs",
     "process:parallel-builder-worktree-protocol-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-worktree-protocol-check.mjs",
