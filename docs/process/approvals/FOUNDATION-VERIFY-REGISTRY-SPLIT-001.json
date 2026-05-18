@@ -1,0 +1,23 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-VERIFY-REGISTRY-SPLIT-001",
+  "approvedPlanRef": "docs/process/foundation-verify-registry-split-001-plan.md",
+  "approvedPlanSha256": "f122f44c3374c31c942f9705756baf6af27b985831f3c0467629a539257d37df",
+  "approvedRepoHead": "9646c4a8e2d1c7edab5512a202ffbdc930243c59",
+  "approvedBy": "Steve queue instruction + Codex Foundation builder",
+  "approvedAt": "2026-05-18T10:30:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve ordered the Foundation queue to continue after build-lane reliability, with FOUNDATION-VERIFY-REGISTRY-SPLIT-001 next once earlier mutation/read-only cards were already done or absent from repo truth.",
+  "scopeSummary": "Create a verifier registry split proof, move nested structural dependency ownership out of scripts/foundation-verify.mjs, keep the root under 5,000 lines, and make the nightly audit stop hard-flagging a resolved root.",
+  "constraints": [
+    "No arbitrary tail extraction.",
+    "No broad verifier rewrite.",
+    "No verifier scoring behavior change.",
+    "No source extraction, connector auth, paid calls, provider probes, external writes, Drive permissions mutation, or Drive permission changes.",
+    "No Harlan, Fal, Canva feature work, voice work, OpenHuman feature work, or UI redesign.",
+    "Do not rely on substring-only proof; call the real registry evaluator and nightly audit function path.",
+    "Run the full Foundation ship gate before push.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B."
+  ],
+  "approvalDigest": "63e409eee7a1074dd84dda583888b5c6a30b2c64f97e4f23ca2d4e8a51baf66e"
+}

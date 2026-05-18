@@ -92,6 +92,7 @@
     "process:foundation-ship-preflight": "node --env-file-if-exists=.env scripts/process-foundation-ship-preflight.mjs",
     "process:foundation-ship": "node --env-file-if-exists=.env scripts/process-foundation-ship.mjs",
     "process:foundation-verify-profile-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-profile-check.mjs",
+    "process:foundation-verify-registry-split-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-registry-split-check.mjs",
     "process:foundation-verify-llm-auth-audit-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-llm-auth-audit-check.mjs",
     "process:foundation-hub-full-payload-reduce-check": "node --env-file-if-exists=.env scripts/process-foundation-hub-full-payload-reduce-check.mjs",
     "process:clickup-verify-health-boundary-check": "node --env-file-if-exists=.env scripts/process-clickup-verify-health-boundary-check.mjs",
