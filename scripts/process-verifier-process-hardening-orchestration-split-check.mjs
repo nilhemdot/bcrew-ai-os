@@ -80,12 +80,14 @@ async function main() {
   const [
     moduleSource,
     verifierSource,
+    runnerSource,
     scriptSource,
     planSource,
     packageSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-process-hardening-verifier.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
+    readRepoFile('lib/foundation-verify-process-hardening-runner.js'),
     readRepoFile(VERIFIER_PROCESS_HARDENING_ORCHESTRATION_SPLIT_SCRIPT_PATH),
     readRepoFile(VERIFIER_PROCESS_HARDENING_ORCHESTRATION_SPLIT_PLAN_PATH),
     readRepoFile('package.json'),
@@ -116,6 +118,12 @@ async function main() {
     'const verifierProcessHardeningSplitModuleCard =',
     'const processHardeningVerifierChecks = await evaluateFoundationProcessHardeningVerifierChecks({',
   ]
+  const rootDelegatesProcessHardening =
+    verifierSource.includes('evaluateFoundationProcessHardeningVerifierOrchestration({') ||
+    (
+      verifierSource.includes('runFoundationVerifyProcessHardeningVerifier({') &&
+      runnerSource.includes('evaluateFoundationProcessHardeningVerifierOrchestration({')
+    )
 
   addCheck(checks, approvalValidation.ok && Number(approvalValidation.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || VERIFIER_PROCESS_HARDENING_ORCHESTRATION_SPLIT_APPROVAL_PATH)
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
@@ -132,7 +140,7 @@ async function main() {
     'dogfood rejects process-hardening proof failures',
     dogfood.dogfoodInvariant,
   )
-  addCheck(checks, verifierSource.includes('evaluateFoundationProcessHardeningVerifierOrchestration({') && verifierSource.includes('processHardeningOrchestrationVerifier.checks'), 'foundation verifier delegates process-hardening orchestration to focused module', 'evaluateFoundationProcessHardeningVerifierOrchestration')
+  addCheck(checks, rootDelegatesProcessHardening && verifierSource.includes('processHardeningOrchestrationVerifier.checks'), 'foundation verifier delegates process-hardening orchestration to focused module', 'evaluateFoundationProcessHardeningVerifierOrchestration')
   addCheck(
     checks,
     oldRootPatterns.every(pattern => !verifierSource.includes(pattern)),

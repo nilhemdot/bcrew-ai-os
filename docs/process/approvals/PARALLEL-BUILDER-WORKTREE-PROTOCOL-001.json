@@ -1,0 +1,13 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PARALLEL-BUILDER-WORKTREE-PROTOCOL-001",
+  "approvedBy": "Steve overnight-safe Foundation setup approval plus Codex Foundation builder session",
+  "approvedAt": "2026-05-18T00:10:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve asked Codex to make the call for the next setup sprint before the overnight queue and approved safe internal Foundation work that does not need external approval.",
+  "approvedPlanRef": "docs/process/parallel-builder-worktree-protocol-001-plan.md",
+  "approvedPlanSha256": "20b4633bb46f62ce5dedc3d03b5f03b82b10668ba30dc2bc7581f6ace990fb19",
+  "approvedRepoHead": "824aac3e13f2259d90d0c9bdf8fbc21c3fb0a9a7",
+  "notes": "Approved only for Foundation-owned protocol/proof work. Not approved: live extraction, auth-required or paid run, provider/model probe, connector/OAuth repair, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, Drive permissions mutation, Agent Feedback auto-send, external write, or model call.",
+  "approvalDigest": "511815a8cfd83d5bf21b94344ca1ecd55a5fed9342b9f62a18a6717dfeb4f216"
+}

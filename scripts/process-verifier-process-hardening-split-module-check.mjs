@@ -77,6 +77,7 @@ async function main() {
     activeSprint,
     planCriticRuns,
     foundationVerifySource,
+    runnerSource,
     moduleSource,
     proofScriptSource,
     planSource,
@@ -91,6 +92,7 @@ async function main() {
     getActiveFoundationCurrentSprint(),
     getPlanCriticRunsByCardIds([VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID]),
     readText('scripts/foundation-verify.mjs'),
+    readText('lib/foundation-verify-process-hardening-runner.js'),
     readText('lib/foundation-process-hardening-verifier.js'),
     readText(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_SCRIPT_PATH),
     readText(VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_PLAN_PATH),
@@ -106,6 +108,13 @@ async function main() {
     new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1400}'VERIFY-READONLY-GATE-001 keeps foundation:verify read-only"),
     new RegExp("ensure\\(\\s*checks,[\\s\\S]{0,1400}'BACKLOG-STORE-CONCURRENCY-001 prevents silent backlog lost updates'"),
   ]
+  const rootDelegatesProcessHardening =
+    foundationVerifySource.includes('evaluateFoundationProcessHardeningVerifierChecks({') ||
+    foundationVerifySource.includes('evaluateFoundationProcessHardeningVerifierOrchestration({') ||
+    (
+      foundationVerifySource.includes('runFoundationVerifyProcessHardeningVerifier({') &&
+      runnerSource.includes('evaluateFoundationProcessHardeningVerifierOrchestration({')
+    )
 
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog has process-hardening verifier split card in executing or done', card ? `${card.lane} / ${card.priority}` : 'missing card')
   addCheck(checks, approval.ok === true && approval.mode === 'v2' && Number(approval.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approval.ok ? `${approval.mode} / ${approval.approval?.score}` : approval.failures?.map(item => item.detail).join('; '))
@@ -164,8 +173,7 @@ async function main() {
   )
   addCheck(
     checks,
-    (foundationVerifySource.includes('evaluateFoundationProcessHardeningVerifierChecks({') ||
-      foundationVerifySource.includes('evaluateFoundationProcessHardeningVerifierOrchestration({')) &&
+    rootDelegatesProcessHardening &&
       (foundationVerifySource.includes('processHardeningVerifierChecks') ||
         foundationVerifySource.includes('processHardeningOrchestrationVerifier.checks')) &&
       moduleSource.includes('buildFoundationProcessHardeningVerifierDogfoodProof') &&

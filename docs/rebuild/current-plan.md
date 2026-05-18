@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
-Last updated: 2026-05-17
-Version: v6.97 - AIOS runtime portability gate closed
-Status: Bounded Foundation queue active
+Last updated: 2026-05-18
+Version: v6.98 - parallel builder worktree protocol closed
+Status: Ready for KB/action review sprint
 
 Use this doc for one question:
 
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Agent Status Freshness Gate
+## Latest Sprint: Parallel Builder Worktree Protocol
+
+Live sprint ID: `parallel-builder-worktree-protocol-2026-05-18`.
+
+This sprint is complete under `parallel-builder-worktree-protocol-v1`. It defines the Foundation-owned protocol for safe overnight and parallel builder work: one card per dedicated branch/worktree, disjoint write scopes, shared-file coordination, Current Sprint staging, proof commands, merge handoffs, and explicit no-go boundaries.
+
+Completed card:
+
+1. `PARALLEL-BUILDER-WORKTREE-PROTOCOL-001` - done under `parallel-builder-worktree-protocol-v1`. Scope was protocol/proof only. It rejects shared worktrees, shared branch edits, overlapping write scopes, missing Current Sprint coordination, uncoordinated shared/root file edits, forbidden local/mockup/Harlan/Fal/voice/Canva/OpenHuman scopes, and live extraction/provider-probe/external-write side effects. It also keeps `scripts/foundation-verify.mjs` under the 5,000-line guardrail by moving process-hardening orchestration wiring to `lib/foundation-verify-process-hardening-runner.js`.
+
+Not next from this closeout: live extraction, auth-required or paid runs, provider/model probes, connector/OAuth repair, runtime worker implementation, model calls, external writes, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
+
+Recommended next: `FOUNDATION-KB-ACTION-REVIEW-SPRINT-001`.
+
+## Previous Sprint: Agent Status Freshness Gate
 
 Live sprint ID: `agent-status-freshness-gate-2026-05-17`.
 
