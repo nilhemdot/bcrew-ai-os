@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T11:35:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-verified-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "76cd6a53f1473c3ba5d5e7a1647cc58df9a481b4660b9e3c7519cbba1c9c0d5d",
+  "approvedRepoHead": "e8ccdcd18d7805c7751f918b65d3910376f97e6c",
+  "notes": "Approved for bounded verified/readable source maturity routing-gap repair using existing source facts and accepted atoms for SRC-CLICKUP-001, SRC-GDOCS-001, SRC-GSHEETS-001, SRC-DATAFORSEO-001, SRC-GHL-001, and SRC-META-001 only; create internal retrieval chunks and approval-required pending internal routes. Includes narrow red-gate route-window repair so operational route inserts cannot starve Strategy Hub v2 strategy review payloads. Not approved: live extraction, source read/write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad verified source mining.",
+  "approvalDigest": "65d1584e3194be1b948541a507c667d0e31af594712df724c75cb6ca91de3216"
+}

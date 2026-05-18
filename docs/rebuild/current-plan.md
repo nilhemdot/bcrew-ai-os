@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.127 - Verified source atom-flow repair closed
+Version: v6.128 - Verified source routing repair closed
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -16,15 +16,15 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SOURCE-MATURITY-VERIFIED-ATOM-FLOW-REPAIR-001` is closed.
+`SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001` is closed.
 
-Closeout: `source-maturity-verified-atom-flow-repair-v1`.
+Closeout: `source-maturity-verified-routing-gap-repair-v1`.
 
-Scope shipped: promoted existing governed source facts for `SRC-CLICKUP-001`, `SRC-GDOCS-001`, `SRC-GSHEETS-001`, `SRC-DATAFORSEO-001`, `SRC-GHL-001`, and `SRC-META-001` into accepted intelligence atoms and supporting atom hits. These verified/readable sources move off the atomized-stage maturity gap while leaving synthesis, routing, connector runtime, and governed apply as separate proof lanes.
+Scope shipped: created bounded retrieval chunks from existing accepted atoms for `SRC-CLICKUP-001`, `SRC-GDOCS-001`, `SRC-GSHEETS-001`, `SRC-DATAFORSEO-001`, `SRC-GHL-001`, and `SRC-META-001`, then created approval-required pending internal owner-decision action routes. These verified/readable sources move off the routed-stage maturity gap while leaving route promotion/apply, connector runtime, and governed external writes as separate approval lanes.
 
 Not next: live extraction, auth-required or paid runs, connector live calls, provider/model calls, Google Docs/Sheets reads or writes, Supabase queries, Meta/GHL/DataForSEO/ClickUp calls, external writes, route apply, destination record creation, Drive permission mutation, Agent Feedback auto-send, OAuth work, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
 
-Next: continue the safe source maturity/source-contract queue from live truth. Prefer routing only where existing source-backed atoms can become internal approval-required review items; otherwise mark blocked/pending instead of inventing routes or extraction.
+Next: continue the safe source maturity/source-contract queue from live truth. Prefer source maturity gaps that can be repaired from existing DB facts/atoms without live source reads; otherwise mark blocked/pending instead of inventing evidence, routes, or extraction.
 
 ## Plan History
 
