@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FINANCE-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T07:32:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-finance-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "ce33e663c476b5cdfbed67aa34c691d78ded0a9bc495c1ebf4e0aea7d1048a3c",
+  "approvedRepoHead": "72a2d6fa505956a8d93f2223ee8fdc2f69c173f1",
+  "notes": "Approved for bounded Finance source maturity routing-gap repair using existing source fact fact:9d217c40c8fc9dfbdbc590f3 and accepted atom atom:d707b8ee4fa72ca29c447e4e only; create one internal retrieval chunk and one approval-required pending internal route. Not approved: live extraction, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Finance mining.",
+  "approvalDigest": "a7b0e1b69b9cef49b5c84a289b13e37befd57d67eb6c1bf651d0e21680c62d1a"
+}
