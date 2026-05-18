@@ -122,6 +122,7 @@
     "process:source-maturity-freedom-sheet-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs",
     "process:source-maturity-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-atom-flow-repair-check.mjs",
     "process:source-maturity-freedom-bhag-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-bhag-atom-flow-repair-check.mjs",
+    "process:source-maturity-supabase-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-supabase-atom-flow-repair-check.mjs",
     "process:source-maturity-freedom-community-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-community-atom-flow-repair-check.mjs",
     "process:source-maturity-freedom-engine-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-engine-atom-flow-repair-check.mjs",
     "process:source-maturity-owners-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-owners-atom-flow-repair-check.mjs",

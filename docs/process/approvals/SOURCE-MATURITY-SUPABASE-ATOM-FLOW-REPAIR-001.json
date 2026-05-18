@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-SUPABASE-ATOM-FLOW-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T11:42:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-supabase-atom-flow-repair-001-plan.md",
+  "approvedPlanSha256": "788b4343d74c0aa0f5693852e3ab3a864ec23fe1da8a7a7c92048dcc3fb8a4d1",
+  "approvedRepoHead": "0ad70104b99907f500ba339035d16eb864ec33a3",
+  "notes": "Approved for bounded Supabase source maturity atom-flow repair using existing source fact fact:00bc3e59b79fd30eb77a0bf4 only. Not approved: live extraction, Supabase source read/write, auth repair, paid runs, provider/model calls, external writes, route creation/apply, synthesized item creation, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Supabase mining.",
+  "approvalDigest": "be7880ecbae97cccd3930c866aa8a85a6d8e24dcf6ad1671def20e653c1b3a23"
+}
