@@ -165,6 +165,7 @@
     "process:agent-live-answer-preflight-gate-check": "node --env-file-if-exists=.env scripts/process-agent-live-answer-preflight-gate-check.mjs",
     "process:agent-capability-registry-check": "node --env-file-if-exists=.env scripts/process-agent-capability-registry-check.mjs",
     "process:agent-template-runtime-contract-check": "node --env-file-if-exists=.env scripts/process-agent-template-runtime-contract-check.mjs",
+    "process:old-system-agent-onboarding-harvest-check": "node --env-file-if-exists=.env scripts/process-old-system-agent-onboarding-harvest-check.mjs",
     "process:parallel-builder-worktree-protocol-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-worktree-protocol-check.mjs",
     "process:parallel-builder-operating-system-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-operating-system-check.mjs",
     "process:build-lane-reliability-sprint-check": "node --env-file-if-exists=.env scripts/process-build-lane-reliability-sprint-check.mjs",

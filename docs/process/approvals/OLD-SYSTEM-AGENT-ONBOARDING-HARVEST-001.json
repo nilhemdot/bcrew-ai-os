@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T19:35:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized old-system onboarding harvest before AGENT-010.",
+  "scopeSummary": "Read-only old-system onboarding evidence harvest; promote keep/rebuild/retire lessons, profile fields, calibration questions, coaching-loop requirements, and AGENT-010 proof requirements. No AGENT-010 implementation, Harlan runtime, live extraction, model/provider calls, external writes, raw private content promotion, or hidden subagents.",
+  "approvedPlanRef": "docs/process/old-system-agent-onboarding-harvest-001-plan.md",
+  "approvedPlanSha256": "e26839a170d40ba7ec5be821dd2443637666dbfee3f4917c1fdb77a42424d56d",
+  "approvedRepoHead": "4613df5770fd1bf828eb012c775d62a4ac88cabd",
+  "notApproved": [
+    "Do not build Harlan UI or feature work.",
+    "Do not launch live agent runtime work.",
+    "Do not run live extraction.",
+    "Do not call providers or models.",
+    "Do not send Gmail, ClickUp, Drive, Slack, Telegram, or Agent Feedback mutations.",
+    "Do not mutate Google Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup.",
+    "Do not send request-access emails.",
+    "Do not implement AGENT-010 in this card.",
+    "Do not copy raw private transcripts or private profile data into repo truth.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "d1e8fe3b6c9bfa9d923905c79a471e647c5d827d3825c2e5f620e2e428b98a79"
+}

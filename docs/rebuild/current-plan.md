@@ -411,6 +411,20 @@ Not next from this closeout: live extraction, transcript fetches, screenshots, c
 
 Next: continue safe Foundation-up work from repo truth. Prefer no-auth source/connector completion, source-contract/extraction-readiness gaps, or safe Foundation cleanup if connector/source work needs Steve approval.
 
+## Previous Sprint: Old-System Agent Onboarding Harvest
+
+Live sprint ID: `old-system-agent-onboarding-harvest-2026-05-18`.
+
+This sprint is complete under `old-system-agent-onboarding-harvest-v1`. It harvests useful old BCrew-Buddy onboarding/coaching lessons for `AGENT-010` without treating old implementation, old adoption claims, or private transcript/profile content as active Foundation truth.
+
+Completed card:
+
+1. `OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001` - done under `old-system-agent-onboarding-harvest-v1`. Scope was evidence harvest/proof only: source metadata, keep/rebuild/retire lessons, private-profile fields, calibration questions, coaching-loop requirements, non-engagement/failure handling, and proof requirements for `AGENT-010`. Dogfood rejects missing evidence metadata, missing retire decisions, thin profile/question sets, raw private content promotion, runtime launch, live extraction, provider/model calls, external writes, and hidden subagents.
+
+Not next from this closeout: `AGENT-010` implementation, Harlan UI or feature work, live agent runtime launch, live extraction, provider/model calls, external writes, Drive permission mutation, Agent Feedback auto-send, copying raw private transcripts/profile data, hidden subagents, or parallel builders.
+
+Recommended next: `AGENT-010`.
+
 ## Previous Sprint: Agent Template Runtime Contract
 
 Live sprint ID: `agent-template-runtime-contract-2026-05-18`.
