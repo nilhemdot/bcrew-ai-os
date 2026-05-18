@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CODE-QUALITY-AUDIT-GUARDED-MUTATOR-CLASSIFIER-001",
+  "approvedPlanRef": "docs/process/code-quality-audit-guarded-mutator-classifier-001-plan.md",
+  "approvedPlanSha256": "cc178e4c592e46721b7151b8c55d7ce1a6bf36b8d2a8333348e75028f79ec732",
+  "approvedRepoHead": "e85803e6db0aa11f57b72f15360829b7c510f5c4",
+  "approvedBy": "Steve May 18 continuous Foundation builder queue approval + Codex senior-engineer main-session plan review",
+  "approvedAt": "2026-05-18T11:53:16.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve ordered continuous work on remaining P0 audit/process failures after BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001 shipped green.",
+  "scopeSummary": "Repair the Code Quality Nightly Audit mutator classifier so guarded process-check scripts no longer appear as P0 false positives while unguarded process-check and non-process mutators remain red.",
+  "constraints": [
+    "No hidden subagents.",
+    "Do not launch parallel builders.",
+    "Do not auto-fix remaining audit findings in this card.",
+    "Do not weaken process-check readonly mode.",
+    "Do not run live extraction.",
+    "Do not run auth-required or paid jobs.",
+    "Do not run provider/model probes.",
+    "Do not mutate Google Drive permissions.",
+    "No Gmail, ClickUp, or Agent Feedback sends.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work."
+  ],
+  "approvalDigest": "7c3884e4b5f1d0725780f88fb5df89681ef3920fbaf128ca2ae4c730ecd846fd"
+}
