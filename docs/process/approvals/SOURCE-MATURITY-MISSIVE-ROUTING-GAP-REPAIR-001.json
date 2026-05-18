@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-MISSIVE-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T05:32:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-missive-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "7a0a876d38efb377c6979383730716fcd5c70b4b47617f63ab2d539fe285b9cf",
+  "approvedRepoHead": "3222d073c027a962d840ba93e42797dfb4aa66d9",
+  "notes": "Approved for bounded source maturity routing-gap repair on SRC-MISSIVE-001 using existing active source-health fact, the existing Missive Atlassian Goals/Projects atom, and its retrieval chunk only. Not approved: live extraction, transcript fetch, screenshots, crawl, model/provider calls, auth repair, paid runs, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Missive mining.",
+  "approvalDigest": "6098146ee61fd28c778dc7b01337ee27e8cdcf5f8f84491f25fe598b14743deb"
+}
