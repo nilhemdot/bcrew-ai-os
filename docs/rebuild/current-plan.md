@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.120 - Ship gate worker live-job pause closed
+Version: v6.121 - Freedom Sheet evidence gap repair closed
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -16,15 +16,15 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001` is closed.
+`SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001` is closed.
 
-Closeout: `ship-gate-worker-live-job-pause-v1`.
+Closeout: `source-maturity-freedom-sheet-evidence-gap-repair-v1`.
 
-Scope shipped: `process:foundation-ship` now arms a short worker scheduled-job pause before restarting the Foundation worker LaunchAgent. The worker still records startup commit/PID for served-code proof, but skips due scheduled job selection while the pause marker is active. The marker clears in a `finally` path and expires if interrupted.
+Scope shipped: adds governed source facts for `SRC-FREEDOM-TEAM-001` and `SRC-FREEDOM-COMMUNITY-REV-001` from existing Freedom source-contract/source-registry/source-note evidence only. Both signed-off Freedom Sheet sources move off the extracted-stage maturity gap without live extraction, Sheets reads/writes, Drive mutation, external writes, atoms, routes, or provider calls.
 
-Not next: live extraction, auth-required or paid runs, external writes, Drive permission mutation, Agent Feedback auto-send, connector/OAuth work, permanent worker disablement, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+Not next: live extraction, auth-required or paid runs, Google Sheets read/write, external writes, Drive permission mutation, Agent Feedback auto-send, connector/OAuth work, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
 
-Next: continue the safe source maturity/source-contract queue from live truth. Prefer monitored/evidence/atom repairs only where existing source truth is already present; otherwise mark blocked/pending instead of inventing evidence.
+Next: continue the safe source maturity/source-contract queue from live truth. Prefer atom-flow only where source facts already exist; otherwise mark blocked/pending instead of inventing evidence.
 
 ## Plan History
 

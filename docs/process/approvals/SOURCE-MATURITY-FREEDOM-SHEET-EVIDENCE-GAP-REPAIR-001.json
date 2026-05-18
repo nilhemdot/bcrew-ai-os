@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FREEDOM-SHEET-EVIDENCE-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T09:35:47.379Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-freedom-sheet-evidence-gap-repair-001-plan.md",
+  "approvedPlanSha256": "46a5c53c1fa17e83a523f553b904051e023c996f83ce6f841c493b4497e9c51a",
+  "approvedRepoHead": "70bc5e981097bbbe225419392ba74ccb549fde17",
+  "notes": "Approved for bounded Freedom Sheet source maturity evidence-gap repair on SRC-FREEDOM-TEAM-001 and SRC-FREEDOM-COMMUNITY-REV-001 using existing source-contract, source-registry, source-note, and current-state evidence only. Not approved: live extraction, extraction target creation, Google Sheets read/write, Drive mutation, transcript fetch, screenshots, crawl, model/provider calls, auth repair, paid runs, external writes, atom fabrication, action-route apply, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.",
+  "approvalDigest": "c0b1d29c36b04006aaaacfb683907fa53f52c4c9db5ea936667c5954c817e02e"
+}
