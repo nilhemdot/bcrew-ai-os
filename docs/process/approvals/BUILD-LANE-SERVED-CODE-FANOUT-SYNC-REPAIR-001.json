@@ -1,0 +1,24 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001",
+  "approvedPlanRef": "docs/process/build-lane-served-code-fanout-sync-repair-001-plan.md",
+  "approvedPlanSha256": "c1cb1635c52cbda2f1c7570ab56dc4d7fe09e1b4c9a21656733c0663494ad84c",
+  "approvedRepoHead": "56814410436437b3a3a539c63fcfd6b94cfe1490",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T09:05:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve directed direct-builder recovery after the Planck hidden-worker confusion and stale served-code fanout failures, with priority on build-lane reliability before continuing the next Foundation-up card.",
+  "scopeSummary": "Repair process:fanout-check so stale served dashboard code remains a failing root cause but dependent Recent Builds checks are skipped and not recorded as separate telemetry failures until served code matches HEAD.",
+  "constraints": [
+    "No hidden subagents.",
+    "Do not launch parallel builders during this card.",
+    "No live extraction.",
+    "No auth-required or paid run.",
+    "No external writes.",
+    "No Google Drive permission mutation.",
+    "No live Agent Feedback auto-send.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work.",
+    "Do not weaken, skip, bypass, or demote the stale served-code failure itself."
+  ],
+  "approvalDigest": "4c495dbdca641114ea1744112ec3977a108ed6aa9ec5ae9427de6595d8f1233d"
+}

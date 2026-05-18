@@ -54,6 +54,10 @@ function ensure(checks, condition, check, detail = '') {
   checks.push({ ok: Boolean(condition), check, detail })
 }
 
+function skip(checks, check, detail = '') {
+  checks.push({ ok: true, skipped: true, check, detail })
+}
+
 async function fileExists(relativePath) {
   if (!relativePath || relativePath.includes('..')) return false
   try {
@@ -198,26 +202,36 @@ async function main() {
     'dashboard served commit matches repo HEAD',
     runningCommit ? `served=${runningShort} head=${repoHead.slice(0, 7)}` : 'missing served-code metadata',
   )
+  const servedCodeMatchesHead = Boolean(runningCommit && runningCommit === repoHead)
 
-  const build = (foundationBuildLog.builds || []).find(item => item.closeoutKey === closeoutKey) || null
-  ensure(
-    checks,
-    Boolean(build),
-    'Recent Builds exposes this closeout',
-    build ? `${build.shortSha} / ${build.acceptanceState}` : 'missing build log entry',
-  )
-  ensure(
-    checks,
-    Boolean(build?.proofCommands?.some(command => command.includes('foundation:verify'))),
-    'Recent Builds carries verifier proof command',
-    (build?.proofCommands || []).join(' | ') || 'missing proof commands',
-  )
-  ensure(
-    checks,
-    Boolean(build?.whereItLives?.length),
-    'Recent Builds says where the change lives',
-    (build?.whereItLives || []).join(', ') || 'missing whereItLives',
-  )
+  if (!servedCodeMatchesHead) {
+    const staleDetail = runningCommit
+      ? `served=${runningShort} head=${repoHead.slice(0, 7)}; restart dashboard/worker before checking Recent Builds fanout`
+      : 'missing served-code metadata; restart dashboard/worker before checking Recent Builds fanout'
+    skip(checks, 'Recent Builds exposes this closeout', staleDetail)
+    skip(checks, 'Recent Builds carries verifier proof command', staleDetail)
+    skip(checks, 'Recent Builds says where the change lives', staleDetail)
+  } else {
+    const build = (foundationBuildLog.builds || []).find(item => item.closeoutKey === closeoutKey) || null
+    ensure(
+      checks,
+      Boolean(build),
+      'Recent Builds exposes this closeout',
+      build ? `${build.shortSha} / ${build.acceptanceState}` : 'missing build log entry',
+    )
+    ensure(
+      checks,
+      Boolean(build?.proofCommands?.some(command => command.includes('foundation:verify'))),
+      'Recent Builds carries verifier proof command',
+      (build?.proofCommands || []).join(' | ') || 'missing proof commands',
+    )
+    ensure(
+      checks,
+      Boolean(build?.whereItLives?.length),
+      'Recent Builds says where the change lives',
+      (build?.whereItLives || []).join(', ') || 'missing whereItLives',
+    )
+  }
 
   const closeoutCommands = closeout?.proofCommands || []
   ensure(
@@ -241,12 +255,13 @@ async function main() {
 
   console.log('')
   for (const check of checks) {
-    const prefix = check.ok ? 'PASS' : 'FAIL'
+    const prefix = check.skipped ? 'SKIP' : check.ok ? 'PASS' : 'FAIL'
     console.log(`${prefix} ${check.check}${check.detail ? ` -> ${check.detail}` : ''}`)
   }
   const failed = checks.filter(check => !check.ok)
+  const skipped = checks.filter(check => check.skipped)
   console.log('')
-  console.log(`Summary: ${checks.length - failed.length}/${checks.length} checks passed`)
+  console.log(`Summary: ${checks.length - failed.length - skipped.length}/${checks.length - skipped.length} checks passed${skipped.length ? ` (${skipped.length} skipped)` : ''}`)
   if (failed.length) {
     try {
       recordBuildLaneFailureEventsFromChecks({
