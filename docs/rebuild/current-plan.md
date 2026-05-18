@@ -127,6 +127,20 @@ Not next from this sprint: live extraction, extraction target creation, transcri
 
 Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Strategy atom-flow can only happen from the accepted source fact into internal memory-spine atom flow; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
 
+## Previous Sprint: Source Maturity FUB Atom Flow Repair
+
+Live sprint ID: `source-maturity-fub-atom-flow-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-fub-atom-flow-repair-v1`. It repairs the `SRC-FUB-001` atomized-stage source maturity gap by promoting one existing active FUB source fact into a governed atom and atom hit.
+
+Completed card:
+
+1. `SOURCE-MATURITY-FUB-ATOM-FLOW-REPAIR-001` - done under `source-maturity-fub-atom-flow-repair-v1`. Scope was internal atom-flow repair only: `SRC-FUB-001` now has one accepted atom and supporting hit backed by source fact `fact:af613c177546ec2a7267b669`, and source maturity now exposes the routed-stage gap. This did not run live extraction, create extraction targets, call the FUB API, mutate CRM data, call models/providers, repair auth, run paid work, write external systems, create routes, apply action routes, automate FUB, clean lead sources, or mark synthesis/routing/apply complete.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, FUB API calls, CRM mutation, model/provider call, OAuth repair, paid-source run, external write, action-route creation/apply, FUB automation, lead-source cleanup, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad FUB mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. FUB routing can only happen from accepted FUB atom/source-backed evidence into an internal approval-required route; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
+
 ## Previous Sprint: Source Maturity Finance Routing Gap Repair
 
 Live sprint ID: `source-maturity-finance-routing-gap-repair-2026-05-18`.

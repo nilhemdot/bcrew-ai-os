@@ -121,6 +121,7 @@
     "process:source-maturity-freedom-engine-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-engine-atom-flow-repair-check.mjs",
     "process:source-maturity-owners-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-owners-atom-flow-repair-check.mjs",
     "process:source-maturity-finance-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-finance-atom-flow-repair-check.mjs",
+    "process:source-maturity-fub-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-fub-atom-flow-repair-check.mjs",
     "process:source-maturity-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-routing-gap-repair-check.mjs",
     "process:source-maturity-missive-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-missive-routing-gap-repair-check.mjs",
     "process:source-maturity-owners-lists-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-owners-lists-routing-gap-repair-check.mjs",

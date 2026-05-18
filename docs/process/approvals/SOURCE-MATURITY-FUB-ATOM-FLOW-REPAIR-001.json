@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FUB-ATOM-FLOW-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T08:50:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-fub-atom-flow-repair-001-plan.md",
+  "approvedPlanSha256": "ac83a47905c132df8522c4d4abf4a83b642a9042851a9e7db36327d613497b70",
+  "approvedRepoHead": "5d5b142857353216e969f4e59f7abfadb537cde3",
+  "notes": "Approved for bounded FUB source maturity atom-flow repair using existing source fact fact:af613c177546ec2a7267b669 only; create one internal atom and supporting atom hit. Not approved: live extraction, FUB API calls, CRM mutation, auth repair, paid runs, provider/model calls, external writes, action routes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad FUB mining.",
+  "approvalDigest": "a6c67c2af54f97f2b1530638ffce2549a8a2f297c586975fea877851325de75a"
+}
