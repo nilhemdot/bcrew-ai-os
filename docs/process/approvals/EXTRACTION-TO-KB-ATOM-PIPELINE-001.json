@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACTION-TO-KB-ATOM-PIPELINE-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T22:00:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized the safe extractor queue after public YouTube Build Intel queue prep, with explicit instruction to avoid live extraction, private auth, paid access, external writes, Drive mutation, Gmail/ClickUp sends, Agent Feedback auto-send, and hidden subagents unless separately approved.",
+  "scopeSummary": "Define proposal-only routing from source-backed extractor artifacts into KB draft, atom, synthesis fact, review, and action-route candidates; prove missing source/citation/freshness/privacy/contradiction, side-effect, and direct-write variants fail closed.",
+  "approvedPlanRef": "docs/process/extraction-to-kb-atom-pipeline-001-plan.md",
+  "approvedPlanSha256": "884b533b55a1b8547ca2acbe263619b3118246234881afe8f5f379ccd34346f6",
+  "approvedRepoHead": "c7763acee12c4379e07c3a01633850f43938569b",
+  "notApproved": [
+    "Do not run live extraction.",
+    "Do not search YouTube or the public web or call source APIs.",
+    "Do not fetch transcripts, capture screenshots/keyframes, download videos, summarize content, run vision, or call a model.",
+    "Do not use paid/private/community/course auth, Skool, MyICOR, Loom, or authorized-browser sessions.",
+    "Do not write Research Inbox rows, KB pages, atoms, synthesis facts, action routes, vector/query indexes, or backlog content from extracted material.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, or external systems.",
+    "Do not launch hidden subagents, parallel builders, or extraction workers."
+  ],
+  "approvalDigest": "c83521c0c27766b14741233033b22b72da8c042eb05e884deb3c1190b97dada1"
+}
