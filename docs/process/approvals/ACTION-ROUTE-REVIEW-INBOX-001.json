@@ -1,0 +1,23 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ACTION-ROUTE-REVIEW-INBOX-001",
+  "approvedPlanRef": "docs/process/action-route-review-inbox-001-plan.md",
+  "approvedPlanSha256": "97fbc7f8d71aa0f7ed5410e75b1035eb43f88bb493a73f5c50b76dee68fea926",
+  "approvedRepoHead": "e0b26ab8cf2c03e9fbaf9f65f6bbe36ebfb9788b",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T02:00:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved FOUNDATION-KB-ACTION-REVIEW-SPRINT-001 and instructed the builder to continue with ACTION-ROUTE-REVIEW-INBOX-001 after FOUNDATION-KB-COMPILER-V1-001 shipped, with no live extraction, transcript fetches, screenshots, model calls, auth-required or paid runs, external writes, or Harlan/Fal/voice/Canva/OpenHuman feature work.",
+  "scopeSummary": "Build a read-only Action Route Review Inbox so proposed action-route findings are separated from normal Backlog cards while preserving source proof and focused-card access.",
+  "constraints": [
+    "No live extraction.",
+    "No transcript fetch, screenshot capture, crawl, summarization, or model call.",
+    "No auth-required or paid run.",
+    "No external writes.",
+    "No action-route apply/promote/reject/snooze mutation in this card.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work.",
+    "No Google Drive permission mutation.",
+    "No live Agent Feedback auto-send."
+  ],
+  "approvalDigest": "6a3e0d10fd8464ac762beb12b15001ed452670f592ec6f7b7933df849ebf8b9a"
+}

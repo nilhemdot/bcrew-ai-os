@@ -9,6 +9,9 @@ function getBacklogFocusIds() {
 function renderBacklogArchiveActions(summary) {
   var actions = document.createElement('div')
   actions.className = 'foundation-hero-actions'
+  if (summary && Number(summary.reviewInboxItems || 0) > 0) {
+    actions.appendChild(createActionLink('Review Inbox', '/foundation#action-route-review-inbox', 'print-button'))
+  }
   if (summary && Number(summary.archivedDoneItems || 0) > 0) {
     actions.appendChild(createActionLink('Done Archive', '/foundation#backlog-done-archive', 'print-button'))
   }
@@ -60,7 +63,7 @@ function renderBacklog() {
     heroMeta.className = 'hero-copy'
     heroMeta.textContent = focusedIds.length
       ? focusedIds.length + ' linked cards from the page you clicked. Clear focus to see the full queue.'
-      : (summary.totalItems || hub.backlogItems.length) + ' live cards · ' + (summary.visibleItems || hub.backlogItems.length) + ' loaded now · ' + (summary.archivedDoneItems || 0) + ' older done behind archive' + (scopeSummary ? ' · ' + scopeSummary : '')
+      : (summary.totalItems || hub.backlogItems.length) + ' live cards · ' + (summary.visibleItems || hub.backlogItems.length) + ' loaded now · ' + (summary.reviewInboxItems || 0) + ' proposed findings in Review Inbox · ' + (summary.archivedDoneItems || 0) + ' older done behind archive' + (scopeSummary ? ' · ' + scopeSummary : '')
     heroInner.appendChild(heroMeta)
 
     hero.appendChild(heroInner)

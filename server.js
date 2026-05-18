@@ -3719,6 +3719,7 @@ registerStrategySharedCommsRoutes(app, {
   getStrategyPreworkCoverageSnapshot,
   getStrategyGoalTruthSnapshot,
   getStrategyOperatingTruthSnapshot,
+  getFoundationSnapshot,
   getActionRouterSnapshot,
   getIntelligenceRetrievalSnapshot,
   saveStrategyHubSnapshot,

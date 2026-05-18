@@ -75,17 +75,18 @@ The Strategy packet has completed steps 1-3 for its current source package: stra
 
 ## Latest Sprint: Foundation KB/action Review
 
-Live sprint ID: `foundation-kb-compiler-v1-2026-05-18`.
+Live sprint ID: `action-route-review-inbox-2026-05-18`.
 
 This sprint is in progress under `FOUNDATION-KB-ACTION-REVIEW-SPRINT-001`. The first shipped slice is `foundation-kb-compiler-v1`: a Foundation-owned, proposal-only compiler path from existing source-backed records into a quality-gated KB/wiki draft contract.
 
-Completed card:
+Completed cards:
 
 1. `FOUNDATION-KB-COMPILER-V1-001` - done under `foundation-kb-compiler-v1`. Scope was read-only/proposal-only compiler plumbing: existing source-backed synthesis facts, locked decisions, and intelligence atoms -> compiled KB/wiki draft with source IDs, citations, freshness metadata, privacy tier, compiler frontmatter, contradiction status, and quality-gate pass/fail.
+2. `ACTION-ROUTE-REVIEW-INBOX-001` - done under `action-route-review-inbox-v1`. Scope was read-only review-inbox plumbing: Action Router records and route-derived backlog rows -> proposed review items with type, owner, age, source refs, destination, and review state. Default Backlog separates action-route-derived rows from normal work while focused-card reads still load them.
 
-Not next from this closeout: live extraction, transcript fetches, screenshots, crawl, summarization, model calls, provider probes, auth-required or paid runs, external writes, compiled page writes, query index writes, vector table writes, Research Inbox writes, atom creation, backlog mutation from compiled content, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
+Not next from this closeout: live extraction, transcript fetches, screenshots, crawl, summarization, model calls, provider probes, auth-required or paid runs, external writes, action-route promotion/apply/reject/snooze mutation, duplicate/staleness workflow, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
 
-Next: `ACTION-ROUTE-REVIEW-INBOX-001`, then `ACTION-ROUTE-PROMOTION-WORKFLOW-001`, then `ACTION-ROUTE-DEDUP-STALENESS-GUARD-001`.
+Next: `ACTION-ROUTE-PROMOTION-WORKFLOW-001`, then `ACTION-ROUTE-DEDUP-STALENESS-GUARD-001`.
 
 ## Previous Sprint: Parallel Builder Worktree Protocol
 

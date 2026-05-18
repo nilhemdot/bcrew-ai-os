@@ -9,6 +9,7 @@ var cache = {
   foundationBacklogDoneArchive: null,
   currentSprint: null,
   actionReview: null,
+  actionRouteReviewInbox: null,
   systemInventory: null,
   buildLog: null,
   changeLog: null,
@@ -130,6 +131,22 @@ function fetchActionReview() {
     return res.json()
   }).then(function(data) {
     cache.actionReview = data
+    return data
+  })
+}
+
+function fetchActionRouteReviewInbox() {
+  if (cache.actionRouteReviewInbox) return Promise.resolve(cache.actionRouteReviewInbox)
+
+  return foundationRead('/api/foundation/action-route-review-inbox').then(function(res) {
+    if (!res.ok) {
+      return res.json().catch(function() { return null }).then(function(payload) {
+        throw parseApiErrorPayload(payload, 'Action Route Review Inbox failed to load.')
+      })
+    }
+    return res.json()
+  }).then(function(data) {
+    cache.actionRouteReviewInbox = data
     return data
   })
 }
@@ -306,6 +323,7 @@ function clearFoundationCaches() {
   cache.sourceOfTruth = null
   cache.foundationHub = null
   cache.actionReview = null
+  cache.actionRouteReviewInbox = null
   cache.systemInventory = null
   cache.fubLeadSources = {}
   cache.sourceLifecycle = null
