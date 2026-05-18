@@ -163,6 +163,7 @@
     "process:build-lane-reliability-sprint-check": "node --env-file-if-exists=.env scripts/process-build-lane-reliability-sprint-check.mjs",
     "process:build-lane-failure-telemetry-check": "node --env-file-if-exists=.env scripts/process-build-lane-failure-telemetry-check.mjs",
     "process:build-lane-served-code-fanout-sync-repair-check": "node --env-file-if-exists=.env scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs",
+    "process:build-lane-verifier-result-parser-repair-check": "node --env-file-if-exists=.env scripts/process-build-lane-verifier-result-parser-repair-check.mjs",
     "process:ship-gate-worker-live-job-pause-check": "node --env-file-if-exists=.env scripts/process-ship-gate-worker-live-job-pause-check.mjs",
     "process:foundation-engineering-fitness-gates-check": "node --env-file-if-exists=.env scripts/process-foundation-engineering-fitness-gates-check.mjs",
     "process:foundation-lazy-surface-loading-check": "node --env-file-if-exists=.env scripts/process-foundation-lazy-surface-loading-check.mjs",

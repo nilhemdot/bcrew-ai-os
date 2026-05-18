@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-LANE-VERIFIER-RESULT-PARSER-REPAIR-001",
+  "approvedPlanRef": "docs/process/build-lane-verifier-result-parser-repair-001-plan.md",
+  "approvedPlanSha256": "db7473382694a5753d4ad09c62949e942dcf59a2b7e8dcff705bb429a5026392",
+  "approvedRepoHead": "e18c1890d808bfc4f4a2ffbcdfd841782c378ab8",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T09:35:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized the build-lane verifier result parser repair after the May 18 Planck confusion and local build-lane telemetry false positives.",
+  "scopeSummary": "Repair build-lane failure telemetry parsing so successful verifier PASS lines with detail text like 0 failed are not recorded as failures while real FAIL, ERROR, and Command failed lines still record.",
+  "constraints": [
+    "No hidden subagents.",
+    "Do not launch parallel builders during this card.",
+    "Do not rewrite historical local telemetry logs.",
+    "Do not weaken, skip, bypass, or demote real verifier, ship, fanout, or backlog hygiene failures.",
+    "No live extraction.",
+    "No auth-required or paid run.",
+    "No external writes.",
+    "No Google Drive permission mutation.",
+    "No live Agent Feedback auto-send.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work."
+  ],
+  "approvalDigest": "e379f2e5d95053faed080d702f12b11d36c803f2440b8ad5c9e87deeeb813023"
+}
