@@ -1,0 +1,24 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T18:55:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized Foundation agent usefulness runtime gates after build-lane reliability, P0 process repairs, and root cleanup were green or watch-level.",
+  "scopeSummary": "Scope and prove the code-enforced agent usefulness gate bundle: live-answer preflight, capability registry, action permission contract, stale-data warning, source-backed status claim guard, failure visibility, and prompt-only rule rejection. Do not build Harlan UI or launch live agent/runtime side effects.",
+  "approvedPlanRef": "docs/process/foundation-agent-usefulness-runtime-gates-001-plan.md",
+  "approvedPlanSha256": "e870f36c358eb83daee635e861a6ac8521beef94665b777930b864fb7d3ccf4e",
+  "approvedRepoHead": "c17fe3985b07d0745210f762d8cc0eaeb086a82c",
+  "notApproved": [
+    "Do not build Harlan UI or feature work.",
+    "Do not launch live agent runtime work.",
+    "Do not run live extraction.",
+    "Do not run auth-required or paid jobs.",
+    "Do not call providers or models.",
+    "Do not send Gmail, ClickUp, Drive, Slack, or Agent Feedback mutations.",
+    "Do not mutate Google Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup from this sprint.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "e39ce1c84da1ad27beb8dd8762cca74c70f77747e9bad5dce6dc08bbb95b2185"
+}

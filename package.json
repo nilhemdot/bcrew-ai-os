@@ -161,6 +161,7 @@
     "process:action-route-dedup-staleness-guard-check": "node --env-file-if-exists=.env scripts/process-action-route-dedup-staleness-guard-check.mjs",
     "process:aios-runtime-portability-gate-check": "node --env-file-if-exists=.env scripts/process-aios-runtime-portability-gate-check.mjs",
     "process:agent-status-freshness-gate-check": "node --env-file-if-exists=.env scripts/process-agent-status-freshness-gate-check.mjs",
+    "process:foundation-agent-usefulness-runtime-gates-check": "node --env-file-if-exists=.env scripts/process-foundation-agent-usefulness-runtime-gates-check.mjs",
     "process:parallel-builder-worktree-protocol-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-worktree-protocol-check.mjs",
     "process:parallel-builder-operating-system-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-operating-system-check.mjs",
     "process:build-lane-reliability-sprint-check": "node --env-file-if-exists=.env scripts/process-build-lane-reliability-sprint-check.mjs",

@@ -411,6 +411,20 @@ Not next from this closeout: live extraction, transcript fetches, screenshots, c
 
 Next: continue safe Foundation-up work from repo truth. Prefer no-auth source/connector completion, source-contract/extraction-readiness gaps, or safe Foundation cleanup if connector/source work needs Steve approval.
 
+## Previous Sprint: Agent Usefulness Runtime Gates
+
+Live sprint ID: `foundation-agent-usefulness-runtime-gates-2026-05-18`.
+
+This sprint is complete under `foundation-agent-usefulness-runtime-gates-v1`. It defines the Foundation-owned runtime gate bundle that makes agent usefulness code-enforced before Harlan, Crewbert, role assistants, or specialist workers expand.
+
+Completed card:
+
+1. `FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001` - done under `foundation-agent-usefulness-runtime-gates-v1`. Scope was gate-bundle/proof only: live-answer preflight, capability registry evidence, action permission contract, stale-data warning, source-backed status claim guard, failure visibility, and prompt-only rule rejection. Dogfood rejects prompt-only rules, stale current answers, undeclared capability claims, unapproved side effects, stale data without warning, hidden workers without explicit approval, and hidden failures.
+
+Not next from this closeout: Harlan UI or feature work, live agent runtime launch, live extraction, auth-required or paid runs, provider/model calls, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, parallel builders, or `MEETING-VAULT-ACL-001` Phase B.
+
+Recommended next: `AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001`.
+
 ## Previous Sprint: Parallel Builder Worktree Protocol
 
 Live sprint ID: `parallel-builder-worktree-protocol-2026-05-18`.
