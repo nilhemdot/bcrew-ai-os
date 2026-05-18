@@ -127,6 +127,20 @@ Not next from this sprint: live extraction, extraction target creation, transcri
 
 Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Strategy atom-flow can only happen from the accepted source fact into internal memory-spine atom flow; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
 
+## Previous Sprint: Source Maturity Freedom Community Revenue Monitoring Gap Repair
+
+Live sprint ID: `source-maturity-freedom-community-rev-monitoring-gap-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-freedom-community-rev-monitoring-gap-repair-v1`. It repairs the `SRC-FREEDOM-COMMUNITY-REV-001` monitored-stage source maturity gap by adding a manual/on-demand refresh boundary to the signed-off Freedom Community Revenue source contract.
+
+Completed card:
+
+1. `SOURCE-MATURITY-FREEDOM-COMMUNITY-REV-MONITORING-GAP-REPAIR-001` - done under `source-maturity-freedom-community-rev-monitoring-gap-repair-v1`. Scope was monitoring boundary repair only: `SRC-FREEDOM-COMMUNITY-REV-001` now has explicit manual/on-demand review posture and exposes the next real gap at extracted. This did not run live extraction, create extraction targets, read/write Google Sheets, mutate Drive permissions, call models/providers, repair auth, run paid work, write external systems, create facts/atoms/routes, automate Freedom Community Revenue data, or mark extraction/synthesis/routing/apply complete.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, Google Sheets read/write, action-route creation/apply, Freedom Community Revenue automation, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad Freedom Community Revenue mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Freedom Community Revenue extraction/source-fact work needs a separate approved card; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
+
 ## Previous Sprint: Source Maturity Freedom Team Monitoring Gap Repair
 
 Live sprint ID: `source-maturity-freedom-team-monitoring-gap-repair-2026-05-18`.

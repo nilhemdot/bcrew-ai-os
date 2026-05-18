@@ -157,6 +157,8 @@ Monitoring boundary: `SRC-FUB-001` is monitored by manual/on-demand review of ex
 
 Monitoring boundary: `SRC-FREEDOM-TEAM-001` is monitored by manual/on-demand review of the signed-off Freedom source note, source registry, and separately approved read-only Sheet checks. This is not background Google Sheets automation approval and does not permit live Sheets read/write, Drive mutation, extraction target creation, model/provider calls, or external writes from source-maturity repair cards.
 
+Monitoring boundary: `SRC-FREEDOM-COMMUNITY-REV-001` is monitored by manual/on-demand review of the signed-off Freedom source note, source registry, and separately approved read-only Sheet checks. This is not background Google Sheets automation approval and does not permit live Sheets read/write, Drive mutation, extraction target creation, model/provider calls, or external writes from source-maturity repair cards.
+
 ### Freedom Sheet Signed-Off Range Coverage
 
 `SRC-FREEDOM-TEAM-001` covers:
