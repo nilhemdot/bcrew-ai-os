@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.106 - Source maturity Missive routing repair complete
+Version: v6.107 - Source maturity Owners Lists routing repair complete
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Source Maturity Missive Routing Gap Repair
+## Latest Sprint: Source Maturity Owners Lists Routing Gap Repair
+
+Live sprint ID: `source-maturity-owners-lists-routing-gap-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-owners-lists-routing-gap-repair-v1`. It repairs the `SRC-OWNERS-LISTS-001` routed-stage source maturity gap by creating one bounded retrieval chunk from the existing Owners Lists source fact and accepted atom, then routing that signal into the internal Action Route Review layer.
+
+Completed card:
+
+1. `SOURCE-MATURITY-OWNERS-LISTS-ROUTING-GAP-REPAIR-001` - done under `source-maturity-owners-lists-routing-gap-repair-v1`. Scope was internal routing repair only: `SRC-OWNERS-LISTS-001` now has one active retrieval chunk and one pending owner-decision action route backed by the existing governed source fact and accepted atom. The route remains proposal-only with no destination record applied, no Google Sheets read/write, and no external write.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, Google Sheets read/write, action-route apply, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad Owners Lists mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Prefer another internal routing repair only where source-backed fact/atom/chunk evidence already exists; otherwise mark blocked/pending instead of inventing truth.
+
+## Previous Sprint: Source Maturity Missive Routing Gap Repair
 
 Live sprint ID: `source-maturity-missive-routing-gap-repair-2026-05-18`.
 
