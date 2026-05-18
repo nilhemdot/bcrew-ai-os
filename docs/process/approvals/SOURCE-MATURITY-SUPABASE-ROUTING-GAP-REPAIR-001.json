@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-SUPABASE-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T11:48:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-supabase-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "5bfcadb110ca25b837979cb98dbc130d9be83ea2bc11e009de088815c00461f8",
+  "approvedRepoHead": "8cd521149f6fb9284a4b991ce4c7727f28599385",
+  "notes": "Approved for bounded Supabase source maturity routing-gap repair using existing source fact fact:00bc3e59b79fd30eb77a0bf4 and accepted atom atom:da1bb7af05f165ee8e7102f6 only; create one internal retrieval chunk and one approval-required pending internal route. Not approved: live extraction, Supabase API calls, source mutation, external source read/write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Supabase mining.",
+  "approvalDigest": "b85e4e0d9c9177762673891be5c7b73a703d4bce502d9a009712863ae2e9a881"
+}
