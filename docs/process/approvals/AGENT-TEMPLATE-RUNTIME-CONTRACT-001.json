@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AGENT-TEMPLATE-RUNTIME-CONTRACT-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T19:25:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized the reusable agent runtime template after AGENT-CAPABILITY-REGISTRY-001 shipped.",
+  "scopeSummary": "Build a reusable Foundation agent runtime template contract/proof for identity, owner, role, source access, memory scope, tool permissions, model route, approval posture, live preflight, capability registry, logging, action routing, failure visibility, onboarding/profile contract, and decommission path. No Harlan UI, runtime launch, old-system harvest, live extraction, model/provider calls, or external writes.",
+  "approvedPlanRef": "docs/process/agent-template-runtime-contract-001-plan.md",
+  "approvedPlanSha256": "91053d68e9d36ad1766fabcc453b23a726eb423aec3b0efcff4efa052d3c4607",
+  "approvedRepoHead": "b420890a5a04684defa7d652f7360153986e5773",
+  "notApproved": [
+    "Do not build Harlan UI or feature work.",
+    "Do not launch live agent runtime work.",
+    "Do not run live extraction.",
+    "Do not call providers or models.",
+    "Do not send Gmail, ClickUp, Drive, Slack, or Agent Feedback mutations.",
+    "Do not mutate Google Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup.",
+    "Do not send request-access emails.",
+    "Do not harvest old-system BCrew-Buddy onboarding evidence in this card.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "e9ecf1a1db8aed8ce1b1e219ff0ff0afd72dc47bc60ea480dc684cb7a7cfa62d"
+}

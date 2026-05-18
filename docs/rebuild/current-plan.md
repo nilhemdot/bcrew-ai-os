@@ -411,6 +411,20 @@ Not next from this closeout: live extraction, transcript fetches, screenshots, c
 
 Next: continue safe Foundation-up work from repo truth. Prefer no-auth source/connector completion, source-contract/extraction-readiness gaps, or safe Foundation cleanup if connector/source work needs Steve approval.
 
+## Previous Sprint: Agent Template Runtime Contract
+
+Live sprint ID: `agent-template-runtime-contract-2026-05-18`.
+
+This sprint is complete under `agent-template-runtime-contract-v1`. It defines the reusable Foundation runtime template that future agent builds must satisfy before runtime work expands.
+
+Completed card:
+
+1. `AGENT-TEMPLATE-RUNTIME-CONTRACT-001` - done under `agent-template-runtime-contract-v1`. Scope was template contract/proof only: identity, owner, role, purpose, permission tier, source access, memory scope/private-profile boundary, tools, model route/cost policy, approval posture, live-answer preflight, capability registry, action routing, logging/transcript proof, failure visibility, onboarding/profile contract, and decommission path. Dogfood rejects missing template fields, prompt-only templates, runtime launch, live extraction, provider/model calls, external writes, and hidden subagents.
+
+Not next from this closeout: Harlan UI or feature work, live agent runtime launch, old BCrew-Buddy onboarding harvest, live extraction, provider/model calls, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, or parallel builders.
+
+Recommended next: `OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001`.
+
 ## Previous Sprint: Agent Capability Registry
 
 Live sprint ID: `agent-capability-registry-2026-05-18`.
