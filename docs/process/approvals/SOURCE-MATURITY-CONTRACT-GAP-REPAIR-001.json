@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T04:08:12.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-contract-gap-repair-001-plan.md",
+  "approvedPlanSha256": "d280b66d48596f693694c66d7de754bbea505665fa66f93528bf1b2a20942324",
+  "approvedRepoHead": "65921e64d2c5c6e5374a98a1b360ecf7beb3a573",
+  "notes": "Approved for bounded source maturity contract-gap repair on SRC-VIDEO-001 using existing manifest/subtitle V1 evidence only, with function-path dogfood proof and proportional focused-first verification. Not approved: live extraction, transcript fetch, screenshots, crawl, model/provider calls, auth repair, paid runs, external writes, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.",
+  "approvalDigest": "39c128a7e33b9f7df3e9368840d921f3c1a1296ccbca4ab7151a7a084ba4fddb"
+}

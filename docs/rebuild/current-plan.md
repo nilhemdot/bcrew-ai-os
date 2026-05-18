@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.101 - Action Route dedupe/staleness guard closed
-Status: Continue KB/action review sprint
+Version: v6.102 - Source maturity contract gap repair closed
+Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
 
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Foundation KB/action Review
+## Latest Sprint: Source Maturity Contract Gap Repair
+
+Live sprint ID: `source-maturity-contract-gap-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-contract-gap-repair-v1`. It repairs the `SRC-VIDEO-001` connected-stage source maturity gap without broadening video extraction.
+
+Completed card:
+
+1. `SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001` - done under `source-maturity-contract-gap-repair-v1`. Scope was source-contract repair only: `SRC-VIDEO-001` is V1 Source Boundary Locked for existing video URL manifest evidence in `source_crawl_items` plus the YouTube subtitle transcript V1 lane. Loom, Drive video, Zoom, Skool, no-subtitle vision/transcription, rich-vision, and GOD-mode video understanding remain separate proof lanes.
+
+Not next from this closeout: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next: continue the safe source-maturity child repair queue from repo truth. Prefer `SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001` or `SOURCE-MATURITY-ROUTING-GAP-REPAIR-001`; atom-flow repair requires source-backed atom evidence and must not fabricate atoms.
+
+## Previous Sprint: Foundation KB/action Review
 
 Live sprint ID: `action-route-dedup-staleness-guard-2026-05-18`.
 

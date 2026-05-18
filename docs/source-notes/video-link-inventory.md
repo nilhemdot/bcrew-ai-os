@@ -3,7 +3,7 @@
 Source ID: `SRC-VIDEO-001`  
 Related source IDs: `SRC-LOOM-001`, `SRC-SKOOL-001`, `SRC-GDRIVE-001`, `SRC-YOUTUBE-INTEL-001`
 Last updated: 2026-04-26
-Status: Pending Revalidation
+Status: V1 Source Boundary Locked
 
 ## Purpose
 
@@ -92,6 +92,25 @@ The next layers are:
 - Loom -> approved Loom extractor proof
 - Zoom recordings -> router-ledged transcription/vision
 - Skool embedded videos -> approved access/export path first
+
+## Contract Repair Proof
+
+`SOURCE-MATURITY-CONTRACT-GAP-REPAIR-001` locks the current V1 source contract boundary to the existing URL manifest and YouTube subtitle transcript lane only. This is not a live extraction run, auth repair, provider call, paid run, screenshot capture, or model summarization.
+
+Signed V1 boundary:
+
+- `source_crawl_items` video URL manifest provenance, platform classification, extraction status, and value-route hints.
+- `video-link-inventory` target evidence.
+- `video-content-extract-backfill` YouTube subtitle transcript V1 evidence through the existing DataForSEO lane.
+
+Not signed by this repair:
+
+- Loom extraction.
+- Google Drive video extraction.
+- Zoom recording recovery.
+- Skool classroom crawling or export.
+- No-subtitle video vision/transcription.
+- Rich-vision or GOD-mode video understanding.
 
 ## GOD-Mode Contract
 
