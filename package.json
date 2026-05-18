@@ -115,6 +115,7 @@
     "process:source-016-marketing-measurement-source-contracts-check": "node --env-file-if-exists=.env scripts/process-source-016-marketing-measurement-source-contracts-check.mjs",
     "process:source-maturity-contract-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-contract-gap-repair-check.mjs",
     "process:source-maturity-evidence-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-evidence-gap-repair-check.mjs",
+    "process:source-maturity-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-atom-flow-repair-check.mjs",
     "process:source-maturity-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-routing-gap-repair-check.mjs",
     "process:source-maturity-gap-followup-check": "node --env-file-if-exists=.env scripts/process-source-maturity-gap-followup-check.mjs",
     "process:llm-auth-audit-budget-label-clarity-check": "node --env-file-if-exists=.env scripts/process-llm-auth-audit-budget-label-clarity-check.mjs",

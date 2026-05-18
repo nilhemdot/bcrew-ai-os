@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.104 - Source maturity evidence gap repair active
+Version: v6.105 - Source maturity atom-flow repair active
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
