@@ -83,7 +83,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Source Maturity Owners Dashboard Routing Gap Repair
+## Latest Sprint: Source Maturity Finance Atom Flow Repair
+
+Live sprint ID: `source-maturity-finance-atom-flow-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-finance-atom-flow-repair-v1`. It repairs the `SRC-FINANCE-001` atomized-stage source maturity gap by promoting one existing active non-dollar Finance source fact into a governed atom and atom hit.
+
+Completed card:
+
+1. `SOURCE-MATURITY-FINANCE-ATOM-FLOW-REPAIR-001` - done under `source-maturity-finance-atom-flow-repair-v1`. Scope was internal atom-flow repair only: `SRC-FINANCE-001` now has one accepted atom and supporting hit backed by source fact `fact:9d217c40c8fc9dfbdbc590f3`. This did not run live extraction, create extraction targets, read/write Google Sheets, mutate Drive permissions, call models/providers, repair auth, run paid work, write external systems, promote dollar-value facts, create routes, apply action routes, automate finance, reconcile payments, or mark synthesis/routing/apply complete.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, Google Sheets read/write, action-route creation/apply, finance automation, payment reconciliation, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad Finance mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Finance routing can only happen from the accepted finance atom plus source-backed evidence into an internal approval-required route; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
+
+## Previous Sprint: Source Maturity Owners Dashboard Routing Gap Repair
 
 Live sprint ID: `source-maturity-owners-routing-gap-repair-2026-05-18`.
 

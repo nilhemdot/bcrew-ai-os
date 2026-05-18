@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FINANCE-ATOM-FLOW-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T07:20:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-finance-atom-flow-repair-001-plan.md",
+  "approvedPlanSha256": "fc13a69e58416713cc9f99781ccf71e397b4e8c8a650b88d24916990b544f76f",
+  "approvedRepoHead": "c4b70f4e6c2339ed388c6c2d3a1b107502b4342a",
+  "notes": "Approved for bounded Finance source maturity atom-flow repair using existing source fact fact:9d217c40c8fc9dfbdbc590f3 only; create one internal atom and supporting atom hit. Not approved: live extraction, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, action routes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Finance mining.",
+  "approvalDigest": "0ebe843e3292769d840a9263d8e404ff85c632cd588eced35b7b236ca4d5feed"
+}
