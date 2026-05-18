@@ -168,6 +168,7 @@
     "process:old-system-agent-onboarding-harvest-check": "node --env-file-if-exists=.env scripts/process-old-system-agent-onboarding-harvest-check.mjs",
     "process:agent-010-check": "node --env-file-if-exists=.env scripts/process-agent-010-check.mjs",
     "process:role-assistant-contracts-check": "node --env-file-if-exists=.env scripts/process-role-assistant-contracts-check.mjs",
+    "process:harlan-project-registry-check": "node --env-file-if-exists=.env scripts/process-harlan-project-registry-check.mjs",
     "process:parallel-builder-worktree-protocol-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-worktree-protocol-check.mjs",
     "process:parallel-builder-operating-system-check": "node --env-file-if-exists=.env scripts/process-parallel-builder-operating-system-check.mjs",
     "process:build-lane-reliability-sprint-check": "node --env-file-if-exists=.env scripts/process-build-lane-reliability-sprint-check.mjs",

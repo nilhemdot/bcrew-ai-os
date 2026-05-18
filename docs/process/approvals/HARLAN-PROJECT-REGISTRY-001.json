@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "HARLAN-PROJECT-REGISTRY-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T20:45:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve priority queue continued into HARLAN-PROJECT-REGISTRY-001 / SYSTEM-011 after ROLE-ASSISTANT-CONTRACTS-001 shipped.",
+  "scopeSummary": "Build the Foundation Harlan project registry contract/proof for bcrew-ai-os, Foundation dashboard/API, old BCrew-Buddy reference, Google Workspace delegated paths, and future Harlan home. No Harlan implementation, runtime launch, live extraction, model/provider calls, external writes, sends, Drive mutation, Google Workspace grant, home creation/move, secrets, raw private values, or hidden subagents.",
+  "approvedPlanRef": "docs/process/harlan-project-registry-001-plan.md",
+  "approvedPlanSha256": "8c8794c090dade5dd97193553ffe59f32fc7cdb10b8c88f4eee5662a1b9796b9",
+  "approvedRepoHead": "22df9bb8fb98d3b4e315184da9e33257ee4c5e38",
+  "notApproved": [
+    "Do not build Harlan UI or feature work.",
+    "Do not launch live agent runtime work.",
+    "Do not run live extraction.",
+    "Do not call providers or models.",
+    "Do not send Gmail, ClickUp, Drive, Slack, Telegram, or Agent Feedback mutations.",
+    "Do not mutate Google Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup.",
+    "Do not create or move the external Harlan home in this card.",
+    "Do not grant new project reach or external-write authority.",
+    "Do not copy secrets, tokens, or raw private profile values into repo truth.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "1248023c3aa48985a4b01d6dc5b8df42726155aa282b699201a51022c644e0ea"
+}

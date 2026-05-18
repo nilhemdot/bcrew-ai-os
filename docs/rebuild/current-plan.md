@@ -411,6 +411,21 @@ Not next from this closeout: live extraction, transcript fetches, screenshots, c
 
 Next: continue safe Foundation-up work from repo truth. Prefer no-auth source/connector completion, source-contract/extraction-readiness gaps, or safe Foundation cleanup if connector/source work needs Steve approval.
 
+## Previous Sprint: Harlan Project Registry
+
+Live sprint ID: `harlan-project-registry-2026-05-18`.
+
+This sprint is complete under `harlan-project-registry-v1`. It defines Harlan's first explicit project registry and satisfies the concrete `SYSTEM-011` project-registry pattern for cross-project personal agents.
+
+Completed cards:
+
+1. `HARLAN-PROJECT-REGISTRY-001` - done under `harlan-project-registry-v1`. Scope was registry/proof only: initial entries for `bcrew-ai-os`, the Foundation dashboard/API, old BCrew-Buddy reference files, Google Workspace delegated paths, and the future external Harlan home, each with location/API, auth posture, allowed reads, approval-bound writes, source refs, escalation owner, capability status, and fail-closed unknown-system handling.
+2. `SYSTEM-011` - closed by the same `harlan-project-registry-v1` closeout as the first concrete project-registry implementation pattern.
+
+Not next from this closeout: Harlan UI or feature work, live agent runtime launch, live extraction, provider/model calls, external sends, external writes, Drive permission mutation, Agent Feedback auto-send, creating or moving the external Harlan home, granting new project reach, hidden subagents, or parallel builders.
+
+Recommended next: `HARLAN-OPERATOR-LOOP-V1-001`.
+
 ## Previous Sprint: Role Assistant Contracts
 
 Live sprint ID: `role-assistant-contracts-2026-05-18`.

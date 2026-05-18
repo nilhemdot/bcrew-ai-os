@@ -277,6 +277,8 @@ Without a project registry, Harlan's reach becomes hidden human memory.
 
 That does not scale and is not trustworthy.
 
+The first registry contract lives at [Harlan Project Registry](../agents/harlan-project-registry.md). It defines the initial allowed-reach examples for `bcrew-ai-os`, the Foundation dashboard/API, old BCrew-Buddy reference files, Google Workspace delegated paths, and the future external Harlan home without granting new authority.
+
 ## The Correct Delegation Path
 
 Default path:
