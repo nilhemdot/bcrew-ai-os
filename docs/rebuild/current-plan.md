@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Source Maturity Freedom Engine Atom Flow Repair
+## Latest Sprint: Source Maturity Freedom Engine Routing Gap Repair
+
+Live sprint ID: `source-maturity-freedom-engine-routing-gap-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-freedom-engine-routing-gap-repair-v1`. It repairs the `SRC-FREEDOM-ENGINE-001` routed-stage source maturity gap by creating one bounded retrieval chunk from the existing Freedom Engine source fact and accepted atom, then routing that signal into the internal Action Route Review layer.
+
+Completed card:
+
+1. `SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001` - done under `source-maturity-freedom-engine-routing-gap-repair-v1`. Scope was internal routing repair only: `SRC-FREEDOM-ENGINE-001` now has one active retrieval chunk and one pending owner-decision action route backed by the existing governed source fact and accepted atom. The route remains proposal-only with no destination record applied, no Google Sheets read/write, and no external write.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, Google Sheets read/write, action-route apply, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad Freedom Engine mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Prefer internal route repairs only where source-backed fact/atom/chunk evidence already exists; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
+
+## Previous Sprint: Source Maturity Freedom Engine Atom Flow Repair
 
 Live sprint ID: `source-maturity-freedom-engine-atom-flow-repair-2026-05-18`.
 

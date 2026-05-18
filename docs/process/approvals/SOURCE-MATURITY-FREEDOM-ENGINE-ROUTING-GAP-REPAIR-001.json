@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FREEDOM-ENGINE-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T06:34:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-freedom-engine-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "c676db46c2c89bd282fb54cd63b5c8e3f44659317a9e23a6e461b65a9f9e1048",
+  "approvedRepoHead": "851b653cdf4290d2ded2069c3526742b62a62f91",
+  "notes": "Approved for bounded Freedom Engine source maturity routing-gap repair using existing source fact fact:c3986feaa16a35be165d95ef and accepted atom atom:5ed026a529e8cc24aed313aa only; create one internal retrieval chunk and one approval-required pending internal route. Not approved: live extraction, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Freedom Engine mining.",
+  "approvalDigest": "dec0665a181712fd8d86f6bd0f599a2c1203ea740e4ff04fb6b71233dbed7f77"
+}
