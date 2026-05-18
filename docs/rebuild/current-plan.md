@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.133 - Extraction worker protocol gated
+Version: v6.134 - MyICOR preflight gated
 Status: Continue safe Foundation extractor/runtime queue
 
 Use this doc for one question:
@@ -16,15 +16,17 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`EXTRACTION-PARALLEL-WORKER-PROTOCOL-001` is closed.
+`MYICOR-EXTRACTION-PREFLIGHT-001` is closed.
 
-Closeout: `extraction-parallel-worker-protocol-v1`.
+Closeout: `myicor-extraction-preflight-v1`.
 
-Scope shipped: defined the visible parallel extraction worker protocol. V1 requires a visible chat, dedicated worktree, dedicated branch, unique source packet, queue item, permission class, artifact root, artifact manifest, file ownership, quality gate, wrap report, import flow, and stop conditions before any worker can run.
+Scope shipped: created the metadata-only MyICOR paid-course source/auth preflight from repo truth. V1 proves `SRC-MYICRO-001` is scoped/not connected, `myicro-access` is blocked, source-contract validation blocks extraction until owner authorization, the course source-auth row allows metadata-only preflight only, and the approval packet draft names every required field without granting runtime approval.
 
-Not next: live extraction workers, public web lookup, source API calls, transcript fetches, screenshots/keyframes, video downloads, summarization, vision/model calls, private/paid/community/course login, Skool/MyICOR/Loom authorized-browser use, Research Inbox writes, KB page writes, atom writes, synthesis fact writes, action-route writes, vector/query-index writes, backlog mutation from extracted content, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, invisible workers, or real extraction worker launch.
+Not next: live MyICOR extraction, logged-in app access, authorized browser session, course crawl, lesson navigation, transcript fetch, screenshot/keyframe capture, download, summarization, vision/model call, copied course content, Research Inbox writes, KB page writes, atom writes, synthesis fact writes, action-route writes, vector/query-index writes, backlog mutation from extracted content, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, invisible workers, or real extraction worker launch.
 
-Next: continue `MYICOR-EXTRACTION-PREFLIGHT-001` as source-auth preflight only. Do not run live MyICOR extraction, use private access, fetch transcripts, screenshot/download course content, summarize material, call models, or write downstream outputs without separate approval.
+Next: continue `MARK-M-SKOOL-EXTRACTION-PREFLIGHT-001` as source-auth preflight only. Do not run live Skool extraction, use private access, scrape community/course content, fetch transcripts, screenshot/download content, summarize material, call models, or write downstream outputs without separate approval.
+
+Previous worker-protocol slice: `EXTRACTION-PARALLEL-WORKER-PROTOCOL-001` is closed under `extraction-parallel-worker-protocol-v1`; visible extraction workers still require source-packet ownership, artifact paths, permission class, quality gate, wrap report, import flow, and stop conditions before any worker can run.
 
 Previous output-routing slice: `EXTRACTION-TO-KB-ATOM-PIPELINE-001` is closed under `extraction-to-kb-atom-pipeline-v1`; extraction outputs remain proposal-only until separately approved.
 

@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MYICOR-EXTRACTION-PREFLIGHT-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T18:45:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized safe extractor/source-auth preflight work and explicitly instructed not to run live extraction, private auth, paid access, external writes, Drive mutation, Gmail/ClickUp sends, Agent Feedback auto-send, or hidden subagents unless separately approved.",
+  "scopeSummary": "Create a metadata-only MyICOR source/auth preflight packet from repo truth. Prove source contract, connector, validation, and source-auth boundaries keep paid-course extraction blocked until source-specific approval exists.",
+  "approvedPlanRef": "docs/process/myicor-extraction-preflight-001-plan.md",
+  "approvedPlanSha256": "94830ffb9c20e45f20368d2d768ad3f8d4ab7946e4b61be093371070749d4bbd",
+  "approvedRepoHead": "ab17146b57648e6e880b8bf178e0e0d0a6aa37af",
+  "notApproved": [
+    "Do not open MyICOR.",
+    "Do not use private auth, paid auth, or an authorized browser session.",
+    "Do not crawl, navigate lessons, fetch transcripts, capture screenshots/keyframes, download course content, summarize course content, run vision, or call a model.",
+    "Do not copy course content, lesson text, transcript text, resource links, screenshots, keyframes, or summaries into repo docs, Postgres, artifacts, Research Inbox, KB, atoms, action routes, vectors, or chat-only closeout.",
+    "Do not write Research Inbox rows, KB pages, atoms, synthesis facts, action routes, vector/query indexes, or backlog content from extracted material.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, or external systems.",
+    "Do not launch hidden subagents, invisible workers, or parallel extraction workers from this card."
+  ],
+  "approvalDigest": "9034df0cb77d7313c21db655e6caa8ec05f56034bcf67016da6f224d1dbb97c0"
+}
