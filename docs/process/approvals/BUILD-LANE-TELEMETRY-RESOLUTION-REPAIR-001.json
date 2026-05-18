@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001",
+  "approvedPlanRef": "docs/process/build-lane-telemetry-resolution-repair-001-plan.md",
+  "approvedPlanSha256": "1307413e4aa55a3cf818631e092948c8539d6d448f014796dbbbc91165a9f5e4",
+  "approvedRepoHead": "6276161420fc8f05c5e4211dbb4ce273d86fce23",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T12:15:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized remaining red build-lane telemetry fingerprints after verifier snapshot wiring was green.",
+  "scopeSummary": "Resolve stale local build-lane telemetry fingerprints from later successful Foundation ship proof without deleting historical telemetry or hiding new failures.",
+  "constraints": [
+    "No hidden subagents.",
+    "Do not launch parallel builders during this card.",
+    "Do not delete or rewrite historical local telemetry events.",
+    "Do not weaken, skip, bypass, or demote real verifier, ship, fanout, or backlog hygiene failures.",
+    "No live extraction.",
+    "No auth-required or paid run.",
+    "No external writes.",
+    "No Google Drive permission mutation.",
+    "No live Agent Feedback auto-send.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work."
+  ],
+  "approvalDigest": "124ac3ccda206f22ed18c5ff412058c86754d2ff3454dde44772ca82f7a284de"
+}

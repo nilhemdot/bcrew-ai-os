@@ -43,6 +43,9 @@ import {
   evaluatePlanCriticPlan,
 } from '../lib/process-plan-critic.js'
 import {
+  evaluateSprintCheckHistoricalMode,
+} from '../lib/sprint-check-historical-mode.js'
+import {
   PROCESS_CHECK_WRITE_FLAGS,
   assertProcessCheckWriteAllowed,
   isProcessCheckWriteRequested,
@@ -432,6 +435,14 @@ async function main() {
   const closeout = closeouts.find(record => record.key === BUILD_LANE_FAILURE_TELEMETRY_CLOSEOUT_KEY) || null
   const scaffold = validateBuildLaneCardScaffold(card || {})
   const sprintMetadata = validateBuildLaneSprintItemMetadata(sprintItem || {})
+  const sprintProofMode = evaluateSprintCheckHistoricalMode({
+    activeSprint: sprint,
+    card,
+    closeouts,
+    cardId: BUILD_LANE_FAILURE_TELEMETRY_CARD_ID,
+    expectedSprintId: BUILD_LANE_FAILURE_TELEMETRY_SPRINT_ID,
+    closeoutKey: BUILD_LANE_FAILURE_TELEMETRY_CLOSEOUT_KEY,
+  })
   const verifierLines = foundationVerifySource.split('\n').length
   const unsafeRuntimeHits = [
     ...containsUnsafeRuntimeCall(moduleSource),
@@ -447,9 +458,9 @@ async function main() {
   addCheck(checks, planCriticPass, 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, card?.priority === 'P0' && ['scoped', 'executing', 'done'].includes(card?.lane), 'live backlog card exists and is staged', card ? `${card.lane}/${card.priority}` : 'missing')
   addCheck(checks, scaffold.ok, 'live backlog card passes scaffold guard', scaffold.missing.join(', ') || 'complete')
-  addCheck(checks, sprint.sprint?.sprintId === BUILD_LANE_FAILURE_TELEMETRY_SPRINT_ID, 'Current Sprint overlay is active for telemetry', sprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintMetadata.ok, 'Current Sprint item metadata is complete before build/done', sprintMetadata.missing.join(', ') || 'complete')
-  addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint status is healthy', currentSprintStatus.findings?.map(item => item.detail || item.check).join('; ') || 'healthy')
+  addCheck(checks, sprintProofMode.ok === true, 'Current or historical sprint proof validates telemetry card', `${sprintProofMode.mode}: ${sprintProofMode.reason}`)
+  addCheck(checks, sprintProofMode.mode === 'historical_closeout' || sprintMetadata.ok, 'Current Sprint item metadata is complete while active', sprintProofMode.mode === 'historical_closeout' ? 'historical closeout' : sprintMetadata.missing.join(', ') || 'complete')
+  addCheck(checks, sprintProofMode.mode === 'historical_closeout' || currentSprintStatus.status === 'healthy', 'Current Sprint status is healthy while telemetry card is active', sprintProofMode.mode === 'historical_closeout' ? 'historical closeout' : currentSprintStatus.findings?.map(item => item.detail || item.check).join('; ') || 'healthy')
   addCheck(checks, dogfood.ok, 'dogfood fingerprints repeats and escalates by threshold', dogfood.invariant)
   addCheck(checks, dogfood.snapshot.fingerprints.some(row => row.failureClass === 'verifier_snapshot_wiring' && row.status === 'watch' && row.count24h === 3), 'dogfood repeated verifier snapshot wiring becomes yellow', '3 repeats')
   addCheck(checks, dogfood.snapshot.fingerprints.some(row => row.failureClass === 'plan_critic_or_approval' && row.status === 'risk' && row.count24h === 5), 'dogfood repeated thin-plan failure becomes red', '5 repeats')
@@ -466,7 +477,7 @@ async function main() {
   addCheck(checks, fanoutCheckSource.includes('recordBuildLaneFailureEventsFromChecks') && fanoutCheckSource.includes("command: 'process:fanout-check'"), 'fanout-check records failed checks', 'scripts/process-fanout-check.mjs')
   addCheck(checks, postShipFanoutSource.includes('recordBuildLaneFailureEventsFromChecks') && postShipFanoutSource.includes("command: 'process:post-ship-fanout'"), 'post-ship fanout records failed checks', 'scripts/process-post-ship-fanout.mjs')
   addCheck(checks, backlogHygieneSource.includes('recordBuildLaneFailureEventsFromChecks') && backlogHygieneSource.includes("command: 'backlog:hygiene'"), 'backlog hygiene records critical findings', 'scripts/backlog-hygiene.mjs')
-  addCheck(checks, systemHealthSource.includes('buildLaneFailureTelemetry') && systemHealthSource.includes('readBuildLaneFailureTelemetryEvents') && systemHealthSource.includes('buildLaneFailureRedCount'), 'System Health surfaces repeated failure telemetry', 'lib/foundation-system-health.js')
+  addCheck(checks, systemHealthSource.includes('buildLaneFailureTelemetry') && systemHealthSource.includes('readBuildLaneFailureTelemetrySnapshot') && systemHealthSource.includes('buildLaneFailureRedCount'), 'System Health surfaces repeated failure telemetry', 'lib/foundation-system-health.js')
   addCheck(checks, runtimeRendererSource.includes('Build lane failures') && runtimeRendererSource.includes('buildLaneFailureYellowCount'), 'System Health renderer shows build-lane failures', 'public/foundation-runtime-renderers.js')
   addCheck(checks, verifierHealthSource.includes('buildBuildLaneFailureTelemetryDogfoodProof') && verifierHealthSource.includes(BUILD_LANE_FAILURE_TELEMETRY_CARD_ID), 'verifier health live summary covers telemetry', 'lib/foundation-verifier-health-live-summary.js')
   addCheck(checks, coverageSource.includes('BUILD_LANE_FAILURE_TELEMETRY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE'), 'verifier coverage card IDs include telemetry card', 'lib/foundation-verify-coverage-card-ids.js')
@@ -493,6 +504,7 @@ async function main() {
     telemetryStatus: dogfood.snapshot.status,
     redFingerprints: dogfood.snapshot.summary?.redFingerprintCount || 0,
     yellowFingerprints: dogfood.snapshot.summary?.yellowFingerprintCount || 0,
+    sprintProofMode: sprintProofMode.mode,
     verifierLines,
   }
 
