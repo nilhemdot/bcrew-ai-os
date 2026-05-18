@@ -121,6 +121,7 @@
     "process:source-maturity-verified-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-verified-routing-gap-repair-check.mjs",
     "process:source-maturity-supabase-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-supabase-routing-gap-repair-check.mjs",
     "process:source-maturity-github-build-intel-trust-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-github-build-intel-trust-gap-repair-check.mjs",
+    "process:source-maturity-github-build-intel-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-github-build-intel-monitoring-gap-repair-check.mjs",
     "process:source-maturity-freedom-sheet-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-sheet-atom-flow-repair-check.mjs",
     "process:source-maturity-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-atom-flow-repair-check.mjs",
     "process:source-maturity-freedom-bhag-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-bhag-atom-flow-repair-check.mjs",

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-GITHUB-BUILD-INTEL-MONITORING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T12:25:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-github-build-intel-monitoring-gap-repair-001-plan.md",
+  "approvedPlanSha256": "80192726cf9ab6bcb21f901c9d28288c6eb053eb4b54bff36b36782d115bfad1",
+  "approvedRepoHead": "d3849c65724578825bf9dd689d8f420e52f6ea61",
+  "notes": "Approved for bounded GitHub Build Intel source maturity monitoring-gap repair by adding a truthful manual/on-demand monitoring boundary to SRC-GITHUB-BUILD-INTEL-001. Not approved: live GitHub calls, repo clone/scrape/install/code import, extraction targets, extraction runs, atoms, action routes, provider/model calls, automatic backlog mutation, auth-required or paid runs, external writes, Drive permission mutation, Meeting Vault Phase B, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.",
+  "approvalDigest": "78695088a21cbd1967afaa2fb857d8ee1af69eff33f09cee3dc1e7145c9b15af"
+}

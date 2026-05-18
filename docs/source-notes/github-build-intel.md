@@ -5,6 +5,7 @@ Status: Active Read-Only V1
 Trust Boundary: Source Boundary Locked
 Owner: Steve  
 Created: 2026-05-13
+Monitoring Boundary: Manual public GitHub Build Intel review
 
 ## Job
 
@@ -40,6 +41,12 @@ It belongs in Build Intel, not marketing content production.
 ## Trust Boundary Repair
 
 `SOURCE-MATURITY-GITHUB-BUILD-INTEL-TRUST-GAP-REPAIR-001` locks the V1 trust boundary as public read-only and proposal-only. It does not run live GitHub extraction, clone repositories, import code, create atoms, create action routes, or mutate backlog automatically.
+
+## Monitoring Boundary Repair
+
+`SOURCE-MATURITY-GITHUB-BUILD-INTEL-MONITORING-GAP-REPAIR-001` records the V1 monitoring posture as manual public GitHub Build Intel review from existing source notes, shipped GStack Build Intel proof, and public-repo evidence already captured in repo truth.
+
+No background GitHub crawler, repo clone, scraping, scheduled public-repo extraction, automatic backlog mutation, atoms, routes, or live GitHub calls are approved by this repair.
 
 ## First Extraction Packet
 
