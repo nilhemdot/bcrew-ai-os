@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.103 - Source maturity routing gap repair closed
+Version: v6.104 - Source maturity evidence gap repair active
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Source Maturity Routing Gap Repair
+## Latest Sprint: Source Maturity Evidence Gap Repair
+
+Live sprint ID: `source-maturity-evidence-gap-repair-2026-05-18`.
+
+This sprint repairs the `SRC-OWNERS-LISTS-001` extracted-stage source maturity gap by attaching an active governed source fact from existing source-contract/source-registry/source-note evidence only.
+
+Active card:
+
+1. `SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001` - scope is internal source-fact repair only: `SRC-OWNERS-LISTS-001` gets one active source fact backed by `lib/source-contracts.js`, `docs/source-notes/bhag-builder-lists.md`, `docs/source-registry.md`, and `docs/rebuild/current-state.md`. This does not run extraction, create extraction targets, read/write Google Sheets, mutate Drive permissions, create atoms, or mark synthesis/routing complete.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, Google Sheets read/write, Drive permission mutation, atom fabrication, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity child repair queue from live source coverage truth. Prefer another routing repair where source-backed facts/atoms/chunks already exist, or atom-flow repair only where source-backed atom evidence is clear and never fabricated.
+
+## Previous Sprint: Source Maturity Routing Gap Repair
 
 Live sprint ID: `source-maturity-routing-gap-repair-2026-05-18`.
 

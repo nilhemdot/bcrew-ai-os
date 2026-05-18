@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-EVIDENCE-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T04:42:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-evidence-gap-repair-001-plan.md",
+  "approvedPlanSha256": "b42e2b50d99ac6a622ff34093dd16765c3d67a064405985beb2740bdee1a341f",
+  "approvedRepoHead": "1fc43ea9650b5c2c30f19fd079d2e8cfb8c42d24",
+  "notes": "Approved for bounded source maturity evidence-gap repair on SRC-OWNERS-LISTS-001 using existing source-contract, source-registry, source-note, and current-state evidence only. Not approved: live extraction, extraction target creation, Google Sheets read/write, Drive mutation, transcript fetch, screenshots, crawl, model/provider calls, auth repair, paid runs, external writes, atom fabrication, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.",
+  "approvalDigest": "216044f17dd435088df03e9c563c0861c625871d5411bccbd78e1c6a80625dbc"
+}
