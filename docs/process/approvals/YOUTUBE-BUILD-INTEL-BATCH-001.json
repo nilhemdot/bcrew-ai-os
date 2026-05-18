@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "YOUTUBE-BUILD-INTEL-BATCH-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T17:50:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized the safe extractor queue after foundation:verify/build-lane reliability, Build Intel watchlist, and course source-auth boundary shipped, with explicit instruction to avoid live extraction, private auth, paid access, external writes, Drive mutation, Gmail/ClickUp sends, Agent Feedback auto-send, and hidden subagents unless separately approved.",
+  "scopeSummary": "Prepare metadata-only public YouTube Build Intel last-20 queue specs from existing source truth, classify evidence needs and budgets, keep all extraction/model/output side effects blocked, and prove unsafe variants fail closed.",
+  "approvedPlanRef": "docs/process/youtube-build-intel-batch-001-plan.md",
+  "approvedPlanSha256": "29cfd964cd0166aeb1ff7632e79c738e3b76a307bcf1f4a53ba11f07792fee71",
+  "approvedRepoHead": "b20bc0ea1787add512f509988f71640288b1c6fd",
+  "notApproved": [
+    "Do not run live extraction.",
+    "Do not search YouTube or the public web.",
+    "Do not fetch transcripts, capture screenshots/keyframes, download videos, summarize content, run vision, or call a model.",
+    "Do not use paid/private/community/course auth, Skool, MyICOR, Loom, or authorized-browser sessions.",
+    "Do not write Research Inbox rows, KB drafts, atoms, action routes, or backlog content from extracted material.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, or external systems.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "44ea9e302c16f3c2e8fe817f55b08a6012761ee21f560731cdfc40c8792a3118"
+}

@@ -188,6 +188,7 @@
     "process:build-intel-karpathy-llm-kb-preflight-check": "node --env-file-if-exists=.env scripts/process-build-intel-karpathy-llm-kb-preflight-check.mjs",
     "process:build-intel-creator-watchlist-expansion-check": "node --env-file-if-exists=.env scripts/process-build-intel-creator-watchlist-expansion-check.mjs",
     "process:course-source-auth-boundary-check": "node --env-file-if-exists=.env scripts/process-course-source-auth-boundary-check.mjs",
+    "process:youtube-build-intel-batch-check": "node --env-file-if-exists=.env scripts/process-youtube-build-intel-batch-check.mjs",
     "process:gcal-atom-schedule-check": "node --env-file-if-exists=.env scripts/process-gcal-atom-schedule-check.mjs",
     "process:doc-artifact-bloat-guard-check": "node --env-file-if-exists=.env scripts/process-doc-artifact-bloat-guard-check.mjs",
     "process:process-wip-protocol-check": "node --env-file-if-exists=.env scripts/process-wip-protocol-check.mjs",

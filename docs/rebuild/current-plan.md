@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.130 - Course source-auth boundary closed
+Version: v6.131 - YouTube Build Intel batch queued
 Status: Continue safe Foundation extractor/runtime queue
 
 Use this doc for one question:
@@ -16,15 +16,17 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`COURSE-SOURCE-AUTH-BOUNDARY-001` is closed.
+`YOUTUBE-BUILD-INTEL-BATCH-001` is closed.
 
-Closeout: `course-source-auth-boundary-v1`.
+Closeout: `youtube-build-intel-batch-v1`.
 
-Scope shipped: defined the source-auth approval matrix for private, paid, community, course, Loom/private training, and public no-auth Build Intel sources. V1 separates metadata-only preflight from approved extraction for `SRC-MYICRO-001`, `SRC-SKOOL-001`, `SRC-LOOM-001`, and `SRC-YOUTUBE-INTEL-001`, and requires a source-specific approval packet before private/paid/course content can be read, copied, screenshotted, transcribed, summarized, stored, or routed.
+Scope shipped: prepared metadata-only public YouTube Build Intel queue specs from the existing creator watchlist and `SRC-YOUTUBE-INTEL-001`. V1 caps later runtime work at the last 20 public videos per channel, records transcript/keyframe/screenshot/budget/downstream posture, and keeps extraction blocked until a separate runtime approval packet exists.
 
-Not next: live extraction, private/paid/community/course login, Skool/MyICOR/Loom authorized-browser use, source crawling, transcript fetches, screenshots/keyframes, downloads, summarization, vision/model calls, Research Inbox writes, KB drafts, atoms, action routes, backlog mutation from extracted content, OpenHuman install/runtime integration, Harlan UI/runtime work, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, or parallel builders.
+Not next: live extraction, public web lookup, YouTube API discovery, transcript fetches, screenshots/keyframes, video downloads, summarization, vision/model calls, private/paid/community/course login, Skool/MyICOR/Loom authorized-browser use, Research Inbox writes, KB drafts, atoms, action routes, backlog mutation from extracted content, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, or parallel builders.
 
-Next: continue `EXTRACTION-TEAM-001` for supervised extractor runtime work. MyICOR, Skool, Loom/private training, and course extraction remain blocked until source-specific approval packets exist.
+Next: continue `EXTRACTION-TO-KB-ATOM-PIPELINE-001` for output routing design. Public video extraction still needs separate runtime approval before transcripts, screenshots/keyframes, model calls, or output routing can run.
+
+Previous source-auth slice: `COURSE-SOURCE-AUTH-BOUNDARY-001` is closed under `course-source-auth-boundary-v1`; MyICOR, Skool, Loom/private training, and course extraction remain blocked until source-specific approval packets exist.
 
 Previous Build Intel source-truth slice: `BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001` is closed under `build-intel-creator-watchlist-expansion-v1`.
 
