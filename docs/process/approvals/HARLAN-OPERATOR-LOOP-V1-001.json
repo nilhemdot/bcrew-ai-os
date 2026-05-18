@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "HARLAN-OPERATOR-LOOP-V1-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T20:30:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve priority queue continued into HARLAN-OPERATOR-LOOP-V1-001 after HARLAN-PROJECT-REGISTRY-001 shipped.",
+  "scopeSummary": "Build the read-only Harlan Foundation operator loop contract/proof over Current Sprint, build log, system health, nightly audit, build-lane telemetry, backlog, and source/action route truth. No Harlan UI, voice/avatar, runtime launch, live extraction, provider/model calls, external writes, sends, Drive mutation, home creation/move, new authority, secrets, raw private values, or hidden subagents.",
+  "approvedPlanRef": "docs/process/harlan-operator-loop-v1-001-plan.md",
+  "approvedPlanSha256": "9b70855f2467e5712960f1d433ba98608d133b57f6bf18a100cdda7e047ef2d8",
+  "approvedRepoHead": "a6643340b7a6dfe11c99d0cfdb81fff440b449ae",
+  "notApproved": [
+    "Do not build Harlan UI or voice/avatar work.",
+    "Do not launch a live Harlan runtime.",
+    "Do not run live extraction.",
+    "Do not call providers or models.",
+    "Do not send Gmail, ClickUp, Drive, Slack, Telegram, or Agent Feedback mutations.",
+    "Do not mutate Google Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup.",
+    "Do not create or move the external Harlan home.",
+    "Do not grant new project reach or external-write authority.",
+    "Do not copy secrets, tokens, raw private profile values, or private transcripts into repo truth.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "b8341b2aaf9f58f96a74742b141338ac838de5729812e14b00bfa82e5370e38a"
+}

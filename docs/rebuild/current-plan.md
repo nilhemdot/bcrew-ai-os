@@ -411,6 +411,20 @@ Not next from this closeout: live extraction, transcript fetches, screenshots, c
 
 Next: continue safe Foundation-up work from repo truth. Prefer no-auth source/connector completion, source-contract/extraction-readiness gaps, or safe Foundation cleanup if connector/source work needs Steve approval.
 
+## Previous Sprint: Harlan Operator Loop
+
+Live sprint ID: `harlan-operator-loop-2026-05-18`.
+
+This sprint is complete under `harlan-operator-loop-v1`. It defines Harlan's first read-only Foundation operator answer loop before any runtime, UI, voice, avatar, extraction, model, or external-write expansion.
+
+Completed card:
+
+1. `HARLAN-OPERATOR-LOOP-V1-001` - done under `harlan-operator-loop-v1`. Scope was source-backed answer contract/proof only: required inputs for Current Sprint, build log, system health, nightly audit, build-lane telemetry, backlog, and source/action routes; required sections for true-now, changed, broken, blocked, owners, and next; dogfood rejects missing inputs, memory-only current proof, stale inputs, missing section refs, unapproved writes, runtime side effects, hidden workers, missing next action, and unavailable sources that still sound current.
+
+Not next from this closeout: Harlan UI, voice/avatar, live Harlan runtime launch, live extraction, provider/model calls, external sends, external writes, Drive permission mutation, Agent Feedback auto-send, creating or moving the external Harlan home, granting new project reach, hidden subagents, or parallel builders.
+
+Recommended next: `BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001`.
+
 ## Previous Sprint: Harlan Project Registry
 
 Live sprint ID: `harlan-project-registry-2026-05-18`.

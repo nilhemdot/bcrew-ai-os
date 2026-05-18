@@ -32,6 +32,8 @@ That does not mean Harlan should permanently live inside the system repo.
 
 Harlan's cross-project reach must come from an explicit project registry, not hidden human memory. See [Harlan Project Registry](harlan-project-registry.md).
 
+Harlan's first useful operator loop must answer current Foundation truth from declared sources before any runtime expansion. See [Harlan Operator Loop](harlan-operator-loop.md).
+
 ## Personal Onboarding Direction
 
 Harlan should eventually help Steve build and maintain a private personal profile that captures role, business goals, personal goals Steve chooses to share, family/life context Steve chooses to share, communication preferences, operating preferences, and approval boundaries.
