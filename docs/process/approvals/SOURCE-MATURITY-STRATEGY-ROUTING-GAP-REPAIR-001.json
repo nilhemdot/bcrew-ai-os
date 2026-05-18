@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-STRATEGY-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T08:30:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-strategy-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "8fce434c8fb809a2f5b67b002752c502eb7c0d9ad08e30e0b5df2db5619e25d9",
+  "approvedRepoHead": "891c71a1a8ade98595b2ef8e91dbb51186b5fdde",
+  "notes": "Approved for bounded Strategy source maturity routing-gap repair using existing source fact fact:0a3bea1f66c3fbdb4b4ee08f and atom atom:2a3022e604585b1b83c1a283 only; create one internal retrieval chunk, one synthesized item, and one approval-required pending route. Not approved: live extraction, extraction target creation, auth repair, paid runs, provider/model calls, external writes, strategy doc writes, Strategy Hub recommendation generation, route apply, destination record creation, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Strategy mining.",
+  "approvalDigest": "275d77f760b64119711b07056be8839ed19fd408a8adcad4bc17bcb644fd6c59"
+}

@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.116 - Source maturity Strategy atom-flow repair closed
+Version: v6.118 - Source maturity Strategy routing gap repair closed
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -16,15 +16,15 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SOURCE-MATURITY-STRATEGY-ATOM-FLOW-REPAIR-001` is closed.
+`SOURCE-MATURITY-STRATEGY-ROUTING-GAP-REPAIR-001` is closed.
 
-Closeout: `source-maturity-strategy-atom-flow-repair-v1`.
+Closeout: `source-maturity-strategy-routing-gap-repair-v1`.
 
-Scope shipped: promoted existing source fact `fact:0a3bea1f66c3fbdb4b4ee08f` for `SRC-STRATEGY-001` into one governed atom and supporting atom hit so the signed-off repo strategy packet no longer blocks at the atomized maturity stage.
+Scope shipped: created one bounded retrieval chunk from existing source fact `fact:0a3bea1f66c3fbdb4b4ee08f` and atom `atom:2a3022e604585b1b83c1a283`, then created one approval-required pending internal action route so `SRC-STRATEGY-001` no longer blocks at the routed maturity stage.
 
-Not next: live extraction, extraction targets, auth repair, paid runs, external writes, Drive permission mutation, strategy doc writes, Strategy Hub automation, strategy recommendation generation, synthesis, routing, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+Not next: live extraction, extraction targets, auth repair, paid runs, external writes, Drive permission mutation, strategy doc writes, Strategy Hub automation, strategy recommendation generation, action-route apply, destination record creation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
 
-Next: continue the safe source maturity/source-contract queue from live truth. Strategy routing is eligible only as an internal approval-required route from existing fact/atom evidence; otherwise leave the gap visible.
+Next: continue the safe source maturity/source-contract queue from live truth. Prefer monitored/evidence/atom repairs only where existing source truth is already present; otherwise mark blocked/pending instead of inventing evidence.
 
 ## Plan History
 
@@ -85,7 +85,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Source Maturity Strategy Atom Flow Repair
+## Latest Sprint: Source Maturity Strategy Routing Gap Repair
+
+Live sprint ID: `source-maturity-strategy-routing-gap-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-strategy-routing-gap-repair-v1`. It repairs the `SRC-STRATEGY-001` routed-stage source maturity gap by creating one bounded retrieval chunk from the existing Strategy source fact and accepted atom, then routing that signal into the internal Action Route Review layer.
+
+Completed card:
+
+1. `SOURCE-MATURITY-STRATEGY-ROUTING-GAP-REPAIR-001` - done under `source-maturity-strategy-routing-gap-repair-v1`. Scope was internal routing repair only: `SRC-STRATEGY-001` now has one active retrieval chunk and one pending owner-decision action route backed by the existing governed source fact and accepted atom. The route remains proposal-only with no destination record applied, no strategy doc write, no Strategy Hub recommendation generation, and no external write.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, strategy doc write, action-route apply, destination record creation, Strategy Hub automation, recommendation generation, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad Strategy mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Prefer internal route repairs only where source-backed fact/atom/chunk evidence already exists; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
+
+## Previous Sprint: Source Maturity Strategy Atom Flow Repair
 
 Live sprint ID: `source-maturity-strategy-atom-flow-repair-2026-05-18`.
 
