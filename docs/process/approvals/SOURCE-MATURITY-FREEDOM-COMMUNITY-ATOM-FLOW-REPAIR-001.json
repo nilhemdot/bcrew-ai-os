@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FREEDOM-COMMUNITY-ATOM-FLOW-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T06:15:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-freedom-community-atom-flow-repair-001-plan.md",
+  "approvedPlanSha256": "2a2b3dcfff2d2fe423b96d840cd69c446b0a2744df93c77a24ac47721477eaee",
+  "approvedRepoHead": "335be312a7ce0a2d367328710536136b2c63eac7",
+  "notes": "Approved for bounded Freedom Community source maturity atom-flow repair using existing source fact fact:18d41cc725fa1afb29009d82 only; create one internal accepted atom and supporting atom hit. Not approved: live extraction, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Freedom Community mining.",
+  "approvalDigest": "aa33df9ec8b3d9f32c9c6fd046b102f59ff81d70ed7e8d0e47391311bfe414da"
+}
