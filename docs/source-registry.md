@@ -153,6 +153,8 @@ Readable means the rebuild can connect and read. It does not mean the business m
 
 Monitoring boundary: `SRC-STRATEGY-001` is monitored by manual/on-demand review of repo strategy docs, active rebuild doctrine, and existing source-backed strategy facts. This is not a background Strategy Hub automation approval and does not permit live extraction, model/provider calls, or external writes from source-maturity repair cards.
 
+Monitoring boundary: `SRC-FUB-001` is monitored by manual/on-demand review of existing source-backed facts, FUB source notes, and read-only connector health evidence. This is not background FUB automation approval and does not permit live FUB API calls, CRM mutation, live extraction, model/provider calls, or external writes from source-maturity repair cards.
+
 ### Freedom Sheet Signed-Off Range Coverage
 
 `SRC-FREEDOM-TEAM-001` covers:

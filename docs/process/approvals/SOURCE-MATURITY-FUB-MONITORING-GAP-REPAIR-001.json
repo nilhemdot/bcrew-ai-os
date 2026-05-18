@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FUB-MONITORING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T08:12:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-fub-monitoring-gap-repair-001-plan.md",
+  "approvedPlanSha256": "44efecba271b45cc2c0be64306b332e597445bcbe443817b78defc2f867a4c8f",
+  "approvedRepoHead": "ce14ea948389c7dc9f4ec396aa0edb7fef2e04e2",
+  "notes": "Approved for bounded FUB source maturity monitoring-gap repair using existing SRC-FUB-001 source contract and source facts only. Not approved: live extraction, extraction target creation, live FUB API calls, CRM mutation, auth repair, paid runs, provider/model calls, external writes, FUB automation, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or marking atom/synthesis/routing/apply complete.",
+  "approvalDigest": "08f779662df0ed96f9540aa8701ec6150fed8689c9fa82c8a71109262e64c5b7"
+}
