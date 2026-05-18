@@ -207,6 +207,7 @@
     "process:critical-roots-under-3k-phase-3-check": "node --env-file-if-exists=.env scripts/process-critical-roots-under-3k-phase-3-check.mjs",
     "process:critical-roots-under-3k-phase-4-check": "node --env-file-if-exists=.env scripts/process-critical-roots-under-3k-phase-4-check.mjs",
     "process:foundation-backlog-seed-chunk-split-check": "node --env-file-if-exists=.env scripts/process-foundation-backlog-seed-chunk-split-check.mjs",
+    "process:intelligence-synthesis-single-evidence-gate-repair-check": "node --env-file-if-exists=.env scripts/process-intelligence-synthesis-single-evidence-gate-repair-check.mjs",
     "process:backlog-queue-reconcile-check": "node --env-file-if-exists=.env scripts/process-backlog-queue-reconcile-check.mjs",
     "process:backlog-scrum-master-grooming-check": "node --env-file-if-exists=.env scripts/process-backlog-scrum-master-grooming-check.mjs",
     "process:foundation-performance-check": "node --env-file-if-exists=.env scripts/process-foundation-performance-check.mjs",

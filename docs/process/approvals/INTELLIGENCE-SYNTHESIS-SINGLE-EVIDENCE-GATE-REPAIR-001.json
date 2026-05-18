@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "INTELLIGENCE-SYNTHESIS-SINGLE-EVIDENCE-GATE-REPAIR-001",
+  "approvedBy": "Steve continuous-builder P0 process failure priority + Codex senior-engineer review",
+  "approvedAt": "2026-05-18T14:12:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/intelligence-synthesis-single-evidence-gate-repair-001-plan.md",
+  "approvedRepoHead": "5a18a75cbb51a3ba5f5838dc72574a5c8bdadd19",
+  "approvalSource": "Steve prioritized remaining P0 audit/process failures after build-lane verifier and telemetry reliability went green.",
+  "scopeSummary": "Repair synthesis classification so single-evidence Strategy-grade items are downgraded before SYNTHESIS-VERIFY-001 blocks the scheduled refresh; do not run live extraction or operational-write Slack jobs.",
+  "notApproved": [
+    "Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup from this sprint.",
+    "Do not mutate Google Drive permissions.",
+    "Do not run Slack sync or Slack candidate extraction.",
+    "Do not run live extraction.",
+    "Do not send Gmail, ClickUp, Drive, or Agent Feedback mutations.",
+    "Do not weaken SYNTHESIS-VERIFY-001.",
+    "Do not hide remaining operational-write red rows."
+  ],
+  "approvedPlanSha256": "1cdcb985b3143e8cbbb2fbf6c48b6025f0baa8b9cf04b82521b9605ee52ce8ba",
+  "approvalDigest": "928b353365676c72c2249d5119c9224ec0f0d06a06cd30c1d3584c237151628b"
+}
