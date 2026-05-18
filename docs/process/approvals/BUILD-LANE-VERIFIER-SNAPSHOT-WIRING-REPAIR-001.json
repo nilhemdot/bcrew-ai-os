@@ -1,0 +1,24 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001",
+  "approvedPlanRef": "docs/process/build-lane-verifier-snapshot-wiring-repair-001-plan.md",
+  "approvedPlanSha256": "40605c9b25954b66537e7a8736bbabb9ed2293d009f359e2cd444980869c9d6b",
+  "approvedRepoHead": "60911475add46a9e46d410afdbe66a032d649930",
+  "approvedBy": "Steve May 18 Foundation direct-builder queue approval + Codex senior-engineer main-session plan review",
+  "approvedAt": "2026-05-18T15:20:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve explicitly pulled BUILD-LANE-VERIFIER-SNAPSHOT-WIRING-REPAIR-001 after full foundation:verify went red across unrelated lanes and instructed that foundation:verify and process:foundation-ship must pass before closeout.",
+  "scopeSummary": "Repair verifier snapshot/baseline wiring after the DB schema/seed split, classify each red verifier row as stale wiring, real runtime health, or approval-bound side effect, repair safe local runtime drift, and do not rerun live extraction or external-write jobs.",
+  "constraints": [
+    "No hidden subagents.",
+    "Do not launch parallel builders.",
+    "Do not weaken, skip, bypass, or demote real verifier failures.",
+    "Do not rerun live external-write jobs.",
+    "Do not run live extraction.",
+    "Do not mutate Google Drive permissions.",
+    "No live Agent Feedback auto-send or reminder send.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work."
+  ],
+  "approvalDigest": "d76f77d72bc9635cad83d4460395741b4c6a3859af364e087af8f39cfc95e25a"
+}
