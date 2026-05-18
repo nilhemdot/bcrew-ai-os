@@ -1,0 +1,24 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-CLOSEOUT-REGISTRY-EXTRACT-001",
+  "approvedPlanRef": "docs/process/build-closeout-registry-extract-001-plan.md",
+  "approvedPlanSha256": "6dd9f910025ee723d647846c0f2591a007d88dfdd4c4c980004e936fbedb769a",
+  "approvedRepoHead": "d9f24959d912c15716562bf0432f74efef104d20",
+  "approvedBy": "Steve May 18 Foundation continuous-builder priority approval + Codex senior-engineer main-session plan review",
+  "approvedAt": "2026-05-18T16:25:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve explicitly prioritized root file and closeout registry cleanup over 3K/5K after build-lane verifier and telemetry reliability went green, with commit/push required per completed card.",
+  "scopeSummary": "Extract oversized build closeout registry root files into focused record modules without changing Recent Builds behavior, then prove registry validation, verifier source visibility, and full ship gates.",
+  "constraints": [
+    "No hidden subagents.",
+    "Do not launch parallel builders.",
+    "Do not redesign Recent Builds.",
+    "Do not change closeout matching or build-log enrichment behavior.",
+    "Do not delete or rewrite closeout records.",
+    "Do not run live extraction.",
+    "Do not run auth-required or paid jobs.",
+    "No external writes, Drive permission mutation, Gmail/ClickUp sends, or Agent Feedback auto-send.",
+    "Do not build Harlan/Fal/voice/Canva/OpenHuman features."
+  ],
+  "approvalDigest": "97d4b72b641cf2a8b5f8dc77b82e4c23c022c667ad4d8c5c84ef0b82074bef0b"
+}
