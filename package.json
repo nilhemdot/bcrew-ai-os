@@ -133,6 +133,7 @@
     "process:source-maturity-fub-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-fub-routing-gap-repair-check.mjs",
     "process:source-maturity-finance-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-finance-monitoring-gap-repair-check.mjs",
     "process:source-maturity-fub-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-fub-monitoring-gap-repair-check.mjs",
+    "process:source-maturity-freedom-team-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-team-monitoring-gap-repair-check.mjs",
     "process:source-maturity-strategy-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-strategy-monitoring-gap-repair-check.mjs",
     "process:source-maturity-strategy-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-strategy-atom-flow-repair-check.mjs",
     "process:source-maturity-strategy-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-strategy-routing-gap-repair-check.mjs",

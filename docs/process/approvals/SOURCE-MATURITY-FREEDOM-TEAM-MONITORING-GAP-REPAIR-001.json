@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FREEDOM-TEAM-MONITORING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T09:13:01.505Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-freedom-team-monitoring-gap-repair-001-plan.md",
+  "approvedPlanSha256": "a84a1203194c7eea51dd73f7ebe8b472eec28deeeb92fa8f2fcef1ce4347b8b9",
+  "approvedRepoHead": "5f1ed8c56c102d8a334b58edb5ad211247710725",
+  "notes": "Approved for bounded Freedom Team source maturity monitoring-gap repair using existing SRC-FREEDOM-TEAM-001 source contract and signed-off current-reality source note only. Not approved: live extraction, extraction target creation, live Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, source-fact creation, atom/synthesis/routing/apply completion, Freedom Team automation, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.",
+  "approvalDigest": "022d5daa4878219759a3cf6beb811908e9d74b6bc45a77239cd9977286104752"
+}
