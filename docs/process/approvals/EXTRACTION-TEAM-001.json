@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACTION-TEAM-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T23:55:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized continuous safe Foundation/extractor progress with explicit instruction to avoid live extraction, private auth, paid access, external writes, Drive mutation, Gmail/ClickUp sends, Agent Feedback auto-send, and hidden subagents unless separately approved.",
+  "scopeSummary": "Anchor the supervised Extraction Team runtime by composing shipped source-auth, public queue, runtime readiness, visible-worker, proposal-output, and private-preflight gates; prove live runs, hidden workers, private-source approval, and downstream writes fail closed.",
+  "approvedPlanRef": "docs/process/extraction-team-runtime-001-plan.md",
+  "approvedPlanSha256": "6f9ef72a3ac2be834044604aecc9afdc41b4b1d78d556608c47b3b45fb844692",
+  "approvedRepoHead": "b0f5fd2af8e6fd78668901d77fec889410d3d224",
+  "notApproved": [
+    "Do not run live extraction or launch extraction workers.",
+    "Do not search YouTube or the public web or call source APIs.",
+    "Do not fetch transcripts, capture screenshots/keyframes, download videos, summarize content, run vision, or call a model.",
+    "Do not use paid/private/community/course auth, Skool, MyICOR, Loom, or authorized-browser sessions.",
+    "Do not write Research Inbox rows, KB pages, atoms, synthesis facts, action routes, vector/query indexes, or backlog content from extracted material.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, or external systems.",
+    "Do not launch hidden subagents, parallel builders, or extraction workers."
+  ],
+  "approvalDigest": "71ca8eb4573a922388f4d7bb4e4f3082284ce5dba44e4fe659c1c04bab32ee78"
+}

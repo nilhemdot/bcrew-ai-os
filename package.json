@@ -191,6 +191,7 @@
     "process:youtube-build-intel-batch-check": "node --env-file-if-exists=.env scripts/process-youtube-build-intel-batch-check.mjs",
     "process:extraction-to-kb-atom-pipeline-check": "node --env-file-if-exists=.env scripts/process-extraction-to-kb-atom-pipeline-check.mjs",
     "process:extraction-parallel-worker-protocol-check": "node --env-file-if-exists=.env scripts/process-extraction-parallel-worker-protocol-check.mjs",
+    "process:extraction-team-runtime-check": "node --env-file-if-exists=.env scripts/process-extraction-team-runtime-check.mjs",
     "process:myicor-extraction-preflight-check": "node --env-file-if-exists=.env scripts/process-myicor-extraction-preflight-check.mjs",
     "process:mark-m-skool-extraction-preflight-check": "node --env-file-if-exists=.env scripts/process-mark-m-skool-extraction-preflight-check.mjs",
     "process:mark-kashef-goal-build-intel-packet-check": "node --env-file-if-exists=.env scripts/process-mark-kashef-goal-build-intel-packet-check.mjs",

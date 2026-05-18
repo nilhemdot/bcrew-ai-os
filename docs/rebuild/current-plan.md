@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.137 - Matt Pocock public skills eval gated
-Status: Continue safe Foundation extractor/runtime queue
+Version: v6.138 - Extraction Team runtime anchored
+Status: Continue Foundation-up capability safety queue
 
 Use this doc for one question:
 
@@ -16,15 +16,17 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`MATT-POCOCK-CLAUDE-FOLDER-EVAL-001` is closed.
+`EXTRACTION-TEAM-001` is closed.
 
-Closeout: `matt-pocock-claude-folder-eval-v1`.
+Closeout: `extraction-team-runtime-v1`.
 
-Scope shipped: created the public GitHub/source eval packet for Matt Pocock / Total TypeScript `mattpocock/skills` from repo truth and public lookup. V1 records repo metadata, inspected commit `67bce91c80cd1020a4f068ced32d0281656842ad`, MIT license, lookup-time stars/forks/open issues, skill catalog shape, plugin-exposed skills, inspected public files, transfer candidates, and the blocked/unverified 90-day context-retention claim.
+Scope shipped: anchored the supervised Extraction Team runtime contract by composing shipped source-auth, public queue, runtime readiness, visible worker, proposal-output, and private-source preflight gates. V1 reports ready only as a supervised contract: public queues remain metadata-only, MyICOR/Skool remain blocked, visible workers remain unlaunched, outputs remain proposal-only, and unsafe side effects/hidden workers fail closed.
 
-Do not install the repo, run `npx skills`, install a plugin, create skill symlinks, mutate Claude/Codex config, import code, copy raw skill/prompt content, run public YouTube extraction, use paid-course/private auth, call models, write downstream outputs, mutate external systems, launch hidden subagents, or launch parallel builders from this card.
+Do not run live extraction, source lookup/API/crawl, transcript/keyframe/screenshot/download work, summarization, vision/model calls, private/paid/community/course auth, downstream writes, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, invisible workers, or extraction workers from this card.
 
-Next: continue `FOUNDATION-KB-ACTION-REVIEW-SPRINT-001` from live repo truth. Treat Matt Pocock skill adaptation as a separate adapter/approval card, not an implicit follow-on.
+Next: continue `FOUNDATION-UP-CAPABILITY-REGISTRY-001` from live repo truth. Do not let agents or workers claim/use provider or tool capabilities until the Foundation-up capability contract is scoped and proven.
+
+Previous public skills eval: `MATT-POCOCK-CLAUDE-FOLDER-EVAL-001` is closed under `matt-pocock-claude-folder-eval-v1`; skill adaptation remains a separate adapter/approval card.
 
 Previous public `/goal` packet: `MARK-KASHEF-GOAL-BUILD-INTEL-PACKET-001` is closed under `mark-kashef-goal-build-intel-packet-v1`; Mark-specific transcript/visual extraction remains unrun.
 
