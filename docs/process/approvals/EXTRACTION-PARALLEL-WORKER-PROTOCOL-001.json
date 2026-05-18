@@ -1,0 +1,23 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACTION-PARALLEL-WORKER-PROTOCOL-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T18:20:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized safe parallel extraction worker protocol after extraction output routing, with explicit instruction to avoid live extraction, private auth, paid access, external writes, Drive mutation, Gmail/ClickUp sends, Agent Feedback auto-send, and hidden subagents unless separately approved.",
+  "scopeSummary": "Define visible parallel extraction worker protocol with source-packet ownership, artifact paths, permission class, quality gates, wrap reports, import flow, and stop conditions; prove duplicate ownership, private source, live launch, direct write, hidden subagent, and shared-file variants fail closed.",
+  "approvedPlanRef": "docs/process/extraction-parallel-worker-protocol-001-plan.md",
+  "approvedPlanSha256": "0f35d90f41a58ff7bdebddc926a5e5033d9510bbd763fb3b17e08805eb37d36d",
+  "approvedRepoHead": "07e6bf64a07976a21ea7a14add8f9afabb9bb27e",
+  "notApproved": [
+    "Do not launch extraction workers.",
+    "Do not run live extraction.",
+    "Do not search YouTube or the public web or call source APIs.",
+    "Do not fetch transcripts, capture screenshots/keyframes, download videos, summarize content, run vision, or call a model.",
+    "Do not use paid/private/community/course auth, Skool, MyICOR, Loom, or authorized-browser sessions.",
+    "Do not write Research Inbox rows, KB pages, atoms, synthesis facts, action routes, vector/query indexes, or backlog content from extracted material.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, or external systems.",
+    "Do not launch hidden subagents, invisible workers, or parallel extraction workers from this card."
+  ],
+  "approvalDigest": "789d45d5f74b662cf4f608944899e957c650769f0786463021540b8d5454a844"
+}

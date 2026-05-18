@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.132 - Extraction output routing gated
+Version: v6.133 - Extraction worker protocol gated
 Status: Continue safe Foundation extractor/runtime queue
 
 Use this doc for one question:
@@ -16,15 +16,17 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`EXTRACTION-TO-KB-ATOM-PIPELINE-001` is closed.
+`EXTRACTION-PARALLEL-WORKER-PROTOCOL-001` is closed.
 
-Closeout: `extraction-to-kb-atom-pipeline-v1`.
+Closeout: `extraction-parallel-worker-protocol-v1`.
 
-Scope shipped: defined the proposal-only routing contract from source-backed extractor artifacts into KB draft, atom, synthesis fact, review inbox, and action-route candidates. V1 requires source ID, citation, freshness, privacy tier, permission class, and resolved contradictions before any downstream candidate is considered.
+Scope shipped: defined the visible parallel extraction worker protocol. V1 requires a visible chat, dedicated worktree, dedicated branch, unique source packet, queue item, permission class, artifact root, artifact manifest, file ownership, quality gate, wrap report, import flow, and stop conditions before any worker can run.
 
-Not next: live extraction, public web lookup, source API calls, transcript fetches, screenshots/keyframes, video downloads, summarization, vision/model calls, private/paid/community/course login, Skool/MyICOR/Loom authorized-browser use, Research Inbox writes, KB page writes, atom writes, synthesis fact writes, action-route writes, vector/query-index writes, backlog mutation from extracted content, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, parallel builders, or extraction workers.
+Not next: live extraction workers, public web lookup, source API calls, transcript fetches, screenshots/keyframes, video downloads, summarization, vision/model calls, private/paid/community/course login, Skool/MyICOR/Loom authorized-browser use, Research Inbox writes, KB page writes, atom writes, synthesis fact writes, action-route writes, vector/query-index writes, backlog mutation from extracted content, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, invisible workers, or real extraction worker launch.
 
-Next: continue `EXTRACTION-PARALLEL-WORKER-PROTOCOL-001`. Do not launch extraction workers until source-packet ownership, artifact paths, permission class, wrap report, quality gate, and stop conditions are separately approved and proven.
+Next: continue `MYICOR-EXTRACTION-PREFLIGHT-001` as source-auth preflight only. Do not run live MyICOR extraction, use private access, fetch transcripts, screenshot/download course content, summarize material, call models, or write downstream outputs without separate approval.
+
+Previous output-routing slice: `EXTRACTION-TO-KB-ATOM-PIPELINE-001` is closed under `extraction-to-kb-atom-pipeline-v1`; extraction outputs remain proposal-only until separately approved.
 
 Previous output-prep slice: `YOUTUBE-BUILD-INTEL-BATCH-001` is closed under `youtube-build-intel-batch-v1`; public video extraction still needs separate runtime approval before transcripts, screenshots/keyframes, model calls, or output routing can run.
 
