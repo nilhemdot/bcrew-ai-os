@@ -1,0 +1,23 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-KB-COMPILER-V1-001",
+  "approvedPlanRef": "docs/process/foundation-kb-compiler-v1-001-plan.md",
+  "approvedPlanSha256": "5d8d5035add7f029ba529f25b6c4ef482dd42da8cb773d8b578c2a2dd110147c",
+  "approvedRepoHead": "76c7b697dca63d69b9a8407128acd440dd8de1eb",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T01:45:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved FOUNDATION-KB-ACTION-REVIEW-SPRINT-001 and instructed the builder to create/scope/build FOUNDATION-KB-COMPILER-V1-001 first, with no live extraction, transcript fetch, screenshots, model calls, auth-required or paid runs, external writes, or Harlan/Fal/voice/Canva/OpenHuman feature work.",
+  "scopeSummary": "Build the first Foundation-owned proposal-only KB compiler path from existing source-backed records into a quality-gated compiled KB/wiki draft contract.",
+  "constraints": [
+    "No live extraction.",
+    "No transcript fetch, screenshot capture, crawl, summarization, or model call.",
+    "No auth-required or paid extraction.",
+    "No external writes.",
+    "No compiled page, query index, vector table, Research Inbox, atom, or backlog writes from compiled content.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work.",
+    "No Google Drive permission mutation.",
+    "No live Agent Feedback auto-send."
+  ],
+  "approvalDigest": "39ee8bb493d6b55a891c5646c7785385760e5f54649aceb7e6559eae381f4a95"
+}

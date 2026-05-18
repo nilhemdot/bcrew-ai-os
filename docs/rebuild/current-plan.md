@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.98 - parallel builder worktree protocol closed
-Status: Ready for KB/action review sprint
+Version: v6.99 - Foundation KB compiler V1 closed
+Status: Continue KB/action review sprint
 
 Use this doc for one question:
 
@@ -73,7 +73,21 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Parallel Builder Worktree Protocol
+## Latest Sprint: Foundation KB/action Review
+
+Live sprint ID: `foundation-kb-compiler-v1-2026-05-18`.
+
+This sprint is in progress under `FOUNDATION-KB-ACTION-REVIEW-SPRINT-001`. The first shipped slice is `foundation-kb-compiler-v1`: a Foundation-owned, proposal-only compiler path from existing source-backed records into a quality-gated KB/wiki draft contract.
+
+Completed card:
+
+1. `FOUNDATION-KB-COMPILER-V1-001` - done under `foundation-kb-compiler-v1`. Scope was read-only/proposal-only compiler plumbing: existing source-backed synthesis facts, locked decisions, and intelligence atoms -> compiled KB/wiki draft with source IDs, citations, freshness metadata, privacy tier, compiler frontmatter, contradiction status, and quality-gate pass/fail.
+
+Not next from this closeout: live extraction, transcript fetches, screenshots, crawl, summarization, model calls, provider probes, auth-required or paid runs, external writes, compiled page writes, query index writes, vector table writes, Research Inbox writes, atom creation, backlog mutation from compiled content, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
+
+Next: `ACTION-ROUTE-REVIEW-INBOX-001`, then `ACTION-ROUTE-PROMOTION-WORKFLOW-001`, then `ACTION-ROUTE-DEDUP-STALENESS-GUARD-001`.
+
+## Previous Sprint: Parallel Builder Worktree Protocol
 
 Live sprint ID: `parallel-builder-worktree-protocol-2026-05-18`.
 
@@ -84,8 +98,6 @@ Completed card:
 1. `PARALLEL-BUILDER-WORKTREE-PROTOCOL-001` - done under `parallel-builder-worktree-protocol-v1`. Scope was protocol/proof only. It rejects shared worktrees, shared branch edits, overlapping write scopes, missing Current Sprint coordination, uncoordinated shared/root file edits, forbidden local/mockup/Harlan/Fal/voice/Canva/OpenHuman scopes, and live extraction/provider-probe/external-write side effects. It also keeps `scripts/foundation-verify.mjs` under the 5,000-line guardrail by moving process-hardening orchestration wiring to `lib/foundation-verify-process-hardening-runner.js`.
 
 Not next from this closeout: live extraction, auth-required or paid runs, provider/model probes, connector/OAuth repair, runtime worker implementation, model calls, external writes, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
-
-Recommended next: `FOUNDATION-KB-ACTION-REVIEW-SPRINT-001`.
 
 ## Previous Sprint: Agent Status Freshness Gate
 

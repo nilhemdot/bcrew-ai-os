@@ -100,6 +100,7 @@ async function loadEvaluationInput({ baseUrl }) {
     foundationBuildIntelRoutesSource,
     securityAccessSource,
     foundationJobsSource,
+    moduleAssuranceSource,
   ] = await Promise.all([
     fetchJson(baseUrl, '/api/foundation-hub?detail=full'),
     fetchJson(baseUrl, '/api/foundation-hub'),
@@ -114,6 +115,7 @@ async function loadEvaluationInput({ baseUrl }) {
     readTextIfExists('lib/foundation-build-intel-routes.js'),
     readTextIfExists('lib/security-access.js'),
     readText('lib/foundation-jobs.js'),
+    readText('lib/foundation-verifier-module-assurance.js'),
   ])
   const packageJson = JSON.parse(packageSource)
   return {
@@ -129,6 +131,7 @@ async function loadEvaluationInput({ baseUrl }) {
     foundationBuildIntelRoutesSource,
     securityAccessSource,
     foundationJobsSource,
+    moduleAssuranceSource,
     foundationVerifySource,
     moduleSource,
     proofScriptSource,
@@ -214,8 +217,8 @@ async function main() {
     moduleLines > 100 &&
       input.moduleSource.includes('evaluateFoundationIntelligenceAuditVerifier') &&
       input.moduleSource.includes('buildFoundationIntelligenceAuditVerifierDogfoodProof') &&
-      input.foundationVerifySource.includes('evaluateFoundationIntelligenceAuditVerifier({') &&
-      input.foundationVerifySource.includes('intelligenceAuditVerifier.checks'),
+      `${input.foundationVerifySource}\n${input.moduleAssuranceSource}`.includes('evaluateFoundationIntelligenceAuditVerifier({') &&
+      `${input.foundationVerifySource}\n${input.moduleAssuranceSource}`.includes('intelligenceAuditVerifier.checks'),
     'root verifier delegates intelligence/audit checks to focused module',
     `moduleLines=${moduleLines}`,
   )

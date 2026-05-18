@@ -70,12 +70,14 @@ async function main() {
   const [
     moduleSource,
     verifierSource,
+    structuralCoreSource,
     scriptSource,
     planSource,
     packageSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-verifier-module-assurance.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
+    readRepoFile('lib/foundation-verifier-structural-assurance-core.js'),
     readRepoFile(VERIFIER_MODULE_ASSURANCE_SPLIT_SCRIPT_PATH),
     readRepoFile(VERIFIER_MODULE_ASSURANCE_SPLIT_PLAN_PATH),
     readRepoFile('package.json'),
@@ -118,7 +120,8 @@ async function main() {
     'dogfood rejects verifier-module assurance failures',
     dogfood.dogfoodInvariant,
   )
-  addCheck(checks, verifierSource.includes('evaluateFoundationVerifierModuleAssurance({') && verifierSource.includes('verifierModuleAssurance.checks'), 'foundation verifier delegates module-assurance checks to focused module', 'evaluateFoundationVerifierModuleAssurance')
+  const delegationSource = `${verifierSource}\n${structuralCoreSource}`
+  addCheck(checks, delegationSource.includes('evaluateFoundationVerifierModuleAssurance({') && delegationSource.includes('verifierModuleAssurance.checks'), 'foundation verifier delegates module-assurance checks to focused module', 'evaluateFoundationVerifierModuleAssurance')
   addCheck(checks, !verifierSource.includes(oldInlineMarker), 'old inline module-assurance block is removed', 'operatorBudgetVerifier no longer appears inline')
   addCheck(checks, verifierLines < VERIFIER_MODULE_ASSURANCE_SPLIT_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_MODULE_ASSURANCE_SPLIT_BEFORE_LINES} -> ${verifierLines}`)
   addCheck(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only', 'no live-state write tokens')
