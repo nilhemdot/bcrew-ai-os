@@ -12,6 +12,11 @@ import {
   recordBuildLaneFailureEventsFromError,
 } from '../lib/build-lane-failure-telemetry.js'
 import { recordFoundationShipProof } from '../lib/process-git-hooks.js'
+import {
+  SHIP_GATE_WORKER_LIVE_JOB_PAUSE_DEFAULT_TTL_MS,
+  clearFoundationWorkerShipPause,
+  writeFoundationWorkerShipPause,
+} from '../lib/ship-gate-worker-live-job-pause.js'
 
 const execFile = promisify(execFileCallback)
 
@@ -41,7 +46,7 @@ function printUsage() {
   console.log('')
   console.log('Runs, in order:')
   console.log('  1. npm run process:foundation-ship-preflight')
-  console.log('  2. Restart supervised dashboard/worker runtime when available')
+  console.log('  2. Pause scheduled worker job selection, then restart supervised dashboard/worker runtime when available')
   console.log('  3. npm run process:ship-check')
   console.log('  4. npm run process:fanout-check')
   console.log('  5. npm run process:post-ship-fanout')
@@ -215,6 +220,8 @@ async function main() {
   const strictShipCheckVerify = args.strictShipCheckVerify === true || args.strictShipCheckVerify === 'true'
   const parallelFanout = args.parallelFanout === true || args.parallelFanout === 'true'
   const skipRuntimeRestart = args.skipRuntimeRestart === true || args.skipRuntimeRestart === 'true'
+  const skipWorkerScheduledPause = args.skipWorkerScheduledPause === true || args.skipWorkerScheduledPause === 'true'
+  const workerScheduledPauseMs = Math.max(60_000, Number(args.workerScheduledPauseMs || SHIP_GATE_WORKER_LIVE_JOB_PAUSE_DEFAULT_TTL_MS))
   const skipPreflight = args.skipPreflight === true || args.skipPreflight === 'true'
   const skipPreflightReason = normalize(args.skipPreflightReason)
   const targetMs = Number(args.targetMs || 300000)
@@ -227,6 +234,7 @@ async function main() {
   console.log(`  Fanout mode: ${parallelFanout ? 'parallel' : 'sequential'}`)
   console.log(`  Preflight: ${skipPreflight ? 'skipped' : 'enabled'}`)
   console.log(`  Runtime restart: ${skipRuntimeRestart ? 'skipped' : 'enabled'}`)
+  console.log(`  Worker scheduled-job pause: ${skipRuntimeRestart || skipWorkerScheduledPause ? 'skipped' : `${workerScheduledPauseMs}ms`}`)
 
   if (missing.length) {
     console.error('')
@@ -265,90 +273,120 @@ async function main() {
   }
 
   const timing = []
-  if (skipPreflight) {
-    const skipped = {
-      label: 'process:foundation-ship-preflight',
-      stdout: `Preflight skipped by explicit reason: ${skipPreflightReason}\n`,
-      stderr: '',
-      durationMs: 0,
-      attempts: 1,
+  let workerShipPause = null
+  try {
+    if (skipPreflight) {
+      const skipped = {
+        label: 'process:foundation-ship-preflight',
+        stdout: `Preflight skipped by explicit reason: ${skipPreflightReason}\n`,
+        stderr: '',
+        durationMs: 0,
+        attempts: 1,
+      }
+      printStepResult(skipped)
+      timing.push(skipped)
+    } else {
+      const preflight = await runStep('process:foundation-ship-preflight', [
+        'run',
+        'process:foundation-ship-preflight',
+        '--',
+        '--json',
+      ])
+      printStepResult(preflight)
+      timing.push(preflight)
     }
-    printStepResult(skipped)
-    timing.push(skipped)
-  } else {
-    const preflight = await runStep('process:foundation-ship-preflight', [
-      'run',
-      'process:foundation-ship-preflight',
-      '--',
-      '--json',
-    ])
-    printStepResult(preflight)
-    timing.push(preflight)
+
+    if (!skipRuntimeRestart && !skipWorkerScheduledPause) {
+      const pauseStartedAt = Date.now()
+      workerShipPause = await writeFoundationWorkerShipPause({
+        repoRoot: process.cwd(),
+        cardId: args.card,
+        closeoutKey: args.closeoutKey,
+        ttlMs: workerScheduledPauseMs,
+      })
+      const pauseResult = {
+        label: 'worker scheduled-job pause',
+        stdout: `Worker scheduled-job pause armed for ${workerScheduledPauseMs}ms before LaunchAgent restart.\n  marker: ${workerShipPause.pausePath}\n  pauseId: ${workerShipPause.pause.pauseId}\n`,
+        stderr: '',
+        durationMs: Date.now() - pauseStartedAt,
+        attempts: 1,
+      }
+      printStepResult(pauseResult)
+      timing.push(pauseResult)
+    }
+
+    const runtimeRestart = await runRuntimeRestartStep({ skipRuntimeRestart })
+    printStepResult(runtimeRestart)
+    timing.push(runtimeRestart)
+
+    const shipCheck = await runStep('process:ship-check', shipCheckArgs, { retries: 1 })
+    printStepResult(shipCheck)
+    timing.push(shipCheck)
+
+    const fanoutSteps = [
+      {
+        label: 'process:fanout-check',
+        npmArgs: [
+          'run',
+          'process:fanout-check',
+          '--',
+          buildArg('card', args.card),
+          buildArg('closeoutKey', args.closeoutKey),
+        ],
+      },
+      {
+        label: 'process:post-ship-fanout',
+        npmArgs: [
+          'run',
+          'process:post-ship-fanout',
+          '--',
+          buildArg('card', args.card),
+          buildArg('closeoutKey', args.closeoutKey),
+          buildArg('commitRef', commitRef),
+        ],
+      },
+    ]
+    const fanoutResults = parallelFanout
+      ? await runParallelSteps(fanoutSteps)
+      : await runSequentialSteps(fanoutSteps)
+    timing.push(...fanoutResults)
+
+    const foundationVerify = await runStep('foundation:verify', ['run', 'foundation:verify'], { retries: 1 })
+    printStepResult(foundationVerify)
+    timing.push(foundationVerify)
+
+    const totalMs = Date.now() - gateStartedAt
+    console.log('')
+    console.log('Gate timing summary')
+    for (const result of timing) {
+      console.log(`  ${result.label}: ${formatDuration(result.durationMs)}`)
+    }
+    console.log(`  total: ${formatDuration(totalMs)} / target ${formatDuration(targetMs)}`)
+    if (Number.isFinite(targetMs) && totalMs > targetMs) {
+      console.log('  status: above target; keep the ship result but profile the slow step before the next gate-performance pass.')
+    } else {
+      console.log('  status: within target')
+    }
+
+    const proof = await recordFoundationShipProof({
+      repoRoot: process.cwd(),
+      cardId: normalize(args.card),
+      closeoutKey: normalize(args.closeoutKey),
+      commitRef,
+    })
+    console.log(`  proof: recorded local Foundation ship proof for ${proof.shortSha} / ${proof.cardId}`)
+
+    console.log('')
+    console.log('Foundation ship gate passed.')
+  } finally {
+    if (workerShipPause) {
+      const cleanup = await clearFoundationWorkerShipPause({
+        repoRoot: process.cwd(),
+        pauseId: workerShipPause.pause.pauseId,
+      })
+      console.log(`Worker scheduled-job pause cleanup: ${cleanup.reason}.`)
+    }
   }
-
-  const runtimeRestart = await runRuntimeRestartStep({ skipRuntimeRestart })
-  printStepResult(runtimeRestart)
-  timing.push(runtimeRestart)
-
-  const shipCheck = await runStep('process:ship-check', shipCheckArgs, { retries: 1 })
-  printStepResult(shipCheck)
-  timing.push(shipCheck)
-
-  const fanoutSteps = [
-    {
-      label: 'process:fanout-check',
-      npmArgs: [
-        'run',
-        'process:fanout-check',
-        '--',
-        buildArg('card', args.card),
-        buildArg('closeoutKey', args.closeoutKey),
-      ],
-    },
-    {
-      label: 'process:post-ship-fanout',
-      npmArgs: [
-        'run',
-        'process:post-ship-fanout',
-        '--',
-        buildArg('card', args.card),
-        buildArg('closeoutKey', args.closeoutKey),
-        buildArg('commitRef', commitRef),
-      ],
-    },
-  ]
-  const fanoutResults = parallelFanout
-    ? await runParallelSteps(fanoutSteps)
-    : await runSequentialSteps(fanoutSteps)
-  timing.push(...fanoutResults)
-
-  const foundationVerify = await runStep('foundation:verify', ['run', 'foundation:verify'], { retries: 1 })
-  printStepResult(foundationVerify)
-  timing.push(foundationVerify)
-
-  const totalMs = Date.now() - gateStartedAt
-  console.log('')
-  console.log('Gate timing summary')
-  for (const result of timing) {
-    console.log(`  ${result.label}: ${formatDuration(result.durationMs)}`)
-  }
-  console.log(`  total: ${formatDuration(totalMs)} / target ${formatDuration(targetMs)}`)
-  if (Number.isFinite(targetMs) && totalMs > targetMs) {
-    console.log('  status: above target; keep the ship result but profile the slow step before the next gate-performance pass.')
-  } else {
-    console.log('  status: within target')
-  }
-
-  const proof = await recordFoundationShipProof({
-    repoRoot: process.cwd(),
-    cardId: normalize(args.card),
-    closeoutKey: normalize(args.closeoutKey),
-    commitRef,
-  })
-  console.log(`  proof: recorded local Foundation ship proof for ${proof.shortSha} / ${proof.cardId}`)
-
-  console.log('')
-  console.log('Foundation ship gate passed.')
 }
 
 main().catch(async error => {

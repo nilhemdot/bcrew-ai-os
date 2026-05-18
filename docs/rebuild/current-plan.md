@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.119 - Source maturity FUB monitoring gap repair closed
+Version: v6.120 - Ship gate worker live-job pause closed
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -16,13 +16,13 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SOURCE-MATURITY-FUB-MONITORING-GAP-REPAIR-001` is closed.
+`SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001` is closed.
 
-Closeout: `source-maturity-fub-monitoring-gap-repair-v1`.
+Closeout: `ship-gate-worker-live-job-pause-v1`.
 
-Scope shipped: added an explicit manual/on-demand monitoring boundary to the verified-readable `SRC-FUB-001` source contract so FUB no longer blocks at the monitored maturity stage and now exposes the next real source maturity gap.
+Scope shipped: `process:foundation-ship` now arms a short worker scheduled-job pause before restarting the Foundation worker LaunchAgent. The worker still records startup commit/PID for served-code proof, but skips due scheduled job selection while the pause marker is active. The marker clears in a `finally` path and expires if interrupted.
 
-Not next: live extraction, extraction targets, live FUB API calls, CRM mutation, auth repair, paid runs, external writes, Drive permission mutation, FUB automation, action-route apply, destination record creation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+Not next: live extraction, auth-required or paid runs, external writes, Drive permission mutation, Agent Feedback auto-send, connector/OAuth work, permanent worker disablement, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
 
 Next: continue the safe source maturity/source-contract queue from live truth. Prefer monitored/evidence/atom repairs only where existing source truth is already present; otherwise mark blocked/pending instead of inventing evidence.
 

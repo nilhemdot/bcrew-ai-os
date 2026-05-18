@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T08:25:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/ship-gate-worker-live-job-pause-001-plan.md",
+  "approvedPlanSha256": "6ae9cd838b3c549b3da6c58615183d8d57823d7eca0df6b9fed824c0b44d0887",
+  "approvedRepoHead": "b9525b88cfe62766c18f575c3a61ab4733b0a81f",
+  "notes": "Approved for bounded Foundation ship-gate reliability repair so runtime restart proves served code without selecting due scheduled worker jobs. Not approved: live extraction, auth-required or paid runs, external writes, Drive permission mutation, Agent Feedback auto-send, connector/OAuth work, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, or permanent worker disablement.",
+  "approvalDigest": "070aafa7db1116e64cae017b1794f29d42e69a9ede9f78a4efe45c211a838eb5"
+}

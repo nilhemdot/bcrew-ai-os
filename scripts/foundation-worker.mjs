@@ -18,6 +18,10 @@ import {
 } from '../lib/foundation-db.js';
 import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js';
 import { parseFoundationWorkerArgs } from '../lib/foundation-worker-reliability.js';
+import {
+  evaluateFoundationWorkerShipPause,
+  readFoundationWorkerShipPause,
+} from '../lib/ship-gate-worker-live-job-pause.js';
 import { runFoundationJob } from './run-foundation-job.mjs';
 
 const execFile = promisify(execFileCallback);
@@ -125,6 +129,13 @@ async function runWorkerPass({ actor, dryRun, jobKey, maxJobs, staleRunMinutes, 
     if (reapedSourceCrawlItems.length) {
       console.warn(`Foundation worker: marked ${reapedSourceCrawlItems.length} stale source-crawl item lease(s) failed before selecting jobs.`);
     }
+  }
+
+  const shipPause = await readFoundationWorkerShipPause({ repoRoot });
+  const shipPauseDecision = evaluateFoundationWorkerShipPause(shipPause, { dryRun, jobKey });
+  if (shipPauseDecision.paused) {
+    console.log(`Foundation worker: ship gate scheduled-job pause active (${shipPauseDecision.status}); due jobs not selected.`);
+    return { ran: 0, failed: 0, paused: true };
   }
 
   const snapshot = await getFoundationJobRunSnapshot({ limit: 50 });
