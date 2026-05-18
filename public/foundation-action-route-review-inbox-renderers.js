@@ -99,6 +99,12 @@ function renderInboxItem(item) {
   var pills = document.createElement('div')
   pills.className = 'action-review-card-pills'
   pills.appendChild(renderInboxPill(item.reviewState, item.reviewState))
+  if (item.duplicateClusterIds && item.duplicateClusterIds.length) {
+    pills.appendChild(renderInboxPill('duplicate-linked', 'warning'))
+  }
+  if (item.staleness && item.staleness.status && item.staleness.status !== 'current') {
+    pills.appendChild(renderInboxPill(item.staleness.status, item.staleness.severity || item.staleness.status))
+  }
   pills.appendChild(renderInboxPill(item.sourceKind, 'neutral'))
   summary.appendChild(pills)
   details.appendChild(summary)
@@ -116,6 +122,8 @@ function renderInboxItem(item) {
     ['Backlog card', item.backlogCardId || 'not created'],
     ['Destination', [item.destinationTable, item.destinationRecordId].filter(Boolean).join(' / ') || item.destinationLabel],
     ['Source refs', (item.sourceRefs || []).slice(0, 6).join(', ') || 'missing'],
+    ['Dedupe', (item.duplicateClusterIds || []).length ? item.duplicateClusterIds.join(', ') : (item.dedupeKey || 'not keyed')],
+    ['Staleness', item.staleness && item.staleness.status !== 'current' ? item.staleness.nextAction : 'current'],
   ].forEach(function(row) {
     var line = document.createElement('div')
     line.className = 'build-log-fact'
@@ -200,6 +208,8 @@ function renderActionRouteReviewInbox() {
     metrics.appendChild(renderInboxMetric('Routes', summary.routeItems || 0, 'Action Router records'))
     metrics.appendChild(renderInboxMetric('Separated backlog', summary.backlogCandidateItems || 0, 'Route-derived rows'))
     metrics.appendChild(renderInboxMetric('Aged', summary.agedNeedsReviewItems || 0, 'Older than three days'))
+    metrics.appendChild(renderInboxMetric('Duplicates', summary.duplicateClusters || 0, 'Linked duplicate clusters'))
+    metrics.appendChild(renderInboxMetric('Stale risk', summary.staleRiskItems || 0, 'Needs closure action'))
     panel.appendChild(metrics)
 
     var stack = document.createElement('div')

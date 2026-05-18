@@ -1,0 +1,32 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ACTION-ROUTE-DEDUP-STALENESS-GUARD-001",
+  "approvedPlanRef": "docs/process/action-route-dedup-staleness-guard-001-plan.md",
+  "approvedPlanSha256": "56e88aaf0383a72f53cf62bf903922d2753c5532133468a17e37427e59ed94ec",
+  "approvedRepoHead": "098032317ef0bfec47c88dd17556ec98497d68cf",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T05:15:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the overnight Foundation queue and injected ACTION-ROUTE-DEDUP-STALENESS-GUARD-001 as a P0 guard to stop duplicate/stale action-route noise and recurring build/process waste, with no live extraction, auth-required or paid runs, external writes, Drive permission mutation, Agent Feedback auto-send, or Harlan/Fal/voice/Canva/OpenHuman feature work.",
+  "scopeSummary": "Add duplicate grouping and stale-risk policy to the Action Route Review Inbox so repeated unresolved proposed findings are linked, stale items have yellow/red next actions, history remains intact, and the live route/verifier/UI share the same contract.",
+  "constraints": [
+    "No live extraction.",
+    "No transcript fetch, screenshot capture, crawl, summarization, model call, or provider probe.",
+    "No auth-required or paid run.",
+    "No external write.",
+    "No Google Drive permission mutation.",
+    "No live Agent Feedback auto-send.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work.",
+    "No broad visual UI redesign.",
+    "No auto-delete, auto-hide, auto-reject, or auto-snooze of review items."
+  ],
+  "requiredProof": [
+    "focused proof dogfoods duplicate grouping, linked route/backlog rows, stale yellow/red thresholds, and malformed stale output rejection",
+    "live Current Sprint metadata is complete before building_now",
+    "live Review Inbox route carries dedupStaleness, dedupeKey, duplicateClusterIds, and staleness fields",
+    "control-loop verifier checks the live API contract",
+    "backlog hygiene, foundation:verify, and process:foundation-ship pass"
+  ],
+  "notes": "This is Foundation read-model/process work only. Dedupe/staleness surfaces operator risk and next action; it does not erase history or mutate external systems.",
+  "approvalDigest": "124609b169b85e876cb4fc152f78fe35d3232443820c0743db6c1131894b0977"
+}
