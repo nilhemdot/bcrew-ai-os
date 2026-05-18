@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.112 - Source maturity Owners Dashboard routing gap repair complete
+Version: v6.113 - Source maturity Finance monitoring gap repair complete
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -13,6 +13,16 @@ For archive/extraction/synthesis doctrine, use [Intelligence Pipeline Operating 
 For runtime boundaries, use [Current Runtime Map](current-runtime-map.md).
 For Harlan/Crewbert boundaries, use [Agent Architecture](agent-architecture.md).
 For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan.md).
+
+## Current Sprint
+
+`SOURCE-MATURITY-FINANCE-MONITORING-GAP-REPAIR-001` is complete under `source-maturity-finance-monitoring-gap-repair-v1`.
+
+Scope: add and prove a manual/on-demand monitoring boundary for `SRC-FINANCE-001` so the signed-off finance source no longer blocks at the monitored maturity stage.
+
+Not next: live extraction, extraction targets, Google Sheets read/write, auth repair, paid runs, external writes, Drive permission mutation, finance automation, payment reconciliation, atom-flow, synthesis, routing, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+
+After ship, continue the safe source maturity/source-contract queue from live truth.
 
 ## Plan History
 

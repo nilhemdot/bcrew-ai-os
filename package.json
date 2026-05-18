@@ -127,6 +127,7 @@
     "process:source-maturity-freedom-community-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs",
     "process:source-maturity-freedom-engine-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs",
     "process:source-maturity-owners-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-owners-routing-gap-repair-check.mjs",
+    "process:source-maturity-finance-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-finance-monitoring-gap-repair-check.mjs",
     "process:source-maturity-gap-followup-check": "node --env-file-if-exists=.env scripts/process-source-maturity-gap-followup-check.mjs",
     "process:llm-auth-audit-budget-label-clarity-check": "node --env-file-if-exists=.env scripts/process-llm-auth-audit-budget-label-clarity-check.mjs",
     "process:foundation-knowledge-base-compiler-design-check": "node --env-file-if-exists=.env scripts/process-foundation-knowledge-base-compiler-design-check.mjs",

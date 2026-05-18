@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FINANCE-MONITORING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T07:10:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-finance-monitoring-gap-repair-001-plan.md",
+  "approvedPlanSha256": "e5befb95da66ad5b65ee25a5f41095c94fe0ecaee917b1d0ad88f45271d1d9ec",
+  "approvedRepoHead": "585474671a295285d77a27fb1bdf9f1e8d80b083",
+  "notes": "Approved for bounded Finance source maturity monitoring-gap repair using existing SRC-FINANCE-001 source contract and source facts only. Not approved: live extraction, Google Sheets read/write, extraction target creation, auth repair, paid runs, provider/model calls, external writes, finance automation, payment reconciliation, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or marking atom/synthesis/routing/apply complete.",
+  "approvalDigest": "d2365e5b218ecc52f87e3fb4e346670015be4d2e4f0215fa2d828d2f3c91feb1"
+}

@@ -200,6 +200,8 @@ Verified but not counted as source-owned sign-off for this unit:
 - `Annual Budget (Roll Up)`
 - `Unspent -L3M + Actual Helper`
 
+Monitoring boundary: manual/on-demand finance source review from the Owners Dashboard finance layer. This is not a background finance automation approval and does not permit Google Sheets read/write from source-maturity repair cards.
+
 ## V1 Source Boundary Locked
 
 | Source ID | Source | What It Owns | Owner | Current Status |
