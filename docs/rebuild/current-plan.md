@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.114 - Source maturity Strategy monitoring gap repair active
+Version: v6.116 - Source maturity Strategy atom-flow repair closed
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -16,13 +16,15 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SOURCE-MATURITY-STRATEGY-MONITORING-GAP-REPAIR-001` is active.
+`SOURCE-MATURITY-STRATEGY-ATOM-FLOW-REPAIR-001` is closed.
 
-Scope: add and prove a manual/on-demand monitoring boundary for `SRC-STRATEGY-001` so the signed-off repo strategy packet no longer blocks at the monitored maturity stage.
+Closeout: `source-maturity-strategy-atom-flow-repair-v1`.
 
-Not next: live extraction, extraction targets, auth repair, paid runs, external writes, Drive permission mutation, Strategy Hub automation, strategy recommendation generation, atom-flow, synthesis, routing, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+Scope shipped: promoted existing source fact `fact:0a3bea1f66c3fbdb4b4ee08f` for `SRC-STRATEGY-001` into one governed atom and supporting atom hit so the signed-off repo strategy packet no longer blocks at the atomized maturity stage.
 
-After ship, continue the safe source maturity/source-contract queue from live truth.
+Not next: live extraction, extraction targets, auth repair, paid runs, external writes, Drive permission mutation, strategy doc writes, Strategy Hub automation, strategy recommendation generation, synthesis, routing, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+
+Next: continue the safe source maturity/source-contract queue from live truth. Strategy routing is eligible only as an internal approval-required route from existing fact/atom evidence; otherwise leave the gap visible.
 
 ## Plan History
 
@@ -83,7 +85,35 @@ Foundation source work follows this order:
 
 The Strategy packet has completed steps 1-3 for its current source package: strategy docs, Freedom Community, BHAG Builder, Agent Engine, and the strategy-used Owners slice. That does not mean extraction, synthesis, Strategy Hub, or Action Router are complete; those are later Foundation layers.
 
-## Latest Sprint: Source Maturity Finance Routing Gap Repair
+## Latest Sprint: Source Maturity Strategy Atom Flow Repair
+
+Live sprint ID: `source-maturity-strategy-atom-flow-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-strategy-atom-flow-repair-v1`. It repairs the `SRC-STRATEGY-001` atomized-stage source maturity gap by promoting one existing active Strategy source fact into a governed atom and atom hit.
+
+Completed card:
+
+1. `SOURCE-MATURITY-STRATEGY-ATOM-FLOW-REPAIR-001` - done under `source-maturity-strategy-atom-flow-repair-v1`. Scope was internal atom-flow repair only: `SRC-STRATEGY-001` now has one accepted atom and supporting hit backed by source fact `fact:0a3bea1f66c3fbdb4b4ee08f`. This did not run live extraction, create extraction targets, write strategy docs, mutate Drive permissions, call models/providers, repair auth, run paid work, write external systems, generate Strategy Hub recommendations, create routes, apply action routes, or mark synthesis/routing/apply complete.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, strategy doc write, action-route apply, Strategy Hub automation, recommendation generation, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad Strategy mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Strategy routing can only happen from the accepted Strategy atom plus source-backed evidence into an internal approval-required route; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
+
+## Previous Sprint: Source Maturity Strategy Monitoring Gap Repair
+
+Live sprint ID: `source-maturity-strategy-monitoring-gap-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-strategy-monitoring-gap-repair-v1`. It repairs the `SRC-STRATEGY-001` monitored-stage source maturity gap by adding a manual/on-demand refresh boundary to the signed-off Strategy source contract.
+
+Completed card:
+
+1. `SOURCE-MATURITY-STRATEGY-MONITORING-GAP-REPAIR-001` - done under `source-maturity-strategy-monitoring-gap-repair-v1`. Scope was monitoring boundary repair only: `SRC-STRATEGY-001` now has explicit manual/on-demand review posture and exposes the next real gap at atomized. This did not run live extraction, create extraction targets, write strategy docs, mutate Drive permissions, call models/providers, repair auth, run paid work, write external systems, generate Strategy Hub recommendations, create atoms/routes, or mark synthesis/routing/apply complete.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, OAuth repair, paid-source run, external write, strategy doc write, action-route creation/apply, Strategy Hub automation, recommendation generation, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad Strategy mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Strategy atom-flow can only happen from the accepted source fact into internal memory-spine atom flow; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
+
+## Previous Sprint: Source Maturity Finance Routing Gap Repair
 
 Live sprint ID: `source-maturity-finance-routing-gap-repair-2026-05-18`.
 

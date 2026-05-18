@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-STRATEGY-ATOM-FLOW-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T08:10:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-strategy-atom-flow-repair-001-plan.md",
+  "approvedPlanSha256": "4b4aa8893a3ce7a6ed2bafe734f6497414035b0e974d011e49375797feedc47d",
+  "approvedRepoHead": "e14e55009863374a79ecaa3fbfa983c88b8050cc",
+  "notes": "Approved for bounded Strategy source maturity atom-flow repair using existing source fact fact:0a3bea1f66c3fbdb4b4ee08f only; create one internal atom and supporting atom hit. Not approved: live extraction, extraction target creation, auth repair, paid runs, provider/model calls, external writes, strategy doc writes, Strategy Hub recommendation generation, action routes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad Strategy mining.",
+  "approvalDigest": "ece045c672e9151d93c44eca7397cb98056e0454198d44512dc193f58bbb8897"
+}
