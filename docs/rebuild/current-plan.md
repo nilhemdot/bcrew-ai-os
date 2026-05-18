@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.113 - Source maturity Finance monitoring gap repair complete
+Version: v6.114 - Source maturity Strategy monitoring gap repair active
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -16,11 +16,11 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SOURCE-MATURITY-FINANCE-MONITORING-GAP-REPAIR-001` is complete under `source-maturity-finance-monitoring-gap-repair-v1`.
+`SOURCE-MATURITY-STRATEGY-MONITORING-GAP-REPAIR-001` is active.
 
-Scope: add and prove a manual/on-demand monitoring boundary for `SRC-FINANCE-001` so the signed-off finance source no longer blocks at the monitored maturity stage.
+Scope: add and prove a manual/on-demand monitoring boundary for `SRC-STRATEGY-001` so the signed-off repo strategy packet no longer blocks at the monitored maturity stage.
 
-Not next: live extraction, extraction targets, Google Sheets read/write, auth repair, paid runs, external writes, Drive permission mutation, finance automation, payment reconciliation, atom-flow, synthesis, routing, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+Not next: live extraction, extraction targets, auth repair, paid runs, external writes, Drive permission mutation, Strategy Hub automation, strategy recommendation generation, atom-flow, synthesis, routing, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
 
 After ship, continue the safe source maturity/source-contract queue from live truth.
 

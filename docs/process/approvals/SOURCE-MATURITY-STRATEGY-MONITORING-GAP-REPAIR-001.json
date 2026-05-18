@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-STRATEGY-MONITORING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T07:42:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-strategy-monitoring-gap-repair-001-plan.md",
+  "approvedPlanSha256": "c9f708ef2a920743b16711c5af0ff2d364398b375b3606d28cad6be538bf4c47",
+  "approvedRepoHead": "d3733273401865aab3a3d20762560dbe950fb356",
+  "notes": "Approved for bounded Strategy source maturity monitoring-gap repair using existing SRC-STRATEGY-001 source contract and source facts only. Not approved: live extraction, extraction target creation, auth repair, paid runs, provider/model calls, external writes, Strategy Hub automation, strategy recommendation generation, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or marking atom/synthesis/routing/apply complete.",
+  "approvalDigest": "bdf603d5f5465c97ac2656331a4b829d8451af0a59eb2d18b1d1be01f8b8ee48"
+}

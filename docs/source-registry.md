@@ -151,6 +151,8 @@ Readable means the rebuild can connect and read. It does not mean the business m
 | `SRC-META-001` | Meta API | Rebuild tokens proven for Steve + BCrew marketing contexts | Social metrics and account inventory | Instagram and Facebook metrics across current and legacy pages | Meta API | Verified Readable | 2026-04-23 |
 | `SRC-FINANCE-001` | Benson Crew - Owners Dashboard | `(Input) Weekly Actuals` + `Cashflow Dash` | Finance validation unit | Internal finance truth and dashboard interpretation layer | Google Drive / Google Sheets | Signed Off For Current Reality | 2026-04-20 |
 
+Monitoring boundary: `SRC-STRATEGY-001` is monitored by manual/on-demand review of repo strategy docs, active rebuild doctrine, and existing source-backed strategy facts. This is not a background Strategy Hub automation approval and does not permit live extraction, model/provider calls, or external writes from source-maturity repair cards.
+
 ### Freedom Sheet Signed-Off Range Coverage
 
 `SRC-FREEDOM-TEAM-001` covers:
