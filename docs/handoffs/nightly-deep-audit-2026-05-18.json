@@ -1,0 +1,64 @@
+{
+  "archived": true,
+  "archivePath": "docs/_archive/handoffs/nightly-deep-audit-2026-05-18.json",
+  "reportArchivePath": "docs/_archive/handoffs/nightly-deep-audit-2026-05-18.md",
+  "reason": "Hot handoff budget control; full generated artifact remains in the archive.",
+  "preservesProofPath": true,
+  "cardId": "NIGHTLY-AUDIT-2026-05-18-TRIAGE-AND-ARCHIVE-001",
+  "generatedAt": "2026-05-18T07:00:31.843Z",
+  "sourceSummary": {
+    "findingCount": 90,
+    "p0": 76,
+    "p1": 7,
+    "p2": 7,
+    "p3": 0,
+    "newFindings": 0,
+    "stillOpen": 17,
+    "resolved": 0,
+    "endpointsMeasured": 5,
+    "staticReportOnly": true
+  },
+  "triage": [
+    {
+      "priority": 1,
+      "card": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "findings": 74,
+      "meaning": "Check/process paths may mutate state. Biggest issue."
+    },
+    {
+      "priority": 2,
+      "card": "CODEBASE-HARDCODE-AUDIT-001",
+      "findings": 5,
+      "meaning": "Some checks hardcode dated sprint IDs/state."
+    },
+    {
+      "priority": 3,
+      "card": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "findings": 5,
+      "meaning": "Large mixed-responsibility files still need splitting."
+    },
+    {
+      "priority": 4,
+      "card": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "findings": 3,
+      "meaning": "Verifier mixes active sprint proof with historical proof."
+    },
+    {
+      "priority": 5,
+      "card": "FOUNDATION-API-PERF-AUDIT-001",
+      "findings": 2,
+      "meaning": "Some API/search paths may scan too much."
+    },
+    {
+      "priority": 6,
+      "card": "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+      "findings": 1,
+      "meaning": "Frontend still has heavy DOM rebuild risk."
+    }
+  ],
+  "boundaries": {
+    "autoFixes": false,
+    "autoBacklogMutation": false,
+    "writesSourceSystems": false
+  }
+}

@@ -1,0 +1,2513 @@
+{
+  "generatedAt": "2026-05-18T07:00:31.843Z",
+  "reportPath": "docs/handoffs/nightly-deep-audit-2026-05-18.md",
+  "jsonPath": "docs/handoffs/nightly-deep-audit-2026-05-18.json",
+  "cardId": "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
+  "closeoutKey": "nightly-deep-audit-upgrade-v1",
+  "summary": {
+    "findingCount": 90,
+    "p0": 76,
+    "p1": 7,
+    "p2": 7,
+    "p3": 0,
+    "proposedCardCount": 17,
+    "endpointsMeasured": 5,
+    "staticReportOnly": true
+  },
+  "endpointMetrics": [
+    {
+      "endpoint": "/api/foundation-hub",
+      "ok": true,
+      "status": 200,
+      "durationMs": 97.03241700000001,
+      "payloadBytes": 475082,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/source-of-truth",
+      "ok": true,
+      "status": 200,
+      "durationMs": 15.695124999999962,
+      "payloadBytes": 146916,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/source-lifecycle",
+      "ok": true,
+      "status": 200,
+      "durationMs": 374.466583,
+      "payloadBytes": 684970,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/build-log",
+      "ok": true,
+      "status": 200,
+      "durationMs": 89.79191700000001,
+      "payloadBytes": 386372,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/gstack-build-intel",
+      "ok": true,
+      "status": 200,
+      "durationMs": 21.437833999999953,
+      "payloadBytes": 31638,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "focused-check-active-sprint-id-assumption",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Focused checks assert exact dated active sprint IDs",
+      "whyItMatters": "One-time closeout checks are unsafe as nightly checks after rollover if they hard-fail on the current active sprint.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 103,
+          "detail": "const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 145,
+          "detail": "const FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID = 'foundation-source-once-over-2026-05-12"
+        },
+        {
+          "path": "lib/kpi-health.js",
+          "line": 8,
+          "detail": "const KPI_HEALTH_API_CACHE_SPRINT_ID = 'kpi-health-api-cache-2026-05-15"
+        },
+        {
+          "path": "lib/kpi-health.js",
+          "line": 14,
+          "detail": "const KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SPRINT_ID = 'kpi-health-dynamic-year-contract-2026-05-16"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 13,
+          "detail": "const GSTACK_BUILD_INTEL_SPRINT_ID = 'gstack-build-intel-extraction-2026-05-13"
+        },
+        {
+          "path": "scripts/process-agent-feedback-routes-split-check.mjs",
+          "line": 219,
+          "detail": "activeSprint.sprint?.sprintId ==="
+        },
+        {
+          "path": "scripts/process-app-page-routes-split-check.mjs",
+          "line": 159,
+          "detail": "activeSprint.sprint?.sprintId ==="
+        },
+        {
+          "path": "scripts/process-atom-flow-auto-demotion-check.mjs",
+          "line": 28,
+          "detail": "const SPRINT_ID = 'source-truth-guardrails-2026-05-13"
+        }
+      ],
+      "detector": "dated active-sprint assertion detector",
+      "proposedCard": "SPRINT-CHECK-HISTORICAL-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Acceptable only in explicitly historical closeout or migration checks.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-db-schema-seed-store-monolith",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P0",
+      "type": "refactor_candidate",
+      "title": "Foundation DB mixes schema, seed, stores, and query APIs",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "lib/foundation-db.js",
+          "line": 847,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "FOUNDATION-DB-SCHEMA-SEED-SPLIT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-verify-monolith",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P0",
+      "type": "refactor_candidate",
+      "title": "Foundation verifier is one large execution surface",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 1590,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "FOUNDATION-VERIFY-REGISTRY-SPLIT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/intelligence-action-router-apply.mjs",
+          "line": 5,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-action-route-dedup-staleness-guard-check.mjs",
+          "line": 227,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-action-route-promotion-workflow-check.mjs",
+          "line": 226,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-action-route-review-inbox-check.mjs",
+          "line": 237,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-agent-status-freshness-gate-check.mjs",
+          "line": 227,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-aios-runtime-portability-gate-check.mjs",
+          "line": 261,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-atom-flow-auto-demotion-check.mjs",
+          "line": 158,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-brand-stack-check.mjs",
+          "line": 178,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-build-intel-extraction-check.mjs",
+          "line": 60,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-build-intel-karpathy-llm-kb-preflight-check.mjs",
+          "line": 215,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-build-lane-failure-telemetry-check.mjs",
+          "line": 228,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-build-lane-reliability-sprint-check.mjs",
+          "line": 232,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-code-quality-nightly-audit-check.mjs",
+          "line": 103,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-connector-credential-check.mjs",
+          "line": 111,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-current-sprint-dynamic-truth-check.mjs",
+          "line": 151,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-decision-restricted-queue-check.mjs",
+          "line": 142,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-doc-artifact-bloat-guard-check.mjs",
+          "line": 42,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-drive-access-request-check.mjs",
+          "line": 166,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-extract-run-hardening-check.mjs",
+          "line": 156,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-extract-run-hardening-execution-check.mjs",
+          "line": 69,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-extraction-runtime-readiness-check.mjs",
+          "line": 205,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-extractor-queue-karpathy-kb-video-pack-check.mjs",
+          "line": 197,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-foundation-backlog-done-archive-lazy-load-check.mjs",
+          "line": 211,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-foundation-engineering-fitness-gates-check.mjs",
+          "line": 264,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-foundation-kb-compiler-v1-check.mjs",
+          "line": 244,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-foundation-knowledge-base-compiler-design-check.mjs",
+          "line": 229,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-foundation-lazy-surface-loading-check.mjs",
+          "line": 204,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-foundation-sprint-cadence-check.mjs",
+          "line": 108,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-foundation-sprint-system-check.mjs",
+          "line": 128,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-foundation-ui-complete-check.mjs",
+          "line": 153,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-gstack-build-intel-check.mjs",
+          "line": 90,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-knowledge-base-quality-gate-check.mjs",
+          "line": 229,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-llm-auth-audit-budget-label-clarity-check.mjs",
+          "line": 235,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-llm-auth-audit-check.mjs",
+          "line": 59,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-marketing-source-map-check.mjs",
+          "line": 174,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-meeting-vault-acl-check.mjs",
+          "line": 223,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-meeting-vault-auto-enforcement-check.mjs",
+          "line": 232,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-nightly-deep-audit-upgrade-check.mjs",
+          "line": 82,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-parallel-builder-worktree-protocol-check.mjs",
+          "line": 280,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-per-user-changelog-check.mjs",
+          "line": 145,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-plan-critic-log-check.mjs",
+          "line": 80,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-repair-verifier-sprint-check.mjs",
+          "line": 316,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-research-lane-purge-check.mjs",
+          "line": 54,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-016-marketing-measurement-source-contracts-check.mjs",
+          "line": 214,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-connector-matrix-check.mjs",
+          "line": 63,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-coverage-closeout-check.mjs",
+          "line": 183,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-extraction-coverage-check.mjs",
+          "line": 179,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-extraction-gap-followup-check.mjs",
+          "line": 126,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-hub-routing-matrix-check.mjs",
+          "line": 40,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-atom-flow-repair-check.mjs",
+          "line": 220,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-contract-gap-repair-check.mjs",
+          "line": 239,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-evidence-gap-repair-check.mjs",
+          "line": 230,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-freedom-bhag-atom-flow-repair-check.mjs",
+          "line": 218,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-freedom-bhag-routing-gap-repair-check.mjs",
+          "line": 232,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-freedom-community-atom-flow-repair-check.mjs",
+          "line": 218,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs",
+          "line": 232,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-freedom-engine-atom-flow-repair-check.mjs",
+          "line": 218,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs",
+          "line": 232,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-gap-followup-check.mjs",
+          "line": 255,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-grid-check.mjs",
+          "line": 196,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-missive-routing-gap-repair-check.mjs",
+          "line": 241,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-owners-atom-flow-repair-check.mjs",
+          "line": 218,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-owners-lists-routing-gap-repair-check.mjs",
+          "line": 231,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-owners-routing-gap-repair-check.mjs",
+          "line": 232,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-source-maturity-routing-gap-repair-check.mjs",
+          "line": 237,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-sprint-db-reconcile-check.mjs",
+          "line": 189,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-sprint-stage-gate-check.mjs",
+          "line": 201,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-synthesis-verify-check.mjs",
+          "line": 260,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-system-health-nightly-audit-check.mjs",
+          "line": 73,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-tier-behavioral-completion-check.mjs",
+          "line": 141,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-verification-runs-check.mjs",
+          "line": 173,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "process-check-side-effect-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Process/check path contains write side effects",
+      "whyItMatters": "Nightly audits must not execute scripts that can move backlog, reopen sprints, write reports unexpectedly, or mutate source systems without explicit apply mode.",
+      "refs": [
+        {
+          "path": "scripts/process-verify-gate-tiering-check.mjs",
+          "line": 102,
+          "detail": ""
+        }
+      ],
+      "detector": "process script mutator pattern detector",
+      "proposedCard": "PROCESS-CHECK-READONLY-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Closeout scripts can be expected mutators, but they need explicit apply/confirm boundaries before reuse by nightly audits.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "scheduled-foundation-job-mutation-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P0",
+      "type": "drift_risk",
+      "title": "Scheduled Foundation jobs target scripts with mutation side effects",
+      "whyItMatters": "A scheduled report or verifier lane can reopen old sprints or move backlog state if command targets are not allowlisted.",
+      "refs": [
+        {
+          "path": "scripts/process-verification-runs-check.mjs",
+          "line": 0,
+          "detail": "verification-runs"
+        },
+        {
+          "path": "scripts/process-nightly-deep-audit-upgrade-check.mjs",
+          "line": 0,
+          "detail": "nightly-deep-audit"
+        },
+        {
+          "path": "scripts/process-system-health-nightly-audit-check.mjs",
+          "line": 0,
+          "detail": "system-health-nightly-audit"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 0,
+          "detail": "admin-deal-review-readonly"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 0,
+          "detail": "admin-deal-backlog-review"
+        }
+      ],
+      "detector": "scheduled job command mutator detector",
+      "proposedCard": "FOUNDATION-JOB-MUTATION-ALLOWLIST-001",
+      "proposedOwner": "Foundation Jobs",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "active-vs-historical-verifier-mixing",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Verifier mixes active sprint assertions with historical closeout proof",
+      "whyItMatters": "A current-sprint advancement assertion can pass from a historical closeout unless active and historical helpers are separate.",
+      "refs": [
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3046,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3104,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3106,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4130,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4335,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4416,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4479,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4502,
+          "detail": "activeSprintAtOrPast"
+        }
+      ],
+      "detector": "active versus historical helper detector",
+      "proposedCard": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+      "proposedOwner": "Foundation Verifier",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-client-current-state-monolith",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P1",
+      "type": "refactor_candidate",
+      "title": "Foundation client embeds a large current-state renderer",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "public/foundation.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-hub-route-monolith",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P1",
+      "type": "refactor_candidate",
+      "title": "Foundation Hub route builds many domains in one handler",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "server.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-source-count-baseline",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Source contract count is encoded as an exact baseline",
+      "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+      "refs": [
+        {
+          "path": "lib/foundation-db.js",
+          "line": 2278,
+          "detail": ""
+        }
+      ],
+      "detector": "source-count literal detector",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "proposedOwner": "Source Lifecycle",
+      "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-source-count-baseline",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Source contract count is encoded as an exact baseline",
+      "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 916,
+          "detail": ""
+        }
+      ],
+      "detector": "source-count literal detector",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "proposedOwner": "Source Lifecycle",
+      "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-source-count-baseline",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Source contract count is encoded as an exact baseline",
+      "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+      "refs": [
+        {
+          "path": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+          "line": 187,
+          "detail": ""
+        }
+      ],
+      "detector": "source-count literal detector",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "proposedOwner": "Source Lifecycle",
+      "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "init-foundation-db-seed-mutation-risk",
+      "cardId": "SPRINT-STATE-MUTATION-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Read/report paths can call seed-mutating DB initialization",
+      "whyItMatters": "Read-only audit commands need schema-readiness checks that do not silently sync seed rows.",
+      "refs": [
+        {
+          "path": "lib/foundation-db.js",
+          "line": 847,
+          "detail": ""
+        }
+      ],
+      "detector": "initFoundationDb seed mutation detector",
+      "proposedCard": "DB-SEED-001",
+      "proposedOwner": "Foundation DB",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "admin-deal-policy-date-duplication",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Admin deal-review policy dates are duplicated across runner, job config, and UI",
+      "whyItMatters": "Policy cutoff changes require manual edits across several surfaces unless a source contract owns the dates.",
+      "refs": [
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 956,
+          "detail": "--backlog-since="
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 956,
+          "detail": "2025-06-01"
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 959,
+          "detail": "June 2025"
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 959,
+          "detail": "2026-04-01"
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 960,
+          "detail": "June 2025"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 14,
+          "detail": "DEFAULT_BACKLOG_SINCE"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 14,
+          "detail": "2025-06-01"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 16,
+          "detail": "OPS_BONUS_POLICY_EFFECTIVE_DATE"
+        }
+      ],
+      "detector": "policy-date duplication detector",
+      "proposedCard": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+      "proposedOwner": "Ops Source Truth",
+      "falsePositiveNote": "Durable policy dates are acceptable when source ID, owner, and as-of date are explicit.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "approval-threshold-raw-literal",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Plan Critic 9.8 threshold appears as raw literals",
+      "whyItMatters": "Approval policy can drift when some checks import the registry constant and others hardcode the score.",
+      "refs": [
+        {
+          "path": "lib/foundation-db.js",
+          "line": 925,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 342,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 347,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 486,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/source-lifecycle-completion.js",
+          "line": 682,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/source-lifecycle-completion.js",
+          "line": 682,
+          "detail": "9.8"
+        },
+        {
+          "path": "scripts/process-action-route-dedup-staleness-guard-check.mjs",
+          "line": 231,
+          "detail": "9.8"
+        },
+        {
+          "path": "scripts/process-action-route-promotion-workflow-check.mjs",
+          "line": 230,
+          "detail": "9.8"
+        }
+      ],
+      "detector": "raw approval threshold detector",
+      "proposedCard": "APPROVAL-THRESHOLD-REGISTRY-001",
+      "proposedOwner": "Plan Critic",
+      "falsePositiveNote": "The canonical constant is valid; duplicated raw literals are the risk.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "build-closeout-code-owned-data",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P2",
+      "type": "refactor_candidate",
+      "title": "Build closeout history is code-owned data",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "lib/foundation-build-log.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "BUILD-CLOSEOUT-REGISTRY-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "build-intel-context-search-full-text-risk",
+      "cardId": "FOUNDATION-API-PERF-AUDIT-001",
+      "severity": "P2",
+      "type": "performance_risk",
+      "title": "Build Intel context search can fetch and scan large artifact text",
+      "whyItMatters": "ILIKE filters over title/content and JS excerpt scoring can become a full-table text scan as artifacts grow.",
+      "refs": [
+        {
+          "path": "server.js",
+          "line": 23,
+          "detail": ""
+        },
+        {
+          "path": "lib/foundation-db.js",
+          "line": 1242,
+          "detail": ""
+        }
+      ],
+      "detector": "artifact content search detector",
+      "proposedCard": "BUILD-INTEL-CONTEXT-SEARCH-INDEX-001",
+      "proposedOwner": "Build Intel",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "build-log-request-time-git-and-duplication",
+      "cardId": "FOUNDATION-API-PERF-AUDIT-001",
+      "severity": "P2",
+      "type": "performance_risk",
+      "title": "Build Log shells out to git and returns duplicate group/build payloads",
+      "whyItMatters": "Request-time subprocess work and duplicated serialized build entries can make Recent Work slow as closeout history grows.",
+      "refs": [
+        {
+          "path": "server.js",
+          "line": 338,
+          "detail": ""
+        },
+        {
+          "path": "lib/foundation-build-log.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "request-time git log detector",
+      "proposedCard": "BUILD-LOG-API-CACHE-AND-SLIM-001",
+      "proposedOwner": "Foundation Runtime",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "fixed-build-intel-commit-baseline",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Build Intel commit is pinned as expected truth",
+      "whyItMatters": "A fixed inspected commit is valid snapshot evidence, but it must not be treated as latest Build Intel monitoring truth.",
+      "refs": [
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 20,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 313,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 314,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 324,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 391,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 521,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        }
+      ],
+      "detector": "expected-commit baseline detector",
+      "proposedCard": "BUILD-INTEL-SNAPSHOT-BASELINE-001",
+      "proposedOwner": "Build Intel",
+      "falsePositiveNote": "Valid when labeled inspected snapshot evidence with an as-of date.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-dom-rebuild-risk",
+      "cardId": "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+      "severity": "P2",
+      "type": "performance_risk",
+      "title": "Foundation frontend has heavy DOM rebuild signals",
+      "whyItMatters": "Backlog, source, current-state, and runtime filters can churn large DOM trees on each interaction as card/source counts grow.",
+      "refs": [
+        {
+          "path": "public/foundation.html",
+          "line": 103,
+          "detail": ""
+        },
+        {
+          "path": "public/foundation.html",
+          "line": 1,
+          "detail": "Foundation frontend scripts call document.createElement 1669 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2139 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 73 times, above the 50 aggregate review budget."
+        }
+      ],
+      "detector": "DOM budget snapshot status=review createElement=1669 appendChild=2139 innerHTML=73",
+      "proposedCard": "FOUNDATION-FRONTEND-DOM-BUDGET-001",
+      "proposedOwner": "Foundation Frontend",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    }
+  ],
+  "reviewTargets": [
+    {
+      "file": "scripts/foundation-verify.mjs",
+      "severity": "P0",
+      "reasons": [
+        "over_3k_warn",
+        "verifier_trust_surface"
+      ],
+      "lines": 4974,
+      "bytes": 275299
+    },
+    {
+      "file": "lib/foundation-build-closeout-overnight-records.js",
+      "severity": "P1",
+      "reasons": [
+        "over_3k_warn"
+      ],
+      "lines": 4934,
+      "bytes": 398462
+    },
+    {
+      "file": "lib/foundation-db.js",
+      "severity": "P1",
+      "reasons": [
+        "over_3k_warn",
+        "live_truth_write_boundary"
+      ],
+      "lines": 4742,
+      "bytes": 215692
+    },
+    {
+      "file": "lib/foundation-backlog-seed.js",
+      "severity": "P1",
+      "reasons": [
+        "over_3k_warn"
+      ],
+      "lines": 4652,
+      "bytes": 477958
+    },
+    {
+      "file": "lib/foundation-build-closeout-records.js",
+      "severity": "P1",
+      "reasons": [
+        "over_3k_warn"
+      ],
+      "lines": 4334,
+      "bytes": 297869
+    },
+    {
+      "file": "server.js",
+      "severity": "P1",
+      "reasons": [
+        "over_3k_warn",
+        "hot_route_surface"
+      ],
+      "lines": 3884,
+      "bytes": 135264
+    },
+    {
+      "file": "public/foundation.js",
+      "severity": "P1",
+      "reasons": [
+        "frontend_route_cache_surface"
+      ],
+      "lines": 2998,
+      "bytes": 113609
+    },
+    {
+      "file": "lib/connector-uptime-monitor.js",
+      "severity": "P1",
+      "reasons": [
+        "source_health_surface"
+      ],
+      "lines": 1063,
+      "bytes": 42053
+    },
+    {
+      "file": "lib/kpi-health.js",
+      "severity": "P1",
+      "reasons": [
+        "source_health_surface"
+      ],
+      "lines": 1045,
+      "bytes": 38564
+    },
+    {
+      "file": "lib/foundation-build-closeout-source-records.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "source_health_surface"
+      ],
+      "lines": 919,
+      "bytes": 76748
+    },
+    {
+      "file": "scripts/process-source-maturity-missive-routing-gap-repair-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface",
+        "source_health_surface"
+      ],
+      "lines": 846,
+      "bytes": 38611
+    },
+    {
+      "file": "scripts/process-source-maturity-routing-gap-repair-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface",
+        "source_health_surface"
+      ],
+      "lines": 836,
+      "bytes": 36784
+    },
+    {
+      "file": "lib/source-lifecycle-completion.js",
+      "severity": "P1",
+      "reasons": [
+        "source_health_surface"
+      ],
+      "lines": 707,
+      "bytes": 36117
+    },
+    {
+      "file": "scripts/process-repair-verifier-sprint-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 677,
+      "bytes": 33008
+    },
+    {
+      "file": "scripts/process-source-maturity-owners-routing-gap-repair-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "process_check_surface",
+        "source_health_surface"
+      ],
+      "lines": 597,
+      "bytes": 30643
+    },
+    {
+      "file": "scripts/process-source-maturity-freedom-bhag-routing-gap-repair-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface",
+        "source_health_surface"
+      ],
+      "lines": 597,
+      "bytes": 31187
+    },
+    {
+      "file": "scripts/process-source-maturity-freedom-community-routing-gap-repair-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface",
+        "source_health_surface"
+      ],
+      "lines": 597,
+      "bytes": 31867
+    },
+    {
+      "file": "scripts/process-source-maturity-freedom-engine-routing-gap-repair-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface",
+        "source_health_surface"
+      ],
+      "lines": 597,
+      "bytes": 31459
+    }
+  ],
+  "diff": {
+    "previousReportPath": "docs/handoffs/nightly-deep-audit-2026-05-17.json",
+    "newFindingIds": [],
+    "resolvedFindingIds": [],
+    "stillOpenFindingIds": [
+      "focused-check-active-sprint-id-assumption",
+      "foundation-db-schema-seed-store-monolith",
+      "foundation-verify-monolith",
+      "process-check-side-effect-risk",
+      "scheduled-foundation-job-mutation-risk",
+      "active-vs-historical-verifier-mixing",
+      "foundation-client-current-state-monolith",
+      "foundation-hub-route-monolith",
+      "hardcoded-source-count-baseline",
+      "init-foundation-db-seed-mutation-risk",
+      "admin-deal-policy-date-duplication",
+      "approval-threshold-raw-literal",
+      "build-closeout-code-owned-data",
+      "build-intel-context-search-full-text-risk",
+      "build-log-request-time-git-and-duplication",
+      "fixed-build-intel-commit-baseline",
+      "foundation-dom-rebuild-risk"
+    ],
+    "trend": {
+      "currentFindingCount": 17,
+      "previousFindingCount": 17,
+      "delta": 0
+    }
+  },
+  "llmReview": {
+    "mode": "approved_route_available_for_bounded_review",
+    "executedThisRun": false,
+    "route": {
+      "runnable": true,
+      "selectedRoute": "foundation-synthesis-openclaw-chatgpt",
+      "provider": "openclaw",
+      "model": "openai-codex/gpt-5.4",
+      "blockReason": null,
+      "routeReadiness": [
+        {
+          "routeKey": "foundation-synthesis-openclaw-chatgpt",
+          "credentialKey": "openclaw-chatgpt-pro",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "allowed",
+          "runnable": true,
+          "blockReason": null
+        },
+        {
+          "routeKey": "foundation-synthesis-claude-code",
+          "credentialKey": "claude-code-local-max",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "experimental",
+          "runnable": false,
+          "blockReason": "route status is probe_required"
+        },
+        {
+          "routeKey": "foundation-synthesis-claude-oauth",
+          "credentialKey": "claude-code-oauth-token",
+          "credentialStatus": "missing",
+          "credentialPolicyClassification": "experimental",
+          "runnable": false,
+          "blockReason": "route status is blocked"
+        },
+        {
+          "routeKey": "foundation-synthesis-anthropic-api",
+          "credentialKey": "anthropic-api-default",
+          "credentialStatus": "missing",
+          "credentialPolicyClassification": "api_fallback",
+          "runnable": false,
+          "blockReason": "route status is blocked"
+        },
+        {
+          "routeKey": "foundation-synthesis-openai-api",
+          "credentialKey": "openai-api-default",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "api_fallback",
+          "runnable": true,
+          "blockReason": null
+        }
+      ]
+    },
+    "note": "An approved route is available; V1 still records packets by default unless an explicit live LLM review mode is enabled."
+  },
+  "knownFailureDogfood": {
+    "ok": true,
+    "slowEndpoint": {
+      "status": "risk",
+      "severity": "P1",
+      "reason": "Latency 70244ms exceeds 2000ms budget."
+    },
+    "selfRepairCount": 1,
+    "writeCapableCheckCount": 1,
+    "hardcodedTruthCount": 2,
+    "monolith": {
+      "file": "lib/foundation-db.js",
+      "reasons": [
+        "actively_dangerous_10k_plus_file",
+        "live_truth_write_boundary"
+      ],
+      "severity": "P0"
+    }
+  },
+  "docArtifactBloat": {
+    "status": "watch",
+    "summary": {
+      "artifactCount": 1073,
+      "handoffFileCount": 262,
+      "handoffLineTotal": 22187,
+      "recentHandoffFileCount": 261,
+      "nightlyArtifactCount": 10,
+      "riskCount": 0,
+      "reviewCount": 2
+    },
+    "topFindings": [
+      {
+        "id": "doc_artifact_handoff_directory_line_budget",
+        "severity": "P1",
+        "status": "watch",
+        "title": "docs/handoffs is growing past the hot-doc budget",
+        "detail": "docs/handoffs contains 22187 line(s); budget is 20000/35000 warn/risk.",
+        "nextAction": "Archive cold detail or replace repeated large reports with monthly summaries.",
+        "path": "docs/handoffs",
+        "className": "handoff_directory",
+        "budgetKey": "totalLines",
+        "value": 22187,
+        "budget": {
+          "warn": 20000,
+          "risk": 35000
+        },
+        "autoFix": false,
+        "autoBacklogMutation": false
+      },
+      {
+        "id": "doc_artifact_handoff_monthly_file_budget",
+        "severity": "P1",
+        "status": "watch",
+        "title": "docs/handoffs is accumulating too many hot files",
+        "detail": "docs/handoffs has 261 file(s) modified in the last 31 days; budget is 220/320.",
+        "nextAction": "Roll old handoffs into a monthly closeout summary and keep only current working handoffs hot.",
+        "path": "docs/handoffs",
+        "className": "handoff_directory",
+        "budgetKey": "recentFileCount",
+        "value": 261,
+        "budget": {
+          "warn": 220,
+          "risk": 320
+        },
+        "autoFix": false,
+        "autoBacklogMutation": false
+      }
+    ]
+  }
+}
