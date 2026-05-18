@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.128 - Verified source routing repair closed
-Status: Continue safe Foundation source-maturity/source-contract queue
+Version: v6.129 - Build Intel creator watchlist expansion closed
+Status: Continue safe Foundation Build Intel/source-auth queue
 
 Use this doc for one question:
 
@@ -16,15 +16,15 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SOURCE-MATURITY-VERIFIED-ROUTING-GAP-REPAIR-001` is closed.
+`BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001` is closed.
 
-Closeout: `source-maturity-verified-routing-gap-repair-v1`.
+Closeout: `build-intel-creator-watchlist-expansion-v1`.
 
-Scope shipped: created bounded retrieval chunks from existing accepted atoms for `SRC-CLICKUP-001`, `SRC-GDOCS-001`, `SRC-GSHEETS-001`, `SRC-DATAFORSEO-001`, `SRC-GHL-001`, and `SRC-META-001`, then created approval-required pending internal owner-decision action routes. These verified/readable sources move off the routed-stage maturity gap while leaving route promotion/apply, connector runtime, and governed external writes as separate approval lanes.
+Scope shipped: expanded the canonical Build Intel creator watchlist under `SRC-CREATOR-WATCHLIST-001` with lookup-backed source refs for Dream Labs AI, Nate Herk, Chase AI, Everyday AI / Jordan Wilson, Mark Kashef, Matt Pocock / Total TypeScript, Andrej Karpathy, Aaron Bitwise, and OpenHuman / tinyhumansai. The expansion records source URLs, source type, public/private/auth posture, priority, cadence, and no-extraction proof.
 
-Not next: live extraction, auth-required or paid runs, connector live calls, provider/model calls, Google Docs/Sheets reads or writes, Supabase queries, Meta/GHL/DataForSEO/ClickUp calls, external writes, route apply, destination record creation, Drive permission mutation, Agent Feedback auto-send, OAuth work, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+Not next: live extraction, source crawling, transcript fetches, screenshots/keyframes, summarization, model calls, paid/private/community/course auth, Research Inbox writes, atom creation, backlog mutation from extracted content, OpenHuman install/runtime integration, Harlan UI/runtime work, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, or parallel builders.
 
-Next: continue the safe source maturity/source-contract queue from live truth. Prefer source maturity gaps that can be repaired from existing DB facts/atoms without live source reads; otherwise mark blocked/pending instead of inventing evidence, routes, or extraction.
+Next: continue `COURSE-SOURCE-AUTH-BOUNDARY-001` before any private, paid, Skool, MyICOR, Loom, or course extraction. If repo truth surfaces a higher P0 safety blocker, handle that first and leave private/source-auth extraction blocked.
 
 ## Plan History
 

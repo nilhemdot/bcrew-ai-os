@@ -1,0 +1,23 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T21:00:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001 after the Harlan operator loop, with explicit instruction to avoid live extraction, private auth, paid access, external writes, and hidden workers unless separately approved.",
+  "scopeSummary": "Expand the Build Intel creator watchlist with lookup-backed source refs, source IDs/URLs, public/private/auth posture, priority, cadence, focused dogfood, verifier coverage, and no crawl/extraction/model/paid-auth/output side effects.",
+  "approvedPlanRef": "docs/process/build-intel-creator-watchlist-expansion-001-plan.md",
+  "approvedPlanSha256": "54f47b6a78efa6fdacf837dc2d21c6070e587e652596000763498d8f13fccc2b",
+  "approvedRepoHead": "b64aecf20bba599e198ce62a2dec5b7629107206",
+  "notApproved": [
+    "Do not run live extraction.",
+    "Do not crawl sources, fetch transcripts, capture screenshots/keyframes, summarize videos, or call a model.",
+    "Do not use paid/private/community/course auth.",
+    "Do not write Research Inbox items, create atoms, or mutate backlog from extracted content.",
+    "Do not install, run, or integrate OpenHuman.",
+    "Do not launch Harlan runtime, UI, voice/avatar, or external writes.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, or Agent Feedback.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "cef16eaa824d2ed0bf0a5cc831e7e99c2d3cfb927ac05a9225763f55d20e4702"
+}
