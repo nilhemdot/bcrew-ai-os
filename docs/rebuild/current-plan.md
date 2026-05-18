@@ -411,6 +411,20 @@ Not next from this closeout: live extraction, transcript fetches, screenshots, c
 
 Next: continue safe Foundation-up work from repo truth. Prefer no-auth source/connector completion, source-contract/extraction-readiness gaps, or safe Foundation cleanup if connector/source work needs Steve approval.
 
+## Previous Sprint: Personal Agent Onboarding Contract
+
+Live sprint ID: `agent-010-personal-agent-onboarding-2026-05-18`.
+
+This sprint is complete under `personal-agent-onboarding-contract-v1`. It defines the Foundation personal-agent onboarding contract for Harlan and future human assistants without launching runtime work.
+
+Completed card:
+
+1. `AGENT-010` - done under `personal-agent-onboarding-contract-v1`. Scope was contract/proof only: private profile schema, privacy tiers, first useful source-backed read, calibration interview, daily nugget policy, feedback/non-response loop, allowed read-only source lookups, and profile update rules. Dogfood rejects missing profile schema, repo-stored private profile values, raw private values, thin calibration, daily nugget spam, repeated non-response nudges, unsafe source lookups, runtime launch, live extraction, provider/model calls, external writes, and hidden subagents.
+
+Not next from this closeout: Harlan UI or feature work, live agent runtime launch, private profile storage runtime, live extraction, provider/model calls, external sends, external writes, Drive permission mutation, Agent Feedback auto-send, copying raw private profile values, team-agent rollout, hidden subagents, or parallel builders.
+
+Recommended next: `ROLE-ASSISTANT-CONTRACTS-001`.
+
 ## Previous Sprint: Old-System Agent Onboarding Harvest
 
 Live sprint ID: `old-system-agent-onboarding-harvest-2026-05-18`.

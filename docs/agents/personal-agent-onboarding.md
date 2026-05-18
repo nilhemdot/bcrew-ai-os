@@ -1,12 +1,12 @@
 # Personal Agent Onboarding
 
-Status: Scoped system doctrine
-Last reviewed: 2026-04-26
+Status: Contract v1
+Last reviewed: 2026-05-18
 Primary backlog: `AGENT-010`
 
 This page defines the onboarding standard for any real human who gets a personal agent.
 
-It is not the live implementation yet.
+It is not the live implementation yet. `AGENT-010` defines the governed contract that later Harlan/team-agent runtime work must satisfy.
 
 ## Why This Exists
 
@@ -28,7 +28,31 @@ The old BCrew-Buddy system had a serious bot-onboarding and coaching plan at:
 
 - `~/bcrew-buddy-reference/docs/plans/bot-onboarding-coaching-plan.md`
 
-That plan is evidence, not active doctrine by itself. `AGENT-010` owns recovering the useful parts and rebuilding them in the new Foundation-first model.
+That plan is evidence, not active doctrine by itself. The promoted harvest is `OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001` under `old-system-agent-onboarding-harvest-v1`.
+
+## Contract V1
+
+Closeout: `personal-agent-onboarding-contract-v1`
+
+The onboarding contract requires:
+
+- private profile schema with no raw private values in repo truth
+- one useful source-backed read before setup or feature explanation
+- short calibration interview
+- feedback loop after first useful interactions
+- one daily nugget maximum
+- mute, cadence, and redirect controls
+- source-backed business claims
+- visible pause/adoption-risk state when the human does not engage
+- approval before sends, writes, live extraction, provider/model calls, or Drive mutation
+
+This contract depends on:
+
+- `foundation-agent-usefulness-runtime-gates-v1`
+- `agent-live-answer-preflight-gate-v1`
+- `agent-capability-registry-v1`
+- `agent-template-runtime-contract-v1`
+- `old-system-agent-onboarding-harvest-v1`
 
 ## Personal Profile Direction
 
@@ -40,16 +64,19 @@ The shared system can define the schema and update rules, but the actual private
 
 The profile should eventually include:
 
-- what the person is responsible for
-- current business goals
-- personal goals the person has chosen to share
-- family or life context the person has chosen to share
-- preferences for tone, timing, reminders, and escalation
-- systems the agent may read
-- systems the agent may write to only after approval
-- subjects the agent should avoid or treat as sensitive
+- core responsibilities
+- Attract/Grow/Retain connection
+- trusted systems checked
+- information friction
+- preferred morning value
+- role-specific challenge
+- communication preference
+- privacy and memory scope
+- cadence preference
 - examples of useful help
 - examples of bad or annoying help
+
+Repo truth may contain field names, policy, examples, and proof. Actual profile values belong in a private profile store, not this repo.
 
 ## Onboarding Loop
 
@@ -66,6 +93,16 @@ The agent should:
 
 The old system lesson is clear: users do not adopt assistants because they read a long feature list. They adopt when the assistant adapts to them and makes the next useful thing obvious.
 
+Minimum calibration questions:
+
+1. What are your top 3-5 core responsibilities?
+2. How does your work connect to Attract, Grow, and Retain?
+3. What tools and systems do you check most, and what info do you burn time finding?
+4. What would be most useful to get every morning without asking?
+5. What is your role-specific coaching or visibility challenge right now?
+6. How do you prefer updates: short message, email summary, or voice note?
+7. What should this agent remember, avoid, or ask before using?
+
 ## Daily Nugget Loop
 
 Every personal agent should eventually be able to send one small useful nugget per day.
@@ -81,6 +118,7 @@ Rules:
 - personal-context aware only when the human has explicitly shared that context
 - easy to mute, change cadence, or redirect
 - feedback should update the profile and future suggestions
+- external sends are disabled by default and require explicit approval
 
 ## Harlan Pilot
 
@@ -95,6 +133,8 @@ Before broad assistant rollout, Harlan needs:
 - explicit project reach through the project registry
 - clear privacy and approval boundaries
 - evidence that his suggestions improve Steve's work instead of adding noise
+
+`AGENT-010` does not launch Harlan. It gives later Harlan runtime work the contract and proof it must obey.
 
 ## Future Team Agents
 

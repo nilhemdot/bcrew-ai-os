@@ -1,0 +1,27 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AGENT-010",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T19:45:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve priority queue continued into AGENT-010 after OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001 shipped.",
+  "scopeSummary": "Build the Foundation personal-agent onboarding contract/proof: private profile schema, privacy tiers, first useful source-backed read, calibration interview, daily nugget rules, feedback/non-response loop, read-only source lookups, and update rules. No Harlan implementation, live runtime launch, live extraction, model/provider calls, external writes, sends, Drive mutation, team rollout, raw private profile values in repo truth, or hidden subagents.",
+  "approvedPlanRef": "docs/process/agent-010-personal-agent-onboarding-contract-plan.md",
+  "approvedPlanSha256": "be4d7bf5d766448a0798c6a9b70526635073d3eb81466e77e42df474e8b8dee5",
+  "approvedRepoHead": "3c80dd3d898555a146117f6185f2725cbed6b907",
+  "notApproved": [
+    "Do not build Harlan UI or feature work.",
+    "Do not launch live agent runtime work.",
+    "Do not run live extraction.",
+    "Do not call providers or models.",
+    "Do not send Gmail, ClickUp, Drive, Slack, Telegram, or Agent Feedback mutations.",
+    "Do not mutate Google Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B or historical Meeting Vault cleanup.",
+    "Do not send request-access emails.",
+    "Do not build private profile storage runtime in this card.",
+    "Do not send daily nuggets or roll out team assistants.",
+    "Do not copy raw private profile values into repo truth.",
+    "Do not launch hidden subagents or parallel builders."
+  ],
+  "approvalDigest": "9ac45bf5bccf3e894ffe405bb33c0de827e8dd4cc18b98c4c82eb7b82aaa6c51"
+}
