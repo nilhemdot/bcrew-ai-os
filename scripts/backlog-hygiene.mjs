@@ -11,6 +11,9 @@ import {
   getFoundationSnapshot,
 } from '../lib/foundation-db.js'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
+import {
+  recordBuildLaneFailureEventsFromChecks,
+} from '../lib/build-lane-failure-telemetry.js'
 
 function parseArgs(argv) {
   const result = {}
@@ -85,6 +88,18 @@ async function main() {
     },
   })
   printSnapshot(snapshot)
+  if ((snapshot.summary?.criticalFindings || 0) > 0 || snapshot.summary?.status === 'critical') {
+    try {
+      recordBuildLaneFailureEventsFromChecks({
+        checks: (snapshot.visibleFindings || []).map(finding => ({
+          ok: false,
+          check: `backlog hygiene ${finding.type || finding.issue || 'finding'}`,
+          detail: `${finding.cardId || 'unknown'}: ${finding.issue || finding.evidence || ''}`,
+        })),
+        command: 'backlog:hygiene',
+      })
+    } catch {}
+  }
 }
 
 main()

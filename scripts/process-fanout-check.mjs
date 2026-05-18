@@ -8,6 +8,9 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
+  recordBuildLaneFailureEventsFromChecks,
+} from '../lib/build-lane-failure-telemetry.js'
+import {
   assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
   getFoundationSnapshot,
@@ -244,7 +247,18 @@ async function main() {
   const failed = checks.filter(check => !check.ok)
   console.log('')
   console.log(`Summary: ${checks.length - failed.length}/${checks.length} checks passed`)
-  if (failed.length) process.exitCode = 1
+  if (failed.length) {
+    try {
+      recordBuildLaneFailureEventsFromChecks({
+        repoRoot,
+        checks,
+        command: 'process:fanout-check',
+        cardId,
+        closeoutKey,
+      })
+    } catch {}
+    process.exitCode = 1
+  }
 }
 
 main()

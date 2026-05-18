@@ -946,6 +946,13 @@ function renderFoundationSystemHealthPanel(foundationSystemHealth) {
       detail: (summary.endpointRiskCount || 0) + ' risk and ' + (summary.endpointReviewCount || 0) + ' review endpoint-budget findings.',
     },
     {
+      label: 'Build lane failures',
+      status: (summary.buildLaneFailureRedCount || 0) ? 'risk' : ((summary.buildLaneFailureYellowCount || 0) ? 'pending' : 'live'),
+      detail: (summary.buildLaneFailureRedCount || 0) + ' red, '
+        + (summary.buildLaneFailureYellowCount || 0) + ' yellow repeated failure fingerprints across '
+        + (summary.buildLaneFailureEventCount7d || 0) + ' recorded build-lane failures in 7 days.',
+    },
+    {
       label: 'Connectors',
       status: (summary.connectorDownCount || 0) ? 'risk' : ((summary.connectorDegradedCount || 0) ? 'pending' : 'live'),
       detail: (summary.connectorDownCount || 0) + ' down and ' + (summary.connectorDegradedCount || 0) + ' degraded connector groups.',

@@ -8,6 +8,9 @@ import {
   formatFoundationGateRetryMessage,
   sleep,
 } from '../lib/foundation-gate-reliability.js'
+import {
+  recordBuildLaneFailureEventsFromError,
+} from '../lib/build-lane-failure-telemetry.js'
 import { recordFoundationShipProof } from '../lib/process-git-hooks.js'
 
 const execFile = promisify(execFileCallback)
@@ -99,6 +102,7 @@ async function runStep(label, npmArgs, options = {}) {
       error.stderr = stderrBuffer
       error.durationMs = Date.now() - startedAt
       error.attempts = attempt
+      error.stepLabel = label
       throw error
     }
   }
@@ -151,6 +155,7 @@ async function runRuntimeRestartStep(options = {}) {
       error.stderr = stderr + (error?.stderr || '')
       error.durationMs = Date.now() - startedAt
       error.attempts = 1
+      error.stepLabel = 'runtime restart'
       throw error
     }
   }
@@ -346,7 +351,19 @@ async function main() {
   console.log('Foundation ship gate passed.')
 }
 
-main().catch(error => {
+main().catch(async error => {
+  const args = parseArgs(process.argv.slice(2))
+  try {
+    recordBuildLaneFailureEventsFromError({
+      repoRoot: process.cwd(),
+      error,
+      command: error?.stepLabel || 'process:foundation-ship',
+      parentCommand: 'process:foundation-ship',
+      cardId: normalize(args.card),
+      sprintId: normalize(args.sprintId),
+      closeoutKey: normalize(args.closeoutKey),
+    })
+  } catch {}
   console.error('')
   console.error('Foundation ship gate failed.')
   if (error?.stdout) process.stdout.write(error.stdout)

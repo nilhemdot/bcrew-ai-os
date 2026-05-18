@@ -8,6 +8,9 @@ import { promisify } from 'node:util'
 import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import {
+  recordBuildLaneFailureEventsFromChecks,
+} from '../lib/build-lane-failure-telemetry.js'
+import {
   assertFoundationDbReadyForReadOnlyGate,
   closeFoundationDb,
   getFoundationSnapshot,
@@ -175,11 +178,29 @@ async function main() {
   const failed = checks.filter(check => !check.ok)
   console.log('')
   console.log(`Summary: ${checks.length - failed.length}/${checks.length} checks passed`)
-  if (failed.length) process.exitCode = 1
+  if (failed.length) {
+    try {
+      recordBuildLaneFailureEventsFromChecks({
+        repoRoot,
+        checks,
+        command: 'process:ship-check',
+        cardId,
+        closeoutKey,
+      })
+    } catch {}
+    process.exitCode = 1
+  }
 }
 
 main()
   .catch(error => {
+    try {
+      recordBuildLaneFailureEventsFromChecks({
+        repoRoot,
+        checks: [{ ok: false, check: 'process:ship-check failed before checks completed', detail: error instanceof Error ? error.message : String(error) }],
+        command: 'process:ship-check',
+      })
+    } catch {}
     console.error('Process ship check failed.')
     console.error(error instanceof Error ? error.message : String(error))
     process.exitCode = 1

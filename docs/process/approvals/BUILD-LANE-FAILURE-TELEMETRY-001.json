@@ -1,0 +1,23 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-LANE-FAILURE-TELEMETRY-001",
+  "approvedPlanRef": "docs/process/build-lane-failure-telemetry-001-plan.md",
+  "approvedPlanSha256": "3893b8492e6c30c054401f62db204ed68778fc5e7bd3a00c33bd5b00410a044b",
+  "approvedRepoHead": "595fe57974df8d9238f1f587cd0075512e88fbc2",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T03:30:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve explicitly injected BUILD-LANE-FAILURE-TELEMETRY-001 as P0 after repeated proof/verifier/ship failures wasted time, and approved overnight Foundation process work with no live extraction, auth-required or paid runs, external writes, Drive permission mutation, Agent Feedback auto-send, or Harlan/Fal/voice/Canva/OpenHuman feature work.",
+  "scopeSummary": "Create local Foundation build-lane failure telemetry that fingerprints failed checks, counts repeats over 24h/7d, surfaces repeated failures in System Health, and routes red repeats toward repair without weakening any verifier.",
+  "constraints": [
+    "No live extraction.",
+    "No transcript fetch, screenshot capture, crawl, summarization, or model call.",
+    "No auth-required or paid run.",
+    "No external writes.",
+    "No Google Drive permission mutation.",
+    "No live Agent Feedback auto-send.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work.",
+    "Do not weaken, skip, bypass, or demote verifier failures."
+  ],
+  "approvalDigest": "ddd76deb023d3a96e86c8a6622637f2f14d1ee1065870ee0abd9c5d8438cf9a5"
+}
