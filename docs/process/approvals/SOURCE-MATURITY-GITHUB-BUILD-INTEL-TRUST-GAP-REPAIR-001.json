@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-GITHUB-BUILD-INTEL-TRUST-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T12:05:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-github-build-intel-trust-gap-repair-001-plan.md",
+  "approvedPlanSha256": "d170bf14e173617f0280ef4e75566863cf3d37a366a894ca3986842451a8be68",
+  "approvedRepoHead": "487b108a2e46f7c8f131e34d1adf636627840967",
+  "notes": "Approved for bounded GitHub Build Intel source maturity trust-gap repair by locking SRC-GITHUB-BUILD-INTEL-001 as a public read-only, proposal-only Source Boundary Locked contract. Not approved: live GitHub calls, repo clone/scrape/install/code import, extraction, atoms, action routes, provider/model calls, automatic backlog mutation, auth-required or paid runs, external writes, Drive permission mutation, Meeting Vault Phase B, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.",
+  "approvalDigest": "465d1265b37690598a9b064271af5e1f9e7c587af8f619734e295a100dc778dd"
+}

@@ -2,6 +2,7 @@
 
 Source ID: `SRC-GITHUB-BUILD-INTEL-001`  
 Status: Active Read-Only V1
+Trust Boundary: Source Boundary Locked
 Owner: Steve  
 Created: 2026-05-13
 
@@ -35,6 +36,10 @@ It belongs in Build Intel, not marketing content production.
 - No copying credentials, local machine state, or private repo data.
 - No automatic backlog mutation from extracted findings.
 - No autonomous development from public repo content.
+
+## Trust Boundary Repair
+
+`SOURCE-MATURITY-GITHUB-BUILD-INTEL-TRUST-GAP-REPAIR-001` locks the V1 trust boundary as public read-only and proposal-only. It does not run live GitHub extraction, clone repositories, import code, create atoms, create action routes, or mutate backlog automatically.
 
 ## First Extraction Packet
 
