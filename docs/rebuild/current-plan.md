@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.124 - Freedom Sheet routing repair closed
+Version: v6.125 - Verified source monitoring repair closed
 Status: Continue safe Foundation source-maturity/source-contract queue
 
 Use this doc for one question:
@@ -16,13 +16,13 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`SOURCE-MATURITY-FREEDOM-SHEET-ROUTING-GAP-REPAIR-001` is closed.
+`SOURCE-MATURITY-VERIFIED-MONITORING-GAP-REPAIR-001` is closed.
 
-Closeout: `source-maturity-freedom-sheet-routing-gap-repair-v1`.
+Closeout: `source-maturity-verified-monitoring-gap-repair-v1`.
 
-Scope shipped: created bounded retrieval chunks from the existing accepted Freedom Sheet atoms for `SRC-FREEDOM-TEAM-001` and `SRC-FREEDOM-COMMUNITY-REV-001`, then created approval-required pending internal owner-decision action routes. Both signed-off Freedom Sheet sources moved off the routed-stage maturity gap without live extraction, Sheets reads/writes, Drive mutation, external writes, route apply, destination record creation, or provider calls.
+Scope shipped: added explicit manual/on-demand monitoring boundaries for `SRC-CLICKUP-001`, `SRC-GDOCS-001`, `SRC-GSHEETS-001`, `SRC-DATAFORSEO-001`, `SRC-GHL-001`, `SRC-META-001`, and `SRC-SUPABASE-001`. These verified/readable sources move off the monitored-stage maturity gap while leaving extraction, atom-flow, routing, connector runtime, and governed apply as separate proof lanes.
 
-Not next: live extraction, auth-required or paid runs, Google Sheets read/write, external writes, route apply, destination record creation, Drive permission mutation, Agent Feedback auto-send, connector/OAuth work, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
+Not next: live extraction, auth-required or paid runs, connector live calls, provider/model calls, Google Docs/Sheets reads or writes, Supabase queries, Meta/GHL/DataForSEO/ClickUp calls, external writes, route apply, destination record creation, Drive permission mutation, Agent Feedback auto-send, OAuth work, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.
 
 Next: continue the safe source maturity/source-contract queue from live truth. Prefer repairs only where existing source-backed evidence is sufficient; otherwise mark blocked/pending instead of inventing facts, atoms, or routes.
 

@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-VERIFIED-MONITORING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T10:39:34.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-verified-monitoring-gap-repair-001-plan.md",
+  "approvedPlanSha256": "116c96061fda3e8bc1b095813f537dc39da2c7644fe0ca6123f69f42fcc958b8",
+  "approvedRepoHead": "349b20b2fbce80657f6a298cab432b85e33692a8",
+  "notes": "Approved for bounded verified-source monitoring-gap repair using existing source contracts only. Not approved: live extraction, extraction target creation, connector live calls, provider/model calls, auth repair, paid runs, external writes, Drive permission mutation, raw Drive/Docs exposure, ClickUp/GHL/Meta/DataForSEO/Supabase/Google Docs/Google Sheets live calls, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or marking extraction/atom/synthesis/routing/apply complete.",
+  "approvalDigest": "9c5fd6061176c9c7004d0930622bbb271e8e5d28b1d3cf78ecb87b3db80d4e67"
+}

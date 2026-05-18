@@ -139,6 +139,7 @@
     "process:source-maturity-freedom-team-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-team-monitoring-gap-repair-check.mjs",
     "process:source-maturity-freedom-community-rev-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-freedom-community-rev-monitoring-gap-repair-check.mjs",
     "process:source-maturity-strategy-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-strategy-monitoring-gap-repair-check.mjs",
+    "process:source-maturity-verified-monitoring-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-verified-monitoring-gap-repair-check.mjs",
     "process:source-maturity-strategy-atom-flow-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-strategy-atom-flow-repair-check.mjs",
     "process:source-maturity-strategy-routing-gap-repair-check": "node --env-file-if-exists=.env scripts/process-source-maturity-strategy-routing-gap-repair-check.mjs",
     "process:source-maturity-gap-followup-check": "node --env-file-if-exists=.env scripts/process-source-maturity-gap-followup-check.mjs",
