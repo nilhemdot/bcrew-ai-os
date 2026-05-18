@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DB-SCHEMA-SEED-SPLIT-001",
+  "approvedPlanRef": "docs/process/foundation-db-schema-seed-split-001-plan.md",
+  "approvedPlanSha256": "b7329d5368ac30dcca9b07e6c0fd4d21f7f686d864aafaf143e6c302bbfc73b8",
+  "approvedRepoHead": "4dadcc340cfbc55b07e868902606ad2e47e2aa69",
+  "approvedBy": "Steve May 18 Foundation direct-builder queue approval + Codex senior-engineer main-session plan review",
+  "approvedAt": "2026-05-18T14:24:49.136Z",
+  "score": 10,
+  "notes": "Approved bounded Foundation DB schema/seed initializer split. Scope: move initFoundationDb schema/bootstrap implementation into a dedicated module, keep lib/foundation-db.js public exports as delegates, prove real init does not rewrite watched live truth rows, and remove the stale nightly audit DB monolith finding. Not approved: broad DB rewrite, schema semantic changes, seed auto-sync, source extraction, hub feature work, Canva/Fal/Harlan, paid-source auth, Meeting Vault Phase B, or Drive permission mutation.",
+  "approvalDigest": "70217e9a73f7f5f588cfb55936cbb90f043558e069570ad6521b10c14d9b19a0"
+}

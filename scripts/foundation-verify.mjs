@@ -2653,6 +2653,7 @@ async function main() {
   const actionReviewApproval = JSON.parse(actionReviewApprovalSource)
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
+  const foundationDbSchemaSeedStoreSource = await readRepoFile('lib/foundation-db-schema-seed-store.js')
   const sourceCrawlStoreOwnershipSource = `${foundationDbSource}\n${foundationSourceCrawlStoreSource}`
   const driveMeetingVaultStoreOwnershipSource = `${foundationDbSource}\n${foundationDriveMeetingVaultStoreSource}`
   const agentFeedbackStoreOwnershipSource = `${foundationDbSource}\n${foundationAgentFeedbackStoreSource}`
@@ -4507,6 +4508,7 @@ async function main() {
     foundationCurrentSprintVerifierSource,
     foundationDailySummary,
     foundationDbSource,
+    foundationDbSchemaSeedStoreSource,
     foundationDbSplitVerifierSource,
     foundationDecisionStorePlanSource,
     foundationDecisionStoreScriptSource,
@@ -4838,7 +4840,7 @@ async function main() {
     baseUrl, buildLogRegistryAssuranceVerifier, currentPlan, currentState, currentSprintStoreSource,
     findBuildLogCloseoutEntry, foundationBacklogSeedSource, foundationBacklogStoreSource,
     foundationBuildCloseoutCleanupRecordsSource, foundationBuildCloseoutRecordsSource,
-    foundationBuildCloseouts, foundationBuildLogRegistrySource, foundationDbSource, foundationHub,
+    foundationBuildCloseouts, foundationBuildLogRegistrySource, foundationDbSource, foundationDbSchemaSeedStoreSource, foundationHub,
     foundationHubKpiHealth, foundationHubPerformanceVerificationSource, foundationJobsSource,
     foundationProcessHardeningVerifierSource, foundationVerificationCleanupCloseout,
     foundationVerifyProcessHardeningRunnerSource,

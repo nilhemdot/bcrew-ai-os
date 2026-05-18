@@ -6,6 +6,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   FOUNDATION_CORE_SEED_SPLIT_APPROVAL_PATH,
   FOUNDATION_CORE_SEED_SPLIT_BEFORE_LINES,
@@ -72,12 +73,14 @@ async function main() {
   const [
     coreSeedSource,
     foundationDbSource,
+    schemaSeedSource,
     scriptSource,
     planSource,
     packageSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-core-seed.js'),
     readRepoFile('lib/foundation-db.js'),
+    readRepoFile('lib/foundation-db-schema-seed-store.js'),
     readRepoFile(FOUNDATION_CORE_SEED_SPLIT_SCRIPT_PATH),
     readRepoFile(FOUNDATION_CORE_SEED_SPLIT_PLAN_PATH),
     readRepoFile('package.json'),
@@ -95,9 +98,15 @@ async function main() {
   await closeFoundationDb()
 
   const planCritic = planCriticRuns.find(run => run.status === 'pass' && Number(run.score) >= 9.8) || null
+  const closeout = getFoundationBuildCloseouts().find(item => item.key === FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) || null
+  const historicalDone = card?.lane === 'done' &&
+    String(card?.statusNote || '').includes(FOUNDATION_CORE_SEED_SPLIT_CLOSEOUT_KEY) &&
+    closeout?.operatorCloseout === true &&
+    (closeout.backlogIds || []).includes(FOUNDATION_CORE_SEED_SPLIT_CARD_ID)
   const dogfood = buildFoundationCoreSeedSplitDogfoodProof()
   const splitEvaluation = evaluateFoundationCoreSeedSplit({
     foundationDbSource,
+    schemaSeedSource,
     coreSeedSource,
     foundationDbLineCount: lineCount(foundationDbSource),
     preSplitFoundationDbLineCount: FOUNDATION_CORE_SEED_SPLIT_BEFORE_LINES,
@@ -106,12 +115,12 @@ async function main() {
 
   ensure(checks, approval.ok && Number(approval.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || FOUNDATION_CORE_SEED_SPLIT_APPROVAL_PATH)
   ensure(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  ensure(checks, sprint.sprint?.sprintId === FOUNDATION_CORE_SEED_SPLIT_SPRINT_ID, 'Current Sprint is the core seed split sprint', sprint.sprint?.sprintId || 'missing')
-  ensure(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  ensure(checks, sprint.sprint?.sprintId === FOUNDATION_CORE_SEED_SPLIT_SPRINT_ID || historicalDone, 'Current Sprint is the core seed split sprint or card has verified historical closeout', historicalDone ? 'historical closeout' : sprint.sprint?.sprintId || 'missing')
+  ensure(checks, (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)) || historicalDone, 'Current Sprint contains the card in Building Now/Done or card has verified historical closeout', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : historicalDone ? 'historical closeout' : 'missing')
   ensure(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
   ensure(checks, splitEvaluation.ok === true, 'core seed split evaluator passes current repo state', splitEvaluation.checks.filter(check => !check.ok).map(check => check.check).join(', ') || 'ok')
   ensure(checks, dogfood.ok === true, 'dogfood rejects old inline core seed ownership', dogfood.invariant)
-  ensure(checks, foundationDbSource.includes('./foundation-core-seed.js') && !foundationDbSource.includes('const foundationUserSeed = ['), 'foundation-db imports core seed arrays and no longer owns first static seed array inline', 'import present, inline user seed absent')
+  ensure(checks, schemaSeedSource.includes('./foundation-core-seed.js') && !foundationDbSource.includes('const foundationUserSeed = ['), 'schema/seed module imports core seed arrays and foundation-db no longer owns first static seed array inline', 'module import present, inline user seed absent')
   ensure(checks, coreSeedSource.includes('Live Postgres/API remains operational truth after bootstrap'), 'core seed module states live truth boundary', 'truth-boundary warning present')
   ensure(checks, splitEvaluation.seedInvariant.ok === true, 'static seed IDs/counts are preserved', splitEvaluation.seedInvariant.failures.join(', ') || 'ok')
   ensure(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only', 'no write/mutation tokens in proof script')

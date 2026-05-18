@@ -6,8 +6,10 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   PROCESS_CHECK_APPLY_BOUNDARY_CARD_ID,
+  RUNTIME_SAFETY_HARDENING_CLOSEOUT_KEY,
   RUNTIME_SAFETY_HARDENING_SCRIPT_PATH,
   RUNTIME_SAFETY_HARDENING_SPRINT_ID,
   VERIFY_READONLY_GATE_CARD_ID,
@@ -439,12 +441,14 @@ async function buildFoundationDbInitSeedSplitStatus() {
   const [
     packageSource,
     foundationDbSource,
+    schemaSeedSource,
     currentSprintStoreSource,
     focusedProofSource,
     foundationVerifySource,
   ] = await Promise.all([
     readRepoFile('package.json'),
     readRepoFile('lib/foundation-db.js'),
+    readRepoFile('lib/foundation-db-schema-seed-store.js'),
     readRepoFile('lib/foundation-current-sprint-store.js'),
     readRepoFile(RUNTIME_SAFETY_HARDENING_SCRIPT_PATH),
     readRepoFile('scripts/foundation-verify.mjs'),
@@ -460,6 +464,11 @@ async function buildFoundationDbInitSeedSplitStatus() {
   const activeSprint = await getActiveFoundationCurrentSprint().catch(() => ({ sprint: null, items: [] }))
   const sprintItem = (activeSprint.items || []).find(item => item.cardId === cardId) || null
   const card = backlogItems.find(item => item.id === cardId) || null
+  const closeout = getFoundationBuildCloseouts().find(item => item.key === RUNTIME_SAFETY_HARDENING_CLOSEOUT_KEY) || null
+  const historicalDone = card?.lane === 'done' &&
+    String(card?.statusNote || '').includes(RUNTIME_SAFETY_HARDENING_CLOSEOUT_KEY) &&
+    closeout?.operatorCloseout === true &&
+    (closeout.backlogIds || []).includes(cardId)
   const proof = await buildFoundationDbInitSeedSplitDogfoodProof()
 
   addCheck(
@@ -482,10 +491,11 @@ async function buildFoundationDbInitSeedSplitStatus() {
   )
   addCheck(
     checks,
-    activeSprint.sprint?.sprintId === RUNTIME_SAFETY_HARDENING_SPRINT_ID &&
-      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage),
-    `${cardId} is active in the runtime safety sprint`,
-    activeSprint.sprint ? `${activeSprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing active sprint',
+    (activeSprint.sprint?.sprintId === RUNTIME_SAFETY_HARDENING_SPRINT_ID &&
+      ['building_now', 'done_this_sprint'].includes(sprintItem?.stage)) ||
+      historicalDone,
+    `${cardId} is active in the runtime safety sprint or has verified historical closeout`,
+    historicalDone ? 'historical closeout' : activeSprint.sprint ? `${activeSprint.sprint.sprintId} / ${sprintItem?.stage || 'missing stage'}` : 'missing active sprint',
   )
   addCheck(
     checks,
@@ -503,12 +513,13 @@ async function buildFoundationDbInitSeedSplitStatus() {
   addCheck(
     checks,
     foundationDbSource.includes('FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID') &&
-      foundationDbSource.includes('includeBootstrapSeed') &&
-      foundationDbSource.includes('export async function bootstrapFoundationDb') &&
+      schemaSeedSource.includes('includeBootstrapSeed') &&
+      schemaSeedSource.includes('async function bootstrapFoundationDb') &&
+      foundationDbSource.includes('export const bootstrapFoundationDb = foundationDbSchemaSeedStore.bootstrapFoundationDb') &&
       foundationDbSource.includes('buildFoundationDbInitSeedSplitDogfoodProof') &&
       foundationDbSource.includes('schema-init-black-box-before-after'),
-    'foundation DB module separates schema init from explicit bootstrap and owns dogfood proof',
-    'lib/foundation-db.js',
+    'foundation DB modules separate schema init from explicit bootstrap and own dogfood proof',
+    'lib/foundation-db.js + lib/foundation-db-schema-seed-store.js',
   )
   addCheck(
     checks,
@@ -526,7 +537,7 @@ async function buildFoundationDbInitSeedSplitStatus() {
   )
   addCheck(
     checks,
-    foundationVerifySource.includes(FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID) &&
+    (foundationVerifySource.includes(FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID) || foundationVerifySource.includes('FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID')) &&
       foundationVerifySource.includes('buildFoundationDbInitSeedSplitDogfoodProof'),
     'foundation verifier has DB init seed split coverage',
     FOUNDATION_DB_INIT_SEED_SPLIT_CARD_ID,

@@ -72,6 +72,7 @@ async function main() {
 
   const [
     foundationDbSource,
+    schemaSeedSource,
     backlogSeedSource,
     governanceSource,
     scriptSource,
@@ -80,6 +81,7 @@ async function main() {
     packageSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-db.js'),
+    readRepoFile('lib/foundation-db-schema-seed-store.js'),
     readRepoFile('lib/foundation-backlog-seed.js'),
     readRepoFile('lib/foundation-db-seed-governance.js'),
     readRepoFile(DB_SEED_SCRIPT_PATH),
@@ -132,7 +134,7 @@ async function main() {
   addCheck(checks, approval.ok && Number(approval.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || DB_SEED_APPROVAL_PATH)
   addCheck(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
   addCheck(checks, sprintMode.ok === true && ['active_current', 'historical_closeout'].includes(sprintMode.mode), 'card validates against active sprint or verified historical closeout', `${sprintMode.mode}: ${sprintMode.reason}`)
-  addCheck(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint item is building or done', sprintItem ? sprintItem.stage : 'missing')
+  addCheck(checks, (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)) || sprintMode.mode === 'historical_closeout', 'Current Sprint item is building/done or card has verified historical closeout', sprintItem ? sprintItem.stage : sprintMode.mode)
   addCheck(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
   addCheck(checks, splitEvaluation.ok, 'backlog seed is split out of foundation-db', splitEvaluation.checks.filter(check => !check.ok).map(check => check.check).join(', ') || `foundation-db lines=${splitEvaluation.foundationDbLineCount}`)
   addCheck(checks, dogfood.ok === true, 'dogfood proves seed/live drift is report-only', dogfood.dogfoodInvariant)
@@ -141,7 +143,7 @@ async function main() {
   addCheck(checks, governanceReport.defaultMutationPosture === 'report_only' && governanceReport.wouldWriteByDefault === false, 'live governance report is report-only', `${governanceReport.findingCount} findings / ${governanceReport.seedRows} seed rows`)
   addCheck(checks, governanceReport.seedRows >= 180 && governanceReport.liveRows >= 180, 'real backlog seed/live rows are evaluated', `${governanceReport.liveRows}/${governanceReport.seedRows}`)
   addCheck(checks, driftSnapshot.policy && driftSnapshot.mutableFields?.includes('lane') && driftSnapshot.stableFields?.includes('summary'), 'existing seed drift snapshot remains available', `${driftSnapshot.driftItemCount} drift rows`)
-  addCheck(checks, foundationDbSource.includes('includeBootstrapSeed') && foundationDbSource.includes('export async function bootstrapFoundationDb'), 'schema init still separates explicit bootstrap seed', 'initFoundationDb + bootstrapFoundationDb')
+  addCheck(checks, schemaSeedSource.includes('includeBootstrapSeed') && schemaSeedSource.includes('async function bootstrapFoundationDb') && foundationDbSource.includes('export const bootstrapFoundationDb = foundationDbSchemaSeedStore.bootstrapFoundationDb'), 'schema init still separates explicit bootstrap seed', 'initFoundationDb + bootstrapFoundationDb')
   addCheck(checks, governanceSource.includes('buildBacklogSeedGovernanceReport') && governanceSource.includes('wouldWriteByDefault: false'), 'governance helper owns report-only behavior', 'lib/foundation-db-seed-governance.js')
   addCheck(checks, verifierSource.includes('buildDbSeedGovernanceDogfoodProof') && verifierSource.includes('DB_SEED_CLOSEOUT_KEY'), 'foundation verifier delegates to focused dogfood proof', 'scripts/foundation-verify.mjs')
   addCheck(checks, packageJson.scripts?.['process:db-seed-check'] === `node --env-file-if-exists=.env ${DB_SEED_SCRIPT_PATH}`, 'package script is registered', packageJson.scripts?.['process:db-seed-check'] || 'missing')
