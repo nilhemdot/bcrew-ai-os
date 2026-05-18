@@ -127,6 +127,20 @@ Not next from this sprint: live extraction, extraction target creation, transcri
 
 Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Strategy atom-flow can only happen from the accepted source fact into internal memory-spine atom flow; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
 
+## Previous Sprint: Source Maturity FUB Routing Gap Repair
+
+Live sprint ID: `source-maturity-fub-routing-gap-repair-2026-05-18`.
+
+This sprint is complete under `source-maturity-fub-routing-gap-repair-v1`. It repairs the `SRC-FUB-001` routed-stage source maturity gap by creating one bounded retrieval chunk from the existing FUB source fact and accepted atom, then routing that signal into the internal Action Route Review layer.
+
+Completed card:
+
+1. `SOURCE-MATURITY-FUB-ROUTING-GAP-REPAIR-001` - done under `source-maturity-fub-routing-gap-repair-v1`. Scope was internal routing repair only: `SRC-FUB-001` now has one active retrieval chunk and one pending owner-decision action route backed by the existing governed source fact and accepted atom. The route remains proposal-only with no destination record applied, no FUB API call, no CRM mutation, no Google Sheets read/write, and no external write.
+
+Not next from this sprint: live extraction, extraction target creation, transcript fetch, screenshot capture, crawl, model/provider call, FUB API call, CRM mutation, OAuth repair, paid-source run, external write, Google Sheets read/write, action-route apply, FUB automation, lead-source cleanup, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman feature work, broad UI redesign, broad FUB mining, or `MEETING-VAULT-ACL-001` Phase B.
+
+Next after closeout: continue the safe source-maturity/source-contract queue from live source coverage truth. Prefer internal route repairs only where source-backed fact/atom/chunk evidence already exists; otherwise leave the gap visible or mark blocked/pending instead of inventing evidence.
+
 ## Previous Sprint: Source Maturity FUB Atom Flow Repair
 
 Live sprint ID: `source-maturity-fub-atom-flow-repair-2026-05-18`.

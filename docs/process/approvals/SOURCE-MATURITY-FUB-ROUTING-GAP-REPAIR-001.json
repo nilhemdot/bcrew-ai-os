@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-FUB-ROUTING-GAP-REPAIR-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T09:05:00.000Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-fub-routing-gap-repair-001-plan.md",
+  "approvedPlanSha256": "69139180e3808deb615fad01a2ff2dd9dc3478464e798add8c8d365da35ea718",
+  "approvedRepoHead": "71157e5c311a4048b77ada549b4deb0627be8280",
+  "notes": "Approved for bounded FUB source maturity routing-gap repair using existing source fact fact:af613c177546ec2a7267b669 and accepted atom atom:a324d8e68f80c29e07daf2c3 only; create one internal retrieval chunk and one approval-required pending internal route. Not approved: live extraction, FUB API calls, CRM mutation, Google Sheets read/write, auth repair, paid runs, provider/model calls, external writes, route apply, Drive permission mutation, Agent Feedback auto-send, Meeting Vault Phase B, Harlan/Fal/voice/Canva/OpenHuman work, broad UI redesign, or broad FUB mining.",
+  "approvalDigest": "739c5d9b71d10ad27f9fb40dd65c8eecd7c8c09ae51fc1fbacd53d581983c66f"
+}
