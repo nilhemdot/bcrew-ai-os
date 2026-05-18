@@ -33,6 +33,7 @@ import {
 import {
   getFoundationBuildCloseouts,
 } from '../lib/foundation-build-log.js'
+import { readFoundationBacklogSeedSourceBundle } from '../lib/foundation-backlog-seed-source.js'
 import {
   buildResearchCurationStatus,
 } from '../lib/phase-d-cleanup.js'
@@ -110,7 +111,7 @@ async function main() {
     readRepoFile('public/foundation-source-lifecycle-renderers.js'),
     readRepoFile('public/styles-foundation-workflows.css'),
     readRepoFile('lib/foundation-current-sprint.js'),
-    readRepoFile('lib/foundation-backlog-seed.js'),
+    readFoundationBacklogSeedSourceBundle({ readRepoFile }),
     readRepoFile('lib/foundation-build-closeout-records.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('lib/foundation-jobs.js'),

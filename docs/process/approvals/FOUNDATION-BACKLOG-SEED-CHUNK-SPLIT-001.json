@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001",
+  "approvedPlanRef": "docs/process/foundation-backlog-seed-chunk-split-001-plan.md",
+  "approvedPlanSha256": "cf872b9d45c2f25f46761c97779432ed4769aac9f9561c551c8fd30bb494583a",
+  "approvedRepoHead": "d2d5ab69456251993cc8b7e4e58dcbf2d56aa3f5",
+  "approvedBy": "Steve May 18 Foundation continuous-builder priority approval + Codex senior-engineer main-session plan review",
+  "approvedAt": "2026-05-18T17:40:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized root file and closeout registry cleanup over 3K/5K before agent gates, with commit/push required per completed card.",
+  "scopeSummary": "Split the static Foundation backlog seed root into bounded chunks while preserving the backlogSeed import contract and verifier source-bundle truth.",
+  "constraints": [
+    "No hidden subagents.",
+    "Do not launch parallel builders.",
+    "Do not change backlog card semantics or seed row content.",
+    "Do not bootstrap, repair, sync, or overwrite live Postgres backlog truth.",
+    "Do not run live extraction.",
+    "Do not run auth-required or paid jobs.",
+    "No external sends, Drive permission mutation, Gmail/ClickUp sends, or Agent Feedback auto-send.",
+    "Do not mutate Google Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B.",
+    "Do not build Harlan/Fal/voice/Canva/OpenHuman features."
+  ],
+  "approvalDigest": "d634a5833af657318cb976d2fe080efeb8754f1636c3d369484e900979ea8bca"
+}

@@ -26,6 +26,7 @@ import {
 import { getGroupedSourceSystems, getSourceConnectors, getSourceContracts } from '../lib/source-contracts.js'
 import { buildCardReferenceTrustStatus, buildSyntheticPhantomCardReferenceStatus } from '../lib/card-reference-trust.js'
 import { buildSourceReferenceTrustStatus } from '../lib/source-reference-trust.js'
+import { readFoundationBacklogSeedSourceBundle } from '../lib/foundation-backlog-seed-source.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -140,7 +141,7 @@ async function loadEvaluationInput({ baseUrl }) {
     readText('docs/rebuild/current-plan.md'),
     readText('docs/rebuild/current-state.md'),
     readText('lib/foundation-db.js'),
-    readText('lib/foundation-backlog-seed.js'),
+    readFoundationBacklogSeedSourceBundle({ readRepoFile: readText }),
     readText('server.js'),
     readText('lib/hub-read-routes.js'),
     readText('lib/strategy-shared-comms-routes.js'),

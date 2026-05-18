@@ -213,6 +213,7 @@ import { buildFoundationVerifierPlanReviews } from '../lib/foundation-verifier-p
 import {
   buildFoundationVerifierSourceBundle,
 } from '../lib/foundation-verifier-snapshot-wiring-repair.js'
+import { readFoundationBacklogSeedSourceBundle } from '../lib/foundation-backlog-seed-source.js'
 import {
   VERIFIER_PROCESS_GOVERNANCE_SPLIT_APPROVAL_PATH,
   VERIFIER_PROCESS_GOVERNANCE_SPLIT_BEFORE_LINES,
@@ -2679,7 +2680,7 @@ async function main() {
   const ownersSourceNote = await readRepoFile('docs/source-notes/owners-dashboard.md')
   const foundationDbSource = await readRepoFile('lib/foundation-db.js')
   const foundationDbSchemaSeedStoreSource = await readRepoFile('lib/foundation-db-schema-seed-store.js')
-  const foundationBacklogSeedSource = await readRepoFile('lib/foundation-backlog-seed.js')
+  const foundationBacklogSeedSource = await readFoundationBacklogSeedSourceBundle({ readRepoFile })
   const currentSprintStoreSource = await readRepoFile('lib/foundation-current-sprint-store.js')
   const foundationBuildLogSource = await readRepoFile('lib/foundation-build-log.js')
   const foundationBuildLogRegistrySource = [
@@ -3124,6 +3125,8 @@ async function main() {
     'CRITICAL-ROOTS-UNDER-3K-PHASE-2',
     'CRITICAL-ROOTS-UNDER-3K-PHASE-3',
     'CRITICAL-ROOTS-UNDER-3K-PHASE-4',
+    'FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001',
+    'FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001',
     'FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001',
     'SOURCE-CONTRACT-VALIDATION-LAYER-001',
     'FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001',
@@ -3582,6 +3585,7 @@ async function main() {
       EXTRACT_RUN_HARDENING_CLOSEOUT_KEY,
       FOUNDATION_DONE_TEST_CARD_ID,
       FOUNDATION_DONE_TEST_CLOSEOUT_KEY,
+      FOUNDATION_FOLLOWUP_CARD_CAPTURE_LITERAL: 'FOUNDATION-FOLLOWUP-CARD-CAPTURE-001',
       FOUNDATION_FOLLOWUP_CARD_CAPTURE_CARD_ID,
       FOUNDATION_FOLLOWUP_CARD_CAPTURE_CLOSEOUT_KEY,
       FOUNDATION_REVIEW_SPRINT_CARD_IDS,

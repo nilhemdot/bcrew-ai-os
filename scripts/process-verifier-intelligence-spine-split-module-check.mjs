@@ -29,6 +29,7 @@ import {
   buildFoundationIntelligenceSpineVerifierDogfoodProof,
   evaluateFoundationIntelligenceSpineVerifier,
 } from '../lib/foundation-intelligence-spine-verifier.js'
+import { readFoundationBacklogSeedSourceBundle } from '../lib/foundation-backlog-seed-source.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -124,7 +125,7 @@ async function loadEvaluationInput() {
     actionRouterSnapshot,
   ] = await Promise.all([
     readText('lib/foundation-db.js'),
-    readText('lib/foundation-backlog-seed.js'),
+    readFoundationBacklogSeedSourceBundle({ readRepoFile: readText }),
     readText('scripts/run-extraction-target.mjs'),
     readText('scripts/intelligence-job-ledger-proof.mjs'),
     readTextIfExists('docs/specs/2026-04-27-intelligence-spine-old-system-salvage.md'),

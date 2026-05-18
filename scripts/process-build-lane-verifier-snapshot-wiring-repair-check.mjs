@@ -40,6 +40,7 @@ import {
   assertProcessCheckWriteAllowed,
   isProcessCheckWriteRequested,
 } from '../lib/process-write-guard.js'
+import { readFoundationBacklogSeedSourceBundle } from '../lib/foundation-backlog-seed-source.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -378,7 +379,7 @@ async function main() {
     readRepoFile('package.json').then(JSON.parse),
     readRepoFile('lib/foundation-db.js'),
     readRepoFile('lib/foundation-db-schema-seed-store.js'),
-    readRepoFile('lib/foundation-backlog-seed.js'),
+    readFoundationBacklogSeedSourceBundle({ readRepoFile }),
     readRepoFile('lib/foundation-backlog-store.js'),
     readRepoFile('lib/foundation-decision-store.js'),
     readRepoFile('lib/foundation-core-seed.js'),
