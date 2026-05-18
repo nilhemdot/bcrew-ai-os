@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PARALLEL-BUILDER-OPERATING-SYSTEM-001",
+  "approvedPlanRef": "docs/process/parallel-builder-operating-system-001-plan.md",
+  "approvedPlanSha256": "663f2060866cea80640ff325e67d7c6d34f8c18ee00d4b5a7cd045d0d342cf4a",
+  "approvedRepoHead": "4a193330c8fe69bd4d473523f6b92b66a0ee3698",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-18T10:10:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized a visible parallel builder operating system after the Planck hidden-worker confusion, after the current build-lane reliability cards unless repo truth made it the highest blocker.",
+  "scopeSummary": "Define visible multi-builder workflow with known worktrees, branches, file ownership, shared locks, merge/commit protocol, status/wrap/blocker reports, hidden-subagent rules, paste-ready prompts, and fail-closed proof without launching builders.",
+  "constraints": [
+    "Do not launch parallel builders during this card.",
+    "Do not use hidden subagents as the default workflow.",
+    "Do not spawn hidden subagents without explicit Steve approval.",
+    "Do not create real worktrees in the focused proof.",
+    "No live extraction.",
+    "No auth-required or paid run.",
+    "No provider/model probe.",
+    "No external write.",
+    "Do not mutate Drive permissions.",
+    "No live Agent Feedback auto-send.",
+    "No Harlan/Fal/voice/Canva/OpenHuman feature work."
+  ],
+  "approvalDigest": "deacddd547a3eff14f49d2017f37b45e913b3723b89cc0f5b0abd73283f3a006"
+}
