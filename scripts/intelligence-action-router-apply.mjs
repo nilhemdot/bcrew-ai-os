@@ -19,34 +19,52 @@ function parseArgs(argv = process.argv.slice(2)) {
   return args
 }
 
-function pickPendingRoute(snapshot) {
-  const pendingRoutes = (snapshot.recentRoutes || []).filter(route => route.approvalStatus === 'pending')
-  return pendingRoutes.find(route => route.destinationTable === 'backlog_items') ||
-    pendingRoutes.find(route => route.destinationTable === 'open_questions') ||
-    pendingRoutes.find(route => route.destinationTable === 'decisions') ||
-    pendingRoutes[0]
+function argValue(args, ...keys) {
+  for (const key of keys) {
+    const value = String(args[key] || '').trim()
+    if (value) return value
+  }
+  return ''
+}
+
+function boolArg(value) {
+  return value === true || String(value || '').toLowerCase() === 'true'
+}
+
+function assertApplyConfirmed({ args, routeId }) {
+  const confirmation = argValue(args, 'confirmApprovedRouteApply', 'confirm_approved_route_apply')
+  if (!routeId || confirmation !== routeId) {
+    const error = new Error('Action Router apply requires --routeId=<id> and --confirmApprovedRouteApply=<same id>.')
+    error.code = 'action_route_apply_confirmation_required'
+    throw error
+  }
+  if (!argValue(args, 'approvedBy', 'approved_by')) {
+    const error = new Error('Action Router apply requires an explicit --approvedBy operator.')
+    error.code = 'action_route_apply_approver_required'
+    throw error
+  }
 }
 
 async function main() {
   const args = parseArgs()
-  const approvedBy = String(args.approvedBy || args.approved_by || process.env.BCREW_ACTION_ROUTE_APPROVER || 'steve').trim()
+  const dryRun = boolArg(args.dryRun || args.dry_run || args.check)
+  const approvedBy = argValue(args, 'approvedBy', 'approved_by')
   const actor = String(args.actor || 'action-router-apply-cli').trim()
-  const force = args.force === 'true'
 
   await initFoundationDb()
 
   const beforeSnapshot = await getActionRouterSnapshot({ limit: 100 })
-  if (!args.routeId && !args.route_id && !force && beforeSnapshot.appliedRoutesWithDestinationRecord >= 1) {
+  if (dryRun) {
     console.log(JSON.stringify({
-      skipped: true,
-      reason: 'action_route_closure_already_proved',
+      dryRun: true,
+      pendingRouteCount: (beforeSnapshot.recentRoutes || []).filter(route => route.approvalStatus === 'pending').length,
       snapshot: beforeSnapshot,
     }, null, 2))
     return
   }
 
-  const routeId = String(args.routeId || args.route_id || pickPendingRoute(beforeSnapshot)?.routeId || '').trim()
-  if (!routeId) throw new Error('No pending action route is available to approve/apply.')
+  const routeId = argValue(args, 'routeId', 'route_id')
+  assertApplyConfirmed({ args, routeId })
 
   let route = await getActionRoute(routeId)
   if (!route) throw new Error(`Action route not found: ${routeId}`)

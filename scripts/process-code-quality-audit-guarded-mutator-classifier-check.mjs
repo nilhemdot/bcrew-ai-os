@@ -325,7 +325,8 @@ async function main() {
     processCheckReadonlyFindingCount: proof.processCheckReadonlyFindingCount,
   }))
   addCheck(checks, proof.protectedProcessCheckFalsePositiveCount === 0, 'real audit has zero protected process-check false positives', String(proof.protectedProcessCheckFalsePositiveCount))
-  addCheck(checks, proof.processCheckReadonlyFindingCount <= 1, 'real audit leaves only the remaining non-process readonly-mode finding', String(proof.processCheckReadonlyFindingCount))
+  addCheck(checks, proof.processCheckReadonlyFindingCount === 0, 'real audit has zero process readonly-mode P0 findings', String(proof.processCheckReadonlyFindingCount))
+  addCheck(checks, (proof.p0Findings || []).length === 0, 'real audit has zero P0 findings after guarded classifier repair', String((proof.p0Findings || []).length))
   addCheck(checks, auditSource.includes('classifyProcessCheckSource') && auditSource.includes('processCheckClassification.protected === true'), 'audit detector consumes process-check classifier protected status', 'lib/code-quality-nightly-audit.js')
   addCheck(checks, packageJson.scripts?.['process:code-quality-audit-guarded-mutator-classifier-check'] === `node --env-file-if-exists=.env ${CODE_QUALITY_AUDIT_GUARDED_MUTATOR_CLASSIFIER_SCRIPT_PATH}`, 'package script is registered', packageJson.scripts?.['process:code-quality-audit-guarded-mutator-classifier-check'] || 'missing')
   addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(CODE_QUALITY_AUDIT_GUARDED_MUTATOR_CLASSIFIER_CARD_ID), 'closeout registry owns this card', closeout?.key || 'missing')
