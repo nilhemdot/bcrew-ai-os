@@ -494,6 +494,10 @@ Rule:
 - `lib/foundation-db.js` keeps stable public delegates for Sales Listing assignment reads, tracked case reads, and assignment upserts.
 - `lib/foundation-db.js` is below 5,000 lines after this split.
 - Scope stayed store cleanup only: no ClickUp read, ClickUp writeback, listing sync cadence, case status semantic change, Sales Hub UI, auth, route, schema change, source extraction, Canva, paid-source auth, Build Intel, Drive permission mutation, or hub feature work.
+- `SOURCE-MATURITY-GAP-FOLLOWUP-001` is done under `source-maturity-gap-followup-v1`.
+- Source maturity gaps routed by source coverage closeout now have a ranked triage report and four scoped child repair queues: atom-flow, source-contract, source-evidence, and routing repair.
+- The focused proof calls the real source maturity, source extraction coverage, and source coverage closeout snapshot path; it rejects a synthetic missing maturity row and proves no live extraction, provider call, model call, external write, Drive permission mutation, or Agent Feedback auto-send is introduced.
+- Scope stayed source maturity triage only: it does not mark rows complete, create extraction targets, run live extraction, repair OAuth, call providers, create atoms without source evidence, or do Harlan/Fal/voice/Canva/OpenHuman work.
 - `FOUNDATION-DB-MONOLITH-SPLIT-014` is done under `foundation-agent-feedback-store-split-v1`.
 - Agent Feedback response, send-attempt, reminder-attempt, and response-notification storage now lives in `lib/foundation-agent-feedback-store.js`.
 - `lib/foundation-db.js` keeps stable public delegates for Agent Feedback response saves, send-attempt reads/writes, reminder-attempt reads/writes, and response-notification reads/writes.

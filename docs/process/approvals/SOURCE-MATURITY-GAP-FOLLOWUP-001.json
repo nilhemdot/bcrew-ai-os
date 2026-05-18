@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-MATURITY-GAP-FOLLOWUP-001",
+  "approvedBy": "Steve overnight continuous Foundation approval; Codex Plan Critic pass",
+  "approvedAt": "2026-05-18T03:54:40.110Z",
+  "score": 10,
+  "approvedPlanRef": "docs/process/source-maturity-gap-followup-001-plan.md",
+  "approvedPlanSha256": "4c0e8d93e6d73cc7b9f29983276dacb1a457f4665e4ae4f65da396a2806d0080",
+  "approvedRepoHead": "e28e88a159ce29a63ed8ffcdb389ffda5d2cf72a",
+  "notes": "Approved for bounded source maturity gap follow-up triage and targeted no-new-responsibility source once-over verifier compatibility only: rank all source coverage closeout maturity rows, scope child repair cards, write report, focused proof, and ship gate. Not approved: live extraction, auth/provider calls, paid runs, model calls, external writes, Drive permission mutation, Agent Feedback auto-send, Harlan/Fal/voice/Canva/OpenHuman work, or broad UI redesign.",
+  "approvalDigest": "bd2ac7dca8a8decc9a0194c5c18055f57fab0e7810e44855380e54ba70097762"
+}
