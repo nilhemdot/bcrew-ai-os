@@ -1,7 +1,7 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.134 - MyICOR preflight gated
+Version: v6.135 - Mark M Skool preflight gated
 Status: Continue safe Foundation extractor/runtime queue
 
 Use this doc for one question:
@@ -16,15 +16,17 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`MYICOR-EXTRACTION-PREFLIGHT-001` is closed.
+`MARK-M-SKOOL-EXTRACTION-PREFLIGHT-001` is closed.
 
-Closeout: `myicor-extraction-preflight-v1`.
+Closeout: `mark-m-skool-extraction-preflight-v1`.
 
-Scope shipped: created the metadata-only MyICOR paid-course source/auth preflight from repo truth. V1 proves `SRC-MYICRO-001` is scoped/not connected, `myicro-access` is blocked, source-contract validation blocks extraction until owner authorization, the course source-auth row allows metadata-only preflight only, and the approval packet draft names every required field without granting runtime approval.
+Scope shipped: created the metadata-only Mark M Skool private-community source/auth preflight from repo truth. V1 proves `SRC-SKOOL-001` remains a `Gap` source, `skool-access` is blocked, source-contract validation blocks extraction until owner authorization, the course source-auth row allows metadata-only preflight only, and the approval packet draft names every required field without granting runtime approval.
 
-Not next: live MyICOR extraction, logged-in app access, authorized browser session, course crawl, lesson navigation, transcript fetch, screenshot/keyframe capture, download, summarization, vision/model call, copied course content, Research Inbox writes, KB page writes, atom writes, synthesis fact writes, action-route writes, vector/query-index writes, backlog mutation from extracted content, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, invisible workers, or real extraction worker launch.
+Not next: live Skool extraction, logged-in community access, authorized browser session, community crawl, course/classroom navigation, post/comment extraction, member-data read, embedded-video extraction, transcript fetch, screenshot/keyframe capture, download, summarization, vision/model call, copied community/course content, Research Inbox writes, KB page writes, atom writes, synthesis fact writes, action-route writes, vector/query-index writes, backlog mutation from extracted content, external writes, Drive/Gmail/ClickUp/Slack/Agent Feedback mutation, hidden subagents, invisible workers, or real extraction worker launch.
 
-Next: continue `MARK-M-SKOOL-EXTRACTION-PREFLIGHT-001` as source-auth preflight only. Do not run live Skool extraction, use private access, scrape community/course content, fetch transcripts, screenshot/download content, summarize material, call models, or write downstream outputs without separate approval.
+Next: continue `MARK-KASHEF-GOAL-BUILD-INTEL-PACKET-001` from repo truth. Treat public source URL/claims as lookup-required, and do not run private Skool access or unapproved extraction.
+
+Previous paid-course preflight slice: `MYICOR-EXTRACTION-PREFLIGHT-001` is closed under `myicor-extraction-preflight-v1`; MyICOR extraction remains blocked until source-specific approval exists.
 
 Previous worker-protocol slice: `EXTRACTION-PARALLEL-WORKER-PROTOCOL-001` is closed under `extraction-parallel-worker-protocol-v1`; visible extraction workers still require source-packet ownership, artifact paths, permission class, quality gate, wrap report, import flow, and stop conditions before any worker can run.
 

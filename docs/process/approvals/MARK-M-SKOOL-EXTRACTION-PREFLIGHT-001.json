@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MARK-M-SKOOL-EXTRACTION-PREFLIGHT-001",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T19:05:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve prioritized safe extractor/source-auth preflight work and explicitly instructed not to run live extraction, private auth, paid access, external writes, Drive mutation, Gmail/ClickUp sends, Agent Feedback auto-send, or hidden subagents unless separately approved.",
+  "scopeSummary": "Create a metadata-only Mark M Skool source/auth preflight packet from repo truth. Prove source contract, connector, validation, and source-auth boundaries keep private/community extraction blocked until source-specific approval exists.",
+  "approvedPlanRef": "docs/process/mark-m-skool-extraction-preflight-001-plan.md",
+  "approvedPlanSha256": "9c1d23eb203216903cbe09b4f4b8025fd5e68af89b975c05f77939dcecb45061",
+  "approvedRepoHead": "56504b693d4b1ac06f31e36506861c4113174273",
+  "notApproved": [
+    "Do not open Skool.",
+    "Do not use private auth, paid auth, or an authorized browser session.",
+    "Do not crawl, navigate communities/courses, extract posts/comments/member data, fetch transcripts, capture screenshots/keyframes, download content, summarize content, run vision, or call a model.",
+    "Do not copy posts, comments, member data, lesson text, transcript text, resource links, screenshots, keyframes, or summaries into repo docs, Postgres, artifacts, Research Inbox, KB, atoms, action routes, vectors, or chat-only closeout.",
+    "Do not write Research Inbox rows, KB pages, atoms, synthesis facts, action routes, vector/query indexes, or backlog content from extracted material.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, or external systems.",
+    "Do not launch hidden subagents, invisible workers, or parallel extraction workers from this card."
+  ],
+  "approvalDigest": "9316abb0b2b1c27a1c616f1e07240ae001827d17fe98e7d6dce655d34329a11c"
+}
