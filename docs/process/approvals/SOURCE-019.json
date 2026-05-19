@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-019",
+  "approvedPlanRef": "docs/process/source-019-shared-comms-layer-plan.md",
+  "approvedPlanSha256": "bd9274876591bfecd4b56544ffb8321220dd89cc79b6c38f87da91670ff4d6bc",
+  "approvedRepoHead": "770b72e3cb74c14a6e1ab9e182da1ac968e5d27b",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T19:03:00-04:00",
+  "approvalSource": "Steve approved unattended Foundation-only sprint continuation. SOURCE-019 may prove the shared communications layer from existing local archive/candidate/synthesis/action-route truth and continue to SOURCE-020.",
+  "approvalMode": "shared-comms-control-layer-proof-v1",
+  "score": 9.8,
+  "allowedWork": [
+    "read existing local shared communications artifact, candidate, synthesis, and action-route summaries",
+    "build deterministic linking, dedupe, staleness, and actionability controls from bounded local data",
+    "write focused proof, plan, closeout, closeout registry, package script, backlog, Plan Critic, and Current Sprint closeout state",
+    "close SOURCE-019 and continue SOURCE-020 when proof and ship gates are clean"
+  ],
+  "notApproved": [
+    "new live Gmail, Missive, Slack, meeting, Drive, Loom, Skool, Mycro/myICOR, or paid/private source reruns",
+    "provider/model calls, browser login, OCR, screenshots, keyframes, media download, audio/video transcription, or broad crawl",
+    "automatic backlog, decision, question, atom, KB, vector, action-route apply, ClickUp, CRM, or external writes from private communications content",
+    "raw email, Slack, Missive, transcript, message, participant-sensitive, or body text in proof output",
+    "MEETING-VAULT-ACL-001 Phase B, broad meeting-vault cleanup, credential/key mutation, Drive permissions mutation, public exposure, or external sends"
+  ],
+  "approvalDigest": "ebbf5907e35d4ab4add8ce8f8571aff6247f5b656a98a18b8e7d7c678f59f6a9"
+}
