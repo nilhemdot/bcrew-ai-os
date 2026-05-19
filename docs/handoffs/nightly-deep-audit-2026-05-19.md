@@ -1,27 +1,28 @@
 # Nightly Deep Audit Report - 2026-05-19
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
-Generated at: `2026-05-19T15:17:47.748Z`
+Generated at: `2026-05-19T20:43:22.805Z`
 Report path: `docs/handoffs/nightly-deep-audit-2026-05-19.md`
 
 ## Morning Read
 
-- Status: `report_ready`
+- Status: `deep_review_degraded`
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev.
-- Deterministic findings: 12 total (0 P0, 5 P1, 7 P2, 0 P3)
-- Changed files selected: 12
+- Deterministic findings: 13 total (0 P0, 6 P1, 7 P2, 0 P3)
+- Changed files selected: 3
 - High-risk review targets: 18
-- LLM review mode: `approved_route_available_for_bounded_review`
+- LLM review mode: `packet_only_explicitly_degraded`
+- Deep senior review rollup: `degraded` (Deep senior review did not execute. This run produced review packets only; do not present it as a completed deep code review.)
 - Dogfood against May 13 failures: passed
-- Doc/report artifact bloat: `risk` (1 red, 1 yellow)
+- Doc/report artifact bloat: `healthy` (0 red, 0 yellow)
 
 ## Diff Summary
 
 - Previous report: `docs/handoffs/nightly-deep-audit-2026-05-18.json`
-- New findings: 11
+- New findings: 12
 - Still open: 0
 - Resolved: 0
-- Finding delta: 11
+- Finding delta: 12
 
 ## LLM Review Boundary
 
@@ -29,25 +30,32 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-19.md`
 - Selected route: `foundation-synthesis-openclaw-chatgpt`
 - Provider/model: `openclaw / openai-codex/gpt-5.4`
 - Route blocker: none
-- Note: An approved route is available; V1 still records packets by default unless an explicit live LLM review mode is enabled.
+- Finding count: 0
+- Note: Deep senior review did not execute. This run produced review packets only; do not present it as a completed deep code review.
+
+Deep senior review did not execute. Packet-only output is degraded and must not be called a completed deep code review.
+
+## Senior Review Findings
+
+- none
 
 ## Endpoint And Payload Trend
 
-- /api/foundation-hub: 95ms, 515570B, risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: 16ms, 156492B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: 382ms, 786828B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: 92ms, 373775B, risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: 18ms, 31638B, risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: 99ms, 523042B, risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: 25ms, 196036B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: 362ms, 621472B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: 104ms, 415845B, risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: 28ms, 31638B, risk=healthy (Within V1 audit budget.)
 
 ## Largest Files
 
-- scripts/foundation-verify.mjs: 4996 LOC, 277778B
-- public/foundation.js: 2998 LOC, 113609B
+- scripts/foundation-verify.mjs: 4973 LOC, 275714B
+- public/foundation.js: 2998 LOC, 113633B
 - lib/foundation-db-schema-seed-store.js: 2653 LOC, 137639B
-- lib/foundation-build-closeout-tightening-records.js: 2599 LOC, 224341B
+- lib/foundation-build-closeout-tightening-records.js: 2599 LOC, 226069B
 - public/styles-foundation-workflows.css: 2591 LOC, 50351B
-- lib/foundation-source-crawl-store.js: 2491 LOC, 110816B
-- lib/foundation-build-closeout-overnight-records.js: 2446 LOC, 190369B
+- lib/foundation-source-crawl-store.js: 2506 LOC, 111553B
+- lib/foundation-build-closeout-overnight-records.js: 2446 LOC, 192241B
 - public/styles-foundation-core.css: 2291 LOC, 43082B
 - lib/foundation-db.js: 2261 LOC, 90410B
 - lib/foundation-build-closeout-source-records.js: 2159 LOC, 182727B
@@ -56,8 +64,8 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-19.md`
 
 ### P0 scripts/foundation-verify.mjs
 
-- Lines: 4996
-- Bytes: 277778
+- Lines: 4973
+- Bytes: 275714
 - Reasons: over_3k_warn, verifier_trust_surface
 
 ```
@@ -84,6 +92,9 @@ import {
 } from '../lib/foundation-canva-client-verifier.js'
 import { buildSprintProofHelpers } from '../lib/foundation-verifier-sprint-proof.js'
 import {
+  buildFoundationVerifierProgressionHelpers,
+} from '../lib/foundation-verifier-progression-helpers.js'
+import {
   buildSyntheticApprovalIntegrityStatus,
   PHASE_1_ENFORCEMENT_CARD_IDS,
   PHASE_1_ENFORCEMENT_PLAN_REF,
@@ -106,15 +117,12 @@ import { buildProcessCheckApplyBoundaryDogfoodProof } from '../lib/process-write
 import {
   PROCESS_CHECK_READONLY_MODE_CARD_ID,
   PROCESS_CHECK_READONLY_MODE_CLOSEOUT_KEY,
-  PROCESS_CHECK_READONLY_MODE_SCRIPT_PATH,
-  buildProcessCheckReadonlyModeProof,
-} from '../lib/process-check-readonly-mode.js'
 ```
 
 ### P1 public/foundation.js
 
 - Lines: 2998
-- Bytes: 113609
+- Bytes: 113633
 - Reasons: frontend_route_cache_surface
 
 ```
@@ -248,6 +256,47 @@ function isLocalRequest(req) {
     return true
 ```
 
+### P1 lib/foundation-build-closeout-process-gate-records.js
+
+- Lines: 1706
+- Bytes: 117842
+- Reasons: changed_since_baseline
+
+```
+export const processGateCloseoutRecords = [
+  {
+    key: 'foundation-sprint-closeout-continuous-work-ready-v1',
+    backlogIds: ['FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001'],
+    operatorCloseout: true,
+    match: {
+      subjectIncludes: [
+        'FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001',
+        'foundation-sprint-closeout-continuous-work-ready-v1',
+      ],
+    },
+    systemArea: 'Foundation control',
+    status: 'accepted',
+    acceptanceState: 'Verified',
+    whatChanged: 'Added the final Foundation-only sprint closeout gate and continuous-work readiness decision.',
+    whatItDoes: 'Uses process:foundation-sprint-closeout-continuous-work-ready-check to require green System Health, green repeated-failure gate, green backlog hygiene, green Current Sprint truth, completed required sprint cards, and clean/synced main before closing the sprint. It records the recommendation that continuous Foundation Builder can run under repair-first rules, while full Value Builder split is deferred until the next clean overnight/morning cycle or explicit Steve approval.',
+    whyItMatters: 'Steve needs the system to keep working without babysitting, but not by silently restarting parallel chaos. This closeout turns the end-of-sprint decision into proof-backed operating truth instead of chat memory.',
+    whereItLives: [
+      'lib/foundation-sprint-closeout-continuous-work.js',
+      'scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs',
+      'docs/process/foundation-sprint-closeout-and-continuous-work-ready-001-plan.md',
+      'docs/process/approvals/FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001.json',
+      'docs/handoffs/2026-05-19-foundation-sprint-closeout-continuous-work-ready.md',
+      'package.json script process:foundation-sprint-closeout-continuous-work-ready-check',
+    ],
+    proofCommands: [
+      'node --check lib/foundation-sprint-closeout-continuous-work.js scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs',
+      'npm run process:foundation-sprint-closeout-continuous-work-ready-check -- --apply --close-card --json',
+      'npm run process:system-health-nightly-audit-check -- --json',
+      'npm run process:build-lane-repeated-failure-action-gate-check -- --json',
+      'npm run process:current-sprint-dynamic-truth-check -- --json',
+      'npm run backlog:hygiene -
+```
+
 ### P1 lib/connector-uptime-monitor.js
 
 - Lines: 1063
@@ -353,63 +402,10 @@ const LEE_REPO_SCAN_PATHS = [
   p
 ```
 
-### P1 lib/foundation-system-health.js
-
-- Lines: 1008
-- Bytes: 44281
-- Reasons: changed_since_baseline, source_health_surface
-
-```
-import {
-  getFoundationJobRuntime,
-} from './foundation-jobs.js'
-import {
-  NIGHTLY_DEEP_AUDIT_JOB_KEY,
-} from './nightly-deep-audit-constants.js'
-import {
-  buildNightlyAuditRunFreshnessStatus,
-} from './nightly-audit-run-proof.js'
-import {
-  getAgentFeedbackAutoSendJobRunReconciliation,
-} from './agent-feedback-auto-send-reconciliation.js'
-import {
-  buildFoundationFileSizeStandardStatus,
-} from './foundation-file-size-standard.js'
-import {
-  buildBuildLaneFailureTelemetrySnapshot,
-  readBuildLaneFailureTelemetrySnapshot,
-} from './build-lane-failure-telemetry.js'
-
-export const SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID = 'SYSTEM-HEALTH-NIGHTLY-AUDIT-001'
-export const SYSTEM_HEALTH_NIGHTLY_AUDIT_CLOSEOUT_KEY = 'system-health-nightly-audit-v1'
-export const SYSTEM_HEALTH_NIGHTLY_AUDIT_PLAN_PATH = 'docs/process/system-health-nightly-audit-001-plan.md'
-export const SYSTEM_HEALTH_NIGHTLY_AUDIT_APPROVAL_PATH = 'docs/process/approvals/SYSTEM-HEALTH-NIGHTLY-AUDIT-001.json'
-export const SYSTEM_HEALTH_NIGHTLY_AUDIT_SCRIPT_PATH = 'scripts/process-system-health-nightly-audit-check.mjs'
-export const SYSTEM_HEALTH_NIGHTLY_AUDIT_JOB_KEY = 'system-health-nightly-audit'
-export const SYSTEM_HEALTH_NIGHTLY_AUDIT_REPORT_PREFIX = 'docs/handoffs/system-health'
-export const SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID = 'SCHEDULED-JOB-STALENESS-DASHBOARD-001'
-export const SCHEDULED_JOB_STALENESS_DASHBOARD_CLOSEOUT_KEY = 'scheduled-job-staleness-dashboard-v1'
-export const SCHEDULED_JOB_STALENESS_DASHBOARD_PLAN_PATH = 'docs/process/scheduled-job-staleness-dashboard-001-plan.md'
-export const SCHEDULED_JOB_STALENESS_DASHBOARD_APPROVAL_PATH = 'docs/process/approvals/SCHEDULED-JOB-STALENESS-DASHBOARD-001.json'
-export const SYSTEM_HEALTH_NIGHTLY_AUDIT_SCHEDULE_LOCAL_TIME = '05:15'
-export const SYSTEM_HEALTH_NIGHTLY_AUDIT_SCHEDULE_TIMEZONE = 'America/Toronto'
-export const SCHEDULED_JOB_STALENESS_GRACE_MINUTES = 15
-export const ACTIVE_JOB_RUN_STALE_GRACE_SECONDS = 300
-
-const ACTIVE_JOB_RUN_STATUSES = new Set(['queued', 'running'])
-const CLASSIFIED_FINDING_REPAIR_CARDS = {
-  endpointMetrics: 'FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001',
-  handoffHotDocCleanup: 'FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001',
-  fileSizeClassifier: 'FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001',
-  extractCurrent: 'EXTRACT-CURRENT-001',
-  extractBackfill: 'EXTRACT-BACKFILL-001',
-  connectorMonitor: 'CONNECTOR-UPTIME-MONITOR-001
-```
-
 ### P1 lib/source-lifecycle-completion.js
 
 - Lines: 707
-- Bytes: 36117
+- Bytes: 36234
 - Reasons: source_health_surface
 
 ```
@@ -461,155 +457,6 @@ const CURRENT_REALITY_SOURCE_IDS = [
   'SRC-FREEDOM-COMMUNITY-001',
   'SRC-FREEDOM-COMMUNITY-REV-001',
   'SRC-FREEDOM-ENGINE-001',
-```
-
-### P1 lib/build-lane-failure-telemetry.js
-
-- Lines: 674
-- Bytes: 29886
-- Reasons: changed_since_baseline
-
-```
-import crypto from 'node:crypto'
-import fs from 'node:fs'
-import path from 'node:path'
-
-export const BUILD_LANE_FAILURE_TELEMETRY_CARD_ID = 'BUILD-LANE-FAILURE-TELEMETRY-001'
-export const BUILD_LANE_FAILURE_TELEMETRY_CLOSEOUT_KEY = 'build-lane-failure-telemetry-v1'
-export const BUILD_LANE_FAILURE_TELEMETRY_PLAN_PATH = 'docs/process/build-lane-failure-telemetry-001-plan.md'
-export const BUILD_LANE_FAILURE_TELEMETRY_APPROVAL_PATH = 'docs/process/approvals/BUILD-LANE-FAILURE-TELEMETRY-001.json'
-export const BUILD_LANE_FAILURE_TELEMETRY_CLOSEOUT_PATH = 'docs/handoffs/2026-05-18-build-lane-failure-telemetry-closeout.md'
-export const BUILD_LANE_FAILURE_TELEMETRY_SCRIPT_PATH = 'scripts/process-build-lane-failure-telemetry-check.mjs'
-export const BUILD_LANE_FAILURE_TELEMETRY_SPRINT_ID = 'build-lane-failure-telemetry-2026-05-18'
-export const BUILD_LANE_FAILURE_TELEMETRY_LOCAL_LOG_PATH = '.git/foundation-build-lane-failure-telemetry.jsonl'
-export const BUILD_LANE_FAILURE_TELEMETRY_LOCAL_SUMMARY_PATH = '.git/foundation-build-lane-failure-summary.json'
-export const BUILD_LANE_FAILURE_TELEMETRY_SHIP_PROOF_PATH = '.git/foundation-ship-proof.json'
-export const BUILD_LANE_FAILURE_TELEMETRY_INFLIGHT_SHIP_PROOF_ENV = 'BCREW_FOUNDATION_SHIP_INFLIGHT_PROOF'
-export const BUILD_LANE_FAILURE_TELEMETRY_24H_WARNING_THRESHOLD = 3
-export const BUILD_LANE_FAILURE_TELEMETRY_24H_RISK_THRESHOLD = 5
-export const BUILD_LANE_TELEMETRY_RESOLUTION_REPAIR_CARD_ID = 'BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001'
-export const BUILD_LANE_TELEMETRY_RESOLUTION_REPAIR_CLOSEOUT_KEY = 'build-lane-telemetry-resolution-repair-v1'
-export const BUILD_LANE_TELEMETRY_RESOLUTION_REPAIR_PLAN_PATH = 'docs/process/build-lane-telemetry-resolution-repair-001-plan.md'
-export const BUILD_LANE_TELEMETRY_RESOLUTION_REPAIR_APPROVAL_PATH = 'docs/process/approvals/BUILD-LANE-TELEMETRY-RESOLUTION-REPAIR-001.json'
-export const BUILD_LANE_TELEMETRY_RESOLUTION_REPAIR_CLOSEOUT_PATH = 'docs/handoffs/2026-05-18-build-lane-telemetry-resolution-repair-closeout.md'
-export const BUILD_LANE_TELEMETRY_RESOLUTION_REPAIR_SCRIPT_PATH = 'scripts/process-build-lane-telemetry-resolution-repair-check.mjs'
-export const BUILD_LANE_TELEMETRY_RESOLUTION_REPAIR_SPRINT_ID = 'build-lane-telemetry-resolution-repair-2026-05-18'
-
-export const BUILD_LANE_TELEMETRY_RESOLUTION_REPAIR_PROOF_COMMANDS = [
-  'node --check lib/build-lane-failure-telemetry.js l
-```
-
-### P1 scripts/process-build-lane-repeated-failure-action-gate-check.mjs
-
-- Lines: 661
-- Bytes: 30910
-- Reasons: changed_since_baseline, process_check_surface
-
-```
-    operation: 'create/update repeated-failure action gate backlog card, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  if (closeCard && actionGate?.status === 'blocked') {
-    throw new Error(`Cannot close ${CARD_ID}: repeated red failures still lack a repair route.`)
-  }
-  await upsertLiveCardAndPlanCritic({ closeCard, planReview, actionGate })
-  const previous = await getActiveFoundationCurrentSprint()
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        ...(previous.sprint || {}),
-        sprintId: SPRINT_ID,
-        status: 'active',
-        goal: 'Get Foundation fully green, lock main integration discipline, upgrade dual/parallel work lanes, upgrade auditor routing, then resume source/extraction activation.',
-        activeBlockerCardId: activeBlockerAfterGate({ closeCard, actionGate }),
-        metadata: {
-          ...(previous.sprint?.metadata || {}),
-          currentStatus: closeCard ? 'repeated_failure_gate_closed' : 'repeated_failure_gate_active',
-          lastClosedCardId: closeCard ? CARD_ID : previous.sprint?.metadata?.lastClosedCardId,
-          nextAction: closeCard
-            ? actionGate?.status === 'action_required'
-              ? 'Run the attached repeated-failure repair card before normal sprint work.'
-              : `Run ${NEXT_CARD_ID} next; no parallel builders were allowed before this P0 gate.`
-            : `Finish ${CARD_ID} before ${NEXT_CARD_ID}.`,
-          repeatedFailureActionGateStatus: actionGate?.status || 'unknown',
-          exitCriteria: [
-            'Main integration lock is closed and pushed.',
-            'Repeated failures are resolved, blocked, or attached to live repair cards.',
-            'Parallel builder merge-lane enforcement runs only after this P0 gate.',
-            'Health/audit cleanup runs before source/extraction activation.',
-          ],
-        },
-      },
-      items: buildSprintItems(previous, { closeCard, actionGate }),
-    },
-    'codex-build-lane-repeated-failure-action-gate',
-    {
-      apply: true,
-      allowItemReplacement: true,
-      expectedPreviousActiveSprintId: previous?.sprint?.sprintId || SPRINT_ID,
-      reason: 'Steve made repeated build-lane failures P0 before parallel-builder work.',
-    },
-  )
-}
-
-function containsU
-```
-
-### P1 scripts/process-foundation-health-watch-to-green-check.mjs
-
-- Lines: 592
-- Bytes: 28936
-- Reasons: changed_since_baseline, process_check_surface, source_health_surface
-
-```
-  assertProcessCheckWriteAllowed({
-    argv: process.argv.slice(2),
-    scriptPath: SCRIPT_PATH,
-    operation: 'create/update health watch-to-green backlog card, Plan Critic row, and Current Sprint overlay',
-    allowedFlags: [PROCESS_CHECK_WRITE_FLAGS.apply, PROCESS_CHECK_WRITE_FLAGS.closeCard, PROCESS_CHECK_WRITE_FLAGS.mutateSprint],
-  })
-  await upsertLiveCardAndPlanCritic({ closeCard, planReview, healthSummary })
-  const previous = await getActiveFoundationCurrentSprint()
-  await upsertFoundationCurrentSprintOverlay(
-    {
-      sprint: {
-        ...(previous.sprint || {}),
-        sprintId: SPRINT_ID,
-        status: 'active',
-        goal: 'Get Foundation fully green, lock main integration discipline, upgrade dual/parallel work lanes, upgrade auditor routing, then resume source/extraction activation.',
-        activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
-        metadata: {
-          ...(previous.sprint?.metadata || {}),
-          currentStatus: closeCard ? 'foundation_health_watch_to_green_closed' : 'foundation_health_watch_to_green_active',
-          lastClosedCardId: closeCard ? CARD_ID : previous.sprint?.metadata?.lastClosedCardId,
-          nextAction: closeCard
-            ? `Run ${NEXT_CARD_ID} next.`
-            : `Finish ${CARD_ID}; system health cannot be green with unclassified red/yellow rows.`,
-          systemHealthSummary: healthSummary,
-          exitCriteria: [
-            'No unclassified system-health red/yellow rows remain.',
-            'Approval-bound rows have owner, reason, threshold, and next action.',
-            'Endpoint, hot-doc, and file-size rows are routed to next sprint cards.',
-            'Audit finding-to-backlog router runs before source/extraction activation.',
-          ],
-        },
-      },
-      items: buildSprintItems(previous, { closeCard }),
-    },
-    'codex-foundation-health-watch-to-green',
-    {
-      apply: true,
-      allowItemReplacement: true,
-      expectedPreviousActiveSprintId: previous?.sprint?.sprintId || SPRINT_ID,
-      reason: 'Steve required Foundation health green or explicit non-misleading classification before source activation.',
-    },
-  )
-}
-
-function containsUnsafeRuntimeCall(source = '') {
-  const executableSource = String(source || '').replace(/(['"`])(?:\\.|(?!\1)[\s\S])*\1/g, '')
-  const patterns = [
-    /\bstartExtractionRun\s*\(/,
 ```
 
 ### P1 scripts/process-action-route-review-inbox-check.mjs
@@ -667,110 +514,61 @@ function containsUnsafeRuntimeCall(source = '') {
       reason: 'Steve approved continuing the Foundation KB/actio
 ```
 
-### P1 lib/foundation-build-closeout-build-lane-records.js
-
-- Lines: 552
-- Bytes: 41174
-- Reasons: changed_since_baseline
-
-```
-export const buildLaneCloseoutRecords = [
-  {
-    key: 'build-lane-served-code-fanout-sync-repair-v1',
-    backlogIds: [
-      'BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001',
-    ],
-    match: {
-      subjectIncludes: [
-        'BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001',
-        'Build Lane Served-Code Fanout Sync Repair',
-        'build-lane-served-code-fanout-sync-repair-v1',
-      ],
-    },
-    operatorCloseout: true,
-    mentionedBacklogIds: [
-      'BUILD-LANE-FAILURE-TELEMETRY-001',
-      'SHIP-GATE-WORKER-LIVE-JOB-PAUSE-001',
-      'PARALLEL-BUILDER-OPERATING-SYSTEM-001',
-    ],
-    systemArea: 'Foundation build lane reliability',
-    status: 'accepted',
-    acceptanceState: 'Verified',
-    whatChanged: 'Repaired fanout failure classification for stale served dashboard code.',
-    whatItDoes: 'Keeps stale served code as a hard fanout failure while skipping dependent Recent Builds checks until the dashboard serves repo HEAD, preventing false build-log closeout/proof/where-it-lives telemetry.',
-    whyItMatters: 'Builders should fix the real root cause. Stale served code needs a runtime restart, not a misleading build-log registry repair.',
-    whereItLives: [
-      'scripts/process-fanout-check.mjs SKIP behavior for dependent Recent Builds checks',
-      'scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs focused proof and live card scaffold',
-      'docs/process/build-lane-served-code-fanout-sync-repair-001-plan.md',
-      'docs/process/approvals/BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001.json',
-      'docs/handoffs/2026-05-18-build-lane-served-code-fanout-sync-repair-closeout.md',
-      'lib/foundation-verify-coverage-card-ids.js done-card coverage',
-    ],
-    proofCommands: [
-      'node --check scripts/process-fanout-check.mjs scripts/process-build-lane-served-code-fanout-sync-repair-check.mjs',
-      'npm run process:build-lane-served-code-fanout-sync-repair-check -- --close-card --json',
-      'npm run backlog:hygiene -- --json',
-      'npm run foundation:verify',
-      'npm run process:ship-check -- --card=BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001 --planApprovalRef=docs/process/approvals/BUILD-LANE-SERVED-CODE-FANOUT-SYNC-REPAIR-001.json --closeoutKey=build-lane-served-code-fanout-sync-repair-v1 --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify',
-      'npm run proces
-```
-
-### P1 scripts/process-foundation-raw-green-repair-and-lock-check.mjs
+### P1 scripts/process-extract-current-check.mjs
 
 - Lines: 551
-- Bytes: 27350
-- Reasons: changed_since_baseline, process_check_surface
+- Bytes: 27615
+- Reasons: process_check_surface
 
 ```
-    if (!inserted && item.cardId === NEXT_CARD_ID) {
-      items.push(withRawGreenSprintItem({ order: item.order || items.length + 1 }, { closeCard }))
-      inserted = true
-    }
-    items.push(item)
+    await client.query('ROLLBACK')
+    throw error
+  } finally {
+    client.release()
+    await pool.end()
   }
-  if (!inserted) items.push(withRawGreenSprintItem({ order: items.length + 1 }, { closeCard }))
 
+  const previous = activeSprint || await getActiveFoundationCurrentSprint()
   await upsertFoundationCurrentSprintOverlay(
     {
       sprint: {
         ...(previous.sprint || {}),
-        sprintId: SPRINT_ID,
+        sprintId: previous.sprint?.sprintId || SPRINT_ID,
         status: 'active',
-        goal: 'Get Foundation fully green, lock main integration discipline, upgrade dual/parallel work lanes, upgrade auditor routing, then resume source/extraction activation.',
+        goal: 'Make Foundation raw-green, self-improving, backlog-clean, operationally controlled, and ready to resume source/extract work without rebuilding tech debt.',
         activeBlockerCardId: closeCard ? NEXT_CARD_ID : CARD_ID,
         metadata: {
           ...(previous.sprint?.metadata || {}),
+          currentStatus: closeCard ? 'extract_current_closed' : 'extract_current_active',
           lastClosedCardId: closeCard ? CARD_ID : previous.sprint?.metadata?.lastClosedCardId,
-          currentStatus: closeCard ? 'raw_green_repair_locked' : 'raw_green_repair_active',
-          nextAction: closeCard
-            ? `Resume ${NEXT_CARD_ID}; raw workflow failure repairs and false-green locks are shipped.`
-            : `${CARD_ID} blocks normal sprint/value work until raw workflow failures are repaired.`,
+          nextAction: closeCard ? `Continue ${NEXT_CARD_ID}; EXTRACT-CURRENT is closed.` : `${CARD_ID} is active; prove current-day freshness before backfill.`,
+          extractCurrentSummary: {
+            status: closeCard ? 'healthy' : 'active',
+            closeoutKey: CLOSEOUT_KEY,
+            nextCardId: NEXT_CARD_ID,
+            targetKeys: EXTRACT_CURRENT_TARGETS.map(target => target.targetKey),
+            blockersParkActionsNotSprint: true,
+          },
         },
       },
-      items: items.map((item, index) => ({ ...item, order: index + 1 })),
+      items: buildSprintItems(previous, { closeCard }),
     },
-    'codex-foundation-raw-green-repair',
+    'codex-extract-current',
     {
       apply: true,
       allowItemReplacement: true,
       expectedPreviousActiveSprintId: previous.sprint?.sprintId || SPRINT_ID,
-      reason: 'Steve made raw-green repair the active P0 blocker before normal sprint progression.',
+      reason: `${CARD_ID} ${closeCard ? 'closes' : 'updates'} current-day freshness proof and ${closeCard ? `advances to ${NEXT_CARD_ID}` : 'owns the active blocker'}.`,
     },
   )
 }
 
-function withRawGreenSprintItem(item = {}, { closeCard = false } = {}) {
-  return {
-    ...item,
-    cardId: CARD_ID,
-    stage: closeCard ? 'done_this_sprint' : 'building_now',
-    planRef: PLAN_PATH,
-    definitionOfDone: 'Connector repeated failure repaired with governed job proof, meeting transcript latest state repaired, false-green process exits fail closed, repeated-failure gate exposes blockers, and full Foundation ship proof passes.',
-    proofCommands: PROOF_COMMANDS,
-    notNextBoundaries: [
-      'Do not close by classification.',
-      'Do not proceed to value/source/agent feature work before this P0 closes.',
+async function main() {
+  const args = parseArgs()
+  const checks = []
+  await initFoundationDb()
+
+  const jobKeys = [
 ```
 
 ### P1 scripts/process-action-route-promotion-workflow-check.mjs
@@ -882,118 +680,338 @@ function withRawGreenSprintItem(item = {}, { closeCard = false } = {}) {
       expectedPreviousActiveSprin
 ```
 
-### P1 lib/foundation-verify-coverage-card-ids.js
-
-- Lines: 453
-- Bytes: 16895
-- Reasons: changed_since_baseline
-
-```
-export const PROCESS_REPAIR_VERIFIER_SPRINT_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SPRINT-PROCESS-REPAIR-001',
-  'VERIFIER-SPRINT-INDEPENDENCE-001',
-  'VERIFIER-MODULAR-SPLIT-001',
-]
-
-export const FOUNDATION_SPRINT_SYSTEM_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-SPRINT-SYSTEM-001',
-]
-
-export const FOUNDATION_SPRINT_REVIEW_CARD_ID = 'FOUNDATION-SPRINT-REVIEW-001'
-export const FOUNDATION_SPRINT_REVIEW_DOC_PATH = 'docs/process/foundation-sprint-review-001.md'
-export const FOUNDATION_SPRINT_REVIEW_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  FOUNDATION_SPRINT_REVIEW_CARD_ID,
-]
-
-export const FOUNDATION_FOLLOWUP_CARD_CAPTURE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-FOLLOWUP-CARD-CAPTURE-001',
-]
-
-export const FOUNDATION_SYSTEMS_SERVICE_GROUPING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'FOUNDATION-SYSTEMS-SERVICE-GROUPING-001',
-]
-
-export const SYSTEM_REGISTRATION_SWEEP_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SYSTEM-REGISTRATION-SWEEP-001',
-]
-
-export const SALES_GLS_SCOREBOARD_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'SALES-GLS-SCOREBOARD-V1',
-]
-
-export const GATE_RELIABILITY_RECURRING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'GATE-RELIABILITY-002',
-]
-
-export const GATE_RELIABILITY_DIRECT_VERIFIER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'GATE-RELIABILITY-003',
-]
-
-export const RUNTIME_SAFETY_HARDENING_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE = [
-  'VERIFY-READONLY-GATE-001',
-  'PROCESS-CHECK-APPLY-BOUNDARY-001',
-  'PROCESS-CHECK-SCHEDULED-MUTATION-GUARD-001',
-  'FOUNDATION-DB-INIT-SEED-SPLIT-001',
-  'CURRENT-SPRINT-MUTATION-GUARDS-001',
-  'BACKLOG-STORE-CONCURRENCY-001',
-]
-```
-
-### P1 scripts/process-foundation-ship.mjs
+### P1 scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs
 
 - Lines: 451
-- Bytes: 15339
+- Bytes: 20232
 - Reasons: changed_since_baseline, process_check_surface
+
+```
+    await client.query('ROLLBACK')
+    throw error
+  } finally {
+    client.release()
+    await pool.end()
+  }
+
+  const previous = activeSprint || await getActiveFoundationCurrentSprint()
+  await upsertFoundationCurrentSprintOverlay(
+    {
+      sprint: {
+        ...(previous.sprint || {}),
+        sprintId: previous.sprint?.sprintId || SPRINT_ID,
+        status: 'active',
+        goal: 'Foundation-only sprint closed with raw-green, repeated-failure, backlog, Current Sprint, and source/extract proof.',
+        activeBlockerCardId: closeCard ? null : CARD_ID,
+        metadata: {
+          ...(previous.sprint?.metadata || {}),
+          currentStatus: closeCard ? 'foundation_sprint_closed' : 'foundation_sprint_closeout_active',
+          lastClosedCardId: closeCard ? CARD_ID : previous.sprint?.metadata?.lastClosedCardId,
+          nextAction: closeCard
+            ? 'No active card remains in this sprint. Start the next sprint from morning audit truth; continuous Foundation Builder is ready under repair-first rules.'
+            : `${CARD_ID} is active; close the Foundation-only sprint before any split.`,
+          exitCriteria: [
+            'System Health is healthy with raw risk/watch at zero.',
+            'Repeated-failure gate is healthy.',
+            'Backlog hygiene is healthy.',
+            'Current Sprint truth is healthy.',
+            'Required Foundation-only sprint cards are done.',
+            'Main is clean and synced.',
+          ],
+          continuousWorkReadiness: closeoutStatus?.recommendation || null,
+        },
+      },
+      items: buildSprintItems(previous, { closeCard }),
+    },
+    'codex-sprint-closeout',
+    {
+      apply: true,
+      allowItemReplacement: true,
+      expectedPreviousActiveSprintId: previous.sprint?.sprintId || SPRINT_ID,
+      reason: `${CARD_ID} ${closeCard ? 'closes' : 'updates'} the Foundation-only sprint readiness decision.`,
+    },
+  )
+}
+
+async function main() {
+  const args = parseArgs()
+```
+
+### P1 scripts/process-agent-feedback-routes-split-check.mjs
+
+- Lines: 286
+- Bytes: 12225
+- Reasons: process_check_surface
 
 ```
 #!/usr/bin/env node
 
-import { execFile as execFileCallback } from 'node:child_process'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 import process from 'node:process'
-import { promisify } from 'node:util'
+import { fileURLToPath } from 'node:url'
+import { Pool } from 'pg'
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import { createAgentFeedbackToken } from '../lib/agent-feedback.js'
 import {
-  classifyFoundationGateError,
-  formatFoundationGateRetryMessage,
-  sleep,
-} from '../lib/foundation-gate-reliability.js'
+  closeFoundationDb,
+  getActiveFoundationCurrentSprint,
+  getBacklogItemsByIds,
+  getPlanCriticRunsByCardIds,
+} from '../lib/foundation-db.js'
 import {
-  BUILD_LANE_FAILURE_TELEMETRY_INFLIGHT_SHIP_PROOF_ENV,
-  recordBuildLaneFailureEventsFromError,
-} from '../lib/build-lane-failure-telemetry.js'
-import { recordFoundationShipProof } from '../lib/process-git-hooks.js'
-import {
-  SHIP_GATE_WORKER_LIVE_JOB_PAUSE_DEFAULT_TTL_MS,
-  clearFoundationWorkerShipPause,
-  writeFoundationWorkerShipPause,
-} from '../lib/ship-gate-worker-live-job-pause.js'
+  AGENT_FEEDBACK_PUBLIC_ROUTE_MARKERS,
+  AGENT_FEEDBACK_ROUTES_SPLIT_APPROVAL_PATH,
+  AGENT_FEEDBACK_ROUTES_SPLIT_BEFORE_SERVER_LINES,
+  AGENT_FEEDBACK_ROUTES_SPLIT_CARD_ID,
+  AGENT_FEEDBACK_ROUTES_SPLIT_CLOSEOUT_KEY,
+  AGENT_FEEDBACK_ROUTES_SPLIT_PLAN_PATH,
+  AGENT_FEEDBACK_ROUTES_SPLIT_ROUTE_BUDGET_BYTES,
+  AGENT_FEEDBACK_ROUTES_SPLIT_ROUTE_BUDGET_MS,
+  AGENT_FEEDBACK_ROUTES_SPLIT_SCRIPT_PATH,
+  AGENT_FEEDBACK_ROUTES_SPLIT_SPRINT_ID,
+  buildAgentFeedbackRoutesSplitDogfoodProof,
+} from '../lib/agent-feedback-routes.js'
 
-const execFile = promisify(execFileCallback)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const repoRoot = path.resolve(__dirname, '..')
 
-const requiredArgs = ['card', 'planApprovalRef', 'closeoutKey']
+const OUT_OF_SCOPE_ROUTE_MARKERS = [
+  "app.get('/api/foundation/agent-feedback-production-dry-run'",
+  "app.get('/api/ops/agent-feedback-production-dry-run'",
+  "app.post('/api/sales-hub/listing-assignment'",
+  "app.post('/api/intelligence/evidence'",
+]
+
+const SAFE_ROUTE_PROBES = [
+  {
+    label: 'invalid session token',
+    method: 'GET',
+    pathname: '/api/agent-feedback/session?token=invalid',
+    expectedStatus: 400,
+    expectedCode: 'invalid_agent_feedback_token',
+  },
+```
+
+### P1 scripts/process-source-lifecycle-dynamic-counts-check.mjs
+
+- Lines: 272
+- Bytes: 10909
+- Reasons: process_check_surface, source_health_surface
+
+```
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  closeFoundationDb,
+  getActiveFoundationCurrentSprint,
+  getBacklogItemsByIds,
+  getPlanCriticRunsByCardIds,
+} from '../lib/foundation-db.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
+import { buildSourceLifecycleCompletionStatus } from '../lib/source-lifecycle-completion.js'
+import {
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_APPROVAL_PATH,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CLOSEOUT_KEY,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_PLAN_PATH,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SCRIPT_PATH,
+  SOURCE_LIFECYCLE_DYNAMIC_COUNTS_SPRINT_ID,
+  buildSourceLifecycleDynamicCountsDogfoodProof,
+} from '../lib/source-lifecycle-dynamic-counts.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const repoRoot = path.resolve(__dirname, '..')
+
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = {
+    json: false,
+    baseUrl: process.env.BCREW_FOUNDATION_BASE_URL || 'http://localhost:3000',
+  }
+  for (const arg of argv) {
+    if (arg === '--json' || arg === '--json=true') args.json = true
+    else if (arg.startsWith('--baseUrl=')) args.baseUrl = arg.slice('--baseUrl='.length)
+  }
+  return args
+}
+
+function addCheck(checks, condition, check, detail = '') {
+  checks.push({ ok: Boolean(condition), check, detail })
+}
+
+async function readText(relativePath) {
+  return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
+```
+
+### P1 scripts/process-app-page-routes-split-check.mjs
+
+- Lines: 225
+- Bytes: 9932
+- Reasons: process_check_surface
+
+```
+#!/usr/bin/env node
+
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  closeFoundationDb,
+  getActiveFoundationCurrentSprint,
+  getBacklogItemsByIds,
+  getPlanCriticRunsByCardIds,
+} from '../lib/foundation-db.js'
+import {
+  APP_PAGE_ROUTES_SPLIT_APPROVAL_PATH,
+  APP_PAGE_ROUTES_SPLIT_BEFORE_SERVER_LINES,
+  APP_PAGE_ROUTES_SPLIT_CARD_ID,
+  APP_PAGE_ROUTES_SPLIT_CLOSEOUT_KEY,
+  APP_PAGE_ROUTES_SPLIT_PLAN_PATH,
+  APP_PAGE_ROUTES_SPLIT_ROUTE_BUDGET_BYTES,
+  APP_PAGE_ROUTES_SPLIT_ROUTE_BUDGET_MS,
+  APP_PAGE_ROUTES_SPLIT_SCRIPT_PATH,
+  APP_PAGE_ROUTES_SPLIT_SPRINT_ID,
+  buildAppPageRoutesSplitDogfoodProof,
+} from '../lib/app-page-routes.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const repoRoot = path.resolve(__dirname, '..')
 
 function parseArgs(argv) {
-  const result = {}
+  const args = {}
   for (const arg of argv) {
     if (!arg.startsWith('--')) continue
     const [key, value] = arg.slice(2).split('=')
-    result[key] = value ?? true
+    args[key] = value ?? true
   }
-  return result
+  return args
 }
 
-function normalize(value) {
-  return String(value || '').trim()
+function ensure(checks, condition, check, detail = '') {
+  checks.push({ ok: Boolean(condition), check, detail })
 }
 
-function buildArg(name, value) {
-  return `--${name}=${value}`
+async function readRepoFile(relativePath) {
+  return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
 }
 
-function printUsage() {
-  console.log('Usage:')
-  console.log('  npm run process:foundation-ship -- --card=<CARD> --planApprovalRef=<APPROVAL_JSON> --closeoutKey=<CLOSEOUT_KEY> [--commitRef=HEAD]')
-  console.log('')
-  console.log('Runs, in order:')
+```
+
+### P1 lib/foundation-sprint-closeout-continuous-work.js
+
+- Lines: 155
+- Bytes: 7919
+- Reasons: changed_since_baseline
+
+```
+export const FOUNDATION_SPRINT_CLOSEOUT_CARD_ID = 'FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001'
+export const FOUNDATION_SPRINT_CLOSEOUT_CLOSEOUT_KEY = 'foundation-sprint-closeout-continuous-work-ready-v1'
+export const FOUNDATION_SPRINT_CLOSEOUT_PLAN_PATH = 'docs/process/foundation-sprint-closeout-and-continuous-work-ready-001-plan.md'
+export const FOUNDATION_SPRINT_CLOSEOUT_APPROVAL_PATH = 'docs/process/approvals/FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001.json'
+export const FOUNDATION_SPRINT_CLOSEOUT_SCRIPT_PATH = 'scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs'
+export const FOUNDATION_SPRINT_CLOSEOUT_HANDOFF_PATH = 'docs/handoffs/2026-05-19-foundation-sprint-closeout-continuous-work-ready.md'
+
+export const FOUNDATION_SPRINT_CLOSEOUT_REQUIRED_CARDS = Object.freeze([
+  'FOUNDATION-HEALTH-GREEN-LOCK-001',
+  'FOUNDATION-LESSONS-LEARNED-LOOP-001',
+  'FOUNDATION-BACKLOG-P0-REALITY-CLEANUP-001',
+  'SYSTEM-010',
+  'SOURCE-012',
+  'SOURCE-018',
+  'EXTRACT-CURRENT-001',
+  'EXTRACT-BACKFILL-001',
+  'DRIVE-CONTENT-001',
+  'EMAIL-ATTACHMENTS-001',
+])
+
+export const FOUNDATION_SPRINT_CLOSEOUT_CHANGED_FILES = [
+  'lib/foundation-sprint-closeout-continuous-work.js',
+  FOUNDATION_SPRINT_CLOSEOUT_SCRIPT_PATH,
+  'package.json',
+  'lib/foundation-build-closeout-process-gate-records.js',
+  FOUNDATION_SPRINT_CLOSEOUT_PLAN_PATH,
+  FOUNDATION_SPRINT_CLOSEOUT_APPROVAL_PATH,
+  FOUNDATION_SPRINT_CLOSEOUT_HANDOFF_PATH,
+]
+
+export const FOUNDATION_SPRINT_CLOSEOUT_PROOF_COMMANDS = [
+  `node --check lib/foundation-sprint-closeout-continuous-work.js ${FOUNDATION_SPRINT_CLOSEOUT_SCRIPT_PATH}`,
+  'npm run process:foundation-sprint-closeout-continuous-work-ready-check -- --apply --close-card --json',
+  'npm run process:system-health-nightly-audit-check -- --json',
+  'npm run process:build-lane-repeated-failure-action-gate-check -- --json',
+  'npm run process:current-sprint-dynamic-truth-check -- --json',
+  'npm run backlog:hygiene -- --json',
+  'npm run foundation:verify -- --json-summary',
+  `npm run process:ship-check -- --card=${FOUNDATION_SPRINT_CLOSEOUT_CARD_ID} --planApprovalRef=${FOUNDATION_SPRINT_CLOSEOUT_APPROVAL_PATH} --closeoutKey=${FOUNDATION_SPRINT_CLOSEOUT_CLOSEOUT_KEY} --skipLiveVerify=true --skipLiveVerifyReason=process:foundation-ship-runs-final-foundation-verify`,
+  `npm run process:fanout-check -- --card=${FOUNDATION_SPR
+```
+
+### P3 lib/foundation-current-sprint.js
+
+- Lines: 1608
+- Bytes: 79717
+- Reasons: changed/review target
+
+```
+import {
+  SOURCE_MATURITY_GRID_APPROVAL_PATH,
+  SOURCE_MATURITY_GRID_CARD_ID,
+  SOURCE_MATURITY_GRID_CLOSEOUT_KEY,
+  SOURCE_MATURITY_GRID_PLAN_PATH,
+  SOURCE_MATURITY_GRID_SCRIPT_PATH,
+} from './source-maturity-grid.js'
+import {
+  SOURCE_EXTRACTION_COVERAGE_APPROVAL_PATH,
+  SOURCE_EXTRACTION_COVERAGE_CARD_ID as SOURCE_EXTRACTION_COVERAGE_CARD_ID_VALUE,
+  SOURCE_EXTRACTION_COVERAGE_CLOSEOUT_KEY,
+  SOURCE_EXTRACTION_COVERAGE_PLAN_PATH,
+  SOURCE_EXTRACTION_COVERAGE_SCRIPT_PATH,
+} from './source-extraction-coverage.js'
+import {
+  SOURCE_COVERAGE_CLOSEOUT_APPROVAL_PATH,
+  SOURCE_COVERAGE_CLOSEOUT_CARD_ID as SOURCE_COVERAGE_CLOSEOUT_CARD_ID_VALUE,
+  SOURCE_COVERAGE_CLOSEOUT_CLOSEOUT_KEY,
+  SOURCE_COVERAGE_CLOSEOUT_PLAN_PATH,
+  SOURCE_COVERAGE_CLOSEOUT_SCRIPT_PATH,
+} from './source-coverage-closeout.js'
+import {
+  MARKETING_SOURCE_MAP_APPROVAL_PATH,
+  MARKETING_SOURCE_MAP_CARD_ID as MARKETING_SOURCE_MAP_CARD_ID_VALUE,
+  MARKETING_SOURCE_MAP_CLOSEOUT_KEY,
+  MARKETING_SOURCE_MAP_PLAN_PATH,
+  MARKETING_SOURCE_MAP_SCRIPT_PATH,
+} from './marketing-source-map.js'
+import {
+  BRAND_STACK_APPROVAL_PATH,
+  BRAND_STACK_CARD_ID as BRAND_STACK_CARD_ID_VALUE,
+  BRAND_STACK_CLOSEOUT_KEY,
+  BRAND_STACK_PLAN_PATH,
+  BRAND_STACK_SCRIPT_PATH,
+} from './brand-stack.js'
+import {
+  TIER_BEHAVIORAL_COMPLETION_APPROVAL_PATH,
+  TIER_BEHAVIORAL_COMPLETION_CARD_ID as TIER_BEHAVIORAL_COMPLETION_CARD_ID_VALUE,
+  TIER_BEHAVIORAL_COMPLETION_CLOSEOUT_KEY,
+  TIER_BEHAVIORAL_COMPLETION_PLAN_PATH,
+  TIER_BEHAVIORAL_COMPLETION_SCRIPT_PATH,
+} from './tier-behavioral-completion.js'
+import {
+  VERIFICATION_RUNS_APPROVAL_PATH,
+  VERIFICATION_RUNS_CARD_ID as VERIFICATION_RUNS_CARD_ID_VALUE,
+  VERIFICATION_RUNS_CLOSEOUT_KEY,
+  VERIFICATION_RUNS_PLAN_PATH,
+  VERIFICATION_RUNS_SCRIPT_PATH,
 ```
 
 ## Top Deterministic Findings
@@ -1001,6 +1019,7 @@ function printUsage() {
 - P1 active-vs-historical-verifier-mixing: Verifier mixes active sprint assertions with historical closeout proof -> ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001
 - P1 foundation-client-current-state-monolith: Foundation client embeds a large current-state renderer -> FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001
 - P1 foundation-hub-route-monolith: Foundation Hub route builds many domains in one handler -> FOUNDATION-HUB-PAYLOAD-EXTRACT-001
+- P1 hardcoded-foundation-ui-current-summary: Foundation UI embeds current-state summary truth -> FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001
 - P1 hardcoded-source-count-baseline: Source contract count is encoded as an exact baseline -> SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001
 - P1 hardcoded-source-count-baseline: Source contract count is encoded as an exact baseline -> SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001
 - P2 admin-deal-policy-date-duplication: Admin deal-review policy dates are duplicated across runner, job config, and UI -> ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001
@@ -1013,14 +1032,13 @@ function printUsage() {
 
 ## Doc / Report Artifact Bloat
 
-- Status: `risk`
-- Handoff files: 324
-- Handoff hot lines: 22614
-- Nightly artifacts: 11
-- Red/yellow findings: 1/1
+- Status: `healthy`
+- Handoff files: 115
+- Handoff hot lines: 7352
+- Nightly artifacts: 7
+- Red/yellow findings: 0/0
 
-- P0 docs/handoffs is accumulating too many hot files: docs/handoffs has 323 file(s) modified in the last 31 days; budget is 220/320.
-- P1 docs/handoffs is growing past the hot-doc budget: docs/handoffs contains 22614 line(s); budget is 20000/35000 warn/risk.
+- none
 
 ## Dogfood Proof
 
@@ -1045,24 +1063,24 @@ function printUsage() {
 
 Closeout key: `foundation-code-quality-nightly-audit-v1`
 Sprint: `foundation-code-quality-nightly-audit-2026-05-13`
-Generated at: `2026-05-19T15:17:48.324Z`
+Generated at: `2026-05-19T20:43:23.361Z`
 
 ## Morning Read
 
 - Status: `report_ready`
-- Findings: 12 total (0 P0, 5 P1, 7 P2, 0 P3)
-- Proposed backlog fixes: 11
+- Findings: 13 total (0 P0, 6 P1, 7 P2, 0 P3)
+- Proposed backlog fixes: 12
 - Detection mode: deterministic code first; no LLM detection used.
 - Mutation boundary: report-only; no auto-fixes, no auto backlog mutation, no autonomous dev, no feature work.
 - Synthetic proof: passed (hardcoded=2, mutator=1, slowEndpoint=risk)
 
 ## Endpoint Coverage
 
-- /api/foundation-hub: status=200 latency=95ms payload=515570B risk=healthy (Within V1 audit budget.)
-- /api/source-of-truth: status=200 latency=16ms payload=156492B risk=healthy (Within V1 audit budget.)
-- /api/foundation/source-lifecycle: status=200 latency=382ms payload=786828B risk=healthy (Within V1 audit budget.)
-- /api/foundation/build-log: status=200 latency=92ms payload=373775B risk=healthy (Within V1 audit budget.)
-- /api/foundation/gstack-build-intel: status=200 latency=18ms payload=31638B risk=healthy (Within V1 audit budget.)
+- /api/foundation-hub: status=200 latency=99ms payload=523042B risk=healthy (Within V1 audit budget.)
+- /api/source-of-truth: status=200 latency=25ms payload=196036B risk=healthy (Within V1 audit budget.)
+- /api/foundation/source-lifecycle: status=200 latency=362ms payload=621472B risk=healthy (Within V1 audit budget.)
+- /api/foundation/build-log: status=200 latency=104ms payload=415845B risk=healthy (Within V1 audit budget.)
+- /api/foundation/gstack-build-intel: status=200 latency=28ms payload=31638B risk=healthy (Within V1 audit budget.)
 
 ## Asset And Monolith Metrics
 
@@ -1072,10 +1090,10 @@ Assets:
 - public/foundation-nav-config.js: 8407B raw, 2349B gzip, 175 lines
 - public/foundation-data.js: 14401B raw, 2982B gzip, 469 lines
 - public/foundation-doc-markdown-renderers.js: 37237B raw, 7462B gzip, 1212 lines
-- public/foundation.js: 113609B raw, 22321B gzip, 2998 lines
+- public/foundation.js: 113633B raw, 22327B gzip, 2998 lines
 - public/foundation-backlog-renderers.js: 12173B raw, 2904B gzip, 303 lines
 - public/foundation-action-route-review-inbox-renderers.js: 9997B raw, 2767B gzip, 234 lines
-- public/foundation-source-registry-renderers.js: 55416B raw, 10722B gzip, 1450 lines
+- public/foundation-source-registry-renderers.js: 57243B raw, 11161B gzip, 1487 lines
 - public/foundation-fub-lead-source-renderers.js: 27456B raw, 5884B gzip, 678 lines
 - public/foundation-system-inventory-renderers.js: 57848B raw, 11281B gzip, 1519 lines
 - public/foundation-current-state-renderers.js: 45147B raw, 9808B gzip, 1172 lines
@@ -1088,16 +1106,16 @@ Assets:
 - public/foundation-router.js: 5394B raw, 1544B gzip, 196 lines
 
 DOM budget:
-- status=review, scripts=17, createElement=1669, appendChild=2139, innerHTML=73
+- status=review, scripts=17, createElement=1669, appendChild=2142, innerHTML=73
 
 Largest files:
-- scripts/foundation-verify.mjs: 4996 LOC, 277778B
-- public/foundation.js: 2998 LOC, 113609B
+- scripts/foundation-verify.mjs: 4973 LOC, 275714B
+- public/foundation.js: 2998 LOC, 113633B
 - lib/foundation-db-schema-seed-store.js: 2653 LOC, 137639B
-- lib/foundation-build-closeout-tightening-records.js: 2599 LOC, 224341B
+- lib/foundation-build-closeout-tightening-records.js: 2599 LOC, 226069B
 - public/styles-foundation-workflows.css: 2591 LOC, 50351B
-- lib/foundation-source-crawl-store.js: 2491 LOC, 110816B
-- lib/foundation-build-closeout-overnight-records.js: 2446 LOC, 190369B
+- lib/foundation-source-crawl-store.js: 2506 LOC, 111553B
+- lib/foundation-build-closeout-overnight-records.js: 2446 LOC, 192241B
 - public/styles-foundation-core.css: 2291 LOC, 43082B
 
 ## Top Findings
@@ -1105,7 +1123,7 @@ Largest files:
 ### P1 Verifier mixes active sprint assertions with historical closeout proof
 - Card lane: `VERIFIER-ASSUMPTION-REGISTRY-001`
 - Type: `drift_risk`
-- Evidence: `scripts/foundation-verify.mjs:3070` (historicalCardHasVerifiedCloseout), `scripts/foundation-verify.mjs:3136` (activeSprintAtOrPast), `scripts/foundation-verify.mjs:3138` (historicalCardHasVerifiedCloseout), `scripts/foundation-verify.mjs:4166` (historicalCardHasVerifiedCloseout), `scripts/foundation-verify.mjs:4371` (activeSprintAtOrPast), `scripts/foundation-verify.mjs:4452` (activeSprintAtOrPast)
+- Evidence: `scripts/foundation-verify.mjs:3073` (historicalCardHasVerifiedCloseout), `scripts/foundation-verify.mjs:3097` (activeSprintAtOrPast), `scripts/foundation-verify.mjs:3103` (historicalCardHasVerifiedCloseout), `scripts/foundation-verify.mjs:4143` (historicalCardHasVerifiedCloseout), `scripts/foundation-verify.mjs:4348` (activeSprintAtOrPast), `scripts/foundation-verify.mjs:4429` (activeSprintAtOrPast)
 - Why it matters: A current-sprint advancement assertion can pass from a historical closeout unless active and historical helpers are separate.
 - Proposed owner/card: Foundation Verifier / `ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001`
 - Detector: active versus historical helper detector
@@ -1128,6 +1146,15 @@ Largest files:
 - Detector: largest file/function ownership detector
 - False-positive note: This is not approval to refactor during the audit sprint.
 
+### P1 Foundation UI embeds current-state summary truth
+- Card lane: `CODEBASE-HARDCODE-AUDIT-001`
+- Type: `drift_risk`
+- Evidence: `scripts/process-extract-current-check.mjs:363`
+- Why it matters: Static UI copy can report stale health, source, or KPI counts after APIs change.
+- Proposed owner/card: Foundation UI / `FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001`
+- Detector: currentSummary/static-live-copy detector
+- False-positive note: Static maturity explainers are acceptable; live checkpoint wording is not.
+
 ### P1 Source contract count is encoded as an exact baseline
 - Card lane: `CODEBASE-HARDCODE-AUDIT-001`
 - Type: `drift_risk`
@@ -1149,7 +1176,7 @@ Largest files:
 ### P2 Admin deal-review policy dates are duplicated across runner, job config, and UI
 - Card lane: `CODEBASE-HARDCODE-AUDIT-001`
 - Type: `drift_risk`
-- Evidence: `lib/foundation-jobs.js:956` (--backlog-since=), `lib/foundation-jobs.js:956` (2025-06-01), `lib/foundation-jobs.js:959` (June 2025), `lib/foundation-jobs.js:959` (2026-04-01), `lib/foundation-jobs.js:960` (June 2025), `scripts/review-admin-deals.mjs:14` (DEFAULT_BACKLOG_SINCE)
+- Evidence: `lib/foundation-jobs.js:981` (--backlog-since=), `lib/foundation-jobs.js:981` (2025-06-01), `lib/foundation-jobs.js:984` (June 2025), `lib/foundation-jobs.js:984` (2026-04-01), `lib/foundation-jobs.js:985` (June 2025), `scripts/review-admin-deals.mjs:14` (DEFAULT_BACKLOG_SINCE)
 - Why it matters: Policy cutoff changes require manual edits across several surfaces unless a source contract owns the dates.
 - Proposed owner/card: Ops Source Truth / `ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001`
 - Detector: policy-date duplication detector
@@ -1202,14 +1229,14 @@ Largest files:
 ### P2 Foundation frontend has heavy DOM rebuild signals
 - Card lane: `FOUNDATION-FRONTEND-PERF-AUDIT-001`
 - Type: `performance_risk`
-- Evidence: `public/foundation.html:103`, `public/foundation.html:1` (Foundation frontend scripts call document.createElement 1669 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2139 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 73 times, above the 50 aggregate review budget.)
+- Evidence: `public/foundation.html:103`, `public/foundation.html:1` (Foundation frontend scripts call document.createElement 1669 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2142 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 73 times, above the 50 aggregate review budget.)
 - Why it matters: Backlog, source, current-state, and runtime filters can churn large DOM trees on each interaction as card/source counts grow.
 - Proposed owner/card: Foundation Frontend / `FOUNDATION-FRONTEND-DOM-BUDGET-001`
-- Detector: DOM budget snapshot status=review createElement=1669 appendChild=2139 innerHTML=73
+- Detector: DOM budget snapshot status=review createElement=1669 appendChild=2142 innerHTML=73
 
 ## Findings By Sprint Card
 
-- `CODEBASE-HARDCODE-AUDIT-001`: 4 findings
+- `CODEBASE-HARDCODE-AUDIT-001`: 5 findings
 - `FOUNDATION-API-PERF-AUDIT-001`: 1 finding
 - `FOUNDATION-FRONTEND-PERF-AUDIT-001`: 1 finding
 - `FOUNDATION-MONOLITH-RISK-AUDIT-001`: 3 findings
@@ -1222,6 +1249,7 @@ Largest files:
 - `ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001`
 - `FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001`
 - `FOUNDATION-HUB-PAYLOAD-EXTRACT-001`
+- `FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001`
 - `SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001`
 - `ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001`
 - `APPROVAL-THRESHOLD-REGISTRY-001`

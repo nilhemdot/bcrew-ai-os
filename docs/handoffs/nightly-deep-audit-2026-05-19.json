@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-05-19T15:17:47.748Z",
+  "generatedAt": "2026-05-19T20:43:22.805Z",
   "reportPath": "docs/handoffs/nightly-deep-audit-2026-05-19.md",
   "jsonPath": "docs/handoffs/nightly-deep-audit-2026-05-19.json",
   "cardId": "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
   "closeoutKey": "nightly-deep-audit-upgrade-v1",
   "summary": {
-    "findingCount": 12,
+    "findingCount": 13,
     "p0": 0,
-    "p1": 5,
+    "p1": 6,
     "p2": 7,
     "p3": 0,
-    "proposedCardCount": 11,
+    "proposedCardCount": 12,
     "endpointsMeasured": 5,
     "staticReportOnly": true
   },
@@ -19,8 +19,8 @@
       "endpoint": "/api/foundation-hub",
       "ok": true,
       "status": 200,
-      "durationMs": 95.37366699999995,
-      "payloadBytes": 515570,
+      "durationMs": 99.35216699999995,
+      "payloadBytes": 523042,
       "timeout": false,
       "timeoutMs": 8000,
       "cacheControl": "no-store",
@@ -34,8 +34,8 @@
       "endpoint": "/api/source-of-truth",
       "ok": true,
       "status": 200,
-      "durationMs": 15.568958000000066,
-      "payloadBytes": 156492,
+      "durationMs": 24.765417000000014,
+      "payloadBytes": 196036,
       "timeout": false,
       "timeoutMs": 8000,
       "cacheControl": "",
@@ -49,8 +49,8 @@
       "endpoint": "/api/foundation/source-lifecycle",
       "ok": true,
       "status": 200,
-      "durationMs": 382.28833299999997,
-      "payloadBytes": 786828,
+      "durationMs": 362.265083,
+      "payloadBytes": 621472,
       "timeout": false,
       "timeoutMs": 8000,
       "cacheControl": "no-store",
@@ -64,8 +64,8 @@
       "endpoint": "/api/foundation/build-log",
       "ok": true,
       "status": 200,
-      "durationMs": 92.01316599999996,
-      "payloadBytes": 373775,
+      "durationMs": 103.61033400000002,
+      "payloadBytes": 415845,
       "timeout": false,
       "timeoutMs": 8000,
       "cacheControl": "no-store",
@@ -79,7 +79,7 @@
       "endpoint": "/api/foundation/gstack-build-intel",
       "ok": true,
       "status": 200,
-      "durationMs": 17.511708,
+      "durationMs": 27.877542000000005,
       "payloadBytes": 31638,
       "timeout": false,
       "timeoutMs": 8000,
@@ -102,42 +102,42 @@
       "refs": [
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 3070,
+          "line": 3073,
           "detail": "historicalCardHasVerifiedCloseout"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 3136,
+          "line": 3097,
           "detail": "activeSprintAtOrPast"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 3138,
+          "line": 3103,
           "detail": "historicalCardHasVerifiedCloseout"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 4166,
+          "line": 4143,
           "detail": "historicalCardHasVerifiedCloseout"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 4371,
+          "line": 4348,
           "detail": "activeSprintAtOrPast"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 4452,
+          "line": 4429,
           "detail": "activeSprintAtOrPast"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 4516,
+          "line": 4493,
           "detail": "historicalCardHasVerifiedCloseout"
         },
         {
           "path": "scripts/foundation-verify.mjs",
-          "line": 4525,
+          "line": 4502,
           "detail": "activeSprintAtOrPast"
         }
       ],
@@ -187,6 +187,27 @@
       "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
       "proposedOwner": "Foundation Engineering",
       "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-foundation-ui-current-summary",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Foundation UI embeds current-state summary truth",
+      "whyItMatters": "Static UI copy can report stale health, source, or KPI counts after APIs change.",
+      "refs": [
+        {
+          "path": "scripts/process-extract-current-check.mjs",
+          "line": 363,
+          "detail": ""
+        }
+      ],
+      "detector": "currentSummary/static-live-copy detector",
+      "proposedCard": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+      "proposedOwner": "Foundation UI",
+      "falsePositiveNote": "Static maturity explainers are acceptable; live checkpoint wording is not.",
       "autoFix": false,
       "autoBacklogMutation": false
     },
@@ -242,27 +263,27 @@
       "refs": [
         {
           "path": "lib/foundation-jobs.js",
-          "line": 956,
+          "line": 981,
           "detail": "--backlog-since="
         },
         {
           "path": "lib/foundation-jobs.js",
-          "line": 956,
+          "line": 981,
           "detail": "2025-06-01"
         },
         {
           "path": "lib/foundation-jobs.js",
-          "line": 959,
+          "line": 984,
           "detail": "June 2025"
         },
         {
           "path": "lib/foundation-jobs.js",
-          "line": 959,
+          "line": 984,
           "detail": "2026-04-01"
         },
         {
           "path": "lib/foundation-jobs.js",
-          "line": 960,
+          "line": 985,
           "detail": "June 2025"
         },
         {
@@ -509,10 +530,10 @@
         {
           "path": "public/foundation.html",
           "line": 1,
-          "detail": "Foundation frontend scripts call document.createElement 1669 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2139 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 73 times, above the 50 aggregate review budget."
+          "detail": "Foundation frontend scripts call document.createElement 1669 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2142 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 73 times, above the 50 aggregate review budget."
         }
       ],
-      "detector": "DOM budget snapshot status=review createElement=1669 appendChild=2139 innerHTML=73",
+      "detector": "DOM budget snapshot status=review createElement=1669 appendChild=2142 innerHTML=73",
       "proposedCard": "FOUNDATION-FRONTEND-DOM-BUDGET-001",
       "proposedOwner": "Foundation Frontend",
       "falsePositiveNote": "",
@@ -528,8 +549,8 @@
         "over_3k_warn",
         "verifier_trust_surface"
       ],
-      "lines": 4996,
-      "bytes": 277778
+      "lines": 4973,
+      "bytes": 275714
     },
     {
       "file": "public/foundation.js",
@@ -538,7 +559,7 @@
         "frontend_route_cache_surface"
       ],
       "lines": 2998,
-      "bytes": 113609
+      "bytes": 113633
     },
     {
       "file": "lib/foundation-db.js",
@@ -559,6 +580,15 @@
       "bytes": 66109
     },
     {
+      "file": "lib/foundation-build-closeout-process-gate-records.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 1706,
+      "bytes": 117842
+    },
+    {
       "file": "lib/connector-uptime-monitor.js",
       "severity": "P1",
       "reasons": [
@@ -577,53 +607,13 @@
       "bytes": 38564
     },
     {
-      "file": "lib/foundation-system-health.js",
-      "severity": "P1",
-      "reasons": [
-        "changed_since_baseline",
-        "source_health_surface"
-      ],
-      "lines": 1008,
-      "bytes": 44281
-    },
-    {
       "file": "lib/source-lifecycle-completion.js",
       "severity": "P1",
       "reasons": [
         "source_health_surface"
       ],
       "lines": 707,
-      "bytes": 36117
-    },
-    {
-      "file": "lib/build-lane-failure-telemetry.js",
-      "severity": "P1",
-      "reasons": [
-        "changed_since_baseline"
-      ],
-      "lines": 674,
-      "bytes": 29886
-    },
-    {
-      "file": "scripts/process-build-lane-repeated-failure-action-gate-check.mjs",
-      "severity": "P1",
-      "reasons": [
-        "changed_since_baseline",
-        "process_check_surface"
-      ],
-      "lines": 661,
-      "bytes": 30910
-    },
-    {
-      "file": "scripts/process-foundation-health-watch-to-green-check.mjs",
-      "severity": "P1",
-      "reasons": [
-        "changed_since_baseline",
-        "process_check_surface",
-        "source_health_surface"
-      ],
-      "lines": 592,
-      "bytes": 28936
+      "bytes": 36234
     },
     {
       "file": "scripts/process-action-route-review-inbox-check.mjs",
@@ -635,23 +625,13 @@
       "bytes": 29366
     },
     {
-      "file": "lib/foundation-build-closeout-build-lane-records.js",
+      "file": "scripts/process-extract-current-check.mjs",
       "severity": "P1",
       "reasons": [
-        "changed_since_baseline"
-      ],
-      "lines": 552,
-      "bytes": 41174
-    },
-    {
-      "file": "scripts/process-foundation-raw-green-repair-and-lock-check.mjs",
-      "severity": "P1",
-      "reasons": [
-        "changed_since_baseline",
         "process_check_surface"
       ],
       "lines": 551,
-      "bytes": 27350
+      "bytes": 27615
     },
     {
       "file": "scripts/process-action-route-promotion-workflow-check.mjs",
@@ -672,23 +652,58 @@
       "bytes": 24373
     },
     {
-      "file": "lib/foundation-verify-coverage-card-ids.js",
-      "severity": "P1",
-      "reasons": [
-        "changed_since_baseline"
-      ],
-      "lines": 453,
-      "bytes": 16895
-    },
-    {
-      "file": "scripts/process-foundation-ship.mjs",
+      "file": "scripts/process-foundation-sprint-closeout-continuous-work-ready-check.mjs",
       "severity": "P1",
       "reasons": [
         "changed_since_baseline",
         "process_check_surface"
       ],
       "lines": 451,
-      "bytes": 15339
+      "bytes": 20232
+    },
+    {
+      "file": "scripts/process-agent-feedback-routes-split-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 286,
+      "bytes": 12225
+    },
+    {
+      "file": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface",
+        "source_health_surface"
+      ],
+      "lines": 272,
+      "bytes": 10909
+    },
+    {
+      "file": "scripts/process-app-page-routes-split-check.mjs",
+      "severity": "P1",
+      "reasons": [
+        "process_check_surface"
+      ],
+      "lines": 225,
+      "bytes": 9932
+    },
+    {
+      "file": "lib/foundation-sprint-closeout-continuous-work.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 155,
+      "bytes": 7919
+    },
+    {
+      "file": "lib/foundation-current-sprint.js",
+      "severity": "P3",
+      "reasons": [],
+      "lines": 1608,
+      "bytes": 79717
     }
   ],
   "diff": {
@@ -697,6 +712,7 @@
       "active-vs-historical-verifier-mixing",
       "foundation-client-current-state-monolith",
       "foundation-hub-route-monolith",
+      "hardcoded-foundation-ui-current-summary",
       "hardcoded-source-count-baseline",
       "admin-deal-policy-date-duplication",
       "approval-threshold-raw-literal",
@@ -709,14 +725,16 @@
     "resolvedFindingIds": [],
     "stillOpenFindingIds": [],
     "trend": {
-      "currentFindingCount": 11,
+      "currentFindingCount": 12,
       "previousFindingCount": 0,
-      "delta": 11
+      "delta": 12
     }
   },
   "llmReview": {
-    "mode": "approved_route_available_for_bounded_review",
+    "status": "degraded_packet_only",
+    "mode": "packet_only_explicitly_degraded",
     "executedThisRun": false,
+    "providerReviewRequested": false,
     "route": {
       "runnable": true,
       "selectedRoute": "foundation-synthesis-openclaw-chatgpt",
@@ -766,7 +784,90 @@
         }
       ]
     },
-    "note": "An approved route is available; V1 still records packets by default unless an explicit live LLM review mode is enabled."
+    "findingCount": 0,
+    "findings": [],
+    "actionRoutes": [],
+    "packets": [
+      {
+        "file": "scripts/foundation-verify.mjs",
+        "severity": "P0",
+        "reasons": [
+          "over_3k_warn",
+          "verifier_trust_surface"
+        ],
+        "lines": 4973,
+        "bytes": 275714
+      },
+      {
+        "file": "public/foundation.js",
+        "severity": "P1",
+        "reasons": [
+          "frontend_route_cache_surface"
+        ],
+        "lines": 2998,
+        "bytes": 113633
+      },
+      {
+        "file": "lib/foundation-db.js",
+        "severity": "P1",
+        "reasons": [
+          "live_truth_write_boundary"
+        ],
+        "lines": 2261,
+        "bytes": 90410
+      },
+      {
+        "file": "server.js",
+        "severity": "P1",
+        "reasons": [
+          "hot_route_surface"
+        ],
+        "lines": 2023,
+        "bytes": 66109
+      },
+      {
+        "file": "lib/foundation-build-closeout-process-gate-records.js",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline"
+        ],
+        "lines": 1706,
+        "bytes": 117842
+      },
+      {
+        "file": "lib/connector-uptime-monitor.js",
+        "severity": "P1",
+        "reasons": [
+          "source_health_surface"
+        ],
+        "lines": 1063,
+        "bytes": 42053
+      },
+      {
+        "file": "lib/kpi-health.js",
+        "severity": "P1",
+        "reasons": [
+          "source_health_surface"
+        ],
+        "lines": 1045,
+        "bytes": 38564
+      },
+      {
+        "file": "lib/source-lifecycle-completion.js",
+        "severity": "P1",
+        "reasons": [
+          "source_health_surface"
+        ],
+        "lines": 707,
+        "bytes": 36234
+      }
+    ],
+    "note": "Deep senior review did not execute. This run produced review packets only; do not present it as a completed deep code review."
+  },
+  "deepSeniorReviewRollup": {
+    "status": "degraded",
+    "executed": false,
+    "detail": "Deep senior review did not execute. This run produced review packets only; do not present it as a completed deep code review."
   },
   "knownFailureDogfood": {
     "ok": true,
@@ -788,53 +889,16 @@
     }
   },
   "docArtifactBloat": {
-    "status": "risk",
+    "status": "healthy",
     "summary": {
-      "artifactCount": 1275,
-      "handoffFileCount": 324,
-      "handoffLineTotal": 22614,
-      "recentHandoffFileCount": 323,
-      "nightlyArtifactCount": 11,
-      "riskCount": 1,
-      "reviewCount": 1
+      "artifactCount": 1096,
+      "handoffFileCount": 115,
+      "handoffLineTotal": 7352,
+      "recentHandoffFileCount": 114,
+      "nightlyArtifactCount": 7,
+      "riskCount": 0,
+      "reviewCount": 0
     },
-    "topFindings": [
-      {
-        "id": "doc_artifact_handoff_monthly_file_budget",
-        "severity": "P0",
-        "status": "risk",
-        "title": "docs/handoffs is accumulating too many hot files",
-        "detail": "docs/handoffs has 323 file(s) modified in the last 31 days; budget is 220/320.",
-        "nextAction": "Roll old handoffs into a monthly closeout summary and keep only current working handoffs hot.",
-        "path": "docs/handoffs",
-        "className": "handoff_directory",
-        "budgetKey": "recentFileCount",
-        "value": 323,
-        "budget": {
-          "warn": 220,
-          "risk": 320
-        },
-        "autoFix": false,
-        "autoBacklogMutation": false
-      },
-      {
-        "id": "doc_artifact_handoff_directory_line_budget",
-        "severity": "P1",
-        "status": "watch",
-        "title": "docs/handoffs is growing past the hot-doc budget",
-        "detail": "docs/handoffs contains 22614 line(s); budget is 20000/35000 warn/risk.",
-        "nextAction": "Archive cold detail or replace repeated large reports with monthly summaries.",
-        "path": "docs/handoffs",
-        "className": "handoff_directory",
-        "budgetKey": "totalLines",
-        "value": 22614,
-        "budget": {
-          "warn": 20000,
-          "risk": 35000
-        },
-        "autoFix": false,
-        "autoBacklogMutation": false
-      }
-    ]
+    "topFindings": []
   }
 }

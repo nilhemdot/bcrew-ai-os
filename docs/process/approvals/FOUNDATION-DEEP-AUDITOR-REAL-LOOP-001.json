@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001",
+  "approvedBy": "Steve approved May 19 Foundation sprint and explicitly corrected the deep auditor expectation; Codex scoped the missing P0 card before execution.",
+  "approvedAt": "2026-05-19T18:25:00.000-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/foundation-deep-auditor-real-loop-001-plan.md",
+  "approvedPlanSha256": "80620dc8b92cd4e82704f2a8c8ecd852a32b1d2d2482e6b33c347eb8021c590b",
+  "approvedRepoHead": "407fbec092bc02d827d10d4c12d667c7cb1f24c2",
+  "notes": "Approved to make the nightly deep auditor real: bounded approved-route senior review when available, explicit degraded packet-only truth when not, P0/P1 findings routed to repair work, no autonomous code fixes, no provider key changes, no source-system writes, no Drive permission mutation, and no backlog mutation from the audit itself.",
+  "approvalDigest": "7e4c3dcd523e337a5548ad1fcbed0ee7f3a05e156324bfafc9276adf1bcd1872"
+}

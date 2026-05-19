@@ -16,6 +16,7 @@ import {
   NIGHTLY_DEEP_AUDIT_UPGRADE_CARD_ID,
   NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY,
   NIGHTLY_DEEP_AUDIT_UPGRADE_SPRINT_ID,
+  buildDeepAuditorRealLoopDogfoodProof,
   buildNightlyDeepAuditUpgrade,
   buildNightlyDeepAuditUpgradeDogfoodProof,
   renderNightlyDeepAuditUpgradeReport,
@@ -41,6 +42,7 @@ function parseArgs(argv = process.argv.slice(2)) {
     baseUrl: process.env.FOUNDATION_BASE_URL || 'http://localhost:3000',
     timeoutMs: 8000,
     changedSinceRef: 'HEAD~1',
+    runLlmReview: process.env.NIGHTLY_DEEP_AUDIT_RUN_LLM === 'true',
   }
   for (const arg of argv) {
     if (arg === '--json' || arg === '--json=true') args.json = true
@@ -50,6 +52,8 @@ function parseArgs(argv = process.argv.slice(2)) {
     else if (arg.startsWith('--timeoutMs=')) args.timeoutMs = Number(arg.slice('--timeoutMs='.length))
     else if (arg.startsWith('--endpointTimeoutMs=')) args.timeoutMs = Number(arg.slice('--endpointTimeoutMs='.length))
     else if (arg.startsWith('--changedSinceRef=')) args.changedSinceRef = arg.slice('--changedSinceRef='.length)
+    else if (arg === '--runLlmReview' || arg === '--run-llm-review') args.runLlmReview = true
+    else if (arg === '--no-runLlmReview' || arg === '--no-run-llm-review') args.runLlmReview = false
   }
   return args
 }
@@ -101,12 +105,14 @@ async function main() {
   ])
   const job = getFoundationJobDefinitions().find(item => item.key === NIGHTLY_DEEP_AUDIT_JOB_KEY) || null
   const dogfood = buildNightlyDeepAuditUpgradeDogfoodProof()
+  const realLoopDogfood = buildDeepAuditorRealLoopDogfoodProof()
   const audit = await buildNightlyDeepAuditUpgrade({
     repoRoot,
     baseUrl: args.baseUrl,
     timeoutMs: Number.isFinite(args.timeoutMs) && args.timeoutMs > 0 ? args.timeoutMs : 8000,
     skipEndpointFetch: args.skipEndpointFetch,
     changedSinceRef: args.changedSinceRef,
+    runLlmReview: args.runLlmReview,
   })
   const artifacts = args.noWrite
     ? { markdown: renderNightlyDeepAuditUpgradeReport(audit), reportPath: audit.reportPath, jsonPath: audit.jsonPath }
@@ -158,8 +164,9 @@ async function main() {
     job?.command === 'npm' &&
       (job.args || []).includes('process:nightly-deep-audit-upgrade-check') &&
       (job.args || []).includes('--json') &&
-      (job.args || []).includes('--endpointTimeoutMs=8000'),
-    'job points to the nightly deep audit proof/report command',
+      (job.args || []).includes('--endpointTimeoutMs=8000') &&
+      (job.args || []).includes('--runLlmReview'),
+    'job points to the nightly deep audit proof/report command with bounded deep review enabled',
     job?.args?.join(' ') || 'missing job',
   )
   addCheck(
@@ -194,6 +201,28 @@ async function main() {
     audit.reviewTargets.slice(0, 8).map(target => `${target.file}:${target.reasons.join('+')}`).join(', '),
   )
   addCheck(checks, dogfood.ok === true && audit.knownFailureDogfood?.ok === true, 'dogfood catches the May 13 failure modes', dogfood.checks.filter(check => !check.ok).map(check => check.check).join(', ') || 'all dogfood checks passed')
+  addCheck(checks, realLoopDogfood.ok === true, 'real-loop dogfood prevents packet-only false deep-review and unrouted P0/P1 findings', realLoopDogfood.checks.filter(check => !check.ok).map(check => check.check).join(', ') || 'all real-loop dogfood checks passed')
+  addCheck(
+    checks,
+    args.runLlmReview
+      ? audit.llmReview?.providerReviewRequested === true
+      : audit.llmReview?.status === 'degraded_packet_only' && audit.llmReview?.executedThisRun === false,
+    args.runLlmReview
+      ? 'live deep-review mode requests approved router execution or fails closed'
+      : 'packet-only mode is explicit degraded, not fake completed review',
+    JSON.stringify({
+      requested: args.runLlmReview,
+      status: audit.llmReview?.status,
+      executedThisRun: audit.llmReview?.executedThisRun,
+      mode: audit.llmReview?.mode,
+    }),
+  )
+  addCheck(
+    checks,
+    audit.deepSeniorReviewRollup?.status === (audit.llmReview?.executedThisRun ? 'healthy' : 'degraded'),
+    'deep senior review rollup matches actual execution state',
+    JSON.stringify(audit.deepSeniorReviewRollup || {}),
+  )
   addCheck(
     checks,
     /^docs\/handoffs\/nightly-deep-audit-\d{4}-\d{2}-\d{2}\.md$/.test(audit.reportPath) &&
@@ -205,10 +234,13 @@ async function main() {
     checks,
     artifacts.markdown.includes('No auto-fixes') &&
       artifacts.markdown.includes('High-Risk Review Packets') &&
+      (audit.llmReview?.executedThisRun
+        ? artifacts.markdown.includes('Deep senior review executed through the approved router')
+        : artifacts.markdown.includes('Deep senior review did not execute')) &&
       artifacts.markdown.includes('Doc / Report Artifact Bloat') &&
       artifacts.markdown.includes('Dogfood Proof') &&
       artifacts.markdown.includes(NIGHTLY_DEEP_AUDIT_UPGRADE_CLOSEOUT_KEY),
-    'rendered report contains boundaries, review packets, doc bloat, dogfood, and closeout key',
+    'rendered report contains boundaries, review packets, deep-review execution truth, doc bloat, dogfood, and closeout key',
     artifacts.reportPath,
   )
   addCheck(
@@ -221,7 +253,14 @@ async function main() {
     `status=${audit.docArtifactBloat?.status || 'missing'} artifacts=${audit.docArtifactBloat?.summary?.artifactCount || 0}`,
   )
   addCheck(checks, sameCounts(beforeCounts, afterCounts), 'backlog lane counts unchanged by audit command', `before=${JSON.stringify(beforeCounts)} after=${JSON.stringify(afterCounts)}`)
-  addCheck(checks, process.env.NIGHTLY_DEEP_AUDIT_RUN_LLM !== 'true', 'no live provider spend is triggered by default', 'LLM route is packet/approved-route planning only unless an explicit env override is added later')
+  addCheck(
+    checks,
+    args.runLlmReview || process.env.NIGHTLY_DEEP_AUDIT_RUN_LLM !== 'true',
+    'no live provider spend is triggered by default',
+    args.runLlmReview
+      ? 'explicit --runLlmReview requested bounded approved-route review'
+      : 'LLM route is packet/approved-route planning only unless explicit env/flag enables it',
+  )
 
   const failures = checks.filter(check => !check.ok)
   const result = {
@@ -236,6 +275,7 @@ async function main() {
     summary: audit.deterministicAudit?.summary || {},
     reviewTargetCount: audit.reviewTargets?.length || 0,
     llmReview: audit.llmReview,
+    deepSeniorReviewRollup: audit.deepSeniorReviewRollup,
     docArtifactBloat: audit.docArtifactBloat ? {
       status: audit.docArtifactBloat.status,
       summary: audit.docArtifactBloat.summary,

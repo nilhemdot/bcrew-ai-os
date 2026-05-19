@@ -109,6 +109,7 @@
     "process:code-quality-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-code-quality-nightly-audit-check.mjs",
     "process:code-quality-audit-guarded-mutator-classifier-check": "node --env-file-if-exists=.env scripts/process-code-quality-audit-guarded-mutator-classifier-check.mjs",
     "process:nightly-deep-audit-upgrade-check": "node --env-file-if-exists=.env scripts/process-nightly-deep-audit-upgrade-check.mjs",
+    "process:foundation-deep-auditor-real-loop-check": "node --env-file-if-exists=.env scripts/process-foundation-deep-auditor-real-loop-check.mjs",
     "process:nightly-audit-scheduler-due-fix-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-scheduler-due-fix-check.mjs",
     "process:nightly-audit-run-proof-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-run-proof-check.mjs",
     "process:system-health-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-system-health-nightly-audit-check.mjs",
