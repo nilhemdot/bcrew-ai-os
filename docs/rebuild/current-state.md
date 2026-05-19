@@ -243,7 +243,7 @@ Open:
 - raw meeting-note Drive/vault ACL enforcement through `MEETING-VAULT-ACL-001`
 - real-data filtered shared-comms summaries for approved non-Tier-1 users through `SECURITY-FILTERED-COMMS-ACCESS-001`
 - public edge auth/tunnel hardening before broader external exposure through `SECURITY-EDGE-001`
-- provider-side credential rotation/retirement proof through `SECURITY-PROVIDER-ROTATION-PROOF-001`
+- provider-side credential rotation/retirement proof through `SECURITY-PROVIDER-ROTATION-PROOF-001`; no-secret preflight is complete under `security-provider-rotation-proof-preflight-v1`, and the ledger now names FUBZahnd exposure classes without raw values, but provider-side closure proof is still blocked/pending
 - auto-restart-on-push proof beyond the current manual restart status
 - KPI health/freshness and deeper Sales Hub semantics after first-pass read rules
 - hub value routing for mined Drive/Skool/corpus assets

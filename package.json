@@ -167,6 +167,7 @@
     "process:agent-capability-registry-check": "node --env-file-if-exists=.env scripts/process-agent-capability-registry-check.mjs",
     "process:foundation-up-capability-registry-check": "node --env-file-if-exists=.env scripts/process-foundation-up-capability-registry-check.mjs",
     "process:memory-002-openclaw-native-memory-preflight-check": "node --env-file-if-exists=.env scripts/process-memory-002-openclaw-native-memory-preflight-check.mjs",
+    "process:security-provider-rotation-proof-preflight-check": "node --env-file-if-exists=.env scripts/process-security-provider-rotation-proof-preflight-check.mjs",
     "process:agent-template-runtime-contract-check": "node --env-file-if-exists=.env scripts/process-agent-template-runtime-contract-check.mjs",
     "process:old-system-agent-onboarding-harvest-check": "node --env-file-if-exists=.env scripts/process-old-system-agent-onboarding-harvest-check.mjs",
     "process:agent-010-check": "node --env-file-if-exists=.env scripts/process-agent-010-check.mjs",

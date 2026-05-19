@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "cardId": "SECURITY-PROVIDER-ROTATION-PROOF-001",
+  "companionCardId": "SECURITY-006",
+  "closeoutKey": "security-provider-rotation-proof-preflight-v1",
+  "generatedAt": "2026-05-19T01:05:00.000Z",
+  "preflightOnly": true,
+  "status": "blocked_pending_provider_side_proof",
+  "sourceBoundary": "Metadata-only config-key inventory; no raw values, hashes, provider calls, auth repair, or external writes.",
+  "summary": {
+    "exposureRowCount": 5,
+    "configEntryCount": 40,
+    "providerSideProofMissingCount": 5,
+    "rawValueCountStored": 0
+  },
+  "exposureRows": [
+    {
+      "exposureId": "fubzahnd-ambition-webhooks",
+      "provider": "Ambition/KPI middleware webhooks",
+      "credentialClass": "webhook endpoint and bearer-token style config",
+      "exposureSource": "Lee-InvIT/FUBZahnd App.config metadata only",
+      "localInspectionPath": "/Users/bensoncrew/.inspection/FUBZahnd/App.config",
+      "configKeys": [
+        "AmbitionAppointmentURL",
+        "AmbitionAppointmentToken",
+        "AmbitionCallURL",
+        "AmbitionCallToken",
+        "AmbitionDealURL",
+        "AmbitionDealToken",
+        "AmbitionEmailURL",
+        "AmbitionEmailToken",
+        "AmbitionPersonURL",
+        "AmbitionPersonToken",
+        "AmbitionStageURL",
+        "AmbitionStageToken",
+        "AmbitionTaskURL",
+        "AmbitionTaskToken",
+        "AmbitionTextMessageURL",
+        "AmbitionTextMessageToken",
+        "AmbitionStageSummaryURL",
+        "AmbitionStageSummaryToken"
+      ],
+      "missingConfigKeys": [],
+      "currentStatus": "provider_side_proof_missing",
+      "proofReference": null,
+      "owner": "Steve/provider account owner",
+      "date": "2026-05-19",
+      "remainingBlocker": "Provider-side rotation, revocation, retirement, or dead-key proof must be supplied without raw values before this row can close."
+    },
+    {
+      "exposureId": "fubzahnd-follow-up-boss-api",
+      "provider": "Follow Up Boss",
+      "credentialClass": "API key and X-System header config",
+      "exposureSource": "Lee-InvIT/FUBZahnd App.config metadata only",
+      "localInspectionPath": "/Users/bensoncrew/.inspection/FUBZahnd/App.config",
+      "configKeys": [
+        "FUBAPIKey",
+        "FUBBaseUrl",
+        "FUBX-System",
+        "FUBX-System-Key"
+      ],
+      "missingConfigKeys": [],
+      "currentStatus": "provider_side_proof_missing",
+      "proofReference": null,
+      "owner": "Steve/provider account owner",
+      "date": "2026-05-19",
+      "remainingBlocker": "Provider-side rotation, revocation, retirement, or dead-key proof must be supplied without raw values before this row can close."
+    },
+    {
+      "exposureId": "fubzahnd-smtp-mail-server",
+      "provider": "SMTP mail server",
+      "credentialClass": "mail server host/user/password config",
+      "exposureSource": "Lee-InvIT/FUBZahnd App.config metadata only",
+      "localInspectionPath": "/Users/bensoncrew/.inspection/FUBZahnd/App.config",
+      "configKeys": [
+        "MailServer",
+        "MailServerUID",
+        "MailServerPwd",
+        "MailServerSSL",
+        "MailFrom",
+        "MailTo"
+      ],
+      "missingConfigKeys": [],
+      "currentStatus": "provider_side_proof_missing",
+      "proofReference": null,
+      "owner": "Steve/provider account owner",
+      "date": "2026-05-19",
+      "remainingBlocker": "Provider-side rotation, revocation, retirement, or dead-key proof must be supplied without raw values before this row can close."
+    },
+    {
+      "exposureId": "fubzahnd-sql-server-dbconn",
+      "provider": "SQL Server",
+      "credentialClass": "database connection string",
+      "exposureSource": "Lee-InvIT/FUBZahnd App.config metadata only",
+      "localInspectionPath": "/Users/bensoncrew/.inspection/FUBZahnd/App.config",
+      "configKeys": [
+        "DbConn"
+      ],
+      "missingConfigKeys": [],
+      "currentStatus": "provider_side_proof_missing",
+      "proofReference": null,
+      "owner": "Steve/provider account owner",
+      "date": "2026-05-19",
+      "remainingBlocker": "Provider-side rotation, revocation, retirement, or dead-key proof must be supplied without raw values before this row can close."
+    },
+    {
+      "exposureId": "fubzahnd-supabase-conn",
+      "provider": "Supabase",
+      "credentialClass": "database connection string",
+      "exposureSource": "Lee-InvIT/FUBZahnd App.config metadata only",
+      "localInspectionPath": "/Users/bensoncrew/.inspection/FUBZahnd/App.config",
+      "configKeys": [
+        "SupabaseConn"
+      ],
+      "missingConfigKeys": [],
+      "currentStatus": "provider_side_proof_missing",
+      "proofReference": null,
+      "owner": "Steve/provider account owner",
+      "date": "2026-05-19",
+      "remainingBlocker": "Provider-side rotation, revocation, retirement, or dead-key proof must be supplied without raw values before this row can close."
+    }
+  ],
+  "approvalBoundary": [
+    "No provider-side credential rotation, revocation, retirement, or live validation.",
+    "No raw credential values, secret hashes, token lengths, connection strings, usernames, passwords, or emails in repo truth.",
+    "No GitHub/provider API calls, no public-repo mutation, no auth repair, and no connector/runtime changes.",
+    "No live FUB, Ambition, SMTP, SQL Server, Supabase, Drive, Gmail, ClickUp, Slack, or Agent Feedback mutation.",
+    "No Google Drive permission mutation; do not mutate Drive permissions.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B.",
+    "No live extraction, source crawl, model/provider call, paid run, hidden subagent, or parallel builder launch."
+  ]
+}
