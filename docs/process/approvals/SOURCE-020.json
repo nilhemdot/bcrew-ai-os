@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-020",
+  "approvedPlanRef": "docs/process/source-020-shared-comms-adapters-plan.md",
+  "approvedPlanSha256": "1359966e3a1f77e5edb83ebb64cf8a1dcaf432ce8b9601bac86a98871c45a2ae",
+  "approvedRepoHead": "01a8b0f11d24423db70e70855a12d89acf62931d",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T19:10:00-04:00",
+  "approvalSource": "Steve approved unattended Foundation-only sprint continuation. SOURCE-020 may prove shared communications adapter hardening from existing local code, target rows, and artifact coverage, then continue DATA-002.",
+  "approvalMode": "shared-comms-adapter-hardening-proof-v1",
+  "score": 9.8,
+  "allowedWork": [
+    "read existing local adapter source files and shared communications sync/extraction scripts",
+    "read local source target rows and artifact coverage summaries",
+    "build adapter hardening proof for function coverage, pagination, latest-success targets, artifact coverage, and mutation-safe sync scripts",
+    "write focused proof, plan, closeout, closeout registry, package script, backlog, Plan Critic, and Current Sprint closeout state",
+    "close SOURCE-020 and continue DATA-002 when proof and ship gates are clean"
+  ],
+  "notApproved": [
+    "live private source reruns, broad backfill, new source access, browser login, paid/provider access, or model calls",
+    "automatic backlog, atom, KB, vector, action-route apply, ClickUp, CRM, or external writes from communications content",
+    "raw email, Slack, Missive, meeting note, meeting transcript, participant-sensitive, attachment, or body text in proof output",
+    "MEETING-VAULT-ACL-001 Phase B, broad meeting-vault cleanup, credential/key mutation, Drive permissions mutation, public exposure, or external sends"
+  ],
+  "approvalDigest": "35038f415ab10ea4a6497d8054b6c8dee67796a1ff78f212e2ef0fa42f69a626"
+}
