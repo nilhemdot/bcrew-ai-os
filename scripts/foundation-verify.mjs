@@ -21,6 +21,9 @@ import {
 } from '../lib/foundation-canva-client-verifier.js'
 import { buildSprintProofHelpers } from '../lib/foundation-verifier-sprint-proof.js'
 import {
+  buildFoundationVerifierProgressionHelpers,
+} from '../lib/foundation-verifier-progression-helpers.js'
+import {
   buildSyntheticApprovalIntegrityStatus,
   PHASE_1_ENFORCEMENT_CARD_IDS,
   PHASE_1_ENFORCEMENT_PLAN_REF,
@@ -3090,67 +3093,41 @@ async function main() {
     foundationCurrentSprintStatus.summary?.itemCount > 0 &&
     foundationCurrentSprintStatus.summary?.doneThisSprintCount === foundationCurrentSprintStatus.summary.itemCount &&
     !currentSprintActiveBlockerCardId
-  const knownLaterFoundationProgressionBlockers = [
-    DB_SEED_CARD_ID,
-    VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
-    VERIFIER_RUNTIME_RELIABILITY_ORCHESTRATION_SPLIT_CARD_ID,
-    FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID,
-    VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
-    STYLESHEET_MONOLITH_SPLIT_CARD_ID,
-    VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
-    VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID,
-    VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID,
-    VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
-    VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
-    VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
-    VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
-    VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
-    VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_CARD_ID,
-    VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
-    'FOUNDATION-IDENTITY-001',
-    'RUNTIME-SUPERVISOR-001',
-    runtimeWorkerVerifierCoverageCardId,
-    runtimeFirstJobsVerifierCoverageCardId,
-    runtimeHealthSimplifyVerifierCoverageCardId,
-    'NIGHTLY-AUDIT-SCHEDULER-DUE-FIX-001',
-    'NIGHTLY-DEEP-AUDIT-BACKFILL-001',
-    'NIGHTLY-AUDIT-RUN-PROOF-001',
-    'SYSTEM-HEALTH-NIGHTLY-AUDIT-001',
-    'SCHEDULED-JOB-STALENESS-DASHBOARD-001', 'SYSTEM-HEALTH-RED-ROW-REPAIR-001', 'VERIFICATION-RUNS-READONLY-SPLIT-001', 'CONNECTOR-BLOCKED-ROW-DIAGNOSIS-001', 'CONNECTOR-COMPLETION-SPRINT', 'SOURCE-CONTRACT-ID-RECONCILE-001',
-    'CRITICAL-ROOTS-UNDER-3K-PHASE-2',
-    'CRITICAL-ROOTS-UNDER-3K-PHASE-3',
-    'CRITICAL-ROOTS-UNDER-3K-PHASE-4',
-    'FOUNDATION-BACKLOG-SEED-CHUNK-SPLIT-001',
-    'FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001',
-    'AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001',
-    'AGENT-CAPABILITY-REGISTRY-001', 'FOUNDATION-UP-CAPABILITY-REGISTRY-001', 'MEMORY-002',
-    'SECURITY-PROVIDER-ROTATION-PROOF-001', 'FOUNDATION-BRANCH-MERGE-READINESS-AND-HEALTH-GREEN-001', 'FOUNDATION-MERGE-QUEUE-001',
-    'AGENT-TEMPLATE-RUNTIME-CONTRACT-001', 'OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001', 'AGENT-010', 'ROLE-ASSISTANT-CONTRACTS-001', 'HARLAN-PROJECT-REGISTRY-001', 'HARLAN-OPERATOR-LOOP-V1-001', 'BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001',
-    'FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001',
-    'SOURCE-CONTRACT-VALIDATION-LAYER-001',
-    'FOUNDATION-BACKLOG-DONE-ARCHIVE-LAZY-LOAD-001',
-    'EXTRACTION-RUNTIME-READINESS-001',
-    'EXTRACTOR-QUEUE-KARPATHY-KB-VIDEO-PACK-001',
-    'FOUNDATION-HEALTH-WATCH-TO-GREEN-001', 'AUDIT-FINDING-TO-BACKLOG-ROUTER-001', 'FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001', 'FOUNDATION-HANDOFF-HOT-DOC-CLEANUP-001', 'FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001', 'FOUNDATION-HEALTH-GREEN-LOCK-001', 'EXTRACT-CURRENT-001', 'EXTRACT-BACKFILL-001', 'DRIVE-CONTENT-001', 'EMAIL-ATTACHMENTS-001',
-  ]
-  const activeSprintAtOrPast = expectedCardIds =>
-    expectedCardIds.includes(currentSprintActiveBlockerCardId) ||
-    expectedCardIds.some(cardId => historicalCardHasVerifiedCloseout(cardId)) ||
-    knownLaterFoundationProgressionBlockers.includes(currentSprintActiveBlockerCardId) ||
-    activeSprintCompleteReview
-  const currentStateMentionsActiveBlockerOrLater = (...expectedSnippets) =>
-    expectedSnippets.some(snippet =>
-      typeof snippet === 'boolean' ? snippet : currentState.includes(snippet)
-    ) || knownLaterFoundationProgressionBlockers.includes(currentSprintActiveBlockerCardId) ||
-    activeSprintCompleteReview ||
-    (
-      currentState.includes('Historical closeout notes below preserve at-the-time "current sprint active blocker" wording') &&
-      (
-        currentState.includes(IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY) ||
-        currentState.includes(BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY) ||
-        currentState.includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY)
-      )
-    )
+  const {
+    activeSprintAtOrPast,
+    currentStateMentionsActiveBlockerOrLater,
+  } = buildFoundationVerifierProgressionHelpers({
+    currentSprintActiveBlockerCardId,
+    activeSprintCompleteReview,
+    currentState,
+    historicalCardHasVerifiedCloseout,
+    dynamicProgressionBlockerCardIds: [
+      DB_SEED_CARD_ID,
+      VERIFIER_RUNTIME_RELIABILITY_SPLIT_CARD_ID,
+      VERIFIER_RUNTIME_RELIABILITY_ORCHESTRATION_SPLIT_CARD_ID,
+      FOUNDATION_BUILD_CLOSEOUT_REGISTRY_SPLIT_CARD_ID,
+      VERIFIER_HEALTH_SCRIPT_MODULE_CARD_ID,
+      STYLESHEET_MONOLITH_SPLIT_CARD_ID,
+      VERIFIER_SOURCE_TRUST_SPLIT_MODULE_CARD_ID,
+      VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID,
+      VERIFIER_INTELLIGENCE_AUDIT_SPLIT_MODULE_CARD_ID,
+      VERIFIER_CORE_GOVERNANCE_SPLIT_MODULE_CARD_ID,
+      VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID,
+      VERIFIER_EXTRACTION_RUNTIME_SPLIT_MODULE_CARD_ID,
+      VERIFIER_SURFACE_TRUST_SPLIT_MODULE_CARD_ID,
+      VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
+      VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_CARD_ID,
+      VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
+      runtimeWorkerVerifierCoverageCardId,
+      runtimeFirstJobsVerifierCoverageCardId,
+      runtimeHealthSimplifyVerifierCoverageCardId,
+    ],
+    historicalCloseoutKeys: [
+      IMPLEMENTATION_INTELLIGENCE_CLOSEOUT_KEY,
+      BUILD_INTEL_EXTRACTION_IMPLEMENTATION_CLOSEOUT_KEY,
+      CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY,
+    ],
+  })
   const connectorRoutingTruthCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-truth-v1') || null
   const connectorRoutingProcessRepairCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'connector-routing-process-repair-v1') || null
   const verifierSprintIndependenceCloseout = foundationBuildCloseouts.find(closeout => closeout.key === 'verifier-sprint-independence-v1') || null

@@ -235,6 +235,7 @@
     "process:foundation-job-mutation-allowlist-check": "node --env-file-if-exists=.env scripts/process-foundation-job-mutation-allowlist-check.mjs",
     "process:plan-critic-architectural-rules-check": "node --env-file-if-exists=.env scripts/process-plan-critic-architectural-rules-check.mjs",
     "process:file-size-engineering-standard-check": "node --env-file-if-exists=.env scripts/process-file-size-engineering-standard-check.mjs",
+    "process:foundation-file-size-watch-classifier-check": "node --env-file-if-exists=.env scripts/process-foundation-file-size-watch-classifier-check.mjs",
     "process:critical-roots-under-3k-check": "node --env-file-if-exists=.env scripts/process-critical-roots-under-3k-check.mjs",
     "process:critical-roots-under-3k-phase-2-check": "node --env-file-if-exists=.env scripts/process-critical-roots-under-3k-phase-2-check.mjs",
     "process:critical-roots-under-3k-phase-3-check": "node --env-file-if-exists=.env scripts/process-critical-roots-under-3k-phase-3-check.mjs",

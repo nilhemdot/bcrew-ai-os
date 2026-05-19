@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001",
+  "approvedPlanRef": "docs/process/foundation-file-size-watch-classifier-001-plan.md",
+  "approvedPlanSha256": "14185b2895871226ac5735632bdfda1cbd64978ba513fa248f1d4e890ee5edc4",
+  "approvedRepoHead": "acd55b8e152fd0a69ec1c9279c62cb97d5d2864c",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T12:20:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved Foundation-only continuation for FOUNDATION-FILE-SIZE-WATCH-CLASSIFIER-001: aim for a fresh file-size slate, split the near-5k verifier first, make yellow managed automatically with owner/threshold/next trigger, and pause after clean pushed main.",
+  "scopeSummary": "Split the smallest coherent verifier slice, implement reusable file-size watch escalation, clear active file-size System Health rows, preserve managed non-blocking visibility, and close the active Current Sprint card.",
+  "constraints": [
+    "Foundation-only today; no Value Builder, source/value/agent feature work, or parallel split.",
+    "Run one card only; no bundling except tiny support fixes required by proof.",
+    "Best outcome is fileSizeWatchCount=0; remaining watch must be managed, non-blocking, owner-backed, threshold-backed, next-trigger-backed, and stale-escalating.",
+    "scripts/foundation-verify.mjs defaults to split/delegate now unless proof shows wrapper-only status; do not leave it acceptable just because tests pass.",
+    "public/foundation.js, lib/foundation-db.js, and server.js can remain managed only with concrete owner, threshold, next trigger, and no new responsibility.",
+    "No broad mechanical rewrites and no new responsibility added to near-limit files.",
+    "No Drive permission mutation, email sends, Agent Feedback sends, external writes, broad extraction, provider probes, or source/value/agent work."
+  ],
+  "approvalDigest": "1e7612ea4c588b03d7f81c043a2216e1c8102dc132e79e1612e27a5623aa1a42"
+}
