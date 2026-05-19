@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-HEALTH-GREEN-LOCK-001",
+  "approvedPlanRef": "docs/process/foundation-health-green-lock-001-plan.md",
+  "approvedPlanSha256": "ef276824b7d010e1b2425ba5771727dfded1ce313fe8331ba49f4ce2802b4439",
+  "approvedRepoHead": "9b17647f9e373a90cac0f4fc815f3ac855427fa1",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T12:50:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation: green means raw green, classification is not repair, exceptions require explicit Steve approval in sprint truth, stale embedded sprint health must be refreshed or removed, and the builder may continue card-by-card unless a hard stop appears.",
+  "scopeSummary": "Lock System Health false-green behavior, add reusable green-lock dogfood, refresh stale sprint health metadata, close the active green-lock card, and advance to the approved Foundation-only lessons/backlog/control/source/extract run order.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "No broad mechanical rewrites.",
+    "No external writes, Drive permission mutation, email sends, credential mutation, paid/provider access, or private broad extraction.",
+    "No workflow red/yellow may be presented as green without explicit Steve-approved exception in sprint truth.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "a9d85537cf3f17b411c91707e33127467b86ec844219f1736344ad17d8e8f371"
+}
