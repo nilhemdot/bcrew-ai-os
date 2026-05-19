@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PARALLEL-BUILDER-MERGE-LANE-ENFORCEMENT-001",
+  "approvedPlanRef": "docs/process/parallel-builder-merge-lane-enforcement-001-plan.md",
+  "approvedPlanSha256": "cb442e3dd8480949074da83985b0cf463589f67b310ce05087272d7c26f61bbd",
+  "approvedRepoHead": "de96c12c0a3ae15d9b667539751ca5a73f1dea10",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T09:10:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve explicitly required fixing the 108-card stacking failure and upgraded dual/parallel work lanes before the sprint proceeds.",
+  "scopeSummary": "Enforce main session, worker branch/worktree, and review/integration lanes so completed work enters a serialized merge queue with post-merge verification and blocker handoff.",
+  "constraints": [
+    "Work from main.",
+    "No parallel builders launched by this card.",
+    "Completed card or bundle work cannot sit outside main without merge queue entry or release-train record.",
+    "Do not allow hidden or untracked builders.",
+    "Do not weaken, skip, bypass, or demote verifier, ship, fanout, or backlog hygiene failures.",
+    "Do not run live extraction, provider probes, auth-required or paid jobs, Drive mutation, sends, or external writes."
+  ],
+  "approvalDigest": "88446bd1f2cd42e079af76f48462c1e33e59b10cb6c01eec670ae0922b7d8238"
+}
