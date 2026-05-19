@@ -426,6 +426,7 @@
     "process:system-registration-sweep-check": "node --env-file-if-exists=.env scripts/process-system-registration-sweep-check.mjs",
     "process:source-021-writer-proof-check": "node --env-file-if-exists=.env scripts/process-source-021-writer-proof-check.mjs",
     "process:source-012-check": "node --env-file-if-exists=.env scripts/process-source-012-check.mjs",
+    "process:source-018-check": "node --env-file-if-exists=.env scripts/process-source-018-check.mjs",
     "process:security-002-check": "node --env-file-if-exists=.env scripts/process-security-002-check.mjs",
     "process:foundation-done-test": "node --env-file-if-exists=.env scripts/process-foundation-done-test.mjs",
     "process:system-010-check": "node --env-file-if-exists=.env scripts/process-system-010-check.mjs",

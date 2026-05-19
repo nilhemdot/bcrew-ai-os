@@ -66,6 +66,8 @@ Use them as the meeting evidence layer for:
 - what actions were suggested
 - what decisions may have been made
 
+Current Foundation sign-off is narrow: Google Meeting Notes / Transcripts are signed off for Steve-owner and Foundation read-side use from archived Gemini notes and transcript evidence. This does not approve raw transcript exposure to future broad team/agent query surfaces, Drive permission mutation, or extraction from Gemini summaries when transcript evidence is missing.
+
 ### Slack
 
 Slack is a team-signal source, not just a notification surface.
@@ -128,6 +130,7 @@ What already exists now:
   - Slack thread artifacts archived in PostgreSQL
   - meeting-note artifacts archived in PostgreSQL
   - meeting-transcript artifacts archived in PostgreSQL
+  - meeting-note current-day sync succeeds through the governed `meetings-current-day` target
   - paginated delegated Drive reads and paginated Slack history reads, so the archive is not limited to the first page of results
   - meeting artifacts tagged with capture-time meeting class (`broadcast` vs `discussion`) so privacy and extraction rules do not have to guess later
   - transcript-gap reporting for organizers and recurring series, so forward-looking transcript failures can be found explicitly instead of guessed from missing summaries

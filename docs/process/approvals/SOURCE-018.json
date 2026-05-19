@@ -1,0 +1,24 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-018",
+  "approvedPlanRef": "docs/process/source-018-google-gemini-meeting-notes-contract-plan.md",
+  "approvedPlanSha256": "75570cb03a77694b293e35a00d02e63aa7ef608ddf12b177da9d6871e10d243d",
+  "approvedRepoHead": "f838bc0d906b6182e3458a30b9c2fec80c7caabb",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T15:35:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation; SOURCE-018 closes the Google Gemini meeting notes contract before current-day extraction work.",
+  "scopeSummary": "Sign off SRC-MEETINGS-001 for current Foundation/Steve owner use only, with governed current-day meeting-note archive proof, transcript evidence boundary, privacy/read-side controls, no Drive permission mutation, and no broad raw transcript/team/agent access approval.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "Use existing live sprint unless proof closeout explicitly updates Current Sprint truth.",
+    "Do not mutate Google Drive permissions.",
+    "Do not expose raw transcripts to broad team or agent query surfaces.",
+    "Do not extract from Gemini summaries when transcript evidence is missing.",
+    "Do not run broad historical meeting extraction from this card.",
+    "No external writes, sends, credential mutation, provider config changes, or new source access.",
+    "Approval-bound actions park the action, not the whole sprint; continue safe approved sprint work.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "dec97e79be0db60dd15d068c49deca9970cec6d32af2e5ca6c62f30ea5866408"
+}
