@@ -1,0 +1,33 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MYICRO-TRAINING-001",
+  "approvedPlanRef": "docs/process/myicro-training-001-plan.md",
+  "approvedPlanSha256": "b700165956eb7f1156ae36ec6141805b509cd4924134b003a0f77d201e956c52",
+  "approvedRepoHead": "3970fb8aa516df23a264098ee62ed2147fd9e576",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T18:35:00-04:00",
+  "approvalSource": "Steve approved continuing card-by-card through the GOD-mode extraction sprint with blockers parked instead of stopping all work. MYICRO-TRAINING-001 may build local source/auth preflight proof and a one-lesson approval packet, but live paid Mycro/myICOR browser/provider/extraction work remains approval-bound.",
+  "approvalMode": "blocked-preflight-only",
+  "score": 9.8,
+  "allowedWork": [
+    "reuse MYICOR-EXTRACTION-PREFLIGHT-001 source/auth proof",
+    "read Mycro/myICOR source contract, connector registry, source-auth matrix, and validation rows",
+    "build a source-specific one-lesson approval packet for future Mycro/myICOR execution",
+    "prove WEB-GODMODE and multimodal synthetic Mycro/myICOR boundaries",
+    "park live paid-training execution and continue DRIVE-WORKER-001"
+  ],
+  "notApproved": [
+    "Mycro/myICOR login",
+    "private auth, paid auth, or authorized browser session",
+    "course inventory or lesson navigation",
+    "lesson text or resource-link extraction",
+    "video playback or download",
+    "transcript/media download from paid training content",
+    "screenshot or keyframe byte storage",
+    "provider/model/OCR/vision/transcription call over paid training content",
+    "downstream atom/KB/action-route/vector writes from paid training content",
+    "credential or Drive permission mutation",
+    "external sends or public exposure"
+  ],
+  "approvalDigest": "4dbdd10306c929545f18cd095e699f3d8656ee97d0b3d4a1cde69a63559aa128"
+}
