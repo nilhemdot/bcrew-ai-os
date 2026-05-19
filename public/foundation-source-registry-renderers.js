@@ -46,6 +46,42 @@ function getSourceTrust(contract) {
   return { label: validation, tone: 'missing' }
 }
 
+function getSourceTrustScoreTone(trustScore) {
+  if (!trustScore || !Number.isFinite(Number(trustScore.score))) return 'pending'
+  if (trustScore.decisionState === 'decision_safe') return 'connected'
+  if (trustScore.decisionState === 'usable_with_review') return 'planned'
+  if (trustScore.decisionState === 'review_required') return 'pending'
+  return 'missing'
+}
+
+function getSourceTrustScoreLabel(trustScore) {
+  if (!trustScore || !Number.isFinite(Number(trustScore.score))) return 'Trust score pending'
+  var state = String(trustScore.decisionState || '').replace(/_/g, ' ')
+  return 'Trust ' + trustScore.score + '/100' + (state ? ' · ' + state : '')
+}
+
+function getSourceTrustNextTrigger(trustScore) {
+  if (!trustScore) return 'Re-score when source truth changes.'
+  if (trustScore.nextTrigger) return trustScore.nextTrigger
+  var triggers = {
+    change: 'Re-score when source contract, connector, freshness, or schema health changes.',
+    signoff: 'Source owner must sign off meaning or keep this source review-gated.',
+    fresh: 'Refresh or revalidate source evidence before consumers treat it as current.',
+    conn: 'Harden or map the connector before expanding automated consumption.',
+    fields: 'Fill owner, scope, evidence links, dependencies, and source boundary fields.',
+    drift: 'Resolve blocked/open source drift or keep the source review-gated.',
+    review: 'Keep review-gated until the next source contract closeout improves the score.',
+    rescore_on_change: 'Re-score when source contract, connector, freshness, or schema health changes.',
+    source_owner_signoff: 'Source owner must sign off meaning or keep this source review-gated.',
+    refresh_evidence: 'Refresh or revalidate source evidence before consumers treat it as current.',
+    harden_connector: 'Harden or map the connector before expanding automated consumption.',
+    fill_source_fields: 'Fill owner, scope, evidence links, dependencies, and source boundary fields.',
+    resolve_drift: 'Resolve blocked/open source drift or keep the source review-gated.',
+    keep_review_gated: 'Keep review-gated until the next source contract closeout improves the score.',
+  }
+  return triggers[trustScore.trigger] || triggers[trustScore.nextTriggerCode] || 'Re-score when source truth changes.'
+}
+
 function getSourceSearchText(contract) {
   return [
     contract.sourceId,
@@ -64,6 +100,8 @@ function getSourceSearchText(contract) {
     contract.validation,
     contract.validationScope,
     contract.boundaryNote,
+    contract.trustScore && contract.trustScore.decisionState,
+    contract.trustScore && contract.trustScore.score,
   ]
     .filter(Boolean)
     .join(' ')
@@ -234,6 +272,9 @@ function renderSourceContractCard(contract) {
   var trustTag = getSourceTrust(contract)
   tags.appendChild(renderSourceTag(kindTag.label, 'neutral'))
   tags.appendChild(renderSourceTag(trustTag.label, trustTag.tone))
+  if (contract.trustScore) {
+    tags.appendChild(renderSourceTag(getSourceTrustScoreLabel(contract.trustScore), getSourceTrustScoreTone(contract.trustScore)))
+  }
   article.appendChild(tags)
 
   var metaGrid = document.createElement('div')
@@ -244,6 +285,10 @@ function renderSourceContractCard(contract) {
   metaGrid.appendChild(renderSourceMetaItem('Scope', contract.scope || 'Unknown'))
   if (contract.lastVerified) {
     metaGrid.appendChild(renderSourceMetaItem('Last Verified', contract.lastVerified))
+  }
+  if (contract.trustScore) {
+    metaGrid.appendChild(renderSourceMetaItem('Decision state', String(contract.trustScore.decisionState || 'review_required').replace(/_/g, ' ')))
+    metaGrid.appendChild(renderSourceMetaItem('Next trust trigger', getSourceTrustNextTrigger(contract.trustScore)))
   }
   if (contract.updateMethod) {
     metaGrid.appendChild(renderSourceMetaItem('Update method', contract.updateMethod))
@@ -913,6 +958,11 @@ function renderSourceLayerStatusPanel(sourceLayerStatus) {
     ),
     'Open or blocked source rows: ' + ((summary.driftStatusCounts && summary.driftStatusCounts.open_or_blocked) || 0),
   ]
+  var scoreSummary = summary.sourceTrustScoreSummary || {}
+  if (scoreSummary.scoredSourceCount) {
+    proofItems.push('Trust scored: ' + scoreSummary.scoredSourceCount + ' sources · avg ' + (scoreSummary.averageScore || 0) + '/100')
+    proofItems.push('Decision-safe: ' + (scoreSummary.decisionSafeCount || 0) + ' · Review/blocked: ' + ((scoreSummary.reviewRequiredCount || 0) + (scoreSummary.notDecisionSafeCount || 0)))
+  }
   panel.appendChild(renderSourceBulletGroup('Live layer counts', proofItems))
   return panel
 }

@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DATA-002",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T19:25:00-04:00",
+  "approvalSource": "Steve approved uninterrupted GOD-mode extraction sprint execution in chat.",
+  "notes": "Approved as the final GOD-mode extraction sprint card. Score every source contract from existing local source truth only; no extraction, external writes, provider calls, credential mutation, or Value Builder split.",
+  "approvedPlanRef": "docs/process/data-002-source-trust-scoring-plan.md",
+  "approvedPlanSha256": "92e0b1f734193a8fcb6d4ec63cfba4d2814a5812d84312c25f63b0e21c19c46a",
+  "approvedRepoHead": "6fb2a92b3f0c0af0d4150f9773ec7e0644ce0224",
+  "approvedChanges": [
+    "Add reusable source trust scoring module.",
+    "Attach scores to /api/source-of-truth source contracts and source-layer rows.",
+    "Render trust score, decision state, and next trigger in Data Sources.",
+    "Add focused proof and sprint closeout for DATA-002."
+  ],
+  "notNext": [
+    "No extraction or source sync.",
+    "No browser session, model synthesis, provider call, screenshot, OCR, transcription, or broad crawl.",
+    "No source-data, Drive permission, credential, provider config, atom, vector, KB, synthesis, action-route, backlog-content, external-send, or public-exposure mutation.",
+    "No Value Builder split."
+  ],
+  "approvalDigest": "8a23e6c07a08bdaa9ef9014d8942b525e022e8cb0698d242224b6411fadce416"
+}
