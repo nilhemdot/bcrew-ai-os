@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "AUDIT-FINDING-TO-BACKLOG-ROUTER-001",
+  "approvedPlanRef": "docs/process/audit-finding-to-backlog-router-001-plan.md",
+  "approvedPlanSha256": "a83af190295b2c03470830242e58fd2e13af661310dc742e2d27c36d53607f1b",
+  "approvedRepoHead": "262709c7967ca8367a045c207f5b95d9c9bae4cf",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T09:40:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve explicitly required the auditor to improve so red/yellow findings route into live backlog truth before source/extraction activation.",
+  "scopeSummary": "Route actionable audit findings into existing live cards, new scoped cards, stale proof, approval-required blockers, or watch-only thresholds while scheduled audits remain report-only.",
+  "constraints": [
+    "Work from main.",
+    "Do not turn scheduled audits into automatic backlog writers.",
+    "Do not implement audit findings inside this router card.",
+    "Do not leave card-shaped red/yellow recommendations only in markdown or JSON reports.",
+    "No live extraction, auth-required jobs, provider probes, model-spend, external writes, Drive mutation, Agent Feedback sends, or parallel builders."
+  ],
+  "approvalDigest": "2b32efe91ff9de19f110bdd228179eb0c845c73d2514789f1b9bdc5620276a98"
+}
