@@ -113,6 +113,7 @@
     "process:foundation-deep-merge-audit-check": "node --env-file-if-exists=.env scripts/process-foundation-deep-merge-audit-check.mjs",
     "process:old-system-research-team-harvest-check": "node --env-file-if-exists=.env scripts/process-old-system-research-team-harvest-check.mjs",
     "process:foundation-operator-pulse-check": "node --env-file-if-exists=.env scripts/process-foundation-operator-pulse-check.mjs",
+    "process:web-godmode-check": "node --env-file-if-exists=.env scripts/process-web-godmode-check.mjs",
     "process:nightly-audit-scheduler-due-fix-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-scheduler-due-fix-check.mjs",
     "process:nightly-audit-run-proof-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-run-proof-check.mjs",
     "process:system-health-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-system-health-nightly-audit-check.mjs",

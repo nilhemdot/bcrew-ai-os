@@ -566,6 +566,8 @@ async function main() {
   const nextCard = cards.find(item => item.id === NEXT_CARD_ID) || null
   const sprintItem = (activeSprint.items || []).find(item => item.cardId === CARD_ID) || null
   const nextSprintItem = (activeSprint.items || []).find(item => item.cardId === NEXT_CARD_ID) || null
+  const activeSprintId = activeSprint.sprint?.sprintId || ''
+  const activeBlockerCardId = activeSprint.sprint?.activeBlockerCardId || ''
   const closeout = getFoundationBuildCloseouts().find(record => record.key === CLOSEOUT_KEY) || null
   const dogfood = buildBuildLaneRepeatedFailureActionGateDogfoodProof()
   const sprintCardIds = (activeSprint.items || []).map(item => item.cardId).filter(Boolean)
@@ -584,14 +586,26 @@ async function main() {
     ...containsUnsafeRuntimeCall(scriptSource),
   ]
   const currentFailuresResolved = actionGate.status !== 'blocked'
+  const gateClosedAndHealthy = card?.lane === 'done'
+    && actionGate.status === 'healthy'
+    && Number(actionGate.summary?.unsatisfiedRedCount || 0) === 0
+    && Number(actionGate.summary?.blockingItemCount || 0) === 0
+  const gateSprintIsActive = activeSprintId === SPRINT_ID
+  const postGateSprintIsActive = gateClosedAndHealthy
+    && Boolean(activeSprintId)
+    && activeSprintId !== SPRINT_ID
+    && activeBlockerCardId !== CARD_ID
+  const gateSprintItemIsExpected = sprintItem
+    && (args.closeCard ? sprintItem.stage === 'done_this_sprint' : ['building_now', 'done_this_sprint'].includes(sprintItem.stage))
+  const gateSprintItemOrClosed = gateSprintItemIsExpected || (!sprintItem && gateClosedAndHealthy)
 
   addCheck(checks, approval.ok && approval.mode === 'v2' && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || BUILD_LANE_REPEATED_FAILURE_ACTION_GATE_APPROVAL_PATH)
   addCheck(checks, planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic passes for P0 action gate', buildPlanCriticResultSummary(planReview))
   addCheck(checks, planCriticRuns.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE), 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.cardId}:${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, card?.priority === 'P0' && (args.closeCard ? card.lane === 'done' : ['executing', 'done'].includes(card?.lane)), 'live backlog card exists and is P0', card ? `${card.lane}/${card.priority}` : 'missing')
   addCheck(checks, nextCard && ['scoped', 'executing', 'done'].includes(nextCard.lane), 'parallel merge-lane card remains live but gated', nextCard ? `${nextCard.lane}/${nextCard.priority}` : 'missing')
-  addCheck(checks, activeSprint.sprint?.sprintId === SPRINT_ID, 'Current Sprint remains green/main/audit/source activation sprint', activeSprint.sprint?.sprintId || 'missing')
-  addCheck(checks, sprintItem && (args.closeCard ? sprintItem.stage === 'done_this_sprint' : ['building_now', 'done_this_sprint'].includes(sprintItem.stage)), 'Current Sprint includes P0 gate in expected stage', sprintItem?.stage || 'missing')
+  addCheck(checks, gateSprintIsActive || postGateSprintIsActive, 'Current Sprint is either the active P0 gate sprint or a healthy post-gate sprint', `${activeSprintId || 'missing'} activeBlocker=${activeBlockerCardId || 'missing'}`)
+  addCheck(checks, gateSprintItemOrClosed, 'Current Sprint includes the active P0 gate or the gate is closed healthy', sprintItem?.stage || `closed=${gateClosedAndHealthy}`)
   addCheck(checks, !args.closeCard || (activeSprint.sprint?.activeBlockerCardId === NEXT_CARD_ID || actionGate.status === 'action_required'), 'Current Sprint does not proceed past unresolved repeated failures', activeSprint.sprint?.activeBlockerCardId || 'missing')
   addCheck(checks, !args.closeCard || nextSprintItem, 'next card remains visible after P0 gate closes', nextSprintItem?.stage || 'missing')
   addCheck(checks, currentSprintStatus.status === 'healthy', 'Current Sprint status remains healthy after gate update', currentSprintStatus.findings?.map(item => `${item.check}:${item.detail}`).join('; ') || 'healthy')

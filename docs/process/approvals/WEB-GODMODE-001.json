@@ -1,0 +1,20 @@
+{
+  "cardId": "WEB-GODMODE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T18:00:00-04:00",
+  "approvalSource": "Steve approved continuing the Foundation-only sprint and explicitly approved WEB-GODMODE-001 as the next governed extractor kernel after old-system gold capture, deep auditor repair, and operator pulse closeout.",
+  "notes": "Approval is for a governed synthetic kernel/proof only. It does not approve live browser login, private/auth/paid source access, broad crawl, external writes, Drive permission mutation, credential mutation, screenshot byte storage, model calls, video/audio download, transcription, or downstream content writes.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/web-godmode-001-plan.md",
+  "approvedPlanSha256": "5205f486bb130246bb4c113c5b9516c2611287204f2cfdefeb2527189d74754f",
+  "approvedRepoHead": "31fe4367f7fa9990e8e407e989d849f9405c1267",
+  "boundaries": [
+    "Blockers block unsafe actions, not the whole sprint.",
+    "Private/auth/paid/browser-source access remains source-specific approval-bound.",
+    "V1 must be synthetic/no-network/no-browser-launch only.",
+    "No external writes, sends, credential mutation, or Drive permission mutation.",
+    "No automatic backlog/atom/KB/synthesis/action-route/vector writes from extracted content."
+  ],
+  "approvalDigest": "86d5e87704ab3b14af7b7eb0c7170bef594ad2d6c3e0c2b4fd843d043e54d3cd"
+}
