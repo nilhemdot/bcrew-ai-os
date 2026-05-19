@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-BRANCH-MERGE-READINESS-AND-HEALTH-GREEN-001",
+  "approvedBy": "Steve process correction + Codex Foundation builder session",
+  "approvedAt": "2026-05-19T00:35:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve reprioritized the builder mission toward branch/main/system-health cleanup, provider-proof routing, and explicit merge readiness before continuing more Foundation cards.",
+  "scopeSummary": "Route approval-bound security and health rows honestly, repair safe verifier/system-health wiring, build merge-readiness proof and closeout, and make the explicit merge decision only after branch gates pass.",
+  "approvedPlanRef": "docs/process/foundation-branch-merge-readiness-and-health-green-001-plan.md",
+  "approvedPlanSha256": "b79d27aa9585d853de5be00142326bd33b674eab7dacd2dce07c9b4f3457a2c3",
+  "approvedRepoHead": "8a95a355ed542ce177a01842a6e959b6e7ece6d3",
+  "notApproved": [
+    "Do not rotate, revoke, retire, validate, probe, hash, fingerprint, quote, or store provider credentials.",
+    "Do not run live extraction, paid/private access, provider APIs, Drive mutation, Gmail/ClickUp sends, Slack sends, Agent Feedback sends, or external writes.",
+    "Do not launch hidden delegated workers or parallel builders.",
+    "Do not merge main unless branch gates pass, the worktree is clean, and the merge decision is explicit.",
+    "Do not mark approval-bound provider or extraction work done."
+  ],
+  "approvalDigest": "c757b7503bcc837d89a37a6f3e9e74d2bb6c04d3b0bc56f3b30080ef532b2a87"
+}

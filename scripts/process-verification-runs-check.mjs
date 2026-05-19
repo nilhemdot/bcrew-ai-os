@@ -95,6 +95,7 @@ async function main() {
     foundationCurrentSprintSource,
     backlogSeedSource,
     closeoutRecordsSource,
+    sourceOnceOverCloseoutRecordsSource,
     foundationVerifySource,
     foundationJobsSource,
     securityAccessSource,
@@ -113,6 +114,7 @@ async function main() {
     readRepoFile('lib/foundation-current-sprint.js'),
     readFoundationBacklogSeedSourceBundle({ readRepoFile }),
     readRepoFile('lib/foundation-build-closeout-records.js'),
+    readRepoFile('lib/foundation-build-closeout-source-once-over-records.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile('lib/foundation-jobs.js'),
     readRepoFile('lib/security-access.js'),
@@ -261,6 +263,8 @@ async function main() {
     VERIFICATION_RUNS_NEXT_CARD_ID,
   ]), 'Foundation backlog has Verification Runs and Per-User Changelog cards')
   addFinding(findings, includesAll(closeoutRecordsSource, [
+    'sourceOnceOverCloseoutRecords',
+  ]) && includesAll(sourceOnceOverCloseoutRecordsSource, [
     VERIFICATION_RUNS_CLOSEOUT_KEY,
     VERIFICATION_RUNS_CARD_ID,
     VERIFICATION_RUNS_NEXT_CARD_ID,

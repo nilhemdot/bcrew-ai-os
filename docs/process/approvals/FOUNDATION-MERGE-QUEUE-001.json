@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-MERGE-QUEUE-001",
+  "approvedBy": "Steve process correction + Codex Foundation builder session",
+  "approvedAt": "2026-05-19T00:30:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve interrupted the Foundation builder with a merge-to-main process correction requiring a merge queue before more long-branch card stacking.",
+  "scopeSummary": "Create the Foundation merge queue protocol, focused fail-closed proof, backlog card, approval, closeout, package script, and closeout registry coverage without merging main or launching parallel builders.",
+  "approvedPlanRef": "docs/process/foundation-merge-queue-001-plan.md",
+  "approvedPlanSha256": "56ef27263fc0530ccdb04cb297c740918f31be5940d0a78c30219f1afeeff116",
+  "approvedRepoHead": "8a95a355ed542ce177a01842a6e959b6e7ece6d3",
+  "notApproved": [
+    "Do not merge main in this card.",
+    "Do not launch parallel builders or hidden delegated workers.",
+    "Do not run live extraction, paid/private access, provider rotation, provider calls, Drive mutation, Gmail/ClickUp sends, Slack sends, Agent Feedback sends, or external writes.",
+    "Do not mark approval-bound provider or extraction work done.",
+    "Do not keep stacking completed cards on a long-lived branch without entering the integration queue."
+  ],
+  "approvalDigest": "a5962ca5366149f0360bd2b21e57313fa2e092fce79b91a85b7db52d12e84b99"
+}

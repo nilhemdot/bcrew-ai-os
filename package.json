@@ -91,6 +91,8 @@
     "process:post-ship-fanout": "node --env-file-if-exists=.env scripts/process-post-ship-fanout.mjs",
     "process:foundation-ship-preflight": "node --env-file-if-exists=.env scripts/process-foundation-ship-preflight.mjs",
     "process:foundation-ship": "node --env-file-if-exists=.env scripts/process-foundation-ship.mjs",
+    "process:foundation-merge-queue-check": "node --env-file-if-exists=.env scripts/process-foundation-merge-queue-check.mjs",
+    "process:foundation-branch-merge-readiness-check": "node --env-file-if-exists=.env scripts/process-foundation-branch-merge-readiness-check.mjs",
     "process:foundation-verify-profile-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-profile-check.mjs",
     "process:foundation-verify-registry-split-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-registry-split-check.mjs",
     "process:foundation-verify-llm-auth-audit-check": "node --env-file-if-exists=.env scripts/process-foundation-verify-llm-auth-audit-check.mjs",

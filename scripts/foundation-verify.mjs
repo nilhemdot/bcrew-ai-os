@@ -39,9 +39,7 @@ import {
   buildFoundationVerifyRetryOptions,
   buildVerifyReadOnlyGateDogfoodProof,
 } from '../lib/foundation-runtime-safety.js'
-import {
-  buildProcessCheckApplyBoundaryDogfoodProof,
-} from '../lib/process-write-guard.js'
+import { buildProcessCheckApplyBoundaryDogfoodProof } from '../lib/process-write-guard.js'
 import {
   PROCESS_CHECK_READONLY_MODE_CARD_ID,
   PROCESS_CHECK_READONLY_MODE_CLOSEOUT_KEY,
@@ -86,12 +84,8 @@ import {
   getFoundationJobDefinitions,
   getFoundationJobRuntime,
 } from '../lib/foundation-jobs.js'
-import {
-  buildPersonalWorkspaceBoundaryStatus,
-} from '../lib/foundation-personal-workspace-boundary.js'
-import {
-  buildCeoDashboardPatternStatus,
-} from '../lib/foundation-ceo-dashboard-pattern.js'
+import { buildPersonalWorkspaceBoundaryStatus } from '../lib/foundation-personal-workspace-boundary.js'
+import { buildCeoDashboardPatternStatus } from '../lib/foundation-ceo-dashboard-pattern.js'
 import {
   buildFoundationReviewSprintStatus,
   FOUNDATION_REVIEW_SPRINT_CARD_IDS,
@@ -3129,7 +3123,7 @@ async function main() {
     'FOUNDATION-AGENT-USEFULNESS-RUNTIME-GATES-001',
     'AGENT-LIVE-ANSWER-PREFLIGHT-GATE-001',
     'AGENT-CAPABILITY-REGISTRY-001', 'FOUNDATION-UP-CAPABILITY-REGISTRY-001', 'MEMORY-002',
-    'SECURITY-PROVIDER-ROTATION-PROOF-001',
+    'SECURITY-PROVIDER-ROTATION-PROOF-001', 'FOUNDATION-BRANCH-MERGE-READINESS-AND-HEALTH-GREEN-001', 'FOUNDATION-MERGE-QUEUE-001',
     'AGENT-TEMPLATE-RUNTIME-CONTRACT-001', 'OLD-SYSTEM-AGENT-ONBOARDING-HARVEST-001', 'AGENT-010', 'ROLE-ASSISTANT-CONTRACTS-001', 'HARLAN-PROJECT-REGISTRY-001', 'HARLAN-OPERATOR-LOOP-V1-001', 'BUILD-INTEL-CREATOR-WATCHLIST-EXPANSION-001',
     'FOUNDATION-HUB-PAYLOAD-BUDGET-V2-001',
     'SOURCE-CONTRACT-VALIDATION-LAYER-001',
