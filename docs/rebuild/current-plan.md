@@ -423,7 +423,7 @@ Live sprint ID: `action-route-dedup-staleness-guard-2026-05-18`.
 
 This sprint was interrupted by a P0 build-lane reliability injection: `BUILD-LANE-FAILURE-TELEMETRY-001`, closed under `build-lane-failure-telemetry-v1`. It fingerprints failed proof/verifier/ship/fanout/hygiene checks, counts repeats over 24 hours and 7 days, and surfaces repeated failures in System Health so recurring build mistakes become repair work instead of repeated manual debugging.
 
-The broader sprint remains `FOUNDATION-KB-ACTION-REVIEW-SPRINT-001`. The first shipped slice is `foundation-kb-compiler-v1`: a Foundation-owned, proposal-only compiler path from existing source-backed records into a quality-gated KB/wiki draft contract.
+The broader sprint `FOUNDATION-KB-ACTION-REVIEW-SPRINT-001` is closed under `foundation-kb-action-review-sprint-v1`. The closeout verified every child card and closeout key, then removed the ambiguous scoped parent-sprint state without starting extraction, model calls, hidden workers, or external writes.
 
 Completed cards:
 
@@ -432,6 +432,7 @@ Completed cards:
 3. `ACTION-ROUTE-REVIEW-INBOX-001` - done under `action-route-review-inbox-v1`. Scope was read-only review-inbox plumbing: Action Router records and route-derived backlog rows -> proposed review items with type, owner, age, source refs, destination, and review state. Default Backlog separates action-route-derived rows from normal work while focused-card reads still load them.
 4. `ACTION-ROUTE-PROMOTION-WORKFLOW-001` - done under `action-route-promotion-workflow-v1`. Scope is governed internal Review Inbox workflow: confirm decisions, answer questions, assign owners, promote to backlog, mark duplicates, reject, snooze, and link existing cards while preserving source evidence and blocking duplicate backlog promotion.
 5. `ACTION-ROUTE-DEDUP-STALENESS-GUARD-001` - done under `action-route-dedup-staleness-guard-v1`. Scope is Review Inbox duplicate/staleness policy: repeated unresolved findings are grouped without data loss, route/backlog linked duplicates are informational, unresolved rows at 3 days are yellow watch, unresolved rows at 7 days are red risk, and every stale item or duplicate cluster carries a closure next action.
+6. `FOUNDATION-KB-ACTION-REVIEW-SPRINT-001` - done under `foundation-kb-action-review-sprint-v1`. Scope is umbrella closeout only: verifies child done-card truth, child closeout registry coverage, current plan/state references, focused dogfood, and no hidden-worker/extraction/model/external-write side effects.
 
 Not next from this closeout: live extraction, transcript fetches, screenshots, crawl, summarization, model calls, provider probes, auth-required or paid runs, external writes, automatic deletion/hiding/rejection/snoozing, Harlan/Fal/voice/Canva/OpenHuman feature work, Drive permission mutation, or Agent Feedback auto-send.
 
