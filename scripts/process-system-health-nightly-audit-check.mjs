@@ -183,6 +183,12 @@ async function main() {
   addCheck(checks, jobDefinition?.key === SYSTEM_HEALTH_NIGHTLY_AUDIT_JOB_KEY && jobDefinition.runtimeMode === 'scheduled' && jobDefinition.mutationPosture === 'report_only' && jobDefinition.scheduleLocalTime === '05:15', 'system-health nightly job is scheduled report-only after nightly audit window', jobDefinition ? `${jobDefinition.runtimeMode}/${jobDefinition.scheduleLocalTime}/${jobDefinition.mutationPosture}` : 'missing job')
   addCheck(checks, dogfood.ok === true, 'dogfood makes missed scheduled jobs red and fresh jobs green', dogfood.checks.filter(check => !check.ok).map(check => check.check).join(', ') || 'all dogfood checks passed')
   addCheck(checks, systemHealth.reportOnly === true && systemHealth.autoFixes === false && systemHealth.writesBacklog === false && systemHealth.writesSourceSystems === false, 'system-health snapshot is report-only and non-mutating', `status=${systemHealth.status}`)
+  addCheck(
+    checks,
+    systemHealth.status === 'healthy',
+    'system-health proof does not exit green while embedded health is red/yellow',
+    `status=${systemHealth.status} raw=${systemHealth.summary?.rawRiskCount || 0}/${systemHealth.summary?.rawWatchCount || 0} blocking=${systemHealth.summary?.riskCount || 0}/${systemHealth.summary?.watchCount || 0}`,
+  )
   addCheck(checks, systemHealth.docArtifactBloat?.summary?.artifactCount > 0 && Number.isFinite(systemHealth.summary?.docArtifactRiskCount), 'system-health snapshot includes doc/report bloat rollup', `artifacts=${systemHealth.docArtifactBloat?.summary?.artifactCount || 0} risk=${systemHealth.summary?.docArtifactRiskCount || 0}`)
   addCheck(checks, systemHealth.fileSizeStandard?.summary?.fileCount > 0 && Number.isFinite(systemHealth.summary?.fileSizeWatchCount), 'system-health snapshot includes file-size standard rollup', `files=${systemHealth.fileSizeStandard?.summary?.fileCount || 0} watch=${systemHealth.summary?.fileSizeWatchCount || 0}`)
   addCheck(checks, scheduledJobs.rows.some(row => row.key === 'foundation-verify') && scheduledJobs.rows.some(row => row.key === 'nightly-deep-audit'), 'scheduled-job snapshot includes verifier and nightly auditor rows', scheduledJobs.rows.slice(0, 8).map(row => row.key).join(', '))

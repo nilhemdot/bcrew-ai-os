@@ -465,17 +465,28 @@ function containsUnsafeRuntimeCall(source = '') {
     .map(pattern => pattern.source)
 }
 
-function summarizeActionItems(items = []) {
-  return (Array.isArray(items) ? items : []).slice(0, 8).map(item => ({
+function summarizeActionItem(item = {}) {
+  return {
     source: item.source,
     key: item.fingerprint || item.jobKey || item.checkName,
     severity: item.severity,
     count24h: item.repeatCount24h,
+    latestSeenAt: item.latestSeenAt || null,
+    latestSuccessAt: item.latestSuccessAt || null,
     owner: item.owner,
     repairCardId: item.repairCardId,
+    repairCardLane: item.repairCardLane,
     decision: item.decision,
+    latestAffectedCardId: item.latestAffectedCardId || '',
+    latestDetail: String(item.latestDetail || '').slice(0, 500),
+    nextAction: item.nextAction || '',
     blocks: item.severity === 'red' && item.decision !== 'repair_card_attached' && !item.resolved,
-  }))
+  }
+}
+
+function summarizeActionItems(items = [], { limit = 8 } = {}) {
+  const source = Array.isArray(items) ? items : []
+  return source.slice(0, limit).map(summarizeActionItem)
 }
 
 async function main() {
@@ -616,6 +627,9 @@ async function main() {
       status: actionGate.status,
       blocksCurrentSprint: actionGate.blocksCurrentSprint,
       summary: actionGate.summary,
+      plainEnglish: actionGate.plainEnglish,
+      unsatisfiedRedItems: summarizeActionItems(actionGate.unsatisfiedRedItems, { limit: 20 }),
+      blockingItems: summarizeActionItems(actionGate.blockingItems, { limit: 20 }),
       actionItems: summarizeActionItems(actionGate.actionItems),
     },
     checkCount: checks.length,

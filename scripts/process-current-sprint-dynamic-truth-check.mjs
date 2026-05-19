@@ -5,6 +5,7 @@ import process from 'node:process'
 import { Pool } from 'pg'
 
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   buildFoundationCurrentSprintStatus,
 } from '../lib/foundation-current-sprint.js'
@@ -14,8 +15,12 @@ import {
   getBacklogItemsByIds,
   initFoundationDb,
 } from '../lib/foundation-db.js'
+import {
+  evaluateSprintCheckHistoricalMode,
+} from '../lib/sprint-check-historical-mode.js'
 
 const CARD_ID = 'CURRENT-SPRINT-DYNAMIC-TRUTH-001'
+const CLOSEOUT_KEY = 'current-sprint-dynamic-truth-v1'
 // liveTruthPosture: historical_closeout_only - this proof replays the closed control-plane sprint to prove dynamic truth behavior.
 const SPRINT_ID = 'control-plane-connector-readiness-2026-05-12'
 const PLAN_REF = 'docs/process/current-sprint-dynamic-truth-001-plan.md'
@@ -220,10 +225,19 @@ async function main() {
   const pool = createPool()
   let snapshot = null
   let snapshotItemCardId = null
+  let restoredApi = null
   try {
     const activeSprint = await getActiveFoundationCurrentSprint()
     const cards = await getBacklogItemsByIds([CARD_ID])
     const backlogCard = cards.find(card => card.id === CARD_ID)
+    const sprintProofMode = evaluateSprintCheckHistoricalMode({
+      activeSprint,
+      card: backlogCard,
+      closeouts: getFoundationBuildCloseouts(),
+      cardId: CARD_ID,
+      expectedSprintId: SPRINT_ID,
+      closeoutKey: CLOSEOUT_KEY,
+    })
     const liveStatus = buildFoundationCurrentSprintStatus({
       sprint: activeSprint.sprint,
       items: activeSprint.items,
@@ -231,7 +245,7 @@ async function main() {
       closeouts: [],
     })
     const liveItem = liveStatus.items.find(item => item.cardId === CARD_ID)
-    const proofItemCardId = activeSprint.sprint?.activeBlockerCardId || CARD_ID
+    const proofItemCardId = CARD_ID
     const syntheticMissingMetadata = buildSyntheticMissingMetadataStatus(backlogCard || {
       id: CARD_ID,
       title: 'Synthetic backlog card',
@@ -240,46 +254,51 @@ async function main() {
       nextAction: 'Synthetic next action',
     })
 
-    addFinding(findings, liveStatus.sprintId === SPRINT_ID, 'live sprint id is active control-plane sprint', liveStatus.sprintId || 'missing')
-    addFinding(findings, ['building_now', 'done_this_sprint'].includes(liveItem?.stage), 'current card is Building Now or Done This Sprint for proof replay', liveItem?.stage || 'missing')
+    addFinding(findings, sprintProofMode.ok === true, 'current or historical sprint proof validates dynamic truth card', `${sprintProofMode.mode}: ${sprintProofMode.reason}`)
+    addFinding(findings, ['active_current', 'historical_closeout'].includes(sprintProofMode.mode), 'sprint proof mode is active-current or verified historical closeout', liveItem ? `${liveItem.cardId}:${liveItem.stage}` : sprintProofMode.mode)
     addFinding(findings, liveStatus.cadence?.truthSource?.sprintRecord === 'live-db', 'cadence reports live DB as sprint record source', JSON.stringify(liveStatus.cadence?.truthSource || {}))
     addFinding(findings, syntheticMissingMetadata.status === 'risk', 'synthetic active DB sprint without metadata fails closed', syntheticMissingMetadata.status)
     addFinding(findings, syntheticMissingMetadata.findings.some(item => item.check === 'sprint_exit_criteria_required'), 'missing live exit criteria is flagged instead of defaulted', JSON.stringify(syntheticMissingMetadata.findings))
     addFinding(findings, Array.isArray(syntheticMissingMetadata.cadence?.exitCriteria) && syntheticMissingMetadata.cadence.exitCriteria.length === 0, 'active DB sprint does not inherit hardcoded exit criteria when metadata is missing', JSON.stringify(syntheticMissingMetadata.cadence?.exitCriteria || []))
 
-    snapshotItemCardId = proofItemCardId
-    snapshot = await loadLiveSnapshot(pool, snapshotItemCardId)
-    for (const marker of markers) {
-      await updateDynamicMarkers(pool, marker, snapshotItemCardId)
-      const api = await fetchJson(baseUrl, '/api/foundation/current-sprint')
-      const cadence = api.currentSprint?.cadence || {}
-      addFinding(findings, cadence.executiveSummary === marker.executiveSummary, 'API reflects live DB executive summary marker', JSON.stringify({ expected: marker.executiveSummary, actual: cadence.executiveSummary }))
-      addFinding(findings, Array.isArray(cadence.exitCriteria) && cadence.exitCriteria[0] === marker.exitCriteria[0], 'API reflects live DB exit criteria marker', JSON.stringify({ expected: marker.exitCriteria, actual: cadence.exitCriteria }))
-      addFinding(findings, cadence.nextAction === marker.nextAction, 'API reflects live sprint item next action marker', JSON.stringify({ expected: marker.nextAction, actual: cadence.nextAction }))
-    }
-    await restoreLiveSnapshot(pool, snapshot, snapshotItemCardId)
-    snapshot = null
-    snapshotItemCardId = null
+    if (sprintProofMode.mode === 'active_current') {
+      snapshotItemCardId = proofItemCardId
+      snapshot = await loadLiveSnapshot(pool, snapshotItemCardId)
+      for (const marker of markers) {
+        await updateDynamicMarkers(pool, marker, snapshotItemCardId)
+        const api = await fetchJson(baseUrl, '/api/foundation/current-sprint')
+        const cadence = api.currentSprint?.cadence || {}
+        addFinding(findings, cadence.executiveSummary === marker.executiveSummary, 'API reflects live DB executive summary marker', JSON.stringify({ expected: marker.executiveSummary, actual: cadence.executiveSummary }))
+        addFinding(findings, Array.isArray(cadence.exitCriteria) && cadence.exitCriteria[0] === marker.exitCriteria[0], 'API reflects live DB exit criteria marker', JSON.stringify({ expected: marker.exitCriteria, actual: cadence.exitCriteria }))
+        addFinding(findings, cadence.nextAction === marker.nextAction, 'API reflects live sprint item next action marker', JSON.stringify({ expected: marker.nextAction, actual: cadence.nextAction }))
+      }
+      await restoreLiveSnapshot(pool, snapshot, snapshotItemCardId)
+      snapshot = null
+      snapshotItemCardId = null
 
-    const restoredApi = await fetchJson(baseUrl, '/api/foundation/current-sprint')
-    addFinding(findings, restoredApi.currentSprint?.status === 'healthy', 'live API returns healthy after proof restoration', restoredApi.currentSprint?.status || 'missing')
-    addFinding(findings, restoredApi.currentSprint?.cadence?.executiveSummary !== markers[1].executiveSummary, 'proof marker is restored out of live sprint metadata', restoredApi.currentSprint?.cadence?.executiveSummary || 'missing')
+      restoredApi = await fetchJson(baseUrl, '/api/foundation/current-sprint')
+      addFinding(findings, restoredApi.currentSprint?.status === 'healthy', 'live API returns healthy after proof restoration', restoredApi.currentSprint?.status || 'missing')
+      addFinding(findings, restoredApi.currentSprint?.cadence?.executiveSummary !== markers[1].executiveSummary, 'proof marker is restored out of live sprint metadata', restoredApi.currentSprint?.cadence?.executiveSummary || 'missing')
+    } else {
+      addFinding(findings, sprintProofMode.mode === 'historical_closeout', 'closed dynamic-truth card uses verified historical closeout instead of mutating active sprint', sprintProofMode.mode)
+    }
     addFinding(findings, packageJson.scripts?.['process:current-sprint-dynamic-truth-check'] === 'node --env-file-if-exists=.env scripts/process-current-sprint-dynamic-truth-check.mjs', 'package exposes current sprint dynamic truth proof script', packageJson.scripts?.['process:current-sprint-dynamic-truth-check'] || 'missing')
     addFinding(findings, approvalValidation.ok, 'approval integrity passes for current sprint dynamic truth plan', approvalValidation.failures?.map(item => item.detail).join(' | ') || 'ok')
     addFinding(findings, moduleSource.includes('sprint_exit_criteria_required') && moduleSource.includes('truthSource') && moduleSource.includes('bootstrap-default'), 'module records dynamic truth source and blocks active DB default leakage', 'missing source markers')
-    addFinding(findings, scriptSource.includes('restoreLiveSnapshot') && scriptSource.includes('dynamic-truth-proof'), 'proof restores live DB marker mutations', 'missing restore proof markers')
+    addFinding(findings, scriptSource.includes('evaluateSprintCheckHistoricalMode') && scriptSource.includes('restoreLiveSnapshot') && scriptSource.includes('dynamic-truth-proof'), 'proof handles active mutation and historical closeout after sprint rollover', 'missing historical/restore proof markers')
 
     const summary = {
       cardId: CARD_ID,
       status: findings.length ? 'attention' : 'healthy',
       checkedAt: new Date().toISOString(),
-      dynamicMarkersProved: markers.length,
+      dynamicMarkersProved: sprintProofMode.mode === 'active_current' ? markers.length : 0,
+      sprintProofMode,
       syntheticMissingMetadata: {
         status: syntheticMissingMetadata.status,
         findings: syntheticMissingMetadata.findings.map(item => item.check),
         exitCriteriaCount: syntheticMissingMetadata.cadence?.exitCriteria?.length || 0,
       },
-      apiRestoredStatus: restoredApi.currentSprint?.status || null,
+      apiRestoredStatus: restoredApi?.currentSprint?.status || null,
       findings,
     }
     const rawLeaks = noRawProof(summary)

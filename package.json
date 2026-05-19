@@ -115,6 +115,7 @@
     "process:system-health-red-row-repair-check": "node --env-file-if-exists=.env scripts/process-system-health-red-row-repair-check.mjs",
     "process:foundation-health-watch-to-green-check": "node --env-file-if-exists=.env scripts/process-foundation-health-watch-to-green-check.mjs",
     "process:audit-finding-to-backlog-router-check": "node --env-file-if-exists=.env scripts/process-audit-finding-to-backlog-router-check.mjs",
+    "process:foundation-raw-green-repair-and-lock-check": "node --env-file-if-exists=.env scripts/process-foundation-raw-green-repair-and-lock-check.mjs",
     "process:connector-blocked-row-diagnosis-check": "node --env-file-if-exists=.env scripts/process-connector-blocked-row-diagnosis-check.mjs",
     "process:connector-completion-prep-check": "node --env-file-if-exists=.env scripts/process-connector-completion-prep-check.mjs",
     "process:source-contract-id-reconcile-check": "node --env-file-if-exists=.env scripts/process-source-contract-id-reconcile-check.mjs",

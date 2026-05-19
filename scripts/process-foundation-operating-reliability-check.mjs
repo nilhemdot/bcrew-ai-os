@@ -272,6 +272,13 @@ async function main() {
   )
   addCheck(
     checks,
+    morningHealth.summary?.failedJobCount === 0 &&
+      morningHealth.summary?.connectorDownCount === 0,
+    'operating reliability proof does not exit green with failed jobs or down connectors',
+    `failedJobs=${morningHealth.summary?.failedJobCount || 0} connectorDown=${morningHealth.summary?.connectorDownCount || 0}`,
+  )
+  addCheck(
+    checks,
     operatingReliability.connectorUptime?.rows?.length === OPERATING_RELIABILITY_CONNECTOR_GROUPS.length &&
       operatingReliability.runtimeActivation?.jobs?.length >= getFoundationJobDefinitions().length &&
       operatingReliability.morningHealth?.plainEnglish,

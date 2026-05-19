@@ -9,6 +9,7 @@ import {
   sleep,
 } from '../lib/foundation-gate-reliability.js'
 import {
+  BUILD_LANE_FAILURE_TELEMETRY_INFLIGHT_SHIP_PROOF_ENV,
   recordBuildLaneFailureEventsFromError,
 } from '../lib/build-lane-failure-telemetry.js'
 import { recordFoundationShipProof } from '../lib/process-git-hooks.js'
@@ -70,6 +71,7 @@ function printStepResult(result) {
 async function runStep(label, npmArgs, options = {}) {
   const startedAt = Date.now()
   const retries = Number(options.retries ?? 1)
+  const stepEnv = options.env ? { ...process.env, ...options.env } : process.env
   let stdoutBuffer = ''
   let stderrBuffer = ''
   let attempt = 0
@@ -77,7 +79,7 @@ async function runStep(label, npmArgs, options = {}) {
     attempt += 1
     try {
       const { stdout, stderr } = await execFile('npm', npmArgs, {
-        env: process.env,
+        env: stepEnv,
         maxBuffer: 1024 * 1024 * 12,
       })
       return {
@@ -110,6 +112,33 @@ async function runStep(label, npmArgs, options = {}) {
       error.stepLabel = label
       throw error
     }
+  }
+}
+
+async function git(args, options = {}) {
+  const { stdout } = await execFile('git', args, {
+    cwd: options.repoRoot || process.cwd(),
+    env: process.env,
+    maxBuffer: 1024 * 1024,
+  })
+  return String(stdout || '').trim()
+}
+
+async function buildInflightShipProof({ cardId, closeoutKey, commitRef = 'HEAD' } = {}) {
+  const commitSha = await git(['rev-parse', commitRef])
+  const shortSha = await git(['rev-parse', '--short', commitRef])
+  const passedAt = new Date()
+  const expiresAt = new Date(passedAt.getTime() + 30 * 60 * 1000)
+  return {
+    schemaVersion: 1,
+    cardId: normalize(cardId),
+    closeoutKey: normalize(closeoutKey),
+    commitSha,
+    shortSha,
+    passedAt: passedAt.toISOString(),
+    expiresAt: expiresAt.toISOString(),
+    command: `npm run process:foundation-ship -- --card=${normalize(cardId)} --closeoutKey=${normalize(closeoutKey)} --commitRef=${commitRef}`,
+    proofScope: 'inflight_final_verify_after_ship_check_and_fanout',
   }
 }
 
@@ -351,7 +380,17 @@ async function main() {
       : await runSequentialSteps(fanoutSteps)
     timing.push(...fanoutResults)
 
-    const foundationVerify = await runStep('foundation:verify', ['run', 'foundation:verify'], { retries: 1 })
+    const inflightProof = await buildInflightShipProof({
+      cardId: args.card,
+      closeoutKey: args.closeoutKey,
+      commitRef,
+    })
+    const foundationVerify = await runStep('foundation:verify', ['run', 'foundation:verify'], {
+      retries: 1,
+      env: {
+        [BUILD_LANE_FAILURE_TELEMETRY_INFLIGHT_SHIP_PROOF_ENV]: JSON.stringify(inflightProof),
+      },
+    })
     printStepResult(foundationVerify)
     timing.push(foundationVerify)
 

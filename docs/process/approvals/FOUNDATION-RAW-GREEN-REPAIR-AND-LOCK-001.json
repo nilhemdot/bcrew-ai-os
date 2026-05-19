@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-RAW-GREEN-REPAIR-AND-LOCK-001",
+  "approvedPlanRef": "docs/process/foundation-raw-green-repair-and-lock-001-plan.md",
+  "approvedPlanSha256": "78b7ab1a50e078af86bfe2866258918002d7c7256f6b6cd307df0f4a292ce852",
+  "approvedRepoHead": "e7d786af453484db98fc4ec95903d5350ae49818",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T10:18:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the raw-green repair pivot after repeated connector failures, false-green health checks, Orchestrator review feedback, and the ship/fanout bootstrap fix needed to retire repeated failures only after clean fanout proof.",
+  "scopeSummary": "Repair current connector/meeting workflow failures, expose repeated-failure blockers, fail closed on false-green health, and fix ship/fanout proof sequencing without deleting telemetry.",
+  "constraints": [
+    "Work from main.",
+    "Do not close by classification.",
+    "Governed connector uptime job proof must show a later successful foundation_job_runs row after the May 19 10:05 EDT failure.",
+    "System health and operating reliability checks must not exit green while embedded workflow health is red/yellow.",
+    "Repeated-failure telemetry must resolve only from real later proof; do not delete or rewrite red telemetry.",
+    "No broad private/auth extraction, Drive permission mutation, email sends, Agent Feedback sends, external writes, or parallel builders."
+  ],
+  "approvalDigest": "a6e6da9e933b2e4fb82f32eb1b6d39893a4cdcf85fc87b4e52a48ecffdac3713"
+}
