@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-ENDPOINT-METRICS-FRESHNESS-001",
+  "approvedPlanRef": "docs/process/foundation-endpoint-metrics-freshness-001-plan.md",
+  "approvedPlanSha256": "56767542643419354e8efc91f491a1ade7354af3a549cded66c9f5991f17141c",
+  "approvedRepoHead": "dece427f4d1d5a4f4776279335d1143aaf5a07f2",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T11:18:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the tightened Foundation-only sprint: one card at a time, endpoint metric rows must disappear or be proven current, no classification-around-it, no Value Builder split.",
+  "scopeSummary": "Refresh latest endpoint metrics, prove endpoint System Health rows are gone/current, repair the stale endpoint-budget proof delegation path, and close the active Current Sprint card.",
+  "constraints": [
+    "Foundation-only today; no Value Builder, no source/value/agent feature work, and no parallel split.",
+    "Use the existing live sprint unless Current Sprint truth is explicitly updated by the focused proof.",
+    "Run one card at a time; no bundling except tiny support fixes required by this card proof.",
+    "Endpoint metrics exit means the five endpoint metric System Health rows disappear or are proven current, not classified.",
+    "Do not rewrite endpoint thresholds, route implementations, or lazy-loading behavior unless the focused proof shows a measured route is over budget.",
+    "No Drive permission mutation, email sends, Agent Feedback sends, external writes, broad extraction, or provider probes."
+  ],
+  "approvalDigest": "58de057d78954dbb997840167907333da5b955eac2ac1e78ae595c26ca0f4ec7"
+}

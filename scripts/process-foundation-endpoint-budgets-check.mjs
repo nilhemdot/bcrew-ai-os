@@ -97,6 +97,7 @@ async function main() {
     hubReadRoutesSource,
     serverSource,
     foundationVerifySource,
+    operatorBudgetVerifierSource,
     currentPlan,
     currentState,
   ] = await Promise.all([
@@ -117,6 +118,7 @@ async function main() {
     readText('lib/hub-read-routes.js'),
     readText('server.js'),
     readText('scripts/foundation-verify.mjs'),
+    readText('lib/foundation-operator-budget-verifier.js'),
     readText('docs/rebuild/current-plan.md'),
     readText('docs/rebuild/current-state.md'),
   ])
@@ -242,13 +244,22 @@ async function main() {
     'plan and approval files exist',
     `${FOUNDATION_ENDPOINT_BUDGETS_PLAN_PATH} / ${FOUNDATION_ENDPOINT_BUDGETS_APPROVAL_PATH}`,
   )
+  const rootEndpointBudgetCoverage =
+    foundationVerifySource.includes('FOUNDATION_ENDPOINT_BUDGETS_CARD_ID') &&
+    foundationVerifySource.includes('buildFoundationEndpointBudgetsDogfoodProof') &&
+    foundationVerifySource.includes('FOUNDATION-ENDPOINT-BUDGETS-001 surfaces operator endpoint latency and payload budgets')
+  const delegatedEndpointBudgetCoverage =
+    foundationVerifySource.includes('evaluateFoundationOperatorBudgetVerifier') &&
+    operatorBudgetVerifierSource.includes('FOUNDATION_ENDPOINT_BUDGETS_CARD_ID') &&
+    operatorBudgetVerifierSource.includes('buildFoundationEndpointBudgetsDogfoodProof') &&
+    operatorBudgetVerifierSource.includes('FOUNDATION-ENDPOINT-BUDGETS-001 surfaces operator endpoint latency and payload budgets')
   addCheck(
     checks,
-    foundationVerifySource.includes('FOUNDATION_ENDPOINT_BUDGETS_CARD_ID') &&
-      foundationVerifySource.includes('buildFoundationEndpointBudgetsDogfoodProof') &&
-      foundationVerifySource.includes('FOUNDATION-ENDPOINT-BUDGETS-001 surfaces operator endpoint latency and payload budgets'),
+    rootEndpointBudgetCoverage || delegatedEndpointBudgetCoverage,
     'foundation verifier has ID-named endpoint budget coverage',
-    'root verifier references endpoint budget constants and dogfood',
+    delegatedEndpointBudgetCoverage
+      ? 'root verifier delegates endpoint budget constants and dogfood through foundation-operator-budget-verifier'
+      : 'root verifier references endpoint budget constants and dogfood',
   )
   if (closeout || card?.lane === 'done') {
     addCheck(
