@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DRIVE-CONTENT-001",
+  "approvedPlanRef": "docs/process/drive-content-001-plan.md",
+  "approvedPlanSha256": "c5a40b1c6e5c3d7703827deedd48cfed21e121aadfd8eb42eec24a29d9023b32",
+  "approvedRepoHead": "9a7b000002ba429a20f25263c903f4139c7bfc91",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T15:55:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation; DRIVE-CONTENT-001 builds the next bounded Drive content slice after EXTRACT-BACKFILL-001.",
+  "scopeSummary": "Add bounded DOCX text extraction, prioritize newly-supported Office retry skips, prove explicit skip routing, and close through the existing governed Drive content lane without Drive permission mutation or broad Drive sweeps.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "Use existing live sprint unless proof closeout explicitly updates Current Sprint truth.",
+    "Do not mutate Google Drive permissions.",
+    "Do not send request-access emails or external writes.",
+    "Do not run broad Drive sweeps outside the bounded daily quota target.",
+    "Do not add new source access, paid/provider work, or browser-auth extraction.",
+    "Do not route OCR/vision/video/media extraction through this text-only card.",
+    "Existing governed Foundation repair/proof reruns are allowed only when they read approved source data and write local archive/ledger/proof rows only.",
+    "Approval-bound actions park the action, not the whole sprint; continue safe approved sprint work.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "cdf8085e66e88e3bdaf0644ee035126106c2e7732a2ddb97f509ec3cd79b59f6"
+}

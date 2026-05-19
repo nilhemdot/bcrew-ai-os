@@ -32,6 +32,7 @@ const GOOGLE_SHEET_MIME = 'application/vnd.google-apps.spreadsheet'
 const PDF_MIME = 'application/pdf'
 const TEXT_MIME = 'text/plain'
 const MARKDOWN_MIME = 'text/markdown'
+const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 const EXTRACTOR_VERSION = 'drive_content_text_v1'
 
 function parseArgs(argv) {
@@ -121,6 +122,13 @@ function classifyDriveContentItem(item) {
       extractionMethod: 'drive_blob_text_v1',
     }
   }
+  if (mimeType === DOCX_MIME) {
+    return {
+      supported: true,
+      artifactType: 'drive_document',
+      extractionMethod: 'drive_docx_unzip_document_xml_v1',
+    }
+  }
 
   return {
     supported: false,
@@ -184,6 +192,44 @@ async function extractPdfTextWithPdftotext(buffer, { pdftotextBin = 'pdftotext' 
       maxBuffer: 64 * 1024 * 1024,
     })
     return stdout
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  }
+}
+
+function decodeXmlText(value) {
+  return String(value || '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_match, code) => {
+      const parsed = Number(code)
+      return Number.isFinite(parsed) ? String.fromCodePoint(parsed) : ''
+    })
+    .replace(/&#x([0-9a-fA-F]+);/g, (_match, code) => {
+      const parsed = Number.parseInt(code, 16)
+      return Number.isFinite(parsed) ? String.fromCodePoint(parsed) : ''
+    })
+}
+
+async function extractDocxTextWithUnzip(buffer, { unzipBin = 'unzip' } = {}) {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bcrew-drive-docx-'))
+  const inputPath = path.join(tmpDir, 'input.docx')
+  try {
+    await fs.writeFile(inputPath, buffer)
+    const { stdout } = await execFile(unzipBin, ['-p', inputPath, 'word/document.xml'], {
+      maxBuffer: 64 * 1024 * 1024,
+    })
+    return normalizeText(
+      decodeXmlText(stdout)
+        .replace(/<w:tab\b[^>]*\/>/g, '\t')
+        .replace(/<w:br\b[^>]*\/>/g, '\n')
+        .replace(/<\/w:p>/g, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(/\n{3,}/g, '\n\n'),
+    )
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true })
   }
@@ -362,6 +408,8 @@ async function extractItemText(item, {
   maxSheets,
   maxSheetRows,
   maxSheetColumns,
+  maxOfficeBytes,
+  unzipBin,
 }) {
   const fileId = getFileId(item)
   const mimeType = getMimeType(item)
@@ -446,6 +494,35 @@ async function extractItemText(item, {
   if (mimeType === TEXT_MIME || mimeType === MARKDOWN_MIME) {
     const buffer = await driveDownloadFile(userEmail, fileId)
     return buffer.toString('utf8')
+  }
+
+  if (mimeType === DOCX_MIME) {
+    const declaredSize = Number(item?.metadata?.size || 0)
+    if (declaredSize && declaredSize > maxOfficeBytes) {
+      return {
+        skipped: true,
+        skipReason: `office_file_too_large_for_v1:${declaredSize}>${maxOfficeBytes}`,
+      }
+    }
+    const buffer = await driveDownloadFile(userEmail, fileId)
+    if (buffer.length > maxOfficeBytes) {
+      return {
+        skipped: true,
+        skipReason: `office_file_too_large_for_v1:${buffer.length}>${maxOfficeBytes}`,
+      }
+    }
+    const text = await extractDocxTextWithUnzip(buffer, { unzipBin })
+    if (normalizeText(text)) {
+      return {
+        text,
+        extractionMethod: 'drive_docx_unzip_document_xml_v1',
+      }
+    }
+    return {
+      skipped: true,
+      skipReason: 'empty_text_after_docx_extraction',
+      extractionMethod: 'drive_docx_unzip_document_xml_v1',
+    }
   }
 
   return {
@@ -559,6 +636,7 @@ async function archiveExtractedText({
       'Drive files.export for Google Workspace docs',
       'Sheets API spreadsheets.values.get for Google Sheets',
       'Drive files.get alt=media for blob files',
+      'Drive files.get alt=media plus local DOCX XML text extraction',
     ],
   }
 
@@ -617,7 +695,9 @@ async function main() {
   const limit = Math.min(100, Math.max(1, Number(args.limit || args.maxItems || 5) || 5))
   const maxTextChars = Math.max(10000, Number(args.maxTextChars || 250000) || 250000)
   const maxPdfBytes = Math.max(1000000, Number(args.maxPdfBytes || 25 * 1024 * 1024) || 25 * 1024 * 1024)
+  const maxOfficeBytes = Math.max(1000000, Number(args.maxOfficeBytes || 25 * 1024 * 1024) || 25 * 1024 * 1024)
   const pdftotextBin = String(args.pdftotextBin || process.env.PDFTOTEXT_BIN || 'pdftotext').trim()
+  const unzipBin = String(args.unzipBin || process.env.UNZIP_BIN || 'unzip').trim()
   const pdftoppmBin = String(args.pdftoppmBin || process.env.PDFTOPPM_BIN || 'pdftoppm').trim()
   const tesseractBin = String(args.tesseractBin || process.env.TESSERACT_BIN || 'tesseract').trim()
   const ocrEmptyPdf = args.ocrEmptyPdf == null ? false : boolValue(args.ocrEmptyPdf)
@@ -709,6 +789,8 @@ async function main() {
           maxSheets,
           maxSheetRows,
           maxSheetColumns,
+          maxOfficeBytes,
+          unzipBin,
         })
         if (textResult && typeof textResult === 'object' && textResult.skipped) {
           skipped += 1
@@ -800,6 +882,7 @@ async function main() {
         extractorVersion: EXTRACTOR_VERSION,
         maxTextChars,
         maxPdfBytes,
+        maxOfficeBytes,
         includeUnsupported,
         parentPathIncludes,
         nameIncludes,
@@ -810,6 +893,7 @@ async function main() {
         maxSheets,
         maxSheetRows,
         maxSheetColumns,
+        unzipBin,
         retrySkippedReasonPrefixes,
         processed: processed.slice(0, 25),
       },

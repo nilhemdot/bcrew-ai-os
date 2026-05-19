@@ -192,6 +192,7 @@ function getTargetRunner(target, options = {}) {
   if (target.targetKey === 'drive-content-extract-backfill') {
     const maxTextChars = numberFromBudget(target, 'maxTextChars', 250000)
     const maxPdfBytes = numberFromBudget(target, 'maxPdfBytes', 25 * 1024 * 1024)
+    const maxOfficeBytes = numberFromBudget(target, 'maxOfficeBytes', 25 * 1024 * 1024)
     const maxSheets = numberFromBudget(target, 'maxSheets', 8)
     const maxSheetRows = numberFromBudget(target, 'maxSheetRows', 200)
     const maxSheetColumns = numberFromBudget(target, 'maxSheetColumns', 26)
@@ -206,6 +207,7 @@ function getTargetRunner(target, options = {}) {
         `--limit=${maxItemsPerRun}`,
         `--maxTextChars=${maxTextChars}`,
         `--maxPdfBytes=${maxPdfBytes}`,
+        `--maxOfficeBytes=${maxOfficeBytes}`,
         `--maxSheets=${maxSheets}`,
         `--maxSheetRows=${maxSheetRows}`,
         `--maxSheetColumns=${maxSheetColumns}`,
