@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACT-BACKFILL-001",
+  "approvedPlanRef": "docs/process/extract-backfill-001-plan.md",
+  "approvedPlanSha256": "9e8bee14d724ab131b3419c38d5b096c898cfda8793d314551713b5979f771c2",
+  "approvedRepoHead": "67529b015721c5001f0301ef99ccadcd7bbed3bf",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T15:35:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation; EXTRACT-BACKFILL-001 proves bounded historical cursor/backfill before Drive content expansion.",
+  "scopeSummary": "Prove governed historical backfill/corpus lanes are bounded, cursored, latest-success, retry/skip visible, and parked approval-bound lanes have owner/reason/next trigger; no broad historical extraction or unsafe external writes.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "Use existing live sprint unless proof closeout explicitly updates Current Sprint truth.",
+    "Do not run broad historical extraction from this card.",
+    "Do not send messages or perform external writes.",
+    "Do not mutate Google Drive permissions.",
+    "Do not mutate credentials, provider config, or keys.",
+    "No new source access, paid/provider access, or browser-auth work.",
+    "Existing governed Foundation repair reruns are allowed only for health/proof/repeated-failure recovery when they read approved source data and write local archive/ledger/proof rows only.",
+    "Approval-bound actions park the action, not the whole sprint; continue safe approved sprint work.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "48f79c814f8b3a6036413cd9fa4c88f7c2a1e326cda6822ece2d2e6291a5068c"
+}
