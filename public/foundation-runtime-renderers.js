@@ -884,6 +884,80 @@ function renderRuntimeHealthCommandPanel(hub) {
   return panel
 }
 
+function renderFoundationOperatorPulsePanel(pulse) {
+  if (!pulse || pulse.error) return null
+  var panel = document.createElement('section')
+  panel.className = 'panel runtime-health-command-panel foundation-operator-pulse-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Operator Pulse'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'What Steve Needs To Know'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = pulse.plainEnglish || 'Source-backed operator pulse is available.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  header.appendChild(renderBuildPill(
+    pulse.status === 'healthy' ? 'Green' : (pulse.status === 'risk' ? 'Repair' : 'Review'),
+    pulse.status === 'healthy'
+      ? 'foundation-system-pill build-log-status-pill build-log-status-shipped'
+      : pulse.status === 'risk'
+        ? 'foundation-system-pill current-sprint-risk-pill'
+        : 'foundation-system-pill build-log-status-pill build-log-status-pending'
+  ))
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'status-grid runtime-health-command-grid'
+  ;(pulse.cards || []).forEach(function(item) {
+    grid.appendChild(renderStatusCard({
+      label: item.label,
+      status: item.status,
+      detail: item.detail,
+      actions: item.href ? [{
+        label: 'Open',
+        secondary: true,
+        onClick: function() {
+          window.location.href = item.href
+        },
+      }] : [],
+    }))
+  })
+  panel.appendChild(grid)
+
+  var actions = Array.isArray(pulse.actionItems) ? pulse.actionItems : []
+  if (actions.length) {
+    var actionWrap = document.createElement('div')
+    actionWrap.className = 'current-sprint-exit'
+    var actionTitle = document.createElement('strong')
+    actionTitle.textContent = 'Next actions'
+    actionWrap.appendChild(actionTitle)
+    actionWrap.appendChild(renderBuildTextList(actions.slice(0, 6), 'build-log-fact-list'))
+    panel.appendChild(actionWrap)
+  }
+
+  if (pulse.nextCard && pulse.nextCard.id) {
+    var next = document.createElement('p')
+    next.className = 'section-intro'
+    var link = document.createElement('a')
+    link.href = '/foundation#backlog:' + encodeURIComponent(pulse.nextCard.id)
+    link.textContent = pulse.nextCard.id
+    next.appendChild(document.createTextNode('Next card: '))
+    next.appendChild(link)
+    next.appendChild(document.createTextNode(' - ' + (pulse.nextCard.title || 'Untitled')))
+    panel.appendChild(next)
+  }
+
+  return panel
+}
+
 function appendRuntimeDiagnosticPanel(container, panel, options) {
   if (!panel) return
   var config = options || {}

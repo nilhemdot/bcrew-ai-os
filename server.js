@@ -1898,6 +1898,13 @@ registerFoundationOperatorRoutes(app, {
   buildFoundationBacklogDetailPayload,
   buildFoundationBacklogDoneArchivePayload,
   buildFoundationBacklogListPayload,
+  getActiveFoundationCurrentSprint,
+  buildFoundationCurrentSprintStatus,
+  buildFoundationOperatingReliabilitySnapshot,
+  loadLatestFoundationEndpointBudgetSnapshot,
+  buildDocArtifactBloatSnapshot,
+  getSourceContracts,
+  getSourceConnectors,
   readFileSafe,
   repoRoot: __dirname,
 })

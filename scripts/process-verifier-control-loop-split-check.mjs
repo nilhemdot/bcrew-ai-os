@@ -118,7 +118,20 @@ async function main() {
     'dogfood rejects control-loop verifier failures',
     dogfood.dogfoodInvariant,
   )
-  addCheck(checks, verifierSource.includes('evaluateFoundationVerifierControlLoop({') && verifierSource.includes('controlLoopVerifier.checks'), 'foundation verifier delegates control-loop checks to focused module', 'evaluateFoundationVerifierControlLoop')
+  const directControlLoopDelegation =
+    verifierSource.includes('evaluateFoundationVerifierControlLoop({') &&
+    verifierSource.includes('controlLoopVerifier.checks')
+  const orchestratedControlLoopDelegation =
+    verifierSource.includes('evaluateFoundationVerifierProcessControlGovernanceOrchestration({') &&
+    verifierSource.includes('controlLoopBundle:') &&
+    verifierSource.includes('buildFoundationVerifierControlLoopDogfoodProof') &&
+    verifierSource.includes('evaluateFoundationVerifierControlLoop')
+  addCheck(
+    checks,
+    directControlLoopDelegation || orchestratedControlLoopDelegation,
+    'foundation verifier delegates control-loop checks to focused module',
+    directControlLoopDelegation ? 'direct evaluateFoundationVerifierControlLoop' : 'process-control orchestration controlLoopBundle',
+  )
   addCheck(checks, !verifierSource.includes(oldInlineMarker), 'old inline control-loop block is removed', 'foundationDoneFailedKeys no longer appears inline')
   addCheck(checks, verifierLines < VERIFIER_CONTROL_LOOP_SPLIT_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_CONTROL_LOOP_SPLIT_BEFORE_LINES} -> ${verifierLines}`)
   addCheck(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only', 'no live-state write tokens')

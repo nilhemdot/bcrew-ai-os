@@ -1,0 +1,17 @@
+{
+  "cardId": "FOUNDATION-OPERATOR-PULSE-001",
+  "approvedPlanRef": "docs/process/foundation-operator-pulse-001-plan.md",
+  "approvedPlanSha256": "9034b587fc1574f22e2d4be1ec58fd406b1e2b2a804593c1fe545c40877a4d11",
+  "approvedRepoHead": "193ae77110eab0d7f1d456c49f86c808fb26b3d2",
+  "score": 10,
+  "approvedBy": "Steve approved preserving the gold and continuing the Foundation sprint with a local operator pulse before GOD-mode extraction.",
+  "approvedAt": "2026-05-19T19:30:00.000-04:00",
+  "approvalNotes": [
+    "Build a local Steve-facing Foundation operator pulse from live System Health, repeated-failure, Current Sprint, backlog hygiene, approval, build-log, and change-event truth.",
+    "Do not send email, Telegram, Slack, or public messages in this card.",
+    "No auto-fix, source-system writes, credential mutation, Drive permission mutation, paid/provider access, browser-auth work, or broad private extraction.",
+    "Use this as the operator readout before the next governed extraction sprint."
+  ],
+  "approvalSchemaVersion": 2,
+  "approvalDigest": "98bc596591e7182dca525a82583f03cd193c119e88731d9ec46f179e836442ed"
+}

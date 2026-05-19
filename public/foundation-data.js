@@ -7,6 +7,7 @@ var cache = {
   foundationHub: null,
   foundationBacklog: null,
   foundationBacklogDoneArchive: null,
+  foundationOperatorPulse: null,
   currentSprint: null,
   actionReview: null,
   actionRouteReviewInbox: null,
@@ -103,6 +104,18 @@ function fetchFoundationBacklogDoneArchive() {
     return res.json()
   }).then(function(data) {
     cache.foundationBacklogDoneArchive = data
+    return data
+  })
+}
+
+function fetchFoundationOperatorPulse() {
+  if (cache.foundationOperatorPulse) return Promise.resolve(cache.foundationOperatorPulse)
+
+  return foundationRead('/api/foundation/operator-pulse').then(function(res) {
+    if (!res.ok) throw new Error('Foundation operator pulse API failed.')
+    return res.json()
+  }).then(function(data) {
+    cache.foundationOperatorPulse = data
     return data
   })
 }

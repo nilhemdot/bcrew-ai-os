@@ -3,7 +3,14 @@ function renderDataHealth() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading runtime health.</p>'
 
-  fetchFoundationHubFull().then(function(hub) {
+  Promise.all([
+    fetchFoundationHubFull(),
+    fetchFoundationOperatorPulse().catch(function(error) {
+      return { error: error && error.message ? error.message : 'Foundation operator pulse could not load.' }
+    }),
+  ]).then(function(results) {
+    var hub = results[0]
+    var operatorPulse = results[1]
     container.innerHTML = ''
 
     /* hero */
@@ -32,6 +39,9 @@ function renderDataHealth() {
 
     var purposePanel = renderFoundationOperationsPurposePanel('system-health', hub)
     if (purposePanel) container.appendChild(purposePanel)
+
+    var operatorPulsePanel = renderFoundationOperatorPulsePanel(operatorPulse)
+    if (operatorPulsePanel) container.appendChild(operatorPulsePanel)
 
     var commandPanel = renderRuntimeHealthCommandPanel(hub)
     if (commandPanel) container.appendChild(commandPanel)
