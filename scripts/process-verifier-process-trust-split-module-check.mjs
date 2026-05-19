@@ -195,7 +195,7 @@ async function main() {
       checks,
       closeout?.operatorCloseout === true &&
         (closeout.backlogIds || []).includes(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-verifier-process-trust-split-module-closeout.md') &&
+        await repoFileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-process-trust-split-module-closeout.md') &&
         currentState.includes(VERIFIER_PROCESS_TRUST_SPLIT_MODULE_CLOSEOUT_KEY),
       'closeout is registered when card is done',
       closeout ? closeout.key : 'missing closeout',

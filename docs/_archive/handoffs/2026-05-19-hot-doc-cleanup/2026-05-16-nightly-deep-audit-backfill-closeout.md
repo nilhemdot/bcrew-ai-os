@@ -15,8 +15,8 @@ Steve found that the nightly auditor had not produced the expected reports. A sc
 
 ## Where It Lives
 
-- `docs/handoffs/nightly-deep-audit-2026-05-16.md`.
-- `docs/handoffs/nightly-deep-audit-2026-05-16.json`.
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-16.md`.
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-16.json`.
 - `scripts/process-nightly-deep-audit-upgrade-check.mjs` recurring-run sprint-state decoupling.
 - Foundation job ledger run `job-nightly-deep-audit-20260516185220-pjgs1s`.
 - `docs/process/nightly-deep-audit-backfill-001-plan.md`.

@@ -12,7 +12,7 @@ Accepted. Current planning stabs are in live backlog truth as proposal-only card
 
 - Created/enriched 19 proposal-only backlog cards from the latest Steve/Claude/Codex planning exchange.
 - Confirmed `ACTION-ROUTER-001` already exists and was not recreated.
-- Captured the proposal list in `docs/handoffs/2026-05-16-foundation-stab-capture.md`.
+- Captured the proposal list in `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-stab-capture.md`.
 - Added `scripts/process-foundation-stab-capture-check.mjs`.
 - Added `process:foundation-stab-capture-check`.
 

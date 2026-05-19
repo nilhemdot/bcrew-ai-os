@@ -193,7 +193,7 @@ async function loadEvaluationInput({ baseUrl }) {
     readText(FOUNDATION_SPRINT_CADENCE_PLAN_PATH),
     readText(FOUNDATION_SPRINT_CADENCE_DOC_PATH),
     readText(FOUNDATION_SPRINT_CADENCE_APPROVAL_PATH),
-    readText('docs/handoffs/2026-05-10-foundation-sprint-capture.md'),
+    readText('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-10-foundation-sprint-capture.md'),
     readText('public/foundation.js'),
     readTextIfExists('public/foundation-nav-config.js'),
     readTextIfExists('public/foundation-data.js'),
@@ -381,7 +381,7 @@ async function main() {
     String(card.statusNote || '').includes(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CLOSEOUT_KEY) &&
     closeout?.operatorCloseout === true &&
     (closeout.backlogIds || []).includes(VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CARD_ID) &&
-    await repoFileExists('docs/handoffs/2026-05-15-verifier-current-sprint-split-module-closeout.md')
+    await repoFileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-verifier-current-sprint-split-module-closeout.md')
   ), 'closed card has closeout record and handoff when lane is done', closed ? VERIFIER_CURRENT_SPRINT_SPLIT_MODULE_CLOSEOUT_KEY : 'card still executing')
 
   const failed = checks.filter(check => !check.ok)

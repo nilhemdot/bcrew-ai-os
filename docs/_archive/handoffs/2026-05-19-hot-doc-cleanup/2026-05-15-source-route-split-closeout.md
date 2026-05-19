@@ -63,7 +63,7 @@ Proof highlights:
 - `lib/foundation-build-closeout-overnight-records.js`
 - `docs/process/source-route-split-001-plan.md`
 - `docs/process/approvals/SOURCE-ROUTE-SPLIT-001.json`
-- `docs/handoffs/2026-05-15-source-route-split-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-source-route-split-closeout.md`
 
 ## Known Limits
 

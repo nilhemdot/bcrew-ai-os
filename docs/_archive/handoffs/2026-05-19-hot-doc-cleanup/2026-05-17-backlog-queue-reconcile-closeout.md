@@ -11,7 +11,7 @@ The Foundation next-sprint queue now names live backlog truth instead of handoff
 - Mapped former queue label `SYSTEM-HEALTH-RED-TO-GREEN-001` to existing live card `SYSTEM-HEALTH-NIGHTLY-AUDIT-001`
 - Confirmed `CRITICAL-ROOTS-UNDER-3K-PHASE-1` already exists as a done live backlog card
 - Mapped former queue label `NO-AUTH-CONNECTOR-COMPLETION-001` to existing live card `CONNECTOR-COMPLETION-SPRINT`
-- Updated `docs/handoffs/2026-05-17-foundation-next-sprint-queue.md` so queue entries use `Live backlog card:` lines and explicit `Former queue label:` aliases
+- Updated `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-next-sprint-queue.md` so queue entries use `Live backlog card:` lines and explicit `Former queue label:` aliases
 
 ## Guardrail
 

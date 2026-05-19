@@ -6,7 +6,7 @@ Closeout key: `connector-completion-prep-v1`
 
 ## What Changed
 
-- Built the no-auth connector/source completion matrix at `docs/handoffs/2026-05-16-connector-completion-prep-matrix.md`.
+- Built the no-auth connector/source completion matrix at `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-connector-completion-prep-matrix.md`.
 - Classified source/connector gaps into `ready_no_auth`, `auth_required`, `manual_decision`, `already_scheduled`, `deferred`, and `duplicate/stale`.
 - Created/enriched no-auth follow-up cards:
   - `SOURCE-CONTRACT-ID-RECONCILE-001`

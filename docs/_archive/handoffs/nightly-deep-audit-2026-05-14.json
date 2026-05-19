@@ -1,7 +1,7 @@
 {
   "generatedAt": "2026-05-15T01:03:33.680Z",
-  "reportPath": "docs/handoffs/nightly-deep-audit-2026-05-14.md",
-  "jsonPath": "docs/handoffs/nightly-deep-audit-2026-05-14.json",
+  "reportPath": "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.md",
+  "jsonPath": "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.json",
   "cardId": "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
   "closeoutKey": "nightly-deep-audit-upgrade-v1",
   "summary": {

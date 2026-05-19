@@ -141,8 +141,8 @@ function buildSprintItem(closeCard = false) {
         'lib/research-inbox.js',
       ],
       existingDocs: [
-        'docs/handoffs/2026-05-17-extractor-queue-karpathy-kb-video-pack-closeout.md',
-        'docs/handoffs/2026-05-17-runtime-memory-build-intel-stab-capture.md',
+        'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-extractor-queue-karpathy-kb-video-pack-closeout.md',
+        'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-runtime-memory-build-intel-stab-capture.md',
         'docs/rebuild/current-plan.md',
         'docs/rebuild/current-state.md',
       ],

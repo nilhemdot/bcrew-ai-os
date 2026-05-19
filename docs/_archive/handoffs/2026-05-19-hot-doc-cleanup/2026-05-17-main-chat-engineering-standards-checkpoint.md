@@ -113,8 +113,8 @@ Reason: source-contract validation and build-lane reliability are now green, but
 Start from repo truth on branch foundation/system-health-red-to-green-001.
 
 Read:
-- docs/handoffs/2026-05-17-build-lane-reliability-sprint-closeout.md
-- docs/handoffs/2026-05-17-main-chat-engineering-standards-checkpoint.md
+- docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-build-lane-reliability-sprint-closeout.md
+- docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-main-chat-engineering-standards-checkpoint.md
 
 Do not start EXTRACTION-RUNTIME-READINESS-001 yet.
 

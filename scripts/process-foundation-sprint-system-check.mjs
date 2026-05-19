@@ -244,7 +244,7 @@ async function main() {
       readText('docs/rebuild/current-plan.md'),
       readText('docs/rebuild/current-state.md'),
       readText(FOUNDATION_SPRINT_SYSTEM_DOC_PATH),
-      readText('docs/handoffs/2026-05-10-foundation-sprint-capture.md'),
+      readText('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-10-foundation-sprint-capture.md'),
     ])
     const approval = JSON.parse(approvalSource)
     const synthetic = buildSyntheticFoundationCurrentSprintProof()

@@ -67,7 +67,7 @@ They are just not required to close the foundation understanding of these source
 
 - [KPI Dashboard / Supabase](/Users/bensoncrew/bcrew-ai-os/docs/source-notes/kpi-dashboard.md)
 - [Follow Up Boss](/Users/bensoncrew/bcrew-ai-os/docs/source-notes/follow-up-boss.md)
-- [KPI system audit checkpoint](/Users/bensoncrew/bcrew-ai-os/docs/handoffs/2026-04-20-kpi-system-audit-checkpoint.md)
+- [KPI system audit checkpoint](/Users/bensoncrew/bcrew-ai-os/docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-20-kpi-system-audit-checkpoint.md)
 - [FUB live collections audit](/Users/bensoncrew/bcrew-ai-os/docs/handoffs/2026-04-20-fub-live-collections-audit.md)
 
 ## What this means

@@ -4,8 +4,8 @@ Date: 2026-05-15
 
 ## Checks Before Starting
 
-- Server Monolith closeout documentation exists: `docs/handoffs/2026-05-15-server-monolith-closeout-summary.md`.
-- Foundation-DB split documentation exists: `docs/handoffs/2026-05-15-foundation-db-split-summary.md`.
+- Server Monolith closeout documentation exists: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-server-monolith-closeout-summary.md`.
+- Foundation-DB split documentation exists: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-foundation-db-split-summary.md`.
 - `PLAN-CRITIC-ARCH-RULES-DOGFOOD-001` is already closed in live backlog and its focused proof remains registered.
 - Canva client commit `fb66e52` added the governed Canva Connect API client and closeout. It is accepted repo truth, not part of this verifier sprint.
 - No `status.html` files are present in this working tree.

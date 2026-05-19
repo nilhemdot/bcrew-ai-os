@@ -2,7 +2,7 @@
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
 Generated at: `2026-05-17T07:00:14.192Z`
-Report path: `docs/handoffs/nightly-deep-audit-2026-05-17.md`
+Report path: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-17.md`
 
 ## Morning Read
 
@@ -17,7 +17,7 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-17.md`
 
 ## Diff Summary
 
-- Previous report: `docs/handoffs/nightly-deep-audit-2026-05-16.json`
+- Previous report: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-16.json`
 - New findings: 0
 - Still open: 17
 - Resolved: 0
@@ -79,7 +79,7 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-17.md`
         String(foundationUiLiveSummarySourcesCard.statusNote || '').includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY) &&
         foundationUiLiveSummarySourcesCloseout?.operatorCloseout === true &&
         (foundationUiLiveSummarySourcesCloseout.backlogIds || []).includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-foundation-ui-live-summary-sources-closeout.md')
+        await repoFileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-ui-live-summary-sources-closeout.md')
       )),
     'FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001 renders source-backed Current State summary payload',
     foundationUiLiveSummarySourcesCard
@@ -117,7 +117,7 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-17.md`
       'split frontend source readers in lib/ and scripts/process-foundation-sprint-*.mjs',
       'docs/process/frontend-current-state-renderers-split-001-plan.md',
       'docs/process/approvals/FRONTEND-CURRENT-STATE-RENDERERS-SPLIT-001.json',
-      'docs/handoffs/2026-05-15-frontend-current-state-renderers-split-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-frontend-current-state-renderers-split-closeout.md',
     ],
     proofCommands: [
       'node --check public/foundation-nav-config.js public/foundation-data.js public/foundation.js public/foundation-source-registry-renderers.js public/foundation-fub-lead-source-renderers.js public/foundation-system-inventory-renderers.js public/foundation-current-state-renderers.js public/foundation-source-lifecycle-renderers.js public/foundation-runtime-renderers.js public/foundation-operations-renderers.js public/foundation-router.js scripts/process-frontend-curren
@@ -396,7 +396,7 @@ export const verifierTighteningCloseoutRecords = [
       'scripts/foundation-verify.mjs verifier coverage source',
       'docs/process/llm-credential-registry-001-plan.md',
       'docs/process/approvals/LLM-CREDENTIAL-REGISTRY-001.json',
-      'docs/handoffs/2026-05-17-llm-credential-registry-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-llm-credential-registry-closeout.md',
     ],
     proofCommands: [
       'node --check lib/llm-credential-registry.js scripts/process-llm-credential-registry-check.mjs lib/foundation-llm-runtime-store.js public/foundation-runtime-renderers.js scripts/foundation-verify.mjs',

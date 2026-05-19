@@ -327,10 +327,10 @@ async function main() {
     }
   }
 
-  const closeoutExists = await exists('docs/handoffs/2026-05-14-foundation-operating-reliability-closeout.md')
+  const closeoutExists = await exists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-operating-reliability-closeout.md')
   const allDone = FOUNDATION_OPERATING_RELIABILITY_CARD_IDS.every(cardId => sprintItems.find(item => item.cardId === cardId)?.stage === 'done_this_sprint')
   if (allDone) {
-    addCheck(checks, closeoutExists, 'closeout exists once all sprint cards are done', 'docs/handoffs/2026-05-14-foundation-operating-reliability-closeout.md')
+    addCheck(checks, closeoutExists, 'closeout exists once all sprint cards are done', 'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-foundation-operating-reliability-closeout.md')
   }
 
   await closeFoundationDb()

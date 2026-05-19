@@ -228,7 +228,7 @@ async function main() {
       checks,
       closeout?.operatorCloseout === true &&
         (closeout.backlogIds || []).includes(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-source-lifecycle-dynamic-counts-closeout.md') &&
+        await repoFileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-source-lifecycle-dynamic-counts-closeout.md') &&
         currentPlan.includes(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CLOSEOUT_KEY) &&
         currentState.includes(SOURCE_LIFECYCLE_DYNAMIC_COUNTS_CLOSEOUT_KEY),
       'closeout is registered when card is done',

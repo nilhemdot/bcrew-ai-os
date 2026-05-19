@@ -31,7 +31,7 @@ Final Source Once-Over proof for `FOUNDATION-UI-COMPLETE-001`:
 
 Closeout handoff already exists at:
 
-- `docs/handoffs/2026-05-12-foundation-source-once-over-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-12-foundation-source-once-over-closeout.md`
 
 ## What Was Captured After Closeout
 

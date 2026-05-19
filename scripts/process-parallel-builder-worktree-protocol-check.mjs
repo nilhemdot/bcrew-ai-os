@@ -193,8 +193,8 @@ function buildExistingWorkCheck() {
       'lib/auto-deploy-rollback.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-17-main-chat-hard-checkpoint.md',
-      'docs/handoffs/2026-05-17-build-lane-reliability-sprint-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-main-chat-hard-checkpoint.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-build-lane-reliability-sprint-closeout.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

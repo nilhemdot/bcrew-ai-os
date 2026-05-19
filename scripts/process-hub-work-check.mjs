@@ -71,7 +71,7 @@ async function main() {
     HUB_WORK_PROMPT_TEMPLATE_PATH,
     HUB_WORK_HANDOFF_TEMPLATE_PATH,
     HUB_WORK_SPRINT_HANDOFF_PATH,
-    'docs/handoffs/2026-05-14-hub-work-coordination-closeout.md',
+    'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-14-hub-work-coordination-closeout.md',
     HUB_WORK_COORDINATION_APPROVAL_PATH,
     'lib/hub-work-check.js',
     HUB_WORK_CHECK_SCRIPT_PATH,

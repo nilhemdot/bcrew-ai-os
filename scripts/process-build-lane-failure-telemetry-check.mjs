@@ -119,7 +119,7 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/process/build-lane-reliability-sprint-001-plan.md',
-      'docs/handoffs/2026-05-17-build-lane-reliability-sprint-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-build-lane-reliability-sprint-closeout.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

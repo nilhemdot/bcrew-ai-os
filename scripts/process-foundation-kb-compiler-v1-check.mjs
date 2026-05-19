@@ -151,8 +151,8 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/process/foundation-knowledge-base-compiler-design-001-plan.md',
       'docs/process/knowledge-base-quality-gate-001-plan.md',
-      'docs/handoffs/2026-05-17-foundation-knowledge-base-compiler-design-closeout.md',
-      'docs/handoffs/2026-05-17-knowledge-base-quality-gate-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-knowledge-base-compiler-design-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-knowledge-base-quality-gate-closeout.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

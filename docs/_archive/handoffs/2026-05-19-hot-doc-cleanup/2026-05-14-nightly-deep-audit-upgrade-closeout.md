@@ -9,8 +9,8 @@ Closeout key: `nightly-deep-audit-upgrade-v1`
 - Added a scheduled report-only `nightly-deep-audit` Foundation job at `03:00 America/Toronto`.
 - Added `lib/nightly-deep-audit-upgrade.js` and `scripts/process-nightly-deep-audit-upgrade-check.mjs`.
 - Wrote date-based reports:
-  - `docs/handoffs/nightly-deep-audit-2026-05-14.md`
-  - `docs/handoffs/nightly-deep-audit-2026-05-14.json`
+  - `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.md`
+  - `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.json`
 - Connected morning health/runtime activation so the new scheduled reviewer is distinct from the old manual recurring audit.
 - Added verifier coverage for the done card and closeout.
 

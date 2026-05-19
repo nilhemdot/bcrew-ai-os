@@ -3,8 +3,8 @@
 Date: 2026-05-17
 Source evidence:
 - Steve pasted the real Harlan exchange into the main Codex chat.
-- `docs/handoffs/2026-05-16-full-convo-steve-chat-reconstructed.md` preserves the broader reconstructed sequence.
-- `docs/handoffs/2026-05-16-agent-conversation-review-feedback-capture.md` preserves the first-use agent-friction pattern.
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-full-convo-steve-chat-reconstructed.md` preserves the broader reconstructed sequence.
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-agent-conversation-review-feedback-capture.md` preserves the first-use agent-friction pattern.
 - Steve later pasted a fuller near-verbatim section that included the super-agent discussion and the raw-transcript/export failure. This review treats that later paste as the highest-fidelity evidence currently available, while still not pretending it is a native provider export.
 
 This review promotes the durable decisions and backlog-worthy work. It does not treat Harlan's throwaway UI/image work as product truth.

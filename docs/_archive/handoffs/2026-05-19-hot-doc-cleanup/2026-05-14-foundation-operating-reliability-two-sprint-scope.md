@@ -82,7 +82,7 @@ Closed cards:
 1. `PLAN-CRITIC-ARCH-RULES-DOGFOOD-001` - regression-test architectural Plan Critic rules against large-file additions, no-apply check-script writes, verifier live-state mutation, missing proof, and missing performance budgets.
 2. `HUB-PERF-VERIFICATION-001` - remeasure default `/api/foundation-hub` and explicit `/api/foundation-hub?view=full` against the 70.244s / 4.63 MB baseline and record current budget truth.
 3. `MONOLITH-SPLIT-CONTINUE-001` - continue measured monolith splits for `lib/foundation-db.js`, `scripts/foundation-verify.mjs`, `public/foundation.js`, and `server.js` without broad behavior changes.
-4. `RECURRING-DEEP-AUDIT-001` - add a manual-approval recurring senior-engineer deep audit every 4-6 sprints, modeled on `docs/handoffs/2026-05-13-deep-foundation-code-audit.md`.
+4. `RECURRING-DEEP-AUDIT-001` - add a manual-approval recurring senior-engineer deep audit every 4-6 sprints, modeled on `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-deep-foundation-code-audit.md`.
 
 Important correction: do not promise all monoliths will be under 5,000 lines in one sprint. That would encourage unsafe rewrites. Each cleanup sprint should split one or two coherent seams, prove no behavior changed, and reduce the largest-risk files measurably.
 

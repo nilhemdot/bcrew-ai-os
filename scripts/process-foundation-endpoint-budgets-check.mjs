@@ -266,7 +266,7 @@ async function main() {
       checks,
       closeout?.operatorCloseout === true &&
         (closeout.backlogIds || []).includes(FOUNDATION_ENDPOINT_BUDGETS_CARD_ID) &&
-        await repoFileExists('docs/handoffs/2026-05-16-foundation-endpoint-budgets-closeout.md') &&
+        await repoFileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-endpoint-budgets-closeout.md') &&
         currentPlan.includes(FOUNDATION_ENDPOINT_BUDGETS_CLOSEOUT_KEY) &&
         currentState.includes(FOUNDATION_ENDPOINT_BUDGETS_CLOSEOUT_KEY),
       'closeout is registered when card is done',

@@ -30,8 +30,8 @@ Important rule:
 
 Reference:
 
-- [AI deal review checklist](/Users/bensoncrew/bcrew-ai-os/docs/handoffs/2026-04-21-ai-deal-review-checklist.md)
-- [Deal review queue model](/Users/bensoncrew/bcrew-ai-os/docs/handoffs/2026-04-21-deal-review-queue-model.md)
+- [AI deal review checklist](/Users/bensoncrew/bcrew-ai-os/docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-21-ai-deal-review-checklist.md)
+- [Deal review queue model](/Users/bensoncrew/bcrew-ai-os/docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-21-deal-review-queue-model.md)
 
 ## Closeout Order
 

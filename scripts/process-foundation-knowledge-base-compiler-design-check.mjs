@@ -136,8 +136,8 @@ function buildExistingWorkCheck() {
       'lib/build-lane-reliability.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-17-build-intel-karpathy-llm-kb-preflight-closeout.md',
-      'docs/handoffs/2026-05-17-extractor-queue-karpathy-kb-video-pack-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-build-intel-karpathy-llm-kb-preflight-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-extractor-queue-karpathy-kb-video-pack-closeout.md',
       'docs/process/build-intel-karpathy-llm-kb-preflight-001-plan.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',

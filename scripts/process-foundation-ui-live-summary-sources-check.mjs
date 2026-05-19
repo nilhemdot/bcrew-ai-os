@@ -211,7 +211,7 @@ async function main() {
     addCheck(checks, hubFetch?.durationMs < 2000 && hubFetch?.payloadBytes < 900000, 'live /api/foundation-hub stays inside current route budget', hubFetch ? `time=${Math.round(hubFetch.durationMs)}ms bytes=${hubFetch.payloadBytes}` : 'missing fetch')
   }
   if (closeout || card?.lane === 'done') {
-    addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID) && await repoFileExists('docs/handoffs/2026-05-16-foundation-ui-live-summary-sources-closeout.md') && currentPlan.includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY) && currentState.includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY), 'closeout is registered when card is done', closeout ? closeout.key : 'missing closeout')
+    addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CARD_ID) && await repoFileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-ui-live-summary-sources-closeout.md') && currentPlan.includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY) && currentState.includes(FOUNDATION_UI_LIVE_SUMMARY_SOURCES_CLOSEOUT_KEY), 'closeout is registered when card is done', closeout ? closeout.key : 'missing closeout')
   }
 
   const failures = checks.filter(check => !check.ok)

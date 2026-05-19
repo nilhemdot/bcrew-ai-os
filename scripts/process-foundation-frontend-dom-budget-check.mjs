@@ -298,7 +298,7 @@ async function main() {
   addCheck(checks, foundationVerifySource.includes('FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID') && foundationVerifySource.includes('buildFoundationFrontendDomBudgetDogfoodProof') && foundationVerifySource.includes('FOUNDATION-FRONTEND-DOM-BUDGET-001 measures frontend DOM rebuild budget'), 'foundation verifier has thin delegated DOM budget coverage', 'scripts/foundation-verify.mjs')
   addCheck(checks, planSource.includes('Dogfood proof') && planSource.includes('VM route proof') && planSource.includes('synthetic heavy render fixture'), 'approved plan preserves dogfood and VM route-budget posture', FOUNDATION_FRONTEND_DOM_BUDGET_PLAN_PATH)
   if (closeout || card?.lane === 'done') {
-    addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID) && await repoFileExists('docs/handoffs/2026-05-16-foundation-frontend-dom-budget-closeout.md') && currentPlan.includes(FOUNDATION_FRONTEND_DOM_BUDGET_CLOSEOUT_KEY) && currentState.includes(FOUNDATION_FRONTEND_DOM_BUDGET_CLOSEOUT_KEY), 'closeout is registered when card is done', closeout ? closeout.key : 'missing closeout')
+    addCheck(checks, closeout?.operatorCloseout === true && (closeout.backlogIds || []).includes(FOUNDATION_FRONTEND_DOM_BUDGET_CARD_ID) && await repoFileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-frontend-dom-budget-closeout.md') && currentPlan.includes(FOUNDATION_FRONTEND_DOM_BUDGET_CLOSEOUT_KEY) && currentState.includes(FOUNDATION_FRONTEND_DOM_BUDGET_CLOSEOUT_KEY), 'closeout is registered when card is done', closeout ? closeout.key : 'missing closeout')
   }
 
   const failures = checks.filter(check => !check.ok)

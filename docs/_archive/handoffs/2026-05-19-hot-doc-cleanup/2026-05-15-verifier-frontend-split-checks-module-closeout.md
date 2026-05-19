@@ -24,7 +24,7 @@ The canonical verifier still emits the same frontend split PASS/FAIL rows for th
 - `package.json`
 - `docs/process/verifier-frontend-split-checks-module-001-plan.md`
 - `docs/process/approvals/VERIFIER-FRONTEND-SPLIT-CHECKS-MODULE-001.json`
-- `docs/handoffs/2026-05-15-verifier-frontend-split-checks-module-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-verifier-frontend-split-checks-module-closeout.md`
 - `lib/foundation-build-closeout-overnight-records.js`
 
 ## Proof Commands

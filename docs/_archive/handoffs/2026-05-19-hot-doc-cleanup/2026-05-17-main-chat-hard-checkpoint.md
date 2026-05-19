@@ -94,7 +94,7 @@ Working doctrine:
 
 ## Harlan Conversation Business Gold Captured
 
-Already promoted through `docs/handoffs/2026-05-17-harlan-conversation-deep-analysis.md` and related cards:
+Already promoted through `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-harlan-conversation-deep-analysis.md` and related cards:
 
 - `SOURCE-016`
 - `MKT-003`
@@ -157,7 +157,7 @@ Working doctrine:
 
 Closeout:
 
-- `docs/handoffs/2026-05-17-foundation-hub-payload-budget-v2-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-hub-payload-budget-v2-closeout.md`
 
 Commit:
 

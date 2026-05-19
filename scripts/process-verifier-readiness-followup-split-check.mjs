@@ -69,12 +69,14 @@ async function main() {
 
   const [
     moduleSource,
+    processControlSource,
     verifierSource,
     scriptSource,
     planSource,
     packageSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-verifier-readiness-followup.js'),
+    readRepoFile('lib/foundation-verifier-process-control-governance.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
     readRepoFile(VERIFIER_READINESS_FOLLOWUP_SPLIT_SCRIPT_PATH),
     readRepoFile(VERIFIER_READINESS_FOLLOWUP_SPLIT_PLAN_PATH),
@@ -118,7 +120,14 @@ async function main() {
     'dogfood rejects readiness/follow-up verifier failures',
     dogfood.dogfoodInvariant,
   )
-  addCheck(checks, verifierSource.includes('evaluateFoundationVerifierReadinessFollowup({') && verifierSource.includes('readinessFollowupVerifier.checks'), 'foundation verifier delegates readiness/follow-up checks to focused module', 'evaluateFoundationVerifierReadinessFollowup')
+  addCheck(
+    checks,
+    verifierSource.includes('readinessFollowupBundle:') &&
+      processControlSource.includes('evaluateFoundationVerifierReadinessFollowup({') &&
+      processControlSource.includes('readinessFollowupVerifier.checks'),
+    'foundation verifier delegates readiness/follow-up checks to focused module',
+    'root bundle -> process-control governance -> evaluateFoundationVerifierReadinessFollowup',
+  )
   addCheck(checks, !verifierSource.includes(oldInlineMarker), 'old inline readiness/follow-up block is removed', 'foundationFollowupCardsHaveAllowedState no longer appears inline')
   addCheck(checks, verifierLines < VERIFIER_READINESS_FOLLOWUP_SPLIT_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_READINESS_FOLLOWUP_SPLIT_BEFORE_LINES} -> ${verifierLines}`)
   addCheck(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only', 'no live-state write tokens')

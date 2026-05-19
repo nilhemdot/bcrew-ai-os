@@ -153,7 +153,7 @@ async function loadEvaluationInput({ baseUrl }) {
     readText('AGENTS.md'),
     readText('public/foundation.html'),
     readTextIfExists('docs/specs/2026-04-28-strategic-intelligence-loop.md'),
-    readTextIfExists('docs/handoffs/2026-04-28-foundation-hard-checkpoint.md'),
+    readTextIfExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-28-foundation-hard-checkpoint.md'),
     readTextIfExists('docs/users/README.md'),
     readTextIfExists('docs/users/steve.md'),
     readTextIfExists('docs/agents/README.md'),

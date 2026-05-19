@@ -40,12 +40,12 @@ Velocity is not proof of quality. Every hardening card needs engineering proof t
 
 Primary audit report:
 
-- `docs/handoffs/2026-05-13-deep-foundation-code-audit.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-deep-foundation-code-audit.md`
 
 Supporting audit artifacts:
 
-- `docs/handoffs/2026-05-13-code-quality-nightly-audit-report.md`
-- `docs/handoffs/2026-05-13-code-quality-nightly-audit-sprint-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-code-quality-nightly-audit-report.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-code-quality-nightly-audit-sprint-closeout.md`
 
 ## Pull Order
 

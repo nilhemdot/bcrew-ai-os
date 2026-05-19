@@ -38,7 +38,7 @@ Preserve the strategic decisions from the long 2026-05-13 main-session chat so f
 
 ## Current Handoffs Created
 
-- `docs/handoffs/2026-05-13-code-quality-nightly-audit-sprint-handoff.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-code-quality-nightly-audit-sprint-handoff.md`
   - Canonical next sprint handoff.
   - Defines the Foundation Code Quality + Nightly Audit Sprint.
   - Covers hardcoded live truth, API performance, frontend performance, monolith risk, verifier assumptions, sprint-state mutation, and nightly audit reporting.

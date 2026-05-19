@@ -1646,7 +1646,7 @@ async function main() {
   const intelligenceSalvageSpecSource = await readRepoFile('docs/specs/2026-04-27-intelligence-spine-old-system-salvage.md')
   const strategyHubManifestSource = await readRepoFile('docs/specs/2026-04-27-strategy-hub-v2-source-to-gap-manifest.md')
   const strategicIntelSpecSource = await readRepoFile('docs/specs/2026-04-28-strategic-intelligence-loop.md')
-  const foundationHardCheckpointSource = await readRepoFile('docs/handoffs/2026-04-28-foundation-hard-checkpoint.md')
+  const foundationHardCheckpointSource = await readRepoFile('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-28-foundation-hard-checkpoint.md')
   const currentState = await readRepoFile('docs/rebuild/current-state.md')
   const fubZahndMiddlewareSource = await readRepoFile('docs/source-notes/fub-zahnd-middleware.md')
   const fubKpiConnectionMapSource = await readRepoFile('docs/source-notes/fub-kpi-deal-connection-map.md')
@@ -1922,7 +1922,7 @@ async function main() {
   const verifyGateTieringScriptSource = await readRepoFile(VERIFY_GATE_TIERING_SCRIPT_PATH)
   const verifyGateTieringPlanSource = await readRepoFile(VERIFY_GATE_TIERING_PLAN_PATH)
   const foundationSprintReviewSource = await readRepoFile(FOUNDATION_SPRINT_REVIEW_DOC_PATH)
-  const foundationSprintCaptureSource = await readRepoFile('docs/handoffs/2026-05-10-foundation-sprint-capture.md')
+  const foundationSprintCaptureSource = await readRepoFile('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-10-foundation-sprint-capture.md')
   const verifierExceptionSource = await readRepoFile('docs/process/verifier-exceptions.json')
   const verifierExceptionLedger = JSON.parse(verifierExceptionSource)
   const agentsSource = await readRepoFile('AGENTS.md')
@@ -4708,7 +4708,7 @@ async function main() {
       String(nightlyDeepAuditP0TriageCard.statusNote || '').includes('nightly-deep-audit-p0-triage-v1') &&
       nightlyDeepAuditP0TriageCloseout?.operatorCloseout === true &&
       (nightlyDeepAuditP0TriageCloseout.backlogIds || []).includes('NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') &&
-      await repoFileExists('docs/handoffs/2026-05-15-nightly-deep-audit-p0-triage.md') &&
+      await repoFileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-nightly-deep-audit-p0-triage.md') &&
       await repoFileExists('docs/process/nightly-deep-audit-p0-triage-001-plan.md') &&
       await repoFileExists('docs/process/approvals/NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001.json') &&
       currentPlan.includes('NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001') &&

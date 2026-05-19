@@ -14,7 +14,7 @@ Live backlog grooming is now a guarded Foundation sprint-planning step.
   - 19 thin high-priority cards enriched into sprint-plannable shape
   - 3 duplicate/overlap cards aliased or superseded
   - 4 future-bundle cards repaired from stale old "not next" hygiene wording
-- Published 5 next sprint bundles from live backlog truth in `docs/handoffs/2026-05-17-foundation-next-sprint-queue.md`
+- Published 5 next sprint bundles from live backlog truth in `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-next-sprint-queue.md`
 - Repaired the ship-gate payload regression by compacting `recentChanges` and `perUserChangelog` in the Foundation Hub route payload while leaving the live DB audit log intact
 
 ## Alias / Supersede

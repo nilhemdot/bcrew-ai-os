@@ -136,7 +136,7 @@ function buildExistingWorkCheck() {
       'lib/process-plan-critic.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-17-aios-runtime-portability-gate-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-aios-runtime-portability-gate-closeout.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
       'memory/2026-05-17.md',

@@ -91,7 +91,7 @@ npm run process:foundation-ship -- --card=FOUNDATION-ENDPOINT-BUDGETS-001 --plan
 ## Known Limits
 
 - This does not rewrite or slim the five routes.
-- Existing `docs/handoffs/nightly-deep-audit-2026-05-14.json` predates this card and does not contain endpoint metrics, so it reports missing metrics until the next nightly deep audit run writes the upgraded JSON shape.
+- Existing `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.json` predates this card and does not contain endpoint metrics, so it reports missing metrics until the next nightly deep audit run writes the upgraded JSON shape.
 - This does not build hub feature UI.
 - This does not wire Marketing Video Lab live routes.
 - This does not build Canva asset library features.

@@ -62,7 +62,7 @@ Note: the first full verifier run exposed a stale running dashboard process that
 - `docs/process/approvals/VERIFIER-INTELLIGENCE-SPINE-SPLIT-MODULE-001.json`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
-- `docs/handoffs/2026-05-16-verifier-intelligence-spine-split-module-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-intelligence-spine-split-module-closeout.md`
 - `lib/foundation-build-closeout-overnight-records.js`
 
 ## Known Limits

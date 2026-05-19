@@ -97,7 +97,7 @@ async function main() {
     String(card?.statusNote || '').includes(FOUNDATION_RUNTIME_JOB_STORE_SPLIT_CLOSEOUT_KEY) &&
     closeout?.operatorCloseout === true &&
     (closeout.backlogIds || []).includes(FOUNDATION_RUNTIME_JOB_STORE_SPLIT_CARD_ID) &&
-    await fileExists('docs/handoffs/2026-05-16-foundation-runtime-job-store-split-closeout.md')
+    await fileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-runtime-job-store-split-closeout.md')
   )
   const latestPlanCritic = planCriticRuns[0] || null
   const planCriticOk = latestPlanCritic?.status === 'pass' && Number(latestPlanCritic?.score) >= 9.8

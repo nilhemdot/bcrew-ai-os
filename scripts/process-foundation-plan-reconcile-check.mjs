@@ -134,7 +134,7 @@ async function main() {
   ] = await Promise.all([
     readText('docs/rebuild/current-plan.md'),
     readText('docs/rebuild/current-state.md'),
-    readText('docs/handoffs/2026-05-12-control-plane-sprint-handoff.md'),
+    readText('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-12-control-plane-sprint-handoff.md'),
     readText(FOUNDATION_PLAN_RECONCILE_PLAN_PATH),
     readText(FOUNDATION_PLAN_RECONCILE_SCRIPT_PATH),
     readJson('package.json'),

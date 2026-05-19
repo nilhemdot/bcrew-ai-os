@@ -3,8 +3,8 @@
 Date: 2026-05-17
 Source evidence:
 - Steve pasted the near-verbatim Harlan exchange into Codex chat.
-- `docs/handoffs/2026-05-16-full-convo-steve-chat-reconstructed.md`
-- `docs/handoffs/2026-05-17-harlan-transcript-promotion-review.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-full-convo-steve-chat-reconstructed.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-harlan-transcript-promotion-review.md`
 
 Purpose: make sure the useful business answers and system lessons from the Harlan conversation are not trapped in chat or a loose handoff. This is a coverage review: what Steve clarified, where it is now preserved, and what backlog/system work owns it.
 
@@ -47,7 +47,7 @@ Coverage:
 - `SOURCE-016` enriched with the full five-lane model and missing source identities
 - `MKT-003` enriched for MarketMasters measurement
 - `SOURCE-CONNECTOR-MATRIX-001` remains the prior connector matrix baseline
-- `docs/handoffs/2026-05-17-harlan-transcript-promotion-review.md` preserves the evidence
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-harlan-transcript-promotion-review.md` preserves the evidence
 
 Remaining work:
 
@@ -67,7 +67,7 @@ Coverage:
 
 - `SOURCE-016` updated
 - `MARKETING-SOURCE-MAP-001` and `BRAND-STACK-001` already provide v1 lane registry
-- `docs/handoffs/2026-05-17-harlan-transcript-promotion-review.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-harlan-transcript-promotion-review.md`
 
 Remaining work:
 
@@ -129,7 +129,7 @@ Coverage:
 
 - `SALES-006`
 - `SALES-008`
-- `docs/handoffs/2026-05-17-harlan-transcript-promotion-review.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-harlan-transcript-promotion-review.md`
 
 Remaining work:
 

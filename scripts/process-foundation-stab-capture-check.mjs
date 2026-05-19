@@ -21,7 +21,7 @@ const SPRINT_ID = 'foundation-audit-reliability-2026-05-16'
 const CLOSEOUT_KEY = 'foundation-stab-capture-v1'
 const PLAN_REF = 'docs/process/foundation-stab-capture-001-plan.md'
 const APPROVAL_REF = 'docs/process/approvals/FOUNDATION-STAB-CAPTURE-001.json'
-const HANDOFF_REF = 'docs/handoffs/2026-05-16-foundation-stab-capture.md'
+const HANDOFF_REF = 'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-foundation-stab-capture.md'
 
 const PROPOSAL_CARD_IDS = [
   'SYSTEM-HEALTH-NIGHTLY-AUDIT-001',

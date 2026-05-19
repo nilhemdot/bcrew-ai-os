@@ -23,7 +23,7 @@ Closed sprint cards:
 
 - `lib/code-quality-nightly-audit.js` contains the deterministic report-first audit detectors and report renderer.
 - `scripts/process-code-quality-nightly-audit-check.mjs` runs the audit loop and writes the morning report.
-- `docs/handoffs/2026-05-13-code-quality-nightly-audit-report.md` is the generated morning report.
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-code-quality-nightly-audit-report.md` is the generated morning report.
 - `lib/foundation-jobs.js` registers the audit as a manual, unscheduled Foundation job.
 - `scripts/foundation-verify.mjs` verifies the closeout record, job, report-only boundaries, endpoint coverage, synthetic proof, current sprint state, and report artifact.
 - `lib/foundation-build-log.js` records closeout `foundation-code-quality-nightly-audit-v1`.
@@ -31,7 +31,7 @@ Closed sprint cards:
 
 ## Morning Report Summary
 
-Latest report path: `docs/handoffs/2026-05-13-code-quality-nightly-audit-report.md`
+Latest report path: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-code-quality-nightly-audit-report.md`
 
 - Findings: 79 total.
 - Proposed follow-up cards: 28.

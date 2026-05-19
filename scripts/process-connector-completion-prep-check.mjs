@@ -23,7 +23,7 @@ const CARD_ID = 'CONNECTOR-COMPLETION-SPRINT'
 const SPRINT_ID = 'connector-completion-prep-2026-05-16'
 const PLAN_PATH = 'docs/process/connector-completion-sprint-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/CONNECTOR-COMPLETION-SPRINT.json'
-const MATRIX_PATH = 'docs/handoffs/2026-05-16-connector-completion-prep-matrix.md'
+const MATRIX_PATH = 'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-connector-completion-prep-matrix.md'
 
 const NO_AUTH_CARD_IDS = [
   'SOURCE-CONTRACT-ID-RECONCILE-001',

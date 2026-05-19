@@ -105,7 +105,7 @@ function buildExistingWorkCheck() {
       'lib/source-lifecycle-completion.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-16-connector-completion-prep-matrix.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-connector-completion-prep-matrix.md',
       'docs/source-registry.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',

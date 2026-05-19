@@ -746,8 +746,8 @@ Previously completed in this runtime lane:
 3. `RUNTIME-HEALTH-SIMPLIFY-001` - done under `runtime-health-simplify-v1`. Scope was Runtime Health readability only: top command panel, attention-only runtime items, direct jumps to proof sections, collapsed diagnostics by proof area, focused dogfood that rejects the old wall-of-diagnostics shape, runtime reliability verifier coverage, focused proof 16/16, and full Foundation verification 401/401 before closeout.
 4. `RUNTIME-FIRST-JOBS-001` - done under `runtime-first-jobs-v1`. Scope was no-auth runtime repair only: restore `leaseSourceCrawlTarget` / `finishSourceCrawlTargetRun` delegates, prove `gmail-current-day` and `missive-current-day` dry-runs do not lease targets or spawn child sync commands, add focused runtime reliability verifier coverage, and close with full Foundation verification at 400/400.
 5. `FOUNDATION-IDENTITY-001` - done under `foundation-identity-surface-v1`. V1 exposes metadata-only workspace identity in System Inventory without copying private memory into repo truth.
-6. `RUNTIME-SUPERVISOR-001` - done under `runtime-supervisor-v1`. V1 owns `lib/runtime-process-control.js` service-supervisor builders, `server.js` LaunchAgent wiring, `public/foundation-runtime-renderers.js` Runtime Health supervised-service rendering, `lib/foundation-runtime-reliability-verifier.js` coverage, focused proof `scripts/process-runtime-supervisor-check.mjs`, and closeout `docs/handoffs/2026-05-16-runtime-supervisor-closeout.md`.
-7. `RUNTIME-WORKER-001` - done under `runtime-worker-reliability-v1`. V1 owns `lib/foundation-worker-reliability.js`, shared worker dry-run parsing, one-shot dry-run runtime-status guard, `workerReliability` job snapshots, Runtime Health worker reliability rendering, runtime reliability verifier coverage, focused proof `scripts/process-runtime-worker-check.mjs`, and closeout `docs/handoffs/2026-05-16-runtime-worker-reliability-closeout.md`.
+6. `RUNTIME-SUPERVISOR-001` - done under `runtime-supervisor-v1`. V1 owns `lib/runtime-process-control.js` service-supervisor builders, `server.js` LaunchAgent wiring, `public/foundation-runtime-renderers.js` Runtime Health supervised-service rendering, `lib/foundation-runtime-reliability-verifier.js` coverage, focused proof `scripts/process-runtime-supervisor-check.mjs`, and closeout `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-runtime-supervisor-closeout.md`.
+7. `RUNTIME-WORKER-001` - done under `runtime-worker-reliability-v1`. V1 owns `lib/foundation-worker-reliability.js`, shared worker dry-run parsing, one-shot dry-run runtime-status guard, `workerReliability` job snapshots, Runtime Health worker reliability rendering, runtime reliability verifier coverage, focused proof `scripts/process-runtime-worker-check.mjs`, and closeout `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-runtime-worker-reliability-closeout.md`.
 
 Not next: live extraction, new retry target implementations, scheduled retry loops, auto-restart-on-push install, new scheduler framework, route/auth behavior changes, DB schema changes, source contract behavior changes, connector auth, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 
@@ -761,7 +761,7 @@ This sprint is complete under `verifier-process-hardening-split-module-v1`. It e
 
 Completed card:
 
-1. `VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001` - done under `verifier-process-hardening-split-module-v1`. V1 owns `lib/foundation-process-hardening-verifier.js`, `scripts/process-verifier-process-hardening-split-module-check.mjs`, package script `process:verifier-process-hardening-split-module-check`, plan/approval docs, dogfood fixtures that reject repair-then-pass verifier behavior, scheduled mutating process checks, seed/bootstrap writeback by default, and silent backlog lost updates, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-process-hardening-split-module-closeout.md`.
+1. `VERIFIER-PROCESS-HARDENING-SPLIT-MODULE-001` - done under `verifier-process-hardening-split-module-v1`. V1 owns `lib/foundation-process-hardening-verifier.js`, `scripts/process-verifier-process-hardening-split-module-check.mjs`, package script `process:verifier-process-hardening-split-module-check`, plan/approval docs, dogfood fixtures that reject repair-then-pass verifier behavior, scheduled mutating process checks, seed/bootstrap writeback by default, and silent backlog lost updates, plus root verifier delegation and closeout record `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-process-hardening-split-module-closeout.md`.
 
 Not next: process guard behavior changes, route/auth behavior changes, UI redesign, Foundation Hub payload behavior changes, DB schema changes, backlog mutation behavior changes, source contract behavior changes, connector auth, extraction runs, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 
@@ -775,7 +775,7 @@ This sprint is complete under `verifier-surface-trust-split-module-v1`. It extra
 
 Completed card:
 
-1. `VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001` - done under `verifier-surface-trust-split-module-v1`. V1 owns `lib/foundation-surface-trust-verifier.js`, `scripts/process-verifier-surface-trust-split-module-check.mjs`, package script `process:verifier-surface-trust-split-module-check`, plan/approval docs, dogfood fixtures that reject stale verifier exceptions, missing done-card verifier proof, missing claimed artifacts/routes/scripts, stale served code, and incomplete surface maps, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-surface-trust-split-module-closeout.md`.
+1. `VERIFIER-SURFACE-TRUST-SPLIT-MODULE-001` - done under `verifier-surface-trust-split-module-v1`. V1 owns `lib/foundation-surface-trust-verifier.js`, `scripts/process-verifier-surface-trust-split-module-check.mjs`, package script `process:verifier-surface-trust-split-module-check`, plan/approval docs, dogfood fixtures that reject stale verifier exceptions, missing done-card verifier proof, missing claimed artifacts/routes/scripts, stale served code, and incomplete surface maps, plus root verifier delegation and closeout record `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-surface-trust-split-module-closeout.md`.
 
 Not next: route/auth behavior changes, UI redesign, Foundation Hub payload behavior changes, DB schema changes, backlog mutation behavior changes, source contract behavior changes, connector auth, extraction runs, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 
@@ -789,7 +789,7 @@ This sprint is complete under `verifier-extraction-runtime-split-module-v1`. It 
 
 Completed card:
 
-1. `VERIFIER-EXTRACTION-RUNTIME-SPLIT-MODULE-001` - done under `verifier-extraction-runtime-split-module-v1`. V1 owns `lib/foundation-extraction-runtime-verifier.js`, `scripts/process-verifier-extraction-runtime-split-module-check.mjs`, package script `process:verifier-extraction-runtime-split-module-check`, plan/approval docs, dogfood fixtures that reject missing worker reaper wiring, missing corpus quota controls, missing Drive extraction support, and missing LLM provenance, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-extraction-runtime-split-module-closeout.md`.
+1. `VERIFIER-EXTRACTION-RUNTIME-SPLIT-MODULE-001` - done under `verifier-extraction-runtime-split-module-v1`. V1 owns `lib/foundation-extraction-runtime-verifier.js`, `scripts/process-verifier-extraction-runtime-split-module-check.mjs`, package script `process:verifier-extraction-runtime-split-module-check`, plan/approval docs, dogfood fixtures that reject missing worker reaper wiring, missing corpus quota controls, missing Drive extraction support, and missing LLM provenance, plus root verifier delegation and closeout record `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-extraction-runtime-split-module-closeout.md`.
 
 Not next: extraction runs, extraction schedule changes, connector auth, source contract behavior changes, DB schema changes, backlog mutation behavior changes, route/auth behavior changes, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 
@@ -803,7 +803,7 @@ This sprint is complete under `verifier-intelligence-spine-split-module-v1`. It 
 
 Completed card:
 
-1. `VERIFIER-INTELLIGENCE-SPINE-SPLIT-MODULE-001` - done under `verifier-intelligence-spine-split-module-v1`. V1 owns `lib/foundation-intelligence-spine-verifier.js`, `scripts/process-verifier-intelligence-spine-split-module-check.mjs`, package script `process:verifier-intelligence-spine-split-module-check`, plan/approval docs, dogfood fixtures that reject missing job-ledger provenance, missing retrieval tier guards, missing Action Router approval gates, and missing synthesis evidence proof, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-intelligence-spine-split-module-closeout.md`.
+1. `VERIFIER-INTELLIGENCE-SPINE-SPLIT-MODULE-001` - done under `verifier-intelligence-spine-split-module-v1`. V1 owns `lib/foundation-intelligence-spine-verifier.js`, `scripts/process-verifier-intelligence-spine-split-module-check.mjs`, package script `process:verifier-intelligence-spine-split-module-check`, plan/approval docs, dogfood fixtures that reject missing job-ledger provenance, missing retrieval tier guards, missing Action Router approval gates, and missing synthesis evidence proof, plus root verifier delegation and closeout record `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-intelligence-spine-split-module-closeout.md`.
 
 Not next: intelligence store rewrites, extraction runs, embeddings, synthesis refresh, action-router mutation, route behavior changes, auth behavior changes, source contract behavior changes, DB schema changes, backlog mutation behavior changes, hub feature work, Canva asset work, paid-source auth, screenshots, Build Intel feature work, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 
@@ -817,7 +817,7 @@ This sprint is complete under `verifier-core-governance-split-module-v1`. It ext
 
 Active card:
 
-1. `VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-001` - done under `verifier-core-governance-split-module-v1`. V1 owns `lib/foundation-core-governance-verifier.js`, `scripts/process-verifier-core-governance-split-module-check.mjs`, package script `process:verifier-core-governance-split-module-check`, plan/approval docs, dogfood fixtures that reject direct host leaks, ungated admin routes, Host-header localhost bypass, open FUB proxy mutations, invalid DB source references, and weak backlog done-closeout guards, plus root verifier delegation and closeout record `docs/handoffs/2026-05-16-verifier-core-governance-split-module-closeout.md`.
+1. `VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-001` - done under `verifier-core-governance-split-module-v1`. V1 owns `lib/foundation-core-governance-verifier.js`, `scripts/process-verifier-core-governance-split-module-check.mjs`, package script `process:verifier-core-governance-split-module-check`, plan/approval docs, dogfood fixtures that reject direct host leaks, ungated admin routes, Host-header localhost bypass, open FUB proxy mutations, invalid DB source references, and weak backlog done-closeout guards, plus root verifier delegation and closeout record `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-core-governance-split-module-closeout.md`.
 
 Previous completed sprint: `verifier-intelligence-audit-split-module-2026-05-15`, closed under `verifier-intelligence-audit-split-module-v1`.
 
@@ -829,7 +829,7 @@ This sprint is complete under `verifier-intelligence-audit-split-module-v1`. It 
 
 Active card:
 
-1. `VERIFIER-INTELLIGENCE-AUDIT-SPLIT-MODULE-001` - done under `verifier-intelligence-audit-split-module-v1`. V1 owns `lib/foundation-intelligence-audit-verifier.js`, `scripts/process-verifier-intelligence-audit-split-module-check.mjs`, package script `process:verifier-intelligence-audit-split-module-check`, plan/approval docs, dogfood fixtures that reject backlog writes, paid auth, code imports, auto-fixes, and audit writeback, root verifier delegation, and closeout record `docs/handoffs/2026-05-15-verifier-intelligence-audit-split-module-closeout.md`.
+1. `VERIFIER-INTELLIGENCE-AUDIT-SPLIT-MODULE-001` - done under `verifier-intelligence-audit-split-module-v1`. V1 owns `lib/foundation-intelligence-audit-verifier.js`, `scripts/process-verifier-intelligence-audit-split-module-check.mjs`, package script `process:verifier-intelligence-audit-split-module-check`, plan/approval docs, dogfood fixtures that reject backlog writes, paid auth, code imports, auto-fixes, and audit writeback, root verifier delegation, and closeout record `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-verifier-intelligence-audit-split-module-closeout.md`.
 
 Previous completed sprint: `verifier-current-sprint-split-module-2026-05-15`, closed under `verifier-current-sprint-split-module-v1`.
 
@@ -841,7 +841,7 @@ This sprint is complete under `verifier-current-sprint-split-module-v1`. It extr
 
 Active card:
 
-1. `VERIFIER-CURRENT-SPRINT-SPLIT-MODULE-001` - done under `verifier-current-sprint-split-module-v1`. V1 owns `lib/foundation-current-sprint-verifier.js`, `scripts/process-verifier-current-sprint-split-module-check.mjs`, package script `process:verifier-current-sprint-split-module-check`, plan/approval docs, dogfood fixtures that reject unhealthy Current Sprint API/status, missing doctrine/source markers, missing build-log ownership, and missing Drive/Meeting Vault stop-line evidence, root verifier delegation, and closeout record `docs/handoffs/2026-05-15-verifier-current-sprint-split-module-closeout.md`.
+1. `VERIFIER-CURRENT-SPRINT-SPLIT-MODULE-001` - done under `verifier-current-sprint-split-module-v1`. V1 owns `lib/foundation-current-sprint-verifier.js`, `scripts/process-verifier-current-sprint-split-module-check.mjs`, package script `process:verifier-current-sprint-split-module-check`, plan/approval docs, dogfood fixtures that reject unhealthy Current Sprint API/status, missing doctrine/source markers, missing build-log ownership, and missing Drive/Meeting Vault stop-line evidence, root verifier delegation, and closeout record `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-verifier-current-sprint-split-module-closeout.md`.
 
 Not next: Current Sprint DB schema changes, Current Sprint route/UI behavior changes, broad verifier rewrite, Foundation DB splits, Marketing Video Lab, Canva asset library work, hub feature UI, paid-source auth, Build Intel extraction, Drive permission mutation, Drive permissions request-access emails, or Meeting Vault Phase B.
 
@@ -855,7 +855,7 @@ This sprint is complete under `verifier-source-trust-split-module-v1`. It extrac
 
 Active card:
 
-1. `VERIFIER-SOURCE-TRUST-SPLIT-MODULE-001` - done under `verifier-source-trust-split-module-v1`. V1 owns `lib/foundation-source-trust-verifier.js`, `scripts/process-verifier-source-trust-split-module-check.mjs`, package script `process:verifier-source-trust-split-module-check`, plan/approval docs, dogfood fixtures that reject missing connector/KPI/reference-trust/Phase C coverage, root verifier delegation, and closeout record `docs/handoffs/2026-05-15-verifier-source-trust-split-module-closeout.md`.
+1. `VERIFIER-SOURCE-TRUST-SPLIT-MODULE-001` - done under `verifier-source-trust-split-module-v1`. V1 owns `lib/foundation-source-trust-verifier.js`, `scripts/process-verifier-source-trust-split-module-check.mjs`, package script `process:verifier-source-trust-split-module-check`, plan/approval docs, dogfood fixtures that reject missing connector/KPI/reference-trust/Phase C coverage, root verifier delegation, and closeout record `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-verifier-source-trust-split-module-closeout.md`.
 
 Not next: source contract behavior changes, connector behavior changes, KPI probe changes, source-of-truth route changes, Foundation DB splits, Marketing Video Lab, Canva asset library work, hub feature UI, paid-source auth, Build Intel extraction, Drive permission mutation, or Meeting Vault Phase B.
 
@@ -1075,7 +1075,7 @@ The control-plane sprint order was:
 3. `FOUNDATION-PLAN-RECONCILE-001` — done under `foundation-plan-reconcile-control-plane-v1`; rebuild plan/state/handoff truth now matches live sprint and closeout reality without product expansion.
 4. `CONNECTOR-CREDENTIAL-001` — done under `connector-credential-v1`; the no-secret connector credential/preflight registry now records owner, credential class, source-unlocked state, last probe status, and blocker reason without exposing credential values.
 5. `LLM-AUTH-AUDIT-001` — done under `llm-auth-audit-v1`; the Foundation job ledger has fresh model route/auth probes, guarded fallback status, and dry-run route-selection proof without provider account changes.
-6. `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` — done under `source-extraction-gap-followup-v1`; `docs/handoffs/2026-05-13-source-extraction-gap-triage.md` ranks 23 source rows needing attention without starting ingestion.
+6. `SOURCE-EXTRACTION-GAP-FOLLOWUP-001` — done under `source-extraction-gap-followup-v1`; `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-source-extraction-gap-triage.md` ranks 23 source rows needing attention without starting ingestion.
 
 The approved control-plane sprint is complete. Stop at sprint review before opening the next sprint or product work.
 
@@ -1118,7 +1118,7 @@ Build Intel Extraction Implementation is complete under `build-intel-extraction-
 2. `PUBLIC-YOUTUBE-BUILD-INTEL-001` — transcript artifact selection now filters for AIOS/build-intel signal and keeps unrelated public video transcripts skipped with reasons.
 3. `BUILD-INTEL-OBSERVATION-EXTRACTOR-001` — transcript-derived implementation observations now validate through the multimodal contract while honestly marking screenshots/OCR/keyframes as not captured in this V1.
 4. `BUILD-INTEL-RESEARCH-INBOX-PROPOSALS-001` — extracted lessons now route to proposal-only Research Inbox rows with `writesBacklog=false` and `autoCreateBacklogCard=false`.
-5. `BUILD-INTEL-BRIEF-001` — the first Build Intel extraction brief is generated at `docs/handoffs/2026-05-13-build-intel-extraction-implementation.md` and exposed through `/api/foundation/build-intel-extraction`.
+5. `BUILD-INTEL-BRIEF-001` — the first Build Intel extraction brief is generated at `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-build-intel-extraction-implementation.md` and exposed through `/api/foundation/build-intel-extraction`.
 
 Stop at sprint review. Good next options are current public-video discovery after creator channel URLs are confirmed, Steve-present paid-source auth preflight for Skool/myICOR, or screenshot/OCR/keyframe upgrade under the multimodal contract.
 
@@ -1379,7 +1379,7 @@ Order now:
 
 1. `SYSTEM-STRATEGY-REVIEW-001` — done / P1.
    - Apr 26-28 builder/reviewer lessons were promoted into system strategy, current plan/state, and backlog cards.
-   - The handoff evidence is `docs/handoffs/2026-04-28-foundation-hard-checkpoint.md`.
+   - The handoff evidence is `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-28-foundation-hard-checkpoint.md`.
 2. `FOUNDATION-SWEEP-001` — done / P0.
    - V1 maps every Foundation nav page to backing APIs/docs/tables/source IDs/backlog owners.
    - Runtime Health now surfaces stale source-crawl target runs.

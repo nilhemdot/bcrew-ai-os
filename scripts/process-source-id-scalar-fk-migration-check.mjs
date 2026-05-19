@@ -112,7 +112,7 @@ async function main() {
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/rebuild/current-state.md'),
     readRepoFile('lib/foundation-build-closeout-overnight-records.js'),
-    readRepoFile('docs/handoffs/2026-05-16-source-id-scalar-fk-migration-closeout.md', { optional: true }),
+    readRepoFile('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-source-id-scalar-fk-migration-closeout.md', { optional: true }),
   ])
   const packageJson = JSON.parse(packageSource)
   const approval = await validatePlanApprovalFile({

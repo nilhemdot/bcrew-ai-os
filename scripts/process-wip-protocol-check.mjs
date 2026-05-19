@@ -98,7 +98,7 @@ async function main() {
     'scripts/process-plan-critic-architectural-rules-check.mjs',
     'lib/foundation-build-closeout-tightening-records.js',
     'package.json',
-    'docs/handoffs/2026-05-16-process-wip-protocol-closeout.md',
+    'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-process-wip-protocol-closeout.md',
   ]
   const selfReview = evaluatePlanCriticPlan({
     planText,

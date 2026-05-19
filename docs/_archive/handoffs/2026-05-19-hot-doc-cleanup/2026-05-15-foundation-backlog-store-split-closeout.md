@@ -40,7 +40,7 @@ Backlog is task truth. This split keeps task-truth write safety intact while shr
 - `scripts/foundation-verify.mjs`
 - `docs/process/foundation-db-monolith-split-001-plan.md`
 - `docs/process/approvals/FOUNDATION-DB-MONOLITH-SPLIT-001.json`
-- `docs/handoffs/2026-05-15-foundation-backlog-store-split-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-foundation-backlog-store-split-closeout.md`
 
 ## Proof Commands
 

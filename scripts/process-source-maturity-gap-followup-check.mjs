@@ -127,7 +127,7 @@ function buildExistingWorkCheck() {
       'docs/process/source-extraction-coverage-001-plan.md',
       'docs/process/source-coverage-closeout-001-plan.md',
       'docs/process/source-extraction-gap-followup-001-plan.md',
-      'docs/handoffs/2026-05-12-foundation-source-once-over-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-12-foundation-source-once-over-closeout.md',
     ],
     existingScripts: [
       'scripts/process-source-maturity-grid-check.mjs',

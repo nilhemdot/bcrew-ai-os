@@ -104,7 +104,7 @@ function buildExistingWorkCheck() {
     existingDocs: [
       'docs/source-registry.md',
       'docs/source-notes/github-build-intel.md',
-      'docs/handoffs/2026-05-13-gstack-build-intel-extraction.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-gstack-build-intel-extraction.md',
       'docs/process/build-intel-github-monitor-001-plan.md',
     ],
     existingScripts: [

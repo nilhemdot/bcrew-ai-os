@@ -50,12 +50,12 @@ No background GitHub crawler, repo clone, scraping, scheduled public-repo extrac
 
 ## First Extraction Packet
 
-See `docs/handoffs/2026-05-13-gstack-codebase-extraction-packet.md`.
+See `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-gstack-codebase-extraction-packet.md`.
 
 ## First Verified Extraction
 
 Closeout key: `gstack-build-intel-extraction-v1`
-Report: `docs/handoffs/2026-05-13-gstack-build-intel-extraction.md`
+Report: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-gstack-build-intel-extraction.md`
 API: `/api/foundation/gstack-build-intel`
 
 The verified V1 extracts a source map, path-cited pattern scorecard, public developer-community watchlist, proposal-only Research Inbox rows, Skill Improver enrichment, review-gate recommendations, and browser QA proof expectations.

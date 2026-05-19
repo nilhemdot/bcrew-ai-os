@@ -137,7 +137,7 @@ function buildExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/process/llm-auth-audit-001-plan.md',
-      'docs/handoffs/2026-05-17-main-chat-engineering-standards-checkpoint.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-main-chat-engineering-standards-checkpoint.md',
       'docs/rebuild/current-plan.md',
       'docs/rebuild/current-state.md',
     ],

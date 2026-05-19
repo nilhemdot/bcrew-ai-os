@@ -24,7 +24,7 @@ The verifier is still above the monolith danger threshold. This removes another 
 - `package.json`
 - `docs/process/verifier-plan-reviews-split-001-plan.md`
 - `docs/process/approvals/VERIFIER-PLAN-REVIEWS-SPLIT-001.json`
-- `docs/handoffs/2026-05-17-verifier-plan-reviews-split-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-verifier-plan-reviews-split-closeout.md`
 
 ## Proof Commands
 

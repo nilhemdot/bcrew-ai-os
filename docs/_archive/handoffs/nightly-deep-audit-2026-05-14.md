@@ -2,7 +2,7 @@
 
 Closeout key: `nightly-deep-audit-upgrade-v1`
 Generated at: `2026-05-15T01:03:33.680Z`
-Report path: `docs/handoffs/nightly-deep-audit-2026-05-14.md`
+Report path: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.md`
 
 ## Morning Read
 
@@ -936,8 +936,8 @@ export const cleanupCloseoutRecords = [
       'scripts/foundation-verify.mjs nightly deep audit done-card coverage',
       'docs/process/nightly-deep-audit-upgrade-001-plan.md',
       'docs/process/approvals/NIGHTLY-DEEP-AUDIT-UPGRADE-001.json',
-      'docs/handoffs/nightly-deep-audit-2026-05-14.md',
-      'docs/handoffs/nightly-deep-audit-2026-05-14.json',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.json',
       'docs/handoffs/2026-05-14-nightly-deep-audit-upgrade-clo
 ```
 

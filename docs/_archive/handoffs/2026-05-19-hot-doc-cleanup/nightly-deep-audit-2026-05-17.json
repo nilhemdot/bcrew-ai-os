@@ -1,7 +1,7 @@
 {
   "generatedAt": "2026-05-17T07:00:14.192Z",
-  "reportPath": "docs/handoffs/nightly-deep-audit-2026-05-17.md",
-  "jsonPath": "docs/handoffs/nightly-deep-audit-2026-05-17.json",
+  "reportPath": "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-17.md",
+  "jsonPath": "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-17.json",
   "cardId": "NIGHTLY-DEEP-AUDIT-UPGRADE-001",
   "closeoutKey": "nightly-deep-audit-upgrade-v1",
   "summary": {
@@ -1649,7 +1649,7 @@
     }
   ],
   "diff": {
-    "previousReportPath": "docs/handoffs/nightly-deep-audit-2026-05-16.json",
+    "previousReportPath": "docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-16.json",
     "newFindingIds": [],
     "resolvedFindingIds": [],
     "stillOpenFindingIds": [

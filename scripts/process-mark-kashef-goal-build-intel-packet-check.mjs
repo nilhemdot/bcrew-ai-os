@@ -103,7 +103,7 @@ function buildExistingWorkCheck() {
       'lib/mark-kashef-goal-build-intel-packet.js',
     ],
     existingDocs: [
-      'docs/handoffs/2026-05-17-runtime-memory-build-intel-stab-capture.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-runtime-memory-build-intel-stab-capture.md',
       'docs/process/youtube-build-intel-batch-001-plan.md',
       'docs/handoffs/2026-05-18-youtube-build-intel-batch-closeout.md',
       'docs/handoffs/2026-05-18-mark-m-skool-extraction-preflight-closeout.md',
@@ -383,7 +383,7 @@ async function main() {
     readRepoFile(MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CLOSEOUT_PATH, { optional: true }),
     readRepoFile('docs/rebuild/current-plan.md'),
     readRepoFile('docs/rebuild/current-state.md'),
-    readRepoFile('docs/handoffs/2026-05-17-runtime-memory-build-intel-stab-capture.md'),
+    readRepoFile('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-runtime-memory-build-intel-stab-capture.md'),
   ])
 
   const packageJson = JSON.parse(packageSource)
@@ -432,7 +432,7 @@ async function main() {
   addCheck(checks, packetDoc.includes(MARK_KASHEF_GOAL_VIDEO_ID) && packetDoc.includes('Official /goal Docs') && packetDoc.includes('Not Extracted'), 'Build Intel packet doc exists and names source/extraction boundary', MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_PACKET_PATH)
   addCheck(checks, closeoutDoc.includes(MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CARD_ID) && closeoutDoc.includes(MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CLOSEOUT_KEY), 'closeout handoff exists and names card/closeout', MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CLOSEOUT_PATH)
   addCheck(checks, renderedReport.includes('Pattern Candidates') && renderedReport.includes(MARK_KASHEF_GOAL_VIDEO_URL), 'rendered report summarizes Mark Kashef packet', 'report renderer')
-  addCheck(checks, stabCapture.includes('Claude Code `/goal`') && stabCapture.includes('AIOS-GOAL-DRIVEN-RUNNER-EVAL-001'), 'runtime memory stab capture preserved /goal context', 'docs/handoffs/2026-05-17-runtime-memory-build-intel-stab-capture.md')
+  addCheck(checks, stabCapture.includes('Claude Code `/goal`') && stabCapture.includes('AIOS-GOAL-DRIVEN-RUNNER-EVAL-001'), 'runtime memory stab capture preserved /goal context', 'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-runtime-memory-build-intel-stab-capture.md')
   addCheck(checks, verifierSource.includes(MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CARD_ID) && verifierSource.includes('buildMarkKashefGoalBuildIntelPacketDogfoodProof'), 'intelligence/audit verifier covers Mark Kashef goal packet', 'lib/foundation-intelligence-audit-verifier.js')
   addCheck(checks, closeoutRecordsSource.includes(MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CLOSEOUT_KEY), 'closeout registry includes Mark Kashef goal packet closeout', MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CLOSEOUT_KEY)
   addCheck(checks, currentPlan.includes(MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_CLOSEOUT_KEY) && currentPlan.includes(MARK_KASHEF_GOAL_BUILD_INTEL_PACKET_NEXT_CARD_ID), 'current plan names closeout and next card', 'docs/rebuild/current-plan.md')

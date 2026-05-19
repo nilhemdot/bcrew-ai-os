@@ -75,7 +75,7 @@ npm run process:foundation-ship -- --card=VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-
 - `docs/process/approvals/VERIFIER-CORE-GOVERNANCE-SPLIT-MODULE-001.json`
 - `docs/rebuild/current-plan.md`
 - `docs/rebuild/current-state.md`
-- `docs/handoffs/2026-05-16-verifier-core-governance-split-module-closeout.md`
+- `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-core-governance-split-module-closeout.md`
 - `lib/foundation-build-closeout-overnight-records.js`
 
 ## Known Limits

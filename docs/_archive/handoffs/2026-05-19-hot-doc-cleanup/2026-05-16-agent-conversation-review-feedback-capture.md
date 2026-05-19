@@ -127,7 +127,7 @@ This is a Foundation Ops self-improvement pattern, not a vanity journaling featu
 
 ## 2026-05-17 Addendum: Harlan Transcript And Doctrine Retrieval Failure
 
-Steve later provided the real Harlan exchange plus a reconstructed full-session handoff at `docs/handoffs/2026-05-16-full-convo-steve-chat-reconstructed.md`.
+Steve later provided the real Harlan exchange plus a reconstructed full-session handoff at `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-full-convo-steve-chat-reconstructed.md`.
 
 Additional failure patterns:
 
@@ -144,4 +144,4 @@ New agent behavior rule:
 - label the output honestly as raw export, reconstructed transcript, summary, or doctrine extraction
 - route the failure into shared agent feedback so the next assistant does not repeat it
 
-Backlog follow-through was captured in `docs/handoffs/2026-05-17-harlan-transcript-promotion-review.md` and live backlog cards for agent onboarding, conversation review, conversation scanner, full-conversation archive, Harlan terminal runtime, marketing lane/source cleanup, Sales options tracker, finance doctrine promotion, and external super-agent runtime evaluation.
+Backlog follow-through was captured in `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-harlan-transcript-promotion-review.md` and live backlog cards for agent onboarding, conversation review, conversation scanner, full-conversation archive, Harlan terminal runtime, marketing lane/source cleanup, Sales options tracker, finance doctrine promotion, and external super-agent runtime evaluation.

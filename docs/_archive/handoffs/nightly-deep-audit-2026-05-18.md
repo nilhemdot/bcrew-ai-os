@@ -17,7 +17,7 @@ Report path: `docs/handoffs/nightly-deep-audit-2026-05-18.md`
 
 ## Diff Summary
 
-- Previous report: `docs/handoffs/nightly-deep-audit-2026-05-17.json`
+- Previous report: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-17.json`
 - New findings: 0
 - Still open: 17
 - Resolved: 0
@@ -139,7 +139,7 @@ import {
       'split frontend source readers in lib/ and scripts/process-foundation-sprint-*.mjs',
       'docs/process/frontend-current-state-renderers-split-001-plan.md',
       'docs/process/approvals/FRONTEND-CURRENT-STATE-RENDERERS-SPLIT-001.json',
-      'docs/handoffs/2026-05-15-frontend-current-state-renderers-split-closeout.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-frontend-current-state-renderers-split-closeout.md',
     ],
     proofCommands: [
       'node --check public/foundation-nav-config.js public/foundation-data.js public/foundation.js public/foundation-source-registry-renderers.js public/foundation-fub-lead-source-renderers.js public/foundation-system-inventory-renderers.js public/foundation-current-state-renderers.js public/foundation-source-lifecycle-renderers.js public/foundation-runtime-renderers.js public/foundation-operations-renderers.js public/foundation-router.js scripts/process-frontend-curren

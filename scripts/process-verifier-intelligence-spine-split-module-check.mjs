@@ -304,7 +304,7 @@ async function main() {
       String(card.statusNote || '').includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY) &&
       closeout?.operatorCloseout === true &&
       (closeout.backlogIds || []).includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CARD_ID) &&
-      await repoFileExists('docs/handoffs/2026-05-16-verifier-intelligence-spine-split-module-closeout.md') &&
+      await repoFileExists('docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-16-verifier-intelligence-spine-split-module-closeout.md') &&
       currentState.includes(VERIFIER_INTELLIGENCE_SPINE_SPLIT_MODULE_CLOSEOUT_KEY)
     ),
     'done closeout is exact when card is closed',

@@ -314,7 +314,7 @@ function defaultExistingWorkCheck() {
     ],
     existingDocs: [
       'docs/handoffs/nightly-deep-audit-2026-05-18.md',
-      'docs/handoffs/2026-05-15-nightly-deep-audit-p0-triage.md',
+      'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-15-nightly-deep-audit-p0-triage.md',
       'docs/process/system-health-nightly-audit-001-plan.md',
     ],
     existingScripts: [

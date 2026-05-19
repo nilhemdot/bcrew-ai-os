@@ -2,8 +2,8 @@
 
 Card: `NIGHTLY-DEEP-AUDIT-P0-TRIAGE-001`
 Closeout key: `nightly-deep-audit-p0-triage-v1`
-Source audit: `docs/handoffs/nightly-deep-audit-2026-05-14.md`
-Source JSON: `docs/handoffs/nightly-deep-audit-2026-05-14.json`
+Source audit: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.md`
+Source JSON: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/nightly-deep-audit-2026-05-14.json`
 
 ## Verdict
 

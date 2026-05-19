@@ -9,11 +9,11 @@ const __dirname = path.dirname(__filename)
 const repoRoot = path.resolve(__dirname, '..')
 
 const protectedHandoffs = new Set([
-  'docs/handoffs/2026-04-17-src-fub-001-validation-packet.md',
-  'docs/handoffs/2026-04-20-kpi-system-audit-checkpoint.md',
-  'docs/handoffs/2026-04-21-ai-deal-review-checklist.md',
-  'docs/handoffs/2026-04-21-deal-review-queue-model.md',
-  'docs/handoffs/2026-04-28-foundation-hard-checkpoint.md',
+  'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-17-src-fub-001-validation-packet.md',
+  'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-20-kpi-system-audit-checkpoint.md',
+  'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-21-ai-deal-review-checklist.md',
+  'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-21-deal-review-queue-model.md',
+  'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-04-28-foundation-hard-checkpoint.md',
 ])
 
 const protectedAudits = new Set([

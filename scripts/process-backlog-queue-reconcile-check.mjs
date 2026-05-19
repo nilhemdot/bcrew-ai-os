@@ -21,8 +21,8 @@ const CARD_ID = 'BACKLOG-QUEUE-RECONCILE-001'
 const CLOSEOUT_KEY = 'backlog-queue-reconcile-v1'
 const PLAN_PATH = 'docs/process/backlog-queue-reconcile-001-plan.md'
 const APPROVAL_PATH = 'docs/process/approvals/BACKLOG-QUEUE-RECONCILE-001.json'
-const QUEUE_PATH = 'docs/handoffs/2026-05-17-foundation-next-sprint-queue.md'
-const CLOSEOUT_PATH = 'docs/handoffs/2026-05-17-backlog-queue-reconcile-closeout.md'
+const QUEUE_PATH = 'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-foundation-next-sprint-queue.md'
+const CLOSEOUT_PATH = 'docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-17-backlog-queue-reconcile-closeout.md'
 const SCRIPT_PATH = 'scripts/process-backlog-queue-reconcile-check.mjs'
 
 const REQUIRED_QUEUE_MAPPINGS = new Map([
