@@ -1,0 +1,36 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SKOOL-WORKER-001",
+  "approvedPlanRef": "docs/process/skool-worker-001-plan.md",
+  "approvedPlanSha256": "f856937b57b2ab56329bd22d6b0870af837ea138a255ca808ea493585571f478",
+  "approvedRepoHead": "50d64bc18a3220556f407b03261416636257a821",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T19:25:00-04:00",
+  "approvalSource": "Steve approved continuing card-by-card through the GOD-mode extraction sprint with blockers parked instead of stopping all work. SKOOL-WORKER-001 may build local source/auth access matrix and preflight proof but live private Skool browser/crawler/provider work remains approval-bound.",
+  "approvalMode": "blocked-preflight-only",
+  "score": 9.8,
+  "allowedWork": [
+    "read Skool source contract, connector registry, source-auth matrix, and validation rows",
+    "read local video-link-inventory Skool URL rows",
+    "classify Skool routes as manual-export-only, link-inventory-only, needs-permission, blocked, or platform-worker-after-approval",
+    "build a source-specific approval packet for future Skool worker execution",
+    "prove WEB-GODMODE and multimodal synthetic Skool boundaries",
+    "park live Skool worker execution and continue MYICRO-TRAINING-001"
+  ],
+  "notApproved": [
+    "Skool login",
+    "private auth or authorized browser session",
+    "community crawl",
+    "course/classroom/module navigation",
+    "post/comment extraction",
+    "member-data read",
+    "embedded-video extraction",
+    "transcript/media download from private Skool content",
+    "screenshot or keyframe byte storage",
+    "provider/model/OCR/vision/transcription call over private Skool content",
+    "downstream atom/KB/action-route/vector writes from private Skool content",
+    "credential or Drive permission mutation",
+    "external sends or public exposure"
+  ],
+  "approvalDigest": "b5edb909d7d6f3e4b5ea47d9668f291d12a40eafd1cf5bbcb9b11f9c36c97ee1"
+}
