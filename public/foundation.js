@@ -2837,7 +2837,7 @@ function renderSourceRegistry(section) {
     var sourceContracts = getSourceContractsForSection(data.sources || [], config)
     var sourceConnectors = data.connectors || []
     container.appendChild(renderSourceHero(config, sourceContracts, sourceConnectors))
-    var purposePanel = renderDataSourcePurposePanel(section, config, sourceContracts, sourceConnectors, data.groupedSystems || [])
+    var purposePanel = renderDataSourcePurposePanel(section, config, sourceContracts, sourceConnectors, data.groupedSystems || [], data.sourceLayerStatus)
     if (purposePanel) container.appendChild(purposePanel)
 
     if (section === 'source-overview') {

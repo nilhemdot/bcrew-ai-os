@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SOURCE-012",
+  "approvedPlanRef": "docs/process/source-012-source-connector-live-layers-plan.md",
+  "approvedPlanSha256": "91ea5a102214508a313e905ad1bc0e3d33640783ee4a81665bddcaac6b13e8c0",
+  "approvedRepoHead": "aa2abccfb58b8d3294d71ad44c127635105cdc4f",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T14:55:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation; SOURCE-012 runs before SOURCE-018 and extraction so source contracts and connectors are separated as live layers.",
+  "scopeSummary": "Expose source contracts, connector reach, trust, freshness/drift, owners, direct links, and dependent systems as separate live layers from /api/source-of-truth and Data Sources. No extraction or external writes.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "Use existing live sprint unless proof closeout explicitly updates Current Sprint truth.",
+    "Do not run extraction from SOURCE-012.",
+    "Do not mutate source data, Drive permissions, credentials, provider config, or external systems.",
+    "Do not treat connector access as source trust.",
+    "Approval-bound actions park the action, not the whole sprint; continue safe approved sprint work.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "b2797402433fd0bfce9c5cf987bcadcc1e6b060dd5b7de22f63214c7bdceb544"
+}

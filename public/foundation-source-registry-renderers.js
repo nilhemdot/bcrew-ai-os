@@ -773,7 +773,7 @@ function countConnectorStates(sourceConnectors) {
   return counts
 }
 
-function renderDataSourcePurposePanel(section, config, sourceContracts, sourceConnectors, groupedSystems) {
+function renderDataSourcePurposePanel(section, config, sourceContracts, sourceConnectors, groupedSystems, sourceLayerStatus) {
   var sourceCounts = countSourcePresence(sourceContracts)
   var connectorCounts = countConnectorStates(sourceConnectors)
   var systemCount = Array.isArray(groupedSystems) ? groupedSystems.length : groupSourceContractsBySystem(sourceContracts).length
@@ -873,11 +873,48 @@ function renderDataSourcePurposePanel(section, config, sourceContracts, sourceCo
   }
 
   if (!statusCards.length) return null
-  return renderOverviewStatusPanel(statusCards, {
+  var purposePanel = renderOverviewStatusPanel(statusCards, {
     eyebrow: 'Page Purpose',
     title: title,
     intro: 'Each Data Sources page must answer a specific Foundation trust question.',
   })
+  if (!sourceLayerStatus || (section !== 'source-overview' && section !== 'source-connectors')) return purposePanel
+  var fragment = document.createDocumentFragment()
+  fragment.appendChild(purposePanel)
+  var sourceLayerStatusPanel = renderSourceLayerStatusPanel(sourceLayerStatus)
+  if (sourceLayerStatusPanel) fragment.appendChild(sourceLayerStatusPanel)
+  return fragment
+}
+
+function renderSourceLayerStatusPanel(sourceLayerStatus) {
+  if (!sourceLayerStatus || !Array.isArray(sourceLayerStatus.layers)) return null
+  var summary = sourceLayerStatus.summary || {}
+  var cards = sourceLayerStatus.layers.map(function(layer) {
+    return {
+      label: layer.label,
+      status: layer.status === 'live' || layer.status === 'healthy' ? 'connected' : (layer.status === 'watch' ? 'pending' : layer.status),
+      detail: String(layer.count || 0) + ' tracked · ' + (layer.plainEnglish || ''),
+    }
+  })
+  var panel = renderOverviewStatusPanel(cards, {
+    eyebrow: 'Source Layers',
+    title: 'Contracts, connectors, trust, freshness, and dependencies',
+    intro: 'These layers come from /api/source-of-truth. Connector reach stays separate from source trust.',
+  })
+  var proofItems = [
+    'Source contracts: ' + (summary.sourceCount || 0),
+    'Connectors: ' + (summary.connectorCount || 0),
+    'Grouped systems: ' + (summary.groupedSystemCount || 0),
+    'Trusted/current sources: ' + (
+      (summary.trustStatusCounts && (
+        (summary.trustStatusCounts.trusted_signed_off || 0) +
+        (summary.trustStatusCounts.trusted_current_reality || 0)
+      )) || 0
+    ),
+    'Open or blocked source rows: ' + ((summary.driftStatusCounts && summary.driftStatusCounts.open_or_blocked) || 0),
+  ]
+  panel.appendChild(renderSourceBulletGroup('Live layer counts', proofItems))
+  return panel
 }
 
 function renderSourceSystemsPanel(sourceContracts, options) {
