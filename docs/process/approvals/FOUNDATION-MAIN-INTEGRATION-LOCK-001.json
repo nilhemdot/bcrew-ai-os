@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-MAIN-INTEGRATION-LOCK-001",
+  "approvedPlanRef": "docs/process/foundation-main-integration-lock-001-plan.md",
+  "approvedPlanSha256": "78e4cbde9c2d0010a92787aa8c27d0084728dde53f9e59157f2135dc19935cd9",
+  "approvedRepoHead": "ba78e4e1c890f8958ee4a3a2537bfaa4b66f21c6",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T08:33:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved the full-day Foundation green/main/audit/source sprint and explicitly prioritized preventing the 108-card branch pileup from happening again.",
+  "scopeSummary": "Prove main, origin/main, served dashboard, served worker, current closeout truth, and side-branch routing agree before the sprint continues; dogfood the 108-card pileup as a failure unless merged or release-trained.",
+  "constraints": [
+    "Work from main.",
+    "Do not build extractor/source feature work before this lock is green.",
+    "Do not launch parallel builders or hidden workers from this card.",
+    "Do not silently mix preserved side commits into Foundation main.",
+    "Do not run live extraction, provider probes, credential repair, Drive mutation, sends, or external writes."
+  ],
+  "approvalDigest": "6aa4a8f0105e20ee86d33cd547686f09f675ffffed15c2f9e53148e631ce3dfa"
+}

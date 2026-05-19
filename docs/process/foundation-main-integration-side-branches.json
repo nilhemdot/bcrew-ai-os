@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-19T08:33:00.000-04:00",
+  "owner": "Foundation Process",
+  "purpose": "Classify non-main branches so completed Foundation work cannot pile up outside main unnoticed.",
+  "routes": [
+    {
+      "branch": "foundation/system-health-red-to-green-001",
+      "routeType": "integrated",
+      "owner": "Foundation Process",
+      "reason": "The 108-card Foundation branch tip is an ancestor of main after the 2026-05-19 merge.",
+      "nextAction": "Keep only as historical branch evidence until branch pruning is explicitly approved.",
+      "relatedCommit": "9b6111c",
+      "relatedMainCommit": "ba78e4e"
+    },
+    {
+      "branch": "origin/foundation/system-health-red-to-green-001",
+      "routeType": "integrated",
+      "owner": "Foundation Process",
+      "reason": "Remote Foundation branch tip is already integrated into main.",
+      "nextAction": "Keep as remote historical evidence until remote branch pruning is explicitly approved.",
+      "relatedCommit": "9b6111c",
+      "relatedMainCommit": "ba78e4e"
+    },
+    {
+      "branch": "preserve/local-main-before-foundation-merge-2026-05-19",
+      "routeType": "preserved-side-commit",
+      "owner": "Foundation Process",
+      "reason": "Preserves unrelated local-main side commits from before the Foundation merge without silently mixing them into Foundation main.",
+      "nextAction": "Review and route the preserved side commits under their own card before merging or deleting the branch.",
+      "relatedCommit": "4a6be2e"
+    },
+    {
+      "branch": "origin/preserve/local-main-before-foundation-merge-2026-05-19",
+      "routeType": "preserved-side-commit",
+      "owner": "Foundation Process",
+      "reason": "Remote preservation branch mirrors the unrelated local-main side commits from before the Foundation merge.",
+      "nextAction": "Keep preserved until the side commits are reviewed under their own card.",
+      "relatedCommit": "4a6be2e"
+    },
+    {
+      "branch": "local/main-unpushed-pre-foundation-merge-2026-05-19",
+      "routeType": "preserved-side-commit",
+      "owner": "Foundation Process",
+      "reason": "Local preservation branch for pre-merge side commits; it is intentionally not part of this Foundation green sprint.",
+      "nextAction": "Review alongside the preserve remote branch and delete only after explicit cleanup approval.",
+      "relatedCommit": "4a6be2e"
+    },
+    {
+      "branch": "wip/marketing-video-lab-phase-2a-2026-05-15",
+      "routeType": "wip-non-foundation",
+      "owner": "Marketing/Foundation Process",
+      "reason": "Unfinished marketing video lab WIP branch; it is not claiming completed Foundation sprint work.",
+      "nextAction": "Leave out of Foundation main integration until a marketing card explicitly resumes or retires it.",
+      "relatedCommit": "1097683"
+    }
+  ]
+}
