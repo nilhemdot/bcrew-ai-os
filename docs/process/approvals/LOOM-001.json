@@ -1,0 +1,31 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "LOOM-001",
+  "approvedPlanRef": "docs/process/loom-001-plan.md",
+  "approvedPlanSha256": "a966548dba3de36f5024eccf6716064f6a47fa5005526b217c6603d4029a7559",
+  "approvedRepoHead": "e445acd5b88a059103d5ca60bc37323002809056",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T18:45:00-04:00",
+  "approvalSource": "Steve approved continuing card-by-card through the GOD-mode extraction sprint with blockers parked instead of stopping all work. LOOM-001 may run local manifest/preflight proof but live private/provider/browser Loom extraction remains approval-bound.",
+  "approvalMode": "blocked-preflight-only",
+  "score": 9.8,
+  "allowedWork": [
+    "read local video-link-inventory manifest rows",
+    "select Loom candidates and skip non-video Loom URLs",
+    "build a source-specific approval packet for future Loom extraction",
+    "prove WEB-GODMODE and multimodal synthetic Loom boundaries",
+    "park live Loom extraction and continue MEETING-VIDEO-001"
+  ],
+  "notApproved": [
+    "live Loom page read",
+    "Apify actor call",
+    "authorized browser session",
+    "transcript/media download",
+    "screenshot byte storage",
+    "provider/model observation over private Loom content",
+    "downstream atom/KB/action-route/vector writes from private Loom content",
+    "credential or Drive permission mutation",
+    "external sends or public exposure"
+  ],
+  "approvalDigest": "9716a84f2edc2630430e717b52602a4a5dc11dce159cb067a1a8bcfd5aba1967"
+}
