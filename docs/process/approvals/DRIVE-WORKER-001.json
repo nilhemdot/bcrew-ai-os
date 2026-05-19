@@ -1,0 +1,28 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DRIVE-WORKER-001",
+  "approvedPlanRef": "docs/process/drive-worker-001-plan.md",
+  "approvedPlanSha256": "08ad82a6b2f2bdfaa0544bd376531b79dfe817a43a3947b78890e1b8130476f9",
+  "approvedRepoHead": "f213d3ba446bd897b891135a29f1242785dbdc8a",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T18:35:00-04:00",
+  "approvalSource": "Steve approved continuing card-by-card through the GOD-mode extraction sprint. DRIVE-WORKER-001 may build the governed Drive worker control-plane proof from existing Drive inventory/content ledgers and park unsafe Drive permission/media/provider work.",
+  "approvalMode": "governed-worker-v1",
+  "score": 9.8,
+  "allowedWork": [
+    "read source crawl target and item ledger metadata for Drive corpus/content lanes",
+    "prove Drive worker route matrix, duplicate/file-ID visibility, explicit skip reasons, and side-effect boundaries",
+    "close Drive worker V1 and continue BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001"
+  ],
+  "notApproved": [
+    "Drive permission mutation",
+    "request-access emails",
+    "broad Drive sweep",
+    "media/video/audio download",
+    "OCR/vision/model/provider calls",
+    "credential or key mutation",
+    "external writes",
+    "downstream atom/KB/action-route/vector writes from Drive content in this card"
+  ],
+  "approvalDigest": "9f7a073e380c6556ba0626e7e54514cc813cb393282e7ec84fed711cb72047c8"
+}

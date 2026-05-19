@@ -181,7 +181,7 @@ function buildSkippedConnectorRoutingState(repairedState) {
   }
 }
 
-async function loadLiveItemSnapshot(pool, cardId) {
+async function loadLiveItemSnapshot(pool, sprintId, cardId) {
   const result = await pool.query(
     `
       SELECT existing_work_check
@@ -189,13 +189,13 @@ async function loadLiveItemSnapshot(pool, cardId) {
       WHERE sprint_id = $1 AND backlog_id = $2
       LIMIT 1
     `,
-    [SPRINT_ID, cardId],
+    [sprintId, cardId],
   )
   if (!result.rows[0]) throw new Error(`Missing live sprint item ${cardId}`)
   return result.rows[0].existing_work_check || {}
 }
 
-async function setLiveExistingWorkCheck(pool, cardId, existingWorkCheck) {
+async function setLiveExistingWorkCheck(pool, sprintId, cardId, existingWorkCheck) {
   await pool.query(
     `
       UPDATE foundation_sprint_items
@@ -203,7 +203,7 @@ async function setLiveExistingWorkCheck(pool, cardId, existingWorkCheck) {
           updated_at = NOW()
       WHERE sprint_id = $1 AND backlog_id = $2
     `,
-    [SPRINT_ID, cardId, JSON.stringify(existingWorkCheck || {})],
+    [sprintId, cardId, JSON.stringify(existingWorkCheck || {})],
   )
 }
 
@@ -219,6 +219,7 @@ async function main() {
   const pool = createPool()
   let restoredLiveCheck = null
   let restoredCardId = null
+  let restoredSprintId = null
 
   await initFoundationDb()
   try {
@@ -298,13 +299,22 @@ async function main() {
       planCriticRuns: activePlanRuns,
     })
 
-    restoredCardId = activeSprint.sprint?.activeBlockerCardId || SPRINT_STAGE_GATE_CARD_ID
-    restoredLiveCheck = await loadLiveItemSnapshot(pool, restoredCardId)
-    await setLiveExistingWorkCheck(pool, restoredCardId, {})
+    const activeSprintId = activeSprint.sprint?.sprintId || activeSprint.sprint?.sprint_id || SPRINT_ID
+    const apiFixtureItem = (activeSprint.items || []).find(item =>
+      item.stage === 'done_this_sprint' &&
+        item.cardId !== activeSprint.sprint?.activeBlockerCardId &&
+        item.existingWorkCheck &&
+        Object.keys(item.existingWorkCheck).length > 0
+    ) || (activeSprint.items || []).find(item => item.stage === 'done_this_sprint') || null
+    restoredCardId = apiFixtureItem?.cardId || SPRINT_STAGE_GATE_CARD_ID
+    restoredSprintId = activeSprintId
+    restoredLiveCheck = await loadLiveItemSnapshot(pool, activeSprintId, restoredCardId)
+    await setLiveExistingWorkCheck(pool, activeSprintId, restoredCardId, {})
     const riskApi = await fetchJson(baseUrl, '/api/foundation/current-sprint')
-    await setLiveExistingWorkCheck(pool, restoredCardId, restoredLiveCheck)
+    await setLiveExistingWorkCheck(pool, activeSprintId, restoredCardId, restoredLiveCheck)
     restoredLiveCheck = null
     restoredCardId = null
+    restoredSprintId = null
     const restoredApi = await fetchJson(baseUrl, '/api/foundation/current-sprint')
 
     addFinding(findings, packageJson.scripts?.['process:sprint-stage-gate-check'] === 'node --env-file-if-exists=.env scripts/process-sprint-stage-gate-check.mjs', 'package exposes stage-gate proof script', packageJson.scripts?.['process:sprint-stage-gate-check'] || 'missing')
@@ -359,8 +369,8 @@ async function main() {
     }
     if (summary.status !== 'healthy') process.exitCode = 1
   } finally {
-    if (restoredLiveCheck && restoredCardId) {
-      await setLiveExistingWorkCheck(pool, restoredCardId, restoredLiveCheck).catch(() => {})
+    if (restoredLiveCheck && restoredCardId && restoredSprintId) {
+      await setLiveExistingWorkCheck(pool, restoredSprintId, restoredCardId, restoredLiveCheck).catch(() => {})
     }
     await pool.end()
     await closeFoundationDb()

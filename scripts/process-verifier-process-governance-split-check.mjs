@@ -70,12 +70,14 @@ async function main() {
   const [
     moduleSource,
     verifierSource,
+    orchestrationSource,
     scriptSource,
     planSource,
     packageSource,
   ] = await Promise.all([
     readRepoFile('lib/foundation-verifier-process-governance.js'),
     readRepoFile('scripts/foundation-verify.mjs'),
+    readRepoFile('lib/foundation-verifier-process-control-governance.js'),
     readRepoFile(VERIFIER_PROCESS_GOVERNANCE_SPLIT_SCRIPT_PATH),
     readRepoFile(VERIFIER_PROCESS_GOVERNANCE_SPLIT_PLAN_PATH),
     readRepoFile('package.json'),
@@ -119,7 +121,8 @@ async function main() {
     'dogfood rejects process-governance verifier failures',
     dogfood.dogfoodInvariant,
   )
-  addCheck(checks, verifierSource.includes('evaluateFoundationVerifierProcessGovernance({') && verifierSource.includes('processGovernanceVerifier.checks'), 'foundation verifier delegates process-governance checks to focused module', 'evaluateFoundationVerifierProcessGovernance')
+  const delegationSource = [verifierSource, orchestrationSource].join('\n')
+  addCheck(checks, delegationSource.includes('evaluateFoundationVerifierProcessGovernance({') && delegationSource.includes('processGovernanceVerifier.checks'), 'foundation verifier delegates process-governance checks to focused module', 'evaluateFoundationVerifierProcessGovernance')
   addCheck(checks, !verifierSource.includes(oldInlineMarker), 'old inline process-governance block is removed', 'SPRINT-PROCESS-REPAIR-001 current-item marker no longer appears inline')
   addCheck(checks, verifierLines < VERIFIER_PROCESS_GOVERNANCE_SPLIT_BEFORE_LINES, 'foundation verifier line count decreases', `${VERIFIER_PROCESS_GOVERNANCE_SPLIT_BEFORE_LINES} -> ${verifierLines}`)
   addCheck(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only', 'no live-state write tokens')
