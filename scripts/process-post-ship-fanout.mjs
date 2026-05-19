@@ -32,6 +32,29 @@ function ensure(checks, condition, check, detail = '') {
   checks.push({ ok: Boolean(condition), check, detail })
 }
 
+function closeoutText(closeout) {
+  return [
+    closeout?.status,
+    closeout?.acceptanceState,
+    closeout?.whatChanged,
+    closeout?.whatItDoes,
+    closeout?.whyItMatters,
+    ...(closeout?.proofCommands || []),
+    closeout?.proofStatus,
+    closeout?.reviewNext,
+    ...(closeout?.knownLimits || []),
+  ].filter(Boolean).join('\n').toLowerCase()
+}
+
+function isBlockedPreflightCloseout(closeout) {
+  if (closeout?.status !== 'blocked-preflight') return false
+  const text = closeoutText(closeout)
+  return text.includes('preflight') &&
+    text.includes('approval') &&
+    (text.includes('pending') || text.includes('approval-bound') || text.includes('approval boundary')) &&
+    (text.includes('not done') || text.includes('not accepted') || text.includes('not marked done') || text.includes('not memory-002 implementation completion'))
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2))
   const cardId = normalizeText(args.card)
@@ -52,6 +75,7 @@ async function main() {
   const foundation = await getFoundationSnapshot()
   const card = (foundation.backlogItems || []).find(item => item.id === cardId) || null
   const closeout = getFoundationBuildCloseouts().find(record => record.key === closeoutKey) || null
+  const blockedPreflightCloseout = isBlockedPreflightCloseout(closeout)
   const status = await buildPostShipFanoutStatus({
     closeouts: getFoundationBuildCloseouts(),
     backlogItems: foundation.backlogItems || [],
@@ -61,7 +85,12 @@ async function main() {
   })
 
   ensure(checks, Boolean(card), 'backlog card exists', card ? `${card.id} / ${card.lane}` : 'missing card')
-  ensure(checks, card?.lane === 'done', 'target card is done', card ? card.lane : 'missing card')
+  ensure(
+    checks,
+    card?.lane === 'done' || (blockedPreflightCloseout && ['scoped', 'executing'].includes(card?.lane)),
+    'target card is done or has blocked-preflight closeout',
+    card ? `${card.lane}${blockedPreflightCloseout ? ' / blocked-preflight' : ''}` : 'missing card',
+  )
   ensure(checks, Boolean(closeout), 'closeout record exists', closeoutKey || 'missing closeout key')
   ensure(
     checks,

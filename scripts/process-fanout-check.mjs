@@ -140,6 +140,19 @@ function cardText(card) {
   ].filter(Boolean).join('\n')
 }
 
+function isBlockedPreflightCloseout(closeout) {
+  if (closeout?.status !== 'blocked-preflight') return false
+  const text = [
+    closeout?.status,
+    closeout?.acceptanceState,
+    closeoutText(closeout),
+  ].filter(Boolean).join('\n').toLowerCase()
+  return text.includes('preflight') &&
+    text.includes('approval') &&
+    (text.includes('pending') || text.includes('approval-bound') || text.includes('approval boundary')) &&
+    (text.includes('not done') || text.includes('not accepted') || text.includes('not marked done') || text.includes('not memory-002 implementation completion'))
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2))
   const cardId = normalizeText(args.card)
@@ -158,6 +171,7 @@ async function main() {
   const foundation = await getFoundationSnapshot()
   const card = (foundation.backlogItems || []).find(item => item.id === cardId) || null
   const closeout = getFoundationBuildCloseouts().find(record => record.key === closeoutKey) || null
+  const blockedPreflightCloseout = isBlockedPreflightCloseout(closeout)
   const packageJson = await readJson('package.json')
   const scripts = packageJson.scripts || {}
   const repoHead = await getRepoHead()
@@ -165,7 +179,12 @@ async function main() {
   const foundationBuildLog = await fetchJson(baseUrl, '/api/foundation/build-log?limit=500')
 
   ensure(checks, Boolean(card), 'backlog card exists', card ? `${card.id} / ${card.lane}` : 'missing card')
-  ensure(checks, card?.lane === 'done', 'target card is done', card ? card.lane : 'missing card')
+  ensure(
+    checks,
+    card?.lane === 'done' || (blockedPreflightCloseout && ['scoped', 'executing'].includes(card?.lane)),
+    'target card is done or has blocked-preflight closeout',
+    card ? `${card.lane}${blockedPreflightCloseout ? ' / blocked-preflight' : ''}` : 'missing card',
+  )
   ensure(checks, Boolean(closeout), 'closeout record exists', closeoutKey || 'missing closeout key')
   for (const field of requiredCloseoutFields) {
     ensure(checks, closeoutHasField(closeout, field), `closeout has ${field}`, closeout?.[field] ? 'present' : 'missing')

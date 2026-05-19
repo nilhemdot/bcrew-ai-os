@@ -1,0 +1,24 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MEMORY-002",
+  "approvedBy": "Steve continuous-builder priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T20:25:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve instructed the Foundation builder to keep moving from repo truth while respecting approval-bound side effects; the prior Foundation-up closeout specifically constrained MEMORY-002 to safe scope/preflight only unless local runtime approval and proof exist.",
+  "scopeSummary": "Run a metadata-only OpenClaw native memory preflight for MEMORY-002, record that runtime enablement is blocked pending explicit local-runtime approval, and do not mutate config, restart the gateway, run private recall, call providers, or mark MEMORY-002 done.",
+  "approvedPlanRef": "docs/process/memory-002-openclaw-native-memory-preflight-plan.md",
+  "approvedPlanSha256": "ddc60c67496c531c1b61b9abe56c72e2385465906c3b3cc7de03138d1eb0b151",
+  "approvedRepoHead": "b79bb6584b2eaadeb665cef1ea1e8612b884fb44",
+  "notApproved": [
+    "Do not mutate OpenClaw runtime config.",
+    "Do not restart the OpenClaw gateway.",
+    "Do not run active-memory recall, dreaming, memory search, promote, index mutation, or recall writes.",
+    "Do not read or print private memory content, transcripts, tokens, or session files.",
+    "Do not call providers or models.",
+    "Do not run live extraction, source crawls, transcript fetches, screenshots, downloads, summarization, vision, or model calls.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, Canva, or external systems.",
+    "Do not run MEETING-VAULT-ACL-001 Phase B or mutate Drive permissions.",
+    "Do not mark MEMORY-002 done as native memory enablement."
+  ],
+  "approvalDigest": "363667c8221169af07cb518a6c1d18301b599e7afcd8675bad29c7af5713d15f"
+}

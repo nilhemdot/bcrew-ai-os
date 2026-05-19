@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.139 - Foundation-up capability registry gated
-Status: Continue MEMORY-002 safely from repo truth
+Version: v6.140 - MEMORY-002 preflight returned
+Status: MEMORY-002 returned pending explicit local-runtime approval
 
 Use this doc for one question:
 
@@ -16,7 +16,13 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`FOUNDATION-UP-CAPABILITY-REGISTRY-001` is closed.
+`MEMORY-002` has a metadata-only preflight under `memory-002-openclaw-native-memory-preflight-v1`.
+
+Result: OpenClaw memory posture is inspected from compact metadata only. `memory-core` is already present in the local runtime posture; active-memory/dreaming enablement, OpenClaw gateway restart, and real private recall proof are returned pending explicit local-runtime approval. No OpenClaw config mutation, gateway restart, active recall, dreaming run, memory search/promote/index mutation, provider/model call, private memory content readout, live extraction, or external write is approved or performed by this preflight.
+
+Next: `MEMORY-002` remains scoped/returned, not done. Continue the next safe Foundation card from repo truth unless Steve explicitly approves local OpenClaw runtime mutation and recall proof.
+
+Previous Foundation-up card: `FOUNDATION-UP-CAPABILITY-REGISTRY-001` is closed.
 
 Closeout: `foundation-up-capability-registry-v1`.
 
@@ -24,7 +30,7 @@ Scope shipped: registered Foundation-up provider/tool capability truth for Fal i
 
 Do not call Fal, ElevenLabs, Canva write/export/upload/design APIs, OpenAI, Anthropic, Gemini, or other providers; spend provider credits; launch terminal workers; launch hidden subagents; grant Harlan/Crewbert/role assistants/extraction workers new runtime authority; mutate Drive/Gmail/ClickUp/Slack/Agent Feedback/Canva/external systems; run live extraction/source crawls/transcripts/screenshots/downloads/model calls; or store/print secret values from this card.
 
-Next: continue `MEMORY-002` from repo truth as safe scope/preflight only. Do not mutate OpenClaw runtime, private memory, or external systems unless the next card has process approval and proof.
+Prior next-step boundary: continue `MEMORY-002` from repo truth as safe scope/preflight only. That preflight is now complete and returned pending approval; do not mutate OpenClaw runtime, private memory, or external systems unless the next card has process approval and proof.
 
 Previous supervised extractor runtime: `EXTRACTION-TEAM-001` is closed under `extraction-team-runtime-v1`; live extraction, source lookup/API/crawl, transcripts, keyframes, screenshots, downloads, summarization, vision/model calls, private/paid/community/course auth, downstream writes, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, invisible workers, and extraction workers remain blocked without separate approval.
 
