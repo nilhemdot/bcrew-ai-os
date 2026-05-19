@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-18
-Version: v6.138 - Extraction Team runtime anchored
-Status: Continue Foundation-up capability safety queue
+Version: v6.139 - Foundation-up capability registry gated
+Status: Continue MEMORY-002 safely from repo truth
 
 Use this doc for one question:
 
@@ -16,15 +16,17 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-`EXTRACTION-TEAM-001` is closed.
+`FOUNDATION-UP-CAPABILITY-REGISTRY-001` is closed.
 
-Closeout: `extraction-team-runtime-v1`.
+Closeout: `foundation-up-capability-registry-v1`.
 
-Scope shipped: anchored the supervised Extraction Team runtime contract by composing shipped source-auth, public queue, runtime readiness, visible worker, proposal-output, and private-source preflight gates. V1 reports ready only as a supervised contract: public queues remain metadata-only, MyICOR/Skool remain blocked, visible workers remain unlaunched, outputs remain proposal-only, and unsafe side effects/hidden workers fail closed.
+Scope shipped: registered Foundation-up provider/tool capability truth for Fal image generation, ElevenLabs voice, Canva read metadata, and local terminal workers. Each row names owner, env refs by name only, permission class, cost policy, audit log, callable path, proof command, approval boundary, and blocked agent binding status. V1 is registration/proof only: provider/tool/runtime use remains blocked pending separate approval.
 
-Do not run live extraction, source lookup/API/crawl, transcript/keyframe/screenshot/download work, summarization, vision/model calls, private/paid/community/course auth, downstream writes, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, invisible workers, or extraction workers from this card.
+Do not call Fal, ElevenLabs, Canva write/export/upload/design APIs, OpenAI, Anthropic, Gemini, or other providers; spend provider credits; launch terminal workers; launch hidden subagents; grant Harlan/Crewbert/role assistants/extraction workers new runtime authority; mutate Drive/Gmail/ClickUp/Slack/Agent Feedback/Canva/external systems; run live extraction/source crawls/transcripts/screenshots/downloads/model calls; or store/print secret values from this card.
 
-Next: continue `FOUNDATION-UP-CAPABILITY-REGISTRY-001` from live repo truth. Do not let agents or workers claim/use provider or tool capabilities until the Foundation-up capability contract is scoped and proven.
+Next: continue `MEMORY-002` from repo truth as safe scope/preflight only. Do not mutate OpenClaw runtime, private memory, or external systems unless the next card has process approval and proof.
+
+Previous supervised extractor runtime: `EXTRACTION-TEAM-001` is closed under `extraction-team-runtime-v1`; live extraction, source lookup/API/crawl, transcripts, keyframes, screenshots, downloads, summarization, vision/model calls, private/paid/community/course auth, downstream writes, external writes, Drive permission mutation, Agent Feedback auto-send, hidden subagents, invisible workers, and extraction workers remain blocked without separate approval.
 
 Previous public skills eval: `MATT-POCOCK-CLAUDE-FOLDER-EVAL-001` is closed under `matt-pocock-claude-folder-eval-v1`; skill adaptation remains a separate adapter/approval card.
 

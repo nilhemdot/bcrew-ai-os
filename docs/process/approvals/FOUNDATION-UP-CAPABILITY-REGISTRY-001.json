@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-UP-CAPABILITY-REGISTRY-001",
+  "approvedBy": "Steve hard-checkpoint priority + Codex Foundation builder session",
+  "approvedAt": "2026-05-18T23:58:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve captured the Foundation-up capability registry requirement so provider/tool capabilities like Fal, ElevenLabs, Canva, and terminal workers are registered before agent use, with explicit no hidden subagents and no side-effect default.",
+  "scopeSummary": "Define and prove the Foundation-up provider/tool capability registry for Fal, ElevenLabs, Canva, and terminal workers; record env refs, permission, cost, audit logs, callable path, owner, proof, and approval boundaries while keeping runtime/provider/agent use blocked.",
+  "approvedPlanRef": "docs/process/foundation-up-capability-registry-001-plan.md",
+  "approvedPlanSha256": "9eea6a0e1654455379609ece12e41073e7ef850c2d3ee1869e8a48fe62fc0936",
+  "approvedRepoHead": "d9c3cf505e02910ada1c84ea33f14ad56db91e30",
+  "notApproved": [
+    "Do not call Fal, ElevenLabs, Canva write/export/upload/design APIs, OpenAI, Anthropic, Gemini, or other providers.",
+    "Do not spend provider credits or run paid/model/media generation.",
+    "Do not launch terminal workers, hidden subagents, invisible workers, or parallel builders.",
+    "Do not grant Harlan, Crewbert, role assistants, or extraction workers new runtime authority.",
+    "Do not mutate Drive, Gmail, ClickUp, Slack, Agent Feedback, Canva, or external systems.",
+    "Do not run live extraction, source crawls, transcript fetches, screenshots/keyframes, downloads, summarization, vision, or model calls.",
+    "Do not store or print secret values."
+  ],
+  "approvalDigest": "b84511c9f41f83e64deb54b76cafbd179235cc906009e9ef147d90c9fc13cac6"
+}

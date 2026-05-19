@@ -164,6 +164,7 @@
     "process:foundation-agent-usefulness-runtime-gates-check": "node --env-file-if-exists=.env scripts/process-foundation-agent-usefulness-runtime-gates-check.mjs",
     "process:agent-live-answer-preflight-gate-check": "node --env-file-if-exists=.env scripts/process-agent-live-answer-preflight-gate-check.mjs",
     "process:agent-capability-registry-check": "node --env-file-if-exists=.env scripts/process-agent-capability-registry-check.mjs",
+    "process:foundation-up-capability-registry-check": "node --env-file-if-exists=.env scripts/process-foundation-up-capability-registry-check.mjs",
     "process:agent-template-runtime-contract-check": "node --env-file-if-exists=.env scripts/process-agent-template-runtime-contract-check.mjs",
     "process:old-system-agent-onboarding-harvest-check": "node --env-file-if-exists=.env scripts/process-old-system-agent-onboarding-harvest-check.mjs",
     "process:agent-010-check": "node --env-file-if-exists=.env scripts/process-agent-010-check.mjs",
