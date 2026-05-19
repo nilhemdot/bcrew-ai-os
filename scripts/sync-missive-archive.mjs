@@ -10,6 +10,10 @@ import {
   upsertSourceCrawlItem,
   upsertSharedCommunicationArtifact,
 } from '../lib/foundation-db.js';
+import {
+  formatFoundationGateRetryMessage,
+  runWithFoundationGateRetry,
+} from '../lib/foundation-gate-reliability.js';
 import { transcriptTextHash } from '../lib/meeting-transcripts.js';
 
 const MISSIVE_SOURCE_ID = 'SRC-MISSIVE-001';
@@ -242,70 +246,99 @@ async function main() {
   console.log(`  Conversations to archive: ${conversationsToArchive.length}`);
 
   let archived = 0;
+  const transientRetryEvents = [];
 
   for (const conversation of conversationsToArchive) {
     const existing = existingArtifacts.get(conversation.id);
     try {
-      const thread = await getMissiveThread(conversation.id);
-      const contentText = formatMissiveThread(thread);
-      if (!contentText) {
+      const retryResult = await runWithFoundationGateRetry(
+        `missive archive conversation ${conversation.id}`,
+        async () => {
+          const thread = await getMissiveThread(conversation.id);
+          const contentText = formatMissiveThread(thread);
+          if (!contentText) {
+            await recordCrawlItem(crawlTargetKey, conversation, {
+              status: 'skipped',
+              sourceLabel,
+              all,
+              search,
+              existingArtifact: existing,
+              artifactId: existing?.artifactId || null,
+              messageCount: thread.messages?.length || 0,
+              commentCount: thread.comments?.length || 0,
+              itemCount: thread.items?.length || 0,
+              processedAt: new Date().toISOString(),
+              reason: 'empty_thread_content',
+            });
+            return { status: 'skipped' };
+          }
+
+          const artifact = await upsertSharedCommunicationArtifact(
+            {
+              sourceId: MISSIVE_SOURCE_ID,
+              artifactType: MISSIVE_ARTIFACT_TYPE,
+              externalId: conversation.id,
+              title: conversation.subject || '(no subject)',
+              sourceAccount: null,
+              sourceContainer: sourceLabel,
+              sourceUrl: conversation.webUrl || null,
+              participants: collectParticipants(thread),
+              contentText,
+              contentHash: transcriptTextHash(contentText),
+              artifactUpdatedAt: conversation.lastActivityAt || null,
+              metadata: {
+                all,
+                search,
+                messageCount: thread.messages?.length || 0,
+                commentCount: thread.comments?.length || 0,
+                itemCount: thread.items?.length || 0,
+              },
+            },
+            'system',
+          );
+
+          await recordCrawlItem(crawlTargetKey, conversation, {
+            status: 'succeeded',
+            sourceLabel,
+            all,
+            search,
+            existingArtifact: existing,
+            artifactId: artifact.artifactId,
+            messageCount: thread.messages?.length || 0,
+            commentCount: thread.comments?.length || 0,
+            itemCount: thread.items?.length || 0,
+            processedAt: new Date().toISOString(),
+            reason: existing ? 'refreshed' : 'net_new',
+          });
+          return {
+            status: 'succeeded',
+            refreshed: Boolean(existing),
+          };
+        },
+        {
+          retries: 2,
+          delayMs: 500,
+          onRetry: event => {
+            transientRetryEvents.push({
+              conversationId: conversation.id,
+              transientClass: event.diagnostic?.transientClass || null,
+              subsystem: event.diagnostic?.subsystem || null,
+              nextAttempt: event.nextAttempt,
+              maxAttempts: event.maxAttempts,
+            });
+            console.warn(formatFoundationGateRetryMessage(event.label, event));
+          },
+        },
+      );
+
+      if (retryResult.value?.status === 'skipped') {
         emptyConversationsSkipped += 1;
-        await recordCrawlItem(crawlTargetKey, conversation, {
-          status: 'skipped',
-          sourceLabel,
-          all,
-          search,
-          existingArtifact: existing,
-          artifactId: existing?.artifactId || null,
-          messageCount: thread.messages?.length || 0,
-          commentCount: thread.comments?.length || 0,
-          itemCount: thread.items?.length || 0,
-          processedAt: new Date().toISOString(),
-          reason: 'empty_thread_content',
-        });
         if (crawlTargetKey) crawlItemsSkipped += 1;
         continue;
       }
 
-      const artifact = await upsertSharedCommunicationArtifact(
-        {
-          sourceId: MISSIVE_SOURCE_ID,
-          artifactType: MISSIVE_ARTIFACT_TYPE,
-          externalId: conversation.id,
-          title: conversation.subject || '(no subject)',
-          sourceAccount: null,
-          sourceContainer: sourceLabel,
-          sourceUrl: conversation.webUrl || null,
-          participants: collectParticipants(thread),
-          contentText,
-          contentHash: transcriptTextHash(contentText),
-          artifactUpdatedAt: conversation.lastActivityAt || null,
-          metadata: {
-            all,
-            search,
-            messageCount: thread.messages?.length || 0,
-            commentCount: thread.comments?.length || 0,
-            itemCount: thread.items?.length || 0,
-          },
-        },
-        'system',
-      );
-
-      await recordCrawlItem(crawlTargetKey, conversation, {
-        status: 'succeeded',
-        sourceLabel,
-        all,
-        search,
-        existingArtifact: existing,
-        artifactId: artifact.artifactId,
-        messageCount: thread.messages?.length || 0,
-        commentCount: thread.comments?.length || 0,
-        itemCount: thread.items?.length || 0,
-        processedAt: new Date().toISOString(),
-        reason: existing ? 'refreshed' : 'net_new',
-      });
       if (crawlTargetKey) crawlItemsSucceeded += 1;
-      if (existing) refreshedConversations += 1;
+      if (retryResult.value?.refreshed) refreshedConversations += 1;
       else netNewConversations += 1;
 
       archived += 1;
@@ -353,6 +386,9 @@ async function main() {
   if (failedConversationSamples.length) {
     console.log(`  Failed conversation sample: ${failedConversationSamples.join(' | ')}`);
   }
+  if (transientRetryEvents.length) {
+    console.log(`  Transient archive retries: ${transientRetryEvents.length}`);
+  }
   if (crawlTargetKey) {
     console.log(`EXTRACTION_TARGET_SUMMARY ${JSON.stringify({
       inspected: conversations.length,
@@ -379,6 +415,7 @@ async function main() {
         mode: search ? 'search' : all ? 'all' : 'inbox',
         skipExisting,
         failedConversationSamples,
+        transientRetryEvents,
       },
     })}`);
   }

@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-LESSONS-LEARNED-LOOP-001",
+  "approvedPlanRef": "docs/process/foundation-lessons-learned-loop-001-plan.md",
+  "approvedPlanSha256": "380e1777c64c9efd70b745497844b859f8241b9cc63853c4b2e4b7e9bb2c2f1f",
+  "approvedRepoHead": "7810cae8c9d4a6a52fef62c98f620e2053559cb6",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T12:50:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation and specifically requested a nightly self-improvement loop where repeated failures, audit findings, builder mistakes, and local conversation lessons produce repairs, cards, gates, verifier/Plan Critic rules, or durable doctrine instead of documentation-only notes.",
+  "scopeSummary": "Build the read-only scheduled Foundation lessons-learned loop with local/private metadata-only conversation boundary, documented-only failure dogfood, scheduled job registration, durable doctrine, focused proof, closeout, and Current Sprint advancement to FOUNDATION-BACKLOG-P0-REALITY-CLEANUP-001.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "No broad mechanical rewrites.",
+    "No external writes, Drive permission mutation, email sends, credential mutation, paid/provider access, private broad extraction, or provider/model calls.",
+    "Private conversation and local memory review must stay local/private metadata-only unless Steve explicitly approves external model use.",
+    "Lessons cannot close as documentation-only notes; they must route to cards, gates, verifier/Plan Critic rules, durable doctrine, approval-required exception, or no-op with proof.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "778907640beb16f0a127a95b24d737e89ceec623408ce01c105cf668de9b2e89"
+}

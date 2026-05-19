@@ -75,6 +75,10 @@ function normalizeText(value) {
     .trim()
 }
 
+function sanitizePostgresText(value) {
+  return String(value || '').replace(/\u0000/g, '')
+}
+
 function getFileId(item) {
   return String(item?.metadata?.driveFileId || '').trim()
 }
@@ -522,11 +526,24 @@ async function archiveExtractedText({
     return { status: 'skipped', artifact: null, textChars: 0 }
   }
 
-  const contentHash = sha256(normalizedText)
-  const storedText = normalizedText.length > maxTextChars
-    ? normalizedText.slice(0, maxTextChars)
-    : normalizedText
-  const truncated = storedText.length !== normalizedText.length
+  const postgresSafeText = sanitizePostgresText(normalizedText)
+  if (!postgresSafeText) {
+    await markExtractionSkipped({
+      item,
+      targetKey,
+      actor,
+      reason: 'empty_text_after_postgres_sanitization',
+      metadata: { extractionMethod: extractionMethod || classification.extractionMethod, ...extractionMetadata },
+    })
+    return { status: 'skipped', artifact: null, textChars: 0 }
+  }
+
+  const postgresNullBytesRemoved = normalizedText.length - postgresSafeText.length
+  const contentHash = sha256(postgresSafeText)
+  const storedText = postgresSafeText.length > maxTextChars
+    ? postgresSafeText.slice(0, maxTextChars)
+    : postgresSafeText
+  const truncated = storedText.length !== postgresSafeText.length
   const artifactId = buildArtifactId(item, classification.artifactType)
   const metadata = {
     ...buildSourceFileMetadata(item),
@@ -535,6 +552,7 @@ async function archiveExtractedText({
     extractorVersion: EXTRACTOR_VERSION,
     originalTextChars: normalizedText.length,
     storedTextChars: storedText.length,
+    postgresNullBytesRemoved,
     truncated,
     ...extractionMetadata,
     officialApiBasis: [
