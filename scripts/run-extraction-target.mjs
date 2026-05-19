@@ -228,6 +228,7 @@ function getTargetRunner(target, options = {}) {
     const maxAttachmentBytes = numberFromBudget(target, 'maxAttachmentBytes', 25 * 1024 * 1024)
     const maxTextChars = numberFromBudget(target, 'maxTextChars', 250000)
     const query = String(target.cursorState?.query || 'has:attachment newer_than:30d')
+    const retrySkippedReasonPrefixes = listFromBudget(target, 'retrySkippedReasonPrefixes')
     return {
       command: 'npm',
       args: [
@@ -240,6 +241,9 @@ function getTargetRunner(target, options = {}) {
         `--query=${query}`,
         `--maxAttachmentBytes=${maxAttachmentBytes}`,
         `--maxTextChars=${maxTextChars}`,
+        ...(retrySkippedReasonPrefixes.length
+          ? [`--retrySkippedReasonPrefixes=${retrySkippedReasonPrefixes.join(',')}`]
+          : []),
         '--controlledByTargetRunner=true',
       ],
       inspectedPattern: /Email attachments inspected:\s*(\d+)/i,

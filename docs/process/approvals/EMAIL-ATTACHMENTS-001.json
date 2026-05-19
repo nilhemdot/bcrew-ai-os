@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EMAIL-ATTACHMENTS-001",
+  "approvedPlanRef": "docs/process/email-attachments-001-plan.md",
+  "approvedPlanSha256": "a3ca6e278dd8647f5e8321d7f371b833226193b86573ffba1faeeb56db43bcfa",
+  "approvedRepoHead": "2f8365006c1140756e713f7a1aa47307d4ce394f",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T16:05:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation; EMAIL-ATTACHMENTS-001 builds the next bounded email attachment slice after DRIVE-CONTENT-001.",
+  "scopeSummary": "Add bounded application/ics calendar invite text extraction, prioritize newly-supported calendar retry skips, prove explicit skip routing, and close through the existing governed email attachment lane without sends, external writes, credential mutation, or broad private extraction.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "Use existing live sprint unless proof closeout explicitly updates Current Sprint truth.",
+    "Do not send emails or external messages.",
+    "Do not mutate Gmail, Missive, Drive permissions, credentials, provider config, or keys.",
+    "Do not run broad historical private extraction outside the bounded daily quota target.",
+    "Do not add new source access, paid/provider work, or browser-auth extraction.",
+    "Do not route OCR/image/audio/video/multimodal extraction through this text-only card.",
+    "Existing governed Foundation repair/proof reruns are allowed only when they read approved source data and write local archive/ledger/proof rows only.",
+    "Approval-bound actions park the action, not the whole sprint; continue safe approved sprint work.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "03d5c137c7891b4888084d83c286444143cf0e1db0d9118558bd68269bf08baa"
+}

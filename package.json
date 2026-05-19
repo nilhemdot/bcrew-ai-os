@@ -430,6 +430,7 @@
     "process:extract-current-check": "node --env-file-if-exists=.env scripts/process-extract-current-check.mjs",
     "process:extract-backfill-check": "node --env-file-if-exists=.env scripts/process-extract-backfill-check.mjs",
     "process:drive-content-check": "node --env-file-if-exists=.env scripts/process-drive-content-check.mjs",
+    "process:email-attachments-check": "node --env-file-if-exists=.env scripts/process-email-attachments-check.mjs",
     "process:security-002-check": "node --env-file-if-exists=.env scripts/process-security-002-check.mjs",
     "process:foundation-done-test": "node --env-file-if-exists=.env scripts/process-foundation-done-test.mjs",
     "process:system-010-check": "node --env-file-if-exists=.env scripts/process-system-010-check.mjs",

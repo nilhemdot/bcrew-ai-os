@@ -11,6 +11,7 @@ import {
   closeFoundationDb,
   getSourceCrawlItemsByExternalId,
   initFoundationDb,
+  listSourceCrawlItems,
   listFoundationUsers,
   upsertSharedCommunicationArtifact,
   upsertSourceCrawlItem,
@@ -28,6 +29,8 @@ const PDF_MIME = 'application/pdf'
 const TEXT_MIME_PREFIX = 'text/'
 const JSON_MIME = 'application/json'
 const XML_MIME = 'application/xml'
+const CALENDAR_MIME_TYPES = new Set(['text/calendar', 'application/ics', 'text/ics'])
+const CALENDAR_INVITE_RETRY_PREFIX = 'calendar_invite_not_in_v1'
 
 function parseArgs(argv) {
   const result = {}
@@ -41,6 +44,14 @@ function parseArgs(argv) {
 
 function boolValue(value) {
   return value === true || value === 'true'
+}
+
+function listValue(value) {
+  if (Array.isArray(value)) return value.map(item => String(item || '').trim()).filter(Boolean)
+  return String(value || '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean)
 }
 
 function safeKeyPart(value) {
@@ -87,8 +98,14 @@ function getUnsupportedSkipReason(mimeType, filename) {
   if (normalizedMime.includes('officedocument') || normalizedMime.includes('msword') || normalizedName.endsWith('.docx')) return 'office_file_conversion_not_in_v1'
   if (normalizedMime.includes('spreadsheet') || normalizedName.endsWith('.xlsx') || normalizedName.endsWith('.xls')) return 'spreadsheet_attachment_extraction_not_in_v1'
   if (normalizedMime.includes('presentation') || normalizedName.endsWith('.pptx') || normalizedName.endsWith('.ppt')) return 'slides_attachment_extraction_not_in_v1'
-  if (normalizedMime.includes('calendar') || normalizedName.endsWith('.ics')) return 'calendar_invite_not_in_v1'
+  if (normalizedMime.includes('calendar') || normalizedName.endsWith('.ics')) return CALENDAR_INVITE_RETRY_PREFIX
   return 'unsupported_attachment_mime_type_for_v1_text_extraction'
+}
+
+function isCalendarInviteAttachment(attachment) {
+  const mimeType = String(attachment?.mimeType || '').toLowerCase()
+  const filename = String(attachment?.filename || '').toLowerCase()
+  return CALENDAR_MIME_TYPES.has(mimeType) || filename.endsWith('.ics')
 }
 
 function classifyAttachment(attachment) {
@@ -97,6 +114,12 @@ function classifyAttachment(attachment) {
     return {
       supported: true,
       extractionMethod: 'gmail_attachment_pdf_pdftotext_v1',
+    }
+  }
+  if (isCalendarInviteAttachment(attachment)) {
+    return {
+      supported: true,
+      extractionMethod: 'gmail_attachment_calendar_ics_text_v1',
     }
   }
   if (mimeType.startsWith(TEXT_MIME_PREFIX) || mimeType === JSON_MIME || mimeType === XML_MIME) {
@@ -112,6 +135,7 @@ function classifyAttachment(attachment) {
 }
 
 function buildExternalId(candidate) {
+  if (candidate.retryExternalId) return candidate.retryExternalId
   const stablePartKey = candidate.attachment.partId || candidate.attachment.partPath || candidate.attachment.attachmentId
   return [
     'gmail',
@@ -124,6 +148,7 @@ function buildExternalId(candidate) {
 }
 
 function buildItemKey(targetKey, candidate) {
+  if (candidate.retryItemKey) return candidate.retryItemKey
   const stablePartKey = candidate.attachment.partId || candidate.attachment.partPath || candidate.attachment.attachmentId
   return `${targetKey}:${safeKeyPart(candidate.mailbox)}:${safeKeyPart(candidate.message.id)}:${safeKeyPart(stablePartKey)}:${safeKeyPart(candidate.attachment.filename)}`
 }
@@ -163,6 +188,16 @@ function buildMetadata(candidate, classification, extra = {}) {
     officialApiBasis: ['Gmail users.messages.attachments.get'],
     ...extra,
   }
+}
+
+function getExistingSkipReason(existing) {
+  return String(existing?.metadata?.skipReason || existing?.retryReason || existing?.retry_reason || '').trim()
+}
+
+function shouldRetrySkippedItem(existing, retrySkippedReasonPrefixes = []) {
+  if (existing?.status !== 'skipped') return false
+  const skipReason = getExistingSkipReason(existing)
+  return retrySkippedReasonPrefixes.some(prefix => skipReason.startsWith(prefix))
 }
 
 async function extractPdfTextWithPdftotext(buffer, { pdftotextBin = 'pdftotext' } = {}) {
@@ -350,6 +385,55 @@ async function collectCandidates({ users, query, searchLimitPerUser, maxCandidat
   return candidates
 }
 
+async function collectRetrySkippedCandidates({ targetKey, retrySkippedReasonPrefixes, maxCandidates }) {
+  if (!retrySkippedReasonPrefixes.length) return []
+  const rows = await listSourceCrawlItems({
+    targetKey,
+    status: 'skipped',
+    limit: Math.max(maxCandidates, 200),
+    order: 'asc',
+  })
+  const retryRows = rows.filter(row => shouldRetrySkippedItem(row, retrySkippedReasonPrefixes))
+  const candidates = []
+
+  for (const row of retryRows) {
+    const metadata = row.metadata || {}
+    const mailbox = String(metadata.mailbox || '').trim()
+    const threadId = String(metadata.gmailThreadId || '').trim()
+    const messageId = String(metadata.gmailMessageId || '').trim()
+    const attachmentId = String(metadata.gmailAttachmentId || '').trim()
+    const partId = String(metadata.partId || '').trim()
+    const filename = String(metadata.filename || '').trim()
+    if (!mailbox || !threadId || !messageId) continue
+
+    const thread = await getGmailThread(mailbox, threadId)
+    const message = thread.find(item => item.id === messageId)
+    if (!message) continue
+    const attachment = (message.attachments || []).find(item =>
+      (attachmentId && item.attachmentId === attachmentId) ||
+      (partId && item.partId === partId) ||
+      (filename && item.filename === filename)
+    )
+    if (!attachment) continue
+    candidates.push({
+      mailbox,
+      threadId,
+      message,
+      retryExternalId: row.externalId,
+      retryItemKey: row.itemKey,
+      attachment: {
+        ...attachment,
+        filename: metadata.filename || attachment.filename,
+        mimeType: metadata.mimeType || attachment.mimeType,
+        partId: metadata.partId || attachment.partId,
+      },
+    })
+    if (candidates.length >= maxCandidates) break
+  }
+
+  return candidates
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2))
   const targetKey = String(args.target || args.crawlTarget || DEFAULT_TARGET).trim()
@@ -363,6 +447,7 @@ async function main() {
   const maxTextChars = Math.max(10000, Number(args.maxTextChars || 250000) || 250000)
   const maxAttachmentBytes = Math.max(1000000, Number(args.maxAttachmentBytes || 25 * 1024 * 1024) || 25 * 1024 * 1024)
   const pdftotextBin = String(args.pdftotextBin || process.env.PDFTOTEXT_BIN || 'pdftotext').trim()
+  const retrySkippedReasonPrefixes = listValue(args.retrySkippedReasonPrefixes || args.retrySkippedPrefix)
   const dryRun = boolValue(args.dryRun)
   const controlledByTargetRunner = boolValue(args.controlledByTargetRunner)
 
@@ -379,23 +464,43 @@ async function main() {
       ? (await listFoundationUsers({ meetingSyncEnabled: true })).map(user => user.email).filter(Boolean)
       : [userEmail]
 
-    const candidates = await collectCandidates({
+    const retryCandidates = await collectRetrySkippedCandidates({
+      targetKey,
+      retrySkippedReasonPrefixes,
+      maxCandidates: limit,
+    })
+    const freshCandidates = await collectCandidates({
       users,
       query,
       searchLimitPerUser,
       maxCandidates: candidateBuffer,
     })
+    const candidatesById = new Map()
+    for (const candidate of [...retryCandidates, ...freshCandidates]) {
+      const externalId = buildExternalId(candidate)
+      if (!candidatesById.has(externalId)) candidatesById.set(externalId, candidate)
+    }
+    const candidates = [...candidatesById.values()]
     const existingItems = await getSourceCrawlItemsByExternalId({
       targetKey,
       externalIds: candidates.map(buildExternalId),
     })
-    const unledgeredCandidates = candidates
-      .filter(candidate => {
+    const queue = candidates
+      .map((candidate, index) => {
         const existing = existingItems.get(buildExternalId(candidate))
-        return !existing || existing.status === 'failed'
+        if (!existing) return { candidate, priority: 2, reason: 'fresh', index }
+        if (existing.status === 'failed') return { candidate, priority: 0, reason: 'failed_retry', index }
+        if (shouldRetrySkippedItem(existing, retrySkippedReasonPrefixes)) {
+          return { candidate, priority: 1, reason: `skipped_retry:${getExistingSkipReason(existing)}`, index }
+        }
+        return null
       })
-    const pendingCandidates = unledgeredCandidates
+      .filter(Boolean)
+      .sort((a, b) => a.priority - b.priority || a.index - b.index)
+    const pendingCandidates = queue
       .slice(0, limit)
+      .map(item => item.candidate)
+    const alreadyLedgeredCount = candidates.length - queue.length
 
     console.log('Email attachment extraction bite')
     console.log(`  Target: ${targetKey}`)
@@ -403,7 +508,9 @@ async function main() {
     console.log(`  Mode: ${teamMode ? 'team' : 'single-user'}`)
     console.log(`  Users: ${users.length}`)
     console.log(`  Candidates discovered: ${candidates.length}`)
-    console.log(`  Already ledgered: ${candidates.length - unledgeredCandidates.length}`)
+    console.log(`  Retry candidates loaded: ${retryCandidates.length}`)
+    console.log(`  Already ledgered: ${alreadyLedgeredCount}`)
+    console.log(`  Retry skipped prefixes: ${retrySkippedReasonPrefixes.join(', ') || '(none)'}`)
     console.log(`  Queue selected: ${pendingCandidates.length}`)
 
     if (dryRun) {
@@ -416,6 +523,7 @@ async function main() {
         filename: candidate.attachment.filename,
         mimeType: candidate.attachment.mimeType,
         size: candidate.attachment.size,
+        queueReason: queue.find(item => buildExternalId(item.candidate) === buildExternalId(candidate))?.reason || 'selected',
         classification: classifyAttachment(candidate.attachment),
       })), null, 2))
       return
@@ -508,11 +616,12 @@ async function main() {
       metadata: {
         users,
         extractorVersion: EXTRACTOR_VERSION,
-        maxTextChars,
-        maxAttachmentBytes,
-        processed: processed.slice(0, 25),
-      },
-    }
+          maxTextChars,
+          maxAttachmentBytes,
+          retrySkippedReasonPrefixes,
+          processed: processed.slice(0, 25),
+        },
+      }
 
     console.log(`Email attachments inspected: ${pendingCandidates.length}`)
     console.log(`Email attachments extracted: ${extracted}`)
