@@ -119,6 +119,7 @@
     "process:skool-worker-check": "node --env-file-if-exists=.env scripts/process-skool-worker-check.mjs",
     "process:myicro-training-check": "node --env-file-if-exists=.env scripts/process-myicro-training-check.mjs",
     "process:drive-worker-check": "node --env-file-if-exists=.env scripts/process-drive-worker-check.mjs",
+    "process:build-intel-daily-extraction-review-check": "node --env-file-if-exists=.env scripts/process-build-intel-daily-extraction-review-check.mjs",
     "process:nightly-audit-scheduler-due-fix-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-scheduler-due-fix-check.mjs",
     "process:nightly-audit-run-proof-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-run-proof-check.mjs",
     "process:system-health-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-system-health-nightly-audit-check.mjs",

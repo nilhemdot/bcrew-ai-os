@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001",
+  "approvedPlanRef": "docs/process/build-intel-daily-extraction-review-001-plan.md",
+  "approvedPlanSha256": "e7ed00b6125e227a79476bac706ed2d602c669cc37e13a5a1c001c4c7dc67d76",
+  "approvedRepoHead": "52341b7e93185a110603b2e7caebe9ae71700f09",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T18:55:00-04:00",
+  "approvalSource": "Steve approved unattended Foundation-only sprint continuation. BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001 may build the proposal-only review queue from existing governed Build Intel extraction outputs and park unsafe/private/source-specific operations.",
+  "approvalMode": "proposal-only-review-queue-v1",
+  "score": 9.8,
+  "allowedWork": [
+    "read existing Build Intel extraction outputs and public transcript metadata already in the archive",
+    "create proposal-only review queue items with source anchors, evidence levels, applicability, related cards, recommendations, and promote/archive decisions",
+    "park paid/private/auth/provider/source-specific work behind explicit approval boundaries",
+    "close the card and continue SOURCE-019"
+  ],
+  "notApproved": [
+    "new public crawl or broad web/video extraction",
+    "paid/private source access, browser login, provider/model calls, screenshots, OCR, keyframes, media download, or transcription",
+    "automatic backlog, atom, KB, vector, action-route, or external writes",
+    "raw transcript/content body storage in the review queue",
+    "credential/key mutation, Drive permission mutation, external sends, or public exposure"
+  ],
+  "approvalDigest": "d330d5ba8850cd7889af0fb208d2e5200aae8f89d9cf3f0d76035ce8dd1cb631"
+}
