@@ -155,7 +155,7 @@ async function main() {
     currentStateText,
     sprintText,
     buildLogText,
-    buildCloseoutRecordsText,
+    buildCloseoutProcessGateRecordsText,
     hookText,
     packageText,
   ] = await Promise.all([
@@ -164,7 +164,7 @@ async function main() {
     readRepoFile(repoRoot, 'docs/rebuild/current-state.md'),
     readRepoFile(repoRoot, 'lib/foundation-current-sprint.js'),
     readRepoFile(repoRoot, 'lib/foundation-build-log.js'),
-    readRepoFile(repoRoot, 'lib/foundation-build-closeout-records.js'),
+    readRepoFile(repoRoot, 'lib/foundation-build-closeout-process-gate-records.js'),
     readRepoFile(repoRoot, 'lib/process-git-hooks.js'),
     readRepoFile(repoRoot, 'package.json'),
   ])
@@ -202,8 +202,8 @@ async function main() {
     ],
   })
   assertIncludes({
-    filePath: 'lib/foundation-build-closeout-records.js',
-    text: buildCloseoutRecordsText,
+    filePath: 'lib/foundation-build-closeout-process-gate-records.js',
+    text: buildCloseoutProcessGateRecordsText,
     needles: [
       'verify-gate-tiering-v1',
       VERIFY_GATE_TIERING_CARD_ID,
@@ -252,6 +252,7 @@ async function main() {
     runNodeCheck(repoRoot, 'lib/foundation-current-sprint.js'),
     runNodeCheck(repoRoot, 'lib/foundation-build-log.js'),
     runNodeCheck(repoRoot, 'lib/foundation-build-closeout-records.js'),
+    runNodeCheck(repoRoot, 'lib/foundation-build-closeout-process-gate-records.js'),
   ])
   await runBacklogHygiene(repoRoot)
 
@@ -261,7 +262,19 @@ async function main() {
   const protectedFiles = getProtectedFoundationChangedFiles(changedFiles)
   const diffsByFile = recordProof ? {} : await getWorkingTreeDiffsByFile(repoRoot, protectedFiles)
   const gate = classifyVerificationGateForFiles(protectedFiles, { diffsByFile })
-  await closeGateTieringFixCard()
+  const applyLiveState = args.apply === true ||
+    args.apply === 'true' ||
+    args.closeCard === true ||
+    args.closeCard === 'true' ||
+    args['close-card'] === true ||
+    args['close-card'] === 'true' ||
+    args.mutateSprint === true ||
+    args.mutateSprint === 'true' ||
+    args['mutate-sprint'] === true ||
+    args['mutate-sprint'] === 'true'
+  if (applyLiveState) {
+    await closeGateTieringFixCard()
+  }
 
   let proof = null
   if (recordProof) {
@@ -282,6 +295,7 @@ async function main() {
     ok: true,
     cardId: VERIFY_GATE_TIERING_CARD_ID,
     fixCardId: 'VERIFY-GATE-TIERING-FIX-001',
+    liveStateApplied: applyLiveState,
     syntheticCases: synthetic.cases.length,
     changedProtectedFiles: protectedFiles,
     gate: {
