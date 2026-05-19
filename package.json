@@ -185,6 +185,7 @@
     "process:build-lane-verifier-result-parser-repair-check": "node --env-file-if-exists=.env scripts/process-build-lane-verifier-result-parser-repair-check.mjs",
     "process:build-lane-verifier-snapshot-wiring-repair-check": "node --env-file-if-exists=.env scripts/process-build-lane-verifier-snapshot-wiring-repair-check.mjs",
     "process:build-lane-telemetry-resolution-repair-check": "node --env-file-if-exists=.env scripts/process-build-lane-telemetry-resolution-repair-check.mjs",
+    "process:build-lane-repeated-failure-action-gate-check": "node --env-file-if-exists=.env scripts/process-build-lane-repeated-failure-action-gate-check.mjs",
     "process:build-closeout-registry-extract-check": "node --env-file-if-exists=.env scripts/process-build-closeout-registry-extract-check.mjs",
     "process:ship-gate-worker-live-job-pause-check": "node --env-file-if-exists=.env scripts/process-ship-gate-worker-live-job-pause-check.mjs",
     "process:foundation-engineering-fitness-gates-check": "node --env-file-if-exists=.env scripts/process-foundation-engineering-fitness-gates-check.mjs",

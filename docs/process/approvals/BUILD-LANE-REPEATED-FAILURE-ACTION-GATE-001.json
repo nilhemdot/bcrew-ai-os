@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BUILD-LANE-REPEATED-FAILURE-ACTION-GATE-001",
+  "approvedPlanRef": "docs/process/build-lane-repeated-failure-action-gate-001-plan.md",
+  "approvedPlanSha256": "42c9a8e1f208e3e6cd1aa5c2d59306d3d4985796f0c02c706625f1091e6762ea",
+  "approvedRepoHead": "7794026bb364316786218a3b9fb305453621cdfc",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T09:05:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve and the orchestrator explicitly pivoted repeated build-lane failures to P0 before Card 2; red fingerprints must block sprint progression or attach to a live repair card.",
+  "scopeSummary": "Upgrade repeated build-lane and Foundation job failures from passive telemetry into a blocking action gate with owner, repair card, next action, and sprint decision before parallel-builder work.",
+  "constraints": [
+    "Work from main.",
+    "No parallel builders until this P0 gate closes or routes a higher-priority repair card.",
+    "Do not treat repeated red failures as watch-only telemetry.",
+    "Do not weaken, skip, bypass, or demote verifier, ship, fanout, or backlog hygiene failures.",
+    "Do not run live extraction, provider probes, auth-required or paid jobs, Drive mutation, sends, or external writes."
+  ],
+  "approvalDigest": "3ce495db0e0f23d027ff4401fba7fc77cafd707ed514c3c6fe079a1c49d81f32"
+}
