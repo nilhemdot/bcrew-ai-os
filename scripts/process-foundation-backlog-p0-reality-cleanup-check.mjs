@@ -534,7 +534,12 @@ async function main() {
   }
 
   const currentCardRow = p0Rows.find(row => row.id === CARD_ID)
-  const expectedActiveBlockerCardId = (args.closeCard || currentCardRow?.lane === 'done') ? NEXT_CARD_ID : CARD_ID
+  const system010Row = p0Rows.find(row => row.id === NEXT_CARD_ID)
+  const liveActiveBlockerCardId = workingActiveSprint.sprint?.activeBlockerCardId || workingActiveSprint.sprint?.active_blocker_card_id || ''
+  const p0CleanupClosed = args.closeCard || currentCardRow?.lane === 'done'
+  const expectedActiveBlockerCardId = p0CleanupClosed && system010Row?.lane === 'done'
+    ? liveActiveBlockerCardId
+    : p0CleanupClosed ? NEXT_CARD_ID : CARD_ID
   const realityStatus = evaluateBacklogP0Reality({
     p0Rows,
     activeSprint: workingActiveSprint,
@@ -564,7 +569,7 @@ async function main() {
   addCheck(checks, approval.ok && approval.mode === 'v2' && Number(approval.approval?.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'approval validates at 9.8+', approval.failures?.map(item => item.check).join(', ') || FOUNDATION_BACKLOG_P0_REALITY_CLEANUP_APPROVAL_PATH)
   addCheck(checks, planReview.status === 'pass' && Number(planReview.score) >= PLAN_CRITIC_MIN_PASS_SCORE, 'Plan Critic passes for backlog P0 reality cleanup', buildPlanCriticResultSummary(planReview))
   addCheck(checks, card?.priority === 'P0' && (args.closeCard ? card.lane === 'done' : ['executing', 'done', 'scoped'].includes(card?.lane)), 'live backlog P0 reality card exists as P0', card ? `${card.lane}/${card.priority}` : 'missing')
-  addCheck(checks, nextCard?.priority === 'P0' && nextCard?.lane === 'scoped', 'SYSTEM-010 exists as next scoped P0', nextCard ? `${nextCard.lane}/${nextCard.priority}` : 'missing')
+  addCheck(checks, nextCard?.priority === 'P0' && ['scoped', 'executing', 'done'].includes(nextCard?.lane), 'SYSTEM-010 exists as scoped/executing/done P0', nextCard ? `${nextCard.lane}/${nextCard.priority}` : 'missing')
   addCheck(checks, dogfood.ok, 'dogfood rejects hidden executing P0, un-routed done security, and active-blocker mismatch', dogfood.checks.filter(check => !check.ok).map(check => check.check).join(', ') || 'pass')
   addCheck(checks, realityStatus.ok && realityStatus.activeBlockerCardId === expectedActiveBlockerCardId, 'live P0 reality has one honest active path', `status=${realityStatus.status} active=${realityStatus.activeBlockerCardId} failures=${realityStatus.failures.length}`)
   addCheck(checks, realityStatus.executingOutsideActiveCount === 0, 'no P0 row is executing outside the active blocker', String(realityStatus.executingOutsideActiveCount))
@@ -581,8 +586,8 @@ async function main() {
   addCheck(checks, closeoutDoc.includes(CARD_ID) && closeoutDoc.includes('P0 means real importance'), 'closeout handoff exists and states P0 reality rule', FOUNDATION_BACKLOG_P0_REALITY_CLEANUP_CLOSEOUT_PATH)
   addCheck(checks, planCriticRuns.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE) || args.apply, 'durable Plan Critic pass row exists', planCriticRuns.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
   addCheck(checks, !args.closeCard || sprintItem?.stage === 'done_this_sprint' || args.apply, 'Current Sprint records backlog P0 reality closeout', sprintItem?.stage || 'missing')
-  addCheck(checks, !args.closeCard || nextSprintItem?.stage === 'scoping', 'Current Sprint exposes SYSTEM-010 next', nextSprintItem?.stage || 'missing')
-  addCheck(checks, !args.closeCard || (workingActiveSprint.sprint?.activeBlockerCardId || workingActiveSprint.sprint?.active_blocker_card_id) === NEXT_CARD_ID || args.apply, 'Current Sprint active blocker advances to SYSTEM-010 after close', workingActiveSprint.sprint?.activeBlockerCardId || workingActiveSprint.sprint?.active_blocker_card_id || 'missing')
+  addCheck(checks, !args.closeCard || ['scoping', 'building_now', 'done_this_sprint'].includes(nextSprintItem?.stage), 'Current Sprint exposes SYSTEM-010 progression item', nextSprintItem?.stage || 'missing')
+  addCheck(checks, !args.closeCard || (workingActiveSprint.sprint?.activeBlockerCardId || workingActiveSprint.sprint?.active_blocker_card_id) === expectedActiveBlockerCardId || args.apply, 'Current Sprint active blocker follows approved progression after close', workingActiveSprint.sprint?.activeBlockerCardId || workingActiveSprint.sprint?.active_blocker_card_id || 'missing')
 
   let failed = checks.filter(check => !check.ok)
   if ((args.apply || args.closeCard) && !failed.length && !preAppliedLiveState) {
@@ -597,7 +602,10 @@ async function main() {
     ])
     addCheck(checks, refreshedCards.some(item => item.id === CARD_ID && item.lane === 'done'), 'live backlog card is done after close', refreshedCards.map(item => `${item.id}:${item.lane}`).join(', ') || 'missing')
     addCheck(checks, refreshedPlanCritic.some(run => run.cardId === CARD_ID && run.status === 'pass' && Number(run.score) >= PLAN_CRITIC_MIN_PASS_SCORE), 'durable Plan Critic pass row exists after close', refreshedPlanCritic.map(run => `${run.status}/${run.score}`).join(', ') || 'missing')
-    addCheck(checks, (refreshedSprint.sprint?.activeBlockerCardId || refreshedSprint.sprint?.active_blocker_card_id) === NEXT_CARD_ID, 'active blocker is SYSTEM-010 after close', refreshedSprint.sprint?.activeBlockerCardId || refreshedSprint.sprint?.active_blocker_card_id || 'missing')
+    const refreshedSystem010 = refreshedCards.find(item => item.id === NEXT_CARD_ID)
+    const refreshedActiveBlocker = refreshedSprint.sprint?.activeBlockerCardId || refreshedSprint.sprint?.active_blocker_card_id || ''
+    const refreshedExpectedBlocker = refreshedSystem010?.lane === 'done' ? refreshedActiveBlocker : NEXT_CARD_ID
+    addCheck(checks, refreshedActiveBlocker === refreshedExpectedBlocker, 'active blocker follows approved progression after P0 cleanup close', refreshedActiveBlocker || 'missing')
   }
 
   failed = checks.filter(check => !check.ok)

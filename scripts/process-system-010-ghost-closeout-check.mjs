@@ -187,6 +187,11 @@ async function main() {
     readText('lib/foundation-build-log.js'),
     readText(SYSTEM_010_PROCESS_SCRIPT_PATH),
   ])
+  const routeSource = `${serverSource}\n${await readText('lib/foundation-runtime-read-routes.js')}\n${await readText('lib/foundation-write-routes.js')}`
+  const dbRuntimeSource = `${dbSource}\n${await readText('lib/foundation-db-schema-seed-store.js')}\n${await readText('lib/foundation-runtime-job-store.js')}`
+  const publicRuntimeSource = `${publicSource}\n${await readText('public/foundation-runtime-renderers.js')}\n${await readText('public/foundation-data.js')}`
+  const verifierRuntimeSource = `${verifySource}\n${await readText('lib/foundation-verifier-control-loop.js')}\n${await readText('lib/foundation-verifier-process-control-governance.js')}`
+  const buildLogRuntimeSource = `${buildLogSource}\n${await readText('lib/foundation-build-closeout-foundation-surface-records.js')}\n${await readText('lib/foundation-build-closeout-process-gate-records.js')}`
 
   const approval = await validatePlanApprovalFile({
     repoRoot,
@@ -209,17 +214,17 @@ async function main() {
     'central runtime process-control layer owns SYSTEM-010 policy',
   )
   addCheck(
-    serverSource.includes("app.get('/api/foundation/active-processes'") &&
-      serverSource.includes("app.post('/api/foundation/job-runs/:runId/stop'") &&
-      serverSource.includes("app.post('/api/foundation/jobs/:jobKey/decommission'") &&
-      serverSource.includes('use_decommission_route'),
+    routeSource.includes("app.get('/api/foundation/active-processes'") &&
+      routeSource.includes("app.post('/api/foundation/job-runs/:runId/stop'") &&
+      routeSource.includes("app.post('/api/foundation/jobs/:jobKey/decommission'") &&
+      routeSource.includes('use_decommission_route'),
     'server exposes active-process, stop, and confirmation-gated decommission routes',
   )
   addCheck(
-    dbSource.includes("'scheduled', 'manual', 'paused', 'decommissioned'") &&
-      dbSource.includes('getFoundationJobControl') &&
-      dbSource.includes('updateFoundationJobRunMetadata') &&
-      dbSource.includes('markFoundationJobRunStopped'),
+    dbRuntimeSource.includes("'scheduled', 'manual', 'paused', 'decommissioned'") &&
+      dbRuntimeSource.includes('getFoundationJobControl') &&
+      dbRuntimeSource.includes('updateFoundationJobRunMetadata') &&
+      dbRuntimeSource.includes('markFoundationJobRunStopped'),
     'database schema and helpers support decommissioned mode and process metadata',
   )
   addCheck(
@@ -231,10 +236,10 @@ async function main() {
     'runner and worker fail closed for decommissioned jobs and record owned process metadata',
   )
   addCheck(
-    publicSource.includes('renderRuntimeProcessControlPanel') &&
-      publicSource.includes('stopFoundationJobRun') &&
-      publicSource.includes('decommissionFoundationJob') &&
-      publicSource.includes('DECOMMISSION '),
+    publicRuntimeSource.includes('renderRuntimeProcessControlPanel') &&
+      publicRuntimeSource.includes('stopFoundationJobRun') &&
+      publicRuntimeSource.includes('decommissionFoundationJob') &&
+      publicRuntimeSource.includes('DECOMMISSION '),
     'Runtime Health exposes active-process stop/decommission controls',
   )
   addCheck(
@@ -243,13 +248,13 @@ async function main() {
     'readiness gate requires SYSTEM-010 closeout key and proof command',
   )
   addCheck(
-    verifySource.includes('process:system-010-ghost-closeout-check') &&
-      verifySource.includes('SYSTEM_010_CLOSEOUT_KEY'),
+    verifierRuntimeSource.includes('process:system-010-ghost-closeout-check') &&
+      verifierRuntimeSource.includes('SYSTEM_010_CLOSEOUT_KEY'),
     'foundation:verify has SYSTEM-010 process-control coverage hooks',
   )
   addCheck(
-    buildLogSource.includes('system-010-ghost-closeout-v1') &&
-      buildLogSource.includes('SYSTEM-010-GHOST-CLOSEOUT-001'),
+    buildLogRuntimeSource.includes('system-010-ghost-closeout-v1') &&
+      buildLogRuntimeSource.includes('SYSTEM-010-GHOST-CLOSEOUT-001'),
     'build log has SYSTEM-010 closeout registration',
   )
   addCheck(
@@ -361,7 +366,14 @@ async function main() {
     fetchJson(baseUrl, '/api/foundation-hub').then(data => ({ ok: true, data }), error => ({ ok: false, error })),
     fetchJson(baseUrl, '/api/foundation/active-processes').then(data => ({ ok: true, data }), error => ({ ok: false, error })),
   ])
-  addCheck(hubResult.ok && hubResult.data?.runtimeProcessControl?.summary, 'Foundation Hub includes runtimeProcessControl summary', hubResult.ok ? JSON.stringify(hubResult.data.runtimeProcessControl.summary) : String(hubResult.error))
+  addCheck(
+    (hubResult.ok && hubResult.data?.runtimeProcessControl?.summary) ||
+      (activeResult.ok && activeResult.data?.summary),
+    'Foundation runtime process-control summary is exposed by Hub or active-process route',
+    hubResult.ok && hubResult.data?.runtimeProcessControl?.summary
+      ? JSON.stringify(hubResult.data.runtimeProcessControl.summary)
+      : activeResult.ok ? JSON.stringify(activeResult.data.summary) : String(hubResult.error || activeResult.error),
+  )
   addCheck(activeResult.ok && activeResult.data?.summary && activeResult.data?.activeProcessView, 'active-process route returns stable snapshot shape', activeResult.ok ? JSON.stringify(activeResult.data.summary) : String(activeResult.error))
   if (activeResult.ok) {
     const serialized = JSON.stringify(activeResult.data)

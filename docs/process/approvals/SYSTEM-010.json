@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYSTEM-010",
+  "approvedPlanRef": "docs/process/system-010-process-control-001-plan.md",
+  "approvedPlanSha256": "fdbd9fb350ce8fe38de6413331664fd9ebf1f52b575671d82a6726c25b2127ef",
+  "approvedRepoHead": "93df698eaf429a2846dc6433aced82b0be68a915",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T14:45:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation and told builder to keep going; SYSTEM-010 is the next process-control card after backlog P0 reality cleanup.",
+  "scopeSummary": "Close top-level SYSTEM-010 by proving the shipped runtime/process-control layer, cleaning stale runtime source wording, closing the card, and advancing Current Sprint to SOURCE-012.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "No broad mechanical rewrites.",
+    "Do not rebuild the shipped SYSTEM-010-GHOST-CLOSEOUT-001 runtime control surface.",
+    "No credential/key rotation, provider API calls, public edge exposure, Drive permission mutation, external writes, or sends.",
+    "Approval-bound actions park the action, not the whole sprint; continue safe approved sprint work.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "052cb877d3171b96d6f06eeb6d8e524e9d2c6ea3c55b0e40ae013db219e2ea40"
+}
