@@ -1,0 +1,17 @@
+{
+  "cardId": "FOUNDATION-DEEP-MERGE-AUDIT-001",
+  "approvedPlanRef": "docs/process/foundation-deep-merge-audit-001-plan.md",
+  "approvedPlanSha256": "cbb52ce71761433ef6767cf80703581c806bec81db1f7e26bb5efc5d3d3a4c16",
+  "approvedRepoHead": "0f1cc85ed1116e46720292d60a1f571a912e8ea2",
+  "score": 10,
+  "approvedBy": "Steve approved the May 19 next-sprint execution and explicitly required the real deep audit work not be lost.",
+  "approvedAt": "2026-05-19T17:15:00.000-04:00",
+  "approvalNotes": [
+    "Run the one-time deep merge audit before extraction expansion.",
+    "Use the upgraded auditor semantics; packet-only output is not enough.",
+    "Route P0/P1 findings into live backlog truth instead of leaving report noise.",
+    "No auto-fixes, no external sends, no credential mutation, no Drive permission mutation."
+  ],
+  "approvalDigest": "55fee402f217ab5f5eb8f7cc7275043d7eb2edbe61083c0293623431c6fa3e19",
+  "approvalSchemaVersion": 2
+}

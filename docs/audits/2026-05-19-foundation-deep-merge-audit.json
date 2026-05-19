@@ -1,0 +1,1486 @@
+{
+  "generatedAt": "2026-05-19T20:53:24.155Z",
+  "reportPath": "docs/audits/2026-05-19-foundation-deep-merge-audit.md",
+  "jsonPath": "docs/audits/2026-05-19-foundation-deep-merge-audit.json",
+  "cardId": "FOUNDATION-DEEP-MERGE-AUDIT-001",
+  "closeoutKey": "foundation-deep-merge-audit-v1",
+  "summary": {
+    "findingCount": 13,
+    "p0": 0,
+    "p1": 6,
+    "p2": 7,
+    "p3": 0,
+    "proposedCardCount": 12,
+    "endpointsMeasured": 5,
+    "staticReportOnly": true
+  },
+  "endpointMetrics": [
+    {
+      "endpoint": "/api/foundation-hub",
+      "ok": true,
+      "status": 200,
+      "durationMs": 110.08241700000002,
+      "payloadBytes": 522729,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/source-of-truth",
+      "ok": true,
+      "status": 200,
+      "durationMs": 19.495333000000016,
+      "payloadBytes": 196034,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/source-lifecycle",
+      "ok": true,
+      "status": 200,
+      "durationMs": 379.15266600000007,
+      "payloadBytes": 623281,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/build-log",
+      "ok": true,
+      "status": 200,
+      "durationMs": 109.96887499999997,
+      "payloadBytes": 416378,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "no-store",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    },
+    {
+      "endpoint": "/api/foundation/gstack-build-intel",
+      "ok": true,
+      "status": 200,
+      "durationMs": 28.51345900000001,
+      "payloadBytes": 31638,
+      "timeout": false,
+      "timeoutMs": 8000,
+      "cacheControl": "",
+      "risk": {
+        "status": "healthy",
+        "severity": "P3",
+        "reason": "Within V1 audit budget."
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "active-vs-historical-verifier-mixing",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Verifier mixes active sprint assertions with historical closeout proof",
+      "whyItMatters": "A current-sprint advancement assertion can pass from a historical closeout unless active and historical helpers are separate.",
+      "refs": [
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3073,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3097,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 3103,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4143,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4348,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4429,
+          "detail": "activeSprintAtOrPast"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4493,
+          "detail": "historicalCardHasVerifiedCloseout"
+        },
+        {
+          "path": "scripts/foundation-verify.mjs",
+          "line": 4502,
+          "detail": "activeSprintAtOrPast"
+        }
+      ],
+      "detector": "active versus historical helper detector",
+      "proposedCard": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+      "proposedOwner": "Foundation Verifier",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-client-current-state-monolith",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P1",
+      "type": "refactor_candidate",
+      "title": "Foundation client embeds a large current-state renderer",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "public/foundation.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-hub-route-monolith",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P1",
+      "type": "refactor_candidate",
+      "title": "Foundation Hub route builds many domains in one handler",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "server.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-foundation-ui-current-summary",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Foundation UI embeds current-state summary truth",
+      "whyItMatters": "Static UI copy can report stale health, source, or KPI counts after APIs change.",
+      "refs": [
+        {
+          "path": "scripts/process-extract-current-check.mjs",
+          "line": 363,
+          "detail": ""
+        }
+      ],
+      "detector": "currentSummary/static-live-copy detector",
+      "proposedCard": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+      "proposedOwner": "Foundation UI",
+      "falsePositiveNote": "Static maturity explainers are acceptable; live checkpoint wording is not.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-source-count-baseline",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Source contract count is encoded as an exact baseline",
+      "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 916,
+          "detail": ""
+        }
+      ],
+      "detector": "source-count literal detector",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "proposedOwner": "Source Lifecycle",
+      "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "hardcoded-source-count-baseline",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P1",
+      "type": "drift_risk",
+      "title": "Source contract count is encoded as an exact baseline",
+      "whyItMatters": "Source registry additions can break or stale-pass different surfaces when expected counts are not derived from `getSourceContracts()`.",
+      "refs": [
+        {
+          "path": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+          "line": 187,
+          "detail": ""
+        }
+      ],
+      "detector": "source-count literal detector",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "proposedOwner": "Source Lifecycle",
+      "falsePositiveNote": "Accepted historical closeout text can stay if it is not used as current live truth.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "admin-deal-policy-date-duplication",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Admin deal-review policy dates are duplicated across runner, job config, and UI",
+      "whyItMatters": "Policy cutoff changes require manual edits across several surfaces unless a source contract owns the dates.",
+      "refs": [
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 981,
+          "detail": "--backlog-since="
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 981,
+          "detail": "2025-06-01"
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 984,
+          "detail": "June 2025"
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 984,
+          "detail": "2026-04-01"
+        },
+        {
+          "path": "lib/foundation-jobs.js",
+          "line": 985,
+          "detail": "June 2025"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 14,
+          "detail": "DEFAULT_BACKLOG_SINCE"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 14,
+          "detail": "2025-06-01"
+        },
+        {
+          "path": "scripts/review-admin-deals.mjs",
+          "line": 16,
+          "detail": "OPS_BONUS_POLICY_EFFECTIVE_DATE"
+        }
+      ],
+      "detector": "policy-date duplication detector",
+      "proposedCard": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+      "proposedOwner": "Ops Source Truth",
+      "falsePositiveNote": "Durable policy dates are acceptable when source ID, owner, and as-of date are explicit.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "approval-threshold-raw-literal",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Plan Critic 9.8 threshold appears as raw literals",
+      "whyItMatters": "Approval policy can drift when some checks import the registry constant and others hardcode the score.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 342,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 347,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 486,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/source-lifecycle-completion.js",
+          "line": 682,
+          "detail": "9.8"
+        },
+        {
+          "path": "lib/source-lifecycle-completion.js",
+          "line": 682,
+          "detail": "9.8"
+        },
+        {
+          "path": "scripts/process-action-route-dedup-staleness-guard-check.mjs",
+          "line": 231,
+          "detail": "9.8"
+        },
+        {
+          "path": "scripts/process-action-route-promotion-workflow-check.mjs",
+          "line": 230,
+          "detail": "9.8"
+        },
+        {
+          "path": "scripts/process-action-route-review-inbox-check.mjs",
+          "line": 241,
+          "detail": "9.8"
+        }
+      ],
+      "detector": "raw approval threshold detector",
+      "proposedCard": "APPROVAL-THRESHOLD-REGISTRY-001",
+      "proposedOwner": "Plan Critic",
+      "falsePositiveNote": "The canonical constant is valid; duplicated raw literals are the risk.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "build-closeout-code-owned-data",
+      "cardId": "FOUNDATION-MONOLITH-RISK-AUDIT-001",
+      "severity": "P2",
+      "type": "refactor_candidate",
+      "title": "Build closeout history is code-owned data",
+      "whyItMatters": "Large mixed-responsibility surfaces slow audits, increase merge risk, and make future proof harder to isolate.",
+      "refs": [
+        {
+          "path": "lib/foundation-build-log.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "largest file/function ownership detector",
+      "proposedCard": "BUILD-CLOSEOUT-REGISTRY-EXTRACT-001",
+      "proposedOwner": "Foundation Engineering",
+      "falsePositiveNote": "This is not approval to refactor during the audit sprint.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "build-log-request-time-git-and-duplication",
+      "cardId": "FOUNDATION-API-PERF-AUDIT-001",
+      "severity": "P2",
+      "type": "performance_risk",
+      "title": "Build Log shells out to git and returns duplicate group/build payloads",
+      "whyItMatters": "Request-time subprocess work and duplicated serialized build entries can make Recent Work slow as closeout history grows.",
+      "refs": [
+        {
+          "path": "server.js",
+          "line": 333,
+          "detail": ""
+        },
+        {
+          "path": "lib/foundation-build-log.js",
+          "line": 0,
+          "detail": ""
+        }
+      ],
+      "detector": "request-time git log detector",
+      "proposedCard": "BUILD-LOG-API-CACHE-AND-SLIM-001",
+      "proposedOwner": "Foundation Runtime",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "fixed-build-intel-commit-baseline",
+      "cardId": "VERIFIER-ASSUMPTION-REGISTRY-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Build Intel commit is pinned as expected truth",
+      "whyItMatters": "A fixed inspected commit is valid snapshot evidence, but it must not be treated as latest Build Intel monitoring truth.",
+      "refs": [
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 20,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 313,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 314,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 324,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 391,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 521,
+          "detail": "GSTACK_BUILD_INTEL_EXPECTED_COMMIT"
+        }
+      ],
+      "detector": "expected-commit baseline detector",
+      "proposedCard": "BUILD-INTEL-SNAPSHOT-BASELINE-001",
+      "proposedOwner": "Build Intel",
+      "falsePositiveNote": "Valid when labeled inspected snapshot evidence with an as-of date.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "focused-check-active-sprint-id-assumption",
+      "cardId": "CODEBASE-HARDCODE-AUDIT-001",
+      "severity": "P2",
+      "type": "drift_risk",
+      "title": "Focused checks assert exact dated active sprint IDs",
+      "whyItMatters": "One-time closeout checks are unsafe as nightly checks after rollover if they hard-fail on the current active sprint.",
+      "refs": [
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 103,
+          "detail": "const FOUNDATION_CURRENT_SPRINT_ID = 'foundation-current-2026-05-12"
+        },
+        {
+          "path": "lib/foundation-current-sprint.js",
+          "line": 145,
+          "detail": "const FOUNDATION_SOURCE_ONCE_OVER_SPRINT_ID = 'foundation-source-once-over-2026-05-12"
+        },
+        {
+          "path": "lib/foundation-verify-registry-split.js",
+          "line": 7,
+          "detail": "const FOUNDATION_VERIFY_REGISTRY_SPLIT_SPRINT_ID = 'foundation-verify-registry-split-2026-05-18"
+        },
+        {
+          "path": "lib/kpi-health.js",
+          "line": 8,
+          "detail": "const KPI_HEALTH_API_CACHE_SPRINT_ID = 'kpi-health-api-cache-2026-05-15"
+        },
+        {
+          "path": "lib/kpi-health.js",
+          "line": 14,
+          "detail": "const KPI_HEALTH_DYNAMIC_YEAR_CONTRACT_SPRINT_ID = 'kpi-health-dynamic-year-contract-2026-05-16"
+        },
+        {
+          "path": "lib/gstack-build-intel.js",
+          "line": 13,
+          "detail": "const GSTACK_BUILD_INTEL_SPRINT_ID = 'gstack-build-intel-extraction-2026-05-13"
+        },
+        {
+          "path": "scripts/process-agent-feedback-routes-split-check.mjs",
+          "line": 219,
+          "detail": "activeSprint.sprint?.sprintId ==="
+        },
+        {
+          "path": "scripts/process-app-page-routes-split-check.mjs",
+          "line": 159,
+          "detail": "activeSprint.sprint?.sprintId ==="
+        }
+      ],
+      "detector": "dated active-sprint assertion detector",
+      "proposedCard": "SPRINT-CHECK-HISTORICAL-MODE-001",
+      "proposedOwner": "Foundation Process",
+      "falsePositiveNote": "Active live-truth literals still fail as P0; dated card/sprint metadata is a review finding unless a focused proof hard-fails after rollover.",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    },
+    {
+      "id": "foundation-dom-rebuild-risk",
+      "cardId": "FOUNDATION-FRONTEND-PERF-AUDIT-001",
+      "severity": "P2",
+      "type": "performance_risk",
+      "title": "Foundation frontend has heavy DOM rebuild signals",
+      "whyItMatters": "Backlog, source, current-state, and runtime filters can churn large DOM trees on each interaction as card/source counts grow.",
+      "refs": [
+        {
+          "path": "public/foundation.html",
+          "line": 103,
+          "detail": ""
+        },
+        {
+          "path": "public/foundation.html",
+          "line": 1,
+          "detail": "Foundation frontend scripts call document.createElement 1669 times, above the 1200 aggregate review budget. Foundation frontend scripts call appendChild 2142 times, above the 1800 aggregate review budget. Foundation frontend scripts use innerHTML 73 times, above the 50 aggregate review budget."
+        }
+      ],
+      "detector": "DOM budget snapshot status=review createElement=1669 appendChild=2142 innerHTML=73",
+      "proposedCard": "FOUNDATION-FRONTEND-DOM-BUDGET-001",
+      "proposedOwner": "Foundation Frontend",
+      "falsePositiveNote": "",
+      "autoFix": false,
+      "autoBacklogMutation": false
+    }
+  ],
+  "reviewTargets": [
+    {
+      "file": "scripts/foundation-verify.mjs",
+      "severity": "P0",
+      "reasons": [
+        "changed_since_baseline",
+        "over_3k_warn",
+        "verifier_trust_surface"
+      ],
+      "lines": 4973,
+      "bytes": 275714
+    },
+    {
+      "file": "public/foundation.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "frontend_route_cache_surface"
+      ],
+      "lines": 2998,
+      "bytes": 113633
+    },
+    {
+      "file": "lib/foundation-db-schema-seed-store.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 2653,
+      "bytes": 137639
+    },
+    {
+      "file": "lib/foundation-build-closeout-tightening-records.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 2599,
+      "bytes": 226069
+    },
+    {
+      "file": "public/styles-foundation-workflows.css",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 2591,
+      "bytes": 50351
+    },
+    {
+      "file": "lib/foundation-source-crawl-store.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "source_health_surface"
+      ],
+      "lines": 2506,
+      "bytes": 111553
+    },
+    {
+      "file": "lib/foundation-build-closeout-overnight-records.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 2446,
+      "bytes": 192241
+    },
+    {
+      "file": "public/styles-foundation-core.css",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 2291,
+      "bytes": 43082
+    },
+    {
+      "file": "lib/foundation-db.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "live_truth_write_boundary"
+      ],
+      "lines": 2261,
+      "bytes": 90410
+    },
+    {
+      "file": "lib/foundation-build-closeout-source-records.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "source_health_surface"
+      ],
+      "lines": 2159,
+      "bytes": 182727
+    },
+    {
+      "file": "lib/foundation-shared-comms-store.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 2150,
+      "bytes": 86906
+    },
+    {
+      "file": "lib/foundation-runtime-reliability-verifier.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 2023,
+      "bytes": 127084
+    },
+    {
+      "file": "server.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "hot_route_surface"
+      ],
+      "lines": 2023,
+      "bytes": 66109
+    },
+    {
+      "file": "lib/foundation-agent-feedback-verifier.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 1945,
+      "bytes": 110005
+    },
+    {
+      "file": "public/styles-strategy-sales.css",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 1933,
+      "bytes": 35369
+    },
+    {
+      "file": "public/foundation-runtime-renderers.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 1901,
+      "bytes": 79848
+    },
+    {
+      "file": "lib/foundation-verifier-source-once-over-progression.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline",
+        "source_health_surface"
+      ],
+      "lines": 1775,
+      "bytes": 91614
+    },
+    {
+      "file": "lib/foundation-build-closeout-control-plane-records.js",
+      "severity": "P1",
+      "reasons": [
+        "changed_since_baseline"
+      ],
+      "lines": 1732,
+      "bytes": 127800
+    }
+  ],
+  "diff": {
+    "previousReportPath": "docs/handoffs/nightly-deep-audit-2026-05-18.json",
+    "newFindingIds": [
+      "active-vs-historical-verifier-mixing",
+      "foundation-client-current-state-monolith",
+      "foundation-hub-route-monolith",
+      "hardcoded-foundation-ui-current-summary",
+      "hardcoded-source-count-baseline",
+      "admin-deal-policy-date-duplication",
+      "approval-threshold-raw-literal",
+      "build-closeout-code-owned-data",
+      "build-log-request-time-git-and-duplication",
+      "fixed-build-intel-commit-baseline",
+      "focused-check-active-sprint-id-assumption",
+      "foundation-dom-rebuild-risk"
+    ],
+    "resolvedFindingIds": [],
+    "stillOpenFindingIds": [],
+    "trend": {
+      "currentFindingCount": 12,
+      "previousFindingCount": 0,
+      "delta": 12
+    }
+  },
+  "llmReview": {
+    "status": "executed",
+    "mode": "bounded_senior_review_executed",
+    "executedThisRun": true,
+    "providerReviewRequested": true,
+    "route": {
+      "runnable": true,
+      "selectedRoute": "foundation-synthesis-openclaw-chatgpt",
+      "provider": "openclaw",
+      "model": "openai-codex/gpt-5.4",
+      "blockReason": null,
+      "routeReadiness": [
+        {
+          "routeKey": "foundation-synthesis-openclaw-chatgpt",
+          "credentialKey": "openclaw-chatgpt-pro",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "allowed",
+          "runnable": true,
+          "blockReason": null
+        },
+        {
+          "routeKey": "foundation-synthesis-claude-code",
+          "credentialKey": "claude-code-local-max",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "experimental",
+          "runnable": false,
+          "blockReason": "route status is probe_required"
+        },
+        {
+          "routeKey": "foundation-synthesis-claude-oauth",
+          "credentialKey": "claude-code-oauth-token",
+          "credentialStatus": "missing",
+          "credentialPolicyClassification": "experimental",
+          "runnable": false,
+          "blockReason": "route status is blocked"
+        },
+        {
+          "routeKey": "foundation-synthesis-anthropic-api",
+          "credentialKey": "anthropic-api-default",
+          "credentialStatus": "missing",
+          "credentialPolicyClassification": "api_fallback",
+          "runnable": false,
+          "blockReason": "route status is blocked"
+        },
+        {
+          "routeKey": "foundation-synthesis-openai-api",
+          "credentialKey": "openai-api-default",
+          "credentialStatus": "available",
+          "credentialPolicyClassification": "api_fallback",
+          "runnable": true,
+          "blockReason": null
+        }
+      ]
+    },
+    "callId": "llm-call-20260519205324-6e73face",
+    "summary": "Static deep-audit pass of the changed high-risk packets found 13 concrete issues, matching the deterministic shape: 0 P0, 6 P1, 7 P2. The dominant pattern is trust drift from hardcoded operational truth, monolithic verifier/frontend surfaces, code-owned closeout data, and exact sprint/date baselines that can false-green or false-red as live state moves.",
+    "reviewedFiles": [
+      "scripts/foundation-verify.mjs",
+      "public/foundation.js",
+      "lib/foundation-db-schema-seed-store.js",
+      "lib/foundation-build-closeout-tightening-records.js",
+      "public/styles-foundation-workflows.css",
+      "lib/foundation-source-crawl-store.js",
+      "lib/foundation-build-closeout-overnight-records.js",
+      "public/styles-foundation-core.css",
+      "server.js",
+      "lib/foundation-jobs.js",
+      "scripts/review-admin-deals.mjs",
+      "lib/foundation-current-sprint.js",
+      "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+      "lib/foundation-build-log.js",
+      "lib/gstack-build-intel.js"
+    ],
+    "findingCount": 13,
+    "findings": [
+      {
+        "id": "senior-review-1",
+        "severity": "P1",
+        "title": "Verifier mixes active sprint assertions with historical closeout proof",
+        "path": "scripts/foundation-verify.mjs",
+        "line": 3073,
+        "whyItMatters": "The verifier uses historicalCardHasVerifiedCloseout and activeSprintAtOrPast in the same trust surface, which can judge historical proof against current sprint state. That creates false-green and false-red outcomes in the main verification gate.",
+        "owner": "Foundation Verification",
+        "nextAction": "Split historical closeout validation from active sprint readiness assertions so each path uses its own state model and proof inputs.",
+        "proposedCard": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-2",
+        "severity": "P1",
+        "title": "Foundation client still embeds a large current-state renderer monolith",
+        "path": "public/foundation.js",
+        "line": 1,
+        "whyItMatters": "At 2,998 lines, the main Foundation client still owns large inline rendering and state wiring for backlog/current-state surfaces. This raises frontend rot risk, makes DOM regressions harder to isolate, and slows safe review of user-visible changes.",
+        "owner": "Foundation Frontend",
+        "nextAction": "Extract current-state and backlog rendering into narrower surface-owned modules and leave public/foundation.js as orchestration only.",
+        "proposedCard": "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-3",
+        "severity": "P1",
+        "title": "Foundation Hub route still builds many domains in one handler",
+        "path": "server.js",
+        "line": 1,
+        "whyItMatters": "The server remains a hot route surface, and the deterministic report flags Foundation Hub payload assembly as multi-domain in one handler. That increases payload bloat, latency coupling, and blast radius when one domain loader degrades.",
+        "owner": "Foundation Runtime",
+        "nextAction": "Continue extracting Foundation Hub payload assembly into bounded domain loaders with slimmer route contracts and measured payload budgets.",
+        "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-4",
+        "severity": "P1",
+        "title": "Foundation UI current-state summary truth is still hardcoded in a check path",
+        "path": "scripts/process-extract-current-check.mjs",
+        "line": 363,
+        "whyItMatters": "When summary truth lives in a process check instead of source-backed payload generation, the UI can look healthy while serving stale operator copy. That is a direct false-green risk for the Foundation current-state surface.",
+        "owner": "Foundation Process",
+        "nextAction": "Move current-state summary text and expectations to live source-backed payload builders instead of check-script literals.",
+        "proposedCard": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-5",
+        "severity": "P1",
+        "title": "Source contract count is encoded as an exact baseline",
+        "path": "lib/foundation-current-sprint.js",
+        "line": 916,
+        "whyItMatters": "Exact hardcoded source-count expectations will drift as contracts are added, retired, or reclassified. That makes source lifecycle health depend on code edits instead of live contract truth and can silently misreport maturity.",
+        "owner": "Foundation Source",
+        "nextAction": "Replace exact count baselines with dynamic registry-backed lifecycle checks and update focused proofs to consume the same contract.",
+        "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-6",
+        "severity": "P1",
+        "title": "Dynamic source-count check duplicates the hardcoded baseline assumption",
+        "path": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+        "line": 187,
+        "whyItMatters": "The focused check repeats the same exact-baseline posture as the runtime layer, so both the system surface and the dogfood proof can drift together and still appear green. That weakens verifier trust.",
+        "owner": "Foundation Source",
+        "nextAction": "Make the focused dynamic-counts proof derive expectations from live source contracts instead of a fixed baseline literal.",
+        "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-7",
+        "severity": "P2",
+        "title": "Admin deal policy dates are duplicated across job config and runner logic",
+        "path": "lib/foundation-jobs.js",
+        "line": 981,
+        "whyItMatters": "The same policy dates appear in job arguments and in the review runner, which creates a drift risk whenever the effective date changes. Ops review output can then diverge depending on which copy was updated.",
+        "owner": "Ops Source Truth",
+        "nextAction": "Promote review-policy dates into one source contract that both job definitions and runner code consume.",
+        "proposedCard": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-8",
+        "severity": "P2",
+        "title": "Plan Critic approval threshold appears as raw 9.8 literals across files",
+        "path": "lib/foundation-current-sprint.js",
+        "line": 342,
+        "whyItMatters": "The approval threshold is repeated as a raw literal in multiple modules and checks. That makes governance brittle because one stale literal can change behavior while still looking locally correct.",
+        "owner": "Plan Critic",
+        "nextAction": "Move the threshold into a shared registry or contract and update all readers and checks to consume that single source.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-9",
+        "severity": "P2",
+        "title": "Build closeout history remains code-owned operational data",
+        "path": "lib/foundation-build-log.js",
+        "line": 1,
+        "whyItMatters": "Closeout history and associated proof logic remain embedded in code-owned structures instead of a thinner data source. That increases merge churn, makes historical truth harder to audit, and raises the risk of stale closeout records shipping with code changes.",
+        "owner": "Foundation Process",
+        "nextAction": "Extract closeout registry data into a dedicated data-backed source and keep code focused on reading and validating it.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-10",
+        "severity": "P2",
+        "title": "Build Log still shells out to git and returns duplicated payload shapes",
+        "path": "server.js",
+        "line": 333,
+        "whyItMatters": "Request-time git work and duplicate group/build payload assembly increase endpoint latency and payload size on an operator-facing surface. This is an avoidable hot-route budget risk.",
+        "owner": "Foundation Runtime",
+        "nextAction": "Cache request-time build-log metadata, remove duplicate payload fields, and avoid per-request git shelling where possible.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-11",
+        "severity": "P2",
+        "title": "Build Intel expected truth is pinned to a fixed commit baseline",
+        "path": "lib/gstack-build-intel.js",
+        "line": 20,
+        "whyItMatters": "A fixed expected commit turns one snapshot into static truth. As the external repo moves, the system can go false-red or encourage manual baseline bumps instead of using a governed freshness model.",
+        "owner": "Build Intel",
+        "nextAction": "Replace the pinned expected commit with classified baseline metadata or freshness rules that tolerate approved forward movement.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-12",
+        "severity": "P2",
+        "title": "Focused checks assert exact dated active sprint IDs",
+        "path": "lib/foundation-current-sprint.js",
+        "line": 103,
+        "whyItMatters": "Exact sprint ID literals like foundation-current-2026-05-12 make checks brittle after closeout and replay. Historical or post-closeout verification can fail for naming drift instead of real behavior drift.",
+        "owner": "Foundation Process",
+        "nextAction": "Route focused checks through historical-aware sprint metadata instead of exact dated ID comparisons in code.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-13",
+        "severity": "P2",
+        "title": "Foundation CSS surfaces are large enough to raise DOM rebuild and frontend drift risk",
+        "path": "public/styles-foundation-workflows.css",
+        "line": 1,
+        "whyItMatters": "The workflows and core Foundation stylesheets are each ~2.3k to 2.6k lines and own broad layout rules for build-log and panel surfaces. Large cross-surface CSS files increase DOM coupling, make regressions harder to localize, and raise the risk that one change destabilizes unrelated Foundation views.",
+        "owner": "Foundation Frontend",
+        "nextAction": "Split Foundation CSS by surface ownership and reduce shared DOM/layout coupling for workflow and core panels.",
+        "proposedCard": "",
+        "confidence": "medium",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      }
+    ],
+    "actionRoutes": [
+      {
+        "id": "senior-review-1",
+        "severity": "P1",
+        "title": "Verifier mixes active sprint assertions with historical closeout proof",
+        "path": "scripts/foundation-verify.mjs",
+        "line": 3073,
+        "whyItMatters": "The verifier uses historicalCardHasVerifiedCloseout and activeSprintAtOrPast in the same trust surface, which can judge historical proof against current sprint state. That creates false-green and false-red outcomes in the main verification gate.",
+        "owner": "Foundation Verification",
+        "nextAction": "Split historical closeout validation from active sprint readiness assertions so each path uses its own state model and proof inputs.",
+        "proposedCard": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-2",
+        "severity": "P1",
+        "title": "Foundation client still embeds a large current-state renderer monolith",
+        "path": "public/foundation.js",
+        "line": 1,
+        "whyItMatters": "At 2,998 lines, the main Foundation client still owns large inline rendering and state wiring for backlog/current-state surfaces. This raises frontend rot risk, makes DOM regressions harder to isolate, and slows safe review of user-visible changes.",
+        "owner": "Foundation Frontend",
+        "nextAction": "Extract current-state and backlog rendering into narrower surface-owned modules and leave public/foundation.js as orchestration only.",
+        "proposedCard": "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-3",
+        "severity": "P1",
+        "title": "Foundation Hub route still builds many domains in one handler",
+        "path": "server.js",
+        "line": 1,
+        "whyItMatters": "The server remains a hot route surface, and the deterministic report flags Foundation Hub payload assembly as multi-domain in one handler. That increases payload bloat, latency coupling, and blast radius when one domain loader degrades.",
+        "owner": "Foundation Runtime",
+        "nextAction": "Continue extracting Foundation Hub payload assembly into bounded domain loaders with slimmer route contracts and measured payload budgets.",
+        "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-4",
+        "severity": "P1",
+        "title": "Foundation UI current-state summary truth is still hardcoded in a check path",
+        "path": "scripts/process-extract-current-check.mjs",
+        "line": 363,
+        "whyItMatters": "When summary truth lives in a process check instead of source-backed payload generation, the UI can look healthy while serving stale operator copy. That is a direct false-green risk for the Foundation current-state surface.",
+        "owner": "Foundation Process",
+        "nextAction": "Move current-state summary text and expectations to live source-backed payload builders instead of check-script literals.",
+        "proposedCard": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-5",
+        "severity": "P1",
+        "title": "Source contract count is encoded as an exact baseline",
+        "path": "lib/foundation-current-sprint.js",
+        "line": 916,
+        "whyItMatters": "Exact hardcoded source-count expectations will drift as contracts are added, retired, or reclassified. That makes source lifecycle health depend on code edits instead of live contract truth and can silently misreport maturity.",
+        "owner": "Foundation Source",
+        "nextAction": "Replace exact count baselines with dynamic registry-backed lifecycle checks and update focused proofs to consume the same contract.",
+        "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-6",
+        "severity": "P1",
+        "title": "Dynamic source-count check duplicates the hardcoded baseline assumption",
+        "path": "scripts/process-source-lifecycle-dynamic-counts-check.mjs",
+        "line": 187,
+        "whyItMatters": "The focused check repeats the same exact-baseline posture as the runtime layer, so both the system surface and the dogfood proof can drift together and still appear green. That weakens verifier trust.",
+        "owner": "Foundation Source",
+        "nextAction": "Make the focused dynamic-counts proof derive expectations from live source contracts instead of a fixed baseline literal.",
+        "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+        "confidence": "high",
+        "actionable": true,
+        "routed": true,
+        "route": "proposed_repair_card"
+      },
+      {
+        "id": "senior-review-7",
+        "severity": "P2",
+        "title": "Admin deal policy dates are duplicated across job config and runner logic",
+        "path": "lib/foundation-jobs.js",
+        "line": 981,
+        "whyItMatters": "The same policy dates appear in job arguments and in the review runner, which creates a drift risk whenever the effective date changes. Ops review output can then diverge depending on which copy was updated.",
+        "owner": "Ops Source Truth",
+        "nextAction": "Promote review-policy dates into one source contract that both job definitions and runner code consume.",
+        "proposedCard": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-8",
+        "severity": "P2",
+        "title": "Plan Critic approval threshold appears as raw 9.8 literals across files",
+        "path": "lib/foundation-current-sprint.js",
+        "line": 342,
+        "whyItMatters": "The approval threshold is repeated as a raw literal in multiple modules and checks. That makes governance brittle because one stale literal can change behavior while still looking locally correct.",
+        "owner": "Plan Critic",
+        "nextAction": "Move the threshold into a shared registry or contract and update all readers and checks to consume that single source.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-9",
+        "severity": "P2",
+        "title": "Build closeout history remains code-owned operational data",
+        "path": "lib/foundation-build-log.js",
+        "line": 1,
+        "whyItMatters": "Closeout history and associated proof logic remain embedded in code-owned structures instead of a thinner data source. That increases merge churn, makes historical truth harder to audit, and raises the risk of stale closeout records shipping with code changes.",
+        "owner": "Foundation Process",
+        "nextAction": "Extract closeout registry data into a dedicated data-backed source and keep code focused on reading and validating it.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-10",
+        "severity": "P2",
+        "title": "Build Log still shells out to git and returns duplicated payload shapes",
+        "path": "server.js",
+        "line": 333,
+        "whyItMatters": "Request-time git work and duplicate group/build payload assembly increase endpoint latency and payload size on an operator-facing surface. This is an avoidable hot-route budget risk.",
+        "owner": "Foundation Runtime",
+        "nextAction": "Cache request-time build-log metadata, remove duplicate payload fields, and avoid per-request git shelling where possible.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-11",
+        "severity": "P2",
+        "title": "Build Intel expected truth is pinned to a fixed commit baseline",
+        "path": "lib/gstack-build-intel.js",
+        "line": 20,
+        "whyItMatters": "A fixed expected commit turns one snapshot into static truth. As the external repo moves, the system can go false-red or encourage manual baseline bumps instead of using a governed freshness model.",
+        "owner": "Build Intel",
+        "nextAction": "Replace the pinned expected commit with classified baseline metadata or freshness rules that tolerate approved forward movement.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-12",
+        "severity": "P2",
+        "title": "Focused checks assert exact dated active sprint IDs",
+        "path": "lib/foundation-current-sprint.js",
+        "line": 103,
+        "whyItMatters": "Exact sprint ID literals like foundation-current-2026-05-12 make checks brittle after closeout and replay. Historical or post-closeout verification can fail for naming drift instead of real behavior drift.",
+        "owner": "Foundation Process",
+        "nextAction": "Route focused checks through historical-aware sprint metadata instead of exact dated ID comparisons in code.",
+        "proposedCard": "",
+        "confidence": "high",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      },
+      {
+        "id": "senior-review-13",
+        "severity": "P2",
+        "title": "Foundation CSS surfaces are large enough to raise DOM rebuild and frontend drift risk",
+        "path": "public/styles-foundation-workflows.css",
+        "line": 1,
+        "whyItMatters": "The workflows and core Foundation stylesheets are each ~2.3k to 2.6k lines and own broad layout rules for build-log and panel surfaces. Large cross-surface CSS files increase DOM coupling, make regressions harder to localize, and raise the risk that one change destabilizes unrelated Foundation views.",
+        "owner": "Foundation Frontend",
+        "nextAction": "Split Foundation CSS by surface ownership and reduce shared DOM/layout coupling for workflow and core panels.",
+        "proposedCard": "",
+        "confidence": "medium",
+        "actionable": false,
+        "routed": true,
+        "route": "watch_or_review"
+      }
+    ],
+    "packets": [
+      {
+        "file": "scripts/foundation-verify.mjs",
+        "severity": "P0",
+        "reasons": [
+          "changed_since_baseline",
+          "over_3k_warn",
+          "verifier_trust_surface"
+        ],
+        "lines": 4973,
+        "bytes": 275714
+      },
+      {
+        "file": "public/foundation.js",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline",
+          "frontend_route_cache_surface"
+        ],
+        "lines": 2998,
+        "bytes": 113633
+      },
+      {
+        "file": "lib/foundation-db-schema-seed-store.js",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline"
+        ],
+        "lines": 2653,
+        "bytes": 137639
+      },
+      {
+        "file": "lib/foundation-build-closeout-tightening-records.js",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline"
+        ],
+        "lines": 2599,
+        "bytes": 226069
+      },
+      {
+        "file": "public/styles-foundation-workflows.css",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline"
+        ],
+        "lines": 2591,
+        "bytes": 50351
+      },
+      {
+        "file": "lib/foundation-source-crawl-store.js",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline",
+          "source_health_surface"
+        ],
+        "lines": 2506,
+        "bytes": 111553
+      },
+      {
+        "file": "lib/foundation-build-closeout-overnight-records.js",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline"
+        ],
+        "lines": 2446,
+        "bytes": 192241
+      },
+      {
+        "file": "public/styles-foundation-core.css",
+        "severity": "P1",
+        "reasons": [
+          "changed_since_baseline"
+        ],
+        "lines": 2291,
+        "bytes": 43082
+      }
+    ],
+    "note": "Deep senior review executed through the approved router with report-only/no-autofix posture."
+  },
+  "deepSeniorReviewRollup": {
+    "status": "healthy",
+    "executed": true,
+    "detail": "deep senior review executed with 13 finding(s)"
+  },
+  "knownFailureDogfood": {
+    "ok": true,
+    "slowEndpoint": {
+      "status": "risk",
+      "severity": "P1",
+      "reason": "Latency 70244ms exceeds 2000ms budget."
+    },
+    "selfRepairCount": 1,
+    "writeCapableCheckCount": 1,
+    "hardcodedTruthCount": 2,
+    "monolith": {
+      "file": "lib/foundation-db.js",
+      "reasons": [
+        "actively_dangerous_10k_plus_file",
+        "live_truth_write_boundary"
+      ],
+      "severity": "P0"
+    }
+  },
+  "docArtifactBloat": {
+    "status": "healthy",
+    "summary": {
+      "artifactCount": 1098,
+      "handoffFileCount": 115,
+      "handoffLineTotal": 7322,
+      "recentHandoffFileCount": 114,
+      "nightlyArtifactCount": 7,
+      "riskCount": 0,
+      "reviewCount": 0
+    },
+    "topFindings": []
+  },
+  "mergeScope": {
+    "baselineRef": "43d0684177470cf8b834a524026405b156fb5420",
+    "baselineCommit": "43d0684177470cf8b834a524026405b156fb5420",
+    "headCommit": "0f1cc85ed1116e46720292d60a1f571a912e8ea2",
+    "commitCount": 565,
+    "changedFileCount": 2377,
+    "changedCodeFileCount": 857,
+    "changedCodeSample": [
+      "lib/action-route-dedup-staleness-guard.js",
+      "lib/action-route-promotion-workflow.js",
+      "lib/action-route-review-inbox.js",
+      "lib/agent-capability-registry.js",
+      "lib/agent-feedback-auto-send-reconciliation.js",
+      "lib/agent-feedback-auto-send.js",
+      "lib/agent-feedback-clickup.js",
+      "lib/agent-feedback-company-email-policy.js",
+      "lib/agent-feedback-email.js",
+      "lib/agent-feedback-production-autosend-dry-run.js",
+      "lib/agent-feedback-real-user-submit-repair.js",
+      "lib/agent-feedback-reminders.js",
+      "lib/agent-feedback-response-notify.js",
+      "lib/agent-feedback-routes.js",
+      "lib/agent-feedback-send.js",
+      "lib/agent-feedback-steve-full-loop-test.js",
+      "lib/agent-feedback.js",
+      "lib/agent-live-answer-preflight-gate.js",
+      "lib/agent-onboarding-feedback-system.js",
+      "lib/agent-roster-review.js",
+      "lib/agent-status-freshness-gate.js",
+      "lib/agent-template-runtime-contract.js",
+      "lib/aios-runtime-portability-gate.js",
+      "lib/app-auth.js",
+      "lib/app-page-routes.js",
+      "lib/approval-integrity.js",
+      "lib/atom-flow-auto-demotion.js",
+      "lib/audit-finding-to-backlog-router.js",
+      "lib/auth-routes.js",
+      "lib/auto-deploy-rollback.js",
+      "lib/backlog-hygiene.js",
+      "lib/backlog-scrum-master-grooming.js",
+      "lib/backlog-store-concurrency.js",
+      "lib/brand-stack.js",
+      "lib/build-closeout-registry-extract.js",
+      "lib/build-intel-creator-watchlist-expansion.js",
+      "lib/build-intel-extraction-implementation.js",
+      "lib/build-intel-karpathy-llm-kb-preflight.js",
+      "lib/build-intel-watchlist.js",
+      "lib/build-lane-failure-telemetry.js"
+    ],
+    "statTail": " ...ifier-phase-g-operator-closeout-split-check.mjs |   161 +\n .../process-verifier-plan-reviews-split-check.mjs  |   147 +\n ...fier-process-control-governance-split-check.mjs |   175 +\n ...r-process-control-orchestration-split-check.mjs |   212 +\n ...ess-verifier-process-governance-split-check.mjs |   159 +\n ...process-hardening-orchestration-split-check.mjs |   194 +\n ...rifier-process-hardening-split-module-check.mjs |   232 +\n ...ier-process-trust-orchestration-split-check.mjs |   180 +\n ...s-verifier-process-trust-split-module-check.mjs |   232 +\n ...fier-readiness-blocker-closeout-split-check.mjs |   170 +\n ...ess-verifier-readiness-followup-split-check.mjs |   168 +\n ...verifier-recent-builds-closeout-split-check.mjs |   178 +\n ...ier-recent-builds-orchestration-split-check.mjs |   190 +\n .../process-verifier-route-split-module-check.mjs  |   154 +\n ...ntime-reliability-orchestration-split-check.mjs |   192 +\n ...ss-verifier-runtime-reliability-split-check.mjs |   166 +\n ...ss-verifier-server-route-split-module-check.mjs |   288 +\n ...r-source-contract-orchestration-split-check.mjs |   268 +\n ...cess-verifier-source-contracts-module-check.mjs |   194 +\n ...-source-once-over-orchestration-split-check.mjs |   220 +\n ...er-source-once-over-progression-split-check.mjs |   172 +\n ...fier-source-trust-orchestration-split-check.mjs |   188 +\n ...ss-verifier-source-trust-split-module-check.mjs |   310 +\n ...erifier-sprint-gate-progression-split-check.mjs |   169 +\n ...ifier-structural-assurance-core-split-check.mjs |   168 +\n ...ier-surface-trust-orchestration-split-check.mjs |   189 +\n ...s-verifier-surface-trust-split-module-check.mjs |   224 +\n scripts/process-verify-gate-tiering-check.mjs      |   324 +\n scripts/process-wip-protocol-check.mjs             |   247 +\n .../process-youtube-build-intel-batch-check.mjs    |   461 +\n scripts/retry-extraction-failed-items.mjs          |   122 +\n scripts/run-extraction-target.mjs                  |   402 +-\n scripts/run-foundation-job.mjs                     |    77 +-\n scripts/seed-extraction-control.mjs                |   176 +-\n scripts/send-agent-feedback-test-email.mjs         |    78 +-\n scripts/sheets-structure-verify.mjs                |    51 +-\n scripts/sync-calendar-events.mjs                   |   237 +\n scripts/sync-clickup-conditional-forecast.mjs      |   119 +-\n scripts/sync-meeting-notes-archive.mjs             |    78 +-\n scripts/sync-missive-archive.mjs                   |   294 +-\n scripts/sync-sales-listing-cases.mjs               |    18 +\n scripts/sync-slack-archive.mjs                     |   111 +-\n scripts/sync-source-contract-registry.mjs          |    91 +\n server.js                                          |  5658 +++------\n 2153 files changed, 453249 insertions(+), 31636 deletions(-)"
+  },
+  "routeRows": [
+    {
+      "source": "deterministic",
+      "severity": "P1",
+      "title": "Verifier mixes active sprint assertions with historical closeout proof",
+      "proposedCard": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+      "owner": "Foundation Verifier",
+      "nextAction": "Verifier mixes active sprint assertions with historical closeout proof",
+      "routeStatus": "live_backlog_done"
+    },
+    {
+      "source": "deterministic",
+      "severity": "P1",
+      "title": "Foundation client embeds a large current-state renderer",
+      "proposedCard": "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+      "owner": "Foundation Engineering",
+      "nextAction": "Foundation client embeds a large current-state renderer",
+      "routeStatus": "live_backlog_scoped"
+    },
+    {
+      "source": "deterministic",
+      "severity": "P1",
+      "title": "Foundation Hub route builds many domains in one handler",
+      "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+      "owner": "Foundation Engineering",
+      "nextAction": "Foundation Hub route builds many domains in one handler",
+      "routeStatus": "live_backlog_done"
+    },
+    {
+      "source": "deterministic",
+      "severity": "P1",
+      "title": "Foundation UI embeds current-state summary truth",
+      "proposedCard": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+      "owner": "Foundation UI",
+      "nextAction": "Foundation UI embeds current-state summary truth",
+      "routeStatus": "live_backlog_done"
+    },
+    {
+      "source": "deterministic",
+      "severity": "P1",
+      "title": "Source contract count is encoded as an exact baseline",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "owner": "Source Lifecycle",
+      "nextAction": "Source contract count is encoded as an exact baseline",
+      "routeStatus": "live_backlog_done"
+    },
+    {
+      "source": "deterministic",
+      "severity": "P1",
+      "title": "Source contract count is encoded as an exact baseline",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "owner": "Source Lifecycle",
+      "nextAction": "Source contract count is encoded as an exact baseline",
+      "routeStatus": "live_backlog_done"
+    },
+    {
+      "source": "senior_review",
+      "severity": "P1",
+      "title": "Verifier mixes active sprint assertions with historical closeout proof",
+      "proposedCard": "ACTIVE-VS-HISTORICAL-VERIFIER-SPLIT-001",
+      "owner": "Foundation Verification",
+      "nextAction": "Split historical closeout validation from active sprint readiness assertions so each path uses its own state model and proof inputs.",
+      "routeStatus": "live_backlog_done"
+    },
+    {
+      "source": "senior_review",
+      "severity": "P1",
+      "title": "Foundation client still embeds a large current-state renderer monolith",
+      "proposedCard": "FOUNDATION-CLIENT-CURRENT-STATE-EXTRACT-001",
+      "owner": "Foundation Frontend",
+      "nextAction": "Extract current-state and backlog rendering into narrower surface-owned modules and leave public/foundation.js as orchestration only.",
+      "routeStatus": "live_backlog_scoped"
+    },
+    {
+      "source": "senior_review",
+      "severity": "P1",
+      "title": "Foundation Hub route still builds many domains in one handler",
+      "proposedCard": "FOUNDATION-HUB-PAYLOAD-EXTRACT-001",
+      "owner": "Foundation Runtime",
+      "nextAction": "Continue extracting Foundation Hub payload assembly into bounded domain loaders with slimmer route contracts and measured payload budgets.",
+      "routeStatus": "live_backlog_done"
+    },
+    {
+      "source": "senior_review",
+      "severity": "P1",
+      "title": "Foundation UI current-state summary truth is still hardcoded in a check path",
+      "proposedCard": "FOUNDATION-UI-LIVE-SUMMARY-SOURCES-001",
+      "owner": "Foundation Process",
+      "nextAction": "Move current-state summary text and expectations to live source-backed payload builders instead of check-script literals.",
+      "routeStatus": "live_backlog_done"
+    },
+    {
+      "source": "senior_review",
+      "severity": "P1",
+      "title": "Source contract count is encoded as an exact baseline",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "owner": "Foundation Source",
+      "nextAction": "Replace exact count baselines with dynamic registry-backed lifecycle checks and update focused proofs to consume the same contract.",
+      "routeStatus": "live_backlog_done"
+    },
+    {
+      "source": "senior_review",
+      "severity": "P1",
+      "title": "Dynamic source-count check duplicates the hardcoded baseline assumption",
+      "proposedCard": "SOURCE-LIFECYCLE-DYNAMIC-COUNTS-001",
+      "owner": "Foundation Source",
+      "nextAction": "Make the focused dynamic-counts proof derive expectations from live source contracts instead of a fixed baseline literal.",
+      "routeStatus": "live_backlog_done"
+    }
+  ]
+}
