@@ -1,0 +1,1560 @@
+{
+  "generatedAt": "2026-05-19T21:04:13.396Z",
+  "cardId": "OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001",
+  "closeoutKey": "old-system-research-team-harvest-v1",
+  "oldRepo": "~/bcrew-buddy-reference",
+  "summary": {
+    "agentRecordCount": 90,
+    "skillCount": 121,
+    "harvestedSkillCount": 121,
+    "keyEvidenceFound": 12,
+    "promotedCardCount": 11
+  },
+  "skills": [
+    {
+      "relativePath": ".agents/skills/acestep/SKILL.md",
+      "name": "acestep",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/elevenlabs/SKILL.md",
+      "name": "elevenlabs",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/ffmpeg/SKILL.md",
+      "name": "ffmpeg",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/frontend-design/SKILL.md",
+      "name": "frontend-design",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/ltx2/SKILL.md",
+      "name": "ltx2",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/moviepy/SKILL.md",
+      "name": "moviepy",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/playwright-recording/SKILL.md",
+      "name": "playwright-recording",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/qwen-edit/SKILL.md",
+      "name": "qwen-edit",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/remotion-best-practices/SKILL.md",
+      "name": "remotion-best-practices",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/remotion/SKILL.md",
+      "name": "remotion",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/runpod/SKILL.md",
+      "name": "runpod",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": ".agents/skills/video_toolkit/SKILL.md",
+      "name": "video_toolkit",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-agent-recruiting-intel/SKILL.md",
+      "name": "bcrew-agent-recruiting-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-assist-agent/SKILL.md",
+      "name": "bcrew-assist-agent",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-assist-carson/SKILL.md",
+      "name": "bcrew-assist-carson",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-assist-georgia/SKILL.md",
+      "name": "bcrew-assist-georgia",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-assist-nick/SKILL.md",
+      "name": "bcrew-assist-nick",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-assist-steve/SKILL.md",
+      "name": "bcrew-assist-steve",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-assist-tanner/SKILL.md",
+      "name": "bcrew-assist-tanner",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-attract-brief/SKILL.md",
+      "name": "bcrew-attract-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-backlog-monitor/SKILL.md",
+      "name": "bcrew-backlog-monitor",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-brand-guardian/SKILL.md",
+      "name": "bcrew-brand-guardian",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-brand-sync/SKILL.md",
+      "name": "bcrew-brand-sync",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-coaching-intelligence/SKILL.md",
+      "name": "bcrew-coaching-intelligence",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-command-brief/SKILL.md",
+      "name": "bcrew-command-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-community-skills/SKILL.md",
+      "name": "bcrew-community-skills",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-compliance-enforcer/SKILL.md",
+      "name": "bcrew-compliance-enforcer",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-content-archive/SKILL.md",
+      "name": "bcrew-content-archive",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-content-intelligence/SKILL.md",
+      "name": "bcrew-content-intelligence",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-content-writer/SKILL.md",
+      "name": "bcrew-content-writer",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-course-scout/SKILL.md",
+      "name": "bcrew-course-scout",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-deal-analyst/SKILL.md",
+      "name": "bcrew-deal-analyst",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-decision-codifier/SKILL.md",
+      "name": "bcrew-decision-codifier",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-dev-director-intel/SKILL.md",
+      "name": "bcrew-dev-director-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-director-intelligence/SKILL.md",
+      "name": "bcrew-director-intelligence",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-email-intelligence/SKILL.md",
+      "name": "bcrew-email-intelligence",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-email-rules/SKILL.md",
+      "name": "bcrew-email-rules",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-eod-wrap/SKILL.md",
+      "name": "bcrew-eod-wrap",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-error-log-scout/SKILL.md",
+      "name": "bcrew-error-log-scout",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-executive-brief/SKILL.md",
+      "name": "bcrew-executive-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-external-scout/SKILL.md",
+      "name": "bcrew-external-scout",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-feedback-scout/SKILL.md",
+      "name": "bcrew-feedback-scout",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-feedback-triage/SKILL.md",
+      "name": "bcrew-feedback-triage",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-feedback/SKILL.md",
+      "name": "bcrew-feedback",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-finance-director-intel/SKILL.md",
+      "name": "bcrew-finance-director-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-foundation-router/SKILL.md",
+      "name": "bcrew-foundation-router",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-frontend-dev/SKILL.md",
+      "name": "bcrew-frontend-dev",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-full-report/SKILL.md",
+      "name": "bcrew-full-report",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-grow-brief/SKILL.md",
+      "name": "bcrew-grow-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-head-of-code/SKILL.md",
+      "name": "bcrew-head-of-code",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-implementation-scoper/SKILL.md",
+      "name": "bcrew-implementation-scoper",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-internal-coaching/SKILL.md",
+      "name": "bcrew-internal-coaching",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-internal-email/SKILL.md",
+      "name": "bcrew-internal-email",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-internal-market/SKILL.md",
+      "name": "bcrew-internal-market",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-internal-meetings/SKILL.md",
+      "name": "bcrew-internal-meetings",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-internal-skool/SKILL.md",
+      "name": "bcrew-internal-skool",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-internal-slack/SKILL.md",
+      "name": "bcrew-internal-slack",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-lead-gen-research/SKILL.md",
+      "name": "bcrew-lead-gen-research",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-leadership-scoreboard/SKILL.md",
+      "name": "bcrew-leadership-scoreboard",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-marketing-brief/SKILL.md",
+      "name": "bcrew-marketing-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-marketing-scoper/SKILL.md",
+      "name": "bcrew-marketing-scoper",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-meeting-classifier/SKILL.md",
+      "name": "bcrew-meeting-classifier",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-meeting-filer/SKILL.md",
+      "name": "bcrew-meeting-filer",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-meeting-prep/SKILL.md",
+      "name": "bcrew-meeting-prep",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-memory-audit/SKILL.md",
+      "name": "bcrew-memory-audit",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-memory-review/SKILL.md",
+      "name": "bcrew-memory-review",
+      "flags": [
+        "external_scouting",
+        "internal_source_scouting"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-memory-writer/SKILL.md",
+      "name": "bcrew-memory-writer",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-midday-pulse/SKILL.md",
+      "name": "bcrew-midday-pulse",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-missive/SKILL.md",
+      "name": "bcrew-missive",
+      "flags": [
+        "external_scouting",
+        "internal_source_scouting"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-analyst/SKILL.md",
+      "name": "bcrew-mktg-analyst",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-attract-researcher/SKILL.md",
+      "name": "bcrew-mktg-attract-researcher",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-avatar-agent/SKILL.md",
+      "name": "bcrew-mktg-avatar-agent",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-avatar-client/SKILL.md",
+      "name": "bcrew-mktg-avatar-client",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-campaign-planner/SKILL.md",
+      "name": "bcrew-mktg-campaign-planner",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-content-editor/SKILL.md",
+      "name": "bcrew-mktg-content-editor",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-content-repurposer/SKILL.md",
+      "name": "bcrew-mktg-content-repurposer",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-creative-director/SKILL.md",
+      "name": "bcrew-mktg-creative-director",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-cro-analyst/SKILL.md",
+      "name": "bcrew-mktg-cro-analyst",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-director-intel/SKILL.md",
+      "name": "bcrew-mktg-director-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-ecosystem-scout/SKILL.md",
+      "name": "bcrew-mktg-ecosystem-scout",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-graphic-designer/SKILL.md",
+      "name": "bcrew-mktg-graphic-designer",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-ig-fb-specialist/SKILL.md",
+      "name": "bcrew-mktg-ig-fb-specialist",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-ig-scoper/SKILL.md",
+      "name": "bcrew-mktg-ig-scoper",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-industry-scout/SKILL.md",
+      "name": "bcrew-mktg-industry-scout",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-platform-scout/SKILL.md",
+      "name": "bcrew-mktg-platform-scout",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-retain-researcher/SKILL.md",
+      "name": "bcrew-mktg-retain-researcher",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-scheduler/SKILL.md",
+      "name": "bcrew-mktg-scheduler",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-seo-strategist/SKILL.md",
+      "name": "bcrew-mktg-seo-strategist",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-sprint-master/SKILL.md",
+      "name": "bcrew-mktg-sprint-master",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-mktg-video-editor/SKILL.md",
+      "name": "bcrew-mktg-video-editor",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-onboarding-monitor/SKILL.md",
+      "name": "bcrew-onboarding-monitor",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-ops-brief/SKILL.md",
+      "name": "bcrew-ops-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-ops-director-intel/SKILL.md",
+      "name": "bcrew-ops-director-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-ops-signal-monitor/SKILL.md",
+      "name": "bcrew-ops-signal-monitor",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-owner-brief/SKILL.md",
+      "name": "bcrew-owner-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-plan-critic/SKILL.md",
+      "name": "bcrew-plan-critic",
+      "flags": [
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-platform-intel/SKILL.md",
+      "name": "bcrew-platform-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-process-enforcer/SKILL.md",
+      "name": "bcrew-process-enforcer",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-production-monitor/SKILL.md",
+      "name": "bcrew-production-monitor",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-qa-reviewer/SKILL.md",
+      "name": "bcrew-qa-reviewer",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-recruiting-director-intel/SKILL.md",
+      "name": "bcrew-recruiting-director-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-reply-parser/SKILL.md",
+      "name": "bcrew-reply-parser",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-retain-brief/SKILL.md",
+      "name": "bcrew-retain-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-retention-director-intel/SKILL.md",
+      "name": "bcrew-retention-director-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-retention-intel/SKILL.md",
+      "name": "bcrew-retention-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-review-loop/SKILL.md",
+      "name": "bcrew-review-loop",
+      "flags": [
+        "research_or_intel",
+        "external_scouting"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-sales-director-intel/SKILL.md",
+      "name": "bcrew-sales-director-intel",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-scoreboard/SKILL.md",
+      "name": "bcrew-scoreboard",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-skill-improver/SKILL.md",
+      "name": "bcrew-skill-improver",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-sprint-master/SKILL.md",
+      "name": "bcrew-sprint-master",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-strategic-work/SKILL.md",
+      "name": "bcrew-strategic-work",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-strategy/SKILL.md",
+      "name": "bcrew-strategy",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-system-auditor/SKILL.md",
+      "name": "bcrew-system-auditor",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-system-eod-brief/SKILL.md",
+      "name": "bcrew-system-eod-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-system-morning-brief/SKILL.md",
+      "name": "bcrew-system-morning-brief",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-top-agent-social/SKILL.md",
+      "name": "bcrew-top-agent-social",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-tracking-steve/SKILL.md",
+      "name": "bcrew-tracking-steve",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-uiux-specialist/SKILL.md",
+      "name": "bcrew-uiux-specialist",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-verification-agent/SKILL.md",
+      "name": "bcrew-verification-agent",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "internal_source_scouting",
+        "synthesis_or_director"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-viral-trends/SKILL.md",
+      "name": "bcrew-viral-trends",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    },
+    {
+      "relativePath": "skills/bcrew-visual-designer/SKILL.md",
+      "name": "bcrew-visual-designer",
+      "flags": [
+        "research_or_intel",
+        "external_scouting",
+        "synthesis_or_director",
+        "extractor_pattern"
+      ],
+      "disposition": "harvest"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "~/bcrew-buddy-reference/docs/agent-inventory.md",
+      "exists": true,
+      "bytes": 22586,
+      "sha256": "baaef085f41e82884dfb01ab9c38a5efa2317d4b5d7f00189edcef878e79d7e0"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/docs/team-reference.md",
+      "exists": true,
+      "bytes": 6422,
+      "sha256": "b8eb2150bd773c76ad49d07a1d01e5a72c7e288d2a785ee197c59a08fc041cbe"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/docs/architecture/intelligence-loop.md",
+      "exists": true,
+      "bytes": 1260,
+      "sha256": "92dfc3e7d5b0d9fbc3da203ea69a3e32f714313c9e1f42a738c040542df5e77a"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/skills/bcrew-external-scout/SKILL.md",
+      "exists": true,
+      "bytes": 12222,
+      "sha256": "5af850b195f89b0ab236d46b5a731b52e800982ddcba09f76b3f52171642070c"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/skills/bcrew-course-scout/SKILL.md",
+      "exists": true,
+      "bytes": 14300,
+      "sha256": "114488b0af46f677cc624406d07783bee4472bb6afe2f0f49cbab60b65267e6a"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/skills/bcrew-platform-intel/SKILL.md",
+      "exists": true,
+      "bytes": 11828,
+      "sha256": "343268ad565b9deace77ab0560109415739ecd872162cb3f84efdf5ad9cdb268"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/skills/bcrew-director-intelligence/SKILL.md",
+      "exists": true,
+      "bytes": 16335,
+      "sha256": "b69cc9a45b070bcc3afb0b68260f3172058820cf1e8fc14b9449f3619b704e9e"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/skills/bcrew-internal-skool/SKILL.md",
+      "exists": true,
+      "bytes": 20115,
+      "sha256": "5b2ef17345ebfd5a59e905d326b1b53f8b310abbdf1ad40328ecf90b1f9bd8a8"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/archive/batch-youtube-extract.cjs",
+      "exists": true,
+      "bytes": 5969,
+      "sha256": "0f678798d4d009cdd0bcb8d5ec11c7aeefc4222faf09cb31e7b21cfe8b7de8a9"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/archive/fire-scouts.cjs",
+      "exists": true,
+      "bytes": 7478,
+      "sha256": "1d2cc8ab74e9366f16560d8fa0eeda134ea6431c611c016d4e9d1ef1fb0684b5"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/scripts/atom-extractor.cjs",
+      "exists": true,
+      "bytes": 6124,
+      "sha256": "e44143223c57de124c2b5be2bf45c703e1e81d3ea756161c96fe0017384cc3ec"
+    },
+    {
+      "path": "~/bcrew-buddy-reference/src/web-extractor.ts",
+      "exists": true,
+      "bytes": 21474,
+      "sha256": "7531ad45922373aebf6b2790a19a7ab15e834b33a92d43e34d90bb262e5f73a7"
+    }
+  ],
+  "matrix": {
+    "keep": [
+      {
+        "pattern": "source scan -> scored finding -> synthesis -> action/backlog",
+        "evidence": [
+          "skills/bcrew-external-scout/SKILL.md",
+          "skills/bcrew-director-intelligence/SKILL.md",
+          "scripts/atom-extractor.cjs"
+        ],
+        "promotedTo": [
+          "WEB-GODMODE-001",
+          "BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001",
+          "FOUNDATION-OPERATOR-PULSE-001"
+        ]
+      },
+      {
+        "pattern": "course/video scout with transcript/resource extraction and usefulness scoring",
+        "evidence": [
+          "skills/bcrew-course-scout/SKILL.md",
+          "archive/batch-youtube-extract.cjs",
+          "docs/archive/youtube-deep-analysis.md"
+        ],
+        "promotedTo": [
+          "WEB-GODMODE-001",
+          "LOOM-001",
+          "SKOOL-WORKER-001",
+          "MYICRO-TRAINING-001"
+        ]
+      },
+      {
+        "pattern": "internal source scouts for Gmail/Missive/Slack/meetings feeding director synthesis",
+        "evidence": [
+          "skills/bcrew-internal-email/SKILL.md",
+          "skills/bcrew-internal-slack/SKILL.md",
+          "skills/bcrew-internal-meetings/SKILL.md"
+        ],
+        "promotedTo": [
+          "SOURCE-019",
+          "SOURCE-020",
+          "DATA-002"
+        ]
+      }
+    ],
+    "rebuild": [
+      {
+        "pattern": "browser/page/video observation kernel",
+        "oldShape": "web/browser/course scripts plus human auth state",
+        "newShape": "governed WEB-GODMODE kernel with approved source boundary, screenshots, transcript discovery, ledger, cost/runtime, and stop controls",
+        "promotedTo": "WEB-GODMODE-001"
+      },
+      {
+        "pattern": "training corpus extraction",
+        "oldShape": "YouTube/course reports and MyICOR/Skool screenshots",
+        "newShape": "bounded Loom/Skool/Mycro proofs with source rights, transcript-first behavior, screenshots where allowed, and review routing",
+        "promotedTo": "LOOM-001 / SKOOL-WORKER-001 / MYICRO-TRAINING-001"
+      },
+      {
+        "pattern": "research inbox and daily review",
+        "oldShape": "reports pile up in docs/archive/intelligence",
+        "newShape": "Build Intel daily extraction review queue with promote/archive decisions and backlog/action links",
+        "promotedTo": "BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001"
+      }
+    ],
+    "retire": [
+      "free-floating agent sprawl without live source contracts",
+      "prompt-only scheduler truth with stale docs as outputs",
+      "VPS/local split-brain runtime state",
+      "browser/auth scripts that run outside approved source posture",
+      "report piles without owner/action/review decision"
+    ],
+    "approvalBound": [
+      "paid/private source login and browser session access",
+      "bulk Skool/Loom/Mycro extraction",
+      "screenshots or video/audio capture where source rights are unclear",
+      "external sends, public posting, permission mutation, credential mutation"
+    ],
+    "counts": {
+      "harvestedSkillCount": 121,
+      "keyEvidenceFound": 12
+    }
+  },
+  "promotedCards": [
+    "WEB-GODMODE-001",
+    "LOOM-001",
+    "MEETING-VIDEO-001",
+    "SKOOL-WORKER-001",
+    "MYICRO-TRAINING-001",
+    "DRIVE-WORKER-001",
+    "BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001",
+    "FOUNDATION-OPERATOR-PULSE-001",
+    "SOURCE-019",
+    "SOURCE-020",
+    "DATA-002"
+  ],
+  "boundaries": {
+    "importedOldCode": false,
+    "mutatedOldRepo": false,
+    "externalWrites": false,
+    "paidOrPrivateExtraction": false,
+    "notes": "This card harvests patterns only. It does not run old agents, import old code, or crawl private sources."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "cardId": "OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001",
+  "approvedPlanRef": "docs/process/old-system-research-team-harvest-001-plan.md",
+  "approvedPlanSha256": "b2447b9758aa12151fb96e07fe4c57ad99c2a0c60d61186db970f8a4d291f52c",
+  "approvedRepoHead": "c15c25909def0d93348af39434c3006ecacc584b",
+  "score": 10,
+  "approvedBy": "Steve approved preserving the old research/scout intelligence gold before GOD-mode extraction work.",
+  "approvedAt": "2026-05-19T18:30:00.000-04:00",
+  "approvalNotes": [
+    "Harvest old research/scout/intel patterns into durable backlog/spec truth.",
+    "Do not let useful old-system research team design remain only in chat.",
+    "Read-only old repo review only; no old code import or old agent execution.",
+    "No private crawl, paid/provider/browser-auth work, external sends, credential mutation, or Drive permission mutation."
+  ],
+  "approvalSchemaVersion": 2,
+  "approvalDigest": "98c28c6926b9774cddf41a66b206d656e7691e4e8a1af18a82c9f6f16300e3f7"
+}
