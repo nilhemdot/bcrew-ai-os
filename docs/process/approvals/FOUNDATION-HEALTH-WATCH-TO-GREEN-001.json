@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-HEALTH-WATCH-TO-GREEN-001",
+  "approvedPlanRef": "docs/process/foundation-health-watch-to-green-001-plan.md",
+  "approvedPlanSha256": "ce6b1384c9c74089ef116f50f1aa6cb1b18d4ba844c590779ab6ad217b112c7e",
+  "approvedRepoHead": "ffa16308979a5a8e7bca3e4b31d3f50143be6460",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T09:20:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve explicitly required Foundation system health fully green and auditor/source activation to wait until health rows are fixed or classified.",
+  "scopeSummary": "Move system health to green by clearing safe rows and classifying every remaining non-green row with owner, reason, threshold, next action, and repair card routing.",
+  "constraints": [
+    "Work from main.",
+    "Do not hide red/yellow rows by deleting them from system health.",
+    "No live Gmail, meeting-notes, meeting-transcript, auth-required, paid, provider, external-write, Drive mutation, or Agent Feedback send reruns.",
+    "Every remaining non-green row needs owner, reason, threshold, next action, and repair route.",
+    "Do not start source/extraction activation before health and audit cleanup are complete.",
+    "Do not launch parallel builders from this card."
+  ],
+  "approvalDigest": "69cfcfe4da6885db8a3e79a78ce332a827236a8aaf85f03264fd81bf6a99bb42"
+}
