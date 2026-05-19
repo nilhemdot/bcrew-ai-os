@@ -120,6 +120,7 @@
     "process:foundation-handoff-hot-doc-cleanup-check": "node --env-file-if-exists=.env scripts/process-foundation-handoff-hot-doc-cleanup-check.mjs",
     "process:foundation-health-green-lock-check": "node --env-file-if-exists=.env scripts/process-foundation-health-green-lock-check.mjs",
     "process:foundation-lessons-learned-loop-check": "node --env-file-if-exists=.env scripts/process-foundation-lessons-learned-loop-check.mjs",
+    "process:foundation-backlog-p0-reality-cleanup-check": "node --env-file-if-exists=.env scripts/process-foundation-backlog-p0-reality-cleanup-check.mjs",
     "process:connector-blocked-row-diagnosis-check": "node --env-file-if-exists=.env scripts/process-connector-blocked-row-diagnosis-check.mjs",
     "process:connector-completion-prep-check": "node --env-file-if-exists=.env scripts/process-connector-completion-prep-check.mjs",
     "process:source-contract-id-reconcile-check": "node --env-file-if-exists=.env scripts/process-source-contract-id-reconcile-check.mjs",

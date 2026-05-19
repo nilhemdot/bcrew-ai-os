@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-BACKLOG-P0-REALITY-CLEANUP-001",
+  "approvedPlanRef": "docs/process/foundation-backlog-p0-reality-cleanup-001-plan.md",
+  "approvedPlanSha256": "010bf29ebe86f3b4d8feeede0e982ed188f752d11dd2eb337d7945f01e966488",
+  "approvedRepoHead": "93159fa7ac0e4df6641bb838a485327b7c3f91ba",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T14:30:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation with backlog P0 reality cleanup after lessons learned loop; keep real security work but move deferred/provider/approval/scary rows out of active blocker posture unless they are actually active.",
+  "scopeSummary": "Build the P0 reality classifier/proof, update targeted misleading security/provider/runtime/exposure rows, preserve real P0 priority, close the card, and advance Current Sprint to SYSTEM-010.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "No broad mechanical rewrites.",
+    "Do not demote real security work to make the queue look clean.",
+    "No credential/key rotation, provider API calls, public edge exposure, Drive permission mutation, external writes, or sends.",
+    "Provider/approval/security rows can stay P0 if they clearly state owner, active posture, and next action.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "9e52af631531f421a300bb81e4e3d26a2c31f667d94b770227d30887b4033901"
+}
