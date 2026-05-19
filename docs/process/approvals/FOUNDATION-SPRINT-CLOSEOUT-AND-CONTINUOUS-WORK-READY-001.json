@@ -1,0 +1,22 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-SPRINT-CLOSEOUT-AND-CONTINUOUS-WORK-READY-001",
+  "approvedPlanRef": "docs/process/foundation-sprint-closeout-and-continuous-work-ready-001-plan.md",
+  "approvedPlanSha256": "244c7d091c860376ed35480444813a53be49c6843108dbf0fc901901de1cb863",
+  "approvedRepoHead": "b745aba89ceeaa8edc1a89ef4d04cb42803e9b11",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T16:15:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation and requested a final sprint closeout/readiness decision before any builder split.",
+  "scopeSummary": "Close the Foundation-only sprint only if live System Health, repeated-failure gate, backlog hygiene, Current Sprint truth, required sprint cards, and main integration are clean; record continuous Foundation Builder readiness and defer full Value Builder split until a clean overnight/morning cycle or explicit Steve approval.",
+  "constraints": [
+    "Foundation-only closeout; do not start Value Builder split from this card alone.",
+    "Use live System Health, repeated-failure gate, backlog hygiene, Current Sprint truth, and git main truth.",
+    "Do not call classified broken workflow failures green.",
+    "Do not approve broad private extraction, sends, external writes, Drive/Gmail/Missive permission mutation, credential mutation, provider config changes, paid/provider access, or browser-auth work.",
+    "Existing governed Foundation repair/proof reruns are allowed only when they read approved source data and write local archive/ledger/proof rows only.",
+    "Approval-bound actions park the action, not the whole sprint; continue safe approved sprint work.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "4b92764980b4ece7f488909d36faa60abcde44561c48bf0f2a484d7d3b116836"
+}
