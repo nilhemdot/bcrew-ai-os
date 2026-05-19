@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "EXTRACT-CURRENT-001",
+  "approvedPlanRef": "docs/process/extract-current-001-plan.md",
+  "approvedPlanSha256": "7b507a4568f2db9129d0b346e9e8de2accd1b30d81626fcc30e74e312d8d51e7",
+  "approvedRepoHead": "d499bc8e25dde6b0e73c3d5a9acdd977cdad65e1",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T15:21:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved unattended Foundation-only continuation; EXTRACT-CURRENT-001 proves current-day freshness before backfill/source expansion.",
+  "scopeSummary": "Prove governed Gmail, Missive, meeting notes, Google Calendar, and Slack current-day lanes are fresh; latest jobs succeeded; partial failures are visible and retry-classified; eligible current failures are repaired through existing governed recovery; no broad historical extraction or unsafe external writes.",
+  "constraints": [
+    "Foundation-only; do not start Value Builder split.",
+    "Use existing live sprint unless proof closeout explicitly updates Current Sprint truth.",
+    "Do not run broad historical extraction from this card.",
+    "Do not send messages or perform external writes.",
+    "Do not mutate Google Drive permissions.",
+    "Do not mutate credentials, provider config, or keys.",
+    "No new source access, paid/provider access, or browser-auth work.",
+    "Existing governed Foundation repair reruns are allowed only for health/proof/repeated-failure recovery when they read approved source data and write local archive/ledger/proof rows only.",
+    "Approval-bound actions park the action, not the whole sprint; continue safe approved sprint work.",
+    "Each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main."
+  ],
+  "approvalDigest": "ac4263772563677a1d42b7052263b5b8065f6b0a7813a6ed09516a6c3298d3c3"
+}
