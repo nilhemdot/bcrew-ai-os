@@ -1,0 +1,34 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MEETING-VIDEO-001",
+  "approvedPlanRef": "docs/process/meeting-video-001-plan.md",
+  "approvedPlanSha256": "e62082564576a65602bd2e2b677656157cf5c2bcfab0e4bb70f164e59d6676a3",
+  "approvedRepoHead": "27c0c2a2d2c0de0e9982f5e25110473e41754584",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T19:10:00-04:00",
+  "approvalSource": "Steve approved continuing card-by-card through the GOD-mode extraction sprint with blockers parked instead of stopping all work. MEETING-VIDEO-001 may run local meeting/video manifest preflight proof but live private meeting media review remains approval-bound.",
+  "approvalMode": "blocked-preflight-only",
+  "score": 9.8,
+  "allowedWork": [
+    "read local meeting-note and meeting-transcript artifacts already archived",
+    "read local video-link-inventory and video-content-extract-backfill rows",
+    "prioritize meeting-linked media candidates and meeting recording labels",
+    "build a source-specific approval packet for future meeting-media review",
+    "prove WEB-GODMODE and multimodal synthetic meeting-video boundaries",
+    "park live meeting media review and continue SKOOL-WORKER-001"
+  ],
+  "notApproved": [
+    "live Google Meet or Drive recording locator",
+    "private Drive media read or download",
+    "Zoom recording fetch or registration access",
+    "Loom provider or browser run",
+    "Skool browser session",
+    "transcript/media download from private meeting media",
+    "screenshot or keyframe byte storage",
+    "provider/model/OCR/vision/transcription call over private meeting media",
+    "downstream atom/KB/action-route/vector writes from private meeting content",
+    "credential or Drive permission mutation",
+    "external sends or public exposure"
+  ],
+  "approvalDigest": "7b3c62db256208c40df2beceacadfd6e619a3e95201a095609f73fcb7028704f"
+}

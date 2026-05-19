@@ -115,6 +115,7 @@
     "process:foundation-operator-pulse-check": "node --env-file-if-exists=.env scripts/process-foundation-operator-pulse-check.mjs",
     "process:web-godmode-check": "node --env-file-if-exists=.env scripts/process-web-godmode-check.mjs",
     "process:loom-check": "node --env-file-if-exists=.env scripts/process-loom-check.mjs",
+    "process:meeting-video-check": "node --env-file-if-exists=.env scripts/process-meeting-video-check.mjs",
     "process:nightly-audit-scheduler-due-fix-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-scheduler-due-fix-check.mjs",
     "process:nightly-audit-run-proof-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-run-proof-check.mjs",
     "process:system-health-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-system-health-nightly-audit-check.mjs",
