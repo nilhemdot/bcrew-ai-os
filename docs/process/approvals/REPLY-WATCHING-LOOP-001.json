@@ -1,0 +1,24 @@
+{
+  "cardId": "REPLY-WATCHING-LOOP-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T08:08:00-04:00",
+  "approvedPlanRef": "docs/process/reply-watching-loop-001-plan.md",
+  "approvedPlanSha256": "c9793c1f95a6aa21b24207df6a51b1efea6a161786dd2bbe24ebf7d129338a64",
+  "approvedRepoHead": "85a29175cadc1c89ed5d83df2c1671fb3949456f",
+  "score": 9.8,
+  "notes": "Approved as part of unattended Foundation sprint. Scope is governed reply/watching action-loop contract only; no live reply ingestion, no sends, no external writes, and no second private queue.",
+  "notApproved": [
+    "external sends or messages",
+    "credential/key rotation or provider config mutation",
+    "Drive permission mutation",
+    "public exposure changes",
+    "live Gmail/Missive/Slack reply ingestion",
+    "paid/provider/browser-auth work",
+    "new source access",
+    "Strategy Hub/People/agent/source/extraction feature work",
+    "auto-closing ambiguous replies or low-confidence resolutions",
+    "rebuilding brief_replies/watching_items as a second private queue"
+  ],
+  "approvalSchemaVersion": 2,
+  "approvalDigest": "799fde9b5466fff4b6ddc1461907a1e26dc490904bdbeaf76d17a0d7eb666842"
+}
