@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CODEX-DIRECT-SUBSCRIPTION-ROUTE-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T16:00:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/codex-direct-subscription-route-001-plan.md",
+  "approvedPlanSha256": "8e2f3f536f3ebdf2db8ee0b87a8d27b0b6246c5b14cbd2c002322017275d9067",
+  "approvedRepoHead": "a6472a877f33daab487c8024cb57f6f2e2f90b78",
+  "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build CODEX-DIRECT-SUBSCRIPTION-ROUTE-001 immediately after Brain Fleet model capability registry and before Gemini, Claude, OpenClaw adapter boundary, or extractor proof.",
+  "constraints": [
+    "Add and prove a bounded direct Codex subscription route separate from OpenClaw",
+    "Record account label, GPT-5.5 availability, GPT-5.4-mini fallback availability, Fast availability, auth posture, quota/status posture, and route-probe evidence",
+    "Every probe attempt must write Brain Fleet quota ledger truth before provider execution",
+    "If auth is needed, use the Harlan auth-needed flow and fail closed",
+    "Do not use direct Codex subscription as a generic backend API",
+    "Do not mutate credentials, OAuth tokens, browser profiles, Codex auth files, provider config, source systems, or public systems",
+    "Do not send external writes or start extractor, Strategy, or People work"
+  ],
+  "approvalDigest": "5ada053190e58152449c789e62f582b8c40547230029c9f7966ee6e43496ed8d"
+}

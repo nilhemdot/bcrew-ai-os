@@ -1350,7 +1350,7 @@ function buildChangedFileGroups(files = []) {
 }
 
 async function getRecentBuildLog(limit = 30) {
-  const boundedLimit = Math.min(500, Math.max(1, Number(limit) || 30))
+  const boundedLimit = Math.min(1000, Math.max(1, Number(limit) || 30))
   const { stdout } = await execFileAsync('git', [
     'log',
     `--max-count=${boundedLimit}`,
@@ -1359,7 +1359,7 @@ async function getRecentBuildLog(limit = 30) {
     '--pretty=format:@@BUILD@@%H%x1f%h%x1f%ad%x1f%s',
   ], {
     cwd: repoRoot,
-    maxBuffer: 1024 * 1024,
+    maxBuffer: 1024 * 1024 * 2,
   })
 
   const commits = []
