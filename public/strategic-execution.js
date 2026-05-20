@@ -7,6 +7,34 @@
     section: 'overview',
     routeControls: {},
   }
+  var sectionDefinitions = {
+    overview: {
+      label: 'Strategy Hub v2',
+      title: 'Strategy Command',
+      body: 'Current pace, capacity pressure, cash posture, and pointers to the planning and meeting packets.',
+    },
+    planning: {
+      label: 'Planning Workflow',
+      title: 'Quarterly Planning',
+      body: 'Source-backed priority, carry-forward, stop, and missing-data queues for the next planning conversation.',
+    },
+    meeting: {
+      label: 'Meeting Packet',
+      title: 'Ownership Meeting',
+      body: 'Agenda, pressure readout, source proof, and Strategy review items for the next ownership discussion.',
+    },
+    'source-to-gap': {
+      label: 'Source Truth',
+      title: 'Goal And Operating Truth',
+      body: 'Current target, actual, and gap by source-backed business measure.',
+    },
+    'route-review': {
+      label: 'Review Queue',
+      title: 'Strategic Review',
+      body: 'Only strategy prep, source-map gaps, goal gaps, and pillar decisions belong here.',
+    },
+  }
+  var sectionOrder = ['overview', 'planning', 'meeting', 'source-to-gap', 'route-review']
 
   function appendText(parent, tagName, text, className) {
     var el = document.createElement(tagName)
@@ -54,7 +82,7 @@
 
   function sectionFromHash() {
     var hash = window.location.hash.replace('#', '')
-    return ['overview', 'planning', 'meeting', 'source-to-gap', 'route-review'].indexOf(hash) === -1 ? 'overview' : hash
+    return sectionOrder.indexOf(hash) === -1 ? 'overview' : hash
   }
 
   function statusTone(value) {
@@ -134,33 +162,7 @@
     var teamGroup = goalGroupByKey(goalTruth, 'team_volume')
     var strategyRoutes = strategyVisibleRoutes(actionRouter.recentRoutes || [])
     var pendingStrategyRoutes = strategyRoutes.filter(function(route) { return route.approvalStatus === 'pending' }).length
-    var heroCopy = {
-      overview: {
-        label: 'Strategy Hub v2',
-        title: 'Strategy Command',
-        body: 'Current pace, capacity pressure, cash posture, and strategy-specific review items.',
-      },
-      planning: {
-        label: 'Planning Workflow',
-        title: 'Quarterly Planning',
-        body: 'Source-backed priority, carry-forward, stop, and missing-data queues for the next planning conversation.',
-      },
-      meeting: {
-        label: 'Meeting Packet',
-        title: 'Ownership Meeting',
-        body: 'Agenda, pressure readout, source proof, and Strategy review items for the next ownership discussion.',
-      },
-      'source-to-gap': {
-        label: 'Source-To-Gap',
-        title: 'Goal And Operating Truth',
-        body: 'Current target, actual, and gap by source-backed business measure.',
-      },
-      'route-review': {
-        label: 'Strategy Review Queue',
-        title: 'Strategic Review',
-        body: 'Only strategy prep, source-map gaps, goal gaps, and pillar decisions belong here.',
-      },
-    }[state.section] || {}
+    var heroCopy = sectionDefinitions[state.section] || {}
     var hero = document.createElement('section')
     hero.className = 'hero strategy-v2-hero'
     hero.id = 'overview'
@@ -788,8 +790,6 @@
     wins.appendChild(winList)
     layout.appendChild(wins)
     page.appendChild(layout)
-
-    page.appendChild(renderStrategyQueuePreview(pendingStrategyRoutes, actionRouter))
 
     var sources = document.createElement('div')
     sources.className = 'strategy-v2-source-compact-grid'

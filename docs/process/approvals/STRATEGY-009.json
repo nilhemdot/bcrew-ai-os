@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "STRATEGY-009",
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T02:20:00.000-04:00",
+  "approvalSource": "Steve approved continuous Foundation execution and STRATEGY-009 as the active sprint blocker after STRATEGY-004.",
+  "approvedPlanRef": "docs/process/strategy-009-package-ux-plan.md",
+  "approvedPlanSha256": "785095c7aef431812eed8b4e649304eed0405d3c671beb594dd75f4d39fd33bf",
+  "approvedRepoHead": "45ad5d0fbe08a8434342ab59c6209662da34e427",
+  "score": 10,
+  "status": "approved",
+  "approvalNotes": [
+    "Clean Strategy Package UI/UX only.",
+    "Route controls stay owned by Review Queue; Overview/Planning/Meeting/Source Truth stay preview/readout surfaces.",
+    "No old Strategy Advisor chat, provider calls, extraction, external writes, or auto-applied decisions.",
+    "Continue card-by-card and advance to KPI-APPT-QUALITY-001 after clean closeout."
+  ],
+  "approvalDigest": "7b8cc6a96b09d8809282852a3884c882208ca9640db16a89b9c79912e26bb6bf"
+}
