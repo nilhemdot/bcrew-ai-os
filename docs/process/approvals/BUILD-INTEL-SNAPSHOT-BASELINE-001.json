@@ -1,0 +1,20 @@
+{
+  "cardId": "BUILD-INTEL-SNAPSHOT-BASELINE-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T23:45:00-04:00",
+  "approvalSource": "Steve approved unattended overnight audit-control sprint and the Build Intel snapshot baseline card.",
+  "notes": "Classify fixed Build Intel inspected commits as snapshot evidence instead of latest monitoring truth; do not expand GitHub extraction.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/build-intel-snapshot-baseline-001-plan.md",
+  "approvedPlanSha256": "35a6faa495621c84ad86d9688df37c54d09cd9668e124d8efbc30836fd3e6842",
+  "approvedRepoHead": "1ffb242910eea553cc616841c5dc9d30bcf69e4b",
+  "notNext": [
+    "Do not build a new GitHub crawler.",
+    "Do not run live GitHub extraction.",
+    "Do not import GStack code or install GStack.",
+    "Do not auto-create backlog cards from Build Intel findings.",
+    "Do not start source/value/extraction expansion from this card."
+  ],
+  "approvalDigest": "41611d2f3603a1200812dcbfa87936d42f737cdec1d1bc7c704995905825fcf1"
+}

@@ -18,6 +18,7 @@ It belongs in Build Intel, not marketing content production.
 - Repo: `garrytan/gstack`
 - URL: https://github.com/garrytan/gstack
 - Commit inspected: `dc6252d1df7f1f650ea6e9b2bba7d08fab5de902`
+- Baseline posture: inspected snapshot evidence, not latest upstream monitoring truth (`BUILD-INTEL-SNAPSHOT-BASELINE-001`)
 - Local mirror used for initial read-only research: `/tmp/gstack-research`
 - Public signal checked on 2026-05-13: about 95,418 stars and 14,160 forks
 - License observed: MIT
@@ -59,6 +60,8 @@ Report: `docs/_archive/handoffs/2026-05-19-hot-doc-cleanup/2026-05-13-gstack-bui
 API: `/api/foundation/gstack-build-intel`
 
 The verified V1 extracts a source map, path-cited pattern scorecard, public developer-community watchlist, proposal-only Research Inbox rows, Skill Improver enrichment, review-gate recommendations, and browser QA proof expectations.
+
+`BUILD-INTEL-SNAPSHOT-BASELINE-001` classifies the fixed inspected commit as snapshot evidence with an as-of posture. Latest GitHub monitoring stays governed by the manual/on-demand `BUILD-INTEL-GITHUB-MONITOR-001` boundary until a separate approved card expands it.
 
 ## First Backlog Candidates
 

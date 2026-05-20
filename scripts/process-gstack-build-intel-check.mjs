@@ -16,6 +16,9 @@ import {
   renderGStackBuildIntelReport,
 } from '../lib/gstack-build-intel.js'
 import {
+  isBuildIntelSnapshotBaselineEvidence,
+} from '../lib/build-intel-snapshot-baseline.js'
+import {
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
   getFoundationSnapshot,
@@ -102,7 +105,15 @@ async function main() {
   addFinding(findings, GSTACK_BUILD_INTEL_CARD_IDS.every(cardId => activeItems.some(item => item.cardId === cardId)), 'all six sprint cards are present in Current Sprint', `${activeItems.length} active items`)
   addFinding(findings, cardIds.every(cardId => planRuns.some(run => run.cardId === cardId && run.status === 'pass' && Number(run.score) >= 9.8)), 'requested cards have Plan Critic pass rows', cardIds.join(', '))
   addFinding(findings, snapshot.status === 'ready', 'GStack snapshot is ready', snapshot.status)
-  addFinding(findings, snapshot.sourceCommit === GSTACK_BUILD_INTEL_EXPECTED_COMMIT, 'GStack source commit matches inspected packet commit', snapshot.sourceCommit || 'missing')
+  addFinding(
+    findings,
+    snapshot.snapshotBaseline?.expectedSnapshotCommit === GSTACK_BUILD_INTEL_EXPECTED_COMMIT &&
+      snapshot.snapshotBaseline?.inspectedCommit === snapshot.sourceCommit &&
+      isBuildIntelSnapshotBaselineEvidence(snapshot.snapshotBaseline) &&
+      snapshot.sourcePosture === 'inspected_snapshot',
+    'GStack source commit is labeled as inspected snapshot evidence, not latest monitoring truth',
+    `${snapshot.sourceCommit || 'missing'} posture=${snapshot.sourcePosture || 'missing'}`,
+  )
   addFinding(findings, snapshot.sourceMap?.fileCount >= 100 && snapshot.sourceMap?.skillFileCount >= 20, 'source map inventories repo and skill files', `files=${snapshot.sourceMap?.fileCount || 0} skills=${snapshot.sourceMap?.skillFileCount || 0}`)
   addFinding(findings, sourceCounts.frontend_design >= 10 && sourceCounts.browser_qa >= 10 && sourceCounts.review_gates >= 5, 'source map captures frontend, browser QA, and review-gate surfaces', JSON.stringify(sourceCounts))
   addFinding(findings, ['skill_improver_operating_rules', 'review_gate_checklists', 'browser_qa_proof_loop', 'frontend_design_pipeline', 'public_github_monitoring'].every(id => scorecardIds.has(id)), 'scorecard includes high-value AIOS patterns', Array.from(scorecardIds).join(', '))
