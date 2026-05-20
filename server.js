@@ -165,6 +165,7 @@ import { buildDecisionAutoEmitSummary, scanDecisionAutoEmitCandidates } from './
 import { buildSyntheticGateReliabilityProof } from './lib/foundation-gate-reliability.js'
 import { buildPersonalWorkspaceBoundaryStatus } from './lib/foundation-personal-workspace-boundary.js'
 import { buildFoundationIdentitySurface } from './lib/foundation-identity-surface.js'
+import { loadSystem004CapabilitiesSurfacePayload } from './lib/system-004-capabilities-surface.js'
 import { buildCeoDashboardPatternStatus } from './lib/foundation-ceo-dashboard-pattern.js'
 import {
   buildFoundationReviewSprintStatus,
@@ -1538,6 +1539,10 @@ app.get('/api/system-inventory', requireAdminToken, async (req, res) => {
       skills,
       plugins,
     })
+    const capabilitySurface = await loadSystem004CapabilitiesSurfacePayload({
+      repoRoot: __dirname,
+      runtimeInventory: { skills, plugins, identity },
+    })
 
     cacheHeadersNoStore(res)
     res.json({
@@ -1549,6 +1554,7 @@ app.get('/api/system-inventory', requireAdminToken, async (req, res) => {
       skills,
       plugins,
       identity,
+      capabilitySurface,
     })
   } catch (error) {
     sendApiError(

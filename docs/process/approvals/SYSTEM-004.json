@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "SYSTEM-004",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T20:50:34-04:00",
+  "approvalSource": "Steve approved continuing the Foundation gold-capture and capability sprint card-by-card after Pillar 4 and Pillar 5 generated truth were in place.",
+  "notes": "Approved to build the existing System Inventory capability pages from generated System Capabilities and Agent Inventory truth. Do not approve provider/tool runtime use, live agent runtime, old-code import, extraction, external writes, source-system mutation, credential changes, or Value Builder split.",
+  "approvedPlanRef": "docs/process/system-004-live-capabilities-surface-plan.md",
+  "approvedPlanSha256": "3b360d990f3cab6d53afa5065ae56e4229cfeffaf9374f362fdea354bfee53b3",
+  "approvedRepoHead": "8420b0d897b7c0bdea9250ffcc98fb2fd71ea9a0",
+  "approvedChanges": [
+    "Add reusable SYSTEM-004 capability surface payload module.",
+    "Expose compact capabilitySurface truth from /api/system-inventory using generated Pillar 4 and Pillar 5 artifacts.",
+    "Render generated capability, provider/tool boundary, current-agent, old-agent-evidence, and governed-job truth in the existing Foundation System Inventory capability pages.",
+    "Add focused proof and closeout wiring for SYSTEM-004.",
+    "Advance Current Sprint to LEGACY-SYSTEM-AUDIT-001 after closeout."
+  ],
+  "notNext": [
+    "No provider/tool runtime approval, live agent runtime, old-system code or prompt import, worker/scout launch, model/provider call, live extraction, source-system mutation, external write/send, Drive permission mutation, credential mutation, or provider config change.",
+    "No Value Builder split.",
+    "No generated artifact rewrite beyond reading Pillar 4 and Pillar 5 outputs."
+  ],
+  "approvalDigest": "dcee8c2ab28b37a7c8bf700bbe930de803c19bbc238c6eb93f19df3d0a861177"
+}

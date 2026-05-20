@@ -1283,6 +1283,141 @@ function renderSystemInventoryPurposePanel(section, context) {
   })
 }
 
+function getGeneratedCapabilitySurface(inventory) {
+  return inventory && inventory.capabilitySurface ? inventory.capabilitySurface : null
+}
+
+function getGeneratedCapabilityRows(surface) {
+  if (!surface || !surface.systemCapabilities || !Array.isArray(surface.systemCapabilities.capabilities)) return []
+  return surface.systemCapabilities.capabilities
+}
+
+function capabilityTone(row) {
+  if (!row) return 'pending'
+  if (row.blocking) return 'risk'
+  if (row.approvedNow === false || String(row.status || '').indexOf('blocked') !== -1) return 'pending'
+  return 'connected'
+}
+
+function capabilityRowToCard(row) {
+  return {
+    id: row.capabilityId || 'capability',
+    title: row.title || row.capabilityId || 'Capability',
+    type: row.category || 'capability',
+    state: row.status || 'mapped',
+    tone: capabilityTone(row),
+    availableTo: row.owner || 'Foundation',
+    purpose: [
+      row.nextAction || '',
+      row.approvalBoundary && row.approvalBoundary.note ? 'Boundary: ' + row.approvalBoundary.note : '',
+    ].filter(Boolean).join(' '),
+  }
+}
+
+function currentAgentToCard(agent) {
+  return {
+    id: agent.agentId || 'current-agent',
+    title: agent.displayName || agent.agentId || 'Current agent',
+    type: agent.role || 'agent',
+    state: agent.honestStatus || 'guarded',
+    tone: agent.runtimeApproved ? 'risk' : 'pending',
+    availableTo: agent.owner || 'Foundation',
+    purpose: [
+      agent.permissionTier ? 'Permission: ' + agent.permissionTier + '.' : '',
+      agent.nextAction || 'Runtime stays guarded until an explicit card approves operation.',
+    ].filter(Boolean).join(' '),
+  }
+}
+
+function jobSummaryToCard(surface) {
+  var summary = surface && surface.summary ? surface.summary : {}
+  return {
+    id: 'foundation-governed-jobs',
+    title: 'Governed Foundation jobs',
+    type: 'runtime jobs',
+    state: (summary.governedJobCount || 0) + ' inventoried',
+    tone: summary.governedJobCount ? 'connected' : 'pending',
+    availableTo: 'Foundation Runtime',
+    purpose: 'Scheduled and manual jobs are inventoried from generated Agent Inventory truth. Inventory does not launch jobs.',
+  }
+}
+
+function legacyAgentEvidenceToCard(surface) {
+  var summary = surface && surface.summary ? surface.summary : {}
+  var agentInventory = surface && surface.agentInventory ? surface.agentInventory : {}
+  var legacyStatusCounts = agentInventory.legacyStatusCounts || {}
+  return {
+    id: 'old-system-agent-evidence',
+    title: 'Old-system agent evidence',
+    type: 'evidence only',
+    state: (summary.legacyAgentEvidenceCount || 0) + ' legacy rows',
+    tone: 'pending',
+    availableTo: 'Foundation planning only',
+    purpose: 'Old WORKING claims are not live runtime truth. Status counts: ' + Object.keys(legacyStatusCounts).map(function(key) {
+      return key + '=' + legacyStatusCounts[key]
+    }).join(', '),
+  }
+}
+
+function renderGeneratedCapabilitySurfacePanel(surface) {
+  if (!surface) return null
+
+  var panel = document.createElement('section')
+  panel.className = 'panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Generated Truth'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Live capability backing'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Backed by generated System Capabilities and Agent Inventory artifacts. This surface shows what is real, what is guarded, and what is evidence-only.'
+  left.appendChild(intro)
+
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var summary = surface.summary || {}
+  var statusGrid = document.createElement('div')
+  statusGrid.className = 'status-grid'
+  ;[
+    {
+      label: 'Capability rows',
+      status: summary.capabilityRows ? 'connected' : 'pending',
+      detail: (summary.capabilityRows || 0) + ' generated rows from Pillar 4.',
+    },
+    {
+      label: 'Current agents',
+      status: summary.currentAgentCount ? 'connected' : 'pending',
+      detail: (summary.currentAgentCount || 0) + ' guarded current agents; runtime-approved by this card: ' + (summary.runtimeApprovedAgentCount || 0) + '.',
+    },
+    {
+      label: 'Old agents',
+      status: 'pending',
+      detail: (summary.legacyAgentEvidenceCount || 0) + ' evidence-only old-system rows.',
+    },
+    {
+      label: 'Provider tools',
+      status: summary.blockedProviderCapabilityCount ? 'pending' : 'connected',
+      detail: (summary.blockedProviderCapabilityCount || 0) + ' provider/tool capabilities stay blocked until explicit approval.',
+    },
+  ].forEach(function(item) {
+    statusGrid.appendChild(renderStatusCard(item))
+  })
+  panel.appendChild(statusGrid)
+
+  return panel
+}
+
 function renderCapabilitySection(section) {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading capabilities.</p>'
@@ -1301,12 +1436,17 @@ function renderCapabilitySection(section) {
 
     var liveItems = config.items || []
     var statusCards = config.statusCards || []
+    var capabilitySurface = getGeneratedCapabilitySurface(inventory)
+    var generatedCapabilityRows = getGeneratedCapabilityRows(capabilitySurface)
     var agentSystem = (sourceData.groupedSystems || []).filter(function(system) {
       return system.systemId === 'SYS-AGENTS-001'
     })[0] || null
 
     if (section === 'capabilities-skills') {
-      liveItems = (inventory.skills || []).map(function(skill) {
+      var generatedSkillRows = generatedCapabilityRows.filter(function(row) {
+        return row.category === 'runtime_capabilities' && String(row.capabilityId || '').indexOf('skills') !== -1
+      }).map(capabilityRowToCard)
+      liveItems = generatedSkillRows.concat((inventory.skills || []).map(function(skill) {
         return {
           id: skill.id,
           title: skill.title,
@@ -1316,10 +1456,15 @@ function renderCapabilitySection(section) {
           availableTo: 'Coding/runtime layer on this machine',
           purpose: skill.description || 'Skill inventory item',
         }
-      })
+      }))
 
       var workspaceSkills = liveItems.filter(function(item) { return item.type === 'Workspace skill' }).length
       statusCards = [
+        {
+          label: 'Generated backing',
+          status: generatedSkillRows.length ? 'connected' : 'risk',
+          detail: generatedSkillRows.length ? 'Runtime skills are backed by the generated System Capabilities artifact.' : 'Generated runtime skill capability row is missing.',
+        },
         {
           label: 'Workspace skill',
           status: workspaceSkills ? 'connected' : 'pending',
@@ -1337,7 +1482,13 @@ function renderCapabilitySection(section) {
         },
       ]
     } else if (section === 'capabilities-plugins') {
-      liveItems = (inventory.plugins || []).map(function(plugin) {
+      var generatedPluginRows = generatedCapabilityRows.filter(function(row) {
+        return row.category === 'runtime_capabilities' && String(row.capabilityId || '').indexOf('plugin') !== -1
+      }).map(capabilityRowToCard)
+      var providerRows = generatedCapabilityRows.filter(function(row) {
+        return row.category === 'provider_tool_capability'
+      }).map(capabilityRowToCard)
+      liveItems = generatedPluginRows.concat(providerRows).concat((inventory.plugins || []).map(function(plugin) {
         return {
           id: plugin.id,
           title: plugin.title,
@@ -1349,13 +1500,23 @@ function renderCapabilitySection(section) {
             return skill.title
           }).join(', '),
         }
-      })
+      }))
 
       statusCards = [
+        {
+          label: 'Generated backing',
+          status: generatedPluginRows.length ? 'connected' : 'risk',
+          detail: generatedPluginRows.length ? 'Runtime plugin capability row is backed by the generated System Capabilities artifact.' : 'Generated runtime plugin capability row is missing.',
+        },
         {
           label: 'Installed plugins',
           status: liveItems.length ? 'connected' : 'pending',
           detail: liveItems.length + ' plugin or MCP surfaces are installed in this environment.',
+        },
+        {
+          label: 'Provider tools',
+          status: providerRows.length ? 'pending' : 'connected',
+          detail: providerRows.length + ' provider/tool rows are visible and blocked until explicit approval.',
         },
         {
           label: 'Boundary',
@@ -1365,6 +1526,14 @@ function renderCapabilitySection(section) {
       ]
     } else if (section === 'capabilities-agents') {
       liveItems = []
+      var currentAgentRows = capabilitySurface && capabilitySurface.agentInventory && Array.isArray(capabilitySurface.agentInventory.currentAgents)
+        ? capabilitySurface.agentInventory.currentAgents.map(currentAgentToCard)
+        : []
+      liveItems = liveItems.concat(currentAgentRows)
+      if (capabilitySurface) {
+        liveItems.push(legacyAgentEvidenceToCard(capabilitySurface))
+        liveItems.push(jobSummaryToCard(capabilitySurface))
+      }
       if (agentSystem) {
         liveItems.push({
           id: agentSystem.systemId,
@@ -1382,6 +1551,11 @@ function renderCapabilitySection(section) {
       liveItems = liveItems.concat(config.items || [])
 
       statusCards = [
+        {
+          label: 'Generated inventory',
+          status: capabilitySurface ? 'connected' : 'risk',
+          detail: capabilitySurface ? 'Backed by generated Agent Inventory: ' + currentAgentRows.length + ' current guarded agents.' : 'Generated Agent Inventory is missing from /api/system-inventory.',
+        },
         {
           label: 'Agent system map',
           status: agentSystem ? 'connected' : 'pending',
@@ -1432,6 +1606,9 @@ function renderCapabilitySection(section) {
       agentSystem: agentSystem,
     })
     if (purposePanel) container.appendChild(purposePanel)
+
+    var generatedPanel = renderGeneratedCapabilitySurfacePanel(capabilitySurface)
+    if (generatedPanel) container.appendChild(generatedPanel)
 
     var statusPanel = renderOverviewStatusPanel(statusCards, {
       eyebrow: 'Lane state',
