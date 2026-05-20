@@ -1,0 +1,883 @@
+{
+  "generatedAt": "2026-05-20T01:17:12.107Z",
+  "cardId": "LEGACY-SYSTEM-AUDIT-001",
+  "closeoutKey": "legacy-system-audit-v1",
+  "privacyBoundary": "sanitized metadata and classification only; no raw credentials, private messages, media, or old runtime state copied",
+  "roots": [
+    {
+      "rootId": "bcrew-buddy-reference",
+      "label": "BCrew-Buddy old operating system",
+      "path": "~/bcrew-buddy-reference",
+      "posture": "pattern_harvest",
+      "present": true,
+      "fileCount": 1850,
+      "totalBytes": 97123830,
+      "extensionCounts": {
+        ".md": 1274,
+        ".png": 190,
+        ".cjs": 160,
+        ".ts": 91,
+        ".otf": 24,
+        ".json": 22,
+        ".js": 22,
+        ".pdf": 14,
+        "[none]": 11,
+        ".html": 8,
+        ".sh": 6,
+        ".tsx": 5
+      },
+      "evidence": [
+        {
+          "path": "~/bcrew-buddy-reference/docs/agent-inventory.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 22586,
+          "lineCount": 199,
+          "sha256": "baaef085f41e82884dfb01ab9c38a5efa2317d4b5d7f00189edcef878e79d7e0",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/bcrew-buddy-reference/docs/team-reference.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 6422,
+          "lineCount": 162,
+          "sha256": "b8eb2150bd773c76ad49d07a1d01e5a72c7e288d2a785ee197c59a08fc041cbe",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/bcrew-buddy-reference/docs/architecture/intelligence-loop.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 1260,
+          "lineCount": 42,
+          "sha256": "92dfc3e7d5b0d9fbc3da203ea69a3e32f714313c9e1f42a738c040542df5e77a",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/bcrew-buddy-reference/docs/system-capabilities.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 28224,
+          "lineCount": 627,
+          "sha256": "538a06ce0ca45e4202b9bafe6b9d20eb53b886dd5713123d6a83e34b689c270d",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/bcrew-buddy-reference/archive/review-loop-architecture.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 3385,
+          "lineCount": 85,
+          "sha256": "89bc34d6ed0a84b46c87386f00a53ae45840a7a15c620088ba3d21b42a648642",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/bcrew-buddy-reference/archive/full_audit.cjs",
+          "exists": true,
+          "kind": "file",
+          "bytes": 1174,
+          "lineCount": 28,
+          "sha256": "d73414585cabceab65e0c4edfdb474e52acdea07530ecec3865c3e6b118fc4c9",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/bcrew-buddy-reference/archive/batch-youtube-extract.cjs",
+          "exists": true,
+          "kind": "file",
+          "bytes": 5969,
+          "lineCount": 193,
+          "sha256": "0f678798d4d009cdd0bcb8d5ec11c7aeefc4222faf09cb31e7b21cfe8b7de8a9",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/bcrew-buddy-reference/archive/fire-scouts.cjs",
+          "exists": true,
+          "kind": "file",
+          "bytes": 7478,
+          "lineCount": 211,
+          "sha256": "1d2cc8ab74e9366f16560d8fa0eeda134ea6431c611c016d4e9d1ef1fb0684b5",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/bcrew-buddy-reference/scripts/atom-extractor.cjs",
+          "exists": true,
+          "kind": "file",
+          "bytes": 6124,
+          "lineCount": 186,
+          "sha256": "e44143223c57de124c2b5be2bf45c703e1e81d3ea756161c96fe0017384cc3ec",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/bcrew-buddy-reference/src/web-extractor.ts",
+          "exists": true,
+          "kind": "file",
+          "bytes": 21474,
+          "lineCount": 635,
+          "sha256": "7531ad45922373aebf6b2790a19a7ab15e834b33a92d43e34d90bb262e5f73a7",
+          "metadataOnly": false
+        }
+      ],
+      "findings": [
+        {
+          "classification": "promote",
+          "finding": "source scan -> scored finding -> director synthesis -> action/backlog loop",
+          "promotedTo": [
+            "STRATEGIC-INTEL-001",
+            "INTEL-SCOPER-001",
+            "DECISION-008"
+          ]
+        },
+        {
+          "classification": "backlog",
+          "finding": "browser/page/video extraction kernel should be rebuilt under governed source posture",
+          "promotedTo": [
+            "WEB-GODMODE-001",
+            "LOOM-001",
+            "SKOOL-WORKER-001",
+            "MYICRO-TRAINING-001"
+          ]
+        },
+        {
+          "classification": "reject",
+          "finding": "free-floating agent sprawl and report piles without owner/action routing",
+          "promotedTo": []
+        }
+      ]
+    },
+    {
+      "rootId": "old-bcrew-skills",
+      "label": "Old BCrew skill/team library",
+      "path": "~/.inspection/bcrew-skills",
+      "posture": "skill_contract_harvest",
+      "present": true,
+      "fileCount": 2577,
+      "totalBytes": 151478992,
+      "extensionCounts": {
+        ".py": 768,
+        ".pyc": 763,
+        ".js": 316,
+        ".md": 308,
+        ".h": 109,
+        "[none]": 85,
+        ".pxi": 26,
+        ".txt": 23,
+        ".typed": 22,
+        ".pyd": 21,
+        ".pxd": 16,
+        ".cpp": 15
+      },
+      "evidence": [
+        {
+          "path": "~/.inspection/bcrew-skills/bcrew-director-intelligence/SKILL.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 13137,
+          "lineCount": 225,
+          "sha256": "6f1f1f1addc63d71e91dd163849435e6e6c04beac20f4ec1ec65db5bbacd62a6",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/bcrew-skills/bcrew-course-scout/SKILL.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 14438,
+          "lineCount": 240,
+          "sha256": "396f7254cf57a3471238808bc666e7b4454c881c9e193facd74d40b2d4e5814b",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/bcrew-skills/bcrew-external-scout/SKILL.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 11864,
+          "lineCount": 182,
+          "sha256": "32a3271ac4c95a351a6ff90369762d7d44fd57bb5922219db4eb48470248e3cf",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/bcrew-skills/bcrew-internal-email/SKILL.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 13805,
+          "lineCount": 256,
+          "sha256": "ef31fbf8c579f5009042ac1f76231ba0ac313741c5ff2d0ff976ad1e550bfbc0",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/bcrew-skills/bcrew-internal-slack/SKILL.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 11741,
+          "lineCount": 206,
+          "sha256": "2dc2832828ae604a27022830eb24981222b5aa83042a0e0a885d4b4acd9e6518",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/bcrew-skills/bcrew-internal-meetings/SKILL.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 13541,
+          "lineCount": 255,
+          "sha256": "cb60b33daf0b65e2713fb71b60512759e5b9e0f5950676f988ea5a137724413e",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/bcrew-skills/bcrew-strategy/SKILL.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 5816,
+          "lineCount": 81,
+          "sha256": "937be7985cad2557d7e9ad7b394a569509c7711720a3b966e7bfef1dfcdfa95c",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/bcrew-skills/knowledge/intelligence-sources.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 5352,
+          "lineCount": 113,
+          "sha256": "0222cbff7c1570527234fd3b60589800de6fe8b68080a5c969f5905ccad5d85f",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/bcrew-skills/knowledge/company-meetings.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 9486,
+          "lineCount": 188,
+          "sha256": "45846e446fe3cecfda95b65a42c6e7dd55efcf0e7fe05e3c4528289dd01e9a37",
+          "metadataOnly": false
+        }
+      ],
+      "findings": [
+        {
+          "classification": "promote",
+          "finding": "role/team skill contracts and evaluation assertions as reusable agent contract inputs",
+          "promotedTo": [
+            "PILLAR-5-AGENT-INVENTORY-001",
+            "ROLE-ASSISTANT-CONTRACTS-001"
+          ]
+        },
+        {
+          "classification": "source_note",
+          "finding": "internal email/slack/meeting/source scout boundaries inform shared communications contracts",
+          "promotedTo": [
+            "SOURCE-019",
+            "SOURCE-020"
+          ]
+        },
+        {
+          "classification": "reject",
+          "finding": "skill memory/state files as active truth; generated inventory must own status",
+          "promotedTo": []
+        }
+      ]
+    },
+    {
+      "rootId": "fub-zahnd-processor",
+      "label": "FUB/Zahnd processor and SQL schema",
+      "path": "~/.inspection/FUBZahnd",
+      "posture": "schema_pattern_harvest",
+      "present": true,
+      "fileCount": 91,
+      "totalBytes": 589913,
+      "extensionCounts": {
+        ".sql": 55,
+        ".cs": 25,
+        ".dll": 3,
+        ".config": 2,
+        ".pdb": 2,
+        ".csproj": 1,
+        ".user": 1,
+        ".vspscc": 1,
+        ".pfx": 1
+      },
+      "evidence": [
+        {
+          "path": "~/.inspection/FUBZahnd/FUBProcessor.cs",
+          "exists": true,
+          "kind": "file",
+          "bytes": 101299,
+          "lineCount": 3022,
+          "sha256": "ee79534e9be05e850d2a501425a39eb45e8e59da3107e4a3e52e010424529061",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/FUBZahnd/Program.cs",
+          "exists": true,
+          "kind": "file",
+          "bytes": 377,
+          "lineCount": 19,
+          "sha256": "3da2ce3abb4dc54ec9eb44671d2853e56e2198aa99d2e85f2dfee0a6b402d274",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/FUBZahnd/Models/People.cs",
+          "exists": true,
+          "kind": "file",
+          "bytes": 3626,
+          "lineCount": 119,
+          "sha256": "72d8e3252d0caca2175e003d3df668a57fe8037a31d443ab6eb311fce3fadb1a",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/FUBZahnd/Models/Deals.cs",
+          "exists": true,
+          "kind": "file",
+          "bytes": 1596,
+          "lineCount": 58,
+          "sha256": "9d05f476fb0be4c0e1ea0f57e76d2e1c7c63e19f4b591781dbed065e5ad2f6e8",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/FUBZahnd/Models/Tasks.cs",
+          "exists": true,
+          "kind": "file",
+          "bytes": 1263,
+          "lineCount": 45,
+          "sha256": "02cd26b265b1a053283322947fd7fb44a081f403ac45f555fd1d4d087be10c2c",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/FUBZahnd/Database/fub/Tables/Person.sql",
+          "exists": true,
+          "kind": "file",
+          "bytes": 3022,
+          "lineCount": 70,
+          "sha256": "245c7ae80cf3f78082ece26018f06abe4bba1cf8d1da7375e3bfebfc47557375",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/FUBZahnd/Database/fub/Tables/Deal.sql",
+          "exists": true,
+          "kind": "file",
+          "bytes": 2513,
+          "lineCount": 48,
+          "sha256": "a0b91be166a6f5e9b7afecfba7a02a5a12634ed5f9424e86d1ff787ed5201571",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/FUBZahnd/Database/fub/Stored Procedures/up_GSheetRetrievePeople.sql",
+          "exists": true,
+          "kind": "file",
+          "bytes": 14901,
+          "lineCount": 312,
+          "sha256": "8609dbfa5c9931b864cf1b265ad244165ec69a0eba6643d88c34da09bd393366",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/FUBZahnd/Database/fub/Stored Procedures/up_RetrieveDealStageSummary.sql",
+          "exists": true,
+          "kind": "file",
+          "bytes": 9211,
+          "lineCount": 124,
+          "sha256": "b0d7b47ab754ca62f499136695e48f516d62fdc3833f871c61f70d197c9c4e82",
+          "metadataOnly": false
+        }
+      ],
+      "findings": [
+        {
+          "classification": "source_note",
+          "finding": "FUB SQL/table/procedure shape is evidence for connector/source contracts only",
+          "promotedTo": [
+            "SOURCE-012",
+            "SOURCE-020"
+          ]
+        },
+        {
+          "classification": "backlog",
+          "finding": "deal/person/task data model mapping belongs in source trust and extraction adapter hardening",
+          "promotedTo": [
+            "DATA-002",
+            "SOURCE-020"
+          ]
+        },
+        {
+          "classification": "reject",
+          "finding": "old .NET processor/runtime code import; rebuild adapters in current governed runtime only",
+          "promotedTo": []
+        }
+      ]
+    },
+    {
+      "rootId": "zahnd-team-dashboard",
+      "label": "Zahnd/Benson dashboard prototype",
+      "path": "~/.inspection/zahnd-team-dashboard",
+      "posture": "ui_and_kpi_pattern_harvest",
+      "present": true,
+      "fileCount": 280,
+      "totalBytes": 6550578,
+      "extensionCounts": {
+        ".tsx": 117,
+        ".sql": 70,
+        ".ts": 29,
+        ".txt": 19,
+        ".png": 12,
+        ".json": 7,
+        "[none]": 4,
+        ".md": 4,
+        ".js": 2,
+        ".avif": 2,
+        ".webp": 2,
+        ".py": 2
+      },
+      "evidence": [
+        {
+          "path": "~/.inspection/zahnd-team-dashboard/ARCHITECTURE.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 14031,
+          "lineCount": 418,
+          "sha256": "0dcb41adf532b616a6c40e901dcf276181e0f1e9415beea9c6a339c5dc2dd460",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/zahnd-team-dashboard/index.html",
+          "exists": true,
+          "kind": "file",
+          "bytes": 1072,
+          "lineCount": 26,
+          "sha256": "f57fdf9ca0806183b9b301fa8532c1927a26868de489d5cd14c743525499d9ad",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/zahnd-team-dashboard/src/App.tsx",
+          "exists": true,
+          "kind": "file",
+          "bytes": 11950,
+          "lineCount": 335,
+          "sha256": "cca92e6094e65171c80e5c64ac823bbc4d8611063e5ed43602802575f9e87d8e",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/zahnd-team-dashboard/src/main.tsx",
+          "exists": true,
+          "kind": "file",
+          "bytes": 158,
+          "lineCount": 6,
+          "sha256": "4ab69149fdd7f1f82240d717305a9e6d1040956e3a2327c667799ad4adc5dfc9",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/zahnd-team-dashboard/src/components",
+          "exists": true,
+          "kind": "directory",
+          "bytes": 0,
+          "lineCount": 0,
+          "sha256": "",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/zahnd-team-dashboard/src/pages",
+          "exists": true,
+          "kind": "directory",
+          "bytes": 0,
+          "lineCount": 0,
+          "sha256": "",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/.inspection/zahnd-team-dashboard/package.json",
+          "exists": true,
+          "kind": "file",
+          "bytes": 2736,
+          "lineCount": 84,
+          "sha256": "a1a6ebb22edadd05163cfae055d232451c096f3d014763a3472b176792a537f5",
+          "metadataOnly": false
+        }
+      ],
+      "findings": [
+        {
+          "classification": "promote",
+          "finding": "resource-center/dashboard IA patterns can inform live source-backed operator surfaces",
+          "promotedTo": [
+            "DATA-003",
+            "FOUNDATION-OPERATOR-PULSE-001"
+          ]
+        },
+        {
+          "classification": "evidence_only",
+          "finding": "built dist assets and node_modules are evidence only, not source truth",
+          "promotedTo": []
+        },
+        {
+          "classification": "reject",
+          "finding": "static dashboard copy as current operational truth",
+          "promotedTo": []
+        }
+      ]
+    },
+    {
+      "rootId": "openclaw-workspace",
+      "label": "OpenClaw local workspace/runtime",
+      "path": "~/.openclaw",
+      "posture": "metadata_only_runtime_boundary",
+      "present": true,
+      "fileCount": 121,
+      "totalBytes": 3390709331,
+      "extensionCounts": {
+        ".jsonl": 66,
+        ".json": 19,
+        ".jpg": 10,
+        ".md": 7,
+        ".sqlite": 3,
+        ".sqlite-shm": 2,
+        ".sqlite-wal": 2,
+        ".log": 2,
+        ".html": 1,
+        ".ogg": 1,
+        ".bak": 1,
+        ".1": 1
+      },
+      "evidence": [
+        {
+          "path": "~/.openclaw/workspace/AGENTS.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 7674,
+          "lineCount": 0,
+          "sha256": "",
+          "metadataOnly": true
+        },
+        {
+          "path": "~/.openclaw/workspace/SOUL.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 1747,
+          "lineCount": 0,
+          "sha256": "",
+          "metadataOnly": true
+        },
+        {
+          "path": "~/.openclaw/workspace/TOOLS.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 860,
+          "lineCount": 0,
+          "sha256": "",
+          "metadataOnly": true
+        },
+        {
+          "path": "~/.openclaw/workspace/HEARTBEAT.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 193,
+          "lineCount": 0,
+          "sha256": "",
+          "metadataOnly": true
+        },
+        {
+          "path": "~/.openclaw/openclaw.json",
+          "exists": true,
+          "kind": "file",
+          "bytes": 792,
+          "lineCount": 0,
+          "sha256": "",
+          "metadataOnly": true
+        },
+        {
+          "path": "~/.openclaw/logs/config-health.json",
+          "exists": true,
+          "kind": "file",
+          "bytes": 582,
+          "lineCount": 0,
+          "sha256": "",
+          "metadataOnly": true
+        }
+      ],
+      "findings": [
+        {
+          "classification": "promote",
+          "finding": "local workspace doctrine around memory, heartbeat, identity, and tool boundaries",
+          "promotedTo": [
+            "MEMORY-003",
+            "MEMORY-004",
+            "FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001"
+          ]
+        },
+        {
+          "classification": "approval_bound",
+          "finding": "runtime configs, credentials, message media, and local memory stay metadata-only unless explicitly approved",
+          "promotedTo": []
+        },
+        {
+          "classification": "reject",
+          "finding": "copying local runtime state into repo docs or treating it as shared truth",
+          "promotedTo": []
+        }
+      ]
+    },
+    {
+      "rootId": "unchained-realtor",
+      "label": "Unchained Realtor product strategy notes",
+      "path": "~/unchained-realtor",
+      "posture": "business_strategy_harvest",
+      "present": true,
+      "fileCount": 4,
+      "totalBytes": 44980,
+      "extensionCounts": {
+        ".md": 4
+      },
+      "evidence": [
+        {
+          "path": "~/unchained-realtor/ME.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 3792,
+          "lineCount": 66,
+          "sha256": "05a5e8022b4068c2aca2066d5d1d7156a2c7547edef63baeac2241107d1200c4",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/unchained-realtor/STRATEGY.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 15725,
+          "lineCount": 267,
+          "sha256": "2e5e353d99034d1de642c8aa889e8a7685c5742c911c85437fe517ae558b4db3",
+          "metadataOnly": false
+        },
+        {
+          "path": "~/unchained-realtor/BACKLOG.md",
+          "exists": true,
+          "kind": "file",
+          "bytes": 13633,
+          "lineCount": 182,
+          "sha256": "65941b595a88c79eebc93b3d31bcc54e1d415a1946709ed52ce23ff97e6391f8",
+          "metadataOnly": false
+        }
+      ],
+      "findings": [
+        {
+          "classification": "promote",
+          "finding": "Steve-facing content/product strategy should route to source-backed strategic intelligence and content atoms",
+          "promotedTo": [
+            "STRATEGIC-INTEL-001",
+            "DATA-003"
+          ]
+        },
+        {
+          "classification": "backlog",
+          "finding": "Top Dollar / Unchained extraction belongs behind approved source scope and content rights",
+          "promotedTo": [
+            "WEB-GODMODE-001",
+            "DRIVE-WORKER-001"
+          ]
+        },
+        {
+          "classification": "evidence_only",
+          "finding": "private product notes are local evidence until promoted into source-backed product backlog truth",
+          "promotedTo": []
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "rootId": "bcrew-buddy-reference",
+      "rootLabel": "BCrew-Buddy old operating system",
+      "classification": "promote",
+      "finding": "source scan -> scored finding -> director synthesis -> action/backlog loop",
+      "promotedTo": [
+        "STRATEGIC-INTEL-001",
+        "INTEL-SCOPER-001",
+        "DECISION-008"
+      ]
+    },
+    {
+      "rootId": "bcrew-buddy-reference",
+      "rootLabel": "BCrew-Buddy old operating system",
+      "classification": "backlog",
+      "finding": "browser/page/video extraction kernel should be rebuilt under governed source posture",
+      "promotedTo": [
+        "WEB-GODMODE-001",
+        "LOOM-001",
+        "SKOOL-WORKER-001",
+        "MYICRO-TRAINING-001"
+      ]
+    },
+    {
+      "rootId": "bcrew-buddy-reference",
+      "rootLabel": "BCrew-Buddy old operating system",
+      "classification": "reject",
+      "finding": "free-floating agent sprawl and report piles without owner/action routing",
+      "promotedTo": []
+    },
+    {
+      "rootId": "old-bcrew-skills",
+      "rootLabel": "Old BCrew skill/team library",
+      "classification": "promote",
+      "finding": "role/team skill contracts and evaluation assertions as reusable agent contract inputs",
+      "promotedTo": [
+        "PILLAR-5-AGENT-INVENTORY-001",
+        "ROLE-ASSISTANT-CONTRACTS-001"
+      ]
+    },
+    {
+      "rootId": "old-bcrew-skills",
+      "rootLabel": "Old BCrew skill/team library",
+      "classification": "source_note",
+      "finding": "internal email/slack/meeting/source scout boundaries inform shared communications contracts",
+      "promotedTo": [
+        "SOURCE-019",
+        "SOURCE-020"
+      ]
+    },
+    {
+      "rootId": "old-bcrew-skills",
+      "rootLabel": "Old BCrew skill/team library",
+      "classification": "reject",
+      "finding": "skill memory/state files as active truth; generated inventory must own status",
+      "promotedTo": []
+    },
+    {
+      "rootId": "fub-zahnd-processor",
+      "rootLabel": "FUB/Zahnd processor and SQL schema",
+      "classification": "source_note",
+      "finding": "FUB SQL/table/procedure shape is evidence for connector/source contracts only",
+      "promotedTo": [
+        "SOURCE-012",
+        "SOURCE-020"
+      ]
+    },
+    {
+      "rootId": "fub-zahnd-processor",
+      "rootLabel": "FUB/Zahnd processor and SQL schema",
+      "classification": "backlog",
+      "finding": "deal/person/task data model mapping belongs in source trust and extraction adapter hardening",
+      "promotedTo": [
+        "DATA-002",
+        "SOURCE-020"
+      ]
+    },
+    {
+      "rootId": "fub-zahnd-processor",
+      "rootLabel": "FUB/Zahnd processor and SQL schema",
+      "classification": "reject",
+      "finding": "old .NET processor/runtime code import; rebuild adapters in current governed runtime only",
+      "promotedTo": []
+    },
+    {
+      "rootId": "zahnd-team-dashboard",
+      "rootLabel": "Zahnd/Benson dashboard prototype",
+      "classification": "promote",
+      "finding": "resource-center/dashboard IA patterns can inform live source-backed operator surfaces",
+      "promotedTo": [
+        "DATA-003",
+        "FOUNDATION-OPERATOR-PULSE-001"
+      ]
+    },
+    {
+      "rootId": "zahnd-team-dashboard",
+      "rootLabel": "Zahnd/Benson dashboard prototype",
+      "classification": "evidence_only",
+      "finding": "built dist assets and node_modules are evidence only, not source truth",
+      "promotedTo": []
+    },
+    {
+      "rootId": "zahnd-team-dashboard",
+      "rootLabel": "Zahnd/Benson dashboard prototype",
+      "classification": "reject",
+      "finding": "static dashboard copy as current operational truth",
+      "promotedTo": []
+    },
+    {
+      "rootId": "openclaw-workspace",
+      "rootLabel": "OpenClaw local workspace/runtime",
+      "classification": "promote",
+      "finding": "local workspace doctrine around memory, heartbeat, identity, and tool boundaries",
+      "promotedTo": [
+        "MEMORY-003",
+        "MEMORY-004",
+        "FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001"
+      ]
+    },
+    {
+      "rootId": "openclaw-workspace",
+      "rootLabel": "OpenClaw local workspace/runtime",
+      "classification": "approval_bound",
+      "finding": "runtime configs, credentials, message media, and local memory stay metadata-only unless explicitly approved",
+      "promotedTo": []
+    },
+    {
+      "rootId": "openclaw-workspace",
+      "rootLabel": "OpenClaw local workspace/runtime",
+      "classification": "reject",
+      "finding": "copying local runtime state into repo docs or treating it as shared truth",
+      "promotedTo": []
+    },
+    {
+      "rootId": "unchained-realtor",
+      "rootLabel": "Unchained Realtor product strategy notes",
+      "classification": "promote",
+      "finding": "Steve-facing content/product strategy should route to source-backed strategic intelligence and content atoms",
+      "promotedTo": [
+        "STRATEGIC-INTEL-001",
+        "DATA-003"
+      ]
+    },
+    {
+      "rootId": "unchained-realtor",
+      "rootLabel": "Unchained Realtor product strategy notes",
+      "classification": "backlog",
+      "finding": "Top Dollar / Unchained extraction belongs behind approved source scope and content rights",
+      "promotedTo": [
+        "WEB-GODMODE-001",
+        "DRIVE-WORKER-001"
+      ]
+    },
+    {
+      "rootId": "unchained-realtor",
+      "rootLabel": "Unchained Realtor product strategy notes",
+      "classification": "evidence_only",
+      "finding": "private product notes are local evidence until promoted into source-backed product backlog truth",
+      "promotedTo": []
+    }
+  ],
+  "promotedCards": [
+    "OLD-SYSTEM-RESEARCH-TEAM-HARVEST-001",
+    "WEB-GODMODE-001",
+    "LOOM-001",
+    "MEETING-VIDEO-001",
+    "SKOOL-WORKER-001",
+    "MYICRO-TRAINING-001",
+    "DRIVE-WORKER-001",
+    "BUILD-INTEL-DAILY-EXTRACTION-REVIEW-001",
+    "SOURCE-012",
+    "SOURCE-019",
+    "SOURCE-020",
+    "DATA-002",
+    "DATA-003",
+    "STRATEGIC-INTEL-001",
+    "DECISION-008",
+    "INTEL-SCOPER-001",
+    "FOUNDATION-DEEP-AUDITOR-REAL-LOOP-001",
+    "FOUNDATION-OPERATOR-PULSE-001",
+    "PILLAR-5-AGENT-INVENTORY-001",
+    "ROLE-ASSISTANT-CONTRACTS-001",
+    "MEMORY-003",
+    "MEMORY-004"
+  ],
+  "summary": {
+    "rootCount": 6,
+    "presentRootCount": 6,
+    "totalFileCount": 4923,
+    "evidenceCount": 44,
+    "evidenceFoundCount": 44,
+    "findingCount": 18,
+    "promotedFindingCount": 10,
+    "rejectedOrEvidenceOnlyCount": 8,
+    "unclassifiedFindingCount": 0,
+    "promotedCardCount": 22
+  },
+  "boundaries": {
+    "importedOldCode": false,
+    "ranOldAgents": false,
+    "mutatedOldRoots": false,
+    "copiedPrivateRuntimeContent": false,
+    "externalWrites": false,
+    "credentialMutation": false,
+    "providerAccess": false
+  }
+}
