@@ -1,0 +1,21 @@
+{
+  "cardId": "DECISION-007",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T07:50:30-04:00",
+  "approvedPlanRef": "docs/process/decision-007-plan.md",
+  "approvedPlanSha256": "9d13b3040712d8ff264c0179f1f1af27e50818b69eec313dce3641b649ab7981",
+  "approvedRepoHead": "86b2e1a8bcc30c99c1eb0be5c1d3408ca03bd4fd",
+  "score": 9.8,
+  "notes": "Approved as part of unattended Foundation sprint. Scope is decision/open-question reconciliation only; stale old-system runtime/provider claims are classified, not imported as active locked truth.",
+  "notApproved": [
+    "external sends or messages",
+    "credential/key rotation or provider config mutation",
+    "Drive permission mutation",
+    "public exposure changes",
+    "Strategy Hub/People/agent/source/extraction feature work",
+    "locking, approving, rejecting, or applying DECISION-008 strategy issue",
+    "bulk importing stale OpenClaw/subscription/provider runtime claims as locked truth"
+  ],
+  "approvalSchemaVersion": 2,
+  "approvalDigest": "52957af61b27dc2e0fba1304688660a9adb3ad28e9749ab207fa6b944e786643"
+}

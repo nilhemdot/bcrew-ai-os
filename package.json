@@ -130,6 +130,7 @@
     "process:system-004-capabilities-surface-check": "node --env-file-if-exists=.env scripts/process-system-004-capabilities-surface-check.mjs",
     "process:legacy-system-audit-check": "node --env-file-if-exists=.env scripts/process-legacy-system-audit-check.mjs",
     "process:strategic-intel-check": "node --env-file-if-exists=.env scripts/process-strategic-intel-check.mjs",
+    "process:decision-007-check": "node --env-file-if-exists=.env scripts/process-decision-007-check.mjs",
     "process:decision-008-check": "node --env-file-if-exists=.env scripts/process-decision-008-check.mjs",
     "process:intel-scoper-check": "node --env-file-if-exists=.env scripts/process-intel-scoper-check.mjs",
     "process:data-001-check": "node --env-file-if-exists=.env scripts/process-data-001-check.mjs",
