@@ -170,6 +170,36 @@ function buildSystemHealthGate({ args, processResult }) {
   }
 }
 
+function buildRepeatedFailureGate({ args, processResult }) {
+  const status = processResult.json?.status || processResult.json?.actionGate?.status || 'missing'
+  if (processResult.exitStatus === 0 && status === 'healthy') {
+    return { ok: true, detail: `exit=${processResult.exitStatus} status=${status}` }
+  }
+
+  const inSelfScheduledJob = Boolean(process.env.FOUNDATION_JOB_ACTOR) && !args.apply && !args.closeCard
+  if (!inSelfScheduledJob) {
+    return { ok: false, detail: `exit=${processResult.exitStatus} status=${status}` }
+  }
+
+  const actionGate = processResult.json?.actionGate || {}
+  const blockingItems = Array.isArray(actionGate.blockingItems) ? actionGate.blockingItems : []
+  const selfBlocks = blockingItems.filter(item =>
+    item?.source === 'foundation_job_runs' &&
+      item?.key === FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY
+  )
+  if (blockingItems.length > 0 && blockingItems.length === selfBlocks.length) {
+    return {
+      ok: true,
+      detail: `self-run transition allowed while ${FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY} proves repeated-failure recovery`,
+    }
+  }
+
+  return {
+    ok: false,
+    detail: `exit=${processResult.exitStatus} status=${status} blockers=${blockingItems.map(item => item.key).join(', ') || 'none'}`,
+  }
+}
+
 function isoDate(date) {
   return date.toISOString().slice(0, 10)
 }
@@ -559,6 +589,7 @@ async function main() {
   const systemHealthProcess = runNpmScript('process:system-health-nightly-audit-check', ['--json'])
   const systemHealthGate = buildSystemHealthGate({ args, processResult: systemHealthProcess })
   const repeatedFailureGate = runNpmScript('process:build-lane-repeated-failure-action-gate-check', ['--json'])
+  const repeatedFailureGateStatus = buildRepeatedFailureGate({ args, processResult: repeatedFailureGate })
   const liveBacklogIds = (foundationSnapshot.backlogItems || []).map(item => item.id).filter(Boolean)
   const currentSprintCardIds = (workingActiveSprint.items || []).map(item => item.cardId).filter(Boolean)
   const activeBlockerCardId = workingActiveSprint.sprint?.activeBlockerCardId || workingActiveSprint.sprint?.active_blocker_card_id || ''
@@ -597,7 +628,7 @@ async function main() {
   addCheck(checks, lessonStatus.status === 'healthy' && lessonStatus.summary?.writesBacklog === false && lessonStatus.summary?.externalModelUse === false, 'live lessons loop routes current lessons without writes or external model use', `status=${lessonStatus.status} lessons=${lessonStatus.summary?.lessonCount || 0} failed=${lessonStatus.summary?.failedCount || 0}`)
   addCheck(checks, lessonStatus.summary?.privateConversationLessonCount >= 1 && lessonStatus.summary?.privacyPosture === 'local_private_metadata_only', 'local/private conversation review stays metadata-only', `privateSignals=${lessonStatus.summary?.privateConversationLessonCount || 0}`)
   addCheck(checks, systemHealthGate.ok, 'System Health remains healthy or only this running lessons job is pending success', systemHealthGate.detail)
-  addCheck(checks, repeatedFailureGate.exitStatus === 0 && repeatedFailureGate.json?.status === 'healthy', 'repeated-failure gate remains healthy', `exit=${repeatedFailureGate.exitStatus} status=${repeatedFailureGate.json?.status || 'missing'}`)
+  addCheck(checks, repeatedFailureGateStatus.ok, 'repeated-failure gate remains healthy or only this running lessons job is proving recovery', repeatedFailureGateStatus.detail)
   addCheck(checks, packageJson.scripts?.['process:foundation-lessons-learned-loop-check'] === `node --env-file-if-exists=.env ${FOUNDATION_LESSONS_LEARNED_LOOP_SCRIPT_PATH}`, 'package exposes lessons loop focused proof', packageJson.scripts?.['process:foundation-lessons-learned-loop-check'] || 'missing')
   addCheck(checks, jobDefinition?.key === FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY && jobDefinition.runtimeMode === 'scheduled' && jobDefinition.mutationPosture === 'read_only' && jobDefinition.scheduleLocalTime === '05:45', 'lessons loop job is scheduled read-only after System Health', jobDefinition ? `${jobDefinition.runtimeMode}/${jobDefinition.scheduleLocalTime}/${jobDefinition.mutationPosture}` : 'missing')
   addCheck(checks, jobsSource.includes(FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY) && jobsSource.includes('local_private_metadata'), 'Foundation job registry contains lessons loop privacy posture', FOUNDATION_LESSONS_LEARNED_LOOP_JOB_KEY)
