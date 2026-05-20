@@ -5,6 +5,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   STYLESHEET_MODULE_PATHS,
   STYLESHEET_MONOLITH_SPLIT_APPROVAL_PATH,
@@ -17,6 +18,7 @@ import {
   buildStylesheetMonolithSplitDogfoodProof,
   evaluateStylesheetMonolithSplit,
 } from '../lib/foundation-stylesheet-monolith-split.js'
+import { evaluateSprintCheckHistoricalMode } from '../lib/sprint-check-historical-mode.js'
 import {
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
@@ -111,13 +113,22 @@ async function main() {
   const sprintItem = activeSprint.items.find(item => item.cardId === STYLESHEET_MONOLITH_SPLIT_CARD_ID) || null
   const planCriticRuns = await getPlanCriticRunsByCardIds([STYLESHEET_MONOLITH_SPLIT_CARD_ID])
   const planCritic = planCriticRuns.find(run => run.status === 'pass' && Number(run.score) >= 9.8) || null
+  const closeouts = getFoundationBuildCloseouts()
+  const sprintMode = evaluateSprintCheckHistoricalMode({
+    activeSprint,
+    card,
+    closeouts,
+    cardId: STYLESHEET_MONOLITH_SPLIT_CARD_ID,
+    expectedSprintId: STYLESHEET_MONOLITH_SPLIT_SPRINT_ID,
+    closeoutKey: STYLESHEET_MONOLITH_SPLIT_CLOSEOUT_KEY,
+  })
   const evaluation = evaluateStylesheetMonolithSplit({ rootSource, moduleSources, htmlSources })
   const dogfood = buildStylesheetMonolithSplitDogfoodProof()
 
   ensure(checks, approvalValidation.ok && Number(approvalValidation.approval?.score) >= 9.8, 'Plan approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || STYLESHEET_MONOLITH_SPLIT_APPROVAL_PATH)
   ensure(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  ensure(checks, activeSprint.sprint?.sprintId === STYLESHEET_MONOLITH_SPLIT_SPRINT_ID, 'Current Sprint is the stylesheet monolith split sprint', activeSprint.sprint?.sprintId || 'missing')
-  ensure(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  ensure(checks, sprintMode.ok, 'Current Sprint proof is active or verified historical closeout', `${sprintMode.mode}: ${sprintMode.reason}`)
+  ensure(checks, sprintItem || sprintMode.mode === 'historical_closeout', 'Current Sprint contains active card or historical closeout covers it', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : sprintMode.mode)
   ensure(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
   for (const check of evaluation.checks) ensure(checks, check.ok, check.check, check.detail)
   ensure(checks, dogfood.ok === true, 'dogfood rejects old stylesheet monolith failures', dogfood.invariant)

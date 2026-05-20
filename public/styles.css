@@ -5,6 +5,8 @@
  */
 @import url('./styles-base-layout.css');
 @import url('./styles-foundation-core.css');
+@import url('./styles-foundation-current-state.css');
+@import url('./styles-foundation-build-log.css');
 @import url('./styles-foundation-workflows.css');
 @import url('./styles-strategy-docs.css');
 @import url('./styles-home-foundation-shell.css');

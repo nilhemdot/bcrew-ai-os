@@ -302,6 +302,7 @@
     "process:frontend-current-state-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-current-state-renderers-split-check.mjs",
     "process:frontend-decision-question-renderers-split-check": "node --env-file-if-exists=.env scripts/process-frontend-decision-question-renderers-split-check.mjs",
     "process:stylesheet-monolith-split-check": "node --env-file-if-exists=.env scripts/process-stylesheet-monolith-split-check.mjs",
+    "process:foundation-css-surface-decouple-check": "node --env-file-if-exists=.env scripts/process-foundation-css-surface-decouple-check.mjs",
     "process:verifier-frontend-split-checks-module-check": "node --env-file-if-exists=.env scripts/process-verifier-frontend-split-checks-module-check.mjs",
     "process:verifier-server-route-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-server-route-split-module-check.mjs",
     "process:verifier-foundation-db-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-foundation-db-split-module-check.mjs",

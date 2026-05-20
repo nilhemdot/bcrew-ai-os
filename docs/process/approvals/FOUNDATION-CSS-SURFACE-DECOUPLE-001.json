@@ -1,0 +1,30 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-CSS-SURFACE-DECOUPLE-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T00:25:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/foundation-css-surface-decouple-001-plan.md",
+  "approvedPlanSha256": "9928c494faa85f5505b8003af5b8740cd85e0570a196ea5f94ae994644e84870",
+  "approvedRepoHead": "8c22b13f3ef5e18087ac918974996b26059802d4",
+  "approvalSource": "Steve approved unattended overnight Foundation work and instructed Codex to keep going card-by-card unless a true unsafe system-wide blocker appears.",
+  "constraints": [
+    "preserve cascade order; do not redesign Foundation UI",
+    "split only Build Log/Current Sprint and Current State/System Inventory CSS ownership seams",
+    "do not change DOM renderer behavior",
+    "do not start source/value/extraction expansion",
+    "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
+  ],
+  "requiredProof": [
+    "node --check lib/foundation-css-surface-decouple.js scripts/process-foundation-css-surface-decouple-check.mjs",
+    "npm run process:stylesheet-monolith-split-check -- --json",
+    "npm run process:foundation-css-surface-decouple-check -- --close-card --json",
+    "npm run process:code-quality-nightly-audit-check -- --json --no-write --skip-endpoint-fetch",
+    "npm run process:system-health-nightly-audit-check -- --json",
+    "npm run process:build-lane-repeated-failure-action-gate-check -- --json",
+    "npm run backlog:hygiene -- --json",
+    "npm run foundation:verify -- --json-summary",
+    "npm run process:foundation-ship -- --card=FOUNDATION-CSS-SURFACE-DECOUPLE-001 --planApprovalRef=docs/process/approvals/FOUNDATION-CSS-SURFACE-DECOUPLE-001.json --closeoutKey=foundation-css-surface-decouple-v1 --commitRef=HEAD"
+  ],
+  "approvalDigest": "b151161e4f7675ac41483db76ef55564079b4c8d871867b4719b4bb8c092b26f"
+}
