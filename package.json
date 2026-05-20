@@ -415,6 +415,7 @@
     "process:approval-threshold-registry-check": "node --env-file-if-exists=.env scripts/process-approval-threshold-registry-check.mjs",
     "process:build-intel-snapshot-baseline-check": "node --env-file-if-exists=.env scripts/process-build-intel-snapshot-baseline-check.mjs",
     "process:build-closeout-data-source-check": "node --env-file-if-exists=.env scripts/process-build-closeout-data-source-check.mjs",
+    "process:focused-sprint-id-historical-aware-check": "node --env-file-if-exists=.env scripts/process-focused-sprint-id-historical-aware-check.mjs",
     "process:sprint-stage-gate-check": "node --env-file-if-exists=.env scripts/process-sprint-stage-gate-check.mjs",
     "process:foundation-plan-reconcile-check": "node --env-file-if-exists=.env scripts/process-foundation-plan-reconcile-check.mjs",
     "process:connector-credential-check": "node --env-file-if-exists=.env scripts/process-connector-credential-check.mjs",

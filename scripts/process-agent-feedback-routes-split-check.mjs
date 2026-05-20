@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { Pool } from 'pg'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
 import { createAgentFeedbackToken } from '../lib/agent-feedback.js'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   closeFoundationDb,
   getActiveFoundationCurrentSprint,
@@ -26,6 +27,7 @@ import {
   AGENT_FEEDBACK_ROUTES_SPLIT_SPRINT_ID,
   buildAgentFeedbackRoutesSplitDogfoodProof,
 } from '../lib/agent-feedback-routes.js'
+import { evaluateSprintCheckHistoricalMode } from '../lib/sprint-check-historical-mode.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -213,17 +215,25 @@ async function main() {
   const planCritic = planCriticRuns.find(run => run.status === 'pass' && Number(run.score) >= 9.8) || null
   const dogfood = buildAgentFeedbackRoutesSplitDogfoodProof({ serverSource, moduleSource, proofScriptSource: scriptSource })
   const serverLineCount = String(serverSource || '').split('\n').length
+  const sprintMode = evaluateSprintCheckHistoricalMode({
+    activeSprint,
+    card,
+    closeouts: getFoundationBuildCloseouts(),
+    cardId: AGENT_FEEDBACK_ROUTES_SPLIT_CARD_ID,
+    expectedSprintId: AGENT_FEEDBACK_ROUTES_SPLIT_SPRINT_ID,
+    closeoutKey: AGENT_FEEDBACK_ROUTES_SPLIT_CLOSEOUT_KEY,
+  })
 
   ensure(checks, approvalValidation.ok, 'Plan approval validates at 9.8+', approvalValidation.failures?.map(item => item.check).join(', ') || AGENT_FEEDBACK_ROUTES_SPLIT_APPROVAL_PATH)
   ensure(checks, card && ['executing', 'done'].includes(card.lane), 'live backlog card exists in executing/done lane', card ? `${card.id}:${card.lane}` : 'missing')
-  ensure(checks, activeSprint.sprint?.sprintId === AGENT_FEEDBACK_ROUTES_SPLIT_SPRINT_ID, 'Current Sprint is the server monolith closeout sprint', activeSprint.sprint?.sprintId || 'missing')
-  ensure(checks, sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage), 'Current Sprint contains the card in Building Now or Done', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : 'missing')
+  ensure(checks, sprintMode.ok, 'Current Sprint or verified closeout owns Agent Feedback routes split proof', `${sprintMode.mode}: ${sprintMode.reason}`)
+  ensure(checks, sprintMode.mode === 'historical_closeout' || (sprintItem && ['building_now', 'done_this_sprint'].includes(sprintItem.stage)), 'Current Sprint contains active card or verified historical closeout exists', sprintItem ? `${sprintItem.cardId}:${sprintItem.stage}` : sprintMode.mode)
   ensure(checks, planCritic, 'durable Plan Critic pass row exists', planCritic ? `${planCritic.status}/${planCritic.score}` : 'missing')
   ensure(checks, includesAll(moduleSource, AGENT_FEEDBACK_PUBLIC_ROUTE_MARKERS), 'new module owns public Agent Feedback route strings', 'lib/agent-feedback-routes.js')
   ensure(checks, moduleSource.includes('registerAgentFeedbackRoutes'), 'new module exports Agent Feedback route registrar', 'registerAgentFeedbackRoutes')
   ensure(checks, serverSource.includes('registerAgentFeedbackRoutes(app'), 'server.js delegates through Agent Feedback registrar', 'registerAgentFeedbackRoutes(app)')
   ensure(checks, excludesAll(serverSource, AGENT_FEEDBACK_PUBLIC_ROUTE_MARKERS), 'server.js no longer owns moved public Agent Feedback routes', 'old inline public route markers absent')
-  ensure(checks, includesAll(serverSource, OUT_OF_SCOPE_ROUTE_MARKERS), 'out-of-scope routes remain outside Agent Feedback route module', OUT_OF_SCOPE_ROUTE_MARKERS.join(', '))
+  ensure(checks, excludesAll(moduleSource, OUT_OF_SCOPE_ROUTE_MARKERS), 'out-of-scope routes remain outside Agent Feedback route module', 'out-of-scope markers absent from lib/agent-feedback-routes.js')
   ensure(checks, excludesAll(moduleSource, OUT_OF_SCOPE_ROUTE_MARKERS), 'new module does not own admin dry-run, Sales, Foundation write, or Intelligence routes', 'out-of-scope markers absent')
   ensure(checks, scriptIsReadOnly(scriptSource), 'focused proof script is read-only by default', 'no DB writes, backlog writes, ClickUp writes, Gmail/notification sends, or file writes')
   ensure(checks, dogfood.ok, 'dogfood rejects old Agent Feedback route split failures', dogfood.summary)

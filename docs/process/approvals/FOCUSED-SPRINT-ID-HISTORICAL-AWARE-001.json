@@ -1,0 +1,18 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOCUSED-SPRINT-ID-HISTORICAL-AWARE-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T00:15:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/focused-sprint-id-historical-aware-001-plan.md",
+  "approvedPlanSha256": "2dbab4d241f52b3ab2f3e65204cfa7e296e614079a126d903e03b3c21b5186bf",
+  "approvedRepoHead": "f6ac329be128b9d91cf90a221c2d446cdf42272b",
+  "approvalSource": "Steve approved unattended overnight Foundation audit-control sprint and required deep-audit findings to become fixes, live cards, gates, or proof instead of report noise.",
+  "constraints": [
+    "do not rewrite every legacy process check in this card",
+    "do not remove bootstrap/default sprint metadata that is explicitly marked as non-live truth",
+    "closed focused checks must validate through verified closeout proof instead of exact active sprint IDs",
+    "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
+  ],
+  "approvalDigest": "3b545cb3016805422441a3d82a2599f67f4988e8e2954f36c84205ab0fb563ee"
+}
