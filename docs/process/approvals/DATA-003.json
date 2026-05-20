@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DATA-003",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T01:20:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/data-003-plan.md",
+  "approvedPlanSha256": "ee262c9b868847f90fd8147271b62efab80565d63c100c42eb70d244dcc4d010",
+  "approvedRepoHead": "0b433e4f2350c0cfe8a6bf1937e33c03dc9f4e96",
+  "approvalSource": "Steve approved unattended overnight continuation and told the builder to keep going; DATA-003 is the active blocker after INTEL-SCOPER-001.",
+  "constraints": [
+    "render first live source-backed Strategy Overview value cards from existing BHAG and Agent Engine doc snapshots",
+    "preserve source IDs, source badges, source actions, as-of dates, and detail provenance for displayed values",
+    "do not add live Google Sheet reads to /api/source-of-truth",
+    "do not run extraction, source sync, browser automation, provider/model calls, or broad crawl",
+    "do not mutate source data, Drive permissions, credentials, provider config, or write externally",
+    "advance Current Sprint to FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001 after clean closeout"
+  ],
+  "approvalDigest": "ddf59748f4c43b0cf61c98be81d19abb7355d60af7b408bd7641e2b57622be6c"
+}

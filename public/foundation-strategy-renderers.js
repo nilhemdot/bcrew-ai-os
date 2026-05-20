@@ -308,13 +308,221 @@ function renderDocCard(doc) {
   return article
 }
 
+function getLiveSourceRows(doc, groupTitle) {
+  return (doc && doc.sourceSnapshot || [])
+    .filter(function(row) { return row.groupTitle === groupTitle })
+    .sort(function(left, right) { return (left.sortOrder || 0) - (right.sortOrder || 0) })
+}
+
+function getLiveSourceRow(rows, label) {
+  return (rows || []).find(function(row) { return row.label === label }) || null
+}
+
+function mergeLiveSourceContracts(docs) {
+  var map = {}
+  ;(docs || []).forEach(function(doc) {
+    ;(doc && doc.sourceContracts || []).forEach(function(contract) {
+      if (contract && contract.sourceId && !map[contract.sourceId]) map[contract.sourceId] = contract
+    })
+  })
+  return map
+}
+
+function uniqueLiveSourceIds(values) {
+  var seen = {}
+  return (values || []).filter(function(value) {
+    if (!value || seen[value]) return false
+    seen[value] = true
+    return true
+  })
+}
+
+function buildLiveSourceValueCardModel(config, sourceContractMap) {
+  var rows = config.rows || []
+  var values = (config.labels || [])
+    .map(function(label) { return getLiveSourceRow(rows, label) })
+    .filter(Boolean)
+  var sourceIds = uniqueLiveSourceIds(
+    (config.sourceIds || []).concat(values.map(function(row) { return row.sourceId }))
+  )
+  return {
+    title: config.title,
+    summary: config.summary,
+    href: buildDocHref(config.docPath, 'docs/business-strategy.md'),
+    values: values,
+    sourceIds: sourceIds,
+    sourceActions: getSourceActionsForIds(sourceIds, sourceContractMap),
+  }
+}
+
+function appendLiveSourceBadges(target, model) {
+  var badgeRow = document.createElement('div')
+  badgeRow.className = 'live-source-badge-row'
+
+  model.sourceIds.forEach(function(sourceId) {
+    var badge = document.createElement('span')
+    badge.className = 'doc-source-id'
+    badge.textContent = sourceId
+    badgeRow.appendChild(badge)
+  })
+
+  target.appendChild(badgeRow)
+  appendSourceActions(target, model.sourceActions)
+}
+
+function renderLiveSourceValueCard(model) {
+  if (!model || !model.values || !model.values.length) return null
+
+  var card = document.createElement('article')
+  card.className = 'doc-source-card live-source-value-card'
+
+  var top = document.createElement('div')
+  top.className = 'doc-source-card-top'
+
+  var titleWrap = document.createElement('div')
+  var title = document.createElement('h5')
+  var link = document.createElement('a')
+  link.className = 'section-link'
+  link.href = model.href
+  link.textContent = model.title
+  title.appendChild(link)
+  titleWrap.appendChild(title)
+  appendLiveSourceBadges(titleWrap, model)
+  top.appendChild(titleWrap)
+
+  var asOfValues = uniqueLiveSourceIds(
+    model.values
+      .map(function(row) { return row.asOf ? formatAsOfDate(row.asOf) : '' })
+      .filter(Boolean)
+  )
+  if (asOfValues.length) {
+    var asOf = document.createElement('div')
+    asOf.className = 'doc-source-asof'
+    asOf.textContent = 'As of ' + asOfValues.join(', ') + ' (Eastern Time)'
+    top.appendChild(asOf)
+  }
+
+  card.appendChild(top)
+
+  var table = document.createElement('table')
+  table.className = 'doc-source-table'
+  var tbody = document.createElement('tbody')
+  model.values.forEach(function(row) {
+    var tr = document.createElement('tr')
+    var label = document.createElement('th')
+    label.textContent = row.label
+    tr.appendChild(label)
+    var value = document.createElement('td')
+    value.textContent = row.value
+    tr.appendChild(value)
+    tbody.appendChild(tr)
+  })
+  table.appendChild(tbody)
+  card.appendChild(table)
+
+  if (model.summary) {
+    var summary = document.createElement('p')
+    summary.className = 'doc-source-detail'
+    summary.textContent = model.summary
+    card.appendChild(summary)
+  }
+
+  return card
+}
+
+function renderLiveSourceBackedValuesPanel(bhagDoc, engineDoc) {
+  if (!bhagDoc || !engineDoc) return null
+
+  var sourceContractMap = mergeLiveSourceContracts([bhagDoc, engineDoc])
+  var teamRows = getLiveSourceRows(bhagDoc, 'Team Goal: $2B')
+  var communityRows = getLiveSourceRows(bhagDoc, 'Community Goal: 10,000 Agents')
+  var engineInputRows = getLiveSourceRows(engineDoc, 'Engine Inputs')
+  var engineRequirementRows = getLiveSourceRows(engineDoc, 'Current Requirement')
+  var models = [
+    buildLiveSourceValueCardModel({
+      title: 'Team BHAG Pace',
+      docPath: 'docs/strategy/bhag-model.md',
+      rows: teamRows,
+      labels: ['2026', 'Should Be', 'Actual', 'Pace'],
+      sourceIds: ['SRC-FREEDOM-BHAG-001', 'SRC-OWNERS-001'],
+      summary: 'Team volume target and current pace come from BHAG Builder and Owners Dashboard source rows.',
+    }, sourceContractMap),
+    buildLiveSourceValueCardModel({
+      title: 'Community BHAG Pace',
+      docPath: 'docs/strategy/bhag-model.md',
+      rows: communityRows,
+      labels: ['2026', 'Should Be', 'Actual', 'Pace'],
+      sourceIds: ['SRC-FREEDOM-BHAG-001', 'SRC-FREEDOM-COMMUNITY-001'],
+      summary: 'Community count target and pace stay separate from Benson Crew active productive team capacity.',
+    }, sourceContractMap),
+    buildLiveSourceValueCardModel({
+      title: 'Agent Engine Assumptions',
+      docPath: 'docs/strategy/agent-engine.md',
+      rows: engineInputRows.concat(engineRequirementRows),
+      labels: ['Average Monthly GCI', 'Split to Team', 'Planning Attrition Assumption', 'Required Recruiting Pace', 'Current Recruiting Pace'],
+      sourceIds: ['SRC-FREEDOM-BHAG-001', 'SRC-FREEDOM-ENGINE-001'],
+      summary: 'Capacity math uses source-owned assumptions instead of markdown-edited values.',
+    }, sourceContractMap),
+    buildLiveSourceValueCardModel({
+      title: 'Agent Engine Capacity',
+      docPath: 'docs/strategy/agent-engine.md',
+      rows: engineRequirementRows,
+      labels: ['Required Agents This Year', 'Current Active Agents', 'Gap This Year', 'Production Gap'],
+      sourceIds: ['SRC-FREEDOM-BHAG-001', 'SRC-FREEDOM-ENGINE-001'],
+      summary: 'Active productive agent capacity and production gap are read from live Agent Engine rows.',
+    }, sourceContractMap),
+  ].filter(function(model) { return model.values && model.values.length })
+
+  if (!models.length) return null
+
+  var panel = document.createElement('section')
+  panel.className = 'panel live-source-values-panel'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Live Source Values'
+  left.appendChild(eyebrow)
+
+  var title = document.createElement('h3')
+  title.textContent = 'Source-backed strategy numbers'
+  left.appendChild(title)
+
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'These cards read the same live BHAG and Agent Engine source snapshots as the supporting docs. Markdown explains the model; source rows carry the numbers.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'live-source-value-grid'
+  models.forEach(function(model) {
+    var card = renderLiveSourceValueCard(model)
+    if (card) grid.appendChild(card)
+  })
+  panel.appendChild(grid)
+
+  return panel
+}
+
 function renderOverview() {
   var container = document.getElementById('found-content')
   container.innerHTML = '<p>Loading overview.</p>'
 
-  Promise.all([fetchSourceOfTruth(), fetchFoundationHub()]).then(function(results) {
+  Promise.all([
+    fetchSourceOfTruth(),
+    fetchFoundationHub(),
+    fetchDoc('docs/strategy/bhag-model.md'),
+    fetchDoc('docs/strategy/agent-engine.md'),
+  ]).then(function(results) {
     var data = results[0]
     var hub = results[1]
+    var bhagDoc = results[2]
+    var engineDoc = results[3]
     container.innerHTML = ''
 
     /* hero */
@@ -348,6 +556,9 @@ function renderOverview() {
     hero.appendChild(printBtn)
 
     container.appendChild(hero)
+
+    var liveValuesPanel = renderLiveSourceBackedValuesPanel(bhagDoc, engineDoc)
+    if (liveValuesPanel) container.appendChild(liveValuesPanel)
 
     /* strategy doc panel */
     var panel = document.createElement('section')
