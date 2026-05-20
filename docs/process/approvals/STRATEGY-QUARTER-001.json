@@ -1,0 +1,23 @@
+{
+  "cardId": "STRATEGY-QUARTER-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T08:25:00-04:00",
+  "approvedPlanRef": "docs/process/strategy-quarter-001-plan.md",
+  "approvedPlanSha256": "18fba2d7d2908de1d635c70ce5a811bb1c8f9afed7adba672f3193ea444670d1",
+  "approvedRepoHead": "4fb9a80e9dd0fe299cf9dc3291984b1956a40349",
+  "score": 9.8,
+  "notes": "Approved as part of unattended Foundation sprint. Scope is the source-backed Strategy Quarter input layer only: local PostgreSQL records, Strategy Hub owner/admin read-write path, source contract update, and source-fact export.",
+  "notApproved": [
+    "external sends or messages",
+    "credential/key rotation or provider config mutation",
+    "Drive permission mutation",
+    "public exposure changes",
+    "provider/model calls or browser automation",
+    "paid-source work or broad private extraction",
+    "auto-applying Strategy decisions or action routes",
+    "treating stale quarterly-priorities markdown as current signed-off quarter truth",
+    "building STRATEGY-003 or broader Strategy workspace expansion inside this card"
+  ],
+  "approvalSchemaVersion": 2,
+  "approvalDigest": "2305bfb4b524f5f1a93cd52d3f77d6cc430fecabd8b465aa428caae5fe39670a"
+}

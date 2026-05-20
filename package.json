@@ -524,6 +524,7 @@
     "process:engine-001-check": "node --env-file-if-exists=.env scripts/process-engine-001-check.mjs",
     "process:memory-005-check": "node --env-file-if-exists=.env scripts/process-memory-005-check.mjs",
     "process:strategy-001-check": "node --env-file-if-exists=.env scripts/process-strategy-001-check.mjs",
+    "process:strategy-quarter-check": "node --env-file-if-exists=.env scripts/process-strategy-quarter-check.mjs",
     "process:gov-001-check": "node --env-file-if-exists=.env scripts/process-gov-001-check.mjs",
     "process:decision-004-check": "node --env-file-if-exists=.env scripts/process-decision-004-check.mjs",
     "process:decision-005-check": "node --env-file-if-exists=.env scripts/process-decision-005-check.mjs"

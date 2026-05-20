@@ -4,6 +4,8 @@
     data: null,
     error: null,
     busyRouteId: null,
+    busyQuarterSave: false,
+    quarterMessage: '',
     section: 'overview',
     routeControls: {},
   }
@@ -681,6 +683,105 @@
     return wrap
   }
 
+  function renderQuarterContextPanel(data, options) {
+    var quarter = data.quarterContext || {}
+    var context = quarter.context || {}
+    var summary = quarter.summary || {}
+    var compact = options && options.compact
+    var panel = document.createElement('article')
+    panel.className = 'strategy-v2-focus-panel strategy-v2-quarter-context'
+    appendText(panel, 'div', 'Quarter Context', 'eyebrow')
+    appendText(panel, 'h3', emptyText(context.label, 'Quarter context not initialized'))
+    appendText(panel, 'p', emptyText(context.theme, 'Owner-confirmed quarter theme is missing.'), 'strategy-v2-muted')
+
+    var stats = document.createElement('div')
+    stats.className = 'strategy-v2-meeting-stat-grid'
+    stats.appendChild(renderMeetingStat('Status', emptyText(context.planningStatus || summary.planningStatus, 'missing'), 'planning'))
+    stats.appendChild(renderMeetingStat('Targets', summary.targetCount || count(quarter.targets), 'items'))
+    stats.appendChild(renderMeetingStat('Follow-up', summary.reviewOutputCount || count(quarter.reviewOutputs), 'items'))
+    panel.appendChild(stats)
+
+    if (compact) {
+      appendLink(panel, '#planning', 'Open quarter inputs', 'section-support-link')
+      return panel
+    }
+
+    var targetList = document.createElement('div')
+    targetList.className = 'strategy-v2-goal-grid'
+    ;(quarter.targets || []).slice(0, 4).forEach(function(target) {
+      var card = document.createElement('article')
+      card.className = 'strategy-v2-card strategy-v2-planning-item'
+      appendText(card, 'div', emptyText(target.department, 'Strategy'), 'strategy-v2-focus-label')
+      appendText(card, 'h4', emptyText(target.title, 'Quarter target'))
+      appendText(card, 'p', emptyText(target.targetValue, 'Target value missing.'), 'strategy-v2-muted')
+      var meta = document.createElement('div')
+      meta.className = 'strategy-v2-route-mini-meta'
+      meta.appendChild(makePill(emptyText(target.status, 'watch'), statusTone(target.status)))
+      meta.appendChild(makePill(emptyText(target.owner, 'owner missing'), 'neutral'))
+      card.appendChild(meta)
+      targetList.appendChild(card)
+    })
+    if (!(quarter.targets || []).length) {
+      appendText(targetList, 'p', 'No quarter targets yet.', 'strategy-v2-muted')
+    }
+    panel.appendChild(targetList)
+
+    var form = document.createElement('form')
+    form.className = 'strategy-v2-quarter-form'
+    form.addEventListener('submit', saveQuarterContext)
+    form.appendChild(makeQuarterInput('theme', 'Theme', context.theme || '', false))
+    form.appendChild(makeQuarterInput('criticalNumber', 'Critical number', context.criticalNumber || '', false))
+    form.appendChild(makeQuarterSelect('planningStatus', context.planningStatus || 'needs_owner_update'))
+    form.appendChild(makeQuarterInput('ownerNote', 'Owner note', context.metadata && context.metadata.lastOwnerNote || '', true))
+    var actions = document.createElement('div')
+    actions.className = 'strategy-v2-route-actions'
+    var button = document.createElement('button')
+    button.type = 'submit'
+    button.className = 'btn btn-primary'
+    button.textContent = state.busyQuarterSave ? 'Saving' : 'Save Quarter'
+    button.disabled = state.busyQuarterSave
+    actions.appendChild(button)
+    if (state.quarterMessage) appendText(actions, 'span', state.quarterMessage, 'strategy-v2-muted')
+    form.appendChild(actions)
+    panel.appendChild(form)
+    return panel
+  }
+
+  function makeQuarterInput(name, label, value, multiline) {
+    var wrap = document.createElement('label')
+    wrap.className = 'strategy-v2-route-control'
+    appendText(wrap, 'span', label)
+    var input = multiline ? document.createElement('textarea') : document.createElement('input')
+    input.name = name
+    input.value = value || ''
+    input.rows = multiline ? 3 : undefined
+    wrap.appendChild(input)
+    return wrap
+  }
+
+  function makeQuarterSelect(name, value) {
+    var wrap = document.createElement('label')
+    wrap.className = 'strategy-v2-route-control'
+    appendText(wrap, 'span', 'Planning status')
+    var select = document.createElement('select')
+    select.name = name
+    ;[
+      ['needs_owner_update', 'Needs owner update'],
+      ['draft', 'Draft'],
+      ['review_ready', 'Review ready'],
+      ['approved', 'Approved'],
+      ['stale', 'Stale'],
+    ].forEach(function(option) {
+      var el = document.createElement('option')
+      el.value = option[0]
+      el.textContent = option[1]
+      el.selected = option[0] === value
+      select.appendChild(el)
+    })
+    wrap.appendChild(select)
+    return wrap
+  }
+
   function renderScoperSection(section) {
     var details = document.createElement('details')
     details.className = 'strategy-v2-scoper-section'
@@ -859,6 +960,7 @@
     steps.appendChild(stepList)
     panel.appendChild(steps)
 
+    panel.appendChild(renderQuarterContextPanel(data))
     panel.appendChild(renderScoperOutputPanel(data))
     panel.appendChild(renderPlanningQueue('Priority candidates', 'Decide', workflow.priorityCandidates, 'No priority candidates are source-backed yet.'))
     panel.appendChild(renderPlanningQueue('Carry forward candidates', 'Carry Forward', workflow.carryForwardCandidates, 'No carry-forward candidates are ready.'))
@@ -1163,6 +1265,9 @@
       tone: 'neutral',
     }))
     page.appendChild(kpis)
+    if (data.quarterContext) {
+      page.appendChild(renderQuarterContextPanel(data, { compact: true }))
+    }
     if (data.businessAtoms) {
       var atomPreview = document.createElement('article')
       atomPreview.className = 'strategy-v2-focus-panel'
@@ -1845,6 +1950,33 @@
       state.error = error
     }
     renderApp()
+  }
+
+  async function saveQuarterContext(event) {
+    event.preventDefault()
+    var form = event.currentTarget
+    var body = {}
+    ;['theme', 'criticalNumber', 'planningStatus', 'ownerNote'].forEach(function(name) {
+      var field = form.elements[name]
+      if (field) body[name] = field.value
+    })
+    state.busyQuarterSave = true
+    state.quarterMessage = ''
+    renderApp()
+    try {
+      await fetchJson('/api/strategic-execution/quarter-context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      state.quarterMessage = 'Saved'
+      state.data = await fetchJson('/api/strategic-execution/v2')
+    } catch (error) {
+      state.quarterMessage = error.message || 'Save failed'
+    } finally {
+      state.busyQuarterSave = false
+      renderApp()
+    }
   }
 
   function snoozeUntilForControl(route) {
