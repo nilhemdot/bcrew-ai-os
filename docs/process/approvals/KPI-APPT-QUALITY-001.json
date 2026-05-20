@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "KPI-APPT-QUALITY-001",
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T02:30:00.000-04:00",
+  "approvalSource": "Steve approved continuous Foundation execution and KPI-APPT-QUALITY-001 as the active sprint blocker after STRATEGY-009.",
+  "approvedPlanRef": "docs/process/kpi-appt-quality-001-plan.md",
+  "approvedPlanSha256": "57e3e164b2f83160f8578651fdfc95f5b1855066f13eb7bae55ce668df46f57e",
+  "approvedRepoHead": "fc778baf066ac880dc5b4a352b460c53f1b1c9e0",
+  "score": 10,
+  "status": "approved",
+  "approvalNotes": [
+    "Read-only aggregate KPI appointment quality audit only.",
+    "Tracked proof must not write person-level samples into repo artifacts.",
+    "No KPI/FUB writes, coaching/apply workflow, provider calls, browser auth, or external writes.",
+    "Continue card-by-card and advance to KPI-LEAD-VALIDATION-001 after clean closeout."
+  ],
+  "approvalDigest": "a0e67b21b78d7a15dcbd7bc5a13d31d1649d51d2cda2a6a5a2b6135d7efae3d6"
+}

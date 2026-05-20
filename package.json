@@ -442,6 +442,7 @@
     "process:strategy-hub-meeting-ready-check": "node --env-file-if-exists=.env scripts/process-strategy-hub-meeting-ready-check.mjs",
     "process:strategy-004-check": "node --env-file-if-exists=.env scripts/process-strategy-004-check.mjs",
     "process:strategy-009-check": "node --env-file-if-exists=.env scripts/process-strategy-009-check.mjs",
+    "process:kpi-appt-quality-check": "node --env-file-if-exists=.env scripts/process-kpi-appt-quality-check.mjs",
     "process:avatar-import-check": "node --env-file-if-exists=.env scripts/process-avatar-import-check.mjs",
     "auto-deploy:rollback": "node --env-file-if-exists=.env scripts/auto-deploy-rollback.mjs",
     "process:auto-deploy-rollback-check": "node --env-file-if-exists=.env scripts/process-auto-deploy-rollback-check.mjs",
