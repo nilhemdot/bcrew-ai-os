@@ -1,0 +1,23 @@
+{
+  "cardId": "KPI-LEAD-VALIDATION-001",
+  "score": 10,
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T02:45:00.000-04:00",
+  "approvalSource": "Steve approved unattended Foundation execution: keep going card-by-card, park unsafe blockers, and continue safe work.",
+  "notes": "Approved as the next safe card after KPI-APPT-QUALITY-001. Scope is governed read-only aggregate KPI/FUB lead-source validation. Not approved: KPI/FUB writes, FUB cleanup/apply workflow, person-level tracked artifacts, appointment-quality implementation, Shopping List discipline, broad KPI dashboard rebuild, external sends, credential/key rotation, Drive permission mutation, paid/provider access, browser-auth, or broad private extraction.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/kpi-lead-validation-001-plan.md",
+  "approvedPlanSha256": "9cf28b0e245e45989e0ceb15bf01416f79f8498fb4d41d26020caa79086f8798",
+  "approvedRepoHead": "b325f7c747c1907455e6a4c1c0fe847910605881",
+  "changedFiles": [
+    "lib/kpi-lead-validation-audit.js",
+    "scripts/process-kpi-lead-validation-check.mjs",
+    "package.json",
+    "docs/process/kpi-lead-validation-001-plan.md",
+    "docs/process/approvals/KPI-LEAD-VALIDATION-001.json",
+    "docs/handoffs/2026-05-20-kpi-lead-validation-closeout.md",
+    "lib/foundation-build-closeout-process-gate-records.js",
+    "lib/foundation-verify-coverage-card-ids.js"
+  ],
+  "approvalDigest": "4bac060d1ac5d6a22b55b398d3ab25041986653b9c6eaaac92e5ddb72c5fdaad"
+}
