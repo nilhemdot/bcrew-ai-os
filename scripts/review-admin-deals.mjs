@@ -4,6 +4,12 @@ import process from 'node:process'
 import { batchUpdateSheetValues, getSheetValues } from '../lib/google-delegated.js'
 import { getFubPerson } from '../lib/fub.js'
 import { closeFoundationDb, listFubLeadSourceRules } from '../lib/foundation-db.js'
+import {
+  ADMIN_DEAL_BACKLOG_SINCE,
+  ADMIN_DEAL_DEFAULT_BACKLOG_LIMIT,
+  ADMIN_DEAL_POLICY_EFFECTIVE_DATE,
+  buildAdminDealPostPolicyNote,
+} from '../lib/admin-deal-policy-source-contract.js'
 
 const OWNERS_SHEET_ID = '18FZ6lzS17mzKk9_45naSlCNXgTJu3CEotYLuYz_xLSk'
 const FREEDOM_SHEET_ID = '1fyPB-g_B08okE01G3L0tzUTaJiuivrSBo1RqMYHt2Dw'
@@ -11,9 +17,9 @@ const ADMIN_SHEET_TITLE = 'ADMIN ONLY - Deal Data Entry'
 const ADMIN_RANGE = `'${ADMIN_SHEET_TITLE}'!A1:CE2000`
 const FREEDOM_DEALS_RANGE = "'Data Entry - Clients, Deals, NPS & GReviews'!A6:AF500"
 const DEFAULT_FUB_CONTEXT = 'owner'
-const DEFAULT_BACKLOG_SINCE = '2025-06-01'
-const DEFAULT_BACKLOG_LIMIT = 5
-const OPS_BONUS_POLICY_EFFECTIVE_DATE = '2026-04-01'
+const DEFAULT_BACKLOG_SINCE = ADMIN_DEAL_BACKLOG_SINCE
+const DEFAULT_BACKLOG_LIMIT = ADMIN_DEAL_DEFAULT_BACKLOG_LIMIT
+const OPS_BONUS_POLICY_EFFECTIVE_DATE = ADMIN_DEAL_POLICY_EFFECTIVE_DATE
 const CLICKUP_DEAL_DATA_ENTRY_LIST_ID = process.env.CLICKUP_DEAL_DATA_ENTRY_LIST_ID || '901112153939'
 const OWNERS_ADMIN_GID = '533201019'
 
@@ -950,7 +956,7 @@ function createAuditResult(group, sourceRules, freedomDealMap, clickUpContext) {
     followThroughPassed += clickUpFollowThrough.passed
     followThroughFailed += clickUpFollowThrough.failed
     followThroughIssues.push(...clickUpFollowThrough.issues)
-    followThroughNotes.push('Q2 2026 bonus policy moved survey/review accountability out of the old Freedom per-row bonus model for deals executed on or after 2026-04-01.')
+    followThroughNotes.push(buildAdminDealPostPolicyNote())
     followThroughNotes.push(...clickUpFollowThrough.notes)
     if (freedomRow) {
       followThroughNotes.push(`A historical Freedom row is still visible at row ${freedomRow.rowNum}, but it is not treated as the post-policy source of truth.`)

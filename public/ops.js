@@ -224,7 +224,7 @@ function renderOpsSystemPill(job, queueStats) {
   if (job.key === 'admin-deal-backlog-review') {
     body.appendChild(renderLabeledCopy(
       'Extra detail',
-      'Runs newest to older from the 2025-06-01 cutoff. Post-April-1 follow-through is checked in ClickUp Deal Data Entry instead of the old Freedom review sheet.'
+      job.systemSummary || job.description || 'Runs newest to older from the source-contract cutoff and checks post-policy follow-through in ClickUp Deal Data Entry.'
     ))
   }
 

@@ -1,0 +1,19 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ADMIN-DEAL-POLICY-SOURCE-CONTRACT-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-19T23:20:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/admin-deal-policy-source-contract-001-plan.md",
+  "approvedPlanSha256": "40e980cce25daab5a8860089aa18416678ca8a139d35651aaa0c71ff7527724b",
+  "approvedRepoHead": "c55933cc3b2c8879ffb55b0209092c4548192982",
+  "approvalSource": "Steve approved unattended overnight Foundation audit-control sprint and required deep-audit findings to become fixes, live cards, gates, or proof instead of report noise.",
+  "constraints": [
+    "do not run live Admin deal review jobs",
+    "do not call Google Sheets, FUB, ClickUp, or external connectors",
+    "do not change Admin review behavior or source-field write boundaries",
+    "audit finding closes only when runner, job registry, and Ops UI consume the source contract",
+    "each card must close with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, process:foundation-ship, and clean pushed main"
+  ],
+  "approvalDigest": "252cf93a05440ad8babf76237557f4e4b7d91b3a40acf60f289ba3b7ae565702"
+}
