@@ -1,0 +1,13 @@
+{
+  "cardId": "SOURCE-001",
+  "score": 10,
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T03:30:00.000-04:00",
+  "approvalSource": "Steve approved unattended Foundation execution: keep going card-by-card, park unsafe actions, and close SOURCE-001 from live repo truth.",
+  "notes": "Approved SOURCE-001 to lock Gmail as a signed-off read-side current-reality source contract without Gmail sends, credential mutation, broad mailbox exposure, broad historical private extraction, Drive permission mutation, or Missive-comment conflation.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/source-001-gmail-source-contract-plan.md",
+  "approvedPlanSha256": "78de49ba105fd47f4f21a958fa52cc274b8c0e14849b41884c283e0426631c5a",
+  "approvedRepoHead": "446b476f70374c97a239c4cc1055e09c5fc5f887",
+  "approvalDigest": "2578fae63e0adc0c49cbcc7955870ffe07e5b23f1f80317f82fac33aa49a776b"
+}

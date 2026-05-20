@@ -52,8 +52,12 @@ Use it for:
 - messages not visible in Missive
 - mailbox reads where Missive is not the system of record
 - thread context outside the shared Missive workspace
+- governed current-day thread archive and candidate extraction
+- Gmail PDF/text/calendar attachment V1 artifacts
 
 Do **not** treat Gmail as equivalent to Missive for internal comments or assignment context.
+
+Current Foundation sign-off is narrow: Gmail is signed off for delegated read-side current reality through `gmail-current-day`, `gmail-extract-latest`, and `email-attachments-backfill`. This does not approve Gmail sends, broad team-mailbox exposure, credential mutation, broad historical private extraction, or using Gmail as the source of Missive internal comments, mentions, assignments, or routing context.
 
 ### Google Meeting Notes / Transcripts
 
