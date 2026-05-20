@@ -29,6 +29,25 @@ Routing rule:
 - Source notes own evidence and current process detail.
 - Backlog owns unresolved gaps, repairs, and future source-system changes.
 
+## Temporal Truth Model
+
+Current truth must be queryable without deleting history.
+
+Use this model for strategy and decision records:
+
+- `validFrom` says when a truth became active.
+- `validUntil` says when a truth stopped being active.
+- `supersededBy` points to the newer truth or decision that replaced it.
+- `currentState` is computed from those fields and the record status; it is not a guess based on the newest note.
+
+Rules:
+
+- A record is current only when `validFrom` is not in the future, `validUntil` is empty or later than the as-of time, and `supersededBy` is empty.
+- Superseded records stay queryable as history.
+- Future records do not become current early.
+- Two current records with the same truth key are a conflict until a decision or source contract resolves the overlap.
+- Every temporal truth record needs source provenance, owner, and evidence context.
+
 ## Source Boundary Truth
 
 - Freedom is current strategy process map and spreadsheet-era planning logic, not final system-owned truth.

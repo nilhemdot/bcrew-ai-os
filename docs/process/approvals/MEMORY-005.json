@@ -1,0 +1,17 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MEMORY-005",
+  "approvedPlanRef": "docs/process/memory-005-temporal-truth-model-plan.md",
+  "approvedPlanSha256": "5a77f3bccd314e657296be36c6920e1714f5c678e9418b270b93048fc4d07599",
+  "approvedRepoHead": "438d0c4f4f094cc635d552179506ff48a7e03d55",
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T05:15:00.000-04:00",
+  "score": 10,
+  "approvalNotes": [
+    "Approved unattended Foundation continuation after ENGINE-001.",
+    "Implement temporal truth for strategy and decisions using validFrom, validUntil, supersededBy, and computed currentState query rules.",
+    "Do not build Graphiti, broad memory import, external writes, provider calls, private data upload, or automatic decision lock/apply in this card.",
+    "Close only with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, and process:foundation-ship."
+  ],
+  "approvalDigest": "a96593979add2d163d73c687e390b288968e3b437b36dcb6356a6f3a2ffd9270"
+}
