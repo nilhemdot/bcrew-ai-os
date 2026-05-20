@@ -1,0 +1,21 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BRAIN-FLEET-QUOTA-LEDGER-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T16:00:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/brain-fleet-quota-ledger-001-plan.md",
+  "approvedPlanSha256": "f38e32d65d52dec4a67bc494fdb29489060d080e34e577b026d20480fcafdda0",
+  "approvedRepoHead": "10d73b0fe2ac40c698fbefc7d15505d98ca16c16",
+  "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build BRAIN-FLEET-QUOTA-LEDGER-001 immediately after Harlan auth escalation and before model capability registry, live provider probes, or extractor proof.",
+  "constraints": [
+    "Every Brain Fleet call must write ledger truth before live route probes",
+    "Ledger truth must include workload, route, model, account label, status, artifact, quota/reset state if known, failure reason, and stop condition",
+    "Quota/reset unknown must be explicit, not omitted",
+    "Stop on auth-needed, rate-limit, quota, and provider failures instead of thrashing",
+    "Do not run live provider probes from this card",
+    "Do not mutate credentials, provider config, source systems, llm_credentials, or llm_routes",
+    "Keep Strategy and People parked"
+  ],
+  "approvalDigest": "c0e40303f5e3adc70d99c57b4e98b53ad03c472c52badc3fcbf71ce4afb4f736"
+}

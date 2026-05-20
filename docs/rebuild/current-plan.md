@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-20
-Version: v6.145 - Harlan auth escalation loop closed; quota ledger next
-Status: Harlan auth escalation is closed as dry-run contract work; Brain Fleet quota ledger is active next; Strategy/People are parked
+Version: v6.146 - Brain Fleet quota ledger closed; capability registry next
+Status: Brain Fleet quota ledger is closed as ledger-only proof; model capability registry is active next; Strategy/People are parked
 
 Use this doc for one question:
 
@@ -16,7 +16,7 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`, `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`, `BRAIN-FLEET-FOUNDATION-001` is closed under `brain-fleet-foundation-v1`, and `HARLAN-AUTH-ESCALATION-LOOP-001` is closed under `harlan-auth-escalation-loop-v1`. The active blocker is `BRAIN-FLEET-QUOTA-LEDGER-001`; build ledger truth before live provider probes or extractor proof.
+Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`, `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`, `BRAIN-FLEET-FOUNDATION-001` is closed under `brain-fleet-foundation-v1`, `HARLAN-AUTH-ESCALATION-LOOP-001` is closed under `harlan-auth-escalation-loop-v1`, and `BRAIN-FLEET-QUOTA-LEDGER-001` is closed under `brain-fleet-quota-ledger-v1`. The active blocker is `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001`; record route capability truth before live provider probes or extractor proof.
 
 Steve's current command order:
 
@@ -46,10 +46,11 @@ Closed recovery and Brain Fleet readiness cards:
 1. `FOUNDATION-GATE-CHECK-SERIALIZATION-001` - done under `foundation-gate-check-serialization-v1`. A concurrent proof bundle produced a Postgres deadlock while the same System Health check passed sequentially. Heavy DB-backed Foundation proof checks now serialize locally, dogfood concurrent attempts, allow owner-token child reentry for delegated verifier health checks, and still fail closed on real DB/schema/verifier failures before Brain Fleet work starts.
 2. `BRAIN-FLEET-FOUNDATION-001` - done under `brain-fleet-foundation-v1`. V1 is no-auth contract/interface work over existing `llm_credentials` and `llm_routes`; it reuses the LLM router planner and credential registry, rejects raw prompt/content payloads, records provider/model/account-label route truth, and returns `canExecute=false` until Harlan auth, quota ledger, and model capability registry ship. It did not run live provider probes, provider calls, credential mutation, source writes, extractor runtime, Strategy, or People work.
 3. `HARLAN-AUTH-ESCALATION-LOOP-001` - done under `harlan-auth-escalation-loop-v1`. V1 harvests the old BCrew-Buddy auth escalation patterns into a Foundation-owned dry-run contract: `auth_needed` records `blocked-auth`, prepares Steve-only Harlan/Telegram/email notification drafts, dedups duplicate issues, waits for `DONE`, silently re-verifies, resumes only after proof, and fails closed on timeout or failed reverify. It did not send external messages, mutate credentials, run browser auth, run provider probes, run extraction, or touch Strategy/People.
+4. `BRAIN-FLEET-QUOTA-LEDGER-001` - done under `brain-fleet-quota-ledger-v1`. V1 adds the Brain Fleet call ledger over existing `llm_calls`: every approved Brain Fleet call boundary records workload, route, model, account label, status, artifact refs, quota/reset posture, failure reason, and stop condition. Dogfood writes a skipped internal ledger row only; it does not run provider probes, execute models, mutate credentials, update provider config, run extraction, or touch Strategy/People.
 
-Sequential queue after the Harlan auth escalation closeout:
+Sequential queue after the quota ledger closeout:
 
-1. `BRAIN-FLEET-QUOTA-LEDGER-001` and `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` - ledger and capability truth before probes.
+1. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` - capability truth before probes.
 2. Bounded route probes: Codex direct subscription, Gemini video/long-context, Claude Code/Agent SDK experimental, then OpenClaw adapter boundary.
 3. `EXTRACTOR-BRAIN-FLEET-PROOF-001` and one approved YouTube Build Intel runtime proof.
 
