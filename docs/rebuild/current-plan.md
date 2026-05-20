@@ -1,8 +1,8 @@
 # BCrew AI OS Rebuild Plan
 
 Last updated: 2026-05-20
-Version: v6.149 - Gemini video route closed; Claude route next
-Status: Gemini video route is closed as bounded API proof; Claude Code review route is active next; Strategy/People are parked
+Version: v6.150 - Claude Code review route closed; OpenClaw adapter boundary next
+Status: Claude Code review route is closed as bounded experimental local proof; OpenClaw adapter boundary is active next; Strategy/People are parked
 
 Use this doc for one question:
 
@@ -16,7 +16,7 @@ For doc cleanup rules, use [Doc Cleanup And Consolidation Plan](doc-cleanup-plan
 
 ## Current Sprint
 
-Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`, `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`, `BRAIN-FLEET-FOUNDATION-001` is closed under `brain-fleet-foundation-v1`, `HARLAN-AUTH-ESCALATION-LOOP-001` is closed under `harlan-auth-escalation-loop-v1`, `BRAIN-FLEET-QUOTA-LEDGER-001` is closed under `brain-fleet-quota-ledger-v1`, `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` is closed under `brain-fleet-model-capability-registry-v1`, `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001` is closed under `codex-direct-subscription-route-v1`, and `GEMINI-VIDEO-BRAIN-ROUTE-001` is closed under `gemini-video-brain-route-v1`. The active blocker is `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001`; probe Claude Code / Agent SDK as a bounded local route, mark experimental if subscription/SDK posture is ambiguous, and do not block extractor v1 on Claude.
+Current Sprint API owns the active blocker. As of 2026-05-20, `FOUNDATION-CONTROL-PLANE-TRUTH-CLEANUP-001` is closed under `foundation-control-plane-truth-cleanup-v1`, `FOUNDATION-GATE-CHECK-SERIALIZATION-001` is closed under `foundation-gate-check-serialization-v1`, `BRAIN-FLEET-FOUNDATION-001` is closed under `brain-fleet-foundation-v1`, `HARLAN-AUTH-ESCALATION-LOOP-001` is closed under `harlan-auth-escalation-loop-v1`, `BRAIN-FLEET-QUOTA-LEDGER-001` is closed under `brain-fleet-quota-ledger-v1`, `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` is closed under `brain-fleet-model-capability-registry-v1`, `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001` is closed under `codex-direct-subscription-route-v1`, `GEMINI-VIDEO-BRAIN-ROUTE-001` is closed under `gemini-video-brain-route-v1`, and `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001` is closed under `claude-code-review-brain-route-v1`. The active blocker is `OPENCLAW-ADAPTER-BOUNDARY-001`; demote OpenClaw to adapter status, keep it useful where proven, and do not let OpenClaw limitations define Foundation architecture.
 
 Steve's current command order:
 
@@ -50,12 +50,12 @@ Closed recovery and Brain Fleet readiness cards:
 5. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001` - done under `brain-fleet-model-capability-registry-v1`. V1 adds the read-only Brain Fleet model capability registry over existing `llm_credentials`, `llm_routes`, and `llm_route_probes`: every route records provider, model, speed mode, reasoning posture, video/vision/long-context support, quota posture/reset truth, auth posture, known limitations, allowed workloads, and source evidence. It does not run provider probes, execute models, mutate credentials, mutate route/probe truth, run extraction, or touch Strategy/People.
 6. `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001` - done under `codex-direct-subscription-route-v1`. V1 adds the direct local Codex CLI route separate from OpenClaw, records `gpt-5.5`, `gpt-5.4-mini` fallback, Fast/priority availability, auth/reachability status, explicit unknown quota/reset posture, Brain Fleet ledger truth, and route-probe evidence. The route remains experimental/local-tooling-only and is not a generic backend API, scheduled extractor route, Strategy route, People route, or autonomous runtime route.
 7. `GEMINI-VIDEO-BRAIN-ROUTE-001` - done under `gemini-video-brain-route-v1`. V1 adds the bounded Gemini API route proof for video/vision and long-context readiness, records selected model, primary/fallback availability, auth method, explicit unknown quota tier/reset posture, video/vision/long-context capability, artifact contract, text-only fallback, Brain Fleet ledger truth, and route-probe evidence. It does not process source video, upload files, store raw video, run broad extraction, mutate credentials, or send external writes.
+8. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001` - done under `claude-code-review-brain-route-v1`. V1 adds the bounded Claude Code review route proof, records local CLI auth, selected model, Agent SDK posture, experimental policy posture, explicit unknown quota reset posture, Brain Fleet ledger truth, and route-probe evidence. It does not run Claude ultrareview, background agents, Agent SDK app runtime, extractor work, credential mutation, or external writes; extractor v1 is not blocked on Claude ambiguity.
 
-Sequential queue after the Gemini route closeout:
+Sequential queue after the Claude route closeout:
 
-1. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001` - bounded Claude Code / Agent SDK local route proof; mark experimental and continue if posture is ambiguous and sprint rules allow.
-2. `OPENCLAW-ADAPTER-BOUNDARY-001` - demote OpenClaw to adapter status.
-3. `EXTRACTOR-BRAIN-FLEET-PROOF-001` and one approved YouTube Build Intel runtime proof.
+1. `OPENCLAW-ADAPTER-BOUNDARY-001` - demote OpenClaw to adapter status.
+2. `EXTRACTOR-BRAIN-FLEET-PROOF-001` and one approved YouTube Build Intel runtime proof.
 
 May 20 deep audit truth: the 03:00 nightly deep audit ran and produced 7 deterministic findings, 0 P0. P1/P2 findings are closed, routed, or explicitly accepted through live backlog cards and closeout proof; the deep-audit closure gate remains healthy.
 

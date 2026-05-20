@@ -1,0 +1,12 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001",
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T17:00:00-04:00",
+  "score": 10,
+  "approvedPlanRef": "docs/process/claude-code-review-brain-route-001-plan.md",
+  "approvedPlanSha256": "93ff125f4caf4e2c5fd75aa0cc568b4d72529a149c94027df2b1ae7d5cdddf68",
+  "approvedRepoHead": "d900fb43d4c9df8ec5047ee01f84ebf0d6292d5e",
+  "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001 immediately after Gemini video route and before OpenClaw adapter boundary or extractor proof.",
+  "approvalDigest": "07aebdbc48f18da4c07ea69e26c48cac1b03f2cca31014d7287a01f297740c43"
+}
