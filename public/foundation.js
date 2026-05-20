@@ -297,29 +297,18 @@ function renderBacklogAccordionItem(item) {
   summaryCopy.textContent = item.summary
   body.appendChild(summaryCopy)
 
-  if (item.whyItMatters) {
-    body.appendChild(renderLabeledCopy('backlog-note', 'Why It Matters', item.whyItMatters))
-  }
-
-  if (item.nextAction) {
-    body.appendChild(renderLabeledCopy('backlog-next', 'Next To Close', item.nextAction))
-  }
-
-  if (item.statusNote) {
-    body.appendChild(renderLabeledCopy('backlog-note', 'Current Note', item.statusNote))
-  }
-
-  if (item.source) {
-    body.appendChild(renderLabeledCopy('backlog-note', 'Source', item.source))
-  }
+  if (item.whyItMatters) body.appendChild(renderLabeledCopy('backlog-note', 'Why It Matters', item.whyItMatters))
+  if (item.nextAction) body.appendChild(renderLabeledCopy('backlog-next', 'Next To Close', item.nextAction))
+  if (item.statusNote) body.appendChild(renderLabeledCopy('backlog-note', 'Current Note', item.statusNote))
+  if (item.source) body.appendChild(renderLabeledCopy('backlog-note', 'Source', item.source))
 
   if (item.updatedAt || item.createdAt) {
-    body.appendChild(renderLabeledCopy('backlog-note', 'Updated', formatDate(item.updatedAt || item.createdAt)))
+    var updatedLabel = item.lane === 'done' ? 'Moved to done signal' : 'Updated'
+    var updatedValue = formatDate(item.closedAt || item.updatedAt || item.createdAt) + (item.lane === 'done' && !item.closedAt ? ' (done/last-updated signal)' : '')
+    body.appendChild(renderLabeledCopy('backlog-note', updatedLabel, updatedValue))
   }
 
-  if (item.owner) {
-    body.appendChild(renderLabeledCopy('capture-owner', 'Owner', item.owner))
-  }
+  if (item.owner) body.appendChild(renderLabeledCopy('capture-owner', 'Owner', item.owner))
 
   body.appendChild(renderBacklogItemEditor(item))
   details.appendChild(body)

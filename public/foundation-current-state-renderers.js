@@ -670,6 +670,61 @@ function renderFoundationCurrentTruthPanel(hub) {
   return panel
 }
 
+function renderFoundationOperatorPathPanel() {
+  var panel = document.createElement('section')
+  panel.className = 'panel operator-surface-path'
+
+  var header = document.createElement('div')
+  header.className = 'panel-header'
+  var left = document.createElement('div')
+  var eyebrow = document.createElement('div')
+  eyebrow.className = 'eyebrow'
+  eyebrow.textContent = 'Operator Path'
+  left.appendChild(eyebrow)
+  var title = document.createElement('h3')
+  title.textContent = 'Overview -> Systems -> Backlog -> Recent Work'
+  left.appendChild(title)
+  var intro = document.createElement('p')
+  intro.className = 'section-intro'
+  intro.textContent = 'Use this route when checking what is true, what exists, what is queued, and where shipped changes live.'
+  left.appendChild(intro)
+  header.appendChild(left)
+  panel.appendChild(header)
+
+  var grid = document.createElement('div')
+  grid.className = 'foundation-sequence-grid'
+  ;[
+    {
+      title: 'Overview',
+      body: 'Start with the command summary, live Current Sprint, and next operating move.',
+      href: '/foundation#current-state',
+      cta: 'Open Overview',
+    },
+    {
+      title: 'Systems',
+      body: 'Check the live capability map and which systems are connected, blocked, or shipped.',
+      href: '/foundation#systems',
+      cta: 'Open Systems',
+    },
+    {
+      title: 'Backlog',
+      body: 'Inspect queued cards, done dates, owners, next actions, and parked blockers.',
+      href: '/foundation#backlog',
+      cta: 'Open Backlog',
+    },
+    {
+      title: 'Recent Work',
+      body: 'Review shipped closeouts, proof, known limits, and clickable where-it-lives breadcrumbs.',
+      href: '/foundation#build-log',
+      cta: 'Open Recent Work',
+    },
+  ].forEach(function(step, index) {
+    grid.appendChild(renderFoundationSequenceCard(step, index))
+  })
+  panel.appendChild(grid)
+  return panel
+}
+
 function renderFoundationExecutionOrderPanel(currentPath) {
   var nextPanel = document.createElement('section')
   nextPanel.className = 'panel'
@@ -1096,6 +1151,7 @@ function renderCurrentState() {
     container.appendChild(hero)
 
     container.appendChild(renderFoundationCurrentTruthPanel(hub))
+    container.appendChild(renderFoundationOperatorPathPanel())
     container.appendChild(renderFoundationExecutionOrderPanel(currentPath))
 
     var surfacesPanel = document.createElement('section')

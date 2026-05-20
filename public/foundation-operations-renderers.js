@@ -543,6 +543,59 @@ function renderBuildTextList(items, className) {
   return list
 }
 
+function resolveBuildLocationHref(value) {
+  var text = String(value || '').trim()
+  if (!text) return null
+  if (text.indexOf('/foundation#') === 0) return text
+  var backlogMatch = text.match(/\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d{3}\b/)
+  if (/Foundation\s*>\s*Backlog/i.test(text) && backlogMatch) return '/foundation#backlog:' + encodeURIComponent(backlogMatch[0])
+  if (/Foundation\s*>\s*Systems/i.test(text)) return '/foundation#systems'
+  if (/Foundation\s*>\s*(Recent Work|Recent Builds)/i.test(text)) return '/foundation#build-log'
+  if (/Foundation\s*>\s*Overview/i.test(text)) return '/foundation#current-state'
+  if (/Foundation\s*>\s*Backlog/i.test(text)) return '/foundation#backlog'
+  if (/^docs\/.+\.(md|json)$/i.test(text)) return '/doc?path=' + encodeURIComponent(text)
+  return null
+}
+
+function getBuildLocationKind(value) {
+  var text = String(value || '').trim()
+  if (/^docs\/.+\.(md|json)$/i.test(text)) return 'doc'
+  if (/^\/foundation#|Foundation\s*>/i.test(text)) return 'app'
+  if (/^(public|lib|scripts|server|package\.json|docs\/process)\b/i.test(text)) return 'repo'
+  return 'proof'
+}
+
+function renderBuildLocationList(items) {
+  var values = (items || []).filter(Boolean)
+  if (!values.length) return null
+  var list = document.createElement('ul')
+  list.className = 'build-log-fact-list build-log-location-list'
+  values.forEach(function(value) {
+    var item = document.createElement('li')
+    var href = resolveBuildLocationHref(value)
+    var kind = getBuildLocationKind(value)
+    if (href) {
+      var link = document.createElement('a')
+      link.className = 'inline-link build-log-location-link build-log-location-' + kind
+      link.href = href
+      link.textContent = value
+      item.appendChild(link)
+    } else {
+      var label = document.createElement('span')
+      label.className = 'build-log-location-label build-log-location-' + kind
+      label.textContent = value
+      item.appendChild(label)
+    }
+
+    var badge = document.createElement('span')
+    badge.className = 'build-log-location-kind'
+    badge.textContent = kind === 'repo' ? 'repo/proof' : kind
+    item.appendChild(badge)
+    list.appendChild(item)
+  })
+  return list
+}
+
 function sanitizeBuildAnchor(value) {
   return String(value || 'build')
     .toLowerCase()
@@ -981,7 +1034,7 @@ function renderBuildCard(build) {
     renderBuildFact('Context cards', renderBuildBacklogLinks(build, { kind: 'context' })),
     renderBuildFact('Proof status', build.proofStatus),
     renderBuildFact('Proof commands', build.proofCommands || [], { mono: true }),
-    renderBuildFact('Where it lives', build.whereItLives || build.fileGroups || [], { mono: true }),
+    renderBuildFact('Where it lives', renderBuildLocationList(build.whereItLives || build.fileGroups || [])),
     renderBuildFact('Review next', build.reviewNext),
     renderBuildFact('Known limits', build.knownLimits || []),
   ].forEach(function(row) {

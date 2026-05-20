@@ -1,0 +1,13 @@
+{
+  "cardId": "FOUNDATION-SURFACE-UPDATES-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T06:45:00-04:00",
+  "approvalSource": "Steve approved unattended Foundation sprint continuation and active card execution in main session.",
+  "notes": "Approved for the narrow Foundation operator-surface v1: Overview operator path, Recent Work where-it-lives breadcrumbs, Backlog done-date signal, verifier transition from scoped to done, focused proof, closeout, and sprint all-done posture. Not approved: broad redesign, new source/extraction/value/agent work, external writes, Drive permission mutation, credentials, paid/provider access, or browser-auth.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/foundation-surface-updates-001-plan.md",
+  "approvedPlanSha256": "b74f144e025528209606c97a2a7f244db9942b02ca6a6dd05a6c3811c99088b9",
+  "approvedRepoHead": "71cf0deeabcb41846136b734c9f460bafcf6c93c",
+  "approvalDigest": "c8c3eaee5ec0a159eb355b9b918a3c2ce68e0183288762f7aa7296199834c116"
+}
