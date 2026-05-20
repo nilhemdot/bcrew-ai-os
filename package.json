@@ -412,6 +412,7 @@
     "process:foundation-client-current-state-extract-check": "node --env-file-if-exists=.env scripts/process-foundation-client-current-state-extract-check.mjs",
     "process:build-log-api-cache-and-slim-check": "node --env-file-if-exists=.env scripts/process-build-log-api-cache-and-slim-check.mjs",
     "process:admin-deal-policy-source-contract-check": "node --env-file-if-exists=.env scripts/process-admin-deal-policy-source-contract-check.mjs",
+    "process:approval-threshold-registry-check": "node --env-file-if-exists=.env scripts/process-approval-threshold-registry-check.mjs",
     "process:sprint-stage-gate-check": "node --env-file-if-exists=.env scripts/process-sprint-stage-gate-check.mjs",
     "process:foundation-plan-reconcile-check": "node --env-file-if-exists=.env scripts/process-foundation-plan-reconcile-check.mjs",
     "process:connector-credential-check": "node --env-file-if-exists=.env scripts/process-connector-credential-check.mjs",

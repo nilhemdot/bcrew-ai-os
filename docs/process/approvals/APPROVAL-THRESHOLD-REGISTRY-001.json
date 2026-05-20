@@ -1,0 +1,19 @@
+{
+  "cardId": "APPROVAL-THRESHOLD-REGISTRY-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T23:45:00-04:00",
+  "approvalSource": "Steve approved unattended overnight audit-control sprint and the approval-threshold registry card.",
+  "notes": "Move approval threshold ownership into a shared registry without broad historical artifact rewrites or threshold changes.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/approval-threshold-registry-001-plan.md",
+  "approvedPlanSha256": "e3f055035ee5517dfaa1ede9ff2417fc95dd4e32a3a348ad2d3434d91c0d5d80",
+  "approvedRepoHead": "a4ac38bf0047ddfc45c6f6b85e24f85a53726398",
+  "notNext": [
+    "Do not rewrite every historical approval artifact or closeout label mentioning 9.8.",
+    "Do not change the approval threshold value.",
+    "Do not redesign Plan Critic.",
+    "Do not start source/value/extraction work from this card."
+  ],
+  "approvalDigest": "a24c603789fa582ec30ba8a7d925f3ac796bc450a0c96ecf044dc5a991cc2f58"
+}

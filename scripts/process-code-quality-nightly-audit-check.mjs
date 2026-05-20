@@ -7,6 +7,7 @@ import {
   CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS,
   CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY,
   CODE_QUALITY_NIGHTLY_AUDIT_JOB_KEY,
+  CODE_QUALITY_NIGHTLY_AUDIT_MIN_FINDING_COUNT,
   CODE_QUALITY_NIGHTLY_AUDIT_REPORT_PATH,
   CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS,
   CODE_QUALITY_NIGHTLY_AUDIT_SCRIPT_PATH,
@@ -22,6 +23,10 @@ import {
 } from '../lib/foundation-db.js'
 import { getFoundationJobDefinitions } from '../lib/foundation-jobs.js'
 import { validatePlanApprovalFile } from '../lib/approval-integrity.js'
+import {
+  APPROVAL_MIN_APPROVED_PLAN_SCORE_LABEL,
+  meetsApprovalThreshold,
+} from '../lib/approval-threshold-registry.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
@@ -73,8 +78,8 @@ async function validateApprovals(checks) {
     const validation = await validatePlanApprovalFile({ repoRoot, approvalRef, cardId })
     addCheck(
       checks,
-      validation.ok && Number(validation.approval?.score) >= 9.8,
-      `${cardId} approval file is valid at 9.8+`,
+      validation.ok && meetsApprovalThreshold(validation.approval?.score),
+      `${cardId} approval file is valid at ${APPROVAL_MIN_APPROVED_PLAN_SCORE_LABEL}`,
       validation.failures?.map(item => item.check).join(', ') || approvalRef,
     )
   }
@@ -112,12 +117,12 @@ async function main() {
   addCheck(checks, audit.autonomousDev === false && audit.llmDetectionUsed === false, 'audit does not enable autonomous dev or LLM detection', `autonomousDev=${audit.autonomousDev} llmDetectionUsed=${audit.llmDetectionUsed}`)
   addCheck(checks, audit.syntheticProof?.ok === true, 'synthetic detector proof passes', JSON.stringify(audit.syntheticProof || {}))
   addCheck(checks, CODE_QUALITY_NIGHTLY_AUDIT_REQUIRED_ENDPOINTS.every(endpoint => endpointSet.has(endpoint)), 'endpoint coverage includes all required Foundation routes', Array.from(endpointSet).join(', '))
-  addCheck(checks, (audit.findings || []).length >= 10, 'deterministic audit reports the remaining material finding set as routed audit debt burns down', String((audit.findings || []).length))
+  addCheck(checks, (audit.findings || []).length >= CODE_QUALITY_NIGHTLY_AUDIT_MIN_FINDING_COUNT, 'deterministic audit reports the remaining material finding set as routed audit debt burns down', String((audit.findings || []).length))
   addCheck(checks, (audit.proposedCards || []).length >= 5, 'audit proposes multiple backlog follow-up fixes without creating them', String((audit.proposedCards || []).length))
   addCheck(checks, sameCounts(beforeCounts, afterCounts), 'backlog lane counts unchanged by audit command', `before=${JSON.stringify(beforeCounts)} after=${JSON.stringify(afterCounts)}`)
   const activeSprintId = activeSprint.sprint?.sprintId || ''
   addCheck(checks, [CODE_QUALITY_NIGHTLY_AUDIT_SPRINT_ID].includes(activeSprintId) || CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.every(cardId => (before.backlogItems || []).some(item => item.id === cardId)), 'sprint cards exist in live backlog/current sprint context', activeSprintId || 'no active sprint')
-  addCheck(checks, CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.every(cardId => planCriticRuns.some(run => run.cardId === cardId && run.status === 'pass' && Number(run.score) >= 9.8)), 'all sprint cards have durable Plan Critic pass rows', String(planCriticRuns.length))
+  addCheck(checks, CODE_QUALITY_NIGHTLY_AUDIT_CARD_IDS.every(cardId => planCriticRuns.some(run => run.cardId === cardId && run.status === 'pass' && meetsApprovalThreshold(run.score, run.passThreshold))), 'all sprint cards have durable Plan Critic pass rows', String(planCriticRuns.length))
   addCheck(checks, report.includes(CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY), 'report includes closeout key', CODE_QUALITY_NIGHTLY_AUDIT_CLOSEOUT_KEY)
   addCheck(checks, report.includes('no auto-fixes') && report.includes('no auto backlog mutation'), 'report states no-auto boundaries', 'no auto-fixes / no auto backlog mutation')
   addCheck(checks, job?.runtimeMode === 'manual' && job?.scheduleEveryMinutes == null && job?.enabled === true, 'job registry entry is manual and unscheduled', job ? `${job.runtimeMode}/${job.scheduleEveryMinutes}` : 'missing job')
