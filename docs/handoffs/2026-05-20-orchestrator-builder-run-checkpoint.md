@@ -53,14 +53,14 @@ Old-system source files for auth-loop harvest:
 Core run:
 
 0. `FOUNDATION-GATE-CHECK-SERIALIZATION-001`
-1. `BRAIN-FLEET-FOUNDATION-001`
-2. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001`
-3. `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001`
-4. `GEMINI-VIDEO-BRAIN-ROUTE-001`
-5. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001`
-6. `OPENCLAW-ADAPTER-BOUNDARY-001`
-7. `BRAIN-FLEET-QUOTA-LEDGER-001`
-8. `HARLAN-AUTH-ESCALATION-LOOP-001`
+1. `BRAIN-FLEET-FOUNDATION-001` - no-auth contract only
+2. `HARLAN-AUTH-ESCALATION-LOOP-001`
+3. `BRAIN-FLEET-QUOTA-LEDGER-001`
+4. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001`
+5. `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001`
+6. `GEMINI-VIDEO-BRAIN-ROUTE-001`
+7. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001`
+8. `OPENCLAW-ADAPTER-BOUNDARY-001`
 9. `EXTRACTOR-BRAIN-FLEET-PROOF-001`
 10. `YOUTUBE-BUILD-INTEL-RUNTIME-PROOF-001`
 
@@ -98,32 +98,32 @@ Run order:
    Fix the false-red risk before the long run. A concurrent Orchestrator proof bundle produced a Postgres deadlock, while the same System Health check passed sequentially. Add a small serialization guard for DB-heavy Foundation proof checks: classify heavy checks, use a shared advisory/local lock or standard proof wrapper, document sequential heavy-check behavior, and dogfood that concurrent proof attempts do not create misleading raw health failures. Do not weaken real DB failures.
 
 1. `BRAIN-FLEET-FOUNDATION-001`
-   Build the thin provider-agnostic Brain Fleet layer over existing `llm_credentials`/`llm_routes`. Reuse existing LLM router and credential registry. Do not rebuild them. Prove extractor/synthesis jobs can call the router contract instead of hardcoding OpenClaw/provider paths.
+   Build the thin provider-agnostic Brain Fleet contract over existing `llm_credentials`/`llm_routes`. Reuse existing LLM router and credential registry. Do not rebuild them. This card is no-auth contract/interface/synthetic proof only. Do not run live provider probes here; Harlan auth escalation and quota ledger must ship first.
 
-2. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001`
-   Record route capability truth: provider, model, speed mode, reasoning posture, video/vision/long-context support, quota posture, auth posture, known limitations, and allowed workloads.
+2. `HARLAN-AUTH-ESCALATION-LOOP-001`
+   Harvest the old BCrew-Buddy auth/2FA loop before live provider probes. Do not invent a new one. Reuse the proven pattern from `auth-escalate.cjs`, `browser-auth.cjs`, `web-extractor.ts`, `reply-context.ts`, and `auth-escalation-protocol.md`.
 
-3. `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001`
-   Add/probe a bounded direct Codex subscription route separate from OpenClaw. Record account label, model availability, speed/Fast availability, quota/status, and call ledger entry. No external writes.
-
-4. `GEMINI-VIDEO-BRAIN-ROUTE-001`
-   Add/probe Gemini for video/long-context extraction workloads. Record auth method, quota tier, video/long-context capability, artifact contract, and fallback. No broad extraction yet.
-
-5. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001`
-   Probe Claude Code / Agent SDK only as a bounded local route. If subscription/SDK posture is ambiguous, mark experimental and continue. Do not block extractor v1 on Claude.
-
-6. `OPENCLAW-ADAPTER-BOUNDARY-001`
-   Demote OpenClaw to adapter status. Keep it useful, but do not let OpenClaw limitations define Foundation architecture.
-
-7. `BRAIN-FLEET-QUOTA-LEDGER-001`
-   Every Brain Fleet call must write ledger truth: workload, route, model, account label, status, artifact, quota/reset state if known, failure reason, and stop condition. Overnight work must stop on auth/rate/quota/provider failures.
-
-8. `HARLAN-AUTH-ESCALATION-LOOP-001`
-   Harvest the old BCrew-Buddy auth/2FA loop. Do not invent a new one. Reuse the proven pattern from `auth-escalate.cjs`, `browser-auth.cjs`, `web-extractor.ts`, `reply-context.ts`, and `auth-escalation-protocol.md`.
-
-   Build v1 as: extractor/Harlan job emits `auth_needed` -> records blocked-auth event -> notifies Steve through Harlan/Telegram/email path -> waits for DONE/approval -> re-verifies -> resumes or fails closed.
+   Build v1 as: extractor/Harlan/provider job emits `auth_needed` -> records blocked-auth event -> notifies Steve through Harlan/Telegram/email path -> waits for DONE/approval -> re-verifies -> resumes or fails closed.
 
    Proof must simulate 2FA/auth-needed, dedup/no spam, timeout/fail closed, DONE/retry/resume, and no credential mutation. Do not send external messages except one approved Steve-only test or dry-run proof.
+
+3. `BRAIN-FLEET-QUOTA-LEDGER-001`
+   Every Brain Fleet call must write ledger truth before live route probes start: workload, route, model, account label, status, artifact, quota/reset state if known, failure reason, and stop condition. Overnight work must stop on auth/rate/quota/provider failures.
+
+4. `BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001`
+   Record route capability truth: provider, model, speed mode, reasoning posture, video/vision/long-context support, quota posture, auth posture, known limitations, and allowed workloads.
+
+5. `CODEX-DIRECT-SUBSCRIPTION-ROUTE-001`
+   Add/probe a bounded direct Codex subscription route separate from OpenClaw. Record account label, model availability, speed/Fast availability, quota/status, and call ledger entry. If auth is needed, use the Harlan auth-needed flow. No external writes.
+
+6. `GEMINI-VIDEO-BRAIN-ROUTE-001`
+   Add/probe Gemini for video/long-context extraction workloads. Record auth method, quota tier, video/long-context capability, artifact contract, and fallback. If auth is needed, use the Harlan auth-needed flow. No broad extraction yet.
+
+7. `CLAUDE-CODE-REVIEW-BRAIN-ROUTE-001`
+   Probe Claude Code / Agent SDK only as a bounded local route. If subscription/SDK posture is ambiguous, mark experimental and continue. If auth is needed, use the Harlan auth-needed flow. Do not block extractor v1 on Claude.
+
+8. `OPENCLAW-ADAPTER-BOUNDARY-001`
+   Demote OpenClaw to adapter status. Keep it useful, but do not let OpenClaw limitations define Foundation architecture.
 
 9. `EXTRACTOR-BRAIN-FLEET-PROOF-001`
    Run first governed extractor proof through Brain Fleet. Done means approved source item recorded, transcript captured or generated, artifact stored, provenance/source links preserved, atoms created, training notes/summary created, Build Intel review route created, duplicate/staleness guard applied, and skipped/error reasons logged.
