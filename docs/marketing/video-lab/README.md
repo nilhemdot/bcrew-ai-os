@@ -13,6 +13,12 @@ Current scope:
 - mock job lifecycle;
 - no-spend dry-run proof.
 
+live-safety gate:
+
+- concurrent mock submits must allow one running job and reject the duplicate;
+- live asset validation must reject placeholder, sample, mock, local, private-network, and non-HTTPS URLs;
+- no provider spend, live provider calls, route wiring, or UI wiring is allowed in the safety proof.
+
 Stop lines:
 
 - no live video generation;
@@ -28,5 +34,5 @@ Run the focused proof directly:
 
 ```bash
 node --env-file-if-exists=.env scripts/process-marketing-video-lab-check.mjs --json
+npm run process:marketing-video-lab-live-safety-check -- --json
 ```
-

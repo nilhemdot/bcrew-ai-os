@@ -448,6 +448,8 @@
     "process:source-coverage-closeout-check": "node --env-file-if-exists=.env scripts/process-source-coverage-closeout-check.mjs",
     "process:source-connector-matrix-check": "node --env-file-if-exists=.env scripts/process-source-connector-matrix-check.mjs",
     "process:source-hub-routing-matrix-check": "node --env-file-if-exists=.env scripts/process-source-hub-routing-matrix-check.mjs",
+    "process:marketing-video-lab-check": "node --env-file-if-exists=.env scripts/process-marketing-video-lab-check.mjs",
+    "process:marketing-video-lab-live-safety-check": "node --env-file-if-exists=.env scripts/process-marketing-video-lab-live-safety-check.mjs",
     "process:marketing-source-map-check": "node --env-file-if-exists=.env scripts/process-marketing-source-map-check.mjs",
     "process:brand-stack-check": "node --env-file-if-exists=.env scripts/process-brand-stack-check.mjs",
     "process:tier-behavioral-completion-check": "node --env-file-if-exists=.env scripts/process-tier-behavioral-completion-check.mjs",

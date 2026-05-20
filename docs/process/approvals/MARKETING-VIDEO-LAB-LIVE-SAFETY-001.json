@@ -1,0 +1,25 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MARKETING-VIDEO-LAB-LIVE-SAFETY-001",
+  "approvedBy": "Steve continuous Foundation execution approval + Codex Foundation builder session",
+  "approvedAt": "2026-05-20T01:42:00.000-04:00",
+  "score": 10,
+  "approvalSource": "Steve approved continuous Foundation overnight work and MARKETING-VIDEO-LAB-LIVE-SAFETY-001 is the active blocker in FOUNDATION-TRUSTED-LOOP-AND-SAFE-SURFACES-2026-05-20.",
+  "scopeSummary": "Harden Marketing Video Lab backend live-safety before route wiring: atomic mock submit locking, live asset URL validation, duplicate-running-job dogfood, placeholder/local/private/mock URL rejection, no provider calls, no provider spend, no route/UI integration, no credential mutation, and no external writes.",
+  "approvedPlanRef": "docs/process/marketing-video-lab-live-safety-001-plan.md",
+  "approvedPlanSha256": "7c31e76879e7d242253c1d5d6d6b0999cc370f47e97335e6e130695ae47a45dc",
+  "approvedRepoHead": "ff9bba19a76407d6bc73393624be3d931c290321",
+  "notApproved": [
+    "No live provider video generation.",
+    "No Google/FAL/Canva API submission.",
+    "No provider spend.",
+    "No Marketing Hub UI, home-nav wiring, or route integration.",
+    "No credential mutation, key rotation, auth scope, provider config, or source access change.",
+    "No external sends/writes.",
+    "No Drive permission mutation.",
+    "No paid/browser-auth work.",
+    "No broad extraction or private backfill.",
+    "Do not work MEETING-VAULT-ACL-001 Phase B."
+  ],
+  "approvalDigest": "0f238ff76be8b707670592837d6f6555e268a65776eaf586923df5111fd6ae7d"
+}
