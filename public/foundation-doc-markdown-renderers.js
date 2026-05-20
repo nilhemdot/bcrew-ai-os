@@ -907,6 +907,7 @@ function renderEngineInputsCard(groupTitle, cardGroups, sourceContractMap) {
   ;[
     'Average Monthly GCI',
     'Split to Team',
+    'Planning Attrition Assumption',
   ].forEach(function(metricKey) {
     var metric = getMetric(metricKey)
     if (!metric) return

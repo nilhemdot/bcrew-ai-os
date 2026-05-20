@@ -1,0 +1,17 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "ENGINE-001",
+  "approvedPlanRef": "docs/process/engine-001-planning-attrition-input-plan.md",
+  "approvedPlanSha256": "aa91be63c42a951694df839a4184ffaa1affadefdb36ed189d9190856db22d69",
+  "approvedRepoHead": "e4f3e57eb9c2572b57e987ef18e5fa57f1df046e",
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T04:39:00.000-04:00",
+  "score": 10,
+  "approvalNotes": [
+    "Approved unattended Foundation continuation after OPS-003.",
+    "Make planning attrition a first-class Agent Engine input using existing source-backed Freedom boundaries.",
+    "Do not mutate Google Sheets, Drive permissions, ClickUp, FUB, finance, credentials, OAuth scopes, provider config, sends, or broad Freedom workbook surfaces.",
+    "Close only with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, and process:foundation-ship."
+  ],
+  "approvalDigest": "58b98a0dce969f96b441065eb718665f344a1e882ab3eff173eb48322d27d882"
+}

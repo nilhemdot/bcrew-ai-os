@@ -514,7 +514,8 @@
     "process:build-intel-route-split-check": "node --env-file-if-exists=.env scripts/process-build-intel-route-split-check.mjs",
     "process:verifier-route-split-module-check": "node --env-file-if-exists=.env scripts/process-verifier-route-split-module-check.mjs",
     "process:verifier-source-contracts-module-check": "node --env-file-if-exists=.env scripts/process-verifier-source-contracts-module-check.mjs",
-    "process:ops-003-check": "node --env-file-if-exists=.env scripts/process-ops-003-check.mjs"
+    "process:ops-003-check": "node --env-file-if-exists=.env scripts/process-ops-003-check.mjs",
+    "process:engine-001-check": "node --env-file-if-exists=.env scripts/process-engine-001-check.mjs"
   },
   "engines": {
     "node": ">=20"
