@@ -13,7 +13,7 @@ import {
   upsertLlmCredential,
   upsertLlmRoute,
 } from '../lib/foundation-db.js'
-import { DEFAULT_LLM_ROUTES, callLlm, seedDefaultLlmRouterConfig } from '../lib/llm-router.js'
+import { DEFAULT_LLM_ROUTES, LLM_WORKLOADS, callLlm, seedDefaultLlmRouterConfig } from '../lib/llm-router.js'
 
 const execFile = promisify(execFileCallback)
 const DEFAULT_OPENCLAW_MODEL = process.env.LLM_OPENCLAW_MODEL || 'openai-codex/gpt-5.4'
@@ -283,7 +283,7 @@ async function auditOpenClaw(actor) {
     policyClassification,
     allowedWorkloads: [
       ...(extractionAllowed ? ['extraction'] : []),
-      ...(synthesisAllowed ? ['synthesis'] : []),
+      ...(synthesisAllowed ? ['synthesis', LLM_WORKLOADS.DEEP_AUDIT_SENIOR_REVIEW] : []),
       'extraction_probe',
       'classification_probe',
       'synthesis_probe',
@@ -351,7 +351,7 @@ async function main() {
     displayName: 'OpenAI API Default',
     secretRefs: ['OPENAI_API_KEY'],
     workloadLane: 'extraction',
-    allowedWorkloads: ['extraction', 'synthesis', 'embedding', 'transcription', 'image_generation'],
+    allowedWorkloads: ['extraction', 'synthesis', LLM_WORKLOADS.DEEP_AUDIT_SENIOR_REVIEW, 'embedding', 'transcription', 'image_generation'],
     notes: 'Official OpenAI API route. Production-safe fallback for extraction, synthesis, embeddings, transcription, and images.',
   }, actor))
   credentials.push(await auditEnvCredential({
@@ -361,7 +361,7 @@ async function main() {
     displayName: 'Anthropic API Default',
     secretRefs: ['ANTHROPIC_API_KEY'],
     workloadLane: 'synthesis',
-    allowedWorkloads: ['synthesis', 'agent', 'vision'],
+    allowedWorkloads: ['synthesis', LLM_WORKLOADS.DEEP_AUDIT_SENIOR_REVIEW, 'agent', 'vision'],
     notes: 'Official Anthropic API route. Production-safe fallback for Claude workloads.',
   }, actor))
   credentials.push(await auditClaudeCode(actor))

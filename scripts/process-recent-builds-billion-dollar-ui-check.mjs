@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import process from 'node:process'
+import { getFoundationBuildCloseouts } from '../lib/foundation-build-log.js'
 import {
   buildRecentBuildsBillionDollarUiStatus,
   RECENT_BUILDS_UI_CARD_ID,
@@ -30,6 +31,7 @@ async function main() {
   const status = await buildRecentBuildsBillionDollarUiStatus({
     repoRoot: process.cwd(),
     foundationBuildLog,
+    foundationBuildCloseouts: getFoundationBuildCloseouts(),
   })
 
   console.log('Recent Builds billion-dollar UI proof')

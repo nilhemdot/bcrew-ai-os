@@ -1,0 +1,13 @@
+{
+  "cardId": "LLM-ROUTER-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T07:10:00-04:00",
+  "approvalSource": "Steve approved unattended continuation after MODEL-ROUTING-001 shipped clean, with park-and-continue sprint rules and no stopping unless every safe task is blocked.",
+  "notes": "Approved for bounded LLM router migration only: deep-audit senior-review workload routing, fail-closed Claude Code adapter contract, focused proof, local route truth, and dry-run route logging. Not approved: provider calls, credential/key or provider config mutation, paid/browser-auth, external writes, Drive permission mutation, new source access, public exposure, Scoper/agent runtime build, or subscription route activation.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/llm-router-001-plan.md",
+  "approvedPlanSha256": "1cf3fd9210479830507c0b7cee6431419cd7229c22afb3524baae4647f0144c4",
+  "approvedRepoHead": "37242105a956627468b10f7111df0781a54e1f9c",
+  "approvalDigest": "cadc732aa82b1f250072810b9c4fad9a18f0ddff62a32d054ed30479476bfd04"
+}

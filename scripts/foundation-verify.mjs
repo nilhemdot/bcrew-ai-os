@@ -1486,6 +1486,7 @@ import {
   FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_CARD_ID,
   FOUNDATION_HUB_FULL_PAYLOAD_REDUCE_SCRIPT_PATH,
   LLM_AUTH_AUDIT_BUDGET_LABEL_CLARITY_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
+  LLM_ROUTER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_KNOWLEDGE_BASE_COMPILER_DESIGN_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   KNOWLEDGE_BASE_QUALITY_GATE_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
   FOUNDATION_KB_COMPILER_V1_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
@@ -2993,6 +2994,7 @@ async function main() {
   const recentBuildsUiStatus = await buildRecentBuildsBillionDollarUiStatus({
     repoRoot,
     foundationBuildLog,
+    foundationBuildCloseouts,
   })
   const changeLogComprehensiveStatus = await buildChangeLogComprehensiveStatus({
     repoRoot,
@@ -3118,6 +3120,7 @@ async function main() {
       VERIFIER_PROCESS_HARDENING_SPLIT_MODULE_CARD_ID,
       VERIFIER_AGENT_FEEDBACK_SPLIT_MODULE_CARD_ID,
       VERIFIER_HUB_SAFETY_SPLIT_MODULE_CARD_ID,
+      ...LLM_ROUTER_DONE_CARD_IDS_FOR_VERIFIER_COVERAGE,
       runtimeWorkerVerifierCoverageCardId,
       runtimeFirstJobsVerifierCoverageCardId,
       runtimeHealthSimplifyVerifierCoverageCardId,
