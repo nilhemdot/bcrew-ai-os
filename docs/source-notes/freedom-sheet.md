@@ -129,6 +129,14 @@ These source IDs roll up under the master Freedom validation:
 
 Global source-contract state: these five Freedom units are `Signed Off For Current Reality`. That means the cell/block/formula meaning is accepted for current strategy use. It does not mean the workbook has been rebuilt into the final freshness-managed source-of-truth layer.
 
+## DATA-001 Source Adapter Boundary
+
+`DATA-001` owns the current read-only Freedom Sheet source adapter and schema-drift monitor. The adapter maps the five Freedom source ID rows above to their live workbook tabs/ranges, then uses delegated Google Sheets structure checks to prove the expected headers and sheet IDs still match the current baseline.
+
+This is a source ID and schema-drift monitor, not a rebuilt source system. It may read approved Freedom structure through the existing `/api/sheets/structure-status` data-health surface, but it must not mutate the spreadsheet, Drive permissions, ClickUp, FUB, finance ledgers, credentials, OAuth scopes, or provider config.
+
+If a Freedom header/range/sheet ID drifts, the adapter must fail closed with the affected source ID, owner, and next action instead of silently accepting stale cell references or hardcoding live values.
+
 ## Current Tab-By-Tab State
 
 | Tab / Surface | Current state | What is true right now | Next closeout step |

@@ -759,11 +759,23 @@ function summarizeStructureWorkbooks(structureStatus) {
     return 'Structure watch is not readable yet.'
   }
 
+  var freedomAdapter = structureStatus.freedomSheetAdapter ||
+    (structureStatus.dataHealth && structureStatus.dataHealth.freedomSheetAdapter)
+  if (freedomAdapter && freedomAdapter.summary) {
+    var adapterSummary = freedomAdapter.summary
+    var adapterPrefix = freedomAdapter.status === 'healthy'
+      ? 'Freedom adapter maps ' + (adapterSummary.healthySourceCount || 0) + '/' + (adapterSummary.sourceCount || 0) + ' source ID rows with schema drift clear. '
+      : 'Freedom adapter schema drift needs review for ' + (adapterSummary.driftSourceCount || 0) + ' source ID row' + (adapterSummary.driftSourceCount === 1 ? '' : 's') + '. '
+    if (freedomAdapter.status !== 'healthy') return adapterPrefix + 'Open the sheet structure watch before trusting Freedom source-backed reads.'
+  }
+
   var drifted = structureStatus.workbooks.filter(function(workbook) {
     return workbook.status !== 'ok'
   })
   if (!drifted.length) {
-    return structureStatus.workbooks.map(function(workbook) {
+    return (freedomAdapter && freedomAdapter.summary ? (
+      'Freedom adapter maps ' + (freedomAdapter.summary.healthySourceCount || 0) + '/' + (freedomAdapter.summary.sourceCount || 0) + ' source ID rows with schema drift clear. '
+    ) : '') + structureStatus.workbooks.map(function(workbook) {
       return workbook.label
     }).join(', ') + ' all match the current baseline.'
   }

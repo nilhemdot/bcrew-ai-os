@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { getSheetGridData } from '../lib/google-delegated.js'
+import { buildFreedomSheetSchemaDriftSnapshot } from '../lib/data-001-freedom-source-adapter.js'
+import { getSourceContracts } from '../lib/source-contracts.js'
 import { fileURLToPath } from 'node:url'
 
 const USER = 'service-account'
@@ -609,7 +611,7 @@ export async function runSheetsStructureVerification() {
   }
 
   const failed = checks.filter(check => !check.ok)
-  return {
+  const result = {
     checkedAt: new Date().toISOString(),
     status: failed.length ? 'drift' : 'ok',
     summary: {
@@ -622,6 +624,17 @@ export async function runSheetsStructureVerification() {
     },
     workbooks,
     checks,
+  }
+  const freedomSheetAdapter = buildFreedomSheetSchemaDriftSnapshot({
+    sheetStructureStatus: result,
+    sourceContracts: getSourceContracts(),
+  })
+  return {
+    ...result,
+    freedomSheetAdapter,
+    dataHealth: {
+      freedomSheetAdapter,
+    },
   }
 }
 

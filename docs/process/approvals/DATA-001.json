@@ -1,0 +1,17 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "DATA-001",
+  "approvedPlanRef": "docs/process/data-001-freedom-source-adapter-plan.md",
+  "approvedPlanSha256": "1b4a45dac2d9ebdf3b4b34fa4ee7a26d154b80b7efb43f59c008e7c22ed305e6",
+  "approvedRepoHead": "71b32ab359158267dfed1dadde66a68be9764f1f",
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T08:25:00.000-04:00",
+  "score": 10,
+  "approvalNotes": [
+    "Approved unattended Foundation continuation after FOUNDATION-004.",
+    "Build the Freedom Sheet source adapter/schema-drift monitor as a safe read-only card.",
+    "Do not mutate spreadsheets, Drive permissions, ClickUp, FUB, finance, credentials, OAuth scopes, provider config, or external systems.",
+    "Close only with focused proof, System Health, repeated-failure gate, backlog hygiene, foundation:verify, and process:foundation-ship."
+  ],
+  "approvalDigest": "97020cd1c2f02e26f05f7c13ce84b5741203240eb15b52ab515a4667f1cfce29"
+}
