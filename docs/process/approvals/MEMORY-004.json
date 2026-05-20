@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MEMORY-004",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-20T00:15:00-04:00",
+  "approvalSource": "Steve approved continuing the Foundation gold-capture sprint after MEMORY-003 shipped and asked to keep going without losing the conversation gold.",
+  "notes": "Approved to build the metadata-only lessons/IP workflow from the committed conversation archive. Do not produce polished content, upload private conversations, store raw quotes, or use external model/provider review.",
+  "approvedPlanRef": "docs/process/memory-004-lessons-ip-workflow-plan.md",
+  "approvedPlanSha256": "cd633f26de1f27137b56576efc12a2c5ee67e2cd7dfe16d04da6c732000d49b7",
+  "approvedRepoHead": "b6c4da5f402737b77efabc328aba645c3d2cbebf",
+  "approvedChanges": [
+    "Add reusable MEMORY-004 lessons/IP workflow module.",
+    "Generate source-linked lesson, timeline, quote-review, and reusable-IP manifests.",
+    "Add focused proof and closeout wiring for MEMORY-004.",
+    "Advance Current Sprint to PILLAR-4-SYSTEM-CAPABILITIES-001 after closeout."
+  ],
+  "notNext": [
+    "No polished content production.",
+    "No private conversation upload to external providers.",
+    "No raw quote, transcript excerpt, local memory, MEMORY.md, USER.md, raw chat database, token, or private runtime-state ingestion.",
+    "No source-system, Drive permission, credential, provider config, external-send, or public-exposure mutation.",
+    "No Value Builder split."
+  ],
+  "approvalDigest": "5aad4ca1e5fec0ce7f792ef71d6918831f9adbd447091af0b903cabaaa9a48af"
+}
