@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "FOUNDATION-OVERNIGHT-CLOSEOUT-AND-MORNING-READINESS-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T01:42:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/foundation-overnight-closeout-and-morning-readiness-001-plan.md",
+  "approvedPlanSha256": "d3687ee2d142da2a02bdeb1ad2932bddd67b357e4c9bb50e77ff773f5ca578ef",
+  "approvedRepoHead": "f8af0f206fb2e89c5148e5786ad573896ee8bfe7",
+  "approvalSource": "Steve approved nonstop overnight work and explicitly instructed Codex to make another sprint and keep going if the current sprint finishes before he wakes up.",
+  "constraints": [
+    "close the current audit-control/intelligence sprint only after raw health, repeated failures, backlog hygiene, current sprint truth, foundation:verify, and main sync are clean",
+    "open the next safe Foundation sprint instead of stopping when the closeout is clean",
+    "park approval-bound/private/provider/browser-auth/paid/external-write actions and continue the next safe card",
+    "do not start Value Builder split",
+    "do not run live Loom, Skool, Mycro, meeting-video, paid/provider, browser-auth, broad private extraction, Drive permission mutation, credential mutation, provider config, sends, or external writes",
+    "next sprint starts from live backlog truth and avoids already-done v1 cards unless a focused regression proves a gap"
+  ],
+  "approvalDigest": "6bb769057d5d56ca072f62d5f0073c55c676c3c468a59aeb263684c2281a450b"
+}
