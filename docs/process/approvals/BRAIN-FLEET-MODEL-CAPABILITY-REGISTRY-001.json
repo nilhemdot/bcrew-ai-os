@@ -1,0 +1,20 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001",
+  "approvedBy": "Steve via Codex main session",
+  "approvedAt": "2026-05-20T16:00:00-04:00",
+  "score": 9.8,
+  "approvedPlanRef": "docs/process/brain-fleet-model-capability-registry-001-plan.md",
+  "approvedPlanSha256": "ab4cb72fc9986ce3efbc2f8325135bfbbb08cf6c7349fc10e92c0b4f7b900478",
+  "approvedRepoHead": "8fb4d93d094d757506d53704bd07f08d126e9c0b",
+  "approvalSource": "Steve direct May 20 rolling Foundation Builder queue: build BRAIN-FLEET-MODEL-CAPABILITY-REGISTRY-001 immediately after Brain Fleet quota ledger and before direct Codex, Gemini, Claude, OpenClaw, or extractor route probes.",
+  "constraints": [
+    "Record route capability truth before live provider probes",
+    "Capability truth must include provider, model, speed mode, reasoning posture, video/vision/long-context support, quota posture, auth posture, known limitations, and allowed workloads",
+    "Unknown or unprobed capability, quota, and auth truth must be explicit as unknown or probe_required",
+    "Do not run live provider probes from this card",
+    "Do not mutate credentials, provider config, source systems, llm_credentials, llm_routes, or llm_route_probes",
+    "Keep Strategy and People parked"
+  ],
+  "approvalDigest": "bb5d0f35861871c5b4132a9defc98e3eb0d15675d9fa8e1d1746f3901169bc0b"
+}

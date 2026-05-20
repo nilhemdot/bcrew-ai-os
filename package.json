@@ -424,6 +424,7 @@
     "process:foundation-control-plane-truth-cleanup-check": "node --env-file-if-exists=.env scripts/process-foundation-control-plane-truth-cleanup-check.mjs",
     "process:brain-fleet-foundation-check": "node --env-file-if-exists=.env scripts/process-brain-fleet-foundation-check.mjs",
     "process:brain-fleet-quota-ledger-check": "node --env-file-if-exists=.env scripts/process-brain-fleet-quota-ledger-check.mjs",
+    "process:brain-fleet-model-capability-registry-check": "node --env-file-if-exists=.env scripts/process-brain-fleet-model-capability-registry-check.mjs",
     "process:deep-audit-findings-closure-gate-check": "node --env-file-if-exists=.env scripts/process-deep-audit-findings-closure-gate-check.mjs",
     "process:foundation-client-current-state-extract-check": "node --env-file-if-exists=.env scripts/process-foundation-client-current-state-extract-check.mjs",
     "process:build-log-api-cache-and-slim-check": "node --env-file-if-exists=.env scripts/process-build-log-api-cache-and-slim-check.mjs",
