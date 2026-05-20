@@ -4,6 +4,19 @@ This is the working source note behind `SRC-CLICKUP-001`.
 
 Use it to lock what ClickUp actually owns right now and what it does **not** own yet.
 
+## Promoted Operating Truths
+
+Durable interpretation from this source note now lives in [Operating Truths](../strategy/operating-truths.md), and Freedom rebuild layering lives in [Freedom Rebuild Blueprint](../rebuild/freedom-rebuild-blueprint.md).
+
+Use this note for ClickUp evidence, reachable list boundaries, custom-field reality, and workflow/accountability behavior.
+
+Key promoted rules:
+
+- ClickUp is the workflow/accountability layer for roster, onboarding, contract-link operations, conditional forecast, and post-policy deal follow-through.
+- ClickUp is not final finance, transaction economics, commission, split, or bonus payout truth.
+- ClickUp Deal Data Entry can prove follow-through only when it joins cleanly to the transaction by Trade Number or reviewed fallback evidence.
+- ClickUp task state should not silently overwrite Owners, FUB, or finance truth.
+
 ## What ClickUp Owns Best Right Now
 
 Current best read:

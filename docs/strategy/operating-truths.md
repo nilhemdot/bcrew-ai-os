@@ -10,6 +10,54 @@ Use this page for truths like:
 
 Do not put live values here. Put the meaning here.
 
+Source IDs behind this page:
+
+- `SRC-FREEDOM-TEAM-001`
+- `SRC-FREEDOM-COMMUNITY-001`
+- `SRC-FREEDOM-COMMUNITY-REV-001`
+- `SRC-FREEDOM-ENGINE-001`
+- `SRC-FREEDOM-BHAG-001`
+- `SRC-OWNERS-001`
+- `SRC-FINANCE-001`
+- `SRC-OWNERS-LISTS-001`
+- `SRC-CLICKUP-001`
+- `SRC-FUB-001`
+
+Routing rule:
+
+- Strategy docs own meaning.
+- Source notes own evidence and current process detail.
+- Backlog owns unresolved gaps, repairs, and future source-system changes.
+
+## Source Boundary Truth
+
+- Freedom is current strategy process map and spreadsheet-era planning logic, not final system-owned truth.
+- Owners is the governed deal / finance ledger for trade number, firm or executed date, agent-on-deal, split math, cash, and final source-row correction.
+- Owners Dashboard Lists mirror is not a write surface. `SRC-OWNERS-LISTS-001` owns the list/dropdown source behind Owners Admin `Lead Source` and `Ground Zero`.
+- FUB is CRM profile, stage, source, tag, assigned-user, activity, call, and transcript evidence. It is not final deal ledger truth.
+- ClickUp owns workflow, accountability, roster/onboarding status, contract-link operations, conditional forecast tasks, and post-policy deal follow-through. It is not final finance, split, commission, or bonus payout truth.
+- Finance truth resolves through `SRC-FINANCE-001` and Owners finance context, not Freedom self-entered payout fields.
+
+## Validation Truth
+
+- Ops self-validation fields are claims, not verified truth.
+- A field saying `100% Record Completion`, `validated`, or similar is evidence that the process claimed completion. It is not enough for the rebuilt system to pay, route, or report without system-owned validation.
+- Bonus/payout truth must reconcile to Owners finance and `Weekly Actuals` before it becomes trusted operating truth.
+- For deals executed on or after `2026-04-01`, the old Freedom per-row survey/review fields are historical process context. ClickUp `Deal Data Entry` plus FUB call/transcript evidence is the live follow-through path.
+
+## Attribution Truth
+
+- Company-versus-agent attribution is rule-driven through governed lead-source rules, Owners/FUB evidence, ISA overrides, and signed-off source-row correction. Do not guess.
+- `<unspecified>` is quarantine, not final attribution truth.
+- `Ground Zero` must trace to the original root source whenever the lead source implies a chain, introduction, referral, or secondary source.
+- `No Extra Lead Source` on a chained or referral path is usually wrong until source-truth review proves otherwise.
+- If Owners and FUB have different source names but the same governed ownership, the issue is lineage cleanup, not an automatic company/agent credit flip.
+- If Owners and FUB have different governed ownership, the row needs source-truth review before attribution is trusted.
+
+## Rebuild Blueprint Truth
+
+The Freedom rebuild target is documented in [Freedom Rebuild Blueprint](../rebuild/freedom-rebuild-blueprint.md). The blueprint exists so future data adapters and dashboard rebuilds do not reread the full validation history to rediscover source roles.
+
 ## Roster Truth
 
 - Team membership is not the same thing as counted production roster.

@@ -1,0 +1,13 @@
+{
+  "cardId": "FOUNDATION-004",
+  "score": 10,
+  "approvedBy": "Steve unattended Foundation sprint approval",
+  "approvedAt": "2026-05-20T04:05:00.000-04:00",
+  "approvalSource": "Steve approved unattended Foundation execution: keep going card-by-card after SOURCE-003 and build the next safe sprint from live backlog truth.",
+  "notes": "Approved FOUNDATION-004 to refine operating truths from signed-off Freedom/Owners/finance/source validation, produce a Freedom rebuild blueprint, and promote unresolved gaps to backlog without external writes or source mutation.",
+  "approvalSchemaVersion": 2,
+  "approvedPlanRef": "docs/process/foundation-004-operating-truth-refinement-plan.md",
+  "approvedPlanSha256": "163c55baa4408fafd26cf01a79505c50be7a1a82db76647638698d327768f2da",
+  "approvedRepoHead": "8682e50a1effa22f8ed4735951b89efc83011457",
+  "approvalDigest": "b0dc79bd867feb5532c8f42137b292819281ce3818ea088c6a73af72176dd394"
+}

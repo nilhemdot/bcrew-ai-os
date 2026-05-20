@@ -2,6 +2,20 @@
 
 Purpose: this is the system note for the Freedom Sheet. It explains what each tracked section owns, how the main strategy math is built, and where the current spreadsheet is using workarounds that should become cleaner system logic later.
 
+## Promoted Operating Truths
+
+Durable interpretation from this validation now lives in [Operating Truths](../strategy/operating-truths.md), and the rebuild target lives in [Freedom Rebuild Blueprint](../rebuild/freedom-rebuild-blueprint.md).
+
+Use this note for evidence, current spreadsheet behavior, tab-level validation, and historical/process context. Do not make this note the final business-meaning layer.
+
+Key promoted rules:
+
+- Freedom is current strategy process map and spreadsheet-era planning logic, not final system-owned truth.
+- The hidden Owners mirror is dependency context; Owners remains the deal / finance ledger.
+- Ops self-validation fields are claims, not verified truth.
+- Post-`2026-04-01` deal follow-through uses ClickUp `Deal Data Entry` plus FUB call/transcript evidence, not the old Freedom per-row review model alone.
+- The rebuild needs separate source-owned layers for team member source, production roster source, community source, deal-ledger economics source, BHAG assumptions source, engine calculation layer, and dashboard read layer.
+
 ## Master Validation Rule
 
 This note is the **master Freedom Sheet tab-by-tab validation**.

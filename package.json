@@ -449,6 +449,7 @@
     "process:source-001-check": "node --env-file-if-exists=.env scripts/process-source-001-check.mjs",
     "process:source-002-check": "node --env-file-if-exists=.env scripts/process-source-002-check.mjs",
     "process:source-003-check": "node --env-file-if-exists=.env scripts/process-source-003-check.mjs",
+    "process:foundation-004-check": "node --env-file-if-exists=.env scripts/process-foundation-004-check.mjs",
     "process:avatar-import-check": "node --env-file-if-exists=.env scripts/process-avatar-import-check.mjs",
     "auto-deploy:rollback": "node --env-file-if-exists=.env scripts/auto-deploy-rollback.mjs",
     "process:auto-deploy-rollback-check": "node --env-file-if-exists=.env scripts/process-auto-deploy-rollback-check.mjs",

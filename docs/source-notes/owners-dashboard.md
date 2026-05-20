@@ -11,6 +11,20 @@ Use it to capture:
 
 The goal is not to freeze the workbook in prose. The goal is to preserve the business logic so the system can read it correctly and later replace brittle spreadsheet logic with cleaner source contracts.
 
+## Promoted Operating Truths
+
+Durable interpretation from this validation now lives in [Operating Truths](../strategy/operating-truths.md), and Freedom rebuild layering lives in [Freedom Rebuild Blueprint](../rebuild/freedom-rebuild-blueprint.md).
+
+Use this note for Owners evidence, current workbook behavior, column-level validation, and deal-ledger details.
+
+Key promoted rules:
+
+- Owners is the deal / finance ledger for trade number, firm or executed date, agent-on-deal, split math, cash, and final source-row fixes.
+- Owners Dashboard Lists mirror is not a write surface. `SRC-OWNERS-LISTS-001` owns the upstream list/dropdown data.
+- `<unspecified>` is quarantine, not final attribution truth.
+- `Ground Zero` must trace to the root source when a lead-source chain exists.
+- FUB evidence and Owners evidence must be compared before attribution is trusted; mismatches route to source-truth review.
+
 Visible closeout sequence:
 
 - [docs/rebuild/owners-closeout.md](/Users/bensoncrew/bcrew-ai-os/docs/rebuild/owners-closeout.md)
