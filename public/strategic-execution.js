@@ -28,13 +28,18 @@
       title: 'Goal And Operating Truth',
       body: 'Current target, actual, and gap by source-backed business measure.',
     },
+    'business-atoms': {
+      label: 'Business Atoms',
+      title: 'Business Atom Board',
+      body: 'Small source-backed business signals for weekly, monthly, quarterly, and annual planning.',
+    },
     'route-review': {
       label: 'Review Queue',
       title: 'Strategic Review',
       body: 'Only strategy prep, source-map gaps, goal gaps, and pillar decisions belong here.',
     },
   }
-  var sectionOrder = ['overview', 'planning', 'meeting', 'source-to-gap', 'route-review']
+  var sectionOrder = ['overview', 'planning', 'meeting', 'source-to-gap', 'business-atoms', 'route-review']
 
   function appendText(parent, tagName, text, className) {
     var el = document.createElement(tagName)
@@ -158,6 +163,7 @@
 
   function renderHero(container, data) {
     var actionRouter = data.actionRouter || {}
+    var businessAtoms = data.businessAtoms || {}
     var goalTruth = data.goalTruth || {}
     var teamGroup = goalGroupByKey(goalTruth, 'team_volume')
     var strategyRoutes = strategyVisibleRoutes(actionRouter.recentRoutes || [])
@@ -185,6 +191,9 @@
     ))
     if (state.section === 'route-review') {
       strip.appendChild(makePill(String(pendingStrategyRoutes) + ' strategy reviews', pendingStrategyRoutes ? 'watch' : 'good'))
+    } else if (state.section === 'business-atoms') {
+      strip.appendChild(makePill(String(businessAtoms.summary && businessAtoms.summary.currentAtoms || 0) + ' current atoms', businessAtoms.summary && businessAtoms.summary.currentAtoms ? 'good' : 'watch'))
+      strip.appendChild(makePill(String(businessAtoms.summary && businessAtoms.summary.totalHits || 0) + ' hits', businessAtoms.summary && businessAtoms.summary.totalHits ? 'good' : 'neutral'))
     } else if (state.section === 'planning') {
       var workflow = data.planningWorkflow || {}
       strip.appendChild(makePill(emptyText(workflow.status, 'planning missing'), statusTone(workflow.status)))
@@ -859,6 +868,78 @@
     container.appendChild(panel)
   }
 
+  function renderBusinessAtomCard(atom) {
+    var card = document.createElement('article')
+    card.className = 'strategy-v2-card strategy-v2-planning-item'
+    appendText(card, 'div', emptyText(atom.category, 'atom').replace(/_/g, ' '), 'strategy-v2-focus-label')
+    appendText(card, 'h4', emptyText(atom.title, 'Business atom'))
+    appendText(card, 'p', emptyText(atom.description || atom.sourceExcerpt, 'No atom summary recorded.'), 'strategy-v2-muted')
+    var meta = document.createElement('div')
+    meta.className = 'strategy-v2-route-mini-meta'
+    meta.appendChild(makePill(emptyText(atom.lifecycleStatus, 'detected'), statusTone(atom.lifecycleStatus)))
+    meta.appendChild(makePill(emptyText(atom.pillar, 'pillar'), 'neutral'))
+    appendText(meta, 'span', String(atom.hitCount || 0) + ' hits')
+    appendText(meta, 'span', emptyText(atom.timeScope, 'time scope'))
+    card.appendChild(meta)
+    var source = document.createElement('div')
+    source.className = 'strategy-v2-meeting-sources'
+    source.appendChild(makePill(emptyText(atom.sourceId, 'source missing'), 'neutral'))
+    source.appendChild(makePill(emptyText(atom.currentState, 'state missing'), statusTone(atom.currentState)))
+    card.appendChild(source)
+    appendText(card, 'strong', 'Next: ' + emptyText(atom.nextTrigger, 'Review when this signal repeats.'), 'strategy-v2-agenda-focus')
+    return card
+  }
+
+  function renderBusinessAtomView(title, eyebrow, atoms, emptyCopy) {
+    var panel = document.createElement('article')
+    panel.className = 'strategy-v2-focus-panel'
+    appendText(panel, 'div', eyebrow, 'eyebrow')
+    appendText(panel, 'h3', title)
+    var list = document.createElement('div')
+    list.className = 'strategy-v2-goal-grid'
+    ;(atoms || []).slice(0, 8).forEach(function(atom) {
+      list.appendChild(renderBusinessAtomCard(atom))
+    })
+    if (!(atoms || []).length) {
+      appendText(list, 'p', emptyCopy || 'No source-backed business atoms in this view yet.', 'strategy-v2-muted')
+    }
+    panel.appendChild(list)
+    return panel
+  }
+
+  function renderBusinessAtoms(container, data) {
+    var businessAtoms = data.businessAtoms || {}
+    var summary = businessAtoms.summary || {}
+    var views = businessAtoms.views || {}
+    var panel = document.createElement('section')
+    panel.className = 'panel strategy-v2-panel'
+    panel.id = 'business-atoms'
+
+    var header = document.createElement('div')
+    header.className = 'panel-header'
+    var copy = document.createElement('div')
+    appendText(copy, 'div', 'Business Atoms', 'eyebrow')
+    appendText(copy, 'h3', 'Small source-backed business signals')
+    appendText(copy, 'p', 'Atoms are evidence units for weekly, monthly, quarterly, and annual planning. They do not apply decisions or create work by themselves.', 'strategy-v2-muted')
+    header.appendChild(copy)
+    appendText(header, 'div', formatDateTime(businessAtoms.generatedAt), 'doc-meta')
+    panel.appendChild(header)
+
+    var statGrid = document.createElement('div')
+    statGrid.className = 'strategy-v2-meeting-stat-grid'
+    statGrid.appendChild(renderMeetingStat('Atoms', summary.totalAtoms || 0, 'seeded'))
+    statGrid.appendChild(renderMeetingStat('Current', summary.currentAtoms || 0, 'active'))
+    statGrid.appendChild(renderMeetingStat('Hits', summary.totalHits || 0, 'proof'))
+    statGrid.appendChild(renderMeetingStat('Categories', count(summary.categoryCounts), 'types'))
+    panel.appendChild(statGrid)
+
+    panel.appendChild(renderBusinessAtomView('Weekly pulse', 'This Week', views.weekly, 'No weekly atoms yet.'))
+    panel.appendChild(renderBusinessAtomView('Monthly signals', 'This Month', views.monthly, 'No monthly atoms yet.'))
+    panel.appendChild(renderBusinessAtomView('Quarterly board', 'This Quarter', views.quarterly, 'No quarterly atoms yet.'))
+    panel.appendChild(renderBusinessAtomView('Annual patterns', 'Annual', views.annual, 'No annual atoms yet.'))
+    container.appendChild(panel)
+  }
+
   function renderOverview(container, data) {
     var goalTruth = data.goalTruth || {}
     var operatingTruth = data.operatingTruth || {}
@@ -908,6 +989,21 @@
       tone: 'neutral',
     }))
     page.appendChild(kpis)
+    if (data.businessAtoms) {
+      var atomPreview = document.createElement('article')
+      atomPreview.className = 'strategy-v2-focus-panel'
+      appendText(atomPreview, 'div', 'Business Atoms', 'eyebrow')
+      appendText(atomPreview, 'h3', String(data.businessAtoms.summary && data.businessAtoms.summary.currentAtoms || 0) + ' current planning signals')
+      appendText(atomPreview, 'p', 'Source-backed atoms are ready for weekly, monthly, quarterly, and annual planning views.', 'strategy-v2-muted')
+      var atomStats = document.createElement('div')
+      atomStats.className = 'strategy-v2-meeting-stat-grid'
+      atomStats.appendChild(renderMeetingStat('Atoms', data.businessAtoms.summary && data.businessAtoms.summary.totalAtoms || 0, 'seeded'))
+      atomStats.appendChild(renderMeetingStat('Hits', data.businessAtoms.summary && data.businessAtoms.summary.totalHits || 0, 'proof'))
+      atomStats.appendChild(renderMeetingStat('Quarter', count(data.businessAtoms.views && data.businessAtoms.views.quarterly), 'items'))
+      atomPreview.appendChild(atomStats)
+      appendLink(atomPreview, '#business-atoms', 'Open Business Atoms', 'section-support-link')
+      page.appendChild(atomPreview)
+    }
     if (data.planningWorkflow) {
       var planningPreview = document.createElement('article')
       planningPreview.className = 'strategy-v2-focus-panel'
@@ -1539,6 +1635,8 @@
       renderPlanningWorkflow(container, state.data)
     } else if (state.section === 'meeting') {
       renderMeetingReady(container, state.data)
+    } else if (state.section === 'business-atoms') {
+      renderBusinessAtoms(container, state.data)
     } else if (state.section === 'route-review') {
       renderRouteReview(container, state.data)
     } else {

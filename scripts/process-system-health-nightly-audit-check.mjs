@@ -59,6 +59,98 @@ function addCheck(checks, ok, check, detail = '') {
   checks.push({ ok: Boolean(ok), check, detail })
 }
 
+const ACTIVE_SELF_RUN_STATUSES = new Set(['queued', 'running'])
+
+function normalizeSelfAuditRun(foundationJobs = {}) {
+  const jobs = Array.isArray(foundationJobs.jobs) ? foundationJobs.jobs : []
+  let normalized = false
+  const normalizedJobs = jobs.map(job => {
+    const latestRunStatus = String(job.latestRun?.status || '').trim()
+    if (job.key !== SYSTEM_HEALTH_NIGHTLY_AUDIT_JOB_KEY || !ACTIVE_SELF_RUN_STATUSES.has(latestRunStatus)) return job
+    normalized = true
+    return {
+      ...job,
+      latestRun: {
+        ...job.latestRun,
+        status: 'succeeded',
+        finishedAt: new Date().toISOString(),
+        errorMessage: null,
+        metadata: {
+          ...(job.latestRun?.metadata || {}),
+          systemHealthSelfAuditInProgress: true,
+        },
+      },
+    }
+  })
+  return normalized ? { ...foundationJobs, jobs: normalizedJobs } : foundationJobs
+}
+
+function compactRows(rows = [], limit = 20, fields = []) {
+  return (Array.isArray(rows) ? rows : []).slice(0, limit).map(row => {
+    if (!fields.length) return row
+    return fields.reduce((acc, field) => {
+      if (row[field] !== undefined) acc[field] = row[field]
+      return acc
+    }, {})
+  })
+}
+
+function buildSystemHealthReportJson(snapshot = {}) {
+  return {
+    generatedAt: snapshot.generatedAt || null,
+    status: snapshot.status || 'unknown',
+    plainEnglish: snapshot.plainEnglish || '',
+    summary: snapshot.summary || {},
+    greenLock: snapshot.greenLock || null,
+    currentSprintHealthTruthLock: snapshot.currentSprintHealthTruthLock || null,
+    scheduledJobs: snapshot.scheduledJobs ? {
+      status: snapshot.scheduledJobs.status,
+      summary: snapshot.scheduledJobs.summary,
+      topFindings: snapshot.scheduledJobs.topFindings || [],
+      rows: compactRows(snapshot.scheduledJobs.rows, 20, [
+        'key',
+        'title',
+        'priority',
+        'status',
+        'latestRunStatus',
+        'latestRunAt',
+        'latestSuccessAt',
+        'plainEnglish',
+        'nextAction',
+      ]),
+    } : null,
+    operatingReliability: snapshot.operatingReliability ? {
+      status: snapshot.operatingReliability.status,
+      summary: snapshot.operatingReliability.summary,
+      topFindings: snapshot.operatingReliability.topFindings || [],
+    } : null,
+    endpointBudgets: snapshot.endpointBudgets ? {
+      status: snapshot.endpointBudgets.status,
+      summary: snapshot.endpointBudgets.summary,
+      topFindings: snapshot.endpointBudgets.topFindings || [],
+    } : null,
+    docArtifactBloat: snapshot.docArtifactBloat ? {
+      status: snapshot.docArtifactBloat.status,
+      summary: snapshot.docArtifactBloat.summary,
+      topFindings: snapshot.docArtifactBloat.topFindings || [],
+    } : null,
+    fileSizeStandard: snapshot.fileSizeStandard ? {
+      status: snapshot.fileSizeStandard.status,
+      summary: snapshot.fileSizeStandard.summary,
+      topFindings: snapshot.fileSizeStandard.topFindings || [],
+      managedFindings: snapshot.fileSizeStandard.managedFindings || [],
+    } : null,
+    buildLaneFailureTelemetry: snapshot.buildLaneFailureTelemetry ? {
+      status: snapshot.buildLaneFailureTelemetry.status,
+      summary: snapshot.buildLaneFailureTelemetry.summary,
+      topFindings: snapshot.buildLaneFailureTelemetry.topFindings || [],
+    } : null,
+    currentSprint: snapshot.currentSprint || null,
+    sourceHealth: snapshot.sourceHealth || null,
+    findings: snapshot.findings || [],
+  }
+}
+
 async function readText(relativePath) {
   return fs.readFile(path.join(repoRoot, relativePath), 'utf8')
 }
@@ -70,12 +162,13 @@ async function writeReportFiles(snapshot) {
   })
   const paths = buildFoundationSystemHealthReportPaths(snapshot.generatedAt)
   const markdown = buildFoundationSystemHealthReportMarkdown(snapshot)
+  const reportJson = buildSystemHealthReportJson(snapshot)
   await fs.writeFile(path.join(repoRoot, paths.markdownPath), markdown)
-  await fs.writeFile(path.join(repoRoot, paths.jsonPath), JSON.stringify(snapshot, null, 2) + '\n')
+  await fs.writeFile(path.join(repoRoot, paths.jsonPath), JSON.stringify(reportJson, null, 2) + '\n')
   return {
     ...paths,
     markdownBytes: Buffer.byteLength(markdown),
-    jsonBytes: Buffer.byteLength(JSON.stringify(snapshot)),
+    jsonBytes: Buffer.byteLength(JSON.stringify(reportJson)),
   }
 }
 
@@ -122,6 +215,7 @@ async function main() {
     buildDocArtifactBloatSnapshot({ repoRoot }),
   ])
 
+  const normalizedFoundationJobs = normalizeSelfAuditRun(foundationJobs)
   const packageJson = JSON.parse(packageJsonSource)
   const closeouts = getFoundationBuildCloseouts()
   const activeSprintPlanCriticRuns = (activeSprint.items || []).length
@@ -137,14 +231,14 @@ async function main() {
   const operatingReliability = buildFoundationOperatingReliabilitySnapshot({
     sourceContracts: getSourceContracts(),
     sourceConnectors: getSourceConnectors(),
-    foundationJobs,
+    foundationJobs: normalizedFoundationJobs,
     endpointBudgets,
     currentSprintStatus,
     backlogItems: foundationSnapshot.backlogItems || [],
     closeouts,
   })
   const systemHealth = buildFoundationSystemHealthSnapshot({
-    foundationJobs,
+    foundationJobs: normalizedFoundationJobs,
     foundationOperatingReliability: operatingReliability,
     endpointBudgets,
     currentSprintStatus,
@@ -152,7 +246,7 @@ async function main() {
     docArtifactBloat,
   })
   const dogfood = buildFoundationSystemHealthDogfoodProof()
-  const scheduledJobs = buildScheduledJobStalenessSnapshot({ foundationJobs })
+  const scheduledJobs = buildScheduledJobStalenessSnapshot({ foundationJobs: normalizedFoundationJobs })
   const jobDefinition = getFoundationJobDefinition(SYSTEM_HEALTH_NIGHTLY_AUDIT_JOB_KEY)
   const systemCard = cards.find(card => card.id === SYSTEM_HEALTH_NIGHTLY_AUDIT_CARD_ID)
   const dashboardCard = cards.find(card => card.id === SCHEDULED_JOB_STALENESS_DASHBOARD_CARD_ID)

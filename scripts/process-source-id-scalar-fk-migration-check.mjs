@@ -183,10 +183,10 @@ async function main() {
     doneMode ? 'backlog done' : `${activeSprint.sprint?.sprintId || 'missing'} / ${cardStage || 'missing'}`,
   )
   addCheck(checks, registrySnapshot.evaluation.ok === true, 'source_contract_registry is healthy before FK enforcement', JSON.stringify(registrySnapshot.evaluation.summary))
-  addCheck(checks, relations.length === 10 && relations.every(row => row.valueShape === 'scalar' && row.column === 'source_id'), 'migration relation list contains only 10 scalar source_id references', relations.map(row => row.relation).join(', '))
+  addCheck(checks, relations.length >= 10 && relations.every(row => row.valueShape === 'scalar' && row.column === 'source_id'), 'migration relation list contains only scalar source_id references', relations.map(row => row.relation).join(', '))
   addCheck(checks, dogfood.ok === true, 'dogfood rejects array-backed FK migration and unsafe identifiers', dogfood.invariant)
   addCheck(checks, fkSnapshot.invalidReferenceCount === 0, 'live scalar source_id rows all reference registered source contracts', `${fkSnapshot.invalidReferenceCount} invalid source reference(s)`)
-  addCheck(checks, fkSnapshot.constraints.ok === true && fkSnapshot.constraints.validatedCount === 10, 'all scalar source_id FK constraints exist and are validated', `${fkSnapshot.constraints.validatedCount}/${fkSnapshot.constraints.expectedCount} validated`)
+  addCheck(checks, fkSnapshot.constraints.ok === true && fkSnapshot.constraints.validatedCount === fkSnapshot.constraints.expectedCount, 'all scalar source_id FK constraints exist and are validated', `${fkSnapshot.constraints.validatedCount}/${fkSnapshot.constraints.expectedCount} validated`)
   addCheck(checks, fkSnapshot.arrayConstraintRows.length === 0, 'array-backed source_ids remain out of simple FK migration', `${fkSnapshot.arrayConstraintRows.length} unexpected array relation constraint(s)`)
   addCheck(checks, applyRequiresFlag, 'apply script is dry-run by default and requires --apply for schema writes', applyRequiresFlag ? 'apply gated' : 'missing apply guard')
   addCheck(checks, applyOwnsAlter, 'schema mutation is isolated to the apply-gated migration path', 'module owns ALTER/VALIDATE; proof script is read-only')

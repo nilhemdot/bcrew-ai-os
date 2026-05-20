@@ -1,0 +1,16 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "STRATEGY-001",
+  "approvedPlanRef": "docs/process/strategy-001-business-atoms-framework-plan.md",
+  "approvedPlanSha256": "ffdb26e63170ceb53de5951882323c30b4e696466a40ebf722933c86eb153a6d",
+  "approvedRepoHead": "40716f74bc198acc74049622761dfb4fc390467f",
+  "approvedBy": "Steve approved unattended Foundation sprint continuation",
+  "approvedAt": "2026-05-20T05:45:00.000-04:00",
+  "score": 10,
+  "approvalNotes": [
+    "Steve approved continuing through the Foundation sprint without babysitting; blockers block unsafe actions, not the whole sprint.",
+    "STRATEGY-001 must reuse existing source-backed intelligence and temporal truth instead of rebuilding the intelligence spine.",
+    "No external writes, provider calls, browser automation, credential mutation, Drive permission mutation, or broad extraction."
+  ],
+  "approvalDigest": "4d260a2c5b2790b7b8dc4ae63cb14bb27fcf2ee338be016a6d916c8d67536a7c"
+}
