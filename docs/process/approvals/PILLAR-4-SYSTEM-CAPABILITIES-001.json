@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "PILLAR-4-SYSTEM-CAPABILITIES-001",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T20:30:00-04:00",
+  "approvalSource": "Steve approved continuing the Foundation gold-capture and capability sprint card-by-card without losing the gold from the long planning conversation.",
+  "notes": "Approved to generate live System Capabilities from existing Foundation truth. Do not approve provider/tool runtime use, agent runtime, external writes, source mutation, private local content copying, or Value Builder split.",
+  "approvedPlanRef": "docs/process/pillar-4-system-capabilities-001-plan.md",
+  "approvedPlanSha256": "cd6d4ee58a16589c077a6c1aafd1c0ca09ad9291b0e06138e66e4b253584ad28",
+  "approvedRepoHead": "125fc3359b53748807179b801dcb0e2625ec5c96",
+  "approvedChanges": [
+    "Add reusable PILLAR-4 System Capabilities generator module.",
+    "Generate JSON and Markdown capability artifacts from live source, route, job, runtime, provider/tool, and agent registry truth.",
+    "Add focused proof and closeout wiring for PILLAR-4.",
+    "Advance Current Sprint to PILLAR-5-AGENT-INVENTORY-001 after closeout."
+  ],
+  "notNext": [
+    "No provider calls, model/media generation, paid spend, terminal worker launch, or live extraction.",
+    "No live agent runtime, external write/send, Drive permission mutation, credential mutation, provider config change, public exposure, or source-system mutation.",
+    "No secret values, raw private local memory, MEMORY.md, USER.md, raw chat database, token, or private runtime-state content in generated artifacts.",
+    "No agent inventory detail; that is PILLAR-5.",
+    "No Value Builder split."
+  ],
+  "approvalDigest": "9a975fbd5494fce9fd4dd77fe1ee779cf8f410febb95a29b8dca38b89c6f0a0a"
+}

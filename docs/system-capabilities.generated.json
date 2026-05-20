@@ -1,0 +1,546 @@
+{
+  "schemaVersion": 1,
+  "cardId": "PILLAR-4-SYSTEM-CAPABILITIES-001",
+  "closeoutKey": "pillar-4-system-capabilities-v1",
+  "generatedAt": "2026-05-20T00:34:17.859Z",
+  "sourceMaterial": {
+    "apiRoutes": [
+      "/api/system-inventory"
+    ],
+    "modules": [
+      "lib/source-contracts.js",
+      "lib/foundation-surface-map.js",
+      "lib/foundation-jobs.js",
+      "lib/foundation-up-capability-registry.js",
+      "lib/agent-capability-registry.js"
+    ],
+    "existingCloseoutKeys": [
+      "foundation-up-capability-registry-v1",
+      "agent-capability-registry-v1",
+      "foundation-identity-surface-v1"
+    ]
+  },
+  "summary": {
+    "capabilityRows": 13,
+    "sourceContracts": 42,
+    "sourceConnectors": 16,
+    "groupedSourceSystems": 14,
+    "surfaces": 96,
+    "backingApis": 22,
+    "jobs": 40,
+    "skills": 6,
+    "plugins": 9,
+    "providerToolCapabilities": 4,
+    "agentCapabilityRows": 2,
+    "blockedProviderRows": 4
+  },
+  "boundaries": {
+    "generatedFromLiveTruth": true,
+    "sourceIdsRequired": true,
+    "providerUseApprovedByThisCard": false,
+    "agentRuntimeApprovedByThisCard": false,
+    "externalMutationApprovedByThisCard": false,
+    "privateLocalContentCopied": false,
+    "secretValuesStored": false,
+    "notNext": [
+      "Do not hand-maintain capability truth outside the generated artifact.",
+      "Do not approve runtime/provider/agent capability use in this card.",
+      "Do not call providers, spend credits, launch workers, start live extraction, or mutate external systems.",
+      "Do not copy private local memory, secret values, raw credentials, or token values into generated outputs.",
+      "Do not build the agent inventory detail surface; that is PILLAR-5.",
+      "Do not start Value Builder split."
+    ]
+  },
+  "registryEvaluations": {
+    "providerRegistry": {
+      "ok": true,
+      "status": "ready",
+      "summary": {
+        "capabilityCount": 4,
+        "providerCount": 4,
+        "meteredCapabilityCount": 2,
+        "blockedBindingCount": 4,
+        "hiddenWorkerCount": 0,
+        "liveSideEffectCount": 0
+      }
+    },
+    "agentRegistry": {
+      "ok": true,
+      "status": "ready",
+      "summary": {
+        "agentCount": 2,
+        "capabilityCount": 2,
+        "claimCount": 3,
+        "violationCount": 0
+      }
+    }
+  },
+  "capabilities": [
+    {
+      "capabilityId": "source-contract-registry",
+      "title": "Source contract registry",
+      "category": "source_truth",
+      "status": "generated_from_source_contracts",
+      "owner": "Foundation Source Truth",
+      "sourceRefs": [
+        "lib/source-contracts.js:getSourceContracts"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:source-contract-id-reconcile-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": true,
+        "requiredBeforeUse": [],
+        "note": "Generated from existing live Foundation truth."
+      },
+      "counts": {
+        "sourceContracts": 42,
+        "statusCounts": {
+          "Verified": 1,
+          "Scoped, not connected": 5,
+          "Current reality captured": 8,
+          "Signed Off": 1,
+          "V1 Source Boundary Locked": 2,
+          "Verified Readable": 11,
+          "Pending Revalidation": 4,
+          "Scoped, not extracted": 1,
+          "Active Read-Only V1": 1,
+          "Gap": 8
+        },
+        "validationCounts": {
+          "Signed Off": 2,
+          "Not Signed Off": 27,
+          "Signed Off For Current Reality": 9,
+          "Verified For Ops V1": 1,
+          "Read-Only V1; Source Boundary Locked": 1,
+          "Readable Only": 2
+        }
+      },
+      "nextAction": "Use source contract IDs as capability provenance; do not treat docs or plugins as source signoff.",
+      "blocking": false,
+      "metadata": {}
+    },
+    {
+      "capabilityId": "source-connector-registry",
+      "title": "Source connector registry",
+      "category": "source_connectors",
+      "status": "generated_from_source_contracts",
+      "owner": "Foundation Source Truth",
+      "sourceRefs": [
+        "lib/source-contracts.js:getSourceConnectors"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:source-contract-id-reconcile-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": true,
+        "requiredBeforeUse": [],
+        "note": "Generated from existing live Foundation truth."
+      },
+      "counts": {
+        "connectors": 16,
+        "statusCounts": {
+          "Working in rebuild": 1,
+          "Installed and working": 1,
+          "Working in rebuild for delegated reads and scheduled current-day sync": 1,
+          "Working in rebuild for delegated calendar reads": 1,
+          "Working in rebuild: read routes live and admin-gated write path wired": 1,
+          "Readable in rebuild; business boundary still not signed off": 1,
+          "Working in rebuild for governed Ops v1 lists": 1,
+          "Working in rebuild for archive/current-day sync": 1,
+          "Working in rebuild for shared-inbox archive/current-day sync": 1,
+          "Working in rebuild for YouTube subtitle transcript extraction and SEO reads": 1,
+          "Known integration path, rebuild validation pending": 1,
+          "Readable in rebuild; marketing source boundary still not signed off": 1,
+          "Credential requirements mapped; property/account validation pending": 1,
+          "Credential requirements mapped; site-property validation pending": 1,
+          "Credential requirements mapped; account/location validation pending": 1,
+          "Known external connector, not mapped yet": 1
+        }
+      },
+      "nextAction": "Keep connector status separate from source contract trust and extraction freshness.",
+      "blocking": false,
+      "metadata": {}
+    },
+    {
+      "capabilityId": "system-service-area-map",
+      "title": "System service area map",
+      "category": "source_truth",
+      "status": "generated_from_grouped_source_systems",
+      "owner": "Foundation Source Truth",
+      "sourceRefs": [
+        "lib/source-contracts.js:getGroupedSourceSystems"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": true,
+        "requiredBeforeUse": [],
+        "note": "Generated from existing live Foundation truth."
+      },
+      "counts": {
+        "groupedSystems": 14,
+        "withRuntimeJobs": 7,
+        "withConnectors": 11
+      },
+      "nextAction": "Use grouped source systems to show which service areas have source, connector, and job coverage.",
+      "blocking": false,
+      "metadata": {}
+    },
+    {
+      "capabilityId": "foundation-surface-map",
+      "title": "Foundation surface and route inventory",
+      "category": "operator_surface",
+      "status": "generated_from_surface_map",
+      "owner": "Foundation UI / Control Plane",
+      "sourceRefs": [
+        "lib/foundation-surface-map.js:getFoundationSurfaceMap"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:frontend-system-inventory-renderers-split-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": true,
+        "requiredBeforeUse": [],
+        "note": "Generated from existing live Foundation truth."
+      },
+      "counts": {
+        "surfaces": 96,
+        "topLevelSurfaces": 34,
+        "subSurfaces": 62,
+        "backingApis": 22
+      },
+      "nextAction": "Capabilities must stay tied to served surfaces and backing APIs instead of stale markdown claims.",
+      "blocking": false,
+      "metadata": {}
+    },
+    {
+      "capabilityId": "foundation-job-definitions",
+      "title": "Foundation governed job definitions",
+      "category": "runtime_jobs",
+      "status": "generated_from_job_definitions",
+      "owner": "Foundation Runtime",
+      "sourceRefs": [
+        "lib/foundation-jobs.js:getFoundationJobDefinitions"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:foundation-operating-reliability-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": true,
+        "requiredBeforeUse": [],
+        "note": "Generated from existing live Foundation truth."
+      },
+      "counts": {
+        "jobs": 40,
+        "runtimeModes": {
+          "scheduled": 28,
+          "manual": 12
+        },
+        "lanes": {
+          "health": 8,
+          "coverage": 3,
+          "model": 1,
+          "extract": 8,
+          "archive": 9,
+          "transactions": 3,
+          "people": 3,
+          "synthesis": 3,
+          "action": 1,
+          "strategy": 1
+        },
+        "jobTypes": {
+          "health_check": 8,
+          "review": 6,
+          "llm_audit": 1,
+          "control_plane": 1,
+          "current_sync": 5,
+          "corpus_extraction": 3,
+          "recovery": 2,
+          "extraction": 4,
+          "corpus_inventory": 2,
+          "sync": 1,
+          "send": 2,
+          "intelligence_bite": 1,
+          "synthesis": 3,
+          "routing": 1
+        }
+      },
+      "nextAction": "Use governed job definitions and ledgers for runtime capability truth; do not infer from chat.",
+      "blocking": false,
+      "metadata": {}
+    },
+    {
+      "capabilityId": "runtime-skills-inventory",
+      "title": "Runtime skills inventory",
+      "category": "runtime_capabilities",
+      "status": "generated_from_system_inventory_api",
+      "owner": "Foundation Runtime",
+      "sourceRefs": [
+        "/api/system-inventory:skills"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:foundation-identity-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": true,
+        "requiredBeforeUse": [],
+        "note": "Skills are runtime guidance capabilities, not source-truth signoff."
+      },
+      "counts": {
+        "skills": 6,
+        "workspaceSkills": 1,
+        "systemSkills": 5
+      },
+      "nextAction": "Keep skill inventory generated from local runtime discovery.",
+      "blocking": false,
+      "metadata": {}
+    },
+    {
+      "capabilityId": "runtime-plugin-inventory",
+      "title": "Runtime plugins and MCP inventory",
+      "category": "runtime_capabilities",
+      "status": "generated_from_system_inventory_api",
+      "owner": "Foundation Runtime",
+      "sourceRefs": [
+        "/api/system-inventory:plugins"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:foundation-identity-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": true,
+        "requiredBeforeUse": [
+          "separate source-contract signoff before treating plugin data as business truth"
+        ],
+        "note": "Installed plugins are runtime capabilities only."
+      },
+      "counts": {
+        "plugins": 9,
+        "pluginSkills": 23
+      },
+      "nextAction": "Keep plugin state separated from source-truth and external-write approval.",
+      "blocking": false,
+      "metadata": {}
+    },
+    {
+      "capabilityId": "workspace-identity-boundary",
+      "title": "Workspace identity and private-memory boundary",
+      "category": "privacy_boundary",
+      "status": "healthy",
+      "owner": "Foundation Privacy",
+      "sourceRefs": [
+        "/api/system-inventory:identity",
+        "lib/foundation-identity-surface.js"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:foundation-identity-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": true,
+        "requiredBeforeUse": [],
+        "note": "Private local files stay metadata-only in shared generated outputs."
+      },
+      "counts": {
+        "trackedDocs": 1087,
+        "privateLocalDocs": 5
+      },
+      "nextAction": "Preserve metadata-only private boundary while generating operator capability truth.",
+      "blocking": false,
+      "metadata": {}
+    },
+    {
+      "capabilityId": "provider-tool:fal-image-generation",
+      "title": "Fal media_generation_provider",
+      "category": "provider_tool_capability",
+      "status": "registered_blocked",
+      "owner": "Foundation / Steve approval required",
+      "sourceRefs": [
+        "lib/foundation-up-capability-registry.js:buildFoundationUpCapabilityRegistry",
+        "FOUNDATION-UP-CAPABILITY-REGISTRY-001"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:foundation-up-capability-registry-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": false,
+        "requiredBeforeUse": [
+          "explicit card approval",
+          "budget cap",
+          "input/output artifact path",
+          "operator review",
+          "rollback/delete path"
+        ],
+        "note": "Registered only; runtime use remains blocked pending separate approval."
+      },
+      "counts": {
+        "envRefs": 1,
+        "allowedCallModes": 1
+      },
+      "nextAction": "Do not call provider/tool capability until a separate approval card grants runtime use.",
+      "blocking": false,
+      "metadata": {
+        "permissionClass": "paid_provider_metered",
+        "externalMutationApproved": false,
+        "runtimeUseApprovedByThisCard": false,
+        "agentUseApprovedByThisCard": false
+      }
+    },
+    {
+      "capabilityId": "provider-tool:elevenlabs-voice",
+      "title": "ElevenLabs voice_generation_provider",
+      "category": "provider_tool_capability",
+      "status": "registered_blocked",
+      "owner": "Foundation / Steve approval required",
+      "sourceRefs": [
+        "lib/foundation-up-capability-registry.js:buildFoundationUpCapabilityRegistry",
+        "FOUNDATION-UP-CAPABILITY-REGISTRY-001"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:foundation-up-capability-registry-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": false,
+        "requiredBeforeUse": [
+          "explicit card approval",
+          "voice/clone rights",
+          "budget cap",
+          "output path",
+          "operator review"
+        ],
+        "note": "Registered only; runtime use remains blocked pending separate approval."
+      },
+      "counts": {
+        "envRefs": 1,
+        "allowedCallModes": 1
+      },
+      "nextAction": "Do not call provider/tool capability until a separate approval card grants runtime use.",
+      "blocking": false,
+      "metadata": {
+        "permissionClass": "paid_provider_metered",
+        "externalMutationApproved": false,
+        "runtimeUseApprovedByThisCard": false,
+        "agentUseApprovedByThisCard": false
+      }
+    },
+    {
+      "capabilityId": "provider-tool:canva-read-metadata",
+      "title": "Canva design_platform_api",
+      "category": "provider_tool_capability",
+      "status": "registered_blocked",
+      "owner": "Foundation / Marketing source owner",
+      "sourceRefs": [
+        "lib/foundation-up-capability-registry.js:buildFoundationUpCapabilityRegistry",
+        "FOUNDATION-UP-CAPABILITY-REGISTRY-001"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:foundation-up-capability-registry-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": false,
+        "requiredBeforeUse": [
+          "agent binding approval",
+          "read scope confirmation",
+          "rotation-safe token handling"
+        ],
+        "note": "Registered only; runtime use remains blocked pending separate approval."
+      },
+      "counts": {
+        "envRefs": 3,
+        "allowedCallModes": 1
+      },
+      "nextAction": "Do not call provider/tool capability until a separate approval card grants runtime use.",
+      "blocking": false,
+      "metadata": {
+        "permissionClass": "read_only_connector",
+        "externalMutationApproved": false,
+        "runtimeUseApprovedByThisCard": false,
+        "agentUseApprovedByThisCard": false
+      }
+    },
+    {
+      "capabilityId": "provider-tool:terminal-worker-local",
+      "title": "Local terminal local_shell_worker",
+      "category": "provider_tool_capability",
+      "status": "registered_blocked",
+      "owner": "Foundation builder/orchestrator",
+      "sourceRefs": [
+        "lib/foundation-up-capability-registry.js:buildFoundationUpCapabilityRegistry",
+        "FOUNDATION-UP-CAPABILITY-REGISTRY-001"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:foundation-up-capability-registry-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": false,
+        "requiredBeforeUse": [
+          "visible chat/worktree/branch owner",
+          "allowed command list",
+          "denied destructive command list",
+          "wrap report"
+        ],
+        "note": "Registered only; runtime use remains blocked pending separate approval."
+      },
+      "counts": {
+        "envRefs": 0,
+        "allowedCallModes": 1
+      },
+      "nextAction": "Do not call provider/tool capability until a separate approval card grants runtime use.",
+      "blocking": false,
+      "metadata": {
+        "permissionClass": "local_execution_guarded",
+        "externalMutationApproved": false,
+        "runtimeUseApprovedByThisCard": false,
+        "agentUseApprovedByThisCard": false
+      }
+    },
+    {
+      "capabilityId": "agent-capability-registry",
+      "title": "Agent capability registry",
+      "category": "agent_capability",
+      "status": "read_only_declared",
+      "owner": "Foundation Agent Runtime",
+      "sourceRefs": [
+        "lib/agent-capability-registry.js:buildAgentCapabilityRegistry",
+        "AGENT-CAPABILITY-REGISTRY-001"
+      ],
+      "proofRefs": [
+        "process:pillar-4-system-capabilities-check",
+        "process:agent-capability-registry-check"
+      ],
+      "approvalBoundary": {
+        "approvedNow": false,
+        "requiredBeforeUse": [
+          "PILLAR-5 agent inventory",
+          "agent runtime template",
+          "explicit runtime approval before side effects"
+        ],
+        "note": "Agent capability rows are declarations, not live agent runtime approval."
+      },
+      "counts": {
+        "agents": 2,
+        "capabilities": 2,
+        "claims": 3
+      },
+      "nextAction": "Use PILLAR-5 to generate the detailed agent inventory from this registry and old-system audit truth.",
+      "blocking": false,
+      "metadata": {
+        "liveAgentRuntimeStarted": false,
+        "externalWritesStarted": false
+      }
+    }
+  ],
+  "contentSha256": "3cb649ab4953597378c0d31e34f69d0eb0649278b357a76c4775a7ac0a081c25"
+}
