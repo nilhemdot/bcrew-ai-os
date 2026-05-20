@@ -123,6 +123,7 @@
     "process:source-019-check": "node --env-file-if-exists=.env scripts/process-source-019-check.mjs",
     "process:source-020-check": "node --env-file-if-exists=.env scripts/process-source-020-check.mjs",
     "process:data-002-check": "node --env-file-if-exists=.env scripts/process-data-002-check.mjs",
+    "process:memory-003-conversation-archive-check": "node --env-file-if-exists=.env scripts/process-memory-003-conversation-archive-check.mjs",
     "process:nightly-audit-scheduler-due-fix-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-scheduler-due-fix-check.mjs",
     "process:nightly-audit-run-proof-check": "node --env-file-if-exists=.env scripts/process-nightly-audit-run-proof-check.mjs",
     "process:system-health-nightly-audit-check": "node --env-file-if-exists=.env scripts/process-system-health-nightly-audit-check.mjs",

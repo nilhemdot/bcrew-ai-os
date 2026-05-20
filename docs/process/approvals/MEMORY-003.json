@@ -1,0 +1,26 @@
+{
+  "approvalSchemaVersion": 2,
+  "cardId": "MEMORY-003",
+  "score": 9.8,
+  "approvedBy": "Steve",
+  "approvedAt": "2026-05-19T19:55:00-04:00",
+  "approvalSource": "Steve approved continuing the Foundation gold-capture sprint after carding/stabbing the discussed work.",
+  "notes": "Approved as the first gold-capture sprint card. Build the conversation archive model and generated manifest without reading local-only private memory, uploading chats, running models, or mutating external/source systems.",
+  "approvedPlanRef": "docs/process/memory-003-conversation-archive-plan.md",
+  "approvedPlanSha256": "7cdafdc8d2ede7fccd7f5333b2a5c97e1913a99e934d5a1d24441db3e963e405",
+  "approvedRepoHead": "e1564008d89210c21fa9d0471accd8eaa2341f61",
+  "approvedChanges": [
+    "Add reusable conversation archive model with fidelity classes and privacy rules.",
+    "Generate metadata-only conversation archive manifest and README.",
+    "Add focused proof and closeout wiring for MEMORY-003.",
+    "Advance Current Sprint to MEMORY-004 after archive closeout."
+  ],
+  "notNext": [
+    "No MEMORY-004 lessons/IP extraction before the archive model closes.",
+    "No private local memory, MEMORY.md, USER.md, raw chat database, token, or private runtime-state ingestion.",
+    "No private chat upload to external providers or model summarization over private chats.",
+    "No source-system, Drive permission, credential, provider config, external-send, or public-exposure mutation.",
+    "No Value Builder split."
+  ],
+  "approvalDigest": "8a88cfe7bdf8e7e671a56df7460bb5e460d211d7f9a9662fc757c66bde1a62f2"
+}
